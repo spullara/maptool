@@ -53,7 +53,12 @@ public class OutlookPanel extends JPanel {
         setLayout(null);
     }
     
-    public void addButton(String label, JComponent component) {
+    /**
+     * @param label
+     * @param component
+     * @return index of the button
+     */
+    public int addButton(String label, JComponent component) {
         // Create the button
         JButtonEx button = new JButtonEx(label, m_compList.size(), component);
         button.addActionListener(new ActionListener() {
@@ -79,6 +84,7 @@ public class OutlookPanel extends JPanel {
         }
         
         repaint();
+        return m_compList.size() - 1;
     }
 
     public int getButtonCount() {
