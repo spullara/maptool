@@ -502,8 +502,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
                 && y >= offsetY && y < offsetY + image.getHeight(this) * scale) {
             
             // Translate
-            x -= offsetX;
-            y -= offsetY;
+            x -= offsetX + (int) (zone.getGridOffsetX() * scaleArray[scaleIndex]);
+            y -= offsetY + (int) (zone.getGridOffsetY() * scaleArray[scaleIndex]);
             
             // Scale
             x = (int)(x / (zone.getGridSize() * scale));
