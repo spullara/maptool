@@ -179,6 +179,10 @@ public class MapToolClient extends JFrame {
         
 	}
 	
+	public ZoneSelectionPanel getZoneSelectionPanel() {
+		return zoneSelectionPanel;
+	}
+	
     public static void addAssetTree(AssetTree tree) {
         
         instance.assetPanel.addButton(tree.getTreeName(),  tree);
@@ -324,11 +328,17 @@ public class MapToolClient extends JFrame {
 		
 		JMenuBar menuBar = new JMenuBar();
 
+        // ASSET
+        JMenu actionMenu = new JMenu("Assets");
+        actionMenu.add(new JMenuItem(ClientActions.ADD_ASSET_PANEL));
+        
 		// FILE
 		JMenu fileMenu = new JMenu("File");
 		fileMenu.add(new JMenuItem(ClientActions.LOAD_MAP));
+        fileMenu.add(actionMenu);
 		fileMenu.add(new JMenuItem(ClientActions.EXIT));
 
+		
 //		// SERVER
 //		JMenu serverMenu = new JMenu("Server");
 //		JMenuItem connectToServerMenuItem = new JMenuItem(ClientActions.CONNECT_TO_SERVER);
@@ -337,19 +347,15 @@ public class MapToolClient extends JFrame {
 //		serverMenu.add(connectToServerMenuItem);
 //		serverMenu.add(startServerMenuItem);
 		
-        // ACTION
-        JMenu actionMenu = new JMenu("Action");
-        actionMenu.add(new JMenuItem(ClientActions.ADD_ASSET_PANEL));
-        
         // VIEW
         JMenu viewMenu = new JMenu("View");
         viewMenu.add(new JMenuItem(ClientActions.TOGGLE_GRID));
+        viewMenu.add(new JMenuItem(ClientActions.TOGGLE_ZONE_SELECTOR));
         
         // ASSEMBLE
 		menuBar.add(fileMenu);
 //		menuBar.add(serverMenu);
         menuBar.add(viewMenu);
-        menuBar.add(actionMenu);
 
 		return menuBar;
 	}

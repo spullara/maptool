@@ -68,6 +68,21 @@ public class ClientActions {
         }
     };
 
+    public static final Action TOGGLE_ZONE_SELECTOR = new ClientAction() {
+
+        {
+            putValue(Action.NAME, "Toggle Zone Selector");
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0));
+        }
+
+        public void execute(ActionEvent e) {
+        	
+        	ZoneSelectionPanel panel = MapToolClient.getInstance().getZoneSelectionPanel();
+        	
+        	panel.setVisible(!panel.isVisible());
+        }
+    };
+
     public static final Action START_SERVER = new ClientAction() {
 
         {
@@ -224,6 +239,7 @@ public class ClientActions {
         
         {
             putValue(Action.NAME, "Add Asset Panel");
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_MASK));
         }
         
         public void execute(ActionEvent e) {
