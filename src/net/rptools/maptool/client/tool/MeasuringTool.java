@@ -158,7 +158,7 @@ public class MeasuringTool extends Tool implements MouseListener, MouseMotionLis
 			Point startCell = renderer.getCellAt(dragStartX, dragStartY);
 			Point endCell = renderer.getCellAt(currX, currY);
 
-			String distString = new ZoneMeasurement(renderer.getZone().getFeetPerCell(), false).formatDistanceBetween(startCell, endCell);
+			String distString = new ZoneMeasurement(renderer.getZone().getFeetPerCell(), true).formatDistanceBetween(startCell, endCell);
 
 			// Calc Locations
 			FontMetrics fm = g.getFontMetrics();
