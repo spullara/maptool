@@ -379,14 +379,25 @@ public class ClientActions {
 
         public final void actionPerformed(ActionEvent e) {
 
-            execute(e);
+    		execute(e);
         }
 
         public abstract void execute(ActionEvent e);
 
-        public void runBackground(Runnable r) {
+        public void runBackground(final Runnable r) {
 
-            new Thread(r).start();
+            new Thread(){
+            	
+            	public void run() {
+            		
+            		try {
+            			MapToolClient.getInstance().startIndeterminateAction();
+            			r.run();
+            		} finally {
+            			MapToolClient.getInstance().endIndeterminateAction();
+            		}
+            	}
+            }.start();
         }
     }
 }

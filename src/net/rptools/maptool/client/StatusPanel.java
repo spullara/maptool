@@ -66,6 +66,7 @@ public class StatusPanel extends JPanel {
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.gridwidth = 1;
 		constraints.gridheight = 1;
+		constraints.fill = GridBagConstraints.BOTH;
 		
 		constraints.gridx = nextPos;
 		

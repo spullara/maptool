@@ -45,10 +45,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import net.rptools.clientserver.ActivityListener;
+import net.rptools.clientserver.ActivityListener.Direction;
+import net.rptools.clientserver.ActivityListener.State;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.client.swing.ColorPickerButton;
 import net.rptools.maptool.client.swing.JSplitPaneEx;
 import net.rptools.maptool.client.swing.OutlookPanel;
+import net.rptools.maptool.client.swing.ProgressStatusBar;
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.MeasuringTool;
@@ -130,6 +134,7 @@ public class MapToolClient extends JFrame {
 
 	private StatusPanel statusPanel;
 	private ActivityMonitorPanel activityMonitor = new ActivityMonitorPanel();
+	private ProgressStatusBar progressBar = new ProgressStatusBar();
 	
 	public static void showError(String message) {
 		JOptionPane.showMessageDialog(instance, message, "Error", JOptionPane.ERROR_MESSAGE);
@@ -155,6 +160,7 @@ public class MapToolClient extends JFrame {
         assetPanel.addButton("Connections", playerList);
         
         statusPanel = new StatusPanel();
+        statusPanel.addPanel(progressBar);
         statusPanel.addPanel(activityMonitor);
         
         // TODO: Clean up this whole section
@@ -192,7 +198,27 @@ public class MapToolClient extends JFrame {
         
 	}
 	
-	public void addPlayer(Player player) {
+    public void startIndeterminateAction() {
+    	progressBar.startIndeterminate();
+    }
+    
+    public void endIndeterminateAction() {
+    	progressBar.endIndeterminate();
+    }
+    
+    public void startDeterminateAction(int totalWork) {
+    	progressBar.startDeterminate(totalWork);
+    }
+    
+    public void updateDeterminateActionProgress(int additionalWorkCompleted) {
+    	progressBar.updateDeterminateProgress(additionalWorkCompleted);
+    }
+    
+    public void endDeterminateAction() {
+    	progressBar.endDeterminate();
+    }
+    
+    public void addPlayer(Player player) {
 		
 		System.out.println("Adding player:" + player);
 		playerList.add(player);
@@ -297,6 +323,7 @@ public class MapToolClient extends JFrame {
     	this.conn = new MapToolClientConnection(host, port, player); // TODO: I don't like passing in null here, perhaps another constructor ?
         this.conn.addMessageHandler(handler);
         this.conn.addActivityListener(activityMonitor);
+        this.conn.addActivityListener(new ActivityProgressListener());
         
         this.conn.start();
     }
@@ -380,15 +407,6 @@ public class MapToolClient extends JFrame {
         fileMenu.addSeparator();
 		fileMenu.add(new JMenuItem(ClientActions.EXIT));
 
-		
-//		// SERVER
-//		JMenu serverMenu = new JMenu("Server");
-//		JMenuItem connectToServerMenuItem = new JMenuItem(ClientActions.CONNECT_TO_SERVER);
-//		JMenuItem startServerMenuItem = new JMenuItem(ClientActions.START_SERVER);
-//		
-//		serverMenu.add(connectToServerMenuItem);
-//		serverMenu.add(startServerMenuItem);
-		
         // VIEW
         JMenu zoomMenu = new JMenu("Zoom");
         zoomMenu.add(new JMenuItem(ClientActions.ZOOM_IN));
@@ -469,5 +487,19 @@ public class MapToolClient extends JFrame {
 		// TODO: Find a better way to show this on startup (something that is easier to re-use on disconnect)
 		MainMenuDialog dialog = new MainMenuDialog();
 		dialog.setVisible(true);
+	}
+	
+	private class ActivityProgressListener implements ActivityListener {
+		/* (non-Javadoc)
+		 * @see net.rptools.clientserver.ActivityListener#notify(net.rptools.clientserver.ActivityListener.Direction, net.rptools.clientserver.ActivityListener.State, int, int)
+		 */
+		public void notify(Direction direction, State state, int total, int current) {
+
+			if (state == State.Start) {
+				MapToolClient.getInstance().startIndeterminateAction();
+			} else if (state == State.Complete) {
+				MapToolClient.getInstance().endIndeterminateAction();
+			}
+		}
 	}
 }
