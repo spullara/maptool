@@ -59,6 +59,7 @@ import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.util.FileUtil;
+import net.rptools.maptool.util.ImageUtil;
 
 
 /**
@@ -66,11 +67,12 @@ import net.rptools.maptool.util.FileUtil;
 public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
 
     private static final int MAX_THUMB_WIDTH = 70;
-    private static final int PADDING = 5;
+    private static final int PADDING = 10;
     
     private Map<Rectangle, ZoneRenderer> boundsMap;
     private BufferedImage backBuffer;
     private int lastZoneCount = -1;
+    private ZoneRenderer lastSelectedRenderer;
     
     public ZoneSelectionPanel() {
      
@@ -104,12 +106,15 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
         
         Dimension mySize = getSize();
         List<ZoneRenderer> rendererList = MapToolClient.getZoneRenderers();
-
+        ZoneRenderer currentRenderer = MapToolClient.getCurrentZoneRenderer();
+        
         if (backBuffer == null || rendererList.size() != lastZoneCount ||
         		backBuffer.getWidth() != mySize.width ||
-        		backBuffer.getHeight() != mySize.height) {
+        		backBuffer.getHeight() != mySize.height ||
+        		lastSelectedRenderer != currentRenderer) {
         	
         	lastZoneCount = rendererList.size();
+        	lastSelectedRenderer = currentRenderer;
 
 	        if (backBuffer == null) {
 	        	backBuffer = getGraphicsConfiguration().createCompatibleImage(mySize.width, mySize.height, Transparency.TRANSLUCENT);
@@ -120,6 +125,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
 	        	backG = backBuffer.getGraphics();
 	        	
 		        // Background
+	        	ImageUtil.clearImage(backBuffer);
 	        	backG.setColor(new Color(1.0f, 1.0f, 1.0f, 0.5f));
 	        	backG.fillRect(0, 0, mySize.width, mySize.height);
 
@@ -148,8 +154,10 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
 		            // TODO: handle "still too wide" case
 		            
 		            backG.drawImage(img, x, PADDING, width, height, this);
-		            backG.setColor(Color.black);
-		            backG.drawRect(x, PADDING, width, height);
+		            
+		            if (renderer == currentRenderer) {
+		            	ClientStyle.selectedBorder.paintAround((Graphics2D)backG, x, PADDING, width, height);
+		            }
 		            
 		            boundsMap.put(new Rectangle(x, PADDING, width, height), renderer);
 		            
