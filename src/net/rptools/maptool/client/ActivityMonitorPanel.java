@@ -116,12 +116,10 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 				
 				switch(state) {
 				case Start: {
-					System.out.println("REC:T");
 					receiving = true;
 					break;
 				}
 				case Complete: {
-					System.out.println("REC:F");
 					receiving = false;
 					break;
 				}
@@ -133,12 +131,10 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 				
 				switch(state) {
 				case Start: {
-					System.out.println("TRANS:T");
 					transmitting = true;
 					break;
 				}
 				case Complete: {
-					System.out.println("TRANS:F");
 					transmitting = false;
 					break;
 				}
