@@ -50,7 +50,7 @@ public class GridTool extends Tool implements MouseListener, MouseMotionListener
 
 	public GridTool () {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/grid.jpg"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/grid.gif"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

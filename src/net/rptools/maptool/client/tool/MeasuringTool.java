@@ -73,7 +73,7 @@ public class MeasuringTool extends Tool implements MouseListener, MouseMotionLis
 	
 	public MeasuringTool () {
 		try {
-			setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Select.jpg"))));
+			setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Measure.gif"))));
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

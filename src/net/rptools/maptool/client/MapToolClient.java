@@ -33,14 +33,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.UIManager;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
@@ -52,15 +54,15 @@ import net.rptools.maptool.client.tool.MeasuringTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
 import net.rptools.maptool.client.tool.drawing.LineTool;
+import net.rptools.maptool.client.tool.drawing.OvalFillTool;
 import net.rptools.maptool.client.tool.drawing.OvalTool;
+import net.rptools.maptool.client.tool.drawing.RectangleFillTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
-import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.MapToolServer;
-
 
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 
@@ -297,9 +299,15 @@ public class MapToolClient extends JFrame {
         toolbox.addTool(new FreehandTool());
         toolbox.addTool(new LineTool());
         toolbox.addTool(new RectangleTool());
+        toolbox.addTool(new RectangleFillTool());
         toolbox.addTool(new OvalTool());
-		
-		return toolbox;
+        toolbox.addTool(new OvalFillTool());
+        
+        toolbox.add(ClientActions.CHOOSE_COLOR);
+        
+        toolbox.add(ClientActions.CHOOSE_BACKGROUND_COLOR);
+
+        return toolbox;
 	}
 	
 	private JMenuBar createMenuBar() {
@@ -327,19 +335,11 @@ public class MapToolClient extends JFrame {
         JMenu viewMenu = new JMenu("View");
         viewMenu.add(new JMenuItem(ClientActions.TOGGLE_GRID));
         
-        // DRAWING
-        JMenu drawingMenu = new JMenu("Drawing");
-        drawingMenu.add(new JMenuItem(ClientActions.CHOOSE_COLOR));
-        drawingMenu.add(new JCheckBoxMenuItem(ClientActions.FOREGROUND_MODE));
-        drawingMenu.add(new JMenuItem(ClientActions.CHOOSE_BACKGROUND_COLOR));
-        drawingMenu.add(new JCheckBoxMenuItem(ClientActions.BACKGROUND_MODE));
-        
         // ASSEMBLE
 		menuBar.add(fileMenu);
 //		menuBar.add(serverMenu);
         menuBar.add(viewMenu);
         menuBar.add(actionMenu);
-        menuBar.add(drawingMenu);
 
 		return menuBar;
 	}

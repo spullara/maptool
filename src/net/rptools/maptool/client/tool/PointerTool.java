@@ -63,7 +63,7 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 	
 	public PointerTool () {
 		try {
-			setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Select.jpg"))));
+			setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Select.gif"))));
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

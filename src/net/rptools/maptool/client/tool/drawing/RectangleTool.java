@@ -53,11 +53,11 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
     private int currentX;
     private int currentY;
 
-    private Rectangle rectangle;
+    protected Rectangle rectangle;
     
     public RectangleTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Rect.jpg"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Rect.gif"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -127,5 +127,15 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 	        zoneRenderer.repaint();
     	}
     }
+
+    /* (non-Javadoc)
+	 * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#getPen()
+	 */
+	protected Pen getPen() {
+		Pen pen = super.getPen();
+        pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
+
+		return pen;
+	}
 
 }

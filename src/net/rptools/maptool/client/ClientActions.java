@@ -31,8 +31,10 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
@@ -260,6 +262,12 @@ public class ClientActions {
     public static final Action CHOOSE_COLOR  = new ClientAction () {
         {
             putValue(Action.NAME, "Choose Color");
+            
+            try {
+            	putValue(Action.SMALL_ICON, new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Colorpicker.gif"))));
+            } catch (IOException ioe) {
+            	// Don't show an icon
+            }
         }
         
         public void execute(ActionEvent ae) {
@@ -273,26 +281,15 @@ public class ClientActions {
         }
     };
     
-    public static final Action FOREGROUND_MODE = new ClientAction() {
-        {
-            putValue(Action.NAME, "Transparent Foreground");
-        }
-        
-        public void execute(ActionEvent ae) {
-            Pen pen = MapToolClient.getInstance().getPen();
-            JCheckBoxMenuItem item = (JCheckBoxMenuItem) ae.getSource();
-            
-            if (item.isSelected()) {
-                pen.setForegroundMode(Pen.MODE_TRANSPARENT);
-            } else {
-                pen.setForegroundMode(Pen.MODE_SOLID);
-            }
-        }
-    };
-    
     public static final Action CHOOSE_BACKGROUND_COLOR = new ClientAction() {
         {
             putValue(Action.NAME, "Choose Background Color");
+            
+            try {
+            	putValue(Action.SMALL_ICON, new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Colorpicker.gif"))));
+            } catch (IOException ioe) {
+            	// Don't show an icon
+            }
         }
         
         public void execute(ActionEvent ae) {
@@ -305,24 +302,6 @@ public class ClientActions {
             }
         }
     };
-    
-    public static final Action BACKGROUND_MODE = new ClientAction() {
-        {
-            putValue(Action.NAME, "Transparent Background");
-        }
-        
-        public void execute(ActionEvent ae) {
-            Pen pen = MapToolClient.getInstance().getPen();
-            JCheckBoxMenuItem item = (JCheckBoxMenuItem) ae.getSource();
-            
-            if (item.isSelected()) {
-                pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
-            } else {
-                pen.setBackgroundMode(Pen.MODE_SOLID);
-            }
-        }
-    };
-    
     
     private static abstract class ClientAction extends AbstractAction {
 

@@ -53,11 +53,11 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
     private int currentX;
     private int currentY;
 
-    private Oval oval;
+    protected Oval oval;
     
     public OvalTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Circle.jpg"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Circle.gif"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -71,7 +71,6 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
                 pen = new Pen(pen);
                 pen.setEraser(false);
                 pen.setColor(Color.white.getRGB());
-                pen.setBackgroundColor(Color.white.getRGB());
             }
 
             oval.draw(g, pen);
@@ -135,5 +134,15 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 	        zoneRenderer.repaint();
     	}
     }
+    
+    /* (non-Javadoc)
+	 * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#getPen()
+	 */
+	protected Pen getPen() {
+		Pen pen = super.getPen();
+        pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
+
+		return pen;
+	}
 
 }
