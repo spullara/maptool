@@ -50,6 +50,8 @@ import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.ActivityListener.Direction;
 import net.rptools.clientserver.ActivityListener.State;
 import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.clientserver.simple.AbstractConnection;
+import net.rptools.clientserver.simple.DisconnectHandler;
 import net.rptools.maptool.client.swing.ColorPickerButton;
 import net.rptools.maptool.client.swing.JSplitPaneEx;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
@@ -328,6 +330,16 @@ public class MapToolClient extends JFrame {
         this.conn.addMessageHandler(handler);
         this.conn.addActivityListener(activityMonitor);
         this.conn.addActivityListener(new ActivityProgressListener());
+        
+        this.conn.addDisconnectHandler(new DisconnectHandler() {
+        	
+        	// TODO: Put this in a better place
+			public void handleDisconnect(AbstractConnection conn) {
+
+				showError("Server has disconnected.");
+				new MainMenuDialog().setVisible(true);
+			}
+        });
         
         this.conn.start();
     }

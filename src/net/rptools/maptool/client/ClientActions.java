@@ -164,9 +164,6 @@ public class ClientActions {
                 		return;
                 	}
                 	
-                	// TODO: I don't like this here
-                	CONNECT_TO_SERVER.setEnabled(false);
-                	
 				}
         	});
         }
