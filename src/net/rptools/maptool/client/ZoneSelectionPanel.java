@@ -108,6 +108,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
         		backBuffer.getHeight() != mySize.height) {
         	
         	lastZoneCount = rendererList.size();
+        	System.out.println ("Rendering zone selector: " + lastZoneCount);
 	        if (backBuffer == null) {
 	        	backBuffer = getGraphicsConfiguration().createCompatibleImage(mySize.width, mySize.height, Transparency.TRANSLUCENT);
 	        }
@@ -132,6 +133,8 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
 		            // TODO: This is a naive solution.  In the future, actually render the zone
 		            BufferedImage img = renderer.getBackgroundImage();
 		            if (img == null) {
+		            	// Force a redraw later
+		            	lastZoneCount = -1;
 		                continue;
 		            }
 		            
