@@ -25,6 +25,8 @@
 package net.rptools.maptool.client.tool;
 
 import java.awt.Point;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -47,7 +49,7 @@ import net.rptools.maptool.model.Token;
 
 /**
  */
-public class PointerTool extends Tool implements MouseListener, MouseWheelListener, MouseMotionListener {
+public class PointerTool extends Tool implements MouseListener, MouseWheelListener, MouseMotionListener, KeyListener {
     private static final long serialVersionUID = 3258411729238372921L;
     
     private boolean isDraggingMap;
@@ -192,4 +194,20 @@ public class PointerTool extends Tool implements MouseListener, MouseWheelListen
 			renderer.moveViewBy(dx, dy);
 		}
 	}	
+	
+	////
+	// KEY LISTENER
+	public void keyPressed(java.awt.event.KeyEvent e){}
+	
+	public void keyReleased(java.awt.event.KeyEvent e){}
+	
+	public void keyTyped(java.awt.event.KeyEvent e){
+		
+		System.out.println (e.getKeyChar());
+		switch (e.getKeyChar()) {
+		
+		case KeyEvent.VK_DELETE:
+			System.out.println ("Delete");
+		}
+	}
 }
