@@ -35,4 +35,6 @@ public class ClientStyle {
     
 	public static ImageBorder selectedBorder = new ImageBorder("net/rptools/maptool/client/image/border/selected");
 	
+	public static ImageBorder boardBorder = new ImageBorder("net/rptools/maptool/client/image/border/board");
+	
 }

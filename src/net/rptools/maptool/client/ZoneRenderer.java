@@ -332,6 +332,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
         g.setColor(Color.black);
         g.fillRect(0, 0, size.width, size.height);
 
+        float scale = scaleArray[scaleIndex];
+        int w = (int)(width * scale);
+        int h = (int)(height * scale);
+
         if (zone == null) { return; }
 
         Image background = getBackgroundImage();
@@ -342,10 +346,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
     	renderBackBuffer(g);
         BufferedImage drawableLayer = getDrawableOverlay();
         if (drawableOverlay != null) {
-            float scale = scaleArray[scaleIndex];
-            int w = (int)(width * scale);
-            int h = (int)(height * scale);
-
             g.drawImage(drawableLayer, offsetX, offsetY, w, h, this);
         }
         
@@ -354,6 +354,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
         for (ZoneOverlay overlay : overlayList) {
             overlay.paintOverlay(this, (Graphics2D) g);
         }
+        
+        ClientStyle.boardBorder.paintAround((Graphics2D) g, offsetX, offsetY, w, h);
     }
     
     private void renderBackBuffer(Graphics g) {
