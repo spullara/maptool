@@ -34,7 +34,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,6 +55,7 @@ import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.Tool;
 import net.rptools.maptool.client.ZoneOverlay;
 import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.client.swing.TitleMenuItem;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
@@ -63,8 +66,9 @@ import net.rptools.maptool.model.TokenSize;
  */
 public class PointerTool extends Tool implements MouseListener, MouseMotionListener, ZoneOverlay {
     private static final long serialVersionUID = 3258411729238372921L;
-    
+
     private boolean isDraggingMap;
+    private boolean isDraggingToken;
 	private int dragStartX;
 	private int dragStartY;
 	
@@ -87,6 +91,7 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 	public void mousePressed(MouseEvent e) {
 
         isDraggingMap = false;
+        isDraggingToken = false;
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
         
         if (e.isPopupTrigger()) {
@@ -98,9 +103,7 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
         }
 
         if (SwingUtilities.isLeftMouseButton(e)) {
-			
-			renderer.clearSelectedTokens();
-			
+
 			// Token
 			Token token = renderer.getTokenAt (e.getX(), e.getY());
 			if (token != null) {
@@ -127,7 +130,15 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
         	return;
         }
         
+        Token token = renderer.getTokenAt(e.getX(), e.getY());
+        if (!isDraggingToken && !SwingUtil.isShiftDown(e)) {
+        	renderer.clearSelectedTokens();
+        	renderer.selectToken(token);
+        }
+        	
+        
 		isDraggingMap = false;
+		isDraggingToken = false;
 	}
 	
 	/* (non-Javadoc)
@@ -200,25 +211,26 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 			// Might be dragging a token
 			Point cell = renderer.getCellAt(e.getX(), e.getY());
 			Set<Token> selectedTokenSet = renderer.getSelectedTokenSet();
-			if (selectedTokenSet.size() > 0) {
+			if (selectedTokenSet.size() > 0 && cell != null) {
 				
-				for (Token token : selectedTokenSet) {
+				Point origin = new Point(tokenUnderMouse.getX(), tokenUnderMouse.getY());
 
-					if (cell != null) {
-						
-						if (token.getX() == cell.x && token.getY() == cell.y) {
-							continue;
-						}
-						token.setX(cell.x);
-						token.setY(cell.y);
+				// Only on change
+				if (origin.x != cell.x || origin.y != cell.y) {
 
+					isDraggingToken = true;
+					for (Token token : selectedTokenSet) {
+
+						token.setX(cell.x + (token.getX() - origin.x));
+						token.setY(cell.y + (token.getY() - origin.y));
+	
 						// TODO: this needs to be better abstracted
 						if (MapToolClient.isConnected()) {
 							ClientConnection conn = MapToolClient.getInstance().getConnection();
 							
 							conn.callMethod(MapToolClient.COMMANDS.putToken.name(), renderer.getZone().getId(), token);
 						}
-
+	
 						renderer.getZone().putToken(token);
 						renderer.repaint();
 					}
