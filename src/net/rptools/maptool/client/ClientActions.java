@@ -156,7 +156,7 @@ public class ClientActions {
                 		MapToolClient.startServer(port);
 
                 		// Connect to server
-                        MapToolClient.getInstance().createConnection("localhost", port, new Player(dialog.getUsername(), Player.Role.GM));
+                        MapToolClient.getInstance().createConnection("localhost", port, new Player(dialog.getUsername(), Player.Role.ADMIN));
                 		
                 	} catch (UnknownHostException uh) {
                 		MapToolClient.showError("Whoah, 'localhost' is not a valid address.  Weird.");
