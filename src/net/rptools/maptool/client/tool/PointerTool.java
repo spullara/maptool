@@ -291,29 +291,27 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
     	popup.add(title);
     	
     	// TODO: Genericize the heck out of this.
-    	JMenu size = new JMenu("Size");
+    	JMenu sizeMenu = new JMenu("Size");
     	JMenuItem freeSize = new JMenuItem("Free Size");
     	freeSize.setEnabled(false);
-    	JMenuItem small = new JMenuItem(new ChangeSizeAction("Small", TokenSize.SMALL));
-    	JMenuItem normal = new JMenuItem(new ChangeSizeAction("Normal", TokenSize.NORMAL));
-    	JMenuItem large = new JMenuItem(new ChangeSizeAction("Large", TokenSize.LARGE));
-
-    	size.add(freeSize);
-    	size.addSeparator();
-    	size.add(small);
-    	size.add(normal);
-    	size.add(large);
-    	
-    	popup.add(size);
+        sizeMenu.add(freeSize);
+        sizeMenu.addSeparator();
+        
+        for (TokenSize.Size size : TokenSize.Size.values()) {
+            JMenuItem menuItem = new JMenuItem(new ChangeSizeAction(size.name(), size));
+            sizeMenu.add(menuItem);
+        }
+        
+    	popup.add(sizeMenu);
 
     	popup.show((ZoneRenderer)e.getSource(), e.getX(), e.getY());
 	}
 	
 	private class ChangeSizeAction extends AbstractAction {
 		
-		private int size;
+		private TokenSize.Size size;
 		
-		public ChangeSizeAction(String label, int size) {
+		public ChangeSizeAction(String label, TokenSize.Size size) {
 			super(label);
 			this.size = size;
 		}
@@ -326,7 +324,7 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 			ZoneRenderer renderer = MapToolClient.getInstance().getCurrentZoneRenderer();
 			for (Token token : renderer.getSelectedTokenSet()) {
 				
-				token.setSize(size);
+				token.setSize(size.value());
 				if (MapToolClient.isConnected()) {
 					ClientConnection conn = MapToolClient.getInstance().getConnection();
 					

@@ -38,9 +38,9 @@ public class Token {
     private int y;
     
     private boolean snapToScale = true; // Whether the scaleX and scaleY represent snap-to-grid measurements
-    private int sizeX = 1; // Default to using exactly 1x1 grid cell
-    private int sizeY = 1;
-    private int size; // Abstract size
+    private int width = 1; // Default to using exactly 1x1 grid cell
+    private int height = 1;
+    private int size = TokenSize.Size.Medium.value(); // Abstract size
     
     public Token() {
         
@@ -86,26 +86,26 @@ public class Token {
     /**
      * @return Returns the scaleX.
      */
-    public int getSizeX() {
-        return sizeX;
+    public int getWidth() {
+        return width;
     }
     /**
      * @param scaleX The scaleX to set.
      */
-    public void setSizeX(int sizeX) {
-        this.sizeX = sizeX;
+    public void setWidth(int width) {
+        this.width = width;
     }
     /**
      * @return Returns the sizeY.
      */
-    public int getSizeY() {
-        return sizeY;
+    public int getHeight() {
+        return height;
     }
     /**
-     * @param sizeY The sizeY to set.
+     * @param height The sizeY to set.
      */
-    public void setSizeY(int sizeY) {
-        this.sizeY = sizeY;
+    public void setHeight(int height) {
+        this.height = height;
     }
     /**
      * @return Returns the snapScale.

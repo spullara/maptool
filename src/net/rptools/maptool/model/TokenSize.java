@@ -28,34 +28,56 @@ package net.rptools.maptool.model;
  * @author trevor
  */
 public class TokenSize {
+    
+    public static enum Size {
+        Fine(0, 0.5f, 0.5f),
+        Diminutive(1, 0.5f, 0.5f),
+        Tiny(2, 0.5f, 0.5f),
+        Small(3, 0.75f, 0.75f),
+        Medium(4, 1, 1),
+        Large(5, 2, 2),
+        Huge(6, 3, 3),
+        Gargantuan(7, 4, 4),
+        Colossal(8, 6, 6);
+        
+        private final int value;
+        private final float widthFactor;
+        private final float heightFactor;
+        
+        private Size(int value, float widthFactor, float heightFactor) {
+            this.value = value;
+            this.widthFactor = widthFactor;
+            this.heightFactor = heightFactor;
+        }
+        
+        public int value() { return value; }
+        public float widthFactor() { return widthFactor; }
+        public float heightFactor() { return heightFactor; }
+    }
 
 	// This is a enum hack since enums aren't serializable
-	public static final int NORMAL = 0;
-	public static final int SMALL = 1;
-	public static final int LARGE = 2;
-	
-	private static final float [][] SIZE_TABLE = new float[][] {
-		
-		{1, 1}, // NORMAL - needs to be at index 0
-		{.5F, .5F}, // SMALL
-		{2, 2} // LARGE
-	};
-
 	// TODO: I don't like the static-ness of this, use some sort of enum or something
 	public static int getWidth(Token token, int gridSize) {
-		return getSize(token, gridSize, 0);
+        if (!token.isSnapToScale()) return token.getWidth();
+        Size size = getSizeInstance(token.getSize());
+        
+        return (int) (size.widthFactor() * gridSize);
 	}
 	
 	public static int getHeight(Token token, int gridSize) {
-		return getSize(token, gridSize, 1);
+        if (!token.isSnapToScale()) return token.getHeight();
+        Size size = getSizeInstance(token.getSize());
+        
+        return (int) (size.heightFactor() * gridSize);
 	}
 	
-	private static int getSize(Token token, int gridSize, int direction) {
-		
-		if (token.isSnapToScale()) {
-			return (int)(SIZE_TABLE[token.getSize()][direction] * gridSize);
-		}
-
-		return direction == 0 ? token.getSizeX() : token.getSizeY(); 
-	}
+    private static Size getSizeInstance(int size) {
+        Size[] sizes = Size.values();
+        for (int i = 0; i < sizes.length; i++) {
+            if (sizes[i].value() == size)
+                return sizes[i];
+        }
+        
+        return Size.Medium;
+    }
 }
