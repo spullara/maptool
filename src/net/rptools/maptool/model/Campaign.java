@@ -30,6 +30,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.rptools.maptool.util.MD5Key;
+
 
 /**
  * This object contains {@link Zone}s and {@link Asset}s that make up a campaign.
@@ -63,5 +65,27 @@ public class Campaign {
     public void removeZone(GUID id) {
         zones.remove(id);
     }
+
+    public boolean containsAsset(Asset asset) {
+    	return containsAsset(asset.getId());
+    }
     
+    public boolean containsAsset(MD5Key key) {
+    	
+    	for (Zone zone : zones.values()) {
+    		
+    		if (zone.getAssetID().equals(key)) {
+    			return true;
+    		}
+    		
+    		for (Token token : zone.getTokens()) {
+    			
+    			if (token.getAssetID().equals(key)) {
+    				return true;
+    			}
+    		}
+    	}
+    	
+    	return false;
+    }
 }

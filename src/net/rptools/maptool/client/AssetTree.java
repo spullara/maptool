@@ -144,12 +144,7 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
         
         Image img = ImageManager.getImage(selectedAsset);
         
-        Transferable transferable = null;
-        if (AssetManager.getAsset(selectedAsset.getId()) == null) {
-        	transferable = new TransferableAsset(selectedAsset);
-        } else {
-        	transferable = new TransferableAssetReference(selectedAsset);
-        }
+        Transferable transferable = new TransferableAsset(selectedAsset);
         
         dge.startDrag(Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(0, 0), "Thumbnail"), transferable, this);
     }

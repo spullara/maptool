@@ -116,10 +116,12 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 				switch(state) {
 				case Start: {
 					receiving = true;
+					repaint();
 					break;
 				}
 				case Complete: {
 					receiving = false;
+					repaint();
 					break;
 				}
 				default: return;
@@ -131,10 +133,12 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 				switch(state) {
 				case Start: {
 					transmitting = true;
+					repaint();
 					break;
 				}
 				case Complete: {
 					transmitting = false;
+					repaint();
 					break;
 				}
 				default: return;
@@ -142,6 +146,5 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 			}
 		}
 		
-		repaint();
 	}
 }

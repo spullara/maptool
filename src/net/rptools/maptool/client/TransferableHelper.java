@@ -51,9 +51,22 @@ public class TransferableHelper {
 	
         } catch (Exception e) {
         	System.out.println ("Could not retrieve asset: " + e);
+        	return null;
         }
 
-		return asset;
+        if (!AssetManager.hasAsset(asset)) {
+    		AssetManager.putAsset(asset);
+        }
+        
+        // Add it to the server if we need to
+        if (!MapToolClient.getCampaign().containsAsset(asset) && MapToolClient.isConnected()) {
+        	
+            ClientConnection conn = MapToolClient.getInstance().getConnection();
+            
+            conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
+        }
+
+        return asset;
 	}
 
 	private static Asset handleFileList(DropTargetDropEvent dtde, Transferable transferable) throws Exception {
@@ -76,14 +89,6 @@ public class TransferableHelper {
 
         // We only support using one at a time for now
 		Asset asset = new Asset(FileUtil.loadFile(list.get(0)));
-		AssetManager.putAsset(asset);
-        if (MapToolClient.isConnected()) {
-        	
-        	// TODO: abstract this
-            ClientConnection conn = MapToolClient.getInstance().getConnection();
-            
-            conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
-        }
 
         return asset;
 	}
@@ -95,19 +100,6 @@ public class TransferableHelper {
 	
 	private static Asset handleTransferableAsset(Transferable transferable) throws Exception {
 		
-    	Asset asset = null;
-		
-		// Add it to the system
-		asset = (Asset) transferable.getTransferData(TransferableAsset.dataFlavor);
-		AssetManager.putAsset(asset);
-        if (MapToolClient.isConnected()) {
-        	
-        	// TODO: abstract this
-            ClientConnection conn = MapToolClient.getInstance().getConnection();
-            
-            conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
-        }
-    	
-        return asset;
+        return (Asset) transferable.getTransferData(TransferableAsset.dataFlavor);
 	}
 }

@@ -54,6 +54,10 @@ public class AssetManager {
 		}
 	}
 
+	public static boolean hasAsset(Asset asset) {
+		return hasAsset(asset.getId());
+	}
+	
 	public static boolean hasAsset(MD5Key key) {
 		return assetMap.containsKey(key) || assetIsInPersistentCache(key);
 	}
