@@ -24,8 +24,10 @@
  */
 package net.rptools.maptool.client.tool;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -150,19 +152,25 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 		mouseY = e.getY();
 		
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-		if (renderer.getScale() < 1.0) {
 			
-			Token token = renderer.getTokenAt(mouseX, mouseY);
-			
-			if (token == null) {
-				if (tokenUnderMouse != null) {
+		Token token = renderer.getTokenAt(mouseX, mouseY);
+		
+		if (token == null) {
+			if (tokenUnderMouse != null) {
+				if (renderer.getScale() < 1.0) {
 					renderer.unzoomToken(tokenUnderMouse);
-					tokenUnderMouse = null;
 				}
-			} else {
-				if (token != tokenUnderMouse) {
+				tokenUnderMouse = null;
+				renderer.repaint();
+			}
+		} else {
+			if (token != tokenUnderMouse) {
+				if (renderer.getScale() < 1.0) {
 					renderer.unzoomToken(tokenUnderMouse);
-					tokenUnderMouse = token;
+				}
+				tokenUnderMouse = token;
+				renderer.repaint();
+				if (renderer.getScale() < 1.0) {
 					renderer.zoomToken(token);
 				}
 			}
@@ -174,12 +182,12 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 		if (SwingUtilities.isLeftMouseButton(e) && !isDraggingMap) {
 			
 			// Might be dragging a token
+			Point cell = renderer.getCellAt(e.getX(), e.getY());
 			Set<Token> selectedTokenSet = renderer.getSelectedTokenSet();
 			if (selectedTokenSet.size() > 0) {
 				
 				for (Token token : selectedTokenSet) {
 
-					Point cell = renderer.getCellAt(e.getX(), e.getY());
 					if (cell != null) {
 						
 						if (token.getX() == cell.x && token.getY() == cell.y) {
@@ -256,6 +264,16 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 	 */
 	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 
+		if (tokenUnderMouse != null && renderer.getSelectedTokenSet().contains(tokenUnderMouse)) {
+
+			Rectangle rect = renderer.getTokenBounds(tokenUnderMouse);
+			
+			g.setColor(Color.black);
+			g.fillRect(rect.x + rect.width - 10, rect.y + rect.height - 10, 10, 10);
+
+			g.setColor(Color.white);
+			g.fillRect(rect.x + rect.width - 8, rect.y + rect.height - 8, 8, 8);
+		}
 	}
 	
 	////

@@ -502,6 +502,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
     	repaint();
     }
     
+    public Rectangle getTokenBounds(Token token) {
+    	
+    	for (Rectangle rect : tokenBoundsMap.keySet()) {
+    		if (tokenBoundsMap.get(rect) == token) {
+    			return rect;
+    		}
+    	}
+    	
+    	return null;
+    }
+    
 	/**
 	 * Returns the token at screen location x, y (not cell location). To get
 	 * the token at a cell location, use getGameMap() and use that.
