@@ -29,6 +29,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 
 /**
  * Abstract drawing.  This class takes care of setting up the Pen since that
@@ -44,17 +45,12 @@ public abstract class AbstractDrawing implements Drawable {
             pen = Pen.DEFAULT;
         } 
         
+        Stroke oldStroke = g.getStroke(); 
         g.setStroke(new BasicStroke(pen.getThickness(), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
         Composite oldComposite = g.getComposite();
         if (pen.isEraser()) {
         	g.setComposite(AlphaComposite.Clear);
-        }
-
-        if (pen.getForegroundMode() == Pen.MODE_SOLID) {
-            Color color = new Color(pen.getColor());
-        	g.setColor(color);
-            draw(g);
         }
 
         if (pen.getBackgroundMode() == Pen.MODE_SOLID) {
@@ -63,7 +59,14 @@ public abstract class AbstractDrawing implements Drawable {
             drawBackground(g);
         }
         
+        if (pen.getForegroundMode() == Pen.MODE_SOLID) {
+            Color color = new Color(pen.getColor());
+        	g.setColor(color);
+            draw(g);
+        }
+
         g.setComposite(oldComposite);
+        g.setStroke(oldStroke);
     }
     
     protected abstract void draw(Graphics2D g);
