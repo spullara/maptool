@@ -25,6 +25,8 @@
 package net.rptools.maptool.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.AbstractListModel;
@@ -48,6 +50,14 @@ public class PlayerList extends JList {
 	public void add(Player player) {
 		if (!playerList.contains(player)) {
 			playerList.add(player);
+			
+			// LATER: Make this non-anonymous
+			Collections.sort(playerList, new Comparator() {
+				
+				public int compare(Object arg0,Object arg1) {
+					return ((Player) arg0).getName().compareToIgnoreCase(((Player) arg1).getName());
+				}
+			});
 		}
 		((PlayerListModel) getModel()).update();
 	}
