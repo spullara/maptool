@@ -44,6 +44,8 @@ public class Zone extends Token {
     private int gridOffsetX = 0;
     private int gridOffsetY = 0;
     
+    private int feetPerCell = 5;
+    
     private List<DrawnElement> drawables = new LinkedList<DrawnElement>();
 
     private LinkedHashMap<GUID, Token> tokens = new LinkedHashMap<GUID, Token>();
@@ -86,6 +88,14 @@ public class Zone extends Token {
 
     public void setGridSize(int gridSize) {
         this.gridSize = gridSize;
+    }
+    
+    public int getFeetPerCell() {
+    	return feetPerCell;
+    }
+    
+    public void setFeetPerCell(int feetPerCell) {
+    	this.feetPerCell = feetPerCell;
     }
     
     ///////////////////////////////////////////////////////////////////////////

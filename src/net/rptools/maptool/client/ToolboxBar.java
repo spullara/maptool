@@ -100,26 +100,33 @@ public class ToolboxBar extends JToolBar {
                     if (currentRenderer != null) {
     					currentTool.removeListeners(currentRenderer);
     					currentTool.detachFrom(currentRenderer);
+                        
+            			if (currentTool instanceof ZoneOverlay) {
+            				currentRenderer.removeOverlay(null);
+            			}
                     }
-                    
-        			if (currentTool instanceof ZoneOverlay) {
-        				currentRenderer.removeOverlay(null);
-        			}
 
         			currentTool.setSelected(false);
 				}
+
+				// Reset renderer state
+				if (currentRenderer != null) {
+					currentRenderer.setMouseWheelEnabled(true);
+				}
 				
+				// Update
 				currentTool = tool;
 				
 				if (currentTool != null) {
                     if (currentRenderer != null) {
     					currentTool.addListeners(currentRenderer);
     					currentTool.attachTo(currentRenderer);
+    					
+            			if (currentTool instanceof ZoneOverlay) {
+            				currentRenderer.addOverlay((ZoneOverlay) currentTool);
+            			}
                     }
                     
-        			if (currentTool instanceof ZoneOverlay) {
-        				currentRenderer.addOverlay((ZoneOverlay) currentTool);
-        			}
 
 					currentTool.setSelected(true);
 				}

@@ -111,8 +111,9 @@ public abstract class Tool extends JToggleButton {
 		}
 
 		// Keystrokes
-		SwingUtilities.replaceUIActionMap(comp, oldActionMap);
-		SwingUtilities.replaceUIInputMap(comp, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, oldInputMap);
+		// TODO: These cause in infinite loop.  I don't believe they are necessary, but review later
+		//SwingUtilities.replaceUIActionMap(comp, oldActionMap);
+		//SwingUtilities.replaceUIInputMap(comp, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, oldInputMap);
 	}
 	
 	protected void attachTo(ZoneRenderer renderer) {

@@ -48,6 +48,7 @@ import net.rptools.maptool.client.swing.JSplitPaneEx;
 import net.rptools.maptool.client.swing.OutlookPanel;
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.client.tool.GridTool;
+import net.rptools.maptool.client.tool.MeasuringTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
 import net.rptools.maptool.client.tool.drawing.LineTool;
@@ -291,6 +292,7 @@ public class MapToolClient extends JFrame {
 		ToolboxBar toolbox = new ToolboxBar();
 		
 		toolbox.addTool(new PointerTool());
+		toolbox.addTool(new MeasuringTool());
         toolbox.addTool(new GridTool());
         toolbox.addTool(new FreehandTool());
         toolbox.addTool(new LineTool());

@@ -24,15 +24,19 @@
  */
 package net.rptools.maptool.client.tool;
 
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
+import java.awt.geom.AffineTransform;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +51,7 @@ import javax.swing.SwingUtilities;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.Tool;
+import net.rptools.maptool.client.ZoneOverlay;
 import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.model.Token;
 
@@ -54,14 +59,19 @@ import net.rptools.maptool.model.Token;
 
 /**
  */
-public class PointerTool extends Tool implements MouseListener, MouseMotionListener {
-    private static final long serialVersionUID = 3258411729238372921L;
+public class MeasuringTool extends Tool implements MouseListener, MouseMotionListener, ZoneOverlay {
     
-    private boolean isDraggingMap;
+    private boolean isDragging;
 	private int dragStartX;
 	private int dragStartY;
 	
-	public PointerTool () {
+	private int currX;
+	private int currY;
+	
+	private static final int BOX_PADDINGX = 5;
+	private static final int BOX_PADDINGY = 2;
+	
+	public MeasuringTool () {
 		try {
 			setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Select.jpg"))));
 		} catch (IOException ioe) {
@@ -69,40 +79,33 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 		}
 	}
 
+	
 	////
 	// Mouse
 	
 	public void mousePressed(MouseEvent e) {
 
-        isDraggingMap = false;
+        isDragging = false;
         
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			
-			ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-			renderer.clearSelectedTokens();
-			
-			// Token
-			Token token = renderer.getTokenAt (e.getX(), e.getY());
-			if (token != null) {
-				renderer.selectToken(token);
-				return;
-			}
-
-			// Then it's a movement
-            renderer.clearSelectedTokens();
-			isDraggingMap = true; // possibly dragging the map
 			dragStartX = e.getX();
 			dragStartY = e.getY();
+			
+			currX = e.getX();
+			currY = e.getY();
 		}
 	}
 	
 	public void mouseReleased(MouseEvent e) {
+
+		// Mouse wheel can work again
+		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+		renderer.setMouseWheelEnabled(true);
 		
-		if (!SwingUtilities.isRightMouseButton(e)) {
-			return;
-		}
+		isDragging = false;
 		
-		isDraggingMap = false;
+		renderer.repaint();
 	}
 	
 	/* (non-Javadoc)
@@ -138,82 +141,79 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 	}
 	public void mouseDragged(MouseEvent e) {
 		
-		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-		if (SwingUtilities.isLeftMouseButton(e) && !isDraggingMap) {
-			
-			// Might be dragging a token
-			Set<Token> selectedTokenSet = renderer.getSelectedTokenSet();
-			if (selectedTokenSet.size() > 0) {
-				
-				for (Token token : selectedTokenSet) {
-
-					Point cell = renderer.getCellAt(e.getX(), e.getY());
-					if (cell != null) {
-						
-						if (token.getX() == cell.x && token.getY() == cell.y) {
-							continue;
-						}
-						token.setX(cell.x);
-						token.setY(cell.y);
-
-						// TODO: this needs to be better abstracted
-						if (MapToolClient.isConnected()) {
-							ClientConnection conn = MapToolClient.getInstance().getConnection();
-							
-							conn.callMethod(MapToolClient.COMMANDS.putToken.name(), renderer.getZone().getId(), token);
-						}
-
-						renderer.getZone().putToken(token);
-						renderer.repaint();
-					}
-				}
-			}
-			
-			return;
-		}
 		
+		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			// Map movement
-			int dx = e.getX() - dragStartX;
-			int dy = e.getY() - dragStartY;
-	
-			dragStartX = e.getX();
-			dragStartY = e.getY();
+
+			// Don't allow scale changes
+			renderer.setMouseWheelEnabled(false);
 			
-			renderer.moveViewBy(dx, dy);
+			isDragging = true;
+
+			currX = e.getX();
+			currY = e.getY();
+			
+			renderer.repaint();
+			
 		}
 	}	
 	
+	////
+	// ZONE OVERLAY
+	
 	/* (non-Javadoc)
-	 * @see net.rptools.maptool.client.Tool#getKeyActionMap()
+	 * @see net.rptools.maptool.client.ZoneOverlay#paintOverlay(net.rptools.maptool.client.ZoneRenderer, java.awt.Graphics2D)
 	 */
-	protected Map<KeyStroke, Action> getKeyActionMap() {
-		return new HashMap<KeyStroke, Action>() {
-			{
-				// TODO: Optimize this by making it non anonymous
-				put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
-				
-					public void actionPerformed(java.awt.event.ActionEvent e) {
-						
-						ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-						
-						Set<Token> selectedTokenSet = renderer.getSelectedTokenSet();
-						
-						for (Token token : selectedTokenSet) {
-							
-			                if (MapToolClient.isConnected()) {
-			                	
-			                	// TODO: abstract this
-			                    ClientConnection conn = MapToolClient.getInstance().getConnection();
-			                    
-			                    conn.callMethod(MapToolClient.COMMANDS.removeToken.name(), renderer.getZone().getId(), token.getId());
-			                }
-						}
-						
-						renderer.clearSelectedTokens();
-					}
-				});
+	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
+
+		if (isDragging) {
+
+			g.setColor(Color.BLACK);
+			g.drawLine(dragStartX, dragStartY, currX, currY);
+			
+			Point startCell = renderer.getCellAt(dragStartX, dragStartY);
+			Point endCell = renderer.getCellAt(currX, currY);
+			
+			// Calculate Distance
+			int distX = Math.abs(startCell.x - endCell.x);
+			int distY = Math.abs(startCell.y - endCell.y);
+			
+			double dist = Math.sqrt(distX*distX + distY*distY);
+
+			dist = dist * renderer.getZone().getFeetPerCell();
+			
+			StringBuffer strbuff = new StringBuffer();
+			strbuff.append((int) dist).append("'");
+			int inches = (int)((dist - ((int)dist)) * 100);
+			if (inches != 0) {
+				strbuff.append(" ").append(inches).append("\"");
 			}
-		};
+
+			String distString = strbuff.toString();
+
+			// Calc Locations
+			FontMetrics fm = g.getFontMetrics();
+			int centerX = dragStartX - ((dragStartX - currX)/2);
+			int centerY = dragStartY - ((dragStartY - currY)/2);
+			
+			int strWidth = SwingUtilities.computeStringWidth(fm, distString);
+
+			// Box
+			Rectangle boxBounds = new Rectangle(centerX - strWidth/2 - BOX_PADDINGX, centerY - fm.getHeight()/2 - BOX_PADDINGY, strWidth + BOX_PADDINGX*2, fm.getHeight() + BOX_PADDINGY*2);
+			g.setColor(Color.white);
+			g.fillRect(boxBounds.x, boxBounds.y, boxBounds.width, boxBounds.height);
+			
+			// -- border
+			g.setColor(Color.black);
+			g.drawRect(boxBounds.x, boxBounds.y, boxBounds.width, boxBounds.height);
+			
+			// Renderer distance
+			g.setColor(Color.black);
+			int textX = centerX - (strWidth / 2);
+			int textY = centerY - (fm.getHeight() / 2) + fm.getAscent();
+			
+			g.drawString(distString, textX, textY);
+
+		}
 	}
 }
