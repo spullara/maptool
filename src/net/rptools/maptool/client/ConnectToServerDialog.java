@@ -289,6 +289,12 @@ public class ConnectToServerDialog extends JDialog {
 		return Integer.parseInt(portTextField.getText());
 	}
 	
+	public int getRole() {
+		// LATER: This is kinda hacky, it assumes the order of the 
+		// options are the value of the role, which may not always be true
+		return roleComboBox.getSelectedIndex();
+	}
+	
 	/**
 	 * This method initializes jComboBox	
 	 * 	
