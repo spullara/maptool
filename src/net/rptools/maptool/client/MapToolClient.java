@@ -263,6 +263,7 @@ public class MapToolClient extends JFrame {
     public void createConnection(String host, int port) throws UnknownHostException, IOException {
         this.conn = new ClientConnection(host, port);
         this.conn.addMessageHandler(handler);
+        this.conn.addActivityListener(new ServerConnectionActivityListener());
     }
     
     public void closeConnection() throws IOException {
