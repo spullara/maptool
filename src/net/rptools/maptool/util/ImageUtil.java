@@ -24,7 +24,10 @@
  */
 package net.rptools.maptool.util;
 
+import java.awt.AlphaComposite;
+import java.awt.Composite;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
@@ -201,4 +204,25 @@ public class ImageUtil {
 		return image;
 	}
         
+	public static void clearImage(BufferedImage image) {
+		
+		if (image == null) {return;}
+		
+		Graphics2D g = null;
+		try {
+
+			g = (Graphics2D)image.getGraphics();
+			Composite oldComposite = g.getComposite();
+
+        	g.setComposite(AlphaComposite.Clear);
+
+        	g.fillRect(0, 0, image.getWidth(), image.getHeight());
+        	
+        	g.setComposite(oldComposite);
+		} finally {
+			if (g != null) {
+				g.dispose();
+			}
+		}
+	}
 }
