@@ -69,6 +69,7 @@ public class AssetTreeCellRenderer extends DefaultTreeCellRenderer {
         	
             setText("");
             setIconTextGap(0);
+            setIcon(null);
             if(sel) {
                 setBorder(SELECTED_BORDER);
             }
