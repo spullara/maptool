@@ -549,61 +549,31 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
      * @see java.awt.dnd.DropTargetListener#drop(java.awt.dnd.DropTargetDropEvent)
      */
     public void drop(DropTargetDropEvent dtde) {
-        // TODO Auto-generated method stub
-        Transferable transferable = dtde.getTransferable();
-        if (!transferable.isDataFlavorSupported(TransferableAsset.dataFlavor) &&
-        		!transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)) {
-            dtde.dropComplete(false);
-            return;
-        }
 
-        try {
-        	// TODO: This section needs to be consolidated with ZoneSelectionPanel.drop()
-        	Asset asset = null;
-        	if (transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)) {
-        		
-        		// Add it to the system
-        		asset = (Asset) transferable.getTransferData(TransferableAsset.dataFlavor);
-        		MapToolClient.getCampaign().putAsset(asset);
-                if (MapToolClient.isConnected()) {
-                	
-                	// TODO: abstract this
-                    ClientConnection conn = MapToolClient.getInstance().getConnection();
-                    
-                    conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
-                }
-        		
-        	} else {
-        		
-        		asset = MapToolClient.getCampaign().getAsset((GUID) transferable.getTransferData(TransferableAssetReference.dataFlavor));
-        	}
+    	// TODO: This section needs to be consolidated with ZoneSelectionPanel.drop()
+    	Asset asset = TransferableHelper.getAsset(dtde);
 
-            Point p = dtde.getLocation();
-            p = getCellAt((int)p.getX(), (int)p.getY());
-            int x = (int)p.getX();
-            int y = (int)p.getY();
-
-            Token token = new Token(asset.getId());
-            token.setX(x);
-            token.setY(y);
-
-            zone.putToken(token);
-
-            // TODO: abstract this better
-            if (MapToolClient.isConnected()) {
-            	ClientConnection conn = MapToolClient.getInstance().getConnection();
-            	
-            	conn.callMethod(MapToolClient.COMMANDS.putToken.name(), zone.getId(), token);
-            }
-            
-            repaint();
-
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } catch (UnsupportedFlavorException ufe) {
-            ufe.printStackTrace();
-        }
-
+    	if (asset != null) {
+	        Point p = dtde.getLocation();
+	        p = getCellAt((int)p.getX(), (int)p.getY());
+	        int x = (int)p.getX();
+	        int y = (int)p.getY();
+	
+	        Token token = new Token(asset.getId());
+	        token.setX(x);
+	        token.setY(y);
+	
+	        zone.putToken(token);
+	
+	        // TODO: abstract this better
+	        if (MapToolClient.isConnected()) {
+	        	ClientConnection conn = MapToolClient.getInstance().getConnection();
+	        	
+	        	conn.callMethod(MapToolClient.COMMANDS.putToken.name(), zone.getId(), token);
+	        }
+	        
+	        repaint();
+    	}
     }
 
     /* (non-Javadoc)

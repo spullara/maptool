@@ -206,86 +206,16 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
      * @see java.awt.dnd.DropTargetListener#drop(java.awt.dnd.DropTargetDropEvent)
      */
     public void drop(DropTargetDropEvent dtde) {
-        Transferable transferable = dtde.getTransferable();
 
-        // TODO: Consolidate all of this crap.
-        try {
-	        // EXISTING ASSET
-	        if (transferable.isDataFlavorSupported(TransferableAsset.dataFlavor) ||
-	        		transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)) {
-	
-	        	dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+    	Asset asset = TransferableHelper.getAsset(dtde);
+        dtde.dropComplete(asset != null);
 
-	        	Asset asset = null;
-	        	if (transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)) {
-	        		
-	        		// Add it to the system
-	        		asset = (Asset) transferable.getTransferData(TransferableAsset.dataFlavor);
-	        		MapToolClient.getCampaign().putAsset(asset);
-	                if (MapToolClient.isConnected()) {
-	                	
-	                	// TODO: abstract this
-	                    ClientConnection conn = MapToolClient.getInstance().getConnection();
-	                    
-	                    conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
-	                }
-	        		
-	        	} else {
-	        		
-	        		asset = MapToolClient.getCampaign().getAsset((GUID) transferable.getTransferData(TransferableAssetReference.dataFlavor));
-	        	}
-	        	
-	            MapToolClient.addZone(asset.getId());
-	            dtde.dropComplete(true);
-	            return;
-	        
-	        }
-	        
-	        if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-	        	
-	        	dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
-	        	List<File> list = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
-	        	
-	        	if (list.size() == 0) {
-	        		return;
-	        	}
-	        	
-	        	// For some reason, firefox does not actually write out the temporary file designated in
-	        	// this list until list line is called.  So it has to stay ABOVE the loadFile() call
-	        	// It also requires just a moment to copy from internal system whatever into the file
-	            dtde.dropComplete(true);
-	            try {
-	            	Thread.sleep(1000);
-	            } catch (Exception e) {
-	            	e.printStackTrace();
-	            }
-
-	            // We only support using one at a time for now
-        		Asset asset = new Asset(FileUtil.loadFile(list.get(0)));
-        		MapToolClient.getCampaign().putAsset(asset);
-                if (MapToolClient.isConnected()) {
-                	
-                	// TODO: abstract this
-                    ClientConnection conn = MapToolClient.getInstance().getConnection();
-                    
-                    conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
-                }
-
-	            MapToolClient.addZone(asset.getId());
-	            return;
-	        }	        	
-            dtde.dropComplete(false);
-	
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } catch (UnsupportedFlavorException ufe) {
-            ufe.printStackTrace();
-        } catch (Exception e) {
-        	e.printStackTrace();
+        if (asset != null) {
+        	
+        	MapToolClient.addZone(asset.getId());
         }
-
+        
         repaint();
-
     }
 
     /* (non-Javadoc)
