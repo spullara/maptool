@@ -179,17 +179,14 @@ public class MeasuringTool extends Tool implements MouseListener, MouseMotionLis
 			int distY = Math.abs(startCell.y - endCell.y);
 			
 			double dist = Math.sqrt(distX*distX + distY*distY);
-
-			dist = dist * renderer.getZone().getFeetPerCell();
+            
+            if (renderer.getZone().isRoundDistance()) {
+                dist = Math.round(dist);
+            }
+            dist *= renderer.getZone().getFeetPerCell();
 			
-			StringBuffer strbuff = new StringBuffer();
-			strbuff.append((int) dist).append("'");
-			int inches = (int)((dist - ((int)dist)) * 100);
-			if (inches != 0) {
-				strbuff.append(" ").append(inches).append("\"");
-			}
-
-			String distString = strbuff.toString();
+			
+			String distString = distanceStringEnglish(dist);
 
 			// Calc Locations
 			FontMetrics fm = g.getFontMetrics();
@@ -216,4 +213,21 @@ public class MeasuringTool extends Tool implements MouseListener, MouseMotionLis
 
 		}
 	}
+    
+    private static String distanceStringEnglish(double distance) {
+        StringBuilder sb = new StringBuilder();
+        long totalInches = Math.round(distance * 12);
+        
+        long feet = totalInches / 12;
+        long inches = totalInches - (feet * 12);
+        
+        
+        sb.append(feet).append("'");
+        
+        if (inches != 0) {
+            sb.append(" ").append(inches).append("\"");
+        }
+
+        return sb.toString();
+    }
 }
