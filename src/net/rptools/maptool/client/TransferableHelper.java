@@ -11,6 +11,7 @@ import java.util.List;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.FileUtil;
 import net.rptools.maptool.util.MD5Key;
 
@@ -75,7 +76,7 @@ public class TransferableHelper {
 
         // We only support using one at a time for now
 		Asset asset = new Asset(FileUtil.loadFile(list.get(0)));
-		MapToolClient.getCampaign().putAsset(asset);
+		AssetManager.putAsset(asset);
         if (MapToolClient.isConnected()) {
         	
         	// TODO: abstract this
@@ -89,7 +90,7 @@ public class TransferableHelper {
 	
 	private static Asset handleTransferableAssetReference(Transferable transferable) throws Exception {
 		
-		return MapToolClient.getCampaign().getAsset((MD5Key) transferable.getTransferData(TransferableAssetReference.dataFlavor));
+		return AssetManager.getAsset((MD5Key) transferable.getTransferData(TransferableAssetReference.dataFlavor));
 	}
 	
 	private static Asset handleTransferableAsset(Transferable transferable) throws Exception {
@@ -98,7 +99,7 @@ public class TransferableHelper {
 		
 		// Add it to the system
 		asset = (Asset) transferable.getTransferData(TransferableAsset.dataFlavor);
-		MapToolClient.getCampaign().putAsset(asset);
+		AssetManager.putAsset(asset);
         if (MapToolClient.isConnected()) {
         	
         	// TODO: abstract this

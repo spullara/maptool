@@ -24,44 +24,39 @@
  */
 package net.rptools.maptool.model;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
+import net.rptools.maptool.util.MD5Key;
 
 /**
- * This object contains {@link Zone}s and {@link Asset}s that make up a campaign.
- * Roughly this is equivalent to multiple tabs that will appear on the client and
- * all of the images that will appear on it.
  */
-public class Campaign {
-    private GUID id = new GUID();
-    private Map<GUID, Zone> zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
+public class AssetManager {
 
-    public GUID getId() {
-        return id;
-    }
+	private static Map<MD5Key, Asset> assetMap = new HashMap<MD5Key, Asset>();
+	
+	public static void putAsset(Asset asset) {
+		if (asset == null) {
+			return;
+		}
+		
+		assetMap.put(asset.getId(), asset);
+	}
+	
+	public static Asset getAsset(MD5Key id) {
+		return assetMap.get(id);
+	}
 
-    public void setId(GUID id) {
-        this.id = id;
-    }
-
-    public List<Zone> getZones() {
-        return new ArrayList<Zone>(zones.values());
-    }
-
-    public Zone getZone(GUID id) {
-        return zones.get(id);
-    }
-
-    public void putZone(Zone zone) {
-        zones.put(zone.getId(), zone);
-    }
-
-    public void removeZone(GUID id) {
-        zones.remove(id);
-    }
-    
+	public static void removeAsset(MD5Key id) {
+		assetMap.remove(id);
+	}
+	
+	/**
+	 * Unmodifiable version of the current asset map
+	 * @return
+	 */
+	public static Map getAssets() {
+		return Collections.unmodifiableMap(assetMap);
+	}
 }

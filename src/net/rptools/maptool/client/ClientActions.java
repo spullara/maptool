@@ -24,27 +24,21 @@
  */
 package net.rptools.maptool.client;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.drawing.Pen;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.server.MapToolServer;
 import net.rptools.maptool.util.FileUtil;
 
@@ -215,7 +209,7 @@ public class ClientActions {
                     try {
                         byte[] imgData = FileUtil.loadFile(loadFileChooser.getSelectedFile());
                         Asset asset = new Asset(imgData);
-                        MapToolClient.getCampaign().putAsset(asset);
+                        AssetManager.putAsset(asset);
 
                         // TODO: this needs to be abstracted into the client
                         if (MapToolClient.isConnected()) {

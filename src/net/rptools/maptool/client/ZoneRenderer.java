@@ -32,8 +32,6 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Transparency;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
@@ -44,7 +42,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,7 +53,7 @@ import javax.swing.JComponent;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.DrawnElement;
@@ -262,7 +259,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
         if (image != null) { return image; }
         if (zone == null) { return null; }
         
-        Asset asset = MapToolClient.getCampaign().getAsset(zone.getAssetID());
+        Asset asset = AssetManager.getAsset(zone.getAssetID());
         BufferedImage backgroundImage = null;
         if (asset == null) {
 
@@ -393,7 +390,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
         for (Token token : zone.getTokens()) {
 
             // OPTIMIZE:
-            Asset asset = MapToolClient.getCampaign().getAsset(token.getAssetID());
+            Asset asset = AssetManager.getAsset(token.getAssetID());
             if (asset == null) {
                 // TODO: this should be abstracted into the client better
                 if (MapToolClient.isConnected()) {

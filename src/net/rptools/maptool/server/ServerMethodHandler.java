@@ -27,6 +27,7 @@ package net.rptools.maptool.server;
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
@@ -77,13 +78,13 @@ public class ServerMethodHandler extends AbstractMethodHandler {
             server.getCampaign().removeZone((GUID) parameters[0]);
             break;
         case putAsset:
-            server.getCampaign().putAsset((Asset) parameters[0]);
+            AssetManager.putAsset((Asset) parameters[0]);
             break;
         case getAsset:
-            server.getConnection().callMethod(id, MapToolClient.COMMANDS.putAsset.name(), server.getCampaign().getAsset((MD5Key) parameters[0]));
+            server.getConnection().callMethod(id, MapToolClient.COMMANDS.putAsset.name(), AssetManager.getAsset((MD5Key) parameters[0]));
             break;
         case removeAsset:
-            server.getCampaign().removeAsset((GUID) parameters[0]);
+            AssetManager.removeAsset((MD5Key) parameters[0]);
             break;
         case putToken:
         	GUID zoneGUID = (GUID) parameters[0];

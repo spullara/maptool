@@ -24,12 +24,10 @@
  */
 package net.rptools.maptool.client;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.maptool.client.MapToolClient.COMMANDS;
 import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
@@ -68,7 +66,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         case removeZone:
             break;
         case putAsset:
-            MapToolClient.getCampaign().putAsset((Asset) parameters[0]);
+            AssetManager.putAsset((Asset) parameters[0]);
             MapToolClient.getInstance().repaint();
             break;
         case removeAsset:

@@ -49,6 +49,7 @@ import javax.swing.tree.TreeSelectionModel;
 import net.rptools.maptool.client.swing.PopupListener;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetGroup;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.ImageManager;
 
 
@@ -144,7 +145,7 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
         Image img = ImageManager.getImage(selectedAsset);
         
         Transferable transferable = null;
-        if (MapToolClient.getCampaign().getAsset(selectedAsset.getId()) == null) {
+        if (AssetManager.getAsset(selectedAsset.getId()) == null) {
         	transferable = new TransferableAsset(selectedAsset);
         } else {
         	transferable = new TransferableAssetReference(selectedAsset);
