@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="/clientserver"/>
+	<classpathentry kind="lib" path="lib/withay-util.jar"/>
+	<classpathentry kind="lib" path="lib/looks-1.3b1.jar"/>
+	<classpathentry kind="output" path="build"/>
+</classpath>
