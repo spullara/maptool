@@ -33,7 +33,7 @@ public class Player {
 		
 		// TODO: These should be dynamically driven
 		public static final int PLAYER = 0;
-		public static final int ADMIN  = 1;
+		public static final int GM  = 1;
 	}
 	
 	private String name; // Primary Key
@@ -80,6 +80,6 @@ public class Player {
 	}
 	
 	public String toString() {
-		return name + " (Player)";
+		return name + " " + (role == Role.PLAYER ? "(Player)" : "(GM)");
 	}
 }
