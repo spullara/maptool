@@ -26,13 +26,10 @@ package net.rptools.maptool.server;
 
 import java.io.IOException;
 
-import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.clientserver.hessian.server.ServerConnection;
 import net.rptools.clientserver.simple.server.ServerObserver;
-import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.Pen;
 
