@@ -47,6 +47,9 @@ public class Handshake {
 		public static final int FAILURE = 2;
 	}
 	
+	/**
+	 * Server side of the handshake
+	 */
 	public static Player receiveHandshake(Socket s) throws IOException {
 		
 		Writer out = new OutputStreamWriter(s.getOutputStream());
@@ -68,13 +71,15 @@ public class Handshake {
 		
 		return new Player(name, role);
 	}
-	
+
+	/**
+	 * Client side of the handshake
+	 */
 	public static void sendHandshake(Player player, Socket s) throws IOException {
 		
 		Writer out = new OutputStreamWriter(s.getOutputStream());
 		Reader in = new InputStreamReader(s.getInputStream());
 		
-		System.out.println ("Sending for handshake");
 		// NAME
 		out.append(player.getName()).append("\n").flush();
 		if (in.read() != Message.OK) {
