@@ -87,10 +87,18 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 	public void mousePressed(MouseEvent e) {
 
         isDraggingMap = false;
+		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
         
-		if (SwingUtilities.isLeftMouseButton(e)) {
+        if (e.isPopupTrigger()) {
+        	
+        	if (renderer.getSelectedTokenSet().size() > 0) {
+        		showTokenContextMenu(e);
+        	}
+        	return;
+        }
+
+        if (SwingUtilities.isLeftMouseButton(e)) {
 			
-			ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 			renderer.clearSelectedTokens();
 			
 			// Token
