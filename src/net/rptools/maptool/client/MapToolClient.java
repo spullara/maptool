@@ -57,6 +57,7 @@ import net.rptools.maptool.client.swing.JSplitPaneEx;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.OutlookPanel;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
+import net.rptools.maptool.client.swing.StatusPanel;
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.MeasuringTool;
