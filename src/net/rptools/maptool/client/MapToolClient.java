@@ -138,7 +138,7 @@ public class MapToolClient extends JFrame {
 		saveFileChooser = createSaveFileChooser();
 		toolboxPanel = createToolboxPanel();
 		assetPanel = new OutlookPanel ();
-        assetPanel.setMinimumSize(new Dimension(150, 200));
+        assetPanel.setMinimumSize(new Dimension(100, 200));
         zoneRendererList = new ArrayList<ZoneRenderer>();
 
         // TODO: Clean up this whole section
