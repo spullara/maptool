@@ -24,16 +24,9 @@
  */
 package net.rptools.maptool.client;
 
-import java.awt.BorderLayout;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
@@ -41,61 +34,42 @@ import javax.swing.tree.TreePath;
 
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetGroup;
-import net.rptools.maptool.util.FileUtil;
 
 
 /**
  */
 public class AssetTreeModel implements TreeModel {
 
-    private AssetGroup rootAssetGroup;
-    private File rootDir;
+    private List<AssetGroup> rootAssetGroups = new ArrayList<AssetGroup>();
+
+    private Object root = new String("");
     
-    private static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {
-        public boolean accept(File dir,String name) {
-            name = name.toLowerCase();
-            return name.endsWith(".bmp") ||
-                    name.endsWith(".png") ||
-                    name.endsWith(".jpg") ||
-                    name.endsWith(".jpeg") ||
-                    name.endsWith(".gif");
-        }
-    };
-    
-    private static final FilenameFilter DIRECTORY_FILE_FILTER = new FilenameFilter() {
-        public boolean accept(File dir,String name) {
-            return new File(dir.getPath() + File.separator + name).isDirectory();
-        }
-    };
     private List<TreeModelListener> listenerList = new ArrayList<TreeModelListener>();
     
-    public AssetTreeModel(File rootDir) {
-        this.rootDir = rootDir;
-        
-        try {
-            loadData();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            rootAssetGroup = new AssetGroup("Could not load assets");
-        }
+    public AssetTreeModel() {
     }
     
     /* (non-Javadoc)
      * @see javax.swing.tree.TreeModel#getRoot()
      */
     public Object getRoot() {
-        return rootAssetGroup;
+        return root;
     }
 
+    public void addRootGroup (AssetGroup group) {
+    	rootAssetGroups.add(group);
+    	refresh();
+    }
+    
     /* (non-Javadoc)
      * @see javax.swing.tree.TreeModel#getChild(java.lang.Object, int)
      */
     public Object getChild(Object parent, int index) {
 
-        if (!(parent instanceof AssetGroup)) {
-            return null;
-        }
-        
+    	if (parent == root) {
+    		return rootAssetGroups.get(index);
+    	}
+    	
         AssetGroup group = (AssetGroup) parent;
         
         int childGroupCount = group.getChildGroupCount();
@@ -116,8 +90,8 @@ public class AssetTreeModel implements TreeModel {
      */
     public int getChildCount(Object parent) {
         
-        if (!(parent instanceof AssetGroup)) {
-            return 0;
+        if (parent == root) {
+            return rootAssetGroups.size();
         }
         
         AssetGroup group = (AssetGroup) parent;
@@ -143,9 +117,11 @@ public class AssetTreeModel implements TreeModel {
      * @see javax.swing.tree.TreeModel#getIndexOfChild(java.lang.Object, java.lang.Object)
      */
     public int getIndexOfChild(Object parent, Object child) {
-        
-        assert parent instanceof AssetGroup : "Invalid parent type: " + parent.getClass().getName();
-        
+
+    	if (parent == root) {
+    		return rootAssetGroups.indexOf(child);
+    	}
+    	
         AssetGroup group = (AssetGroup) parent;
 
         if (child instanceof AssetGroup) {
@@ -181,60 +157,5 @@ public class AssetTreeModel implements TreeModel {
         }
     }
     
-    private void loadData() throws IOException {
-        
-        // Init condition ?
-        if (rootAssetGroup == null) {
-            rootAssetGroup = new AssetGroup(rootDir.getName());
-        }
-        
-        // TODO: make sure root still exists
-        loadData(rootDir, rootAssetGroup);
-    }
-    
-    private void loadData(File dir, AssetGroup group) throws IOException {
-        
-        // Update images for this group
-        File[] imageFileArray = dir.listFiles(IMAGE_FILE_FILTER);
-        for (File file : imageFileArray) {
-            
-            // TODO: Check that group already has it
-            // TODO: don't create new assets for images that are already in the game
-            group.add(new Asset(FileUtil.loadFile(file)));
-            
-            // TODO: remove images that are no longer in the group
-        }
-        
-        // Update subgroups
-        File[] subdirArray = dir.listFiles(DIRECTORY_FILE_FILTER);
-        for (File subdir : subdirArray) {
-            
-            // TODO: re-use existing asset groups
-            // TODO: keep track of pathing information for change polling
-            AssetGroup subgroup = new AssetGroup(subdir.getName());
-            
-            group.add(subgroup);
-            
-            loadData(subdir, subgroup);
-        }
-    }
 
-    public static void main(String[] args) throws IOException {
-        
-        AssetTreeModel model = new AssetTreeModel(new File("C:/Documents and Settings/tcroft/Desktop/pics"));
-        
-        JFrame frame = new JFrame("test");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(150, 200);
-        frame.setLocation(400,300);
-
-        JTree tree = new JTree(model);
-        tree.setCellRenderer(new AssetTreeCellRenderer());
-        
-        frame.getContentPane().add(BorderLayout.CENTER, new JScrollPane(tree));
-        
-        frame.setVisible(true);
-        
-        model.refresh();
-    }
 }

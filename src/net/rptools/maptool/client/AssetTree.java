@@ -37,7 +37,6 @@ import java.awt.dnd.DragSourceDropEvent;
 import java.awt.dnd.DragSourceEvent;
 import java.awt.dnd.DragSourceListener;
 import java.awt.event.MouseListener;
-import java.io.File;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -49,7 +48,6 @@ import javax.swing.tree.TreeSelectionModel;
 import net.rptools.maptool.client.swing.PopupListener;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetGroup;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.ImageManager;
 
 
@@ -60,12 +58,9 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
 
     private AssetGroup selectedAssetGroup;
     private Asset selectedAsset;
-    private File rootDir;
     
-    public AssetTree(File rootDir) {
-        super(new AssetTreeModel(rootDir));
-        
-        this.rootDir = rootDir; 
+    public AssetTree() {
+        super(new AssetTreeModel());
         
         setCellRenderer(new AssetTreeCellRenderer());
         
@@ -77,9 +72,9 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
         DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);        
     }
 
-    // TODO: I don't like this sig name
-    public String getTreeName() {
-    	return rootDir.getName();
+    public void addRootGroup(AssetGroup group) {
+    	
+    	((AssetTreeModel) getModel()).addRootGroup(group);
     }
     
     public AssetGroup getSelectedAssetGroup() {

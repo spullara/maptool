@@ -24,10 +24,16 @@
  */
 package net.rptools.maptool.model;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import net.rptools.maptool.client.MapToolClient;
+import net.rptools.maptool.util.FileUtil;
 
 /**
  * Model for arranging assets in a hierarchical way
@@ -35,17 +41,40 @@ import java.util.List;
 public class AssetGroup {
 
     private String name;
+    private File location;
+    
+    private boolean loaded;
     
     private List<Asset> assetList = new ArrayList<Asset>();
     private List<AssetGroup> assetGroupList = new ArrayList<AssetGroup>();
 
     private static final Comparator GROUP_COMPARATOR = new AssetGroupComparator();
     
-    public AssetGroup(String name) {
+    private static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {
+        public boolean accept(File dir,String name) {
+            name = name.toLowerCase();
+            return name.endsWith(".bmp") ||
+                    name.endsWith(".png") ||
+                    name.endsWith(".jpg") ||
+                    name.endsWith(".jpeg") ||
+                    name.endsWith(".gif");
+        }
+    };
+    
+    private static final FilenameFilter DIRECTORY_FILE_FILTER = new FilenameFilter() {
+        public boolean accept(File dir,String name) {
+            return new File(dir.getPath() + File.separator + name).isDirectory();
+        }
+    };
+
+    public AssetGroup(File location, String name) {
         
         assert name != null : "Name cannot be null";
-        
+
+        this.location = location;
         this.name = name;
+        
+        loaded = false;
     }
     
     public String getName() {
@@ -53,38 +82,46 @@ public class AssetGroup {
     }
     
     public boolean hasChildGroups() {
+    	loadData();
         return assetGroupList.size() > 0;
     }
     
     public boolean hasAssets() {
+    	loadData();
         return assetList.size() > 0;
     }
 
     public int getChildGroupCount() {
+    	loadData();
         return assetGroupList.size();
     }
     
     public int getAssetCount() {
+    	loadData();
         return assetList.size();
     }
     
     public int indexOf(Asset asset) {
+    	loadData();
         return assetList.indexOf(asset);
     }
     
     public int indexOf(AssetGroup group) {
+    	loadData();
         return assetGroupList.indexOf(group);
     }
     
     /**
      */
     public List<AssetGroup> getChildGroups() {
+    	loadData();
         return Collections.unmodifiableList(assetGroupList);
     }
     
     /**
      */
     public List<Asset> getAssets() {
+    	loadData();
         return Collections.unmodifiableList(assetList);
     }
     
@@ -109,6 +146,51 @@ public class AssetGroup {
 
     public String toString() {
         return "AssetGroup[" + name + "]";
+    }
+    
+    private void loadData() {
+    	
+    	if (!loaded) {
+
+    		assetList.clear();
+    		assetGroupList.clear();
+
+    		try {
+	    		MapToolClient.getInstance().startIndeterminateAction();
+	    		
+	    		// Update images for this group
+	            File[] imageFileArray = location.listFiles(IMAGE_FILE_FILTER);
+	            for (File file : imageFileArray) {
+	                
+	                // TODO: Check that group already has it
+	                // TODO: don't create new assets for images that are already in the game
+	            	try {
+	            		assetList.add(new Asset(FileUtil.loadFile(file)));
+	            	} catch (IOException ioe) {
+	            		// TODO: Handle this better
+	            		ioe.printStackTrace();
+	            	}
+	            }
+	            
+	            // Update subgroups
+	            File[] subdirArray = location.listFiles(DIRECTORY_FILE_FILTER);
+	            for (File subdir : subdirArray) {
+	                
+	                // TODO: re-use existing asset groups
+	                // TODO: keep track of pathing information for change polling
+	                AssetGroup subgroup = new AssetGroup(subdir, subdir.getName());
+	                
+	                assetGroupList.add(subgroup);
+	            }    		
+	            
+	            Collections.sort(assetGroupList, GROUP_COMPARATOR);
+	            
+    		} finally {
+    			MapToolClient.getInstance().endIndeterminateAction();
+    		}
+        	loaded = true;
+    	}
+    	
     }
     
     private static class AssetGroupComparator implements Comparator {

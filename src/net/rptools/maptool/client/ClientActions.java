@@ -34,7 +34,6 @@ import java.net.UnknownHostException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
@@ -42,7 +41,6 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.Player;
-import net.rptools.maptool.server.MapToolServer;
 import net.rptools.maptool.util.FileUtil;
 import net.rptools.maptool.util.PersistenceUtil;
 
@@ -356,7 +354,7 @@ public class ClientActions {
                         return;
                     }
                     
-                    MapToolClient.addAssetTree(new AssetTree(chooser.getSelectedFile()));
+                    MapToolClient.addAssetRoot(chooser.getSelectedFile());
                 }
                 
             });

@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ import net.rptools.maptool.client.tool.drawing.OvalFillTool;
 import net.rptools.maptool.client.tool.drawing.OvalTool;
 import net.rptools.maptool.client.tool.drawing.RectangleFillTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
+import net.rptools.maptool.model.AssetGroup;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Zone;
@@ -120,8 +122,9 @@ public class MapToolClient extends JFrame {
 	private JFileChooser loadFileChooser;
 	private JFileChooser saveFileChooser;
 	private ToolboxBar toolboxPanel;
-	private OutlookPanel assetPanel;
+	private OutlookPanel outlookPanel;
 	private ZoneRenderer currentRenderer;
+	private AssetTree assetTree;
 
     private ZoneSelectionPanel zoneSelectionPanel;
     private PositionalPanel mainPanel;
@@ -153,12 +156,14 @@ public class MapToolClient extends JFrame {
 		loadFileChooser = createLoadFileChooser();
 		saveFileChooser = createSaveFileChooser();
 		toolboxPanel = createToolboxPanel();
-		assetPanel = new OutlookPanel ();
-        assetPanel.setMinimumSize(new Dimension(100, 200));
+		assetTree = new AssetTree();
+		outlookPanel = new OutlookPanel ();
+        outlookPanel.setMinimumSize(new Dimension(100, 200));
         zoneRendererList = new ArrayList<ZoneRenderer>();
 
         playerList = new PlayerList();
-        assetPanel.addButton("Connections", playerList);
+        outlookPanel.addButton("Connections", playerList);
+        outlookPanel.addButton("Assets", assetTree);
         
         statusPanel = new StatusPanel();
         statusPanel.addPanel(new MemoryStatusBar());
@@ -178,7 +183,7 @@ public class MapToolClient extends JFrame {
 		
 		// Split left/right
 		mainSplitPane = new JSplitPaneEx();
-		mainSplitPane.setLeftComponent(assetPanel);
+		mainSplitPane.setLeftComponent(outlookPanel);
 		mainSplitPane.setRightComponent(mainPanel);
 		mainSplitPane.setInitialDividerPosition(150);
         mainSplitPane.setBorder(null);
@@ -242,10 +247,10 @@ public class MapToolClient extends JFrame {
         }
     }
     
-    public static void addAssetTree(AssetTree tree) {
+    public static void addAssetRoot(File rootDir) {
         
-        int index = instance.assetPanel.addButton(tree.getTreeName(),  tree);
-        instance.assetPanel.setActive(index);
+    	instance.assetTree.addRootGroup(new AssetGroup(rootDir, rootDir.getName()));
+    	
         if (instance.mainSplitPane.isLeftHidden()) {
             instance.mainSplitPane.showLeft();
         }
