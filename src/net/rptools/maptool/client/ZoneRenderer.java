@@ -425,8 +425,18 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
             Image image = ImageManager.getImage(asset);
             float scale = scaleArray[scaleIndex];
 
-            int width = (int)(gridSize * scale) - 1;
-            int height = (int)(gridSize * scale) - 1;
+            int width = 0;
+            int height = 0;
+            
+            if (token.isSnapToScale()) {
+                
+                width = (int)(gridSize * token.getScaleX() * scale) - 1;
+                height = (int)(gridSize * token.getScaleY() * scale) - 1;
+            } else {
+                
+                width = (int)(token.getScaleX() * scale) - 1;
+                height = (int)(token.getScaleY() * scale) - 1;
+            }
             
             int x = (int)((token.getX() * gridSize) * scale + offsetX) + (int) (gridOffsetX * scaleArray[scaleIndex]) + 1;
             int y = (int)((token.getY() * gridSize) * scale + offsetY) + (int) (gridOffsetY * scaleArray[scaleIndex]) + 1;
