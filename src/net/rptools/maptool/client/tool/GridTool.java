@@ -165,14 +165,22 @@ public class GridTool extends Tool implements MouseListener, MouseMotionListener
     	
     	Point cell = renderer.getCellAt(mouseX, mouseY);
     	
+    	int oldGridSize = renderer.getZone().getGridSize();
+    	
         switch (direction) {
         case Increase:
             renderer.adjustGridSize(1);
-            renderer.moveGridBy(-cell.x, -cell.y);
+            
+            if (renderer.getZone().getGridSize() != oldGridSize) {
+            	renderer.moveGridBy(-cell.x, -cell.y);
+            }
             break;
         case Decrease:
             renderer.adjustGridSize(-1);
-            renderer.moveGridBy(cell.x, cell.y);
+
+            if (renderer.getZone().getGridSize() != oldGridSize) {
+            	renderer.moveGridBy(cell.x, cell.y);
+            }
             break;
         }
     }

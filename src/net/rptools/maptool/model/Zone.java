@@ -40,6 +40,9 @@ import net.rptools.maptool.util.MD5Key;
 public class Zone extends Token {
     private String name;
     
+    private static final int MIN_GRID_SIZE = 10;
+    private static final int MAX_GRID_SIZE = 250;
+
     private int gridSize = 40;
     private int gridOffsetX = 0;
     private int gridOffsetY = 0;
@@ -87,6 +90,15 @@ public class Zone extends Token {
     }
 
     public void setGridSize(int gridSize) {
+    	
+    	if (gridSize < MIN_GRID_SIZE) {
+    		gridSize = MIN_GRID_SIZE;
+    	}
+    	
+    	if (gridSize > MAX_GRID_SIZE) {
+    		gridSize = MAX_GRID_SIZE;
+    	}
+    	
         this.gridSize = gridSize;
     }
     
