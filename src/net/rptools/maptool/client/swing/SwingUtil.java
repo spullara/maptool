@@ -58,6 +58,10 @@ public class SwingUtil {
         return (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) > 0;
     }
     
+    public static boolean isShiftDown(InputEvent e) {
+        return (e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) > 0;
+    }
+    
     public static void centerOver(Window innerWindow, Window outterWindow) {
     	
     	Dimension innerSize = innerWindow.getSize();
