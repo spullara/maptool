@@ -435,6 +435,7 @@ public class MapToolClient extends JFrame {
         }
 
         if (instance.currentRenderer != null) {
+        	instance.currentRenderer.flush();
             instance.mainPanel.remove(instance.currentRenderer);
         }
         

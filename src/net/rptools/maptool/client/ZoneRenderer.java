@@ -124,6 +124,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
         });
     }
 
+    /**
+     * Clear internal caches and backbuffers
+     */
+    public void flush() {
+    	drawableOverlay = null;
+    	drawnElementCount = -1;
+    }
+    
     public Zone getZone() {
     	return zone;
     }
