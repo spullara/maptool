@@ -18,6 +18,7 @@ import javax.swing.JButton;
 
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.server.MapToolServer;
+import javax.swing.JComboBox;
 /**
  * @author trevor
  */
@@ -40,6 +41,8 @@ public class ConnectToServerDialog extends JDialog {
 	
 	private int option;
 	
+	private JLabel jLabel3 = null;
+	private JComboBox roleComboBox = null;
 	/**
 	 * This is the default constructor
 	 */
@@ -53,7 +56,7 @@ public class ConnectToServerDialog extends JDialog {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setSize(300, 153);
+		this.setSize(300, 186);
 		this.setContentPane(getJContentPane());
 		
 		portTextField.setText(Integer.toString(MapToolServer.DEFAULT_PORT));
@@ -77,6 +80,9 @@ public class ConnectToServerDialog extends JDialog {
 	 */
 	private javax.swing.JPanel getJContentPane() {
 		if(jContentPane == null) {
+			jLabel3 = new JLabel();
+			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
 			jLabel2 = new JLabel();
 			jLabel1 = new JLabel();
 			jLabel = new JLabel();
@@ -107,14 +113,14 @@ public class ConnectToServerDialog extends JDialog {
 			gridBagConstraints15.gridy = 2;
 			gridBagConstraints15.anchor = java.awt.GridBagConstraints.WEST;
 			jLabel2.setText("Port:");
-			jContentPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
+			jContentPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(10,10,5,10));
 			gridBagConstraints16.gridx = 0;
-			gridBagConstraints16.gridy = 3;
+			gridBagConstraints16.gridy = 6;
 			gridBagConstraints16.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints16.gridwidth = 2;
 			gridBagConstraints16.weighty = 1.0D;
 			gridBagConstraints17.gridx = 0;
-			gridBagConstraints17.gridy = 4;
+			gridBagConstraints17.gridy = 7;
 			gridBagConstraints17.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints17.gridwidth = 2;
 			gridBagConstraints19.gridx = 1;
@@ -125,6 +131,15 @@ public class ConnectToServerDialog extends JDialog {
 			gridBagConstraints20.gridy = 2;
 			gridBagConstraints20.weightx = 1.0;
 			gridBagConstraints20.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints3.gridx = 0;
+			gridBagConstraints3.gridy = 5;
+			gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
+			jLabel3.setText("Role:");
+			gridBagConstraints4.gridx = 1;
+			gridBagConstraints4.gridy = 5;
+			gridBagConstraints4.weightx = 1.0;
+			gridBagConstraints4.fill = java.awt.GridBagConstraints.NONE;
+			gridBagConstraints4.anchor = java.awt.GridBagConstraints.WEST;
 			jContentPane.add(jLabel, gridBagConstraints12);
 			jContentPane.add(getUsernameTextField(), gridBagConstraints13);
 			jContentPane.add(jLabel1, gridBagConstraints14);
@@ -133,6 +148,8 @@ public class ConnectToServerDialog extends JDialog {
 			jContentPane.add(getJPanel1(), gridBagConstraints17);
 			jContentPane.add(getServerTextField(), gridBagConstraints19);
 			jContentPane.add(getPortTextField(), gridBagConstraints20);
+			jContentPane.add(jLabel3, gridBagConstraints3);
+			jContentPane.add(getRoleComboBox(), gridBagConstraints4);
 		}
 		return jContentPane;
 	}
@@ -272,4 +289,15 @@ public class ConnectToServerDialog extends JDialog {
 		return Integer.parseInt(portTextField.getText());
 	}
 	
-       }  //  @jve:decl-index=0:visual-constraint="10,10"
+	/**
+	 * This method initializes jComboBox	
+	 * 	
+	 * @return javax.swing.JComboBox	
+	 */    
+	private JComboBox getRoleComboBox() {
+		if (roleComboBox == null) {
+			roleComboBox = new JComboBox(new String[]{"Player", "GM"});
+		}
+		return roleComboBox;
+	}
+        }  //  @jve:decl-index=0:visual-constraint="10,10"

@@ -48,7 +48,6 @@ public class StartServerDialog extends JDialog {
 	private javax.swing.JPanel jContentPane = null;
 	private JLabel jLabel = null;
 	private JTextField portTextField = null;
-	private JLabel jLabel1 = null;
 	private JTextField usernameTextField = null;
 	private JLabel jLabel2 = null;
 	private JLabel jLabel3 = null;
@@ -61,6 +60,7 @@ public class StartServerDialog extends JDialog {
 	
 	private int option;
 	
+	private JLabel jLabel1 = null;
 	/**
 	 * This is the default constructor
 	 */
@@ -101,13 +101,13 @@ public class StartServerDialog extends JDialog {
 	 */
 	private javax.swing.JPanel getJContentPane() {
 		if(jContentPane == null) {
+			jLabel1 = new JLabel();
+			GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 			jLabel3 = new JLabel();
 			jLabel2 = new JLabel();
-			jLabel1 = new JLabel();
 			jLabel = new JLabel();
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
@@ -117,22 +117,14 @@ public class StartServerDialog extends JDialog {
 			GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
 			jContentPane = new javax.swing.JPanel();
 			jContentPane.setLayout(new GridBagLayout());
-			jContentPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
+			jContentPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(10,10,5,10));
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.gridy = 0;
 			gridBagConstraints1.weightx = 0.5D;
 			gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-			jLabel.setText("Port:");
-			gridBagConstraints2.gridx = 1;
-			gridBagConstraints2.gridy = 0;
-			gridBagConstraints2.weightx = 1.0;
-			gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints3.gridx = 0;
-			gridBagConstraints3.gridy = 1;
-			gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
-			jLabel1.setText("Username:");
+			jLabel.setText("Username:");
 			gridBagConstraints4.gridx = 1;
-			gridBagConstraints4.gridy = 1;
+			gridBagConstraints4.gridy = 0;
 			gridBagConstraints4.weightx = 1.0;
 			gridBagConstraints4.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints5.gridx = 0;
@@ -160,9 +152,15 @@ public class StartServerDialog extends JDialog {
 			gridBagConstraints10.gridy = 5;
 			gridBagConstraints10.gridwidth = 2;
 			gridBagConstraints10.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints11.gridx = 1;
+			gridBagConstraints11.gridy = 1;
+			gridBagConstraints11.weightx = 1.0;
+			gridBagConstraints11.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints2.gridx = 0;
+			gridBagConstraints2.gridy = 1;
+			gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
+			jLabel1.setText("Port:");
 			jContentPane.add(jLabel, gridBagConstraints1);
-			jContentPane.add(getPortTextField(), gridBagConstraints2);
-			jContentPane.add(jLabel1, gridBagConstraints3);
 			jContentPane.add(getUsernameTextField(), gridBagConstraints4);
 			jContentPane.add(jLabel2, gridBagConstraints5);
 			jContentPane.add(jLabel3, gridBagConstraints6);
@@ -170,6 +168,8 @@ public class StartServerDialog extends JDialog {
 			jContentPane.add(getPlayerPasswordTextField(), gridBagConstraints8);
 			jContentPane.add(getJPanel(), gridBagConstraints9);
 			jContentPane.add(getJPanel1(), gridBagConstraints10);
+			jContentPane.add(getPortTextField(), gridBagConstraints11);
+			jContentPane.add(jLabel1, gridBagConstraints2);
 		}
 		return jContentPane;
 	}
