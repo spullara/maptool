@@ -79,6 +79,10 @@ public class OutlookPanel extends JPanel {
         }
     }
 
+    public int getButtonCount() {
+        return m_compList.size();
+    }
+    
     public void setActive(int index) {
         // Sanity check
         if (index < 0 || index >= m_compList.size()) { return; }

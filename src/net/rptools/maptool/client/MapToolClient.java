@@ -180,6 +180,17 @@ public class MapToolClient extends JFrame {
 		return zoneSelectionPanel;
 	}
 	
+    public static void toggleAssetTree() {
+        
+        if (instance.mainSplitPane.isLeftHidden()) {
+            if (instance.assetPanel.getButtonCount() > 0) {
+                instance.mainSplitPane.showLeft();
+            }
+        } else {
+            instance.mainSplitPane.hideLeft();
+        }
+    }
+    
     public static void addAssetTree(AssetTree tree) {
         
         instance.assetPanel.addButton(tree.getTreeName(),  tree);
@@ -357,6 +368,7 @@ public class MapToolClient extends JFrame {
         JMenu viewMenu = new JMenu("View");
         viewMenu.add(new JMenuItem(ClientActions.TOGGLE_GRID));
         viewMenu.add(new JMenuItem(ClientActions.TOGGLE_ZONE_SELECTOR));
+        viewMenu.add(new JMenuItem(ClientActions.TOGGLE_ASSET_PANEL));
         
         // ASSEMBLE
 		menuBar.add(fileMenu);

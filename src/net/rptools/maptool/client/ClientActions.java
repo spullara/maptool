@@ -229,6 +229,22 @@ public class ClientActions {
         }
     };
 
+    public static final Action TOGGLE_ASSET_PANEL = new ClientAction() {
+        
+        {
+            putValue(Action.NAME, "Toggle Asset Panel");
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_A, 0));
+        }
+        
+        /* (non-Javadoc)
+         * @see net.rptools.maptool.client.ClientActions.ClientAction#execute(java.awt.event.ActionEvent)
+         */
+        public void execute(ActionEvent e) {
+
+            MapToolClient.toggleAssetTree();
+        }
+    };
+    
     public static final Action ADD_ASSET_PANEL = new ClientAction() {
         
         {
