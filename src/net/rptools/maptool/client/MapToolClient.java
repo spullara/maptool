@@ -200,6 +200,10 @@ public class MapToolClient extends JFrame {
     
     public static void setCampaign(Campaign campaign) {
     	
+    	// Clear out the old
+    	instance.zoneRendererList.clear();
+    	
+    	// Load up the new
     	MapToolClient.campaign = campaign;
     	ZoneRenderer currRenderer = null;
         
@@ -335,7 +339,11 @@ public class MapToolClient extends JFrame {
 		// FILE
 		JMenu fileMenu = new JMenu("File");
 		fileMenu.add(new JMenuItem(ClientActions.LOAD_MAP));
+		fileMenu.add(new JMenuItem(ClientActions.LOAD_CAMPAIGN));
+		fileMenu.add(new JMenuItem(ClientActions.SAVE_CAMPAIGN));
+		fileMenu.addSeparator();
         fileMenu.add(actionMenu);
+        fileMenu.addSeparator();
 		fileMenu.add(new JMenuItem(ClientActions.EXIT));
 
 		
