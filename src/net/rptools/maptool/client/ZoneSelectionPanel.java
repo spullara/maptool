@@ -47,6 +47,7 @@ import java.util.Map;
 import javax.swing.JPanel;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 
@@ -173,17 +174,35 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
     public void drop(DropTargetDropEvent dtde) {
         // TODO Auto-generated method stub
         Transferable transferable = dtde.getTransferable();
-        if (!transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)) {
+        if (!transferable.isDataFlavorSupported(TransferableAsset.dataFlavor) &&
+        		!transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)) {
             dtde.dropComplete(false);
             return;
         }
 
+        dtde.dropComplete(true);
+        
         try {
-            GUID assetGUID = (GUID) transferable.getTransferData(TransferableAsset.dataFlavor);
+        	Asset asset = null;
+        	if (transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)) {
+        		
+        		// Add it to the system
+        		asset = (Asset) transferable.getTransferData(TransferableAsset.dataFlavor);
+        		MapToolClient.getCampaign().putAsset(asset);
+                if (MapToolClient.isConnected()) {
+                	
+                	// TODO: abstract this
+                    ClientConnection conn = MapToolClient.getInstance().getConnection();
+                    
+                    conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
+                }
+        		
+        	} else {
+        		
+        		asset = MapToolClient.getCampaign().getAsset((GUID) transferable.getTransferData(TransferableAssetReference.dataFlavor));
+        	}
 
-            Point p = dtde.getLocation();
-
-            MapToolClient.addZone(assetGUID);
+            MapToolClient.addZone(asset.getId());
             
             repaint();
 

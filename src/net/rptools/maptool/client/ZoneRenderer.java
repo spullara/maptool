@@ -520,20 +520,39 @@ public class ZoneRenderer extends JPanel implements DropTargetListener {
     public void drop(DropTargetDropEvent dtde) {
         // TODO Auto-generated method stub
         Transferable transferable = dtde.getTransferable();
-        if (!transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)) {
+        if (!transferable.isDataFlavorSupported(TransferableAsset.dataFlavor) &&
+        		!transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)) {
             dtde.dropComplete(false);
             return;
         }
 
         try {
-            GUID assetGUID = (GUID) transferable.getTransferData(TransferableAsset.dataFlavor);
+        	// TODO: This section needs to be consolidated with ZoneSelectionPanel.drop()
+        	Asset asset = null;
+        	if (transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)) {
+        		
+        		// Add it to the system
+        		asset = (Asset) transferable.getTransferData(TransferableAsset.dataFlavor);
+        		MapToolClient.getCampaign().putAsset(asset);
+                if (MapToolClient.isConnected()) {
+                	
+                	// TODO: abstract this
+                    ClientConnection conn = MapToolClient.getInstance().getConnection();
+                    
+                    conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
+                }
+        		
+        	} else {
+        		
+        		asset = MapToolClient.getCampaign().getAsset((GUID) transferable.getTransferData(TransferableAssetReference.dataFlavor));
+        	}
 
             Point p = dtde.getLocation();
             p = getCellAt((int)p.getX(), (int)p.getY());
             int x = (int)p.getX();
             int y = (int)p.getY();
 
-            Token token = new Token(assetGUID);
+            Token token = new Token(asset.getId());
             token.setX(x);
             token.setY(y);
 

@@ -27,6 +27,7 @@ package net.rptools.maptool.client;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.DragGestureListener;
@@ -144,7 +145,15 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
         
         try {
             Image img = SwingUtil.bytesToImage(selectedAsset.getImage());
-            dge.startDrag(Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(0, 0), "Thumbnail"), new TransferableAsset(selectedAsset), this);
+            
+            Transferable transferable = null;
+            if (MapToolClient.getCampaign().getAsset(selectedAsset.getId()) == null) {
+            	transferable = new TransferableAsset(selectedAsset);
+            } else {
+            	transferable = new TransferableAssetReference(selectedAsset);
+            }
+            
+            dge.startDrag(Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(0, 0), "Thumbnail"), transferable, this);
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -156,19 +165,6 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
      * @see java.awt.dnd.DragSourceListener#dragDropEnd(java.awt.dnd.DragSourceDropEvent)
      */
     public void dragDropEnd(DragSourceDropEvent dsde) {
-
-        // Add only on demand
-        if (MapToolClient.getCampaign().getAsset(selectedAsset.getId()) == null) {
-            
-            MapToolClient.getCampaign().putAsset(selectedAsset);
-            if (MapToolClient.isConnected()) {
-            	
-            	// TODO: abstract this
-                ClientConnection conn = MapToolClient.getInstance().getConnection();
-                
-                conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), selectedAsset);
-            }
-        }
     }
     /* (non-Javadoc)
      * @see java.awt.dnd.DragSourceListener#dragEnter(java.awt.dnd.DragSourceDragEvent)

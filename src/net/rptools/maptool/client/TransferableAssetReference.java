@@ -36,18 +36,18 @@ import net.rptools.maptool.model.GUID;
 
 /**
  */
-public class TransferableAsset implements Transferable {
+public class TransferableAssetReference implements Transferable {
 
-    public static final DataFlavor dataFlavor = new DataFlavor(Asset.class, "Asset");
+    public static final DataFlavor dataFlavor = new DataFlavor(GUID.class, "AssetReference");
     
-    private Asset asset;
+    private GUID assetGUID;
     
-    public TransferableAsset(Asset asset) {
-        this.asset = asset;
+    public TransferableAssetReference(Asset asset) {
+        this.assetGUID = asset.getId();
     }
     
     public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
-        return asset;
+        return assetGUID;
     }
 
     public DataFlavor[] getTransferDataFlavors() {
