@@ -25,10 +25,12 @@
 package net.rptools.maptool.model;
 
 import java.io.File;
-import java.util.Collections;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.rptools.maptool.util.FileUtil;
 import net.rptools.maptool.util.MD5Key;
 
 /**
@@ -37,14 +39,19 @@ public class AssetManager {
 
 	private static Map<MD5Key, Asset> assetMap = new HashMap<MD5Key, Asset>();
 	private static File cacheDir;
-
+	private static boolean usePersistentCache;
+	
 	static {
 		
-		Map map = System.getenv();
-	}
-	
-	public static void main(String [] args) {
-		
+		String userHome = System.getProperty("user.home");
+		if (userHome != null) {
+			
+			usePersistentCache = true;
+			
+			cacheDir = new File(userHome + File.separator + ".maptool/assetcache");
+			
+			cacheDir.mkdirs();
+		}
 	}
 	
 	public static void putAsset(Asset asset) {
@@ -53,21 +60,95 @@ public class AssetManager {
 		}
 		
 		assetMap.put(asset.getId(), asset);
+		
+		putInPersistentCache(asset);
 	}
 	
 	public static Asset getAsset(MD5Key id) {
-		return assetMap.get(id);
+		
+		Asset asset = assetMap.get(id);
+		
+		if (asset == null && usePersistentCache) {
+			
+			asset = getFromPersistentCache(id);
+		}
+		
+		return asset;
 	}
 
 	public static void removeAsset(MD5Key id) {
 		assetMap.remove(id);
 	}
+
+	public static void setUsePersistentCache(boolean enable) {
+		if (enable && cacheDir == null) {
+			throw new IllegalArgumentException ("Could not enable persistent cache: no such directory");
+		}
+
+		usePersistentCache = enable;
+	}
 	
-	/**
-	 * Unmodifiable version of the current asset map
-	 * @return
-	 */
-	public static Map getAssets() {
-		return Collections.unmodifiableMap(assetMap);
+	private static Asset getFromPersistentCache(MD5Key id) {
+		
+		if (!assetIsInPersistentCache(id)) {
+			return null;
+		}
+		
+		File assetFile = getAssetCacheFile(id);
+		
+		try {
+			byte[] data = FileUtil.loadFile(assetFile);
+			
+			Asset asset = new Asset(data);
+			
+			assetMap.put(asset.getId(), asset);
+			
+			return asset;
+		} catch (IOException ioe) {
+			System.err.println("Could not load asset from persistent cache: " + ioe);
+			return null;
+		}
+		
+	}
+	
+	private static void putInPersistentCache(Asset asset) {
+		
+		if (!usePersistentCache) {
+			return;
+		}
+		
+		if (!assetIsInPersistentCache(asset)) {
+			
+			File assetFile = getAssetCacheFile(asset);
+			
+			try {
+				FileOutputStream out = new FileOutputStream(assetFile);
+				
+				out.write(asset.getImage());
+				
+				out.close();
+				
+			} catch (IOException ioe) {
+				System.err.println("Could not persist asset: " + ioe);
+				return;
+			}
+			
+		}
+	}
+	
+	private static boolean assetIsInPersistentCache(Asset asset) {
+		return assetIsInPersistentCache(asset.getId());
+	}
+	
+	private static boolean assetIsInPersistentCache(MD5Key id) {
+
+		return getAssetCacheFile(id).exists();
+	}
+	
+	private static File getAssetCacheFile(Asset asset) {
+		return getAssetCacheFile(asset.getId());
+	}
+	private static File getAssetCacheFile(MD5Key id) {
+		return new File (cacheDir.getAbsolutePath() + File.separator + id);
 	}
 }
