@@ -168,6 +168,8 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 				}
 				default: return;
 				}
+				
+				break;
 			}
 			
 			case Outbound: {
@@ -194,6 +196,8 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 				}
 				default: return;
 				}
+				
+				break;
 			}
 		}
 		
