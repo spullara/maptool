@@ -27,9 +27,11 @@ package net.rptools.maptool.client.tool.drawing;
 import java.awt.Graphics2D;
 import java.awt.event.MouseListener;
 
+import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.Tool;
 import net.rptools.maptool.client.ZoneOverlay;
 import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.Point;
 
 
@@ -38,6 +40,8 @@ import net.rptools.maptool.model.drawing.Point;
  */
 public abstract class AbstractDrawingTool extends Tool implements MouseListener, ZoneOverlay {
     protected ZoneRenderer zoneRenderer;
+    
+    private boolean isEraser;
 
 	protected void attachTo(ZoneRenderer renderer) {
 		this.zoneRenderer = renderer;
@@ -54,5 +58,17 @@ public abstract class AbstractDrawingTool extends Tool implements MouseListener,
         p.setY(point.y);
     }
  
+    protected void setIsEraser(boolean eraser) {
+    	isEraser = eraser;
+    }
+    
+    protected Pen getPen() {
+    	
+    	Pen pen = new Pen(MapToolClient.getInstance().getPen());
+		pen.setEraser(isEraser);
+		
+		return pen;
+    }
+    
     public abstract void paintOverlay(ZoneRenderer renderer, Graphics2D g);
 }

@@ -30,6 +30,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.model.drawing.Point;
 
@@ -62,24 +63,31 @@ public class LineTool extends AbstractLineTool implements MouseMotionListener {
         int x = e.getX();
         int y = e.getY();
         
-        switch (e.getButton()) {
-        case java.awt.event.MouseEvent.BUTTON1:
-            if (getLine() == null) {
-                startLine(x, y);
-            } else {
-                //removePoint(tempPoint);
-                stopLine(x, y);
-            }
-            break;
-        case java.awt.event.MouseEvent.BUTTON3:
-            if (getLine() != null) {
+        
+        if (getLine() == null) {
+
+        	startLine(x, y);
+            setIsEraser(SwingUtilities.isRightMouseButton(e));
+            zoneRenderer.setMouseWheelEnabled(false);
+
+        } else {
+        	
+        	if (SwingUtilities.isLeftMouseButton(e)) {
+
+        		stopLine(x, y);
+            	zoneRenderer.setMouseWheelEnabled(true);
+            	
+        	} else if (SwingUtilities.isRightMouseButton(e)) {
+        		
                 tempPoint = null;
-            }
-            break;
+        	}
         }
+        
     }
     
-    public void mouseReleased(java.awt.event.MouseEvent e){ }
+    public void mouseReleased(java.awt.event.MouseEvent e){ 
+    	
+    }
 
     public void mouseDragged(MouseEvent e) {
         // TODO Auto-generated method stub

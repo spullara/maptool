@@ -324,19 +324,6 @@ public class ClientActions {
     };
     
     
-    public static final Action ERASER = new ClientAction() {
-        {
-            putValue(Action.NAME, "Eraser");
-        }
-        
-        public void execute(ActionEvent ae) {
-            Pen pen = MapToolClient.getInstance().getPen();
-            JCheckBoxMenuItem item = (JCheckBoxMenuItem) ae.getSource();
-            
-            pen.setEraser(item.isSelected());
-        }
-    };
-    
     private static abstract class ClientAction extends AbstractAction {
 
         public final void actionPerformed(ActionEvent e) {

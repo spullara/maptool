@@ -90,7 +90,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
         }
         
         // render
-        MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), MapToolClient.getInstance().getPen(), line);
+        MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), getPen(), line);
         
         line = null;
         currentX = -1;
@@ -99,7 +99,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
     
 	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 		if (line != null) {
-            Pen pen = MapToolClient.getInstance().getPen();
+            Pen pen = getPen();
             
             if (pen.isEraser()) {
                 pen = new Pen(pen);

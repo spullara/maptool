@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.tool.drawing;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -31,9 +32,11 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.Rectangle;
 import net.rptools.maptool.server.MapToolServer;
 
@@ -62,7 +65,17 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
         if (rectangle != null) {
-            rectangle.draw(g, MapToolClient.getInstance().getPen());
+        	
+        	Pen pen = getPen();
+        	
+            if (pen.isEraser()) {
+                pen = new Pen(pen);
+                pen.setEraser(false);
+                pen.setColor(Color.white.getRGB());
+                pen.setBackgroundColor(Color.white.getRGB());
+            }
+        	
+            rectangle.draw(g, pen);
         }
     }
 
@@ -72,25 +85,27 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
         int x = e.getX();
         int y = e.getY();
         
-        switch (e.getButton()) {
-        case java.awt.event.MouseEvent.BUTTON1:
-            if (rectangle == null) {
-                rectangle = new Rectangle(x, y, x, y);
-            } else {
-                rectangle.getEndPoint().setX(x);
-                rectangle.getEndPoint().setY(y);
-                
-                convertScreenToZone(rectangle.getStartPoint());
-                convertScreenToZone(rectangle.getEndPoint());
-                
-                MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), MapToolClient.getInstance().getPen(), rectangle);
-                rectangle = null;
-            }
-            break;
+        if (rectangle == null) {
+            rectangle = new Rectangle(x, y, x, y);
+        } else {
+            rectangle.getEndPoint().setX(x);
+            rectangle.getEndPoint().setY(y);
+            
+            convertScreenToZone(rectangle.getStartPoint());
+            convertScreenToZone(rectangle.getEndPoint());
+            
+            MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), getPen(), rectangle);
+            rectangle = null;
         }
+        
+        setIsEraser(SwingUtilities.isRightMouseButton(e));
+        zoneRenderer.setMouseWheelEnabled(false);
     }
 
-    public void mouseReleased(MouseEvent e) { }
+    public void mouseReleased(MouseEvent e) { 
+    	
+    	zoneRenderer.setMouseWheelEnabled(true);
+    }
 
     public void mouseEntered(MouseEvent e) { }
 
@@ -99,15 +114,18 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
     public void mouseDragged(MouseEvent e) { }
 
     public void mouseMoved(MouseEvent e) {
-        int x = e.getX();
-        int y = e.getY();
-
-        if (rectangle != null) {
-            rectangle.getEndPoint().setX(x);
-            rectangle.getEndPoint().setY(y);
-        }
-        
-        zoneRenderer.repaint();
+    	
+    	if (rectangle != null) {
+	        int x = e.getX();
+	        int y = e.getY();
+	
+	        if (rectangle != null) {
+	            rectangle.getEndPoint().setX(x);
+	            rectangle.getEndPoint().setY(y);
+	        }
+	        
+	        zoneRenderer.repaint();
+    	}
     }
 
 }

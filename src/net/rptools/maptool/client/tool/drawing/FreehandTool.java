@@ -29,6 +29,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 
 /**
  * Tool for drawing freehand lines.
@@ -54,10 +55,14 @@ public class FreehandTool extends AbstractLineTool implements MouseMotionListene
     
     public void mousePressed(java.awt.event.MouseEvent e){
         startLine(e.getX(), e.getY());
+        
+    	setIsEraser(SwingUtilities.isRightMouseButton(e));
+    	zoneRenderer.setMouseWheelEnabled(false);
     }
     
     public void mouseReleased(java.awt.event.MouseEvent e){
         stopLine(e.getX(), e.getY());
+    	zoneRenderer.setMouseWheelEnabled(true);
     }
     
     ////

@@ -333,7 +333,6 @@ public class MapToolClient extends JFrame {
         drawingMenu.add(new JCheckBoxMenuItem(ClientActions.FOREGROUND_MODE));
         drawingMenu.add(new JMenuItem(ClientActions.CHOOSE_BACKGROUND_COLOR));
         drawingMenu.add(new JCheckBoxMenuItem(ClientActions.BACKGROUND_MODE));
-        drawingMenu.add(new JCheckBoxMenuItem(ClientActions.ERASER));
         
         // ASSEMBLE
 		menuBar.add(fileMenu);

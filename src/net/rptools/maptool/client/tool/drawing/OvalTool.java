@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.tool.drawing;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -31,10 +32,12 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.model.drawing.Oval;
+import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.MapToolServer;
 
 
@@ -62,7 +65,16 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
         if (oval != null) {
-            oval.draw(g, MapToolClient.getInstance().getPen());
+        	Pen pen = getPen();
+        	
+            if (pen.isEraser()) {
+                pen = new Pen(pen);
+                pen.setEraser(false);
+                pen.setColor(Color.white.getRGB());
+                pen.setBackgroundColor(Color.white.getRGB());
+            }
+
+            oval.draw(g, pen);
         }
     }
 
@@ -72,25 +84,27 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
         int x = e.getX();
         int y = e.getY();
         
-        switch (e.getButton()) {
-        case java.awt.event.MouseEvent.BUTTON1:
-            if (oval == null) {
-                oval = new Oval(x, y, x, y);
-            } else {
-                oval.getEndPoint().setX(x);
-                oval.getEndPoint().setY(y);
-                
-                convertScreenToZone(oval.getStartPoint());
-                convertScreenToZone(oval.getEndPoint());
-                
-                MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), MapToolClient.getInstance().getPen(), oval);
-                oval = null;
-            }
-            break;
+        if (oval == null) {
+            oval = new Oval(x, y, x, y);
+        } else {
+            oval.getEndPoint().setX(x);
+            oval.getEndPoint().setY(y);
+            
+            convertScreenToZone(oval.getStartPoint());
+            convertScreenToZone(oval.getEndPoint());
+            
+            MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), getPen(), oval);
+            oval = null;
         }
+
+    	setIsEraser(SwingUtilities.isRightMouseButton(e));
+        zoneRenderer.setMouseWheelEnabled(false);
     }
 
-    public void mouseReleased(MouseEvent e) { }
+    public void mouseReleased(MouseEvent e) { 
+    	
+    	zoneRenderer.setMouseWheelEnabled(true);
+    }
 
     public void mouseEntered(MouseEvent e) { }
 
@@ -108,15 +122,18 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
      * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
      */
     public void mouseMoved(MouseEvent e) {
-        int x = e.getX();
-        int y = e.getY();
-
-        if (oval != null) {
-            oval.getEndPoint().setX(x);
-            oval.getEndPoint().setY(y);
-        }
-        
-        zoneRenderer.repaint();
+    	
+    	if (oval != null) {
+	        int x = e.getX();
+	        int y = e.getY();
+	
+	        if (oval != null) {
+	            oval.getEndPoint().setX(x);
+	            oval.getEndPoint().setY(y);
+	        }
+	        
+	        zoneRenderer.repaint();
+    	}
     }
 
 }
