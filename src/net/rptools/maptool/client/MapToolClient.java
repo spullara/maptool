@@ -219,7 +219,8 @@ public class MapToolClient extends JFrame {
     
     public static void addAssetTree(AssetTree tree) {
         
-        instance.assetPanel.addButton(tree.getTreeName(),  tree);
+        int index = instance.assetPanel.addButton(tree.getTreeName(),  tree);
+        instance.assetPanel.setActive(index);
         if (instance.mainSplitPane.isLeftHidden()) {
             instance.mainSplitPane.showLeft();
         }
