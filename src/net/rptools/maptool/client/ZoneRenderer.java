@@ -70,7 +70,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
 
     // TODO: Perhaps make this a user defined limit
     public static final int HOVER_SIZE_THRESHOLD = 40;
-    
+    public static final int EDGE_LIMIT = 25; // can't move board past this edge
+	
     private Zone              zone;
 
     private BufferedImage     image;
@@ -343,23 +344,22 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
             return;
         }
 
-    	renderBackBuffer(g);
+    	renderBoard(g);
         BufferedImage drawableLayer = getDrawableOverlay();
         if (drawableOverlay != null) {
             g.drawImage(drawableLayer, offsetX, offsetY, w, h, this);
         }
         
         renderTokens(g);
-
+		renderBorder(g);
+		
         for (ZoneOverlay overlay : overlayList) {
             overlay.paintOverlay(this, (Graphics2D) g);
         }
-        
-        ClientStyle.boardBorder.paintAround((Graphics2D) g, offsetX, offsetY, w, h);
     }
     
-    private void renderBackBuffer(Graphics g) {
-
+	private void renderBorder(Graphics g) {
+		
     	Dimension size = getSize();
     	
         // Scale
@@ -368,14 +368,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
         int h = (int)(height * scale);
 
         float gridSize = zone.getGridSize() * scale;
-
-        if (size.width > w) {
-            offsetX = (size.width - w) / 2;
-        }
-
-        if (size.height > h) {
-            offsetY = (size.height - h) / 2;
-        }
 
         // Border
         if (offsetX > 0) {
@@ -394,6 +386,36 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
         	g.setColor(Color.black);
         	g.fillRect(0, h + offsetY, size.width, size.height);
         }
+		
+        ClientStyle.boardBorder.paintAround((Graphics2D) g, offsetX, offsetY, w, h);
+	}
+	
+    private void renderBoard(Graphics g) {
+
+    	Dimension size = getSize();
+    	
+        // Scale
+        float scale = scaleArray[scaleIndex];
+        int w = (int)(width * scale);
+        int h = (int)(height * scale);
+
+        float gridSize = zone.getGridSize() * scale;
+
+		if (offsetX > size.width - EDGE_LIMIT) {
+			offsetX = size.width - EDGE_LIMIT;
+		}
+		
+		if (offsetX + w < EDGE_LIMIT) {
+			offsetX = EDGE_LIMIT - w;
+		}
+		
+		if (offsetY > size.height - EDGE_LIMIT) {
+			offsetY = size.height - EDGE_LIMIT;
+		}
+		
+		if (offsetY + h < EDGE_LIMIT) {
+			offsetY = EDGE_LIMIT - h;
+		}
         
         // Map
         g.drawImage(image, offsetX, offsetY, w, h, this);
