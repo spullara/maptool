@@ -284,11 +284,7 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 	
 	private void showTokenContextMenu(MouseEvent e) {
 		
-    	TitleMenuItem title = new TitleMenuItem("Token");
-    	title.setEnabled(false);
-    	
     	JPopupMenu popup = new JPopupMenu();
-    	popup.add(title);
     	
     	// TODO: Genericize the heck out of this.
     	JMenu sizeMenu = new JMenu("Size");
