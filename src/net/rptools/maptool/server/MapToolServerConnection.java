@@ -96,13 +96,12 @@ public class MapToolServerConnection extends ServerConnection  implements Server
         }
         
         server.getConnection().broadcastCallMethod(MapToolClient.COMMANDS.playerConnected.name(), playerMap.get(conn.getId()));
-        System.out.println("SENDING CAMPAIGN");
-        server.getConnection().callMethod(conn.getId(), MapToolClient.COMMANDS.setCampaign.name(), server.getCampaign());
     }
     
     public void connectionRemoved(net.rptools.clientserver.simple.client.ClientConnection conn) {
 
         server.getConnection().broadcastCallMethod(MapToolClient.COMMANDS.playerDisconnected.name(), playerMap.get(conn.getId()));
+        playerMap.remove(conn.getId());
     }
     
 }
