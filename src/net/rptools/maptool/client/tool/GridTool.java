@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.tool;
 
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
@@ -52,9 +53,14 @@ import net.rptools.maptool.model.Zone;
 public class GridTool extends Tool implements MouseListener, MouseMotionListener, MouseWheelListener {
     private static final long serialVersionUID = 3760846783148208951L;
 
+    private static enum Size { Increase, Decrease };
+
     private int dragStartX;
 	private int dragStartY;
 
+	private int mouseX;
+	private int mouseY;
+	
 	public GridTool () {
         try {
             setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/grid.gif"))));
@@ -119,7 +125,10 @@ public class GridTool extends Tool implements MouseListener, MouseMotionListener
         }
     }
     
-    public void mouseMoved(java.awt.event.MouseEvent e){}
+    public void mouseMoved(java.awt.event.MouseEvent e){
+    	mouseX = e.getX();
+    	mouseY = e.getY();
+    }
     
     ////
     // MOUSE WHEEL LISTENER
@@ -144,31 +153,47 @@ public class GridTool extends Tool implements MouseListener, MouseMotionListener
             
             if (e.getWheelRotation() > 0) {
                 
-                renderer.adjustGridSize(1);
+                adjustGridSize(renderer, Size.Increase);
             } else {
                 
-                renderer.adjustGridSize(-1);
+            	adjustGridSize(renderer, Size.Decrease);
             }
         }
     }
     
-    private static final Map<KeyStroke, Action> KEYSTROKES = new HashMap<KeyStroke, Action>();
-    static {
-        KEYSTROKES.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(GridSizeAction.Size.Decrease));
-        KEYSTROKES.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(GridSizeAction.Size.Decrease));
-        KEYSTROKES.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(GridSizeAction.Size.Increase));
-        KEYSTROKES.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(GridSizeAction.Size.Increase));
-        KEYSTROKES.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new GridOffsetAction(GridOffsetAction.Direction.Up));
-        KEYSTROKES.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new GridOffsetAction(GridOffsetAction.Direction.Left));
-        KEYSTROKES.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new GridOffsetAction(GridOffsetAction.Direction.Down));
-        KEYSTROKES.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new GridOffsetAction(GridOffsetAction.Direction.Right));
+    private void adjustGridSize(ZoneRenderer renderer, Size direction) {
+    	
+    	Point cell = renderer.getCellAt(mouseX, mouseY);
+    	
+        switch (direction) {
+        case Increase:
+            renderer.adjustGridSize(1);
+            renderer.moveGridBy(-cell.x, -cell.y);
+            break;
+        case Decrease:
+            renderer.adjustGridSize(-1);
+            renderer.moveGridBy(cell.x, cell.y);
+            break;
+        }
     }
+    
+    private final Map<KeyStroke, Action> KEYSTROKES = new HashMap<KeyStroke, Action>() {
+	    {
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Decrease));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Decrease));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Increase));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Increase));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new GridOffsetAction(GridOffsetAction.Direction.Up));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new GridOffsetAction(GridOffsetAction.Direction.Left));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new GridOffsetAction(GridOffsetAction.Direction.Down));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new GridOffsetAction(GridOffsetAction.Direction.Right));
+	    }
+    };
     protected Map<KeyStroke, Action> getKeyActionMap() {
         return KEYSTROKES;
     }
     
-    private static final class GridSizeAction extends AbstractAction {
-        private static enum Size { Increase, Decrease };
+    private final class GridSizeAction extends AbstractAction {
         private final Size size;
         public GridSizeAction(Size size) {
             this.size = size;
@@ -176,14 +201,7 @@ public class GridTool extends Tool implements MouseListener, MouseMotionListener
 
         public void actionPerformed(ActionEvent e) {
             ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-            switch (size) {
-            case Increase:
-                renderer.adjustGridSize(1);
-                break;
-            case Decrease:
-                renderer.adjustGridSize(-1);
-                break;
-            }
+            adjustGridSize(renderer, size);
         }
     }
     
