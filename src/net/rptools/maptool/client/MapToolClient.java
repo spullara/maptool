@@ -51,6 +51,7 @@ import net.rptools.clientserver.ActivityListener.State;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.client.swing.ColorPickerButton;
 import net.rptools.maptool.client.swing.JSplitPaneEx;
+import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.OutlookPanel;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
 import net.rptools.maptool.client.swing.SwingUtil;
@@ -160,6 +161,7 @@ public class MapToolClient extends JFrame {
         assetPanel.addButton("Connections", playerList);
         
         statusPanel = new StatusPanel();
+        statusPanel.addPanel(new MemoryStatusBar());
         statusPanel.addPanel(progressBar);
         statusPanel.addPanel(activityMonitor);
         
