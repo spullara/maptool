@@ -24,14 +24,12 @@
  */
 package net.rptools.maptool.client.tool;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,25 +39,34 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.Tool;
+import net.rptools.maptool.client.ZoneOverlay;
 import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.client.swing.TitleMenuItem;
 import net.rptools.maptool.model.Token;
 
 
 
 /**
  */
-public class PointerTool extends Tool implements MouseListener, MouseMotionListener {
+public class PointerTool extends Tool implements MouseListener, MouseMotionListener, ZoneOverlay {
     private static final long serialVersionUID = 3258411729238372921L;
     
     private boolean isDraggingMap;
 	private int dragStartX;
 	private int dragStartY;
+	
+	private int mouseX;
+	private int mouseY;
+	
+	private Token tokenUnderMouse;
 	
 	public PointerTool () {
 		try {
@@ -98,10 +105,15 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 	
 	public void mouseReleased(MouseEvent e) {
 		
-		if (!SwingUtilities.isRightMouseButton(e)) {
-			return;
-		}
-		
+		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+        if (e.isPopupTrigger()) {
+        	
+        	if (renderer.getSelectedTokenSet().size() > 0) {
+        		showTokenContextMenu(e);
+        	}
+        	return;
+        }
+        
 		isDraggingMap = false;
 	}
 	
@@ -133,8 +145,28 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
 	 */
 	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
-
+		
+		mouseX = e.getX();
+		mouseY = e.getY();
+		
+		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+		if (renderer.getScale() < 1.0) {
+			
+			Token token = renderer.getTokenAt(mouseX, mouseY);
+			
+			if (token == null) {
+				if (tokenUnderMouse != null) {
+					renderer.unzoomToken(tokenUnderMouse);
+					tokenUnderMouse = null;
+				}
+			} else {
+				if (token != tokenUnderMouse) {
+					renderer.unzoomToken(tokenUnderMouse);
+					tokenUnderMouse = token;
+					renderer.zoomToken(token);
+				}
+			}
+		}
 	}
 	public void mouseDragged(MouseEvent e) {
 		
@@ -215,5 +247,30 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 				});
 			}
 		};
+	}
+	
+	//// 
+	// ZoneOverlay
+	/* (non-Javadoc)
+	 * @see net.rptools.maptool.client.ZoneOverlay#paintOverlay(net.rptools.maptool.client.ZoneRenderer, java.awt.Graphics2D)
+	 */
+	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
+
+	}
+	
+	////
+	// INTERNAL
+	
+	private void showTokenContextMenu(MouseEvent e) {
+		
+    	TitleMenuItem title = new TitleMenuItem("Token");
+    	title.setEnabled(false);
+    	
+    	JPopupMenu popup = new JPopupMenu("testing");
+    	popup.add(title);
+    	
+    	popup.add(new JMenuItem("action"));
+
+    	popup.show((ZoneRenderer)e.getSource(), e.getX(), e.getY());
 	}
 }

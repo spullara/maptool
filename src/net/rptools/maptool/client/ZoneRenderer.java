@@ -83,6 +83,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
     private static float[]    scaleArray  = new float[] { .25F, .30F, .40F, .50F, .60F, .75F, 1F, 1.25F, 1.5F, 1.75F, 2F, 3F, 4F};
     private static int SCALE_1TO1_INDEX; // Automatically scanned for
 
+    private Set<Token> zoomedTokenSet = new HashSet<Token>();
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
     private Map<Rectangle, Token> tokenBoundsMap = new HashMap<Rectangle, Token>();
     private Set<Token> selectedTokenSet = new HashSet<Token>();
@@ -134,6 +135,20 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
     
     public Zone getZone() {
     	return zone;
+    }
+    
+    public void zoomToken(Token token) {
+    	if (!zoomedTokenSet.contains(token)) {
+    		zoomedTokenSet.add(token);
+    		repaint();
+    	}
+    }
+    
+    public void unzoomToken(Token token) {
+    	if (zoomedTokenSet.contains(token)) {
+    		zoomedTokenSet.remove(token);
+    		repaint();
+    	}
     }
     
     public void addOverlay(ZoneOverlay overlay) {
@@ -427,19 +442,33 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
 
             int width = 0;
             int height = 0;
-            
+            int x = 0;
+            int y = 0;
+
             if (token.isSnapToScale()) {
                 
-                width = (int)(gridSize * token.getScaleX() * scale) - 1;
-                height = (int)(gridSize * token.getScaleY() * scale) - 1;
+                width = (int)(gridSize * token.getScaleX());
+                height = (int)(gridSize * token.getScaleY());
             } else {
                 
-                width = (int)(token.getScaleX() * scale) - 1;
-                height = (int)(token.getScaleY() * scale) - 1;
+                width = (int)(token.getScaleX());
+                height = (int)(token.getScaleY());
             }
-            
-            int x = (int)((token.getX() * gridSize) * scale + offsetX) + (int) (gridOffsetX * scaleArray[scaleIndex]) + 1;
-            int y = (int)((token.getY() * gridSize) * scale + offsetY) + (int) (gridOffsetY * scaleArray[scaleIndex]) + 1;
+
+            // OPTIMIZE:
+            x = (int)((token.getX() * gridSize) * scale + offsetX) + (int) (gridOffsetX * scaleArray[scaleIndex]) + 1;
+            y = (int)((token.getY() * gridSize) * scale + offsetY) + (int) (gridOffsetY * scaleArray[scaleIndex]) + 1;
+
+            if (scale >= 1.0 || !zoomedTokenSet.contains(token)) {
+            	
+            	width *= scale;
+            	height *= scale;
+            	
+            } else {
+            	
+            	x -= (width - (width*scale))/2;
+            	y -= (height - (height*scale))/2;
+            }
             
             g.drawImage(image, x, y, width, height, this);
 
