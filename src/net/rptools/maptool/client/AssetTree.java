@@ -63,6 +63,7 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
         super(new AssetTreeModel());
         
         setCellRenderer(new AssetTreeCellRenderer());
+        setRootVisible(false);
         
         addMouseListener(createPopupListener());
         addTreeSelectionListener(this);

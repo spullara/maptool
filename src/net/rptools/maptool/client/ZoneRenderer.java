@@ -481,9 +481,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
 
             // Selected ?
             if (selectedTokenSet.contains(token)) {
-                g.setColor(Color.blue);
-                g.drawRect(x, y, width, height);
-                g.drawRect(x - 1, y - 1, width + 2, height + 2);
+            	ClientStyle.selectedBorder.paintAround((Graphics2D) g, x, y, width, height);
             }
         }
     }
