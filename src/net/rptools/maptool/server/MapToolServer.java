@@ -43,7 +43,7 @@ import net.rptools.maptool.model.drawing.Pen;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class MapToolServer implements ServerObserver {
+public class MapToolServer {
     public static enum COMMANDS {
         getCampaign, 
         setCampaign, 
@@ -61,20 +61,16 @@ public class MapToolServer implements ServerObserver {
 
     public static final int DEFAULT_PORT = 4444;
 
-    private final ServerConnection conn;
+    private final MapToolServerConnection conn;
     private final ServerMethodHandler handler;
     
     private Campaign campaign;
-    private ServerObserver observer;
 
     public MapToolServer(Campaign campaign, int port) throws IOException {
     	
         handler = new ServerMethodHandler(this);
-        conn = new ServerConnection(port);
+        conn = new MapToolServerConnection(this, port);
         conn.addMessageHandler(handler);
-        
-        // This is the first pass at handling late connections
-        conn.addObserver(this);
         
         this.campaign = campaign;
         
@@ -110,27 +106,6 @@ public class MapToolServer implements ServerObserver {
     public void draw(GUID overlayId, Pen pen, Drawable d) {
     }
 
-    ////
-    // SERVER OBSERVER
-    
-    /**
-     * Handle late connections
-     */
-    public void connectionAdded(net.rptools.clientserver.simple.client.ClientConnection conn) {
-    	
-    	// Since the server is the first connection observer, this should be called
-    	// before any other events can be sent to the client, so it should be inherantly
-    	// synchronized for handshaking.  
-    	// TODO: Determine if this needs the be synchronized with the actual zone update
-    	// events
-		handler.handleMethod(conn.getId(), COMMANDS.getCampaign.name(), null);
-    }
-    
-    public void connectionRemoved(net.rptools.clientserver.simple.client.ClientConnection conn) {
-
-    	// Nothing to do .... yet
-    }
-    
     ////
     // STANDALONE SERVER
     public static void main(String[] args) throws IOException {

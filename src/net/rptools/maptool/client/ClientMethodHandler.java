@@ -30,6 +30,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -119,7 +120,23 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	
         	MapToolClient.getInstance().repaint();
         	break;
+
+        case playerConnected:
+        	
+        	MapToolClient.getInstance().addPlayer((Player) parameters[0]);
+        	MapToolClient.getInstance().repaint();
+        	break;
+
+        case playerDisconnected:
+        	
+        	MapToolClient.getInstance().removePlayer((Player) parameters[0]);
+        	MapToolClient.getInstance().repaint();
+        	break;
+        	
+        	
         }
+        
+        	
     }
 
 }

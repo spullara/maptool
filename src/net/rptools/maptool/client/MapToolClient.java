@@ -37,6 +37,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -60,6 +61,7 @@ import net.rptools.maptool.client.tool.drawing.OvalTool;
 import net.rptools.maptool.client.tool.drawing.RectangleFillTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.MapToolServer;
@@ -82,7 +84,9 @@ public class MapToolClient extends JFrame {
     	putToken, 
     	removeToken, 
     	draw,
-    	setZoneGridSize
+    	setZoneGridSize,
+    	playerConnected,
+    	playerDisconnected
     };
 	
 	private static final String WINDOW_TITLE = "MapTool";
@@ -97,6 +101,8 @@ public class MapToolClient extends JFrame {
     private static MapToolServer server;
 
     private static Campaign campaign;
+    
+    private PlayerList playerList;
     
     private ClientConnection conn;
     private final ClientMethodHandler handler;
@@ -145,6 +151,9 @@ public class MapToolClient extends JFrame {
         assetPanel.setMinimumSize(new Dimension(100, 200));
         zoneRendererList = new ArrayList<ZoneRenderer>();
 
+        playerList = new PlayerList();
+        assetPanel.addButton("Connections", playerList);
+        
         statusPanel = new StatusPanel();
         statusPanel.addPanel(activityMonitor);
         
@@ -165,7 +174,6 @@ public class MapToolClient extends JFrame {
 		mainSplitPane.setRightComponent(mainPanel);
 		mainSplitPane.setInitialDividerPosition(150);
         mainSplitPane.setBorder(null);
-		mainSplitPane.hideLeft();
         
 		JPanel mainInnerPanel = new JPanel(new BorderLayout());
 		mainInnerPanel.setBorder(BorderFactory.createLoweredBevelBorder());
@@ -184,6 +192,18 @@ public class MapToolClient extends JFrame {
         
 	}
 	
+	public void addPlayer(Player player) {
+		
+		System.out.println("Adding player:" + player);
+		playerList.add(player);
+	}
+	
+	public void removePlayer(Player player) {
+		System.out.println("Removing player:" + player);
+		playerList.remove(player);
+	}
+	
+	
 	public ZoneSelectionPanel getZoneSelectionPanel() {
 		return zoneSelectionPanel;
 	}
@@ -191,9 +211,7 @@ public class MapToolClient extends JFrame {
     public static void toggleAssetTree() {
         
         if (instance.mainSplitPane.isLeftHidden()) {
-            if (instance.assetPanel.getButtonCount() > 0) {
-                instance.mainSplitPane.showLeft();
-            }
+            instance.mainSplitPane.showLeft();
         } else {
             instance.mainSplitPane.hideLeft();
         }
@@ -247,12 +265,6 @@ public class MapToolClient extends JFrame {
 		// TODO: the client and server campaign MUST be different objects.  Figure out a better init method
 		campaign = new Campaign();
 		MapToolServer server = new MapToolServer (new Campaign(), port);
-		ServerPanel serverPanel = new ServerPanel(server.getConnection());
-		server.addObserver(serverPanel);
-
-		serverPanel.setSize(175, 100);
-		serverPanel.setLocation(0, 0);
-		
 	}
 	
 	public static void stopServer() {
@@ -279,10 +291,13 @@ public class MapToolClient extends JFrame {
         MapToolClient.setCurrentZoneRenderer(new ZoneRenderer(zone));
 	}
 	
-    public void createConnection(String host, int port) throws UnknownHostException, IOException {
-        this.conn = new ClientConnection(host, port);
+    public void createConnection(String host, int port, Player player) throws UnknownHostException, IOException {
+
+    	this.conn = new MapToolClientConnection(host, port, player); // TODO: I don't like passing in null here, perhaps another constructor ?
         this.conn.addMessageHandler(handler);
         this.conn.addActivityListener(activityMonitor);
+        
+        this.conn.start();
     }
     
     public void closeConnection() throws IOException {

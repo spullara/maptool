@@ -41,6 +41,7 @@ import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.server.MapToolServer;
 import net.rptools.maptool.util.FileUtil;
 import net.rptools.maptool.util.PersistenceUtil;
@@ -139,26 +140,24 @@ public class ClientActions {
             runBackground(new Runnable(){
                 public void run() {
 
-                	String portStr = JOptionPane.showInputDialog(MapToolClient.getInstance(), "What port to start the server on:", Integer.toString(MapToolServer.DEFAULT_PORT));
-					
-                	if (portStr == null || portStr.length() == 0) {
-                		
+                	StartServerDialog dialog = new StartServerDialog();
+                	
+                	dialog.setVisible(true);
+
+                	if (dialog.getOption() == StartServerDialog.OPTION_CANCEL) {
                 		new MainMenuDialog().setVisible(true);
                 		return;
                 	}
                 	
+                	
                 	try {
-                		int port = Integer.parseInt(portStr);
+                		int port = dialog.getPort();
                 		
-                		// TODO: include selection of campaign
                 		MapToolClient.startServer(port);
 
                 		// Connect to server
-                        MapToolClient.getInstance().createConnection("localhost", port);
+                        MapToolClient.getInstance().createConnection("localhost", port, new Player(dialog.getUsername(), 0));
                 		
-                	} catch (NumberFormatException nfe) {
-                		MapToolClient.showError("Invalid port number");
-                		return;
                 	} catch (UnknownHostException uh) {
                 		MapToolClient.showError("Whoah, 'localhost' is not a valid address.  Weird.");
                 		return;
@@ -186,44 +185,25 @@ public class ClientActions {
         public void execute(ActionEvent e) {
 
             try {
-            	String server = JOptionPane.showInputDialog(MapToolClient.getInstance(), "Server IP/Name [:port]");
             	
-            	if (server == null || server.length() == 0) {
+            	ConnectToServerDialog dialog = new ConnectToServerDialog();
+            	
+            	dialog.setVisible(true);
+            	
+            	if (dialog.getOption() == ConnectToServerDialog.OPTION_CANCEL) {
             		
             		new MainMenuDialog().setVisible(true);
             		return;
             	}
             	
-            	// Parse
-            	int port = MapToolServer.DEFAULT_PORT;
-            	int index = server.indexOf(":");
-            	if (index == 0) {
-            		MapToolClient.showError("Must supply a server IP/Name");
-                    new MainMenuDialog().setVisible(true);
-            		return;
-            	}
-            	if (index > 0) {
-            		
-            		String portStr = server.substring(index + 1);
-            		server = server.substring(0, index);
-                    
-                    try {
-                        port = Integer.parseInt(portStr);
-                    } catch (NumberFormatException nfe) {
-                        MapToolClient.showError("Invalid port: " + portStr);
-                        new MainMenuDialog().setVisible(true);
-                        return;
-                    }
-            	}
-            	
-                MapToolClient.getInstance().createConnection(server, port);
+                MapToolClient.getInstance().createConnection(dialog.getServer(), dialog.getPort(), new Player(dialog.getUsername(), 0));
             } catch (UnknownHostException e1) {
                 // TODO Auto-generated catch block
                 MapToolClient.showError("Unknown host");
                 e1.printStackTrace();
             } catch (IOException e1) {
                 // TODO Auto-generated catch block
-                MapToolClient.showError("IO Error");
+                MapToolClient.showError("IO Error: " + e1);
                 e1.printStackTrace();
             }
             

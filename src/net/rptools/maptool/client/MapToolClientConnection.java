@@ -22,64 +22,39 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.model;
+package net.rptools.maptool.client;
+
+import java.io.IOException;
+import java.net.Socket;
+
+import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.maptool.model.Player;
+import net.rptools.maptool.server.Handshake;
 
 /**
  * @author trevor
  */
-public class Player {
+public class MapToolClientConnection extends ClientConnection {
 
-	public interface Role {
+	private Player player;
+	
+	public MapToolClientConnection(String host, int port, Player player) throws IOException {
+		super(host, port, null);
 		
-		// TODO: These should be dynamically driven
-		public static final int PLAYER = 0;
-		public static final int ADMIN  = 1;
+		this.player = player;
 	}
 	
-	private String name; // Primary Key
-	private int role;
-	
-	public Player (String name, int role) {
-		this.name = name;
-		this.role = role;
+	public MapToolClientConnection(Socket socket, Player player) throws IOException {
+		super(socket, null);
+		
+		this.player = player;
 	}
 	
-	public boolean equals(Object obj) {
-		
-		if (!(obj instanceof Player)) {
-			return false;
-		}
-		
-		return name.equals(((Player)obj).name);
-	}
-
-	public int hashCode() {
-		
-		return name.hashCode();
-	}
-	
-	/**
-	 * @return Returns the name.
+	/* (non-Javadoc)
+	 * @see net.rptools.clientserver.simple.client.ClientConnection#sendHandshake(java.net.Socket)
 	 */
-	public String getName() {
-		return name;
-	}
-	/**
-	 * @param name The name to set.
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	
-	/**
-	 * @return Returns the role.
-	 */
-	public int getRole() {
-		return role;
-	}
-	
-	public String toString() {
-		return name + " (Player)";
+	public void sendHandshake(Socket s) throws IOException {
+		
+		Handshake.sendHandshake(player, s);
 	}
 }
