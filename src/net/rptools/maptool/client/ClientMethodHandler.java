@@ -84,7 +84,14 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	MapToolClient.getInstance().repaint();
             break;
         case removeToken:
-            break;
+        	zoneGUID = (GUID) parameters[0];
+        	zone = MapToolClient.getCampaign().getZone(zoneGUID);
+        	GUID tokenGUID = (GUID) parameters[1];
+
+        	zone.removeToken(tokenGUID);
+        	
+        	MapToolClient.getInstance().repaint();
+        	break;
         case draw:
         	
         	zoneGUID = (GUID) parameters[0];

@@ -39,6 +39,8 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JPanel;
+import javax.swing.JComponent;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.model.Asset;
@@ -62,7 +64,7 @@ import net.rptools.maptool.util.ImageManager;
 
 /**
  */
-public class ZoneRenderer extends JPanel implements DropTargetListener {
+public class ZoneRenderer extends JComponent implements DropTargetListener {
     private static final long serialVersionUID = 3832897780066104884L;
 
     private Zone              zone;
@@ -98,6 +100,13 @@ public class ZoneRenderer extends JPanel implements DropTargetListener {
 
         // DnD
         new DropTarget(this, this);
+
+        // Get focus when clicked in
+        addMouseListener(new MouseAdapter(){
+			public void mousePressed(MouseEvent e) {
+				requestFocus();
+			}
+        });
     }
 
     public Zone getZone() {
@@ -124,6 +133,13 @@ public class ZoneRenderer extends JPanel implements DropTargetListener {
         repaint();
     }
 
+    /* (non-Javadoc)
+	 * @see javax.swing.JComponent#isRequestFocusEnabled()
+	 */
+	public boolean isRequestFocusEnabled() {
+		return true;
+	}
+    
     public void moveGridBy(int dx, int dy) {
 
     	int gridOffsetX = zone.getGridOffsetX();

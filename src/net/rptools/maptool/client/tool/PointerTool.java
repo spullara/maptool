@@ -33,10 +33,15 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
@@ -49,7 +54,7 @@ import net.rptools.maptool.model.Token;
 
 /**
  */
-public class PointerTool extends Tool implements MouseListener, MouseWheelListener, MouseMotionListener, KeyListener {
+public class PointerTool extends Tool implements MouseListener, MouseWheelListener, MouseMotionListener {
     private static final long serialVersionUID = 3258411729238372921L;
     
     private boolean isDraggingMap;
@@ -195,19 +200,36 @@ public class PointerTool extends Tool implements MouseListener, MouseWheelListen
 		}
 	}	
 	
-	////
-	// KEY LISTENER
-	public void keyPressed(java.awt.event.KeyEvent e){}
-	
-	public void keyReleased(java.awt.event.KeyEvent e){}
-	
-	public void keyTyped(java.awt.event.KeyEvent e){
-		
-		System.out.println (e.getKeyChar());
-		switch (e.getKeyChar()) {
-		
-		case KeyEvent.VK_DELETE:
-			System.out.println ("Delete");
-		}
+	/* (non-Javadoc)
+	 * @see net.rptools.maptool.client.Tool#getKeyActionMap()
+	 */
+	protected Map<KeyStroke, Action> getKeyActionMap() {
+		return new HashMap<KeyStroke, Action>() {
+			{
+				// TODO: Optimize this by making it non anonymous
+				put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
+				
+					public void actionPerformed(java.awt.event.ActionEvent e) {
+						
+						ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+						
+						Set<Token> selectedTokenSet = renderer.getSelectedTokenSet();
+						
+						for (Token token : selectedTokenSet) {
+							
+			                if (MapToolClient.isConnected()) {
+			                	
+			                	// TODO: abstract this
+			                    ClientConnection conn = MapToolClient.getInstance().getConnection();
+			                    
+			                    conn.callMethod(MapToolClient.COMMANDS.removeToken.name(), renderer.getZone().getId(), token.getId());
+			                }
+						}
+						
+						renderer.clearSelectedTokens();
+					}
+				});
+			}
+		};
 	}
 }

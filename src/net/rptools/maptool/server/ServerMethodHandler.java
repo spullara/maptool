@@ -93,8 +93,14 @@ public class ServerMethodHandler extends AbstractMethodHandler {
             broadcast(id, MapToolClient.COMMANDS.putToken.name(), zoneGUID, token);
             break;
         case removeToken:
+        	zoneGUID = (GUID) parameters[0];
+        	GUID tokenGUID = (GUID) parameters[1];
+
             zone = server.getCampaign().getZone((GUID) parameters[0]);
-            zone.removeToken((GUID) parameters[1]);
+        	zone.removeToken(tokenGUID);
+        	
+            server.getConnection().broadcastCallMethod(MapToolClient.COMMANDS.removeToken.name(), parameters);
+        	
             break;
         case draw:
         	zoneGUID = (GUID) parameters[0];

@@ -26,18 +26,26 @@ package net.rptools.maptool.client;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
+import java.util.Map;
 
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 /**
  */
 public abstract class Tool extends JToggleButton {
 
+	private InputMap oldInputMap;
+	private ActionMap oldActionMap;
+	
     public Tool () {
 
         setFocusPainted(false);
@@ -70,11 +78,19 @@ public abstract class Tool extends JToggleButton {
 		if (this instanceof MouseMotionListener) {
 			comp.addMouseMotionListener((MouseMotionListener)this);
 		}
-		if (this instanceof KeyListener) {
-			comp.addKeyListener((KeyListener)this);
-		}
 		if (this instanceof MouseWheelListener) {
 			comp.addMouseWheelListener((MouseWheelListener)this);
+		}
+		
+		// Keystrokes
+		oldInputMap = comp.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		oldActionMap = comp.getActionMap();
+
+		Map<KeyStroke, Action> keyActionMap = getKeyActionMap();
+		if (keyActionMap != null) {
+			
+			SwingUtilities.replaceUIActionMap(comp, createActionMap(keyActionMap));
+			SwingUtilities.replaceUIInputMap(comp, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, createInputMap(keyActionMap));
 		}
 	}
 	
@@ -90,12 +106,13 @@ public abstract class Tool extends JToggleButton {
 		if (this instanceof MouseMotionListener) {
 			comp.removeMouseMotionListener((MouseMotionListener)this);
 		}
-		if (this instanceof KeyListener) {
-			comp.removeKeyListener((KeyListener)this);
-		}
 		if (this instanceof MouseWheelListener) {
 			comp.removeMouseWheelListener((MouseWheelListener)this);
 		}
+
+		// Keystrokes
+		SwingUtilities.replaceUIActionMap(comp, oldActionMap);
+		SwingUtilities.replaceUIInputMap(comp, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, oldInputMap);
 	}
 	
 	protected void attachTo(ZoneRenderer renderer) {
@@ -106,6 +123,16 @@ public abstract class Tool extends JToggleButton {
 		// No op
 	}
 
+	/**
+	 * Tool instances may override this method to supply keystoke mappings
+	 * specific to the tool
+	 * @return
+	 */
+	protected Map<KeyStroke, Action> getKeyActionMap() {
+		// No op
+		return null;
+	}
+	
 	private ToolboxBar toolbox;
 	
 	public void setToolbox(ToolboxBar toolbox) {
@@ -114,6 +141,29 @@ public abstract class Tool extends JToggleButton {
 	
     public ToolboxBar getToolbox() {
         return toolbox;
+    }
+    
+    private InputMap createInputMap (Map<KeyStroke, Action> keyActionMap) {
+    	
+    	InputMap inputMap = new InputMap();
+    	for (KeyStroke keyStroke : keyActionMap.keySet()) {
+    		
+    		inputMap.put(keyStroke, keyStroke.toString());
+    	}
+    	
+    	return inputMap;
+    }
+    
+    private ActionMap createActionMap(Map<KeyStroke, Action> keyActionMap) {
+    	
+    	ActionMap actionMap = new ActionMap();
+
+    	for (KeyStroke keyStroke : keyActionMap.keySet()) {
+    		
+    		actionMap.put(keyStroke.toString(), keyActionMap.get(keyStroke));
+    	}
+    	
+    	return actionMap;
     }
     
 }
