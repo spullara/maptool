@@ -36,24 +36,33 @@ import static net.rptools.clientserver.ActivityListener.Direction.Inbound;
 import static net.rptools.clientserver.ActivityListener.Direction.Outbound;
 import static net.rptools.clientserver.ActivityListener.State.Complete;
 import static net.rptools.clientserver.ActivityListener.State.Start;
+import net.rptools.maptool.client.swing.Animatable;
+import net.rptools.maptool.client.swing.AnimationManager;
 import net.rptools.maptool.util.ImageUtil;
 
 /**
  * @author trevor
  */
-public class ActivityMonitorPanel extends JComponent implements ActivityListener {
+public class ActivityMonitorPanel extends JComponent implements ActivityListener, Animatable {
 
 	private static final int PADDING = 3;
+	private static final int ON_DELAY = 100;
 	
 	private boolean receiving;
 	private boolean transmitting;
 
+	private boolean receiveComplete;
+	private boolean transmitComplete;
+	
 	private static BufferedImage transmitOn;
 	private static BufferedImage transmitOff;
 	
 	private static BufferedImage receiveOn;
 	private static BufferedImage receiveOff;
 
+	private static long receiveStart;
+	private static long transmitStart;
+	
 	private static Dimension prefSize;
 
 	static {
@@ -102,6 +111,30 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 		return prefSize;
 	}
 	
+	////
+	// ANIMATABLE
+	
+	public void animate() {
+		
+		long now = System.currentTimeMillis();
+		boolean turnOff = false;
+		
+		if (transmitting && transmitComplete && now > transmitStart + ON_DELAY) {
+			transmitting = false;
+			turnOff = true;
+		}
+
+		if (receiving && receiveComplete && now > receiveStart + ON_DELAY) {
+			turnOff = true;
+			receiving = false;
+		}
+		
+		if (!transmitting && !receiving && turnOff) {
+			AnimationManager.removeAnimatable(this);
+			repaint();
+		}
+	}
+	
 	//// 
 	// ACTIVITY LISTENER
 	
@@ -115,12 +148,21 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 				
 				switch(state) {
 				case Start: {
-					receiving = true;
+					receiving = true; 
+					receiveComplete = false;
+					receiveStart = System.currentTimeMillis();
+
+					AnimationManager.addAnimatable(this);
+					
 					repaint();
 					break;
 				}
 				case Complete: {
-					receiving = false;
+					receiveComplete = true;
+					
+					if (System.currentTimeMillis() > receiveStart + ON_DELAY) {
+						receiving = false;
+					}
 					repaint();
 					break;
 				}
@@ -133,11 +175,20 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 				switch(state) {
 				case Start: {
 					transmitting = true;
+					transmitComplete = false;
+					transmitStart = System.currentTimeMillis();
+
+					AnimationManager.addAnimatable(this);
+
 					repaint();
 					break;
 				}
 				case Complete: {
-					transmitting = false;
+					transmitComplete = true;
+					
+					if (System.currentTimeMillis() > transmitStart + ON_DELAY) {
+						transmitting = false;
+					}
 					repaint();
 					break;
 				}
