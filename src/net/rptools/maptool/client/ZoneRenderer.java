@@ -55,6 +55,7 @@ import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.server.MapToolServer;
@@ -440,21 +441,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
             Image image = ImageManager.getImage(asset);
             float scale = scaleArray[scaleIndex];
 
-            int width = 0;
-            int height = 0;
             int x = 0;
             int y = 0;
 
-            if (token.isSnapToScale()) {
-                
-                width = (int)(gridSize * token.getScaleX());
-                height = (int)(gridSize * token.getScaleY());
-            } else {
-                
-                width = (int)(token.getScaleX());
-                height = (int)(token.getScaleY());
-            }
-
+            int width = TokenSize.getWidth(token, gridSize);
+            int height = TokenSize.getHeight(token, gridSize);
+            
             // OPTIMIZE:
             x = (int)((token.getX() * gridSize) * scale + offsetX) + (int) (gridOffsetX * scaleArray[scaleIndex]) + 1;
             y = (int)((token.getY() * gridSize) * scale + offsetY) + (int) (gridOffsetY * scaleArray[scaleIndex]) + 1;

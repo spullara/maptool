@@ -27,7 +27,7 @@ public class TitleMenuItem extends JMenuItem {
 	 */
 	protected void paintComponent(Graphics g) {
 
-		g.setColor(Color.blue);
+		g.setColor(Color.darkGray);
 		g.fillRect(0, 0, getSize().width, getSize().height);
 		
 		g.setColor(Color.white);

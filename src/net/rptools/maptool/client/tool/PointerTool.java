@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -41,6 +42,7 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
@@ -53,6 +55,7 @@ import net.rptools.maptool.client.ZoneOverlay;
 import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.client.swing.TitleMenuItem;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.TokenSize;
 
 
 
@@ -264,16 +267,16 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 	 */
 	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 
-		if (tokenUnderMouse != null && renderer.getSelectedTokenSet().contains(tokenUnderMouse)) {
-
-			Rectangle rect = renderer.getTokenBounds(tokenUnderMouse);
-			
-			g.setColor(Color.black);
-			g.fillRect(rect.x + rect.width - 10, rect.y + rect.height - 10, 10, 10);
-
-			g.setColor(Color.white);
-			g.fillRect(rect.x + rect.width - 8, rect.y + rect.height - 8, 8, 8);
-		}
+//		if (tokenUnderMouse != null && renderer.getSelectedTokenSet().contains(tokenUnderMouse)) {
+//
+//			Rectangle rect = renderer.getTokenBounds(tokenUnderMouse);
+//			
+//			g.setColor(Color.black);
+//			g.fillRect(rect.x + rect.width - 10, rect.y + rect.height - 10, 10, 10);
+//
+//			g.setColor(Color.white);
+//			g.fillRect(rect.x + rect.width - 8, rect.y + rect.height - 8, 8, 8);
+//		}
 	}
 	
 	////
@@ -281,14 +284,58 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 	
 	private void showTokenContextMenu(MouseEvent e) {
 		
-//    	TitleMenuItem title = new TitleMenuItem("Token");
-//    	title.setEnabled(false);
-//    	
-//    	JPopupMenu popup = new JPopupMenu("testing");
-//    	popup.add(title);
-//    	
-//    	popup.add(new JMenuItem("action"));
-//
-//    	popup.show((ZoneRenderer)e.getSource(), e.getX(), e.getY());
+    	TitleMenuItem title = new TitleMenuItem("Token");
+    	title.setEnabled(false);
+    	
+    	JPopupMenu popup = new JPopupMenu();
+    	popup.add(title);
+    	
+    	// TODO: Genericize the heck out of this.
+    	JMenu size = new JMenu("Size");
+    	JMenuItem freeSize = new JMenuItem("Free Size");
+    	freeSize.setEnabled(false);
+    	JMenuItem small = new JMenuItem(new ChangeSizeAction("Small", TokenSize.SMALL));
+    	JMenuItem normal = new JMenuItem(new ChangeSizeAction("Normal", TokenSize.NORMAL));
+    	JMenuItem large = new JMenuItem(new ChangeSizeAction("Large", TokenSize.LARGE));
+
+    	size.add(freeSize);
+    	size.addSeparator();
+    	size.add(small);
+    	size.add(normal);
+    	size.add(large);
+    	
+    	popup.add(size);
+
+    	popup.show((ZoneRenderer)e.getSource(), e.getX(), e.getY());
+	}
+	
+	private class ChangeSizeAction extends AbstractAction {
+		
+		private int size;
+		
+		public ChangeSizeAction(String label, int size) {
+			super(label);
+			this.size = size;
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+
+			ZoneRenderer renderer = MapToolClient.getInstance().getCurrentZoneRenderer();
+			for (Token token : renderer.getSelectedTokenSet()) {
+				
+				token.setSize(size);
+				if (MapToolClient.isConnected()) {
+					ClientConnection conn = MapToolClient.getInstance().getConnection();
+					
+					conn.callMethod(MapToolClient.COMMANDS.putToken.name(), renderer.getZone().getId(), token);
+				}
+			}
+			
+			renderer.repaint();
+		}
+		
 	}
 }

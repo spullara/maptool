@@ -38,8 +38,9 @@ public class Token {
     private int y;
     
     private boolean snapToScale = true; // Whether the scaleX and scaleY represent snap-to-grid measurements
-    private int scaleX = 1; // Default to using exactly 1x1 grid cell
-    private int scaleY = 1;
+    private int sizeX = 1; // Default to using exactly 1x1 grid cell
+    private int sizeY = 1;
+    private int size; // Abstract size
     
     public Token() {
         
@@ -85,26 +86,26 @@ public class Token {
     /**
      * @return Returns the scaleX.
      */
-    public int getScaleX() {
-        return scaleX;
+    public int getSizeX() {
+        return sizeX;
     }
     /**
      * @param scaleX The scaleX to set.
      */
-    public void setScaleX(int scaleX) {
-        this.scaleX = scaleX;
+    public void setSizeX(int sizeX) {
+        this.sizeX = sizeX;
     }
     /**
-     * @return Returns the scaleY.
+     * @return Returns the sizeY.
      */
-    public int getScaleY() {
-        return scaleY;
+    public int getSizeY() {
+        return sizeY;
     }
     /**
-     * @param scaleY The scaleY to set.
+     * @param sizeY The sizeY to set.
      */
-    public void setScaleY(int scaleY) {
-        this.scaleY = scaleY;
+    public void setSizeY(int sizeY) {
+        this.sizeY = sizeY;
     }
     /**
      * @return Returns the snapScale.
@@ -118,4 +119,17 @@ public class Token {
     public void setSnapToScale(boolean snapScale) {
         this.snapToScale = snapScale;
     }
+    
+	/**
+	 * @return Returns the size.
+	 */
+	public int getSize() {
+		return size;
+	}
+	/**
+	 * @param size The size to set.
+	 */
+	public void setSize(int size) {
+		this.size = size;
+	}
 }
