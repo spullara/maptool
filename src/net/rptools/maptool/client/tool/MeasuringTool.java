@@ -28,32 +28,19 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.AffineTransform;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-import net.rptools.clientserver.hessian.client.ClientConnection;
-import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.Tool;
 import net.rptools.maptool.client.ZoneOverlay;
 import net.rptools.maptool.client.ZoneRenderer;
-import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.ZoneMeasurement;
 
 
 
@@ -67,9 +54,6 @@ public class MeasuringTool extends Tool implements MouseListener, MouseMotionLis
 	
 	private int currX;
 	private int currY;
-	
-	private static final int BOX_PADDINGX = 5;
-	private static final int BOX_PADDINGY = 2;
 	
 	public MeasuringTool () {
 		try {
@@ -173,61 +157,16 @@ public class MeasuringTool extends Tool implements MouseListener, MouseMotionLis
 			
 			Point startCell = renderer.getCellAt(dragStartX, dragStartY);
 			Point endCell = renderer.getCellAt(currX, currY);
-			
-			// Calculate Distance
-			int distX = Math.abs(startCell.x - endCell.x);
-			int distY = Math.abs(startCell.y - endCell.y);
-			
-			double dist = Math.sqrt(distX*distX + distY*distY);
-            
-            if (renderer.getZone().isRoundDistance()) {
-                dist = Math.round(dist);
-            }
-            dist *= renderer.getZone().getFeetPerCell();
-			
-			
-			String distString = distanceStringEnglish(dist);
+
+			String distString = new ZoneMeasurement(renderer.getZone().getFeetPerCell(), renderer.getZone().isRoundDistance()).formatDistanceBetween(startCell, endCell);
 
 			// Calc Locations
 			FontMetrics fm = g.getFontMetrics();
 			int centerX = dragStartX - ((dragStartX - currX)/2);
 			int centerY = dragStartY - ((dragStartY - currY)/2);
 			
-			int strWidth = SwingUtilities.computeStringWidth(fm, distString);
-
-			// Box
-			Rectangle boxBounds = new Rectangle(centerX - strWidth/2 - BOX_PADDINGX, centerY - fm.getHeight()/2 - BOX_PADDINGY, strWidth + BOX_PADDINGX*2, fm.getHeight() + BOX_PADDINGY*2);
-			g.setColor(Color.white);
-			g.fillRect(boxBounds.x, boxBounds.y, boxBounds.width, boxBounds.height);
-			
-			// -- border
-			g.setColor(Color.black);
-			g.drawRect(boxBounds.x, boxBounds.y, boxBounds.width, boxBounds.height);
-			
-			// Renderer distance
-			g.setColor(Color.black);
-			int textX = centerX - (strWidth / 2);
-			int textY = centerY - (fm.getHeight() / 2) + fm.getAscent();
-			
-			g.drawString(distString, textX, textY);
-
+			ToolHelper.drawBoxedString(g, distString, centerX, centerY);
 		}
 	}
     
-    private static String distanceStringEnglish(double distance) {
-        StringBuilder sb = new StringBuilder();
-        long totalInches = Math.round(distance * 12);
-        
-        long feet = totalInches / 12;
-        long inches = totalInches - (feet * 12);
-        
-        
-        sb.append(feet).append("'");
-        
-        if (inches != 0) {
-            sb.append(" ").append(inches).append("\"");
-        }
-
-        return sb.toString();
-    }
 }

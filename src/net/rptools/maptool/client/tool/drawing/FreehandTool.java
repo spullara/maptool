@@ -43,6 +43,9 @@ public class FreehandTool extends AbstractLineTool implements MouseMotionListene
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+        
+        // Don't ever show measurement drawing with freehand tool
+        drawMeasurementDisabled = true;
     }
 
     ////

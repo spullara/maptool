@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.model.drawing.Pen;
 
 /**
@@ -42,6 +43,7 @@ public class OvalFillTool extends OvalTool {
             }
 
             oval.draw(g, pen);
+            ToolHelper.drawBoxedMeasurement(renderer, g, oval.getStartPoint(), oval.getEndPoint());
         }
     }
 	

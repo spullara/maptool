@@ -36,6 +36,7 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.model.drawing.Oval;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.MapToolServer;
@@ -74,6 +75,7 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
             }
 
             oval.draw(g, pen);
+            ToolHelper.drawBoxedMeasurement(renderer, g, oval.getStartPoint(), oval.getEndPoint());
         }
     }
 

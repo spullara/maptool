@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.model.drawing.Pen;
 
 /**
@@ -44,6 +45,7 @@ public class RectangleFillTool extends RectangleTool {
             }
         	
             rectangle.draw(g, pen);
+            ToolHelper.drawBoxedMeasurement(renderer, g, rectangle.getStartPoint(), rectangle.getEndPoint());
         }
     }
 

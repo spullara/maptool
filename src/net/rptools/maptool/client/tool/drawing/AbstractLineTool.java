@@ -27,9 +27,11 @@ package net.rptools.maptool.client.tool.drawing;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseListener;
+import java.util.List;
 
 import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.Point;
@@ -45,6 +47,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
     private int currentY;
 
     private LineSegment line;
+    protected boolean drawMeasurementDisabled;
     
     protected int getCurrentX() {
         return currentX;
@@ -108,6 +111,10 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
             }
 
             line.draw(g, pen);
-		}
+            List<Point> pointList = line.getPoints();
+            if (!drawMeasurementDisabled && pointList.size() > 1) {
+            	ToolHelper.drawMeasurement(renderer, g, pointList.get(pointList.size()-2), pointList.get(pointList.size()-1));
+            }
+        }
 	}
 }
