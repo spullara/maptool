@@ -348,8 +348,8 @@ public class MapToolClient extends JFrame {
 		// FILE
 		JMenu fileMenu = new JMenu("File");
 		fileMenu.add(new JMenuItem(ClientActions.LOAD_MAP));
-		//fileMenu.add(new JMenuItem(ClientActions.LOAD_CAMPAIGN));
-		//fileMenu.add(new JMenuItem(ClientActions.SAVE_CAMPAIGN));
+		fileMenu.add(new JMenuItem(ClientActions.LOAD_CAMPAIGN));
+		fileMenu.add(new JMenuItem(ClientActions.SAVE_CAMPAIGN));
 		fileMenu.addSeparator();
         fileMenu.add(actionMenu);
         fileMenu.addSeparator();

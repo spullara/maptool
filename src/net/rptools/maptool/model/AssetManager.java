@@ -53,6 +53,10 @@ public class AssetManager {
 			cacheDir.mkdirs();
 		}
 	}
+
+	public static boolean hasAsset(MD5Key key) {
+		return assetMap.containsKey(key) || assetIsInPersistentCache(key);
+	}
 	
 	public static void putAsset(Asset asset) {
 		if (asset == null) {

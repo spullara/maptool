@@ -39,8 +39,10 @@ import javax.swing.KeyStroke;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.server.MapToolServer;
 import net.rptools.maptool.util.FileUtil;
+import net.rptools.maptool.util.PersistenceUtil;
 
 
 /**
@@ -183,6 +185,66 @@ public class ClientActions {
 
     };
 
+    public static final Action LOAD_CAMPAIGN = new ClientAction () {
+    	
+        {
+            putValue(Action.NAME, "Load Campaign");
+        }
+    	
+        public void execute(ActionEvent ae) {
+        
+        	JFileChooser chooser = MapToolClient.getLoadFileChooser();
+        	chooser.setDialogTitle("Load Campaign");
+        	
+        	if (chooser.showOpenDialog(MapToolClient.getInstance()) == JFileChooser.APPROVE_OPTION) {
+        		
+        		try {
+        			Campaign campaign = PersistenceUtil.loadCampaign(chooser.getSelectedFile());
+        			
+        			if (campaign != null) {
+        				
+        				MapToolClient.setCampaign(campaign);
+        				
+        				if (MapToolClient.isConnected()) {
+        					
+                            ClientConnection conn = MapToolClient.getInstance().getConnection();
+                            
+                            conn.callMethod(MapToolClient.COMMANDS.setCampaign.name(), campaign);
+        				}
+        			}
+        			
+        		} catch (IOException ioe) {
+        			MapToolClient.showError("Could not load campaign: " + ioe);
+        		}
+        	}
+        }
+    };
+    
+    public static final Action SAVE_CAMPAIGN = new ClientAction () {
+    	
+        {
+            putValue(Action.NAME, "Save Campaign");
+        }
+    	
+        public void execute(ActionEvent ae) {
+        
+        	Campaign campaign = MapToolClient.getCampaign();
+        	
+        	// TODO: this should eventually just remember the last place it was saved
+        	JFileChooser chooser = MapToolClient.getSaveFileChooser();
+        	chooser.setDialogTitle("Save Campaign");
+        	
+        	if (chooser.showSaveDialog(MapToolClient.getInstance()) == JFileChooser.APPROVE_OPTION) {
+        		
+        		try {
+        			PersistenceUtil.saveCampaign(campaign, chooser.getSelectedFile());
+        		} catch (IOException ioe) {
+        			MapToolClient.showError("Could not save campaign: " + ioe);
+        		}
+        	}
+        }
+    };
+    
     public static final Action LOAD_MAP = new ClientAction() {
         {
             putValue(Action.NAME, "Load Map");

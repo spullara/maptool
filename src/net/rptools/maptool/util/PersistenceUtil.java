@@ -30,8 +30,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Zone;
 
 import com.caucho.hessian.io.HessianInput;
 import com.caucho.hessian.io.HessianOutput;
@@ -46,21 +54,48 @@ public class PersistenceUtil {
 		// This is a veeeeeery primitive form of perstence, and will be changing very soon
 		OutputStream os = new FileOutputStream(campaignFile);
 		HessianOutput out = new HessianOutput(os);
+		
+		PersistedCampaign persistedCampaign = new PersistedCampaign();
+		
+		persistedCampaign.campaign = campaign;
+		
+		// Save all assets in active use
+		for (Zone zone : campaign.getZones()) {
+			
+			persistedCampaign.assetMap.put(zone.getAssetID(), AssetManager.getAsset(zone.getAssetID()));
+			
+			for (Token token : zone.getTokens()) {
+				
+				persistedCampaign.assetMap.put(token.getAssetID(), AssetManager.getAsset(token.getAssetID()));
+			}
+		}
 
-		out.writeObject(campaign);
+		out.writeObject(persistedCampaign);
 		os.close();		
 	}
 	
 	public static Campaign loadCampaign(File campaignFile) throws IOException {
 		
-		Campaign campaign = null;
-		
 		InputStream is = new FileInputStream(campaignFile);
 		HessianInput in = new HessianInput(is);
 
-		campaign = (Campaign) in.readObject(null);
+		PersistedCampaign persistedCampaign = (PersistedCampaign) in.readObject(null);
 		is.close();
+
+		for (MD5Key key : persistedCampaign.assetMap.keySet()) {
+			
+			if (!AssetManager.hasAsset(key)) {
+				AssetManager.putAsset(persistedCampaign.assetMap.get(key));
+			}
+		}
 		
-		return campaign;
+		return persistedCampaign.campaign;
+	}
+	
+	public static class PersistedCampaign {
+		
+		public Campaign campaign;
+		public Map<MD5Key, Asset> assetMap = new HashMap<MD5Key, Asset>();
+		
 	}
 }
