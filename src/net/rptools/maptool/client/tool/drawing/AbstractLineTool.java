@@ -113,7 +113,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
             line.draw(g, pen);
             List<Point> pointList = line.getPoints();
             if (!drawMeasurementDisabled && pointList.size() > 1) {
-            	ToolHelper.drawMeasurement(renderer, g, pointList.get(pointList.size()-2), pointList.get(pointList.size()-1));
+            	ToolHelper.drawMeasurement(renderer, g, pointList.get(pointList.size()-2), pointList.get(pointList.size()-1), false);
             }
         }
 	}

@@ -43,7 +43,7 @@ public class ToolHelper {
 	private static final int BOX_PADDINGX = 5;
 	private static final int BOX_PADDINGY = 2;
 	
-	public static void drawBoxedMeasurement(ZoneRenderer renderer, Graphics2D g, Point startPoint, Point endPoint) {
+	public static void drawBoxedMeasurement(ZoneRenderer renderer, Graphics2D g, Point startPoint, Point endPoint, boolean roundDistance) {
     	
         // Calculations
         int left = Math.min(startPoint.getX(), endPoint.getX());
@@ -51,7 +51,7 @@ public class ToolHelper {
         int right = Math.max(startPoint.getX(), endPoint.getX());
         int bottom = Math.max(startPoint.getY(), endPoint.getY());
 
-        ZoneMeasurement measurement = new ZoneMeasurement(renderer.getZone().getFeetPerCell(), renderer.getZone().isRoundDistance());
+        ZoneMeasurement measurement = new ZoneMeasurement(renderer.getZone().getFeetPerCell(), roundDistance);
         
         // HORIZONTAL Measure
         g.setColor(Color.black);
@@ -69,7 +69,7 @@ public class ToolHelper {
         drawBoxedString(g, distance, right + 18, bottom + (top - bottom)/2);    
     }
     
-	public static void drawMeasurement(ZoneRenderer renderer, Graphics2D g, Point startPoint, Point endPoint) {
+	public static void drawMeasurement(ZoneRenderer renderer, Graphics2D g, Point startPoint, Point endPoint, boolean roundDistance) {
 		
         int left = Math.min(startPoint.getX(), endPoint.getX());
         int top = Math.min(startPoint.getY(), endPoint.getY());
@@ -82,7 +82,7 @@ public class ToolHelper {
         int centerX = left + (right - left)/2;
         int centerY = bottom + (top - bottom)/2;
         
-        ZoneMeasurement measurement = new ZoneMeasurement(renderer.getZone().getFeetPerCell(), renderer.getZone().isRoundDistance());
+        ZoneMeasurement measurement = new ZoneMeasurement(renderer.getZone().getFeetPerCell(), roundDistance);
         drawBoxedString(g, measurement.formatDistanceBetween(cellStart, cellEnd), centerX, centerY);
 	}
 	

@@ -43,7 +43,7 @@ public class OvalFillTool extends OvalTool {
             }
 
             oval.draw(g, pen);
-            ToolHelper.drawBoxedMeasurement(renderer, g, oval.getStartPoint(), oval.getEndPoint());
+            ToolHelper.drawBoxedMeasurement(renderer, g, oval.getStartPoint(), oval.getEndPoint(), false);
         }
     }
 	

@@ -45,7 +45,7 @@ public class RectangleFillTool extends RectangleTool {
             }
         	
             rectangle.draw(g, pen);
-            ToolHelper.drawBoxedMeasurement(renderer, g, rectangle.getStartPoint(), rectangle.getEndPoint());
+            ToolHelper.drawBoxedMeasurement(renderer, g, rectangle.getStartPoint(), rectangle.getEndPoint(), false);
         }
     }
 

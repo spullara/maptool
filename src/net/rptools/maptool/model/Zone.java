@@ -45,7 +45,6 @@ public class Zone extends Token {
     private int gridOffsetY = 0;
     
     private int feetPerCell = 5;
-    private boolean roundDistance = true;
     
     private List<DrawnElement> drawables = new LinkedList<DrawnElement>();
 
@@ -97,14 +96,6 @@ public class Zone extends Token {
     
     public void setFeetPerCell(int feetPerCell) {
     	this.feetPerCell = feetPerCell;
-    }
-    
-    public boolean isRoundDistance() {
-        return roundDistance;
-    }
-    
-    public void setRoundDistance(boolean roundDistance) {
-        this.roundDistance = roundDistance;
     }
     
     ///////////////////////////////////////////////////////////////////////////
