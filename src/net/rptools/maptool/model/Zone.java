@@ -26,7 +26,11 @@ package net.rptools.maptool.model;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+
+import net.rptools.maptool.model.drawing.Drawable;
+import net.rptools.maptool.model.drawing.DrawnElement;
 
 /**
  * This object represents the maps that will appear for placement of {@link Token}s.  This
@@ -37,10 +41,10 @@ public class Zone extends Token {
     private String name;
     
     private int gridSize = 40;
-
     private int gridOffsetX = 0;
-
     private int gridOffsetY = 0;
+    
+    private List<DrawnElement> drawables = new LinkedList<DrawnElement>();
 
     private LinkedHashMap<GUID, Token> tokens = new LinkedHashMap<GUID, Token>();
 
@@ -83,7 +87,19 @@ public class Zone extends Token {
     public void setGridSize(int gridSize) {
         this.gridSize = gridSize;
     }
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // drawables
+    ///////////////////////////////////////////////////////////////////////////
 
+    public void addDrawable(DrawnElement drawnElement) {
+    	drawables.add(drawnElement);
+    }
+    
+    public List<DrawnElement> getDrawnElements() {
+    	return drawables;
+    }
+    
     ///////////////////////////////////////////////////////////////////////////
     // tokens
     ///////////////////////////////////////////////////////////////////////////

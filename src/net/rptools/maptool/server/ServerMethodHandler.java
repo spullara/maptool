@@ -32,6 +32,7 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
+import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.MapToolServer.COMMANDS;
 import static net.rptools.maptool.server.MapToolServer.COMMANDS;
@@ -96,8 +97,16 @@ public class ServerMethodHandler extends AbstractMethodHandler {
             zone.removeToken((GUID) parameters[1]);
             break;
         case draw:
+        	zoneGUID = (GUID) parameters[0];
+        	Pen pen = (Pen) parameters[1];
+        	Drawable drawable = (Drawable) parameters[2];
+        	
             server.draw((GUID) parameters[0], (Pen) parameters[1], (Drawable) parameters[2]);
             server.getConnection().broadcastCallMethod(MapToolClient.COMMANDS.draw.name(), parameters);
+            
+            zone = server.getCampaign().getZone(zoneGUID);
+            
+            zone.addDrawable(new DrawnElement(drawable, pen));
             break;
 
         case setZoneGridSize:

@@ -35,6 +35,7 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
+import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
 
 
@@ -90,13 +91,11 @@ public class ClientMethodHandler extends AbstractMethodHandler {
             Pen pen = (Pen) parameters[1];
         	Drawable drawable = (Drawable) parameters[2];
 
-        	BufferedImage drawableOverlay = MapToolClient.getCurrentZoneRenderer().getDrawableOverlay();
+        	zone = MapToolClient.getCampaign().getZone(zoneGUID);
         	
-        	Graphics2D g = (Graphics2D) drawableOverlay.getGraphics();
+        	zone.addDrawable(new DrawnElement(drawable, pen));
         	
-        	drawable.draw(g, pen);
-        	
-        	MapToolClient.getCurrentZoneRenderer().repaint();
+        	MapToolClient.getInstance().repaint();
             break;
 //        case setZone:
 //        	MapToolClient.setBackgroundPanel(new ZoneRenderer((Zone)parameters[0]));

@@ -55,6 +55,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.server.MapToolServer;
 import net.rptools.maptool.util.ImageManager;
 
@@ -85,6 +86,10 @@ public class ZoneRenderer extends JPanel implements DropTargetListener {
     private Set<Token> selectedTokenSet = new HashSet<Token>();
 
     private BufferedImage drawableOverlay;
+    
+    // This is a workaround to identify when the zone has had a new
+    // drawnelement added.  Not super fond of this.  Rethink it later
+    private int drawnElementCount = -1;
     
     public ZoneRenderer(Zone zone) {
         if (zone == null) { throw new IllegalArgumentException("Zone cannot be null"); }
@@ -195,10 +200,33 @@ public class ZoneRenderer extends JPanel implements DropTargetListener {
     	if (image == null) { return null; }
     	if (zone == null) { return null; }
     	
+    	List<DrawnElement> drawnElements = zone.getDrawnElements();
+    	if (drawableOverlay != null && drawnElements.size() == drawnElementCount) {
+    		return drawableOverlay;
+    	}
+    	
     	if (drawableOverlay == null) {
     		drawableOverlay = getGraphicsConfiguration().createCompatibleImage(image.getWidth(), image.getHeight(), Transparency.BITMASK);
     	}
+    	
+		Graphics2D g = null;
+		try {
+			g = (Graphics2D) drawableOverlay.getGraphics();
+			
+			for (DrawnElement drawnElement : drawnElements) {
+				
+				drawnElement.getDrawable().draw(g, drawnElement.getPen());
+			}
+			
+		} finally {
+			if (g != null) {
+				g.dispose();
+			}
+		}
 
+    	// Don't redraw until the drawables change
+    	drawnElementCount = drawnElements.size();
+    	
     	return drawableOverlay;
     }
 
