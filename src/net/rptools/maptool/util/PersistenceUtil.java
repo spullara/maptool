@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
@@ -83,10 +85,20 @@ public class PersistenceUtil {
 		is.close();
 
 		for (MD5Key key : persistedCampaign.assetMap.keySet()) {
-			
+
+            Asset asset = persistedCampaign.assetMap.get(key);
+            
 			if (!AssetManager.hasAsset(key)) {
-				AssetManager.putAsset(persistedCampaign.assetMap.get(key));
+				AssetManager.putAsset(asset);
 			}
+
+            // Always send it to the server
+            if (MapToolClient.isConnected()) {
+                
+                ClientConnection conn = MapToolClient.getInstance().getConnection();
+                
+                conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
+            }
 		}
 		
 		return persistedCampaign.campaign;
