@@ -120,6 +120,9 @@ public class MapToolClient extends JFrame {
 	
 	private ColorPickerButton foregroundColorPicker = new ColorPickerButton("Foreground color", Color.black);
 	private ColorPickerButton backgroundColorPicker = new ColorPickerButton("Background color", Color.white);
+
+	private StatusPanel statusPanel;
+	private ActivityMonitorPanel activityMonitor = new ActivityMonitorPanel();
 	
 	public static void showError(String message) {
 		JOptionPane.showMessageDialog(instance, message, "Error", JOptionPane.ERROR_MESSAGE);
@@ -141,6 +144,9 @@ public class MapToolClient extends JFrame {
         assetPanel.setMinimumSize(new Dimension(100, 200));
         zoneRendererList = new ArrayList<ZoneRenderer>();
 
+        statusPanel = new StatusPanel();
+        statusPanel.addPanel(activityMonitor);
+        
         // TODO: Clean up this whole section
         mainPanel = new PositionalPanel();
         mainPanel.setOpaque(false);
@@ -168,6 +174,7 @@ public class MapToolClient extends JFrame {
 		setLayout(new BorderLayout());
 		add(BorderLayout.CENTER, mainInnerPanel);
 		add(BorderLayout.NORTH, toolboxPanel);
+		add(BorderLayout.SOUTH, statusPanel);
 
         //addInnerPanel(assetTreePanel);
 		
@@ -274,7 +281,7 @@ public class MapToolClient extends JFrame {
     public void createConnection(String host, int port) throws UnknownHostException, IOException {
         this.conn = new ClientConnection(host, port);
         this.conn.addMessageHandler(handler);
-        this.conn.addActivityListener(new ServerConnectionActivityListener());
+        this.conn.addActivityListener(activityMonitor);
     }
     
     public void closeConnection() throws IOException {
