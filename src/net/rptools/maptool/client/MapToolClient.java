@@ -52,6 +52,7 @@ import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.MeasuringTool;
 import net.rptools.maptool.client.tool.PointerTool;
+import net.rptools.maptool.client.tool.ZoomTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
 import net.rptools.maptool.client.tool.drawing.LineTool;
 import net.rptools.maptool.client.tool.drawing.OvalFillTool;
@@ -326,6 +327,7 @@ public class MapToolClient extends JFrame {
 		toolbox.addTool(new PointerTool());
 		toolbox.addTool(new MeasuringTool());
         toolbox.addTool(new GridTool());
+        toolbox.addTool(new ZoomTool());
 
         toolbox.add(Box.createHorizontalStrut(15));
 
@@ -372,10 +374,18 @@ public class MapToolClient extends JFrame {
 //		serverMenu.add(startServerMenuItem);
 		
         // VIEW
+        JMenu zoomMenu = new JMenu("Zoom");
+        zoomMenu.add(new JMenuItem(ClientActions.ZOOM_IN));
+        zoomMenu.add(new JMenuItem(ClientActions.ZOOM_OUT));
+        zoomMenu.add(new JMenuItem(ClientActions.ZOOM_RESET));
+
         JMenu viewMenu = new JMenu("View");
+        viewMenu.add(zoomMenu);
+        viewMenu.addSeparator();
         viewMenu.add(new JMenuItem(ClientActions.TOGGLE_GRID));
         viewMenu.add(new JMenuItem(ClientActions.TOGGLE_ZONE_SELECTOR));
         viewMenu.add(new JMenuItem(ClientActions.TOGGLE_ASSET_PANEL));
+
         
         // ASSEMBLE
 		menuBar.add(fileMenu);

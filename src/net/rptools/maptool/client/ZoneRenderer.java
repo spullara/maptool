@@ -79,8 +79,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
     private boolean           showGrid;
     private Color             gridColor = new Color (150, 150, 150);
 
-    private int               scaleIndex  = 3;
-    private float[]           scaleArray  = new float[] { .25F, .50F, .75F, 1F, 1.25F, 1.5F, 1.75F, 2F, 4F};
+    private int               scaleIndex;
+    private static float[]    scaleArray  = new float[] { .25F, .30F, .40F, .50F, .60F, .75F, 1F, 1.25F, 1.5F, 1.75F, 2F, 3F, 4F};
+    private static int SCALE_1TO1_INDEX; // Automatically scanned for
 
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
     private Map<Rectangle, Token> tokenBoundsMap = new HashMap<Rectangle, Token>();
@@ -93,12 +94,22 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
     // This is a workaround to identify when the zone has had a new
     // drawnelement added.  Not super fond of this.  Rethink it later
     private int drawnElementCount = -1;
+
+    static {
+    	for (int i = 0; i < scaleArray.length; i++) {
+    		if (scaleArray[i] == 1) {
+    			SCALE_1TO1_INDEX = i;
+    			break;
+    		}
+    	}
+    }
     
     public ZoneRenderer(Zone zone) {
         if (zone == null) { throw new IllegalArgumentException("Zone cannot be null"); }
 
         this.zone = zone;
-
+        scaleIndex = SCALE_1TO1_INDEX;
+        
         // DnD
         new DropTarget(this, this);
 
@@ -188,12 +199,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
         repaint();
     }
 
+    public void zoomReset() {
+    	zoomTo(getSize().width/2, getSize().height/2, SCALE_1TO1_INDEX);
+    }
+
     public void zoomIn(int x, int y) {
-        zoomTo(x, y, scaleIndex - 1);
+        zoomTo(x, y, scaleIndex + 1);
     }
 
     public void zoomOut(int x, int y) {
-        zoomTo(x, y, scaleIndex + 1);
+        zoomTo(x, y, scaleIndex - 1);
     }
 
     private void zoomTo(int x, int y, int index) {

@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -60,6 +61,53 @@ public class ClientActions {
             ZoneRenderer renderer = MapToolClient.getCurrentZoneRenderer();
             if (renderer != null) {
                 renderer.toggleGrid();
+            }
+        }
+    };
+
+    public static final Action ZOOM_IN = new ClientAction() {
+
+        {
+            putValue(Action.NAME, "Zoom In");
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, 0));
+        }
+
+        public void execute(ActionEvent e) {
+            ZoneRenderer renderer = MapToolClient.getCurrentZoneRenderer();
+            if (renderer != null) {
+            	Dimension size = renderer.getSize();
+                renderer.zoomIn(size.width/2, size.height/2);
+            }
+        }
+    };
+
+    public static final Action ZOOM_OUT = new ClientAction() {
+
+        {
+            putValue(Action.NAME, "Zoom Out");
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, 0));
+        }
+
+        public void execute(ActionEvent e) {
+            ZoneRenderer renderer = MapToolClient.getCurrentZoneRenderer();
+            if (renderer != null) {
+            	Dimension size = renderer.getSize();
+                renderer.zoomOut(size.width/2, size.height/2);
+            }
+        }
+    };
+
+    public static final Action ZOOM_RESET = new ClientAction() {
+
+        {
+            putValue(Action.NAME, "Zoom 1:1");
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, KeyEvent.SHIFT_MASK));
+        }
+
+        public void execute(ActionEvent e) {
+            ZoneRenderer renderer = MapToolClient.getCurrentZoneRenderer();
+            if (renderer != null) {
+                renderer.zoomReset();
             }
         }
     };
