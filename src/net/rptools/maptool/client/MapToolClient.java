@@ -25,6 +25,7 @@
 package net.rptools.maptool.client;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.IOException;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -46,6 +48,7 @@ import javax.swing.JSeparator;
 import javax.swing.UIManager;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.maptool.client.swing.ColorPickerButton;
 import net.rptools.maptool.client.swing.JSplitPaneEx;
 import net.rptools.maptool.client.swing.OutlookPanel;
 import net.rptools.maptool.client.swing.SwingUtil;
@@ -117,6 +120,9 @@ public class MapToolClient extends JFrame {
     private List<ZoneRenderer> zoneRendererList;
     
 	private JSplitPaneEx mainSplitPane;
+	
+	private ColorPickerButton foregroundColorPicker = new ColorPickerButton("Foreground color", Color.black);
+	private ColorPickerButton backgroundColorPicker = new ColorPickerButton("Background color", Color.white);
 	
 	public static void showError(String message) {
 		JOptionPane.showMessageDialog(instance, message, "Error", JOptionPane.ERROR_MESSAGE);
@@ -296,6 +302,9 @@ public class MapToolClient extends JFrame {
 		toolbox.addTool(new PointerTool());
 		toolbox.addTool(new MeasuringTool());
         toolbox.addTool(new GridTool());
+
+        toolbox.add(Box.createHorizontalStrut(15));
+
         toolbox.addTool(new FreehandTool());
         toolbox.addTool(new LineTool());
         toolbox.addTool(new RectangleTool());
@@ -303,9 +312,10 @@ public class MapToolClient extends JFrame {
         toolbox.addTool(new OvalTool());
         toolbox.addTool(new OvalFillTool());
         
-        toolbox.add(ClientActions.CHOOSE_COLOR);
+        toolbox.add(Box.createHorizontalStrut(15));
         
-        toolbox.add(ClientActions.CHOOSE_BACKGROUND_COLOR);
+        toolbox.add(foregroundColorPicker);
+        toolbox.add(backgroundColorPicker);
 
         return toolbox;
 	}
@@ -345,6 +355,9 @@ public class MapToolClient extends JFrame {
 	}
 	
     public Pen getPen() {
+    	
+    	pen.setColor(foregroundColorPicker.getSelectedColor().getRGB());
+    	pen.setBackgroundColor(backgroundColorPicker.getSelectedColor().getRGB());
         return pen;
     }
 	

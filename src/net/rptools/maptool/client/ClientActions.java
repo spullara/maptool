@@ -259,50 +259,6 @@ public class ClientActions {
         }
     };
     
-    public static final Action CHOOSE_COLOR  = new ClientAction () {
-        {
-            putValue(Action.NAME, "Choose Color");
-            
-            try {
-            	putValue(Action.SMALL_ICON, new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Colorpicker.gif"))));
-            } catch (IOException ioe) {
-            	// Don't show an icon
-            }
-        }
-        
-        public void execute(ActionEvent ae) {
-            Pen pen = MapToolClient.getInstance().getPen();
-            Color oldColor = new Color(pen.getColor());
-            Color newColor = JColorChooser.showDialog(null, "Choose drawing color", oldColor);
-            
-            if (newColor != null) {
-                pen.setColor(newColor.getRGB());
-            }
-        }
-    };
-    
-    public static final Action CHOOSE_BACKGROUND_COLOR = new ClientAction() {
-        {
-            putValue(Action.NAME, "Choose Background Color");
-            
-            try {
-            	putValue(Action.SMALL_ICON, new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Colorpicker.gif"))));
-            } catch (IOException ioe) {
-            	// Don't show an icon
-            }
-        }
-        
-        public void execute(ActionEvent ae) {
-            Pen pen = MapToolClient.getInstance().getPen();
-            Color oldColor = new Color(pen.getBackgroundColor());
-            Color newColor = JColorChooser.showDialog(null, "Choose drawing color", oldColor);
-            
-            if (newColor != null) {
-                pen.setBackgroundColor(newColor.getRGB());
-            }
-        }
-    };
-    
     private static abstract class ClientAction extends AbstractAction {
 
         public final void actionPerformed(ActionEvent e) {
