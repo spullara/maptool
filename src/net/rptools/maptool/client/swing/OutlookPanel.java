@@ -77,6 +77,8 @@ public class OutlookPanel extends JPanel {
         if (m_compList.size() == 1) {
             setActive(0);
         }
+        
+        repaint();
     }
 
     public int getButtonCount() {
