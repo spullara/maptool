@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Main-Class: net.rptools.maptool.client.MapToolClient
+Class-Path: 
+    lib/clientserver-1.0.2.jar
+    lib/hessian-2.1.12.jar
+    lib/looks-1.3b1.jar
+    lib/withay-util.jar
+

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<jnlp codebase="http://rptools.sourceforge.net/maptool">
+	<information>
+		<title>RPTools MapTool</title>
+		<vendor>http://rptools.sourceforge.net/</vendor>
+		<offline-allowed/>
+	</information>
+	
+	<resources>
+		<j2se version="1.5+" />
+		
+		<jar href="maptool-1.0M1.4.jar" />
+		<jar href="lib/clientserver-1.0.b3.jar" />		
+		<jar href="lib/hessian-2.1.12.jar" />		
+		<jar href="lib/looks-1.3b1.jar" />		
+		<jar href="lib/withay-util.jar" />		
+	</resources>
+	
+	<application-desc main-class="net.rptools.maptool.client.MapToolClient" />
+</jnlp>
