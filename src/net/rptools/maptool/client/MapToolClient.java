@@ -75,6 +75,8 @@ import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.MapToolServer;
+import net.rptools.maptool.server.ServerConfig;
+import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.util.MD5Key;
 
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
@@ -298,7 +300,8 @@ public class MapToolClient extends JFrame {
 		// TODO: Allow specifying a campaign
 		// TODO: the client and server campaign MUST be different objects.  Figure out a better init method
 		campaign = new Campaign();
-		MapToolServer server = new MapToolServer (new Campaign(), port);
+		MapToolServer server = new MapToolServer (new ServerConfig(), new ServerPolicy(), port);
+		server.setCampaign(new Campaign());
 	}
 	
 	public static void stopServer() {

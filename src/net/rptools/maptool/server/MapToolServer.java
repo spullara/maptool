@@ -62,15 +62,19 @@ public class MapToolServer {
     private final ServerMethodHandler handler;
     
     private Campaign campaign;
+	private ServerConfig config;
+	private ServerPolicy policy;
 
-    public MapToolServer(Campaign campaign, int port) throws IOException {
+    public MapToolServer(ServerConfig config, ServerPolicy policy, int port) throws IOException {
     	
         handler = new ServerMethodHandler(this);
         conn = new MapToolServerConnection(this, port);
         conn.addMessageHandler(handler);
-        
-        this.campaign = campaign;
-        
+
+		campaign = new Campaign();
+		
+		this.config = config;
+		this.policy = policy;
     }
 
     public void addObserver(ServerObserver observer) {
@@ -84,8 +88,8 @@ public class MapToolServer {
     	conn.removeObserver(observer);
     }
     
-    public MapToolServer() throws IOException {
-    	this(new Campaign(), DEFAULT_PORT);
+    public MapToolServer(ServerConfig config, ServerPolicy policy) throws IOException {
+    	this(config, policy, DEFAULT_PORT);
     }
 
     public ServerConnection getConnection() {
@@ -108,6 +112,6 @@ public class MapToolServer {
     public static void main(String[] args) throws IOException {
     	
     	// This starts the server thread.
-        MapToolServer server = new MapToolServer();
+        MapToolServer server = new MapToolServer(new ServerConfig(), new ServerPolicy());
     }
 }

@@ -29,16 +29,28 @@ public class ServerConfig {
 	private String gmPassword;
 	private String playerPassword;
 	
+	public ServerConfig() {
+		/* no op */
+	}
+	
 	public ServerConfig(String gmPassword, String playerPassword) {
 		this.gmPassword = gmPassword;
 		this.playerPassword = playerPassword;
 	}
 	
 	public boolean gmPasswordMatches(String password) {
-		return (gmPassword == null && password == null) || (gmPassword != null && gmPassword.equals(password));
+		return safeCompare(gmPassword, password);
 	}
 	
 	public boolean playerPasswordMatches(String password) {
-		return (playerPassword == null && password == null) || (playerPassword != null && playerPassword.equals(password));
+		return safeCompare(playerPassword, password);
+	}
+	
+	private boolean safeCompare(String s1, String s2) {
+
+		if (s1 == null) {s1 = "";}
+		if (s2 == null) {s2 = "";}
+		
+		return s1.equals(s2);
 	}
 }
