@@ -53,7 +53,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
     public void handleMethod(String id, String method, Object[] parameters) {
         COMMANDS cmd = Enum.valueOf(COMMANDS.class, method);
-        System.out.println("ClientMethodHandler#handleMethod: " + cmd.name());
+        //System.out.println("ClientMethodHandler#handleMethod: " + cmd.name());
         
         switch (cmd) {
         case setCampaign:

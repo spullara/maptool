@@ -219,13 +219,10 @@ public class MapToolClient extends JFrame {
     }
     
     public void addPlayer(Player player) {
-		
-		System.out.println("Adding player:" + player);
 		playerList.add(player);
 	}
 	
 	public void removePlayer(Player player) {
-		System.out.println("Removing player:" + player);
 		playerList.remove(player);
 	}
 	
