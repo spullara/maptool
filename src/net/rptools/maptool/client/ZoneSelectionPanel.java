@@ -27,8 +27,8 @@ package net.rptools.maptool.client;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Transparency;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DropTarget;
@@ -49,7 +49,6 @@ import javax.swing.JPanel;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.Token;
 
 
 /**
@@ -60,6 +59,8 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
     private static final int PADDING = 5;
     
     private Map<Rectangle, ZoneRenderer> boundsMap;
+    private BufferedImage backBuffer;
+    private int lastZoneCount = -1;
     
     public ZoneSelectionPanel() {
      
@@ -92,45 +93,67 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
     protected void paintComponent(Graphics g) {
         
         Dimension mySize = getSize();
-        
-        // Background
-        g.setColor(new Color(1.0f, 1.0f, 1.0f, 0.5f));
-        g.fillRect(0, 0, mySize.width, mySize.height);
-        g.setColor(Color.black);
-        g.drawRect(1, 1, mySize.width-2, mySize.height-2);
-        g.setColor(Color.white);
-        g.drawRect(0, 0, mySize.width-2, mySize.height-2);
-        
         List<ZoneRenderer> rendererList = MapToolClient.getZoneRenderers();
-        
-        boundsMap.clear();
-        int x = PADDING;
-        for (ZoneRenderer renderer : rendererList) {
-            
-            // TODO: This is a naive solution.  In the future, actually render the zone
-            BufferedImage img = renderer.getBackgroundImage();
-            if (img == null) {
-                continue;
-            }
-            
-            int width = img.getWidth();
-            int height = img.getHeight();
 
-            int targetHeight = mySize.height - PADDING - PADDING;
-            
-            width = (int)(width * (targetHeight / (double)height));
-            height = targetHeight;
-
-            // TODO: handle "still too wide" case
-            
-            g.drawImage(img, x, PADDING, width, height, this);
-            g.setColor(Color.black);
-            g.drawRect(x, PADDING, width, height);
-            
-            boundsMap.put(new Rectangle(x, PADDING, width, height), renderer);
-            
-            x += width + PADDING;
+        if (backBuffer == null || rendererList.size() != lastZoneCount ||
+        		backBuffer.getWidth() != mySize.width ||
+        		backBuffer.getHeight() != mySize.height) {
+        	
+        	lastZoneCount = rendererList.size();
+	        if (backBuffer == null) {
+	        	backBuffer = getGraphicsConfiguration().createCompatibleImage(mySize.width, mySize.height, Transparency.TRANSLUCENT);
+	        }
+	        
+	        Graphics backG = null;
+	        try {
+	        	backG = backBuffer.getGraphics();
+	        	
+		        // Background
+	        	backG.setColor(new Color(1.0f, 1.0f, 1.0f, 0.5f));
+	        	backG.fillRect(0, 0, mySize.width, mySize.height);
+	        	backG.setColor(Color.black);
+	        	backG.drawRect(1, 1, mySize.width-2, mySize.height-2);
+	        	backG.setColor(Color.white);
+	        	backG.drawRect(0, 0, mySize.width-2, mySize.height-2);
+		        
+		        
+		        boundsMap.clear();
+		        int x = PADDING;
+		        for (ZoneRenderer renderer : rendererList) {
+		            
+		            // TODO: This is a naive solution.  In the future, actually render the zone
+		            BufferedImage img = renderer.getBackgroundImage();
+		            if (img == null) {
+		                continue;
+		            }
+		            
+		            int width = img.getWidth();
+		            int height = img.getHeight();
+		
+		            int targetHeight = mySize.height - PADDING - PADDING;
+		            
+		            width = (int)(width * (targetHeight / (double)height));
+		            height = targetHeight;
+		
+		            // TODO: handle "still too wide" case
+		            
+		            backG.drawImage(img, x, PADDING, width, height, this);
+		            backG.setColor(Color.black);
+		            backG.drawRect(x, PADDING, width, height);
+		            
+		            boundsMap.put(new Rectangle(x, PADDING, width, height), renderer);
+		            
+		            x += width + PADDING;
+		        } 
+		        
+	        } finally {
+	        	if (backG != null) {
+	        		backG.dispose();
+	        	}
+	        }
         }
+        
+    	g.drawImage(backBuffer, 0, 0, this);
     }
 
     public ZoneRenderer getRendererAt(int x, int y) {
