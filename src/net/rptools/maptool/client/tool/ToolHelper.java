@@ -31,6 +31,7 @@ import java.awt.Rectangle;
 
 import javax.swing.SwingUtilities;
 
+import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.model.ZoneMeasurement;
 import net.rptools.maptool.model.drawing.Point;
@@ -96,9 +97,7 @@ public class ToolHelper {
 		g.setColor(Color.white);
 		g.fillRect(boxBounds.x, boxBounds.y, boxBounds.width, boxBounds.height);
 		
-		// -- border
-		g.setColor(Color.black);
-		g.drawRect(boxBounds.x, boxBounds.y, boxBounds.width, boxBounds.height);
+    	ClientStyle.border.paintWithin(g, boxBounds);
 		
 		// Renderer distance
 		g.setColor(Color.black);

@@ -83,19 +83,13 @@ public class MapToolServerConnection extends ServerConnection  implements Server
      */
     public void connectionAdded(net.rptools.clientserver.simple.client.ClientConnection conn) {
     	
-    	// Since the server is the first connection observer, this should be called
-    	// before any other events can be sent to the client, so it should be inherantly
-    	// synchronized for handshaking.  
-    	// TODO: Determine if this needs the be synchronized with the actual zone update
-    	// events
-        server.getConnection().callMethod(conn.getId(), MapToolClient.COMMANDS.setCampaign.name(), server.getCampaign());
-
         for (String id : playerMap.keySet()) {
         	
             server.getConnection().callMethod(conn.getId(), MapToolClient.COMMANDS.playerConnected.name(), playerMap.get(id));
         }
         
         server.getConnection().broadcastCallMethod(MapToolClient.COMMANDS.playerConnected.name(), playerMap.get(conn.getId()));
+        server.getConnection().callMethod(conn.getId(), MapToolClient.COMMANDS.setCampaign.name(), server.getCampaign());
     }
     
     public void connectionRemoved(net.rptools.clientserver.simple.client.ClientConnection conn) {

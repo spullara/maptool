@@ -319,7 +319,7 @@ public class MapToolClient extends JFrame {
 	
     public void createConnection(String host, int port, Player player) throws UnknownHostException, IOException {
 
-    	this.conn = new MapToolClientConnection(host, port, player); // TODO: I don't like passing in null here, perhaps another constructor ?
+    	this.conn = new MapToolClientConnection(host, port, player);
         this.conn.addMessageHandler(handler);
         this.conn.addActivityListener(activityMonitor);
         this.conn.addActivityListener(new ActivityProgressListener());

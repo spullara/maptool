@@ -66,9 +66,12 @@ public class Handshake {
 		out.flush();
 		
 		// STATUS
-		out.write(Message.OK);
-		out.flush();
-		
+//		out.write(Message.OK);
+//		out.flush();
+
+//		if (in.read() != Message.OK) {
+//			throw new IOException ("Failed handshake");
+//		}		
 		return new Player(name, role);
 	}
 
@@ -94,9 +97,9 @@ public class Handshake {
 		}
 		
 		// STATUS
-		if (in.read() != Message.OK) {
-			throw new IOException ("Failed handshake");
-		}
+//		if (in.read() != Message.OK) {
+//			throw new IOException ("Failed handshake");
+//		}
 		
 	}
 }

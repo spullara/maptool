@@ -22,39 +22,16 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.util;
+package net.rptools.maptool.client;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import net.rptools.maptool.model.Asset;
-
+import net.rptools.maptool.client.swing.ImageBorder;
 
 /**
+ * @author trevor
  */
-public class ImageManager {
+public class ClientStyle {
 
-    private static Map<MD5Key, BufferedImage> imageMap = new HashMap<MD5Key, BufferedImage>();
+	public static ImageBorder border = new ImageBorder("net/rptools/maptool/client/image/border/default");
     
-    public static BufferedImage getImage(Asset asset) {
-        
-        BufferedImage image = imageMap.get(asset.getId());
-        if (image != null) {
-            return image;
-        }
-        
-        try {
-            image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()));
-            imageMap.put(asset.getId(), image);
-            
-            return image;
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
-        }
-    }
-
-        
+	
 }

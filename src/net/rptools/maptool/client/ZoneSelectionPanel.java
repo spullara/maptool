@@ -27,6 +27,7 @@ package net.rptools.maptool.client;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Transparency;
@@ -53,6 +54,7 @@ import java.util.Map;
 import javax.swing.JPanel;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.maptool.client.swing.ImageBorder;
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.GUID;
@@ -120,11 +122,8 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
 		        // Background
 	        	backG.setColor(new Color(1.0f, 1.0f, 1.0f, 0.5f));
 	        	backG.fillRect(0, 0, mySize.width, mySize.height);
-	        	backG.setColor(Color.black);
-	        	backG.drawRect(1, 1, mySize.width-2, mySize.height-2);
-	        	backG.setColor(Color.white);
-	        	backG.drawRect(0, 0, mySize.width-2, mySize.height-2);
-		        
+
+	        	ClientStyle.border.paintWithin((Graphics2D) backG, 0, 0, getSize().width, getSize().height);
 		        
 		        boundsMap.clear();
 		        int x = PADDING;

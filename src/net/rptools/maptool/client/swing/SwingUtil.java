@@ -53,42 +53,7 @@ public class SwingUtil {
 		window.setLocation(x, y);
 	}
     
-    public static byte[] imageToBytes(BufferedImage image) throws IOException {
-        return imageToBytes(image, "jpg");
-    }
-	
-	public static byte[] imageToBytes(BufferedImage image, String format) throws IOException {
-		
-		ByteArrayOutputStream outStream = new ByteArrayOutputStream(10000);
 
-		ImageIO.write(image, format, outStream);
-		
-		return outStream.toByteArray();
-	}
-	
-	public static Image bytesToImage(byte[] imageBytes) throws IOException {
-		
-		ByteArrayInputStream inStream = new ByteArrayInputStream(imageBytes);
-		
-		Image image = null;
-		try {
-			image = ImageIO.read(inStream);
-		} catch (Exception e) {
-			
-			// Try the old fashioned way
-			image = Toolkit.getDefaultToolkit().createImage(imageBytes);
-			MediaTracker tracker = new MediaTracker(new JPanel());
-			tracker.addImage(image, 0);
-			try {
-				tracker.waitForID(0);
-			} catch (Exception e2) {
-				// nothing to do
-			}
-		}
-		
-		return image;
-	}
-    
     public static boolean isControlDown(InputEvent e) {
         return (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) > 0;
     }
