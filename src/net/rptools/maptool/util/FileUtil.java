@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 /**
  */
@@ -42,6 +43,10 @@ public class FileUtil {
     public static byte[] loadResource(String resource) throws IOException {
         
         return getBytes(FileUtil.class.getClassLoader().getResourceAsStream(resource));
+    }
+    
+    public static byte[] getBytes(URL url) throws IOException {
+    	return getBytes(url.openConnection().getInputStream());
     }
     
     private static byte[] getBytes(InputStream inStream) throws IOException {

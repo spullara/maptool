@@ -61,6 +61,7 @@ public class GridTool extends Tool implements MouseListener, MouseMotionListener
 	 */
 	protected void attachTo(ZoneRenderer renderer) {
 		renderer.setGridVisible(true);
+		renderer.setMouseWheelEnabled(false);
 	}
 	
 	/* (non-Javadoc)

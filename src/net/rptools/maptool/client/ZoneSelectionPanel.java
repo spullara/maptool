@@ -27,10 +27,13 @@ package net.rptools.maptool.client;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Transparency;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
@@ -39,7 +42,10 @@ import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +53,10 @@ import java.util.Map;
 import javax.swing.JPanel;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.util.FileUtil;
 
 
 /**
@@ -195,22 +203,62 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
      * @see java.awt.dnd.DropTargetListener#drop(java.awt.dnd.DropTargetDropEvent)
      */
     public void drop(DropTargetDropEvent dtde) {
-        // TODO Auto-generated method stub
         Transferable transferable = dtde.getTransferable();
-        if (!transferable.isDataFlavorSupported(TransferableAsset.dataFlavor) &&
-        		!transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)) {
-            dtde.dropComplete(false);
-            return;
-        }
 
-        dtde.dropComplete(true);
-        
+        // TODO: Consolidate all of this crap.
         try {
-        	Asset asset = null;
-        	if (transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)) {
-        		
-        		// Add it to the system
-        		asset = (Asset) transferable.getTransferData(TransferableAsset.dataFlavor);
+	        // EXISTING ASSET
+	        if (transferable.isDataFlavorSupported(TransferableAsset.dataFlavor) ||
+	        		transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)) {
+	
+	        	dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+
+	        	Asset asset = null;
+	        	if (transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)) {
+	        		
+	        		// Add it to the system
+	        		asset = (Asset) transferable.getTransferData(TransferableAsset.dataFlavor);
+	        		MapToolClient.getCampaign().putAsset(asset);
+	                if (MapToolClient.isConnected()) {
+	                	
+	                	// TODO: abstract this
+	                    ClientConnection conn = MapToolClient.getInstance().getConnection();
+	                    
+	                    conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
+	                }
+	        		
+	        	} else {
+	        		
+	        		asset = MapToolClient.getCampaign().getAsset((GUID) transferable.getTransferData(TransferableAssetReference.dataFlavor));
+	        	}
+	        	
+	            MapToolClient.addZone(asset.getId());
+	            dtde.dropComplete(true);
+	            return;
+	        
+	        }
+	        
+	        if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+	        	
+	        	dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+	        	List<File> list = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+	        	
+	        	if (list.size() == 0) {
+	        		return;
+	        	}
+	        	
+	        	// For some reason, firefox does not actually write out the temporary file designated in
+	        	// this list until list line is called.  So it has to stay ABOVE the loadFile() call
+	        	// It also requires just a moment to copy from internal system whatever into the file
+	            dtde.dropComplete(true);
+	            try {
+	            	Thread.sleep(1000);
+	            } catch (Exception e) {
+	            	e.printStackTrace();
+	            }
+
+	            // We only support using one at a time for now
+        		Asset asset = new Asset(FileUtil.loadFile(list.get(0)));
         		MapToolClient.getCampaign().putAsset(asset);
                 if (MapToolClient.isConnected()) {
                 	
@@ -219,21 +267,21 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
                     
                     conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
                 }
-        		
-        	} else {
-        		
-        		asset = MapToolClient.getCampaign().getAsset((GUID) transferable.getTransferData(TransferableAssetReference.dataFlavor));
-        	}
 
-            MapToolClient.addZone(asset.getId());
-            
-            repaint();
-
+	            MapToolClient.addZone(asset.getId());
+	            return;
+	        }	        	
+            dtde.dropComplete(false);
+	
         } catch (IOException ioe) {
             ioe.printStackTrace();
         } catch (UnsupportedFlavorException ufe) {
             ufe.printStackTrace();
+        } catch (Exception e) {
+        	e.printStackTrace();
         }
+
+        repaint();
 
     }
 
