@@ -110,7 +110,6 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 	 */
 	public void notify(Direction direction, State state, int total, int current) {
 
-		System.out.println ("GETTING NOTIFY:");
 		switch (direction) {
 			case Inbound: {
 				
