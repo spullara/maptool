@@ -28,7 +28,6 @@
 	
 	<target name="dist" depends="init,compile,deploy-lib">
 		<mkdir dir="${dist}" />
-		<mkdir dir="${dist}/lib" />
 		
 		<buildnumber file="conf/build.number" />
 		
@@ -36,8 +35,18 @@
              manifest="conf/manifest.mf"
 			 basedir="${build}" />
 		
-		<copy todir="${dist}/lib">
+		<copy todir="${dist}">
 			<fileset dir="lib" />
 		</copy>
+		
+		<signjar keystore="keystore"
+			     keypass="rptools"
+		         alias="rptools"
+			     storepass="rptools">
+			<fileset dir="${dist}">
+				<include name="**/*.jar" />
+			</fileset>
+		</signjar>
 	</target>
+	
 </project>
