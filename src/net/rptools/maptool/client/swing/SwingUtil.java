@@ -25,6 +25,8 @@
 package net.rptools.maptool.client.swing;
 
 import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.InputEvent;
@@ -32,10 +34,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 
 import javax.imageio.ImageIO;
+import javax.swing.JPanel;
 
 /**
  */
@@ -65,11 +66,25 @@ public class SwingUtil {
 		return outStream.toByteArray();
 	}
 	
-	public static BufferedImage bytesToImage(byte[] imageBytes) throws IOException {
+	public static Image bytesToImage(byte[] imageBytes) throws IOException {
 		
 		ByteArrayInputStream inStream = new ByteArrayInputStream(imageBytes);
 		
-		BufferedImage image = ImageIO.read(inStream);
+		Image image = null;
+		try {
+			image = ImageIO.read(inStream);
+		} catch (Exception e) {
+			
+			// Try the old fashioned way
+			image = Toolkit.getDefaultToolkit().createImage(imageBytes);
+			MediaTracker tracker = new MediaTracker(new JPanel());
+			tracker.addImage(image, 0);
+			try {
+				tracker.waitForID(0);
+			} catch (Exception e2) {
+				// nothing to do
+			}
+		}
 		
 		return image;
 	}
