@@ -52,6 +52,7 @@ import java.util.Set;
 import javax.swing.JComponent;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
@@ -67,6 +68,9 @@ import net.rptools.maptool.util.ImageManager;
 public class ZoneRenderer extends JComponent implements DropTargetListener, MouseWheelListener {
     private static final long serialVersionUID = 3832897780066104884L;
 
+    // TODO: Perhaps make this a user defined limit
+    public static final int HOVER_SIZE_THRESHOLD = 40;
+    
     private Zone              zone;
 
     private BufferedImage     image;
@@ -457,6 +461,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
             	height *= scale;
             	
             } else {
+
+            	Dimension dim = new Dimension(width, height);
+            	SwingUtil.constrainTo(dim, HOVER_SIZE_THRESHOLD);
+
+            	width = dim.width;
+            	height = dim.height;
             	
             	x -= (width - (width*scale))/2;
             	y -= (height - (height*scale))/2;

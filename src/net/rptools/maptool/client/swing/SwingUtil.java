@@ -68,4 +68,22 @@ public class SwingUtil {
     	
     	innerWindow.setLocation(x, y);
     }
+    
+    public static void constrainTo(Dimension dim, int size) {
+    	
+    	boolean widthBigger = dim.width > dim.height;
+    	
+    	int oldW = dim.width;
+    	int oldH = dim.height;
+    	
+    	if (widthBigger) {
+    		dim.height = (int)((dim.height / (double)dim.width) * size);
+    		dim.width = size;
+    	} else {
+    		dim.width = (int)((dim.width / (double)dim.height) * size);
+    		dim.height = size;
+    	}
+    	
+    	System.out.println ("Constraining " + oldW + "." + oldH + " to " + dim.width + "." + dim.height);
+    }
 }

@@ -165,23 +165,28 @@ public class PointerTool extends Tool implements MouseListener, MouseMotionListe
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 			
 		Token token = renderer.getTokenAt(mouseX, mouseY);
-		
 		if (token == null) {
 			if (tokenUnderMouse != null) {
-				if (renderer.getScale() < 1.0) {
-					renderer.unzoomToken(tokenUnderMouse);
-				}
+
+				renderer.unzoomToken(tokenUnderMouse);
+
 				tokenUnderMouse = null;
 				renderer.repaint();
 			}
 		} else {
 			if (token != tokenUnderMouse) {
-				if (renderer.getScale() < 1.0) {
-					renderer.unzoomToken(tokenUnderMouse);
-				}
+
+				// TODO: PLEEEEASE, for all that it HOLY ..... CLEAN UP THIS CODE !
+				int tokenWidth = (int)(TokenSize.getWidth(token, renderer.getZone().getGridSize()) * renderer.getScale());
+				int tokenHeight = (int)(TokenSize.getHeight(token, renderer.getZone().getGridSize()) * renderer.getScale());
+
+				boolean tokenTooSmall = tokenWidth < ZoneRenderer.HOVER_SIZE_THRESHOLD && tokenHeight < ZoneRenderer.HOVER_SIZE_THRESHOLD;
+				
+				renderer.unzoomToken(tokenUnderMouse);
+
 				tokenUnderMouse = token;
 				renderer.repaint();
-				if (renderer.getScale() < 1.0) {
+				if (tokenTooSmall) {
 					renderer.zoomToken(token);
 				}
 			}
