@@ -47,11 +47,11 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.client.swing.PopupListener;
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetGroup;
+import net.rptools.maptool.util.ImageManager;
 
 
 
@@ -143,20 +143,16 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
             return;
         }
         
-        try {
-            Image img = SwingUtil.bytesToImage(selectedAsset.getImage());
-            
-            Transferable transferable = null;
-            if (MapToolClient.getCampaign().getAsset(selectedAsset.getId()) == null) {
-            	transferable = new TransferableAsset(selectedAsset);
-            } else {
-            	transferable = new TransferableAssetReference(selectedAsset);
-            }
-            
-            dge.startDrag(Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(0, 0), "Thumbnail"), transferable, this);
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+        Image img = ImageManager.getImage(selectedAsset);
+        
+        Transferable transferable = null;
+        if (MapToolClient.getCampaign().getAsset(selectedAsset.getId()) == null) {
+        	transferable = new TransferableAsset(selectedAsset);
+        } else {
+        	transferable = new TransferableAssetReference(selectedAsset);
         }
+        
+        dge.startDrag(Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(0, 0), "Thumbnail"), transferable, this);
     }
     
     ////
