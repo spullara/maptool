@@ -9,6 +9,7 @@
  */
 package net.rptools.maptool.util;
 
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -18,7 +19,7 @@ import java.util.Map;
  * Represents the MD5 key for a certain set of data.
  * Can be used in maps as keys.
  */
-public class MD5Key {
+public class MD5Key implements Serializable {
 
     private static MessageDigest md5Digest;
     
@@ -32,6 +33,8 @@ public class MD5Key {
             e.printStackTrace();
         }
     }
+    
+    public MD5Key(){}
     
     public MD5Key (byte[] data) {
         id = encodeToHex(digestData(data));

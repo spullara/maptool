@@ -35,16 +35,13 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.UIManager;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
@@ -62,10 +59,10 @@ import net.rptools.maptool.client.tool.drawing.OvalTool;
 import net.rptools.maptool.client.tool.drawing.RectangleFillTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.model.Campaign;
-import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.MapToolServer;
+import net.rptools.maptool.util.MD5Key;
 
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 
@@ -248,9 +245,9 @@ public class MapToolClient extends JFrame {
 	}
 
 	// TODO: I don't like this method name, location, or anything about it.  It sux.  Fix it.
-	public static void addZone(GUID backgroundAssetGUID) {
+	public static void addZone(MD5Key backgroundAssetKey) {
 		
-        Zone zone = new Zone(backgroundAssetGUID);
+        Zone zone = new Zone(backgroundAssetKey);
         MapToolClient.getCampaign().putZone(zone);
         
         // TODO: this needs to be abstracted into the client
@@ -339,8 +336,8 @@ public class MapToolClient extends JFrame {
 		// FILE
 		JMenu fileMenu = new JMenu("File");
 		fileMenu.add(new JMenuItem(ClientActions.LOAD_MAP));
-		fileMenu.add(new JMenuItem(ClientActions.LOAD_CAMPAIGN));
-		fileMenu.add(new JMenuItem(ClientActions.SAVE_CAMPAIGN));
+		//fileMenu.add(new JMenuItem(ClientActions.LOAD_CAMPAIGN));
+		//fileMenu.add(new JMenuItem(ClientActions.SAVE_CAMPAIGN));
 		fileMenu.addSeparator();
         fileMenu.add(actionMenu);
         fileMenu.addSeparator();

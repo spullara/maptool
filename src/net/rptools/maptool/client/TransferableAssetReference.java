@@ -31,6 +31,7 @@ import java.io.IOException;
 
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.util.MD5Key;
 
 
 
@@ -40,14 +41,14 @@ public class TransferableAssetReference implements Transferable {
 
     public static final DataFlavor dataFlavor = new DataFlavor(GUID.class, "AssetReference");
     
-    private GUID assetGUID;
+    private MD5Key assetID;
     
     public TransferableAssetReference(Asset asset) {
-        this.assetGUID = asset.getId();
+        this.assetID = asset.getId();
     }
     
     public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
-        return assetGUID;
+        return assetID;
     }
 
     public DataFlavor[] getTransferDataFlavors() {

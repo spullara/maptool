@@ -397,7 +397,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
             if (asset == null) {
                 // TODO: this should be abstracted into the client better
                 if (MapToolClient.isConnected()) {
-                    System.err.println("Getting asset2");
                     MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.getAsset.name(), token.getAssetID());
                 }
                 continue;

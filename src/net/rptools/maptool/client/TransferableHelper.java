@@ -4,17 +4,15 @@ package net.rptools.maptool.client;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTargetDropEvent;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.util.FileUtil;
+import net.rptools.maptool.util.MD5Key;
 
 /**
  * @author tcroft
@@ -91,7 +89,7 @@ public class TransferableHelper {
 	
 	private static Asset handleTransferableAssetReference(Transferable transferable) throws Exception {
 		
-		return MapToolClient.getCampaign().getAsset((GUID) transferable.getTransferData(TransferableAssetReference.dataFlavor));
+		return MapToolClient.getCampaign().getAsset((MD5Key) transferable.getTransferData(TransferableAssetReference.dataFlavor));
 	}
 	
 	private static Asset handleTransferableAsset(Transferable transferable) throws Exception {

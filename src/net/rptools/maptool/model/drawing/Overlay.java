@@ -25,7 +25,7 @@
 package net.rptools.maptool.model.drawing;
 
 import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.util.MD5Key;
 
 /**
  * @author drice
@@ -38,7 +38,7 @@ public class Overlay extends Asset {
         super();
     }
     
-    public Overlay(GUID id) {
+    public Overlay(MD5Key id) {
         super(id);
     }
     

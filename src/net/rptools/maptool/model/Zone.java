@@ -29,8 +29,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
+import net.rptools.maptool.util.MD5Key;
 
 /**
  * This object represents the maps that will appear for placement of {@link Token}s.  This
@@ -55,7 +55,7 @@ public class Zone extends Token {
 
     }
 
-    public Zone(GUID backgroundAsset) {
+    public Zone(MD5Key backgroundAsset) {
         super(backgroundAsset);
     }
     

@@ -24,31 +24,34 @@
  */
 package net.rptools.maptool.model;
 
+import net.rptools.maptool.util.MD5Key;
+
 /**
  * The binary representation of an image.
  */
 public class Asset {
-    private GUID id;
+    private MD5Key id;
     private byte[] image;
     
     protected Asset() {
-        this.id = new GUID();
     }
     
     public Asset(byte[] image) {
-        this();
         this.image = image;
+        if (image != null) {
+            this.id = new MD5Key (image);
+        }
     }
     
-    public Asset(GUID id) {
+    public Asset(MD5Key id) {
         this.id = id;
     }
     
-    public GUID getId() {
+    public MD5Key getId() {
         return id;
     }
     
-    public void setId(GUID id) {
+    public void setId(MD5Key id) {
         this.id = id;
     }
 

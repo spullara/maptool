@@ -38,14 +38,13 @@ import java.util.Map;
 import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.GUID;
 
 
 /**
  */
 public class ImageManager {
 
-    private static Map<GUID, BufferedImage> imageMap = new HashMap<GUID, BufferedImage>();
+    private static Map<MD5Key, BufferedImage> imageMap = new HashMap<MD5Key, BufferedImage>();
     
     public static BufferedImage getImage(Asset asset) {
         

@@ -24,13 +24,15 @@
  */
 package net.rptools.maptool.model;
 
+import net.rptools.maptool.util.MD5Key;
+
 /**
  * This object represents the placeable objects on a map.  For example an icon that represents a character
  * would exist as an {@link Asset} (the image itself) and a location and scale.  
  */
 public class Token {
     private GUID id = new GUID();
-    private GUID assetID;
+    private MD5Key assetID;
 
     private int x;
     private int y;
@@ -40,15 +42,15 @@ public class Token {
         
     }
     
-    public Token(GUID assetID) {
+    public Token(MD5Key assetID) {
         this.assetID = assetID;
     }
 
-    public GUID getAssetID() {
+    public MD5Key getAssetID() {
         return assetID;
     }
 
-    public void setAsset(GUID assetID) {
+    public void setAsset(MD5Key assetID) {
         this.assetID = assetID;
     }
 

@@ -36,6 +36,7 @@ import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.MapToolServer.COMMANDS;
 import static net.rptools.maptool.server.MapToolServer.COMMANDS;
+import net.rptools.maptool.util.MD5Key;
 
 /**
  * @author drice
@@ -79,7 +80,7 @@ public class ServerMethodHandler extends AbstractMethodHandler {
             server.getCampaign().putAsset((Asset) parameters[0]);
             break;
         case getAsset:
-            server.getConnection().callMethod(id, MapToolClient.COMMANDS.putAsset.name(), server.getCampaign().getAsset((GUID) parameters[0]));
+            server.getConnection().callMethod(id, MapToolClient.COMMANDS.putAsset.name(), server.getCampaign().getAsset((MD5Key) parameters[0]));
             break;
         case removeAsset:
             server.getCampaign().removeAsset((GUID) parameters[0]);

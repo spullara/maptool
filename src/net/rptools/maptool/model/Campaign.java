@@ -31,7 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.rptools.maptool.model.drawing.Overlay;
+import net.rptools.maptool.util.MD5Key;
 
 
 /**
@@ -42,8 +42,7 @@ import net.rptools.maptool.model.drawing.Overlay;
 public class Campaign {
     private GUID id = new GUID();
     private Map<GUID, Zone> zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
-    private Map<GUID, Overlay> overlays = Collections.synchronizedMap(new HashMap<GUID, Overlay>());
-    private Map<GUID, Asset> assets = Collections.synchronizedMap(new HashMap<GUID, Asset>());
+    private Map<MD5Key, Asset> assets = Collections.synchronizedMap(new HashMap<MD5Key, Asset>());
 
     public GUID getId() {
         return id;
@@ -63,31 +62,17 @@ public class Campaign {
 
     public void putZone(Zone zone) {
         zones.put(zone.getId(), zone);
-        putOverlay(new Overlay(zone.getId()));
     }
 
     public void removeZone(GUID id) {
         zones.remove(id);
-        removeOverlay(id);
     }
     
-    public Overlay getOverlay(GUID id) {
-        return overlays.get(id);
-    }
-    
-    protected void putOverlay(Overlay overlay) {
-        overlays.put(overlay.getId(), overlay);
-    }
-    
-    protected void removeOverlay(GUID id) {
-        overlays.remove(id);
-    }
-
     public void putAsset(Asset asset) {
         assets.put(asset.getId(), asset);
     }
     
-    public Asset getAsset(GUID id) {
+    public Asset getAsset(MD5Key id) {
         return assets.get(id);
     }
 
