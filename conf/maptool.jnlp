@@ -13,8 +13,8 @@
 	<resources>
 		<j2se version="1.5+" />
 		
-		<jar href="maptool-1.0M1.b6.jar" />
-		<jar href="lib/clientserver-1.0.b3.jar" />		
+		<jar href="maptool-1.0M1.b7.jar" />
+		<jar href="lib/clientserver-1.0.b4.jar" />		
 		<jar href="lib/hessian-2.1.12.jar" />		
 		<jar href="lib/looks-1.3b1.jar" />		
 		<jar href="lib/withay-util.jar" />		
