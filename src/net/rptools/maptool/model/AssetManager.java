@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.model;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,16 @@ import net.rptools.maptool.util.MD5Key;
 public class AssetManager {
 
 	private static Map<MD5Key, Asset> assetMap = new HashMap<MD5Key, Asset>();
+	private static File cacheDir;
+
+	static {
+		
+		Map map = System.getenv();
+	}
+	
+	public static void main(String [] args) {
+		
+	}
 	
 	public static void putAsset(Asset asset) {
 		if (asset == null) {
