@@ -375,17 +375,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
             int x = offsetX + (int) (zone.getGridOffsetX() * scaleArray[scaleIndex]);
             int y = offsetY + (int) (zone.getGridOffsetY() * scaleArray[scaleIndex]);
 
-            for (int row = 0; row < h + gridSize; row += gridSize) {
+            for (float row = 0; row < h + gridSize; row += gridSize) {
                 
-                int theY = Math.min(offsetY + h, Math.max(row + y, offsetY));
+                int theY = Math.min(offsetY + h, Math.max((int)row + y, offsetY));
                 int theX = Math.max(x, offsetX);
                 
             	g.drawLine(theX, theY, theX + w, theY);
             }
 
-            for (int col = 0; col < w + gridSize; col += gridSize) {
+            for (float col = 0; col < w + gridSize; col += gridSize) {
                 
-                int theX = Math.min(offsetX + w, Math.max(x + col, offsetX));
+                int theX = Math.min(offsetX + w, Math.max(x + (int)col, offsetX));
                 int theY = Math.max(y, offsetY);
 
                 g.drawLine(theX, theY, theX, theY + h);
