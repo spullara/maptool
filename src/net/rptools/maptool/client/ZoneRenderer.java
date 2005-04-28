@@ -515,6 +515,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
     }
     
     public void selectToken(Token token) {
+        if (token == null) {
+            return;
+        }
+        
     	selectedTokenSet.add(token);
     	
     	repaint();

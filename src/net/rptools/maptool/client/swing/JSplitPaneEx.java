@@ -47,6 +47,10 @@ public class JSplitPaneEx extends JSplitPane {
     
     private int dividerSize;
     
+    public JSplitPaneEx() {
+        setContinuousLayout(true);
+    }
+    
     public void setInitialDividerPosition (int position) {
         lastVisibleSize = position;
         setDividerLocation(position);

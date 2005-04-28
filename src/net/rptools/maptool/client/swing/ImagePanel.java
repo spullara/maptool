@@ -51,7 +51,7 @@ public class ImagePanel extends JComponent implements Scrollable, DragGestureLis
 
 	private ImagePanelModel model;
 	
-	private int gridSize = 30;
+	private int gridSize = 50;
 	private int gridPadding = 5;
 	
 	private Map<Rectangle, Integer> imageBoundsMap;

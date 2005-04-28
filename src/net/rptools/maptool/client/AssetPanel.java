@@ -44,6 +44,8 @@ public class AssetPanel extends JComponent {
 		imagePanel = new ImagePanel();
 		
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setContinuousLayout(true);
+        
 		splitPane.setTopComponent(new JScrollPane(assetTree));
 		splitPane.setBottomComponent(new JScrollPane(imagePanel));
 		splitPane.setDividerLocation(100);

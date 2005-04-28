@@ -70,9 +70,6 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
     private static final int PADDING = 10;
     
     private Map<Rectangle, ZoneRenderer> boundsMap;
-    private BufferedImage backBuffer;
-    private int lastZoneCount = -1;
-    private ZoneRenderer lastSelectedRenderer;
     
     public ZoneSelectionPanel() {
      
@@ -108,70 +105,44 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
         List<ZoneRenderer> rendererList = MapToolClient.getZoneRenderers();
         ZoneRenderer currentRenderer = MapToolClient.getCurrentZoneRenderer();
         
-        if (backBuffer == null || rendererList.size() != lastZoneCount ||
-        		backBuffer.getWidth() != mySize.width ||
-        		backBuffer.getHeight() != mySize.height ||
-        		lastSelectedRenderer != currentRenderer) {
-        	
-        	lastZoneCount = rendererList.size();
-        	lastSelectedRenderer = currentRenderer;
+        // Background
+//	        	backG.setColor(new Color(1.0f, 1.0f, 1.0f, 0.5f));
+        g.setColor(Color.white);
+    	g.fillRect(0, 0, mySize.width, mySize.height);
 
-	        if (backBuffer == null) {
-	        	backBuffer = getGraphicsConfiguration().createCompatibleImage(mySize.width, mySize.height, Transparency.TRANSLUCENT);
-	        }
-	        
-	        Graphics backG = null;
-	        try {
-	        	backG = backBuffer.getGraphics();
-	        	
-		        // Background
-	        	ImageUtil.clearImage(backBuffer);
-	        	backG.setColor(new Color(1.0f, 1.0f, 1.0f, 0.5f));
-	        	backG.fillRect(0, 0, mySize.width, mySize.height);
-
-	        	ClientStyle.border.paintWithin((Graphics2D) backG, 0, 0, getSize().width, getSize().height);
-		        
-		        boundsMap.clear();
-		        int x = PADDING;
-		        for (ZoneRenderer renderer : rendererList) {
-		            
-		            // TODO: This is a naive solution.  In the future, actually render the zone
-		            BufferedImage img = renderer.getBackgroundImage();
-		            if (img == null) {
-		            	// Force a redraw later
-		            	lastZoneCount = -1;
-		                continue;
-		            }
-		            
-		            int width = img.getWidth();
-		            int height = img.getHeight();
-		
-		            int targetHeight = mySize.height - PADDING - PADDING;
-		            
-		            width = (int)(width * (targetHeight / (double)height));
-		            height = targetHeight;
-		
-		            // TODO: handle "still too wide" case
-		            
-		            backG.drawImage(img, x, PADDING, width, height, this);
-		            
-		            if (renderer == currentRenderer) {
-		            	ClientStyle.selectedBorder.paintAround((Graphics2D)backG, x, PADDING, width, height);
-		            }
-		            
-		            boundsMap.put(new Rectangle(x, PADDING, width, height), renderer);
-		            
-		            x += width + PADDING;
-		        } 
-		        
-	        } finally {
-	        	if (backG != null) {
-	        		backG.dispose();
-	        	}
-	        }
-        }
+    	ClientStyle.border.paintWithin((Graphics2D) g, 0, 0, getSize().width, getSize().height);
         
-    	g.drawImage(backBuffer, 0, 0, this);
+        boundsMap.clear();
+        int x = PADDING;
+        for (ZoneRenderer renderer : rendererList) {
+            
+            // TODO: This is a naive solution.  In the future, actually render the zone
+            BufferedImage img = renderer.getBackgroundImage();
+            if (img == null) {
+            	// Force a redraw later
+                continue;
+            }
+            
+            int width = img.getWidth();
+            int height = img.getHeight();
+
+            int targetHeight = mySize.height - PADDING - PADDING;
+            
+            width = (int)(width * (targetHeight / (double)height));
+            height = targetHeight;
+
+            // TODO: handle "still too wide" case
+            
+            g.drawImage(img, x, PADDING, width, height, this);
+            
+            if (renderer == currentRenderer) {
+            	ClientStyle.selectedBorder.paintAround((Graphics2D)g, x, PADDING, width, height);
+            }
+            
+            boundsMap.put(new Rectangle(x, PADDING, width, height), renderer);
+            
+            x += width + PADDING;
+        } 
     }
 
     public ZoneRenderer getRendererAt(int x, int y) {
@@ -183,6 +154,11 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
         }
         return null;
     }
+    
+    public Dimension getPreferredSize() {
+        return new Dimension(100, 65);
+    }
+    
     ////
     // DROP TARGET LISTENER
     /* (non-Javadoc)

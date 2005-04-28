@@ -129,7 +129,7 @@ public class MapToolClient extends JFrame {
 	private AssetPanel assetPanel;
 
     private ZoneSelectionPanel zoneSelectionPanel;
-    private PositionalPanel mainPanel;
+    private JPanel mainPanel;
     
     private List<ZoneRenderer> zoneRendererList;
     
@@ -173,13 +173,11 @@ public class MapToolClient extends JFrame {
         statusPanel.addPanel(activityMonitor);
         
         // TODO: Clean up this whole section
-        mainPanel = new PositionalPanel();
-        mainPanel.setOpaque(false);
+        mainPanel = new JPanel(new BorderLayout());
         	
         zoneSelectionPanel = new ZoneSelectionPanel();
-        zoneSelectionPanel.setSize(400, 50);
 
-        mainPanel.add(zoneSelectionPanel, PositionalLayout.Position.S);
+        mainPanel.add(BorderLayout.SOUTH, zoneSelectionPanel);
         
 		setJMenuBar(createMenuBar());
 		
@@ -478,7 +476,7 @@ public class MapToolClient extends JFrame {
         }
         
         if (renderer != null) {
-            instance.mainPanel.add(renderer, PositionalLayout.Position.CENTER);
+            instance.mainPanel.add(BorderLayout.CENTER, renderer);
             instance.mainPanel.doLayout();
         }
         
