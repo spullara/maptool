@@ -31,7 +31,6 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.border.Border;
 import javax.swing.tree.DefaultTreeCellRenderer;

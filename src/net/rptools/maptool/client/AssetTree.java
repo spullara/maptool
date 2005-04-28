@@ -24,10 +24,6 @@
  */
 package net.rptools.maptool.client;
 
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.DragGestureListener;
@@ -48,7 +44,6 @@ import javax.swing.tree.TreeSelectionModel;
 import net.rptools.maptool.client.swing.PopupListener;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetGroup;
-import net.rptools.maptool.util.ImageManager;
 
 
 
@@ -58,10 +53,13 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
 
     private AssetGroup selectedAssetGroup;
     private Asset selectedAsset;
-    
-    public AssetTree() {
+    private AssetPanel assetPanel;
+	
+    public AssetTree(AssetPanel assetPanel) {
         super(new AssetTreeModel());
         
+		this.assetPanel = assetPanel;
+		
         setCellRenderer(new AssetTreeCellRenderer());
         setRootVisible(false);
         
@@ -124,6 +122,8 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
         
         if (node instanceof AssetGroup) {
             selectedAssetGroup = (AssetGroup) node;
+			
+			assetPanel.setAssetGroup(selectedAssetGroup);
         }
     }
     
@@ -134,15 +134,15 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
      */
     public void dragGestureRecognized(DragGestureEvent dge) {
         
-        if (selectedAsset == null) {
-            return;
-        }
-        
-        Image img = ImageManager.getImage(selectedAsset);
-        
-        Transferable transferable = new TransferableAsset(selectedAsset);
-        
-        dge.startDrag(Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(0, 0), "Thumbnail"), transferable, this);
+//        if (selectedAsset == null) {
+//            return;
+//        }
+//        
+//        Image img = ImageManager.getImage(selectedAsset);
+//        
+//        Transferable transferable = new TransferableAsset(selectedAsset);
+//        
+//        dge.startDrag(Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(0, 0), "Thumbnail"), transferable, this);
     }
     
     ////

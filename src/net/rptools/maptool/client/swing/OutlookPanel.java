@@ -34,7 +34,6 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 /**
  * ButtonPanel.java
@@ -47,8 +46,6 @@ public class OutlookPanel extends JPanel {
 
     public OutlookPanel() {
         m_compList = new ArrayList<JButtonEx>();
-        m_pane = createPane();
-        add("pane", m_pane);
 
         setLayout(null);
     }
@@ -104,10 +101,25 @@ public class OutlookPanel extends JPanel {
         m_active = m_compList.get(index);
         m_active.getComponent().setVisible(true);
 
-        m_pane.setViewportView(m_active.getComponent());
         repaint();
     }
 
+	public void setActive(String name) {
+		setActive(getButtonIndex(name));
+	}
+	
+	public int getButtonIndex(String name) {
+		
+		for (JButtonEx button : m_compList) {
+			
+			if (button.getText().equals(name)) {
+				return button.m_index;
+			}
+		}
+		
+		return -1;
+	}
+	
     public void paint(Graphics g) {
         int y = 0;
 
@@ -132,8 +144,8 @@ public class OutlookPanel extends JPanel {
                 int height = getSize().height - (m_compList.size() * BUTTON_HEIGHT);
 
                 // Stretch to take the available space
-                m_pane.setBounds(5, y, bounds.width - 6, height - 2);
-                m_pane.revalidate();
+                button.m_component.setBounds(5, y, bounds.width - 6, height - 2);
+                button.m_component.revalidate();
 
                 y += height;
             }
@@ -142,12 +154,6 @@ public class OutlookPanel extends JPanel {
 
         // Paint them
         paintChildren(g);
-    }
-
-    protected JScrollPane createPane() {
-        JScrollPane pane = new JScrollPane();
-
-        return pane;
     }
 
     // For convenience
@@ -182,5 +188,4 @@ public class OutlookPanel extends JPanel {
     // Internal
     private List<JButtonEx> m_compList;
     private JButtonEx   m_active;
-    private JScrollPane m_pane;
 }

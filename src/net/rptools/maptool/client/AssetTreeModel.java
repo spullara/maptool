@@ -32,7 +32,6 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetGroup;
 
 
@@ -72,17 +71,7 @@ public class AssetTreeModel implements TreeModel {
     	
         AssetGroup group = (AssetGroup) parent;
         
-        int childGroupCount = group.getChildGroupCount();
-        
-        List list = null;
-        if (index >= childGroupCount) {
-            index -= childGroupCount;
-            list = group.getAssets();
-        } else {
-            list = group.getChildGroups();
-        }
-        
-        return list.get(index);
+        return group.getChildGroups().get(index);
     }
 
     /* (non-Javadoc)
@@ -96,14 +85,15 @@ public class AssetTreeModel implements TreeModel {
         
         AssetGroup group = (AssetGroup) parent;
         
-        return group.getChildGroupCount() + group.getAssetCount();
+        return group.getChildGroupCount();
     }
 
     /* (non-Javadoc)
      * @see javax.swing.tree.TreeModel#isLeaf(java.lang.Object)
      */
     public boolean isLeaf(Object node) {
-        return node instanceof Asset;
+		// No leaves here
+        return false;
     }
 
     /* (non-Javadoc)
@@ -124,13 +114,7 @@ public class AssetTreeModel implements TreeModel {
     	
         AssetGroup group = (AssetGroup) parent;
 
-        if (child instanceof AssetGroup) {
-            return group.indexOf((AssetGroup) child);
-        }
-        
-        int index = group.indexOf((Asset) child);
-        
-        return index >= 0 ? index + group.getChildGroupCount() : -1;
+        return group.indexOf((AssetGroup) child);
     }
 
     /* (non-Javadoc)

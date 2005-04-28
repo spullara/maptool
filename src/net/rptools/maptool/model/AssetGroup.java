@@ -154,7 +154,7 @@ public class AssetGroup {
 
     		assetList.clear();
     		assetGroupList.clear();
-
+			
     		try {
 	    		MapToolClient.getInstance().startIndeterminateAction();
 	    		
@@ -185,6 +185,8 @@ public class AssetGroup {
 	            
 	            Collections.sort(assetGroupList, GROUP_COMPARATOR);
 	            
+				//name = name + " (" + imageFileArray.length + ")";
+
     		} finally {
     			MapToolClient.getInstance().endIndeterminateAction();
     		}
