@@ -91,6 +91,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 				if (!renderer.getSelectedTokenSet().contains(token) && 
 						!SwingUtil.isShiftDown(e)) {
 					isNewTokenSelected = true;
+                    renderer.clearSelectedTokens();
 				}
 				renderer.selectToken(token);
 			} else {
