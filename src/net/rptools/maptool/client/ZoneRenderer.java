@@ -39,8 +39,6 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,29 +63,26 @@ import net.rptools.maptool.util.ImageManager;
 
 /**
  */
-public class ZoneRenderer extends JComponent implements DropTargetListener {
+public abstract class ZoneRenderer extends JComponent implements DropTargetListener {
     private static final long serialVersionUID = 3832897780066104884L;
 
     // TODO: Perhaps make this a user defined limit
     public static final int HOVER_SIZE_THRESHOLD = 40;
     public static final int EDGE_LIMIT = 25; // can't move board past this edge
 	
-    private Zone              zone;
+    protected Zone              zone;
 
-    private BufferedImage     image;
+    protected BufferedImage     backgroundImage;
 
-    private int               offsetX;
-    private int               offsetY;
+    protected int               offsetX;
+    protected int               offsetY;
 
-    private int               width;
-    private int               height;
+    protected boolean           showGrid;
+    protected Color             gridColor = new Color (150, 150, 150);
 
-    private boolean           showGrid;
-    private Color             gridColor = new Color (150, 150, 150);
-
-    private int               scaleIndex;
-    private static float[]    scaleArray  = new float[] { .25F, .30F, .40F, .50F, .60F, .75F, 1F, 1.25F, 1.5F, 1.75F, 2F, 3F, 4F};
-    private static int SCALE_1TO1_INDEX; // Automatically scanned for
+    protected int               scaleIndex;
+    protected static float[]    scaleArray  = new float[] { .25F, .30F, .40F, .50F, .60F, .75F, 1F, 1.25F, 1.5F, 1.75F, 2F, 3F, 4F};
+    protected static int SCALE_1TO1_INDEX; // Automatically scanned for
 
     private Set<Token> zoomedTokenSet = new HashSet<Token>();
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
@@ -256,7 +251,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener {
     
     public BufferedImage getDrawableOverlay() {
     	
-    	if (image == null) { return null; }
+    	if (backgroundImage == null) { return null; }
     	if (zone == null) { return null; }
     	
     	List<DrawnElement> drawnElements = zone.getDrawnElements();
@@ -265,7 +260,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener {
     	}
     	
     	if (drawableOverlay == null) {
-    		drawableOverlay = getGraphicsConfiguration().createCompatibleImage(image.getWidth(), image.getHeight(), Transparency.BITMASK);
+    		drawableOverlay = getGraphicsConfiguration().createCompatibleImage(backgroundImage.getWidth(), backgroundImage.getHeight(), Transparency.BITMASK);
     	}
     	
 		Graphics2D g = null;
@@ -291,11 +286,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener {
 
     public BufferedImage getBackgroundImage() {
         
-        if (image != null) { return image; }
+        if (backgroundImage != null) { return backgroundImage; }
         if (zone == null) { return null; }
         
         Asset asset = AssetManager.getAsset(zone.getAssetID());
-        BufferedImage backgroundImage = null;
         if (asset == null) {
 
         	// TODO: abstract this into the client
@@ -309,20 +303,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener {
             return null;
         } 
 
-        image = ImageManager.getImage(asset);
-        backgroundImage = image;
-        
-        width = backgroundImage.getWidth(this);
-        height = backgroundImage.getHeight(this);
+        backgroundImage = ImageManager.getImage(asset);
         
         return backgroundImage;
     }
     
     public void paintComponent(Graphics g) {
-
-        float scale = scaleArray[scaleIndex];
-        int w = (int)(width * scale);
-        int h = (int)(height * scale);
 
         if (zone == null) { return; }
 
@@ -332,11 +318,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener {
         }
 
     	renderBoard(g);
-        BufferedImage drawableLayer = getDrawableOverlay();
-        if (drawableOverlay != null) {
-            g.drawImage(drawableLayer, offsetX, offsetY, w, h, this);
-        }
-        
+        renderGrid(g);
+        renderDrawableOverlay(g);
         renderTokens(g);
 		renderBorder(g);
 		
@@ -345,92 +328,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener {
         }
     }
     
-	private void renderBorder(Graphics g) {
-		
-    	Dimension size = getSize();
-    	
-        // Scale
-        float scale = scaleArray[scaleIndex];
-        int w = (int)(width * scale);
-        int h = (int)(height * scale);
-
-        // Border
-        if (offsetX > 0) {
-        	g.setColor(Color.black);
-        	g.fillRect(0, 0, offsetX, size.height);
-        }
-        if (offsetY > 0) {
-        	g.setColor(Color.black);
-        	g.fillRect(0, 0, size.width, offsetY);
-        }
-        if (w + offsetX < size.width) {
-        	g.setColor(Color.black);
-        	g.fillRect(w + offsetX, 0, size.width, size.height);
-        }
-        if (h + offsetY < size.height) {
-        	g.setColor(Color.black);
-        	g.fillRect(0, h + offsetY, size.width, size.height);
-        }
-		
-        ClientStyle.boardBorder.paintAround((Graphics2D) g, offsetX, offsetY, w, h);
-	}
-	
-    private void renderBoard(Graphics g) {
-
-    	Dimension size = getSize();
-    	
-        // Scale
-        float scale = scaleArray[scaleIndex];
-        int w = (int)(width * scale);
-        int h = (int)(height * scale);
-
-        float gridSize = zone.getGridSize() * scale;
-
-		if (offsetX > size.width - EDGE_LIMIT) {
-			offsetX = size.width - EDGE_LIMIT;
-		}
-		
-		if (offsetX + w < EDGE_LIMIT) {
-			offsetX = EDGE_LIMIT - w;
-		}
-		
-		if (offsetY > size.height - EDGE_LIMIT) {
-			offsetY = size.height - EDGE_LIMIT;
-		}
-		
-		if (offsetY + h < EDGE_LIMIT) {
-			offsetY = EDGE_LIMIT - h;
-		}
+    protected void renderDrawableOverlay(Graphics g) {
         
-        // Map
-        g.drawImage(image, offsetX, offsetY, w, h, this);
-
-        // Render grid
-        if (showGrid) {
-        	g.setColor(gridColor);
-
-            int x = offsetX + (int) (zone.getGridOffsetX() * scaleArray[scaleIndex]);
-            int y = offsetY + (int) (zone.getGridOffsetY() * scaleArray[scaleIndex]);
-
-            for (float row = 0; row < h + gridSize; row += gridSize) {
-                
-                int theY = Math.min(offsetY + h, Math.max((int)row + y, offsetY));
-                int theX = Math.max(x, offsetX);
-                
-            	g.drawLine(theX, theY, theX + w, theY);
-            }
-
-            for (float col = 0; col < w + gridSize; col += gridSize) {
-                
-                int theX = Math.min(offsetX + w, Math.max(x + (int)col, offsetX));
-                int theY = Math.max(y, offsetY);
-
-                g.drawLine(theX, theY, theX, theY + h);
-            }
-        }
-        
-
+//      BufferedImage drawableLayer = getDrawableOverlay();
+//      if (drawableOverlay != null) {
+//          g.drawImage(drawableLayer, offsetX, offsetY, w, h, this);
+//      }
     }
+    
+	protected void renderBorder(Graphics g) { /* no op */ }
+	
+    protected abstract void renderBoard(Graphics g);
+    
+    protected abstract void renderGrid(Graphics g);
     
     protected void renderTokens(Graphics g) {
 
@@ -557,14 +467,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener {
         x = (int)(x / scale);
         y = (int)(y / scale);
         
-        // Bounds
-        // TODO: Decide whether to allow "off zone" coordinates
-        if (x < 0) { x = 0; }
-        if (x >= x + width * scale) { x = (int)(width * scale) - 1; }
-        
-        if (y < 0) { y = 0; }
-        if (y >= y + height * scale) { y = (int)(height * scale) - 1; }
-        
         return new Point(x,y);
 	}
 	
@@ -579,22 +481,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener {
 
         double scale = scaleArray[scaleIndex];
         
-        if (x >= offsetX 
-                && x < offsetX + image.getWidth(this) * scale 
-                && y >= offsetY && y < offsetY + image.getHeight(this) * scale) {
-            
-            // Translate
-            x -= offsetX + (int) (zone.getGridOffsetX() * scaleArray[scaleIndex]);
-            y -= offsetY + (int) (zone.getGridOffsetY() * scaleArray[scaleIndex]);
-            
-            // Scale
-            x = (int)(x / (zone.getGridSize() * scale));
-            y = (int)(y / (zone.getGridSize() * scale));
-            
-            return new Point(x, y);
-        }
+        // Translate
+        x -= offsetX + (int) (zone.getGridOffsetX() * scaleArray[scaleIndex]);
+        y -= offsetY + (int) (zone.getGridOffsetY() * scaleArray[scaleIndex]);
         
-        return null;
+        // Scale
+        x = (int)(x / (zone.getGridSize() * scale));
+        y = (int)(y / (zone.getGridSize() * scale));
+            
+        return new Point(x, y);
     }
 
     public double getScale() {

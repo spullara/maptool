@@ -161,6 +161,7 @@ public class GridTool extends DefaultTool {
     private void adjustGridSize(ZoneRenderer renderer, Size direction) {
     	
     	Point cell = renderer.getCellAt(mouseX, mouseY);
+        if (cell == null) { return; }
     	
     	int oldGridSize = renderer.getZone().getGridSize();
     	

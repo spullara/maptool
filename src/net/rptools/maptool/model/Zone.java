@@ -43,9 +43,15 @@ public class Zone extends Token {
     private static final int MIN_GRID_SIZE = 10;
     private static final int MAX_GRID_SIZE = 250;
 
+    public interface Type {
+        public static final int MAP = 0;
+        public static final int INFINITE = 1;
+    }
+    
     private int gridSize = 40;
     private int gridOffsetX = 0;
     private int gridOffsetY = 0;
+    private int type = Type.MAP;
     
     private int feetPerCell = 5;
     
@@ -108,6 +114,14 @@ public class Zone extends Token {
     
     public void setFeetPerCell(int feetPerCell) {
     	this.feetPerCell = feetPerCell;
+    }
+    
+    public void setType(int type) {
+        this.type = type;
+    }
+    
+    public int getType() {
+        return type;
     }
     
     ///////////////////////////////////////////////////////////////////////////

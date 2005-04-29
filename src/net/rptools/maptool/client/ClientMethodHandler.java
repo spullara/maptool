@@ -62,7 +62,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         case putZone:
         	Zone zone = (Zone) parameters[0];
         	MapToolClient.getCampaign().putZone(zone);
-        	MapToolClient.setCurrentZoneRenderer(new ZoneRenderer(zone));
+        	MapToolClient.setCurrentZoneRenderer(ZoneRendererFactory.newRenderer(zone));
             break;
         case removeZone:
             break;

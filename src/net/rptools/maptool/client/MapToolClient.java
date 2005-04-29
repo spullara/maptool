@@ -280,7 +280,7 @@ public class MapToolClient extends JFrame {
         
         for (Zone zone : campaign.getZones()) {
             
-            ZoneRenderer renderer = new ZoneRenderer(zone);
+            ZoneRenderer renderer = ZoneRendererFactory.newRenderer(zone);
             instance.zoneRendererList.add(renderer);
             
             if (currRenderer == null){
@@ -326,7 +326,7 @@ public class MapToolClient extends JFrame {
             conn.callMethod(MapToolClient.COMMANDS.putZone.name(), zone);
         }
         
-        MapToolClient.setCurrentZoneRenderer(new ZoneRenderer(zone));
+        MapToolClient.setCurrentZoneRenderer(ZoneRendererFactory.newRenderer(zone));
 	}
 	
     public void createConnection(String host, int port, Player player) throws UnknownHostException, IOException {
