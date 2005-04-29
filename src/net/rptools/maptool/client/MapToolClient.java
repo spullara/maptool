@@ -38,6 +38,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -46,6 +47,8 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 import net.rptools.clientserver.ActivityListener;
+import net.rptools.clientserver.ActivityListener.Direction;
+import net.rptools.clientserver.ActivityListener.State;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.clientserver.simple.AbstractConnection;
 import net.rptools.clientserver.simple.DisconnectHandler;
@@ -58,6 +61,7 @@ import net.rptools.maptool.client.swing.StatusPanel;
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.MeasuringTool;
+import net.rptools.maptool.client.tool.DefaultTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.ZoomTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
@@ -387,7 +391,6 @@ public class MapToolClient extends JFrame {
 		toolbox.addTool(new PointerTool());
 		toolbox.addTool(new MeasuringTool());
         toolbox.addTool(new GridTool());
-        toolbox.addTool(new ZoomTool());
 
         toolbox.add(Box.createHorizontalStrut(15));
 

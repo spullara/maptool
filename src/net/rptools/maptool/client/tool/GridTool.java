@@ -27,10 +27,7 @@ package net.rptools.maptool.client.tool;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,9 +37,9 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.MapToolClient;
-import net.rptools.maptool.client.Tool;
 import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.model.Zone;
@@ -50,7 +47,7 @@ import net.rptools.maptool.model.Zone;
 
 /**
  */
-public class GridTool extends Tool implements MouseListener, MouseMotionListener, MouseWheelListener {
+public class GridTool extends DefaultTool {
     private static final long serialVersionUID = 3760846783148208951L;
 
     private static enum Size { Increase, Decrease };
@@ -74,7 +71,6 @@ public class GridTool extends Tool implements MouseListener, MouseMotionListener
 	 */
 	protected void attachTo(ZoneRenderer renderer) {
 		renderer.setGridVisible(true);
-		renderer.setMouseWheelEnabled(false);
 	}
 	
 	/* (non-Javadoc)
@@ -92,37 +88,38 @@ public class GridTool extends Tool implements MouseListener, MouseMotionListener
 
     ////
     // MOUSE LISTENER
-	public void mouseClicked(java.awt.event.MouseEvent e) {}
-	
-	public void mouseEntered(java.awt.event.MouseEvent e){}
-	
-	public void mouseExited(java.awt.event.MouseEvent e){}
 	
 	public void mousePressed(java.awt.event.MouseEvent e){
-		
-		dragStartX = e.getX();
-		dragStartY = e.getY();
+
+		if (SwingUtilities.isLeftMouseButton(e)) {
+			dragStartX = e.getX();
+			dragStartY = e.getY();
+		} else {
+			super.mousePressed(e);
+		}
 	}
-	
-	public void mouseReleased(java.awt.event.MouseEvent e){}
 	
     ////
     // MOUSE MOTION LISTENER
     public void mouseDragged(java.awt.event.MouseEvent e){
-        
-        int dx = e.getX() - dragStartX;
-        int dy = e.getY() - dragStartY;
 
-        dragStartX = e.getX();
-        dragStartY = e.getY();
-
-        ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-        
-        if (SwingUtil.isControlDown(e)) {
-            renderer.moveViewBy(dx, dy);
-        } else {
-            renderer.moveGridBy(dx, dy);
-        }
+    	if (SwingUtilities.isLeftMouseButton(e)) {
+	        int dx = e.getX() - dragStartX;
+	        int dy = e.getY() - dragStartY;
+	
+	        dragStartX = e.getX();
+	        dragStartY = e.getY();
+	
+	        ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+	        
+	        if (SwingUtil.isControlDown(e)) {
+	            renderer.moveViewBy(dx, dy);
+	        } else {
+	            renderer.moveGridBy(dx, dy);
+	        } 
+    	} else {
+    		super.mouseDragged(e);
+    	}
     }
     
     public void mouseMoved(java.awt.event.MouseEvent e){

@@ -104,12 +104,10 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
         }
         
         setIsEraser(SwingUtilities.isRightMouseButton(e));
-        zoneRenderer.setMouseWheelEnabled(false);
     }
 
     public void mouseReleased(MouseEvent e) { 
     	
-    	zoneRenderer.setMouseWheelEnabled(true);
     }
 
     public void mouseEntered(MouseEvent e) { }

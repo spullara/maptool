@@ -99,12 +99,10 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
         }
 
     	setIsEraser(SwingUtilities.isRightMouseButton(e));
-        zoneRenderer.setMouseWheelEnabled(false);
     }
 
     public void mouseReleased(MouseEvent e) { 
     	
-    	zoneRenderer.setMouseWheelEnabled(true);
     }
 
     public void mouseEntered(MouseEvent e) { }

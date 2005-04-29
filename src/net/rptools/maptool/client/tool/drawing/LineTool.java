@@ -68,15 +68,11 @@ public class LineTool extends AbstractLineTool implements MouseMotionListener {
 
         	startLine(x, y);
             setIsEraser(SwingUtilities.isRightMouseButton(e));
-            zoneRenderer.setMouseWheelEnabled(false);
-
         } else {
         	
         	if (SwingUtilities.isLeftMouseButton(e)) {
 
         		stopLine(x, y);
-            	zoneRenderer.setMouseWheelEnabled(true);
-            	
         	} else if (SwingUtilities.isRightMouseButton(e)) {
         		
                 tempPoint = null;

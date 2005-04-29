@@ -46,7 +46,7 @@ import net.rptools.maptool.model.ZoneMeasurement;
 
 /**
  */
-public class MeasuringTool extends Tool implements MouseListener, MouseMotionListener, ZoneOverlay {
+public class MeasuringTool extends DefaultTool {
     
     private boolean isDragging;
 	private int dragStartX;
@@ -78,6 +78,8 @@ public class MeasuringTool extends Tool implements MouseListener, MouseMotionLis
 			
 			currX = e.getX();
 			currY = e.getY();
+		} else {
+			super.mousePressed(e);
 		}
 	}
 	
@@ -85,53 +87,20 @@ public class MeasuringTool extends Tool implements MouseListener, MouseMotionLis
 
 		// Mouse wheel can work again
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-		renderer.setMouseWheelEnabled(true);
 		
 		isDragging = false;
 		
 		renderer.repaint();
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-	 */
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-	
-	}	
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-	 */
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-	 */
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-	
 	////
 	// MouseMotion
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
-	 */
-	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
 	public void mouseDragged(MouseEvent e) {
 		
 		
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 		if (SwingUtilities.isLeftMouseButton(e)) {
 
-			// Don't allow scale changes
-			renderer.setMouseWheelEnabled(false);
-			
 			isDragging = true;
 
 			currX = e.getX();
@@ -139,6 +108,8 @@ public class MeasuringTool extends Tool implements MouseListener, MouseMotionLis
 			
 			renderer.repaint();
 			
+		} else {
+			super.mouseDragged(e);
 		}
 	}	
 	

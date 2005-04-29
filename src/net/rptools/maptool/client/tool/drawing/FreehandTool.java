@@ -60,12 +60,10 @@ public class FreehandTool extends AbstractLineTool implements MouseMotionListene
         startLine(e.getX(), e.getY());
         
     	setIsEraser(SwingUtilities.isRightMouseButton(e));
-    	zoneRenderer.setMouseWheelEnabled(false);
     }
     
     public void mouseReleased(java.awt.event.MouseEvent e){
         stopLine(e.getX(), e.getY());
-    	zoneRenderer.setMouseWheelEnabled(true);
     }
     
     ////

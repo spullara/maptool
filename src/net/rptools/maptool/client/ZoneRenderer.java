@@ -65,7 +65,7 @@ import net.rptools.maptool.util.ImageManager;
 
 /**
  */
-public class ZoneRenderer extends JComponent implements DropTargetListener, MouseWheelListener {
+public class ZoneRenderer extends JComponent implements DropTargetListener {
     private static final long serialVersionUID = 3832897780066104884L;
 
     // TODO: Perhaps make this a user defined limit
@@ -96,8 +96,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
 
     private BufferedImage drawableOverlay;
     
-	private boolean isMouseWheelEnabled = true;
-    
     // This is a workaround to identify when the zone has had a new
     // drawnelement added.  Not super fond of this.  Rethink it later
     private int drawnElementCount = -1;
@@ -120,9 +118,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
         // DnD
         new DropTarget(this, this);
 
-        // Default wheel action
-        addMouseWheelListener(this);
-        
         // Get focus when clicked in
         addMouseListener(new MouseAdapter(){
 			public void mousePressed(MouseEvent e) {
@@ -177,10 +172,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
         repaint();
     }
 
-    public void setMouseWheelEnabled(boolean enabled) {
-    	isMouseWheelEnabled = enabled;
-    }
-    
     /* (non-Javadoc)
 	 * @see javax.swing.JComponent#isRequestFocusEnabled()
 	 */
@@ -681,22 +672,5 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Mous
 
     }
     
-	////
-	// Mouse Wheel
-	public void mouseWheelMoved(MouseWheelEvent e) {
-
-		if (!isMouseWheelEnabled) {
-			return;
-		}
-		
-		if (e.getWheelRotation() > 0) {
-			
-			zoomOut(e.getX(), e.getY());
-		} else {
-			
-			zoomIn(e.getX(), e.getY());
-		}
-		
-	}	
 	
 }

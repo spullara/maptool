@@ -109,11 +109,6 @@ public class ToolboxBar extends JToolBar {
         			currentTool.setSelected(false);
 				}
 
-				// Reset renderer state
-				if (currentRenderer != null) {
-					currentRenderer.setMouseWheelEnabled(true);
-				}
-				
 				// Update
 				currentTool = tool;
 				
