@@ -320,10 +320,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener {
     
     public void paintComponent(Graphics g) {
 
-        Dimension size = getSize();
-        g.setColor(Color.black);
-        g.fillRect(0, 0, size.width, size.height);
-
         float scale = scaleArray[scaleIndex];
         int w = (int)(width * scale);
         int h = (int)(height * scale);
@@ -357,8 +353,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener {
         float scale = scaleArray[scaleIndex];
         int w = (int)(width * scale);
         int h = (int)(height * scale);
-
-        float gridSize = zone.getGridSize() * scale;
 
         // Border
         if (offsetX > 0) {
