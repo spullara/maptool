@@ -42,7 +42,7 @@ public class OvalFillTool extends OvalTool {
                 pen.setBackgroundColor(Color.white.getRGB());
             }
 
-            oval.draw(g, pen);
+            oval.draw(g, pen, 0, 0);
             ToolHelper.drawBoxedMeasurement(renderer, g, oval.getStartPoint(), oval.getEndPoint(), false);
         }
     }

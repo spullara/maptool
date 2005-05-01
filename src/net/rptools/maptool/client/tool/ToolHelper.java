@@ -27,6 +27,7 @@ package net.rptools.maptool.client.tool;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 
 import javax.swing.SwingUtilities;
@@ -34,7 +35,6 @@ import javax.swing.SwingUtilities;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.model.ZoneMeasurement;
-import net.rptools.maptool.model.drawing.Point;
 
 /**
  * @author trevor
@@ -47,10 +47,10 @@ public class ToolHelper {
 	public static void drawBoxedMeasurement(ZoneRenderer renderer, Graphics2D g, Point startPoint, Point endPoint, boolean roundDistance) {
     	
         // Calculations
-        int left = Math.min(startPoint.getX(), endPoint.getX());
-        int top = Math.min(startPoint.getY(), endPoint.getY());
-        int right = Math.max(startPoint.getX(), endPoint.getX());
-        int bottom = Math.max(startPoint.getY(), endPoint.getY());
+        int left = Math.min((int)startPoint.getX(), (int)endPoint.getX());
+        int top = Math.min((int)startPoint.getY(), (int)endPoint.getY());
+        int right = Math.max((int)startPoint.getX(), (int)endPoint.getX());
+        int bottom = Math.max((int)startPoint.getY(), (int)endPoint.getY());
 
         ZoneMeasurement measurement = new ZoneMeasurement(renderer.getZone().getFeetPerCell(), roundDistance);
         
@@ -72,13 +72,13 @@ public class ToolHelper {
     
 	public static void drawMeasurement(ZoneRenderer renderer, Graphics2D g, Point startPoint, Point endPoint, boolean roundDistance) {
 		
-        int left = Math.min(startPoint.getX(), endPoint.getX());
-        int top = Math.min(startPoint.getY(), endPoint.getY());
-        int right = Math.max(startPoint.getX(), endPoint.getX());
-        int bottom = Math.max(startPoint.getY(), endPoint.getY());
+        int left = Math.min(startPoint.x, endPoint.x);
+        int top = Math.min(startPoint.y, endPoint.y);
+        int right = Math.max(startPoint.x, endPoint.x);
+        int bottom = Math.max(startPoint.y, endPoint.y);
         
-        java.awt.Point cellStart = renderer.getCellAt(startPoint.getX(), startPoint.getY());
-        java.awt.Point cellEnd   = renderer.getCellAt(endPoint.getX(), endPoint.getY());
+        Point cellStart = renderer.getCellAt(startPoint.x, startPoint.y);
+        Point cellEnd   = renderer.getCellAt(endPoint.x, endPoint.y);
 
         int centerX = left + (right - left)/2;
         int centerY = bottom + (top - bottom)/2;

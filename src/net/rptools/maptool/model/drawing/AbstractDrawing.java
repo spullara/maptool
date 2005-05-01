@@ -40,7 +40,7 @@ public abstract class AbstractDrawing implements Drawable {
     /* (non-Javadoc)
      * @see maptool.model.drawing.Drawable#draw(java.awt.Graphics2D, maptool.model.drawing.Pen)
      */
-    public void draw(Graphics2D g, Pen pen) {
+    public void draw(Graphics2D g, Pen pen, int translateX, int translateY) {
         if (pen == null) {
             pen = Pen.DEFAULT;
         } 
@@ -56,21 +56,21 @@ public abstract class AbstractDrawing implements Drawable {
         if (pen.getBackgroundMode() == Pen.MODE_SOLID) {
             Color bgColor = new Color(pen.getBackgroundColor());
             g.setColor(bgColor);
-            drawBackground(g);
+            drawBackground(g, translateX, translateY);
         }
         
         if (pen.getForegroundMode() == Pen.MODE_SOLID) {
             Color color = new Color(pen.getColor());
         	g.setColor(color);
-            draw(g);
+            draw(g, translateX, translateY);
         }
 
         g.setComposite(oldComposite);
         g.setStroke(oldStroke);
     }
     
-    protected abstract void draw(Graphics2D g);
+    protected abstract void draw(Graphics2D g, int translateX, int translateY);
     
-    protected abstract void drawBackground(Graphics2D g);
+    protected abstract void drawBackground(Graphics2D g, int translateX, int translateY);
 
 }

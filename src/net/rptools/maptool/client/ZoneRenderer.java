@@ -84,16 +84,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     protected static float[]    scaleArray  = new float[] { .25F, .30F, .40F, .50F, .60F, .75F, 1F, 1.25F, 1.5F, 1.75F, 2F, 3F, 4F};
     protected static int SCALE_1TO1_INDEX; // Automatically scanned for
 
+    private DrawableRenderer drawableRenderer = new DrawableRenderer();
+    
     private Set<Token> zoomedTokenSet = new HashSet<Token>();
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
     private Map<Rectangle, Token> tokenBoundsMap = new HashMap<Rectangle, Token>();
     private Set<Token> selectedTokenSet = new HashSet<Token>();
-
-    private BufferedImage drawableOverlay;
-    
-    // This is a workaround to identify when the zone has had a new
-    // drawnelement added.  Not super fond of this.  Rethink it later
-    private int drawnElementCount = -1;
 
     static {
     	for (int i = 0; i < scaleArray.length; i++) {
@@ -125,8 +121,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      * Clear internal caches and backbuffers
      */
     public void flush() {
-    	drawableOverlay = null;
-    	drawnElementCount = -1;
     }
     
     public Zone getZone() {
@@ -249,41 +243,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         repaint();
     }
     
-    public BufferedImage getDrawableOverlay() {
-    	
-    	if (backgroundImage == null) { return null; }
-    	if (zone == null) { return null; }
-    	
-    	List<DrawnElement> drawnElements = zone.getDrawnElements();
-    	if (drawableOverlay != null && drawnElements.size() == drawnElementCount) {
-    		return drawableOverlay;
-    	}
-    	
-    	if (drawableOverlay == null) {
-    		drawableOverlay = getGraphicsConfiguration().createCompatibleImage(backgroundImage.getWidth(), backgroundImage.getHeight(), Transparency.BITMASK);
-    	}
-    	
-		Graphics2D g = null;
-		try {
-			g = (Graphics2D) drawableOverlay.getGraphics();
-			
-			for (DrawnElement drawnElement : drawnElements) {
-				
-				drawnElement.getDrawable().draw(g, drawnElement.getPen());
-			}
-			
-		} finally {
-			if (g != null) {
-				g.dispose();
-			}
-		}
-
-    	// Don't redraw until the drawables change
-    	drawnElementCount = drawnElements.size();
-    	
-    	return drawableOverlay;
-    }
-
     public BufferedImage getBackgroundImage() {
         
         if (backgroundImage != null) { return backgroundImage; }
@@ -330,10 +289,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     protected void renderDrawableOverlay(Graphics g) {
         
-//      BufferedImage drawableLayer = getDrawableOverlay();
-//      if (drawableOverlay != null) {
-//          g.drawImage(drawableLayer, offsetX, offsetY, w, h, this);
-//      }
+    	drawableRenderer.renderDrawables(g, zone.getDrawnElements(), offsetX, offsetY, getScale());
     }
     
 	protected void renderBorder(Graphics g) { /* no op */ }

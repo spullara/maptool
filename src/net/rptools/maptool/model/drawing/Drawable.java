@@ -29,10 +29,8 @@ import java.awt.Graphics2D;
 
 /**
  * @author drice
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public interface Drawable {
-    public void draw(Graphics2D g, Pen pen);
+    public void draw(Graphics2D g, Pen pen, int translateX, int translateY);
+    public java.awt.Rectangle getBounds();
 }

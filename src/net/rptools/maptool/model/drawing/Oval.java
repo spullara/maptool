@@ -40,21 +40,21 @@ public class Oval extends Rectangle {
     }
 
     protected void draw(Graphics2D g) {
-        int minX = Math.min(startPoint.getX(), endPoint.getX());
-        int minY = Math.min(startPoint.getY(), endPoint.getY());
+        int minX = Math.min(startPoint.x, endPoint.x);
+        int minY = Math.min(startPoint.y, endPoint.y);
         
-        int width = Math.abs(startPoint.getX() - endPoint.getX());
-        int height = Math.abs(startPoint.getY() - endPoint.getY());
+        int width = Math.abs(startPoint.x - endPoint.x);
+        int height = Math.abs(startPoint.y - endPoint.y);
         
         g.drawOval(minX, minY, width, height);
     }
     
     protected void drawBackground(Graphics2D g) {
-        int minX = Math.min(startPoint.getX(), endPoint.getX());
-        int minY = Math.min(startPoint.getY(), endPoint.getY());
+        int minX = Math.min(startPoint.x, endPoint.x);
+        int minY = Math.min(startPoint.y, endPoint.y);
         
-        int width = Math.abs(startPoint.getX() - endPoint.getX());
-        int height = Math.abs(startPoint.getY() - endPoint.getY());
+        int width = Math.abs(startPoint.x - endPoint.x);
+        int height = Math.abs(startPoint.y - endPoint.y);
         
         g.fillOval(minX, minY, width, height);
     }

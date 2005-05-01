@@ -44,7 +44,7 @@ public class RectangleFillTool extends RectangleTool {
                 pen.setBackgroundColor(Color.white.getRGB());
             }
         	
-            rectangle.draw(g, pen);
+            rectangle.draw(g, pen, 0, 0);
             ToolHelper.drawBoxedMeasurement(renderer, g, rectangle.getStartPoint(), rectangle.getEndPoint(), false);
         }
     }

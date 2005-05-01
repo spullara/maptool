@@ -36,7 +36,7 @@ public class MapZoneRenderer extends ZoneRenderer {
             p = null;
         }
         
-        return null;
+        return p;
     }
     
     public BufferedImage getBackgroundImage() {

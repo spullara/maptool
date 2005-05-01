@@ -25,17 +25,19 @@
 package net.rptools.maptool.model.drawing;
 
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * @author drice
- * 
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
  */
 public class LineSegment extends AbstractDrawing {
+	
+	private static final int PADDING = 5;
+	
     private List<Point> points = new ArrayList<Point>();
 
     /** Manipulate the points by calling {@link #getPoints} and then adding {@link Point} objects
@@ -45,16 +47,37 @@ public class LineSegment extends AbstractDrawing {
         return points;
     }
 
-    protected void draw(Graphics2D g) {
+    protected void draw(Graphics2D g, int translateX, int translateY) {
         Point previousPoint = null;
         for (Point point : points) {
             if (previousPoint != null) 
-                g.drawLine(previousPoint.getX(), previousPoint.getY(), point.getX(), point.getY());
+                g.drawLine(previousPoint.x - translateX, previousPoint.y - translateY, point.x - translateX, point.y - translateY);
             previousPoint = point;
         }
     }
 
-    protected void drawBackground(Graphics2D g) {
+    protected void drawBackground(Graphics2D g, int translateX, int translateY) {
         // do nothing
     }
+    
+    /* (non-Javadoc)
+	 * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
+	 */
+	public Rectangle getBounds() {
+
+		int minX = Integer.MAX_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE;
+		int maxY = Integer.MIN_VALUE;
+		
+		for (Point point : points) {
+			
+			if (point.x < minX) {minX = point.x;}
+			if (point.x > maxX) {maxX = point.x;}
+			if (point.y < minY) {minY = point.y;}
+			if (point.y > maxY) {maxY = point.y;}
+		}
+		
+		return new Rectangle(minX - PADDING, minY - PADDING, maxX - minX + PADDING*2, maxY - minY + PADDING*2);
+	}
 }

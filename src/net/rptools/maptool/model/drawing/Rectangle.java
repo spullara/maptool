@@ -25,6 +25,7 @@
 package net.rptools.maptool.model.drawing;
 
 import java.awt.Graphics2D;
+import java.awt.Point;
 
 /**
  * An rectangle
@@ -32,11 +33,26 @@ import java.awt.Graphics2D;
 public class Rectangle extends AbstractDrawing {
     protected Point startPoint;
     protected Point endPoint;
-
+    
+    private static final int BOUNDS_PADDING = 5;
+    
     public Rectangle(int startX, int startY, int endX, int endY) {
         startPoint = new Point(startX, startY);
         endPoint = new Point(endX, endY);
+        
     }
+    
+    /* (non-Javadoc)
+	 * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
+	 */
+	public java.awt.Rectangle getBounds() {
+        int x = Math.min(startPoint.x, endPoint.x);
+        int y = Math.min(startPoint.y, startPoint.y);
+        int width = Math.abs(endPoint.x - startPoint.x);
+        int height = Math.abs(endPoint.y - startPoint.y);
+        
+		return new java.awt.Rectangle(x-BOUNDS_PADDING, y-BOUNDS_PADDING, width + BOUNDS_PADDING*2, height + BOUNDS_PADDING*2);
+	}
     
     public Point getStartPoint() {
         return startPoint;
@@ -46,23 +62,23 @@ public class Rectangle extends AbstractDrawing {
         return endPoint;
     }
 
-    protected void draw(Graphics2D g) {
-        int minX = Math.min(startPoint.getX(), endPoint.getX());
-        int minY = Math.min(startPoint.getY(), endPoint.getY());
+    protected void draw(Graphics2D g, int translateX, int translateY) {
+        int minX = Math.min(startPoint.x, endPoint.x);
+        int minY = Math.min(startPoint.y, endPoint.y);
         
-        int width = Math.abs(startPoint.getX() - endPoint.getX());
-        int height = Math.abs(startPoint.getY() - endPoint.getY());
+        int width = Math.abs(startPoint.x - endPoint.x);
+        int height = Math.abs(startPoint.y - endPoint.y);
         
-        g.drawRect(minX, minY, width, height);
+        g.drawRect(minX - translateX, minY - translateY, width, height);
     }
 
-    protected void drawBackground(Graphics2D g) {
-        int minX = Math.min(startPoint.getX(), endPoint.getX());
-        int minY = Math.min(startPoint.getY(), endPoint.getY());
+    protected void drawBackground(Graphics2D g, int translateX, int translateY) {
+        int minX = Math.min(startPoint.x, endPoint.x);
+        int minY = Math.min(startPoint.y, endPoint.y);
         
-        int width = Math.abs(startPoint.getX() - endPoint.getX());
-        int height = Math.abs(startPoint.getY() - endPoint.getY());
+        int width = Math.abs(startPoint.x - endPoint.x);
+        int height = Math.abs(startPoint.y - endPoint.y);
         
-        g.fillRect(minX, minY, width, height);
+        g.fillRect(minX - translateX, minY - translateY, width, height);
     }
 }

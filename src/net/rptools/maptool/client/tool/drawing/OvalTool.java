@@ -74,7 +74,7 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
                 pen.setColor(Color.white.getRGB());
             }
 
-            oval.draw(g, pen);
+            oval.draw(g, pen, 0, 0);
             ToolHelper.drawBoxedMeasurement(renderer, g, oval.getStartPoint(), oval.getEndPoint(), false);
         }
     }
@@ -88,8 +88,8 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
         if (oval == null) {
             oval = new Oval(x, y, x, y);
         } else {
-            oval.getEndPoint().setX(x);
-            oval.getEndPoint().setY(y);
+            oval.getEndPoint().x = x;
+            oval.getEndPoint().y = y;
             
             convertScreenToZone(oval.getStartPoint());
             convertScreenToZone(oval.getEndPoint());
@@ -127,8 +127,8 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 	        int y = e.getY();
 	
 	        if (oval != null) {
-	            oval.getEndPoint().setX(x);
-	            oval.getEndPoint().setY(y);
+	            oval.getEndPoint().x = x;
+	            oval.getEndPoint().y = y;
 	        }
 	        
 	        zoneRenderer.repaint();

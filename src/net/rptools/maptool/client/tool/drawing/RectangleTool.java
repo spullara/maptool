@@ -25,7 +25,6 @@
 package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Color;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -38,9 +37,7 @@ import javax.swing.SwingUtilities;
 import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.client.tool.ToolHelper;
-import net.rptools.maptool.model.ZoneMeasurement;
 import net.rptools.maptool.model.drawing.Pen;
-import net.rptools.maptool.model.drawing.Point;
 import net.rptools.maptool.model.drawing.Rectangle;
 import net.rptools.maptool.server.MapToolServer;
 
@@ -79,7 +76,7 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
                 pen.setBackgroundColor(Color.white.getRGB());
             }
         	
-            rectangle.draw(g, pen);
+            rectangle.draw(g, pen, 0, 0);
             ToolHelper.drawBoxedMeasurement(renderer, g, rectangle.getStartPoint(), rectangle.getEndPoint(), false);
         }
     }
@@ -93,8 +90,8 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
         if (rectangle == null) {
             rectangle = new Rectangle(x, y, x, y);
         } else {
-            rectangle.getEndPoint().setX(x);
-            rectangle.getEndPoint().setY(y);
+            rectangle.getEndPoint().x = x;
+            rectangle.getEndPoint().y = y;
             
             convertScreenToZone(rectangle.getStartPoint());
             convertScreenToZone(rectangle.getEndPoint());
@@ -123,8 +120,8 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 	        int y = e.getY();
 	
 	        if (rectangle != null) {
-	            rectangle.getEndPoint().setX(x);
-	            rectangle.getEndPoint().setY(y);
+	            rectangle.getEndPoint().x = x;
+	            rectangle.getEndPoint().y = y;
 	        }
 	        
 	        zoneRenderer.repaint();
