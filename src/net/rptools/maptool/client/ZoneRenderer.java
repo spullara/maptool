@@ -256,7 +256,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         renderTokens(g);
 		renderBorder(g);
 		
-        for (ZoneOverlay overlay : overlayList) {
+        for (int i = 0; i < overlayList.size(); i++) {
+            ZoneOverlay overlay = overlayList.get(i);
             overlay.paintOverlay(this, (Graphics2D) g);
         }
     }
