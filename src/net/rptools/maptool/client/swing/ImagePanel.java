@@ -29,7 +29,9 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
@@ -200,7 +202,7 @@ public class ImagePanel extends JComponent implements Scrollable, DragGestureLis
             return;
         }
         
-        dge.startDrag(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR), transferable, this);
+        dge.startDrag(Toolkit.getDefaultToolkit().createCustomCursor(model.getImage(index), new Point(0, 0), "Thumbnail"), transferable, this);
 	}
 	
 	////
