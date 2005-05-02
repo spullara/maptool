@@ -88,6 +88,6 @@ public class SwingUtil {
     		dim.height = size;
     	}
     	
-    	System.out.println ("Constraining " + oldW + "." + oldH + " to " + dim.width + "." + dim.height);
+    	//System.out.println ("Constraining " + oldW + "." + oldH + " to " + dim.width + "." + dim.height);
     }
 }
