@@ -5,6 +5,7 @@
 		<property name="src"   location="src" />
 		<property name="build" location="build" />
 		<property name="dist"  location="dist" />
+		<property name="tmp"   location="tmp" />
 	</target>
 		
 	<target name="compile" depends="init">
@@ -28,25 +29,45 @@
 	
 	<target name="dist" depends="init,compile,deploy-lib">
 		<mkdir dir="${dist}" />
+		<mkdir dir="${tmp}" />
+		
+		<property name="tmp.zipdir" location="${tmp}/maptool-${build.version}" />
+		<mkdir dir="${tmp.zipdir}" />
 		
 		<buildnumber file="conf/build.number" />
 		
-		<jar destfile="${dist}/maptool-${build.version}.b${build.number}.jar" 
+		<jar destfile="${tmp.zipdir}/maptool-${build.version}.b${build.number}.jar" 
              manifest="conf/manifest.mf"
 			 basedir="${build}" />
 		
-		<copy todir="${dist}">
+		<!-- ZIP FILE CREATION -->
+		
+		<copy todir="${tmp.zipdir}/lib">
 			<fileset dir="lib" />
+		</copy>
+		
+		<delete file="${dist}/maptool-${build.version}.zip" />
+		
+		<zip destfile="${dist}/maptool-${build.version}.zip"
+		     basedir="${tmp.zipdir}" />
+		
+		<!-- WEBSTART FILE CREATION -->
+		
+		<copy todir="${dist}/webstart">
+			<fileset dir="lib" />
+			<fileset file="${tmp.zipdir}/maptool-${build.version}.b${build.number}.jar" />
 		</copy>
 		
 		<signjar keystore="keystore"
 			     keypass="rptools"
 		         alias="rptools"
 			     storepass="rptools">
-			<fileset dir="${dist}">
+			<fileset dir="${dist}/webstart">
 				<include name="**/*.jar" />
 			</fileset>
 		</signjar>
+		
+		<delete dir="${tmp}" />
 	</target>
 	
 </project>
