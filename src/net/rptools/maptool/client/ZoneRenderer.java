@@ -419,8 +419,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         x = (int)Math.floor(x / (zone.getGridSize() * scale));
         y = (int)Math.floor(y / (zone.getGridSize() * scale));
         
-		System.out.println ("AFTER: " + x + "." + y);
-		
         return new Point(x, y);
     }
 
