@@ -41,6 +41,7 @@ import net.rptools.maptool.client.Tool;
 import net.rptools.maptool.client.ZoneOverlay;
 import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.model.ZoneMeasurement;
+import net.rptools.maptool.util.ImageUtil;
 
 
 
@@ -57,7 +58,7 @@ public class MeasuringTool extends DefaultTool {
 	
 	public MeasuringTool () {
 		try {
-			setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Measure.gif"))));
+			setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/Tool_Measure.gif")));
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

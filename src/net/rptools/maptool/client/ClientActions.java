@@ -41,6 +41,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.Player;
+import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.FileUtil;
 import net.rptools.maptool.util.PersistenceUtil;
 
@@ -268,6 +269,27 @@ public class ClientActions {
         }
     };
     
+    public static final Action CREATE_INDEFINITE_MAP = new ClientAction() {
+        {
+            putValue(Action.NAME, "Create Indefinite Map");
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_MASK));
+        }
+
+        public void execute(java.awt.event.ActionEvent e) {
+
+            runBackground(new Runnable() {
+            	
+				public void run() {
+
+					Zone zone = new Zone();
+					zone.setType(Zone.Type.INFINITE);
+					
+                    MapToolClient.addZone(zone);
+				}
+            });
+        }
+    };
+    
     public static final Action LOAD_MAP = new ClientAction() {
         {
             putValue(Action.NAME, "Load Map");
@@ -303,7 +325,8 @@ public class ClientActions {
                             conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
                         }
 
-                        MapToolClient.addZone(asset.getId());
+                        Zone zone = new Zone(asset.getId());
+                        MapToolClient.addZone(zone);
                     } catch (IOException ioe) {
                         MapToolClient.showError("Could not load image: " + ioe);
                         return;

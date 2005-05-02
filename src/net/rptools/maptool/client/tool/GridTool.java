@@ -43,6 +43,7 @@ import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.util.ImageUtil;
 
 
 /**
@@ -60,7 +61,7 @@ public class GridTool extends DefaultTool {
 	
 	public GridTool () {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/grid.gif"))));
+            setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/grid.gif")));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

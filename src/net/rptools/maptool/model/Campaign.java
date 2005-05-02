@@ -74,7 +74,7 @@ public class Campaign {
     	
     	for (Zone zone : zones.values()) {
     		
-    		if (zone.getAssetID().equals(key)) {
+    		if (zone.getAssetID() != null && zone.getAssetID().equals(key)) {
     			return true;
     		}
     		

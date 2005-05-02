@@ -31,7 +31,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Transparency;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
@@ -56,7 +55,6 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.server.MapToolServer;
 import net.rptools.maptool.util.ImageManager;
 
@@ -70,6 +68,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public static final int HOVER_SIZE_THRESHOLD = 40;
     public static final int EDGE_LIMIT = 25; // can't move board past this edge
 	
+    public static final int MIN_GRID_SIZE = 10;
+    
     protected Zone              zone;
 
     protected BufferedImage     backgroundImage;
@@ -243,41 +243,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         repaint();
     }
     
-    public BufferedImage getBackgroundImage() {
-        
-        if (backgroundImage != null) { return backgroundImage; }
-        if (zone == null) { return null; }
-        
-        Asset asset = AssetManager.getAsset(zone.getAssetID());
-        if (asset == null) {
+    public abstract BufferedImage getBackgroundImage();    
 
-        	// TODO: abstract this into the client
-        	if (MapToolClient.isConnected()) {
-        		ClientConnection conn = MapToolClient.getInstance().getConnection();
-        		
-                conn.callMethod(MapToolClient.COMMANDS.getAsset.name(), zone.getAssetID());
-        	}
-        	
-            // TODO: Show a placeholder
-            return null;
-        } 
-
-        backgroundImage = ImageManager.getImage(asset);
-        
-        return backgroundImage;
-    }
-    
     public void paintComponent(Graphics g) {
 
         if (zone == null) { return; }
-
-        Image background = getBackgroundImage();
-        if (background == null) {
-            return;
-        }
+        int gridSize = (int) (zone.getGridSize() * getScale());
 
     	renderBoard(g);
-        renderGrid(g);
+        if (showGrid && gridSize >= MIN_GRID_SIZE) {renderGrid(g);}
         renderDrawableOverlay(g);
         renderTokens(g);
 		renderBorder(g);

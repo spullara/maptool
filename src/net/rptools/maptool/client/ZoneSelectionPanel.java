@@ -58,6 +58,7 @@ import net.rptools.maptool.client.swing.ImageBorder;
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.FileUtil;
 import net.rptools.maptool.util.ImageUtil;
 
@@ -195,7 +196,8 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
 
         if (asset != null) {
         	
-        	MapToolClient.addZone(asset.getId());
+        	Zone zone = new Zone(asset.getId());
+        	MapToolClient.addZone(zone);
         }
         
         repaint();

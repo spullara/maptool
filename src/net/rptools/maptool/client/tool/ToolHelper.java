@@ -88,7 +88,12 @@ public class ToolHelper {
 	}
 	
     public static void drawBoxedString(Graphics2D g, String string, int centerX, int centerY) {
+    	drawBoxedString(g, string, centerX, centerY, SwingUtilities.CENTER);
+    }
+    
+    public static void drawBoxedString(Graphics2D g, String string, int centerX, int centerY, int justification) {
     	
+    	// TODO: Put in justification
     	FontMetrics fm = g.getFontMetrics();
 		int strWidth = SwingUtilities.computeStringWidth(fm, string);
 

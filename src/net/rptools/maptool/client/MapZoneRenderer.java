@@ -16,7 +16,11 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 
+import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.util.ImageManager;
 
 public class MapZoneRenderer extends ZoneRenderer {
 
@@ -28,6 +32,34 @@ public class MapZoneRenderer extends ZoneRenderer {
         super(zone);
     }
     
+    
+    public BufferedImage getBackgroundImage() {
+        
+        if (backgroundImage != null) { return backgroundImage; }
+        if (zone == null) { return null; }
+        
+        Asset asset = AssetManager.getAsset(zone.getAssetID());
+        if (asset == null) {
+
+        	// TODO: abstract this into the client
+        	if (MapToolClient.isConnected()) {
+        		ClientConnection conn = MapToolClient.getInstance().getConnection();
+        		
+                conn.callMethod(MapToolClient.COMMANDS.getAsset.name(), zone.getAssetID());
+        	}
+        	
+            // TODO: Show a placeholder
+            return null;
+        } 
+
+        backgroundImage = ImageManager.getImage(asset);
+        
+        width = backgroundImage.getWidth(this);
+        height = backgroundImage.getHeight(this);
+
+        return backgroundImage;
+    }
+    
     public Point getCellAt(int x,int y) {
         
         Point p = super.getCellAt(x, y);
@@ -37,18 +69,6 @@ public class MapZoneRenderer extends ZoneRenderer {
         }
         
         return p;
-    }
-    
-    public BufferedImage getBackgroundImage() {
-        
-        BufferedImage image = super.getBackgroundImage();
-        if (!sizeInitialized && image != null) {
-            
-            width = image.getWidth(this);
-            height = image.getHeight(this);
-        }
-        
-        return image;
     }
     
     protected void renderBorder(Graphics g) {
@@ -119,29 +139,25 @@ public class MapZoneRenderer extends ZoneRenderer {
         float gridSize = zone.getGridSize() * scale;
 
         // Render grid
-        if (showGrid) {
-            g.setColor(gridColor);
+        g.setColor(gridColor);
 
-            int x = offsetX + (int) (zone.getGridOffsetX() * scaleArray[scaleIndex]);
-            int y = offsetY + (int) (zone.getGridOffsetY() * scaleArray[scaleIndex]);
+        int x = offsetX + (int) (zone.getGridOffsetX() * scaleArray[scaleIndex]);
+        int y = offsetY + (int) (zone.getGridOffsetY() * scaleArray[scaleIndex]);
 
-            for (float row = 0; row < h + gridSize; row += gridSize) {
-                
-                int theY = Math.min(offsetY + h, Math.max((int)row + y, offsetY));
-                int theX = Math.max(x, offsetX);
-                
-                g.drawLine(theX, theY, theX + w, theY);
-            }
-
-            for (float col = 0; col < w + gridSize; col += gridSize) {
-                
-                int theX = Math.min(offsetX + w, Math.max(x + (int)col, offsetX));
-                int theY = Math.max(y, offsetY);
-
-                g.drawLine(theX, theY, theX, theY + h);
-            }
+        for (float row = 0; row < h + gridSize; row += gridSize) {
+            
+            int theY = Math.min(offsetY + h, Math.max((int)row + y, offsetY));
+            int theX = Math.max(x, offsetX);
+            
+            g.drawLine(theX, theY, theX + w, theY);
         }
-        
 
+        for (float col = 0; col < w + gridSize; col += gridSize) {
+            
+            int theX = Math.min(offsetX + w, Math.max(x + (int)col, offsetX));
+            int theY = Math.max(y, offsetY);
+
+            g.drawLine(theX, theY, theX, theY + h);
+        }
     }    
 }

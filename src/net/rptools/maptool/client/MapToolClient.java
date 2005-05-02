@@ -314,9 +314,8 @@ public class MapToolClient extends JFrame {
 	}
 
 	// TODO: I don't like this method name, location, or anything about it.  It sux.  Fix it.
-	public static void addZone(MD5Key backgroundAssetKey) {
+	public static void addZone(Zone zone) {
 		
-        Zone zone = new Zone(backgroundAssetKey);
         MapToolClient.getCampaign().putZone(zone);
         
         // TODO: this needs to be abstracted into the client
@@ -420,6 +419,7 @@ public class MapToolClient extends JFrame {
 		// FILE
 		JMenu fileMenu = new JMenu("File");
 		fileMenu.add(new JMenuItem(ClientActions.LOAD_MAP));
+		fileMenu.add(new JMenuItem(ClientActions.CREATE_INDEFINITE_MAP));
 		fileMenu.add(new JMenuItem(ClientActions.LOAD_CAMPAIGN));
 		fileMenu.add(new JMenuItem(ClientActions.SAVE_CAMPAIGN));
 		fileMenu.addSeparator();

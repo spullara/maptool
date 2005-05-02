@@ -18,7 +18,7 @@ public class ZoneRendererFactory {
         ZoneRenderer renderer = null;
         switch (zone.getType()) {
         case Zone.Type.INFINITE: {
-            renderer = null;
+            renderer = new IndefiniteZoneRenderer(zone);
             break;
         }
         case Zone.Type.MAP:
