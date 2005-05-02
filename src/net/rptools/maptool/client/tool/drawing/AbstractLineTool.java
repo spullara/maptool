@@ -93,7 +93,9 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
         }
         
         // render
-        MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), getPen(), line);
+        if (MapToolClient.isConnected()) {
+            MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), getPen(), line);
+        }
         
         line = null;
         currentX = -1;
