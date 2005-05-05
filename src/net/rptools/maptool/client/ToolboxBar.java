@@ -46,7 +46,7 @@ public class ToolboxBar extends JToolBar {
 			currentTool.removeListeners(currentRenderer);
 			currentTool.detachFrom(currentRenderer);
 			
-			if (currentTool instanceof ZoneOverlay) {
+			if (renderer != null && currentTool instanceof ZoneOverlay) {
 				renderer.removeOverlay(null);
 			}
 		}

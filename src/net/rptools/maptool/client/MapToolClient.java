@@ -288,7 +288,7 @@ public class MapToolClient extends JFrame {
             }
         }
 
-		setCurrentZoneRenderer(currRenderer);
+    	setCurrentZoneRenderer(currRenderer);
     }
     
 	public static void startServer(int port) throws IOException {
@@ -298,11 +298,13 @@ public class MapToolClient extends JFrame {
 			return;
 		}
 		
-		// TODO: Allow specifying a campaign
 		// TODO: the client and server campaign MUST be different objects.  Figure out a better init method
-		campaign = new Campaign();
-		MapToolServer server = new MapToolServer (new ServerConfig(), new ServerPolicy(), port);
-		server.setCampaign(new Campaign());
+		server = new MapToolServer (new ServerConfig(), new ServerPolicy(), port);
+		server.setCampaign(campaign);
+
+		setCurrentZoneRenderer(null);
+		
+		campaign = null;
 	}
 	
 	public static void stopServer() {
@@ -341,7 +343,6 @@ public class MapToolClient extends JFrame {
 			public void handleDisconnect(AbstractConnection conn) {
 
 				showError("Server has disconnected.");
-				new MainMenuDialog().setVisible(true);
 			}
         });
         
@@ -427,6 +428,11 @@ public class MapToolClient extends JFrame {
         fileMenu.addSeparator();
 		fileMenu.add(new JMenuItem(ClientActions.EXIT));
 
+		// SERVER
+		JMenu serverMenu = new JMenu("Server");
+		serverMenu.add(new JMenuItem(ClientActions.START_SERVER));
+		serverMenu.add(new JMenuItem(ClientActions.CONNECT_TO_SERVER));
+		
         // VIEW
         JMenu zoomMenu = new JMenu("Zoom");
         zoomMenu.add(new JMenuItem(ClientActions.ZOOM_IN));
@@ -443,7 +449,7 @@ public class MapToolClient extends JFrame {
         
         // ASSEMBLE
 		menuBar.add(fileMenu);
-//		menuBar.add(serverMenu);
+		menuBar.add(serverMenu);
         menuBar.add(viewMenu);
 
 		return menuBar;
@@ -502,11 +508,6 @@ public class MapToolClient extends JFrame {
 
         instance = new MapToolClient();
 		instance.setVisible(true);
-
-        
-		// TODO: Find a better way to show this on startup (something that is easier to re-use on disconnect)
-		MainMenuDialog dialog = new MainMenuDialog();
-		dialog.setVisible(true);
 	}
 	
 	private class ActivityProgressListener implements ActivityListener {

@@ -139,12 +139,16 @@ public class ClientActions {
             runBackground(new Runnable(){
                 public void run() {
 
+                	if (MapToolClient.isConnected()) {
+                		MapToolClient.showError("Already connected.");
+                		return;
+                	}
+                	
                 	StartServerDialog dialog = new StartServerDialog();
                 	
                 	dialog.setVisible(true);
 
                 	if (dialog.getOption() == StartServerDialog.OPTION_CANCEL) {
-                		new MainMenuDialog().setVisible(true);
                 		return;
                 	}
                 	
@@ -156,7 +160,6 @@ public class ClientActions {
 
                 		// Connect to server
                         MapToolClient.getInstance().createConnection("localhost", port, new Player(dialog.getUsername(), Player.Role.GM));
-                		
                 	} catch (UnknownHostException uh) {
                 		MapToolClient.showError("Whoah, 'localhost' is not a valid address.  Weird.");
                 		return;
@@ -182,13 +185,17 @@ public class ClientActions {
 
             try {
             	
+            	if (MapToolClient.isConnected()) {
+            		MapToolClient.showError("Already connected.");
+            		return;
+            	}
+            	
             	ConnectToServerDialog dialog = new ConnectToServerDialog();
             	
             	dialog.setVisible(true);
             	
             	if (dialog.getOption() == ConnectToServerDialog.OPTION_CANCEL) {
             		
-            		new MainMenuDialog().setVisible(true);
             		return;
             	}
             	

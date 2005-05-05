@@ -57,7 +57,8 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         
         switch (cmd) {
         case setCampaign:
-        	MapToolClient.setCampaign((Campaign) parameters[0]);
+        	Campaign campaign = (Campaign) parameters[0];
+        	MapToolClient.setCampaign(campaign);
             break;
         case putZone:
         	Zone zone = (Zone) parameters[0];
