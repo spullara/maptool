@@ -39,7 +39,7 @@ public class Oval extends Rectangle {
         super(x, y, width, height);
     }
 
-    protected void draw(Graphics2D g) {
+    protected void draw(Graphics2D g, int translateX, int translateY) {
         int minX = Math.min(startPoint.x, endPoint.x);
         int minY = Math.min(startPoint.y, endPoint.y);
         
@@ -49,7 +49,7 @@ public class Oval extends Rectangle {
         g.drawOval(minX, minY, width, height);
     }
     
-    protected void drawBackground(Graphics2D g) {
+    protected void drawBackground(Graphics2D g, int translateX, int translateY) {
         int minX = Math.min(startPoint.x, endPoint.x);
         int minY = Math.min(startPoint.y, endPoint.y);
         
