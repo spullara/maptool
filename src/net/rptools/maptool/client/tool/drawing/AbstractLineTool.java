@@ -33,6 +33,7 @@ import java.util.List;
 import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.client.tool.ToolHelper;
+import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.MapToolServer;
@@ -95,6 +96,9 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
         // render
         if (MapToolClient.isConnected()) {
             MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), getPen(), line);
+        } else {
+			zoneRenderer.getZone().addDrawable(new DrawnElement(line, getPen()));
+			zoneRenderer.repaint();
         }
         
         line = null;

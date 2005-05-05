@@ -37,6 +37,7 @@ import javax.swing.SwingUtilities;
 import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.client.tool.ToolHelper;
+import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.Rectangle;
 import net.rptools.maptool.server.MapToolServer;
@@ -96,7 +97,12 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
             convertScreenToZone(rectangle.getStartPoint());
             convertScreenToZone(rectangle.getEndPoint());
             
-            MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), getPen(), rectangle);
+			if (MapToolClient.isConnected()) {
+				MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), getPen(), rectangle);
+			} else {
+				zoneRenderer.getZone().addDrawable(new DrawnElement(rectangle, getPen()));
+				zoneRenderer.repaint();
+			}
             rectangle = null;
         }
         
