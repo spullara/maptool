@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -115,7 +116,11 @@ public class IndefiniteZoneRenderer extends ZoneRenderer implements ZoneOverlay 
 	// ZONE OVERLAY
 	public void paintOverlay(ZoneRenderer renderer,Graphics2D g) {
 		
+        // Find the cell in the middle of the screen
+        Dimension size = getSize();
+        Point cell = renderer.getCellAt(size.width/2, size.height/2); 
+        
 		g.setColor(Color.black);
-		ToolHelper.drawBoxedString ((Graphics2D) g, offsetX + "." + offsetY, 50, 15, SwingUtilities.LEFT);
+		ToolHelper.drawBoxedString ((Graphics2D) g, cell.x + ", " + cell.y, 50, 15, SwingUtilities.LEFT);
 	}
 }
