@@ -97,6 +97,12 @@ public class MapToolServer {
     }
     
     public void setCampaign(Campaign campaign) {
+        
+        // Don't allow null campaigns, but allow the campaign to be cleared out
+        if (campaign == null) {
+            campaign = new Campaign();
+        }
+        
         this.campaign = campaign;
     }
     
