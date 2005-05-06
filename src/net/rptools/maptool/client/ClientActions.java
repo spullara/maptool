@@ -34,6 +34,7 @@ import java.net.UnknownHostException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
@@ -62,6 +63,25 @@ public class ClientActions {
             if (renderer != null) {
                 renderer.toggleGrid();
             }
+        }
+    };
+
+    public static final Action NEW_CAMPAIGN = new ClientAction() {
+
+        {
+            putValue(Action.NAME, "New Campaign");
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK));
+        }
+
+        public void execute(ActionEvent e) {
+            
+            if (MapToolClient.isConnected()) {
+                
+                MapToolClient.showError("You are connected to a server.  Please disconnect first.");
+                return;
+            }
+            
+            MapToolClient.setCampaign(new Campaign());
         }
     };
 
