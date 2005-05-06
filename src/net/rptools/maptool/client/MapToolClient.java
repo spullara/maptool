@@ -277,7 +277,14 @@ public class MapToolClient extends JFrame {
     	// Load up the new
     	MapToolClient.campaign = campaign;
     	ZoneRenderer currRenderer = null;
-        
+
+        // Clean up
+        setCurrentZoneRenderer(null);
+        if (campaign == null) {
+            return;
+        }
+
+        // Install new campaign
         for (Zone zone : campaign.getZones()) {
             
             ZoneRenderer renderer = ZoneRendererFactory.newRenderer(zone);
@@ -300,11 +307,9 @@ public class MapToolClient extends JFrame {
 		
 		// TODO: the client and server campaign MUST be different objects.  Figure out a better init method
 		server = new MapToolServer (new ServerConfig(), new ServerPolicy(), port);
-		server.setCampaign(campaign);
-
-		setCurrentZoneRenderer(null);
-		
-		campaign = null;
+		server.setCampaign(getCampaign());
+        
+        setCampaign(null);
 	}
 	
 	public static void stopServer() {
