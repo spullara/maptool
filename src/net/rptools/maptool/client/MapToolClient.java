@@ -280,6 +280,7 @@ public class MapToolClient extends JFrame {
 
         // Clean up
         setCurrentZoneRenderer(null);
+        instance.zoneRendererList.clear();
         if (campaign == null) {
             return;
         }
