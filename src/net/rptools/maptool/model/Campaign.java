@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.util.MD5Key;
 
 
@@ -88,4 +89,5 @@ public class Campaign {
     	
     	return false;
     }
+	
 }

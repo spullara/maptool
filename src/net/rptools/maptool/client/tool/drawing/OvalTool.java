@@ -95,12 +95,7 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
             convertScreenToZone(oval.getStartPoint());
             convertScreenToZone(oval.getEndPoint());
             
-			if (MapToolClient.isConnected()) {
-				MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), getPen(), oval);
-			} else {
-				zoneRenderer.getZone().addDrawable(new DrawnElement(oval, getPen()));
-				zoneRenderer.repaint();
-			}
+            completeDrawable(zoneRenderer.getZone().getId(), getPen(), oval);
             oval = null;
         }
 
@@ -151,4 +146,14 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 		return pen;
 	}
 
+  /**
+   * @see net.rptools.maptool.client.Tool#resetTool()
+   */
+  @Override
+  protected void resetTool() {
+    currentX = 0;
+    currentY = 0;
+    oval = null;
+    zoneRenderer.repaint();
+  }
 }

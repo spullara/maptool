@@ -372,4 +372,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		}
 		
 	}
+
+  @Override
+  protected void resetTool() {
+    // Do nothing here for now
+  }
 }

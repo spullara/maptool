@@ -53,7 +53,14 @@ public class MapToolServer {
         putToken, 
         removeToken, 
         draw,
-        setZoneGridSize
+        setZoneGridSize,
+        
+        /**
+         * Command to undo a specific drawable. The first parameter is the 
+         * id of the zone that owns the drawable and the second is the id drawable 
+         * being undone.
+         */
+        undoDraw,
     };
 
     public static final int DEFAULT_PORT = 4444;

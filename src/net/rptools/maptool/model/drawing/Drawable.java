@@ -26,6 +26,8 @@ package net.rptools.maptool.model.drawing;
 
 import java.awt.Graphics2D;
 
+import net.rptools.maptool.model.GUID;
+
 
 /**
  * @author drice
@@ -33,4 +35,5 @@ import java.awt.Graphics2D;
 public interface Drawable {
     public void draw(Graphics2D g, Pen pen, int translateX, int translateY);
     public java.awt.Rectangle getBounds();
+    public GUID getId();
 }

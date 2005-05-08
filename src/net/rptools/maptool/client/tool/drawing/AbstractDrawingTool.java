@@ -28,11 +28,17 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseListener;
 
+import javax.swing.undo.UndoManager;
+
 import net.rptools.maptool.client.MapToolClient;
 import net.rptools.maptool.client.Tool;
 import net.rptools.maptool.client.ZoneOverlay;
 import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.drawing.Drawable;
+import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
+import net.rptools.maptool.server.MapToolServer;
 
 
 /**
@@ -71,4 +77,26 @@ public abstract class AbstractDrawingTool extends Tool implements MouseListener,
     }
     
     public abstract void paintOverlay(ZoneRenderer renderer, Graphics2D g);
+
+    /**
+     * Render a drawable on a zone. This method consolidates all of the calls to the 
+     * server inone place so that it is easier to keep them in sync.
+     * 
+     * @param zoneId Id of the zone where the <code>drawable</code> is being drawn.
+     * @param pen The pen used to draw.
+     * @param drawable What is being drawn.
+     */
+    protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
+
+		// Tell the local/server to render the drawable.
+      if (MapToolClient.isConnected()) {
+        MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneId, pen, drawable);
+      } else {
+        zoneRenderer.getZone().addDrawable(new DrawnElement(drawable, pen));
+        zoneRenderer.repaint();
+      } // endif
+      
+      // Allow it to be undone
+      DrawableUndoManager.getInstance().addDrawable(zoneId, pen, drawable);
+    }
 }

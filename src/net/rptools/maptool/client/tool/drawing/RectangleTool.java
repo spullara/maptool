@@ -97,12 +97,7 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
             convertScreenToZone(rectangle.getStartPoint());
             convertScreenToZone(rectangle.getEndPoint());
             
-			if (MapToolClient.isConnected()) {
-				MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), getPen(), rectangle);
-			} else {
-				zoneRenderer.getZone().addDrawable(new DrawnElement(rectangle, getPen()));
-				zoneRenderer.repaint();
-			}
+            completeDrawable(zoneRenderer.getZone().getId(), getPen(), rectangle);
             rectangle = null;
         }
         
@@ -144,4 +139,11 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 		return pen;
 	}
 
+  /**
+   * Stop drawing a rectangle and repaint the zone.
+   */
+  public void resetTool() {
+    rectangle = null;
+    zoneRenderer.repaint();
+  }
 }

@@ -68,6 +68,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
     }
 
     protected Point addPoint(int x, int y) {
+      if (line == null) return null; // Escape has been pressed
         Point ret = null;
     	
         if (x != currentX || y != currentY) {
@@ -83,23 +84,19 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
     }
     
     protected void removePoint(Point p) {
+      if (line == null) return; // Escape has been pressed
         line.getPoints().remove(p);
     }
     
     protected void stopLine(int x, int y) {
+      if (line == null) return; // Escape has been pressed
         addPoint(x, y);
         
         for (Point p : line.getPoints()) {
             convertScreenToZone(p);
         }
         
-        // render
-        if (MapToolClient.isConnected()) {
-            MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneRenderer.getZone().getId(), getPen(), line);
-        } else {
-			zoneRenderer.getZone().addDrawable(new DrawnElement(line, getPen()));
-			zoneRenderer.repaint();
-        }
+        completeDrawable(zoneRenderer.getZone().getId(), getPen(), line);
         
         line = null;
         currentX = -1;
@@ -123,4 +120,15 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
             }
         }
 	}
+  
+  /**
+   * @see net.rptools.maptool.client.Tool#resetTool()
+   */
+  @Override
+  protected void resetTool() {
+    line = null;
+    currentX = -1;
+    currentY = -1;
+    zoneRenderer.repaint();
+  }
 }

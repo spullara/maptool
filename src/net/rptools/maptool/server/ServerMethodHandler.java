@@ -117,6 +117,14 @@ public class ServerMethodHandler extends AbstractMethodHandler {
             zone.addDrawable(new DrawnElement(drawable, pen));
             break;
 
+        case undoDraw:
+          zoneGUID = (GUID) parameters[0];
+          GUID drawableId = (GUID)parameters[1];
+          server.getConnection().broadcastCallMethod(MapToolClient.COMMANDS.undoDraw.name(), zoneGUID, drawableId);
+          zone = server.getCampaign().getZone(zoneGUID);
+          zone.removeDrawable(drawableId);
+          break;
+          
         case setZoneGridSize:
         	
         	zoneGUID = (GUID) parameters[0];

@@ -31,13 +31,17 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
+import javax.swing.JRootPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+
+import net.rptools.maptool.client.tool.drawing.RectangleTool;
 
 /**
  */
@@ -45,10 +49,16 @@ public abstract class Tool extends JToggleButton {
 
 	private InputMap oldInputMap;
 	private ActionMap oldActionMap;
-	
+	private EscapeAction escapeAction = new EscapeAction();
+    public static final String RESET_TOOL_COMMAND = "resetTool";
+  
     public Tool () {
+      
+      // Map the escape key reset this tool.
+      getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), Tool.RESET_TOOL_COMMAND);
 
         setFocusPainted(false);
+        
         addActionListener(new ActionListener() {
             
             public void actionPerformed(ActionEvent e) {
@@ -65,7 +75,7 @@ public abstract class Tool extends JToggleButton {
             }
         });
     }
-    
+
 	void addListeners(JComponent comp) {
 		
 		if (comp == null) {
@@ -91,7 +101,10 @@ public abstract class Tool extends JToggleButton {
 			
 			SwingUtilities.replaceUIActionMap(comp, createActionMap(keyActionMap));
 			SwingUtilities.replaceUIInputMap(comp, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, createInputMap(keyActionMap));
-		}
+		} 
+
+        // Make the ESCAPE key cancel this tool
+        getActionMap().put(RESET_TOOL_COMMAND, escapeAction);
 	}
 	
 	void removeListeners(JComponent comp) {
@@ -114,6 +127,9 @@ public abstract class Tool extends JToggleButton {
 		// TODO: These cause in infinite loop.  I don't believe they are necessary, but review later
 		//SwingUtilities.replaceUIActionMap(comp, oldActionMap);
 		//SwingUtilities.replaceUIInputMap(comp, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, oldInputMap);
+
+        // Unmap escape so it doesn't get called on all the tools. 
+        getActionMap().remove(RESET_TOOL_COMMAND);
 	}
 	
 	protected void attachTo(ZoneRenderer renderer) {
@@ -163,8 +179,29 @@ public abstract class Tool extends JToggleButton {
     		
     		actionMap.put(keyStroke.toString(), keyActionMap.get(keyStroke));
     	}
-    	
     	return actionMap;
     }
     
+    /**
+     * Implement this method to clear internal data to a start
+     * drawing state. This method must repaint whatever it is being
+     * displayed upon.
+     */
+    protected abstract void resetTool();
+    
+    /**
+     * Perform the escape action on a tool.
+     * 
+     * @author jgorrell
+     * @version $Revision$ $Date$ $Author$
+     */
+    private class EscapeAction extends AbstractAction {
+
+      /**
+       * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+       */
+      public void actionPerformed(ActionEvent e) {
+        resetTool();
+      }
+    }
 }

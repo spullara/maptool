@@ -88,5 +88,9 @@ public class ZoomTool extends Tool implements MouseListener {
 	
 	public void mouseReleased(MouseEvent e){}
 	
+    @Override
+    protected void resetTool() {
+      // Do nothing here for now
+    }
 
 }

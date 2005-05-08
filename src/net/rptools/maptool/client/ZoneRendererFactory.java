@@ -9,11 +9,15 @@
  */
 package net.rptools.maptool.client;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 
 public class ZoneRendererFactory {
 
-    public static ZoneRenderer newRenderer(Zone zone) {
+	public static ZoneRenderer newRenderer(Zone zone) {
         
         ZoneRenderer renderer = null;
         switch (zone.getType()) {

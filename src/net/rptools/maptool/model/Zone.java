@@ -25,10 +25,13 @@
 package net.rptools.maptool.model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
+import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.util.MD5Key;
 
@@ -134,6 +137,21 @@ public class Zone extends Token {
     
     public List<DrawnElement> getDrawnElements() {
     	return drawables;
+    }
+    
+    /**
+     * Delete the drawable so it is no longer painted.
+     * 
+     * @param drawableId The id of the drawable being deleted.
+     */
+    public void removeDrawable(GUID drawableId) {
+      ListIterator<DrawnElement> i = drawables.listIterator();
+      while (i.hasNext()) {
+        if (i.next().getDrawable().getId().equals(drawableId)) {
+          i.remove();
+          return;
+        }
+      }
     }
     
     ///////////////////////////////////////////////////////////////////////////

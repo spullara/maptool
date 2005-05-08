@@ -31,12 +31,19 @@ import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 
+import net.rptools.maptool.model.GUID;
+
 /**
  * Abstract drawing.  This class takes care of setting up the Pen since that
  * will be the same for all implementing classes.
  */
 public abstract class AbstractDrawing implements Drawable {
 
+  /**
+   * The unique identifier for this drawable. It is immutable.
+   */
+  private GUID id = new GUID();
+  
     /* (non-Javadoc)
      * @see maptool.model.drawing.Drawable#draw(java.awt.Graphics2D, maptool.model.drawing.Pen)
      */
@@ -73,4 +80,33 @@ public abstract class AbstractDrawing implements Drawable {
     
     protected abstract void drawBackground(Graphics2D g, int translateX, int translateY);
 
+    /**
+     * Get the id for this AbstractDrawing.
+     *
+     * @return Returns the current value of id.
+     */
+    public GUID getId() {
+      return id;
+    }
+
+    /**
+     * Use the id for equals.
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+      if (!(obj instanceof AbstractDrawing)) return false;
+      return id.equals(obj);
+    }
+
+    /**
+     * Use the id for hash code.
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+      return id.hashCode();
+    }
 }

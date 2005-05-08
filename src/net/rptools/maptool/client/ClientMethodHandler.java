@@ -104,6 +104,19 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	
         	MapToolClient.getInstance().repaint();
             break;
+        
+        case undoDraw:
+          zoneGUID = (GUID) parameters[0];
+          GUID drawableId = (GUID)parameters[1];
+          zone = MapToolClient.getCampaign().getZone(zoneGUID);
+          zone.removeDrawable(drawableId);
+
+		  if (MapToolClient.getCurrentZoneRenderer().getZone().getId().equals(zoneGUID) && zoneGUID != null) {
+			  MapToolClient.getCurrentZoneRenderer().repaint();
+		  }
+
+		  break;
+          
 //        case setZone:
 //        	MapToolClient.setBackgroundPanel(new ZoneRenderer((Zone)parameters[0]));
 //           break;

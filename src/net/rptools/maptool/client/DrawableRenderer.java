@@ -5,6 +5,7 @@ package net.rptools.maptool.client;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -26,6 +27,11 @@ public class DrawableRenderer {
 	public void renderDrawables(Graphics g, List<DrawnElement> drawableList, int offsetX, int offsetY, double scale) {
 
 		if (drawableCount != drawableList.size()) {
+	        // A drawable has been deleted, need to create the entries all over again
+	        // since many drawn elements can be in the same entry.
+	        if (drawableCount > drawableList.size()) {
+		  	    drawableEntries.clear();
+	        }
 			
 			consolidateBounds(drawableList);
 			validateEntries();
@@ -36,8 +42,8 @@ public class DrawableRenderer {
 				
 				DrawableEntry entry = getEntryFor(drawable.getBounds());
 				
-				Graphics g2 = entry.image.getGraphics();
-				drawable.draw((Graphics2D) g2, element.getPen(), entry.bounds.x, entry.bounds.y);
+				Graphics2D g2 = entry.image.createGraphics();
+				drawable.draw(g2, element.getPen(), entry.bounds.x, entry.bounds.y);
 				g2.dispose();
 			}
 		}
