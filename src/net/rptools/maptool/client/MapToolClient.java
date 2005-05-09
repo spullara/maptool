@@ -43,6 +43,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 import javax.swing.UIManager;
 
 import net.rptools.clientserver.ActivityListener;
@@ -273,6 +274,10 @@ public class MapToolClient extends JFrame {
         return campaign;
     }
     
+    public ToolboxBar getToolbox () {
+    	return toolboxPanel;
+    }
+    
     public static void setCampaign(Campaign campaign) {
     	
     	// Clear out the old
@@ -418,6 +423,12 @@ public class MapToolClient extends JFrame {
         toolbox.add(Box.createHorizontalStrut(3));
         toolbox.add(widthChooser);
 
+        toolbox.add(Box.createHorizontalStrut(15));
+        
+        JToggleButton tbutton = new JToggleButton(ClientActions.TOGGLE_GRID);
+        toolbox.add(new JToggleButton(ClientActions.TOGGLE_GRID));
+        
+
         return toolbox;
 	}
 	
@@ -452,6 +463,10 @@ public class MapToolClient extends JFrame {
 		serverMenu.add(new JMenuItem(ClientActions.START_SERVER));
 		serverMenu.add(new JMenuItem(ClientActions.CONNECT_TO_SERVER));
 		
+		// GM
+		JMenu gmMenu = new JMenu("GM");
+		gmMenu.add(new JMenuItem(ClientActions.ADJUST_GRID));
+		
         // VIEW
         JMenu zoomMenu = new JMenu("Zoom");
         zoomMenu.add(new JMenuItem(ClientActions.ZOOM_IN));
@@ -461,21 +476,22 @@ public class MapToolClient extends JFrame {
         JMenu viewMenu = new JMenu("View");
         viewMenu.add(zoomMenu);
         viewMenu.addSeparator();
-        viewMenu.add(new JMenuItem(ClientActions.TOGGLE_GRID));
+        //viewMenu.add(new JMenuItem(ClientActions.TOGGLE_GRID));
         viewMenu.add(new JMenuItem(ClientActions.TOGGLE_ZONE_SELECTOR));
         viewMenu.add(new JMenuItem(ClientActions.TOGGLE_ASSET_PANEL));
-
         
         // ASSEMBLE
 		menuBar.add(fileMenu);
-        menuBar.add(editMenu);
-		menuBar.add(serverMenu);
+		menuBar.add(editMenu);
         menuBar.add(viewMenu);
+		menuBar.add(serverMenu);
+		menuBar.add(gmMenu);
 
 		return menuBar;
 	}
 	
     public Pen getPen() {
+    	
     	pen.setColor(foregroundColorPicker.getSelectedColor().getRGB());
     	pen.setBackgroundColor(backgroundColorPicker.getSelectedColor().getRGB());
         pen.setThickness((Float)widthChooser.getSelectedItem());

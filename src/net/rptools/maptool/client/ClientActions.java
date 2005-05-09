@@ -33,17 +33,20 @@ import java.net.UnknownHostException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.FileUtil;
+import net.rptools.maptool.util.ImageUtil;
 import net.rptools.maptool.util.PersistenceUtil;
 
 
@@ -51,11 +54,28 @@ import net.rptools.maptool.util.PersistenceUtil;
  */
 public class ClientActions {
 
+	public static final Action ADJUST_GRID = new ClientAction() {
+		
+		{
+			putValue(Action.NAME, "Adjust Grid");
+		}
+		
+		public void execute(ActionEvent e) {
+			MapToolClient.getInstance().getToolbox().setSelectedTool(new GridTool());
+		}
+		
+	};
+	
     public static final Action TOGGLE_GRID = new ClientAction() {
 
         {
-            putValue(Action.NAME, "Toggle Grid");
+            //putValue(Action.NAME, "Toggle Grid");
             putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
+            try {
+            	putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/grid.gif")));
+            } catch (IOException ioe) {
+            	ioe.printStackTrace();
+            }
         }
 
         public void execute(ActionEvent e) {
