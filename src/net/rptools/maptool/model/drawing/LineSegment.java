@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class LineSegment extends AbstractDrawing {
 	
-	private static final int PADDING = 5;
+	private static final int PADDING = 10;
 	
     private List<Point> points = new ArrayList<Point>();
 

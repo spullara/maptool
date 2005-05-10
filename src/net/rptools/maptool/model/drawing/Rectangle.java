@@ -34,7 +34,7 @@ public class Rectangle extends AbstractDrawing {
     protected Point startPoint;
     protected Point endPoint;
     
-    private static final int BOUNDS_PADDING = 5;
+    private static final int BOUNDS_PADDING = 10;
     
     public Rectangle(int startX, int startY, int endX, int endY) {
         startPoint = new Point(startX, startY);
