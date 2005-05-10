@@ -420,7 +420,6 @@ public class MapToolClient extends JFrame {
 		
 		toolbox.addTool(new PointerTool());
 		toolbox.addTool(new MeasuringTool());
-        toolbox.addTool(new GridTool());
 
         toolbox.add(Box.createHorizontalStrut(15));
 
