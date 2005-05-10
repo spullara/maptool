@@ -61,6 +61,12 @@ public class ClientActions {
 		}
 		
 		public void execute(ActionEvent e) {
+			
+			if (MapToolClient.getCurrentZoneRenderer().getZone().getType() == Zone.Type.INFINITE) {
+				MapToolClient.showError("Cannot adjust grid on infinite maps.");
+				return;
+			}
+			
 			MapToolClient.getInstance().getToolbox().setSelectedTool(new GridTool());
 		}
 		
