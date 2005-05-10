@@ -37,9 +37,9 @@ public class Rectangle extends AbstractDrawing {
     private static final int BOUNDS_PADDING = 10;
     
     public Rectangle(int startX, int startY, int endX, int endY) {
+
         startPoint = new Point(startX, startY);
         endPoint = new Point(endX, endY);
-        
     }
     
     /* (non-Javadoc)
@@ -47,7 +47,7 @@ public class Rectangle extends AbstractDrawing {
 	 */
 	public java.awt.Rectangle getBounds() {
         int x = Math.min(startPoint.x, endPoint.x);
-        int y = Math.min(startPoint.y, startPoint.y);
+        int y = Math.min(startPoint.y, endPoint.y);
         int width = Math.abs(endPoint.x - startPoint.x);
         int height = Math.abs(endPoint.y - startPoint.y);
         

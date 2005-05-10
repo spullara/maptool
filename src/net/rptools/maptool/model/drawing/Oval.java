@@ -46,7 +46,7 @@ public class Oval extends Rectangle {
         int width = Math.abs(startPoint.x - endPoint.x);
         int height = Math.abs(startPoint.y - endPoint.y);
         
-        g.drawOval(minX, minY, width, height);
+        g.drawOval(minX - translateX, minY - translateY, width, height);
     }
     
     protected void drawBackground(Graphics2D g, int translateX, int translateY) {
@@ -56,6 +56,6 @@ public class Oval extends Rectangle {
         int width = Math.abs(startPoint.x - endPoint.x);
         int height = Math.abs(startPoint.y - endPoint.y);
         
-        g.fillOval(minX, minY, width, height);
+        g.fillOval(minX - translateX, minY - translateY, width, height);
     }
 }
