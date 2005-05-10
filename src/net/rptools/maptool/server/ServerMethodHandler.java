@@ -139,6 +139,9 @@ public class ServerMethodHandler extends AbstractMethodHandler {
             
             server.getConnection().broadcastCallMethod(MapToolClient.COMMANDS.setZoneGridSize.name(), parameters);
             break;
+        case message:
+            server.getConnection().broadcastCallMethod(MapToolClient.COMMANDS.message.name(), parameters);
+            break;
         }
         	
     }

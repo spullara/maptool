@@ -54,6 +54,7 @@ public class MapToolServer {
         removeToken, 
         draw,
         setZoneGridSize,
+        message,
         
         /**
          * Command to undo a specific drawable. The first parameter is the 

@@ -97,6 +97,7 @@ public class MapToolClient extends JFrame {
     	setZoneGridSize,
     	playerConnected,
     	playerDisconnected,
+        message,
         
         /**
          * Command to undo a specific drawable. The first parameter is the 
@@ -150,7 +151,9 @@ public class MapToolClient extends JFrame {
 	private StatusPanel statusPanel;
 	private ActivityMonitorPanel activityMonitor = new ActivityMonitorPanel();
 	private ProgressStatusBar progressBar = new ProgressStatusBar();
-	
+    
+    private List<String> messages = new ArrayList<String>();
+
 	public static void showError(String message) {
 		JOptionPane.showMessageDialog(instance, message, "Error", JOptionPane.ERROR_MESSAGE);
 	}
@@ -246,7 +249,19 @@ public class MapToolClient extends JFrame {
 	public ZoneSelectionPanel getZoneSelectionPanel() {
 		return zoneSelectionPanel;
 	}
-	
+    
+    public List<String> getMessages() {
+        return messages;
+    }
+    
+    public void addMessage(String message) {
+        messages.add(message);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // static methods
+    ///////////////////////////////////////////////////////////////////////////
+    
     public static void toggleAssetTree() {
         
         if (instance.mainSplitPane.isLeftHidden()) {

@@ -146,7 +146,11 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	MapToolClient.getInstance().removePlayer((Player) parameters[0]);
         	MapToolClient.getInstance().repaint();
         	break;
-        	
+            
+        case message:
+            String message = (String) parameters[0];
+            MapToolClient.getInstance().addMessage(message);
+        	break;
         	
         }
         
