@@ -28,6 +28,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTargetDropEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.FileUtil;
+import net.rptools.maptool.util.ImageUtil;
 import net.rptools.maptool.util.MD5Key;
 
 /**
@@ -42,7 +44,10 @@ import net.rptools.maptool.util.MD5Key;
  */
 public class TransferableHelper {
 
-	// TODO: I don't like this here, but couldn't think of a better place
+    // TODO: USE ImageTransferable in rplib
+    private static final DataFlavor IMAGE_FLAVOR = new DataFlavor("image/x-java-image; class=java.awt.Image", "Image");
+
+    // TODO: I don't like this here, but couldn't think of a better place
 	/**
 	 * Takes a drop event and returns an asset
 	 * from it.  returns null if an asset could not be obtained
@@ -65,6 +70,12 @@ public class TransferableHelper {
 	        	asset = handleTransferableAssetReference(transferable);
 	        }
 	        
+            // DIRECT/BROWSER
+            else if (transferable.isDataFlavorSupported(IMAGE_FLAVOR)) {
+                
+                asset = handleImage(dtde, transferable);
+            }
+            
 	        // LOCAL FILES/BROWSER
 	        else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
 	        	
@@ -76,6 +87,10 @@ public class TransferableHelper {
         	return null;
         }
 
+        if (asset == null) {
+            return null;
+        }
+        
         if (!AssetManager.hasAsset(asset)) {
     		AssetManager.putAsset(asset);
         }
@@ -91,6 +106,15 @@ public class TransferableHelper {
         return asset;
 	}
 
+    private static Asset handleImage (DropTargetDropEvent dtde, Transferable transferable) throws Exception {
+        
+        BufferedImage image = (BufferedImage) transferable.getTransferData(IMAGE_FLAVOR);        
+        
+        Asset asset = new Asset(ImageUtil.imageToBytes(image));
+        
+        return asset;
+    }
+    
 	private static Asset handleFileList(DropTargetDropEvent dtde, Transferable transferable) throws Exception {
 		
     	List<File> list = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);

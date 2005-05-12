@@ -66,6 +66,11 @@ public class PlayerList extends JList {
 		playerList.remove(player);
 		((PlayerListModel) getModel()).update();
 	}
+    
+    public void clear() {
+        playerList.clear();
+        ((PlayerListModel) getModel()).update();
+    }
 	
 	private static class PlayerListModel extends AbstractListModel {
 		

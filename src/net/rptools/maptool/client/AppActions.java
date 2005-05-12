@@ -52,7 +52,7 @@ import net.rptools.maptool.util.PersistenceUtil;
 
 /**
  */
-public class ClientActions {
+public class AppActions {
 
 	public static final Action ADJUST_GRID = new ClientAction() {
 		

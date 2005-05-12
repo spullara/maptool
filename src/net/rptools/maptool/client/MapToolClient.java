@@ -191,7 +191,7 @@ public class MapToolClient extends JFrame {
 
         mainPanel.add(BorderLayout.SOUTH, zoneSelectionPanel);
         
-		setJMenuBar(createMenuBar());
+		setJMenuBar(new AppMenuBar());
 		
 		// Split left/right
 		mainSplitPane = new JSplitPaneEx();
@@ -366,15 +366,7 @@ public class MapToolClient extends JFrame {
         this.conn.addMessageHandler(handler);
         this.conn.addActivityListener(activityMonitor);
         this.conn.addActivityListener(new ActivityProgressListener());
-        
-        this.conn.addDisconnectHandler(new DisconnectHandler() {
-        	
-        	// TODO: Put this in a better place
-			public void handleDisconnect(AbstractConnection conn) {
-
-				showError("Server has disconnected.");
-			}
-        });
+        this.conn.addDisconnectHandler(new ServerDisconnectHandler());
         
         this.conn.start();
     }
@@ -393,6 +385,23 @@ public class MapToolClient extends JFrame {
         return getInstance().getConnection() != null;
     }
 
+    public static void disconnect() {
+        
+        try {
+            instance.conn.close();
+            instance.conn = null;
+            instance.playerList.clear();
+            
+            if (server != null) {
+                // TODO: implement this
+                //instance.server.stop();
+            }
+        } catch (IOException ioe) {
+            // This isn't critical, we're closing it anyway
+            ioe.printStackTrace();
+        }
+    }
+    
 	public static MapToolClient getInstance() {
 		return instance;
 	}
@@ -439,69 +448,11 @@ public class MapToolClient extends JFrame {
 
         toolbox.add(Box.createHorizontalStrut(15));
         
-        JToggleButton tbutton = new JToggleButton(ClientActions.TOGGLE_GRID);
-        toolbox.add(new JToggleButton(ClientActions.TOGGLE_GRID));
+        JToggleButton tbutton = new JToggleButton(AppActions.TOGGLE_GRID);
+        toolbox.add(new JToggleButton(AppActions.TOGGLE_GRID));
         
 
         return toolbox;
-	}
-	
-	private JMenuBar createMenuBar() {
-		
-		JMenuBar menuBar = new JMenuBar();
-
-        // ASSET
-        JMenu actionMenu = new JMenu("Assets");
-        actionMenu.add(new JMenuItem(ClientActions.ADD_ASSET_PANEL));
-        
-		// FILE
-		JMenu fileMenu = new JMenu("File");
-		fileMenu.add(new JMenuItem(ClientActions.LOAD_MAP));
-		fileMenu.add(new JMenuItem(ClientActions.CREATE_INDEFINITE_MAP));
-        fileMenu.addSeparator();
-        fileMenu.add(new JMenuItem(ClientActions.NEW_CAMPAIGN));
-		fileMenu.add(new JMenuItem(ClientActions.LOAD_CAMPAIGN));
-		fileMenu.add(new JMenuItem(ClientActions.SAVE_CAMPAIGN));
-		fileMenu.addSeparator();
-        fileMenu.add(actionMenu);
-        fileMenu.addSeparator();
-		fileMenu.add(new JMenuItem(ClientActions.EXIT));
-
-	    // Edit
-	    JMenu editMenu = new JMenu("Edit");
-	    editMenu.add(new JMenuItem(DrawableUndoManager.getInstance().getUndoCommand()));
-	    editMenu.add(new JMenuItem(DrawableUndoManager.getInstance().getRedoCommand()));
-	    
-		// SERVER
-		JMenu serverMenu = new JMenu("Server");
-		serverMenu.add(new JMenuItem(ClientActions.START_SERVER));
-		serverMenu.add(new JMenuItem(ClientActions.CONNECT_TO_SERVER));
-		
-		// GM
-		JMenu gmMenu = new JMenu("GM");
-		gmMenu.add(new JMenuItem(ClientActions.ADJUST_GRID));
-		
-        // VIEW
-        JMenu zoomMenu = new JMenu("Zoom");
-        zoomMenu.add(new JMenuItem(ClientActions.ZOOM_IN));
-        zoomMenu.add(new JMenuItem(ClientActions.ZOOM_OUT));
-        zoomMenu.add(new JMenuItem(ClientActions.ZOOM_RESET));
-
-        JMenu viewMenu = new JMenu("View");
-        viewMenu.add(zoomMenu);
-        viewMenu.addSeparator();
-        //viewMenu.add(new JMenuItem(ClientActions.TOGGLE_GRID));
-        viewMenu.add(new JMenuItem(ClientActions.TOGGLE_ZONE_SELECTOR));
-        viewMenu.add(new JMenuItem(ClientActions.TOGGLE_ASSET_PANEL));
-        
-        // ASSEMBLE
-		menuBar.add(fileMenu);
-		menuBar.add(editMenu);
-        menuBar.add(viewMenu);
-		menuBar.add(serverMenu);
-		menuBar.add(gmMenu);
-
-		return menuBar;
 	}
 	
     public Pen getPen() {

@@ -169,7 +169,7 @@ public class ImageUtil {
     }
     
     public static byte[] imageToBytes(BufferedImage image) throws IOException {
-        return imageToBytes(image, "jpg");
+        return imageToBytes(image, "png"); // Lossless
     }
 	
 	public static byte[] imageToBytes(BufferedImage image, String format) throws IOException {
