@@ -219,7 +219,7 @@ public class MapTool {
 	
     public static void createConnection(String host, int port, Player player) throws UnknownHostException, IOException {
 
-    	conn = new MapToolClientConnection(host, port, player);
+    	conn = new MapToolConnection(host, port, player);
         conn.addMessageHandler(handler);
         conn.addActivityListener(clientFrame.getActivityMonitor());
         conn.addActivityListener(new ActivityProgressListener());

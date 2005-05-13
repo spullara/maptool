@@ -34,17 +34,17 @@ import net.rptools.maptool.server.Handshake;
 /**
  * @author trevor
  */
-public class MapToolClientConnection extends ClientConnection {
+public class MapToolConnection extends ClientConnection {
 
 	private Player player;
 	
-	public MapToolClientConnection(String host, int port, Player player) throws IOException {
+	public MapToolConnection(String host, int port, Player player) throws IOException {
 		super(host, port, null);
 		
 		this.player = player;
 	}
 	
-	public MapToolClientConnection(Socket socket, Player player) throws IOException {
+	public MapToolConnection(Socket socket, Player player) throws IOException {
 		super(socket, null);
 		
 		this.player = player;
