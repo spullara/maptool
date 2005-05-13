@@ -32,16 +32,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-import net.rptools.maptool.client.MapToolClient;
-import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.SwingUtil;
+import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageUtil;
 
@@ -81,9 +80,9 @@ public class GridTool extends DefaultTool {
 		renderer.setGridVisible(false);
 		
 		// Commit the grid size change
-		if (MapToolClient.isConnected()) {
+		if (MapTool.isConnected()) {
 			Zone zone = renderer.getZone();
-	        MapToolClient.getInstance().getConnection().callMethod(MapToolClient.COMMANDS.setZoneGridSize.name(), zone.getId(), zone.getGridOffsetX(), zone.getGridOffsetY(), zone.getGridSize());
+	        MapTool.getConnection().callMethod(MapTool.COMMANDS.setZoneGridSize.name(), zone.getId(), zone.getGridOffsetX(), zone.getGridOffsetY(), zone.getGridSize());
 		}
 	}
 

@@ -35,7 +35,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.border.BevelBorder;
 
-import net.rptools.maptool.client.MapToolClient;
+import net.rptools.maptool.client.MapTool;
 
 /**
  * @author trevor
@@ -54,7 +54,7 @@ public class ColorPickerButton extends JComponent {
 			public void mouseClicked(MouseEvent e) {
 				
 	            Color oldColor = color;
-	            Color newColor = JColorChooser.showDialog(MapToolClient.getInstance(), ColorPickerButton.this.title, oldColor);
+	            Color newColor = JColorChooser.showDialog(MapTool.getFrame(), ColorPickerButton.this.title, oldColor);
 	            
 	            if (newColor != null) {
 	                ColorPickerButton.this.color = newColor;

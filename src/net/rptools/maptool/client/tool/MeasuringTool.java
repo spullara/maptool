@@ -29,17 +29,12 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
-import net.rptools.maptool.client.Tool;
-import net.rptools.maptool.client.ZoneOverlay;
-import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.ZoneMeasurement;
 import net.rptools.maptool.util.ImageUtil;
 

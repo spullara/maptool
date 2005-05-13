@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -32,6 +32,8 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.maptool.client.ClientStyle;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Zone;
@@ -41,7 +43,6 @@ public class MapZoneRenderer extends ZoneRenderer {
 
     private int     width;
     private int     height;
-    private boolean sizeInitialized;
 
     public MapZoneRenderer (Zone zone) {
         super(zone);
@@ -57,10 +58,10 @@ public class MapZoneRenderer extends ZoneRenderer {
         if (asset == null) {
 
         	// TODO: abstract this into the client
-        	if (MapToolClient.isConnected()) {
-        		ClientConnection conn = MapToolClient.getInstance().getConnection();
+        	if (MapTool.isConnected()) {
+        		ClientConnection conn = MapTool.getConnection();
         		
-                conn.callMethod(MapToolClient.COMMANDS.getAsset.name(), zone.getAssetID());
+                conn.callMethod(MapTool.COMMANDS.getAsset.name(), zone.getAssetID());
         	}
         	
             // TODO: Show a placeholder

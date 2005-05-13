@@ -22,62 +22,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.ui;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-
-import net.rptools.maptool.model.Player;
+import java.awt.Graphics2D;
 
 /**
- * @author trevor
  */
-public class PlayerList extends Observable {
+public interface ZoneOverlay {
 
-	private List<Player> playerList = new ArrayList<Player>();
-
-	public void add(Player player) {
-		if (!playerList.contains(player)) {
-			playerList.add(player);
-			
-			// LATER: Make this non-anonymous
-			Collections.sort(playerList, new Comparator() {
-				
-				public int compare(Object arg0,Object arg1) {
-					return ((Player) arg0).getName().compareToIgnoreCase(((Player) arg1).getName());
-				}
-			});
-            
-            fireUpdate();
-		}
-	}
-    
-    public int size() {
-        return playerList.size();
-    }
-    
-    public Player get(int i) {
-        return playerList.get(i);
-    }
-
-	public void remove(Player player) {
-		playerList.remove(player);
-        fireUpdate();
-	}
-    
-    public void clear() {
-        playerList.clear();
-        fireUpdate();
-    }
-
-    protected void fireUpdate() {
-        setChanged();
-        notifyObservers();
-    }
-    
-
+	public void paintOverlay(ZoneRenderer renderer, Graphics2D g);
 }

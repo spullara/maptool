@@ -22,12 +22,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.ui;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.tool.drawing.DrawableUndoManager;
 
 public class AppMenuBar extends JMenuBar {
@@ -44,7 +45,7 @@ public class AppMenuBar extends JMenuBar {
     protected JMenu createFileMenu() {
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(new JMenuItem(AppActions.LOAD_MAP));
-        fileMenu.add(new JMenuItem(AppActions.CREATE_INDEFINITE_MAP));
+        fileMenu.add(new JMenuItem(AppActions.CREATE_UNBOUNDED_MAP));
         fileMenu.addSeparator();
         fileMenu.add(new JMenuItem(AppActions.NEW_CAMPAIGN));
         fileMenu.add(new JMenuItem(AppActions.LOAD_CAMPAIGN));

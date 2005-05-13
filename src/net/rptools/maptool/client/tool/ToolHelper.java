@@ -33,7 +33,7 @@ import java.awt.Rectangle;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.ClientStyle;
-import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.ZoneMeasurement;
 
 /**

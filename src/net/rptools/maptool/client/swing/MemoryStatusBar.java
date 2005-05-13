@@ -25,11 +25,9 @@
 package net.rptools.maptool.client.swing;
 
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.text.DecimalFormat;
 
-import javax.swing.JFrame;
 import javax.swing.JProgressBar;
 
 /**

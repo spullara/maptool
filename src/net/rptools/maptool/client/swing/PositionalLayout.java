@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.swing;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -33,18 +33,7 @@ import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-import static net.rptools.maptool.client.PositionalLayout.Position.CENTER;
-import static net.rptools.maptool.client.PositionalLayout.Position.E;
-import static net.rptools.maptool.client.PositionalLayout.Position.N;
-import static net.rptools.maptool.client.PositionalLayout.Position.NE;
-import static net.rptools.maptool.client.PositionalLayout.Position.NW;
-import static net.rptools.maptool.client.PositionalLayout.Position.S;
-import static net.rptools.maptool.client.PositionalLayout.Position.SE;
-import static net.rptools.maptool.client.PositionalLayout.Position.SW;
-import static net.rptools.maptool.client.PositionalLayout.Position.W;
 
 
 /**

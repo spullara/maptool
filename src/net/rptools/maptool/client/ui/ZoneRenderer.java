@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -49,6 +49,9 @@ import java.util.Set;
 import javax.swing.JComponent;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.maptool.client.ClientStyle;
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -286,8 +289,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             Asset asset = AssetManager.getAsset(token.getAssetID());
             if (asset == null) {
                 // TODO: this should be abstracted into the client better
-                if (MapToolClient.isConnected()) {
-                    MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.getAsset.name(), token.getAssetID());
+                if (MapTool.isConnected()) {
+                    MapTool.getConnection().callMethod(MapToolServer.COMMANDS.getAsset.name(), token.getAssetID());
                 }
                 continue;
             }
@@ -474,10 +477,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	        zone.putToken(token);
 	
 	        // TODO: abstract this better
-	        if (MapToolClient.isConnected()) {
-	        	ClientConnection conn = MapToolClient.getInstance().getConnection();
+	        if (MapTool.isConnected()) {
+	        	ClientConnection conn = MapTool.getConnection();
 	        	
-	        	conn.callMethod(MapToolClient.COMMANDS.putToken.name(), zone.getId(), token);
+	        	conn.callMethod(MapTool.COMMANDS.putToken.name(), zone.getId(), token);
 	        }
 	        
 	        repaint();

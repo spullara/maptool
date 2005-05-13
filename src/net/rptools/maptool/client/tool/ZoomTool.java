@@ -26,20 +26,14 @@ package net.rptools.maptool.client.tool;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
-import net.rptools.maptool.client.MapToolClient;
-import net.rptools.maptool.client.Tool;
-import net.rptools.maptool.client.ZoneRenderer;
-import net.rptools.maptool.client.swing.SwingUtil;
-import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.client.ui.Tool;
+import net.rptools.maptool.client.ui.ZoneRenderer;
 
 
 /**

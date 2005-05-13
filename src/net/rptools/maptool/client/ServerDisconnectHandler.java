@@ -33,9 +33,9 @@ import net.rptools.clientserver.simple.DisconnectHandler;
 public class ServerDisconnectHandler implements DisconnectHandler {
 
     public void handleDisconnect(AbstractConnection arg0) {
-        MapToolClient.showError("Server has disconnected.");
+        MapTool.showError("Server has disconnected.");
         
         // Update internal state
-        MapToolClient.disconnect();
+        MapTool.disconnect();
     }
 }

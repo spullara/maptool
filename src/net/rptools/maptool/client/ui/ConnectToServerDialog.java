@@ -22,21 +22,22 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.ui;
 
-import javax.swing.JDialog;
-
-import java.awt.GridBagLayout;
-import javax.swing.JLabel;
-import java.awt.GridBagConstraints;
-import javax.swing.JTextField;
-import javax.swing.JPanel;
 import java.awt.FlowLayout;
-import javax.swing.JButton;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.server.MapToolServer;
-import javax.swing.JComboBox;
 /**
  * @author trevor
  */
@@ -65,7 +66,7 @@ public class ConnectToServerDialog extends JDialog {
 	 * This is the default constructor
 	 */
 	public ConnectToServerDialog() {
-		super(MapToolClient.getInstance(), "Connect to Server", true);
+		super(MapTool.getFrame(), "Connect to Server", true);
 		initialize();
 	}
 	/**
@@ -86,7 +87,7 @@ public class ConnectToServerDialog extends JDialog {
 	public void setVisible(boolean b) {
 		
 		if (b) {
-			SwingUtil.centerOver(this, MapToolClient.getInstance());
+			SwingUtil.centerOver(this, MapTool.getFrame());
 		}
 		super.setVisible(b);
 	}
@@ -241,23 +242,23 @@ public class ConnectToServerDialog extends JDialog {
 					
 					// TODO: put these into a validation method
 					if (portTextField.getText().length() == 0) {
-						MapToolClient.showError("Must supply a port");
+						MapTool.showError("Must supply a port");
 						return;
 					}
 					try {
 						Integer.parseInt(portTextField.getText());
 					} catch (NumberFormatException nfe) {
-						MapToolClient.showError("Port must be numeric");
+						MapTool.showError("Port must be numeric");
 						return;
 					}
 
 					if (usernameTextField.getText().length() == 0) {
-						MapToolClient.showError("Must supply a username");
+						MapTool.showError("Must supply a username");
 						return;
 					}					
 
 					if (serverTextField.getText().length() == 0) {
-						MapToolClient.showError("Must supply a server");
+						MapTool.showError("Must supply a server");
 						return;
 					}					
 

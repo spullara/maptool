@@ -22,41 +22,33 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.ui.model;
 
-import java.awt.Component;
-import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.datatransfer.Transferable;
 
-import javax.swing.JPanel;
+import net.rptools.maptool.client.TransferableAsset;
+import net.rptools.maptool.client.swing.ImagePanelModel;
+import net.rptools.maptool.model.AssetGroup;
+import net.rptools.maptool.util.ImageManager;
 
-/**
- */
-public class PositionalPanel extends JPanel {
+public class AssetGroupImagePanelModel implements ImagePanelModel {
 
-	public PositionalPanel() {
-		setLayout(new PositionalLayout());
+	private AssetGroup assetGroup;
+	
+	public AssetGroupImagePanelModel(AssetGroup assetGroup) {
+		this.assetGroup = assetGroup;
 	}
 	
-	public void addImpl(Component comp, Object constraints, int index) {
-		
-		if (!(constraints instanceof PositionalLayout.Position)) {
-			throw new IllegalArgumentException("Use add(Component, PositionalLayout.Position)");
-		}
-		
-		super.addImpl(comp, constraints, index);
-
-		if (((PositionalLayout.Position) constraints) == PositionalLayout.Position.CENTER) {
-		
-			setComponentZOrder(comp, getComponents().length - 1);
-		} else {
-			setComponentZOrder(comp, 0);
-		}
+	public int getImageCount() {
+		return assetGroup.getAssetCount();
 	}
-	
-	/* (non-Javadoc)
-	 * @see javax.swing.JComponent#isOptimizedDrawingEnabled()
-	 */
-	public boolean isOptimizedDrawingEnabled() {
-		return false;
+
+	public Image getImage(int index) {
+		return ImageManager.getImage(assetGroup.getAssets().get(index));
+	}
+
+	public Transferable getTransferable(int index) {
+		return new TransferableAsset(assetGroup.getAssets().get(index));
 	}
 }

@@ -35,11 +35,14 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.client.tool.GridTool;
+import net.rptools.maptool.client.ui.ConnectToServerDialog;
+import net.rptools.maptool.client.ui.StartServerDialog;
+import net.rptools.maptool.client.ui.ZoneRenderer;
+import net.rptools.maptool.client.ui.ZoneSelectionPanel;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
@@ -62,12 +65,12 @@ public class AppActions {
 		
 		public void execute(ActionEvent e) {
 			
-			if (MapToolClient.getCurrentZoneRenderer().getZone().getType() == Zone.Type.INFINITE) {
-				MapToolClient.showError("Cannot adjust grid on infinite maps.");
+			if (MapTool.getFrame().getCurrentZoneRenderer().getZone().getType() == Zone.Type.INFINITE) {
+				MapTool.showError("Cannot adjust grid on infinite maps.");
 				return;
 			}
 			
-			MapToolClient.getInstance().getToolbox().setSelectedTool(new GridTool());
+			MapTool.getFrame().getToolbox().setSelectedTool(new GridTool());
 		}
 		
 	};
@@ -85,7 +88,7 @@ public class AppActions {
         }
 
         public void execute(ActionEvent e) {
-            ZoneRenderer renderer = MapToolClient.getCurrentZoneRenderer();
+            ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
             if (renderer != null) {
                 renderer.toggleGrid();
             }
@@ -101,13 +104,13 @@ public class AppActions {
 
         public void execute(ActionEvent e) {
             
-            if (MapToolClient.isConnected()) {
+            if (MapTool.isConnected()) {
                 
-                MapToolClient.showError("You are connected to a server.  Please disconnect first.");
+                MapTool.showError("You are connected to a server.  Please disconnect first.");
                 return;
             }
             
-            MapToolClient.setCampaign(new Campaign());
+            MapTool.setCampaign(new Campaign());
         }
     };
 
@@ -119,7 +122,7 @@ public class AppActions {
         }
 
         public void execute(ActionEvent e) {
-            ZoneRenderer renderer = MapToolClient.getCurrentZoneRenderer();
+            ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
             if (renderer != null) {
             	Dimension size = renderer.getSize();
                 renderer.zoomIn(size.width/2, size.height/2);
@@ -135,7 +138,7 @@ public class AppActions {
         }
 
         public void execute(ActionEvent e) {
-            ZoneRenderer renderer = MapToolClient.getCurrentZoneRenderer();
+            ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
             if (renderer != null) {
             	Dimension size = renderer.getSize();
                 renderer.zoomOut(size.width/2, size.height/2);
@@ -151,7 +154,7 @@ public class AppActions {
         }
 
         public void execute(ActionEvent e) {
-            ZoneRenderer renderer = MapToolClient.getCurrentZoneRenderer();
+            ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
             if (renderer != null) {
                 renderer.zoomReset();
             }
@@ -167,7 +170,7 @@ public class AppActions {
 
         public void execute(ActionEvent e) {
         	
-        	ZoneSelectionPanel panel = MapToolClient.getInstance().getZoneSelectionPanel();
+        	ZoneSelectionPanel panel = MapTool.getFrame().getZoneSelectionPanel();
         	
         	panel.setVisible(!panel.isVisible());
         }
@@ -185,8 +188,8 @@ public class AppActions {
             runBackground(new Runnable(){
                 public void run() {
 
-                	if (MapToolClient.isConnected()) {
-                		MapToolClient.showError("Already connected.");
+                	if (MapTool.isConnected()) {
+                		MapTool.showError("Already connected.");
                 		return;
                 	}
                 	
@@ -202,15 +205,15 @@ public class AppActions {
                 	try {
                 		int port = dialog.getPort();
                 		
-                		MapToolClient.startServer(port);
+                		MapTool.startServer(port);
 
                 		// Connect to server
-                        MapToolClient.getInstance().createConnection("localhost", port, new Player(dialog.getUsername(), Player.Role.GM));
+                        MapTool.createConnection("localhost", port, new Player(dialog.getUsername(), Player.Role.GM));
                 	} catch (UnknownHostException uh) {
-                		MapToolClient.showError("Whoah, 'localhost' is not a valid address.  Weird.");
+                		MapTool.showError("Whoah, 'localhost' is not a valid address.  Weird.");
                 		return;
                 	} catch (IOException ioe) {
-                		MapToolClient.showError("Could not connect to server: " + ioe);
+                		MapTool.showError("Could not connect to server: " + ioe);
                 		return;
                 	}
                 	
@@ -231,8 +234,8 @@ public class AppActions {
 
             try {
             	
-            	if (MapToolClient.isConnected()) {
-            		MapToolClient.showError("Already connected.");
+            	if (MapTool.isConnected()) {
+            		MapTool.showError("Already connected.");
             		return;
             	}
             	
@@ -245,14 +248,14 @@ public class AppActions {
             		return;
             	}
             	
-                MapToolClient.getInstance().createConnection(dialog.getServer(), dialog.getPort(), new Player(dialog.getUsername(), dialog.getRole()));
+                MapTool.createConnection(dialog.getServer(), dialog.getPort(), new Player(dialog.getUsername(), dialog.getRole()));
             } catch (UnknownHostException e1) {
                 // TODO Auto-generated catch block
-                MapToolClient.showError("Unknown host");
+                MapTool.showError("Unknown host");
                 e1.printStackTrace();
             } catch (IOException e1) {
                 // TODO Auto-generated catch block
-                MapToolClient.showError("IO Error: " + e1);
+                MapTool.showError("IO Error: " + e1);
                 e1.printStackTrace();
             }
             
@@ -270,28 +273,28 @@ public class AppActions {
     	
         public void execute(ActionEvent ae) {
         
-        	JFileChooser chooser = MapToolClient.getLoadFileChooser();
+        	JFileChooser chooser = MapTool.getLoadFileChooser();
         	chooser.setDialogTitle("Load Campaign");
         	
-        	if (chooser.showOpenDialog(MapToolClient.getInstance()) == JFileChooser.APPROVE_OPTION) {
+        	if (chooser.showOpenDialog(MapTool.getFrame()) == JFileChooser.APPROVE_OPTION) {
         		
         		try {
         			Campaign campaign = PersistenceUtil.loadCampaign(chooser.getSelectedFile());
         			
         			if (campaign != null) {
         				
-        				MapToolClient.setCampaign(campaign);
+        				MapTool.setCampaign(campaign);
         				
-        				if (MapToolClient.isConnected()) {
+        				if (MapTool.isConnected()) {
         					
-                            ClientConnection conn = MapToolClient.getInstance().getConnection();
+                            ClientConnection conn = MapTool.getConnection();
                             
-                            conn.callMethod(MapToolClient.COMMANDS.setCampaign.name(), campaign);
+                            conn.callMethod(MapTool.COMMANDS.setCampaign.name(), campaign);
         				}
         			}
         			
         		} catch (IOException ioe) {
-        			MapToolClient.showError("Could not load campaign: " + ioe);
+        			MapTool.showError("Could not load campaign: " + ioe);
         		}
         	}
         }
@@ -305,26 +308,26 @@ public class AppActions {
     	
         public void execute(ActionEvent ae) {
         
-        	Campaign campaign = MapToolClient.getCampaign();
+        	Campaign campaign = MapTool.getCampaign();
         	
         	// TODO: this should eventually just remember the last place it was saved
-        	JFileChooser chooser = MapToolClient.getSaveFileChooser();
+        	JFileChooser chooser = MapTool.getSaveFileChooser();
         	chooser.setDialogTitle("Save Campaign");
         	
-        	if (chooser.showSaveDialog(MapToolClient.getInstance()) == JFileChooser.APPROVE_OPTION) {
+        	if (chooser.showSaveDialog(MapTool.getFrame()) == JFileChooser.APPROVE_OPTION) {
         		
         		try {
         			PersistenceUtil.saveCampaign(campaign, chooser.getSelectedFile());
         		} catch (IOException ioe) {
-        			MapToolClient.showError("Could not save campaign: " + ioe);
+        			MapTool.showError("Could not save campaign: " + ioe);
         		}
         	}
         }
     };
     
-    public static final Action CREATE_INDEFINITE_MAP = new ClientAction() {
+    public static final Action CREATE_UNBOUNDED_MAP = new ClientAction() {
         {
-            putValue(Action.NAME, "Create Indefinite Map");
+            putValue(Action.NAME, "Create Unbounded Map");
             putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_MASK));
         }
 
@@ -337,7 +340,7 @@ public class AppActions {
 					Zone zone = new Zone();
 					zone.setType(Zone.Type.INFINITE);
 					
-                    MapToolClient.addZone(zone);
+                    MapTool.addZone(zone);
 				}
             });
         }
@@ -354,12 +357,12 @@ public class AppActions {
             runBackground(new Runnable() {
 
                 public void run() {
-                    JFileChooser loadFileChooser = MapToolClient.getLoadFileChooser();
+                    JFileChooser loadFileChooser = MapTool.getLoadFileChooser();
 
                     loadFileChooser.setDialogTitle("Load Map");
                     loadFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-                    if (loadFileChooser.showOpenDialog(MapToolClient.getInstance()) == JFileChooser.CANCEL_OPTION) {
+                    if (loadFileChooser.showOpenDialog(MapTool.getFrame()) == JFileChooser.CANCEL_OPTION) {
                     	return;
                     }
                     if (loadFileChooser.getSelectedFile() == null) {
@@ -372,16 +375,16 @@ public class AppActions {
                         AssetManager.putAsset(asset);
 
                         // TODO: this needs to be abstracted into the client
-                        if (MapToolClient.isConnected()) {
-                            ClientConnection conn = MapToolClient.getInstance().getConnection();
+                        if (MapTool.isConnected()) {
+                            ClientConnection conn = MapTool.getConnection();
                             
-                            conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
+                            conn.callMethod(MapTool.COMMANDS.putAsset.name(), asset);
                         }
 
                         Zone zone = new Zone(asset.getId());
-                        MapToolClient.addZone(zone);
+                        MapTool.addZone(zone);
                     } catch (IOException ioe) {
-                        MapToolClient.showError("Could not load image: " + ioe);
+                        MapTool.showError("Could not load image: " + ioe);
                         return;
                     }
                 }
@@ -402,7 +405,7 @@ public class AppActions {
          */
         public void execute(ActionEvent e) {
 
-            MapToolClient.toggleAssetTree();
+            MapTool.getFrame().toggleAssetTree();
         }
     };
     
@@ -419,15 +422,15 @@ public class AppActions {
                 
                 public void run() {
 
-                    JFileChooser chooser = MapToolClient.getLoadFileChooser();
+                    JFileChooser chooser = MapTool.getLoadFileChooser();
                     chooser.setDialogTitle("Load Asset Tree");
                     chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-                    if (chooser.showOpenDialog(MapToolClient.getInstance()) != JFileChooser.APPROVE_OPTION) {
+                    if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
                         return;
                     }
                     
-                    MapToolClient.addAssetRoot(chooser.getSelectedFile());
+                    MapTool.getFrame().addAssetRoot(chooser.getSelectedFile());
                 }
                 
             });
@@ -462,10 +465,10 @@ public class AppActions {
             	public void run() {
             		
             		try {
-            			MapToolClient.getInstance().startIndeterminateAction();
+            			MapTool.startIndeterminateAction();
             			r.run();
             		} finally {
-            			MapToolClient.getInstance().endIndeterminateAction();
+            			MapTool.endIndeterminateAction();
             		}
             	}
             }.start();

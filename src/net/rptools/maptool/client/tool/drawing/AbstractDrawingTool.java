@@ -28,12 +28,10 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseListener;
 
-import javax.swing.undo.UndoManager;
-
-import net.rptools.maptool.client.MapToolClient;
-import net.rptools.maptool.client.Tool;
-import net.rptools.maptool.client.ZoneOverlay;
-import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.Tool;
+import net.rptools.maptool.client.ui.ZoneOverlay;
+import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
@@ -70,7 +68,7 @@ public abstract class AbstractDrawingTool extends Tool implements MouseListener,
     
     protected Pen getPen() {
     	
-    	Pen pen = new Pen(MapToolClient.getInstance().getPen());
+    	Pen pen = new Pen(MapTool.getFrame().getPen());
 		pen.setEraser(isEraser);
 		
 		return pen;
@@ -89,8 +87,8 @@ public abstract class AbstractDrawingTool extends Tool implements MouseListener,
     protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
 
 		// Tell the local/server to render the drawable.
-      if (MapToolClient.isConnected()) {
-        MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneId, pen, drawable);
+      if (MapTool.isConnected()) {
+        MapTool.getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneId, pen, drawable);
       } else {
         zoneRenderer.getZone().addDrawable(new DrawnElement(drawable, pen));
         zoneRenderer.repaint();

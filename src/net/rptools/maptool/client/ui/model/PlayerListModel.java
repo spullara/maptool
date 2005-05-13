@@ -22,13 +22,38 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.ui.model;
 
-import java.awt.Graphics2D;
+import java.util.Observable;
+import java.util.Observer;
 
-/**
- */
-public interface ZoneOverlay {
+import javax.swing.AbstractListModel;
 
-	public void paintOverlay(ZoneRenderer renderer, Graphics2D g);
+import net.rptools.maptool.client.PlayerList;
+
+public class PlayerListModel extends AbstractListModel implements Observer {
+    
+    private PlayerList playerList;
+
+    public PlayerListModel(PlayerList playerList) {
+        this.playerList = playerList;
+        
+        // TODO: Figure out to clean this up when no longer in use
+        // for now it doesn't matter, but, it's bad design
+        playerList.addObserver(this);
+    }
+    
+    public Object getElementAt(int index) {
+        return playerList.get(index);
+    }
+
+    public int getSize() {
+        return playerList.size();
+    }
+
+    ////
+    // OBSERVER
+    public void update(Observable o, Object arg) {
+        fireContentsChanged(this, 0, playerList.size());
+    }
 }

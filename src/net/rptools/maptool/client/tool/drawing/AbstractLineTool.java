@@ -30,13 +30,10 @@ import java.awt.Point;
 import java.awt.event.MouseListener;
 import java.util.List;
 
-import net.rptools.maptool.client.MapToolClient;
-import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.client.tool.ToolHelper;
-import net.rptools.maptool.model.drawing.DrawnElement;
+import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
-import net.rptools.maptool.server.MapToolServer;
 
 
 /**
@@ -122,7 +119,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
 	}
   
   /**
-   * @see net.rptools.maptool.client.Tool#resetTool()
+   * @see net.rptools.maptool.client.ui.Tool#resetTool()
    */
   @Override
   protected void resetTool() {

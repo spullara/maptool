@@ -32,7 +32,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import net.rptools.maptool.client.MapToolClient;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.util.FileUtil;
 
 /**
@@ -156,7 +156,7 @@ public class AssetGroup {
     		assetGroupList.clear();
 			
     		try {
-	    		MapToolClient.getInstance().startIndeterminateAction();
+	    		MapTool.startIndeterminateAction();
 	    		
 	    		// Update images for this group
 	            File[] imageFileArray = location.listFiles(IMAGE_FILE_FILTER);
@@ -188,7 +188,7 @@ public class AssetGroup {
 				//name = name + " (" + imageFileArray.length + ")";
 
     		} finally {
-    			MapToolClient.getInstance().endIndeterminateAction();
+    			MapTool.endIndeterminateAction();
     		}
         	loaded = true;
     	}

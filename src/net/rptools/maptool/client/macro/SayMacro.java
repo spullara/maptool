@@ -24,19 +24,16 @@
  */
 package net.rptools.maptool.client.macro;
 
-import net.rptools.maptool.client.MapToolClient;
+import net.rptools.maptool.client.MapTool;
 
 /**
  * @author drice
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class SayMacro implements Macro {
 
     public void execute(String macro) {
         StringBuilder sb = new StringBuilder();
-        sb.append(MapToolClient.getInstance().getName()).append(" says: ").append(macro);
-        MapToolClient.getInstance().getConnection().callMethod(MapToolClient.COMMANDS.message.name(), new Object[] { sb.toString() });
+        sb.append("FIXME: insert name here").append(" says: ").append(macro);
+        MapTool.getConnection().callMethod(MapTool.COMMANDS.message.name(), new Object[] { sb.toString() });
     }
 }

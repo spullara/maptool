@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.ui;
 
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
@@ -42,6 +42,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.rptools.maptool.client.swing.PopupListener;
+import net.rptools.maptool.client.ui.model.AssetTreeModel;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetGroup;
 

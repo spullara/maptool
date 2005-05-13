@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.ui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -84,8 +84,6 @@ public class AssetTreeCellRenderer extends DefaultTreeCellRenderer {
 	 */
 	public void paint(Graphics g) {
 		super.paint(g);
-		
-		Dimension size = getSize();
 		
 		if (currentAsset != null) {
 

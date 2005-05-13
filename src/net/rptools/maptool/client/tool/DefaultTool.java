@@ -46,11 +46,11 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
-import net.rptools.maptool.client.MapToolClient;
-import net.rptools.maptool.client.Tool;
-import net.rptools.maptool.client.ZoneOverlay;
-import net.rptools.maptool.client.ZoneRenderer;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.SwingUtil;
+import net.rptools.maptool.client.ui.Tool;
+import net.rptools.maptool.client.ui.ZoneOverlay;
+import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 
@@ -223,10 +223,10 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 						token.setY(cell.y + (token.getY() - origin.y));
 	
 						// TODO: this needs to be better abstracted
-						if (MapToolClient.isConnected()) {
-							ClientConnection conn = MapToolClient.getInstance().getConnection();
+						if (MapTool.isConnected()) {
+							ClientConnection conn = MapTool.getConnection();
 							
-							conn.callMethod(MapToolClient.COMMANDS.putToken.name(), renderer.getZone().getId(), token);
+							conn.callMethod(MapTool.COMMANDS.putToken.name(), renderer.getZone().getId(), token);
 						}
 	
 						renderer.getZone().putToken(token);
@@ -269,12 +269,12 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 						
 						for (Token token : selectedTokenSet) {
 							
-			                if (MapToolClient.isConnected()) {
+			                if (MapTool.isConnected()) {
 			                	
 			                	// TODO: abstract this
-			                    ClientConnection conn = MapToolClient.getInstance().getConnection();
+			                    ClientConnection conn = MapTool.getConnection();
 			                    
-			                    conn.callMethod(MapToolClient.COMMANDS.removeToken.name(), renderer.getZone().getId(), token.getId());
+			                    conn.callMethod(MapTool.COMMANDS.removeToken.name(), renderer.getZone().getId(), token.getId());
 			                }
 						}
 						
@@ -357,14 +357,14 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		 */
 		public void actionPerformed(ActionEvent e) {
 
-			ZoneRenderer renderer = MapToolClient.getInstance().getCurrentZoneRenderer();
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			for (Token token : renderer.getSelectedTokenSet()) {
 				
 				token.setSize(size.value());
-				if (MapToolClient.isConnected()) {
-					ClientConnection conn = MapToolClient.getInstance().getConnection();
+				if (MapTool.isConnected()) {
+					ClientConnection conn = MapTool.getConnection();
 					
-					conn.callMethod(MapToolClient.COMMANDS.putToken.name(), renderer.getZone().getId(), token);
+					conn.callMethod(MapTool.COMMANDS.putToken.name(), renderer.getZone().getId(), token);
 				}
 			}
 			

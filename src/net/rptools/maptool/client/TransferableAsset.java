@@ -30,7 +30,6 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
 import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.GUID;
 
 
 

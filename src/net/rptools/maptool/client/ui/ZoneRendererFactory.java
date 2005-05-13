@@ -23,12 +23,8 @@
  * SOFTWARE.
  */
 
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.ui;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 
 public class ZoneRendererFactory {
@@ -38,7 +34,7 @@ public class ZoneRendererFactory {
         ZoneRenderer renderer = null;
         switch (zone.getType()) {
         case Zone.Type.INFINITE: {
-            renderer = new IndefiniteZoneRenderer(zone);
+            renderer = new UnboundedZoneRenderer(zone);
             break;
         }
         case Zone.Type.MAP:

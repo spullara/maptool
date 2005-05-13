@@ -96,11 +96,11 @@ public class TransferableHelper {
         }
         
         // Add it to the server if we need to
-        if (!MapToolClient.getCampaign().containsAsset(asset) && MapToolClient.isConnected()) {
+        if (!MapTool.getCampaign().containsAsset(asset) && MapTool.isConnected()) {
         	
-            ClientConnection conn = MapToolClient.getInstance().getConnection();
+            ClientConnection conn = MapTool.getConnection();
             
-            conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
+            conn.callMethod(MapTool.COMMANDS.putAsset.name(), asset);
         }
 
         return asset;

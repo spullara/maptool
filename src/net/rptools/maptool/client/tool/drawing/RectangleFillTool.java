@@ -31,8 +31,8 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.client.tool.ToolHelper;
+import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.drawing.Pen;
 
 /**

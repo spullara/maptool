@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -40,14 +40,14 @@ import net.rptools.maptool.util.ImageUtil;
 
 /**
  */
-public class IndefiniteZoneRenderer extends ZoneRenderer implements ZoneOverlay {
+public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 
 	private BufferedImage backBuffer;
 	private BufferedImage tileImage;
 	
 	private Dimension lastSize;
 	
-	public IndefiniteZoneRenderer(Zone zone) {
+	public UnboundedZoneRenderer(Zone zone) {
 		super(zone);
 		
 		try {
@@ -143,6 +143,6 @@ public class IndefiniteZoneRenderer extends ZoneRenderer implements ZoneOverlay 
         Point cell = renderer.getCellAt(size.width/2, size.height/2); 
         
 		g.setColor(Color.black);
-		ToolHelper.drawBoxedString ((Graphics2D) g, cell.x + ", " + cell.y, 50, 15, SwingUtilities.LEFT);
+		ToolHelper.drawBoxedString (g, cell.x + ", " + cell.y, 50, 15, SwingUtilities.LEFT);
 	}
 }

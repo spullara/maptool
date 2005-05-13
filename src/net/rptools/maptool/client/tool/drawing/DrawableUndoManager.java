@@ -34,9 +34,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
-import net.rptools.maptool.client.MapToolClient;
-import net.rptools.maptool.client.ZoneRenderer;
-import net.rptools.maptool.client.ZoneRendererFactory;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -171,12 +169,12 @@ public class DrawableUndoManager {
       super.undo();
 
       // Tell the server to undo the drawable.
-      if (MapToolClient.isConnected()) {
-        MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.undoDraw.name(), zoneId, drawable.getId());
+      if (MapTool.isConnected()) {
+        MapTool.getConnection().callMethod(MapToolServer.COMMANDS.undoDraw.name(), zoneId, drawable.getId());
       } else {
-        Zone zone = MapToolClient.getCampaign().getZone(zoneId);
+        Zone zone = MapTool.getCampaign().getZone(zoneId);
         zone.removeDrawable(drawable.getId());		
-		MapToolClient.getInstance().repaint();
+		MapTool.getFrame().repaint();
       }
     }
     
@@ -188,12 +186,12 @@ public class DrawableUndoManager {
       super.redo();
       
       // Render the drawable again, but don't add it to the undo manager.
-      if (MapToolClient.isConnected()) {
-        MapToolClient.getInstance().getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneId, pen, drawable);
+      if (MapTool.isConnected()) {
+        MapTool.getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneId, pen, drawable);
       } else {
-        Zone zone = MapToolClient.getCampaign().getZone(zoneId);
+        Zone zone = MapTool.getCampaign().getZone(zoneId);
         zone.addDrawable(new DrawnElement(drawable, pen));
-		MapToolClient.getInstance().repaint();
+		MapTool.getFrame().repaint();
       } 
     }
   }

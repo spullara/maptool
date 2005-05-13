@@ -27,8 +27,6 @@ package net.rptools.maptool.util;
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Represents the MD5 key for a certain set of data.

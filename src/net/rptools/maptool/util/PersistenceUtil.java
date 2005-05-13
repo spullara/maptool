@@ -30,13 +30,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
-import net.rptools.maptool.client.MapToolClient;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
@@ -93,11 +91,11 @@ public class PersistenceUtil {
 			}
 
             // Always send it to the server
-            if (MapToolClient.isConnected()) {
+            if (MapTool.isConnected()) {
                 
-                ClientConnection conn = MapToolClient.getInstance().getConnection();
+                ClientConnection conn = MapTool.getConnection();
                 
-                conn.callMethod(MapToolClient.COMMANDS.putAsset.name(), asset);
+                conn.callMethod(MapTool.COMMANDS.putAsset.name(), asset);
             }
 		}
 		

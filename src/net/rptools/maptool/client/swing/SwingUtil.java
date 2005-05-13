@@ -25,18 +25,9 @@
 package net.rptools.maptool.client.swing;
 
 import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.InputEvent;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-import javax.swing.JPanel;
 
 /**
  */
@@ -76,9 +67,6 @@ public class SwingUtil {
     public static void constrainTo(Dimension dim, int size) {
     	
     	boolean widthBigger = dim.width > dim.height;
-    	
-    	int oldW = dim.width;
-    	int oldH = dim.height;
     	
     	if (widthBigger) {
     		dim.height = (int)((dim.height / (double)dim.width) * size);

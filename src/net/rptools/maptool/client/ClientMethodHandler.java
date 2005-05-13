@@ -25,7 +25,8 @@
 package net.rptools.maptool.client;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
-import net.rptools.maptool.client.MapToolClient.COMMANDS;
+import net.rptools.maptool.client.MapTool.COMMANDS;
+import net.rptools.maptool.client.ui.ZoneRendererFactory;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
@@ -45,10 +46,8 @@ import net.rptools.maptool.model.drawing.Pen;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public class ClientMethodHandler extends AbstractMethodHandler {
-    private final MapToolClient client;
     
-    public ClientMethodHandler(MapToolClient client) {
-        this.client = client;
+    public ClientMethodHandler() {
     }
 
     public void handleMethod(String id, String method, Object[] parameters) {
@@ -58,39 +57,39 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         switch (cmd) {
         case setCampaign:
         	Campaign campaign = (Campaign) parameters[0];
-        	MapToolClient.setCampaign(campaign);
+        	MapTool.setCampaign(campaign);
             break;
         case putZone:
         	Zone zone = (Zone) parameters[0];
-        	MapToolClient.getCampaign().putZone(zone);
-        	MapToolClient.setCurrentZoneRenderer(ZoneRendererFactory.newRenderer(zone));
+        	MapTool.getCampaign().putZone(zone);
+        	MapTool.getFrame().setCurrentZoneRenderer(ZoneRendererFactory.newRenderer(zone));
             break;
         case removeZone:
             break;
         case putAsset:
             AssetManager.putAsset((Asset) parameters[0]);
-            MapToolClient.getInstance().repaint();
+            MapTool.getFrame().repaint();
             break;
         case removeAsset:
             break;
         case putToken:
         	GUID zoneGUID = (GUID) parameters[0];
-        	zone = MapToolClient.getCampaign().getZone(zoneGUID);
+        	zone = MapTool.getCampaign().getZone(zoneGUID);
         	Token token = (Token) parameters[1];
         	
         	zone.putToken(token);
         	
         	// TODO: be more scientific about this
-        	MapToolClient.getInstance().repaint();
+        	MapTool.getFrame().repaint();
             break;
         case removeToken:
         	zoneGUID = (GUID) parameters[0];
-        	zone = MapToolClient.getCampaign().getZone(zoneGUID);
+        	zone = MapTool.getCampaign().getZone(zoneGUID);
         	GUID tokenGUID = (GUID) parameters[1];
 
         	zone.removeToken(tokenGUID);
         	
-        	MapToolClient.getInstance().repaint();
+        	MapTool.getFrame().repaint();
         	break;
         case draw:
         	
@@ -98,28 +97,25 @@ public class ClientMethodHandler extends AbstractMethodHandler {
             Pen pen = (Pen) parameters[1];
         	Drawable drawable = (Drawable) parameters[2];
 
-        	zone = MapToolClient.getCampaign().getZone(zoneGUID);
+        	zone = MapTool.getCampaign().getZone(zoneGUID);
         	
         	zone.addDrawable(new DrawnElement(drawable, pen));
         	
-        	MapToolClient.getInstance().repaint();
+        	MapTool.getFrame().repaint();
             break;
         
         case undoDraw:
           zoneGUID = (GUID) parameters[0];
           GUID drawableId = (GUID)parameters[1];
-          zone = MapToolClient.getCampaign().getZone(zoneGUID);
+          zone = MapTool.getCampaign().getZone(zoneGUID);
           zone.removeDrawable(drawableId);
 
-		  if (MapToolClient.getCurrentZoneRenderer().getZone().getId().equals(zoneGUID) && zoneGUID != null) {
-			  MapToolClient.getCurrentZoneRenderer().repaint();
+		  if (MapTool.getFrame().getCurrentZoneRenderer().getZone().getId().equals(zoneGUID) && zoneGUID != null) {
+			  MapTool.getFrame().getCurrentZoneRenderer().repaint();
 		  }
 
 		  break;
           
-//        case setZone:
-//        	MapToolClient.setBackgroundPanel(new ZoneRenderer((Zone)parameters[0]));
-//           break;
         case setZoneGridSize:
         	
         	zoneGUID = (GUID) parameters[0];
@@ -127,29 +123,29 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	int yOffset = ((Integer) parameters[2]).intValue();
         	int size = ((Integer) parameters[3]).intValue();
         	
-        	zone = MapToolClient.getCampaign().getZone(zoneGUID);
+        	zone = MapTool.getCampaign().getZone(zoneGUID);
         	zone.setGridSize(size);
         	zone.setGridOffsetX(xOffset);
         	zone.setGridOffsetY(yOffset);
         	
-        	MapToolClient.getInstance().repaint();
+        	MapTool.getFrame().repaint();
         	break;
 
         case playerConnected:
         	
-        	MapToolClient.getInstance().addPlayer((Player) parameters[0]);
-        	MapToolClient.getInstance().repaint();
+        	MapTool.addPlayer((Player) parameters[0]);
+        	MapTool.getFrame().repaint();
         	break;
 
         case playerDisconnected:
         	
-        	MapToolClient.getInstance().removePlayer((Player) parameters[0]);
-        	MapToolClient.getInstance().repaint();
+        	MapTool.removePlayer((Player) parameters[0]);
+        	MapTool.getFrame().repaint();
         	break;
             
         case message:
             String message = (String) parameters[0];
-            MapToolClient.getInstance().addMessage(message);
+            MapTool.addMessage(message);
         	break;
         	
         }

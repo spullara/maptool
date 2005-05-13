@@ -34,13 +34,10 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
-import net.rptools.maptool.client.MapToolClient;
-import net.rptools.maptool.client.ZoneRenderer;
 import net.rptools.maptool.client.tool.ToolHelper;
-import net.rptools.maptool.model.drawing.DrawnElement;
+import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.Rectangle;
-import net.rptools.maptool.server.MapToolServer;
 
 
 /**

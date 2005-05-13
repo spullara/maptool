@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -32,10 +32,6 @@ import java.io.IOException;
 import javax.swing.JComponent;
 
 import net.rptools.clientserver.ActivityListener;
-import static net.rptools.clientserver.ActivityListener.Direction.Inbound;
-import static net.rptools.clientserver.ActivityListener.Direction.Outbound;
-import static net.rptools.clientserver.ActivityListener.State.Complete;
-import static net.rptools.clientserver.ActivityListener.State.Start;
 import net.rptools.maptool.client.swing.Animatable;
 import net.rptools.maptool.client.swing.AnimationManager;
 import net.rptools.maptool.util.ImageUtil;
