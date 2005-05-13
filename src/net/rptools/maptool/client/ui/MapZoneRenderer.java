@@ -31,7 +31,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 
-import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
@@ -57,12 +56,7 @@ public class MapZoneRenderer extends ZoneRenderer {
         Asset asset = AssetManager.getAsset(zone.getAssetID());
         if (asset == null) {
 
-        	// TODO: abstract this into the client
-        	if (MapTool.isConnected()) {
-        		ClientConnection conn = MapTool.getConnection();
-        		
-                conn.callMethod(MapTool.COMMANDS.getAsset.name(), zone.getAssetID());
-        	}
+            MapTool.serverCommand().getAsset(zone.getAssetID());
         	
             // TODO: Show a placeholder
             return null;

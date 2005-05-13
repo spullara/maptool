@@ -80,10 +80,8 @@ public class GridTool extends DefaultTool {
 		renderer.setGridVisible(false);
 		
 		// Commit the grid size change
-		if (MapTool.isConnected()) {
-			Zone zone = renderer.getZone();
-	        MapTool.getConnection().callMethod(MapTool.COMMANDS.setZoneGridSize.name(), zone.getId(), zone.getGridOffsetX(), zone.getGridOffsetY(), zone.getGridSize());
-		}
+        Zone zone = renderer.getZone();
+        MapTool.serverCommand().setZoneGridSize(zone.getId(), zone.getGridOffsetX(), zone.getGridOffsetY(), zone.getGridSize());
 	}
 
     ////

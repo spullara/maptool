@@ -169,12 +169,14 @@ public class DrawableUndoManager {
       super.undo();
 
       // Tell the server to undo the drawable.
+      // TODO: This should actually just always remove it locally before sending to the server
+      // then the server should not rebroadcast back to us
       if (MapTool.isConnected()) {
-        MapTool.getConnection().callMethod(MapToolServer.COMMANDS.undoDraw.name(), zoneId, drawable.getId());
+          MapTool.serverCommand().undoDraw(zoneId, drawable.getId());
       } else {
-        Zone zone = MapTool.getCampaign().getZone(zoneId);
-        zone.removeDrawable(drawable.getId());		
-		MapTool.getFrame().repaint();
+          Zone zone = MapTool.getCampaign().getZone(zoneId);
+          zone.removeDrawable(drawable.getId());		
+	  	  MapTool.getFrame().repaint();
       }
     }
     
@@ -186,12 +188,14 @@ public class DrawableUndoManager {
       super.redo();
       
       // Render the drawable again, but don't add it to the undo manager.
+      // TODO: This should actually just always add it locally before sending to the server
+      // then the server should not rebroadcast back to us
       if (MapTool.isConnected()) {
-        MapTool.getConnection().callMethod(MapToolServer.COMMANDS.draw.name(), zoneId, pen, drawable);
+          MapTool.serverCommand().draw(zoneId, pen, drawable);
       } else {
-        Zone zone = MapTool.getCampaign().getZone(zoneId);
-        zone.addDrawable(new DrawnElement(drawable, pen));
-		MapTool.getFrame().repaint();
+          Zone zone = MapTool.getCampaign().getZone(zoneId);
+          zone.addDrawable(new DrawnElement(drawable, pen));
+		  MapTool.getFrame().repaint();
       } 
     }
   }

@@ -31,6 +31,7 @@ import java.util.Map;
 
 import net.rptools.clientserver.hessian.server.ServerConnection;
 import net.rptools.clientserver.simple.server.ServerObserver;
+import net.rptools.maptool.client.ClientCommand;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Player;
 
@@ -84,16 +85,16 @@ public class MapToolServerConnection extends ServerConnection  implements Server
     	
         for (String id : playerMap.keySet()) {
         	
-            server.getConnection().callMethod(conn.getId(), MapTool.COMMANDS.playerConnected.name(), playerMap.get(id));
+            server.getConnection().callMethod(conn.getId(), ClientCommand.COMMAND.playerConnected.name(), playerMap.get(id));
         }
         
-        server.getConnection().broadcastCallMethod(MapTool.COMMANDS.playerConnected.name(), playerMap.get(conn.getId()));
-        server.getConnection().callMethod(conn.getId(), MapTool.COMMANDS.setCampaign.name(), server.getCampaign());
+        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.playerConnected.name(), playerMap.get(conn.getId()));
+        server.getConnection().callMethod(conn.getId(), ClientCommand.COMMAND.setCampaign.name(), server.getCampaign());
     }
     
     public void connectionRemoved(net.rptools.clientserver.simple.client.ClientConnection conn) {
 
-        server.getConnection().broadcastCallMethod(MapTool.COMMANDS.playerDisconnected.name(), playerMap.get(conn.getId()));
+        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.playerDisconnected.name(), playerMap.get(conn.getId()));
         playerMap.remove(conn.getId());
     }
     

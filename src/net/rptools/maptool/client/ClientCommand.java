@@ -22,18 +22,24 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.macro;
+package net.rptools.maptool.client;
 
-import net.rptools.maptool.client.MapTool;
+public class ClientCommand {
 
-/**
- * @author drice
- */
-public class SayMacro implements Macro {
-
-    public void execute(String macro) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("FIXME: insert name here").append(" says: ").append(macro);
-        MapTool.serverCommand().message(sb.toString());
-    }
+    public static enum COMMAND { 
+        setCampaign, 
+        putZone, 
+        removeZone, 
+        putAsset, 
+        getAsset,
+        removeAsset, 
+        putToken, 
+        removeToken, 
+        draw,
+        setZoneGridSize,
+        playerConnected,
+        playerDisconnected,
+        message,
+        undoDraw,
+    };
 }

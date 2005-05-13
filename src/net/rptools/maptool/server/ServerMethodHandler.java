@@ -25,6 +25,7 @@
 package net.rptools.maptool.server;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
+import net.rptools.maptool.client.ClientCommand;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -35,14 +36,10 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
-import net.rptools.maptool.server.MapToolServer.COMMANDS;
 import net.rptools.maptool.util.MD5Key;
 
 /**
  * @author drice
- * 
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
  */
 public class ServerMethodHandler extends AbstractMethodHandler {
     private final MapToolServer server;
@@ -52,26 +49,23 @@ public class ServerMethodHandler extends AbstractMethodHandler {
     }
 
     public void handleMethod(String id, String method, Object[] parameters) {
-        COMMANDS cmd = Enum.valueOf(COMMANDS.class, method);
+        ServerCommand.COMMAND cmd = Enum.valueOf(ServerCommand.COMMAND.class, method);
         //System.out.println("ServerMethodHandler#handleMethod: " + id + " - " + cmd.name());
 
         Zone zone;
         switch (cmd) {
-        case getCampaign:
-            server.getConnection().callMethod(id, MapTool.COMMANDS.setCampaign.name(), server.getCampaign());
-            break;
         case setCampaign:
             Campaign c = (Campaign) parameters[0];
             server.setCampaign(c);
-            broadcast(id, MapTool.COMMANDS.setCampaign.name(), c);
+            broadcast(id, ClientCommand.COMMAND.setCampaign.name(), c);
             break;
         case getZone:
-            server.getConnection().callMethod(id, MapTool.COMMANDS.putZone.name(), server.getCampaign().getZone((GUID) parameters[0]));
+            server.getConnection().callMethod(id, ClientCommand.COMMAND.putZone.name(), server.getCampaign().getZone((GUID) parameters[0]));
             break;
         case putZone:
             zone = (Zone) parameters[0];
             server.getCampaign().putZone(zone);
-            broadcast(id, MapTool.COMMANDS.putZone.name(), zone);
+            broadcast(id, ClientCommand.COMMAND.putZone.name(), zone);
             break;
         case removeZone:
             server.getCampaign().removeZone((GUID) parameters[0]);
@@ -80,7 +74,7 @@ public class ServerMethodHandler extends AbstractMethodHandler {
             AssetManager.putAsset((Asset) parameters[0]);
             break;
         case getAsset:
-            server.getConnection().callMethod(id, MapTool.COMMANDS.putAsset.name(), AssetManager.getAsset((MD5Key) parameters[0]));
+            server.getConnection().callMethod(id, ClientCommand.COMMAND.putAsset.name(), AssetManager.getAsset((MD5Key) parameters[0]));
             break;
         case removeAsset:
             AssetManager.removeAsset((MD5Key) parameters[0]);
@@ -91,7 +85,7 @@ public class ServerMethodHandler extends AbstractMethodHandler {
             Token token = (Token) parameters[1];
             zone.putToken(token);
             
-            broadcast(id, MapTool.COMMANDS.putToken.name(), zoneGUID, token);
+            broadcast(id, ClientCommand.COMMAND.putToken.name(), zoneGUID, token);
             break;
         case removeToken:
         	zoneGUID = (GUID) parameters[0];
@@ -100,7 +94,7 @@ public class ServerMethodHandler extends AbstractMethodHandler {
             zone = server.getCampaign().getZone((GUID) parameters[0]);
         	zone.removeToken(tokenGUID);
         	
-            server.getConnection().broadcastCallMethod(MapTool.COMMANDS.removeToken.name(), parameters);
+            server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.removeToken.name(), parameters);
         	
             break;
         case draw:
@@ -109,7 +103,7 @@ public class ServerMethodHandler extends AbstractMethodHandler {
         	Drawable drawable = (Drawable) parameters[2];
         	
             server.draw((GUID) parameters[0], (Pen) parameters[1], (Drawable) parameters[2]);
-            server.getConnection().broadcastCallMethod(MapTool.COMMANDS.draw.name(), parameters);
+            server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.draw.name(), parameters);
             
             zone = server.getCampaign().getZone(zoneGUID);
             
@@ -119,7 +113,7 @@ public class ServerMethodHandler extends AbstractMethodHandler {
         case undoDraw:
           zoneGUID = (GUID) parameters[0];
           GUID drawableId = (GUID)parameters[1];
-          server.getConnection().broadcastCallMethod(MapTool.COMMANDS.undoDraw.name(), zoneGUID, drawableId);
+          server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.undoDraw.name(), zoneGUID, drawableId);
           zone = server.getCampaign().getZone(zoneGUID);
           zone.removeDrawable(drawableId);
           break;
@@ -136,10 +130,10 @@ public class ServerMethodHandler extends AbstractMethodHandler {
         	zone.setGridOffsetX(xOffset);
         	zone.setGridOffsetY(yOffset);
             
-            server.getConnection().broadcastCallMethod(MapTool.COMMANDS.setZoneGridSize.name(), parameters);
+            server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setZoneGridSize.name(), parameters);
             break;
         case message:
-            server.getConnection().broadcastCallMethod(MapTool.COMMANDS.message.name(), parameters);
+            server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.message.name(), parameters);
             break;
         }
         	

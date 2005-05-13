@@ -45,7 +45,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.client.ui.Tool;
@@ -222,12 +221,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 						token.setX(cell.x + (token.getX() - origin.x));
 						token.setY(cell.y + (token.getY() - origin.y));
 	
-						// TODO: this needs to be better abstracted
-						if (MapTool.isConnected()) {
-							ClientConnection conn = MapTool.getConnection();
-							
-							conn.callMethod(MapTool.COMMANDS.putToken.name(), renderer.getZone().getId(), token);
-						}
+                        MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 	
 						renderer.getZone().putToken(token);
 						renderer.repaint();
@@ -269,13 +263,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 						
 						for (Token token : selectedTokenSet) {
 							
-			                if (MapTool.isConnected()) {
-			                	
-			                	// TODO: abstract this
-			                    ClientConnection conn = MapTool.getConnection();
-			                    
-			                    conn.callMethod(MapTool.COMMANDS.removeToken.name(), renderer.getZone().getId(), token.getId());
-			                }
+                            MapTool.serverCommand().removeToken(renderer.getZone().getId(), token.getId());
 						}
 						
 						renderer.clearSelectedTokens();
@@ -361,11 +349,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			for (Token token : renderer.getSelectedTokenSet()) {
 				
 				token.setSize(size.value());
-				if (MapTool.isConnected()) {
-					ClientConnection conn = MapTool.getConnection();
-					
-					conn.callMethod(MapTool.COMMANDS.putToken.name(), renderer.getZone().getId(), token);
-				}
+                MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
 			
 			renderer.repaint();

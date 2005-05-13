@@ -41,28 +41,6 @@ import net.rptools.maptool.model.drawing.Pen;
  * Preferences - Java - Code Style - Code Templates
  */
 public class MapToolServer {
-    public static enum COMMANDS {
-        getCampaign, 
-        setCampaign, 
-        getZone, 
-        putZone, 
-        removeZone, 
-        putAsset, 
-        getAsset,
-        removeAsset, 
-        putToken, 
-        removeToken, 
-        draw,
-        setZoneGridSize,
-        message,
-        
-        /**
-         * Command to undo a specific drawable. The first parameter is the 
-         * id of the zone that owns the drawable and the second is the id drawable 
-         * being undone.
-         */
-        undoDraw,
-    };
 
     public static final int DEFAULT_PORT = 4444;
 

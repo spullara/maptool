@@ -48,7 +48,6 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 
-import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
@@ -58,7 +57,6 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.server.MapToolServer;
 import net.rptools.maptool.util.ImageManager;
 
 
@@ -288,10 +286,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             // OPTIMIZE:
             Asset asset = AssetManager.getAsset(token.getAssetID());
             if (asset == null) {
-                // TODO: this should be abstracted into the client better
-                if (MapTool.isConnected()) {
-                    MapTool.getConnection().callMethod(MapToolServer.COMMANDS.getAsset.name(), token.getAssetID());
-                }
+                MapTool.serverCommand().getAsset(token.getAssetID());
                 continue;
             }
             
@@ -475,13 +470,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	        token.setY(y);
 	
 	        zone.putToken(token);
-	
-	        // TODO: abstract this better
-	        if (MapTool.isConnected()) {
-	        	ClientConnection conn = MapTool.getConnection();
-	        	
-	        	conn.callMethod(MapTool.COMMANDS.putToken.name(), zone.getId(), token);
-	        }
+
+            MapTool.serverCommand().putToken(zone.getId(), token);
 	        
 	        repaint();
     	}

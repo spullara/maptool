@@ -37,7 +37,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 
-import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
@@ -285,12 +284,7 @@ public class AppActions {
         				
         				MapTool.setCampaign(campaign);
         				
-        				if (MapTool.isConnected()) {
-        					
-                            ClientConnection conn = MapTool.getConnection();
-                            
-                            conn.callMethod(MapTool.COMMANDS.setCampaign.name(), campaign);
-        				}
+                        MapTool.serverCommand().setCampaign(campaign);
         			}
         			
         		} catch (IOException ioe) {
@@ -374,12 +368,7 @@ public class AppActions {
                         Asset asset = new Asset(imgData);
                         AssetManager.putAsset(asset);
 
-                        // TODO: this needs to be abstracted into the client
-                        if (MapTool.isConnected()) {
-                            ClientConnection conn = MapTool.getConnection();
-                            
-                            conn.callMethod(MapTool.COMMANDS.putAsset.name(), asset);
-                        }
+                        MapTool.serverCommand().putAsset(asset);
 
                         Zone zone = new Zone(asset.getId());
                         MapTool.addZone(zone);

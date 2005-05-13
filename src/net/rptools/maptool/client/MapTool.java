@@ -43,6 +43,7 @@ import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.server.MapToolServer;
+import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 
@@ -52,27 +53,12 @@ import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
  */
 public class MapTool {
 
-    public static enum COMMANDS { 
-    	setCampaign, 
-    	putZone, 
-    	removeZone, 
-    	putAsset, 
-    	getAsset,
-    	removeAsset, 
-    	putToken, 
-    	removeToken, 
-    	draw,
-    	setZoneGridSize,
-    	playerConnected,
-    	playerDisconnected,
-        message,
-        undoDraw,
-    };
 	
 	// Singleton
 	private static MapToolClient clientFrame;
 	
     private static MapToolServer server;
+    private static ServerCommand serverCommand;
 
     private static Campaign campaign;
     
@@ -105,8 +91,14 @@ public class MapTool {
         handler = new ClientMethodHandler();
         
         clientFrame = new MapToolClient();
+        
+        serverCommand = new ServerCommandClientImpl();
 	}
 	
+    public static ServerCommand serverCommand() {
+        return serverCommand;
+    }
+    
     public static void startIndeterminateAction() {
     	clientFrame.startIndeterminateAction();
     }
@@ -207,12 +199,9 @@ public class MapTool {
 	// TODO: I don't like this method name, location, or anything about it.  It sux.  Fix it.
 	public static void addZone(Zone zone) {
 		
-        MapTool.getCampaign().putZone(zone);
-        
-        // TODO: this needs to be abstracted into the client
-        if (MapTool.isConnected()) {
-            conn.callMethod(MapTool.COMMANDS.putZone.name(), zone);
-        }
+        getCampaign().putZone(zone);
+
+        serverCommand().putZone(zone);
         
         clientFrame.setCurrentZoneRenderer(ZoneRendererFactory.newRenderer(zone));
 	}

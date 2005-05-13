@@ -32,7 +32,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
 
-import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.FileUtil;
@@ -96,11 +95,9 @@ public class TransferableHelper {
         }
         
         // Add it to the server if we need to
-        if (!MapTool.getCampaign().containsAsset(asset) && MapTool.isConnected()) {
+        if (!MapTool.getCampaign().containsAsset(asset)) {
         	
-            ClientConnection conn = MapTool.getConnection();
-            
-            conn.callMethod(MapTool.COMMANDS.putAsset.name(), asset);
+            MapTool.serverCommand().putAsset(asset);
         }
 
         return asset;

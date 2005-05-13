@@ -91,12 +91,8 @@ public class PersistenceUtil {
 			}
 
             // Always send it to the server
-            if (MapTool.isConnected()) {
-                
-                ClientConnection conn = MapTool.getConnection();
-                
-                conn.callMethod(MapTool.COMMANDS.putAsset.name(), asset);
-            }
+            // TODO: what to do when not connect to the server ?
+            MapTool.serverCommand().putAsset(asset);
 		}
 		
 		return persistedCampaign.campaign;

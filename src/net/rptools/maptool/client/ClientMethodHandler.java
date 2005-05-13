@@ -25,7 +25,6 @@
 package net.rptools.maptool.client;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
-import net.rptools.maptool.client.MapTool.COMMANDS;
 import net.rptools.maptool.client.ui.ZoneRendererFactory;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -51,7 +50,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
     }
 
     public void handleMethod(String id, String method, Object[] parameters) {
-        COMMANDS cmd = Enum.valueOf(COMMANDS.class, method);
+        ClientCommand.COMMAND cmd = Enum.valueOf(ClientCommand.COMMAND.class, method);
         //System.out.println("ClientMethodHandler#handleMethod: " + cmd.name());
         
         switch (cmd) {
