@@ -196,7 +196,6 @@ public class MapTool {
         return playerList;
     }
     
-	// TODO: I don't like this method name, location, or anything about it.  It sux.  Fix it.
 	public static void addZone(Zone zone) {
 		
         getCampaign().putZone(zone);

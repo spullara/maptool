@@ -121,15 +121,10 @@ public class MapToolClient extends JFrame {
         statusPanel.addPanel(progressBar);
         statusPanel.addPanel(activityMonitor);
         
-        // TODO: Clean up this whole section
         mainPanel = new JPanel(new BorderLayout());
-        	
         zoneSelectionPanel = new ZoneSelectionPanel();
-
         mainPanel.add(BorderLayout.SOUTH, zoneSelectionPanel);
         
-		setJMenuBar(new AppMenuBar());
-		
 		// Split left/right
 		mainSplitPane = new JSplitPaneEx();
 		mainSplitPane.setLeftComponent(outlookPanel);
@@ -142,6 +137,7 @@ public class MapToolClient extends JFrame {
 		mainInnerPanel.add(BorderLayout.CENTER, mainSplitPane);
 		
 		// Put it all together
+        setJMenuBar(new AppMenuBar());
 		setLayout(new BorderLayout());
 		add(BorderLayout.CENTER, mainInnerPanel);
 		add(BorderLayout.NORTH, toolboxPanel);

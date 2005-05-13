@@ -28,7 +28,6 @@ import java.io.Serializable;
 
 /**
  */
-// TODO: I'm not a fan of this class name, refactory it later
 public class DrawnElement implements Serializable {
 
 	private Drawable drawable;

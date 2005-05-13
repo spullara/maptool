@@ -46,7 +46,6 @@ public class TransferableHelper {
     // TODO: USE ImageTransferable in rplib
     private static final DataFlavor IMAGE_FLAVOR = new DataFlavor("image/x-java-image; class=java.awt.Image", "Image");
 
-    // TODO: I don't like this here, but couldn't think of a better place
 	/**
 	 * Takes a drop event and returns an asset
 	 * from it.  returns null if an asset could not be obtained

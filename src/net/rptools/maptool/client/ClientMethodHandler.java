@@ -78,7 +78,6 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	
         	zone.putToken(token);
         	
-        	// TODO: be more scientific about this
         	MapTool.getFrame().repaint();
             break;
         case removeToken:

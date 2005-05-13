@@ -64,16 +64,12 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 	 */
 	protected void renderBoard(Graphics g) {
 
-		// TODO: handle scale
 		Dimension size = getSize();
 		if (backBuffer == null || !lastSize.equals(size)) {
 			createBackBuffer();
 			lastSize = size;
 		}
 		
-		// TODO: This isn't quite right, it needs to handle the transition between
-		// - an + offsets better. when it is fixed, the background image can be reduced
-		// in size by one tile width and height
 		g.drawImage(backBuffer, (offsetX % tileImage.getWidth()) - tileImage.getWidth(), 
 				( offsetY % tileImage.getHeight()) - tileImage.getHeight(), null);
 	}
@@ -113,7 +109,6 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 		Dimension size = getSize();
 		backBuffer = new BufferedImage(size.width + tileImage.getWidth()*2, size.height + tileImage.getHeight()*2, Transparency.OPAQUE);
 		
-		// TODO: handle scale
 		int cols = backBuffer.getWidth() / tileImage.getWidth() + 1;
 		int rows = backBuffer.getHeight() / tileImage.getHeight() + 1;
 		Graphics g = null;

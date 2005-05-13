@@ -38,7 +38,7 @@ public class PlayerListModel extends AbstractListModel implements Observer {
     public PlayerListModel(PlayerList playerList) {
         this.playerList = playerList;
         
-        // TODO: Figure out to clean this up when no longer in use
+        // TODO: Figure out how to clean this up when no longer in use
         // for now it doesn't matter, but, it's bad design
         playerList.addObserver(this);
     }

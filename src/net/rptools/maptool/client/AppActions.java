@@ -258,8 +258,6 @@ public class AppActions {
                 e1.printStackTrace();
             }
             
-            // TODO: I don't like this here
-            START_SERVER.setEnabled(false);
         }
 
     };

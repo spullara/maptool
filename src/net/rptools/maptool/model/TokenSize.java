@@ -56,7 +56,6 @@ public class TokenSize {
     }
 
 	// This is a enum hack since enums aren't serializable
-	// TODO: I don't like the static-ness of this, use some sort of enum or something
 	public static int getWidth(Token token, int gridSize) {
         if (!token.isSnapToScale()) return token.getWidth();
         Size size = getSizeInstance(token.getSize());
