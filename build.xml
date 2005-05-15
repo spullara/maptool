@@ -16,10 +16,9 @@
 			   target="1.5"
 			   source="1.5">
 			<classpath>
-				<pathelement location="lib/clientserver-1.0.2.jar" />
-				<pathelement location="lib/withay-util.jar" />
-				<pathelement location="lib/looks-1.3b1.jar" />
-				<pathelement location="lib/hessian-2.1.12.jar" />
+				<fileset dir="lib">
+					<include name="**/*.jar"/>
+				</fileset>
 			</classpath>
 		</javac>
 	</target>
