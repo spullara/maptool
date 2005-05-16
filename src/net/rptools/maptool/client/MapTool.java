@@ -54,15 +54,14 @@ import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 public class MapTool {
 
 	
-	// Singleton
 	private static MapToolClient clientFrame;
-	
     private static MapToolServer server;
     private static ServerCommand serverCommand;
 
     private static Campaign campaign;
     
     private static PlayerList playerList;
+    private static Player player;
     
     private static ClientConnection conn;
     private static ClientMethodHandler handler;
@@ -93,6 +92,8 @@ public class MapTool {
         clientFrame = new MapToolClient();
         
         serverCommand = new ServerCommandClientImpl();
+        
+        player = new Player("", 0);
 	}
 	
     public static ServerCommand serverCommand() {
@@ -205,8 +206,14 @@ public class MapTool {
         clientFrame.setCurrentZoneRenderer(ZoneRendererFactory.newRenderer(zone));
 	}
 	
+	public static Player getPlayer() {
+		return player;
+	}
+	
     public static void createConnection(String host, int port, Player player) throws UnknownHostException, IOException {
 
+    	MapTool.player = player;
+    	
     	conn = new MapToolConnection(host, port, player);
         conn.addMessageHandler(handler);
         conn.addActivityListener(clientFrame.getActivityMonitor());

@@ -22,26 +22,44 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.model;
 
-public class ClientCommand {
+/**
+ * Represents a player pointer on the screen
+ */
+public class Pointer {
 
-    public static enum COMMAND { 
-        setCampaign, 
-        putZone, 
-        removeZone, 
-        putAsset, 
-        getAsset,
-        removeAsset, 
-        putToken, 
-        removeToken, 
-        draw,
-        setZoneGridSize,
-        playerConnected,
-        playerDisconnected,
-        message,
-        undoDraw,
-        showPointer,
-        hidePointer,
-    };
+	private GUID zoneGUID;
+	private int x;
+	private int y;
+	private double direction; // 
+	
+	public Pointer() {/* Hessian serializable */}
+	
+	public Pointer(Zone zone, int x, int y, double direction) {
+		this.zoneGUID = zone.getId();
+		this.x = x;
+		this.y = y;
+		this.direction = direction;
+	}
+	
+	public String toString() {
+		return x + "." + y + "-" + direction;
+	}
+	
+	public GUID getZoneGUID() {
+		return zoneGUID;
+	}
+	
+	public int getX() {
+		return x;
+	}
+	
+	public int getY() {
+		return y;
+	}
+	
+	public double getDirection() {
+		return direction;
+	}
 }

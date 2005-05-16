@@ -26,7 +26,6 @@ package net.rptools.maptool.server;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.maptool.client.ClientCommand;
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
@@ -36,6 +35,21 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.draw;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.getAsset;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.getZone;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.hidePointer;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.message;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.putAsset;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.putToken;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.putZone;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.removeAsset;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.removeToken;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.removeZone;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.setCampaign;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.setZoneGridSize;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.showPointer;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.undoDraw;
 import net.rptools.maptool.util.MD5Key;
 
 /**
@@ -135,6 +149,14 @@ public class ServerMethodHandler extends AbstractMethodHandler {
         case message:
             server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.message.name(), parameters);
             break;
+            
+        case showPointer:
+            server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.showPointer.name(), parameters);
+        	break;
+        	
+        case hidePointer:
+            server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.hidePointer.name(), parameters);
+        	break;
         }
         	
     }

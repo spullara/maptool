@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Observable;
-import java.util.Observer;
 
 import net.rptools.maptool.model.Player;
 
@@ -74,10 +73,19 @@ public class PlayerList extends Observable {
         fireUpdate();
     }
 
+    public Player getPlayer(String name) {
+    	
+    	for (int i = 0; i < playerList.size(); i++) {
+    		if (playerList.get(i).getName().equals(name)) {
+    			return playerList.get(i);
+    		}
+    	}
+    	return null;
+    }
+    
     protected void fireUpdate() {
         setChanged();
         notifyObservers();
     }
     
-
 }

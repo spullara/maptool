@@ -25,25 +25,18 @@
 package net.rptools.maptool.client.tool;
 
 import java.awt.Color;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
 
-import javax.swing.SwingUtilities;
-
-import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.ZoneMeasurement;
+import net.rptools.maptool.util.GraphicsUtil;
 
 /**
  * @author trevor
  */
 public class ToolHelper {
 
-	private static final int BOX_PADDINGX = 5;
-	private static final int BOX_PADDINGY = 2;
-	
 	public static void drawBoxedMeasurement(ZoneRenderer renderer, Graphics2D g, Point startPoint, Point endPoint, boolean roundDistance) {
     	
         // Calculations
@@ -60,14 +53,14 @@ public class ToolHelper {
         g.drawLine(left, top - 20, left, top - 10);
         g.drawLine(right, top - 20, right, top - 10);
         String distance = measurement.formatDistanceBetween(renderer.getCellAt(left, top), renderer.getCellAt(right, top));
-        drawBoxedString(g, distance, left + (right - left)/2, top - 15);
+        GraphicsUtil.drawBoxedString(g, distance, left + (right - left)/2, top - 15);
         
         // VETICAL Measure
         g.drawLine(right + 15, top, right + 15, bottom);
         g.drawLine(right + 10, top, right + 20, top);
         g.drawLine(right + 10, bottom, right + 20, bottom);
         distance = measurement.formatDistanceBetween(renderer.getCellAt(right, top), renderer.getCellAt(right, bottom));
-        drawBoxedString(g, distance, right + 18, bottom + (top - bottom)/2);    
+        GraphicsUtil.drawBoxedString(g, distance, right + 18, bottom + (top - bottom)/2);    
     }
     
 	public static void drawMeasurement(ZoneRenderer renderer, Graphics2D g, Point startPoint, Point endPoint, boolean roundDistance) {
@@ -84,33 +77,8 @@ public class ToolHelper {
         int centerY = bottom + (top - bottom)/2;
         
         ZoneMeasurement measurement = new ZoneMeasurement(renderer.getZone().getFeetPerCell(), roundDistance);
-        drawBoxedString(g, measurement.formatDistanceBetween(cellStart, cellEnd), centerX, centerY);
+        GraphicsUtil.drawBoxedString(g, measurement.formatDistanceBetween(cellStart, cellEnd), centerX, centerY);
 	}
 	
-    public static void drawBoxedString(Graphics2D g, String string, int centerX, int centerY) {
-    	drawBoxedString(g, string, centerX, centerY, SwingUtilities.CENTER);
-    }
-    
-    public static void drawBoxedString(Graphics2D g, String string, int centerX, int centerY, int justification) {
-    	
-    	// TODO: Put in justification
-    	FontMetrics fm = g.getFontMetrics();
-		int strWidth = SwingUtilities.computeStringWidth(fm, string);
-
-		// Box
-		Rectangle boxBounds = new Rectangle(centerX - strWidth/2 - BOX_PADDINGX, centerY - fm.getHeight()/2 - BOX_PADDINGY, strWidth + BOX_PADDINGX*2, fm.getHeight() + BOX_PADDINGY*2);
-		g.setColor(Color.white);
-		g.fillRect(boxBounds.x, boxBounds.y, boxBounds.width, boxBounds.height);
-		
-    	ClientStyle.border.paintWithin(g, boxBounds);
-		
-		// Renderer distance
-		g.setColor(Color.black);
-		int textX = centerX - (strWidth / 2);
-		int textY = centerY - (fm.getHeight() / 2) + fm.getAscent();
-		
-		g.drawString(string, textX, textY);
-    }
-    
 
 }

@@ -25,6 +25,7 @@
 
 package net.rptools.maptool.client.ui;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Zone;
 
 public class ZoneRendererFactory {
@@ -42,6 +43,8 @@ public class ZoneRendererFactory {
             renderer = new MapZoneRenderer(zone);
         }
         }
+
+        renderer.addOverlay(MapTool.getFrame().getPointerOverlay());
 
         return renderer;
     }

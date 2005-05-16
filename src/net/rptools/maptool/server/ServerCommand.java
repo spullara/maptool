@@ -27,6 +27,7 @@ package net.rptools.maptool.server;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -49,6 +50,8 @@ public interface ServerCommand {
         setZoneGridSize,
         message,
         undoDraw,
+        showPointer,
+        hidePointer
     };
     
     public void setCampaign(Campaign campaign);
@@ -64,4 +67,6 @@ public interface ServerCommand {
     public void undoDraw(GUID zoneGUID, GUID drawableGUID);
     public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size);
     public void message(String message);
+    public void showPointer(String player, Pointer pointer);
+    public void hidePointer(String player);
 }

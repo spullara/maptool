@@ -80,6 +80,7 @@ public class MapToolClient extends JFrame {
 	private OutlookPanel outlookPanel;
 	private ZoneRenderer currentRenderer;
 	private AssetPanel assetPanel;
+	private PointerOverlay pointerOverlay;
 
     private ZoneSelectionPanel zoneSelectionPanel;
     private JPanel mainPanel;
@@ -112,6 +113,7 @@ public class MapToolClient extends JFrame {
 		outlookPanel = new OutlookPanel ();
         outlookPanel.setMinimumSize(new Dimension(100, 200));
         zoneRendererList = new ArrayList<ZoneRenderer>();
+        pointerOverlay = new PointerOverlay();
 
         outlookPanel.addButton("Connections", createPlayerList());
         outlookPanel.addButton("Assets", assetPanel);
@@ -144,6 +146,10 @@ public class MapToolClient extends JFrame {
 		add(BorderLayout.SOUTH, statusPanel);
 	}
     
+	public PointerOverlay getPointerOverlay() {
+		return pointerOverlay;
+	}
+	
     protected JComponent createPlayerList() {
         
         JList list = new JList();

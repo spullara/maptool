@@ -36,6 +36,7 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.ZoneMeasurement;
+import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageUtil;
 
 
@@ -132,7 +133,7 @@ public class MeasuringTool extends DefaultTool {
 			int centerX = dragStartX - ((dragStartX - currX)/2);
 			int centerY = dragStartY - ((dragStartY - currY)/2);
 			
-			ToolHelper.drawBoxedString(g, distString, centerX, centerY);
+			GraphicsUtil.drawBoxedString(g, distString, centerX, centerY);
 		}
 	}
     

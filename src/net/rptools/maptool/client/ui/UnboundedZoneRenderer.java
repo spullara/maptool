@@ -36,6 +36,7 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageUtil;
 
 /**
@@ -138,6 +139,6 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
         Point cell = renderer.getCellAt(size.width/2, size.height/2); 
         
 		g.setColor(Color.black);
-		ToolHelper.drawBoxedString (g, cell.x + ", " + cell.y, 50, 15, SwingUtilities.LEFT);
+		GraphicsUtil.drawBoxedString (g, cell.x + ", " + cell.y, 50, 15, SwingUtilities.LEFT);
 	}
 }

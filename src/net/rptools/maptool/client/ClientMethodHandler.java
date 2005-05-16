@@ -25,12 +25,28 @@
 package net.rptools.maptool.client;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.draw;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.hidePointer;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.message;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.playerConnected;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.playerDisconnected;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.putAsset;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.putToken;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.putZone;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.removeAsset;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.removeToken;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.removeZone;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.setCampaign;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.setZoneGridSize;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.showPointer;
+import static net.rptools.maptool.client.ClientCommand.COMMAND.undoDraw;
 import net.rptools.maptool.client.ui.ZoneRendererFactory;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Player;
+import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -144,6 +160,16 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         case message:
             String message = (String) parameters[0];
             MapTool.addMessage(message);
+        	break;
+            
+        case showPointer:
+        	MapTool.getFrame().getPointerOverlay().addPointer((String) parameters[0], (Pointer) parameters[1]);
+        	MapTool.getFrame().repaint();
+        	break;
+        	
+        case hidePointer:
+        	MapTool.getFrame().getPointerOverlay().removePointer((String) parameters[0]);
+        	MapTool.getFrame().repaint();
         	break;
         	
         }

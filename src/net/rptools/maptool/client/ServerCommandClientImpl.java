@@ -27,6 +27,7 @@ package net.rptools.maptool.client;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -88,7 +89,15 @@ public class ServerCommandClientImpl implements ServerCommand {
         makeServerCall(COMMAND.message, message);
     }
 
-    private void makeServerCall(ServerCommand.COMMAND command, Object... params) {
+	public void showPointer(String player, Pointer pointer) {
+		makeServerCall(COMMAND.showPointer, player, pointer);
+	}
+	
+	public void hidePointer(String player) {
+		makeServerCall(COMMAND.hidePointer, player);
+	}
+
+	private void makeServerCall(ServerCommand.COMMAND command, Object... params) {
         if (!MapTool.isConnected()) {return;}
         
         MapTool.getConnection().callMethod(command.name(), params);

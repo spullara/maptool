@@ -384,6 +384,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		return null;
 	}
 
+	public Point convertZoneToScreen(int x, int y) {
+		
+        double scale = scaleArray[scaleIndex];
+		
+        // Translate
+        x += offsetX;
+        y += offsetY;
+        
+        x = (int)(x * scale);
+        y = (int)(y * scale);
+        
+        return new Point(x, y);
+	}
+	
 	public Point convertScreenToZone(int x, int y) {
 		
         double scale = scaleArray[scaleIndex];

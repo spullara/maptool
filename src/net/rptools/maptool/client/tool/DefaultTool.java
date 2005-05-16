@@ -50,6 +50,7 @@ import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.ZoneOverlay;
 import net.rptools.maptool.client.ui.ZoneRenderer;
+import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 
@@ -58,6 +59,7 @@ import net.rptools.maptool.model.TokenSize;
 public abstract class DefaultTool extends Tool implements MouseListener, MouseMotionListener, ZoneOverlay, MouseWheelListener {
     private static final long serialVersionUID = 3258411729238372921L;
 
+    private boolean isShowingPointer; 
     private boolean isDraggingMap;
     private boolean isDraggingToken;
     private boolean isNewTokenSelected;
@@ -81,7 +83,18 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		// SELECTION
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			
-			
+			// Pointer
+			if (SwingUtil.isControlDown(e)) {
+				
+				isShowingPointer = true;
+				
+				Point p = renderer.convertScreenToZone(e.getX(), e.getY());
+				Pointer pointer = new Pointer(renderer.getZone(), p.x, p.y, 0);
+				
+				MapTool.serverCommand().showPointer(MapTool.getPlayer().getName(), pointer);
+				return;
+			}			
+
 			// Token
 			Token token = renderer.getTokenAt (e.getX(), e.getY());
 			if (token != null) {
@@ -96,6 +109,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			} else {
 				renderer.clearSelectedTokens();
 			}
+			
 		}
 		
         // DRAG PREPARATION
@@ -108,6 +122,13 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	}
 	
 	public void mouseReleased(MouseEvent e) {
+		
+		// POINTER
+		if (isShowingPointer) {
+			isShowingPointer = false;
+			MapTool.serverCommand().hidePointer(MapTool.getPlayer().getName());
+			return;
+		}
 		
 		// POPUP MENU
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
