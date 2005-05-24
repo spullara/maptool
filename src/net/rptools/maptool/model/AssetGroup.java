@@ -30,10 +30,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.util.FileUtil;
+import net.rptools.maptool.util.MD5Key;
 
 /**
  * Model for arranging assets in a hierarchical way
@@ -45,10 +48,16 @@ public class AssetGroup {
     
     private boolean loaded;
     
+    // Asset refresh data
+    private Map<File, Object[]> assetFiles = new HashMap<File, Object[]>();
+    
+    // Group refresh data
+    private Map<File, AssetGroup> assetGroupFiles = new HashMap<File, AssetGroup>();
+    
     private List<Asset> assetList = new ArrayList<Asset>();
     private List<AssetGroup> assetGroupList = new ArrayList<AssetGroup>();
 
-    private static final Comparator GROUP_COMPARATOR = new AssetGroupComparator();
+    private static final Comparator<AssetGroup> GROUP_COMPARATOR = new AssetGroupComparator();
     
     private static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {
         public boolean accept(File dir,String name) {
@@ -127,6 +136,7 @@ public class AssetGroup {
     
     public void add(AssetGroup group) {
         assetGroupList.add(group);
+        assetGroupFiles.put(group.location, group);
         
         // Keeps the groups ordered
         Collections.sort(assetGroupList, GROUP_COMPARATOR);
@@ -134,25 +144,34 @@ public class AssetGroup {
     
     public void remove(AssetGroup group) {
         assetGroupList.remove(group);
+        assetGroupFiles.remove(group.location);
     }
     
-    public void add(Asset asset) {
-        assetList.add(asset);
-    }
-    
-    public void remove(Asset asset) {
-        assetList.remove(asset.getId());
-    }
-
     public String toString() {
-        return "AssetGroup[" + name + "]";
+        return "AssetGroup[" + name + "]: " + assetList.size() + " assets and " + assetGroupList.size() + " groups";
+    }
+    
+    /**
+     * Release the assets and groups so that they can be garbage collected.
+     */
+    private void clear() {
+      assetFiles.clear();
+      assetGroupFiles.clear();
+      assetList.clear();
+      for (AssetGroup group : assetGroupList) group.clear();
     }
     
     private void loadData() {
-    	
+        
     	if (!loaded) {
 
-    		assetList.clear();
+        // Copy the asset and group files map so that files that were deleted go away.
+        Map<File, Object[]> tempAssetFiles = assetFiles;
+        assetFiles = new HashMap<File, Object[]>();
+        Map<File, AssetGroup> tempAssetGroupFiles = assetGroupFiles;
+        assetGroupFiles = new HashMap<File, AssetGroup>();
+
+        assetList.clear();
     		assetGroupList.clear();
 			
     		try {
@@ -161,11 +180,26 @@ public class AssetGroup {
 	    		// Update images for this group
 	            File[] imageFileArray = location.listFiles(IMAGE_FILE_FILTER);
 	            for (File file : imageFileArray) {
-	                
-	                // TODO: Check that group already has it
-	                // TODO: don't create new assets for images that are already in the game
+                
+                // Latest file already in the group?
+                Object[] data = tempAssetFiles.get(file);
+                if (data != null && ((Long)data[0]).longValue() == file.lastModified()) {
+                  assetFiles.put(file, data);
+                  tempAssetFiles.remove(file);
+                  assetList.add((Asset)data[1]);
+                  continue;
+                }
+
+                // Get the asset, is it already in the game?
 	            	try {
-	            		assetList.add(new Asset(FileUtil.loadFile(file)));
+	            		Asset asset = new Asset(FileUtil.loadFile(file));
+                  if (AssetManager.hasAsset(asset.getId())) {
+                    asset = AssetManager.getAsset(asset.getId());
+                  }
+                  
+                  // Add the asset
+                  assetFiles.put(file, new Object[] {new Long(file.lastModified()), asset});
+                  assetList.add(asset);
 	            	} catch (IOException ioe) {
 	            		// TODO: Handle this better
 	            		ioe.printStackTrace();
@@ -176,33 +210,47 @@ public class AssetGroup {
 	            File[] subdirArray = location.listFiles(DIRECTORY_FILE_FILTER);
 	            for (File subdir : subdirArray) {
 	                
-	                // TODO: re-use existing asset groups
-	                // TODO: keep track of pathing information for change polling
-	                AssetGroup subgroup = new AssetGroup(subdir, subdir.getName());
+                // Get the group or create a new one
+                AssetGroup subgroup = tempAssetGroupFiles.get(subdir);
+                if (subgroup == null) {
+                  subgroup = new AssetGroup(subdir, subdir.getName());
+                } else {
+                  tempAssetGroupFiles.remove(subdir);
+                }
 	                
-	                assetGroupList.add(subgroup);
-	            }    		
+                assetGroupFiles.put(subdir, subgroup);
+	              assetGroupList.add(subgroup);
+	            }
 	            
 	            Collections.sort(assetGroupList, GROUP_COMPARATOR);
 	            
 				//name = name + " (" + imageFileArray.length + ")";
 
     		} finally {
-    			MapTool.endIndeterminateAction();
+          // Cleanup
+          tempAssetFiles.clear();
+          for (AssetGroup group : tempAssetGroupFiles.values()) group.clear();
+          tempAssetGroupFiles.clear();
+    			MapTool.endIndeterminateAction();          
     		}
         	loaded = true;
     	}
     	
     }
     
-    private static class AssetGroupComparator implements Comparator {
+    /**
+     * This method will cause the assets to be updated the next time one is read.
+     * The child groups are updated as well.
+     */
+    public void updateGroup() {
+      loaded = false;
+      for (AssetGroup group : assetGroupList) group.updateGroup();
+    }
+    
+    private static class AssetGroupComparator implements Comparator<AssetGroup> {
         
-        public int compare(Object o1,Object o2) {
-            
-            assert o1 instanceof AssetGroup : "List must only contain AssetGroup objects";
-            assert o2 instanceof AssetGroup : "List must only contain AssetGroup objects";
-            
-            return ((AssetGroup) o1).getName().toUpperCase().compareTo(((AssetGroup) o2).getName().toUpperCase());
+        public int compare(AssetGroup o1,AssetGroup o2) {
+            return o1.getName().toUpperCase().compareTo(o2.getName().toUpperCase());
         }
     }
 }

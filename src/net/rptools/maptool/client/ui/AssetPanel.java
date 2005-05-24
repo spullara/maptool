@@ -63,4 +63,8 @@ public class AssetPanel extends JComponent {
 	public void setAssetGroup(AssetGroup assetGroup) {
 		imagePanel.setModel(new AssetGroupImagePanelModel(assetGroup));
 	}
+  
+  public AssetTree getAssetTree() {
+    return assetTree;
+  }
 }

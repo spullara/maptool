@@ -48,7 +48,7 @@ public class ToolboxBar extends JToolBar {
 			currentTool.detachFrom(currentRenderer);
 			
 			if (renderer != null && currentTool instanceof ZoneOverlay) {
-				renderer.removeOverlay(null);
+				renderer.removeOverlay((ZoneOverlay)currentTool);
 			}
 		}
 		
@@ -80,7 +80,7 @@ public class ToolboxBar extends JToolBar {
 				}
 				
 				if (currentTool instanceof ZoneOverlay) {
-					currentRenderer.removeOverlay(null);
+					currentRenderer.removeOverlay((ZoneOverlay)currentTool);
 				}
 
 				currentTool = null;
@@ -103,7 +103,7 @@ public class ToolboxBar extends JToolBar {
     					currentTool.detachFrom(currentRenderer);
                         
             			if (currentTool instanceof ZoneOverlay) {
-            				currentRenderer.removeOverlay(null);
+            				currentRenderer.removeOverlay((ZoneOverlay)currentTool);
             			}
                     }
 

@@ -103,6 +103,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
 	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 		if (line != null) {
             Pen pen = getPen();
+            pen.setThickness((float)(pen.getThickness() * renderer.getScale()));
             
             if (pen.isEraser()) {
                 pen = new Pen(pen);

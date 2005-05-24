@@ -36,13 +36,16 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
+import javax.swing.tree.TreeModel;
 
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.client.ui.ZoneSelectionPanel;
+import net.rptools.maptool.client.ui.model.AssetTreeModel;
 import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetGroup;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.Player;
@@ -422,6 +425,19 @@ public class AppActions {
                 
             });
         }
+    };
+    
+    public static final Action REFRESH_ASSET_PANEL = new ClientAction() {
+      
+      {
+        putValue(Action.NAME, "Refresh");
+        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("F5"));
+      }
+      
+      public void execute(ActionEvent e) {
+        MapTool.getFrame().getAssetPanel().getAssetTree().refresh();
+      }
+      
     };
     
     public static final Action EXIT = new ClientAction () {

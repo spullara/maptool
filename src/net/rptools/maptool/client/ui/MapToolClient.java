@@ -208,6 +208,10 @@ public class MapToolClient extends JFrame {
         }
     }
     
+    public AssetPanel getAssetPanel() {
+      return assetPanel;
+    }
+    
     public void addAssetRoot(File rootDir) {
         
     	assetPanel.addAssetRoot(new AssetGroup(rootDir, rootDir.getName()));
@@ -249,7 +253,6 @@ public class MapToolClient extends JFrame {
         
         toolbox.add(new JToggleButton(AppActions.TOGGLE_GRID));
         
-
         return toolbox;
 	}
 	
@@ -257,7 +260,7 @@ public class MapToolClient extends JFrame {
     	
     	pen.setColor(foregroundColorPicker.getSelectedColor().getRGB());
     	pen.setBackgroundColor(backgroundColorPicker.getSelectedColor().getRGB());
-        pen.setThickness((Float)widthChooser.getSelectedItem());
+        pen.setThickness((Integer)widthChooser.getSelectedItem());
         return pen;
     }
 	

@@ -70,7 +70,7 @@ public class TokenSize {
         return (int) (size.heightFactor() * gridSize);
 	}
 	
-    private static Size getSizeInstance(int size) {
+    public static Size getSizeInstance(int size) {
         Size[] sizes = Size.values();
         for (int i = 0; i < sizes.length; i++) {
             if (sizes[i].value() == size)

@@ -36,13 +36,24 @@ import java.net.URL;
 public class FileUtil {
 
     public static byte[] loadFile(File file) throws IOException{
-        
-        return getBytes(new FileInputStream(file));
+        FileInputStream fis = null;
+        try {
+          fis = new FileInputStream(file);
+          return getBytes(fis);
+        } finally {
+          if (fis != null) fis.close();
+        }
     }
     
     public static byte[] loadResource(String resource) throws IOException {
         
-        return getBytes(FileUtil.class.getClassLoader().getResourceAsStream(resource));
+        InputStream fis = null;
+        try {
+          fis = FileUtil.class.getClassLoader().getResourceAsStream(resource);
+          return getBytes(fis);
+        } finally {
+          if (fis != null) fis.close();
+        }
     }
     
     public static byte[] getBytes(URL url) throws IOException {
@@ -58,8 +69,9 @@ public class FileUtil {
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         
         int b;
-        while ((b = inStream.read()) >= 0) {
-            outStream.write(b);
+        byte[] buffer = new byte[4096];
+        while ((b = inStream.read(buffer)) >= 0) {
+            outStream.write(buffer, 0, b);
         }
         
         return outStream.toByteArray();

@@ -1,6 +1,6 @@
 /* The MIT License
  * 
- * Copyright (c) 2005 David Rice, Trevor Croft
+ * Copyright (c) 2005 David Rice, Trevor Croft, Jay Gorrell
  * 
  * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation files 
@@ -52,21 +52,11 @@ public class PenWidthChooser extends JComboBox {
    * The renderer for this chooser.
    */
   private PenListRenderer renderer = new PenListRenderer();
-  
+
   /**
-   * The first width in the model
+   * Supported Pen Widths
    */
-  public static final float MIN_WIDTH = 6;
-  
-  /**
-   * The largest width allowed in the model.
-   */
-  public static final float MAX_WIDTH = 18;
-  
-  /**
-   * The amount that the width is incremented for each successive element in the model.
-   */
-  public static final float WIDTH_INCREMENT = 2;
+  public static final int[] WIDTHS = { 3, 5, 7, 11, 15, 21 };
   
   /**
    * The width that the Icon is painted.
@@ -84,12 +74,12 @@ public class PenWidthChooser extends JComboBox {
   public PenWidthChooser() {
     setRenderer(renderer);
     DefaultComboBoxModel model = new DefaultComboBoxModel();
-    float selected = -1;
-    float defaultThickness = Pen.DEFAULT.getThickness();
-    for (float i = MIN_WIDTH; i <= MAX_WIDTH; i += WIDTH_INCREMENT) {
-      model.addElement(i);
-      renderer.icon.strokes.put(i, new BasicStroke(i, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
-      if (i == defaultThickness || i < defaultThickness && i < defaultThickness + WIDTH_INCREMENT) 
+    int selected = -1;
+    int defaultThickness = (int)Pen.DEFAULT.getThickness();
+    for (int i = 0; i < WIDTHS.length; i += 1) {
+      model.addElement(WIDTHS[i]);
+      renderer.icon.strokes.put(WIDTHS[i], new BasicStroke(WIDTHS[i], BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+      if (WIDTHS[i] == defaultThickness) 
         selected = i;
     } // endfor
     
@@ -97,7 +87,7 @@ public class PenWidthChooser extends JComboBox {
     setModel(model);
     setMaximumSize(getPreferredSize());
     setMaximumRowCount(MAX_ROW_COUNT);
-    setSelectedItem(Math.max(selected, MIN_WIDTH));
+    setSelectedItem(Math.max(selected, WIDTHS[0]));
   }
   
   /**
@@ -113,6 +103,9 @@ public class PenWidthChooser extends JComboBox {
      */
     PenIcon icon = new PenIcon();
     
+    /**
+     * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
+     */
     @Override
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 
@@ -120,7 +113,7 @@ public class PenWidthChooser extends JComboBox {
       super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus); 
       
       // Set the icon
-      icon.width = (Float)value;
+      icon.width = (Integer)value;
       setIcon(icon);
       return this;
     }
@@ -137,12 +130,12 @@ public class PenWidthChooser extends JComboBox {
     /**
      * Pen used in drawing.
      */
-    private float width = 0;
+    private int width = 0;
     
     /**
      * Strokes for this icon
      */
-    private Map<Float, Stroke> strokes = new HashMap<Float, Stroke>();
+    private Map<Integer, Stroke> strokes = new HashMap<Integer, Stroke>();
     
     /**
      * @see javax.swing.Icon#getIconHeight()

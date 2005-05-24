@@ -71,7 +71,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	
 	private Token tokenUnderMouse;
 	
-	////
+  // Offset from token's X,Y when dragging. Values are in cell coordinates.
+  private int dragOffsetX;
+  private int dragOffsetY;
+
+  ////
 	// Mouse
 	
 	public void mousePressed(MouseEvent e) {
@@ -106,6 +110,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
                     renderer.clearSelectedTokens();
 				}
 				renderer.selectToken(token);
+        
+        // Dragging offset for currently selected token
+        Point cell = renderer.getCellAt(e.getX(), e.getY());
+        dragOffsetX = cell.x - token.getX();
+        dragOffsetY = cell.y - token.getY();
 			} else {
 				renderer.clearSelectedTokens();
 			}
@@ -232,7 +241,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			if (selectedTokenSet.size() > 0 && cell != null) {
 				
 				Point origin = new Point(tokenUnderMouse.getX(), tokenUnderMouse.getY());
-
+        origin.translate(dragOffsetX, dragOffsetY);
+        
 				// Only on change
 				if (origin.x != cell.x || origin.y != cell.y) {
 

@@ -413,28 +413,65 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         return new Point(x,y);
 	}
 	
-    /**
-     * Since the map can be scaled, this is a convenience method to find out
-     * what cell is at this location
-     * @param x
-     * @param y
-     * @return
-     */
-    public Point getCellAt (int x, int y) {
-
-        double scale = scaleArray[scaleIndex];
-        
-        // Translate
-        x -= offsetX + (int) (zone.getGridOffsetX() * scaleArray[scaleIndex]);
-        y -= offsetY + (int) (zone.getGridOffsetY() * scaleArray[scaleIndex]);
-        
-		// Scale
-        x = (int)Math.floor(x / (zone.getGridSize() * scale));
-        y = (int)Math.floor(y / (zone.getGridSize() * scale));
-        
-        return new Point(x, y);
-    }
-
+  /**
+   * Since the map can be scaled, this is a convenience method to find out
+   * what cell is at this location. This version allows a point to be 
+   * passed in to reduce the number of new <code>Point</code> objects 
+   * created in the mouse move & mouse drag events.
+   * 
+   * @param x X location in screen coordinates.
+   * @param y Y location in screen coordinates.
+   * @param cell The point used to contain the cell coordinates. If <code>null</code>
+   * a new point will be created. 
+   * @return The cell coordinates in the passed point or in a new point.
+   */
+  public Point getCellAt (int x, int y, Point cell) {
+    
+    double scale = scaleArray[scaleIndex];
+    
+    // Translate
+    x -= offsetX + (int) (zone.getGridOffsetX() * scale);
+    y -= offsetY + (int) (zone.getGridOffsetY() * scale);
+    
+    // Scale
+    if (cell == null) cell = new Point();
+    cell.x = (int)Math.floor(x / (zone.getGridSize() * scale));
+    cell.y = (int)Math.floor(y / (zone.getGridSize() * scale));
+    
+    return cell;
+  }
+  
+  /**
+   * Since the map can be scaled, this is a convenience method to find out
+   * what cell is at this location. 
+   * @param x
+   * @param y
+   * @return The cell coordinates in the passed point or in a new point.
+   */
+  public Point getCellAt (int x, int y) {
+    return getCellAt(x, y, null);
+  }
+  
+  /**
+   * Find the screen cooridnates of the upper left hand corner of a cell taking
+   * into acount scaling and translation. This version allows a point to be 
+   * passed in to reduce the number of new <code>Point</code> objects 
+   * created in the mouse move & mouse drag events.
+   * 
+   * @param cell Get the coordinates of this cell.
+   * @param screen The point used to contains the screen coordinates. It may
+   * be <code>null</code>.
+   * @return The screen coordinates of the upper left hand corner in the passed
+   * point or in a new point.
+   */
+  public Point getCellCooridnates(Point cell, Point screen) {
+    double scale = scaleArray[scaleIndex]; 
+    if (screen == null) screen = new Point();
+    screen.x = offsetX + (int)(zone.getGridOffsetX() * scale + cell.x * zone.getGridSize() * scale);
+    screen.y = offsetY + (int)(zone.getGridOffsetY() * scale + cell.y * zone.getGridSize() * scale);
+    return screen;
+  }
+  
     public double getScale() {
     	return scaleArray[scaleIndex];
     }

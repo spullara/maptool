@@ -70,7 +70,7 @@ public class AppMenuBar extends JMenuBar {
     protected JMenu createAssetMenu() {
         JMenu assetMenu = new JMenu("Assets");
         assetMenu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
-
+        assetMenu.add(new JMenuItem(AppActions.REFRESH_ASSET_PANEL));
         return assetMenu;
     }
     

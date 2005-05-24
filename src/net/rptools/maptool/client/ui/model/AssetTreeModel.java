@@ -57,7 +57,8 @@ public class AssetTreeModel implements TreeModel {
 
     public void addRootGroup (AssetGroup group) {
     	rootAssetGroups.add(group);
-    	refresh();
+      fireNodesInsertedEvent(new TreeModelEvent(this, new Object[]{getRoot()}, 
+          new int[] { rootAssetGroups.size() - 1 }, new Object[] {group}));
     }
     
     /* (non-Javadoc)
@@ -132,14 +133,26 @@ public class AssetTreeModel implements TreeModel {
     }
 
     public void refresh() {
-
-        // TODO: This closes the tree.  Don't like that.  Fix it.
-        TreeModelEvent e = new TreeModelEvent(this, new Object[]{getRoot()}, 
-                new int[]{0}, new Object[]{});
-        for (TreeModelListener listener : listenerList) {
-            listener.treeStructureChanged(e);
-        }
+      for (AssetGroup group : rootAssetGroups) {
+        group.updateGroup();
+        fireStructureChangedEvent(new TreeModelEvent(this, new Object[]{getRoot(),group}, new int[]{0}, new Object[]{}));
+      } // endfor      
     }
+
+    private void fireStructureChangedEvent(TreeModelEvent e) {
+      TreeModelListener[] listeners = listenerList.toArray(new TreeModelListener[listenerList.size()]);
+      for (TreeModelListener listener : listeners) {
+        listener.treeStructureChanged(e);
+      }
+    }
+    
+    private void fireNodesInsertedEvent(TreeModelEvent e) {
+      TreeModelListener[] listeners = listenerList.toArray(new TreeModelListener[listenerList.size()]);
+      for (TreeModelListener listener : listeners) {
+        listener.treeNodesInserted(e);
+      }
+    }
+
     
 
 }

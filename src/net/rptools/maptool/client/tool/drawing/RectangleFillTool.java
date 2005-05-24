@@ -49,24 +49,6 @@ public class RectangleFillTool extends RectangleTool {
         }
     }
 
-	// TODO: Consolidate this better with RectangleTool
-    public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
-        if (rectangle != null) {
-        	
-        	Pen pen = getPen();
-        	
-            if (pen.isEraser()) {
-                pen = new Pen(pen);
-                pen.setEraser(false);
-                pen.setColor(Color.white.getRGB());
-                pen.setBackgroundColor(Color.white.getRGB());
-            }
-        	
-            rectangle.draw(g, pen, 0, 0);
-            ToolHelper.drawBoxedMeasurement(renderer, g, rectangle.getStartPoint(), rectangle.getEndPoint(), false);
-        }
-    }
-
     /* (non-Javadoc)
 	 * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#getPen()
 	 */

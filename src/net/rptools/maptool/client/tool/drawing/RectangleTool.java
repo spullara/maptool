@@ -66,6 +66,7 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
         if (rectangle != null) {
         	
         	Pen pen = getPen();
+          pen.setThickness((float)(pen.getThickness() * renderer.getScale()));
         	
             if (pen.isEraser()) {
                 pen = new Pen(pen);
