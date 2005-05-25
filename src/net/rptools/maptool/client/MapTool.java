@@ -28,6 +28,8 @@ import java.awt.Toolkit;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JFileChooser;
@@ -40,6 +42,7 @@ import net.rptools.maptool.client.ui.MapToolClient;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.client.ui.ZoneRendererFactory;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.server.MapToolServer;
@@ -60,14 +63,14 @@ public class MapTool {
 
     private static Campaign campaign;
     
-    private static PlayerList playerList;
+    private static ObservableList<Player> playerList;
+    private static ObservableList<String> messageList;
+    
     private static Player player;
     
     private static ClientConnection conn;
     private static ClientMethodHandler handler;
     
-    private static List<String> messages = new ArrayList<String>();
-
     // Components
 	private static JFileChooser loadFileChooser;
 	private static JFileChooser saveFileChooser;
@@ -86,7 +89,9 @@ public class MapTool {
 		loadFileChooser = createLoadFileChooser();
 		saveFileChooser = createSaveFileChooser();
 
-        playerList = new PlayerList();
+        playerList = new ObservableList<Player>();
+        messageList = new ObservableList<String>(Collections.synchronizedList(new ArrayList<String>()));
+        
         handler = new ClientMethodHandler();
         
         clientFrame = new MapToolClient();
@@ -121,20 +126,39 @@ public class MapTool {
     }
     
     public static void addPlayer(Player player) {
-		playerList.add(player);
+        if (!playerList.contains(player)) {
+            playerList.add(player);
+            
+            // LATER: Make this non-anonymous
+            playerList.sort (new Comparator<Player>() {
+                public int compare(Player arg0, Player arg1) {
+                    return arg0.getName().compareToIgnoreCase(arg1.getName());
+                }
+            });
+        }
 	}
 	
-	public static void removePlayer(Player player) {
+    public Player getPlayer(String name) {
+        
+        for (int i = 0; i < playerList.size(); i++) {
+            if (playerList.get(i).getName().equals(name)) {
+                return playerList.get(i);
+            }
+        }
+        return null;
+    }
+
+    public static void removePlayer(Player player) {
 		playerList.remove(player);
 	}
 	
 	
-    public static List<String> getMessages() {
-        return messages;
+    public static ObservableList<String> getMessageList () {
+        return messageList;
     }
     
     public static void addMessage(String message) {
-        messages.add(message);
+        messageList.add(message);
     }
 
     public static Campaign getCampaign() {
@@ -193,7 +217,7 @@ public class MapTool {
 		// TODO: server stop
 	}
 
-    public static PlayerList getPlayerList() {
+    public static ObservableList<Player> getPlayerList() {
         return playerList;
     }
     

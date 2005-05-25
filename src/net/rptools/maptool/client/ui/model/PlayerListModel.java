@@ -29,13 +29,14 @@ import java.util.Observer;
 
 import javax.swing.AbstractListModel;
 
-import net.rptools.maptool.client.PlayerList;
+import net.rptools.maptool.model.ObservableList;
+import net.rptools.maptool.model.Player;
 
 public class PlayerListModel extends AbstractListModel implements Observer {
     
-    private PlayerList playerList;
+    private ObservableList<Player> playerList;
 
-    public PlayerListModel(PlayerList playerList) {
+    public PlayerListModel(ObservableList<Player> playerList) {
         this.playerList = playerList;
         
         // TODO: Figure out how to clean this up when no longer in use

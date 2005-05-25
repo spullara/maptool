@@ -47,6 +47,7 @@ import net.rptools.maptool.client.swing.JSplitPaneEx;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.OutlookPanel;
 import net.rptools.maptool.client.swing.PenWidthChooser;
+import net.rptools.maptool.client.swing.PositionalLayout;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
 import net.rptools.maptool.client.swing.StatusPanel;
 import net.rptools.maptool.client.swing.SwingUtil;
@@ -81,9 +82,10 @@ public class MapToolClient extends JFrame {
 	private ZoneRenderer currentRenderer;
 	private AssetPanel assetPanel;
 	private PointerOverlay pointerOverlay;
-
+	private ChatPanel chatPanel;
+    
     private ZoneSelectionPanel zoneSelectionPanel;
-    private JPanel mainPanel;
+    private JPanel zoneRendererPanel;
     
     private List<ZoneRenderer> zoneRendererList;
     
@@ -97,8 +99,6 @@ public class MapToolClient extends JFrame {
 	private ActivityMonitorPanel activityMonitor = new ActivityMonitorPanel();
 	private ProgressStatusBar progressBar = new ProgressStatusBar();
     
-    private List<String> messages = new ArrayList<String>();
-
 	public MapToolClient() {
 		
 		// Set up the frame
@@ -114,6 +114,8 @@ public class MapToolClient extends JFrame {
         outlookPanel.setMinimumSize(new Dimension(100, 200));
         zoneRendererList = new ArrayList<ZoneRenderer>();
         pointerOverlay = new PointerOverlay();
+        chatPanel = new ChatPanel();
+        chatPanel.setSize(250, 100);
 
         outlookPanel.addButton("Connections", createPlayerList());
         outlookPanel.addButton("Assets", assetPanel);
@@ -123,9 +125,13 @@ public class MapToolClient extends JFrame {
         statusPanel.addPanel(progressBar);
         statusPanel.addPanel(activityMonitor);
         
-        mainPanel = new JPanel(new BorderLayout());
+        zoneRendererPanel = new JPanel(new PositionalLayout());
+        zoneRendererPanel.add(chatPanel, PositionalLayout.Position.SW);
+        
+        JPanel mainPanel = new JPanel(new BorderLayout());
         zoneSelectionPanel = new ZoneSelectionPanel();
         mainPanel.add(BorderLayout.SOUTH, zoneSelectionPanel);
+        mainPanel.add(BorderLayout.CENTER, zoneRendererPanel);
         
 		// Split left/right
 		mainSplitPane = new JSplitPaneEx();
@@ -187,14 +193,6 @@ public class MapToolClient extends JFrame {
 		return zoneSelectionPanel;
 	}
     
-    public List<String> getMessages() {
-        return messages;
-    }
-    
-    public void addMessage(String message) {
-        messages.add(message);
-    }
-
     ///////////////////////////////////////////////////////////////////////////
     // static methods
     ///////////////////////////////////////////////////////////////////////////
@@ -290,12 +288,12 @@ public class MapToolClient extends JFrame {
 
         if (currentRenderer != null) {
         	currentRenderer.flush();
-            mainPanel.remove(currentRenderer);
+            zoneRendererPanel.remove(currentRenderer);
         }
         
         if (renderer != null) {
-            mainPanel.add(BorderLayout.CENTER, renderer);
-            mainPanel.doLayout();
+            zoneRendererPanel.add(renderer, PositionalLayout.Position.CENTER);
+            zoneRendererPanel.doLayout();
         }
         
 		currentRenderer = renderer;
