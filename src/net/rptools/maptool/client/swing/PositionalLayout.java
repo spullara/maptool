@@ -47,8 +47,16 @@ public class PositionalLayout implements LayoutManager2 {
 		SW, S, SE
 	}
 
-	Map<Component, Position> compPositionMap = new HashMap<Component, Position>();
+	private int padding = 0; 
 
+	private Map<Component, Position> compPositionMap = new HashMap<Component, Position>();
+
+	public PositionalLayout() {}
+	
+	public PositionalLayout(int edgePadding) {
+		padding = edgePadding;
+	}
+	
 	public void addLayoutComponent(Component comp,Object constraints){
 		if (! (constraints instanceof Position)) {
 			return;
@@ -87,14 +95,14 @@ public class PositionalLayout implements LayoutManager2 {
 			int y = 0;
 			
 			switch(pos) {
-			case NW: {x = 0; y = 0; break;}
-			case N:  {x = center(size.width, compSize.width); y = 0; break;}
-			case NE: {x = size.width - compSize.width; y = 0; break;}
-			case W:  {x = 0; y = center(size.height, compSize.height); break;}
-			case E:  {x = size.width - compSize.width; y = center(size.height, compSize.height); break;}
-			case SW: {x = 0; y = size.height - compSize.height; break;}
-			case S:  {x = center(size.width, compSize.width); y = size.height - compSize.height; break;}
-			case SE: {x = size.width - compSize.width; y = size.height - compSize.height; break;}
+			case NW: {x = padding; y = padding; break;}
+			case N:  {x = center(size.width, compSize.width); y = padding; break;}
+			case NE: {x = size.width - compSize.width - padding; y = padding; break;}
+			case W:  {x = padding; y = center(size.height, compSize.height); break;}
+			case E:  {x = size.width - compSize.width - padding; y = center(size.height, compSize.height); break;}
+			case SW: {x = padding; y = size.height - compSize.height - padding; break;}
+			case S:  {x = center(size.width, compSize.width); y = size.height - compSize.height - padding; break;}
+			case SE: {x = size.width - compSize.width - padding; y = size.height - compSize.height - padding; break;}
 			case CENTER: {
 				x = 0;
 				y = 0;

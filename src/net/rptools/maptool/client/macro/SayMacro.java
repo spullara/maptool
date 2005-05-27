@@ -33,7 +33,7 @@ public class SayMacro implements Macro {
 
     public void execute(String macro) {
         StringBuilder sb = new StringBuilder();
-        sb.append("FIXME: insert name here").append(" says: ").append(macro);
+        sb.append(MapTool.getPlayer().getName()).append(" says: ").append(macro);
         MapTool.serverCommand().message(sb.toString());
     }
 }

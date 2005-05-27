@@ -125,7 +125,8 @@ public class MapToolClient extends JFrame {
         statusPanel.addPanel(progressBar);
         statusPanel.addPanel(activityMonitor);
         
-        zoneRendererPanel = new JPanel(new PositionalLayout());
+        zoneRendererPanel = new JPanel(new PositionalLayout(5));
+        zoneRendererPanel.setBackground(Color.black);
         zoneRendererPanel.add(chatPanel, PositionalLayout.Position.SW);
         
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -204,6 +205,10 @@ public class MapToolClient extends JFrame {
         } else {
             mainSplitPane.hideLeft();
         }
+    }
+    
+    public ChatPanel getChatPanel() {
+    	return chatPanel;
     }
     
     public AssetPanel getAssetPanel() {

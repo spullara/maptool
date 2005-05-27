@@ -41,101 +41,32 @@ import java.util.Observer;
 import javax.swing.JComponent;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.macro.MacroManager;
 
-public class ChatPanel extends JComponent implements Observer, MouseListener {
+public class ChatPanel extends JComponent  {
 
-    private static final int TEXT_BUFFER = 2;
-    
-    private BufferedImage backBuffer;
-    private boolean renderBorder;
-    
-    public ChatPanel () {
-        setLayout(new BorderLayout());
-        setOpaque(false);
-        setForeground(Color.white);
-        
-        MapTool.getMessageList().addObserver(this);
-        
-        addMouseListener(this);
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-
-        Dimension size = getSize();
-        if (backBuffer == null || backBuffer.getWidth() != size.width || backBuffer.getHeight() != size.height) {
-            renderBackBuffer();
-        }
-        
-        g.drawImage(backBuffer, 0, 0, this);
-    }
-
-    private void renderBackBuffer() {
-        
-        Dimension size = getSize();
-        backBuffer = new BufferedImage(size.width, size.height, Transparency.BITMASK);
-        
-        Graphics2D g = null;
-        try {
-            g = backBuffer.createGraphics();
-            
-            g.setColor(getForeground());
-            FontMetrics fm = g.getFontMetrics();
-    
-            // TEXT
-            int listSize = MapTool.getMessageList().size();
-            int visibleMessageCount = Math.min(listSize, size.height / (fm.getHeight() + TEXT_BUFFER));
-            
-            List<String> messageList = MapTool.getMessageList().subList(listSize - visibleMessageCount, listSize);
-            
-            int y = size.height - TEXT_BUFFER - fm.getDescent();
-            for (int i = messageList.size()-1; i >= 0; i--) {
-
-                g.drawString(messageList.get(i), TEXT_BUFFER, y);
-                
-                y -= TEXT_BUFFER + fm.getHeight();
-            }
-            
-            // BORDER
-            if (renderBorder) {
-                g.setColor(Color.black);
-                g.drawRect(0, 0, size.width - 1, size.height - 1);
-            }
-
-        } finally {
-            if (g != null) {
-                g.dispose();
-            }
-        }
-    }
-    
-    private void refresh() {
-        
-        backBuffer = null;
-        repaint();
-    }
-    
-    ////
-    // OBSERVER
-    public void update(Observable o, Object arg) {
-
-        refresh();
-    }
-    
-    ////
-    // MOUSE LISTENER
-    public void mouseClicked(MouseEvent e) {}
-    public void mousePressed(MouseEvent e) {}
-    public void mouseReleased(MouseEvent e) {}
-
-    public void mouseEntered(MouseEvent e) {
-        renderBorder = true;
-        refresh();
-    }
-    
-    public void mouseExited(MouseEvent e) {
-        renderBorder = false;
-        refresh();
-    }
-    
+	private MessagePanel messagePanel;
+	private ChatField chatField;
+	
+	public ChatPanel() {
+		setLayout(new BorderLayout());
+		
+		messagePanel = new MessagePanel();
+		chatField = new ChatField(this);
+		chatField.setVisible(false);
+		
+		add(BorderLayout.CENTER, messagePanel);
+		add(BorderLayout.SOUTH, chatField);
+	}
+	
+	public void startCommand() {
+		chatField.setVisible(true);
+		chatField.startTyping();
+	}
+	
+	void commitCommand(String string) {
+		chatField.setVisible(false);
+		MacroManager.executeMacro(string);
+	}
+	
 }

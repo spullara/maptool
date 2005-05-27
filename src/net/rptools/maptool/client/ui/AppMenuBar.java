@@ -38,10 +38,18 @@ public class AppMenuBar extends JMenuBar {
         add(createFileMenu());
         add(createEditMenu());
         add(createViewMenu());
+        add(createActionMenu());
         add(createServerMenu());
         add(createGMMenu());
     }
 
+    protected JMenu createActionMenu() {
+    	JMenu menu = new JMenu("Action");
+    	menu.add(new JMenuItem(AppActions.TYPE_COMMAND));
+    	
+    	return menu;
+    }
+    
     protected JMenu createFileMenu() {
         JMenu fileMenu = new JMenu("File");
         fileMenu.add(new JMenuItem(AppActions.LOAD_MAP));

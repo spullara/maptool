@@ -59,6 +59,20 @@ import net.rptools.maptool.util.PersistenceUtil;
  */
 public class AppActions {
 
+	public static final Action TYPE_COMMAND = new ClientAction() {
+		
+		{
+			putValue(Action.NAME, "Type Command");
+			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0));
+		}
+		
+		public void execute(ActionEvent e) {
+			
+			MapTool.getFrame().getChatPanel().startCommand();
+		}
+		
+	};
+	
 	public static final Action ADJUST_GRID = new ClientAction() {
 		
 		{
@@ -66,6 +80,10 @@ public class AppActions {
 		}
 		
 		public void execute(ActionEvent e) {
+			
+			if(MapTool.getPlayer().getRole() != Player.Role.GM) {
+				return;
+			}
 			
 			if (MapTool.getFrame().getCurrentZoneRenderer().getZone().getType() == Zone.Type.INFINITE) {
 				MapTool.showError("Cannot adjust grid on infinite maps.");
@@ -81,7 +99,7 @@ public class AppActions {
 
         {
             //putValue(Action.NAME, "Toggle Grid");
-            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK));
             try {
             	putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/grid.gif")));
             } catch (IOException ioe) {
@@ -167,7 +185,7 @@ public class AppActions {
 
         {
             putValue(Action.NAME, "Toggle Zone Selector");
-            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0));
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK));
         }
 
         public void execute(ActionEvent e) {
@@ -387,7 +405,7 @@ public class AppActions {
         
         {
             putValue(Action.NAME, "Toggle Asset Panel");
-            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_A, 0));
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK));
         }
         
         /* (non-Javadoc)

@@ -37,20 +37,22 @@ import java.util.regex.Pattern;
  */
 public class MacroManager {
 
-    private static enum COMMANDS {
-        say, tell, roll
+    static enum COMMAND {
+        undefined, say, tell, roll, help
     };
 
-    private static COMMANDS DEFAULT_COMMAND = COMMANDS.say;
+    private static COMMAND DEFAULT_COMMAND = COMMAND.undefined;
     
-    private static Map<COMMANDS, Macro> MACROS = new EnumMap<COMMANDS, Macro>(COMMANDS.class);
+    private static Map<COMMAND, Macro> MACROS = new EnumMap<COMMAND, Macro>(COMMAND.class);
     static {
-        MACROS.put(COMMANDS.say, new SayMacro());
-        MACROS.put(COMMANDS.tell, new TellMacro());
-        MACROS.put(COMMANDS.roll, new RollMacro());
+        MACROS.put(COMMAND.say, new SayMacro());
+        MACROS.put(COMMAND.tell, new TellMacro());
+        MACROS.put(COMMAND.roll, new RollMacro());
+        MACROS.put(COMMAND.undefined, new UndefinedMacro());
+        MACROS.put(COMMAND.help, new HelpMacro());
     }
     
-    private static final Pattern MACRO_PAT = Pattern.compile("^\\/(\\w+)\\s+(.*)$");
+    private static final Pattern MACRO_PAT = Pattern.compile("^(\\w+)\\s+(.*)$");
     public static void executeMacro(String macro) {
         Matcher m = MACRO_PAT.matcher(macro);
         if (m.matches()) {
@@ -60,7 +62,7 @@ public class MacroManager {
         }
     }
     
-    private static void executeMacro(COMMANDS macro, String parameter) {
+    private static void executeMacro(COMMAND macro, String parameter) {
         Macro m = MACROS.get(macro);
         
         m.execute(parameter);
@@ -73,11 +75,11 @@ public class MacroManager {
      * 
      * For example: s -> say t -> tell
      */
-    private static COMMANDS resolveCommand(String command) {
+    private static COMMAND resolveCommand(String command) {
         if (command != null && command.length() > 0) {
             for (int i = command.length(); i > 0; i--) {
                 String c = command.substring(0, i);
-                for (COMMANDS cmd : COMMANDS.values()) {
+                for (COMMAND cmd : COMMAND.values()) {
                     if (cmd.name().startsWith(c)) {
                         return cmd;
                     }

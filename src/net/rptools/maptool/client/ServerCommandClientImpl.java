@@ -86,6 +86,9 @@ public class ServerCommandClientImpl implements ServerCommand {
     }
 
     public void message(String message) {
+    	if (!MapTool.isConnected()) {
+    		MapTool.addMessage("Not connected.");
+    	}
         makeServerCall(COMMAND.message, message);
     }
 
