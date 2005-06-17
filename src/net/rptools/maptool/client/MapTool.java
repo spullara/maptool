@@ -91,8 +91,6 @@ public class MapTool {
 
         playerList = new ObservableList<Player>();
         messageList = new ObservableList<String>(Collections.synchronizedList(new ArrayList<String>()));
-        messageList.add("Hello world");
-        messageList.add("Testing testing");
         
         handler = new ClientMethodHandler();
         
