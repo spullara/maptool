@@ -47,7 +47,10 @@ public class ImageManager {
         
         try {
             image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()));
-            imageMap.put(asset.getId(), image);
+            
+            if (image != null) {
+                imageMap.put(asset.getId(), image);
+            }
             
             return image;
         } catch (IOException ioe) {

@@ -99,6 +99,10 @@ public class ImagePanel extends JComponent implements Scrollable, DragGestureLis
 		for (int i = 0; i < model.getImageCount(); i++) {
 
 			Image image = model.getImage(i);
+            if (image == null) {
+                continue;
+            }
+            
 			Dimension dim = constrainSize(image, gridSize);
 
 			g.drawImage(image, x + (gridSize - dim.width)/2, y + (gridSize - dim.height)/2, dim.width, dim.height, this);
