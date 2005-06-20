@@ -41,7 +41,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.rptools.maptool.client.swing.PopupListener;
+import net.rptools.common.swing.PopupListener;
 import net.rptools.maptool.client.ui.model.AssetTreeModel;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetGroup;
@@ -50,10 +50,9 @@ import net.rptools.maptool.model.AssetGroup;
 
 /**
  */
-public class AssetTree extends JTree implements TreeSelectionListener, DragGestureListener, DragSourceListener {
+public class AssetTree extends JTree implements TreeSelectionListener {
 
     private AssetGroup selectedAssetGroup;
-    private Asset selectedAsset;
     private AssetPanel assetPanel;
 	
     public AssetTree(AssetPanel assetPanel) {
@@ -68,8 +67,6 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
         addTreeSelectionListener(this);
         
         getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        
-        DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);        
     }
 
     public void addRootGroup(AssetGroup group) {
@@ -79,10 +76,6 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
     
     public AssetGroup getSelectedAssetGroup() {
         return selectedAssetGroup;
-    }
-    
-    public Asset getSelectedAsset() {
-        return selectedAsset;
     }
     
     private MouseListener createPopupListener() {
@@ -112,73 +105,14 @@ public class AssetTree extends JTree implements TreeSelectionListener, DragGestu
      */
     public void valueChanged(TreeSelectionEvent e) {
 
-        selectedAsset = null;
         selectedAssetGroup = null;
         
         Object node = e.getPath().getLastPathComponent();
-        
-        if (node instanceof Asset) {
-            selectedAsset = (Asset) node;
-        }
         
         if (node instanceof AssetGroup) {
             selectedAssetGroup = (AssetGroup) node;
 			
 			assetPanel.setAssetGroup(selectedAssetGroup);
         }
-    }
-    
-    ////
-    // DRAG GESTURE LISTENER
-    /* (non-Javadoc)
-     * @see java.awt.dnd.DragGestureListener#dragGestureRecognized(java.awt.dnd.DragGestureEvent)
-     */
-    public void dragGestureRecognized(DragGestureEvent dge) {
-        
-//        if (selectedAsset == null) {
-//            return;
-//        }
-//        
-//        Image img = ImageManager.getImage(selectedAsset);
-//        
-//        Transferable transferable = new TransferableAsset(selectedAsset);
-//        
-//        dge.startDrag(Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(0, 0), "Thumbnail"), transferable, this);
-    }
-    
-    ////
-    // DRAG SOURCE LISTENER
-    /* (non-Javadoc)
-     * @see java.awt.dnd.DragSourceListener#dragDropEnd(java.awt.dnd.DragSourceDropEvent)
-     */
-    public void dragDropEnd(DragSourceDropEvent dsde) {
-    }
-    /* (non-Javadoc)
-     * @see java.awt.dnd.DragSourceListener#dragEnter(java.awt.dnd.DragSourceDragEvent)
-     */
-    public void dragEnter(DragSourceDragEvent dsde) {
-        // TODO Auto-generated method stub
-
-    }
-    /* (non-Javadoc)
-     * @see java.awt.dnd.DragSourceListener#dragExit(java.awt.dnd.DragSourceEvent)
-     */
-    public void dragExit(DragSourceEvent dse) {
-        // TODO Auto-generated method stub
-
-    }
-    /* (non-Javadoc)
-     * @see java.awt.dnd.DragSourceListener#dragOver(java.awt.dnd.DragSourceDragEvent)
-     */
-    public void dragOver(DragSourceDragEvent dsde) {
-        // TODO Auto-generated method stub
-
-    }
-    /* (non-Javadoc)
-     * @see java.awt.dnd.DragSourceListener#dropActionChanged(java.awt.dnd.DragSourceDragEvent)
-     */
-    public void dropActionChanged(DragSourceDragEvent dsde) {
-        // TODO Auto-generated method stub
-
     }
 }

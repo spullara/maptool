@@ -28,7 +28,7 @@ import java.io.IOException;
 
 import javax.swing.ImageIcon;
 
-import net.rptools.maptool.util.ImageUtil;
+import net.rptools.common.util.ImageUtil;
 
 /**
  */

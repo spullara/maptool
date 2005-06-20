@@ -34,8 +34,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import net.rptools.common.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.server.MapToolServer;
 /**
  * @author trevor

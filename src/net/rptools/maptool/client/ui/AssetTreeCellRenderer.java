@@ -24,34 +24,18 @@
  */
 package net.rptools.maptool.client.ui;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 
-import javax.swing.BorderFactory;
 import javax.swing.JTree;
-import javax.swing.border.Border;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetGroup;
-import net.rptools.maptool.util.ImageManager;
 
 
 /**
  */
 public class AssetTreeCellRenderer extends DefaultTreeCellRenderer {
 
-    private static final Border SELECTED_BORDER = BorderFactory.createLineBorder(Color.blue);
-    private static final int PADDING = 2;
-    
-    private Asset currentAsset;
-    
-    /* (non-Javadoc)
-     * @see javax.swing.tree.DefaultTreeCellRenderer#getTreeCellRendererComponent(javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, int, boolean)
-     */
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row,
             boolean hasFocus) {
 
@@ -61,44 +45,9 @@ public class AssetTreeCellRenderer extends DefaultTreeCellRenderer {
 
         if (value instanceof AssetGroup) {
             setText(((AssetGroup) value).getName());
-            currentAsset = null;
-        } else if (value instanceof Asset) {
+        }        
 
-        	currentAsset = (Asset) value;
-        	
-            setText("");
-            setIconTextGap(0);
-            setIcon(null);
-            if(sel) {
-                setBorder(SELECTED_BORDER);
-            }
-            
-            setPreferredSize(new Dimension(100, 100));
-        }
-        
         return this;
     }
     
-    /* (non-Javadoc)
-	 * @see javax.swing.tree.DefaultTreeCellRenderer#paint(java.awt.Graphics)
-	 */
-	public void paint(Graphics g) {
-		super.paint(g);
-		
-		if (currentAsset != null) {
-
-			BufferedImage img = ImageManager.getImage(currentAsset);
-			Dimension mySize = getSize();
-			
-			int width = img.getWidth();
-            int height = img.getHeight();
-
-            int targetHeight = (mySize.height * 2);
-            
-            width = (int)(width * (targetHeight / (double)height));
-            height = targetHeight;
-
-            g.drawImage(img, PADDING, (mySize.height - targetHeight) / 2, width, height, this);
-		}
-	}
 }

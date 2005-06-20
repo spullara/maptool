@@ -40,17 +40,19 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 
+import net.rptools.common.swing.FramePreferences;
+import net.rptools.common.swing.JSplitPaneEx;
+import net.rptools.common.swing.OutlookPanel;
+import net.rptools.common.swing.PositionalLayout;
+import net.rptools.common.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
+import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.ColorPickerButton;
-import net.rptools.maptool.client.swing.JSplitPaneEx;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
-import net.rptools.maptool.client.swing.OutlookPanel;
 import net.rptools.maptool.client.swing.PenWidthChooser;
-import net.rptools.maptool.client.swing.PositionalLayout;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
 import net.rptools.maptool.client.swing.StatusPanel;
-import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.client.tool.MeasuringTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
@@ -68,8 +70,6 @@ import net.rptools.maptool.model.drawing.Pen;
 public class MapToolClient extends JFrame {
     private static final long serialVersionUID = 3905523813025329458L;
 
-	private static final String WINDOW_TITLE = "MapTool";
-	
 	// TODO: parameterize this (or make it a preference)
 	private static final int WINDOW_WIDTH = 800;
 	private static final int WINDOW_HEIGHT = 600;
@@ -102,7 +102,7 @@ public class MapToolClient extends JFrame {
 	public MapToolClient() {
 		
 		// Set up the frame
-		super (WINDOW_TITLE);
+		super (AppConstants.APP_NAME);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		SwingUtil.centerOnScreen(this);
@@ -151,6 +151,8 @@ public class MapToolClient extends JFrame {
 		add(BorderLayout.CENTER, mainInnerPanel);
 		add(BorderLayout.NORTH, toolboxPanel);
 		add(BorderLayout.SOUTH, statusPanel);
+        
+        addWindowListener(new FramePreferences(AppConstants.APP_NAME, this));
 	}
     
 	public PointerOverlay getPointerOverlay() {

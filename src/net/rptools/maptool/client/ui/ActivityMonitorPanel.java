@@ -32,9 +32,9 @@ import java.io.IOException;
 import javax.swing.JComponent;
 
 import net.rptools.clientserver.ActivityListener;
+import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.swing.Animatable;
 import net.rptools.maptool.client.swing.AnimationManager;
-import net.rptools.maptool.util.ImageUtil;
 
 /**
  * @author trevor

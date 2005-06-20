@@ -38,11 +38,11 @@ import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import net.rptools.common.swing.SwingUtil;
+import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.util.ImageUtil;
 
 
 /**

@@ -34,9 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.rptools.common.util.FileUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.util.FileUtil;
-import net.rptools.maptool.util.MD5Key;
 
 /**
  * Model for arranging assets in a hierarchical way

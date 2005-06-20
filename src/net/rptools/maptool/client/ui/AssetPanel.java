@@ -30,7 +30,7 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
-import net.rptools.maptool.client.swing.ImagePanel;
+import net.rptools.common.swing.ImagePanel;
 import net.rptools.maptool.client.ui.model.AssetGroupImagePanelModel;
 import net.rptools.maptool.model.AssetGroup;
 

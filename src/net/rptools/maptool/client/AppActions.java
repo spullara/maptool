@@ -36,22 +36,19 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
-import javax.swing.tree.TreeModel;
 
+import net.rptools.common.util.FileUtil;
+import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.client.ui.ZoneSelectionPanel;
-import net.rptools.maptool.client.ui.model.AssetTreeModel;
 import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetGroup;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.util.FileUtil;
-import net.rptools.maptool.util.ImageUtil;
 import net.rptools.maptool.util.PersistenceUtil;
 
 

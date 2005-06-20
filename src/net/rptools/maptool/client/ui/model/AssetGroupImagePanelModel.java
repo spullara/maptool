@@ -27,8 +27,8 @@ package net.rptools.maptool.client.ui.model;
 import java.awt.Image;
 import java.awt.datatransfer.Transferable;
 
+import net.rptools.common.swing.ImagePanelModel;
 import net.rptools.maptool.client.TransferableAsset;
-import net.rptools.maptool.client.swing.ImagePanelModel;
 import net.rptools.maptool.model.AssetGroup;
 import net.rptools.maptool.util.ImageManager;
 
@@ -51,4 +51,16 @@ public class AssetGroupImagePanelModel implements ImagePanelModel {
 	public Transferable getTransferable(int index) {
 		return new TransferableAsset(assetGroup.getAssets().get(index));
 	}
+    
+    public String getCaption(int index) {
+        return "";
+    }
+    
+    public Object getID(int index) {
+        return new Integer(index);
+    }
+    
+    public Image getImage(Object ID) {
+        return getImage(((Integer)ID).intValue());
+    }
 }

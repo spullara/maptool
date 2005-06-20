@@ -22,40 +22,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.swing;
+package net.rptools.maptool.client;
 
-import java.awt.Component;
+public class AppConstants {
 
-import javax.swing.JPanel;
-
-/**
- */
-public class PositionalPanel extends JPanel {
-
-	public PositionalPanel() {
-		setLayout(new PositionalLayout());
-	}
-	
-	public void addImpl(Component comp, Object constraints, int index) {
-		
-		if (!(constraints instanceof PositionalLayout.Position)) {
-			throw new IllegalArgumentException("Use add(Component, PositionalLayout.Position)");
-		}
-		
-		super.addImpl(comp, constraints, index);
-
-		if (((PositionalLayout.Position) constraints) == PositionalLayout.Position.CENTER) {
-		
-			setComponentZOrder(comp, getComponents().length - 1);
-		} else {
-			setComponentZOrder(comp, 0);
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see javax.swing.JComponent#isOptimizedDrawingEnabled()
-	 */
-	public boolean isOptimizedDrawingEnabled() {
-		return false;
-	}
+    public static final String APP_NAME = "MapTool";
 }

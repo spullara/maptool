@@ -48,10 +48,10 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 
+import net.rptools.common.swing.SwingUtil;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
-import net.rptools.maptool.client.swing.SwingUtil;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;

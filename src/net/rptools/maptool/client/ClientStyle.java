@@ -24,17 +24,17 @@
  */
 package net.rptools.maptool.client;
 
-import net.rptools.maptool.client.swing.ImageBorder;
+import net.rptools.common.swing.ImageBorder;
 
 /**
  * @author trevor
  */
 public class ClientStyle {
 
-	public static ImageBorder border = new ImageBorder("net/rptools/maptool/client/image/border/default");
+	public static ImageBorder border = ImageBorder.GRAY;
     
-	public static ImageBorder selectedBorder = new ImageBorder("net/rptools/maptool/client/image/border/selected");
+	public static ImageBorder selectedBorder = ImageBorder.RED;
 	
-	public static ImageBorder boardBorder = new ImageBorder("net/rptools/maptool/client/image/border/board");
+	public static ImageBorder boardBorder = ImageBorder.WOOD;
 	
 }

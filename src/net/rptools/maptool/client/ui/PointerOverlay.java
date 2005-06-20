@@ -24,7 +24,6 @@
  */
 package net.rptools.maptool.client.ui;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -32,10 +31,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.GraphicsUtil;
-import net.rptools.maptool.util.ImageUtil;
 
 /**
  */
