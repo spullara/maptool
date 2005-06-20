@@ -26,9 +26,14 @@ package net.rptools.maptool.util;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import net.rptools.common.util.ImageUtil;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 
 
@@ -38,6 +43,22 @@ public class ImageManager {
 
     private static Map<MD5Key, BufferedImage> imageMap = new HashMap<MD5Key, BufferedImage>();
     
+    private static BufferedImage UNKNOWN_IMAGE; 
+
+    private static BackgroundImageLoader loader = new BackgroundImageLoader();
+    
+    static {
+        
+        try {
+            UNKNOWN_IMAGE = ImageUtil.getImage("net/rptools/maptool/client/image/unknown.png");
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            UNKNOWN_IMAGE = new BufferedImage(10, 10, 0);
+        }
+        
+        new Thread(loader).start();
+    }
+    
     public static BufferedImage getImage(Asset asset) {
         
         BufferedImage image = imageMap.get(asset.getId());
@@ -45,19 +66,65 @@ public class ImageManager {
             return image;
         }
         
-        try {
-            image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()));
-            
-            if (image != null) {
-                imageMap.put(asset.getId(), image);
-            }
-            
-            return image;
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
-        }
+        // Use placeholder until image is actually loaded
+        imageMap.put(asset.getId(), UNKNOWN_IMAGE);
+        loader.addAsset(asset);
+        
+        return UNKNOWN_IMAGE;
     }
 
+    private static class BackgroundImageLoader implements Runnable {
+
+        private List<Asset> assetQueue = Collections.synchronizedList(new LinkedList<Asset> ());
+
+        public void addAsset(Asset asset) {
+
+            synchronized(assetQueue) {
+                assetQueue.add(asset);
+                assetQueue.notify();
+            }
+        }
+        
+        public void run() {
+            
+            while (true) {
+
+                if (assetQueue.size() > 0) {
+                    
+                    Asset asset = assetQueue.remove(0);
+                    
+                    try {
+                        BufferedImage image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()));
+                        
+                        if (image != null) {
+                            
+                            // Replace placeholder with actual image
+                            imageMap.put(asset.getId(), image);
+                            
+                            // OPTIMIZE: target the specific location to be redrawn
+                            // TODO: this class should really not known anything about the MapTool
+                            MapTool.getFrame().repaint();
+                        }
+                        
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+
+                    // Look for more
+                    continue;
+                }
+                
+                // Wait for the next assets to load
+                synchronized (assetQueue) {
+                    try {
+                        assetQueue.wait();
+                    } catch (InterruptedException ie) {
+                        // Nothing to do
+                    }
+                }
+            }
+            
+        }
+    }
         
 }
