@@ -44,12 +44,11 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.MapTool;
 
-public class MessagePanel extends JComponent implements Observer, MouseListener {
+public class MessagePanel extends JComponent implements Observer {
 
     private static final int TEXT_BUFFER = 2;
     
     private BufferedImage backBuffer;
-    private boolean renderBorder;
     
     public MessagePanel () {
         setLayout(new BorderLayout());
@@ -57,8 +56,6 @@ public class MessagePanel extends JComponent implements Observer, MouseListener 
         setForeground(Color.white);
         
         MapTool.getMessageList().addObserver(this);
-        
-        addMouseListener(this);
     }
 
     @Override
@@ -137,12 +134,6 @@ public class MessagePanel extends JComponent implements Observer, MouseListener 
                 y -= lineHeight;
             }
             
-            // BORDER
-            if (renderBorder) {
-                g.setColor(Color.black);
-                g.drawRect(0, 0, size.width - 1, size.height - 1);
-            }
-
         } finally {
             if (g != null) {
                 g.dispose();
@@ -163,19 +154,4 @@ public class MessagePanel extends JComponent implements Observer, MouseListener 
         refresh();
     }
     
-    ////
-    // MOUSE LISTENER
-    public void mouseClicked(MouseEvent e) {}
-    public void mousePressed(MouseEvent e) {}
-    public void mouseReleased(MouseEvent e) {}
-
-    public void mouseEntered(MouseEvent e) {
-        renderBorder = true;
-        refresh();
-    }
-    
-    public void mouseExited(MouseEvent e) {
-        renderBorder = false;
-        refresh();
-    }    
 }
