@@ -44,6 +44,7 @@ public class ClientCommand {
         showPointer,
         hidePointer,
         startTokenMove,
-        stopTokenMove
+        stopTokenMove,
+        updateTokenMove
     };
 }

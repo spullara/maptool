@@ -24,7 +24,7 @@
  */
 package net.rptools.maptool.client;
 
-import java.util.List;
+import java.util.Set;
 
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
@@ -39,6 +39,8 @@ import net.rptools.maptool.util.MD5Key;
 
 public class ServerCommandClientImpl implements ServerCommand {
 
+    private TimedEventQueue movementUpdateQueue = new TimedEventQueue(500);
+    
     public void setCampaign(Campaign campaign) {
         makeServerCall(COMMAND.setCampaign, campaign);
     }
@@ -102,21 +104,71 @@ public class ServerCommandClientImpl implements ServerCommand {
 		makeServerCall(COMMAND.hidePointer, player);
 	}
 
-	public void startTokenMove(GUID zoneGUID, GUID tokenGUID, List<GUID> tokenList) {
+	public void startTokenMove(GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList) {
 		makeServerCall(COMMAND.startTokenMove, zoneGUID, tokenList);
 	}
 
 	public void stopTokenMove(GUID zoneGUID, GUID tokenGUID) {
+        movementUpdateQueue.flush();
 		makeServerCall(COMMAND.stopTokenMove, zoneGUID, tokenGUID);
 	}
 	
 	public void updateTokenMove(GUID zoneGUID, GUID tokenGUID) {
-		makeServerCall(COMMAND.updateTokenMove, zoneGUID, tokenGUID);
+		movementUpdateQueue.enqueue(COMMAND.updateTokenMove, zoneGUID, tokenGUID);
 	}
 	
-	private void makeServerCall(ServerCommand.COMMAND command, Object... params) {
+	private static void makeServerCall(ServerCommand.COMMAND command, Object... params) {
         if (!MapTool.isConnected()) {return;}
         
         MapTool.getConnection().callMethod(command.name(), params);
+    }
+    
+    /**
+     * Some events become obsolete very quickly, such as dragging a token
+     * around.  This queue always has exactly one element, the more current
+     * version of the event.  The event is then dispatched at some time interval.
+     * If a new event arrives before the time interval elapses, it is replaced.
+     * In this way, only the most current version of the event is released.
+     */
+    private static class TimedEventQueue extends Thread {
+        
+        ServerCommand.COMMAND command;
+        Object[] params;
+        
+        long delay;
+        
+        public TimedEventQueue(long millidelay) {
+            delay = millidelay;
+        }
+        
+        public synchronized void enqueue (ServerCommand.COMMAND command, Object... params) {
+            
+            this.command = command;
+            this.params = params;
+        }
+
+        public synchronized void flush() {
+            
+            if (command != null) {
+                makeServerCall(command, params);
+            }
+            command = null;
+            params = null;
+        }
+        
+        public void run() {
+            
+            while(true) {
+             
+                flush();
+                synchronized (this) {
+                    try {
+                        Thread.sleep(delay);
+                    } catch (InterruptedException ie) {
+                        // nothing to do
+                    }
+                }
+            }
+        }
     }
 }

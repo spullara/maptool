@@ -58,8 +58,7 @@ public class MapZoneRenderer extends ZoneRenderer {
 
             MapTool.serverCommand().getAsset(zone.getAssetID());
         	
-            // TODO: Show a placeholder
-            return null;
+            return ImageManager.UNKNOWN_IMAGE;
         } 
 
         backgroundImage = ImageManager.getImage(asset);

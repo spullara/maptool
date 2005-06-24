@@ -43,7 +43,7 @@ public class ImageManager {
 
     private static Map<MD5Key, BufferedImage> imageMap = new HashMap<MD5Key, BufferedImage>();
     
-    private static BufferedImage UNKNOWN_IMAGE; 
+    public static BufferedImage UNKNOWN_IMAGE; 
 
     private static BackgroundImageLoader loader = new BackgroundImageLoader();
     

@@ -48,6 +48,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.util.ImageManager;
 
 
 /**
@@ -106,8 +107,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
             // TODO: This is a naive solution.  In the future, actually render the zone
             BufferedImage img = renderer.getBackgroundImage();
             if (img == null) {
-            	// Force a redraw later
-                continue;
+                img = ImageManager.UNKNOWN_IMAGE;
             }
             
             int width = img.getWidth();

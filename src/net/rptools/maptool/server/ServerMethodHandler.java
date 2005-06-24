@@ -163,6 +163,8 @@ public class ServerMethodHandler extends AbstractMethodHandler {
         case stopTokenMove:
             broadcast(id, ClientCommand.COMMAND.stopTokenMove.name(), parameters);
         	break;
+        case updateTokenMove:
+            broadcast(id, ClientCommand.COMMAND.updateTokenMove.name(), parameters);
         }
         	
     }

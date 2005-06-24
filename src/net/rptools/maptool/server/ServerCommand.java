@@ -24,7 +24,7 @@
  */
 package net.rptools.maptool.server;
 
-import java.util.List;
+import java.util.Set;
 
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
@@ -74,7 +74,7 @@ public interface ServerCommand {
     public void message(String message);
     public void showPointer(String player, Pointer pointer);
     public void hidePointer(String player);
-    public void startTokenMove(GUID zoneGUID, GUID tokenGUID, List<GUID> tokenList);
+    public void startTokenMove(GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList);
     public void updateTokenMove(GUID zoneGUID, GUID tokenGUID);
     public void stopTokenMove(GUID zoneGUID, GUID tokenGUID);
 }

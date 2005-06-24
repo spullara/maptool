@@ -284,13 +284,19 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         for (Token token : zone.getTokens()) {
 
             // OPTIMIZE:
+            Image image = null;
             Asset asset = AssetManager.getAsset(token.getAssetID());
             if (asset == null) {
                 MapTool.serverCommand().getAsset(token.getAssetID());
-                continue;
-            }
+                
+                // In the mean time, show a placeholder
+                image = ImageManager.UNKNOWN_IMAGE;
+                
+            } else {
             
-            Image image = ImageManager.getImage(asset);
+                image = ImageManager.getImage(asset);
+            }
+
             float scale = scaleArray[scaleIndex];
 
             int x = 0;
