@@ -157,6 +157,12 @@ public class ServerMethodHandler extends AbstractMethodHandler {
         case hidePointer:
             server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.hidePointer.name(), parameters);
         	break;
+        case startTokenMove:
+            broadcast(id, ClientCommand.COMMAND.startTokenMove.name(), parameters);
+        	break;
+        case stopTokenMove:
+            broadcast(id, ClientCommand.COMMAND.stopTokenMove.name(), parameters);
+        	break;
         }
         	
     }

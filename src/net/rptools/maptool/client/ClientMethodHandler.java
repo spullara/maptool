@@ -52,6 +52,8 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.startTokenMove;
+import static net.rptools.maptool.server.ServerCommand.COMMAND.stopTokenMove;
 
 
 /**
@@ -172,6 +174,10 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	MapTool.getFrame().repaint();
         	break;
         	
+        case startTokenMove:
+        	break;
+        case stopTokenMove:
+        	break;
         }
         
         	

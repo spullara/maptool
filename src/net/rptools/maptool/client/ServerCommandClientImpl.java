@@ -24,6 +24,8 @@
  */
 package net.rptools.maptool.client;
 
+import java.util.List;
+
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
@@ -100,6 +102,18 @@ public class ServerCommandClientImpl implements ServerCommand {
 		makeServerCall(COMMAND.hidePointer, player);
 	}
 
+	public void startTokenMove(GUID zoneGUID, GUID tokenGUID, List<GUID> tokenList) {
+		makeServerCall(COMMAND.startTokenMove, zoneGUID, tokenList);
+	}
+
+	public void stopTokenMove(GUID zoneGUID, GUID tokenGUID) {
+		makeServerCall(COMMAND.stopTokenMove, zoneGUID, tokenGUID);
+	}
+	
+	public void updateTokenMove(GUID zoneGUID, GUID tokenGUID) {
+		makeServerCall(COMMAND.updateTokenMove, zoneGUID, tokenGUID);
+	}
+	
 	private void makeServerCall(ServerCommand.COMMAND command, Object... params) {
         if (!MapTool.isConnected()) {return;}
         

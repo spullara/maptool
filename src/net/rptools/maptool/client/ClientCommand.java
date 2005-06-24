@@ -43,5 +43,7 @@ public class ClientCommand {
         undoDraw,
         showPointer,
         hidePointer,
+        startTokenMove,
+        stopTokenMove
     };
 }
