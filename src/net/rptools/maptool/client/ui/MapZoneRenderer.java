@@ -26,7 +26,6 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -80,7 +79,7 @@ public class MapZoneRenderer extends ZoneRenderer {
         return p;
     }
     
-    protected void renderBorder(Graphics g) {
+    protected void renderBorder(Graphics2D g) {
         
         Dimension size = getSize();
         
@@ -110,7 +109,7 @@ public class MapZoneRenderer extends ZoneRenderer {
         ClientStyle.boardBorder.paintAround((Graphics2D) g, offsetX, offsetY, w, h);
     }
     
-    protected void renderBoard(Graphics g) {
+    protected void renderBoard(Graphics2D g) {
 
         Dimension size = getSize();
         
@@ -139,7 +138,7 @@ public class MapZoneRenderer extends ZoneRenderer {
         g.drawImage(backgroundImage, offsetX, offsetY, w, h, this);
     }
     
-    protected void renderGrid(Graphics g) {
+    protected void renderGrid(Graphics2D g) {
         
         float scale = scaleArray[scaleIndex];
         int w = (int)(width * scale);

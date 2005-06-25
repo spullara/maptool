@@ -28,7 +28,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.dnd.DropTarget;
@@ -49,11 +48,14 @@ import java.util.Set;
 import javax.swing.JComponent;
 
 import net.rptools.common.swing.SwingUtil;
+import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
+import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
@@ -90,9 +92,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private Set<Token> zoomedTokenSet = new HashSet<Token>();
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
     private Map<Rectangle, Token> tokenBoundsMap = new HashMap<Rectangle, Token>();
-    private Set<Token> selectedTokenSet = new HashSet<Token>();
+    private Set<GUID> selectedTokenSet = new HashSet<GUID>();
 
+	private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
+	private Map<Token, BufferedImage> replacementImageMap = new HashMap<Token, BufferedImage>();
+	
     static {
+		// Create scale array
     	for (int i = 0; i < scaleArray.length; i++) {
     		if (scaleArray[i] == 1) {
     			SCALE_1TO1_INDEX = i;
@@ -118,10 +124,66 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         });
     }
 
+	public void addMoveSelectionSet (String playerId, GUID keyToken, Set<GUID> tokenList, boolean clearLocalSelected) {
+		
+		// I'm not supposed to be moving a token when someone else is already moving it
+		if (clearLocalSelected) {
+			for (GUID guid : tokenList) {
+				
+				selectedTokenSet.remove (guid);
+			}
+		}
+		
+		selectionSetMap.put(keyToken, new SelectionSet(playerId, keyToken, tokenList));
+		repaint();
+	}
+
+	public void updateMoveSelectionSet (GUID keyToken, int x, int y) {
+		
+		SelectionSet set = selectionSetMap.get(keyToken);
+		if (set == null) {
+			return;
+		}
+		
+		Token token = zone.getToken(keyToken);
+		set.setOffset(x - token.getX(), y - token.getY());
+		repaint();
+	}
+	
+	public void removeMoveSelectionSet (GUID keyToken) {
+		
+		SelectionSet set = selectionSetMap.remove(keyToken);
+		if (set == null) {
+			return;
+		}
+		
+		for (GUID tokenGUID : set.getTokens()) {
+			
+			Token token = zone.getToken(tokenGUID);
+			token.setX(set.getOffsetX() + token.getX());
+			token.setY(set.getOffsetY() + token.getY());
+		}
+
+		repaint();
+	}
+
+	public boolean isTokenMoving(Token token) {
+		
+		for (SelectionSet set : selectionSetMap.values()) {
+			
+			if (set.contains(token)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
     /**
      * Clear internal caches and backbuffers
      */
     public void flush() {
+		// TODO: clear out all caches
     }
     
     public Zone getZone() {
@@ -248,14 +310,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     public void paintComponent(Graphics g) {
 
+		Graphics2D g2d = (Graphics2D) g;
+		
         if (zone == null) { return; }
         int gridSize = (int) (zone.getGridSize() * getScale());
 
-    	renderBoard(g);
-        if (showGrid && gridSize >= MIN_GRID_SIZE) {renderGrid(g);}
-        renderDrawableOverlay(g);
-        renderTokens(g);
-		renderBorder(g);
+    	renderBoard(g2d);
+        if (showGrid && gridSize >= MIN_GRID_SIZE) {renderGrid(g2d);}
+        renderDrawableOverlay(g2d);
+        renderTokens(g2d);
+		renderMoveSelectionSets(g2d);
+		renderBorder(g2d);
 		
         for (int i = 0; i < overlayList.size(); i++) {
             ZoneOverlay overlay = overlayList.get(i);
@@ -270,11 +335,83 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
 	protected void renderBorder(Graphics g) { /* no op */ }
 	
-    protected abstract void renderBoard(Graphics g);
+    protected abstract void renderBoard(Graphics2D g);
     
-    protected abstract void renderGrid(Graphics g);
+    protected abstract void renderGrid(Graphics2D g);
     
-    protected void renderTokens(Graphics g) {
+	protected void renderMoveSelectionSets(Graphics2D g) {
+	
+        int gridSize = zone.getGridSize();
+        int gridOffsetX = zone.getGridOffsetX();
+        int gridOffsetY = zone.getGridOffsetY();
+        float scale = scaleArray[scaleIndex];
+
+		for (SelectionSet set : selectionSetMap.values()) {
+			
+			Token keyToken = zone.getToken(set.getKeyToken());
+
+			int setOffsetX = set.getOffsetX();
+			int setOffsetY = set.getOffsetY();
+			
+			int tokenOffsetX = keyToken.getX();
+			int tokenOffsetY = keyToken.getY();
+			
+			for (GUID tokenGUID : set.getTokens()) {
+				
+				Token token = zone.getToken(tokenGUID);
+				
+				BufferedImage image = null;
+	            Asset asset = AssetManager.getAsset(token.getAssetID());
+	            if (asset == null) {
+	                continue;
+	            } else {
+	            
+					image = ImageManager.getImage(asset);
+	            }
+
+				int x = token.getX() + setOffsetX;
+				int y = token.getY() + setOffsetY;
+				
+				// OPTIMIZE: combine this with the code in renderTokens()
+	            int width = TokenSize.getWidth(token, gridSize);
+	            int height = TokenSize.getHeight(token, gridSize);
+				
+	            x = (int)(x * scale) + (int) (gridOffsetX * scaleArray[scaleIndex]) + 1 + offsetX;
+	            y = (int)(y * scale) + (int) (gridOffsetY * scaleArray[scaleIndex]) + 1 + offsetY;
+
+            	Dimension dim = new Dimension(width, height);
+            	SwingUtil.constrainTo(dim, HOVER_SIZE_THRESHOLD);
+
+            	width *= scale;
+            	height *= scale;
+            	
+				// Show distance only on the key token
+				if (token == keyToken) {
+					int halfWidth = width/2;
+					int halfHeight = height/2;
+					Point src = convertZoneToScreen(token.getX()+halfWidth, token.getY()+halfHeight);
+					Point dst = new Point(x+halfWidth, y+halfHeight);
+					
+					g.setColor(Color.darkGray);
+					g.drawLine(src.x-1, src.y-1, dst.x-1, dst.y-1);
+					
+					g.setColor(Color.lightGray);
+					g.drawLine(src.x, src.y, dst.x, dst.y);
+					
+					g.setColor(Color.black);
+					g.drawLine(src.x+1, src.y+1, dst.x+1, dst.y+1);
+
+					ToolHelper.drawMeasurement(set.getPlayerId(), this, g, src, dst, true);
+				}
+				
+				g.drawImage(image, x, y, width, height, this);			
+				
+			}
+
+		}
+	}
+	
+    protected void renderTokens(Graphics2D g) {
 
         int gridSize = zone.getGridSize();
         int gridOffsetX = zone.getGridOffsetX();
@@ -284,19 +421,31 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         for (Token token : zone.getTokens()) {
 
             // OPTIMIZE:
-            Image image = null;
+			BufferedImage image = null;
             Asset asset = AssetManager.getAsset(token.getAssetID());
             if (asset == null) {
                 MapTool.serverCommand().getAsset(token.getAssetID());
-                
+
                 // In the mean time, show a placeholder
                 image = ImageManager.UNKNOWN_IMAGE;
-                
             } else {
             
-                image = ImageManager.getImage(asset);
+				image = ImageManager.getImage(asset);
             }
-
+			
+			// Moving ?
+			if (isTokenMoving(token)) {
+				BufferedImage replacementImage = replacementImageMap.get(token);
+				if (replacementImage == null) {
+					replacementImage = ImageUtil.rgbToGrayscale(image);
+					
+					// TODO: fix this memory leak -> when to clean up the image (when selection set is removed)
+					replacementImageMap.put(token, replacementImage);
+				}
+				
+				image = replacementImage;
+			}
+			
             float scale = scaleArray[scaleIndex];
 
             int x = 0;
@@ -306,8 +455,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int height = TokenSize.getHeight(token, gridSize);
             
             // OPTIMIZE:
-            x = (int)((token.getX() * gridSize) * scale + offsetX) + (int) (gridOffsetX * scaleArray[scaleIndex]) + 1;
-            y = (int)((token.getY() * gridSize) * scale + offsetY) + (int) (gridOffsetY * scaleArray[scaleIndex]) + 1;
+            x = (int)(token.getX() * scale + offsetX) + (int) (gridOffsetX * scaleArray[scaleIndex]) + 1;
+            y = (int)(token.getY() * scale + offsetY) + (int) (gridOffsetY * scaleArray[scaleIndex]) + 1;
 
             if (scale >= 1.0 || !zoomedTokenSet.contains(token)) {
             	
@@ -334,17 +483,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             tokenBoundsMap.put(bounds, token);
 
             // Selected ?
-            if (selectedTokenSet.contains(token)) {
+            if (selectedTokenSet.contains(token.getId())) {
             	ClientStyle.selectedBorder.paintAround((Graphics2D) g, x, y, width, height);
             }
         }
     }
 
-    public Set<Token> getSelectedTokenSet() {
+    public Set<GUID> getSelectedTokenSet() {
     	return selectedTokenSet;
     }
     
-    public void selectToken(Token token) {
+    public void selectToken(GUID token) {
         if (token == null) {
             return;
         }
@@ -394,12 +543,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		
         double scale = scaleArray[scaleIndex];
 		
+        x = (int)(x * scale);
+        y = (int)(y * scale);
+        
         // Translate
         x += offsetX;
         y += offsetY;
-        
-        x = (int)(x * scale);
-        y = (int)(y * scale);
         
         return new Point(x, y);
 	}
@@ -481,8 +630,58 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public double getScale() {
     	return scaleArray[scaleIndex];
     }
-    
-    ////
+	
+	/**
+	 * Represents a movement set
+	 */
+	private class SelectionSet {
+		
+		private HashSet<GUID> selectionSet = new HashSet<GUID>();
+		private GUID keyToken;
+		private String playerId;
+		
+		// Pixel distance from keyToken's origin
+		private int offsetX = 0;
+		private int offsetY = 0;
+		
+		public SelectionSet(String playerId, GUID tokenGUID, Set<GUID> selectionList) {
+
+			selectionSet.addAll(selectionList);
+			keyToken = tokenGUID;
+			this.playerId = playerId;
+		}
+		
+		public GUID getKeyToken() {
+			return keyToken;
+		}
+
+		public Set<GUID> getTokens() {
+			return selectionSet;
+		}
+		
+		public boolean contains(Token token) {
+			return selectionSet.contains(token.getId());
+		}
+		
+		public void setOffset(int x, int y) {
+			offsetX = x;
+			offsetY = y;
+		}
+		
+		public int getOffsetX() {
+			return offsetX;
+		}
+		
+		public int getOffsetY() {
+			return offsetY;
+		}
+		
+		public String getPlayerId() {
+			return playerId;
+		}
+	}
+
+	////
     // DROP TARGET LISTENER
     /* (non-Javadoc)
      * @see java.awt.dnd.DropTargetListener#dragEnter(java.awt.dnd.DropTargetDragEvent)
@@ -523,8 +722,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	        int y = (int)p.getY();
 	
 	        Token token = new Token(asset.getId());
-	        token.setX(x);
-	        token.setY(y);
+	        token.setX(x * zone.getGridSize());
+	        token.setY(y * zone.getGridSize());
 	
 	        zone.putToken(token);
 
@@ -542,5 +741,4 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     }
     
-	
 }

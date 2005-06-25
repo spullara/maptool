@@ -50,6 +50,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.ZoneOverlay;
 import net.rptools.maptool.client.ui.ZoneRenderer;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
@@ -69,13 +70,14 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	private int mouseX;
 	private int mouseY;
 	
+	private Token tokenBeingDragged;
 	private Token tokenUnderMouse;
 	
-  // Offset from token's X,Y when dragging. Values are in cell coordinates.
-  private int dragOffsetX;
-  private int dragOffsetY;
+    // Offset from token's X,Y when dragging. Values are in cell coordinates.
+    private int dragOffsetX;
+    private int dragOffsetY;
 
-  ////
+    ////
 	// Mouse
 	
 	public void mousePressed(MouseEvent e) {
@@ -103,18 +105,21 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			Token token = renderer.getTokenAt (e.getX(), e.getY());
 			if (token != null) {
 				
+				// Don't select if it's already being moved by someone
 				isNewTokenSelected = false;
-				if (!renderer.getSelectedTokenSet().contains(token) && 
-						!SwingUtil.isShiftDown(e)) {
-					isNewTokenSelected = true;
-                    renderer.clearSelectedTokens();
+				if (!renderer.isTokenMoving(token)) {
+					if (!renderer.getSelectedTokenSet().contains(token.getId()) && 
+							!SwingUtil.isShiftDown(e)) {
+						isNewTokenSelected = true;
+	                    renderer.clearSelectedTokens();
+					}
+					renderer.selectToken(token.getId());
+	        
+			        // Dragging offset for currently selected token
+			        Point cell = renderer.getCellAt(e.getX(), e.getY());
+			        dragOffsetX = cell.x - token.getX();
+			        dragOffsetY = cell.y - token.getY();
 				}
-				renderer.selectToken(token);
-        
-        // Dragging offset for currently selected token
-        Point cell = renderer.getCellAt(e.getX(), e.getY());
-        dragOffsetX = cell.x - token.getX();
-        dragOffsetY = cell.y - token.getY();
 			} else {
 				renderer.clearSelectedTokens();
 			}
@@ -149,11 +154,20 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         	return;
         }
 
+		// DRAG TOKEN COMPLETE
+		if (isDraggingToken) {
+			renderer.removeMoveSelectionSet(tokenBeingDragged.getId());
+			MapTool.serverCommand().stopTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId());
+		}
+		
         // SELECT SINGLE TOKEN
         Token token = renderer.getTokenAt(e.getX(), e.getY());
-        if (SwingUtilities.isLeftMouseButton(e) && !isDraggingToken && !SwingUtil.isShiftDown(e)) {
-        	renderer.clearSelectedTokens();
-        	renderer.selectToken(token);
+        if (token != null && SwingUtilities.isLeftMouseButton(e) && !isDraggingToken && !SwingUtil.isShiftDown(e)) {
+			
+			if (!renderer.isTokenMoving(token)) {
+	        	renderer.clearSelectedTokens();
+	        	renderer.selectToken(token.getId());
+			}
         }
         	
         
@@ -194,34 +208,35 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		mouseY = e.getY();
 		
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-			
-		Token token = renderer.getTokenAt(mouseX, mouseY);
-		if (token == null) {
-			if (tokenUnderMouse != null) {
-
-				renderer.unzoomToken(tokenUnderMouse);
-
-				tokenUnderMouse = null;
-				renderer.repaint();
-			}
-		} else {
-			if (token != tokenUnderMouse) {
-
-				// TODO: PLEEEEASE, for all that it HOLY ..... CLEAN UP THIS CODE !
-				int tokenWidth = (int)(TokenSize.getWidth(token, renderer.getZone().getGridSize()) * renderer.getScale());
-				int tokenHeight = (int)(TokenSize.getHeight(token, renderer.getZone().getGridSize()) * renderer.getScale());
-
-				boolean tokenTooSmall = tokenWidth < ZoneRenderer.HOVER_SIZE_THRESHOLD && tokenHeight < ZoneRenderer.HOVER_SIZE_THRESHOLD;
-				
-				renderer.unzoomToken(tokenUnderMouse);
-
-				tokenUnderMouse = token;
-				renderer.repaint();
-				if (tokenTooSmall) {
-					renderer.zoomToken(token);
-				}
-			}
-		}
+		tokenUnderMouse = renderer.getTokenAt(mouseX, mouseY);
+//			
+//		Token token = renderer.getTokenAt(mouseX, mouseY);
+//		if (token == null) {
+//			if (tokenUnderMouse != null) {
+//
+//				renderer.unzoomToken(tokenUnderMouse);
+//
+//				tokenUnderMouse = null;
+//				renderer.repaint();
+//			}
+//		} else {
+//			if (token != tokenUnderMouse) {
+//
+//				// TODO: PLEEEEASE, for all that it HOLY ..... CLEAN UP THIS CODE !
+//				int tokenWidth = (int)(TokenSize.getWidth(token, renderer.getZone().getGridSize()) * renderer.getScale());
+//				int tokenHeight = (int)(TokenSize.getHeight(token, renderer.getZone().getGridSize()) * renderer.getScale());
+//
+//				boolean tokenTooSmall = tokenWidth < ZoneRenderer.HOVER_SIZE_THRESHOLD && tokenHeight < ZoneRenderer.HOVER_SIZE_THRESHOLD;
+//				
+//				renderer.unzoomToken(tokenUnderMouse);
+//
+//				tokenUnderMouse = token;
+//				renderer.repaint();
+//				if (tokenTooSmall) {
+//					renderer.zoomToken(token);
+//				}
+//			}
+//		}
 	}
 	
 	public void mouseDragged(MouseEvent e) {
@@ -231,33 +246,33 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			
 			if (isNewTokenSelected) {
 				renderer.clearSelectedTokens();
-				renderer.selectToken(tokenUnderMouse);
+				renderer.selectToken(tokenUnderMouse.getId());
 			}
 			isNewTokenSelected = false;
 			
 			// Might be dragging a token
 			Point cell = renderer.getCellAt(e.getX(), e.getY());
-			Set<Token> selectedTokenSet = renderer.getSelectedTokenSet();
+			Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
 			if (selectedTokenSet.size() > 0 && cell != null) {
 				
 				Point origin = new Point(tokenUnderMouse.getX(), tokenUnderMouse.getY());
-        origin.translate(dragOffsetX, dragOffsetY);
+				origin.translate(dragOffsetX, dragOffsetY);
         
-				// Only on change
-				if (origin.x != cell.x || origin.y != cell.y) {
-
-					isDraggingToken = true;
-					for (Token token : selectedTokenSet) {
-
-						token.setX(cell.x + (token.getX() - origin.x));
-						token.setY(cell.y + (token.getY() - origin.y));
-	
-                        MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
-	
-						renderer.getZone().putToken(token);
-						renderer.repaint();
-					}
+				int x = e.getX();
+				int y = e.getY();
+				
+				Point p = renderer.convertScreenToZone(x, y);
+				if (!isDraggingToken) {
+					tokenBeingDragged = tokenUnderMouse;
+					
+					renderer.addMoveSelectionSet(MapTool.getPlayer().getName(), tokenBeingDragged.getId(), selectedTokenSet, false);
+					MapTool.serverCommand().startTokenMove(MapTool.getPlayer().getName(), renderer.getZone().getId(), tokenBeingDragged.getId(), selectedTokenSet);
+				} else {
+					
+					renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), p.x, p.y);
+					MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), p.x, p.y);
 				}
+				isDraggingToken = true;
 			}
 			
 			return;
@@ -290,11 +305,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 						
 						ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 						
-						Set<Token> selectedTokenSet = renderer.getSelectedTokenSet();
+						Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
 						
-						for (Token token : selectedTokenSet) {
+						for (GUID token : selectedTokenSet) {
 							
-                            MapTool.serverCommand().removeToken(renderer.getZone().getId(), token.getId());
+                            MapTool.serverCommand().removeToken(renderer.getZone().getId(), token);
 						}
 						
 						renderer.clearSelectedTokens();
@@ -377,8 +392,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		public void actionPerformed(ActionEvent e) {
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-			for (Token token : renderer.getSelectedTokenSet()) {
+			for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
 				
+				Token token = renderer.getZone().getToken(tokenGUID);
 				token.setSize(size.value());
                 MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}

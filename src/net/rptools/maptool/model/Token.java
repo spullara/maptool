@@ -42,6 +42,8 @@ public class Token {
     private int height = 1;
     private int size = TokenSize.Size.Medium.value(); // Abstract size
     
+	private boolean snapToGrid = true; // Whether the token snaps to the current grid or is free floating
+	
     public Token() {
         
     }
@@ -132,4 +134,14 @@ public class Token {
 	public void setSize(int size) {
 		this.size = size;
 	}
+
+	public boolean isSnapToGrid() {
+		return snapToGrid;
+	}
+
+	public void setSnapToGrid(boolean snapToGrid) {
+		this.snapToGrid = snapToGrid;
+	}
+	
+	
 }

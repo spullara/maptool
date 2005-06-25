@@ -63,6 +63,8 @@ import net.rptools.maptool.client.tool.drawing.RectangleFillTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.ui.model.PlayerListModel;
 import net.rptools.maptool.model.AssetGroup;
+import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Pen;
 
 /**
@@ -307,6 +309,30 @@ public class MapToolClient extends JFrame {
 		toolboxPanel.setTargetRenderer(renderer);
 		
 		repaint();
+	}
+	
+	public ZoneRenderer getZoneRenderer(Zone zone) {
+		
+		for (ZoneRenderer renderer : zoneRendererList) {
+			
+			if (zone == renderer.getZone()) {
+				return renderer;
+			}
+		}
+		
+		return null;
+	}
+
+	public ZoneRenderer getZoneRenderer(GUID zoneGUID) {
+		
+		for (ZoneRenderer renderer : zoneRendererList) {
+			
+			if (zoneGUID.equals(renderer.getZone().getId())) {
+				return renderer;
+			}
+		}
+		
+		return null;
 	}
 	
 }

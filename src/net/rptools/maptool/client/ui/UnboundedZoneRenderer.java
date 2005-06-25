@@ -62,7 +62,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 	/* (non-Javadoc)
 	 * @see net.rptools.maptool.client.ZoneRenderer#renderBoard(java.awt.Graphics)
 	 */
-	protected void renderBoard(Graphics g) {
+	protected void renderBoard(Graphics2D g) {
 
 		Dimension size = getSize();
 		if (backBuffer == null || !lastSize.equals(size)) {
@@ -77,7 +77,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 	/* (non-Javadoc)
 	 * @see net.rptools.maptool.client.ZoneRenderer#renderGrid(java.awt.Graphics)
 	 */
-	protected void renderGrid(Graphics g) {
+	protected void renderGrid(Graphics2D g) {
 
         float scale = scaleArray[scaleIndex];
         float gridSize = zone.getGridSize() * scale;
@@ -131,7 +131,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 	
 	////
 	// ZONE OVERLAY
-	public void paintOverlay(ZoneRenderer renderer,Graphics2D g) {
+	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 		
         // Find the cell in the middle of the screen
         Dimension size = getSize();

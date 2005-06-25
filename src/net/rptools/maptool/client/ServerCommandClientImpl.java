@@ -40,6 +40,10 @@ import net.rptools.maptool.util.MD5Key;
 public class ServerCommandClientImpl implements ServerCommand {
 
     private TimedEventQueue movementUpdateQueue = new TimedEventQueue(500);
+	
+	public ServerCommandClientImpl() {
+		movementUpdateQueue.start();
+	}
     
     public void setCampaign(Campaign campaign) {
         makeServerCall(COMMAND.setCampaign, campaign);
@@ -104,8 +108,8 @@ public class ServerCommandClientImpl implements ServerCommand {
 		makeServerCall(COMMAND.hidePointer, player);
 	}
 
-	public void startTokenMove(GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList) {
-		makeServerCall(COMMAND.startTokenMove, zoneGUID, tokenList);
+	public void startTokenMove(String playerId, GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList) {
+		makeServerCall(COMMAND.startTokenMove, playerId, zoneGUID, tokenGUID, tokenList);
 	}
 
 	public void stopTokenMove(GUID zoneGUID, GUID tokenGUID) {
@@ -113,8 +117,8 @@ public class ServerCommandClientImpl implements ServerCommand {
 		makeServerCall(COMMAND.stopTokenMove, zoneGUID, tokenGUID);
 	}
 	
-	public void updateTokenMove(GUID zoneGUID, GUID tokenGUID) {
-		movementUpdateQueue.enqueue(COMMAND.updateTokenMove, zoneGUID, tokenGUID);
+	public void updateTokenMove(GUID zoneGUID, GUID tokenGUID, int x, int y) {
+		movementUpdateQueue.enqueue(COMMAND.updateTokenMove, zoneGUID, tokenGUID, x, y);
 	}
 	
 	private static void makeServerCall(ServerCommand.COMMAND command, Object... params) {
@@ -136,7 +140,9 @@ public class ServerCommandClientImpl implements ServerCommand {
         Object[] params;
         
         long delay;
-        
+
+		Object sleepSemaphore = new Object();
+		
         public TimedEventQueue(long millidelay) {
             delay = millidelay;
         }
@@ -161,7 +167,7 @@ public class ServerCommandClientImpl implements ServerCommand {
             while(true) {
              
                 flush();
-                synchronized (this) {
+                synchronized (sleepSemaphore) {
                     try {
                         Thread.sleep(delay);
                     } catch (InterruptedException ie) {

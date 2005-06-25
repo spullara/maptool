@@ -64,6 +64,10 @@ public class ToolHelper {
     }
     
 	public static void drawMeasurement(ZoneRenderer renderer, Graphics2D g, Point startPoint, Point endPoint, boolean roundDistance) {
+		drawMeasurement(null, renderer, g, startPoint, endPoint, roundDistance);
+	}
+
+	public static void drawMeasurement(String message, ZoneRenderer renderer, Graphics2D g, Point startPoint, Point endPoint, boolean roundDistance) {
 		
         int left = Math.min(startPoint.x, endPoint.x);
         int top = Math.min(startPoint.y, endPoint.y);
@@ -77,7 +81,9 @@ public class ToolHelper {
         int centerY = bottom + (top - bottom)/2;
         
         ZoneMeasurement measurement = new ZoneMeasurement(renderer.getZone().getFeetPerCell(), roundDistance);
-        GraphicsUtil.drawBoxedString(g, measurement.formatDistanceBetween(cellStart, cellEnd), centerX, centerY);
+		String displayString = (message != null ? message : "") + " " + measurement.formatDistanceBetween(cellStart, cellEnd);
+		
+        GraphicsUtil.drawBoxedString(g, displayString, centerX, centerY);
 	}
 	
 

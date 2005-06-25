@@ -99,7 +99,8 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
     	g.fillRect(0, 0, mySize.width, mySize.height);
 
     	ClientStyle.border.paintWithin((Graphics2D) g, 0, 0, getSize().width, getSize().height);
-        
+
+		Rectangle clipRect = g.getClipBounds();
         boundsMap.clear();
         int x = PADDING;
         for (ZoneRenderer renderer : rendererList) {
@@ -119,9 +120,10 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
             height = targetHeight;
 
             // TODO: handle "still too wide" case
-            
+            g.setClip(x, PADDING, width, height);
             g.drawImage(img, x, PADDING, width, height, this);
-            
+            g.setClip(clipRect);
+			
             if (renderer == currentRenderer) {
             	ClientStyle.selectedBorder.paintAround((Graphics2D)g, x, PADDING, width, height);
             }

@@ -24,6 +24,8 @@
  */
 package net.rptools.maptool.client;
 
+import java.util.Set;
+
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import static net.rptools.maptool.client.ClientCommand.COMMAND.draw;
 import static net.rptools.maptool.client.ClientCommand.COMMAND.hidePointer;
@@ -40,6 +42,7 @@ import static net.rptools.maptool.client.ClientCommand.COMMAND.setCampaign;
 import static net.rptools.maptool.client.ClientCommand.COMMAND.setZoneGridSize;
 import static net.rptools.maptool.client.ClientCommand.COMMAND.showPointer;
 import static net.rptools.maptool.client.ClientCommand.COMMAND.undoDraw;
+import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.client.ui.ZoneRendererFactory;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -175,9 +178,38 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	break;
         	
         case startTokenMove:
+			
+			String playerId = (String) parameters[0];
+			zoneGUID = (GUID) parameters[1];
+			GUID keyToken = (GUID) parameters[2];
+			Set<GUID> selectedSet = (Set<GUID>) parameters[3];
+			
+			ZoneRenderer renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
+			renderer.addMoveSelectionSet(playerId, keyToken, selectedSet, true);
+			
         	break;
         case stopTokenMove:
-        	break;
+
+			zoneGUID = (GUID) parameters[0];
+			keyToken = (GUID) parameters[1];
+			
+			renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
+			renderer.removeMoveSelectionSet(keyToken);
+
+			break;
+        case updateTokenMove:
+
+			zoneGUID = (GUID) parameters[0];
+			keyToken = (GUID) parameters[1];
+			
+			int x = ((Integer) parameters[2]).intValue();
+			int y = ((Integer) parameters[3]).intValue();
+			
+			
+			renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
+			renderer.updateMoveSelectionSet(keyToken, x, y);
+
+			break;
         }
         
         	

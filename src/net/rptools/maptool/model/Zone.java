@@ -164,6 +164,10 @@ public class Zone extends Token {
     public void removeToken(GUID id) {
         this.tokens.remove(id);
     }
+	
+	public Token getToken(GUID id) {
+		return tokens.get(id);
+	}
 
     public List<Token> getTokens() {
         return new ArrayList<Token>(this.tokens.values());
