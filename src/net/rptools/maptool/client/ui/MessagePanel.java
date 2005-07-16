@@ -65,7 +65,7 @@ public class MessagePanel extends JComponent implements Observer {
         if (backBuffer == null || backBuffer.getWidth() != size.width || backBuffer.getHeight() != size.height) {
             renderBackBuffer();
         }
-        
+
         g.drawImage(backBuffer, 0, 0, this);
     }
 

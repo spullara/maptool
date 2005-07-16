@@ -39,6 +39,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 
 import net.rptools.common.swing.FramePreferences;
 import net.rptools.common.swing.JSplitPaneEx;
@@ -47,7 +48,9 @@ import net.rptools.common.swing.PositionalLayout;
 import net.rptools.common.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
+import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ZoneListener;
 import net.rptools.maptool.client.swing.ColorPickerButton;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
@@ -69,7 +72,7 @@ import net.rptools.maptool.model.drawing.Pen;
 
 /**
  */
-public class MapToolClient extends JFrame {
+public class MapToolClient extends JFrame implements ZoneListener {
     private static final long serialVersionUID = 3905523813025329458L;
 
 	// TODO: parameterize this (or make it a preference)
@@ -101,6 +104,8 @@ public class MapToolClient extends JFrame {
 	private ActivityMonitorPanel activityMonitor = new ActivityMonitorPanel();
 	private ProgressStatusBar progressBar = new ProgressStatusBar();
     
+	private NewZoneDropPanel newZoneDropPanel;
+	
 	public MapToolClient() {
 		
 		// Set up the frame
@@ -109,6 +114,9 @@ public class MapToolClient extends JFrame {
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		SwingUtil.centerOnScreen(this);
         
+		// Framework listeners
+        AppListeners.addZoneListener(this);
+		
 		// Components
 		toolboxPanel = createToolboxPanel();
 		assetPanel = new AssetPanel();
@@ -119,7 +127,6 @@ public class MapToolClient extends JFrame {
         chatPanel = new ChatPanel();
         chatPanel.setSize(250, 100);
 
-        outlookPanel.addButton("Connections", createPlayerList());
         outlookPanel.addButton("Assets", assetPanel);
         
         statusPanel = new StatusPanel();
@@ -127,13 +134,20 @@ public class MapToolClient extends JFrame {
         statusPanel.addPanel(progressBar);
         statusPanel.addPanel(activityMonitor);
         
+        zoneSelectionPanel = new ZoneSelectionPanel();
+        zoneSelectionPanel.setSize(100, 100);
+        AppListeners.addZoneListener(zoneSelectionPanel);
+
+        newZoneDropPanel = new NewZoneDropPanel();
+        
         zoneRendererPanel = new JPanel(new PositionalLayout(5));
         zoneRendererPanel.setBackground(Color.black);
+        zoneRendererPanel.add(newZoneDropPanel, PositionalLayout.Position.CENTER);
         zoneRendererPanel.add(chatPanel, PositionalLayout.Position.SW);
+        zoneRendererPanel.add(zoneSelectionPanel, PositionalLayout.Position.SE);
+        zoneRendererPanel.add(createPlayerList(), PositionalLayout.Position.NW);
         
         JPanel mainPanel = new JPanel(new BorderLayout());
-        zoneSelectionPanel = new ZoneSelectionPanel();
-        mainPanel.add(BorderLayout.SOUTH, zoneSelectionPanel);
         mainPanel.add(BorderLayout.CENTER, zoneRendererPanel);
         
 		// Split left/right
@@ -161,13 +175,21 @@ public class MapToolClient extends JFrame {
 		return pointerOverlay;
 	}
 	
+	public void setStatusMessage(final String message) {
+		SwingUtilities.invokeLater(new Runnable(){
+			public void run() {
+			statusPanel.setStatus(message);
+			}
+		});
+	}
+	
     protected JComponent createPlayerList() {
         
-        JList list = new JList();
-        list.setModel(new PlayerListModel(MapTool.getPlayerList()));
-        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    	ClientConnectionPanel panel = new ClientConnectionPanel();
+        // TODO: make this size dynamic on player count
+        panel.setSize(250, 300);
         
-        return list;
+        return panel;
     }
     
     public ActivityMonitorPanel getActivityMonitor() {
@@ -295,6 +317,12 @@ public class MapToolClient extends JFrame {
             zoneRendererList.add(renderer);
         }
 
+        // Handle first renderer
+        if (newZoneDropPanel != null) {
+        	zoneRendererPanel.remove(newZoneDropPanel);
+        	newZoneDropPanel = null;
+        }
+        
         if (currentRenderer != null) {
         	currentRenderer.flush();
             zoneRendererPanel.remove(currentRenderer);
@@ -307,6 +335,10 @@ public class MapToolClient extends JFrame {
         
 		currentRenderer = renderer;
 		toolboxPanel.setTargetRenderer(renderer);
+		
+		if (renderer != null) {
+			AppListeners.fireZoneActivated(renderer.getZone());
+		}
 		
 		repaint();
 	}
@@ -334,5 +366,19 @@ public class MapToolClient extends JFrame {
 		
 		return null;
 	}
+	
+	////
+	// Zone Listener
+	/* (non-Javadoc)
+	 * @see net.rptools.maptool.client.ZoneListener#zoneAdded(net.rptools.maptool.model.Zone)
+	 */
+	public void zoneAdded(Zone zone) {
+        setCurrentZoneRenderer(ZoneRendererFactory.newRenderer(zone));
+	}
+	
+	/* (non-Javadoc)
+	 * @see net.rptools.maptool.client.ZoneListener#zoneActivated(net.rptools.maptool.model.Zone)
+	 */
+	public void zoneActivated(Zone zone) {}
 	
 }

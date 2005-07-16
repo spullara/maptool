@@ -24,11 +24,11 @@
  */
 package net.rptools.maptool.client.ui;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Transparency;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
@@ -43,9 +43,12 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
+import net.rptools.common.swing.SwingUtil;
+import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
+import net.rptools.maptool.client.ZoneListener;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
@@ -53,9 +56,16 @@ import net.rptools.maptool.util.ImageManager;
 
 /**
  */
-public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
+public class ZoneSelectionPanel extends JPanel implements DropTargetListener, ZoneListener  {
 
     private static final int PADDING = 10;
+    private static final int SELECTED_SIZE = 75;
+    private static final int UNSELECTED_SIZE = 30;
+    
+    private static boolean horizontal = false;
+    private static boolean alignLeft = false;
+    
+    private BufferedImage backbuffer;
     
     private Map<Rectangle, ZoneRenderer> boundsMap;
     
@@ -90,48 +100,59 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
     protected void paintComponent(Graphics g) {
         
         Dimension mySize = getSize();
-        List<ZoneRenderer> rendererList = MapTool.getFrame().getZoneRenderers();
-        ZoneRenderer currentRenderer = MapTool.getFrame().getCurrentZoneRenderer();
-        
-        // Background
-//	        	backG.setColor(new Color(1.0f, 1.0f, 1.0f, 0.5f));
-        g.setColor(Color.white);
-    	g.fillRect(0, 0, mySize.width, mySize.height);
+    	if (backbuffer == null || mySize.width != backbuffer.getWidth() || mySize.height != backbuffer.getHeight()) {
 
-    	ClientStyle.border.paintWithin((Graphics2D) g, 0, 0, getSize().width, getSize().height);
+    		backbuffer = new BufferedImage(mySize.width, mySize.height, Transparency.BITMASK);
+    		Graphics2D g2d = backbuffer.createGraphics();
+    		g2d.setClip(0, 0, mySize.width, mySize.height);
+    		
+	        List<ZoneRenderer> rendererList = MapTool.getFrame().getZoneRenderers();
+	        ZoneRenderer currentRenderer = MapTool.getFrame().getCurrentZoneRenderer();
+	        
+	        boundsMap.clear();
+	        int x = PADDING;
+	        int y = PADDING;
+	        for (ZoneRenderer renderer : rendererList) {
+	            
+	        	boolean isSelectedZone = renderer == currentRenderer;
+	        	
+	            // TODO: This is a naive solution.  In the future, actually render the zone
+	            BufferedImage img = renderer.getBackgroundImage();
+	            if (img == null) {
+	                img = ImageManager.UNKNOWN_IMAGE;
+	            }
+	            
+	            int imgSize = isSelectedZone ? SELECTED_SIZE : UNSELECTED_SIZE;
+	            Dimension size = new Dimension(img.getWidth(), img.getHeight());
+	            SwingUtil.constrainTo(size, imgSize);
+	
+	            if (horizontal) {
+	            	y = alignLeft ? PADDING : (mySize.height - imgSize) -PADDING;
+	            } else {
+	            	x = alignLeft ? PADDING : (mySize.width - imgSize) -PADDING;
+	            }
+	            
+	            g2d.drawImage(img, x, y, size.width, size.height, this);
+	            
+	            boundsMap.put(new Rectangle(x, y, size.width, size.height), renderer);
+	            
+	            if (isSelectedZone) {
+	            	ClientStyle.selectedBorder.paintAround(g2d, x, y, size.width, size.height);
+	            } else {
+	            	ClientStyle.border.paintWithin(g2d, x, y, size.width, size.height);
+	            }
+	            
+	            if (horizontal) {
+	            	x += size.width + PADDING;
+	            } else {
+	            	y += size.height + PADDING;
+	            }
+	            
+	        }
+            g2d.dispose();
+        }
 
-		Rectangle clipRect = g.getClipBounds();
-        boundsMap.clear();
-        int x = PADDING;
-        for (ZoneRenderer renderer : rendererList) {
-            
-            // TODO: This is a naive solution.  In the future, actually render the zone
-            BufferedImage img = renderer.getBackgroundImage();
-            if (img == null) {
-                img = ImageManager.UNKNOWN_IMAGE;
-            }
-            
-            int width = img.getWidth();
-            int height = img.getHeight();
-
-            int targetHeight = mySize.height - PADDING - PADDING;
-            
-            width = (int)(width * (targetHeight / (double)height));
-            height = targetHeight;
-
-            // TODO: handle "still too wide" case
-            g.setClip(x, PADDING, width, height);
-            g.drawImage(img, x, PADDING, width, height, this);
-            g.setClip(clipRect);
-			
-            if (renderer == currentRenderer) {
-            	ClientStyle.selectedBorder.paintAround((Graphics2D)g, x, PADDING, width, height);
-            }
-            
-            boundsMap.put(new Rectangle(x, PADDING, width, height), renderer);
-            
-            x += width + PADDING;
-        } 
+    	g.drawImage(backbuffer, 0, 0, null);
     }
 
     public ZoneRenderer getRendererAt(int x, int y) {
@@ -145,7 +166,20 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
     }
     
     public Dimension getPreferredSize() {
-        return new Dimension(100, 65);
+        return new Dimension(100, 100);
+    }
+
+    public void flush() {
+    	backbuffer = null;
+    }
+    
+    public void resize() {
+    	
+    	int zoneCount = MapTool.getFrame().getZoneRenderers().size();
+    	int longSize = (zoneCount-1) * (UNSELECTED_SIZE + PADDING/2) + SELECTED_SIZE + PADDING;
+    	int shortSize = SELECTED_SIZE + 2*PADDING;
+    	
+    	setSize((horizontal ? longSize : shortSize), (horizontal ? shortSize : longSize));
     }
     
     ////
@@ -197,5 +231,21 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener  {
     public void dropActionChanged(DropTargetDragEvent dtde) {
         // TODO Auto-generated method stub
 
+    }
+    
+    ////
+    // Zone Listener
+    public void zoneAdded(Zone zone) {
+    	flush();
+    	resize();
+    	getParent().doLayout();
+    	repaint();
+    }
+
+    public void zoneActivated(Zone zone) {
+    	flush();
+    	resize();
+    	getParent().doLayout();
+    	repaint();
     }
 }

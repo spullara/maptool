@@ -56,7 +56,6 @@ import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
  */
 public class MapTool {
 
-	
 	private static MapToolClient clientFrame;
     private static MapToolServer server;
     private static ServerCommand serverCommand;
@@ -227,7 +226,7 @@ public class MapTool {
 
         serverCommand().putZone(zone);
         
-        clientFrame.setCurrentZoneRenderer(ZoneRendererFactory.newRenderer(zone));
+        AppListeners.fireZoneAdded(zone);
 	}
 	
 	public static Player getPlayer() {
@@ -329,4 +328,5 @@ public class MapTool {
 			}
 		}
 	}
+	
 }

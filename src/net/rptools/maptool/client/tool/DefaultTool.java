@@ -39,6 +39,7 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -208,6 +209,12 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		mouseY = e.getY();
 		
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+		
+		Point p = renderer.getCellAt(e.getX(), e.getY());
+		if (p != null) {	
+			MapTool.getFrame().setStatusMessage("Cell: " + p.x + ", " + p.y);
+		}
+
 		tokenUnderMouse = renderer.getTokenAt(mouseX, mouseY);
 //			
 //		Token token = renderer.getTokenAt(mouseX, mouseY);
@@ -240,8 +247,12 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	}
 	
 	public void mouseDragged(MouseEvent e) {
-		
+
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+
+		Point cellUnderMouse = renderer.getCellAt(e.getX(), e.getY());
+		MapTool.getFrame().setStatusMessage("Cell: " + cellUnderMouse.x + ", " + cellUnderMouse.y);
+		
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			
 			if (isNewTokenSelected) {
@@ -251,11 +262,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			isNewTokenSelected = false;
 			
 			// Might be dragging a token
-			Point cell = renderer.getCellAt(e.getX(), e.getY());
 			Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
-			if (selectedTokenSet.size() > 0 && cell != null) {
+			if (selectedTokenSet.size() > 0) {
 				
 				Point origin = new Point(tokenUnderMouse.getX(), tokenUnderMouse.getY());
+				
 				origin.translate(dragOffsetX, dragOffsetY);
         
 				int x = e.getX();
@@ -269,6 +280,18 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 					MapTool.serverCommand().startTokenMove(MapTool.getPlayer().getName(), renderer.getZone().getId(), tokenBeingDragged.getId(), selectedTokenSet);
 				} else {
 					
+					if (tokenBeingDragged.isSnapToGrid()) {
+						// OPTIMIZE:
+						double gridSize = renderer.getScaledGridSize();
+						
+						Point cell = renderer.getCellAt(p.x, p.y);
+						Point p1 = renderer.convertZoneToScreen((int)(cell.x*gridSize), (int)(cell.y*gridSize));
+						Point p2 = renderer.convertScreenToZone(p1.x, p1.y);
+						
+						System.out.println (p + " - " + cell + " - " + p1 + " - " + p2);
+						p = p2;
+					}
+
 					renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), p.x, p.y);
 					MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), p.x, p.y);
 				}
@@ -359,7 +382,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	private void showTokenContextMenu(MouseEvent e) {
 		
     	JPopupMenu popup = new JPopupMenu();
+    	ZoneRenderer renderer = (ZoneRenderer)e.getSource();
     	
+    	// SIZE
     	// TODO: Genericize the heck out of this.
     	JMenu sizeMenu = new JMenu("Size");
     	JMenuItem freeSize = new JMenuItem("Free Size");
@@ -371,10 +396,42 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
             JMenuItem menuItem = new JMenuItem(new ChangeSizeAction(size.name(), size));
             sizeMenu.add(menuItem);
         }
-        
     	popup.add(sizeMenu);
+        
+        // Grid
+        boolean snapToGrid = !tokenUnderMouse.isSnapToGrid();
+        JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("placeholder", !snapToGrid); 
+        menuItem.setAction(new SnapToGridAction(snapToGrid, renderer));
+        popup.add(menuItem);
+    	
+        // 
+    	popup.show(renderer, e.getX(), e.getY());
+	}
 
-    	popup.show((ZoneRenderer)e.getSource(), e.getX(), e.getY());
+	private class SnapToGridAction extends AbstractAction {
+		
+		private boolean snapToGrid;
+		private ZoneRenderer renderer;
+		
+		public SnapToGridAction(boolean snapToGrid, ZoneRenderer renderer) {
+			super("Snap to grid");
+			this.snapToGrid = snapToGrid;
+			this.renderer = renderer;
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			
+			for (GUID guid : renderer.getSelectedTokenSet()) {
+				
+				Token token = renderer.getZone().getToken(guid);
+				if (token == null) {
+					continue;
+				}
+				
+				token.setSnapToGrid(snapToGrid);
+                MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+			}
+		}
 	}
 	
 	private class ChangeSizeAction extends AbstractAction {

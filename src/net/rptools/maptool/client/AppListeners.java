@@ -22,51 +22,39 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.ui;
+package net.rptools.maptool.client;
 
-import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import javax.swing.JComponent;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
+import net.rptools.maptool.model.Zone;
 
-import net.rptools.common.swing.ImagePanel;
-import net.rptools.maptool.client.ui.model.AssetGroupImagePanelModel;
-import net.rptools.maptool.model.AssetGroup;
+/**
+ */
+public class AppListeners {
 
-public class AssetPanel extends JComponent {
-
-	private AssetTree assetTree;
-	private ImagePanel imagePanel;
+	private static List<ZoneListener> zoneListenerList = Collections.synchronizedList(new ArrayList<ZoneListener>());
 	
-	public AssetPanel() {
-		
-		assetTree = new AssetTree(this);
-		imagePanel = new ImagePanel();
-		
-		imagePanel.setShowCaptions(false);
-		
-		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setContinuousLayout(true);
-        
-		splitPane.setTopComponent(new JScrollPane(assetTree));
-		splitPane.setBottomComponent(new JScrollPane(imagePanel));
-		splitPane.setDividerLocation(100);
-		
-		setLayout(new BorderLayout());
-		add(BorderLayout.CENTER, splitPane);
+	public static void addZoneListener(ZoneListener listener) {
+		zoneListenerList.add(listener);
 	}
 	
-	public void addAssetRoot(AssetGroup assetGroup) {
-		
-		assetTree.addRootGroup(assetGroup);
+	public static boolean removeZoneListener(ZoneListener listener) {
+		return zoneListenerList.remove(listener);
 	}
 	
-	public void setAssetGroup(AssetGroup assetGroup) {
-		imagePanel.setModel(new AssetGroupImagePanelModel(assetGroup));
+	public static void fireZoneAdded(Zone zone) {
+		
+		for (ZoneListener listener : zoneListenerList) {
+			listener.zoneAdded(zone);
+		}
 	}
-  
-  public AssetTree getAssetTree() {
-    return assetTree;
-  }
+	
+	public static void fireZoneActivated(Zone zone) {
+		
+		for (ZoneListener listener : zoneListenerList) {
+			listener.zoneActivated(zone);
+		}
+	}
 }

@@ -70,6 +70,7 @@ public class DrawableRenderer {
 		}
 		drawableCount = drawableList.size();
 		
+		Rectangle clipBounds = g.getClipBounds();
 		for (DrawableEntry entry : drawableEntries) {
 			
 			int x = (int)((entry.bounds.x * scale) + offsetX);
@@ -77,7 +78,9 @@ public class DrawableRenderer {
 			int width = (int)(entry.bounds.width * scale);
 			int height = (int)(entry.bounds.height * scale);
 			
-			g.drawImage(entry.image, x, y, width, height, null);
+			if (clipBounds.intersects(x, y, width, height)) {
+				g.drawImage(entry.image, x, y, width, height, null);
+			}
 		}
 	}
 	

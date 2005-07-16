@@ -26,47 +26,31 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.BorderLayout;
 
-import javax.swing.JComponent;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.ListSelectionModel;
 
-import net.rptools.common.swing.ImagePanel;
-import net.rptools.maptool.client.ui.model.AssetGroupImagePanelModel;
-import net.rptools.maptool.model.AssetGroup;
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.model.PlayerListModel;
 
-public class AssetPanel extends JComponent {
+/**
+ */
+public class ClientConnectionPanel extends JPanel {
 
-	private AssetTree assetTree;
-	private ImagePanel imagePanel;
-	
-	public AssetPanel() {
-		
-		assetTree = new AssetTree(this);
-		imagePanel = new ImagePanel();
-		
-		imagePanel.setShowCaptions(false);
-		
-		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setContinuousLayout(true);
-        
-		splitPane.setTopComponent(new JScrollPane(assetTree));
-		splitPane.setBottomComponent(new JScrollPane(imagePanel));
-		splitPane.setDividerLocation(100);
-		
+	public ClientConnectionPanel () {
 		setLayout(new BorderLayout());
-		add(BorderLayout.CENTER, splitPane);
+		setOpaque(false);
+        JList list = new JList();
+        list.setModel(new PlayerListModel(MapTool.getPlayerList()));
+        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        list.setOpaque(false);
+        list.setCellRenderer(new ConnectionCellRenderer());
+        add(BorderLayout.CENTER, list);
 	}
 	
-	public void addAssetRoot(AssetGroup assetGroup) {
+	private static class ConnectionCellRenderer extends DefaultListCellRenderer {
 		
-		assetTree.addRootGroup(assetGroup);
+		
 	}
-	
-	public void setAssetGroup(AssetGroup assetGroup) {
-		imagePanel.setModel(new AssetGroupImagePanelModel(assetGroup));
-	}
-  
-  public AssetTree getAssetTree() {
-    return assetTree;
-  }
 }
