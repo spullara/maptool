@@ -45,13 +45,14 @@ public class AssetGroup {
     private String name;
     private File location;
     
-    private boolean loaded;
+    private boolean groupsLoaded;
+    private boolean filesLoaded;
     
     // Asset refresh data
-    private Map<File, Object[]> assetFiles = new HashMap<File, Object[]>();
+    private Map<File, AssetTS> assetTSMap = new HashMap<File, AssetTS>();
     
     // Group refresh data
-    private Map<File, AssetGroup> assetGroupFiles = new HashMap<File, AssetGroup>();
+    private Map<File, AssetGroup> assetGroupTSMap = new HashMap<File, AssetGroup>();
     
     private List<Asset> assetList = new ArrayList<Asset>();
     private List<AssetGroup> assetGroupList = new ArrayList<AssetGroup>();
@@ -82,7 +83,8 @@ public class AssetGroup {
         this.location = location;
         this.name = name;
         
-        loaded = false;
+        groupsLoaded = false;
+        filesLoaded = false;
     }
     
     public String getName() {
@@ -90,52 +92,52 @@ public class AssetGroup {
     }
     
     public boolean hasChildGroups() {
-    	loadData();
+    	loadGroupData();
         return assetGroupList.size() > 0;
     }
     
     public boolean hasAssets() {
-    	loadData();
+    	loadFileData();
         return assetList.size() > 0;
     }
 
     public int getChildGroupCount() {
-    	loadData();
+    	loadGroupData();
         return assetGroupList.size();
     }
     
     public int getAssetCount() {
-    	loadData();
+    	loadFileData();
         return assetList.size();
     }
     
     public int indexOf(Asset asset) {
-    	loadData();
+    	loadFileData();
         return assetList.indexOf(asset);
     }
     
     public int indexOf(AssetGroup group) {
-    	loadData();
+    	loadGroupData();
         return assetGroupList.indexOf(group);
     }
     
     /**
      */
     public List<AssetGroup> getChildGroups() {
-    	loadData();
+    	loadGroupData();
         return Collections.unmodifiableList(assetGroupList);
     }
     
     /**
      */
     public List<Asset> getAssets() {
-    	loadData();
+    	loadFileData();
         return Collections.unmodifiableList(assetList);
     }
     
     public void add(AssetGroup group) {
         assetGroupList.add(group);
-        assetGroupFiles.put(group.location, group);
+        assetGroupTSMap.put(group.location, group);
         
         // Keeps the groups ordered
         Collections.sort(assetGroupList, GROUP_COMPARATOR);
@@ -143,7 +145,7 @@ public class AssetGroup {
     
     public void remove(AssetGroup group) {
         assetGroupList.remove(group);
-        assetGroupFiles.remove(group.location);
+        assetGroupTSMap.remove(group.location);
     }
     
     public String toString() {
@@ -154,87 +156,114 @@ public class AssetGroup {
      * Release the assets and groups so that they can be garbage collected.
      */
     private void clear() {
-      assetFiles.clear();
-      assetGroupFiles.clear();
+      assetTSMap.clear();
+      assetGroupTSMap.clear();
       assetList.clear();
-      for (AssetGroup group : assetGroupList) group.clear();
+
+      for (AssetGroup group : assetGroupList) {
+          group.clear();
+      }
     }
     
-    private void loadData() {
+    private synchronized void loadGroupData() {
         
-    	if (!loaded) {
 
-        // Copy the asset and group files map so that files that were deleted go away.
-        Map<File, Object[]> tempAssetFiles = assetFiles;
-        assetFiles = new HashMap<File, Object[]>();
-        Map<File, AssetGroup> tempAssetGroupFiles = assetGroupFiles;
-        assetGroupFiles = new HashMap<File, AssetGroup>();
+        if (!groupsLoaded) {
 
-        assetList.clear();
-    		assetGroupList.clear();
-			
-    		try {
-	    		MapTool.startIndeterminateAction();
-	    		
-	    		// Update images for this group
-	            File[] imageFileArray = location.listFiles(IMAGE_FILE_FILTER);
-	            for (File file : imageFileArray) {
+            // Copy the asset and group files map so that files that were deleted go away.
+            Map<File, AssetGroup> tempAssetGroupFiles = assetGroupTSMap;
+            assetGroupTSMap = new HashMap<File, AssetGroup>();
+
+            assetGroupList.clear();
+
+            try {
+                MapTool.startIndeterminateAction();
+
+                // Update subgroups
+                File[] subdirArray = location.listFiles(DIRECTORY_FILE_FILTER);
+                for (File subdir : subdirArray) {
+
+                    // Get the group or create a new one
+                    AssetGroup subgroup = tempAssetGroupFiles.get(subdir);
+                    if (subgroup == null) {
+                        subgroup = new AssetGroup(subdir, subdir.getName());
+                    } else {
+                        tempAssetGroupFiles.remove(subdir);
+                    }
+
+                    assetGroupTSMap.put(subdir, subgroup);
+                    assetGroupList.add(subgroup);
+                }
+
+                Collections.sort(assetGroupList, GROUP_COMPARATOR);
+            } finally {
+                // Cleanup
+                for (AssetGroup group : tempAssetGroupFiles.values()) {
+                    group.clear();
+                }
                 
-                // Latest file already in the group?
-                Object[] data = tempAssetFiles.get(file);
-                if (data != null && ((Long)data[0]).longValue() == file.lastModified()) {
-                  assetFiles.put(file, data);
-                  tempAssetFiles.remove(file);
-                  assetList.add((Asset)data[1]);
-                  continue;
+                tempAssetGroupFiles.clear();
+                
+                MapTool.endIndeterminateAction();
+            }
+            
+            groupsLoaded = true;
+        }
+
+    }
+    
+    private synchronized void loadFileData() {
+        
+
+        if (!filesLoaded) {
+
+            // Copy the asset and group files map so that files that were deleted go away.
+            Map<File, AssetTS> tempAssetFiles = assetTSMap;
+            assetTSMap = new HashMap<File, AssetTS>();
+
+            assetList.clear();
+
+            try {
+                MapTool.startIndeterminateAction();
+
+                // Update images for this group
+                File[] imageFileArray = location.listFiles(IMAGE_FILE_FILTER);
+                for (File file : imageFileArray) {
+
+                    // Latest file already in the group?
+                    AssetTS data = tempAssetFiles.get(file);
+                    if (data != null && data.lastModified == file.lastModified()) {
+                        assetTSMap.put(file, data);
+                        tempAssetFiles.remove(file);
+                        assetList.add(data.asset);
+                        continue;
+                    }
+
+                    // Get the asset, is it already in the game?
+                    try {
+                        Asset asset = new Asset(FileUtil.loadFile(file));
+                        if (AssetManager.hasAsset(asset.getId())) {
+                            asset = AssetManager.getAsset(asset.getId());
+                        }
+
+                        // Add the asset
+                        assetTSMap.put(file, new AssetTS(asset, file.lastModified()));
+                        assetList.add(asset);
+                    } catch (IOException ioe) {
+                        // TODO: Handle this better
+                        ioe.printStackTrace();
+                    }
                 }
 
-                // Get the asset, is it already in the game?
-	            	try {
-	            		Asset asset = new Asset(FileUtil.loadFile(file));
-                  if (AssetManager.hasAsset(asset.getId())) {
-                    asset = AssetManager.getAsset(asset.getId());
-                  }
-                  
-                  // Add the asset
-                  assetFiles.put(file, new Object[] {new Long(file.lastModified()), asset});
-                  assetList.add(asset);
-	            	} catch (IOException ioe) {
-	            		// TODO: Handle this better
-	            		ioe.printStackTrace();
-	            	}
-	            }
-	            
-	            // Update subgroups
-	            File[] subdirArray = location.listFiles(DIRECTORY_FILE_FILTER);
-	            for (File subdir : subdirArray) {
-	                
-                // Get the group or create a new one
-                AssetGroup subgroup = tempAssetGroupFiles.get(subdir);
-                if (subgroup == null) {
-                  subgroup = new AssetGroup(subdir, subdir.getName());
-                } else {
-                  tempAssetGroupFiles.remove(subdir);
-                }
-	                
-                assetGroupFiles.put(subdir, subgroup);
-	              assetGroupList.add(subgroup);
-	            }
-	            
-	            Collections.sort(assetGroupList, GROUP_COMPARATOR);
-	            
-				//name = name + " (" + imageFileArray.length + ")";
+            } finally {
+                // Cleanup
+                tempAssetFiles.clear();
+                
+                MapTool.endIndeterminateAction();
+            }
+            filesLoaded = true;
+        }
 
-    		} finally {
-          // Cleanup
-          tempAssetFiles.clear();
-          for (AssetGroup group : tempAssetGroupFiles.values()) group.clear();
-          tempAssetGroupFiles.clear();
-    			MapTool.endIndeterminateAction();          
-    		}
-        	loaded = true;
-    	}
-    	
     }
     
     /**
@@ -242,8 +271,20 @@ public class AssetGroup {
      * The child groups are updated as well.
      */
     public void updateGroup() {
-      loaded = false;
+      groupsLoaded = false;
+      filesLoaded = false;
+      
       for (AssetGroup group : assetGroupList) group.updateGroup();
+    }
+    
+    private static class AssetTS {
+        public Asset asset;
+        public long lastModified;
+        
+        public AssetTS(Asset asset, long lastModified) {
+            this.asset = asset;
+            this.lastModified = lastModified;
+        }
     }
     
     private static class AssetGroupComparator implements Comparator<AssetGroup> {
