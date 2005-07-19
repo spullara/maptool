@@ -117,9 +117,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 					renderer.selectToken(token.getId());
 	        
 			        // Dragging offset for currently selected token
-			        Point cell = renderer.getCellAt(e.getX(), e.getY());
-			        dragOffsetX = cell.x - token.getX();
-			        dragOffsetY = cell.y - token.getY();
+			        Point pos = renderer.convertScreenToZone(e.getX(), e.getY());
+			        dragOffsetX = pos.x - token.getX();
+			        dragOffsetY = pos.y - token.getY();
 				}
 			} else {
 				renderer.clearSelectedTokens();
@@ -291,7 +291,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 						
 						p = new Point(scalex * gridSize, scaley * gridSize);
 						
-					}
+					} else {
+					    p.translate(-dragOffsetX, -dragOffsetY);
+                    }
 
 					renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), p.x, p.y);
 					MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), p.x, p.y);
