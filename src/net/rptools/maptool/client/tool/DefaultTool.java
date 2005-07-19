@@ -251,7 +251,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 
 		Point cellUnderMouse = renderer.getCellAt(e.getX(), e.getY());
-		MapTool.getFrame().setStatusMessage("Cell: " + cellUnderMouse.x + ", " + cellUnderMouse.y);
+		if (cellUnderMouse != null) {
+			MapTool.getFrame().setStatusMessage("Cell: " + cellUnderMouse.x + ", " + cellUnderMouse.y);
+		}
 		
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			
@@ -282,14 +284,13 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 					
 					if (tokenBeingDragged.isSnapToGrid()) {
 						// OPTIMIZE:
-						double gridSize = renderer.getScaledGridSize();
+						int gridSize = renderer.getZone().getGridSize();
+	
+						int scalex = (p.x / gridSize);
+						int scaley = (p.y / gridSize);
 						
-						Point cell = renderer.getCellAt(p.x, p.y);
-						Point p1 = renderer.convertZoneToScreen((int)(cell.x*gridSize), (int)(cell.y*gridSize));
-						Point p2 = renderer.convertScreenToZone(p1.x, p1.y);
+						p = new Point(scalex * gridSize, scaley * gridSize);
 						
-						System.out.println (p + " - " + cell + " - " + p1 + " - " + p2);
-						p = p2;
 					}
 
 					renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), p.x, p.y);
