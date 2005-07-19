@@ -37,6 +37,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -128,6 +129,7 @@ public class MapToolClient extends JFrame implements ZoneListener {
         chatPanel.setSize(250, 100);
 
         outlookPanel.addButton("Assets", assetPanel);
+        outlookPanel.addButton("Connections", new JScrollPane(createPlayerList()));
         
         statusPanel = new StatusPanel();
         statusPanel.addPanel(new MemoryStatusBar());
@@ -145,7 +147,6 @@ public class MapToolClient extends JFrame implements ZoneListener {
         zoneRendererPanel.add(newZoneDropPanel, PositionalLayout.Position.CENTER);
         zoneRendererPanel.add(chatPanel, PositionalLayout.Position.SW);
         zoneRendererPanel.add(zoneSelectionPanel, PositionalLayout.Position.SE);
-        zoneRendererPanel.add(createPlayerList(), PositionalLayout.Position.NW);
         
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(BorderLayout.CENTER, zoneRendererPanel);
