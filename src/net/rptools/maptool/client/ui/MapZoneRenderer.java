@@ -26,6 +26,7 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -89,22 +90,22 @@ public class MapZoneRenderer extends ZoneRenderer {
         int h = (int)(height * scale);
 
         // Border
-        if (offsetX > 0) {
-            g.setColor(Color.black);
-            g.fillRect(0, 0, offsetX, size.height);
-        }
-        if (offsetY > 0) {
-            g.setColor(Color.black);
-            g.fillRect(0, 0, size.width, offsetY);
-        }
-        if (w + offsetX < size.width) {
-            g.setColor(Color.black);
-            g.fillRect(w + offsetX, 0, size.width, size.height);
-        }
-        if (h + offsetY < size.height) {
-            g.setColor(Color.black);
-            g.fillRect(0, h + offsetY, size.width, size.height);
-        }
+//        if (offsetX > 0) {
+//            g.setColor(Color.black);
+//            g.fillRect(0, 0, offsetX, size.height);
+//        }
+//        if (offsetY > 0) {
+//            g.setColor(Color.black);
+//            g.fillRect(0, 0, size.width, offsetY);
+//        }
+//        if (w + offsetX < size.width) {
+//            g.setColor(Color.black);
+//            g.fillRect(w + offsetX, 0, size.width, size.height);
+//        }
+//        if (h + offsetY < size.height) {
+//            g.setColor(Color.black);
+//            g.fillRect(0, h + offsetY, size.width, size.height);
+//        }
         
         ClientStyle.boardBorder.paintAround((Graphics2D) g, offsetX, offsetY, w, h);
     }

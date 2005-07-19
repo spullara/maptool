@@ -122,6 +122,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				requestFocus();
 			}
         });
+        
     }
 
 	public void addMoveSelectionSet (String playerId, GUID keyToken, Set<GUID> tokenList, boolean clearLocalSelected) {
@@ -333,7 +334,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	drawableRenderer.renderDrawables(g, zone.getDrawnElements(), offsetX, offsetY, getScale());
     }
     
-	protected void renderBorder(Graphics g) { /* no op */ }
+	protected void renderBorder(Graphics2D g) { /* no op */ }
 	
     protected abstract void renderBoard(Graphics2D g);
     
