@@ -283,14 +283,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 				} else {
 					
 					if (tokenBeingDragged.isSnapToGrid()) {
-						// OPTIMIZE:
-						int gridSize = renderer.getZone().getGridSize();
-	
-						int scalex = (p.x / gridSize);
-						int scaley = (p.y / gridSize);
-						
-						p = new Point(scalex * gridSize, scaley * gridSize);
-						
+
+                        renderer.constrainToCell(p);
 					} else {
 					    p.translate(-dragOffsetX, -dragOffsetY);
                     }

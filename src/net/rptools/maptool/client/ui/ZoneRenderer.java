@@ -402,6 +402,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 					g.setColor(Color.black);
 					g.drawLine(src.x+1, src.y+1, dst.x+1, dst.y+1);
 
+                    convertScreenToZone(src);
+                    constrainToCell(src);
+                    
+                    convertScreenToZone(dst);
+                    constrainToCell(dst);
+                    
 					ToolHelper.drawMeasurement(set.getPlayerId(), this, g, src, dst, true);
 				}
 				
@@ -544,35 +550,78 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		return null;
 	}
 
-	public Point convertZoneToScreen(int x, int y) {
+    public Point constrainToCell(int x, int y) {
+        return constrainToCell(new Point(x, y));
+    }
+    
+    /**
+     * Translate the zone coordinates in p and change them to cell coordinates.
+     * Note that the result is not the cell x,y, but rather the zone x,y of the
+     * cell the point is contained by
+     * @param p
+     * @return
+     */
+    public Point constrainToCell(Point p) {
+        
+        int gridSize = zone.getGridSize();
+        
+        int scalex = (p.x / gridSize);
+        int scaley = (p.y / gridSize);
+        
+        p.x = scalex * gridSize;
+        p.y = scaley * gridSize;
+
+        return p;
+    }
+    
+    public Point convertZoneToScreen(int x, int y) {
+        return convertZoneToScreen(new Point(x,y));
+    }
+    
+    /**
+     * Translate the point from zone x,y to screen x,y
+     * @param p
+     * @return the same point instance (useful for function chaining)
+     */
+	public Point convertZoneToScreen(Point p) {
 		
         double scale = scaleArray[scaleIndex];
 		
-        x = (int)(x * scale);
-        y = (int)(y * scale);
+        p.x = (int)(p.x * scale);
+        p.y = (int)(p.y * scale);
         
         // Translate
-        x += offsetX;
-        y += offsetY;
+        p.x += offsetX;
+        p.y += offsetY;
         
-        return new Point(x, y);
+        return p;
 	}
 	
 	public Point convertScreenToZone(int x, int y) {
-		
+
+        return convertScreenToZone(new Point(x,y));
+	}
+
+    /**
+     * Translate the point from screen x,y to zone x,y
+     * @param p
+     * @return the same point instance (useful for function chaining)
+     */
+    public Point convertScreenToZone(Point p) {
+        
         double scale = scaleArray[scaleIndex];
         
         // Translate
-        x -= offsetX;
-        y -= offsetY;
+        p.x -= offsetX;
+        p.y -= offsetY;
         
         // Scale
-        x = (int)(x / scale);
-        y = (int)(y / scale);
+        p.x = (int)(p.x / scale);
+        p.y = (int)(p.y / scale);
         
-        return new Point(x,y);
-	}
-	
+        return p;
+    }
+    
   /**
    * Since the map can be scaled, this is a convenience method to find out
    * what cell is at this location. This version allows a point to be 
@@ -604,8 +653,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
   /**
    * Since the map can be scaled, this is a convenience method to find out
    * what cell is at this location. 
-   * @param x
-   * @param y
+   * @param x screen x
+   * @param y screen y
    * @return The cell coordinates in the passed point or in a new point.
    */
   public Point getCellAt (int x, int y) {
