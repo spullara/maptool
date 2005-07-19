@@ -186,8 +186,6 @@ public class MapToolClient extends JFrame implements ZoneListener {
     protected JComponent createPlayerList() {
         
     	ClientConnectionPanel panel = new ClientConnectionPanel();
-        // TODO: make this size dynamic on player count
-        panel.setSize(250, 300);
         
         return panel;
     }

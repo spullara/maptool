@@ -36,17 +36,13 @@ import net.rptools.maptool.client.ui.model.PlayerListModel;
 
 /**
  */
-public class ClientConnectionPanel extends JPanel {
+public class ClientConnectionPanel extends JList {
 
 	public ClientConnectionPanel () {
-		setLayout(new BorderLayout());
 		setOpaque(false);
-        JList list = new JList();
-        list.setModel(new PlayerListModel(MapTool.getPlayerList()));
-        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        list.setOpaque(false);
-        list.setCellRenderer(new ConnectionCellRenderer());
-        add(BorderLayout.CENTER, list);
+        setModel(new PlayerListModel(MapTool.getPlayerList()));
+        setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        setCellRenderer(new ConnectionCellRenderer());
 	}
 	
 	private static class ConnectionCellRenderer extends DefaultListCellRenderer {
