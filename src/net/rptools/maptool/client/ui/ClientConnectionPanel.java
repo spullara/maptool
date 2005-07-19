@@ -39,7 +39,6 @@ import net.rptools.maptool.client.ui.model.PlayerListModel;
 public class ClientConnectionPanel extends JList {
 
 	public ClientConnectionPanel () {
-		setOpaque(false);
         setModel(new PlayerListModel(MapTool.getPlayerList()));
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setCellRenderer(new ConnectionCellRenderer());
