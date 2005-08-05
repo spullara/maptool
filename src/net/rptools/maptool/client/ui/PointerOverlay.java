@@ -60,10 +60,12 @@ public class PointerOverlay implements ZoneOverlay {
 			PointerPair p = pointerList.get(i);
 			if (p.pointer.getZoneGUID().equals(zone.getId())) {
 				
-				Point point = renderer.convertZoneToScreen(p.pointer.getX(), p.pointer.getY());
-				g.drawImage(POINTER_IMAGE, point.x, point.y - POINTER_IMAGE.getHeight(), null);
+                ZonePoint zPoint = new ZonePoint(p.pointer.getX(), p.pointer.getY());
+                ScreenPoint sPoint = zPoint.convertToScreen(renderer);
+                
+				g.drawImage(POINTER_IMAGE, sPoint.x, sPoint.y - POINTER_IMAGE.getHeight(), null);
 
-				GraphicsUtil.drawBoxedString(g, p.player, point.x + POINTER_IMAGE.getWidth() - 5, point.y - POINTER_IMAGE.getHeight()+3);
+				GraphicsUtil.drawBoxedString(g, p.player, sPoint.x + POINTER_IMAGE.getWidth() - 5, sPoint.y - POINTER_IMAGE.getHeight()+3);
 			}
 		}
 		

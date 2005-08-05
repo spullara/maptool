@@ -48,6 +48,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.Player;
+import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.PersistenceUtil;
 
@@ -56,20 +57,41 @@ import net.rptools.maptool.util.PersistenceUtil;
  */
 public class AppActions {
 
-	public static final Action TYPE_COMMAND = new ClientAction() {
-		
-		{
-			putValue(Action.NAME, "Type Command");
-			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0));
-		}
-		
-		public void execute(ActionEvent e) {
-			
-			MapTool.getFrame().getChatPanel().startCommand();
-		}
-		
-	};
-	
+    public static final Action TYPE_COMMAND = new ClientAction() {
+        
+        {
+            putValue(Action.NAME, "Type Command");
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0));
+        }
+        
+        public void execute(ActionEvent e) {
+            
+            MapTool.getFrame().getChatPanel().startCommand();
+        }
+        
+    };
+    
+    public static final Action RANDOMLY_ADD_LAST_ASSET = new ClientAction() {
+        
+        {
+            putValue(Action.NAME, "Random Dup Last Asset");
+        }
+        
+        public void execute(ActionEvent e) {
+            
+            Asset asset = AssetManager.getLastRetrievedAsset();
+            for (int i = 0; i < 100; i++) {
+                
+                Token token = new Token(asset.getId());
+                token.setX(MapToolUtil.getRandomNumber(100 * 5));
+                token.setY(MapToolUtil.getRandomNumber(100 * 5));
+                MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
+            }
+            MapTool.getFrame().getCurrentZoneRenderer().repaint();
+        }
+        
+    };
+    
 	public static final Action ADJUST_GRID = new ClientAction() {
 		
 		{

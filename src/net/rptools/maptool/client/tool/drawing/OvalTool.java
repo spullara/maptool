@@ -35,6 +35,7 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.tool.ToolHelper;
+import net.rptools.maptool.client.ui.ZonePoint;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.drawing.Oval;
 import net.rptools.maptool.model.drawing.Pen;
@@ -48,9 +49,6 @@ import net.rptools.maptool.model.drawing.Pen;
  */
 public class OvalTool extends AbstractDrawingTool implements MouseMotionListener {
     private static final long serialVersionUID = 3258413928311830323L;
-
-    private int currentX;
-    private int currentY;
 
     protected Oval oval;
     
@@ -91,8 +89,11 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
             oval.getEndPoint().x = x;
             oval.getEndPoint().y = y;
             
-            convertScreenToZone(oval.getStartPoint());
-            convertScreenToZone(oval.getEndPoint());
+            ZonePoint startPoint = ZonePoint.fromScreenPoint(zoneRenderer, (int) oval.getStartPoint().getX(), (int) oval.getStartPoint().getY()); 
+            ZonePoint endPoint = ZonePoint.fromScreenPoint(zoneRenderer, (int) oval.getEndPoint().getX(), (int) oval.getEndPoint().getY());
+
+            oval.getStartPoint().setLocation(startPoint.x, startPoint.y);
+            oval.getEndPoint().setLocation(endPoint.x, endPoint.y);
             
             completeDrawable(zoneRenderer.getZone().getId(), getPen(), oval);
             oval = null;
@@ -150,8 +151,7 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
    */
   @Override
   protected void resetTool() {
-    currentX = 0;
-    currentY = 0;
+
     oval = null;
     zoneRenderer.repaint();
   }

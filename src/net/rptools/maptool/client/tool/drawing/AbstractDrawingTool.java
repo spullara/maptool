@@ -54,13 +54,6 @@ public abstract class AbstractDrawingTool extends Tool implements MouseListener,
 		zoneRenderer = null;
 	}
     
-    protected void convertScreenToZone(Point p) {
-        Point point = zoneRenderer.convertScreenToZone(p.x, p.y);
-        
-        p.x = point.x;
-        p.y = point.y;
-    }
- 
     protected void setIsEraser(boolean eraser) {
     	isEraser = eraser;
     }

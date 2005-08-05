@@ -27,7 +27,6 @@ package net.rptools.maptool.client.tool;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 
@@ -35,6 +34,7 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 import net.rptools.common.util.ImageUtil;
+import net.rptools.maptool.client.ui.CellPoint;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.ZoneMeasurement;
 import net.rptools.maptool.util.GraphicsUtil;
@@ -123,8 +123,8 @@ public class MeasuringTool extends DefaultTool {
 			g.setColor(Color.BLACK);
 			g.drawLine(dragStartX, dragStartY, currX, currY);
 			
-			Point startCell = renderer.getCellAt(dragStartX, dragStartY);
-			Point endCell = renderer.getCellAt(currX, currY);
+			CellPoint startCell = renderer.getCellAt(dragStartX, dragStartY);
+			CellPoint endCell = renderer.getCellAt(currX, currY);
 
 			String distString = new ZoneMeasurement(renderer.getZone().getFeetPerCell(), true).formatDistanceBetween(startCell, endCell);
 

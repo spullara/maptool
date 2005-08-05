@@ -28,6 +28,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 
+import net.rptools.maptool.client.ui.CellPoint;
+import net.rptools.maptool.client.ui.ScreenPoint;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.ZoneMeasurement;
 import net.rptools.maptool.util.GraphicsUtil;
@@ -63,19 +65,19 @@ public class ToolHelper {
         GraphicsUtil.drawBoxedString(g, distance, right + 18, bottom + (top - bottom)/2);    
     }
     
-	public static void drawMeasurement(ZoneRenderer renderer, Graphics2D g, Point startPoint, Point endPoint, boolean roundDistance) {
+	public static void drawMeasurement(ZoneRenderer renderer, Graphics2D g, ScreenPoint startPoint, ScreenPoint endPoint, boolean roundDistance) {
 		drawMeasurement(null, renderer, g, startPoint, endPoint, roundDistance);
 	}
 
-	public static void drawMeasurement(String message, ZoneRenderer renderer, Graphics2D g, Point startPoint, Point endPoint, boolean roundDistance) {
+	public static void drawMeasurement(String message, ZoneRenderer renderer, Graphics2D g, ScreenPoint startPoint, ScreenPoint endPoint, boolean roundDistance) {
 		
         int left = Math.min(startPoint.x, endPoint.x);
         int top = Math.min(startPoint.y, endPoint.y);
         int right = Math.max(startPoint.x, endPoint.x);
         int bottom = Math.max(startPoint.y, endPoint.y);
         
-        Point cellStart = renderer.getCellAt(startPoint.x, startPoint.y);
-        Point cellEnd   = renderer.getCellAt(endPoint.x, endPoint.y);
+        CellPoint cellStart = renderer.getCellAt(startPoint.x, startPoint.y);
+        CellPoint cellEnd   = renderer.getCellAt(endPoint.x, endPoint.y);
 
         int centerX = left + (right - left)/2;
         int centerY = bottom + (top - bottom)/2;

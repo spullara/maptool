@@ -70,8 +70,8 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 			lastSize = size;
 		}
 		
-		g.drawImage(backBuffer, (offsetX % tileImage.getWidth()) - tileImage.getWidth(), 
-				( offsetY % tileImage.getHeight()) - tileImage.getHeight(), null);
+		g.drawImage(backBuffer, (viewOffset.x % tileImage.getWidth()) - tileImage.getWidth(), 
+				( viewOffset.y % tileImage.getHeight()) - tileImage.getHeight(), null);
 	}
 
 	/* (non-Javadoc)
@@ -83,8 +83,8 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
         float gridSize = zone.getGridSize() * scale;
         Dimension size = getSize();
         
-        int offX = (int)(offsetX % gridSize);
-        int offY = (int)(offsetY % gridSize);
+        int offX = (int)(viewOffset.x % gridSize);
+        int offY = (int)(viewOffset.y % gridSize);
         for (int row = 0; row < size.height + gridSize; row += gridSize) {
             
             g.drawLine(0, row + offY, size.width, row + offY);
@@ -135,7 +135,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 		
         // Find the cell in the middle of the screen
         Dimension size = getSize();
-        Point cell = renderer.getCellAt(size.width/2, size.height/2); 
+        CellPoint cell = renderer.getCellAt(size.width/2, size.height/2); 
         
 		g.setColor(Color.black);
 		GraphicsUtil.drawBoxedString (g, cell.x + ", " + cell.y, 50, 15, SwingUtilities.LEFT);

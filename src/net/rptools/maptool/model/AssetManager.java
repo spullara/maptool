@@ -41,6 +41,8 @@ public class AssetManager {
 	private static File cacheDir;
 	private static boolean usePersistentCache;
 	
+    private static Asset lastRetrievedAsset;
+    
 	static {
 		
 		String userHome = System.getProperty("user.home");
@@ -54,6 +56,10 @@ public class AssetManager {
 		}
 	}
 
+    public static Asset getLastRetrievedAsset() {
+        return lastRetrievedAsset;
+    }
+    
 	public static boolean hasAsset(Asset asset) {
 		return hasAsset(asset.getId());
 	}
@@ -81,6 +87,7 @@ public class AssetManager {
 			asset = getFromPersistentCache(id);
 		}
 		
+        lastRetrievedAsset = asset;
 		return asset;
 	}
 

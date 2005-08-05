@@ -31,6 +31,8 @@ import java.awt.event.MouseListener;
 import java.util.List;
 
 import net.rptools.maptool.client.tool.ToolHelper;
+import net.rptools.maptool.client.ui.ScreenPoint;
+import net.rptools.maptool.client.ui.ZonePoint;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
@@ -90,7 +92,11 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
         addPoint(x, y);
         
         for (Point p : line.getPoints()) {
-            convertScreenToZone(p);
+
+            ZonePoint zPoint = ZonePoint.fromScreenPoint(zoneRenderer, p.x, p.y); 
+
+            p.x = zPoint.x;
+            p.y = zPoint.y;
         }
         
         completeDrawable(zoneRenderer.getZone().getId(), getPen(), line);
@@ -114,7 +120,11 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
             line.draw(g, pen, 0, 0);
             List<Point> pointList = line.getPoints();
             if (!drawMeasurementDisabled && pointList.size() > 1) {
-            	ToolHelper.drawMeasurement(renderer, g, pointList.get(pointList.size()-2), pointList.get(pointList.size()-1), false);
+                
+                Point start = pointList.get(pointList.size()-2);
+                Point end = pointList.get(pointList.size()-1);
+                
+            	ToolHelper.drawMeasurement(renderer, g, new ScreenPoint(start.x, start.y), new ScreenPoint(end.x, end.y), false);
             }
         }
 	}

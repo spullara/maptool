@@ -24,11 +24,8 @@
  */
 package net.rptools.maptool.client.ui;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 import net.rptools.maptool.client.ClientStyle;
@@ -69,20 +66,9 @@ public class MapZoneRenderer extends ZoneRenderer {
         return backgroundImage;
     }
     
-    public Point getCellAt(int x,int y) {
-        
-        Point p = super.getCellAt(x, y);
-        
-        if (p.x < 0 || p.y < 0 || p.x > (width / zone.getGridSize()) || p.y > (height / zone.getGridSize())) {
-            p = null;
-        }
-        
-        return p;
-    }
-    
     protected void renderBorder(Graphics2D g) {
         
-        Dimension size = getSize();
+//        Dimension size = getSize();
         
         // Scale
         float scale = scaleArray[scaleIndex];
@@ -90,24 +76,24 @@ public class MapZoneRenderer extends ZoneRenderer {
         int h = (int)(height * scale);
 
         // Border
-//        if (offsetX > 0) {
+//        if (viewOffset.x > 0) {
 //            g.setColor(Color.black);
-//            g.fillRect(0, 0, offsetX, size.height);
+//            g.fillRect(0, 0, viewOffset.x, size.height);
 //        }
-//        if (offsetY > 0) {
+//        if (viewOffset.y > 0) {
 //            g.setColor(Color.black);
-//            g.fillRect(0, 0, size.width, offsetY);
+//            g.fillRect(0, 0, size.width, viewOffset.y);
 //        }
-//        if (w + offsetX < size.width) {
+//        if (w + viewOffset.x < size.width) {
 //            g.setColor(Color.black);
-//            g.fillRect(w + offsetX, 0, size.width, size.height);
+//            g.fillRect(w + viewOffset.x, 0, size.width, size.height);
 //        }
-//        if (h + offsetY < size.height) {
+//        if (h + viewOffset.y < size.height) {
 //            g.setColor(Color.black);
-//            g.fillRect(0, h + offsetY, size.width, size.height);
+//            g.fillRect(0, h + viewOffset.y, size.width, size.height);
 //        }
         
-        ClientStyle.boardBorder.paintAround((Graphics2D) g, offsetX, offsetY, w, h);
+        ClientStyle.boardBorder.paintAround(g, viewOffset.x, viewOffset.y, w, h);
     }
     
     protected void renderBoard(Graphics2D g) {
@@ -119,24 +105,24 @@ public class MapZoneRenderer extends ZoneRenderer {
         int w = (int)(width * scale);
         int h = (int)(height * scale);
 
-        if (offsetX > size.width - EDGE_LIMIT) {
-            offsetX = size.width - EDGE_LIMIT;
+        if (viewOffset.x > size.width - EDGE_LIMIT) {
+            viewOffset.x = size.width - EDGE_LIMIT;
         }
         
-        if (offsetX + w < EDGE_LIMIT) {
-            offsetX = EDGE_LIMIT - w;
+        if (viewOffset.x + w < EDGE_LIMIT) {
+            viewOffset.x = EDGE_LIMIT - w;
         }
         
-        if (offsetY > size.height - EDGE_LIMIT) {
-            offsetY = size.height - EDGE_LIMIT;
+        if (viewOffset.y > size.height - EDGE_LIMIT) {
+            viewOffset.y = size.height - EDGE_LIMIT;
         }
         
-        if (offsetY + h < EDGE_LIMIT) {
-            offsetY = EDGE_LIMIT - h;
+        if (viewOffset.y + h < EDGE_LIMIT) {
+            viewOffset.y = EDGE_LIMIT - h;
         }
         
         // Map
-        g.drawImage(backgroundImage, offsetX, offsetY, w, h, this);
+        g.drawImage(backgroundImage, viewOffset.x, viewOffset.y, w, h, this);
     }
     
     protected void renderGrid(Graphics2D g) {
@@ -150,21 +136,21 @@ public class MapZoneRenderer extends ZoneRenderer {
         // Render grid
         g.setColor(gridColor);
 
-        int x = offsetX + (int) (zone.getGridOffsetX() * scaleArray[scaleIndex]);
-        int y = offsetY + (int) (zone.getGridOffsetY() * scaleArray[scaleIndex]);
+        int x = viewOffset.x + (int) (zone.getGridOffsetX() * scaleArray[scaleIndex]);
+        int y = viewOffset.y + (int) (zone.getGridOffsetY() * scaleArray[scaleIndex]);
 
         for (float row = 0; row < h + gridSize; row += gridSize) {
             
-            int theY = Math.min(offsetY + h, Math.max((int)row + y, offsetY));
-            int theX = Math.max(x, offsetX);
+            int theY = Math.min(viewOffset.y + h, Math.max((int)row + y, viewOffset.y));
+            int theX = Math.max(x, viewOffset.x);
             
             g.drawLine(theX, theY, theX + w, theY);
         }
 
         for (float col = 0; col < w + gridSize; col += gridSize) {
             
-            int theX = Math.min(offsetX + w, Math.max(x + (int)col, offsetX));
-            int theY = Math.max(y, offsetY);
+            int theX = Math.min(viewOffset.x + w, Math.max(x + (int)col, viewOffset.x));
+            int theY = Math.max(y, viewOffset.y);
 
             g.drawLine(theX, theY, theX, theY + h);
         }

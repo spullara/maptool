@@ -48,8 +48,10 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.common.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.CellPoint;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.ZoneOverlay;
+import net.rptools.maptool.client.ui.ZonePoint;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Pointer;
@@ -95,7 +97,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 				
 				isShowingPointer = true;
 				
-				Point p = renderer.convertScreenToZone(e.getX(), e.getY());
+				ZonePoint p = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
 				Pointer pointer = new Pointer(renderer.getZone(), p.x, p.y, 0);
 				
 				MapTool.serverCommand().showPointer(MapTool.getPlayer().getName(), pointer);
@@ -117,7 +119,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 					renderer.selectToken(token.getId());
 	        
 			        // Dragging offset for currently selected token
-			        Point pos = renderer.convertScreenToZone(e.getX(), e.getY());
+			        ZonePoint pos = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
 			        dragOffsetX = pos.x - token.getX();
 			        dragOffsetY = pos.y - token.getY();
 				}
@@ -210,47 +212,19 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 		
-		Point p = renderer.getCellAt(e.getX(), e.getY());
+		CellPoint p = renderer.getCellAt(e.getX(), e.getY());
 		if (p != null) {	
 			MapTool.getFrame().setStatusMessage("Cell: " + p.x + ", " + p.y);
 		}
 
 		tokenUnderMouse = renderer.getTokenAt(mouseX, mouseY);
-//			
-//		Token token = renderer.getTokenAt(mouseX, mouseY);
-//		if (token == null) {
-//			if (tokenUnderMouse != null) {
-//
-//				renderer.unzoomToken(tokenUnderMouse);
-//
-//				tokenUnderMouse = null;
-//				renderer.repaint();
-//			}
-//		} else {
-//			if (token != tokenUnderMouse) {
-//
-//				// TODO: PLEEEEASE, for all that it HOLY ..... CLEAN UP THIS CODE !
-//				int tokenWidth = (int)(TokenSize.getWidth(token, renderer.getZone().getGridSize()) * renderer.getScale());
-//				int tokenHeight = (int)(TokenSize.getHeight(token, renderer.getZone().getGridSize()) * renderer.getScale());
-//
-//				boolean tokenTooSmall = tokenWidth < ZoneRenderer.HOVER_SIZE_THRESHOLD && tokenHeight < ZoneRenderer.HOVER_SIZE_THRESHOLD;
-//				
-//				renderer.unzoomToken(tokenUnderMouse);
-//
-//				tokenUnderMouse = token;
-//				renderer.repaint();
-//				if (tokenTooSmall) {
-//					renderer.zoomToken(token);
-//				}
-//			}
-//		}
 	}
 	
 	public void mouseDragged(MouseEvent e) {
 
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 
-		Point cellUnderMouse = renderer.getCellAt(e.getX(), e.getY());
+		CellPoint cellUnderMouse = renderer.getCellAt(e.getX(), e.getY());
 		if (cellUnderMouse != null) {
 			MapTool.getFrame().setStatusMessage("Cell: " + cellUnderMouse.x + ", " + cellUnderMouse.y);
 		}
@@ -274,7 +248,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 				int x = e.getX();
 				int y = e.getY();
 				
-				Point p = renderer.convertScreenToZone(x, y);
+				ZonePoint zonePoint = ZonePoint.fromScreenPoint(renderer, x, y);
 				if (!isDraggingToken) {
 					tokenBeingDragged = tokenUnderMouse;
 					
@@ -284,13 +258,13 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 					
 					if (tokenBeingDragged.isSnapToGrid()) {
 
-                        renderer.constrainToCell(p);
+                        renderer.constrainToCell(zonePoint);
 					} else {
-					    p.translate(-dragOffsetX, -dragOffsetY);
+					    zonePoint.translate(-dragOffsetX, -dragOffsetY);
                     }
 
-					renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), p.x, p.y);
-					MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), p.x, p.y);
+					renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), zonePoint);
+					MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), zonePoint.x, zonePoint.y);
 				}
 				isDraggingToken = true;
 			}

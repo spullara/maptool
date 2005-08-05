@@ -41,6 +41,7 @@ public class AppMenuBar extends JMenuBar {
         add(createActionMenu());
         add(createServerMenu());
         add(createGMMenu());
+        add(createDevMenu());
     }
 
     protected JMenu createActionMenu() {
@@ -48,6 +49,13 @@ public class AppMenuBar extends JMenuBar {
     	menu.add(new JMenuItem(AppActions.TYPE_COMMAND));
     	
     	return menu;
+    }
+    
+    protected JMenu createDevMenu() {
+        JMenu menu = new JMenu("Dev");
+        menu.add(new JMenuItem(AppActions.RANDOMLY_ADD_LAST_ASSET));
+        
+        return menu;
     }
     
     protected JMenu createFileMenu() {

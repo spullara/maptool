@@ -24,7 +24,7 @@
  */
 package net.rptools.maptool.model;
 
-import java.awt.Point;
+import net.rptools.maptool.client.ui.CellPoint;
 
 /**
  * @author trevor
@@ -39,7 +39,7 @@ public class ZoneMeasurement {
 		this.roundDistance = roundDistance;
 	}
 	
-	public double distanceBetween(Point startCell, Point endCell) {
+	public double distanceBetween(CellPoint startCell, CellPoint endCell) {
 		
 		// Calculate Distance
 		int distX = Math.abs(startCell.x - endCell.x);
@@ -55,7 +55,7 @@ public class ZoneMeasurement {
         return dist;
 	}
 
-	public String formatDistanceBetween(Point startCell, Point endCell) {
+	public String formatDistanceBetween(CellPoint startCell, CellPoint endCell) {
 		return distanceStringEnglish(distanceBetween(startCell, endCell));
 	}
 	

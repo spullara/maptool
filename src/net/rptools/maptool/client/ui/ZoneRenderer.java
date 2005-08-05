@@ -25,9 +25,9 @@
 package net.rptools.maptool.client.ui;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.dnd.DropTarget;
@@ -47,7 +47,6 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 
-import net.rptools.common.swing.SwingUtil;
 import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
@@ -77,8 +76,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     protected BufferedImage     backgroundImage;
 
-    protected int               offsetX;
-    protected int               offsetY;
+    protected Point             viewOffset = new Point();
 
     protected boolean           showGrid;
     protected Color             gridColor = new Color (150, 150, 150);
@@ -89,14 +87,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     private DrawableRenderer drawableRenderer = new DrawableRenderer();
     
-    private Set<Token> zoomedTokenSet = new HashSet<Token>();
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
     private Map<Rectangle, Token> tokenBoundsMap = new HashMap<Rectangle, Token>();
     private Set<GUID> selectedTokenSet = new HashSet<GUID>();
 
 	private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
-	private Map<Token, BufferedImage> replacementImageMap = new HashMap<Token, BufferedImage>();
-	
+
+    // Optimizations
+    private Map<Token, BufferedImage> replacementImageMap = new HashMap<Token, BufferedImage>();
+	private Map<Token, BufferedImage> resizedImageMap = new HashMap<Token, BufferedImage>();
+    
     static {
 		// Create scale array
     	for (int i = 0; i < scaleArray.length; i++) {
@@ -139,7 +139,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		repaint();
 	}
 
-	public void updateMoveSelectionSet (GUID keyToken, int x, int y) {
+	public void updateMoveSelectionSet (GUID keyToken, ZonePoint offset) {
 		
 		SelectionSet set = selectionSetMap.get(keyToken);
 		if (set == null) {
@@ -147,7 +147,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 		
 		Token token = zone.getToken(keyToken);
-		set.setOffset(x - token.getX(), y - token.getY());
+		set.setOffset(offset.x - token.getX(), offset.y - token.getY());
 		repaint();
 	}
 	
@@ -184,25 +184,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      * Clear internal caches and backbuffers
      */
     public void flush() {
-		// TODO: clear out all caches
+        replacementImageMap.clear();
+        resizedImageMap.clear();
     }
     
     public Zone getZone() {
     	return zone;
-    }
-    
-    public void zoomToken(Token token) {
-    	if (!zoomedTokenSet.contains(token)) {
-    		zoomedTokenSet.add(token);
-    		repaint();
-    	}
-    }
-    
-    public void unzoomToken(Token token) {
-    	if (zoomedTokenSet.contains(token)) {
-    		zoomedTokenSet.remove(token);
-    		repaint();
-    	}
     }
     
     public void addOverlay(ZoneOverlay overlay) {
@@ -266,8 +253,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     public void moveViewBy(int dx, int dy) {
 
-        offsetX += dx;
-        offsetY += dy;
+        viewOffset.x += dx;
+        viewOffset.y += dy;
 
         repaint();
     }
@@ -295,14 +282,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         scaleIndex = index;
 
         // Keep the current pixel centered
-        x -= offsetX;
-        y -= offsetY;
+        x -= viewOffset.x;
+        y -= viewOffset.y;
 
         int newX = (int) ((x * newScale) / oldScale);
         int newY = (int) ((y * newScale) / oldScale);
 
-        offsetX -= newX - x;
-        offsetY -= newY - y;
+        viewOffset.x -= newX - x;
+        viewOffset.y -= newY - y;
 
         repaint();
     }
@@ -331,7 +318,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     protected void renderDrawableOverlay(Graphics g) {
         
-    	drawableRenderer.renderDrawables(g, zone.getDrawnElements(), offsetX, offsetY, getScale());
+    	drawableRenderer.renderDrawables(g, zone.getDrawnElements(), viewOffset.x, viewOffset.y, getScale());
     }
     
 	protected void renderBorder(Graphics2D g) { /* no op */ }
@@ -343,8 +330,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	protected void renderMoveSelectionSets(Graphics2D g) {
 	
         int gridSize = zone.getGridSize();
-        int gridOffsetX = zone.getGridOffsetX();
-        int gridOffsetY = zone.getGridOffsetY();
         float scale = scaleArray[scaleIndex];
 
 		for (SelectionSet set : selectionSetMap.values()) {
@@ -354,65 +339,48 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			int setOffsetX = set.getOffsetX();
 			int setOffsetY = set.getOffsetY();
 			
-			int tokenOffsetX = keyToken.getX();
-			int tokenOffsetY = keyToken.getY();
-			
 			for (GUID tokenGUID : set.getTokens()) {
 				
 				Token token = zone.getToken(tokenGUID);
+                
+                // Perhaps deleted ?
+                if (token == null) {
+                    continue;
+                }
 				
-				BufferedImage image = null;
 	            Asset asset = AssetManager.getAsset(token.getAssetID());
 	            if (asset == null) {
 	                continue;
-	            } else {
-	            
-					image = ImageManager.getImage(asset);
 	            }
-
-				int x = token.getX() + setOffsetX;
-				int y = token.getY() + setOffsetY;
+	            
+                ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, token.getX() + setOffsetX, token.getY() + setOffsetY);
 				
 				// OPTIMIZE: combine this with the code in renderTokens()
 	            int width = TokenSize.getWidth(token, gridSize);
 	            int height = TokenSize.getHeight(token, gridSize);
 				
-	            x = (int)(x * scale) + (int) (gridOffsetX * scaleArray[scaleIndex]) + 1 + offsetX;
-	            y = (int)(y * scale) + (int) (gridOffsetY * scaleArray[scaleIndex]) + 1 + offsetY;
-
-            	Dimension dim = new Dimension(width, height);
-            	SwingUtil.constrainTo(dim, HOVER_SIZE_THRESHOLD);
-
-            	width *= scale;
-            	height *= scale;
+            	int scaledWidth = (int)(width * scale);
+            	int scaledHeight = (int)(height * scale);
             	
 				// Show distance only on the key token
 				if (token == keyToken) {
-					int halfWidth = width/2;
-					int halfHeight = height/2;
-					Point src = convertZoneToScreen(token.getX()+halfWidth, token.getY()+halfHeight);
-					Point dst = new Point(x+halfWidth, y+halfHeight);
-					
+
+                    ScreenPoint srcSPoint = ScreenPoint.fromZonePoint(this, token.getX() + (width/2), token.getY() + (height/2));
+                    ScreenPoint dstSPoint = new ScreenPoint(newScreenPoint.x + (scaledWidth/2), newScreenPoint.y + (scaledHeight/2));
+                    
 					g.setColor(Color.darkGray);
-					g.drawLine(src.x-1, src.y-1, dst.x-1, dst.y-1);
+					g.drawLine(srcSPoint.x-1, srcSPoint.y-1, dstSPoint.x-1, dstSPoint.y-1);
 					
 					g.setColor(Color.lightGray);
-					g.drawLine(src.x, src.y, dst.x, dst.y);
+					g.drawLine(srcSPoint.x, srcSPoint.y, dstSPoint.x, dstSPoint.y);
 					
 					g.setColor(Color.black);
-					g.drawLine(src.x+1, src.y+1, dst.x+1, dst.y+1);
+					g.drawLine(srcSPoint.x+1, srcSPoint.y+1, dstSPoint.x+1, dstSPoint.y+1);
 
-                    convertScreenToZone(src);
-                    constrainToCell(src);
-                    
-                    convertScreenToZone(dst);
-                    constrainToCell(dst);
-                    
-					ToolHelper.drawMeasurement(set.getPlayerId(), this, g, src, dst, true);
+					ToolHelper.drawMeasurement(set.getPlayerId(), this, g, srcSPoint, dstSPoint, true);
 				}
 				
-				g.drawImage(image, x, y, width, height, this);			
-				
+				g.drawImage(getScaledToken(token, scaledWidth, scaledHeight), newScreenPoint.x, newScreenPoint.y, this);			
 			}
 
 		}
@@ -425,9 +393,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         int gridOffsetY = zone.getGridOffsetY();
 
         Rectangle clipBounds = g.getClipBounds();
+        Rectangle tokenBounds = new Rectangle();
+        float scale = scaleArray[scaleIndex];
         
         tokenBoundsMap.clear();
         for (Token token : zone.getTokens()) {
+
+            int width = (int)(TokenSize.getWidth(token, gridSize) * scale);
+            int height = (int)(TokenSize.getHeight(token, gridSize) * scale);
+            
+            // OPTIMIZE:
+            int x = (int)(token.getX() * scale + viewOffset.x) + (int) (gridOffsetX * scaleArray[scaleIndex]) + 1;
+            int y = (int)(token.getY() * scale + viewOffset.y) + (int) (gridOffsetY * scaleArray[scaleIndex]) + 1;
+
+            tokenBounds.setBounds(x, y, width, height);
+            tokenBoundsMap.put(tokenBounds, token);
 
             // OPTIMIZE:
 			BufferedImage image = null;
@@ -439,13 +419,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 image = ImageManager.UNKNOWN_IMAGE;
             } else {
             
-				image = ImageManager.getImage(asset);
+				image = getScaledToken(token, width, height);
             }
-			
+
+            // Only draw if we're visible
+            // NOTE: this takes place AFTER resizing the image, that's so that the user
+            // sufferes a pause only once while scaling, and not as new tokens are
+            // scrolled onto the screen
+            if (!tokenBounds.intersects(clipBounds)) {
+                continue;
+            }
+
 			// Moving ?
 			if (isTokenMoving(token)) {
 				BufferedImage replacementImage = replacementImageMap.get(token);
-				if (replacementImage == null) {
+				if (replacementImage == null || replacementImage.getWidth() != width || replacementImage.getHeight() != height) {
 					replacementImage = ImageUtil.rgbToGrayscale(image);
 					
 					// TODO: fix this memory leak -> when to clean up the image (when selection set is removed)
@@ -454,52 +442,47 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				
 				image = replacementImage;
 			}
-			
-            float scale = scaleArray[scaleIndex];
 
-            int x = 0;
-            int y = 0;
-
-            int width = TokenSize.getWidth(token, gridSize);
-            int height = TokenSize.getHeight(token, gridSize);
-            
-            // OPTIMIZE:
-            x = (int)(token.getX() * scale + offsetX) + (int) (gridOffsetX * scaleArray[scaleIndex]) + 1;
-            y = (int)(token.getY() * scale + offsetY) + (int) (gridOffsetY * scaleArray[scaleIndex]) + 1;
-
-            if (scale >= 1.0 || !zoomedTokenSet.contains(token)) {
-            	
-            	width *= scale;
-            	height *= scale;
-            	
-            } else {
-
-            	Dimension dim = new Dimension(width, height);
-            	SwingUtil.constrainTo(dim, HOVER_SIZE_THRESHOLD);
-
-            	width = dim.width;
-            	height = dim.height;
-            	
-            	x -= (width - (width*scale))/2;
-            	y -= (height - (height*scale))/2;
-            }
-            
-            // OPTIMIZE: don't create new Rectangles each time
-            Rectangle bounds = new Rectangle();
-            bounds.setBounds(x, y, width, height);
-            tokenBoundsMap.put(bounds, token);
-
-            if (bounds.intersects(clipBounds)) {
-	            g.drawImage(image, x, y, width, height, this);
-            }
+            // Draw
+            g.drawImage(image, x, y, this);
 
             // Selected ?
             if (selectedTokenSet.contains(token.getId())) {
-            	ClientStyle.selectedBorder.paintAround((Graphics2D) g, x, y, width, height);
+            	ClientStyle.selectedBorder.paintAround(g, x, y, width, height);
             }
         }
     }
 
+    // TODO: This will create redundant copies of assets, but needs to do this
+    // in order to account for tokens with the same asset of different sizes.
+    // At some point, figure out a more intelligent way of doing this
+    public BufferedImage getScaledToken(Token token, int width, int height) {
+
+        // Cached value ?
+        BufferedImage image = resizedImageMap.get(token);
+        if (image != null) {
+            if (image.getWidth() == width && image.getHeight() == height) {
+                return image;
+            }
+            
+            resizedImageMap.remove(token);
+        }
+
+        // Don't scale if we're already at 1:1
+        image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()));
+        if (image.getWidth() == width && image.getHeight() == height) {
+            return image;
+        }
+        
+        // Scale and save
+        int scaleType = width > image.getWidth() ? Image.SCALE_FAST : Image.SCALE_SMOOTH;
+        Image scaledImage = image.getScaledInstance(width, height, scaleType);
+        image = ImageUtil.createCompatibleImage(scaledImage);
+        resizedImageMap.put(token, image);
+        
+        return image;
+    }
+    
     public Set<GUID> getSelectedTokenSet() {
     	return selectedTokenSet;
     }
@@ -550,8 +533,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		return null;
 	}
 
-    public Point constrainToCell(int x, int y) {
-        return constrainToCell(new Point(x, y));
+    public ZonePoint constrainToCell(int x, int y) {
+        return constrainToCell(new ZonePoint(x, y));
     }
     
     /**
@@ -559,14 +542,18 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      * Note that the result is not the cell x,y, but rather the zone x,y of the
      * cell the point is contained by
      * @param p
-     * @return
+     * @return original point
      */
-    public Point constrainToCell(Point p) {
+    public ZonePoint constrainToCell(ZonePoint p) {
         
         int gridSize = zone.getGridSize();
         
         int scalex = (p.x / gridSize);
         int scaley = (p.y / gridSize);
+        
+        // Handle +/- transition
+        if (p.x < 0) {scalex --;}
+        if (p.y < 0) {scaley --;}
         
         p.x = scalex * gridSize;
         p.y = scaley * gridSize;
@@ -574,59 +561,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         return p;
     }
     
-    public Point convertZoneToScreen(int x, int y) {
-        return convertZoneToScreen(new Point(x,y));
+    public int getOffsetX() {
+        return viewOffset.x;
     }
     
-    /**
-     * Translate the point from zone x,y to screen x,y
-     * @param p
-     * @return the same point instance (useful for function chaining)
-     */
-	public Point convertZoneToScreen(Point p) {
-		
-        double scale = scaleArray[scaleIndex];
-		
-        p.x = (int)(p.x * scale);
-        p.y = (int)(p.y * scale);
-        
-        // Translate
-        p.x += offsetX;
-        p.y += offsetY;
-        
-        return p;
-	}
-	
-	public Point convertScreenToZone(int x, int y) {
-
-        return convertScreenToZone(new Point(x,y));
-	}
-
-    /**
-     * Translate the point from screen x,y to zone x,y
-     * @param p
-     * @return the same point instance (useful for function chaining)
-     */
-    public Point convertScreenToZone(Point p) {
-        
-        double scale = scaleArray[scaleIndex];
-        
-        // Translate
-        p.x -= offsetX;
-        p.y -= offsetY;
-        
-        // Scale
-        p.x = (int)(p.x / scale);
-        p.y = (int)(p.y / scale);
-        
-        return p;
+    public int getOffsetY() {
+        return viewOffset.y;
     }
     
   /**
    * Since the map can be scaled, this is a convenience method to find out
-   * what cell is at this location. This version allows a point to be 
-   * passed in to reduce the number of new <code>Point</code> objects 
-   * created in the mouse move & mouse drag events.
+   * what cell is at this location. 
    * 
    * @param x X location in screen coordinates.
    * @param y Y location in screen coordinates.
@@ -634,38 +579,24 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
    * a new point will be created. 
    * @return The cell coordinates in the passed point or in a new point.
    */
-  public Point getCellAt (int x, int y, Point cell) {
+  public CellPoint getCellAt (int x, int y) {
     
     double scale = scaleArray[scaleIndex];
     
     // Translate
-    x -= offsetX + (int) (zone.getGridOffsetX() * scale);
-    y -= offsetY + (int) (zone.getGridOffsetY() * scale);
+    x -= viewOffset.x + (int) (zone.getGridOffsetX() * scale);
+    y -= viewOffset.y + (int) (zone.getGridOffsetY() * scale);
     
     // Scale
-    if (cell == null) cell = new Point();
-    cell.x = (int)Math.floor(x / (zone.getGridSize() * scale));
-    cell.y = (int)Math.floor(y / (zone.getGridSize() * scale));
+    x = (int)Math.floor(x / (zone.getGridSize() * scale));
+    y = (int)Math.floor(y / (zone.getGridSize() * scale));
     
-    return cell;
-  }
-  
-  /**
-   * Since the map can be scaled, this is a convenience method to find out
-   * what cell is at this location. 
-   * @param x screen x
-   * @param y screen y
-   * @return The cell coordinates in the passed point or in a new point.
-   */
-  public Point getCellAt (int x, int y) {
-    return getCellAt(x, y, null);
+    return new CellPoint(x, y);
   }
   
   /**
    * Find the screen cooridnates of the upper left hand corner of a cell taking
-   * into acount scaling and translation. This version allows a point to be 
-   * passed in to reduce the number of new <code>Point</code> objects 
-   * created in the mouse move & mouse drag events.
+   * into acount scaling and translation. 
    * 
    * @param cell Get the coordinates of this cell.
    * @param screen The point used to contains the screen coordinates. It may
@@ -673,12 +604,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
    * @return The screen coordinates of the upper left hand corner in the passed
    * point or in a new point.
    */
-  public Point getCellCooridnates(Point cell, Point screen) {
+  public ScreenPoint getCellCooridnates(CellPoint cell) {
     double scale = scaleArray[scaleIndex]; 
-    if (screen == null) screen = new Point();
-    screen.x = offsetX + (int)(zone.getGridOffsetX() * scale + cell.x * zone.getGridSize() * scale);
-    screen.y = offsetY + (int)(zone.getGridOffsetY() * scale + cell.y * zone.getGridSize() * scale);
-    return screen;
+
+    int x = viewOffset.x + (int)(zone.getGridOffsetX() * scale + cell.x * zone.getGridSize() * scale);
+    int y = viewOffset.y + (int)(zone.getGridOffsetY() * scale + cell.y * zone.getGridSize() * scale);
+    
+    return new ScreenPoint(x, y);
   }
   
     public double getScale() {
@@ -700,8 +632,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		private String playerId;
 		
 		// Pixel distance from keyToken's origin
-		private int offsetX = 0;
-		private int offsetY = 0;
+        private int offsetX;
+        private int offsetY;
 		
 		public SelectionSet(String playerId, GUID tokenGUID, Set<GUID> selectionList) {
 
@@ -723,8 +655,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 		
 		public void setOffset(int x, int y) {
-			offsetX = x;
-			offsetY = y;
+            offsetX = x;
+            offsetY = y;
 		}
 		
 		public int getOffsetX() {
@@ -775,14 +707,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	Asset asset = TransferableHelper.getAsset(dtde);
 
     	if (asset != null) {
-	        Point p = dtde.getLocation();
-	        p = getCellAt((int)p.getX(), (int)p.getY());
-	        int x = (int)p.getX();
-	        int y = (int)p.getY();
+	        CellPoint p = getCellAt((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY());
 	
 	        Token token = new Token(asset.getId());
-	        token.setX(x * zone.getGridSize());
-	        token.setY(y * zone.getGridSize());
+	        token.setX(p.x * zone.getGridSize());
+	        token.setY(p.y * zone.getGridSize());
 	
 	        zone.putToken(token);
 

@@ -35,6 +35,7 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.tool.ToolHelper;
+import net.rptools.maptool.client.ui.ZonePoint;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.Rectangle;
@@ -48,9 +49,6 @@ import net.rptools.maptool.model.drawing.Rectangle;
  */
 public class RectangleTool extends AbstractDrawingTool implements MouseMotionListener {
     private static final long serialVersionUID = 3258413928311830323L;
-
-    private int currentX;
-    private int currentY;
 
     protected Rectangle rectangle;
     
@@ -92,8 +90,11 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
             rectangle.getEndPoint().x = x;
             rectangle.getEndPoint().y = y;
             
-            convertScreenToZone(rectangle.getStartPoint());
-            convertScreenToZone(rectangle.getEndPoint());
+            ZonePoint startPoint = ZonePoint.fromScreenPoint(zoneRenderer, (int) rectangle.getStartPoint().getX(), (int) rectangle.getStartPoint().getY()); 
+            ZonePoint endPoint = ZonePoint.fromScreenPoint(zoneRenderer, (int) rectangle.getEndPoint().getX(), (int) rectangle.getEndPoint().getY());
+
+            rectangle.getStartPoint().setLocation(startPoint.x, startPoint.y);
+            rectangle.getEndPoint().setLocation(endPoint.x, endPoint.y);
             
             completeDrawable(zoneRenderer.getZone().getId(), getPen(), rectangle);
             rectangle = null;
