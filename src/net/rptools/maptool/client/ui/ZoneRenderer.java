@@ -393,7 +393,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         int gridOffsetY = zone.getGridOffsetY();
 
         Rectangle clipBounds = g.getClipBounds();
-        Rectangle tokenBounds = new Rectangle();
         float scale = scaleArray[scaleIndex];
         
         tokenBoundsMap.clear();
@@ -406,7 +405,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int x = (int)(token.getX() * scale + viewOffset.x) + (int) (gridOffsetX * scaleArray[scaleIndex]) + 1;
             int y = (int)(token.getY() * scale + viewOffset.y) + (int) (gridOffsetY * scaleArray[scaleIndex]) + 1;
 
-            tokenBounds.setBounds(x, y, width, height);
+            Rectangle tokenBounds = new Rectangle(x, y, width, height);
             tokenBoundsMap.put(tokenBounds, token);
 
             // OPTIMIZE:
@@ -526,6 +525,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		
 		for (Rectangle rect : tokenBoundsMap.keySet()) {
 			if (rect.contains(x, y)) {
+                System.out.println ("Found token: " + System.currentTimeMillis());
 				return tokenBoundsMap.get(rect);
 			}
 		}
