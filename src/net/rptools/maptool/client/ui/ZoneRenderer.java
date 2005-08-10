@@ -525,7 +525,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		
 		for (Rectangle rect : tokenBoundsMap.keySet()) {
 			if (rect.contains(x, y)) {
-                System.out.println ("Found token: " + System.currentTimeMillis());
 				return tokenBoundsMap.get(rect);
 			}
 		}
