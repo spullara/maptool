@@ -27,13 +27,23 @@ package net.rptools.maptool.client;
 import java.util.List;
 
 import net.rptools.maptool.client.ui.ZonePoint;
+import net.rptools.maptool.model.Zone;
 
 public abstract class AbstractMapWalker implements MapWalker {
 
     private ZonePoint start;
     private ZonePoint end;
+    private Zone zone;
     
     private List<ZonePoint> path;
+
+    public AbstractMapWalker(Zone zone) {
+        this.zone = zone;
+    }
+
+    public Zone getZone() {
+        return zone;
+    }
     
     public void setEndPoints(ZonePoint start, ZonePoint end) {
         this.start = start;
