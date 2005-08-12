@@ -24,14 +24,6 @@
  */
 package net.rptools.maptool.client.ui;
 
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DragGestureEvent;
-import java.awt.dnd.DragGestureListener;
-import java.awt.dnd.DragSource;
-import java.awt.dnd.DragSourceDragEvent;
-import java.awt.dnd.DragSourceDropEvent;
-import java.awt.dnd.DragSourceEvent;
-import java.awt.dnd.DragSourceListener;
 import java.awt.event.MouseListener;
 
 import javax.swing.JMenuItem;
@@ -42,8 +34,8 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.rptools.common.swing.PopupListener;
-import net.rptools.maptool.client.ui.model.AssetTreeModel;
-import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.client.ui.model.Directory;
+import net.rptools.maptool.client.ui.model.ImageFileTreeModel;
 import net.rptools.maptool.model.AssetGroup;
 
 
@@ -56,7 +48,7 @@ public class AssetTree extends JTree implements TreeSelectionListener {
     private AssetPanel assetPanel;
 	
     public AssetTree(AssetPanel assetPanel) {
-        super(new AssetTreeModel());
+        super(new ImageFileTreeModel());
         
 		this.assetPanel = assetPanel;
 		
@@ -69,9 +61,9 @@ public class AssetTree extends JTree implements TreeSelectionListener {
         getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
     }
 
-    public void addRootGroup(AssetGroup group) {
+    public void addRootGroup(Directory dir) {
     	
-    	((AssetTreeModel) getModel()).addRootGroup(group);
+    	((ImageFileTreeModel) getModel()).addRootGroup(dir);
     }
     
     public AssetGroup getSelectedAssetGroup() {
@@ -95,7 +87,7 @@ public class AssetTree extends JTree implements TreeSelectionListener {
     }
 
     public void refresh() {
-        ((AssetTreeModel) getModel()).refresh();
+//        ((AssetTreeModel) getModel()).refresh();
     }
     
     ////
@@ -109,10 +101,9 @@ public class AssetTree extends JTree implements TreeSelectionListener {
         
         Object node = e.getPath().getLastPathComponent();
         
-        if (node instanceof AssetGroup) {
-            selectedAssetGroup = (AssetGroup) node;
+        if (node instanceof Directory) {
 			
-			assetPanel.setAssetGroup(selectedAssetGroup);
+			assetPanel.setDirectory((Directory) node);
         }
     }
 }

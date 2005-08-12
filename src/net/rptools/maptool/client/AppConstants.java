@@ -24,7 +24,22 @@
  */
 package net.rptools.maptool.client;
 
+import java.io.File;
+import java.io.FilenameFilter;
+
 public class AppConstants {
 
     public static final String APP_NAME = "MapTool";
+
+    public static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {
+        public boolean accept(File dir,String name) {
+            name = name.toLowerCase();
+            return name.endsWith(".bmp") ||
+                    name.endsWith(".png") ||
+                    name.endsWith(".jpg") ||
+                    name.endsWith(".jpeg") ||
+                    name.endsWith(".gif");
+        }
+    };
+    
 }

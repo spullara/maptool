@@ -65,6 +65,7 @@ import net.rptools.maptool.client.tool.drawing.OvalFillTool;
 import net.rptools.maptool.client.tool.drawing.OvalTool;
 import net.rptools.maptool.client.tool.drawing.RectangleFillTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
+import net.rptools.maptool.client.ui.model.Directory;
 import net.rptools.maptool.client.ui.model.PlayerListModel;
 import net.rptools.maptool.model.AssetGroup;
 import net.rptools.maptool.model.GUID;
@@ -242,7 +243,7 @@ public class MapToolClient extends JFrame implements ZoneListener {
     
     public void addAssetRoot(File rootDir) {
         
-    	assetPanel.addAssetRoot(new AssetGroup(rootDir, rootDir.getName()));
+    	assetPanel.addAssetRoot(new Directory(rootDir, AppConstants.IMAGE_FILE_FILTER));
     	
         if (mainSplitPane.isLeftHidden()) {
             mainSplitPane.showLeft();

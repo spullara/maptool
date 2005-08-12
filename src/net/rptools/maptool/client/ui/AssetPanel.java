@@ -32,7 +32,8 @@ import javax.swing.JSplitPane;
 
 import net.rptools.common.swing.ImagePanel;
 import net.rptools.maptool.client.ui.model.AssetGroupImagePanelModel;
-import net.rptools.maptool.model.AssetGroup;
+import net.rptools.maptool.client.ui.model.Directory;
+import net.rptools.maptool.client.ui.model.ImageFileImagePanelModel;
 
 public class AssetPanel extends JComponent {
 
@@ -57,13 +58,13 @@ public class AssetPanel extends JComponent {
 		add(BorderLayout.CENTER, splitPane);
 	}
 	
-	public void addAssetRoot(AssetGroup assetGroup) {
+	public void addAssetRoot(Directory dir) {
 		
-		assetTree.addRootGroup(assetGroup);
+		assetTree.addRootGroup(dir);
 	}
 	
-	public void setAssetGroup(AssetGroup assetGroup) {
-		imagePanel.setModel(new AssetGroupImagePanelModel(assetGroup));
+	public void setDirectory(Directory dir) {
+		imagePanel.setModel(new ImageFileImagePanelModel(dir));
 	}
   
   public AssetTree getAssetTree() {

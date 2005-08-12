@@ -22,33 +22,46 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.ui;
+package net.rptools.maptool.client.ui.model;
 
-import java.awt.Component;
+import java.awt.Image;
+import java.awt.datatransfer.Transferable;
 
-import javax.swing.JTree;
-import javax.swing.tree.DefaultTreeCellRenderer;
+import net.rptools.common.swing.ImagePanelModel;
+import net.rptools.maptool.client.TransferableAsset;
+import net.rptools.maptool.util.ImageManager;
 
-import net.rptools.maptool.client.ui.model.Directory;
-import net.rptools.maptool.model.AssetGroup;
+public class ImageFileImagePanelModel implements ImagePanelModel {
 
+	private Directory dir;
+	
+	public ImageFileImagePanelModel(Directory dir) {
+		this.dir = dir;
+	}
+	
+	public int getImageCount() {
+		return dir.getFiles().size();
+	}
 
-/**
- */
-public class AssetTreeCellRenderer extends DefaultTreeCellRenderer {
+	public Image getImage(int index) {
+        return ImageManager.UNKNOWN_IMAGE;
+//		return ImageManager.getImage(assetGroup.getAssets().get(index));
+	}
 
-    public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row,
-            boolean hasFocus) {
-
-        setBorder(null);
-        
-        super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-
-        if (value instanceof Directory) {
-            setText(((Directory) value).getPath().getName());
-        }        
-
-        return this;
+	public Transferable getTransferable(int index) {
+//		return new TransferableAsset(assetGroup.getAssets().get(index));
+        return null;
+	}
+    
+    public String getCaption(int index) {
+        return "";
     }
     
+    public Object getID(int index) {
+        return new Integer(index);
+    }
+    
+    public Image getImage(Object ID) {
+        return getImage(((Integer)ID).intValue());
+    }
 }
