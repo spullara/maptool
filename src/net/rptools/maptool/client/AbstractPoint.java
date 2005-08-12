@@ -22,43 +22,24 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.ui;
+package net.rptools.maptool.client;
 
+public abstract class AbstractPoint {
 
-public class ScreenPoint extends AbstractPoint {
-
-    public ScreenPoint(int x, int y) {
-        super(x, y);
+    public int x;
+    public int y;
+    
+    public AbstractPoint(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
     
-    /**
-     * Translate the point from screen x,y to zone x,y
-     */
-    public ZonePoint convertToZone(ZoneRenderer renderer) {
-
-        double scale = renderer.getScale();
-
-        int zX = x;
-        int zY = y;
-        
-        // Translate
-        zX -= renderer.getOffsetX();
-        zY -= renderer.getOffsetY();
-        
-        // Scale
-        zX = (int)(zX / scale);
-        zY = (int)(zY / scale);
-        
-        return new ZonePoint(zX, zY);
-    }
-    
-    public static ScreenPoint fromZonePoint(ZoneRenderer renderer, int x, int y) {
-        
-        ZonePoint zp = new ZonePoint(x, y);
-        return zp.convertToScreen(renderer);
+    public void translate(int dx, int dy) {
+        x += dx;
+        y += dy;
     }
     
     public String toString() {
-        return "ScreenPoint" + super.toString();
+        return "[" + x + "." + y + "]";
     }
 }

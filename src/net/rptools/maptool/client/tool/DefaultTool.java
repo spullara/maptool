@@ -47,11 +47,11 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.common.swing.SwingUtil;
+import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.CellPoint;
+import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.ZoneOverlay;
-import net.rptools.maptool.client.ui.ZonePoint;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Pointer;

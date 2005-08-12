@@ -42,7 +42,6 @@ import static net.rptools.maptool.client.ClientCommand.COMMAND.setCampaign;
 import static net.rptools.maptool.client.ClientCommand.COMMAND.setZoneGridSize;
 import static net.rptools.maptool.client.ClientCommand.COMMAND.showPointer;
 import static net.rptools.maptool.client.ClientCommand.COMMAND.undoDraw;
-import net.rptools.maptool.client.ui.ZonePoint;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.client.ui.ZoneRendererFactory;
 import net.rptools.maptool.model.Asset;

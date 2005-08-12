@@ -22,42 +22,45 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.ui;
+package net.rptools.maptool.client;
+
+import net.rptools.maptool.client.ui.ZoneRenderer;
 
 
-public class ZonePoint extends AbstractPoint {
+public class ScreenPoint extends AbstractPoint {
 
-    public ZonePoint(int x, int y) {
+    public ScreenPoint(int x, int y) {
         super(x, y);
     }
     
     /**
-     * Translate the point from zone x,y to screen x,y
+     * Translate the point from screen x,y to zone x,y
      */
-    public ScreenPoint convertToScreen(ZoneRenderer renderer) {
-        
+    public ZonePoint convertToZone(ZoneRenderer renderer) {
+
         double scale = renderer.getScale();
-        
-        int sX = x;
-        int sY = y;
-        
-        sX = (int)(sX * scale);
-        sY = (int)(sY * scale);
+
+        int zX = x;
+        int zY = y;
         
         // Translate
-        sX += renderer.getOffsetX();
-        sY += renderer.getOffsetY();
+        zX -= renderer.getOffsetX();
+        zY -= renderer.getOffsetY();
         
-        return new ScreenPoint(sX, sY);
+        // Scale
+        zX = (int)(zX / scale);
+        zY = (int)(zY / scale);
+        
+        return new ZonePoint(zX, zY);
     }
     
-    public static ZonePoint fromScreenPoint(ZoneRenderer renderer, int x, int y) {
+    public static ScreenPoint fromZonePoint(ZoneRenderer renderer, int x, int y) {
         
-        ScreenPoint sp = new ScreenPoint(x, y);
-        return sp.convertToZone(renderer);
+        ZonePoint zp = new ZonePoint(x, y);
+        return zp.convertToScreen(renderer);
     }
-
+    
     public String toString() {
-        return "ZonePoint" + super.toString();
+        return "ScreenPoint" + super.toString();
     }
 }

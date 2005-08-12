@@ -39,8 +39,8 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.common.swing.SwingUtil;
 import net.rptools.common.util.ImageUtil;
+import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.CellPoint;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.Zone;
 

@@ -35,6 +35,7 @@ import java.io.IOException;
 import javax.swing.SwingUtilities;
 
 import net.rptools.common.util.ImageUtil;
+import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.GraphicsUtil;
 

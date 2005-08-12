@@ -26,7 +26,6 @@ package net.rptools.maptool.client;
 
 import java.util.List;
 
-import net.rptools.maptool.client.ui.ZonePoint;
 import net.rptools.maptool.model.Zone;
 
 public abstract class AbstractMapWalker implements MapWalker {

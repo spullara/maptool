@@ -24,7 +24,7 @@
  */
 package net.rptools.maptool.model;
 
-import net.rptools.maptool.client.ui.CellPoint;
+import net.rptools.maptool.client.CellPoint;
 
 /**
  * @author trevor

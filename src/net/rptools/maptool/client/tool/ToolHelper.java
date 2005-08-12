@@ -28,8 +28,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 
-import net.rptools.maptool.client.ui.CellPoint;
-import net.rptools.maptool.client.ui.ScreenPoint;
+import net.rptools.maptool.client.CellPoint;
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.ZoneMeasurement;
 import net.rptools.maptool.util.GraphicsUtil;

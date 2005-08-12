@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.rptools.common.util.ImageUtil;
+import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.GraphicsUtil;

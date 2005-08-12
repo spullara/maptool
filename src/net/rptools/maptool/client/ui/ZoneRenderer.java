@@ -48,9 +48,12 @@ import java.util.Set;
 import javax.swing.JComponent;
 
 import net.rptools.common.util.ImageUtil;
+import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
+import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
