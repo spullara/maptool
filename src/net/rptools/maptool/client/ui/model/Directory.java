@@ -58,6 +58,11 @@ public class Directory {
         return directory;
     }
     
+    public void refresh() {
+    	subdirs = null;
+    	files = null;
+    }
+    
     public List<Directory> getSubDirs() {
         load();
         return subdirs;
@@ -75,7 +80,7 @@ public class Directory {
             File [] subdirList = directory.listFiles(DIRECTORY_FILTER);
             subdirs = new ArrayList<Directory>();
             for (int i = 0; i < subdirList.length; i++) {
-                subdirs.add(new Directory(subdirList[i], fileFilter));
+                subdirs.add(newDirectory(subdirList[i], fileFilter));
             }
             subdirs = Collections.unmodifiableList(subdirs);
         }
@@ -95,4 +100,7 @@ public class Directory {
         return list;
     }
     
+    protected Directory newDirectory(File directory, FilenameFilter fileFilter) {
+    	return new Directory(directory, fileFilter);
+    }
 }

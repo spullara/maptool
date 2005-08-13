@@ -117,7 +117,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 	        	boolean isSelectedZone = renderer == currentRenderer;
 	        	
 	            // TODO: This is a naive solution.  In the future, actually render the zone
-	            BufferedImage img = renderer.getBackgroundImage();
+	            BufferedImage img = renderer.getMiniImage();
 	            if (img == null) {
 	                img = ImageManager.UNKNOWN_IMAGE;
 	            }

@@ -77,8 +77,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     protected Zone              zone;
 
-    protected BufferedImage     backgroundImage;
-
     protected Point             viewOffset = new Point();
 
     protected boolean           showGrid;
@@ -297,8 +295,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         repaint();
     }
     
-    public abstract BufferedImage getBackgroundImage();    
-
+    public abstract BufferedImage getMiniImage();
+    
     public void paintComponent(Graphics g) {
 
 		Graphics2D g2d = (Graphics2D) g;

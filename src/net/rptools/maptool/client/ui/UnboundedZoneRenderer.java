@@ -98,10 +98,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
         
 	}
 
-	/* (non-Javadoc)
-	 * @see net.rptools.maptool.client.ZoneRenderer#getBackgroundImage()
-	 */
-	public BufferedImage getBackgroundImage() {
+	public BufferedImage getMiniImage() {
 		return backBuffer;
 	}
 	

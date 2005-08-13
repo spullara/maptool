@@ -37,43 +37,49 @@ import net.rptools.maptool.util.ImageManager;
 
 public class MapZoneRenderer extends ZoneRenderer {
 
-    private int     width;
-    private int     height;
-
+    private BufferedImage backgroundImage;
+    
     public MapZoneRenderer (Zone zone) {
         super(zone);
     }
     
+    @Override
+    public BufferedImage getMiniImage() {
+    	return getBackgroundImage();
+    }
     
-    public BufferedImage getBackgroundImage() {
+    private BufferedImage getBackgroundImage() {
         
-        if (backgroundImage != null) { return backgroundImage; }
         if (zone == null) { return null; }
+        if (backgroundImage != ImageManager.UNKNOWN_IMAGE && backgroundImage != null) { return backgroundImage; }
+        System.out.println ("Loading map");
         
         Asset asset = AssetManager.getAsset(zone.getAssetID());
         if (asset == null) {
 
-            MapTool.serverCommand().getAsset(zone.getAssetID());
+        	// Only request the asset once
+        	if (backgroundImage == null) {
+        		MapTool.serverCommand().getAsset(zone.getAssetID());
+        	}
         	
-            return ImageManager.UNKNOWN_IMAGE;
-        } 
+            backgroundImage = ImageManager.UNKNOWN_IMAGE;
+        } else {
 
-        backgroundImage = ImageManager.getImage(asset);
+        	backgroundImage = ImageManager.getImage(asset);
+        }
         
-        width = backgroundImage.getWidth(this);
-        height = backgroundImage.getHeight(this);
-
         return backgroundImage;
     }
     
     protected void renderBorder(Graphics2D g) {
         
 //        Dimension size = getSize();
+        BufferedImage mapImage = getBackgroundImage();
         
         // Scale
         float scale = scaleArray[scaleIndex];
-        int w = (int)(width * scale);
-        int h = (int)(height * scale);
+        int w = (int)(mapImage.getWidth() * scale);
+        int h = (int)(mapImage.getHeight() * scale);
 
         // Border
 //        if (viewOffset.x > 0) {
@@ -97,13 +103,15 @@ public class MapZoneRenderer extends ZoneRenderer {
     }
     
     protected void renderBoard(Graphics2D g) {
+    	System.out.println("BOARD " + System.currentTimeMillis());
+        BufferedImage mapImage = getBackgroundImage();
 
         Dimension size = getSize();
         
         // Scale
         float scale = scaleArray[scaleIndex];
-        int w = (int)(width * scale);
-        int h = (int)(height * scale);
+        int w = (int)(mapImage.getWidth() * scale);
+        int h = (int)(mapImage.getHeight() * scale);
 
         if (viewOffset.x > size.width - EDGE_LIMIT) {
             viewOffset.x = size.width - EDGE_LIMIT;
@@ -122,14 +130,16 @@ public class MapZoneRenderer extends ZoneRenderer {
         }
         
         // Map
-        g.drawImage(backgroundImage, viewOffset.x, viewOffset.y, w, h, this);
+        g.drawImage(mapImage, viewOffset.x, viewOffset.y, w, h, this);
     }
     
     protected void renderGrid(Graphics2D g) {
         
+        BufferedImage mapImage = getBackgroundImage();
         float scale = scaleArray[scaleIndex];
-        int w = (int)(width * scale);
-        int h = (int)(height * scale);
+
+        int w = (int)(mapImage.getWidth() * scale);
+        int h = (int)(mapImage.getHeight() * scale);
 
         float gridSize = zone.getGridSize() * scale;
 

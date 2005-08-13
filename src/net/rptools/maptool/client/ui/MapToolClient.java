@@ -35,11 +35,9 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
 import net.rptools.common.swing.FramePreferences;
@@ -50,7 +48,6 @@ import net.rptools.common.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ZoneListener;
 import net.rptools.maptool.client.swing.ColorPickerButton;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
@@ -65,9 +62,7 @@ import net.rptools.maptool.client.tool.drawing.OvalFillTool;
 import net.rptools.maptool.client.tool.drawing.OvalTool;
 import net.rptools.maptool.client.tool.drawing.RectangleFillTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
-import net.rptools.maptool.client.ui.model.Directory;
-import net.rptools.maptool.client.ui.model.PlayerListModel;
-import net.rptools.maptool.model.AssetGroup;
+import net.rptools.maptool.client.ui.model.AssetDirectory;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Pen;
@@ -243,7 +238,7 @@ public class MapToolClient extends JFrame implements ZoneListener {
     
     public void addAssetRoot(File rootDir) {
         
-    	assetPanel.addAssetRoot(new Directory(rootDir, AppConstants.IMAGE_FILE_FILTER));
+    	assetPanel.addAssetRoot(new AssetDirectory(rootDir, AppConstants.IMAGE_FILE_FILTER));
     	
         if (mainSplitPane.isLeftHidden()) {
             mainSplitPane.showLeft();

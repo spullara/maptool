@@ -29,6 +29,8 @@ import java.awt.datatransfer.Transferable;
 
 import net.rptools.common.swing.ImagePanelModel;
 import net.rptools.maptool.client.TransferableAsset;
+import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.ImageManager;
 
 public class ImageFileImagePanelModel implements ImagePanelModel {
@@ -44,13 +46,24 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 	}
 
 	public Image getImage(int index) {
-        return ImageManager.UNKNOWN_IMAGE;
-//		return ImageManager.getImage(assetGroup.getAssets().get(index));
+		Asset asset = null;
+		if (dir instanceof AssetDirectory) {
+			
+			asset = ((AssetDirectory) dir).getAssetFor(dir.getFiles().get(index));
+		}
+		
+		return asset != null ? ImageManager.getImage(asset) : ImageManager.UNKNOWN_IMAGE;
 	}
 
 	public Transferable getTransferable(int index) {
-//		return new TransferableAsset(assetGroup.getAssets().get(index));
-        return null;
+		Asset asset = null;
+		if (dir instanceof AssetDirectory) {
+			asset = ((AssetDirectory) dir).getAssetFor(dir.getFiles().get(index));
+			// Now is a good time to tell the system about it
+			AssetManager.putAsset(asset);
+		}
+		
+		return asset != null ? new TransferableAsset(asset) : null;
 	}
     
     public String getCaption(int index) {
