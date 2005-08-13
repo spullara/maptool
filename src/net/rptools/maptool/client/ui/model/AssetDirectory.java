@@ -29,6 +29,12 @@ public class AssetDirectory extends Directory {
 		super(directory, fileFilter);
 	}
 
+	@Override
+	public void refresh() {
+		assetMap.clear();
+		super.refresh();
+	}
+	
 	/**
 	 * Returns the asset associated with this file, or null if the
 	 * file has not yet been loaded as an asset
