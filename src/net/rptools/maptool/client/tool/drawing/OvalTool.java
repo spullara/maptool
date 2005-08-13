@@ -73,7 +73,9 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
             }
 
             oval.draw(g, pen, 0, 0);
-            ToolHelper.drawBoxedMeasurement(renderer, g, oval.getStartPoint(), oval.getEndPoint(), false);
+            
+            // TODO: figure this out
+            //ToolHelper.drawBoxedMeasurement(renderer, g, oval.getStartPoint(), oval.getEndPoint(), false);
         }
     }
 

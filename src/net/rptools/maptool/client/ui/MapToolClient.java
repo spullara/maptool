@@ -54,7 +54,6 @@ import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
 import net.rptools.maptool.client.swing.StatusPanel;
-import net.rptools.maptool.client.tool.MeasuringTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
 import net.rptools.maptool.client.tool.drawing.LineTool;
@@ -255,7 +254,6 @@ public class MapToolClient extends JFrame implements ZoneListener {
 		ToolboxBar toolbox = new ToolboxBar();
 		
 		toolbox.addTool(new PointerTool());
-		toolbox.addTool(new MeasuringTool());
 
         toolbox.add(Box.createHorizontalStrut(15));
 

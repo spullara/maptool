@@ -124,7 +124,8 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
                 Point start = pointList.get(pointList.size()-2);
                 Point end = pointList.get(pointList.size()-1);
                 
-            	ToolHelper.drawMeasurement(renderer, g, new ScreenPoint(start.x, start.y), new ScreenPoint(end.x, end.y), false);
+                // TODO: Figure this out
+            	//ToolHelper.drawMeasurement(renderer, g, new ScreenPoint(start.x, start.y), new ScreenPoint(end.x, end.y), false);
             }
         }
 	}

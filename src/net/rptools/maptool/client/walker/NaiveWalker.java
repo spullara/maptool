@@ -22,53 +22,55 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.walker;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import net.rptools.maptool.client.AbstractZoneWalker;
+import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.model.Zone;
 
-public abstract class AbstractMapWalker implements MapWalker {
+public class NaiveWalker extends AbstractZoneWalker {
 
-    private ZonePoint start;
-    private ZonePoint end;
-    private Zone zone;
-    
-    private List<ZonePoint> path;
+	public NaiveWalker (Zone zone) {
+		super(zone);
+	}
+	
+	private int distance;
+	
+	@Override
+	protected List<CellPoint> calculatePath(CellPoint start, CellPoint end) {
 
-    public AbstractMapWalker(Zone zone) {
-        this.zone = zone;
-    }
+		List<CellPoint> list = new ArrayList<CellPoint>();
+		
+		int x = start.x;
+		int y = start.y;
+		
+		int count = 0;
+		while (true && count < 100) {
+			
+			list.add(new CellPoint(x, y));
+			
+			if (x == end.x && y == end.y) {
+				break;
+			}
+			
+			if (x < end.x) x++;
+			if (x > end.x) x--;
+			if (y < end.y) y++;
+			if (y > end.y) y--;
+			
+			count ++;
+		}
 
-    public Zone getZone() {
-        return zone;
-    }
-    
-    public void setEndPoints(ZonePoint start, ZonePoint end) {
-        this.start = start;
-        this.end = end;
-        
-        path = null;
-    }
+		distance = list.size() * 5;
+		return list;
+	}
 
-    public void setStartPoint(ZonePoint start) {
-        this.start = start;
-        path = null;
-    }
+	@Override
+	public int getDistance() {
 
-    public void setEndPoint(ZonePoint end) {
-        this.end = end;
-        path = null;
-    }
-
-    public List<ZonePoint> getPath() {
-
-        if (path == null) {
-            path = calculatePath(start, end);
-        }
-        
-        return path;
-    }
-
-    protected abstract List<ZonePoint> calculatePath(ZonePoint start, ZonePoint end);
+		return distance;
+	}
 }

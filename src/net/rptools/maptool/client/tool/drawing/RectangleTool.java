@@ -74,7 +74,9 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
             }
         	
             rectangle.draw(g, pen, 0, 0);
-            ToolHelper.drawBoxedMeasurement(renderer, g, rectangle.getStartPoint(), rectangle.getEndPoint(), false);
+            
+            // TODO: Figure this out
+            //ToolHelper.drawBoxedMeasurement(renderer, g, rectangle.getStartPoint(), rectangle.getEndPoint(), false);
         }
     }
 

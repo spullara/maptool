@@ -54,7 +54,9 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.ZoneWalker;
 import net.rptools.maptool.client.tool.ToolHelper;
+import net.rptools.maptool.client.walker.NaiveWalker;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
@@ -366,19 +368,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				// Show distance only on the key token
 				if (token == keyToken) {
 
-                    ScreenPoint srcSPoint = ScreenPoint.fromZonePoint(this, token.getX() + (width/2), token.getY() + (height/2));
-                    ScreenPoint dstSPoint = new ScreenPoint(newScreenPoint.x + (scaledWidth/2), newScreenPoint.y + (scaledHeight/2));
-                    
-					g.setColor(Color.darkGray);
-					g.drawLine(srcSPoint.x-1, srcSPoint.y-1, dstSPoint.x-1, dstSPoint.y-1);
-					
-					g.setColor(Color.lightGray);
-					g.drawLine(srcSPoint.x, srcSPoint.y, dstSPoint.x, dstSPoint.y);
-					
-					g.setColor(Color.black);
-					g.drawLine(srcSPoint.x+1, srcSPoint.y+1, dstSPoint.x+1, dstSPoint.y+1);
-
-					ToolHelper.drawMeasurement(set.getPlayerId(), this, g, srcSPoint, dstSPoint, true);
+					ZoneWalker walker = set.getWalker();
+					System.out.println ("Walker: " + walker.getDistance() + " - " + walker.getPath());
 				}
 				
 				g.drawImage(getScaledToken(token, scaledWidth, scaledHeight), newScreenPoint.x, newScreenPoint.y, this);			
@@ -630,6 +621,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		private HashSet<GUID> selectionSet = new HashSet<GUID>();
 		private GUID keyToken;
 		private String playerId;
+		private ZoneWalker walker;
+		private Token token;
 		
 		// Pixel distance from keyToken's origin
         private int offsetX;
@@ -640,6 +633,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			selectionSet.addAll(selectionList);
 			keyToken = tokenGUID;
 			this.playerId = playerId;
+			
+			token = zone.getToken(tokenGUID);
+			CellPoint tokenPoint = new CellPoint(token.getX()/zone.getFeetPerCell(), token.getY()/zone.getFeetPerCell());
+			walker = new NaiveWalker(zone);
+			walker.setEndPoints(tokenPoint, tokenPoint);
+		}
+		
+		public ZoneWalker getWalker() {
+			return walker;
 		}
 		
 		public GUID getKeyToken() {
@@ -655,6 +657,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 		
 		public void setOffset(int x, int y) {
+			CellPoint point = new CellPoint((token.getX()+offsetX)/zone.getFeetPerCell(), (token.getY()+offsetY)/zone.getFeetPerCell());
+			walker.setEndPoint(point);
+			System.out.println ("PNT: " + point);
             offsetX = x;
             offsetY = y;
 		}

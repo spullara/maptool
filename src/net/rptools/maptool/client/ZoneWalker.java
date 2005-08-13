@@ -27,11 +27,12 @@ package net.rptools.maptool.client;
 import java.util.List;
 
 
-public interface MapWalker {
+public interface ZoneWalker {
 
-    public void setEndPoints(ZonePoint start, ZonePoint end);
-    public void setStartPoint(ZonePoint start);
-    public void setEndPoint(ZonePoint endPoint);
+    public void setEndPoints(CellPoint start, CellPoint end);
+    public void setStartPoint(CellPoint start);
+    public void setEndPoint(CellPoint endPoint);
 
-    public List<ZonePoint> getPath();
+    public int getDistance();
+    public List<CellPoint> getPath();
 }
