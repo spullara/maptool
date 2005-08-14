@@ -30,6 +30,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
@@ -504,12 +505,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         }
         
         // Scale and save
-        int scaleType = width > image.getWidth() ? Image.SCALE_FAST : Image.SCALE_SMOOTH;
-        Image scaledImage = image.getScaledInstance(width, height, scaleType);
-        image = ImageUtil.createCompatibleImage(scaledImage);
-        resizedImageMap.put(token, image);
+        BufferedImage scaledImage = new BufferedImage(width, height, Transparency.BITMASK);
+        Graphics2D g = (Graphics2D)scaledImage.getGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.drawImage(image, 0, 0, width, height, this);
+        g.dispose();
+
+        resizedImageMap.put(token, scaledImage);
         
-        return image;
+        return scaledImage;
     }
     
     public Set<GUID> getSelectedTokenSet() {
