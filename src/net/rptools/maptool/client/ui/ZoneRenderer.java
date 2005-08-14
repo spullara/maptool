@@ -30,6 +30,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Transparency;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
@@ -38,6 +39,7 @@ import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,6 +49,7 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 
+import net.rptools.common.swing.SwingUtil;
 import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientStyle;
@@ -63,6 +66,7 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 
 
@@ -88,6 +92,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     protected static float[]    scaleArray  = new float[] { .25F, .30F, .40F, .50F, .60F, .75F, 1F, 1.25F, 1.5F, 1.75F, 2F, 3F, 4F};
     protected static int SCALE_1TO1_INDEX; // Automatically scanned for
 
+    private static BufferedImage cellHighlightImage;
+    
     private DrawableRenderer drawableRenderer = new DrawableRenderer();
     
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
@@ -107,6 +113,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     			SCALE_1TO1_INDEX = i;
     			break;
     		}
+    	}
+    	
+    	try {
+    		cellHighlightImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/blueDot.png");
+    	} catch (IOException ioe) {
+    		ioe.printStackTrace();
     	}
     }
     
@@ -338,6 +350,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		for (SelectionSet set : selectionSetMap.values()) {
 			
 			Token keyToken = zone.getToken(set.getKeyToken());
+			ZoneWalker walker = set.getWalker();
 
 			int setOffsetX = set.getOffsetX();
 			int setOffsetY = set.getOffsetY();
@@ -368,14 +381,39 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				// Show distance only on the key token
 				if (token == keyToken) {
 
-					ZoneWalker walker = set.getWalker();
-					System.out.println ("Walker: " + walker.getDistance() + " - " + walker.getPath());
+					// Render the path
+					List<CellPoint> path = walker.getPath();
+					for (CellPoint p : path) {
+						highlightCell(g, p);
+					}
+				}
+
+				g.drawImage(getScaledToken(token, scaledWidth, scaledHeight), newScreenPoint.x, newScreenPoint.y, this);			
+
+				// Other details
+				if (token == keyToken) {
+
+					int y = newScreenPoint.y + scaledHeight + 10;
+					int x = newScreenPoint.x + scaledWidth/2;
+					GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
+					if (set.getPlayerId() != null && set.getPlayerId().length() > 0) {
+						GraphicsUtil.drawBoxedString(g, set.getPlayerId(), x, y + 20);
+					}
 				}
 				
-				g.drawImage(getScaledToken(token, scaledWidth, scaledHeight), newScreenPoint.x, newScreenPoint.y, this);			
 			}
 
 		}
+	}
+	
+	protected void highlightCell(Graphics2D g, CellPoint point) {
+		
+		int gridSize = (int) getScaledGridSize();
+		
+		// Top left of cell
+		ScreenPoint p = ScreenPoint.fromZonePoint(this, point.x*zone.getGridSize(), point.y*zone.getGridSize());
+
+		g.drawImage(cellHighlightImage, p.x+gridSize/4, p.y+gridSize/4, gridSize/2, gridSize/2, this);
 	}
 	
     protected void renderTokens(Graphics2D g) {
@@ -635,7 +673,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			this.playerId = playerId;
 			
 			token = zone.getToken(tokenGUID);
-			CellPoint tokenPoint = new CellPoint(token.getX()/zone.getFeetPerCell(), token.getY()/zone.getFeetPerCell());
+			CellPoint tokenPoint = new CellPoint(token.getX()/zone.getGridSize(), token.getY()/zone.getGridSize());
 			walker = new NaiveWalker(zone);
 			walker.setEndPoints(tokenPoint, tokenPoint);
 		}
@@ -657,9 +695,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 		
 		public void setOffset(int x, int y) {
-			CellPoint point = new CellPoint((token.getX()+offsetX)/zone.getFeetPerCell(), (token.getY()+offsetY)/zone.getFeetPerCell());
+			CellPoint point = new CellPoint((token.getX()+offsetX)/zone.getGridSize(), (token.getY()+offsetY)/zone.getGridSize());
 			walker.setEndPoint(point);
-			System.out.println ("PNT: " + point);
+
             offsetX = x;
             offsetY = y;
 		}

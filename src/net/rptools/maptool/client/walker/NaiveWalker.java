@@ -64,7 +64,7 @@ public class NaiveWalker extends AbstractZoneWalker {
 			count ++;
 		}
 
-		distance = list.size() * 5;
+		distance = (list.size()-1) * 5;
 		return list;
 	}
 
