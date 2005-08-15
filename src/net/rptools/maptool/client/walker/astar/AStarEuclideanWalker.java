@@ -22,30 +22,32 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.walker.astar;
 
-public abstract class AbstractPoint {
+import net.rptools.maptool.client.CellPoint;
+import net.rptools.maptool.model.Zone;
 
-    public int x;
-    public int y;
-    
-    public AbstractPoint(int x, int y) {
-        this.x = x;
-        this.y = y;
+public class AStarEuclideanWalker extends AbstractAStarWalker {
+
+	public AStarEuclideanWalker (Zone zone) {
+		super(zone);
+	}
+
+	@Override
+	protected double gScore(CellPoint p1, CellPoint p2) {
+		return euclideanDistance(p1, p2);
+	}
+
+	@Override
+	protected double hScore(CellPoint p1, CellPoint p2) {
+		return euclideanDistance(p1, p2);
+	}
+
+	private double euclideanDistance(CellPoint p1, CellPoint p2) {
+        int a = p2.x - p1.x;
+        int b = p2.y - p1.y;
+
+        return Math.sqrt(a * a + b * b);
     }
-    
-    public void translate(int dx, int dy) {
-        x += dx;
-        y += dy;
-    }
-    
-    public boolean equals(Object o) {
-    	AbstractPoint p = (AbstractPoint) o;
-    	
-    	return p.x == x && p.y == y;
-    }
-    
-    public String toString() {
-        return "[" + x + "." + y + "]";
-    }
+
 }

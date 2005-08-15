@@ -61,6 +61,7 @@ import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ZoneWalker;
 import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.walker.NaiveWalker;
+import net.rptools.maptool.client.walker.astar.AStarEuclideanWalker;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
@@ -679,7 +680,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			
 			token = zone.getToken(tokenGUID);
 			CellPoint tokenPoint = new CellPoint(token.getX()/zone.getGridSize(), token.getY()/zone.getGridSize());
-			walker = new NaiveWalker(zone);
+			walker = new AStarEuclideanWalker(zone);
 			walker.setEndPoints(tokenPoint, tokenPoint);
 		}
 		
