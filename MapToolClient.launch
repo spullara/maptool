@@ -2,6 +2,7 @@
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.rptools.maptool.client.MapTool"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="maptool"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DMAPTOOL_DEV=true"/>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
