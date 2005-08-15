@@ -41,7 +41,10 @@ public class AppMenuBar extends JMenuBar {
         add(createActionMenu());
         add(createServerMenu());
         add(createGMMenu());
-        add(createDevMenu());
+        
+        if (System.getProperty("MAPTOOL_DEV") != null) {
+            add(createDevMenu());
+        }
     }
 
     protected JMenu createActionMenu() {
