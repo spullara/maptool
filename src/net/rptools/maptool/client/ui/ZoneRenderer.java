@@ -390,7 +390,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 					}
 				}
 
-				g.drawImage(getScaledToken(token, scaledWidth, scaledHeight), newScreenPoint.x, newScreenPoint.y, this);			
+				g.drawImage(getScaledToken(token, scaledWidth, scaledHeight), newScreenPoint.x+1, newScreenPoint.y+1, this);			
 
 				// Other details
 				if (token == keyToken) {
@@ -415,7 +415,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		// Top left of cell
 		ScreenPoint p = ScreenPoint.fromZonePoint(this, point.x*zone.getGridSize(), point.y*zone.getGridSize());
 
-		g.drawImage(cellHighlightImage, p.x+gridSize/4, p.y+gridSize/4, gridSize/2, gridSize/2, this);
+		g.drawImage(cellHighlightImage, p.x+gridSize/3, p.y+gridSize/3, gridSize/3, gridSize/3, this);
 	}
 	
     protected void renderTokens(Graphics2D g) {
@@ -513,7 +513,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         g.drawImage(image, 0, 0, width, height, this);
         g.dispose();
 
-        resizedImageMap.put(token, scaledImage);
+        // Don't store the image if it's a placeholder
+        // TODO: Optimize this, we don't want to rebuild resized temp images every refresh
+        if (image != ImageManager.UNKNOWN_IMAGE) {
+            resizedImageMap.put(token, scaledImage);
+        }
         
         return scaledImage;
     }
@@ -701,11 +705,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 		
 		public void setOffset(int x, int y) {
-			CellPoint point = new CellPoint((token.getX()+offsetX)/zone.getGridSize(), (token.getY()+offsetY)/zone.getGridSize());
-			walker.setEndPoint(point);
 
             offsetX = x;
             offsetY = y;
+            
+            int cellX = (token.getX()+offsetX)/zone.getGridSize();
+            int cellY = (token.getY()+offsetY)/zone.getGridSize();
+			CellPoint point = new CellPoint(cellX, cellY);
+			walker.setEndPoint(point);
+            
 		}
 		
 		public int getOffsetX() {
