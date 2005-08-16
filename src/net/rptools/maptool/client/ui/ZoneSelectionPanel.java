@@ -100,6 +100,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
     protected void paintComponent(Graphics g) {
         
         Dimension mySize = getSize();
+        boolean keepBackBuffer = true;
     	if (backbuffer == null || mySize.width != backbuffer.getWidth() || mySize.height != backbuffer.getHeight()) {
 
     		backbuffer = new BufferedImage(mySize.width, mySize.height, Transparency.BITMASK);
@@ -118,8 +119,9 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 	        	
 	            // TODO: This is a naive solution.  In the future, actually render the zone
 	            BufferedImage img = renderer.getMiniImage();
-	            if (img == null) {
+	            if (img == null || img == ImageManager.UNKNOWN_IMAGE) {
 	                img = ImageManager.UNKNOWN_IMAGE;
+                    keepBackBuffer = false;
 	            }
 	            
 	            int imgSize = isSelectedZone ? SELECTED_SIZE : UNSELECTED_SIZE;
@@ -153,6 +155,9 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
         }
 
     	g.drawImage(backbuffer, 0, 0, null);
+        if (!keepBackBuffer) {
+            backbuffer = null;
+        }
     }
 
     public ZoneRenderer getRendererAt(int x, int y) {
