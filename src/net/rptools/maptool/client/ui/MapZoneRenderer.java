@@ -52,7 +52,7 @@ public class MapZoneRenderer extends ZoneRenderer {
         
         if (zone == null) { return null; }
         if (backgroundImage != ImageManager.UNKNOWN_IMAGE && backgroundImage != null) { return backgroundImage; }
-        System.out.println ("Loading map");
+        //System.out.println ("Loading map");
         
         Asset asset = AssetManager.getAsset(zone.getAssetID());
         if (asset == null) {
@@ -103,7 +103,7 @@ public class MapZoneRenderer extends ZoneRenderer {
     }
     
     protected void renderBoard(Graphics2D g) {
-    	System.out.println("BOARD " + System.currentTimeMillis());
+
         BufferedImage mapImage = getBackgroundImage();
 
         Dimension size = getSize();
