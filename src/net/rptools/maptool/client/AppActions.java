@@ -76,6 +76,11 @@ public class AppActions {
                 return;
             }
             
+            if (!assetPanel.isAssetRoot(dir)) {
+                MapTool.showError("Must select a root group");
+                return;
+            }
+            
             AppPreferences.removeAssetRoot(dir.getPath());
             assetPanel.removeAssetRoot(dir);
         }

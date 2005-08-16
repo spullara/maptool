@@ -34,6 +34,7 @@ import net.rptools.common.swing.ImagePanel;
 import net.rptools.maptool.client.ui.model.AssetGroupImagePanelModel;
 import net.rptools.maptool.client.ui.model.Directory;
 import net.rptools.maptool.client.ui.model.ImageFileImagePanelModel;
+import net.rptools.maptool.client.ui.model.ImageFileTreeModel;
 
 public class AssetPanel extends JComponent {
 
@@ -58,6 +59,10 @@ public class AssetPanel extends JComponent {
 		add(BorderLayout.CENTER, splitPane);
 	}
 	
+    public boolean isAssetRoot(Directory dir) {
+        return ((ImageFileTreeModel) assetTree.getModel()).isRootGroup(dir);
+    }
+    
     public void removeAssetRoot(Directory dir) {
         assetTree.removeRootGroup(dir);
     }

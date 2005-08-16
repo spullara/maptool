@@ -46,6 +46,10 @@ public class ImageFileTreeModel implements TreeModel {
     public ImageFileTreeModel() {
     }
     
+    public boolean isRootGroup(Directory dir) {
+        return rootDirectories.contains(dir);
+    }
+    
     /* (non-Javadoc)
      * @see javax.swing.tree.TreeModel#getRoot()
      */
