@@ -48,6 +48,7 @@ import net.rptools.common.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.ZoneListener;
 import net.rptools.maptool.client.swing.ColorPickerButton;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
@@ -165,7 +166,17 @@ public class MapToolClient extends JFrame implements ZoneListener {
 		add(BorderLayout.SOUTH, statusPanel);
         
         addWindowListener(new FramePreferences(AppConstants.APP_NAME, this));
+        
+        restorePreferences();
 	}
+    
+    private void restorePreferences() {
+        
+        List<File> assetRootList = AppPreferences.getAssetRoots();
+        for (File file : assetRootList) {
+            addAssetRoot(file);
+        }
+    }
     
 	public PointerOverlay getPointerOverlay() {
 		return pointerOverlay;

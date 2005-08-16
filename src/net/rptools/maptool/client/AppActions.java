@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
@@ -40,10 +41,12 @@ import javax.swing.KeyStroke;
 import net.rptools.common.util.FileUtil;
 import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
+import net.rptools.maptool.client.ui.AssetPanel;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.client.ui.ZoneSelectionPanel;
+import net.rptools.maptool.client.ui.model.Directory;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
@@ -57,6 +60,28 @@ import net.rptools.maptool.util.PersistenceUtil;
  */
 public class AppActions {
 
+    public static final Action REMOVE_ASSET_ROOT = new ClientAction() {
+        
+        {
+            putValue(Action.NAME, "Remove");
+        }
+        
+        public void execute(ActionEvent e) {
+            
+            AssetPanel assetPanel = MapTool.getFrame().getAssetPanel(); 
+            Directory dir = assetPanel.getSelectedAssetRoot();
+            
+            if (dir == null) {
+                MapTool.showError("Select an asset group first");
+                return;
+            }
+            
+            AppPreferences.removeAssetRoot(dir.getPath());
+            assetPanel.removeAssetRoot(dir);
+        }
+        
+    };
+    
     public static final Action TYPE_COMMAND = new ClientAction() {
         
         {
@@ -457,7 +482,9 @@ public class AppActions {
                         return;
                     }
                     
-                    MapTool.getFrame().addAssetRoot(chooser.getSelectedFile());
+                    File root = chooser.getSelectedFile();
+                    MapTool.getFrame().addAssetRoot(root);
+                    AppPreferences.addAssetRoot(root);
                 }
                 
             });

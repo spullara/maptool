@@ -58,6 +58,14 @@ public class AssetPanel extends JComponent {
 		add(BorderLayout.CENTER, splitPane);
 	}
 	
+    public void removeAssetRoot(Directory dir) {
+        assetTree.removeRootGroup(dir);
+    }
+    
+    public Directory getSelectedAssetRoot() {
+        return assetTree.getSelectedAssetGroup();
+    }
+    
 	public void addAssetRoot(Directory dir) {
 		
 		assetTree.addRootGroup(dir);

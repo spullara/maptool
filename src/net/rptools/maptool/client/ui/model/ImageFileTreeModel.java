@@ -55,8 +55,13 @@ public class ImageFileTreeModel implements TreeModel {
 
     public void addRootGroup (Directory directory) {
     	rootDirectories.add(directory);
-      fireNodesInsertedEvent(new TreeModelEvent(this, new Object[]{getRoot()}, 
+        fireNodesInsertedEvent(new TreeModelEvent(this, new Object[]{getRoot()}, 
           new int[] { rootDirectories.size() - 1 }, new Object[] {directory}));
+    }
+    
+    public void removeRootGroup (Directory directory) {
+        rootDirectories.remove(directory);
+        fireStructureChangedEvent(new TreeModelEvent(this, new Object[]{getRoot()}));
     }
     
     /* (non-Javadoc)

@@ -54,6 +54,14 @@ public class Directory {
         this.fileFilter = fileFilter;
     }
     
+    public boolean equals(Object o) {
+        if (!(o instanceof Directory)) {
+            return false;
+        }
+        
+        return directory.equals(((Directory)o).directory);
+    }
+    
     public File getPath() {
         return directory;
     }

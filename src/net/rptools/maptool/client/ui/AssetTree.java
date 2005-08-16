@@ -34,6 +34,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.rptools.common.swing.PopupListener;
+import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.ui.model.Directory;
 import net.rptools.maptool.client.ui.model.ImageFileTreeModel;
 import net.rptools.maptool.model.AssetGroup;
@@ -44,7 +45,7 @@ import net.rptools.maptool.model.AssetGroup;
  */
 public class AssetTree extends JTree implements TreeSelectionListener {
 
-    private AssetGroup selectedAssetGroup;
+    private Directory selectedDirectory;
     private AssetPanel assetPanel;
 	
     public AssetTree(AssetPanel assetPanel) {
@@ -59,15 +60,21 @@ public class AssetTree extends JTree implements TreeSelectionListener {
         addTreeSelectionListener(this);
         
         getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        getSelectionModel().addTreeSelectionListener(this);
     }
 
+    public void removeRootGroup(Directory dir) {
+        
+        ((ImageFileTreeModel) getModel()).removeRootGroup(dir);
+    }
+    
     public void addRootGroup(Directory dir) {
     	
     	((ImageFileTreeModel) getModel()).addRootGroup(dir);
     }
     
-    public AssetGroup getSelectedAssetGroup() {
-        return selectedAssetGroup;
+    public Directory getSelectedAssetGroup() {
+        return selectedDirectory;
     }
     
     private MouseListener createPopupListener() {
@@ -81,13 +88,13 @@ public class AssetTree extends JTree implements TreeSelectionListener {
     private JPopupMenu createPopupMenu() {
         
         JPopupMenu menu = new JPopupMenu ();
-        menu.add(new JMenuItem("Nothing to see here"));
+        menu.add(new JMenuItem(AppActions.REMOVE_ASSET_ROOT));
         
         return menu;
     }
 
     public void refresh() {
-//        ((AssetTreeModel) getModel()).refresh();
+        ((ImageFileTreeModel) getModel()).refresh();
     }
     
     ////
@@ -97,12 +104,13 @@ public class AssetTree extends JTree implements TreeSelectionListener {
      */
     public void valueChanged(TreeSelectionEvent e) {
 
-        selectedAssetGroup = null;
+        selectedDirectory = null;
         
         Object node = e.getPath().getLastPathComponent();
         
         if (node instanceof Directory) {
-			
+
+            selectedDirectory = ((Directory) node);
 			assetPanel.setDirectory((Directory) node);
         }
     }
