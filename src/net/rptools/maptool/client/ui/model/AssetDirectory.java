@@ -83,11 +83,11 @@ public class AssetDirectory extends Directory {
 			Asset asset = null;
 			try {
 				asset = new Asset(FileUtil.loadFile(imageFile));
-				Asset existingAsset = AssetManager.getAsset(asset.getId());
-				if (existingAsset != null) {
-					asset = existingAsset;
+				if (AssetManager.hasAssetInMemory(asset.getId())) {
+					asset = AssetManager.getAsset(asset.getId());;
 				}
-			} catch (IOException ioe) {
+			} catch (Throwable t) {
+                t.printStackTrace();
 				asset = INVALID_ASSET;
 			}
 			

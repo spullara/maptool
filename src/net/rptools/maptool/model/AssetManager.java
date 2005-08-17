@@ -67,7 +67,11 @@ public class AssetManager {
 	public static boolean hasAsset(MD5Key key) {
 		return assetMap.containsKey(key) || assetIsInPersistentCache(key);
 	}
-	
+
+    public static boolean hasAssetInMemory(MD5Key key) {
+        return assetMap.containsKey(key);
+    }
+    
 	public static void putAsset(Asset asset) {
 		if (asset == null) {
 			return;
