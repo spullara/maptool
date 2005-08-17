@@ -58,7 +58,7 @@ import net.rptools.maptool.util.ImageManager;
  */
 public class ZoneSelectionPanel extends JPanel implements DropTargetListener, ZoneListener  {
 
-    private static final int PADDING = 10;
+    private static final int PADDING = 5;
     private static final int SELECTED_SIZE = 75;
     private static final int UNSELECTED_SIZE = 30;
     
@@ -129,9 +129,9 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 	            SwingUtil.constrainTo(size, imgSize);
 	
 	            if (horizontal) {
-	            	y = alignLeft ? PADDING : (mySize.height - imgSize) -PADDING;
+	            	y = alignLeft ? PADDING : (mySize.height - size.height) -PADDING;
 	            } else {
-	            	x = alignLeft ? PADDING : (mySize.width - imgSize) -PADDING;
+	            	x = alignLeft ? PADDING : (mySize.width - size.width) -PADDING;
 	            }
 	            
 	            g2d.drawImage(img, x, y, size.width, size.height, this);
