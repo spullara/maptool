@@ -33,6 +33,8 @@ public interface ZoneWalker {
 	public void addWaypoints(CellPoint... point);
 	
 	public CellPoint replaceLastWaypoint(CellPoint point);
+	
+	public boolean isWaypoint(CellPoint point);
 
     public int getDistance();
     public List<CellPoint> getPath();

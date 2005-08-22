@@ -89,6 +89,21 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
     	
     	return ret;
     }
+    
+    public boolean isWaypoint(CellPoint point) {
+    	if (point == null) return false;
+
+    	PartialPath last = null;
+    	for (PartialPath partial : partialPaths) {
+    		if (partial.start.equals(point)) return true;
+    		
+    		last = partial;
+    	}
+    	
+    	if (last.end.equals(point)) return true;
+    	
+    	return false;
+    }
 
     protected abstract List<CellPoint> calculatePath(CellPoint start, CellPoint end);
     
