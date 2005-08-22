@@ -28,10 +28,11 @@ import java.util.List;
 
 
 public interface ZoneWalker {
-
-    public void setEndPoints(CellPoint start, CellPoint end);
-    public void setStartPoint(CellPoint start);
-    public void setEndPoint(CellPoint endPoint);
+	
+    public void setWaypoints(CellPoint... points);
+	public void addWaypoints(CellPoint... point);
+	
+	public CellPoint replaceLastWaypoint(CellPoint point);
 
     public int getDistance();
     public List<CellPoint> getPath();

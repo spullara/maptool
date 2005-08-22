@@ -685,7 +685,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			token = zone.getToken(tokenGUID);
 			CellPoint tokenPoint = new CellPoint(token.getX()/zone.getGridSize(), token.getY()/zone.getGridSize());
 			walker = new AStarEuclideanWalker(zone);
-			walker.setEndPoints(tokenPoint, tokenPoint);
+			walker.setWaypoints(tokenPoint, tokenPoint);
 		}
 		
 		public ZoneWalker getWalker() {
@@ -712,7 +712,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int cellX = (token.getX()+offsetX)/zone.getGridSize();
             int cellY = (token.getY()+offsetY)/zone.getGridSize();
 			CellPoint point = new CellPoint(cellX, cellY);
-			walker.setEndPoint(point);
+			walker.replaceLastWaypoint(point);
             
 		}
 		

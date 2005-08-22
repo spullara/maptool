@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.walker.astar;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 		super(zone);
 	}
 
-	private int distance;
+	private int distance = -1;
 
 	private int[][] neighborMap = new int[][] { { -1, -1, 10 }, { 0, -1, 5 },
 			{ 1, -1, 10 }, { -1, 0, 5 }, { 1, 0, 5 }, { -1, 1, 10 },
@@ -97,7 +98,8 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 			node = node.parent;
 		}
 
-		distance = calculateDistance(ret);
+		distance = -1;
+		Collections.reverse(ret);
 		return ret;
 	}
 
@@ -123,7 +125,7 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 		return null;
 	}
 
-	protected int calculateDistance(List<CellPoint> path) {
+	private static int calculateDistance(List<CellPoint> path, int feetPerCell) {
 		if (path == null || path.size() == 0)
 			return 0;
 
@@ -142,7 +144,7 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 			int numStrt = Math.max(Math.abs(start.x - end.x), Math.abs(start.y
 					- end.y))
 					- numDiag;
-			distMethod1 = getZone().getFeetPerCell()
+			distMethod1 = feetPerCell
 					* (numStrt + numDiag + numDiag / 2);
 		}
 
@@ -173,7 +175,7 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 				previousPoint = point;
 			}
 
-			distMethod2 = getZone().getFeetPerCell()
+			distMethod2 = feetPerCell
 			* (numStrt + numDiag + numDiag / 2);
 		}
 		
@@ -187,6 +189,9 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 
 	@Override
 	public int getDistance() {
+		if (distance == -1) {
+			distance = calculateDistance(getPath(), getZone().getFeetPerCell());
+		}
 
 		return distance;
 	}

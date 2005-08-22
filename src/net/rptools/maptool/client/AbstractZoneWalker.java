@@ -24,18 +24,15 @@
  */
 package net.rptools.maptool.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.rptools.maptool.model.Zone;
 
 public abstract class AbstractZoneWalker implements ZoneWalker {
-
-    private CellPoint start;
-    private CellPoint end;
-    private Zone zone;
+    protected List<PartialPath> partialPaths = new ArrayList<PartialPath>();
+    protected final Zone zone;
     
-    private List<CellPoint> path;
-
     public AbstractZoneWalker(Zone zone) {
         this.zone = zone;
     }
@@ -44,41 +41,66 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
         return zone;
     }
     
-    public void setEndPoints(CellPoint start, CellPoint end) {
-        this.start = start;
-        this.end = end;
-        
-        path = null;
+    public void setWaypoints(CellPoint... points) {
+    	partialPaths.clear();
+    	addWaypoints(points);
     }
-
-    public void setStartPoint(CellPoint start) {
-    	if (start.x == this.start.x && start.y == this.start.y) {
-    		return;
+    
+    public void addWaypoints(CellPoint... points) {
+    	CellPoint previous = null;
+    	for (CellPoint current : points) {
+    		if (previous != null) {
+    			partialPaths.add(new PartialPath(previous, current, calculatePath(previous, current)));
+    		}
+    		
+    		previous = current;
     	}
-    	
-        this.start = start;
-        path = null;
     }
-
-    public void setEndPoint(CellPoint end) {
-    	if (end.x == this.end.x && end.y == this.end.y) {
-    		return;
-    	}
+    
+    public CellPoint replaceLastWaypoint(CellPoint point) {
+    	if (partialPaths.size() == 0) return null;
     	
-        this.end = end;
-        path = null;
-    }
+    	PartialPath oldPartial = partialPaths.remove(partialPaths.size()-1);
+    	
+    	// short circuit exit of the point hasn't changed.
+    	if (oldPartial.end.equals(point)) return null;
+    	
+    	partialPaths.add(new PartialPath(oldPartial.start, point, calculatePath(oldPartial.start, point)));
 
+    	return oldPartial.end;
+    }
+    
     public abstract int getDistance();
     
     public List<CellPoint> getPath() {
-
-        if (path == null) {
-            path = calculatePath(start, end);
-        }
-        
-        return path;
+    	List<CellPoint> ret = new ArrayList<CellPoint>();
+    	
+    	PartialPath last = null;
+    	for (PartialPath partial : partialPaths) {
+    		if (partial.path != null && partial.path.size() > 1) {
+    			ret.addAll(partial.path.subList(0, partial.path.size() - 1));
+    		}
+    		last = partial;
+    	}
+    	
+    	if (last != null) {
+    		ret.add(last.end);
+    	}
+    	
+    	return ret;
     }
 
     protected abstract List<CellPoint> calculatePath(CellPoint start, CellPoint end);
+    
+    protected static class PartialPath {
+    	final CellPoint start;
+    	final CellPoint end;
+    	final List<CellPoint> path;
+    	
+    	public PartialPath(CellPoint start, CellPoint end, List<CellPoint> path) {
+    		this.start = start;
+    		this.end = end;
+    		this.path = path;
+    	}
+    }
 }
