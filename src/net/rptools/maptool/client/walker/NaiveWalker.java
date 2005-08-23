@@ -27,7 +27,6 @@ package net.rptools.maptool.client.walker;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.rptools.maptool.client.AbstractZoneWalker;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.model.Zone;
 

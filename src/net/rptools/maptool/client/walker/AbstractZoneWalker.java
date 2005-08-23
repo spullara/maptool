@@ -22,11 +22,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.walker;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.model.Zone;
 
 public abstract class AbstractZoneWalker implements ZoneWalker {
@@ -63,7 +64,7 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
     	PartialPath oldPartial = partialPaths.remove(partialPaths.size()-1);
     	
     	// short circuit exit of the point hasn't changed.
-    	if (oldPartial.end.equals(point)) return null;
+    	//if (oldPartial.end.equals(point)) return null;
     	
     	partialPaths.add(new PartialPath(oldPartial.start, point, calculatePath(oldPartial.start, point)));
 
