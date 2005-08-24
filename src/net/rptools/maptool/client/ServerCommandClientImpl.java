@@ -120,7 +120,12 @@ public class ServerCommandClientImpl implements ServerCommand {
 	public void updateTokenMove(GUID zoneGUID, GUID tokenGUID, int x, int y) {
 		movementUpdateQueue.enqueue(COMMAND.updateTokenMove, zoneGUID, tokenGUID, x, y);
 	}
-	
+
+	public void addTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, int x, int y) {
+    	movementUpdateQueue.flush();
+    	makeServerCall(COMMAND.addTokenMoveWaypoint, zoneGUID, tokenGUID, x, y);
+    }
+
 	private static void makeServerCall(ServerCommand.COMMAND command, Object... params) {
         if (!MapTool.isConnected()) {return;}
         

@@ -205,11 +205,24 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 			int x = ((Integer) parameters[2]).intValue();
 			int y = ((Integer) parameters[3]).intValue();
 			
-			
 			renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
 			renderer.updateMoveSelectionSet(keyToken, new ZonePoint(x, y));
 
 			break;
+			
+        case addTokenMoveWaypoint:
+
+			zoneGUID = (GUID) parameters[0];
+			keyToken = (GUID) parameters[1];
+			
+			x = ((Integer) parameters[2]).intValue();
+			y = ((Integer) parameters[3]).intValue();
+			
+			renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
+			renderer.addMoveSelectionSetWaypoint(keyToken, new ZonePoint(x, y));
+
+			break;
+			
         }
         
         	

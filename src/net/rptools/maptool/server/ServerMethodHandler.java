@@ -165,6 +165,10 @@ public class ServerMethodHandler extends AbstractMethodHandler {
         	break;
         case updateTokenMove:
             broadcast(id, ClientCommand.COMMAND.updateTokenMove.name(), parameters);
+            break;
+        case addTokenMoveWaypoint:
+            broadcast(id, ClientCommand.COMMAND.addTokenMoveWaypoint.name(), parameters);
+            break;
         }
         	
     }

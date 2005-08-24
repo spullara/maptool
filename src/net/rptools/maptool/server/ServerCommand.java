@@ -56,6 +56,7 @@ public interface ServerCommand {
         hidePointer,
         startTokenMove,
         stopTokenMove,
+        addTokenMoveWaypoint,
         updateTokenMove
     };
     
@@ -77,4 +78,5 @@ public interface ServerCommand {
     public void startTokenMove(String playerId, GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList);
     public void updateTokenMove(GUID zoneGUID, GUID tokenGUID, int x, int y);
     public void stopTokenMove(GUID zoneGUID, GUID tokenGUID);
+    public void addTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, int x, int y);
 }

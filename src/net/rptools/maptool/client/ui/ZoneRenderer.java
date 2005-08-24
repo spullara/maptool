@@ -167,6 +167,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		set.setOffset(offset.x - token.getX(), offset.y - token.getY());
 		repaint();
 	}
+
+	public void addMoveSelectionSetWaypoint(GUID keyToken, ZonePoint location) {
+		SelectionSet set = selectionSetMap.get(keyToken);
+		if (set == null) {
+			return;
+		}
+		
+		Token token = zone.getToken(keyToken);
+		set.addWaypoint(location);
+		repaint();
+	}
 	
 	public void removeMoveSelectionSet (GUID keyToken) {
 		
@@ -709,11 +720,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             offsetX = x;
             offsetY = y;
             
+            // TODO: abstract this calculation
             int cellX = (token.getX()+offsetX)/zone.getGridSize();
             int cellY = (token.getY()+offsetY)/zone.getGridSize();
 			CellPoint point = new CellPoint(cellX, cellY);
 			walker.replaceLastWaypoint(point);
             
+		}
+		
+		public void addWaypoint(ZonePoint location) {
+			
+            int cellX = (location.x)/zone.getGridSize();
+            int cellY = (location.y)/zone.getGridSize();
+			CellPoint point = new CellPoint(cellX, cellY);
+			walker.addWaypoints(point);
 		}
 		
 		public int getOffsetX() {
