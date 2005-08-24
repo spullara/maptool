@@ -174,7 +174,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			return;
 		}
 		
-		Token token = zone.getToken(keyToken);
 		set.addWaypoint(location);
 		repaint();
 	}
@@ -733,6 +732,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int cellX = (location.x)/zone.getGridSize();
             int cellY = (location.y)/zone.getGridSize();
 			CellPoint point = new CellPoint(cellX, cellY);
+            System.out.println("Adding waypoint: " + location);
 			walker.addWaypoints(point);
 		}
 		

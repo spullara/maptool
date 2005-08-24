@@ -85,8 +85,6 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	
 	public void mousePressed(MouseEvent e) {
 
-        isDraggingMap = false;
-        isDraggingToken = false;
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 
 		// SELECTION
@@ -126,9 +124,20 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			} else {
 				renderer.clearSelectedTokens();
 			}
-			
+			return;
 		}
 		
+        // Waypoints
+        if (SwingUtilities.isRightMouseButton(e) && isDraggingToken) {
+            
+            ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
+            
+            renderer.addMoveSelectionSetWaypoint(tokenBeingDragged.getId(), zp);
+            
+            MapTool.serverCommand().addTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), zp.x, zp.y);
+            return;
+        }
+        
         // DRAG PREPARATION
         if (SwingUtilities.isRightMouseButton(e)) {
 
@@ -149,11 +158,15 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		
 		// POPUP MENU
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-        if (SwingUtilities.isRightMouseButton(e) && !isDraggingMap) {
+        if (SwingUtilities.isRightMouseButton(e)) {
         	
-        	if (renderer.getSelectedTokenSet().size() > 0) {
+        	if (!isDraggingMap && !isDraggingToken && renderer.getSelectedTokenSet().size() > 0) {
         		showTokenContextMenu(e);
         	}
+            
+            if (isDraggingMap) {
+                isDraggingMap = false;
+            }
         	return;
         }
 
@@ -161,6 +174,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		if (isDraggingToken) {
 			renderer.removeMoveSelectionSet(tokenBeingDragged.getId());
 			MapTool.serverCommand().stopTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId());
+            isDraggingToken = false;
 		}
 		
         // SELECT SINGLE TOKEN
@@ -172,10 +186,6 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	        	renderer.selectToken(token.getId());
 			}
         }
-        	
-        
-		isDraggingMap = false;
-		isDraggingToken = false;
 	}
 	
 	/* (non-Javadoc)
@@ -351,7 +361,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	// INTERNAL
 	
 	private void showTokenContextMenu(MouseEvent e) {
-		
+
     	JPopupMenu popup = new JPopupMenu();
     	ZoneRenderer renderer = (ZoneRenderer)e.getSource();
     	

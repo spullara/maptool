@@ -69,7 +69,7 @@ import net.rptools.maptool.model.drawing.Pen;
 
 /**
  */
-public class MapToolClient extends JFrame implements ZoneListener {
+public class MapToolClient extends JFrame {
     private static final long serialVersionUID = 3905523813025329458L;
 
 	// TODO: parameterize this (or make it a preference)
@@ -111,9 +111,6 @@ public class MapToolClient extends JFrame implements ZoneListener {
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		SwingUtil.centerOnScreen(this);
         
-		// Framework listeners
-        AppListeners.addZoneListener(this);
-		
 		// Components
 		toolboxPanel = createToolboxPanel();
 		assetPanel = new AssetPanel();
@@ -370,19 +367,5 @@ public class MapToolClient extends JFrame implements ZoneListener {
 		
 		return null;
 	}
-	
-	////
-	// Zone Listener
-	/* (non-Javadoc)
-	 * @see net.rptools.maptool.client.ZoneListener#zoneAdded(net.rptools.maptool.model.Zone)
-	 */
-	public void zoneAdded(Zone zone) {
-        setCurrentZoneRenderer(ZoneRendererFactory.newRenderer(zone));
-	}
-	
-	/* (non-Javadoc)
-	 * @see net.rptools.maptool.client.ZoneListener#zoneActivated(net.rptools.maptool.model.Zone)
-	 */
-	public void zoneActivated(Zone zone) {}
 	
 }

@@ -227,6 +227,9 @@ public class MapTool {
         serverCommand().putZone(zone);
         
         AppListeners.fireZoneAdded(zone);
+        
+        // Show the new zone
+        clientFrame.setCurrentZoneRenderer(ZoneRendererFactory.newRenderer(zone));
 	}
 	
 	public static Player getPlayer() {
