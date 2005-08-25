@@ -245,6 +245,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
     	resize();
     	getParent().doLayout();
     	repaint();
+    	System.out.println ("Zone added");
     }
 
     public void zoneActivated(Zone zone) {

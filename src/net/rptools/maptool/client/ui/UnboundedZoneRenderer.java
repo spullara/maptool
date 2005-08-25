@@ -99,7 +99,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 	}
 
 	public BufferedImage getMiniImage() {
-		return backBuffer;
+		return tileImage;
 	}
 	
 	private void createBackBuffer() {

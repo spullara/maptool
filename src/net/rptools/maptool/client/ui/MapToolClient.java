@@ -303,7 +303,7 @@ public class MapToolClient extends JFrame {
         return currentRenderer;
     }
     
-    public void addZoneRendererList(ZoneRenderer renderer) {
+    public void addZoneRenderer(ZoneRenderer renderer) {
         zoneRendererList.add(renderer);
     }
     

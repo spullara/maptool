@@ -184,7 +184,7 @@ public class MapTool {
         for (Zone zone : campaign.getZones()) {
             
             ZoneRenderer renderer = ZoneRendererFactory.newRenderer(zone);
-            clientFrame.addZoneRendererList(renderer);
+            clientFrame.addZoneRenderer(renderer);
             
             if (currRenderer == null){
                 currRenderer = renderer;

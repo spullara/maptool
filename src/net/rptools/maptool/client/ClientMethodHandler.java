@@ -27,21 +27,6 @@ package net.rptools.maptool.client;
 import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.draw;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.hidePointer;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.message;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.playerConnected;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.playerDisconnected;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.putAsset;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.putToken;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.putZone;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.removeAsset;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.removeToken;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.removeZone;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.setCampaign;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.setZoneGridSize;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.showPointer;
-import static net.rptools.maptool.client.ClientCommand.COMMAND.undoDraw;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.client.ui.ZoneRendererFactory;
 import net.rptools.maptool.model.Asset;
@@ -55,8 +40,6 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.startTokenMove;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.stopTokenMove;
 
 
 /**
@@ -79,10 +62,19 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	Campaign campaign = (Campaign) parameters[0];
         	MapTool.setCampaign(campaign);
             break;
+            
         case putZone:
         	Zone zone = (Zone) parameters[0];
         	MapTool.getCampaign().putZone(zone);
-        	MapTool.getFrame().setCurrentZoneRenderer(ZoneRendererFactory.newRenderer(zone));
+        	
+        	// TODO: combine this with MapTool.addZone()
+        	ZoneRenderer renderer = ZoneRendererFactory.newRenderer(zone);
+        	MapTool.getFrame().addZoneRenderer(renderer);
+        	if (MapTool.getFrame().getCurrentZoneRenderer() == null) {
+        		MapTool.getFrame().setCurrentZoneRenderer(renderer);
+        	}
+        	
+        	AppListeners.fireZoneAdded(zone);
             break;
         case removeZone:
             break;
@@ -184,7 +176,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 			GUID keyToken = (GUID) parameters[2];
 			Set<GUID> selectedSet = (Set<GUID>) parameters[3];
 			
-			ZoneRenderer renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
+			renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
 			renderer.addMoveSelectionSet(playerId, keyToken, selectedSet, true);
 			
         	break;
