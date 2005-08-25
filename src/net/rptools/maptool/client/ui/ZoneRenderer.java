@@ -95,6 +95,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     protected static int SCALE_1TO1_INDEX; // Automatically scanned for
 
     private static BufferedImage cellHighlightImage;
+    private static BufferedImage cellWaypointImage;
     
     private DrawableRenderer drawableRenderer = new DrawableRenderer();
     
@@ -119,6 +120,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	
     	try {
     		cellHighlightImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/blueDot.png");
+    		cellWaypointImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/redDot.png");
     	} catch (IOException ioe) {
     		ioe.printStackTrace();
     	}
@@ -396,7 +398,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 					// Render the path
 					List<CellPoint> path = walker.getPath();
 					for (CellPoint p : path) {
-						highlightCell(g, p);
+						highlightCell(g, p, walker.isWaypoint(p) ? cellWaypointImage : cellHighlightImage);
 					}
 				}
 
@@ -418,14 +420,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 	}
 	
-	protected void highlightCell(Graphics2D g, CellPoint point) {
+	protected void highlightCell(Graphics2D g, CellPoint point, BufferedImage image) {
 		
 		int gridSize = (int) getScaledGridSize();
 		
 		// Top left of cell
 		ScreenPoint p = ScreenPoint.fromZonePoint(this, point.x*zone.getGridSize(), point.y*zone.getGridSize());
 
-		g.drawImage(cellHighlightImage, p.x+gridSize/3, p.y+gridSize/3, gridSize/3, gridSize/3, this);
+		g.drawImage(image, p.x+gridSize/3, p.y+gridSize/3, gridSize/3, gridSize/3, this);
 	}
 	
     protected void renderTokens(Graphics2D g) {
@@ -732,7 +734,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int cellX = (location.x)/zone.getGridSize();
             int cellY = (location.y)/zone.getGridSize();
 			CellPoint point = new CellPoint(cellX, cellY);
-            System.out.println("Adding waypoint: " + location);
+
 			walker.addWaypoints(point);
 		}
 		
