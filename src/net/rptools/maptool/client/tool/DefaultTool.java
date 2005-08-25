@@ -175,6 +175,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			renderer.removeMoveSelectionSet(tokenBeingDragged.getId());
 			MapTool.serverCommand().stopTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId());
             isDraggingToken = false;
+            SwingUtil.showPointer(renderer);
 		}
 		
         // SELECT SINGLE TOKEN
@@ -277,6 +278,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 					MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), zonePoint.x, zonePoint.y);
 				}
 				isDraggingToken = true;
+                SwingUtil.hidePointer(renderer);
 			}
 			
 			return;
