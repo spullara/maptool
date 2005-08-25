@@ -396,9 +396,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				if (token == keyToken) {
 
 					// Render the path
+					boolean firstCell = true;
 					List<CellPoint> path = walker.getPath();
 					for (CellPoint p : path) {
-						highlightCell(g, p, walker.isWaypoint(p) ? cellWaypointImage : cellHighlightImage);
+						highlightCell(g, p, walker.isWaypoint(p) && !firstCell? cellWaypointImage : cellHighlightImage);
+						firstCell = false;
 					}
 				}
 
