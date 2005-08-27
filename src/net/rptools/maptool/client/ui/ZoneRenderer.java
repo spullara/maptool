@@ -522,8 +522,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         // Scale and save
         BufferedImage scaledImage = new BufferedImage(width, height, Transparency.BITMASK);
         Graphics2D g = (Graphics2D)scaledImage.getGraphics();
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+//        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+//        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g.drawImage(image, 0, 0, width, height, this);
         g.dispose();
 
