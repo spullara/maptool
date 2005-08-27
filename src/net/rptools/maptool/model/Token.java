@@ -43,13 +43,20 @@ public class Token {
     private int size = TokenSize.Size.Medium.value(); // Abstract size
     
 	private boolean snapToGrid = true; // Whether the token snaps to the current grid or is free floating
+	private boolean isVisible = true;
+	private String name;
 	
     public Token() {
         
     }
     
     public Token(MD5Key assetID) {
-        this.assetID = assetID;
+    	this("", assetID);
+    }
+    
+    public Token(String name, MD5Key assetID) {
+    	this.name = name;
+    	this.assetID = assetID;
     }
 
     public MD5Key getAssetID() {
@@ -120,6 +127,18 @@ public class Token {
      */
     public void setSnapToScale(boolean snapScale) {
         this.snapToScale = snapScale;
+    }
+    
+    public void setVisible(boolean visible) {
+    	this.isVisible = visible;
+    }
+    
+    public boolean isVisible() {
+    	return isVisible;
+    }
+    
+    public String getName() {
+    	return name;
     }
     
 	/**
