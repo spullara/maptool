@@ -25,34 +25,18 @@
 package net.rptools.maptool.client.ui;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Transparency;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.JPanel;
 
-import net.rptools.common.swing.SwingUtil;
-import net.rptools.common.util.ImageUtil;
-import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
-import net.rptools.maptool.client.ZoneListener;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.util.ImageManager;
 
 
 /**

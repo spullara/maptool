@@ -9,8 +9,6 @@ import java.awt.event.KeyListener;
 
 import javax.swing.JComponent;
 
-import net.rptools.maptool.client.MapTool;
-
 public class ChatField extends JComponent implements KeyListener {
 
 	private static final Dimension PREFERRED_SIZE = new Dimension(200, 25);

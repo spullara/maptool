@@ -24,15 +24,11 @@
  */
 package net.rptools.maptool.client.tool.drawing;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-import net.rptools.maptool.client.tool.ToolHelper;
-import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.drawing.Pen;
 
 /**

@@ -24,11 +24,8 @@
  */
 package net.rptools.maptool.client.ui;
 
-import java.awt.BorderLayout;
-
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 
 import net.rptools.maptool.client.MapTool;

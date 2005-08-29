@@ -30,9 +30,7 @@ import java.awt.Point;
 import java.awt.event.MouseListener;
 import java.util.List;
 
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
-import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;

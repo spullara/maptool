@@ -31,7 +31,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
 import net.rptools.common.swing.ImagePanel;
-import net.rptools.maptool.client.ui.model.AssetGroupImagePanelModel;
 import net.rptools.maptool.client.ui.model.Directory;
 import net.rptools.maptool.client.ui.model.ImageFileImagePanelModel;
 import net.rptools.maptool.client.ui.model.ImageFileTreeModel;

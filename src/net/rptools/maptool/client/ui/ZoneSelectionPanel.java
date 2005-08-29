@@ -44,7 +44,6 @@ import java.util.Map;
 import javax.swing.JPanel;
 
 import net.rptools.common.swing.SwingUtil;
-import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;

@@ -2,7 +2,6 @@ package net.rptools.maptool.client.ui.model;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;

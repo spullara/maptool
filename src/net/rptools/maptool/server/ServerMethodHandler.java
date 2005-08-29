@@ -35,21 +35,6 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.draw;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.getAsset;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.getZone;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.hidePointer;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.message;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.putAsset;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.putToken;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.putZone;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.removeAsset;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.removeToken;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.removeZone;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.setCampaign;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.setZoneGridSize;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.showPointer;
-import static net.rptools.maptool.server.ServerCommand.COMMAND.undoDraw;
 import net.rptools.maptool.util.MD5Key;
 
 /**

@@ -33,7 +33,6 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;

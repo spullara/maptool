@@ -37,7 +37,6 @@ import net.rptools.common.swing.PopupListener;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.ui.model.Directory;
 import net.rptools.maptool.client.ui.model.ImageFileTreeModel;
-import net.rptools.maptool.model.AssetGroup;
 
 
 

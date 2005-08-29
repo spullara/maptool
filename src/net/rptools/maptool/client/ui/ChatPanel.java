@@ -25,22 +25,9 @@
 package net.rptools.maptool.client.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Transparency;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.JComponent;
 
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroManager;
 
 public class ChatPanel extends JComponent  {

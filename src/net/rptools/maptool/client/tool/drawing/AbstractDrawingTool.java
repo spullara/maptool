@@ -25,7 +25,6 @@
 package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.event.MouseListener;
 
 import net.rptools.maptool.client.MapTool;

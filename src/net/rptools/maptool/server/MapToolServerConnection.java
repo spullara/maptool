@@ -32,7 +32,6 @@ import java.util.Map;
 import net.rptools.clientserver.hessian.server.ServerConnection;
 import net.rptools.clientserver.simple.server.ServerObserver;
 import net.rptools.maptool.client.ClientCommand;
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Player;
 
 /**

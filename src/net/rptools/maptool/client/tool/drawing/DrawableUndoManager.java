@@ -40,7 +40,6 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
-import net.rptools.maptool.server.MapToolServer;
 
 /**
  * This class controls the undo/redo behavior for drawables.
