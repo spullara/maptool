@@ -62,7 +62,7 @@ public class MeasureTool extends DefaultTool {
 	
 	public MeasureTool () {
         try {
-            setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/grid.gif")));
+            setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/Tool_Measure.gif")));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
