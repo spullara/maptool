@@ -24,7 +24,11 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
 import net.rptools.common.swing.ImageBorder;
+import net.rptools.common.util.ImageUtil;
 
 /**
  * @author trevor
@@ -36,5 +40,16 @@ public class ClientStyle {
 	public static ImageBorder selectedBorder = ImageBorder.RED;
 	
 	public static ImageBorder boardBorder = ImageBorder.WOOD;
+
+	public static BufferedImage tokenInvisible;
 	
+	static {
+		
+		try {
+			// Set defaults
+			tokenInvisible = ImageUtil.getImage("net/rptools/maptool/client/image/icon_invisible.png");
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
 }

@@ -27,9 +27,12 @@ package net.rptools.maptool.client.ui;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Transparency;
+import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
@@ -48,6 +51,7 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 
+import net.rptools.common.swing.SwingUtil;
 import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientStyle;
@@ -55,11 +59,14 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.tool.ToolHelper;
+import net.rptools.maptool.client.walker.NaiveWalker;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarEuclideanWalker;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
@@ -373,7 +380,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                     continue;
                 }
 				
-	            Asset asset = AssetManager.getAsset(token.getAssetID());
+            	// Don't bother if it's not visible
+            	if (!token.isVisible() && MapTool.getPlayer().getRole() != Player.Role.GM) {
+            		continue;
+            	}
+
+            	Asset asset = AssetManager.getAsset(token.getAssetID());
 	            if (asset == null) {
 	                continue;
 	            }
@@ -439,6 +451,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         tokenBoundsMap.clear();
         for (Token token : zone.getTokens()) {
 
+        	// Don't bother if it's not visible
+        	if (!token.isVisible() && MapTool.getPlayer().getRole() != Player.Role.GM) {
+        		continue;
+        	}
+        	
             int width = (int)(TokenSize.getWidth(token, gridSize) * scale);
             int height = (int)(TokenSize.getHeight(token, gridSize) * scale);
             
@@ -493,6 +510,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         }
     }
 
+    // LATER: I don't like this mechanism, it's too ugly, and exposes too much
+    // of the internal workings.  Fix it later
+    public void flush(Token token) {
+    	resizedImageMap.remove(token);
+    }
+    
     // TODO: This will create redundant copies of assets, but needs to do this
     // in order to account for tokens with the same asset of different sizes.
     // At some point, figure out a more intelligent way of doing this
@@ -520,6 +543,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 //        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 //        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g.drawImage(image, 0, 0, width, height, this);
+        
+        // Statuses
+        int offset = 0;
+        if (!token.isVisible()) {
+        	g.drawImage(ClientStyle.tokenInvisible, offset, 0, this);
+        	offset += ClientStyle.tokenInvisible.getWidth() + 3;
+        }
+        
         g.dispose();
 
         // Don't store the image if it's a placeholder
@@ -788,13 +819,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	        Token token = new Token(asset.getId());
 	        token.setX(p.x * zone.getGridSize());
 	        token.setY(p.y * zone.getGridSize());
-	
+
+//	        if (MapTool.getPlayer().getRole() == Player.Role.GM) {
+//	        	token.setVisible(false);
+//	        }
+//	        
 	        zone.putToken(token);
 
             MapTool.serverCommand().putToken(zone.getId(), token);
 	        
+            dtde.dropComplete(true);
 	        repaint();
+	        return;
     	}
+    	
+    	dtde.dropComplete(false);
     }
 
     /* (non-Javadoc)

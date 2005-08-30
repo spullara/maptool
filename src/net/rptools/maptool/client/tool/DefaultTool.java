@@ -27,6 +27,7 @@ package net.rptools.maptool.client.tool;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -242,6 +243,10 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			
+			if (tokenUnderMouse == null) {
+				return;
+			}
+			
 			if (isNewTokenSelected) {
 				renderer.clearSelectedTokens();
 				renderer.selectToken(tokenUnderMouse.getId());
@@ -365,7 +370,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	private void showTokenContextMenu(MouseEvent e) {
 
     	JPopupMenu popup = new JPopupMenu();
-    	ZoneRenderer renderer = (ZoneRenderer)e.getSource();
+    	final ZoneRenderer renderer = (ZoneRenderer)e.getSource();
     	
     	// SIZE
     	// TODO: Genericize the heck out of this.
@@ -386,7 +391,32 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("placeholder", !snapToGrid); 
         menuItem.setAction(new SnapToGridAction(snapToGrid, renderer));
         popup.add(menuItem);
-    	
+
+        // Visibility
+        menuItem = new JCheckBoxMenuItem("Visible", tokenUnderMouse.isVisible());
+        // TODO: Make this an action, not aic
+        menuItem.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+
+        		for (GUID guid : renderer.getSelectedTokenSet()) {
+        			
+        			Token token = renderer.getZone().getToken(guid);
+        			if (token == null) {
+        				continue;
+        			}
+        			
+        			token.setVisible(((JCheckBoxMenuItem )e.getSource()).isSelected());
+            		renderer.flush(token);
+
+            		MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+        		}
+
+        		renderer.repaint();
+        	}
+        });
+        popup.add(menuItem);
+        
+        
         // 
     	popup.show(renderer, e.getX(), e.getY());
 	}
