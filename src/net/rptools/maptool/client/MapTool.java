@@ -273,6 +273,10 @@ public class MapTool {
                 // TODO: implement this
                 //instance.server.stop();
             }
+            
+            // TODO: Create a generic way to update application state when 
+            // connecting
+            AppActions.TOGGLE_DROP_INVISIBLE.setEnabled(false);
         } catch (IOException ioe) {
             // This isn't critical, we're closing it anyway
             ioe.printStackTrace();

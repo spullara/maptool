@@ -53,6 +53,7 @@ import javax.swing.JComponent;
 
 import net.rptools.common.swing.SwingUtil;
 import net.rptools.common.util.ImageUtil;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
@@ -820,10 +821,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	        token.setX(p.x * zone.getGridSize());
 	        token.setY(p.y * zone.getGridSize());
 
-//	        if (MapTool.getPlayer().getRole() == Player.Role.GM) {
-//	        	token.setVisible(false);
-//	        }
-//	        
+	        if (AppState.isDropTokenAsInvisible()) {
+	        	token.setVisible(false);
+	        }
+	        
 	        zone.putToken(token);
 
             MapTool.serverCommand().putToken(zone.getId(), token);

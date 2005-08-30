@@ -49,6 +49,7 @@ import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.ColorPickerButton;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
@@ -63,6 +64,7 @@ import net.rptools.maptool.client.tool.drawing.RectangleFillTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.ui.model.AssetDirectory;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Pen;
 
@@ -281,6 +283,8 @@ public class MapToolClient extends JFrame {
         toolbox.add(Box.createHorizontalStrut(15));
         
         toolbox.add(new JToggleButton(AppActions.TOGGLE_GRID));
+        
+        toolbox.add(new JToggleButton(AppActions.TOGGLE_DROP_INVISIBLE));
         
         return toolbox;
 	}

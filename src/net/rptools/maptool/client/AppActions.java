@@ -149,10 +149,11 @@ public class AppActions {
         {
             //putValue(Action.NAME, "Toggle Grid");
             putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK));
+            putValue(Action.SHORT_DESCRIPTION, "Toggle Grid");
             try {
-            	putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/grid.gif")));
+                putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/grid.gif")));
             } catch (IOException ioe) {
-            	ioe.printStackTrace();
+                ioe.printStackTrace();
             }
         }
 
@@ -161,6 +162,25 @@ public class AppActions {
             if (renderer != null) {
                 renderer.toggleGrid();
             }
+        }
+    };
+
+    public static final Action TOGGLE_DROP_INVISIBLE = new ClientAction() {
+
+        {
+//            putValue(Action.NAME, "Drop Invisible");
+            putValue(Action.SHORT_DESCRIPTION, "Drop Invisible Toggle");
+            //putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK));
+            try {
+                putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/icon_invisible.png")));
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+            setEnabled(false);
+        }
+
+        public void execute(ActionEvent e) {
+            AppState.setDropTokenAsInvisible(!AppState.isDropTokenAsInvisible());
         }
     };
 
@@ -278,6 +298,10 @@ public class AppActions {
 
                 		// Connect to server
                         MapTool.createConnection("localhost", port, new Player(dialog.getUsername(), Player.Role.GM));
+                        
+                        // TODO: Create a generic way to update application state when 
+                        // connecting
+                        TOGGLE_DROP_INVISIBLE.setEnabled(true);
                 	} catch (UnknownHostException uh) {
                 		MapTool.showError("Whoah, 'localhost' is not a valid address.  Weird.");
                 		return;
@@ -318,6 +342,12 @@ public class AppActions {
             	}
             	
                 MapTool.createConnection(dialog.getServer(), dialog.getPort(), new Player(dialog.getUsername(), dialog.getRole()));
+
+                // TODO: Create a generic way to update application state when 
+                // connecting
+                if (MapTool.getPlayer().getRole() == Player.Role.GM) {
+                    TOGGLE_DROP_INVISIBLE.setEnabled(true);
+                }
             } catch (UnknownHostException e1) {
                 // TODO Auto-generated catch block
                 MapTool.showError("Unknown host");
