@@ -24,12 +24,15 @@
  */
 package net.rptools.maptool.client.tool;
 
+import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
@@ -41,11 +44,14 @@ import javax.swing.SwingUtilities;
 import net.rptools.common.swing.SwingUtil;
 import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.CellPoint;
+import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarEuclideanWalker;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.util.GraphicsUtil;
 
 
 /**
@@ -62,33 +68,88 @@ public class MeasureTool extends DefaultTool {
         }
     }
 
+    @Override
+    public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
+        
+        if (walker == null) {
+            return;
+        }
+
+        CellPoint firstCell = null;
+        CellPoint lastCell = null;
+        for (CellPoint point : walker.getPath()) {
+            
+            renderer.highlightCell(g, point, walker.isWaypoint(point) && firstCell != null ? ClientStyle.cellWaypointImage : ClientStyle.cellPathImage);
+
+            lastCell = point;
+            if (firstCell == null) {
+                firstCell = point;
+            }
+        }
+
+        ScreenPoint sp = lastCell.convertToScreen(renderer);
+        
+        int y = sp.y - 10;
+        int x = sp.x + (int)(renderer.getScaledGridSize()/2);
+        GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
+    }
+    
     ////
     // MOUSE LISTENER
 	@Override
 	public void mousePressed(java.awt.event.MouseEvent e){
 
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+        
+        CellPoint cellPoint = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
+        
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			walker = new AStarEuclideanWalker(renderer.getZone());
-		} else {
-			
-		}
+            walker.addWaypoints(cellPoint, cellPoint);
+            renderer.repaint();
+            return;
+		} 
+        
+        if (walker != null) {
+            walker.addWaypoints(cellPoint);
+            renderer.repaint();
+        }
+        
+        super.mousePressed(e);
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 
+        ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+
 		if (SwingUtilities.isLeftMouseButton(e)) {
 		
 			walker = null;
-			repaint();
+			renderer.repaint();
+            return;
 		}
+        
+        if (walker != null) {
+            return;
+        }
+        
+        super.mouseReleased(e);
 	}
 	
     ////
     // MOUSE MOTION LISTENER
 	@Override
-    public void mouseDragged(java.awt.event.MouseEvent e){
+    public void mouseDragged(MouseEvent e){
 
+        if (walker == null) {
+            super.mouseDragged(e);
+            return;
+        }
+
+        ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+        CellPoint cellPoint = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
+        walker.replaceLastWaypoint(cellPoint);
+        renderer.repaint();
     }
 }

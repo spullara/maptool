@@ -55,6 +55,7 @@ import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
 import net.rptools.maptool.client.swing.StatusPanel;
+import net.rptools.maptool.client.tool.MeasureTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
 import net.rptools.maptool.client.tool.drawing.LineTool;
@@ -263,6 +264,7 @@ public class MapToolClient extends JFrame {
 		ToolboxBar toolbox = new ToolboxBar();
 		
 		toolbox.addTool(new PointerTool());
+        toolbox.addTool(new MeasureTool());
 
         toolbox.add(Box.createHorizontalStrut(15));
 

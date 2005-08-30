@@ -36,18 +36,21 @@ import net.rptools.common.util.ImageUtil;
 public class ClientStyle {
 
 	public static ImageBorder border = ImageBorder.GRAY;
-    
 	public static ImageBorder selectedBorder = ImageBorder.RED;
-	
 	public static ImageBorder boardBorder = ImageBorder.WOOD;
 
 	public static BufferedImage tokenInvisible;
+
+    public static BufferedImage cellPathImage;
+    public static BufferedImage cellWaypointImage;
 	
 	static {
 		
 		try {
 			// Set defaults
 			tokenInvisible = ImageUtil.getImage("net/rptools/maptool/client/image/icon_invisible.png");
+            cellPathImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/blueDot.png");
+            cellWaypointImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/redDot.png");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

@@ -50,6 +50,7 @@ import javax.swing.SwingUtilities;
 import net.rptools.common.swing.SwingUtil;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.ZoneOverlay;
@@ -224,7 +225,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 		
-		CellPoint p = renderer.getCellAt(e.getX(), e.getY());
+		CellPoint p = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
 		if (p != null) {	
 			MapTool.getFrame().setStatusMessage("Cell: " + p.x + ", " + p.y);
 		}
@@ -236,7 +237,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 
-		CellPoint cellUnderMouse = renderer.getCellAt(e.getX(), e.getY());
+		CellPoint cellUnderMouse = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
 		if (cellUnderMouse != null) {
 			MapTool.getFrame().setStatusMessage("Cell: " + cellUnderMouse.x + ", " + cellUnderMouse.y);
 		}
