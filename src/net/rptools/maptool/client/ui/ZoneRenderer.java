@@ -27,12 +27,9 @@ package net.rptools.maptool.client.ui;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.Transparency;
-import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
@@ -51,7 +48,6 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 
-import net.rptools.common.swing.SwingUtil;
 import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.CellPoint;
@@ -60,8 +56,6 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.ZonePoint;
-import net.rptools.maptool.client.tool.ToolHelper;
-import net.rptools.maptool.client.walker.NaiveWalker;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarEuclideanWalker;
 import net.rptools.maptool.model.Asset;
@@ -97,9 +91,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     protected static float[]    scaleArray  = new float[] { .25F, .30F, .40F, .50F, .60F, .75F, 1F, 1.25F, 1.5F, 1.75F, 2F, 3F, 4F};
     protected static int SCALE_1TO1_INDEX; // Automatically scanned for
 
-    private static BufferedImage cellHighlightImage;
-    private static BufferedImage cellWaypointImage;
-    
     private DrawableRenderer drawableRenderer = new DrawableRenderer();
     
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
@@ -119,13 +110,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     			SCALE_1TO1_INDEX = i;
     			break;
     		}
-    	}
-    	
-    	try {
-    		cellHighlightImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/blueDot.png");
-    		cellWaypointImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/redDot.png");
-    	} catch (IOException ioe) {
-    		ioe.printStackTrace();
     	}
     }
     
@@ -419,7 +403,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 					boolean firstCell = true;
 					List<CellPoint> path = walker.getPath();
 					for (CellPoint p : path) {
-						highlightCell(g, p, walker.isWaypoint(p) && !firstCell? cellWaypointImage : cellHighlightImage);
+						highlightCell(g, p, walker.isWaypoint(p) && !firstCell? ClientStyle.cellWaypointImage : ClientStyle.cellPathImage);
 						firstCell = false;
 					}
 				}
@@ -442,7 +426,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 	}
 	
-	protected void highlightCell(Graphics2D g, CellPoint point, BufferedImage image) {
+	public void highlightCell(Graphics2D g, CellPoint point, BufferedImage image) {
 		
 		int gridSize = (int) getScaledGridSize();
 		
@@ -625,10 +609,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		return null;
 	}
 
-    public ZonePoint constrainToCell(int x, int y) {
-        return constrainToCell(new ZonePoint(x, y));
-    }
-    
     /**
      * Translate the zone coordinates in p and change them to cell coordinates.
      * Note that the result is not the cell x,y, but rather the zone x,y of the
@@ -671,9 +651,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
    * a new point will be created. 
    * @return The cell coordinates in the passed point or in a new point.
    */
-  public CellPoint getCellAt (int x, int y) {
+  public CellPoint getCellAt (ScreenPoint screenPoint) {
     
     double scale = scaleArray[scaleIndex];
+    
+    int x = screenPoint.x;
+    int y = screenPoint.y;
     
     // Translate
     x -= viewOffset.x + (int) (zone.getGridOffsetX() * scale);
@@ -684,25 +667,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     y = (int)Math.floor(y / (zone.getGridSize() * scale));
     
     return new CellPoint(x, y);
-  }
-  
-  /**
-   * Find the screen cooridnates of the upper left hand corner of a cell taking
-   * into acount scaling and translation. 
-   * 
-   * @param cell Get the coordinates of this cell.
-   * @param screen The point used to contains the screen coordinates. It may
-   * be <code>null</code>.
-   * @return The screen coordinates of the upper left hand corner in the passed
-   * point or in a new point.
-   */
-  public ScreenPoint getCellCooridnates(CellPoint cell) {
-    double scale = scaleArray[scaleIndex]; 
-
-    int x = viewOffset.x + (int)(zone.getGridOffsetX() * scale + cell.x * zone.getGridSize() * scale);
-    int y = viewOffset.y + (int)(zone.getGridOffsetY() * scale + cell.y * zone.getGridSize() * scale);
-    
-    return new ScreenPoint(x, y);
   }
   
     public double getScale() {
@@ -827,7 +791,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	Asset asset = TransferableHelper.getAsset(dtde);
 
     	if (asset != null) {
-	        CellPoint p = getCellAt((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY());
+	        CellPoint p = getCellAt(new ScreenPoint((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY()));
 	
 	        Token token = new Token(asset.getId());
 	        token.setX(p.x * zone.getGridSize());

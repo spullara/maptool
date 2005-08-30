@@ -35,6 +35,7 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.CellPoint;
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.GraphicsUtil;
 
@@ -132,7 +133,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 		
         // Find the cell in the middle of the screen
         Dimension size = getSize();
-        CellPoint cell = renderer.getCellAt(size.width/2, size.height/2); 
+        CellPoint cell = renderer.getCellAt(new ScreenPoint(size.width/2, size.height/2)); 
         
 		g.setColor(Color.black);
 		GraphicsUtil.drawBoxedString (g, cell.x + ", " + cell.y, 50, 15, SwingUtilities.LEFT);

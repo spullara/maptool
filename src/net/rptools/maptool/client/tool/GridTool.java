@@ -41,6 +41,7 @@ import net.rptools.common.swing.SwingUtil;
 import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.Zone;
 
@@ -158,7 +159,7 @@ public class GridTool extends DefaultTool {
     
     private void adjustGridSize(ZoneRenderer renderer, Size direction) {
     	
-    	CellPoint cell = renderer.getCellAt(mouseX, mouseY);
+    	CellPoint cell = renderer.getCellAt(new ScreenPoint(mouseX, mouseY));
         if (cell == null) { return; }
     	
     	int oldGridSize = renderer.getZone().getGridSize();
