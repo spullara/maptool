@@ -104,23 +104,23 @@ public class MapTool {
     }
     
     public static void startIndeterminateAction() {
-    	clientFrame.startIndeterminateAction();
+    	//clientFrame.startIndeterminateAction();
     }
     
     public static void endIndeterminateAction() {
-    	clientFrame.endIndeterminateAction();
+    	//clientFrame.endIndeterminateAction();
     }
     
     public static void startDeterminateAction(int totalWork) {
-    	clientFrame.startDeterminateAction(totalWork);
+    	//clientFrame.startDeterminateAction(totalWork);
     }
     
     public static void updateDeterminateActionProgress(int additionalWorkCompleted) {
-    	clientFrame.updateDeterminateActionProgress(additionalWorkCompleted);
+    	//clientFrame.updateDeterminateActionProgress(additionalWorkCompleted);
     }
     
     public static void endDeterminateAction() {
-    	clientFrame.endDeterminateAction();
+    	//clientFrame.endDeterminateAction();
     }
     
     public static void addPlayer(Player player) {
