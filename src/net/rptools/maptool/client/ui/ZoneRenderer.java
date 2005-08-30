@@ -190,15 +190,27 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			return;
 		}
 		
-		for (GUID tokenGUID : set.getTokens()) {
-			
-			Token token = zone.getToken(tokenGUID);
-			token.setX(set.getOffsetX() + token.getX());
-			token.setY(set.getOffsetY() + token.getY());
-		}
-
 		repaint();
 	}
+    
+    public void commitMoveSelectionSet (GUID keyToken) {
+
+        // TODO: Quick hack to handle updating server state
+        SelectionSet set = selectionSetMap.get(keyToken);
+
+        removeMoveSelectionSet(keyToken);
+        MapTool.serverCommand().stopTokenMove(getZone().getId(), keyToken);
+
+        for (GUID tokenGUID : set.getTokens()) {
+            
+            Token token = zone.getToken(tokenGUID);
+            token.setX(set.getOffsetX() + token.getX());
+            token.setY(set.getOffsetY() + token.getY());
+            
+            MapTool.serverCommand().putToken(zone.getId(), token);
+        }
+        
+    }
 
 	public boolean isTokenMoving(Token token) {
 		

@@ -173,8 +173,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 
 		// DRAG TOKEN COMPLETE
 		if (isDraggingToken) {
-			renderer.removeMoveSelectionSet(tokenBeingDragged.getId());
-			MapTool.serverCommand().stopTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId());
+            renderer.commitMoveSelectionSet(tokenBeingDragged.getId()); // TODO: figure out a better way
+
             isDraggingToken = false;
             SwingUtil.showPointer(renderer);
 		}
