@@ -24,37 +24,12 @@
  */
 package net.rptools.maptool.client;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import net.rptools.maptool.model.Zone;
 
 /**
  */
-public class AppListeners {
+public interface ZoneActivityListener {
 
-	private static List<ZoneActivityListener> zoneListenerList = Collections.synchronizedList(new ArrayList<ZoneActivityListener>());
-	
-	public static void addZoneListener(ZoneActivityListener listener) {
-		zoneListenerList.add(listener);
-	}
-	
-	public static boolean removeZoneListener(ZoneActivityListener listener) {
-		return zoneListenerList.remove(listener);
-	}
-	
-	public static void fireZoneAdded(Zone zone) {
-		
-		for (ZoneActivityListener listener : zoneListenerList) {
-			listener.zoneAdded(zone);
-		}
-	}
-	
-	public static void fireZoneActivated(Zone zone) {
-		
-		for (ZoneActivityListener listener : zoneListenerList) {
-			listener.zoneActivated(zone);
-		}
-	}
+	public void zoneAdded(Zone zone);
+	public void zoneActivated(Zone zone);
 }

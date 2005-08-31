@@ -24,6 +24,9 @@
  */
 package net.rptools.maptool.model;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import net.rptools.maptool.util.MD5Key;
 
 /**
@@ -46,6 +49,9 @@ public class Token {
 	private boolean isVisible = true;
 	private String name;
 	
+    // Transient so that it isn't transfered over the wire
+    private transient List<ModelChangeListener> listenerList = new CopyOnWriteArrayList<ModelChangeListener>();
+    
     public Token() {
         
     }
@@ -162,5 +168,19 @@ public class Token {
 		this.snapToGrid = snapToGrid;
 	}
 	
+    public void addModelChangeListener(ModelChangeListener listener) {
+        listenerList.add(listener);
+    }
+    
+    public void removeModelChangeListener(ModelChangeListener listener) {
+        listenerList.remove(listener);
+    }
+    
+    protected void fireModelChangeEvent(ModelChangeEvent event) {
+        
+        for (ModelChangeListener listener : listenerList) {
+            listener.modelChanged(event);
+        }
+    }
 	
 }

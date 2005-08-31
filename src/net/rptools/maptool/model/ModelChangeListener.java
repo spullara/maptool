@@ -22,39 +22,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+public interface ModelChangeListener {
 
-import net.rptools.maptool.model.Zone;
-
-/**
- */
-public class AppListeners {
-
-	private static List<ZoneActivityListener> zoneListenerList = Collections.synchronizedList(new ArrayList<ZoneActivityListener>());
-	
-	public static void addZoneListener(ZoneActivityListener listener) {
-		zoneListenerList.add(listener);
-	}
-	
-	public static boolean removeZoneListener(ZoneActivityListener listener) {
-		return zoneListenerList.remove(listener);
-	}
-	
-	public static void fireZoneAdded(Zone zone) {
-		
-		for (ZoneActivityListener listener : zoneListenerList) {
-			listener.zoneAdded(zone);
-		}
-	}
-	
-	public static void fireZoneActivated(Zone zone) {
-		
-		for (ZoneActivityListener listener : zoneListenerList) {
-			listener.zoneActivated(zone);
-		}
-	}
+    public void modelChanged(ModelChangeEvent event);
 }

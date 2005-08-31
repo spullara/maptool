@@ -41,6 +41,14 @@ import net.rptools.maptool.util.MD5Key;
 public class Zone extends Token {
     private String name;
     
+    public enum Event {
+        TOKEN_ADDED,
+        TOKEN_REMOVED,
+        GRID_CHANGED,
+        DRAWABLE_ADDED,
+        DRAWABLE_REMOVED
+    }
+    
     private static final int MIN_GRID_SIZE = 10;
     private static final int MAX_GRID_SIZE = 250;
 
@@ -82,6 +90,7 @@ public class Zone extends Token {
 
     public void setGridOffsetX(int gridOffsetX) {
         this.gridOffsetX = gridOffsetX;
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
     }
 
     public int getGridOffsetY() {
@@ -90,6 +99,7 @@ public class Zone extends Token {
 
     public void setGridOffsetY(int gridOffsetY) {
         this.gridOffsetY = gridOffsetY;
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
     }
 
     public int getGridSize() {
@@ -107,6 +117,7 @@ public class Zone extends Token {
     	}
     	
         this.gridSize = gridSize;
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
     }
     
     public int getFeetPerCell() {
@@ -131,6 +142,7 @@ public class Zone extends Token {
 
     public void addDrawable(DrawnElement drawnElement) {
     	drawables.add(drawnElement);
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.DRAWABLE_ADDED, drawnElement));
     }
     
     public List<DrawnElement> getDrawnElements() {
@@ -145,10 +157,13 @@ public class Zone extends Token {
     public void removeDrawable(GUID drawableId) {
       ListIterator<DrawnElement> i = drawables.listIterator();
       while (i.hasNext()) {
-        if (i.next().getDrawable().getId().equals(drawableId)) {
-          i.remove();
-          return;
-        }
+          DrawnElement drawable = i.next();
+          if (drawable.getDrawable().getId().equals(drawableId)) {
+            i.remove();
+            
+            fireModelChangeEvent(new ModelChangeEvent(this, Event.DRAWABLE_REMOVED, drawable));
+            return;
+          }
       }
     }
     
@@ -157,12 +172,20 @@ public class Zone extends Token {
     ///////////////////////////////////////////////////////////////////////////
     public void putToken(Token token) {
         // removed and then added to protect Z order
+        boolean newToken = tokens.containsKey(token.getId());
         this.tokens.remove(token.getId()); 
         this.tokens.put(token.getId(), token);
+        
+        if (newToken) {
+            fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_ADDED, token));
+        }
     }
     
     public void removeToken(GUID id) {
-        this.tokens.remove(id);
+        Token token = this.tokens.remove(id);
+        if (token != null) {
+            fireModelChangeEvent(new ModelChangeEvent(this, Event.DRAWABLE_REMOVED, token));
+        }
     }
 	
 	public Token getToken(GUID id) {

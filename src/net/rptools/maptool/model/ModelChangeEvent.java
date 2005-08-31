@@ -22,14 +22,33 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.model;
 
-import net.rptools.maptool.model.Zone;
+public class ModelChangeEvent {
+    
+    public Object model;
+    public Object eventType;
+    public Object arg;
 
-/**
- */
-public interface ZoneListener {
+    public ModelChangeEvent(Object model, Object eventType) {
+        this(model, eventType, null);
+    }
+    
+    public ModelChangeEvent(Object model, Object eventType, Object arg) {
+        this.model = model;
+        this.eventType = eventType;
+        this.arg = arg;
+    }
+    
+    public Object getModel() {
+        return model;
+    }
 
-	public void zoneAdded(Zone zone);
-	public void zoneActivated(Zone zone);
+    public Object getArg() {
+        return arg;
+    }
+
+    public Object getEvent() {
+        return eventType;
+    }
 }

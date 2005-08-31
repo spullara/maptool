@@ -47,7 +47,7 @@ import net.rptools.common.swing.SwingUtil;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
-import net.rptools.maptool.client.ZoneListener;
+import net.rptools.maptool.client.ZoneActivityListener;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
@@ -55,7 +55,7 @@ import net.rptools.maptool.util.ImageManager;
 
 /**
  */
-public class ZoneSelectionPanel extends JPanel implements DropTargetListener, ZoneListener  {
+public class ZoneSelectionPanel extends JPanel implements DropTargetListener, ZoneActivityListener  {
 
     private static final int PADDING = 5;
     private static final int SELECTED_SIZE = 75;
