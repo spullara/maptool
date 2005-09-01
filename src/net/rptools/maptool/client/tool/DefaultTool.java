@@ -248,6 +248,10 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			if (tokenUnderMouse == null) {
 				return;
 			}
+            
+            if (!isDraggingToken && renderer.isTokenMoving(tokenUnderMouse)) {
+                return;
+            }
 			
 			if (isNewTokenSelected) {
 				renderer.clearSelectedTokens();
