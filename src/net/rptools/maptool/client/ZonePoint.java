@@ -59,6 +59,10 @@ public class ZonePoint extends AbstractPoint {
         return sp.convertToZone(renderer);
     }
 
+    public CellPoint convertToCell(ZoneRenderer renderer) {
+        return new CellPoint(x / renderer.getZone().getGridSize(), y / renderer.getZone().getGridSize());
+    }
+    
     public String toString() {
         return "ZonePoint" + super.toString();
     }

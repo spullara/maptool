@@ -208,6 +208,24 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		return false;
 	}
 	
+    public void centerOn(ZonePoint point) {
+        
+        int x = point.x;
+        int y = point.y;
+        
+        x -= getSize().width/2;
+        y -= getSize().height/2;
+        
+        viewOffset.x = x;
+        viewOffset.y = y;
+        
+        repaint();
+    }
+    
+    public void centerOn(CellPoint point) {
+        centerOn(point.convertToZone(this));
+    }
+    
     /**
      * Clear internal caches and backbuffers
      */
