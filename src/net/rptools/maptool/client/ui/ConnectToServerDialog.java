@@ -68,6 +68,8 @@ public class ConnectToServerDialog extends JDialog {
 	public ConnectToServerDialog() {
 		super(MapTool.getFrame(), "Connect to Server", true);
 		initialize();
+		
+		
 	}
 	/**
 	 * This method initializes this
@@ -78,9 +80,16 @@ public class ConnectToServerDialog extends JDialog {
 		this.setSize(300, 186);
 		this.setContentPane(getJContentPane());
 		
-		portTextField.setText(Integer.toString(MapToolServer.DEFAULT_PORT));
 		getRootPane().setDefaultButton(okButton);
+		
+		// Prefs
+		ConnectToServerDialogPreferences prefs = new ConnectToServerDialogPreferences();
+		portTextField.setText(Integer.toString(prefs.getPort()));
+		serverTextField.setText(prefs.getHost());
+		usernameTextField.setText(prefs.getUsername());
+		roleComboBox.setSelectedIndex(prefs.getRole());
 	}
+	
 	/* (non-Javadoc)
 	 * @see java.awt.Component#setVisible(boolean)
 	 */
@@ -264,6 +273,13 @@ public class ConnectToServerDialog extends JDialog {
 
 					option = OPTION_OK;
 					setVisible(false);
+					
+					// Prefs
+					ConnectToServerDialogPreferences prefs = new ConnectToServerDialogPreferences();
+					prefs.setUsername(getUsername());
+					prefs.setHost(getServer());
+					prefs.setPort(getPort());
+					prefs.setRole(getRole());
 				}
 			});
 		}

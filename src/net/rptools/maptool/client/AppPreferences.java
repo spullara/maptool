@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+
 public class AppPreferences {
 
     private static Preferences prefs = Preferences.userRoot().node(AppConstants.APP_NAME + "/prefs");        

@@ -81,6 +81,10 @@ public class StartServerDialog extends JDialog {
 		this.setSize(303, 190);
 		this.setContentPane(getJContentPane());
 		
+		// Prefs
+		StartServerDialogPreferences prefs = new StartServerDialogPreferences();
+		usernameTextField.setText(prefs.getUsername());
+		portTextField.setText(Integer.toString(prefs.getPort()));
 	}
 	
 	/* (non-Javadoc)
@@ -297,6 +301,11 @@ public class StartServerDialog extends JDialog {
 					
 					option = OPTION_OK;
 					setVisible(false);
+					
+					// Prefs
+					StartServerDialogPreferences prefs = new StartServerDialogPreferences();
+					prefs.setUsername(getUsername());
+					prefs.setPort(getPort());
 				}
 			});
 		}
