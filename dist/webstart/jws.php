@@ -39,7 +39,7 @@
     for($i=0;$i<count($files);$i++) {
         $basename = substr($files[$i],0,strpos($files[$i],"-"));
         if ( strpos(getcwd(),$basename) !== false ) {
-            print "$i : $files[$i] : $basename\n";
+#            print "$i : $files[$i] : $basename\n";
             $filename = $files[$i];
             unset($files[$i]);
             array_unshift($files,$filename);
