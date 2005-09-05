@@ -24,14 +24,30 @@
 	<resources>
 		<j2se version="1.5+" java-vm-args="-Xms64m -Xmx128m"/>
 <?php
-    foreach (scandir(getcwd()) as $file) {
-        if (@preg_match("/\.jar$/",file)) {
-            $files[] = $file;
+    $files = array();
+    if (($dh = @opendir(getcwd())) != FALSE) {
+        while (($file = readdir($dh)) !== false) {
+            if (@preg_match("/\.jar$/i",$file) && !@preg_match("/^\./",$file)) {
+                $files[] = $file;
+            }
+        }
+        closedir($dh);
+    }
+   
+    # find the main jarfile and move it to the top of the array.
+    # we match the jarfile name to the directory 
+    for($i=0;$i<count($files);$i++) {
+        $basename = substr($files[$i],0,strpos($files[$i],"-"));
+        if ( strpos(getcwd(),$basename) !== false ) {
+            print "$i : $files[$i] : $basename\n";
+            $filename = $files[$i];
+            unset($files[$i]);
+            array_unshift($files,$filename);
         }
     }
-
-    foreach($files[] as $jar) {
-        echo "\t\t<jar href=\"$dir/$file\" />\n";
+        
+    foreach($files as $jar) {
+        echo "\t\t<jar href=\"$jar\" />\n";
     }
 	
 ?>
