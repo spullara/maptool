@@ -49,7 +49,7 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 		Asset asset = null;
 		if (dir instanceof AssetDirectory) {
 			
-			asset = ((AssetDirectory) dir).getAssetFor(dir.getFiles().get(index));
+			asset = getAsset(index);
 		}
 		
 		return asset != null ? ImageManager.getImage(asset) : ImageManager.UNKNOWN_IMAGE;
@@ -58,7 +58,8 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 	public Transferable getTransferable(int index) {
 		Asset asset = null;
 		if (dir instanceof AssetDirectory) {
-			asset = ((AssetDirectory) dir).getAssetFor(dir.getFiles().get(index));
+			asset = getAsset(index);
+			
 			// Now is a good time to tell the system about it
 			AssetManager.putAsset(asset);
 		}
@@ -76,5 +77,9 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
     
     public Image getImage(Object ID) {
         return getImage(((Integer)ID).intValue());
+    }
+    
+    public Asset getAsset(int index) {
+		return ((AssetDirectory) dir).getAssetFor(dir.getFiles().get(index));
     }
 }

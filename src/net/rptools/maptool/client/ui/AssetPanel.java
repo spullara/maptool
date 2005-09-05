@@ -25,15 +25,29 @@
 package net.rptools.maptool.client.ui;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 
 import net.rptools.common.swing.ImagePanel;
+import net.rptools.common.swing.SelectionListener;
+import net.rptools.common.swing.ImagePanel.SelectionMode;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.model.Directory;
 import net.rptools.maptool.client.ui.model.ImageFileImagePanelModel;
 import net.rptools.maptool.client.ui.model.ImageFileTreeModel;
+import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.Zone;
 
 public class AssetPanel extends JComponent {
 
@@ -46,6 +60,67 @@ public class AssetPanel extends JComponent {
 		imagePanel = new ImagePanel();
 		
 		imagePanel.setShowCaptions(false);
+		imagePanel.setSelectionMode(SelectionMode.SINGLE);
+		// TODO: Make this not an aic
+		imagePanel.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO use for real popup logic
+				if (SwingUtilities.isRightMouseButton(e)) {
+
+					List<Object> idList = imagePanel.getSelectedIds();
+					if (idList == null || idList.size() == 0) {
+						return;
+					}
+					
+					final int index = (Integer) idList.get(0);
+					
+					JPopupMenu menu = new JPopupMenu();
+					menu.add(new JMenuItem(new AbstractAction() {
+						{
+							putValue(NAME, "New Bounded Map");
+						}
+
+						public void actionPerformed(ActionEvent e) {
+
+							// TODO: Combine this code with the code for unbounded
+							Asset asset = ((ImageFileImagePanelModel)imagePanel.getModel()).getAsset(index);
+							if (!AssetManager.hasAsset(asset)) {
+								
+								AssetManager.putAsset(asset);
+								MapTool.serverCommand().putAsset(asset);
+							}
+							
+							Zone zone = new Zone(asset.getId());
+							zone.setType(Zone.Type.MAP);
+							
+		                    MapTool.addZone(zone);
+						}
+					}));
+					menu.add(new JMenuItem(new AbstractAction() {
+						{
+							putValue(NAME, "New Unbounded Map");
+						}
+						public void actionPerformed(ActionEvent e) {
+
+							Asset asset = ((ImageFileImagePanelModel)imagePanel.getModel()).getAsset(index);
+							if (!AssetManager.hasAsset(asset)) {
+								
+								AssetManager.putAsset(asset);
+								MapTool.serverCommand().putAsset(asset);
+							}
+
+							Zone zone = new Zone(asset.getId());
+							zone.setType(Zone.Type.INFINITE);
+							
+		                    MapTool.addZone(zone);
+						}
+					}));
+					
+					menu.show(imagePanel, e.getX(), e.getY());
+				}
+			}
+		});
 		
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setContinuousLayout(true);

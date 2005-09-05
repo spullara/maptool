@@ -36,8 +36,12 @@ import javax.swing.SwingUtilities;
 import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.GraphicsUtil;
+import net.rptools.maptool.util.ImageManager;
+import net.rptools.maptool.util.MD5Key;
 
 /**
  */
@@ -51,12 +55,6 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 	public UnboundedZoneRenderer(Zone zone) {
 		super(zone);
 		
-		try {
-			tileImage = ImageUtil.getImage("net/rptools/maptool/client/image/texture/grass.png");
-		} catch (IOException ioe) {
-			throw new IllegalArgumentException ("Could not find image:" + ioe);
-		}
-		
 		addOverlay(this);
 	}
 	
@@ -66,11 +64,12 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 	protected void renderBoard(Graphics2D g) {
 
 		Dimension size = getSize();
-		if (backBuffer == null || !lastSize.equals(size)) {
+		if (tileImage == null || backBuffer == null || !lastSize.equals(size)) {
 			createBackBuffer();
 			lastSize = size;
 		}
 		
+		BufferedImage tileImage = getTileImage();
 		g.drawImage(backBuffer, (viewOffset.x % tileImage.getWidth()) - tileImage.getWidth(), 
 				( viewOffset.y % tileImage.getHeight()) - tileImage.getHeight(), null);
 	}
@@ -99,10 +98,43 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 	}
 
 	public BufferedImage getMiniImage() {
-		return tileImage;
+		return getTileImage();
+	}
+	
+	private BufferedImage getTileImage() {
+
+		if (tileImage != null) {
+			return tileImage;
+		}
+
+		try {
+			MD5Key assetId = zone.getAssetID();
+			if (assetId == null) {
+				// TODO: make this static
+				tileImage = ImageUtil.getImage("net/rptools/maptool/client/image/texture/grass.png");
+				return tileImage;
+			}
+	
+			Asset asset = AssetManager.getAsset(assetId);
+			if (asset != null) {
+				BufferedImage image = ImageManager.getImage(asset);
+				if (image != ImageManager.UNKNOWN_IMAGE) {
+					backBuffer = null;
+					tileImage = image;
+				}
+				return image;
+			}
+			
+			return ImageManager.UNKNOWN_IMAGE;
+			
+		} catch (IOException ioe) {
+			return ImageManager.UNKNOWN_IMAGE;
+		}
 	}
 	
 	private void createBackBuffer() {
+		
+		BufferedImage tileImage = getTileImage();
 		
 		Dimension size = getSize();
 		backBuffer = new BufferedImage(size.width + tileImage.getWidth()*2, size.height + tileImage.getHeight()*2, Transparency.OPAQUE);
