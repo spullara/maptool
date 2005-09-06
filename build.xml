@@ -3,6 +3,7 @@
 		<property file="conf/build.properties" />
 		
 		<property name="src"   location="src" />
+		<property name="lib"   location="lib" />
 		<property name="build" location="build" />
 		<property name="dist"  location="dist" />
 		<property name="tmp"   location="tmp" />
@@ -16,17 +17,30 @@
 			   target="1.5"
 			   source="1.5">
 			<classpath>
-				<fileset dir="lib">
+				<fileset dir="${lib}">
 					<include name="**/*.jar"/>
 				</fileset>
 			</classpath>
 		</javac>
 	</target>
 	
-	<target name="deploy-lib" depends="init">
+	<target name="generate-manifest" depends="init">
+		<pathconvert dirsep="/" pathsep=" " property="java.launch.classPath">
+			<map from="${lib}" to="lib" />
+			<path>
+				<fileset dir="${lib}">
+					<include name="**/*.jar"/>
+				</fileset>
+			</path>
+		</pathconvert>
+		
+		<manifest file="conf/manifest.mf">
+			<attribute name="Main-Class" value="${java.launch.mainClass}" />
+			<attribute name="Class-Path" value="${java.launch.classPath}" />
+		</manifest>
 	</target>
 	
-	<target name="dist" depends="init,compile,deploy-lib">
+	<target name="dist" depends="init,compile,generate-manifest">
 		<mkdir dir="${dist}" />
 		<mkdir dir="${tmp}" />
 		
@@ -42,11 +56,11 @@
 		<!-- ZIP FILE CREATION -->
 		
 		<copy todir="${tmp.zipdir}/lib">
-			<fileset dir="lib" />
+			<fileset dir="${lib}" />
 		</copy>
-		
+
 		<delete file="${dist}/maptool-${build.version}.zip" />
-		
+
 		<zip destfile="${dist}/maptool-${build.version}.zip"
 		     basedir="${tmp.zipdir}" />
 		
