@@ -74,7 +74,8 @@
 		<signjar keystore="keystore"
 			     keypass="rptools"
 		         alias="rptools"
-			     storepass="rptools">
+			     storepass="rptools"
+				 lazy="true">
 			<fileset dir="${dist}/webstart">
 				<include name="**/*.jar" />
 			</fileset>
