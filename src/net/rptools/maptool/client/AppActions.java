@@ -346,10 +346,9 @@ public class AppActions {
 
                 // TODO: Create a generic way to update application state when 
                 // connecting
-                if (MapTool.getPlayer().getRole() == Player.Role.GM) {
-                    TOGGLE_DROP_INVISIBLE.setEnabled(true);
-                    LOAD_CAMPAIGN.setEnabled(true);
-                }
+                boolean isGM = MapTool.getPlayer().getRole() == Player.Role.GM;
+                TOGGLE_DROP_INVISIBLE.setEnabled(isGM);
+                LOAD_CAMPAIGN.setEnabled(isGM);
             } catch (UnknownHostException e1) {
                 // TODO Auto-generated catch block
                 MapTool.showError("Unknown host");
