@@ -370,6 +370,11 @@ public class AppActions {
     	
         public void execute(ActionEvent ae) {
         
+            if (MapTool.isConnected() && MapTool.getPlayer().getRole() != Player.Role.GM) {
+                MapTool.showError("Must be a GM to load a campaign.");
+                return;
+            }
+            
         	JFileChooser chooser = MapTool.getLoadFileChooser();
         	chooser.setDialogTitle("Load Campaign");
         	
