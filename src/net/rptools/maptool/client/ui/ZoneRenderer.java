@@ -213,8 +213,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         int x = point.x;
         int y = point.y;
         
-        x -= getSize().width/2;
-        y -= getSize().height/2;
+        x -= getSize().width/2/getScale();
+        y -= getSize().height/2/getScale();
         
         viewOffset.x = x;
         viewOffset.y = y;
@@ -350,8 +350,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         int gridSize = (int) (zone.getGridSize() * getScale());
 
     	renderBoard(g2d);
-        if (showGrid && gridSize >= MIN_GRID_SIZE) {renderGrid(g2d);}
         renderDrawableOverlay(g2d);
+        if (showGrid && gridSize >= MIN_GRID_SIZE) {renderGrid(g2d);}
         renderTokens(g2d);
 		renderMoveSelectionSets(g2d);
 		renderBorder(g2d);
