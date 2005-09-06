@@ -302,6 +302,7 @@ public class AppActions {
                         // TODO: Create a generic way to update application state when 
                         // connecting
                         TOGGLE_DROP_INVISIBLE.setEnabled(true);
+                        LOAD_CAMPAIGN.setEnabled(true);
                 	} catch (UnknownHostException uh) {
                 		MapTool.showError("Whoah, 'localhost' is not a valid address.  Weird.");
                 		return;
@@ -347,6 +348,7 @@ public class AppActions {
                 // connecting
                 if (MapTool.getPlayer().getRole() == Player.Role.GM) {
                     TOGGLE_DROP_INVISIBLE.setEnabled(true);
+                    LOAD_CAMPAIGN.setEnabled(true);
                 }
             } catch (UnknownHostException e1) {
                 // TODO Auto-generated catch block
