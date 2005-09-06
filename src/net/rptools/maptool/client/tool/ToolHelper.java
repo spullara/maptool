@@ -24,11 +24,73 @@
  */
 package net.rptools.maptool.client.tool;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+
+import net.rptools.maptool.client.AbstractPoint;
+import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.client.ui.ZoneRenderer;
+import net.rptools.maptool.util.GraphicsUtil;
 
 /**
  * @author trevor
  */
 public class ToolHelper {
 
+	public static void drawBoxedMeasurement(ZoneRenderer renderer,
+			Graphics2D g, ScreenPoint startPoint, ScreenPoint endPoint) {
 
+		// Calculations
+		int left = Math.min(startPoint.x, endPoint.x);
+		int top = Math.min(startPoint.y, endPoint.y);
+		int right = Math.max(startPoint.x, endPoint.x);
+		int bottom = Math.max(startPoint.y, endPoint.y);
+
+		// HORIZONTAL Measure
+		g.setColor(Color.black);
+		g.drawLine(left, top - 15, right, top - 15);
+		g.drawLine(left, top - 20, left, top - 10);
+		g.drawLine(right, top - 20, right, top - 10);
+
+		String displayString = String.format("%1.1f", euclideanDistance(
+				renderer, new ScreenPoint(left, top), new ScreenPoint(right, top)));
+		GraphicsUtil.drawBoxedString(g, displayString, left + (right - left) / 2,
+				top - 15);
+
+		// VETICAL Measure
+		g.drawLine(right + 15, top, right + 15, bottom);
+		g.drawLine(right + 10, top, right + 20, top);
+		g.drawLine(right + 10, bottom, right + 20, bottom);
+		
+		displayString = String.format("%1.1f", euclideanDistance(
+				renderer, new ScreenPoint(right, top), new ScreenPoint(right, bottom)));
+		GraphicsUtil.drawBoxedString(g, displayString, right + 18, bottom
+				+ (top - bottom) / 2);
+	}
+
+	public static void drawMeasurement(ZoneRenderer renderer, Graphics2D g,
+			ScreenPoint startPoint, ScreenPoint endPoint) {
+
+		int left = Math.min(startPoint.x, endPoint.x);
+		int top = Math.min(startPoint.y, endPoint.y);
+		int right = Math.max(startPoint.x, endPoint.x);
+		int bottom = Math.max(startPoint.y, endPoint.y);
+
+		int centerX = left + (right - left) / 2;
+		int centerY = bottom + (top - bottom) / 2;
+
+		String displayString = String.format("%1.1f", euclideanDistance(
+				renderer, startPoint, endPoint));
+
+		GraphicsUtil.drawBoxedString(g, displayString, centerX, centerY);
+	}
+
+	private static double euclideanDistance(ZoneRenderer renderer, AbstractPoint p1,
+			AbstractPoint p2) {
+		int a = p2.x - p1.x;
+		int b = p2.y - p1.y;
+
+		return Math.sqrt(a * a + b * b) * renderer.getZone().getFeetPerCell()
+				/ renderer.getScaledGridSize();
+	}
 }

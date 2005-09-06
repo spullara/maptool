@@ -26,6 +26,7 @@ package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
@@ -34,7 +35,9 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.drawing.Oval;
 import net.rptools.maptool.model.drawing.Pen;
@@ -73,8 +76,10 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 
             oval.draw(g, pen, 0, 0);
             
-            // TODO: figure this out
-            //ToolHelper.drawBoxedMeasurement(renderer, g, oval.getStartPoint(), oval.getEndPoint(), false);
+            Point start = oval.getStartPoint();
+            Point end = oval.getEndPoint();
+            
+            ToolHelper.drawBoxedMeasurement(renderer, g, new ScreenPoint(start.x, start.y), new ScreenPoint(end.x, end.y));
         }
     }
 

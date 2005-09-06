@@ -26,6 +26,7 @@ package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
@@ -34,7 +35,9 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.Rectangle;
@@ -74,8 +77,10 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
         	
             rectangle.draw(g, pen, 0, 0);
             
-            // TODO: Figure this out
-            //ToolHelper.drawBoxedMeasurement(renderer, g, rectangle.getStartPoint(), rectangle.getEndPoint(), false);
+            Point start = rectangle.getStartPoint();
+            Point end = rectangle.getEndPoint();
+            
+            ToolHelper.drawBoxedMeasurement(renderer, g, new ScreenPoint(start.x, start.y), new ScreenPoint(end.x, end.y));
         }
     }
 

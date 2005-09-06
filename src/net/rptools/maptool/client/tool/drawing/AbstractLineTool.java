@@ -30,7 +30,9 @@ import java.awt.Point;
 import java.awt.event.MouseListener;
 import java.util.List;
 
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
@@ -122,8 +124,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
                 Point start = pointList.get(pointList.size()-2);
                 Point end = pointList.get(pointList.size()-1);
                 
-                // TODO: Figure this out
-            	//ToolHelper.drawMeasurement(renderer, g, new ScreenPoint(start.x, start.y), new ScreenPoint(end.x, end.y), false);
+            	ToolHelper.drawMeasurement(renderer, g, new ScreenPoint(start.x, start.y), new ScreenPoint(end.x, end.y));
             }
         }
 	}
