@@ -314,6 +314,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
             long now = System.currentTimeMillis();
             if (now - lastMoveRedraw > REDRAW_DELAY) {
                 // TODO: does it matter to capture the last map move in the series ?
+                // TODO: This should probably be genericized an put into ZoneRenderer
+                // to prevent over zealous repainting
                 renderer.moveViewBy(mapDX, mapDY);
                 mapDX = 0;
                 mapDY = 0;
