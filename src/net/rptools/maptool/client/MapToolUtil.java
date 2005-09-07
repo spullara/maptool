@@ -25,11 +25,14 @@
 package net.rptools.maptool.client;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MapToolUtil {
 
     private static Random random = new Random ( System.currentTimeMillis() );
 
+    private static AtomicInteger nextTokenId = new AtomicInteger();
+    
     public static int getRandomNumber ( int max )
     {
         return getRandomNumber ( 0, max );
@@ -60,5 +63,15 @@ public class MapToolUtil {
         double roll = random.nextDouble()* 100; 
         return roll < percentage;
     }
-    
+
+    public static String nextTokenId() {
+    	
+    	int nextId = nextTokenId.getAndIncrement();
+    	char ch = 'a';
+    	if (MapTool.isConnected()) {
+    		ch = (char)('a' + MapTool.getPlayerList().indexOf(MapTool.getPlayer()));
+    	}
+    	
+    	return ch + Integer.toString(nextId);
+    }
 }

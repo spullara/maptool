@@ -53,6 +53,7 @@ import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.ZonePoint;
@@ -84,7 +85,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     protected Point             viewOffset = new Point();
 
-    protected boolean           showGrid;
     protected Color             gridColor = new Color (150, 150, 150);
 
     protected int               scaleIndex;
@@ -246,18 +246,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         overlayList.remove(overlay);
     }
 
-    public void toggleGrid() {
-        showGrid = !showGrid;
-        
-        repaint();
-    }
-    
-    public void setGridVisible(boolean visible) {
-        showGrid = visible;
-
-        repaint();
-    }
-
     /* (non-Javadoc)
 	 * @see javax.swing.JComponent#isRequestFocusEnabled()
 	 */
@@ -351,7 +339,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     	renderBoard(g2d);
         renderDrawableOverlay(g2d);
-        if (showGrid && gridSize >= MIN_GRID_SIZE) {renderGrid(g2d);}
+        if (AppState.isShowGrid() && gridSize >= MIN_GRID_SIZE) {renderGrid(g2d);}
         renderTokens(g2d);
 		renderMoveSelectionSets(g2d);
 		renderBorder(g2d);
@@ -522,6 +510,24 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             if (selectedTokenSet.contains(token.getId())) {
             	ClientStyle.selectedBorder.paintAround(g, x, y, width, height);
             }
+            
+            // Name
+        }
+        
+        if (AppState.isShowTokenNames()) {
+        	
+	        for (Rectangle bounds : tokenBoundsMap.keySet()) {
+	        	
+	        	// TODO: This isn't entirely accurate as it doesn't account for the actual text
+	        	// to be in the clipping bounds, but I'll fix that later
+	            if (!bounds.intersects(clipBounds)) {
+	                continue;
+	            }
+	            
+	            Token token = tokenBoundsMap.get(bounds);
+	            
+				GraphicsUtil.drawBoxedString(g, token.getName(), bounds.x + bounds.width/2, bounds.y + bounds.height + 10);
+	        }
         }
     }
 
@@ -811,7 +817,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	if (asset != null) {
 	        CellPoint p = getCellAt(new ScreenPoint((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY()));
 	
-	        Token token = new Token(asset.getId());
+	        Token token = new Token(MapToolUtil.nextTokenId(), asset.getId());
 	        token.setX(p.x * zone.getGridSize());
 	        token.setY(p.y * zone.getGridSize());
 

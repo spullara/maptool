@@ -65,6 +65,10 @@ public class Token {
     	this.assetID = assetID;
     }
 
+    public void setName(String name) {
+    	this.name = name;
+    }
+    
     public MD5Key getAssetID() {
         return assetID;
     }

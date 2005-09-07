@@ -43,6 +43,7 @@ import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -394,14 +395,14 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         
         // Grid
         boolean snapToGrid = !tokenUnderMouse.isSnapToGrid();
-        JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("placeholder", !snapToGrid); 
-        menuItem.setAction(new SnapToGridAction(snapToGrid, renderer));
-        popup.add(menuItem);
+        JCheckBoxMenuItem checkboxMenuItem = new JCheckBoxMenuItem("placeholder", !snapToGrid); 
+        checkboxMenuItem.setAction(new SnapToGridAction(snapToGrid, renderer));
+        popup.add(checkboxMenuItem);
 
         // Visibility
-        menuItem = new JCheckBoxMenuItem("Visible", tokenUnderMouse.isVisible());
+        checkboxMenuItem = new JCheckBoxMenuItem("Visible", tokenUnderMouse.isVisible());
         // TODO: Make this an action, not aic
-        menuItem.addActionListener(new ActionListener() {
+        checkboxMenuItem.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
 
         		for (GUID guid : renderer.getSelectedTokenSet()) {
@@ -420,7 +421,30 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         		renderer.repaint();
         	}
         });
-        popup.add(menuItem);
+        popup.add(checkboxMenuItem);
+        
+        // Rename
+        // TODO: Make this an action, not aic
+        if (renderer.getSelectedTokenSet().size() == 1) {
+        	JMenuItem menuItem = new JMenuItem("Rename");
+
+            menuItem.addActionListener(new ActionListener() {
+            	public void actionPerformed(ActionEvent e) {
+            		
+                	Token token = renderer.getZone().getToken(renderer.getSelectedTokenSet().iterator().next());
+                	
+                	String newName = (String)JOptionPane.showInputDialog(renderer, "Pick a new name for this token", "Rename Token", JOptionPane.QUESTION_MESSAGE, null, null, token.getName());
+                	if (newName == null || newName.length() == 0) {
+                		return;
+                	}
+                	
+                	token.setName(newName);
+            		MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+            		renderer.repaint();
+            	}
+            });
+            popup.add(menuItem);
+        }
         
         
         // 

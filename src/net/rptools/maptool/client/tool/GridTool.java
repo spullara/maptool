@@ -39,6 +39,7 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.common.swing.SwingUtil;
 import net.rptools.common.util.ImageUtil;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
@@ -71,14 +72,16 @@ public class GridTool extends DefaultTool {
 	 * @see maptool.client.Tool#attachTo(maptool.client.ZoneRenderer)
 	 */
 	protected void attachTo(ZoneRenderer renderer) {
-		renderer.setGridVisible(true);
+		AppState.setShowGrid(true);
+		renderer.repaint();
 	}
 	
 	/* (non-Javadoc)
 	 * @see maptool.client.Tool#detachFrom(maptool.client.ZoneRenderer)
 	 */
 	protected void detachFrom(ZoneRenderer renderer) {
-		renderer.setGridVisible(false);
+		AppState.setShowGrid(false);
+		renderer.repaint();
 		
 		// Commit the grid size change
         Zone zone = renderer.getZone();

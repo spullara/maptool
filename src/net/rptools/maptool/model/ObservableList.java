@@ -62,7 +62,11 @@ public class ObservableList<K> extends Observable  {
     public boolean contains(K item) {
         return list.contains(item);
     }
-    
+
+    public int indexOf(K item) {
+    	return list.indexOf(item);
+    }
+
     public K get(int i) {
         return list.get(i);
     }

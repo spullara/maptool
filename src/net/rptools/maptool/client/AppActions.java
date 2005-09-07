@@ -158,10 +158,29 @@ public class AppActions {
         }
 
         public void execute(ActionEvent e) {
-            ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-            if (renderer != null) {
-                renderer.toggleGrid();
+
+        	AppState.setShowGrid(!AppState.isShowGrid());
+        	MapTool.getFrame().getCurrentZoneRenderer().repaint();
+        }
+    };
+
+    public static final Action TOGGLE_SHOW_TOKEN_NAMES = new ClientAction() {
+
+        {
+            //putValue(Action.NAME, "Toggle G");
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK));
+            putValue(Action.SHORT_DESCRIPTION, "Toggle Token Names");
+            try {
+                putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/names.png")));
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
             }
+        }
+
+        public void execute(ActionEvent e) {
+
+        	AppState.setShowTokenNames(!AppState.isShowTokenNames());
+        	MapTool.getFrame().getCurrentZoneRenderer().repaint();
         }
     };
 
@@ -169,7 +188,7 @@ public class AppActions {
 
         {
 //            putValue(Action.NAME, "Drop Invisible");
-            putValue(Action.SHORT_DESCRIPTION, "Drop Invisible Toggle");
+            putValue(Action.SHORT_DESCRIPTION, "Visible Drop Toggle");
             //putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK));
             try {
                 putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/icon_invisible.png")));
