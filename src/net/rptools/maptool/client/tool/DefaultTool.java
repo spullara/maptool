@@ -83,6 +83,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
     private int dragOffsetX;
     private int dragOffsetY;
 
+    // This is to manage overflowing of map move events (keep things snappy)
+    private long lastMoveRedraw;
+    private int mapDX, mapDY;
+    private static final int REDRAW_DELAY = 25; // millis
+    
     ////
 	// Mouse
 	
@@ -300,13 +305,20 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		if (SwingUtilities.isRightMouseButton(e)) {
 
 			isDraggingMap = true;
-			int dx = e.getX() - dragStartX;
-			int dy = e.getY() - dragStartY;
+			mapDX += e.getX() - dragStartX;
+			mapDY += e.getY() - dragStartY;
 	
 			dragStartX = e.getX();
 			dragStartY = e.getY();
 			
-			renderer.moveViewBy(dx, dy);
+            long now = System.currentTimeMillis();
+            if (now - lastMoveRedraw > REDRAW_DELAY) {
+                // TODO: does it matter to capture the last map move in the series ?
+                renderer.moveViewBy(mapDX, mapDY);
+                mapDX = 0;
+                mapDY = 0;
+                lastMoveRedraw = now;
+            }
 		}
 	}	
 	
@@ -508,4 +520,5 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
   protected void resetTool() {
     // Do nothing here for now
   }
+  
 }
