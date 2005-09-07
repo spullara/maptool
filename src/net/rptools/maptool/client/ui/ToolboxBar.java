@@ -27,6 +27,8 @@ package net.rptools.maptool.client.ui;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
+import net.rptools.maptool.client.MapTool;
+
 
 /**
  */
@@ -50,6 +52,9 @@ public class ToolboxBar extends JToolBar {
 			if (renderer != null && currentTool instanceof ZoneOverlay) {
 				renderer.removeOverlay((ZoneOverlay)currentTool);
 			}
+            if (renderer != null) {
+                renderer.removeOverlay(MapTool.getFrame().getEventOverlay());
+            }
 		}
 		
 		currentRenderer = renderer;
@@ -60,6 +65,8 @@ public class ToolboxBar extends JToolBar {
 			if (currentTool instanceof ZoneOverlay) {
 				renderer.addOverlay((ZoneOverlay) currentTool);
 			}
+            
+            currentRenderer.addOverlay(MapTool.getFrame().getEventOverlay());
 		}
 		
 	}

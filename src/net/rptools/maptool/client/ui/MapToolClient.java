@@ -104,6 +104,9 @@ public class MapToolClient extends JFrame {
 	private ProgressStatusBar progressBar = new ProgressStatusBar();
     
 	private NewZoneDropPanel newZoneDropPanel;
+    
+    // TODO: I don't like this here, eventOverlay should be more abstracted
+    private EventOverlay eventOverlay = new EventOverlay();
 	
 	public MapToolClient() {
 		
@@ -168,6 +171,10 @@ public class MapToolClient extends JFrame {
         
         restorePreferences();
 	}
+    
+    public EventOverlay getEventOverlay() {
+        return eventOverlay;
+    }
     
     private void restorePreferences() {
         

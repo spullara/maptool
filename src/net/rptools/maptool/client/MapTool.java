@@ -133,6 +133,8 @@ public class MapTool {
                     return arg0.getName().compareToIgnoreCase(arg1.getName());
                 }
             });
+            
+            getFrame().getEventOverlay().addEvent("Player " + player.getName() + " has connected");
         }
 	}
 	
@@ -148,6 +150,8 @@ public class MapTool {
 
     public static void removePlayer(Player player) {
 		playerList.remove(player);
+
+        getFrame().getEventOverlay().addEvent("Player " + player.getName() + " has disconnected");
 	}
 	
 	
