@@ -197,14 +197,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     }
 
 	public boolean isTokenMoving(Token token) {
-
+		
 		for (SelectionSet set : selectionSetMap.values()) {
 			
 			if (set.contains(token)) {
 				return true;
 			}
 		}
-
+		
 		return false;
 	}
 	
@@ -213,14 +213,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         int x = point.x;
         int y = point.y;
         
-        centerOn(x, y);
-    }
-    
-    public void centerOn(CellPoint point) {
-        centerOn(point.convertToZone(this));
-    }
-    
-    public void centerOn(int x, int y) {
         x -= getSize().width/2/getScale();
         y -= getSize().height/2/getScale();
         
@@ -228,6 +220,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         viewOffset.y = y;
         
         repaint();
+    }
+    
+    public void centerOn(CellPoint point) {
+        centerOn(point.convertToZone(this));
     }
     
     /**

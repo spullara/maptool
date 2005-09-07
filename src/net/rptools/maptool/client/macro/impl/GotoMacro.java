@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.Token;
@@ -49,7 +50,7 @@ public class GotoMacro implements Macro {
     		int x = Integer.parseInt(m.group(1));
     		int y = Integer.parseInt(m.group(2));
 
-    		MapTool.getFrame().getCurrentZoneRenderer().centerOn(x, y);
+    		MapTool.getFrame().getCurrentZoneRenderer().centerOn(new ZonePoint(x, y));
     	} else {
     		// goto token location
     		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
@@ -59,7 +60,7 @@ public class GotoMacro implements Macro {
     			int x = token.getX();
     			int y = token.getY();
 
-        		MapTool.getFrame().getCurrentZoneRenderer().centerOn(x, y);
+        		MapTool.getFrame().getCurrentZoneRenderer().centerOn(new ZonePoint(x, y));
     		}
     	}
     }
