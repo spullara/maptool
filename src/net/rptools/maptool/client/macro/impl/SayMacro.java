@@ -22,18 +22,22 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.macro;
+package net.rptools.maptool.client.macro.impl;
 
-/**
- * @author drice
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
-public class RollMacro implements Macro {
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.macro.Macro;
+import net.rptools.maptool.client.macro.MacroDefinition;
+
+@MacroDefinition(
+	name = "say",
+	aliases = { "s" },
+	description = "Broadcast a message to all connected players."
+)
+public class SayMacro implements Macro {
 
     public void execute(String macro) {
-        // TODO Auto-generated method stub
-        
+        StringBuilder sb = new StringBuilder();
+        sb.append(MapTool.getPlayer().getName()).append(" says: ").append(macro);
+        MapTool.serverCommand().message(sb.toString());
     }
 }

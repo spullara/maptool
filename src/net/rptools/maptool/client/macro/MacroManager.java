@@ -24,10 +24,16 @@
  */
 package net.rptools.maptool.client.macro;
 
-import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import net.rptools.maptool.client.macro.impl.HelpMacro;
+import net.rptools.maptool.client.macro.impl.SayMacro;
+import net.rptools.maptool.client.macro.impl.UndefinedMacro;
 
 /**
  * @author drice
@@ -36,56 +42,52 @@ import java.util.regex.Pattern;
  * Preferences - Java - Code Style - Code Templates
  */
 public class MacroManager {
-
-    static enum COMMAND {
-        undefined, say, tell, roll, help
-    };
-
-    private static COMMAND DEFAULT_COMMAND = COMMAND.undefined;
+    private static Macro UNDEFINED_MACRO = new UndefinedMacro();
+    private static Map<String, Macro> MACROS = new HashMap<String, Macro>();
     
-    private static Map<COMMAND, Macro> MACROS = new EnumMap<COMMAND, Macro>(COMMAND.class);
     static {
-        MACROS.put(COMMAND.say, new SayMacro());
-        MACROS.put(COMMAND.tell, new TellMacro());
-        MACROS.put(COMMAND.roll, new RollMacro());
-        MACROS.put(COMMAND.undefined, new UndefinedMacro());
-        MACROS.put(COMMAND.help, new HelpMacro());
+    	registerMacro(new SayMacro());
+    	registerMacro(new HelpMacro());
+
+    	registerMacro(UNDEFINED_MACRO);
     }
     
-    private static final Pattern MACRO_PAT = Pattern.compile("^(\\w+)\\s+(.*)$");
-    public static void executeMacro(String macro) {
-        Matcher m = MACRO_PAT.matcher(macro);
-        if (m.matches()) {
-            executeMacro(resolveCommand(m.group(1)), m.group(2));
-        } else {
-            executeMacro(DEFAULT_COMMAND, macro);
-        }
+    public static Set<Macro> getRegisteredMacros() {
+    	Set<Macro> ret = new HashSet<Macro>();
+    	ret.addAll(MACROS.values());
+    	return ret;
     }
     
-    private static void executeMacro(COMMAND macro, String parameter) {
-        Macro m = MACROS.get(macro);
-        
-        m.execute(parameter);
+    public static Macro getRegisteredMacro(String name) {
+    	Macro ret = MACROS.get(name);
+    	if (ret == null) return UNDEFINED_MACRO;
+    	return ret; 
     }
 
-    /**
-     * Resolve the command by first trying to find an exact match, and if an
-     * exact match is not found, search for the first command that matches the
-     * most characters in the command. This does a case-insensitive search.
-     * 
-     * For example: s -> say t -> tell
-     */
-    private static COMMAND resolveCommand(String command) {
-        if (command != null && command.length() > 0) {
-            for (int i = command.length(); i > 0; i--) {
-                String c = command.substring(0, i);
-                for (COMMAND cmd : COMMAND.values()) {
-                    if (cmd.name().startsWith(c)) {
-                        return cmd;
-                    }
-                }
-            }
-        }
-        return DEFAULT_COMMAND;
+    public static void registerMacro(Macro macro) {
+    	MacroDefinition def = macro.getClass().getAnnotation(MacroDefinition.class);
+    	
+    	if (def == null) return;
+    	
+    	MACROS.put(def.name(), macro);
+    	for (String alias : def.aliases()) {
+        	MACROS.put(alias, macro);
+    	}
     }
+    
+    private static final Pattern MACRO_PAT = Pattern.compile("^(\\w+)\\s*(.*)$");
+    public static void executeMacro(String command) {
+        Matcher m = MACRO_PAT.matcher(command);
+        if (m.matches()) {
+        	Macro macro = getRegisteredMacro(m.group(1));
+            executeMacro(macro, m.group(2));
+        } else {
+            executeMacro(UNDEFINED_MACRO, command);
+        }
+    }
+    
+    private static void executeMacro(Macro macro, String parameter) {
+    	macro.execute(parameter);
+    }
+
 }
