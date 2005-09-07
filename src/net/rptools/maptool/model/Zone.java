@@ -191,6 +191,19 @@ public class Zone extends Token {
 	public Token getToken(GUID id) {
 		return tokens.get(id);
 	}
+	
+	/**
+	 * Returns the first token with a given name.  The name is matched case-insensitively.
+	 */
+	public Token getTokenByName(String name) {
+		for (Token token : getTokens()) {
+			if (token.getName().equalsIgnoreCase(name)) {
+				return token;
+			}
+		}
+		
+		return null;
+	}
 
     public List<Token> getTokens() {
         return new ArrayList<Token>(this.tokens.values());

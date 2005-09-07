@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.rptools.maptool.client.macro.impl.GotoMacro;
 import net.rptools.maptool.client.macro.impl.HelpMacro;
 import net.rptools.maptool.client.macro.impl.SayMacro;
 import net.rptools.maptool.client.macro.impl.UndefinedMacro;
@@ -48,6 +49,7 @@ public class MacroManager {
     static {
     	registerMacro(new SayMacro());
     	registerMacro(new HelpMacro());
+    	registerMacro(new GotoMacro());
 
     	registerMacro(UNDEFINED_MACRO);
     }
