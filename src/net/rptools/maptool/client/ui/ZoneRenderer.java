@@ -365,6 +365,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	
         int gridSize = zone.getGridSize();
         float scale = scaleArray[scaleIndex];
+        int scaledGridSize = (int) getScaledGridSize();
 
 		for (SelectionSet set : selectionSetMap.values()) {
 			
@@ -414,6 +415,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 					}
 				}
 
+                if (scaledWidth < scaledGridSize) {
+                    newScreenPoint.x += (scaledGridSize - scaledWidth)/2;
+                    
+                    // TODO: Are tokens alway square ?  That is, does width too small imply height too small ?
+                    newScreenPoint.y += (scaledGridSize - scaledHeight)/2;
+                }
 				g.drawImage(getScaledToken(token, scaledWidth, scaledHeight), newScreenPoint.x+1, newScreenPoint.y+1, this);			
 
 				// Other details
@@ -421,6 +428,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 					int y = newScreenPoint.y + scaledHeight + 10;
 					int x = newScreenPoint.x + scaledWidth/2;
+                    
 					GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
 					if (set.getPlayerId() != null && set.getPlayerId().length() > 0) {
 						GraphicsUtil.drawBoxedString(g, set.getPlayerId(), x, y + 20);
@@ -447,7 +455,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         int gridSize = zone.getGridSize();
         int gridOffsetX = zone.getGridOffsetX();
         int gridOffsetY = zone.getGridOffsetY();
-
+        int scaledGridSize = (int)getScaledGridSize();
+        
         Rectangle clipBounds = g.getClipBounds();
         float scale = scaleArray[scaleIndex];
         
@@ -466,6 +475,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int x = (int)(token.getX() * scale + viewOffset.x) + (int) (gridOffsetX * scaleArray[scaleIndex]) + 1;
             int y = (int)(token.getY() * scale + viewOffset.y) + (int) (gridOffsetY * scaleArray[scaleIndex]) + 1;
 
+            if (width < scaledGridSize) {
+                x += (scaledGridSize - width)/2;
+                
+                // TODO: Are tokens alway square ?  That is, does width too small imply height too small ?
+                y += (scaledGridSize - height)/2;
+            }
+            
             Rectangle tokenBounds = new Rectangle(x, y, width, height);
             tokenBoundsMap.put(tokenBounds, token);
 
