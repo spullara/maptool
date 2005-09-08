@@ -97,6 +97,7 @@ public class AppMenuBar extends JMenuBar {
         JMenu serverMenu = new JMenu("Server");
         serverMenu.add(new JMenuItem(AppActions.START_SERVER));
         serverMenu.add(new JMenuItem(AppActions.CONNECT_TO_SERVER));
+        serverMenu.add(new JMenuItem(AppActions.DISCONNECT_FROM_SERVER));
         
         return serverMenu;
     }

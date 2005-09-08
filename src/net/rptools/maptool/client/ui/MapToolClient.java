@@ -102,6 +102,7 @@ public class MapToolClient extends JFrame {
 	private StatusPanel statusPanel;
 	private ActivityMonitorPanel activityMonitor = new ActivityMonitorPanel();
 	private ProgressStatusBar progressBar = new ProgressStatusBar();
+    private ConnectionStatusPanel connectionStatusPanel = new ConnectionStatusPanel();
     
 	private NewZoneDropPanel newZoneDropPanel;
     
@@ -132,6 +133,7 @@ public class MapToolClient extends JFrame {
         statusPanel = new StatusPanel();
         statusPanel.addPanel(new MemoryStatusBar());
         statusPanel.addPanel(progressBar);
+        statusPanel.addPanel(connectionStatusPanel);
         statusPanel.addPanel(activityMonitor);
         
         zoneSelectionPanel = new ZoneSelectionPanel();
@@ -171,6 +173,10 @@ public class MapToolClient extends JFrame {
         
         restorePreferences();
 	}
+    
+    public ConnectionStatusPanel getConnectionStatusPanel() {
+        return connectionStatusPanel;
+    }
     
     public NotificationOverlay getNotificationOverlay() {
         return notificationOverlay;

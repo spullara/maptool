@@ -37,6 +37,7 @@ import javax.swing.UIManager;
 
 import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.MapToolClient;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.client.ui.ZoneRendererFactory;
@@ -274,8 +275,16 @@ public class MapTool {
     public static boolean isConnected() {
         return conn != null;
     }
+    
+    public static boolean isHostingServer() {
+        return server != null;
+    }
 
     public static void disconnect() {
+
+        if (conn == null || !conn.isAlive()) {
+            return;
+        }
         
         try {
             conn.close();
@@ -287,13 +296,11 @@ public class MapTool {
                 //instance.server.stop();
             }
             
-            // TODO: Create a generic way to update application state when 
-            // connecting
-            AppActions.TOGGLE_DROP_INVISIBLE.setEnabled(false);
         } catch (IOException ioe) {
             // This isn't critical, we're closing it anyway
             ioe.printStackTrace();
         }
+        MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.disconnected);
     }
     
 	public static MapToolClient getFrame() {

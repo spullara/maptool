@@ -43,6 +43,7 @@ import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.AssetPanel;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
+import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.StartServerDialog;
 import net.rptools.maptool.client.ui.ZoneRenderer;
 import net.rptools.maptool.client.ui.ZoneSelectionPanel;
@@ -322,6 +323,7 @@ public class AppActions {
                         // connecting
                         TOGGLE_DROP_INVISIBLE.setEnabled(true);
                         LOAD_CAMPAIGN.setEnabled(true);
+                        MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
                 	} catch (UnknownHostException uh) {
                 		MapTool.showError("Whoah, 'localhost' is not a valid address.  Weird.");
                 		return;
@@ -346,21 +348,21 @@ public class AppActions {
         public void execute(ActionEvent e) {
 
             try {
-            	
-            	if (MapTool.isConnected()) {
-            		MapTool.showError("Already connected.");
-            		return;
-            	}
-            	
-            	ConnectToServerDialog dialog = new ConnectToServerDialog();
-            	
-            	dialog.setVisible(true);
-            	
-            	if (dialog.getOption() == ConnectToServerDialog.OPTION_CANCEL) {
-            		
-            		return;
-            	}
-            	
+                
+                if (MapTool.isConnected()) {
+                    MapTool.showError("Already connected.");
+                    return;
+                }
+                
+                ConnectToServerDialog dialog = new ConnectToServerDialog();
+                
+                dialog.setVisible(true);
+                
+                if (dialog.getOption() == ConnectToServerDialog.OPTION_CANCEL) {
+                    
+                    return;
+                }
+                
                 MapTool.createConnection(dialog.getServer(), dialog.getPort(), new Player(dialog.getUsername(), dialog.getRole()));
 
                 // TODO: Create a generic way to update application state when 
@@ -368,6 +370,7 @@ public class AppActions {
                 boolean isGM = MapTool.getPlayer().getRole() == Player.Role.GM;
                 TOGGLE_DROP_INVISIBLE.setEnabled(isGM);
                 LOAD_CAMPAIGN.setEnabled(isGM);
+                MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.connected);
             } catch (UnknownHostException e1) {
                 // TODO Auto-generated catch block
                 MapTool.showError("Unknown host");
@@ -378,6 +381,27 @@ public class AppActions {
                 e1.printStackTrace();
             }
             
+        }
+
+    };
+    public static final Action DISCONNECT_FROM_SERVER = new ClientAction() {
+
+        {
+            putValue(Action.NAME, "Disconnect from server");
+        }
+
+        public void execute(ActionEvent e) {
+
+            if (!MapTool.isConnected()) {
+                return;
+            }
+            
+            if (MapTool.isHostingServer()) {
+                MapTool.showError("Can't disconnect from yourself");
+                return;
+            }
+            
+            MapTool.disconnect();
         }
 
     };
