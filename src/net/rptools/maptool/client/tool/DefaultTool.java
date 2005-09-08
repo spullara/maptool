@@ -235,7 +235,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		CellPoint p = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
 		if (p != null) {	
 			MapTool.getFrame().setStatusMessage("Cell: " + p.x + ", " + p.y);
-		}
+		} else {
+		    MapTool.getFrame().setStatusMessage("");
+        }
 
 		tokenUnderMouse = renderer.getTokenAt(mouseX, mouseY);
 	}
