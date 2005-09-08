@@ -106,7 +106,7 @@ public class MapToolClient extends JFrame {
 	private NewZoneDropPanel newZoneDropPanel;
     
     // TODO: I don't like this here, eventOverlay should be more abstracted
-    private EventOverlay eventOverlay = new EventOverlay();
+    private NotificationOverlay notificationOverlay = new NotificationOverlay();
 	
 	public MapToolClient() {
 		
@@ -172,8 +172,8 @@ public class MapToolClient extends JFrame {
         restorePreferences();
 	}
     
-    public EventOverlay getEventOverlay() {
-        return eventOverlay;
+    public NotificationOverlay getNotificationOverlay() {
+        return notificationOverlay;
     }
     
     private void restorePreferences() {

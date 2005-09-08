@@ -53,7 +53,7 @@ public class ToolboxBar extends JToolBar {
 				renderer.removeOverlay((ZoneOverlay)currentTool);
 			}
             if (renderer != null) {
-                renderer.removeOverlay(MapTool.getFrame().getEventOverlay());
+                renderer.removeOverlay(MapTool.getFrame().getNotificationOverlay());
             }
 		}
 		
@@ -66,7 +66,7 @@ public class ToolboxBar extends JToolBar {
 				renderer.addOverlay((ZoneOverlay) currentTool);
 			}
             
-            currentRenderer.addOverlay(MapTool.getFrame().getEventOverlay());
+            currentRenderer.addOverlay(MapTool.getFrame().getNotificationOverlay());
 		}
 		
 	}

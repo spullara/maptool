@@ -36,14 +36,14 @@ import net.rptools.maptool.client.swing.Animatable;
 import net.rptools.maptool.client.swing.AnimationManager;
 import net.rptools.maptool.util.GraphicsUtil;
 
-public class EventOverlay implements ZoneOverlay, Animatable {
+public class NotificationOverlay implements ZoneOverlay, Animatable {
 
     private List<EventDetail> eventList = new CopyOnWriteArrayList<EventDetail>();
 
     // TODO: make this configurable
     private static final int MESSAGE_DELAY = 2500; 
 
-    public EventOverlay () {
+    public NotificationOverlay () {
         AnimationManager.addAnimatable(this);
     }
     

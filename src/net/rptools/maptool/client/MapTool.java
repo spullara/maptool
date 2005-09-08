@@ -135,7 +135,7 @@ public class MapTool {
             });
             
             if (!player.equals(MapTool.getPlayer())) {	
-            	getFrame().getEventOverlay().addEvent(player.getName() + " has connected");
+            	getFrame().getNotificationOverlay().addEvent(player.getName() + " has connected");
             }
         }
 	}
@@ -152,14 +152,14 @@ public class MapTool {
 
     public static void removePlayer(Player player) {
     	
-//    	if (player == null) {
-//    		return;
-//    	}
+    	if (player == null) {
+    		return;
+    	}
     	
 		playerList.remove(player);
 
 		if (MapTool.getPlayer() != null && !player.equals(MapTool.getPlayer())) {
-			getFrame().getEventOverlay().addEvent(player.getName() + " has disconnected");
+			getFrame().getNotificationOverlay().addEvent(player.getName() + " has disconnected");
 		}
 	}
 	
