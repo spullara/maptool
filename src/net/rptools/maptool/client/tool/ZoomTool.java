@@ -33,7 +33,7 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.ui.Tool;
-import net.rptools.maptool.client.ui.ZoneRenderer;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 
 
 /**

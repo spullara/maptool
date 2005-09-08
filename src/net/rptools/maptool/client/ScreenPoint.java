@@ -24,7 +24,7 @@
  */
 package net.rptools.maptool.client;
 
-import net.rptools.maptool.client.ui.ZoneRenderer;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 
 
 public class ScreenPoint extends AbstractPoint {

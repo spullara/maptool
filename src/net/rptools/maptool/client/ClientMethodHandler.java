@@ -27,8 +27,8 @@ package net.rptools.maptool.client;
 import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
-import net.rptools.maptool.client.ui.ZoneRenderer;
-import net.rptools.maptool.client.ui.ZoneRendererFactory;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;

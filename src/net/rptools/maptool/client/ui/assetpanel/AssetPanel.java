@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.ui;
+package net.rptools.maptool.client.ui.assetpanel;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;

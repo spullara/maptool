@@ -22,30 +22,45 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
+package net.rptools.maptool.client.ui.assetpanel;
 
-package net.rptools.maptool.client.ui;
+import java.awt.Image;
+import java.awt.datatransfer.Transferable;
 
-import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.model.Zone;
+import net.rptools.common.swing.ImagePanelModel;
+import net.rptools.maptool.client.TransferableAsset;
+import net.rptools.maptool.model.AssetGroup;
+import net.rptools.maptool.util.ImageManager;
 
-public class ZoneRendererFactory {
+public class AssetGroupImagePanelModel implements ImagePanelModel {
 
-	public static ZoneRenderer newRenderer(Zone zone) {
-        
-        ZoneRenderer renderer = null;
-        switch (zone.getType()) {
-        case Zone.Type.INFINITE: {
-            renderer = new UnboundedZoneRenderer(zone);
-            break;
-        }
-        case Zone.Type.MAP:
-        default: {
-            renderer = new MapZoneRenderer(zone);
-        }
-        }
+	private AssetGroup assetGroup;
+	
+	public AssetGroupImagePanelModel(AssetGroup assetGroup) {
+		this.assetGroup = assetGroup;
+	}
+	
+	public int getImageCount() {
+		return assetGroup.getAssetCount();
+	}
 
-        renderer.addOverlay(MapTool.getFrame().getPointerOverlay());
+	public Image getImage(int index) {
+		return ImageManager.getImage(assetGroup.getAssets().get(index));
+	}
 
-        return renderer;
+	public Transferable getTransferable(int index) {
+		return new TransferableAsset(assetGroup.getAssets().get(index));
+	}
+    
+    public String getCaption(int index) {
+        return "";
+    }
+    
+    public Object getID(int index) {
+        return new Integer(index);
+    }
+    
+    public Image getImage(Object ID) {
+        return getImage(((Integer)ID).intValue());
     }
 }

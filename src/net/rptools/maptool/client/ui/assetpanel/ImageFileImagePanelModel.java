@@ -22,34 +22,49 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.ui.model;
+package net.rptools.maptool.client.ui.assetpanel;
 
 import java.awt.Image;
 import java.awt.datatransfer.Transferable;
 
 import net.rptools.common.swing.ImagePanelModel;
 import net.rptools.maptool.client.TransferableAsset;
-import net.rptools.maptool.model.AssetGroup;
+import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.ImageManager;
 
-public class AssetGroupImagePanelModel implements ImagePanelModel {
+public class ImageFileImagePanelModel implements ImagePanelModel {
 
-	private AssetGroup assetGroup;
+	private Directory dir;
 	
-	public AssetGroupImagePanelModel(AssetGroup assetGroup) {
-		this.assetGroup = assetGroup;
+	public ImageFileImagePanelModel(Directory dir) {
+		this.dir = dir;
 	}
 	
 	public int getImageCount() {
-		return assetGroup.getAssetCount();
+		return dir.getFiles().size();
 	}
 
 	public Image getImage(int index) {
-		return ImageManager.getImage(assetGroup.getAssets().get(index));
+		Asset asset = null;
+		if (dir instanceof AssetDirectory) {
+			
+			asset = getAsset(index);
+		}
+		
+		return asset != null ? ImageManager.getImage(asset) : ImageManager.UNKNOWN_IMAGE;
 	}
 
 	public Transferable getTransferable(int index) {
-		return new TransferableAsset(assetGroup.getAssets().get(index));
+		Asset asset = null;
+		if (dir instanceof AssetDirectory) {
+			asset = getAsset(index);
+			
+			// Now is a good time to tell the system about it
+			AssetManager.putAsset(asset);
+		}
+		
+		return asset != null ? new TransferableAsset(asset) : null;
 	}
     
     public String getCaption(int index) {
@@ -62,5 +77,9 @@ public class AssetGroupImagePanelModel implements ImagePanelModel {
     
     public Image getImage(Object ID) {
         return getImage(((Integer)ID).intValue());
+    }
+    
+    public Asset getAsset(int index) {
+		return ((AssetDirectory) dir).getAssetFor(dir.getFiles().get(index));
     }
 }

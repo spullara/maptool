@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.ui.model;
+package net.rptools.maptool.client;
 
 import java.util.Observable;
 import java.util.Observer;

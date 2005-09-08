@@ -22,48 +22,30 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
 
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+package net.rptools.maptool.client.ui.zone;
 
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.model.Zone;
 
-public class ZonePoint extends AbstractPoint {
+public class ZoneRendererFactory {
 
-    public ZonePoint(int x, int y) {
-        super(x, y);
-    }
-    
-    /**
-     * Translate the point from zone x,y to screen x,y
-     */
-    public ScreenPoint convertToScreen(ZoneRenderer renderer) {
+	public static ZoneRenderer newRenderer(Zone zone) {
         
-        double scale = renderer.getScale();
-        
-        int sX = x;
-        int sY = y;
-        
-        sX = (int)(sX * scale);
-        sY = (int)(sY * scale);
-        
-        // Translate
-        sX += renderer.getOffsetX();
-        sY += renderer.getOffsetY();
-        
-        return new ScreenPoint(sX, sY);
-    }
-    
-    public static ZonePoint fromScreenPoint(ZoneRenderer renderer, int x, int y) {
-        
-        ScreenPoint sp = new ScreenPoint(x, y);
-        return sp.convertToZone(renderer);
-    }
+        ZoneRenderer renderer = null;
+        switch (zone.getType()) {
+        case Zone.Type.INFINITE: {
+            renderer = new UnboundedZoneRenderer(zone);
+            break;
+        }
+        case Zone.Type.MAP:
+        default: {
+            renderer = new MapZoneRenderer(zone);
+        }
+        }
 
-    public CellPoint convertToCell(ZoneRenderer renderer) {
-        return new CellPoint(x / renderer.getZone().getGridSize(), y / renderer.getZone().getGridSize());
-    }
-    
-    public String toString() {
-        return "ZonePoint" + super.toString();
+        renderer.addOverlay(MapTool.getFrame().getPointerOverlay());
+
+        return renderer;
     }
 }

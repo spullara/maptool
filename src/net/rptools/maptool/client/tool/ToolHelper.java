@@ -29,7 +29,7 @@ import java.awt.Graphics2D;
 
 import net.rptools.maptool.client.AbstractPoint;
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.ui.ZoneRenderer;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.util.GraphicsUtil;
 
 /**

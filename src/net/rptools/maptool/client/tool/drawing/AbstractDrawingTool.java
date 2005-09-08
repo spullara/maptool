@@ -29,8 +29,8 @@ import java.awt.event.MouseListener;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.Tool;
-import net.rptools.maptool.client.ui.ZoneOverlay;
-import net.rptools.maptool.client.ui.ZoneRenderer;
+import net.rptools.maptool.client.ui.zone.ZoneOverlay;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;

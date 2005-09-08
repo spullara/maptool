@@ -1,4 +1,4 @@
-package net.rptools.maptool.client.ui.model;
+package net.rptools.maptool.client.ui.assetpanel;
 
 import java.io.File;
 import java.io.FilenameFilter;

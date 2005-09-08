@@ -22,48 +22,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.ui.zone;
 
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import java.awt.Graphics2D;
 
+/**
+ */
+public interface ZoneOverlay {
 
-public class ZonePoint extends AbstractPoint {
-
-    public ZonePoint(int x, int y) {
-        super(x, y);
-    }
-    
-    /**
-     * Translate the point from zone x,y to screen x,y
-     */
-    public ScreenPoint convertToScreen(ZoneRenderer renderer) {
-        
-        double scale = renderer.getScale();
-        
-        int sX = x;
-        int sY = y;
-        
-        sX = (int)(sX * scale);
-        sY = (int)(sY * scale);
-        
-        // Translate
-        sX += renderer.getOffsetX();
-        sY += renderer.getOffsetY();
-        
-        return new ScreenPoint(sX, sY);
-    }
-    
-    public static ZonePoint fromScreenPoint(ZoneRenderer renderer, int x, int y) {
-        
-        ScreenPoint sp = new ScreenPoint(x, y);
-        return sp.convertToZone(renderer);
-    }
-
-    public CellPoint convertToCell(ZoneRenderer renderer) {
-        return new CellPoint(x / renderer.getZone().getGridSize(), y / renderer.getZone().getGridSize());
-    }
-    
-    public String toString() {
-        return "ZonePoint" + super.toString();
-    }
+	public void paintOverlay(ZoneRenderer renderer, Graphics2D g);
 }

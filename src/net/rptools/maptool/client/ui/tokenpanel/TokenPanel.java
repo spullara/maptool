@@ -22,13 +22,36 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.ui;
+package net.rptools.maptool.client.ui.tokenpanel;
 
-import java.awt.Graphics2D;
+import javax.swing.JPanel;
 
-/**
- */
-public interface ZoneOverlay {
+import net.rptools.maptool.model.ModelChangeEvent;
+import net.rptools.maptool.model.ModelChangeListener;
+import net.rptools.maptool.model.Zone;
 
-	public void paintOverlay(ZoneRenderer renderer, Graphics2D g);
+public class TokenPanel extends JPanel implements ModelChangeListener {
+
+    private Zone currentZone;
+
+    public void setZone(Zone zone) {
+        if (currentZone != null) {
+            currentZone.removeModelChangeListener(this);
+        }
+        
+        currentZone = zone;
+        
+        if (currentZone != null) {
+            currentZone.addModelChangeListener(this);
+            repaint();
+        }
+    }
+    
+    ////
+    // ModelChangeListener
+    public void modelChanged(ModelChangeEvent event) {
+        
+        // Tokens are added and removed, just repaint ourself
+        repaint();
+    }
 }

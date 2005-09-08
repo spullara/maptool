@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.ui;
+package net.rptools.maptool.client.ui.zone;
 
 import java.awt.Graphics2D;
 import java.util.List;

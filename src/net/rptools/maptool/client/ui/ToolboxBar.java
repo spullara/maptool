@@ -28,6 +28,8 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.zone.ZoneOverlay;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 
 
 /**

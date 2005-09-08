@@ -29,7 +29,7 @@ import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.model.PlayerListModel;
+import net.rptools.maptool.client.PlayerListModel;
 
 /**
  */

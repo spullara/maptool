@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.ui.model;
+package net.rptools.maptool.client.ui.assetpanel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,20 +32,22 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import net.rptools.maptool.model.AssetGroup;
-
 
 /**
  */
-public class AssetTreeModel implements TreeModel {
+public class ImageFileTreeModel implements TreeModel {
 
-    private List<AssetGroup> rootAssetGroups = new ArrayList<AssetGroup>();
+    private List<Directory> rootDirectories = new ArrayList<Directory>();
 
     private Object root = new String("");
     
     private List<TreeModelListener> listenerList = new ArrayList<TreeModelListener>();
     
-    public AssetTreeModel() {
+    public ImageFileTreeModel() {
+    }
+    
+    public boolean isRootGroup(Directory dir) {
+        return rootDirectories.contains(dir);
     }
     
     /* (non-Javadoc)
@@ -55,10 +57,15 @@ public class AssetTreeModel implements TreeModel {
         return root;
     }
 
-    public void addRootGroup (AssetGroup group) {
-    	rootAssetGroups.add(group);
-      fireNodesInsertedEvent(new TreeModelEvent(this, new Object[]{getRoot()}, 
-          new int[] { rootAssetGroups.size() - 1 }, new Object[] {group}));
+    public void addRootGroup (Directory directory) {
+    	rootDirectories.add(directory);
+        fireNodesInsertedEvent(new TreeModelEvent(this, new Object[]{getRoot()}, 
+          new int[] { rootDirectories.size() - 1 }, new Object[] {directory}));
+    }
+    
+    public void removeRootGroup (Directory directory) {
+        rootDirectories.remove(directory);
+        fireStructureChangedEvent(new TreeModelEvent(this, new Object[]{getRoot()}));
     }
     
     /* (non-Javadoc)
@@ -67,12 +74,12 @@ public class AssetTreeModel implements TreeModel {
     public Object getChild(Object parent, int index) {
 
     	if (parent == root) {
-    		return rootAssetGroups.get(index);
+    		return rootDirectories.get(index);
     	}
     	
-        AssetGroup group = (AssetGroup) parent;
+        Directory dir = (Directory) parent;
         
-        return group.getChildGroups().get(index);
+        return dir.getSubDirs().get(index);
     }
 
     /* (non-Javadoc)
@@ -81,12 +88,12 @@ public class AssetTreeModel implements TreeModel {
     public int getChildCount(Object parent) {
         
         if (parent == root) {
-            return rootAssetGroups.size();
+            return rootDirectories.size();
         }
         
-        AssetGroup group = (AssetGroup) parent;
+        Directory dir = (Directory) parent;
         
-        return group.getChildGroupCount();
+        return dir.getSubDirs().size();
     }
 
     /* (non-Javadoc)
@@ -110,12 +117,12 @@ public class AssetTreeModel implements TreeModel {
     public int getIndexOfChild(Object parent, Object child) {
 
     	if (parent == root) {
-    		return rootAssetGroups.indexOf(child);
+    		return rootDirectories.indexOf(child);
     	}
     	
-        AssetGroup group = (AssetGroup) parent;
+        Directory dir = (Directory) parent;
 
-        return group.indexOf((AssetGroup) child);
+        return dir.getSubDirs().indexOf(child);
     }
 
     /* (non-Javadoc)
@@ -133,10 +140,6 @@ public class AssetTreeModel implements TreeModel {
     }
 
     public void refresh() {
-      for (AssetGroup group : rootAssetGroups) {
-        group.updateGroup();
-        fireStructureChangedEvent(new TreeModelEvent(this, new Object[]{getRoot(),group}, new int[]{0}, new Object[]{}));
-      } // endfor      
     }
 
     private void fireStructureChangedEvent(TreeModelEvent e) {

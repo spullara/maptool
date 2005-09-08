@@ -40,6 +40,8 @@ import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+
 /**
  */
 public abstract class Tool extends JToggleButton {
