@@ -514,20 +514,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             // Name
         }
         
-        if (AppState.isShowTokenNames()) {
+        for (Rectangle bounds : tokenBoundsMap.keySet()) {
         	
-	        for (Rectangle bounds : tokenBoundsMap.keySet()) {
-	        	
-	        	// TODO: This isn't entirely accurate as it doesn't account for the actual text
-	        	// to be in the clipping bounds, but I'll fix that later
-	            if (!bounds.intersects(clipBounds)) {
-	                continue;
-	            }
-	            
-	            Token token = tokenBoundsMap.get(bounds);
-	            
-				GraphicsUtil.drawBoxedString(g, token.getName(), bounds.x + bounds.width/2, bounds.y + bounds.height + 10);
-	        }
+        	// TODO: This isn't entirely accurate as it doesn't account for the actual text
+        	// to be in the clipping bounds, but I'll fix that later
+            if (!bounds.intersects(clipBounds)) {
+                continue;
+            }
+
+            Token token = tokenBoundsMap.get(bounds);
+
+            if (AppState.isShowTokenNames() || selectedTokenSet.contains(token.getId())) {
+                
+                GraphicsUtil.drawBoxedString(g, token.getName(), bounds.x + bounds.width/2, bounds.y + bounds.height + 10);
+            }
         }
     }
 
