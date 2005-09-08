@@ -213,8 +213,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         int x = point.x;
         int y = point.y;
         
-        x -= getSize().width/2/getScale();
-        y -= getSize().height/2/getScale();
+        x = getSize().width/2 - (int)(x*getScale());
+        y = getSize().height/2 - (int)(y*getScale());
         
         viewOffset.x = x;
         viewOffset.y = y;
@@ -332,7 +332,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     public void paintComponent(Graphics g) {
 
-		Graphics2D g2d = (Graphics2D) g;
+        Graphics2D g2d = (Graphics2D) g;
 		
         if (zone == null) { return; }
         int gridSize = (int) (zone.getGridSize() * getScale());
