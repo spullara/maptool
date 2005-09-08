@@ -151,8 +151,13 @@ public class MapTool {
     }
 
     public static void removePlayer(Player player) {
+    	
+//    	if (player == null) {
+//    		return;
+//    	}
+    	
 		playerList.remove(player);
-		Thread.dumpStack();
+
 		if (MapTool.getPlayer() != null && !player.equals(MapTool.getPlayer())) {
 			getFrame().getEventOverlay().addEvent(player.getName() + " has disconnected");
 		}
