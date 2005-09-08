@@ -41,7 +41,7 @@ public class EventOverlay implements ZoneOverlay, Animatable {
     private List<EventDetail> eventList = new CopyOnWriteArrayList<EventDetail>();
 
     // TODO: make this configurable
-    private static final int MESSAGE_DELAY = 3000; 
+    private static final int MESSAGE_DELAY = 2500; 
 
     public EventOverlay () {
         AnimationManager.addAnimatable(this);
@@ -54,7 +54,7 @@ public class EventOverlay implements ZoneOverlay, Animatable {
             
             GraphicsUtil.drawBoxedString(g, detail.message, 10, y, SwingUtilities.LEFT);
             
-            y += 15;
+            y += 20;
         }
     }
 

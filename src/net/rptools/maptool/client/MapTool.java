@@ -134,7 +134,9 @@ public class MapTool {
                 }
             });
             
-            getFrame().getEventOverlay().addEvent("Player " + player.getName() + " has connected");
+            if (!player.equals(MapTool.getPlayer())) {	
+            	getFrame().getEventOverlay().addEvent(player.getName() + " has connected");
+            }
         }
 	}
 	
@@ -150,8 +152,10 @@ public class MapTool {
 
     public static void removePlayer(Player player) {
 		playerList.remove(player);
-
-        getFrame().getEventOverlay().addEvent("Player " + player.getName() + " has disconnected");
+		Thread.dumpStack();
+		if (MapTool.getPlayer() != null && !player.equals(MapTool.getPlayer())) {
+			getFrame().getEventOverlay().addEvent(player.getName() + " has disconnected");
+		}
 	}
 	
 	
