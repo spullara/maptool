@@ -2,10 +2,11 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/clientserver"/>
 	<classpathentry kind="lib" path="lib/withay-util.jar"/>
 	<classpathentry kind="lib" path="lib/looks-1.3b1.jar"/>
 	<classpathentry kind="lib" path="lib/hessian-2.1.12.jar"/>
 	<classpathentry kind="lib" path="lib/rplib-1.0.b13.jar"/>
-	<classpathentry kind="lib" path="lib/clientserver-1.0.b8.jar"/>
+	<classpathentry kind="lib" path="lib/clientserver-1.0.b9.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
