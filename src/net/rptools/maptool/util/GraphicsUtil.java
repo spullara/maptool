@@ -44,23 +44,39 @@ public class GraphicsUtil {
     	drawBoxedString(g, string, centerX, centerY, SwingUtilities.CENTER);
     }
     
-    public static void drawBoxedString(Graphics2D g, String string, int centerX, int centerY, int justification) {
+    public static void drawBoxedString(Graphics2D g, String string, int x, int y, int justification) {
     	
     	// TODO: Put in justification
     	FontMetrics fm = g.getFontMetrics();
 		int strWidth = SwingUtilities.computeStringWidth(fm, string);
 
+		int width = strWidth + BOX_PADDINGX*2;
+		int height = fm.getHeight() + BOX_PADDINGY*2; 
+		
+		switch (justification) {
+		case SwingUtilities.CENTER:
+			x = x - strWidth/2 - BOX_PADDINGX;
+			y = y - fm.getHeight()/2 - BOX_PADDINGY;
+			break;
+		case SwingUtilities.LEFT:
+			// nothing to do here
+			// TODO: Should this account for the image border ?
+			break;
+		case SwingUtilities.RIGHT:
+			throw new IllegalArgumentException("Not yet implemented: justification RIGHT");
+		}
+		
 		// Box
-		Rectangle boxBounds = new Rectangle(centerX - strWidth/2 - BOX_PADDINGX, centerY - fm.getHeight()/2 - BOX_PADDINGY, strWidth + BOX_PADDINGX*2, fm.getHeight() + BOX_PADDINGY*2);
+		Rectangle boxBounds = new Rectangle(x, y, width, height);
 		g.setColor(Color.white);
 		g.fillRect(boxBounds.x, boxBounds.y, boxBounds.width, boxBounds.height);
 		
     	ClientStyle.border.paintWithin(g, boxBounds);
 		
-		// Renderer distance
+		// Renderer message
 		g.setColor(Color.black);
-		int textX = centerX - (strWidth / 2);
-		int textY = centerY - (fm.getHeight() / 2) + fm.getAscent();
+		int textX = x + BOX_PADDINGX;
+		int textY = y + BOX_PADDINGY + fm.getAscent();
 		
 		g.drawString(string, textX, textY);
     }
