@@ -30,6 +30,7 @@ import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -65,6 +66,7 @@ import net.rptools.maptool.client.tool.drawing.RectangleFillTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
+import net.rptools.maptool.client.ui.tokenpanel.TokenPanel;
 import net.rptools.maptool.client.ui.zone.NewZoneDropPanel;
 import net.rptools.maptool.client.ui.zone.NotificationOverlay;
 import net.rptools.maptool.client.ui.zone.PointerOverlay;
@@ -93,6 +95,7 @@ public class MapToolClient extends JFrame {
 	private AssetPanel assetPanel;
 	private PointerOverlay pointerOverlay;
 	private ChatPanel chatPanel;
+    private TokenPanel tokenPanel;
     
     private ZoneSelectionPanel zoneSelectionPanel;
     private JPanel zoneRendererPanel;
@@ -126,14 +129,16 @@ public class MapToolClient extends JFrame {
 		// Components
 		toolboxPanel = createToolboxPanel();
 		assetPanel = new AssetPanel();
+        tokenPanel = new TokenPanel();
 		outlookPanel = new OutlookPanel ();
         outlookPanel.setMinimumSize(new Dimension(100, 200));
-        zoneRendererList = new ArrayList<ZoneRenderer>();
+        zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
         pointerOverlay = new PointerOverlay();
         chatPanel = new ChatPanel();
         chatPanel.setSize(250, 100);
 
         outlookPanel.addButton("Assets", assetPanel);
+        outlookPanel.addButton("Tokens", tokenPanel);
         outlookPanel.addButton("Connections", new JScrollPane(createPlayerList()));
         
         statusPanel = new StatusPanel();
@@ -360,7 +365,9 @@ public class MapToolClient extends JFrame {
         
 		currentRenderer = renderer;
 		toolboxPanel.setTargetRenderer(renderer);
-		
+
+        tokenPanel.setZoneRenderer(renderer);
+        
 		if (renderer != null) {
 			AppListeners.fireZoneActivated(renderer.getZone());
 		}

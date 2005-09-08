@@ -456,7 +456,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
                 	
                 	token.setName(newName);
             		MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
-            		renderer.repaint();
+            		MapTool.getFrame().repaint();
             	}
             });
             popup.add(menuItem);

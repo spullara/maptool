@@ -44,6 +44,7 @@ public class Zone extends Token {
     public enum Event {
         TOKEN_ADDED,
         TOKEN_REMOVED,
+        TOKEN_CHANGED,
         GRID_CHANGED,
         DRAWABLE_ADDED,
         DRAWABLE_REMOVED
@@ -171,13 +172,16 @@ public class Zone extends Token {
     // tokens
     ///////////////////////////////////////////////////////////////////////////
     public void putToken(Token token) {
+        boolean newToken = !tokens.containsKey(token.getId());
+
         // removed and then added to protect Z order
-        boolean newToken = tokens.containsKey(token.getId());
         this.tokens.remove(token.getId()); 
         this.tokens.put(token.getId(), token);
         
         if (newToken) {
             fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_ADDED, token));
+        } else {
+            fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_CHANGED, token));
         }
     }
     

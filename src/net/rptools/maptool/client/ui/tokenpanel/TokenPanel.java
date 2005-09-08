@@ -24,34 +24,78 @@
  */
 package net.rptools.maptool.client.ui.tokenpanel;
 
-import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeModel;
+
+import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
+import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 
 public class TokenPanel extends JPanel implements ModelChangeListener {
 
-    private Zone currentZone;
+    private ZoneRenderer currentZoneRenderer;
+    private JList tokenList;
 
-    public void setZone(Zone zone) {
-        if (currentZone != null) {
-            currentZone.removeModelChangeListener(this);
+    public TokenPanel() {
+        setLayout(new BorderLayout());
+        tokenList = new JList();
+        tokenList.setCellRenderer(new TokenListCellRenderer());
+        tokenList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                // TODO: make this not an aic
+                if (e.getClickCount() == 2) {
+                    
+                    Token token = (Token) tokenList.getSelectedValue();
+                    currentZoneRenderer.centerOn(new ZonePoint(token.getX(), token.getY()));
+                    currentZoneRenderer.clearSelectedTokens();
+                    currentZoneRenderer.selectToken(token.getId());
+                }
+            }
+        });
+        
+        add(BorderLayout.CENTER, new JScrollPane(tokenList));
+    }
+    
+    public void setZoneRenderer(ZoneRenderer renderer) {
+        if (currentZoneRenderer != null) {
+            currentZoneRenderer.getZone().removeModelChangeListener(this);
         }
         
-        currentZone = zone;
+        currentZoneRenderer = renderer;
         
-        if (currentZone != null) {
-            currentZone.addModelChangeListener(this);
+        if (currentZoneRenderer != null) {
+            currentZoneRenderer.getZone().addModelChangeListener(this);
+
             repaint();
         }
+
+        // TODO: make this not a aic
+        EventQueue.invokeLater(new Runnable(){
+            
+            public void run() {
+                Zone zone = currentZoneRenderer != null ? currentZoneRenderer.getZone() : null;
+                tokenList.setModel(new TokenListModel(zone));
+            }
+        });
     }
     
     ////
     // ModelChangeListener
     public void modelChanged(ModelChangeEvent event) {
-        
+
         // Tokens are added and removed, just repaint ourself
+        ((TokenListModel)tokenList.getModel()).update();
         repaint();
     }
 }

@@ -51,6 +51,10 @@ public class Token {
 	
     // Transient so that it isn't transfered over the wire
     private transient List<ModelChangeListener> listenerList = new CopyOnWriteArrayList<ModelChangeListener>();
+
+    public enum ChangeEvent {
+        name
+    }
     
     public Token() {
         
@@ -181,7 +185,7 @@ public class Token {
     }
     
     protected void fireModelChangeEvent(ModelChangeEvent event) {
-        
+
         for (ModelChangeListener listener : listenerList) {
             listener.modelChanged(event);
         }
