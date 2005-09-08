@@ -46,6 +46,10 @@ public class GraphicsUtil {
     
     public static void drawBoxedString(Graphics2D g, String string, int x, int y, int justification) {
     	
+        if (string == null) {
+            string = "";
+        }
+        
     	// TODO: Put in justification
     	FontMetrics fm = g.getFontMetrics();
 		int strWidth = SwingUtilities.computeStringWidth(fm, string);

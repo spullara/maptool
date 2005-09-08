@@ -59,6 +59,10 @@ public class NotificationOverlay implements ZoneOverlay, Animatable {
     }
 
     public void addEvent(String message) {
+        if (message == null) {
+            return;
+        }
+        
         eventList.add(new EventDetail(message));
     }
     
