@@ -23,7 +23,6 @@
  * SOFTWARE.
  */
 package net.rptools.maptool.client.ui;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -31,21 +30,16 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import javax.swing.SwingUtilities;
-
 import net.rptools.common.util.ImageUtil;
-import net.rptools.maptool.client.CellPoint;
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.MD5Key;
 
 /**
  */
-public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
+public class UnboundedZoneRenderer extends ZoneRenderer {
 
 	private BufferedImage backBuffer;
 	private BufferedImage tileImage;
@@ -54,8 +48,6 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 	
 	public UnboundedZoneRenderer(Zone zone) {
 		super(zone);
-		
-		addOverlay(this);
 	}
 	
 	/* (non-Javadoc)
@@ -157,17 +149,5 @@ public class UnboundedZoneRenderer extends ZoneRenderer implements ZoneOverlay {
 				g.dispose();
 			}
 		}
-	}
-	
-	////
-	// ZONE OVERLAY
-	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
-		
-        // Find the cell in the middle of the screen
-        Dimension size = getSize();
-        CellPoint cell = renderer.getCellAt(new ScreenPoint(size.width/2, size.height/2)); 
-        
-		g.setColor(Color.black);
-		GraphicsUtil.drawBoxedString (g, cell.x + ", " + cell.y, 50, 15, SwingUtilities.LEFT);
 	}
 }
