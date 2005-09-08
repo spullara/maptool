@@ -29,7 +29,6 @@ import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import net.rptools.maptool.client.ui.model.Directory;
 
 
 /**
