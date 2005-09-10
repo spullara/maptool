@@ -34,6 +34,8 @@ import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 
@@ -74,7 +76,15 @@ public class TokenListModel implements ListModel {
             return;
         }
         
-        tokenList.addAll(zone.getTokens());
+        if (MapTool.getPlayer().getRole() == Player.Role.GM) {
+        	tokenList.addAll(zone.getTokens());
+        } else {
+        	for (Token token : zone.getTokens()) {
+        		if (token.isVisible()) {
+        			tokenList.add(token);
+        		}
+        	}
+        }
         
         Collections.sort(tokenList, new Comparator<Token>(){
            public int compare(Token o1, Token o2) {
