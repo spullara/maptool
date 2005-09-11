@@ -26,12 +26,16 @@ package net.rptools.maptool.client;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
+import net.rptools.common.transferable.FileTransferableHandler;
+import net.rptools.common.transferable.ImageTransferableHandler;
 import net.rptools.common.util.FileUtil;
 import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.model.Asset;
@@ -68,20 +72,21 @@ public class TransferableHelper {
 	        	asset = handleTransferableAssetReference(transferable);
 	        }
 	        
-            // DIRECT/BROWSER
-            else if (transferable.isDataFlavorSupported(IMAGE_FLAVOR)) {
-                
-                asset = handleImage(dtde, transferable);
+            else {
+                // DIRECT/BROWSER
+            	try {
+            		asset = handleImage(dtde, transferable);
+            	} catch (UnsupportedFlavorException ufe) {
+            		// Keep trying
+            	}
+
+            	// LOCAL FILESYSTEM
+            	asset = handleFileList(dtde, transferable);
             }
             
-	        // LOCAL FILES/BROWSER
-	        else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-	        	
-	        	asset = handleFileList(dtde, transferable);
-	        }	        	
-	
         } catch (Exception e) {
-        	System.out.println ("Could not retrieve asset: " + e);
+        	System.err.println ("Could not retrieve asset: " + e);
+        	e.printStackTrace();
         	return null;
         }
 
@@ -102,9 +107,9 @@ public class TransferableHelper {
         return asset;
 	}
 
-    private static Asset handleImage (DropTargetDropEvent dtde, Transferable transferable) throws Exception {
+    private static Asset handleImage (DropTargetDropEvent dtde, Transferable transferable) throws IOException, UnsupportedFlavorException {
         
-        BufferedImage image = (BufferedImage) transferable.getTransferData(IMAGE_FLAVOR);        
+        BufferedImage image = (BufferedImage) new ImageTransferableHandler().getTransferObject(transferable);        
         
         Asset asset = new Asset(ImageUtil.imageToBytes(image));
         
@@ -113,22 +118,8 @@ public class TransferableHelper {
     
 	private static Asset handleFileList(DropTargetDropEvent dtde, Transferable transferable) throws Exception {
 		
-    	List<File> list = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+    	List<File> list = new FileTransferableHandler().getTransferObject(transferable);
     	
-    	if (list.size() == 0) {
-    		return null;
-    	}
-    	
-    	// For some reason, firefox does not actually write out the temporary file designated in
-    	// this list until list line is called.  So it has to stay ABOVE the loadFile() call
-    	// It also requires just a moment to copy from internal system whatever into the file
-        dtde.dropComplete(true);
-        try {
-        	Thread.sleep(1000);
-        } catch (Exception e) {
-        	e.printStackTrace();
-        }
-
         // We only support using one at a time for now
 		Asset asset = new Asset(FileUtil.loadFile(list.get(0)));
 
