@@ -131,7 +131,7 @@ public class AppActions {
 		
 		public void execute(ActionEvent e) {
 			
-			if(MapTool.getPlayer().getRole() != Player.Role.GM) {
+			if(MapTool.getPlayer().isGM()) {
 				return;
 			}
 			
@@ -367,7 +367,7 @@ public class AppActions {
 
                 // TODO: Create a generic way to update application state when 
                 // connecting
-                boolean isGM = MapTool.getPlayer().getRole() == Player.Role.GM;
+                boolean isGM = MapTool.getPlayer().isGM();
                 TOGGLE_DROP_INVISIBLE.setEnabled(isGM);
                 LOAD_CAMPAIGN.setEnabled(isGM);
                 MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.connected);
@@ -414,7 +414,7 @@ public class AppActions {
     	
         public void execute(ActionEvent ae) {
         
-            if (MapTool.isConnected() && MapTool.getPlayer().getRole() != Player.Role.GM) {
+            if (MapTool.isConnected() && MapTool.getPlayer().isGM()) {
                 MapTool.showError("Must be a GM to load a campaign.");
                 return;
             }

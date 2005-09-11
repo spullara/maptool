@@ -58,6 +58,10 @@ public class Player {
 		return name.hashCode();
 	}
 	
+	public boolean isGM() {
+		return role == Role.GM;
+	}
+	
 	/**
 	 * @return Returns the name.
 	 */

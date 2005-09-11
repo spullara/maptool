@@ -76,7 +76,7 @@ public class TokenListModel implements ListModel {
             return;
         }
         
-        if (MapTool.getPlayer().getRole() == Player.Role.GM) {
+        if (MapTool.getPlayer().isGM()) {
         	tokenList.addAll(zone.getTokens());
         } else {
         	for (Token token : zone.getTokens()) {
