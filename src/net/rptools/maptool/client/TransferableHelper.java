@@ -77,11 +77,11 @@ public class TransferableHelper {
             	try {
             		asset = handleImage(dtde, transferable);
             	} catch (UnsupportedFlavorException ufe) {
-            		// Keep trying
+
+                	// LOCAL FILESYSTEM
+                	asset = handleFileList(dtde, transferable);
             	}
 
-            	// LOCAL FILESYSTEM
-            	asset = handleFileList(dtde, transferable);
             }
             
         } catch (Exception e) {
