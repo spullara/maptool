@@ -92,6 +92,10 @@ public class ServerCommandClientImpl implements ServerCommand {
     public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size) {
         makeServerCall(COMMAND.setZoneGridSize, zoneGUID, xOffset, yOffset, size);
     }
+    
+    public void setZoneVisibility(GUID zoneGUID, boolean visible) {
+    	makeServerCall(COMMAND.setZoneVisibility, zoneGUID, visible);
+    }
 
     public void message(String message) {
     	if (!MapTool.isConnected()) {

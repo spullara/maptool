@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import net.rptools.common.swing.SwingUtil;
 import net.rptools.maptool.client.ClientStyle;
@@ -76,6 +77,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
         // DnD
         new DropTarget(this, this);
 
+        // TODO: make this not an aic
         addMouseListener(new MouseAdapter(){
            
             /* (non-Javadoc)
@@ -85,8 +87,16 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
                 
                 ZoneRenderer renderer = getRendererAt(e.getX(), e.getY()); 
                 if (renderer != null) {
-                    
-                    MapTool.getFrame().setCurrentZoneRenderer(renderer);
+
+                	if (SwingUtilities.isLeftMouseButton(e)) {
+                		MapTool.getFrame().setCurrentZoneRenderer(renderer);
+                	} else {
+                		
+                		if (MapTool.getPlayer().isGM()) {
+                			ZonePopupMenu menu = new ZonePopupMenu(renderer.getZone());
+                			menu.show(ZoneSelectionPanel.this, e.getX(), e.getY());
+                		}
+                	}
                 }
             }
             
@@ -114,6 +124,10 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 	        int y = PADDING;
 	        for (ZoneRenderer renderer : rendererList) {
 	            
+	        	if (!MapTool.getPlayer().isGM() && !renderer.getZone().isVisible()) {
+	        		continue;
+	        	}
+	        	
 	        	boolean isSelectedZone = renderer == currentRenderer;
 	        	
 	            // TODO: This is a naive solution.  In the future, actually render the zone

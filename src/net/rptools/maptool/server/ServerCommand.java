@@ -57,13 +57,15 @@ public interface ServerCommand {
         startTokenMove,
         stopTokenMove,
         addTokenMoveWaypoint,
-        updateTokenMove
+        updateTokenMove,
+        setZoneVisibility
     };
     
     public void setCampaign(Campaign campaign);
     public void getZone(GUID zoneGUID);
     public void putZone(Zone zone);
     public void removeZone(GUID zoneGUID);
+    public void setZoneVisibility(GUID zoneGUID, boolean visible);
     public void putAsset(Asset asset);
     public void getAsset(MD5Key assetID);
     public void removeAsset(MD5Key assetID);

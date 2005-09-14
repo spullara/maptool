@@ -117,6 +117,15 @@ public class ServerMethodHandler extends AbstractMethodHandler {
           zone.removeDrawable(drawableId);
           break;
           
+        case setZoneVisibility:
+        	
+        	zoneGUID = (GUID) parameters[0];
+        	boolean visible = (Boolean) parameters[1];
+        	server.getCampaign().getZone(zoneGUID).setVisible(visible);
+        	
+        	server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setZoneVisibility.name(), parameters);
+        	break;
+          
         case setZoneGridSize:
         	
         	zoneGUID = (GUID) parameters[0];

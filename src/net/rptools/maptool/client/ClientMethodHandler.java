@@ -127,6 +127,20 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 		  break;
           
+        case setZoneVisibility: 
+
+        	zoneGUID = (GUID) parameters[0];
+        	boolean visible = (Boolean) parameters[1];
+        	
+        	zone = MapTool.getCampaign().getZone(zoneGUID);
+        	zone.setVisible(visible);
+        	
+        	ZoneRenderer currentRenderer = MapTool.getFrame().getCurrentZoneRenderer();
+        	if (!visible && currentRenderer != null && currentRenderer.getZone().getId().equals(zoneGUID)) {
+        		MapTool.getFrame().setCurrentZoneRenderer(null);
+        	}
+        	break;
+		  
         case setZoneGridSize:
         	
         	zoneGUID = (GUID) parameters[0];
