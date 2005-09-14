@@ -72,6 +72,10 @@ public class ServerCommandClientImpl implements ServerCommand {
     public void removeAsset(MD5Key assetID) {
         makeServerCall(COMMAND.removeAsset, assetID);
     }
+    
+    public void enforceZoneView(GUID zoneGUID, int x, int y, int zoomIndex) {
+    	makeServerCall(COMMAND.enforceZoneView, zoneGUID, x, y, zoomIndex);
+    }
 
     public void putToken(GUID zoneGUID, Token token) {
         makeServerCall(COMMAND.putToken, zoneGUID, token);

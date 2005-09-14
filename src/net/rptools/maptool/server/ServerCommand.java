@@ -58,9 +58,11 @@ public interface ServerCommand {
         stopTokenMove,
         addTokenMoveWaypoint,
         updateTokenMove,
-        setZoneVisibility
+        setZoneVisibility,
+        enforceZoneView
     };
-    
+
+    public void enforceZoneView(GUID zoneGUID, int x, int y, int zoomIndex);
     public void setCampaign(Campaign campaign);
     public void getZone(GUID zoneGUID);
     public void putZone(Zone zone);

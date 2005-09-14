@@ -305,6 +305,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         zoomTo(x, y, scaleIndex - 1);
     }
 
+    public void setView(int x, int y, int zoomIndex) {
+    	viewOffset.x = x;
+    	viewOffset.y = y;
+    	scaleIndex = zoomIndex;
+    	
+    	repaint();
+    }
+    
     private void zoomTo(int x, int y, int index) {
 
         index = Math.max(index, 0);
@@ -715,6 +723,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
   
     public double getScale() {
     	return scaleArray[scaleIndex];
+    }
+
+    public int getScaleIndex() {
+    	// Used when enforcing view
+    	return scaleIndex;
     }
     
     public double getScaledGridSize() {

@@ -93,6 +93,22 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	
         	MapTool.getFrame().repaint();
             break;
+            
+        case enforceZoneView: 
+        	
+        	zoneGUID = (GUID) parameters[0];
+        	int x = (Integer)parameters[1];
+        	int y = (Integer)parameters[2];
+        	int zoomIndex = (Integer)parameters[3];
+        	
+        	renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
+        	if (renderer == null) {
+        		return;
+        	}
+        	
+        	renderer.setView(x, y, zoomIndex);
+        	break;
+            
         case removeToken:
         	zoneGUID = (GUID) parameters[0];
         	zone = MapTool.getCampaign().getZone(zoneGUID);
@@ -215,8 +231,8 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 			zoneGUID = (GUID) parameters[0];
 			keyToken = (GUID) parameters[1];
 			
-			int x = ((Integer) parameters[2]).intValue();
-			int y = ((Integer) parameters[3]).intValue();
+			x = ((Integer) parameters[2]).intValue();
+			y = ((Integer) parameters[3]).intValue();
 			
 			renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
 			renderer.updateMoveSelectionSet(keyToken, new ZonePoint(x, y));

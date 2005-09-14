@@ -89,6 +89,30 @@ public class AppActions {
         
     };
     
+    public static final Action ENFORCE_ZONE_VIEW = new ClientAction() {
+        
+        {
+            putValue(Action.NAME, "Enforce View");
+        }
+        
+        public void execute(ActionEvent e) {
+            
+        	if (!MapTool.getPlayer().isGM()) {
+        		// TODO: This option should be disabled when not a GM
+        		MapTool.showError("Only GMs can do that");
+        		return;
+        	}
+        	
+        	ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+        	if (renderer == null) {
+        		return;
+        	}
+        	
+        	MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), renderer.getOffsetX(), renderer.getOffsetY(), renderer.getScaleIndex());
+        }
+        
+    };
+    
     public static final Action TYPE_COMMAND = new ClientAction() {
         
         {
@@ -374,6 +398,7 @@ public class AppActions {
                         TOGGLE_DROP_INVISIBLE.setEnabled(true);
                         LOAD_CAMPAIGN.setEnabled(true);
                         TOGGLE_NEW_ZONE_VISIBILITY.setEnabled(true);
+                        ENFORCE_ZONE_VIEW.setEnabled(true);
                         MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
                 	} catch (UnknownHostException uh) {
                 		MapTool.showError("Whoah, 'localhost' is not a valid address.  Weird.");
@@ -422,6 +447,7 @@ public class AppActions {
                 TOGGLE_DROP_INVISIBLE.setEnabled(isGM);
                 LOAD_CAMPAIGN.setEnabled(isGM);
                 TOGGLE_NEW_ZONE_VISIBILITY.setEnabled(isGM);
+                ENFORCE_ZONE_VIEW.setEnabled(isGM);
                 MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.connected);
             } catch (UnknownHostException e1) {
                 // TODO Auto-generated catch block

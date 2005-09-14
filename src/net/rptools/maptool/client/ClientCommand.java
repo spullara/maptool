@@ -47,6 +47,7 @@ public class ClientCommand {
         startTokenMove,
         stopTokenMove,
         addTokenMoveWaypoint,
-        updateTokenMove
+        updateTokenMove,
+        enforceZoneView
     };
 }

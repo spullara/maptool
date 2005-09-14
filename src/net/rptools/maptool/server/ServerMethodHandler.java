@@ -53,6 +53,10 @@ public class ServerMethodHandler extends AbstractMethodHandler {
 
         Zone zone;
         switch (cmd) {
+        case enforceZoneView:
+        	
+        	server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.enforceZoneView.name(), parameters);
+        	break;
         case setCampaign:
             Campaign c = (Campaign) parameters[0];
             server.setCampaign(c);
