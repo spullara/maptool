@@ -26,10 +26,10 @@ package net.rptools.maptool.client;
 
 public class AppState {
 
-    private static boolean dropTokenAsInvisible;
-    private static boolean showGrid;
-    private static boolean showTokenNames;
-    private static boolean newZonesVisible;
+    private static boolean dropTokenAsInvisible = false;
+    private static boolean showGrid = false;
+    private static boolean showTokenNames = false;
+    private static boolean newZonesVisible = true;
 
     public static boolean isDropTokenAsInvisible() {
         return dropTokenAsInvisible;
