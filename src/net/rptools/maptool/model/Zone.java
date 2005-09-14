@@ -62,7 +62,6 @@ public class Zone extends Token {
     private int gridOffsetX = 0;
     private int gridOffsetY = 0;
     private int type = Type.MAP;
-    private boolean isVisible;
     
     private int feetPerCell = 5;
     
@@ -71,17 +70,8 @@ public class Zone extends Token {
     private LinkedHashMap<GUID, Token> tokens = new LinkedHashMap<GUID, Token>();
 
     public Zone() {
-
     }
 
-    public boolean isVisible() {
-    	return isVisible;
-    }
-    
-    public void setVisible(boolean flag) {
-    	isVisible = flag;
-    }
-    
     public Zone(MD5Key backgroundAsset) {
         super(backgroundAsset);
     }

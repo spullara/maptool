@@ -23,22 +23,26 @@ public class ZonePopupMenu extends JPopupMenu {
 		if (zone.isVisible()) {
 			action = new AbstractAction() {
 				{
-					putValue(NAME, "KILL VISIBILITY");
+					putValue(NAME, "Hide from players");
 				}
 				public void actionPerformed(ActionEvent e) {
 					ZonePopupMenu.this.zone.setVisible(false);
 					MapTool.serverCommand().setZoneVisibility(ZonePopupMenu.this.zone.getId(), false);
+					MapTool.getFrame().getZoneSelectionPanel().flush();
+					MapTool.getFrame().repaint();
 				}
 			};
 		} else {
 			action = new AbstractAction() {
 				{
-					putValue(NAME, "see it");
+					putValue(NAME, "Show to players");
 				}
 				public void actionPerformed(ActionEvent e) {
 					
 					ZonePopupMenu.this.zone.setVisible(true);
 					MapTool.serverCommand().setZoneVisibility(ZonePopupMenu.this.zone.getId(), true);
+					MapTool.getFrame().getZoneSelectionPanel().flush();
+					MapTool.getFrame().repaint();
 				}
 			};
 		}

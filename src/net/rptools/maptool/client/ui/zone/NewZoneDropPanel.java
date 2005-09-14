@@ -33,6 +33,7 @@ import java.awt.dnd.DropTargetListener;
 
 import javax.swing.JPanel;
 
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.model.Asset;
@@ -87,6 +88,7 @@ public class NewZoneDropPanel extends JPanel implements DropTargetListener {
         if (asset != null) {
         	
         	Zone zone = new Zone(asset.getId());
+			zone.setVisible(AppState.isNewZonesVisible());
         	MapTool.addZone(zone);
         }
     }

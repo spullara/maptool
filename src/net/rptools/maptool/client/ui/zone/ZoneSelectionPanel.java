@@ -45,6 +45,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import net.rptools.common.swing.SwingUtil;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
@@ -92,7 +93,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
                 		MapTool.getFrame().setCurrentZoneRenderer(renderer);
                 	} else {
                 		
-                		if (MapTool.getPlayer().isGM()) {
+                		if (!MapTool.isConnected() || MapTool.getPlayer().isGM()) {
                 			ZonePopupMenu menu = new ZonePopupMenu(renderer.getZone());
                 			menu.show(ZoneSelectionPanel.this, e.getX(), e.getY());
                 		}
@@ -121,10 +122,10 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 	        
 	        boundsMap.clear();
 	        int x = PADDING;
-	        int y = PADDING;
+	        int y = getSize().height - PADDING;
 	        for (ZoneRenderer renderer : rendererList) {
 	            
-	        	if (!MapTool.getPlayer().isGM() && !renderer.getZone().isVisible()) {
+	        	if (MapTool.isConnected() && !MapTool.getPlayer().isGM() && !renderer.getZone().isVisible()) {
 	        		continue;
 	        	}
 	        	
@@ -147,7 +148,12 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 	            	x = alignLeft ? PADDING : (mySize.width - size.width) -PADDING;
 	            }
 	            
+	            y -= size.height;
+	            
 	            g2d.drawImage(img, x, y, size.width, size.height, this);
+	            if (!renderer.getZone().isVisible()) {
+	            	g2d.drawImage(ClientStyle.tokenInvisible, x + 3, y + 3, this);
+	            }
 	            
 	            boundsMap.put(new Rectangle(x, y, size.width, size.height), renderer);
 	            
@@ -160,7 +166,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 	            if (horizontal) {
 	            	x += size.width + PADDING;
 	            } else {
-	            	y += size.height + PADDING;
+	            	y -= PADDING;
 	            }
 	            
 	        }
@@ -237,6 +243,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
         if (asset != null) {
         	
         	Zone zone = new Zone(asset.getId());
+			zone.setVisible(AppState.isNewZonesVisible());
         	MapTool.addZone(zone);
         }
         

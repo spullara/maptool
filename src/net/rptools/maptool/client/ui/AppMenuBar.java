@@ -38,6 +38,7 @@ public class AppMenuBar extends JMenuBar {
         add(createFileMenu());
         add(createEditMenu());
         add(createViewMenu());
+        add(createZoneMenu());
         add(createActionMenu());
         add(createServerMenu());
         add(createGMMenu());
@@ -127,5 +128,12 @@ public class AppMenuBar extends JMenuBar {
         viewMenu.add(new JMenuItem(AppActions.TOGGLE_ASSET_PANEL));
 
         return viewMenu;
+    }
+    
+    protected JMenu createZoneMenu() {
+    	JMenu zoneMenu = new JMenu("Zone");
+    	zoneMenu.add(new JMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
+    	
+    	return zoneMenu;
     }
 }

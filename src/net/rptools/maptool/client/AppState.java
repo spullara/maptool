@@ -29,6 +29,7 @@ public class AppState {
     private static boolean dropTokenAsInvisible;
     private static boolean showGrid;
     private static boolean showTokenNames;
+    private static boolean newZonesVisible;
 
     public static boolean isDropTokenAsInvisible() {
         return dropTokenAsInvisible;
@@ -52,5 +53,13 @@ public class AppState {
     
     public static boolean isShowTokenNames() {
     	return showTokenNames;
+    }
+    
+    public static void setNewZonesVisible(boolean flag) {
+    	newZonesVisible = flag;
+    }
+    
+    public static boolean isNewZonesVisible() {
+    	return newZonesVisible;
     }
 }

@@ -311,6 +311,7 @@ public class MapToolClient extends JFrame {
         toolbox.add(new JToggleButton(AppActions.TOGGLE_GRID));
         toolbox.add(new JToggleButton(AppActions.TOGGLE_SHOW_TOKEN_NAMES));
         toolbox.add(new JToggleButton(AppActions.TOGGLE_DROP_INVISIBLE));
+        toolbox.add(new JToggleButton(AppActions.TOGGLE_NEW_ZONE_VISIBILITY));
         
         return toolbox;
 	}

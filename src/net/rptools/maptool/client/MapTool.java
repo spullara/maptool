@@ -199,7 +199,7 @@ public class MapTool {
             ZoneRenderer renderer = ZoneRendererFactory.newRenderer(zone);
             clientFrame.addZoneRenderer(renderer);
             
-            if (currRenderer == null){
+            if (currRenderer == null && (getPlayer().isGM() || zone.isVisible())){
                 currRenderer = renderer;
             }
         }

@@ -46,6 +46,7 @@ import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.StartServerDialog;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.assetpanel.Directory;
+import net.rptools.maptool.client.ui.zone.ZonePopupMenu;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneSelectionPanel;
 import net.rptools.maptool.model.Asset;
@@ -182,6 +183,55 @@ public class AppActions {
 
         	AppState.setShowTokenNames(!AppState.isShowTokenNames());
         	MapTool.getFrame().getCurrentZoneRenderer().repaint();
+        }
+    };
+        
+    public static final Action TOGGLE_CURRENT_ZONE_VISIBILITY = new ClientAction() {
+
+        {
+            putValue(Action.NAME, "Toggle player visibility");
+            putValue(Action.SHORT_DESCRIPTION, "Toggle whether players can see the current zone");
+            //putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK));
+//            try {
+//                putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/zoneVisible.png")));
+//            } catch (IOException ioe) {
+//                ioe.printStackTrace();
+//            }
+        }
+
+        public void execute(ActionEvent e) {
+        	
+        	ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+        	if (renderer == null) {
+        		return;
+        	}
+        	
+        	// TODO: consolidate this code with ZonePopupMenu
+        	Zone zone = renderer.getZone();
+        	zone.setVisible(!zone.isVisible());
+        	
+			MapTool.serverCommand().setZoneVisibility(zone.getId(), zone.isVisible());
+			MapTool.getFrame().getZoneSelectionPanel().flush();
+			MapTool.getFrame().repaint();
+        }
+    };
+
+    public static final Action TOGGLE_NEW_ZONE_VISIBILITY = new ClientAction() {
+
+        {
+//            putValue(Action.NAME, "Drop Invisible");
+            putValue(Action.SHORT_DESCRIPTION, "New zones start invisible to players");
+            //putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_MASK + InputEvent.SHIFT_MASK));
+            try {
+                putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/zoneVisible.png")));
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+            setEnabled(false);
+        }
+
+        public void execute(ActionEvent e) {
+            AppState.setNewZonesVisible(!AppState.isNewZonesVisible());
         }
     };
 
@@ -323,6 +373,7 @@ public class AppActions {
                         // connecting
                         TOGGLE_DROP_INVISIBLE.setEnabled(true);
                         LOAD_CAMPAIGN.setEnabled(true);
+                        TOGGLE_NEW_ZONE_VISIBILITY.setEnabled(true);
                         MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
                 	} catch (UnknownHostException uh) {
                 		MapTool.showError("Whoah, 'localhost' is not a valid address.  Weird.");
@@ -370,6 +421,7 @@ public class AppActions {
                 boolean isGM = MapTool.getPlayer().isGM();
                 TOGGLE_DROP_INVISIBLE.setEnabled(isGM);
                 LOAD_CAMPAIGN.setEnabled(isGM);
+                TOGGLE_NEW_ZONE_VISIBILITY.setEnabled(isGM);
                 MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.connected);
             } catch (UnknownHostException e1) {
                 // TODO Auto-generated catch block
@@ -480,6 +532,7 @@ public class AppActions {
 
 					Zone zone = new Zone();
 					zone.setType(Zone.Type.INFINITE);
+					zone.setVisible(AppState.isNewZonesVisible());
 					
                     MapTool.addZone(zone);
 				}
@@ -518,6 +571,7 @@ public class AppActions {
                         MapTool.serverCommand().putAsset(asset);
 
                         Zone zone = new Zone(asset.getId());
+    					zone.setVisible(AppState.isNewZonesVisible());
                         MapTool.addZone(zone);
                     } catch (IOException ioe) {
                         MapTool.showError("Could not load image: " + ioe);

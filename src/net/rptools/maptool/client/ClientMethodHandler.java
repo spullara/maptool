@@ -70,7 +70,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	// TODO: combine this with MapTool.addZone()
         	ZoneRenderer renderer = ZoneRendererFactory.newRenderer(zone);
         	MapTool.getFrame().addZoneRenderer(renderer);
-        	if (MapTool.getFrame().getCurrentZoneRenderer() == null) {
+        	if (MapTool.getFrame().getCurrentZoneRenderer() == null && zone.isVisible()) {
         		MapTool.getFrame().setCurrentZoneRenderer(renderer);
         	}
         	
@@ -136,9 +136,16 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	zone.setVisible(visible);
         	
         	ZoneRenderer currentRenderer = MapTool.getFrame().getCurrentZoneRenderer();
-        	if (!visible && currentRenderer != null && currentRenderer.getZone().getId().equals(zoneGUID)) {
+        	if (!visible && !MapTool.getPlayer().isGM() && currentRenderer != null && currentRenderer.getZone().getId().equals(zoneGUID)) {
         		MapTool.getFrame().setCurrentZoneRenderer(null);
         	}
+        	if (visible && currentRenderer == null) {
+        		currentRenderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
+        		MapTool.getFrame().setCurrentZoneRenderer(currentRenderer);
+        	}
+        	
+        	MapTool.getFrame().getZoneSelectionPanel().flush();
+        	MapTool.getFrame().repaint();
         	break;
 		  
         case setZoneGridSize:
