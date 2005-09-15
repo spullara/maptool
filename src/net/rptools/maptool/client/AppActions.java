@@ -515,7 +515,7 @@ public class AppActions {
     	
         public void execute(ActionEvent ae) {
         
-            if (MapTool.isConnected() && MapTool.getPlayer().isGM()) {
+            if (MapTool.isConnected() && !MapTool.getPlayer().isGM()) {
                 MapTool.showError("Must be a GM to load a campaign.");
                 return;
             }
