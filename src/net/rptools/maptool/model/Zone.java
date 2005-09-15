@@ -49,7 +49,8 @@ public class Zone extends Token {
         TOKEN_CHANGED,
         GRID_CHANGED,
         DRAWABLE_ADDED,
-        DRAWABLE_REMOVED
+        DRAWABLE_REMOVED,
+        FOG_CHANGED
     }
     
     private static final int MIN_GRID_SIZE = 10;
@@ -87,18 +88,43 @@ public class Zone extends Token {
     
     public void setHasFog(boolean flag) {
     	hasFog = flag;
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
+    }
+
+    public boolean isTokenVisible(Token token) {
+
+        // Base case, nothing is visible
+        if (!token.isVisible()) {
+            return false;
+        }
+        
+        // Base case, everything is visible
+        if (!hasFog()) {
+            return true;
+        }
+        
+        // Token is visible, and there is fog
+        int x = token.getX();
+        int y = token.getY();
+        int w = TokenSize.getWidth(token, gridSize);
+        int h = TokenSize.getHeight(token, gridSize);
+
+        return getExposedArea().intersects(x, y, w, h);
     }
     
     public void clearExposedArea() {
     	exposedArea = new Area();
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
     }
     
     public void exposeArea(Area area) {
     	exposedArea.add(area);
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
     }
     
     public void hideArea(Area area) {
     	exposedArea.subtract(area);
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
     }
     
     public Area getExposedArea() {

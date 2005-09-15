@@ -80,7 +80,7 @@ public class TokenListModel implements ListModel {
         	tokenList.addAll(zone.getTokens());
         } else {
         	for (Token token : zone.getTokens()) {
-        		if (token.isVisible()) {
+        		if (zone.isTokenVisible(token)) {
         			tokenList.add(token);
         		}
         	}
