@@ -385,7 +385,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	// Update back buffer overlay size
     	Dimension size = getSize();
     	if (fog == null || fog.getWidth() != size.width || fog.getHeight() != size.height) {
-    		fog = new BufferedImage (size.width, size.height, Transparency.TRANSLUCENT);
+            
+            int type = !MapTool.isConnected() || MapTool.getPlayer().isGM() ? Transparency.TRANSLUCENT : Transparency.BITMASK; 
+    		fog = new BufferedImage (size.width, size.height, type);
 
     		updateFog = true;
     	}
