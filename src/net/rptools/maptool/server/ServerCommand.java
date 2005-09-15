@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.server;
 
+import java.awt.geom.Area;
 import java.util.Set;
 
 import net.rptools.maptool.model.Asset;
@@ -59,9 +60,15 @@ public interface ServerCommand {
         addTokenMoveWaypoint,
         updateTokenMove,
         setZoneVisibility,
-        enforceZoneView
+        enforceZoneView,
+        setZoneHasFoW,
+        exposeFoW,
+        hideFoW
     };
 
+    public void setZoneHasFoW(GUID zoneGUID, boolean hasFog);
+    public void exposeFoW(GUID zoneGUID, Area area);
+    public void hideFoW(GUID zoneGUID, Area area);
     public void enforceZoneView(GUID zoneGUID, int x, int y, int zoomIndex);
     public void setCampaign(Campaign campaign);
     public void getZone(GUID zoneGUID);

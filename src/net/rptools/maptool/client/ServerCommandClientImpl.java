@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.geom.Area;
 import java.util.Set;
 
 import net.rptools.maptool.model.Asset;
@@ -134,6 +135,18 @@ public class ServerCommandClientImpl implements ServerCommand {
     	makeServerCall(COMMAND.addTokenMoveWaypoint, zoneGUID, tokenGUID, x, y);
     }
 
+	public void exposeFoW(GUID zoneGUID, Area area) {
+    	makeServerCall(COMMAND.exposeFoW, zoneGUID, area);
+	}
+	
+	public void hideFoW(GUID zoneGUID, Area area) {
+    	makeServerCall(COMMAND.hideFoW, zoneGUID, area);
+	}
+	
+	public void setZoneHasFoW(GUID zoneGUID, boolean hasFog) {
+    	makeServerCall(COMMAND.setZoneHasFoW, zoneGUID, hasFog);
+	}
+	
 	private static void makeServerCall(ServerCommand.COMMAND command, Object... params) {
         if (!MapTool.isConnected()) {return;}
         

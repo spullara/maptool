@@ -190,6 +190,29 @@ public class AppActions {
         }
     };
 
+    public static final Action TOGGLE_FOG = new ClientAction() {
+
+        {
+            putValue(Action.NAME, "Toggle Fog of War");
+            putValue(Action.SHORT_DESCRIPTION, "Toggle whether the current zone uses a fog of war");
+        }
+
+        public void execute(ActionEvent e) {
+
+        	ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+        	if (renderer == null) {
+        		return;
+        	}
+        	
+        	Zone zone = renderer.getZone();
+        	zone.setHasFog(!zone.hasFog());
+        	
+        	MapTool.serverCommand().setZoneHasFoW(zone.getId(), zone.hasFog());
+        	
+        	renderer.repaint();
+        }
+    };
+
     public static final Action TOGGLE_SHOW_TOKEN_NAMES = new ClientAction() {
 
         {

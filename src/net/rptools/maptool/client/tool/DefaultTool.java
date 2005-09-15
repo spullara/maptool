@@ -392,6 +392,10 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	
 	private void showTokenContextMenu(MouseEvent e) {
 
+		if (tokenUnderMouse == null) {
+			return;
+		}
+		
     	JPopupMenu popup = new JPopupMenu();
     	final ZoneRenderer renderer = (ZoneRenderer)e.getSource();
     	

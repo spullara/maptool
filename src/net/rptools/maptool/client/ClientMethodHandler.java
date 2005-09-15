@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.geom.Area;
 import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
@@ -57,14 +58,51 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         ClientCommand.COMMAND cmd = Enum.valueOf(ClientCommand.COMMAND.class, method);
         //System.out.println("ClientMethodHandler#handleMethod: " + cmd.name());
         
+        GUID zoneGUID;
+        Zone zone;
+        
         switch (cmd) {
+        case setZoneHasFoW:
+        	
+        	zoneGUID = (GUID) parameters[0];
+        	boolean hasFog = (Boolean) parameters[1];
+        	
+            zone = MapTool.getCampaign().getZone(zoneGUID);
+            zone.setHasFog(hasFog);
+            
+            // In case we're looking at the zone
+            MapTool.getFrame().getCurrentZoneRenderer().repaint();
+        	break;
+        	
+        case exposeFoW:
+        	
+        	zoneGUID = (GUID) parameters[0];
+            Area area = (Area) parameters[1];
+
+            zone = MapTool.getCampaign().getZone(zoneGUID);
+            zone.exposeArea(area);
+
+        	MapTool.getFrame().getZoneRenderer(zoneGUID).updateFog();
+        	break;
+        	
+        case hideFoW:
+        	
+        	zoneGUID = (GUID) parameters[0];
+            area = (Area) parameters[1];
+
+            zone = MapTool.getCampaign().getZone(zoneGUID);
+            zone.hideArea(area);
+
+            MapTool.getFrame().getZoneRenderer(zoneGUID).updateFog();
+        	break;
+        
         case setCampaign:
         	Campaign campaign = (Campaign) parameters[0];
         	MapTool.setCampaign(campaign);
             break;
             
         case putZone:
-        	Zone zone = (Zone) parameters[0];
+        	zone = (Zone) parameters[0];
         	MapTool.getCampaign().putZone(zone);
         	
         	// TODO: combine this with MapTool.addZone()
@@ -85,7 +123,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         case removeAsset:
             break;
         case putToken:
-        	GUID zoneGUID = (GUID) parameters[0];
+        	zoneGUID = (GUID) parameters[0];
         	zone = MapTool.getCampaign().getZone(zoneGUID);
         	Token token = (Token) parameters[1];
         	

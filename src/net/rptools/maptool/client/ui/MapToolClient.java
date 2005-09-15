@@ -28,7 +28,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -50,7 +49,6 @@ import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.ColorPickerButton;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
@@ -60,8 +58,10 @@ import net.rptools.maptool.client.tool.MeasureTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
 import net.rptools.maptool.client.tool.drawing.LineTool;
+import net.rptools.maptool.client.tool.drawing.OvalExposeTool;
 import net.rptools.maptool.client.tool.drawing.OvalFillTool;
 import net.rptools.maptool.client.tool.drawing.OvalTool;
+import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
 import net.rptools.maptool.client.tool.drawing.RectangleFillTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
@@ -73,7 +73,6 @@ import net.rptools.maptool.client.ui.zone.PointerOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneSelectionPanel;
 import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Pen;
 
@@ -313,6 +312,11 @@ public class MapToolClient extends JFrame {
         toolbox.add(new JToggleButton(AppActions.TOGGLE_DROP_INVISIBLE));
         toolbox.add(new JToggleButton(AppActions.TOGGLE_NEW_ZONE_VISIBILITY));
         
+        toolbox.add(Box.createHorizontalStrut(15));
+        
+        toolbox.addTool(new RectangleExposeTool());
+        toolbox.addTool(new OvalExposeTool());
+
         return toolbox;
 	}
 	

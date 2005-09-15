@@ -134,6 +134,7 @@ public class AppMenuBar extends JMenuBar {
     	JMenu zoneMenu = new JMenu("Zone");
     	zoneMenu.add(new JMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
     	zoneMenu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
+    	zoneMenu.add(new JMenuItem(AppActions.TOGGLE_FOG));
     	
     	return zoneMenu;
     }

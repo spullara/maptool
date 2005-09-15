@@ -24,6 +24,8 @@
  */
 package net.rptools.maptool.server;
 
+import java.awt.geom.Area;
+
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.maptool.client.ClientCommand;
 import net.rptools.maptool.model.Asset;
@@ -52,7 +54,42 @@ public class ServerMethodHandler extends AbstractMethodHandler {
         //System.out.println("ServerMethodHandler#handleMethod: " + id + " - " + cmd.name());
 
         Zone zone;
-        switch (cmd) {
+    	GUID zoneGUID;
+
+    	switch (cmd) {
+        case setZoneHasFoW:
+        	
+        	zoneGUID = (GUID) parameters[0];
+        	boolean hasFog = (Boolean) parameters[1];
+        	
+            zone = server.getCampaign().getZone(zoneGUID);
+            zone.setHasFog(hasFog);
+
+            server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setZoneHasFoW.name(), parameters);
+        	break;
+        	
+        case exposeFoW:
+        	
+        	zoneGUID = (GUID) parameters[0];
+            Area area = (Area) parameters[1];
+
+            zone = server.getCampaign().getZone(zoneGUID);
+            zone.exposeArea(area);
+
+        	server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.exposeFoW.name(), parameters);
+        	break;
+        	
+        case hideFoW:
+        	
+        	zoneGUID = (GUID) parameters[0];
+            area = (Area) parameters[1];
+
+            zone = server.getCampaign().getZone(zoneGUID);
+            zone.hideArea(area);
+
+        	server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.hideFoW.name(), parameters);
+        	break;
+        
         case enforceZoneView:
         	
         	server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.enforceZoneView.name(), parameters);
@@ -72,6 +109,7 @@ public class ServerMethodHandler extends AbstractMethodHandler {
             break;
         case removeZone:
             server.getCampaign().removeZone((GUID) parameters[0]);
+            // TODO: broadcast to clients
             break;
         case putAsset:
             AssetManager.putAsset((Asset) parameters[0]);
@@ -83,7 +121,7 @@ public class ServerMethodHandler extends AbstractMethodHandler {
             AssetManager.removeAsset((MD5Key) parameters[0]);
             break;
         case putToken:
-        	GUID zoneGUID = (GUID) parameters[0];
+        	zoneGUID = (GUID) parameters[0];
             zone = server.getCampaign().getZone(zoneGUID);
             Token token = (Token) parameters[1];
             zone.putToken(token);

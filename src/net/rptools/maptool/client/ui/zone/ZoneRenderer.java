@@ -24,7 +24,9 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -38,6 +40,8 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -222,7 +226,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         viewOffset.x = x;
         viewOffset.y = y;
-        
+        updateFog = true;
+
         repaint();
     }
     
@@ -293,6 +298,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
         viewOffset.x += dx;
         viewOffset.y += dy;
+        updateFog = true;
 
         repaint();
     }
@@ -313,6 +319,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	viewOffset.x = x;
     	viewOffset.y = y;
     	scaleIndex = zoomIndex;
+        updateFog = true;
     	
     	repaint();
     }
@@ -336,6 +343,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
         viewOffset.x -= newX - x;
         viewOffset.y -= newY - y;
+        updateFog = true;
 
         repaint();
     }
@@ -369,13 +377,49 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     }
 
     private void renderFog(Graphics2D g) {
+
+    	if (!zone.hasFog()) {
+    		return;
+    	}
     	
+    	// Update back buffer overlay size
     	Dimension size = getSize();
     	if (fog == null || fog.getWidth() != size.width || fog.getHeight() != size.height) {
     		fog = new BufferedImage (size.width, size.height, Transparency.TRANSLUCENT);
+
+    		updateFog = true;
     	}
     	
+    	// Render back buffer
+    	if (updateFog) {
+    		Graphics2D fogG = fog.createGraphics();
+    		fogG.setColor(Color.black);
+    		fogG.fillRect(0, 0, fog.getWidth(), fog.getHeight());
+    		
+    		fogG.setComposite(AlphaComposite.Src);
+    		fogG.setColor(new Color(0, 0, 0, 0));
+
+    		Area area = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance(getScale(), getScale()));
+    		area = area.createTransformedArea(AffineTransform.getTranslateInstance(viewOffset.x, viewOffset.y));
+    		fogG.fill(area);
+    		
+    		fogG.dispose();
+    		
+    		updateFog = false;
+    	}
     	
+    	// Render fog
+    	Composite oldComposite = g.getComposite();
+    	if (!MapTool.isConnected() || MapTool.getPlayer().isGM()) {
+    		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .40f));
+    	}
+    	g.drawImage(fog, 0, 0, this);
+    	g.setComposite(oldComposite);
+    }
+
+    public void updateFog() {
+    	updateFog = true;
+    	repaint();
     }
     
     protected void renderDrawableOverlay(Graphics g) {

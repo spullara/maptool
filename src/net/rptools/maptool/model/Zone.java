@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.model;
 
+import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -71,6 +72,7 @@ public class Zone extends Token {
     private LinkedHashMap<GUID, Token> tokens = new LinkedHashMap<GUID, Token>();
 
     private Area exposedArea = new Area();
+    private boolean hasFog;
     
     public Zone() {
     }
@@ -79,8 +81,24 @@ public class Zone extends Token {
         super(backgroundAsset);
     }
 
+    public boolean hasFog() {
+    	return hasFog;
+    }
+    
+    public void setHasFog(boolean flag) {
+    	hasFog = flag;
+    }
+    
+    public void clearExposedArea() {
+    	exposedArea = new Area();
+    }
+    
     public void exposeArea(Area area) {
     	exposedArea.add(area);
+    }
+    
+    public void hideArea(Area area) {
+    	exposedArea.subtract(area);
     }
     
     public Area getExposedArea() {
