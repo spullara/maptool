@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.model;
 
+import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -69,11 +70,21 @@ public class Zone extends Token {
 
     private LinkedHashMap<GUID, Token> tokens = new LinkedHashMap<GUID, Token>();
 
+    private Area exposedArea = new Area();
+    
     public Zone() {
     }
 
     public Zone(MD5Key backgroundAsset) {
         super(backgroundAsset);
+    }
+
+    public void exposeArea(Area area) {
+    	exposedArea.add(area);
+    }
+    
+    public Area getExposedArea() {
+    	return exposedArea;
     }
     
     public String getName() {

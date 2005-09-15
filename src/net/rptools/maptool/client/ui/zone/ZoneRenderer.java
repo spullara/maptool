@@ -25,6 +25,7 @@
 package net.rptools.maptool.client.ui.zone;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -99,6 +100,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 	private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
 
+	private BufferedImage fog;
+	private boolean updateFog;
+	
     // Optimizations
     private Map<Token, BufferedImage> replacementImageMap = new HashMap<Token, BufferedImage>();
 	private Map<Token, BufferedImage> resizedImageMap = new HashMap<Token, BufferedImage>();
@@ -360,6 +364,18 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         if (!zone.isVisible()) {
         	GraphicsUtil.drawBoxedString(g2d, "Zone not visible to players", getSize().width/2, 20);
         }
+        
+        renderFog(g2d);
+    }
+
+    private void renderFog(Graphics2D g) {
+    	
+    	Dimension size = getSize();
+    	if (fog == null || fog.getWidth() != size.width || fog.getHeight() != size.height) {
+    		fog = new BufferedImage (size.width, size.height, Transparency.TRANSLUCENT);
+    	}
+    	
+    	
     }
     
     protected void renderDrawableOverlay(Graphics g) {
