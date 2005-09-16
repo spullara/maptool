@@ -43,6 +43,11 @@ public class OvalFillTool extends OvalTool {
 	        ioe.printStackTrace();
 	    }
 	}
+    
+    @Override
+    public String getTooltip() {
+        return "Draw a filled oval";
+    }
 
     /* (non-Javadoc)
 	 * @see net.rptools.maptool.client.tool.drawing.OvalTool#getPen()

@@ -67,6 +67,11 @@ public class MeasureTool extends DefaultTool {
             ioe.printStackTrace();
         }
     }
+    
+    @Override
+    public String getTooltip() {
+        return "Measure the distance along a path";
+    }
 
     @Override
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {

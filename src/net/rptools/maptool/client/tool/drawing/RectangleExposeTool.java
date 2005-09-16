@@ -30,4 +30,9 @@ public class RectangleExposeTool extends RectangleTool {
 		
 		MapTool.getFrame().getCurrentZoneRenderer().updateFog();
 	}
+    
+    @Override
+    public String getTooltip() {
+        return "Expose/Hide a rectangle on the Fog of War";
+    }
 }

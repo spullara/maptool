@@ -30,4 +30,9 @@ public class OvalExposeTool extends OvalTool {
 		
 		MapTool.getFrame().getCurrentZoneRenderer().updateFog();
 	}
+    
+    @Override
+    public String getTooltip() {
+        return "Expose/Hide an oval on the Fog of War";
+    }
 }

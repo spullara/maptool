@@ -45,6 +45,11 @@ public class RectangleFillTool extends RectangleTool {
         }
     }
 
+    @Override
+    public String getTooltip() {
+        return "Draw a filled rectangle";
+    }
+    
     /* (non-Javadoc)
 	 * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#getPen()
 	 */

@@ -41,4 +41,9 @@ public class PointerTool extends DefaultTool {
             ioe.printStackTrace();
         }
     }
+    
+    @Override
+    public String getTooltip() {
+        return "Pointer tool";
+    }
 }

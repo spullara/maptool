@@ -68,6 +68,11 @@ public class GridTool extends DefaultTool {
         }
     }
 
+    @Override
+    public String getTooltip() {
+        return "Show/Hide the map grid";
+    }
+    
     /* (non-Javadoc)
 	 * @see maptool.client.Tool#attachTo(maptool.client.ZoneRenderer)
 	 */

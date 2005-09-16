@@ -61,6 +61,11 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
             ioe.printStackTrace();
         }
     }
+    
+    @Override
+    public String getTooltip() {
+        return "Draw an oval";
+    }
 
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
         if (oval != null) {

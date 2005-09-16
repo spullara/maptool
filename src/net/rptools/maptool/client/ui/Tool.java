@@ -73,8 +73,12 @@ public abstract class Tool extends JToggleButton {
                 setSelected(isSelected());
             }
         });
+        
+        setToolTipText(getTooltip());
     }
 
+    public abstract String getTooltip();
+    
 	void addListeners(JComponent comp) {
 		
 		if (comp == null) {

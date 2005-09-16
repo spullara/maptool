@@ -61,6 +61,11 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
             ioe.printStackTrace();
         }
     }
+    
+    @Override
+    public String getTooltip() {
+        return "Draw a rectangle";
+    }
 
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
         if (rectangle != null) {
