@@ -88,7 +88,10 @@ public class TokenListModel implements ListModel {
         
         Collections.sort(tokenList, new Comparator<Token>(){
            public int compare(Token o1, Token o2) {
-                return o1.getName().compareTo(o2.getName());
+               String lName = o1.getName();
+               String rName = o2.getName();
+
+               return lName.compareTo(rName);
             } 
         });
         
