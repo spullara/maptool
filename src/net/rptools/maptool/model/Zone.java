@@ -32,6 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.util.MD5Key;
 
@@ -41,7 +42,6 @@ import net.rptools.maptool.util.MD5Key;
  * is exactly the definition of a Token.
  */
 public class Zone extends Token {
-    private String name;
     
     public enum Event {
         TOKEN_ADDED,
@@ -127,16 +127,16 @@ public class Zone extends Token {
         fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
     }
     
+    public ZonePoint getNearestVertex(ZonePoint point) {
+    	
+    	int gridx = (int)Math.round(point.x / (double)gridSize);
+    	int gridy = (int)Math.round(point.y / (double)gridSize);
+    	
+    	return new ZonePoint(gridx * gridSize, gridy * gridSize);
+    }
+    
     public Area getExposedArea() {
     	return exposedArea;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
     }
     
     public int getGridOffsetX() {
