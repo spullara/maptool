@@ -156,7 +156,8 @@ public class AppActions {
 		
 		public void execute(ActionEvent e) {
 			
-			if(MapTool.getPlayer().isGM()) {
+			if(!MapTool.getPlayer().isGM()) {
+                MapTool.showError("Must be GM to adjust grid");
 				return;
 			}
 			
