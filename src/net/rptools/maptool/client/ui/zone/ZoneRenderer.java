@@ -139,6 +139,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
     }
 
+    @Override
+    public boolean isOpaque() {
+    	return false;
+    }
+    
 	public void addMoveSelectionSet (String playerId, GUID keyToken, Set<GUID> tokenList, boolean clearLocalSelected) {
 		
 		// I'm not supposed to be moving a token when someone else is already moving it
