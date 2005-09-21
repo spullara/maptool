@@ -75,12 +75,12 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
         if (line == null) return null; // Escape has been pressed
         Point ret = new Point(sp.x, sp.y);
     	
-        if (sp.x != currentX || sp.y != currentY) {
+        //if (sp.x != currentX || sp.y != currentY) {
 
             line.getPoints().add(ret);
             currentX = sp.x;
             currentY = sp.y;
-        }
+        //}
         
         zoneRenderer.repaint();
         
