@@ -33,6 +33,8 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
+import net.rptools.maptool.client.ScreenPoint;
+
 
 /**
  * Tool for drawing freehand lines.
@@ -64,19 +66,16 @@ public class LineTool extends AbstractLineTool implements MouseMotionListener {
     public void mouseExited(java.awt.event.MouseEvent e){}
     
     public void mousePressed(java.awt.event.MouseEvent e){
-        int x = e.getX();
-        int y = e.getY();
-        
         
         if (getLine() == null) {
 
-        	startLine(x, y);
+        	startLine(e);
             setIsEraser(SwingUtilities.isRightMouseButton(e));
         } else {
         	
         	if (SwingUtilities.isLeftMouseButton(e)) {
 
-        		stopLine(x, y);
+        		stopLine(e);
         	} else if (SwingUtilities.isRightMouseButton(e)) {
         		
                 tempPoint = null;
@@ -95,12 +94,14 @@ public class LineTool extends AbstractLineTool implements MouseMotionListener {
     }
 
     public void mouseMoved(MouseEvent e) {
-        int x = e.getX();
-        int y = e.getY();
 
         if (getLine() != null) {
-            if (tempPoint != null) removePoint(tempPoint);
-            tempPoint = addPoint(x, y);
+
+        	if (tempPoint != null) {
+        		removePoint(tempPoint);
+        	}
+        	
+            tempPoint = addPoint(e);
         }
    }
 }

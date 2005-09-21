@@ -92,14 +92,14 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
     public void mouseClicked(MouseEvent e) { }
 
     public void mousePressed(MouseEvent e) {
-        int x = e.getX();
-        int y = e.getY();
-        
+
+    	ScreenPoint sp = getPoint(e);
+    	
         if (rectangle == null) {
-            rectangle = new Rectangle(x, y, x, y);
+            rectangle = new Rectangle(sp.x, sp.y, sp.x, sp.y);
         } else {
-            rectangle.getEndPoint().x = x;
-            rectangle.getEndPoint().y = y;
+            rectangle.getEndPoint().x = sp.x;
+            rectangle.getEndPoint().y = sp.y;
             
             ZonePoint startPoint = ZonePoint.fromScreenPoint(zoneRenderer, (int) rectangle.getStartPoint().getX(), (int) rectangle.getStartPoint().getY()); 
             ZonePoint endPoint = ZonePoint.fromScreenPoint(zoneRenderer, (int) rectangle.getEndPoint().getX(), (int) rectangle.getEndPoint().getY());
@@ -125,14 +125,13 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
     public void mouseDragged(MouseEvent e) { }
 
     public void mouseMoved(MouseEvent e) {
-    	
+
+    	ScreenPoint p = getPoint(e);
     	if (rectangle != null) {
-	        int x = e.getX();
-	        int y = e.getY();
 	
 	        if (rectangle != null) {
-	            rectangle.getEndPoint().x = x;
-	            rectangle.getEndPoint().y = y;
+	            rectangle.getEndPoint().x = p.x;
+	            rectangle.getEndPoint().y = p.y;
 	        }
 	        
 	        zoneRenderer.repaint();

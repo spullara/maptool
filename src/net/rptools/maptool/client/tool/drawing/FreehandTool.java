@@ -62,19 +62,19 @@ public class FreehandTool extends AbstractLineTool implements MouseMotionListene
     public void mouseExited(java.awt.event.MouseEvent e){}
     
     public void mousePressed(java.awt.event.MouseEvent e){
-        startLine(e.getX(), e.getY());
+        startLine(e);
         
     	setIsEraser(SwingUtilities.isRightMouseButton(e));
     }
     
     public void mouseReleased(java.awt.event.MouseEvent e){
-        stopLine(e.getX(), e.getY());
+        stopLine(e);
     }
     
     ////
     // MOUSE MOTION LISTENER
     public void mouseDragged(java.awt.event.MouseEvent e){
-        addPoint(e.getX(), e.getY());
+        addPoint(e);
     }
     
     public void mouseMoved(java.awt.event.MouseEvent e){}

@@ -25,9 +25,13 @@
 package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import net.rptools.common.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -63,6 +67,18 @@ public abstract class AbstractDrawingTool extends Tool implements MouseListener,
 		pen.setEraser(isEraser);
 		
 		return pen;
+    }
+    
+    protected ScreenPoint getPoint(MouseEvent e) {
+    	
+    	ScreenPoint sp = new ScreenPoint(e.getX(), e.getY());
+    	if (SwingUtil.isShiftDown(e)) {
+	    	ZonePoint zp = ZonePoint.fromScreenPoint(zoneRenderer, e.getX(), e.getY());
+	    	zp = zoneRenderer.getZone().getNearestVertex(zp);
+	    	sp = zp.convertToScreen(zoneRenderer);
+    	}
+
+    	return sp;
     }
     
     public abstract void paintOverlay(ZoneRenderer renderer, Graphics2D g);

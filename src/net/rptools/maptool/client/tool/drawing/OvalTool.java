@@ -91,14 +91,14 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
     public void mouseClicked(MouseEvent e) { }
 
     public void mousePressed(MouseEvent e) {
-        int x = e.getX();
-        int y = e.getY();
+
+    	ScreenPoint sp = getPoint(e);
         
         if (oval == null) {
-            oval = new Oval(x, y, x, y);
+            oval = new Oval(sp.x, sp.y, sp.x, sp.y);
         } else {
-            oval.getEndPoint().x = x;
-            oval.getEndPoint().y = y;
+            oval.getEndPoint().x = sp.x;
+            oval.getEndPoint().y = sp.y;
             
             ZonePoint startPoint = ZonePoint.fromScreenPoint(zoneRenderer, (int) oval.getStartPoint().getX(), (int) oval.getStartPoint().getY()); 
             ZonePoint endPoint = ZonePoint.fromScreenPoint(zoneRenderer, (int) oval.getEndPoint().getX(), (int) oval.getEndPoint().getY());
@@ -135,12 +135,12 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
     public void mouseMoved(MouseEvent e) {
     	
     	if (oval != null) {
-	        int x = e.getX();
-	        int y = e.getY();
-	
+
+    		ScreenPoint sp = getPoint(e);
+    		
 	        if (oval != null) {
-	            oval.getEndPoint().x = x;
-	            oval.getEndPoint().y = y;
+	            oval.getEndPoint().x = sp.x;
+	            oval.getEndPoint().y = sp.y;
 	        }
 	        
 	        zoneRenderer.repaint();

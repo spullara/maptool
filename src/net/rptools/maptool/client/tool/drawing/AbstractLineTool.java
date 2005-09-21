@@ -27,9 +27,11 @@ package net.rptools.maptool.client.tool.drawing;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
 
+import net.rptools.common.swing.SwingUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.tool.ToolHelper;
@@ -61,35 +63,38 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
         return this.line;
     }
 
-    protected void startLine(int x, int y) {
+    protected void startLine(MouseEvent e) {
         line = new LineSegment();
-        addPoint(x, y);
+        addPoint(e);
     }
 
-    protected Point addPoint(int x, int y) {
-      if (line == null) return null; // Escape has been pressed
-        Point ret = null;
+    protected Point addPoint(MouseEvent e) {
     	
-        if (x != currentX || y != currentY) {
-            ret = new Point(x, y);
+    	ScreenPoint sp = getPoint(e);
+    	
+        if (line == null) return null; // Escape has been pressed
+        Point ret = new Point(sp.x, sp.y);
+    	
+        if (sp.x != currentX || sp.y != currentY) {
+
             line.getPoints().add(ret);
-            currentX = x;
-            currentY = y;
+            currentX = sp.x;
+            currentY = sp.y;
         }
         
         zoneRenderer.repaint();
         
         return ret;
     }
-    
+
     protected void removePoint(Point p) {
       if (line == null) return; // Escape has been pressed
         line.getPoints().remove(p);
     }
     
-    protected void stopLine(int x, int y) {
-      if (line == null) return; // Escape has been pressed
-        addPoint(x, y);
+    protected void stopLine(MouseEvent e) {
+        if (line == null) return; // Escape has been pressed
+        addPoint(e);
         
         for (Point p : line.getPoints()) {
 
