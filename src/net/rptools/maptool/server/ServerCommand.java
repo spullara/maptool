@@ -30,6 +30,7 @@ import java.util.Set;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -63,7 +64,9 @@ public interface ServerCommand {
         enforceZoneView,
         setZoneHasFoW,
         exposeFoW,
-        hideFoW
+        hideFoW,
+        putLabel,
+        removeLabel
     };
 
     public void setZoneHasFoW(GUID zoneGUID, boolean hasFog);
@@ -80,6 +83,8 @@ public interface ServerCommand {
     public void removeAsset(MD5Key assetID);
     public void putToken(GUID zoneGUID, Token token);
     public void removeToken(GUID zoneGUID, GUID tokenGUID);
+    public void putLabel(GUID zoneGUID, Label label);
+    public void removeLabel(GUID zoneGUID, GUID labelGUID);
     public void draw(GUID zoneGUID, Pen pen, Drawable drawable);
     public void undoDraw(GUID zoneGUID, GUID drawableGUID);
     public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size);

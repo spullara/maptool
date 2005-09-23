@@ -30,6 +30,7 @@ import java.util.Set;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -84,6 +85,14 @@ public class ServerCommandClientImpl implements ServerCommand {
 
     public void removeToken(GUID zoneGUID, GUID tokenGUID) {
         makeServerCall(COMMAND.removeToken, zoneGUID, tokenGUID);
+    }
+
+    public void putLabel(GUID zoneGUID, Label label) {
+        makeServerCall(COMMAND.putToken, zoneGUID, label);
+    }
+
+    public void removeLabel(GUID zoneGUID, GUID labelGUID) {
+        makeServerCall(COMMAND.removeToken, zoneGUID, labelGUID);
     }
 
     public void draw(GUID zoneGUID, Pen pen, Drawable drawable) {

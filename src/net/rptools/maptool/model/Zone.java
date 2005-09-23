@@ -50,7 +50,10 @@ public class Zone extends Token {
         GRID_CHANGED,
         DRAWABLE_ADDED,
         DRAWABLE_REMOVED,
-        FOG_CHANGED
+        FOG_CHANGED,
+        LABEL_ADDED,
+        LABEL_REMOVED,
+        LABEL_CHANGED
     }
     
     private static final int MIN_GRID_SIZE = 10;
@@ -70,6 +73,7 @@ public class Zone extends Token {
     
     private List<DrawnElement> drawables = new LinkedList<DrawnElement>();
 
+    private LinkedHashMap<GUID, Label> labels = new LinkedHashMap<GUID, Label>();
     private LinkedHashMap<GUID, Token> tokens = new LinkedHashMap<GUID, Token>();
 
     private Area exposedArea = new Area();
@@ -192,6 +196,34 @@ public class Zone extends Token {
     }
     
     ///////////////////////////////////////////////////////////////////////////
+    // labels
+    ///////////////////////////////////////////////////////////////////////////
+    public void putLabel(Label label) {
+        
+        boolean newLabel = labels.containsKey(label.getId());
+        labels.put(label.getId(), label);
+        
+        if (newLabel) {
+            fireModelChangeEvent(new ModelChangeEvent(this, Event.LABEL_ADDED, label));
+        } else {
+            fireModelChangeEvent(new ModelChangeEvent(this, Event.LABEL_CHANGED, label));
+        }
+    }
+    
+    public List<Label> getLabels() {
+        return new ArrayList<Label>(this.labels.values());
+    }
+    
+    public void removeLabel(GUID labelId) {
+        
+        Label label = labels.remove(labelId);
+        if (label != null) {
+            fireModelChangeEvent(new ModelChangeEvent(this, Event.LABEL_REMOVED, label));
+        }
+      }
+    
+    
+    ///////////////////////////////////////////////////////////////////////////
     // drawables
     ///////////////////////////////////////////////////////////////////////////
 
@@ -204,11 +236,6 @@ public class Zone extends Token {
     	return drawables;
     }
     
-    /**
-     * Delete the drawable so it is no longer painted.
-     * 
-     * @param drawableId The id of the drawable being deleted.
-     */
     public void removeDrawable(GUID drawableId) {
       ListIterator<DrawnElement> i = drawables.listIterator();
       while (i.hasNext()) {

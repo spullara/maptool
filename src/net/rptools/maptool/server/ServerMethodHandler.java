@@ -32,6 +32,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -121,7 +122,7 @@ public class ServerMethodHandler extends AbstractMethodHandler {
             AssetManager.removeAsset((MD5Key) parameters[0]);
             break;
         case putToken:
-        	zoneGUID = (GUID) parameters[0];
+            zoneGUID = (GUID) parameters[0];
             zone = server.getCampaign().getZone(zoneGUID);
             Token token = (Token) parameters[1];
             zone.putToken(token);
@@ -129,14 +130,30 @@ public class ServerMethodHandler extends AbstractMethodHandler {
             broadcast(id, ClientCommand.COMMAND.putToken.name(), zoneGUID, token);
             break;
         case removeToken:
-        	zoneGUID = (GUID) parameters[0];
-        	GUID tokenGUID = (GUID) parameters[1];
+            zoneGUID = (GUID) parameters[0];
+            GUID tokenGUID = (GUID) parameters[1];
 
             zone = server.getCampaign().getZone((GUID) parameters[0]);
-        	zone.removeToken(tokenGUID);
-        	
+            zone.removeToken(tokenGUID);
+            
             server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.removeToken.name(), parameters);
-        	
+            break;
+        case putLabel:
+            zoneGUID = (GUID) parameters[0];
+            zone = server.getCampaign().getZone(zoneGUID);
+            Label label = (Label) parameters[1];
+            zone.putLabel(label);
+            
+            broadcast(id, ClientCommand.COMMAND.putLabel.name(), zoneGUID, label);
+            break;
+        case removeLabel:
+            zoneGUID = (GUID) parameters[0];
+            GUID labelGUID = (GUID) parameters[1];
+
+            zone = server.getCampaign().getZone((GUID) parameters[0]);
+            zone.removeLabel(labelGUID);
+            
+            server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.removeLabel.name(), parameters);
             break;
         case draw:
         	zoneGUID = (GUID) parameters[0];

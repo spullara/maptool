@@ -43,7 +43,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -67,7 +66,7 @@ import net.rptools.maptool.client.walker.astar.AStarEuclideanWalker;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.Player;
+import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
@@ -366,6 +365,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         renderTokens(g2d);
 		renderMoveSelectionSets(g2d);
 		renderBorder(g2d);
+        renderLabels(g2d);
 		
         for (int i = 0; i < overlayList.size(); i++) {
             ZoneOverlay overlay = overlayList.get(i);
@@ -379,6 +379,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         renderFog(g2d);
     }
 
+    private void renderLabels(Graphics2D g) {
+        
+        for (Label label : zone.getLabels()) {
+            
+            ScreenPoint sp = ScreenPoint.fromZonePoint(this, label.getX(), label.getY());
+            
+            GraphicsUtil.drawBoxedString(g, label.getLabel(), sp.x, sp.y);
+        }
+    }
+    
     private void renderFog(Graphics2D g) {
 
     	if (!zone.hasFog()) {

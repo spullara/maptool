@@ -34,6 +34,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
@@ -132,30 +133,47 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	MapTool.getFrame().repaint();
             break;
             
-        case enforceZoneView: 
-        	
-        	zoneGUID = (GUID) parameters[0];
-        	int x = (Integer)parameters[1];
-        	int y = (Integer)parameters[2];
-        	int zoomIndex = (Integer)parameters[3];
-        	
-        	renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
-        	if (renderer == null) {
-        		return;
-        	}
-        	
-        	renderer.setView(x, y, zoomIndex);
-        	break;
+        case putLabel:
+            zoneGUID = (GUID) parameters[0];
+            zone = MapTool.getCampaign().getZone(zoneGUID);
+            Label label = (Label) parameters[1];
             
+            zone.putLabel(label);
+            
+            MapTool.getFrame().repaint();
+            break;
         case removeToken:
-        	zoneGUID = (GUID) parameters[0];
-        	zone = MapTool.getCampaign().getZone(zoneGUID);
-        	GUID tokenGUID = (GUID) parameters[1];
+            zoneGUID = (GUID) parameters[0];
+            zone = MapTool.getCampaign().getZone(zoneGUID);
+            GUID tokenGUID = (GUID) parameters[1];
 
-        	zone.removeToken(tokenGUID);
-        	
-        	MapTool.getFrame().repaint();
-        	break;
+            zone.removeToken(tokenGUID);
+            
+            MapTool.getFrame().repaint();
+            break;
+        case removeLabel:
+            zoneGUID = (GUID) parameters[0];
+            zone = MapTool.getCampaign().getZone(zoneGUID);
+            GUID labelGUID = (GUID) parameters[1];
+
+            zone.removeLabel(labelGUID);
+            
+            MapTool.getFrame().repaint();
+            break;
+        case enforceZoneView: 
+            
+            zoneGUID = (GUID) parameters[0];
+            int x = (Integer)parameters[1];
+            int y = (Integer)parameters[2];
+            int zoomIndex = (Integer)parameters[3];
+            
+            renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
+            if (renderer == null) {
+                return;
+            }
+            
+            renderer.setView(x, y, zoomIndex);
+            break;
         case draw:
         	
         	zoneGUID = (GUID) parameters[0];

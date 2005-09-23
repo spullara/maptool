@@ -22,37 +22,53 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.model;
 
-public class ClientCommand {
+public class Label {
 
-    public static enum COMMAND { 
-        setCampaign, 
-        putZone, 
-        removeZone, 
-        putAsset, 
-        getAsset,
-        removeAsset, 
-        putToken, 
-        removeToken, 
-        draw,
-        setZoneGridSize,
-        setZoneVisibility,
-        playerConnected,
-        playerDisconnected,
-        message,
-        undoDraw,
-        showPointer,
-        hidePointer,
-        startTokenMove,
-        stopTokenMove,
-        addTokenMoveWaypoint,
-        updateTokenMove,
-        enforceZoneView,
-        setZoneHasFoW,
-        exposeFoW,
-        hideFoW,
-        putLabel,
-        removeLabel
-    };
+    private GUID id;
+    private String label;
+    private int x, y;
+    
+    public Label() {
+        this("");
+    }
+    
+    public Label(String label) {
+        this(label, 0, 0);
+    }
+
+    public Label(String label, int x, int y) {
+        id = new GUID();
+        this.label = label;
+    }
+    
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public GUID getId() {
+        return id;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+    
 }

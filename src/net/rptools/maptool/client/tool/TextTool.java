@@ -22,37 +22,28 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.client.tool;
 
-public class ClientCommand {
+import java.io.IOException;
 
-    public static enum COMMAND { 
-        setCampaign, 
-        putZone, 
-        removeZone, 
-        putAsset, 
-        getAsset,
-        removeAsset, 
-        putToken, 
-        removeToken, 
-        draw,
-        setZoneGridSize,
-        setZoneVisibility,
-        playerConnected,
-        playerDisconnected,
-        message,
-        undoDraw,
-        showPointer,
-        hidePointer,
-        startTokenMove,
-        stopTokenMove,
-        addTokenMoveWaypoint,
-        updateTokenMove,
-        enforceZoneView,
-        setZoneHasFoW,
-        exposeFoW,
-        hideFoW,
-        putLabel,
-        removeLabel
-    };
+import javax.swing.ImageIcon;
+
+import net.rptools.common.util.ImageUtil;
+
+/**
+ */
+public class TextTool extends DefaultTool {
+
+	public TextTool () {
+        try {
+            setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/Tool_Draw_Write.gif")));
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+    
+    @Override
+    public String getTooltip() {
+        return "Put text onto the zone";
+    }
 }
