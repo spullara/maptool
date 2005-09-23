@@ -343,6 +343,7 @@ public class MapToolClient extends JFrame {
     
     public void clearZoneRendererList() {
         zoneRendererList.clear();
+        zoneSelectionPanel.flush();
     }
 	public void setCurrentZoneRenderer(ZoneRenderer renderer) {
         
