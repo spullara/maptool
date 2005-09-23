@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -44,6 +45,8 @@ public class ClientStyle {
     public static BufferedImage cellPathImage;
     public static BufferedImage cellWaypointImage;
 	
+    public static Color gridColor = new Color(1, 1, 1, .5f);
+    
 	static {
 		
 		try {

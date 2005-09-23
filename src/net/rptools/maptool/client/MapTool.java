@@ -291,10 +291,7 @@ public class MapTool {
             conn = null;
             playerList.clear();
             
-            if (server != null) {
-                // TODO: implement this
-                //instance.server.stop();
-            }
+            setCampaign(new Campaign());
             
         } catch (IOException ioe) {
             // This isn't critical, we're closing it anyway

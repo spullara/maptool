@@ -90,8 +90,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     protected Point             viewOffset = new Point();
 
-    protected Color             gridColor = new Color (150, 150, 150);
-
     protected int               scaleIndex;
     protected static float[]    scaleArray  = new float[] { .25F, .30F, .40F, .50F, .60F, .75F, 1F, 1.25F, 1.5F, 1.75F, 2F, 3F, 4F};
     protected static int SCALE_1TO1_INDEX; // Automatically scanned for
