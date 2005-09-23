@@ -96,9 +96,6 @@ public class MapToolServer {
         return campaign;
     }
     
-    public void draw(GUID overlayId, Pen pen, Drawable d) {
-    }
-
     ////
     // STANDALONE SERVER
     public static void main(String[] args) throws IOException {

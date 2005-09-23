@@ -143,7 +143,6 @@ public class ServerMethodHandler extends AbstractMethodHandler {
         	Pen pen = (Pen) parameters[1];
         	Drawable drawable = (Drawable) parameters[2];
         	
-            server.draw((GUID) parameters[0], (Pen) parameters[1], (Drawable) parameters[2]);
             server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.draw.name(), parameters);
             
             zone = server.getCampaign().getZone(zoneGUID);
