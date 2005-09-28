@@ -364,7 +364,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         if (AppState.isShowGrid() && gridSize >= MIN_GRID_SIZE) {renderGrid(g2d);}
         renderTokens(g2d);
 		renderMoveSelectionSets(g2d);
-		renderBorder(g2d);
         renderLabels(g2d);
 		
         for (int i = 0; i < overlayList.size(); i++) {
@@ -442,8 +441,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	drawableRenderer.renderDrawables(g, zone.getDrawnElements(), viewOffset.x, viewOffset.y, getScale());
     }
     
-	protected void renderBorder(Graphics2D g) { /* no op */ }
-	
     protected abstract void renderBoard(Graphics2D g);
     
     protected abstract void renderGrid(Graphics2D g);

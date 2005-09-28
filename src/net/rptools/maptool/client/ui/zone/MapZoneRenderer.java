@@ -71,37 +71,6 @@ public class MapZoneRenderer extends ZoneRenderer {
         return backgroundImage;
     }
     
-    protected void renderBorder(Graphics2D g) {
-        
-//        Dimension size = getSize();
-        BufferedImage mapImage = getBackgroundImage();
-        
-        // Scale
-        float scale = scaleArray[scaleIndex];
-        int w = (int)(mapImage.getWidth() * scale);
-        int h = (int)(mapImage.getHeight() * scale);
-
-        // Border
-//        if (viewOffset.x > 0) {
-//            g.setColor(Color.black);
-//            g.fillRect(0, 0, viewOffset.x, size.height);
-//        }
-//        if (viewOffset.y > 0) {
-//            g.setColor(Color.black);
-//            g.fillRect(0, 0, size.width, viewOffset.y);
-//        }
-//        if (w + viewOffset.x < size.width) {
-//            g.setColor(Color.black);
-//            g.fillRect(w + viewOffset.x, 0, size.width, size.height);
-//        }
-//        if (h + viewOffset.y < size.height) {
-//            g.setColor(Color.black);
-//            g.fillRect(0, h + viewOffset.y, size.width, size.height);
-//        }
-        
-        ClientStyle.boardBorder.paintAround(g, viewOffset.x, viewOffset.y, w, h);
-    }
-    
     protected void renderBoard(Graphics2D g) {
 
         BufferedImage mapImage = getBackgroundImage();
@@ -131,6 +100,7 @@ public class MapZoneRenderer extends ZoneRenderer {
         
         // Map
         g.drawImage(mapImage, viewOffset.x, viewOffset.y, w, h, this);
+        ClientStyle.boardBorder.paintAround(g, viewOffset.x, viewOffset.y, w, h);
     }
     
     protected void renderGrid(Graphics2D g) {
