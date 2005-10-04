@@ -45,6 +45,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import net.rptools.common.swing.SwingUtil;
+import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
@@ -113,7 +114,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
         boolean keepBackBuffer = true;
     	if (backbuffer == null || mySize.width != backbuffer.getWidth() || mySize.height != backbuffer.getHeight()) {
 
-    		backbuffer = new BufferedImage(mySize.width, mySize.height, Transparency.BITMASK);
+    		backbuffer = ImageUtil.createCompatibleImage(mySize.width, mySize.height, Transparency.BITMASK);
     		Graphics2D g2d = backbuffer.createGraphics();
     		g2d.setClip(0, 0, mySize.width, mySize.height);
     		

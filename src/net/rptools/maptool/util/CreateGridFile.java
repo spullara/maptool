@@ -31,6 +31,8 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
+import net.rptools.common.util.ImageUtil;
+
 /**
  * @author drice
  *
@@ -40,7 +42,7 @@ import javax.imageio.ImageIO;
 public class CreateGridFile {
     
     private static BufferedImage createImage(int width, int height, int gridSize, Color color, Color backgroundColor) {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = ImageUtil.createCompatibleImage(width, height, BufferedImage.TYPE_INT_RGB);
         
         Graphics g = image.getGraphics();
         

@@ -133,7 +133,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 		BufferedImage tileImage = getTileImage();
 		
 		Dimension size = getSize();
-		backBuffer = new BufferedImage(size.width + tileImage.getWidth()*2, size.height + tileImage.getHeight()*2, Transparency.OPAQUE);
+		backBuffer = ImageUtil.createCompatibleImage(size.width + tileImage.getWidth()*2, size.height + tileImage.getHeight()*2, Transparency.OPAQUE);
 		
 		int cols = backBuffer.getWidth() / tileImage.getWidth() + 1;
 		int rows = backBuffer.getHeight() / tileImage.getHeight() + 1;

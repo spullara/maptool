@@ -399,7 +399,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	if (fog == null || fog.getWidth() != size.width || fog.getHeight() != size.height) {
             
             int type = !MapTool.isConnected() || MapTool.getPlayer().isGM() ? Transparency.TRANSLUCENT : Transparency.BITMASK; 
-    		fog = new BufferedImage (size.width, size.height, type);
+    		fog = ImageUtil.createCompatibleImage (size.width, size.height, type);
 
     		updateFog = true;
     	}
@@ -659,7 +659,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         }
         
         // Scale and save
-        BufferedImage scaledImage = new BufferedImage(width, height, Transparency.BITMASK);
+        BufferedImage scaledImage = ImageUtil.createCompatibleImage(width, height, Transparency.BITMASK);
         Graphics2D g = (Graphics2D)scaledImage.getGraphics();
 //        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 //        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);

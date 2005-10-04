@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 
@@ -170,7 +171,7 @@ public class DrawableRenderer {
 		
 		void validate() {
 			if (image == null) {
-				image = new BufferedImage(bounds.width, bounds.height, Transparency.BITMASK);
+				image = ImageUtil.createCompatibleImage(bounds.width, bounds.height, Transparency.BITMASK);
 			}
 		}
 	}

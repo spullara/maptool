@@ -53,7 +53,7 @@ public class ImageManager {
             UNKNOWN_IMAGE = ImageUtil.getImage("net/rptools/maptool/client/image/unknown.png");
         } catch (IOException ioe) {
             ioe.printStackTrace();
-            UNKNOWN_IMAGE = new BufferedImage(10, 10, 0);
+            UNKNOWN_IMAGE = ImageUtil.createCompatibleImage(10, 10, 0);
         }
         
         new Thread(loader).start();
