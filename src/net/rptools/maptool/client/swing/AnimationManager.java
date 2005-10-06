@@ -37,7 +37,7 @@ public class AnimationManager {
 	private static List<Animatable> removeList = new ArrayList<Animatable>();
 	private static List<Animatable> addList = new ArrayList<Animatable>();
 	
-	private static int delay = 50;
+	private static int delay = 200;
 	
 	static {
 		new AnimThread().start();
