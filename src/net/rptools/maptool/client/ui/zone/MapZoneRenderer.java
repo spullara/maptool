@@ -100,7 +100,7 @@ public class MapZoneRenderer extends ZoneRenderer {
         
         // Map
         g.drawImage(mapImage, viewOffset.x, viewOffset.y, w, h, this);
-        ClientStyle.boardBorder.paintAround(g, viewOffset.x, viewOffset.y, w, h);
+        //ClientStyle.boardBorder.paintAround(g, viewOffset.x, viewOffset.y, w, h);
     }
     
     protected void renderGrid(Graphics2D g) {
