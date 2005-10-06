@@ -24,8 +24,15 @@
  */
 package net.rptools.maptool.client.tool;
 
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -70,6 +77,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
     private boolean isDraggingMap;
     private boolean isDraggingToken;
     private boolean isNewTokenSelected;
+    private boolean isDrawingSelectionBox;
+    private Rectangle selectionBoundBox;
 	private int dragStartX;
 	private int dragStartY;
 	
@@ -131,6 +140,13 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 				}
 			} else {
 				renderer.clearSelectedTokens();
+				
+				// Starting a bound box selection
+				isDrawingSelectionBox = true;
+				selectionBoundBox = new Rectangle(e.getX(), e.getY(), 0, 0);
+				
+				dragStartX = e.getX();
+				dragStartY = e.getY();
 			}
 			return;
 		}
@@ -159,6 +175,13 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		
         ZoneRenderer renderer = (ZoneRenderer) e.getSource();
         SwingUtil.showPointer(renderer);
+        
+        if (isDrawingSelectionBox) {
+        	isDrawingSelectionBox = false;
+        	selectionBoundBox = null;
+        	renderer.repaint();
+        	return;
+        }
 
         // POINTER
 		if (isShowingPointer) {
@@ -253,11 +276,28 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			
+			if (isDrawingSelectionBox) {
+				
+				int x1 = dragStartX;
+				int y1 = dragStartY;
+				
+				int x2 = e.getX();
+				int y2 = e.getY();
+				
+				selectionBoundBox.x = Math.min(x1, x2);
+				selectionBoundBox.y = Math.min(y1, y2);
+				selectionBoundBox.width = Math.abs(x1 - x2);
+				selectionBoundBox.height = Math.abs(y1 - y2);
+				
+				renderer.repaint();
+				return;
+			}
+			
 			if (tokenUnderMouse == null) {
 				return;
 			}
-            
-            if (!isDraggingToken && renderer.isTokenMoving(tokenUnderMouse)) {
+
+			if (!isDraggingToken && renderer.isTokenMoving(tokenUnderMouse)) {
                 return;
             }
 			
@@ -359,6 +399,24 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	 * @see net.rptools.maptool.client.ZoneOverlay#paintOverlay(net.rptools.maptool.client.ZoneRenderer, java.awt.Graphics2D)
 	 */
 	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
+		
+		if (selectionBoundBox != null) {
+			
+			Stroke stroke = g.getStroke();
+			g.setStroke(new BasicStroke(2));
+			
+			Composite composite = g.getComposite();
+			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .25f));
+			g.setColor(Color.blue);
+			g.fillRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height,10, 10);
+			g.setComposite(composite);
+			
+			g.setColor(Color.black);
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g.drawRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height,10, 10);
+
+			g.setStroke(stroke);
+		}
 
 //		if (tokenUnderMouse != null && renderer.getSelectedTokenSet().contains(tokenUnderMouse)) {
 //
