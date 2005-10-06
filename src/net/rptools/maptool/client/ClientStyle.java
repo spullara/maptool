@@ -45,7 +45,7 @@ public class ClientStyle {
     public static BufferedImage cellPathImage;
     public static BufferedImage cellWaypointImage;
 	
-    public static Color gridColor = new Color(1, 1, 1, .5f);
+    public static Color gridColor = Color.darkGray;
     
 	static {
 		
