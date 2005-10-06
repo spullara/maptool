@@ -15,6 +15,12 @@ public class RectangleExposeTool extends RectangleTool {
 	@Override
 	protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
 
+		if (!MapTool.getPlayer().isGM()) {
+			MapTool.showError("Must be a GM to change the fog of war.");
+			MapTool.getFrame().getCurrentZoneRenderer().repaint();
+			return;
+		}
+		
 		Zone zone = MapTool.getCampaign().getZone(zoneId);
 
 		Rectangle bounds = drawable.getBounds();
