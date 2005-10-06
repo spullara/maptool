@@ -65,6 +65,11 @@ public class DrawableUndoManager {
   private RedoCommand redoCommand;
   
   /**
+   * The command used to clear all drawings on the menus.
+   */
+  private ClearCommand clearCommand;
+  
+  /**
    * The one and only undo manager
    */
   private static DrawableUndoManager singletonInstance = new DrawableUndoManager();
@@ -120,6 +125,14 @@ public class DrawableUndoManager {
       redoCommand = new RedoCommand();
     }
     return redoCommand;
+  }
+  
+  public ClearCommand getClearCommand() {
+	  if (clearCommand == null) {
+		  clearCommand = new ClearCommand();
+	  }
+	  
+	  return clearCommand;
   }
 
   /**
@@ -208,7 +221,7 @@ public class DrawableUndoManager {
      * Set the common properties
      */
     public UndoCommand() {
-      putValue(NAME, "Undo Draw");
+      putValue(NAME, "Undo Drawing");
       putValue(MNEMONIC_KEY, new Integer(KeyEvent.VK_U));
       putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke("ctrl Z"));
       updateState();
@@ -244,7 +257,7 @@ public class DrawableUndoManager {
      * Set the common properties
      */
     public RedoCommand() {
-      putValue(NAME, "Redo Draw");
+      putValue(NAME, "Redo Drawing");
       putValue(MNEMONIC_KEY, new Integer(KeyEvent.VK_R));
       putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke("ctrl Y"));
       updateState();
@@ -265,6 +278,19 @@ public class DrawableUndoManager {
     public void updateState() {
       setEnabled(singletonInstance.manager.canRedo());
     }
+  }
+  
+  private class ClearCommand extends AbstractAction {
+	  public ClearCommand() {
+		  putValue(NAME, "Clear All Drawings");
+		  putValue(MNEMONIC_KEY, KeyEvent.VK_C);
+		  putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke("ctrl shift C"));
+	  }
+
+	public void actionPerformed(ActionEvent arg0) {
+		// TODO Add method
+	}
+	
   }
   
   /**

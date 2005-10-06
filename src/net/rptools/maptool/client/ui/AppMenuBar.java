@@ -29,113 +29,109 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 import net.rptools.maptool.client.AppActions;
+import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.tool.drawing.DrawableUndoManager;
+import net.rptools.maptool.language.I18N;
 
 public class AppMenuBar extends JMenuBar {
 
     public AppMenuBar() {
-
         add(createFileMenu());
-        add(createEditMenu());
         add(createViewMenu());
-        add(createZoneMenu());
-        add(createActionMenu());
-        add(createServerMenu());
-        add(createGMMenu());
-        
-        if (System.getProperty("MAPTOOL_DEV") != null) {
-            add(createDevMenu());
-        }
+        add(createMapMenu());
+        add(createHelpMenu());
     }
 
-    protected JMenu createActionMenu() {
-    	JMenu menu = new JMenu("Action");
-    	menu.add(new JMenuItem(AppActions.TYPE_COMMAND));
-    	
-    	return menu;
-    }
-    
-    protected JMenu createDevMenu() {
-        JMenu menu = new JMenu("Dev");
-        menu.add(new JMenuItem(AppActions.RANDOMLY_ADD_LAST_ASSET));
-        
+    protected JMenu createFileMenu() {
+        JMenu menu = createMenu("menu.file");
+
+        menu.add(new JMenuItem(AppActions.NEW_CAMPAIGN));
+        menu.add(new JMenuItem(AppActions.LOAD_CAMPAIGN));
+        menu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN));
+        menu.addSeparator();
+        menu.add(new JMenuItem(AppActions.START_SERVER));
+        menu.add(new JMenuItem(AppActions.CONNECT_TO_SERVER));
+        menu.add(new JMenuItem(AppActions.DISCONNECT_FROM_SERVER));
+        menu.addSeparator();
+        menu.add(new JMenuItem(AppActions.EXIT));
+
+        //        menu.add(createAssetMenu());
+
         return menu;
     }
-    
-    protected JMenu createFileMenu() {
-        JMenu fileMenu = new JMenu("File");
-        fileMenu.add(new JMenuItem(AppActions.LOAD_MAP));
-        fileMenu.add(new JMenuItem(AppActions.CREATE_UNBOUNDED_MAP));
-        fileMenu.addSeparator();
-        fileMenu.add(new JMenuItem(AppActions.NEW_CAMPAIGN));
-        fileMenu.add(new JMenuItem(AppActions.LOAD_CAMPAIGN));
-        fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN));
-        fileMenu.addSeparator();
-        fileMenu.add(createAssetMenu());
-        fileMenu.addSeparator();
-        fileMenu.add(new JMenuItem(AppActions.EXIT));
 
-        return fileMenu;
-    }
-    
-    protected JMenu createEditMenu() {
-        
-        JMenu editMenu = new JMenu("Edit");
-        editMenu.add(new JMenuItem(DrawableUndoManager.getInstance().getUndoCommand()));
-        editMenu.add(new JMenuItem(DrawableUndoManager.getInstance().getRedoCommand()));
-        
-        return editMenu;
-    }
-    
-    protected JMenu createAssetMenu() {
-        JMenu assetMenu = new JMenu("Assets");
-        assetMenu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
-        assetMenu.add(new JMenuItem(AppActions.REFRESH_ASSET_PANEL));
-        return assetMenu;
-    }
-    
-    protected JMenu createServerMenu() {
-        JMenu serverMenu = new JMenu("Server");
-        serverMenu.add(new JMenuItem(AppActions.START_SERVER));
-        serverMenu.add(new JMenuItem(AppActions.CONNECT_TO_SERVER));
-        serverMenu.add(new JMenuItem(AppActions.DISCONNECT_FROM_SERVER));
-        
-        return serverMenu;
-    }
-    
-    protected JMenu createGMMenu() {
-        JMenu gmMenu = new JMenu("GM");
-        gmMenu.add(new JMenuItem(AppActions.ADJUST_GRID));
-        
-        return gmMenu;
-    }
-    
-    protected JMenu createZoomMenu() {
-        JMenu zoomMenu = new JMenu("Zoom");
-        zoomMenu.add(new JMenuItem(AppActions.ZOOM_IN));
-        zoomMenu.add(new JMenuItem(AppActions.ZOOM_OUT));
-        zoomMenu.add(new JMenuItem(AppActions.ZOOM_RESET));
-
-        return zoomMenu;
-    }
-    
     protected JMenu createViewMenu() {
-        JMenu viewMenu = new JMenu("View");
-        viewMenu.add(createZoomMenu());
-        viewMenu.addSeparator();
-        //viewMenu.add(new JMenuItem(ClientActions.TOGGLE_GRID));
-        viewMenu.add(new JMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));
-        viewMenu.add(new JMenuItem(AppActions.TOGGLE_ASSET_PANEL));
+        JMenu menu = createMenu("menu.view");
+        menu.add(createZoomMenu());
+        menu.add(new JMenuItem(AppActions.TOGGLE_SHOW_TOKEN_NAMES));
+        menu.add(new JMenuItem(AppActions.TOGGLE_GRID));
+        menu.add(new JMenuItem(AppActions.TOGGLE_ASSET_PANEL));
+        menu.add(new JMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));
+        //        menu.add(new JMenuItem(AppActions.SHOW_STATUS_BAR));
+        menu.addSeparator();
+        //      menu.add(new JMenuItem(AppActions.FULLSCREEN_MODE));
+        menu.add(new JMenuItem(AppActions.REFRESH_ASSET_PANEL));
 
-        return viewMenu;
+        return menu;
     }
-    
-    protected JMenu createZoneMenu() {
-    	JMenu zoneMenu = new JMenu("Zone");
-    	zoneMenu.add(new JMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
-    	zoneMenu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
-    	zoneMenu.add(new JMenuItem(AppActions.TOGGLE_FOG));
-    	
-    	return zoneMenu;
+
+    protected JMenu createMapMenu() {
+        JMenu menu = createMenu("menu.map");
+        menu.add(new JMenuItem(AppActions.LOAD_MAP));
+        menu.add(new JMenuItem(AppActions.CREATE_UNBOUNDED_MAP));
+        //        menu.add(new JMenuItem(AppActions.DELETE_MAP));
+        menu.addSeparator();
+        menu.add(new JMenuItem(DrawableUndoManager.getInstance().getUndoCommand()));
+        menu.add(new JMenuItem(DrawableUndoManager.getInstance().getRedoCommand()));
+        menu.add(new JMenuItem(DrawableUndoManager.getInstance().getClearCommand()));
+
+        menu.addSeparator();
+        menu.add(new JMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
+        menu.add(new JMenuItem(AppActions.TOGGLE_FOG));
+        menu.addSeparator();
+        menu.add(new JMenuItem(AppActions.ADJUST_GRID));
+
+        return menu;
+    }
+
+    protected JMenu createToolsMenu() {
+        JMenu menu = createMenu("menu.tools");
+        menu.add(new JMenuItem(AppActions.TYPE_COMMAND));
+        menu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
+        menu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
+        menu.addSeparator();
+        menu.add(new JMenuItem(AppActions.TOGGLE_DROP_INVISIBLE));
+        menu.add(new JMenuItem(AppActions.TOGGLE_NEW_ZONE_VISIBILITY));
+
+        if (MapToolUtil.isDebugEnabled()) {
+            menu.addSeparator();
+            menu.add(new JMenuItem(AppActions.RANDOMLY_ADD_LAST_ASSET));
+        }
+
+        return menu;
+    }
+
+    protected JMenu createHelpMenu() {
+        JMenu menu = createMenu("menu.help");
+        return menu;
+    }
+
+    protected JMenu createZoomMenu() {
+        JMenu menu = createMenu("menu.zoom");
+        menu.add(new JMenuItem(AppActions.ZOOM_IN));
+        menu.add(new JMenuItem(AppActions.ZOOM_OUT));
+        menu.add(new JMenuItem(AppActions.ZOOM_RESET));
+
+        return menu;
+    }
+
+    private JMenu createMenu(String key) {
+        JMenu menu = new JMenu(I18N.getText(key));
+        int mnemonic = I18N.getMnemonic(key);
+        if (mnemonic != -1) {
+            menu.setMnemonic(mnemonic);
+        }
+
+        return menu;
     }
 }

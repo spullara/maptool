@@ -74,4 +74,8 @@ public class MapToolUtil {
     	
     	return ch + Integer.toString(nextId);
     }
+    
+    public static boolean isDebugEnabled() {
+    	return System.getProperty("MAPTOOL_DEV") != null;
+    }
 }
