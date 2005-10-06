@@ -57,6 +57,7 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.common.swing.SwingUtil;
 import net.rptools.maptool.client.CellPoint;
+import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
@@ -139,7 +140,10 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			        dragOffsetY = pos.y - token.getY();
 				}
 			} else {
-				renderer.clearSelectedTokens();
+
+				if (!SwingUtil.isShiftDown(e)) {
+					renderer.clearSelectedTokens();
+				}
 				
 				// Starting a bound box selection
 				isDrawingSelectionBox = true;
@@ -176,8 +180,16 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         ZoneRenderer renderer = (ZoneRenderer) e.getSource();
         SwingUtil.showPointer(renderer);
         
+        // SELECTION BOUND BOX
         if (isDrawingSelectionBox) {
         	isDrawingSelectionBox = false;
+
+        	if (!SwingUtil.isShiftDown(e)) {
+        		renderer.clearSelectedTokens();
+        	}
+        	
+        	renderer.selectTokens(selectionBoundBox);
+        	
         	selectionBoundBox = null;
         	renderer.repaint();
         	return;
@@ -407,11 +419,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			
 			Composite composite = g.getComposite();
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .25f));
-			g.setColor(Color.blue);
+			g.setColor(ClientStyle.selectionBoxFill);
 			g.fillRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height,10, 10);
 			g.setComposite(composite);
 			
-			g.setColor(Color.black);
+			g.setColor(ClientStyle.selectionBoxOutline);
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g.drawRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height,10, 10);
 

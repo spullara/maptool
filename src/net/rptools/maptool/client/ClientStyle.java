@@ -47,6 +47,9 @@ public class ClientStyle {
 	
     public static Color gridColor = Color.darkGray;
     
+    public static Color selectionBoxOutline = Color.black;
+    public static Color selectionBoxFill = Color.blue;
+    
 	static {
 		
 		try {

@@ -697,6 +697,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	repaint();
     }
     
+    /**
+     * Screen space rectangle
+     * @param rect
+     */
+    public void selectTokens(Rectangle rect) {
+    	
+    	for (Rectangle bounds : tokenBoundsMap.keySet()) {
+    		if (rect.intersects(bounds)) {
+    			selectedTokenSet.add(tokenBoundsMap.get(bounds).getId());
+    		}
+    	}
+    	
+    	repaint();
+    }
+    
     public void clearSelectedTokens() {
     	selectedTokenSet.clear();
     	
