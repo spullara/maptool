@@ -307,10 +307,10 @@ public class MapToolClient extends JFrame {
 
         toolbox.add(Box.createHorizontalStrut(15));
         
-        toolbox.add(new JToggleButton(AppActions.TOGGLE_GRID));
-        toolbox.add(new JToggleButton(AppActions.TOGGLE_SHOW_TOKEN_NAMES));
-        toolbox.add(new JToggleButton(AppActions.TOGGLE_DROP_INVISIBLE));
-        toolbox.add(new JToggleButton(AppActions.TOGGLE_NEW_ZONE_VISIBILITY));
+        toolbox.add(new JToggleButton(AppActions.TOGGLE_GRID){{setText("");}});
+        toolbox.add(new JToggleButton(AppActions.TOGGLE_SHOW_TOKEN_NAMES){{setText("");}});
+        toolbox.add(new JToggleButton(AppActions.TOGGLE_DROP_INVISIBLE){{setText("");}});
+        toolbox.add(new JToggleButton(AppActions.TOGGLE_NEW_ZONE_VISIBILITY){{setText("");}});
         
         toolbox.add(Box.createHorizontalStrut(15));
         
