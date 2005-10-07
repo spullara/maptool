@@ -26,7 +26,6 @@ package net.rptools.maptool.client;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +43,7 @@ import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.StartServerDialog;
+import net.rptools.maptool.client.ui.Toolbox;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.assetpanel.Directory;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -162,7 +162,7 @@ public class AppActions {
 				return;
 			}
 
-			MapTool.getFrame().getToolbox().setSelectedTool(new GridTool());
+			Toolbox.setSelectedTool(new GridTool());
 		}
 
 	};
@@ -332,7 +332,7 @@ public class AppActions {
 
 	public static final Action ZOOM_RESET = new ClientAction() {
 		{
-            init("action.Zoom100");
+            init("action.zoom100");
 		}
 
 		public void execute(ActionEvent e) {

@@ -27,6 +27,8 @@ package net.rptools.maptool.client.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -35,16 +37,20 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 import net.rptools.common.swing.FramePreferences;
 import net.rptools.common.swing.JSplitPaneEx;
+import net.rptools.common.swing.MultiSelectToggleButton;
 import net.rptools.common.swing.OutlookPanel;
 import net.rptools.common.swing.PositionalLayout;
 import net.rptools.common.swing.SwingUtil;
+import net.rptools.common.swing.ToggleGroup;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
@@ -88,7 +94,6 @@ public class MapToolClient extends JFrame {
     private Pen pen = new Pen(Pen.DEFAULT);
     
 	// Components
-	private ToolboxBar toolboxPanel;
 	private OutlookPanel outlookPanel;
 	private ZoneRenderer currentRenderer;
 	private AssetPanel assetPanel;
@@ -126,7 +131,6 @@ public class MapToolClient extends JFrame {
 		SwingUtil.centerOnScreen(this);
         
 		// Components
-		toolboxPanel = createToolboxPanel();
 		assetPanel = new AssetPanel();
         tokenPanel = new TokenPanel();
 		outlookPanel = new OutlookPanel ();
@@ -176,7 +180,7 @@ public class MapToolClient extends JFrame {
         setJMenuBar(new AppMenuBar());
 		setLayout(new BorderLayout());
 		add(BorderLayout.CENTER, mainInnerPanel);
-		add(BorderLayout.NORTH, toolboxPanel);
+		add(BorderLayout.NORTH, createToolboxPanel());
 		add(BorderLayout.SOUTH, statusPanel);
         
         addWindowListener(new FramePreferences(AppConstants.APP_NAME, this));
@@ -279,45 +283,86 @@ public class MapToolClient extends JFrame {
 		outlookPanel.setActive("Assets");
     }
     
-    public ToolboxBar getToolbox () {
-    	return toolboxPanel;
-    }
-    
-	private ToolboxBar createToolboxPanel() {
-		ToolboxBar toolbox = new ToolboxBar();
-		
-		toolbox.addTool(new PointerTool());
-        toolbox.addTool(new MeasureTool());
+	private JComponent createToolboxPanel() {
 
-        toolbox.add(Box.createHorizontalStrut(15));
+        JPanel panel = new JPanel(new GridBagLayout());
+        
+        JToolBar toolbar = new JToolBar();
+        toolbar.setFloatable(false);
+        toolbar.setRollover(true);
 
-        toolbox.addTool(new FreehandTool());
-        toolbox.addTool(new LineTool());
-        toolbox.addTool(new RectangleTool());
-        toolbox.addTool(new RectangleFillTool());
-        toolbox.addTool(new OvalTool());
-        toolbox.addTool(new OvalFillTool());
+        // SELECT
+        MultiSelectToggleButton selectToolSelect = new MultiSelectToggleButton();
+        selectToolSelect.addToggleButton(new PointerTool());
+        selectToolSelect.selectButton(0); // Default Tool
         
-        toolbox.add(Box.createHorizontalStrut(15));
-        
-        toolbox.add(foregroundColorPicker);
-        toolbox.add(backgroundColorPicker);
-        toolbox.add(Box.createHorizontalStrut(3));
-        toolbox.add(widthChooser);
+        // MEASURE
+        MultiSelectToggleButton measureToolSelect = new MultiSelectToggleButton();
+        measureToolSelect.addToggleButton(new MeasureTool());
 
-        toolbox.add(Box.createHorizontalStrut(15));
+        // LINE
+        MultiSelectToggleButton lineToolSelect = new MultiSelectToggleButton();
+        lineToolSelect.addToggleButton(new FreehandTool());
+        lineToolSelect.addToggleButton(new LineTool());
         
-        toolbox.add(new JToggleButton(AppActions.TOGGLE_GRID){{setText("");}});
-        toolbox.add(new JToggleButton(AppActions.TOGGLE_SHOW_TOKEN_NAMES){{setText("");}});
-        toolbox.add(new JToggleButton(AppActions.TOGGLE_DROP_INVISIBLE){{setText("");}});
-        toolbox.add(new JToggleButton(AppActions.TOGGLE_NEW_ZONE_VISIBILITY){{setText("");}});
-        
-        toolbox.add(Box.createHorizontalStrut(15));
-        
-        toolbox.addTool(new RectangleExposeTool());
-        toolbox.addTool(new OvalExposeTool());
+        // Rect
+        MultiSelectToggleButton rectToolSelect = new MultiSelectToggleButton();
+        rectToolSelect.addToggleButton(new RectangleTool());
+        rectToolSelect.addToggleButton(new RectangleFillTool());
 
-        return toolbox;
+        // Oval
+        MultiSelectToggleButton ovalToolSelect = new MultiSelectToggleButton();
+        ovalToolSelect.addToggleButton(new OvalTool());
+        ovalToolSelect.addToggleButton(new OvalFillTool());
+
+        // Fog
+        MultiSelectToggleButton fogToolSelect = new MultiSelectToggleButton();
+        fogToolSelect.addToggleButton(new RectangleExposeTool());
+        fogToolSelect.addToggleButton(new OvalExposeTool());
+        
+        ToggleGroup group = new ToggleGroup();
+        group.addToggle(selectToolSelect);
+        group.addToggle(measureToolSelect);
+        group.addToggle(lineToolSelect);
+        group.addToggle(rectToolSelect);
+        group.addToggle(ovalToolSelect);
+        group.addToggle(fogToolSelect);
+
+        // Organize
+        toolbar.add(selectToolSelect);
+        toolbar.add(measureToolSelect);
+
+        toolbar.add(Box.createHorizontalStrut(15));
+        
+        toolbar.add(lineToolSelect);
+        toolbar.add(rectToolSelect);
+        toolbar.add(ovalToolSelect);
+
+        toolbar.add(Box.createHorizontalStrut(15));
+        
+        toolbar.add(fogToolSelect);
+        
+        toolbar.add(Box.createHorizontalStrut(15));
+
+        toolbar.add(foregroundColorPicker);
+        toolbar.add(backgroundColorPicker);
+        toolbar.add(Box.createHorizontalStrut(3));
+        toolbar.add(widthChooser);
+
+        toolbar.add(Box.createHorizontalStrut(15));
+        
+        toolbar.add(new JToggleButton(AppActions.TOGGLE_GRID){{setText("");}});
+        toolbar.add(new JToggleButton(AppActions.TOGGLE_SHOW_TOKEN_NAMES){{setText("");}});
+        toolbar.add(new JToggleButton(AppActions.TOGGLE_DROP_INVISIBLE){{setText("");}});
+        toolbar.add(new JToggleButton(AppActions.TOGGLE_NEW_ZONE_VISIBILITY){{setText("");}});
+        
+        GridBagConstraints constraints = new GridBagConstraints();
+        panel.add(toolbar, constraints);
+        
+        constraints.weightx = 1;
+        constraints.gridx = 1;
+        panel.add(new JLabel(), constraints);
+        return panel;
 	}
 	
     public Pen getPen() {
@@ -370,7 +415,7 @@ public class MapToolClient extends JFrame {
         }
         
 		currentRenderer = renderer;
-		toolboxPanel.setTargetRenderer(renderer);
+		Toolbox.setTargetRenderer(renderer);
 
         tokenPanel.setZoneRenderer(renderer);
         

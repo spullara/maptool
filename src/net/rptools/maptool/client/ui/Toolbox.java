@@ -24,7 +24,6 @@
  */
 package net.rptools.maptool.client.ui;
 
-import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.MapTool;
@@ -34,18 +33,13 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 
 /**
  */
-public class ToolboxBar extends JToolBar {
+public class Toolbox {
 
-	private ZoneRenderer currentRenderer;
+	private static ZoneRenderer currentRenderer;
 
-	private Tool currentTool;
+	private static Tool currentTool;
 	
-	public ToolboxBar () {
-		setFloatable(false);
-        setRollover(true);
-	}
-	
-	public void setTargetRenderer(ZoneRenderer renderer) {
+	public static void setTargetRenderer(ZoneRenderer renderer) {
 		
 		if (currentRenderer != null && currentTool != null) {
 			currentTool.removeListeners(currentRenderer);
@@ -73,31 +67,7 @@ public class ToolboxBar extends JToolBar {
 		
 	}
 	
-	public void unselectTool(final Tool tool) {
-		
-		if (tool != currentTool) {
-			return;
-		}
-		
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				
-				if (currentTool != null) {
-					currentTool.removeListeners(currentRenderer);
-					currentTool.detachFrom(currentRenderer);
-					currentTool.setSelected(false);
-				}
-				
-				if (currentTool instanceof ZoneOverlay) {
-					currentRenderer.removeOverlay((ZoneOverlay)currentTool);
-				}
-
-				currentTool = null;
-			}
-		});
-	}
-	
-	public void setSelectedTool(final Tool tool) {
+	public static void setSelectedTool(final Tool tool) {
 
 		if (tool == currentTool) {
 			return;
@@ -115,8 +85,6 @@ public class ToolboxBar extends JToolBar {
             				currentRenderer.removeOverlay((ZoneOverlay)currentTool);
             			}
                     }
-
-        			currentTool.setSelected(false);
 				}
 
 				// Update
@@ -131,22 +99,8 @@ public class ToolboxBar extends JToolBar {
             				currentRenderer.addOverlay((ZoneOverlay) currentTool);
             			}
                     }
-                    
-
-					currentTool.setSelected(true);
 				}
 			}
 		});
-	}
-	
-	public void addTool(Tool tool) {
-		
-		add(tool);
-		
-		tool.setToolbox(this);
-		
-		if (currentTool == null) {
-			setSelectedTool(tool);
-		}
 	}
 }

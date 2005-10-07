@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
@@ -39,12 +40,14 @@ import javax.swing.JComponent;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 
 /**
  */
-public abstract class Tool extends JToggleButton {
+public abstract class Tool extends JToggleButton implements ChangeListener, ActionListener {
 
 	private InputMap oldInputMap;
 	private ActionMap oldActionMap;
@@ -53,26 +56,14 @@ public abstract class Tool extends JToggleButton {
   
     public Tool () {
       
-      // Map the escape key reset this tool.
-      getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), Tool.RESET_TOOL_COMMAND);
+        // Map the escape key reset this tool.
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), Tool.RESET_TOOL_COMMAND);
 
         setFocusPainted(false);
+        setBorderPainted(false);
         
-        addActionListener(new ActionListener() {
-            
-            public void actionPerformed(ActionEvent e) {
-
-                if (toolbox != null) {
-                    if (isSelected()) {
-                        
-                        toolbox.setSelectedTool(Tool.this);
-                    } else {
-                        toolbox.unselectTool(Tool.this);
-                    }
-                }
-                setSelected(isSelected());
-            }
-        });
+        addChangeListener(this);
+        addActionListener(this);
         
         setToolTipText(getTooltip());
     }
@@ -153,16 +144,6 @@ public abstract class Tool extends JToggleButton {
 		return null;
 	}
 	
-	private ToolboxBar toolbox;
-	
-	public void setToolbox(ToolboxBar toolbox) {
-		this.toolbox = toolbox;
-	}
-	
-    public ToolboxBar getToolbox() {
-        return toolbox;
-    }
-    
     private InputMap createInputMap (Map<KeyStroke, Action> keyActionMap) {
     	
     	InputMap inputMap = new InputMap();
@@ -206,5 +187,23 @@ public abstract class Tool extends JToggleButton {
       public void actionPerformed(ActionEvent e) {
         resetTool();
       }
+    }
+    
+    ////
+    // CHANGE LISTENER
+    public void stateChanged(ChangeEvent e) {
+
+        if (isSelected()) {
+            Toolbox.setSelectedTool(Tool.this);
+        }
+    }
+    
+    ////
+    // ACTION LISTENER
+    public void actionPerformed(ActionEvent e) {
+        if (!isSelected()) {
+            // Don't let us unselect
+            setSelected(true);
+        }
     }
 }
