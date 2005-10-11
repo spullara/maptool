@@ -499,13 +499,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 					}
 				}
 
+				// Center token in cell if it is smaller than a single cell
                 if (scaledWidth < scaledGridSize) {
-                    newScreenPoint.x += (scaledGridSize - scaledWidth)/2;
                     
                     // TODO: Are tokens alway square ?  That is, does width too small imply height too small ?
+                	newScreenPoint.x += (scaledGridSize - scaledWidth)/2;
                     newScreenPoint.y += (scaledGridSize - scaledHeight)/2;
                 }
-				g.drawImage(getScaledToken(token, scaledWidth, scaledHeight), newScreenPoint.x+1, newScreenPoint.y+1, this);			
+				g.drawImage(getScaledToken(token, scaledWidth, scaledHeight), newScreenPoint.x+1 + zone.getGridOffsetX(), newScreenPoint.y+1+zone.getGridOffsetY(), this);			
 
 				// Other details
 				if (token == keyToken) {
@@ -529,7 +530,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		int gridSize = (int) getScaledGridSize();
 		
 		// Top left of cell
-		ScreenPoint p = ScreenPoint.fromZonePoint(this, point.x*zone.getGridSize(), point.y*zone.getGridSize());
+		ScreenPoint p = ScreenPoint.fromZonePoint(this, point.x*zone.getGridSize()+zone.getGridOffsetX(), point.y*zone.getGridSize() + zone.getGridOffsetY());
 
 		g.drawImage(image, p.x+gridSize/3, p.y+gridSize/3, gridSize/3, gridSize/3, this);
 	}
@@ -659,7 +660,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         }
         
         // Scale and save
-        BufferedImage scaledImage = ImageUtil.createCompatibleImage(width, height, Transparency.BITMASK);
+        BufferedImage scaledImage = new BufferedImage(width, height, Transparency.BITMASK);
         Graphics2D g = (Graphics2D)scaledImage.getGraphics();
 //        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 //        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
