@@ -35,7 +35,8 @@
 
     if ( $_REQUEST['debug'] ) {
         print "Testing database connectiving...\n";
-        $link = dbx_connect($config['dbhost'],$config['dbname'],$config['dbuser'],$config['dbpass']);
+        $link = dbx_connect(DBX_MYSQL,$config['dbhost'],$config['dbname'],$config['dbuser'],$config['dbpass']);
+            or die ("Could not connect : " . dbx_error($link);
         if ( $link ) {
             print "...database ok\n";
         } else {
