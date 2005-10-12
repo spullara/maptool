@@ -6,10 +6,6 @@
     $config['dbpass'] = "90Popcorn";
     $config['dbtable'] = "maptool";
 
-    $config['link'] = dbx_connect(DBX_MYSQL,
-            $config['dbhost'],$config['dbname'],
-            $config['dbuser'],$config['dbpass'])
-            or die ("Could not connect : " . dbx_error($link));
 
 	if ( ! $_REQUEST['debug'] ) {
 	    header("Content-type: application/x-java-jnlp-file");
@@ -36,10 +32,6 @@
 	<resources>
 		<j2se version="1.5+" java-vm-args="-Xms64m -Xmx128m"/>
 <?php
-
-    if ( $_REQUEST['debug'] ) {
-        print "get at env variables: ".getenv(REMOTE_ADDR)."\n";
-    }
 
     $files = array();
     if (($dh = @opendir(getcwd())) != FALSE) {
@@ -72,3 +64,17 @@
 	
 	<application-desc main-class="net.rptools.maptool.client.MapTool" />
 </jnlp>
+
+<?php
+    if ( $_REQUEST['debug'] ) {
+        print "get at env variables: ".getenv(REMOTE_ADDR)."\n";
+        print "more env variables $_SERVER[SCRIPT_URL]\n";
+        print "see if we have leftovers $filename\n";
+    }
+
+    $config['link'] = dbx_connect(DBX_MYSQL,
+            $config['dbhost'],$config['dbname'],
+            $config['dbuser'],$config['dbpass'])
+            or die ("Could not connect : " . dbx_error($link));
+
+?>
