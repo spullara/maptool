@@ -153,7 +153,7 @@ public class MapToolClient extends JFrame {
             if (getClass().getClassLoader().getResource("net/rptools/maptool/client/version.txt") != null) {
                 version = new String(FileUtil.loadResource("net/rptools/maptool/client/version.txt"));
             }
-            credits.replace("%VERSION%", version);
+            credits = credits.replace("%VERSION%", version);
             Image logo = ImageUtil.getImage("net/rptools/maptool/client/image/rptools-logo.png");
         	
             aboutDialog = new AboutDialog(this, logo, credits);
