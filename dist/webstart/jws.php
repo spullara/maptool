@@ -66,15 +66,19 @@
 </jnlp>
 
 <?php
-    if ( $_REQUEST['debug'] ) {
-        print "get at env variables: ".getenv(REMOTE_ADDR)."\n";
-        print "more env variables $_SERVER[SCRIPT_URL]\n";
-        print "see if we have leftovers $filename\n";
-    }
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $path = substr($_SERVER['SCRIPT_URL'],-7,-1);
+    $version = substr($filename,9,9);
 
     $config['link'] = dbx_connect(DBX_MYSQL,
             $config['dbhost'],$config['dbname'],
             $config['dbuser'],$config['dbpass'])
             or die ("Could not connect : " . dbx_error($link));
+
+    if ( $_REQUEST['debug'] ) {
+        print "got ip = $ip\n";
+        print "got $_SERVER[SCRIPT_URL] and pulled out $path\n";
+        print "got $filename and pulled out $version\n";
+    }
 
 ?>
