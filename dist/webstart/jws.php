@@ -67,7 +67,10 @@
 
 <?php
     $ip = $_SERVER['REMOTE_ADDR'];
-    $path = substr($_SERVER['SCRIPT_URL'],0,strlen($_SERVER['SCRIPT_URL'])-7);
+    $s = strpos($_SERVER['SCRIPT_URL'],"maptool");
+    $e = strpos($_SERVER['SCRIPT_URL'],"/",$s+8);
+
+    $path = substr($_SERVER['SCRIPT_URL'],$s,$e-$s);
     $version = substr($filename,8,9);
 
     $config['link'] = dbx_connect(DBX_MYSQL,
