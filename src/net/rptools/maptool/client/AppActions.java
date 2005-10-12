@@ -87,6 +87,18 @@ public class AppActions {
 
 	};
 
+	public static final Action SHOW_ABOUT = new ClientAction() {
+		{
+			init("action.showAboutDialog");
+		}
+
+		public void execute(ActionEvent e) {
+
+			MapTool.getFrame().showAboutDialog();
+		}
+
+	};
+
 	public static final Action ENFORCE_ZONE_VIEW = new ClientAction() {
 		{
 			init("action.enforceView");

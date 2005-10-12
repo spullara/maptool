@@ -113,6 +113,7 @@ public class AppMenuBar extends JMenuBar {
 
     protected JMenu createHelpMenu() {
         JMenu menu = createMenu("menu.help");
+        menu.add(new JMenuItem(AppActions.SHOW_ABOUT));
         return menu;
     }
 

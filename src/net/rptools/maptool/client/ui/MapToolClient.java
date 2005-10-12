@@ -30,11 +30,13 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -44,6 +46,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
+import net.rptools.common.swing.AboutDialog;
 import net.rptools.common.swing.FramePreferences;
 import net.rptools.common.swing.JSplitPaneEx;
 import net.rptools.common.swing.MultiSelectToggleButton;
@@ -51,6 +54,7 @@ import net.rptools.common.swing.OutlookPanel;
 import net.rptools.common.swing.PositionalLayout;
 import net.rptools.common.swing.SwingUtil;
 import net.rptools.common.swing.ToggleGroup;
+import net.rptools.common.util.FileUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
@@ -100,6 +104,7 @@ public class MapToolClient extends JFrame {
 	private PointerOverlay pointerOverlay;
 	private ChatPanel chatPanel;
     private TokenPanel tokenPanel;
+    private AboutDialog aboutDialog;
     
     private ZoneSelectionPanel zoneSelectionPanel;
     private JPanel zoneRendererPanel;
@@ -139,6 +144,12 @@ public class MapToolClient extends JFrame {
         pointerOverlay = new PointerOverlay();
         chatPanel = new ChatPanel();
         chatPanel.setSize(250, 100);
+        
+        try {
+        	aboutDialog = new AboutDialog(this, new ImageIcon(getClass().getClassLoader().getResource("net/rptools/maptool/client/image/rptools-logo.png")).getImage(), new String(FileUtil.loadResource("net/rptools/maptool/client/credits.html")));
+        } catch (IOException ioe) {
+        	// This won't happen
+        }
 
         outlookPanel.addButton("Assets", assetPanel);
         outlookPanel.addButton("Tokens", tokenPanel);
@@ -188,6 +199,10 @@ public class MapToolClient extends JFrame {
         restorePreferences();
 	}
     
+	public void showAboutDialog() {
+		aboutDialog.setVisible(true);
+	}
+	
     public ConnectionStatusPanel getConnectionStatusPanel() {
         return connectionStatusPanel;
     }
