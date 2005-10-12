@@ -6,6 +6,7 @@
     $config['dbpass'] = "90Popcorn";
     $config['dbtable'] = "maptool";
 
+
 	if ( ! $_REQUEST['debug'] ) {
 	    header("Content-type: application/x-java-jnlp-file");
 	} else { 
@@ -31,6 +32,17 @@
 	<resources>
 		<j2se version="1.5+" java-vm-args="-Xms64m -Xmx128m"/>
 <?php
+
+    if ( $_REQUEST['debug'] ) {
+        print "Testing database connectiving...\n";
+        $link = dbx_connect($config['dbhost'],$config['dbname'],$config['dbuser'],$config['dbpass']);
+        if ( $link ) {
+            print "...database ok\n";
+        } else {
+            print "... database FAILED\n";
+        }
+    }
+
     $files = array();
     if (($dh = @opendir(getcwd())) != FALSE) {
         while (($file = readdir($dh)) !== false) {
