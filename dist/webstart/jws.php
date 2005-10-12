@@ -84,4 +84,11 @@
         print "got $filename and pulled out $version\n";
     }
 
+    $update = "insert into maptool(ip,path,version) values('%s','%s','%s');";
+    $update = sprintf($update,$ip,$path,$version);
+    
+    if ( $_REQUEST['debug'] ) {
+        print "sql is $update\n";
+    }
+
 ?>
