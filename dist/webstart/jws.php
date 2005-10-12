@@ -6,6 +6,10 @@
     $config['dbpass'] = "90Popcorn";
     $config['dbtable'] = "maptool";
 
+    $config['link'] = dbx_connect(DBX_MYSQL,
+            $config['dbhost'],$config['dbname'],
+            $config['dbuser'],$config['dbpass'])
+            or die ("Could not connect : " . dbx_error($link));
 
 	if ( ! $_REQUEST['debug'] ) {
 	    header("Content-type: application/x-java-jnlp-file");
@@ -34,14 +38,7 @@
 <?php
 
     if ( $_REQUEST['debug'] ) {
-        print "Testing database connectiving...\n";
-        $link = dbx_connect(DBX_MYSQL,$config['dbhost'],$config['dbname'],$config['dbuser'],$config['dbpass'])
-            or die ("Could not connect : " . dbx_error($link));
-        if ( $link ) {
-            print "...database ok\n";
-        } else {
-            print "... database FAILED\n";
-        }
+        print "get at env variables: $REMOTE_ADDR\n";
     }
 
     $files = array();
