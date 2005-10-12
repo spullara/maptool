@@ -36,8 +36,6 @@ import java.util.List;
  */
 public class LineSegment extends AbstractDrawing {
 	
-	private static final int PADDING = 10;
-	
     private List<Point> points = new ArrayList<Point>();
 
     /** Manipulate the points by calling {@link #getPoints} and then adding {@link Point} objects
@@ -78,6 +76,6 @@ public class LineSegment extends AbstractDrawing {
 			if (point.y > maxY) {maxY = point.y;}
 		}
 		
-		return new Rectangle(minX - PADDING, minY - PADDING, maxX - minX + PADDING*2, maxY - minY + PADDING*2);
+		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
 	}
 }
