@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -55,6 +56,7 @@ import net.rptools.common.swing.PositionalLayout;
 import net.rptools.common.swing.SwingUtil;
 import net.rptools.common.swing.ToggleGroup;
 import net.rptools.common.util.FileUtil;
+import net.rptools.common.util.ImageUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
@@ -146,7 +148,15 @@ public class MapToolClient extends JFrame {
         chatPanel.setSize(250, 100);
         
         try {
-        	aboutDialog = new AboutDialog(this, new ImageIcon(getClass().getClassLoader().getResource("net/rptools/maptool/client/image/rptools-logo.png")).getImage(), new String(FileUtil.loadResource("net/rptools/maptool/client/credits.html")));
+            String credits = new String(FileUtil.loadResource("net/rptools/maptool/client/credits.html"));
+            String version = "DEVELOPMENT";
+            if (getClass().getClassLoader().getResource("net/rptools/maptool/client/version.txt") != null) {
+                version = new String(FileUtil.loadResource("net/rptools/maptool/client/version.txt"));
+            }
+            credits.replace("%VERSION%", version);
+            Image logo = ImageUtil.getImage("net/rptools/maptool/client/image/rptools-logo.png");
+        	
+            aboutDialog = new AboutDialog(this, logo, credits);
         } catch (IOException ioe) {
         	// This won't happen
         }
