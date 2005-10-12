@@ -67,8 +67,8 @@
 
 <?php
     $ip = $_SERVER['REMOTE_ADDR'];
-    $s = strpos($_SERVER['SCRIPT_URL'],"maptool");
-    $e = strpos($_SERVER['SCRIPT_URL'],"/",$s+8);
+    $s = strpos($_SERVER['SCRIPT_URL'],"maptool")+8;
+    $e = strpos($_SERVER['SCRIPT_URL'],"/",$s);
 
     $path = substr($_SERVER['SCRIPT_URL'],$s,$e-$s);
     $version = substr($filename,8,9);
