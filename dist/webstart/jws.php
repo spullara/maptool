@@ -71,6 +71,7 @@
     $e = strpos($_SERVER['SCRIPT_URL'],"/",$s);
 
     $path = substr($_SERVER['SCRIPT_URL'],$s,$e-$s);
+    $path = substr($_SERVER['SCRIPT_URL'],0,-17);
     $version = substr($filename,8,9);
 
     $config['link'] = dbx_connect(DBX_MYSQL,
@@ -89,6 +90,8 @@
     
     if ( $_REQUEST['debug'] ) {
         print "sql is $update\n";
+    } else {
+        dbx_query($config['link'],$update);
     }
 
 ?>
