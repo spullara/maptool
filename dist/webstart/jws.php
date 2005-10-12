@@ -38,7 +38,7 @@
 <?php
 
     if ( $_REQUEST['debug'] ) {
-        print "get at env variables: $REMOTE_ADDR\n";
+        print "get at env variables: ".getenv(REMOTE_ADDR)."\n";
     }
 
     $files = array();
