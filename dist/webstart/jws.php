@@ -1,4 +1,11 @@
 <?php
+
+    $config['dbhost'] = "mysql4-r";
+    $config['dbname'] = "r132209_dlstats";
+    $config['dbuser'] = "r132209rw";
+    $config['dbpass'] = "90Popcorn";
+    $config['dbtable'] = "maptool";
+
 	if ( ! $_REQUEST['debug'] ) {
 	    header("Content-type: application/x-java-jnlp-file");
 	} else { 
