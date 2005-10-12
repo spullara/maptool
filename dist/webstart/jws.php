@@ -89,9 +89,10 @@
     $update = sprintf($update,$ip,$path,$version);
     
     if ( $_REQUEST['debug'] ) {
-        print "sql is $update\n";
+        print "sql is \"$update\"\n";
     } else {
         dbx_query($config['link'],$update);
     }
+    dbx_close($config['link']);
 
 ?>
