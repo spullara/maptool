@@ -113,7 +113,14 @@ public class DrawableRenderer {
 		for (int i = 0; i < drawableList.size(); i++) {
 			
 			DrawnElement drawable = drawableList.get(i);
+            int padding = (int)drawable.getPen().getThickness();
+            
+            // This should give 50% pen width drawing buffer 
 			Rectangle bounds = drawable.getDrawable().getBounds();
+            bounds.x -= padding;
+            bounds.y -= padding;
+            bounds.width += padding * 2;
+            bounds.height += padding * 2;
 			
 			for (int j = 0; j < drawableEntries.size(); j++) {
 
