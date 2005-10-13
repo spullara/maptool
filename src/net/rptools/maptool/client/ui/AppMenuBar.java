@@ -38,6 +38,7 @@ public class AppMenuBar extends JMenuBar {
     public AppMenuBar() {
         add(createFileMenu());
         add(createViewMenu());
+        add(createToolsMenu());
         add(createMapMenu());
         add(createHelpMenu());
     }
