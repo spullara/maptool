@@ -91,7 +91,7 @@ public class DrawableRenderer {
 			
 			DrawableEntry entry = drawableEntries.get(i);
 			
-			if (entry.bounds.contains(bounds)) {
+			if (entry.bounds.contains(bounds.x, bounds.y, bounds.width > 0 ? bounds.width : 1, bounds.height > 0 ? bounds.height : 1)) {
 				return entry;
 			}
 		}
