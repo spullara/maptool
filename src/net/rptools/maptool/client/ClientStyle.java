@@ -38,7 +38,6 @@ public class ClientStyle {
 
 	public static ImageBorder border = ImageBorder.GRAY;
 	public static ImageBorder selectedBorder = ImageBorder.RED;
-	public static ImageBorder boardBorder = ImageBorder.WOOD;
 
 	public static BufferedImage tokenInvisible;
 
