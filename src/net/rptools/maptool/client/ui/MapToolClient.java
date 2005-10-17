@@ -48,6 +48,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 import net.rptools.common.swing.AboutDialog;
+import net.rptools.common.swing.ColorPicker;
 import net.rptools.common.swing.FramePreferences;
 import net.rptools.common.swing.JSplitPaneEx;
 import net.rptools.common.swing.MultiSelectToggleButton;
@@ -107,6 +108,7 @@ public class MapToolClient extends JFrame {
 	private ChatPanel chatPanel;
     private TokenPanel tokenPanel;
     private AboutDialog aboutDialog;
+    private ColorPicker colorPicker;
     
     private ZoneSelectionPanel zoneSelectionPanel;
     private JPanel zoneRendererPanel;
@@ -146,6 +148,7 @@ public class MapToolClient extends JFrame {
         pointerOverlay = new PointerOverlay();
         chatPanel = new ChatPanel();
         chatPanel.setSize(250, 100);
+        colorPicker = new ColorPicker(this);
         
         try {
             String credits = new String(FileUtil.loadResource("net/rptools/maptool/client/credits.html"));
@@ -161,7 +164,8 @@ public class MapToolClient extends JFrame {
         	// This won't happen
         }
 
-        outlookPanel.addButton("Assets", assetPanel);
+        outlookPanel.addButton("Image Explorer", assetPanel);
+        outlookPanel.addButton("Colors", colorPicker);
         outlookPanel.addButton("Tokens", tokenPanel);
         outlookPanel.addButton("Connections", new JScrollPane(createPlayerList()));
         
@@ -208,6 +212,10 @@ public class MapToolClient extends JFrame {
         
         restorePreferences();
 	}
+    
+    public ColorPicker getColorPicker() {
+        return colorPicker;
+    }
     
 	public void showAboutDialog() {
 		aboutDialog.setVisible(true);
@@ -369,9 +377,6 @@ public class MapToolClient extends JFrame {
         
         toolbar.add(Box.createHorizontalStrut(15));
 
-        toolbar.add(foregroundColorPicker);
-        toolbar.add(backgroundColorPicker);
-        toolbar.add(Box.createHorizontalStrut(3));
         toolbar.add(widthChooser);
 
         toolbar.add(Box.createHorizontalStrut(15));
@@ -392,8 +397,8 @@ public class MapToolClient extends JFrame {
 	
     public Pen getPen() {
     	
-    	pen.setColor(foregroundColorPicker.getSelectedColor().getRGB());
-    	pen.setBackgroundColor(backgroundColorPicker.getSelectedColor().getRGB());
+    	pen.setColor(colorPicker.getForegroundColor().getRGB());
+    	pen.setBackgroundColor(colorPicker.getBackgroundColor().getRGB());
         pen.setThickness((Integer)widthChooser.getSelectedItem());
         return pen;
     }
