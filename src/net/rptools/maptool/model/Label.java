@@ -41,6 +41,8 @@ public class Label {
     public Label(String label, int x, int y) {
         id = new GUID();
         this.label = label;
+        this.x = x;
+        this.y = y;
     }
     
     public String getLabel() {

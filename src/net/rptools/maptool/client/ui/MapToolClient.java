@@ -69,6 +69,7 @@ import net.rptools.maptool.client.swing.ProgressStatusBar;
 import net.rptools.maptool.client.swing.StatusPanel;
 import net.rptools.maptool.client.tool.MeasureTool;
 import net.rptools.maptool.client.tool.PointerTool;
+import net.rptools.maptool.client.tool.TextTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
 import net.rptools.maptool.client.tool.drawing.LineTool;
 import net.rptools.maptool.client.tool.drawing.OvalExposeTool;
@@ -348,6 +349,10 @@ public class MapToolClient extends JFrame {
         ovalToolSelect.addToggleButton(new OvalTool());
         ovalToolSelect.addToggleButton(new OvalFillTool());
 
+        // Text
+        MultiSelectToggleButton textToolSelect = new MultiSelectToggleButton();
+        textToolSelect.addToggleButton(new TextTool());
+        
         // Fog
         MultiSelectToggleButton fogToolSelect = new MultiSelectToggleButton();
         fogToolSelect.addToggleButton(new RectangleExposeTool());
@@ -359,6 +364,7 @@ public class MapToolClient extends JFrame {
         group.addToggle(lineToolSelect);
         group.addToggle(rectToolSelect);
         group.addToggle(ovalToolSelect);
+        group.addToggle(textToolSelect);
         group.addToggle(fogToolSelect);
 
         // Organize
@@ -370,6 +376,7 @@ public class MapToolClient extends JFrame {
         toolbar.add(lineToolSelect);
         toolbar.add(rectToolSelect);
         toolbar.add(ovalToolSelect);
+        toolbar.add(textToolSelect);
 
         toolbar.add(Box.createHorizontalStrut(15));
         

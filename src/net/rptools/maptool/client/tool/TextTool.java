@@ -24,11 +24,18 @@
  */
 package net.rptools.maptool.client.tool;
 
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import net.rptools.common.util.ImageUtil;
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.Label;
 
 /**
  */
@@ -45,5 +52,27 @@ public class TextTool extends DefaultTool {
     @Override
     public String getTooltip() {
         return "Put text onto the zone";
+    }
+    
+    ////
+    // MOUSE
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    	ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+    	if (SwingUtilities.isLeftMouseButton(e)) {
+    		
+    		String text = JOptionPane.showInputDialog(MapTool.getFrame(), "Label Text");
+    		if (text == null) {
+    			return;
+    		}
+    		
+    		ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
+    		Label label = new Label(text, zp.x, zp.y);
+    		renderer.getZone().putLabel(label);
+    		MapTool.serverCommand().putLabel(renderer.getZone().getId(), label);
+    	}
+    	
+    	super.mousePressed(e);
     }
 }

@@ -88,11 +88,11 @@ public class ServerCommandClientImpl implements ServerCommand {
     }
 
     public void putLabel(GUID zoneGUID, Label label) {
-        makeServerCall(COMMAND.putToken, zoneGUID, label);
+        makeServerCall(COMMAND.putLabel, zoneGUID, label);
     }
 
     public void removeLabel(GUID zoneGUID, GUID labelGUID) {
-        makeServerCall(COMMAND.removeToken, zoneGUID, labelGUID);
+        makeServerCall(COMMAND.removeLabel, zoneGUID, labelGUID);
     }
 
     public void draw(GUID zoneGUID, Pen pen, Drawable drawable) {
