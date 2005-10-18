@@ -478,7 +478,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	                continue;
 	            }
 	            
-                ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, token.getX() + setOffsetX, token.getY() + setOffsetY);
+                ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, token.getX() + setOffsetX + zone.getGridOffsetX(), token.getY() + setOffsetY + zone.getGridOffsetY());
 				
 				// OPTIMIZE: combine this with the code in renderTokens()
 	            int width = TokenSize.getWidth(token, gridSize);
@@ -506,7 +506,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 	newScreenPoint.x += (scaledGridSize - scaledWidth)/2;
                     newScreenPoint.y += (scaledGridSize - scaledHeight)/2;
                 }
-				g.drawImage(getScaledToken(token, scaledWidth, scaledHeight), newScreenPoint.x+1 + zone.getGridOffsetX(), newScreenPoint.y+1+zone.getGridOffsetY(), this);			
+				g.drawImage(getScaledToken(token, scaledWidth, scaledHeight), newScreenPoint.x+1, newScreenPoint.y+1, this);
 
 				// Other details
 				if (token == keyToken) {
