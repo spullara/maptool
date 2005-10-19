@@ -56,7 +56,7 @@ public class PenWidthChooser extends JComboBox {
   /**
    * Supported Pen Widths
    */
-  public static final int[] WIDTHS = { 3, 5, 7, 11, 15, 21 };
+  public static final int[] WIDTHS = { 1, 3, 5, 7, 11, 15, 21 };
   
   /**
    * The width that the Icon is painted.
@@ -87,7 +87,7 @@ public class PenWidthChooser extends JComboBox {
     setModel(model);
     setMaximumSize(getPreferredSize());
     setMaximumRowCount(MAX_ROW_COUNT);
-    setSelectedItem(Math.max(selected, WIDTHS[0]));
+    setSelectedIndex(Math.max(selected, WIDTHS[0]));
   }
   
   /**

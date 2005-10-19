@@ -34,7 +34,7 @@ public class Pen {
     public static int MODE_SOLID       = 0;
     public static int MODE_TRANSPARENT = 1;
 
-    public static Pen DEFAULT = new Pen(Color.BLACK.getRGB(), 5.0f);
+    public static Pen DEFAULT = new Pen(Color.BLACK.getRGB(), 3.0f);
 
     private int foregroundMode = MODE_SOLID;
     private int color;
