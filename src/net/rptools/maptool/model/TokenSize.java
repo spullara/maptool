@@ -24,52 +24,62 @@
  */
 package net.rptools.maptool.model;
 
+import java.awt.Dimension;
+
+import net.rptools.lib.swing.SwingUtil;
+
 /**
  * @author trevor
  */
 public class TokenSize {
     
     public static enum Size {
-        Fine(0, 0.5f, 0.5f),
-        Diminutive(1, 0.5f, 0.5f),
-        Tiny(2, 0.5f, 0.5f),
-        Small(3, 0.75f, 0.75f),
-        Medium(4, 1, 1),
-        Large(5, 2, 2),
-        Huge(6, 3, 3),
-        Gargantuan(7, 4, 4),
-        Colossal(8, 6, 6);
+        Fine(0, 0.5f),
+        Diminutive(1, 0.5f),
+        Tiny(2, 0.5f),
+        Small(3, 0.75f),
+        Medium(4, 1),
+        Large(5, 2),
+        Huge(6, 3),
+        Gargantuan(7, 4),
+        Colossal(8, 6);
         
         private final int value;
-        private final float widthFactor;
-        private final float heightFactor;
+        private final float sizeFactor;
         
-        private Size(int value, float widthFactor, float heightFactor) {
+        private Size(int value, float sizeFactor) {
             this.value = value;
-            this.widthFactor = widthFactor;
-            this.heightFactor = heightFactor;
+            this.sizeFactor = sizeFactor;
         }
         
         public int value() { return value; }
-        public float widthFactor() { return widthFactor; }
-        public float heightFactor() { return heightFactor; }
+        public float sizeFactor() { return sizeFactor; }
     }
 
 	// This is a enum hack since enums aren't serializable
-	public static int getWidth(Token token, int gridSize) {
+    public static int getWidth(Token token, int gridSize) {
         if (!token.isSnapToScale()) return token.getWidth();
-        Size size = getSizeInstance(token.getSize());
         
-        return (int) (size.widthFactor() * gridSize);
-	}
-	
-	public static int getHeight(Token token, int gridSize) {
-        if (!token.isSnapToScale()) return token.getHeight();
-        Size size = getSizeInstance(token.getSize());
+        return getSize(token, gridSize).width;
+    }
+    
+    public static int getHeight(Token token, int gridSize) {
+        if (!token.isSnapToScale()) return token.getWidth();
         
-        return (int) (size.heightFactor() * gridSize);
-	}
-	
+        return getSize(token, gridSize).height;
+    }
+    
+    private static Dimension getSize(Token token, int gridSize) {
+        
+        //Size size = getSizeInstance(token.getSize());
+        Dimension size = new Dimension(token.getWidth(), token.getHeight());
+        int destSize = (int) (getSizeInstance(token.getSize()).sizeFactor() * gridSize); 
+        SwingUtil.constrainTo(size, destSize);
+        
+        System.out.println(size);
+        return size;
+    }
+    
     public static Size getSizeInstance(int size) {
         Size[] sizes = Size.values();
         for (int i = 0; i < sizes.length; i++) {

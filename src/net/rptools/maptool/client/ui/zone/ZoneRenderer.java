@@ -502,7 +502,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				// Center token in cell if it is smaller than a single cell
                 if (scaledWidth < scaledGridSize) {
                     
-                    // TODO: Are tokens alway square ?  That is, does width too small imply height too small ?
                 	newScreenPoint.x += (scaledGridSize - scaledWidth)/2;
                     newScreenPoint.y += (scaledGridSize - scaledHeight)/2;
                 }
