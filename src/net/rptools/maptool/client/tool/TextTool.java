@@ -31,7 +31,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-import net.rptools.common.util.ImageUtil;
+import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;

@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.rptools.common.util.FileUtil;
+import net.rptools.lib.util.FileUtil;
 import net.rptools.maptool.util.MD5Key;
 
 /**

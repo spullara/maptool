@@ -34,10 +34,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import net.rptools.common.transferable.FileTransferableHandler;
-import net.rptools.common.transferable.ImageTransferableHandler;
-import net.rptools.common.util.FileUtil;
-import net.rptools.common.util.ImageUtil;
+import net.rptools.lib.transferable.FileTransferableHandler;
+import net.rptools.lib.transferable.ImageTransferableHandler;
+import net.rptools.lib.util.FileUtil;
+import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.MD5Key;

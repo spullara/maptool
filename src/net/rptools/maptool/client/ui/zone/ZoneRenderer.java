@@ -52,7 +52,7 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 
-import net.rptools.common.util.ImageUtil;
+import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientStyle;

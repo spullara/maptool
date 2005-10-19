@@ -32,7 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import net.rptools.common.util.ImageUtil;
+import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 

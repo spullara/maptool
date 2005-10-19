@@ -27,7 +27,7 @@ package net.rptools.maptool.client.ui.assetpanel;
 import java.awt.Image;
 import java.awt.datatransfer.Transferable;
 
-import net.rptools.common.swing.ImagePanelModel;
+import net.rptools.lib.swing.ImagePanelModel;
 import net.rptools.maptool.client.TransferableAsset;
 import net.rptools.maptool.model.AssetGroup;
 import net.rptools.maptool.util.ImageManager;

@@ -23,7 +23,6 @@
  * SOFTWARE.
  */
 package net.rptools.maptool.client.ui.zone;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -31,7 +30,7 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import net.rptools.common.util.ImageUtil;
+import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;

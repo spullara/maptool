@@ -25,32 +25,19 @@
 package net.rptools.maptool.client.tool;
 
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-import net.rptools.common.swing.SwingUtil;
-import net.rptools.common.util.ImageUtil;
+import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientStyle;
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarEuclideanWalker;
-import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.GraphicsUtil;
 
 

@@ -32,7 +32,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
-import net.rptools.common.swing.SwingUtil;
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;

@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.rptools.common.util.FileUtil;
+import net.rptools.lib.util.FileUtil;
 import net.rptools.maptool.client.MapTool;
 
 /**

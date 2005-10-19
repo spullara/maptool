@@ -38,9 +38,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
-import net.rptools.common.swing.ImagePanel;
-import net.rptools.common.swing.SelectionListener;
-import net.rptools.common.swing.ImagePanel.SelectionMode;
+import net.rptools.lib.swing.ImagePanel;
+import net.rptools.lib.swing.ImagePanel.SelectionMode;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;

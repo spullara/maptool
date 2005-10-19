@@ -33,7 +33,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.rptools.common.swing.PopupListener;
+import net.rptools.lib.swing.PopupListener;
 import net.rptools.maptool.client.AppActions;
 
 

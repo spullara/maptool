@@ -28,8 +28,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import net.rptools.common.swing.ImageBorder;
-import net.rptools.common.util.ImageUtil;
+import net.rptools.lib.swing.ImageBorder;
+import net.rptools.lib.util.ImageUtil;
 
 /**
  * @author trevor
