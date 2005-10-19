@@ -606,13 +606,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
             // Draw
             g.drawImage(image, x, y, this);
-
-            // Selected ?
-            if (selectedTokenSet.contains(token.getId())) {
-            	ClientStyle.selectedBorder.paintAround(g, x, y, width, height);
-            }
-            
-            // Name
         }
         
         for (Rectangle bounds : tokenBoundsMap.keySet()) {
@@ -623,7 +616,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 continue;
             }
 
-            Token token = tokenBoundsMap.get(bounds);
+            // Border
+        	ClientStyle.selectedBorder.paintAround(g, bounds);
+
+        	Token token = tokenBoundsMap.get(bounds);
 
             if (AppState.isShowTokenNames() || selectedTokenSet.contains(token.getId())) {
                 
