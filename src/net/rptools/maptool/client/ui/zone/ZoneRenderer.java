@@ -616,13 +616,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 continue;
             }
 
-            // Border
-        	ClientStyle.selectedBorder.paintAround(g, bounds);
-
         	Token token = tokenBoundsMap.get(bounds);
 
-            if (AppState.isShowTokenNames() || selectedTokenSet.contains(token.getId())) {
-                
+        	boolean isSelected = selectedTokenSet.contains(token.getId());
+        	if (isSelected) {
+                // Border
+            	ClientStyle.selectedBorder.paintAround(g, bounds);
+        	}
+
+        	if (AppState.isShowTokenNames() || isSelected) {
+
+        		// Name
                 GraphicsUtil.drawBoxedString(g, token.getName(), bounds.x + bounds.width/2, bounds.y + bounds.height + 10);
             }
         }
