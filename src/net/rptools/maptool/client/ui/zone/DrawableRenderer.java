@@ -90,7 +90,6 @@ public class DrawableRenderer {
 		for (int i = 0; i < drawableEntries.size(); i++) {
 			
 			DrawableEntry entry = drawableEntries.get(i);
-			
 			if (entry.bounds.contains(bounds.x, bounds.y, bounds.width > 0 ? bounds.width : 1, bounds.height > 0 ? bounds.height : 1)) {
 				return entry;
 			}
