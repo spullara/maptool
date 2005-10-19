@@ -76,7 +76,6 @@ public class TokenSize {
         int destSize = (int) (getSizeInstance(token.getSize()).sizeFactor() * gridSize); 
         SwingUtil.constrainTo(size, destSize);
         
-        System.out.println(size);
         return size;
     }
     
