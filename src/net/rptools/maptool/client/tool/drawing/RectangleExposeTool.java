@@ -3,6 +3,10 @@ package net.rptools.maptool.client.tool.drawing;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.geom.RoundRectangle2D;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.GUID;
@@ -12,7 +16,15 @@ import net.rptools.maptool.model.drawing.Pen;
 
 public class RectangleExposeTool extends RectangleTool {
 
-	@Override
+    public RectangleExposeTool() {
+        try {
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Rect_Fog.gif"))));
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    @Override
 	protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
 
 		if (!MapTool.getPlayer().isGM()) {
