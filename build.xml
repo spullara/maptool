@@ -40,16 +40,24 @@
 		</manifest>
 	</target>
 	
-	<target name="dist" depends="init,compile,generate-manifest">
+	<target name="generate-version" depends="init" unless="build.version">
+		<buildnumber file="conf/build.number" />
+		
+		<property name="build.version" value="${app.version}.b${build.number}" />
+	</target>
+	
+	<target name="generate-version-file" depends="init, generate-version">
+		<echo message="${build.version}" file="${src}/${version.file}" />			
+	</target>
+	
+	<target name="dist" depends="init,generate-version-file,compile,generate-manifest,generate-version">
 		<mkdir dir="${dist}" />
 		<mkdir dir="${tmp}" />
 		
-		<property name="tmp.zipdir" location="${tmp}/maptool-${build.version}" />
+		<property name="tmp.zipdir" location="${tmp}/maptool-${app.version}" />
 		<mkdir dir="${tmp.zipdir}" />
 		
-		<buildnumber file="conf/build.number" />
-		
-		<jar destfile="${tmp.zipdir}/maptool-${build.version}.b${build.number}.jar" 
+		<jar destfile="${tmp.zipdir}/maptool-${build.version}.jar" 
              manifest="conf/manifest.mf"
 			 basedir="${build}" />
 		
@@ -59,16 +67,16 @@
 			<fileset dir="${lib}" />
 		</copy>
 
-		<delete file="${dist}/maptool-${build.version}.zip" />
+		<delete file="${dist}/maptool-${app.version}.zip" />
 
-		<zip destfile="${dist}/maptool-${build.version}.zip"
+		<zip destfile="${dist}/maptool-${app.version}.zip"
 		     basedir="${tmp.zipdir}" />
 		
 		<!-- WEBSTART FILE CREATION -->
 		
 		<copy todir="${dist}/webstart">
 			<fileset dir="lib" />
-			<fileset file="${tmp.zipdir}/maptool-${build.version}.b${build.number}.jar" />
+			<fileset file="${tmp.zipdir}/maptool-${build.version}.jar" />
 		</copy>
 		
 		<signjar keystore="keystore"
