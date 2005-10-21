@@ -30,6 +30,8 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -42,6 +44,7 @@ import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
+import net.rptools.maptool.client.ui.MapToolClient;
 import net.rptools.maptool.client.ui.StartServerDialog;
 import net.rptools.maptool.client.ui.Toolbox;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
@@ -61,7 +64,7 @@ import net.rptools.maptool.util.PersistenceUtil;
  */
 public class AppActions {
 
-	public static final Action REMOVE_ASSET_ROOT = new ClientAction() {
+	public static final Action REMOVE_ASSET_ROOT = new DefaultClientAction() {
 		{
 			init("action.removeAssetRoot");
 		}
@@ -87,7 +90,7 @@ public class AppActions {
 
 	};
 
-	public static final Action SHOW_ABOUT = new ClientAction() {
+	public static final Action SHOW_ABOUT = new DefaultClientAction() {
 		{
 			init("action.showAboutDialog");
 		}
@@ -99,7 +102,7 @@ public class AppActions {
 
 	};
 
-	public static final Action ENFORCE_ZONE_VIEW = new ClientAction() {
+	public static final Action ENFORCE_ZONE_VIEW = new AdminClientAction() {
 		{
 			init("action.enforceView");
 		}
@@ -124,7 +127,7 @@ public class AppActions {
 
 	};
 
-	public static final Action TYPE_COMMAND = new ClientAction() {
+	public static final Action TYPE_COMMAND = new DefaultClientAction() {
 		{
 			init("action.runMacro");
 		}
@@ -136,7 +139,7 @@ public class AppActions {
 
 	};
 
-	public static final Action RANDOMLY_ADD_LAST_ASSET = new ClientAction() {
+	public static final Action RANDOMLY_ADD_LAST_ASSET = new DeveloperClientAction() {
 		{
 			init("action.debug.duplicateLastIcon");
 		}
@@ -157,7 +160,7 @@ public class AppActions {
 
 	};
 
-	public static final Action ADJUST_GRID = new ClientAction() {
+	public static final Action ADJUST_GRID = new AdminClientAction() {
 		{
 			init("action.adjustGrid");
 		}
@@ -179,7 +182,7 @@ public class AppActions {
 
 	};
 
-	public static final Action TOGGLE_GRID = new ClientAction() {
+	public static final Action TOGGLE_GRID = new DefaultClientAction() {
 		{
 			init("action.showGrid");
 			putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
@@ -200,7 +203,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action TOGGLE_FOG = new ClientAction() {
+	public static final Action TOGGLE_FOG = new AdminClientAction() {
 		{
 			init("action.enableFogOfWar");
 		}
@@ -221,7 +224,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action TOGGLE_SHOW_TOKEN_NAMES = new ClientAction() {
+	public static final Action TOGGLE_SHOW_TOKEN_NAMES = new DefaultClientAction() {
 		{
 			init("action.showNames");
 			putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
@@ -239,7 +242,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action TOGGLE_CURRENT_ZONE_VISIBILITY = new ClientAction() {
+	public static final Action TOGGLE_CURRENT_ZONE_VISIBILITY = new AdminClientAction() {
 
 		{
             init("action.hideMap");
@@ -263,7 +266,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action TOGGLE_NEW_ZONE_VISIBILITY = new ClientAction() {
+	public static final Action TOGGLE_NEW_ZONE_VISIBILITY = new AdminClientAction() {
 		{
             init("action.autohideNewMaps");
 			try {
@@ -279,7 +282,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action TOGGLE_DROP_INVISIBLE = new ClientAction() {
+	public static final Action TOGGLE_DROP_INVISIBLE = new AdminClientAction() {
 		{
             init("action.autohideNewIcons");
 			try {
@@ -296,7 +299,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action NEW_CAMPAIGN = new ClientAction() {
+	public static final Action NEW_CAMPAIGN = new DefaultClientAction() {
 		{
             init("action.newCampaign");
 		}
@@ -314,7 +317,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action ZOOM_IN = new ClientAction() {
+	public static final Action ZOOM_IN = new DefaultClientAction() {
 		{
             init("action.zoomIn");
 		}
@@ -328,7 +331,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action ZOOM_OUT = new ClientAction() {
+	public static final Action ZOOM_OUT = new DefaultClientAction() {
 		{
             init("action.zoomOut");
 		}
@@ -342,7 +345,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action ZOOM_RESET = new ClientAction() {
+	public static final Action ZOOM_RESET = new DefaultClientAction() {
 		{
             init("action.zoom100");
 		}
@@ -355,7 +358,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action TOGGLE_ZONE_SELECTOR = new ClientAction() {
+	public static final Action TOGGLE_ZONE_SELECTOR = new DefaultClientAction() {
 		{
             init("action.showMapSelector");
 		}
@@ -369,7 +372,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action START_SERVER = new ClientAction() {
+	public static final Action START_SERVER = new DefaultClientAction() {
 		{
             init("action.serverStart");
 		}
@@ -401,22 +404,14 @@ public class AppActions {
 						MapTool.createConnection("localhost", port, new Player(
 								dialog.getUsername(), Player.Role.GM));
 
-						// TODO: Create a generic way to update application
-						// state when
 						// connecting
-						TOGGLE_DROP_INVISIBLE.setEnabled(true);
-						LOAD_CAMPAIGN.setEnabled(true);
-						TOGGLE_NEW_ZONE_VISIBILITY.setEnabled(true);
-						ENFORCE_ZONE_VIEW.setEnabled(true);
 						MapTool.getFrame().getConnectionStatusPanel()
 								.setStatus(ConnectionStatusPanel.Status.server);
 					} catch (UnknownHostException uh) {
-						MapTool
-								.showError("Whoah, 'localhost' is not a valid address.  Weird.");
+						MapTool.showError("Whoah, 'localhost' is not a valid address.  Weird.");
 						return;
 					} catch (IOException ioe) {
-						MapTool
-								.showError("Could not connect to server: "
+						MapTool.showError("Could not connect to server: "
 										+ ioe);
 						return;
 					}
@@ -427,7 +422,7 @@ public class AppActions {
 
 	};
 
-	public static final Action CONNECT_TO_SERVER = new ClientAction() {
+	public static final Action CONNECT_TO_SERVER = new DefaultClientAction() {
 		{
             init("action.clientConnect");
 		}
@@ -453,13 +448,7 @@ public class AppActions {
 				MapTool.createConnection(dialog.getServer(), dialog.getPort(),
 						new Player(dialog.getUsername(), dialog.getRole()));
 
-				// TODO: Create a generic way to update application state when
 				// connecting
-				boolean isGM = MapTool.getPlayer().isGM();
-				TOGGLE_DROP_INVISIBLE.setEnabled(isGM);
-				LOAD_CAMPAIGN.setEnabled(isGM);
-				TOGGLE_NEW_ZONE_VISIBILITY.setEnabled(isGM);
-				ENFORCE_ZONE_VIEW.setEnabled(isGM);
 				MapTool.getFrame().getConnectionStatusPanel().setStatus(
 						ConnectionStatusPanel.Status.connected);
 			} catch (UnknownHostException e1) {
@@ -476,7 +465,7 @@ public class AppActions {
 
 	};
 
-	public static final Action DISCONNECT_FROM_SERVER = new ClientAction() {
+	public static final Action DISCONNECT_FROM_SERVER = new DefaultClientAction() {
 
 		{
             init("action.clientDisconnect");
@@ -498,7 +487,7 @@ public class AppActions {
 
 	};
 
-	public static final Action LOAD_CAMPAIGN = new ClientAction() {
+	public static final Action LOAD_CAMPAIGN = new AdminClientAction() {
 		{
             init("action.loadCampaign");
 		}
@@ -533,7 +522,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action SAVE_CAMPAIGN = new ClientAction() {
+	public static final Action SAVE_CAMPAIGN = new DefaultClientAction() {
 		{
             init("action.saveCampaign");
 		}
@@ -559,7 +548,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action CREATE_UNBOUNDED_MAP = new ClientAction() {
+	public static final Action CREATE_UNBOUNDED_MAP = new DefaultClientAction() {
 		{
             init("action.newUnboundedMap");
 		}
@@ -580,7 +569,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action LOAD_MAP = new ClientAction() {
+	public static final Action LOAD_MAP = new DefaultClientAction() {
 		{
             init("action.newMap");
 		}
@@ -624,7 +613,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action TOGGLE_ASSET_PANEL = new ClientAction() {
+	public static final Action TOGGLE_ASSET_PANEL = new DefaultClientAction() {
 		{
             init("action.showInformationPanel");
 		}
@@ -640,7 +629,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action ADD_ASSET_PANEL = new ClientAction() {
+	public static final Action ADD_ASSET_PANEL = new DefaultClientAction() {
 		{
             init("action.addIconSelector");
 		}
@@ -668,7 +657,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action REFRESH_ASSET_PANEL = new ClientAction() {
+	public static final Action REFRESH_ASSET_PANEL = new DefaultClientAction() {
 		{
             init("action.refresh");
 		}
@@ -679,17 +668,35 @@ public class AppActions {
 
 	};
 
-	public static final Action EXIT = new ClientAction() {
+	public static final Action EXIT = new DefaultClientAction() {
 		{
             init("action.exit");
 		}
 
 		public void execute(ActionEvent ae) {
 
+			// TODO: if connected, then show confirmation dialog
 			System.exit(0);
 		}
 	};
 
+	private static List<ClientAction> actionList;
+	
+	private static List<ClientAction> getActionList() {
+		if (actionList == null) {
+			actionList = new ArrayList<ClientAction>();
+		}
+		
+		return actionList;
+	}
+	
+	public static void updateActions() {
+		
+		for (ClientAction action : actionList) {
+			action.setEnabled(action.isAvailable());
+		}
+	}
+	
 	private static abstract class ClientAction extends AbstractAction {
 
 		public void init(String key) {
@@ -709,10 +716,15 @@ public class AppActions {
                 putValue(SHORT_DESCRIPTION, description);
             }
 
+			getActionList().add(this);
 		}
 
+		public abstract boolean isAvailable();
+		
 		public final void actionPerformed(ActionEvent e) {
 			execute(e);
+			
+			updateActions();
 		}
 
 		public abstract void execute(ActionEvent e);
@@ -726,8 +738,34 @@ public class AppActions {
 					} finally {
 						MapTool.endIndeterminateAction();
 					}
+					
+					updateActions();
 				}
 			}.start();
+		}
+	}
+	
+	private static abstract class AdminClientAction extends ClientAction {
+		
+		@Override
+		public boolean isAvailable() {
+			return MapTool.getPlayer().isGM();
+		}
+	}
+	
+	private static abstract class DefaultClientAction extends ClientAction {
+		
+		@Override
+		public boolean isAvailable() {
+			return true;
+		}
+	}
+	
+	private static abstract class DeveloperClientAction extends ClientAction {
+		
+		@Override
+		public boolean isAvailable() {
+			return System.getProperty("MAPTOOL_DEV") != null && "true".equals(System.getProperty("MAPTOOL_DEV"));
 		}
 	}
 }
