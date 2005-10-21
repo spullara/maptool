@@ -24,9 +24,11 @@
  */
 package net.rptools.maptool.client.ui;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JToggleButton;
 
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.MapToolUtil;
@@ -101,8 +103,8 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
         menu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
         menu.addSeparator();
-        menu.add(new JMenuItem(AppActions.TOGGLE_DROP_INVISIBLE));
-        menu.add(new JMenuItem(AppActions.TOGGLE_NEW_ZONE_VISIBILITY));
+        menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_DROP_INVISIBLE));
+        menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_NEW_ZONE_VISIBILITY));
 
         if (MapToolUtil.isDebugEnabled()) {
             menu.addSeparator();

@@ -392,8 +392,6 @@ public class MapToolClient extends JFrame {
         
         toolbar.add(new JToggleButton(AppActions.TOGGLE_GRID){{setText("");}});
         toolbar.add(new JToggleButton(AppActions.TOGGLE_SHOW_TOKEN_NAMES){{setText("");}});
-        toolbar.add(new JToggleButton(AppActions.TOGGLE_DROP_INVISIBLE){{setText("");}});
-        toolbar.add(new JToggleButton(AppActions.TOGGLE_NEW_ZONE_VISIBILITY){{setText("");}});
         
         GridBagConstraints constraints = new GridBagConstraints();
         panel.add(toolbar, constraints);
