@@ -3,5 +3,5 @@ Ant-Version: Apache Ant 1.6.5
 Created-By: 1.5.0_04-b05 (Sun Microsystems Inc.)
 Main-Class: net.rptools.maptool.client.MapTool
 Class-Path: lib/clientserver-1.0.b9.jar lib/hessian-2.1.12.jar lib/loo
- ks-1.3b1.jar lib/rplib-1.0.b26.jar lib/withay-util.jar
+ ks-1.3b1.jar lib/rplib-1.0.b27.jar lib/withay-util.jar
 
