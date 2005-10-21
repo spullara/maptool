@@ -337,37 +337,49 @@ public class MapToolClient extends JFrame {
         measureToolSelect.addToggleButton(new MeasureTool());
 
         // LINE
+        MultiSelectToggleButton freehandToolSelect = new MultiSelectToggleButton();
+        freehandToolSelect.addToggleButton(new FreehandTool());
+
         MultiSelectToggleButton lineToolSelect = new MultiSelectToggleButton();
-        lineToolSelect.addToggleButton(new FreehandTool());
         lineToolSelect.addToggleButton(new LineTool());
         
         // Rect
         MultiSelectToggleButton rectToolSelect = new MultiSelectToggleButton();
         rectToolSelect.addToggleButton(new RectangleTool());
-        rectToolSelect.addToggleButton(new RectangleFillTool());
+
+        MultiSelectToggleButton fillRectToolSelect = new MultiSelectToggleButton();
+        fillRectToolSelect.addToggleButton(new RectangleFillTool());
 
         // Oval
         MultiSelectToggleButton ovalToolSelect = new MultiSelectToggleButton();
         ovalToolSelect.addToggleButton(new OvalTool());
-        ovalToolSelect.addToggleButton(new OvalFillTool());
+
+        MultiSelectToggleButton fillOvalToolSelect = new MultiSelectToggleButton();
+        fillOvalToolSelect.addToggleButton(new OvalFillTool());
 
         // Text
         MultiSelectToggleButton textToolSelect = new MultiSelectToggleButton();
         textToolSelect.addToggleButton(new TextTool());
         
         // Fog
-        MultiSelectToggleButton fogToolSelect = new MultiSelectToggleButton();
-        fogToolSelect.addToggleButton(new RectangleExposeTool());
-        fogToolSelect.addToggleButton(new OvalExposeTool());
+        MultiSelectToggleButton fogRectToolSelect = new MultiSelectToggleButton();
+        fogRectToolSelect.addToggleButton(new RectangleExposeTool());
+
+        MultiSelectToggleButton fogOvalToolSelect = new MultiSelectToggleButton();
+        fogOvalToolSelect.addToggleButton(new OvalExposeTool());
         
         ToggleGroup group = new ToggleGroup();
         group.addToggle(selectToolSelect);
         group.addToggle(measureToolSelect);
+        group.addToggle(freehandToolSelect);
         group.addToggle(lineToolSelect);
         group.addToggle(rectToolSelect);
+        group.addToggle(fillRectToolSelect);
         group.addToggle(ovalToolSelect);
+        group.addToggle(fillOvalToolSelect);
         group.addToggle(textToolSelect);
-        group.addToggle(fogToolSelect);
+        group.addToggle(fogRectToolSelect);
+        group.addToggle(fogOvalToolSelect);
 
         // Organize
         toolbar.add(selectToolSelect);
@@ -375,14 +387,18 @@ public class MapToolClient extends JFrame {
 
         toolbar.add(Box.createHorizontalStrut(15));
         
+        toolbar.add(freehandToolSelect);
         toolbar.add(lineToolSelect);
         toolbar.add(rectToolSelect);
+        toolbar.add(fillRectToolSelect);
         toolbar.add(ovalToolSelect);
+        toolbar.add(fillOvalToolSelect);
         toolbar.add(textToolSelect);
 
         toolbar.add(Box.createHorizontalStrut(15));
         
-        toolbar.add(fogToolSelect);
+        toolbar.add(fogRectToolSelect);
+        toolbar.add(fogOvalToolSelect);
         
         toolbar.add(Box.createHorizontalStrut(15));
 
