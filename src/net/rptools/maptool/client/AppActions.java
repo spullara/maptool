@@ -372,11 +372,16 @@ public class AppActions {
 		}
 	};
 
-	public static final Action START_SERVER = new DefaultClientAction() {
+	public static final Action START_SERVER = new ClientAction() {
 		{
             init("action.serverStart");
 		}
 
+		@Override
+		public boolean isAvailable() {
+			return !MapTool.isConnected();
+		}
+		
 		public void execute(ActionEvent e) {
 
 			runBackground(new Runnable() {
@@ -422,11 +427,16 @@ public class AppActions {
 
 	};
 
-	public static final Action CONNECT_TO_SERVER = new DefaultClientAction() {
+	public static final Action CONNECT_TO_SERVER = new ClientAction() {
 		{
             init("action.clientConnect");
 		}
 
+		@Override
+		public boolean isAvailable() {
+			return !MapTool.isConnected();
+		}
+		
 		public void execute(ActionEvent e) {
 
 			try {
@@ -465,12 +475,17 @@ public class AppActions {
 
 	};
 
-	public static final Action DISCONNECT_FROM_SERVER = new DefaultClientAction() {
+	public static final Action DISCONNECT_FROM_SERVER = new ClientAction() {
 
 		{
             init("action.clientDisconnect");
 		}
 
+		@Override
+		public boolean isAvailable() {
+			return MapTool.isConnected();
+		}
+		
 		public void execute(ActionEvent e) {
 
 			if (!MapTool.isConnected()) {

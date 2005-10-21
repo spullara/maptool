@@ -98,6 +98,8 @@ public class MapTool {
         serverCommand = new ServerCommandClientImpl();
         
         player = new Player("", 0);
+        
+        AppActions.updateActions();
 	}
 	
     public static ServerCommand serverCommand() {
