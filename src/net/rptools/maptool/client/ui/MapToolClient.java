@@ -54,6 +54,7 @@ import net.rptools.lib.swing.MultiSelectToggleButton;
 import net.rptools.lib.swing.OutlookPanel;
 import net.rptools.lib.swing.PositionalLayout;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.lib.swing.TaskPanelGroup;
 import net.rptools.lib.swing.ToggleGroup;
 import net.rptools.lib.util.FileUtil;
 import net.rptools.lib.util.ImageUtil;
@@ -101,7 +102,7 @@ public class MapToolClient extends JFrame {
     private Pen pen = new Pen(Pen.DEFAULT);
     
 	// Components
-	private OutlookPanel outlookPanel;
+    private TaskPanelGroup taskPanel;
 	private ZoneRenderer currentRenderer;
 	private AssetPanel assetPanel;
 	private PointerOverlay pointerOverlay;
@@ -142,13 +143,14 @@ public class MapToolClient extends JFrame {
 		// Components
 		assetPanel = new AssetPanel();
         tokenPanel = new TokenPanel();
-		outlookPanel = new OutlookPanel ();
-        outlookPanel.setMinimumSize(new Dimension(100, 200));
+        taskPanel = new TaskPanelGroup(5);
         zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
         pointerOverlay = new PointerOverlay();
         chatPanel = new ChatPanel();
         chatPanel.setSize(250, 100);
         colorPicker = new ColorPicker(this);
+        colorPicker.setSize(100, 175);
+        colorPicker.setVisible(false);
         
         try {
             String credits = new String(FileUtil.loadResource("net/rptools/maptool/client/credits.html"));
@@ -164,10 +166,9 @@ public class MapToolClient extends JFrame {
         	// This won't happen
         }
 
-        outlookPanel.addButton("Image Explorer", assetPanel);
-        outlookPanel.addButton("Colors", colorPicker);
-        outlookPanel.addButton("Tokens", tokenPanel);
-        outlookPanel.addButton("Connections", new JScrollPane(createPlayerList()));
+        taskPanel.add("Image Explorer", assetPanel);
+        taskPanel.add("Tokens", tokenPanel);
+        taskPanel.add("Connections", new JScrollPane(createPlayerList()));
         
         statusPanel = new StatusPanel();
         statusPanel.addPanel(new MemoryStatusBar());
@@ -186,13 +187,14 @@ public class MapToolClient extends JFrame {
         zoneRendererPanel.add(newZoneDropPanel, PositionalLayout.Position.CENTER);
         zoneRendererPanel.add(chatPanel, PositionalLayout.Position.SW);
         zoneRendererPanel.add(zoneSelectionPanel, PositionalLayout.Position.SE);
+        zoneRendererPanel.add(colorPicker, PositionalLayout.Position.NE);
         
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(BorderLayout.CENTER, zoneRendererPanel);
         
 		// Split left/right
 		mainSplitPane = new JSplitPaneEx();
-		mainSplitPane.setLeftComponent(outlookPanel);
+		mainSplitPane.setLeftComponent(taskPanel);
 		mainSplitPane.setRightComponent(mainPanel);
 		mainSplitPane.setInitialDividerPosition(150);
         mainSplitPane.setBorder(null);
@@ -313,7 +315,8 @@ public class MapToolClient extends JFrame {
             mainSplitPane.showLeft();
         }
 		
-		outlookPanel.setActive("Assets");
+        // TODO: Put this back in
+		//outlookPanel.setActive("Assets");
     }
     
 	private JComponent createToolboxPanel() {

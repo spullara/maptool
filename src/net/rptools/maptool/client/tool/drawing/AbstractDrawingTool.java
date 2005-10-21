@@ -51,10 +51,12 @@ public abstract class AbstractDrawingTool extends Tool implements MouseListener,
 
 	protected void attachTo(ZoneRenderer renderer) {
 		this.zoneRenderer = renderer;
+		MapTool.getFrame().getColorPicker().setVisible(true);
 	}
 
 	protected void detachFrom(ZoneRenderer renderer) {
 		zoneRenderer = null;
+		MapTool.getFrame().getColorPicker().setVisible(false);
 	}
     
     protected void setIsEraser(boolean eraser) {
