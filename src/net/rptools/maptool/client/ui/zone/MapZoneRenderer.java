@@ -24,8 +24,13 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Transparency;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 
 import net.rptools.maptool.client.ClientStyle;
@@ -45,7 +50,43 @@ public class MapZoneRenderer extends ZoneRenderer {
     
     @Override
     public BufferedImage getMiniImage() {
-    	return getBackgroundImage();
+        
+        // TODO: back buffer this
+        // TODO: Don't use full size images
+        BufferedImage bgImage = getBackgroundImage();
+        
+        BufferedImage image = new BufferedImage(bgImage.getWidth(), bgImage.getHeight(), Transparency.OPAQUE);
+//        Graphics2D g = image.createGraphics();
+//        g.setClip(0, 0, bgImage.getWidth(), bgImage.getHeight());
+//        paintComponent(g);
+        BufferedImage fogImage = new BufferedImage(bgImage.getWidth(), bgImage.getHeight(), Transparency.BITMASK);
+
+        // Fog
+        if (zone.hasFog()) {
+
+            Graphics2D fogG = fogImage.createGraphics();
+    
+            fogG.setColor(Color.black);
+            fogG.fillRect(0, 0, fogImage.getWidth(), fogImage.getHeight());
+            
+            fogG.setComposite(AlphaComposite.Src);
+            fogG.setColor(new Color(0, 0, 0, 0));
+    
+            Area area = zone.getExposedArea();
+            fogG.fill(area);
+            
+            fogG.dispose();
+        }
+        
+        // Compose
+        Graphics2D g = image.createGraphics();
+
+        g.drawImage(bgImage, 0, 0, this);
+        g.drawImage(fogImage, 0, 0, this);
+        
+        g.dispose();
+        
+    	return image;
     }
     
     private BufferedImage getBackgroundImage() {
