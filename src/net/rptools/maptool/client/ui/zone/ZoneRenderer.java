@@ -501,8 +501,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 				// Center token in cell if it is smaller than a single cell
                 if (scaledWidth < scaledGridSize) {
-                    
                 	newScreenPoint.x += (scaledGridSize - scaledWidth)/2;
+                }
+                if (scaledHeight < scaledGridSize) {
                     newScreenPoint.y += (scaledGridSize - scaledHeight)/2;
                 }
 				g.drawImage(getScaledToken(token, scaledWidth, scaledHeight), newScreenPoint.x+1, newScreenPoint.y+1, this);
@@ -561,10 +562,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
             if (width < scaledGridSize) {
                 x += (scaledGridSize - width)/2;
-                
-                // TODO: Are tokens alway square ?  That is, does width too small imply height too small ?
+            }
+            if (height < scaledGridSize) {
                 y += (scaledGridSize - height)/2;
             }
+            
             
             Rectangle tokenBounds = new Rectangle(x, y, width, height);
             tokenBoundsMap.put(tokenBounds, token);
@@ -937,7 +939,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	if (asset != null) {
 	        CellPoint p = getCellAt(new ScreenPoint((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY()));
 	
-	        Token token = new Token(MapToolUtil.nextTokenId(), asset.getId());
+	        BufferedImage image = ImageManager.getImage(asset);
+	        Token token = new Token(MapToolUtil.nextTokenId(), asset.getId(), image.getWidth(), image.getHeight());
 	        token.setX(p.x * zone.getGridSize());
 	        token.setY(p.y * zone.getGridSize());
 

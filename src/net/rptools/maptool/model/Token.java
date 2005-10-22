@@ -61,12 +61,14 @@ public class Token {
     }
     
     public Token(MD5Key assetID) {
-    	this("", assetID);
+    	this("", assetID, 0, 0);
     }
     
-    public Token(String name, MD5Key assetID) {
+    public Token(String name, MD5Key assetID, int width, int height) {
     	this.name = name;
     	this.assetID = assetID;
+    	this.width = width;
+    	this.height = height;
     }
 
     public void setName(String name) {
