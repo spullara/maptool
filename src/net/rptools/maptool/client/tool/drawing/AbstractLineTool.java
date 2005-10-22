@@ -29,6 +29,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Collections;
 import java.util.List;
 
 import net.rptools.maptool.client.ScreenPoint;
@@ -87,8 +88,13 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
     }
 
     protected void removePoint(Point p) {
-      if (line == null) return; // Escape has been pressed
+        if (line == null) return; // Escape has been pressed
+        
+        // Remove most recently added
+        // TODO: optimize this
+        Collections.reverse(line.getPoints());
         line.getPoints().remove(p);
+        Collections.reverse(line.getPoints());
     }
     
     protected void stopLine(MouseEvent e) {
