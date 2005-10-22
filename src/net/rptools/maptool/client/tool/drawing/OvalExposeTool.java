@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -23,6 +24,13 @@ public class OvalExposeTool extends OvalTool {
             ioe.printStackTrace();
         }
     }
+
+    @Override
+    // Override abstracttool to prevent color palette from
+    // showing up
+	protected void attachTo(ZoneRenderer renderer) {
+		this.zoneRenderer = renderer;
+	}
 
     @Override
 	protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
