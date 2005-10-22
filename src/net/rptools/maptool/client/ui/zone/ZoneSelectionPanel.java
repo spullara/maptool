@@ -52,13 +52,15 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.ZoneActivityListener;
 import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.ModelChangeEvent;
+import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
 
 
 /**
  */
-public class ZoneSelectionPanel extends JPanel implements DropTargetListener, ZoneActivityListener  {
+public class ZoneSelectionPanel extends JPanel implements DropTargetListener, ZoneActivityListener, ModelChangeListener  {
 
     private static final int PADDING = 5;
     private static final int SELECTED_SIZE = 75;
@@ -262,6 +264,9 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
     ////
     // Zone Listener
     public void zoneAdded(Zone zone) {
+    	
+    	zone.addModelChangeListener(this);
+    	
     	flush();
     	resize();
     	getParent().doLayout();
@@ -272,6 +277,13 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
     	flush();
     	resize();
     	getParent().doLayout();
+    	repaint();
+    }
+    
+    ////
+    // ModelChangeListener
+    public void modelChanged(ModelChangeEvent event) {
+    	flush();
     	repaint();
     }
 }
