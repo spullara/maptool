@@ -56,6 +56,22 @@ public class Token {
         name
     }
     
+    public Token(Token token) {
+    	id = new GUID();
+    	assetID = token.assetID;
+    	x = token.x;
+    	y = token.y;
+    	
+    	snapToScale = token.snapToScale;
+    	width = token.width;
+    	height = token.height;
+    	size = token.size;
+    	
+    	snapToGrid = token.snapToGrid;
+    	isVisible = token.isVisible;
+    	name = token.name;
+    }
+    
     public Token() {
         
     }
