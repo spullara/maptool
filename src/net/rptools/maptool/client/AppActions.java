@@ -31,7 +31,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -55,6 +57,7 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -63,6 +66,29 @@ import net.rptools.maptool.util.PersistenceUtil;
 /**
  */
 public class AppActions {
+
+	public static final Action COPY_TOKENS = new DefaultClientAction() {
+		{
+			init("copy");
+		}
+
+		public void execute(ActionEvent e) {
+
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			Zone zone = renderer.getZone();
+			Set<GUID> selectedSet = renderer.getSelectedTokenSet();
+			
+			Set<Token> copySet = new HashSet<Token>();
+			for (GUID guid : selectedSet) {
+				Token token = zone.getToken(guid);
+				
+				copySet.add(new Token(token));
+			}
+			
+			// Normalize
+		}
+
+	};
 
 	public static final Action REMOVE_ASSET_ROOT = new DefaultClientAction() {
 		{
