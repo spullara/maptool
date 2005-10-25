@@ -127,7 +127,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
                 pen.setColor(Color.white.getRGB());
             }
 
-            line.draw(g, pen, 0, 0);
+            line.draw(g, pen);
             List<Point> pointList = line.getPoints();
             if (!drawMeasurementDisabled && pointList.size() > 1) {
                 

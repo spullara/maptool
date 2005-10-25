@@ -45,16 +45,17 @@ public class LineSegment extends AbstractDrawing {
         return points;
     }
 
-    protected void draw(Graphics2D g, int translateX, int translateY) {
+    @Override
+    protected void draw(Graphics2D g) {
         Point previousPoint = null;
         for (Point point : points) {
             if (previousPoint != null) 
-                g.drawLine(previousPoint.x - translateX, previousPoint.y - translateY, point.x - translateX, point.y - translateY);
+                g.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
             previousPoint = point;
         }
     }
 
-    protected void drawBackground(Graphics2D g, int translateX, int translateY) {
+    protected void drawBackground(Graphics2D g) {
         // do nothing
     }
     

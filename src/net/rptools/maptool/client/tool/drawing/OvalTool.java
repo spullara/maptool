@@ -79,7 +79,7 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
                 pen.setBackgroundColor(Color.white.getRGB());
             }
 
-            oval.draw(g, pen, 0, 0);
+            oval.draw(g, pen);
             
             Point start = oval.getStartPoint();
             Point end = oval.getEndPoint();

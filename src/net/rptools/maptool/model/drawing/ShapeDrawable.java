@@ -24,23 +24,36 @@
  */
 package net.rptools.maptool.model.drawing;
 
-import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.util.MD5Key;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 
 /**
- * @author drice
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * An rectangle
  */
-public class Overlay extends Asset {
-    public Overlay() {
-        super();
-    }
-    
-    public Overlay(MD5Key id) {
-        super(id);
-    }
-    
+public class ShapeDrawable extends AbstractDrawing {
 
+    private Shape shape;
+    
+    public ShapeDrawable(Shape shape) {
+
+        this.shape = shape;
+    }
+    
+    /* (non-Javadoc)
+	 * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
+	 */
+	public java.awt.Rectangle getBounds() {
+
+        return shape.getBounds();
+	}
+    
+    protected void draw(Graphics2D g) {
+        
+        g.draw(shape);
+    }
+
+    protected void drawBackground(Graphics2D g) {
+        
+        g.fill(shape);
+    }
 }

@@ -60,23 +60,23 @@ public class Rectangle extends AbstractDrawing {
         return endPoint;
     }
 
-    protected void draw(Graphics2D g, int translateX, int translateY) {
+    protected void draw(Graphics2D g) {
         int minX = Math.min(startPoint.x, endPoint.x);
         int minY = Math.min(startPoint.y, endPoint.y);
         
         int width = Math.abs(startPoint.x - endPoint.x);
         int height = Math.abs(startPoint.y - endPoint.y);
         
-        g.drawRect(minX - translateX, minY - translateY, width, height);
+        g.drawRect(minX, minY, width, height);
     }
 
-    protected void drawBackground(Graphics2D g, int translateX, int translateY) {
+    protected void drawBackground(Graphics2D g) {
         int minX = Math.min(startPoint.x, endPoint.x);
         int minY = Math.min(startPoint.y, endPoint.y);
         
         int width = Math.abs(startPoint.x - endPoint.x);
         int height = Math.abs(startPoint.y - endPoint.y);
         
-        g.fillRect(minX - translateX, minY - translateY, width, height);
+        g.fillRect(minX, minY, width, height);
     }
 }

@@ -80,7 +80,7 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
                 pen.setBackgroundColor(Color.white.getRGB());
             }
         	
-            rectangle.draw(g, pen, 0, 0);
+            rectangle.draw(g, pen);
             
             Point start = rectangle.getStartPoint();
             Point end = rectangle.getEndPoint();

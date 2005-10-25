@@ -22,18 +22,43 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.model.drawing;
+package net.rptools.maptool.client.tool.drawing;
 
-import java.awt.Graphics2D;
+import java.awt.event.MouseMotionListener;
+import java.io.IOException;
 
-import net.rptools.maptool.model.GUID;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+
+import net.rptools.maptool.model.drawing.Pen;
 
 
 /**
- * @author drice
+ * Tool for drawing freehand lines.
  */
-public interface Drawable {
-    public void draw(Graphics2D g, Pen pen);
-    public java.awt.Rectangle getBounds();
-    public GUID getId();
+public class PolygonFillTool extends PolygonTool implements MouseMotionListener {
+    private static final long serialVersionUID = 3258132466219627316L;
+
+    public PolygonFillTool() {
+        try {
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Line.gif"))));
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#getPen()
+     */
+    protected Pen getPen() {
+        Pen pen = super.getPen();
+        pen.setBackgroundMode(Pen.MODE_SOLID);
+
+        return pen;
+    }
+
+    @Override
+    public String getTooltip() {
+        return "Draw filled closed polygons lines";
+    }
 }
