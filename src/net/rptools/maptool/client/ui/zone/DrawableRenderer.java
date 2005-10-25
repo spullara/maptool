@@ -65,7 +65,9 @@ public class DrawableRenderer {
 				DrawableEntry entry = getEntryFor(drawable.getBounds());
 				
 				Graphics2D g2 = entry.image.createGraphics();
-				drawable.draw(g2, element.getPen(), entry.bounds.x, entry.bounds.y);
+                g2.translate(-entry.bounds.x, -entry.bounds.y);
+				drawable.draw(g2, element.getPen());
+                g2.translate(entry.bounds.x, entry.bounds.y);
 				g2.dispose();
 			}
 		}
