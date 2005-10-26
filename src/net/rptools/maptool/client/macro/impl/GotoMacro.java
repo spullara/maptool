@@ -56,7 +56,7 @@ public class GotoMacro implements Macro {
     		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
     		Token token = zone.getTokenByName(parameter);
     		
-            if (!zone.isTokenVisible(token)) {
+            if (!MapTool.getPlayer().isGM() && !zone.isTokenVisible(token)) {
                 return;
             }
             
