@@ -39,23 +39,26 @@ public class Oval extends Rectangle {
         super(x, y, width, height);
     }
 
-    protected void draw(Graphics2D g, int translateX, int translateY) {
+    @Override
+    protected void draw(Graphics2D g) {
+
         int minX = Math.min(startPoint.x, endPoint.x);
         int minY = Math.min(startPoint.y, endPoint.y);
         
         int width = Math.abs(startPoint.x - endPoint.x);
         int height = Math.abs(startPoint.y - endPoint.y);
         
-        g.drawOval(minX - translateX, minY - translateY, width, height);
+        g.drawOval(minX, minY, width, height);
     }
     
-    protected void drawBackground(Graphics2D g, int translateX, int translateY) {
+    @Override
+    protected void drawBackground(Graphics2D g) {
         int minX = Math.min(startPoint.x, endPoint.x);
         int minY = Math.min(startPoint.y, endPoint.y);
         
         int width = Math.abs(startPoint.x - endPoint.x);
         int height = Math.abs(startPoint.y - endPoint.y);
         
-        g.fillOval(minX - translateX, minY - translateY, width, height);
+        g.fillOval(minX, minY, width, height);
     }
 }
