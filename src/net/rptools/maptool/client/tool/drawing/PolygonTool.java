@@ -48,7 +48,7 @@ public class PolygonTool extends LineTool implements MouseMotionListener {
 
     public PolygonTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Line.gif"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_polygon.gif"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

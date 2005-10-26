@@ -41,7 +41,7 @@ public class PolygonFillTool extends PolygonTool implements MouseMotionListener 
 
     public PolygonFillTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Line.gif"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_polygon_fill.gif"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
