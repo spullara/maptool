@@ -33,6 +33,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
@@ -49,17 +50,18 @@ public class MapZoneRenderer extends ZoneRenderer {
     }
     
     @Override
-    public BufferedImage getMiniImage() {
+    public BufferedImage getMiniImage(int size) {
         
         // TODO: back buffer this
         // TODO: Don't use full size images
         BufferedImage bgImage = getBackgroundImage();
         
-        BufferedImage image = new BufferedImage(bgImage.getWidth(), bgImage.getHeight(), Transparency.OPAQUE);
-//        Graphics2D g = image.createGraphics();
-//        g.setClip(0, 0, bgImage.getWidth(), bgImage.getHeight());
-//        paintComponent(g);
-        BufferedImage fogImage = new BufferedImage(bgImage.getWidth(), bgImage.getHeight(), Transparency.BITMASK);
+        Dimension imgSize = new Dimension(bgImage.getWidth(), bgImage.getHeight());
+        SwingUtil.constrainTo(imgSize, size);
+        
+        BufferedImage image = new BufferedImage(imgSize.width, imgSize.height, Transparency.OPAQUE);
+
+        BufferedImage fogImage = new BufferedImage(imgSize.width, imgSize.height, Transparency.BITMASK);
 
         // Fog
         if (zone.hasFog()) {
@@ -72,7 +74,7 @@ public class MapZoneRenderer extends ZoneRenderer {
             fogG.setComposite(AlphaComposite.Src);
             fogG.setColor(new Color(0, 0, 0, 0));
     
-            Area area = zone.getExposedArea();
+            Area area = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance(imgSize.width/(float)bgImage.getWidth(), imgSize.height/(float)bgImage.getHeight()));
             fogG.fill(area);
             
             fogG.dispose();
@@ -81,11 +83,10 @@ public class MapZoneRenderer extends ZoneRenderer {
         // Compose
         Graphics2D g = image.createGraphics();
 
-        g.drawImage(bgImage, 0, 0, this);
+        g.drawImage(bgImage, 0, 0, imgSize.width, imgSize.height, this);
         g.drawImage(fogImage, 0, 0, this);
         
         g.dispose();
-        
     	return image;
     }
     

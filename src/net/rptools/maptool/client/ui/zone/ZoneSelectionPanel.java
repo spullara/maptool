@@ -135,13 +135,14 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 	        	boolean isSelectedZone = renderer == currentRenderer;
 	        	
 	            // TODO: This is a naive solution.  In the future, actually render the zone
-	            BufferedImage img = renderer.getMiniImage();
+                int imgSize = isSelectedZone ? SELECTED_SIZE : UNSELECTED_SIZE;
+	            BufferedImage img = renderer.getMiniImage(imgSize);
 	            if (img == null || img == ImageManager.UNKNOWN_IMAGE) {
 	                img = ImageManager.UNKNOWN_IMAGE;
                     keepBackBuffer = false;
 	            }
 	            
-	            int imgSize = isSelectedZone ? SELECTED_SIZE : UNSELECTED_SIZE;
+                // TODO: This is probably redundant now
 	            Dimension size = new Dimension(img.getWidth(), img.getHeight());
 	            SwingUtil.constrainTo(size, imgSize);
 	

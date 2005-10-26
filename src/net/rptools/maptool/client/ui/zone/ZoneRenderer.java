@@ -350,7 +350,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         repaint();
     }
     
-    public abstract BufferedImage getMiniImage();
+    public abstract BufferedImage getMiniImage(int size);
     
     public void paintComponent(Graphics g) {
 

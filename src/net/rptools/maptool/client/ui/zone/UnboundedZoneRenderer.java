@@ -91,8 +91,10 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
         }
         
 	}
-
-	public BufferedImage getMiniImage() {
+	
+    @Override
+	public BufferedImage getMiniImage(int size) {
+        // TODO: I suppose this should honor the size
 		return getTileImage();
 	}
 	
