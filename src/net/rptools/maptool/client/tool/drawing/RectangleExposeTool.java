@@ -44,7 +44,7 @@ public class RectangleExposeTool extends RectangleTool {
 		Zone zone = MapTool.getCampaign().getZone(zoneId);
 
 		Rectangle bounds = drawable.getBounds();
-		Area area = new Area(new RoundRectangle2D.Float(bounds.x, bounds.y, bounds.width, bounds.height, 20, 20));
+		Area area = new Area(bounds);
 		if (pen.isEraser()) {
 			zone.hideArea(area);
 			MapTool.serverCommand().hideFoW(zone.getId(), area);
