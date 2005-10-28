@@ -27,6 +27,7 @@ package net.rptools.maptool.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Observable;
 
@@ -37,6 +38,7 @@ public class ObservableList<K> extends Observable  {
     
     public enum Event {
         add,
+        append,
         remove,
         clear,
     }
@@ -73,12 +75,12 @@ public class ObservableList<K> extends Observable  {
     
     public void add(K item) {
         list.add(item);
-        fireUpdate(Event.add, item);
+        fireUpdate(Event.append, item);
     }
 
     public void add(int index, K element) {
         list.add(index, element);
-        fireUpdate(Event.add, element);
+        fireUpdate((index == list.size() ? Event.append : Event.add), element);
     }
     
     public void remove(K item) {
@@ -123,5 +125,14 @@ public class ObservableList<K> extends Observable  {
         public K getSource() {
             return source;
         }
+    }
+    
+    /**
+     * Get an iterator over the items in the list.
+     * 
+     * @return An iterator over the displayed list.
+     */
+    public Iterator<K> iterator() {
+      return list.iterator(); 
     }
 }

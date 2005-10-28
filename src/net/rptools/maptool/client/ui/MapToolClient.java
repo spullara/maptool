@@ -107,7 +107,7 @@ public class MapToolClient extends JFrame {
 	private ZoneRenderer currentRenderer;
 	private AssetPanel assetPanel;
 	private PointerOverlay pointerOverlay;
-	private ChatPanel chatPanel;
+	private CommandPanel commandPanel;
     private TokenPanel tokenPanel;
     private AboutDialog aboutDialog;
     private ColorPicker colorPicker;
@@ -147,8 +147,8 @@ public class MapToolClient extends JFrame {
         taskPanel = new TaskPanelGroup(5);
         zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
         pointerOverlay = new PointerOverlay();
-        chatPanel = new ChatPanel();
-        chatPanel.setSize(250, 100);
+        commandPanel = new CommandPanel();
+        commandPanel.setSize(250, 100);
         colorPicker = new ColorPicker(this);
         colorPicker.setSize(100, 175);
         colorPicker.setVisible(false);
@@ -186,7 +186,7 @@ public class MapToolClient extends JFrame {
         zoneRendererPanel = new JPanel(new PositionalLayout(5));
         zoneRendererPanel.setBackground(Color.black);
         zoneRendererPanel.add(newZoneDropPanel, PositionalLayout.Position.CENTER);
-        zoneRendererPanel.add(chatPanel, PositionalLayout.Position.SW);
+        zoneRendererPanel.add(commandPanel, PositionalLayout.Position.SW);
         zoneRendererPanel.add(zoneSelectionPanel, PositionalLayout.Position.SE);
         zoneRendererPanel.add(colorPicker, PositionalLayout.Position.NE);
         
@@ -300,8 +300,8 @@ public class MapToolClient extends JFrame {
         }
     }
     
-    public ChatPanel getChatPanel() {
-    	return chatPanel;
+    public CommandPanel getCommandPanel() {
+    	return commandPanel;
     }
     
     public AssetPanel getAssetPanel() {

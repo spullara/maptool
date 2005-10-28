@@ -153,18 +153,45 @@ public class AppActions {
 
 	};
 
-	public static final Action TYPE_COMMAND = new DefaultClientAction() {
-		{
-			init("action.runMacro");
-		}
+  /**
+   * Start entering text into the chat field
+   */
+  public static final String ENTER_COMMAND_ID = "action.runMacro";
+  public static final Action ENTER_COMMAND = new DefaultClientAction() {
+    {
+      init(ENTER_COMMAND_ID);
+    }
+    public void execute(ActionEvent e) {
+      MapTool.getFrame().getCommandPanel().startCommand();
+    }
+  };
 
-		public void execute(ActionEvent e) {
+  /**
+   * Action tied to the chat field to commit the command.
+   */
+  public static final String COMMIT_COMMAND_ID = "action.commitCommand";
+  public static final Action COMMIT_COMMAND = new DefaultClientAction() {
+    {
+      init(COMMIT_COMMAND_ID);
+    }
+    public void execute(ActionEvent e) {
+      MapTool.getFrame().getCommandPanel().commitCommand();
+    }
+  };
 
-			MapTool.getFrame().getChatPanel().startCommand();
-		}
-
-	};
-
+  /**
+   * Action tied to the chat field to commit the command.
+   */
+  public static final String CANCEL_COMMAND_ID = "action.cancelCommand";
+  public static final Action CANCEL_COMMAND = new DefaultClientAction() {
+    {
+      init(CANCEL_COMMAND_ID);
+    }
+    public void execute(ActionEvent e) {
+      MapTool.getFrame().getCommandPanel().cancelCommand();
+    }
+  };
+  
 	public static final Action RANDOMLY_ADD_LAST_ASSET = new DeveloperClientAction() {
 		{
 			init("action.debug.duplicateLastIcon");
