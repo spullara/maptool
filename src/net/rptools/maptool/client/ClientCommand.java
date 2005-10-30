@@ -46,7 +46,7 @@ public class ClientCommand {
         hidePointer,
         startTokenMove,
         stopTokenMove,
-        addTokenMoveWaypoint,
+        toggleTokenMoveWaypoint,
         updateTokenMove,
         enforceZoneView,
         setZoneHasFoW,

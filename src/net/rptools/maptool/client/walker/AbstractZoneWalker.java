@@ -25,7 +25,9 @@
 package net.rptools.maptool.client.walker;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.model.Zone;
@@ -72,8 +74,6 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
     	return oldPartial.end;
     }
     
-    public abstract int getDistance();
-    
     public List<CellPoint> getPath() {
     	List<CellPoint> ret = new ArrayList<CellPoint>();
     	
@@ -107,6 +107,52 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
     	return false;
     }
 
+    /**
+     * @see net.rptools.maptool.client.walker.ZoneWalker#removeWaypoint(net.rptools.maptool.client.CellPoint)
+     */
+    public boolean removeWaypoint(CellPoint aPoint) {
+      if (aPoint == null || partialPaths == null || partialPaths.isEmpty()) return false;
+      
+      // Find the partial path with the given end point
+      ListIterator<PartialPath> i = partialPaths.listIterator();
+      while (i.hasNext()) {
+        PartialPath path = i.next();
+        if (path.end.equals(aPoint)) {
+          
+          // If this is the last partial path then done, otherwise 
+          // combine this path and the next and replace them with a combined path
+          if (!i.hasNext()) return false;
+          i.remove();
+          PartialPath path2 = i.next();
+          i.set(new PartialPath(path.start, path2.end, calculatePath(path.start, path2.end)));
+          return true;
+        } // endif
+      } // endwhile
+      return false;
+    }
+    
+    /**
+     * @see net.rptools.maptool.client.walker.ZoneWalker#toggleWaypoint(net.rptools.maptool.client.CellPoint)
+     */
+    public boolean toggleWaypoint(CellPoint aPoint) {
+      if (removeWaypoint(aPoint)) return true;
+      addWaypoints(aPoint);
+      return true;
+    }
+    
+    /**
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+      StringBuilder s = new StringBuilder("Path: ");
+      for (PartialPath path : partialPaths) {
+        s.append("\n   ");
+        s.append(path.toString());
+      } // endfor
+      return s.toString();
+    }
+    
     protected abstract List<CellPoint> calculatePath(CellPoint start, CellPoint end);
     
     protected static class PartialPath {
@@ -119,5 +165,22 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
     		this.end = end;
     		this.path = path;
     	}
+      
+      /**
+       * @see java.lang.Object#toString()
+       */
+      @Override
+      public String toString() {
+        StringBuilder s = new StringBuilder("PartialPath([");
+        s.append(start.x);
+        s.append(",");
+        s.append(start.y);
+        s.append("], [");
+        s.append(end.x);
+        s.append(",");
+        s.append(end.y);
+        s.append("]");
+        return s.toString();
+      }
     }
 }

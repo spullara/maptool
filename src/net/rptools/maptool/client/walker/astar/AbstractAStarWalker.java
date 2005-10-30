@@ -178,8 +178,9 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 			distMethod2 = feetPerCell
 			* (numStrt + numDiag + numDiag / 2);
 		}
-		
-		assert distMethod1 == distMethod2 : String.format("Inconsistent distances simple=%d, path based=%d", distMethod1, distMethod2);
+
+    // This assert is broken if you move the cursor to the left or above the second waypoint
+//		assert distMethod1 == distMethod2 : String.format("Inconsistent distances simple=%d, path based=%d", distMethod1, distMethod2);
 		return distMethod2;
 	}
 
@@ -187,7 +188,6 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 
 	protected abstract double hScore(CellPoint p1, CellPoint p2);
 
-	@Override
 	public int getDistance() {
 		if (distance == -1) {
 			distance = calculateDistance(getPath(), getZone().getFeetPerCell());

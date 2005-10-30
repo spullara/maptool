@@ -103,8 +103,8 @@ public class MeasureTool extends DefaultTool {
 		} 
         
         if (walker != null) {
-            walker.addWaypoints(cellPoint);
-            renderer.repaint();
+          walker.toggleWaypoint(cellPoint);
+          renderer.repaint();
         }
         
         super.mousePressed(e);

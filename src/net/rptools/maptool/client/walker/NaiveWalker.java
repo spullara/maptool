@@ -67,7 +67,6 @@ public class NaiveWalker extends AbstractZoneWalker {
 		return list;
 	}
 
-	@Override
 	public int getDistance() {
 
 		return distance;

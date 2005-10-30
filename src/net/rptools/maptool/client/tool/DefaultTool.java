@@ -159,9 +159,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
             
             ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
             
-            renderer.addMoveSelectionSetWaypoint(tokenBeingDragged.getId(), zp);
+            renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), zp);
             
-            MapTool.serverCommand().addTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), zp.x, zp.y);
+            MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), zp.x, zp.y);
             return;
         }
         

@@ -167,13 +167,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		repaint();
 	}
 
-	public void addMoveSelectionSetWaypoint(GUID keyToken, ZonePoint location) {
+	public void toggleMoveSelectionSetWaypoint(GUID keyToken, ZonePoint location) {
 		SelectionSet set = selectionSetMap.get(keyToken);
 		if (set == null) {
 			return;
 		}
 		
-		set.addWaypoint(location);
+		set.toggleWaypoint(location);
 		repaint();
 	}
 	
@@ -879,14 +879,19 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			walker.replaceLastWaypoint(point);
             
 		}
-		
-		public void addWaypoint(ZonePoint location) {
-			
-            int cellX = (location.x)/zone.getGridSize();
-            int cellY = (location.y)/zone.getGridSize();
-			CellPoint point = new CellPoint(cellX, cellY);
 
-			walker.addWaypoints(point);
+    /**
+     * Add the waypoint if it is a new waypoint. If it is
+     * an old waypoint remove it.
+     * 
+     * @param location The point where the waypoint is toggled.
+     */
+		public void toggleWaypoint(ZonePoint location) {
+		  
+		  int cellX = (location.x)/zone.getGridSize();
+		  int cellY = (location.y)/zone.getGridSize();
+		  CellPoint point = new CellPoint(cellX, cellY);
+      walker.toggleWaypoint(point);
 		}
 		
 		public int getOffsetX() {
