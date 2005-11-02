@@ -84,7 +84,4 @@ public class PolygonTool extends LineTool implements MouseMotionListener {
         return "Draw closed polygons lines";
     }
     
-    @Override
-    protected void resetTool() {
-    }
 }
