@@ -182,22 +182,28 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
     scrollButtonPanel.setBackground(null);
     scrollButtonPanel.setLayout(new BoxLayout(scrollButtonPanel, BoxLayout.Y_AXIS));
     scrollButtonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
+
     JButton button = new JButton(getIcon("scroll_up.gif"));
     button.setMargin(new Insets(0,0,0,0));
+    button.setOpaque(false);
     button.setBorderPainted(false);
     button.setActionCommand(SCROLL_UP_COMMAND);
     button.addActionListener(this);
     scrollButtonPanel.add(button);
     scrollButtonPanel.add(Box.createVerticalStrut(1));
+    
     button = new JButton(getIcon("scroll_down.gif"));
     button.setMargin(new Insets(0,0,0,0));
+    button.setOpaque(false);
     button.setBorderPainted(false);
     button.setActionCommand(SCROLL_DOWN_COMMAND);
     button.addActionListener(this);
     scrollButtonPanel.add(button);
     scrollButtonPanel.add(Box.createVerticalStrut(1));
+    
     button = new JButton(getIcon("scroll_bottom.gif"));
     button.setMargin(new Insets(0,0,0,0));
+    button.setOpaque(false);
     button.setBorderPainted(false);
     button.setActionCommand(SCROLL_BOTTOM_COMMAND);
     button.addActionListener(this);
@@ -208,7 +214,7 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
     setLayout(new BorderLayout());
     add(BorderLayout.CENTER, messageScrollPane);
     add(BorderLayout.SOUTH, cmdField);
-    add(BorderLayout.WEST, scrollButtonPanel);
+    //add(BorderLayout.WEST, scrollButtonPanel);
   }
   
   /*---------------------------------------------------------------------------------------------
