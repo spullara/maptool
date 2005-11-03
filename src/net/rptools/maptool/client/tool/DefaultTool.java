@@ -394,6 +394,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 						
 						for (GUID token : selectedTokenSet) {
 							
+                            renderer.getZone().removeToken(token);
                             MapTool.serverCommand().removeToken(renderer.getZone().getId(), token);
 						}
 						
