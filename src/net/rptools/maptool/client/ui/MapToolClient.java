@@ -68,7 +68,9 @@ import net.rptools.maptool.client.swing.StatusPanel;
 import net.rptools.maptool.client.tool.MeasureTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.TextTool;
+import net.rptools.maptool.client.tool.drawing.ConeTemplateTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
+import net.rptools.maptool.client.tool.drawing.LineTemplateTool;
 import net.rptools.maptool.client.tool.drawing.LineTool;
 import net.rptools.maptool.client.tool.drawing.OvalExposeTool;
 import net.rptools.maptool.client.tool.drawing.OvalFillTool;
@@ -76,6 +78,7 @@ import net.rptools.maptool.client.tool.drawing.OvalTool;
 import net.rptools.maptool.client.tool.drawing.PolygonExposeTool;
 import net.rptools.maptool.client.tool.drawing.PolygonFillTool;
 import net.rptools.maptool.client.tool.drawing.PolygonTool;
+import net.rptools.maptool.client.tool.drawing.RadiusTemplateTool;
 import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
 import net.rptools.maptool.client.tool.drawing.RectangleFillTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
@@ -379,6 +382,15 @@ public class MapToolClient extends JFrame {
         MultiSelectToggleButton fillPolyToolSelect = new MultiSelectToggleButton();
         fillPolyToolSelect.addToggleButton(new PolygonFillTool());
 
+        MultiSelectToggleButton radiusTemplateToolSelect = new MultiSelectToggleButton();
+        radiusTemplateToolSelect.addToggleButton(new RadiusTemplateTool());
+        
+        MultiSelectToggleButton coneTemplateToolSelect = new MultiSelectToggleButton();
+        coneTemplateToolSelect.addToggleButton(new ConeTemplateTool());
+        
+        MultiSelectToggleButton lineTemplateToolSelect = new MultiSelectToggleButton();
+        lineTemplateToolSelect.addToggleButton(new LineTemplateTool());
+        
         ToggleGroup group = new ToggleGroup();
         group.addToggle(selectToolSelect);
         group.addToggle(measureToolSelect);
@@ -394,6 +406,9 @@ public class MapToolClient extends JFrame {
         group.addToggle(fogRectToolSelect);
         group.addToggle(fogOvalToolSelect);
         group.addToggle(fogPolyToolSelect);
+        group.addToggle(radiusTemplateToolSelect);
+        group.addToggle(coneTemplateToolSelect);
+        group.addToggle(lineTemplateToolSelect);
 
         // Organize
         toolbar.add(selectToolSelect);
@@ -410,6 +425,9 @@ public class MapToolClient extends JFrame {
         toolbar.add(ovalToolSelect);
         toolbar.add(fillOvalToolSelect);
         toolbar.add(textToolSelect);
+        toolbar.add(radiusTemplateToolSelect);
+        toolbar.add(coneTemplateToolSelect);
+        toolbar.add(lineTemplateToolSelect);
 
         toolbar.add(Box.createHorizontalStrut(15));
         

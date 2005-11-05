@@ -41,9 +41,7 @@ public class CellPoint extends AbstractPoint {
      * Find the screen cooridnates of the upper left hand corner of a cell taking
      * into acount scaling and translation. 
      * 
-     * @param cell Get the coordinates of this cell.
-     * @param screen The point used to contains the screen coordinates. It may
-     * be <code>null</code>.
+     * @param renderer This renderer provides scaling
      * @return The screen coordinates of the upper left hand corner in the passed
      * point or in a new point.
      */

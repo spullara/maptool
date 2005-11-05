@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -168,6 +169,8 @@ public class DrawableRenderer {
 		}
 	}
 	
+  private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
+  
 	private static class DrawableEntry {
 		
 		public Rectangle bounds;
@@ -179,8 +182,12 @@ public class DrawableRenderer {
 		
 		void validate() {
 			if (image == null) {
-				image = ImageUtil.createCompatibleImage(bounds.width, bounds.height, Transparency.BITMASK);
-			}
+				image = ImageUtil.createCompatibleImage(bounds.width, bounds.height, Transparency.TRANSLUCENT);
+			} else {
+        Graphics2D g2d = (Graphics2D)image.getGraphics();
+        g2d.setBackground(TRANSPARENT);
+			  g2d.clearRect(0, 0, bounds.width, bounds.height);
+      }
 		}
 	}
 }

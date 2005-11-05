@@ -786,13 +786,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
    * Since the map can be scaled, this is a convenience method to find out
    * what cell is at this location. 
    * 
-   * @param x X location in screen coordinates.
-   * @param y Y location in screen coordinates.
-   * @param cell The point used to contain the cell coordinates. If <code>null</code>
-   * a new point will be created. 
-   * @return The cell coordinates in the passed point or in a new point.
+   * @param screenPoint Find the cell for this point.
+   * @return The cell coordinates of the passed screen point.
    */
-  public CellPoint getCellAt (ScreenPoint screenPoint) {
+  public CellPoint getCellAt(ScreenPoint screenPoint) {
     
     double scale = scaleArray[scaleIndex];
     
