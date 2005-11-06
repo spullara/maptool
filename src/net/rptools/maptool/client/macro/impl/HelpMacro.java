@@ -36,7 +36,7 @@ public class HelpMacro implements Macro {
 					MacroDefinition.class);
 			if (!def.hidden()) {
 				StringBuilder sb = new StringBuilder(64);
-				sb.append("<br />").append(def.name()).append(": ").append(
+				sb.append(def.name()).append(": ").append(
 						def.description());
 				String[] aliases = def.aliases();
 				if (aliases != null && aliases.length > 0) {

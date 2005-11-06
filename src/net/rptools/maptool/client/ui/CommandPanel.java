@@ -26,7 +26,9 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,7 +41,6 @@ import javax.imageio.ImageIO;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoundedRangeModel;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -90,6 +91,11 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
   private JScrollPane messageScrollPane;
   
   /**
+   * Panel containing the scroll buttons
+   */
+  private JPanel scrollButtonPanel;
+  
+  /**
    * The input field for commands.
    */
   private TwoToneTextField cmdField;
@@ -112,7 +118,7 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
    * Command used to scroll the message panel up one line.
    */
   public static final String SCROLL_UP_COMMAND = "scrollUp";
-    
+  
   /**
    * Command used to scroll the message panel down one line.
    */
@@ -140,6 +146,7 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
     messagePanel.setEditable(false);
     messagePanel.setBackground(null);
     messagePanel.setOpaque(false);
+    messagePanel.setText("");
     MapTool.getMessageList().addObserver(this);
     
     // Create the default style and apply it
@@ -174,51 +181,52 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
     JViewport vp = messageScrollPane.getViewport();
     vp.setOpaque(false);
     vp.setBackground(null);
-
+    
     // Add the scroll buttons to a west panel
-    JPanel scrollButtonPanel = new JPanel();
+    scrollButtonPanel = new JPanel();
     scrollButtonPanel.setOpaque(false);
     scrollButtonPanel.setBackground(null);
     scrollButtonPanel.setLayout(new BoxLayout(scrollButtonPanel, BoxLayout.Y_AXIS));
-    scrollButtonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
-
-    JButton button = new JButton(getIcon("scroll_up.gif"));
-    button.setMargin(new Insets(0,0,0,0));
-    button.setOpaque(false);
-    button.setBorderPainted(false);
-    button.setActionCommand(SCROLL_UP_COMMAND);
-    button.addActionListener(this);
-    scrollButtonPanel.add(button);
-    scrollButtonPanel.add(Box.createVerticalStrut(1));
+    scrollButtonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 1));
     
-    button = new JButton(getIcon("scroll_down.gif"));
-    button.setMargin(new Insets(0,0,0,0));
-    button.setOpaque(false);
-    button.setBorderPainted(false);
-    button.setActionCommand(SCROLL_DOWN_COMMAND);
-    button.addActionListener(this);
-    scrollButtonPanel.add(button);
-    scrollButtonPanel.add(Box.createVerticalStrut(1));
-    
-    button = new JButton(getIcon("scroll_bottom.gif"));
-    button.setMargin(new Insets(0,0,0,0));
-    button.setOpaque(false);
-    button.setBorderPainted(false);
-    button.setActionCommand(SCROLL_BOTTOM_COMMAND);
-    button.addActionListener(this);
-    scrollButtonPanel.add(Box.createVerticalStrut(1));
-    scrollButtonPanel.add(button);
+    // Create the scroll buttons
+    scrollButtonPanel.add(createScrollButton("scroll_up", SCROLL_UP_COMMAND));
+    scrollButtonPanel.add(createScrollButton("scroll_down", SCROLL_DOWN_COMMAND));
+    scrollButtonPanel.add(createScrollButton("scroll_bottom", SCROLL_BOTTOM_COMMAND));
     
     // Add the components to the layout
     setLayout(new BorderLayout());
     add(BorderLayout.CENTER, messageScrollPane);
     add(BorderLayout.SOUTH, cmdField);
-    //add(BorderLayout.WEST, scrollButtonPanel);
+    add(BorderLayout.WEST, scrollButtonPanel);
+    scrollButtonPanel.setVisible(false);
   }
   
   /*---------------------------------------------------------------------------------------------
    * Instance Methods
    *-------------------------------------------------------------------------------------------*/
+  
+  /**
+   * Routine to create the scrolling buttons
+   * 
+   * @param iconName Namo of the icon being shown on the button
+   * @param command The command name for the button
+   * @return The new button.
+   */
+  private JButton createScrollButton(String iconName, String command) {
+    Icon icon = getIcon(iconName + ".PNG");
+    JButton button = new JButton(icon);
+    icon = getIcon(iconName + "_selected.PNG");
+    button.setPressedIcon(icon);
+    button.setMargin(new Insets(0,0,0,0));
+    button.setOpaque(false);
+    button.setBorderPainted(false);
+    button.setContentAreaFilled(false);
+    button.setFocusPainted(false);
+    button.setActionCommand(command);
+    button.addActionListener(this);
+    return button;
+  }
   
   /**
    * Read an icon from the jar
@@ -298,6 +306,7 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
     try {
       Document doc = messagePanel.getDocument();
       doc.remove(0, doc.getLength());
+      scrollButtonPanel.setVisible(false);
     } catch (BadLocationException e) {
       throw new IllegalStateException("This should not happen!");
     } // endtry
@@ -313,6 +322,7 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
       Iterator<String> i = MapTool.getMessageList().iterator();
       while (i.hasNext())
         doc.insertString(doc.getLength(), i.next(), null);
+      checkScrollButtonPanel();
     } catch (BadLocationException e) {
       throw new IllegalStateException("This should not happen!");
     } // endtry
@@ -330,9 +340,21 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
       int len = doc.getLength();
       doc.insertString(len, (len > 0 ? "\n" : "") + text, null);
       scrollToEnd();
+      checkScrollButtonPanel();
     } catch (BadLocationException e) {
       throw new IllegalStateException("This should not happen!");
     } // endtry
+  }
+  
+  /**
+   * Check to see if the scroll button panel should be made visisble, then
+   * do it if needed.
+   */
+  private void checkScrollButtonPanel() {
+    if (!scrollButtonPanel.isVisible()) {
+      if (messageScrollPane.getViewport().getExtentSize().height + cmdField.getHeight() < messagePanel.getHeight()) 
+        scrollButtonPanel.setVisible(true);
+    } // endif
   }
   
   /**
@@ -402,5 +424,64 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
       scroll(1);
     else if (SCROLL_UP_COMMAND.equals(aE.getActionCommand()))
       scroll(-1);
+  }
+  
+  /*---------------------------------------------------------------------------------------------
+   * ArrowIcon Inner Class
+   *-------------------------------------------------------------------------------------------*/
+  
+  /**
+   * Arrow icon for scrolling arrows
+   * 
+   * @author jgorrell
+   * @version $Revision$ $Date$ $Author$
+   */
+  public static class ArrowIcon implements Icon {
+
+    /**
+     * The size of the arrow. 
+     */
+    private static final int ARROW_HEIGHT = 5;
+    
+    /**
+     * Foreground color
+     */
+    private static final Color FOREGROUND_COLOR = Color.WHITE;
+    
+    /**
+     * Should the arrow be underlined?
+     */
+    private boolean underlineArrow = false;
+    
+    /**
+     * @see javax.swing.Icon#getIconHeight()
+     */
+    public int getIconHeight() {
+      return ARROW_HEIGHT + (underlineArrow ? 1 : 0);
+    }
+
+    /**
+     * @see javax.swing.Icon#getIconWidth()
+     */
+    public int getIconWidth() {
+      return ARROW_HEIGHT * 2;
+    }
+
+    /**
+     * @see javax.swing.Icon#paintIcon(java.awt.Component, java.awt.Graphics, int, int)
+     */
+    public void paintIcon(Component component, Graphics graphics, int x, int y) {
+      Color old = graphics.getColor();
+      graphics.translate(x, y);
+      graphics.setColor(FOREGROUND_COLOR);
+      for (int i = 0; i < ARROW_HEIGHT; i++) {
+        graphics.drawLine(i, i, ARROW_HEIGHT - (i * 2), i);
+      } // endfor
+      if (underlineArrow)
+        graphics.drawLine(0, ARROW_HEIGHT, ARROW_HEIGHT * 2, ARROW_HEIGHT);
+      graphics.translate(-x, -y);
+      graphics.setColor(old);
+    }
+    
   }
 }
