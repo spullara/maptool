@@ -147,7 +147,6 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
     TwoToneTextPane.setFont(defaultStyle, new Font("SansSerif", Font.PLAIN, 10));
     TwoToneTextPane.setTwoToneColor(defaultStyle, Color.BLACK);
     StyleConstants.setForeground(defaultStyle, Color.YELLOW);
-    StyleConstants.setFirstLineIndent(defaultStyle, -7.2F);
     messagePanel.setParagraphAttributes(defaultStyle, true);
     
     // Create the text field

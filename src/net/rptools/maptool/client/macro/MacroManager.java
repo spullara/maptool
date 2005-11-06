@@ -79,13 +79,19 @@ public class MacroManager {
     
     private static final Pattern MACRO_PAT = Pattern.compile("^(\\w+)\\s*(.*)$");
     public static void executeMacro(String command) {
+      
+        // Macro name is the first word
         Matcher m = MACRO_PAT.matcher(command);
         if (m.matches()) {
         	Macro macro = getRegisteredMacro(m.group(1));
+          if (macro != UNDEFINED_MACRO) {
             executeMacro(macro, m.group(2));
-        } else {
-            executeMacro(UNDEFINED_MACRO, command);
-        }
+            return;
+          } // endif
+        } // endif
+        
+        // Undefined macro shows the bad command
+        executeMacro(UNDEFINED_MACRO, command);
     }
     
     private static void executeMacro(Macro macro, String parameter) {
