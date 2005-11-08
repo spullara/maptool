@@ -39,6 +39,8 @@ public class Token {
 
     private int x;
     private int y;
+
+    private int z;
     
     private boolean snapToScale = true; // Whether the scaleX and scaleY represent snap-to-grid measurements
     private int width = 1; // Default to using exactly 1x1 grid cell
@@ -87,6 +89,14 @@ public class Token {
     	this.height = height;
     }
 
+    public void setZOrder(int z) {
+    	this.z = z;
+    }
+    
+    public int getZOrder() {
+    	return z;
+    }
+    
     public void setName(String name) {
     	this.name = name;
     }

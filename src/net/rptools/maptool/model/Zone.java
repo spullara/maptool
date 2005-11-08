@@ -24,13 +24,16 @@
  */
 package net.rptools.maptool.model;
 
-import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawnElement;
@@ -73,11 +76,21 @@ public class Zone extends Token {
     
     private List<DrawnElement> drawables = new LinkedList<DrawnElement>();
 
-    private LinkedHashMap<GUID, Label> labels = new LinkedHashMap<GUID, Label>();
-    private LinkedHashMap<GUID, Token> tokens = new LinkedHashMap<GUID, Token>();
+    private Map<GUID, Label> labels = new LinkedHashMap<GUID, Label>();
+    private Map<GUID, Token> tokenMap = new HashMap<GUID, Token>();
+    private List<Token> tokenOrderedList = new ArrayList<Token>();
 
     private Area exposedArea = new Area();
     private boolean hasFog;
+    
+    private static final Comparator TOKEN_Z_ORDER_COMPARATOR = new Comparator<Token>() {
+    	public int compare(Token o1, Token o2) {
+    		int lval = o1.getZOrder();
+    		int rval = o2.getZOrder();
+    		
+    		return lval < rval ? -1 : lval == rval ? 0 : 1;
+    	}
+    };
     
     public Zone() {
     }
@@ -253,13 +266,14 @@ public class Zone extends Token {
     // tokens
     ///////////////////////////////////////////////////////////////////////////
     public void putToken(Token token) {
-        boolean newToken = !tokens.containsKey(token.getId());
+        boolean newToken = !tokenMap.containsKey(token.getId());
 
-        // removed and then added to protect Z order
-        this.tokens.remove(token.getId()); 
-        this.tokens.put(token.getId(), token);
+        this.tokenMap.put(token.getId(), token);
         
         if (newToken) {
+        	tokenOrderedList.add(token);
+        	Collections.sort(tokenOrderedList, TOKEN_Z_ORDER_COMPARATOR);
+        	
             fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_ADDED, token));
         } else {
             fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_CHANGED, token));
@@ -267,14 +281,15 @@ public class Zone extends Token {
     }
     
     public void removeToken(GUID id) {
-        Token token = this.tokens.remove(id);
+        Token token = this.tokenMap.remove(id);
         if (token != null) {
+        	tokenOrderedList.remove(token);
             fireModelChangeEvent(new ModelChangeEvent(this, Event.DRAWABLE_REMOVED, token));
         }
     }
 	
 	public Token getToken(GUID id) {
-		return tokens.get(id);
+		return tokenMap.get(id);
 	}
 	
 	/**
@@ -291,7 +306,7 @@ public class Zone extends Token {
 	}
 
     public List<Token> getTokens() {
-        return new ArrayList<Token>(this.tokens.values());
+        return Collections.unmodifiableList(tokenOrderedList);
     }
 
 }

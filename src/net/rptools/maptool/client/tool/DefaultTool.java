@@ -536,7 +536,12 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
             popup.add(menuItem);
         }
         
+        // Arrange
+        JMenu arrangeMenu = new JMenu("Arrange");
+        arrangeMenu.add(new JMenuItem("Bring to Front"));
+        arrangeMenu.add(new JMenuItem("Send to Back"));
         
+        popup.add(arrangeMenu);
         // 
     	popup.show(renderer, e.getX(), e.getY());
 	}
