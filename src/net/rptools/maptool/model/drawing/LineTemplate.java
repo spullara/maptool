@@ -62,9 +62,10 @@ public class LineTemplate extends AbstractTemplate {
   private ArrayList<ScreenPoint> pool;
   
   /**
-   * The line is drawn in this quadrant.
+   * The line is drawn in this quadrant. A string is used as a hack
+   * to get around the hessian library's problem w/ serialization of enums
    */
-  private Quadrant quadrant = null;
+  private String quadrant = null;
   
   /*---------------------------------------------------------------------------------------------
   * Overridden AbstractTemplate Methods
@@ -75,7 +76,7 @@ public class LineTemplate extends AbstractTemplate {
    */
   @Override
   protected void paintArea(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance) {
-    paintArea(g, xOff, yOff, gridSize, quadrant);
+    paintArea(g, xOff, yOff, gridSize, getQuadrant());
   }
 
   /**
@@ -187,8 +188,8 @@ public class LineTemplate extends AbstractTemplate {
     if (dx != 0 && dy != 0) {
 
       // Calculate quadrant and the slope
-      quadrant = (dx < 0) ? (dy < 0 ? Quadrant.NORTH_WEST : Quadrant.SOUTH_WEST) 
-          : (dy < 0 ? Quadrant.NORTH_EAST : Quadrant.SOUTH_EAST);
+      setQuadrant((dx < 0) ? (dy < 0 ? Quadrant.NORTH_WEST : Quadrant.SOUTH_WEST) 
+          : (dy < 0 ? Quadrant.NORTH_EAST : Quadrant.SOUTH_EAST));
       double m = Math.abs(dy/dx);
       
       // Find the path
@@ -289,7 +290,9 @@ public class LineTemplate extends AbstractTemplate {
    * @return Returns the current value of quadrant.
    */
   public Quadrant getQuadrant() {
-    return quadrant;
+    if (quadrant != null)
+      return Quadrant.valueOf(quadrant);
+    return null;
   }
 
   /**
@@ -298,6 +301,9 @@ public class LineTemplate extends AbstractTemplate {
    * @param quadrant The quadrant to set.
    */
   public void setQuadrant(Quadrant quadrant) {
-    this.quadrant = quadrant;
+    if (quadrant != null)
+      this.quadrant = quadrant.name();
+    else
+      this.quadrant = null;
   }
 }

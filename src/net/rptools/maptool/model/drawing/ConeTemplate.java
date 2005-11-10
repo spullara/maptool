@@ -41,10 +41,11 @@ public class ConeTemplate extends RadiusTemplate {
    *-------------------------------------------------------------------------------------------*/
 
   /**
-   * The dirction to be paint. The ne,se,nw,sw paint a quadrant and the n,w,e,w paint
-   * along the spine of the selected vertex. 
+   * The dirction to paint. The ne,se,nw,sw paint a quadrant and the n,w,e,w paint
+   * along the spine of the selected vertex. Saved as a string as a hack to get around 
+   * the hessian library's problem w/ serializing enumerations.
    */
-  Direction direction = Direction.SOUTH_EAST;
+  private String direction = Direction.SOUTH_EAST.name();
   
   /*---------------------------------------------------------------------------------------------
   * Instance Methods
@@ -56,7 +57,9 @@ public class ConeTemplate extends RadiusTemplate {
    * @return Returns the current value of direction.
    */
   public Direction getDirection() {
-    return direction;
+    if (direction == null)
+      return null;
+    return Direction.valueOf(direction);
   }
 
   /**
@@ -65,7 +68,10 @@ public class ConeTemplate extends RadiusTemplate {
    * @param direction The direction to draw the cone from the center vertex.
    */
   public void setDirection(Direction direction) {
-    this.direction = direction;
+    if (direction != null)
+      this.direction = direction.name();
+    else
+      direction = null;
   }
 
   /*---------------------------------------------------------------------------------------------
@@ -84,74 +90,74 @@ public class ConeTemplate extends RadiusTemplate {
       
       // Paint lines between vertical boundaries if needed
       if (Math.round(getDistances()[x + 1][y]) > radius) {
-        if (direction == Direction.SOUTH_EAST || (direction == Direction.SOUTH && y >= x)
-            || (direction == Direction.EAST && x >= y))
+        if (getDirection() == Direction.SOUTH_EAST || (getDirection() == Direction.SOUTH && y >= x)
+            || (getDirection() == Direction.EAST && x >= y))
           paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
-        if (direction == Direction.NORTH_EAST || (direction == Direction.NORTH && y >= x)
-            || (direction == Direction.EAST && x >= y))
+        if (getDirection() == Direction.NORTH_EAST || (getDirection() == Direction.NORTH && y >= x)
+            || (getDirection() == Direction.EAST && x >= y))
           paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
-        if (direction == Direction.SOUTH_WEST || (direction == Direction.SOUTH && y >= x)
-            || (direction == Direction.WEST && x >= y))
+        if (getDirection() == Direction.SOUTH_WEST || (getDirection() == Direction.SOUTH && y >= x)
+            || (getDirection() == Direction.WEST && x >= y))
           paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_WEST);
-        if (direction == Direction.NORTH_WEST || (direction == Direction.NORTH && y >= x)
-            || (direction == Direction.WEST && x >= y))
+        if (getDirection() == Direction.NORTH_WEST || (getDirection() == Direction.NORTH && y >= x)
+            || (getDirection() == Direction.WEST && x >= y))
           paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
       } // endif
       
       // Paint lines between horizontal boundaries if needed
       if (Math.round(getDistances()[x][y + 1]) > radius) {
-        if (direction == Direction.SOUTH_EAST || (direction == Direction.SOUTH && y >= x)
-            || (direction == Direction.EAST && x >= y))
+        if (getDirection() == Direction.SOUTH_EAST || (getDirection() == Direction.SOUTH && y >= x)
+            || (getDirection() == Direction.EAST && x >= y))
           paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
-        if (direction == Direction.SOUTH_WEST
-            || (direction == Direction.SOUTH && y >= x)
-            || (direction == Direction.WEST && x >= y))
+        if (getDirection() == Direction.SOUTH_WEST
+            || (getDirection() == Direction.SOUTH && y >= x)
+            || (getDirection() == Direction.WEST && x >= y))
           paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_WEST);
-        if (direction == Direction.NORTH_EAST
-            || (direction == Direction.NORTH && y >= x)
-            || (direction == Direction.EAST && x >= y))
+        if (getDirection() == Direction.NORTH_EAST
+            || (getDirection() == Direction.NORTH && y >= x)
+            || (getDirection() == Direction.EAST && x >= y))
           paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
-        if (direction == Direction.NORTH_WEST
-            || (direction == Direction.NORTH && y >= x)
-            || (direction == Direction.WEST && x >= y))
+        if (getDirection() == Direction.NORTH_WEST
+            || (getDirection() == Direction.NORTH && y >= x)
+            || (getDirection() == Direction.WEST && x >= y))
           paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
       } // endif
     } // endif
 
     // Handle the edges
-    if (direction.ordinal() % 2 == 0) {
+    if (getDirection().ordinal() % 2 == 0) {
       if (x == 0) {
-        if (direction == Direction.SOUTH_EAST || direction == Direction.SOUTH_WEST)
+        if (getDirection() == Direction.SOUTH_EAST || getDirection() == Direction.SOUTH_WEST)
           paintCloseVerticalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
-        if (direction == Direction.NORTH_EAST || direction == Direction.NORTH_WEST)
+        if (getDirection() == Direction.NORTH_EAST || getDirection() == Direction.NORTH_WEST)
           paintCloseVerticalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
       } // endif
       if (y == 0) {
-        if (direction == Direction.SOUTH_EAST || direction == Direction.NORTH_EAST)
+        if (getDirection() == Direction.SOUTH_EAST || getDirection() == Direction.NORTH_EAST)
           paintCloseHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
-        if (direction == Direction.SOUTH_WEST || direction == Direction.NORTH_WEST)
+        if (getDirection() == Direction.SOUTH_WEST || getDirection() == Direction.NORTH_WEST)
           paintCloseHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
       } // endif
-    } else if (direction.ordinal() % 2 == 1 && x == y && distance <= radius) {
-      if (direction == Direction.SOUTH) {
+    } else if (getDirection().ordinal() % 2 == 1 && x == y && distance <= radius) {
+      if (getDirection() == Direction.SOUTH) {
         paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
         paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_WEST);
         paintCloseHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
         paintCloseHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_WEST);
       } // endif
-      if (direction == Direction.NORTH) {
+      if (getDirection() == Direction.NORTH) {
         paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
         paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
         paintCloseHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
         paintCloseHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
       } // endif
-      if (direction == Direction.EAST) {
+      if (getDirection() == Direction.EAST) {
         paintCloseVerticalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
         paintCloseVerticalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
         paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
         paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
       } // endif
-      if (direction == Direction.WEST) {
+      if (getDirection() == Direction.WEST) {
         paintCloseVerticalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_WEST);
         paintCloseVerticalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
         paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_WEST);
@@ -167,20 +173,20 @@ public class ConeTemplate extends RadiusTemplate {
   protected void paintArea(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance) {
 
     // Drawing along the spines only?
-    if ((direction == Direction.EAST || direction == Direction.WEST) && y > x) return;
-    if ((direction == Direction.NORTH || direction == Direction.SOUTH) && x > y) return;
+    if ((getDirection() == Direction.EAST || getDirection() == Direction.WEST) && y > x) return;
+    if ((getDirection() == Direction.NORTH || getDirection() == Direction.SOUTH) && x > y) return;
 
     // Only squares w/in the radius
     if (distance <= getRadius()) {
             
       // Paint the squares
-      if (direction == Direction.SOUTH_EAST || direction == Direction.SOUTH || direction == Direction.EAST)
+      if (getDirection() == Direction.SOUTH_EAST || getDirection() == Direction.SOUTH || getDirection() == Direction.EAST)
         paintArea(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
-      if (direction == Direction.NORTH_EAST || direction == Direction.NORTH || direction == Direction.EAST) 
+      if (getDirection() == Direction.NORTH_EAST || getDirection() == Direction.NORTH || getDirection() == Direction.EAST) 
         paintArea(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
-      if (direction == Direction.SOUTH_WEST || direction == Direction.SOUTH|| direction == Direction.WEST) 
+      if (getDirection() == Direction.SOUTH_WEST || getDirection() == Direction.SOUTH|| getDirection() == Direction.WEST) 
         paintArea(g, xOff, yOff, gridSize, Quadrant.SOUTH_WEST);
-      if (direction == Direction.NORTH_WEST || direction == Direction.NORTH || direction == Direction.WEST) 
+      if (getDirection() == Direction.NORTH_WEST || getDirection() == Direction.NORTH || getDirection() == Direction.WEST) 
         paintArea(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
     } // endif
   }
