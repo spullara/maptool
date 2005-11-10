@@ -156,6 +156,14 @@ public class ServerCommandClientImpl implements ServerCommand {
     	makeServerCall(COMMAND.setZoneHasFoW, zoneGUID, hasFog);
 	}
 	
+    public void bringTokensToFront(GUID zoneGUID, Set<GUID> tokenList) {
+        makeServerCall(COMMAND.bringTokensToFront, zoneGUID, tokenList);
+    }
+    
+    public void sendTokensToBack(GUID zoneGUID, Set<GUID> tokenList) {
+        makeServerCall(COMMAND.sendTokensToBack, zoneGUID, tokenList);
+    }
+    
 	private static void makeServerCall(ServerCommand.COMMAND command, Object... params) {
         if (!MapTool.isConnected()) {return;}
         

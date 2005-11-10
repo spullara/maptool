@@ -89,6 +89,14 @@ public class Token {
     	this.height = height;
     }
 
+    public boolean equals(Object o) {
+        if (!(o instanceof Token)) {
+            return false;
+        }
+        
+        return id.equals(((Token) o).id);
+    }
+    
     public void setZOrder(int z) {
     	this.z = z;
     }

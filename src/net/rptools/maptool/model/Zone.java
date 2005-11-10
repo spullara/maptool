@@ -78,12 +78,12 @@ public class Zone extends Token {
 
     private Map<GUID, Label> labels = new LinkedHashMap<GUID, Label>();
     private Map<GUID, Token> tokenMap = new HashMap<GUID, Token>();
-    private List<Token> tokenOrderedList = new ArrayList<Token>();
+    private List<Token> tokenOrderedList = new LinkedList<Token>();
 
     private Area exposedArea = new Area();
     private boolean hasFog;
     
-    private static final Comparator TOKEN_Z_ORDER_COMPARATOR = new Comparator<Token>() {
+    public static final Comparator<Token> TOKEN_Z_ORDER_COMPARATOR = new Comparator<Token>() {
     	public int compare(Token o1, Token o2) {
     		int lval = o1.getZOrder();
     		int rval = o2.getZOrder();
@@ -208,6 +208,14 @@ public class Zone extends Token {
         return type;
     }
     
+    public int getLargestZOrder() {
+        return tokenOrderedList.size() > 0 ? tokenOrderedList.get(tokenOrderedList.size()-1).getZOrder() : 0;
+    }
+    
+    public int getSmallestZOrder() {
+        return tokenOrderedList.size() > 0 ? tokenOrderedList.get(0).getZOrder() : 0;
+    }
+    
     ///////////////////////////////////////////////////////////////////////////
     // labels
     ///////////////////////////////////////////////////////////////////////////
@@ -270,8 +278,12 @@ public class Zone extends Token {
 
         this.tokenMap.put(token.getId(), token);
         
+        // LATER: optimize this
+        tokenOrderedList.remove(token);
+        tokenOrderedList.add(token);
+
         if (newToken) {
-        	tokenOrderedList.add(token);
+            
         	Collections.sort(tokenOrderedList, TOKEN_Z_ORDER_COMPARATOR);
         	
             fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_ADDED, token));

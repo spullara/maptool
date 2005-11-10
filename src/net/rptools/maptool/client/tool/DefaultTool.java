@@ -538,8 +538,24 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         
         // Arrange
         JMenu arrangeMenu = new JMenu("Arrange");
-        arrangeMenu.add(new JMenuItem("Bring to Front"));
-        arrangeMenu.add(new JMenuItem("Send to Back"));
+        JMenuItem bringToFrontMenuItem = new JMenuItem("Bring to Front");
+        bringToFrontMenuItem.addActionListener(new ActionListener() {
+        
+            public void actionPerformed(ActionEvent e) {
+                MapTool.serverCommand().bringTokensToFront(renderer.getZone().getId(), renderer.getSelectedTokenSet());
+            }
+        });
+        
+        JMenuItem sendToBackMenuItem = new JMenuItem("Send to Back");
+        sendToBackMenuItem.addActionListener(new ActionListener() {
+            
+            public void actionPerformed(ActionEvent e) {
+                MapTool.serverCommand().sendTokensToBack(renderer.getZone().getId(), renderer.getSelectedTokenSet());
+            }
+        });
+
+        arrangeMenu.add(bringToFrontMenuItem);
+        arrangeMenu.add(sendToBackMenuItem);
         
         popup.add(arrangeMenu);
         // 

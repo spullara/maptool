@@ -66,7 +66,9 @@ public interface ServerCommand {
         exposeFoW,
         hideFoW,
         putLabel,
-        removeLabel
+        removeLabel,
+        sendTokensToBack,
+        bringTokensToFront
     };
 
     public void setZoneHasFoW(GUID zoneGUID, boolean hasFog);
@@ -95,4 +97,6 @@ public interface ServerCommand {
     public void updateTokenMove(GUID zoneGUID, GUID tokenGUID, int x, int y);
     public void stopTokenMove(GUID zoneGUID, GUID tokenGUID);
     public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, int x, int y);
+    public void sendTokensToBack(GUID zoneGUID, Set<GUID> tokenSet);
+    public void bringTokensToFront(GUID zoneGUID, Set<GUID> tokenSet);
 }
