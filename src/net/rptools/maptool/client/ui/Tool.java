@@ -59,9 +59,6 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
         // Map the escape key reset this tool.
         getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), Tool.RESET_TOOL_COMMAND);
 
-        setFocusPainted(false);
-        setBorderPainted(false);
-        
         addChangeListener(this);
         addActionListener(this);
         

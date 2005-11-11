@@ -36,6 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -49,11 +50,9 @@ import net.rptools.lib.swing.AboutDialog;
 import net.rptools.lib.swing.ColorPicker;
 import net.rptools.lib.swing.FramePreferences;
 import net.rptools.lib.swing.JSplitPaneEx;
-import net.rptools.lib.swing.MultiSelectToggleButton;
 import net.rptools.lib.swing.PositionalLayout;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.lib.swing.TaskPanelGroup;
-import net.rptools.lib.swing.ToggleGroup;
 import net.rptools.lib.util.FileUtil;
 import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.AppActions;
@@ -331,109 +330,71 @@ public class MapToolClient extends JFrame {
         toolbar.setFloatable(false);
         toolbar.setRollover(true);
 
-        // SELECT
-        MultiSelectToggleButton selectToolSelect = new MultiSelectToggleButton();
-        selectToolSelect.addToggleButton(new PointerTool());
-        selectToolSelect.selectButton(0); // Default Tool
+        // Tools
+        Tool pointerTool = new PointerTool();
+        Tool measureTool = new MeasureTool();
+        Tool freehandTool = new FreehandTool();
+        Tool lineTool = new LineTool();
+        Tool rectTool = new RectangleTool();
+        Tool fillRectTool = new RectangleFillTool();
+        Tool ovalTool = new OvalTool();
+        Tool fillOvalTool = new OvalFillTool();
+        Tool textTool = new TextTool();
+        Tool fogRectTool = new RectangleExposeTool();
+        Tool fogOvalTool = new OvalExposeTool();
+        Tool fogPolyTool = new PolygonExposeTool();
+        Tool polyTool = new PolygonTool();
+        Tool fillPolyTool = new PolygonFillTool();
+        Tool radiusTemplateTool = new RadiusTemplateTool();
+        Tool coneTemplateTool = new ConeTemplateTool();
+        Tool lineTemplateTool = new LineTemplateTool();
         
-        // MEASURE
-        MultiSelectToggleButton measureToolSelect = new MultiSelectToggleButton();
-        measureToolSelect.addToggleButton(new MeasureTool());
+        ButtonGroup group = new ButtonGroup();
+        group.add(pointerTool);
+        group.add(measureTool);
+        group.add(freehandTool);
+        group.add(lineTool);
+        group.add(rectTool);
+        group.add(fillRectTool);
+        group.add(ovalTool);
+        group.add(fillOvalTool);
+        group.add(polyTool);
+        group.add(fillPolyTool);
+        group.add(textTool);
+        group.add(fogRectTool);
+        group.add(fogOvalTool);
+        group.add(fogPolyTool);
+        group.add(radiusTemplateTool);
+        group.add(coneTemplateTool);
+        group.add(lineTemplateTool);
 
-        // LINE
-        MultiSelectToggleButton freehandToolSelect = new MultiSelectToggleButton();
-        freehandToolSelect.addToggleButton(new FreehandTool());
-
-        MultiSelectToggleButton lineToolSelect = new MultiSelectToggleButton();
-        lineToolSelect.addToggleButton(new LineTool());
+        // Initialy selected
+        pointerTool.setSelected(true);
         
-        // Rect
-        MultiSelectToggleButton rectToolSelect = new MultiSelectToggleButton();
-        rectToolSelect.addToggleButton(new RectangleTool());
-
-        MultiSelectToggleButton fillRectToolSelect = new MultiSelectToggleButton();
-        fillRectToolSelect.addToggleButton(new RectangleFillTool());
-
-        // Oval
-        MultiSelectToggleButton ovalToolSelect = new MultiSelectToggleButton();
-        ovalToolSelect.addToggleButton(new OvalTool());
-
-        MultiSelectToggleButton fillOvalToolSelect = new MultiSelectToggleButton();
-        fillOvalToolSelect.addToggleButton(new OvalFillTool());
-
-        // Text
-        MultiSelectToggleButton textToolSelect = new MultiSelectToggleButton();
-        textToolSelect.addToggleButton(new TextTool());
-        
-        // Fog
-        MultiSelectToggleButton fogRectToolSelect = new MultiSelectToggleButton();
-        fogRectToolSelect.addToggleButton(new RectangleExposeTool());
-
-        MultiSelectToggleButton fogOvalToolSelect = new MultiSelectToggleButton();
-        fogOvalToolSelect.addToggleButton(new OvalExposeTool());
-        
-        MultiSelectToggleButton fogPolyToolSelect = new MultiSelectToggleButton();
-        fogPolyToolSelect.addToggleButton(new PolygonExposeTool());
-        
-        // Polygon
-        MultiSelectToggleButton polyToolSelect = new MultiSelectToggleButton();
-        polyToolSelect.addToggleButton(new PolygonTool());
-
-        MultiSelectToggleButton fillPolyToolSelect = new MultiSelectToggleButton();
-        fillPolyToolSelect.addToggleButton(new PolygonFillTool());
-
-        MultiSelectToggleButton radiusTemplateToolSelect = new MultiSelectToggleButton();
-        radiusTemplateToolSelect.addToggleButton(new RadiusTemplateTool());
-        
-        MultiSelectToggleButton coneTemplateToolSelect = new MultiSelectToggleButton();
-        coneTemplateToolSelect.addToggleButton(new ConeTemplateTool());
-        
-        MultiSelectToggleButton lineTemplateToolSelect = new MultiSelectToggleButton();
-        lineTemplateToolSelect.addToggleButton(new LineTemplateTool());
-        
-        ToggleGroup group = new ToggleGroup();
-        group.addToggle(selectToolSelect);
-        group.addToggle(measureToolSelect);
-        group.addToggle(freehandToolSelect);
-        group.addToggle(lineToolSelect);
-        group.addToggle(rectToolSelect);
-        group.addToggle(fillRectToolSelect);
-        group.addToggle(ovalToolSelect);
-        group.addToggle(fillOvalToolSelect);
-        group.addToggle(polyToolSelect);
-        group.addToggle(fillPolyToolSelect);
-        group.addToggle(textToolSelect);
-        group.addToggle(fogRectToolSelect);
-        group.addToggle(fogOvalToolSelect);
-        group.addToggle(fogPolyToolSelect);
-        group.addToggle(radiusTemplateToolSelect);
-        group.addToggle(coneTemplateToolSelect);
-        group.addToggle(lineTemplateToolSelect);
-
         // Organize
-        toolbar.add(selectToolSelect);
-        toolbar.add(measureToolSelect);
+        toolbar.add(pointerTool);
+        toolbar.add(measureTool);
 
         toolbar.add(Box.createHorizontalStrut(15));
         
-        toolbar.add(freehandToolSelect);
-        toolbar.add(lineToolSelect);
-        toolbar.add(polyToolSelect);
-        toolbar.add(fillPolyToolSelect);
-        toolbar.add(rectToolSelect);
-        toolbar.add(fillRectToolSelect);
-        toolbar.add(ovalToolSelect);
-        toolbar.add(fillOvalToolSelect);
-        toolbar.add(textToolSelect);
-        toolbar.add(radiusTemplateToolSelect);
-        toolbar.add(coneTemplateToolSelect);
-        toolbar.add(lineTemplateToolSelect);
+        toolbar.add(freehandTool);
+        toolbar.add(lineTool);
+        toolbar.add(polyTool);
+        toolbar.add(fillPolyTool);
+        toolbar.add(rectTool);
+        toolbar.add(fillRectTool);
+        toolbar.add(ovalTool);
+        toolbar.add(fillOvalTool);
+        toolbar.add(textTool);
+        toolbar.add(radiusTemplateTool);
+        toolbar.add(coneTemplateTool);
+        toolbar.add(lineTemplateTool);
 
         toolbar.add(Box.createHorizontalStrut(15));
         
-        toolbar.add(fogRectToolSelect);
-        toolbar.add(fogOvalToolSelect);
-        toolbar.add(fogPolyToolSelect);
+        toolbar.add(fogRectTool);
+        toolbar.add(fogOvalTool);
+        toolbar.add(fogPolyTool);
         
         toolbar.add(Box.createHorizontalStrut(15));
 
