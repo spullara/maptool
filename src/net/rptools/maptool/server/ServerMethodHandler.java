@@ -101,12 +101,26 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         }
     }
 
+    /**
+     * Send the current call to all other clients except for the sender
+     */
     private void forwardToClients() {
         server.getConnection().broadcastCallMethod(new String[] { RPCContext.getCurrent().id }, RPCContext.getCurrent().method, RPCContext.getCurrent().parameters);
     }
 
+    /**
+     * Send the current call to all clients including the sender
+     */
+    private void forwardToAllClients() {
+        server.getConnection().broadcastCallMethod(new String[] {}, RPCContext.getCurrent().method, RPCContext.getCurrent().parameters);
+    }
+
     private void broadcastToClients(String exclude, String method, Object... parameters) {
         server.getConnection().broadcastCallMethod(new String[] { exclude }, method, parameters);
+    }
+    
+    private void broadcastToAllClients(String method, Object... parameters) {
+        server.getConnection().broadcastCallMethod(new String[] {}, method, parameters);
     }
     
     ////
@@ -131,13 +145,14 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             
             // Update
             int z = zone.getLargestZOrder() + 1;
+            System.out.println("Z: " + z);
             for (Token token : tokenList) {
                 token.setZOrder(z ++);
             }
             
             // Broadcast
             for (Token token : tokenList) {
-                broadcastToClients(RPCContext.getCurrent().id, ClientCommand.COMMAND.putToken.name(), zoneGUID, token);
+                broadcastToAllClients(ClientCommand.COMMAND.putToken.name(), zoneGUID, token);
             }
         }
     }
@@ -202,9 +217,22 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     public void putToken(GUID zoneGUID, Token token) {
 
         Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.putToken(token);
+
+        boolean newToken = zone.getToken(token.getId()) == null;
+        synchronized (MUTEX) {
+	        // Set z-order for new tokens
+	        if (newToken) {
+	        	token.setZOrder(zone.getLargestZOrder() + 1);
+	        }
+	        
+	        zone.putToken(token);
+        }
         
-        forwardToClients();
+        if (newToken) {
+        	forwardToAllClients();
+        } else {
+        	forwardToClients();
+        }
     }
     
     public void putZone(Zone zone) {
@@ -264,7 +292,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             
             // Broadcast
             for (Token token : tokenList) {
-                broadcastToClients(RPCContext.getCurrent().id, ClientCommand.COMMAND.putToken.name(), zoneGUID, token);
+                broadcastToAllClients(ClientCommand.COMMAND.putToken.name(), zoneGUID, token);
             }
         }
     }

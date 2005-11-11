@@ -282,10 +282,10 @@ public class Zone extends Token {
         tokenOrderedList.remove(token);
         tokenOrderedList.add(token);
 
+        Collections.sort(tokenOrderedList, TOKEN_Z_ORDER_COMPARATOR);
+
         if (newToken) {
             
-        	Collections.sort(tokenOrderedList, TOKEN_Z_ORDER_COMPARATOR);
-        	
             fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_ADDED, token));
         } else {
             fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_CHANGED, token));
