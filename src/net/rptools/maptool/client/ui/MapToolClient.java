@@ -53,6 +53,7 @@ import net.rptools.lib.swing.JSplitPaneEx;
 import net.rptools.lib.swing.PositionalLayout;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.lib.swing.TaskPanelGroup;
+import net.rptools.lib.swing.preference.TaskPanelGroupPreferences;
 import net.rptools.lib.util.FileUtil;
 import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.AppActions;
@@ -147,6 +148,8 @@ public class MapToolClient extends JFrame {
 		assetPanel = new AssetPanel();
         tokenPanel = new TokenPanel();
         taskPanel = new TaskPanelGroup(5);
+        new TaskPanelGroupPreferences(AppConstants.APP_NAME, "TaskPanel", taskPanel);
+        
         zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
         pointerOverlay = new PointerOverlay();
         commandPanel = new CommandPanel();
