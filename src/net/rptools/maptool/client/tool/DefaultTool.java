@@ -554,6 +554,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
             			renderer.getZone().putToken(token);
             		}
             	}
+            	
+            	MapTool.getFrame().repaint();
             }
         });
         
@@ -573,6 +575,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
             			renderer.getZone().putToken(token);
             		}
             	}
+
+            	MapTool.getFrame().repaint();
             }
         });
 

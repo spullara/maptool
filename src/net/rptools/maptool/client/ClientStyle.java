@@ -44,6 +44,8 @@ public class ClientStyle {
     public static BufferedImage cellPathImage;
     public static BufferedImage cellWaypointImage;
 	
+    public static BufferedImage stackImage;
+    
     public static Color gridColor = Color.darkGray;
     
     public static Color selectionBoxOutline = Color.black;
@@ -56,6 +58,7 @@ public class ClientStyle {
 			tokenInvisible = ImageUtil.getImage("net/rptools/maptool/client/image/icon_invisible.png");
             cellPathImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/blueDot.png");
             cellWaypointImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/redDot.png");
+            stackImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/stack.png");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

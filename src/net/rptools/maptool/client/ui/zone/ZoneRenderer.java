@@ -544,7 +544,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         Rectangle clipBounds = g.getClipBounds();
         float scale = scaleArray[scaleIndex];
-        
+        Set<Rectangle> coveredTokenSet = new HashSet<Rectangle>();
         tokenBoundsMap.clear();
         for (Token token : zone.getTokens()) {
 
@@ -569,6 +569,26 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             
             
             Rectangle tokenBounds = new Rectangle(x, y, width, height);
+            for (Rectangle r1 : tokenBoundsMap.keySet()) {
+
+            	// Are we covering anyone ?
+            	if (tokenBounds.contains(r1)) {
+
+            		// Are we covering someone that is covering someone ?
+            		Rectangle oldRect = null;
+            		for (Rectangle r2 : coveredTokenSet) {
+            			
+            			if (tokenBounds.contains(r2)) {
+            				oldRect = r2;
+            				break;
+            			}
+            		}
+            		if (oldRect != null) {
+            			coveredTokenSet.remove(oldRect);
+            		}
+            		coveredTokenSet.add(tokenBounds);
+            	}
+            }
             tokenBoundsMap.put(tokenBounds, token);
 
             // OPTIMIZE:
@@ -609,6 +629,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             g.drawImage(image, x, y, this);
         }
         
+        // Selection and labels
         for (Rectangle bounds : tokenBoundsMap.keySet()) {
         	
         	// TODO: This isn't entirely accurate as it doesn't account for the actual text
@@ -630,6 +651,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         		// Name
                 GraphicsUtil.drawBoxedString(g, token.getName(), bounds.x + bounds.width/2, bounds.y + bounds.height + 10);
             }
+        }
+        
+        // Stacks
+        for (Rectangle rect : coveredTokenSet) {
+        	
+        	BufferedImage stackImage = ClientStyle.stackImage;
+        	g.drawImage(stackImage, rect.x + rect.width - stackImage.getWidth() + 2, rect.y - 2, null);
         }
     }
 
