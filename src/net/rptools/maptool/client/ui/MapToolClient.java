@@ -53,6 +53,7 @@ import net.rptools.lib.swing.PositionalLayout;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.lib.swing.TaskPanelGroup;
 import net.rptools.lib.swing.preference.FramePreferences;
+import net.rptools.lib.swing.preference.SplitPanePreferences;
 import net.rptools.lib.swing.preference.TaskPanelGroupPreferences;
 import net.rptools.lib.util.FileUtil;
 import net.rptools.lib.util.ImageUtil;
@@ -216,7 +217,8 @@ public class MapToolClient extends JFrame {
 		add(BorderLayout.NORTH, createToolboxPanel());
 		add(BorderLayout.SOUTH, statusPanel);
         
-        new FramePreferences(AppConstants.APP_NAME, this);
+        new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
+        new SplitPanePreferences(AppConstants.APP_NAME, "mainSplitPane", mainSplitPane);
         
         restorePreferences();
 	}
