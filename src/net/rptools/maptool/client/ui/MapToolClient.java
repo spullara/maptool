@@ -48,11 +48,11 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.lib.swing.AboutDialog;
 import net.rptools.lib.swing.ColorPicker;
-import net.rptools.lib.swing.FramePreferences;
 import net.rptools.lib.swing.JSplitPaneEx;
 import net.rptools.lib.swing.PositionalLayout;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.lib.swing.TaskPanelGroup;
+import net.rptools.lib.swing.preference.FramePreferences;
 import net.rptools.lib.swing.preference.TaskPanelGroupPreferences;
 import net.rptools.lib.util.FileUtil;
 import net.rptools.lib.util.ImageUtil;
@@ -216,7 +216,7 @@ public class MapToolClient extends JFrame {
 		add(BorderLayout.NORTH, createToolboxPanel());
 		add(BorderLayout.SOUTH, statusPanel);
         
-        addWindowListener(new FramePreferences(AppConstants.APP_NAME, this));
+        new FramePreferences(AppConstants.APP_NAME, this);
         
         restorePreferences();
 	}
