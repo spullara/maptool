@@ -40,6 +40,8 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.lib.swing.ImagePanel;
 import net.rptools.lib.swing.ImagePanel.SelectionMode;
+import net.rptools.lib.swing.preference.SplitPanePreferences;
+import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -50,7 +52,7 @@ public class AssetPanel extends JComponent {
 	private AssetTree assetTree;
 	private ImagePanel imagePanel;
 	
-	public AssetPanel() {
+	public AssetPanel(String controlName) {
 		
 		assetTree = new AssetTree(this);
 		imagePanel = new ImagePanel();
@@ -125,6 +127,8 @@ public class AssetPanel extends JComponent {
 		splitPane.setBottomComponent(new JScrollPane(imagePanel));
 		splitPane.setDividerLocation(100);
 		
+        new SplitPanePreferences(AppConstants.APP_NAME, controlName, splitPane);
+        
 		setLayout(new BorderLayout());
 		add(BorderLayout.CENTER, splitPane);
 	}

@@ -146,7 +146,7 @@ public class MapToolClient extends JFrame {
 		SwingUtil.centerOnScreen(this);
         
 		// Components
-		assetPanel = new AssetPanel();
+		assetPanel = new AssetPanel("mainAssetPanel");
         tokenPanel = new TokenPanel();
         taskPanel = new TaskPanelGroup(5);
         new TaskPanelGroupPreferences(AppConstants.APP_NAME, "TaskPanel", taskPanel);
