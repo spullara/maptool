@@ -25,7 +25,7 @@ public class HelpMacro implements Macro {
 	};
 
 	public void execute(String parameter) {
-		MapTool.addMessage("List of current commands:");
+		MapTool.addLocalMessage("List of current commands:");
 
 		List<Macro> macros = new ArrayList<Macro>(MacroManager
 				.getRegisteredMacros());
@@ -48,7 +48,7 @@ public class HelpMacro implements Macro {
 					}
 					sb.append(")");
 				}
-				MapTool.addMessage(sb.toString());
+				MapTool.addLocalMessage(sb.toString());
 			}
 		}
 	}

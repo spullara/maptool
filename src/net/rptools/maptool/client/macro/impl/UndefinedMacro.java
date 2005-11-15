@@ -12,7 +12,7 @@ import net.rptools.maptool.client.macro.MacroDefinition;
 public class UndefinedMacro implements Macro {
 
 	public void execute(String macro) {
-		MapTool.addMessage("'" + macro
+		MapTool.addLocalMessage("'" + macro
 				+ "': Unknown command.  Try /help for a list of commands.");
 	}
 
