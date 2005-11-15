@@ -31,6 +31,6 @@ public abstract class AbstractRollMacro  implements Macro {
 
     protected void roll(String channel, String roll) {
         
-        MapTool.addMessage(channel, "Rolling on " + channel + ": " + roll);
+        MapTool.addMessage(channel, MapTool.getPlayer().getName() + " olls on " + channel + ": " + roll);
     }
 }
