@@ -90,7 +90,7 @@ public interface ServerCommand {
     public void draw(GUID zoneGUID, Pen pen, Drawable drawable);
     public void undoDraw(GUID zoneGUID, GUID drawableGUID);
     public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size);
-    public void message(String message);
+    public void message(String channel, String message);
     public void showPointer(String player, Pointer pointer);
     public void hidePointer(String player);
     public void startTokenMove(String playerId, GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList);

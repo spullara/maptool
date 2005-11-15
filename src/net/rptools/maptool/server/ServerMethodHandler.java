@@ -67,34 +67,34 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             
         	switch (cmd) {
             
-            case sendTokensToBack:        sendTokensToBack(context.getGUID(0), (Set<GUID>) context.get(1)); break;
             case bringTokensToFront:      bringTokensToFront(context.getGUID(0), (Set<GUID>) context.get(1)); break;
-            case setZoneHasFoW:           setZoneHasFoW(context.getGUID(0), context.getBool(1)); break;
-            case exposeFoW:               exposeFoW(context.getGUID(0), (Area) context.get(1)); break;
-            case hideFoW:                 hideFoW(context.getGUID(0), (Area) context.get(1)); break;
+            case draw:                    draw(context.getGUID(0), (Pen) context.get(1), (Drawable) context.get(2)); break;
             case enforceZoneView:         enforceZoneView(context.getGUID(0), context.getInt(1), context.getInt(2), context.getInt(3)); break;
-            case setCampaign:             setCampaign((Campaign) context.get(0)); break;
+            case exposeFoW:               exposeFoW(context.getGUID(0), (Area) context.get(1)); break;
+            case getAsset:                getAsset((MD5Key) context.get(0)); break;
             case getZone:                 getZone(context.getGUID(0)); break;
+            case hideFoW:                 hideFoW(context.getGUID(0), (Area) context.get(1)); break;
+            case hidePointer:             hidePointer(context.getString(0)); break;
+            case message:                 message(context.getString(0), context.getString(1)); break;
+            case putAsset:                putAsset((Asset) context.get(0)); break;
+            case putLabel:                putLabel(context.getGUID(0), (Label) context.get(1)); break;
+            case putToken:                putToken(context.getGUID(0), (Token) context.get(1)); break;
             case putZone:                 putZone((Zone) context.get(0)); break;
             case removeZone:              removeZone(context.getGUID(0)); break;
-            case putAsset:                putAsset((Asset) context.get(0)); break;
-            case getAsset:                getAsset((MD5Key) context.get(0)); break;
             case removeAsset:             removeAsset((MD5Key) context.get(0)); break;
-            case putToken:                putToken(context.getGUID(0), (Token) context.get(1)); break;
             case removeToken:             removeToken(context.getGUID(0), context.getGUID(1)); break;
-            case putLabel:                putLabel(context.getGUID(0), (Label) context.get(1)); break;
             case removeLabel:             removeLabel(context.getGUID(0), context.getGUID(1)); break;
-            case draw:                    draw(context.getGUID(0), (Pen) context.get(1), (Drawable) context.get(2)); break;
-            case undoDraw:                undoDraw(context.getGUID(0), context.getGUID(1)); break;
-            case setZoneVisibility:       setZoneVisibility(context.getGUID(0), (Boolean) context.get(1)); break;
+            case sendTokensToBack:        sendTokensToBack(context.getGUID(0), (Set<GUID>) context.get(1)); break;
+            case setCampaign:             setCampaign((Campaign) context.get(0)); break;
             case setZoneGridSize:         setZoneGridSize(context.getGUID(0), context.getInt(1), context.getInt(2), context.getInt(3)); break;
-            case message:                 message(context.getString(0)); break;
+            case setZoneVisibility:       setZoneVisibility(context.getGUID(0), (Boolean) context.get(1)); break;
+            case setZoneHasFoW:           setZoneHasFoW(context.getGUID(0), context.getBool(1)); break;
             case showPointer:             showPointer(context.getString(0), (Pointer) context.get(1)); break;
-            case hidePointer:             hidePointer(context.getString(0)); break;
             case startTokenMove:          startTokenMove(context.getString(0), context.getGUID(1), context.getGUID(2), (Set<GUID>) context.get(3)); break;
             case stopTokenMove:           stopTokenMove(context.getGUID(0), context.getGUID(1)); break;
-            case updateTokenMove:         updateTokenMove(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3)); break;
             case toggleTokenMoveWaypoint: toggleTokenMoveWaypoint(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3)); break;
+            case undoDraw:                undoDraw(context.getGUID(0), context.getGUID(1)); break;
+            case updateTokenMove:         updateTokenMove(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3)); break;
             }
         } finally {
             RPCContext.setCurrent(null);
@@ -195,11 +195,11 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     }
 
     public void hidePointer(String player) {
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.hidePointer.name(), RPCContext.getCurrent().parameters);
+        forwardToClients();
     }
     
-    public void message(String message) {
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.message.name(), RPCContext.getCurrent().parameters);
+    public void message(String channel, String message) {
+        forwardToClients();
     }
     
     public void putAsset(Asset asset) {

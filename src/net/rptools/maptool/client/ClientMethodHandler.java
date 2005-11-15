@@ -248,8 +248,9 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	break;
             
         case message:
-            String message = (String) parameters[0];
-            MapTool.addMessage(message);
+            String channel = (String) parameters[0];
+            String message = (String) parameters[1];
+            MapTool.addServerMessage(channel, message);
         	break;
             
         case showPointer:

@@ -42,6 +42,7 @@ import net.rptools.maptool.client.ui.MapToolClient;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.MessageChannel;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Zone;
@@ -171,9 +172,43 @@ public class MapTool {
         return messageList;
     }
     
-    public static void addMessage(String message) {
+    /**
+     * These are the messages that originate from the server
+     * @param channel
+     * @param message
+     */
+    public static void addServerMessage(String channel, String message) {
+
+        // Filter
+        // LATER: Come up with a better solution
+        if (MessageChannel.GM.equals(channel) && !getPlayer().isGM()) {
+            return;
+        }
+        
         messageList.add(message);
     }
+
+    /**
+     * These are the messages that are generated locally
+     * @param channel
+     * @param message
+     */
+    public static void addMessage(String channel, String message) {
+        messageList.add(message);
+        
+        if (isConnected() && !MessageChannel.ME.equals(channel)) {
+            serverCommand().message(channel, message);
+        }
+    }
+    
+    /**
+     * Add a message only this client can see.  This is a shortcut for addMessage(ME, ...)
+     * @param message
+     */
+    public static void addLocalMessage(String message) {
+        addMessage(MessageChannel.ME, message);
+    }
+    
 
     public static Campaign getCampaign() {
         if (campaign == null) {

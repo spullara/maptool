@@ -111,11 +111,8 @@ public class ServerCommandClientImpl implements ServerCommand {
     	makeServerCall(COMMAND.setZoneVisibility, zoneGUID, visible);
     }
 
-    public void message(String message) {
-    	if (!MapTool.isConnected()) {
-    		MapTool.addMessage("Not connected.");
-    	}
-        makeServerCall(COMMAND.message, message);
+    public void message(String channel, String message) {
+        makeServerCall(COMMAND.message, channel, message);
     }
 
 	public void showPointer(String player, Pointer pointer) {
