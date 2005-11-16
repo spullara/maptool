@@ -125,13 +125,14 @@ public class LineTemplate extends AbstractTemplate {
     if (calcPath() == null) return;
     
     // Paint each element in the path
+    float[][] distances = getDistances(getRadius());
     int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGridSize() * getScale());
     ListIterator<ScreenPoint> i = path.listIterator();
     while (i.hasNext()) {
       ScreenPoint p = i.next();
       int xOff = p.x * gridSize;
       int yOff = p.y * gridSize;
-      int distance = Math.round(getDistances()[p.x][p.y]);
+      int distance = Math.round(distances[p.x][p.y]);
 
       // Paint what is needed.
       if (area) {
@@ -173,8 +174,8 @@ public class LineTemplate extends AbstractTemplate {
   protected List<ScreenPoint> calcPath() {
     if (getRadius() == 0) return null;
     if (pathVertex == null) return null;
-    float[][] distances = getDistances();
     int radius = getRadius();
+    float[][] distances = getDistances(radius);
 
     // Is there a slope?
     ScreenPoint vertex = getVertex();

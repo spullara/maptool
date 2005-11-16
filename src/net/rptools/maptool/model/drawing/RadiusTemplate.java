@@ -48,10 +48,11 @@ public class RadiusTemplate extends AbstractTemplate {
     
     // At the border? It's different for templates.
     int radius = getRadius();
+    float distances[][] = getDistances(radius);
     if (distance == radius) {
       
       // Paint lines between vertical boundaries if needed
-      if (Math.round(getDistances()[x + 1][y]) > radius) {
+      if (Math.round(distances[x + 1][y]) > radius) {
         paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
         paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
         paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
@@ -59,7 +60,7 @@ public class RadiusTemplate extends AbstractTemplate {
       } // endif
       
       // Paint lines between horizontal boundaries if needed
-      if (Math.round(getDistances()[x][y + 1]) > radius) {
+      if (Math.round(distances[x][y + 1]) > radius) {
         paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
         paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
         paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);

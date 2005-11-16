@@ -235,6 +235,7 @@ public abstract class AbstractTemplate extends AbstractDrawing {
    */
   protected void paint(Graphics2D g, boolean border, boolean area) {
     if (radius == 0) return;
+    float[][] distances = getDistances(radius);
 
     // Find the proper distance
     int gridSize = (int)(MapTool.getCampaign().getZone(zoneId).getGridSize() * scale);
@@ -359,11 +360,14 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 
   /**
    * Get the quadrant distances.
-   * 
+   *
+   * @param radius The maximum radius required.
    * @return The distances structure defines distances from a quadrant of a particular
    * vertex.
    */
-  public static synchronized float[][] getDistances() {
+  public static synchronized float[][] getDistances(int radius) {
+    if (radius >= distances.length)
+      setQuadrant(radius + 1); // Make extra room for boundary conditions
     return distances;
   }
   

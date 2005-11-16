@@ -86,10 +86,11 @@ public class ConeTemplate extends RadiusTemplate {
     
     // At the border?
     int radius = getRadius();
+    float[][] distances = getDistances(radius);
     if (distance == radius) {
       
       // Paint lines between vertical boundaries if needed
-      if (Math.round(getDistances()[x + 1][y]) > radius) {
+      if (Math.round(distances[x + 1][y]) > radius) {
         if (getDirection() == Direction.SOUTH_EAST || (getDirection() == Direction.SOUTH && y >= x)
             || (getDirection() == Direction.EAST && x >= y))
           paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
@@ -105,7 +106,7 @@ public class ConeTemplate extends RadiusTemplate {
       } // endif
       
       // Paint lines between horizontal boundaries if needed
-      if (Math.round(getDistances()[x][y + 1]) > radius) {
+      if (Math.round(distances[x][y + 1]) > radius) {
         if (getDirection() == Direction.SOUTH_EAST || (getDirection() == Direction.SOUTH && y >= x)
             || (getDirection() == Direction.EAST && x >= y))
           paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
