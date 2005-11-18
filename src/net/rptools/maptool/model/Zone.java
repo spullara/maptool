@@ -59,7 +59,7 @@ public class Zone extends Token {
         LABEL_CHANGED
     }
     
-    private static final int MIN_GRID_SIZE = 10;
+    private static final int MIN_GRID_SIZE = 5;
     private static final int MAX_GRID_SIZE = 250;
 
     public interface Type {

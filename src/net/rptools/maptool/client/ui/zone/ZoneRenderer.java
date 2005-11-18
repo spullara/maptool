@@ -83,7 +83,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public static final int HOVER_SIZE_THRESHOLD = 40;
     public static final int EDGE_LIMIT = 25; // can't move board past this edge
 	
-    public static final int MIN_GRID_SIZE = 10;
+    public static final int MIN_GRID_SIZE = 5;
     
     protected Zone              zone;
 
