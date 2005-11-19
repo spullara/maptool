@@ -108,7 +108,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 			MD5Key assetId = zone.getAssetID();
 			if (assetId == null) {
 				// TODO: make this static
-				tileImage = ImageUtil.getImage("net/rptools/maptool/client/image/texture/grass.png");
+				tileImage = ImageUtil.getImage("net/rptools/lib/resource/image/texture/grass.png");
 				return tileImage;
 			}
 	
