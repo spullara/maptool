@@ -70,7 +70,9 @@ public class Zone extends Token {
     private int gridSize = 40;
     private int gridOffsetX = 0;
     private int gridOffsetY = 0;
-
+    private float imageScaleX = 1;
+    private float imageScaleY = 1;
+    
     private int type;
     
     private int feetPerCell = 5;
@@ -94,6 +96,7 @@ public class Zone extends Token {
     };
     
     public Zone() {
+        // Exists for serialization purposes
     }
 
     public Zone(int type, MD5Key backgroundAsset) {
@@ -105,6 +108,22 @@ public class Zone extends Token {
     	return hasFog;
     }
     
+    public float getImageScaleX() {
+        return imageScaleX;
+    }
+
+    public void setImageScaleX(float imageScaleX) {
+        this.imageScaleX = imageScaleX;
+    }
+
+    public float getImageScaleY() {
+        return imageScaleY;
+    }
+
+    public void setImageScaleY(float imageScaleY) {
+        this.imageScaleY = imageScaleY;
+    }
+
     public void setHasFog(boolean flag) {
     	hasFog = flag;
         fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));

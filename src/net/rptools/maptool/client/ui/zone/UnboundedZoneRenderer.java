@@ -72,7 +72,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 	 */
 	protected void renderGrid(Graphics2D g) {
 
-        float scale = scaleArray[scaleIndex];
+        float scale = getScale();
         float gridSize = zone.getGridSize() * scale;
         Dimension size = getSize();
 

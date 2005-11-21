@@ -120,7 +120,7 @@ public class MapZoneRenderer extends ZoneRenderer {
         Dimension size = getSize();
         
         // Scale
-        float scale = scaleArray[scaleIndex];
+        float scale = getScale();
         int w = (int)(mapImage.getWidth() * scale);
         int h = (int)(mapImage.getHeight() * scale);
 
@@ -148,7 +148,7 @@ public class MapZoneRenderer extends ZoneRenderer {
     protected void renderGrid(Graphics2D g) {
         
         BufferedImage mapImage = getBackgroundImage();
-        float scale = scaleArray[scaleIndex];
+        float scale = getScale();
 
         int w = (int)(mapImage.getWidth() * scale);
         int h = (int)(mapImage.getHeight() * scale);
@@ -158,8 +158,8 @@ public class MapZoneRenderer extends ZoneRenderer {
         // Render grid
         g.setColor(ClientStyle.gridColor);
 
-        int x = viewOffset.x + (int) (zone.getGridOffsetX() * scaleArray[scaleIndex]);
-        int y = viewOffset.y + (int) (zone.getGridOffsetY() * scaleArray[scaleIndex]);
+        int x = viewOffset.x + (int) (zone.getGridOffsetX() * scale);
+        int y = viewOffset.y + (int) (zone.getGridOffsetY() * scale);
 
         for (float row = 0; row < h + gridSize; row += gridSize) {
             
