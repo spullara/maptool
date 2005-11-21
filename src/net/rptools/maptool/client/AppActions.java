@@ -658,7 +658,7 @@ public class AppActions {
 
 				public void run() {
 
-					Zone zone = new Zone(asset.getId());
+					Zone zone = new Zone(Zone.Type.INFINITE, asset.getId());
 					zone.setType(Zone.Type.INFINITE);
 					zone.setVisible(AppState.isNewZonesVisible());
 
@@ -702,7 +702,7 @@ public class AppActions {
 
 						MapTool.serverCommand().putAsset(asset);
 
-						Zone zone = new Zone(asset.getId());
+						Zone zone = new Zone(Zone.Type.MAP, asset.getId());
 						zone.setVisible(AppState.isNewZonesVisible());
 						MapTool.addZone(zone);
 					} catch (IOException ioe) {

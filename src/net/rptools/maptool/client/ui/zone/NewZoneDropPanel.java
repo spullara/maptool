@@ -87,7 +87,7 @@ public class NewZoneDropPanel extends JPanel implements DropTargetListener {
 
         if (asset != null) {
         	
-        	Zone zone = new Zone(asset.getId());
+        	Zone zone = new Zone(Zone.Type.MAP, asset.getId());
 			zone.setVisible(AppState.isNewZonesVisible());
         	MapTool.addZone(zone);
         }

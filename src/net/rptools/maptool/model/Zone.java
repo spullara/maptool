@@ -70,7 +70,8 @@ public class Zone extends Token {
     private int gridSize = 40;
     private int gridOffsetX = 0;
     private int gridOffsetY = 0;
-    private int type = Type.MAP;
+
+    private int type;
     
     private int feetPerCell = 5;
     
@@ -95,8 +96,9 @@ public class Zone extends Token {
     public Zone() {
     }
 
-    public Zone(MD5Key backgroundAsset) {
+    public Zone(int type, MD5Key backgroundAsset) {
         super(backgroundAsset);
+        this.type = type;
     }
 
     public boolean hasFog() {

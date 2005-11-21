@@ -89,7 +89,7 @@ public class AssetPanel extends JComponent {
 								MapTool.serverCommand().putAsset(asset);
 							}
 							
-							Zone zone = new Zone(asset.getId());
+							Zone zone = new Zone(Zone.Type.MAP, asset.getId());
 							zone.setType(Zone.Type.MAP);
 							
 		                    MapTool.addZone(zone);
@@ -108,7 +108,7 @@ public class AssetPanel extends JComponent {
 								MapTool.serverCommand().putAsset(asset);
 							}
 
-							Zone zone = new Zone(asset.getId());
+							Zone zone = new Zone(Zone.Type.INFINITE, asset.getId());
 							zone.setType(Zone.Type.INFINITE);
 							
 		                    MapTool.addZone(zone);
