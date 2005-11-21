@@ -103,7 +103,9 @@ public class ImageManager {
                             
                             // OPTIMIZE: target the specific location to be redrawn
                             // TODO: this class should really not known anything about the MapTool
-                            MapTool.getFrame().repaint();
+                            if (MapTool.getFrame() != null) {
+                            	MapTool.getFrame().repaint();
+                            }
                         }
                         
                     } catch (IOException ioe) {

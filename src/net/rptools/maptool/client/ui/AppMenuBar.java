@@ -24,11 +24,12 @@
  */
 package net.rptools.maptool.client.ui;
 
+import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.MapToolUtil;
@@ -81,7 +82,7 @@ public class AppMenuBar extends JMenuBar {
     protected JMenu createMapMenu() {
         JMenu menu = createMenu("menu.map");
         menu.add(new JMenuItem(AppActions.LOAD_MAP));
-        menu.add(new JMenuItem(AppActions.CREATE_UNBOUNDED_MAP));
+        menu.add(createQuickMapMenu());
         //        menu.add(new JMenuItem(AppActions.DELETE_MAP));
         menu.addSeparator();
         menu.add(new JMenuItem(DrawableUndoManager.getInstance().getUndoCommand()));
@@ -95,6 +96,17 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.ADJUST_GRID));
 
         return menu;
+    }
+    
+    protected JMenu createQuickMapMenu() {
+    	JMenu menu = createMenu("Quick Map");
+    	AppActions.QuickMapAction basicQuickMap = new AppActions.QuickMapAction("Grass", "net/rptools/lib/resource/image/texture/grass.png"); 
+    	basicQuickMap.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl shift N"));
+
+    	menu.add(new JMenuItem(basicQuickMap));
+        menu.add(new JMenuItem(new AppActions.QuickMapAction("Gray", "net/rptools/lib/resource/image/texture/gray_rock.gif")));
+    	
+    	return menu;
     }
 
     protected JMenu createToolsMenu() {

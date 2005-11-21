@@ -24,9 +24,13 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -46,7 +50,6 @@ import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
-import net.rptools.maptool.client.ui.MapToolClient;
 import net.rptools.maptool.client.ui.StartServerDialog;
 import net.rptools.maptool.client.ui.Toolbox;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
@@ -61,6 +64,8 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.util.GraphicsUtil;
+import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.PersistenceUtil;
 
 /**
@@ -616,9 +621,35 @@ public class AppActions {
 		}
 	};
 
-	public static final Action CREATE_UNBOUNDED_MAP = new DefaultClientAction() {
-		{
-            init("action.newUnboundedMap");
+	private static final int QUICK_MAP_ICON_SIZE = 25;
+	public static class QuickMapAction extends AdminClientAction {
+
+		private Asset asset;
+		
+		public QuickMapAction (String name ,String imagePath) {
+			
+			try {
+				asset = new Asset(FileUtil.loadResource(imagePath));
+				
+				// Make smaller
+				BufferedImage iconImage = new BufferedImage(QUICK_MAP_ICON_SIZE, QUICK_MAP_ICON_SIZE, Transparency.OPAQUE);
+				BufferedImage image = ImageUtil.getImage(imagePath);
+				
+				Graphics2D g = iconImage.createGraphics();
+				g.drawImage(image, 0, 0, QUICK_MAP_ICON_SIZE, QUICK_MAP_ICON_SIZE, null);
+				g.dispose();
+				
+				putValue(Action.SMALL_ICON, new ImageIcon(iconImage));
+				putValue(Action.NAME, name);
+				
+				AssetManager.putAsset(asset);
+				
+				// Preloaded
+				ImageManager.getImage(asset);
+			} catch(IOException ioe) {
+				ioe.printStackTrace();
+			}
+            //init("action.newUnboundedMap");
 		}
 
 		public void execute(java.awt.event.ActionEvent e) {
@@ -627,7 +658,7 @@ public class AppActions {
 
 				public void run() {
 
-					Zone zone = new Zone();
+					Zone zone = new Zone(asset.getId());
 					zone.setType(Zone.Type.INFINITE);
 					zone.setVisible(AppState.isNewZonesVisible());
 
@@ -647,6 +678,9 @@ public class AppActions {
 			runBackground(new Runnable() {
 
 				public void run() {
+					
+//					NewMapDialog newMapDialog = new NewMapDialog();
+//					newMapDialog.setVisible(true);
 					JFileChooser loadFileChooser = MapTool.getLoadFileChooser();
 
 					loadFileChooser.setDialogTitle("Load Map");

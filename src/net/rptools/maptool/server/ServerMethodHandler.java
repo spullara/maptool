@@ -195,7 +195,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     }
 
     public void hidePointer(String player) {
-        forwardToClients();
+        forwardToAllClients();
     }
     
     public void message(String channel, String message) {
