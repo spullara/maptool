@@ -9,6 +9,6 @@
 	<classpathentry kind="lib" path="lib/hessian-2.1.12.jar"/>
 	<classpathentry kind="lib" path="lib/clientserver-1.0.b9.jar"/>
 	<classpathentry kind="lib" path="lib/rplib-1.0.b36.jar"/>
-	<classpathentry kind="lib" path="lib/rplib.resource-1.0.b5.jar"/>
+	<classpathentry kind="lib" path="lib/rplib.resource-1.0.b6.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
