@@ -24,7 +24,6 @@
  */
 package net.rptools.maptool.client;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Transparency;
@@ -64,7 +63,6 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.PersistenceUtil;
 
@@ -106,12 +104,12 @@ public class AppActions {
 			Directory dir = assetPanel.getSelectedAssetRoot();
 
 			if (dir == null) {
-				MapTool.showError("Select an asset group first");
+				MapTool.showError("msg.error.mustSelectAssetGroupFirst");
 				return;
 			}
 
 			if (!assetPanel.isAssetRoot(dir)) {
-				MapTool.showError("Must select a root group");
+				MapTool.showError("msg.error.mustSelectRootGroup");
 				return;
 			}
 
@@ -142,7 +140,7 @@ public class AppActions {
 
 			if (!MapTool.getPlayer().isGM()) {
 				// TODO: This option should be disabled when not a GM
-				MapTool.showError("Only GMs can do that");
+				MapTool.showError("msg.error.gmRequired");
 				return;
 			}
 
@@ -226,7 +224,7 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 
 			if (!MapTool.getPlayer().isGM()) {
-				MapTool.showError("Must be GM to adjust grid");
+                MapTool.showError("msg.error.gmRequired");
 				return;
 			}
 

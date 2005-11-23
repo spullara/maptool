@@ -41,6 +41,7 @@ import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.MapToolClient;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.MessageChannel;
 import net.rptools.maptool.model.ObservableList;
@@ -76,7 +77,7 @@ public class MapTool {
 	private static JFileChooser saveFileChooser;
 
 	public static void showError(String message) {
-		JOptionPane.showMessageDialog(clientFrame, message, "Error", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(clientFrame, I18N.getText(message), "Error", JOptionPane.ERROR_MESSAGE);
 	}
 	
     private MapTool() {
