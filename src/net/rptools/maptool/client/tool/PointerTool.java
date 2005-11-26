@@ -36,7 +36,7 @@ public class PointerTool extends DefaultTool {
 
 	public PointerTool () {
         try {
-            setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/Tool_Draw_Select.gif")));
+            setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/tool/PointerBlue16.png")));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

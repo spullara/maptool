@@ -35,6 +35,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.tool.ToolHelper;
@@ -56,7 +57,7 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
     
     public OvalTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Circle.gif"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/CircleBlue16.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -147,16 +148,6 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
     	}
     }
     
-    /* (non-Javadoc)
-	 * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#getPen()
-	 */
-	protected Pen getPen() {
-		Pen pen = super.getPen();
-        pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
-
-		return pen;
-	}
-
   /**
    * @see net.rptools.maptool.client.ui.Tool#resetTool()
    */

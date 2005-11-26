@@ -49,7 +49,7 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
 
     public PolygonExposeTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_polygon_expose.gif"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/FOGPolygon16.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

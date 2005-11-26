@@ -68,6 +68,12 @@ public abstract class AbstractDrawingTool extends Tool implements MouseListener,
     	Pen pen = new Pen(MapTool.getFrame().getPen());
 		pen.setEraser(isEraser);
 		
+		if (MapTool.getFrame().getColorPicker().isFillChecked()) {
+	        pen.setBackgroundMode(Pen.MODE_SOLID);
+		} else {
+			pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
+		}
+
 		return pen;
     }
     

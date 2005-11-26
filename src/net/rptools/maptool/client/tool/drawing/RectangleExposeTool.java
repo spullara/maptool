@@ -19,7 +19,7 @@ public class RectangleExposeTool extends RectangleTool {
 
     public RectangleExposeTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Rect_Fog.gif"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/FOGRectangle16.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

@@ -35,6 +35,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.tool.ToolHelper;
@@ -56,7 +57,7 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
     
     public RectangleTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Rect.gif"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/RectangleBlue16.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -137,16 +138,6 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 	        zoneRenderer.repaint();
     	}
     }
-
-    /* (non-Javadoc)
-	 * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#getPen()
-	 */
-	protected Pen getPen() {
-		Pen pen = super.getPen();
-        pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
-
-		return pen;
-	}
 
   /**
    * Stop drawing a rectangle and repaint the zone.

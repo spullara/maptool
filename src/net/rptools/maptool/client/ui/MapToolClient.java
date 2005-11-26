@@ -74,14 +74,11 @@ import net.rptools.maptool.client.tool.drawing.FreehandTool;
 import net.rptools.maptool.client.tool.drawing.LineTemplateTool;
 import net.rptools.maptool.client.tool.drawing.LineTool;
 import net.rptools.maptool.client.tool.drawing.OvalExposeTool;
-import net.rptools.maptool.client.tool.drawing.OvalFillTool;
 import net.rptools.maptool.client.tool.drawing.OvalTool;
 import net.rptools.maptool.client.tool.drawing.PolygonExposeTool;
-import net.rptools.maptool.client.tool.drawing.PolygonFillTool;
 import net.rptools.maptool.client.tool.drawing.PolygonTool;
 import net.rptools.maptool.client.tool.drawing.RadiusTemplateTool;
 import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
-import net.rptools.maptool.client.tool.drawing.RectangleFillTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
@@ -156,7 +153,7 @@ public class MapToolClient extends JFrame {
         commandPanel = new CommandPanel();
         commandPanel.setSize(250, 100);
         colorPicker = new ColorPicker(this);
-        colorPicker.setSize(100, 175);
+        colorPicker.setSize(colorPicker.getMinimumSize());
         colorPicker.setVisible(false);
         
         try {
@@ -341,15 +338,12 @@ public class MapToolClient extends JFrame {
         Tool freehandTool = new FreehandTool();
         Tool lineTool = new LineTool();
         Tool rectTool = new RectangleTool();
-        Tool fillRectTool = new RectangleFillTool();
         Tool ovalTool = new OvalTool();
-        Tool fillOvalTool = new OvalFillTool();
         Tool textTool = new TextTool();
         Tool fogRectTool = new RectangleExposeTool();
         Tool fogOvalTool = new OvalExposeTool();
         Tool fogPolyTool = new PolygonExposeTool();
         Tool polyTool = new PolygonTool();
-        Tool fillPolyTool = new PolygonFillTool();
         Tool radiusTemplateTool = new RadiusTemplateTool();
         Tool coneTemplateTool = new ConeTemplateTool();
         Tool lineTemplateTool = new LineTemplateTool();
@@ -360,11 +354,8 @@ public class MapToolClient extends JFrame {
         group.add(freehandTool);
         group.add(lineTool);
         group.add(rectTool);
-        group.add(fillRectTool);
         group.add(ovalTool);
-        group.add(fillOvalTool);
         group.add(polyTool);
-        group.add(fillPolyTool);
         group.add(textTool);
         group.add(fogRectTool);
         group.add(fogOvalTool);
@@ -385,11 +376,8 @@ public class MapToolClient extends JFrame {
         toolbar.add(freehandTool);
         toolbar.add(lineTool);
         toolbar.add(polyTool);
-        toolbar.add(fillPolyTool);
         toolbar.add(rectTool);
-        toolbar.add(fillRectTool);
         toolbar.add(ovalTool);
-        toolbar.add(fillOvalTool);
         toolbar.add(textTool);
         toolbar.add(radiusTemplateTool);
         toolbar.add(coneTemplateTool);

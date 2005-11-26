@@ -32,6 +32,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -48,20 +49,10 @@ public class PolygonTool extends LineTool implements MouseMotionListener {
 
     public PolygonTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_polygon.gif"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/PolygonBlue16.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-    }
-
-    /* (non-Javadoc)
-     * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#getPen()
-     */
-    protected Pen getPen() {
-        Pen pen = super.getPen();
-        pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
-
-        return pen;
     }
 
     protected void completeDrawable(GUID zoneGUID, Pen pen, Drawable drawable) {
