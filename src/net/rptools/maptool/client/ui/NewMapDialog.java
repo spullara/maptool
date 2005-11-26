@@ -1,19 +1,31 @@
 package net.rptools.maptool.client.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JDialog;
-import java.awt.GridBagLayout;
-import javax.swing.JRadioButton;
-import java.awt.GridBagConstraints;
 import javax.swing.JButton;
-import java.awt.FlowLayout;
-import javax.swing.JTabbedPane;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
+import javax.swing.filechooser.FileFilter;
 
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.lib.util.ImageUtil;
+import net.rptools.maptool.client.AppConstants;
 
 public class NewMapDialog extends JDialog {
 
@@ -21,7 +33,6 @@ public class NewMapDialog extends JDialog {
 	private JPanel bottomPanel = null;
 	private JPanel buttonPanel = null;
 	private JPanel eastPanel = null;
-	private JPanel previewPanel = null;
 	private JPanel optionsPanel = null;
 	private JRadioButton unboundedRadioButton = null;
 	private JRadioButton boundedRadioButton = null;
@@ -33,6 +44,7 @@ public class NewMapDialog extends JDialog {
 	private JPanel libraryPanel = null;
 	private JButton adjustGridButton = null;
 	private JFileChooser imageFileChooser = null;
+	private ImagePreviewWindow imagePreviewPanel;
 
 	/**
 	 * This is the default constructor
@@ -48,7 +60,7 @@ public class NewMapDialog extends JDialog {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setSize(532, 418);
+		this.setSize(600, 450);
 		this.setEnabled(true);
 		this.setTitle("New Map");
 		this.setContentPane(getJContentPane());
@@ -126,11 +138,13 @@ public class NewMapDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JPanel	
 	 */
-	private JPanel getPreviewPanel() {
-		if (previewPanel == null) {
-			previewPanel = new JPanel();
+	private JComponent getPreviewPanel() {
+		if (imagePreviewPanel == null) {
+			
+			imagePreviewPanel = new ImagePreviewWindow();
 		}
-		return previewPanel;
+		
+		return imagePreviewPanel;
 	}
 
 	/**
@@ -304,8 +318,75 @@ public class NewMapDialog extends JDialog {
 		if (imageFileChooser == null) {
 			imageFileChooser = new JFileChooser();
 			imageFileChooser.setControlButtonsAreShown(false);
+			imageFileChooser.setFileFilter(new FileFilter() {
+				@Override
+				public boolean accept(File f) {
+					return f.isDirectory() || AppConstants.IMAGE_FILE_FILTER.accept(f.getAbsoluteFile(), f.getName());
+				}
+				@Override
+				public String getDescription() {
+					return "Images only";
+				}
+			});
+			imageFileChooser.set
+			imageFileChooser.addPropertyChangeListener(new FileSystemSelectionHandler());
+			
 		}
 		return imageFileChooser;
+	}
+
+	private class ImagePreviewWindow extends JComponent {
+		
+		private BufferedImage img;
+		
+		public ImagePreviewWindow() {
+			setPreferredSize(new Dimension(100, 100));
+			setMinimumSize(new Dimension(100, 100));
+		}
+		
+		public void setImage(File file) {
+			if (file == null) {
+				img = null;
+				repaint();
+				return;
+			}
+			
+			try {
+				img = ImageUtil.getImage(file);
+			} catch (IOException ioe) {
+				img = null;
+			}
+			repaint();
+		}
+		
+		@Override
+		protected void paintComponent(Graphics g) {
+
+			// Image
+			Dimension size = getSize();
+			if (img != null) {
+				Dimension imgSize = new Dimension(img.getWidth(), img.getHeight());
+				SwingUtil.constrainTo(imgSize, size.width, size.height);
+				g.drawImage(img, 0, 0, imgSize.width, imgSize.height, null);
+
+				// Border
+				g.setColor(Color.black);
+				g.drawRect(0, 0, imgSize.width-1, imgSize.height-1);
+			}	
+
+		}
+	}
+	
+	private class FileSystemSelectionHandler implements PropertyChangeListener {
+		
+		public void propertyChange(PropertyChangeEvent evt) {
+
+			if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
+				File selectedFile = getImageFileChooser().getSelectedFile();
+				
+				imagePreviewPanel.setImage(selectedFile);
+			}
+		}
 	}
 	
 	public static void main(String[] args) {
