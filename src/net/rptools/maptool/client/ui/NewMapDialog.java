@@ -328,7 +328,6 @@ public class NewMapDialog extends JDialog {
 					return "Images only";
 				}
 			});
-			imageFileChooser.set
 			imageFileChooser.addPropertyChangeListener(new FileSystemSelectionHandler());
 			
 		}
