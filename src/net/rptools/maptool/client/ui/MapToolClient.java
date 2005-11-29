@@ -112,6 +112,7 @@ public class MapToolClient extends JFrame {
     private TokenPanel tokenPanel;
     private AboutDialog aboutDialog;
     private ColorPicker colorPicker;
+    private NewMapDialog newMapDialog;
     
     private ZoneSelectionPanel zoneSelectionPanel;
     private JPanel zoneRendererPanel;
@@ -155,6 +156,7 @@ public class MapToolClient extends JFrame {
         colorPicker = new ColorPicker(this);
         colorPicker.setSize(colorPicker.getMinimumSize());
         colorPicker.setVisible(false);
+        newMapDialog = new NewMapDialog(this);
         
         try {
             String credits = new String(FileUtil.loadResource("net/rptools/maptool/client/credits.html"));
@@ -220,6 +222,10 @@ public class MapToolClient extends JFrame {
         restorePreferences();
 	}
     
+	public NewMapDialog getNewMapDialog() {
+		return newMapDialog;
+	}
+	
     public ColorPicker getColorPicker() {
         return colorPicker;
     }

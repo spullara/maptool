@@ -49,6 +49,7 @@ import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
+import net.rptools.maptool.client.ui.NewMapDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
 import net.rptools.maptool.client.ui.Toolbox;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
@@ -677,30 +678,21 @@ public class AppActions {
 
 				public void run() {
 					
-//					NewMapDialog newMapDialog = new NewMapDialog();
-//					newMapDialog.setVisible(true);
-					JFileChooser loadFileChooser = MapTool.getLoadFileChooser();
+					NewMapDialog newMapDialog = MapTool.getFrame().getNewMapDialog();
 
-					loadFileChooser.setDialogTitle("Load Map");
-					loadFileChooser
-							.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
-					if (loadFileChooser.showOpenDialog(MapTool.getFrame()) == JFileChooser.CANCEL_OPTION) {
-						return;
-					}
-					if (loadFileChooser.getSelectedFile() == null) {
+					File selectedFile = newMapDialog.showDialog();
+					if (selectedFile == null) {
 						return;
 					}
 
 					try {
-						byte[] imgData = FileUtil.loadFile(loadFileChooser
-								.getSelectedFile());
+						byte[] imgData = FileUtil.loadFile(selectedFile);
 						Asset asset = new Asset(imgData);
 						AssetManager.putAsset(asset);
 
 						MapTool.serverCommand().putAsset(asset);
 
-						Zone zone = new Zone(Zone.Type.MAP, asset.getId());
+						Zone zone = new Zone(newMapDialog.getZoneType(), asset.getId());
 						zone.setVisible(AppState.isNewZonesVisible());
 						MapTool.addZone(zone);
 					} catch (IOException ioe) {
