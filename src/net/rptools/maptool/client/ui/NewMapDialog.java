@@ -32,10 +32,12 @@ import javax.swing.filechooser.FileFilter;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.AppConstants;
+import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.model.Zone;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import java.awt.GridLayout;
+import javax.swing.BoxLayout;
 
 public class NewMapDialog extends JDialog implements WindowListener {
 
@@ -62,9 +64,11 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JLabel feetPerCellLabel = null;
 	private JTextField nameTextField = null;
 	private JTextField feetPerCellTextField = null;
-	private JPanel typePanel = null;
 	private JPanel previewWrapperPanel = null;
-	private JPanel mapButtonPanel = null;
+	private JPanel eastPanel = null;
+	private JPanel spacerPanel = null;
+	private JPanel optionsRowPanel = null;
+	private JPanel attributePanel = null;
 
 	/**
 	 * This is the default constructor
@@ -129,8 +133,12 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	 */
 	private JPanel getJContentPane() {
 		if (jContentPane == null) {
+			BorderLayout borderLayout = new BorderLayout();
+			borderLayout.setHgap(5);
+			borderLayout.setVgap(5);
 			jContentPane = new JPanel();
-			jContentPane.setLayout(new BorderLayout());
+			jContentPane.setLayout(borderLayout);
+			jContentPane.add(getEastPanel(), java.awt.BorderLayout.EAST);
 			jContentPane.add(getBottomPanel(), java.awt.BorderLayout.SOUTH);
 			jContentPane.add(getNorthPanel(), java.awt.BorderLayout.NORTH);
 			jContentPane.add(getTypeTabbedPane(), java.awt.BorderLayout.CENTER);
@@ -164,6 +172,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			buttonPanel = new JPanel();
 			buttonPanel.setLayout(flowLayout);
 			buttonPanel.add(getOkButton(), null);
+			buttonPanel.add(getCancelButton(), null);
 		}
 		return buttonPanel;
 	}
@@ -204,10 +213,6 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	 */
 	private JPanel getOptionsPanel() {
 		if (optionsPanel == null) {
-			GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
-			gridBagConstraints31.gridx = 2;
-			gridBagConstraints31.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints31.gridy = 1;
 			GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 			gridBagConstraints11.gridx = 0;
 			gridBagConstraints11.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -219,8 +224,8 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			gridBagConstraints11.gridy = 1;
 			optionsPanel = new JPanel();
 			optionsPanel.setLayout(new GridBagLayout());
+			optionsPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,0,0,0));
 			optionsPanel.add(getTextOptionPanel(), gridBagConstraints11);
-			optionsPanel.add(getPreviewWrapperPanel(), gridBagConstraints31);
 		}
 		return optionsPanel;
 	}
@@ -315,7 +320,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			typeTabbedPane = new JTabbedPane();
 			typeTabbedPane.addTab("Images", null, getImageExplorerPanel(), null);
 			typeTabbedPane.addTab("Filesystem", null, getFilesystemPanel(), null);
-			//typeTabbedPane.addTab("Library", null, getLibraryPanel(), null);
+			typeTabbedPane.addTab("Library", null, getLibraryPanel(), null);
 		}
 		return typeTabbedPane;
 	}
@@ -329,6 +334,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		if (imageExplorerPanel == null) {
 			imageExplorerPanel = new JPanel();
 			imageExplorerPanel.setLayout(new BorderLayout());
+			imageExplorerPanel.add(BorderLayout.CENTER, new AssetPanel("imageExplorer"));
 		}
 		return imageExplorerPanel;
 	}
@@ -343,7 +349,6 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			filesystemPanel = new JPanel();
 			filesystemPanel.setLayout(new BorderLayout());
 			filesystemPanel.add(getImageFileChooser(), java.awt.BorderLayout.NORTH);
-			filesystemPanel.add(getCancelButton(), java.awt.BorderLayout.SOUTH);
 		}
 		return filesystemPanel;
 	}
@@ -411,8 +416,8 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		private BufferedImage img;
 		
 		public ImagePreviewWindow() {
-			setPreferredSize(new Dimension(100, 100));
-			setMinimumSize(new Dimension(100, 100));
+			setPreferredSize(new Dimension(150, 100));
+			setMinimumSize(new Dimension(150, 100));
 		}
 		
 		public void setImage(File file) {
@@ -438,11 +443,14 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			if (img != null) {
 				Dimension imgSize = new Dimension(img.getWidth(), img.getHeight());
 				SwingUtil.constrainTo(imgSize, size.width, size.height);
-				g.drawImage(img, 0, 0, imgSize.width, imgSize.height, null);
 
 				// Border
+				int x = (size.width - imgSize.width)/2;
+				int y = (size.height - imgSize.height)/2;
+				
+				g.drawImage(img, x, y, imgSize.width, imgSize.height, null);
 				g.setColor(Color.black);
-				g.drawRect(0, 0, imgSize.width-1, imgSize.height-1);
+				g.drawRect(x, y, imgSize.width-1, imgSize.height-1);
 			}	
 
 		}
@@ -479,25 +487,15 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	 */
 	private JPanel getTextOptionPanel() {
 		if (textOptionPanel == null) {
-			GridBagConstraints gridBagConstraints = new GridBagConstraints();
-			gridBagConstraints.gridx = 2;
-			gridBagConstraints.gridy = 2;
-			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
-			gridBagConstraints7.gridx = 1;
-			gridBagConstraints7.fill = java.awt.GridBagConstraints.NONE;
-			gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints7.gridy = 2;
-			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-			gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints6.gridy = 1;
-			gridBagConstraints6.weightx = 1.0;
-			gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints6.gridx = 1;
+			GridBagConstraints gridBagConstraints41 = new GridBagConstraints();
+			gridBagConstraints41.gridx = 1;
+			gridBagConstraints41.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints41.gridy = 1;
 			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
 			gridBagConstraints5.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints5.gridy = 0;
 			gridBagConstraints5.weightx = 1.0;
-			gridBagConstraints5.gridwidth = 2;
+			gridBagConstraints5.gridwidth = 1;
 			gridBagConstraints5.gridx = 1;
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
 			gridBagConstraints4.anchor = java.awt.GridBagConstraints.WEST;
@@ -516,9 +514,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			textOptionPanel.add(nameLabel, gridBagConstraints4);
 			textOptionPanel.add(feetPerCellLabel, gridBagConstraints3);
 			textOptionPanel.add(getNameTextField(), gridBagConstraints5);
-			textOptionPanel.add(getFeetPerCellTextField(), gridBagConstraints6);
-			textOptionPanel.add(getTypePanel(), gridBagConstraints7);
-			textOptionPanel.add(getMapButtonPanel(), gridBagConstraints);
+			textOptionPanel.add(getOptionsRowPanel(), gridBagConstraints41);
 		}
 		return textOptionPanel;
 	}
@@ -543,27 +539,9 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JTextField getFeetPerCellTextField() {
 		if (feetPerCellTextField == null) {
 			feetPerCellTextField = new JTextField();
+			feetPerCellTextField.setColumns(4);
 		}
 		return feetPerCellTextField;
-	}
-
-	/**
-	 * This method initializes typePanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */
-	private JPanel getTypePanel() {
-		if (typePanel == null) {
-			FlowLayout flowLayout1 = new FlowLayout();
-			flowLayout1.setAlignment(java.awt.FlowLayout.LEFT);
-			flowLayout1.setVgap(0);
-			flowLayout1.setHgap(0);
-			typePanel = new JPanel();
-			typePanel.setLayout(flowLayout1);
-			typePanel.add(getBoundedRadioButton(), null);
-			typePanel.add(getUnboundedRadioButton(), null);
-		}
-		return typePanel;
 	}
 
 	/**
@@ -585,16 +563,77 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	}
 
 	/**
-	 * This method initializes mapButtonPanel	
+	 * This method initializes eastPanel	
 	 * 	
 	 * @return javax.swing.JPanel	
 	 */
-	private JPanel getMapButtonPanel() {
-		if (mapButtonPanel == null) {
-			mapButtonPanel = new JPanel();
-			mapButtonPanel.add(getAdjustGridButton(), null);
+	private JPanel getEastPanel() {
+		if (eastPanel == null) {
+			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
+			gridBagConstraints6.gridx = 1;
+			gridBagConstraints6.gridy = 2;
+			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+			gridBagConstraints1.gridx = 1;
+			gridBagConstraints1.gridy = 0;
+			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+			gridBagConstraints2.gridx = 1;
+			gridBagConstraints2.weighty = 1.0D;
+			gridBagConstraints2.gridy = 3;
+			GridBagConstraints gridBagConstraints = new GridBagConstraints();
+			gridBagConstraints.gridx = 1;
+			gridBagConstraints.gridy = 1;
+			eastPanel = new JPanel();
+			eastPanel.setLayout(new GridBagLayout());
+			eastPanel.add(getAdjustGridButton(), gridBagConstraints);
+			eastPanel.add(getSpacerPanel(), gridBagConstraints2);
+			eastPanel.add(getPreviewWrapperPanel(), gridBagConstraints1);
+			eastPanel.add(getAttributePanel(), gridBagConstraints6);
 		}
-		return mapButtonPanel;
+		return eastPanel;
+	}
+
+	/**
+	 * This method initializes spacerPanel	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getSpacerPanel() {
+		if (spacerPanel == null) {
+			spacerPanel = new JPanel();
+		}
+		return spacerPanel;
+	}
+
+	/**
+	 * This method initializes optionsRowPanel	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getOptionsRowPanel() {
+		if (optionsRowPanel == null) {
+			FlowLayout flowLayout1 = new FlowLayout();
+			flowLayout1.setHgap(0);
+			flowLayout1.setVgap(0);
+			optionsRowPanel = new JPanel();
+			optionsRowPanel.setLayout(flowLayout1);
+			optionsRowPanel.add(getFeetPerCellTextField(), null);
+		}
+		return optionsRowPanel;
+	}
+
+	/**
+	 * This method initializes attributePanel	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getAttributePanel() {
+		if (attributePanel == null) {
+			attributePanel = new JPanel();
+			attributePanel.setLayout(new BoxLayout(getAttributePanel(), BoxLayout.Y_AXIS));
+			attributePanel.add(getBoundedRadioButton(), null);
+			attributePanel.add(getUnboundedRadioButton(), null);
+		}
+		return attributePanel;
 	}
 	
 }  //  @jve:decl-index=0:visual-constraint="10,10"
