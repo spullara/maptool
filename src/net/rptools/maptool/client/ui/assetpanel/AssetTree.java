@@ -46,7 +46,7 @@ public class AssetTree extends JTree implements TreeSelectionListener {
     private AssetPanel assetPanel;
 	
     public AssetTree(AssetPanel assetPanel) {
-        super(new ImageFileTreeModel());
+        super(assetPanel.getModel().getImageFileTreeModel());
         
 		this.assetPanel = assetPanel;
 		

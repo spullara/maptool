@@ -27,12 +27,10 @@ package net.rptools.maptool.client.ui;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Paint;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
@@ -41,6 +39,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.lib.util.FileUtil;
@@ -77,7 +76,7 @@ public class AdjustGridDialog extends JDialog {
     public void adjust(Zone zone) {
         this.zone = zone;
         
-        BufferedImage background = ImageManager.getImage(AssetManager.getAsset(zone.getAssetID()));
+        BufferedImage background = ImageManager.getImage(AssetManager.getAsset(zone.getAssetID()), (JPanel)getContentPane());
         topLeft = new Point(0, 0);
         bottomRight = new Point(background.getWidth(), background.getHeight());
         
@@ -95,7 +94,7 @@ public class AdjustGridDialog extends JDialog {
             Dimension size = getSize();
 
             // Background
-            BufferedImage background = ImageManager.getImage(AssetManager.getAsset(zone.getAssetID()));
+            BufferedImage background = ImageManager.getImage(AssetManager.getAsset(zone.getAssetID()), (JPanel)getContentPane());
             Dimension imgSize = new Dimension(background.getWidth(), background.getHeight());
             SwingUtil.constrainTo(imgSize, size.width-BORDER_SPACING*2, size.height-BORDER_SPACING*2);
             g2d.drawImage(background, BORDER_SPACING, BORDER_SPACING, imgSize.width, imgSize.height, null);
@@ -137,7 +136,7 @@ public class AdjustGridDialog extends JDialog {
         
         Asset asset = new Asset(FileUtil.loadResource("net/rptools/maptool/client/image/map.jpg"));
         AssetManager.putAsset(asset);
-        ImageManager.getImage(asset);
+        ImageManager.getImage(asset, null);
         Thread.sleep(200);
         
         Zone z = new Zone(Zone.Type.MAP, asset.getId());

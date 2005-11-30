@@ -7,9 +7,10 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -18,26 +19,30 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.AbstractAction;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.lib.util.FileUtil;
 import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.AppConstants;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
+import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Zone;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import java.awt.GridLayout;
-import javax.swing.BoxLayout;
 
 public class NewMapDialog extends JDialog implements WindowListener {
 
@@ -58,7 +63,6 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JFileChooser imageFileChooser = null;
 	private ImagePreviewWindow imagePreviewPanel;
 	
-	private File selectedFile;
 	private JPanel textOptionPanel = null;
 	private JLabel nameLabel = null;
 	private JLabel feetPerCellLabel = null;
@@ -70,21 +74,38 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JPanel optionsRowPanel = null;
 	private JPanel attributePanel = null;
 
-	/**
+    private File selectedFile;
+    private Asset selectedAsset;
+    
+    private Asset returnAsset;
+    
+    /**
 	 * This is the default constructor
 	 */
 	public NewMapDialog(JFrame owner) {
 		super(owner, true);
 		initialize();
 		
-		addWindowListener(this);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(this);
+        
+        // Escape key
+        getJContentPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),"cancel");
+        getJContentPane().getActionMap().put("cancel", new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                System.out.println ("HELLO WORLD");
+                cancel();
+            }
+        });
+        
+        getRootPane().setDefaultButton(getOkButton());
 	}
 
 	@Override
 	public void setVisible(boolean b) {
 
 		if (b) {
-			setSelectedImage(null);
+			setSelectedFile(null);
 			SwingUtil.centerOver(this, getOwner());
 		}
 		super.setVisible(b);
@@ -94,19 +115,39 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		return boundedRadioButton.isSelected() ? Zone.Type.MAP : Zone.Type.INFINITE;
 	}
 	
-	public File showDialog() {
+	public Asset showDialog() {
 		
+        reset();
 		setVisible(true);
-		return selectedFile;
+        return returnAsset;
 	}
+    
+    public void reset() {
+        
+        returnAsset = null;
+        selectedAsset = null;
+        selectedFile = null;
+        
+        getImageFileChooser().setSelectedFile(null);
+    }
 	
 	public void accept() {
-		setVisible(false);
+        try {
+            returnAsset = selectedAsset != null ? selectedAsset : new Asset(FileUtil.loadFile(selectedFile));
+        } catch (IOException ioe) {
+            MapTool.showError("Could not load asset: " + ioe);
+            returnAsset = null;
+        }
+
+        setVisible(false);
 	}
 	
 	public void cancel() {
 		
 		selectedFile = null;
+        selectedAsset = null;
+        returnAsset = null;
+        
 		setVisible(false);
 	}
 	
@@ -334,7 +375,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		if (imageExplorerPanel == null) {
 			imageExplorerPanel = new JPanel();
 			imageExplorerPanel.setLayout(new BorderLayout());
-			imageExplorerPanel.add(BorderLayout.CENTER, new AssetPanel("imageExplorer"));
+			imageExplorerPanel.add(BorderLayout.CENTER, new AssetPanel("imageExplorer", MapTool.getFrame().getAssetPanel().getModel()));
 		}
 		return imageExplorerPanel;
 	}
@@ -403,9 +444,11 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		return imageFileChooser;
 	}
 	
-	private void setSelectedImage(File file) {
+	private void setSelectedFile(File file) {
 		
 		selectedFile = file;
+        selectedAsset = null;
+        
 		imagePreviewPanel.setImage(selectedFile);
 		
 		getOkButton().setEnabled(file != null);
@@ -463,18 +506,20 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
 				File selectedFile = getImageFileChooser().getSelectedFile();
 				
-				setSelectedImage(selectedFile);
+				setSelectedFile(selectedFile);
 			}
 		}
 	}
 	
 	////
 	// WINDOW LISTENER
-	public void windowActivated(WindowEvent e) {}
-	public void windowClosed(WindowEvent e) {
-		cancel();
-	}
-	public void windowClosing(WindowEvent e) {}
+	public void windowActivated(WindowEvent e) {
+	    getNameTextField().requestFocus();
+    }
+	public void windowClosed(WindowEvent e) {}
+	public void windowClosing(WindowEvent e) {
+        cancel();
+    }
 	public void windowDeactivated(WindowEvent e) {}
 	public void windowDeiconified(WindowEvent e) {}
 	public void windowIconified(WindowEvent e) {}

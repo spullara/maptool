@@ -29,18 +29,24 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -61,6 +67,7 @@ import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.ColorPickerButton;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
@@ -82,12 +89,15 @@ import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
+import net.rptools.maptool.client.ui.assetpanel.ImageFileImagePanelModel;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanel;
 import net.rptools.maptool.client.ui.zone.NewZoneDropPanel;
 import net.rptools.maptool.client.ui.zone.NotificationOverlay;
 import net.rptools.maptool.client.ui.zone.PointerOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneSelectionPanel;
+import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Pen;
@@ -144,7 +154,7 @@ public class MapToolClient extends JFrame {
 		SwingUtil.centerOnScreen(this);
         
 		// Components
-		assetPanel = new AssetPanel("mainAssetPanel");
+		assetPanel = createAssetPanel();
         tokenPanel = new TokenPanel();
         taskPanel = new TaskPanelGroup(5);
         new TaskPanelGroupPreferences(AppConstants.APP_NAME, "TaskPanel", taskPanel);
@@ -156,7 +166,6 @@ public class MapToolClient extends JFrame {
         colorPicker = new ColorPicker(this);
         colorPicker.setSize(colorPicker.getMinimumSize());
         colorPicker.setVisible(false);
-        newMapDialog = new NewMapDialog(this);
         
         try {
             String credits = new String(FileUtil.loadResource("net/rptools/maptool/client/credits.html"));
@@ -223,6 +232,9 @@ public class MapToolClient extends JFrame {
 	}
     
 	public NewMapDialog getNewMapDialog() {
+        if (newMapDialog == null) {
+            newMapDialog = new NewMapDialog(this);
+        }
 		return newMapDialog;
 	}
 	
@@ -248,6 +260,62 @@ public class MapToolClient extends JFrame {
         for (File file : assetRootList) {
             addAssetRoot(file);
         }
+    }
+    
+    private AssetPanel createAssetPanel() {
+        final AssetPanel panel = new AssetPanel("mainAssetPanel");
+        panel.addImagePanelMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                // TODO use for real popup logic
+                if (SwingUtilities.isRightMouseButton(e)) {
+
+                    List<Object> idList = panel.getSelectedIds();
+                    if (idList == null || idList.size() == 0) {
+                        return;
+                    }
+                    
+                    final int index = (Integer) idList.get(0);
+                    
+                    JPopupMenu menu = new JPopupMenu();
+                    menu.add(new JMenuItem(new AbstractAction() {
+                        {
+                            putValue(NAME, "New Bounded Map");
+                        }
+
+                        public void actionPerformed(ActionEvent e) {
+
+                            createZone(panel.getAsset(index), Zone.Type.MAP);
+                        }
+                    }));
+                    menu.add(new JMenuItem(new AbstractAction() {
+                        {
+                            putValue(NAME, "New Unbounded Map");
+                        }
+                        public void actionPerformed(ActionEvent e) {
+                            createZone(panel.getAsset(index), Zone.Type.INFINITE);
+                        }
+                    }));
+                    
+                    panel.showImagePanelPopup(menu, e.getX(), e.getY());
+                }
+            }
+            
+            private void createZone(Asset asset, int type) {
+                
+                if (!AssetManager.hasAsset(asset)) {
+                    
+                    AssetManager.putAsset(asset);
+                    MapTool.serverCommand().putAsset(asset);
+                }
+
+                Zone zone = new Zone(type, asset.getId());
+                
+                MapTool.addZone(zone);
+            }
+        });
+        
+        return panel;
     }
     
 	public PointerOverlay getPointerOverlay() {
@@ -325,9 +393,6 @@ public class MapToolClient extends JFrame {
         if (mainSplitPane.isLeftHidden()) {
             mainSplitPane.showLeft();
         }
-		
-        // TODO: Put this back in
-		//outlookPanel.setActive("Assets");
     }
     
 	private JComponent createToolboxPanel() {

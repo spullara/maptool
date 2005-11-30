@@ -114,7 +114,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 	
 			Asset asset = AssetManager.getAsset(assetId);
 			if (asset != null) {
-				BufferedImage image = ImageManager.getImage(asset);
+				BufferedImage image = ImageManager.getImage(asset, this);
 				if (image != ImageManager.UNKNOWN_IMAGE) {
 					backBuffer = null;
 					tileImage = image;

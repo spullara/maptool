@@ -666,7 +666,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         }
 
         // Don't scale if we're already at 1:1
-        image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()));
+        image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this);
         if (image.getWidth() == width && image.getHeight() == height) {
             return image;
         }
@@ -952,7 +952,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	if (asset != null) {
 	        CellPoint p = getCellAt(new ScreenPoint((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY()));
 	
-	        BufferedImage image = ImageManager.getImage(asset);
+	        BufferedImage image = ImageManager.getImage(asset, this);
 	        Token token = new Token(MapToolUtil.nextTokenId(), asset.getId(), image.getWidth(), image.getHeight());
 	        token.setX(p.x * zone.getGridSize());
 	        token.setY(p.y * zone.getGridSize());

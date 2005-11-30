@@ -107,7 +107,7 @@ public class MapZoneRenderer extends ZoneRenderer {
             backgroundImage = ImageManager.UNKNOWN_IMAGE;
         } else {
 
-        	backgroundImage = ImageManager.getImage(asset);
+        	backgroundImage = ImageManager.getImage(asset, this);
         }
         
         return backgroundImage;

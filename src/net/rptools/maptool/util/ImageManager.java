@@ -26,11 +26,14 @@ package net.rptools.maptool.util;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.swing.JComponent;
 
 import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.MapTool;
@@ -44,8 +47,10 @@ public class ImageManager {
     private static Map<MD5Key, BufferedImage> imageMap = new HashMap<MD5Key, BufferedImage>();
     
     public static BufferedImage UNKNOWN_IMAGE; 
+    public static BufferedImage BROKEN_IMAGE;
 
-    private static BackgroundImageLoader loader = new BackgroundImageLoader();
+    private static ExecutorService imageLoader = Executors.newFixedThreadPool(3);
+    private static Map<MD5Key, Set<JComponent>> imageObserverMap = new HashMap<MD5Key, Set<JComponent>>();
     
     static {
         
@@ -56,76 +61,82 @@ public class ImageManager {
             UNKNOWN_IMAGE = ImageUtil.createCompatibleImage(10, 10, 0);
         }
         
-        new Thread(loader).start();
+        try {
+            BROKEN_IMAGE = ImageUtil.getImage("net/rptools/maptool/client/image/broken.png");
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            BROKEN_IMAGE = ImageUtil.createCompatibleImage(10, 10, 0);
+        }
+        
     }
     
-    public static BufferedImage getImage(Asset asset) {
-        
+    public static BufferedImage getImage(Asset asset, JComponent observer) {
+
         BufferedImage image = imageMap.get(asset.getId());
+        
+        // Another request for the same asset ?
+        if (image == UNKNOWN_IMAGE) {
+            addObserver(asset, observer);
+        }
+        
+        // Cached
         if (image != null) {
             return image;
         }
         
         // Use placeholder until image is actually loaded
         imageMap.put(asset.getId(), UNKNOWN_IMAGE);
-        loader.addAsset(asset);
+        
+        addObserver(asset, observer);
+        imageLoader.execute(new BackgroundImageLoader(asset));
         
         return UNKNOWN_IMAGE;
     }
 
+    private static void addObserver(Asset asset, JComponent observer) {
+
+        if (observer == null) {
+            return;
+        }
+        
+        Set<JComponent> observerSet = imageObserverMap.get(asset.getId());
+        if (observerSet == null) {
+            observerSet = new HashSet<JComponent>();
+            imageObserverMap.put(asset.getId(), observerSet);
+        }
+        observerSet.add(observer);
+    }
+    
     private static class BackgroundImageLoader implements Runnable {
 
-        private List<Asset> assetQueue = Collections.synchronizedList(new LinkedList<Asset> ());
-
-        public void addAsset(Asset asset) {
-
-            synchronized(assetQueue) {
-                assetQueue.add(asset);
-                assetQueue.notify();
-            }
+        private Asset asset;
+        public BackgroundImageLoader(Asset asset) {
+            this.asset = asset;
         }
         
         public void run() {
             
-            while (true) {
-
-                if (assetQueue.size() > 0) {
+            try {
+                BufferedImage image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()));
+                
+                if (image != null) {
                     
-                    Asset asset = assetQueue.remove(0);
-                    
-                    try {
-                        BufferedImage image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()));
-                        
-                        if (image != null) {
-                            
-                            // Replace placeholder with actual image
-                            imageMap.put(asset.getId(), image);
-                            
-                            // OPTIMIZE: target the specific location to be redrawn
-                            // TODO: this class should really not known anything about the MapTool
-                            if (MapTool.getFrame() != null) {
-                            	MapTool.getFrame().repaint();
-                            }
-                        }
-                        
-                    } catch (IOException ioe) {
-                        ioe.printStackTrace();
-                    }
-
-                    // Look for more
-                    continue;
+                    // Replace placeholder with actual image
+                    imageMap.put(asset.getId(), image);
                 }
                 
-                // Wait for the next assets to load
-                synchronized (assetQueue) {
-                    try {
-                        assetQueue.wait();
-                    } catch (InterruptedException ie) {
-                        // Nothing to do
-                    }
-                }
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                imageMap.put(asset.getId(), BROKEN_IMAGE);
             }
             
+            // Notify observers
+            Set<JComponent> observerSet = imageObserverMap.remove(asset.getId());
+            if (observerSet != null) {
+                for (JComponent observer : observerSet) {
+                    observer.repaint();
+                }
+            }
         }
     }
         

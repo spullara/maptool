@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -51,75 +52,22 @@ public class AssetPanel extends JComponent {
 
 	private AssetTree assetTree;
 	private ImagePanel imagePanel;
+    
+    private AssetPanelModel assetPanelModel;
 	
-	public AssetPanel(String controlName) {
+    public AssetPanel(String controlName) {
+        this(controlName, new AssetPanelModel());
+    }
+    public AssetPanel(String controlName, AssetPanelModel model) {
 		
-		assetTree = new AssetTree(this);
+        assetPanelModel = model;
+
+        assetTree = new AssetTree(this);
 		imagePanel = new ImagePanel();
 		
 		imagePanel.setShowCaptions(false);
 		imagePanel.setSelectionMode(SelectionMode.SINGLE);
-		// TODO: Make this not an aic
-		imagePanel.addMouseListener(new MouseAdapter(){
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				// TODO use for real popup logic
-				if (SwingUtilities.isRightMouseButton(e)) {
-
-					List<Object> idList = imagePanel.getSelectedIds();
-					if (idList == null || idList.size() == 0) {
-						return;
-					}
-					
-					final int index = (Integer) idList.get(0);
-					
-					JPopupMenu menu = new JPopupMenu();
-					menu.add(new JMenuItem(new AbstractAction() {
-						{
-							putValue(NAME, "New Bounded Map");
-						}
-
-						public void actionPerformed(ActionEvent e) {
-
-							// TODO: Combine this code with the code for unbounded
-							Asset asset = ((ImageFileImagePanelModel)imagePanel.getModel()).getAsset(index);
-							if (!AssetManager.hasAsset(asset)) {
-								
-								AssetManager.putAsset(asset);
-								MapTool.serverCommand().putAsset(asset);
-							}
-							
-							Zone zone = new Zone(Zone.Type.MAP, asset.getId());
-							zone.setType(Zone.Type.MAP);
-							
-		                    MapTool.addZone(zone);
-						}
-					}));
-					menu.add(new JMenuItem(new AbstractAction() {
-						{
-							putValue(NAME, "New Unbounded Map");
-						}
-						public void actionPerformed(ActionEvent e) {
-
-							Asset asset = ((ImageFileImagePanelModel)imagePanel.getModel()).getAsset(index);
-							if (!AssetManager.hasAsset(asset)) {
-								
-								AssetManager.putAsset(asset);
-								MapTool.serverCommand().putAsset(asset);
-							}
-
-							Zone zone = new Zone(Zone.Type.INFINITE, asset.getId());
-							zone.setType(Zone.Type.INFINITE);
-							
-		                    MapTool.addZone(zone);
-						}
-					}));
-					
-					menu.show(imagePanel, e.getX(), e.getY());
-				}
-			}
-		});
-		
+        
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setContinuousLayout(true);
         
@@ -132,7 +80,33 @@ public class AssetPanel extends JComponent {
 		setLayout(new BorderLayout());
 		add(BorderLayout.CENTER, splitPane);
 	}
-	
+
+    public List<Object> getSelectedIds() {
+        return imagePanel.getSelectedIds();
+    }
+    
+    public void showImagePanelPopup(JPopupMenu menu, int x, int y) {
+        
+        menu.show(imagePanel, x, y);
+    }
+    
+    // TODO: Find a way around this, it's ugly
+    public Asset getAsset(int index) {
+        return ((ImageFileImagePanelModel)imagePanel.getModel()).getAsset(index);        
+    }
+    
+    public void addImagePanelMouseListener(MouseListener listener) {
+        imagePanel.addMouseListener(listener);
+    }
+    
+    public void removeImagePanelMouseListener(MouseListener listener) {
+        imagePanel.removeMouseListener(listener);
+    }
+    
+    public AssetPanelModel getModel() {
+        return assetPanelModel;
+    }
+    
     public boolean isAssetRoot(Directory dir) {
         return ((ImageFileTreeModel) assetTree.getModel()).isRootGroup(dir);
     }

@@ -27,7 +27,10 @@ package net.rptools.maptool.client.ui.assetpanel;
 import java.awt.Image;
 import java.awt.datatransfer.Transferable;
 
+import javax.swing.JPanel;
+
 import net.rptools.lib.swing.ImagePanelModel;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableAsset;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -36,7 +39,7 @@ import net.rptools.maptool.util.ImageManager;
 public class ImageFileImagePanelModel implements ImagePanelModel {
 
 	private Directory dir;
-	
+    
 	public ImageFileImagePanelModel(Directory dir) {
 		this.dir = dir;
 	}
@@ -51,8 +54,8 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 			
 			asset = getAsset(index);
 		}
-		
-		return asset != null ? ImageManager.getImage(asset) : ImageManager.UNKNOWN_IMAGE;
+
+		return asset != null ? ImageManager.getImage(asset, (JPanel)MapTool.getFrame().getContentPane()) : ImageManager.UNKNOWN_IMAGE;
 	}
 
 	public Transferable getTransferable(int index) {

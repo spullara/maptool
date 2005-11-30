@@ -644,7 +644,7 @@ public class AppActions {
 				AssetManager.putAsset(asset);
 				
 				// Preloaded
-				ImageManager.getImage(asset);
+				ImageManager.getImage(asset, null);
 			} catch(IOException ioe) {
 				ioe.printStackTrace();
 			}
@@ -680,25 +680,21 @@ public class AppActions {
 					
 					NewMapDialog newMapDialog = MapTool.getFrame().getNewMapDialog();
 
-					File selectedFile = newMapDialog.showDialog();
-					if (selectedFile == null) {
+					Asset asset = newMapDialog.showDialog();
+					if (asset == null) {
 						return;
 					}
 
-					try {
-						byte[] imgData = FileUtil.loadFile(selectedFile);
-						Asset asset = new Asset(imgData);
-						AssetManager.putAsset(asset);
+                    // Keep track of the image
+                    if (!AssetManager.hasAsset(asset)) {
+                        AssetManager.putAsset(asset);
+                        MapTool.serverCommand().putAsset(asset);
+                    }
 
-						MapTool.serverCommand().putAsset(asset);
-
-						Zone zone = new Zone(newMapDialog.getZoneType(), asset.getId());
-						zone.setVisible(AppState.isNewZonesVisible());
-						MapTool.addZone(zone);
-					} catch (IOException ioe) {
-						MapTool.showError("Could not load image: " + ioe);
-						return;
-					}
+                    // Create the zone
+					Zone zone = new Zone(newMapDialog.getZoneType(), asset.getId());
+					zone.setVisible(AppState.isNewZonesVisible());
+					MapTool.addZone(zone);
 				}
 
 			});

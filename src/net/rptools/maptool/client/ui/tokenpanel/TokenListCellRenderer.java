@@ -30,6 +30,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JComponent;
 import javax.swing.JList;
 
 import net.rptools.lib.swing.SwingUtil;
@@ -48,7 +49,7 @@ public class TokenListCellRenderer extends DefaultListCellRenderer {
         super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         if (value instanceof Token) {
             Token token = (Token) value;
-            image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()));
+            image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this);
             name = token.getName();
             
             setText(" "); // hack to keep the row height the right size
