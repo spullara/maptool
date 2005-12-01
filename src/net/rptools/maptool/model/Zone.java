@@ -59,6 +59,8 @@ public class Zone extends Token {
         LABEL_CHANGED
     }
     
+    public static final int DEFAULT_FEET_PER_CELL = 5;
+    
     private static final int MIN_GRID_SIZE = 5;
     private static final int MAX_GRID_SIZE = 250;
 
@@ -75,7 +77,7 @@ public class Zone extends Token {
     
     private int type;
     
-    private int feetPerCell = 5;
+    private int feetPerCell = DEFAULT_FEET_PER_CELL;
     
     private List<DrawnElement> drawables = new LinkedList<DrawnElement>();
 

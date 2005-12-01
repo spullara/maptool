@@ -694,9 +694,10 @@ public class AppActions {
                     // Create the zone
 					Zone zone = new Zone(newMapDialog.getZoneType(), asset.getId());
 					zone.setVisible(AppState.isNewZonesVisible());
+                    zone.setName(newMapDialog.getZoneName());
+                    zone.setFeetPerCell(newMapDialog.getZoneFeetPerCell());
 					MapTool.addZone(zone);
 				}
-
 			});
 		}
 	};

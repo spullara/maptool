@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -114,7 +115,15 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	public int getZoneType() {
 		return boundedRadioButton.isSelected() ? Zone.Type.MAP : Zone.Type.INFINITE;
 	}
+    
+    public String getZoneName() {
+        return getNameTextField().getText();
+    }
 	
+    public int getZoneFeetPerCell() {
+        return Integer.parseInt(getFeetPerCellTextField().getText());
+    }
+    
 	public Asset showDialog() {
 		
         reset();
@@ -179,7 +188,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			borderLayout.setVgap(5);
 			jContentPane = new JPanel();
 			jContentPane.setLayout(borderLayout);
-			jContentPane.add(getEastPanel(), java.awt.BorderLayout.EAST);
+			//jContentPane.add(getEastPanel(), java.awt.BorderLayout.EAST);
 			jContentPane.add(getBottomPanel(), java.awt.BorderLayout.SOUTH);
 			jContentPane.add(getNorthPanel(), java.awt.BorderLayout.NORTH);
 			jContentPane.add(getTypeTabbedPane(), java.awt.BorderLayout.CENTER);
@@ -440,7 +449,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 				}
 			});
 			imageFileChooser.addPropertyChangeListener(new FileSystemSelectionHandler());
-			
+			imageFileChooser.setAccessory(getPreviewWrapperPanel());
 		}
 		return imageFileChooser;
 	}
@@ -573,7 +582,6 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JTextField getNameTextField() {
 		if (nameTextField == null) {
 			nameTextField = new JTextField();
-            nameTextField.setEnabled(false);
 		}
 		return nameTextField;
 	}
@@ -587,7 +595,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		if (feetPerCellTextField == null) {
 			feetPerCellTextField = new JTextField();
 			feetPerCellTextField.setColumns(4);
-            feetPerCellTextField.setEnabled(false);
+            feetPerCellTextField.setText(Integer.toString(Zone.DEFAULT_FEET_PER_CELL));
 		}
 		return feetPerCellTextField;
 	}
@@ -603,7 +611,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			gridLayout.setRows(1);
 			gridLayout.setColumns(1);
 			previewWrapperPanel = new JPanel();
-			previewWrapperPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Preview", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null));
+			previewWrapperPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0), BorderFactory.createTitledBorder(null, "Preview", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null)));
 			previewWrapperPanel.setLayout(gridLayout);
 			previewWrapperPanel.add(getPreviewPanel(), null);
 		}
