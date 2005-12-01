@@ -1,5 +1,9 @@
 package net.rptools.maptool.client.ui.assetpanel;
 
+import java.awt.Dimension;
+import java.awt.Transparency;
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.HashMap;
@@ -9,30 +13,41 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.swing.JComponent;
-
-import net.rptools.lib.util.FileUtil;
-import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetManager;
-import net.rptools.maptool.util.MD5Key;
+import net.rptools.lib.image.ThumbnailManager;
+import net.rptools.maptool.client.AppUtil;
 
 public class AssetDirectory extends Directory {
 
-	private Map<File, Future<Asset>> assetMap = new HashMap<File, Future<Asset>>();
+    public static final String PROPERTY_IMAGE_LOADED = "imageLoaded";
+    
+    // TODO: make this configurable
+    private static final Dimension THUMBNAIL_SIZE = new Dimension (100, 100);
 
-	private static final Asset INVALID_ASSET = new Asset((MD5Key)null);
+    private static ThumbnailManager thumbnailManager = new ThumbnailManager(AppUtil.getAppHome("imageThumbs"), THUMBNAIL_SIZE); 
+    
+	private Map<File, Future<BufferedImage>> imageMap = new HashMap<File, Future<BufferedImage>>();
+
+	private static final BufferedImage INVALID_IMAGE = new BufferedImage(1, 1, Transparency.OPAQUE);
 	
-	private static ExecutorService assetLoaderService = Executors.newFixedThreadPool(3);
-	
+	private static ExecutorService imageLoaderService = Executors.newFixedThreadPool(3);
+    
+    private AtomicBoolean continueProcessing = new AtomicBoolean(true);
+    
 	public AssetDirectory(File directory, FilenameFilter fileFilter) {
 		super(directory, fileFilter);
 	}
 
 	@Override
 	public void refresh() {
-		assetMap.clear();
+		imageMap.clear();
+        
+        // Tell any in-progress processing to stop
+        AtomicBoolean oldBool = continueProcessing;
+        continueProcessing = new AtomicBoolean(true);
+        oldBool.set(false);
+        
 		super.refresh();
 	}
 	
@@ -42,16 +57,18 @@ public class AssetDirectory extends Directory {
 	 * @param imageFile
 	 * @return
 	 */
-	public Asset getAssetFor(File imageFile) {
+	public BufferedImage getImageFor(File imageFile) {
 
-		Future<Asset> future = assetMap.get(imageFile);
+		Future<BufferedImage> future = imageMap.get(imageFile);
 		if (future != null) {
 			if (future.isDone()) {
 				try {
-					return future.get() != INVALID_ASSET ? future.get() : null;
+					return future.get() != INVALID_IMAGE ? future.get() : null;
 				} catch (InterruptedException e) {
+                    // TODO: need to indicate a broken image
 					return null;
 				} catch (ExecutionException e) {
+                    // TODO: need to indicate a broken image
 					return null;
 				} 
 			}
@@ -61,8 +78,8 @@ public class AssetDirectory extends Directory {
 		}
 		
 		// load the asset in the background
-		future = assetLoaderService.submit(new AssetLoader(imageFile));
-		assetMap.put(imageFile, future);
+		future = imageLoaderService.submit(new ImageLoader(imageFile));
+		imageMap.put(imageFile, future);
 		return null;
 	}
 	
@@ -71,30 +88,32 @@ public class AssetDirectory extends Directory {
 		return new AssetDirectory(directory, fileFilter);
 	}
 	
-	private static class AssetLoader implements Callable<Asset> {
+	private class ImageLoader implements Callable<BufferedImage> {
 		
 		private File imageFile;
 		
-		public AssetLoader (File imageFile) {
+		public ImageLoader (File imageFile) {
 			this.imageFile = imageFile;
 		}
 		
-		public Asset call() throws Exception {
+		public BufferedImage call() throws Exception {
 
-			Asset asset = null;
+            // Have we been orphaned ?
+            if (!continueProcessing.get()) {
+                return null;
+            }
+            
+            // Load it up
+			BufferedImage thumbnail = null;
 			try {
-				asset = new Asset(FileUtil.loadFile(imageFile));
-				if (AssetManager.hasAssetInMemory(asset.getId())) {
-					asset = AssetManager.getAsset(asset.getId());;
-				}
+				thumbnail = thumbnailManager.getThumbnail(imageFile);
 			} catch (Throwable t) {
                 t.printStackTrace();
-				asset = INVALID_ASSET;
+				thumbnail = INVALID_IMAGE;
 			}
 			
-			// TODO: Find a better way to notify the app to redraw
-			MapTool.getFrame().repaint();
-			return asset;
+            firePropertyChangeEvent(new PropertyChangeEvent(AssetDirectory.this, PROPERTY_IMAGE_LOADED, false, true));
+			return thumbnail;
 		}
 	}
 }

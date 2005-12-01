@@ -24,19 +24,25 @@
  */
 package net.rptools.maptool.client.ui.assetpanel;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Directory {
 
     private static final FileFilter DIRECTORY_FILTER = new DirectoryFileFilter();
+
+    private List<PropertyChangeListener> listenerList = new CopyOnWriteArrayList<PropertyChangeListener>();  
     
     private File directory;
 
+    private Directory parent;
     private List<Directory> subdirs;
     private List<File> files;
 
@@ -52,6 +58,16 @@ public class Directory {
         
         this.directory = directory;
         this.fileFilter = fileFilter;
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        if (!listenerList.contains(listener)) {
+            listenerList.add(listener);
+        }
+    }
+    
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        listenerList.remove(listener);
     }
     
     public boolean equals(Object o) {
@@ -81,6 +97,10 @@ public class Directory {
         return files;
     }
     
+    public Directory getParent() {
+        return parent;
+    }
+    
     private void load() {
         if (files == null && subdirs == null) {
 
@@ -88,7 +108,9 @@ public class Directory {
             File [] subdirList = directory.listFiles(DIRECTORY_FILTER);
             subdirs = new ArrayList<Directory>();
             for (int i = 0; i < subdirList.length; i++) {
-                subdirs.add(newDirectory(subdirList[i], fileFilter));
+                Directory newDir = newDirectory(subdirList[i], fileFilter); 
+                newDir.parent = this;
+                subdirs.add(newDir);
             }
             subdirs = Collections.unmodifiableList(subdirs);
         }
@@ -110,5 +132,12 @@ public class Directory {
     
     protected Directory newDirectory(File directory, FilenameFilter fileFilter) {
     	return new Directory(directory, fileFilter);
+    }
+    
+    protected void firePropertyChangeEvent(PropertyChangeEvent event) {
+        
+        for (PropertyChangeListener listener : listenerList) {
+            listener.propertyChange(event);
+        }
     }
 }

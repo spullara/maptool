@@ -35,9 +35,9 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
+import net.rptools.lib.FileUtil;
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.lib.util.FileUtil;
-import net.rptools.lib.util.ImageUtil;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
@@ -305,7 +305,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			boundedRadioButton.addItemListener(new java.awt.event.ItemListener() {
 				public void itemStateChanged(java.awt.event.ItemEvent e) {
 					if (boundedRadioButton.isSelected()) {
-						adjustGridButton.setEnabled(true);
+						//adjustGridButton.setEnabled(true);
 					}
 				}
 			});
@@ -359,9 +359,9 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JTabbedPane getTypeTabbedPane() {
 		if (typeTabbedPane == null) {
 			typeTabbedPane = new JTabbedPane();
-			typeTabbedPane.addTab("Images", null, getImageExplorerPanel(), null);
+			//typeTabbedPane.addTab("Images", null, getImageExplorerPanel(), null);
 			typeTabbedPane.addTab("Filesystem", null, getFilesystemPanel(), null);
-			typeTabbedPane.addTab("Library", null, getLibraryPanel(), null);
+			//typeTabbedPane.addTab("Library", null, getLibraryPanel(), null);
 		}
 		return typeTabbedPane;
 	}
@@ -415,6 +415,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		if (adjustGridButton == null) {
 			adjustGridButton = new JButton();
 			adjustGridButton.setText("Adjust Grid");
+            adjustGridButton.setEnabled(false);
 		}
 		return adjustGridButton;
 	}
@@ -572,6 +573,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JTextField getNameTextField() {
 		if (nameTextField == null) {
 			nameTextField = new JTextField();
+            nameTextField.setEnabled(false);
 		}
 		return nameTextField;
 	}
@@ -585,6 +587,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		if (feetPerCellTextField == null) {
 			feetPerCellTextField = new JTextField();
 			feetPerCellTextField.setColumns(4);
+            feetPerCellTextField.setEnabled(false);
 		}
 		return feetPerCellTextField;
 	}

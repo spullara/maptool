@@ -35,9 +35,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawnElement;
-import net.rptools.maptool.util.MD5Key;
 
 /**
  * This object represents the maps that will appear for placement of {@link Token}s.  This

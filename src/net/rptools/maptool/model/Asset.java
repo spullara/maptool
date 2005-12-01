@@ -24,7 +24,7 @@
  */
 package net.rptools.maptool.model;
 
-import net.rptools.maptool.util.MD5Key;
+import net.rptools.lib.MD5Key;
 
 /**
  * The binary representation of an image.

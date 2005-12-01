@@ -44,8 +44,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 
-import net.rptools.lib.util.FileUtil;
-import net.rptools.lib.util.ImageUtil;
+import net.rptools.lib.FileUtil;
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;

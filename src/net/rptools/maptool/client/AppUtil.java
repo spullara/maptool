@@ -22,28 +22,39 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.tool;
+package net.rptools.maptool.client;
 
-import java.io.IOException;
+import java.io.File;
 
-import javax.swing.ImageIcon;
+public class AppUtil {
 
-import net.rptools.lib.image.ImageUtil;
-
-/**
- */
-public class PointerTool extends DefaultTool {
-
-	public PointerTool () {
-        try {
-            setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/tool/PointerBlue16.png")));
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
+    private static final String USER_HOME;
+    
+    static {
+        
+        USER_HOME = System.getProperty("user.home");
+        
     }
     
-    @Override
-    public String getTooltip() {
-        return "Pointer tool";
+    public static File getUserHome() {
+        return USER_HOME != null ? new File(USER_HOME) : null;
+    }
+    
+    public static File getAppHome() {
+        if (USER_HOME == null) {return null;}
+        
+        File home = new File(USER_HOME + "/.maptool");
+        home.mkdirs();
+        
+        return home;
+    }
+    
+    public static File getAppHome(String subdir) {
+        if (USER_HOME == null) {return null;}
+        
+        File home = new File(getAppHome().getPath() + "/" + subdir);
+        home.mkdirs();
+        
+        return home;
     }
 }

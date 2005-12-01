@@ -32,7 +32,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.rptools.lib.util.ImageUtil;
+import net.rptools.lib.image.ImageUtil;
 
 public class ConnectionStatusPanel extends JPanel {
 

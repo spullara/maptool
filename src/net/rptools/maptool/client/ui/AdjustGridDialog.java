@@ -41,8 +41,8 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import net.rptools.lib.FileUtil;
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.lib.util.FileUtil;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;

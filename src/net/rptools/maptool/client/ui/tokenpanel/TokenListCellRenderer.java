@@ -30,7 +30,6 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.JComponent;
 import javax.swing.JList;
 
 import net.rptools.lib.swing.SwingUtil;

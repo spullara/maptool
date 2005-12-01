@@ -26,11 +26,11 @@ package net.rptools.maptool.client.ui.assetpanel;
 
 import java.awt.Image;
 import java.awt.datatransfer.Transferable;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
-import javax.swing.JPanel;
-
+import net.rptools.lib.FileUtil;
 import net.rptools.lib.swing.ImagePanelModel;
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableAsset;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -49,19 +49,24 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 	}
 
 	public Image getImage(int index) {
-		Asset asset = null;
+
+        BufferedImage image = null;
 		if (dir instanceof AssetDirectory) {
 			
-			asset = getAsset(index);
+			image = ((AssetDirectory) dir).getImageFor(dir.getFiles().get(index));
 		}
 
-		return asset != null ? ImageManager.getImage(asset, (JPanel)MapTool.getFrame().getContentPane()) : ImageManager.UNKNOWN_IMAGE;
+		return image != null ?  image : ImageManager.UNKNOWN_IMAGE;
 	}
 
 	public Transferable getTransferable(int index) {
 		Asset asset = null;
 		if (dir instanceof AssetDirectory) {
 			asset = getAsset(index);
+            
+            if (asset == null) {
+                return null;
+            }
 			
 			// Now is a good time to tell the system about it
 			AssetManager.putAsset(asset);
@@ -83,6 +88,11 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
     }
     
     public Asset getAsset(int index) {
-		return ((AssetDirectory) dir).getAssetFor(dir.getFiles().get(index));
+        try {
+            Asset asset = new Asset(FileUtil.loadFile(dir.getFiles().get(index)));
+    		return asset;
+        } catch (IOException ioe) {
+            return null;
+        }
     }
 }

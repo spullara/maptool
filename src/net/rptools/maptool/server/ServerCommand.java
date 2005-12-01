@@ -27,6 +27,7 @@ package net.rptools.maptool.server;
 import java.awt.geom.Area;
 import java.util.Set;
 
+import net.rptools.lib.MD5Key;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
@@ -36,7 +37,6 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.Pen;
-import net.rptools.maptool.util.MD5Key;
 
 public interface ServerCommand {
 

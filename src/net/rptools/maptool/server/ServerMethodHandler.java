@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
+import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.ClientCommand;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -43,7 +44,6 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
-import net.rptools.maptool.util.MD5Key;
 
 /**
  * @author drice

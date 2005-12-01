@@ -27,7 +27,7 @@ package net.rptools.maptool.model;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import net.rptools.maptool.util.MD5Key;
+import net.rptools.lib.MD5Key;
 
 /**
  * This object represents the placeable objects on a map.  For example an icon that represents a character

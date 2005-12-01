@@ -33,6 +33,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;

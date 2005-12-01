@@ -60,16 +60,6 @@ public class AssetTree extends JTree implements TreeSelectionListener {
         getSelectionModel().addTreeSelectionListener(this);
     }
 
-    public void removeRootGroup(Directory dir) {
-        
-        ((ImageFileTreeModel) getModel()).removeRootGroup(dir);
-    }
-    
-    public void addRootGroup(Directory dir) {
-    	
-    	((ImageFileTreeModel) getModel()).addRootGroup(dir);
-    }
-    
     public Directory getSelectedAssetGroup() {
         return selectedDirectory;
     }
@@ -101,6 +91,12 @@ public class AssetTree extends JTree implements TreeSelectionListener {
      */
     public void valueChanged(TreeSelectionEvent e) {
 
+        // Keep memory tight
+        // TODO: make this an option
+        if (selectedDirectory != null) {
+            selectedDirectory.refresh();
+        }
+        
         selectedDirectory = null;
         
         Object node = e.getPath().getLastPathComponent();

@@ -31,7 +31,7 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-import net.rptools.lib.util.ImageUtil;
+import net.rptools.lib.image.ImageUtil;
 
 /**
  * @author drice

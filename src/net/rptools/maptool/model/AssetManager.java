@@ -30,8 +30,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.rptools.lib.util.FileUtil;
-import net.rptools.maptool.util.MD5Key;
+import net.rptools.lib.FileUtil;
+import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.AppUtil;
 
 /**
  */
@@ -45,14 +46,9 @@ public class AssetManager {
     
 	static {
 		
-		String userHome = System.getProperty("user.home");
-		if (userHome != null) {
-			
+		cacheDir = AppUtil.getAppHome("assetcache");
+		if (cacheDir != null) {
 			usePersistentCache = true;
-			
-			cacheDir = new File(userHome + File.separator + ".maptool/assetcache");
-			
-			cacheDir.mkdirs();
 		}
 	}
 

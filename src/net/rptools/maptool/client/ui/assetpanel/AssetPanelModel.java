@@ -24,9 +24,17 @@
  */
 package net.rptools.maptool.client.ui.assetpanel;
 
-public class AssetPanelModel {
+import java.awt.image.ImageObserver;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public class AssetPanelModel implements PropertyChangeListener {
 
     private ImageFileTreeModel imageFileTreeModel;
+
+    private List<ImageObserver> observerList = new CopyOnWriteArrayList<ImageObserver>();
     
     public AssetPanelModel() {
         imageFileTreeModel = new ImageFileTreeModel();
@@ -34,5 +42,35 @@ public class AssetPanelModel {
     
     public ImageFileTreeModel getImageFileTreeModel() {
         return imageFileTreeModel;
+    }
+    
+    public void removeRootGroup(Directory dir) {
+        
+        imageFileTreeModel.removeRootGroup(dir);
+        dir.removePropertyChangeListener(this);
+    }
+    
+    public void addRootGroup(Directory dir) {
+        dir.addPropertyChangeListener(this);
+        imageFileTreeModel.addRootGroup(dir);
+    }
+    
+    public void addImageUpdateObserver(ImageObserver observer) {
+        if (!observerList.contains(observer)) {
+            observerList.add(observer);
+        }
+    }
+    
+    public void removeImageUpdateObserver(ImageObserver observer) {
+        observerList.remove(observer);
+    }
+    
+    ////
+    // PROPERTY CHANGE LISTENER
+    public void propertyChange(PropertyChangeEvent evt) {
+
+        for (ImageObserver observer : observerList) {
+            observer.imageUpdate(null, ImageObserver.ALLBITS, 0, 0, 0, 0);
+        }
     }
 }

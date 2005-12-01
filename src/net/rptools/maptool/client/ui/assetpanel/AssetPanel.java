@@ -29,6 +29,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -61,6 +63,7 @@ public class AssetPanel extends JComponent {
     public AssetPanel(String controlName, AssetPanelModel model) {
 		
         assetPanelModel = model;
+        model.addImageUpdateObserver(this);
 
         assetTree = new AssetTree(this);
 		imagePanel = new ImagePanel();
@@ -112,7 +115,7 @@ public class AssetPanel extends JComponent {
     }
     
     public void removeAssetRoot(Directory dir) {
-        assetTree.removeRootGroup(dir);
+        assetPanelModel.removeRootGroup(dir);
     }
     
     public Directory getSelectedAssetRoot() {
@@ -121,14 +124,14 @@ public class AssetPanel extends JComponent {
     
 	public void addAssetRoot(Directory dir) {
 		
-		assetTree.addRootGroup(dir);
+		assetPanelModel.addRootGroup(dir);
 	}
 	
 	public void setDirectory(Directory dir) {
 		imagePanel.setModel(new ImageFileImagePanelModel(dir));
 	}
   
-  public AssetTree getAssetTree() {
-    return assetTree;
-  }
+    public AssetTree getAssetTree() {
+      return assetTree;
+    }
 }
