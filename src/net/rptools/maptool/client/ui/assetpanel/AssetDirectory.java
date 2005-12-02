@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.rptools.lib.image.ThumbnailManager;
@@ -27,7 +28,7 @@ public class AssetDirectory extends Directory {
 
     private static ThumbnailManager thumbnailManager = new ThumbnailManager(AppUtil.getAppHome("imageThumbs"), THUMBNAIL_SIZE); 
     
-	private Map<File, Future<BufferedImage>> imageMap = new HashMap<File, Future<BufferedImage>>();
+	private Map<File, FutureTask<BufferedImage>> imageMap = new HashMap<File, FutureTask<BufferedImage>>();
 
 	private static final BufferedImage INVALID_IMAGE = new BufferedImage(1, 1, Transparency.OPAQUE);
 	
@@ -59,7 +60,7 @@ public class AssetDirectory extends Directory {
 	 */
 	public BufferedImage getImageFor(File imageFile) {
 
-		Future<BufferedImage> future = imageMap.get(imageFile);
+		FutureTask<BufferedImage> future = imageMap.get(imageFile);
 		if (future != null) {
 			if (future.isDone()) {
 				try {
@@ -78,7 +79,13 @@ public class AssetDirectory extends Directory {
 		}
 		
 		// load the asset in the background
-		future = imageLoaderService.submit(new ImageLoader(imageFile));
+		future = new FutureTask<BufferedImage>(new ImageLoader(imageFile)){
+			@Override
+			protected void done() {
+	            firePropertyChangeEvent(new PropertyChangeEvent(AssetDirectory.this, PROPERTY_IMAGE_LOADED, false, true));
+			}
+		};
+		imageLoaderService.execute(future);
 		imageMap.put(imageFile, future);
 		return null;
 	}
@@ -111,9 +118,10 @@ public class AssetDirectory extends Directory {
                 t.printStackTrace();
 				thumbnail = INVALID_IMAGE;
 			}
-			
-            firePropertyChangeEvent(new PropertyChangeEvent(AssetDirectory.this, PROPERTY_IMAGE_LOADED, false, true));
+
 			return thumbnail;
 		}
+		
+		
 	}
 }
