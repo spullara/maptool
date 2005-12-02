@@ -34,6 +34,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
 import net.rptools.lib.FileUtil;
@@ -66,21 +67,22 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	
 	private JPanel textOptionPanel = null;
 	private JLabel nameLabel = null;
-	private JLabel feetPerCellLabel = null;
 	private JTextField nameTextField = null;
 	private JTextField feetPerCellTextField = null;
 	private JPanel previewWrapperPanel = null;
 	private JPanel eastPanel = null;
 	private JPanel spacerPanel = null;
-	private JPanel optionsRowPanel = null;
 	private JPanel attributePanel = null;
 
     private File selectedFile;
     private Asset selectedAsset;
     
     private Asset returnAsset;
-    
-    /**
+	private JPanel row3Panel = null;
+	private JPanel row2Panel = null;
+	private JLabel fpcLabel = null;
+	private JLabel spacerLabel = null;
+	/**
 	 * This is the default constructor
 	 */
 	public NewMapDialog(JFrame owner) {
@@ -166,7 +168,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setSize(480, 450);
+		this.setSize(565, 506);
 		this.setEnabled(true);
 		this.setTitle("New Map");
 		this.setContentPane(getJContentPane());
@@ -542,34 +544,39 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	 */
 	private JPanel getTextOptionPanel() {
 		if (textOptionPanel == null) {
-			GridBagConstraints gridBagConstraints41 = new GridBagConstraints();
-			gridBagConstraints41.gridx = 1;
-			gridBagConstraints41.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints41.gridy = 1;
+			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+			gridBagConstraints3.gridx = 1;
+			gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints3.insets = new java.awt.Insets(0,0,3,0);
+			gridBagConstraints3.gridy = 1;
+			GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
+			gridBagConstraints21.gridx = 2;
+			gridBagConstraints21.insets = new java.awt.Insets(0,0,3,0);
+			gridBagConstraints21.gridy = 0;
+			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
+			gridBagConstraints12.gridx = 1;
+			gridBagConstraints12.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints12.gridy = 3;
 			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-			gridBagConstraints5.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints5.fill = java.awt.GridBagConstraints.NONE;
 			gridBagConstraints5.gridy = 0;
 			gridBagConstraints5.weightx = 1.0;
 			gridBagConstraints5.gridwidth = 1;
+			gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints5.insets = new java.awt.Insets(0,0,3,0);
 			gridBagConstraints5.gridx = 1;
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
 			gridBagConstraints4.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints4.insets = new java.awt.Insets(0,0,0,5);
-			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-			gridBagConstraints3.gridx = 0;
-			gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints3.insets = new java.awt.Insets(0,0,0,5);
-			gridBagConstraints3.gridy = 1;
-			feetPerCellLabel = new JLabel();
-			feetPerCellLabel.setText("Feet per cell:");
+			gridBagConstraints4.insets = new java.awt.Insets(0,0,3,5);
 			nameLabel = new JLabel();
 			nameLabel.setText("Name:");
 			textOptionPanel = new JPanel();
 			textOptionPanel.setLayout(new GridBagLayout());
 			textOptionPanel.add(nameLabel, gridBagConstraints4);
-			textOptionPanel.add(feetPerCellLabel, gridBagConstraints3);
 			textOptionPanel.add(getNameTextField(), gridBagConstraints5);
-			textOptionPanel.add(getOptionsRowPanel(), gridBagConstraints41);
+			textOptionPanel.add(getRow3Panel(), gridBagConstraints12);
+			textOptionPanel.add(getAdjustGridButton(), gridBagConstraints21);
+			textOptionPanel.add(getRow2Panel(), gridBagConstraints3);
 		}
 		return textOptionPanel;
 	}
@@ -582,6 +589,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JTextField getNameTextField() {
 		if (nameTextField == null) {
 			nameTextField = new JTextField();
+			nameTextField.setColumns(25);
 		}
 		return nameTextField;
 	}
@@ -594,7 +602,8 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JTextField getFeetPerCellTextField() {
 		if (feetPerCellTextField == null) {
 			feetPerCellTextField = new JTextField();
-			feetPerCellTextField.setColumns(4);
+			feetPerCellTextField.setColumns(3);
+			feetPerCellTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
             feetPerCellTextField.setText(Integer.toString(Zone.DEFAULT_FEET_PER_CELL));
 		}
 		return feetPerCellTextField;
@@ -611,7 +620,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			gridLayout.setRows(1);
 			gridLayout.setColumns(1);
 			previewWrapperPanel = new JPanel();
-			previewWrapperPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0), BorderFactory.createTitledBorder(null, "Preview", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null)));
+			previewWrapperPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0), BorderFactory.createTitledBorder(null, "Preview", TitledBorder.CENTER, TitledBorder.BELOW_BOTTOM, null, null)));
 			previewWrapperPanel.setLayout(gridLayout);
 			previewWrapperPanel.add(getPreviewPanel(), null);
 		}
@@ -635,12 +644,8 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			gridBagConstraints2.gridx = 1;
 			gridBagConstraints2.weighty = 1.0D;
 			gridBagConstraints2.gridy = 3;
-			GridBagConstraints gridBagConstraints = new GridBagConstraints();
-			gridBagConstraints.gridx = 1;
-			gridBagConstraints.gridy = 1;
 			eastPanel = new JPanel();
 			eastPanel.setLayout(new GridBagLayout());
-			eastPanel.add(getAdjustGridButton(), gridBagConstraints);
 			eastPanel.add(getSpacerPanel(), gridBagConstraints2);
 			eastPanel.add(getPreviewWrapperPanel(), gridBagConstraints1);
 			eastPanel.add(getAttributePanel(), gridBagConstraints6);
@@ -661,23 +666,6 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	}
 
 	/**
-	 * This method initializes optionsRowPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */
-	private JPanel getOptionsRowPanel() {
-		if (optionsRowPanel == null) {
-			FlowLayout flowLayout1 = new FlowLayout();
-			flowLayout1.setHgap(0);
-			flowLayout1.setVgap(0);
-			optionsRowPanel = new JPanel();
-			optionsRowPanel.setLayout(flowLayout1);
-			optionsRowPanel.add(getFeetPerCellTextField(), null);
-		}
-		return optionsRowPanel;
-	}
-
-	/**
 	 * This method initializes attributePanel	
 	 * 	
 	 * @return javax.swing.JPanel	
@@ -686,10 +674,50 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		if (attributePanel == null) {
 			attributePanel = new JPanel();
 			attributePanel.setLayout(new BoxLayout(getAttributePanel(), BoxLayout.Y_AXIS));
-			attributePanel.add(getBoundedRadioButton(), null);
-			attributePanel.add(getUnboundedRadioButton(), null);
 		}
 		return attributePanel;
+	}
+
+	/**
+	 * This method initializes row3Panel	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getRow3Panel() {
+		if (row3Panel == null) {
+			spacerLabel = new JLabel();
+			spacerLabel.setText("  ");
+			FlowLayout flowLayout3 = new FlowLayout();
+			flowLayout3.setAlignment(java.awt.FlowLayout.LEFT);
+			flowLayout3.setVgap(0);
+			flowLayout3.setHgap(0);
+			row3Panel = new JPanel();
+			row3Panel.setLayout(flowLayout3);
+			row3Panel.add(getBoundedRadioButton(), null);
+			row3Panel.add(spacerLabel, null);
+			row3Panel.add(getUnboundedRadioButton(), null);
+		}
+		return row3Panel;
+	}
+
+	/**
+	 * This method initializes row2Panel	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getRow2Panel() {
+		if (row2Panel == null) {
+			FlowLayout flowLayout4 = new FlowLayout();
+			flowLayout4.setHgap(0);
+			flowLayout4.setVgap(0);
+			fpcLabel = new JLabel();
+			fpcLabel.setText("   Feet per cell");
+			row2Panel = new JPanel();
+			row2Panel.setLayout(flowLayout4);
+			row2Panel.add(getFeetPerCellTextField(), null);
+			row2Panel.add(fpcLabel, null);
+		}
+		return row2Panel;
 	}
 	
 }  //  @jve:decl-index=0:visual-constraint="10,10"
