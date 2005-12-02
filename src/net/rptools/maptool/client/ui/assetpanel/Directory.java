@@ -136,8 +136,14 @@ public class Directory {
     
     protected void firePropertyChangeEvent(PropertyChangeEvent event) {
         
+    	// Me
         for (PropertyChangeListener listener : listenerList) {
             listener.propertyChange(event);
+        }
+        
+        // Propagate up
+        if (parent != null) {
+        	parent.firePropertyChangeEvent(event);
         }
     }
 }
