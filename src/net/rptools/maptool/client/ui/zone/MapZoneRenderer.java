@@ -55,6 +55,9 @@ public class MapZoneRenderer extends ZoneRenderer {
         // TODO: back buffer this
         // TODO: Don't use full size images
         BufferedImage bgImage = getBackgroundImage();
+        if (bgImage == ImageManager.UNKNOWN_IMAGE) {
+        	return bgImage;
+        }
         
         Dimension imgSize = new Dimension(bgImage.getWidth(), bgImage.getHeight());
         SwingUtil.constrainTo(imgSize, size);
@@ -94,14 +97,13 @@ public class MapZoneRenderer extends ZoneRenderer {
         
         if (zone == null) { return null; }
         if (backgroundImage != ImageManager.UNKNOWN_IMAGE && backgroundImage != null) { return backgroundImage; }
-        //System.out.println ("Loading map");
         
         Asset asset = AssetManager.getAsset(zone.getAssetID());
         if (asset == null) {
 
         	// Only request the asset once
         	if (backgroundImage == null) {
-        		MapTool.serverCommand().getAsset(zone.getAssetID());
+        		MapTool.serverCommand().getAsset(zone.getAssetID()); 
         	}
         	
             backgroundImage = ImageManager.UNKNOWN_IMAGE;

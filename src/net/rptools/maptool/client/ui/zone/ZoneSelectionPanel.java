@@ -140,6 +140,9 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 	            if (img == null || img == ImageManager.UNKNOWN_IMAGE) {
 	                img = ImageManager.UNKNOWN_IMAGE;
                     keepBackBuffer = false;
+                    
+                    // Let's wake up when the image arrives
+                    ImageManager.addObserver(renderer.getZone().getAssetID(), this);
 	            }
 	            
                 // TODO: This is probably redundant now

@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -50,7 +51,7 @@ public class ImageManager {
     public static BufferedImage BROKEN_IMAGE;
 
     private static ExecutorService imageLoader = Executors.newFixedThreadPool(3);
-    private static Map<MD5Key, Set<JComponent>> imageObserverMap = new HashMap<MD5Key, Set<JComponent>>();
+    private static Map<MD5Key, Set<JComponent>> imageObserverMap = new ConcurrentHashMap<MD5Key, Set<JComponent>>();
     
     static {
         
@@ -76,7 +77,7 @@ public class ImageManager {
         
         // Another request for the same asset ?
         if (image == UNKNOWN_IMAGE) {
-            addObserver(asset, observer);
+            addObserver(asset.getId(), observer);
         }
         
         // Cached
@@ -87,22 +88,22 @@ public class ImageManager {
         // Use placeholder until image is actually loaded
         imageMap.put(asset.getId(), UNKNOWN_IMAGE);
         
-        addObserver(asset, observer);
+        addObserver(asset.getId(), observer);
         imageLoader.execute(new BackgroundImageLoader(asset));
         
         return UNKNOWN_IMAGE;
     }
 
-    private static void addObserver(Asset asset, JComponent observer) {
+    public static void addObserver(MD5Key assetId, JComponent observer) {
 
         if (observer == null) {
             return;
         }
         
-        Set<JComponent> observerSet = imageObserverMap.get(asset.getId());
+        Set<JComponent> observerSet = imageObserverMap.get(assetId);
         if (observerSet == null) {
             observerSet = new HashSet<JComponent>();
-            imageObserverMap.put(asset.getId(), observerSet);
+            imageObserverMap.put(assetId, observerSet);
         }
         observerSet.add(observer);
     }
