@@ -42,6 +42,7 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.swing.ImagePanel;
+import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.ImagePanel.SelectionMode;
 import net.rptools.lib.swing.preference.SplitPanePreferences;
 import net.rptools.maptool.client.AppConstants;
@@ -83,6 +84,14 @@ public class AssetPanel extends JComponent {
 		setLayout(new BorderLayout());
 		add(BorderLayout.CENTER, splitPane);
 	}
+    
+    public void addImageSelectionListener(SelectionListener listener) {
+    	imagePanel.addSelectionListener(listener);
+    }
+    
+    public void removeImageSelectionListener(SelectionListener listener) {
+    	imagePanel.removeSelectionListener(listener);
+    }
 
     public List<Object> getSelectedIds() {
         return imagePanel.getSelectedIds();
