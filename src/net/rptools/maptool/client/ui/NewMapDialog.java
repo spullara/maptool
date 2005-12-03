@@ -18,6 +18,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.text.NumberFormat;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -27,6 +28,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -68,7 +70,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JPanel textOptionPanel = null;
 	private JLabel nameLabel = null;
 	private JTextField nameTextField = null;
-	private JTextField feetPerCellTextField = null;
+	private JFormattedTextField feetPerCellTextField = null;
 	private JPanel previewWrapperPanel = null;
 	private JPanel eastPanel = null;
 	private JPanel spacerPanel = null;
@@ -601,10 +603,10 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	 */
 	private JTextField getFeetPerCellTextField() {
 		if (feetPerCellTextField == null) {
-			feetPerCellTextField = new JTextField();
+			feetPerCellTextField = new JFormattedTextField(new Integer(1000));
 			feetPerCellTextField.setColumns(3);
 			feetPerCellTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-            feetPerCellTextField.setText(Integer.toString(Zone.DEFAULT_FEET_PER_CELL));
+            feetPerCellTextField.setValue(Zone.DEFAULT_FEET_PER_CELL);
 		}
 		return feetPerCellTextField;
 	}
