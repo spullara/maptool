@@ -18,7 +18,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.text.NumberFormat;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -41,6 +41,7 @@ import javax.swing.filechooser.FileFilter;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.MapTool;
@@ -98,7 +99,6 @@ public class NewMapDialog extends JDialog implements WindowListener {
         getJContentPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),"cancel");
         getJContentPane().getActionMap().put("cancel", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                System.out.println ("HELLO WORLD");
                 cancel();
             }
         });
@@ -372,8 +372,8 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JTabbedPane getTypeTabbedPane() {
 		if (typeTabbedPane == null) {
 			typeTabbedPane = new JTabbedPane();
-			//typeTabbedPane.addTab("Images", null, getImageExplorerPanel(), null);
 			typeTabbedPane.addTab("Filesystem", null, getFilesystemPanel(), null);
+			typeTabbedPane.addTab("Images", null, getImageExplorerPanel(), null);
 			//typeTabbedPane.addTab("Library", null, getLibraryPanel(), null);
 		}
 		return typeTabbedPane;
@@ -388,7 +388,22 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		if (imageExplorerPanel == null) {
 			imageExplorerPanel = new JPanel();
 			imageExplorerPanel.setLayout(new BorderLayout());
-			imageExplorerPanel.add(BorderLayout.CENTER, new AssetPanel("imageExplorer", MapTool.getFrame().getAssetPanel().getModel()));
+			
+			final AssetPanel assetPanel = new AssetPanel("imageExplorer", MapTool.getFrame().getAssetPanel().getModel());
+			assetPanel.addImageSelectionListener(new SelectionListener() {
+				public void selectionPerformed(List<Object> selectedList) {
+					// There should be exactly one
+					if (selectedList.size() != 1) {
+						return;
+					}
+					
+					Integer imageIndex = (Integer) selectedList.get(0);
+					
+					setSelectedAsset(assetPanel.getAsset(imageIndex));
+				}
+			});
+			
+			imageExplorerPanel.add(BorderLayout.CENTER, assetPanel);
 		}
 		return imageExplorerPanel;
 	}
@@ -466,6 +481,14 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		imagePreviewPanel.setImage(selectedFile);
 		
 		getOkButton().setEnabled(file != null);
+	}
+	
+	private void setSelectedAsset(Asset asset) {
+		
+		selectedAsset = asset;
+		selectedFile = null;
+		
+		getOkButton().setEnabled(asset != null);
 	}
 
 	private class ImagePreviewWindow extends JComponent {
