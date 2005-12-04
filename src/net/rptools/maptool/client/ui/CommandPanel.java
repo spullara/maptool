@@ -151,9 +151,10 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
     
     // Create the default style and apply it
     defaultStyle = createStyle(DEFAULT_STYLE_NAME);
-    TwoToneTextPane.setFont(defaultStyle, new Font("SansSerif", Font.PLAIN, 10));
+    //TwoToneTextPane.setFont(defaultStyle, new Font("SansSerif", Font.PLAIN, 10));
+    TwoToneTextPane.setFont(defaultStyle, getFont().deriveFont(Font.BOLD));
     TwoToneTextPane.setTwoToneColor(defaultStyle, Color.BLACK);
-    StyleConstants.setForeground(defaultStyle, Color.YELLOW);
+    StyleConstants.setForeground(defaultStyle, Color.WHITE);
     messagePanel.setParagraphAttributes(defaultStyle, true);
     
     // Create the text field

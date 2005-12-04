@@ -36,7 +36,7 @@ public abstract class AbstractRollMacro  implements Macro {
     protected void roll(String channel, String roll) {
         
         try {
-            MapTool.addMessage(channel, MapTool.getPlayer().getName() + " olls on " + channel + ": " + roll);
+            MapTool.addMessage(channel, MapTool.getPlayer().getName() + " rolls: (" + roll + ") => "+ roll(roll));
         } catch (Exception e) {
             MapTool.addLocalMessage("Unknown roll '" + roll + "', use #d#+#");
         }
