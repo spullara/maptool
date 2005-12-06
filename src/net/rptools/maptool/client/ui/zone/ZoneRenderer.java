@@ -106,7 +106,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     // Optimizations
     private Map<Token, BufferedImage> replacementImageMap = new HashMap<Token, BufferedImage>();
 	private Map<Token, BufferedImage> resizedImageMap = new HashMap<Token, BufferedImage>();
-    
+
+	private Token tokenUnderMouse;
+	
     public ZoneRenderer(Zone zone) {
         if (zone == null) { throw new IllegalArgumentException("Zone cannot be null"); }
 
@@ -124,6 +126,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
     }
 
+    public void setMouseOver(Token token) {
+    	if (tokenUnderMouse == token) {
+    		return;
+    	}
+    	
+    	tokenUnderMouse = token;
+    	repaint();
+    }
+    
     @Override
     public boolean isOpaque() {
     	return false;
@@ -629,7 +640,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	ClientStyle.selectedBorder.paintAround(g, bounds);
         	}
 
-        	if (AppState.isShowTokenNames() || isSelected) {
+        	if (AppState.isShowTokenNames() || isSelected || token == tokenUnderMouse) {
 
         		// Name
                 GraphicsUtil.drawBoxedString(g, token.getName(), bounds.x + bounds.width/2, bounds.y + bounds.height + 10);

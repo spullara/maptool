@@ -274,6 +274,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         }
 
 		tokenUnderMouse = renderer.getTokenAt(mouseX, mouseY);
+		renderer.setMouseOver(tokenUnderMouse);
 	}
 	
 	public void mouseDragged(MouseEvent e) {
