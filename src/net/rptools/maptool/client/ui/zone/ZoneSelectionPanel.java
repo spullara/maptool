@@ -178,8 +178,6 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 	            }
 	            
 	        }
-	        g2d.setColor(Color.blue);
-	        g2d.drawRect(0, 0, mySize.width-1, mySize.height-1);
             g2d.dispose();
         }
 
