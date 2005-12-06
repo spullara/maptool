@@ -57,17 +57,16 @@ public class GraphicsUtil {
 		int width = strWidth + BOX_PADDINGX*2;
 		int height = fm.getHeight() + BOX_PADDINGY*2; 
 		
+		y = y - fm.getHeight()/2 - BOX_PADDINGY;
 		switch (justification) {
 		case SwingUtilities.CENTER:
 			x = x - strWidth/2 - BOX_PADDINGX;
-			y = y - fm.getHeight()/2 - BOX_PADDINGY;
 			break;
 		case SwingUtilities.LEFT:
-			// nothing to do here
-			// TODO: Should this account for the image border ?
+			x = x - strWidth - BOX_PADDINGX*2;
 			break;
 		case SwingUtilities.RIGHT:
-			throw new IllegalArgumentException("Not yet implemented: justification RIGHT");
+			break;
 		}
 		
 		// Box

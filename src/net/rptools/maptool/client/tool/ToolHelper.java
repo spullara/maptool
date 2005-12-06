@@ -27,6 +27,8 @@ package net.rptools.maptool.client.tool;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import javax.swing.SwingUtilities;
+
 import net.rptools.maptool.client.AbstractPoint;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -71,18 +73,20 @@ public class ToolHelper {
 	public static void drawMeasurement(ZoneRenderer renderer, Graphics2D g,
 			ScreenPoint startPoint, ScreenPoint endPoint) {
 
-		int left = Math.min(startPoint.x, endPoint.x);
-		int top = Math.min(startPoint.y, endPoint.y);
-		int right = Math.max(startPoint.x, endPoint.x);
-		int bottom = Math.max(startPoint.y, endPoint.y);
+//		int left = Math.min(startPoint.x, endPoint.x);
+//		int top = Math.min(startPoint.y, endPoint.y);
+//		int right = Math.max(startPoint.x, endPoint.x);
+//		int bottom = Math.max(startPoint.y, endPoint.y);
 
-		int centerX = left + (right - left) / 2;
-		int centerY = bottom + (top - bottom) / 2;
+//		int centerX = left + (right - left) / 2;
+//		int centerY = bottom + (top - bottom) / 2;
 
+		boolean dirLeft = startPoint.x > endPoint.x;
+		
 		String displayString = String.format("%1.1f", euclideanDistance(
 				renderer, startPoint, endPoint));
 
-		GraphicsUtil.drawBoxedString(g, displayString, centerX, centerY);
+		GraphicsUtil.drawBoxedString(g, displayString, endPoint.x + (dirLeft ? -10 : 10), endPoint.y, dirLeft ? SwingUtilities.LEFT : SwingUtilities.RIGHT);
 	}
 
 	private static double euclideanDistance(ZoneRenderer renderer, AbstractPoint p1,
