@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -177,6 +178,8 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 	            }
 	            
 	        }
+	        g2d.setColor(Color.blue);
+	        g2d.drawRect(0, 0, mySize.width-1, mySize.height-1);
             g2d.dispose();
         }
 
@@ -207,7 +210,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
     public void resize() {
     	
     	int zoneCount = MapTool.getFrame().getZoneRenderers().size();
-    	int longSize = (zoneCount-1) * (UNSELECTED_SIZE + PADDING/2) + SELECTED_SIZE + PADDING;
+    	int longSize = (zoneCount-1) * (UNSELECTED_SIZE + PADDING/2) + SELECTED_SIZE + PADDING*2;
     	int shortSize = SELECTED_SIZE + 2*PADDING;
     	
     	setSize((horizontal ? longSize : shortSize), (horizontal ? shortSize : longSize));
