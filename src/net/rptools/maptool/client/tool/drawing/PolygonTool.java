@@ -32,8 +32,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.LineSegment;

@@ -57,14 +57,16 @@ public class MapToolServerConnection extends ServerConnection  implements Server
 	public boolean handleConnectionHandshake(String id, Socket socket) {
 		
 		try {
-			Player player = Handshake.receiveHandshake(socket);
+			Player player = Handshake.receiveHandshake(server, socket);
 		
-			playerMap.put(id, player);
-			
-			return true;
+			if (player != null) {
+				playerMap.put(id, player);
+				return true;
+			}
 		} catch (IOException ioe) {
-			return false;
+			// LATER: perhaps log this, or at least keep track for accounting purposes
 		}
+		return false;
 	}
 
 	

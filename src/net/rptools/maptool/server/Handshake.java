@@ -23,79 +23,98 @@
  * SOFTWARE.
  */package net.rptools.maptool.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
 import java.net.Socket;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Player;
+
+import com.caucho.hessian.io.HessianInput;
+import com.caucho.hessian.io.HessianOutput;
 
 /**
  * @author trevor
  */
 public class Handshake {
 
-	private interface Message {
+	public interface Code {
+		public static final int UNKNOWN = 0;
 		public static final int OK = 1;
-		public static final int FAILURE = 2;
+		public static final int ERROR = 2;
 	}
+	
+	
 	
 	/**
 	 * Server side of the handshake
 	 */
-	public static Player receiveHandshake(Socket s) throws IOException {
+	public static Player receiveHandshake(MapToolServer server, Socket s) throws IOException {
 		
-		Writer out = new OutputStreamWriter(s.getOutputStream());
-		BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+		// TODO: remove server config as a param
+		ServerConfig config = server.getConfig();
+		
+		HessianInput input = new HessianInput(s.getInputStream());
+		HessianOutput output = new HessianOutput(s.getOutputStream());
 
-		// NAME
-		String name = in.readLine();
-		out.write(Message.OK);
-		out.flush();
+		Request request = (Request) input.readObject();
 		
-		// ROLE
-		int role = in.read();
-		out.write(Message.OK);
-		out.flush();
-		
-		// STATUS
-//		out.write(Message.OK);
-//		out.flush();
+		Response response = new Response();
+		response.code = Code.OK;
 
-//		if (in.read() != Message.OK) {
-//			throw new IOException ("Failed handshake");
-//		}		
-		return new Player(name, role);
+		boolean passwordMatches = request.role == Player.Role.GM ? config.gmPasswordMatches(request.password) : config.playerPasswordMatches(request.password);
+		if (!passwordMatches) {
+			
+			// PASSWORD
+			response.code = Code.ERROR;
+			response.message = "Just testing";
+		} else if (server.isPlayerConnected(request.name)) {
+			
+			// UNIQUE NAME
+			response.code = Code.ERROR;
+			response.message = "That name is already in use";
+		} else if (!MapTool.getVersion().equals(request.version)) {
+			
+			// CORRECT VERSION
+			response.code = Code.ERROR;
+			response.message = "Invalid version.  Client:" + request.version + " Server:" + MapTool.getVersion();
+		}
+		
+		output.writeObject(response);
+
+		return response.code == Code.OK ? new Player(request.name, request.role) : null;
 	}
 
 	/**
 	 * Client side of the handshake
 	 */
-	public static void sendHandshake(Player player, Socket s) throws IOException {
+	public static Response sendHandshake(Request request, Socket s) throws IOException {
 		
-		Writer out = new OutputStreamWriter(s.getOutputStream());
-		Reader in = new InputStreamReader(s.getInputStream());
+		HessianInput input = new HessianInput(s.getInputStream());
+		HessianOutput output = new HessianOutput(s.getOutputStream());
 		
-		// NAME
-		out.append(player.getName()).append("\n").flush();
-		if (in.read() != Message.OK) {
-			throw new IOException ("Name already in use");
+		output.writeObject(request);
+		
+		return (Response) input.readObject();
+	}
+	
+	public static class Request {
+		
+		public String name;
+		public String password;
+		public int role;
+		public String version;
+		
+		public Request(String name, String password, int role, String version) {
+			this.name = name;
+			this.password = password;
+			this.role = role;
+			this.version = version;
 		}
-		
-		// ROLE
-		out.write(player.getRole());
-		out.flush();
-		if (in.read() != Message.OK) {
-			throw new IOException ("Invalid role");
-		}
-		
-		// STATUS
-//		if (in.read() != Message.OK) {
-//			throw new IOException ("Failed handshake");
-//		}
-		
+	}
+	
+	public static class Response {
+
+		public int code;
+		public String message;
 	}
 }

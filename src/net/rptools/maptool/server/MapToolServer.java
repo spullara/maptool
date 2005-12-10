@@ -29,9 +29,6 @@ import java.io.IOException;
 import net.rptools.clientserver.hessian.server.ServerConnection;
 import net.rptools.clientserver.simple.server.ServerObserver;
 import net.rptools.maptool.model.Campaign;
-import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.drawing.Drawable;
-import net.rptools.maptool.model.drawing.Pen;
 
 
 /**
@@ -82,6 +79,10 @@ public class MapToolServer {
         return conn;
     }
     
+	public boolean isPlayerConnected(String id) {
+		return conn.getPlayer(id) != null;
+	}
+	
     public void setCampaign(Campaign campaign) {
         
         // Don't allow null campaigns, but allow the campaign to be cleared out
@@ -94,6 +95,14 @@ public class MapToolServer {
     
     public Campaign getCampaign() {
         return campaign;
+    }
+    
+    public ServerPolicy getPolicy() {
+    	return policy;
+    }
+    
+    public ServerConfig getConfig() {
+    	return config;
     }
     
     ////

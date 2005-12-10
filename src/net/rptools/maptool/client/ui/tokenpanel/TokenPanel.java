@@ -32,8 +32,6 @@ import java.awt.event.MouseEvent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultTreeModel;
 
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;

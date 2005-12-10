@@ -37,6 +37,7 @@ import javax.swing.UIManager;
 
 import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.MapToolClient;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -62,6 +63,8 @@ public class MapTool {
     private static MapToolServer server;
     private static ServerCommand serverCommand;
 
+    private static String version;
+    
     private static Campaign campaign;
     
     private static ObservableList<Player> playerList;
@@ -102,6 +105,21 @@ public class MapTool {
         player = new Player("", 0);
         
         AppActions.updateActions();
+	}
+	
+	public static String getVersion() {
+		if (version == null) {
+            version = "DEVELOPMENT";
+            try {
+	            if (MapTool.class.getClassLoader().getResource("net/rptools/maptool/client/version.txt") != null) {
+	                version = new String(FileUtil.loadResource("net/rptools/maptool/client/version.txt"));
+	            }
+            } catch (IOException ioe) {
+            	version = "CAN'T FIND VERSION FILE";
+            }
+		}
+		
+		return version;
 	}
 	
     public static ServerCommand serverCommand() {
@@ -291,13 +309,20 @@ public class MapTool {
 
     	MapTool.player = player;
     	
-    	conn = new MapToolConnection(host, port, player);
-        conn.addMessageHandler(handler);
-        conn.addActivityListener(clientFrame.getActivityMonitor());
-        conn.addActivityListener(new ActivityProgressListener());
-        conn.addDisconnectHandler(new ServerDisconnectHandler());
+    	ClientConnection clientConn = new MapToolConnection(host, port, player);
+    	
+	    	
+    	clientConn.addMessageHandler(handler);
+    	clientConn.addActivityListener(clientFrame.getActivityMonitor());
+    	clientConn.addActivityListener(new ActivityProgressListener());
+    	clientConn.addDisconnectHandler(new ServerDisconnectHandler());
         
-        conn.start();
+    	clientConn.start();
+
+    	// LATER: I really, really, really don't like this startup pattern
+        if (clientConn.isAlive()) {
+        	conn = clientConn;
+    	}
     }
     
     public static void closeConnection() throws IOException {

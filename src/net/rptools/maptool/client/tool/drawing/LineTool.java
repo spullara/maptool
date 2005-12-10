@@ -33,8 +33,6 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
-import net.rptools.maptool.client.ScreenPoint;
-
 
 /**
  * Tool for drawing freehand lines.

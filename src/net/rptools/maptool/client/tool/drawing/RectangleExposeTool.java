@@ -2,7 +2,6 @@ package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Rectangle;
 import java.awt.geom.Area;
-import java.awt.geom.RoundRectangle2D;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;

@@ -3,7 +3,6 @@ package net.rptools.maptool.client.ui;
 import java.util.prefs.Preferences;
 
 import net.rptools.maptool.client.AppConstants;
-import net.rptools.maptool.model.Player;
 import net.rptools.maptool.server.MapToolServer;
 
 public class StartServerDialogPreferences {

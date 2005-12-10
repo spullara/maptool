@@ -516,8 +516,10 @@ public class AppActions {
 						new Player(dialog.getUsername(), dialog.getRole()));
 
 				// connecting
-				MapTool.getFrame().getConnectionStatusPanel().setStatus(
-						ConnectionStatusPanel.Status.connected);
+				if (MapTool.isConnected()) {
+					MapTool.getFrame().getConnectionStatusPanel().setStatus(
+							ConnectionStatusPanel.Status.connected);
+				}
 			} catch (UnknownHostException e1) {
 				// TODO Auto-generated catch block
 				MapTool.showError("Unknown host");

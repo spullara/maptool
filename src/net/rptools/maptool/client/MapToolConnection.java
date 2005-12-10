@@ -53,8 +53,15 @@ public class MapToolConnection extends ClientConnection {
 	/* (non-Javadoc)
 	 * @see net.rptools.clientserver.simple.client.ClientConnection#sendHandshake(java.net.Socket)
 	 */
-	public void sendHandshake(Socket s) throws IOException {
+	public boolean sendHandshake(Socket s) throws IOException {
 		
-		Handshake.sendHandshake(player, s);
+		Handshake.Response response = Handshake.sendHandshake(new Handshake.Request(player.getName(), null, player.getRole(), MapTool.getVersion()), s);
+
+		if (response.code != Handshake.Code.OK) {
+			MapTool.showError("ERROR: " + response.message);
+			return false;
+		}
+		
+		return response.code == Handshake.Code.OK;
 	}
 }

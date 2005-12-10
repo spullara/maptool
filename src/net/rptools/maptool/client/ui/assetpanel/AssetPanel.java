@@ -25,31 +25,20 @@
 package net.rptools.maptool.client.ui.assetpanel;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.List;
 
-import javax.swing.AbstractAction;
 import javax.swing.JComponent;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
 
 import net.rptools.lib.swing.ImagePanel;
 import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.ImagePanel.SelectionMode;
 import net.rptools.lib.swing.preference.SplitPanePreferences;
 import net.rptools.maptool.client.AppConstants;
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetManager;
-import net.rptools.maptool.model.Zone;
 
 public class AssetPanel extends JComponent {
 

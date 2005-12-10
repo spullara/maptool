@@ -26,7 +26,6 @@ package net.rptools.maptool.client.ui.zone;
 
 import java.awt.Graphics2D;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.SwingUtilities;

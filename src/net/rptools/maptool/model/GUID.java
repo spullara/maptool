@@ -24,11 +24,11 @@
  */
 package net.rptools.maptool.model;
 
-import java.io.*;
-
-import com.withay.util.HexCode;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
+import com.withay.util.HexCode;
 
 /**
  * Global unique identificator object.
