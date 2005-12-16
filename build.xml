@@ -47,7 +47,7 @@
 	</target>
 	
 	<target name="generate-version-file" depends="init, generate-version">
-		<echo message="${build.version}" file="${src}/${version.file}" />			
+		<echo message="${build.version}" file="${build}/${version.file}" />			
 	</target>
 	
 	<target name="dist" depends="init,generate-version-file,compile,generate-manifest,generate-version">
