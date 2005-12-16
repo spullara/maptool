@@ -152,6 +152,7 @@ public class StartServerDialog extends JDialog {
 			gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
 			jLabel2.setText("GM Password:");
 			gridBagConstraints6.gridx = 0;
+			gridBagConstraints6.insets = new java.awt.Insets(0,0,0,5);
 			gridBagConstraints6.gridy = 3;
 			gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
 			jLabel3.setText("Player Password:");
