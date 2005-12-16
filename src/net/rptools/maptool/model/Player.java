@@ -38,10 +38,12 @@ public class Player {
 	
 	private String name; // Primary Key
 	private int role;
+	private String password;
 	
-	public Player (String name, int role) {
+	public Player (String name, int role, String password) {
 		this.name = name;
 		this.role = role;
+		this.password = password;
 	}
 	
 	public boolean equals(Object obj) {
@@ -75,6 +77,13 @@ public class Player {
 		this.name = name;
 	}
 	
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	public String getPassword() {
+		return password;
+	}
 	
 	/**
 	 * @return Returns the role.

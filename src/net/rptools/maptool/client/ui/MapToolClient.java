@@ -167,7 +167,8 @@ public class MapToolClient extends JFrame {
         colorPicker.setVisible(false);
         
         try {
-            String credits = new String(FileUtil.loadResource("net/rptools/maptool/client/credits.html"));
+            //String credits = new String(FileUtil.loadResource("net/rptools/maptool/client/credits.html"));
+            String credits = "";
             String version = MapTool.getVersion();
             credits = credits.replace("%VERSION%", version);
             Image logo = ImageUtil.getImage("net/rptools/lib/image/rptools-logo.png");

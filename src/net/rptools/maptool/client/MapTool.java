@@ -102,7 +102,7 @@ public class MapTool {
         
         serverCommand = new ServerCommandClientImpl();
         
-        player = new Player("", 0);
+        player = new Player("", 0, "");
         
         AppActions.updateActions();
 	}
@@ -263,7 +263,7 @@ public class MapTool {
     	clientFrame.setCurrentZoneRenderer(currRenderer);
     }
     
-	public static void startServer(int port) throws IOException {
+	public static void startServer(ServerConfig config, ServerPolicy policy) throws IOException {
 		
 		if (server != null) {
 			showError("Server is already started");
@@ -271,7 +271,7 @@ public class MapTool {
 		}
 		
 		// TODO: the client and server campaign MUST be different objects.  Figure out a better init method
-		server = new MapToolServer (new ServerConfig(), new ServerPolicy(), port);
+		server = new MapToolServer (config, policy);
 		server.setCampaign(getCampaign());
         
         setCampaign(null);

@@ -66,7 +66,7 @@ public class Handshake {
 			
 			// PASSWORD
 			response.code = Code.ERROR;
-			response.message = "Just testing";
+			response.message = "Wrong password";
 		} else if (server.isPlayerConnected(request.name)) {
 			
 			// UNIQUE NAME
@@ -81,7 +81,7 @@ public class Handshake {
 		
 		output.writeObject(response);
 
-		return response.code == Code.OK ? new Player(request.name, request.role) : null;
+		return response.code == Code.OK ? new Player(request.name, request.role, request.password) : null;
 	}
 
 	/**

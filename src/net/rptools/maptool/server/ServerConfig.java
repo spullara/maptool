@@ -25,7 +25,10 @@
 package net.rptools.maptool.server;
 
 public class ServerConfig {
+	
+    public static final int DEFAULT_PORT = 4444;
 
+	private int port = DEFAULT_PORT;
 	private String gmPassword;
 	private String playerPassword;
 	
@@ -34,8 +37,12 @@ public class ServerConfig {
 	}
 	
 	public ServerConfig(String gmPassword, String playerPassword) {
+		this(gmPassword, playerPassword, DEFAULT_PORT);
+	}
+	public ServerConfig(String gmPassword, String playerPassword, int port) {
 		this.gmPassword = gmPassword;
 		this.playerPassword = playerPassword;
+		this.port = port;
 	}
 	
 	public boolean gmPasswordMatches(String password) {
@@ -44,6 +51,10 @@ public class ServerConfig {
 	
 	public boolean playerPasswordMatches(String password) {
 		return safeCompare(playerPassword, password);
+	}
+
+	public int getPort() {
+		return port;
 	}
 	
 	private boolean safeCompare(String s1, String s2) {

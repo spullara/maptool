@@ -37,6 +37,7 @@ import javax.swing.JTextField;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
+import javax.swing.JPasswordField;
 /**
  * @author trevor
  */
@@ -61,6 +62,8 @@ public class ConnectToServerDialog extends JDialog {
 	
 	private JLabel jLabel3 = null;
 	private JComboBox roleComboBox = null;
+	private JLabel passwordLabel = null;
+	private JPasswordField passwordPasswordField = null;
 	/**
 	 * This is the default constructor
 	 */
@@ -76,7 +79,7 @@ public class ConnectToServerDialog extends JDialog {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setSize(300, 186);
+		this.setSize(300, 195);
 		this.setContentPane(getJContentPane());
 		
 		getRootPane().setDefaultButton(okButton);
@@ -87,6 +90,7 @@ public class ConnectToServerDialog extends JDialog {
 		serverTextField.setText(prefs.getHost());
 		usernameTextField.setText(prefs.getUsername());
 		roleComboBox.setSelectedIndex(prefs.getRole());
+		passwordPasswordField.setText(prefs.getPassword());
 	}
 	
 	/* (non-Javadoc)
@@ -107,6 +111,17 @@ public class ConnectToServerDialog extends JDialog {
 	 */
 	private javax.swing.JPanel getJContentPane() {
 		if(jContentPane == null) {
+			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+			gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints1.gridy = 1;
+			gridBagConstraints1.weightx = 1.0;
+			gridBagConstraints1.gridx = 1;
+			GridBagConstraints gridBagConstraints = new GridBagConstraints();
+			gridBagConstraints.gridx = 0;
+			gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints.gridy = 1;
+			passwordLabel = new JLabel();
+			passwordLabel.setText("Password:");
 			jLabel3 = new JLabel();
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
@@ -133,37 +148,37 @@ public class ConnectToServerDialog extends JDialog {
 			gridBagConstraints13.weightx = 1.0;
 			gridBagConstraints13.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints14.gridx = 0;
-			gridBagConstraints14.gridy = 1;
+			gridBagConstraints14.gridy = 2;
 			gridBagConstraints14.anchor = java.awt.GridBagConstraints.WEST;
 			jLabel1.setText("Server:");
 			gridBagConstraints15.gridx = 0;
-			gridBagConstraints15.gridy = 2;
+			gridBagConstraints15.gridy = 3;
 			gridBagConstraints15.anchor = java.awt.GridBagConstraints.WEST;
 			jLabel2.setText("Port:");
 			jContentPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(10,10,5,10));
 			gridBagConstraints16.gridx = 0;
-			gridBagConstraints16.gridy = 6;
+			gridBagConstraints16.gridy = 8;
 			gridBagConstraints16.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints16.gridwidth = 2;
 			gridBagConstraints16.weighty = 1.0D;
 			gridBagConstraints17.gridx = 0;
-			gridBagConstraints17.gridy = 7;
+			gridBagConstraints17.gridy = 9;
 			gridBagConstraints17.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints17.gridwidth = 2;
 			gridBagConstraints19.gridx = 1;
-			gridBagConstraints19.gridy = 1;
+			gridBagConstraints19.gridy = 2;
 			gridBagConstraints19.weightx = 1.0;
 			gridBagConstraints19.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints20.gridx = 1;
-			gridBagConstraints20.gridy = 2;
+			gridBagConstraints20.gridy = 3;
 			gridBagConstraints20.weightx = 1.0;
 			gridBagConstraints20.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints3.gridx = 0;
-			gridBagConstraints3.gridy = 5;
+			gridBagConstraints3.gridy = 6;
 			gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
 			jLabel3.setText("Role:");
 			gridBagConstraints4.gridx = 1;
-			gridBagConstraints4.gridy = 5;
+			gridBagConstraints4.gridy = 6;
 			gridBagConstraints4.weightx = 1.0;
 			gridBagConstraints4.fill = java.awt.GridBagConstraints.NONE;
 			gridBagConstraints4.anchor = java.awt.GridBagConstraints.WEST;
@@ -177,6 +192,8 @@ public class ConnectToServerDialog extends JDialog {
 			jContentPane.add(getPortTextField(), gridBagConstraints20);
 			jContentPane.add(jLabel3, gridBagConstraints3);
 			jContentPane.add(getRoleComboBox(), gridBagConstraints4);
+			jContentPane.add(passwordLabel, gridBagConstraints);
+			jContentPane.add(getPasswordPasswordField(), gridBagConstraints1);
 		}
 		return jContentPane;
 	}
@@ -279,6 +296,7 @@ public class ConnectToServerDialog extends JDialog {
 					prefs.setHost(getServer());
 					prefs.setPort(getPort());
 					prefs.setRole(getRole());
+					prefs.setPassword(getPassword());
 				}
 			});
 		}
@@ -329,6 +347,10 @@ public class ConnectToServerDialog extends JDialog {
 		return roleComboBox.getSelectedIndex();
 	}
 	
+	public String getPassword() {
+		return passwordPasswordField.getText();
+	}
+	
 	/**
 	 * This method initializes jComboBox	
 	 * 	
@@ -339,5 +361,16 @@ public class ConnectToServerDialog extends JDialog {
 			roleComboBox = new JComboBox(new String[]{"Player", "GM"});
 		}
 		return roleComboBox;
+	}
+	/**
+	 * This method initializes passwordPasswordField	
+	 * 	
+	 * @return javax.swing.JPasswordField	
+	 */
+	private JPasswordField getPasswordPasswordField() {
+		if (passwordPasswordField == null) {
+			passwordPasswordField = new JPasswordField();
+		}
+		return passwordPasswordField;
 	}
         }  //  @jve:decl-index=0:visual-constraint="10,10"

@@ -27,16 +27,19 @@ package net.rptools.maptool.client.ui;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.server.MapToolServer;
 /**
  * @author trevor
  */
@@ -51,8 +54,8 @@ public class StartServerDialog extends JDialog {
 	private JTextField usernameTextField = null;
 	private JLabel jLabel2 = null;
 	private JLabel jLabel3 = null;
-	private JTextField gmPasswordTextField = null;
-	private JTextField playerPasswordTextField = null;
+	private JPasswordField gmPasswordTextField = null;
+	private JPasswordField playerPasswordTextField = null;
 	private JPanel jPanel = null;
 	private JPanel jPanel1 = null;
 	private JButton cancelButton = null;
@@ -61,6 +64,8 @@ public class StartServerDialog extends JDialog {
 	private int option;
 	
 	private JLabel jLabel1 = null;
+	private JCheckBox playerPasswordCheckBox = null;
+	private JCheckBox gmPasswordCheckBox = null;
 	/**
 	 * This is the default constructor
 	 */
@@ -68,7 +73,6 @@ public class StartServerDialog extends JDialog {
 		super(MapTool.getFrame(), "Start Server", true);
 		initialize();
 		
-		portTextField.setText(Integer.toString(MapToolServer.DEFAULT_PORT));
 		getRootPane().setDefaultButton(okButton);
 	}
 	
@@ -78,13 +82,19 @@ public class StartServerDialog extends JDialog {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setSize(303, 190);
+		this.setSize(303, 171);
 		this.setContentPane(getJContentPane());
 		
 		// Prefs
 		StartServerDialogPreferences prefs = new StartServerDialogPreferences();
 		usernameTextField.setText(prefs.getUsername());
 		portTextField.setText(Integer.toString(prefs.getPort()));
+		gmPasswordCheckBox.setSelected(prefs.getUseGMPassword());
+		gmPasswordTextField.setText(prefs.getGMPassword());
+		playerPasswordCheckBox.setSelected(prefs.getUsePlayerPassword());
+		playerPasswordTextField.setText(prefs.getPlayerPassword());
+		getPlayerPasswordTextField().setEnabled(playerPasswordCheckBox.isSelected());
+		getGmPasswordTextField().setEnabled(gmPasswordCheckBox.isSelected());
 	}
 	
 	/* (non-Javadoc)
@@ -105,6 +115,12 @@ public class StartServerDialog extends JDialog {
 	 */
 	private javax.swing.JPanel getJContentPane() {
 		if(jContentPane == null) {
+			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+			gridBagConstraints3.gridx = 1;
+			gridBagConstraints3.gridy = 2;
+			GridBagConstraints gridBagConstraints = new GridBagConstraints();
+			gridBagConstraints.gridx = 1;
+			gridBagConstraints.gridy = 3;
 			jLabel1 = new JLabel();
 			GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -124,10 +140,10 @@ public class StartServerDialog extends JDialog {
 			jContentPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(10,10,5,10));
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.gridy = 0;
-			gridBagConstraints1.weightx = 0.5D;
+			gridBagConstraints1.weightx = 0.0D;
 			gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
 			jLabel.setText("Username:");
-			gridBagConstraints4.gridx = 1;
+			gridBagConstraints4.gridx = 2;
 			gridBagConstraints4.gridy = 0;
 			gridBagConstraints4.weightx = 1.0;
 			gridBagConstraints4.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -139,11 +155,11 @@ public class StartServerDialog extends JDialog {
 			gridBagConstraints6.gridy = 3;
 			gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
 			jLabel3.setText("Player Password:");
-			gridBagConstraints7.gridx = 1;
+			gridBagConstraints7.gridx = 2;
 			gridBagConstraints7.gridy = 2;
 			gridBagConstraints7.weightx = 1.0;
 			gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints8.gridx = 1;
+			gridBagConstraints8.gridx = 2;
 			gridBagConstraints8.gridy = 3;
 			gridBagConstraints8.weightx = 1.0;
 			gridBagConstraints8.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -154,9 +170,9 @@ public class StartServerDialog extends JDialog {
 			gridBagConstraints9.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints10.gridx = 0;
 			gridBagConstraints10.gridy = 5;
-			gridBagConstraints10.gridwidth = 2;
+			gridBagConstraints10.gridwidth = 3;
 			gridBagConstraints10.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints11.gridx = 1;
+			gridBagConstraints11.gridx = 2;
 			gridBagConstraints11.gridy = 1;
 			gridBagConstraints11.weightx = 1.0;
 			gridBagConstraints11.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -174,6 +190,8 @@ public class StartServerDialog extends JDialog {
 			jContentPane.add(getJPanel1(), gridBagConstraints10);
 			jContentPane.add(getPortTextField(), gridBagConstraints11);
 			jContentPane.add(jLabel1, gridBagConstraints2);
+			jContentPane.add(getPlayerPasswordCheckBox(), gridBagConstraints);
+			jContentPane.add(getGmPasswordCheckBox(), gridBagConstraints3);
 		}
 		return jContentPane;
 	}
@@ -206,9 +224,7 @@ public class StartServerDialog extends JDialog {
 	 */    
 	private JTextField getGmPasswordTextField() {
 		if (gmPasswordTextField == null) {
-			gmPasswordTextField = new JTextField();
-			gmPasswordTextField.setEnabled(false);
-			gmPasswordTextField.setEditable(false);
+			gmPasswordTextField = new JPasswordField();
 		}
 		return gmPasswordTextField;
 	}
@@ -219,9 +235,7 @@ public class StartServerDialog extends JDialog {
 	 */    
 	private JTextField getPlayerPasswordTextField() {
 		if (playerPasswordTextField == null) {
-			playerPasswordTextField = new JTextField();
-			playerPasswordTextField.setEnabled(false);
-			playerPasswordTextField.setEditable(false);
+			playerPasswordTextField = new JPasswordField();
 		}
 		return playerPasswordTextField;
 	}
@@ -306,6 +320,10 @@ public class StartServerDialog extends JDialog {
 					StartServerDialogPreferences prefs = new StartServerDialogPreferences();
 					prefs.setUsername(getUsername());
 					prefs.setPort(getPort());
+					prefs.setUseGMPassword(getGmPasswordCheckBox().isSelected());
+					prefs.setGMPassword(getGmPasswordTextField().getText());
+					prefs.setUsePlayerPassword(getPlayerPasswordCheckBox().isSelected());
+					prefs.setPlayerPassword(getPlayerPasswordTextField().getText());
 				}
 			});
 		}
@@ -322,6 +340,48 @@ public class StartServerDialog extends JDialog {
 	
 	public String getUsername() {
 		return usernameTextField.getText();
+	}
+
+	public String getGMPassword() {
+		return getGmPasswordCheckBox().isSelected() ? getGmPasswordTextField().getText() : "";
+	}
+	
+	public String getPlayerPassword() {
+		return getPlayerPasswordCheckBox().isSelected() ? getPlayerPasswordTextField().getText() : "";
+	}
+	
+	/**
+	 * This method initializes playerPasswordCheckBox	
+	 * 	
+	 * @return javax.swing.JCheckBox	
+	 */
+	private JCheckBox getPlayerPasswordCheckBox() {
+		if (playerPasswordCheckBox == null) {
+			playerPasswordCheckBox = new JCheckBox();
+			playerPasswordCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					getPlayerPasswordTextField().setEnabled(playerPasswordCheckBox.isSelected());
+				}
+			});
+		}
+		return playerPasswordCheckBox;
+	}
+	
+	/**
+	 * This method initializes gmPasswordCheckBox	
+	 * 	
+	 * @return javax.swing.JCheckBox	
+	 */
+	private JCheckBox getGmPasswordCheckBox() {
+		if (gmPasswordCheckBox == null) {
+			gmPasswordCheckBox = new JCheckBox();
+			gmPasswordCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					getGmPasswordTextField().setEnabled(gmPasswordCheckBox.isSelected());
+				}
+			});
+		}
+		return gmPasswordCheckBox;
 	}
 	
    }  //  @jve:decl-index=0:visual-constraint="7,8"

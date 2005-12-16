@@ -4,7 +4,7 @@ import java.util.prefs.Preferences;
 
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.model.Player;
-import net.rptools.maptool.server.MapToolServer;
+import net.rptools.maptool.server.ServerConfig;
 
 public class ConnectToServerDialogPreferences {
 
@@ -14,6 +14,7 @@ public class ConnectToServerDialogPreferences {
     private static final String KEY_ROLE = "role";
     private static final String KEY_HOST = "host";
     private static final String KEY_PORT = "port";
+    private static final String KEY_PASSWORD = "password";
     
     public String getUsername() {
     	return prefs.get(KEY_USERNAME, "");
@@ -40,11 +41,18 @@ public class ConnectToServerDialogPreferences {
     }
     
     public int getPort() {
-    	return prefs.getInt(KEY_PORT, MapToolServer.DEFAULT_PORT);
+    	return prefs.getInt(KEY_PORT, ServerConfig.DEFAULT_PORT);
     }
     
     public void setPort(int port) {
     	prefs.putInt(KEY_PORT, port);
     }
     
+    public void setPassword(String password) {
+    	prefs.put(KEY_PASSWORD, password);
+    }
+    
+    public String getPassword() {
+    	return prefs.get(KEY_PASSWORD, "");
+    }
 }

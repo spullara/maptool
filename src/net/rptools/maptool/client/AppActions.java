@@ -64,6 +64,8 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.server.ServerConfig;
+import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.PersistenceUtil;
 
@@ -458,13 +460,11 @@ public class AppActions {
 					}
 
 					try {
-						int port = dialog.getPort();
-
-						MapTool.startServer(port);
+						MapTool.startServer(new ServerConfig(dialog.getGMPassword(), dialog.getPlayerPassword(), dialog.getPort()), new ServerPolicy());
 
 						// Connect to server
-						MapTool.createConnection("localhost", port, new Player(
-								dialog.getUsername(), Player.Role.GM));
+						MapTool.createConnection("localhost", dialog.getPort(), new Player(
+								dialog.getUsername(), Player.Role.GM, dialog.getGMPassword()));
 
 						// connecting
 						MapTool.getFrame().getConnectionStatusPanel()
@@ -513,7 +513,7 @@ public class AppActions {
 				}
 
 				MapTool.createConnection(dialog.getServer(), dialog.getPort(),
-						new Player(dialog.getUsername(), dialog.getRole()));
+						new Player(dialog.getUsername(), dialog.getRole(), dialog.getPassword()));
 
 				// connecting
 				if (MapTool.isConnected()) {

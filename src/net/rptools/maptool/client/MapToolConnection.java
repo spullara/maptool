@@ -55,7 +55,7 @@ public class MapToolConnection extends ClientConnection {
 	 */
 	public boolean sendHandshake(Socket s) throws IOException {
 		
-		Handshake.Response response = Handshake.sendHandshake(new Handshake.Request(player.getName(), null, player.getRole(), MapTool.getVersion()), s);
+		Handshake.Response response = Handshake.sendHandshake(new Handshake.Request(player.getName(), player.getPassword(), player.getRole(), MapTool.getVersion()), s);
 
 		if (response.code != Handshake.Code.OK) {
 			MapTool.showError("ERROR: " + response.message);

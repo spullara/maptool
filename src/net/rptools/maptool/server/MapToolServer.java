@@ -39,8 +39,6 @@ import net.rptools.maptool.model.Campaign;
  */
 public class MapToolServer {
 
-    public static final int DEFAULT_PORT = 4444;
-
     private final MapToolServerConnection conn;
     private final ServerMethodHandler handler;
     
@@ -48,10 +46,10 @@ public class MapToolServer {
 	private ServerConfig config;
 	private ServerPolicy policy;
 
-    public MapToolServer(ServerConfig config, ServerPolicy policy, int port) throws IOException {
+    public MapToolServer(ServerConfig config, ServerPolicy policy) throws IOException {
     	
         handler = new ServerMethodHandler(this);
-        conn = new MapToolServerConnection(this, port);
+        conn = new MapToolServerConnection(this, config.getPort());
         conn.addMessageHandler(handler);
 
 		campaign = new Campaign();
@@ -71,10 +69,6 @@ public class MapToolServer {
     	conn.removeObserver(observer);
     }
     
-    public MapToolServer(ServerConfig config, ServerPolicy policy) throws IOException {
-    	this(config, policy, DEFAULT_PORT);
-    }
-
     public ServerConnection getConnection() {
         return conn;
     }
