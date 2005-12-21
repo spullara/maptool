@@ -39,6 +39,7 @@ import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Pointer;
+import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -75,7 +76,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case getZone:                 getZone(context.getGUID(0)); break;
             case hideFoW:                 hideFoW(context.getGUID(0), (Area) context.get(1)); break;
             case hidePointer:             hidePointer(context.getString(0)); break;
-            case message:                 message(context.getString(0), context.getString(1)); break;
+            case message:                 message((TextMessage)context.get(0)); break;
             case putAsset:                putAsset((Asset) context.get(0)); break;
             case putLabel:                putLabel(context.getGUID(0), (Label) context.get(1)); break;
             case putToken:                putToken(context.getGUID(0), (Token) context.get(1)); break;
@@ -198,7 +199,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         forwardToAllClients();
     }
     
-    public void message(String channel, String message) {
+    public void message(TextMessage message) {
         forwardToClients();
     }
     

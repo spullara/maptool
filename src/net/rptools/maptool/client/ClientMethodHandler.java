@@ -37,6 +37,7 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Pointer;
+import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -248,9 +249,8 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	break;
             
         case message:
-            String channel = (String) parameters[0];
-            String message = (String) parameters[1];
-            MapTool.addServerMessage(channel, message);
+            TextMessage message = (TextMessage) parameters[0];
+            MapTool.addServerMessage(message);
         	break;
             
         case showPointer:

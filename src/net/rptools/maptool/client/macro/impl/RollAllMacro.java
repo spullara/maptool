@@ -25,7 +25,7 @@
 package net.rptools.maptool.client.macro.impl;
 
 import net.rptools.maptool.client.macro.MacroDefinition;
-import net.rptools.maptool.model.MessageChannel;
+import net.rptools.maptool.model.TextMessage;
 
 @MacroDefinition(
         name = "roll",
@@ -35,6 +35,6 @@ import net.rptools.maptool.model.MessageChannel;
 public class RollAllMacro extends AbstractRollMacro {
 
     public void execute(String macro) {
-        roll(MessageChannel.ALL, macro);
+        roll(TextMessage.Channel.ALL, macro);
     }
 }

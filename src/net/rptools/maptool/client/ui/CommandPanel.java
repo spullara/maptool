@@ -63,6 +63,7 @@ import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.client.swing.TwoToneTextField;
 import net.rptools.maptool.client.swing.TwoToneTextPane;
 import net.rptools.maptool.model.ObservableList;
+import net.rptools.maptool.model.TextMessage;
 
 /**
  * The command panel consists of a field to enter commands and a
@@ -320,9 +321,9 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
     try {
       clearMessagePanel();
       Document doc = messagePanel.getDocument();
-      Iterator<String> i = MapTool.getMessageList().iterator();
+      Iterator<TextMessage> i = MapTool.getMessageList().iterator();
       while (i.hasNext())
-        doc.insertString(doc.getLength(), i.next(), null);
+        doc.insertString(doc.getLength(), i.next().getMessage(), null);
       checkScrollButtonPanel();
     } catch (BadLocationException e) {
       throw new IllegalStateException("This should not happen!");
@@ -393,11 +394,11 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
    * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
    */
   public void update(Observable o, Object arg) {
-    ObservableList<String> textList = MapTool.getMessageList();   
+    ObservableList<TextMessage> textList = MapTool.getMessageList();   
     ObservableList.Event event = (ObservableList.Event)arg; 
     switch (event) {
     case append:
-      appendToMessagePanel(textList.get(textList.size() - 1));
+      appendToMessagePanel(textList.get(textList.size() - 1).getMessage());
       break;
     case add:
     case remove:

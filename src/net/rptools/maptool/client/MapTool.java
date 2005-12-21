@@ -44,9 +44,9 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Campaign;
-import net.rptools.maptool.model.MessageChannel;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
+import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.server.MapToolServer;
 import net.rptools.maptool.server.ServerCommand;
@@ -68,7 +68,7 @@ public class MapTool {
     private static Campaign campaign;
     
     private static ObservableList<Player> playerList;
-    private static ObservableList<String> messageList;
+    private static ObservableList<TextMessage> messageList;
     
     private static Player player;
     
@@ -94,7 +94,7 @@ public class MapTool {
 		saveFileChooser = createSaveFileChooser();
 
         playerList = new ObservableList<Player>();
-        messageList = new ObservableList<String>(Collections.synchronizedList(new ArrayList<String>()));
+        messageList = new ObservableList<TextMessage>(Collections.synchronizedList(new ArrayList<TextMessage>()));
         
         handler = new ClientMethodHandler();
         
@@ -187,7 +187,7 @@ public class MapTool {
 	}
 	
 	
-    public static ObservableList<String> getMessageList () {
+    public static ObservableList<TextMessage> getMessageList () {
         return messageList;
     }
     
@@ -196,11 +196,13 @@ public class MapTool {
      * @param channel
      * @param message
      */
-    public static void addServerMessage(String channel, String message) {
+    public static void addServerMessage(TextMessage message) {
 
         // Filter
-        // LATER: Come up with a better solution
-        if (MessageChannel.GM.equals(channel) && !getPlayer().isGM()) {
+        if (message.isGM() && !getPlayer().isGM()) {
+            return;
+        }
+        if (message.isWhisper() && !getPlayer().getName().equals(message.getTarget())) {
             return;
         }
         
@@ -212,11 +214,11 @@ public class MapTool {
      * @param channel
      * @param message
      */
-    public static void addMessage(String channel, String message) {
+    public static void addMessage(TextMessage message) {
         messageList.add(message);
         
-        if (isConnected() && !MessageChannel.ME.equals(channel)) {
-            serverCommand().message(channel, message);
+        if (isConnected() && !message.isMe()) {
+            serverCommand().message(message);
         }
     }
     
@@ -225,7 +227,7 @@ public class MapTool {
      * @param message
      */
     public static void addLocalMessage(String message) {
-        addMessage(MessageChannel.ME, message);
+        addMessage(TextMessage.me(message));
     }
     
 
@@ -287,6 +289,20 @@ public class MapTool {
 
     public static ObservableList<Player> getPlayerList() {
         return playerList;
+    }
+    
+    /**
+     * Whether a specific player is connected to the game
+     */
+    public static boolean isPlayerConnected(String player) {
+        
+        for (int i = 0; i < playerList.size(); i++) {
+            Player p = playerList.get(i);
+            if (p.getName().equals(player)) {
+                return true;
+            }
+        }
+        return false;
     }
     
 	public static void addZone(Zone zone) {

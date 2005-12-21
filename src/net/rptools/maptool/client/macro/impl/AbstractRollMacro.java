@@ -30,13 +30,14 @@ import java.util.regex.Pattern;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
+import net.rptools.maptool.model.TextMessage;
 
 public abstract class AbstractRollMacro  implements Macro {
 
-    protected void roll(String channel, String roll) {
+    protected void roll(int channel, String roll) {
         
         try {
-            MapTool.addMessage(channel, MapTool.getPlayer().getName() + " rolls: (" + roll + ") => "+ roll(roll));
+            MapTool.addMessage(new TextMessage(channel, null, MapTool.getPlayer().getName() + " rolls: (" + roll + ") => "+ roll(roll)));
         } catch (Exception e) {
             MapTool.addLocalMessage("Unknown roll '" + roll + "', use #d#+#");
         }

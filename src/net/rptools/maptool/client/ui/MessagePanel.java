@@ -41,6 +41,7 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.model.TextMessage;
 
 public class MessagePanel extends JComponent implements Observer {
 
@@ -83,7 +84,9 @@ public class MessagePanel extends JComponent implements Observer {
             int visibleMessageCount = Math.min(listSize, size.height / (fm.getHeight() + TEXT_BUFFER));
             
             List<String> messageList = new LinkedList<String>();
-            messageList.addAll(MapTool.getMessageList().subList(listSize - visibleMessageCount, listSize));
+            for (TextMessage message : (List<TextMessage>)MapTool.getMessageList()) { // LATER: Why does this cast need to exist ?
+                messageList.add(message.getMessage());
+            }
             
     		StringBuilder wordBuilder = new StringBuilder();
     		StringBuilder lineBuilder = new StringBuilder();

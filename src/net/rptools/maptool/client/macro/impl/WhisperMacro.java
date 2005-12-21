@@ -24,17 +24,38 @@
  */
 package net.rptools.maptool.client.macro.impl;
 
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
 
 @MacroDefinition(
-        name = "rollme",
-        aliases = { "rme" },
-        description = "Roll and only show me the result."
-    )
-public class RollMeMacro extends AbstractRollMacro {
+	name = "whisper",
+	aliases = { "w" },
+	description = "Send a message to a specific player."
+)
+public class WhisperMacro implements Macro {
 
     public void execute(String macro) {
-        roll(TextMessage.Channel.ME, macro);
+        
+        int index = macro.indexOf(" ");
+        if (index < 0) {
+            MapTool.addMessage(TextMessage.me("Must supply a player name."));
+            return;
+        }
+        
+        String playerName = macro.substring(0, index);
+        String message = macro.substring(index+1);
+        
+        // Validate
+        if (!MapTool.isPlayerConnected(playerName)) {
+            MapTool.addMessage(TextMessage.me("'" + playerName + "' is not connected."));
+            return;
+        }
+        
+        // Send
+        StringBuilder sb = new StringBuilder();
+        sb.append(MapTool.getPlayer().getName()).append(" whispers: ").append(message);
+        MapTool.addMessage(TextMessage.whisper(playerName, sb.toString()));
     }
 }

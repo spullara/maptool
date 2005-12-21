@@ -33,6 +33,7 @@ import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Pointer;
+import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -90,7 +91,7 @@ public interface ServerCommand {
     public void draw(GUID zoneGUID, Pen pen, Drawable drawable);
     public void undoDraw(GUID zoneGUID, GUID drawableGUID);
     public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size);
-    public void message(String channel, String message);
+    public void message(TextMessage message);
     public void showPointer(String player, Pointer pointer);
     public void hidePointer(String player);
     public void startTokenMove(String playerId, GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList);

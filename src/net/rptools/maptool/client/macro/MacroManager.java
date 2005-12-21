@@ -39,6 +39,7 @@ import net.rptools.maptool.client.macro.impl.RollGMMacro;
 import net.rptools.maptool.client.macro.impl.RollMeMacro;
 import net.rptools.maptool.client.macro.impl.SayMacro;
 import net.rptools.maptool.client.macro.impl.UndefinedMacro;
+import net.rptools.maptool.client.macro.impl.WhisperMacro;
 
 /**
  * @author drice
@@ -58,6 +59,7 @@ public class MacroManager {
         registerMacro(new RollMeMacro());
         registerMacro(new RollAllMacro());
         registerMacro(new RollGMMacro());
+        registerMacro(new WhisperMacro());
         
     	registerMacro(UNDEFINED_MACRO);
     }

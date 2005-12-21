@@ -27,7 +27,7 @@ package net.rptools.maptool.client.macro.impl;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
-import net.rptools.maptool.model.MessageChannel;
+import net.rptools.maptool.model.TextMessage;
 
 @MacroDefinition(
 	name = "say",
@@ -39,6 +39,6 @@ public class SayMacro implements Macro {
     public void execute(String macro) {
         StringBuilder sb = new StringBuilder();
         sb.append(MapTool.getPlayer().getName()).append(" says: ").append(macro);
-        MapTool.addMessage(MessageChannel.ALL, sb.toString());
+        MapTool.addMessage(TextMessage.say(sb.toString()));
     }
 }

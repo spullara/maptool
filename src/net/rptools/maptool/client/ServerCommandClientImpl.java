@@ -33,6 +33,7 @@ import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Pointer;
+import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -111,8 +112,8 @@ public class ServerCommandClientImpl implements ServerCommand {
     	makeServerCall(COMMAND.setZoneVisibility, zoneGUID, visible);
     }
 
-    public void message(String channel, String message) {
-        makeServerCall(COMMAND.message, channel, message);
+    public void message(TextMessage message) {
+        makeServerCall(COMMAND.message, message);
     }
 
 	public void showPointer(String player, Pointer pointer) {

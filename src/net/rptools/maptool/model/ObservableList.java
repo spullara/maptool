@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Observable;
 
 // TODO: Make this class implement 'List'
-public class ObservableList<K> extends Observable  {
+public class ObservableList<K> extends Observable implements Iterable {
 
     private List<K> list;
     
