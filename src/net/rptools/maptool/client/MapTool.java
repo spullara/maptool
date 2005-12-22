@@ -215,7 +215,9 @@ public class MapTool {
      * @param message
      */
     public static void addMessage(TextMessage message) {
-        messageList.add(message);
+        
+        // Filter stuff
+        addServerMessage(message);
         
         if (isConnected() && !message.isMe()) {
             serverCommand().message(message);

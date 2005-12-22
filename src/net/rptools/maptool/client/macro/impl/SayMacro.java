@@ -38,7 +38,7 @@ public class SayMacro implements Macro {
 
     public void execute(String macro) {
         StringBuilder sb = new StringBuilder();
-        sb.append(MapTool.getPlayer().getName()).append(" says: ").append(macro);
+        sb.append(MapTool.getPlayer().getName()).append(": ").append(macro);
         MapTool.addMessage(TextMessage.say(sb.toString()));
     }
 }

@@ -52,10 +52,13 @@ public class WhisperMacro implements Macro {
             MapTool.addMessage(TextMessage.me("'" + playerName + "' is not connected."));
             return;
         }
+        if (MapTool.getPlayer().getName().equals(playerName)) {
+            MapTool.addMessage(TextMessage.me("Talking to yourself again?"));
+            return;
+        }
         
         // Send
-        StringBuilder sb = new StringBuilder();
-        sb.append(MapTool.getPlayer().getName()).append(" whispers: ").append(message);
-        MapTool.addMessage(TextMessage.whisper(playerName, sb.toString()));
+        MapTool.addMessage(TextMessage.whisper(playerName, MapTool.getPlayer().getName()+" whispers: "+message));
+        MapTool.addMessage(TextMessage.me("You whisper to " + playerName + ": "+message));
     }
 }
