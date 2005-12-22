@@ -62,10 +62,10 @@ public class GraphicsUtil {
 		case SwingUtilities.CENTER:
 			x = x - strWidth/2 - BOX_PADDINGX;
 			break;
-		case SwingUtilities.LEFT:
-			x = x - strWidth - BOX_PADDINGX*2;
-			break;
 		case SwingUtilities.RIGHT:
+			x = x - strWidth - BOX_PADDINGX;
+			break;
+		case SwingUtilities.LEFT:
 			break;
 		}
 		
