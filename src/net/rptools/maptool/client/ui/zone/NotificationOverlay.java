@@ -48,7 +48,7 @@ public class NotificationOverlay implements ZoneOverlay, Animatable {
     
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 
-        int y = 10;
+        int y = 15;
         for (EventDetail detail : eventList) {
             
             GraphicsUtil.drawBoxedString(g, detail.message, 10, y, SwingUtilities.LEFT);
