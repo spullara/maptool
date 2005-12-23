@@ -90,7 +90,7 @@ public class GridTool extends DefaultTool {
 		
 		// Commit the grid size change
         Zone zone = renderer.getZone();
-        MapTool.serverCommand().setZoneGridSize(zone.getId(), zone.getGridOffsetX(), zone.getGridOffsetY(), zone.getGridSize());
+        MapTool.serverCommand().setZoneGridSize(zone.getId(), zone.getGridOffsetX(), zone.getGridOffsetY(), zone.getGridSize(), zone.getGridColor());
 	}
 
     ////

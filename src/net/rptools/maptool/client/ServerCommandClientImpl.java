@@ -104,8 +104,8 @@ public class ServerCommandClientImpl implements ServerCommand {
         makeServerCall(COMMAND.undoDraw, zoneGUID, drawableGUID);
     }
 
-    public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size) {
-        makeServerCall(COMMAND.setZoneGridSize, zoneGUID, xOffset, yOffset, size);
+    public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size, int color) {
+        makeServerCall(COMMAND.setZoneGridSize, zoneGUID, xOffset, yOffset, size, color);
     }
     
     public void setZoneVisibility(GUID zoneGUID, boolean visible) {

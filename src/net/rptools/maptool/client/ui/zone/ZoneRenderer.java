@@ -547,8 +547,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         		continue;
         	}
         	
-            int width = (int)(TokenSize.getWidth(token, gridSize) * scale);
-            int height = (int)(TokenSize.getHeight(token, gridSize) * scale);
+            int width = (int)(TokenSize.getWidth(token, gridSize) * scale)-1;
+            int height = (int)(TokenSize.getHeight(token, gridSize) * scale)-1;
             
             // OPTIMIZE:
             int x = (int)(token.getX() * scale + viewOffset.x) + (int) (gridOffsetX * scale) + 1;

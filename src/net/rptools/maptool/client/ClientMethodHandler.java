@@ -227,11 +227,13 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	int xOffset = ((Integer) parameters[1]).intValue();
         	int yOffset = ((Integer) parameters[2]).intValue();
         	int size = ((Integer) parameters[3]).intValue();
+        	int color = ((Integer) parameters[4]).intValue();
         	
         	zone = MapTool.getCampaign().getZone(zoneGUID);
         	zone.setGridSize(size);
         	zone.setGridOffsetX(xOffset);
         	zone.setGridOffsetY(yOffset);
+        	zone.setGridColor(color);
         	
         	MapTool.getFrame().repaint();
         	break;

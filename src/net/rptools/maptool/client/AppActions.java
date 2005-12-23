@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Transparency;
@@ -41,6 +42,7 @@ import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 
@@ -140,6 +142,30 @@ public class AppActions {
 
 	};
 
+	public static final Action SET_ZONE_GRID_COLOR = new AdminClientAction() {
+		{
+			init("action.setZoneGridColor");
+		}
+
+		public void execute(ActionEvent e) {
+
+			runBackground(new Runnable() {
+				public void run() {
+
+					Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+					Color newColor = JColorChooser.showDialog(MapTool.getFrame(), "Choose Zone Grid Color", new Color(zone.getGridColor()));					
+					if (newColor != null) {
+						zone.setGridColor(newColor.getRGB());
+				        MapTool.serverCommand().setZoneGridSize(zone.getId(), zone.getGridOffsetX(), zone.getGridOffsetY(), zone.getGridSize(), zone.getGridColor());
+				        MapTool.getFrame().getCurrentZoneRenderer().repaint();
+					}
+				}
+			});
+		}
+
+	};
+
+	
 	public static final Action SHOW_ABOUT = new DefaultClientAction() {
 		{
 			init("action.showAboutDialog");

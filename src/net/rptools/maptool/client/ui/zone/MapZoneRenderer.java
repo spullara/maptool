@@ -158,7 +158,7 @@ public class MapZoneRenderer extends ZoneRenderer {
         float gridSize = zone.getGridSize() * scale;
 
         // Render grid
-        g.setColor(ClientStyle.gridColor);
+        g.setColor(new Color(zone.getGridColor()));
 
         int x = viewOffset.x + (int) (zone.getGridOffsetX() * scale);
         int y = viewOffset.y + (int) (zone.getGridOffsetY() * scale);

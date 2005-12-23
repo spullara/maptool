@@ -90,7 +90,7 @@ public interface ServerCommand {
     public void removeLabel(GUID zoneGUID, GUID labelGUID);
     public void draw(GUID zoneGUID, Pen pen, Drawable drawable);
     public void undoDraw(GUID zoneGUID, GUID drawableGUID);
-    public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size);
+    public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size, int color);
     public void message(TextMessage message);
     public void showPointer(String player, Pointer pointer);
     public void hidePointer(String player);

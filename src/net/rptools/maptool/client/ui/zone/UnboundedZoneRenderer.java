@@ -23,6 +23,7 @@
  * SOFTWARE.
  */
 package net.rptools.maptool.client.ui.zone;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -32,7 +33,6 @@ import java.io.IOException;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Zone;
@@ -76,7 +76,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
         float gridSize = zone.getGridSize() * scale;
         Dimension size = getSize();
 
-        g.setColor(ClientStyle.gridColor);
+        g.setColor(new Color(zone.getGridColor()));
         
         int offX = (int)(viewOffset.x % gridSize);
         int offY = (int)(viewOffset.y % gridSize);

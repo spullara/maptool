@@ -94,6 +94,7 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.TOGGLE_FOG));
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.ADJUST_GRID));
+        menu.add(new JMenuItem(AppActions.SET_ZONE_GRID_COLOR));
 
         return menu;
     }

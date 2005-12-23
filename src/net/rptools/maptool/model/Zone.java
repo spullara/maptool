@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.model;
 
+import java.awt.Color;
 import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,6 +73,7 @@ public class Zone extends Token {
     private int gridSize = 40;
     private int gridOffsetX = 0;
     private int gridOffsetY = 0;
+    private int gridColor = Color.darkGray.getRGB();
     private float imageScaleX = 1;
     private float imageScaleY = 1;
     
@@ -106,6 +108,14 @@ public class Zone extends Token {
         this.type = type;
     }
 
+    public int getGridColor() {
+    	return gridColor;
+    }
+    
+    public void setGridColor(int color) {
+    	gridColor = color;
+    }
+    
     public boolean hasFog() {
     	return hasFog;
     }

@@ -87,7 +87,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case removeLabel:             removeLabel(context.getGUID(0), context.getGUID(1)); break;
             case sendTokensToBack:        sendTokensToBack(context.getGUID(0), (Set<GUID>) context.get(1)); break;
             case setCampaign:             setCampaign((Campaign) context.get(0)); break;
-            case setZoneGridSize:         setZoneGridSize(context.getGUID(0), context.getInt(1), context.getInt(2), context.getInt(3)); break;
+            case setZoneGridSize:         setZoneGridSize(context.getGUID(0), context.getInt(1), context.getInt(2), context.getInt(3), context.getInt(4)); break;
             case setZoneVisibility:       setZoneVisibility(context.getGUID(0), (Boolean) context.get(1)); break;
             case setZoneHasFoW:           setZoneHasFoW(context.getGUID(0), context.getBool(1)); break;
             case showPointer:             showPointer(context.getString(0), (Pointer) context.get(1)); break;
@@ -304,12 +304,13 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         forwardToClients();
     }
     
-    public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size) {
+    public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size, int color) {
 
         Zone zone = server.getCampaign().getZone(zoneGUID);
         zone.setGridSize(size);
         zone.setGridOffsetX(xOffset);
         zone.setGridOffsetY(yOffset);
+        zone.setGridColor(color);
         
         server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setZoneGridSize.name(), RPCContext.getCurrent().parameters);
     }
