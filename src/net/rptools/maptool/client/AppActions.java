@@ -122,6 +122,24 @@ public class AppActions {
 
 	};
 
+	public static final Action TOGGLE_LINK_PLAYER_VIEW = new AdminClientAction() {
+		{
+			init("action.linkPlayerView");
+		}
+
+		public void execute(ActionEvent e) {
+
+			AppState.setPlayerViewLinked(!AppState.isPlayerViewLinked());
+            if (AppState.isPlayerViewLinked()) {
+            	ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+    			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(),
+    					renderer.getOffsetX(), renderer.getOffsetY(),
+    					renderer.getScaleIndex());
+            }
+		}
+
+	};
+
 	public static final Action SHOW_ABOUT = new DefaultClientAction() {
 		{
 			init("action.showAboutDialog");

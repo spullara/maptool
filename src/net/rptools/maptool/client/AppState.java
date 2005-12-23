@@ -30,6 +30,7 @@ public class AppState {
     private static boolean showGrid = false;
     private static boolean showTokenNames = false;
     private static boolean newZonesVisible = true;
+    private static boolean linkPlayerViews = false;
 
     public static boolean isDropTokenAsInvisible() {
         return dropTokenAsInvisible;
@@ -61,5 +62,13 @@ public class AppState {
     
     public static boolean isNewZonesVisible() {
     	return newZonesVisible;
+    }
+    
+    public static boolean isPlayerViewLinked() {
+    	return linkPlayerViews;
+    }
+    
+    public static void setPlayerViewLinked(boolean flag) {
+    	linkPlayerViews = flag;
     }
 }

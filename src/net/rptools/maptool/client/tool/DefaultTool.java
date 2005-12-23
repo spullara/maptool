@@ -55,6 +55,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
@@ -210,6 +211,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
             
             if (isDraggingMap) {
                 isDraggingMap = false;
+                if (AppState.isPlayerViewLinked()) {
+        			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(),
+        					renderer.getOffsetX(), renderer.getOffsetY(),
+        					renderer.getScaleIndex());
+                }
             }
         	return;
         }
@@ -455,6 +461,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			
 			renderer.zoomIn(e.getX(), e.getY());
 		}
+        if (AppState.isPlayerViewLinked()) {
+			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(),
+					renderer.getOffsetX(), renderer.getOffsetY(),
+					renderer.getScaleIndex());
+        }
 		
 	}	
 
