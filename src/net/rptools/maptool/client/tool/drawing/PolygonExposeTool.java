@@ -56,6 +56,11 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
     }
 
     @Override
+    public String getInstructions() {
+    	return "tool.polyexpose.instructions";
+    }
+    
+    @Override
     // Override abstracttool to prevent color palette from
     // showing up
     protected void attachTo(ZoneRenderer renderer) {

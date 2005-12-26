@@ -29,6 +29,8 @@ import java.io.IOException;
 import javax.swing.ImageIcon;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 
 /**
  */
@@ -42,6 +44,11 @@ public class PointerTool extends DefaultTool {
         }
     }
     
+	@Override
+	public String getInstructions() {
+		return I18N.getText("tool.pointer.instructions");
+	}
+	
     @Override
     public String getTooltip() {
         return "Pointer tool";

@@ -38,66 +38,79 @@ import net.rptools.maptool.model.drawing.ConeTemplate;
 import net.rptools.maptool.model.drawing.RadiusTemplate;
 
 /**
- * Draw a template for an effect with a cone area. Make the template show the squares that are effected,
- * not just draw a circle. Let the player choose the vertex with the mouse and use the wheel to
- * set the radius. Use control and mouse position to direct the cone. This allows the user to move 
- * the entire template where it is to be used before placing it which is very important when casting a spell.  
+ * Draw a template for an effect with a cone area. Make the template show the
+ * squares that are effected, not just draw a circle. Let the player choose the
+ * vertex with the mouse and use the wheel to set the radius. Use control and
+ * mouse position to direct the cone. This allows the user to move the entire
+ * template where it is to be used before placing it which is very important
+ * when casting a spell.
  * 
  * @author jgorrell
  * @version $Revision$ $Date$ $Author$
  */
 public class ConeTemplateTool extends RadiusTemplateTool {
 
-  /*---------------------------------------------------------------------------------------------
-   * Constructor 
-   *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * Add the icon to the toggle button.
-   * TODO: Create an icon that doesn't look suspicously like the text 'Cone'
-   */
-  public ConeTemplateTool() {
-    try {
-      setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/Tool_Draw_Cone_Template.GIF"))));
-    } catch (IOException ioe) {
-      ioe.printStackTrace();
-    } // endtry
-  }
-  
-  /*---------------------------------------------------------------------------------------------
-  * Overidden RadiusTemplateTool Methods
-  *-------------------------------------------------------------------------------------------*/
+	/*---------------------------------------------------------------------------------------------
+	 * Constructor 
+	 *-------------------------------------------------------------------------------------------*/
 
-  /**
-   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#createBaseTemplate()
-   */
-  @Override
-  protected AbstractTemplate createBaseTemplate() {
-    return new ConeTemplate();
-  }
-  
-  /**
-   * @see net.rptools.maptool.client.ui.Tool#getTooltip()
-   */
-  @Override
-  public String getTooltip() {
-    return "Draw a cone template";
-  }
-  
-  /*---------------------------------------------------------------------------------------------
-   * MouseMotionListener Interface Methods
-   *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
-   */
-  public void mouseMoved(MouseEvent e) {
-    if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) > 0) {
-      ScreenPoint vertex = template.getVertex();
-      ((ConeTemplate)template).setDirection(RadiusTemplate.Direction.findDirection(e.getX(), e.getY(), vertex.x, vertex.y));
-      zoneRenderer.repaint();
-    } else {
-      super.setCellAtMouse(e, template.getVertex()); // Set the vertex
-    }
-  }
+	/**
+	 * Add the icon to the toggle button. TODO: Create an icon that doesn't look
+	 * suspicously like the text 'Cone'
+	 */
+	public ConeTemplateTool() {
+		try {
+			setIcon(new ImageIcon(
+					ImageIO
+							.read(getClass()
+									.getClassLoader()
+									.getResourceAsStream(
+											"net/rptools/maptool/client/image/Tool_Draw_Cone_Template.GIF"))));
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		} // endtry
+	}
+
+	/*---------------------------------------------------------------------------------------------
+	 * Overidden RadiusTemplateTool Methods
+	 *-------------------------------------------------------------------------------------------*/
+
+	/**
+	 * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#createBaseTemplate()
+	 */
+	@Override
+	protected AbstractTemplate createBaseTemplate() {
+		return new ConeTemplate();
+	}
+
+	/**
+	 * @see net.rptools.maptool.client.ui.Tool#getTooltip()
+	 */
+	@Override
+	public String getTooltip() {
+		return "Draw a cone template";
+	}
+
+	@Override
+	public String getInstructions() {
+		return "tool.cone.instructions";
+	}
+
+	/*---------------------------------------------------------------------------------------------
+	 * MouseMotionListener Interface Methods
+	 *-------------------------------------------------------------------------------------------*/
+
+	/**
+	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+	 */
+	public void mouseMoved(MouseEvent e) {
+		if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) > 0) {
+			ScreenPoint vertex = template.getVertex();
+			((ConeTemplate) template).setDirection(RadiusTemplate.Direction
+					.findDirection(e.getX(), e.getY(), vertex.x, vertex.y));
+			zoneRenderer.repaint();
+		} else {
+			super.setCellAtMouse(e, template.getVertex()); // Set the vertex
+		}
+	}
 }

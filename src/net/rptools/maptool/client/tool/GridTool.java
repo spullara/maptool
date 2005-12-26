@@ -73,6 +73,11 @@ public class GridTool extends DefaultTool {
         return "Show/Hide the map grid";
     }
     
+    @Override
+    public String getInstructions() {
+    	return "DEPRECATED.  Left Click: offset grid, Mouse Wheel: scale grid";
+    }
+    
     /* (non-Javadoc)
 	 * @see maptool.client.Tool#attachTo(maptool.client.ZoneRenderer)
 	 */

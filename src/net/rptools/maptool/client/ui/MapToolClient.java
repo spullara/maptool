@@ -321,7 +321,7 @@ public class MapToolClient extends JFrame {
 	public void setStatusMessage(final String message) {
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run() {
-			statusPanel.setStatus(message);
+			statusPanel.setStatus("  " + message);
 			}
 		});
 	}

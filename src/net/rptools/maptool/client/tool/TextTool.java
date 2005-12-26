@@ -54,6 +54,11 @@ public class TextTool extends DefaultTool {
         return "Put text onto the zone";
     }
     
+    @Override
+    public String getInstructions() {
+    	return "tool.label.instructions";
+    }
+    
     ////
     // MOUSE
     @Override

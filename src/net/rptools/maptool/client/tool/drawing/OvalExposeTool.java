@@ -33,6 +33,11 @@ public class OvalExposeTool extends OvalTool {
 	}
 
     @Override
+    public String getInstructions() {
+    	return "tool.ovalexpose.instructions";
+    }
+    
+    @Override
 	protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
 
 		if (!MapTool.getPlayer().isGM()) {

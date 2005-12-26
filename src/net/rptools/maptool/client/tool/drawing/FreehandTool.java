@@ -53,6 +53,11 @@ public class FreehandTool extends AbstractLineTool implements MouseMotionListene
         return "Draw freehand lines";
     }
     
+    @Override
+    public String getInstructions() {
+    	return "tool.freehand.instructions";
+    }
+    
     ////
     // MOUSE LISTENER
     public void mouseClicked(java.awt.event.MouseEvent e) {}

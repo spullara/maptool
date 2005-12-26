@@ -29,6 +29,7 @@ import javax.swing.SwingUtilities;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 
 
 /**
@@ -98,6 +99,10 @@ public class Toolbox {
             			if (currentTool instanceof ZoneOverlay) {
             				currentRenderer.addOverlay((ZoneOverlay) currentTool);
             			}
+                    }
+                    
+                    if (MapTool.getFrame() != null) {
+                    	MapTool.getFrame().setStatusMessage(I18N.getText(currentTool.getInstructions()));
                     }
 				}
 			}

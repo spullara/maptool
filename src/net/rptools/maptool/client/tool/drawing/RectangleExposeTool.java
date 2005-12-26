@@ -25,6 +25,11 @@ public class RectangleExposeTool extends RectangleTool {
     }
 
     @Override
+    public String getInstructions() {
+    	return "tool.rectexpose.instructions";
+    }
+    
+    @Override
     // Override abstracttool to prevent color palette from
     // showing up
 	protected void attachTo(ZoneRenderer renderer) {

@@ -55,6 +55,11 @@ public class LineTool extends AbstractLineTool implements MouseMotionListener {
         return "Draw straight lines";
     }
     
+    @Override
+    public String getInstructions() {
+    	return "tool.line.instructions";
+    }
+    
     ////
     // MOUSE LISTENER
     public void mouseClicked(java.awt.event.MouseEvent e) {}

@@ -52,6 +52,11 @@ public class PolygonTool extends LineTool implements MouseMotionListener {
             ioe.printStackTrace();
         }
     }
+    
+    @Override
+    public String getInstructions() {
+    	return "tool.poly.instructions";
+    }
 
     protected void completeDrawable(GUID zoneGUID, Pen pen, Drawable drawable) {
         

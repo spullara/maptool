@@ -63,6 +63,11 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
     }
     
     @Override
+    public String getInstructions() {
+    	return "tool.rect.instructions";
+    }
+    
+    @Override
     public String getTooltip() {
         return "Draw a rectangle";
     }

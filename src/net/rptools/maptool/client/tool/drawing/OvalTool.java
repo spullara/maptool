@@ -66,6 +66,11 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
     public String getTooltip() {
         return "Draw an oval";
     }
+    
+    @Override
+    public String getInstructions() {
+    	return "tool.oval.instructions";
+    }
 
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
         if (oval != null) {

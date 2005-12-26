@@ -61,6 +61,11 @@ public class MeasureTool extends DefaultTool {
     }
 
     @Override
+    public String getInstructions() {
+    	return "tool.measure.instructions";
+    }
+    
+    @Override
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
         
         if (walker == null) {

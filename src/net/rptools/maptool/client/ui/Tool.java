@@ -65,6 +65,7 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
     }
 
     public abstract String getTooltip();
+    public abstract String getInstructions();
     
 	void addListeners(JComponent comp) {
 		
