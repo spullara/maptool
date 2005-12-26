@@ -117,6 +117,9 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	AppListeners.fireZoneAdded(zone);
             break;
         case removeZone:
+        	zoneGUID = (GUID)parameters[0];
+        	MapTool.getCampaign().removeZone(zoneGUID);
+        	MapTool.getFrame().removeZoneRenderer(MapTool.getFrame().getZoneRenderer(zoneGUID));
             break;
         case putAsset:
             AssetManager.putAsset((Asset) parameters[0]);

@@ -95,7 +95,9 @@ public class AppMenuBar extends JMenuBar {
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.ADJUST_GRID));
         menu.add(new JMenuItem(AppActions.SET_ZONE_GRID_COLOR));
-
+        menu.addSeparator();
+        menu.add(new JMenuItem(AppActions.REMOVE_ZONE));
+        
         return menu;
     }
     

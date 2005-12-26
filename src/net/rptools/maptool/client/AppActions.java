@@ -142,6 +142,30 @@ public class AppActions {
 
 	};
 
+	public static final Action REMOVE_ZONE = new AdminClientAction() {
+		{
+			init("action.removeZone");
+		}
+		
+		@Override
+		public boolean isAvailable() {
+			return super.isAvailable() && MapTool.getFrame().getCurrentZoneRenderer() != null;
+		}
+
+		public void execute(ActionEvent e) {
+
+			if (!MapTool.confirm("msg.confirm.removeZone")) {
+				return;
+			}
+			
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			MapTool.serverCommand().removeZone(renderer.getZone().getId());
+			MapTool.getFrame().removeZoneRenderer(renderer);
+			MapTool.getCampaign().removeZone(renderer.getZone().getId());
+		}
+
+	};
+
 	public static final Action SET_ZONE_GRID_COLOR = new AdminClientAction() {
 		{
 			init("action.setZoneGridColor");

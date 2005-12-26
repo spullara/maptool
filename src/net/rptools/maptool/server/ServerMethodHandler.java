@@ -264,7 +264,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     
     public void removeZone(GUID zoneGUID) {
         server.getCampaign().removeZone(zoneGUID);
-        // TODO: broadcast to clients
+        forwardToClients();
     }
     
     public void sendTokensToBack(GUID zoneGUID, Set<GUID> tokenSet) {

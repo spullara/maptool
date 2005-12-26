@@ -495,9 +495,23 @@ public class MapToolClient extends JFrame {
         zoneRendererList.add(renderer);
     }
     
+    public void removeZoneRenderer(ZoneRenderer renderer) {
+    	
+    	boolean isCurrent = renderer == getCurrentZoneRenderer();
+    	
+    	zoneRendererList.remove(renderer);
+    	if (isCurrent) {
+    		setCurrentZoneRenderer(zoneRendererList.size() > 0 ? zoneRendererList.get(0) : null);
+    	}
+    	
+    	zoneSelectionPanel.flush();
+    	zoneSelectionPanel.repaint();
+    }
+    
     public void clearZoneRendererList() {
         zoneRendererList.clear();
         zoneSelectionPanel.flush();
+    	zoneSelectionPanel.repaint();
     }
 	public void setCurrentZoneRenderer(ZoneRenderer renderer) {
         
@@ -532,6 +546,7 @@ public class MapToolClient extends JFrame {
 			AppListeners.fireZoneActivated(renderer.getZone());
 		}
 		
+		AppActions.updateActions();
 		repaint();
 	}
 	
