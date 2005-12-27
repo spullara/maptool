@@ -29,7 +29,6 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -43,9 +42,12 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.KeyStroke;
+
+import net.rptools.lib.swing.SwingUtil;
 
 public class AdjustGridDialog extends JDialog {
 
@@ -70,8 +72,8 @@ public class AdjustGridDialog extends JDialog {
 	/**
      * This is the default constructor
      */
-    public AdjustGridDialog(BufferedImage image) {
-        super();
+    public AdjustGridDialog(JFrame owner, BufferedImage image) {
+        super(owner, "Adjust Grid", true);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
         	@Override
@@ -96,6 +98,16 @@ public class AdjustGridDialog extends JDialog {
         getRootPane().setDefaultButton(getOkButton());
     }
 
+    @Override
+    public void setVisible(boolean b) {
+
+    	if (getOwner() != null) {
+    		SwingUtil.centerOver(this, getOwner());
+    	}
+    	
+    	super.setVisible(b);
+    }
+    
     /**
      * This method initializes jContentPane
      * 
@@ -312,9 +324,9 @@ public class AdjustGridDialog extends JDialog {
 	}
 
 	public static void main(String[] args) throws IOException {
-        AdjustGridDialog d = new AdjustGridDialog(ImageIO.read(new File("c:\\map.jpg")));
-        d.setDefaultCloseOperation(JDialog.EXIT_ON_CLOSE);
+        AdjustGridDialog d = new AdjustGridDialog(null, ImageIO.read(new File("c:\\map.jpg")));
         
         d.setVisible(true);
+        System.exit(0);
     }
 }
