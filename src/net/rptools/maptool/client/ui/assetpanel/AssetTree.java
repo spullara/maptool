@@ -51,7 +51,6 @@ public class AssetTree extends JTree implements TreeSelectionListener {
 		this.assetPanel = assetPanel;
 		
         setCellRenderer(new AssetTreeCellRenderer());
-        setRootVisible(false);
         
         addMouseListener(createPopupListener());
         addTreeSelectionListener(this);

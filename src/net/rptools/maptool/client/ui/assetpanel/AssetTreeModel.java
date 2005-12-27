@@ -41,7 +41,7 @@ public class AssetTreeModel implements TreeModel {
 
     private List<AssetGroup> rootAssetGroups = new ArrayList<AssetGroup>();
 
-    private Object root = new String("");
+    private Object root = new String("Images");
     
     private List<TreeModelListener> listenerList = new ArrayList<TreeModelListener>();
     
