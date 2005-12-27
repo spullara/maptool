@@ -29,6 +29,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -62,12 +63,19 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     private int leftGrid;
     private int rightGrid;
     
+    private boolean showRows = true;
+    private boolean showCols = true;
+    
     private Handle draggingHandle;
 
     public AdjustGridPanel() {
         setOpaque(false);
         addMouseListener(this);
         addMouseMotionListener(this);
+    }
+    
+    public Rectangle getGridBounds() {
+    	return new Rectangle(topGrid, leftGrid, rightGrid - leftGrid, bottomGrid - topGrid);
     }
     
     public void setZoneImage(BufferedImage image) {
@@ -77,6 +85,14 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         bottomGrid = image.getHeight();
         leftGrid = 0;
         rightGrid = image.getWidth();
+    }
+    
+    public void setShowRows(boolean show) {
+    	showRows = show;
+    }
+    
+    public void setShowCols(boolean show) {
+    	showCols = show;
     }
     
     @Override
@@ -101,7 +117,6 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         
         // SETUP
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         // BG FILL
         g2d.setColor(getBackground());
@@ -116,18 +131,19 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         double dy = ((bottomGrid - topGrid) / (float)gridCountY) * imgRatio;
         
         // across
-        int x = imagePosition.x + left;
-        for (int i = 0; i < gridCountX; i++) {
-            g2d.drawLine(x + (int)(i*dx), imagePosition.y, x + (int)(i*dx), imagePosition.y + imageSize.height);
+        if (showCols) {
+	        int x = imagePosition.x + left;
+	        for (int i = 0; i < gridCountX; i++) {
+	            g2d.drawLine(x + (int)(i*dx), imagePosition.y + top, x + (int)(i*dx), imagePosition.y + bottom);
+	        }
         }
-//        for (int i = 0; i*(-dx) > imagePosition.x; i++) {
-//            g2d.drawLine(x + (int)(i*dx), imagePosition.y, x + (int)(i*dx), imagePosition.y + imageSize.height);
-//        }
         
         // down
-        for (int i = 0; i < gridCountY; i++) {
-            int y = imagePosition.y + top;
-            g2d.drawLine(imagePosition.x, y+(int)(i*dy), imagePosition.x+imageSize.width, y+(int)(i*dy));
+        if (showRows) {
+	        int y = imagePosition.y + top;
+	        for (int i = 0; i < gridCountY; i++) {
+	            g2d.drawLine(imagePosition.x + left, y+(int)(i*dy), imagePosition.x+right, y+(int)(i*dy));
+	        }
         }
         
         // HANDLES

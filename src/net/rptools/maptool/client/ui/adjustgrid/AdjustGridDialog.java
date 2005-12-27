@@ -26,17 +26,26 @@ package net.rptools.maptool.client.ui.adjustgrid;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import javax.swing.JButton;
-import java.awt.FlowLayout;
 import javax.swing.JSlider;
+import javax.swing.KeyStroke;
 
 public class AdjustGridDialog extends JDialog {
 
@@ -49,19 +58,33 @@ public class AdjustGridDialog extends JDialog {
     private JPanel southControlPanel = null;
     private JSlider gridCountXSlider = null;
     private JSlider gridCountYSlider = null;
+	private JButton cancelButton = null;
+	
+	private boolean isOK;
 
-    /**
+	
+	public boolean isOK() {
+		return isOK;
+	}
+
+	/**
      * This is the default constructor
      */
-    public AdjustGridDialog() {
+    public AdjustGridDialog(BufferedImage image) {
         super();
-        initialize();
-    }
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+        	@Override
+        	public void windowClosing(WindowEvent e) {
+        		isOK = false;
+        		setVisible(false);
+        	}
+        });
 
-    public void setZoneImage(BufferedImage image) {
+        initialize();
         getAdjustGridPanel().setZoneImage(image);
     }
-    
+
     /**
      * This method initializes this
      * 
@@ -70,6 +93,7 @@ public class AdjustGridDialog extends JDialog {
     private void initialize() {
         this.setSize(500, 500);
         this.setContentPane(getJContentPane());
+        getRootPane().setDefaultButton(getOkButton());
     }
 
     /**
@@ -84,6 +108,14 @@ public class AdjustGridDialog extends JDialog {
             jContentPane.add(getAdjustGridPanel(), java.awt.BorderLayout.CENTER);
             jContentPane.add(getEastPanel(), java.awt.BorderLayout.EAST);
             jContentPane.add(getSouthPanel(), java.awt.BorderLayout.SOUTH);
+            
+            jContentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), "cancel");
+            jContentPane.getActionMap().put("cancel", new AbstractAction() {
+            	public void actionPerformed(ActionEvent e) {
+            		isOK = false;
+            		setVisible(false);
+            	}
+            });
         }
         return jContentPane;
     }
@@ -114,6 +146,7 @@ public class AdjustGridDialog extends JDialog {
             buttonPanel = new JPanel();
             buttonPanel.setLayout(flowLayout);
             buttonPanel.add(getOkButton(), null);
+            buttonPanel.add(getCancelButton(), null);
         }
         return buttonPanel;
     }
@@ -129,7 +162,8 @@ public class AdjustGridDialog extends JDialog {
             okButton.setText("OK");
             okButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    System.exit(0);
+                	isOK = true;
+                	setVisible(false);
                 }
             });
         }
@@ -145,6 +179,7 @@ public class AdjustGridDialog extends JDialog {
         if (eastPanel == null) {
             eastPanel = new JPanel();
             eastPanel.setLayout(new BorderLayout());
+            eastPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
             eastPanel.add(getGridCountYSlider(), java.awt.BorderLayout.EAST);
         }
         return eastPanel;
@@ -174,7 +209,8 @@ public class AdjustGridDialog extends JDialog {
         if (southControlPanel == null) {
             southControlPanel = new JPanel();
             southControlPanel.setLayout(new BorderLayout());
-            southControlPanel.add(getGridCountXSlider(), java.awt.BorderLayout.NORTH);
+            southControlPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
+            southControlPanel.add(getGridCountXSlider(), java.awt.BorderLayout.CENTER);
         }
         return southControlPanel;
     }
@@ -192,8 +228,20 @@ public class AdjustGridDialog extends JDialog {
             gridCountXSlider.setValue(10);
             gridCountXSlider.addChangeListener(new javax.swing.event.ChangeListener() {
                 public void stateChanged(javax.swing.event.ChangeEvent e) {
-                    getAdjustGridPanel().setGridCountX(getGridCountXSlider().getValue());
+                	int value = getGridCountXSlider().getValue();
+                    getAdjustGridPanel().setGridCountX(value);
                 }
+            });
+            gridCountXSlider.addMouseListener(new java.awt.event.MouseAdapter() {
+            	public void mousePressed(java.awt.event.MouseEvent e) {
+            		getAdjustGridPanel().setShowRows(false);
+            		getAdjustGridPanel().repaint();
+            	}
+            	@Override
+            	public void mouseReleased(MouseEvent e) {
+            		getAdjustGridPanel().setShowRows(true);
+            		getAdjustGridPanel().repaint();
+            	}
             });
         }
         return gridCountXSlider;
@@ -213,18 +261,59 @@ public class AdjustGridDialog extends JDialog {
             gridCountYSlider.setMinimum(1);
             gridCountYSlider.addChangeListener(new javax.swing.event.ChangeListener() {
                 public void stateChanged(javax.swing.event.ChangeEvent e) {
-                    getAdjustGridPanel().setGridCountY(getGridCountYSlider().getValue());
+                	int value = getGridCountYSlider().getValue();
+                    getAdjustGridPanel().setGridCountY(value);
                 }
+            });
+            gridCountYSlider.addMouseListener(new java.awt.event.MouseAdapter() {
+            	public void mousePressed(java.awt.event.MouseEvent e) {
+            		getAdjustGridPanel().setShowCols(false);
+            		getAdjustGridPanel().repaint();
+            	}
+            	@Override
+            	public void mouseReleased(MouseEvent e) {
+            		getAdjustGridPanel().setShowCols(true);
+            		getAdjustGridPanel().repaint();
+            	}
             });
         }
         return gridCountYSlider;
     }
+    
+    public Rectangle getGridBounds() {
+    	return getAdjustGridPanel().getGridBounds();
+    }
+    
+    public int getGridXCount () {
+    	return getGridCountXSlider().getValue();
+    }
+    
+    public int getGridYCount () {
+    	return getGridCountYSlider().getValue();
+    }
 
-    public static void main(String[] args) throws IOException {
-        AdjustGridDialog d = new AdjustGridDialog();
+    /**
+	 * This method initializes cancelButton	
+	 * 	
+	 * @return javax.swing.JButton	
+	 */
+	private JButton getCancelButton() {
+		if (cancelButton == null) {
+			cancelButton = new JButton();
+			cancelButton.setText("Cancel");
+			cancelButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					isOK = false;
+					setVisible(false);
+				}
+			});
+		}
+		return cancelButton;
+	}
+
+	public static void main(String[] args) throws IOException {
+        AdjustGridDialog d = new AdjustGridDialog(ImageIO.read(new File("c:\\map.jpg")));
         d.setDefaultCloseOperation(JDialog.EXIT_ON_CLOSE);
-        
-        d.setZoneImage(ImageIO.read(new File("c:\\map.jpg")));
         
         d.setVisible(true);
     }
