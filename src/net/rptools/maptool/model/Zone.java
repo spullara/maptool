@@ -351,7 +351,9 @@ public class Zone extends Token {
 	}
 
     public List<Token> getTokens() {
-        return Collections.unmodifiableList(tokenOrderedList);
+    	List<Token> copy = new ArrayList<Token>();
+    	copy.addAll(tokenOrderedList);
+        return Collections.unmodifiableList(copy);
     }
 
 }

@@ -55,6 +55,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientStyle;
@@ -98,6 +99,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
     private int mapDX, mapDY;
     private static final int REDRAW_DELAY = 25; // millis
     
+
     ////
 	// Mouse
 	
@@ -390,6 +392,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	protected Map<KeyStroke, Action> getKeyActionMap() {
 		return new HashMap<KeyStroke, Action>() {
 			{
+				put(KeyStroke.getKeyStroke("control C"), AppActions.COPY_TOKENS);
+				put(KeyStroke.getKeyStroke("control V"), AppActions.PASTE_TOKENS);
+				
 				// TODO: Optimize this by making it non anonymous
 				put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
 				

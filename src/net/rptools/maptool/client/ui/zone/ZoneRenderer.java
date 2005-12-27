@@ -40,6 +40,7 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
@@ -51,8 +52,10 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientStyle;
@@ -108,6 +111,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	private Map<Token, BufferedImage> resizedImageMap = new HashMap<Token, BufferedImage>();
 
 	private Token tokenUnderMouse;
+
+	private ScreenPoint pointUnderMouse;
 	
     public ZoneRenderer(Zone zone) {
         if (zone == null) { throw new IllegalArgumentException("Zone cannot be null"); }
@@ -117,15 +122,32 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         // DnD
         new DropTarget(this, this);
 
-        // Get focus when clicked in
         addMouseListener(new MouseAdapter(){
 			public void mousePressed(MouseEvent e) {
 				requestFocus();
 			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				pointUnderMouse = null;
+			}
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				requestFocus();
+			}
         });
-        
+        addMouseMotionListener(new MouseMotionAdapter() {
+        	@Override
+        	public void mouseMoved(MouseEvent e) {
+        		pointUnderMouse = new ScreenPoint(e.getX(), e.getY());
+        	}
+        });
+     
     }
 
+    public ScreenPoint getPointUnderMouse() {
+    	return pointUnderMouse;
+    }
+    
     public void setMouseOver(Token token) {
     	if (tokenUnderMouse == token) {
     		return;
@@ -931,26 +953,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     /* (non-Javadoc)
      * @see java.awt.dnd.DropTargetListener#dragEnter(java.awt.dnd.DropTargetDragEvent)
      */
-    public void dragEnter(DropTargetDragEvent dtde) {
-        // TODO Auto-generated method stub
-
-    }
+    public void dragEnter(DropTargetDragEvent dtde) {}
 
     /* (non-Javadoc)
      * @see java.awt.dnd.DropTargetListener#dragExit(java.awt.dnd.DropTargetEvent)
      */
-    public void dragExit(DropTargetEvent dte) {
-        // TODO Auto-generated method stub
-
-    }
+    public void dragExit(DropTargetEvent dte) {}
 
     /* (non-Javadoc)
      * @see java.awt.dnd.DropTargetListener#dragOver(java.awt.dnd.DropTargetDragEvent)
      */
-    public void dragOver(DropTargetDragEvent dtde) {
-        // TODO Auto-generated method stub
-
-    }
+    public void dragOver(DropTargetDragEvent dtde) {}
 
     /* (non-Javadoc)
      * @see java.awt.dnd.DropTargetListener#drop(java.awt.dnd.DropTargetDropEvent)

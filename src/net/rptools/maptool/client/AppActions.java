@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -75,27 +77,119 @@ import net.rptools.maptool.util.PersistenceUtil;
  */
 public class AppActions {
 
+	private static Set<Token> tokenCopySet = null;
 	public static final Action COPY_TOKENS = new DefaultClientAction() {
 		{
-			init("copy");
+			init("action.copyTokens");
 		}
 
+		@Override
+		public boolean isAvailable() {
+			return super.isAvailable() && MapTool.getFrame().getCurrentZoneRenderer() != null;
+		}
+		
 		public void execute(ActionEvent e) {
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			Zone zone = renderer.getZone();
 			Set<GUID> selectedSet = renderer.getSelectedTokenSet();
 			
-			Set<Token> copySet = new HashSet<Token>();
+			Integer top = null;
+			Integer left = null;
+			tokenCopySet = new HashSet<Token>();
 			for (GUID guid : selectedSet) {
 				Token token = zone.getToken(guid);
+
+
+				if (top == null || token.getY() < top) {
+					top = token.getY();
+				}
+				if (left == null || token.getX() < left) {
+					left = token.getX();
+				}
 				
-				copySet.add(new Token(token));
+				tokenCopySet.add(new Token(token));
 			}
 			
 			// Normalize
+			for (Token token : tokenCopySet) {
+				token.setX(token.getX() - left);
+				token.setY(token.getY() - top);
+			}
 		}
 
+	};
+	
+	private static final Pattern NAME_PATTERN = Pattern.compile("^(\\D*)(\\d+)$");
+	public static final Action PASTE_TOKENS = new DefaultClientAction() {
+		{
+			init("action.pasteTokens");
+		}
+		
+		@Override
+		public boolean isAvailable() {
+			return super.isAvailable() && tokenCopySet != null;
+		}
+		
+		public void execute(ActionEvent e) {
+		
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			Zone zone = renderer.getZone();
+			
+			ScreenPoint screenPoint = renderer.getPointUnderMouse();
+			if (screenPoint == null) {
+				return;
+			}
+
+			boolean snapToGrid = false;
+			for (Token origToken : tokenCopySet) {
+				if (origToken.isSnapToGrid()) {
+					snapToGrid = true;
+				}
+			}
+			
+			ZonePoint zonePoint = screenPoint.convertToZone(renderer);
+			if (snapToGrid) {
+				// LATER: For some freaky reason, row -1 and column -1 don't work correctly
+				CellPoint cellPoint = zonePoint.convertToCell(renderer);
+				if (cellPoint.x < 0) {cellPoint.x--;}
+				if (cellPoint.y < 0) {cellPoint.y--;}
+				zonePoint = cellPoint.convertToZone(renderer);
+			}
+			
+			for (Token origToken : tokenCopySet) {
+				
+				Token token = new Token(origToken);
+				
+				token.setX(token.getX() + zonePoint.x);
+				token.setY(token.getY() + zonePoint.y);
+
+				// If we're copying to the same zone, the token needs a new name
+				String name = token.getName();
+				Matcher m = NAME_PATTERN.matcher(token.getName());
+				if (m.find()) {
+					name = m.group(1);
+					int num = Integer.parseInt(m.group(2)) + 1;
+					
+					// Find the next available token number, this
+					// has to break at some point.
+					while (zone.getTokenByName(name + num) != null) {
+						num ++;
+					}
+					
+					name += num;
+				} else {
+					name += "1";
+				}
+					
+				token.setName(name);
+				
+				zone.putToken(token);
+	            MapTool.serverCommand().putToken(zone.getId(), token);
+			}
+			
+			renderer.repaint();
+		}
 	};
 
 	public static final Action REMOVE_ASSET_ROOT = new DefaultClientAction() {
