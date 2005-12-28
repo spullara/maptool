@@ -324,6 +324,8 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
       Iterator<TextMessage> i = MapTool.getMessageList().iterator();
       while (i.hasNext())
         doc.insertString(doc.getLength(), i.next().getMessage(), null);
+      scrollToEnd();
+      scrollButtonPanel.setVisible(false);
       checkScrollButtonPanel();
     } catch (BadLocationException e) {
       throw new IllegalStateException("This should not happen!");
@@ -353,9 +355,10 @@ public class CommandPanel extends JPanel implements Observer, ActionListener {
    * do it if needed.
    */
   private void checkScrollButtonPanel() {
-    if (!scrollButtonPanel.isVisible()) {
-      if (messageScrollPane.getViewport().getExtentSize().height + cmdField.getHeight() < messagePanel.getHeight()) 
-        scrollButtonPanel.setVisible(true);
+    if (!scrollButtonPanel.isVisible() 
+        && messageScrollPane.getViewport().getExtentSize().height + cmdField.getHeight() < messagePanel.getHeight()) {
+      scrollButtonPanel.setVisible(true);
+      scrollToEnd();
     } // endif
   }
   
