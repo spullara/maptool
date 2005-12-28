@@ -32,6 +32,7 @@ import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppActions;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.tool.drawing.DrawableUndoManager;
 import net.rptools.maptool.language.I18N;
@@ -121,6 +122,10 @@ public class AppMenuBar extends JMenuBar {
         menu.addSeparator();
         menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_DROP_INVISIBLE));
         menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_NEW_ZONE_VISIBILITY));
+        menu.addSeparator();
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(AppActions.TOGGLE_DRAW_MEASUREMENTS);
+        item.setSelected(true);
+        menu.add(item);
 
         if (MapToolUtil.isDebugEnabled()) {
             menu.addSeparator();

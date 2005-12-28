@@ -39,11 +39,11 @@ import javax.swing.SwingUtilities;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.drawing.AbstractTemplate;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.RadiusTemplate;
-import net.rptools.maptool.util.GraphicsUtil;
 
 /**
  * Draw a template for an effect with a radius. Make the template show the
@@ -145,7 +145,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @return The cell at the mouse point in screen coordinates.
    */
   protected ScreenPoint getCellAtMouse(MouseEvent e) {
-    
+
     // Find the upper left corner of the cell that the mouse is in.
     ScreenPoint working = zoneRenderer.getCellAt(new ScreenPoint(e.getX(), e.getY())).convertToScreen(zoneRenderer);
 
@@ -158,7 +158,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
       working.y += grid;
     return working;
   }
-  
+
   /**
    * Calculate the radius between two cells based on a mouse event.
    * 
@@ -171,9 +171,9 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     CellPoint vertexCell = zoneRenderer.getCellAt(template.getVertex());
     int x = Math.abs(workingCell.x - vertexCell.x);
     int y = Math.abs(workingCell.y - vertexCell.y);
-    return (int)AbstractTemplate.getDistances(x + y)[x][y];  
+    return (int) AbstractTemplate.getDistances(x + y)[x][y];
   }
-  
+
   /**
    * Paint a cursor
    * 
@@ -216,11 +216,9 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    */
   protected void paintRadius(Graphics2D g, ScreenPoint p) {
     if (template.getRadius() > 0) {
-      ScreenPoint centerText = new ScreenPoint(p.x, p.y); // Must copy
-      // point
+      ScreenPoint centerText = new ScreenPoint(p.x, p.y); // Must copy point
       centerText.translate(CURSOR_WIDTH, -CURSOR_WIDTH);
-      String radius = Integer.toString(template.getRadius() * zoneRenderer.getZone().getFeetPerCell()) + "'";
-      GraphicsUtil.drawBoxedString(g, radius, centerText.x, centerText.y);
+      ToolHelper.drawMeasurement(g, template.getRadius() * zoneRenderer.getZone().getFeetPerCell(), centerText.x, centerText.y);
     } // endif
   }
 
@@ -358,14 +356,15 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
    */
   public void mousePressed(MouseEvent e) {
-    if (!painting) return;
-    
+    if (!painting)
+      return;
+
     // Need to set the anchor?
     if (!anchorSet) {
       anchorSet = true;
       return;
     } // endif
-    
+
     // Need to finish the radius?
     if (!painting || template.getRadius() < AbstractTemplate.MIN_RADIUS)
       return;

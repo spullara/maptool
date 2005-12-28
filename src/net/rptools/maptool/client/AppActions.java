@@ -933,6 +933,19 @@ public class AppActions {
 		}
 	};
 
+  /**
+   * Toggle the drawing of measurements.
+   */
+  public static final Action TOGGLE_DRAW_MEASUREMENTS = new DefaultClientAction() {
+    {
+            init("action.toggleDrawMeasuements");
+    }
+
+    public void execute(ActionEvent ae) {
+      MapTool.getFrame().setPaintDrawingMeasurement(!MapTool.getFrame().isPaintDrawingMeasurement());
+    }
+  };
+
 	private static List<ClientAction> actionList;
 	
 	private static List<ClientAction> getActionList() {

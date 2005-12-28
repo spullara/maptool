@@ -112,6 +112,11 @@ public class MapToolClient extends JFrame {
 
     private Pen pen = new Pen(Pen.DEFAULT);
     
+    /**
+     * Are the drawing measurements being painted?
+     */
+    private boolean paintDrawingMeasurement = true;
+    
 	// Components
     private TaskPanelGroup taskPanel;
 	private ZoneRenderer currentRenderer;
@@ -573,5 +578,23 @@ public class MapToolClient extends JFrame {
 		
 		return null;
 	}
+
+  /**
+   * Get the paintDrawingMeasurements for this MapToolClient.
+   *
+   * @return Returns the current value of paintDrawingMeasurements.
+   */
+  public boolean isPaintDrawingMeasurement() {
+    return paintDrawingMeasurement;
+  }
+
+  /**
+   * Set the value of paintDrawingMeasurements for this MapToolClient.
+   *
+   * @param aPaintDrawingMeasurements The paintDrawingMeasurements to set.
+   */
+  public void setPaintDrawingMeasurement(boolean aPaintDrawingMeasurements) {
+    paintDrawingMeasurement = aPaintDrawingMeasurements;
+  }
 	
 }

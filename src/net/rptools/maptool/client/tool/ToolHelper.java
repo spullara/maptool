@@ -30,6 +30,7 @@ import java.awt.Graphics2D;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.AbstractPoint;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.util.GraphicsUtil;
@@ -41,7 +42,8 @@ public class ToolHelper {
 
 	public static void drawBoxedMeasurement(ZoneRenderer renderer,
 			Graphics2D g, ScreenPoint startPoint, ScreenPoint endPoint) {
-
+	  if (!MapTool.getFrame().isPaintDrawingMeasurement()) return;
+    
 		// Calculations
 		int left = Math.min(startPoint.x, endPoint.x);
 		int top = Math.min(startPoint.y, endPoint.y);
@@ -72,6 +74,7 @@ public class ToolHelper {
 
 	public static void drawMeasurement(ZoneRenderer renderer, Graphics2D g,
 			ScreenPoint startPoint, ScreenPoint endPoint) {
+    if (!MapTool.getFrame().isPaintDrawingMeasurement()) return;
 
 //		int left = Math.min(startPoint.x, endPoint.x);
 //		int top = Math.min(startPoint.y, endPoint.y);
@@ -89,6 +92,20 @@ public class ToolHelper {
 		GraphicsUtil.drawBoxedString(g, displayString, endPoint.x + (dirLeft ? -10 : 10), endPoint.y, dirLeft ? SwingUtilities.LEFT : SwingUtilities.RIGHT);
 	}
 
+  /**
+   * Draw a measurement on the passed graphics object.
+   * 
+   * @param g Draw the measurement here.
+   * @param distance The size of the measurement in feet
+   * @param x The x location of the measurement
+   * @param y The y location of the measurement
+   */
+  public static void drawMeasurement(Graphics2D g, int distance, int x, int y) {
+    if (!MapTool.getFrame().isPaintDrawingMeasurement()) return;
+    String radius = Integer.toString(distance) + "'";
+    GraphicsUtil.drawBoxedString(g, radius, x, y);
+  }
+  
 	private static double euclideanDistance(ZoneRenderer renderer, AbstractPoint p1,
 			AbstractPoint p2) {
 		int a = p2.x - p1.x;
