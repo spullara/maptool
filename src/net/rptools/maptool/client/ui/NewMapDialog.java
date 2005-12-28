@@ -16,10 +16,12 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -45,6 +47,7 @@ import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.adjustgrid.AdjustGridDialog;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Zone;
@@ -443,7 +446,27 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		if (adjustGridButton == null) {
 			adjustGridButton = new JButton();
 			adjustGridButton.setText("Adjust Grid");
-            adjustGridButton.setEnabled(false);
+			adjustGridButton.setEnabled(false);
+			adjustGridButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					
+					try {
+						BufferedImage image = selectedFile != null ? ImageIO.read(selectedFile) : ImageIO.read(new ByteArrayInputStream(selectedAsset.getImage()));
+						AdjustGridDialog agd = new AdjustGridDialog(MapTool.getFrame(), image);
+						
+						agd.setVisible(true);
+						if (agd.isOK()) {
+							System.out.println ("OK");
+						} else {
+							System.out.println ("CANCEL");
+						}
+						
+					} catch (IOException ioe) {
+						MapTool.showError("Could not create the image");
+						ioe.printStackTrace();
+					}
+				}
+			});
 		}
 		return adjustGridButton;
 	}
@@ -481,6 +504,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		imagePreviewPanel.setImage(selectedFile);
 		
 		getOkButton().setEnabled(file != null);
+		//getAdjustGridButton().setEnabled(file != null && getBoundedRadioButton().isSelected());
 	}
 	
 	private void setSelectedAsset(Asset asset) {
@@ -489,6 +513,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		selectedFile = null;
 		
 		getOkButton().setEnabled(asset != null);
+		//getAdjustGridButton().setEnabled(asset != null && getBoundedRadioButton().isSelected());
 	}
 
 	private class ImagePreviewWindow extends JComponent {
