@@ -27,9 +27,7 @@ package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -50,120 +48,102 @@ import net.rptools.maptool.model.drawing.AbstractTemplate.Quadrant;
  */
 public class LineTemplateTool extends RadiusTemplateTool {
 
-	/*---------------------------------------------------------------------------------------------
-	 * Constructor 
-	 *-------------------------------------------------------------------------------------------*/
+  /*---------------------------------------------------------------------------------------------
+   * Constructor 
+   *-------------------------------------------------------------------------------------------*/
 
-	/**
-	 * Add the icon to the toggle button. TODO: Create an icon that doesn't look
-	 * suspicously like the text 'Line'
-	 */
-	public LineTemplateTool() {
-		try {
-			setIcon(new ImageIcon(
-					ImageIO
-							.read(getClass()
-									.getClassLoader()
-									.getResourceAsStream(
-											"net/rptools/maptool/client/image/Tool_Draw_Line_Template.GIF"))));
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} // endtry
-	}
+  /**
+   * Add the icon to the toggle button.
+   */
+  public LineTemplateTool() {
+    try {
+      setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream(
+          "net/rptools/maptool/client/image/Tool_Draw_Line_Template.GIF"))));
+    } catch (IOException ioe) {
+      ioe.printStackTrace();
+    } // endtry
+  }
 
-	/*---------------------------------------------------------------------------------------------
-	 * Overidden RadiusTemplateTool Methods
-	 *-------------------------------------------------------------------------------------------*/
+  /*---------------------------------------------------------------------------------------------
+   * Overidden RadiusTemplateTool Methods
+   *-------------------------------------------------------------------------------------------*/
 
-	@Override
-	public String getInstructions() {
-		return "tool.linetemplate.instructions";
-	}
+  /**
+   * @see net.rptools.maptool.client.ui.Tool#getInstructions()
+   */
+  @Override
+  public String getInstructions() {
+    return "tool.linetemplate.instructions";
+  }
 
-	/**
-	 * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#createBaseTemplate()
-	 */
-	@Override
-	protected AbstractTemplate createBaseTemplate() {
-		return new LineTemplate();
-	}
+  /**
+   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#createBaseTemplate()
+   */
+  @Override
+  protected AbstractTemplate createBaseTemplate() {
+    return new LineTemplate();
+  }
 
-	/*---------------------------------------------------------------------------------------------
-	 * Overridden AbstractDrawingTool Methods
-	 *-------------------------------------------------------------------------------------------*/
+  /*---------------------------------------------------------------------------------------------
+   * Overridden AbstractDrawingTool Methods
+   *-------------------------------------------------------------------------------------------*/
 
-	/**
-	 * @see net.rptools.maptool.client.ui.zone.ZoneOverlay#paintOverlay(net.rptools.maptool.client.ui.zone.ZoneRenderer,
-	 *      java.awt.Graphics2D)
-	 */
-	@Override
-	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
-		if (painting && zoneRenderer != null) {
-			Pen pen = getPenForOverlay();
-			ScreenPoint vertex = template.getVertex();
-			ScreenPoint pathVertex = ((LineTemplate) template).getPathVertex();
-			paintTemplate(g, pen);
-			paintCursor(g, new Color(pen.getColor()), pen.getThickness(),
-					vertex);
-			if (pathVertex != null) {
-				paintCursor(g, new Color(pen.getBackgroundColor()), pen
-						.getThickness(), pathVertex);
-				paintRadius(g, vertex);
-			} // endif
-		} // endif
-	}
+  /**
+   * @see net.rptools.maptool.client.ui.zone.ZoneOverlay#paintOverlay(net.rptools.maptool.client.ui.zone.ZoneRenderer,
+   *      java.awt.Graphics2D)
+   */
+  @Override
+  public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
+    if (painting && zoneRenderer != null) {
+      Pen pen = getPenForOverlay();
+      ScreenPoint vertex = template.getVertex();
+      ScreenPoint pathVertex = ((LineTemplate) template).getPathVertex();
+      paintTemplate(g, pen);
+      paintCursor(g, new Color(pen.getColor()), pen.getThickness(), vertex);
+      if (pathVertex != null) {
+//        paintCursor(g, new Color(pen.getBackgroundColor()), pen.getThickness(), pathVertex);
+        paintRadius(g, vertex);
+      } // endif
+    } // endif
+  }
 
-	/*---------------------------------------------------------------------------------------------
-	 * MouseMotionListener Interface Methods
-	 *-------------------------------------------------------------------------------------------*/
+  /*---------------------------------------------------------------------------------------------
+   * MouseMotionListener Interface Methods
+   *-------------------------------------------------------------------------------------------*/
 
-	/**
-	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
-	 */
-	public void mouseMoved(MouseEvent e) {
-		LineTemplate lt = (LineTemplate) template;
-		ScreenPoint pathVertex = lt.getPathVertex();
-		boolean control = (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) > 0;
-		if (control) {
-
-			// The path vertex remains null until it is set the first time.
-			if (pathVertex == null) {
-				pathVertex = new ScreenPoint(lt.getVertex().x, lt.getVertex().y);
-				lt.setPathVertex(pathVertex);
-			} // endif
-			if (pathVertex != null && setCellAtMouse(e, pathVertex))
-				lt.clearPath();
-		} else {
-			setCellAtMouse(e, template.getVertex());
-		}
-
-		// Quadrant change?
-		if (pathVertex != null) {
-			ScreenPoint vertex = template.getVertex();
-			int dx = e.getX() - vertex.x;
-			int dy = e.getY() - vertex.y;
-			AbstractTemplate.Quadrant quadrant = (dx < 0) ? (dy < 0 ? Quadrant.NORTH_WEST
-					: Quadrant.SOUTH_WEST)
-					: (dy < 0 ? Quadrant.NORTH_EAST : Quadrant.SOUTH_EAST);
-			if (quadrant != lt.getQuadrant()) {
-				lt.setQuadrant(quadrant);
-				zoneRenderer.repaint();
-			}
-		}
-
-	}
-
-	/*---------------------------------------------------------------------------------------------
-	 * MouseWheelListener Interface Methods
-	 *-------------------------------------------------------------------------------------------*/
-
-	/**
-	 * @see java.awt.event.MouseWheelListener#mouseWheelMoved(java.awt.event.MouseWheelEvent)
-	 */
-	public void mouseWheelMoved(MouseWheelEvent e) {
-		if (((LineTemplate) template).getPathVertex() != null) {
-			template.setRadius(template.getRadius() - e.getWheelRotation());
-			zoneRenderer.repaint();
-		} // endif
-	}
+  /**
+   * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+   */
+  public void mouseMoved(MouseEvent e) {
+    
+    // Setting anchor point
+    LineTemplate lt = (LineTemplate) template;
+    ScreenPoint pathVertex = lt.getPathVertex();
+    if (!anchorSet) {
+      setCellAtMouse(e, template.getVertex());
+    } else {
+      template.setRadius(getRadiusAtMouse(e));
+      
+      // The path vertex remains null until it is set the first time.
+      if (pathVertex == null) {
+        pathVertex = new ScreenPoint(lt.getVertex().x, lt.getVertex().y);
+        lt.setPathVertex(pathVertex);
+      } // endif
+      if (pathVertex != null && setCellAtMouse(e, pathVertex))
+        lt.clearPath();
+    } // endif
+    
+    // Quadrant change?
+    if (pathVertex != null) {
+      ScreenPoint vertex = template.getVertex();
+      int dx = e.getX() - vertex.x;
+      int dy = e.getY() - vertex.y;
+      AbstractTemplate.Quadrant quadrant = (dx < 0) ? (dy < 0 ? Quadrant.NORTH_WEST : Quadrant.SOUTH_WEST)
+          : (dy < 0 ? Quadrant.NORTH_EAST : Quadrant.SOUTH_EAST);
+      if (quadrant != lt.getQuadrant()) {
+        lt.setQuadrant(quadrant);
+        zoneRenderer.repaint();
+      } // endif
+    } // endif
+  }
 }

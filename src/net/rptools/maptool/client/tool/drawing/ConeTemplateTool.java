@@ -25,7 +25,6 @@
 
 package net.rptools.maptool.client.tool.drawing;
 
-import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 
@@ -50,67 +49,65 @@ import net.rptools.maptool.model.drawing.RadiusTemplate;
  */
 public class ConeTemplateTool extends RadiusTemplateTool {
 
-	/*---------------------------------------------------------------------------------------------
-	 * Constructor 
-	 *-------------------------------------------------------------------------------------------*/
+  /*---------------------------------------------------------------------------------------------
+   * Constructor 
+   *-------------------------------------------------------------------------------------------*/
 
-	/**
-	 * Add the icon to the toggle button. TODO: Create an icon that doesn't look
-	 * suspicously like the text 'Cone'
-	 */
-	public ConeTemplateTool() {
-		try {
-			setIcon(new ImageIcon(
-					ImageIO
-							.read(getClass()
-									.getClassLoader()
-									.getResourceAsStream(
-											"net/rptools/maptool/client/image/Tool_Draw_Cone_Template.GIF"))));
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} // endtry
-	}
+  /**
+   * Add the icon to the toggle button. 
+   */
+  public ConeTemplateTool() {
+    try {
+      setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream(
+          "net/rptools/maptool/client/image/Tool_Draw_Cone_Template.GIF"))));
+    } catch (IOException ioe) {
+      ioe.printStackTrace();
+    } // endtry
+  }
 
-	/*---------------------------------------------------------------------------------------------
-	 * Overidden RadiusTemplateTool Methods
-	 *-------------------------------------------------------------------------------------------*/
+  /*---------------------------------------------------------------------------------------------
+   * Overidden RadiusTemplateTool Methods
+   *-------------------------------------------------------------------------------------------*/
 
-	/**
-	 * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#createBaseTemplate()
-	 */
-	@Override
-	protected AbstractTemplate createBaseTemplate() {
-		return new ConeTemplate();
-	}
+  /**
+   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#createBaseTemplate()
+   */
+  @Override
+  protected AbstractTemplate createBaseTemplate() {
+    return new ConeTemplate();
+  }
 
-	/**
-	 * @see net.rptools.maptool.client.ui.Tool#getTooltip()
-	 */
-	@Override
-	public String getTooltip() {
-		return "Draw a cone template";
-	}
+  /**
+   * @see net.rptools.maptool.client.ui.Tool#getTooltip()
+   */
+  @Override
+  public String getTooltip() {
+    return "Draw a cone template";
+  }
 
-	@Override
-	public String getInstructions() {
-		return "tool.cone.instructions";
-	}
+  /**
+   * @see net.rptools.maptool.client.ui.Tool#getInstructions()
+   */
+  @Override
+  public String getInstructions() {
+    return "tool.cone.instructions";
+  }
 
-	/*---------------------------------------------------------------------------------------------
-	 * MouseMotionListener Interface Methods
-	 *-------------------------------------------------------------------------------------------*/
+  /*---------------------------------------------------------------------------------------------
+   * MouseMotionListener Interface Methods
+   *-------------------------------------------------------------------------------------------*/
 
-	/**
-	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
-	 */
-	public void mouseMoved(MouseEvent e) {
-		if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) > 0) {
-			ScreenPoint vertex = template.getVertex();
-			((ConeTemplate) template).setDirection(RadiusTemplate.Direction
-					.findDirection(e.getX(), e.getY(), vertex.x, vertex.y));
-			zoneRenderer.repaint();
-		} else {
-			super.setCellAtMouse(e, template.getVertex()); // Set the vertex
-		}
-	}
+  /**
+   * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+   */
+  public void mouseMoved(MouseEvent e) {
+    if (!anchorSet) {
+      setCellAtMouse(e, template.getVertex()); // Set the vertex
+    } else {
+      template.setRadius(getRadiusAtMouse(e));
+      ScreenPoint vertex = template.getVertex();
+      ((ConeTemplate) template).setDirection(RadiusTemplate.Direction.findDirection(e.getX(), e.getY(), vertex.x, vertex.y));
+      zoneRenderer.repaint();
+    }
+  }
 }

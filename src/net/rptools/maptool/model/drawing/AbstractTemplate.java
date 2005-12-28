@@ -160,7 +160,7 @@ public abstract class AbstractTemplate extends AbstractDrawing {
   public void setRadius(int squares) {
     radius = Math.min(MAX_RADIUS, Math.max(MIN_RADIUS, squares));
     if (radius >= distances.length)
-      setQuadrant(radius + 1); // Make extra room for boundary conditions
+      setDistances(radius + 1); // Make extra room for boundary conditions
   }
 
   /**
@@ -367,37 +367,37 @@ public abstract class AbstractTemplate extends AbstractDrawing {
    */
   public static synchronized float[][] getDistances(int radius) {
     if (radius >= distances.length)
-      setQuadrant(radius + 1); // Make extra room for boundary conditions
+      setDistances(radius + 1); // Make extra room for boundary conditions
     return distances;
   }
   
   /**
-   * Make sure the distances has enough data for a specific radius in squares.
+   * Make sure that <code>distances</code> has enough data for a specific radius in squares.
    *  
    * @param squares The radius that must be supported.
    */
-  public static synchronized void setQuadrant(int squares) {
+  public static synchronized void setDistances(int squares) {
 
     // If the number of squares gets larger, make a new quadrant
     int oldSquares = distances.length;
     if (squares <= oldSquares) return;
-    float[][] newQuadrant = new float[squares][];
+    float[][] newDistances = new float[squares][];
     
     // Fill the new quadrant, start with the existing data
     for (int y = 0; y < squares; y++) {
-      newQuadrant[y] = new float[squares];
+      newDistances[y] = new float[squares];
       if (y < oldSquares)
-        System.arraycopy(distances[y], 0, newQuadrant[y], 0, oldSquares);
+        System.arraycopy(distances[y], 0, newDistances[y], 0, oldSquares);
       
       // Fill in the empty positions
       for (int x = (y < oldSquares ? oldSquares : 0); x < squares; x++) {
-        float xDistance = (x == 0) ? Float.MAX_VALUE : newQuadrant[y][x - 1] + 1.0F;
-        float yDistance = (y == 0) ? Float.MAX_VALUE : newQuadrant[y - 1][x] + 1.0F;
-        float dDistance = (x == 0 || y == 0 ) ? Float.MAX_VALUE : newQuadrant[y - 1][x - 1] + 1.5F;
-        newQuadrant[y][x] = Math.min(Math.min(xDistance, yDistance) , dDistance);
+        float xDistance = (x == 0) ? Float.MAX_VALUE : newDistances[y][x - 1] + 1.0F;
+        float yDistance = (y == 0) ? Float.MAX_VALUE : newDistances[y - 1][x] + 1.0F;
+        float dDistance = (x == 0 || y == 0 ) ? Float.MAX_VALUE : newDistances[y - 1][x - 1] + 1.5F;
+        newDistances[y][x] = Math.min(Math.min(xDistance, yDistance) , dDistance);
       } // endfor
     } // endfor
-    distances = newQuadrant;
+    distances = newDistances;
   }
   
   /*---------------------------------------------------------------------------------------------
