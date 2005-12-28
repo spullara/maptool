@@ -48,7 +48,7 @@ public class AppMenuBar extends JMenuBar {
     }
 
     protected JMenu createFileMenu() {
-        JMenu menu = createMenu("menu.file");
+        JMenu menu = I18N.createMenu("menu.file");
 
         menu.add(new JMenuItem(AppActions.NEW_CAMPAIGN));
         menu.add(new JMenuItem(AppActions.LOAD_CAMPAIGN));
@@ -66,7 +66,7 @@ public class AppMenuBar extends JMenuBar {
     }
 
     protected JMenu createViewMenu() {
-        JMenu menu = createMenu("menu.view");
+        JMenu menu = I18N.createMenu("menu.view");
         menu.add(createZoomMenu());
         menu.add(new JMenuItem(AppActions.TOGGLE_SHOW_TOKEN_NAMES));
         menu.add(new JMenuItem(AppActions.TOGGLE_GRID));
@@ -81,7 +81,7 @@ public class AppMenuBar extends JMenuBar {
     }
 
     protected JMenu createMapMenu() {
-        JMenu menu = createMenu("menu.map");
+        JMenu menu = I18N.createMenu("menu.map");
         menu.add(new JMenuItem(AppActions.LOAD_MAP));
         menu.add(createQuickMapMenu());
         //        menu.add(new JMenuItem(AppActions.DELETE_MAP));
@@ -103,7 +103,7 @@ public class AppMenuBar extends JMenuBar {
     }
     
     protected JMenu createQuickMapMenu() {
-    	JMenu menu = createMenu("Quick Map");
+    	JMenu menu = I18N.createMenu("Quick Map");
     	AppActions.QuickMapAction basicQuickMap = new AppActions.QuickMapAction("Grass", "net/rptools/lib/resource/image/texture/grass.png"); 
     	basicQuickMap.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl shift N"));
 
@@ -114,7 +114,7 @@ public class AppMenuBar extends JMenuBar {
     }
 
     protected JMenu createToolsMenu() {
-        JMenu menu = createMenu("menu.tools");
+        JMenu menu = I18N.createMenu("menu.tools");
         menu.add(new JMenuItem(AppActions.ENTER_COMMAND));
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
         menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
@@ -136,26 +136,16 @@ public class AppMenuBar extends JMenuBar {
     }
 
     protected JMenu createHelpMenu() {
-        JMenu menu = createMenu("menu.help");
+        JMenu menu = I18N.createMenu("menu.help");
         menu.add(new JMenuItem(AppActions.SHOW_ABOUT));
         return menu;
     }
 
     protected JMenu createZoomMenu() {
-        JMenu menu = createMenu("menu.zoom");
+        JMenu menu = I18N.createMenu("menu.zoom");
         menu.add(new JMenuItem(AppActions.ZOOM_IN));
         menu.add(new JMenuItem(AppActions.ZOOM_OUT));
         menu.add(new JMenuItem(AppActions.ZOOM_RESET));
-
-        return menu;
-    }
-
-    private JMenu createMenu(String key) {
-        JMenu menu = new JMenu(I18N.getText(key));
-        int mnemonic = I18N.getMnemonic(key);
-        if (mnemonic != -1) {
-            menu.setMnemonic(mnemonic);
-        }
 
         return menu;
     }

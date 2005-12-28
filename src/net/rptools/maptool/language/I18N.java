@@ -3,6 +3,8 @@ package net.rptools.maptool.language;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import javax.swing.JMenu;
+
 public class I18N {
 	private static ResourceBundle BUNDLE = ResourceBundle.getBundle("net.rptools.maptool.language.i18n");
 	
@@ -28,7 +30,7 @@ public class I18N {
 
 		int index = value.indexOf('&');
 		if (index != -1 && index + 1 < value.length()) {
-			return value.charAt(index + 1);
+			return Character.toUpperCase(value.charAt(index + 1));
 		}
 
 		return -1;
@@ -45,5 +47,15 @@ public class I18N {
 	public static String getDescription(String key) {
 		return getString(key + DESCRIPTION_EXTENSION);
 	}
+
+  public static JMenu createMenu(String key) {
+      JMenu menu = new JMenu(getText(key));
+      int mnemonic = getMnemonic(key);
+      if (mnemonic != -1) {
+          menu.setMnemonic(mnemonic);
+      }
+  
+      return menu;
+  }
 
 }

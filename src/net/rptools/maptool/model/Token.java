@@ -51,6 +51,12 @@ public class Token {
 	private boolean isVisible = true;
 	private String name;
 	
+  /**
+   * A state property for this token. It is used during rendering to determine if a token
+   * overlay should be drawn.
+   */
+  private String state;
+  
     // Transient so that it isn't transfered over the wire
     private transient List<ModelChangeListener> listenerList = new CopyOnWriteArrayList<ModelChangeListener>();
 
@@ -87,6 +93,7 @@ public class Token {
     	this.assetID = assetID;
     	this.width = width;
     	this.height = height;
+      state = "";
     }
 
     public boolean equals(Object o) {
@@ -225,6 +232,24 @@ public class Token {
         for (ModelChangeListener listener : listenerList) {
             listener.modelChanged(event);
         }
+    }
+
+    /**
+     * Get the state for this Token.
+     *
+     * @return Returns the current value of state.
+     */
+    public String getState() {
+      return state;
+    }
+
+    /**
+     * Set the value of state for this Token.
+     *
+     * @param aState The state to set.
+     */
+    public void setState(String aState) {
+      state = aState;
     }
 	
 }

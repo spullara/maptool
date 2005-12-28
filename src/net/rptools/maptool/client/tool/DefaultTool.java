@@ -46,11 +46,13 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
@@ -63,8 +65,10 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.Tool;
+import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
@@ -601,10 +605,37 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         arrangeMenu.add(sendToBackMenuItem);
         
         popup.add(arrangeMenu);
+        
+        // Create the state menu
+        JMenu stateMenu = I18N.createMenu("defaultTool.stateMenu");
+        ButtonGroup group = new ButtonGroup();
+        createStateItem("clear", group, stateMenu).setSelected(true);
+        for (String state : TokenStates.getStates()) {
+          JRadioButtonMenuItem item = createStateItem(state, group, stateMenu);
+          if (state.equals(tokenUnderMouse.getState())) item.setSelected(true);
+        } // endfor
+        popup.add(stateMenu);
+        
         // 
     	popup.show(renderer, e.getX(), e.getY());
 	}
 
+  /**
+   * Create a radio button menu item for a particuar state
+   * 
+   * @param state Create the item for this state
+   * @param group The group containing all items.
+   * @param menu The menu containing all items.
+   * @return A menu item for the passed state.
+   */
+  private JRadioButtonMenuItem createStateItem(String state, ButtonGroup group, JMenu menu) {
+    JRadioButtonMenuItem item = new JRadioButtonMenuItem(new ChangeStateAction(state));
+    item.setSelected(true);
+    group.add(item);
+    menu.add(item);
+    return item;
+  }
+  
 	private class SnapToGridAction extends AbstractAction {
 		
 		private boolean snapToGrid;
@@ -631,6 +662,60 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		}
 	}
 	
+  /**
+   * Internal class used to handle token state changes.
+   * 
+   * @author jgorrell
+   * @version $Revision$ $Date$ $Author$
+   */
+  private static class ChangeStateAction extends AbstractAction {
+
+    /**
+     * Initialize a state action for a given state.
+     * 
+     * @param state The name of the state set when this action is executed
+     */
+    public ChangeStateAction(String state) {
+      putValue(ACTION_COMMAND_KEY, state); // Set the state command
+      
+      // Load the name, mnemonic, accelerator, and description if available
+      String key = "defaultTool.stateActon." + state;
+      String name = net.rptools.maptool.language.I18N.getText(key);
+      if (!name.equals(key)) {
+        putValue(NAME, name);
+        int mnemonic = I18N.getMnemonic(key);
+        if (mnemonic != -1) putValue(MNEMONIC_KEY, mnemonic);
+        String accel = I18N.getAccelerator(key);
+        if (accel != null) putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(accel));
+        String description = I18N.getDescription(key);
+        if (description != null) putValue(SHORT_DESCRIPTION, description);
+      } else {
+        
+        // Default name if no I18N set
+        putValue(NAME, state);
+      }
+    }
+    
+    /**
+     * Set the state for all of the selected tokens.
+     * 
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    public void actionPerformed(ActionEvent aE) {
+      ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+      for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
+        
+        Token token = renderer.getZone().getToken(tokenGUID);
+        if (aE.getActionCommand().equals("null")) {
+          token.setState(null);
+        } else {
+          token.setState(aE.getActionCommand());
+        } // endif
+      } // endfor
+      renderer.repaint();
+    }
+  }
+  
 	private class ChangeSizeAction extends AbstractAction {
 		
 		private TokenSize.Size size;

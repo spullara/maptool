@@ -32,6 +32,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.Transparency;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
@@ -65,6 +66,8 @@ import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.Scale;
+import net.rptools.maptool.client.ui.token.TokenOverlay;
+import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarEuclideanWalker;
 import net.rptools.maptool.model.Asset;
@@ -641,8 +644,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				image = replacementImage;
 			}
 
-            // Draw
+            // Draw image and overlay if needed
             g.drawImage(image, x, y, this);
+            if (token.getState() != null) {
+              TokenOverlay overlay =  TokenStates.getOverlay(token.getState());
+              if (overlay != null) {
+                
+                // Set up the graphics, paint the overlay, then restore the graphics
+                Shape clip = g.getClip();
+                g.translate(x, y);
+                g.setClip(0, 0, image.getWidth(), image.getHeight());
+                overlay.paintOverlay(g, token);
+                g.translate(-x, -y);
+                g.setClip(clip);
+              } // endif
+            } // endif
         }
         
         // Selection and labels
