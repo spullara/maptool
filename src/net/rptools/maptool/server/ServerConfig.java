@@ -28,9 +28,10 @@ public class ServerConfig {
 	
     public static final int DEFAULT_PORT = 4444;
 
-	private int port = DEFAULT_PORT;
+	private int port;
 	private String gmPassword;
 	private String playerPassword;
+	private boolean personalServer;
 	
 	public ServerConfig() {
 		/* no op */
@@ -53,8 +54,19 @@ public class ServerConfig {
 		return safeCompare(playerPassword, password);
 	}
 
+	public boolean isPersonalServer() {
+		return personalServer;
+	}
+	
 	public int getPort() {
 		return port;
+	}
+
+	public static ServerConfig createPersonalServerConfig() {
+		ServerConfig config = new ServerConfig();
+		config.personalServer = true;
+		
+		return config;
 	}
 	
 	private boolean safeCompare(String s1, String s2) {

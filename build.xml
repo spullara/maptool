@@ -24,6 +24,15 @@
 		</javac>
 	</target>
 	
+	<target name="copy-resources" depends="init">
+		<mkdir dir="${build}"/>
+		<copy todir="${build}">
+		    <fileset dir="${src}">
+		      <include name="**/*.html"/>
+		    </fileset>
+		  </copy>
+	</target>
+	
 	<target name="generate-manifest" depends="init">
 		<pathconvert dirsep="/" pathsep=" " property="java.launch.classPath">
 			<map from="${lib}" to="lib" />
@@ -50,7 +59,7 @@
 		<echo message="${build.version}" file="${build}/${version.file}" />			
 	</target>
 	
-	<target name="dist" depends="init,generate-version-file,compile,generate-manifest,generate-version">
+	<target name="dist" depends="init,generate-version-file,compile,copy-resources,generate-manifest,generate-version">
 		<mkdir dir="${dist}" />
 		<mkdir dir="${tmp}" />
 		
