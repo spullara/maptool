@@ -207,7 +207,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
     public void resize() {
     	
     	int zoneCount = MapTool.getFrame().getZoneRenderers().size();
-    	int longSize = (zoneCount-1) * (UNSELECTED_SIZE + PADDING/2) + SELECTED_SIZE + PADDING*2;
+    	int longSize = (zoneCount-1) * (UNSELECTED_SIZE + PADDING) + SELECTED_SIZE + PADDING*2;
     	int shortSize = SELECTED_SIZE + 2*PADDING;
     	
     	setSize((horizontal ? longSize : shortSize), (horizontal ? shortSize : longSize));
