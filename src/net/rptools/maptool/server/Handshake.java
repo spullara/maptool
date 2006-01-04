@@ -79,6 +79,8 @@ public class Handshake {
 			response.message = "Invalid version.  Client:" + request.version + " Server:" + MapTool.getVersion();
 		}
 		
+		response.policy = server.getPolicy();
+		
 		output.writeObject(response);
 
 		return response.code == Code.OK ? new Player(request.name, request.role, request.password) : null;
@@ -116,5 +118,7 @@ public class Handshake {
 
 		public int code;
 		public String message;
+		public ServerPolicy policy;
+		
 	}
 }
