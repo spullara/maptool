@@ -43,7 +43,10 @@ import net.rptools.maptool.util.ImageManager;
 
 public class MapZoneRenderer extends ZoneRenderer {
 
+	private static final int MINI_MAP_SIZE = 100;
+	
     private BufferedImage backgroundImage;
+    private BufferedImage miniBackgroundImage;
     
     public MapZoneRenderer (Zone zone) {
         super(zone);
@@ -54,12 +57,11 @@ public class MapZoneRenderer extends ZoneRenderer {
         
         // TODO: back buffer this
         // TODO: Don't use full size images
-        BufferedImage bgImage = getBackgroundImage();
-        if (bgImage == ImageManager.UNKNOWN_IMAGE) {
-        	return bgImage;
+        if (miniBackgroundImage == null) {
+        	return ImageManager.UNKNOWN_IMAGE;
         }
         
-        Dimension imgSize = new Dimension(bgImage.getWidth(), bgImage.getHeight());
+        Dimension imgSize = new Dimension(miniBackgroundImage.getWidth(), miniBackgroundImage.getHeight());
         SwingUtil.constrainTo(imgSize, size);
         
         BufferedImage image = new BufferedImage(imgSize.width, imgSize.height, Transparency.OPAQUE);
@@ -77,7 +79,7 @@ public class MapZoneRenderer extends ZoneRenderer {
             fogG.setComposite(AlphaComposite.Src);
             fogG.setColor(new Color(0, 0, 0, 0));
     
-            Area area = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance(imgSize.width/(float)bgImage.getWidth(), imgSize.height/(float)bgImage.getHeight()));
+            Area area = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance(imgSize.width/(float)miniBackgroundImage.getWidth(), imgSize.height/(float)miniBackgroundImage.getHeight()));
             fogG.fill(area);
             
             fogG.dispose();
@@ -86,7 +88,7 @@ public class MapZoneRenderer extends ZoneRenderer {
         // Compose
         Graphics2D g = image.createGraphics();
 
-        g.drawImage(bgImage, 0, 0, imgSize.width, imgSize.height, this);
+        g.drawImage(miniBackgroundImage, 0, 0, imgSize.width, imgSize.height, this);
         g.drawImage(fogImage, 0, 0, this);
         
         g.dispose();
@@ -110,9 +112,29 @@ public class MapZoneRenderer extends ZoneRenderer {
         } else {
 
         	backgroundImage = ImageManager.getImage(asset, this);
+        	if (backgroundImage != ImageManager.UNKNOWN_IMAGE) {
+        		
+        		// Keep track of a smaller version for when we aren't in focus
+	        	Dimension dim = new Dimension(backgroundImage.getWidth(), backgroundImage.getHeight());
+	        	SwingUtil.constrainTo(dim, MINI_MAP_SIZE);
+	        	
+	        	miniBackgroundImage = new BufferedImage(dim.width, dim.height, Transparency.OPAQUE);
+	        	Graphics2D g2d = miniBackgroundImage.createGraphics();
+	        	g2d.drawImage(backgroundImage, 0, 0, dim.width, dim.height, null);
+	        	g2d.dispose();
+        	}
         }
         
         return backgroundImage;
+    }
+    
+    @Override
+    public void flush() {
+
+    	ImageManager.flushImage(zone.getAssetID());
+    	backgroundImage = null;
+    	
+    	super.flush();
     }
     
     protected void renderBoard(Graphics2D g) {

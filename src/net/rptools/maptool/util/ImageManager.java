@@ -94,6 +94,14 @@ public class ImageManager {
         return UNKNOWN_IMAGE;
     }
 
+    public static void flushImage(Asset asset) {
+    	flushImage(asset.getId());
+    }
+    public static void flushImage(MD5Key assetId) {
+    	// LATER: investigate how this effects images that are already in progress
+    	imageMap.remove(assetId);
+    }
+    
     public static void addObserver(MD5Key assetId, JComponent observer) {
 
         if (observer == null) {

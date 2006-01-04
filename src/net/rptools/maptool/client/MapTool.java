@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -92,6 +93,9 @@ public class MapTool {
     }
     
 	private static void initialize() {
+		
+		// We'll manage our own images
+		ImageIO.setUseCache(false);
 		
 		// Components
 		loadFileChooser = createLoadFileChooser();
