@@ -63,8 +63,8 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 		}
 		
 		BufferedImage tileImage = getTileImage();
-		g.drawImage(backBuffer, (viewOffset.x % tileImage.getWidth()) - tileImage.getWidth(), 
-				( viewOffset.y % tileImage.getHeight()) - tileImage.getHeight(), null);
+		g.drawImage(backBuffer, (getViewOffsetX() % tileImage.getWidth()) - tileImage.getWidth(), 
+				( getViewOffsetY() % tileImage.getHeight()) - tileImage.getHeight(), null);
 	}
 
 	/* (non-Javadoc)
@@ -78,8 +78,8 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 
         g.setColor(new Color(zone.getGridColor()));
         
-        int offX = (int)(viewOffset.x % gridSize);
-        int offY = (int)(viewOffset.y % gridSize);
+        int offX = (int)(getViewOffsetX() % gridSize);
+        int offY = (int)(getViewOffsetY() % gridSize);
         for (int row = 0; row < size.height + gridSize; row += gridSize) {
             
             g.drawLine(0, row + offY, size.width, row + offY);

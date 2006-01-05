@@ -49,8 +49,8 @@ public class CellPoint extends AbstractPoint {
       double scale = renderer.getScale(); 
       Zone zone = renderer.getZone();
 
-      int sx = renderer.getOffsetX() + (int)(zone.getGridOffsetX() * scale + x * zone.getGridSize() * scale);
-      int sy = renderer.getOffsetY() + (int)(zone.getGridOffsetY() * scale + y * zone.getGridSize() * scale);
+      int sx = renderer.getViewOffsetX() + (int)(zone.getGridOffsetX() * scale + x * zone.getGridSize() * scale);
+      int sy = renderer.getViewOffsetY() + (int)(zone.getGridOffsetY() * scale + y * zone.getGridSize() * scale);
       
       return new ScreenPoint(sx, sy);
     }

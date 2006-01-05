@@ -219,7 +219,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
                 isDraggingMap = false;
                 if (AppState.isPlayerViewLinked()) {
         			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(),
-        					renderer.getOffsetX(), renderer.getOffsetY(),
+        					renderer.getViewOffsetX(), renderer.getViewOffsetY(),
         					renderer.getScaleIndex());
                 }
             }
@@ -472,7 +472,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		}
         if (AppState.isPlayerViewLinked()) {
 			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(),
-					renderer.getOffsetX(), renderer.getOffsetY(),
+					renderer.getViewOffsetX(), renderer.getViewOffsetY(),
 					renderer.getScaleIndex());
         }
 		

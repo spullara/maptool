@@ -44,8 +44,8 @@ public class ScreenPoint extends AbstractPoint {
         int zY = y;
         
         // Translate
-        zX -= renderer.getOffsetX();
-        zY -= renderer.getOffsetY();
+        zX -= renderer.getViewOffsetX();
+        zY -= renderer.getViewOffsetY();
         
         // Scale
         zX = (int)(zX / scale);

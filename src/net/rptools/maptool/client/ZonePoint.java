@@ -47,8 +47,8 @@ public class ZonePoint extends AbstractPoint {
         sY = (int)(sY * scale);
         
         // Translate
-        sX += renderer.getOffsetX();
-        sY += renderer.getOffsetY();
+        sX += renderer.getViewOffsetX();
+        sY += renderer.getViewOffsetY();
         
         return new ScreenPoint(sX, sY);
     }

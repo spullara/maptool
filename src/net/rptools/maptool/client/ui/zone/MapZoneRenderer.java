@@ -33,6 +33,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
@@ -47,9 +48,13 @@ public class MapZoneRenderer extends ZoneRenderer {
 	
     private BufferedImage backgroundImage;
     private BufferedImage miniBackgroundImage;
+    private Dimension bgImageSize;
     
     public MapZoneRenderer (Zone zone) {
         super(zone);
+        
+        // Make sure we have requested the asset from the server
+        getBackgroundImage();
     }
     
     @Override
@@ -58,18 +63,36 @@ public class MapZoneRenderer extends ZoneRenderer {
         // TODO: back buffer this
         // TODO: Don't use full size images
         if (miniBackgroundImage == null) {
-        	return ImageManager.UNKNOWN_IMAGE;
+        	
+        	BufferedImage bgImage = getBackgroundImage();
+        	if (bgImage == null || bgImage == ImageManager.UNKNOWN_IMAGE) {
+        		return ImageManager.UNKNOWN_IMAGE;
+        	}
+        	
+        	// Get a copy so that we don't have to keep the big boy around
+    		// Keep track of a smaller version for when we aren't in focus
+        	Dimension dim = new Dimension(backgroundImage.getWidth(), backgroundImage.getHeight());
+        	SwingUtil.constrainTo(dim, MINI_MAP_SIZE);
+        	
+        	miniBackgroundImage = new BufferedImage(dim.width, dim.height, Transparency.OPAQUE);
+        	Graphics2D g2d = miniBackgroundImage.createGraphics();
+        	g2d.drawImage(bgImage, 0, 0, dim.width, dim.height, null);
+        	g2d.dispose();
         }
         
         Dimension imgSize = new Dimension(miniBackgroundImage.getWidth(), miniBackgroundImage.getHeight());
         SwingUtil.constrainTo(imgSize, size);
-        
-        BufferedImage image = new BufferedImage(imgSize.width, imgSize.height, Transparency.OPAQUE);
 
-        BufferedImage fogImage = new BufferedImage(imgSize.width, imgSize.height, Transparency.BITMASK);
+        BufferedImage miniMap = new BufferedImage(imgSize.width, imgSize.height, Transparency.OPAQUE);
+
+        Graphics2D g = miniMap.createGraphics();
+
+        g.drawImage(miniBackgroundImage, 0, 0, imgSize.width, imgSize.height, this);
 
         // Fog
-        if (zone.hasFog()) {
+        if (zone.hasFog() && bgImageSize != null) {
+
+    		BufferedImage fogImage = new BufferedImage(imgSize.width, imgSize.height, Transparency.BITMASK);
 
             Graphics2D fogG = fogImage.createGraphics();
     
@@ -79,20 +102,16 @@ public class MapZoneRenderer extends ZoneRenderer {
             fogG.setComposite(AlphaComposite.Src);
             fogG.setColor(new Color(0, 0, 0, 0));
     
-            Area area = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance(imgSize.width/(float)miniBackgroundImage.getWidth(), imgSize.height/(float)miniBackgroundImage.getHeight()));
+            Area area = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance(imgSize.width/(float)bgImageSize.width, imgSize.height/(float)bgImageSize.height));
             fogG.fill(area);
             
             fogG.dispose();
+
+            g.drawImage(fogImage, 0, 0, this);
         }
         
-        // Compose
-        Graphics2D g = image.createGraphics();
-
-        g.drawImage(miniBackgroundImage, 0, 0, imgSize.width, imgSize.height, this);
-        g.drawImage(fogImage, 0, 0, this);
-        
         g.dispose();
-    	return image;
+    	return miniMap;
     }
     
     private BufferedImage getBackgroundImage() {
@@ -112,16 +131,8 @@ public class MapZoneRenderer extends ZoneRenderer {
         } else {
 
         	backgroundImage = ImageManager.getImage(asset, this);
-        	if (backgroundImage != ImageManager.UNKNOWN_IMAGE) {
-        		
-        		// Keep track of a smaller version for when we aren't in focus
-	        	Dimension dim = new Dimension(backgroundImage.getWidth(), backgroundImage.getHeight());
-	        	SwingUtil.constrainTo(dim, MINI_MAP_SIZE);
-	        	
-	        	miniBackgroundImage = new BufferedImage(dim.width, dim.height, Transparency.OPAQUE);
-	        	Graphics2D g2d = miniBackgroundImage.createGraphics();
-	        	g2d.drawImage(backgroundImage, 0, 0, dim.width, dim.height, null);
-	        	g2d.dispose();
+        	if (bgImageSize == null) {
+        		bgImageSize = new Dimension(backgroundImage.getWidth(), backgroundImage.getHeight());
         	}
         }
         
@@ -147,26 +158,27 @@ public class MapZoneRenderer extends ZoneRenderer {
         float scale = getScale();
         int w = (int)(mapImage.getWidth() * scale);
         int h = (int)(mapImage.getHeight() * scale);
-
-        if (viewOffset.x > size.width - EDGE_LIMIT) {
-            viewOffset.x = size.width - EDGE_LIMIT;
+        int x = getViewOffsetX();
+        int y = getViewOffsetY();
+        
+        if (x > size.width - EDGE_LIMIT) {
+            x = size.width - EDGE_LIMIT;
         }
         
-        if (viewOffset.x + w < EDGE_LIMIT) {
-            viewOffset.x = EDGE_LIMIT - w;
+        if (x + w < EDGE_LIMIT) {
+            x = EDGE_LIMIT - w;
         }
         
-        if (viewOffset.y > size.height - EDGE_LIMIT) {
-            viewOffset.y = size.height - EDGE_LIMIT;
+        if (y > size.height - EDGE_LIMIT) {
+            y = size.height - EDGE_LIMIT;
         }
         
-        if (viewOffset.y + h < EDGE_LIMIT) {
-            viewOffset.y = EDGE_LIMIT - h;
+        if (y + h < EDGE_LIMIT) {
+            y = EDGE_LIMIT - h;
         }
         
         // Map
-        g.drawImage(mapImage, viewOffset.x, viewOffset.y, w, h, this);
-        //ClientStyle.boardBorder.paintAround(g, viewOffset.x, viewOffset.y, w, h);
+        g.drawImage(mapImage, x, y, w, h, this);
     }
     
     protected void renderGrid(Graphics2D g) {
@@ -176,27 +188,29 @@ public class MapZoneRenderer extends ZoneRenderer {
 
         int w = (int)(mapImage.getWidth() * scale);
         int h = (int)(mapImage.getHeight() * scale);
+        int offsetx = getViewOffsetX();
+        int offsety = getViewOffsetY();
 
         float gridSize = zone.getGridSize() * scale;
 
         // Render grid
         g.setColor(new Color(zone.getGridColor()));
 
-        int x = viewOffset.x + (int) (zone.getGridOffsetX() * scale);
-        int y = viewOffset.y + (int) (zone.getGridOffsetY() * scale);
+        int x = offsetx + (int) (zone.getGridOffsetX() * scale);
+        int y = offsety + (int) (zone.getGridOffsetY() * scale);
 
         for (float row = 0; row < h + gridSize; row += gridSize) {
             
-            int theY = Math.min(viewOffset.y + h, Math.max((int)row + y, viewOffset.y));
-            int theX = Math.max(x, viewOffset.x);
+            int theY = Math.min(offsety + h, Math.max((int)row + y, offsety));
+            int theX = Math.max(x, offsetx);
             
             g.drawLine(theX, theY, theX + w, theY);
         }
 
         for (float col = 0; col < w + gridSize; col += gridSize) {
             
-            int theX = Math.min(viewOffset.x + w, Math.max(x + (int)col, viewOffset.x));
-            int theY = Math.max(y, viewOffset.y);
+            int theX = Math.min(offsetx + w, Math.max(x + (int)col, offsetx));
+            int theY = Math.max(y, offsety);
 
             g.drawLine(theX, theY, theX, theY + h);
         }

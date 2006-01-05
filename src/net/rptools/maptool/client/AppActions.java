@@ -229,7 +229,7 @@ public class AppActions {
             if (AppState.isPlayerViewLinked()) {
             	ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
     			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(),
-    					renderer.getOffsetX(), renderer.getOffsetY(),
+    					renderer.getViewOffsetX(), renderer.getViewOffsetY(),
     					renderer.getScaleIndex());
             }
 		}
@@ -315,7 +315,7 @@ public class AppActions {
 			}
 
 			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(),
-					renderer.getOffsetX(), renderer.getOffsetY(),
+					renderer.getViewOffsetX(), renderer.getViewOffsetY(),
 					renderer.getScaleIndex());
 		}
 
