@@ -93,7 +93,9 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
                 if (renderer != null) {
 
                 	if (SwingUtilities.isLeftMouseButton(e)) {
-                		MapTool.getFrame().setCurrentZoneRenderer(renderer);
+                		if (MapTool.getFrame().getCurrentZoneRenderer() != renderer) {
+                    		MapTool.getFrame().setCurrentZoneRenderer(renderer);
+                		}
                 	} else {
                 		
                 		if (!MapTool.isConnected() || MapTool.getPlayer().isGM()) {
