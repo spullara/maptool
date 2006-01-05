@@ -131,7 +131,7 @@ public class MapZoneRenderer extends ZoneRenderer {
         } else {
 
         	backgroundImage = ImageManager.getImage(asset, this);
-        	if (bgImageSize == null) {
+        	if (bgImageSize == null && backgroundImage != ImageManager.UNKNOWN_IMAGE) {
         		bgImageSize = new Dimension(backgroundImage.getWidth(), backgroundImage.getHeight());
         	}
         }
