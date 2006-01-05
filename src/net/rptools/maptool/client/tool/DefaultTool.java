@@ -710,8 +710,10 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
           token.setState(null);
         } else {
           token.setState(aE.getActionCommand());
-        } // endif
-      } // endfor
+        }
+
+        MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+      }
       renderer.repaint();
     }
   }
