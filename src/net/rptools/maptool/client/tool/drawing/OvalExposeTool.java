@@ -33,6 +33,13 @@ public class OvalExposeTool extends OvalTool {
 	}
 
     @Override
+    protected Pen getPen() {
+    	Pen pen = super.getPen();
+    	pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
+    	return pen;
+    }
+
+    @Override
     public String getInstructions() {
     	return "tool.ovalexpose.instructions";
     }

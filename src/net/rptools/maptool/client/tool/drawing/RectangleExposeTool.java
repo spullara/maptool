@@ -35,6 +35,13 @@ public class RectangleExposeTool extends RectangleTool {
 	protected void attachTo(ZoneRenderer renderer) {
 		this.zoneRenderer = renderer;
 	}
+    
+    @Override
+    protected Pen getPen() {
+    	Pen pen = super.getPen();
+    	pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
+    	return pen;
+    }
 
 	@Override
 	protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
