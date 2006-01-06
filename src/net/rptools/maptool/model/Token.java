@@ -34,88 +34,86 @@ import net.rptools.lib.MD5Key;
  * would exist as an {@link Asset} (the image itself) and a location and scale.  
  */
 public class Token {
-    private GUID id = new GUID();
-    private MD5Key assetID;
+    private GUID                                id           = new GUID();
+    private MD5Key                              assetID;
 
-    private int x;
-    private int y;
+    private int                                 x;
+    private int                                 y;
 
-    private int z;
-    
-    private boolean snapToScale = true; // Whether the scaleX and scaleY represent snap-to-grid measurements
-    private int width = 1; // Default to using exactly 1x1 grid cell
-    private int height = 1;
-    private int size = TokenSize.Size.Medium.value(); // Abstract size
-    
-	private boolean snapToGrid = true; // Whether the token snaps to the current grid or is free floating
-	private boolean isVisible = true;
-	private String name;
-	
-  /**
-   * A state property for this token. It is used during rendering to determine if a token
-   * overlay should be drawn.
-   */
-  private String state;
-  
+    private int                                 z;
+
+    private boolean                             snapToScale  = true;                                           // Whether the scaleX and scaleY represent snap-to-grid measurements
+    private int                                 width        = 1;                                              // Default to using exactly 1x1 grid cell
+    private int                                 height       = 1;
+    private int                                 size         = TokenSize.Size.Medium.value();                  // Abstract size
+
+    private boolean                             snapToGrid   = true;                                           // Whether the token snaps to the current grid or is free floating
+    private boolean                             isVisible    = true;
+    private String                              name;
+
+    /**
+     * A state property for this token. It is used during rendering to determine if a token
+     * overlay should be drawn.
+     */
+    private String                              state;
+
     // Transient so that it isn't transfered over the wire
     private transient List<ModelChangeListener> listenerList = new CopyOnWriteArrayList<ModelChangeListener>();
 
     public enum ChangeEvent {
         name
     }
-    
+
     public Token(Token token) {
-    	id = new GUID();
-    	assetID = token.assetID;
-    	x = token.x;
-    	y = token.y;
-    	
-    	snapToScale = token.snapToScale;
-    	width = token.width;
-    	height = token.height;
-    	size = token.size;
-    	
-    	snapToGrid = token.snapToGrid;
-    	isVisible = token.isVisible;
-    	name = token.name;
+        id = new GUID();
+        assetID = token.assetID;
+        x = token.x;
+        y = token.y;
+
+        snapToScale = token.snapToScale;
+        width = token.width;
+        height = token.height;
+        size = token.size;
+
+        snapToGrid = token.snapToGrid;
+        isVisible = token.isVisible;
+        name = token.name;
     }
-    
+
     public Token() {
-        
+
     }
-    
+
     public Token(MD5Key assetID) {
-    	this("", assetID, 0, 0);
+        this("", assetID, 0, 0);
     }
-    
+
     public Token(String name, MD5Key assetID, int width, int height) {
-    	this.name = name;
-    	this.assetID = assetID;
-    	this.width = width;
-    	this.height = height;
-      state = "";
+        this.name = name;
+        this.assetID = assetID;
+        this.width = width;
+        this.height = height;
+        state = "";
     }
 
     public boolean equals(Object o) {
-        if (!(o instanceof Token)) {
-            return false;
-        }
-        
+        if (!(o instanceof Token)) { return false; }
+
         return id.equals(((Token) o).id);
     }
-    
+
     public void setZOrder(int z) {
-    	this.z = z;
+        this.z = z;
     }
-    
+
     public int getZOrder() {
-    	return z;
+        return z;
     }
-    
+
     public void setName(String name) {
-    	this.name = name;
+        this.name = name;
     }
-    
+
     public MD5Key getAssetID() {
         return assetID;
     }
@@ -147,86 +145,91 @@ public class Token {
     public void setY(int y) {
         this.y = y;
     }
-    
-    
+
     /**
      * @return Returns the scaleX.
      */
     public int getWidth() {
         return width;
     }
+
     /**
      * @param scaleX The scaleX to set.
      */
     public void setWidth(int width) {
         this.width = width;
     }
+
     /**
      * @return Returns the sizeY.
      */
     public int getHeight() {
         return height;
     }
+
     /**
      * @param height The sizeY to set.
      */
     public void setHeight(int height) {
         this.height = height;
     }
+
     /**
      * @return Returns the snapScale.
      */
     public boolean isSnapToScale() {
         return snapToScale;
     }
+
     /**
      * @param snapScale The snapScale to set.
      */
     public void setSnapToScale(boolean snapScale) {
         this.snapToScale = snapScale;
     }
-    
+
     public void setVisible(boolean visible) {
-    	this.isVisible = visible;
+        this.isVisible = visible;
     }
-    
+
     public boolean isVisible() {
-    	return isVisible;
+        return isVisible;
     }
-    
+
     public String getName() {
-    	return name != null ? name : "";
+        return name != null ? name : "";
     }
-    
-	/**
-	 * @return Returns the size.
-	 */
-	public int getSize() {
-		return size;
-	}
-	/**
-	 * @param size The size to set.
-	 */
-	public void setSize(int size) {
-		this.size = size;
-	}
 
-	public boolean isSnapToGrid() {
-		return snapToGrid;
-	}
+    /**
+     * @return Returns the size.
+     */
+    public int getSize() {
+        return size;
+    }
 
-	public void setSnapToGrid(boolean snapToGrid) {
-		this.snapToGrid = snapToGrid;
-	}
-	
+    /**
+     * @param size The size to set.
+     */
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public boolean isSnapToGrid() {
+        return snapToGrid;
+    }
+
+    public void setSnapToGrid(boolean snapToGrid) {
+        this.snapToGrid = snapToGrid;
+    }
+
     public void addModelChangeListener(ModelChangeListener listener) {
         listenerList.add(listener);
     }
-    
+
     public void removeModelChangeListener(ModelChangeListener listener) {
         listenerList.remove(listener);
     }
-    
+
     protected void fireModelChangeEvent(ModelChangeEvent event) {
 
         for (ModelChangeListener listener : listenerList) {
@@ -240,7 +243,7 @@ public class Token {
      * @return Returns the current value of state.
      */
     public String getState() {
-      return state;
+        return state;
     }
 
     /**
@@ -249,7 +252,7 @@ public class Token {
      * @param aState The state to set.
      */
     public void setState(String aState) {
-      state = aState;
+        state = aState;
     }
-	
+
 }

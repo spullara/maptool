@@ -37,47 +37,50 @@ import java.util.Set;
  * @version $Revision$ $Date$ $Author$
  */
 public class TokenStates {
-  
-  /**
-   * The map of state names to their token overlays
-   */
-  private static Map<String, TokenOverlay> states = new LinkedHashMap<String, TokenOverlay>();
 
-  /**
-   * Set up the token states
-   */
-  static {
-    putOverlay(new XTokenOverlay("Dead", Color.RED, 5));
-    putOverlay(new OTokenOverlay("Prone", Color.BLUE, 5));
-    putOverlay(new ShadedTokenOverlay("Hidden", Color.BLACK));
-  }
-  
-  /**
-   * Add a token overlay as a state.
-   * 
-   * @param overlay The overlay being added.
-   */
-  public static void putOverlay(TokenOverlay overlay) {
-    states.put(overlay.getName(), overlay);
-  }
-  
-  /**
-   * Get the overlay for a particular state.
-   * 
-   * @param state Find the overlay for this state.
-   * @return The overlay for the passed state or <code>null</code> if there
-   * wasn't an overlay for the passed state.
-   */
-  public static TokenOverlay getOverlay(String state) {
-    return states.get(state);
-  }
-  
-  /**
-   * Get the list of states defined.
-   * 
-   * @return A set containing the states that have been defined. 
-   */
-  public static Set<String> getStates() {
-    return states.keySet();
-  }
+    /**
+     * The map of state names to their token overlays
+     */
+    private static Map<String, TokenOverlay> states = new LinkedHashMap<String, TokenOverlay>();
+
+    /**
+     * Set up the token states
+     */
+    static {
+        putOverlay(new XTokenOverlay("Dead", Color.RED, 5));
+        putOverlay(new XTokenOverlay("Disabled", Color.GRAY, 5));
+        putOverlay(new ShadedTokenOverlay("Hidden", Color.BLACK));
+        putOverlay(new OTokenOverlay("Prone", Color.BLUE, 5));
+        putOverlay(new OTokenOverlay("Incapacitated", Color.RED, 5));
+        putOverlay(new ColorDotTokenOverlay("Other", Color.RED, 3));
+    }
+
+    /**
+     * Add a token overlay as a state.
+     * 
+     * @param overlay The overlay being added.
+     */
+    public static void putOverlay(TokenOverlay overlay) {
+        states.put(overlay.getName(), overlay);
+    }
+
+    /**
+     * Get the overlay for a particular state.
+     * 
+     * @param state Find the overlay for this state.
+     * @return The overlay for the passed state or <code>null</code> if there
+     * wasn't an overlay for the passed state.
+     */
+    public static TokenOverlay getOverlay(String state) {
+        return states.get(state);
+    }
+
+    /**
+     * Get the list of states defined.
+     * 
+     * @return A set containing the states that have been defined. 
+     */
+    public static Set<String> getStates() {
+        return states.keySet();
+    }
 }

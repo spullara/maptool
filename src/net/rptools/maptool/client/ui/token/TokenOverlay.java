@@ -35,54 +35,54 @@ import net.rptools.maptool.model.Token;
  * @version $Revision$ $Date$ $Author$
  */
 public abstract class TokenOverlay {
-  
-  /*---------------------------------------------------------------------------------------------
-   * Instance Variables
-   *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * The name of this overlay. Normally this is the name of a state.
-   */
-  private String name;
-  
-  /*---------------------------------------------------------------------------------------------
-   * Constructors
-   *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * Create an overlay with the passed name.
-   * 
-   * @param aName Name of the new overlay.
-   */
-  protected TokenOverlay(String aName) {
-    assert aName != null : "A name is required but null was passed.";
-    name = aName;
-  }
-  
-  /*---------------------------------------------------------------------------------------------
-   * Instance Methods
-   *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * Get the name for this TokenOverlay.
-   *
-   * @return Returns the current value of name.
-   */
-  public String getName() {
-    return name;
-  }
-  
-  /*---------------------------------------------------------------------------------------------
-   * Abstract Methods
-   *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * Paint the overlay for the passed token.
-   * 
-   * @param g Graphics used to paint. It is already translated so that 0,0 is
-   * the upper left corner of the token. It is also clipped so that the overlay can not
-   * draw out of the token's bounding box.
-   * @param token The token being painted.
-   */
-  public abstract void paintOverlay(Graphics2D g, Token token);
+
+    /*---------------------------------------------------------------------------------------------
+     * Instance Variables
+     *-------------------------------------------------------------------------------------------*/
+
+    /**
+     * The name of this overlay. Normally this is the name of a state.
+     */
+    private String name;
+
+    /*---------------------------------------------------------------------------------------------
+     * Constructors
+     *-------------------------------------------------------------------------------------------*/
+
+    /**
+     * Create an overlay with the passed name.
+     * 
+     * @param aName Name of the new overlay.
+     */
+    protected TokenOverlay(String aName) {
+        assert aName != null : "A name is required but null was passed.";
+        name = aName;
+    }
+
+    /*---------------------------------------------------------------------------------------------
+     * Instance Methods
+     *-------------------------------------------------------------------------------------------*/
+
+    /**
+     * Get the name for this TokenOverlay.
+     *
+     * @return Returns the current value of name.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /*---------------------------------------------------------------------------------------------
+     * Abstract Methods
+     *-------------------------------------------------------------------------------------------*/
+
+    /**
+     * Paint the overlay for the passed token.
+     * 
+     * @param g Graphics used to paint. It is already translated so that 0,0 is
+     * the upper left corner of the token. It is also clipped so that the overlay can not
+     * draw out of the token's bounding box.
+     * @param token The token being painted.
+     */
+    public abstract void paintOverlay(Graphics2D g, Token token);
 }
