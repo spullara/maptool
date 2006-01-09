@@ -236,16 +236,11 @@ public class AppActions {
 
 	};
 
-	public static final Action REMOVE_ZONE = new AdminClientAction() {
+	public static final Action REMOVE_ZONE = new ZoneAdminClientAction() {
 		{
 			init("action.removeZone");
 		}
 		
-		@Override
-		public boolean isAvailable() {
-			return super.isAvailable() && MapTool.getFrame().getCurrentZoneRenderer() != null;
-		}
-
 		public void execute(ActionEvent e) {
 
 			if (!MapTool.confirm("msg.confirm.removeZone")) {
@@ -260,7 +255,7 @@ public class AppActions {
 
 	};
 
-	public static final Action SET_ZONE_GRID_COLOR = new AdminClientAction() {
+	public static final Action SET_ZONE_GRID_COLOR = new ZoneAdminClientAction() {
 		{
 			init("action.setZoneGridColor");
 		}
@@ -296,18 +291,12 @@ public class AppActions {
 
 	};
 
-	public static final Action ENFORCE_ZONE_VIEW = new AdminClientAction() {
+	public static final Action ENFORCE_ZONE_VIEW = new ZoneAdminClientAction() {
 		{
 			init("action.enforceView");
 		}
 
 		public void execute(ActionEvent e) {
-
-			if (!MapTool.getPlayer().isGM()) {
-				// TODO: This option should be disabled when not a GM
-				MapTool.showError("msg.error.gmRequired");
-				return;
-			}
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			if (renderer == null) {
@@ -381,17 +370,17 @@ public class AppActions {
 
 	};
 
-	public static final Action ADJUST_GRID = new AdminClientAction() {
+	public static final Action ADJUST_GRID = new ZoneAdminClientAction() {
 		{
 			init("action.adjustGrid");
 		}
 
+		@Override
+		public boolean isAvailable() {
+			return super.isAvailable() && MapTool.getFrame().getCurrentZoneRenderer().getZone().getType() != Zone.Type.INFINITE;
+		}
+		
 		public void execute(ActionEvent e) {
-
-			if (!MapTool.getPlayer().isGM()) {
-                MapTool.showError("msg.error.gmRequired");
-				return;
-			}
 
 			if (MapTool.getFrame().getCurrentZoneRenderer().getZone().getType() == Zone.Type.INFINITE) {
 				MapTool.showError("Cannot adjust grid on infinite maps.");
@@ -424,7 +413,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action TOGGLE_FOG = new AdminClientAction() {
+	public static final Action TOGGLE_FOG = new ZoneAdminClientAction() {
 		{
 			init("action.enableFogOfWar");
 		}
@@ -463,7 +452,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action TOGGLE_CURRENT_ZONE_VISIBILITY = new AdminClientAction() {
+	public static final Action TOGGLE_CURRENT_ZONE_VISIBILITY = new ZoneAdminClientAction() {
 
 		{
             init("action.hideMap");
@@ -515,26 +504,23 @@ public class AppActions {
 		}
 
 		public void execute(ActionEvent e) {
-			AppState
-					.setDropTokenAsInvisible(!AppState.isDropTokenAsInvisible());
+			AppState.setDropTokenAsInvisible(!AppState.isDropTokenAsInvisible());
 		}
 	};
 
-	public static final Action NEW_CAMPAIGN = new DefaultClientAction() {
+	public static final Action NEW_CAMPAIGN = new AdminClientAction() {
 		{
             init("action.newCampaign");
 		}
 
 		public void execute(ActionEvent e) {
 
-			if (MapTool.isConnected()) {
+			if (!MapTool.confirm("msg.confirm.newCampaign")) {
 
-				MapTool
-						.showError("You are connected to a server.  Please disconnect first.");
 				return;
 			}
 
-			MapTool.setCampaign(new Campaign());
+			MapTool.serverCommand().setCampaign(new Campaign());
 		}
 	};
 
@@ -600,7 +586,7 @@ public class AppActions {
 
 		@Override
 		public boolean isAvailable() {
-			return !MapTool.isConnected();
+			return MapTool.isPersonalServer();
 		}
 		
 		public void execute(ActionEvent e) {
@@ -608,11 +594,12 @@ public class AppActions {
 			runBackground(new Runnable() {
 				public void run() {
 
-					if (MapTool.isConnected()) {
-						MapTool.showError("Already connected.");
+					if (!MapTool.isPersonalServer()) {
+						MapTool.showError("Already running a server.");
 						return;
 					}
 
+					// TODO: Need to shut down the existing server first;
 					StartServerDialog dialog = new StartServerDialog();
 
 					dialog.setVisible(true);
@@ -621,25 +608,39 @@ public class AppActions {
 						return;
 					}
 
+					// Use the existing campaign
+					Campaign campaign = MapTool.getCampaign();
+
+					boolean failed = false;
 					try {
-						MapTool.startServer(new ServerConfig(dialog.getGMPassword(), dialog.getPlayerPassword(), dialog.getPort()), new ServerPolicy());
+						ServerDisconnectHandler.disconnectExpected = true;
+						MapTool.stopServer();
+						MapTool.startServer(new ServerConfig(dialog.getGMPassword(), dialog.getPlayerPassword(), dialog.getPort()), new ServerPolicy(), campaign);
 
 						// Connect to server
 						MapTool.createConnection("localhost", dialog.getPort(), new Player(
 								dialog.getUsername(), Player.Role.GM, dialog.getGMPassword()));
 
 						// connecting
-						MapTool.getFrame().getConnectionStatusPanel()
-								.setStatus(ConnectionStatusPanel.Status.server);
+						MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
 					} catch (UnknownHostException uh) {
 						MapTool.showError("Whoah, 'localhost' is not a valid address.  Weird.");
-						return;
+						failed = true;
 					} catch (IOException ioe) {
 						MapTool.showError("Could not connect to server: "
 										+ ioe);
-						return;
+						failed = true;
 					}
 
+					if (failed) {
+						try {
+							MapTool.startPersonalServer(campaign);
+						} catch (IOException ioe) {
+							MapTool.showError("Could not restart personal server");
+						}
+					}
+					
+					MapTool.serverCommand().setCampaign(campaign);
 				}
 			});
 		}
@@ -653,17 +654,14 @@ public class AppActions {
 
 		@Override
 		public boolean isAvailable() {
-			return !MapTool.isConnected();
+			return MapTool.isPersonalServer();
 		}
 		
 		public void execute(ActionEvent e) {
 
+			boolean failed = false;
+			Campaign campaign = MapTool.getCampaign();
 			try {
-
-				if (MapTool.isConnected()) {
-					MapTool.showError("Already connected.");
-					return;
-				}
 
 				ConnectToServerDialog dialog = new ConnectToServerDialog();
 
@@ -674,24 +672,31 @@ public class AppActions {
 					return;
 				}
 
+				ServerDisconnectHandler.disconnectExpected = true;
+				MapTool.stopServer();
+
 				MapTool.createConnection(dialog.getServer(), dialog.getPort(),
 						new Player(dialog.getUsername(), dialog.getRole(), dialog.getPassword()));
 
 				// connecting
-				if (MapTool.isConnected()) {
-					MapTool.getFrame().getConnectionStatusPanel().setStatus(
-							ConnectionStatusPanel.Status.connected);
-				}
+				MapTool.getFrame().getConnectionStatusPanel().setStatus(
+						ConnectionStatusPanel.Status.connected);
+				
 			} catch (UnknownHostException e1) {
-				// TODO Auto-generated catch block
 				MapTool.showError("Unknown host");
-				e1.printStackTrace();
+				failed = true;
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				MapTool.showError("IO Error: " + e1);
-				e1.printStackTrace();
+				failed = true;
 			}
 
+			if (failed) {
+				try {
+					MapTool.startPersonalServer(campaign);
+				} catch (IOException ioe) {
+					MapTool.showError("Could not restart personal server");
+				}
+			}
 		}
 
 	};
@@ -704,21 +709,25 @@ public class AppActions {
 
 		@Override
 		public boolean isAvailable() {
-			return MapTool.isConnected();
+			return !MapTool.isPersonalServer();
 		}
 		
 		public void execute(ActionEvent e) {
 
-			if (!MapTool.isConnected()) {
+			if (MapTool.isHostingServer() && !MapTool.confirm("msg.confirm.hostingDisconnect")) {
 				return;
 			}
 
-			if (MapTool.isHostingServer()) {
-				MapTool.showError("Can't disconnect from yourself");
-				return;
-			}
-
+			Campaign campaign = MapTool.isHostingServer() ? MapTool.getCampaign() : new Campaign();
+			ServerDisconnectHandler.disconnectExpected = true;
+			MapTool.stopServer();
 			MapTool.disconnect();
+			
+			try {
+				MapTool.startPersonalServer(campaign);
+			} catch (IOException ioe) {
+				MapTool.showError("Could not restart personal server");
+			}
 		}
 
 	};
@@ -729,11 +738,6 @@ public class AppActions {
 		}
 
 		public void execute(ActionEvent ae) {
-
-			if (MapTool.isConnected() && !MapTool.getPlayer().isGM()) {
-				MapTool.showError("Must be a GM to load a campaign.");
-				return;
-			}
 
 			JFileChooser chooser = MapTool.getLoadFileChooser();
 			chooser.setDialogTitle("Load Campaign");
@@ -831,7 +835,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action LOAD_MAP = new DefaultClientAction() {
+	public static final Action LOAD_MAP = new AdminClientAction() {
 		{
             init("action.newMap");
 		}
@@ -989,7 +993,7 @@ public class AppActions {
 		
 		public final void actionPerformed(ActionEvent e) {
 			execute(e);
-			
+			//System.out.println(getValue(Action.NAME));
 			updateActions();
 		}
 
@@ -1016,6 +1020,14 @@ public class AppActions {
 		@Override
 		public boolean isAvailable() {
 			return MapTool.getPlayer().isGM();
+		}
+	}
+	
+	private static abstract class ZoneAdminClientAction extends AdminClientAction {
+		
+		@Override
+		public boolean isAvailable() {
+			return super.isAvailable() && MapTool.getFrame().getCurrentZoneRenderer() != null;
 		}
 	}
 	

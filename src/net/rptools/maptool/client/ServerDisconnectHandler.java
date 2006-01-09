@@ -24,18 +24,35 @@
  */
 package net.rptools.maptool.client;
 
+import java.io.IOException;
+
 import net.rptools.clientserver.simple.AbstractConnection;
 import net.rptools.clientserver.simple.DisconnectHandler;
+import net.rptools.maptool.model.Campaign;
 
 /**
  * This class handles when the server inexplicably disconnects
  */
 public class ServerDisconnectHandler implements DisconnectHandler {
 
+	// TODO: This is a temporary hack until I can come up with a cleaner mechanism
+	public static boolean disconnectExpected;
     public void handleDisconnect(AbstractConnection arg0) {
-        MapTool.showError("Server has disconnected.");
-        
+    	
         // Update internal state
         MapTool.disconnect();
+
+        // TODO: attempt to reconnect if this was unexpected
+    	if (!disconnectExpected) {
+    		MapTool.showError("Server has disconnected.");
+
+    		try {
+    			MapTool.startPersonalServer(new Campaign());
+    		} catch (IOException ioe) {
+    			MapTool.showError("Could not restart personal server");
+    		}
+    	}
+        
+    	disconnectExpected = false;
     }
 }

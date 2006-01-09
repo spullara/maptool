@@ -563,18 +563,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         bringToFrontMenuItem.addActionListener(new ActionListener() {
         
             public void actionPerformed(ActionEvent e) {
-            	if (MapTool.isConnected()) {
-            		MapTool.serverCommand().bringTokensToFront(renderer.getZone().getId(), renderer.getSelectedTokenSet());
-            	} else {
-            		// TODO: remove this.  consolidate with server logic
-            		int z = renderer.getZone().getLargestZOrder() + 1;
-            		for (GUID guid : renderer.getSelectedTokenSet()) {
-            			Token token = renderer.getZone().getToken(guid);
-            			token.setZOrder(z ++);
-            			// Force reordering
-            			renderer.getZone().putToken(token);
-            		}
-            	}
+
+        		MapTool.serverCommand().bringTokensToFront(renderer.getZone().getId(), renderer.getSelectedTokenSet());
             	
             	MapTool.getFrame().repaint();
             }
@@ -584,18 +574,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         sendToBackMenuItem.addActionListener(new ActionListener() {
             
             public void actionPerformed(ActionEvent e) {
-            	if (MapTool.isConnected()) {
-            		MapTool.serverCommand().sendTokensToBack(renderer.getZone().getId(), renderer.getSelectedTokenSet());
-            	} else {
-            		// TODO: remove this.  consolidate with server logic
-            		int z = renderer.getZone().getSmallestZOrder() - 1;
-            		for (GUID guid : renderer.getSelectedTokenSet()) {
-            			Token token = renderer.getZone().getToken(guid);
-            			token.setZOrder(z --);
-            			// Force reordering
-            			renderer.getZone().putToken(token);
-            		}
-            	}
+
+        		MapTool.serverCommand().sendTokensToBack(renderer.getZone().getId(), renderer.getSelectedTokenSet());
 
             	MapTool.getFrame().repaint();
             }

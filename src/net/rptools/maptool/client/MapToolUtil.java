@@ -67,10 +67,7 @@ public class MapToolUtil {
     public static String nextTokenId() {
     	
     	int nextId = nextTokenId.getAndIncrement();
-    	char ch = 'a';
-    	if (MapTool.isConnected()) {
-    		ch = (char)('a' + MapTool.getPlayerList().indexOf(MapTool.getPlayer()));
-    	}
+    	char ch = (char)('a' + MapTool.getPlayerList().indexOf(MapTool.getPlayer()));
     	
     	return ch + Integer.toString(nextId);
     }

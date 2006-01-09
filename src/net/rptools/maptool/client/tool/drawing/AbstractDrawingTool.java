@@ -102,14 +102,7 @@ public abstract class AbstractDrawingTool extends Tool implements MouseListener,
     protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
 
 		// Tell the local/server to render the drawable.
-        // TODO: This should actually just always add it locally before sending to the server
-        // then the server should not rebroadcast back to us
-        if (MapTool.isConnected()) {
-            MapTool.serverCommand().draw(zoneId, pen, drawable);
-        } else {
-            zoneRenderer.getZone().addDrawable(new DrawnElement(drawable, pen));
-            zoneRenderer.repaint();
-        }
+        MapTool.serverCommand().draw(zoneId, pen, drawable);
       
         // Allow it to be undone
         DrawableUndoManager.getInstance().addDrawable(zoneId, pen, drawable);

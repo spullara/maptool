@@ -33,9 +33,6 @@ import net.rptools.maptool.model.Campaign;
 
 /**
  * @author drice
- * 
- * TODO To change the template for this generated type comment go to Window -
- * Preferences - Java - Code Style - Code Templates
  */
 public class MapToolServer {
 
@@ -97,6 +94,15 @@ public class MapToolServer {
     
     public ServerConfig getConfig() {
     	return config;
+    }
+    
+    public void stop() {
+    	try {
+    		conn.close();
+    	} catch (IOException e) {
+    		// Not too concerned about this
+    		e.printStackTrace();
+    	}
     }
     
     ////

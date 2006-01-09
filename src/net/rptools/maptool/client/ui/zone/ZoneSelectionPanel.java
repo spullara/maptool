@@ -96,12 +96,6 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
                 		if (MapTool.getFrame().getCurrentZoneRenderer() != renderer) {
                     		MapTool.getFrame().setCurrentZoneRenderer(renderer);
                 		}
-                	} else {
-                		
-                		if (!MapTool.isConnected() || MapTool.getPlayer().isGM()) {
-                			ZonePopupMenu menu = new ZonePopupMenu(renderer.getZone());
-                			menu.show(ZoneSelectionPanel.this, e.getX(), e.getY());
-                		}
                 	}
                 }
             }
@@ -130,7 +124,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 	        int y = getSize().height - PADDING;
 	        for (ZoneRenderer renderer : rendererList) {
 	            
-	        	if (MapTool.isConnected() && !MapTool.getPlayer().isGM() && !renderer.getZone().isVisible()) {
+	        	if (!MapTool.getPlayer().isGM() && !renderer.getZone().isVisible()) {
 	        		continue;
 	        	}
 	        	

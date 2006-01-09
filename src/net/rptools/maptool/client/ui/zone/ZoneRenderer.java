@@ -420,7 +420,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	Dimension size = getSize();
     	if (fog == null || fog.getWidth() != size.width || fog.getHeight() != size.height) {
             
-            int type = !MapTool.isConnected() || MapTool.getPlayer().isGM() ? Transparency.TRANSLUCENT : Transparency.BITMASK; 
+            int type = MapTool.getPlayer().isGM() ? Transparency.TRANSLUCENT : Transparency.BITMASK; 
     		fog = ImageUtil.createCompatibleImage (size.width, size.height, type);
 
     		updateFog = true;
@@ -446,7 +446,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	
     	// Render fog
     	Composite oldComposite = g.getComposite();
-    	if (!MapTool.isConnected() || MapTool.getPlayer().isGM()) {
+    	if (MapTool.getPlayer().isGM()) {
     		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .40f));
     	}
     	g.drawImage(fog, 0, 0, this);
@@ -536,8 +536,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 					int y = newScreenPoint.y + scaledHeight + 10;
 					int x = newScreenPoint.x + scaledWidth/2;
                     
-					GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
-					if (set.getPlayerId() != null && set.getPlayerId().length() > 0) {
+					if (walker.getDistance() >= 1) {
+						GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
+					}
+					if (set.getPlayerId() != null && set.getPlayerId().length() >= 1) {
 						GraphicsUtil.drawBoxedString(g, set.getPlayerId(), x, y + 20);
 					}
 				}
@@ -779,7 +781,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     public void clearSelectedTokens() {
     	selectedTokenSet.clear();
-    	
     	repaint();
     }
     

@@ -112,6 +112,11 @@ public class MapTool {
         
         player = new Player("", 0, "");
         
+        try {
+        	startPersonalServer(new Campaign());
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
         AppActions.updateActions();
 	}
 	
@@ -227,7 +232,7 @@ public class MapTool {
         // Filter stuff
         addServerMessage(message);
         
-        if (isConnected() && !message.isMe()) {
+        if (!message.isMe()) {
             serverCommand().message(message);
         }
     }
@@ -275,16 +280,17 @@ public class MapTool {
     	clientFrame.setCurrentZoneRenderer(currRenderer);
     }
     
-	public static void startServer(ServerConfig config, ServerPolicy policy) throws IOException {
+	public static void startServer(ServerConfig config, ServerPolicy policy, Campaign campaign) throws IOException {
 		
 		if (server != null) {
+			Thread.dumpStack();
 			showError("Server is already started");
 			return;
 		}
 		
 		// TODO: the client and server campaign MUST be different objects.  Figure out a better init method
 		server = new MapToolServer (config, policy);
-		server.setCampaign(getCampaign());
+		server.setCampaign(campaign);
         
         setCampaign(null);
 	}
@@ -294,7 +300,9 @@ public class MapTool {
 			return;
 		}
 		
-		// TODO: server stop
+		disconnect();
+		server.stop();
+		server = null;
 	}
 
     public static ObservableList<Player> getPlayerList() {
@@ -331,6 +339,20 @@ public class MapTool {
 		return player;
 	}
 	
+	public static void startPersonalServer(Campaign campaign) throws IOException {
+		
+		ServerConfig config = ServerConfig.createPersonalServerConfig();
+		MapTool.startServer(config, new ServerPolicy(), campaign);
+
+		String username = System.getProperty("user.name", "Player");
+		
+		// Connect to server
+		MapTool.createConnection("localhost", config.getPort(), new Player(username, Player.Role.GM, null));
+
+		// connecting
+		MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
+	}
+	
     public static void createConnection(String host, int port, Player player) throws UnknownHostException, IOException {
 
     	MapTool.player = player;
@@ -361,12 +383,12 @@ public class MapTool {
     	return conn;
     }
     
-    public static boolean isConnected() {
-        return conn != null;
+    public static boolean isPersonalServer() {
+        return server != null && server.getConfig().isPersonalServer();
     }
-    
+
     public static boolean isHostingServer() {
-        return server != null;
+        return server != null && !server.getConfig().isPersonalServer();
     }
 
     public static void disconnect() {
@@ -379,8 +401,6 @@ public class MapTool {
             conn.close();
             conn = null;
             playerList.clear();
-            
-            setCampaign(new Campaign());
             
         } catch (IOException ioe) {
             // This isn't critical, we're closing it anyway

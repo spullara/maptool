@@ -101,7 +101,7 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
     		last = partial;
     	}
     	
-    	if (last.end.equals(point)) return true;
+    	if (last != null && last.end != null && last.end.equals(point)) return true;
     	
     	return false;
     }
