@@ -42,7 +42,7 @@ import net.rptools.maptool.server.ServerCommand;
 
 public class ServerCommandClientImpl implements ServerCommand {
 
-    private TimedEventQueue movementUpdateQueue = new TimedEventQueue(500);
+    private TimedEventQueue movementUpdateQueue = new TimedEventQueue(250);
 	
 	public ServerCommandClientImpl() {
 		movementUpdateQueue.start();
@@ -163,7 +163,6 @@ public class ServerCommandClientImpl implements ServerCommand {
     }
     
 	private static void makeServerCall(ServerCommand.COMMAND command, Object... params) {
-        if (!MapTool.isConnected()) {return;}
         
         MapTool.getConnection().callMethod(command.name(), params);
     }
