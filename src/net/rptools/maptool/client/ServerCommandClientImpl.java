@@ -100,6 +100,10 @@ public class ServerCommandClientImpl implements ServerCommand {
         makeServerCall(COMMAND.draw, zoneGUID, pen, drawable);
     }
 
+    public void clearAllDrawings(GUID zoneGUID) {
+        makeServerCall(COMMAND.clearAllDrawings, zoneGUID);
+    }
+
     public void undoDraw(GUID zoneGUID, GUID drawableGUID) {
         makeServerCall(COMMAND.undoDraw, zoneGUID, drawableGUID);
     }

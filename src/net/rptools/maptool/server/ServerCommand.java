@@ -52,6 +52,7 @@ public interface ServerCommand {
         putToken, 
         removeToken, 
         draw,
+        clearAllDrawings,
         setZoneGridSize,
         message,
         undoDraw,
@@ -100,4 +101,5 @@ public interface ServerCommand {
     public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, int x, int y);
     public void sendTokensToBack(GUID zoneGUID, Set<GUID> tokenSet);
     public void bringTokensToFront(GUID zoneGUID, Set<GUID> tokenSet);
+    public void clearAllDrawings(GUID zoneGUID);
 }

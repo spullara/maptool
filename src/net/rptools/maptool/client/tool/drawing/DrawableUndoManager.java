@@ -35,10 +35,9 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
-import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
 
 /**
@@ -272,7 +271,18 @@ public class DrawableUndoManager {
 	  }
 
 	public void actionPerformed(ActionEvent arg0) {
-		// TODO Add method
+		
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+		if (renderer == null) {
+			return;
+		}
+		
+		if (!MapTool.confirm("msg.confirm.clearAllDrawings")) {
+			return;
+		}
+		
+		// LATER: Integrate this with the undo stuff
+		MapTool.serverCommand().clearAllDrawings(renderer.getZone().getId());
 	}
 	
   }

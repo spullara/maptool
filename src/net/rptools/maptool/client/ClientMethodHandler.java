@@ -64,6 +64,14 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         Zone zone;
         
         switch (cmd) {
+        case clearAllDrawings:
+        	
+        	zoneGUID = (GUID) parameters[0];
+            zone = MapTool.getCampaign().getZone(zoneGUID);
+            zone.getDrawnElements().clear();
+            
+            MapTool.getFrame().getCurrentZoneRenderer().repaint();
+        	break;
         case setZoneHasFoW:
         	
         	zoneGUID = (GUID) parameters[0];

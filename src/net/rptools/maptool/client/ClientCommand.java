@@ -36,6 +36,7 @@ public class ClientCommand {
         putToken, 
         removeToken, 
         draw,
+        clearAllDrawings,
         setZoneGridSize,
         setZoneVisibility,
         playerConnected,

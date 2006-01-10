@@ -96,6 +96,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case toggleTokenMoveWaypoint: toggleTokenMoveWaypoint(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3)); break;
             case undoDraw:                undoDraw(context.getGUID(0), context.getGUID(1)); break;
             case updateTokenMove:         updateTokenMove(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3)); break;
+            case clearAllDrawings:        clearAllDrawings(context.getGUID(0)); break;
             }
         } finally {
             RPCContext.setCurrent(null);
@@ -146,7 +147,6 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             
             // Update
             int z = zone.getLargestZOrder() + 1;
-            System.out.println("Z: " + z);
             for (Token token : tokenList) {
                 token.setZOrder(z ++);
             }
@@ -156,6 +156,14 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
                 broadcastToAllClients(ClientCommand.COMMAND.putToken.name(), zoneGUID, token);
             }
         }
+    }
+    
+    public void clearAllDrawings(GUID zoneGUID) {
+    	
+        Zone zone = server.getCampaign().getZone(zoneGUID);
+        zone.getDrawnElements().clear();
+
+    	forwardToAllClients();
     }
     
     public void draw(GUID zoneGUID, Pen pen, Drawable drawable) {
