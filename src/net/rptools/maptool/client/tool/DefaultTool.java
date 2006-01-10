@@ -102,30 +102,29 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
     private long lastMoveRedraw;
     private int mapDX, mapDY;
     private static final int REDRAW_DELAY = 25; // millis
-    
 
+    private ZoneRenderer renderer;
+    
+    @Override
+    protected void attachTo(ZoneRenderer renderer) {
+    	this.renderer = renderer;
+    }
+
+    @Override
+    protected void detachFrom(ZoneRenderer renderer) {
+    	this.renderer = null;
+    }
+    
     ////
 	// Mouse
 	
 	public void mousePressed(MouseEvent e) {
-
+ 
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 
 		// SELECTION
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			
-			// Pointer
-			if (SwingUtil.isControlDown(e)) {
-				
-				isShowingPointer = true;
-				
-				ZonePoint p = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
-				Pointer pointer = new Pointer(renderer.getZone(), p.x, p.y, 0);
-				
-				MapTool.serverCommand().showPointer(MapTool.getPlayer().getName(), pointer);
-				return;
-			}			
-
 			// Token
 			Token token = renderer.getTokenAt (e.getX(), e.getY());
 			if (token != null) {
@@ -201,13 +200,6 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         	return;
         }
 
-        // POINTER
-		if (isShowingPointer) {
-			isShowingPointer = false;
-			MapTool.serverCommand().hidePointer(MapTool.getPlayer().getName());
-			return;
-		}
-		
 		// POPUP MENU
         if (SwingUtilities.isRightMouseButton(e)) {
         	
@@ -415,6 +407,27 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 						}
 						
 						renderer.clearSelectedTokens();
+					}
+				});
+				
+				put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true), new AbstractAction() {
+					public void actionPerformed(ActionEvent e) {
+						isShowingPointer = false;
+						MapTool.serverCommand().hidePointer(MapTool.getPlayer().getName());
+					}
+				});
+				put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), new AbstractAction() {
+					public void actionPerformed(ActionEvent e) {
+						if (isShowingPointer) {
+							return;
+						}
+
+						isShowingPointer = true;
+						
+						ZonePoint p = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY);
+						Pointer pointer = new Pointer(renderer.getZone(), p.x, p.y, 0);
+						
+						MapTool.serverCommand().showPointer(MapTool.getPlayer().getName(), pointer);
 					}
 				});
 			}
