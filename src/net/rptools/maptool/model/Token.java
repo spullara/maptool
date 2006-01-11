@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -51,6 +52,8 @@ public class Token {
     private boolean                             isVisible    = true;
     private String                              name;
 
+    private List<String>                        ownerList;
+    
     /**
      * A state property for this token. It is used during rendering to determine if a token
      * overlay should be drawn.
@@ -78,6 +81,11 @@ public class Token {
         snapToGrid = token.snapToGrid;
         isVisible = token.isVisible;
         name = token.name;
+        
+        if (ownerList != null) {
+        	ownerList = new ArrayList<String>();
+        	ownerList.addAll(token.ownerList);
+        }
     }
 
     public Token() {
@@ -94,6 +102,30 @@ public class Token {
         this.width = width;
         this.height = height;
         state = "";
+    }
+    
+    public synchronized void addOwner(String playerId) {
+    	if (ownerList == null) {
+    		ownerList = new ArrayList<String>();
+    	}
+    	
+    	ownerList.add(playerId);
+    }
+    
+    public synchronized void removeOwner(String playerId) {
+    	if (ownerList == null) {
+    		return;
+    	}
+    	
+    	ownerList.remove(playerId);
+    	
+    	if (ownerList.size() == 0) {
+    		ownerList = null;
+    	}
+    }
+    
+    public synchronized boolean isOwner(String playerId) {
+    	return ownerList != null && ownerList.contains(playerId);
     }
 
     public boolean equals(Object o) {

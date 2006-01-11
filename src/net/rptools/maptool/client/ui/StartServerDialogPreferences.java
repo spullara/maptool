@@ -16,6 +16,7 @@ public class StartServerDialogPreferences {
     private static final String KEY_PLAYER_PASSWORD = "playerPassword";
     private static final String KEY_USE_GM_PASSWORD = "useGMPassword";
     private static final String KEY_USE_PLAYER_PASSWORD = "usePlayerPassword";
+    private static final String KEY_STRICT_TOKEN_MOVEMENT = "strictTokenMovement";
     
     public String getUsername() {
     	return prefs.get(KEY_USERNAME, "");
@@ -74,4 +75,11 @@ public class StartServerDialogPreferences {
     	prefs.putInt(KEY_PORT, port);
     }
     
+    public boolean useStrictTokenMovement() {
+    	return prefs.getBoolean(KEY_STRICT_TOKEN_MOVEMENT, false);
+    }
+    
+    public void setStrictTokenMovement(boolean use) {
+    	prefs.putBoolean(KEY_STRICT_TOKEN_MOVEMENT, use);
+    }
 }

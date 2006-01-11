@@ -63,6 +63,7 @@ public class MapTool {
 	private static MapToolClient clientFrame;
     private static MapToolServer server;
     private static ServerCommand serverCommand;
+    private static ServerPolicy serverPolicy;
 
     private static String version;
     
@@ -133,6 +134,10 @@ public class MapTool {
 		}
 		
 		return version;
+	}
+	
+	public static ServerPolicy getServerPolicy() {
+		return serverPolicy;
 	}
 	
     public static ServerCommand serverCommand() {
@@ -280,6 +285,10 @@ public class MapTool {
     	clientFrame.setCurrentZoneRenderer(currRenderer);
     }
     
+    public static void setServerPolicy(ServerPolicy policy) {
+    	serverPolicy = policy;
+    }
+    
 	public static void startServer(ServerConfig config, ServerPolicy policy, Campaign campaign) throws IOException {
 		
 		if (server != null) {
@@ -292,6 +301,7 @@ public class MapTool {
 		server = new MapToolServer (config, policy);
 		server.setCampaign(campaign);
         
+		serverPolicy = server.getPolicy();
         setCampaign(null);
 	}
 	

@@ -62,6 +62,11 @@ public class MapToolConnection extends ClientConnection {
 			return false;
 		}
 		
-		return response.code == Handshake.Code.OK;
+		boolean result = response.code == Handshake.Code.OK;
+		if (result) {
+			MapTool.setServerPolicy(response.policy);
+		}
+		
+		return result;
 	}
 }

@@ -41,6 +41,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,9 +71,11 @@ import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
+import net.rptools.maptool.model.Zone;
 
 /**
  */
@@ -324,8 +327,19 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			isNewTokenSelected = false;
 			
 			// Might be dragging a token
+			String playerId = MapTool.getPlayer().getName();
 			Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
 			if (selectedTokenSet.size() > 0) {
+				
+				// Make sure we can do this
+				if (!MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
+					for (GUID tokenGUID : selectedTokenSet) {
+						Token token = renderer.getZone().getToken(tokenGUID);
+						if (!token.isOwner(playerId)) {
+							return;
+						}
+					}
+				}
 				
 				Point origin = new Point(tokenUnderMouse.getX(), tokenUnderMouse.getY());
 				
@@ -609,10 +623,76 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         } // endfor
         popup.add(stateMenu);
         
+        // Ownership
+        if (MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
+	        JMenu ownerMenu = I18N.createMenu("defaultTool.ownerMenu");
+	        int playerCount = 0;
+	        for (Player player : (Iterable<Player>)MapTool.getPlayerList()) {
+	        	
+	        	if (player.isGM()) {
+	        		continue;
+	        	}
+	        	
+	        	boolean selected = false;
+	        	
+	        	final Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
+	        	for (GUID tokenGUID : selectedTokenSet) {
+	        		Token token = renderer.getZone().getToken(tokenGUID);
+	        		if (token.isOwner(player.getName())) {
+	        			selected = true;
+	        			break;
+	        		}
+	        	}
+	        	JCheckBoxMenuItem playerMenu = new PlayerOwnershipMenu(player.getName(), selected, selectedTokenSet, renderer.getZone());
+	        	
+	        	ownerMenu.add(playerMenu);
+	        	playerCount ++;
+	        }
+	        
+	        if (playerCount == 0) {
+	        	JMenuItem noPlayerMenu = new JMenuItem("No players");
+	        	noPlayerMenu.setEnabled(false);
+	        	ownerMenu.add(noPlayerMenu);
+	        }
+	        
+	        popup.add(ownerMenu);
+        }
+        
         // 
     	popup.show(renderer, e.getX(), e.getY());
 	}
 
+	private static class PlayerOwnershipMenu extends JCheckBoxMenuItem implements ActionListener {
+		
+		private Set<GUID> tokenSet;
+		private Zone zone;
+		private boolean selected;
+		private String name;
+		
+		public PlayerOwnershipMenu(String name, boolean selected, Set<GUID> tokenSet, Zone zone) {
+			super(name, selected);
+			this.tokenSet = tokenSet;
+			this.zone = zone;
+			this.selected = selected;
+			this.name = name;
+			
+			addActionListener(this);
+		}
+		public void actionPerformed(ActionEvent e) {
+			for (GUID guid : tokenSet) {
+				Token token = zone.getToken(guid);
+				
+				if (selected) {
+					token.removeOwner(name);
+				} else {
+					token.addOwner(name);
+				}
+				
+				MapTool.serverCommand().putToken(zone.getId(), token);
+			}
+		}
+	}
+	
   /**
    * Create a radio button menu item for a particuar state
    * 
@@ -672,7 +752,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
       putValue(ACTION_COMMAND_KEY, state); // Set the state command
       
       // Load the name, mnemonic, accelerator, and description if available
-      String key = "defaultTool.stateActon." + state;
+      String key = "defaultTool.stateAction." + state;
       String name = net.rptools.maptool.language.I18N.getText(key);
       if (!name.equals(key)) {
         putValue(NAME, name);

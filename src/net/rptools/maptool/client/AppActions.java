@@ -607,6 +607,8 @@ public class AppActions {
 					if (dialog.getOption() == StartServerDialog.OPTION_CANCEL) {
 						return;
 					}
+					
+					ServerPolicy policy = new ServerPolicy(dialog.useStrictTokenMovement());
 
 					// Use the existing campaign
 					Campaign campaign = MapTool.getCampaign();
@@ -615,7 +617,7 @@ public class AppActions {
 					try {
 						ServerDisconnectHandler.disconnectExpected = true;
 						MapTool.stopServer();
-						MapTool.startServer(new ServerConfig(dialog.getGMPassword(), dialog.getPlayerPassword(), dialog.getPort()), new ServerPolicy(), campaign);
+						MapTool.startServer(new ServerConfig(dialog.getGMPassword(), dialog.getPlayerPassword(), dialog.getPort()), policy, campaign);
 
 						// Connect to server
 						MapTool.createConnection("localhost", dialog.getPort(), new Player(

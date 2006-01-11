@@ -66,6 +66,7 @@ public class StartServerDialog extends JDialog {
 	private JLabel jLabel1 = null;
 	private JCheckBox playerPasswordCheckBox = null;
 	private JCheckBox gmPasswordCheckBox = null;
+	private JCheckBox strictTokenMovementCheckBox = null;
 	/**
 	 * This is the default constructor
 	 */
@@ -82,7 +83,7 @@ public class StartServerDialog extends JDialog {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setSize(303, 171);
+		this.setSize(335, 206);
 		this.setContentPane(getJContentPane());
 		
 		// Prefs
@@ -93,6 +94,7 @@ public class StartServerDialog extends JDialog {
 		gmPasswordTextField.setText(prefs.getGMPassword());
 		playerPasswordCheckBox.setSelected(prefs.getUsePlayerPassword());
 		playerPasswordTextField.setText(prefs.getPlayerPassword());
+		strictTokenMovementCheckBox.setSelected(prefs.useStrictTokenMovement());
 		getPlayerPasswordTextField().setEnabled(playerPasswordCheckBox.isSelected());
 		getGmPasswordTextField().setEnabled(gmPasswordCheckBox.isSelected());
 	}
@@ -115,6 +117,10 @@ public class StartServerDialog extends JDialog {
 	 */
 	private javax.swing.JPanel getJContentPane() {
 		if(jContentPane == null) {
+			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
+			gridBagConstraints12.gridx = 2;
+			gridBagConstraints12.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints12.gridy = 4;
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 			gridBagConstraints3.gridx = 1;
 			gridBagConstraints3.gridy = 2;
@@ -193,6 +199,7 @@ public class StartServerDialog extends JDialog {
 			jContentPane.add(jLabel1, gridBagConstraints2);
 			jContentPane.add(getPlayerPasswordCheckBox(), gridBagConstraints);
 			jContentPane.add(getGmPasswordCheckBox(), gridBagConstraints3);
+			jContentPane.add(getStrictTokenMovementCheckBox(), gridBagConstraints12);
 		}
 		return jContentPane;
 	}
@@ -325,6 +332,7 @@ public class StartServerDialog extends JDialog {
 					prefs.setGMPassword(getGmPasswordTextField().getText());
 					prefs.setUsePlayerPassword(getPlayerPasswordCheckBox().isSelected());
 					prefs.setPlayerPassword(getPlayerPasswordTextField().getText());
+					prefs.setStrictTokenMovement(getStrictTokenMovementCheckBox().isSelected());
 				}
 			});
 		}
@@ -333,6 +341,10 @@ public class StartServerDialog extends JDialog {
 	
 	public int getOption() {
 		return option;
+	}
+	
+	public boolean useStrictTokenMovement() {
+		return getStrictTokenMovementCheckBox().isSelected();
 	}
 	
 	public int getPort() {
@@ -383,6 +395,19 @@ public class StartServerDialog extends JDialog {
 			});
 		}
 		return gmPasswordCheckBox;
+	}
+
+	/**
+	 * This method initializes strictTokenMovementCheckBox	
+	 * 	
+	 * @return javax.swing.JCheckBox	
+	 */
+	private JCheckBox getStrictTokenMovementCheckBox() {
+		if (strictTokenMovementCheckBox == null) {
+			strictTokenMovementCheckBox = new JCheckBox();
+			strictTokenMovementCheckBox.setText("Strict Token Ownership");
+		}
+		return strictTokenMovementCheckBox;
 	}
 	
    }  //  @jve:decl-index=0:visual-constraint="7,8"
