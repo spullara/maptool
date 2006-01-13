@@ -241,7 +241,7 @@ public class AssetGroup {
 
                     // Get the asset, is it already in the game?
                     try {
-                        Asset asset = new Asset(FileUtil.loadFile(file));
+                        Asset asset = AssetManager.createAsset(file);
                         if (AssetManager.hasAsset(asset.getId())) {
                             asset = AssetManager.getAsset(asset.getId());
                         }

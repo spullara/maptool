@@ -50,6 +50,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.adjustgrid.AdjustGridDialog;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Zone;
 
 public class NewMapDialog extends JDialog implements WindowListener {
@@ -149,7 +150,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	
 	public void accept() {
         try {
-            returnAsset = selectedAsset != null ? selectedAsset : new Asset(FileUtil.loadFile(selectedFile));
+            returnAsset = selectedAsset != null ? selectedAsset : AssetManager.createAsset(selectedFile);
         } catch (IOException ioe) {
             MapTool.showError("Could not load asset: " + ioe);
             returnAsset = null;

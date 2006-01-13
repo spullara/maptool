@@ -89,7 +89,7 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
     
     public Asset getAsset(int index) {
         try {
-            Asset asset = new Asset(FileUtil.loadFile(dir.getFiles().get(index)));
+            Asset asset = AssetManager.createAsset(dir.getFiles().get(index));
     		return asset;
         } catch (IOException ioe) {
             return null;

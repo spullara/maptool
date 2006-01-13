@@ -997,7 +997,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	        CellPoint p = getCellAt(new ScreenPoint((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY()));
 	
 	        BufferedImage image = ImageManager.getImage(asset, this);
-	        Token token = new Token(MapToolUtil.nextTokenId(), asset.getId(), image.getWidth(), image.getHeight());
+	        Token token = new Token(MapToolUtil.nextTokenId(zone, asset.getName()), asset.getId(), image.getWidth(), image.getHeight());
 	        token.setX(p.x * zone.getGridSize());
 	        token.setY(p.y * zone.getGridSize());
 

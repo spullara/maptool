@@ -24,6 +24,10 @@
  */
 package net.rptools.maptool.model;
 
+import java.io.File;
+import java.io.IOException;
+
+import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
 
 /**
@@ -32,12 +36,14 @@ import net.rptools.lib.MD5Key;
 public class Asset {
     private MD5Key id;
     private byte[] image;
+    private String name;
     
     protected Asset() {
     }
     
-    public Asset(byte[] image) {
+    public Asset(String name, byte[] image) {
         this.image = image;
+        this.name = name;
         if (image != null) {
             this.id = new MD5Key (image);
         }
@@ -61,5 +67,8 @@ public class Asset {
 
     public void setImage(byte[] image) {
         this.image = image;
+    }
+    public String getName() {
+    	return name;
     }
 }

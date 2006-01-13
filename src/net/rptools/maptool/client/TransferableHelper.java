@@ -32,6 +32,7 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 import net.rptools.lib.FileUtil;
@@ -107,11 +108,20 @@ public class TransferableHelper {
         return asset;
 	}
 
-    private static Asset handleImage (DropTargetDropEvent dtde, Transferable transferable) throws IOException, UnsupportedFlavorException {
+	private static final DataFlavor URL_FLAVOR = new DataFlavor("text/plain; class=java.lang.String", "Image");
+	private static Asset handleImage (DropTargetDropEvent dtde, Transferable transferable) throws IOException, UnsupportedFlavorException {
         
-        BufferedImage image = (BufferedImage) new ImageTransferableHandler().getTransferObject(transferable);        
+        BufferedImage image = (BufferedImage) new ImageTransferableHandler().getTransferObject(transferable);      
         
-        Asset asset = new Asset(ImageUtil.imageToBytes(image));
+        String name = null;
+        if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
+        	try {
+        		URL url = new URL((String)transferable.getTransferData(URL_FLAVOR));
+        		name = FileUtil.getNameWithoutExtension(url);
+        	} catch (Exception e) {e.printStackTrace();}
+        }
+        
+        Asset asset = new Asset(name, ImageUtil.imageToBytes(image));
         
         return asset;
     }
@@ -121,7 +131,7 @@ public class TransferableHelper {
     	List<File> list = new FileTransferableHandler().getTransferObject(transferable);
     	
         // We only support using one at a time for now
-		Asset asset = new Asset(FileUtil.loadFile(list.get(0)));
+		Asset asset = AssetManager.createAsset(list.get(0));
 
         return asset;
 	}

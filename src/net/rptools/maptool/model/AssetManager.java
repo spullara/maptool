@@ -25,10 +25,13 @@
 package net.rptools.maptool.model;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
@@ -43,6 +46,8 @@ public class AssetManager {
 	private static boolean usePersistentCache;
 	
     private static Asset lastRetrievedAsset;
+
+    private static String NAME = "name";
     
 	static {
 		
@@ -113,8 +118,9 @@ public class AssetManager {
 		
 		try {
 			byte[] data = FileUtil.loadFile(assetFile);
+			Properties props = getAssetInfo(id);
 			
-			Asset asset = new Asset(data);
+			Asset asset = new Asset(props.getProperty(NAME), data);
 			
 			assetMap.put(asset.getId(), asset);
 			
@@ -124,6 +130,24 @@ public class AssetManager {
 			return null;
 		}
 		
+	}
+	
+	public static Asset createAsset(File file) throws IOException {
+		return  new Asset(FileUtil.getNameWithoutExtension(file), FileUtil.loadFile(file));
+    }
+	    
+	public static Properties getAssetInfo(MD5Key id) {
+		
+		File infoFile = getAssetInfoFile(id);
+		try {
+
+			Properties props = new Properties();
+			props.load(new FileInputStream(infoFile));
+			return props;
+			
+		} catch (Exception e) {
+			return new Properties();
+		}
 	}
 	
 	private static void putInPersistentCache(Asset asset) {
@@ -137,10 +161,27 @@ public class AssetManager {
 			File assetFile = getAssetCacheFile(asset);
 			
 			try {
-				FileOutputStream out = new FileOutputStream(assetFile);
-				
+				// Image
+				OutputStream out = new FileOutputStream(assetFile);
 				out.write(asset.getImage());
-				
+				out.close();
+
+			} catch (IOException ioe) {
+				System.err.println("Could not persist asset: " + ioe);
+				return;
+			}
+			
+		}
+		if (!assetInfoIsInPersistentCache(asset)) {
+
+			File infoFile = getAssetInfoFile(asset);
+			
+			try {
+				// Info
+				OutputStream out = new FileOutputStream(infoFile);
+				Properties props = new Properties();
+				props.put (NAME, asset.getName() != null ? asset.getName() : "");
+				props.store(out, "Asset Info");
 				out.close();
 				
 			} catch (IOException ioe) {
@@ -155,6 +196,10 @@ public class AssetManager {
 		return assetIsInPersistentCache(asset.getId());
 	}
 	
+	private static boolean assetInfoIsInPersistentCache(Asset asset) {
+		return getAssetInfoFile(asset.getId()).exists();
+	}
+	
 	private static boolean assetIsInPersistentCache(MD5Key id) {
 
 		return getAssetCacheFile(id).exists();
@@ -163,7 +208,16 @@ public class AssetManager {
 	private static File getAssetCacheFile(Asset asset) {
 		return getAssetCacheFile(asset.getId());
 	}
+
 	private static File getAssetCacheFile(MD5Key id) {
 		return new File (cacheDir.getAbsolutePath() + File.separator + id);
+	}
+	
+	private static File getAssetInfoFile(Asset asset) {
+		return getAssetInfoFile(asset.getId());
+	}
+
+	private static File getAssetInfoFile(MD5Key id) {
+		return new File (cacheDir.getAbsolutePath() + File.separator + id + ".info");
 	}
 }

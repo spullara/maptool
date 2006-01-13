@@ -798,7 +798,7 @@ public class AppActions {
 		public QuickMapAction (String name ,String imagePath) {
 			
 			try {
-				asset = new Asset(FileUtil.loadResource(imagePath));
+				asset = new Asset(null, FileUtil.loadResource(imagePath));
 				
 				// Make smaller
 				BufferedImage iconImage = new BufferedImage(QUICK_MAP_ICON_SIZE, QUICK_MAP_ICON_SIZE, Transparency.OPAQUE);

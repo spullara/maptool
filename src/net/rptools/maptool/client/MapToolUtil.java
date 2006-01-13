@@ -24,14 +24,18 @@
  */
 package net.rptools.maptool.client;
 
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Zone;
 
 public class MapToolUtil {
 
     private static Random random = new Random ( System.currentTimeMillis() );
 
-    private static AtomicInteger nextTokenId = new AtomicInteger();
+    private static AtomicInteger nextTokenId = new AtomicInteger(1);
     
     public static int getRandomNumber ( int max )
     {
@@ -64,12 +68,34 @@ public class MapToolUtil {
         return roll < percentage;
     }
 
-    public static String nextTokenId() {
+    public static String nextTokenId(Zone zone, String baseName) {
+
+    	if (baseName == null) {
+	    	int nextId = nextTokenId.getAndIncrement();
+	    	char ch = (char)('a' + MapTool.getPlayerList().indexOf(MapTool.getPlayer()));
     	
-    	int nextId = nextTokenId.getAndIncrement();
-    	char ch = (char)('a' + MapTool.getPlayerList().indexOf(MapTool.getPlayer()));
+	    	return ch + Integer.toString(nextId);
+    	}
     	
-    	return ch + Integer.toString(nextId);
+    	int index = 1;
+    	String name;
+    	List<Token> tokenList = zone.getTokens();
+    	while (true) { // At some point this will end
+    		
+    		for (Token token : tokenList) {
+    			
+    			name = baseName + " " + index; 
+    			if (token.getName() != null && token.getName().equals(name)) {
+    				
+    				// If we've found this token name, keep looking
+            		index ++;
+            		continue;
+    			}
+    		}
+    		break;
+    	}
+    	
+    	return baseName + " " + index;
     }
     
     public static boolean isDebugEnabled() {
