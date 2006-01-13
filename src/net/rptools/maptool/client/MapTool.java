@@ -53,13 +53,14 @@ import net.rptools.maptool.server.MapToolServer;
 import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
+import net.tsc.servicediscovery.ServiceAnnouncer;
 
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 
 /**
  */
 public class MapTool {
-
+	
 	private static MapToolClient clientFrame;
     private static MapToolServer server;
     private static ServerCommand serverCommand;
@@ -81,6 +82,8 @@ public class MapTool {
 	private static JFileChooser loadFileChooser;
 	private static JFileChooser saveFileChooser;
 
+	private static ServiceAnnouncer announcer;
+	
 	public static void showError(String message) {
 		JOptionPane.showMessageDialog(clientFrame, I18N.getText(message), "Error", JOptionPane.ERROR_MESSAGE);
 	}
@@ -303,6 +306,15 @@ public class MapTool {
         
 		serverPolicy = server.getPolicy();
         setCampaign(null);
+        
+        if (announcer != null) {
+        	announcer.stop();
+        }
+        // Don't announce personal servers
+        if (!config.isPersonalServer()) {
+	        announcer = new ServiceAnnouncer(getPlayer().getName(), server.getConfig().getPort(), AppConstants.SERVICE_GROUP);
+	        announcer.start();
+        }
 	}
 	
 	public static void stopServer() {
@@ -403,6 +415,11 @@ public class MapTool {
 
     public static void disconnect() {
 
+    	if (announcer != null) {
+    		announcer.stop();
+    		announcer = null;
+    	}
+    	
         if (conn == null || !conn.isAlive()) {
             return;
         }
