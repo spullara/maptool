@@ -112,7 +112,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
     protected void attachTo(ZoneRenderer renderer) {
     	this.renderer = renderer;
     }
-
+    
     @Override
     protected void detachFrom(ZoneRenderer renderer) {
     	this.renderer = null;
@@ -414,10 +414,14 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 						
 						Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
 						
-						for (GUID token : selectedTokenSet) {
+						for (GUID tokenGUID : selectedTokenSet) {
 							
-                            renderer.getZone().removeToken(token);
-                            MapTool.serverCommand().removeToken(renderer.getZone().getId(), token);
+							Token token = renderer.getZone().getToken(tokenGUID);
+							
+							if (MapTool.getServerPolicy().useStrictTokenManagement() && token.isOwner(MapTool.getPlayer().getName())) {
+	                            renderer.getZone().removeToken(tokenGUID);
+	                            MapTool.serverCommand().removeToken(renderer.getZone().getId(), tokenGUID);
+							}
 						}
 						
 						renderer.clearSelectedTokens();
