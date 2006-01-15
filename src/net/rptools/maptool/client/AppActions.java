@@ -617,7 +617,7 @@ public class AppActions {
 					try {
 						ServerDisconnectHandler.disconnectExpected = true;
 						MapTool.stopServer();
-						MapTool.startServer(new ServerConfig(dialog.getGMPassword(), dialog.getPlayerPassword(), dialog.getPort()), policy, campaign);
+						MapTool.startServer(dialog.getUsername(), new ServerConfig(dialog.getGMPassword(), dialog.getPlayerPassword(), dialog.getPort()), policy, campaign);
 
 						// Connect to server
 						MapTool.createConnection("localhost", dialog.getPort(), new Player(

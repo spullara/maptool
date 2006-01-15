@@ -15,6 +15,7 @@ public class ConnectToServerDialogPreferences {
     private static final String KEY_HOST = "host";
     private static final String KEY_PORT = "port";
     private static final String KEY_PASSWORD = "password";
+    private static final String KEY_TAB = "tab";
     
     public String getUsername() {
     	return prefs.get(KEY_USERNAME, "");
@@ -54,5 +55,13 @@ public class ConnectToServerDialogPreferences {
     
     public String getPassword() {
     	return prefs.get(KEY_PASSWORD, "");
+    }
+
+    public int getTab() {
+    	return prefs.getInt(KEY_TAB, 0);
+    }
+    
+    public void setTab(int tab) {
+    	prefs.putInt(KEY_TAB, tab);
     }
 }

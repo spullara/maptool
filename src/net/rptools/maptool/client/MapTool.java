@@ -292,7 +292,7 @@ public class MapTool {
     	serverPolicy = policy;
     }
     
-	public static void startServer(ServerConfig config, ServerPolicy policy, Campaign campaign) throws IOException {
+	public static void startServer(String id, ServerConfig config, ServerPolicy policy, Campaign campaign) throws IOException {
 		
 		if (server != null) {
 			Thread.dumpStack();
@@ -312,8 +312,9 @@ public class MapTool {
         }
         // Don't announce personal servers
         if (!config.isPersonalServer()) {
-	        announcer = new ServiceAnnouncer(getPlayer().getName(), server.getConfig().getPort(), AppConstants.SERVICE_GROUP);
+	        announcer = new ServiceAnnouncer(id, server.getConfig().getPort(), AppConstants.SERVICE_GROUP);
 	        announcer.start();
+	        System.out.println("Starting server with ID: " + id);
         }
 	}
 	
@@ -364,7 +365,7 @@ public class MapTool {
 	public static void startPersonalServer(Campaign campaign) throws IOException {
 		
 		ServerConfig config = ServerConfig.createPersonalServerConfig();
-		MapTool.startServer(config, new ServerPolicy(), campaign);
+		MapTool.startServer(null, config, new ServerPolicy(), campaign);
 
 		String username = System.getProperty("user.name", "Player");
 		
