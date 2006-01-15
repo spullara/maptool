@@ -521,11 +521,26 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
     	JPopupMenu popup = new JPopupMenu();
     	final ZoneRenderer renderer = (ZoneRenderer)e.getSource();
     	
+    	boolean enabled = true;
+    	if (MapTool.getServerPolicy().useStrictTokenManagement()) {
+    		for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
+    			Token token = renderer.getZone().getToken(tokenGUID);
+    			
+    			if (!token.isOwner(MapTool.getPlayer().getName())) {
+    				enabled = false;
+    				break;
+    			}
+    		}
+    	}
+    	
     	// SIZE
     	// TODO: Genericize the heck out of this.
     	JMenu sizeMenu = new JMenu("Size");
+    	sizeMenu.setEnabled(enabled);
+    	
     	JMenuItem freeSize = new JMenuItem("Free Size");
     	freeSize.setEnabled(false);
+    	
         sizeMenu.add(freeSize);
         sizeMenu.addSeparator();
         
@@ -539,10 +554,12 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         boolean snapToGrid = !tokenUnderMouse.isSnapToGrid();
         JCheckBoxMenuItem checkboxMenuItem = new JCheckBoxMenuItem("placeholder", !snapToGrid); 
         checkboxMenuItem.setAction(new SnapToGridAction(snapToGrid, renderer));
+        checkboxMenuItem.setEnabled(enabled);
         popup.add(checkboxMenuItem);
 
         // Visibility
         checkboxMenuItem = new JCheckBoxMenuItem("Visible", tokenUnderMouse.isVisible());
+        checkboxMenuItem.setEnabled(enabled);
         // TODO: Make this an action, not aic
         checkboxMenuItem.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
@@ -569,6 +586,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         // TODO: Make this an action, not aic
         if (renderer.getSelectedTokenSet().size() == 1) {
         	JMenuItem menuItem = new JMenuItem("Rename");
+        	menuItem.setEnabled(enabled);
 
             menuItem.addActionListener(new ActionListener() {
             	public void actionPerformed(ActionEvent e) {
@@ -590,6 +608,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         
         // Arrange
         JMenu arrangeMenu = new JMenu("Arrange");
+        arrangeMenu.setEnabled(enabled);
         JMenuItem bringToFrontMenuItem = new JMenuItem("Bring to Front");
         bringToFrontMenuItem.addActionListener(new ActionListener() {
         
@@ -619,6 +638,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         
         // Create the state menu
         JMenu stateMenu = I18N.createMenu("defaultTool.stateMenu");
+        stateMenu.setEnabled(enabled);
         ButtonGroup group = new ButtonGroup();
         createStateItem("clear", group, stateMenu).setSelected(true);
         for (String state : TokenStates.getStates()) {
