@@ -1004,6 +1004,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	        if (AppState.isDropTokenAsInvisible()) {
 	        	token.setVisible(false);
 	        }
+
+	        if (MapTool.getServerPolicy().useStrictTokenManagement() && !MapTool.getPlayer().isGM()) {
+	        	token.addOwner(MapTool.getPlayer().getName());
+	        }
 	        
 	        zone.putToken(token);
 
