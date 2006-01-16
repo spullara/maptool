@@ -535,7 +535,6 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 	////
 	// ANNOUNCEMENT LISTENER
 	public void serviceAnnouncement(String type, InetAddress address, int port, byte[] data) {
-		System.out.println (data + " - " + address + " - " + port);
 		((DefaultListModel)getServerList().getModel()).addElement(new ServerInfo(new String(data), address, port));
 	}
 
