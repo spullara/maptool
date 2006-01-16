@@ -774,7 +774,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     		if (rect.intersects(bounds)) {
     			Token token = zone.getToken(tokenBoundsMap.get(bounds).getId());
     			if (MapTool.getServerPolicy().useStrictTokenManagement() && 
-    					!MapTool.getPlayer().isGM() && token.isOwner(MapTool.getPlayer().getName())) {
+    					(MapTool.getPlayer().isGM() || token.isOwner(MapTool.getPlayer().getName()))) {
         			selectedTokenSet.add(token.getId());
     			}
     		}
