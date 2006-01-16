@@ -25,7 +25,9 @@
 package net.rptools.maptool.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.rptools.lib.MD5Key;
@@ -52,7 +54,10 @@ public class Token {
     private boolean                             isVisible    = true;
     private String                              name;
 
-    private List<String>                        ownerList;
+    private Set<String>                         ownerList;
+    private int 								ownerType;
+    private static final int OWNER_TYPE_ALL = 1;
+    private static final int OWNER_TYPE_LIST = 0;
     
     /**
      * A state property for this token. It is used during rendering to determine if a token
@@ -83,7 +88,7 @@ public class Token {
         name = token.name;
         
         if (ownerList != null) {
-        	ownerList = new ArrayList<String>();
+        	ownerList = new HashSet<String>();
         	ownerList.addAll(token.ownerList);
         }
     }
@@ -105,14 +110,16 @@ public class Token {
     }
     
     public synchronized void addOwner(String playerId) {
+    	ownerType = OWNER_TYPE_LIST;
     	if (ownerList == null) {
-    		ownerList = new ArrayList<String>();
+    		ownerList = new HashSet<String>();
     	}
     	
     	ownerList.add(playerId);
     }
     
     public synchronized void removeOwner(String playerId) {
+    	ownerType = OWNER_TYPE_LIST;
     	if (ownerList == null) {
     		return;
     	}
@@ -124,8 +131,22 @@ public class Token {
     	}
     }
     
+    public synchronized void setAllOwners() {
+    	ownerType = OWNER_TYPE_ALL;
+    	ownerList = null;
+    }
+    
+    public boolean isOwnedByAll() {
+    	return ownerType == OWNER_TYPE_ALL;
+    }
+    
+    public synchronized void clearAllOwners() {
+    	ownerList = null;
+    	ownerType = OWNER_TYPE_LIST;
+    }
+    
     public synchronized boolean isOwner(String playerId) {
-    	return ownerList != null && ownerList.contains(playerId);
+    	return ownerType == OWNER_TYPE_ALL || (ownerList != null && ownerList.contains(playerId));
     }
 
     public boolean equals(Object o) {

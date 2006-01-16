@@ -314,7 +314,6 @@ public class MapTool {
         if (!config.isPersonalServer()) {
 	        announcer = new ServiceAnnouncer(id, server.getConfig().getPort(), AppConstants.SERVICE_GROUP);
 	        announcer.start();
-	        System.out.println("Starting server with ID: " + id);
         }
 	}
 	
