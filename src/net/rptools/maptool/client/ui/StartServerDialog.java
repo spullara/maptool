@@ -405,7 +405,7 @@ public class StartServerDialog extends JDialog {
 	private JCheckBox getStrictTokenMovementCheckBox() {
 		if (strictTokenMovementCheckBox == null) {
 			strictTokenMovementCheckBox = new JCheckBox();
-			strictTokenMovementCheckBox.setText("Strict Token Ownership");
+			strictTokenMovementCheckBox.setText("Strict Token Management");
 		}
 		return strictTokenMovementCheckBox;
 	}

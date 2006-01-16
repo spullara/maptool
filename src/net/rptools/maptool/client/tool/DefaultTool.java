@@ -662,7 +662,22 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         if (MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
 	        JMenu ownerMenu = I18N.createMenu("defaultTool.ownerMenu");
 	        
-        	final Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
+	        final Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
+
+	        JCheckBoxMenuItem allMenuItem = new JCheckBoxMenuItem("All");
+	        allMenuItem.addActionListener(new ActionListener() {
+	        	public void actionPerformed(ActionEvent e) {
+		        	for (GUID tokenGUID : selectedTokenSet) {
+		        		Token token = renderer.getZone().getToken(tokenGUID);
+		        		if (token != null) {
+		        			token.setAllOwners();
+		        			MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+		        		}
+		        	}
+	        	}
+	        });
+	        ownerMenu.add(allMenuItem);
+
 	        JMenuItem removeAllMenuItem = new JMenuItem("Remove All");
 	        removeAllMenuItem.addActionListener(new ActionListener() {
 	        		
@@ -677,20 +692,6 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	        	}
 	        });
 	        ownerMenu.add(removeAllMenuItem);
-	        
-	        JCheckBoxMenuItem allMenuItem = new JCheckBoxMenuItem("All");
-	        allMenuItem.addActionListener(new ActionListener() {
-	        	public void actionPerformed(ActionEvent e) {
-		        	for (GUID tokenGUID : selectedTokenSet) {
-		        		Token token = renderer.getZone().getToken(tokenGUID);
-		        		if (token != null) {
-		        			token.setAllOwners();
-		        			MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
-		        		}
-		        	}
-	        	}
-	        });
-	        ownerMenu.add(allMenuItem);
 	        ownerMenu.add(new JSeparator());
 	        
 	        int playerCount = 0;
