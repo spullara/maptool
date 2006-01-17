@@ -58,6 +58,7 @@ import javax.swing.KeyStroke;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppState;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
@@ -754,12 +755,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	return selectedTokenSet;
     }
     
-    public void selectToken(GUID token) {
-        if (token == null) {
+    public void selectToken(GUID tokenGUID) {
+        if (tokenGUID == null) {
             return;
         }
+ 
+        Token token = zone.getToken(tokenGUID);
+        if (token == null) {
+        	return;
+        }
         
-    	selectedTokenSet.add(token);
+        if (!AppUtil.playerOwnsToken(token)) {
+        	return;
+        }
+        
+    	selectedTokenSet.add(tokenGUID);
     	
     	repaint();
     }
@@ -772,15 +782,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	
     	for (Rectangle bounds : tokenBoundsMap.keySet()) {
     		if (rect.intersects(bounds)) {
-    			Token token = zone.getToken(tokenBoundsMap.get(bounds).getId());
-    			if (MapTool.getServerPolicy().useStrictTokenManagement() && 
-    					(MapTool.getPlayer().isGM() || token.isOwner(MapTool.getPlayer().getName()))) {
-        			selectedTokenSet.add(token.getId());
-    			}
+    			selectToken(tokenBoundsMap.get(bounds).getId());
     		}
     	}
-    	
-    	repaint();
     }
     
     public void clearSelectedTokens() {

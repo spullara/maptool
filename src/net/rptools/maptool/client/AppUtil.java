@@ -26,6 +26,9 @@ package net.rptools.maptool.client;
 
 import java.io.File;
 
+import net.rptools.maptool.model.Player;
+import net.rptools.maptool.model.Token;
+
 public class AppUtil {
 
     private static final String USER_HOME;
@@ -56,5 +59,15 @@ public class AppUtil {
         home.mkdirs();
         
         return home;
+    }
+    
+    public static boolean playerOwnsToken(Token token) {
+
+    	Player player = MapTool.getPlayer();
+    	
+    	if (player.isGM()) {return true;}
+    	if (!MapTool.getServerPolicy().useStrictTokenManagement()) {return true;}
+        
+    	return token.isOwner(player.getName());
     }
 }

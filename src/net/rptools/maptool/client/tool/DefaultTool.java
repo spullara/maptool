@@ -61,6 +61,7 @@ import javax.swing.SwingUtilities;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppState;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
@@ -134,7 +135,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			if (token != null) {
 
 				// Permission
-				if (MapTool.getServerPolicy().useStrictTokenManagement() && !MapTool.getPlayer().isGM() && !token.isOwner(MapTool.getPlayer().getName())) {
+				if (!AppUtil.playerOwnsToken(token)) {
 					return;
 				}
 				
@@ -238,15 +239,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         Token token = renderer.getTokenAt(e.getX(), e.getY());
         if (token != null && SwingUtilities.isLeftMouseButton(e) && !isDraggingToken && !SwingUtil.isShiftDown(e)) {
 
-        	// Permission to select
-        	if (!MapTool.getServerPolicy().useStrictTokenManagement() || MapTool.getPlayer().isGM() || token.isOwner(MapTool.getPlayer().getName())){
-        		
-        		// Only if it isn't already being moved
-				if (!renderer.isTokenMoving(token)) {
-		        	renderer.clearSelectedTokens();
-		        	renderer.selectToken(token.getId());
-				}
-        	}
+    		// Only if it isn't already being moved
+			if (!renderer.isTokenMoving(token)) {
+	        	renderer.clearSelectedTokens();
+	        	renderer.selectToken(token.getId());
+			}
         }
 	}
 	
@@ -343,6 +340,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			if (selectedTokenSet.size() > 0) {
 				
 				// Make sure we can do this
+				// LATER: This might be able to be removed since you can't 
+				// select an unowned token, check later
 				if (!MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
 					for (GUID tokenGUID : selectedTokenSet) {
 						Token token = renderer.getZone().getToken(tokenGUID);
@@ -429,7 +428,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 							
 							Token token = renderer.getZone().getToken(tokenGUID);
 							
-							if (MapTool.getServerPolicy().useStrictTokenManagement() && token.isOwner(MapTool.getPlayer().getName())) {
+							if (AppUtil.playerOwnsToken(token)) {
 	                            renderer.getZone().removeToken(tokenGUID);
 	                            MapTool.serverCommand().removeToken(renderer.getZone().getId(), tokenGUID);
 							}
@@ -662,8 +661,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         if (MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
 	        JMenu ownerMenu = I18N.createMenu("defaultTool.ownerMenu");
 	        
-	        final Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
-
+        	final Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
+        	
 	        JCheckBoxMenuItem allMenuItem = new JCheckBoxMenuItem("All");
 	        allMenuItem.addActionListener(new ActionListener() {
 	        	public void actionPerformed(ActionEvent e) {
