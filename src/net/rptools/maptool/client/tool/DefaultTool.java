@@ -136,6 +136,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 
 				// Permission
 				if (!AppUtil.playerOwnsToken(token)) {
+					if (!SwingUtil.isShiftDown(e)) {
+						renderer.clearSelectedTokens();
+					}
 					return;
 				}
 				
@@ -320,7 +323,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 				return;
 			}
 			
-			if (tokenUnderMouse == null) {
+			if (tokenUnderMouse == null || !renderer.getSelectedTokenSet().contains(tokenUnderMouse.getId())) {
 				return;
 			}
 
