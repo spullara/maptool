@@ -3,6 +3,7 @@ package net.rptools.maptool.client.ui;
 import java.util.prefs.Preferences;
 
 import net.rptools.maptool.client.AppConstants;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.server.ServerConfig;
 
 public class StartServerDialogPreferences {
@@ -10,7 +11,7 @@ public class StartServerDialogPreferences {
     private static Preferences prefs = Preferences.userRoot().node(AppConstants.APP_NAME + "/prefs/server");        
 
     private static final String KEY_USERNAME = "name";
-    //private static final String KEY_ROLE = "role";
+    private static final String KEY_ROLE = "role";
     private static final String KEY_PORT = "port";
     private static final String KEY_GM_PASSWORD = "gmPassword";
     private static final String KEY_PLAYER_PASSWORD = "playerPassword";
@@ -18,6 +19,14 @@ public class StartServerDialogPreferences {
     private static final String KEY_USE_PLAYER_PASSWORD = "usePlayerPassword";
     private static final String KEY_STRICT_TOKEN_MOVEMENT = "strictTokenMovement";
     
+    public int getRole () {
+    	return prefs.getInt(KEY_ROLE, Player.Role.GM);
+    }
+    
+    public void setRole(int role) {
+    	prefs.putInt(KEY_ROLE, role);
+    }
+
     public String getUsername() {
     	return prefs.get(KEY_USERNAME, "");
     }

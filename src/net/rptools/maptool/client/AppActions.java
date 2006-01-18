@@ -78,6 +78,7 @@ import net.rptools.maptool.util.PersistenceUtil;
 public class AppActions {
 
 	private static Set<Token> tokenCopySet = null;
+
 	public static final Action COPY_TOKENS = new DefaultClientAction() {
 		{
 			init("action.copyTokens");
@@ -85,21 +86,21 @@ public class AppActions {
 
 		@Override
 		public boolean isAvailable() {
-			return super.isAvailable() && MapTool.getFrame().getCurrentZoneRenderer() != null;
+			return super.isAvailable()
+					&& MapTool.getFrame().getCurrentZoneRenderer() != null;
 		}
-		
+
 		public void execute(ActionEvent e) {
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			Zone zone = renderer.getZone();
 			Set<GUID> selectedSet = renderer.getSelectedTokenSet();
-			
+
 			Integer top = null;
 			Integer left = null;
 			tokenCopySet = new HashSet<Token>();
 			for (GUID guid : selectedSet) {
 				Token token = zone.getToken(guid);
-
 
 				if (top == null || token.getY() < top) {
 					top = token.getY();
@@ -107,10 +108,10 @@ public class AppActions {
 				if (left == null || token.getX() < left) {
 					left = token.getX();
 				}
-				
+
 				tokenCopySet.add(new Token(token));
 			}
-			
+
 			// Normalize
 			for (Token token : tokenCopySet) {
 				token.setX(token.getX() - left);
@@ -119,23 +120,25 @@ public class AppActions {
 		}
 
 	};
-	
-	private static final Pattern NAME_PATTERN = Pattern.compile("^(\\D*)(\\d+)$");
+
+	private static final Pattern NAME_PATTERN = Pattern
+			.compile("^(\\D*)(\\d+)$");
+
 	public static final Action PASTE_TOKENS = new DefaultClientAction() {
 		{
 			init("action.pasteTokens");
 		}
-		
+
 		@Override
 		public boolean isAvailable() {
 			return super.isAvailable() && tokenCopySet != null;
 		}
-		
+
 		public void execute(ActionEvent e) {
-		
+
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			Zone zone = renderer.getZone();
-			
+
 			ScreenPoint screenPoint = renderer.getPointUnderMouse();
 			if (screenPoint == null) {
 				return;
@@ -147,20 +150,25 @@ public class AppActions {
 					snapToGrid = true;
 				}
 			}
-			
+
 			ZonePoint zonePoint = screenPoint.convertToZone(renderer);
 			if (snapToGrid) {
-				// LATER: For some freaky reason, row -1 and column -1 don't work correctly
+				// LATER: For some freaky reason, row -1 and column -1 don't
+				// work correctly
 				CellPoint cellPoint = zonePoint.convertToCell(renderer);
-				if (cellPoint.x < 0) {cellPoint.x--;}
-				if (cellPoint.y < 0) {cellPoint.y--;}
+				if (cellPoint.x < 0) {
+					cellPoint.x--;
+				}
+				if (cellPoint.y < 0) {
+					cellPoint.y--;
+				}
 				zonePoint = cellPoint.convertToZone(renderer);
 			}
-			
+
 			for (Token origToken : tokenCopySet) {
-				
+
 				Token token = new Token(origToken);
-				
+
 				token.setX(token.getX() + zonePoint.x);
 				token.setY(token.getY() + zonePoint.y);
 
@@ -170,24 +178,24 @@ public class AppActions {
 				if (m.find()) {
 					name = m.group(1);
 					int num = Integer.parseInt(m.group(2)) + 1;
-					
+
 					// Find the next available token number, this
 					// has to break at some point.
 					while (zone.getTokenByName(name + num) != null) {
-						num ++;
+						num++;
 					}
-					
+
 					name += num;
 				} else {
 					name += "1";
 				}
-					
+
 				token.setName(name);
-				
+
 				zone.putToken(token);
-	            MapTool.serverCommand().putToken(zone.getId(), token);
+				MapTool.serverCommand().putToken(zone.getId(), token);
 			}
-			
+
 			renderer.repaint();
 		}
 	};
@@ -226,12 +234,13 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 
 			AppState.setPlayerViewLinked(!AppState.isPlayerViewLinked());
-            if (AppState.isPlayerViewLinked()) {
-            	ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-    			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(),
-    					renderer.getViewOffsetX(), renderer.getViewOffsetY(),
-    					renderer.getScaleIndex());
-            }
+			if (AppState.isPlayerViewLinked()) {
+				ZoneRenderer renderer = MapTool.getFrame()
+						.getCurrentZoneRenderer();
+				MapTool.serverCommand().enforceZoneView(
+						renderer.getZone().getId(), renderer.getViewOffsetX(),
+						renderer.getViewOffsetY(), renderer.getScaleIndex());
+			}
 		}
 
 	};
@@ -240,13 +249,13 @@ public class AppActions {
 		{
 			init("action.removeZone");
 		}
-		
+
 		public void execute(ActionEvent e) {
 
 			if (!MapTool.confirm("msg.confirm.removeZone")) {
 				return;
 			}
-			
+
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			MapTool.serverCommand().removeZone(renderer.getZone().getId());
 			MapTool.getFrame().removeZoneRenderer(renderer);
@@ -265,12 +274,17 @@ public class AppActions {
 			runBackground(new Runnable() {
 				public void run() {
 
-					Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
-					Color newColor = JColorChooser.showDialog(MapTool.getFrame(), "Choose Zone Grid Color", new Color(zone.getGridColor()));					
+					Zone zone = MapTool.getFrame().getCurrentZoneRenderer()
+							.getZone();
+					Color newColor = JColorChooser.showDialog(MapTool
+							.getFrame(), "Choose Zone Grid Color", new Color(
+							zone.getGridColor()));
 					if (newColor != null) {
 						zone.setGridColor(newColor.getRGB());
-				        MapTool.serverCommand().setZoneGridSize(zone.getId(), zone.getGridOffsetX(), zone.getGridOffsetY(), zone.getGridSize(), zone.getGridColor());
-				        MapTool.getFrame().getCurrentZoneRenderer().repaint();
+						MapTool.serverCommand().setZoneGridSize(zone.getId(),
+								zone.getGridOffsetX(), zone.getGridOffsetY(),
+								zone.getGridSize(), zone.getGridColor());
+						MapTool.getFrame().getCurrentZoneRenderer().repaint();
 					}
 				}
 			});
@@ -278,7 +292,6 @@ public class AppActions {
 
 	};
 
-	
 	public static final Action SHOW_ABOUT = new DefaultClientAction() {
 		{
 			init("action.showAboutDialog");
@@ -310,45 +323,51 @@ public class AppActions {
 
 	};
 
-  /**
-   * Start entering text into the chat field
-   */
-  public static final String ENTER_COMMAND_ID = "action.runMacro";
-  public static final Action ENTER_COMMAND = new DefaultClientAction() {
-    {
-      init(ENTER_COMMAND_ID);
-    }
-    public void execute(ActionEvent e) {
-      MapTool.getFrame().getCommandPanel().startCommand();
-    }
-  };
+	/**
+	 * Start entering text into the chat field
+	 */
+	public static final String ENTER_COMMAND_ID = "action.runMacro";
 
-  /**
-   * Action tied to the chat field to commit the command.
-   */
-  public static final String COMMIT_COMMAND_ID = "action.commitCommand";
-  public static final Action COMMIT_COMMAND = new DefaultClientAction() {
-    {
-      init(COMMIT_COMMAND_ID);
-    }
-    public void execute(ActionEvent e) {
-      MapTool.getFrame().getCommandPanel().commitCommand();
-    }
-  };
+	public static final Action ENTER_COMMAND = new DefaultClientAction() {
+		{
+			init(ENTER_COMMAND_ID);
+		}
 
-  /**
-   * Action tied to the chat field to commit the command.
-   */
-  public static final String CANCEL_COMMAND_ID = "action.cancelCommand";
-  public static final Action CANCEL_COMMAND = new DefaultClientAction() {
-    {
-      init(CANCEL_COMMAND_ID);
-    }
-    public void execute(ActionEvent e) {
-      MapTool.getFrame().getCommandPanel().cancelCommand();
-    }
-  };
-  
+		public void execute(ActionEvent e) {
+			MapTool.getFrame().getCommandPanel().startCommand();
+		}
+	};
+
+	/**
+	 * Action tied to the chat field to commit the command.
+	 */
+	public static final String COMMIT_COMMAND_ID = "action.commitCommand";
+
+	public static final Action COMMIT_COMMAND = new DefaultClientAction() {
+		{
+			init(COMMIT_COMMAND_ID);
+		}
+
+		public void execute(ActionEvent e) {
+			MapTool.getFrame().getCommandPanel().commitCommand();
+		}
+	};
+
+	/**
+	 * Action tied to the chat field to commit the command.
+	 */
+	public static final String CANCEL_COMMAND_ID = "action.cancelCommand";
+
+	public static final Action CANCEL_COMMAND = new DefaultClientAction() {
+		{
+			init(CANCEL_COMMAND_ID);
+		}
+
+		public void execute(ActionEvent e) {
+			MapTool.getFrame().getCommandPanel().cancelCommand();
+		}
+	};
+
 	public static final Action RANDOMLY_ADD_LAST_ASSET = new DeveloperClientAction() {
 		{
 			init("action.debug.duplicateLastIcon");
@@ -377,9 +396,11 @@ public class AppActions {
 
 		@Override
 		public boolean isAvailable() {
-			return super.isAvailable() && MapTool.getFrame().getCurrentZoneRenderer().getZone().getType() != Zone.Type.INFINITE;
+			return super.isAvailable()
+					&& MapTool.getFrame().getCurrentZoneRenderer().getZone()
+							.getType() != Zone.Type.INFINITE;
 		}
-		
+
 		public void execute(ActionEvent e) {
 
 			if (MapTool.getFrame().getCurrentZoneRenderer().getZone().getType() == Zone.Type.INFINITE) {
@@ -439,7 +460,11 @@ public class AppActions {
 			init("action.showNames");
 			putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
 			try {
-				putValue(Action.SMALL_ICON,	new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/names.png")));
+				putValue(
+						Action.SMALL_ICON,
+						new ImageIcon(
+								ImageUtil
+										.getImage("net/rptools/maptool/client/image/names.png")));
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
@@ -455,7 +480,7 @@ public class AppActions {
 	public static final Action TOGGLE_CURRENT_ZONE_VISIBILITY = new ZoneAdminClientAction() {
 
 		{
-            init("action.hideMap");
+			init("action.hideMap");
 		}
 
 		public void execute(ActionEvent e) {
@@ -478,9 +503,13 @@ public class AppActions {
 
 	public static final Action TOGGLE_NEW_ZONE_VISIBILITY = new AdminClientAction() {
 		{
-            init("action.autohideNewMaps");
+			init("action.autohideNewMaps");
 			try {
-				putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/zoneVisible.png")));
+				putValue(
+						Action.SMALL_ICON,
+						new ImageIcon(
+								ImageUtil
+										.getImage("net/rptools/maptool/client/image/zoneVisible.png")));
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
@@ -494,9 +523,13 @@ public class AppActions {
 
 	public static final Action TOGGLE_DROP_INVISIBLE = new AdminClientAction() {
 		{
-            init("action.autohideNewIcons");
+			init("action.autohideNewIcons");
 			try {
-				putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/icon_invisible.png")));
+				putValue(
+						Action.SMALL_ICON,
+						new ImageIcon(
+								ImageUtil
+										.getImage("net/rptools/maptool/client/image/icon_invisible.png")));
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
@@ -504,13 +537,14 @@ public class AppActions {
 		}
 
 		public void execute(ActionEvent e) {
-			AppState.setDropTokenAsInvisible(!AppState.isDropTokenAsInvisible());
+			AppState
+					.setDropTokenAsInvisible(!AppState.isDropTokenAsInvisible());
 		}
 	};
 
 	public static final Action NEW_CAMPAIGN = new AdminClientAction() {
 		{
-            init("action.newCampaign");
+			init("action.newCampaign");
 		}
 
 		public void execute(ActionEvent e) {
@@ -526,7 +560,7 @@ public class AppActions {
 
 	public static final Action ZOOM_IN = new DefaultClientAction() {
 		{
-            init("action.zoomIn");
+			init("action.zoomIn");
 		}
 
 		public void execute(ActionEvent e) {
@@ -540,7 +574,7 @@ public class AppActions {
 
 	public static final Action ZOOM_OUT = new DefaultClientAction() {
 		{
-            init("action.zoomOut");
+			init("action.zoomOut");
 		}
 
 		public void execute(ActionEvent e) {
@@ -554,7 +588,7 @@ public class AppActions {
 
 	public static final Action ZOOM_RESET = new DefaultClientAction() {
 		{
-            init("action.zoom100");
+			init("action.zoom100");
 		}
 
 		public void execute(ActionEvent e) {
@@ -567,7 +601,7 @@ public class AppActions {
 
 	public static final Action TOGGLE_ZONE_SELECTOR = new DefaultClientAction() {
 		{
-            init("action.showMapSelector");
+			init("action.showMapSelector");
 		}
 
 		public void execute(ActionEvent e) {
@@ -581,14 +615,14 @@ public class AppActions {
 
 	public static final Action START_SERVER = new ClientAction() {
 		{
-            init("action.serverStart");
+			init("action.serverStart");
 		}
 
 		@Override
 		public boolean isAvailable() {
 			return MapTool.isPersonalServer();
 		}
-		
+
 		public void execute(ActionEvent e) {
 
 			runBackground(new Runnable() {
@@ -607,8 +641,9 @@ public class AppActions {
 					if (dialog.getOption() == StartServerDialog.OPTION_CANCEL) {
 						return;
 					}
-					
-					ServerPolicy policy = new ServerPolicy(dialog.useStrictTokenMovement());
+
+					ServerPolicy policy = new ServerPolicy(dialog
+							.useStrictTokenMovement());
 
 					// Use the existing campaign
 					Campaign campaign = MapTool.getCampaign();
@@ -617,19 +652,29 @@ public class AppActions {
 					try {
 						ServerDisconnectHandler.disconnectExpected = true;
 						MapTool.stopServer();
-						MapTool.startServer(dialog.getUsername(), new ServerConfig(dialog.getGMPassword(), dialog.getPlayerPassword(), dialog.getPort()), policy, campaign);
+						MapTool
+								.startServer(dialog.getUsername(),
+										new ServerConfig(
+												dialog.getGMPassword(), dialog
+														.getPlayerPassword(),
+												dialog.getPort()), policy,
+										campaign);
 
 						// Connect to server
-						MapTool.createConnection("localhost", dialog.getPort(), new Player(
-								dialog.getUsername(), Player.Role.GM, dialog.getGMPassword()));
+						MapTool.createConnection("localhost", dialog.getPort(),
+								new Player(dialog.getUsername(), dialog
+										.getRole(), dialog.getGMPassword()));
 
 						// connecting
-						MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
+						MapTool.getFrame().getConnectionStatusPanel()
+								.setStatus(ConnectionStatusPanel.Status.server);
 					} catch (UnknownHostException uh) {
-						MapTool.showError("Whoah, 'localhost' is not a valid address.  Weird.");
+						MapTool
+								.showError("Whoah, 'localhost' is not a valid address.  Weird.");
 						failed = true;
 					} catch (IOException ioe) {
-						MapTool.showError("Could not connect to server: "
+						MapTool
+								.showError("Could not connect to server: "
 										+ ioe);
 						failed = true;
 					}
@@ -638,10 +683,11 @@ public class AppActions {
 						try {
 							MapTool.startPersonalServer(campaign);
 						} catch (IOException ioe) {
-							MapTool.showError("Could not restart personal server");
+							MapTool
+									.showError("Could not restart personal server");
 						}
 					}
-					
+
 					MapTool.serverCommand().setCampaign(campaign);
 				}
 			});
@@ -651,14 +697,14 @@ public class AppActions {
 
 	public static final Action CONNECT_TO_SERVER = new ClientAction() {
 		{
-            init("action.clientConnect");
+			init("action.clientConnect");
 		}
 
 		@Override
 		public boolean isAvailable() {
 			return MapTool.isPersonalServer();
 		}
-		
+
 		public void execute(ActionEvent e) {
 
 			boolean failed = false;
@@ -678,12 +724,13 @@ public class AppActions {
 				MapTool.stopServer();
 
 				MapTool.createConnection(dialog.getServer(), dialog.getPort(),
-						new Player(dialog.getUsername(), dialog.getRole(), dialog.getPassword()));
+						new Player(dialog.getUsername(), dialog.getRole(),
+								dialog.getPassword()));
 
 				// connecting
 				MapTool.getFrame().getConnectionStatusPanel().setStatus(
 						ConnectionStatusPanel.Status.connected);
-				
+
 			} catch (UnknownHostException e1) {
 				MapTool.showError("Unknown host");
 				failed = true;
@@ -706,25 +753,27 @@ public class AppActions {
 	public static final Action DISCONNECT_FROM_SERVER = new ClientAction() {
 
 		{
-            init("action.clientDisconnect");
+			init("action.clientDisconnect");
 		}
 
 		@Override
 		public boolean isAvailable() {
 			return !MapTool.isPersonalServer();
 		}
-		
+
 		public void execute(ActionEvent e) {
 
-			if (MapTool.isHostingServer() && !MapTool.confirm("msg.confirm.hostingDisconnect")) {
+			if (MapTool.isHostingServer()
+					&& !MapTool.confirm("msg.confirm.hostingDisconnect")) {
 				return;
 			}
 
-			Campaign campaign = MapTool.isHostingServer() ? MapTool.getCampaign() : new Campaign();
+			Campaign campaign = MapTool.isHostingServer() ? MapTool
+					.getCampaign() : new Campaign();
 			ServerDisconnectHandler.disconnectExpected = true;
 			MapTool.stopServer();
 			MapTool.disconnect();
-			
+
 			try {
 				MapTool.startPersonalServer(campaign);
 			} catch (IOException ioe) {
@@ -734,9 +783,14 @@ public class AppActions {
 
 	};
 
-	public static final Action LOAD_CAMPAIGN = new AdminClientAction() {
+	public static final Action LOAD_CAMPAIGN = new DefaultClientAction() {
 		{
-            init("action.loadCampaign");
+			init("action.loadCampaign");
+		}
+
+		@Override
+		public boolean isAvailable() {
+			return MapTool.isHostingServer();
 		}
 
 		public void execute(ActionEvent ae) {
@@ -766,9 +820,14 @@ public class AppActions {
 
 	public static final Action SAVE_CAMPAIGN = new DefaultClientAction() {
 		{
-            init("action.saveCampaign");
+			init("action.saveCampaign");
 		}
 
+		@Override
+		public boolean isAvailable() {
+			return MapTool.isHostingServer() || MapTool.getPlayer().isGM();
+		}
+		
 		public void execute(ActionEvent ae) {
 
 			Campaign campaign = MapTool.getCampaign();
@@ -791,34 +850,38 @@ public class AppActions {
 	};
 
 	private static final int QUICK_MAP_ICON_SIZE = 25;
+
 	public static class QuickMapAction extends AdminClientAction {
 
 		private Asset asset;
-		
-		public QuickMapAction (String name ,String imagePath) {
-			
+
+		public QuickMapAction(String name, String imagePath) {
+
 			try {
 				asset = new Asset(null, FileUtil.loadResource(imagePath));
-				
+
 				// Make smaller
-				BufferedImage iconImage = new BufferedImage(QUICK_MAP_ICON_SIZE, QUICK_MAP_ICON_SIZE, Transparency.OPAQUE);
+				BufferedImage iconImage = new BufferedImage(
+						QUICK_MAP_ICON_SIZE, QUICK_MAP_ICON_SIZE,
+						Transparency.OPAQUE);
 				BufferedImage image = ImageUtil.getImage(imagePath);
-				
+
 				Graphics2D g = iconImage.createGraphics();
-				g.drawImage(image, 0, 0, QUICK_MAP_ICON_SIZE, QUICK_MAP_ICON_SIZE, null);
+				g.drawImage(image, 0, 0, QUICK_MAP_ICON_SIZE,
+						QUICK_MAP_ICON_SIZE, null);
 				g.dispose();
-				
+
 				putValue(Action.SMALL_ICON, new ImageIcon(iconImage));
 				putValue(Action.NAME, name);
-				
+
 				AssetManager.putAsset(asset);
-				
+
 				// Preloaded
 				ImageManager.getImage(asset, null);
-			} catch(IOException ioe) {
+			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
-            //init("action.newUnboundedMap");
+			getActionList().add(this);
 		}
 
 		public void execute(java.awt.event.ActionEvent e) {
@@ -839,7 +902,7 @@ public class AppActions {
 
 	public static final Action LOAD_MAP = new AdminClientAction() {
 		{
-            init("action.newMap");
+			init("action.newMap");
 		}
 
 		public void execute(java.awt.event.ActionEvent e) {
@@ -847,25 +910,27 @@ public class AppActions {
 			runBackground(new Runnable() {
 
 				public void run() {
-					
-					NewMapDialog newMapDialog = MapTool.getFrame().getNewMapDialog();
+
+					NewMapDialog newMapDialog = MapTool.getFrame()
+							.getNewMapDialog();
 
 					Asset asset = newMapDialog.showDialog();
 					if (asset == null) {
 						return;
 					}
 
-                    // Keep track of the image
-                    if (!AssetManager.hasAsset(asset)) {
-                        AssetManager.putAsset(asset);
-                        MapTool.serverCommand().putAsset(asset);
-                    }
+					// Keep track of the image
+					if (!AssetManager.hasAsset(asset)) {
+						AssetManager.putAsset(asset);
+						MapTool.serverCommand().putAsset(asset);
+					}
 
-                    // Create the zone
-					Zone zone = new Zone(newMapDialog.getZoneType(), asset.getId());
+					// Create the zone
+					Zone zone = new Zone(newMapDialog.getZoneType(), asset
+							.getId());
 					zone.setVisible(AppState.isNewZonesVisible());
-                    zone.setName(newMapDialog.getZoneName());
-                    zone.setFeetPerCell(newMapDialog.getZoneFeetPerCell());
+					zone.setName(newMapDialog.getZoneName());
+					zone.setFeetPerCell(newMapDialog.getZoneFeetPerCell());
 					MapTool.addZone(zone);
 				}
 			});
@@ -874,7 +939,7 @@ public class AppActions {
 
 	public static final Action TOGGLE_ASSET_PANEL = new DefaultClientAction() {
 		{
-            init("action.showInformationPanel");
+			init("action.showInformationPanel");
 		}
 
 		/*
@@ -890,7 +955,7 @@ public class AppActions {
 
 	public static final Action ADD_ASSET_PANEL = new DefaultClientAction() {
 		{
-            init("action.addIconSelector");
+			init("action.addIconSelector");
 		}
 
 		public void execute(ActionEvent e) {
@@ -918,7 +983,7 @@ public class AppActions {
 
 	public static final Action REFRESH_ASSET_PANEL = new DefaultClientAction() {
 		{
-            init("action.refresh");
+			init("action.refresh");
 		}
 
 		public void execute(ActionEvent e) {
@@ -929,7 +994,7 @@ public class AppActions {
 
 	public static final Action EXIT = new DefaultClientAction() {
 		{
-            init("action.exit");
+			init("action.exit");
 		}
 
 		public void execute(ActionEvent ae) {
@@ -939,36 +1004,37 @@ public class AppActions {
 		}
 	};
 
-  /**
-   * Toggle the drawing of measurements.
-   */
-  public static final Action TOGGLE_DRAW_MEASUREMENTS = new DefaultClientAction() {
-    {
-            init("action.toggleDrawMeasuements");
-    }
+	/**
+	 * Toggle the drawing of measurements.
+	 */
+	public static final Action TOGGLE_DRAW_MEASUREMENTS = new DefaultClientAction() {
+		{
+			init("action.toggleDrawMeasuements");
+		}
 
-    public void execute(ActionEvent ae) {
-      MapTool.getFrame().setPaintDrawingMeasurement(!MapTool.getFrame().isPaintDrawingMeasurement());
-    }
-  };
+		public void execute(ActionEvent ae) {
+			MapTool.getFrame().setPaintDrawingMeasurement(
+					!MapTool.getFrame().isPaintDrawingMeasurement());
+		}
+	};
 
 	private static List<ClientAction> actionList;
-	
+
 	private static List<ClientAction> getActionList() {
 		if (actionList == null) {
 			actionList = new ArrayList<ClientAction>();
 		}
-		
+
 		return actionList;
 	}
-	
+
 	public static void updateActions() {
-		
+
 		for (ClientAction action : actionList) {
 			action.setEnabled(action.isAvailable());
 		}
 	}
-	
+
 	private static abstract class ClientAction extends AbstractAction {
 
 		public void init(String key) {
@@ -985,17 +1051,17 @@ public class AppActions {
 			}
 			String description = I18N.getDescription(key);
 			if (description != null) {
-                putValue(SHORT_DESCRIPTION, description);
-            }
+				putValue(SHORT_DESCRIPTION, description);
+			}
 
 			getActionList().add(this);
 		}
 
 		public abstract boolean isAvailable();
-		
+
 		public final void actionPerformed(ActionEvent e) {
 			execute(e);
-			//System.out.println(getValue(Action.NAME));
+			// System.out.println(getValue(Action.NAME));
 			updateActions();
 		}
 
@@ -1010,42 +1076,45 @@ public class AppActions {
 					} finally {
 						MapTool.endIndeterminateAction();
 					}
-					
+
 					updateActions();
 				}
 			}.start();
 		}
 	}
-	
+
 	private static abstract class AdminClientAction extends ClientAction {
-		
+
 		@Override
 		public boolean isAvailable() {
 			return MapTool.getPlayer().isGM();
 		}
 	}
-	
-	private static abstract class ZoneAdminClientAction extends AdminClientAction {
-		
+
+	private static abstract class ZoneAdminClientAction extends
+			AdminClientAction {
+
 		@Override
 		public boolean isAvailable() {
-			return super.isAvailable() && MapTool.getFrame().getCurrentZoneRenderer() != null;
+			return super.isAvailable()
+					&& MapTool.getFrame().getCurrentZoneRenderer() != null;
 		}
 	}
-	
+
 	private static abstract class DefaultClientAction extends ClientAction {
-		
+
 		@Override
 		public boolean isAvailable() {
 			return true;
 		}
 	}
-	
+
 	private static abstract class DeveloperClientAction extends ClientAction {
-		
+
 		@Override
 		public boolean isAvailable() {
-			return System.getProperty("MAPTOOL_DEV") != null && "true".equals(System.getProperty("MAPTOOL_DEV"));
+			return System.getProperty("MAPTOOL_DEV") != null
+					&& "true".equals(System.getProperty("MAPTOOL_DEV"));
 		}
 	}
 }

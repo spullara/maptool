@@ -40,6 +40,7 @@ import javax.swing.JTextField;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
+import javax.swing.JComboBox;
 /**
  * @author trevor
  */
@@ -67,6 +68,8 @@ public class StartServerDialog extends JDialog {
 	private JCheckBox playerPasswordCheckBox = null;
 	private JCheckBox gmPasswordCheckBox = null;
 	private JCheckBox strictTokenMovementCheckBox = null;
+	private JLabel roleLabel = null;
+	private JComboBox roleComboBox = null;
 	/**
 	 * This is the default constructor
 	 */
@@ -84,6 +87,7 @@ public class StartServerDialog extends JDialog {
 	 */
 	private void initialize() {
 		this.setSize(335, 206);
+		this.setTitle("Start Server");
 		this.setContentPane(getJContentPane());
 		
 		// Prefs
@@ -97,8 +101,15 @@ public class StartServerDialog extends JDialog {
 		strictTokenMovementCheckBox.setSelected(prefs.useStrictTokenMovement());
 		getPlayerPasswordTextField().setEnabled(playerPasswordCheckBox.isSelected());
 		getGmPasswordTextField().setEnabled(gmPasswordCheckBox.isSelected());
+		roleComboBox.setSelectedIndex(prefs.getRole());
 	}
 	
+	public int getRole() {
+		// LATER: This is kinda hacky, it assumes the order of the 
+		// options are the value of the role, which may not always be true
+		return roleComboBox.getSelectedIndex();
+	}
+
 	/* (non-Javadoc)
 	 * @see java.awt.Component#setVisible(boolean)
 	 */
@@ -117,16 +128,28 @@ public class StartServerDialog extends JDialog {
 	 */
 	private javax.swing.JPanel getJContentPane() {
 		if(jContentPane == null) {
+			GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
+			gridBagConstraints21.fill = java.awt.GridBagConstraints.NONE;
+			gridBagConstraints21.gridy = 1;
+			gridBagConstraints21.weightx = 1.0;
+			gridBagConstraints21.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints21.gridx = 2;
+			GridBagConstraints gridBagConstraints13 = new GridBagConstraints();
+			gridBagConstraints13.gridx = 0;
+			gridBagConstraints13.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints13.gridy = 1;
+			roleLabel = new JLabel();
+			roleLabel.setText("Role:");
 			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
 			gridBagConstraints12.gridx = 2;
 			gridBagConstraints12.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints12.gridy = 4;
+			gridBagConstraints12.gridy = 5;
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 			gridBagConstraints3.gridx = 1;
-			gridBagConstraints3.gridy = 2;
+			gridBagConstraints3.gridy = 3;
 			GridBagConstraints gridBagConstraints = new GridBagConstraints();
 			gridBagConstraints.gridx = 1;
-			gridBagConstraints.gridy = 3;
+			gridBagConstraints.gridy = 4;
 			jLabel1 = new JLabel();
 			GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -154,37 +177,37 @@ public class StartServerDialog extends JDialog {
 			gridBagConstraints4.weightx = 1.0;
 			gridBagConstraints4.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints5.gridx = 0;
-			gridBagConstraints5.gridy = 2;
+			gridBagConstraints5.gridy = 3;
 			gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
 			jLabel2.setText("GM Password:");
 			gridBagConstraints6.gridx = 0;
 			gridBagConstraints6.insets = new java.awt.Insets(0,0,0,5);
-			gridBagConstraints6.gridy = 3;
+			gridBagConstraints6.gridy = 4;
 			gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
 			jLabel3.setText("Player Password:");
 			gridBagConstraints7.gridx = 2;
-			gridBagConstraints7.gridy = 2;
+			gridBagConstraints7.gridy = 3;
 			gridBagConstraints7.weightx = 1.0;
 			gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints8.gridx = 2;
-			gridBagConstraints8.gridy = 3;
+			gridBagConstraints8.gridy = 4;
 			gridBagConstraints8.weightx = 1.0;
 			gridBagConstraints8.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints9.gridx = 0;
-			gridBagConstraints9.gridy = 4;
+			gridBagConstraints9.gridy = 5;
 			gridBagConstraints9.gridwidth = 2;
 			gridBagConstraints9.weighty = 1.0D;
 			gridBagConstraints9.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints10.gridx = 0;
-			gridBagConstraints10.gridy = 5;
+			gridBagConstraints10.gridy = 6;
 			gridBagConstraints10.gridwidth = 3;
 			gridBagConstraints10.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints11.gridx = 2;
-			gridBagConstraints11.gridy = 1;
+			gridBagConstraints11.gridy = 2;
 			gridBagConstraints11.weightx = 1.0;
 			gridBagConstraints11.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints2.gridx = 0;
-			gridBagConstraints2.gridy = 1;
+			gridBagConstraints2.gridy = 2;
 			gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
 			jLabel1.setText("Port:");
 			jContentPane.add(jLabel, gridBagConstraints1);
@@ -200,6 +223,8 @@ public class StartServerDialog extends JDialog {
 			jContentPane.add(getPlayerPasswordCheckBox(), gridBagConstraints);
 			jContentPane.add(getGmPasswordCheckBox(), gridBagConstraints3);
 			jContentPane.add(getStrictTokenMovementCheckBox(), gridBagConstraints12);
+			jContentPane.add(roleLabel, gridBagConstraints13);
+			jContentPane.add(getRoleComboBox(), gridBagConstraints21);
 		}
 		return jContentPane;
 	}
@@ -333,6 +358,7 @@ public class StartServerDialog extends JDialog {
 					prefs.setUsePlayerPassword(getPlayerPasswordCheckBox().isSelected());
 					prefs.setPlayerPassword(getPlayerPasswordTextField().getText());
 					prefs.setStrictTokenMovement(getStrictTokenMovementCheckBox().isSelected());
+					prefs.setRole(getRole());
 				}
 			});
 		}
@@ -409,5 +435,17 @@ public class StartServerDialog extends JDialog {
 		}
 		return strictTokenMovementCheckBox;
 	}
+
+	/**
+	 * This method initializes roleComboBox	
+	 * 	
+	 * @return javax.swing.JComboBox	
+	 */
+	private JComboBox getRoleComboBox() {
+		if (roleComboBox == null) {
+			roleComboBox = new JComboBox(new String[]{"Player", "GM"});
+		}
+		return roleComboBox;
+	}
 	
-   }  //  @jve:decl-index=0:visual-constraint="7,8"
+   }  //  @jve:decl-index=0:visual-constraint="1,22"
