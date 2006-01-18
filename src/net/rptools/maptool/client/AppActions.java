@@ -27,6 +27,7 @@ package net.rptools.maptool.client;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -900,7 +901,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action LOAD_MAP = new AdminClientAction() {
+	public static final Action NEW_MAP = new AdminClientAction() {
 		{
 			init("action.newMap");
 		}
@@ -911,8 +912,7 @@ public class AppActions {
 
 				public void run() {
 
-					NewMapDialog newMapDialog = MapTool.getFrame()
-							.getNewMapDialog();
+					NewMapDialog newMapDialog = MapTool.getFrame().getNewMapDialog();
 
 					Asset asset = newMapDialog.showDialog();
 					if (asset == null) {
@@ -926,11 +926,30 @@ public class AppActions {
 					}
 
 					// Create the zone
-					Zone zone = new Zone(newMapDialog.getZoneType(), asset
-							.getId());
+					Zone zone = new Zone(newMapDialog.getZoneType(), asset.getId());
 					zone.setVisible(AppState.isNewZonesVisible());
 					zone.setName(newMapDialog.getZoneName());
 					zone.setFeetPerCell(newMapDialog.getZoneFeetPerCell());
+
+					Rectangle bounds = newMapDialog.getGridBounds();
+					if (bounds != null) {
+						
+						BufferedImage image = ImageManager.getImage(asset, null);
+						
+						int gridCountX = (int)((newMapDialog.getGridCountX()/(float)bounds.width)*image.getWidth());
+						int gridCountY = (int)((newMapDialog.getGridCountY()/(float)bounds.height)*image.getHeight());
+						
+						int gridSizeX = image.getWidth() / gridCountX;
+						int gridSizeY = image.getHeight() / gridCountY;
+						
+						int gridOffsetX = bounds.x % gridSizeX;
+						int gridOffsetY = bounds.y % gridSizeY;
+						
+						zone.setGridOffsetX(-gridOffsetX);
+						zone.setGridOffsetY(-gridOffsetY);
+						zone.setGridSize(gridSizeX);
+					}
+					
 					MapTool.addZone(zone);
 				}
 			});

@@ -82,7 +82,7 @@ public class AppMenuBar extends JMenuBar {
 
     protected JMenu createMapMenu() {
         JMenu menu = I18N.createMenu("menu.map");
-        menu.add(new JMenuItem(AppActions.LOAD_MAP));
+        menu.add(new JMenuItem(AppActions.NEW_MAP));
         menu.add(createQuickMapMenu());
         menu.addSeparator();
         menu.add(new JMenuItem(DrawableUndoManager.getInstance().getUndoCommand()));

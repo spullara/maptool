@@ -8,6 +8,7 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -41,7 +42,6 @@ import javax.swing.KeyStroke;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
-import net.rptools.lib.FileUtil;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.SwingUtil;
@@ -89,6 +89,11 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JPanel row2Panel = null;
 	private JLabel fpcLabel = null;
 	private JLabel spacerLabel = null;
+	
+	private Rectangle gridBounds;
+	private int gridCountX;
+	private int gridCountY;
+	
 	/**
 	 * This is the default constructor
 	 */
@@ -109,6 +114,44 @@ public class NewMapDialog extends JDialog implements WindowListener {
         
         getRootPane().setDefaultButton(getOkButton());
 	}
+
+	
+	
+	public Rectangle getGridBounds() {
+		return gridBounds;
+	}
+
+
+
+	public void setGridBounds(Rectangle gridBounds) {
+		this.gridBounds = gridBounds;
+	}
+
+
+
+	public int getGridCountX() {
+		return gridCountX;
+	}
+
+
+
+	public void setGridCountX(int gridCountX) {
+		this.gridCountX = gridCountX;
+	}
+
+
+
+	public int getGridCountY() {
+		return gridCountY;
+	}
+
+
+
+	public void setGridCountY(int gridCountY) {
+		this.gridCountY = gridCountY;
+	}
+
+
 
 	@Override
 	public void setVisible(boolean b) {
@@ -164,6 +207,8 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		selectedFile = null;
         selectedAsset = null;
         returnAsset = null;
+        
+        gridBounds = null;
         
 		setVisible(false);
 	}
@@ -447,19 +492,21 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		if (adjustGridButton == null) {
 			adjustGridButton = new JButton();
 			adjustGridButton.setText("Adjust Grid");
-			adjustGridButton.setEnabled(false);
 			adjustGridButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					
+					MapTool.showInformation("The Adjust Grid dialog is still in heavy development.\nIt is only available here as a preview and to gather user feedback.\nIt may or may not have any effect on the actual map grid.\nPlease play with it and provide your feedback at rptools.net.");
 					try {
 						BufferedImage image = selectedFile != null ? ImageIO.read(selectedFile) : ImageIO.read(new ByteArrayInputStream(selectedAsset.getImage()));
 						AdjustGridDialog agd = new AdjustGridDialog(MapTool.getFrame(), image);
 						
 						agd.setVisible(true);
 						if (agd.isOK()) {
-							System.out.println ("OK");
+							gridBounds = agd.getGridBounds();
+							gridCountX = agd.getGridXCount();
+							gridCountY = agd.getGridYCount();
 						} else {
-							System.out.println ("CANCEL");
+							gridBounds = null;
 						}
 						
 					} catch (IOException ioe) {

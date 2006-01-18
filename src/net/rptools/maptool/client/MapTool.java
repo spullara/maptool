@@ -88,6 +88,10 @@ public class MapTool {
 		JOptionPane.showMessageDialog(clientFrame, I18N.getText(message), "Error", JOptionPane.ERROR_MESSAGE);
 	}
 	
+	public static void showInformation(String message) {
+		JOptionPane.showMessageDialog(clientFrame, I18N.getText(message), "Info", JOptionPane.INFORMATION_MESSAGE);
+	}
+	
 	public static boolean confirm(String message) {
 		return JOptionPane.showConfirmDialog(clientFrame, I18N.getText(message), "Confirm", JOptionPane.OK_OPTION) == JOptionPane.OK_OPTION;
 	}
