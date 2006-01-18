@@ -60,7 +60,7 @@ public class MapToolServerConnection extends ServerConnection  implements Server
 			Player player = Handshake.receiveHandshake(server, socket);
 		
 			if (player != null) {
-				playerMap.put(id, player);
+				playerMap.put(id.toUpperCase(), player);
 				return true;
 			}
 		} catch (IOException ioe) {
@@ -73,7 +73,7 @@ public class MapToolServerConnection extends ServerConnection  implements Server
 	
 	public Player getPlayer(String id) {
 
-		return playerMap.get(id);
+		return playerMap.get(id.toUpperCase());
 	}
 	
     ////
@@ -89,14 +89,14 @@ public class MapToolServerConnection extends ServerConnection  implements Server
             server.getConnection().callMethod(conn.getId(), ClientCommand.COMMAND.playerConnected.name(), playerMap.get(id));
         }
         
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.playerConnected.name(), playerMap.get(conn.getId()));
+        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.playerConnected.name(), playerMap.get(conn.getId().toUpperCase()));
         server.getConnection().callMethod(conn.getId(), ClientCommand.COMMAND.setCampaign.name(), server.getCampaign());
     }
     
     public void connectionRemoved(net.rptools.clientserver.simple.client.ClientConnection conn) {
 
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.playerDisconnected.name(), playerMap.get(conn.getId()));
-        playerMap.remove(conn.getId());
+        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.playerDisconnected.name(), playerMap.get(conn.getId().toUpperCase()));
+        playerMap.remove(conn.getId().toUpperCase());
     }
     
 }
