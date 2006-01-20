@@ -19,7 +19,12 @@ public class MapToolRegistry {
 		}
 	}
 	
-	public static int registerInstance(String id, int port, String password) {
+    public static String findInstance(String id, String password) {
+        checkService();
+        return service.findInstance(id, password);
+    }
+
+    public static int registerInstance(String id, int port, String password) {
 		checkService();
 		return service.registerInstance(id, port, password);
 	}
@@ -51,12 +56,7 @@ public class MapToolRegistry {
 		
 		Thread.sleep(delay);
 		System.out.println ("Register");
-		registerInstance("my test", 4444, "nothing");
-		
-		Thread.sleep(delay);
-		System.out.println ("RERegister");
-		
-		registerInstance("my test 2", 4444, "nothing");
+		registerInstance("my test", 4444, null);
 		
 		Thread.sleep(delay);
 		System.out.println ("Heartbeat");
@@ -64,11 +64,19 @@ public class MapToolRegistry {
 		heartBeat(4444);
 		
 		Thread.sleep(delay);
-		System.out.println ("Heartbeat");
+		System.out.println ("Find: " + findInstance("my test", null));
 
-		heartBeat(4444);
-		
 		Thread.sleep(delay);
+        System.out.println ("RERegister");
+        registerInstance("my test", 4444, "my password");
+        
+        Thread.sleep(delay);
+        System.out.println ("Find: " + findInstance("my test", null));
+		
+        Thread.sleep(delay);
+        System.out.println ("Find: " + findInstance("my test", "my password"));
+
+        Thread.sleep(delay);
 		System.out.println ("UnRegister");
 		
 		unregisterInstance(4444);
