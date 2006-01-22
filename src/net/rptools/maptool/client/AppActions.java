@@ -643,8 +643,15 @@ public class AppActions {
 						return;
 					}
 
-					ServerPolicy policy = new ServerPolicy(dialog
-							.useStrictTokenMovement());
+					ServerPolicy policy = new ServerPolicy(dialog.useStrictTokenMovement());
+					ServerConfig config = new ServerConfig(
+							dialog.getGMPassword(), 
+							dialog.getPlayerPassword(),
+							dialog.getPort(),
+							dialog.registerServer(),
+							dialog.getServerName(),
+							dialog.getServerPassword()
+							);
 
 					// Use the existing campaign
 					Campaign campaign = MapTool.getCampaign();
@@ -653,30 +660,19 @@ public class AppActions {
 					try {
 						ServerDisconnectHandler.disconnectExpected = true;
 						MapTool.stopServer();
-						MapTool
-								.startServer(dialog.getUsername(),
-										new ServerConfig(
-												dialog.getGMPassword(), dialog
-														.getPlayerPassword(),
-												dialog.getPort()), policy,
-										campaign);
+						MapTool.startServer(dialog.getUsername(), config, policy, campaign);
 
 						// Connect to server
 						MapTool.createConnection("localhost", dialog.getPort(),
-								new Player(dialog.getUsername(), dialog
-										.getRole(), dialog.getGMPassword()));
+								new Player(dialog.getUsername(), dialog.getRole(), dialog.getGMPassword()));
 
 						// connecting
-						MapTool.getFrame().getConnectionStatusPanel()
-								.setStatus(ConnectionStatusPanel.Status.server);
+						MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
 					} catch (UnknownHostException uh) {
-						MapTool
-								.showError("Whoah, 'localhost' is not a valid address.  Weird.");
+						MapTool.showError("Whoah, 'localhost' is not a valid address.  Weird.");
 						failed = true;
 					} catch (IOException ioe) {
-						MapTool
-								.showError("Could not connect to server: "
-										+ ioe);
+						MapTool.showError("Could not connect to server: " + ioe);
 						failed = true;
 					}
 
@@ -684,8 +680,7 @@ public class AppActions {
 						try {
 							MapTool.startPersonalServer(campaign);
 						} catch (IOException ioe) {
-							MapTool
-									.showError("Could not restart personal server");
+							MapTool.showError("Could not restart personal server");
 						}
 					}
 

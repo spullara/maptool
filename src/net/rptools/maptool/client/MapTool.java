@@ -40,7 +40,7 @@ import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
-import net.rptools.maptool.client.ui.MapToolClient;
+import net.rptools.maptool.client.ui.MapToolFrame;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
 import net.rptools.maptool.language.I18N;
@@ -61,7 +61,7 @@ import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
  */
 public class MapTool {
 	
-	private static MapToolClient clientFrame;
+	private static MapToolFrame clientFrame;
     private static MapToolServer server;
     private static ServerCommand serverCommand;
     private static ServerPolicy serverPolicy;
@@ -114,7 +114,7 @@ public class MapTool {
         
         handler = new ClientMethodHandler();
         
-        clientFrame = new MapToolClient();
+        clientFrame = new MapToolFrame();
         
         serverCommand = new ServerCommandClientImpl();
         
@@ -319,6 +319,11 @@ public class MapTool {
 	        announcer = new ServiceAnnouncer(id, server.getConfig().getPort(), AppConstants.SERVICE_GROUP);
 	        announcer.start();
         }
+        
+        // Registered ?
+        if (config.registerServer() && !config.isPersonalServer()) {
+        	MapToolRegistry.registerInstance(config.getServerName(), config.getPort(), config.getServerPassword());
+        }
 	}
 	
 	public static void stopServer() {
@@ -423,6 +428,15 @@ public class MapTool {
     		announcer.stop();
     		announcer = null;
     	}
+
+    	// Unregister ourselves
+    	if (server != null && server.getConfig().registerServer() && !server.getConfig().isPersonalServer()) {
+    		try {
+    			MapToolRegistry.unregisterInstance(server.getConfig().getPort());
+    		} catch (Throwable t) {
+    			t.printStackTrace();
+    		}
+    	}
     	
         if (conn == null || !conn.isAlive()) {
             return;
@@ -440,7 +454,7 @@ public class MapTool {
         MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.disconnected);
     }
     
-	public static MapToolClient getFrame() {
+	public static MapToolFrame getFrame() {
 		return clientFrame;
 	}
 	

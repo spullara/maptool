@@ -18,6 +18,9 @@ public class StartServerDialogPreferences {
     private static final String KEY_USE_GM_PASSWORD = "useGMPassword";
     private static final String KEY_USE_PLAYER_PASSWORD = "usePlayerPassword";
     private static final String KEY_STRICT_TOKEN_MOVEMENT = "strictTokenMovement";
+    private static final String KEY_REGISTER_SERVER = "registerServer";
+    private static final String KEY_SERVER_NAME = "serverName";
+    private static final String KEY_SERVER_PASSWORD = "serverPassword";
     
     public int getRole () {
     	return prefs.getInt(KEY_ROLE, Player.Role.GM);
@@ -67,15 +70,6 @@ public class StartServerDialogPreferences {
     	prefs.putBoolean(KEY_USE_PLAYER_PASSWORD, use);
     }
     
-//    public int getRole () {
-//    	return prefs.getInt(KEY_ROLE, Player.Role.PLAYER);
-//    }
-//    
-//    public void setRole(int role) {
-//    	prefs.putInt(KEY_ROLE, role);
-//    }
-//
-    
     public int getPort() {
     	return prefs.getInt(KEY_PORT, ServerConfig.DEFAULT_PORT);
     }
@@ -91,4 +85,29 @@ public class StartServerDialogPreferences {
     public void setStrictTokenMovement(boolean use) {
     	prefs.putBoolean(KEY_STRICT_TOKEN_MOVEMENT, use);
     }
+
+    public boolean registerServer() {
+    	return prefs.getBoolean(KEY_REGISTER_SERVER, false);
+    }
+    
+    public void setRegisterServer(boolean register) {
+    	prefs.putBoolean(KEY_REGISTER_SERVER, register);
+    }
+    
+    public void setServerPassword(String password) {
+    	prefs.put(KEY_SERVER_PASSWORD, password);
+    }
+    
+    public String getServerPassword() {
+    	return prefs.get(KEY_SERVER_PASSWORD, "");
+    }
+    
+    public void setServerName(String name) {
+    	prefs.put(KEY_SERVER_NAME, name);
+    }
+    
+    public String getServerName() {
+    	return prefs.get(KEY_SERVER_NAME, "");
+    }
+    
 }

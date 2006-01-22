@@ -32,6 +32,8 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -103,7 +105,7 @@ import net.rptools.maptool.model.drawing.Pen;
 
 /**
  */
-public class MapToolClient extends JFrame {
+public class MapToolFrame extends JFrame implements WindowListener {
     private static final long serialVersionUID = 3905523813025329458L;
 
 	// TODO: parameterize this (or make it a preference)
@@ -149,11 +151,12 @@ public class MapToolClient extends JFrame {
     // TODO: I don't like this here, eventOverlay should be more abstracted
     private NotificationOverlay notificationOverlay = new NotificationOverlay();
 	
-	public MapToolClient() {
+	public MapToolFrame() {
 		
 		// Set up the frame
 		super (AppConstants.APP_NAME);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		addWindowListener(this);
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		SwingUtil.centerOnScreen(this);
         
@@ -597,4 +600,26 @@ public class MapToolClient extends JFrame {
     paintDrawingMeasurement = aPaintDrawingMeasurements;
   }
 	
+  ////
+  // WINDOW LISTENER
+  public void windowOpened(WindowEvent e){}
+  public void windowClosing(WindowEvent e){
+	  
+	  if (MapTool.isHostingServer()) {
+		  if (!MapTool.confirm("You are hosting a server.  Shutting down will disconnect all players.  Are you sure?")) {
+			  return;
+		  }
+	  }
+
+	  MapTool.disconnect();
+	  
+	  // We're done
+	  System.exit(0);
+  }
+  public void windowClosed(WindowEvent e){}
+  public void windowIconified(WindowEvent e){}
+  public void windowDeiconified(WindowEvent e){}
+  public void windowActivated(WindowEvent e){}
+  public void windowDeactivated(WindowEvent e){}
+  
 }

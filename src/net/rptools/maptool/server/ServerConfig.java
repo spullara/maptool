@@ -39,18 +39,33 @@ public class ServerConfig {
 	private String gmPassword;
 	private String playerPassword;
 	private boolean personalServer;
+	private boolean registerServer;
+	private String serverPassword;
+	private String serverName;
 	
 	public ServerConfig() {
 		/* no op */
 	}
 	
-	public ServerConfig(String gmPassword, String playerPassword) {
-		this(gmPassword, playerPassword, DEFAULT_PORT);
-	}
-	public ServerConfig(String gmPassword, String playerPassword, int port) {
+	public ServerConfig(String gmPassword, String playerPassword, int port, boolean registerServer, String serverName, String serverPassword) {
 		this.gmPassword = gmPassword;
 		this.playerPassword = playerPassword;
 		this.port = port;
+		this.registerServer = registerServer;
+		this.serverName = serverName;
+		this.serverPassword = serverPassword;
+	}
+	
+	public boolean registerServer() {
+		return registerServer;
+	}
+	
+	public String getServerName() {
+		return serverName;
+	}
+	
+	public String getServerPassword() {
+		return serverPassword;
 	}
 	
 	public boolean gmPasswordMatches(String password) {

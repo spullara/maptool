@@ -6,7 +6,7 @@ import com.caucho.hessian.client.HessianProxyFactory;
 
 public class MapToolRegistry {
 
-	private static final String SERVICE_URL = "http://rptools.net/maptool_registry.php";
+	private static final String SERVICE_URL = "http://rptools.net/services/maptool_registry.php";
 
 	private static MapToolRegistryService service;
 	

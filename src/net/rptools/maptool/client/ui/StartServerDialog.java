@@ -24,23 +24,27 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import net.rptools.lib.service.EchoServer;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
-import javax.swing.JComboBox;
+import net.rptools.maptool.client.MapToolRegistry;
 /**
  * @author trevor
  */
@@ -70,6 +74,16 @@ public class StartServerDialog extends JDialog {
 	private JCheckBox strictTokenMovementCheckBox = null;
 	private JLabel roleLabel = null;
 	private JComboBox roleComboBox = null;
+	private JPanel optionsPanel = null;
+	private JCheckBox registerCheckBox = null;
+	private JLabel channelLabel = null;
+	private JLabel serverPasswordLabel = null;
+	private JTextField serverNameTextField = null;
+	private JTextField serverPasswordTextField = null;
+	private JLabel spacerLabel = null;
+	private JLabel spacerLabel1 = null;
+	private JLabel spacerLabel2 = null;
+	private JButton testRegisterButton = null;
 	/**
 	 * This is the default constructor
 	 */
@@ -86,7 +100,7 @@ public class StartServerDialog extends JDialog {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setSize(335, 206);
+		this.setSize(348, 381);
 		this.setTitle("Start Server");
 		this.setContentPane(getJContentPane());
 		
@@ -102,6 +116,13 @@ public class StartServerDialog extends JDialog {
 		getPlayerPasswordTextField().setEnabled(playerPasswordCheckBox.isSelected());
 		getGmPasswordTextField().setEnabled(gmPasswordCheckBox.isSelected());
 		roleComboBox.setSelectedIndex(prefs.getRole());
+		getRegisterCheckBox().setSelected(prefs.registerServer());
+		getServerNameTextField().setText(prefs.getServerName());
+		getServerPasswordTextField().setText(prefs.getServerPassword());
+
+		getServerNameTextField().setEnabled(prefs.registerServer());
+		getServerPasswordTextField().setEnabled(prefs.registerServer());
+		getTestRegisterButton().setEnabled(registerCheckBox.isSelected());
 	}
 	
 	public int getRole() {
@@ -128,6 +149,54 @@ public class StartServerDialog extends JDialog {
 	 */
 	private javax.swing.JPanel getJContentPane() {
 		if(jContentPane == null) {
+			GridBagConstraints gridBagConstraints22 = new GridBagConstraints();
+			gridBagConstraints22.gridx = 2;
+			gridBagConstraints22.anchor = java.awt.GridBagConstraints.EAST;
+			gridBagConstraints22.gridy = 11;
+			GridBagConstraints gridBagConstraints111 = new GridBagConstraints();
+			gridBagConstraints111.gridx = 0;
+			gridBagConstraints111.gridy = 3;
+			spacerLabel2 = new JLabel();
+			spacerLabel2.setText("   ");
+			GridBagConstraints gridBagConstraints101 = new GridBagConstraints();
+			gridBagConstraints101.gridx = 0;
+			gridBagConstraints101.gridy = 12;
+			spacerLabel1 = new JLabel();
+			spacerLabel1.setText("    ");
+			GridBagConstraints gridBagConstraints91 = new GridBagConstraints();
+			gridBagConstraints91.gridx = 0;
+			gridBagConstraints91.gridy = 6;
+			spacerLabel = new JLabel();
+			spacerLabel.setText("    ");
+			GridBagConstraints gridBagConstraints81 = new GridBagConstraints();
+			gridBagConstraints81.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints81.gridy = 10;
+			gridBagConstraints81.weightx = 1.0;
+			gridBagConstraints81.gridx = 2;
+			GridBagConstraints gridBagConstraints71 = new GridBagConstraints();
+			gridBagConstraints71.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints71.gridy = 9;
+			gridBagConstraints71.weightx = 1.0;
+			gridBagConstraints71.gridx = 2;
+			GridBagConstraints gridBagConstraints51 = new GridBagConstraints();
+			gridBagConstraints51.gridx = 0;
+			gridBagConstraints51.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints51.insets = new java.awt.Insets(0,0,4,0);
+			gridBagConstraints51.gridy = 10;
+			serverPasswordLabel = new JLabel();
+			serverPasswordLabel.setText("Password:");
+			GridBagConstraints gridBagConstraints41 = new GridBagConstraints();
+			gridBagConstraints41.gridx = 0;
+			gridBagConstraints41.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints41.insets = new java.awt.Insets(0,0,4,0);
+			gridBagConstraints41.gridy = 9;
+			channelLabel = new JLabel();
+			channelLabel.setText("Server Name:");
+			GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
+			gridBagConstraints31.gridx = 0;
+			gridBagConstraints31.gridwidth = 3;
+			gridBagConstraints31.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints31.gridy = 7;
 			GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
 			gridBagConstraints21.fill = java.awt.GridBagConstraints.NONE;
 			gridBagConstraints21.gridy = 1;
@@ -140,16 +209,12 @@ public class StartServerDialog extends JDialog {
 			gridBagConstraints13.gridy = 1;
 			roleLabel = new JLabel();
 			roleLabel.setText("Role:");
-			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
-			gridBagConstraints12.gridx = 2;
-			gridBagConstraints12.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints12.gridy = 5;
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 			gridBagConstraints3.gridx = 1;
-			gridBagConstraints3.gridy = 3;
+			gridBagConstraints3.gridy = 4;
 			GridBagConstraints gridBagConstraints = new GridBagConstraints();
 			gridBagConstraints.gridx = 1;
-			gridBagConstraints.gridy = 4;
+			gridBagConstraints.gridy = 5;
 			jLabel1 = new JLabel();
 			GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -177,29 +242,30 @@ public class StartServerDialog extends JDialog {
 			gridBagConstraints4.weightx = 1.0;
 			gridBagConstraints4.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints5.gridx = 0;
-			gridBagConstraints5.gridy = 3;
+			gridBagConstraints5.gridy = 4;
 			gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
 			jLabel2.setText("GM Password:");
 			gridBagConstraints6.gridx = 0;
 			gridBagConstraints6.insets = new java.awt.Insets(0,0,0,5);
-			gridBagConstraints6.gridy = 4;
+			gridBagConstraints6.gridy = 5;
 			gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
 			jLabel3.setText("Player Password:");
 			gridBagConstraints7.gridx = 2;
-			gridBagConstraints7.gridy = 3;
+			gridBagConstraints7.gridy = 4;
 			gridBagConstraints7.weightx = 1.0;
 			gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints8.gridx = 2;
-			gridBagConstraints8.gridy = 4;
+			gridBagConstraints8.gridy = 5;
 			gridBagConstraints8.weightx = 1.0;
 			gridBagConstraints8.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints9.gridx = 0;
-			gridBagConstraints9.gridy = 5;
-			gridBagConstraints9.gridwidth = 2;
+			gridBagConstraints9.insets = new java.awt.Insets(5,0,0,0);
+			gridBagConstraints9.gridy = 13;
+			gridBagConstraints9.gridwidth = 3;
 			gridBagConstraints9.weighty = 1.0D;
 			gridBagConstraints9.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints10.gridx = 0;
-			gridBagConstraints10.gridy = 6;
+			gridBagConstraints10.gridy = 14;
 			gridBagConstraints10.gridwidth = 3;
 			gridBagConstraints10.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints11.gridx = 2;
@@ -222,9 +288,17 @@ public class StartServerDialog extends JDialog {
 			jContentPane.add(jLabel1, gridBagConstraints2);
 			jContentPane.add(getPlayerPasswordCheckBox(), gridBagConstraints);
 			jContentPane.add(getGmPasswordCheckBox(), gridBagConstraints3);
-			jContentPane.add(getStrictTokenMovementCheckBox(), gridBagConstraints12);
 			jContentPane.add(roleLabel, gridBagConstraints13);
 			jContentPane.add(getRoleComboBox(), gridBagConstraints21);
+			jContentPane.add(getRegisterCheckBox(), gridBagConstraints31);
+			jContentPane.add(channelLabel, gridBagConstraints41);
+			jContentPane.add(serverPasswordLabel, gridBagConstraints51);
+			jContentPane.add(getServerNameTextField(), gridBagConstraints71);
+			jContentPane.add(getServerPasswordTextField(), gridBagConstraints81);
+			jContentPane.add(spacerLabel, gridBagConstraints91);
+			jContentPane.add(spacerLabel1, gridBagConstraints101);
+			jContentPane.add(spacerLabel2, gridBagConstraints111);
+			jContentPane.add(getTestRegisterButton(), gridBagConstraints22);
 		}
 		return jContentPane;
 	}
@@ -280,6 +354,9 @@ public class StartServerDialog extends JDialog {
 	private JPanel getJPanel() {
 		if (jPanel == null) {
 			jPanel = new JPanel();
+			jPanel.setLayout(new BoxLayout(getJPanel(), BoxLayout.Y_AXIS));
+			jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Options", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, null, null));
+			jPanel.add(getOptionsPanel(), null);
 		}
 		return jPanel;
 	}
@@ -359,6 +436,9 @@ public class StartServerDialog extends JDialog {
 					prefs.setPlayerPassword(getPlayerPasswordTextField().getText());
 					prefs.setStrictTokenMovement(getStrictTokenMovementCheckBox().isSelected());
 					prefs.setRole(getRole());
+					prefs.setRegisterServer(getRegisterCheckBox().isSelected());
+					prefs.setServerName(getServerNameTextField().getText());
+					prefs.setServerPassword(getServerPasswordTextField().getText());
 				}
 			});
 		}
@@ -387,6 +467,18 @@ public class StartServerDialog extends JDialog {
 	
 	public String getPlayerPassword() {
 		return getPlayerPasswordCheckBox().isSelected() ? getPlayerPasswordTextField().getText() : "";
+	}
+	
+	public boolean registerServer() {
+		return getRegisterCheckBox().isSelected();
+	}
+	
+	public String getServerName() {
+		return getServerNameTextField().getText();
+	}
+	
+	public String getServerPassword() {
+		return getServerPasswordTextField().getText();
 	}
 	
 	/**
@@ -446,6 +538,115 @@ public class StartServerDialog extends JDialog {
 			roleComboBox = new JComboBox(new String[]{"Player", "GM"});
 		}
 		return roleComboBox;
+	}
+
+	/**
+	 * This method initializes optionsPanel	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getOptionsPanel() {
+		if (optionsPanel == null) {
+			optionsPanel = new JPanel();
+			optionsPanel.setLayout(new BoxLayout(getOptionsPanel(), BoxLayout.Y_AXIS));
+			optionsPanel.add(getStrictTokenMovementCheckBox(), null);
+		}
+		return optionsPanel;
+	}
+
+	/**
+	 * This method initializes registerCheckBox	
+	 * 	
+	 * @return javax.swing.JCheckBox	
+	 */
+	private JCheckBox getRegisterCheckBox() {
+		if (registerCheckBox == null) {
+			registerCheckBox = new JCheckBox();
+			registerCheckBox.setText("Register with RPTools.net");
+			registerCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+
+					getServerNameTextField().setEnabled(registerCheckBox.isSelected());
+					getServerPasswordTextField().setEnabled(registerCheckBox.isSelected());
+					getTestRegisterButton().setEnabled(registerCheckBox.isSelected());
+				}
+			});
+		}
+		return registerCheckBox;
+	}
+
+	/**
+	 * This method initializes serverNameTextField	
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	private JTextField getServerNameTextField() {
+		if (serverNameTextField == null) {
+			serverNameTextField = new JTextField();
+		}
+		return serverNameTextField;
+	}
+
+	/**
+	 * This method initializes serverPasswordTextField	
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	private JTextField getServerPasswordTextField() {
+		if (serverPasswordTextField == null) {
+			serverPasswordTextField = new JTextField();
+		}
+		return serverPasswordTextField;
+	}
+
+	/**
+	 * This method initializes testRegisterButton	
+	 * 	
+	 * @return javax.swing.JButton	
+	 */
+	private JButton getTestRegisterButton() {
+		if (testRegisterButton == null) {
+			testRegisterButton = new JButton();
+			testRegisterButton.setText("Test Connection");
+			testRegisterButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					
+					new Thread(new Runnable() {
+						
+						public void run() {
+							
+							EchoServer server = null;
+							try {
+								// Create a temporary server that will listen on the port we
+								// want to start MapTool on.  This provides two things: First
+								// it tells us we can open that port, second it creates a way
+								// for the connection test service to call back and verify it is
+								// the type of service we want.
+								// LATER: Extend EchoServer to do something more than just parrot the input
+								server = new EchoServer(getPort());
+								server.start();
+								
+								if (MapToolRegistry.testConnection(getPort())) {
+									MapTool.showInformation("Success!");
+								} else {
+									MapTool.showError("Could not see your computer from the internet");
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+								MapTool.showError("Unable to see your computer from the internet");
+							} finally {
+								// Need to make sure it dies so that it doesn't keep the port open ...
+								// we're going to need it very soon !
+								if (server != null) {
+									server.stop();
+								}
+							}
+						}
+					}).start();
+				}
+			});
+		}
+		return testRegisterButton;
 	}
 	
    }  //  @jve:decl-index=0:visual-constraint="1,22"

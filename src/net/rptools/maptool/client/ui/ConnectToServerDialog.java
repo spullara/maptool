@@ -48,6 +48,7 @@ import javax.swing.ListSelectionModel;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolRegistry;
 import net.tsc.servicediscovery.AnnouncementListener;
 import net.tsc.servicediscovery.ServiceFinder;
 /**
@@ -87,6 +88,13 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 	
 	private int selectedPort;
 	private String selectedServerAddress;
+	private JPanel rptoolsPanel = null;
+	private JLabel serverNameLabel = null;
+	private JLabel serverPasswordLabel = null;
+	private JPanel spacerPanel = null;
+	private JTextField serverNameTextField = null;
+	private JLabel spacerLabel2 = null;
+	private JPasswordField serverPasswordField = null;
 	
 	/**
 	 * This is the default constructor
@@ -120,6 +128,8 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 		roleComboBox.setSelectedIndex(prefs.getRole());
 		passwordPasswordField.setText(prefs.getPassword());
 		getTypeTabbedPane().setSelectedIndex(prefs.getTab());
+		getServerNameTextField().setText(prefs.getServerName());
+		getServerPasswordField().setText(prefs.getServerPassword());
 	}
 	
 	/* (non-Javadoc)
@@ -143,9 +153,14 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 	 */
 	private javax.swing.JPanel getJContentPane() {
 		if(jContentPane == null) {
+			GridBagConstraints gridBagConstraints110 = new GridBagConstraints();
+			gridBagConstraints110.gridx = 0;
+			gridBagConstraints110.gridy = 7;
+			spacerLabel2 = new JLabel();
+			spacerLabel2.setText("   ");
 			GridBagConstraints gridBagConstraints14 = new GridBagConstraints();
 			gridBagConstraints14.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints14.gridy = 7;
+			gridBagConstraints14.gridy = 8;
 			gridBagConstraints14.weightx = 1.0;
 			gridBagConstraints14.weighty = 1.0;
 			gridBagConstraints14.gridwidth = 2;
@@ -181,7 +196,7 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 			gridBagConstraints13.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			jContentPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(10,10,5,10));
 			gridBagConstraints17.gridx = 0;
-			gridBagConstraints17.gridy = 9;
+			gridBagConstraints17.gridy = 10;
 			gridBagConstraints17.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints17.gridwidth = 2;
 			gridBagConstraints3.gridx = 0;
@@ -201,6 +216,7 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 			jContentPane.add(passwordLabel, gridBagConstraints);
 			jContentPane.add(getPasswordPasswordField(), gridBagConstraints1);
 			jContentPane.add(getTypeTabbedPane(), gridBagConstraints14);
+			jContentPane.add(spacerLabel2, gridBagConstraints110);
 		}
 		return jContentPane;
 	}
@@ -348,6 +364,7 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 			typeTabbedPane = new JTabbedPane();
 			typeTabbedPane.addTab("LAN", null, getLanPanel(), null);
 			typeTabbedPane.addTab("Internet", null, getWanPanel(), null);
+			typeTabbedPane.addTab("RPTools.net", null, getRptoolsPanel(), null);
 		}
 		return typeTabbedPane;
 	}
@@ -517,6 +534,26 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 			selectedPort = Integer.parseInt(getPortTextField().getText());
 			selectedServerAddress = getServerTextField().getText();
 			break;
+			
+		// RPTools.net
+		case 2:
+			
+			if (serverNameTextField.getText().length() == 0) {
+				MapTool.showError("Must supply a server name");
+				return;
+			}
+			
+			// Do the lookup
+			String serverInfo = MapToolRegistry.findInstance(serverNameTextField.getText(), serverPasswordField.getText());
+			if (serverInfo == null || serverInfo.length() == 0) {
+				MapTool.showError("Could not find that server.");
+				return;
+			}
+			
+			String[] data = serverInfo.split(":");
+			selectedServerAddress = data[0];
+			selectedPort = Integer.parseInt(data[1]);
+			break;
 		}
 		
 		option = OPTION_OK;
@@ -530,6 +567,8 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 		prefs.setRole(getRole());
 		prefs.setPassword(getPassword());
 		prefs.setTab(getTypeTabbedPane().getSelectedIndex());		
+		prefs.setServerName(getServerNameTextField().getText());
+		prefs.setServerPassword(getServerPasswordField().getText());
 	}
 
 	////
@@ -554,6 +593,86 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 		public String toString() {
 			return id;
 		}
+	}
+
+	/**
+	 * This method initializes rptoolsPanel	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getRptoolsPanel() {
+		if (rptoolsPanel == null) {
+			GridBagConstraints gridBagConstraints20 = new GridBagConstraints();
+			gridBagConstraints20.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints20.gridy = 1;
+			gridBagConstraints20.weightx = 1.0;
+			gridBagConstraints20.gridx = 1;
+			GridBagConstraints gridBagConstraints19 = new GridBagConstraints();
+			gridBagConstraints19.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints19.gridy = 0;
+			gridBagConstraints19.weightx = 1.0;
+			gridBagConstraints19.gridx = 1;
+			GridBagConstraints gridBagConstraints18 = new GridBagConstraints();
+			gridBagConstraints18.gridx = 0;
+			gridBagConstraints18.weighty = 1.0;
+			gridBagConstraints18.gridy = 2;
+			GridBagConstraints gridBagConstraints16 = new GridBagConstraints();
+			gridBagConstraints16.gridx = 0;
+			gridBagConstraints16.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints16.insets = new java.awt.Insets(0,0,0,5);
+			gridBagConstraints16.gridy = 1;
+			serverPasswordLabel = new JLabel();
+			serverPasswordLabel.setText("Password:");
+			GridBagConstraints gridBagConstraints15 = new GridBagConstraints();
+			gridBagConstraints15.gridx = 0;
+			gridBagConstraints15.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints15.insets = new java.awt.Insets(0,0,0,5);
+			gridBagConstraints15.gridy = 0;
+			serverNameLabel = new JLabel();
+			serverNameLabel.setText("Server Name:");
+			rptoolsPanel = new JPanel();
+			rptoolsPanel.setLayout(new GridBagLayout());
+			rptoolsPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
+			rptoolsPanel.add(serverNameLabel, gridBagConstraints15);
+			rptoolsPanel.add(serverPasswordLabel, gridBagConstraints16);
+			rptoolsPanel.add(getSpacerPanel(), gridBagConstraints18);
+			rptoolsPanel.add(getServerNameTextField(), gridBagConstraints19);
+			rptoolsPanel.add(getServerPasswordField(), gridBagConstraints20);
+		}
+		return rptoolsPanel;
+	}
+	/**
+	 * This method initializes spacerPanel	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getSpacerPanel() {
+		if (spacerPanel == null) {
+			spacerPanel = new JPanel();
+		}
+		return spacerPanel;
+	}
+	/**
+	 * This method initializes serverNameTextField	
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	private JTextField getServerNameTextField() {
+		if (serverNameTextField == null) {
+			serverNameTextField = new JTextField();
+		}
+		return serverNameTextField;
+	}
+	/**
+	 * This method initializes serverPasswordField	
+	 * 	
+	 * @return javax.swing.JPasswordField	
+	 */
+	private JPasswordField getServerPasswordField() {
+		if (serverPasswordField == null) {
+			serverPasswordField = new JPasswordField();
+		}
+		return serverPasswordField;
 	}
 	
 }  //  @jve:decl-index=0:visual-constraint="10,10"
