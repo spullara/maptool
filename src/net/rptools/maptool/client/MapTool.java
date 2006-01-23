@@ -322,7 +322,15 @@ public class MapTool {
         
         // Registered ?
         if (config.isServerRegistered() && !config.isPersonalServer()) {
-        	MapToolRegistry.registerInstance(config.getServerName(), config.getPort(), config.getServerPassword());
+        	try {
+	        	int result = MapToolRegistry.registerInstance(config.getServerName(), config.getPort(), config.getServerPassword());
+	        	if (result == 3) {
+	        		MapTool.showError("That ID is already in use, server not registered");
+	        	}
+	        	// TODO: I don't like this
+        	} catch (Exception e) {
+        		MapTool.showError("Unable to register your server: " + e);
+        	}
         }
 	}
 	
