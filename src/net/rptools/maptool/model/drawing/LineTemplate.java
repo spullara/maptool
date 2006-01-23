@@ -26,6 +26,7 @@
 package net.rptools.maptool.model.drawing;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
@@ -43,9 +44,9 @@ import net.rptools.maptool.client.ScreenPoint;
 public class LineTemplate extends AbstractTemplate {
 
   /*---------------------------------------------------------------------------------------------
-  * Instance Variables
-  *-------------------------------------------------------------------------------------------*/
-  
+   * Instance Variables
+   *-------------------------------------------------------------------------------------------*/
+
   /**
    * This vertex is used to determine the path.
    */
@@ -55,22 +56,22 @@ public class LineTemplate extends AbstractTemplate {
    * The calculated path for this line.
    */
   private ArrayList<ScreenPoint> path;
-  
+
   /**
    * The pool of points.
    */
   private ArrayList<ScreenPoint> pool;
-  
+
   /**
    * The line is drawn in this quadrant. A string is used as a hack
    * to get around the hessian library's problem w/ serialization of enums
    */
   private String quadrant = null;
-  
+
   /*---------------------------------------------------------------------------------------------
-  * Overridden AbstractTemplate Methods
-  *-------------------------------------------------------------------------------------------*/
-  
+   * Overridden AbstractTemplate Methods
+   *-------------------------------------------------------------------------------------------*/
+
   /**
    * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintArea(java.awt.Graphics2D, int, int, int, int, int, int)
    */
@@ -90,20 +91,22 @@ public class LineTemplate extends AbstractTemplate {
     // that can be added to the path from any single intersection.
     boolean[] noPaint = new boolean[4];
     for (int i = pElement - 3; i < pElement + 3; i++) {
-      if (i < 0 || i >= path.size() || i == pElement) continue;
+      if (i < 0 || i >= path.size() || i == pElement)
+        continue;
       ScreenPoint p = path.get(i);
-      
+
       // Ignore diagonal cells and cells that are not adjacent
       int dx = p.x - x;
       int dy = p.y - y;
-      if (Math.abs(dx) == Math.abs(dy) || Math.abs(dx) > 1 || Math.abs(dy) > 1) continue;
-      
+      if (Math.abs(dx) == Math.abs(dy) || Math.abs(dx) > 1 || Math.abs(dy) > 1)
+        continue;
+
       // Remove the border between the 2 points
       noPaint[dx != 0 ? (dx < 0 ? 0 : 2) : (dy < 0 ? 3 : 1)] = true;
     } // endif
-    
+
     // Paint the borders as needed
-    if (!noPaint[0]) 
+    if (!noPaint[0])
       paintCloseVerticalBorder(g, xOff, yOff, gridSize, getQuadrant());
     if (!noPaint[1])
       paintFarHorizontalBorder(g, xOff, yOff, gridSize, getQuadrant());
@@ -112,27 +115,29 @@ public class LineTemplate extends AbstractTemplate {
     if (!noPaint[3])
       paintCloseHorizontalBorder(g, xOff, yOff, gridSize, getQuadrant());
   }
-  
+
   /**
    * @see net.rptools.maptool.model.drawing.AbstractTemplate#paint(java.awt.Graphics2D, boolean, boolean)
    */
   @Override
   protected void paint(Graphics2D g, boolean border, boolean area) {
-    
+
     // Need to paint? We need a line and to translate the painting
-    if (pathVertex == null) return;
-    if (getRadius() == 0) return;
-    if (calcPath() == null) return;
-    
+    if (pathVertex == null)
+      return;
+    if (getRadius() == 0)
+      return;
+    if (calcPath() == null)
+      return;
+
     // Paint each element in the path
-    float[][] distances = getDistances(getRadius());
-    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGridSize() * getScale());
+    int gridSize = (int) (MapTool.getCampaign().getZone(getZoneId()).getGridSize() * getScale());
     ListIterator<ScreenPoint> i = path.listIterator();
     while (i.hasNext()) {
       ScreenPoint p = i.next();
       int xOff = p.x * gridSize;
       int yOff = p.y * gridSize;
-      int distance = Math.round(distances[p.x][p.y]);
+      int distance = getDistance(p.x, p.y);
 
       // Paint what is needed.
       if (area) {
@@ -152,7 +157,7 @@ public class LineTemplate extends AbstractTemplate {
     clearPath();
     super.setVertex(vertex);
   }
-  
+
   /**
    * @see net.rptools.maptool.model.drawing.AbstractTemplate#setRadius(int)
    */
@@ -161,49 +166,52 @@ public class LineTemplate extends AbstractTemplate {
     clearPath();
     super.setRadius(squares);
   }
-  
+
   /*---------------------------------------------------------------------------------------------
-  * Instance Methods
-  *-------------------------------------------------------------------------------------------*/
-  
+   * Instance Methods
+   *-------------------------------------------------------------------------------------------*/
+
   /**
    * Calculate the path 
    * 
    * @return The new path or <code>null</code> if there is no path.
    */
   protected List<ScreenPoint> calcPath() {
-    if (getRadius() == 0) return null;
-    if (pathVertex == null) return null;
+    if (getRadius() == 0)
+      return null;
+    if (pathVertex == null)
+      return null;
     int radius = getRadius();
-    float[][] distances = getDistances(radius);
 
     // Is there a slope?
     ScreenPoint vertex = getVertex();
-    if (vertex.equals(pathVertex)) return null;
+    if (vertex.equals(pathVertex))
+      return null;
     double dx = pathVertex.x - vertex.x;
     double dy = pathVertex.y - vertex.y;
 
     // Start the line at 0,0
+    clearPath();
     path = new ArrayList<ScreenPoint>();
-    path.add(getPointFromPool(0 ,0));
+    path.add(getPointFromPool(0, 0));
     if (dx != 0 && dy != 0) {
 
       // Calculate quadrant and the slope
-      setQuadrant((dx < 0) ? (dy < 0 ? Quadrant.NORTH_WEST : Quadrant.SOUTH_WEST) 
-          : (dy < 0 ? Quadrant.NORTH_EAST : Quadrant.SOUTH_EAST));
-      double m = Math.abs(dy/dx);
-      
+      setQuadrant((dx < 0) ? (dy < 0 ? Quadrant.NORTH_WEST : Quadrant.SOUTH_WEST) : (dy < 0 ? Quadrant.NORTH_EAST
+          : Quadrant.SOUTH_EAST));
+      double m = Math.abs(dy / dx);
+
       // Find the path
       ScreenPoint p = path.get(path.size() - 1);
-      while (Math.round(distances[p.y][p.x]) <= radius) {
+      while (getDistance(p.x, p.y) <= radius) {
         int x = p.x;
         int y = p.y;
-        
+
         // Which border does the point exit the cell?
         double xValue = new BigDecimal((y + 1) / m, MathContext.DECIMAL32).doubleValue();
         double yValue = new BigDecimal((x + 1) * m, MathContext.DECIMAL32).doubleValue();
         if (xValue == x + 1 && yValue == y + 1) {
-          
+
           // Special case, right on the diagonal
           path.add(getPointFromPool(x + 1, y));
           path.add(getPointFromPool(x, y + 1));
@@ -217,20 +225,20 @@ public class LineTemplate extends AbstractTemplate {
         } // endif
         p = path.get(path.size() - 1);
       } // endwhile
-      
+
       // Clear the last of the pool
-      if (pool != null) { 
+      if (pool != null) {
         pool.clear();
         pool = null;
       } // endif
     } else {
-        
+
       // Straight line
       int xInc = dx != 0 ? 1 : 0;
       int yInc = dy != 0 ? 1 : 0;
       int x = xInc;
       int y = yInc;
-      while (Math.round(distances[y][x]) <= radius) {
+      while (getDistance(x, y) <= radius) {
         path.add(getPointFromPool(x, y));
         x += xInc;
         y += yInc;
@@ -250,9 +258,12 @@ public class LineTemplate extends AbstractTemplate {
     ScreenPoint p = null;
     if (pool != null) {
       p = pool.remove(pool.size() - 1);
-      if (pool.isEmpty()) pool = null;
+      if (pool.isEmpty())
+        pool = null;
     } // endif
-    if (p == null) p = new ScreenPoint(0, 0);
+    if (p == null) {
+      p = new ScreenPoint(0, 0);
+    } // endif
     p.x = x;
     p.y = y;
     return p;
@@ -276,7 +287,7 @@ public class LineTemplate extends AbstractTemplate {
     clearPath();
     this.pathVertex = pathVertex;
   }
-  
+
   /**
    * Clear the current path. This will cause it to be recalculated during the next draw.
    */
@@ -306,5 +317,27 @@ public class LineTemplate extends AbstractTemplate {
       this.quadrant = quadrant.name();
     else
       this.quadrant = null;
+  }
+  
+  /*---------------------------------------------------------------------------------------------
+   * Drawable Interface Methods
+   *-------------------------------------------------------------------------------------------*/
+  
+  /**
+   * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
+   */
+  public Rectangle getBounds() {
+    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGridSize() * getScale());
+    ScreenPoint v = getVertex();
+    ScreenPoint pv = getPathVertex();
+    int x = Math.min(v.x, pv.x) - BOUNDS_PADDING;
+    if (getQuadrant() == Quadrant.NORTH_WEST || getQuadrant() == Quadrant.SOUTH_WEST)
+      x -= gridSize * 2;
+    int y = Math.min(v.y, pv.y) - BOUNDS_PADDING; 
+    if (getQuadrant() == Quadrant.NORTH_WEST || getQuadrant() == Quadrant.NORTH_EAST)
+      y -= gridSize * 2;
+    int width = Math.abs(v.x - pv.x) + (gridSize + BOUNDS_PADDING) * 2; 
+    int height = Math.abs(v.y - pv.y) + (gridSize + BOUNDS_PADDING) * 2;
+    return new Rectangle(x, y, width, height);
   }
 }

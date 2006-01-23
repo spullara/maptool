@@ -26,6 +26,10 @@
 package net.rptools.maptool.model.drawing;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ScreenPoint;
 
 /**
  * The cone template draws a highlight over all the squares effected from a specific
@@ -86,11 +90,10 @@ public class ConeTemplate extends RadiusTemplate {
     
     // At the border?
     int radius = getRadius();
-    float[][] distances = getDistances(radius);
     if (distance == radius) {
       
       // Paint lines between vertical boundaries if needed
-      if (Math.round(distances[x + 1][y]) > radius) {
+      if (getDistance(x + 1, y) > radius) {
         if (getDirection() == Direction.SOUTH_EAST || (getDirection() == Direction.SOUTH && y >= x)
             || (getDirection() == Direction.EAST && x >= y))
           paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
@@ -106,7 +109,7 @@ public class ConeTemplate extends RadiusTemplate {
       } // endif
       
       // Paint lines between horizontal boundaries if needed
-      if (Math.round(distances[x][y + 1]) > radius) {
+      if (getDistance(x, y + 1) > radius) {
         if (getDirection() == Direction.SOUTH_EAST || (getDirection() == Direction.SOUTH && y >= x)
             || (getDirection() == Direction.EAST && x >= y))
           paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
@@ -190,5 +193,37 @@ public class ConeTemplate extends RadiusTemplate {
       if (getDirection() == Direction.NORTH_WEST || getDirection() == Direction.NORTH || getDirection() == Direction.WEST) 
         paintArea(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
     } // endif
+  }
+
+  /*---------------------------------------------------------------------------------------------
+   * Drawable Interface Methods
+   *-------------------------------------------------------------------------------------------*/
+  
+  /**
+   * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
+   */
+  public Rectangle getBounds() {
+    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGridSize() * getScale());
+    int quadrantSize = getRadius() * gridSize + BOUNDS_PADDING;
+    
+    // Find the x,y loc
+    ScreenPoint vertex = getVertex();
+    int x = vertex.x;
+    if (getDirection() == Direction.NORTH_WEST || getDirection() == Direction.WEST || getDirection() == Direction.SOUTH_WEST
+        || getDirection() == Direction.NORTH || getDirection() == Direction.SOUTH)
+      x -= quadrantSize;
+    int y = vertex.y;
+    if (getDirection() == Direction.NORTH_WEST || getDirection() == Direction.NORTH || getDirection() == Direction.NORTH_EAST
+        || getDirection() == Direction.EAST || getDirection() == Direction.WEST)
+      y -= quadrantSize;
+    
+    // Find the width,height
+    int width = quadrantSize + BOUNDS_PADDING;
+    if (getDirection() == Direction.NORTH || getDirection() == Direction.SOUTH)
+      width += quadrantSize;
+    int height = quadrantSize + BOUNDS_PADDING;
+    if (getDirection() == Direction.EAST || getDirection() == Direction.WEST)
+      height += quadrantSize;
+    return new Rectangle(x, y, width, height);
   }
 }

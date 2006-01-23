@@ -34,8 +34,11 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.drawing.AbstractTemplate;
+import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.LineTemplate;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.AbstractTemplate.Quadrant;
@@ -145,5 +148,28 @@ public class LineTemplateTool extends RadiusTemplateTool {
         zoneRenderer.repaint();
       } // endif
     } // endif
+  }
+  
+  /**
+   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#getRadiusAtMouse(java.awt.event.MouseEvent)
+   */
+  @Override
+  protected int getRadiusAtMouse(MouseEvent aE) {
+    int radius = super.getRadiusAtMouse(aE);
+    return Math.max(0, radius - 1);
+  }
+  /**
+   * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#completeDrawable(net.rptools.maptool.model.GUID, net.rptools.maptool.model.drawing.Pen, net.rptools.maptool.model.drawing.Drawable)
+   */
+  @Override
+  protected void completeDrawable(GUID aZoneId, Pen aPen, Drawable aDrawable) {
+    
+    // Need to convert the pathVertex in the line template before we complete the template
+    LineTemplate template = (LineTemplate)aDrawable;
+    ScreenPoint vertex = template.getPathVertex();
+    ZonePoint zPoint = vertex.convertToZone(zoneRenderer);
+    vertex.x = zPoint.x;
+    vertex.y = zPoint.y;
+    super.completeDrawable(aZoneId, aPen, aDrawable);
   }
 }

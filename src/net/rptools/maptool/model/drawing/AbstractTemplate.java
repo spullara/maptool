@@ -27,7 +27,6 @@ package net.rptools.maptool.model.drawing;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
@@ -68,11 +67,6 @@ public abstract class AbstractTemplate extends AbstractDrawing {
   /*---------------------------------------------------------------------------------------------
    * Class Variables
    *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * The distances for all squares in the lower right quadrant.
-   */
-  private static float[][] distances = { { 1.0F } };
   
   /**
    * Maximum radius value allowed.
@@ -158,9 +152,9 @@ public abstract class AbstractTemplate extends AbstractDrawing {
    * @param squares The number of squares in the radius for this template.
    */
   public void setRadius(int squares) {
-    radius = Math.min(MAX_RADIUS, Math.max(MIN_RADIUS, squares));
-    if (radius >= distances.length)
-      setDistances(radius + 1); // Make extra room for boundary conditions
+    if (squares > MAX_RADIUS)
+      squares = MAX_RADIUS;
+    radius = squares;
   }
 
   /**
@@ -235,7 +229,6 @@ public abstract class AbstractTemplate extends AbstractDrawing {
    */
   protected void paint(Graphics2D g, boolean border, boolean area) {
     if (radius == 0) return;
-    float[][] distances = getDistances(radius);
 
     // Find the proper distance
     int gridSize = (int)(MapTool.getCampaign().getZone(zoneId).getGridSize() * scale);
@@ -248,9 +241,9 @@ public abstract class AbstractTemplate extends AbstractDrawing {
         
         // Template specific painting
         if (border)
-          paintBorder(g, x, y, xOff, yOff, gridSize, Math.round(distances[x][y]));
+          paintBorder(g, x, y, xOff, yOff, gridSize, Math.round(getDistance(x, y)));
         if (area)
-          paintArea(g, x, y, xOff, yOff, gridSize, Math.round(distances[x][y]));
+          paintArea(g, x, y, xOff, yOff, gridSize, Math.round(getDistance(x, y)));
       } // endfor
     } // endfor
   }
@@ -359,45 +352,16 @@ public abstract class AbstractTemplate extends AbstractDrawing {
    *-------------------------------------------------------------------------------------------*/
 
   /**
-   * Get the quadrant distances.
-   *
-   * @param radius The maximum radius required.
-   * @return The distances structure defines distances from a quadrant of a particular
-   * vertex.
+   * Get the distance to a specific coordinate.
+   * 
+   * @param x X position of the coordinate.
+   * @param y Y position of the coordinate.
+   * @return Number of cell to the passed coordinate.
    */
-  public static synchronized float[][] getDistances(int radius) {
-    if (radius >= distances.length)
-      setDistances(radius + 1); // Make extra room for boundary conditions
-    return distances;
-  }
-  
-  /**
-   * Make sure that <code>distances</code> has enough data for a specific radius in squares.
-   *  
-   * @param squares The radius that must be supported.
-   */
-  public static synchronized void setDistances(int squares) {
-
-    // If the number of squares gets larger, make a new quadrant
-    int oldSquares = distances.length;
-    if (squares <= oldSquares) return;
-    float[][] newDistances = new float[squares][];
-    
-    // Fill the new quadrant, start with the existing data
-    for (int y = 0; y < squares; y++) {
-      newDistances[y] = new float[squares];
-      if (y < oldSquares)
-        System.arraycopy(distances[y], 0, newDistances[y], 0, oldSquares);
-      
-      // Fill in the empty positions
-      for (int x = (y < oldSquares ? oldSquares : 0); x < squares; x++) {
-        float xDistance = (x == 0) ? Float.MAX_VALUE : newDistances[y][x - 1] + 1.0F;
-        float yDistance = (y == 0) ? Float.MAX_VALUE : newDistances[y - 1][x] + 1.0F;
-        float dDistance = (x == 0 || y == 0 ) ? Float.MAX_VALUE : newDistances[y - 1][x - 1] + 1.5F;
-        newDistances[y][x] = Math.min(Math.min(xDistance, yDistance) , dDistance);
-      } // endfor
-    } // endfor
-    distances = newDistances;
+  public static int getDistance(int x, int y) {
+    if (x > y)
+      return x + (y >> 1) + 1;
+    return y + (x >> 1) + 1;
   }
   
   /*---------------------------------------------------------------------------------------------
@@ -426,21 +390,8 @@ public abstract class AbstractTemplate extends AbstractDrawing {
   }
 
   /*---------------------------------------------------------------------------------------------
-  * Drawable Interface Methods
-  *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
-   */
-  public Rectangle getBounds() {
-    int gridSize = (int)(MapTool.getCampaign().getZone(zoneId).getGridSize() * scale);
-    int quadrantSize = radius * gridSize + BOUNDS_PADDING;
-    return new Rectangle(vertex.x - quadrantSize, vertex.y - quadrantSize, quadrantSize * 2, quadrantSize * 2);
-  }
-  
-  /*---------------------------------------------------------------------------------------------
-  * Abstract Methods
-  *-------------------------------------------------------------------------------------------*/
+   * Abstract Methods
+   *-------------------------------------------------------------------------------------------*/
 
   /**
    * Paint the border of the template. Note that all coordinates are for the 

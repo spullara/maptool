@@ -26,6 +26,10 @@
 package net.rptools.maptool.model.drawing;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ScreenPoint;
 
 /**
  * The radius template draws a highlight over all the squares effected from a specific
@@ -48,11 +52,10 @@ public class RadiusTemplate extends AbstractTemplate {
     
     // At the border? It's different for templates.
     int radius = getRadius();
-    float distances[][] = getDistances(radius);
     if (distance == radius) {
       
       // Paint lines between vertical boundaries if needed
-      if (Math.round(distances[x + 1][y]) > radius) {
+      if (getDistance(x + 1, y) > radius) {
         paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
         paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
         paintFarVerticalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
@@ -60,7 +63,7 @@ public class RadiusTemplate extends AbstractTemplate {
       } // endif
       
       // Paint lines between horizontal boundaries if needed
-      if (Math.round(distances[x][y + 1]) > radius) {
+      if (getDistance(x, y + 1) > radius) {
         paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_EAST);
         paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_EAST);
         paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
@@ -84,5 +87,19 @@ public class RadiusTemplate extends AbstractTemplate {
       paintArea(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
       paintArea(g, xOff, yOff, gridSize, Quadrant.SOUTH_WEST);
     } // endif
+  }
+
+  /*---------------------------------------------------------------------------------------------
+   * Drawable Interface Methods
+   *-------------------------------------------------------------------------------------------*/
+  
+  /**
+   * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
+   */
+  public Rectangle getBounds() {
+    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGridSize() * getScale());
+    int quadrantSize = getRadius() * gridSize + BOUNDS_PADDING;
+    ScreenPoint vertex = getVertex();
+    return new Rectangle(vertex.x - quadrantSize, vertex.y - quadrantSize, quadrantSize * 2, quadrantSize * 2);
   }
 }

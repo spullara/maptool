@@ -171,7 +171,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     CellPoint vertexCell = zoneRenderer.getCellAt(template.getVertex());
     int x = Math.abs(workingCell.x - vertexCell.x);
     int y = Math.abs(workingCell.y - vertexCell.y);
-    return (int) AbstractTemplate.getDistances(x + y)[x][y];
+    return AbstractTemplate.getDistance(x, y);
   }
 
   /**
@@ -234,6 +234,24 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     template.setScale(1.0);
   }
 
+  /**
+   * New instance of the template, at the passed vertex
+   * 
+   * @param vertex The starting vertex for the new template or
+   * <code>null</code> if we should use the current template's vertex.
+   */
+  protected void resetTool(ScreenPoint vertex) {
+    anchorSet = false;
+    if (vertex == null) {
+      vertex = template.getVertex();
+      vertex = new ScreenPoint(vertex.x, vertex.y); // Must create copy!
+    } // endif
+    template = createBaseTemplate();
+    template.setVertex(vertex);
+    template.setZoneId(zoneRenderer.getZone().getId());
+    zoneRenderer.repaint();
+  }
+
   /*---------------------------------------------------------------------------------------------
    * MouseMotionListener Interface Methods
    *-------------------------------------------------------------------------------------------*/
@@ -283,15 +301,9 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    */
   @Override
   protected void resetTool() {
-    anchorSet = false;
-    ScreenPoint vertex = template.getVertex();
-    vertex = new ScreenPoint(vertex.x, vertex.y); // Must create copy!
-    template = createBaseTemplate();
-    template.setVertex(vertex);
-    template.setZoneId(zoneRenderer.getZone().getId());
-    zoneRenderer.repaint();
+    resetTool(null);
   }
-
+  
   /**
    * It is OK to modify the pen returned by this method
    * 
@@ -373,12 +385,13 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     setIsEraser(SwingUtilities.isRightMouseButton(e));
     template.setRadius(getRadiusAtMouse(e));
     ScreenPoint vertex = template.getVertex();
+    ScreenPoint newPoint = new ScreenPoint(vertex.x, vertex.y);
     ZonePoint zPoint = vertex.convertToZone(zoneRenderer);
     vertex.x = zPoint.x;
     vertex.y = zPoint.y;
     completeDrawable(zoneRenderer.getZone().getId(), getPen(), template);
     setIsEraser(false);
-    resetTool();
+    resetTool(newPoint);
   }
 
   /**
