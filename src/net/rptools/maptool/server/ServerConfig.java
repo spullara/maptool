@@ -56,7 +56,7 @@ public class ServerConfig {
 		this.serverPassword = serverPassword;
 	}
 	
-	public boolean registerServer() {
+	public boolean isServerRegistered() {
 		return registerServer;
 	}
 	

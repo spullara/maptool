@@ -321,7 +321,7 @@ public class MapTool {
         }
         
         // Registered ?
-        if (config.registerServer() && !config.isPersonalServer()) {
+        if (config.isServerRegistered() && !config.isPersonalServer()) {
         	MapToolRegistry.registerInstance(config.getServerName(), config.getPort(), config.getServerPassword());
         }
 	}
@@ -429,8 +429,12 @@ public class MapTool {
     		announcer = null;
     	}
 
+        if (conn == null || !conn.isAlive()) {
+            return;
+        }
+        
     	// Unregister ourselves
-    	if (server != null && server.getConfig().registerServer() && !server.getConfig().isPersonalServer()) {
+    	if (server != null && server.getConfig().isServerRegistered() && !server.getConfig().isPersonalServer()) {
     		try {
     			MapToolRegistry.unregisterInstance(server.getConfig().getPort());
     		} catch (Throwable t) {
@@ -438,10 +442,6 @@ public class MapTool {
     		}
     	}
     	
-        if (conn == null || !conn.isAlive()) {
-            return;
-        }
-        
         try {
             conn.close();
             conn = null;
@@ -451,6 +451,7 @@ public class MapTool {
             // This isn't critical, we're closing it anyway
             ioe.printStackTrace();
         }
+        
         MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.disconnected);
     }
     

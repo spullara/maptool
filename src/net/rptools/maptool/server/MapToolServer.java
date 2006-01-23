@@ -25,9 +25,11 @@
 package net.rptools.maptool.server;
 
 import java.io.IOException;
+import java.util.Random;
 
 import net.rptools.clientserver.hessian.server.ServerConnection;
 import net.rptools.clientserver.simple.server.ServerObserver;
+import net.rptools.maptool.client.MapToolRegistry;
 import net.rptools.maptool.model.Campaign;
 
 
@@ -42,6 +44,8 @@ public class MapToolServer {
     private Campaign campaign;
 	private ServerConfig config;
 	private ServerPolicy policy;
+	
+	private HeartbeatThread heartbeatThread;
 
     public MapToolServer(ServerConfig config, ServerPolicy policy) throws IOException {
     	
@@ -53,6 +57,12 @@ public class MapToolServer {
 		
 		this.config = config;
 		this.policy = policy;
+		
+		// Start a heartbeat if requested
+		if (config.isServerRegistered()) {
+			heartbeatThread = new HeartbeatThread();
+			heartbeatThread.start();
+		}
     }
 
     public void addObserver(ServerObserver observer) {
@@ -99,9 +109,43 @@ public class MapToolServer {
     public void stop() {
     	try {
     		conn.close();
+    		
+    		if (heartbeatThread != null) {
+    			heartbeatThread.shutdown();
+    		}
     	} catch (IOException e) {
     		// Not too concerned about this
     		e.printStackTrace();
+    	}
+    }
+
+    private static final Random random = new Random();
+    private class HeartbeatThread extends Thread {
+    	
+    	private boolean stop = false;
+    	private static final int HEARTBEAT_DELAY = 7 * 60 * 1000; // 7 minutes
+    	private static final int HEARTBEAT_FLUX = 20 * 1000; // 20 seconds
+    	
+    	@Override
+    	public void run() {
+    		
+    		while (!stop) {
+
+    			try {
+    				Thread.sleep(HEARTBEAT_DELAY + (int)(HEARTBEAT_FLUX * random.nextFloat()));
+    			} catch (InterruptedException ie) {
+    				// This means stop
+    				break;
+    			}
+    			
+    			// Pulse
+    			MapToolRegistry.heartBeat(config.getPort());
+    		}
+    	}
+    	
+    	public void shutdown() {
+    		stop = true;
+    		interrupt();
     	}
     }
     

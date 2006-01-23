@@ -122,7 +122,6 @@ public class StartServerDialog extends JDialog {
 
 		getServerNameTextField().setEnabled(prefs.registerServer());
 		getServerPasswordTextField().setEnabled(prefs.registerServer());
-		getTestRegisterButton().setEnabled(registerCheckBox.isSelected());
 	}
 	
 	public int getRole() {
@@ -149,10 +148,6 @@ public class StartServerDialog extends JDialog {
 	 */
 	private javax.swing.JPanel getJContentPane() {
 		if(jContentPane == null) {
-			GridBagConstraints gridBagConstraints22 = new GridBagConstraints();
-			gridBagConstraints22.gridx = 2;
-			gridBagConstraints22.anchor = java.awt.GridBagConstraints.EAST;
-			gridBagConstraints22.gridy = 11;
 			GridBagConstraints gridBagConstraints111 = new GridBagConstraints();
 			gridBagConstraints111.gridx = 0;
 			gridBagConstraints111.gridy = 3;
@@ -298,7 +293,6 @@ public class StartServerDialog extends JDialog {
 			jContentPane.add(spacerLabel, gridBagConstraints91);
 			jContentPane.add(spacerLabel1, gridBagConstraints101);
 			jContentPane.add(spacerLabel2, gridBagConstraints111);
-			jContentPane.add(getTestRegisterButton(), gridBagConstraints22);
 		}
 		return jContentPane;
 	}
@@ -371,6 +365,7 @@ public class StartServerDialog extends JDialog {
 			jPanel1 = new JPanel();
 			jPanel1.setLayout(flowLayout11);
 			flowLayout11.setAlignment(java.awt.FlowLayout.RIGHT);
+			jPanel1.add(getTestRegisterButton(), null);
 			jPanel1.add(getOkButton(), null);
 			jPanel1.add(getCancelButton(), null);
 		}
@@ -568,7 +563,6 @@ public class StartServerDialog extends JDialog {
 
 					getServerNameTextField().setEnabled(registerCheckBox.isSelected());
 					getServerPasswordTextField().setEnabled(registerCheckBox.isSelected());
-					getTestRegisterButton().setEnabled(registerCheckBox.isSelected());
 				}
 			});
 		}
@@ -627,13 +621,13 @@ public class StartServerDialog extends JDialog {
 								server.start();
 								
 								if (MapToolRegistry.testConnection(getPort())) {
-									MapTool.showInformation("Success!");
+									MapTool.showInformation("Success! I could successfully connect to your computer from the internet.");
 								} else {
 									MapTool.showError("Could not see your computer from the internet");
 								}
 							} catch (Exception e) {
 								e.printStackTrace();
-								MapTool.showError("Unable to see your computer from the internet");
+								MapTool.showError("Unable to see your computer from the internet.  Check your firewall port settings.");
 							} finally {
 								// Need to make sure it dies so that it doesn't keep the port open ...
 								// we're going to need it very soon !
