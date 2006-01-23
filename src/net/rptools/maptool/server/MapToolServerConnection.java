@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.rptools.clientserver.hessian.server.ServerConnection;
 import net.rptools.clientserver.simple.server.ServerObserver;
@@ -39,7 +40,7 @@ import net.rptools.maptool.model.Player;
  */
 public class MapToolServerConnection extends ServerConnection  implements ServerObserver {
 
-	private Map<String, Player> playerMap = new HashMap<String, Player>();
+	private Map<String, Player> playerMap = new ConcurrentHashMap<String, Player>();
 	
 	private MapToolServer server;
 	
@@ -73,7 +74,12 @@ public class MapToolServerConnection extends ServerConnection  implements Server
 	
 	public Player getPlayer(String id) {
 
-		return playerMap.get(id.toUpperCase());
+		for (Player player : playerMap.values()) {
+			if (player.getName().equalsIgnoreCase(id)) {
+				return player;
+			}
+		}
+		return null;
 	}
 	
     ////
