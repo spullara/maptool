@@ -557,7 +557,7 @@ public class StartServerDialog extends JDialog {
 	private JCheckBox getRegisterCheckBox() {
 		if (registerCheckBox == null) {
 			registerCheckBox = new JCheckBox();
-			registerCheckBox.setText("Register with RPTools.net");
+			registerCheckBox.setText("Publish to RPTools.net");
 			registerCheckBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 
