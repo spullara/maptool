@@ -32,6 +32,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Transparency;
 import java.awt.dnd.DropTarget;
@@ -44,6 +45,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.QuadCurve2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -514,12 +516,42 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				if (token == keyToken) {
 
 					// Render the path
-					boolean firstCell = true;
+					Object oldRendering = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+					g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+					CellPoint previousPoint = null;
+					Point previousHalfPoint = null;
+					// JOINTS
 					List<CellPoint> path = walker.getPath();
 					for (CellPoint p : path) {
-						highlightCell(g, p, walker.isWaypoint(p) && !firstCell? ClientStyle.cellWaypointImage : ClientStyle.cellPathImage);
-						firstCell = false;
+						
+						highlightCell(g, p, walker.isWaypoint(p) && previousPoint != null? ClientStyle.cellWaypointImage : ClientStyle.cellPathImage);
+						previousPoint = p;
 					}
+
+					previousPoint = null;
+					for (CellPoint p : path) {
+
+						if (previousPoint != null) {
+							// LATER: Optimize this
+							ScreenPoint origin = ScreenPoint.fromZonePoint(this, previousPoint.x*zone.getGridSize()+zone.getGridOffsetX()+(zone.getGridSize()/2), previousPoint.y*zone.getGridSize() + zone.getGridOffsetY()+(zone.getGridSize()/2));
+							ScreenPoint destination = ScreenPoint.fromZonePoint(this, p.x*zone.getGridSize()+zone.getGridOffsetX()+(zone.getGridSize()/2), p.y*zone.getGridSize() + zone.getGridOffsetY()+(zone.getGridSize()/2));
+
+							int halfx = (int)((origin.x + destination.x)/2);
+							int halfy = (int)((origin.y + destination.y)/2);
+							Point halfPoint = new Point(halfx, halfy);
+
+							if (previousHalfPoint != null) {
+								g.setColor(Color.blue);
+								QuadCurve2D curve = new QuadCurve2D.Float(previousHalfPoint.x, previousHalfPoint.y, origin.x, origin.y, halfPoint.x, halfPoint.y);
+								g.draw(curve);
+							}
+
+							previousHalfPoint = halfPoint;
+						}
+						previousPoint = p;
+					}
+					g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldRendering);
+
 				}
 
 				// Center token in cell if it is smaller than a single cell
@@ -557,7 +589,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		// Top left of cell
 		ScreenPoint p = ScreenPoint.fromZonePoint(this, point.x*zone.getGridSize()+zone.getGridOffsetX(), point.y*zone.getGridSize() + zone.getGridOffsetY());
 
-		g.drawImage(image, p.x+gridSize/3, p.y+gridSize/3, gridSize/3, gridSize/3, this);
+		g.drawImage(image, p.x, p.y, gridSize, gridSize, this);
 	}
 	
     protected void renderTokens(Graphics2D g) {
