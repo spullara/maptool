@@ -40,6 +40,7 @@ public interface ZoneWalker {
   
   public int getDistance();
   public List<CellPoint> getPath();
+  public CellPoint getLastPoint();
   
   /**
    * Remove an existing waypoint. Nothing is removed if the passed point is not a waypoint.

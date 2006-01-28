@@ -72,19 +72,9 @@ public class MeasureTool extends DefaultTool {
             return;
         }
 
-        CellPoint firstCell = null;
-        CellPoint lastCell = null;
-        for (CellPoint point : walker.getPath()) {
-            
-            renderer.highlightCell(g, point, walker.isWaypoint(point) && firstCell != null ? ClientStyle.cellWaypointImage : ClientStyle.cellPathImage);
+        renderer.renderPath(g, walker);
 
-            lastCell = point;
-            if (firstCell == null) {
-                firstCell = point;
-            }
-        }
-
-        ScreenPoint sp = lastCell.convertToScreen(renderer);
+        ScreenPoint sp = walker.getLastPoint().convertToScreen(renderer);
         
         int y = sp.y - 10;
         int x = sp.x + (int)(renderer.getScaledGridSize()/2);

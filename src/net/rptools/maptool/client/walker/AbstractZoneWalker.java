@@ -43,6 +43,15 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
         return zone;
     }
     
+    public CellPoint getLastPoint() {
+    	if (partialPaths.size() == 0) {
+    		return null;
+    	}
+    	
+    	PartialPath lastPath = partialPaths.get(partialPaths.size()-1);
+    	return lastPath.end;
+    }
+    
     public void setWaypoints(CellPoint... points) {
     	partialPaths.clear();
     	addWaypoints(points);
