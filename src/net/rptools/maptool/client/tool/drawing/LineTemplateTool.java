@@ -61,7 +61,7 @@ public class LineTemplateTool extends RadiusTemplateTool {
   public LineTemplateTool() {
     try {
       setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream(
-          "net/rptools/maptool/client/image/Tool_Draw_Line_Template.GIF"))));
+          "net/rptools/maptool/client/image/tool/LineTemplate.png"))));
     } catch (IOException ioe) {
       ioe.printStackTrace();
     } // endtry

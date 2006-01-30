@@ -34,6 +34,7 @@ import java.util.Comparator;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 
 import net.rptools.clientserver.ActivityListener;

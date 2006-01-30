@@ -53,6 +53,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
+import javax.swing.plaf.basic.BasicSplitPaneDivider;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.image.ImageUtil;
@@ -207,16 +210,20 @@ public class MapToolFrame extends JFrame implements WindowListener {
         
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(BorderLayout.CENTER, zoneRendererPanel);
+        mainPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         
 		// Split left/right
 		mainSplitPane = new JSplitPaneEx();
+		mainSplitPane.setBorder(null);
+		
 		mainSplitPane.setLeftComponent(taskPanel);
 		mainSplitPane.setRightComponent(mainPanel);
 		mainSplitPane.setInitialDividerPosition(150);
-        mainSplitPane.setBorder(null);
+		BasicSplitPaneDivider divider = ((BasicSplitPaneUI) mainSplitPane.getUI()).getDivider();
+		if (divider != null) divider.setBorder(null);
         
 		JPanel mainInnerPanel = new JPanel(new BorderLayout());
-		mainInnerPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+		mainInnerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 1));
 		mainInnerPanel.add(BorderLayout.CENTER, mainSplitPane);
 		
 		// Put it all together

@@ -99,7 +99,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
   public RadiusTemplateTool() {
     try {
       setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream(
-          "net/rptools/maptool/client/image/Tool_Draw_Radius_Template.GIF"))));
+          "net/rptools/maptool/client/image/tool/RadiusTemplate.png"))));
     } catch (IOException ioe) {
       ioe.printStackTrace();
     } // endtry

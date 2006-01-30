@@ -59,7 +59,7 @@ public class ConeTemplateTool extends RadiusTemplateTool {
   public ConeTemplateTool() {
     try {
       setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream(
-          "net/rptools/maptool/client/image/Tool_Draw_Cone_Template.GIF"))));
+          "net/rptools/maptool/client/image/tool/ConeTemplate.png"))));
     } catch (IOException ioe) {
       ioe.printStackTrace();
     } // endtry
