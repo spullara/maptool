@@ -70,7 +70,6 @@ import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.swing.ColorPickerButton;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
@@ -137,8 +136,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
     
 	private JSplitPaneEx mainSplitPane;
 	
-	private ColorPickerButton foregroundColorPicker = new ColorPickerButton("Foreground color", Color.black);
-	private ColorPickerButton backgroundColorPicker = new ColorPickerButton("Background color", Color.white);
     private PenWidthChooser widthChooser = new PenWidthChooser();
 
 	private StatusPanel statusPanel;
