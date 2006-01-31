@@ -1,4 +1,9 @@
 <project name="maptool" default="dist">
+	<import file="../rplib/common-webstart-targets.xml" />
+</project>
+
+<!--
+<project name="maptool" default="dist">
 	<target name="init">
 		<property file="conf/build.properties" />
 		
@@ -70,8 +75,6 @@
              manifest="conf/manifest.mf"
 			 basedir="${build}" />
 		
-		<!-- ZIP FILE CREATION -->
-		
 		<copy todir="${tmp.zipdir}/lib">
 			<fileset dir="${lib}" />
 		</copy>
@@ -80,8 +83,6 @@
 
 		<zip destfile="${dist}/maptool-${app.version}.zip"
 		     basedir="${tmp.zipdir}" />
-		
-		<!-- WEBSTART FILE CREATION -->
 		
 		<copy todir="${dist}/webstart">
 			<fileset dir="lib" />
@@ -102,3 +103,4 @@
 	</target>
 	
 </project>
+-->
