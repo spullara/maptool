@@ -174,16 +174,19 @@ public class MapToolFrame extends JFrame implements WindowListener {
         colorPicker.setSize(colorPicker.getMinimumSize());
         colorPicker.setVisible(false);
         
+        String credits = "";
+        String version = "";
+        Image logo = null;
         try {
-            String credits = new String(FileUtil.loadResource("net/rptools/maptool/client/credits.html"));
-            String version = MapTool.getVersion();
+            credits = new String(FileUtil.loadResource("net/rptools/maptool/client/credits.html"));
+            version = MapTool.getVersion();
             credits = credits.replace("%VERSION%", version);
-            Image logo = ImageUtil.getImage("net/rptools/lib/image/rptools-logo.png");
+            logo = ImageUtil.getImage("net/rptools/lib/image/rptools-logo.png");
         	
-            aboutDialog = new AboutDialog(this, logo, credits);
-        } catch (IOException ioe) {
+        } catch (Exception ioe) {
         	// This won't happen
         }
+        aboutDialog = new AboutDialog(this, logo, credits);
 
         taskPanel.add("Image Explorer", assetPanel);
         taskPanel.add("Tokens", tokenPanel);

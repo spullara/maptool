@@ -40,8 +40,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.Area;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -375,6 +375,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 					} else {
 					    zonePoint.translate(-dragOffsetX, -dragOffsetY);
                     }
+					
+					// Make sure it's a valid move
+					if (!validateMove(tokenBeingDragged, renderer.getSelectedTokenSet(), zonePoint)) {
+						return;
+					}
 
 					renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), zonePoint);
 					MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), zonePoint.x, zonePoint.y);
@@ -408,6 +413,46 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
             }
 		}
 	}	
+	
+	private boolean validateMove(Token leadToken, Set<GUID> tokenSet, ZonePoint point) {
+
+		Zone zone = renderer.getZone();
+		if (MapTool.getPlayer().isGM()) {
+			return true;
+		}
+		
+		if (zone.hasFog()) {
+			
+			// Check that the new position for each token is within the exposed area
+			Area fow = zone.getExposedArea();
+			if (fow == null) {
+				return true;
+			}
+
+			int deltaX = point.x - leadToken.getX();
+			int deltaY = point.y - leadToken.getY();
+            Rectangle bounds = new Rectangle();
+			for (GUID tokenGUID : tokenSet) {
+				Token token = zone.getToken(tokenGUID);
+				if (token == null) {
+					continue;
+				}
+				
+				int x = token.getX() + deltaX;
+				int y = token.getY() + deltaY;
+	            int width = TokenSize.getWidth(token, zone.getGridSize());
+	            int height = TokenSize.getHeight(token, zone.getGridSize());
+
+	            bounds.setBounds(x, y, width, height);
+	            
+	            if (!fow.intersects(bounds)) {
+	            	return false;
+	            }
+			}
+		}
+		
+		return true;
+	}
 	
 	/* (non-Javadoc)
 	 * @see net.rptools.maptool.client.Tool#getKeyActionMap()
