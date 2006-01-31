@@ -807,6 +807,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         if (!AppUtil.playerOwnsToken(token)) {
         	return;
         }
+
+        if (!MapTool.getPlayer().isGM() && !zone.isTokenVisible(token)) {
+        	return;
+        }
         
     	selectedTokenSet.add(tokenGUID);
     	
