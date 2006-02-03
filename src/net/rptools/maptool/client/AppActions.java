@@ -55,6 +55,7 @@ import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.NewMapDialog;
+import net.rptools.maptool.client.ui.ServerInfoDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
 import net.rptools.maptool.client.ui.Toolbox;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
@@ -80,6 +81,28 @@ public class AppActions {
 
 	private static Set<Token> tokenCopySet = null;
 
+	public static final Action SHOW_SERVER_INFO = new DefaultClientAction() {
+		{
+			init("action.showServerInfo");
+		}
+
+		@Override
+		public boolean isAvailable() {
+			return super.isAvailable()
+					&& MapTool.isHostingServer();
+		}
+
+		public void execute(ActionEvent e) {
+
+			if (MapTool.getServer() == null) {
+				return;
+			}
+			
+			ServerInfoDialog dialog = new ServerInfoDialog(MapTool.getServer());
+			dialog.setVisible(true);
+		}
+	};
+	
 	public static final Action COPY_TOKENS = new DefaultClientAction() {
 		{
 			init("action.copyTokens");

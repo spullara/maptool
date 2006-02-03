@@ -24,6 +24,11 @@ public class MapToolRegistry {
         return service.findInstance(id, password);
     }
 
+    public static String getAddress() {
+    	checkService();
+    	return service.getAddress();
+    }
+    
     public static int registerInstance(String id, int port, String password) {
 		checkService();
 		return service.registerInstance(id, port, password);

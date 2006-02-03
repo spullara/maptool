@@ -15,4 +15,6 @@ public interface MapToolRegistryService {
 	public boolean testConnection(int port);
 	
 	public void heartBeat(int port);
+	
+	public String getAddress();
 }

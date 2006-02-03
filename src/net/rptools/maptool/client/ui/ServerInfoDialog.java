@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
@@ -34,6 +35,9 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolRegistry;
 import net.rptools.maptool.server.MapToolServer;
 
 public class ServerInfoDialog extends JDialog {
@@ -45,9 +49,10 @@ public class ServerInfoDialog extends JDialog {
 	private JLabel localAddressDetailLabel = null;
 	private JLabel externalAddressLabel = null;
 	private JLabel externalAddressDetailLabel = null;
-	private JLabel spacerLabel = null;
 	private JPanel buttonPanel = null;
 	private JButton okButton = null;
+	private JLabel titleLabel = null;
+	private JLabel spacerLabel2 = null;
 	/**
 	 * This is the default constructor
 	 */
@@ -69,10 +74,20 @@ public class ServerInfoDialog extends JDialog {
 		}
 		
 		String externalAddress = "Discovering ...";
+		new Thread(new ExternalAddressFinder()).start();
 		
 		nameDetailLabel.setText(name);
 		localAddressDetailLabel.setText(localAddress);
 		externalAddressDetailLabel.setText(externalAddress);
+	}
+	
+	@Override
+	public void setVisible(boolean b) {
+
+		if (b) {
+			SwingUtil.centerOver(this, MapTool.getFrame());
+		}
+		super.setVisible(b);
 	}
 
 	/**
@@ -81,7 +96,7 @@ public class ServerInfoDialog extends JDialog {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setSize(300, 173);
+		this.setSize(300, 221);
 		this.setTitle("Server Info");
 		this.setContentPane(getJContentPane());
 	}
@@ -93,30 +108,38 @@ public class ServerInfoDialog extends JDialog {
 	 */
 	private JPanel getJContentPane() {
 		if (jContentPane == null) {
+			GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
+			gridBagConstraints21.gridx = 2;
+			gridBagConstraints21.gridy = 1;
+			spacerLabel2 = new JLabel();
+			spacerLabel2.setText("   ");
+			GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
+			gridBagConstraints11.gridx = 0;
+			gridBagConstraints11.gridwidth = 3;
+			gridBagConstraints11.insets = new java.awt.Insets(0,0,5,0);
+			gridBagConstraints11.gridy = 0;
+			titleLabel = new JLabel();
+			titleLabel.setText("Server Info");
+			titleLabel.setFont(new java.awt.Font("Dialog", java.awt.Font.BOLD, 14));
 			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
 			gridBagConstraints7.gridx = 0;
 			gridBagConstraints7.gridwidth = 3;
-			gridBagConstraints7.anchor = java.awt.GridBagConstraints.EAST;
-			gridBagConstraints7.gridy = 4;
-			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-			gridBagConstraints6.gridx = 2;
-			gridBagConstraints6.weighty = 1.0;
-			gridBagConstraints6.gridy = 3;
-			spacerLabel = new JLabel();
-			spacerLabel.setText("   ");
+			gridBagConstraints7.anchor = java.awt.GridBagConstraints.SOUTHEAST;
+			gridBagConstraints7.weighty = 1.0;
+			gridBagConstraints7.gridy = 6;
 			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
 			gridBagConstraints5.gridx = 2;
 			gridBagConstraints5.weightx = 1.0;
 			gridBagConstraints5.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints5.insets = new java.awt.Insets(0,0,5,0);
-			gridBagConstraints5.gridy = 2;
+			gridBagConstraints5.gridy = 4;
 			externalAddressDetailLabel = new JLabel();
 			externalAddressDetailLabel.setText("   ");
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
 			gridBagConstraints4.gridx = 0;
 			gridBagConstraints4.anchor = java.awt.GridBagConstraints.WEST;
 			gridBagConstraints4.insets = new java.awt.Insets(0,0,5,5);
-			gridBagConstraints4.gridy = 2;
+			gridBagConstraints4.gridy = 4;
 			externalAddressLabel = new JLabel();
 			externalAddressLabel.setText("External Address:");
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
@@ -124,14 +147,14 @@ public class ServerInfoDialog extends JDialog {
 			gridBagConstraints3.weightx = 1.0;
 			gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints3.insets = new java.awt.Insets(0,0,5,0);
-			gridBagConstraints3.gridy = 1;
+			gridBagConstraints3.gridy = 3;
 			localAddressDetailLabel = new JLabel();
 			localAddressDetailLabel.setText("   ");
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 			gridBagConstraints2.gridx = 0;
 			gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
 			gridBagConstraints2.insets = new java.awt.Insets(0,0,5,0);
-			gridBagConstraints2.gridy = 1;
+			gridBagConstraints2.gridy = 3;
 			localAddressLabel = new JLabel();
 			localAddressLabel.setText("Local Address:");
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
@@ -139,14 +162,14 @@ public class ServerInfoDialog extends JDialog {
 			gridBagConstraints1.weightx = 1.0;
 			gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints1.insets = new java.awt.Insets(0,0,5,0);
-			gridBagConstraints1.gridy = 0;
+			gridBagConstraints1.gridy = 2;
 			nameDetailLabel = new JLabel();
 			nameDetailLabel.setText("   ");
 			GridBagConstraints gridBagConstraints = new GridBagConstraints();
 			gridBagConstraints.gridx = 0;
 			gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
 			gridBagConstraints.insets = new java.awt.Insets(0,0,5,0);
-			gridBagConstraints.gridy = 0;
+			gridBagConstraints.gridy = 2;
 			nameLabel = new JLabel();
 			nameLabel.setText("Name:");
 			jContentPane = new JPanel();
@@ -158,8 +181,9 @@ public class ServerInfoDialog extends JDialog {
 			jContentPane.add(localAddressDetailLabel, gridBagConstraints3);
 			jContentPane.add(externalAddressLabel, gridBagConstraints4);
 			jContentPane.add(externalAddressDetailLabel, gridBagConstraints5);
-			jContentPane.add(spacerLabel, gridBagConstraints6);
 			jContentPane.add(getButtonPanel(), gridBagConstraints7);
+			jContentPane.add(titleLabel, gridBagConstraints11);
+			jContentPane.add(spacerLabel2, gridBagConstraints21);
 		}
 		return jContentPane;
 	}
@@ -193,6 +217,25 @@ public class ServerInfoDialog extends JDialog {
 			});
 		}
 		return okButton;
+	}
+	
+	private class ExternalAddressFinder implements Runnable {
+		public void run() {
+			
+			String address = "Unknown";
+			try {
+				address = MapToolRegistry.getAddress();
+			} catch (Exception e) {
+				// Oh well, might not be connected
+			}
+
+			final String addy = address;
+			EventQueue.invokeLater(new Runnable(){
+				public void run() {
+					externalAddressDetailLabel.setText(addy);
+				}
+			});
+		}
 	}
 
 }  //  @jve:decl-index=0:visual-constraint="10,10"

@@ -171,6 +171,10 @@ public class MapTool {
     public static void endDeterminateAction() {
     	//clientFrame.endDeterminateAction();
     }
+
+    public static MapToolServer getServer() {
+    	return server;
+    }
     
     public static void addPlayer(Player player) {
         if (!playerList.contains(player)) {
