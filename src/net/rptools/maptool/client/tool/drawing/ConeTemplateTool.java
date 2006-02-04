@@ -82,7 +82,7 @@ public class ConeTemplateTool extends RadiusTemplateTool {
    */
   @Override
   public String getTooltip() {
-    return "Draw a cone template";
+    return "tool.cone.tooltip";
   }
 
   /**

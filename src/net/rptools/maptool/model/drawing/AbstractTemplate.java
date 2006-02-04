@@ -360,8 +360,8 @@ public abstract class AbstractTemplate extends AbstractDrawing {
    */
   public static int getDistance(int x, int y) {
     if (x > y)
-      return x + (y >> 1) + 1;
-    return y + (x >> 1) + 1;
+      return x + (y / 2) + 1 + (y & 1);
+    return y + (x / 2) + 1 + (x & 1);
   }
   
   /*---------------------------------------------------------------------------------------------

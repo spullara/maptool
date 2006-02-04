@@ -46,6 +46,6 @@ public abstract class AbstractPoint {
     }
     
     public String toString() {
-        return "[" + x + "." + y + "]";
+        return "[" + x + "," + y + "]";
     }
 }

@@ -127,6 +127,9 @@ public class AppMenuBar extends JMenuBar {
         JCheckBoxMenuItem item = new JCheckBoxMenuItem(AppActions.TOGGLE_DRAW_MEASUREMENTS);
         item.setSelected(true);
         menu.add(item);
+        item = new JCheckBoxMenuItem(AppActions.TOGGLE_DOUBLE_WIDE);
+        item.setSelected(true);
+        menu.add(item);
 
         if (MapToolUtil.isDebugEnabled()) {
             menu.addSeparator();

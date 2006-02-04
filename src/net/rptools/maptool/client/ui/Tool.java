@@ -43,6 +43,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 
 /**
  */
@@ -61,7 +62,7 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
         addChangeListener(this);
         addActionListener(this);
         
-        setToolTipText(getTooltip());
+        setToolTipText(I18N.getText(getTooltip()));
     }
 
     public abstract String getTooltip();

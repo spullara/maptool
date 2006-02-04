@@ -52,6 +52,7 @@ import javax.swing.KeyStroke;
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
+import net.rptools.maptool.client.tool.drawing.LineTemplateTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.NewMapDialog;
@@ -1054,6 +1055,20 @@ public class AppActions {
 					!MapTool.getFrame().isPaintDrawingMeasurement());
 		}
 	};
+  
+  /**
+   * Toggle drawing straight lines at double width on the line tool.
+   */
+  public static final Action TOGGLE_DOUBLE_WIDE = new DefaultClientAction() {
+    {
+      init("action.toggleDoubleWide");
+    }
+
+    public void execute(ActionEvent ae) {
+      LineTemplateTool ltt = MapTool.getFrame().getLineTemplateTool();
+      ltt.setDoubleWide(!ltt.isDoubleWide());
+    }
+  };
 
 	private static List<ClientAction> actionList;
 

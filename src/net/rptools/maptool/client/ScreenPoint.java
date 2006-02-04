@@ -63,4 +63,13 @@ public class ScreenPoint extends AbstractPoint {
     public String toString() {
         return "ScreenPoint" + super.toString();
     }
+    
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object pt) {
+      if (!(pt instanceof ScreenPoint)) return false;
+      ScreenPoint spt = (ScreenPoint)pt;
+      return spt.x == x && spt.y == y;
+    }
 }

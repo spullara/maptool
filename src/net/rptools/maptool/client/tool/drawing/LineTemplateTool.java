@@ -52,6 +52,21 @@ import net.rptools.maptool.model.drawing.AbstractTemplate.Quadrant;
 public class LineTemplateTool extends RadiusTemplateTool {
 
   /*---------------------------------------------------------------------------------------------
+   * Instance Variables
+   *-------------------------------------------------------------------------------------------*/
+
+  /**
+   * Has the anchoring point been set? When false, the anchor point is being
+   * placed. When true, the area of effect is being drawn on the display.
+   */
+  private boolean pathAnchorSet;
+
+  /**
+   * Are stright lines drawn double width?
+   */
+  private boolean doubleWide;
+  
+  /*---------------------------------------------------------------------------------------------
    * Constructor 
    *-------------------------------------------------------------------------------------------*/
 
@@ -87,6 +102,25 @@ public class LineTemplateTool extends RadiusTemplateTool {
     return new LineTemplate();
   }
 
+  /**
+   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#resetTool(net.rptools.maptool.client.ScreenPoint)
+   */
+  @Override
+  protected void resetTool(ScreenPoint aVertex) {
+    super.resetTool(aVertex);
+    pathAnchorSet = false;
+    ((LineTemplate) template).setDoubleWide(isDoubleWide());
+    
+  }
+  
+  /**
+   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#getTooltip()
+   */
+  @Override
+  public String getTooltip() {
+    return "tool.linetemplate.tooltip";
+  }
+  
   /*---------------------------------------------------------------------------------------------
    * Overridden AbstractDrawingTool Methods
    *-------------------------------------------------------------------------------------------*/
@@ -104,10 +138,57 @@ public class LineTemplateTool extends RadiusTemplateTool {
       paintTemplate(g, pen);
       paintCursor(g, new Color(pen.getColor()), pen.getThickness(), vertex);
       if (pathVertex != null) {
-//        paintCursor(g, new Color(pen.getBackgroundColor()), pen.getThickness(), pathVertex);
+        paintCursor(g, new Color(pen.getColor()), pen.getThickness(), pathVertex);
         paintRadius(g, vertex);
       } // endif
     } // endif
+  }
+
+  /**
+   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#getRadiusAtMouse(java.awt.event.MouseEvent)
+   */
+  @Override
+  protected int getRadiusAtMouse(MouseEvent aE) {
+    int radius = super.getRadiusAtMouse(aE);
+    return Math.max(0, radius - 1);
+  }
+  
+  /**
+   * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#completeDrawable(net.rptools.maptool.model.GUID, net.rptools.maptool.model.drawing.Pen, net.rptools.maptool.model.drawing.Drawable)
+   */
+  @Override
+  protected void completeDrawable(GUID aZoneId, Pen aPen, Drawable aDrawable) {
+    
+    // Need to convert the pathVertex in the line template before we complete the template
+    LineTemplate template = (LineTemplate)aDrawable;
+    ScreenPoint vertex = template.getPathVertex();
+    ZonePoint zPoint = vertex.convertToZone(zoneRenderer);
+    vertex.x = zPoint.x;
+    vertex.y = zPoint.y;
+    super.completeDrawable(aZoneId, aPen, aDrawable);
+  }
+  
+  /**
+   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#mousePressed(java.awt.event.MouseEvent)
+   */
+  @Override
+  public void mousePressed(MouseEvent aE) {
+    if (!painting)
+      return;
+    
+    // Need to set the anchor?
+    if (!anchorSet) {
+      anchorSet = true;
+      return;
+    } // endif
+    
+    if (!pathAnchorSet) {
+      pathAnchorSet = true;
+      return;
+    } // endif
+
+    // Let the radius code finish the template
+    super.mousePressed(aE);
   }
 
   /*---------------------------------------------------------------------------------------------
@@ -124,7 +205,7 @@ public class LineTemplateTool extends RadiusTemplateTool {
     ScreenPoint pathVertex = lt.getPathVertex();
     if (!anchorSet) {
       setCellAtMouse(e, template.getVertex());
-    } else {
+    } else if (!pathAnchorSet) {
       template.setRadius(getRadiusAtMouse(e));
       
       // The path vertex remains null until it is set the first time.
@@ -132,8 +213,12 @@ public class LineTemplateTool extends RadiusTemplateTool {
         pathVertex = new ScreenPoint(lt.getVertex().x, lt.getVertex().y);
         lt.setPathVertex(pathVertex);
       } // endif
-      if (pathVertex != null && setCellAtMouse(e, pathVertex))
+      if (pathVertex != null && setCellAtMouse(e, pathVertex)) 
         lt.clearPath();
+    } else {
+      template.setRadius(getRadiusAtMouse(e));
+      zoneRenderer.repaint();
+      return;
     } // endif
     
     // Quadrant change?
@@ -150,26 +235,30 @@ public class LineTemplateTool extends RadiusTemplateTool {
     } // endif
   }
   
+  /*---------------------------------------------------------------------------------------------
+   * Instance Methods
+   *-------------------------------------------------------------------------------------------*/
+  
   /**
-   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#getRadiusAtMouse(java.awt.event.MouseEvent)
+   * Get the doubleWide for this LineTemplate.
+   *
+   * @return Returns the current value of doubleWide.
    */
-  @Override
-  protected int getRadiusAtMouse(MouseEvent aE) {
-    int radius = super.getRadiusAtMouse(aE);
-    return Math.max(0, radius - 1);
+  public boolean isDoubleWide() {
+    return doubleWide;
   }
+
   /**
-   * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#completeDrawable(net.rptools.maptool.model.GUID, net.rptools.maptool.model.drawing.Pen, net.rptools.maptool.model.drawing.Drawable)
+   * Set the value of doubleWide for this LineTemplate.
+   *
+   * @param aDoubleWide The doubleWide to set.
    */
-  @Override
-  protected void completeDrawable(GUID aZoneId, Pen aPen, Drawable aDrawable) {
-    
-    // Need to convert the pathVertex in the line template before we complete the template
-    LineTemplate template = (LineTemplate)aDrawable;
-    ScreenPoint vertex = template.getPathVertex();
-    ZonePoint zPoint = vertex.convertToZone(zoneRenderer);
-    vertex.x = zPoint.x;
-    vertex.y = zPoint.y;
-    super.completeDrawable(aZoneId, aPen, aDrawable);
+  public void setDoubleWide(boolean aDoubleWide) {
+    if (aDoubleWide == doubleWide) return;
+    doubleWide = aDoubleWide;
+    LineTemplate lt = (LineTemplate) template;
+    lt.setDoubleWide(aDoubleWide);
+    if (zoneRenderer != null)
+      zoneRenderer.repaint();
   }
 }

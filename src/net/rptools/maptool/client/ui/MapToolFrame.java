@@ -147,7 +147,9 @@ public class MapToolFrame extends JFrame implements WindowListener {
     private ConnectionStatusPanel connectionStatusPanel = new ConnectionStatusPanel();
     
 	private NewZoneDropPanel newZoneDropPanel;
-    
+  
+  private LineTemplateTool lineTemplateTool;
+  
     // TODO: I don't like this here, eventOverlay should be more abstracted
     private NotificationOverlay notificationOverlay = new NotificationOverlay();
 	
@@ -428,7 +430,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
         Tool polyTool = new PolygonTool();
         Tool radiusTemplateTool = new RadiusTemplateTool();
         Tool coneTemplateTool = new ConeTemplateTool();
-        Tool lineTemplateTool = new LineTemplateTool();
+        lineTemplateTool = new LineTemplateTool();
+        lineTemplateTool.setDoubleWide(true);
         
         ButtonGroup group = new ButtonGroup();
         group.add(pointerTool);
@@ -628,5 +631,14 @@ public class MapToolFrame extends JFrame implements WindowListener {
   public void windowDeiconified(WindowEvent e){}
   public void windowActivated(WindowEvent e){}
   public void windowDeactivated(WindowEvent e){}
+
+  /**
+   * Get the lineTemplateTool for this MapToolFrame.
+   *
+   * @return Returns the current value of lineTemplateTool.
+   */
+  public LineTemplateTool getLineTemplateTool() {
+    return lineTemplateTool;
+  }
   
 }

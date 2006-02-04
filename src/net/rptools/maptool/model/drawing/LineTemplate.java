@@ -35,6 +35,7 @@ import java.util.ListIterator;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.client.ZonePoint;
 
 /**
  * A drawing tool that will draw a line template between 2 vertices. 
@@ -68,6 +69,11 @@ public class LineTemplate extends AbstractTemplate {
    */
   private String quadrant = null;
 
+  /**
+   * Are stright lines drawn double width?
+   */
+  private boolean doubleWide;
+  
   /*---------------------------------------------------------------------------------------------
    * Overridden AbstractTemplate Methods
    *-------------------------------------------------------------------------------------------*/
@@ -163,6 +169,7 @@ public class LineTemplate extends AbstractTemplate {
    */
   @Override
   public void setRadius(int squares) {
+    if (squares == getRadius()) return;
     clearPath();
     super.setRadius(squares);
   }
@@ -238,8 +245,14 @@ public class LineTemplate extends AbstractTemplate {
       int yInc = dy != 0 ? 1 : 0;
       int x = xInc;
       int y = yInc;
+      int xTouch = (dx != 0) ? 0 : -1;
+      int yTouch = (dy != 0) ? 0 : -1;
+      if (doubleWide)
+        path.add(getPointFromPool(xTouch, yTouch));
       while (getDistance(x, y) <= radius) {
         path.add(getPointFromPool(x, y));
+        if (doubleWide)
+          path.add(getPointFromPool(x + xTouch, y + yTouch));
         x += xInc;
         y += yInc;
       } // endwhile
@@ -284,6 +297,7 @@ public class LineTemplate extends AbstractTemplate {
    * @param pathVertex The pathVertex to set.
    */
   public void setPathVertex(ScreenPoint pathVertex) {
+    if (pathVertex.equals(this.pathVertex)) return;
     clearPath();
     this.pathVertex = pathVertex;
   }
@@ -292,7 +306,8 @@ public class LineTemplate extends AbstractTemplate {
    * Clear the current path. This will cause it to be recalculated during the next draw.
    */
   public void clearPath() {
-    pool = path;
+    if (path != null)
+      pool = path;
     path = null;
   }
 
@@ -319,6 +334,24 @@ public class LineTemplate extends AbstractTemplate {
       this.quadrant = null;
   }
   
+  /**
+   * Get the doubleWide for this LineTemplate.
+   *
+   * @return Returns the current value of doubleWide.
+   */
+  public boolean isDoubleWide() {
+    return doubleWide;
+  }
+
+  /**
+   * Set the value of doubleWide for this LineTemplate.
+   *
+   * @param aDoubleWide The doubleWide to set.
+   */
+  public void setDoubleWide(boolean aDoubleWide) {
+    doubleWide = aDoubleWide;
+  }
+  
   /*---------------------------------------------------------------------------------------------
    * Drawable Interface Methods
    *-------------------------------------------------------------------------------------------*/
@@ -327,17 +360,42 @@ public class LineTemplate extends AbstractTemplate {
    * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
    */
   public Rectangle getBounds() {
-    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGridSize() * getScale());
+    
+    // Get all of the numbers needed for the calculation
     ScreenPoint v = getVertex();
-    ScreenPoint pv = getPathVertex();
+    Quadrant quadrant = getQuadrant();
+    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGridSize() * getScale());
+    
+    // Find the point that is farthest away in the path, then adjust 
+    ScreenPoint pv = new ScreenPoint(-1, -1);
+    if (path == null) calcPath();
+    for (ScreenPoint pt : path) {
+      pv.x = Math.max(pt.x, pv.x);
+      pv.y = Math.max(pt.y, pv.y);
+    } // endfor
+    pv.x = v.x + (quadrant == Quadrant.NORTH_WEST || quadrant == Quadrant.SOUTH_WEST ? -pv.x : pv.x) * gridSize;
+    pv.y = v.y + (quadrant == Quadrant.NORTH_WEST || quadrant == Quadrant.NORTH_EAST ? -pv.y : pv.y) * gridSize;
+    ZonePoint zPoint = pv.convertToZone(MapTool.getFrame().getZoneRenderer(getZoneId()));
+    pv.x = zPoint.x;
+    pv.y = zPoint.y;
+
+    // Adjust for straight lines and left most & upper points when in the West or North quadrants
+    boolean yAxisLine = v.x == pv.x && doubleWide;
+    boolean xAxisLine = v.y == pv.y && doubleWide;
     int x = Math.min(v.x, pv.x) - BOUNDS_PADDING;
-    if (getQuadrant() == Quadrant.NORTH_WEST || getQuadrant() == Quadrant.SOUTH_WEST)
+    if (quadrant == Quadrant.NORTH_WEST || quadrant == Quadrant.SOUTH_WEST)
       x -= gridSize * 2;
+    else if (yAxisLine)
+      x -= gridSize;
     int y = Math.min(v.y, pv.y) - BOUNDS_PADDING; 
-    if (getQuadrant() == Quadrant.NORTH_WEST || getQuadrant() == Quadrant.NORTH_EAST)
+    if (quadrant == Quadrant.NORTH_WEST || quadrant == Quadrant.NORTH_EAST)
       y -= gridSize * 2;
-    int width = Math.abs(v.x - pv.x) + (gridSize + BOUNDS_PADDING) * 2; 
-    int height = Math.abs(v.y - pv.y) + (gridSize + BOUNDS_PADDING) * 2;
+    else if (xAxisLine)
+      y -= gridSize;
+    
+    // Calulate the size
+    int width = Math.abs(v.x - pv.x) + (gridSize + BOUNDS_PADDING) * 2 + (yAxisLine ? gridSize : 0); 
+    int height = Math.abs(v.y - pv.y) + (gridSize + BOUNDS_PADDING) * 2 + (xAxisLine ? gridSize : 0);
     return new Rectangle(x, y, width, height);
   }
 }
