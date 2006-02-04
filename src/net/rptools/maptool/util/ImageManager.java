@@ -73,6 +73,10 @@ public class ImageManager {
     
     public static BufferedImage getImage(Asset asset, JComponent observer) {
 
+    	if (asset == null) {
+    		return UNKNOWN_IMAGE;
+    	}
+    	
         BufferedImage image = imageMap.get(asset.getId());
         
         // Another request for the same asset ?
