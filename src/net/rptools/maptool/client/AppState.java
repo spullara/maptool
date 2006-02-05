@@ -31,8 +31,27 @@ public class AppState {
     private static boolean showTokenNames = false;
     private static boolean newZonesVisible = true;
     private static boolean linkPlayerViews = false;
+    private static boolean useDoubleWideLine = true;
+    private static boolean newMapsHaveFoW = false;
 
-    public static boolean isDropTokenAsInvisible() {
+    
+    public static boolean getNewMapsHaveFoW() {
+		return newMapsHaveFoW;
+	}
+
+	public static void setNewMapsHaveFoW(boolean newMapsHaveFoW) {
+		AppState.newMapsHaveFoW = newMapsHaveFoW;
+	}
+
+	public static boolean useDoubleWideLine() {
+		return useDoubleWideLine;
+	}
+
+	public static void setUseDoubleWideLine(boolean useDoubleWideLine) {
+		AppState.useDoubleWideLine = useDoubleWideLine;
+	}
+
+	public static boolean isDropTokenAsInvisible() {
         return dropTokenAsInvisible;
     }
 

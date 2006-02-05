@@ -32,7 +32,7 @@ import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppActions;
-import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.tool.drawing.DrawableUndoManager;
 import net.rptools.maptool.language.I18N;
@@ -93,6 +93,7 @@ public class AppMenuBar extends JMenuBar {
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
         menu.add(new JMenuItem(AppActions.TOGGLE_FOG));
+        menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_NEW_ZONES_HAVE_FOW));
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.ADJUST_GRID));
         menu.add(new JMenuItem(AppActions.SET_ZONE_GRID_COLOR));
@@ -128,7 +129,7 @@ public class AppMenuBar extends JMenuBar {
         item.setSelected(true);
         menu.add(item);
         item = new JCheckBoxMenuItem(AppActions.TOGGLE_DOUBLE_WIDE);
-        item.setSelected(true);
+        item.setSelected(AppState.useDoubleWideLine());
         menu.add(item);
 
         if (MapToolUtil.isDebugEnabled()) {

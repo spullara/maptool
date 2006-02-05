@@ -90,7 +90,7 @@ public class AppActions {
 		@Override
 		public boolean isAvailable() {
 			return super.isAvailable()
-					&& MapTool.isHostingServer();
+					&& (MapTool.isPersonalServer() || MapTool.isHostingServer());
 		}
 
 		public void execute(ActionEvent e) {
@@ -913,6 +913,7 @@ public class AppActions {
 					Zone zone = new Zone(Zone.Type.INFINITE, asset.getId());
 					zone.setType(Zone.Type.INFINITE);
 					zone.setVisible(AppState.isNewZonesVisible());
+					zone.setHasFog(AppState.getNewMapsHaveFoW());
 
 					MapTool.addZone(zone);
 				}
@@ -947,6 +948,7 @@ public class AppActions {
 					// Create the zone
 					Zone zone = new Zone(newMapDialog.getZoneType(), asset.getId());
 					zone.setVisible(AppState.isNewZonesVisible());
+					zone.setHasFog(AppState.getNewMapsHaveFoW());
 					zone.setName(newMapDialog.getZoneName());
 					zone.setFeetPerCell(newMapDialog.getZoneFeetPerCell());
 
@@ -1056,19 +1058,31 @@ public class AppActions {
 		}
 	};
   
-  /**
-   * Toggle drawing straight lines at double width on the line tool.
-   */
-  public static final Action TOGGLE_DOUBLE_WIDE = new DefaultClientAction() {
-    {
-      init("action.toggleDoubleWide");
-    }
+	  /**
+	   * Toggle drawing straight lines at double width on the line tool.
+	   */
+	  public static final Action TOGGLE_DOUBLE_WIDE = new DefaultClientAction() {
+	    {
+	      init("action.toggleDoubleWide");
+	    }
 
-    public void execute(ActionEvent ae) {
-      LineTemplateTool ltt = MapTool.getFrame().getLineTemplateTool();
-      ltt.setDoubleWide(!ltt.isDoubleWide());
-    }
-  };
+	    public void execute(ActionEvent ae) {
+	    	
+	    	AppState.setUseDoubleWideLine(!AppState.useDoubleWideLine());
+	    	MapTool.getFrame().getCurrentZoneRenderer().repaint();
+	    }
+	  };
+
+	  public static final Action TOGGLE_NEW_ZONES_HAVE_FOW = new DefaultClientAction() {
+	    {
+	      init("action.toggleNewZonesHaveFOW");
+	    }
+
+	    public void execute(ActionEvent ae) {
+	    	
+	    	AppState.setNewMapsHaveFoW(!AppState.getNewMapsHaveFoW());
+	    }
+	  };
 
 	private static List<ClientAction> actionList;
 

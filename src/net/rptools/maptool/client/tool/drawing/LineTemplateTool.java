@@ -61,11 +61,6 @@ public class LineTemplateTool extends RadiusTemplateTool {
    */
   private boolean pathAnchorSet;
 
-  /**
-   * Are stright lines drawn double width?
-   */
-  private boolean doubleWide;
-  
   /*---------------------------------------------------------------------------------------------
    * Constructor 
    *-------------------------------------------------------------------------------------------*/
@@ -109,8 +104,6 @@ public class LineTemplateTool extends RadiusTemplateTool {
   protected void resetTool(ScreenPoint aVertex) {
     super.resetTool(aVertex);
     pathAnchorSet = false;
-    ((LineTemplate) template).setDoubleWide(isDoubleWide());
-    
   }
   
   /**
@@ -239,26 +232,4 @@ public class LineTemplateTool extends RadiusTemplateTool {
    * Instance Methods
    *-------------------------------------------------------------------------------------------*/
   
-  /**
-   * Get the doubleWide for this LineTemplate.
-   *
-   * @return Returns the current value of doubleWide.
-   */
-  public boolean isDoubleWide() {
-    return doubleWide;
-  }
-
-  /**
-   * Set the value of doubleWide for this LineTemplate.
-   *
-   * @param aDoubleWide The doubleWide to set.
-   */
-  public void setDoubleWide(boolean aDoubleWide) {
-    if (aDoubleWide == doubleWide) return;
-    doubleWide = aDoubleWide;
-    LineTemplate lt = (LineTemplate) template;
-    lt.setDoubleWide(aDoubleWide);
-    if (zoneRenderer != null)
-      zoneRenderer.repaint();
-  }
 }

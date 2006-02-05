@@ -247,6 +247,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
         	
         	Zone zone = new Zone(Zone.Type.MAP, asset.getId());
 			zone.setVisible(AppState.isNewZonesVisible());
+			zone.setHasFog(AppState.getNewMapsHaveFoW());
         	MapTool.addZone(zone);
         }
         

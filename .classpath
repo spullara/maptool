@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="lib/servicediscoverylib-1.0.b2.jar"/>
 	<classpathentry kind="lib" path="lib/rplib.resource-1.0.b7.jar"/>
 	<classpathentry kind="lib" path="lib/rplib-1.0.b46.jar"/>
+	<classpathentry kind="lib" path="lib/abeille.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

@@ -35,7 +35,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -72,6 +71,7 @@ import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
@@ -147,8 +147,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
     private ConnectionStatusPanel connectionStatusPanel = new ConnectionStatusPanel();
     
 	private NewZoneDropPanel newZoneDropPanel;
-  
-  private LineTemplateTool lineTemplateTool;
   
     // TODO: I don't like this here, eventOverlay should be more abstracted
     private NotificationOverlay notificationOverlay = new NotificationOverlay();
@@ -323,6 +321,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
                 }
 
                 Zone zone = new Zone(type, asset.getId());
+    			zone.setVisible(AppState.isNewZonesVisible());
+    			zone.setHasFog(AppState.getNewMapsHaveFoW());
                 
                 MapTool.addZone(zone);
             }
@@ -430,8 +430,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         Tool polyTool = new PolygonTool();
         Tool radiusTemplateTool = new RadiusTemplateTool();
         Tool coneTemplateTool = new ConeTemplateTool();
-        lineTemplateTool = new LineTemplateTool();
-        lineTemplateTool.setDoubleWide(true);
+        Tool lineTemplateTool = new LineTemplateTool();
         
         ButtonGroup group = new ButtonGroup();
         group.add(pointerTool);
@@ -632,13 +631,4 @@ public class MapToolFrame extends JFrame implements WindowListener {
   public void windowActivated(WindowEvent e){}
   public void windowDeactivated(WindowEvent e){}
 
-  /**
-   * Get the lineTemplateTool for this MapToolFrame.
-   *
-   * @return Returns the current value of lineTemplateTool.
-   */
-  public LineTemplateTool getLineTemplateTool() {
-    return lineTemplateTool;
-  }
-  
 }
