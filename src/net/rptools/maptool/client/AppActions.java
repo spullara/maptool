@@ -1069,7 +1069,8 @@ public class AppActions {
 	    public void execute(ActionEvent ae) {
 	    	
 	    	AppState.setUseDoubleWideLine(!AppState.useDoubleWideLine());
-	    	MapTool.getFrame().getCurrentZoneRenderer().repaint();
+        if (MapTool.getFrame() != null && MapTool.getFrame().getCurrentZoneRenderer() != null)
+          MapTool.getFrame().getCurrentZoneRenderer().repaint();
 	    }
 	  };
 

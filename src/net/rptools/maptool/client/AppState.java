@@ -24,6 +24,9 @@
  */
 package net.rptools.maptool.client;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
 public class AppState {
 
     private static boolean dropTokenAsInvisible = false;
@@ -33,7 +36,16 @@ public class AppState {
     private static boolean linkPlayerViews = false;
     private static boolean useDoubleWideLine = true;
     private static boolean newMapsHaveFoW = false;
-
+    private static PropertyChangeSupport changeSupport = new PropertyChangeSupport(AppState.class);
+    public static final String USE_DOUBLE_WIDE_PROP_NAME = "useDoubleWide";
+    
+    public static void addPropertyChangeListener(PropertyChangeListener listener) {
+      changeSupport.addPropertyChangeListener(listener);
+    }
+    
+    public static void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+      changeSupport.addPropertyChangeListener(propertyName, listener);
+    }
     
     public static boolean getNewMapsHaveFoW() {
 		return newMapsHaveFoW;
@@ -48,7 +60,9 @@ public class AppState {
 	}
 
 	public static void setUseDoubleWideLine(boolean useDoubleWideLine) {
+    boolean old = AppState.useDoubleWideLine;
 		AppState.useDoubleWideLine = useDoubleWideLine;
+    changeSupport.firePropertyChange(USE_DOUBLE_WIDE_PROP_NAME, old, useDoubleWideLine);
 	}
 
 	public static boolean isDropTokenAsInvisible() {

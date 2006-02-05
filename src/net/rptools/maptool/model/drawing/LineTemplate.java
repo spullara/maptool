@@ -75,6 +75,11 @@ public class LineTemplate extends AbstractTemplate {
    */
   private String quadrant = null;
 
+  /**
+   * Flag used to determine mouse position relative to vertex position
+   */
+  private boolean mouseSlopeGreater;
+  
   /*---------------------------------------------------------------------------------------------
    * Overridden AbstractTemplate Methods
    *-------------------------------------------------------------------------------------------*/
@@ -221,8 +226,8 @@ public class LineTemplate extends AbstractTemplate {
         if (xValue == x + 1 && yValue == y + 1) {
 
           // Special case, right on the diagonal
-          path.add(getPointFromPool(x + 1, y));
-          path.add(getPointFromPool(x, y + 1));
+          if (doubleWide || !mouseSlopeGreater) path.add(getPointFromPool(x + 1, y));
+          if (doubleWide || mouseSlopeGreater) path.add(getPointFromPool(x, y + 1));
           path.add(getPointFromPool(x + 1, y + 1));
         } else if (Math.floor(xValue) == x) {
           path.add(getPointFromPool(x, y + 1));
@@ -334,7 +339,25 @@ public class LineTemplate extends AbstractTemplate {
     else
       this.quadrant = null;
   }
-  
+
+  /**
+   * Get the mouseSlopeGreater for this LineTemplate.
+   *
+   * @return Returns the current value of mouseSlopeGreater.
+   */
+  public boolean isMouseSlopeGreater() {
+    return mouseSlopeGreater;
+  }
+
+  /**
+   * Set the value of mouseSlopeGreater for this LineTemplate.
+   *
+   * @param aMouseSlopeGreater The mouseSlopeGreater to set.
+   */
+  public void setMouseSlopeGreater(boolean aMouseSlopeGreater) {
+    mouseSlopeGreater = aMouseSlopeGreater;
+  }
+
   /**
    * Get the doubleWide for this LineTemplate.
    *

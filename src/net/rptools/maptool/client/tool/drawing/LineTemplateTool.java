@@ -29,6 +29,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -51,7 +53,7 @@ import net.rptools.maptool.model.drawing.AbstractTemplate.Quadrant;
  * @author jgorrell
  * @version $Revision$ $Date$ $Author$
  */
-public class LineTemplateTool extends RadiusTemplateTool {
+public class LineTemplateTool extends RadiusTemplateTool implements PropertyChangeListener {
 
   /*---------------------------------------------------------------------------------------------
    * Instance Variables
@@ -77,6 +79,7 @@ public class LineTemplateTool extends RadiusTemplateTool {
     } catch (IOException ioe) {
       ioe.printStackTrace();
     } // endtry
+    AppState.addPropertyChangeListener(AppState.USE_DOUBLE_WIDE_PROP_NAME, this);
   }
 
   /*---------------------------------------------------------------------------------------------
@@ -200,22 +203,45 @@ public class LineTemplateTool extends RadiusTemplateTool {
     // Setting anchor point
     LineTemplate lt = (LineTemplate) template;
     ScreenPoint pathVertex = lt.getPathVertex();
+    ScreenPoint vertex = lt.getVertex();
     if (!anchorSet) {
-      setCellAtMouse(e, template.getVertex());
+      setCellAtMouse(e, vertex);
       controlOffset = null;
     } else if (!pathAnchorSet && (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
-      handleControlOffset(e, template.getVertex());
+      handleControlOffset(e, vertex);
     } else if (!pathAnchorSet) {
       template.setRadius(getRadiusAtMouse(e));
       controlOffset = null;
       
       // The path vertex remains null until it is set the first time.
       if (pathVertex == null) {
-        pathVertex = new ScreenPoint(lt.getVertex().x, lt.getVertex().y);
+        pathVertex = new ScreenPoint(vertex.x, vertex.y);
         lt.setPathVertex(pathVertex);
       } // endif
       if (pathVertex != null && setCellAtMouse(e, pathVertex)) 
         lt.clearPath();
+        
+        // Determine which of the extra squares are used on diagonals
+      if (pathVertex != null) { 
+        double dx = pathVertex.x - vertex.x;
+        double dy = pathVertex.y - vertex.y;
+        if (dx != 0 && dy != 0) { // Ignore straight lines
+          boolean mouseSlopeGreater = false;
+          double m = Math.abs(dy / dx);
+          double edx = e.getX() - vertex.x;
+          double edy = e.getY() - vertex.y;
+          if (edx != 0 && edy != 0) { // Handle straight lines differently
+            double em = Math.abs(edy / edx);
+            mouseSlopeGreater = em > m;
+          } else if (edx == 0) {
+            mouseSlopeGreater = true;
+          } // endif
+          if (mouseSlopeGreater != lt.isMouseSlopeGreater()) {
+            lt.setMouseSlopeGreater(mouseSlopeGreater);
+            zoneRenderer.repaint();
+          } // endif
+        } // endif
+      } // endif
     } else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
       handleControlOffset(e, pathVertex);
     } else {
@@ -227,7 +253,6 @@ public class LineTemplateTool extends RadiusTemplateTool {
     
     // Quadrant change?
     if (pathVertex != null) {
-      ScreenPoint vertex = template.getVertex();
       int dx = e.getX() - vertex.x;
       int dy = e.getY() - vertex.y;
       AbstractTemplate.Quadrant quadrant = (dx < 0) ? (dy < 0 ? Quadrant.NORTH_WEST : Quadrant.SOUTH_WEST)
@@ -240,7 +265,13 @@ public class LineTemplateTool extends RadiusTemplateTool {
   }
   
   /*---------------------------------------------------------------------------------------------
-   * Instance Methods
+   * PropertyChangeListener Interface Methods
    *-------------------------------------------------------------------------------------------*/
   
+  /**
+   * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+   */
+  public void propertyChange(PropertyChangeEvent aEvt) {
+    ((LineTemplate)template).setDoubleWide(((Boolean)aEvt.getNewValue()).booleanValue());
+  }
 }
