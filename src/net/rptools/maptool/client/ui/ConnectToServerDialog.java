@@ -363,8 +363,8 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 		if (typeTabbedPane == null) {
 			typeTabbedPane = new JTabbedPane();
 			typeTabbedPane.addTab("LAN", null, getLanPanel(), null);
-			typeTabbedPane.addTab("Internet", null, getWanPanel(), null);
 			typeTabbedPane.addTab("RPTools.net", null, getRptoolsPanel(), null);
+			typeTabbedPane.addTab("Internet", null, getWanPanel(), null);
 		}
 		return typeTabbedPane;
 	}
