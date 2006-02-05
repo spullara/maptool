@@ -28,6 +28,7 @@ package net.rptools.maptool.client.tool.drawing;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
@@ -78,6 +79,13 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    */
   protected boolean anchorSet;
 
+  /**
+   * The offset used to move the vertex when the control key is pressed. If this value is
+   * <code>null</code> then this would be the first time that the control key had been
+   * reported in the mouse event.
+   */
+  protected ScreenPoint controlOffset;
+  
   /*---------------------------------------------------------------------------------------------
    * Class Variables
    *-------------------------------------------------------------------------------------------*/
@@ -128,7 +136,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    */
   protected boolean setCellAtMouse(MouseEvent e, ScreenPoint point) {
     ScreenPoint working = getCellAtMouse(e);
-    if (working != point) {
+    if (!working.equals(point)) {
       point.x = working.x;
       point.y = working.y;
       zoneRenderer.repaint();
@@ -249,9 +257,35 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     template = createBaseTemplate();
     template.setVertex(vertex);
     template.setZoneId(zoneRenderer.getZone().getId());
+    controlOffset = null;
     zoneRenderer.repaint();
   }
 
+  /**
+   * Handles setting the vertex when the control key is pressed during 
+   * mouse movement. A change in the passed vertex causes the template
+   * to repaint the zone.
+   * 
+   * @param e The mouse movement event.
+   * @param vertex The vertex being modified. 
+   */
+  protected void handleControlOffset(MouseEvent e, ScreenPoint vertex) {
+    ScreenPoint working = getCellAtMouse(e);
+    if (controlOffset == null) {
+      controlOffset = working;
+      controlOffset.x = working.x - vertex.x;
+      controlOffset.y = working.y - vertex.y;
+    } else {
+      working.x = working.x - controlOffset.x;
+      working.y = working.y - controlOffset.y;
+      if (!working.equals(vertex)) {
+        vertex.x = working.x;
+        vertex.y = working.y;
+        zoneRenderer.repaint();
+      } // endif
+    } // endif
+  }
+  
   /*---------------------------------------------------------------------------------------------
    * MouseMotionListener Interface Methods
    *-------------------------------------------------------------------------------------------*/
@@ -268,11 +302,16 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
    */
   public void mouseMoved(MouseEvent e) {
+    ScreenPoint vertex = template.getVertex();
     if (!anchorSet) {
-      setCellAtMouse(e, template.getVertex());
+      setCellAtMouse(e, vertex);
+      controlOffset = null;  
+    } else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
+      handleControlOffset(e, vertex);
     } else {
       template.setRadius(getRadiusAtMouse(e));
       zoneRenderer.repaint();
+      controlOffset = null;  
     } // endif
   }
 
@@ -372,6 +411,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
       return;
 
     // Need to set the anchor?
+    controlOffset = null;
     if (!anchorSet) {
       anchorSet = true;
       return;

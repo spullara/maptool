@@ -49,7 +49,10 @@ public class LineTemplate extends AbstractTemplate {
    * Instance Variables
    *-------------------------------------------------------------------------------------------*/
 	
-	private boolean isDoubleWide;
+  /**
+   * Are stright lines drawn double width?
+   */
+  private boolean doubleWide = AppState.useDoubleWideLine();
 
   /**
    * This vertex is used to determine the path.
@@ -71,10 +74,6 @@ public class LineTemplate extends AbstractTemplate {
    * to get around the hessian library's problem w/ serialization of enums
    */
   private String quadrant = null;
-
-  public LineTemplate() {
-	    isDoubleWide = AppState.useDoubleWideLine();
-  }
 
   /*---------------------------------------------------------------------------------------------
    * Overridden AbstractTemplate Methods
@@ -249,11 +248,11 @@ public class LineTemplate extends AbstractTemplate {
       int y = yInc;
       int xTouch = (dx != 0) ? 0 : -1;
       int yTouch = (dy != 0) ? 0 : -1;
-      if (isDoubleWide)
+      if (doubleWide)
         path.add(getPointFromPool(xTouch, yTouch));
       while (getDistance(x, y) <= radius) {
         path.add(getPointFromPool(x, y));
-        if (isDoubleWide)
+        if (doubleWide)
           path.add(getPointFromPool(x + xTouch, y + yTouch));
         x += xInc;
         y += yInc;
@@ -342,9 +341,18 @@ public class LineTemplate extends AbstractTemplate {
    * @return Returns the current value of doubleWide.
    */
   public boolean isDoubleWide() {
-    return isDoubleWide;
+    return doubleWide;
   }
 
+  /**
+   * Set the value of doubleWide for this LineTemplate.
+   *
+   * @param aDoubleWide The doubleWide to set.
+   */
+  public void setDoubleWide(boolean aDoubleWide) {
+    doubleWide = aDoubleWide;
+  }
+  
   /*---------------------------------------------------------------------------------------------
    * Drawable Interface Methods
    *-------------------------------------------------------------------------------------------*/
@@ -373,8 +381,8 @@ public class LineTemplate extends AbstractTemplate {
     pv.y = zPoint.y;
 
     // Adjust for straight lines and left most & upper points when in the West or North quadrants
-    boolean yAxisLine = v.x == pv.x && isDoubleWide;
-    boolean xAxisLine = v.y == pv.y && isDoubleWide;
+    boolean yAxisLine = v.x == pv.x && doubleWide;
+    boolean xAxisLine = v.y == pv.y && doubleWide;
     int x = Math.min(v.x, pv.x) - BOUNDS_PADDING;
     if (quadrant == Quadrant.NORTH_WEST || quadrant == Quadrant.SOUTH_WEST)
       x -= gridSize * 2;

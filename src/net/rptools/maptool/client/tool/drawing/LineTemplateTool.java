@@ -27,12 +27,14 @@ package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -104,6 +106,7 @@ public class LineTemplateTool extends RadiusTemplateTool {
   protected void resetTool(ScreenPoint aVertex) {
     super.resetTool(aVertex);
     pathAnchorSet = false;
+    ((LineTemplate) template).setDoubleWide(AppState.useDoubleWideLine());
   }
   
   /**
@@ -170,6 +173,7 @@ public class LineTemplateTool extends RadiusTemplateTool {
       return;
     
     // Need to set the anchor?
+    controlOffset = null;
     if (!anchorSet) {
       anchorSet = true;
       return;
@@ -198,8 +202,12 @@ public class LineTemplateTool extends RadiusTemplateTool {
     ScreenPoint pathVertex = lt.getPathVertex();
     if (!anchorSet) {
       setCellAtMouse(e, template.getVertex());
+      controlOffset = null;
+    } else if (!pathAnchorSet && (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
+      handleControlOffset(e, template.getVertex());
     } else if (!pathAnchorSet) {
       template.setRadius(getRadiusAtMouse(e));
+      controlOffset = null;
       
       // The path vertex remains null until it is set the first time.
       if (pathVertex == null) {
@@ -208,9 +216,12 @@ public class LineTemplateTool extends RadiusTemplateTool {
       } // endif
       if (pathVertex != null && setCellAtMouse(e, pathVertex)) 
         lt.clearPath();
+    } else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
+      handleControlOffset(e, pathVertex);
     } else {
       template.setRadius(getRadiusAtMouse(e));
       zoneRenderer.repaint();
+      controlOffset = null;
       return;
     } // endif
     

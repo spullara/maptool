@@ -25,6 +25,7 @@
 
 package net.rptools.maptool.client.tool.drawing;
 
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 
@@ -103,11 +104,15 @@ public class ConeTemplateTool extends RadiusTemplateTool {
   public void mouseMoved(MouseEvent e) {
     if (!anchorSet) {
       setCellAtMouse(e, template.getVertex()); // Set the vertex
+      controlOffset = null;  
+    } else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
+      handleControlOffset(e, template.getVertex());
     } else {
       template.setRadius(getRadiusAtMouse(e));
       ScreenPoint vertex = template.getVertex();
       ((ConeTemplate) template).setDirection(RadiusTemplate.Direction.findDirection(e.getX(), e.getY(), vertex.x, vertex.y));
       zoneRenderer.repaint();
-    }
+      controlOffset = null;
+    } // endif
   }
 }
