@@ -57,7 +57,7 @@ public class ServerInfoDialog extends JDialog {
 	 * This is the default constructor
 	 */
 	public ServerInfoDialog(MapToolServer server) {
-		super();
+		super(MapTool.getFrame(), "Server Info", true);
 		initialize();
 		
 		String name = server.getConfig().getServerName();
