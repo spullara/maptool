@@ -29,17 +29,16 @@ public class OTokenOverlay extends XTokenOverlay {
     }
 
     /**
-     * @see net.rptools.maptool.client.ui.token.TokenOverlay#paintOverlay(java.awt.Graphics2D, net.rptools.maptool.model.Token)
+     * @see net.rptools.maptool.client.ui.token.TokenOverlay#paintOverlay(java.awt.Graphics2D, net.rptools.maptool.model.Token, Rectangle)
      */
     @Override
-    public void paintOverlay(Graphics2D g, Token aToken) {
+    public void paintOverlay(Graphics2D g, Token aToken, Rectangle bounds) {
         Color tempColor = g.getColor();
         g.setColor(getColor());
         Stroke tempStroke = g.getStroke();
         g.setStroke(getStroke());
-        Rectangle b = g.getClipBounds();
         double offset = getStroke().getLineWidth() / 2.0;
-        g.draw(new Ellipse2D.Double(0 + offset, 0 + offset, b.width - offset * 2, b.height - offset * 2));
+        g.draw(new Ellipse2D.Double(0 + offset, 0 + offset, bounds.width - offset * 2, bounds.height - offset * 2));
         g.setColor(tempColor);
         g.setStroke(tempStroke);
     }

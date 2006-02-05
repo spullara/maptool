@@ -698,8 +698,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 // Set up the graphics, paint the overlay, then restore the graphics
                 Shape clip = g.getClip();
                 g.translate(x, y);
-                g.setClip(0, 0, image.getWidth(), image.getHeight());
-                overlay.paintOverlay(g, token);
+                Rectangle bounds = new Rectangle(0, 0, image.getWidth(), image.getHeight());
+                Rectangle overlayClip = g.getClipBounds().intersection(bounds);
+                g.setClip(overlayClip);
+                overlay.paintOverlay(g, token, bounds);
                 g.translate(-x, -y);
                 g.setClip(clip);
               } // endif
