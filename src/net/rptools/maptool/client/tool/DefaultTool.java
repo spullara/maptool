@@ -603,7 +603,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         sizeMenu.addSeparator();
         
         for (TokenSize.Size size : TokenSize.Size.values()) {
-            JMenuItem menuItem = new JMenuItem(new ChangeSizeAction(size.name(), size));
+            JMenuItem menuItem = new JCheckBoxMenuItem(new ChangeSizeAction(size.name(), size));
+        	if (tokenUnderMouse.getSize() == size.value()) {
+                menuItem.setSelected(true);
+        	}
+        	
             sizeMenu.add(menuItem);
         }
     	popup.add(sizeMenu);
