@@ -55,10 +55,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComponent;
-import javax.swing.KeyStroke;
 
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.CellPoint;
@@ -86,7 +84,7 @@ import net.rptools.maptool.util.ImageManager;
 
 /**
  */
-public abstract class ZoneRenderer extends JComponent implements DropTargetListener {
+public abstract class ZoneRenderer extends JComponent implements DropTargetListener, Comparable {
     private static final long serialVersionUID = 3832897780066104884L;
 
     // TODO: Perhaps make this a user defined limit
@@ -1081,5 +1079,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         // TODO Auto-generated method stub
 
     }
-    
+
+    ////
+    // COMPARABLE
+    public int compareTo(Object o) {
+    	if (!(o instanceof ZoneRenderer)) {
+    		return 0;
+    	}
+    	
+    	return zone.getCreationTime() < ((ZoneRenderer)o).zone.getCreationTime() ? -1 : 1;
+    }
 }

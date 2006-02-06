@@ -70,6 +70,14 @@ public class Zone extends Token {
         public static final int INFINITE = 1;
     }
     
+    // The zones should be ordered.  We could have the server assign each zone
+    // an incrementing number as new zones are created, but that would take a lot
+    // more ellegance than we really need.  Instead, let's just keep track of the
+    // time when it was created.  This should give us sufficient granularity, because
+    // come on what's the likelihood of two GMs separately creating a new zone at exactly
+    // the same millisecond since the epoc.
+    private long creationTime = System.currentTimeMillis();
+    
     private int gridSize = 40;
     private int gridOffsetX = 0;
     private int gridOffsetY = 0;
@@ -175,6 +183,10 @@ public class Zone extends Token {
     public void hideArea(Area area) {
     	exposedArea.subtract(area);
         fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
+    }
+
+    public long getCreationTime() {
+    	return creationTime;
     }
     
     public ZonePoint getNearestVertex(ZonePoint point) {
@@ -355,5 +367,4 @@ public class Zone extends Token {
     	copy.addAll(tokenOrderedList);
         return Collections.unmodifiableList(copy);
     }
-
 }

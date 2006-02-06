@@ -37,6 +37,8 @@ import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,7 +118,9 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
     		Graphics2D g2d = backbuffer.createGraphics();
     		g2d.setClip(0, 0, mySize.width, mySize.height);
     		
-	        List<ZoneRenderer> rendererList = MapTool.getFrame().getZoneRenderers();
+	        List<ZoneRenderer> rendererList = new ArrayList<ZoneRenderer>();
+	        rendererList.addAll(MapTool.getFrame().getZoneRenderers());
+	        Collections.sort(rendererList);
 	        ZoneRenderer currentRenderer = MapTool.getFrame().getCurrentZoneRenderer();
 	        
 	        boundsMap.clear();
