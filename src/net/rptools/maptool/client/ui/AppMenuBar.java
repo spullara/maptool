@@ -53,6 +53,7 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.NEW_CAMPAIGN));
         menu.add(new JMenuItem(AppActions.LOAD_CAMPAIGN));
         menu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN));
+        menu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN_AS));
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.START_SERVER));
         menu.add(new JMenuItem(AppActions.SHOW_SERVER_INFO));

@@ -810,7 +810,7 @@ public class AppActions {
 
 		@Override
 		public boolean isAvailable() {
-			return MapTool.isHostingServer();
+			return MapTool.isHostingServer() || MapTool.isPersonalServer();
 		}
 
 		public void execute(ActionEvent ae) {
@@ -821,14 +821,16 @@ public class AppActions {
 			if (chooser.showOpenDialog(MapTool.getFrame()) == JFileChooser.APPROVE_OPTION) {
 
 				try {
-					Campaign campaign = PersistenceUtil.loadCampaign(chooser
-							.getSelectedFile());
+					File campaignFile = chooser.getSelectedFile();
+					Campaign campaign = PersistenceUtil.loadCampaign(campaignFile);
 
 					if (campaign != null) {
 
+						AppState.setCampaignFile(campaignFile);
 						MapTool.setCampaign(campaign);
 
 						MapTool.serverCommand().setCampaign(campaign);
+						
 					}
 
 				} catch (IOException ioe) {
@@ -845,6 +847,35 @@ public class AppActions {
 
 		@Override
 		public boolean isAvailable() {
+			return (MapTool.isHostingServer() || MapTool.getPlayer().isGM());
+		}
+		
+		public void execute(ActionEvent ae) {
+
+			if (AppState.getCampaignFile() == null) {
+				SAVE_CAMPAIGN_AS.actionPerformed(ae);
+				return;
+			}
+			
+			// save to same place
+			Campaign campaign = MapTool.getCampaign();
+
+			try {
+				PersistenceUtil.saveCampaign(campaign, AppState.getCampaignFile());
+				MapTool.showInformation("msg.info.campaignSaved");
+			} catch (IOException ioe) {
+				MapTool.showError("Could not save campaign: " + ioe);
+			}
+		}
+	};
+
+	public static final Action SAVE_CAMPAIGN_AS = new DefaultClientAction() {
+		{
+			init("action.saveCampaignAs");
+		}
+
+		@Override
+		public boolean isAvailable() {
 			return MapTool.isHostingServer() || MapTool.getPlayer().isGM();
 		}
 		
@@ -852,16 +883,18 @@ public class AppActions {
 
 			Campaign campaign = MapTool.getCampaign();
 
-			// TODO: this should eventually just remember the last place it was
-			// saved
 			JFileChooser chooser = MapTool.getSaveFileChooser();
 			chooser.setDialogTitle("Save Campaign");
 
 			if (chooser.showSaveDialog(MapTool.getFrame()) == JFileChooser.APPROVE_OPTION) {
 
 				try {
-					PersistenceUtil.saveCampaign(campaign, chooser
-							.getSelectedFile());
+					File campaignFile = chooser.getSelectedFile();
+					PersistenceUtil.saveCampaign(campaign, campaignFile);
+					
+					AppState.setCampaignFile(campaignFile);
+
+					MapTool.showInformation("msg.info.campaignSaved");
 				} catch (IOException ioe) {
 					MapTool.showError("Could not save campaign: " + ioe);
 				}

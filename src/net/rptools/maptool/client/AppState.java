@@ -26,9 +26,12 @@ package net.rptools.maptool.client;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
 
 public class AppState {
 
+    public static final String USE_DOUBLE_WIDE_PROP_NAME = "useDoubleWide";
+    
     private static boolean dropTokenAsInvisible = false;
     private static boolean showGrid = false;
     private static boolean showTokenNames = false;
@@ -36,8 +39,9 @@ public class AppState {
     private static boolean linkPlayerViews = false;
     private static boolean useDoubleWideLine = true;
     private static boolean newMapsHaveFoW = false;
+    private static File campaignFile;
+    
     private static PropertyChangeSupport changeSupport = new PropertyChangeSupport(AppState.class);
-    public static final String USE_DOUBLE_WIDE_PROP_NAME = "useDoubleWide";
     
     public static void addPropertyChangeListener(PropertyChangeListener listener) {
       changeSupport.addPropertyChangeListener(listener);
@@ -104,4 +108,14 @@ public class AppState {
     public static void setPlayerViewLinked(boolean flag) {
     	linkPlayerViews = flag;
     }
+
+	public static File getCampaignFile() {
+		return campaignFile;
+	}
+
+	public static void setCampaignFile(File campaignFile) {
+		AppState.campaignFile = campaignFile;
+	}
+    
+    
 }
