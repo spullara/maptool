@@ -103,6 +103,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.drawing.Pen;
 
 /**
@@ -320,10 +321,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
                     MapTool.serverCommand().putAsset(asset);
                 }
 
-                Zone zone = new Zone(type, asset.getId());
-    			zone.setVisible(AppState.isNewZonesVisible());
-    			zone.setHasFog(AppState.getNewMapsHaveFoW());
-                
+                Zone zone = ZoneFactory.createZone(type, asset.getId());
                 MapTool.addZone(zone);
             }
         });

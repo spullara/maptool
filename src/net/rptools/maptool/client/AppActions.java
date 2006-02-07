@@ -52,7 +52,6 @@ import javax.swing.KeyStroke;
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
-import net.rptools.maptool.client.tool.drawing.LineTemplateTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.NewMapDialog;
@@ -71,6 +70,7 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.util.ImageManager;
@@ -910,11 +910,7 @@ public class AppActions {
 
 				public void run() {
 
-					Zone zone = new Zone(Zone.Type.INFINITE, asset.getId());
-					zone.setType(Zone.Type.INFINITE);
-					zone.setVisible(AppState.isNewZonesVisible());
-					zone.setHasFog(AppState.getNewMapsHaveFoW());
-
+					Zone zone = ZoneFactory.createZone(Zone.Type.INFINITE, asset.getId());
 					MapTool.addZone(zone);
 				}
 			});
@@ -946,11 +942,7 @@ public class AppActions {
 					}
 
 					// Create the zone
-					Zone zone = new Zone(newMapDialog.getZoneType(), asset.getId());
-					zone.setVisible(AppState.isNewZonesVisible());
-					zone.setHasFog(AppState.getNewMapsHaveFoW());
-					zone.setName(newMapDialog.getZoneName());
-					zone.setFeetPerCell(newMapDialog.getZoneFeetPerCell());
+					Zone zone = ZoneFactory.createZone(newMapDialog.getZoneType(), newMapDialog.getZoneName(), newMapDialog.getZoneFeetPerCell(), asset.getId());
 
 					Rectangle bounds = newMapDialog.getGridBounds();
 					if (bounds != null) {

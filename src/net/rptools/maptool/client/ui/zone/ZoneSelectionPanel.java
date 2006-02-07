@@ -48,7 +48,6 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
@@ -57,6 +56,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.util.ImageManager;
 
 
@@ -249,9 +249,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 
         if (asset != null) {
         	
-        	Zone zone = new Zone(Zone.Type.MAP, asset.getId());
-			zone.setVisible(AppState.isNewZonesVisible());
-			zone.setHasFog(AppState.getNewMapsHaveFoW());
+        	Zone zone = ZoneFactory.createZone(Zone.Type.MAP, asset.getId());
         	MapTool.addZone(zone);
         }
         
