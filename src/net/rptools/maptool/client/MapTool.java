@@ -482,11 +482,13 @@ public class MapTool {
 	
 	private static JFileChooser createLoadFileChooser() {
 		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(AppPreferences.getLoadDir());
 		return fileChooser;
 	}
 	
 	private static JFileChooser createSaveFileChooser() {
 		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(AppPreferences.getSaveDir());
 		return fileChooser;
 	}
 	

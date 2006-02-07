@@ -817,6 +817,7 @@ public class AppActions {
 
 			JFileChooser chooser = MapTool.getLoadFileChooser();
 			chooser.setDialogTitle("Load Campaign");
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
 			if (chooser.showOpenDialog(MapTool.getFrame()) == JFileChooser.APPROVE_OPTION) {
 
@@ -827,6 +828,8 @@ public class AppActions {
 					if (campaign != null) {
 
 						AppState.setCampaignFile(campaignFile);
+						AppPreferences.setLoadDir(campaignFile.getParentFile());
+						
 						MapTool.setCampaign(campaign);
 
 						MapTool.serverCommand().setCampaign(campaign);
@@ -893,6 +896,7 @@ public class AppActions {
 					PersistenceUtil.saveCampaign(campaign, campaignFile);
 					
 					AppState.setCampaignFile(campaignFile);
+					AppPreferences.setSaveDir(campaignFile.getParentFile());
 
 					MapTool.showInformation("msg.info.campaignSaved");
 				} catch (IOException ioe) {

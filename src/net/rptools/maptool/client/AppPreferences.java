@@ -35,9 +35,29 @@ public class AppPreferences {
     private static Preferences prefs = Preferences.userRoot().node(AppConstants.APP_NAME + "/prefs");        
 
     private static final String KEY_ASSET_ROOTS = "assetRoots";
+    private static final String KEY_SAVE_DIR = "saveDir";
+    private static final String KEY_LOAD_DIR = "loadDir";
     
     public static void clearAssetRoots() {
         prefs.put(KEY_ASSET_ROOTS, "");
+    }
+    
+    public static void setSaveDir(File file) {
+    	prefs.put(KEY_SAVE_DIR, file.toString());
+    }
+    
+    public static File getSaveDir() {
+    	String filePath = prefs.get(KEY_SAVE_DIR, null);
+    	return filePath != null ? new File(filePath) : new File("/");
+    }
+    
+    public static void setLoadDir(File file) {
+    	prefs.put(KEY_LOAD_DIR, file.toString());
+    }
+    
+    public static File getLoadDir() {
+    	String filePath = prefs.get(KEY_LOAD_DIR, null);
+    	return filePath != null ? new File(filePath) : new File("/");
     }
     
     public static void addAssetRoot(File root) {
