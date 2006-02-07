@@ -414,6 +414,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		}
 	}	
 	
+	private static final int FOW_EDGE_FUDGE = 10;
 	private boolean validateMove(Token leadToken, Set<GUID> tokenSet, ZonePoint point) {
 
 		Zone zone = renderer.getZone();
@@ -443,9 +444,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	            int width = TokenSize.getWidth(token, zone.getGridSize());
 	            int height = TokenSize.getHeight(token, zone.getGridSize());
 
-	            bounds.setBounds(x, y, width, height);
+	            int fudgeW = Math.min(FOW_EDGE_FUDGE, width/4);
+	            int fudgeH = Math.min(FOW_EDGE_FUDGE, height/4);
+	            bounds.setBounds(x+fudgeW, y+fudgeH, width-fudgeW*2, height-fudgeH*2);
 	            
-	            if (!fow.intersects(bounds)) {
+	            if (!fow.contains(bounds)) {
 	            	return false;
 	            }
 			}
