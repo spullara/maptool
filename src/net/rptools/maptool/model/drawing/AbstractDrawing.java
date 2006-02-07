@@ -61,13 +61,16 @@ public abstract class AbstractDrawing implements Drawable {
         }
 
         if (pen.getBackgroundMode() == Pen.MODE_SOLID) {
-            Color bgColor = new Color(pen.getBackgroundColor());
+            Color bgColor = new Color(pen.getBackgroundColor(), true);
+            
             g.setColor(bgColor);
+            
+            
             drawBackground(g);
         }
         
         if (pen.getForegroundMode() == Pen.MODE_SOLID) {
-            Color color = new Color(pen.getColor());
+            Color color = new Color(pen.getColor(), true);
         	g.setColor(color);
             draw(g);
         }
