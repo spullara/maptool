@@ -364,7 +364,7 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 			typeTabbedPane = new JTabbedPane();
 			typeTabbedPane.addTab("LAN", null, getLanPanel(), null);
 			typeTabbedPane.addTab("RPTools.net", null, getRptoolsPanel(), null);
-			typeTabbedPane.addTab("Internet", null, getWanPanel(), null);
+			typeTabbedPane.addTab("Direct", null, getWanPanel(), null);
 		}
 		return typeTabbedPane;
 	}
@@ -512,7 +512,7 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 			break;
 			
 	    // Internet
-		case 1:
+		case 2:
 			// TODO: put these into a validation method
 			if (portTextField.getText().length() == 0) {
 				MapTool.showError("Must supply a port");
@@ -536,7 +536,7 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 			break;
 			
 		// RPTools.net
-		case 2:
+		case 1:
 			
 			if (serverNameTextField.getText().length() == 0) {
 				MapTool.showError("Must supply a server name");
