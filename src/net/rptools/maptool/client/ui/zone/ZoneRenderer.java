@@ -404,8 +404,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private void renderLabels(Graphics2D g) {
         
         for (Label label : zone.getLabels()) {
-            
-            ScreenPoint sp = ScreenPoint.fromZonePoint(this, label.getX(), label.getY());
+
+        	ZonePoint zp = new ZonePoint(label.getX(), label.getY());
+        	if (!zone.isPointVisible(zp)) {
+        		continue;
+        	}
+        	
+            ScreenPoint sp = ScreenPoint.fromZonePoint(this, zp.x, zp.y);
             
             GraphicsUtil.drawBoxedString(g, label.getLabel(), sp.x, sp.y);
         }

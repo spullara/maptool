@@ -37,6 +37,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawnElement;
 
@@ -149,6 +150,15 @@ public class Zone extends Token {
         fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
     }
 
+    public boolean isPointVisible(ZonePoint point) {
+    	
+    	if (!hasFog() || MapTool.getPlayer().isGM()) {
+    		return true;
+    	}
+    	
+    	return exposedArea.contains(point.x, point.y);
+    }
+    
     public boolean isTokenVisible(Token token) {
 
         // Base case, nothing is visible
