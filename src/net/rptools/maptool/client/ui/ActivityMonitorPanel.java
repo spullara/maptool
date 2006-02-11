@@ -81,6 +81,10 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 		
 	}
 	
+	public ActivityMonitorPanel() {
+		setToolTipText("Green:Sending Red:Receiving");
+	}
+	
 	/* (non-Javadoc)
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 */

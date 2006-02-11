@@ -88,5 +88,7 @@ public class MemoryStatusBar extends JProgressBar {
     	setMaximum((int)totalMegs);
     	setValue((int)(totalMegs - freeMegs));
     	setString(format.format(totalMegs - freeMegs) + "M/" + format.format(totalMegs) + "M");
+    	
+    	setToolTipText("Used Memory:" + (totalMegs - freeMegs) + "M Total Memory:" + totalMegs + "M");
     }
 }

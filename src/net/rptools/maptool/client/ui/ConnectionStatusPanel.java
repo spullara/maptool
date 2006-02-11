@@ -66,13 +66,14 @@ public class ConnectionStatusPanel extends JPanel {
     
     public void setStatus(Status status) {
         Icon icon = null;
+        String tip = null;
         switch(status) {
-        case connected : icon = connectedIcon; break;
-        case server : icon = serverIcon; break;
-        default: icon = disconnectedIcon;
+        case connected : icon = connectedIcon; tip = "Connected to Server"; break;
+        case server : icon = serverIcon; tip = "Running a Server"; break;
+        default: icon = disconnectedIcon; tip = "Not connected";
         }
         
         iconLabel.setIcon(icon);
-        setToolTipText(status.name());
+        setToolTipText(tip);
     }
 }
