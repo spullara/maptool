@@ -168,8 +168,7 @@ public class AppActions {
 
 	};
 
-	private static final Pattern NAME_PATTERN = Pattern
-			.compile("^(\\D*)(\\d+)$");
+	private static final Pattern NAME_PATTERN = Pattern.compile("^(\\D*)(\\d+)$");
 
 	public static final Action PASTE_TOKENS = new DefaultClientAction() {
 		{
@@ -1124,6 +1123,19 @@ public class AppActions {
 		public void execute(ActionEvent ae) {
 			MapTool.getFrame().setPaintDrawingMeasurement(
 					!MapTool.getFrame().isPaintDrawingMeasurement());
+		}
+	};
+  
+	/**
+	 * Toggle the drawing of measurements.
+	 */
+	public static final Action TOGGLE_TOKENS_START_SNAP_TO_GRID = new DefaultClientAction() {
+		{
+			init("action.toggleTokensStartSnapToGrid");
+		}
+
+		public void execute(ActionEvent ae) {
+			AppState.setTokensStartSnapToGrid(!AppState.isTokensStartSnapToGrid());
 		}
 	};
   

@@ -1050,12 +1050,26 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	Asset asset = TransferableHelper.getAsset(dtde);
 
     	if (asset != null) {
-	        CellPoint p = getCellAt(new ScreenPoint((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY()));
 	
 	        BufferedImage image = ImageManager.getImage(asset, this);
 	        Token token = new Token(MapToolUtil.nextTokenId(zone, asset.getName()), asset.getId(), image.getWidth(), image.getHeight());
-	        token.setX(p.x * zone.getGridSize());
-	        token.setY(p.y * zone.getGridSize());
+	        token.setSnapToGrid(AppState.isTokensStartSnapToGrid());
+	        
+    		ZonePoint zp = ZonePoint.fromScreenPoint(this, (int)dtde.getLocation().getX(), (int)dtde.getLocation().getY());
+
+	        if (token.isSnapToGrid()) {
+	    		int hwidth = TokenSize.getWidth(token, zone.getGridSize())/2 * (zp.x > 0 ? 1 : -1);
+		        int hheight = TokenSize.getHeight(token, zone.getGridSize())/2 * (zp.y > 0 ? 1 : -1);
+		        
+		        zp.translate(hwidth, hheight);
+
+	        	CellPoint cp = zp.convertToCell(this);
+		        token.setX(cp.x * zone.getGridSize());
+		        token.setY(cp.y * zone.getGridSize());
+	        } else {
+	        	token.setX(zp.x);
+	        	token.setY(zp.y);
+	        }
 
 	        if (AppState.isDropTokenAsInvisible()) {
 	        	token.setVisible(false);

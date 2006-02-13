@@ -85,21 +85,31 @@ public class AppMenuBar extends JMenuBar {
 
     protected JMenu createMapMenu() {
         JMenu menu = I18N.createMenu("menu.map");
+        
+        // MAP CREATION
         menu.add(new JMenuItem(AppActions.NEW_MAP));
         menu.add(createQuickMapMenu());
+        
+        // DRAWABLES
         menu.addSeparator();
         menu.add(new JMenuItem(DrawableUndoManager.getInstance().getUndoCommand()));
         menu.add(new JMenuItem(DrawableUndoManager.getInstance().getRedoCommand()));
         menu.add(new JMenuItem(DrawableUndoManager.getInstance().getClearCommand()));
 
         menu.addSeparator();
+        
+        // MAP TOGGLES
         menu.add(new JMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
         menu.add(new JMenuItem(AppActions.TOGGLE_FOG));
         menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_NEW_ZONES_HAVE_FOW));
+        menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_TOKENS_START_SNAP_TO_GRID){{setSelected(true);}}); // HACK: fix this
+
         menu.addSeparator();
+        
+        // GRID
         menu.add(new JMenuItem(AppActions.ADJUST_GRID));
         menu.add(new JMenuItem(AppActions.SET_ZONE_GRID_COLOR));
-
+        
         // LATER: This needs to be genericized, but it seems to constant, and so short, that I 
         // didn't feel compelled to do that in this impl
         JMenu gridSizeMenu = I18N.createMenu("action.gridSize");

@@ -41,6 +41,7 @@ public class AppState {
     private static boolean newMapsHaveFoW = false;
     private static File campaignFile;
     private static int gridSize = 1;
+    private static boolean tokensStartSnapToGrid = true;
     
     private static PropertyChangeSupport changeSupport = new PropertyChangeSupport(AppState.class);
     
@@ -52,7 +53,15 @@ public class AppState {
       changeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
-    public static int getGridSize() {
+    public static boolean isTokensStartSnapToGrid() {
+		return tokensStartSnapToGrid;
+	}
+
+	public static void setTokensStartSnapToGrid(boolean tokensStartSnapToGrid) {
+		AppState.tokensStartSnapToGrid = tokensStartSnapToGrid;
+	}
+
+	public static int getGridSize() {
     	return gridSize;
     }
     
