@@ -34,6 +34,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JTextField;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
@@ -44,7 +45,7 @@ import com.jeta.forms.components.panel.FormPanel;
 
 public class ServerInfoDialog extends JDialog {
 
-	private JLabel externalAddressLabel; 
+	private JTextField externalAddressLabel; 
 	
 	/**
 	 * This is the default constructor
@@ -52,14 +53,14 @@ public class ServerInfoDialog extends JDialog {
 	public ServerInfoDialog(MapToolServer server) {
 		super(MapTool.getFrame(), "Server Info", true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setSize(250, 200);
+		setSize(275, 200);
 
 		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/serverInfoDialog.jfrm");
 		
-		JLabel nameLabel = panel.getLabel("name");
-		JLabel localAddressLabel = panel.getLabel("localAddress");
-		JLabel portLabel = panel.getLabel("port");
-		externalAddressLabel = panel.getLabel("externalAddress");
+		JTextField nameLabel = panel.getTextField("name");
+		JTextField localAddressLabel = panel.getTextField("localAddress");
+		JTextField portLabel = panel.getTextField("port");
+		externalAddressLabel = panel.getTextField("externalAddress");
 		
 		String name = server.getConfig().getServerName();
 		if (name == null) {
