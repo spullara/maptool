@@ -120,6 +120,7 @@ public class AppMenuBar extends JMenuBar {
         JMenu menu = I18N.createMenu("menu.tools");
         menu.add(new JMenuItem(AppActions.ENTER_COMMAND));
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
+        menu.add(new JMenuItem(AppActions.ENFORCE_ZONE));
         menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
         menu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
         menu.addSeparator();

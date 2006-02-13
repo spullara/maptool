@@ -64,6 +64,16 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         Zone zone;
         
         switch (cmd) {
+        case enforceZone:
+        	
+        	zoneGUID = (GUID) parameters[0];
+        	ZoneRenderer renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
+        	
+        	if (renderer != null && (renderer.getZone().isVisible() || MapTool.getPlayer().isGM())) {
+            	MapTool.getFrame().setCurrentZoneRenderer(renderer);
+        	}
+        	
+        	break;
         case clearAllDrawings:
         	
         	zoneGUID = (GUID) parameters[0];
@@ -116,7 +126,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	MapTool.getCampaign().putZone(zone);
         	
         	// TODO: combine this with MapTool.addZone()
-        	ZoneRenderer renderer = ZoneRendererFactory.newRenderer(zone);
+        	renderer = ZoneRendererFactory.newRenderer(zone);
         	MapTool.getFrame().addZoneRenderer(renderer);
         	if (MapTool.getFrame().getCurrentZoneRenderer() == null && zone.isVisible()) {
         		MapTool.getFrame().setCurrentZoneRenderer(renderer);

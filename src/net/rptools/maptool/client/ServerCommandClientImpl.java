@@ -166,6 +166,10 @@ public class ServerCommandClientImpl implements ServerCommand {
         makeServerCall(COMMAND.sendTokensToBack, zoneGUID, tokenList);
     }
     
+    public void enforceZone(GUID zoneGUID) {
+    	makeServerCall(COMMAND.enforceZone, zoneGUID);
+    }
+    
 	private static void makeServerCall(ServerCommand.COMMAND command, Object... params) {
         
         MapTool.getConnection().callMethod(command.name(), params);

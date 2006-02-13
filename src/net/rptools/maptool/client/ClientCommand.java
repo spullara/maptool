@@ -54,6 +54,7 @@ public class ClientCommand {
         exposeFoW,
         hideFoW,
         putLabel,
-        removeLabel
+        removeLabel,
+        enforceZone
     };
 }

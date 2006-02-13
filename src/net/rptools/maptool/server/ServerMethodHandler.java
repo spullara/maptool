@@ -97,6 +97,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case undoDraw:                undoDraw(context.getGUID(0), context.getGUID(1)); break;
             case updateTokenMove:         updateTokenMove(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3)); break;
             case clearAllDrawings:        clearAllDrawings(context.getGUID(0)); break;
+            case enforceZone:			  enforceZone(context.getGUID(0));break;
             }
         } finally {
             RPCContext.setCurrent(null);
@@ -127,6 +128,10 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     
     ////
     // SERVER COMMAND
+    public void enforceZone(GUID zoneGUID) {
+    	forwardToClients();
+    }
+    
     public void bringTokensToFront(GUID zoneGUID, Set<GUID> tokenSet) {
         synchronized (MUTEX) {
 

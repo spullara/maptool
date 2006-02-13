@@ -82,6 +82,28 @@ public class AppActions {
 
 	private static Set<Token> tokenCopySet = null;
 
+	public static final Action ENFORCE_ZONE = new AdminClientAction() {
+		
+		{
+			init("action.enforceZone");
+		}
+
+		@Override
+		public boolean isAvailable() {
+			return super.isAvailable()
+					&& (MapTool.isPersonalServer() || MapTool.isHostingServer());
+		}
+
+		public void execute(ActionEvent e) {
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			if (renderer == null) {
+				return;
+			}
+			
+			MapTool.serverCommand().enforceZone(renderer.getZone().getId());
+		}
+	};
+	
 	public static final Action SHOW_SERVER_INFO = new DefaultClientAction() {
 		{
 			init("action.showServerInfo");
