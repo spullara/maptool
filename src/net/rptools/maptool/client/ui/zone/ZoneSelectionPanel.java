@@ -48,6 +48,7 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.ClientStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
@@ -97,6 +98,10 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
                 	if (SwingUtilities.isLeftMouseButton(e)) {
                 		if (MapTool.getFrame().getCurrentZoneRenderer() != renderer) {
                     		MapTool.getFrame().setCurrentZoneRenderer(renderer);
+                    		
+                    		if (AppState.isPlayerViewLinked()) {
+                    			MapTool.serverCommand().enforceZone(renderer.getZone().getId());
+                    		}
                 		}
                 	}
                 }
