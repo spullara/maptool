@@ -1061,6 +1061,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	        	token.setVisible(false);
 	        }
 
+	        // He who drops, owns
 	        if (MapTool.getServerPolicy().useStrictTokenManagement() && !MapTool.getPlayer().isGM()) {
 	        	token.addOwner(MapTool.getPlayer().getName());
 	        }
@@ -1068,7 +1069,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	        zone.putToken(token);
 
             MapTool.serverCommand().putToken(zone.getId(), token);
-	        
+
+            // For convenience, select it
+            clearSelectedTokens();
+            selectToken(token.getId());
+            
             dtde.dropComplete(true);
 	        repaint();
 	        return;
