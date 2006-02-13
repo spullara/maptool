@@ -34,7 +34,7 @@ import net.rptools.lib.swing.ImageBorder;
 /**
  * @author trevor
  */
-public class ClientStyle {
+public class AppStyle {
 
 	public static ImageBorder border = ImageBorder.GRAY;
 	public static ImageBorder selectedBorder = ImageBorder.RED;

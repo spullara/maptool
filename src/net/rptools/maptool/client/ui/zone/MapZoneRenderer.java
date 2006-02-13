@@ -35,7 +35,8 @@ import java.awt.image.BufferedImage;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.maptool.client.ClientStyle;
+import net.rptools.maptool.client.AppState;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -204,7 +205,11 @@ public class MapZoneRenderer extends ZoneRenderer {
             int theY = Math.min(offsety + h, Math.max((int)row + y, offsety));
             int theX = Math.max(x, offsetx);
             
-            g.drawLine(theX, theY, theX + w, theY);
+            if (AppState.getGridSize() == 1) {
+            	g.drawLine(theX, theY, theX + w, theY);
+            } else {
+            	g.fillRect(theX, theY - (AppState.getGridSize()/2), w, AppState.getGridSize());
+            }
         }
 
         for (float col = 0; col < w + gridSize; col += gridSize) {
@@ -212,7 +217,11 @@ public class MapZoneRenderer extends ZoneRenderer {
             int theX = Math.min(offsetx + w, Math.max(x + (int)col, offsetx));
             int theY = Math.max(y, offsety);
 
-            g.drawLine(theX, theY, theX, theY + h);
+            if (AppState.getGridSize() == 1) {
+                g.drawLine(theX, theY, theX, theY + h);
+            } else {
+            	g.fillRect(theX - (AppState.getGridSize()/2), theY, AppState.getGridSize(), h);
+            }
         }
     }    
 }

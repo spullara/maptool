@@ -49,7 +49,7 @@ import javax.swing.SwingUtilities;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppState;
-import net.rptools.maptool.client.ClientStyle;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.ZoneActivityListener;
@@ -164,15 +164,15 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
 	            
 	            g2d.drawImage(img, x, y, size.width, size.height, this);
 	            if (!renderer.getZone().isVisible()) {
-	            	g2d.drawImage(ClientStyle.tokenInvisible, x + 3, y + 3, this);
+	            	g2d.drawImage(AppStyle.tokenInvisible, x + 3, y + 3, this);
 	            }
 	            
 	            boundsMap.put(new Rectangle(x, y, size.width, size.height), renderer);
 	            
 	            if (isSelectedZone) {
-	            	ClientStyle.selectedBorder.paintAround(g2d, x, y, size.width, size.height);
+	            	AppStyle.selectedBorder.paintAround(g2d, x, y, size.width, size.height);
 	            } else {
-	            	ClientStyle.border.paintWithin(g2d, x, y, size.width, size.height);
+	            	AppStyle.border.paintWithin(g2d, x, y, size.width, size.height);
 	            }
 	            
 	            if (horizontal) {

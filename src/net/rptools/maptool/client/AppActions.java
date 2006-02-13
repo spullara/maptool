@@ -928,6 +928,24 @@ public class AppActions {
 		}
 	};
 
+	public static class GridSizeAction extends DefaultClientAction {
+
+		private int size;
+		
+		public GridSizeAction(int size) {
+			putValue(Action.NAME, Integer.toString(size));
+			this.size = size;
+		}
+		
+		@Override
+		public void execute(ActionEvent arg0) {
+			AppState.setGridSize(size);
+			if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+				MapTool.getFrame().getCurrentZoneRenderer().repaint();
+			}
+		}
+	}
+	
 	private static final int QUICK_MAP_ICON_SIZE = 25;
 
 	public static class QuickMapAction extends AdminClientAction {

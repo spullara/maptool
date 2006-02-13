@@ -25,6 +25,7 @@
 package net.rptools.maptool.client.ui;
 
 import javax.swing.Action;
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -98,6 +99,24 @@ public class AppMenuBar extends JMenuBar {
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.ADJUST_GRID));
         menu.add(new JMenuItem(AppActions.SET_ZONE_GRID_COLOR));
+
+        // LATER: This needs to be genericized, but it seems to constant, and so short, that I 
+        // didn't feel compelled to do that in this impl
+        JMenu gridSizeMenu = I18N.createMenu("action.gridSize");
+        JCheckBoxMenuItem gridSize1 = new JCheckBoxMenuItem(new AppActions.GridSizeAction(1));
+        JCheckBoxMenuItem gridSize3 = new JCheckBoxMenuItem(new AppActions.GridSizeAction(3));
+        JCheckBoxMenuItem gridSize5 = new JCheckBoxMenuItem(new AppActions.GridSizeAction(5));
+        ButtonGroup sizeGroup = new ButtonGroup();
+        sizeGroup.add(gridSize1);
+        sizeGroup.add(gridSize3);
+        sizeGroup.add(gridSize5);
+        gridSize1.setSelected(true);
+
+        gridSizeMenu.add(gridSize1);
+        gridSizeMenu.add(gridSize3);
+        gridSizeMenu.add(gridSize5);
+        menu.add(gridSizeMenu);
+        
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.REMOVE_ZONE));
         

@@ -40,6 +40,7 @@ public class AppState {
     private static boolean useDoubleWideLine = true;
     private static boolean newMapsHaveFoW = false;
     private static File campaignFile;
+    private static int gridSize = 1;
     
     private static PropertyChangeSupport changeSupport = new PropertyChangeSupport(AppState.class);
     
@@ -49,6 +50,14 @@ public class AppState {
     
     public static void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
       changeSupport.addPropertyChangeListener(propertyName, listener);
+    }
+
+    public static int getGridSize() {
+    	return gridSize;
+    }
+    
+    public static void setGridSize(int size) {
+    	gridSize = size;
     }
     
     public static boolean getNewMapsHaveFoW() {

@@ -31,7 +31,7 @@ import java.awt.Rectangle;
 
 import javax.swing.SwingUtilities;
 
-import net.rptools.maptool.client.ClientStyle;
+import net.rptools.maptool.client.AppStyle;
 
 /**
  */
@@ -74,7 +74,7 @@ public class GraphicsUtil {
 		g.setColor(Color.white);
 		g.fillRect(boxBounds.x, boxBounds.y, boxBounds.width, boxBounds.height);
 		
-    	ClientStyle.border.paintWithin(g, boxBounds);
+    	AppStyle.border.paintWithin(g, boxBounds);
 		
 		// Renderer message
 		g.setColor(Color.black);

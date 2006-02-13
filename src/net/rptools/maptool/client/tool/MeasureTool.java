@@ -33,7 +33,7 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.CellPoint;
-import net.rptools.maptool.client.ClientStyle;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;

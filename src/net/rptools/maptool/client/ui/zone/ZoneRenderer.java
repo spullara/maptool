@@ -60,7 +60,7 @@ import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.CellPoint;
-import net.rptools.maptool.client.ClientStyle;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
@@ -558,9 +558,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		List<CellPoint> path = walker.getPath();
 		for (CellPoint p : path) {
 			
-			highlightCell(g, p, ClientStyle.cellPathImage, 1.0f);
+			highlightCell(g, p, AppStyle.cellPathImage, 1.0f);
 			if (walker.isWaypoint(p) && previousPoint != null) {
-				highlightCell(g, p, ClientStyle.cellWaypointImage, .333f);
+				highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
 			}
 			previousPoint = p;
 		}
@@ -725,7 +725,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         	boolean isSelected = selectedTokenSet.contains(token.getId());
         	if (isSelected) {
                 // Border
-            	ClientStyle.selectedBorder.paintAround(g, bounds);
+            	AppStyle.selectedBorder.paintAround(g, bounds);
         	}
 
         	if (AppState.isShowTokenNames() || isSelected || token == tokenUnderMouse) {
@@ -738,7 +738,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         // Stacks
         for (Rectangle rect : coveredTokenSet) {
         	
-        	BufferedImage stackImage = ClientStyle.stackImage;
+        	BufferedImage stackImage = AppStyle.stackImage;
         	g.drawImage(stackImage, rect.x + rect.width - stackImage.getWidth() + 2, rect.y - 2, null);
         }
     }
@@ -780,8 +780,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         // Statuses
         int offset = 0;
         if (!token.isVisible()) {
-        	g.drawImage(ClientStyle.tokenInvisible, offset, 0, this);
-        	offset += ClientStyle.tokenInvisible.getWidth() + 3;
+        	g.drawImage(AppStyle.tokenInvisible, offset, 0, this);
+        	offset += AppStyle.tokenInvisible.getWidth() + 3;
         }
         
         g.dispose();

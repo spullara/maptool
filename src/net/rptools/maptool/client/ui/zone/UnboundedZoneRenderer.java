@@ -33,6 +33,7 @@ import java.io.IOException;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Zone;
@@ -82,12 +83,20 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
         int offY = (int)(getViewOffsetY() % gridSize);
         for (int row = 0; row < size.height + gridSize; row += gridSize) {
             
-            g.drawLine(0, row + offY, size.width, row + offY);
+            if (AppState.getGridSize() == 1) {
+                g.drawLine(0, row + offY, size.width, row + offY);
+            } else {
+            	g.fillRect(0, row + offY - (AppState.getGridSize()/2), size.width, AppState.getGridSize());
+            }
         }
 
         for (int col = 0; col < size.width + gridSize; col += gridSize) {
             
-            g.drawLine(col + offX, 0, col + offX, size.height);
+            if (AppState.getGridSize() == 1) {
+                g.drawLine(col + offX, 0, col + offX, size.height);
+            } else {
+            	g.fillRect(col + offX - (AppState.getGridSize()/2), 0, AppState.getGridSize(), size.height);
+            }
         }
         
 	}
