@@ -140,6 +140,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
     private List<ZoneRenderer> zoneRendererList;
     
 	private JSplitPaneEx mainSplitPane;
+	private JSplitPaneEx rightSplitPane;
 	
     private PenWidthChooser widthChooser = new PenWidthChooser();
 
@@ -217,6 +218,12 @@ public class MapToolFrame extends JFrame implements WindowListener {
         mainPanel.add(BorderLayout.CENTER, zoneRendererPanel);
         mainPanel.add(BorderLayout.SOUTH, commandPanel);
         mainPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+
+        // Split up/down
+        rightSplitPane = new JSplitPaneEx();
+        rightSplitPane.setBorder(null);
+		BasicSplitPaneDivider divider = ((BasicSplitPaneUI) rightSplitPane.getUI()).getDivider();
+		if (divider != null) divider.setBorder(null);
         
 		// Split left/right
 		mainSplitPane = new JSplitPaneEx();
@@ -225,7 +232,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		mainSplitPane.setLeftComponent(taskPanel);
 		mainSplitPane.setRightComponent(mainPanel);
 		mainSplitPane.setInitialDividerPosition(150);
-		BasicSplitPaneDivider divider = ((BasicSplitPaneUI) mainSplitPane.getUI()).getDivider();
+		divider = ((BasicSplitPaneUI) mainSplitPane.getUI()).getDivider();
 		if (divider != null) divider.setBorder(null);
         
 		JPanel mainInnerPanel = new JPanel(new BorderLayout());

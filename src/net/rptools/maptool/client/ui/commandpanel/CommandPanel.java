@@ -57,8 +57,12 @@ public class CommandPanel extends JPanel implements Observer {
 	 */
 	public void commitCommand() {
 		String text = commandTextField.getText().trim();
-		if (text.charAt(0) == '/')
+		if (text.charAt(0) == '/') {
 			text = text.substring(1);
+		} else {
+			// Assume a "SAY"
+			text = "s " + text;
+		}
 		MacroManager.executeMacro(text);
 		cancelCommand();
 	}
