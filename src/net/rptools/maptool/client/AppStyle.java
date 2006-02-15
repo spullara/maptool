@@ -49,6 +49,8 @@ public class AppStyle {
     public static Color selectionBoxOutline = Color.black;
     public static Color selectionBoxFill = Color.blue;
     
+    public static BufferedImage chatImage;
+    
 	static {
 		
 		try {
@@ -57,6 +59,7 @@ public class AppStyle {
             cellPathImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/whiteBorder.png");
             cellWaypointImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/redDot.png");
             stackImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/stack.png");
+            chatImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chat.png");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

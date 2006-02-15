@@ -26,22 +26,28 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.List;
+import java.util.Observer;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -71,7 +77,7 @@ import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
-import net.rptools.maptool.client.AppState;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
@@ -103,6 +109,8 @@ import net.rptools.maptool.client.ui.zone.ZoneSelectionPanel;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.ObservableList;
+import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.drawing.Pen;
@@ -150,6 +158,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
     private ConnectionStatusPanel connectionStatusPanel = new ConnectionStatusPanel();
     
 	private NewZoneDropPanel newZoneDropPanel;
+	
+	private JLabel chatActionLabel;
   
     // TODO: I don't like this here, eventOverlay should be more abstracted
     private NotificationOverlay notificationOverlay = new NotificationOverlay();
@@ -210,28 +220,45 @@ public class MapToolFrame extends JFrame implements WindowListener {
         zoneRendererPanel.add(newZoneDropPanel, PositionalLayout.Position.CENTER);
         zoneRendererPanel.add(zoneSelectionPanel, PositionalLayout.Position.SE);
         zoneRendererPanel.add(colorPicker, PositionalLayout.Position.NE);
+        zoneRendererPanel.add(getChatActionLabel(), PositionalLayout.Position.SW);
         
         commandPanel = new CommandPanel();
         MapTool.getMessageList().addObserver(commandPanel);
-
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(BorderLayout.CENTER, zoneRendererPanel);
-        mainPanel.add(BorderLayout.SOUTH, commandPanel);
-        mainPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        MapTool.getMessageList().addObserver(createChatIconMessageObserver());
+        
+        final JPanel rendererBorderPanel = new JPanel(new GridLayout());
+        rendererBorderPanel.add(BorderLayout.CENTER, zoneRendererPanel);
+        rendererBorderPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        rendererBorderPanel.addMouseMotionListener(new MouseMotionAdapter(){
+        	@Override
+        	public void mouseMoved(MouseEvent e) {
+        		Dimension size = rendererBorderPanel.getSize();
+        		
+        		if (e.getY() > size.height-5) {
+        			showCommandPanel();
+        		}
+        	}
+        });
 
         // Split up/down
         rightSplitPane = new JSplitPaneEx();
         rightSplitPane.setBorder(null);
+        rightSplitPane.setOrientation(JSplitPaneEx.VERTICAL_SPLIT);
 		BasicSplitPaneDivider divider = ((BasicSplitPaneUI) rightSplitPane.getUI()).getDivider();
 		if (divider != null) divider.setBorder(null);
-        
+
+		rightSplitPane.setTopComponent(rendererBorderPanel);
+		rightSplitPane.setBottomComponent(commandPanel);
+		
+		divider.addMouseMotionListener(commandPanel);
+		divider.addMouseListener(commandPanel);
+		
 		// Split left/right
 		mainSplitPane = new JSplitPaneEx();
 		mainSplitPane.setBorder(null);
 		
 		mainSplitPane.setLeftComponent(taskPanel);
-		mainSplitPane.setRightComponent(mainPanel);
-		mainSplitPane.setInitialDividerPosition(150);
+		mainSplitPane.setRightComponent(rightSplitPane);
 		divider = ((BasicSplitPaneUI) mainSplitPane.getUI()).getDivider();
 		if (divider != null) divider.setBorder(null);
         
@@ -247,11 +274,59 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		add(BorderLayout.SOUTH, statusPanel);
         
         new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
-        new SplitPanePreferences(AppConstants.APP_NAME, "mainSplitPane", mainSplitPane);
         
         restorePreferences();
 	}
-    
+
+	@Override
+	public void setVisible(boolean b) {
+		mainSplitPane.setInitialDividerPosition(150);
+        rightSplitPane.setInitialDividerPosition(getSize().height-200);
+        new SplitPanePreferences(AppConstants.APP_NAME, "mainSplitPane", mainSplitPane);
+        new SplitPanePreferences(AppConstants.APP_NAME, "rightSplitPane", rightSplitPane);
+		super.setVisible(b);
+		hideCommandPanel();
+	}
+	
+	public JLabel getChatActionLabel() {
+		if (chatActionLabel == null) {
+			chatActionLabel = new JLabel(new ImageIcon(AppStyle.chatImage)); 
+			chatActionLabel.setSize(chatActionLabel.getPreferredSize());
+			chatActionLabel.setVisible(false);
+			chatActionLabel.addMouseListener(new MouseAdapter(){
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					showCommandPanel();
+				}
+			});
+		}
+		return chatActionLabel;
+	}
+	
+	private Observer createChatIconMessageObserver() {
+		return new Observer() {
+			public void update(java.util.Observable o, Object arg) {
+			    ObservableList<TextMessage> textList = MapTool.getMessageList();   
+			    ObservableList.Event event = (ObservableList.Event)arg; 
+
+			    if (rightSplitPane.isBottomHidden() && event == ObservableList.Event.append) {
+					
+					getChatActionLabel().setVisible(true);
+				}
+			}
+		};
+	}
+	
+	public void showCommandPanel() {
+		chatActionLabel.setVisible(false);
+		rightSplitPane.showBottom();
+		commandPanel.requestFocus();
+	}
+	
+	public void hideCommandPanel() {
+		rightSplitPane.hideBottom();
+	}
+	
 	public NewMapDialog getNewMapDialog() {
         if (newMapDialog == null) {
             newMapDialog = new NewMapDialog(this);
@@ -630,7 +705,11 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	  MapTool.disconnect();
 	  
 	  // We're done
-	  System.exit(0);
+	  EventQueue.invokeLater(new Runnable() {
+		  public void run() {
+			  System.exit(0);
+		  }
+	  });
   }
   public void windowClosed(WindowEvent e){}
   public void windowIconified(WindowEvent e){}

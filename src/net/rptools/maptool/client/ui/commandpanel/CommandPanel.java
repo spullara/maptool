@@ -1,15 +1,22 @@
 package net.rptools.maptool.client.ui.commandpanel;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.Timer;
 
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.MapTool;
@@ -17,30 +24,43 @@ import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
 
-public class CommandPanel extends JPanel implements Observer {
+public class CommandPanel extends JPanel implements Observer, MouseListener, MouseMotionListener {
 
 	private JTextField commandTextField;
-
+	private boolean mouseIsOver;
 	private MessagePanel messagePanel;
-
+	private Timer closeTimer;
+	
 	public CommandPanel() {
 		setLayout(new BorderLayout());
 
 		add(BorderLayout.SOUTH, getCommandTextField());
-		add(BorderLayout.CENTER, new JScrollPane(getMessagePanel(),
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+		add(BorderLayout.CENTER, getMessagePanel());
+		
+		getCommandTextField().addMouseListener(this);
+		getMessagePanel().addMouseListener(this);
+		addMouseListener(this);
 	}
 
+	@Override
+	public Dimension getPreferredSize() {
+		return new Dimension(50, 50);
+	}
+
+	@Override
+	public Dimension getMinimumSize() {
+		return getPreferredSize();
+	}
+	
 	public JTextField getCommandTextField() {
 		if (commandTextField == null) {
 			commandTextField = new JTextField();
 
 			ActionMap actions = commandTextField.getActionMap();
-			actions
-					.put(AppActions.COMMIT_COMMAND_ID,
+			actions.put(AppActions.COMMIT_COMMAND_ID,
 							AppActions.COMMIT_COMMAND);
 			actions.put(AppActions.ENTER_COMMAND_ID, AppActions.ENTER_COMMAND);
+			actions.put(AppActions.CANCEL_COMMAND_ID, AppActions.CANCEL_COMMAND);
 
 			InputMap inputs = commandTextField.getInputMap();
 			inputs.put(KeyStroke.getKeyStroke("ESCAPE"),
@@ -73,13 +93,23 @@ public class CommandPanel extends JPanel implements Observer {
 	public void cancelCommand() {
 		commandTextField.setText("");
 		validate();
-		//scrollToEnd();
+		
+		if (!mouseIsOver) {
+			MapTool.getFrame().hideCommandPanel();
+		}
 	}
 	
 	public void startCommand() {
+		MapTool.getFrame().showCommandPanel();
+		
 		commandTextField.requestFocus();
 	}
 
+	@Override
+	public void requestFocus() {
+		commandTextField.requestFocus();
+	}
+	
 	private MessagePanel getMessagePanel() {
 		if (messagePanel == null) {
 			messagePanel = new MessagePanel();
@@ -112,4 +142,40 @@ public class CommandPanel extends JPanel implements Observer {
 	      throw new IllegalArgumentException("Unknown event: " + event);
 	    } // endswitch
 	}	
+	
+	////
+	// MOUSE LISTENER
+	public void mouseClicked(MouseEvent e) {}
+	public void mouseEntered(MouseEvent e) {
+		mouseIsOver = true;
+	}
+	public void mouseExited(MouseEvent e) {
+		mouseIsOver = false;
+
+		if (closeTimer != null) {
+			closeTimer.stop();
+		}
+		closeTimer = new Timer(500, new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				if (!mouseIsOver && getCommandTextField().getText().length() == 0) {
+					cancelCommand();
+				}
+				
+				if (closeTimer != null) {
+					closeTimer.stop();
+					closeTimer = null;
+				}
+			}
+		});
+		closeTimer.start();
+	}
+	public void mousePressed(MouseEvent e) {}
+	public void mouseReleased(MouseEvent e) {}
+	
+	////
+	// MOUSE MOTION LISTENER
+	public void mouseDragged(MouseEvent e) {}
+	public void mouseMoved(MouseEvent e) {
+		mouseIsOver = true;
+	}
 }
