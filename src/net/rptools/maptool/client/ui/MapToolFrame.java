@@ -93,6 +93,7 @@ import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
+import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanel;
 import net.rptools.maptool.client.ui.zone.NewZoneDropPanel;
 import net.rptools.maptool.client.ui.zone.NotificationOverlay;
@@ -169,8 +170,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
         
         zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
         pointerOverlay = new PointerOverlay();
-        commandPanel = new CommandPanel();
-        commandPanel.setSize(250, 100);
         colorPicker = new ColorPicker(this);
         colorPicker.setSize(colorPicker.getMinimumSize());
         colorPicker.setVisible(false);
@@ -208,12 +207,15 @@ public class MapToolFrame extends JFrame implements WindowListener {
         zoneRendererPanel = new JPanel(new PositionalLayout(5));
         zoneRendererPanel.setBackground(Color.black);
         zoneRendererPanel.add(newZoneDropPanel, PositionalLayout.Position.CENTER);
-        zoneRendererPanel.add(commandPanel, PositionalLayout.Position.SW);
         zoneRendererPanel.add(zoneSelectionPanel, PositionalLayout.Position.SE);
         zoneRendererPanel.add(colorPicker, PositionalLayout.Position.NE);
         
+        commandPanel = new CommandPanel();
+        MapTool.getMessageList().addObserver(commandPanel);
+
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(BorderLayout.CENTER, zoneRendererPanel);
+        mainPanel.add(BorderLayout.SOUTH, commandPanel);
         mainPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         
 		// Split left/right

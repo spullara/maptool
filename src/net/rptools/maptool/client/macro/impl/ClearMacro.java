@@ -45,6 +45,6 @@ public class ClearMacro implements Macro {
    * @see net.rptools.maptool.client.macro.Macro#execute(java.lang.String)
    */
   public void execute(String macro) {
-    MapTool.getFrame().getCommandPanel().clearMessagePanel();
+    //MapTool.getFrame().getCommandPanel().clearMessagePanel();
   }
 }
