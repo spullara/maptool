@@ -25,26 +25,11 @@ public class MessagePanel extends JPanel {
 		textPane.setEditable(false);
 		
 		scrollPane = new JScrollPane(textPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setBorder(null);
 		
 		add(BorderLayout.CENTER, scrollPane);
 	}
 
-	@Override
-	public synchronized void addMouseListener(MouseListener l) {
-		super.addMouseListener(l);
-		textPane.addMouseListener(l);
-		scrollPane.addMouseListener(l);
-		scrollPane.getVerticalScrollBar().addMouseListener(l);
-	}
-	
-	@Override
-	public synchronized void removeMouseListener(MouseListener l) {
-		super.removeMouseListener(l);
-		textPane.removeMouseListener(l);
-		scrollPane.removeMouseListener(l);
-		scrollPane.getVerticalScrollBar().removeMouseListener(l);
-	}
-	
 	public void addMessage(final String message) {
 		
 		EventQueue.invokeLater(new Runnable() {

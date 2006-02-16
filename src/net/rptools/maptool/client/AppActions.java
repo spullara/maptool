@@ -372,6 +372,21 @@ public class AppActions {
 	/**
 	 * Start entering text into the chat field
 	 */
+	public static final String CHAT_COMMAND_ID = "action.sendChat";
+
+	public static final Action CHAT_COMMAND = new DefaultClientAction() {
+		{
+			init(CHAT_COMMAND_ID);
+		}
+
+		public void execute(ActionEvent e) {
+			MapTool.getFrame().getCommandPanel().startChat();
+		}
+	};
+
+	/**
+	 * Start entering text into the chat field
+	 */
 	public static final String ENTER_COMMAND_ID = "action.runMacro";
 
 	public static final Action ENTER_COMMAND = new DefaultClientAction() {
@@ -380,7 +395,7 @@ public class AppActions {
 		}
 
 		public void execute(ActionEvent e) {
-			MapTool.getFrame().getCommandPanel().startCommand();
+			MapTool.getFrame().getCommandPanel().startMacro();
 		}
 	};
 

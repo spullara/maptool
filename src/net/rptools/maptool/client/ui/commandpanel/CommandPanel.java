@@ -1,8 +1,9 @@
 package net.rptools.maptool.client.ui.commandpanel;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -12,12 +13,14 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroManager;
@@ -33,13 +36,12 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 	
 	public CommandPanel() {
 		setLayout(new BorderLayout());
-
+		setBorder(BorderFactory.createLineBorder(Color.gray));
+		
 		add(BorderLayout.SOUTH, getCommandTextField());
 		add(BorderLayout.CENTER, getMessagePanel());
 		
-		getCommandTextField().addMouseListener(this);
-		getMessagePanel().addMouseListener(this);
-		addMouseListener(this);
+		SwingUtil.addMouseListenerToHierarchy(this, this);
 	}
 
 	@Override
@@ -54,7 +56,17 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 	
 	public JTextField getCommandTextField() {
 		if (commandTextField == null) {
-			commandTextField = new JTextField();
+			commandTextField = new JTextField(){
+				@Override
+				protected void paintComponent(Graphics g) {
+					super.paintComponent(g);
+					
+					Dimension size = getSize();
+					g.setColor(Color.gray);
+					g.drawLine(0, 0, size.width, 0);
+				}
+			};
+			commandTextField.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
 			ActionMap actions = commandTextField.getActionMap();
 			actions.put(AppActions.COMMIT_COMMAND_ID,
@@ -99,7 +111,14 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 		}
 	}
 	
-	public void startCommand() {
+	public void startMacro() {
+		MapTool.getFrame().showCommandPanel();
+		
+		commandTextField.requestFocus();
+		commandTextField.setText("/");
+	}
+
+	public void startChat() {
 		MapTool.getFrame().showCommandPanel();
 		
 		commandTextField.requestFocus();

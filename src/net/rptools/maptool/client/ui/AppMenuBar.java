@@ -147,6 +147,7 @@ public class AppMenuBar extends JMenuBar {
 
     protected JMenu createToolsMenu() {
         JMenu menu = I18N.createMenu("menu.tools");
+        menu.add(new JMenuItem(AppActions.CHAT_COMMAND));
         menu.add(new JMenuItem(AppActions.ENTER_COMMAND));
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE));
