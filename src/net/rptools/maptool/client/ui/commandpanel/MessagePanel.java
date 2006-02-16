@@ -8,6 +8,7 @@ import java.awt.event.MouseListener;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.UIManager;
 
 public class MessagePanel extends JPanel {
 
@@ -33,6 +34,7 @@ public class MessagePanel extends JPanel {
 		super.addMouseListener(l);
 		textPane.addMouseListener(l);
 		scrollPane.addMouseListener(l);
+		scrollPane.getVerticalScrollBar().addMouseListener(l);
 	}
 	
 	@Override
@@ -40,6 +42,7 @@ public class MessagePanel extends JPanel {
 		super.removeMouseListener(l);
 		textPane.removeMouseListener(l);
 		scrollPane.removeMouseListener(l);
+		scrollPane.getVerticalScrollBar().removeMouseListener(l);
 	}
 	
 	public void addMessage(final String message) {
@@ -47,9 +50,8 @@ public class MessagePanel extends JPanel {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				messages.append("<div>").append(message).append("</div>");
-				textPane.setText("<html><body>" + messages.toString() + "</body></html>");
+				textPane.setText("<html <style>div {font-family: sans-serif; font-size: 11pt} body {margin: 5px, 5px, 5px, 5px}</style>><body>" + messages.toString() + "</body></html>");
 				textPane.scrollRectToVisible(new Rectangle(0, textPane.getSize().height, 1, 1));
-				System.out.println(new Rectangle(0, textPane.getSize().height, 1, 1));
 			}
 		});
 	}
