@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -33,6 +35,7 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 	private boolean mouseIsOver;
 	private MessagePanel messagePanel;
 	private Timer closeTimer;
+	private List<String> commandHistory = new LinkedList<String>();
 	
 	public CommandPanel() {
 		setLayout(new BorderLayout());
@@ -89,6 +92,10 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 	 */
 	public void commitCommand() {
 		String text = commandTextField.getText().trim();
+		if (text.length() == 0) {
+			return;
+		}
+		
 		if (text.charAt(0) == '/') {
 			text = text.substring(1);
 		} else {
@@ -97,6 +104,10 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 		}
 		MacroManager.executeMacro(text);
 		cancelCommand();
+	}
+	
+	public void clearMessagePanel() {
+		messagePanel.clearMessages();
 	}
 
 	/**
@@ -155,7 +166,7 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 	      //resetMessagePanel();
 	      break;
 	    case clear:
-	      //clearMessagePanel();
+	      clearMessagePanel();
 	      break;
 	    default:
 	      throw new IllegalArgumentException("Unknown event: " + event);

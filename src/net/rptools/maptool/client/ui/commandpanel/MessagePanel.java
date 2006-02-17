@@ -30,6 +30,11 @@ public class MessagePanel extends JPanel {
 		add(BorderLayout.CENTER, scrollPane);
 	}
 
+	public void clearMessages() {
+		messages.setLength(0);
+		textPane.setText("");
+	}
+	
 	public void addMessage(final String message) {
 		
 		EventQueue.invokeLater(new Runnable() {
