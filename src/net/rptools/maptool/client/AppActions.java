@@ -384,6 +384,9 @@ public class AppActions {
 		}
 	};
 
+	public static final String COMMAND_UP_ID = "action.commandUp";
+	public static final String COMMAND_DOWN_ID = "action.commandDown";
+	
 	/**
 	 * Start entering text into the chat field
 	 */

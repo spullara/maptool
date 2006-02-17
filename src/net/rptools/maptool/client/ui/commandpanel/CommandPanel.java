@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.InputMap;
@@ -36,6 +38,7 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 	private MessagePanel messagePanel;
 	private Timer closeTimer;
 	private List<String> commandHistory = new LinkedList<String>();
+	private int commandHistoryIndex;
 	
 	public CommandPanel() {
 		setLayout(new BorderLayout());
@@ -76,12 +79,16 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 							AppActions.COMMIT_COMMAND);
 			actions.put(AppActions.ENTER_COMMAND_ID, AppActions.ENTER_COMMAND);
 			actions.put(AppActions.CANCEL_COMMAND_ID, AppActions.CANCEL_COMMAND);
-
+			actions.put(AppActions.COMMAND_UP_ID, new CommandHistoryUpAction());
+			actions.put(AppActions.COMMAND_DOWN_ID, new CommandHistoryDownAction());
+			
 			InputMap inputs = commandTextField.getInputMap();
 			inputs.put(KeyStroke.getKeyStroke("ESCAPE"),
 					AppActions.CANCEL_COMMAND_ID);
 			inputs.put(KeyStroke.getKeyStroke("ENTER"),
 					AppActions.COMMIT_COMMAND_ID);
+			inputs.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), AppActions.COMMAND_UP_ID);
+			inputs.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), AppActions.COMMAND_DOWN_ID);
 		}
 
 		return commandTextField;
@@ -95,6 +102,13 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 		if (text.length() == 0) {
 			return;
 		}
+
+		// Command history
+		// Don't store up a bunch of repeats
+		if (commandHistory.size() == 0 || !text.equals(commandHistory.get(commandHistory.size()-1))) {
+			commandHistory.add(text);
+		}
+		commandHistoryIndex = commandHistory.size();
 		
 		if (text.charAt(0) == '/') {
 			text = text.substring(1);
@@ -135,6 +149,37 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 		commandTextField.requestFocus();
 	}
 
+	private class CommandHistoryUpAction extends AbstractAction {
+		
+		public void actionPerformed(ActionEvent e) {
+			if (commandHistory.size() == 0) {
+				return;
+			}
+			commandHistoryIndex --;
+			if (commandHistoryIndex < 0) {
+				commandHistoryIndex = 0;
+			}
+
+			commandTextField.setText(commandHistory.get(commandHistoryIndex));
+		}
+	}
+	
+	private class CommandHistoryDownAction extends AbstractAction {
+		
+		public void actionPerformed(ActionEvent e) {
+			if (commandHistory.size() == 0) {
+				return;
+			}
+			commandHistoryIndex ++;
+			if (commandHistoryIndex >= commandHistory.size()) {
+				commandTextField.setText("");
+				commandHistoryIndex = commandHistory.size();
+			} else {
+				commandTextField.setText(commandHistory.get(commandHistoryIndex));
+			}
+		}
+	}
+	
 	@Override
 	public void requestFocus() {
 		commandTextField.requestFocus();
