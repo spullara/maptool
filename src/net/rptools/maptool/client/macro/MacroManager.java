@@ -52,6 +52,8 @@ public class MacroManager {
     private static Macro UNDEFINED_MACRO = new UndefinedMacro();
     private static Map<String, Macro> MACROS = new HashMap<String, Macro>();
     
+    private static Map<String, String> aliasMap = new HashMap<String, String>();
+    
     static {
     	registerMacro(new SayMacro());
     	registerMacro(new HelpMacro());
@@ -64,6 +66,14 @@ public class MacroManager {
         registerMacro(new EmoteMacro());
         
     	registerMacro(UNDEFINED_MACRO);
+    }
+    
+    public static void setAlias(String key, String value) {
+    	aliasMap.put(key, value);
+    }
+
+    public static void removeAlias(String key) {
+    	aliasMap.remove(key);
     }
     
     public static Set<Macro> getRegisteredMacros() {
@@ -95,12 +105,21 @@ public class MacroManager {
         // Macro name is the first word
         Matcher m = MACRO_PAT.matcher(command);
         if (m.matches()) {
-        	Macro macro = getRegisteredMacro(m.group(1));
+        	String key = m.group(1);
+        	String details = m.group(2);
+        	
+        	Macro macro = getRegisteredMacro(key);
           if (macro != UNDEFINED_MACRO) {
-            executeMacro(macro, m.group(2));
+            executeMacro(macro, details);
             return;
-          } // endif
-        } // endif
+          }
+          
+          // Is it an alias ?
+          String alias = aliasMap.get(key);
+          if (alias != null) {
+        	  
+          }
+        }
         
         // Undefined macro shows the bad command
         executeMacro(UNDEFINED_MACRO, command);
