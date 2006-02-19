@@ -36,13 +36,16 @@ import java.util.regex.Pattern;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.impl.AliasMacro;
+import net.rptools.maptool.client.macro.impl.ClearAliasesMacro;
 import net.rptools.maptool.client.macro.impl.ClearMacro;
 import net.rptools.maptool.client.macro.impl.EmoteMacro;
 import net.rptools.maptool.client.macro.impl.GotoMacro;
 import net.rptools.maptool.client.macro.impl.HelpMacro;
+import net.rptools.maptool.client.macro.impl.LoadAliasesMacro;
 import net.rptools.maptool.client.macro.impl.RollAllMacro;
 import net.rptools.maptool.client.macro.impl.RollGMMacro;
 import net.rptools.maptool.client.macro.impl.RollMeMacro;
+import net.rptools.maptool.client.macro.impl.SaveAliasesMacro;
 import net.rptools.maptool.client.macro.impl.SayMacro;
 import net.rptools.maptool.client.macro.impl.UndefinedMacro;
 import net.rptools.maptool.client.macro.impl.WhisperMacro;
@@ -74,6 +77,9 @@ public class MacroManager {
 		registerMacro(new WhisperMacro());
 		registerMacro(new EmoteMacro());
 		registerMacro(new AliasMacro());
+		registerMacro(new LoadAliasesMacro());
+		registerMacro(new SaveAliasesMacro());
+		registerMacro(new ClearAliasesMacro());
 
 		registerMacro(UNDEFINED_MACRO);
 	}
@@ -86,6 +92,10 @@ public class MacroManager {
 		aliasMap.remove(key);
 	}
 
+	public static void removeAllAliases() {
+		aliasMap.clear();
+	}
+	
 	public static Map<String, String> getAliasMap() {
 		return Collections.unmodifiableMap(aliasMap);
 	}
