@@ -24,8 +24,15 @@
  */
 package net.rptools.maptool.client.macro.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
+import net.rptools.maptool.client.macro.MacroManager;
 
 /**
  * Macro to clear the message panel
@@ -42,5 +49,49 @@ public class AliasMacro implements Macro {
 
 	public void execute(String macro) {
 		
+		macro = macro.trim();
+		
+		// Request for list ?
+		if (macro.length() == 0) {
+			handlePrintAliases();
+			return;
+		}
+		
+		// Split into components
+		String name = macro;
+		String value = null;
+		int split = macro.indexOf(" ");
+		if (split > 0) {
+			name = macro.substring(0, split);
+			value = macro.substring(split).trim();
+		}
+		
+		MacroManager.setAlias(name, value);
+		if (value != null) {
+			MapTool.addLocalMessage("Alias '" + name + "' added");
+		} else {
+			MapTool.addLocalMessage("Alias '" + name + "' removed");
+		}
+	}
+	
+	private void handlePrintAliases() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Aliases:<br>");
+		
+		Map<String, String> aliasMap = MacroManager.getAliasMap();
+		List<String> nameList = new ArrayList<String>();
+		nameList.addAll(aliasMap.keySet());
+		Collections.sort(nameList);
+		
+		for (String name : nameList) {
+			String value = aliasMap.get(name);
+			if (value == null) {
+				continue;
+			}
+			
+			builder.append("&nbsp;&nbsp;&nbsp;/").append(name).append(" => ").append(value).append("<br>");
+		}
+
+		MapTool.addLocalMessage(builder.toString());
 	}
 }

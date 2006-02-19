@@ -110,11 +110,9 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 		}
 		commandHistoryIndex = commandHistory.size();
 		
-		if (text.charAt(0) == '/') {
-			text = text.substring(1);
-		} else {
+		if (text.charAt(0) != '/') {
 			// Assume a "SAY"
-			text = "s " + text;
+			text = "/s " + text;
 		}
 		MacroManager.executeMacro(text);
 		cancelCommand();

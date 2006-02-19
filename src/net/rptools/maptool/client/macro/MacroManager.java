@@ -24,13 +24,18 @@
  */
 package net.rptools.maptool.client.macro;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.macro.impl.AliasMacro;
 import net.rptools.maptool.client.macro.impl.ClearMacro;
 import net.rptools.maptool.client.macro.impl.EmoteMacro;
 import net.rptools.maptool.client.macro.impl.GotoMacro;
@@ -49,84 +54,224 @@ import net.rptools.maptool.client.macro.impl.WhisperMacro;
  * Preferences - Java - Code Style - Code Templates
  */
 public class MacroManager {
-    private static Macro UNDEFINED_MACRO = new UndefinedMacro();
-    private static Map<String, Macro> MACROS = new HashMap<String, Macro>();
-    
-    private static Map<String, String> aliasMap = new HashMap<String, String>();
-    
-    static {
-    	registerMacro(new SayMacro());
-    	registerMacro(new HelpMacro());
-    	registerMacro(new GotoMacro());
-    	registerMacro(new ClearMacro());
-        registerMacro(new RollMeMacro());
-        registerMacro(new RollAllMacro());
-        registerMacro(new RollGMMacro());
-        registerMacro(new WhisperMacro());
-        registerMacro(new EmoteMacro());
-        
-    	registerMacro(UNDEFINED_MACRO);
-    }
-    
-    public static void setAlias(String key, String value) {
-    	aliasMap.put(key, value);
-    }
 
-    public static void removeAlias(String key) {
-    	aliasMap.remove(key);
-    }
-    
-    public static Set<Macro> getRegisteredMacros() {
-    	Set<Macro> ret = new HashSet<Macro>();
-    	ret.addAll(MACROS.values());
-    	return ret;
-    }
-    
-    public static Macro getRegisteredMacro(String name) {
-    	Macro ret = MACROS.get(name);
-    	if (ret == null) return UNDEFINED_MACRO;
-    	return ret; 
-    }
+	private static final int MAX_RECURSE_COUNT = 10;
 
-    public static void registerMacro(Macro macro) {
-    	MacroDefinition def = macro.getClass().getAnnotation(MacroDefinition.class);
-    	
-    	if (def == null) return;
-    	
-    	MACROS.put(def.name(), macro);
-    	for (String alias : def.aliases()) {
-        	MACROS.put(alias, macro);
-    	}
-    }
-    
-    private static final Pattern MACRO_PAT = Pattern.compile("^(\\w+)\\s*(.*)$");
-    public static void executeMacro(String command) {
-      
-        // Macro name is the first word
-        Matcher m = MACRO_PAT.matcher(command);
-        if (m.matches()) {
-        	String key = m.group(1);
-        	String details = m.group(2);
-        	
-        	Macro macro = getRegisteredMacro(key);
-          if (macro != UNDEFINED_MACRO) {
-            executeMacro(macro, details);
-            return;
-          }
-          
-          // Is it an alias ?
-          String alias = aliasMap.get(key);
-          if (alias != null) {
-        	  
-          }
-        }
-        
-        // Undefined macro shows the bad command
-        executeMacro(UNDEFINED_MACRO, command);
-    }
-    
-    private static void executeMacro(Macro macro, String parameter) {
-    	macro.execute(parameter);
-    }
+	private static Macro UNDEFINED_MACRO = new UndefinedMacro();
+
+	private static Map<String, Macro> MACROS = new HashMap<String, Macro>();
+
+	private static Map<String, String> aliasMap = new HashMap<String, String>();
+
+	static {
+		registerMacro(new SayMacro());
+		registerMacro(new HelpMacro());
+		registerMacro(new GotoMacro());
+		registerMacro(new ClearMacro());
+		registerMacro(new RollMeMacro());
+		registerMacro(new RollAllMacro());
+		registerMacro(new RollGMMacro());
+		registerMacro(new WhisperMacro());
+		registerMacro(new EmoteMacro());
+		registerMacro(new AliasMacro());
+
+		registerMacro(UNDEFINED_MACRO);
+	}
+
+	public static void setAlias(String key, String value) {
+		aliasMap.put(key, value);
+	}
+
+	public static void removeAlias(String key) {
+		aliasMap.remove(key);
+	}
+
+	public static Map<String, String> getAliasMap() {
+		return Collections.unmodifiableMap(aliasMap);
+	}
+	
+	public static Set<Macro> getRegisteredMacros() {
+		Set<Macro> ret = new HashSet<Macro>();
+		ret.addAll(MACROS.values());
+		return ret;
+	}
+
+	public static Macro getRegisteredMacro(String name) {
+		Macro ret = MACROS.get(name);
+		if (ret == null)
+			return UNDEFINED_MACRO;
+		return ret;
+	}
+
+	public static void registerMacro(Macro macro) {
+		MacroDefinition def = macro.getClass().getAnnotation(
+				MacroDefinition.class);
+
+		if (def == null)
+			return;
+
+		MACROS.put(def.name(), macro);
+		for (String alias : def.aliases()) {
+			MACROS.put(alias, macro);
+		}
+	}
+
+	private static final Pattern MACRO_PAT = Pattern
+			.compile("^(\\w+)\\s*(.*)$");
+
+	public static void executeMacro(String command) {
+
+		int recurseCount = 0;
+		while (recurseCount < MAX_RECURSE_COUNT) {
+
+			recurseCount++;
+
+			command = command.trim();
+			if (command == null || command.length() == 0) {
+				return;
+			}
+			
+			if (command.charAt(0) == '/') {
+				command = command.substring(1);
+			} else {
+				// Default to a say
+				command = "s " + command;
+			}
+
+			// Macro name is the first word
+			Matcher m = MACRO_PAT.matcher(command);
+			if (m.matches()) {
+				String key = m.group(1);
+				String details = m.group(2);
+
+				Macro macro = getRegisteredMacro(key);
+
+				if (macro != UNDEFINED_MACRO) {
+					executeMacro(macro, details);
+					return;
+				}
+
+				// Is it an alias ?
+				String alias = aliasMap.get(key);
+				if (alias == null) {
+
+					executeMacro(UNDEFINED_MACRO, command);
+					return;
+				}
+				
+				command = resolveAlias(alias, details);
+				continue;
+			} else {
+
+				// Undefined macro shows the bad command
+				executeMacro(UNDEFINED_MACRO, command);
+				return;
+			}
+		}
+		
+		// We'll only get here if the recurseCount is exceeded
+		MapTool.addLocalMessage("'" + command
+				+ "': Too many resolves, perhaps an infinite loop?");
+		return;
+		
+	}
+
+	// Package level for testing
+	static String resolveAlias(String aliasText, String details) {
+		
+		return performSubstitution(aliasText, details);
+	}
+
+	private static final Pattern SUBSTITUTION_PATTERN = Pattern.compile("\\{([^\\}]+)\\}");
+	// Package level for testing
+	static String performSubstitution(String text, String details){
+		
+		List<String> detailList = split(details);
+
+		StringBuffer buffer = new StringBuffer();
+		Matcher matcher = SUBSTITUTION_PATTERN.matcher(text);
+		while (matcher.find()) {
+			
+			String replacement = details;
+			String replIndexStr = matcher.group(1);
+			if (!"*".equals(replIndexStr)) {
+				try {
+					int replaceIndex = Integer.parseInt(replIndexStr);
+					if (replaceIndex > detailList.size() || replaceIndex < 1) {
+						replacement = "";
+					} else {
+						// 1-based
+						replacement = detailList.get(replaceIndex-1);
+					}
+				} catch (NumberFormatException nfe) {
+					replacement = "(error: " + replIndexStr + " is not a number)";
+				}
+			}
+		    matcher.appendReplacement(buffer, replacement);
+		 }
+		 matcher.appendTail(buffer);	
+		 
+		return buffer.toString();
+	}
+	
+	// Package level for testing
+	// TODO: This should probably go in a util class in rplib
+	static List<String> split(String line) {
+		
+		List<String> list = new ArrayList<String>();
+		StringBuilder currentWord = new StringBuilder();
+		boolean isInQuote=false;
+		char previousChar = 0;
+		for (int i = 0; i < line.length(); i++) {
+			
+			char ch = line.charAt(i);
+			
+			try {
+				// Word boundaries
+				if (Character.isWhitespace(ch) && !isInQuote) {
+					if (currentWord.length() > 0) {
+						list.add(currentWord.toString());
+					}
+					currentWord.setLength(0);
+					continue;
+				}
+				
+				// Quoted boundary
+				if (ch == '"' && previousChar != '\\') {
+					
+					if (isInQuote) {
+						isInQuote = false;
+						if (currentWord.length() > 0) {
+							list.add(currentWord.toString());
+							currentWord.setLength(0);
+						}
+					} else {
+						isInQuote = true;
+					}
+					
+					continue;
+				}
+				
+				if (ch == '\\') {
+					continue;
+				}
+				
+				currentWord.append(ch);
+				
+			} finally {				
+				previousChar = ch;
+			}
+		}
+		
+		if (currentWord.length() > 0) {
+			list.add(currentWord.toString());
+		}
+		
+		return list;
+	}
+	
+	private static void executeMacro(Macro macro, String parameter) {
+		macro.execute(parameter);
+	}
 
 }
