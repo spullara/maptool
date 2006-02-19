@@ -214,7 +214,12 @@ public class MacroManager {
 						replacement = detailList.get(replaceIndex-1);
 					}
 				} catch (NumberFormatException nfe) {
-					replacement = "(error: " + replIndexStr + " is not a number)";
+					
+					// Try an alias lookup
+					replacement = aliasMap.get(replIndexStr);
+					if (replacement == null) {
+						replacement = "(error: " + replIndexStr + " is not found)";
+					}
 				}
 			}
 		    matcher.appendReplacement(buffer, replacement);
