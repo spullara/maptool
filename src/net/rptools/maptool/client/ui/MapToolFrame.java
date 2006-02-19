@@ -87,6 +87,7 @@ import net.rptools.maptool.client.tool.MeasureTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.TextTool;
 import net.rptools.maptool.client.tool.drawing.ConeTemplateTool;
+import net.rptools.maptool.client.tool.drawing.DrawnTextTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
 import net.rptools.maptool.client.tool.drawing.LineTemplateTool;
 import net.rptools.maptool.client.tool.drawing.LineTool;
@@ -505,7 +506,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         Tool lineTool = new LineTool();
         Tool rectTool = new RectangleTool();
         Tool ovalTool = new OvalTool();
-        Tool textTool = new TextTool();
+        Tool textTool = new DrawnTextTool(); // new TextTool();
         Tool fogRectTool = new RectangleExposeTool();
         Tool fogOvalTool = new OvalExposeTool();
         Tool fogPolyTool = new PolygonExposeTool();

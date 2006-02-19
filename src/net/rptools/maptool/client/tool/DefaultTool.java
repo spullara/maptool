@@ -497,7 +497,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 				});
 				put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), new AbstractAction() {
 					public void actionPerformed(ActionEvent e) {
-						if (isShowingPointer) {
+						if (isShowingPointer || renderer == null) {
 							return;
 						}
 
