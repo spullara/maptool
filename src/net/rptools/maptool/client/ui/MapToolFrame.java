@@ -506,7 +506,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
         Tool lineTool = new LineTool();
         Tool rectTool = new RectangleTool();
         Tool ovalTool = new OvalTool();
-        Tool textTool = new DrawnTextTool(); // new TextTool();
+        //Tool textTool = new DrawnTextTool();
+        Tool textTool = new TextTool();
         Tool fogRectTool = new RectangleExposeTool();
         Tool fogOvalTool = new OvalExposeTool();
         Tool fogPolyTool = new PolygonExposeTool();
