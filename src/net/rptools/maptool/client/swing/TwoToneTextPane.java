@@ -145,6 +145,24 @@ public class TwoToneTextPane extends JTextPane {
   }
   
   /**
+   * A convience method to read a font from a style.
+   * 
+   * @param style Style being modified
+   * @return The font inside the passed style
+   */
+  public static String getFontString(Style style) {
+    String font = StyleConstants.getFontFamily(style) + "-";
+    if (StyleConstants.isBold(style))
+      font += "BOLD";
+    if (StyleConstants.isItalic(style))
+      font += "ITALIC";
+    if (!StyleConstants.isBold(style) && !StyleConstants.isItalic(style))
+      font += "PLAIN";
+    font += "-" + StyleConstants.getFontSize(style);
+    return font;
+  }
+  
+  /**
    * Parse the passed text string for style names and add
    * the styled text to the text pane's document.
    * 

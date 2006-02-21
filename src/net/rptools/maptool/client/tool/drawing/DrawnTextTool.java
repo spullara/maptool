@@ -26,15 +26,14 @@
 package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,15 +46,9 @@ import javax.swing.KeyStroke;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 
-import net.rptools.lib.MD5Key;
-import net.rptools.lib.image.ImageUtil;
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.TwoToneTextPane;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetManager;
-import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.drawing.AssetDrawable;
+import net.rptools.maptool.model.drawing.DrawnLabel;
 import net.rptools.maptool.model.drawing.Pen;
 
 /**
@@ -181,23 +174,10 @@ public class DrawnTextTool extends AbstractDrawingTool implements MouseMotionLis
       setBounds(event);
       
       // Create a text component and place it on the renderer's component
-      textPane = new TwoToneTextPane();
-      textPane.setBounds(bounds);
-      textPane.setOpaque(false);
-      textPane.setBackground(TRANSPARENT);
+      textPane = createTextPane(bounds, getPen(), "sanserif-BOLD-20");
       zoneRenderer.add(textPane);
       textPane.requestFocusInWindow();
       
-      // Create a style for the component
-      Pen pen = getPen();
-      Style style = textPane.addStyle("default", null);
-      style.addAttribute(StyleConstants.FontSize, 20);
-      style.addAttribute(StyleConstants.FontFamily, "SanSerif");
-      style.addAttribute(StyleConstants.Bold, true);
-      style.addAttribute(StyleConstants.Foreground, new Color(pen.getColor()));
-      style.addAttribute(StyleConstants.Background, new Color(pen.getBackgroundColor()));
-      textPane.setLogicalStyle(style);
-           
       // Make the enter key addthe text
       KeyStroke k = KeyStroke.getKeyStroke("ENTER");
       textPane.getKeymap().removeKeyStrokeBinding(k);
@@ -287,30 +267,38 @@ public class DrawnTextTool extends AbstractDrawingTool implements MouseMotionLis
    */
   private void completeDrawable() {
     
-    // Create an image from the text pane component
-    BufferedImage image = ImageUtil.createCompatibleImage(bounds.width, bounds.height, Transparency.TRANSLUCENT);
-    Graphics2D g2d = (Graphics2D)image.getGraphics();
-    textPane.setCaret(null);
-    textPane.paint(g2d);
-    
-    // Create an asset from the image
-    MD5Key assetId = null;
-    try {
-      Asset asset = new Asset(new GUID().toString(), ImageUtil.imageToBytes(image, "png"));
-      assetId = asset.getId();
-      if (!AssetManager.hasAsset(asset)) AssetManager.putAsset(asset);
-      if (!MapTool.getCampaign().containsAsset(asset)) MapTool.serverCommand().putAsset(asset);
-    } catch (IOException e) {
-      e.printStackTrace();
-    } // endtry
-    
-    // Cleanup
+    // Create a drawable from the data and clean up the component.
+    DrawnLabel label = new DrawnLabel(textPane.getText(), bounds, TwoToneTextPane.getFontString(textPane.getLogicalStyle()));
     textPane.setVisible(false);
     textPane.getParent().remove(textPane);
     textPane = null;
     
     // Tell everybody else
-    completeDrawable(zoneRenderer.getZone().getId(), getPen(), new AssetDrawable(assetId, bounds, zoneRenderer.getZone().getId())); 
+    completeDrawable(zoneRenderer.getZone().getId(), getPen(), label); 
     resetTool();
+  }
+  
+  /**
+   * Create a text pane with the passed bounds, pen, and font data
+   * 
+   * @param bounds Bounds of the new text pane
+   * @param pen Pen used for foreground and background text colors.
+   * @param font Font used to pain the text
+   * @return A text pane used to draw text
+   */
+  public static TwoToneTextPane createTextPane(Rectangle bounds, Pen pen, String font) {
+    // Create a text component and place it on the renderer's component
+    TwoToneTextPane textPane = new TwoToneTextPane();
+    textPane.setBounds(bounds);
+    textPane.setOpaque(false);
+    textPane.setBackground(TRANSPARENT);
+    
+    // Create a style for the component
+    Style style = textPane.addStyle("default", null);
+    TwoToneTextPane.setFont(style, Font.decode(font));
+    style.addAttribute(StyleConstants.Foreground, new Color(pen.getColor()));
+    style.addAttribute(StyleConstants.Background, new Color(pen.getBackgroundColor()));
+    textPane.setLogicalStyle(style);
+    return textPane;
   }
 }
