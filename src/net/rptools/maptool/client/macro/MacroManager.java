@@ -192,7 +192,7 @@ public class MacroManager {
 		return performSubstitution(aliasText, details);
 	}
 
-	private static final Pattern SUBSTITUTION_PATTERN = Pattern.compile("\\{([^\\}]+)\\}");
+	private static final Pattern SUBSTITUTION_PATTERN = Pattern.compile("\\$\\{([^\\}]+)\\}|\\$(\\w+)");
 	// Package level for testing
 	static String performSubstitution(String text, String details){
 		
@@ -204,6 +204,9 @@ public class MacroManager {
 			
 			String replacement = details;
 			String replIndexStr = matcher.group(1);
+			if (replIndexStr == null) {
+				replIndexStr = matcher.group(2);
+			}
 			if (!"*".equals(replIndexStr)) {
 				try {
 					int replaceIndex = Integer.parseInt(replIndexStr);

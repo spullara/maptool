@@ -31,8 +31,11 @@ public class MacroManagerTest extends TestCase {
 		compare("", "", "");
 		compare("one", "one", "one");
 		
-		compare("one {1}", "one", "one one");
-		compare("one {2} {1}", "one two", "one two one");
+		compare("one $1", "one", "one one");
+		compare("one $2 $1", "one two", "one two one");
+
+		compare("one ${1}", "one", "one one");
+		compare("one ${2} ${1}", "one two", "one two one");
 	}
 
 	private void compare(String text, String details, String result) {
