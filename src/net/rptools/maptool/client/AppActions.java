@@ -126,6 +126,38 @@ public class AppActions {
 		}
 	};
 	
+	public static final Action SAVE_MESSAGE_HISTORY = new DefaultClientAction() {
+		{
+			init("action.saveMessageHistory");
+		}
+		
+		public void execute(ActionEvent e) {
+			String messageHistory = MapTool.getFrame().getCommandPanel().getMessageHistory();
+			
+	    	JFileChooser chooser = MapTool.getSaveFileChooser();
+			chooser.setDialogTitle("Save Message History");
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+	
+			if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
+				return;
+			}
+			
+			File saveFile = chooser.getSelectedFile();
+			if (saveFile.getName().indexOf(".") < 0) {
+				saveFile = new File(saveFile.getAbsolutePath() + ".html");
+			}
+			if (saveFile.exists() && !MapTool.confirm("File exists, overwrite?")) {
+				return;
+			}
+			
+			try {
+				FileUtil.writeBytes(saveFile, messageHistory.getBytes());
+			} catch (IOException ioe) {
+				MapTool.showError("Could not save: " + ioe);
+			}
+		}
+	};
+	
 	public static final Action COPY_TOKENS = new DefaultClientAction() {
 		{
 			init("action.copyTokens");

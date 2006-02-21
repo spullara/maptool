@@ -30,6 +30,10 @@ public class MessagePanel extends JPanel {
 		add(BorderLayout.CENTER, scrollPane);
 	}
 
+	public String getMessagesText() {
+		return textPane.getText();
+	}
+	
 	public void clearMessages() {
 		messages.setLength(0);
 		textPane.setText("");

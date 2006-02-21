@@ -49,6 +49,10 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 		
 		SwingUtil.addMouseListenerToHierarchy(this, this);
 	}
+	
+	public String getMessageHistory() {
+		return messagePanel.getMessagesText();
+	}
 
 	@Override
 	public Dimension getPreferredSize() {
