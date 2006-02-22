@@ -48,8 +48,10 @@ import java.awt.geom.Area;
 import java.awt.geom.QuadCurve2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,9 +60,9 @@ import javax.swing.JComponent;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppState;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.CellPoint;
-import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
@@ -102,7 +104,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private DrawableRenderer drawableRenderer = new DrawableRenderer();
     
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
-    private Map<Rectangle, Token> tokenBoundsMap = new HashMap<Rectangle, Token>();
+    private List<TokenLocation> tokenLocationList = new LinkedList<TokenLocation>();
     private Set<GUID> selectedTokenSet = new HashSet<GUID>();
 
 	private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
@@ -112,7 +114,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	
     // Optimizations
     private Map<Token, BufferedImage> replacementImageMap = new HashMap<Token, BufferedImage>();
-	private Map<Token, BufferedImage> resizedImageMap = new HashMap<Token, BufferedImage>();
 
 	private Token tokenUnderMouse;
 
@@ -272,7 +273,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      */
     public void flush() {
         replacementImageMap.clear();
-        resizedImageMap.clear();
     }
     
     public Zone getZone() {
@@ -528,7 +528,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 if (scaledHeight < scaledGridSize) {
                     newScreenPoint.y += (scaledGridSize - scaledHeight)/2;
                 }
-				g.drawImage(getScaledToken(token, scaledWidth, scaledHeight), newScreenPoint.x+1, newScreenPoint.y+1, this);
+				g.drawImage(ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this), newScreenPoint.x+1, newScreenPoint.y+1, scaledWidth, scaledHeight, this);
 
 				// Other details
 				if (token == keyToken) {
@@ -612,7 +612,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         Rectangle clipBounds = g.getClipBounds();
         float scale = zoneScale.getScale();
         Set<Rectangle> coveredTokenSet = new HashSet<Rectangle>();
-        tokenBoundsMap.clear();
+        tokenLocationList.clear();
         for (Token token : zone.getTokens()) {
 
         	// Don't bother if it's not visible
@@ -636,8 +636,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             
             
             Rectangle tokenBounds = new Rectangle(x, y, width, height);
-            for (Rectangle r1 : tokenBoundsMap.keySet()) {
+            for (TokenLocation location : tokenLocationList) {
 
+            	Rectangle r1 = location.bounds;
+            	
             	// Are we covering anyone ?
             	if (tokenBounds.contains(r1)) {
 
@@ -656,7 +658,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             		coveredTokenSet.add(tokenBounds);
             	}
             }
-            tokenBoundsMap.put(tokenBounds, token);
+            // Note the order where the top most token is at the end of the list
+            tokenLocationList.add(new TokenLocation(tokenBounds, token));
 
             // OPTIMIZE:
 			BufferedImage image = null;
@@ -668,7 +671,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 image = ImageManager.UNKNOWN_IMAGE;
             } else {
             
-				image = getScaledToken(token, width, height);
+				image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this);
             }
 
             // Only draw if we're visible
@@ -693,7 +696,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			}
 
             // Draw image and overlay if needed
-            g.drawImage(image, x, y, this);
+            g.drawImage(image, x, y, width, height, this);
             if (token.getState() != null) {
               TokenOverlay overlay =  TokenStates.getOverlay(token.getState());
               if (overlay != null) {
@@ -712,7 +715,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         }
         
         // Selection and labels
-        for (Rectangle bounds : tokenBoundsMap.keySet()) {
+        for (TokenLocation location : tokenLocationList) {
+        	
+        	Rectangle bounds = location.bounds;
         	
         	// TODO: This isn't entirely accurate as it doesn't account for the actual text
         	// to be in the clipping bounds, but I'll fix that later
@@ -720,7 +725,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 continue;
             }
 
-        	Token token = tokenBoundsMap.get(bounds);
+        	Token token = location.token;
 
         	boolean isSelected = selectedTokenSet.contains(token.getId());
         	if (isSelected) {
@@ -746,53 +751,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     // LATER: I don't like this mechanism, it's too ugly, and exposes too much
     // of the internal workings.  Fix it later
     public void flush(Token token) {
-    	resizedImageMap.remove(token);
-    }
-    
-    // TODO: This will create redundant copies of assets, but needs to do this
-    // in order to account for tokens with the same asset of different sizes.
-    // At some point, figure out a more intelligent way of doing this
-    public BufferedImage getScaledToken(Token token, int width, int height) {
-
-        // Cached value ?
-        BufferedImage image = resizedImageMap.get(token);
-        if (image != null) {
-            if (image.getWidth() == width && image.getHeight() == height) {
-                return image;
-            }
-            
-            resizedImageMap.remove(token);
-        }
-
-        // Don't scale if we're already at 1:1
-        image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this);
-        if (image.getWidth() == width && image.getHeight() == height) {
-            return image;
-        }
-        
-        // Scale and save
-        BufferedImage scaledImage = new BufferedImage(width, height, Transparency.BITMASK);
-        Graphics2D g = (Graphics2D)scaledImage.getGraphics();
-//        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-//        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g.drawImage(image, 0, 0, width, height, this);
-        
-        // Statuses
-        int offset = 0;
-        if (!token.isVisible()) {
-        	g.drawImage(AppStyle.tokenInvisible, offset, 0, this);
-        	offset += AppStyle.tokenInvisible.getWidth() + 3;
-        }
-        
-        g.dispose();
-
-        // Don't store the image if it's a placeholder
-        // TODO: Optimize this, we don't want to rebuild resized temp images every refresh
-        if (image != ImageManager.UNKNOWN_IMAGE) {
-            resizedImageMap.put(token, scaledImage);
-        }
-        
-        return scaledImage;
     }
     
     public Set<GUID> getSelectedTokenSet() {
@@ -828,9 +786,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      */
     public void selectTokens(Rectangle rect) {
     	
-    	for (Rectangle bounds : tokenBoundsMap.keySet()) {
-    		if (rect.intersects(bounds)) {
-    			selectToken(tokenBoundsMap.get(bounds).getId());
+    	for (TokenLocation location : tokenLocationList) {
+    		if (rect.intersects(location.bounds)) {
+    			selectToken(location.token.getId());
     		}
     	}
     }
@@ -842,9 +800,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     public Rectangle getTokenBounds(Token token) {
     	
-    	for (Rectangle rect : tokenBoundsMap.keySet()) {
-    		if (tokenBoundsMap.get(rect) == token) {
-    			return rect;
+    	for (TokenLocation location : tokenLocationList) {
+    		if (location.token == token) {
+    			return location.bounds;
     		}
     	}
     	
@@ -861,9 +819,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	 */
 	public Token getTokenAt (int x, int y) {
 		
-		for (Rectangle rect : tokenBoundsMap.keySet()) {
-			if (rect.contains(x, y)) {
-				return tokenBoundsMap.get(rect);
+		// Since the topmost token is at the end of the list, go backwards
+		List<TokenLocation> locationList = new ArrayList<TokenLocation>();
+		locationList.addAll(tokenLocationList);
+		Collections.reverse(locationList);
+		for (TokenLocation location : locationList) {
+			if (location.bounds.contains(x, y)) {
+				return location.token;
 			}
 		}
 		
@@ -1024,6 +986,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 	}
 
+	private static class TokenLocation {
+		public Rectangle bounds;
+		public Token token;
+		
+		public TokenLocation(Rectangle bounds, Token token) {
+			this.bounds = bounds;
+			this.token = token;
+		}
+	}
+	
 	////
     // DROP TARGET LISTENER
     /* (non-Javadoc)
