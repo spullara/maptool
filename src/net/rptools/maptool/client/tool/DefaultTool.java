@@ -127,50 +127,50 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
  
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 
+		// Potential map dragging
+		dragStartX = e.getX();
+		dragStartY = e.getY();
+
 		// SELECTION
-		if (SwingUtilities.isLeftMouseButton(e)) {
-			
-			// Token
-			Token token = renderer.getTokenAt (e.getX(), e.getY());
-			if (token != null) {
+		// Token
+		Token token = renderer.getTokenAt (e.getX(), e.getY());
+		if (token != null && !isDraggingToken && !isDraggingMap) {
 
-				// Permission
-				if (!AppUtil.playerOwnsToken(token)) {
-					if (!SwingUtil.isShiftDown(e)) {
-						renderer.clearSelectedTokens();
-					}
-					return;
-				}
-				
-				// Don't select if it's already being moved by someone
-				isNewTokenSelected = false;
-				if (!renderer.isTokenMoving(token)) {
-					if (!renderer.getSelectedTokenSet().contains(token.getId()) && 
-							!SwingUtil.isShiftDown(e)) {
-						isNewTokenSelected = true;
-	                    renderer.clearSelectedTokens();
-					}
-					renderer.selectToken(token.getId());
-	        
-			        // Dragging offset for currently selected token
-			        ZonePoint pos = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
-			        dragOffsetX = pos.x - token.getX();
-			        dragOffsetY = pos.y - token.getY();
-				}
-			} else {
-
+			// Permission
+			if (!AppUtil.playerOwnsToken(token)) {
 				if (!SwingUtil.isShiftDown(e)) {
 					renderer.clearSelectedTokens();
 				}
-				
+				return;
+			}
+			
+			// Don't select if it's already being moved by someone
+			isNewTokenSelected = false;
+			if (!renderer.isTokenMoving(token)) {
+				if (!renderer.getSelectedTokenSet().contains(token.getId()) && 
+						!SwingUtil.isShiftDown(e)) {
+					isNewTokenSelected = true;
+                    renderer.clearSelectedTokens();
+				}
+				renderer.selectToken(token.getId());
+        
+		        // Dragging offset for currently selected token
+		        ZonePoint pos = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
+		        dragOffsetX = pos.x - token.getX();
+		        dragOffsetY = pos.y - token.getY();
+			}
+		} else {
+
+			if (!SwingUtil.isShiftDown(e)) {
+				renderer.clearSelectedTokens();
+			}
+			
+			if (SwingUtilities.isLeftMouseButton(e)) {
 				// Starting a bound box selection
 				isDrawingSelectionBox = true;
 				selectionBoundBox = new Rectangle(e.getX(), e.getY(), 0, 0);
-				
-				dragStartX = e.getX();
-				dragStartY = e.getY();
 			}
-			return;
+			
 		}
 		
         // Waypoints
@@ -184,13 +184,6 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
             return;
         }
         
-        // DRAG PREPARATION
-        if (SwingUtilities.isRightMouseButton(e)) {
-
-			// Perhaps a map drag
-			dragStartX = e.getX();
-			dragStartY = e.getY();
-		}
 	}
 	
 	public void mouseReleased(MouseEvent e) {
