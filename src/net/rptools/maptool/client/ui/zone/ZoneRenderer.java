@@ -106,6 +106,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
     private List<TokenLocation> tokenLocationList = new LinkedList<TokenLocation>();
     private Set<GUID> selectedTokenSet = new HashSet<GUID>();
+    private List<LabelLocation> labelLocationList = new LinkedList<LabelLocation>();
+    
 
 	private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
 
@@ -403,6 +405,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     private void renderLabels(Graphics2D g) {
         
+    	labelLocationList.clear();
         for (Label label : zone.getLabels()) {
 
         	ZonePoint zp = new ZonePoint(label.getX(), label.getY());
@@ -412,7 +415,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         	
             ScreenPoint sp = ScreenPoint.fromZonePoint(this, zp.x, zp.y);
             
-            GraphicsUtil.drawBoxedString(g, label.getLabel(), sp.x, sp.y);
+            Rectangle bounds = GraphicsUtil.drawBoxedString(g, label.getLabel(), sp.x, sp.y);
+            
+            labelLocationList.add(new LabelLocation(bounds, label));
         }
     }
     
@@ -809,6 +814,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	return null;
     }
     
+    public Rectangle getLabelBounds(Label label) {
+    	
+    	for (LabelLocation location : labelLocationList) {
+    		if (location.label == label) {
+    			return location.bounds;
+    		}
+    	}
+    	
+    	return null;
+    }
+    
 	/**
 	 * Returns the token at screen location x, y (not cell location). To get
 	 * the token at a cell location, use getGameMap() and use that.
@@ -819,13 +835,34 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	 */
 	public Token getTokenAt (int x, int y) {
 		
-		// Since the topmost token is at the end of the list, go backwards
 		List<TokenLocation> locationList = new ArrayList<TokenLocation>();
 		locationList.addAll(tokenLocationList);
 		Collections.reverse(locationList);
 		for (TokenLocation location : locationList) {
 			if (location.bounds.contains(x, y)) {
 				return location.token;
+			}
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Returns the label at screen location x, y (not cell location). To get
+	 * the token at a cell location, use getGameMap() and use that.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public Label getLabelAt (int x, int y) {
+		
+		List<LabelLocation> labelList = new ArrayList<LabelLocation>();
+		labelList.addAll(labelLocationList);
+		Collections.reverse(labelList);
+		for (LabelLocation location : labelList) {
+			if (location.bounds.contains(x, y)) {
+				return location.label;
 			}
 		}
 		
@@ -993,6 +1030,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		public TokenLocation(Rectangle bounds, Token token) {
 			this.bounds = bounds;
 			this.token = token;
+		}
+	}
+	
+	private static class LabelLocation {
+		public Rectangle bounds;
+		public Label label;
+		
+		public LabelLocation(Rectangle bounds, Label label) {
+			this.bounds = bounds;
+			this.label = label;
 		}
 	}
 	

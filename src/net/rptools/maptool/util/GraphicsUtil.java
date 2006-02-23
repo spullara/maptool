@@ -40,11 +40,11 @@ public class GraphicsUtil {
 	private static final int BOX_PADDINGX = 5;
 	private static final int BOX_PADDINGY = 2;
 	
-    public static void drawBoxedString(Graphics2D g, String string, int centerX, int centerY) {
-    	drawBoxedString(g, string, centerX, centerY, SwingUtilities.CENTER);
+    public static Rectangle drawBoxedString(Graphics2D g, String string, int centerX, int centerY) {
+    	return drawBoxedString(g, string, centerX, centerY, SwingUtilities.CENTER);
     }
     
-    public static void drawBoxedString(Graphics2D g, String string, int x, int y, int justification) {
+    public static Rectangle drawBoxedString(Graphics2D g, String string, int x, int y, int justification) {
     	
         if (string == null) {
             string = "";
@@ -82,6 +82,8 @@ public class GraphicsUtil {
 		int textY = y + BOX_PADDINGY + fm.getAscent();
 		
 		g.drawString(string, textX, textY);
+		
+		return boxBounds;
     }
     
 }

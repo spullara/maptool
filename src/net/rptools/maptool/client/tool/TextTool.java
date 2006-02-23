@@ -24,14 +24,23 @@
  */
 package net.rptools.maptool.client.tool;
 
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -41,6 +50,8 @@ import net.rptools.maptool.model.Label;
  */
 public class TextTool extends DefaultTool {
 
+	private Label selectedLabel;
+	
 	public TextTool () {
         try {
             setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/Tool_Draw_Write.gif")));
@@ -59,6 +70,32 @@ public class TextTool extends DefaultTool {
     	return "tool.label.instructions";
     }
     
+    @Override
+    public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
+    	
+    	if (selectedLabel != null) {
+    		AppStyle.selectedBorder.paintWithin(g, renderer.getLabelBounds(selectedLabel));
+    	}
+    }
+    
+    @Override
+    protected Map<KeyStroke, Action> getKeyActionMap() {
+    	
+		return new HashMap<KeyStroke, Action>() {
+			{
+				put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
+					public void actionPerformed(ActionEvent e) {
+						System.out.println ("Actions");
+						if (selectedLabel != null) {
+							renderer.getZone().removeLabel(selectedLabel.getId());
+				    		MapTool.serverCommand().removeLabel(renderer.getZone().getId(), selectedLabel.getId());
+				    		repaint();
+						}
+					}
+				});
+			}};
+    }
+    
     ////
     // MOUSE
     @Override
@@ -66,16 +103,36 @@ public class TextTool extends DefaultTool {
 
     	ZoneRenderer renderer = (ZoneRenderer) e.getSource();
     	if (SwingUtilities.isLeftMouseButton(e)) {
+
+    		Label label = renderer.getLabelAt(e.getX(), e.getY());
+    		if (label != selectedLabel) {
+    			selectedLabel = null;
+    		}
     		
-    		String text = JOptionPane.showInputDialog(MapTool.getFrame(), "Label Text");
+    		if (label == null) {
+        		ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
+    			label = new Label("", zp.x, zp.y);
+    		} else {
+    			
+    			if (selectedLabel == null) {
+    				selectedLabel = label;
+    				repaint();
+    				return;
+    			}
+    		}
+    		
+    		String text = JOptionPane.showInputDialog(MapTool.getFrame(), "Label Text", label.getLabel());
     		if (text == null) {
     			return;
     		}
     		
-    		ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
-    		Label label = new Label(text, zp.x, zp.y);
+    		label.setLabel(text);
+    		
     		renderer.getZone().putLabel(label);
     		MapTool.serverCommand().putLabel(renderer.getZone().getId(), label);
+    		
+    		selectedLabel = null;
+    		repaint();
     	}
     	
     	super.mousePressed(e);

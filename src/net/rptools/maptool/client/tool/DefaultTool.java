@@ -108,7 +108,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
     private int mapDX, mapDY;
     private static final int REDRAW_DELAY = 25; // millis
 
-    private ZoneRenderer renderer;
+    protected ZoneRenderer renderer;
     
     @Override
     protected void attachTo(ZoneRenderer renderer) {
