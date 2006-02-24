@@ -294,7 +294,6 @@ public class Zone extends Token {
         
         Label label = labels.remove(labelId);
         if (label != null) {
-        	System.out.println("REMOVED : " + label);
             fireModelChangeEvent(new ModelChangeEvent(this, Event.LABEL_REMOVED, label));
         }
       }
