@@ -25,8 +25,10 @@
 package net.rptools.maptool.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -60,10 +62,10 @@ public class Token {
     private static final int OWNER_TYPE_LIST = 0;
     
     /**
-     * A state property for this token. It is used during rendering to determine if a token
-     * overlay should be drawn.
+     * A state properties for this token. This allows state to be added that can change
+     * appearance of the token. 
      */
-    private String                              state;
+    private Map<String, Object>                 state;
 
     // Transient so that it isn't transfered over the wire
     private transient List<ModelChangeListener> listenerList = new CopyOnWriteArrayList<ModelChangeListener>();
@@ -106,7 +108,7 @@ public class Token {
         this.assetID = assetID;
         this.width = width;
         this.height = height;
-        state = "";
+        state = new HashMap<String, Object>();
     }
     
     public synchronized void addOwner(String playerId) {
@@ -291,21 +293,34 @@ public class Token {
     }
 
     /**
-     * Get the state for this Token.
+     * Get a particular state property for this Token.
      *
-     * @return Returns the current value of state.
+     * @param property The name of the property being read.
+     * @return Returns the current value of property.
      */
-    public String getState() {
-        return state;
+    public Object getState(String property) {
+      return state.get(property);
     }
 
     /**
      * Set the value of state for this Token.
      *
-     * @param aState The state to set.
+     * @param aState The property to set.
+     * @param aValue The new value for the property.
+     * @return The original vaoue of the property, if any.
      */
-    public void setState(String aState) {
-        state = aState;
+    public Object setState(String aState, Object aValue) {
+      if (aValue == null) return state.remove(aState);
+      return state.put(aState, aValue);
     }
-
+    
+    /**
+     * Get a set containing the names of all set properties
+     * on this token.
+     * 
+     * @return The set of state property names that have a value associated with them.
+     */
+    public Set<String> getStatePropertyNames() {
+      return state.keySet();
+    }
 }

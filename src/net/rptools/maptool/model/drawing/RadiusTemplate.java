@@ -50,7 +50,7 @@ public class RadiusTemplate extends AbstractTemplate {
   @Override
   protected void paintBorder(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance) {
     
-    // At the border? It's different for templates.
+    // At the border? 
     int radius = getRadius();
     if (distance == radius) {
       
@@ -70,6 +70,10 @@ public class RadiusTemplate extends AbstractTemplate {
         paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.SOUTH_WEST);
       } // endif
     } // endif
+
+    // At the center?
+    if (x == 0 && y == 0)
+      g.fillRect(xOff - 4, yOff - 4, 7, 7);
   }
 
   /**

@@ -3,7 +3,9 @@ package net.rptools.maptool.language;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import javax.swing.Action;
 import javax.swing.JMenu;
+import javax.swing.KeyStroke;
 
 public class I18N {
 	private static ResourceBundle BUNDLE = ResourceBundle.getBundle("net.rptools.maptool.language.i18n");
@@ -56,6 +58,22 @@ public class I18N {
       }
   
       return menu;
+  }
+  
+  /**
+   * Set all of the I18N values on an action.
+   * 
+   * @param key Key used to look up values
+   * @param action Action being modified.
+   */
+  public static void setAction(String key, Action action) {
+    action.putValue(Action.NAME, getText(key));
+    int mnemonic = getMnemonic(key);
+    if (mnemonic != -1) action.putValue(Action.MNEMONIC_KEY, mnemonic);
+    String accel = getAccelerator(key);
+    if (accel != null) action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(accel));
+    String description = getDescription(key);
+    if (description != null) action.putValue(Action.SHORT_DESCRIPTION, description);
   }
 
 }

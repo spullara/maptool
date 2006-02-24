@@ -47,13 +47,11 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -61,14 +59,17 @@ import javax.swing.SwingUtilities;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppState;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.CellPoint;
-import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.Tool;
+import net.rptools.maptool.client.ui.token.LightDialog;
+import net.rptools.maptool.client.ui.token.RadiusLightTokenTemplate;
 import net.rptools.maptool.client.ui.token.TokenStates;
+import net.rptools.maptool.client.ui.token.TokenTemplate;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
@@ -697,12 +698,12 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         // Create the state menu
         JMenu stateMenu = I18N.createMenu("defaultTool.stateMenu");
         stateMenu.setEnabled(enabled);
-        ButtonGroup group = new ButtonGroup();
-        createStateItem("clear", group, stateMenu).setSelected(true);
-        for (String state : TokenStates.getStates()) {
-          JRadioButtonMenuItem item = createStateItem(state, group, stateMenu);
-          if (state.equals(tokenUnderMouse.getState())) item.setSelected(true);
-        } // endfor
+        stateMenu.add(new ChangeStateAction("clear"));
+        stateMenu.addSeparator();
+        for (String state : TokenStates.getStates())
+          createStateItem(state, stateMenu, tokenUnderMouse);
+        stateMenu.addSeparator();
+        stateMenu.add(new ChangeStateAction("light"));
         popup.add(stateMenu);
         
         // Ownership
@@ -814,14 +815,14 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
    * Create a radio button menu item for a particuar state
    * 
    * @param state Create the item for this state
-   * @param group The group containing all items.
    * @param menu The menu containing all items.
    * @return A menu item for the passed state.
    */
-  private JRadioButtonMenuItem createStateItem(String state, ButtonGroup group, JMenu menu) {
-    JRadioButtonMenuItem item = new JRadioButtonMenuItem(new ChangeStateAction(state));
-    item.setSelected(true);
-    group.add(item);
+  private JCheckBoxMenuItem createStateItem(String state, JMenu menu, Token token) {
+    JCheckBoxMenuItem item = new JCheckBoxMenuItem(new ChangeStateAction(state));
+    Object value = token.getState(state);
+    if (value != null && value instanceof Boolean && ((Boolean)value).booleanValue())
+      item.setSelected(true);
     menu.add(item);
     return item;
   }
@@ -883,7 +884,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         
         // Default name if no I18N set
         putValue(NAME, state);
-      }
+      } // endif
     }
     
     /**
@@ -896,14 +897,23 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
       for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
         
         Token token = renderer.getZone().getToken(tokenGUID);
-        if (aE.getActionCommand().equals("null")) {
-          token.setState(null);
+        if (aE.getActionCommand().equals("clear")) {
+          for (String state : token.getStatePropertyNames())
+            token.setState(state, null);
+        } else if (aE.getActionCommand().equals("light")) {          
+          LightDialog dialog = new LightDialog(MapTool.getFrame());
+          dialog.setDefaults((TokenTemplate)token.getState(aE.getActionCommand()));
+          Rectangle b = MapTool.getFrame().getBounds();
+          dialog.setLocation(b.x + (b.width - dialog.getWidth()) / 2,
+              b.y + (b.height - dialog.getHeight()) / 2);
+          dialog.setVisible(true);
+          if (dialog.getTemplate() != null)   
+            token.setState(aE.getActionCommand(), dialog.getTemplate());
         } else {
-          token.setState(aE.getActionCommand());
-        }
-
+          token.setState(aE.getActionCommand(), ((JCheckBoxMenuItem)aE.getSource()).isSelected() ? Boolean.TRUE : null);
+        } // endif
         MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
-      }
+      } // endfor
       renderer.repaint();
     }
   }

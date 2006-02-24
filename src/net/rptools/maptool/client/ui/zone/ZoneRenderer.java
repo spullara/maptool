@@ -71,6 +71,7 @@ import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenStates;
+import net.rptools.maptool.client.ui.token.TokenTemplate;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarEuclideanWalker;
 import net.rptools.maptool.model.Asset;
@@ -386,6 +387,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     	renderBoard(g2d);
         renderDrawableOverlay(g2d);
+        renderTokenTemplates(g2d);
         if (AppState.isShowGrid() && gridSize >= MIN_GRID_SIZE) {renderGrid(g2d);}
         renderTokens(g2d);
 		renderMoveSelectionSets(g2d);
@@ -403,6 +405,43 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         renderFog(g2d);
     }
 
+    /**
+     * Paint all of the token templates. 
+     * 
+     * @param g Paint on this graphic object.
+     */
+    private void renderTokenTemplates(Graphics2D g) {
+      int gridSize = zone.getGridSize();
+      int gridOffsetX = zone.getGridOffsetX();
+      int gridOffsetY = zone.getGridOffsetY();
+      float scale = zoneScale.getScale();
+      int scaledGridSize = (int)getScaledGridSize();
+      
+      // Find tokens with template state
+      for (Token token : zone.getTokens()) {
+        for (String state : token.getStatePropertyNames()) {
+          Object value = token.getState(state);
+          if (value instanceof TokenTemplate) {
+
+            // Calculate the token bounds
+            Rectangle bounds = new Rectangle();
+            bounds.x = (int)(token.getX() * scale + viewOffset.x) + (int) (gridOffsetX * scale) + 1;
+            bounds.y = (int)(token.getY() * scale + viewOffset.y) + (int) (gridOffsetY * scale) + 1;
+            bounds.width = (int)(TokenSize.getWidth(token, gridSize) * scale)-1;
+            bounds.height = (int)(TokenSize.getHeight(token, gridSize) * scale)-1;
+            if (bounds.width < scaledGridSize) bounds.x += (scaledGridSize - bounds.width)/2;
+            if (bounds.height < scaledGridSize) bounds.y += (scaledGridSize - bounds.height)/2;
+
+            // Set up the graphics, paint the template, restore the graphics
+            Shape clip = g.getClip();
+            g.translate(bounds.x, bounds.y);
+            ((TokenTemplate)value).paintTemplate(g, token, bounds, this);
+            g.translate(-bounds.x, -bounds.y);
+            g.setClip(clip);
+          } // endif
+        } // endfor
+      } // endfor
+    }
     private void renderLabels(Graphics2D g) {
         
     	labelLocationList.clear();
@@ -700,22 +739,37 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				image = replacementImage;
 			}
 
-            // Draw image and overlay if needed
+            // Draw image
             g.drawImage(image, x, y, width, height, this);
-            if (token.getState() != null) {
-              TokenOverlay overlay =  TokenStates.getOverlay(token.getState());
-              if (overlay != null) {
+            
+            // Check for state
+            if (!token.getStatePropertyNames().isEmpty()) {
+              
+              // Set up the graphics so that the overlay can just be painted.
+              Shape clip = g.getClip();
+              g.translate(x, y);
+              Rectangle bounds = new Rectangle(0, 0, width, height);
+              Rectangle overlayClip = g.getClipBounds().intersection(bounds);
+              g.setClip(overlayClip);
+              
+              // Check each of the set values
+              for (String state : token.getStatePropertyNames()) {
+                Object stateValue = token.getState(state);
                 
-                // Set up the graphics, paint the overlay, then restore the graphics
-                Shape clip = g.getClip();
-                g.translate(x, y);
-                Rectangle bounds = new Rectangle(0, 0, image.getWidth(), image.getHeight());
-                Rectangle overlayClip = g.getClipBounds().intersection(bounds);
-                g.setClip(overlayClip);
-                overlay.paintOverlay(g, token, bounds);
-                g.translate(-x, -y);
-                g.setClip(clip);
-              } // endif
+                // Check for the on/off states & paint them
+                if (stateValue instanceof Boolean && ((Boolean)stateValue).booleanValue()) {
+                  TokenOverlay overlay =  TokenStates.getOverlay(state);
+                  if (overlay != null) overlay.paintOverlay(g, token, bounds);
+                
+                // Check for an overlay state value and paint that
+                } else if (stateValue instanceof TokenOverlay) {
+                  ((TokenOverlay)stateValue).paintOverlay(g, token, bounds);
+                } // endif
+              } // endfor
+              
+              // Restore the graphics context
+              g.translate(-x, -y);
+              g.setClip(clip);
             } // endif
         }
         
