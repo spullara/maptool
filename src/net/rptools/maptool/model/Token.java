@@ -24,7 +24,6 @@
  */
 package net.rptools.maptool.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -89,9 +88,16 @@ public class Token {
         isVisible = token.isVisible;
         name = token.name;
         
-        if (ownerList != null) {
+        if (token.ownerList != null) {
         	ownerList = new HashSet<String>();
         	ownerList.addAll(token.ownerList);
+        }
+        
+        if (token.state != null) {
+        	state = new HashMap<String, Object>();
+        	for (Map.Entry<String, Object> entry : token.state.entrySet()) {
+        		state.put(entry.getKey(), entry.getValue());
+        	}
         }
     }
 
