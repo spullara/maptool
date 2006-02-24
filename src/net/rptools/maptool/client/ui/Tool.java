@@ -49,8 +49,6 @@ import net.rptools.maptool.language.I18N;
  */
 public abstract class Tool extends JToggleButton implements ChangeListener, ActionListener {
 
-	private InputMap oldInputMap;
-	private ActionMap oldActionMap;
 	private EscapeAction escapeAction = new EscapeAction();
     public static final String RESET_TOOL_COMMAND = "resetTool";
   
@@ -85,14 +83,11 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
 		}
 		
 		// Keystrokes
-		oldInputMap = comp.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-		oldActionMap = comp.getActionMap();
-
 		Map<KeyStroke, Action> keyActionMap = getKeyActionMap();
 		if (keyActionMap != null) {
 			
-			SwingUtilities.replaceUIActionMap(comp, createActionMap(keyActionMap));
-			SwingUtilities.replaceUIInputMap(comp, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, createInputMap(keyActionMap));
+			comp.setActionMap(createActionMap(keyActionMap));
+			comp.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, createInputMap(keyActionMap));
 		} 
 
         // Make the ESCAPE key cancel this tool
@@ -114,11 +109,6 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
 		if (this instanceof MouseWheelListener) {
 			comp.removeMouseWheelListener((MouseWheelListener)this);
 		}
-
-		// Keystrokes
-		// TODO: These cause in infinite loop.  I don't believe they are necessary, but review later
-		//SwingUtilities.replaceUIActionMap(comp, oldActionMap);
-		//SwingUtilities.replaceUIInputMap(comp, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, oldInputMap);
 
         // Unmap escape so it doesn't get called on all the tools. 
         getActionMap().remove(RESET_TOOL_COMMAND);
