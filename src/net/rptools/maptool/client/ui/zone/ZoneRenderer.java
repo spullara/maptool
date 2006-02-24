@@ -418,11 +418,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
       int scaledGridSize = (int)getScaledGridSize();
       
       // Find tokens with template state
+      // TODO: I really don't like this, it should be optimized
       for (Token token : zone.getTokens()) {
         for (String state : token.getStatePropertyNames()) {
           Object value = token.getState(state);
           if (value instanceof TokenTemplate) {
 
+        	  // Only show if selected
+        	  if (!selectedTokenSet.contains(token.getId())) {
+        		  continue;
+        	  }
+        	  
             // Calculate the token bounds
             Rectangle bounds = new Rectangle();
             bounds.x = (int)(token.getX() * scale + viewOffset.x) + (int) (gridOffsetX * scale) + 1;
@@ -432,15 +438,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             if (bounds.width < scaledGridSize) bounds.x += (scaledGridSize - bounds.width)/2;
             if (bounds.height < scaledGridSize) bounds.y += (scaledGridSize - bounds.height)/2;
 
+            if (!g.getClipBounds().intersects(bounds)) {
+            	// Not needed
+            	continue;
+            }
+            
             // Set up the graphics, paint the template, restore the graphics
             Shape clip = g.getClip();
             g.translate(bounds.x, bounds.y);
             ((TokenTemplate)value).paintTemplate(g, token, bounds, this);
             g.translate(-bounds.x, -bounds.y);
             g.setClip(clip);
-          } // endif
-        } // endfor
-      } // endfor
+          } 
+        } 
+      } 
     }
     private void renderLabels(Graphics2D g) {
         

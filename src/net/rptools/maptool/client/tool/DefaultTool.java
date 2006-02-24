@@ -607,20 +607,18 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         	
             sizeMenu.add(menuItem);
         }
-    	popup.add(sizeMenu);
         
         // Grid
         boolean snapToGrid = !tokenUnderMouse.isSnapToGrid();
-        JCheckBoxMenuItem checkboxMenuItem = new JCheckBoxMenuItem("placeholder", !snapToGrid); 
-        checkboxMenuItem.setAction(new SnapToGridAction(snapToGrid, renderer));
-        checkboxMenuItem.setEnabled(enabled);
-        popup.add(checkboxMenuItem);
+        JCheckBoxMenuItem snapToGridMenuItem = new JCheckBoxMenuItem("placeholder", !snapToGrid); 
+        snapToGridMenuItem.setAction(new SnapToGridAction(snapToGrid, renderer));
+        snapToGridMenuItem.setEnabled(enabled);
 
         // Visibility
-        checkboxMenuItem = new JCheckBoxMenuItem("Visible", tokenUnderMouse.isVisible());
-        checkboxMenuItem.setEnabled(enabled);
+        JCheckBoxMenuItem visibilityMenuItem = new JCheckBoxMenuItem("Visible", tokenUnderMouse.isVisible());
+        snapToGridMenuItem.setEnabled(enabled);
         // TODO: Make this an action, not aic
-        checkboxMenuItem.addActionListener(new ActionListener() {
+        snapToGridMenuItem.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
 
         		for (GUID guid : renderer.getSelectedTokenSet()) {
@@ -639,15 +637,14 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         		renderer.repaint();
         	}
         });
-        popup.add(checkboxMenuItem);
         
         // Rename
         // TODO: Make this an action, not aic
+    	JMenuItem renameMenuItem = new JMenuItem("Rename");
+    	renameMenuItem.setEnabled(enabled);
         if (renderer.getSelectedTokenSet().size() == 1) {
-        	JMenuItem menuItem = new JMenuItem("Rename");
-        	menuItem.setEnabled(enabled);
 
-            menuItem.addActionListener(new ActionListener() {
+        	renameMenuItem.addActionListener(new ActionListener() {
             	public void actionPerformed(ActionEvent e) {
             		
                 	Token token = renderer.getZone().getToken(renderer.getSelectedTokenSet().iterator().next());
@@ -662,7 +659,6 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
             		MapTool.getFrame().repaint();
             	}
             });
-            popup.add(menuItem);
         }
         
         // Arrange
@@ -693,8 +689,6 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         arrangeMenu.add(bringToFrontMenuItem);
         arrangeMenu.add(sendToBackMenuItem);
         
-        popup.add(arrangeMenu);
-        
         // Create the state menu
         JMenu stateMenu = I18N.createMenu("defaultTool.stateMenu");
         stateMenu.setEnabled(enabled);
@@ -702,13 +696,11 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         stateMenu.addSeparator();
         for (String state : TokenStates.getStates())
           createStateItem(state, stateMenu, tokenUnderMouse);
-        stateMenu.addSeparator();
-        stateMenu.add(new ChangeStateAction("light"));
-        popup.add(stateMenu);
         
         // Ownership
+        JMenu ownerMenu = I18N.createMenu("defaultTool.ownerMenu");
+        ownerMenu.setEnabled(enabled);
         if (MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
-	        JMenu ownerMenu = I18N.createMenu("defaultTool.ownerMenu");
 	        
         	final Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
         	
@@ -770,10 +762,22 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	        	ownerMenu.add(noPlayerMenu);
 	        }
 	        
-	        popup.add(ownerMenu);
         }
         
-        // 
+        // Organize
+        popup.add(stateMenu);
+    	popup.add(sizeMenu);
+        popup.add(arrangeMenu);
+        popup.add(new ChangeStateAction("light"));
+        popup.add(snapToGridMenuItem);
+        popup.add(visibilityMenuItem);
+        popup.add(renameMenuItem);
+
+        // GM Only
+        if (MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
+        	popup.add(ownerMenu);
+        }
+        
     	popup.show(renderer, e.getX(), e.getY());
 	}
 
@@ -901,7 +905,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
           for (String state : token.getStatePropertyNames())
             token.setState(state, null);
         } else if (aE.getActionCommand().equals("light")) {          
-          LightDialog dialog = new LightDialog(MapTool.getFrame());
+          LightDialog dialog = new LightDialog();
           dialog.setDefaults((TokenTemplate)token.getState(aE.getActionCommand()));
           Rectangle b = MapTool.getFrame().getBounds();
           dialog.setLocation(b.x + (b.width - dialog.getWidth()) / 2,
