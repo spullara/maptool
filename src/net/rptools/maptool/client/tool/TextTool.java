@@ -85,10 +85,11 @@ public class TextTool extends DefaultTool {
 			{
 				put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
 					public void actionPerformed(ActionEvent e) {
-						System.out.println ("Actions");
+
 						if (selectedLabel != null) {
 							renderer.getZone().removeLabel(selectedLabel.getId());
 				    		MapTool.serverCommand().removeLabel(renderer.getZone().getId(), selectedLabel.getId());
+							selectedLabel = null;
 				    		repaint();
 						}
 					}
@@ -105,18 +106,26 @@ public class TextTool extends DefaultTool {
     	if (SwingUtilities.isLeftMouseButton(e)) {
 
     		Label label = renderer.getLabelAt(e.getX(), e.getY());
+    		
+    		if (label == null && selectedLabel != null) {
+    			selectedLabel = null;
+    			renderer.repaint();
+    			return;
+    		}
+    		
     		if (label != selectedLabel) {
     			selectedLabel = null;
     		}
     		
     		if (label == null) {
+    			
         		ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
     			label = new Label("", zp.x, zp.y);
     		} else {
     			
     			if (selectedLabel == null) {
     				selectedLabel = label;
-    				repaint();
+    				renderer.repaint();
     				return;
     			}
     		}
@@ -132,7 +141,7 @@ public class TextTool extends DefaultTool {
     		MapTool.serverCommand().putLabel(renderer.getZone().getId(), label);
     		
     		selectedLabel = null;
-    		repaint();
+    		renderer.repaint();
     	}
     	
     	super.mousePressed(e);
