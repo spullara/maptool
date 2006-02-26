@@ -37,56 +37,65 @@ import net.rptools.maptool.model.Token;
  */
 public abstract class TokenOverlay {
 
-    /*---------------------------------------------------------------------------------------------
-     * Instance Variables
-     *-------------------------------------------------------------------------------------------*/
+  /*---------------------------------------------------------------------------------------------
+   * Instance Variables
+   *-------------------------------------------------------------------------------------------*/
 
-    /**
-     * The name of this overlay. Normally this is the name of a state.
-     */
-    private String name;
+  /**
+   * The name of this overlay. Normally this is the name of a state.
+   */
+  private String name;
 
-    /*---------------------------------------------------------------------------------------------
-     * Constructors
-     *-------------------------------------------------------------------------------------------*/
+  /*---------------------------------------------------------------------------------------------
+   * Constructors
+   *-------------------------------------------------------------------------------------------*/
 
-    /**
-     * Create an overlay with the passed name.
-     * 
-     * @param aName Name of the new overlay.
-     */
-    protected TokenOverlay(String aName) {
-        assert aName != null : "A name is required but null was passed.";
-        name = aName;
-    }
+  /**
+   * Create an overlay with the passed name.
+   * 
+   * @param aName Name of the new overlay.
+   */
+  protected TokenOverlay(String aName) {
+    assert aName != null : "A name is required but null was passed.";
+    name = aName;
+  }
 
-    /*---------------------------------------------------------------------------------------------
-     * Instance Methods
-     *-------------------------------------------------------------------------------------------*/
+  /*---------------------------------------------------------------------------------------------
+   * Instance Methods
+   *-------------------------------------------------------------------------------------------*/
 
-    /**
-     * Get the name for this TokenOverlay.
-     *
-     * @return Returns the current value of name.
-     */
-    public String getName() {
-        return name;
-    }
+  /**
+   * Get the name for this TokenOverlay.
+   *
+   * @return Returns the current value of name.
+   */
+  public String getName() {
+    return name;
+  }
 
-    /*---------------------------------------------------------------------------------------------
-     * Abstract Methods
-     *-------------------------------------------------------------------------------------------*/
+  /**
+   * Set the value of name for this TokenOverlay.
+   *
+   * @param aName The name to set.
+   */
+  public void setName(String aName) {
+    name = aName;
+  }
 
-    /**
-     * Paint the overlay for the passed token.
-     * 
-     * @param g Graphics used to paint. It is already translated so that 0,0 is
-     * the upper left corner of the token. It is also clipped so that the overlay can not
-     * draw out of the token's bounding box.
-     * @param token The token being painted.
-     * @param bounds The bounds of the actual token. This will be different than the clip
-     * since the clip also has to take into account the edge of the window. If you draw 
-     * based on the clip it will be off for partial token painting.
-     */
-    public abstract void paintOverlay(Graphics2D g, Token token, Rectangle bounds);
+  /*---------------------------------------------------------------------------------------------
+   * Abstract Methods
+   *-------------------------------------------------------------------------------------------*/
+
+  /**
+   * Paint the overlay for the passed token.
+   * 
+   * @param g Graphics used to paint. It is already translated so that 0,0 is
+   * the upper left corner of the token. It is also clipped so that the overlay can not
+   * draw out of the token's bounding box.
+   * @param token The token being painted.
+   * @param bounds The bounds of the actual token. This will be different than the clip
+   * since the clip also has to take into account the edge of the window. If you draw 
+   * based on the clip it will be off for partial token painting.
+   */
+  public abstract void paintOverlay(Graphics2D g, Token token, Rectangle bounds);
 }

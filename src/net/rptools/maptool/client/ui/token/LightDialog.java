@@ -26,6 +26,7 @@
 package net.rptools.maptool.client.ui.token;
 
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -40,6 +41,7 @@ import javax.swing.JTextField;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.drawing.AbstractTemplate.Direction;
 import net.rptools.maptool.model.drawing.AbstractTemplate.Quadrant;
 
@@ -316,4 +318,21 @@ public class LightDialog extends JDialog {
 		case SOUTH_WEST: sourceCornerSW.setSelected(true);break;
 		}
 	}
+
+  /**
+   * Show the dialog and set the light template state.
+   * 
+   * @param token The token having its state modified.
+   * @param state The state to be modified.
+   */
+  public static void show(Token token, String state) {
+    LightDialog dialog = new LightDialog();
+    dialog.setDefaults((TokenTemplate)token.getState(state));
+    Rectangle b = MapTool.getFrame().getBounds();
+    dialog.setLocation(b.x + (b.width - dialog.getWidth()) / 2,
+        b.y + (b.height - dialog.getHeight()) / 2);
+    dialog.setVisible(true);
+    if (dialog.getTemplate() != null)   
+      token.setState(state, dialog.getTemplate());
+  }
 }

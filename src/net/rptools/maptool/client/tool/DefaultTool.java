@@ -904,15 +904,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         if (aE.getActionCommand().equals("clear")) {
           for (String state : token.getStatePropertyNames())
             token.setState(state, null);
-        } else if (aE.getActionCommand().equals("light")) {          
-          LightDialog dialog = new LightDialog();
-          dialog.setDefaults((TokenTemplate)token.getState(aE.getActionCommand()));
-          Rectangle b = MapTool.getFrame().getBounds();
-          dialog.setLocation(b.x + (b.width - dialog.getWidth()) / 2,
-              b.y + (b.height - dialog.getHeight()) / 2);
-          dialog.setVisible(true);
-          if (dialog.getTemplate() != null)   
-            token.setState(aE.getActionCommand(), dialog.getTemplate());
+        } else if (aE.getActionCommand().equals("light")) {
+          LightDialog.show(token, "light");
         } else {
           token.setState(aE.getActionCommand(), ((JCheckBoxMenuItem)aE.getSource()).isSelected() ? Boolean.TRUE : null);
         } // endif

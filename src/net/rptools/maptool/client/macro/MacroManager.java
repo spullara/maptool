@@ -35,6 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.macro.impl.AddTokenStateMacro;
 import net.rptools.maptool.client.macro.impl.AliasMacro;
 import net.rptools.maptool.client.macro.impl.ClearAliasesMacro;
 import net.rptools.maptool.client.macro.impl.ClearMacro;
@@ -42,11 +43,14 @@ import net.rptools.maptool.client.macro.impl.EmoteMacro;
 import net.rptools.maptool.client.macro.impl.GotoMacro;
 import net.rptools.maptool.client.macro.impl.HelpMacro;
 import net.rptools.maptool.client.macro.impl.LoadAliasesMacro;
+import net.rptools.maptool.client.macro.impl.LoadTokenStatesMacro;
 import net.rptools.maptool.client.macro.impl.RollAllMacro;
 import net.rptools.maptool.client.macro.impl.RollGMMacro;
 import net.rptools.maptool.client.macro.impl.RollMeMacro;
 import net.rptools.maptool.client.macro.impl.SaveAliasesMacro;
+import net.rptools.maptool.client.macro.impl.SaveTokenStatesMacro;
 import net.rptools.maptool.client.macro.impl.SayMacro;
+import net.rptools.maptool.client.macro.impl.SetTokenStateMacro;
 import net.rptools.maptool.client.macro.impl.UndefinedMacro;
 import net.rptools.maptool.client.macro.impl.WhisperMacro;
 
@@ -80,6 +84,10 @@ public class MacroManager {
 		registerMacro(new LoadAliasesMacro());
 		registerMacro(new SaveAliasesMacro());
 		registerMacro(new ClearAliasesMacro());
+    registerMacro(new AddTokenStateMacro());
+    registerMacro(new LoadTokenStatesMacro());
+    registerMacro(new SaveTokenStatesMacro());
+    registerMacro(new SetTokenStateMacro());
 
 		registerMacro(UNDEFINED_MACRO);
 	}

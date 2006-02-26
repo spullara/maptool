@@ -38,45 +38,71 @@ import net.rptools.maptool.model.Token;
  */
 public class ShadedTokenOverlay extends TokenOverlay {
 
-    /*---------------------------------------------------------------------------------------------
-     * Instance Variables
-     *-------------------------------------------------------------------------------------------*/
+  /*---------------------------------------------------------------------------------------------
+   * Instance Variables
+   *-------------------------------------------------------------------------------------------*/
 
-    /**
-     * The color that is painted over the token.
-     */
-    private Color color;
+  /**
+   * The color that is painted over the token.
+   */
+  private Color color;
 
-    /*---------------------------------------------------------------------------------------------
-     * Constructors
-     *-------------------------------------------------------------------------------------------*/
+  /*---------------------------------------------------------------------------------------------
+   * Constructors
+   *-------------------------------------------------------------------------------------------*/
 
-    /**
-     * Create the new token overlay
-     * 
-     * @param aName Name of the new overlay.
-     * @param aColor The color that is painted over the token. If the
-     * alpha is 100%, it will be reduced to 25%.
-     */
-    public ShadedTokenOverlay(String aName, Color aColor) {
-        super(aName);
-        assert aColor != null : "A color is required but null was passed.";
-        if (aColor.getAlpha() == 255) aColor = new Color(aColor.getRed(), aColor.getGreen(), aColor.getBlue(), (int) (255 * 0.25));
-        color = aColor;
-    }
+  /**
+   * Default constructor needed for XML encoding/decoding
+   */
+  public ShadedTokenOverlay() {
+    this(TokenStates.DEFAULT_STATE_NAME, Color.RED);
+  }
 
-    /*---------------------------------------------------------------------------------------------
-     * TokenOverlay Abstract Method Implementations
-     *-------------------------------------------------------------------------------------------*/
+  /**
+   * Create the new token overlay
+   * 
+   * @param aName Name of the new overlay.
+   * @param aColor The color that is painted over the token. If the
+   * alpha is 100%, it will be reduced to 25%.
+   */
+  public ShadedTokenOverlay(String aName, Color aColor) {
+    super(aName);
+    assert aColor != null : "A color is required but null was passed.";
+    if (aColor.getAlpha() == 255)
+      aColor = new Color(aColor.getRed(), aColor.getGreen(), aColor.getBlue(), (int) (255 * 0.25));
+    color = aColor;
+  }
 
-    /**
-     * @see net.rptools.maptool.client.ui.token.TokenOverlay#paintOverlay(java.awt.Graphics2D, net.rptools.maptool.model.Token, Rectangle)
-     */
-    @Override
-    public void paintOverlay(Graphics2D g, Token aToken, Rectangle bounds) {
-        Color temp = g.getColor();
-        g.setColor(color);
-        g.fill(bounds);
-        g.setColor(temp);
-    }
+  /*---------------------------------------------------------------------------------------------
+   * TokenOverlay Abstract Method Implementations
+   *-------------------------------------------------------------------------------------------*/
+
+  /**
+   * @see net.rptools.maptool.client.ui.token.TokenOverlay#paintOverlay(java.awt.Graphics2D, net.rptools.maptool.model.Token, Rectangle)
+   */
+  @Override
+  public void paintOverlay(Graphics2D g, Token aToken, Rectangle bounds) {
+    Color temp = g.getColor();
+    g.setColor(color);
+    g.fill(bounds);
+    g.setColor(temp);
+  }
+
+  /**
+   * Get the color for this ShadedTokenOverlay.
+   *
+   * @return Returns the current value of color.
+   */
+  public Color getColor() {
+    return color;
+  }
+
+  /**
+   * Set the value of color for this ShadedTokenOverlay.
+   *
+   * @param aColor The color to set.
+   */
+  public void setColor(Color aColor) {
+    color = aColor;
+  }
 }

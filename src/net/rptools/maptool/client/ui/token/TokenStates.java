@@ -44,6 +44,11 @@ public class TokenStates {
     private static Map<String, TokenOverlay> states = new LinkedHashMap<String, TokenOverlay>();
 
     /**
+     * A default state name used in default constructors.
+     */
+    public static final String DEFAULT_STATE_NAME = "defaultStateName";
+    
+    /**
      * Set up the token states
      */
     static {
@@ -52,7 +57,7 @@ public class TokenStates {
         putOverlay(new ShadedTokenOverlay("Hidden", Color.BLACK));
         putOverlay(new OTokenOverlay("Prone", Color.BLUE, 5));
         putOverlay(new OTokenOverlay("Incapacitated", Color.RED, 5));
-        putOverlay(new ColorDotTokenOverlay("Other", Color.RED, 3));
+        putOverlay(new ColorDotTokenOverlay("Other", Color.RED, null));
     }
 
     /**
