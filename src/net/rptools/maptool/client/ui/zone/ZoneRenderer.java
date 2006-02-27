@@ -342,11 +342,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     }
 
     public void zoomIn(int x, int y) {
-        zoomTo(x, y, zoneScale.scaleDown());
+        zoomTo(x, y, zoneScale.scaleUp());
     }
 
     public void zoomOut(int x, int y) {
-        zoomTo(x, y, zoneScale.scaleUp());
+        zoomTo(x, y, zoneScale.scaleDown());
     }
 
     public void setView(int x, int y, int zoomIndex) {
