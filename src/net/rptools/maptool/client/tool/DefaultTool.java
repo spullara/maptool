@@ -162,10 +162,6 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			}
 		} else {
 
-			if (!SwingUtil.isShiftDown(e)) {
-				renderer.clearSelectedTokens();
-			}
-			
 			if (SwingUtilities.isLeftMouseButton(e)) {
 				// Starting a bound box selection
 				isDrawingSelectionBox = true;
