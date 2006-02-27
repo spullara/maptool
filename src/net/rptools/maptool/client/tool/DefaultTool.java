@@ -616,9 +616,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 
         // Visibility
         JCheckBoxMenuItem visibilityMenuItem = new JCheckBoxMenuItem("Visible", tokenUnderMouse.isVisible());
-        snapToGridMenuItem.setEnabled(enabled);
+        visibilityMenuItem.setEnabled(enabled);
         // TODO: Make this an action, not aic
-        snapToGridMenuItem.addActionListener(new ActionListener() {
+        visibilityMenuItem.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
 
         		for (GUID guid : renderer.getSelectedTokenSet()) {
