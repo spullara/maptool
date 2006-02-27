@@ -15,7 +15,7 @@
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_DESTINATION_FILE" value=""/>
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_FILTER_SET" value="org.eclipse.hyades.trace.ui.filterSet.webspherej2ee"/>
 <booleanAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_LIMIT_SECONDS" value="false"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="cvs-maptool"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="maptool"/>
 <intAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_LIMIT_SECONDS_NUM" value="5"/>
 <booleanAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILE_TO_FILE" value="false"/>
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_DESTINATION_PROJECT" value="ProfileProject"/>
