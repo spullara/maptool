@@ -3,6 +3,7 @@ package net.rptools.maptool.client.ui.commandpanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,6 +20,7 @@ import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.InputMap;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
@@ -39,11 +41,13 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 	private Timer closeTimer;
 	private List<String> commandHistory = new LinkedList<String>();
 	private int commandHistoryIndex;
+	private JCheckBox stickyCheckBox = new JCheckBox();
 	
 	public CommandPanel() {
 		setLayout(new BorderLayout());
 		setBorder(BorderFactory.createLineBorder(Color.gray));
 		
+		add(BorderLayout.NORTH, createTopPanel());
 		add(BorderLayout.SOUTH, getCommandTextField());
 		add(BorderLayout.CENTER, getMessagePanel());
 		
@@ -98,6 +102,22 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 		return commandTextField;
 	}
 
+	private JPanel createTopPanel() {
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 2)){
+			@Override
+			protected void paintComponent(Graphics g) {
+				g.setColor(Color.gray);
+				
+				Dimension size = getSize();
+				g.drawLine(0, size.height-1, size.width, size.height-1);
+			}
+		};
+		
+		panel.add(stickyCheckBox);
+		
+		return panel;
+	}
+	
 	/**
 	 * Execute the command in the command field.
 	 */
@@ -229,6 +249,10 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 	public void mouseExited(MouseEvent e) {
 		mouseIsOver = false;
 
+		if (stickyCheckBox.isSelected()) {
+			return;
+		}
+		
 		if (closeTimer != null) {
 			closeTimer.stop();
 		}
