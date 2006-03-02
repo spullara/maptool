@@ -32,6 +32,7 @@ import java.awt.Rectangle;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.drawing.RadiusTemplate;
 
 /**
@@ -80,18 +81,21 @@ public class RadiusLightTokenTemplate extends RadiusTemplate implements TokenTem
     // Offset for the corner
     ScreenPoint v = getVertex();
     Quadrant c = Quadrant.valueOf(corner);
+    float multiplier = TokenSize.Size.values()[aToken.getSize()].sizeFactor();
+    if (multiplier < 1) multiplier = 1;
+    int offset = (int)(aRenderer.getScaledGridSize() * multiplier);
     switch (c) {
     case NORTH_EAST:
-      v.x = (int)aRenderer.getScaledGridSize();
+      v.x = offset;
       v.y = 0;
       break;
     case SOUTH_WEST:
       v.x = 0;
-      v.y = (int)aRenderer.getScaledGridSize();
+      v.y = offset;
       break;
     case SOUTH_EAST:
-      v.x = (int)aRenderer.getScaledGridSize();
-      v.y = (int)aRenderer.getScaledGridSize();
+      v.x = offset;
+      v.y = offset;
       break;
     case NORTH_WEST:
     default:
