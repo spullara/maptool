@@ -24,10 +24,16 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Scale {
 
-    private int               scaleIndex;
-    private static float[]    scaleArray  = new float[] { .25F, .30F, .40F, .50F, .60F, .75F, 1F, 1.25F, 1.5F, 1.75F, 2F, 3F, 4F};
+    private int              scaleIndex;
+    private static float     startScale = .15f;
+    private static float     endScale = 4;
+    private static float[]   scaleArray;
+    
     private static int SCALE_1TO1_INDEX; // Automatically scanned for
     
     private int offsetX;
@@ -37,13 +43,32 @@ public class Scale {
     private int height;
     
     static {
-        // Create scale array
-        for (int i = 0; i < scaleArray.length; i++) {
-            if (scaleArray[i] == 1) {
-                SCALE_1TO1_INDEX = i;
-                break;
-            }
-        }
+
+    	// LATER: This whole process needs to be rewritten to be more 
+    	// configurable
+    	boolean lessThanOne = true;
+    	List<Float> scaleList = new ArrayList<Float>();
+    	float scale = startScale;
+    	while (scale <= endScale) {
+    		
+    		if (scale < 1) {
+    			scale += .05;
+    		} else {
+    			scale += .15;
+    		}
+
+    		scaleList.add((float)scale);
+    		
+    		if (scale > 1 && lessThanOne) {
+    			SCALE_1TO1_INDEX = scaleList.size()-1; 
+    			lessThanOne = false;
+    		}
+    	}
+    	
+    	scaleArray = new float[scaleList.size()];
+    	for (int i = 0; i < scaleArray.length; i++) {
+    		scaleArray[i] = scaleList.get(i);
+    	}
     }
 
     public Scale() {
@@ -113,6 +138,26 @@ public class Scale {
     public void zoomOut(int x, int y) {
         zoomTo(x, y, scaleDown());
     }
+    
+    public void findScaleToFit(int width, int height) {
+    	
+    	if (this.width == 0 || this.height == 0) {
+    		return;
+    	}
+    	
+    	// Find the scale that makes the size exceed the given dimensions
+    	for (int i = 0; i < scaleArray.length; i ++) {
+    		float scale = scaleArray[i];
+    		if (this.width * scale > width || this.height * scale > height) {
+    			scaleIndex = Math.max(0, i-1);
+    			return;
+    		}
+    	}
+    	
+    	// No scale was too big
+    	scaleIndex = scaleArray.length-1;
+    }
+    
     private void zoomTo(int x, int y, double oldScale) {
 
         double newScale = getScale();

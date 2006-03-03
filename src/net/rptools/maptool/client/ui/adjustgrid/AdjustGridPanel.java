@@ -59,6 +59,7 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     private BufferedImage image;
     
     private Scale scale;
+    private boolean scaleInitialized;
     
     private enum Handle {
         TOP,
@@ -98,7 +99,7 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         
         scale = new Scale(image.getWidth(), image.getHeight());
     }
-    
+
     public void setShowRows(boolean show) {
     	showRows = show;
     }
@@ -114,8 +115,14 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
             return;
         }
 
-        // CALCULATIONS
         Dimension size = getSize();
+        
+        if (!scaleInitialized) {
+        	scaleInitialized = true;
+        	scale.findScaleToFit(size.width, size.height);
+        }
+
+        // CALCULATIONS
         Dimension imageSize = getScaledImageSize();
         Point imagePosition = getScaledImagePosition();
         
