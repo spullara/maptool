@@ -30,6 +30,12 @@ public class Scale {
     private static float[]    scaleArray  = new float[] { .25F, .30F, .40F, .50F, .60F, .75F, 1F, 1.25F, 1.5F, 1.75F, 2F, 3F, 4F};
     private static int SCALE_1TO1_INDEX; // Automatically scanned for
     
+    private int offsetX;
+    private int offsetY;
+    
+    private int width;
+    private int height;
+    
     static {
         // Create scale array
         for (int i = 0; i < scaleArray.length; i++) {
@@ -41,7 +47,26 @@ public class Scale {
     }
 
     public Scale() {
+    	this(0, 0);
+    }
+    
+    public Scale(int width, int height) {
         scaleIndex = SCALE_1TO1_INDEX;
+        this.width = width;
+        this.height = height;
+    }
+    
+    public int getOffsetX() {
+    	return offsetX;
+    }
+    
+    public int getOffsetY() {
+    	return offsetY;
+    }
+    
+    public void setOffset(int x, int y) {
+    	offsetX = x;
+    	offsetY = y;
     }
     
     public int getIndex() {
@@ -76,4 +101,31 @@ public class Scale {
         scaleIndex = Math.max(scaleIndex - 1, 0);
         return oldScale;
     }
+    
+    public void zoomReset() {
+    	zoomTo(width/2, height/2, reset());
+    }
+
+    public void zoomIn(int x, int y) {
+        zoomTo(x, y, scaleUp());
+    }
+
+    public void zoomOut(int x, int y) {
+        zoomTo(x, y, scaleDown());
+    }
+    private void zoomTo(int x, int y, double oldScale) {
+
+        double newScale = getScale();
+
+        // Keep the current pixel centered
+        x -= offsetX;
+        y -= offsetY;
+
+        int newX = (int) ((x * newScale) / oldScale);
+        int newY = (int) ((y * newScale) / oldScale);
+
+        offsetX = offsetX-(newX - x);
+        offsetY = offsetY-(newY - y);
+    }
+    
 }
