@@ -43,11 +43,13 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.KeyStroke;
 
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.swing.VerticalLabel;
 
 public class AdjustGridDialog extends JDialog {
 
@@ -117,7 +119,12 @@ public class AdjustGridDialog extends JDialog {
         if (jContentPane == null) {
             jContentPane = new JPanel();
             jContentPane.setLayout(new BorderLayout());
-            jContentPane.add(getAdjustGridPanel(), java.awt.BorderLayout.CENTER);
+            
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 0));
+            panel.add(BorderLayout.CENTER, getAdjustGridPanel());
+            
+            jContentPane.add(panel, java.awt.BorderLayout.CENTER);
             jContentPane.add(getEastPanel(), java.awt.BorderLayout.EAST);
             jContentPane.add(getSouthPanel(), java.awt.BorderLayout.SOUTH);
             
@@ -192,11 +199,14 @@ public class AdjustGridDialog extends JDialog {
             eastPanel = new JPanel();
             eastPanel.setLayout(new BorderLayout());
             eastPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
-            eastPanel.add(getGridCountYSlider(), java.awt.BorderLayout.EAST);
+            eastPanel.add(getGridCountYSlider(), java.awt.BorderLayout.WEST);
+            VerticalLabel label = new VerticalLabel("Grid Count Y", JLabel.CENTER);
+            label.setRotation(VerticalLabel.ROTATE_LEFT);
+            eastPanel.add(label, BorderLayout.EAST);
         }
         return eastPanel;
     }
-
+    
     /**
      * This method initializes southPanel	
      * 	
@@ -222,7 +232,8 @@ public class AdjustGridDialog extends JDialog {
             southControlPanel = new JPanel();
             southControlPanel.setLayout(new BorderLayout());
             southControlPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
-            southControlPanel.add(getGridCountXSlider(), java.awt.BorderLayout.CENTER);
+            southControlPanel.add(getGridCountXSlider(), java.awt.BorderLayout.NORTH);
+            southControlPanel.add(new JLabel("Grid Count X", JLabel.CENTER), BorderLayout.SOUTH);
         }
         return southControlPanel;
     }
@@ -235,9 +246,10 @@ public class AdjustGridDialog extends JDialog {
     private JSlider getGridCountXSlider() {
         if (gridCountXSlider == null) {
             gridCountXSlider = new JSlider();
-            gridCountXSlider.setMinimum(1);
-            gridCountXSlider.setMaximum(50);
+            gridCountXSlider.setMinimum(2);
+            gridCountXSlider.setMaximum(100);
             gridCountXSlider.setValue(10);
+            gridCountXSlider.setFocusable(false);
             gridCountXSlider.addChangeListener(new javax.swing.event.ChangeListener() {
                 public void stateChanged(javax.swing.event.ChangeEvent e) {
                 	int value = getGridCountXSlider().getValue();
@@ -268,9 +280,10 @@ public class AdjustGridDialog extends JDialog {
         if (gridCountYSlider == null) {
             gridCountYSlider = new JSlider();
             gridCountYSlider.setOrientation(javax.swing.JSlider.VERTICAL);
-            gridCountYSlider.setMaximum(50);
+            gridCountYSlider.setMaximum(100);
             gridCountYSlider.setValue(10);
-            gridCountYSlider.setMinimum(1);
+            gridCountYSlider.setMinimum(2);
+            gridCountYSlider.setFocusable(false);
             gridCountYSlider.addChangeListener(new javax.swing.event.ChangeListener() {
                 public void stateChanged(javax.swing.event.ChangeEvent e) {
                 	int value = getGridCountYSlider().getValue();

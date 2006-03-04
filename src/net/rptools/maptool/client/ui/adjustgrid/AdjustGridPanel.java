@@ -41,7 +41,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.ui.Scale;
 
 public class AdjustGridPanel extends JComponent implements MouseListener, MouseMotionListener, MouseWheelListener {
@@ -83,6 +82,8 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         addMouseListener(this);
         addMouseMotionListener(this);
         addMouseWheelListener(this);
+        
+        
     }
     
     public Rectangle getGridBounds() {
@@ -164,26 +165,37 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         
         // HANDLES
         int handleSize = 10;
-        g2d.setColor(Color.red);
 
         Object oldValue = g2d.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
+        g2d.setColor(Color.red);
+        
         // Top
+        int halfHandleX = imagePosition.x + imageSize.width/2;
+        g2d.fillRect(halfHandleX - handleSize, top+imagePosition.y - 3, handleSize*2, 3);
         g2d.drawLine(imagePosition.x-handleSize, top+imagePosition.y, imagePosition.x+imageSize.width+handleSize, top+imagePosition.y);
         
         // Bottom
+        g2d.fillRect(halfHandleX - handleSize, bottom+imagePosition.y+1, handleSize*2, 3);
         g2d.drawLine(imagePosition.x-handleSize, bottom+imagePosition.y, imagePosition.x +imageSize.width+handleSize, bottom+imagePosition.y);
 
         // Left
+        int halfHandleY = imagePosition.y + imageSize.height/2;
+        g2d.fillRect(left+imagePosition.x-3, halfHandleY - handleSize, 3, handleSize*2);
         g2d.drawLine(left+imagePosition.x, imagePosition.y-handleSize, left+imagePosition.x, imagePosition.y+imageSize.height+handleSize);
         
         // Right
+        g2d.fillRect(right+1+imagePosition.x, halfHandleY - handleSize, 3, handleSize*2);
         g2d.drawLine(right+imagePosition.x, imagePosition.y-handleSize, right+imagePosition.x, imagePosition.y+imageSize.height+handleSize);
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldValue);
     }
     
+    @Override
+    public boolean isFocusable() {
+    	return true;
+    }
     public void setGridCountX(int count) {
         gridCountX = count;
         repaint();
