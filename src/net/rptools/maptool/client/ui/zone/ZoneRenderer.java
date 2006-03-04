@@ -367,7 +367,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		
         if (zone == null) { return; }
         int gridSize = (int) (zone.getGridSize() * getScale());
-
+        
     	renderBoard(g2d);
         renderDrawableOverlay(g2d);
         renderTokenTemplates(g2d);

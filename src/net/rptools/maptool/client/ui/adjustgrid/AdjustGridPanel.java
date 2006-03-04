@@ -117,10 +117,7 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
 
         Dimension size = getSize();
         
-        if (!scaleInitialized) {
-        	scaleInitialized = true;
-        	scale.findScaleToFit(size.width, size.height);
-        }
+        scale.initialize(size.width, size.height);
 
         // CALCULATIONS
         Dimension imageSize = getScaledImageSize();

@@ -495,7 +495,6 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			adjustGridButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					
-					MapTool.showInformation("The Adjust Grid dialog is still in heavy development.\nIt is only available here as a preview and to gather user feedback.\nIt may or may not have any effect on the actual map grid.\nPlease play with it and provide your feedback at rptools.net.");
 					try {
 						BufferedImage image = selectedFile != null ? ImageIO.read(selectedFile) : ImageIO.read(new ByteArrayInputStream(selectedAsset.getImage()));
 						AdjustGridDialog agd = new AdjustGridDialog(MapTool.getFrame(), image);

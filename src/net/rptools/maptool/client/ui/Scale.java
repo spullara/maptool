@@ -42,6 +42,8 @@ public class Scale {
     private int width;
     private int height;
     
+    private boolean initialized;
+    
     static {
 
     	// LATER: This whole process needs to be rewritten to be more 
@@ -137,6 +139,33 @@ public class Scale {
 
     public void zoomOut(int x, int y) {
         zoomTo(x, y, scaleDown());
+    }
+    
+    public boolean isInitialized() {
+    	return initialized;
+    }
+    
+    public void initialize(int width, int height) {
+    	
+    	if (initialized) {
+    		return;
+    	}
+    	
+    	findScaleToFit(width-20, height-20);
+    	centerIn(width, height);
+    	
+    	initialized = true;
+    }
+    
+    public void centerIn(int width, int height) {
+    	
+    	int currWidth = (int)(this.width * getScale());
+    	int currHeight = (int)(this.height * getScale());
+    	
+    	int x = (width - currWidth) / 2;
+    	int y = (height - currHeight) / 2;
+    	
+    	setOffset(x, y);
     }
     
     public void findScaleToFit(int width, int height) {

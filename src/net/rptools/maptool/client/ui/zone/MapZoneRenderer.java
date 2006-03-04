@@ -33,11 +33,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 
-import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppState;
-import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Zone;
@@ -79,6 +78,14 @@ public class MapZoneRenderer extends ZoneRenderer {
         	Graphics2D g2d = miniBackgroundImage.createGraphics();
         	g2d.drawImage(bgImage, 0, 0, dim.width, dim.height, null);
         	g2d.dispose();
+        	
+        	// Now that we have it, let's get the scale updated
+        	System.out.println (getSize());
+        	if (!zoneScale.isInitialized()) {
+        		
+        		zoneScale = new Scale(bgImage.getWidth(), bgImage.getHeight());
+            	zoneScale.initialize(getSize().width, getSize().height);
+        	}
         }
         
         Dimension imgSize = new Dimension(miniBackgroundImage.getWidth(), miniBackgroundImage.getHeight());
