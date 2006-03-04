@@ -78,18 +78,22 @@ public class ConeTemplate extends RadiusTemplate {
       direction = null;
   }
 
-  /*---------------------------------------------------------------------------------------------
-   * Overridden AbstractTemplate Methods
-   *-------------------------------------------------------------------------------------------*/
-  
   /**
+   * Paint the border at a specific radius.
+   * 
+   * @param g Where to paint
+   * @param x Distance from vertex along X axis in cell coordinates.
+   * @param y Distance from vertex along Y axis in cell coordinates.
+   * @param xOff Distance from vertex along X axis in screen coordinates.
+   * @param yOff Distance from vertex along Y axis in screen coordinates.
+   * @param gridSize The size of one side of the grid in screen coordinates.
+   * @param distance The distance in cells from the vertex to the cell which
+   * is offset from the vertex by <code>x</code> & <code>y</code>.
+   * @param radius The radius where the border is painted.
    * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintBorder(java.awt.Graphics2D, int, int, int, int, int, int)
    */
-  @Override
-  protected void paintBorder(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance) {
-    
+  protected void paintBorderAtRadius(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance, int radius) {
     // At the border?
-    int radius = getRadius();
     if (distance == radius) {
       
       // Paint lines between vertical boundaries if needed
@@ -127,8 +131,25 @@ public class ConeTemplate extends RadiusTemplate {
           paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
       } // endif
     } // endif
+  }
+  
+  /**
+   * Paint the border at a specific radius.
+   * 
+   * @param g Where to paint
+   * @param x Distance from vertex along X axis in cell coordinates.
+   * @param y Distance from vertex along Y axis in cell coordinates.
+   * @param xOff Distance from vertex along X axis in screen coordinates.
+   * @param yOff Distance from vertex along Y axis in screen coordinates.
+   * @param gridSize The size of one side of the grid in screen coordinates.
+   * @param distance The distance in cells from the vertex to the cell which
+   * is offset from the vertex by <code>x</code> & <code>y</code>.
+   * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintBorder(java.awt.Graphics2D, int, int, int, int, int, int)
+   */
+  protected void paintEdges(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance) {
 
     // Handle the edges
+    int radius = getRadius();
     if (getDirection().ordinal() % 2 == 0) {
       if (x == 0) {
         if (getDirection() == Direction.SOUTH_EAST || getDirection() == Direction.SOUTH_WEST)
@@ -168,6 +189,19 @@ public class ConeTemplate extends RadiusTemplate {
         paintFarHorizontalBorder(g, xOff, yOff, gridSize, Quadrant.NORTH_WEST);
       } // endif
     } // endif
+  }
+  
+  /*---------------------------------------------------------------------------------------------
+   * Overridden AbstractTemplate Methods
+   *-------------------------------------------------------------------------------------------*/
+  
+  /**
+   * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintBorder(java.awt.Graphics2D, int, int, int, int, int, int)
+   */
+  @Override
+  protected void paintBorder(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance) {
+    paintBorderAtRadius(g, x, y, xOff, yOff, gridSize, distance, getRadius());
+    paintEdges(g, x, y, xOff, yOff, gridSize, distance);
   }
   
   /**

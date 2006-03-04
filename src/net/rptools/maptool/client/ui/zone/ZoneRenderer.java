@@ -420,11 +420,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             bounds.height = (int)(TokenSize.getHeight(token, gridSize) * scale)-1;
             if (bounds.width < scaledGridSize) bounds.x += (scaledGridSize - bounds.width)/2;
             if (bounds.height < scaledGridSize) bounds.y += (scaledGridSize - bounds.height)/2;
-
-            if (!g.getClipBounds().intersects(bounds)) {
-            	// Not needed
-            	continue;
-            }
             
             // Set up the graphics, paint the template, restore the graphics
             Shape clip = g.getClip();

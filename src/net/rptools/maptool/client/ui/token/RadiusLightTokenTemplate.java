@@ -43,15 +43,31 @@ import net.rptools.maptool.model.drawing.RadiusTemplate;
  */
 public class RadiusLightTokenTemplate extends RadiusTemplate implements TokenTemplate {
 
+  /*---------------------------------------------------------------------------------------------
+   * Instance Variables
+   *-------------------------------------------------------------------------------------------*/
+
   /**
-   * Color used to draw the bright light
+   * Color used to draw the bright light. It must contain the proper alpha channel.
    */
-  private Color color;
+  private Color brightColor;
   
   /**
-   * The color used to paint the shadows
+   * Color used to draw the border around bright light. It is the same as the base 
+   * color but is not transparent
+   */
+  private Color brightSolidColor;
+  
+  /**
+   * The color used to paint the shadows. It must contain the proper alpha channel.
    */
   private Color shadowColor;
+  
+  /**
+   * Color used to draw the border around shaodws. It is the same as the base 
+   * color but is not transparent
+   */
+  private Color shadowSolidColor;
   
   /**
    * The radius where shadow illumination starts. It must be less than
@@ -65,13 +81,31 @@ public class RadiusLightTokenTemplate extends RadiusTemplate implements TokenTem
   private String corner;
   
   /**
+   * Flag that indicates tht the border should be painted around bright light.
+   */
+  private boolean brightBorder;
+  
+  /**
+   * Flag that indicates tht the border should be painted around shadows.
+   */
+  private boolean shadowBorder;
+  
+  /*---------------------------------------------------------------------------------------------
+   * Constructors
+   *-------------------------------------------------------------------------------------------*/
+
+  /**
    * Default constructor sets a radius of 20' and gets the current pen.
    */
   public RadiusLightTokenTemplate() {
     setVertex(new ScreenPoint(0, 0));
     setRadius(4);
-    setColor(Color.YELLOW);
+    setBrightColor(new Color(255, 255, 0, 255/6));
   }
+
+  /*---------------------------------------------------------------------------------------------
+   * TokenTemplate Interface Methods
+   *-------------------------------------------------------------------------------------------*/
 
   /**
    * @see net.rptools.maptool.client.ui.token.TokenTemplate#paintTemplate(java.awt.Graphics2D, net.rptools.maptool.model.Token, java.awt.Rectangle, net.rptools.maptool.client.ui.zone.ZoneRenderer)
@@ -107,20 +141,45 @@ public class RadiusLightTokenTemplate extends RadiusTemplate implements TokenTem
     // Set scale and zone id
     setZoneId(aRenderer.getZone().getId());
     setScale(aRenderer.getScale());
-    paint(aG, false, true);
+    paint(aG, isBrightBorder() || isShadowBorder(), true);
   }
 
+  /*---------------------------------------------------------------------------------------------
+   * Overridden AbstractTemplate Methods
+   *-------------------------------------------------------------------------------------------*/
+
   /**
-   * @see net.rptools.maptool.model.drawing.RadiusTemplate#paintArea(java.awt.Graphics2D, int, int, int, int, int, int)
+   * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintArea(java.awt.Graphics2D, int, int, int, int, int, int)
    */
   @Override
   protected void paintArea(Graphics2D aG, int aX, int aY, int xOff, int yOff, int aGridSize, int aDistance) {
     if (aDistance <= shadowRadius)
-      aG.setColor(getColor());
+      aG.setColor(getBrightColor());
     else 
       aG.setColor(getShadowColor());
     super.paintArea(aG, aX, aY, xOff, yOff, aGridSize, aDistance);
   }
+  
+  /**
+   * @see net.rptools.maptool.model.drawing.RadiusTemplate#paintBorder(java.awt.Graphics2D, int, int, int, int, int, int)
+   */
+  @Override
+  protected void paintBorder(Graphics2D aG, int aX, int aY, int xOff, int yOff, int aGridSize, int aDistance) {
+    if (aDistance <= shadowRadius) {
+      if (!isBrightBorder()) return;
+      aG.setColor(brightSolidColor);
+      paintBorderAtRadius(aG, aX, aY, xOff, yOff, aGridSize, aDistance, getShadowRadius());
+    } else {
+      if (!isShadowBorder()) return;
+      aG.setColor(shadowSolidColor);
+      paintBorderAtRadius(aG, aX, aY, xOff, yOff, aGridSize, aDistance, getRadius());
+    } // endif
+  }
+  
+  /*---------------------------------------------------------------------------------------------
+   * Instance Methods
+   *-------------------------------------------------------------------------------------------*/
+
   /**
    * Get the shadowRadius for this RadiusTokenTemplate.
    *
@@ -144,8 +203,8 @@ public class RadiusLightTokenTemplate extends RadiusTemplate implements TokenTem
    *
    * @return Returns the current value of color.
    */
-  public Color getColor() {
-    return color;
+  public Color getBrightColor() {
+    return brightColor;
   }
 
   /**
@@ -153,9 +212,11 @@ public class RadiusLightTokenTemplate extends RadiusTemplate implements TokenTem
    *
    * @param aColor The color to set.
    */
-  public void setColor(Color aColor) {
-    color = new Color(aColor.getRed(), aColor.getGreen(), aColor.getBlue(), 255/6);
-    if (shadowColor == null) setShadowColor(aColor);
+  public void setBrightColor(Color aColor) {
+    brightColor = aColor;
+    brightSolidColor = new Color(aColor.getRed(), aColor.getGreen(), aColor.getBlue());
+    if (shadowColor == null) setShadowColor(new Color(aColor.getRed(), 
+        aColor.getGreen(), aColor.getBlue(), aColor.getAlpha() / 2));
   }
 
   /**
@@ -173,7 +234,8 @@ public class RadiusLightTokenTemplate extends RadiusTemplate implements TokenTem
    * @param aColor The shadowColor to set.
    */
   public void setShadowColor(Color aColor) {
-    shadowColor = new Color(aColor.getRed(), aColor.getGreen(), aColor.getBlue(), 255/12);
+    shadowColor = aColor;
+    shadowSolidColor = new Color(aColor.getRed(), aColor.getGreen(), aColor.getBlue());
   }
 
   /**
@@ -192,5 +254,59 @@ public class RadiusLightTokenTemplate extends RadiusTemplate implements TokenTem
    */
   public void setCorner(Quadrant aCorner) {
     corner = aCorner.toString();
+  }
+
+  /**
+   * Get the brightBorder for this RadiusLightTokenTemplate.
+   *
+   * @return Returns the current value of brightBorder.
+   */
+  public boolean isBrightBorder() {
+    return brightBorder;
+  }
+
+  /**
+   * Set the value of brightBorder for this RadiusLightTokenTemplate.
+   *
+   * @param aBrightBorder The brightBorder to set.
+   */
+  public void setBrightBorder(boolean aBrightBorder) {
+    brightBorder = aBrightBorder;
+  }
+
+  /**
+   * Get the shadowBorder for this RadiusLightTokenTemplate.
+   *
+   * @return Returns the current value of shadowBorder.
+   */
+  public boolean isShadowBorder() {
+    return shadowBorder;
+  }
+
+  /**
+   * Set the value of shadowBorder for this RadiusLightTokenTemplate.
+   *
+   * @param aShadowBorder The shadowBorder to set.
+   */
+  public void setShadowBorder(boolean aShadowBorder) {
+    shadowBorder = aShadowBorder;
+  }
+
+  /**
+   * Get the shadowSolidColor for this RadiusLightTokenTemplate.
+   *
+   * @return Returns the current value of shadowSolidColor.
+   */
+  public Color getShadowSolidColor() {
+    return shadowSolidColor;
+  }
+
+  /**
+   * Get the solidColor for this RadiusLightTokenTemplate.
+   *
+   * @return Returns the current value of solidColor.
+   */
+  public Color getBrightSolidColor() {
+    return brightSolidColor;
   }
 }

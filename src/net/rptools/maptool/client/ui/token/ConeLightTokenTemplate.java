@@ -42,15 +42,31 @@ import net.rptools.maptool.model.drawing.ConeTemplate;
  */
 public class ConeLightTokenTemplate extends ConeTemplate implements TokenTemplate {
 
+  /*---------------------------------------------------------------------------------------------
+   * Instance Variables
+   *-------------------------------------------------------------------------------------------*/
+
   /**
    * Color used to draw the bright light
    */
-  private Color color;
+  private Color brightColor;
+  
+  /**
+   * Color used to draw the border around bright light. It is the same as the base 
+   * color but is not transparent
+   */
+  private Color brightSolidColor;
   
   /**
    * The color used to paint the shadows
    */
   private Color shadowColor;
+  
+  /**
+   * Color used to draw the border around shaodws. It is the same as the base 
+   * color but is not transparent
+   */
+  private Color shadowSolidColor;
   
   /**
    * The radius where shadow illumination starts. It must be less than
@@ -64,13 +80,31 @@ public class ConeLightTokenTemplate extends ConeTemplate implements TokenTemplat
   private String corner;
   
   /**
+   * Flag that indicates tht the border should be painted around bright light.
+   */
+  private boolean brightBorder;
+  
+  /**
+   * Flag that indicates tht the border should be painted around shadows.
+   */
+  private boolean shadowBorder;
+ 
+  /*---------------------------------------------------------------------------------------------
+   * Constructors
+   *-------------------------------------------------------------------------------------------*/
+
+  /**
    * Default constructor sets a radius of 20' and gets the current pen.
    */
   public ConeLightTokenTemplate() {
     setVertex(new ScreenPoint(0, 0));
     setRadius(4);
-    setColor(Color.YELLOW);
+    setBrightColor(new Color(255, 255, 0, 255/6));
   }
+
+  /*---------------------------------------------------------------------------------------------
+   * TokenTemplate Interface Methods
+   *-------------------------------------------------------------------------------------------*/
 
   /**
    * @see net.rptools.maptool.client.ui.token.TokenTemplate#paintTemplate(java.awt.Graphics2D, net.rptools.maptool.model.Token, java.awt.Rectangle, net.rptools.maptool.client.ui.zone.ZoneRenderer)
@@ -103,22 +137,48 @@ public class ConeLightTokenTemplate extends ConeTemplate implements TokenTemplat
     // Set scale and zone id
     setZoneId(aRenderer.getZone().getId());
     setScale(aRenderer.getScale());
-    paint(aG, false, true);
+    paint(aG, isBrightBorder() || isShadowBorder(), true);
   }
 
+  /*---------------------------------------------------------------------------------------------
+   * Overridden AbstractTemplate Methods
+   *-------------------------------------------------------------------------------------------*/
+
   /**
-   * @see net.rptools.maptool.model.drawing.RadiusTemplate#paintArea(java.awt.Graphics2D, int, int, int, int, int, int)
+   * @see net.rptools.maptool.model.drawing.AbstractTemplate#paintArea(java.awt.Graphics2D, int, int, int, int, int, int)
    */
   @Override
   protected void paintArea(Graphics2D aG, int aX, int aY, int xOff, int yOff, int aGridSize, int aDistance) {
     if (aDistance <= shadowRadius)
-      aG.setColor(getColor());
+      aG.setColor(getBrightColor());
     else 
       aG.setColor(getShadowColor());
     super.paintArea(aG, aX, aY, xOff, yOff, aGridSize, aDistance);
   }
+  
   /**
-   * Get the shadowRadius for this RadiusTokenTemplate.
+   * @see net.rptools.maptool.model.drawing.RadiusTemplate#paintBorder(java.awt.Graphics2D, int, int, int, int, int, int)
+   */
+  @Override
+  protected void paintBorder(Graphics2D aG, int aX, int aY, int xOff, int yOff, int aGridSize, int aDistance) {
+    if (aDistance <= shadowRadius) {
+      aG.setColor(brightSolidColor);
+      if (isBrightBorder())
+        paintBorderAtRadius(aG, aX, aY, xOff, yOff, aGridSize, aDistance, getShadowRadius());
+    } else {
+      aG.setColor(shadowSolidColor);
+      if (isShadowBorder())
+        paintBorderAtRadius(aG, aX, aY, xOff, yOff, aGridSize, aDistance, getRadius());
+    } // endif
+    paintEdges(aG, aX, aY, xOff, yOff, aGridSize, aDistance);
+  }
+  
+  /*---------------------------------------------------------------------------------------------
+   * InstanceMethods Methods
+   *-------------------------------------------------------------------------------------------*/
+
+  /**
+   * Get the shadowRadius for this ConeTokenTemplate.
    *
    * @return Returns the current value of shadowRadius.
    */
@@ -127,7 +187,7 @@ public class ConeLightTokenTemplate extends ConeTemplate implements TokenTemplat
   }
 
   /**
-   * Set the value of shadowRadius for this RadiusTokenTemplate.
+   * Set the value of shadowRadius for this ConeTokenTemplate.
    *
    * @param aShadowRadius The shadowRadius to set.
    */
@@ -136,26 +196,28 @@ public class ConeLightTokenTemplate extends ConeTemplate implements TokenTemplat
   }
 
   /**
-   * Get the color for this RadiusTokenTemplate.
+   * Get the color for this ConeTokenTemplate.
    *
    * @return Returns the current value of color.
    */
-  public Color getColor() {
-    return color;
+  public Color getBrightColor() {
+    return brightColor;
   }
 
   /**
-   * Set the value of color for this RadiusTokenTemplate.
+   * Set the value of color for this ConeTokenTemplate.
    *
    * @param aColor The color to set.
    */
-  public void setColor(Color aColor) {
-    color = new Color(aColor.getRed(), aColor.getGreen(), aColor.getBlue(), 255/6);
-    if (shadowColor == null) setShadowColor(aColor);
+  public void setBrightColor(Color aColor) {
+    brightColor = aColor;
+    brightSolidColor = new Color(aColor.getRed(), aColor.getGreen(), aColor.getBlue());
+    if (shadowColor == null) setShadowColor(new Color(aColor.getRed(), 
+        aColor.getGreen(), aColor.getBlue(), aColor.getAlpha() / 2));
   }
 
   /**
-   * Get the shadowColor for this RadiusTokenTemplate.
+   * Get the shadowColor for this ConeTokenTemplate.
    *
    * @return Returns the current value of shadowColor.
    */
@@ -164,12 +226,13 @@ public class ConeLightTokenTemplate extends ConeTemplate implements TokenTemplat
   }
 
   /**
-   * Set the value of shadowColor for this RadiusTokenTemplate.
+   * Set the value of shadowColor for this ConeTokenTemplate.
    *
    * @param aColor The shadowColor to set.
    */
   public void setShadowColor(Color aColor) {
-    shadowColor = new Color(aColor.getRed(), aColor.getGreen(), aColor.getBlue(), 255/12);
+    shadowColor = aColor;
+    shadowSolidColor = new Color(aColor.getRed(), aColor.getGreen(), aColor.getBlue());
   }
 
   /**
@@ -188,5 +251,59 @@ public class ConeLightTokenTemplate extends ConeTemplate implements TokenTemplat
    */
   public void setCorner(Quadrant aCorner) {
     corner = aCorner.toString();
+  }
+
+  /**
+   * Get the brightBorder for this RadiusLightTokenTemplate.
+   *
+   * @return Returns the current value of brightBorder.
+   */
+  public boolean isBrightBorder() {
+    return brightBorder;
+  }
+
+  /**
+   * Set the value of brightBorder for this RadiusLightTokenTemplate.
+   *
+   * @param aBrightBorder The brightBorder to set.
+   */
+  public void setBrightBorder(boolean aBrightBorder) {
+    brightBorder = aBrightBorder;
+  }
+
+  /**
+   * Get the shadowBorder for this RadiusLightTokenTemplate.
+   *
+   * @return Returns the current value of shadowBorder.
+   */
+  public boolean isShadowBorder() {
+    return shadowBorder;
+  }
+
+  /**
+   * Set the value of shadowBorder for this RadiusLightTokenTemplate.
+   *
+   * @param aShadowBorder The shadowBorder to set.
+   */
+  public void setShadowBorder(boolean aShadowBorder) {
+    shadowBorder = aShadowBorder;
+  }
+
+  /**
+   * Get the shadowSolidColor for this ConeLightTokenTemplate.
+   *
+   * @return Returns the current value of shadowSolidColor.
+   */
+  public Color getShadowSolidColor() {
+    return shadowSolidColor;
+  }
+
+  /**
+   * Get the solidColor for this ConeLightTokenTemplate.
+   *
+   * @return Returns the current value of solidColor.
+   */
+  public Color getBrightSolidColor() {
+    return brightSolidColor;
   }
 }
