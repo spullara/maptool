@@ -80,7 +80,6 @@ public class MapZoneRenderer extends ZoneRenderer {
         	g2d.dispose();
         	
         	// Now that we have it, let's get the scale updated
-        	System.out.println (getSize());
         	if (!zoneScale.isInitialized()) {
         		
         		zoneScale = new Scale(bgImage.getWidth(), bgImage.getHeight());
