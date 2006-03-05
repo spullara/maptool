@@ -200,7 +200,7 @@ public class AdjustGridDialog extends JDialog {
             eastPanel.setLayout(new BorderLayout());
             eastPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
             eastPanel.add(getGridCountYSlider(), java.awt.BorderLayout.WEST);
-            VerticalLabel label = new VerticalLabel("Grid Count Y", JLabel.CENTER);
+            VerticalLabel label = new VerticalLabel("<html><body><b>Grid Count Y</b></body></html>", JLabel.CENTER);
             label.setRotation(VerticalLabel.ROTATE_LEFT);
             eastPanel.add(label, BorderLayout.EAST);
         }
@@ -233,7 +233,7 @@ public class AdjustGridDialog extends JDialog {
             southControlPanel.setLayout(new BorderLayout());
             southControlPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
             southControlPanel.add(getGridCountXSlider(), java.awt.BorderLayout.NORTH);
-            southControlPanel.add(new JLabel("Grid Count X", JLabel.CENTER), BorderLayout.SOUTH);
+            southControlPanel.add(new JLabel("<html><body><b>Grid Count X</b></body></html>", JLabel.CENTER), BorderLayout.SOUTH);
         }
         return southControlPanel;
     }
@@ -246,13 +246,19 @@ public class AdjustGridDialog extends JDialog {
     private JSlider getGridCountXSlider() {
         if (gridCountXSlider == null) {
             gridCountXSlider = new JSlider();
-            gridCountXSlider.setMinimum(2);
+            gridCountXSlider.setMinimum(0);
             gridCountXSlider.setMaximum(100);
             gridCountXSlider.setValue(10);
             gridCountXSlider.setFocusable(false);
+            gridCountXSlider.setPaintLabels(true);
+            gridCountXSlider.setMajorTickSpacing(10);
             gridCountXSlider.addChangeListener(new javax.swing.event.ChangeListener() {
                 public void stateChanged(javax.swing.event.ChangeEvent e) {
                 	int value = getGridCountXSlider().getValue();
+                	
+                	if (value < 2) {
+                		getGridCountXSlider().setValue(2);
+                	}
                     getAdjustGridPanel().setGridCountX(value);
                 }
             });
@@ -282,11 +288,18 @@ public class AdjustGridDialog extends JDialog {
             gridCountYSlider.setOrientation(javax.swing.JSlider.VERTICAL);
             gridCountYSlider.setMaximum(100);
             gridCountYSlider.setValue(10);
-            gridCountYSlider.setMinimum(2);
+            gridCountYSlider.setMinimum(0);
             gridCountYSlider.setFocusable(false);
+            gridCountYSlider.setPaintLabels(true);
+            gridCountYSlider.setMajorTickSpacing(10);
             gridCountYSlider.addChangeListener(new javax.swing.event.ChangeListener() {
                 public void stateChanged(javax.swing.event.ChangeEvent e) {
                 	int value = getGridCountYSlider().getValue();
+
+                	if (value < 2) {
+                		getGridCountXSlider().setValue(2);
+                	}
+                	
                     getAdjustGridPanel().setGridCountY(value);
                 }
             });
@@ -336,10 +349,4 @@ public class AdjustGridDialog extends JDialog {
 		return cancelButton;
 	}
 
-	public static void main(String[] args) throws IOException {
-        AdjustGridDialog d = new AdjustGridDialog(null, ImageIO.read(new File("c:\\map.jpg")));
-        
-        d.setVisible(true);
-        System.exit(0);
-    }
 }
