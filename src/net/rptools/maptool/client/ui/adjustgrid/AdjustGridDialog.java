@@ -50,6 +50,9 @@ import javax.swing.KeyStroke;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.swing.VerticalLabel;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import javax.swing.JSpinner;
 
 public class AdjustGridDialog extends JDialog {
 
@@ -58,15 +61,12 @@ public class AdjustGridDialog extends JDialog {
     private JPanel buttonPanel = null;
     private JButton okButton = null;
     private JPanel eastPanel = null;
-    private JPanel southPanel = null;
     private JPanel southControlPanel = null;
     private JSlider gridCountXSlider = null;
     private JSlider gridCountYSlider = null;
 	private JButton cancelButton = null;
 	
 	private boolean isOK;
-
-	
 	public boolean isOK() {
 		return isOK;
 	}
@@ -117,16 +117,37 @@ public class AdjustGridDialog extends JDialog {
      */
     private JPanel getJContentPane() {
         if (jContentPane == null) {
+            GridBagConstraints gridBagConstraints = new GridBagConstraints();
+            gridBagConstraints.gridx = 0;
+            gridBagConstraints.weightx = 1.0D;
+            gridBagConstraints.weighty = 1.0D;
+            gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+            gridBagConstraints.gridy = 0;
+            GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+            gridBagConstraints3.gridx = 0;
+            gridBagConstraints3.gridwidth = 2;
+            gridBagConstraints3.anchor = java.awt.GridBagConstraints.EAST;
+            gridBagConstraints3.gridy = 2;
+            GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+            gridBagConstraints2.gridx = 0;
+            gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints2.gridy = 1;
+            GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+            gridBagConstraints1.gridx = 1;
+            gridBagConstraints1.fill = java.awt.GridBagConstraints.VERTICAL;
+            gridBagConstraints1.gridy = 0;
             jContentPane = new JPanel();
             jContentPane.setLayout(new BorderLayout());
             
             JPanel panel = new JPanel(new BorderLayout());
+            panel.setLayout(new GridBagLayout());
             panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 0));
-            panel.add(BorderLayout.CENTER, getAdjustGridPanel());
+            panel.add(getEastPanel(), gridBagConstraints1);
+            panel.add(getSouthControlPanel(), gridBagConstraints2);
+            panel.add(getButtonPanel(), gridBagConstraints3);
+            panel.add(getAdjustGridPanel(), gridBagConstraints);
             
             jContentPane.add(panel, java.awt.BorderLayout.CENTER);
-            jContentPane.add(getEastPanel(), java.awt.BorderLayout.EAST);
-            jContentPane.add(getSouthPanel(), java.awt.BorderLayout.SOUTH);
             
             jContentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), "cancel");
             jContentPane.getActionMap().put("cancel", new AbstractAction() {
@@ -207,21 +228,6 @@ public class AdjustGridDialog extends JDialog {
         return eastPanel;
     }
     
-    /**
-     * This method initializes southPanel	
-     * 	
-     * @return javax.swing.JPanel	
-     */
-    private JPanel getSouthPanel() {
-        if (southPanel == null) {
-            southPanel = new JPanel();
-            southPanel.setLayout(new BorderLayout());
-            southPanel.add(getButtonPanel(), java.awt.BorderLayout.SOUTH);
-            southPanel.add(getSouthControlPanel(), java.awt.BorderLayout.NORTH);
-        }
-        return southPanel;
-    }
-
     /**
      * This method initializes southControlPanel	
      * 	
