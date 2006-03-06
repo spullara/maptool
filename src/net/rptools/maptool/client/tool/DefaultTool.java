@@ -898,8 +898,12 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         
         Token token = renderer.getZone().getToken(tokenGUID);
         if (aE.getActionCommand().equals("clear")) {
-          for (String state : token.getStatePropertyNames())
-            token.setState(state, null);
+			// Wipe out the entire state HashMap, this is what the previous
+			// code attempted to do but was failing due to the Set returned
+			// by getStatePropertyNames being a non-static view into a set.
+			// Removing items from the map was messing up the iteration.
+			// Here, clear all states, unfortunately, including light.
+    		token.getStatePropertyNames().clear();          
         } else if (aE.getActionCommand().equals("light")) {
           LightDialog.show(token, "light");
         } else {
