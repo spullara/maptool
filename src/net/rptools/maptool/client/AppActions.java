@@ -138,7 +138,7 @@ public class AppActions {
 			chooser.setDialogTitle("Save Message History");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	
-			if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
+			if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 				return;
 			}
 			
