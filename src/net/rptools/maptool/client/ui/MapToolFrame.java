@@ -79,6 +79,7 @@ import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.swing.GlassPane;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
@@ -161,6 +162,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	private NewZoneDropPanel newZoneDropPanel;
 	
 	private JLabel chatActionLabel;
+	
+	private GlassPane glassPane;
   
     // TODO: I don't like this here, eventOverlay should be more abstracted
     private NotificationOverlay notificationOverlay = new NotificationOverlay();
@@ -175,6 +178,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		SwingUtil.centerOnScreen(this);
         
 		// Components
+		glassPane = new GlassPane();
 		assetPanel = createAssetPanel();
         tokenPanel = new TokenPanel();
         taskPanel = new TaskPanelGroup(5);
@@ -273,12 +277,36 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		add(BorderLayout.CENTER, mainInnerPanel);
 		add(BorderLayout.NORTH, createToolboxPanel());
 		add(BorderLayout.SOUTH, statusPanel);
+		
+		setGlassPane(glassPane);
         
         new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
         
         restorePreferences();
 	}
-
+	
+	public void showNonModalGlassPane(JComponent component, int x, int y) {
+		showGlassPane(component, x, y, false);
+	}
+	
+	public void showModalGlassPane(JComponent component, int x, int y) {
+		showGlassPane(component, x, y, true);
+	}
+	
+	private void showGlassPane(JComponent component, int x, int y, boolean modal) {
+		component.setSize(component.getPreferredSize());
+		component.setLocation(x, y);
+		
+		glassPane.add(component);
+		glassPane.setModel(modal);
+		glassPane.setVisible(true);
+	}
+	
+	public void hideGlassPane() {
+		glassPane.removeAll();
+		glassPane.setVisible(false);
+	}
+	
 	@Override
 	public void setVisible(boolean b) {
 		mainSplitPane.setInitialDividerPosition(150);
