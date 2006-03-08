@@ -106,7 +106,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private List<TokenLocation> tokenLocationList = new LinkedList<TokenLocation>();
     private Set<GUID> selectedTokenSet = new HashSet<GUID>();
     private List<LabelLocation> labelLocationList = new LinkedList<LabelLocation>();
-    
+    private Set<Rectangle> coveredTokenSet = new HashSet<Rectangle>();
 
 	private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
 
@@ -646,7 +646,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         Rectangle clipBounds = g.getClipBounds();
         float scale = zoneScale.getScale();
-        Set<Rectangle> coveredTokenSet = new HashSet<Rectangle>();
+        coveredTokenSet.clear();
         tokenLocationList.clear();
         for (Token token : zone.getTokens()) {
 
@@ -870,6 +870,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	return null;
     }
     
+    
 	/**
 	 * Returns the token at screen location x, y (not cell location). To get
 	 * the token at a cell location, use getGameMap() and use that.
@@ -886,6 +887,19 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		for (TokenLocation location : locationList) {
 			if (location.bounds.contains(x, y)) {
 				return location.token;
+			}
+		}
+		
+		return null;
+	}
+
+	public Rectangle getTokenStackAt (int x, int y) {
+		
+		List<Rectangle> stackList = new ArrayList<Rectangle>();
+		stackList.addAll(coveredTokenSet);
+		for (Rectangle bounds : stackList) {
+			if (bounds.contains(x, y)) {
+				return bounds;
 			}
 		}
 		
