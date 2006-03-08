@@ -31,6 +31,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -38,7 +39,9 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 
+import javax.swing.AbstractAction;
 import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.ui.Scale;
@@ -52,8 +55,8 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     private int gridCountY = 10;
     private boolean showGrid = true;
 
-    private int dragStartX;
-    private int dragStartY;
+    private int mouseX;
+    private int mouseY;
     
     private BufferedImage image;
     
@@ -83,6 +86,26 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         addMouseMotionListener(this);
         addMouseWheelListener(this);
         
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("-"), "zoomOut");
+        getActionMap().put("zoomOut", new AbstractAction() {
+        	public void actionPerformed(ActionEvent e) {
+        		zoomOut();
+        	}
+        });
+
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("="), "zoomIn");
+        getActionMap().put("zoomIn", new AbstractAction() {
+        	public void actionPerformed(ActionEvent e) {
+        		zoomIn();
+        	}
+        });
+        
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("+"), "zoomRest");
+        getActionMap().put("zoomReset", new AbstractAction() {
+        	public void actionPerformed(ActionEvent e) {
+        		zoomReset();
+        	}
+        });
         
     }
     
@@ -272,6 +295,21 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         repaint();
     }
     
+    public void zoomIn() {
+    	scale.zoomIn(mouseX, mouseY);
+    	repaint();
+    }
+    
+    public void zoomOut() {
+    	scale.zoomOut(mouseX, mouseY);
+    	repaint();
+    }
+    
+    public void zoomReset() {
+    	scale.reset();
+    	repaint();
+    }
+    
     //// 
     // MOUSE LISTENER
     public void mouseClicked(MouseEvent e) {}
@@ -302,8 +340,8 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
 	        
 	        updateHandles(e);
     	} else {
-    		dragStartX = e.getX();
-    		dragStartY = e.getY();
+    		mouseX = e.getX();
+    		mouseY = e.getY();
     	}
     }
     
@@ -320,13 +358,13 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     	if (SwingUtilities.isLeftMouseButton(e)) {
 	        updateHandles(e);
     	} else {
-    		int offsetX = scale.getOffsetX() + e.getX() - dragStartX;
-    		int offsetY = scale.getOffsetY() + e.getY() - dragStartY;
+    		int offsetX = scale.getOffsetX() + e.getX() - mouseX;
+    		int offsetY = scale.getOffsetY() + e.getY() - mouseY;
     		
     		scale.setOffset(offsetX, offsetY);
     		
-    		dragStartX = e.getX();
-    		dragStartY = e.getY();
+    		mouseX = e.getX();
+    		mouseY = e.getY();
     	}
         
         repaint();
@@ -341,6 +379,9 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
             showGrid = !insideMap;
             repaint();
         }
+        
+		mouseX = e.getX();
+		mouseY = e.getY();
     }
     
     ////
