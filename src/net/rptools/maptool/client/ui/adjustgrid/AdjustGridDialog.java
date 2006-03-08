@@ -27,16 +27,15 @@ package net.rptools.maptool.client.ui.adjustgrid;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -50,9 +49,6 @@ import javax.swing.KeyStroke;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.swing.VerticalLabel;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import javax.swing.JSpinner;
 
 public class AdjustGridDialog extends JDialog {
 
@@ -156,6 +152,7 @@ public class AdjustGridDialog extends JDialog {
             		setVisible(false);
             	}
             });
+            
         }
         return jContentPane;
     }
@@ -221,7 +218,7 @@ public class AdjustGridDialog extends JDialog {
             eastPanel.setLayout(new BorderLayout());
             eastPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
             eastPanel.add(getGridCountYSlider(), java.awt.BorderLayout.WEST);
-            VerticalLabel label = new VerticalLabel("<html><body><b>Grid Count Y</b></body></html>", JLabel.CENTER);
+            VerticalLabel label = new VerticalLabel("<html><body><b>Vertical Cell Count</b></body></html>", JLabel.CENTER);
             label.setRotation(VerticalLabel.ROTATE_LEFT);
             eastPanel.add(label, BorderLayout.EAST);
         }
@@ -239,7 +236,7 @@ public class AdjustGridDialog extends JDialog {
             southControlPanel.setLayout(new BorderLayout());
             southControlPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
             southControlPanel.add(getGridCountXSlider(), java.awt.BorderLayout.NORTH);
-            southControlPanel.add(new JLabel("<html><body><b>Grid Count X</b></body></html>", JLabel.CENTER), BorderLayout.SOUTH);
+            southControlPanel.add(new JLabel("<html><body><b>Horizontal Cell Count</b></body></html>", JLabel.CENTER), BorderLayout.SOUTH);
         }
         return southControlPanel;
     }
