@@ -26,6 +26,7 @@ package net.rptools.maptool.client.tool;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -67,9 +68,7 @@ import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.token.LightDialog;
-import net.rptools.maptool.client.ui.token.RadiusLightTokenTemplate;
 import net.rptools.maptool.client.ui.token.TokenStates;
-import net.rptools.maptool.client.ui.token.TokenTemplate;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
@@ -361,7 +360,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 					
 					if (tokenBeingDragged.isSnapToGrid()) {
 
-                        renderer.constrainToCell(zonePoint);
+						zonePoint = cellUnderMouse.convertToZone(renderer);
 					} else {
 					    zonePoint.translate(-dragOffsetX, -dragOffsetY);
                     }
@@ -403,8 +402,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
             }
 		}
 	}	
-	
-	private static final int FOW_EDGE_FUDGE = 10;
+
 	private boolean validateMove(Token leadToken, Set<GUID> tokenSet, ZonePoint point) {
 
 		Zone zone = renderer.getZone();
@@ -434,10 +432,10 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	            int width = TokenSize.getWidth(token, zone.getGridSize());
 	            int height = TokenSize.getHeight(token, zone.getGridSize());
 
-	            int fudgeW = Math.min(FOW_EDGE_FUDGE, width/4);
-	            int fudgeH = Math.min(FOW_EDGE_FUDGE, height/4);
+	            int fudgeW = (int)(width*.25);
+	            int fudgeH = (int)(height*.25);
 	            bounds.setBounds(x+fudgeW, y+fudgeH, width-fudgeW*2, height-fudgeH*2);
-	            
+
 	            if (!fow.contains(bounds)) {
 	            	return false;
 	            }
@@ -527,17 +525,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 
 			g.setStroke(stroke);
 		}
-
-//		if (tokenUnderMouse != null && renderer.getSelectedTokenSet().contains(tokenUnderMouse)) {
-//
-//			Rectangle rect = renderer.getTokenBounds(tokenUnderMouse);
-//			
-//			g.setColor(Color.black);
-//			g.fillRect(rect.x + rect.width - 10, rect.y + rect.height - 10, 10, 10);
-//
-//			g.setColor(Color.white);
-//			g.fillRect(rect.x + rect.width - 8, rect.y + rect.height - 8, 8, 8);
-//		}
+		
 	}
 	
 	////

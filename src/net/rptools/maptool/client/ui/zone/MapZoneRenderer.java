@@ -50,11 +50,18 @@ public class MapZoneRenderer extends ZoneRenderer {
     private BufferedImage miniBackgroundImage;
     private Dimension bgImageSize;
     
+    private boolean loaded = false;
+    
     public MapZoneRenderer (Zone zone) {
         super(zone);
         
         // Make sure we have requested the asset from the server
         getBackgroundImage();
+    }
+    
+    @Override
+    public boolean isLoading() {
+    	return !loaded;
     }
     
     @Override
@@ -80,10 +87,13 @@ public class MapZoneRenderer extends ZoneRenderer {
         	g2d.dispose();
         	
         	// Now that we have it, let's get the scale updated
-        	if (!zoneScale.isInitialized()) {
+        	if (!getZoneScale().isInitialized()) {
         		
-        		zoneScale = new Scale(bgImage.getWidth(), bgImage.getHeight());
+        		Scale zoneScale = new Scale(bgImage.getWidth(), bgImage.getHeight());
             	zoneScale.initialize(getSize().width, getSize().height);
+        		
+            	setZoneScale(zoneScale);
+            	updateFog();
         	}
         }
         
@@ -140,6 +150,7 @@ public class MapZoneRenderer extends ZoneRenderer {
         	backgroundImage = ImageManager.getImage(asset, this);
         	if (bgImageSize == null && backgroundImage != ImageManager.UNKNOWN_IMAGE) {
         		bgImageSize = new Dimension(backgroundImage.getWidth(), backgroundImage.getHeight());
+        		loaded = true;
         	}
         }
         
@@ -151,6 +162,7 @@ public class MapZoneRenderer extends ZoneRenderer {
 
     	ImageManager.flushImage(zone.getAssetID());
     	backgroundImage = null;
+    	loaded = false;
     	
     	super.flush();
     }

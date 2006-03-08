@@ -48,8 +48,15 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 	
 	private Dimension lastSize;
 	
+	private boolean loaded;
+	
 	public UnboundedZoneRenderer(Zone zone) {
 		super(zone);
+	}
+	
+	@Override
+	public boolean isLoading() {
+		return !loaded;
 	}
 	
 	/* (non-Javadoc)
@@ -127,6 +134,8 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 				if (image != ImageManager.UNKNOWN_IMAGE) {
 					backBuffer = null;
 					tileImage = image;
+					
+					loaded = true;
 				}
 				return image;
 			}

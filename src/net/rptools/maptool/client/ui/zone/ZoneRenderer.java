@@ -47,6 +47,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.QuadCurve2D;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -98,7 +99,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     protected Zone              zone;
 
-    protected Scale zoneScale = new Scale();
+    private Scale zoneScale;
     
     private DrawableRenderer drawableRenderer = new DrawableRenderer();
     
@@ -124,6 +125,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         if (zone == null) { throw new IllegalArgumentException("Zone cannot be null"); }
 
         this.zone = zone;
+        setZoneScale(new Scale());
         
         // DnD
         new DropTarget(this, this);
@@ -150,6 +152,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      
     }
 
+    public Scale getZoneScale() {
+    	return zoneScale;
+    }
+    
+    protected void setZoneScale(Scale scale) {
+    	zoneScale = scale;
+    	
+    	scale.addPropertyChangeListener(new PropertyChangeListener() {
+    		public void propertyChange(java.beans.PropertyChangeEvent evt) {
+    			updateFog();
+    		}
+    	});
+    }
+    
     public ScreenPoint getPointUnderMouse() {
     	return pointUnderMouse;
     }
@@ -259,7 +275,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         y = getSize().height/2 - (int)(y*getScale());
 
         setViewOffset(x, y);
-        updateFog = true;
 
         repaint();
     }
@@ -329,26 +344,18 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public void moveViewBy(int dx, int dy) {
 
     	setViewOffset(getViewOffsetX() + dx, getViewOffsetY() + dy);
-        updateFog = true;
-
-        repaint();
     }
 
     public void zoomReset() {
     	zoneScale.reset();
-        repaint();
     }
 
     public void zoomIn(int x, int y) {
         zoneScale.zoomIn(x, y);
-        updateFog = true;
-        repaint();
     }
 
     public void zoomOut(int x, int y) {
         zoneScale.zoomOut(x, y);
-        updateFog = true;
-        repaint();
     }
 
     public void setView(int x, int y, int zoomIndex) {
@@ -356,9 +363,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	setViewOffset(x, y);
 
     	zoneScale.setIndex(zoomIndex);
-        updateFog = true;
-    	
-    	repaint();
     }
     
     public abstract BufferedImage getMiniImage(int size);
@@ -368,6 +372,18 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         Graphics2D g2d = (Graphics2D) g;
 		
         if (zone == null) { return; }
+        
+        // Are we still waiting to show the zone ?
+        if (isLoading()) {
+        	Dimension size = getSize();
+        	g2d.setColor(Color.black);
+        	g2d.fillRect(0, 0, size.width, size.height);
+        	
+        	GraphicsUtil.drawBoxedString(g2d, "    Loading    ", size.width/2, size.height/2);
+        	
+        	return;
+        }
+        
         int gridSize = (int) (zone.getGridSize() * getScale());
         
     	renderBoard(g2d);
@@ -499,6 +515,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	repaint();
     }
     
+    public abstract boolean isLoading();
+    
     protected void renderDrawableOverlay(Graphics g) {
         
     	drawableRenderer.renderDrawables(g, zone.getDrawnElements(), zoneScale.getOffsetX(), zoneScale.getOffsetY(), getScale());
@@ -541,7 +559,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	                continue;
 	            }
 	            
-                ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, token.getX() + setOffsetX + zone.getGridOffsetX(), token.getY() + setOffsetY + zone.getGridOffsetY());
+                ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, token.getX() + setOffsetX, token.getY() + setOffsetY);
 				
 				// OPTIMIZE: combine this with the code in renderTokens()
 	            int width = TokenSize.getWidth(token, gridSize);
@@ -563,7 +581,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 if (scaledHeight < scaledGridSize) {
                     newScreenPoint.y += (scaledGridSize - scaledHeight)/2;
                 }
-				g.drawImage(ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this), newScreenPoint.x+1, newScreenPoint.y+1, scaledWidth, scaledHeight, this);
+				g.drawImage(ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this), newScreenPoint.x+1, newScreenPoint.y+1, scaledWidth-1, scaledHeight-1, this);
 
 				// Other details
 				if (token == keyToken) {
@@ -640,8 +658,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     protected void renderTokens(Graphics2D g) {
 
         int gridSize = zone.getGridSize();
-        int gridOffsetX = zone.getGridOffsetX();
-        int gridOffsetY = zone.getGridOffsetY();
         int scaledGridSize = (int)getScaledGridSize();
         
         Rectangle clipBounds = g.getClipBounds();
@@ -658,9 +674,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int width = (int)(TokenSize.getWidth(token, gridSize) * scale)-1;
             int height = (int)(TokenSize.getHeight(token, gridSize) * scale)-1;
             
-            // OPTIMIZE:
-            int x = (int)(token.getX() * scale + zoneScale.getOffsetX()) + (int) (gridOffsetX * scale) + 1;
-            int y = (int)(token.getY() * scale + zoneScale.getOffsetY()) + (int) (gridOffsetY * scale) + 1;
+            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
+            int x = tokenScreenLocation.x + 1;
+            int y = tokenScreenLocation.y + 1;
 
             if (width < scaledGridSize) {
                 x += (scaledGridSize - width)/2;
@@ -928,30 +944,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		return null;
 	}
 
-    /**
-     * Translate the zone coordinates in p and change them to cell coordinates.
-     * Note that the result is not the cell x,y, but rather the zone x,y of the
-     * cell the point is contained by
-     * @param p
-     * @return original point
-     */
-    public ZonePoint constrainToCell(ZonePoint p) {
-        
-        int gridSize = zone.getGridSize();
-        
-        int scalex = (p.x / gridSize);
-        int scaley = (p.y / gridSize);
-        
-        // Handle +/- transition
-        if (p.x < 0) {scalex --;}
-        if (p.y < 0) {scaley --;}
-        
-        p.x = scalex * gridSize;
-        p.y = scaley * gridSize;
-
-        return p;
-    }
-    
     public int getViewOffsetX() {
         return zoneScale.getOffsetX();
     }
@@ -1021,7 +1013,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			this.playerId = playerId;
 			
 			token = zone.getToken(tokenGUID);
-			CellPoint tokenPoint = new CellPoint(token.getX()/zone.getGridSize(), token.getY()/zone.getGridSize());
+			CellPoint tokenPoint = new ZonePoint(token.getX(), token.getY()).convertToCell(ZoneRenderer.this);
+
 			walker = new AStarEuclideanWalker(zone);
 			walker.setWaypoints(tokenPoint, tokenPoint);
 		}
@@ -1047,10 +1040,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             offsetX = x;
             offsetY = y;
             
-            // TODO: abstract this calculation
-            int cellX = (token.getX()+offsetX)/zone.getGridSize();
-            int cellY = (token.getY()+offsetY)/zone.getGridSize();
-			CellPoint point = new CellPoint(cellX, cellY);
+			CellPoint point = new ZonePoint(token.getX()+x, token.getY()+y).convertToCell(ZoneRenderer.this);
 			walker.replaceLastWaypoint(point);
             
 		}

@@ -231,15 +231,8 @@ public class AppActions {
 
 			ZonePoint zonePoint = screenPoint.convertToZone(renderer);
 			if (snapToGrid) {
-				// LATER: For some freaky reason, row -1 and column -1 don't
-				// work correctly
+
 				CellPoint cellPoint = zonePoint.convertToCell(renderer);
-				if (cellPoint.x < 0) {
-					cellPoint.x--;
-				}
-				if (cellPoint.y < 0) {
-					cellPoint.y--;
-				}
 				zonePoint = cellPoint.convertToZone(renderer);
 			}
 

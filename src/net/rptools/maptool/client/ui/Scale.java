@@ -24,6 +24,9 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.awt.Point;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +38,11 @@ public class Scale {
     private static float[]   scaleArray;
     
     private static int SCALE_1TO1_INDEX; // Automatically scanned for
+
+    private static String PROPERTY_SCALE = "scale";
+    private static String PROPERTY_OFFSET = "offset";
+    
+    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
     
     private int offsetX;
     private int offsetY;
@@ -83,6 +91,22 @@ public class Scale {
         this.height = height;
     }
     
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+    	propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+    
+    public void addPropertyChangeListener(String property, PropertyChangeListener listener) {
+    	propertyChangeSupport.addPropertyChangeListener(property, listener);
+    }
+    
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+    	propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+    
+    public void removePropertyChangeListener(String property, PropertyChangeListener listener) {
+    	propertyChangeSupport.removePropertyChangeListener(property, listener);
+    }
+    
     public int getOffsetX() {
     	return offsetX;
     }
@@ -92,8 +116,14 @@ public class Scale {
     }
     
     public void setOffset(int x, int y) {
+    	
+    	int oldX = offsetX;
+    	int oldY = offsetY;
+    	
     	offsetX = x;
     	offsetY = y;
+    	
+    	propertyChangeSupport.firePropertyChange(PROPERTY_OFFSET, new Point(oldX, oldY), new Point(offsetX, offsetY));
     }
     
     public int getIndex() {
@@ -104,12 +134,18 @@ public class Scale {
         index = Math.max(index, 0);
         index = Math.min(index, scaleArray.length - 1);
 
+        int oldIndex = scaleIndex;
+        
         scaleIndex = index;
+        
+        propertyChangeSupport.firePropertyChange(PROPERTY_SCALE, oldIndex, scaleIndex);
     }
     
     public float reset() {
         float oldScale = scaleArray[scaleIndex];
         scaleIndex = SCALE_1TO1_INDEX;
+
+        propertyChangeSupport.firePropertyChange(PROPERTY_SCALE, oldScale, scaleIndex);
         return oldScale;
     }
     
@@ -118,14 +154,14 @@ public class Scale {
     }
     
     public float scaleUp() {
-        float oldScale = scaleArray[scaleIndex];
-        scaleIndex = Math.min(scaleIndex + 1, scaleArray.length -1);
+        float oldScale = getScale();
+        setIndex(scaleIndex+1);
         return oldScale;
     }
     
     public float scaleDown() {
-        float oldScale = scaleArray[scaleIndex];
-        scaleIndex = Math.max(scaleIndex - 1, 0);
+        float oldScale = getScale();
+        setIndex(scaleIndex - 1);
         return oldScale;
     }
     
@@ -178,13 +214,13 @@ public class Scale {
     	for (int i = 0; i < scaleArray.length; i ++) {
     		float scale = scaleArray[i];
     		if (this.width * scale > width || this.height * scale > height) {
-    			scaleIndex = Math.max(0, i-1);
+    			setIndex(i-1);
     			return;
     		}
     	}
     	
     	// No scale was too big
-    	scaleIndex = scaleArray.length-1;
+    	setIndex(scaleArray.length-1);
     }
     
     private void zoomTo(int x, int y, double oldScale) {

@@ -56,7 +56,10 @@ public class CellPoint extends AbstractPoint {
     }
     
     public ZonePoint convertToZone(ZoneRenderer renderer) {
-        return new ZonePoint(x * renderer.getZone().getGridSize(), y * renderer.getZone().getGridSize());
+        Zone zone = renderer.getZone();
+        
+        return new ZonePoint((int)(x * zone.getGridSize() + zone.getGridOffsetX()), 
+        		(int)(y * renderer.getZone().getGridSize() + zone.getGridOffsetY()));
     }
     
 }
