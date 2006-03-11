@@ -291,14 +291,6 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    *-------------------------------------------------------------------------------------------*/
 
   /**
-   * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
-   */
-  public void mouseDragged(MouseEvent e) {
-    // Nothing to do
-
-  }
-
-  /**
    * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
    */
   public void mouseMoved(MouseEvent e) {
@@ -397,48 +389,38 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    *-------------------------------------------------------------------------------------------*/
 
   /**
-   * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-   */
-  public void mouseClicked(MouseEvent e) {
-    // Nothing to do
-  }
-
-  /**
    * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
    */
   public void mousePressed(MouseEvent e) {
     if (!painting)
       return;
 
-    // Need to set the anchor?
-    controlOffset = null;
-    if (!anchorSet) {
-      anchorSet = true;
-      return;
-    } // endif
-
-    // Need to finish the radius?
-    if (!painting || template.getRadius() < AbstractTemplate.MIN_RADIUS)
-      return;
-
-    // Set the eraser, set the drawable, reset the tool.
-    setIsEraser(SwingUtilities.isRightMouseButton(e));
-    template.setRadius(getRadiusAtMouse(e));
-    ScreenPoint vertex = template.getVertex();
-    ScreenPoint newPoint = new ScreenPoint(vertex.x, vertex.y);
-    ZonePoint zPoint = vertex.convertToZone(renderer);
-    vertex.x = zPoint.x;
-    vertex.y = zPoint.y;
-    completeDrawable(renderer.getZone().getId(), getPen(), template);
-    setIsEraser(false);
-    resetTool(newPoint);
-  }
-
-  /**
-   * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-   */
-  public void mouseReleased(MouseEvent e) {
-    // Nothing to do
+    if (SwingUtilities.isLeftMouseButton(e)) {
+	    // Need to set the anchor?
+	    controlOffset = null;
+	    if (!anchorSet) {
+	      anchorSet = true;
+	      return;
+	    } // endif
+	
+	    // Need to finish the radius?
+	    if (!painting || template.getRadius() < AbstractTemplate.MIN_RADIUS)
+	      return;
+	
+	    // Set the eraser, set the drawable, reset the tool.
+	    setIsEraser(SwingUtilities.isRightMouseButton(e));
+	    template.setRadius(getRadiusAtMouse(e));
+	    ScreenPoint vertex = template.getVertex();
+	    ScreenPoint newPoint = new ScreenPoint(vertex.x, vertex.y);
+	    ZonePoint zPoint = vertex.convertToZone(renderer);
+	    vertex.x = zPoint.x;
+	    vertex.y = zPoint.y;
+	    completeDrawable(renderer.getZone().getId(), getPen(), template);
+	    setIsEraser(false);
+	    resetTool(newPoint);
+    } else {
+    	super.mousePressed(e);
+    }
   }
 
   /**
