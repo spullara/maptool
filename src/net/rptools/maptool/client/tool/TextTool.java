@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.tool;
 
+import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -61,6 +62,18 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
         }
     }
     
+	@Override
+	protected void attachTo(ZoneRenderer renderer) {
+		renderer.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+		super.attachTo(renderer);
+	}
+
+	@Override
+	protected void detachFrom(ZoneRenderer renderer) {
+		renderer.setCursor(Cursor.getDefaultCursor());
+		super.detachFrom(renderer);
+	}
+	
     @Override
     public String getTooltip() {
         return "Put text onto the zone";

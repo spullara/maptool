@@ -200,6 +200,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	public void mouseReleased(MouseEvent e) {
 
         try {
+            SwingUtil.showPointer(renderer);
+
 	        // SELECTION BOUND BOX
 	        if (isDrawingSelectionBox) {
 	        	isDrawingSelectionBox = false;

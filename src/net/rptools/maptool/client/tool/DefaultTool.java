@@ -104,7 +104,6 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         }
 
         // Cleanup
-        SwingUtil.showPointer(renderer);
     	isDraggingMap = false;
 	}
 	

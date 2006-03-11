@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.tool.drawing;
 
+import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -51,11 +52,13 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
 
 	protected void attachTo(ZoneRenderer renderer) {
 		MapTool.getFrame().getColorPicker().setVisible(true);
+		renderer.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 		super.attachTo(renderer);
 	}
 
 	protected void detachFrom(ZoneRenderer renderer) {
 		MapTool.getFrame().getColorPicker().setVisible(false);
+		renderer.setCursor(Cursor.getDefaultCursor());
 		super.detachFrom(renderer);
 	}
     
