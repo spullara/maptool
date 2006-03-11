@@ -130,7 +130,7 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
    */
   @Override
   public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
-    if (painting && zoneRenderer != null) {
+    if (painting && renderer != null) {
       Pen pen = getPenForOverlay();
       ScreenPoint vertex = template.getVertex();
       ScreenPoint pathVertex = ((LineTemplate) template).getPathVertex();
@@ -161,7 +161,7 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
     // Need to convert the pathVertex in the line template before we complete the template
     LineTemplate template = (LineTemplate)aDrawable;
     ScreenPoint vertex = template.getPathVertex();
-    ZonePoint zPoint = vertex.convertToZone(zoneRenderer);
+    ZonePoint zPoint = vertex.convertToZone(renderer);
     vertex.x = zPoint.x;
     vertex.y = zPoint.y;
     super.completeDrawable(aZoneId, aPen, aDrawable);
@@ -238,7 +238,7 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
           } // endif
           if (mouseSlopeGreater != lt.isMouseSlopeGreater()) {
             lt.setMouseSlopeGreater(mouseSlopeGreater);
-            zoneRenderer.repaint();
+            renderer.repaint();
           } // endif
         } // endif
       } // endif
@@ -246,7 +246,7 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
       handleControlOffset(e, pathVertex);
     } else {
       template.setRadius(getRadiusAtMouse(e));
-      zoneRenderer.repaint();
+      renderer.repaint();
       controlOffset = null;
       return;
     } // endif
@@ -259,7 +259,7 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
           : (dy < 0 ? Quadrant.NORTH_EAST : Quadrant.SOUTH_EAST);
       if (quadrant != lt.getQuadrant()) {
         lt.setQuadrant(quadrant);
-        zoneRenderer.repaint();
+        renderer.repaint();
       } // endif
     } // endif
   }

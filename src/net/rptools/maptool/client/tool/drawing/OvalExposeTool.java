@@ -29,7 +29,7 @@ public class OvalExposeTool extends OvalTool {
     // Override abstracttool to prevent color palette from
     // showing up
 	protected void attachTo(ZoneRenderer renderer) {
-		this.zoneRenderer = renderer;
+    	super.attachTo(renderer);
 	}
 
     @Override

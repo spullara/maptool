@@ -93,45 +93,39 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
         }
     }
 
-    public void mouseClicked(MouseEvent e) { }
-
     public void mousePressed(MouseEvent e) {
 
-    	ScreenPoint sp = getPoint(e);
-        
-        if (oval == null) {
-            oval = new Oval(sp.x, sp.y, sp.x, sp.y);
-        } else {
-            oval.getEndPoint().x = sp.x;
-            oval.getEndPoint().y = sp.y;
-            
-            ZonePoint startPoint = ZonePoint.fromScreenPoint(zoneRenderer, (int) oval.getStartPoint().getX(), (int) oval.getStartPoint().getY()); 
-            ZonePoint endPoint = ZonePoint.fromScreenPoint(zoneRenderer, (int) oval.getEndPoint().getX(), (int) oval.getEndPoint().getY());
-
-            oval.getStartPoint().setLocation(startPoint.x, startPoint.y);
-            oval.getEndPoint().setLocation(endPoint.x, endPoint.y);
-            
-            completeDrawable(zoneRenderer.getZone().getId(), getPen(), oval);
-            oval = null;
-        }
-
-    	setIsEraser(SwingUtilities.isRightMouseButton(e));
-    }
-
-    public void mouseReleased(MouseEvent e) { 
+    	if (SwingUtilities.isLeftMouseButton(e)) {
+	    	ScreenPoint sp = getPoint(e);
+	        
+	        if (oval == null) {
+	            oval = new Oval(sp.x, sp.y, sp.x, sp.y);
+	        } else {
+	            oval.getEndPoint().x = sp.x;
+	            oval.getEndPoint().y = sp.y;
+	            
+	            ZonePoint startPoint = ZonePoint.fromScreenPoint(renderer, (int) oval.getStartPoint().getX(), (int) oval.getStartPoint().getY()); 
+	            ZonePoint endPoint = ZonePoint.fromScreenPoint(renderer, (int) oval.getEndPoint().getX(), (int) oval.getEndPoint().getY());
+	
+	            oval.getStartPoint().setLocation(startPoint.x, startPoint.y);
+	            oval.getEndPoint().setLocation(endPoint.x, endPoint.y);
+	            
+	            completeDrawable(renderer.getZone().getId(), getPen(), oval);
+	            oval = null;
+	        }
+	
+	    	setIsEraser(SwingUtilities.isRightMouseButton(e));
+    	}
     	
+    	super.mousePressed(e);
     }
 
-    public void mouseEntered(MouseEvent e) { }
-
-    public void mouseExited(MouseEvent e) { }
-
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
-     */
+    @Override
     public void mouseDragged(MouseEvent e) {
-        // TODO Auto-generated method stub
-        
+    	
+    	if (oval == null) {
+    		super.mouseDragged(e);
+    	}
     }
 
     /* (non-Javadoc)
@@ -148,7 +142,7 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 	            oval.getEndPoint().y = sp.y;
 	        }
 	        
-	        zoneRenderer.repaint();
+	        renderer.repaint();
     	}
     }
     
@@ -159,6 +153,6 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
   protected void resetTool() {
 
     oval = null;
-    zoneRenderer.repaint();
+    renderer.repaint();
   }
 }

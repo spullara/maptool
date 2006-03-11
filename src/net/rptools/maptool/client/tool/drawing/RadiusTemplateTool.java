@@ -139,7 +139,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     if (!working.equals(point)) {
       point.x = working.x;
       point.y = working.y;
-      zoneRenderer.repaint();
+      renderer.repaint();
       return true;
     } // endif
     return false;
@@ -155,11 +155,11 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
   protected ScreenPoint getCellAtMouse(MouseEvent e) {
 
     // Find the upper left corner of the cell that the mouse is in.
-    ScreenPoint working = zoneRenderer.getCellAt(new ScreenPoint(e.getX(), e.getY())).convertToScreen(zoneRenderer);
+    ScreenPoint working = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY())).convertToScreen(renderer);
 
     // If the mouse is over half way to the next vertext, move it there
     // (both X & Y)
-    int grid = (int) (zoneRenderer.getZone().getGridSize() * zoneRenderer.getScale());
+    int grid = (int) (renderer.getZone().getGridSize() * renderer.getScale());
     if (e.getX() - working.x >= grid / 2)
       working.x += grid;
     if (e.getY() - working.y >= grid / 2)
@@ -175,8 +175,8 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    */
   protected int getRadiusAtMouse(MouseEvent e) {
     ScreenPoint working = getCellAtMouse(e);
-    CellPoint workingCell = zoneRenderer.getCellAt(working);
-    CellPoint vertexCell = zoneRenderer.getCellAt(template.getVertex());
+    CellPoint workingCell = renderer.getCellAt(working);
+    CellPoint vertexCell = renderer.getCellAt(template.getVertex());
     int x = Math.abs(workingCell.x - vertexCell.x);
     int y = Math.abs(workingCell.y - vertexCell.y);
     return AbstractTemplate.getDistance(x, y);
@@ -226,7 +226,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     if (template.getRadius() > 0) {
       ScreenPoint centerText = new ScreenPoint(p.x, p.y); // Must copy point
       centerText.translate(CURSOR_WIDTH, -CURSOR_WIDTH);
-      ToolHelper.drawMeasurement(g, template.getRadius() * zoneRenderer.getZone().getFeetPerCell(), centerText.x, centerText.y);
+      ToolHelper.drawMeasurement(g, template.getRadius() * renderer.getZone().getFeetPerCell(), centerText.x, centerText.y);
     } // endif
   }
 
@@ -237,7 +237,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @param pen Pen used to paint.
    */
   protected void paintTemplate(Graphics2D g, Pen pen) {
-    template.setScale(zoneRenderer.getScale());
+    template.setScale(renderer.getScale());
     template.draw(g, pen);
     template.setScale(1.0);
   }
@@ -256,9 +256,9 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     } // endif
     template = createBaseTemplate();
     template.setVertex(vertex);
-    template.setZoneId(zoneRenderer.getZone().getId());
+    template.setZoneId(renderer.getZone().getId());
     controlOffset = null;
-    zoneRenderer.repaint();
+    renderer.repaint();
   }
 
   /**
@@ -281,7 +281,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
       if (!working.equals(vertex)) {
         vertex.x = working.x;
         vertex.y = working.y;
-        zoneRenderer.repaint();
+        renderer.repaint();
       } // endif
     } // endif
   }
@@ -310,7 +310,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
       handleControlOffset(e, vertex);
     } else {
       template.setRadius(getRadiusAtMouse(e));
-      zoneRenderer.repaint();
+      renderer.repaint();
       controlOffset = null;  
     } // endif
   }
@@ -325,7 +325,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    */
   @Override
   public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
-    if (painting && zoneRenderer != null) {
+    if (painting && renderer != null) {
       Pen pen = getPenForOverlay();
       paintTemplate(g, pen);
       paintCursor(g, new Color(pen.getColor()), pen.getThickness(), template.getVertex());
@@ -426,10 +426,10 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     template.setRadius(getRadiusAtMouse(e));
     ScreenPoint vertex = template.getVertex();
     ScreenPoint newPoint = new ScreenPoint(vertex.x, vertex.y);
-    ZonePoint zPoint = vertex.convertToZone(zoneRenderer);
+    ZonePoint zPoint = vertex.convertToZone(renderer);
     vertex.x = zPoint.x;
     vertex.y = zPoint.y;
-    completeDrawable(zoneRenderer.getZone().getId(), getPen(), template);
+    completeDrawable(renderer.getZone().getId(), getPen(), template);
     setIsEraser(false);
     resetTool(newPoint);
   }
@@ -446,7 +446,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    */
   public void mouseEntered(MouseEvent e) {
     painting = true;
-    zoneRenderer.repaint();
+    renderer.repaint();
   }
 
   /**
@@ -454,6 +454,6 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    */
   public void mouseExited(MouseEvent e) {
     painting = false;
-    zoneRenderer.repaint();
+    renderer.repaint();
   }
 }

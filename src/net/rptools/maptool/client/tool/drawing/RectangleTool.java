@@ -94,41 +94,41 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
         }
     }
 
-    public void mouseClicked(MouseEvent e) { }
-
     public void mousePressed(MouseEvent e) {
 
     	ScreenPoint sp = getPoint(e);
     	
-        if (rectangle == null) {
-            rectangle = new Rectangle(sp.x, sp.y, sp.x, sp.y);
-        } else {
-            rectangle.getEndPoint().x = sp.x;
-            rectangle.getEndPoint().y = sp.y;
-            
-            ZonePoint startPoint = ZonePoint.fromScreenPoint(zoneRenderer, (int) rectangle.getStartPoint().getX(), (int) rectangle.getStartPoint().getY()); 
-            ZonePoint endPoint = ZonePoint.fromScreenPoint(zoneRenderer, (int) rectangle.getEndPoint().getX(), (int) rectangle.getEndPoint().getY());
-
-            rectangle.getStartPoint().setLocation(startPoint.x, startPoint.y);
-            rectangle.getEndPoint().setLocation(endPoint.x, endPoint.y);
-            
-            completeDrawable(zoneRenderer.getZone().getId(), getPen(), rectangle);
-            rectangle = null;
-        }
+    	if (SwingUtilities.isLeftMouseButton(e)) {
+	        if (rectangle == null) {
+	            rectangle = new Rectangle(sp.x, sp.y, sp.x, sp.y);
+	        } else {
+	            rectangle.getEndPoint().x = sp.x;
+	            rectangle.getEndPoint().y = sp.y;
+	            
+	            ZonePoint startPoint = ZonePoint.fromScreenPoint(renderer, (int) rectangle.getStartPoint().getX(), (int) rectangle.getStartPoint().getY()); 
+	            ZonePoint endPoint = ZonePoint.fromScreenPoint(renderer, (int) rectangle.getEndPoint().getX(), (int) rectangle.getEndPoint().getY());
+	
+	            rectangle.getStartPoint().setLocation(startPoint.x, startPoint.y);
+	            rectangle.getEndPoint().setLocation(endPoint.x, endPoint.y);
+	            
+	            completeDrawable(renderer.getZone().getId(), getPen(), rectangle);
+	            rectangle = null;
+	        }
         
-        setIsEraser(SwingUtilities.isRightMouseButton(e));
-    }
-
-    public void mouseReleased(MouseEvent e) { 
+	        setIsEraser(SwingUtilities.isRightMouseButton(e));
+    	}
     	
+    	super.mousePressed(e);
     }
 
-    public void mouseEntered(MouseEvent e) { }
-
-    public void mouseExited(MouseEvent e) { }
-
-    public void mouseDragged(MouseEvent e) { }
-
+    @Override
+    public void mouseDragged(MouseEvent e) {
+    	
+    	if (rectangle == null) {
+    		super.mouseDragged(e);
+    	}
+    }
+    
     public void mouseMoved(MouseEvent e) {
 
     	ScreenPoint p = getPoint(e);
@@ -139,7 +139,7 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 	            rectangle.getEndPoint().y = p.y;
 	        }
 	        
-	        zoneRenderer.repaint();
+	        renderer.repaint();
     	}
     }
 
@@ -148,6 +148,6 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
    */
   public void resetTool() {
     rectangle = null;
-    zoneRenderer.repaint();
+    renderer.repaint();
   }
 }

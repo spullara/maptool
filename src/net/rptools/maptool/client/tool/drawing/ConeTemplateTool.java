@@ -111,7 +111,7 @@ public class ConeTemplateTool extends RadiusTemplateTool {
       template.setRadius(getRadiusAtMouse(e));
       ScreenPoint vertex = template.getVertex();
       ((ConeTemplate) template).setDirection(RadiusTemplate.Direction.findDirection(e.getX(), e.getY(), vertex.x, vertex.y));
-      zoneRenderer.repaint();
+      renderer.repaint();
       controlOffset = null;
     } // endif
   }

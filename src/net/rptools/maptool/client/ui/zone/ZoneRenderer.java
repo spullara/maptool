@@ -909,13 +909,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		return null;
 	}
 
-	public Rectangle getTokenStackAt (int x, int y) {
+	public List<Token> getTokenStackAt (int x, int y) {
 		
 		List<Rectangle> stackList = new ArrayList<Rectangle>();
 		stackList.addAll(coveredTokenSet);
 		for (Rectangle bounds : stackList) {
 			if (bounds.contains(x, y)) {
-				return bounds;
+
+				List<Token> tokenList = new ArrayList<Token>();
+				for (TokenLocation location : tokenLocationList) {
+					if (location.bounds.intersects(bounds)) {
+						tokenList.add(location.token);
+					}
+				}
+				
+				return tokenList;
 			}
 		}
 		
@@ -991,6 +999,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	return getScale() * zone.getGridSize();
     }
 	
+    /**
+     * Mechanism to broadcast the event directly to the component.  I think there's a better
+     * way to do this, but I can't find it atm, so if any of you readers know, please tell me
+     * @param event
+     */
+    public void rebroadcastMouseMotionEvent(MouseEvent event) {
+    
+    	processMouseMotionEvent(event);
+    }
+    
 	/**
 	 * Represents a movement set
 	 */

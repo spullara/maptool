@@ -43,12 +43,13 @@ import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Label;
 
 /**
  */
-public class TextTool extends DefaultTool {
+public class TextTool extends DefaultTool implements ZoneOverlay {
 
 	private Label selectedLabel;
 	
@@ -70,7 +71,6 @@ public class TextTool extends DefaultTool {
     	return "tool.label.instructions";
     }
     
-    @Override
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
     	
     	if (selectedLabel != null) {

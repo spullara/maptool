@@ -89,6 +89,10 @@ public class GlassPane extends JPanel {
 		setOpaque(modal);
 
 		super.setVisible(aFlag);
+		
+		if (getComponents().length > 0) {
+			getComponents()[0].requestFocus();
+		}
 	}
 
 	@Override

@@ -35,6 +35,7 @@ import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarEuclideanWalker;
@@ -43,7 +44,7 @@ import net.rptools.maptool.util.GraphicsUtil;
 
 /**
  */
-public class MeasureTool extends DefaultTool {
+public class MeasureTool extends DefaultTool implements ZoneOverlay {
 
 	private ZoneWalker walker;
 	
@@ -65,7 +66,6 @@ public class MeasureTool extends DefaultTool {
     	return "tool.measure.instructions";
     }
     
-    @Override
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
         
         if (walker == null) {

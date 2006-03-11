@@ -31,6 +31,8 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
+import net.rptools.lib.swing.SwingUtil;
+
 /**
  * Tool for drawing freehand lines.
  */
@@ -60,27 +62,29 @@ public class FreehandTool extends AbstractLineTool implements MouseMotionListene
     
     ////
     // MOUSE LISTENER
-    public void mouseClicked(java.awt.event.MouseEvent e) {}
-    
-    public void mouseEntered(java.awt.event.MouseEvent e){}
-    
-    public void mouseExited(java.awt.event.MouseEvent e){}
-    
     public void mousePressed(java.awt.event.MouseEvent e){
-        startLine(e);
-        
-    	setIsEraser(SwingUtilities.isRightMouseButton(e));
+    	
+    	if (SwingUtilities.isLeftMouseButton(e)) {
+    		startLine(e);
+        	setIsEraser(SwingUtil.isShiftDown(e));
+    	}
+    	
+    	super.mousePressed(e);
     }
     
     public void mouseReleased(java.awt.event.MouseEvent e){
-        stopLine(e);
+    	if (SwingUtilities.isLeftMouseButton(e)) {
+    		stopLine(e);
+    	}
+    	
+        super.mouseReleased(e);
     }
     
     ////
     // MOUSE MOTION LISTENER
     public void mouseDragged(java.awt.event.MouseEvent e){
         addPoint(e);
+        super.mouseDragged(e);
     }
     
-    public void mouseMoved(java.awt.event.MouseEvent e){}
 }

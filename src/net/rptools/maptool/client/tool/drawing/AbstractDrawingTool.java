@@ -32,6 +32,7 @@ import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.tool.DefaultTool;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -44,19 +45,18 @@ import net.rptools.maptool.model.drawing.Pen;
 /**
  * Tool for drawing freehand lines.
  */
-public abstract class AbstractDrawingTool extends Tool implements MouseListener, ZoneOverlay {
-    protected ZoneRenderer zoneRenderer;
+public abstract class AbstractDrawingTool extends DefaultTool implements MouseListener, ZoneOverlay {
     
     private boolean isEraser;
 
 	protected void attachTo(ZoneRenderer renderer) {
-		this.zoneRenderer = renderer;
 		MapTool.getFrame().getColorPicker().setVisible(true);
+		super.attachTo(renderer);
 	}
 
 	protected void detachFrom(ZoneRenderer renderer) {
-		zoneRenderer = null;
 		MapTool.getFrame().getColorPicker().setVisible(false);
+		super.detachFrom(renderer);
 	}
     
     protected void setIsEraser(boolean eraser) {
@@ -80,10 +80,10 @@ public abstract class AbstractDrawingTool extends Tool implements MouseListener,
     protected ScreenPoint getPoint(MouseEvent e) {
     	
     	ScreenPoint sp = new ScreenPoint(e.getX(), e.getY());
-    	if (SwingUtil.isShiftDown(e)) {
-	    	ZonePoint zp = ZonePoint.fromScreenPoint(zoneRenderer, e.getX(), e.getY());
-	    	zp = zoneRenderer.getZone().getNearestVertex(zp);
-	    	sp = zp.convertToScreen(zoneRenderer);
+    	if (SwingUtil.isControlDown(e)) {
+	    	ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
+	    	zp = renderer.getZone().getNearestVertex(zp);
+	    	sp = zp.convertToScreen(renderer);
     	}
 
     	return sp;

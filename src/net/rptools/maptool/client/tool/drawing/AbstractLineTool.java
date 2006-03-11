@@ -75,14 +75,12 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
         if (line == null) return null; // Escape has been pressed
         Point ret = new Point(sp.x, sp.y);
     	
-        //if (sp.x != currentX || sp.y != currentY) {
 
-            line.getPoints().add(ret);
-            currentX = sp.x;
-            currentY = sp.y;
-        //}
-        
-        zoneRenderer.repaint();
+        line.getPoints().add(ret);
+        currentX = sp.x;
+        currentY = sp.y;
+    
+        renderer.repaint();
         
         return ret;
     }
@@ -103,13 +101,13 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
         
         for (Point p : line.getPoints()) {
 
-            ZonePoint zPoint = ZonePoint.fromScreenPoint(zoneRenderer, p.x, p.y); 
+            ZonePoint zPoint = ZonePoint.fromScreenPoint(renderer, p.x, p.y); 
 
             p.x = zPoint.x;
             p.y = zPoint.y;
         }
         
-        completeDrawable(zoneRenderer.getZone().getId(), getPen(), line);
+        completeDrawable(renderer.getZone().getId(), getPen(), line);
         
         line = null;
         currentX = -1;
@@ -147,6 +145,6 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
     line = null;
     currentX = -1;
     currentY = -1;
-    zoneRenderer.repaint();
+    renderer.repaint();
   }
 }

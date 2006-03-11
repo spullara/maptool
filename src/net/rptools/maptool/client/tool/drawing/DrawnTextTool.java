@@ -146,9 +146,9 @@ public class DrawnTextTool extends AbstractDrawingTool implements MouseMotionLis
   protected void resetTool() {
     anchorSet = false;
     if (textPane != null)
-      zoneRenderer.remove(textPane);
+    	renderer.remove(textPane);
     textPane = null;
-    zoneRenderer.repaint();
+    renderer.repaint();
   }
 
   /*---------------------------------------------------------------------------------------------
@@ -175,7 +175,7 @@ public class DrawnTextTool extends AbstractDrawingTool implements MouseMotionLis
       
       // Create a text component and place it on the renderer's component
       textPane = createTextPane(bounds, getPen(), "sanserif-BOLD-20");
-      zoneRenderer.add(textPane);
+      renderer.add(textPane);
       textPane.requestFocusInWindow();
       
       // Make the enter key addthe text
@@ -224,7 +224,7 @@ public class DrawnTextTool extends AbstractDrawingTool implements MouseMotionLis
     if (!anchorSet) return;
     if (textPane != null) return;
     setBounds(event);
-    zoneRenderer.repaint();
+    renderer.repaint();
   }
   
   /**
@@ -274,7 +274,7 @@ public class DrawnTextTool extends AbstractDrawingTool implements MouseMotionLis
     textPane = null;
     
     // Tell everybody else
-    completeDrawable(zoneRenderer.getZone().getId(), getPen(), label); 
+    completeDrawable(renderer.getZone().getId(), getPen(), label); 
     resetTool();
   }
   
