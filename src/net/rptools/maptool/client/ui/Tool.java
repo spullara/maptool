@@ -49,6 +49,7 @@ import net.rptools.maptool.language.I18N;
  */
 public abstract class Tool extends JToggleButton implements ChangeListener, ActionListener {
 
+	private Toolbox toolbox;
 	private EscapeAction escapeAction = new EscapeAction();
     public static final String RESET_TOOL_COMMAND = "resetTool";
   
@@ -63,6 +64,10 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
         setToolTipText(I18N.getText(getTooltip()));
     }
 
+    void setToolbox(Toolbox toolbox) {
+    	this.toolbox = toolbox;
+    }
+    
     public abstract String getTooltip();
     public abstract String getInstructions();
     
@@ -182,7 +187,7 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
     public void stateChanged(ChangeEvent e) {
 
         if (isSelected()) {
-            Toolbox.setSelectedTool(Tool.this);
+            toolbox.setSelectedTool(Tool.this);
         }
     }
     

@@ -142,9 +142,14 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
    */
   @Override
   protected void resetTool() {
-    line = null;
-    currentX = -1;
-    currentY = -1;
-    renderer.repaint();
+	  
+	  if (line != null) {
+	    line = null;
+	    currentX = -1;
+	    currentY = -1;
+	    renderer.repaint();
+	  } else {
+		  super.resetTool();
+	  }
   }
 }

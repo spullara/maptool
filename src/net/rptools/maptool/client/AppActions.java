@@ -497,7 +497,7 @@ public class AppActions {
 				return;
 			}
 
-			Toolbox.setSelectedTool(new GridTool());
+			MapTool.getFrame().getToolbox().setSelectedTool(new GridTool());
 		}
 
 	};

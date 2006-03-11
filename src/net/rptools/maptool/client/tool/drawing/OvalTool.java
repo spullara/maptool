@@ -152,7 +152,11 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
   @Override
   protected void resetTool() {
 
-    oval = null;
-    renderer.repaint();
+	  if (oval != null) {
+	    oval = null;
+	    renderer.repaint();
+	  } else {
+		  super.resetTool();
+	  }
   }
 }

@@ -60,6 +60,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 
     protected ZoneRenderer renderer;
     
+    
     @Override
     protected void attachTo(ZoneRenderer renderer) {
     	this.renderer = renderer;
@@ -203,7 +204,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 
   @Override
   protected void resetTool() {
-    // TODO: set back to the pointer tool
+	  MapTool.getFrame().getToolbox().setSelectedTool(PointerTool.class);
   }
   
 }

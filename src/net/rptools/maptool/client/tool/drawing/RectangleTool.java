@@ -147,7 +147,11 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
    * Stop drawing a rectangle and repaint the zone.
    */
   public void resetTool() {
-    rectangle = null;
-    renderer.repaint();
+	  if (rectangle != null) {
+	    rectangle = null;
+	    renderer.repaint();
+	  } else {
+		  super.resetTool();
+	  }
   }
 }

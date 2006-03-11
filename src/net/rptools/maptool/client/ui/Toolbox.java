@@ -24,6 +24,12 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.ButtonGroup;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.MapTool;
@@ -36,11 +42,49 @@ import net.rptools.maptool.language.I18N;
  */
 public class Toolbox {
 
-	private static ZoneRenderer currentRenderer;
+	private ZoneRenderer currentRenderer;
 
-	private static Tool currentTool;
+	private Tool currentTool;
 	
-	public static void setTargetRenderer(ZoneRenderer renderer) {
+	private Map<Class, Tool> toolMap = new HashMap<Class, Tool>();
+	
+	private ButtonGroup buttonGroup = new ButtonGroup();
+	
+	public void setSelectedTool(Class toolClass) {
+		Tool tool = toolMap.get(toolClass);
+		if (tool != null) {
+			tool.setSelected(true);
+		}
+	}
+	
+	public Tool createTool(Class toolClass) {
+		
+		Tool tool;
+		try {
+			Constructor constructor = toolClass.getDeclaredConstructor(new Class[]{});
+			tool = (Tool) constructor.newInstance(new Object[]{});
+			
+			buttonGroup.add(tool);
+			toolMap.put(toolClass, tool);
+			tool.setToolbox(this);
+		} catch (InstantiationException e) {
+			MapTool.showError("Could not instantiate tool class: " + toolClass);
+			return null;
+		} catch (IllegalAccessException e) {
+			MapTool.showError("Constructor must be public for tool: " + toolClass);
+			return null;
+		} catch (NoSuchMethodException nsme) {
+			MapTool.showError("Constructor must have a public constructor with a Toolbox argument for tool: " + toolClass);
+			return null;
+		} catch (InvocationTargetException ite) {
+			MapTool.showError("Failed in constructor of tool: " + toolClass + " - " + ite);
+			return null;
+		}
+		
+		return tool;
+	}
+	
+	public void setTargetRenderer(ZoneRenderer renderer) {
 		
 		if (currentRenderer != null && currentTool != null) {
 			currentTool.removeListeners(currentRenderer);
@@ -68,7 +112,7 @@ public class Toolbox {
 		
 	}
 	
-	public static void setSelectedTool(final Tool tool) {
+	public void setSelectedTool(final Tool tool) {
 
 		if (tool == currentTool) {
 			return;

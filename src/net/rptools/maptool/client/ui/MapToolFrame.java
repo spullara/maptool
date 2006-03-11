@@ -143,7 +143,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
     private AboutDialog aboutDialog;
     private ColorPicker colorPicker;
     private NewMapDialog newMapDialog;
-    
+    private Toolbox toolbox;
     private ZoneSelectionPanel zoneSelectionPanel;
     private JPanel zoneRendererPanel;
     
@@ -183,6 +183,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         tokenPanel = new TokenPanel();
         taskPanel = new TaskPanelGroup(5);
         new TaskPanelGroupPreferences(AppConstants.APP_NAME, "TaskPanel", taskPanel);
+        toolbox = new Toolbox();
         
         zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
         pointerOverlay = new PointerOverlay();
@@ -528,64 +529,33 @@ public class MapToolFrame extends JFrame implements WindowListener {
         toolbar.setRollover(true);
 
         // Tools
-        Tool pointerTool = new PointerTool();
-        Tool measureTool = new MeasureTool();
-        Tool freehandTool = new FreehandTool();
-        Tool lineTool = new LineTool();
-        Tool rectTool = new RectangleTool();
-        Tool ovalTool = new OvalTool();
-        //Tool textTool = new DrawnTextTool();
-        Tool textTool = new TextTool();
-        Tool fogRectTool = new RectangleExposeTool();
-        Tool fogOvalTool = new OvalExposeTool();
-        Tool fogPolyTool = new PolygonExposeTool();
-        Tool polyTool = new PolygonTool();
-        Tool radiusTemplateTool = new RadiusTemplateTool();
-        Tool coneTemplateTool = new ConeTemplateTool();
-        Tool lineTemplateTool = new LineTemplateTool();
+        toolbar.add(toolbox.createTool(PointerTool.class));
+        toolbar.add(toolbox.createTool(MeasureTool.class));
         
-        ButtonGroup group = new ButtonGroup();
-        group.add(pointerTool);
-        group.add(measureTool);
-        group.add(freehandTool);
-        group.add(lineTool);
-        group.add(rectTool);
-        group.add(ovalTool);
-        group.add(polyTool);
-        group.add(textTool);
-        group.add(fogRectTool);
-        group.add(fogOvalTool);
-        group.add(fogPolyTool);
-        group.add(radiusTemplateTool);
-        group.add(coneTemplateTool);
-        group.add(lineTemplateTool);
+        toolbar.add(Box.createHorizontalStrut(15));
+        
+        toolbar.add(toolbox.createTool(FreehandTool.class));
+        toolbar.add(toolbox.createTool(LineTool.class));
+        toolbar.add(toolbox.createTool(RectangleTool.class));
+        toolbar.add(toolbox.createTool(OvalTool.class));
+        //Tool textTool = new DrawnTextTool();
+        toolbar.add(toolbox.createTool(TextTool.class));
+        toolbar.add(toolbox.createTool(RadiusTemplateTool.class));
+        toolbar.add(toolbox.createTool(ConeTemplateTool.class));
+        toolbar.add(toolbox.createTool(LineTemplateTool.class));
+        
+        toolbar.add(Box.createHorizontalStrut(15));
+        
+        toolbar.add(toolbox.createTool(RectangleExposeTool.class));
+        toolbar.add(toolbox.createTool(OvalExposeTool.class));
+        toolbar.add(toolbox.createTool(PolygonExposeTool.class));
+        
+        toolbar.add(Box.createHorizontalStrut(15));
 
         // Initialy selected
-        pointerTool.setSelected(true);
+        toolbox.setSelectedTool(PointerTool.class);
         
         // Organize
-        toolbar.add(pointerTool);
-        toolbar.add(measureTool);
-
-        toolbar.add(Box.createHorizontalStrut(15));
-        
-        toolbar.add(freehandTool);
-        toolbar.add(lineTool);
-        toolbar.add(polyTool);
-        toolbar.add(rectTool);
-        toolbar.add(ovalTool);
-        toolbar.add(textTool);
-        toolbar.add(radiusTemplateTool);
-        toolbar.add(coneTemplateTool);
-        toolbar.add(lineTemplateTool);
-
-        toolbar.add(Box.createHorizontalStrut(15));
-        
-        toolbar.add(fogRectTool);
-        toolbar.add(fogOvalTool);
-        toolbar.add(fogPolyTool);
-        
-        toolbar.add(Box.createHorizontalStrut(15));
 
         toolbar.add(widthChooser);
 
@@ -667,7 +637,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         }
         
 		currentRenderer = renderer;
-		Toolbox.setTargetRenderer(renderer);
+		toolbox.setTargetRenderer(renderer);
 
         tokenPanel.setZoneRenderer(renderer);
         
@@ -677,6 +647,10 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		
 		AppActions.updateActions();
 		repaint();
+	}
+	
+	public Toolbox getToolbox() {
+		return toolbox;
 	}
 	
 	public ZoneRenderer getZoneRenderer(Zone zone) {
