@@ -295,7 +295,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			x = p.x - StackSummaryPanel.PADDING - summaryPanel.getPreferredSize().width/2 + gridSize/2;
 			y = p.y - StackSummaryPanel.PADDING;
 			
-			MapTool.getFrame().showNonModalGlassPane(summaryPanel, x, y);
+			//MapTool.getFrame().showNonModalGlassPane(summaryPanel, x, y);
 		}
 	}
 	
