@@ -157,9 +157,9 @@ public class StackSummaryPanel extends JComponent implements FocusListener, Mous
 				renderer.selectToken(location.token.getId());
 				MapTool.getFrame().hideGlassPane();
 				
-				SwingUtilities.convertMouseEvent(this, e, renderer);
-				
-				renderer.rebroadcastMouseMotionEvent(e);
+//				SwingUtilities.convertMouseEvent(this, e, renderer);
+//				
+//				renderer.rebroadcastMouseMotionEvent(e);
 				return;
 			}
 		}
