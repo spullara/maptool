@@ -26,6 +26,7 @@ package net.rptools.maptool.client.ui.tokenpanel;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
@@ -36,6 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
@@ -69,23 +71,39 @@ public class TokenPanel extends JPanel implements ModelChangeListener {
                 }
                 if (SwingUtilities.isRightMouseButton(e)) {
                 	
-                	Token firstToken = null;
-                	Set<GUID> selectedTokenSet = new HashSet<GUID>();
-                	for (int index : tokenList.getSelectedIndices()) {
+                	int itemUnderMouse = tokenList.locationToIndex(new Point(e.getX(), e.getY()));
+                	if (!tokenList.isSelectedIndex(itemUnderMouse)) {
+                		if (!SwingUtil.isShiftDown(e)) {
+                			tokenList.clearSelection();
+                		}
+            			tokenList.addSelectionInterval(itemUnderMouse, itemUnderMouse);
+                	}
 
-                		Token token = (Token) tokenList.getModel().getElementAt(index);
-                		if (firstToken == null) {
-                			firstToken = token;
+
+                	final int x = e.getX();
+                	final int y = e.getY();
+                	EventQueue.invokeLater(new Runnable() {
+                		public void run() {
+                			
+                        	Token firstToken = null;
+                        	Set<GUID> selectedTokenSet = new HashSet<GUID>();
+                        	for (int index : tokenList.getSelectedIndices()) {
+
+                        		Token token = (Token) tokenList.getModel().getElementAt(index);
+                        		if (firstToken == null) {
+                        			firstToken = token;
+                        		}
+                        		
+                        		if (AppUtil.playerOwnsToken(token)) {
+                        			selectedTokenSet.add(token.getId());
+                        		}
+                        	}
+                        	if (selectedTokenSet.size() > 0) {
+                        		
+                        		new TokenPopupMenu(selectedTokenSet, x, y, currentZoneRenderer, firstToken).showPopup(tokenList);
+                        	}
                 		}
-                		
-                		if (AppUtil.playerOwnsToken(token)) {
-                			selectedTokenSet.add(token.getId());
-                		}
-                	}
-                	if (selectedTokenSet.size() > 0) {
-                		
-                		new TokenPopupMenu(selectedTokenSet, e, currentZoneRenderer, firstToken).showPopup(tokenList);
-                	}
+                	});
                 }
             }
         });
