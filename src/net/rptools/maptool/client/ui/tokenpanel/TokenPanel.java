@@ -28,13 +28,21 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
+import net.rptools.maptool.client.AppUtil;
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.ui.TokenPopupMenu;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Token;
@@ -52,12 +60,32 @@ public class TokenPanel extends JPanel implements ModelChangeListener {
         tokenList.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 // TODO: make this not an aic
-                if (e.getClickCount() == 2) {
+                if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
                     
                     Token token = (Token) tokenList.getSelectedValue();
                     currentZoneRenderer.centerOn(new ZonePoint(token.getX(), token.getY()));
                     currentZoneRenderer.clearSelectedTokens();
                     currentZoneRenderer.selectToken(token.getId());
+                }
+                if (SwingUtilities.isRightMouseButton(e)) {
+                	
+                	Token firstToken = null;
+                	Set<GUID> selectedTokenSet = new HashSet<GUID>();
+                	for (int index : tokenList.getSelectedIndices()) {
+
+                		Token token = (Token) tokenList.getModel().getElementAt(index);
+                		if (firstToken == null) {
+                			firstToken = token;
+                		}
+                		
+                		if (AppUtil.playerOwnsToken(token)) {
+                			selectedTokenSet.add(token.getId());
+                		}
+                	}
+                	if (selectedTokenSet.size() > 0) {
+                		
+                		new TokenPopupMenu(selectedTokenSet, e, currentZoneRenderer, firstToken).showPopup(tokenList);
+                	}
                 }
             }
         });

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -29,15 +30,17 @@ public class TokenPopupMenu extends JPopupMenu {
 	
 	private ZoneRenderer renderer;
 	int x, y;
+	Set<GUID> selectedTokenSet;
 	
-	public TokenPopupMenu(MouseEvent e, ZoneRenderer renderer, Token tokenUnderMouse) {
+	public TokenPopupMenu(Set<GUID> selectedTokenSet, MouseEvent e, ZoneRenderer renderer, Token tokenUnderMouse) {
 		this.renderer = renderer;
 		this.x = e.getX();
 		this.y = e.getY();
+		this.selectedTokenSet = selectedTokenSet;
 
     	boolean enabled = true;
     	if (!MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
-    		for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
+    		for (GUID tokenGUID : selectedTokenSet) {
     			Token token = renderer.getZone().getToken(tokenGUID);
     			
     			if (!token.isOwner(MapTool.getPlayer().getName())) {
@@ -83,7 +86,7 @@ public class TokenPopupMenu extends JPopupMenu {
         // TODO: Make this an action, not aic
     	JMenuItem renameMenuItem = new JMenuItem("Rename");
     	renameMenuItem.setEnabled(enabled);
-        if (renderer.getSelectedTokenSet().size() == 1) {
+        if (selectedTokenSet.size() == 1) {
 
         	renameMenuItem.addActionListener(new RenameAction());
         }
@@ -113,8 +116,6 @@ public class TokenPopupMenu extends JPopupMenu {
         ownerMenu.setEnabled(enabled);
         if (MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
 	        
-        	final Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
-        	
 	        JCheckBoxMenuItem allMenuItem = new JCheckBoxMenuItem("All");
 	        allMenuItem.addActionListener(new AllOwnershipAction());
 	        ownerMenu.add(allMenuItem);
@@ -170,8 +171,8 @@ public class TokenPopupMenu extends JPopupMenu {
         
 	}
 	
-	public void showPopup() {
-		show(renderer, x, y);
+	public void showPopup(JComponent component) {
+		show(component, x, y);
 	}
 
 	private static class PlayerOwnershipMenu extends JCheckBoxMenuItem implements ActionListener {
@@ -237,7 +238,7 @@ public class TokenPopupMenu extends JPopupMenu {
 		
 		public void actionPerformed(ActionEvent e) {
 			
-			for (GUID guid : renderer.getSelectedTokenSet()) {
+			for (GUID guid : selectedTokenSet) {
 				
 				Token token = renderer.getZone().getToken(guid);
 				if (token == null) {
@@ -256,7 +257,7 @@ public class TokenPopupMenu extends JPopupMenu {
    * @author jgorrell
    * @version $Revision: 1882 $ $Date: 2006-03-08 17:15:47 -0600 (Wed, 08 Mar 2006) $ $Author: tcroft $
    */
-  private static class ChangeStateAction extends AbstractAction {
+  private class ChangeStateAction extends AbstractAction {
 
     /**
      * Initialize a state action for a given state.
@@ -291,7 +292,7 @@ public class TokenPopupMenu extends JPopupMenu {
      */
     public void actionPerformed(ActionEvent aE) {
       ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-      for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
+      for (GUID tokenGUID : selectedTokenSet) {
         
         Token token = renderer.getZone().getToken(tokenGUID);
         if (aE.getActionCommand().equals("clear")) {
@@ -327,7 +328,7 @@ public class TokenPopupMenu extends JPopupMenu {
 		public void actionPerformed(ActionEvent e) {
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-			for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
+			for (GUID tokenGUID : selectedTokenSet) {
 				
 				Token token = renderer.getZone().getToken(tokenGUID);
 				token.setSize(size.value());
@@ -343,7 +344,7 @@ public class TokenPopupMenu extends JPopupMenu {
 		
     	public void actionPerformed(ActionEvent e) {
 
-    		for (GUID guid : renderer.getSelectedTokenSet()) {
+    		for (GUID guid : selectedTokenSet) {
     			
     			Token token = renderer.getZone().getToken(guid);
     			if (token == null) {
@@ -364,7 +365,7 @@ public class TokenPopupMenu extends JPopupMenu {
 		
     	public void actionPerformed(ActionEvent e) {
     		
-        	Token token = renderer.getZone().getToken(renderer.getSelectedTokenSet().iterator().next());
+        	Token token = renderer.getZone().getToken(selectedTokenSet.iterator().next());
         	
         	String newName = (String)JOptionPane.showInputDialog(renderer, "Pick a new name for this token", "Rename Token", JOptionPane.QUESTION_MESSAGE, null, null, token.getName());
         	if (newName == null || newName.length() == 0) {
@@ -381,7 +382,7 @@ public class TokenPopupMenu extends JPopupMenu {
 		
         public void actionPerformed(ActionEvent e) {
 
-    		MapTool.serverCommand().bringTokensToFront(renderer.getZone().getId(), renderer.getSelectedTokenSet());
+    		MapTool.serverCommand().bringTokensToFront(renderer.getZone().getId(), selectedTokenSet);
         	
         	MapTool.getFrame().repaint();
         }
@@ -391,7 +392,7 @@ public class TokenPopupMenu extends JPopupMenu {
 		
         public void actionPerformed(ActionEvent e) {
 
-    		MapTool.serverCommand().sendTokensToBack(renderer.getZone().getId(), renderer.getSelectedTokenSet());
+    		MapTool.serverCommand().sendTokensToBack(renderer.getZone().getId(), selectedTokenSet);
 
         	MapTool.getFrame().repaint();
         }
@@ -400,7 +401,7 @@ public class TokenPopupMenu extends JPopupMenu {
 	private class AllOwnershipAction extends AbstractAction {
 		
     	public void actionPerformed(ActionEvent e) {
-        	for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
+        	for (GUID tokenGUID : selectedTokenSet) {
         		Token token = renderer.getZone().getToken(tokenGUID);
         		if (token != null) {
         			token.setAllOwners();
@@ -413,7 +414,7 @@ public class TokenPopupMenu extends JPopupMenu {
     private class RemoveAllOwnershipAction extends AbstractAction {
     	
     	public void actionPerformed(ActionEvent e) {
-        	for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
+        	for (GUID tokenGUID : selectedTokenSet) {
         		Token token = renderer.getZone().getToken(tokenGUID);
         		if (token != null) {
         			token.clearAllOwners();
