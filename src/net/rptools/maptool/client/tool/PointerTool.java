@@ -222,7 +222,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	        	
 	        	if (tokenUnderMouse != null && renderer.getSelectedTokenSet().size() > 0) {
 	        		
-	        		new TokenPopupMenu(renderer.getSelectedTokenSet(), e, renderer, tokenUnderMouse).showPopup(renderer);
+	        		new TokenPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
 	        	}
 	        }
 	

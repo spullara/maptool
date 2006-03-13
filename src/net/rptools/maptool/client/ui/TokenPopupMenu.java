@@ -32,10 +32,10 @@ public class TokenPopupMenu extends JPopupMenu {
 	int x, y;
 	Set<GUID> selectedTokenSet;
 	
-	public TokenPopupMenu(Set<GUID> selectedTokenSet, MouseEvent e, ZoneRenderer renderer, Token tokenUnderMouse) {
+	public TokenPopupMenu(Set<GUID> selectedTokenSet, int x, int y, ZoneRenderer renderer, Token tokenUnderMouse) {
 		this.renderer = renderer;
-		this.x = e.getX();
-		this.y = e.getY();
+		this.x = x;
+		this.y = y;
 		this.selectedTokenSet = selectedTokenSet;
 
     	boolean enabled = true;
