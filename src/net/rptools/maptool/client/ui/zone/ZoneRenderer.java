@@ -610,14 +610,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		// JOINTS
 		List<CellPoint> path = walker.getPath();
 		for (CellPoint p : path) {
-			
+
 			highlightCell(g, p, AppStyle.cellPathImage, 1.0f);
 			if (walker.isWaypoint(p) && previousPoint != null) {
 				highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
 			}
 			previousPoint = p;
 		}
-
+		
 		previousPoint = null;
 		for (CellPoint p : path) {
 
@@ -649,10 +649,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		
 		// Top left of cell
 		int imgSize = (int)(gridSize * size);
-		ScreenPoint p = ScreenPoint.fromZonePoint(this, point.x*zone.getGridSize()+zone.getGridOffsetX(), point.y*zone.getGridSize() + zone.getGridOffsetY());
+		ScreenPoint sp = point.convertToScreen(this);
 
 		//g.drawImage(image, p.x+imgSize/2, p.y+imgSize/2, imgSize, imgSize, this);
-		g.drawImage(image, p.x + (int)((gridSize - imgSize)/2), p.y + (int)((gridSize-imgSize)/2), imgSize, imgSize, this);
+		g.drawImage(image, sp.x + (int)((gridSize - imgSize)/2), sp.y + (int)((gridSize-imgSize)/2), imgSize, imgSize, this);
 	}
 	
     protected void renderTokens(Graphics2D g) {
@@ -1059,6 +1059,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             offsetY = y;
             
 			CellPoint point = new ZonePoint(token.getX()+x, token.getY()+y).convertToCell(ZoneRenderer.this);
+
 			walker.replaceLastWaypoint(point);
             
 		}
@@ -1144,18 +1145,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     		ZonePoint zp = ZonePoint.fromScreenPoint(this, (int)dtde.getLocation().getX(), (int)dtde.getLocation().getY());
 
 	        if (token.isSnapToGrid()) {
-	    		int hwidth = TokenSize.getWidth(token, zone.getGridSize())/2 * (zp.x > 0 ? 1 : -1);
-		        int hheight = TokenSize.getHeight(token, zone.getGridSize())/2 * (zp.y > 0 ? 1 : -1);
-		        
-		        zp.translate(hwidth, hheight);
-
-	        	CellPoint cp = zp.convertToCell(this);
-		        token.setX(cp.x * zone.getGridSize());
-		        token.setY(cp.y * zone.getGridSize());
-	        } else {
-	        	token.setX(zp.x);
-	        	token.setY(zp.y);
+	        	zp = zp.convertToCell(this).convertToZone(this);
 	        }
+
+	        token.setX(zp.x);
+        	token.setY(zp.y);
 
 	        if (AppState.isDropTokenAsInvisible()) {
 	        	token.setVisible(false);
