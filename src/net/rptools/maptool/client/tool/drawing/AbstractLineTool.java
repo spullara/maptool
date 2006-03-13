@@ -27,6 +27,7 @@ package net.rptools.maptool.client.tool.drawing;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collections;
@@ -36,8 +37,10 @@ import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
+import net.rptools.maptool.model.drawing.ShapeDrawable;
 
 
 /**
@@ -107,14 +110,28 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
             p.y = zPoint.y;
         }
         
-        completeDrawable(renderer.getZone().getId(), getPen(), line);
+        Drawable drawable = line;
+        if (isFill(e)) {
+        	drawable = new ShapeDrawable(getPolygon(line));
+        }
+
+        completeDrawable(renderer.getZone().getId(), getPen(), drawable);
         
         line = null;
         currentX = -1;
         currentY = -1;
     }
     
-	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
+    protected Polygon getPolygon(LineSegment line) {
+        Polygon polygon = new Polygon();
+        for (Point point : line.getPoints()) {
+            polygon.addPoint(point.x, point.y);
+        }
+        
+        return polygon;
+    }
+
+    public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 		if (line != null) {
             Pen pen = getPen();
             pen.setThickness((float)(pen.getThickness() * renderer.getScale()));

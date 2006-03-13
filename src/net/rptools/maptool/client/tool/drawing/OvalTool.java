@@ -114,7 +114,7 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 	            oval = null;
 	        }
 	
-	    	setIsEraser(SwingUtilities.isRightMouseButton(e));
+	    	setIsEraser(isEraser(e));
     	}
     	
     	super.mousePressed(e);

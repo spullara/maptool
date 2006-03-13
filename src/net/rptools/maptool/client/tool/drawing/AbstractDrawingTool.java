@@ -66,12 +66,38 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     	isEraser = eraser;
     }
     
+    protected boolean isFill(MouseEvent e) {
+    	
+    	boolean defaultValue = MapTool.getFrame().getColorPicker().isFillSelected();
+    	return defaultValue;
+    }
+    
+    protected boolean isEraser(MouseEvent e) {
+    	
+    	boolean defaultValue = MapTool.getFrame().getColorPicker().isEraseSelected();
+    	if (SwingUtil.isShiftDown(e)) {
+    		// Invert from the color panel
+    		defaultValue = !defaultValue;
+    	}
+    	return defaultValue;
+    }
+    
+    protected boolean isSnapToGrid(MouseEvent e) {
+    	
+    	boolean defaultValue = MapTool.getFrame().getColorPicker().isSnapSelected();
+    	if (SwingUtil.isControlDown(e)) {
+    		// Invert from the color panel
+    		defaultValue = !defaultValue;
+    	}
+    	return defaultValue;
+    }
+    
     protected Pen getPen() {
     	
     	Pen pen = new Pen(MapTool.getFrame().getPen());
 		pen.setEraser(isEraser);
 		
-		if (MapTool.getFrame().getColorPicker().isFillChecked()) {
+		if (MapTool.getFrame().getColorPicker().isFillSelected()) {
 	        pen.setBackgroundMode(Pen.MODE_SOLID);
 		} else {
 			pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
@@ -83,7 +109,7 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     protected ScreenPoint getPoint(MouseEvent e) {
     	
     	ScreenPoint sp = new ScreenPoint(e.getX(), e.getY());
-    	if (SwingUtil.isControlDown(e)) {
+    	if (isSnapToGrid(e)) {
 	    	ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
 	    	zp = renderer.getZone().getNearestVertex(zp);
 	    	sp = zp.convertToScreen(renderer);

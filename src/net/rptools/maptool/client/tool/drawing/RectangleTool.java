@@ -115,7 +115,7 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 	            rectangle = null;
 	        }
         
-	        setIsEraser(SwingUtilities.isRightMouseButton(e));
+	        setIsEraser(isEraser(e));
     	}
     	
     	super.mousePressed(e);

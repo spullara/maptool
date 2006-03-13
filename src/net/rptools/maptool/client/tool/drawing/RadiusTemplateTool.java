@@ -408,7 +408,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 	      return;
 	
 	    // Set the eraser, set the drawable, reset the tool.
-	    setIsEraser(SwingUtilities.isRightMouseButton(e));
+	    setIsEraser(isEraser(e));
 	    template.setRadius(getRadiusAtMouse(e));
 	    ScreenPoint vertex = template.getVertex();
 	    ScreenPoint newPoint = new ScreenPoint(vertex.x, vertex.y);

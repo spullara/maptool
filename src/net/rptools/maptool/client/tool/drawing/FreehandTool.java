@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.tool.drawing;
 
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 
@@ -62,17 +63,17 @@ public class FreehandTool extends AbstractLineTool implements MouseMotionListene
     
     ////
     // MOUSE LISTENER
-    public void mousePressed(java.awt.event.MouseEvent e){
+    public void mousePressed(MouseEvent e){
     	
     	if (SwingUtilities.isLeftMouseButton(e)) {
     		startLine(e);
-        	setIsEraser(SwingUtil.isShiftDown(e));
+        	setIsEraser(isEraser(e));
     	}
     	
     	super.mousePressed(e);
     }
     
-    public void mouseReleased(java.awt.event.MouseEvent e){
+    public void mouseReleased(MouseEvent e){
     	if (SwingUtilities.isLeftMouseButton(e)) {
     		stopLine(e);
     	}

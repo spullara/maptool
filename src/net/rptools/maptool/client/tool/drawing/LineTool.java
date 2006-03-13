@@ -62,13 +62,13 @@ public class LineTool extends AbstractLineTool implements MouseMotionListener {
     
     ////
     // MOUSE LISTENER
-    public void mousePressed(java.awt.event.MouseEvent e){
+    public void mousePressed(MouseEvent e){
         
     	if (SwingUtilities.isLeftMouseButton(e)) {
 	        if (getLine() == null) {
 	
 	        	startLine(e);
-	            setIsEraser(SwingUtilities.isRightMouseButton(e));
+	            setIsEraser(isEraser(e));
 	        } else {
 	
         		stopLine(e);
