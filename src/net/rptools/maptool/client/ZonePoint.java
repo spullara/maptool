@@ -25,6 +25,7 @@
 package net.rptools.maptool.client;
 
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.Zone;
 
 
 public class ZonePoint extends AbstractPoint {
@@ -60,13 +61,15 @@ public class ZonePoint extends AbstractPoint {
     }
 
     public CellPoint convertToCell(ZoneRenderer renderer) {
-    	double calcX = x / (float)renderer.getZone().getGridSize();
-    	double calcY = y / (float)renderer.getZone().getGridSize();
+    	Zone zone = renderer.getZone();
+    	
+    	double calcX = (x-zone.getGridOffsetX()) / (float)zone.getGridSize();
+    	double calcY = (y-zone.getGridOffsetY()) / (float)zone.getGridSize();
     	
     	int newX = (int)(x >= 0 ? calcX : calcX-1);
     	int newY = (int)(y >= 0 ? calcY : calcY-1);
     	
-//    	System.out.format("%f, %f => %d, %d\n", calcX, calcY, newX, newY);
+    	//System.out.format("%d / %d => %f, %f => %d, %d\n", x, zone.getGridSize(), calcX, calcY, newX, newY);
         return new CellPoint(newX, newY);
     }
     
