@@ -291,6 +291,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	
 	public void mouseDragged(MouseEvent e) {
 
+		mouseX = e.getX();
+		mouseY = e.getY();
+		
 		CellPoint cellUnderMouse = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
 		if (cellUnderMouse != null) {
 			MapTool.getFrame().setStatusMessage("Cell: " + cellUnderMouse.x + ", " + cellUnderMouse.y);
