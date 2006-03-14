@@ -46,7 +46,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -88,14 +87,13 @@ import net.rptools.maptool.client.tool.MeasureTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.TextTool;
 import net.rptools.maptool.client.tool.drawing.ConeTemplateTool;
-import net.rptools.maptool.client.tool.drawing.DrawnTextTool;
+import net.rptools.maptool.client.tool.drawing.FreehandExposeTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
 import net.rptools.maptool.client.tool.drawing.LineTemplateTool;
 import net.rptools.maptool.client.tool.drawing.LineTool;
 import net.rptools.maptool.client.tool.drawing.OvalExposeTool;
 import net.rptools.maptool.client.tool.drawing.OvalTool;
 import net.rptools.maptool.client.tool.drawing.PolygonExposeTool;
-import net.rptools.maptool.client.tool.drawing.PolygonTool;
 import net.rptools.maptool.client.tool.drawing.RadiusTemplateTool;
 import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
@@ -549,6 +547,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         toolbar.add(toolbox.createTool(RectangleExposeTool.class));
         toolbar.add(toolbox.createTool(OvalExposeTool.class));
         toolbar.add(toolbox.createTool(PolygonExposeTool.class));
+        toolbar.add(toolbox.createTool(FreehandExposeTool.class));
         
         toolbar.add(Box.createHorizontalStrut(15));
 
