@@ -66,8 +66,11 @@ public class ZonePoint extends AbstractPoint {
     	double calcX = (x-zone.getGridOffsetX()) / (float)zone.getGridSize();
     	double calcY = (y-zone.getGridOffsetY()) / (float)zone.getGridSize();
     	
-    	int newX = (int)(x >= 0 ? calcX : calcX-1);
-    	int newY = (int)(y >= 0 ? calcY : calcY-1);
+    	boolean exactCalcX = (x-zone.getGridOffsetX()) % zone.getGridSize() == 0;
+    	boolean exactCalcY = (y-zone.getGridOffsetY()) % zone.getGridSize() == 0;
+    	
+    	int newX = (int)(x < 0 && !exactCalcX ? calcX-1 : calcX);
+    	int newY = (int)(y < 0 && !exactCalcY ? calcY-1 : calcY);
     	
     	//System.out.format("%d / %d => %f, %f => %d, %d\n", x, zone.getGridSize(), calcX, calcY, newX, newY);
         return new CellPoint(newX, newY);
