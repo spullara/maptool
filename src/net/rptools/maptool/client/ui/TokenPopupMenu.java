@@ -2,10 +2,10 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -15,6 +15,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.token.LightDialog;
 import net.rptools.maptool.client.ui.token.TokenStates;
@@ -155,6 +156,9 @@ public class TokenPopupMenu extends JPopupMenu {
 	        
         }
         
+        // Delete
+        JMenuItem deleteMenuItem = new JMenuItem(new DeleteAction());
+        
         // Organize
         add(stateMenu);
     	add(sizeMenu);
@@ -163,6 +167,8 @@ public class TokenPopupMenu extends JPopupMenu {
         add(snapToGridMenuItem);
         add(visibilityMenuItem);
         add(renameMenuItem);
+        add(new JSeparator());
+        add(deleteMenuItem);
 
         // GM Only
         if (MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
@@ -420,6 +426,30 @@ public class TokenPopupMenu extends JPopupMenu {
         			token.clearAllOwners();
         			MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
         		}
+        	}
+    	}
+    }
+
+    private class DeleteAction extends AbstractAction {
+    	
+    	public DeleteAction() {
+    		putValue(Action.NAME, "Delete");
+    	}
+    	
+    	public void actionPerformed(ActionEvent e) {
+    		
+    		if (!MapTool.confirm("Are you sure you want to delete the selected tokens ?")) {
+    			return;
+    		}
+    		
+        	for (GUID tokenGUID : selectedTokenSet) {
+
+				Token token = renderer.getZone().getToken(tokenGUID);
+				
+				if (AppUtil.playerOwnsToken(token)) {
+                    renderer.getZone().removeToken(tokenGUID);
+                    MapTool.serverCommand().removeToken(renderer.getZone().getId(), tokenGUID);
+				}
         	}
     	}
     }

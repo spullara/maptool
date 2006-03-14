@@ -145,9 +145,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 		dragStartX = e.getX();
 		dragStartY = e.getY();
-		
+
 		// SELECTION
-		// Token
 		Token token = renderer.getTokenAt (e.getX(), e.getY());
 		if (token != null && !isDraggingToken) {
 
@@ -181,7 +180,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				isDrawingSelectionBox = true;
 				selectionBoundBox = new Rectangle(e.getX(), e.getY(), 0, 0);
 			}
-			
 		}
 		
 		super.mousePressed(e);
@@ -189,54 +187,59 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	
 	public void mouseReleased(MouseEvent e) {
 
-        try {
-            SwingUtil.showPointer(renderer);
-
-	        // SELECTION BOUND BOX
-	        if (isDrawingSelectionBox) {
-	        	isDrawingSelectionBox = false;
+		if (SwingUtilities.isLeftMouseButton(e)) {
+	        try {
+	            SwingUtil.showPointer(renderer);
 	
-	        	if (!SwingUtil.isShiftDown(e)) {
-	        		renderer.clearSelectedTokens();
-	        	}
-	        	
-	        	renderer.selectTokens(selectionBoundBox);
-	        	
-	        	selectionBoundBox = null;
-	        	renderer.repaint();
-	        	return;
-	        }
-	
-			// POPUP MENU
-	        if (SwingUtilities.isRightMouseButton(e) && !isDraggingToken) {
-	        	
-	        	if (tokenUnderMouse != null && renderer.getSelectedTokenSet().size() > 0) {
-	        		
-	        		new TokenPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
-	        	}
-	        }
-	
-			// DRAG TOKEN COMPLETE
-			if (isDraggingToken) {
-	            renderer.commitMoveSelectionSet(tokenBeingDragged.getId()); // TODO: figure out a better way
-			}
-			
-	        // SELECT SINGLE TOKEN
-	        Token token = renderer.getTokenAt(e.getX(), e.getY());
-	        if (token != null && SwingUtilities.isLeftMouseButton(e) && !isDraggingToken && !SwingUtil.isShiftDown(e)) {
-	
-	    		// Only if it isn't already being moved
-				if (!renderer.isTokenMoving(token)) {
-		        	renderer.clearSelectedTokens();
-		        	renderer.selectToken(token.getId());
+		        // SELECTION BOUND BOX
+		        if (isDrawingSelectionBox) {
+		        	isDrawingSelectionBox = false;
+		
+		        	if (!SwingUtil.isShiftDown(e)) {
+		        		renderer.clearSelectedTokens();
+		        	}
+		        	
+		        	renderer.selectTokens(selectionBoundBox);
+		        	
+		        	selectionBoundBox = null;
+		        	renderer.repaint();
+		        	return;
+		        }
+		
+				// DRAG TOKEN COMPLETE
+				if (isDraggingToken) {
+		            renderer.commitMoveSelectionSet(tokenBeingDragged.getId()); // TODO: figure out a better way
 				}
+				
+		        // SELECT SINGLE TOKEN
+		        Token token = renderer.getTokenAt(e.getX(), e.getY());
+		        if (token != null && SwingUtilities.isLeftMouseButton(e) && !isDraggingToken && !SwingUtil.isShiftDown(e)) {
+		
+		    		// Only if it isn't already being moved
+					if (!renderer.isTokenMoving(token)) {
+			        	renderer.clearSelectedTokens();
+			        	renderer.selectToken(token.getId());
+					}
+		        }
+	        } finally {
+	        	isDraggingToken = false;
+	        	isDrawingSelectionBox = false;
 	        }
-        } finally {
-        	isDraggingToken = false;
-        	isDrawingSelectionBox = false;
-        }
+	        
+	        return;
+		}
         
-		super.mouseReleased(e);
+		// POPUP MENU
+        if (SwingUtilities.isRightMouseButton(e) && !isDraggingToken) {
+        	
+        	if (tokenUnderMouse != null && renderer.getSelectedTokenSet().size() > 0) {
+        		
+        		new TokenPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
+        		return;
+        	}
+        }
+
+        super.mouseReleased(e);
 	}
     
 	////
@@ -299,7 +302,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			MapTool.getFrame().setStatusMessage("Cell: " + cellUnderMouse.x + ", " + cellUnderMouse.y);
 		}
 		
-		if (SwingUtilities.isLeftMouseButton(e)) {
+		if (SwingUtilities.isLeftMouseButton(e) && !SwingUtilities.isRightMouseButton(e)) {
 			
 			if (isDrawingSelectionBox) {
 				
