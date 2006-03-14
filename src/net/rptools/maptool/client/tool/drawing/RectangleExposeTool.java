@@ -34,6 +34,7 @@ public class RectangleExposeTool extends RectangleTool {
     // showing up
 	protected void attachTo(ZoneRenderer renderer) {
     	super.attachTo(renderer);
+		MapTool.getFrame().getColorPicker().setVisible(false);
 	}
     
     @Override

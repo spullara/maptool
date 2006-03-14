@@ -65,6 +65,7 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
     // showing up
     protected void attachTo(ZoneRenderer renderer) {
     	super.attachTo(renderer);
+		MapTool.getFrame().getColorPicker().setVisible(false);
     }
 
     @Override
