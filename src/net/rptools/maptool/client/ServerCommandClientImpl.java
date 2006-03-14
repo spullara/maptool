@@ -141,9 +141,9 @@ public class ServerCommandClientImpl implements ServerCommand {
 		movementUpdateQueue.enqueue(COMMAND.updateTokenMove, zoneGUID, tokenGUID, x, y);
 	}
 
-	public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, int x, int y) {
+	public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, CellPoint cp) {
     	movementUpdateQueue.flush();
-    	makeServerCall(COMMAND.toggleTokenMoveWaypoint, zoneGUID, tokenGUID, x, y);
+    	makeServerCall(COMMAND.toggleTokenMoveWaypoint, zoneGUID, tokenGUID, cp);
     }
 
 	public void exposeFoW(GUID zoneGUID, Area area) {

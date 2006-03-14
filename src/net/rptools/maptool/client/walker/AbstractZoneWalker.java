@@ -59,6 +59,7 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
     
     public void addWaypoints(CellPoint... points) {
 
+		System.out.println("ADDING:" + points.length);
     	CellPoint previous = partialPaths.size() > 0 ? partialPaths.get(partialPaths.size()-1).end : null;
     	for (CellPoint current : points) {
     		if (previous != null) {

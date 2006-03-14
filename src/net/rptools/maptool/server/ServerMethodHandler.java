@@ -32,6 +32,7 @@ import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientCommand;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -93,7 +94,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case showPointer:             showPointer(context.getString(0), (Pointer) context.get(1)); break;
             case startTokenMove:          startTokenMove(context.getString(0), context.getGUID(1), context.getGUID(2), (Set<GUID>) context.get(3)); break;
             case stopTokenMove:           stopTokenMove(context.getGUID(0), context.getGUID(1)); break;
-            case toggleTokenMoveWaypoint: toggleTokenMoveWaypoint(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3)); break;
+            case toggleTokenMoveWaypoint: toggleTokenMoveWaypoint(context.getGUID(0), context.getGUID(1), (CellPoint)context.get(2)); break;
             case undoDraw:                undoDraw(context.getGUID(0), context.getGUID(1)); break;
             case updateTokenMove:         updateTokenMove(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3)); break;
             case clearAllDrawings:        clearAllDrawings(context.getGUID(0)); break;
@@ -355,7 +356,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         forwardToClients();
     }
 
-    public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, int x, int y) {
+    public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, CellPoint cp) {
         forwardToClients();
     }
 

@@ -210,7 +210,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		repaint();
 	}
 
-	public void toggleMoveSelectionSetWaypoint(GUID keyToken, ZonePoint location) {
+	public void toggleMoveSelectionSetWaypoint(GUID keyToken, CellPoint location) {
 		SelectionSet set = selectionSetMap.get(keyToken);
 		if (set == null) {
 			return;
@@ -609,6 +609,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		Point previousHalfPoint = null;
 		// JOINTS
 		List<CellPoint> path = walker.getPath();
+
 		for (CellPoint p : path) {
 
 			highlightCell(g, p, AppStyle.cellPathImage, 1.0f);
@@ -1070,12 +1071,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      * 
      * @param location The point where the waypoint is toggled.
      */
-		public void toggleWaypoint(ZonePoint location) {
+		public void toggleWaypoint(CellPoint location) {
 		  
-		  int cellX = (location.x)/zone.getGridSize();
-		  int cellY = (location.y)/zone.getGridSize();
-		  CellPoint point = new CellPoint(cellX, cellY);
-      walker.toggleWaypoint(point);
+			walker.toggleWaypoint(location);
 		}
 		
 		public int getOffsetX() {

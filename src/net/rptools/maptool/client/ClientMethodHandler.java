@@ -323,12 +323,10 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
 			zoneGUID = (GUID) parameters[0];
 			keyToken = (GUID) parameters[1];
-			
-			x = ((Integer) parameters[2]).intValue();
-			y = ((Integer) parameters[3]).intValue();
+			CellPoint cp = (CellPoint) parameters[2];
 			
 			renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
-			renderer.toggleMoveSelectionSetWaypoint(keyToken, new ZonePoint(x, y));
+			renderer.toggleMoveSelectionSetWaypoint(keyToken, cp);
 
 			break;
 			

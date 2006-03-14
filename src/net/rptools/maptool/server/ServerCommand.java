@@ -28,6 +28,7 @@ import java.awt.geom.Area;
 import java.util.Set;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
@@ -99,7 +100,7 @@ public interface ServerCommand {
     public void startTokenMove(String playerId, GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList);
     public void updateTokenMove(GUID zoneGUID, GUID tokenGUID, int x, int y);
     public void stopTokenMove(GUID zoneGUID, GUID tokenGUID);
-    public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, int x, int y);
+    public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, CellPoint cp);
     public void sendTokensToBack(GUID zoneGUID, Set<GUID> tokenSet);
     public void bringTokensToFront(GUID zoneGUID, Set<GUID> tokenSet);
     public void clearAllDrawings(GUID zoneGUID);

@@ -77,6 +77,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     private boolean isDraggingToken;
     private boolean isNewTokenSelected;
     private boolean isDrawingSelectionBox;
+    private boolean isSpaceDown;
     private Rectangle selectionBoundBox;
 
 	private Token tokenBeingDragged;
@@ -183,17 +184,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			
 		}
 		
-        // Waypoints
-        if (SwingUtilities.isRightMouseButton(e) && isDraggingToken) {
-            
-            ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
-            
-            renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), zp);
-            
-            MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), zp.x, zp.y);
-            return;
-        }
-        
 		super.mousePressed(e);
 	}
 	
@@ -471,22 +461,43 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				
 				put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true), new AbstractAction() {
 					public void actionPerformed(ActionEvent e) {
-						isShowingPointer = false;
-						MapTool.serverCommand().hidePointer(MapTool.getPlayer().getName());
+						
+						if (isShowingPointer) {
+							isShowingPointer = false;
+							MapTool.serverCommand().hidePointer(MapTool.getPlayer().getName());
+						}
+						
+						isSpaceDown = false;
 					}
 				});
 				put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), new AbstractAction() {
 					public void actionPerformed(ActionEvent e) {
-						if (isShowingPointer || renderer == null) {
+						
+						if (isSpaceDown) {
 							return;
 						}
-
-						isShowingPointer = true;
 						
-						ZonePoint p = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY);
-						Pointer pointer = new Pointer(renderer.getZone(), p.x, p.y, 0);
+						if (isDraggingToken) {
+							
+							// Waypoint
+				            CellPoint cp = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY).convertToCell(renderer);
+				            
+				            renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), cp);
+				            
+				            MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), cp);
+							
+						} else {
+							
+							// Pointer
+							isShowingPointer = true;
+							
+							ZonePoint p = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY);
+							Pointer pointer = new Pointer(renderer.getZone(), p.x, p.y, 0);
+							
+							MapTool.serverCommand().showPointer(MapTool.getPlayer().getName(), pointer);
+						}
 						
-						MapTool.serverCommand().showPointer(MapTool.getPlayer().getName(), pointer);
+						isSpaceDown = true;
 					}
 				});
 			}
