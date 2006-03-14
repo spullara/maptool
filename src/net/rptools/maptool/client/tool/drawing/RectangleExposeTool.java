@@ -1,6 +1,7 @@
 package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
 import java.io.IOException;
 
@@ -36,6 +37,12 @@ public class RectangleExposeTool extends RectangleTool {
     	super.attachTo(renderer);
 		MapTool.getFrame().getColorPicker().setVisible(false);
 	}
+    
+    @Override
+    protected boolean isFill(MouseEvent e) {
+    	// Expose tools are implied to be filled
+    	return false;
+    }
     
     @Override
     protected Pen getPen() {

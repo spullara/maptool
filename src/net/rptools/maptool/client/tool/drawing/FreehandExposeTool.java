@@ -25,6 +25,7 @@
 package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Polygon;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Area;
 import java.io.IOException;
@@ -68,6 +69,12 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
 		MapTool.getFrame().getColorPicker().setVisible(false);
     }
 
+    @Override
+    protected boolean isFill(MouseEvent e) {
+    	// Expose tools are implied to be filled
+    	return false;
+    }
+    
     @Override
     protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
 

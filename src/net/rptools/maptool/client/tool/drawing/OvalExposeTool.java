@@ -1,6 +1,7 @@
 package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.io.IOException;
@@ -33,6 +34,12 @@ public class OvalExposeTool extends OvalTool {
 		MapTool.getFrame().getColorPicker().setVisible(false);
 	}
 
+    @Override
+    protected boolean isFill(MouseEvent e) {
+    	// Expose tools are implied to be filled
+    	return false;
+    }
+    
     @Override
     protected Pen getPen() {
     	Pen pen = super.getPen();
