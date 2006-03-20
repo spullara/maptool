@@ -501,9 +501,9 @@ public class NewMapDialog extends JDialog implements WindowListener {
 						
 						agd.setVisible(true);
 						if (agd.isOK()) {
-							gridBounds = agd.getGridBounds();
-							gridCountX = agd.getGridXCount();
-							gridCountY = agd.getGridYCount();
+//							gridBounds = agd.getGridBounds();
+//							gridCountX = agd.getGridXCount();
+//							gridCountY = agd.getGridYCount();
 						} else {
 							gridBounds = null;
 						}

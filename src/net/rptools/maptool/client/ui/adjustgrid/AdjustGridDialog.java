@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -37,6 +38,8 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -49,23 +52,19 @@ import javax.swing.KeyStroke;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.swing.VerticalLabel;
+import javax.swing.JTextField;
+
+import com.jeta.forms.components.panel.FormPanel;
+import com.jeta.forms.gui.form.FormAccessor;
 
 public class AdjustGridDialog extends JDialog {
 
-    private JPanel jContentPane = null;
     private AdjustGridPanel adjustGridPanel = null;
-    private JPanel buttonPanel = null;
-    private JButton okButton = null;
-    private JPanel eastPanel = null;
-    private JPanel southControlPanel = null;
-    private JSlider gridCountXSlider = null;
-    private JSlider gridCountYSlider = null;
-	private JButton cancelButton = null;
 	
 	private boolean isOK;
-	public boolean isOK() {
-		return isOK;
-	}
+	private JTextField gridSizeTextField = null;
+	private JTextField offsetXTextField = null;
+	private JTextField offsetYTextField = null;
 
 	/**
      * This is the default constructor
@@ -78,6 +77,7 @@ public class AdjustGridDialog extends JDialog {
         	public void windowClosing(WindowEvent e) {
         		isOK = false;
         		setVisible(false);
+        		dispose();
         	}
         });
 
@@ -92,8 +92,29 @@ public class AdjustGridDialog extends JDialog {
      */
     private void initialize() {
         this.setSize(500, 500);
-        this.setContentPane(getJContentPane());
-        getRootPane().setDefaultButton(getOkButton());
+        
+        FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/adjustGridDialog.jfrm");
+
+        panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), "cancel");
+        panel.getActionMap().put("cancel", new CancelAction());
+
+		AbstractButton okButton = panel.getButton("okButton");
+        okButton.setAction(new OKAction());
+        
+		AbstractButton cancelButton = panel.getButton("cancelButton");
+        cancelButton.setAction(new CancelAction());
+        
+        gridSizeTextField = panel.getTextField("gridSize");
+        offsetXTextField = panel.getTextField("xOffset");
+        offsetYTextField = panel.getTextField("yOffset");
+
+        FormAccessor accessor = panel.getFormAccessor();
+        accessor.replaceBean("adjustGridPanel", getAdjustGridPanel());
+
+        setLayout(new GridLayout());
+        add(panel);
+        
+        getRootPane().setDefaultButton((JButton)okButton);
     }
 
     @Override
@@ -106,56 +127,9 @@ public class AdjustGridDialog extends JDialog {
     	super.setVisible(b);
     }
     
-    /**
-     * This method initializes jContentPane
-     * 
-     * @return javax.swing.JPanel
-     */
-    private JPanel getJContentPane() {
-        if (jContentPane == null) {
-            GridBagConstraints gridBagConstraints = new GridBagConstraints();
-            gridBagConstraints.gridx = 0;
-            gridBagConstraints.weightx = 1.0D;
-            gridBagConstraints.weighty = 1.0D;
-            gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-            gridBagConstraints.gridy = 0;
-            GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-            gridBagConstraints3.gridx = 0;
-            gridBagConstraints3.gridwidth = 2;
-            gridBagConstraints3.anchor = java.awt.GridBagConstraints.EAST;
-            gridBagConstraints3.gridy = 2;
-            GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-            gridBagConstraints2.gridx = 0;
-            gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints2.gridy = 1;
-            GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-            gridBagConstraints1.gridx = 1;
-            gridBagConstraints1.fill = java.awt.GridBagConstraints.VERTICAL;
-            gridBagConstraints1.gridy = 0;
-            jContentPane = new JPanel();
-            jContentPane.setLayout(new BorderLayout());
-            
-            JPanel panel = new JPanel(new BorderLayout());
-            panel.setLayout(new GridBagLayout());
-            panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 0));
-            panel.add(getEastPanel(), gridBagConstraints1);
-            panel.add(getSouthControlPanel(), gridBagConstraints2);
-            panel.add(getButtonPanel(), gridBagConstraints3);
-            panel.add(getAdjustGridPanel(), gridBagConstraints);
-            
-            jContentPane.add(panel, java.awt.BorderLayout.CENTER);
-            
-            jContentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), "cancel");
-            jContentPane.getActionMap().put("cancel", new AbstractAction() {
-            	public void actionPerformed(ActionEvent e) {
-            		isOK = false;
-            		setVisible(false);
-            	}
-            });
-            
-        }
-        return jContentPane;
-    }
+	public boolean isOK() {
+		return isOK;
+	}
 
     /**
      * This method initializes adjustGridPanel	
@@ -171,185 +145,26 @@ public class AdjustGridDialog extends JDialog {
         return adjustGridPanel;
     }
 
-    /**
-     * This method initializes buttonPanel	
-     * 	
-     * @return javax.swing.JPanel	
-     */
-    private JPanel getButtonPanel() {
-        if (buttonPanel == null) {
-            FlowLayout flowLayout = new FlowLayout();
-            flowLayout.setAlignment(java.awt.FlowLayout.RIGHT);
-            buttonPanel = new JPanel();
-            buttonPanel.setLayout(flowLayout);
-            buttonPanel.add(getOkButton(), null);
-            buttonPanel.add(getCancelButton(), null);
-        }
-        return buttonPanel;
-    }
-
-    /**
-     * This method initializes okButton	
-     * 	
-     * @return javax.swing.JButton	
-     */
-    private JButton getOkButton() {
-        if (okButton == null) {
-            okButton = new JButton();
-            okButton.setText("OK");
-            okButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                	isOK = true;
-                	setVisible(false);
-                }
-            });
-        }
-        return okButton;
-    }
-
-    /**
-     * This method initializes eastPanel	
-     * 	
-     * @return javax.swing.JPanel	
-     */
-    private JPanel getEastPanel() {
-        if (eastPanel == null) {
-            eastPanel = new JPanel();
-            eastPanel.setLayout(new BorderLayout());
-            eastPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
-            eastPanel.add(getGridCountYSlider(), java.awt.BorderLayout.WEST);
-            VerticalLabel label = new VerticalLabel("<html><body><b>Vertical Cell Count</b></body></html>", JLabel.CENTER);
-            label.setRotation(VerticalLabel.ROTATE_LEFT);
-            eastPanel.add(label, BorderLayout.EAST);
-        }
-        return eastPanel;
-    }
-    
-    /**
-     * This method initializes southControlPanel	
-     * 	
-     * @return javax.swing.JPanel	
-     */
-    private JPanel getSouthControlPanel() {
-        if (southControlPanel == null) {
-            southControlPanel = new JPanel();
-            southControlPanel.setLayout(new BorderLayout());
-            southControlPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,5,5,5));
-            southControlPanel.add(getGridCountXSlider(), java.awt.BorderLayout.NORTH);
-            southControlPanel.add(new JLabel("<html><body><b>Horizontal Cell Count</b></body></html>", JLabel.CENTER), BorderLayout.SOUTH);
-        }
-        return southControlPanel;
-    }
-
-    /**
-     * This method initializes gridCountXSlider	
-     * 	
-     * @return javax.swing.JSlider	
-     */
-    private JSlider getGridCountXSlider() {
-        if (gridCountXSlider == null) {
-            gridCountXSlider = new JSlider();
-            gridCountXSlider.setMinimum(0);
-            gridCountXSlider.setMaximum(100);
-            gridCountXSlider.setValue(10);
-            gridCountXSlider.setFocusable(false);
-            gridCountXSlider.setPaintLabels(true);
-            gridCountXSlider.setMajorTickSpacing(10);
-            gridCountXSlider.addChangeListener(new javax.swing.event.ChangeListener() {
-                public void stateChanged(javax.swing.event.ChangeEvent e) {
-                	int value = getGridCountXSlider().getValue();
-                	
-                	if (value < 2) {
-                		getGridCountXSlider().setValue(2);
-                	}
-                    getAdjustGridPanel().setGridCountX(value);
-                }
-            });
-            gridCountXSlider.addMouseListener(new java.awt.event.MouseAdapter() {
-            	public void mousePressed(java.awt.event.MouseEvent e) {
-            		getAdjustGridPanel().setShowRows(false);
-            		getAdjustGridPanel().repaint();
-            	}
-            	@Override
-            	public void mouseReleased(MouseEvent e) {
-            		getAdjustGridPanel().setShowRows(true);
-            		getAdjustGridPanel().repaint();
-            	}
-            });
-        }
-        return gridCountXSlider;
-    }
-
-    /**
-     * This method initializes gridCountYSlider	
-     * 	
-     * @return javax.swing.JSlider	
-     */
-    private JSlider getGridCountYSlider() {
-        if (gridCountYSlider == null) {
-            gridCountYSlider = new JSlider();
-            gridCountYSlider.setOrientation(javax.swing.JSlider.VERTICAL);
-            gridCountYSlider.setMaximum(100);
-            gridCountYSlider.setValue(10);
-            gridCountYSlider.setMinimum(0);
-            gridCountYSlider.setFocusable(false);
-            gridCountYSlider.setPaintLabels(true);
-            gridCountYSlider.setMajorTickSpacing(10);
-            gridCountYSlider.addChangeListener(new javax.swing.event.ChangeListener() {
-                public void stateChanged(javax.swing.event.ChangeEvent e) {
-                	int value = getGridCountYSlider().getValue();
-
-                	if (value < 2) {
-                		getGridCountXSlider().setValue(2);
-                	}
-                	
-                    getAdjustGridPanel().setGridCountY(value);
-                }
-            });
-            gridCountYSlider.addMouseListener(new java.awt.event.MouseAdapter() {
-            	public void mousePressed(java.awt.event.MouseEvent e) {
-            		getAdjustGridPanel().setShowCols(false);
-            		getAdjustGridPanel().repaint();
-            	}
-            	@Override
-            	public void mouseReleased(MouseEvent e) {
-            		getAdjustGridPanel().setShowCols(true);
-            		getAdjustGridPanel().repaint();
-            	}
-            });
-        }
-        return gridCountYSlider;
-    }
-    
-    public Rectangle getGridBounds() {
-    	return getAdjustGridPanel().getGridBounds();
-    }
-    
-    public int getGridXCount () {
-    	return getGridCountXSlider().getValue();
-    }
-    
-    public int getGridYCount () {
-    	return getGridCountYSlider().getValue();
-    }
-
-    /**
-	 * This method initializes cancelButton	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */
-	private JButton getCancelButton() {
-		if (cancelButton == null) {
-			cancelButton = new JButton();
-			cancelButton.setText("Cancel");
-			cancelButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					isOK = false;
-					setVisible(false);
-				}
-			});
+	////
+	// ACTIONS
+	private class OKAction extends AbstractAction {
+		public OKAction() {
+			putValue(Action.NAME, "OK");
 		}
-		return cancelButton;
+		public void actionPerformed(ActionEvent e) {
+        	isOK = true;
+        	setVisible(false);
+        	dispose();
+		}
 	}
-
+	private class CancelAction extends AbstractAction {
+		public CancelAction() {
+			putValue(Action.NAME, "Cancel");
+		}
+		public void actionPerformed(ActionEvent e) {
+			isOK = false;
+			setVisible(false);
+        	dispose();
+		}
+	}
 }

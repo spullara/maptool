@@ -48,7 +48,6 @@ import net.rptools.maptool.client.ui.Scale;
 
 public class AdjustGridPanel extends JComponent implements MouseListener, MouseMotionListener, MouseWheelListener {
 
-    private static final int PADDING = 20;
     private static final int MINIMUM_GRID_SIZE = 5;
     
     private int gridCountX = 10;
@@ -61,7 +60,6 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     private BufferedImage image;
     
     private Scale scale;
-    private boolean scaleInitialized;
     
     private enum Handle {
         TOP,
