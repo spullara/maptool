@@ -51,13 +51,11 @@ import javax.swing.KeyStroke;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.NewMapDialog;
 import net.rptools.maptool.client.ui.ServerInfoDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
-import net.rptools.maptool.client.ui.Toolbox;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.assetpanel.Directory;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -497,7 +495,7 @@ public class AppActions {
 				return;
 			}
 
-			MapTool.getFrame().getToolbox().setSelectedTool(new GridTool());
+			// TODO: Show adjust grid dialog
 		}
 
 	};

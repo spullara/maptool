@@ -29,8 +29,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -44,40 +42,33 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.ui.Scale;
 
 public class AdjustGridPanel extends JComponent implements MouseListener, MouseMotionListener, MouseWheelListener {
 
     private static final int MINIMUM_GRID_SIZE = 5;
     
-    private int gridCountX = 10;
-    private int gridCountY = 10;
+    private static enum Direction { Increase, Decrease };
+
+    private int gridOffsetX = 0;
+    private int gridOffsetY = 0;
+    private int gridSize = 40;
     private boolean showGrid = true;
 
     private int mouseX;
     private int mouseY;
     
-    private BufferedImage image;
+    private int dragStartX;
+	private int dragStartY;
+	
+	private Color gridColor = Color.red;
+
+	private BufferedImage image;
     
     private Scale scale;
     
-    private enum Handle {
-        TOP,
-        BOTTOM,
-        LEFT,
-        RIGHT
-    }
-    
-    private int topGrid;
-    private int bottomGrid;
-    private int leftGrid;
-    private int rightGrid;
-    
-    private boolean showRows = true;
-    private boolean showCols = true;
-    
-    private Handle draggingHandle;
-
     public AdjustGridPanel() {
         setOpaque(false);
         addMouseListener(this);
@@ -107,29 +98,12 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         
     }
     
-    public Rectangle getGridBounds() {
-    	return new Rectangle(topGrid, leftGrid, rightGrid - leftGrid, bottomGrid - topGrid);
-    }
-    
     public void setZoneImage(BufferedImage image) {
         this.image = image;
-        
-        topGrid = 0;
-        bottomGrid = image.getHeight();
-        leftGrid = 0;
-        rightGrid = image.getWidth();
-        
+
         scale = new Scale(image.getWidth(), image.getHeight());
     }
 
-    public void setShowRows(boolean show) {
-    	showRows = show;
-    }
-    
-    public void setShowCols(boolean show) {
-    	showCols = show;
-    }
-    
     @Override
     protected void paintComponent(Graphics g) {
         
@@ -147,12 +121,6 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         
         double imgRatio = scale.getScale();
 
-        // handles
-        int top = (int)(topGrid * imgRatio);
-        int bottom = (int)(bottomGrid * imgRatio);
-        int left = (int)(leftGrid * imgRatio);
-        int right = (int)(rightGrid * imgRatio);
-        
         // SETUP
         Graphics2D g2d = (Graphics2D) g;
 
@@ -164,71 +132,35 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         g2d.drawImage(image, imagePosition.x, imagePosition.y, imageSize.width, imageSize.height, null);
         
         // GRID
-        g2d.setColor(Color.blue);
-        double dx = ((rightGrid - leftGrid) / (float)gridCountX) * imgRatio;
-        double dy = ((bottomGrid - topGrid) / (float)gridCountY) * imgRatio;
+        g2d.setColor(gridColor);
+        double gridSize = this.gridSize * imgRatio;
         
         // across
-        if (showCols) {
-	        int x = imagePosition.x + left;
-	        for (int i = 0; i < gridCountX; i++) {
-	            g2d.drawLine(x + (int)(i*dx), imagePosition.y + top, x + (int)(i*dx), imagePosition.y + bottom);
-	        }
+        int x = imagePosition.x + (int)(gridOffsetX*imgRatio);
+        for (int i = (int)gridSize; i <= imageSize.width; i += gridSize) {
+            g2d.drawLine(x + i, imagePosition.y, x + i, imagePosition.y + imageSize.height-1);
         }
         
         // down
-        if (showRows) {
-	        int y = imagePosition.y + top;
-	        for (int i = 0; i < gridCountY; i++) {
-	            g2d.drawLine(imagePosition.x + left, y+(int)(i*dy), imagePosition.x+right, y+(int)(i*dy));
-	        }
+        int y = imagePosition.y + (int)(gridOffsetY*imgRatio);
+        for (int i = (int)gridSize; i <= imageSize.height; i += gridSize) {
+            g2d.drawLine(imagePosition.x, y+i, imagePosition.x+imageSize.width-1, y+i);
         }
-        
-        // HANDLES
-        int handleSize = 10;
-
-        Object oldValue = g2d.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        
-        g2d.setColor(Color.red);
-        
-        // Top
-        int halfHandleX = imagePosition.x + imageSize.width/2;
-        g2d.fillRect(halfHandleX - handleSize, top+imagePosition.y - 3, handleSize*2, 3);
-        g2d.drawLine(imagePosition.x-handleSize, top+imagePosition.y, imagePosition.x+imageSize.width+handleSize, top+imagePosition.y);
-        
-        // Bottom
-        g2d.fillRect(halfHandleX - handleSize, bottom+imagePosition.y+1, handleSize*2, 3);
-        g2d.drawLine(imagePosition.x-handleSize, bottom+imagePosition.y, imagePosition.x +imageSize.width+handleSize, bottom+imagePosition.y);
-
-        // Left
-        int halfHandleY = imagePosition.y + imageSize.height/2;
-        g2d.fillRect(left+imagePosition.x-3, halfHandleY - handleSize, 3, handleSize*2);
-        g2d.drawLine(left+imagePosition.x, imagePosition.y-handleSize, left+imagePosition.x, imagePosition.y+imageSize.height+handleSize);
-        
-        // Right
-        g2d.fillRect(right+1+imagePosition.x, halfHandleY - handleSize, 3, handleSize*2);
-        g2d.drawLine(right+imagePosition.x, imagePosition.y-handleSize, right+imagePosition.x, imagePosition.y+imageSize.height+handleSize);
-
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldValue);
+    }
+    
+    public void setGridColor(Color color) {
+    	gridColor = color;
     }
     
     @Override
     public boolean isFocusable() {
     	return true;
     }
-    public void setGridCountX(int count) {
-        gridCountX = count;
+    public void setGridOffsetX(int offsetX, int offsetY) {
+    	gridOffsetX = offsetX;
+    	gridOffsetY = offsetY;
+    	
         repaint();
-    }
-    
-    public void setGridCountY(int count) {
-        gridCountY = count;
-        repaint();
-    }
-    
-    private float getScaledImageRatio() {
-        return getScaledImageSize().width / (float)image.getWidth();
     }
     
     private Dimension getScaledImageSize() {
@@ -241,56 +173,11 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     }
     
     private Point getScaledImagePosition() {
-        Dimension size = getSize();
-        Dimension imageSize = getScaledImageSize();
         
         int imgX = scale.getOffsetX();
         int imgY = scale.getOffsetY();
         
         return new Point(imgX, imgY);
-    }
-    
-    private void updateHandles(MouseEvent e) {
-        // Convert
-        float imgRatio = getScaledImageRatio();
-        Point imgPosition = getScaledImagePosition();
-        
-        Point location = e.getPoint();
-        location.translate(-imgPosition.x, -imgPosition.y);
-
-        location = new Point((int)(location.x / imgRatio), (int)(location.y / imgRatio));
-
-        switch (draggingHandle) {
-        case TOP: {
-            if (location.y < 0) {location.y = 0;}
-            if (location.y > bottomGrid - MINIMUM_GRID_SIZE) {location.y = bottomGrid-MINIMUM_GRID_SIZE;}
-            
-            topGrid = location.y;
-            break;
-        }
-        case BOTTOM: {
-            if (location.y < topGrid + MINIMUM_GRID_SIZE) {location.y = topGrid+MINIMUM_GRID_SIZE;}
-            if (location.y > image.getHeight()) {location.y = image.getHeight();}
-            
-            bottomGrid = location.y;
-            break;
-        }
-        case LEFT: {
-            if (location.x < 0) {location.x = 0;}
-            if (location.x > rightGrid - MINIMUM_GRID_SIZE) {location.x = rightGrid-MINIMUM_GRID_SIZE;}
-            
-            leftGrid = location.x;
-            break;
-        }
-        case RIGHT: {
-            if (location.x < leftGrid+MINIMUM_GRID_SIZE) {location.x = leftGrid+MINIMUM_GRID_SIZE;}
-            if (location.x > image.getWidth()) {location.x = image.getWidth();}
-            
-            rightGrid = location.x;
-            break;
-        }
-        }
-        repaint();
     }
     
     public void zoomIn() {
@@ -308,6 +195,59 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     	repaint();
     }
     
+    public void moveGridBy(int dx, int dy) {
+
+        gridOffsetX += dx;
+        gridOffsetY += dy;
+
+        gridOffsetX %= gridSize;
+        gridOffsetY %= gridSize;
+
+        if (gridOffsetY > 0) {
+            gridOffsetY = gridOffsetY - gridSize;
+        }
+        
+        if (gridOffsetX > 0) {
+            gridOffsetX = gridOffsetX - gridSize;
+        }
+
+        repaint();
+    }
+
+    public void adjustGridSize(int delta) {
+        gridSize = Math.max(0, gridSize + delta);
+
+        repaint();
+    }
+
+    private void adjustGridSize(Direction direction) {
+
+        Dimension imageSize = getScaledImageSize();
+        Point imagePosition = getScaledImagePosition();
+
+        double gridSize = this.gridSize * scale.getScale();
+        
+        int cellX = (int)((mouseX - imagePosition.x) / gridSize);
+        int cellY = (int)((mouseY - imagePosition.y) / gridSize);
+
+        switch (direction) {
+        case Increase:
+            adjustGridSize(1);
+            
+            if (this.gridSize != gridSize) {
+            	moveGridBy(-cellX, -cellY);
+            }
+            break;
+        case Decrease:
+            adjustGridSize(-1);
+
+            if (this.gridSize != gridSize) {
+            	moveGridBy(cellX, cellY);
+            }
+            break;
+        }
+    }
+    
     //// 
     // MOUSE LISTENER
     public void mouseClicked(MouseEvent e) {}
@@ -315,38 +255,17 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     public void mouseExited(MouseEvent e) {}
     public void mousePressed(MouseEvent e) {
         
-    	if (SwingUtilities.isLeftMouseButton(e)) {
-	        float imgRatio = getScaledImageRatio();
-	        Point imgPos = getScaledImagePosition();
-	        
-	        int top = (int)(topGrid * imgRatio) + imgPos.y;
-	        int bottom = (int)(bottomGrid * imgRatio) + imgPos.y;
-	        int left = (int)(leftGrid * imgRatio)+imgPos.x;
-	        int right = (int)(rightGrid * imgRatio)+imgPos.x;
-	
-	        int distTop = Math.abs(e.getY() - top);
-	        int distBottom = Math.abs(e.getY() - bottom);
-	        int distLeft = Math.abs(e.getX() - left);
-	        int distRight = Math.abs(e.getX() - right);
-	        
-	        int dist = distTop;
-	        draggingHandle = Handle.TOP;
-	        
-	        if (distBottom < dist) {dist = distBottom; draggingHandle = Handle.BOTTOM;}
-	        if (distLeft < dist) {dist = distLeft; draggingHandle = Handle.LEFT;}
-	        if (distRight < dist) {dist = distRight; draggingHandle = Handle.RIGHT;}
-	        
-	        updateHandles(e);
-    	} else {
-    		mouseX = e.getX();
-    		mouseY = e.getY();
+		mouseX = e.getX();
+		mouseY = e.getY();
+
+		if (SwingUtilities.isLeftMouseButton(e)) {
+			dragStartX = e.getX();
+			dragStartY = e.getY();
+
     	}
     }
     
     public void mouseReleased(MouseEvent e) {
-        draggingHandle = null;
-        
-        repaint();
     }
 
     ////
@@ -354,7 +273,17 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     public void mouseDragged(MouseEvent e) {
         
     	if (SwingUtilities.isLeftMouseButton(e)) {
-	        updateHandles(e);
+
+	        int dx = e.getX() - dragStartX;
+	        int dy = e.getY() - dragStartY;
+	
+	        dragStartX = e.getX();
+	        dragStartY = e.getY();
+	
+	        dx = (int)(dx*scale.getScale());
+	        dy = (int)(dy*scale.getScale());
+	        
+            moveGridBy(dx, dy);
     	} else {
     		int offsetX = scale.getOffsetX() + e.getX() - mouseX;
     		int offsetY = scale.getOffsetY() + e.getY() - mouseY;
@@ -363,9 +292,9 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     		
     		mouseX = e.getX();
     		mouseY = e.getY();
+
+    		repaint();
     	}
-        
-        repaint();
     }
     public void mouseMoved(MouseEvent e) {
         
@@ -386,13 +315,79 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     // MOUSE WHEEL LISTENER
     public void mouseWheelMoved(MouseWheelEvent e) {
 
-    	if (e.getWheelRotation() > 0) {
-    		scale.zoomOut(e.getX(), e.getY());
-    	} else {
-    		scale.zoomIn(e.getX(), e.getY());
-    	}
-    	
+        if (SwingUtil.isControlDown(e)) {
+	    	if (e.getWheelRotation() > 0) {
+	    		scale.zoomOut(e.getX(), e.getY());
+	    	} else {
+	    		scale.zoomIn(e.getX(), e.getY());
+	    	}
+        } else {
+
+            if (e.getWheelRotation() > 0) {
+                
+                adjustGridSize(Direction.Increase);
+            } else {
+                
+            	adjustGridSize(Direction.Decrease);
+            }
+        }
     	repaint();
     }
+
+/*
+    private final Map<KeyStroke, Action> KEYSTROKES = new HashMap<KeyStroke, Action>() {
+	    {
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Decrease));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Decrease));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Increase));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Increase));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new GridOffsetAction(GridOffsetAction.Direction.Up));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new GridOffsetAction(GridOffsetAction.Direction.Left));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new GridOffsetAction(GridOffsetAction.Direction.Down));
+	        put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new GridOffsetAction(GridOffsetAction.Direction.Right));
+	    }
+    };
+    protected Map<KeyStroke, Action> getKeyActionMap() {
+        return KEYSTROKES;
+    }
     
+    private final class GridSizeAction extends AbstractAction {
+        private final Size size;
+        public GridSizeAction(Size size) {
+            this.size = size;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+            adjustGridSize(renderer, size);
+        }
+    }
+    
+    private static final class GridOffsetAction extends AbstractAction {
+        private static enum Direction { Left, Right, Up, Down };
+        private final Direction direction;
+
+        public GridOffsetAction(Direction direction) {
+            this.direction = direction;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+            switch (direction) {
+            case Left:
+                renderer.moveGridBy(-1, 0);
+                break;
+            case Right:
+                renderer.moveGridBy(1, 0);
+                break;
+            case Up:
+                renderer.moveGridBy(0, -1);
+                break;
+            case Down:
+                renderer.moveGridBy(0, 1);
+                break;
+            }
+        }
+    }
+ */    
 }
