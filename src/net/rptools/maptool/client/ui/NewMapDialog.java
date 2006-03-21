@@ -90,9 +90,13 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JLabel fpcLabel = null;
 	private JLabel spacerLabel = null;
 	
-	private Rectangle gridBounds;
-	private int gridCountX;
-	private int gridCountY;
+//	private Rectangle gridBounds;
+//	private int gridCountX;
+//	private int gridCountY;
+
+	private int gridSize;
+	private int gridOffsetX;
+	private int gridOffsetY;
 	
 	/**
 	 * This is the default constructor
@@ -117,41 +121,52 @@ public class NewMapDialog extends JDialog implements WindowListener {
 
 	
 	
-	public Rectangle getGridBounds() {
-		return gridBounds;
+//	public Rectangle getGridBounds() {
+//		return gridBounds;
+//	}
+//
+//
+//
+//	public void setGridBounds(Rectangle gridBounds) {
+//		this.gridBounds = gridBounds;
+//	}
+//
+//
+//
+//	public int getGridCountX() {
+//		return gridCountX;
+//	}
+//
+//
+//
+//	public void setGridCountX(int gridCountX) {
+//		this.gridCountX = gridCountX;
+//	}
+//
+//
+//
+//	public int getGridCountY() {
+//		return gridCountY;
+//	}
+//
+//
+//
+//	public void setGridCountY(int gridCountY) {
+//		this.gridCountY = gridCountY;
+//	}
+//
+
+	public int getGridSize() {
+		return gridSize;
 	}
-
-
-
-	public void setGridBounds(Rectangle gridBounds) {
-		this.gridBounds = gridBounds;
-	}
-
-
-
-	public int getGridCountX() {
-		return gridCountX;
-	}
-
-
-
-	public void setGridCountX(int gridCountX) {
-		this.gridCountX = gridCountX;
-	}
-
-
-
-	public int getGridCountY() {
-		return gridCountY;
-	}
-
-
-
-	public void setGridCountY(int gridCountY) {
-		this.gridCountY = gridCountY;
-	}
-
-
+    public int getGridOffsetX() {
+    	return gridOffsetX;
+    }
+    
+    public int getGridOffsetY() {
+    	return gridOffsetY;
+    }
+    
 
 	@Override
 	public void setVisible(boolean b) {
@@ -208,7 +223,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
         selectedAsset = null;
         returnAsset = null;
         
-        gridBounds = null;
+//        gridBounds = null;
         
 		setVisible(false);
 	}
@@ -501,11 +516,15 @@ public class NewMapDialog extends JDialog implements WindowListener {
 						
 						agd.setVisible(true);
 						if (agd.isOK()) {
+							gridSize = agd.getGridSize();
+							gridOffsetX = agd.getGridOffsetX();
+							gridOffsetY = agd.getGridOffsetY();
+							
 //							gridBounds = agd.getGridBounds();
 //							gridCountX = agd.getGridXCount();
 //							gridCountY = agd.getGridYCount();
 						} else {
-							gridBounds = null;
+//							gridBounds = null;
 						}
 						
 					} catch (IOException ioe) {

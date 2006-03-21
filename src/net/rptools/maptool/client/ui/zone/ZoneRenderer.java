@@ -69,6 +69,8 @@ import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.swing.Animatable;
+import net.rptools.maptool.client.swing.AnimationManager;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
@@ -342,17 +344,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		
         if (zone == null) { return; }
         
-        // Are we still waiting to show the zone ?
-        if (isLoading()) {
-        	Dimension size = getSize();
-        	g2d.setColor(Color.black);
-        	g2d.fillRect(0, 0, size.width, size.height);
-        	
-        	GraphicsUtil.drawBoxedString(g2d, "    Loading    ", size.width/2, size.height/2);
-        	
-        	return;
-        }
-        
         int gridSize = (int) (zone.getGridSize() * getScale());
         
     	renderBoard(g2d);
@@ -373,6 +364,28 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         }
         
         renderFog(g2d);
+        
+        // Are we still waiting to show the zone ?
+        if (isLoading()) {
+        	Dimension size = getSize();
+        	g2d.setColor(Color.black);
+        	g2d.fillRect(0, 0, size.width, size.height);
+        	
+        	GraphicsUtil.drawBoxedString(g2d, "    Loading    ", size.width/2, size.height/2);
+        	
+        	AnimationManager.addAnimatable(new Animatable() {
+        		private long start = System.currentTimeMillis();
+        		public void animate() {
+        			if (System.currentTimeMillis() - start > 1000) {
+        				// wait for a second then refresh
+	        			AnimationManager.removeAnimatable(this);
+	        			ZoneRenderer.this.repaint();
+        			}
+        		}
+        	});
+        	
+        	return;
+        }
     }
 
     /**

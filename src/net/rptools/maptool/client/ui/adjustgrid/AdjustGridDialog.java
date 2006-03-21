@@ -24,18 +24,18 @@
  */
 package net.rptools.maptool.client.ui.adjustgrid;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.EventQueue;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -45,14 +45,11 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.text.JTextComponent;
 
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.maptool.client.swing.VerticalLabel;
-import javax.swing.JTextField;
 
 import com.jeta.forms.components.panel.FormPanel;
 import com.jeta.forms.gui.form.FormAccessor;
@@ -104,12 +101,25 @@ public class AdjustGridDialog extends JDialog {
 		AbstractButton cancelButton = panel.getButton("cancelButton");
         cancelButton.setAction(new CancelAction());
         
+        AdjustGridPanel adjustGridPanel = getAdjustGridPanel();
+        
         gridSizeTextField = panel.getTextField("gridSize");
+        gridSizeTextField.addActionListener(new UpdateAdjustGridPanelHandler());
+        gridSizeTextField.setText(Integer.toString(adjustGridPanel.getGridSize()));
+        gridSizeTextField.addFocusListener(new SelectTextListener(gridSizeTextField));
+        
         offsetXTextField = panel.getTextField("xOffset");
+        offsetXTextField.addActionListener(new UpdateAdjustGridPanelHandler());
+        offsetXTextField.setText(Integer.toString(adjustGridPanel.getGridOffsetX()));
+        offsetXTextField.addFocusListener(new SelectTextListener(offsetXTextField));
+
         offsetYTextField = panel.getTextField("yOffset");
+        offsetYTextField.addActionListener(new UpdateAdjustGridPanelHandler());
+        offsetYTextField.setText(Integer.toString(adjustGridPanel.getGridOffsetY()));
+        offsetYTextField.addFocusListener(new SelectTextListener(offsetYTextField));
 
         FormAccessor accessor = panel.getFormAccessor();
-        accessor.replaceBean("adjustGridPanel", getAdjustGridPanel());
+        accessor.replaceBean("adjustGridPanel", adjustGridPanel);
 
         setLayout(new GridLayout());
         add(panel);
@@ -117,6 +127,19 @@ public class AdjustGridDialog extends JDialog {
         getRootPane().setDefaultButton((JButton)okButton);
     }
 
+    public void initialize(final int gridSize, final int gridOffsetX, final int gridOffsetY, final Color gridColor) {
+    	
+    	EventQueue.invokeLater(new Runnable(){
+
+    		public void run() {
+    	    	gridSizeTextField.setText(Integer.toString(gridSize));
+    	    	offsetXTextField.setText(Integer.toString(gridOffsetX));
+    	    	offsetYTextField.setText(Integer.toString(gridOffsetY));
+    	    	getAdjustGridPanel().setGridColor(gridColor);
+    		}
+    	});
+    }
+    
     @Override
     public void setVisible(boolean b) {
 
@@ -141,10 +164,71 @@ public class AdjustGridDialog extends JDialog {
             adjustGridPanel = new AdjustGridPanel();
             adjustGridPanel.setBorder(BorderFactory.createLineBorder(Color.black));
             adjustGridPanel.setBackground(Color.white);
+            adjustGridPanel.addPropertyChangeListener(new AdjustGridPanelChangeListener());
         }
         return adjustGridPanel;
     }
 
+    public int getGridSize() {
+    	return getAdjustGridPanel().getGridSize();
+    }
+    
+    public int getGridOffsetX() {
+    	return getAdjustGridPanel().getGridOffsetX();
+    }
+    
+    public int getGridOffsetY() {
+    	return getAdjustGridPanel().getGridOffsetY();
+    }
+    
+    private class AdjustGridPanelChangeListener implements PropertyChangeListener {
+    	
+    	public void propertyChange(PropertyChangeEvent evt) {
+
+    		if (AdjustGridPanel.PROPERTY_GRID_OFFSET_X.equals(evt.getPropertyName())) {
+    			offsetXTextField.setText(evt.getNewValue().toString());
+    		}
+    		if (AdjustGridPanel.PROPERTY_GRID_OFFSET_Y.equals(evt.getPropertyName())) {
+    			offsetYTextField.setText(evt.getNewValue().toString());
+    		}
+    		if (AdjustGridPanel.PROPERTY_GRID_SIZE.equals(evt.getPropertyName())) {
+    			gridSizeTextField.setText(evt.getNewValue().toString());
+    		}
+    		
+    	}
+    }
+    
+    public void setGridSize(int gridSize) {
+    	getAdjustGridPanel().setGridSize(gridSize);
+    }
+
+    public void setGridOffset(int offsetX, int offsetY) {
+    	getAdjustGridPanel().setGridOffset(offsetX, offsetY);
+    }
+    
+    private class UpdateAdjustGridPanelHandler implements ActionListener {
+
+    	public void actionPerformed(ActionEvent e) {
+    		
+    		setGridSize(Integer.parseInt(gridSizeTextField.getText()));
+    		setGridOffset(Integer.parseInt(offsetXTextField.getText()), Integer.parseInt(offsetYTextField.getText()));
+    	}
+    }
+
+    private class SelectTextListener implements FocusListener {
+ 
+    	private JTextComponent textComponent;
+    	
+    	public SelectTextListener(JTextComponent component) {
+    		textComponent = component;
+    	}
+    	
+    	public void focusGained(FocusEvent e) {
+    	}
+    	public void focusLost(FocusEvent e) {
+    	}
+    }
+    
 	////
 	// ACTIONS
 	private class OKAction extends AbstractAction {

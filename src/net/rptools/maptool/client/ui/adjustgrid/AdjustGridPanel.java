@@ -36,6 +36,8 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -51,6 +53,12 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     
     private static enum Direction { Increase, Decrease };
 
+    public static final String PROPERTY_GRID_OFFSET_X = "gridOffsetX";
+    public static final String PROPERTY_GRID_OFFSET_Y = "gridOffsetY";
+    public static final String PROPERTY_GRID_SIZE = "gridSize";
+    
+    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    
     private int gridOffsetX = 0;
     private int gridOffsetY = 0;
     private int gridSize = 40;
@@ -139,14 +147,14 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         
         // across
         int x = imagePosition.x + (int)(gridOffsetX*imgRatio);
-        for (int i = (int)gridSize; i <= imageSize.width; i += gridSize) {
-            g2d.drawLine(x + i, imagePosition.y, x + i, imagePosition.y + imageSize.height-1);
+        for (double i = gridSize; i <= imageSize.width; i += gridSize) {
+            g2d.drawLine(x + (int)i, imagePosition.y, x + (int)i, imagePosition.y + imageSize.height-1);
         }
         
         // down
         int y = imagePosition.y + (int)(gridOffsetY*imgRatio);
-        for (int i = (int)gridSize; i <= imageSize.height; i += gridSize) {
-            g2d.drawLine(imagePosition.x, y+i, imagePosition.x+imageSize.width-1, y+i);
+        for (double i = gridSize; i <= imageSize.height; i += gridSize) {
+            g2d.drawLine(imagePosition.x, y+(int)i, imagePosition.x+imageSize.width-1, y+(int)i);
         }
     }
     
@@ -158,11 +166,28 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     public boolean isFocusable() {
     	return true;
     }
-    public void setGridOffsetX(int offsetX, int offsetY) {
+    public void setGridOffset(int offsetX, int offsetY) {
     	gridOffsetX = offsetX;
     	gridOffsetY = offsetY;
     	
         repaint();
+    }
+    
+    public int getGridSize() {
+    	return gridSize;
+    }
+    
+    public int getGridOffsetX() {
+    	return gridOffsetX;
+    }
+    
+    public int getGridOffsetY() {
+    	return gridOffsetY;
+    }
+    
+    public void setGridSize(int size) {
+    	gridSize = Math.max(MINIMUM_GRID_SIZE, size);
+    	repaint();
     }
     
     private Dimension getScaledImageSize() {
@@ -199,6 +224,9 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     
     public void moveGridBy(int dx, int dy) {
 
+    	int oldOffsetX = gridOffsetX;
+    	int oldOffsetY = gridOffsetY;
+    	
         gridOffsetX += dx;
         gridOffsetY += dy;
 
@@ -214,23 +242,28 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         }
 
         repaint();
+        
+        propertyChangeSupport.firePropertyChange(PROPERTY_GRID_OFFSET_X, oldOffsetX, gridOffsetX);
+        propertyChangeSupport.firePropertyChange(PROPERTY_GRID_OFFSET_Y, oldOffsetY, gridOffsetY);
     }
 
     public void adjustGridSize(int delta) {
+    	
+    	int oldSize = gridSize;
         gridSize = Math.max(MINIMUM_GRID_SIZE, gridSize + delta);
 
         repaint();
+        propertyChangeSupport.firePropertyChange(PROPERTY_GRID_SIZE, oldSize, gridSize);
     }
 
     private void adjustGridSize(Direction direction) {
 
-        Dimension imageSize = getScaledImageSize();
         Point imagePosition = getScaledImagePosition();
 
         double gridSize = this.gridSize * scale.getScale();
         
-        int cellX = (int)((mouseX - imagePosition.x) / gridSize);
-        int cellY = (int)((mouseY - imagePosition.y) / gridSize);
+        int cellX = (int)((mouseX - imagePosition.x-gridOffsetX) / gridSize);
+        int cellY = (int)((mouseY - imagePosition.y-gridOffsetY) / gridSize);
 
         switch (direction) {
         case Increase:
@@ -265,8 +298,8 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
 		
         Point imagePosition = getScaledImagePosition();
 
-        int x = (int)((e.getX() - imagePosition.x)/scale.getScale());
-        int y = (int)((e.getY() - imagePosition.y)/scale.getScale());
+        int x = (int)((e.getX() - imagePosition.x)/scale.getScale()-gridOffsetX);
+        int y = (int)((e.getY() - imagePosition.y)/scale.getScale()-gridOffsetY);
 		
         dragOffsetX = x % gridSize;
         dragOffsetY = y % gridSize;
@@ -283,9 +316,12 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
 
             Point imagePosition = getScaledImagePosition();
 
-            int x = (int)((e.getX() - imagePosition.x)/scale.getScale());
-            int y = (int)((e.getY() - imagePosition.y)/scale.getScale());
-    		
+            int x = (int)((e.getX() - imagePosition.x)/scale.getScale() - dragOffsetX);
+            int y = (int)((e.getY() - imagePosition.y)/scale.getScale() - dragOffsetY);
+
+            int oldOffsetX = gridOffsetX;
+            int oldOffsetY = gridOffsetY;
+            
             gridOffsetX = x % gridSize;
             gridOffsetY = y % gridSize;
             
@@ -298,9 +334,8 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
             }
 
             repaint();
-            System.out.format("%d %d, %d %d\n", x, y, gridOffsetX, gridOffsetY);
-//	        
-//            moveGridBy(dx, dy);
+            propertyChangeSupport.firePropertyChange(PROPERTY_GRID_OFFSET_X, oldOffsetX, gridOffsetX);
+            propertyChangeSupport.firePropertyChange(PROPERTY_GRID_OFFSET_Y, oldOffsetY, gridOffsetY);
     	} else {
     		int offsetX = scale.getOffsetX() + e.getX() - dragStartX;
     		int offsetY = scale.getOffsetY() + e.getY() - dragStartY;
@@ -351,6 +386,22 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     	repaint();
     }
 
+    ////
+    // PROPERTY CHANGE SUPPORT
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+    	propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+    
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+    	propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+    public void addPropertyChangeListener(String name, PropertyChangeListener listener) {
+    	propertyChangeSupport.addPropertyChangeListener(name, listener);
+    }
+    
+    public void removePropertyChangeListener(String name, PropertyChangeListener listener) {
+    	propertyChangeSupport.removePropertyChangeListener(name, listener);
+    }
 /*
     private final Map<KeyStroke, Action> KEYSTROKES = new HashMap<KeyStroke, Action>() {
 	    {

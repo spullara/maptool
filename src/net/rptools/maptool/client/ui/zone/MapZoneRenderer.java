@@ -134,7 +134,11 @@ public class MapZoneRenderer extends ZoneRenderer {
     private BufferedImage getBackgroundImage() {
         
         if (zone == null) { return null; }
-        if (backgroundImage != ImageManager.UNKNOWN_IMAGE && backgroundImage != null) { return backgroundImage; }
+        if (backgroundImage != ImageManager.UNKNOWN_IMAGE && backgroundImage != null) { 
+        	
+        	loaded = true;
+        	return backgroundImage; 
+        }
         
         Asset asset = AssetManager.getAsset(zone.getAssetID());
         if (asset == null) {
@@ -150,7 +154,6 @@ public class MapZoneRenderer extends ZoneRenderer {
         	backgroundImage = ImageManager.getImage(asset, this);
         	if (bgImageSize == null && backgroundImage != ImageManager.UNKNOWN_IMAGE) {
         		bgImageSize = new Dimension(backgroundImage.getWidth(), backgroundImage.getHeight());
-        		loaded = true;
         	}
         }
         

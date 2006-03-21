@@ -56,6 +56,7 @@ import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.NewMapDialog;
 import net.rptools.maptool.client.ui.ServerInfoDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
+import net.rptools.maptool.client.ui.adjustgrid.AdjustGridDialog;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.assetpanel.Directory;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -490,12 +491,33 @@ public class AppActions {
 
 		public void execute(ActionEvent e) {
 
-			if (MapTool.getFrame().getCurrentZoneRenderer().getZone().getType() == Zone.Type.INFINITE) {
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			if (renderer.getZone().getType() == Zone.Type.INFINITE) {
 				MapTool.showError("Cannot adjust grid on infinite maps.");
 				return;
 			}
 
-			// TODO: Show adjust grid dialog
+			Zone zone = renderer.getZone();
+			
+			AdjustGridDialog adjustGridDialog = new AdjustGridDialog(MapTool.getFrame(), ImageManager.getImage(AssetManager.getAsset(zone.getAssetID()), null));
+			adjustGridDialog.setGridSize(zone.getGridSize());
+			adjustGridDialog.setGridOffset(zone.getGridOffsetX(), zone.getGridOffsetY());
+			
+			adjustGridDialog.setVisible(true);
+			
+			if (!adjustGridDialog.isOK()) {
+				return;
+			}
+			
+			zone.setGridSize(adjustGridDialog.getGridSize());
+			zone.setGridOffsetX(adjustGridDialog.getGridOffsetX());
+			zone.setGridOffsetY(adjustGridDialog.getGridOffsetY());
+			
+			MapTool.serverCommand().setZoneGridSize(zone.getId(),
+					zone.getGridOffsetX(), zone.getGridOffsetY(),
+					zone.getGridSize(), zone.getGridColor());
+			MapTool.getFrame().getCurrentZoneRenderer().repaint();
+			
 		}
 
 	};
@@ -1061,24 +1083,24 @@ public class AppActions {
 					// Create the zone
 					Zone zone = ZoneFactory.createZone(newMapDialog.getZoneType(), newMapDialog.getZoneName(), newMapDialog.getZoneFeetPerCell(), asset.getId());
 
-					Rectangle bounds = newMapDialog.getGridBounds();
-					if (bounds != null) {
+//					Rectangle bounds = newMapDialog.getGridBounds();
+//					if (bounds != null) {
 						
 						BufferedImage image = ImageManager.getImage(asset, null);
 						
-						int gridCountX = (int)((newMapDialog.getGridCountX()/(float)bounds.width)*image.getWidth());
-						int gridCountY = (int)((newMapDialog.getGridCountY()/(float)bounds.height)*image.getHeight());
+//						int gridCountX = (int)((newMapDialog.getGridCountX()/(float)bounds.width)*image.getWidth());
+//						int gridCountY = (int)((newMapDialog.getGridCountY()/(float)bounds.height)*image.getHeight());
+//						
+//						int gridSizeX = image.getWidth() / gridCountX;
+//						int gridSizeY = image.getHeight() / gridCountY;
+//						
+//						int gridOffsetX = bounds.x % gridSizeX;
+//						int gridOffsetY = bounds.y % gridSizeY;
 						
-						int gridSizeX = image.getWidth() / gridCountX;
-						int gridSizeY = image.getHeight() / gridCountY;
-						
-						int gridOffsetX = bounds.x % gridSizeX;
-						int gridOffsetY = bounds.y % gridSizeY;
-						
-						zone.setGridOffsetX(-gridOffsetX);
-						zone.setGridOffsetY(-gridOffsetY);
-						zone.setGridSize(gridSizeX);
-					}
+						zone.setGridOffsetX(newMapDialog.getGridOffsetX());
+						zone.setGridOffsetY(newMapDialog.getGridOffsetY());
+						zone.setGridSize(newMapDialog.getGridSize());
+//					}
 					
 					MapTool.addZone(zone);
 				}
