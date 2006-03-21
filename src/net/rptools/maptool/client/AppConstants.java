@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FilenameFilter;
 
@@ -35,7 +36,10 @@ public class AppConstants {
 
 	public static final ServiceGroup SERVICE_GROUP = new ServiceGroup("maptool");
 
-    public static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {
+	public static final int DEFAULT_GRID_SIZE = 40;
+	public static final Color DEFAULT_GRID_COLOR = Color.darkGray;
+
+	public static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {
         public boolean accept(File dir,String name) {
             name = name.toLowerCase();
             return name.endsWith(".bmp") ||

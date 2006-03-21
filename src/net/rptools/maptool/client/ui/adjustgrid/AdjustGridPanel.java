@@ -56,6 +56,7 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     public static final String PROPERTY_GRID_OFFSET_X = "gridOffsetX";
     public static final String PROPERTY_GRID_OFFSET_Y = "gridOffsetY";
     public static final String PROPERTY_GRID_SIZE = "gridSize";
+    public static final String PROPERTY_ZOOM = "zoom";
     
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
     
@@ -72,7 +73,7 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
 	private int dragOffsetX;
 	private int dragOffsetY;
 	
-	private Color gridColor = Color.red;
+	private Color gridColor = Color.darkGray;
 
 	private BufferedImage image;
     
@@ -112,6 +113,11 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         scale = new Scale(image.getWidth(), image.getHeight());
     }
 
+    public void setZoomIndex(int index) {
+    	scale.setIndex(index);
+    	repaint();
+    }
+    
     @Override
     protected void paintComponent(Graphics g) {
         
@@ -121,7 +127,9 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
 
         Dimension size = getSize();
         
-        scale.initialize(size.width, size.height);
+        if (scale.initialize(size.width, size.height)) {
+	    	propertyChangeSupport.firePropertyChange(PROPERTY_ZOOM, 0, scale.getIndex());
+        }
 
         // CALCULATIONS
         Dimension imageSize = getScaledImageSize();
@@ -368,11 +376,14 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     public void mouseWheelMoved(MouseWheelEvent e) {
 
         if (SwingUtil.isControlDown(e)) {
+        	
+        	int oldZoom = scale.getIndex();
 	    	if (e.getWheelRotation() > 0) {
 	    		scale.zoomOut(e.getX(), e.getY());
 	    	} else {
 	    		scale.zoomIn(e.getX(), e.getY());
 	    	}
+	    	propertyChangeSupport.firePropertyChange(PROPERTY_ZOOM, oldZoom, scale.getIndex());
         } else {
 
             if (e.getWheelRotation() > 0) {

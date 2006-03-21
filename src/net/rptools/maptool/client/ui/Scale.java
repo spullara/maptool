@@ -81,6 +81,10 @@ public class Scale {
     	}
     }
 
+    public static int getScaleCount() {
+    	return scaleArray.length;
+    }
+    
     public Scale() {
     	this(0, 0);
     }
@@ -181,16 +185,24 @@ public class Scale {
     	return initialized;
     }
     
-    public void initialize(int width, int height) {
+    /**
+     * Fit the image into the given space by finding the zoom level
+     * that allows the image to fit.  Then center the image
+     * @param width
+     * @param height
+     * @return true if this call did something, false if the init has already been called
+     */
+    public boolean initialize(int width, int height) {
     	
     	if (initialized) {
-    		return;
+    		return false;
     	}
     	
     	findScaleToFit(width-20, height-20);
     	centerIn(width, height);
     	
     	initialized = true;
+    	return true;
     }
     
     public void centerIn(int width, int height) {

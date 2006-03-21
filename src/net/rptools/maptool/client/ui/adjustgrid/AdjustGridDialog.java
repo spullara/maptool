@@ -45,12 +45,19 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
-import net.rptools.lib.swing.SwingUtil;
+import quicktime.app.event.EventDispatcher;
 
+import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.ui.Scale;
+
+import com.jeta.forms.components.colors.JETAColorWell;
 import com.jeta.forms.components.panel.FormPanel;
 import com.jeta.forms.gui.form.FormAccessor;
 
@@ -59,9 +66,11 @@ public class AdjustGridDialog extends JDialog {
     private AdjustGridPanel adjustGridPanel = null;
 	
 	private boolean isOK;
-	private JTextField gridSizeTextField = null;
-	private JTextField offsetXTextField = null;
-	private JTextField offsetYTextField = null;
+	private JTextField gridSizeTextField;
+	private JTextField offsetXTextField;
+	private JTextField offsetYTextField;
+	private JSlider zoomSlider;
+	private JETAColorWell colorWell;
 
 	/**
      * This is the default constructor
@@ -118,6 +127,14 @@ public class AdjustGridDialog extends JDialog {
         offsetYTextField.setText(Integer.toString(adjustGridPanel.getGridOffsetY()));
         offsetYTextField.addFocusListener(new SelectTextListener(offsetYTextField));
 
+        colorWell = (JETAColorWell) panel.getComponentByName("color");
+        colorWell.addActionListener(new ColorChangeAction());
+        
+        zoomSlider = (JSlider) panel.getComponentByName("zoom");
+        zoomSlider.setMinimum(0);
+        zoomSlider.setMaximum(Scale.getScaleCount());
+        zoomSlider.addChangeListener(new ZoomChangeListener());
+        
         FormAccessor accessor = panel.getFormAccessor();
         accessor.replaceBean("adjustGridPanel", adjustGridPanel);
 
@@ -135,7 +152,11 @@ public class AdjustGridDialog extends JDialog {
     	    	gridSizeTextField.setText(Integer.toString(gridSize));
     	    	offsetXTextField.setText(Integer.toString(gridOffsetX));
     	    	offsetYTextField.setText(Integer.toString(gridOffsetY));
+    	    	colorWell.setColor(gridColor);
+
     	    	getAdjustGridPanel().setGridColor(gridColor);
+    	    	getAdjustGridPanel().setGridOffset(gridOffsetX, gridOffsetY);
+    	    	getAdjustGridPanel().setGridSize(gridSize);
     		}
     	});
     }
@@ -185,33 +206,55 @@ public class AdjustGridDialog extends JDialog {
     	
     	public void propertyChange(PropertyChangeEvent evt) {
 
-    		if (AdjustGridPanel.PROPERTY_GRID_OFFSET_X.equals(evt.getPropertyName())) {
-    			offsetXTextField.setText(evt.getNewValue().toString());
-    		}
-    		if (AdjustGridPanel.PROPERTY_GRID_OFFSET_Y.equals(evt.getPropertyName())) {
-    			offsetYTextField.setText(evt.getNewValue().toString());
-    		}
-    		if (AdjustGridPanel.PROPERTY_GRID_SIZE.equals(evt.getPropertyName())) {
-    			gridSizeTextField.setText(evt.getNewValue().toString());
-    		}
+    		String name = evt.getPropertyName();
+    		Object value = evt.getNewValue();
     		
+    		if (AdjustGridPanel.PROPERTY_GRID_OFFSET_X.equals(name)) {
+    			offsetXTextField.setText(value.toString());
+    		}
+    		if (AdjustGridPanel.PROPERTY_GRID_OFFSET_Y.equals(name)) {
+    			offsetYTextField.setText(value.toString());
+    		}
+    		if (AdjustGridPanel.PROPERTY_GRID_SIZE.equals(name)) {
+    			gridSizeTextField.setText(value.toString());
+    		}
+    		if (AdjustGridPanel.PROPERTY_ZOOM.equals(name)) {
+    			zoomSlider.setValue((Integer)value);
+    		}
     	}
     }
     
     public void setGridSize(int gridSize) {
     	getAdjustGridPanel().setGridSize(gridSize);
+    	gridSizeTextField.setText(Integer.toString(gridSize));
     }
 
+    public void setGridColor(Color color) {
+    	getAdjustGridPanel().setGridColor(color);
+    	colorWell.setColor(color);
+    }
+    
+    public Color getGridColor() {
+    	return colorWell.getColor();
+    }
+    
     public void setGridOffset(int offsetX, int offsetY) {
     	getAdjustGridPanel().setGridOffset(offsetX, offsetY);
+    	offsetXTextField.setText(Integer.toString(offsetX));
+    	offsetYTextField.setText(Integer.toString(offsetY));
+    }
+
+    private void updateAdjustGridPanel() {
+    	
+		setGridSize(Integer.parseInt(gridSizeTextField.getText()));
+		setGridOffset(Integer.parseInt(offsetXTextField.getText()), Integer.parseInt(offsetYTextField.getText()));
     }
     
     private class UpdateAdjustGridPanelHandler implements ActionListener {
 
     	public void actionPerformed(ActionEvent e) {
     		
-    		setGridSize(Integer.parseInt(gridSizeTextField.getText()));
-    		setGridOffset(Integer.parseInt(offsetXTextField.getText()), Integer.parseInt(offsetYTextField.getText()));
+    		updateAdjustGridPanel();
     	}
     }
 
@@ -226,6 +269,7 @@ public class AdjustGridDialog extends JDialog {
     	public void focusGained(FocusEvent e) {
     	}
     	public void focusLost(FocusEvent e) {
+    		updateAdjustGridPanel();
     	}
     }
     
@@ -249,6 +293,17 @@ public class AdjustGridDialog extends JDialog {
 			isOK = false;
 			setVisible(false);
         	dispose();
+		}
+	}
+	private class ColorChangeAction extends AbstractAction {
+		public void actionPerformed(ActionEvent e) {
+			Color color = colorWell.getColor();
+			setGridColor(color);
+		}
+	}
+	private class ZoomChangeListener implements ChangeListener {
+		public void stateChanged(ChangeEvent e) {
+			adjustGridPanel.setZoomIndex(zoomSlider.getValue());
 		}
 	}
 }

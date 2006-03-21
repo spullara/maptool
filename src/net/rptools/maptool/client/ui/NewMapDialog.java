@@ -97,6 +97,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private int gridSize;
 	private int gridOffsetX;
 	private int gridOffsetY;
+	private Color gridColor;
 	
 	/**
 	 * This is the default constructor
@@ -166,7 +167,10 @@ public class NewMapDialog extends JDialog implements WindowListener {
     public int getGridOffsetY() {
     	return gridOffsetY;
     }
-    
+
+    public Color getGridColor() {
+    	return gridColor;
+    }
 
 	@Override
 	public void setVisible(boolean b) {
@@ -513,12 +517,14 @@ public class NewMapDialog extends JDialog implements WindowListener {
 					try {
 						BufferedImage image = selectedFile != null ? ImageIO.read(selectedFile) : ImageIO.read(new ByteArrayInputStream(selectedAsset.getImage()));
 						AdjustGridDialog agd = new AdjustGridDialog(MapTool.getFrame(), image);
+						agd.initialize(AppConstants.DEFAULT_GRID_SIZE, 0, 0, AppConstants.DEFAULT_GRID_COLOR);
 						
 						agd.setVisible(true);
 						if (agd.isOK()) {
 							gridSize = agd.getGridSize();
 							gridOffsetX = agd.getGridOffsetX();
 							gridOffsetY = agd.getGridOffsetY();
+							gridColor = agd.getGridColor();
 							
 //							gridBounds = agd.getGridBounds();
 //							gridCountX = agd.getGridXCount();

@@ -502,6 +502,7 @@ public class AppActions {
 			AdjustGridDialog adjustGridDialog = new AdjustGridDialog(MapTool.getFrame(), ImageManager.getImage(AssetManager.getAsset(zone.getAssetID()), null));
 			adjustGridDialog.setGridSize(zone.getGridSize());
 			adjustGridDialog.setGridOffset(zone.getGridOffsetX(), zone.getGridOffsetY());
+			adjustGridDialog.setGridColor(new Color(zone.getGridColor()));
 			
 			adjustGridDialog.setVisible(true);
 			
@@ -512,6 +513,7 @@ public class AppActions {
 			zone.setGridSize(adjustGridDialog.getGridSize());
 			zone.setGridOffsetX(adjustGridDialog.getGridOffsetX());
 			zone.setGridOffsetY(adjustGridDialog.getGridOffsetY());
+			zone.setGridColor(adjustGridDialog.getGridColor().getRGB());
 			
 			MapTool.serverCommand().setZoneGridSize(zone.getId(),
 					zone.getGridOffsetX(), zone.getGridOffsetY(),
@@ -1100,6 +1102,7 @@ public class AppActions {
 						zone.setGridOffsetX(newMapDialog.getGridOffsetX());
 						zone.setGridOffsetY(newMapDialog.getGridOffsetY());
 						zone.setGridSize(newMapDialog.getGridSize());
+						zone.setGridColor(newMapDialog.getGridColor().getRGB());
 //					}
 					
 					MapTool.addZone(zone);
