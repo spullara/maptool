@@ -69,6 +69,7 @@ import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenStates;
@@ -1136,6 +1137,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             
             dtde.dropComplete(true);
 	        repaint();
+	        
+	        // Go to a more appropriate tool
+	        MapTool.getFrame().getToolbox().setSelectedTool(PointerTool.class);
 	        return;
     	}
     	
