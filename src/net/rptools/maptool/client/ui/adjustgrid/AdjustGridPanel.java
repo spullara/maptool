@@ -43,7 +43,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.ui.Scale;
 
 public class AdjustGridPanel extends JComponent implements MouseListener, MouseMotionListener, MouseWheelListener {
@@ -62,6 +61,8 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     
     private int dragStartX;
 	private int dragStartY;
+	private int dragOffsetX;
+	private int dragOffsetY;
 	
 	private Color gridColor = Color.red;
 
@@ -95,7 +96,6 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         		zoomReset();
         	}
         });
-        
     }
     
     public void setZoneImage(BufferedImage image) {
@@ -130,6 +130,8 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         
         // IMAGE
         g2d.drawImage(image, imagePosition.x, imagePosition.y, imageSize.width, imageSize.height, null);
+        g2d.setColor(Color.black);
+        g2d.drawRect(imagePosition.x, imagePosition.y, imageSize.width, imageSize.height);
         
         // GRID
         g2d.setColor(gridColor);
@@ -215,7 +217,7 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     }
 
     public void adjustGridSize(int delta) {
-        gridSize = Math.max(0, gridSize + delta);
+        gridSize = Math.max(MINIMUM_GRID_SIZE, gridSize + delta);
 
         repaint();
     }
@@ -258,11 +260,16 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
 		mouseX = e.getX();
 		mouseY = e.getY();
 
-		if (SwingUtilities.isLeftMouseButton(e)) {
-			dragStartX = e.getX();
-			dragStartY = e.getY();
+		dragStartX = e.getX();
+		dragStartY = e.getY();
+		
+        Point imagePosition = getScaledImagePosition();
 
-    	}
+        int x = (int)((e.getX() - imagePosition.x)/scale.getScale());
+        int y = (int)((e.getY() - imagePosition.y)/scale.getScale());
+		
+        dragOffsetX = x % gridSize;
+        dragOffsetY = y % gridSize;
     }
     
     public void mouseReleased(MouseEvent e) {
@@ -274,24 +281,34 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         
     	if (SwingUtilities.isLeftMouseButton(e)) {
 
-	        int dx = e.getX() - dragStartX;
-	        int dy = e.getY() - dragStartY;
-	
-	        dragStartX = e.getX();
-	        dragStartY = e.getY();
-	
-	        dx = (int)(dx*scale.getScale());
-	        dy = (int)(dy*scale.getScale());
-	        
-            moveGridBy(dx, dy);
+            Point imagePosition = getScaledImagePosition();
+
+            int x = (int)((e.getX() - imagePosition.x)/scale.getScale());
+            int y = (int)((e.getY() - imagePosition.y)/scale.getScale());
+    		
+            gridOffsetX = x % gridSize;
+            gridOffsetY = y % gridSize;
+            
+            if (gridOffsetY > 0) {
+                gridOffsetY = gridOffsetY - gridSize;
+            }
+            
+            if (gridOffsetX > 0) {
+                gridOffsetX = gridOffsetX - gridSize;
+            }
+
+            repaint();
+            System.out.format("%d %d, %d %d\n", x, y, gridOffsetX, gridOffsetY);
+//	        
+//            moveGridBy(dx, dy);
     	} else {
-    		int offsetX = scale.getOffsetX() + e.getX() - mouseX;
-    		int offsetY = scale.getOffsetY() + e.getY() - mouseY;
+    		int offsetX = scale.getOffsetX() + e.getX() - dragStartX;
+    		int offsetY = scale.getOffsetY() + e.getY() - dragStartY;
     		
     		scale.setOffset(offsetX, offsetY);
     		
-    		mouseX = e.getX();
-    		mouseY = e.getY();
+    		dragStartX = e.getX();
+    		dragStartY = e.getY();
 
     		repaint();
     	}
