@@ -63,8 +63,8 @@ public class Zone extends Token {
     
     public static final int DEFAULT_FEET_PER_CELL = 5;
     
-    private static final int MIN_GRID_SIZE = 5;
-    private static final int MAX_GRID_SIZE = 250;
+    public static final int MIN_GRID_SIZE = 5;
+    public static final int MAX_GRID_SIZE = 250;
 
     public interface Type {
         public static final int MAP = 0;

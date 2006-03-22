@@ -143,7 +143,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			}
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				requestFocus();
 			}
         });
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -1009,21 +1008,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	return zoneScale.getIndex();
     }
     
+    public void setScaleIndex(int index) {
+    	zoneScale.setIndex(index);
+    }
+    
     public double getScaledGridSize() {
     	// Optimize: only need to calc this when grid size or scale changes
     	return getScale() * zone.getGridSize();
     }
 	
-    /**
-     * Mechanism to broadcast the event directly to the component.  I think there's a better
-     * way to do this, but I can't find it atm, so if any of you readers know, please tell me
-     * @param event
-     */
-    public void rebroadcastMouseMotionEvent(MouseEvent event) {
-    
-    	processMouseMotionEvent(event);
-    }
-    
 	/**
 	 * Represents a movement set
 	 */

@@ -650,6 +650,9 @@ public class MapToolFrame extends JFrame implements WindowListener {
             zoneRendererPanel.remove(currentRenderer);
         }
         
+		// Back to the pointer
+		getToolbox().setSelectedTool(PointerTool.class);
+		
         if (renderer != null) {
             zoneRendererPanel.add(renderer, PositionalLayout.Position.CENTER);
             zoneRendererPanel.doLayout();

@@ -8,7 +8,6 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -17,12 +16,10 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -47,7 +44,6 @@ import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.adjustgrid.AdjustGridDialog;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -68,7 +64,6 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JPanel imageExplorerPanel = null;
 	private JPanel filesystemPanel = null;
 	private JPanel libraryPanel = null;
-	private JButton adjustGridButton = null;
 	private JFileChooser imageFileChooser = null;
 	private ImagePreviewWindow imagePreviewPanel;
 	
@@ -94,11 +89,6 @@ public class NewMapDialog extends JDialog implements WindowListener {
 //	private int gridCountX;
 //	private int gridCountY;
 
-	private int gridSize;
-	private int gridOffsetX;
-	private int gridOffsetY;
-	private Color gridColor;
-	
 	/**
 	 * This is the default constructor
 	 */
@@ -156,21 +146,6 @@ public class NewMapDialog extends JDialog implements WindowListener {
 //		this.gridCountY = gridCountY;
 //	}
 //
-
-	public int getGridSize() {
-		return gridSize;
-	}
-    public int getGridOffsetX() {
-    	return gridOffsetX;
-    }
-    
-    public int getGridOffsetY() {
-    	return gridOffsetY;
-    }
-
-    public Color getGridColor() {
-    	return gridColor;
-    }
 
 	@Override
 	public void setVisible(boolean b) {
@@ -362,13 +337,6 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			unboundedRadioButton = new JRadioButton();
 			unboundedRadioButton.setText("Unbounded");
 			unboundedRadioButton.setSelected(false);
-			unboundedRadioButton.addItemListener(new java.awt.event.ItemListener() {
-				public void itemStateChanged(java.awt.event.ItemEvent e) {
-					if (unboundedRadioButton.isSelected()) {
-						adjustGridButton.setEnabled(false);
-					}
-				}
-			});
 		}
 		return unboundedRadioButton;
 	}
@@ -500,47 +468,6 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			libraryPanel = new JPanel();
 		}
 		return libraryPanel;
-	}
-
-	/**
-	 * This method initializes adjustGridButton	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */
-	private JButton getAdjustGridButton() {
-		if (adjustGridButton == null) {
-			adjustGridButton = new JButton();
-			adjustGridButton.setText("Adjust Grid");
-			adjustGridButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					
-					try {
-						BufferedImage image = selectedFile != null ? ImageIO.read(selectedFile) : ImageIO.read(new ByteArrayInputStream(selectedAsset.getImage()));
-						AdjustGridDialog agd = new AdjustGridDialog(MapTool.getFrame(), image);
-						agd.initialize(AppConstants.DEFAULT_GRID_SIZE, 0, 0, AppConstants.DEFAULT_GRID_COLOR);
-						
-						agd.setVisible(true);
-						if (agd.isOK()) {
-							gridSize = agd.getGridSize();
-							gridOffsetX = agd.getGridOffsetX();
-							gridOffsetY = agd.getGridOffsetY();
-							gridColor = agd.getGridColor();
-							
-//							gridBounds = agd.getGridBounds();
-//							gridCountX = agd.getGridXCount();
-//							gridCountY = agd.getGridYCount();
-						} else {
-//							gridBounds = null;
-						}
-						
-					} catch (IOException ioe) {
-						MapTool.showError("Could not create the image");
-						ioe.printStackTrace();
-					}
-				}
-			});
-		}
-		return adjustGridButton;
 	}
 
 	/**
@@ -697,7 +624,6 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			textOptionPanel.add(nameLabel, gridBagConstraints4);
 			textOptionPanel.add(getNameTextField(), gridBagConstraints5);
 			textOptionPanel.add(getRow3Panel(), gridBagConstraints12);
-			textOptionPanel.add(getAdjustGridButton(), gridBagConstraints21);
 			textOptionPanel.add(getRow2Panel(), gridBagConstraints3);
 		}
 		return textOptionPanel;

@@ -1087,25 +1087,10 @@ public class AppActions {
 					// Create the zone
 					Zone zone = ZoneFactory.createZone(newMapDialog.getZoneType(), newMapDialog.getZoneName(), newMapDialog.getZoneFeetPerCell(), asset.getId());
 
-//					Rectangle bounds = newMapDialog.getGridBounds();
-//					if (bounds != null) {
-						
-						BufferedImage image = ImageManager.getImage(asset, null);
-						
-//						int gridCountX = (int)((newMapDialog.getGridCountX()/(float)bounds.width)*image.getWidth());
-//						int gridCountY = (int)((newMapDialog.getGridCountY()/(float)bounds.height)*image.getHeight());
-//						
-//						int gridSizeX = image.getWidth() / gridCountX;
-//						int gridSizeY = image.getHeight() / gridCountY;
-//						
-//						int gridOffsetX = bounds.x % gridSizeX;
-//						int gridOffsetY = bounds.y % gridSizeY;
-						
-						zone.setGridOffsetX(newMapDialog.getGridOffsetX());
-						zone.setGridOffsetY(newMapDialog.getGridOffsetY());
-						zone.setGridSize(newMapDialog.getGridSize());
-						zone.setGridColor(newMapDialog.getGridColor().getRGB());
-//					}
+					zone.setGridOffsetX(0);
+					zone.setGridOffsetY(0);
+					zone.setGridSize(AppConstants.DEFAULT_GRID_SIZE);
+					zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
 					
 					MapTool.addZone(zone);
 				}
