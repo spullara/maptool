@@ -66,7 +66,8 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
     // showing up
     protected void attachTo(ZoneRenderer renderer) {
     	super.attachTo(renderer);
-		MapTool.getFrame().getColorPicker().setVisible(false);
+    	// Hide the drawable color palette
+		MapTool.getFrame().hideControlPanel();
     }
 
     @Override

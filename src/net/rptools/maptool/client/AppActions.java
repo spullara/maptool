@@ -51,6 +51,7 @@ import javax.swing.KeyStroke;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.NewMapDialog;
@@ -497,29 +498,30 @@ public class AppActions {
 				return;
 			}
 
-			Zone zone = renderer.getZone();
-			
-			AdjustGridDialog adjustGridDialog = new AdjustGridDialog(MapTool.getFrame(), ImageManager.getImage(AssetManager.getAsset(zone.getAssetID()), null));
-			adjustGridDialog.setGridSize(zone.getGridSize());
-			adjustGridDialog.setGridOffset(zone.getGridOffsetX(), zone.getGridOffsetY());
-			adjustGridDialog.setGridColor(new Color(zone.getGridColor()));
-			
-			adjustGridDialog.setVisible(true);
-			
-			if (!adjustGridDialog.isOK()) {
-				return;
-			}
-			
-			zone.setGridSize(adjustGridDialog.getGridSize());
-			zone.setGridOffsetX(adjustGridDialog.getGridOffsetX());
-			zone.setGridOffsetY(adjustGridDialog.getGridOffsetY());
-			zone.setGridColor(adjustGridDialog.getGridColor().getRGB());
-			
-			MapTool.serverCommand().setZoneGridSize(zone.getId(),
-					zone.getGridOffsetX(), zone.getGridOffsetY(),
-					zone.getGridSize(), zone.getGridColor());
-			MapTool.getFrame().getCurrentZoneRenderer().repaint();
-			
+//			Zone zone = renderer.getZone();
+//			
+//			AdjustGridDialog adjustGridDialog = new AdjustGridDialog(MapTool.getFrame(), ImageManager.getImage(AssetManager.getAsset(zone.getAssetID()), null));
+//			adjustGridDialog.setGridSize(zone.getGridSize());
+//			adjustGridDialog.setGridOffset(zone.getGridOffsetX(), zone.getGridOffsetY());
+//			adjustGridDialog.setGridColor(new Color(zone.getGridColor()));
+//			
+//			adjustGridDialog.setVisible(true);
+//			
+//			if (!adjustGridDialog.isOK()) {
+//				return;
+//			}
+//			
+//			zone.setGridSize(adjustGridDialog.getGridSize());
+//			zone.setGridOffsetX(adjustGridDialog.getGridOffsetX());
+//			zone.setGridOffsetY(adjustGridDialog.getGridOffsetY());
+//			zone.setGridColor(adjustGridDialog.getGridColor().getRGB());
+//			
+//			MapTool.serverCommand().setZoneGridSize(zone.getId(),
+//					zone.getGridOffsetX(), zone.getGridOffsetY(),
+//					zone.getGridSize(), zone.getGridColor());
+//			MapTool.getFrame().getCurrentZoneRenderer().repaint();
+
+			MapTool.getFrame().getToolbox().setSelectedTool(GridTool.class);
 		}
 
 	};

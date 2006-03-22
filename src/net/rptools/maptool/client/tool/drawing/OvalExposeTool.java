@@ -31,7 +31,8 @@ public class OvalExposeTool extends OvalTool {
     // showing up
 	protected void attachTo(ZoneRenderer renderer) {
     	super.attachTo(renderer);
-		MapTool.getFrame().getColorPicker().setVisible(false);
+    	// Hide the drawable color palette
+		MapTool.getFrame().hideControlPanel();
 	}
 
     @Override

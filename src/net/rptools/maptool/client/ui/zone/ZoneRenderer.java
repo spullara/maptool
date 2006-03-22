@@ -942,7 +942,39 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public int getViewOffsetY() {
         return zoneScale.getOffsetY();
     }
-    
+
+    public void adjustGridSize(int delta) {
+        zone.setGridSize(Math.max(0, zone.getGridSize() + delta));
+
+        repaint();
+    }
+
+    public void moveGridBy(int dx, int dy) {
+
+    	int gridOffsetX = zone.getGridOffsetX();
+    	int gridOffsetY = zone.getGridOffsetY();
+    	int gridSize = zone.getGridSize();
+    	
+        gridOffsetX += dx;
+        gridOffsetY += dy;
+
+        gridOffsetX %= gridSize;
+        gridOffsetY %= gridSize;
+
+        if (gridOffsetY > 0) {
+            gridOffsetY = gridOffsetY - gridSize;
+        }
+        
+        if (gridOffsetX > 0) {
+            gridOffsetX = gridOffsetX - gridSize;
+        }
+
+        zone.setGridOffsetX(gridOffsetX);
+        zone.setGridOffsetY(gridOffsetY);
+        
+        repaint();
+    }
+
   /**
    * Since the map can be scaled, this is a convenience method to find out
    * what cell is at this location. 

@@ -83,6 +83,7 @@ import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
 import net.rptools.maptool.client.swing.StatusPanel;
+import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.MeasureTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.TextTool;
@@ -144,6 +145,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
     private Toolbox toolbox;
     private ZoneSelectionPanel zoneSelectionPanel;
     private JPanel zoneRendererPanel;
+    private JPanel visibleControlPanel;
     
     private List<ZoneRenderer> zoneRendererList;
     
@@ -186,8 +188,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
         zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
         pointerOverlay = new PointerOverlay();
         colorPicker = new ColorPicker(this);
-        colorPicker.setSize(colorPicker.getMinimumSize());
-        colorPicker.setVisible(false);
         
         String credits = "";
         String version = "";
@@ -223,7 +223,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
         zoneRendererPanel.setBackground(Color.black);
         zoneRendererPanel.add(newZoneDropPanel, PositionalLayout.Position.CENTER);
         zoneRendererPanel.add(zoneSelectionPanel, PositionalLayout.Position.SE);
-        zoneRendererPanel.add(colorPicker, PositionalLayout.Position.NE);
         zoneRendererPanel.add(getChatActionLabel(), PositionalLayout.Position.SW);
         
         commandPanel = new CommandPanel();
@@ -282,6 +281,24 @@ public class MapToolFrame extends JFrame implements WindowListener {
         new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
         
         restorePreferences();
+	}
+	
+	public void showControlPanel(JPanel panel) {
+
+		panel.setSize(panel.getPreferredSize());
+        zoneRendererPanel.add(panel, PositionalLayout.Position.NE);
+        zoneRendererPanel.setComponentZOrder(panel, 0);
+        
+        visibleControlPanel = panel;
+	}
+
+	public void hideControlPanel() {
+		if (visibleControlPanel != null) {
+			
+			zoneRendererPanel.remove(visibleControlPanel);
+			visibleControlPanel = null;
+			getCurrentZoneRenderer().repaint();
+		}
 	}
 	
 	public void showNonModalGlassPane(JComponent component, int x, int y) {
@@ -548,6 +565,9 @@ public class MapToolFrame extends JFrame implements WindowListener {
         toolbar.add(toolbox.createTool(OvalExposeTool.class));
         toolbar.add(toolbox.createTool(PolygonExposeTool.class));
         toolbar.add(toolbox.createTool(FreehandExposeTool.class));
+        
+        // Non visible tools
+        toolbox.createTool(GridTool.class);
         
         toolbar.add(Box.createHorizontalStrut(15));
 

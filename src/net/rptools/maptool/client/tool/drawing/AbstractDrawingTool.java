@@ -51,13 +51,13 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     private boolean isEraser;
 
 	protected void attachTo(ZoneRenderer renderer) {
-		MapTool.getFrame().getColorPicker().setVisible(true);
+		MapTool.getFrame().showControlPanel(MapTool.getFrame().getColorPicker());
 		renderer.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 		super.attachTo(renderer);
 	}
 
 	protected void detachFrom(ZoneRenderer renderer) {
-		MapTool.getFrame().getColorPicker().setVisible(false);
+		MapTool.getFrame().hideControlPanel();
 		renderer.setCursor(Cursor.getDefaultCursor());
 		super.detachFrom(renderer);
 	}
