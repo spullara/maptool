@@ -52,8 +52,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
-import quicktime.app.event.EventDispatcher;
-
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.ui.Scale;
 
