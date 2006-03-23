@@ -25,6 +25,7 @@
 package net.rptools.maptool.client.tool;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -52,6 +53,7 @@ import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Zone;
@@ -77,6 +79,8 @@ public class GridTool extends DefaultTool {
     
     private int dragStartX;
 	private int dragStartY;
+	private int dragOffsetX;
+	private int dragOffsetY;
 
 	private int mouseX;
 	private int mouseY;
@@ -197,6 +201,13 @@ public class GridTool extends DefaultTool {
 		if (SwingUtilities.isLeftMouseButton(e)) {
 			dragStartX = e.getX();
 			dragStartY = e.getY();
+			
+			ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
+	        int x = zp.x-renderer.getZone().getGridOffsetX();
+	        int y = zp.y-renderer.getZone().getGridOffsetY();
+			
+	        dragOffsetX = x % renderer.getZone().getGridSize();
+	        dragOffsetY = y % renderer.getZone().getGridSize();
 		} else {
 			super.mousePressed(e);
 		}
@@ -207,20 +218,26 @@ public class GridTool extends DefaultTool {
     public void mouseDragged(java.awt.event.MouseEvent e){
 
     	if (SwingUtilities.isLeftMouseButton(e)) {
-	        int dx = e.getX() - dragStartX;
-	        int dy = e.getY() - dragStartY;
-	
-	        dragStartX = e.getX();
-	        dragStartY = e.getY();
-	
-	        ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-	        
-	        if (SwingUtil.isControlDown(e)) {
-	            renderer.moveViewBy(dx, dy);
-	        } else {
-	            renderer.moveGridBy(dx, dy);
-	        } 
-	        
+
+    		ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
+            int x = zp.x - dragOffsetX;
+            int y = zp.y - dragOffsetY;
+
+            int gridSize = renderer.getZone().getGridSize();
+            
+            x %= gridSize;
+            y %= gridSize; 
+
+            if (x > 0) {
+            	x -= gridSize;
+            }
+            if (y > 0) {
+            	y -= gridSize;
+            }
+            
+            renderer.getZone().setGridOffsetX(x);
+            renderer.getZone().setGridOffsetY(y);
+            
 	        copyGridToControlPanel();
     	} else {
     		super.mouseDragged(e);
