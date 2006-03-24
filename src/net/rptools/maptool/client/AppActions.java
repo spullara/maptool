@@ -335,34 +335,6 @@ public class AppActions {
 
 	};
 
-	public static final Action SET_ZONE_GRID_COLOR = new ZoneAdminClientAction() {
-		{
-			init("action.setZoneGridColor");
-		}
-
-		public void execute(ActionEvent e) {
-
-			runBackground(new Runnable() {
-				public void run() {
-
-					Zone zone = MapTool.getFrame().getCurrentZoneRenderer()
-							.getZone();
-					Color newColor = JColorChooser.showDialog(MapTool
-							.getFrame(), "Choose Zone Grid Color", new Color(
-							zone.getGridColor()));
-					if (newColor != null) {
-						zone.setGridColor(newColor.getRGB());
-						MapTool.serverCommand().setZoneGridSize(zone.getId(),
-								zone.getGridOffsetX(), zone.getGridOffsetY(),
-								zone.getGridSize(), zone.getGridColor());
-						MapTool.getFrame().getCurrentZoneRenderer().repaint();
-					}
-				}
-			});
-		}
-
-	};
-
 	public static final Action SHOW_ABOUT = new DefaultClientAction() {
 		{
 			init("action.showAboutDialog");
@@ -483,43 +455,7 @@ public class AppActions {
 			init("action.adjustGrid");
 		}
 
-		@Override
-		public boolean isAvailable() {
-			return super.isAvailable()
-					&& MapTool.getFrame().getCurrentZoneRenderer().getZone()
-							.getType() != Zone.Type.INFINITE;
-		}
-
 		public void execute(ActionEvent e) {
-
-			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-			if (renderer.getZone().getType() == Zone.Type.INFINITE) {
-				MapTool.showError("Cannot adjust grid on infinite maps.");
-				return;
-			}
-
-//			Zone zone = renderer.getZone();
-//			
-//			AdjustGridDialog adjustGridDialog = new AdjustGridDialog(MapTool.getFrame(), ImageManager.getImage(AssetManager.getAsset(zone.getAssetID()), null));
-//			adjustGridDialog.setGridSize(zone.getGridSize());
-//			adjustGridDialog.setGridOffset(zone.getGridOffsetX(), zone.getGridOffsetY());
-//			adjustGridDialog.setGridColor(new Color(zone.getGridColor()));
-//			
-//			adjustGridDialog.setVisible(true);
-//			
-//			if (!adjustGridDialog.isOK()) {
-//				return;
-//			}
-//			
-//			zone.setGridSize(adjustGridDialog.getGridSize());
-//			zone.setGridOffsetX(adjustGridDialog.getGridOffsetX());
-//			zone.setGridOffsetY(adjustGridDialog.getGridOffsetY());
-//			zone.setGridColor(adjustGridDialog.getGridColor().getRGB());
-//			
-//			MapTool.serverCommand().setZoneGridSize(zone.getId(),
-//					zone.getGridOffsetX(), zone.getGridOffsetY(),
-//					zone.getGridSize(), zone.getGridColor());
-//			MapTool.getFrame().getCurrentZoneRenderer().repaint();
 
 			MapTool.getFrame().getToolbox().setSelectedTool(GridTool.class);
 		}

@@ -29,19 +29,22 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.ComponentInputMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 
@@ -50,24 +53,30 @@ import net.rptools.maptool.language.I18N;
 public abstract class Tool extends JToggleButton implements ChangeListener, ActionListener {
 
 	private Toolbox toolbox;
-	private EscapeAction escapeAction = new EscapeAction();
-    public static final String RESET_TOOL_COMMAND = "resetTool";
+    
+    protected Map<KeyStroke, Action> keyActionMap = new HashMap<KeyStroke, Action>();
   
     public Tool () {
       
         // Map the escape key reset this tool.
-        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), Tool.RESET_TOOL_COMMAND);
+    	installKeystrokes(keyActionMap);
 
         addChangeListener(this);
         addActionListener(this);
         
         setToolTipText(I18N.getText(getTooltip()));
+        setFocusable(false);
+        setFocusPainted(false);
     }
 
     void setToolbox(Toolbox toolbox) {
     	this.toolbox = toolbox;
     }
     
+	protected void installKeystrokes(Map<KeyStroke, Action> actionMap) {
+		actionMap.put(KeyStroke.getKeyStroke("ESCAPE"), new EscapeAction());		
+	}
+	
     public abstract String getTooltip();
     public abstract String getInstructions();
     
@@ -88,15 +97,8 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
 		}
 		
 		// Keystrokes
-		Map<KeyStroke, Action> keyActionMap = getKeyActionMap();
-		if (keyActionMap != null) {
-			
-			comp.setActionMap(createActionMap(keyActionMap));
-			comp.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, createInputMap(keyActionMap));
-		} 
-
-        // Make the ESCAPE key cancel this tool
-        getActionMap().put(RESET_TOOL_COMMAND, escapeAction);
+		comp.setActionMap(createActionMap(keyActionMap));
+		comp.setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, createInputMap(keyActionMap));
 	}
 	
 	void removeListeners(JComponent comp) {
@@ -115,8 +117,6 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
 			comp.removeMouseWheelListener((MouseWheelListener)this);
 		}
 
-        // Unmap escape so it doesn't get called on all the tools. 
-        getActionMap().remove(RESET_TOOL_COMMAND);
 	}
 	
 	protected void attachTo(ZoneRenderer renderer) {
@@ -127,19 +127,9 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
 		// No op
 	}
 
-	/**
-	 * Tool instances may override this method to supply keystoke mappings
-	 * specific to the tool
-	 * @return
-	 */
-	protected Map<KeyStroke, Action> getKeyActionMap() {
-		// No op
-		return null;
-	}
-	
     private InputMap createInputMap (Map<KeyStroke, Action> keyActionMap) {
     	
-    	InputMap inputMap = new InputMap();
+    	ComponentInputMap inputMap = new ComponentInputMap((JPanel) MapTool.getFrame().getContentPane());
     	for (KeyStroke keyStroke : keyActionMap.keySet()) {
     		
     		inputMap.put(keyStroke, keyStroke.toString());

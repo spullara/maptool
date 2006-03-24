@@ -123,8 +123,23 @@ public class GridTool extends DefaultTool {
         		copyControlPanelToGrid();
         	}
         });
+        
     }
 	
+	@Override
+	protected void installKeystrokes(Map<KeyStroke, Action> actionMap) {
+		super.installKeystrokes(actionMap);
+		
+        actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Decrease));
+        actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Decrease));
+        actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Increase));
+        actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Increase));
+        actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new GridOffsetAction(Direction.Up));
+        actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new GridOffsetAction(Direction.Left));
+        actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new GridOffsetAction(Direction.Down));
+        actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new GridOffsetAction(Direction.Right));
+	}
+
 	private void copyGridToControlPanel() {
 		Zone zone = renderer.getZone();
 
@@ -238,6 +253,7 @@ public class GridTool extends DefaultTool {
             renderer.getZone().setGridOffsetX(x);
             renderer.getZone().setGridOffsetY(y);
             
+            renderer.repaint();
 	        copyGridToControlPanel();
     	} else {
     		super.mouseDragged(e);
@@ -305,22 +321,6 @@ public class GridTool extends DefaultTool {
         }
         
         copyGridToControlPanel();
-    }
-    
-    private final Map<KeyStroke, Action> KEYSTROKES = new HashMap<KeyStroke, Action>() {
-	    {
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Decrease));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Decrease));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Increase));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_DOWN_MASK), new GridSizeAction(Size.Increase));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new GridOffsetAction(Direction.Up));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new GridOffsetAction(Direction.Left));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new GridOffsetAction(Direction.Down));
-	        put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new GridOffsetAction(Direction.Right));
-	    }
-    };
-    protected Map<KeyStroke, Action> getKeyActionMap() {
-        return KEYSTROKES;
     }
     
     private final class GridSizeAction extends AbstractAction {

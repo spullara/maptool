@@ -109,7 +109,6 @@ public class AppMenuBar extends JMenuBar {
         
         // GRID
         menu.add(new JMenuItem(AppActions.ADJUST_GRID));
-        menu.add(new JMenuItem(AppActions.SET_ZONE_GRID_COLOR));
         
         // LATER: This needs to be genericized, but it seems to constant, and so short, that I 
         // didn't feel compelled to do that in this impl

@@ -90,24 +90,22 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     		AppStyle.selectedBorder.paintWithin(g, renderer.getLabelBounds(selectedLabel));
     	}
     }
-    
-    @Override
-    protected Map<KeyStroke, Action> getKeyActionMap() {
-    	
-		return new HashMap<KeyStroke, Action>() {
-			{
-				put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
 
-						if (selectedLabel != null) {
-							renderer.getZone().removeLabel(selectedLabel.getId());
-				    		MapTool.serverCommand().removeLabel(renderer.getZone().getId(), selectedLabel.getId());
-							selectedLabel = null;
-				    		repaint();
-						}
-					}
-				});
-			}};
+    @Override
+    protected void installKeystrokes(Map<KeyStroke, Action> actionMap) {
+    	super.installKeystrokes(actionMap);
+    	
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+
+				if (selectedLabel != null) {
+					renderer.getZone().removeLabel(selectedLabel.getId());
+		    		MapTool.serverCommand().removeLabel(renderer.getZone().getId(), selectedLabel.getId());
+					selectedLabel = null;
+		    		repaint();
+				}
+			}
+		});
     }
     
     ////

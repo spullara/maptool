@@ -86,8 +86,8 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 
         g.setColor(new Color(zone.getGridColor()));
         
-        int offX = (int)(getViewOffsetX() % gridSize);
-        int offY = (int)(getViewOffsetY() % gridSize);
+        int offX = (int)(getViewOffsetX() % gridSize + zone.getGridOffsetX()*scale);
+        int offY = (int)(getViewOffsetY() % gridSize + zone.getGridOffsetY()*scale);
         for (int row = 0; row < size.height + gridSize; row += gridSize) {
             
             if (AppState.getGridSize() == 1) {

@@ -52,253 +52,268 @@ import net.rptools.maptool.model.drawing.DrawnLabel;
 import net.rptools.maptool.model.drawing.Pen;
 
 /**
- * A text tool that uses a text component to allow text to be entered on the display and then renders
- * it as an image.
+ * A text tool that uses a text component to allow text to be entered on the
+ * display and then renders it as an image.
  * 
  * @author jgorrell
- * @version $Revision$ $Date$ $Author$
+ * @version $Revision$ $Date: 2006-03-11 02:57:18 -0600 (Sat, 11 Mar
+ *          2006) $ $Author$
  */
-public class DrawnTextTool extends AbstractDrawingTool implements MouseMotionListener {
+public class DrawnTextTool extends AbstractDrawingTool implements
+		MouseMotionListener {
 
-  /*---------------------------------------------------------------------------------------------
-   * Instance Variables
-   *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * Flag used to indicate that the anchor has been set.
-   */
-  private boolean anchorSet;
+	/*---------------------------------------------------------------------------------------------
+	 * Instance Variables
+	 *-------------------------------------------------------------------------------------------*/
 
-  /**
-   * The anchor point originally selected 
-   */
-  private Point anchor = new Point();
-  
-  /**
-   * The bounds of the display rectangle
-   */
-  private Rectangle bounds = new Rectangle();
-  
-  /**
-   * The text pane used to paint the text.
-   */
-  private TwoToneTextPane textPane;
+	/**
+	 * Flag used to indicate that the anchor has been set.
+	 */
+	private boolean anchorSet;
 
-  /*---------------------------------------------------------------------------------------------
-   * Constructors
-   *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * A transparent color used in the background
-   */
-  private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
+	/**
+	 * The anchor point originally selected
+	 */
+	private Point anchor = new Point();
 
-  /*---------------------------------------------------------------------------------------------
-   * Constructors
-   *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * Initialize the tool icon
-   */
-  public DrawnTextTool() {
-    try {
-      setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream(
-          "net/rptools/maptool/client/image/Tool_Draw_Write.gif"))));
-    } catch (IOException ioe) {
-      ioe.printStackTrace();
-    } // endtry
-  }
+	/**
+	 * The bounds of the display rectangle
+	 */
+	private Rectangle bounds = new Rectangle();
 
-  /*---------------------------------------------------------------------------------------------
-   * Tool & AbstractDrawingTool Abstract Methods
-   *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#paintOverlay(net.rptools.maptool.client.ui.zone.ZoneRenderer, java.awt.Graphics2D)
-   */
-  @Override
-  public void paintOverlay(ZoneRenderer aRenderer, Graphics2D aG) {
-    if (!anchorSet) return;
-    aG.setColor(Color.BLACK);
-    aG.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
-  }
+	/**
+	 * The text pane used to paint the text.
+	 */
+	private TwoToneTextPane textPane;
 
-  /**
-   * @see net.rptools.maptool.client.ui.Tool#getTooltip()
-   */
-  @Override
-  public String getTooltip() {
-    return "tool.text.tooltip";
-  }
+	/*---------------------------------------------------------------------------------------------
+	 * Constructors
+	 *-------------------------------------------------------------------------------------------*/
 
-  /**
-   * @see net.rptools.maptool.client.ui.Tool#getInstructions()
-   */
-  @Override
-  public String getInstructions() {
-    return "tool.text.instructions";
-  }
+	/**
+	 * A transparent color used in the background
+	 */
+	private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
-  /**
-   * @see net.rptools.maptool.client.ui.Tool#resetTool()
-   */
-  @Override
-  protected void resetTool() {
-    anchorSet = false;
-    if (textPane != null)
-    	renderer.remove(textPane);
-    textPane = null;
-    renderer.repaint();
-  }
+	/*---------------------------------------------------------------------------------------------
+	 * Constructors
+	 *-------------------------------------------------------------------------------------------*/
 
-  /*---------------------------------------------------------------------------------------------
-   * MouseListener Interface Methods
-   *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-   */
-  public void mouseClicked(MouseEvent event) {
-    // Do nothing
-  }
+	/**
+	 * Initialize the tool icon
+	 */
+	public DrawnTextTool() {
+		try {
+			setIcon(new ImageIcon(
+					ImageIO
+							.read(getClass()
+									.getClassLoader()
+									.getResourceAsStream(
+											"net/rptools/maptool/client/image/Tool_Draw_Write.gif"))));
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		} // endtry
+	}
 
-  /**
-   * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-   */
-  public void mousePressed(MouseEvent event) {
-    if (!anchorSet) {
-      anchor.x = event.getX();
-      anchor.y = event.getY();
-      anchorSet = true;
-    } else {
-      setBounds(event);
-      
-      // Create a text component and place it on the renderer's component
-      textPane = createTextPane(bounds, getPen(), "sanserif-BOLD-20");
-      renderer.add(textPane);
-      textPane.requestFocusInWindow();
-      
-      // Make the enter key addthe text
-      KeyStroke k = KeyStroke.getKeyStroke("ENTER");
-      textPane.getKeymap().removeKeyStrokeBinding(k);
-      textPane.getKeymap().addActionForKeyStroke(k, new AbstractAction() {
-        public void actionPerformed(ActionEvent aE) {
-          completeDrawable();
-        }
-      });
-    }
-  }
+	/*---------------------------------------------------------------------------------------------
+	 * Tool & AbstractDrawingTool Abstract Methods
+	 *-------------------------------------------------------------------------------------------*/
 
-  /**
-   * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-   */
-  public void mouseReleased(MouseEvent aE) {
-    // TODO Auto-generated method stub
+	/**
+	 * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#paintOverlay(net.rptools.maptool.client.ui.zone.ZoneRenderer,
+	 *      java.awt.Graphics2D)
+	 */
+	@Override
+	public void paintOverlay(ZoneRenderer aRenderer, Graphics2D aG) {
+		if (!anchorSet)
+			return;
+		aG.setColor(Color.BLACK);
+		aG.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+	}
 
-  }
+	/**
+	 * @see net.rptools.maptool.client.ui.Tool#getTooltip()
+	 */
+	@Override
+	public String getTooltip() {
+		return "tool.text.tooltip";
+	}
 
-  /**
-   * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-   */
-  public void mouseEntered(MouseEvent aE) {
-    // TODO Auto-generated method stub
+	/**
+	 * @see net.rptools.maptool.client.ui.Tool#getInstructions()
+	 */
+	@Override
+	public String getInstructions() {
+		return "tool.text.instructions";
+	}
 
-  }
+	/**
+	 * @see net.rptools.maptool.client.ui.Tool#resetTool()
+	 */
+	@Override
+	protected void resetTool() {
+		anchorSet = false;
+		if (textPane != null)
+			renderer.remove(textPane);
+		textPane = null;
+		renderer.repaint();
+	}
 
-  /**
-   * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-   */
-  public void mouseExited(MouseEvent aE) {
-    // TODO Auto-generated method stub
+	/*---------------------------------------------------------------------------------------------
+	 * MouseListener Interface Methods
+	 *-------------------------------------------------------------------------------------------*/
 
-  }
+	/**
+	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+	 */
+	public void mouseClicked(MouseEvent event) {
+		// Do nothing
+	}
 
-  /*---------------------------------------------------------------------------------------------
-   * MouseMotionListener Interface Methods
-   *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
-   */
-  public void mouseMoved(MouseEvent event) {
-    if (!anchorSet) return;
-    if (textPane != null) return;
-    setBounds(event);
-    renderer.repaint();
-  }
-  
-  /**
-   * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
-   */
-  public void mouseDragged(MouseEvent aE) {
-    // TODO Auto-generated method stub
-    
-  }
+	/**
+	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+	 */
+	public void mousePressed(MouseEvent event) {
+		if (!anchorSet) {
+			anchor.x = event.getX();
+			anchor.y = event.getY();
+			anchorSet = true;
+		} else {
+			setBounds(event);
 
-  /**
-   * @see net.rptools.maptool.client.ui.Tool#getKeyActionMap()
-   */
-  @Override
-  protected Map<KeyStroke, Action> getKeyActionMap() {
-    HashMap<KeyStroke, Action> map = new HashMap<KeyStroke, Action>();
-    map.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true), null);     
-    map.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), null);     
-    return map;
-  }
-  
-  /*---------------------------------------------------------------------------------------------
-   * Instance Methods
-   *-------------------------------------------------------------------------------------------*/
-  
-  /**
-   * Set the bounds for the text area.
-   * 
-   * @param event The mouse event used in the calculation.
-   */
-  private void setBounds(MouseEvent event) {
-    bounds.x = Math.min(anchor.x, event.getX());
-    bounds.y = Math.min(anchor.y, event.getY());
-    bounds.width = Math.abs(anchor.x - event.getX());
-    bounds.height = Math.abs(anchor.y - event.getY());
-  }
-  
-  /**
-   * Finish drawing the text. 
-   */
-  private void completeDrawable() {
-    
-    // Create a drawable from the data and clean up the component.
-    DrawnLabel label = new DrawnLabel(textPane.getText(), bounds, TwoToneTextPane.getFontString(textPane.getLogicalStyle()));
-    textPane.setVisible(false);
-    textPane.getParent().remove(textPane);
-    textPane = null;
-    
-    // Tell everybody else
-    completeDrawable(renderer.getZone().getId(), getPen(), label); 
-    resetTool();
-  }
-  
-  /**
-   * Create a text pane with the passed bounds, pen, and font data
-   * 
-   * @param bounds Bounds of the new text pane
-   * @param pen Pen used for foreground and background text colors.
-   * @param font Font used to pain the text
-   * @return A text pane used to draw text
-   */
-  public static TwoToneTextPane createTextPane(Rectangle bounds, Pen pen, String font) {
-    // Create a text component and place it on the renderer's component
-    TwoToneTextPane textPane = new TwoToneTextPane();
-    textPane.setBounds(bounds);
-    textPane.setOpaque(false);
-    textPane.setBackground(TRANSPARENT);
-    
-    // Create a style for the component
-    Style style = textPane.addStyle("default", null);
-    TwoToneTextPane.setFont(style, Font.decode(font));
-    style.addAttribute(StyleConstants.Foreground, new Color(pen.getColor()));
-    style.addAttribute(StyleConstants.Background, new Color(pen.getBackgroundColor()));
-    textPane.setLogicalStyle(style);
-    return textPane;
-  }
+			// Create a text component and place it on the renderer's component
+			textPane = createTextPane(bounds, getPen(), "sanserif-BOLD-20");
+			renderer.add(textPane);
+			textPane.requestFocusInWindow();
+
+			// Make the enter key addthe text
+			KeyStroke k = KeyStroke.getKeyStroke("ENTER");
+			textPane.getKeymap().removeKeyStrokeBinding(k);
+			textPane.getKeymap().addActionForKeyStroke(k, new AbstractAction() {
+				public void actionPerformed(ActionEvent aE) {
+					completeDrawable();
+				}
+			});
+		}
+	}
+
+	/**
+	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+	 */
+	public void mouseReleased(MouseEvent aE) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+	 */
+	public void mouseEntered(MouseEvent aE) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+	 */
+	public void mouseExited(MouseEvent aE) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*---------------------------------------------------------------------------------------------
+	 * MouseMotionListener Interface Methods
+	 *-------------------------------------------------------------------------------------------*/
+
+	/**
+	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+	 */
+	public void mouseMoved(MouseEvent event) {
+		if (!anchorSet)
+			return;
+		if (textPane != null)
+			return;
+		setBounds(event);
+		renderer.repaint();
+	}
+
+	/**
+	 * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
+	 */
+	public void mouseDragged(MouseEvent aE) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	protected void installKeystrokes(Map<KeyStroke, Action> actionMap) {
+		super.installKeystrokes(actionMap);
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true), null);
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), null);
+	}
+
+	/*---------------------------------------------------------------------------------------------
+	 * Instance Methods
+	 *-------------------------------------------------------------------------------------------*/
+
+	/**
+	 * Set the bounds for the text area.
+	 * 
+	 * @param event
+	 *            The mouse event used in the calculation.
+	 */
+	private void setBounds(MouseEvent event) {
+		bounds.x = Math.min(anchor.x, event.getX());
+		bounds.y = Math.min(anchor.y, event.getY());
+		bounds.width = Math.abs(anchor.x - event.getX());
+		bounds.height = Math.abs(anchor.y - event.getY());
+	}
+
+	/**
+	 * Finish drawing the text.
+	 */
+	private void completeDrawable() {
+
+		// Create a drawable from the data and clean up the component.
+		DrawnLabel label = new DrawnLabel(textPane.getText(), bounds,
+				TwoToneTextPane.getFontString(textPane.getLogicalStyle()));
+		textPane.setVisible(false);
+		textPane.getParent().remove(textPane);
+		textPane = null;
+
+		// Tell everybody else
+		completeDrawable(renderer.getZone().getId(), getPen(), label);
+		resetTool();
+	}
+
+	/**
+	 * Create a text pane with the passed bounds, pen, and font data
+	 * 
+	 * @param bounds
+	 *            Bounds of the new text pane
+	 * @param pen
+	 *            Pen used for foreground and background text colors.
+	 * @param font
+	 *            Font used to pain the text
+	 * @return A text pane used to draw text
+	 */
+	public static TwoToneTextPane createTextPane(Rectangle bounds, Pen pen,
+			String font) {
+		// Create a text component and place it on the renderer's component
+		TwoToneTextPane textPane = new TwoToneTextPane();
+		textPane.setBounds(bounds);
+		textPane.setOpaque(false);
+		textPane.setBackground(TRANSPARENT);
+
+		// Create a style for the component
+		Style style = textPane.addStyle("default", null);
+		TwoToneTextPane.setFont(style, Font.decode(font));
+		style
+				.addAttribute(StyleConstants.Foreground, new Color(pen
+						.getColor()));
+		style.addAttribute(StyleConstants.Background, new Color(pen
+				.getBackgroundColor()));
+		textPane.setLogicalStyle(style);
+		return textPane;
+	}
 }

@@ -37,7 +37,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +50,6 @@ import javax.swing.SwingUtilities;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
-import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.CellPoint;
@@ -433,83 +431,80 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 		return true;
 	}
-	/* (non-Javadoc)
-	 * @see net.rptools.maptool.client.Tool#getKeyActionMap()
-	 */
-	protected Map<KeyStroke, Action> getKeyActionMap() {
-		return new HashMap<KeyStroke, Action>() {
-			{
-				put(KeyStroke.getKeyStroke("control C"), AppActions.COPY_TOKENS);
-				put(KeyStroke.getKeyStroke("control V"), AppActions.PASTE_TOKENS);
+
+	@Override
+	protected void installKeystrokes(Map<KeyStroke, Action> actionMap) {
+		super.installKeystrokes(actionMap);
+		
+		actionMap.put(KeyStroke.getKeyStroke("control C"), AppActions.COPY_TOKENS);
+		actionMap.put(KeyStroke.getKeyStroke("control V"), AppActions.PASTE_TOKENS);
+		
+		// TODO: Optimize this by making it non anonymous
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
+		
+			public void actionPerformed(java.awt.event.ActionEvent e) {
 				
-				// TODO: Optimize this by making it non anonymous
-				put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
+				ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 				
-					public void actionPerformed(java.awt.event.ActionEvent e) {
-						
-						ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-						
-						Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
-						
-						for (GUID tokenGUID : selectedTokenSet) {
-							
-							Token token = renderer.getZone().getToken(tokenGUID);
-							
-							if (AppUtil.playerOwnsToken(token)) {
-	                            renderer.getZone().removeToken(tokenGUID);
-	                            MapTool.serverCommand().removeToken(renderer.getZone().getId(), tokenGUID);
-							}
-						}
-						
-						renderer.clearSelectedTokens();
-					}
-				});
+				Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
 				
-				put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true), new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
-						
-						if (isShowingPointer) {
-							isShowingPointer = false;
-							MapTool.serverCommand().hidePointer(MapTool.getPlayer().getName());
-						}
-						
-						isSpaceDown = false;
+				for (GUID tokenGUID : selectedTokenSet) {
+					
+					Token token = renderer.getZone().getToken(tokenGUID);
+					
+					if (AppUtil.playerOwnsToken(token)) {
+                        renderer.getZone().removeToken(tokenGUID);
+                        MapTool.serverCommand().removeToken(renderer.getZone().getId(), tokenGUID);
 					}
-				});
-				put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
-						
-						if (isSpaceDown) {
-							return;
-						}
-						
-						if (isDraggingToken) {
-							
-							// Waypoint
-				            CellPoint cp = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY).convertToCell(renderer);
-				            
-				            renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), cp);
-				            
-				            MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), cp);
-							
-						} else {
-							
-							// Pointer
-							isShowingPointer = true;
-							
-							ZonePoint p = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY);
-							Pointer pointer = new Pointer(renderer.getZone(), p.x, p.y, 0);
-							
-							MapTool.serverCommand().showPointer(MapTool.getPlayer().getName(), pointer);
-						}
-						
-						isSpaceDown = true;
-					}
-				});
+				}
+				
+				renderer.clearSelectedTokens();
 			}
-		};
+		});
+		
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (isShowingPointer) {
+					isShowingPointer = false;
+					MapTool.serverCommand().hidePointer(MapTool.getPlayer().getName());
+				}
+				
+				isSpaceDown = false;
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (isSpaceDown) {
+					return;
+				}
+				
+				if (isDraggingToken) {
+					
+					// Waypoint
+		            CellPoint cp = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY).convertToCell(renderer);
+		            
+		            renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), cp);
+		            
+		            MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), cp);
+					
+				} else {
+					
+					// Pointer
+					isShowingPointer = true;
+					
+					ZonePoint p = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY);
+					Pointer pointer = new Pointer(renderer.getZone(), p.x, p.y, 0);
+					
+					MapTool.serverCommand().showPointer(MapTool.getPlayer().getName(), pointer);
+				}
+				
+				isSpaceDown = true;
+			}
+		});
 	}
-	
+
 	//// 
 	// ZoneOverlay
 	/* (non-Javadoc)
