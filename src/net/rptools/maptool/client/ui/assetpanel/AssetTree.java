@@ -59,6 +59,10 @@ public class AssetTree extends JTree implements TreeSelectionListener {
         getSelectionModel().addTreeSelectionListener(this);
     }
 
+    @Override
+    public int getRowHeight() {
+    	return -1;
+    }
     public Directory getSelectedAssetGroup() {
         return selectedDirectory;
     }

@@ -45,6 +45,10 @@ public class AssetTreeCellRenderer extends DefaultTreeCellRenderer {
         if (value instanceof Directory) {
             setText(((Directory) value).getPath().getName());
         }        
+        
+        if (row == 0) {
+        	setIcon(null);
+        }
 
         return this;
     }
