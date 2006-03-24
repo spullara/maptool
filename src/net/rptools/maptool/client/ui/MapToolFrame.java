@@ -580,9 +580,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
 
         toolbar.add(Box.createHorizontalStrut(15));
         
-        toolbar.add(new JToggleButton(AppActions.TOGGLE_GRID){{setText("");}});
-        toolbar.add(new JToggleButton(AppActions.TOGGLE_SHOW_TOKEN_NAMES){{setText("");}});
-        
         GridBagConstraints constraints = new GridBagConstraints();
         panel.add(toolbar, constraints);
         

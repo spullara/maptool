@@ -57,6 +57,8 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN_AS));
         menu.add(new JMenuItem(AppActions.SAVE_MESSAGE_HISTORY));
         menu.addSeparator();
+        menu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
+        menu.addSeparator();
         menu.add(new JMenuItem(AppActions.START_SERVER));
         menu.add(new JMenuItem(AppActions.SHOW_SERVER_INFO));
         menu.add(new JMenuItem(AppActions.CONNECT_TO_SERVER));
@@ -152,7 +154,6 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE));
         menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
-        menu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
         menu.addSeparator();
         menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_DROP_INVISIBLE));
         menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_NEW_ZONE_VISIBILITY));
