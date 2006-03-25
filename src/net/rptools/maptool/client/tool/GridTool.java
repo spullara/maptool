@@ -119,7 +119,10 @@ public class GridTool extends DefaultTool {
         zoomSlider.setMaximum(Scale.getScaleCount());
         zoomSlider.addChangeListener(new ChangeListener(){
         	public void stateChanged(ChangeEvent e) {
+        		ZonePoint zp = ZonePoint.fromScreenPoint(renderer, renderer.getSize().width/2, renderer.getSize().height/2);
+        		System.out.println(zp);
         		renderer.setScaleIndex(zoomSlider.getValue());
+        		renderer.centerOn(zp);
         		copyControlPanelToGrid();
         	}
         });
