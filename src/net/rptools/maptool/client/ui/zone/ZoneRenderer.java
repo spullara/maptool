@@ -273,8 +273,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         int x = point.x;
         int y = point.y;
         
-        x = getSize().width/2 - (int)(x*getScale());
-        y = getSize().height/2 - (int)(y*getScale());
+        x = getSize().width/2 - (int)(x*getScale())-1;
+        y = getSize().height/2 - (int)(y*getScale())-1;
 
         setViewOffset(x, y);
 
