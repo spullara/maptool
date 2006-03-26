@@ -57,6 +57,10 @@ public class Toolbox {
 		}
 	}
 	
+	public Tool getSelectedTool() {
+		return currentTool;
+	}
+	
 	public Tool createTool(Class toolClass) {
 		
 		Tool tool;

@@ -110,7 +110,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     }
     
     public void startTokenDrag(Token keyToken) {
-    	
+		tokenBeingDragged = keyToken;
+		
+		renderer.addMoveSelectionSet(MapTool.getPlayer().getName(), tokenBeingDragged.getId(), renderer.getSelectedTokenSet(), false);
+		MapTool.serverCommand().startTokenMove(MapTool.getPlayer().getName(), renderer.getZone().getId(), tokenBeingDragged.getId(), renderer.getSelectedTokenSet());
+		
+		isDraggingToken = true;
     }
     
     public void stopTokenDrag(Token keyToken) {
@@ -133,6 +138,34 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     	
     }
     
+    private void showTokenStackPopup(List<Token> tokenList) {
+
+		int gridSize = (int)renderer.getScaledGridSize();
+		StackSummaryPanel summaryPanel = new StackSummaryPanel (gridSize, tokenList);
+		
+		Integer x = null;
+		Integer y = null;
+		
+		// Calculate the top left corner of the stack
+		for (Token token : tokenList) {
+			if (x == null || token.getX() < x) {
+				x = token.getX();
+			}
+			if (y == null || token.getY() < y) {
+				y = token.getY();
+			}
+		}
+		
+		ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, x, y);
+		
+		Point p = SwingUtilities.convertPoint(renderer, sp.x, sp.y, MapTool.getFrame().getGlassPane());
+		
+		x = p.x - StackSummaryPanel.PADDING - summaryPanel.getPreferredSize().width/2 + gridSize/2;
+		y = p.y - StackSummaryPanel.PADDING;
+		
+		MapTool.getFrame().showNonModalGlassPane(summaryPanel, x, y);
+    }
+    
     ////
 	// Mouse
 	public void mousePressed(MouseEvent e) {
@@ -141,9 +174,24 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			return;
 		}
 		
+		if (isDraggingToken) {
+			return;
+		}
+		
 		dragStartX = e.getX();
 		dragStartY = e.getY();
 
+		// Properties
+		if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+			List<Token> tokenList = renderer.getTokenStackAt(mouseX, mouseY);
+			if (tokenList != null) {
+				renderer.clearSelectedTokens();
+				showTokenStackPopup(tokenList);
+			}
+			
+			return;
+		}
+		
 		// SELECTION
 		Token token = renderer.getTokenAt (e.getX(), e.getY());
 		if (token != null && !isDraggingToken) {
@@ -257,37 +305,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		    MapTool.getFrame().setStatusMessage("");
         }
 
+		if (isDraggingToken) {
+			handleDragToken(mouseX, mouseY);
+			return;
+		}
+		
 		tokenUnderMouse = renderer.getTokenAt(mouseX, mouseY);
 		renderer.setMouseOver(tokenUnderMouse);
 		
-		// LATER: clean this up
-		List<Token> tokenList = renderer.getTokenStackAt(mouseX, mouseY);
-		if (tokenList != null) {
-			int gridSize = (int)renderer.getScaledGridSize();
-			StackSummaryPanel summaryPanel = new StackSummaryPanel (gridSize, tokenList);
-			
-			Integer x = null;
-			Integer y = null;
-			
-			// Calculate the top left corner of the stack
-			for (Token token : tokenList) {
-				if (x == null || token.getX() < x) {
-					x = token.getX();
-				}
-				if (y == null || token.getY() < y) {
-					y = token.getY();
-				}
-			}
-			
-			ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, x, y);
-			
-			Point p = SwingUtilities.convertPoint(renderer, sp.x, sp.y, MapTool.getFrame().getGlassPane());
-			
-			x = p.x - StackSummaryPanel.PADDING - summaryPanel.getPreferredSize().width/2 + gridSize/2;
-			y = p.y - StackSummaryPanel.PADDING;
-			
-			//MapTool.getFrame().showNonModalGlassPane(summaryPanel, x, y);
-		}
 	}
 	
 	public void mouseDragged(MouseEvent e) {
@@ -359,26 +384,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				
 				ZonePoint zonePoint = ZonePoint.fromScreenPoint(renderer, x, y);
 				if (!isDraggingToken) {
-					tokenBeingDragged = tokenUnderMouse;
-					
-					renderer.addMoveSelectionSet(MapTool.getPlayer().getName(), tokenBeingDragged.getId(), selectedTokenSet, false);
-					MapTool.serverCommand().startTokenMove(MapTool.getPlayer().getName(), renderer.getZone().getId(), tokenBeingDragged.getId(), selectedTokenSet);
+					startTokenDrag(tokenUnderMouse);
 				} else {
-					
-					if (tokenBeingDragged.isSnapToGrid()) {
-
-						zonePoint = cellUnderMouse.convertToZone(renderer);
-					} else {
-					    zonePoint.translate(-dragOffsetX, -dragOffsetY);
-                    }
-					
-					// Make sure it's a valid move
-					if (!validateMove(tokenBeingDragged, renderer.getSelectedTokenSet(), zonePoint)) {
-						return;
-					}
-
-					renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), zonePoint);
-					MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), zonePoint.x, zonePoint.y);
+					handleDragToken(x, y);
 				}
 				isDraggingToken = true;
                 SwingUtil.hidePointer(renderer);
@@ -389,6 +397,26 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 		super.mouseDragged(e);
 	}	
+	
+	private void handleDragToken(int x, int y) {
+		// TODO: Optimize this (combine with calling code)
+		ZonePoint zonePoint = ZonePoint.fromScreenPoint(renderer, x, y);
+		CellPoint cellUnderMouse = renderer.getCellAt(new ScreenPoint(x, y));
+		if (tokenBeingDragged.isSnapToGrid()) {
+
+			zonePoint = cellUnderMouse.convertToZone(renderer);
+		} else {
+		    zonePoint.translate(-dragOffsetX, -dragOffsetY);
+        }
+		
+		// Make sure it's a valid move
+		if (!validateMove(tokenBeingDragged, renderer.getSelectedTokenSet(), zonePoint)) {
+			return;
+		}
+
+		renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), zonePoint);
+		MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), zonePoint.x, zonePoint.y);
+	}
 
 	private boolean validateMove(Token leadToken, Set<GUID> tokenSet, ZonePoint point) {
 

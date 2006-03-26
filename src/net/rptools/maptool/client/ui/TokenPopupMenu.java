@@ -17,6 +17,7 @@ import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.token.LightDialog;
 import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -32,12 +33,14 @@ public class TokenPopupMenu extends JPopupMenu {
 	private ZoneRenderer renderer;
 	int x, y;
 	Set<GUID> selectedTokenSet;
+	private Token tokenUnderMouse;
 	
 	public TokenPopupMenu(Set<GUID> selectedTokenSet, int x, int y, ZoneRenderer renderer, Token tokenUnderMouse) {
 		this.renderer = renderer;
 		this.x = x;
 		this.y = y;
 		this.selectedTokenSet = selectedTokenSet;
+		this.tokenUnderMouse = tokenUnderMouse;
 
     	boolean enabled = true;
     	if (!MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
@@ -156,9 +159,6 @@ public class TokenPopupMenu extends JPopupMenu {
 	        
         }
         
-        // Delete
-        JMenuItem deleteMenuItem = new JMenuItem(new DeleteAction());
-        
         // Organize
         add(stateMenu);
     	add(sizeMenu);
@@ -166,9 +166,11 @@ public class TokenPopupMenu extends JPopupMenu {
         add(new ChangeStateAction("light"));
         add(snapToGridMenuItem);
         add(visibilityMenuItem);
-        add(renameMenuItem);
         add(new JSeparator());
-        add(deleteMenuItem);
+        add(renameMenuItem);
+        add(new JMenuItem(new StartMoveAction()));
+        add(new JSeparator());
+        add(new JMenuItem(new DeleteAction()));
 
         // GM Only
         if (MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
@@ -430,6 +432,25 @@ public class TokenPopupMenu extends JPopupMenu {
     	}
     }
 
+    private class StartMoveAction extends AbstractAction {
+    	
+    	public StartMoveAction() {
+    		putValue(Action.NAME, "Move");
+    		
+    		Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
+    		if (!(tool instanceof PointerTool)) {
+    			setEnabled(false);
+    		}
+    	}
+    	
+    	public void actionPerformed(ActionEvent e) {
+    		
+    		PointerTool tool = (PointerTool) MapTool.getFrame().getToolbox().getSelectedTool();
+    		
+    		tool.startTokenDrag(tokenUnderMouse);
+    	}
+    }
+    
     private class DeleteAction extends AbstractAction {
     	
     	public DeleteAction() {

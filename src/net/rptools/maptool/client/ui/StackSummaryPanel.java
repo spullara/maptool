@@ -26,9 +26,8 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Event;
-import java.awt.EventQueue;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -40,11 +39,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
 
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
@@ -52,7 +52,7 @@ import net.rptools.maptool.util.ImageManager;
 
 public class StackSummaryPanel extends JComponent implements FocusListener, MouseListener, MouseMotionListener {
 	
-	public static final int PADDING = 5;
+	public static final int PADDING = 7;
 	
 	private List<Token> tokenList;
 	private int gridSize;
@@ -63,7 +63,7 @@ public class StackSummaryPanel extends JComponent implements FocusListener, Mous
 		this.tokenList = tokenList;
 		this.gridSize = gridSize;
 		
-		setPreferredSize(new Dimension(tokenList.size()*gridSize + tokenList.size()*PADDING, gridSize + PADDING*2));
+		setPreferredSize(new Dimension(tokenList.size()*(gridSize + PADDING) + PADDING, gridSize + PADDING*2));
 		setBackground(Color.gray);
 		setForeground(Color.black);
 		setRequestFocusEnabled(true);
@@ -83,8 +83,7 @@ public class StackSummaryPanel extends JComponent implements FocusListener, Mous
 		g.fillRect(0, 0, size.width, size.height);
 		
 		// Border
-		g.setColor(getForeground());
-		g.drawRect(0, 0, size.width -1, size.height -1);
+		AppStyle.border.paintWithin((Graphics2D) g, 0, 0, size.width-1, size.height-1);
 		
 		// Images
 		tokenLocationList.clear();
@@ -97,7 +96,7 @@ public class StackSummaryPanel extends JComponent implements FocusListener, Mous
 			Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
 			SwingUtil.constrainTo(imgSize, gridSize);
 
-			Rectangle bounds = new Rectangle(PADDING + i*gridSize + i*PADDING, PADDING, imgSize.width, imgSize.height);
+			Rectangle bounds = new Rectangle(PADDING + i*(gridSize + PADDING), PADDING, imgSize.width, imgSize.height);
 			
 			g.drawImage(image, bounds.x, bounds.y, bounds.width, bounds.height, this);
 			
@@ -157,9 +156,13 @@ public class StackSummaryPanel extends JComponent implements FocusListener, Mous
 				renderer.selectToken(location.token.getId());
 				MapTool.getFrame().hideGlassPane();
 				
-//				SwingUtilities.convertMouseEvent(this, e, renderer);
-//				
-//				renderer.rebroadcastMouseMotionEvent(e);
+				Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
+				if (!(tool instanceof PointerTool)) {
+					return;
+				}
+				
+				((PointerTool) tool).startTokenDrag(location.token);
+				
 				return;
 			}
 		}
