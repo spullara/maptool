@@ -413,8 +413,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		// TODO: Optimize this (combine with calling code)
 		if (tokenBeingDragged.isSnapToGrid()) {
 
-			ScreenPoint sp = zonePoint.convertToScreen(renderer);
-			CellPoint cellUnderMouse = renderer.getCellAt(sp);
+			CellPoint cellUnderMouse = zonePoint.convertToCell(renderer);
 			zonePoint = cellUnderMouse.convertToZone(renderer);
 			MapTool.getFrame().setStatusMessage("Cell: " + cellUnderMouse.x + ", " + cellUnderMouse.y);
 			
@@ -548,39 +547,30 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				isSpaceDown = true;
 			}
 		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				
-				if (isDraggingToken) {
-					
-					// Stop
-					stopTokenDrag();
-					
-				} else {
-
-					// Start
-					Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
-					if (selectedTokenSet.size() != 1) {
-						return;
-					}
-					
-					Token token = renderer.getZone().getToken(selectedTokenSet.iterator().next());
-					if (token == null) {
-						return;
-					}
-					
-					dragStartX = token.getX();
-					dragStartY = token.getY();
-					startTokenDrag(token);
-				}
-			}
-		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6, 0), new AbstractAction() {
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
 				if (!isDraggingToken) {
 					return;
 				}
+					
+				// Stop
+				stopTokenDrag();
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD5, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (!isDraggingToken) {
+					return;
+				}
+					
+				// Stop
+				stopTokenDrag();
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
 				
 				handleKeyMove(1, 0);
 			}
@@ -588,19 +578,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD4, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
-				if (!isDraggingToken) {
-					return;
-				}
-				
 				handleKeyMove(-1, 0);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD8, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				
-				if (!isDraggingToken) {
-					return;
-				}
 				
 				handleKeyMove(0, -1);
 			}
@@ -608,19 +590,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD2, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
-				if (!isDraggingToken) {
-					return;
-				}
-				
 				handleKeyMove(0, 1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD7, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				
-				if (!isDraggingToken) {
-					return;
-				}
 				
 				handleKeyMove(-1, -1);
 			}
@@ -628,29 +602,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD9, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
-				if (!isDraggingToken) {
-					return;
-				}
-				
 				handleKeyMove(1, -1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD1, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
-				if (!isDraggingToken) {
-					return;
-				}
-				
 				handleKeyMove(-1, 1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD3, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				
-				if (!isDraggingToken) {
-					return;
-				}
 				
 				handleKeyMove(1, 1);
 			}
@@ -659,12 +621,49 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	
 	private void handleKeyMove(int dx, int dy) {
 
-		int size = TokenSize.getWidth(tokenBeingDragged, renderer.getZone().getGridSize());
-		
-		int x = dragStartX + (size*dx) + 1;
-		int y = dragStartY + (size*dy) + 1;
+		if (!isDraggingToken) {
+			
+			// Start
+			Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
+			if (selectedTokenSet.size() != 1) {
+				// only allow one at a time
+				return;
+			}
+			
+			Token token = renderer.getZone().getToken(selectedTokenSet.iterator().next());
+			if (token == null) {
+				return;
+			}
 
-		handleDragToken(new ZonePoint(x, y));
+			// Only one person at a time
+			if (renderer.isTokenMoving(token)) {
+				return;
+			}
+			
+			dragStartX = token.getX();
+			dragStartY = token.getY();
+			startTokenDrag(token);
+		}
+		
+		ZonePoint zp = null;
+		if (tokenBeingDragged.isSnapToGrid()) {
+			
+			CellPoint cp = new ZonePoint(dragStartX, dragStartY).convertToCell(renderer);
+			System.out.format("oldx:%d oldy:%d newx:%d newy:%d\n", cp.x, cp.y, cp.x+dx, cp.y+dy);
+			cp.x += dx;
+			cp.y += dy;
+			
+			zp = cp.convertToZone(renderer);
+		} else {
+			int size = TokenSize.getWidth(tokenBeingDragged, renderer.getZone().getGridSize());
+			
+			int x = dragStartX + (size*dx);
+			int y = dragStartY + (size*dy);
+			
+			zp = new ZonePoint(x, y);
+		}
+
+		handleDragToken(zp);
 	}
 
 	//// 
