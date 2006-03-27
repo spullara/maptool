@@ -76,6 +76,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     private boolean isNewTokenSelected;
     private boolean isDrawingSelectionBox;
     private boolean isSpaceDown;
+    private boolean isMovingWithKeys;
     private Rectangle selectionBoundBox;
 
 	private Token tokenBeingDragged;
@@ -122,6 +123,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     public void stopTokenDrag() {
         renderer.commitMoveSelectionSet(tokenBeingDragged.getId()); // TODO: figure out a better way
         isDraggingToken = false;
+        isMovingWithKeys = false;
     }
     
     public void moveToken(Token keyToken, ZonePoint location) {
@@ -311,6 +313,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         }
 
 		if (isDraggingToken) {
+			if (isMovingWithKeys) {
+				return;
+			}
+			
 			ZonePoint zonePoint = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY);
 			handleDragToken(zonePoint);
 			return;
@@ -391,6 +397,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (!isDraggingToken) {
 					startTokenDrag(tokenUnderMouse);
 				} else {
+					if (isMovingWithKeys) {
+						return;
+					}
 					ZonePoint zonePoint = ZonePoint.fromScreenPoint(renderer, x, y);
 					handleDragToken(zonePoint);
 				}
@@ -663,6 +672,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			zp = new ZonePoint(x, y);
 		}
 
+		isMovingWithKeys = true;
 		handleDragToken(zp);
 	}
 
