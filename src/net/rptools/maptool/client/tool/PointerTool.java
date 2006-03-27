@@ -116,10 +116,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		MapTool.serverCommand().startTokenMove(MapTool.getPlayer().getName(), renderer.getZone().getId(), tokenBeingDragged.getId(), renderer.getSelectedTokenSet());
 		
 		isDraggingToken = true;
+		
     }
     
-    public void stopTokenDrag(Token keyToken) {
-    	
+    public void stopTokenDrag() {
+        renderer.commitMoveSelectionSet(tokenBeingDragged.getId()); // TODO: figure out a better way
+        isDraggingToken = false;
     }
     
     public void moveToken(Token keyToken, ZonePoint location) {
@@ -170,6 +172,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	// Mouse
 	public void mousePressed(MouseEvent e) {
 
+		// So that keystrokes end up in the right place
+		renderer.requestFocus();
+		
 		if (isDraggingMap()) {
 			return;
 		}
@@ -254,7 +259,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 				// DRAG TOKEN COMPLETE
 				if (isDraggingToken) {
-		            renderer.commitMoveSelectionSet(tokenBeingDragged.getId()); // TODO: figure out a better way
+					stopTokenDrag();
 				}
 				
 		        // SELECT SINGLE TOKEN
@@ -306,7 +311,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         }
 
 		if (isDraggingToken) {
-			handleDragToken(mouseX, mouseY);
+			ZonePoint zonePoint = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY);
+			handleDragToken(zonePoint);
 			return;
 		}
 		
@@ -382,11 +388,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				int x = e.getX();
 				int y = e.getY();
 				
-				ZonePoint zonePoint = ZonePoint.fromScreenPoint(renderer, x, y);
 				if (!isDraggingToken) {
 					startTokenDrag(tokenUnderMouse);
 				} else {
-					handleDragToken(x, y);
+					ZonePoint zonePoint = ZonePoint.fromScreenPoint(renderer, x, y);
+					handleDragToken(zonePoint);
 				}
 				isDraggingToken = true;
                 SwingUtil.hidePointer(renderer);
@@ -398,24 +404,35 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		super.mouseDragged(e);
 	}	
 	
-	private void handleDragToken(int x, int y) {
+	/**
+	 * Move the keytoken being dragged to this zone point
+	 * @param zonePoint
+	 * @return true if the move was successful
+	 */
+	private boolean handleDragToken(ZonePoint zonePoint) {
 		// TODO: Optimize this (combine with calling code)
-		ZonePoint zonePoint = ZonePoint.fromScreenPoint(renderer, x, y);
-		CellPoint cellUnderMouse = renderer.getCellAt(new ScreenPoint(x, y));
 		if (tokenBeingDragged.isSnapToGrid()) {
 
+			ScreenPoint sp = zonePoint.convertToScreen(renderer);
+			CellPoint cellUnderMouse = renderer.getCellAt(sp);
 			zonePoint = cellUnderMouse.convertToZone(renderer);
+			MapTool.getFrame().setStatusMessage("Cell: " + cellUnderMouse.x + ", " + cellUnderMouse.y);
+			
 		} else {
 		    zonePoint.translate(-dragOffsetX, -dragOffsetY);
         }
 		
 		// Make sure it's a valid move
 		if (!validateMove(tokenBeingDragged, renderer.getSelectedTokenSet(), zonePoint)) {
-			return;
+			return false;
 		}
+
+		dragStartX = zonePoint.x;
+		dragStartY = zonePoint.y;
 
 		renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), zonePoint);
 		MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), zonePoint.x, zonePoint.y);
+		return true;
 	}
 
 	private boolean validateMove(Token leadToken, Set<GUID> tokenSet, ZonePoint point) {
@@ -531,6 +548,123 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				isSpaceDown = true;
 			}
 		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (isDraggingToken) {
+					
+					// Stop
+					stopTokenDrag();
+					
+				} else {
+
+					// Start
+					Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
+					if (selectedTokenSet.size() != 1) {
+						return;
+					}
+					
+					Token token = renderer.getZone().getToken(selectedTokenSet.iterator().next());
+					if (token == null) {
+						return;
+					}
+					
+					dragStartX = token.getX();
+					dragStartY = token.getY();
+					startTokenDrag(token);
+				}
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (!isDraggingToken) {
+					return;
+				}
+				
+				handleKeyMove(1, 0);
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD4, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (!isDraggingToken) {
+					return;
+				}
+				
+				handleKeyMove(-1, 0);
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD8, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (!isDraggingToken) {
+					return;
+				}
+				
+				handleKeyMove(0, -1);
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD2, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (!isDraggingToken) {
+					return;
+				}
+				
+				handleKeyMove(0, 1);
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD7, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (!isDraggingToken) {
+					return;
+				}
+				
+				handleKeyMove(-1, -1);
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD9, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (!isDraggingToken) {
+					return;
+				}
+				
+				handleKeyMove(1, -1);
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD1, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (!isDraggingToken) {
+					return;
+				}
+				
+				handleKeyMove(-1, 1);
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD3, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (!isDraggingToken) {
+					return;
+				}
+				
+				handleKeyMove(1, 1);
+			}
+		});
+	}
+	
+	private void handleKeyMove(int dx, int dy) {
+
+		int size = TokenSize.getWidth(tokenBeingDragged, renderer.getZone().getGridSize());
+		
+		int x = dragStartX + (size*dx) + 1;
+		int y = dragStartY + (size*dy) + 1;
+
+		handleDragToken(new ZonePoint(x, y));
 	}
 
 	//// 
