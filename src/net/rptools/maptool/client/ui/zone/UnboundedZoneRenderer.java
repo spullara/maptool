@@ -25,9 +25,10 @@
 package net.rptools.maptool.client.ui.zone;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Transparency;
+import java.awt.Paint;
+import java.awt.TexturePaint;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -43,10 +44,7 @@ import net.rptools.maptool.util.ImageManager;
  */
 public class UnboundedZoneRenderer extends ZoneRenderer {
 
-	private BufferedImage backBuffer;
 	private BufferedImage tileImage;
-	
-	private Dimension lastSize;
 	
 	private boolean loaded;
 	
@@ -65,14 +63,11 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 	protected void renderBoard(Graphics2D g) {
 
 		Dimension size = getSize();
-		if (tileImage == null || backBuffer == null || !lastSize.equals(size)) {
-			createBackBuffer();
-			lastSize = size;
-		}
 		
 		BufferedImage tileImage = getTileImage();
-		g.drawImage(backBuffer, (getViewOffsetX() % tileImage.getWidth()) - tileImage.getWidth(), 
-				( getViewOffsetY() % tileImage.getHeight()) - tileImage.getHeight(), null);
+		Paint paint = new TexturePaint(tileImage, new Rectangle2D.Float(getViewOffsetX(), getViewOffsetY(), tileImage.getWidth()*getScale(), tileImage.getHeight()*getScale()));
+		g.setPaint(paint);
+		g.fillRect(0, 0, size.width-1, size.height-1);
 	}
 
 	/* (non-Javadoc)
@@ -132,7 +127,6 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 			if (asset != null) {
 				BufferedImage image = ImageManager.getImage(asset, this);
 				if (image != ImageManager.UNKNOWN_IMAGE) {
-					backBuffer = null;
 					tileImage = image;
 					
 					loaded = true;
@@ -147,30 +141,4 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 		}
 	}
 	
-	private void createBackBuffer() {
-		
-		BufferedImage tileImage = getTileImage();
-		
-		Dimension size = getSize();
-		backBuffer = ImageUtil.createCompatibleImage(size.width + tileImage.getWidth()*2, size.height + tileImage.getHeight()*2, Transparency.OPAQUE);
-		
-		int cols = backBuffer.getWidth() / tileImage.getWidth() + 1;
-		int rows = backBuffer.getHeight() / tileImage.getHeight() + 1;
-		Graphics g = null;
-		try {
-			g = backBuffer.getGraphics();
-			
-			for (int row = 0; row < rows; row++) {
-				
-				for (int col = 0; col < cols; col++) {
-					
-					g.drawImage(tileImage, col * tileImage.getWidth(), row * tileImage.getHeight(), null);
-				}
-			}
-		} finally {
-			if (g != null) {
-				g.dispose();
-			}
-		}
-	}
 }
