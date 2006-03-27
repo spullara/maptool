@@ -649,7 +649,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (tokenBeingDragged.isSnapToGrid()) {
 			
 			CellPoint cp = new ZonePoint(dragStartX, dragStartY).convertToCell(renderer);
-			System.out.format("oldx:%d oldy:%d newx:%d newy:%d\n", cp.x, cp.y, cp.x+dx, cp.y+dy);
+
 			cp.x += dx;
 			cp.y += dy;
 			
