@@ -33,6 +33,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
@@ -626,6 +627,58 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				handleKeyMove(1, 1);
 			}
 		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				cycleSelectedToken(1);
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				cycleSelectedToken(-1);
+			}
+		});
+	}
+
+	private void cycleSelectedToken(int direction) {
+		
+		List<Token> visibleTokens = renderer.getTokensOnScreen();
+		Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
+		Integer newSelection = null;
+		
+		if (visibleTokens.size() == 0) {
+			return;
+		}
+		
+		if (selectedTokenSet.size() == 0) {
+			newSelection = 0;
+		} else {
+			
+			// Find the first selected token on the screen
+			for (int i = 0; i < visibleTokens.size(); i++) {
+				Token token = visibleTokens.get(i);
+				if (renderer.getSelectedTokenSet().contains(token.getId())) {
+					newSelection = i;
+					break;
+				}
+			}
+
+			// Pick the next
+			newSelection += direction;
+		}
+		
+		if (newSelection < 0) {
+			newSelection = visibleTokens.size()-1;
+		}
+		if (newSelection >= visibleTokens.size()) {
+			newSelection = 0;
+		}
+		
+		// Make the selection
+		renderer.clearSelectedTokens();
+		renderer.selectToken(visibleTokens.get(newSelection).getId());
+		
 	}
 	
 	private void handleKeyMove(int dx, int dy) {

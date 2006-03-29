@@ -50,6 +50,7 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -636,9 +637,48 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		//g.drawImage(image, p.x+imgSize/2, p.y+imgSize/2, imgSize, imgSize, this);
 		g.drawImage(image, sp.x + (int)((gridSize - imgSize)/2), sp.y + (int)((gridSize-imgSize)/2), imgSize, imgSize, this);
 	}
+
+	/**
+	 * Get a list of tokens currently visible on the screen.  The list is ordered by location starting
+	 * in the top left and going to the bottom right
+	 * @return
+	 */
+	public List<Token> getTokensOnScreen() {
+		List<Token> list = new ArrayList<Token>();
+
+		List<TokenLocation> tokenLocationListCopy = new ArrayList<TokenLocation>();
+		tokenLocationListCopy.addAll(tokenLocationList);
+		for (TokenLocation location : tokenLocationListCopy) {
+			list.add(location.token);
+		}
+		
+		// Sort by location on screen, top left to bottom right
+		Collections.sort(list, new Comparator<Token>(){
+			public int compare(Token o1, Token o2) {
+				
+				if (o1.getY() < o2.getY()) {
+					return -1;
+				}
+				if (o1.getY() > o2.getY()) {
+					return 1;
+				}
+				if (o1.getX() < o2.getX()) {
+					return -1;
+				}
+				if (o1.getX() > o2.getX()) {
+					return 1;
+				}
+				
+				return 0;
+			}
+		});
+		
+		return list;
+	}
 	
     protected void renderTokens(Graphics2D g) {
 
+    	Dimension screenSize = getSize();
         int gridSize = zone.getGridSize();
         int scaledGridSize = (int)getScaledGridSize();
         
@@ -660,6 +700,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int x = tokenScreenLocation.x + 1;
             int y = tokenScreenLocation.y + 1;
 
+            // Center the token
             if (width < scaledGridSize) {
                 x += (scaledGridSize - width)/2;
             }
@@ -667,8 +708,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 y += (scaledGridSize - height)/2;
             }
             
-            
             Rectangle tokenBounds = new Rectangle(x, y, width, height);
+            if (x+width < 0 || x > screenSize.width || y+height < 0 || y > screenSize.height) {
+            	// Not on the screen, don't have to worry about it
+            	continue;
+            }
+
             for (TokenLocation location : tokenLocationList) {
 
             	Rectangle r1 = location.bounds;
