@@ -28,13 +28,22 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragGestureEvent;
+import java.awt.dnd.DragGestureListener;
+import java.awt.dnd.DragSource;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,12 +59,15 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
 
-public class StackSummaryPanel extends JComponent implements FocusListener, MouseListener, MouseMotionListener {
+public class StackSummaryPanel extends JComponent implements FocusListener, MouseListener, DragGestureListener {
+	
+	public static final DataFlavor TOKEN_DRAG_FLAVOR = new DataFlavor("tokenStackPanel/drag", null);
 	
 	public static final int PADDING = 7;
 	
 	private List<Token> tokenList;
 	private int gridSize;
+	private boolean isDragging;
 	
 	private List<TokenLocation> tokenLocationList = new ArrayList<TokenLocation>();
 	
@@ -70,12 +82,17 @@ public class StackSummaryPanel extends JComponent implements FocusListener, Mous
 		
 		addFocusListener(this);
 		addMouseListener(this);
-		addMouseMotionListener(this);
+
+        DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);        
 	}
 	
 	@Override
 	protected void paintComponent(Graphics g) {
 
+		if(isDragging) {
+			return;
+		}
+		
 		Dimension size = getSize();
 		
 		// Background
@@ -142,15 +159,22 @@ public class StackSummaryPanel extends JComponent implements FocusListener, Mous
 	////
 	// MOUSE MOTION LISTENER
 	public void mouseDragged(MouseEvent e) {
+	}
+	public void mouseMoved(MouseEvent e) {
+	}
+
+	////
+	// DRAG GESTURE LISTENER
+	public void dragGestureRecognized(DragGestureEvent dge) {
 		
+		Point p = dge.getDragOrigin();
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 		for (TokenLocation location : tokenLocationList) {
-			if (location.bounds.contains(e.getX(), e.getY())) {
+			if (location.bounds.contains(p.x, p.y)) {
 			
 				if (!AppUtil.playerOwnsToken(location.token)) {
 					return;
 				}
-				
-				ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 				
 				renderer.clearSelectedTokens();
 				renderer.selectToken(location.token.getId());
@@ -162,12 +186,28 @@ public class StackSummaryPanel extends JComponent implements FocusListener, Mous
 				}
 				
 				((PointerTool) tool).startTokenDrag(location.token);
-				
+		        dge.startDrag(SwingUtil.emptyCursor, new TokenDragTransfer());
+
 				return;
 			}
-		}
-	}
-	public void mouseMoved(MouseEvent e) {
+		}			
 	}
 	
+	public static class TokenDragTransfer implements Transferable {
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+			if (flavor != TOKEN_DRAG_FLAVOR) {
+				throw new UnsupportedFlavorException(flavor);
+			}
+
+			return null;
+		}
+		public DataFlavor[] getTransferDataFlavors() {
+			return new DataFlavor[]{
+					TOKEN_DRAG_FLAVOR
+			};
+		}
+		public boolean isDataFlavorSupported(DataFlavor flavor) {
+			return flavor == TOKEN_DRAG_FLAVOR;
+		}
+	}
 }

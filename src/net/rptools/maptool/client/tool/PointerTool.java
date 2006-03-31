@@ -414,12 +414,16 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		super.mouseDragged(e);
 	}	
 	
+	public boolean isDraggingToken() {
+		return isDraggingToken;
+	}
+	
 	/**
 	 * Move the keytoken being dragged to this zone point
 	 * @param zonePoint
 	 * @return true if the move was successful
 	 */
-	private boolean handleDragToken(ZonePoint zonePoint) {
+	public boolean handleDragToken(ZonePoint zonePoint) {
 		// TODO: Optimize this (combine with calling code)
 		if (tokenBeingDragged.isSnapToGrid()) {
 
@@ -625,6 +629,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			public void actionPerformed(ActionEvent e) {
 				
 				handleKeyMove(1, 1);
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				handleKeyMove(1, 0);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0), new AbstractAction() {

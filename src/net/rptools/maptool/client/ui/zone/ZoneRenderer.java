@@ -74,6 +74,8 @@ import net.rptools.maptool.client.swing.Animatable;
 import net.rptools.maptool.client.swing.AnimationManager;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.Scale;
+import net.rptools.maptool.client.ui.StackSummaryPanel;
+import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.token.TokenTemplate;
@@ -1176,13 +1178,38 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     /* (non-Javadoc)
      * @see java.awt.dnd.DropTargetListener#dragOver(java.awt.dnd.DropTargetDragEvent)
      */
-    public void dragOver(DropTargetDragEvent dtde) {}
+    public void dragOver(DropTargetDragEvent dtde) {
+
+    	// TODO: Put this into a listener added from the pointer tool
+    	Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
+    	if (tool.getClass() != PointerTool.class) {
+    		return;
+    	}
+    	PointerTool pointerTool = (PointerTool) tool;
+    	if (!pointerTool.isDraggingToken()) {
+    		return;
+    	}
+    	
+    	pointerTool.handleDragToken(ZonePoint.fromScreenPoint(this, dtde.getLocation().x, dtde.getLocation().y));
+    }
 
     /* (non-Javadoc)
      * @see java.awt.dnd.DropTargetListener#drop(java.awt.dnd.DropTargetDropEvent)
      */
     public void drop(DropTargetDropEvent dtde) {
 
+    	// TODO: Move this IF statement into a listener in the pointer tool
+    	if (dtde.isDataFlavorSupported(StackSummaryPanel.TOKEN_DRAG_FLAVOR)) {
+        	Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
+        	if (tool.getClass() != PointerTool.class) {
+        		return;
+        	}
+        	
+        	PointerTool pointerTool = (PointerTool) tool;
+        	pointerTool.stopTokenDrag();
+    		return;
+    	}
+    	
     	// TODO: This section needs to be consolidated with ZoneSelectionPanel.drop()
     	Asset asset = TransferableHelper.getAsset(dtde);
 
@@ -1219,6 +1246,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             selectToken(token.getId());
             
             dtde.dropComplete(true);
+            requestFocus();
 	        repaint();
 	        
 	        // Go to a more appropriate tool
