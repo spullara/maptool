@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,6 +54,7 @@ import net.rptools.lib.FileUtil;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
+import net.rptools.maptool.client.ui.ConnectionProgressDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.NewMapDialog;
 import net.rptools.maptool.client.ui.ServerInfoDialog;
@@ -753,45 +755,58 @@ public class AppActions {
 
 		public void execute(ActionEvent e) {
 
-			boolean failed = false;
-			Campaign campaign = MapTool.getCampaign();
-			try {
+			final ConnectToServerDialog dialog = new ConnectToServerDialog();
 
-				ConnectToServerDialog dialog = new ConnectToServerDialog();
+			dialog.setVisible(true);
 
-				dialog.setVisible(true);
+			if (dialog.getOption() == ConnectToServerDialog.OPTION_CANCEL) {
 
-				if (dialog.getOption() == ConnectToServerDialog.OPTION_CANCEL) {
-
-					return;
-				}
-
-				ServerDisconnectHandler.disconnectExpected = true;
-				MapTool.stopServer();
-
-				MapTool.createConnection(dialog.getServer(), dialog.getPort(),
-						new Player(dialog.getUsername(), dialog.getRole(),
-								dialog.getPassword()));
-
-				// connecting
-				MapTool.getFrame().getConnectionStatusPanel().setStatus(
-						ConnectionStatusPanel.Status.connected);
-
-			} catch (UnknownHostException e1) {
-				MapTool.showError("Unknown host");
-				failed = true;
-			} catch (IOException e1) {
-				MapTool.showError("IO Error: " + e1);
-				failed = true;
+				return;
 			}
 
-			if (failed) {
-				try {
-					MapTool.startPersonalServer(campaign);
-				} catch (IOException ioe) {
-					MapTool.showError("Could not restart personal server");
+			ServerDisconnectHandler.disconnectExpected = true;
+			MapTool.stopServer();
+
+			// connecting
+			MapTool.getFrame().getConnectionStatusPanel().setStatus(
+					ConnectionStatusPanel.Status.connected);
+			
+			runBackground(new Runnable() {
+
+				public void run() {
+					boolean failed = false;
+					Campaign campaign = MapTool.getCampaign();
+					ConnectionProgressDialog progressDialog = new ConnectionProgressDialog();
+					try {
+						// I'm going to get struck by lighting for writing code like this.
+						// CLEAN ME CLEAN ME CLEAN ME !  I NEED A SWINGWORKER !
+						MapTool.getFrame().showFilledGlassPane(progressDialog);
+						
+						MapTool.createConnection(dialog.getServer(), dialog.getPort(),
+								new Player(dialog.getUsername(), dialog.getRole(),
+										dialog.getPassword()));
+
+					} catch (UnknownHostException e1) {
+						MapTool.showError("Unknown host");
+						failed = true;
+					} catch (IOException e1) {
+						MapTool.showError("IO Error: " + e1);
+						failed = true;
+					} finally {
+						MapTool.getFrame().hideGlassPane();
+					}
+					
+					if (failed) {
+						try {
+							MapTool.startPersonalServer(campaign);
+						} catch (IOException ioe) {
+							MapTool.showError("Could not restart personal server");
+						}
+					}
 				}
-			}
+			});
+
+
 		}
 
 	};

@@ -313,11 +313,19 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		component.setSize(component.getPreferredSize());
 		component.setLocation(x, y);
 		
+		glassPane.setLayout(null);
 		glassPane.add(component);
 		glassPane.setModel(modal);
 		glassPane.setVisible(true);
 	}
 	
+	public void showFilledGlassPane(JComponent component) {
+		
+		glassPane.setLayout(new GridLayout());
+		glassPane.add(component);
+		glassPane.setVisible(true);
+	}
+
 	public void hideGlassPane() {
 		glassPane.removeAll();
 		glassPane.setVisible(false);
