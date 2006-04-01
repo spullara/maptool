@@ -34,7 +34,6 @@ import java.util.Comparator;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 
 import net.rptools.clientserver.ActivityListener;
@@ -55,8 +54,6 @@ import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.tsc.servicediscovery.ServiceAnnouncer;
-
-import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 
 /**
  */
@@ -495,7 +492,7 @@ public class MapTool {
 	public static void main(String[] args) {
 
         try {
-            UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
+        	UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
         } catch (Exception e) {
             System.err.println("Exception during look and feel setup: " + e);
         }
