@@ -107,10 +107,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         return "Pointer tool";
     }
 
-    public void selectToken(Token token) {
-    	
-    }
-    
     public void startTokenDrag(Token keyToken) {
 		tokenBeingDragged = keyToken;
 		
@@ -125,22 +121,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         renderer.commitMoveSelectionSet(tokenBeingDragged.getId()); // TODO: figure out a better way
         isDraggingToken = false;
         isMovingWithKeys = false;
-    }
-    
-    public void moveToken(Token keyToken, ZonePoint location) {
-    	
-    }
-
-    public void showPointer(ZonePoint location) {
-    	
-    }
-    
-    public void hidePointer() {
-    	
-    }
-    
-    public void showTokenMenu() {
-    	
     }
     
     private void showTokenStackPopup(List<Token> tokenList) {
@@ -637,13 +617,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				handleKeyMove(1, 0);
 			}
 		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0), new AbstractAction() {
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
 				cycleSelectedToken(1);
 			}
 		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
 				cycleSelectedToken(-1);
@@ -668,6 +648,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			// Find the first selected token on the screen
 			for (int i = 0; i < visibleTokens.size(); i++) {
 				Token token = visibleTokens.get(i);
+				if (!renderer.isTokenSelectable(token.getId())) {
+					continue;
+				}
 				if (renderer.getSelectedTokenSet().contains(token.getId())) {
 					newSelection = i;
 					break;

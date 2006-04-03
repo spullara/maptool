@@ -176,6 +176,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		addWindowListener(this);
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		SwingUtil.centerOnScreen(this);
+		setFocusTraversalPolicy(new MapToolFocusTraversalPolicy());
         
 		// Components
 		glassPane = new GlassPane();

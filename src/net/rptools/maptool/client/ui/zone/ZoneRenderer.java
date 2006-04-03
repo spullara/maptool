@@ -40,6 +40,8 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -131,14 +133,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         if (zone == null) { throw new IllegalArgumentException("Zone cannot be null"); }
 
         this.zone = zone;
+        setFocusable(true);
         setZoneScale(new Scale());
         
         // DnD
         new DropTarget(this, this);
 
+        // Focus
         addMouseListener(new MouseAdapter(){
 			public void mousePressed(MouseEvent e) {
-				requestFocus();
+				requestFocusInWindow();
 			}
 			@Override
 			public void mouseExited(MouseEvent e) {
@@ -154,7 +158,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         		pointUnderMouse = new ScreenPoint(e.getX(), e.getY());
         	}
         });
-     
     }
 
     public Scale getZoneScale() {
@@ -307,13 +310,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         overlayList.remove(overlay);
     }
 
-    /* (non-Javadoc)
-	 * @see javax.swing.JComponent#isRequestFocusEnabled()
-	 */
-	public boolean isRequestFocusEnabled() {
-		return true;
-	}
-    
     public void moveViewBy(int dx, int dy) {
 
     	setViewOffset(getViewOffsetX() + dx, getViewOffsetY() + dy);
@@ -450,7 +446,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             labelLocationList.add(new LabelLocation(bounds, label));
         }
     }
-    
+    @Override
+    public void repaint() {
+    	Thread.dumpStack();
+    	super.repaint();
+    }
     private void renderFog(Graphics2D g) {
 
     	if (!zone.hasFog()) {
@@ -852,23 +852,33 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	return selectedTokenSet;
     }
     
-    public void selectToken(GUID tokenGUID) {
+    public boolean isTokenSelectable(GUID tokenGUID) {
+    	
         if (tokenGUID == null) {
-            return;
+            return false;
         }
  
         Token token = zone.getToken(tokenGUID);
         if (token == null) {
-        	return;
+        	return false;
         }
         
         if (!AppUtil.playerOwnsToken(token)) {
-        	return;
+        	return false;
         }
 
         if (!MapTool.getPlayer().isGM() && !zone.isTokenVisible(token)) {
-        	return;
+        	return false;
         }
+        
+        return true;
+    }
+    
+    public void selectToken(GUID tokenGUID) {
+    	
+    	if (!isTokenSelectable(tokenGUID)) {
+    		return;
+    	}
         
     	selectedTokenSet.add(tokenGUID);
     	
@@ -1246,7 +1256,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             selectToken(token.getId());
             
             dtde.dropComplete(true);
-            requestFocus();
+            requestFocusInWindow();
 	        repaint();
 	        
 	        // Go to a more appropriate tool
