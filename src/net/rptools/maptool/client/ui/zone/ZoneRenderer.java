@@ -866,15 +866,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         return true;
     }
     
-    public void selectToken(GUID tokenGUID) {
+    public boolean selectToken(GUID tokenGUID) {
     	
     	if (!isTokenSelectable(tokenGUID)) {
-    		return;
+    		return false;
     	}
         
     	selectedTokenSet.add(tokenGUID);
     	
     	repaint();
+    	return true;
     }
     
     /**

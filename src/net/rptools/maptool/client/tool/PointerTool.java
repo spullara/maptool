@@ -157,7 +157,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     
     private class TokenStackPanel {
 
-    	private static final int PADDING = 7;
+    	private static final int PADDING = 4;
     	
     	private List<Token> tokenList;
     	private List<TokenLocation> tokenLocationList = new ArrayList<TokenLocation>();
@@ -185,22 +185,24 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     		Point p = event.getPoint();
     		for (TokenLocation location : tokenLocationList) {
     			if (location.getBounds().contains(p.x, p.y)) {
-    			
+
     				if (!AppUtil.playerOwnsToken(location.getToken())) {
     					return;
     				}
     				
     				renderer.clearSelectedTokens();
-    				renderer.selectToken(location.getToken().getId());
-    				
-    				Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
-    				if (!(tool instanceof PointerTool)) {
-    					return;
-    				}
-    				
-    				isShowingTokenStackPopup = false;
+    				boolean selected = renderer.selectToken(location.getToken().getId());
 
-    				((PointerTool) tool).startTokenDrag(location.getToken());
+    				if (selected) {
+	    				Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
+	    				if (!(tool instanceof PointerTool)) {
+	    					return;
+	    				}
+	    				
+	    				tokenUnderMouse = location.getToken();
+	    				((PointerTool) tool).startTokenDrag(location.getToken());
+    				}
+
     				return;
     			}
     		}			
@@ -230,7 +232,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     			SwingUtil.constrainTo(imgSize, gridSize);
 
     			Rectangle bounds = new Rectangle(x + PADDING + i*(gridSize + PADDING), y + PADDING, imgSize.width, imgSize.height);
-    			
     			g.drawImage(image, bounds.x, bounds.y, bounds.width, bounds.height, renderer);
     			
     			tokenLocationList.add(new TokenLocation(bounds, token));
@@ -433,12 +434,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	public void mouseDragged(MouseEvent e) {
 
 		if (isShowingTokenStackPopup) {
+			isShowingTokenStackPopup = false;
 			if (tokenStackPanel.contains(e.getX(), e.getY())) {
 				tokenStackPanel.handleMouseMotionEvent(e);
 				return;
 			} else {
-				isShowingTokenStackPopup = false;
-				repaint();
+				renderer.repaint();
 			}
 		}
 		
@@ -466,6 +467,15 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				selectionBoundBox.height = Math.abs(y1 - y2);
 				
 				renderer.repaint();
+				return;
+			}
+			
+			if (isDraggingToken) {
+				if (isMovingWithKeys) {
+					return;
+				}
+				ZonePoint zonePoint = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY);
+				handleDragToken(zonePoint);
 				return;
 			}
 			
@@ -504,18 +514,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				
 				origin.translate(dragOffsetX, dragOffsetY);
         
-				int x = e.getX();
-				int y = e.getY();
-				
-				if (!isDraggingToken) {
-					startTokenDrag(tokenUnderMouse);
-				} else {
-					if (isMovingWithKeys) {
-						return;
-					}
-					ZonePoint zonePoint = ZonePoint.fromScreenPoint(renderer, x, y);
-					handleDragToken(zonePoint);
-				}
+				startTokenDrag(tokenUnderMouse);
 				isDraggingToken = true;
                 SwingUtil.hidePointer(renderer);
 			}
