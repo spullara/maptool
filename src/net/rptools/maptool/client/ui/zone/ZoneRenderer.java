@@ -40,8 +40,6 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -76,8 +74,6 @@ import net.rptools.maptool.client.swing.Animatable;
 import net.rptools.maptool.client.swing.AnimationManager;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.Scale;
-import net.rptools.maptool.client.ui.StackSummaryPanel;
-import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.token.TokenTemplate;
@@ -446,11 +442,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             labelLocationList.add(new LabelLocation(bounds, label));
         }
     }
-    @Override
-    public void repaint() {
-    	Thread.dumpStack();
-    	super.repaint();
-    }
+
     private void renderFog(Graphics2D g) {
 
     	if (!zone.hasFog()) {
@@ -1190,17 +1182,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      */
     public void dragOver(DropTargetDragEvent dtde) {
 
-    	// TODO: Put this into a listener added from the pointer tool
-    	Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
-    	if (tool.getClass() != PointerTool.class) {
-    		return;
-    	}
-    	PointerTool pointerTool = (PointerTool) tool;
-    	if (!pointerTool.isDraggingToken()) {
-    		return;
-    	}
-    	
-    	pointerTool.handleDragToken(ZonePoint.fromScreenPoint(this, dtde.getLocation().x, dtde.getLocation().y));
     }
 
     /* (non-Javadoc)
@@ -1208,18 +1189,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      */
     public void drop(DropTargetDropEvent dtde) {
 
-    	// TODO: Move this IF statement into a listener in the pointer tool
-    	if (dtde.isDataFlavorSupported(StackSummaryPanel.TOKEN_DRAG_FLAVOR)) {
-        	Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
-        	if (tool.getClass() != PointerTool.class) {
-        		return;
-        	}
-        	
-        	PointerTool pointerTool = (PointerTool) tool;
-        	pointerTool.stopTokenDrag();
-    		return;
-    	}
-    	
     	// TODO: This section needs to be consolidated with ZoneSelectionPanel.drop()
     	Asset asset = TransferableHelper.getAsset(dtde);
 

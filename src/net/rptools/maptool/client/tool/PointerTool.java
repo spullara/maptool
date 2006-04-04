@@ -27,6 +27,8 @@ package net.rptools.maptool.client.tool;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Composite;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -37,7 +39,9 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,21 +61,25 @@ import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ZonePoint;
-import net.rptools.maptool.client.ui.StackSummaryPanel;
+import net.rptools.maptool.client.ui.TokenLocation;
 import net.rptools.maptool.client.ui.TokenPopupMenu;
+import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.util.ImageManager;
 
 /**
  */
 public class PointerTool extends DefaultTool implements ZoneOverlay {
 
+	private boolean isShowingTokenStackPopup;
     private boolean isShowingPointer; 
     private boolean isDraggingToken;
     private boolean isNewTokenSelected;
@@ -83,12 +91,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	private Token tokenBeingDragged;
 	private Token tokenUnderMouse;
 	
+	private TokenStackPanel tokenStackPanel = new TokenStackPanel();
+	
     // Offset from token's X,Y when dragging. Values are in cell coordinates.
     private int dragOffsetX;
     private int dragOffsetY;
 	private int dragStartX;
 	private int dragStartY;
-
+	
 	public PointerTool () {
         try {
             setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/tool/PointerBlue16.png")));
@@ -125,9 +135,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     
     private void showTokenStackPopup(List<Token> tokenList) {
 
-		int gridSize = (int)renderer.getScaledGridSize();
-		StackSummaryPanel summaryPanel = new StackSummaryPanel (gridSize, tokenList);
-		
 		Integer x = null;
 		Integer y = null;
 		
@@ -142,21 +149,115 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 		
 		ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, x, y);
-		
-		Point p = SwingUtilities.convertPoint(renderer, sp.x, sp.y, MapTool.getFrame().getGlassPane());
-		
-		x = p.x - StackSummaryPanel.PADDING - summaryPanel.getPreferredSize().width/2 + gridSize/2;
-		y = p.y - StackSummaryPanel.PADDING;
-		
-		MapTool.getFrame().showNonModalGlassPane(summaryPanel, x, y);
+
+		tokenStackPanel.show(tokenList, sp.x, sp.y);
+		isShowingTokenStackPopup = true;
+		repaint();
+    }
+    
+    private class TokenStackPanel {
+
+    	private static final int PADDING = 7;
+    	
+    	private List<Token> tokenList;
+    	private List<TokenLocation> tokenLocationList = new ArrayList<TokenLocation>();
+
+    	private int x;
+    	private int y;
+    	
+    	public void show(List<Token> tokenList, int x, int y) {
+    		this.tokenList = tokenList;
+    		this.x = x - TokenStackPanel.PADDING - getPreferredSize().width/2 + ((int) renderer.getScaledGridSize())/2;
+    		this.y = y - TokenStackPanel.PADDING;
+    	}
+    	
+    	public Dimension getSize() {
+    		int gridSize = (int)renderer.getScaledGridSize();
+    		return new Dimension(tokenList.size()*(gridSize + PADDING) + PADDING, gridSize + PADDING*2);
+    	}
+    	
+    	public void handleMouseEvent(MouseEvent event) {
+    		// Nothing to do right now
+    	}
+    	
+    	public void handleMouseMotionEvent(MouseEvent event) {
+
+    		Point p = event.getPoint();
+    		for (TokenLocation location : tokenLocationList) {
+    			if (location.getBounds().contains(p.x, p.y)) {
+    			
+    				if (!AppUtil.playerOwnsToken(location.getToken())) {
+    					return;
+    				}
+    				
+    				renderer.clearSelectedTokens();
+    				renderer.selectToken(location.getToken().getId());
+    				
+    				Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
+    				if (!(tool instanceof PointerTool)) {
+    					return;
+    				}
+    				
+    				isShowingTokenStackPopup = false;
+
+    				((PointerTool) tool).startTokenDrag(location.getToken());
+    				return;
+    			}
+    		}			
+    	}
+    	
+    	public void paint(Graphics g) {
+
+    		Dimension size = getSize();
+    		int gridSize = (int)renderer.getScaledGridSize();
+    		
+    		// Background
+    		g.setColor(getBackground());
+    		g.fillRect(x, y, size.width, size.height);
+    		
+    		// Border
+    		AppStyle.border.paintAround((Graphics2D) g, x, y, size.width-1, size.height-1);
+    		
+    		// Images
+    		tokenLocationList.clear();
+    		for (int i = 0; i < tokenList.size(); i++) {
+    			
+    			Token token = tokenList.get(i);
+    			
+    			BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), renderer);
+    			
+    			Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
+    			SwingUtil.constrainTo(imgSize, gridSize);
+
+    			Rectangle bounds = new Rectangle(x + PADDING + i*(gridSize + PADDING), y + PADDING, imgSize.width, imgSize.height);
+    			
+    			g.drawImage(image, bounds.x, bounds.y, bounds.width, bounds.height, renderer);
+    			
+    			tokenLocationList.add(new TokenLocation(bounds, token));
+    		}
+    	}    	
+    	
+    	public boolean contains(int x, int y) {
+    		return new Rectangle(this.x, this.y, getSize().width, getSize().height).contains(x, y);
+    	}
     }
     
     ////
 	// Mouse
 	public void mousePressed(MouseEvent e) {
 
+		if (isShowingTokenStackPopup) {
+			if (tokenStackPanel.contains(e.getX(), e.getY())) {
+				tokenStackPanel.handleMouseEvent(e);
+				return;
+			} else {
+				isShowingTokenStackPopup = false;
+				repaint();
+			}
+		}
+		
 		// So that keystrokes end up in the right place
-		renderer.requestFocus();
+		renderer.requestFocusInWindow();
 		
 		if (isDraggingMap()) {
 			return;
@@ -221,6 +322,16 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	
 	public void mouseReleased(MouseEvent e) {
 
+		if (isShowingTokenStackPopup) {
+			if (tokenStackPanel.contains(e.getX(), e.getY())) {
+				tokenStackPanel.handleMouseEvent(e);
+				return;
+			} else {
+				isShowingTokenStackPopup = false;
+				repaint();
+			}
+		}
+		
 		if (SwingUtilities.isLeftMouseButton(e)) {
 	        try {
 	            SwingUtil.showPointer(renderer);
@@ -283,6 +394,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 */
 	public void mouseMoved(MouseEvent e) {
 		
+		if (isShowingTokenStackPopup) {
+			if (tokenStackPanel.contains(e.getX(), e.getY())) {
+				return;
+			} 
+
+			// Turn it off
+			isShowingTokenStackPopup = false;
+			repaint();
+			return;
+		}
+		
 		mouseX = e.getX();
 		mouseY = e.getY();
 		
@@ -310,6 +432,16 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	
 	public void mouseDragged(MouseEvent e) {
 
+		if (isShowingTokenStackPopup) {
+			if (tokenStackPanel.contains(e.getX(), e.getY())) {
+				tokenStackPanel.handleMouseMotionEvent(e);
+				return;
+			} else {
+				isShowingTokenStackPopup = false;
+				repaint();
+			}
+		}
+		
 		mouseX = e.getX();
 		mouseY = e.getY();
 		
@@ -746,7 +878,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 			g.setStroke(stroke);
 		}
-		
+
+		if (isShowingTokenStackPopup) {
+			
+			tokenStackPanel.paint(g);
+		}
 	}
+
 	
 }
