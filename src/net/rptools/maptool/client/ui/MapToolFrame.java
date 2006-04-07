@@ -209,8 +209,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
         taskPanel.add("Connections", new JScrollPane(createPlayerList()));
         
         statusPanel = new StatusPanel();
-        statusPanel.addPanel(new MemoryStatusBar());
-        statusPanel.addPanel(progressBar);
+        //statusPanel.addPanel(new MemoryStatusBar());
+        //statusPanel.addPanel(progressBar);
         statusPanel.addPanel(connectionStatusPanel);
         statusPanel.addPanel(activityMonitor);
         
