@@ -42,7 +42,6 @@ public class AppSetup {
         File appDir = AppUtil.getAppHome();
         
         // Only init once
-        System.out.println (appDir.listFiles().length);
         if (appDir.listFiles().length > 0) {
             return;
         }
