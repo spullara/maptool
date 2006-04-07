@@ -85,8 +85,11 @@ public class AppPreferences {
             if (!file.exists()) {
                 continue;
             }
-            
-            rootList.add(file);
+
+            if (!rootList.contains(file)) {
+            	
+                rootList.add(file);
+            }
         }
         
         return rootList;

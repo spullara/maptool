@@ -28,12 +28,15 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FilenameFilter;
 
+import net.rptools.lib.EnvUtil;
 import net.tsc.servicediscovery.ServiceGroup;
 
 public class AppConstants {
 
     public static final String APP_NAME = "MapTool";
 
+    public static final File UNZIP_DIR = AppUtil.getAppHome("resource");
+    
 	public static final ServiceGroup SERVICE_GROUP = new ServiceGroup("maptool");
 
 	public static final int DEFAULT_GRID_SIZE = 40;

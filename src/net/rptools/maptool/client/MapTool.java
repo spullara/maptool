@@ -101,6 +101,9 @@ public class MapTool {
     
 	private static void initialize() {
 		
+        // First timer
+		AppSetup.install();
+		
 		// We'll manage our own images
 		ImageIO.setUseCache(false);
 		
@@ -125,6 +128,7 @@ public class MapTool {
         	e.printStackTrace();
         }
         AppActions.updateActions();
+
 	}
 	
 	public static String getVersion() {
