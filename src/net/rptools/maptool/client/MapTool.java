@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -502,7 +503,11 @@ public class MapTool {
 
         initialize();
         
-		clientFrame.setVisible(true);
+        EventQueue.invokeLater(new Runnable() {
+        	public void run() {
+        		clientFrame.setVisible(true);
+        	}
+        });
 	}
 	
 	private static class ActivityProgressListener implements ActivityListener {
