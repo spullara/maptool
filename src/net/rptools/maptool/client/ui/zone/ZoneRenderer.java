@@ -547,7 +547,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				// Show distance only on the key token
 				if (token == keyToken) {
 
-					renderPath(g, walker);
+					renderPath(g, walker, width/gridSize, height/gridSize);
 				}
 
 				// Center token in cell if it is smaller than a single cell
@@ -578,7 +578,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 	}
 	
-	public void renderPath(Graphics2D g, ZoneWalker walker) {
+	public void renderPath(Graphics2D g, ZoneWalker walker, int width, int height) {
 		Object oldRendering = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		CellPoint previousPoint = null;
@@ -586,15 +586,30 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		// JOINTS
 		List<CellPoint> path = walker.getPath();
 
+		Set<CellPoint> pathSet = new HashSet<CellPoint>();
+		Set<CellPoint> waypointSet = new HashSet<CellPoint>();
 		for (CellPoint p : path) {
 
-			highlightCell(g, p, AppStyle.cellPathImage, 1.0f);
+			for (int x = 0; x < width; x++) {
+				for (int y = 0; y < height; y++) {
+					
+					pathSet.add(new CellPoint(p.x+x, p.y+y));
+				}
+			}
 			if (walker.isWaypoint(p) && previousPoint != null) {
-				highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
+				waypointSet.add(p);
 			}
 			previousPoint = p;
 		}
+		for (CellPoint p : pathSet) {
+			highlightCell(g, p, AppStyle.cellPathImage, 1.0f);
+		}
+		for (CellPoint p : waypointSet) {
+			highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
+		}
 		
+		int xOffset = (int)((width-1)*getScaledGridSize()/2);
+		int yOffset = (int)((height-1)*getScaledGridSize()/2);
 		previousPoint = null;
 		for (CellPoint p : path) {
 
@@ -609,7 +624,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 				if (previousHalfPoint != null) {
 					g.setColor(Color.blue);
-					QuadCurve2D curve = new QuadCurve2D.Float(previousHalfPoint.x, previousHalfPoint.y, origin.x, origin.y, halfPoint.x, halfPoint.y);
+					QuadCurve2D curve = new QuadCurve2D.Float(previousHalfPoint.x+xOffset, previousHalfPoint.y+yOffset, origin.x+xOffset, origin.y+yOffset, halfPoint.x+xOffset, halfPoint.y+yOffset);
 					g.draw(curve);
 				}
 

@@ -44,7 +44,11 @@ public abstract class AbstractPoint {
     	
     	return p.x == x && p.y == y;
     }
-    
+
+    public int hashCode() {
+    	return new String(x+"-"+y).hashCode();
+    }
+
     public String toString() {
         return "[" + x + "," + y + "]";
     }

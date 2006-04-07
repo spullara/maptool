@@ -72,7 +72,7 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
             return;
         }
 
-        renderer.renderPath(g, walker);
+        renderer.renderPath(g, walker, 1, 1);
 
         ScreenPoint sp = walker.getLastPoint().convertToScreen(renderer);
         
