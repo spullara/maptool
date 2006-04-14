@@ -202,6 +202,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		repaint();
 	}
 
+	public boolean hasMoveSelectionSetMoved(GUID keyToken, ZonePoint point) {
+		
+		SelectionSet set = selectionSetMap.get(keyToken);
+		if (set == null) {
+			return false;
+		}
+		
+		Token token = zone.getToken(keyToken);
+		int x = point.x - token.getX();
+		int y = point.y - token.getY();
+
+		return set.offsetX != x || set.offsetY != y;
+	}
+	
 	public void updateMoveSelectionSet (GUID keyToken, ZonePoint offset) {
 		
 		SelectionSet set = selectionSetMap.get(keyToken);
