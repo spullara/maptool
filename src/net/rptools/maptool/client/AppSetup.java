@@ -26,7 +26,9 @@ package net.rptools.maptool.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 
 import net.rptools.lib.EnvUtil;
 import net.rptools.lib.FileUtil;
@@ -63,7 +65,7 @@ public class AppSetup {
     		return;
     	}
     	
-    	String fileURL = url.toString();
+    	String fileURL = URLDecoder.decode(url.toString());
     	fileURL = fileURL.substring("jar:file:".length());
     	fileURL = fileURL.substring(0, fileURL.indexOf("!"));
     	if (fileURL.startsWith("\\")) {
