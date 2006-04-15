@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.io.IOException;
@@ -55,6 +56,8 @@ import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.tsc.servicediscovery.ServiceAnnouncer;
+import de.muntjak.tinylookandfeel.Theme;
+import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
 
 /**
  */
@@ -498,6 +501,9 @@ public class MapTool {
 
         try {
         	UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
+        	
+        	// Make the toggle button pressed state look more distinct
+        	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
         } catch (Exception e) {
             System.err.println("Exception during look and feel setup: " + e);
         }
