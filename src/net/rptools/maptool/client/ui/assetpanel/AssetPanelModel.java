@@ -51,6 +51,11 @@ public class AssetPanelModel implements PropertyChangeListener {
     }
     
     public void addRootGroup(Directory dir) {
+    	
+    	if (imageFileTreeModel.containsRootGroup(dir)) {
+    		return;
+    	}
+    	
         dir.addPropertyChangeListener(this);
         imageFileTreeModel.addRootGroup(dir);
     }

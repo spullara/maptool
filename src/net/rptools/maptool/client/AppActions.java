@@ -84,6 +84,8 @@ public class AppActions {
 
 	private static Set<Token> tokenCopySet = null;
 
+	
+	
 	public static final Action ENFORCE_ZONE = new AdminClientAction() {
 		
 		{
@@ -103,6 +105,25 @@ public class AppActions {
 			}
 			
 			MapTool.serverCommand().enforceZone(renderer.getZone().getId());
+		}
+	};
+	
+	public static final Action RESTORE_DEFAULT_IMAGES = new DefaultClientAction() {
+		
+		{
+			init("Restore Default Images");
+		}
+
+		public void execute(ActionEvent e) {
+			try {
+				AppSetup.installDefaultTokens();
+				
+				// TODO: Remove this hardwiring
+		        File unzipDir = new File(AppConstants.UNZIP_DIR.getAbsolutePath() + File.separator + "Default");
+		        MapTool.getFrame().addAssetRoot(unzipDir);
+			} catch (IOException ioe) {
+				MapTool.showError("Could not restore defaults: " + ioe);
+			}
 		}
 	};
 	

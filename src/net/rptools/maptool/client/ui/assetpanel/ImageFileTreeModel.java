@@ -57,6 +57,17 @@ public class ImageFileTreeModel implements TreeModel {
         return root;
     }
 
+    public boolean containsRootGroup(Directory dir) {
+    	
+    	for (Directory directory : rootDirectories) {
+    		if (directory.getPath().equals(dir.getPath())) {
+    			return true;
+    		}
+    	}
+    	
+    	return false;
+    }
+    
     public void addRootGroup (Directory directory) {
     	rootDirectories.add(directory);
         fireNodesInsertedEvent(new TreeModelEvent(this, new Object[]{getRoot()}, 

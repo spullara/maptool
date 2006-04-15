@@ -64,8 +64,11 @@ public class AppSetup {
     	}
     	
     	String fileURL = url.toString();
-    	fileURL = fileURL.substring("jar:file:\\".length());
+    	fileURL = fileURL.substring("jar:file:".length());
     	fileURL = fileURL.substring(0, fileURL.indexOf("!"));
+    	if (fileURL.startsWith("\\")) {
+    		fileURL = fileURL.substring(1);
+    	}
 
     	File sourceFile = new File(fileURL);
     	
