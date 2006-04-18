@@ -203,6 +203,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         	ioe.printStackTrace();
         }
         aboutDialog = new AboutDialog(this, logo, credits);
+        aboutDialog.setSize(354, 400);
 
         taskPanel.add("Image Explorer", assetPanel);
         taskPanel.add("Tokens", tokenPanel);
