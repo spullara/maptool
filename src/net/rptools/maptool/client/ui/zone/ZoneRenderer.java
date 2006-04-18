@@ -225,7 +225,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		
 		Token token = zone.getToken(keyToken);
 		set.setOffset(offset.x - token.getX(), offset.y - token.getY());
-		repaint();
+		
+		int tokenWidth = (int)(TokenSize.getWidth(token, zone.getGridSize()) * getScale());
+		int tokenHeight = (int)(TokenSize.getHeight(token, zone.getGridSize()) * getScale());
+		
+		// figure out screen bounds
+		ScreenPoint tsp = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
+		ScreenPoint dsp = ScreenPoint.fromZonePoint(this, offset.x, offset.y);
+		System.out.println (tokenWidth + " - " + tokenHeight);
+
+		int x = Math.min(tsp.x, dsp.x);
+		int y = Math.min(tsp.y, dsp.y);
+		int width = Math.abs(tsp.x - dsp.x)+ tokenWidth;
+		int height = Math.abs(tsp.y - dsp.y)+ tokenHeight;
+		
+		repaint(x, y, width, height);
 	}
 
 	public void toggleMoveSelectionSetWaypoint(GUID keyToken, CellPoint location) {
@@ -394,6 +408,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         	
         	return;
         }
+        
+//        g2d.setColor(Color.red);
+//        g2d.drawRect(g.getClipBounds().x, g.getClipBounds().y, g.getClipBounds().width-1, g.getClipBounds().height-1);
     }
 
     /**
