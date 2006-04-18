@@ -764,6 +764,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 	private void cycleSelectedToken(int direction) {
 		
+		if (isDraggingToken) {
+			return;
+		}
+		
 		List<Token> visibleTokens = renderer.getTokensOnScreen();
 		Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
 		Integer newSelection = null;
