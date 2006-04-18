@@ -200,7 +200,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
             logo = ImageUtil.getImage("net/rptools/lib/image/rptools-logo.png");
         	
         } catch (Exception ioe) {
-        	// This won't happen
+        	ioe.printStackTrace();
         }
         aboutDialog = new AboutDialog(this, logo, credits);
 
@@ -209,7 +209,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         taskPanel.add("Connections", new JScrollPane(createPlayerList()));
         
         statusPanel = new StatusPanel();
-        //statusPanel.addPanel(new MemoryStatusBar());
+        statusPanel.addPanel(new MemoryStatusBar());
         //statusPanel.addPanel(progressBar);
         statusPanel.addPanel(connectionStatusPanel);
         statusPanel.addPanel(activityMonitor);
