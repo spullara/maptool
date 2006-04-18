@@ -26,13 +26,10 @@ package net.rptools.maptool.client;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 
-import net.rptools.lib.EnvUtil;
 import net.rptools.lib.FileUtil;
-import net.rptools.maptool.client.ui.MapToolFrame;
 
 /**
  * Executes only the first time the application is run.
