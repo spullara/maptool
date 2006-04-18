@@ -25,20 +25,29 @@
 package net.rptools.maptool.client.tool;
 
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.Map;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.AppStyle;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarEuclideanWalker;
+import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.util.GraphicsUtil;
 
 
@@ -81,6 +90,24 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
         GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
     }
     
+    @Override
+    protected void installKeystrokes(Map<KeyStroke, Action> actionMap) {
+    	super.installKeystrokes(actionMap);
+    	
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (walker == null) {
+					return;
+				}
+				
+				// Waypoint
+		        CellPoint cp = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY).convertToCell(renderer);
+		        walker.toggleWaypoint(cp);
+			}
+		});
+    }
+    
     ////
     // MOUSE LISTENER
 	@Override
@@ -97,11 +124,6 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
             return;
 		} 
         
-        if (walker != null) {
-          walker.toggleWaypoint(cellPoint);
-          renderer.repaint();
-        }
-        
         super.mousePressed(e);
 	}
 
@@ -117,10 +139,6 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
             return;
 		}
         
-        if (walker != null) {
-            return;
-        }
-        
         super.mouseReleased(e);
 	}
 	
@@ -129,7 +147,7 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
 	@Override
     public void mouseDragged(MouseEvent e){
 
-        if (walker == null) {
+        if (SwingUtilities.isRightMouseButton(e)) {
             super.mouseDragged(e);
             return;
         }
