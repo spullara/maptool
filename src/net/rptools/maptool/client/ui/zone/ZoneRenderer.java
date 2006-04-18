@@ -597,6 +597,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		CellPoint previousPoint = null;
 		Point previousHalfPoint = null;
+		
+		width = Math.max (width, 1);
+		height = Math.max(height, 1);
+		
 		// JOINTS
 		List<CellPoint> path = walker.getPath();
 
