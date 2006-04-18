@@ -67,7 +67,8 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 		BufferedImage tileImage = getTileImage();
 		Paint paint = new TexturePaint(tileImage, new Rectangle2D.Float(getViewOffsetX(), getViewOffsetY(), tileImage.getWidth()*getScale(), tileImage.getHeight()*getScale()));
 		g.setPaint(paint);
-		g.fillRect(0, 0, size.width-1, size.height-1);
+		//g.fillRect(0, 0, size.width-1, size.height-1);
+		((Graphics2D)g).fill(g.getClipBounds());
 	}
 
 	/* (non-Javadoc)
