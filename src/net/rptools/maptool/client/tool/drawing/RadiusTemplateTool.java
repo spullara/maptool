@@ -332,7 +332,11 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    */
   @Override
   protected void resetTool() {
-    resetTool(null);
+	  if (!anchorSet) {
+		  super.resetTool();
+		  return;
+	  }
+	  resetTool(null);
   }
   
   /**
