@@ -232,7 +232,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		// figure out screen bounds
 		ScreenPoint tsp = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
 		ScreenPoint dsp = ScreenPoint.fromZonePoint(this, offset.x, offset.y);
-		System.out.println (tokenWidth + " - " + tokenHeight);
 
 		int x = Math.min(tsp.x, dsp.x);
 		int y = Math.min(tsp.y, dsp.y);
