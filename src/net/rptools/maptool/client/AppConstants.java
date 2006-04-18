@@ -28,7 +28,6 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FilenameFilter;
 
-import net.rptools.lib.EnvUtil;
 import net.tsc.servicediscovery.ServiceGroup;
 
 public class AppConstants {
