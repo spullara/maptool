@@ -78,6 +78,7 @@ import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ServerDisconnectHandler;
 import net.rptools.maptool.client.swing.GlassPane;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
@@ -735,6 +736,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		  }
 	  }
 
+	  ServerDisconnectHandler.disconnectExpected = true;
 	  MapTool.disconnect();
 	  
 	  // We're done
