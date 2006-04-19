@@ -434,8 +434,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 //        g.setColor(Color.white);
 //        g.drawString(fps.getFramesPerSecond() + "", 10, 10);
 
-        g2d.setColor(Color.red);
-        g2d.drawRect(g.getClipBounds().x, g.getClipBounds().y, g.getClipBounds().width-1, g.getClipBounds().height-1);
+//        g2d.setColor(Color.red);
+//        g2d.drawRect(g.getClipBounds().x, g.getClipBounds().y, g.getClipBounds().width-1, g.getClipBounds().height-1);
     }
 
     /**
