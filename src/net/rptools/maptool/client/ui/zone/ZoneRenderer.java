@@ -259,7 +259,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		
 		set.setOffset(offset.x - token.getX(), offset.y - token.getY());
 
-		repaint(newBounds.x, newBounds.y, newBounds.width, newBounds.height);
+		//repaint(newBounds.x, newBounds.y, newBounds.width, newBounds.height);
+		repaint();
 	}
 
 	public void toggleMoveSelectionSetWaypoint(GUID keyToken, CellPoint location) {
@@ -509,8 +510,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	Dimension size = getSize();
     	if (fog == null || fog.getWidth() != size.width || fog.getHeight() != size.height) {
             
-            int type = MapTool.getPlayer().isGM() ? Transparency.TRANSLUCENT : Transparency.BITMASK; 
-    		fog = ImageUtil.createCompatibleImage (size.width, size.height, type);
+            //int type = MapTool.getPlayer().isGM() ? Transparency.TRANSLUCENT : Transparency.BITMASK; 
+    		//fog = ImageUtil.createCompatibleImage (size.width, size.height, type);
+    		fog = ImageUtil.createCompatibleImage (size.width, size.height, Transparency.BITMASK);
 
     		updateFog = true;
     	}
@@ -519,7 +521,19 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	if (updateFog) {
     		Graphics2D fogG = fog.createGraphics();
     		fogG.setColor(Color.black);
-    		fogG.fillRect(0, 0, fog.getWidth(), fog.getHeight());
+        	if (MapTool.getPlayer().isGM()) {
+        		for(int row = 0; row < fog.getHeight(); row++) {
+        			
+    				int offset = row %2 == 0 ? 0 : 1;
+        			for(int col=0; col < fog.getWidth(); col += 2) {
+        				fogG.drawLine(col, row, col, row);
+        			}
+        			
+        		}
+        	} else {
+        		fogG.fillRect(0, 0, fog.getWidth(), fog.getHeight());
+        	}
+    		
     		
     		fogG.setComposite(AlphaComposite.Src);
     		fogG.setColor(new Color(0, 0, 0, 0));
@@ -534,12 +548,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	}
     	
     	// Render fog
-    	Composite oldComposite = g.getComposite();
-    	if (MapTool.getPlayer().isGM()) {
-    		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .40f));
-    	}
+//    	Composite oldComposite = g.getComposite();
+//    	if (MapTool.getPlayer().isGM()) {
+//    		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .40f));
+//    	}
     	g.drawImage(fog, 0, 0, this);
-    	g.setComposite(oldComposite);
+//    	g.setComposite(oldComposite);
     }
 
     public void updateFog() {
