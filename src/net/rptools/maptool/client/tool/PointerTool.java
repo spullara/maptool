@@ -545,6 +545,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		} else {
 		    zonePoint.translate(-dragOffsetX, -dragOffsetY);
         }
+
+		// Don't bother if there isn't any movement
+		if (!renderer.hasMoveSelectionSetMoved(tokenBeingDragged.getId(), zonePoint)) {
+			return false;
+		}
 		
 		// Make sure it's a valid move
 		if (!validateMove(tokenBeingDragged, renderer.getSelectedTokenSet(), zonePoint)) {
@@ -554,10 +559,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		dragStartX = zonePoint.x;
 		dragStartY = zonePoint.y;
 
-		if (!renderer.hasMoveSelectionSetMoved(tokenBeingDragged.getId(), zonePoint)) {
-			return false;
-		}
-		
 		renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), zonePoint);
 		MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), zonePoint.x, zonePoint.y);
 		return true;
@@ -767,10 +768,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	}
 
 	private void cycleSelectedToken(int direction) {
-		
-		if (isDraggingToken) {
-			return;
-		}
 		
 		List<Token> visibleTokens = renderer.getTokensOnScreen();
 		Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
