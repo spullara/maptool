@@ -526,7 +526,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         			
     				int offset = row %2 == 0 ? 0 : 1;
         			for(int col=0; col < fog.getWidth(); col += 2) {
-        				fogG.drawLine(col, row, col, row);
+        				fogG.drawLine(col+offset, row, col+offset, row);
         			}
         			
         		}
