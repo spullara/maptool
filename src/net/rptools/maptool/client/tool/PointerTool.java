@@ -554,6 +554,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		dragStartX = zonePoint.x;
 		dragStartY = zonePoint.y;
 
+		if (!renderer.hasMoveSelectionSetMoved(tokenBeingDragged.getId(), zonePoint)) {
+			return false;
+		}
+		
 		renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), zonePoint);
 		MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), zonePoint.x, zonePoint.y);
 		return true;
