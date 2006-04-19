@@ -42,6 +42,7 @@ public class AppState {
     private static File campaignFile;
     private static int gridSize = 1;
     private static boolean tokensStartSnapToGrid = true;
+    private static boolean useAlphaFog = true;
     
     private static PropertyChangeSupport changeSupport = new PropertyChangeSupport(AppState.class);
     
@@ -133,6 +134,14 @@ public class AppState {
 
 	public static void setCampaignFile(File campaignFile) {
 		AppState.campaignFile = campaignFile;
+	}
+
+	public static boolean isUseAlphaFog() {
+		return useAlphaFog;
+	}
+
+	public static void setUseAlphaFog(boolean useAlphaFog) {
+		AppState.useAlphaFog = useAlphaFog;
 	}
     
     

@@ -30,6 +30,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppActions;
@@ -82,6 +83,8 @@ public class AppMenuBar extends JMenuBar {
         menu.addSeparator();
         //      menu.add(new JMenuItem(AppActions.FULLSCREEN_MODE));
         menu.add(new JMenuItem(AppActions.REFRESH_ASSET_PANEL));
+        menu.add(new JSeparator());
+        menu.add(new JMenuItem(AppActions.TOGGLE_ALPHA_FOG));
 
         return menu;
     }

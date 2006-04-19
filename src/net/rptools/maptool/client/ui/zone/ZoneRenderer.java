@@ -31,10 +31,12 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.TexturePaint;
 import java.awt.Transparency;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
@@ -47,8 +49,10 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.QuadCurve2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -100,7 +104,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     // TODO: Perhaps make this a user defined limit
     public static final int HOVER_SIZE_THRESHOLD = 40;
     public static final int EDGE_LIMIT = 25; // can't move board past this edge
-	
+
+    private static BufferedImage GRID_IMAGE;
+    
     public static final int MIN_GRID_SIZE = 5;
     
     protected Zone              zone;
@@ -131,6 +137,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	
 //    private FramesPerSecond fps = new FramesPerSecond();
 
+	static {
+		try {
+			GRID_IMAGE = ImageUtil.getImage("net/rptools/maptool/client/image/grid.png");
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+	
     public ZoneRenderer(Zone zone) {
         if (zone == null) { throw new IllegalArgumentException("Zone cannot be null"); }
 
@@ -233,30 +247,30 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		
 		Token token = zone.getToken(keyToken);
 		
-		int tokenWidth = (int)(TokenSize.getWidth(token, zone.getGridSize()) * getScale());
-		int tokenHeight = (int)(TokenSize.getHeight(token, zone.getGridSize()) * getScale());
-		
-		// figure out screen bounds
-		ScreenPoint tsp = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
-		ScreenPoint dsp = ScreenPoint.fromZonePoint(this, offset.x, offset.y);
-		ScreenPoint osp = ScreenPoint.fromZonePoint(this, token.getX() + set.offsetX, token.getY() + set.offsetY);
-
-		int strWidth = SwingUtilities.computeStringWidth(fontMetrics, set.getPlayerId());
-		
-		int x = Math.min(tsp.x, dsp.x) - strWidth/2-4/*playername*/;
-		int y = Math.min(tsp.y, dsp.y);
-		int width = Math.abs(tsp.x - dsp.x)+ tokenWidth + strWidth+8/*playername*/;
-		int height = Math.abs(tsp.y - dsp.y)+ tokenHeight + 45/*labels*/;
-		Rectangle newBounds = new Rectangle(x, y, width, height);
-		
-		x = Math.min(tsp.x, osp.x) - strWidth/2-4/*playername*/;
-		y = Math.min(tsp.y, osp.y);
-		width = Math.abs(tsp.x - osp.x)+ tokenWidth + strWidth+8/*playername*/;
-		height = Math.abs(tsp.y - osp.y)+ tokenHeight + 45/*labels*/;
-		Rectangle oldBounds = new Rectangle(x, y, width, height);
-
-		newBounds = newBounds.union(oldBounds);
-		
+//		int tokenWidth = (int)(TokenSize.getWidth(token, zone.getGridSize()) * getScale());
+//		int tokenHeight = (int)(TokenSize.getHeight(token, zone.getGridSize()) * getScale());
+//		
+//		// figure out screen bounds
+//		ScreenPoint tsp = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
+//		ScreenPoint dsp = ScreenPoint.fromZonePoint(this, offset.x, offset.y);
+//		ScreenPoint osp = ScreenPoint.fromZonePoint(this, token.getX() + set.offsetX, token.getY() + set.offsetY);
+//
+//		int strWidth = SwingUtilities.computeStringWidth(fontMetrics, set.getPlayerId());
+//		
+//		int x = Math.min(tsp.x, dsp.x) - strWidth/2-4/*playername*/;
+//		int y = Math.min(tsp.y, dsp.y);
+//		int width = Math.abs(tsp.x - dsp.x)+ tokenWidth + strWidth+8/*playername*/;
+//		int height = Math.abs(tsp.y - dsp.y)+ tokenHeight + 45/*labels*/;
+//		Rectangle newBounds = new Rectangle(x, y, width, height);
+//		
+//		x = Math.min(tsp.x, osp.x) - strWidth/2-4/*playername*/;
+//		y = Math.min(tsp.y, osp.y);
+//		width = Math.abs(tsp.x - osp.x)+ tokenWidth + strWidth+8/*playername*/;
+//		height = Math.abs(tsp.y - osp.y)+ tokenHeight + 45/*labels*/;
+//		Rectangle oldBounds = new Rectangle(x, y, width, height);
+//
+//		newBounds = newBounds.union(oldBounds);
+//		
 		set.setOffset(offset.x - token.getX(), offset.y - token.getY());
 
 		//repaint(newBounds.x, newBounds.y, newBounds.width, newBounds.height);
@@ -510,9 +524,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	Dimension size = getSize();
     	if (fog == null || fog.getWidth() != size.width || fog.getHeight() != size.height) {
             
-            //int type = MapTool.getPlayer().isGM() ? Transparency.TRANSLUCENT : Transparency.BITMASK; 
-    		//fog = ImageUtil.createCompatibleImage (size.width, size.height, type);
-    		fog = ImageUtil.createCompatibleImage (size.width, size.height, Transparency.BITMASK);
+            int type = MapTool.getPlayer().isGM() && AppState.isUseAlphaFog() ? Transparency.TRANSLUCENT : Transparency.BITMASK; 
+    		fog = ImageUtil.createCompatibleImage (size.width, size.height, type);
 
     		updateFog = true;
     	}
@@ -520,19 +533,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	// Render back buffer
     	if (updateFog) {
     		Graphics2D fogG = fog.createGraphics();
-    		fogG.setColor(Color.black);
-        	if (MapTool.getPlayer().isGM()) {
-        		for(int row = 0; row < fog.getHeight(); row++) {
-        			
-    				int offset = row %2 == 0 ? 0 : 1;
-        			for(int col=0; col < fog.getWidth(); col += 2) {
-        				fogG.drawLine(col+offset, row, col+offset, row);
-        			}
-        			
-        		}
+        	if (MapTool.getPlayer().isGM() && !AppState.isUseAlphaFog()) {
+        		Paint paint = new TexturePaint(GRID_IMAGE, new Rectangle2D.Float(0, 0, GRID_IMAGE.getWidth(), GRID_IMAGE.getHeight()));
+        		fogG.setPaint(paint);
         	} else {
-        		fogG.fillRect(0, 0, fog.getWidth(), fog.getHeight());
+        		fogG.setColor(Color.black);
         	}
+    		fogG.fillRect(0, 0, fog.getWidth(), fog.getHeight());
     		
     		
     		fogG.setComposite(AlphaComposite.Src);
@@ -548,16 +555,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	}
     	
     	// Render fog
-//    	Composite oldComposite = g.getComposite();
-//    	if (MapTool.getPlayer().isGM()) {
-//    		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .40f));
-//    	}
+    	Composite oldComposite = g.getComposite();
+    	if (MapTool.getPlayer().isGM() && AppState.isUseAlphaFog()) {
+    		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .40f));
+    	}
     	g.drawImage(fog, 0, 0, this);
-//    	g.setComposite(oldComposite);
+    	g.setComposite(oldComposite);
     }
 
     public void updateFog() {
     	updateFog = true;
+    	repaint();
+    }
+    
+    public void flushFog() {
+    	fog = null;
     	repaint();
     }
     
