@@ -28,6 +28,7 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -59,6 +60,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppState;
@@ -118,6 +120,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	private BufferedImage fog;
 	private boolean updateFog;
 	
+	private FontMetrics fontMetrics;
+	
     // Optimizations
     private Map<Token, BufferedImage> replacementImageMap = new HashMap<Token, BufferedImage>();
 
@@ -125,6 +129,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 	private ScreenPoint pointUnderMouse;
 	
+//    private FramesPerSecond fps = new FramesPerSecond();
+
     public ZoneRenderer(Zone zone) {
         if (zone == null) { throw new IllegalArgumentException("Zone cannot be null"); }
 
@@ -154,6 +160,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         		pointUnderMouse = new ScreenPoint(e.getX(), e.getY());
         	}
         });
+        
+//        fps.start();
     }
 
     public Scale getZoneScale() {
@@ -224,7 +232,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 		
 		Token token = zone.getToken(keyToken);
-		set.setOffset(offset.x - token.getX(), offset.y - token.getY());
 		
 		int tokenWidth = (int)(TokenSize.getWidth(token, zone.getGridSize()) * getScale());
 		int tokenHeight = (int)(TokenSize.getHeight(token, zone.getGridSize()) * getScale());
@@ -232,13 +239,27 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		// figure out screen bounds
 		ScreenPoint tsp = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
 		ScreenPoint dsp = ScreenPoint.fromZonePoint(this, offset.x, offset.y);
+		ScreenPoint osp = ScreenPoint.fromZonePoint(this, token.getX() + set.offsetX, token.getY() + set.offsetY);
 
-		int x = Math.min(tsp.x, dsp.x);
-		int y = Math.min(tsp.y, dsp.y);
-		int width = Math.abs(tsp.x - dsp.x)+ tokenWidth;
-		int height = Math.abs(tsp.y - dsp.y)+ tokenHeight;
+		int strWidth = SwingUtilities.computeStringWidth(fontMetrics, set.getPlayerId());
 		
-		repaint(x, y, width, height);
+		int x = Math.min(tsp.x, dsp.x) - strWidth/2-4/*playername*/;
+		int y = Math.min(tsp.y, dsp.y);
+		int width = Math.abs(tsp.x - dsp.x)+ tokenWidth + strWidth+8/*playername*/;
+		int height = Math.abs(tsp.y - dsp.y)+ tokenHeight + 45/*labels*/;
+		Rectangle newBounds = new Rectangle(x, y, width, height);
+		
+		x = Math.min(tsp.x, osp.x) - strWidth/2-4/*playername*/;
+		y = Math.min(tsp.y, osp.y);
+		width = Math.abs(tsp.x - osp.x)+ tokenWidth + strWidth+8/*playername*/;
+		height = Math.abs(tsp.y - osp.y)+ tokenHeight + 45/*labels*/;
+		Rectangle oldBounds = new Rectangle(x, y, width, height);
+
+		newBounds = newBounds.union(oldBounds);
+		
+		set.setOffset(offset.x - token.getX(), offset.y - token.getY());
+
+		repaint(newBounds.x, newBounds.y, newBounds.width, newBounds.height);
 	}
 
 	public void toggleMoveSelectionSetWaypoint(GUID keyToken, CellPoint location) {
@@ -362,6 +383,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public void paintComponent(Graphics g) {
 
         Graphics2D g2d = (Graphics2D) g;
+        fontMetrics = g.getFontMetrics();
 		
         if (zone == null) { return; }
         
@@ -407,9 +429,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         	
         	return;
         }
-        
-//        g2d.setColor(Color.red);
-//        g2d.drawRect(g.getClipBounds().x, g.getClipBounds().y, g.getClipBounds().width-1, g.getClipBounds().height-1);
+
+//        fps.bump();
+//        g.setColor(Color.white);
+//        g.drawString(fps.getFramesPerSecond() + "", 10, 10);
+
+        g2d.setColor(Color.red);
+        g2d.drawRect(g.getClipBounds().x, g.getClipBounds().y, g.getClipBounds().width-1, g.getClipBounds().height-1);
     }
 
     /**
