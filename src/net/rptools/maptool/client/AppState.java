@@ -42,7 +42,7 @@ public class AppState {
     private static File campaignFile;
     private static int gridSize = 1;
     private static boolean tokensStartSnapToGrid = true;
-    private static boolean useAlphaFog = true;
+    private static boolean useAlphaFog = false;
     
     private static PropertyChangeSupport changeSupport = new PropertyChangeSupport(AppState.class);
     
