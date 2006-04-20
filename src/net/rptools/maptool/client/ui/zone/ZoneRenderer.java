@@ -815,7 +815,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	Rectangle r1 = location.bounds;
             	
             	// Are we covering anyone ?
-            	if (tokenBounds.contains(r1)) {
+            	if (tokenBounds.intersects(r1)) {
 
             		// Are we covering someone that is covering someone ?
             		Rectangle oldRect = null;
