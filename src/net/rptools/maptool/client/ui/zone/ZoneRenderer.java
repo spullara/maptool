@@ -669,6 +669,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		width = Math.max (width, 1);
 		height = Math.max(height, 1);
 		
+		int xOffset = (int)((width-1)*getScaledGridSize()/2);
+		int yOffset = (int)((height-1)*getScaledGridSize()/2);
+
 		// JOINTS
 		List<CellPoint> path = walker.getPath();
 
@@ -683,7 +686,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				}
 			}
 			if (walker.isWaypoint(p) && previousPoint != null) {
-				waypointSet.add(p);
+				waypointSet.add(new CellPoint(p.x + width/2, p.y+height/2));
 			}
 			previousPoint = p;
 		}
@@ -694,8 +697,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
 		}
 		
-		int xOffset = (int)((width-1)*getScaledGridSize()/2);
-		int yOffset = (int)((height-1)*getScaledGridSize()/2);
 		previousPoint = null;
 		for (CellPoint p : path) {
 
