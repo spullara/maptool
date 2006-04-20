@@ -160,6 +160,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		if (SwingUtilities.isRightMouseButton(e)) {
 
 			isDraggingMap = true;
+
 			mapDX += e.getX() - dragStartX;
 			mapDY += e.getY() - dragStartY;
 	

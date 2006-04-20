@@ -246,6 +246,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     ////
 	// Mouse
 	public void mousePressed(MouseEvent e) {
+		super.mousePressed(e);
 
 		if (isShowingTokenStackPopup) {
 			if (tokenStackPanel.contains(e.getX(), e.getY())) {
@@ -318,7 +319,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 		}
 		
-		super.mousePressed(e);
 	}
 	
 	public void mouseReleased(MouseEvent e) {
