@@ -38,16 +38,16 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarEuclideanWalker;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Pointer;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
 
 
@@ -102,7 +102,7 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
 				}
 				
 				// Waypoint
-		        CellPoint cp = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY).convertToCell(renderer);
+		        CellPoint cp = renderer.getZone().getGrid().convert(new ScreenPoint(mouseX, mouseY).convertToZone(renderer));
 		        walker.toggleWaypoint(cp);
 			}
 		});

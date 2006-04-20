@@ -36,9 +36,9 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Oval;
 import net.rptools.maptool.model.drawing.Pen;
 
@@ -104,8 +104,8 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 	            oval.getEndPoint().x = sp.x;
 	            oval.getEndPoint().y = sp.y;
 	            
-	            ZonePoint startPoint = ZonePoint.fromScreenPoint(renderer, (int) oval.getStartPoint().getX(), (int) oval.getStartPoint().getY()); 
-	            ZonePoint endPoint = ZonePoint.fromScreenPoint(renderer, (int) oval.getEndPoint().getX(), (int) oval.getEndPoint().getY());
+	            ZonePoint startPoint = new ScreenPoint((int) oval.getStartPoint().getX(), (int) oval.getStartPoint().getY()).convertToZone(renderer); 
+	            ZonePoint endPoint = new ScreenPoint((int) oval.getEndPoint().getX(), (int) oval.getEndPoint().getY()).convertToZone(renderer);
 	
 	            oval.getStartPoint().setLocation(startPoint.x, startPoint.y);
 	            oval.getEndPoint().setLocation(endPoint.x, endPoint.y);

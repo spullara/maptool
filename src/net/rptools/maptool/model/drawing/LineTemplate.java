@@ -36,7 +36,7 @@ import java.util.ListIterator;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.model.ZonePoint;
 
 /**
  * A drawing tool that will draw a line template between 2 vertices. 
@@ -143,7 +143,7 @@ public class LineTemplate extends AbstractTemplate {
       return;
 
     // Paint each element in the path
-    int gridSize = (int) (MapTool.getCampaign().getZone(getZoneId()).getGridSize() * getScale());
+    int gridSize = (int) (MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize() * getScale());
     ListIterator<ScreenPoint> i = path.listIterator();
     while (i.hasNext()) {
       ScreenPoint p = i.next();
@@ -388,7 +388,7 @@ public class LineTemplate extends AbstractTemplate {
     // Get all of the numbers needed for the calculation
     ScreenPoint v = getVertex();
     Quadrant quadrant = getQuadrant();
-    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGridSize() * getScale());
+    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize() * getScale());
     
     // Find the point that is farthest away in the path, then adjust 
     ScreenPoint pv = new ScreenPoint(-1, -1);

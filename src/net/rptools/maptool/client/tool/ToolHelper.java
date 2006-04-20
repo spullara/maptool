@@ -29,10 +29,10 @@ import java.awt.Graphics2D;
 
 import javax.swing.SwingUtilities;
 
-import net.rptools.maptool.client.AbstractPoint;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.AbstractPoint;
 import net.rptools.maptool.util.GraphicsUtil;
 
 /**

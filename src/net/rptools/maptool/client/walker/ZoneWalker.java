@@ -26,7 +26,7 @@ package net.rptools.maptool.client.walker;
 
 import java.util.List;
 
-import net.rptools.maptool.client.CellPoint;
+import net.rptools.maptool.model.CellPoint;
 
 
 public interface ZoneWalker {

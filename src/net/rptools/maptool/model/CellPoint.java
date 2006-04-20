@@ -22,10 +22,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client;
+package net.rptools.maptool.model;
 
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.model.Zone;
 
 public class CellPoint extends AbstractPoint {
 
@@ -49,17 +49,13 @@ public class CellPoint extends AbstractPoint {
       double scale = renderer.getScale(); 
       Zone zone = renderer.getZone();
 
-      int sx = renderer.getViewOffsetX() + (int)(zone.getGridOffsetX() * scale + x * zone.getGridSize() * scale);
-      int sy = renderer.getViewOffsetY() + (int)(zone.getGridOffsetY() * scale + y * zone.getGridSize() * scale);
+      Grid grid = zone.getGrid();
+      ZonePoint zp = grid.convert(this);
+      
+      int sx = renderer.getViewOffsetX() + (int)(zp.x * scale);
+      int sy = renderer.getViewOffsetY() + (int)(zp.y * scale);
       
       return new ScreenPoint(sx, sy);
-    }
-    
-    public ZonePoint convertToZone(ZoneRenderer renderer) {
-        Zone zone = renderer.getZone();
-        
-        return new ZonePoint((int)(x * zone.getGridSize() + zone.getGridOffsetX()), 
-        		(int)(y * renderer.getZone().getGridSize() + zone.getGridOffsetY()));
     }
     
 }

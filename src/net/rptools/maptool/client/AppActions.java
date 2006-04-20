@@ -64,11 +64,13 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.util.ImageManager;
@@ -263,8 +265,8 @@ public class AppActions {
 			ZonePoint zonePoint = screenPoint.convertToZone(renderer);
 			if (snapToGrid) {
 
-				CellPoint cellPoint = zonePoint.convertToCell(renderer);
-				zonePoint = cellPoint.convertToZone(renderer);
+				CellPoint cellPoint = zone.getGrid().convert(zonePoint);
+				zonePoint = zone.getGrid().convert(cellPoint);
 			}
 
 			for (Token origToken : tokenCopySet) {
@@ -508,6 +510,7 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 
 			AppState.setShowGrid(!AppState.isShowGrid());
+
 			if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
 				MapTool.getFrame().getCurrentZoneRenderer().repaint();
 			}
@@ -995,6 +998,10 @@ public class AppActions {
 				public void run() {
 
 					Zone zone = ZoneFactory.createZone(Zone.Type.INFINITE, asset.getId());
+					zone.getGrid().setOffset(0, 0);
+					zone.getGrid().setSize(AppConstants.DEFAULT_GRID_SIZE);
+					zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
+
 					MapTool.addZone(zone);
 				}
 			});
@@ -1028,9 +1035,8 @@ public class AppActions {
 					// Create the zone
 					Zone zone = ZoneFactory.createZone(newMapDialog.getZoneType(), newMapDialog.getZoneName(), newMapDialog.getZoneFeetPerCell(), asset.getId());
 
-					zone.setGridOffsetX(0);
-					zone.setGridOffsetY(0);
-					zone.setGridSize(AppConstants.DEFAULT_GRID_SIZE);
+					zone.getGrid().setOffset(0, 0);
+					zone.getGrid().setSize(AppConstants.DEFAULT_GRID_SIZE);
 					zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
 					
 					MapTool.addZone(zone);

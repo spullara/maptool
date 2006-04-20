@@ -34,11 +34,11 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppState;
-import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Zone;
 
 /**
@@ -138,8 +138,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		
 		mouseX = e.getX();
 		mouseY = e.getY();
-		
-		CellPoint cp = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
+
+		CellPoint cp = renderer.getZone().getGrid().convert(new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer));
 		if (cp != null) {	
 			MapTool.getFrame().setStatusMessage("Cell: " + cp.x + ", " + cp.y);
 		} else {

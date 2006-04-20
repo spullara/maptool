@@ -38,7 +38,6 @@ import java.util.Map;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawnElement;
 
 /**
@@ -63,9 +62,6 @@ public class Zone extends Token {
     
     public static final int DEFAULT_FEET_PER_CELL = 5;
     
-    public static final int MIN_GRID_SIZE = 5;
-    public static final int MAX_GRID_SIZE = 250;
-
     public interface Type {
         public static final int MAP = 0;
         public static final int INFINITE = 1;
@@ -79,9 +75,7 @@ public class Zone extends Token {
     // the same millisecond since the epoc.
     private long creationTime = System.currentTimeMillis();
     
-    private int gridSize = 40;
-    private int gridOffsetX = 0;
-    private int gridOffsetY = 0;
+    private Grid grid = new SquareGrid(this);
     private int gridColor = Color.darkGray.getRGB();
     private float imageScaleX = 1;
     private float imageScaleY = 1;
@@ -116,7 +110,16 @@ public class Zone extends Token {
         super(backgroundAsset);
         this.type = type;
     }
+    
+    public void setGrid(Grid grid) {
+    	this.grid = grid;
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
+    }
 
+    public Grid getGrid() {
+    	return grid;
+    }
+    
     public int getGridColor() {
     	return gridColor;
     }
@@ -174,8 +177,8 @@ public class Zone extends Token {
         // Token is visible, and there is fog
         int x = token.getX();
         int y = token.getY();
-        int w = TokenSize.getWidth(token, gridSize);
-        int h = TokenSize.getHeight(token, gridSize);
+        int w = TokenSize.getWidth(token, grid.getSize());
+        int h = TokenSize.getHeight(token, grid.getSize());
 
         return getExposedArea().intersects(x, y, w, h);
     }
@@ -201,6 +204,7 @@ public class Zone extends Token {
     
     public ZonePoint getNearestVertex(ZonePoint point) {
     	
+    	int gridSize = grid.getSize();
     	int gridx = (int)Math.round(point.x / (double)gridSize);
     	int gridy = (int)Math.round(point.y / (double)gridSize);
     	
@@ -209,42 +213,6 @@ public class Zone extends Token {
     
     public Area getExposedArea() {
     	return exposedArea;
-    }
-    
-    public int getGridOffsetX() {
-        return gridOffsetX;
-    }
-
-    public void setGridOffsetX(int gridOffsetX) {
-        this.gridOffsetX = gridOffsetX;
-        fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
-    }
-
-    public int getGridOffsetY() {
-        return gridOffsetY;
-    }
-
-    public void setGridOffsetY(int gridOffsetY) {
-        this.gridOffsetY = gridOffsetY;
-        fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
-    }
-
-    public int getGridSize() {
-        return gridSize;
-    }
-
-    public void setGridSize(int gridSize) {
-    	
-    	if (gridSize < MIN_GRID_SIZE) {
-    		gridSize = MIN_GRID_SIZE;
-    	}
-    	
-    	if (gridSize > MAX_GRID_SIZE) {
-    		gridSize = MAX_GRID_SIZE;
-    	}
-    	
-        this.gridSize = gridSize;
-        fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
     }
     
     public int getFeetPerCell() {

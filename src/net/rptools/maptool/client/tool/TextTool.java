@@ -43,10 +43,11 @@ import javax.swing.SwingUtilities;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ZonePoint;
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Label;
+import net.rptools.maptool.model.ZonePoint;
 
 /**
  */
@@ -130,7 +131,7 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     		
     		if (label == null) {
     			
-        		ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
+        		ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
     			label = new Label("", zp.x, zp.y);
     		} else {
     			

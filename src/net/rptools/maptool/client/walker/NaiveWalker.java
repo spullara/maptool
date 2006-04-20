@@ -27,7 +27,7 @@ package net.rptools.maptool.client.walker;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.rptools.maptool.client.CellPoint;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Zone;
 
 public class NaiveWalker extends AbstractZoneWalker {

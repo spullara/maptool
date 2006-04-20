@@ -33,6 +33,7 @@ import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Player;
@@ -40,6 +41,7 @@ import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
@@ -251,9 +253,8 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	int color = ((Integer) parameters[4]).intValue();
         	
         	zone = MapTool.getCampaign().getZone(zoneGUID);
-        	zone.setGridSize(size);
-        	zone.setGridOffsetX(xOffset);
-        	zone.setGridOffsetY(yOffset);
+        	zone.getGrid().setSize(size);
+        	zone.getGrid().setOffset(xOffset, yOffset);
         	zone.setGridColor(color);
         	
         	MapTool.getFrame().repaint();

@@ -71,39 +71,6 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 		((Graphics2D)g).fill(g.getClipBounds());
 	}
 
-	/* (non-Javadoc)
-	 * @see net.rptools.maptool.client.ZoneRenderer#renderGrid(java.awt.Graphics)
-	 */
-	protected void renderGrid(Graphics2D g) {
-
-        float scale = getScale();
-        float gridSize = zone.getGridSize() * scale;
-        Dimension size = getSize();
-
-        g.setColor(new Color(zone.getGridColor()));
-        
-        int offX = (int)(getViewOffsetX() % gridSize + zone.getGridOffsetX()*scale);
-        int offY = (int)(getViewOffsetY() % gridSize + zone.getGridOffsetY()*scale);
-        for (int row = 0; row < size.height + gridSize; row += gridSize) {
-            
-            if (AppState.getGridSize() == 1) {
-                g.drawLine(0, row + offY, size.width, row + offY);
-            } else {
-            	g.fillRect(0, row + offY - (AppState.getGridSize()/2), size.width, AppState.getGridSize());
-            }
-        }
-
-        for (int col = 0; col < size.width + gridSize; col += gridSize) {
-            
-            if (AppState.getGridSize() == 1) {
-                g.drawLine(col + offX, 0, col + offX, size.height);
-            } else {
-            	g.fillRect(col + offX - (AppState.getGridSize()/2), 0, AppState.getGridSize(), size.height);
-            }
-        }
-        
-	}
-	
     @Override
 	public BufferedImage getMiniImage(int size) {
         // TODO: I suppose this should honor the size

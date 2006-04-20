@@ -34,9 +34,9 @@ import java.util.Collections;
 import java.util.List;
 
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
@@ -104,10 +104,10 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
         
         for (Point p : line.getPoints()) {
 
-            ZonePoint zPoint = ZonePoint.fromScreenPoint(renderer, p.x, p.y); 
+			ZonePoint zp = new ScreenPoint(p.x, p.y).convertToZone(renderer);
 
-            p.x = zPoint.x;
-            p.y = zPoint.y;
+            p.x = zp.x;
+            p.y = zp.y;
         }
         
         Drawable drawable = line;

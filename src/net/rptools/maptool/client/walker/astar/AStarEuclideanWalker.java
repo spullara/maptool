@@ -24,7 +24,7 @@
  */
 package net.rptools.maptool.client.walker.astar;
 
-import net.rptools.maptool.client.CellPoint;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Zone;
 
 public class AStarEuclideanWalker extends AbstractAStarWalker {

@@ -118,7 +118,7 @@ public class RadiusTemplate extends AbstractTemplate {
    * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
    */
   public Rectangle getBounds() {
-    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGridSize() * getScale());
+    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize() * getScale());
     int quadrantSize = getRadius() * gridSize + BOUNDS_PADDING;
     ScreenPoint vertex = getVertex();
     return new Rectangle(vertex.x - quadrantSize, vertex.y - quadrantSize, quadrantSize * 2, quadrantSize * 2);

@@ -32,12 +32,13 @@ import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.lib.MD5Key;
-import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ClientCommand;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
@@ -318,12 +319,12 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         forwardToClients();
     }
     
-    public void setZoneGridSize(GUID zoneGUID, int xOffset, int yOffset, int size, int color) {
+    public void setZoneGridSize(GUID zoneGUID, int offsetX, int offsetY, int size, int color) {
 
         Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.setGridSize(size);
-        zone.setGridOffsetX(xOffset);
-        zone.setGridOffsetY(yOffset);
+        Grid grid = zone.getGrid();
+        grid.setSize(size);
+        grid.setOffset(offsetX, offsetY);
         zone.setGridColor(color);
         
         server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setZoneGridSize.name(), RPCContext.getCurrent().parameters);

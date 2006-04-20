@@ -25,14 +25,12 @@
 package net.rptools.maptool.client.tool;
 
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
@@ -50,13 +48,14 @@ import javax.swing.text.JTextComponent;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppState;
-import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZonePoint;
 
 import com.jeta.forms.components.colors.JETAColorWell;
 import com.jeta.forms.components.panel.FormPanel;
@@ -119,7 +118,7 @@ public class GridTool extends DefaultTool {
         zoomSlider.setMaximum(Scale.getScaleCount());
         zoomSlider.addChangeListener(new ChangeListener(){
         	public void stateChanged(ChangeEvent e) {
-        		ZonePoint zp = ZonePoint.fromScreenPoint(renderer, renderer.getSize().width/2, renderer.getSize().height/2);
+        		ZonePoint zp = new ScreenPoint(renderer.getSize().width/2, renderer.getSize().height/2).convertToZone(renderer);
         		System.out.println(zp);
         		renderer.setScaleIndex(zoomSlider.getValue());
         		renderer.centerOn(zp);
@@ -146,9 +145,11 @@ public class GridTool extends DefaultTool {
 	private void copyGridToControlPanel() {
 		Zone zone = renderer.getZone();
 
-		gridSizeTextField.setText(Integer.toString(zone.getGridSize()));
-		gridOffsetXTextField.setText(Integer.toString(zone.getGridOffsetX()));
-		gridOffsetYTextField.setText(Integer.toString(zone.getGridOffsetY()));
+		Grid grid = zone.getGrid();
+		
+		gridSizeTextField.setText(Integer.toString(grid.getSize()));
+		gridOffsetXTextField.setText(Integer.toString(grid.getOffsetX()));
+		gridOffsetYTextField.setText(Integer.toString(grid.getOffsetY()));
 		colorWell.setColor(new Color(zone.getGridColor()));
 		zoomSlider.setValue(renderer.getScaleIndex());
 	}
@@ -157,9 +158,9 @@ public class GridTool extends DefaultTool {
 		
 		Zone zone = renderer.getZone();
 
-		zone.setGridSize(getInt(gridSizeTextField, Zone.MIN_GRID_SIZE));
-		zone.setGridOffsetX(getInt(gridOffsetXTextField, 0));
-		zone.setGridOffsetY(getInt(gridOffsetYTextField, 0));
+		Grid grid = zone.getGrid();
+		grid.setSize(getInt(gridSizeTextField, Grid.MIN_GRID_SIZE));
+		grid.setOffset(getInt(gridOffsetXTextField, 0), getInt(gridOffsetYTextField, 0));
 		zone.setGridColor(colorWell.getColor().getRGB());
 	
 		renderer.repaint();
@@ -206,7 +207,7 @@ public class GridTool extends DefaultTool {
 		
 		// Commit the grid size change
         Zone zone = renderer.getZone();
-        MapTool.serverCommand().setZoneGridSize(zone.getId(), zone.getGridOffsetX(), zone.getGridOffsetY(), zone.getGridSize(), zone.getGridColor());
+        MapTool.serverCommand().setZoneGridSize(zone.getId(), zone.getGrid().getOffsetX(), zone.getGrid().getOffsetY(), zone.getGrid().getSize(), zone.getGridColor());
         
         super.detachFrom(renderer);
 	}
@@ -220,12 +221,12 @@ public class GridTool extends DefaultTool {
 			dragStartX = e.getX();
 			dragStartY = e.getY();
 			
-			ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
-	        int x = zp.x-renderer.getZone().getGridOffsetX();
-	        int y = zp.y-renderer.getZone().getGridOffsetY();
+    		ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
+	        int x = zp.x-renderer.getZone().getGrid().getOffsetX();
+	        int y = zp.y-renderer.getZone().getGrid().getOffsetY();
 			
-	        dragOffsetX = x % renderer.getZone().getGridSize();
-	        dragOffsetY = y % renderer.getZone().getGridSize();
+	        dragOffsetX = x % renderer.getZone().getGrid().getSize();
+	        dragOffsetY = y % renderer.getZone().getGrid().getSize();
 		} else {
 			super.mousePressed(e);
 		}
@@ -237,11 +238,11 @@ public class GridTool extends DefaultTool {
 
     	if (SwingUtilities.isLeftMouseButton(e)) {
 
-    		ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
+    		ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
             int x = zp.x - dragOffsetX;
             int y = zp.y - dragOffsetY;
 
-            int gridSize = renderer.getZone().getGridSize();
+            int gridSize = renderer.getZone().getGrid().getSize();
             
             x %= gridSize;
             y %= gridSize; 
@@ -253,8 +254,7 @@ public class GridTool extends DefaultTool {
             	y -= gridSize;
             }
             
-            renderer.getZone().setGridOffsetX(x);
-            renderer.getZone().setGridOffsetY(y);
+            renderer.getZone().getGrid().setOffset(x, y);
             
             renderer.repaint();
 	        copyGridToControlPanel();
@@ -304,20 +304,20 @@ public class GridTool extends DefaultTool {
     	CellPoint cell = renderer.getCellAt(new ScreenPoint(mouseX, mouseY));
         if (cell == null) { return; }
     	
-    	int oldGridSize = renderer.getZone().getGridSize();
+    	int oldGridSize = renderer.getZone().getGrid().getSize();
     	
         switch (direction) {
         case Increase:
             renderer.adjustGridSize(1);
             
-            if (renderer.getZone().getGridSize() != oldGridSize) {
+            if (renderer.getZone().getGrid().getSize() != oldGridSize) {
             	renderer.moveGridBy(-cell.x, -cell.y);
             }
             break;
         case Decrease:
             renderer.adjustGridSize(-1);
 
-            if (renderer.getZone().getGridSize() != oldGridSize) {
+            if (renderer.getZone().getGrid().getSize() != oldGridSize) {
             	renderer.moveGridBy(cell.x, cell.y);
             }
             break;

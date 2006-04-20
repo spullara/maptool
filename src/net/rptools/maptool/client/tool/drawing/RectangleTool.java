@@ -36,9 +36,9 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.Rectangle;
 
@@ -105,8 +105,8 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 	            rectangle.getEndPoint().x = sp.x;
 	            rectangle.getEndPoint().y = sp.y;
 	            
-	            ZonePoint startPoint = ZonePoint.fromScreenPoint(renderer, (int) rectangle.getStartPoint().getX(), (int) rectangle.getStartPoint().getY()); 
-	            ZonePoint endPoint = ZonePoint.fromScreenPoint(renderer, (int) rectangle.getEndPoint().getX(), (int) rectangle.getEndPoint().getY());
+	            ZonePoint startPoint = new ScreenPoint((int) rectangle.getStartPoint().getX(), (int) rectangle.getStartPoint().getY()).convertToZone(renderer); 
+	            ZonePoint endPoint = new ScreenPoint((int) rectangle.getEndPoint().getX(), (int) rectangle.getEndPoint().getY()).convertToZone(renderer);
 	
 	            rectangle.getStartPoint().setLocation(startPoint.x, startPoint.y);
 	            rectangle.getEndPoint().setLocation(endPoint.x, endPoint.y);

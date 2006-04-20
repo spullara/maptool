@@ -32,14 +32,12 @@ import java.awt.event.MouseListener;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.tool.DefaultTool;
-import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Drawable;
-import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
 
 
@@ -110,9 +108,9 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     	
     	ScreenPoint sp = new ScreenPoint(e.getX(), e.getY());
     	if (isSnapToGrid(e)) {
-	    	ZonePoint zp = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
+			ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
 	    	zp = renderer.getZone().getNearestVertex(zp);
-	    	sp = zp.convertToScreen(renderer);
+	    	sp = ScreenPoint.fromZonePoint(renderer, zp);
     	}
 
     	return sp;

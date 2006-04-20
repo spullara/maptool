@@ -25,6 +25,8 @@
 package net.rptools.maptool.client;
 
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.AbstractPoint;
+import net.rptools.maptool.model.ZonePoint;
 
 
 public class ScreenPoint extends AbstractPoint {
@@ -54,10 +56,25 @@ public class ScreenPoint extends AbstractPoint {
         return new ZonePoint(zX, zY);
     }
     
+    public static ScreenPoint fromZonePoint(ZoneRenderer renderer, ZonePoint zp) {
+    	return fromZonePoint(renderer, zp.x, zp.y);
+    }
+    
     public static ScreenPoint fromZonePoint(ZoneRenderer renderer, int x, int y) {
         
-        ZonePoint zp = new ZonePoint(x, y);
-        return zp.convertToScreen(renderer);
+        double scale = renderer.getScale();
+        
+        int sX = x;
+        int sY = y;
+        
+        sX = (int)(sX * scale);
+        sY = (int)(sY * scale);
+        
+        // Translate
+        sX += renderer.getViewOffsetX();
+        sY += renderer.getViewOffsetY();
+        
+        return new ScreenPoint(sX, sY);
     }
     
     public String toString() {

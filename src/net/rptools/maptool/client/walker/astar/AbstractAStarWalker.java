@@ -28,8 +28,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.walker.AbstractZoneWalker;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Zone;
 
 public abstract class AbstractAStarWalker extends AbstractZoneWalker {

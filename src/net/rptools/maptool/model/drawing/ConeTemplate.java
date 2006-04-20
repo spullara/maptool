@@ -237,7 +237,7 @@ public class ConeTemplate extends RadiusTemplate {
    * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
    */
   public Rectangle getBounds() {
-    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGridSize() * getScale());
+    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize() * getScale());
     int quadrantSize = getRadius() * gridSize + BOUNDS_PADDING;
     
     // Find the x,y loc

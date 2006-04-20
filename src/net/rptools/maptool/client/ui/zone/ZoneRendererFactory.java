@@ -40,7 +40,7 @@ public class ZoneRendererFactory {
         }
         case Zone.Type.MAP:
         default: {
-            renderer = new MapZoneRenderer(zone);
+            renderer = new BoundedZoneRenderer(zone);
         }
         }
 

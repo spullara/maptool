@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import net.rptools.maptool.client.CellPoint;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Zone;
 
 public abstract class AbstractZoneWalker implements ZoneWalker {
@@ -116,7 +116,7 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
     }
 
     /**
-     * @see net.rptools.maptool.client.walker.ZoneWalker#removeWaypoint(net.rptools.maptool.client.CellPoint)
+     * @see net.rptools.maptool.client.walker.ZoneWalker#removeWaypoint(net.rptools.maptool.model.CellPoint)
      */
     public boolean removeWaypoint(CellPoint aPoint) {
       if (aPoint == null || partialPaths == null || partialPaths.isEmpty()) return false;
@@ -140,7 +140,7 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
     }
     
     /**
-     * @see net.rptools.maptool.client.walker.ZoneWalker#toggleWaypoint(net.rptools.maptool.client.CellPoint)
+     * @see net.rptools.maptool.client.walker.ZoneWalker#toggleWaypoint(net.rptools.maptool.model.CellPoint)
      */
     public boolean toggleWaypoint(CellPoint aPoint) {
       if (removeWaypoint(aPoint)) return true;

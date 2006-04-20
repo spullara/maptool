@@ -42,7 +42,7 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
 
-public class MapZoneRenderer extends ZoneRenderer {
+public class BoundedZoneRenderer extends ZoneRenderer {
 
 	private static final int MINI_MAP_SIZE = 100;
 	
@@ -52,7 +52,7 @@ public class MapZoneRenderer extends ZoneRenderer {
     
     private boolean loaded = false;
     
-    public MapZoneRenderer (Zone zone) {
+    public BoundedZoneRenderer (Zone zone) {
         super(zone);
         
         // Make sure we have requested the asset from the server
@@ -202,47 +202,4 @@ public class MapZoneRenderer extends ZoneRenderer {
         // Map
         g.drawImage(mapImage, x, y, w, h, this);
     }
-    
-    protected void renderGrid(Graphics2D g) {
-        
-        BufferedImage mapImage = getBackgroundImage();
-        float scale = getScale();
-
-        int w = (int)(mapImage.getWidth() * scale);
-        int h = (int)(mapImage.getHeight() * scale);
-        int offsetx = getViewOffsetX();
-        int offsety = getViewOffsetY();
-
-        float gridSize = zone.getGridSize() * scale;
-
-        // Render grid
-        g.setColor(new Color(zone.getGridColor()));
-
-        int x = offsetx + (int) (zone.getGridOffsetX() * scale);
-        int y = offsety + (int) (zone.getGridOffsetY() * scale);
-
-        for (float row = 0; row < h + gridSize; row += gridSize) {
-            
-            int theY = Math.min(offsety + h, Math.max((int)row + y, offsety));
-            int theX = Math.max(x, offsetx);
-            
-            if (AppState.getGridSize() == 1) {
-            	g.drawLine(theX, theY, theX + w, theY);
-            } else {
-            	g.fillRect(theX, theY - (AppState.getGridSize()/2), w, AppState.getGridSize());
-            }
-        }
-
-        for (float col = 0; col < w + gridSize; col += gridSize) {
-            
-            int theX = Math.min(offsetx + w, Math.max(x + (int)col, offsetx));
-            int theY = Math.max(y, offsety);
-
-            if (AppState.getGridSize() == 1) {
-                g.drawLine(theX, theY, theX, theY + h);
-            } else {
-            	g.fillRect(theX - (AppState.getGridSize()/2), theY, AppState.getGridSize(), h);
-            }
-        }
-    }    
 }

@@ -37,11 +37,11 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
-import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.AbstractTemplate;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.RadiusTemplate;
@@ -159,7 +159,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 
     // If the mouse is over half way to the next vertext, move it there
     // (both X & Y)
-    int grid = (int) (renderer.getZone().getGridSize() * renderer.getScale());
+    int grid = (int) (renderer.getZone().getGrid().getSize() * renderer.getScale());
     if (e.getX() - working.x >= grid / 2)
       working.x += grid;
     if (e.getY() - working.y >= grid / 2)

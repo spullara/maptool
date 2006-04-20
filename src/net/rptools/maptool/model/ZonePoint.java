@@ -22,26 +22,17 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
  * SOFTWARE.
  */
-package net.rptools.maptool.client.walker.astar;
+package net.rptools.maptool.model;
 
-import net.rptools.maptool.model.CellPoint;
 
-public class AStarCellPoint extends CellPoint {
-	
-	AStarCellPoint parent;
-	double hScore;
-	double gScore;
 
-	public AStarCellPoint(int x, int y) {
-		super(x, y);
-	}
-	
-	public AStarCellPoint(CellPoint p) {
-		super(p.x, p.y);
-	}
-	
-	public double cost() {
-		return hScore + gScore;
-	}
+public class ZonePoint extends AbstractPoint {
 
+    public ZonePoint(int x, int y) {
+        super(x, y);
+    }
+    
+    public String toString() {
+        return "ZonePoint" + super.toString();
+    }
 }

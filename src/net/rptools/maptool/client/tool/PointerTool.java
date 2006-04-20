@@ -57,10 +57,8 @@ import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
-import net.rptools.maptool.client.CellPoint;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.client.ui.TokenLocation;
 import net.rptools.maptool.client.ui.TokenPopupMenu;
 import net.rptools.maptool.client.ui.Tool;
@@ -68,11 +66,13 @@ import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.ImageManager;
 
 /**
@@ -306,7 +306,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				renderer.selectToken(token.getId());
         
 		        // Dragging offset for currently selected token
-		        ZonePoint pos = ZonePoint.fromScreenPoint(renderer, e.getX(), e.getY());
+		        ZonePoint pos = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
 		        dragOffsetX = pos.x - token.getX();
 		        dragOffsetY = pos.y - token.getY();
 			}
@@ -394,6 +394,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
 	 */
 	public void mouseMoved(MouseEvent e) {
+		super.mouseMoved(e);
 		
 		if (isShowingTokenStackPopup) {
 			if (tokenStackPanel.contains(e.getX(), e.getY())) {
@@ -409,19 +410,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		mouseX = e.getX();
 		mouseY = e.getY();
 		
-		CellPoint cp = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
-		if (cp != null) {	
-			MapTool.getFrame().setStatusMessage("Cell: " + cp.x + ", " + cp.y);
-		} else {
-		    MapTool.getFrame().setStatusMessage("");
-        }
-
 		if (isDraggingToken) {
 			if (isMovingWithKeys) {
 				return;
 			}
 			
-			ZonePoint zonePoint = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY);
+			ZonePoint zonePoint = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
 			handleDragToken(zonePoint);
 			return;
 		}
@@ -474,7 +468,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (isMovingWithKeys) {
 					return;
 				}
-				ZonePoint zonePoint = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY);
+				ZonePoint zonePoint = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
 				handleDragToken(zonePoint);
 				return;
 			}
@@ -538,8 +532,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		// TODO: Optimize this (combine with calling code)
 		if (tokenBeingDragged.isSnapToGrid()) {
 
-			CellPoint cellUnderMouse = zonePoint.convertToCell(renderer);
-			zonePoint = cellUnderMouse.convertToZone(renderer);
+			CellPoint cellUnderMouse = renderer.getZone().getGrid().convert(zonePoint);
+			zonePoint = renderer.getZone().getGrid().convert(cellUnderMouse);
 			MapTool.getFrame().setStatusMessage("Cell: " + cellUnderMouse.x + ", " + cellUnderMouse.y);
 			
 		} else {
@@ -590,8 +584,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				
 				int x = token.getX() + deltaX;
 				int y = token.getY() + deltaY;
-	            int width = TokenSize.getWidth(token, zone.getGridSize());
-	            int height = TokenSize.getHeight(token, zone.getGridSize());
+	            int width = TokenSize.getWidth(token, zone.getGrid().getSize());
+	            int height = TokenSize.getHeight(token, zone.getGrid().getSize());
 
 	            int fudgeW = (int)(width*.25);
 	            int fudgeH = (int)(height*.25);
@@ -657,7 +651,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (isDraggingToken) {
 					
 					// Waypoint
-		            CellPoint cp = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY).convertToCell(renderer);
+		            CellPoint cp = renderer.getZone().getGrid().convert(new ScreenPoint(mouseX, mouseY).convertToZone(renderer));
 		            
 		            renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), cp);
 		            
@@ -668,8 +662,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					// Pointer
 					isShowingPointer = true;
 					
-					ZonePoint p = ZonePoint.fromScreenPoint(renderer, mouseX, mouseY);
-					Pointer pointer = new Pointer(renderer.getZone(), p.x, p.y, 0);
+					ZonePoint zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
+					Pointer pointer = new Pointer(renderer.getZone(), zp.x, zp.y, 0);
 					
 					MapTool.serverCommand().showPointer(MapTool.getPlayer().getName(), pointer);
 				}
@@ -839,14 +833,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		ZonePoint zp = null;
 		if (tokenBeingDragged.isSnapToGrid()) {
 			
-			CellPoint cp = new ZonePoint(dragStartX, dragStartY).convertToCell(renderer);
+			CellPoint cp = renderer.getZone().getGrid().convert(new ZonePoint(dragStartX, dragStartY));
 
 			cp.x += dx;
 			cp.y += dy;
 			
-			zp = cp.convertToZone(renderer);
+			zp = renderer.getZone().getGrid().convert(cp);
 		} else {
-			int size = TokenSize.getWidth(tokenBeingDragged, renderer.getZone().getGridSize());
+			int size = TokenSize.getWidth(tokenBeingDragged, renderer.getZone().getGrid().getSize());
 			
 			int x = dragStartX + (size*dx);
 			int y = dragStartY + (size*dy);

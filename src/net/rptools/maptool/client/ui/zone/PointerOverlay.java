@@ -32,9 +32,9 @@ import java.util.List;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.ZonePoint;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
 
 /**
@@ -62,7 +62,7 @@ public class PointerOverlay implements ZoneOverlay {
 			if (p.pointer.getZoneGUID().equals(zone.getId())) {
 				
                 ZonePoint zPoint = new ZonePoint(p.pointer.getX(), p.pointer.getY());
-                ScreenPoint sPoint = zPoint.convertToScreen(renderer);
+                ScreenPoint sPoint = ScreenPoint.fromZonePoint(renderer, zPoint);
                 
 				g.drawImage(POINTER_IMAGE, sPoint.x, sPoint.y - POINTER_IMAGE.getHeight(), null);
 

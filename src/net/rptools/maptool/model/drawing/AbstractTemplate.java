@@ -231,7 +231,7 @@ public abstract class AbstractTemplate extends AbstractDrawing {
     if (radius == 0) return;
 
     // Find the proper distance
-    int gridSize = (int)(MapTool.getCampaign().getZone(zoneId).getGridSize() * scale);
+    int gridSize = (int)(MapTool.getCampaign().getZone(zoneId).getGrid().getSize() * scale);
     for (int y = 0; y < radius; y++) {
       for (int x = 0; x < radius; x++) {
        
