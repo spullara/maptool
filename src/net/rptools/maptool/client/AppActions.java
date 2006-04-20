@@ -24,10 +24,8 @@
  */
 package net.rptools.maptool.client;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -39,14 +37,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 
@@ -57,9 +53,9 @@ import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionProgressDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.NewMapDialog;
+import net.rptools.maptool.client.ui.PreferencesDialog;
 import net.rptools.maptool.client.ui.ServerInfoDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
-import net.rptools.maptool.client.ui.adjustgrid.AdjustGridDialog;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.assetpanel.Directory;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -107,25 +103,6 @@ public class AppActions {
 		}
 	};
 	
-	public static final Action TOGGLE_ALPHA_FOG = new AdminClientAction() {
-		
-		{
-			init("action.useAlphaFog");
-		}
-
-		public void execute(ActionEvent e) {
-			
-			AppState.setUseAlphaFog(!AppState.isUseAlphaFog());
-			
-			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-			if (renderer == null) {
-				return;
-			}
-			
-			renderer.flushFog();
-		}
-	};
-	
 	public static final Action RESTORE_DEFAULT_IMAGES = new DefaultClientAction() {
 		
 		{
@@ -163,6 +140,19 @@ public class AppActions {
 			}
 			
 			ServerInfoDialog dialog = new ServerInfoDialog(MapTool.getServer());
+			dialog.setVisible(true);
+		}
+	};
+	
+	public static final Action SHOW_PREFERENCES = new DefaultClientAction() {
+		{
+			init("Preferences ...");
+		}
+
+		public void execute(ActionEvent e) {
+
+			// Probably don't have to create a new one each time
+			PreferencesDialog dialog = new PreferencesDialog();
 			dialog.setVisible(true);
 		}
 	};
@@ -590,47 +580,6 @@ public class AppActions {
 					zone.isVisible());
 			MapTool.getFrame().getZoneSelectionPanel().flush();
 			MapTool.getFrame().repaint();
-		}
-	};
-
-	public static final Action TOGGLE_NEW_ZONE_VISIBILITY = new AdminClientAction() {
-		{
-			init("action.autohideNewMaps");
-			try {
-				putValue(
-						Action.SMALL_ICON,
-						new ImageIcon(
-								ImageUtil
-										.getImage("net/rptools/maptool/client/image/zoneVisible.png")));
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-			setEnabled(false);
-		}
-
-		public void execute(ActionEvent e) {
-			AppState.setNewZonesVisible(!AppState.isNewZonesVisible());
-		}
-	};
-
-	public static final Action TOGGLE_DROP_INVISIBLE = new AdminClientAction() {
-		{
-			init("action.autohideNewIcons");
-			try {
-				putValue(
-						Action.SMALL_ICON,
-						new ImageIcon(
-								ImageUtil
-										.getImage("net/rptools/maptool/client/image/icon_invisible.png")));
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-			setEnabled(false);
-		}
-
-		public void execute(ActionEvent e) {
-			AppState
-					.setDropTokenAsInvisible(!AppState.isDropTokenAsInvisible());
 		}
 	};
 
@@ -1134,17 +1083,6 @@ public class AppActions {
 		}
 	};
 
-	public static final Action REFRESH_ASSET_PANEL = new DefaultClientAction() {
-		{
-			init("action.refresh");
-		}
-
-		public void execute(ActionEvent e) {
-			MapTool.getFrame().getAssetPanel().getAssetTree().refresh();
-		}
-
-	};
-
 	public static final Action EXIT = new DefaultClientAction() {
 		{
 			init("action.exit");
@@ -1171,19 +1109,6 @@ public class AppActions {
 		}
 	};
   
-	/**
-	 * Toggle the drawing of measurements.
-	 */
-	public static final Action TOGGLE_TOKENS_START_SNAP_TO_GRID = new DefaultClientAction() {
-		{
-			init("action.toggleTokensStartSnapToGrid");
-		}
-
-		public void execute(ActionEvent ae) {
-			AppState.setTokensStartSnapToGrid(!AppState.isTokensStartSnapToGrid());
-		}
-	};
-  
 	  /**
 	   * Toggle drawing straight lines at double width on the line tool.
 	   */
@@ -1197,17 +1122,6 @@ public class AppActions {
 	    	AppState.setUseDoubleWideLine(!AppState.useDoubleWideLine());
         if (MapTool.getFrame() != null && MapTool.getFrame().getCurrentZoneRenderer() != null)
           MapTool.getFrame().getCurrentZoneRenderer().repaint();
-	    }
-	  };
-
-	  public static final Action TOGGLE_NEW_ZONES_HAVE_FOW = new DefaultClientAction() {
-	    {
-	      init("action.toggleNewZonesHaveFOW");
-	    }
-
-	    public void execute(ActionEvent ae) {
-	    	
-	    	AppState.setNewMapsHaveFoW(!AppState.getNewMapsHaveFoW());
 	    }
 	  };
 

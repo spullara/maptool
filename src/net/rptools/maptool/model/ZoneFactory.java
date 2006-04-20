@@ -1,6 +1,7 @@
 package net.rptools.maptool.model;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppState;
 
 public class ZoneFactory {
@@ -8,8 +9,8 @@ public class ZoneFactory {
 	public static Zone createZone(int type, String name, int feetPerCell, MD5Key backgroundAsset) {
 		
 		Zone zone = new Zone(type, backgroundAsset);
-		zone.setVisible(AppState.isNewZonesVisible());
-		zone.setHasFog(AppState.getNewMapsHaveFoW());
+		zone.setVisible(AppPreferences.getNewMapsVisible());
+		zone.setHasFog(AppPreferences.getNewMapsHaveFOW());
 		zone.setName(name);
 		zone.setFeetPerCell(feetPerCell);
 

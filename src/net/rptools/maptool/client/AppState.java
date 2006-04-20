@@ -32,17 +32,12 @@ public class AppState {
 
     public static final String USE_DOUBLE_WIDE_PROP_NAME = "useDoubleWide";
     
-    private static boolean dropTokenAsInvisible = false;
     private static boolean showGrid = false;
     private static boolean showTokenNames = false;
-    private static boolean newZonesVisible = true;
     private static boolean linkPlayerViews = false;
     private static boolean useDoubleWideLine = true;
-    private static boolean newMapsHaveFoW = false;
     private static File campaignFile;
     private static int gridSize = 1;
-    private static boolean tokensStartSnapToGrid = true;
-    private static boolean useAlphaFog = false;
     
     private static PropertyChangeSupport changeSupport = new PropertyChangeSupport(AppState.class);
     
@@ -54,14 +49,6 @@ public class AppState {
       changeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
-    public static boolean isTokensStartSnapToGrid() {
-		return tokensStartSnapToGrid;
-	}
-
-	public static void setTokensStartSnapToGrid(boolean tokensStartSnapToGrid) {
-		AppState.tokensStartSnapToGrid = tokensStartSnapToGrid;
-	}
-
 	public static int getGridSize() {
     	return gridSize;
     }
@@ -70,14 +57,6 @@ public class AppState {
     	gridSize = size;
     }
     
-    public static boolean getNewMapsHaveFoW() {
-		return newMapsHaveFoW;
-	}
-
-	public static void setNewMapsHaveFoW(boolean newMapsHaveFoW) {
-		AppState.newMapsHaveFoW = newMapsHaveFoW;
-	}
-
 	public static boolean useDoubleWideLine() {
 		return useDoubleWideLine;
 	}
@@ -87,14 +66,6 @@ public class AppState {
 		AppState.useDoubleWideLine = useDoubleWideLine;
     changeSupport.firePropertyChange(USE_DOUBLE_WIDE_PROP_NAME, old, useDoubleWideLine);
 	}
-
-	public static boolean isDropTokenAsInvisible() {
-        return dropTokenAsInvisible;
-    }
-
-    public static void setDropTokenAsInvisible(boolean dropTokenAsInvisible) {
-        AppState.dropTokenAsInvisible = dropTokenAsInvisible;
-    }
 
     public static boolean isShowGrid() {
     	return showGrid;
@@ -112,14 +83,6 @@ public class AppState {
     	return showTokenNames;
     }
     
-    public static void setNewZonesVisible(boolean flag) {
-    	newZonesVisible = flag;
-    }
-    
-    public static boolean isNewZonesVisible() {
-    	return newZonesVisible;
-    }
-    
     public static boolean isPlayerViewLinked() {
     	return linkPlayerViews;
     }
@@ -135,14 +98,4 @@ public class AppState {
 	public static void setCampaignFile(File campaignFile) {
 		AppState.campaignFile = campaignFile;
 	}
-
-	public static boolean isUseAlphaFog() {
-		return useAlphaFog;
-	}
-
-	public static void setUseAlphaFog(boolean useAlphaFog) {
-		AppState.useAlphaFog = useAlphaFog;
-	}
-    
-    
 }

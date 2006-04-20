@@ -38,6 +38,61 @@ public class AppPreferences {
     private static final String KEY_SAVE_DIR = "saveDir";
     private static final String KEY_LOAD_DIR = "loadDir";
     
+    private static final String KEY_USE_TRANSLUCENT_FOG = "useTranslucentFog";
+    private static final boolean DEFAULT_USE_TRANSLUCENT_FOG = false;
+    
+    private static final String KEY_NEW_MAPS_HAVE_FOW = "newMapsHaveFow";
+    private static final boolean DEFAULT_NEW_MAPS_HAVE_FOW = false;
+    
+    private static final String KEY_NEW_TOKENS_VISIBLE = "newTokensVisible";
+    private static final boolean DEFAULT_NEW_TOKENS_VISIBLE = true;
+    
+    private static final String KEY_NEW_MAPS_VISIBLE = "newMapsVisible";
+    private static final boolean DEFAULT_NEW_MAPS_VISIBLE = true;
+    
+    private static final String KEY_TOKENS_START_SNAP_TO_GRID = "newTokensStartSnapToGrid";
+    private static final boolean DEFAULT_TOKENS_START_SNAP_TO_GRID = true;
+
+    public static void setUseTranslucentFog(boolean flag) {
+    	prefs.putBoolean(KEY_USE_TRANSLUCENT_FOG, flag);
+    }
+    
+    public static boolean getUseTranslucentFog() {
+    	return prefs.getBoolean(KEY_USE_TRANSLUCENT_FOG, DEFAULT_USE_TRANSLUCENT_FOG);
+    }
+    
+    public static void setNewMapsHaveFOW(boolean flag) {
+    	prefs.putBoolean(KEY_NEW_MAPS_HAVE_FOW, flag);
+    }
+    
+    public static boolean getNewMapsHaveFOW() {
+    	return prefs.getBoolean(KEY_NEW_MAPS_HAVE_FOW, DEFAULT_NEW_MAPS_HAVE_FOW);
+    }
+    
+    public static void setNewTokensVisible(boolean flag) {
+    	prefs.putBoolean(KEY_NEW_TOKENS_VISIBLE, flag);
+    }
+    
+    public static boolean getNewTokensVisible() {
+    	return prefs.getBoolean(KEY_NEW_TOKENS_VISIBLE, DEFAULT_NEW_TOKENS_VISIBLE);
+    }
+    
+    public static void setNewMapsVisible(boolean flag) {
+    	prefs.putBoolean(KEY_NEW_MAPS_VISIBLE, flag);
+    }
+    
+    public static boolean getNewMapsVisible() {
+    	return prefs.getBoolean(KEY_NEW_MAPS_VISIBLE, DEFAULT_NEW_MAPS_VISIBLE);
+    }
+    
+    public static void setTokensStartSnapToGrid(boolean flag) {
+    	prefs.putBoolean(KEY_TOKENS_START_SNAP_TO_GRID, flag);
+    }
+    
+    public static boolean getTokensStartSnapToGrid() {
+    	return prefs.getBoolean(KEY_TOKENS_START_SNAP_TO_GRID, DEFAULT_TOKENS_START_SNAP_TO_GRID);
+    }
+    
     public static void clearAssetRoots() {
         prefs.put(KEY_ASSET_ROOTS, "");
     }

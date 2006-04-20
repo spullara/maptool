@@ -79,12 +79,8 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.TOGGLE_GRID));
         menu.add(new JMenuItem(AppActions.TOGGLE_ASSET_PANEL));
         menu.add(new JMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));
-        //        menu.add(new JMenuItem(AppActions.SHOW_STATUS_BAR));
         menu.addSeparator();
-        //      menu.add(new JMenuItem(AppActions.FULLSCREEN_MODE));
-        menu.add(new JMenuItem(AppActions.REFRESH_ASSET_PANEL));
-        menu.add(new JSeparator());
-        menu.add(new JMenuItem(AppActions.TOGGLE_ALPHA_FOG));
+        menu.add(new JMenuItem(AppActions.SHOW_PREFERENCES));
 
         return menu;
     }
@@ -107,8 +103,6 @@ public class AppMenuBar extends JMenuBar {
         // MAP TOGGLES
         menu.add(new JMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
         menu.add(new JMenuItem(AppActions.TOGGLE_FOG));
-        menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_NEW_ZONES_HAVE_FOW));
-        menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_TOKENS_START_SNAP_TO_GRID){{setSelected(true);}}); // HACK: fix this
 
         menu.addSeparator();
         
@@ -157,9 +151,6 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE));
         menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
-        menu.addSeparator();
-        menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_DROP_INVISIBLE));
-        menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_NEW_ZONE_VISIBILITY));
         menu.addSeparator();
         JCheckBoxMenuItem item = new JCheckBoxMenuItem(AppActions.TOGGLE_DRAW_MEASUREMENTS);
         item.setSelected(true);

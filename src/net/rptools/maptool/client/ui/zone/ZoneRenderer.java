@@ -67,6 +67,7 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
@@ -521,10 +522,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	}
     	
     	// Update back buffer overlay size
+    	boolean useAlphaFog = AppPreferences.getUseTranslucentFog();
     	Dimension size = getSize();
     	if (fog == null || fog.getWidth() != size.width || fog.getHeight() != size.height) {
             
-            int type = MapTool.getPlayer().isGM() && AppState.isUseAlphaFog() ? Transparency.TRANSLUCENT : Transparency.BITMASK; 
+            int type = MapTool.getPlayer().isGM() && useAlphaFog ? Transparency.TRANSLUCENT : Transparency.BITMASK; 
     		fog = ImageUtil.createCompatibleImage (size.width, size.height, type);
 
     		updateFog = true;
@@ -533,7 +535,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	// Render back buffer
     	if (updateFog) {
     		Graphics2D fogG = fog.createGraphics();
-        	if (MapTool.getPlayer().isGM() && !AppState.isUseAlphaFog()) {
+        	if (MapTool.getPlayer().isGM() && !useAlphaFog) {
         		Paint paint = new TexturePaint(GRID_IMAGE, new Rectangle2D.Float(0, 0, GRID_IMAGE.getWidth(), GRID_IMAGE.getHeight()));
         		fogG.setPaint(paint);
         	} else {
@@ -556,7 +558,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	
     	// Render fog
     	Composite oldComposite = g.getComposite();
-    	if (MapTool.getPlayer().isGM() && AppState.isUseAlphaFog()) {
+    	if (MapTool.getPlayer().isGM() && useAlphaFog) {
     		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .40f));
     	}
     	g.drawImage(fog, 0, 0, this);
@@ -1299,7 +1301,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	
 	        BufferedImage image = ImageManager.getImage(asset, this);
 	        Token token = new Token(MapToolUtil.nextTokenId(zone, asset.getName()), asset.getId(), image.getWidth(), image.getHeight());
-	        token.setSnapToGrid(AppState.isTokensStartSnapToGrid());
+	        token.setSnapToGrid(AppPreferences.getTokensStartSnapToGrid());
 	        
     		ZonePoint zp = ZonePoint.fromScreenPoint(this, (int)dtde.getLocation().getX(), (int)dtde.getLocation().getY());
 
@@ -1309,10 +1311,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 	        token.setX(zp.x);
         	token.setY(zp.y);
-
-	        if (AppState.isDropTokenAsInvisible()) {
-	        	token.setVisible(false);
-	        }
+        	token.setVisible(AppPreferences.getNewTokensVisible());
 
 	        // He who drops, owns
 	        if (MapTool.getServerPolicy().useStrictTokenManagement() && !MapTool.getPlayer().isGM()) {
