@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.GeneralPath;
 
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 
 public class HexGrid extends Grid {
@@ -15,9 +16,9 @@ public class HexGrid extends Grid {
 	};
 	
 	private static GeneralPath hex;
-	private static int sideSize = 7;
-	private static int height = 12;
-	private static int topWidth = 12;
+	private static int sideSize = 4;
+	private static int height = 20;
+	private static int topWidth = 28;
 	static {
 		hex = new GeneralPath();
 		hex.moveTo(0, height);
@@ -51,7 +52,6 @@ public class HexGrid extends Grid {
 		double scale = renderer.getScale();
         double gridSize = getSize() * scale;
 
-        g.setColor(new Color(getZone().getGridColor()));
         
         int offX = (int)(renderer.getViewOffsetX() % gridSize + getOffsetX()*scale);
         int offY = (int)(renderer.getViewOffsetY() % gridSize + getOffsetY()*scale);
@@ -60,19 +60,29 @@ public class HexGrid extends Grid {
         int startRow = (int)((int)(bounds.y / gridSize) * gridSize);
 
         int count = 0;
-        g.translate(offX, offY);
-		for (int y = 0; y < renderer.getSize().height; y += height) {
+        
+        g.setColor(Color.red);
+        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, 40, 0);
+        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
+        
+        g.setColor(Color.red);
+        sp = ScreenPoint.fromZonePoint(renderer, 0, 0);
+        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
+        
+        g.setColor(new Color(getZone().getGridColor()));
+        g.translate(offX-getSize(), offY-getSize());
+		for (int y = 0; y < renderer.getSize().height + getSize(); y += height) {
 
-			int offsetX = count % 2 == 0 ? 0 : sideSize + topWidth;
+			int offsetX = (count % 2 == 0 ? 0 : sideSize + topWidth);
 			count ++;
-			for (int x = 0; x < renderer.getSize().width; x += topWidth + sideSize + sideSize + topWidth) {
+			for (int x = 0; x < renderer.getSize().width + getSize(); x += topWidth + sideSize + sideSize + topWidth) {
 
 				g.translate(x + offsetX, y);
 				g.draw(hex);
 				g.translate(-(x + offsetX), -y);
 			}
 		}
-		g.translate(-offX, -offY);
+		g.translate(-offX+getSize(), -offY+getSize());
 	}
 
 }
