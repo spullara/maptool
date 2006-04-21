@@ -78,7 +78,7 @@ public class TokenPopupMenu extends JPopupMenu {
         boolean snapToGrid = !tokenUnderMouse.isSnapToGrid();
         JCheckBoxMenuItem snapToGridMenuItem = new JCheckBoxMenuItem("placeholder", !snapToGrid); 
         snapToGridMenuItem.setAction(new SnapToGridAction(snapToGrid, renderer));
-        snapToGridMenuItem.setEnabled(enabled);
+        snapToGridMenuItem.setEnabled(renderer.getZone().getGrid().getCapabilities().isSnapToGridSupported() && enabled);
 
         // Visibility
         JCheckBoxMenuItem visibilityMenuItem = new JCheckBoxMenuItem("Visible", tokenUnderMouse.isVisible());

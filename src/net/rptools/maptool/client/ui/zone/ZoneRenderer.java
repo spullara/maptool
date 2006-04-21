@@ -88,6 +88,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.GridCapabilities;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
@@ -637,7 +638,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				// Show distance only on the key token
 				if (token == keyToken) {
 
-					renderPath(g, walker, width/gridSize, height/gridSize);
+					if (zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
+						renderPath(g, walker, width/gridSize, height/gridSize);
+					} else {
+						g.setColor(Color.black);
+						ScreenPoint originPoint = ScreenPoint.fromZonePoint(this, token.getX()+width/2, token.getY()+height/2);
+						g.drawLine(originPoint.x, originPoint.y, newScreenPoint.x + scaledWidth/2, newScreenPoint.y + scaledHeight/2);
+					}
 				}
 
 				// Center token in cell if it is smaller than a single cell
@@ -655,11 +662,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 					int y = newScreenPoint.y + scaledHeight + 10;
 					int x = newScreenPoint.x + scaledWidth/2;
                     
-					if (walker.getDistance() >= 1) {
+					if (zone.getGrid().getCapabilities().isPathingSupported() && walker.getDistance() >= 1) {
 						GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
+						y += 20;
 					}
 					if (set.getPlayerId() != null && set.getPlayerId().length() >= 1) {
-						GraphicsUtil.drawBoxedString(g, set.getPlayerId(), x, y + 20);
+						GraphicsUtil.drawBoxedString(g, set.getPlayerId(), x, y);
 					}
 				}
 				
@@ -1200,8 +1208,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			token = zone.getToken(tokenGUID);
 			CellPoint tokenPoint = zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
 
-			walker = new AStarEuclideanWalker(zone);
-			walker.setWaypoints(tokenPoint, tokenPoint);
+			if (ZoneRenderer.this.zone.getGrid().getCapabilities().isPathingSupported()) {
+				
+				walker = new AStarEuclideanWalker(zone);
+				walker.setWaypoints(tokenPoint, tokenPoint);
+			}
 		}
 		
 		public ZoneWalker getWalker() {
@@ -1225,10 +1236,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             offsetX = x;
             offsetY = y;
             
-			CellPoint point = zone.getGrid().convert(new ZonePoint(token.getX()+x, token.getY()+y));
-
-			walker.replaceLastWaypoint(point);
-            
+			if (ZoneRenderer.this.zone.getGrid().getCapabilities().isPathingSupported()) {
+				CellPoint point = zone.getGrid().convert(new ZonePoint(token.getX()+x, token.getY()+y));
+	
+				walker.replaceLastWaypoint(point);
+			}            
 		}
 
     /**
@@ -1301,16 +1313,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     	// TODO: This section needs to be consolidated with ZoneSelectionPanel.drop()
     	Asset asset = TransferableHelper.getAsset(dtde);
-
+    	GridCapabilities gridCaps = zone.getGrid().getCapabilities();
     	if (asset != null) {
 	
 	        BufferedImage image = ImageManager.getImage(asset, this);
 	        Token token = new Token(MapToolUtil.nextTokenId(zone, asset.getName()), asset.getId(), image.getWidth(), image.getHeight());
-	        token.setSnapToGrid(AppPreferences.getTokensStartSnapToGrid());
+	        token.setSnapToGrid(gridCaps.isSnapToGridSupported() && AppPreferences.getTokensStartSnapToGrid());
 	        
     		ZonePoint zp = new ScreenPoint((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY()).convertToZone(this);
 
-	        if (token.isSnapToGrid()) {
+	        if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid()) {
 	        	zp = zone.getGrid().convert(zone.getGrid().convert(zp));
 	        }
 
