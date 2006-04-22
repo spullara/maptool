@@ -29,6 +29,7 @@ public abstract class Grid {
 	public abstract CellPoint convert(ZonePoint zp);
 	public abstract ZonePoint convert(CellPoint cp);
 	public abstract GridCapabilities getCapabilities();
+	public abstract int getTokenSpace();
 	
 	public Zone getZone() {
 		return zone;

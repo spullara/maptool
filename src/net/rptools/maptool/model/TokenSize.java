@@ -59,19 +59,16 @@ public class TokenSize {
 	// This is a enum hack since enums aren't serializable
     public static int getWidth(Token token, Grid grid) {
         if (!token.isSnapToScale()) return token.getWidth();
-        
-        return getSize(token, grid.getSize()).width;
+        return getSize(token, grid.getTokenSpace()).width;
     }
     
     public static int getHeight(Token token, Grid grid) {
         if (!token.isSnapToScale()) return token.getWidth();
-        
-        return getSize(token, grid.getSize()).height;
+        return getSize(token, grid.getTokenSpace()).height;
     }
     
     private static Dimension getSize(Token token, int gridSize) {
         
-        //Size size = getSizeInstance(token.getSize());
         Dimension size = new Dimension(token.getWidth(), token.getHeight());
         int destSize = (int) (getSizeInstance(token.getSize()).sizeFactor() * gridSize); 
         SwingUtil.constrainTo(size, destSize);
