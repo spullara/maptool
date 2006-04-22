@@ -18,19 +18,42 @@ public class HexGrid extends Grid {
 	};
 	
 	private static GeneralPath hex;
-	private static int sideSize = 5;
-	private static int height = 13;
-	private static int topWidth = 15;
+	private static int sideSize;
+	private static int height;
+	private static int topWidth;
 	static {
+	}
+
+	public HexGrid(Zone zone) {
+		super(zone);
+		update();
+	}
+	
+	@Override
+	public void setSize(int size) {
+		super.setSize(size);
+		update();
+	}
+	
+	private void update() {
+
+		int size = getSize();
+//		topWidth = getSize();
+//		height = (int)(topWidth * 1.5)/2;
+//		sideSize = topWidth / 3;
+		
+//		private static int sideSize = 5;
+//		private static int height = 13;
+//		private static int topWidth = 15;
+		height = size/3;
+		topWidth = (size*3/4)/2;
+		sideSize = (size/8);
+		
 		hex = new GeneralPath();
 		hex.moveTo(0, height);
 		hex.lineTo(sideSize, 0);
 		hex.lineTo(sideSize + topWidth, 0);
 		hex.lineTo(sideSize + topWidth + sideSize, height);
-	}
-
-	public HexGrid(Zone zone) {
-		super(zone);
 	}
 	
 	@Override
@@ -78,7 +101,7 @@ public class HexGrid extends Grid {
 			int offsetX = (count % 2 == 0 ? 0 : sideSize + topWidth);
 			count ++;
 
-			for (int x = 0; x < renderer.getSize().width + getSize()*2; x += getSize()) {
+			for (int x = 0; x < renderer.getSize().width + getSize()*2; x += topWidth * 2 + sideSize * 2) {
 
 				g.translate(x + offsetX, y);
 				g.draw(hex);
