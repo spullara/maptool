@@ -588,8 +588,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				
 				int x = token.getX() + deltaX;
 				int y = token.getY() + deltaY;
-	            int width = TokenSize.getWidth(token, zone.getGrid().getSize());
-	            int height = TokenSize.getHeight(token, zone.getGrid().getSize());
+	            int width = TokenSize.getWidth(token, zone.getGrid());
+	            int height = TokenSize.getHeight(token, zone.getGrid());
 
 	            int fudgeW = (int)(width*.25);
 	            int fudgeH = (int)(height*.25);
@@ -844,7 +844,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			
 			zp = renderer.getZone().getGrid().convert(cp);
 		} else {
-			int size = TokenSize.getWidth(tokenBeingDragged, renderer.getZone().getGrid().getSize());
+			int size = TokenSize.getWidth(tokenBeingDragged, renderer.getZone().getGrid());
 			
 			int x = dragStartX + (size*dx);
 			int y = dragStartY + (size*dy);

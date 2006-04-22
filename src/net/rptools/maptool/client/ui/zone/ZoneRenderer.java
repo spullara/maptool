@@ -482,8 +482,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             Rectangle bounds = new Rectangle();
             bounds.x = (int)(token.getX() * scale + zoneScale.getOffsetX()) + (int) (gridOffsetX * scale) + 1;
             bounds.y = (int)(token.getY() * scale + zoneScale.getOffsetY()) + (int) (gridOffsetY * scale) + 1;
-            bounds.width = (int)(TokenSize.getWidth(token, gridSize) * scale)-1;
-            bounds.height = (int)(TokenSize.getHeight(token, gridSize) * scale)-1;
+            bounds.width = (int)(TokenSize.getWidth(token, zone.getGrid()) * scale)-1;
+            bounds.height = (int)(TokenSize.getHeight(token, zone.getGrid()) * scale)-1;
             if (bounds.width < scaledGridSize) bounds.x += (scaledGridSize - bounds.width)/2;
             if (bounds.height < scaledGridSize) bounds.y += (scaledGridSize - bounds.height)/2;
             
@@ -629,8 +629,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, token.getX() + setOffsetX, token.getY() + setOffsetY);
 				
 				// OPTIMIZE: combine this with the code in renderTokens()
-	            int width = TokenSize.getWidth(token, gridSize);
-	            int height = TokenSize.getHeight(token, gridSize);
+	            int width = TokenSize.getWidth(token, zone.getGrid());
+	            int height = TokenSize.getHeight(token, zone.getGrid());
 				
             	int scaledWidth = (int)(width * scale);
             	int scaledHeight = (int)(height * scale);
@@ -805,8 +805,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         		continue;
         	}
         	
-            int width = (int)(TokenSize.getWidth(token, gridSize) * scale)-1;
-            int height = (int)(TokenSize.getHeight(token, gridSize) * scale)-1;
+            int width = (int)(TokenSize.getWidth(token, zone.getGrid()) * scale)-1;
+            int height = (int)(TokenSize.getHeight(token, zone.getGrid()) * scale)-1;
             
             ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
             int x = tokenScreenLocation.x + 1;

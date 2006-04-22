@@ -57,16 +57,16 @@ public class TokenSize {
     }
 
 	// This is a enum hack since enums aren't serializable
-    public static int getWidth(Token token, int gridSize) {
+    public static int getWidth(Token token, Grid grid) {
         if (!token.isSnapToScale()) return token.getWidth();
         
-        return getSize(token, gridSize).width;
+        return getSize(token, grid.getSize()).width;
     }
     
-    public static int getHeight(Token token, int gridSize) {
+    public static int getHeight(Token token, Grid grid) {
         if (!token.isSnapToScale()) return token.getWidth();
         
-        return getSize(token, gridSize).height;
+        return getSize(token, grid.getSize()).height;
     }
     
     private static Dimension getSize(Token token, int gridSize) {

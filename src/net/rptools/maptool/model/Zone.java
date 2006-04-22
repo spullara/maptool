@@ -177,8 +177,8 @@ public class Zone extends Token {
         // Token is visible, and there is fog
         int x = token.getX();
         int y = token.getY();
-        int w = TokenSize.getWidth(token, grid.getSize());
-        int h = TokenSize.getHeight(token, grid.getSize());
+        int w = TokenSize.getWidth(token, grid);
+        int h = TokenSize.getHeight(token, grid);
 
         return getExposedArea().intersects(x, y, w, h);
     }
