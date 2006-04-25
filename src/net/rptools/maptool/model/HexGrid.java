@@ -30,9 +30,9 @@ public class HexGrid extends Grid {
 	private int topWidth;
 	
 	private GeneralPath scaledHex;
-	private int scaledSideSize;
-	private int scaledHeight;
-	private int scaledTopWidth;
+	private double scaledSideSize;
+	private double scaledHeight;
+	private double scaledTopWidth;
 	private double lastScale = -1;
 	
 	public HexGrid(Zone zone) {
@@ -82,15 +82,15 @@ public class HexGrid extends Grid {
 //		private static int sideSize = 5;
 //		private static int height = 13;
 //		private static int topWidth = 15;
-		scaledHeight = size/3;
-		scaledTopWidth = (size*3/4)/2;
-		scaledSideSize = (size/8);
+		scaledHeight = size/3f;
+		scaledTopWidth = (size*3/4f)/2f;
+		scaledSideSize = (size/8f);
 		
 		scaledHex = new GeneralPath();
-		scaledHex.moveTo(0, scaledHeight);
-		scaledHex.lineTo(scaledSideSize, 0);
-		scaledHex.lineTo(scaledSideSize + scaledTopWidth, 0);
-		scaledHex.lineTo(scaledSideSize + scaledTopWidth + scaledSideSize, scaledHeight);
+		scaledHex.moveTo(0, (int)scaledHeight);
+		scaledHex.lineTo((int)scaledSideSize, 0);
+		scaledHex.lineTo((int)(scaledSideSize + scaledTopWidth), 0);
+		scaledHex.lineTo((int)(scaledSideSize + scaledTopWidth + scaledSideSize), (int)scaledHeight);
 
 		lastScale = scale;
 	}
@@ -144,6 +144,7 @@ public class HexGrid extends Grid {
         double gridSize = getSize() * scale;
 
         createShape(scale);
+        System.out.println(scaledHeight + " - " + scale);
         
         int offX = (int)(renderer.getViewOffsetX() % gridSize + getOffsetX()*scale);
         int offY = (int)(renderer.getViewOffsetY() % gridSize + getOffsetY()*scale);
@@ -154,21 +155,23 @@ public class HexGrid extends Grid {
         int count = ((int)(renderer.getViewOffsetY() / gridSize)) % 2 == 0 ? 0 : 1;
         
         g.setColor(Color.red);
-        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, (topWidth + sideSize)/2, height);
+        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, 0, 0);
         g.fillOval(sp.x-4, sp.y-4, 8, 8);
+//        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
+//        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
         
-//        g.setColor(Color.red);
-//        sp = ScreenPoint.fromZonePoint(renderer, 0, 0);
+//        g.setColor(Color.blue);
+//        sp = ScreenPoint.fromZonePoint(renderer, getSize() - topWidth, 0);
 //        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
         
         g.setColor(new Color(getZone().getGridColor()));
         g.translate(offX-gridSize, offY-gridSize);
-		for (int y = 0; y < renderer.getSize().height + gridSize * 2; y += scaledHeight) {
+		for (double y = 0; y < renderer.getSize().height + gridSize * 2; y += scaledHeight) {
 
-			int offsetX = (count % 2 == 0 ? 0 : scaledSideSize + scaledTopWidth);
+			double offsetX = (int)(count % 2 == 0 ? 0 : scaledSideSize + scaledTopWidth);
 			count ++;
 
-			for (int x = 0; x < renderer.getSize().width + gridSize*2; x += scaledTopWidth * 2 + scaledSideSize * 2) {
+			for (double x = 0; x < renderer.getSize().width + gridSize*2; x += scaledTopWidth * 2 + scaledSideSize * 2) {
 
 				g.translate(x + offsetX, y);
 				g.draw(scaledHex);
