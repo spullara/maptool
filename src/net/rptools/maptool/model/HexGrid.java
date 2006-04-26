@@ -94,32 +94,41 @@ public class HexGrid extends Grid {
 		
 		// Strategy: cut up the zone into squares, then calculate which hex the exact point is in
 		int gridX = zp.x / size;
-		int gridY = (int)(zp.y / (size*2.0/3.0));
+		int gridY = (int)((zp.y - height) / (height*2));
 		
 		int offsetX = zp.x % size;
-		int offsetY = (int)(zp.y % (size*2.0/3.0));
-		
+		int offsetY = (int)(zp.y % height*2);
 		if (topLeftArea.contains(offsetX, offsetY)) {
 			gridX --;
+			//System.out.println("\ttl gx" + gridX );
 		} else if (topRightArea.contains(offsetX, offsetY)) {
 			gridX++;
+			//System.out.println("\ttr gx:" + gridX);
 		} else if (bottomLeftArea.contains(offsetX, offsetY)) {
 			gridX --;
 			gridY ++;
+			//System.out.println("\tbl gx:" + gridX + " gy:" + gridY);
 		} else if (bottomRightArea.contains(offsetX, offsetY)) {
 			gridX ++;
 			gridY ++;
+			//System.out.println("\tbr gx:" + gridX + " gy:" + gridY);
 		}
 		
+		System.out.println("zp:" + zp + " gx:" + gridX + " gy:" + gridY + " ox:" + offsetX + " oy:" + offsetY);		
 		return new CellPoint(gridX, gridY);
 	}
 
 	@Override
 	public ZonePoint convert(CellPoint cp) {
 		
-		int x = (int)(cp.x * (getSize() - topWidth));
-		int y = (int)(cp.y * scaledHeight);
-		System.out.println (cp.x+","+cp.y + " - " + x + "," + y + " - " + scaledHeight);
+		int x = (int)(cp.x * getSize());
+		int y = (int)(cp.y * height);
+
+		if (y % 2 == 1) {
+			x -= sideSize + topWidth;
+		}
+		
+		//System.out.println (cp.x+","+cp.y + " - " + x + "," + y + " - " + scaledHeight);
 		return new ZonePoint(x, y);
 	}
 
@@ -151,10 +160,17 @@ public class HexGrid extends Grid {
         int count = ((int)(renderer.getViewOffsetY() / gridSize)) % 2 == 0 ? 0 : 1;
         
         g.setColor(Color.red);
-        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, 0, 0);
+        CellPoint cp = new CellPoint(0,0);
+        ZonePoint zp = convert(cp);
+        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
         g.fillOval(sp.x-4, sp.y-4, 8, 8);
-//        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
-//        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
+        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
+        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
+
+        cp = new CellPoint(1,0);
+        zp = convert(cp);
+        sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
+        g.fillOval(sp.x-4, sp.y-4, 8, 8);
         
 //        g.setColor(Color.blue);
 //        sp = ScreenPoint.fromZonePoint(renderer, getSize() - topWidth, 0);
