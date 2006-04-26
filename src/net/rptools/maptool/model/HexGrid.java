@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 
 import net.rptools.maptool.client.ScreenPoint;
@@ -93,9 +94,9 @@ public class HexGrid extends Grid {
 		int size = getSize();
 		
 		// Strategy: cut up the zone into squares, then calculate which hex the exact point is in
-		int gridX = zp.x / size;
-		int gridY = (int)((zp.y - height) / (height*2));
-		
+		int gridX = (int)(zp.x / (size - topWidth));
+		int gridY = (int)((zp.y) / (height*2));
+		System.out.println(zp.y + " / " + (height*2) + " = " + (zp.y  / (height*2)));
 		int offsetX = zp.x % size;
 		int offsetY = (int)(zp.y % height*2);
 		if (topLeftArea.contains(offsetX, offsetY)) {
@@ -114,7 +115,7 @@ public class HexGrid extends Grid {
 			//System.out.println("\tbr gx:" + gridX + " gy:" + gridY);
 		}
 		
-		System.out.println("zp:" + zp + " gx:" + gridX + " gy:" + gridY + " ox:" + offsetX + " oy:" + offsetY);		
+		//System.out.println("zp:" + zp + " gx:" + gridX + " gy:" + gridY + " ox:" + offsetX + " oy:" + offsetY);		
 		return new CellPoint(gridX, gridY);
 	}
 
@@ -177,7 +178,7 @@ public class HexGrid extends Grid {
 //        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
         
         g.setColor(new Color(getZone().getGridColor()));
-        g.translate(offX-gridSize, offY-gridSize);
+        g.translate(offX-gridSize, offY-gridSize+scaledHeight);
 		for (double y = 0; y < renderer.getSize().height + gridSize * 2; y += scaledHeight) {
 
 			double offsetX = (int)(count % 2 == 0 ? 0 : scaledSideSize + scaledTopWidth);
