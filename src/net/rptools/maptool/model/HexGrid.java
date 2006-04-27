@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 
 import net.rptools.maptool.client.ScreenPoint;
@@ -48,23 +47,27 @@ public class HexGrid extends Grid {
 		topLeftArea.addPoint(0, 0);
 		topLeftArea.addPoint(sideSize, 0);
 		topLeftArea.addPoint(0, height);
+		topLeftArea.translate(0, -height);
 		
 		bottomLeftArea = new Polygon();
 		bottomLeftArea.addPoint(0, height);
 		bottomLeftArea.addPoint(0, height*2);
 		bottomLeftArea.addPoint(sideSize, height*2);
+		bottomLeftArea.translate(0, -height);
 		
 		topRightArea = new Polygon();
 		topRightArea.addPoint(sideSize + topWidth, 0);
 		topRightArea.addPoint(size, 0);
 		topRightArea.addPoint(size, height);
 		topRightArea.addPoint(sideSize*2 + topWidth, height);
+		topRightArea.translate(0, -height);
 		
 		bottomRightArea = new Polygon();
 		bottomRightArea.addPoint(sideSize*2 + topWidth, height);
 		bottomRightArea.addPoint(size, height);
 		bottomRightArea.addPoint(size, height*2);
 		bottomRightArea.addPoint(sideSize + topWidth, height*2);
+		bottomRightArea.translate(0, -height);
 	}
 	
 	private void createShape(double scale) {
@@ -94,11 +97,11 @@ public class HexGrid extends Grid {
 		int size = getSize();
 		
 		// Strategy: cut up the zone into squares, then calculate which hex the exact point is in
-		int gridX = (int)(zp.x / (size - topWidth));
+		int gridX = (int)(zp.x / size) * 2;
 		int gridY = (int)((zp.y) / (height*2));
-		System.out.println(zp.y + " / " + (height*2) + " = " + (zp.y  / (height*2)));
+
 		int offsetX = zp.x % size;
-		int offsetY = (int)(zp.y % height*2);
+		int offsetY = (int)(zp.y % (height*2));
 		if (topLeftArea.contains(offsetX, offsetY)) {
 			gridX --;
 			//System.out.println("\ttl gx" + gridX );
@@ -115,21 +118,17 @@ public class HexGrid extends Grid {
 			//System.out.println("\tbr gx:" + gridX + " gy:" + gridY);
 		}
 		
-		//System.out.println("zp:" + zp + " gx:" + gridX + " gy:" + gridY + " ox:" + offsetX + " oy:" + offsetY);		
+		//System.out.println("ox:" + origX + " oy:" + origY + " zp:" + zp + " gx:" + gridX + " gy:" + gridY + " ox:" + offsetX + " oy:" + offsetY);		
 		return new CellPoint(gridX, gridY);
 	}
 
 	@Override
 	public ZonePoint convert(CellPoint cp) {
 		
-		int x = (int)(cp.x * getSize());
-		int y = (int)(cp.y * height);
+		int x = (int)(cp.x * (sideSize + topWidth));
+		int y = (int)(cp.y * height * 2) - (x % 2 == 1 ? sideSize : 0);
 
-		if (y % 2 == 1) {
-			x -= sideSize + topWidth;
-		}
-		
-		//System.out.println (cp.x+","+cp.y + " - " + x + "," + y + " - " + scaledHeight);
+		System.out.println (cp.x+","+cp.y + " - " + x + "," + y);
 		return new ZonePoint(x, y);
 	}
 
@@ -154,9 +153,6 @@ public class HexGrid extends Grid {
         
         int offX = (int)(renderer.getViewOffsetX() % gridSize + getOffsetX()*scale);
         int offY = (int)(renderer.getViewOffsetY() % gridSize + getOffsetY()*scale);
-
-        int startCol = (int)((int)(bounds.x / gridSize) * gridSize);
-        int startRow = (int)((int)(bounds.y / gridSize) * gridSize);
 
         int count = ((int)(renderer.getViewOffsetY() / gridSize)) % 2 == 0 ? 0 : 1;
         
@@ -192,13 +188,7 @@ public class HexGrid extends Grid {
 			}
 		}
 		
-//		g.setColor(Color.red);
-//		g.draw(topLeftArea);
-//		g.draw(topRightArea);
-//		g.draw(bottomLeftArea);
-//		g.draw(bottomRightArea);
-		
-		g.translate(-offX+gridSize, -offY+gridSize);
+		g.translate(-offX+gridSize, -offY+gridSize-scaledHeight);
 	}
 
 }
