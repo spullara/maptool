@@ -37,7 +37,7 @@ public class Scale {
     private static float     endScale = 4;
     private static float[]   scaleArray;
     
-    private static int SCALE_1TO1_INDEX; // Automatically scanned for
+    public static int SCALE_1TO1_INDEX; // Automatically scanned for
 
     private static String PROPERTY_SCALE = "scale";
     private static String PROPERTY_OFFSET = "offset";
