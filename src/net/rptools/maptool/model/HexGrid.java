@@ -13,7 +13,7 @@ public class HexGrid extends Grid {
 
 	private static final GridCapabilities GRID_CAPABILITIES= new GridCapabilities() {
 		public boolean isPathingSupported() {return false;}
-		public boolean isSnapToGridSupported() {return true;}
+		public boolean isSnapToGridSupported() {return false;}
 	};
 	
 	private Polygon topLeftArea;
@@ -68,11 +68,13 @@ public class HexGrid extends Grid {
 		bottomRightArea.addPoint(size, height*2);
 		bottomRightArea.addPoint(sideSize + topWidth, height*2);
 		bottomRightArea.translate(0, -height);
+		
+		scaledHex = null;
 	}
 	
 	private void createShape(double scale) {
 
-		if (lastScale == scale) {
+		if (lastScale == scale && scaledHex != null) {
 			return;
 		}
 		
@@ -126,7 +128,7 @@ public class HexGrid extends Grid {
 	public ZonePoint convert(CellPoint cp) {
 		
 		int x = (int)(cp.x * (sideSize + topWidth));
-		int y = (int)(cp.y * height * 2) - (x % 2 == 1 ? sideSize : 0);
+		int y = (int)(cp.y * height * 2) - (x % 2 == 1 ? height : 0);
 
 		System.out.println (cp.x+","+cp.y + " - " + x + "," + y);
 		return new ZonePoint(x, y);
@@ -139,7 +141,7 @@ public class HexGrid extends Grid {
 
 	@Override
 	public int getTokenSpace() {
-		return (getSize() * 3/4)/2 + getSize()/16; // topWidth + sideSize/2
+		return getSize() - topWidth - sideSize;
 	}
 	
 	@Override
