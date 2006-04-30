@@ -75,7 +75,7 @@ public class Zone extends Token {
     // the same millisecond since the epoc.
     private long creationTime = System.currentTimeMillis();
     
-    private Grid grid = new HexGrid(this);
+    private Grid grid = new SquareGrid(this);
     private int gridColor = Color.darkGray.getRGB();
     private float imageScaleX = 1;
     private float imageScaleY = 1;
