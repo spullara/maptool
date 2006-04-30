@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.GraphicsDevice;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -54,7 +55,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
@@ -147,7 +147,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
     private ZoneSelectionPanel zoneSelectionPanel;
     private JPanel zoneRendererPanel;
     private JPanel visibleControlPanel;
-    
+    private FullScreenFrame fullScreenFrame;
+    private JPanel rendererBorderPanel;    
     private List<ZoneRenderer> zoneRendererList;
     
 	private JSplitPaneEx mainSplitPane;
@@ -232,8 +233,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
         MapTool.getMessageList().addObserver(commandPanel);
         MapTool.getMessageList().addObserver(createChatIconMessageObserver());
         
-        final JPanel rendererBorderPanel = new JPanel(new GridLayout());
-        rendererBorderPanel.add(BorderLayout.CENTER, zoneRendererPanel);
+        rendererBorderPanel = new JPanel(new GridLayout());
+        rendererBorderPanel.add(zoneRendererPanel);
         rendererBorderPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         rendererBorderPanel.addMouseMotionListener(new MouseMotionAdapter(){
         	@Override
@@ -723,6 +724,48 @@ public class MapToolFrame extends JFrame implements WindowListener {
    */
   public void setPaintDrawingMeasurement(boolean aPaintDrawingMeasurements) {
     paintDrawingMeasurement = aPaintDrawingMeasurements;
+  }
+
+  public void showFullScreen() {
+	  
+	  GraphicsDevice device = getGraphicsConfiguration().getDevice();
+	  
+	  if (!device.isFullScreenSupported()) {
+		  MapTool.showError("Full screen not supported");
+		  return;
+	  }
+	  
+	  int width = device.getDisplayMode().getWidth();
+	  int height = device.getDisplayMode().getHeight();
+	  
+	  fullScreenFrame = new FullScreenFrame();
+	  fullScreenFrame.add(zoneRendererPanel);
+	  
+	  fullScreenFrame.setBounds(0, 0, width, height);
+	  
+	  getGraphicsConfiguration().getDevice().setFullScreenWindow(fullScreenFrame);
+  }
+  
+  public boolean isFullScreen() {
+	  return fullScreenFrame != null;
+  }
+  
+  public void showWindowed() {
+	  if (fullScreenFrame == null) {
+		  return;
+	  }
+
+	  getGraphicsConfiguration().getDevice().setFullScreenWindow(null);
+      rendererBorderPanel.add(zoneRendererPanel);
+	  
+	  fullScreenFrame.dispose();
+  }
+  
+  public class FullScreenFrame extends JFrame {
+	  
+	  public FullScreenFrame() {
+		  setUndecorated(false);
+	  }
   }
 	
   ////
