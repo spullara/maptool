@@ -56,6 +56,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
@@ -244,6 +245,14 @@ public class MapToolFrame extends JFrame implements WindowListener {
         		if (e.getY() > size.height-5) {
         			showCommandPanel();
         		}
+        	}
+        });
+        
+        // Full screen support
+        ((JComponent)getContentPane()).getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("alt ENTER"), "toggleFullScreen");
+        ((JComponent)getContentPane()).getActionMap().put("toggleFullScreen", new AbstractAction() {
+        	public void actionPerformed(ActionEvent e) {
+    			showFullScreen();
         	}
         });
 
@@ -737,13 +746,14 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	  
 	  int width = device.getDisplayMode().getWidth();
 	  int height = device.getDisplayMode().getHeight();
-	  
+
 	  fullScreenFrame = new FullScreenFrame();
 	  fullScreenFrame.add(zoneRendererPanel);
 	  
 	  fullScreenFrame.setBounds(0, 0, width, height);
 	  
 	  getGraphicsConfiguration().getDevice().setFullScreenWindow(fullScreenFrame);
+	  this.setVisible(false);
   }
   
   public boolean isFullScreen() {
@@ -755,8 +765,9 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		  return;
 	  }
 
-	  getGraphicsConfiguration().getDevice().setFullScreenWindow(null);
+	  this.setVisible(true);
       rendererBorderPanel.add(zoneRendererPanel);
+	  getGraphicsConfiguration().getDevice().setFullScreenWindow(null);
 	  
 	  fullScreenFrame.dispose();
   }
@@ -764,7 +775,15 @@ public class MapToolFrame extends JFrame implements WindowListener {
   public class FullScreenFrame extends JFrame {
 	  
 	  public FullScreenFrame() {
-		  setUndecorated(false);
+		setUndecorated(true);
+		
+		// Full screen support
+		((JComponent)getContentPane()).getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("alt ENTER"), "toggleFullScreen");
+		((JComponent)getContentPane()).getActionMap().put("toggleFullScreen", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				showWindowed();
+			}
+		});
 	  }
   }
 	
