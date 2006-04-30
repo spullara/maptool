@@ -124,6 +124,17 @@ public class AppActions {
 		}
 	};
 	
+	public static final Action SHOW_FULLSCREEN = new DefaultClientAction() {
+		
+		{
+			init("Fullscreen");
+		}
+
+		public void execute(ActionEvent e) {
+			MapTool.getFrame().showFullScreen();
+		}
+	};
+	
 	public static final Action SHOW_SERVER_INFO = new DefaultClientAction() {
 		{
 			init("action.showServerInfo");
