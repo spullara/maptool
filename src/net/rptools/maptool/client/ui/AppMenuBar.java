@@ -35,6 +35,7 @@ import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppState;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.tool.drawing.DrawableUndoManager;
 import net.rptools.maptool.language.I18N;
@@ -47,6 +48,13 @@ public class AppMenuBar extends JMenuBar {
         add(createMapMenu());
         add(createToolsMenu());
         add(createHelpMenu());
+    }
+    
+    // This is a hack to allow the menubar shortcut keys to still work even
+    // when it isn't showin (fullscreen mode)
+    @Override
+    public boolean isShowing() {
+    	return MapTool.getFrame().isFullScreen() ? true : super.isShowing();
     }
 
     protected JMenu createFileMenu() {
