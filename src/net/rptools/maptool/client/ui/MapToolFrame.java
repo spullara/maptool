@@ -28,11 +28,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -51,6 +53,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -151,6 +154,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
     private FullScreenFrame fullScreenFrame;
     private JPanel rendererBorderPanel;    
     private List<ZoneRenderer> zoneRendererList;
+    private JMenuBar menuBar;
     
 	private JSplitPaneEx mainSplitPane;
 	private JSplitPaneEx rightSplitPane;
@@ -283,7 +287,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		mainInnerPanel.add(BorderLayout.CENTER, mainSplitPane);
 		
 		// Put it all together
-        setJMenuBar(new AppMenuBar());
+		menuBar = new AppMenuBar();
+        setJMenuBar(menuBar);
 		setLayout(new BorderLayout());
 		add(BorderLayout.CENTER, mainInnerPanel);
 		add(BorderLayout.NORTH, createToolboxPanel());
@@ -737,22 +742,22 @@ public class MapToolFrame extends JFrame implements WindowListener {
 
   public void showFullScreen() {
 	  
-	  GraphicsDevice device = getGraphicsConfiguration().getDevice();
+	  GraphicsConfiguration graphicsConfig = getGraphicsConfiguration();
+	  GraphicsDevice device = graphicsConfig.getDevice();	  
 	  
-	  if (!device.isFullScreenSupported()) {
-		  MapTool.showError("Full screen not supported");
-		  return;
-	  }
-	  
-	  int width = device.getDisplayMode().getWidth();
-	  int height = device.getDisplayMode().getHeight();
+	  Rectangle bounds = graphicsConfig.getBounds();
 
 	  fullScreenFrame = new FullScreenFrame();
 	  fullScreenFrame.add(zoneRendererPanel);
 	  
-	  fullScreenFrame.setBounds(0, 0, width, height);
+	  fullScreenFrame.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 	  
-	  getGraphicsConfiguration().getDevice().setFullScreenWindow(fullScreenFrame);
+//	  ((JComponent) getContentPane()).setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, ((JComponent)getContentPane()).getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW));
+	  fullScreenFrame.setJMenuBar(menuBar);
+	  //menuBar.setVisible(false);
+	  
+	  fullScreenFrame.setVisible(true);
+	  
 	  this.setVisible(false);
   }
   
@@ -765,11 +770,14 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		  return;
 	  }
 
-	  this.setVisible(true);
       rendererBorderPanel.add(zoneRendererPanel);
-	  getGraphicsConfiguration().getDevice().setFullScreenWindow(null);
+      setJMenuBar(menuBar);
+      menuBar.setVisible(true);
+	  this.setVisible(true);
 	  
 	  fullScreenFrame.dispose();
+	  
+	  fullScreenFrame = null;
   }
   
   public class FullScreenFrame extends JFrame {
@@ -777,13 +785,13 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	  public FullScreenFrame() {
 		setUndecorated(true);
 		
-		// Full screen support
-		((JComponent)getContentPane()).getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("alt ENTER"), "toggleFullScreen");
-		((JComponent)getContentPane()).getActionMap().put("toggleFullScreen", new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				showWindowed();
-			}
-		});
+//		// Full screen support
+//		((JComponent)getContentPane()).getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("alt ENTER"), "toggleFullScreen");
+//		((JComponent)getContentPane()).getActionMap().put("toggleFullScreen", new AbstractAction() {
+//			public void actionPerformed(ActionEvent e) {
+//				showWindowed();
+//			}
+//		});
 	  }
   }
 	
