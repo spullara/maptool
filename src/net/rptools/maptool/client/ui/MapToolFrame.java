@@ -252,14 +252,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
         	}
         });
         
-        // Full screen support
-        ((JComponent)getContentPane()).getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("alt ENTER"), "toggleFullScreen");
-        ((JComponent)getContentPane()).getActionMap().put("toggleFullScreen", new AbstractAction() {
-        	public void actionPerformed(ActionEvent e) {
-    			showFullScreen();
-        	}
-        });
-
         // Split up/down
         rightSplitPane = new JSplitPaneEx();
         rightSplitPane.setBorder(null);
@@ -752,7 +744,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	  
 	  fullScreenFrame.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 	  
-//	  ((JComponent) getContentPane()).setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, ((JComponent)getContentPane()).getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW));
 	  fullScreenFrame.setJMenuBar(menuBar);
 	  //menuBar.setVisible(false);
 	  
@@ -785,13 +776,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	  public FullScreenFrame() {
 		setUndecorated(true);
 		
-//		// Full screen support
-//		((JComponent)getContentPane()).getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("alt ENTER"), "toggleFullScreen");
-//		((JComponent)getContentPane()).getActionMap().put("toggleFullScreen", new AbstractAction() {
-//			public void actionPerformed(ActionEvent e) {
-//				showWindowed();
-//			}
-//		});
 	  }
   }
 	
