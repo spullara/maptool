@@ -745,7 +745,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	  fullScreenFrame.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 	  
 	  fullScreenFrame.setJMenuBar(menuBar);
-	  //menuBar.setVisible(false);
+	  menuBar.setVisible(false);
 	  
 	  fullScreenFrame.setVisible(true);
 	  
