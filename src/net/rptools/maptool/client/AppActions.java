@@ -128,10 +128,16 @@ public class AppActions {
 		
 		{
 			init("Fullscreen");
+			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt ENTER"));
 		}
 
 		public void execute(ActionEvent e) {
-			MapTool.getFrame().showFullScreen();
+			
+			if (MapTool.getFrame().isFullScreen()) {
+				MapTool.getFrame().showWindowed();
+			} else {
+				MapTool.getFrame().showFullScreen();
+			}
 		}
 	};
 	
