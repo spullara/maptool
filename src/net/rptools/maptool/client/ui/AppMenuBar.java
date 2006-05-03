@@ -24,9 +24,15 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.applet.Applet;
+import java.awt.Container;
+import java.awt.Window;
+
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
+import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
