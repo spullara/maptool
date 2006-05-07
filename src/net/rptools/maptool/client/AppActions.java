@@ -1016,7 +1016,6 @@ public class AppActions {
 
 					Zone zone = ZoneFactory.createZone(Zone.Type.INFINITE, asset.getId());
 					zone.getGrid().setOffset(0, 0);
-					zone.getGrid().setSize(AppConstants.DEFAULT_GRID_SIZE);
 					zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
 
 					MapTool.addZone(zone);
@@ -1053,7 +1052,6 @@ public class AppActions {
 					Zone zone = ZoneFactory.createZone(newMapDialog.getZoneType(), newMapDialog.getZoneName(), newMapDialog.getZoneFeetPerCell(), asset.getId());
 
 					zone.getGrid().setOffset(0, 0);
-					zone.getGrid().setSize(AppConstants.DEFAULT_GRID_SIZE);
 					zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
 					
 					MapTool.addZone(zone);

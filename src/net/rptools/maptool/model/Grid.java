@@ -18,18 +18,20 @@ public abstract class Grid {
 
 	private int offsetX = 0;
 	private int offsetY = 0;
-	private int size = AppConstants.DEFAULT_GRID_SIZE;
+	private int size;
 	
 	private Zone zone;
 
 	public Grid(Zone zone) {
 		this.zone = zone;
+		size = getDefaultGridSize();
 	}
 	
 	public abstract CellPoint convert(ZonePoint zp);
 	public abstract ZonePoint convert(CellPoint cp);
 	public abstract GridCapabilities getCapabilities();
 	public abstract int getTokenSpace();
+	public abstract int getDefaultGridSize();
 	
 	public Zone getZone() {
 		return zone;

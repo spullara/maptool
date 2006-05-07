@@ -16,6 +16,12 @@ public class SquareGrid extends Grid {
 	
 	public SquareGrid(Zone zone) {
 		super(zone);
+		
+	}
+	
+	@Override
+	public int getDefaultGridSize() {
+		return 40;
 	}
 	
 	@Override

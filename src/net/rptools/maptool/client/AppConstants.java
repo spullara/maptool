@@ -38,7 +38,6 @@ public class AppConstants {
     
 	public static final ServiceGroup SERVICE_GROUP = new ServiceGroup("maptool");
 
-	public static final int DEFAULT_GRID_SIZE = 40;
 	public static final Color DEFAULT_GRID_COLOR = Color.darkGray;
 
 	public static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {

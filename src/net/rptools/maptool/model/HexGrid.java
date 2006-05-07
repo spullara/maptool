@@ -35,6 +35,11 @@ public class HexGrid extends Grid {
 	}
 	
 	@Override
+	public int getDefaultGridSize() {
+		return 80;
+	}
+	
+	@Override
 	public void setSize(int size) {
 		super.setSize(size);
 		
