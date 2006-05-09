@@ -14,8 +14,8 @@ public class SquareGrid extends Grid {
 		public boolean isSnapToGridSupported() {return true;}
 	};
 	
-	public SquareGrid(Zone zone) {
-		super(zone);
+	public SquareGrid() {
+		super();
 		
 	}
 	

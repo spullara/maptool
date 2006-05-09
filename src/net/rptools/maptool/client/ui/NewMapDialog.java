@@ -25,6 +25,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -47,6 +48,9 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.HexGrid;
+import net.rptools.maptool.model.SquareGrid;
 import net.rptools.maptool.model.Zone;
 
 public class NewMapDialog extends JDialog implements WindowListener {
@@ -84,11 +88,8 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	private JPanel row2Panel = null;
 	private JLabel fpcLabel = null;
 	private JLabel spacerLabel = null;
-	
-//	private Rectangle gridBounds;
-//	private int gridCountX;
-//	private int gridCountY;
-
+	private JLabel gridTypeLabel = null;
+	private JComboBox gridTypeComboBox = null;
 	/**
 	 * This is the default constructor
 	 */
@@ -161,6 +162,10 @@ public class NewMapDialog extends JDialog implements WindowListener {
 		return boundedRadioButton.isSelected() ? Zone.Type.MAP : Zone.Type.INFINITE;
 	}
     
+	public Grid getZoneGrid() {
+		return gridTypeComboBox.getSelectedIndex() == 0 ? new SquareGrid() : new HexGrid();
+	}
+	
     public String getZoneName() {
         return getNameTextField().getText();
     }
@@ -593,6 +598,18 @@ public class NewMapDialog extends JDialog implements WindowListener {
 	 */
 	private JPanel getTextOptionPanel() {
 		if (textOptionPanel == null) {
+			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+			gridBagConstraints7.fill = java.awt.GridBagConstraints.NONE;
+			gridBagConstraints7.gridy = 4;
+			gridBagConstraints7.weightx = 1.0;
+			gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints7.gridx = 1;
+			GridBagConstraints gridBagConstraints = new GridBagConstraints();
+			gridBagConstraints.gridx = 0;
+			gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints.gridy = 4;
+			gridTypeLabel = new JLabel();
+			gridTypeLabel.setText("Grid:");
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 			gridBagConstraints3.gridx = 1;
 			gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
@@ -625,6 +642,8 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			textOptionPanel.add(getNameTextField(), gridBagConstraints5);
 			textOptionPanel.add(getRow3Panel(), gridBagConstraints12);
 			textOptionPanel.add(getRow2Panel(), gridBagConstraints3);
+			textOptionPanel.add(gridTypeLabel, gridBagConstraints);
+			textOptionPanel.add(getGridTypeComboBox(), gridBagConstraints7);
 		}
 		return textOptionPanel;
 	}
@@ -766,6 +785,20 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			row2Panel.add(fpcLabel, null);
 		}
 		return row2Panel;
+	}
+
+
+
+	/**
+	 * This method initializes gridTypeComboBox	
+	 * 	
+	 * @return javax.swing.JComboBox	
+	 */
+	private JComboBox getGridTypeComboBox() {
+		if (gridTypeComboBox == null) {
+			gridTypeComboBox = new JComboBox(new String[]{"Square", "Hex"});
+		}
+		return gridTypeComboBox;
 	}
 	
 }  //  @jve:decl-index=0:visual-constraint="10,10"

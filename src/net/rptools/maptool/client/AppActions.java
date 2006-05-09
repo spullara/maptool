@@ -1050,8 +1050,8 @@ public class AppActions {
 
 					// Create the zone
 					Zone zone = ZoneFactory.createZone(newMapDialog.getZoneType(), newMapDialog.getZoneName(), newMapDialog.getZoneFeetPerCell(), asset.getId());
+					zone.setGrid(newMapDialog.getZoneGrid());
 
-					zone.getGrid().setOffset(0, 0);
 					zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
 					
 					MapTool.addZone(zone);

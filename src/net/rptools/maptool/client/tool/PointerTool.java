@@ -394,6 +394,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
 	 */
 	public void mouseMoved(MouseEvent e) {
+		if (renderer == null) {
+			return;
+		}
 		super.mouseMoved(e);
 		
 		if (isShowingTokenStackPopup) {

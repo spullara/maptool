@@ -3,7 +3,6 @@ package net.rptools.maptool.model;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Zone.Event;
 
@@ -22,9 +21,8 @@ public abstract class Grid {
 	
 	private Zone zone;
 
-	public Grid(Zone zone) {
-		this.zone = zone;
-		size = getDefaultGridSize();
+	public Grid() {
+		setSize(getDefaultGridSize());
 	}
 	
 	public abstract CellPoint convert(ZonePoint zp);
@@ -35,6 +33,10 @@ public abstract class Grid {
 	
 	public Zone getZone() {
 		return zone;
+	}
+	
+	public void setZone(Zone zone) {
+		this.zone = zone;
 	}
 	
 	public void setOffset(int offsetX, int offsetY) {
@@ -71,7 +73,9 @@ public abstract class Grid {
 	}
 	
 	protected void fireGridChanged() {
-        zone.fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
+		if (zone != null) {
+			zone.fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
+		}
 	}
 	
 	public abstract void draw(ZoneRenderer renderer, Graphics2D g, Rectangle bounds);

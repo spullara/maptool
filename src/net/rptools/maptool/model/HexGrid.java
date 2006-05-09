@@ -30,8 +30,8 @@ public class HexGrid extends Grid {
 	private double scaledTopWidth;
 	private double lastScale = -1;
 	
-	public HexGrid(Zone zone) {
-		super(zone);
+	public HexGrid() {
+		super();
 	}
 	
 	@Override
@@ -163,18 +163,18 @@ public class HexGrid extends Grid {
 
         int count = ((int)(renderer.getViewOffsetY() / gridSize)) % 2 == 0 ? 0 : 1;
         
-        g.setColor(Color.red);
-        CellPoint cp = new CellPoint(0,0);
-        ZonePoint zp = convert(cp);
-        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
-        g.fillOval(sp.x-4, sp.y-4, 8, 8);
-        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
-        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
-
-        cp = new CellPoint(1,0);
-        zp = convert(cp);
-        sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
-        g.fillOval(sp.x-4, sp.y-4, 8, 8);
+//        g.setColor(Color.red);
+//        CellPoint cp = new CellPoint(0,0);
+//        ZonePoint zp = convert(cp);
+//        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
+//        g.fillOval(sp.x-4, sp.y-4, 8, 8);
+//        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
+//        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
+//
+//        cp = new CellPoint(1,0);
+//        zp = convert(cp);
+//        sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
+//        g.fillOval(sp.x-4, sp.y-4, 8, 8);
         
 //        g.setColor(Color.blue);
 //        sp = ScreenPoint.fromZonePoint(renderer, getSize() - topWidth, 0);

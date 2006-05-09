@@ -135,6 +135,10 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
 	 */
 	public void mouseMoved(MouseEvent e) {
+
+		if (renderer == null) {
+			return;
+		}
 		
 		mouseX = e.getX();
 		mouseY = e.getY();

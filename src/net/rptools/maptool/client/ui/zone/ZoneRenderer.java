@@ -1323,7 +1323,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     		ZonePoint zp = new ScreenPoint((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY()).convertToZone(this);
 
 	        if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid()) {
+	        	
+	        	System.out.println("drop:"+zp);
+	        	System.out.println("cell:"+zone.getGrid().convert(zp));
+	        	
 	        	zp = zone.getGrid().convert(zone.getGrid().convert(zp));
+	        	System.out.println("finl:" + zp);
 	        }
 
 	        token.setX(zp.x);
