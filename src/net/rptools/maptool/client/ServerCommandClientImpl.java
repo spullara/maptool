@@ -43,7 +43,7 @@ import net.rptools.maptool.server.ServerCommand;
 
 public class ServerCommandClientImpl implements ServerCommand {
 
-    private TimedEventQueue movementUpdateQueue = new TimedEventQueue(250);
+    private TimedEventQueue movementUpdateQueue = new TimedEventQueue(100);
 	
 	public ServerCommandClientImpl() {
 		movementUpdateQueue.start();
