@@ -75,7 +75,7 @@ public class Zone extends Token {
     // the same millisecond since the epoc.
     private long creationTime = System.currentTimeMillis();
     
-    private Grid grid = new SquareGrid();
+    private Grid grid;
     private int gridColor = Color.darkGray.getRGB();
     private float imageScaleX = 1;
     private float imageScaleY = 1;
@@ -109,6 +109,8 @@ public class Zone extends Token {
     public Zone(int type, MD5Key backgroundAsset) {
         super(backgroundAsset);
         this.type = type;
+        
+        setGrid(new SquareGrid());
     }
     
     public void setGrid(Grid grid) {
