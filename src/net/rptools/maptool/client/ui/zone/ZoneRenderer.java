@@ -409,6 +409,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         renderDrawableOverlay(g2d);
         renderTokenTemplates(g2d);
         renderGrid(g2d);
+        renderBorder(g2d);
         renderTokens(g2d);
 		renderMoveSelectionSets(g2d);
         renderLabels(g2d);
@@ -452,6 +453,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 //        g2d.setColor(Color.red);
 //        g2d.drawRect(g.getClipBounds().x, g.getClipBounds().y, g.getClipBounds().width-1, g.getClipBounds().height-1);
+    }
+    
+    protected void renderBorder(Graphics2D g2d) {
+    	// Nothing by default
     }
 
     /**

@@ -28,13 +28,13 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.model.Asset;
@@ -51,6 +51,8 @@ public class BoundedZoneRenderer extends ZoneRenderer {
     private Dimension bgImageSize;
     
     private boolean loaded = false;
+    
+    private Rectangle boardBounds = new Rectangle();
     
     public BoundedZoneRenderer (Zone zone) {
         super(zone);
@@ -170,6 +172,32 @@ public class BoundedZoneRenderer extends ZoneRenderer {
     	super.flush();
     }
     
+    @Override
+    protected void renderBorder(Graphics2D g2d) {
+    	
+    	Dimension size = getSize();
+    	
+    	g2d.setColor(Color.black);
+
+    	// TODO: Optimize this
+    	if (boardBounds.x > 0) {
+    		// Left
+        	g2d.fillRect(0, 0, boardBounds.x, size.height);
+    	}
+    	if (boardBounds.x + boardBounds.width < size.width) {
+    		// Right
+    		g2d.fillRect(boardBounds.x + boardBounds.width, 0, size.width - (boardBounds.x + boardBounds.width), size.height);
+    	}
+    	if (boardBounds.y > 0) {
+    		// Top
+    		g2d.fillRect(0, 0, size.width, boardBounds.y);
+    	}
+    	if (boardBounds.y + boardBounds.height < size.height) {
+    		// Bottom
+    		g2d.fillRect(0, boardBounds.y + boardBounds.height, size.width, size.height - (boardBounds.y + boardBounds.height));
+    	}
+    }
+    
     protected void renderBoard(Graphics2D g) {
 
         BufferedImage mapImage = getBackgroundImage();
@@ -201,5 +229,6 @@ public class BoundedZoneRenderer extends ZoneRenderer {
         
         // Map
         g.drawImage(mapImage, x, y, w, h, this);
+        boardBounds.setBounds(x, y, w, h);
     }
 }
