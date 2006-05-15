@@ -67,7 +67,7 @@ public class Token {
 	private static final int OWNER_TYPE_ALL = 1;
 	private static final int OWNER_TYPE_LIST = 0;
 	
-	private Integer facing = 45;
+	private Integer facing = null;
 
 	/**
 	 * A state properties for this token. This allows state to be added that can

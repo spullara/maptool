@@ -47,7 +47,7 @@ public class FacingTool extends DefaultTool {
 	
 	private Token tokenUnderMouse;
 	private Set<GUID> selectedTokenSet;
-	
+
 	public FacingTool () {
 		// Non tool-bar tool ... atm
     }

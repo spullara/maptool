@@ -119,7 +119,7 @@ public class GridTool extends DefaultTool {
         zoomSlider.addChangeListener(new ChangeListener(){
         	public void stateChanged(ChangeEvent e) {
         		ZonePoint zp = new ScreenPoint(renderer.getSize().width/2, renderer.getSize().height/2).convertToZone(renderer);
-        		System.out.println(zp);
+
         		renderer.setScaleIndex(zoomSlider.getValue());
         		renderer.centerOn(zp);
         		copyControlPanelToGrid();

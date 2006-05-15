@@ -275,7 +275,7 @@ public class TokenPopupMenu extends JPopupMenu {
 			FacingTool tool = (FacingTool) toolbox.getTool(FacingTool.class);
 			tool.init(tokenUnderMouse, selectedTokenSet);
 			
-			toolbox.setSelectedTool(tool);
+			toolbox.setSelectedTool(FacingTool.class);
 		}
 	}
 	
