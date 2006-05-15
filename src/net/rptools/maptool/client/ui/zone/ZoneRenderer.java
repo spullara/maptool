@@ -890,6 +890,19 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				image = replacementImage;
 			}
 
+			// Facing ?
+			if (token.hasFacing()) {
+				
+				double facing = Math.toRadians(token.getFacing());
+				int length = (int)(((width + height) / 2.0) * 1.25); 
+				
+				int fy = (int)(y + height/2 - length * Math.sin(facing));
+				int fx = (int)(x + width/2 + length * Math.cos(facing));
+				
+				g.setColor(Color.red);
+				g.drawLine(x + width/2, y + height/2, fx, fy);
+			}
+			
             // Draw image
             g.drawImage(image, x, y, width, height, this);
             

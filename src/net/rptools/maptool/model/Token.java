@@ -34,299 +34,331 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import net.rptools.lib.MD5Key;
 
 /**
- * This object represents the placeable objects on a map.  For example an icon that represents a character
- * would exist as an {@link Asset} (the image itself) and a location and scale.  
+ * This object represents the placeable objects on a map. For example an icon
+ * that represents a character would exist as an {@link Asset} (the image
+ * itself) and a location and scale.
  */
 public class Token {
-    private GUID                                id           = new GUID();
-    private MD5Key                              assetID;
+	private GUID id = new GUID();
 
-    private int                                 x;
-    private int                                 y;
+	private MD5Key assetID;
 
-    private int                                 z;
+	private int x;
+	private int y;
+	private int z;
 
-    private boolean                             snapToScale  = true;                                           // Whether the scaleX and scaleY represent snap-to-grid measurements
-    private int                                 width        = 1;                                              // Default to using exactly 1x1 grid cell
-    private int                                 height       = 1;
-    private int                                 size         = TokenSize.Size.Medium.value();                  // Abstract size
+	private boolean snapToScale = true; // Whether the scaleX and scaleY
+										// represent snap-to-grid measurements
 
-    private boolean                             snapToGrid   = true;                                           // Whether the token snaps to the current grid or is free floating
-    private boolean                             isVisible    = true;
-    private String                              name;
+	private int width = 1; // Default to using exactly 1x1 grid cell
+	private int height = 1;
+	private int size = TokenSize.Size.Medium.value(); // Abstract size
 
-    private Set<String>                         ownerList;
-    private int 								ownerType;
-    private static final int OWNER_TYPE_ALL = 1;
-    private static final int OWNER_TYPE_LIST = 0;
-    
-    /**
-     * A state properties for this token. This allows state to be added that can change
-     * appearance of the token. 
-     */
-    private Map<String, Object>                 state;
+	private boolean snapToGrid = true; // Whether the token snaps to the
+										// current grid or is free floating
 
-    // Transient so that it isn't transfered over the wire
-    private transient List<ModelChangeListener> listenerList = new CopyOnWriteArrayList<ModelChangeListener>();
+	private boolean isVisible = true;
 
-    public enum ChangeEvent {
-        name
-    }
+	private String name;
+	private Set<String> ownerList;
 
-    public Token(Token token) {
-        id = new GUID();
-        assetID = token.assetID;
-        x = token.x;
-        y = token.y;
+	private int ownerType;
 
-        snapToScale = token.snapToScale;
-        width = token.width;
-        height = token.height;
-        size = token.size;
+	private static final int OWNER_TYPE_ALL = 1;
+	private static final int OWNER_TYPE_LIST = 0;
+	
+	private Integer facing = 45;
 
-        snapToGrid = token.snapToGrid;
-        isVisible = token.isVisible;
-        name = token.name;
-        
-        if (token.ownerList != null) {
-        	ownerList = new HashSet<String>();
-        	ownerList.addAll(token.ownerList);
-        }
-        
-        if (token.state != null) {
-        	state = new HashMap<String, Object>();
-        	for (Map.Entry<String, Object> entry : token.state.entrySet()) {
-        		state.put(entry.getKey(), entry.getValue());
-        	}
-        }
-    }
+	/**
+	 * A state properties for this token. This allows state to be added that can
+	 * change appearance of the token.
+	 */
+	private Map<String, Object> state;
 
-    public Token() {
+	// Transient so that it isn't transfered over the wire
+	private transient List<ModelChangeListener> listenerList = new CopyOnWriteArrayList<ModelChangeListener>();
 
-    }
+	public enum ChangeEvent {
+		name
+	}
 
-    public Token(MD5Key assetID) {
-        this("", assetID, 0, 0);
-    }
+	public Token(Token token) {
+		id = new GUID();
+		assetID = token.assetID;
+		x = token.x;
+		y = token.y;
 
-    public Token(String name, MD5Key assetID, int width, int height) {
-        this.name = name;
-        this.assetID = assetID;
-        this.width = width;
-        this.height = height;
-        state = new HashMap<String, Object>();
-    }
-    
-    public synchronized void addOwner(String playerId) {
-    	ownerType = OWNER_TYPE_LIST;
-    	if (ownerList == null) {
-    		ownerList = new HashSet<String>();
-    	}
-    	
-    	ownerList.add(playerId);
-    }
-    
-    public synchronized void removeOwner(String playerId) {
-    	ownerType = OWNER_TYPE_LIST;
-    	if (ownerList == null) {
-    		return;
-    	}
-    	
-    	ownerList.remove(playerId);
-    	
-    	if (ownerList.size() == 0) {
-    		ownerList = null;
-    	}
-    }
-    
-    public synchronized void setAllOwners() {
-    	ownerType = OWNER_TYPE_ALL;
-    	ownerList = null;
-    }
-    
-    public boolean isOwnedByAll() {
-    	return ownerType == OWNER_TYPE_ALL;
-    }
-    
-    public synchronized void clearAllOwners() {
-    	ownerList = null;
-    	ownerType = OWNER_TYPE_LIST;
-    }
-    
-    public synchronized boolean isOwner(String playerId) {
-    	return ownerType == OWNER_TYPE_ALL || (ownerList != null && ownerList.contains(playerId));
-    }
+		snapToScale = token.snapToScale;
+		width = token.width;
+		height = token.height;
+		size = token.size;
 
-    public boolean equals(Object o) {
-        if (!(o instanceof Token)) { return false; }
+		snapToGrid = token.snapToGrid;
+		isVisible = token.isVisible;
+		name = token.name;
 
-        return id.equals(((Token) o).id);
-    }
+		if (token.ownerList != null) {
+			ownerList = new HashSet<String>();
+			ownerList.addAll(token.ownerList);
+		}
 
-    public void setZOrder(int z) {
-        this.z = z;
-    }
+		if (token.state != null) {
+			state = new HashMap<String, Object>();
+			for (Map.Entry<String, Object> entry : token.state.entrySet()) {
+				state.put(entry.getKey(), entry.getValue());
+			}
+		}
+	}
 
-    public int getZOrder() {
-        return z;
-    }
+	public Token() {
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	}
 
-    public MD5Key getAssetID() {
-        return assetID;
-    }
+	public Token(MD5Key assetID) {
+		this("", assetID, 0, 0);
+	}
 
-    public void setAsset(MD5Key assetID) {
-        this.assetID = assetID;
-    }
+	public Token(String name, MD5Key assetID, int width, int height) {
+		this.name = name;
+		this.assetID = assetID;
+		this.width = width;
+		this.height = height;
+		state = new HashMap<String, Object>();
+	}
+	
+	public boolean hasFacing() {
+		return facing != null;
+	}
+	
+	public void setFacing(Integer facing) {
+		this.facing = facing;
+	}
+	
+	public Integer getFacing() {
+		return facing;
+	}
 
-    public GUID getId() {
-        return id;
-    }
+	public synchronized void addOwner(String playerId) {
+		ownerType = OWNER_TYPE_LIST;
+		if (ownerList == null) {
+			ownerList = new HashSet<String>();
+		}
 
-    public void setId(GUID id) {
-        this.id = id;
-    }
+		ownerList.add(playerId);
+	}
 
-    public int getX() {
-        return x;
-    }
+	public synchronized void removeOwner(String playerId) {
+		ownerType = OWNER_TYPE_LIST;
+		if (ownerList == null) {
+			return;
+		}
 
-    public void setX(int x) {
-        this.x = x;
-    }
+		ownerList.remove(playerId);
 
-    public int getY() {
-        return y;
-    }
+		if (ownerList.size() == 0) {
+			ownerList = null;
+		}
+	}
 
-    public void setY(int y) {
-        this.y = y;
-    }
+	public synchronized void setAllOwners() {
+		ownerType = OWNER_TYPE_ALL;
+		ownerList = null;
+	}
 
-    /**
-     * @return Returns the scaleX.
-     */
-    public int getWidth() {
-        return width;
-    }
+	public boolean isOwnedByAll() {
+		return ownerType == OWNER_TYPE_ALL;
+	}
 
-    /**
-     * @param scaleX The scaleX to set.
-     */
-    public void setWidth(int width) {
-        this.width = width;
-    }
+	public synchronized void clearAllOwners() {
+		ownerList = null;
+		ownerType = OWNER_TYPE_LIST;
+	}
 
-    /**
-     * @return Returns the sizeY.
-     */
-    public int getHeight() {
-        return height;
-    }
+	public synchronized boolean isOwner(String playerId) {
+		return ownerType == OWNER_TYPE_ALL
+				|| (ownerList != null && ownerList.contains(playerId));
+	}
 
-    /**
-     * @param height The sizeY to set.
-     */
-    public void setHeight(int height) {
-        this.height = height;
-    }
+	public boolean equals(Object o) {
+		if (!(o instanceof Token)) {
+			return false;
+		}
 
-    /**
-     * @return Returns the snapScale.
-     */
-    public boolean isSnapToScale() {
-        return snapToScale;
-    }
+		return id.equals(((Token) o).id);
+	}
 
-    /**
-     * @param snapScale The snapScale to set.
-     */
-    public void setSnapToScale(boolean snapScale) {
-        this.snapToScale = snapScale;
-    }
+	public void setZOrder(int z) {
+		this.z = z;
+	}
 
-    public void setVisible(boolean visible) {
-        this.isVisible = visible;
-    }
+	public int getZOrder() {
+		return z;
+	}
 
-    public boolean isVisible() {
-        return isVisible;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public String getName() {
-        return name != null ? name : "";
-    }
+	public MD5Key getAssetID() {
+		return assetID;
+	}
 
-    /**
-     * @return Returns the size.
-     */
-    public int getSize() {
-        return size;
-    }
+	public void setAsset(MD5Key assetID) {
+		this.assetID = assetID;
+	}
 
-    /**
-     * @param size The size to set.
-     */
-    public void setSize(int size) {
-        this.size = size;
-    }
+	public GUID getId() {
+		return id;
+	}
 
-    public boolean isSnapToGrid() {
-        return snapToGrid;
-    }
+	public void setId(GUID id) {
+		this.id = id;
+	}
 
-    public void setSnapToGrid(boolean snapToGrid) {
-        this.snapToGrid = snapToGrid;
-    }
+	public int getX() {
+		return x;
+	}
 
-    public void addModelChangeListener(ModelChangeListener listener) {
-        listenerList.add(listener);
-    }
+	public void setX(int x) {
+		this.x = x;
+	}
 
-    public void removeModelChangeListener(ModelChangeListener listener) {
-        listenerList.remove(listener);
-    }
+	public int getY() {
+		return y;
+	}
 
-    protected void fireModelChangeEvent(ModelChangeEvent event) {
+	public void setY(int y) {
+		this.y = y;
+	}
 
-        for (ModelChangeListener listener : listenerList) {
-            listener.modelChanged(event);
-        }
-    }
+	/**
+	 * @return Returns the scaleX.
+	 */
+	public int getWidth() {
+		return width;
+	}
 
-    /**
-     * Get a particular state property for this Token.
-     *
-     * @param property The name of the property being read.
-     * @return Returns the current value of property.
-     */
-    public Object getState(String property) {
-      return state.get(property);
-    }
+	/**
+	 * @param scaleX
+	 *            The scaleX to set.
+	 */
+	public void setWidth(int width) {
+		this.width = width;
+	}
 
-    /**
-     * Set the value of state for this Token.
-     *
-     * @param aState The property to set.
-     * @param aValue The new value for the property.
-     * @return The original vaoue of the property, if any.
-     */
-    public Object setState(String aState, Object aValue) {
-      if (aValue == null) return state.remove(aState);
-      return state.put(aState, aValue);
-    }
-    
-    /**
-     * Get a set containing the names of all set properties
-     * on this token.
-     * 
-     * @return The set of state property names that have a value associated with them.
-     */
-    public Set<String> getStatePropertyNames() {
-      return state.keySet();
-    }
+	/**
+	 * @return Returns the sizeY.
+	 */
+	public int getHeight() {
+		return height;
+	}
+
+	/**
+	 * @param height
+	 *            The sizeY to set.
+	 */
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	/**
+	 * @return Returns the snapScale.
+	 */
+	public boolean isSnapToScale() {
+		return snapToScale;
+	}
+
+	/**
+	 * @param snapScale
+	 *            The snapScale to set.
+	 */
+	public void setSnapToScale(boolean snapScale) {
+		this.snapToScale = snapScale;
+	}
+
+	public void setVisible(boolean visible) {
+		this.isVisible = visible;
+	}
+
+	public boolean isVisible() {
+		return isVisible;
+	}
+
+	public String getName() {
+		return name != null ? name : "";
+	}
+
+	/**
+	 * @return Returns the size.
+	 */
+	public int getSize() {
+		return size;
+	}
+
+	/**
+	 * @param size
+	 *            The size to set.
+	 */
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	public boolean isSnapToGrid() {
+		return snapToGrid;
+	}
+
+	public void setSnapToGrid(boolean snapToGrid) {
+		this.snapToGrid = snapToGrid;
+	}
+
+	public void addModelChangeListener(ModelChangeListener listener) {
+		listenerList.add(listener);
+	}
+
+	public void removeModelChangeListener(ModelChangeListener listener) {
+		listenerList.remove(listener);
+	}
+
+	protected void fireModelChangeEvent(ModelChangeEvent event) {
+
+		for (ModelChangeListener listener : listenerList) {
+			listener.modelChanged(event);
+		}
+	}
+
+	/**
+	 * Get a particular state property for this Token.
+	 * 
+	 * @param property
+	 *            The name of the property being read.
+	 * @return Returns the current value of property.
+	 */
+	public Object getState(String property) {
+		return state.get(property);
+	}
+
+	/**
+	 * Set the value of state for this Token.
+	 * 
+	 * @param aState
+	 *            The property to set.
+	 * @param aValue
+	 *            The new value for the property.
+	 * @return The original vaoue of the property, if any.
+	 */
+	public Object setState(String aState, Object aValue) {
+		if (aValue == null)
+			return state.remove(aState);
+		return state.put(aState, aValue);
+	}
+
+	/**
+	 * Get a set containing the names of all set properties on this token.
+	 * 
+	 * @return The set of state property names that have a value associated with
+	 *         them.
+	 */
+	public Set<String> getStatePropertyNames() {
+		return state.keySet();
+	}
 }
