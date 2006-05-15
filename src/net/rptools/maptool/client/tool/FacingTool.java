@@ -111,7 +111,16 @@ public class FacingTool extends DefaultTool {
     @Override
     public void mousePressed(MouseEvent e) {
 
-    	System.out.println("Hiya");
+    	// Commit
+    	for (GUID tokenGUID : selectedTokenSet) {
+
+    		Token token = renderer.getZone().getToken(tokenGUID);
+    		if (token == null) {
+    			continue;
+    		}
+    		
+    		MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+    	}
 		
 		// Go back to the pointer tool
 		resetTool();
