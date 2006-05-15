@@ -24,10 +24,12 @@
  */
 package net.rptools.maptool.client.tool;
 
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -43,10 +45,18 @@ public class FacingTool extends DefaultTool {
 
 	private double facing;
 	
+	private Token tokenUnderMouse;
+	private Set<GUID> selectedTokenSet;
+	
 	public FacingTool () {
 		// Non tool-bar tool ... atm
     }
-    
+
+	public void init(Token keyToken, Set<GUID> selectedTokenSet) {
+		tokenUnderMouse = keyToken;
+		this.selectedTokenSet = selectedTokenSet;
+	}
+	
     @Override
     public String getTooltip() {
         return "Set the token facing";
@@ -87,22 +97,21 @@ public class FacingTool extends DefaultTool {
     public void mouseMoved(MouseEvent e) {
     	super.mouseMoved(e);
     	
+    	Rectangle bounds = renderer.getTokenBounds(tokenUnderMouse);
     	
+    	int x = bounds.x + bounds.width/2;
+    	int y = bounds.y + bounds.height/2;
+    	
+    	double angle = Math.atan2(y - e.getY(), e.getX() - x);
+    	
+    	tokenUnderMouse.setFacing((int)Math.toDegrees(angle));
+    	renderer.repaint(); // TODO: shrink this
     }
     
     @Override
     public void mousePressed(MouseEvent e) {
 
-    	Integer facing = (int)Math.toDegrees(this.facing);
-
-		for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
-			Token token = renderer.getZone().getToken(tokenGUID);
-			if (token == null) {
-				continue;
-			}
-			
-			token.setFacing(facing);
-		}
+    	System.out.println("Hiya");
 		
 		// Go back to the pointer tool
 		resetTool();

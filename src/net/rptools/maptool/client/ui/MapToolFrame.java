@@ -88,6 +88,7 @@ import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
 import net.rptools.maptool.client.swing.StatusPanel;
+import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.MeasureTool;
 import net.rptools.maptool.client.tool.PointerTool;
@@ -586,6 +587,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         
         // Non visible tools
         toolbox.createTool(GridTool.class);
+        toolbox.createTool(FacingTool.class);
         
         toolbar.add(Box.createHorizontalStrut(15));
 

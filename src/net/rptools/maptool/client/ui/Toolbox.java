@@ -61,6 +61,10 @@ public class Toolbox {
 		return currentTool;
 	}
 	
+	public Tool getTool(Class toolClass) {
+		return toolMap.get(toolClass);
+	}
+	
 	public Tool createTool(Class toolClass) {
 		
 		Tool tool;
