@@ -16,6 +16,10 @@ public class HexGrid extends Grid {
 		public boolean isSnapToGridSupported() {return false;}
 	};
 	
+	private static final int[] FACING_ANGLES = new int[] {
+		-135, -90, -45, 45, 90, 135
+	};
+	
 	private Polygon topLeftArea;
 	private Polygon bottomLeftArea;
 	private Polygon topRightArea;
@@ -37,6 +41,11 @@ public class HexGrid extends Grid {
 	@Override
 	public int getDefaultGridSize() {
 		return 80;
+	}
+	
+	@Override
+	public int[] getFacingAngles() {
+		return FACING_ANGLES;
 	}
 	
 	@Override

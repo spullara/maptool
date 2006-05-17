@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
@@ -48,6 +49,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -64,7 +66,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppPreferences;
@@ -129,6 +130,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	private boolean updateFog;
 	
 	private FontMetrics fontMetrics;
+	private GeneralPath facingArrow;
 	
     // Optimizations
     private Map<Token, BufferedImage> replacementImageMap = new HashMap<Token, BufferedImage>();
@@ -793,6 +795,26 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		return list;
 	}
 	
+	protected Shape getFacingArrow(int angle, int size) {
+		if (facingArrow == null) {
+			
+			int base = (int)(size * .75);
+			int width = (int)(size * .25);
+			int baseWidth = (int)(width * .4);
+			
+			facingArrow = new GeneralPath();
+			facingArrow.moveTo(0, 0);
+			facingArrow.lineTo(base, -baseWidth);
+			facingArrow.lineTo(base, -width);
+			facingArrow.lineTo(size, 0);
+			facingArrow.lineTo(base, width);
+			facingArrow.lineTo(base, baseWidth);
+			facingArrow.lineTo(0, 0);
+		}
+		
+		return facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)));
+	}
+	
     protected void renderTokens(Graphics2D g) {
 
     	Dimension screenSize = getSize();
@@ -893,14 +915,19 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			// Facing ?
 			if (token.hasFacing()) {
 				
-				double facing = Math.toRadians(token.getFacing());
-				int length = (int)(((width + height) / 2.0) * 1.25); 
+				int size = (width / 2) + (gridSize/2);
 				
-				int fy = (int)(y + height/2 - length * Math.sin(facing));
-				int fx = (int)(x + width/2 + length * Math.cos(facing));
+				Shape arrow = getFacingArrow(token.getFacing(), size);
+
+				int cx = x + width/2;
+				int cy = y + height/2;
 				
-				g.setColor(Color.red);
-				g.drawLine(x + width/2, y + height/2, fx, fy);
+				g.translate(cx, cy);
+				g.setColor(Color.yellow);
+				g.fill(arrow);
+				g.setColor(Color.darkGray);
+				g.draw(arrow);
+				g.translate(-cx, -cy);
 			}
 			
             // Draw image

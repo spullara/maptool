@@ -13,6 +13,10 @@ public class SquareGrid extends Grid {
 		public boolean isPathingSupported() {return true;}
 		public boolean isSnapToGridSupported() {return true;}
 	};
+
+	private static final int[] FACING_ANGLES = new int[] {
+		-135, -90, -45, 0, 45, 90, 135, 180
+	};
 	
 	public SquareGrid() {
 		super();
@@ -22,6 +26,11 @@ public class SquareGrid extends Grid {
 	@Override
 	public int getDefaultGridSize() {
 		return 40;
+	}
+	
+	@Override
+	public int[] getFacingAngles() {
+		return FACING_ANGLES;
 	}
 	
 	@Override

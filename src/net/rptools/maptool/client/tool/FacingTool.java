@@ -35,6 +35,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
@@ -104,13 +105,29 @@ public class FacingTool extends DefaultTool {
     	
     	double angle = Math.atan2(y - e.getY(), e.getX() - x);
     	
+    	int degrees = (int)Math.toDegrees(angle);
+
+    	if (!SwingUtil.isControlDown(e)) {
+	    	int[] facingAngles = renderer.getZone().getGrid().getFacingAngles();
+	    	int delta = -1;
+	    	int closest = -1;
+	    	for (int i = 0; i < facingAngles.length; i++) {
+	    		int currDelta = Math.abs(degrees - facingAngles[i]);
+	    		if (delta < 0 || currDelta < delta) {
+	    			closest = i;
+	    			delta = currDelta;
+	    		}
+	    	}
+	    	degrees = facingAngles[closest];
+    	}
+    	
     	for (GUID tokenGUID : selectedTokenSet) {
     		Token token = renderer.getZone().getToken(tokenGUID);
     		if (token == null) {
     			continue;
     		}
     		
-    		token.setFacing((int)Math.toDegrees(angle));
+    		token.setFacing(degrees);
     	}
 
     	renderer.repaint(); // TODO: shrink this

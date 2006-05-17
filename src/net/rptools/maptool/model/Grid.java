@@ -72,6 +72,8 @@ public abstract class Grid {
 		return size;
 	}
 	
+	public abstract int[] getFacingAngles();
+	
 	protected void fireGridChanged() {
 		if (zone != null) {
 			zone.fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
