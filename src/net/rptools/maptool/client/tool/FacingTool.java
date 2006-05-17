@@ -104,7 +104,15 @@ public class FacingTool extends DefaultTool {
     	
     	double angle = Math.atan2(y - e.getY(), e.getX() - x);
     	
-    	tokenUnderMouse.setFacing((int)Math.toDegrees(angle));
+    	for (GUID tokenGUID : selectedTokenSet) {
+    		Token token = renderer.getZone().getToken(tokenGUID);
+    		if (token == null) {
+    			continue;
+    		}
+    		
+    		token.setFacing((int)Math.toDegrees(angle));
+    	}
+
     	renderer.repaint(); // TODO: shrink this
     }
     
