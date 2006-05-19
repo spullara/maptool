@@ -73,6 +73,8 @@ public class GlassPane extends JPanel {
 			g.setColor(new Color(1, 1, 1, .5f));
 			g.fillRect(0, 0, size.width, size.height);
 			
+			g.dispose();
+			
 			// Consume all actions
 			addMouseMotionListener(new MouseMotionAdapter(){});
 			addMouseListener(new MouseAdapter(){});
