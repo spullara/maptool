@@ -535,14 +535,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		// TODO: Optimize this (combine with calling code)
 		if (tokenBeingDragged.isSnapToGrid()) {
-			System.out.println("1");
 
 			CellPoint cellUnderMouse = renderer.getZone().getGrid().convert(zonePoint);
 			zonePoint = renderer.getZone().getGrid().convert(cellUnderMouse);
 			MapTool.getFrame().setStatusMessage("Cell: " + cellUnderMouse.x + ", " + cellUnderMouse.y);
 			
 		} else {
-			System.out.println("2");
 		    zonePoint.translate(-dragOffsetX, -dragOffsetY);
         }
 
@@ -561,7 +559,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), zonePoint);
 		MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), zonePoint.x, zonePoint.y);
-		System.out.println("4");
 		return true;
 	}
 
