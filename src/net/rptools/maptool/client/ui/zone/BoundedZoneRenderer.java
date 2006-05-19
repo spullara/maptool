@@ -105,31 +105,34 @@ public class BoundedZoneRenderer extends ZoneRenderer {
         BufferedImage miniMap = new BufferedImage(imgSize.width, imgSize.height, Transparency.OPAQUE);
 
         Graphics2D g = miniMap.createGraphics();
-
-        g.drawImage(miniBackgroundImage, 0, 0, imgSize.width, imgSize.height, this);
-
-        // Fog
-        if (zone.hasFog() && bgImageSize != null) {
-
-    		BufferedImage fogImage = new BufferedImage(imgSize.width, imgSize.height, Transparency.BITMASK);
-
-            Graphics2D fogG = fogImage.createGraphics();
-    
-            fogG.setColor(Color.black);
-            fogG.fillRect(0, 0, fogImage.getWidth(), fogImage.getHeight());
-            
-            fogG.setComposite(AlphaComposite.Src);
-            fogG.setColor(new Color(0, 0, 0, 0));
-    
-            Area area = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance(imgSize.width/(float)bgImageSize.width, imgSize.height/(float)bgImageSize.height));
-            fogG.fill(area);
-            
-            fogG.dispose();
-
-            g.drawImage(fogImage, 0, 0, this);
+        try {
+	
+	        g.drawImage(miniBackgroundImage, 0, 0, imgSize.width, imgSize.height, this);
+	
+	        // Fog
+	        if (zone.hasFog() && bgImageSize != null) {
+	
+	    		BufferedImage fogImage = new BufferedImage(imgSize.width, imgSize.height, Transparency.BITMASK);
+	
+	            Graphics2D fogG = fogImage.createGraphics();
+	    
+	            fogG.setColor(Color.black);
+	            fogG.fillRect(0, 0, fogImage.getWidth(), fogImage.getHeight());
+	            
+	            fogG.setComposite(AlphaComposite.Src);
+	            fogG.setColor(new Color(0, 0, 0, 0));
+	    
+	            Area area = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance(imgSize.width/(float)bgImageSize.width, imgSize.height/(float)bgImageSize.height));
+	            fogG.fill(area);
+	            
+	            fogG.dispose();
+	
+	            g.drawImage(fogImage, 0, 0, this);
+	        }
+        } finally {
+        	g.dispose();
         }
         
-        g.dispose();
     	return miniMap;
     }
     

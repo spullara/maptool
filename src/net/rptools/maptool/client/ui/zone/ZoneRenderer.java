@@ -314,6 +314,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             Token token = zone.getToken(tokenGUID);
             token.setX(set.getOffsetX() + token.getX());
             token.setY(set.getOffsetY() + token.getY());
+
+            // No longer need this version
+            replacementImageMap.remove(token);
             
             MapTool.serverCommand().putToken(zone.getId(), token);
         }
@@ -902,10 +905,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			// Moving ?
 			if (isTokenMoving(token)) {
 				BufferedImage replacementImage = replacementImageMap.get(token);
-				if (replacementImage == null || replacementImage.getWidth() != width || replacementImage.getHeight() != height) {
+				if (replacementImage == null) {
+
 					replacementImage = ImageUtil.rgbToGrayscale(image);
 					
-					// TODO: fix this memory leak -> when to clean up the image (when selection set is removed)
 					replacementImageMap.put(token, replacementImage);
 				}
 				
@@ -1369,11 +1372,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 	        if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid()) {
 	        	
-	        	System.out.println("drop:"+zp);
-	        	System.out.println("cell:"+zone.getGrid().convert(zp));
+//	        	System.out.println("drop:"+zp);
+//	        	System.out.println("cell:"+zone.getGrid().convert(zp));
 	        	
 	        	zp = zone.getGrid().convert(zone.getGrid().convert(zp));
-	        	System.out.println("finl:" + zp);
+//	        	System.out.println("finl:" + zp);
 	        }
 
 	        token.setX(zp.x);

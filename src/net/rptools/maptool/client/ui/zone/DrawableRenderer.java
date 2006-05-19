@@ -184,10 +184,11 @@ public class DrawableRenderer {
 			if (image == null) {
 				image = ImageUtil.createCompatibleImage(bounds.width, bounds.height, Transparency.TRANSLUCENT);
 			} else {
-        Graphics2D g2d = (Graphics2D)image.getGraphics();
-        g2d.setBackground(TRANSPARENT);
-			  g2d.clearRect(0, 0, bounds.width, bounds.height);
-      }
+		        Graphics2D g2d = (Graphics2D)image.getGraphics();
+		        g2d.setBackground(TRANSPARENT);
+				g2d.clearRect(0, 0, bounds.width, bounds.height);
+				g2d.dispose();
+			}
 		}
 	}
 }
