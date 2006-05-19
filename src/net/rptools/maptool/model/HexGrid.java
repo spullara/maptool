@@ -144,7 +144,7 @@ public class HexGrid extends Grid {
 		int x = (int)(cp.x * (sideSize + topWidth));
 		int y = (int)(cp.y * height * 2) - (x % 2 == 1 ? height : 0);
 
-		System.out.println (cp.x+","+cp.y + " - " + x + "," + y);
+		//System.out.println (cp.x+","+cp.y + " - " + x + "," + y);
 		return new ZonePoint(x, y);
 	}
 
