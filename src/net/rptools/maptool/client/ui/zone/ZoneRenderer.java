@@ -438,17 +438,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         	
         	GraphicsUtil.drawBoxedString(g2d, "    Loading    ", size.width/2, size.height/2);
         	
-        	AnimationManager.addAnimatable(new Animatable() {
-        		private long start = System.currentTimeMillis();
-        		public void animate() {
-        			if (System.currentTimeMillis() - start > 1000) {
-        				// wait for a second then refresh
-	        			AnimationManager.removeAnimatable(this);
-	        			ZoneRenderer.this.repaint();
-        			}
-        		}
-        	});
-        	
         	return;
         }
 
@@ -799,23 +788,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	}
 	
 	protected Shape getFacingArrow(int angle, int size) {
-		if (facingArrow == null) {
-			
-			int base = (int)(size * .75);
-			int width = (int)(size * .25);
-			int baseWidth = (int)(width * .4);
-			
-			facingArrow = new GeneralPath();
-			facingArrow.moveTo(0, 0);
-			facingArrow.lineTo(base, -baseWidth);
-			facingArrow.lineTo(base, -width);
-			facingArrow.lineTo(size, 0);
-			facingArrow.lineTo(base, width);
-			facingArrow.lineTo(base, baseWidth);
-			facingArrow.lineTo(0, 0);
-		}
+
+		int base = (int)(size * .75);
+		int width = (int)(size * .25);
+		int baseWidth = (int)(width * .4);
 		
-		return facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)));
+		facingArrow = new GeneralPath();
+		facingArrow.moveTo(0, 0);
+		facingArrow.lineTo(base, -baseWidth);
+		facingArrow.lineTo(base, -width);
+		facingArrow.lineTo(size, 0);
+		facingArrow.lineTo(base, width);
+		facingArrow.lineTo(base, baseWidth);
+		facingArrow.lineTo(0, 0);
+		
+		return ((GeneralPath)facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)))).createTransformedShape(AffineTransform.getScaleInstance(getScale(), getScale()));
 	}
 	
     protected void renderTokens(Graphics2D g) {
@@ -918,7 +905,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			// Facing ?
 			if (token.hasFacing()) {
 				
-				int size = (width / 2) + (gridSize/2);
+				int size = TokenSize.getWidth(token, zone.getGrid())/2 + (getZone().getGrid().getSize()/2);
 				
 				Shape arrow = getFacingArrow(token.getFacing(), size);
 
