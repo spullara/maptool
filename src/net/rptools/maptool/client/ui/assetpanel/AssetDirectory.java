@@ -31,7 +31,8 @@ public class AssetDirectory extends Directory {
 
 	private static final BufferedImage INVALID_IMAGE = new BufferedImage(1, 1, Transparency.OPAQUE);
 	
-	private static ExecutorService imageLoaderService = Executors.newFixedThreadPool(3);
+	private static ExecutorService largeImageLoaderService = Executors.newFixedThreadPool(1);
+	private static ExecutorService smallImageLoaderService = Executors.newFixedThreadPool(2);
     
     private AtomicBoolean continueProcessing = new AtomicBoolean(true);
     
@@ -84,7 +85,12 @@ public class AssetDirectory extends Directory {
 	            firePropertyChangeEvent(new PropertyChangeEvent(AssetDirectory.this, PROPERTY_IMAGE_LOADED, false, true));
 			}
 		};
-		imageLoaderService.execute(future);
+		
+		if (imageFile.length() < 10 * 1024) {
+			smallImageLoaderService.execute(future);
+		} else {
+			largeImageLoaderService.execute(future);
+		}
 		imageMap.put(imageFile, future);
 		return null;
 	}
