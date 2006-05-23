@@ -11,7 +11,7 @@
 	<classpathentry kind="lib" path="lib/abeille-formsrt-2.0.jar"/>
 	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.1.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JUNIT_HOME/junit.jar"/>
 	<classpathentry sourcepath="C:/Programs/tinylaf-1_3_03_src" kind="lib" path="lib/tinylaf.jar"/>
-	<classpathentry kind="lib" path="lib/rplib-1.0.b56.jar"/>
 	<classpathentry kind="lib" path="lib/maptool.resource-1.0.b3.jar"/>
+	<classpathentry kind="lib" path="lib/rplib-1.0.b57.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
