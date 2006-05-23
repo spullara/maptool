@@ -86,7 +86,7 @@ public class AssetDirectory extends Directory {
 			}
 		};
 		
-		if (imageFile.length() < 10 * 1024) {
+		if (imageFile.length() < 30 * 1024) {
 			smallImageLoaderService.execute(future);
 		} else {
 			largeImageLoaderService.execute(future);
