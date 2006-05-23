@@ -497,6 +497,22 @@ public class MapTool {
 		return fileChooser;
 	}
 	
+	private static class HeapSpy implements Runnable {
+		
+		public void run() {
+
+			while (true) {
+				Runtime.getRuntime().gc();
+				System.out.println ("Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()));
+				try {
+					Thread.sleep(1000);
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	public static void main(String[] args) {
 
         try {
@@ -518,6 +534,8 @@ public class MapTool {
         		clientFrame.setVisible(true);
         	}
         });
+        
+//        new Thread(new HeapSpy()).start();
 	}
 	
 	private static class ActivityProgressListener implements ActivityListener {
@@ -533,5 +551,5 @@ public class MapTool {
 			}
 		}
 	}
-	
+
 }
