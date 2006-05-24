@@ -454,14 +454,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     }
 
     /**
-     * Paint all of the token templates. 
+     * Paint all of the token templates for selected tokens. 
      * 
      * @param g Paint on this graphic object.
      */
     private void renderTokenTemplates(Graphics2D g) {
-      int gridSize = zone.getGrid().getSize();
-      int gridOffsetX = zone.getGrid().getOffsetX();
-      int gridOffsetY = zone.getGrid().getOffsetY();
       float scale = zoneScale.getScale();
       int scaledGridSize = (int)getScaledGridSize();
       
@@ -473,18 +470,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
           if (value instanceof TokenTemplate) {
 
         	  // Only show if selected
-        	  if (!selectedTokenSet.contains(token.getId())) {
-        		  continue;
-        	  }
+        	  if (!selectedTokenSet.contains(token.getId())) continue;
         	  
             // Calculate the token bounds
-            Rectangle bounds = new Rectangle();
-            bounds.x = (int)(token.getX() * scale + zoneScale.getOffsetX()) + (int) (gridOffsetX * scale) + 1;
-            bounds.y = (int)(token.getY() * scale + zoneScale.getOffsetY()) + (int) (gridOffsetY * scale) + 1;
-            bounds.width = (int)(TokenSize.getWidth(token, zone.getGrid()) * scale)-1;
-            bounds.height = (int)(TokenSize.getHeight(token, zone.getGrid()) * scale)-1;
-            if (bounds.width < scaledGridSize) bounds.x += (scaledGridSize - bounds.width)/2;
-            if (bounds.height < scaledGridSize) bounds.y += (scaledGridSize - bounds.height)/2;
+            int width = (int)(TokenSize.getWidth(token, zone.getGrid()) * scale)-1;
+            int height = (int)(TokenSize.getHeight(token, zone.getGrid()) * scale)-1;
+            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
+            int x = tokenScreenLocation.x + 1;
+            int y = tokenScreenLocation.y + 1;
+            if (width < scaledGridSize) x += (scaledGridSize - width)/2;
+            if (height < scaledGridSize) y += (scaledGridSize - height)/2;
+            Rectangle bounds = new Rectangle(x, y, width, height);
             
             // Set up the graphics, paint the template, restore the graphics
             Shape clip = g.getClip();
