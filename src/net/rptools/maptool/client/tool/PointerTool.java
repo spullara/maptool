@@ -133,24 +133,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         isMovingWithKeys = false;
     }
     
-    private void showTokenStackPopup(List<Token> tokenList) {
+    private void showTokenStackPopup(List<Token> tokenList, int x, int y) {
 
-		Integer x = null;
-		Integer y = null;
-		
-		// Calculate the top left corner of the stack
-		for (Token token : tokenList) {
-			if (x == null || token.getX() < x) {
-				x = token.getX();
-			}
-			if (y == null || token.getY() < y) {
-				y = token.getY();
-			}
-		}
-		
-		ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, x, y);
-
-		tokenStackPanel.show(tokenList, sp.x, sp.y);
+		tokenStackPanel.show(tokenList, x, y);
 		isShowingTokenStackPopup = true;
 		repaint();
     }
@@ -167,8 +152,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     	
     	public void show(List<Token> tokenList, int x, int y) {
     		this.tokenList = tokenList;
-    		this.x = x - TokenStackPanel.PADDING - getPreferredSize().width/2 + ((int) renderer.getScaledGridSize())/2;
-    		this.y = y - TokenStackPanel.PADDING;
+    		this.x = x - TokenStackPanel.PADDING - getSize().width/2;
+    		this.y = y - TokenStackPanel.PADDING - getSize().height/2;
     	}
     	
     	public Dimension getSize() {
@@ -277,7 +262,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			List<Token> tokenList = renderer.getTokenStackAt(mouseX, mouseY);
 			if (tokenList != null) {
 				renderer.clearSelectedTokens();
-				showTokenStackPopup(tokenList);
+				showTokenStackPopup(tokenList, e.getX(), e.getY());
 			}
 			
 			return;
