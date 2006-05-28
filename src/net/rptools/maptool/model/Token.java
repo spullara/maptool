@@ -73,9 +73,10 @@ public class Token {
 	private static final int OWNER_TYPE_ALL = 1;
 	private static final int OWNER_TYPE_LIST = 0;
 	
+	private String tokenType; // TODO: Make tokens understand enums for hessian
+
 	private Integer facing = null;
 	
-	private String type; // TODO: Make tokens understand enums for hessian
 
 	/**
 	 * A state properties for this token. This allows state to be added that can
@@ -135,11 +136,11 @@ public class Token {
 	}
 	
 	public Type getTokenType() {
-		return Type.valueOf(type);
+		return Type.valueOf(tokenType);
 	}
 	
 	public void setTokenType(Type type) {
-		this.type = type.name();
+		this.tokenType = type.name();
 	}
 	
 	public boolean hasFacing() {

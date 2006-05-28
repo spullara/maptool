@@ -6,12 +6,14 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
 import junit.framework.TestCase;
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.model.Token;
 
 public class TokenUtilTest extends TestCase {
 
 	public void testGuessTokenType() throws Exception {
-		
+
+		// SQUARE
 		BufferedImage img = new BufferedImage(100, 100, Transparency.BITMASK);
 		Graphics2D g = img.createGraphics();
 		g.setColor(Color.blue);
@@ -19,7 +21,12 @@ public class TokenUtilTest extends TestCase {
 		g.dispose();
 		
 		assertEquals(Token.Type.SQUARE, TokenUtil.guessTokenType(img));
+
+		img = ImageUtil.getImage("net/rptools/maptool/client/image/squareToken.gif");
 		
+		assertEquals(Token.Type.SQUARE, TokenUtil.guessTokenType(img));
+		
+		// CIRCLE
 		img = new BufferedImage(100, 100, Transparency.BITMASK);
 		g = img.createGraphics();
 		g.setColor(Color.red);
@@ -27,7 +34,12 @@ public class TokenUtilTest extends TestCase {
 		g.dispose();
 		
 		assertEquals(Token.Type.CIRCLE, TokenUtil.guessTokenType(img));
+
+		img = ImageUtil.getImage("net/rptools/maptool/client/image/circleToken.png");
 		
+		assertEquals(Token.Type.CIRCLE, TokenUtil.guessTokenType(img));
+
+		// TOP DOWN
 		img = new BufferedImage(100, 100, Transparency.BITMASK);
 		g = img.createGraphics();
 		g.setColor(Color.red);
