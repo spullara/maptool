@@ -26,42 +26,37 @@ package net.rptools.maptool.util;
 
 import java.awt.image.BufferedImage;
 
+import net.rptools.maptool.model.Token;
+
 public class TokenUtil {
 
-	public enum TokenType {
-		TOP_DOWN,
-		CIRCLE,
-		SQUARE
-	}
-	
-	public TokenType getTokenType(BufferedImage image) {
+	public static Token.Type guessTokenType(BufferedImage image) {
 		
 		int pixelCount = 0;
 		
 		for (int row = 0; row < image.getHeight(); row++) {
 			for (int col = 0; col < image.getWidth(); col++) {
 				int pixel = image.getRGB(col, row);
-				if ((pixel&0xff) != 0) {
-					// Alpha
+				if ((pixel&0xff000000) != 0) {
 					pixelCount ++;
 				}
 			}
 		}
 		
-		int circlePixelCount = (int)(Math.PI * image.getWidth() * image.getHeight());
-		int squarePixelCount = image.getWidth() * image.getHeight();
-		int topDownPixelCount = circlePixelCount * 3 / 4; // arbitrary
+		double circlePixelCount = (int)(Math.PI * (image.getWidth()/2) * (image.getHeight()/2));
+		double squarePixelCount = image.getWidth() * image.getHeight();
+		double topDownPixelCount = circlePixelCount * 3 / 4; // arbitrary
 		
 		double circleResult = Math.abs(1-(pixelCount / circlePixelCount));
 		double squareResult = Math.abs(1-(pixelCount / squarePixelCount));
 		double topDownResult = Math.abs(1-(pixelCount / topDownPixelCount));
 		
 		if (circleResult < squareResult && circleResult < topDownResult) {
-			return TokenType.CIRCLE;
+			return Token.Type.CIRCLE;
 		}
 		if (squareResult < circleResult && squareResult < topDownResult) {
-			return TokenType.SQUARE;
+			return Token.Type.SQUARE;
 		}
-		return TokenType.TOP_DOWN;
+		return Token.Type.TOP_DOWN;
 	}
 }

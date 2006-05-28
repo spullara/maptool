@@ -97,6 +97,7 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
+import net.rptools.maptool.util.TokenUtil;
 
 
 /**
@@ -909,7 +910,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				int cy = y + height/2;
 				
 				g.translate(cx, cy);
-				g.setColor(Color.yellow);
+				g.setColor(token.getTokenType() == Token.Type.CIRCLE ? Color.yellow : Color.red);
 				g.fill(arrow);
 				g.setColor(Color.darkGray);
 				g.draw(arrow);
@@ -1365,6 +1366,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	        token.setX(zp.x);
         	token.setY(zp.y);
         	token.setVisible(AppPreferences.getNewTokensVisible());
+        	token.setTokenType(TokenUtil.guessTokenType(image));
+        	System.out.println(token.getTokenType());
 
 	        // He who drops, owns
 	        if (MapTool.getServerPolicy().useStrictTokenManagement() && !MapTool.getPlayer().isGM()) {

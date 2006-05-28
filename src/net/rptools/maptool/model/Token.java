@@ -41,6 +41,12 @@ import net.rptools.lib.MD5Key;
 public class Token {
 	private GUID id = new GUID();
 
+	public enum Type {
+		TOP_DOWN,
+		CIRCLE,
+		SQUARE
+	}
+	
 	private MD5Key assetID;
 
 	private int x;
@@ -68,6 +74,8 @@ public class Token {
 	private static final int OWNER_TYPE_LIST = 0;
 	
 	private Integer facing = null;
+	
+	private String type; // TODO: Make tokens understand enums for hessian
 
 	/**
 	 * A state properties for this token. This allows state to be added that can
@@ -124,6 +132,14 @@ public class Token {
 		this.width = width;
 		this.height = height;
 		state = new HashMap<String, Object>();
+	}
+	
+	public Type getTokenType() {
+		return Type.valueOf(type);
+	}
+	
+	public void setTokenType(Type type) {
+		this.type = type.name();
 	}
 	
 	public boolean hasFacing() {
