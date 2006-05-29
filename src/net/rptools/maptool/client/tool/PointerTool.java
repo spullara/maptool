@@ -61,6 +61,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.TokenLocation;
 import net.rptools.maptool.client.ui.TokenPopupMenu;
+import net.rptools.maptool.client.ui.TokenPropertiesDialog;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -245,7 +246,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 		// So that keystrokes end up in the right place
 		renderer.requestFocusInWindow();
-		
 		if (isDraggingMap()) {
 			return;
 		}
@@ -261,8 +261,22 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
 			List<Token> tokenList = renderer.getTokenStackAt(mouseX, mouseY);
 			if (tokenList != null) {
+				// Stack
 				renderer.clearSelectedTokens();
 				showTokenStackPopup(tokenList, e.getX(), e.getY());
+			} else {
+				// Single
+				Token token = renderer.getTokenAt(e.getX(), e.getY());
+				if (token != null) {
+
+					TokenPropertiesDialog dialog = new TokenPropertiesDialog(token);
+					dialog.setVisible(true);
+					
+					if (dialog.isCommitted()) {
+						MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+						repaint();
+					}
+				}
 			}
 			
 			return;

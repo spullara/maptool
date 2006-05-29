@@ -17,6 +17,7 @@ import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.token.LightDialog;
@@ -173,6 +174,10 @@ public class TokenPopupMenu extends JPopupMenu {
 			}
 
 		}
+		
+		// Properties
+		JMenuItem propertiesMenuItem = new JMenuItem(new ShowPropertiesDialogAction());
+		propertiesMenuItem.setEnabled(selectedTokenSet.size() == 1 && AppUtil.playerOwnsToken(tokenUnderMouse));
 
 		// Organize
 		add(stateMenu);
@@ -187,6 +192,8 @@ public class TokenPopupMenu extends JPopupMenu {
 		add(new JMenuItem(new StartMoveAction()));
 		add(new JSeparator());
 		add(new JMenuItem(new DeleteAction()));
+		add(new JSeparator());
+		add(propertiesMenuItem);
 
 		// GM Only
 		if (MapTool.getPlayer().isGM()
@@ -522,6 +529,23 @@ public class TokenPopupMenu extends JPopupMenu {
 					.getSelectedTool();
 
 			tool.startTokenDrag(tokenUnderMouse);
+		}
+	}
+	
+	private class ShowPropertiesDialogAction extends AbstractAction {
+		
+		public ShowPropertiesDialogAction() {
+			putValue(Action.NAME, "Properties");
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+
+			TokenPropertiesDialog dialog = new TokenPropertiesDialog(tokenUnderMouse);
+			dialog.setVisible(true);
+			
+			if (dialog.isCommitted()) {
+				MapTool.serverCommand().putToken(renderer.getZone().getId(), tokenUnderMouse);
+			}
 		}
 	}
 
