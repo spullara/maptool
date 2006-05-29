@@ -147,7 +147,7 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
                     keepBackBuffer = false;
                     
                     // Let's wake up when the image arrives
-                    ImageManager.addObserver(renderer.getZone().getAssetID(), this);
+                    ImageManager.addObservers(renderer.getZone().getAssetID(), this);
 	            }
 	            
                 // TODO: This is probably redundant now
