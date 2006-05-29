@@ -124,19 +124,17 @@ public class Token {
 	}
 
 	public Token(MD5Key assetID) {
-		this("", assetID, 0, 0);
+		this("", assetID);
 	}
 
-	public Token(String name, MD5Key assetID, int width, int height) {
+	public Token(String name, MD5Key assetID) {
 		this.name = name;
 		this.assetID = assetID;
-		this.width = width;
-		this.height = height;
 		state = new HashMap<String, Object>();
 	}
 	
 	public Type getTokenType() {
-		return Type.valueOf(tokenType);
+		return tokenType != null ? Type.valueOf(tokenType) : Token.Type.SQUARE;  // TODO: make this a psf
 	}
 	
 	public void setTokenType(Type type) {
