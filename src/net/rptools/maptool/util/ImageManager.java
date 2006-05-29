@@ -24,17 +24,18 @@
  */
 package net.rptools.maptool.util;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.swing.JComponent;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -51,7 +52,7 @@ public class ImageManager {
     public static BufferedImage BROKEN_IMAGE;
 
     private static ExecutorService imageLoader = Executors.newFixedThreadPool(3);
-    private static Map<MD5Key, Set<JComponent>> imageObserverMap = new ConcurrentHashMap<MD5Key, Set<JComponent>>();
+    private static Map<MD5Key, Set<ImageObserver>> imageObserverMap = new ConcurrentHashMap<MD5Key, Set<ImageObserver>>();
     
     static {
         
@@ -71,7 +72,34 @@ public class ImageManager {
         
     }
     
-    public static BufferedImage getImage(Asset asset, JComponent observer) {
+    public static BufferedImage getImageAndWait(Asset asset) {
+
+    	final CountDownLatch loadLatch = new CountDownLatch(1);
+    	BufferedImage image = getImage(asset, new ImageObserver(){
+    		public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
+    			// If we're here then the image has just finished loading
+    			// release the blocked thread
+    			loadLatch.countDown();
+    			return false;
+    		}
+    	});
+    	
+    	if (image == UNKNOWN_IMAGE) {
+    		try {
+    			synchronized (loadLatch) {
+    				loadLatch.await();
+    			}
+    			
+    			// This time we'll get the cached version
+    			image = getImage(asset);
+    		} catch (InterruptedException ie) {
+    			image = BROKEN_IMAGE;
+    		}
+    	}
+    	
+    	return image;
+    }
+    public static BufferedImage getImage(Asset asset, ImageObserver... observers) {
 
     	if (asset == null) {
     		return UNKNOWN_IMAGE;
@@ -81,7 +109,7 @@ public class ImageManager {
         
         // Another request for the same asset ?
         if (image == UNKNOWN_IMAGE) {
-            addObserver(asset.getId(), observer);
+            addObservers(asset.getId(), observers);
         }
         
         // Cached
@@ -92,7 +120,7 @@ public class ImageManager {
         // Use placeholder until image is actually loaded
         imageMap.put(asset.getId(), UNKNOWN_IMAGE);
         
-        addObserver(asset.getId(), observer);
+        addObservers(asset.getId(), observers);
         imageLoader.execute(new BackgroundImageLoader(asset));
         
         return UNKNOWN_IMAGE;
@@ -106,18 +134,21 @@ public class ImageManager {
     	imageMap.remove(assetId);
     }
     
-    public static void addObserver(MD5Key assetId, JComponent observer) {
+    public static void addObservers(MD5Key assetId, ImageObserver... observers) {
 
-        if (observer == null) {
+        if (observers == null || observers.length == 0) {
             return;
         }
         
-        Set<JComponent> observerSet = imageObserverMap.get(assetId);
+        Set<ImageObserver> observerSet = imageObserverMap.get(assetId);
         if (observerSet == null) {
-            observerSet = new HashSet<JComponent>();
+            observerSet = new HashSet<ImageObserver>();
             imageObserverMap.put(assetId, observerSet);
         }
-        observerSet.add(observer);
+        
+        for (ImageObserver observer : observers) {
+            observerSet.add(observer);
+        }
     }
     
     private static class BackgroundImageLoader implements Runnable {
@@ -129,8 +160,9 @@ public class ImageManager {
         
         public void run() {
             
+        	BufferedImage image = null;
             try {
-                BufferedImage image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()));
+                image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()));
                 
                 if (image != null) {
                     
@@ -144,10 +176,10 @@ public class ImageManager {
             }
             
             // Notify observers
-            Set<JComponent> observerSet = imageObserverMap.remove(asset.getId());
+            Set<ImageObserver> observerSet = imageObserverMap.remove(asset.getId());
             if (observerSet != null) {
-                for (JComponent observer : observerSet) {
-                    observer.repaint();
+                for (ImageObserver observer : observerSet) {
+                    observer.imageUpdate(image, ImageObserver.ALLBITS, 0, 0, image.getWidth(), image.getHeight());
                 }
             }
         }
