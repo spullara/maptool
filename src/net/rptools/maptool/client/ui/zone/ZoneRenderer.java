@@ -32,6 +32,7 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -53,6 +54,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -784,19 +786,30 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		return list;
 	}
 	
-	protected Shape getFacingArrow(int angle, int size) {
+	// TODO: I don't like this hardwiring
+	protected Shape getCircleFacingArrow(int angle, int size) {
 
 		int base = (int)(size * .75);
-		int width = (int)(size * .25);
-		int baseWidth = (int)(width * .4);
+		int width = (int)(size * .35);
+		
+		facingArrow = new GeneralPath();
+		facingArrow.moveTo(base, -width);
+		facingArrow.lineTo(size, 0);
+		facingArrow.lineTo(base, width);
+		facingArrow.lineTo(base, -width);
+		
+		return ((GeneralPath)facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)))).createTransformedShape(AffineTransform.getScaleInstance(getScale(), getScale()));
+	}
+	// TODO: I don't like this hardwiring
+	protected Shape getSquareFacingArrow(int angle, int size) {
+
+		int base = (int)(size * .75);
+		int width = (int)(size * .35);
 		
 		facingArrow = new GeneralPath();
 		facingArrow.moveTo(0, 0);
-		facingArrow.lineTo(base, -baseWidth);
-		facingArrow.lineTo(base, -width);
-		facingArrow.lineTo(size, 0);
-		facingArrow.lineTo(base, width);
-		facingArrow.lineTo(base, baseWidth);
+		facingArrow.lineTo(-(size - base), -width);
+		facingArrow.lineTo(-(size - base), width);
 		facingArrow.lineTo(0, 0);
 		
 		return ((GeneralPath)facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)))).createTransformedShape(AffineTransform.getScaleInstance(getScale(), getScale()));
@@ -899,27 +912,81 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				image = replacementImage;
 			}
 
+            // Draw image
+			if (token.hasFacing() && token.getTokenType() == Token.Type.TOP_DOWN) {
+				// Rotated
+				AffineTransform at = new AffineTransform();
+				at.translate(x, y);
+				at.rotate(Math.toRadians(-token.getFacing() - 90), width/2, height/2); // facing defaults to down, or -90 degrees
+				at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
+				at.scale(getScale(), getScale());
+	            g.drawImage(image, at, this);
+			} else {
+				// Normal
+	            g.drawImage(image, x, y, width, height, this);
+			}
+            
 			// Facing ?
+            // TODO: Optimize this by doing it once per token per facing
 			if (token.hasFacing()) {
-				
-				int size = TokenSize.getWidth(token, zone.getGrid())/2 + (getZone().getGrid().getSize()/2);
-				
-				Shape arrow = getFacingArrow(token.getFacing(), size);
 
-				int cx = x + width/2;
-				int cy = y + height/2;
-				
-				g.translate(cx, cy);
-				g.setColor(token.getTokenType() == Token.Type.CIRCLE ? Color.yellow : Color.red);
-				g.fill(arrow);
-				g.setColor(Color.darkGray);
-				g.draw(arrow);
-				g.translate(-cx, -cy);
+				Token.Type tokenType = token.getTokenType();
+				switch(tokenType) {
+				case CIRCLE:
+					int size = TokenSize.getWidth(token, zone.getGrid())/2;
+					
+					Shape arrow = getCircleFacingArrow(token.getFacing(), size);
+
+					int cx = x + width/2;
+					int cy = y + height/2;
+					
+					g.translate(cx, cy);
+					g.setColor(Color.yellow);
+					g.fill(arrow);
+					g.setColor(Color.darkGray);
+					g.draw(arrow);
+					g.translate(-cx, -cy);
+					break;
+				case SQUARE:
+					size = TokenSize.getWidth(token, zone.getGrid())/2;
+					
+					int facing = token.getFacing();
+					arrow = getSquareFacingArrow(facing, size);
+
+					cx = x + width/2;
+					cy = y + height/2;
+
+					// Find the edge of the image
+					int xp = width/2;
+					int yp = height/2;
+					
+					if (facing >= 45 && facing <= 135 || facing <= -45 && facing >= -135) {
+						xp = (int)(yp / Math.tan(Math.toRadians(facing)));
+						if (facing < 0 ) {
+							xp = -xp;
+							yp = -yp;
+						}
+					} else {
+						yp = (int)(xp * Math.tan(Math.toRadians(facing)));
+						if (facing > 135 || facing < -135) {
+							xp = -xp;
+							yp = -yp;
+						}
+					}
+
+					cx += xp;
+					cy -= yp;
+					
+					g.translate(cx, cy);
+					g.setColor(Color.yellow);
+					g.fill(arrow);
+					g.setColor(Color.darkGray);
+					g.draw(arrow);
+					g.translate(-cx, -cy);
+					break;
+				}
 			}
 			
-            // Draw image
-            g.drawImage(image, x, y, width, height, this);
-            
             // Check for state
             if (!token.getStatePropertyNames().isEmpty()) {
               
@@ -967,7 +1034,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         	boolean isSelected = selectedTokenSet.contains(token.getId());
         	if (isSelected) {
                 // Border
-            	AppStyle.selectedBorder.paintAround(g, bounds);
+    			if (token.hasFacing() && token.getTokenType() == Token.Type.TOP_DOWN) {
+    				AffineTransform oldTransform = g.getTransform();
+
+    				// Rotated
+    				AffineTransform at = new AffineTransform();
+    				at.translate(bounds.x, bounds.y);
+    				at.rotate(Math.toRadians(-token.getFacing() - 90), bounds.width/2, bounds.height/2); // facing defaults to down, or -90 degrees
+
+    				g.setTransform(at);
+    				AppStyle.selectedBorder.paintAround(g, 0, 0, bounds.width, bounds.height);
+    				g.setTransform(oldTransform);
+    			} else {
+    				AppStyle.selectedBorder.paintAround(g, bounds);
+    			}
         	}
 
         	if (AppState.isShowTokenNames() || isSelected || token == tokenUnderMouse) {
@@ -1348,8 +1428,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	GridCapabilities gridCaps = zone.getGrid().getCapabilities();
     	if (asset != null) {
 	
-	        BufferedImage image = ImageManager.getImage(asset, this);
-	        Token token = new Token(MapToolUtil.nextTokenId(zone, asset.getName()), asset.getId(), image.getWidth(), image.getHeight());
+	        final Token token = new Token(MapToolUtil.nextTokenId(zone, asset.getName()), asset.getId());
 	        token.setSnapToGrid(gridCaps.isSnapToGridSupported() && AppPreferences.getTokensStartSnapToGrid());
 	        
     		ZonePoint zp = new ScreenPoint((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY()).convertToZone(this);
@@ -1363,12 +1442,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 //	        	System.out.println("finl:" + zp);
 	        }
 
+        	// Request the image
+	        BufferedImage image = ImageManager.getImageAndWait(asset); 
+
+	        // Set defaults
 	        token.setX(zp.x);
         	token.setY(zp.y);
         	token.setVisible(AppPreferences.getNewTokensVisible());
-        	token.setTokenType(TokenUtil.guessTokenType(image));
-        	System.out.println(token.getTokenType());
-
+        	token.setTokenType(TokenUtil.guessTokenType((BufferedImage)image));
+        	token.setWidth(image.getWidth(null));
+        	token.setHeight(image.getHeight(null));
+	        
 	        // He who drops, owns
 	        if (MapTool.getServerPolicy().useStrictTokenManagement() && !MapTool.getPlayer().isGM()) {
 	        	token.addOwner(MapTool.getPlayer().getName());
