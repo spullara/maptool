@@ -46,6 +46,7 @@ public class FacingTool extends DefaultTool {
 
 	private double facing;
 	
+	// TODO: This shouldn't be necessary, just get it from the renderer
 	private Token tokenUnderMouse;
 	private Set<GUID> selectedTokenSet;
 

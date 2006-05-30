@@ -66,8 +66,7 @@ public class TokenPopupMenu extends JPopupMenu {
 		JMenu sizeMenu = new JMenu("Size");
 		sizeMenu.setEnabled(enabled);
 
-		JMenuItem freeSize = new JMenuItem("Free Size");
-		freeSize.setEnabled(false);
+		JMenuItem freeSize = new JMenuItem(new FreeSizeAction());
 
 		sizeMenu.add(freeSize);
 		sizeMenu.addSeparator();
@@ -75,7 +74,7 @@ public class TokenPopupMenu extends JPopupMenu {
 		for (TokenSize.Size size : TokenSize.Size.values()) {
 			JMenuItem menuItem = new JCheckBoxMenuItem(new ChangeSizeAction(
 					size.name(), size));
-			if (tokenUnderMouse.getSize() == size.value()) {
+			if (tokenUnderMouse.isSnapToScale() && tokenUnderMouse.getSize() == size.value()) {
 				menuItem.setSelected(true);
 			}
 
@@ -205,6 +204,28 @@ public class TokenPopupMenu extends JPopupMenu {
 
 	public void showPopup(JComponent component) {
 		show(component, x, y);
+	}
+	
+	public class FreeSizeAction extends AbstractAction {
+		
+		public FreeSizeAction() {
+			putValue(Action.NAME, "Free Size");
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+
+			for (GUID tokenGUID : selectedTokenSet) {
+				Token token = renderer.getZone().getToken(tokenGUID);
+				if (token == null) {
+					continue;
+				}
+				
+				token.setSnapToScale(false);
+				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+			}
+			
+			renderer.repaint();
+		}
 	}
 
 	private static class PlayerOwnershipMenu extends JCheckBoxMenuItem
@@ -410,6 +431,7 @@ public class TokenPopupMenu extends JPopupMenu {
 
 				Token token = renderer.getZone().getToken(tokenGUID);
 				token.setSize(size.value());
+				token.setSnapToScale(true);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(),
 						token);
 			}
