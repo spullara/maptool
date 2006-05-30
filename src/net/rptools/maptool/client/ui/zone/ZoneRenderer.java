@@ -1038,12 +1038,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     				AffineTransform oldTransform = g.getTransform();
 
     				// Rotated
-    				AffineTransform at = new AffineTransform();
-    				at.translate(bounds.x, bounds.y);
-    				at.rotate(Math.toRadians(-token.getFacing() - 90), bounds.width/2, bounds.height/2); // facing defaults to down, or -90 degrees
-
-    				g.setTransform(at);
+    				g.translate(bounds.x, bounds.y);
+    				g.rotate(Math.toRadians(-token.getFacing() - 90), bounds.width/2, bounds.height/2); // facing defaults to down, or -90 degrees
     				AppStyle.selectedBorder.paintAround(g, 0, 0, bounds.width, bounds.height);
+
     				g.setTransform(oldTransform);
     			} else {
     				AppStyle.selectedBorder.paintAround(g, bounds);
