@@ -17,7 +17,6 @@ import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.token.LightDialog;
@@ -179,27 +178,33 @@ public class TokenPopupMenu extends JPopupMenu {
 		propertiesMenuItem.setEnabled(selectedTokenSet.size() == 1 && AppUtil.playerOwnsToken(tokenUnderMouse));
 
 		// Organize
-		add(stateMenu);
-		add(sizeMenu);
-		add(arrangeMenu);
-		add(new ChangeStateAction("light"));
-		add(snapToGridMenuItem);
-		add(visibilityMenuItem);
 		add(new SetFacingAction());
-		add(new JSeparator());
-		add(renameMenuItem);
 		add(new JMenuItem(new StartMoveAction()));
-		add(new JSeparator());
-		add(new JMenuItem(new DeleteAction()));
-		add(new JSeparator());
-		add(propertiesMenuItem);
+		add(stateMenu);
 
-		// GM Only
+		add(new JSeparator());
+
+		add(visibilityMenuItem);
+		add(new ChangeStateAction("light"));
+		add(arrangeMenu);
+		
+		add(new JSeparator());
+
+		add(sizeMenu);
+		add(snapToGridMenuItem);
+		add(renameMenuItem);
 		if (MapTool.getPlayer().isGM()
 				&& MapTool.getServerPolicy().useStrictTokenManagement()) {
 			add(ownerMenu);
 		}
 
+		add(new JSeparator());
+
+		add(new JMenuItem(new DeleteAction()));
+
+		add(new JSeparator());
+
+		add(propertiesMenuItem);
 	}
 
 	public void showPopup(JComponent component) {
@@ -557,7 +562,7 @@ public class TokenPopupMenu extends JPopupMenu {
 	private class ShowPropertiesDialogAction extends AbstractAction {
 		
 		public ShowPropertiesDialogAction() {
-			putValue(Action.NAME, "Properties");
+			putValue(Action.NAME, "Properties ...");
 		}
 		
 		public void actionPerformed(ActionEvent e) {
