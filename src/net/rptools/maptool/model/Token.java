@@ -101,6 +101,8 @@ public class Token {
 		width = token.width;
 		height = token.height;
 		size = token.size;
+		facing = token.facing;
+		tokenType = token.tokenType;
 
 		snapToGrid = token.snapToGrid;
 		isVisible = token.isVisible;
