@@ -6,7 +6,6 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.geom.GeneralPath;
 
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 
 public class HexGrid extends Grid {
@@ -36,6 +35,16 @@ public class HexGrid extends Grid {
 	
 	public HexGrid() {
 		super();
+	}
+	
+	@Override
+	public int getCellHeight() {
+		return height*2;
+	}
+	
+	@Override
+	public int getCellWidth() {
+		return getSize();
 	}
 	
 	@Override
@@ -160,15 +169,18 @@ public class HexGrid extends Grid {
 	public void draw(ZoneRenderer renderer, Graphics2D g, Rectangle bounds) {
 
 		double scale = renderer.getScale();
-        double gridSize = getSize() * scale;
 
+		double cellWidth = getCellWidth() * scale;
+		double cellHeight = getCellHeight() * scale;
+		
         createShape(scale);
         //System.out.println(scaledHeight + " - " + scale + " - " + renderer.getZoneScale().getIndex() + " - " + renderer.getZoneScale().SCALE_1TO1_INDEX);
         
-        int offX = (int)(renderer.getViewOffsetX() % gridSize + getOffsetX()*scale);
-        int offY = (int)(renderer.getViewOffsetY() % gridSize + getOffsetY()*scale);
+        int offX = (int)(renderer.getViewOffsetX() % cellWidth + getOffsetX()*scale);
+        int offY = (int)(renderer.getViewOffsetY() % cellHeight + getOffsetY()*scale);
 
-        int count = ((int)(renderer.getViewOffsetY() / gridSize)) % 2 == 0 ? 0 : 1;
+        int count = 0;
+//        int count = ((int)(renderer.getViewOffsetY() / cellHeight)) % 2 == 0 ? 0 : 1;
         
 //        g.setColor(Color.red);
 //        CellPoint cp = new CellPoint(0,0);
@@ -187,17 +199,14 @@ public class HexGrid extends Grid {
 //        sp = ScreenPoint.fromZonePoint(renderer, getSize() - topWidth, 0);
 //        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
         
-        g.setColor(Color.blue);
-        g.drawOval(10, 10, height*2, height*2);
-        
         g.setColor(new Color(getZone().getGridColor()));
-        g.translate(offX-gridSize, offY-gridSize+scaledHeight);
-		for (double y = 0; y < renderer.getSize().height + gridSize * 2; y += scaledHeight) {
+        g.translate(offX - cellWidth, offY - cellHeight + scaledHeight);
+		for (double y = 0; y < renderer.getSize().height + cellHeight * 2; y += scaledHeight) {
 
 			double offsetX = (int)(count % 2 == 0 ? 0 : scaledSideSize + scaledTopWidth);
 			count ++;
 
-			for (double x = 0; x < renderer.getSize().width + gridSize*2; x += scaledTopWidth * 2 + scaledSideSize * 2) {
+			for (double x = 0; x < renderer.getSize().width + cellWidth*2; x += scaledTopWidth * 2 + scaledSideSize * 2) {
 
 				g.translate(x + offsetX, y);
 				g.draw(scaledHex);
@@ -205,7 +214,7 @@ public class HexGrid extends Grid {
 			}
 		}
 		
-		g.translate(-offX+gridSize, -offY+gridSize-scaledHeight);
+		g.translate(-offX + cellWidth, -offY + cellHeight -scaledHeight);
 	}
 
 }
