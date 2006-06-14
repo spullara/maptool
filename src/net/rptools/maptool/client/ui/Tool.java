@@ -98,7 +98,7 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
 		
 		// Keystrokes
 		comp.setActionMap(createActionMap(keyActionMap));
-		comp.setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, createInputMap(keyActionMap));
+		comp.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, createInputMap(keyActionMap));
 	}
 	
 	void removeListeners(JComponent comp) {
