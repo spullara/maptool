@@ -388,6 +388,10 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	}
 	
 	public void hideCommandPanel() {
+		if (commandPanel.isSticky()) {
+			return;
+		}
+		
 		rightSplitPane.hideBottom();
 	}
 	
