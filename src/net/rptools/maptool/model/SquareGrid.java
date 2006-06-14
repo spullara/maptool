@@ -24,6 +24,16 @@ public class SquareGrid extends Grid {
 	}
 	
 	@Override
+	public int getCellHeight() {
+		return getSize();
+	}
+
+	@Override
+	public int getCellWidth() {
+		return getSize();
+	}
+
+	@Override
 	public int getDefaultGridSize() {
 		return 40;
 	}

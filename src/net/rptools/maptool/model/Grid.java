@@ -30,6 +30,8 @@ public abstract class Grid {
 	public abstract GridCapabilities getCapabilities();
 	public abstract int getTokenSpace();
 	public abstract int getDefaultGridSize();
+	public abstract int getCellWidth();
+	public abstract int getCellHeight();
 	
 	public Zone getZone() {
 		return zone;
