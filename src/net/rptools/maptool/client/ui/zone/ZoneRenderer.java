@@ -652,7 +652,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 if (scaledHeight < scaledGridSize) {
                     newScreenPoint.y += (scaledGridSize - scaledHeight)/2;
                 }
-				g.drawImage(ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this), newScreenPoint.x+1, newScreenPoint.y+1, scaledWidth-1, scaledHeight-1, this);
+                
+    			if (token.hasFacing() && token.getTokenType() == Token.Type.TOP_DOWN) {
+    				// Rotated
+    				AffineTransform at = new AffineTransform();
+    				at.translate(newScreenPoint.x+1, newScreenPoint.y+1);
+    				at.rotate(Math.toRadians(-token.getFacing() - 90), width/2, height/2); // facing defaults to down, or -90 degrees
+    				at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
+    				at.scale(getScale(), getScale());
+    	            g.drawImage(ImageManager.getImage(AssetManager.getAsset(token.getAssetID())), at, this);
+    			} else {
+    				// Normal
+    				g.drawImage(ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this), newScreenPoint.x+1, newScreenPoint.y+1, scaledWidth-1, scaledHeight-1, this);
+    			}
+                
 
 				// Other details
 				if (token == keyToken) {
@@ -1230,20 +1243,19 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     	int gridOffsetX = zone.getGrid().getOffsetX();
     	int gridOffsetY = zone.getGrid().getOffsetY();
-    	int gridSize = zone.getGrid().getSize();
     	
         gridOffsetX += dx;
         gridOffsetY += dy;
 
-        gridOffsetX %= gridSize;
-        gridOffsetY %= gridSize;
+        gridOffsetX %= zone.getGrid().getCellWidth();
+        gridOffsetY %= zone.getGrid().getCellHeight();
 
         if (gridOffsetY > 0) {
-            gridOffsetY = gridOffsetY - gridSize;
+            gridOffsetY = gridOffsetY - zone.getGrid().getCellHeight();
         }
         
         if (gridOffsetX > 0) {
-            gridOffsetX = gridOffsetX - gridSize;
+            gridOffsetX = gridOffsetX - zone.getGrid().getCellWidth();
         }
 
         zone.getGrid().setOffset(gridOffsetX, gridOffsetY);
