@@ -68,6 +68,10 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 		return getPreferredSize();
 	}
 	
+	public boolean isSticky() {
+		return stickyCheckBox.isSelected();
+	}
+	
 	public JTextField getCommandTextField() {
 		if (commandTextField == null) {
 			commandTextField = new JTextField(){
