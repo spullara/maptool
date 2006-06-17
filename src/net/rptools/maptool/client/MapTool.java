@@ -25,8 +25,13 @@
 package net.rptools.maptool.client;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Graphics2D;
 import java.awt.Toolkit;
+import java.awt.Transparency;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -36,6 +41,7 @@ import java.util.Comparator;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import net.rptools.clientserver.ActivityListener;
@@ -100,6 +106,40 @@ public class MapTool {
 	
     private MapTool() {
         // Not instantiatable
+    }
+    
+    public static BufferedImage takeScreenShot() {
+    	return takeScreenShot(clientFrame.getRootPane(), null);
+    }
+    
+    public static BufferedImage takeMapScreenShot() {
+    	return takeScreenShot(clientFrame.getCurrentZoneRenderer(), "rptools.net");
+    }
+    
+    private static BufferedImage takeScreenShot(Component component, String watermark) {
+    	
+    	Dimension size = component.getSize();
+    	
+    	BufferedImage screenshot = new BufferedImage(size.width, size.height, Transparency.OPAQUE);
+    	Graphics2D g = screenshot.createGraphics();
+    	g.setClip(0, 0, size.width-1, size.height-1);
+    	
+    	component.update(g);
+
+    	if (watermark != null) {
+	    	int x = size.width - SwingUtilities.computeStringWidth(g.getFontMetrics(), watermark);
+	    	int y = size.height-g.getFontMetrics().getDescent();
+	    	
+	    	g.setColor(Color.black);
+	    	g.drawString(watermark, x, y);
+	
+	    	g.setColor(Color.white);
+	    	g.drawString(watermark, x-1, y-1);
+    	}
+    	
+    	g.dispose();
+    	
+    	return screenshot;
     }
     
 	private static void initialize() {

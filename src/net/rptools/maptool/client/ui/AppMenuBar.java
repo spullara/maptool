@@ -24,19 +24,12 @@
  */
 package net.rptools.maptool.client.ui;
 
-import java.applet.Applet;
-import java.awt.Container;
-import java.awt.Window;
-
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppActions;
@@ -71,6 +64,11 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN));
         menu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN_AS));
         menu.add(new JMenuItem(AppActions.SAVE_MESSAGE_HISTORY));
+        menu.addSeparator();
+        menu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT_LAST_LOCATION));
+        menu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT));
+        menu.add(new JMenuItem(AppActions.EXPORT_MAP_SCREENSHOT_LAST_LOCATION));
+        menu.add(new JMenuItem(AppActions.EXPORT_MAP_SCREENSHOT));
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
         menu.addSeparator();

@@ -28,10 +28,12 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -40,6 +42,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -82,6 +85,96 @@ public class AppActions {
 
 	private static Set<Token> tokenCopySet = null;
 
+	public static final Action EXPORT_SCREENSHOT = new DefaultClientAction() {
+		{
+			init("Export Screenshot as...");
+		}
+		public void execute(ActionEvent e) {
+
+			URL location = promptForLocation(MapTool.getCampaign().getExportLocation());
+			BufferedImage image = MapTool.takeScreenShot();
+			
+			exportImage(image, location);
+		}
+	};
+	
+	public static final Action EXPORT_MAP_SCREENSHOT = new DefaultClientAction() {
+		{
+			init("Export Map Screenshot as...");
+		}
+		public void execute(ActionEvent e) {
+			
+			URL location = promptForLocation(MapTool.getCampaign().getExportLocation());
+			BufferedImage image = MapTool.takeMapScreenShot();
+			
+			exportImage(image, location);
+		}
+	};
+	
+	public static final Action EXPORT_SCREENSHOT_LAST_LOCATION = new DefaultClientAction() {
+		{
+			init("Export Screenshot");
+			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_MASK));
+		}
+		public void execute(ActionEvent e) {
+			
+			URL location = MapTool.getCampaign().getExportLocation();
+			if (location == null) {
+				EXPORT_SCREENSHOT.actionPerformed(e);
+				return;
+			}
+			
+			BufferedImage image = MapTool.takeScreenShot();
+			
+			exportImage(image, location);
+		}
+	};
+	
+	public static final Action EXPORT_MAP_SCREENSHOT_LAST_LOCATION = new DefaultClientAction() {
+		{
+			init("Export Map Screenshot");
+			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_MASK));
+		}
+		public void execute(ActionEvent e) {
+			
+			URL location = MapTool.getCampaign().getExportLocation();
+			if (location == null) {
+				EXPORT_MAP_SCREENSHOT.actionPerformed(e);
+				return;
+			}
+			
+			BufferedImage image = MapTool.takeScreenShot();
+			
+			exportImage(image, location);
+		}
+	};
+
+	private static void exportImage(BufferedImage image, URL location) {
+		
+		MapTool.getFrame().setStatusMessage("Saving screenshot ...");
+		
+		try {
+			
+			File file = new File(location.getFile());
+			
+			ImageIO.write(image, "png", file);
+			
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		
+		MapTool.getFrame().setStatusMessage("Saved screenshot");
+	}
+	
+	private static URL promptForLocation(URL originalLocation) {
+		
+		try {
+			return new File("c:\\screenshot.png").toURL();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+			return null;
+		}
+	}
 	
 	public static final Action ENFORCE_ZONE = new AdminClientAction() {
 		
