@@ -6,6 +6,7 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.geom.GeneralPath;
 
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 
 public class HexGrid extends Grid {
@@ -121,10 +122,10 @@ public class HexGrid extends Grid {
 		
 		// Strategy: cut up the zone into squares, then calculate which hex the exact point is in
 		int gridX = (int)(zp.x / size) * 2;
-		int gridY = (int)((zp.y) / (height*2));
+		int gridY = (int)((zp.y + height) / (height*2));
 
 		int offsetX = zp.x % size;
-		int offsetY = (int)(zp.y % (height*2));
+		int offsetY = (int)((zp.y + height) % (height*2));
 		if (topLeftArea.contains(offsetX, offsetY)) {
 			gridX --;
 			//System.out.println("\ttl gx" + gridX );
@@ -141,7 +142,7 @@ public class HexGrid extends Grid {
 			//System.out.println("\tbr gx:" + gridX + " gy:" + gridY);
 		}
 		
-		//System.out.println("ox:" + origX + " oy:" + origY + " zp:" + zp + " gx:" + gridX + " gy:" + gridY + " ox:" + offsetX + " oy:" + offsetY);		
+//		System.out.println("ox:" + origX + " oy:" + origY + " zp:" + zp + " gx:" + gridX + " gy:" + gridY + " ox:" + offsetX + " oy:" + offsetY);		
 		return new CellPoint(gridX, gridY);
 	}
 
@@ -180,15 +181,14 @@ public class HexGrid extends Grid {
         int offY = (int)(renderer.getViewOffsetY() % cellHeight + getOffsetY()*scale);
 
         int count = 0;
-//        int count = ((int)(renderer.getViewOffsetY() / cellHeight)) % 2 == 0 ? 0 : 1;
         
-//        g.setColor(Color.red);
-//        CellPoint cp = new CellPoint(0,0);
-//        ZonePoint zp = convert(cp);
-//        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
-//        g.fillOval(sp.x-4, sp.y-4, 8, 8);
-//        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
-//        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
+        g.setColor(Color.red);
+        CellPoint cp = new CellPoint(0,0);
+        ZonePoint zp = convert(cp);
+        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
+        g.fillOval(sp.x-4, sp.y-4, 8, 8);
+        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
+        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
 //
 //        cp = new CellPoint(1,0);
 //        zp = convert(cp);
