@@ -1,5 +1,6 @@
 package net.rptools.maptool.client.ui;
 
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Set;
@@ -20,6 +21,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.token.LightDialog;
+import net.rptools.maptool.client.ui.token.TokenNotesDialog;
 import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
@@ -175,7 +177,6 @@ public class TokenPopupMenu extends JPopupMenu {
 		
 		// Properties
 		JMenuItem propertiesMenuItem = new JMenuItem(new ShowPropertiesDialogAction());
-		propertiesMenuItem.setEnabled(selectedTokenSet.size() == 1 && AppUtil.playerOwnsToken(tokenUnderMouse));
 
 		// Organize
 		add(new SetFacingAction());
@@ -567,10 +568,12 @@ public class TokenPopupMenu extends JPopupMenu {
 		
 		public void actionPerformed(ActionEvent e) {
 
-			TokenPropertiesDialog dialog = new TokenPropertiesDialog(tokenUnderMouse);
-			dialog.setVisible(true);
-			
-			if (dialog.isCommitted()) {
+      TokenNotesDialog dialog = new TokenNotesDialog(tokenUnderMouse);
+      Rectangle b = MapTool.getFrame().getBounds();
+      dialog.setLocation(b.x + (b.width - dialog.getWidth()) / 2, b.y + (b.height - dialog.getHeight()) / 2);
+      dialog.setVisible(true);
+			if (dialog.isTokenSaved()) {
+        renderer.repaint();
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), tokenUnderMouse);
 			}
 		}

@@ -137,6 +137,11 @@ public class LightDialog extends JDialog {
    */
   private TokenTemplate template;
 
+  /**
+   * Flag used to indicate that the light template should be turned off for the token.
+   */
+  private boolean templateOff;
+  
   /*---------------------------------------------------------------------------------------------
    * Class Variables
    *-------------------------------------------------------------------------------------------*/
@@ -154,12 +159,17 @@ public class LightDialog extends JDialog {
       CONE + Direction.WEST, CONE + Direction.NORTH_WEST };
 
   /**
-   * Ok button key
+   * Ok button key. This action sets the light sorurce for the token.
    */
   private static final String OK_BUTTON = "lightDialog.ok";
 
   /**
-   * Cancel button key
+   * Off button key. This action turns the light source off for the token.
+   */
+  private static final String OFF_BUTTON = "lightDialog.off";
+
+  /**
+   * Cancel button key. This action just closes the dialog and leaves the light source unchanged.
    */
   private static final String CANCEL_BUTTON = "lightDialog.cancel";
 
@@ -195,6 +205,7 @@ public class LightDialog extends JDialog {
     // Button components
     AbstractButton okButton = panel.getButton("okButton");
     AbstractButton cancelButton = panel.getButton("cancelButton");
+    AbstractButton offButton = panel.getButton("offButton");
 
     // Color selection support and initialiation
     brightColor = (JETAColorWell)panel.getComponentByName("brightColor");
@@ -206,12 +217,13 @@ public class LightDialog extends JDialog {
             colorWell.removeMouseListener(ml);
         colorWell.addMouseListener(listener);
         colorWell.setColor(DEFAULT_COLORS[i]);
-    }
+    } // endfor
 
     // initialize models and actions
     shape.setModel(new DefaultComboBoxModel(SHAPES));
     okButton.setAction(new ButtonAction(OK_BUTTON));
     cancelButton.setAction(new ButtonAction(CANCEL_BUTTON));
+    offButton.setAction(new ButtonAction(OFF_BUTTON));
     
     // Set up the dialog
     getRootPane().setDefaultButton((JButton) okButton);
@@ -245,6 +257,7 @@ public class LightDialog extends JDialog {
 
       // Determine shape
       template = null;
+      templateOff = false;
       if (aE.getActionCommand().equals(OK_BUTTON)) {
 
         // Get ranges
@@ -253,18 +266,10 @@ public class LightDialog extends JDialog {
 
         // Get corner
         Quadrant c = null;
-        if (sourceCornerNE.isSelected()) {
-          c = Quadrant.NORTH_EAST;
-        }
-        if (sourceCornerNW.isSelected()) {
-          c = Quadrant.NORTH_WEST;
-        }
-        if (sourceCornerSE.isSelected()) {
-          c = Quadrant.SOUTH_EAST;
-        }
-        if (sourceCornerSW.isSelected()) {
-          c = Quadrant.SOUTH_WEST;
-        }
+        if (sourceCornerNE.isSelected()) c = Quadrant.NORTH_EAST;
+        if (sourceCornerNW.isSelected()) c = Quadrant.NORTH_WEST;
+        if (sourceCornerSE.isSelected()) c = Quadrant.SOUTH_EAST;
+        if (sourceCornerSW.isSelected()) c = Quadrant.SOUTH_WEST;
 
         // Get type
         if (shape.getSelectedIndex() == 0) {
@@ -289,8 +294,10 @@ public class LightDialog extends JDialog {
           tt.setBrightColor(getTransparentColor(brightColor.getColor(), brightTransparency.getValue()));
           tt.setShadowColor(getTransparentColor(shadowColor.getColor(), shadowTransparency.getValue()));
           template = tt;
-        }
-      }
+        } // endif
+      } else if (aE.getActionCommand().equals(OFF_BUTTON)) {
+        templateOff = true;
+      } // endif
       setVisible(false);
     }
 
@@ -324,8 +331,8 @@ public class LightDialog extends JDialog {
           throw new IllegalArgumentException(fieldName + " must be set.");
         } else {
           return 0;
-        }
-      }
+        } // endif
+      } // endif
 
       // Parse it into a number
       try {
@@ -394,7 +401,7 @@ public class LightDialog extends JDialog {
       shadowTransparency.setValue(getTransparency(ct.getShadowColor()));
       brightColor.setColor(ct.getBrightSolidColor());
       shadowColor.setColor(ct.getShadowSolidColor());
-    }
+    } // endif
   }
 
   /**
@@ -424,7 +431,6 @@ public class LightDialog extends JDialog {
    * @param quandrant Set the corner for this quadrant.
    */
   private void selectCorner(Quadrant quandrant) {
-
     switch (quandrant) {
     case NORTH_EAST:
       sourceCornerNE.setSelected(true);
@@ -438,7 +444,7 @@ public class LightDialog extends JDialog {
     case SOUTH_WEST:
       sourceCornerSW.setSelected(true);
       break;
-    }
+    } // endswitch
   }
 
   /**
@@ -455,6 +461,8 @@ public class LightDialog extends JDialog {
     dialog.setVisible(true);
     if (dialog.getTemplate() != null)
       token.setState(state, dialog.getTemplate());
+    else if (dialog.isTemplateOff())
+      token.setState(state, null);
   }
 
   /**
@@ -485,7 +493,12 @@ public class LightDialog extends JDialog {
       case MouseEvent.BUTTON3:
         shadowColor.setColor(comp.getColor());
         break;
-      }
-    }
+      } // endswitch
+    } 
+  }
+
+  /** @return Getter for templateOff */
+  boolean isTemplateOff() {
+    return templateOff;
   }
 }

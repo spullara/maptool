@@ -77,7 +77,11 @@ public class Token {
 
 	private Integer facing = null;
 	
-
+  /**
+   * The notes that are displayed for this token.
+   */
+	private String notes;
+  
 	/**
 	 * A state properties for this token. This allows state to be added that can
 	 * change appearance of the token.
@@ -107,6 +111,7 @@ public class Token {
 		snapToGrid = token.snapToGrid;
 		isVisible = token.isVisible;
 		name = token.name;
+    notes = token.notes;
 
 		if (token.ownerList != null) {
 			ownerList = new HashSet<String>();
@@ -114,11 +119,9 @@ public class Token {
 		}
 
 		if (token.state != null) {
-			state = new HashMap<String, Object>();
-			for (Map.Entry<String, Object> entry : token.state.entrySet()) {
-				state.put(entry.getKey(), entry.getValue());
-			}
+			state = new HashMap<String, Object>(token.state);
 		}
+    
 	}
 
 	public Token() {
@@ -378,4 +381,14 @@ public class Token {
 	public Set<String> getStatePropertyNames() {
 		return state.keySet();
 	}
+
+  /** @return Getter for notes */
+  public String getNotes() {
+    return notes;
+  }
+
+  /** @param aNotes Setter for notes */
+  public void setNotes(String aNotes) {
+    notes = aNotes;
+  }
 }
