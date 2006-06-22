@@ -13,7 +13,7 @@ public class HexGrid extends Grid {
 
 	private static final GridCapabilities GRID_CAPABILITIES= new GridCapabilities() {
 		public boolean isPathingSupported() {return false;}
-		public boolean isSnapToGridSupported() {return false;}
+		public boolean isSnapToGridSupported() {return true;}
 	};
 	
 	private static final int[] FACING_ANGLES = new int[] {
@@ -71,27 +71,23 @@ public class HexGrid extends Grid {
 		topLeftArea.addPoint(0, 0);
 		topLeftArea.addPoint(sideSize, 0);
 		topLeftArea.addPoint(0, height);
-		topLeftArea.translate(0, -height);
 		
 		bottomLeftArea = new Polygon();
 		bottomLeftArea.addPoint(0, height);
 		bottomLeftArea.addPoint(0, height*2);
 		bottomLeftArea.addPoint(sideSize, height*2);
-		bottomLeftArea.translate(0, -height);
 		
 		topRightArea = new Polygon();
 		topRightArea.addPoint(sideSize + topWidth, 0);
 		topRightArea.addPoint(size, 0);
 		topRightArea.addPoint(size, height);
 		topRightArea.addPoint(sideSize*2 + topWidth, height);
-		topRightArea.translate(0, -height);
 		
 		bottomRightArea = new Polygon();
 		bottomRightArea.addPoint(sideSize*2 + topWidth, height);
 		bottomRightArea.addPoint(size, height);
 		bottomRightArea.addPoint(size, height*2);
 		bottomRightArea.addPoint(sideSize + topWidth, height*2);
-		bottomRightArea.translate(0, -height);
 		
 		scaledHex = null;
 	}
@@ -128,18 +124,18 @@ public class HexGrid extends Grid {
 		int offsetY = (int)((zp.y + height) % (height*2));
 		if (topLeftArea.contains(offsetX, offsetY)) {
 			gridX --;
-			//System.out.println("\ttl gx" + gridX );
+//			System.out.println("\ttl gx" + gridX  + " " + System.currentTimeMillis());
 		} else if (topRightArea.contains(offsetX, offsetY)) {
 			gridX++;
-			//System.out.println("\ttr gx:" + gridX);
+//			System.out.println("\ttr gx:" + gridX + " " + System.currentTimeMillis());
 		} else if (bottomLeftArea.contains(offsetX, offsetY)) {
 			gridX --;
 			gridY ++;
-			//System.out.println("\tbl gx:" + gridX + " gy:" + gridY);
+//			System.out.println("\tbl gx:" + gridX + " gy:" + gridY + " " + System.currentTimeMillis());
 		} else if (bottomRightArea.contains(offsetX, offsetY)) {
 			gridX ++;
 			gridY ++;
-			//System.out.println("\tbr gx:" + gridX + " gy:" + gridY);
+//			System.out.println("\tbr gx:" + gridX + " gy:" + gridY + " " + System.currentTimeMillis());
 		}
 		
 //		System.out.println("ox:" + origX + " oy:" + origY + " zp:" + zp + " gx:" + gridX + " gy:" + gridY + " ox:" + offsetX + " oy:" + offsetY);		
@@ -176,19 +172,27 @@ public class HexGrid extends Grid {
 		
         createShape(scale);
         //System.out.println(scaledHeight + " - " + scale + " - " + renderer.getZoneScale().getIndex() + " - " + renderer.getZoneScale().SCALE_1TO1_INDEX);
+
+//        g.translate(0, -height);
+//        g.setColor(Color.blue);
+//        g.fill(topLeftArea);
+//        g.fill(topRightArea);
+//        g.fill(bottomLeftArea);
+//        g.fill(bottomRightArea);
+//        g.translate(0, height);
         
         int offX = (int)(renderer.getViewOffsetX() % cellWidth + getOffsetX()*scale);
         int offY = (int)(renderer.getViewOffsetY() % cellHeight + getOffsetY()*scale);
 
         int count = 0;
         
-        g.setColor(Color.red);
-        CellPoint cp = new CellPoint(0,0);
-        ZonePoint zp = convert(cp);
-        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
-        g.fillOval(sp.x-4, sp.y-4, 8, 8);
-        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
-        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
+//        g.setColor(Color.red);
+//        CellPoint cp = new CellPoint(0,0);
+//        ZonePoint zp = convert(cp);
+//        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
+//        g.fillOval(sp.x-4, sp.y-4, 8, 8);
+//        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
+//        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
 //
 //        cp = new CellPoint(1,0);
 //        zp = convert(cp);
