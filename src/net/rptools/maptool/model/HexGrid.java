@@ -66,6 +66,8 @@ public class HexGrid extends Grid {
 		sideSize = (size/8);
 		height = (int)(topWidth * Math.sin(Math.toRadians(53)));
 		
+		System.out.println(topWidth + " - " + sideSize);
+		
 		// Create the info necessary to calculate cells
 		topLeftArea = new Polygon();
 		topLeftArea.addPoint(0, 0);
@@ -145,10 +147,11 @@ public class HexGrid extends Grid {
 	@Override
 	public ZonePoint convert(CellPoint cp) {
 		
-		int x = (int)(cp.x * (sideSize + topWidth));
-		int y = (int)(cp.y * height * 2) - (x % 2 == 1 ? height : 0);
+		double size = topWidth + sideSize * 2;
+		int x = (int)(cp.x * size);
+		int y = (int)(cp.y * height * 2) - (cp.x % 2 == 1 ? height : 0);
 
-		//System.out.println (cp.x+","+cp.y + " - " + x + "," + y);
+		System.out.println (cp.x+","+cp.y + " - " + x + "," + y);
 		return new ZonePoint(x, y);
 	}
 
@@ -186,18 +189,22 @@ public class HexGrid extends Grid {
 
         int count = 0;
         
-//        g.setColor(Color.red);
-//        CellPoint cp = new CellPoint(0,0);
-//        ZonePoint zp = convert(cp);
-//        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
-//        g.fillOval(sp.x-4, sp.y-4, 8, 8);
-//        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
-//        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
-//
-//        cp = new CellPoint(1,0);
-//        zp = convert(cp);
-//        sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
-//        g.fillOval(sp.x-4, sp.y-4, 8, 8);
+        g.setColor(Color.red);
+        CellPoint cp = new CellPoint(0,0);
+        ZonePoint zp = convert(cp);
+        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
+        g.fillOval(sp.x-4, sp.y-4, 8, 8);
+        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
+        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
+
+        cp = new CellPoint(1,0);
+        zp = convert(cp);
+        sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
+        g.fillOval(sp.x-4, sp.y-4, 8, 8);
+
+        g.drawOval(60-2, -2, 4, 4);
+        g.drawOval(120-2, -2, 4, 4);
+        g.drawOval(180-2, -2, 4, 4);
         
 //        g.setColor(Color.blue);
 //        sp = ScreenPoint.fromZonePoint(renderer, getSize() - topWidth, 0);
