@@ -63,8 +63,8 @@ public class HexGrid extends Grid {
 		super.setSize(size);
 		
 		topWidth = (size*3/4)/2;
-		sideSize = (size/8);
-		height = (int)(topWidth * Math.sin(Math.toRadians(53)));
+		sideSize = (int)((size*3/4)*Math.cos(60));
+		height = (int)(topWidth * Math.sin(Math.toRadians(60)));
 		
 		System.out.println(topWidth + " - " + sideSize);
 		
@@ -117,41 +117,44 @@ public class HexGrid extends Grid {
 	public CellPoint convert(ZonePoint zp) {
 
 		int size = getSize();
-		
-		// Strategy: cut up the zone into squares, then calculate which hex the exact point is in
-		int gridX = (int)(zp.x / size) * 2;
-		int gridY = (int)((zp.y + height) / (height*2));
 
-		int offsetX = zp.x % size;
-		int offsetY = (int)((zp.y + height) % (height*2));
+		// Strategy: cut up the zone into squares, then calculate which hex the exact point is in
+		int x = zp.x;
+		int gridX = (int)(x / (double) size) * 2;
+
+		int y = zp.y > 0 ? zp.y + height : gridX % 2 == 0 ? zp.y - height: zp.y;
+		int gridY = (int)(y / (height*2));
+
+		int offsetX = Math.abs(zp.x % size);
+		int offsetY = Math.abs((int)(y % (height*2)));
 		if (topLeftArea.contains(offsetX, offsetY)) {
 			gridX --;
-//			System.out.println("\ttl gx" + gridX  + " " + System.currentTimeMillis());
+			System.out.println("\ttl gx" + gridX  + " " + System.currentTimeMillis());
 		} else if (topRightArea.contains(offsetX, offsetY)) {
 			gridX++;
-//			System.out.println("\ttr gx:" + gridX + " " + System.currentTimeMillis());
+			System.out.println("\ttr gx:" + gridX + " " + System.currentTimeMillis());
 		} else if (bottomLeftArea.contains(offsetX, offsetY)) {
 			gridX --;
 			gridY ++;
-//			System.out.println("\tbl gx:" + gridX + " gy:" + gridY + " " + System.currentTimeMillis());
+			System.out.println("\tbl gx:" + gridX + " gy:" + gridY + " " + System.currentTimeMillis());
 		} else if (bottomRightArea.contains(offsetX, offsetY)) {
-			gridX ++;
-			gridY ++;
-//			System.out.println("\tbr gx:" + gridX + " gy:" + gridY + " " + System.currentTimeMillis());
+			gridX += x > 0 ? 1 : 0;
+			gridY += y > 0 ? 1 : 0;
+			System.out.println("\tbr gx:" + gridX + " gy:" + gridY + " " + System.currentTimeMillis());
 		}
 		
-//		System.out.println("ox:" + origX + " oy:" + origY + " zp:" + zp + " gx:" + gridX + " gy:" + gridY + " ox:" + offsetX + " oy:" + offsetY);		
+//		System.out.println("zp:" + zp + " gx:" + gridX + " gy:" + gridY + " ox:" + offsetX + " oy:" + offsetY);		
 		return new CellPoint(gridX, gridY);
 	}
 
 	@Override
 	public ZonePoint convert(CellPoint cp) {
 		
-		double size = topWidth + sideSize * 2;
+		double size = topWidth + sideSize;
 		int x = (int)(cp.x * size);
 		int y = (int)(cp.y * height * 2) - (cp.x % 2 == 1 ? height : 0);
 
-		System.out.println (cp.x+","+cp.y + " - " + x + "," + y);
+//		System.out.println (cp.x+","+cp.y + " - " + x + "," + y);
 		return new ZonePoint(x, y);
 	}
 
@@ -197,14 +200,14 @@ public class HexGrid extends Grid {
         g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
         g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
 
-        cp = new CellPoint(1,0);
-        zp = convert(cp);
-        sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
-        g.fillOval(sp.x-4, sp.y-4, 8, 8);
+//        cp = new CellPoint(1,0);
+//        zp = convert(cp);
+//        sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
+//        g.fillOval(sp.x-4, sp.y-4, 8, 8);
 
-        g.drawOval(60-2, -2, 4, 4);
-        g.drawOval(120-2, -2, 4, 4);
-        g.drawOval(180-2, -2, 4, 4);
+        g.drawOval(50-2, -2, 4, 4);
+        g.drawOval(100-2, -2, 4, 4);
+        g.drawOval(150-2, -2, 4, 4);
         
 //        g.setColor(Color.blue);
 //        sp = ScreenPoint.fromZonePoint(renderer, getSize() - topWidth, 0);
