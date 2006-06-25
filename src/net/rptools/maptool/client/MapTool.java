@@ -47,6 +47,7 @@ import javax.swing.UIManager;
 import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.lib.FileUtil;
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.MapToolFrame;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -109,37 +110,11 @@ public class MapTool {
     }
     
     public static BufferedImage takeScreenShot() {
-    	return takeScreenShot(clientFrame.getRootPane(), null);
+    	return SwingUtil.takeScreenShot(clientFrame.getRootPane());
     }
     
     public static BufferedImage takeMapScreenShot() {
-    	return takeScreenShot(clientFrame.getCurrentZoneRenderer(), "rptools.net");
-    }
-    
-    private static BufferedImage takeScreenShot(Component component, String watermark) {
-    	
-    	Dimension size = component.getSize();
-    	
-    	BufferedImage screenshot = new BufferedImage(size.width, size.height, Transparency.OPAQUE);
-    	Graphics2D g = screenshot.createGraphics();
-    	g.setClip(0, 0, size.width-1, size.height-1);
-    	
-    	component.update(g);
-
-    	if (watermark != null) {
-	    	int x = size.width - SwingUtilities.computeStringWidth(g.getFontMetrics(), watermark);
-	    	int y = size.height-g.getFontMetrics().getDescent();
-	    	
-	    	g.setColor(Color.black);
-	    	g.drawString(watermark, x, y);
-	
-	    	g.setColor(Color.white);
-	    	g.drawString(watermark, x-1, y-1);
-    	}
-    	
-    	g.dispose();
-    	
-    	return screenshot;
+    	return SwingUtil.takeScreenShot(clientFrame.getCurrentZoneRenderer(), "rptools.net");
     }
     
 	private static void initialize() {

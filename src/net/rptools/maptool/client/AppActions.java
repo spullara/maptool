@@ -31,9 +31,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -51,6 +57,8 @@ import javax.swing.KeyStroke;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.lib.net.LocalLocation;
+import net.rptools.lib.net.Location;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionProgressDialog;
@@ -91,7 +99,7 @@ public class AppActions {
 		}
 		public void execute(ActionEvent e) {
 
-			URL location = promptForLocation(MapTool.getCampaign().getExportLocation());
+			Location location = promptForLocation(MapTool.getCampaign().getExportLocation());
 			BufferedImage image = MapTool.takeScreenShot();
 			
 			exportImage(image, location);
@@ -104,7 +112,7 @@ public class AppActions {
 		}
 		public void execute(ActionEvent e) {
 			
-			URL location = promptForLocation(MapTool.getCampaign().getExportLocation());
+			Location location = promptForLocation(MapTool.getCampaign().getExportLocation());
 			BufferedImage image = MapTool.takeMapScreenShot();
 			
 			exportImage(image, location);
@@ -118,7 +126,7 @@ public class AppActions {
 		}
 		public void execute(ActionEvent e) {
 			
-			URL location = MapTool.getCampaign().getExportLocation();
+			Location location = MapTool.getCampaign().getExportLocation();
 			if (location == null) {
 				EXPORT_SCREENSHOT.actionPerformed(e);
 				return;
@@ -137,7 +145,7 @@ public class AppActions {
 		}
 		public void execute(ActionEvent e) {
 			
-			URL location = MapTool.getCampaign().getExportLocation();
+			Location location = MapTool.getCampaign().getExportLocation();
 			if (location == null) {
 				EXPORT_MAP_SCREENSHOT.actionPerformed(e);
 				return;
@@ -149,31 +157,30 @@ public class AppActions {
 		}
 	};
 
-	private static void exportImage(BufferedImage image, URL location) {
+	private static void exportImage(BufferedImage image, Location location) {
 		
 		MapTool.getFrame().setStatusMessage("Saving screenshot ...");
 		
 		try {
+
+			ByteArrayOutputStream imageOut = new ByteArrayOutputStream();
 			
-			File file = new File(location.getFile());
-			
-			ImageIO.write(image, "png", file);
+			ImageIO.write(image, "png", imageOut);
+
+			location.putContent(new BufferedInputStream(new ByteArrayInputStream(imageOut.toByteArray())));
 			
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		
 		MapTool.getFrame().setStatusMessage("Saved screenshot");
 	}
 	
-	private static URL promptForLocation(URL originalLocation) {
+	private static Location promptForLocation(Location originalLocation) {
 		
-		try {
-			return new File("c:\\screenshot.png").toURL();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-			return null;
-		}
+		return new LocalLocation(new File("c:\\screenshot.png"));
 	}
 	
 	public static final Action ENFORCE_ZONE = new AdminClientAction() {
