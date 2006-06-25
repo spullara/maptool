@@ -8,9 +8,9 @@ public class TestHexGrid extends TestCase {
 		
 		HexGrid grid = new HexGrid();
 		
-		for (int y = 0; y < 100; y ++) {
+		for (int y = -100; y < 100; y ++) {
 			
-			for (int x = 0; x < 100; x++) {
+			for (int x = -100; x < 100; x++) {
 				
 				CellPoint cp = new CellPoint(x, y);
 				

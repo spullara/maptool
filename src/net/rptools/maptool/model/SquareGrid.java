@@ -1,6 +1,7 @@
 package net.rptools.maptool.model;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
@@ -9,6 +10,8 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 
 public class SquareGrid extends Grid {
 
+	private static final Dimension CELL_OFFSET = new Dimension(0, 0);
+	
 	private static final GridCapabilities CAPABILITIES = new GridCapabilities() {
 		public boolean isPathingSupported() {return true;}
 		public boolean isSnapToGridSupported() {return true;}
@@ -24,12 +27,17 @@ public class SquareGrid extends Grid {
 	}
 	
 	@Override
-	public int getCellHeight() {
+	public Dimension getCellOffset() {
+		return CELL_OFFSET;
+	}
+	
+	@Override
+	public double getCellHeight() {
 		return getSize();
 	}
 
 	@Override
-	public int getCellWidth() {
+	public double getCellWidth() {
 		return getSize();
 	}
 

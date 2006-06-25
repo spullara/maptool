@@ -91,6 +91,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridCapabilities;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Token;
@@ -593,7 +594,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
 	protected void renderMoveSelectionSets(Graphics2D g) {
 	
-        int gridSize = zone.getGrid().getSize();
+		Grid grid = zone.getGrid();
+        int gridSize = grid.getSize();
         float scale = zoneScale.getScale();
         int scaledGridSize = (int) getScaledGridSize();
 
@@ -633,6 +635,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	int scaledWidth = (int)(width * scale);
             	int scaledHeight = (int)(height * scale);
             	
+                int x = newScreenPoint.x + 1 + (int)(grid.getCellOffset().width*scale);
+                int y = newScreenPoint.y + 1 + (int)(grid.getCellOffset().height*scale);
+                
 				// Show distance only on the key token
 				if (token == keyToken) {
 
@@ -640,8 +645,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 						renderPath(g, walker, width/gridSize, height/gridSize);
 					} else {
 						g.setColor(Color.black);
-						ScreenPoint originPoint = ScreenPoint.fromZonePoint(this, token.getX()+width/2, token.getY()+height/2);
-						g.drawLine(originPoint.x, originPoint.y, newScreenPoint.x + scaledWidth/2, newScreenPoint.y + scaledHeight/2);
+						ScreenPoint originPoint = ScreenPoint.fromZonePoint(this, token.getX()+width/2+(int)(grid.getCellOffset().width*scale), token.getY()+height/2+(int)(grid.getCellOffset().height*scale));
+						g.drawLine(originPoint.x, originPoint.y, x + scaledWidth/2, y + scaledHeight/2);
 					}
 				}
 
@@ -656,22 +661,22 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     			if (token.hasFacing() && token.getTokenType() == Token.Type.TOP_DOWN) {
     				// Rotated
     				AffineTransform at = new AffineTransform();
-    				at.translate(newScreenPoint.x+1, newScreenPoint.y+1);
+    				at.translate(x, y);
     				at.rotate(Math.toRadians(-token.getFacing() - 90), width/2, height/2); // facing defaults to down, or -90 degrees
     				at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
     				at.scale(getScale(), getScale());
     	            g.drawImage(ImageManager.getImage(AssetManager.getAsset(token.getAssetID())), at, this);
     			} else {
     				// Normal
-    				g.drawImage(ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this), newScreenPoint.x+1, newScreenPoint.y+1, scaledWidth-1, scaledHeight-1, this);
+    				g.drawImage(ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this), x, y, scaledWidth-1, scaledHeight-1, this);
     			}
                 
 
 				// Other details
 				if (token == keyToken) {
 
-					int y = newScreenPoint.y + scaledHeight + 10;
-					int x = newScreenPoint.x + scaledWidth/2;
+					y +=  10 + height;
+					x += scaledWidth/2;
                     
 					if (zone.getGrid().getCapabilities().isPathingSupported() && walker.getDistance() >= 1) {
 						GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
@@ -830,8 +835,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	
     protected void renderTokens(Graphics2D g) {
 
+    	Grid grid = zone.getGrid();
     	Dimension screenSize = getSize();
-        int gridSize = zone.getGrid().getSize();
         int scaledGridSize = (int)getScaledGridSize();
         
         Rectangle clipBounds = g.getClipBounds();
@@ -849,8 +854,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int height = (int)(TokenSize.getHeight(token, zone.getGrid()) * scale)-1;
             
             ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
-            int x = tokenScreenLocation.x + 1;
-            int y = tokenScreenLocation.y + 1;
+            int x = tokenScreenLocation.x + 1 + (int)(grid.getCellOffset().width*scale);
+            int y = tokenScreenLocation.y + 1 + (int)(grid.getCellOffset().height*scale);
 
             // Center the token
             if (width < scaledGridSize) {
@@ -859,6 +864,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             if (height < scaledGridSize) {
                 y += (scaledGridSize - height)/2;
             }
+            
+            g.setColor(Color.yellow);
+            g.drawRect(tokenScreenLocation.x, tokenScreenLocation.y, width, height);
+            
+            g.setColor(Color.blue);
+            g.drawRect(x, y, width, height);
             
             Rectangle tokenBounds = new Rectangle(x, y, width, height);
             if (x+width < 0 || x > screenSize.width || y+height < 0 || y > screenSize.height) {
@@ -938,7 +949,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				// Normal
 	            g.drawImage(image, x, y, width, height, this);
 			}
-            
+			
 			// Facing ?
             // TODO: Optimize this by doing it once per token per facing
 			if (token.hasFacing()) {
@@ -1251,11 +1262,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         gridOffsetY %= zone.getGrid().getCellHeight();
 
         if (gridOffsetY > 0) {
-            gridOffsetY = gridOffsetY - zone.getGrid().getCellHeight();
+            gridOffsetY = gridOffsetY - (int)zone.getGrid().getCellHeight();
         }
         
         if (gridOffsetX > 0) {
-            gridOffsetX = gridOffsetX - zone.getGrid().getCellWidth();
+            gridOffsetX = gridOffsetX - (int)zone.getGrid().getCellWidth();
         }
 
         zone.getGrid().setOffset(gridOffsetX, gridOffsetY);

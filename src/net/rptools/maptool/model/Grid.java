@@ -1,5 +1,6 @@
 package net.rptools.maptool.model;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
@@ -30,8 +31,9 @@ public abstract class Grid {
 	public abstract GridCapabilities getCapabilities();
 	public abstract int getTokenSpace();
 	public abstract int getDefaultGridSize();
-	public abstract int getCellWidth();
-	public abstract int getCellHeight();
+	public abstract double getCellWidth();
+	public abstract double getCellHeight();
+	public abstract Dimension getCellOffset();
 	
 	public Zone getZone() {
 		return zone;
