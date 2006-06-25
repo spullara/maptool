@@ -61,8 +61,8 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.TokenLocation;
 import net.rptools.maptool.client.ui.TokenPopupMenu;
-import net.rptools.maptool.client.ui.TokenPropertiesDialog;
 import net.rptools.maptool.client.ui.Tool;
+import net.rptools.maptool.client.ui.token.TokenNotesDialog;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
@@ -269,13 +269,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				Token token = renderer.getTokenAt(e.getX(), e.getY());
 				if (token != null) {
 
-					TokenPropertiesDialog dialog = new TokenPropertiesDialog(token);
-					dialog.setVisible(true);
-					
-					if (dialog.isCommitted()) {
-						MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
-						repaint();
-					}
+          TokenNotesDialog dialog = new TokenNotesDialog(token);
+          Rectangle b = MapTool.getFrame().getBounds();
+          dialog.setLocation(b.x + (b.width - dialog.getWidth()) / 2, b.y + (b.height - dialog.getHeight()) / 2);
+          dialog.setVisible(true);
+          if (dialog.isTokenSaved()) {
+            renderer.repaint();
+            MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+          }
 				}
 			}
 			
