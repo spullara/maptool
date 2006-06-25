@@ -76,8 +76,6 @@ public class GridTool extends DefaultTool {
     
     private FormPanel controlPanel;
     
-    private int dragStartX;
-	private int dragStartY;
 	private int dragOffsetX;
 	private int dragOffsetY;
 
@@ -218,8 +216,6 @@ public class GridTool extends DefaultTool {
 	public void mousePressed(java.awt.event.MouseEvent e){
 
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			dragStartX = e.getX();
-			dragStartY = e.getY();
 			
     		ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
 	        int x = zp.x-renderer.getZone().getGrid().getOffsetX();
