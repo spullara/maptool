@@ -837,7 +837,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     	Grid grid = zone.getGrid();
     	Dimension screenSize = getSize();
-        int scaledGridSize = (int)getScaledGridSize();
+        int scaledGridWidth = (int)(grid.getCellWidth()*getScale());
+        int scaledGridHeight = (int)(grid.getCellHeight()*getScale());
         
         Rectangle clipBounds = g.getClipBounds();
         float scale = zoneScale.getScale();
@@ -858,18 +859,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int y = tokenScreenLocation.y + 1 + (int)(grid.getCellOffset().height*scale);
 
             // Center the token
-            if (width < scaledGridSize) {
-                x += (scaledGridSize - width)/2;
+            if (width < scaledGridWidth) {
+                x += (scaledGridWidth - width)/2;
             }
-            if (height < scaledGridSize) {
-                y += (scaledGridSize - height)/2;
+            if (height < scaledGridHeight) {
+                y += (scaledGridHeight - height)/2;
             }
-            
-            g.setColor(Color.yellow);
-            g.drawRect(tokenScreenLocation.x, tokenScreenLocation.y, width, height);
-            
-            g.setColor(Color.blue);
-            g.drawRect(x, y, width, height);
             
             Rectangle tokenBounds = new Rectangle(x, y, width, height);
             if (x+width < 0 || x > screenSize.width || y+height < 0 || y > screenSize.height) {
@@ -1257,9 +1252,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	
         gridOffsetX += dx;
         gridOffsetY += dy;
-
-        gridOffsetX %= zone.getGrid().getCellWidth();
-        gridOffsetY %= zone.getGrid().getCellHeight();
 
         if (gridOffsetY > 0) {
             gridOffsetY = gridOffsetY - (int)zone.getGrid().getCellHeight();
