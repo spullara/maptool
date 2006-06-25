@@ -24,7 +24,6 @@
  */
 package net.rptools.maptool.model;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.lib.net.Location;
 
 
 /**
@@ -42,17 +42,17 @@ import net.rptools.lib.MD5Key;
 public class Campaign {
     private GUID id = new GUID();
     private Map<GUID, Zone> zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
-    private URL exportLocation;
+    private Location exportLocation;
 
     public GUID getId() {
         return id;
     }
 
-    public void setExportLocation(URL location) {
+    public void setExportLocation(Location location) {
     	exportLocation = location;
     }
     
-    public URL getExportLocation() {
+    public Location getExportLocation() {
     	return exportLocation;
     }
     
