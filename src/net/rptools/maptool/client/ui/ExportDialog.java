@@ -1,5 +1,6 @@
 package net.rptools.maptool.client.ui;
 
+import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -79,6 +80,8 @@ public class ExportDialog extends JDialog {
 	public JTabbedPane getTabbedPane() {
 		if (tabbedPane == null) {
 			tabbedPane = formPanel.getTabbedPane("tabs");
+			tabbedPane.setSelectedIndex(1);
+			tabbedPane.setEnabledAt(0, false);
 		}
 		return tabbedPane;
 	}
@@ -101,7 +104,7 @@ public class ExportDialog extends JDialog {
 	
 	public JPasswordField getPasswordField() {
 		if (ftpPasswordField == null) {
-			ftpPasswordField = (JPasswordField) formPanel.get("password");
+			ftpPasswordField = (JPasswordField) formPanel.getComponentByName("password");
 		}
 		
 		return ftpPasswordField;
@@ -117,7 +120,9 @@ public class ExportDialog extends JDialog {
 	
 	public JFileChooser getFileChooser() {
 		if (fileChooser == null) {
-			fileChooser = (JFileChooser) formPanel.get("filechooser");
+			fileChooser = (JFileChooser) formPanel.getComponentByName("filechooser");
+			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			fileChooser.setMultiSelectionEnabled(false);
 		}
 		
 		return fileChooser;
@@ -129,10 +134,13 @@ public class ExportDialog extends JDialog {
 			exportButton.addActionListener(new ActionListener() {
 				// TODO: Pull this out of an aic
 				public void actionPerformed(ActionEvent e) {
-
+					
+					// TODO: Show a progress dialog
 					// TODO: Make this less fragile
 					switch (getTabbedPane().getSelectedIndex()) {
 					case 0:
+						getFileChooser().approveSelection();
+
 						File file = getFileChooser().getSelectedFile();
 						if (file != null) {
 							location = new LocalLocation(file);
@@ -140,13 +148,14 @@ public class ExportDialog extends JDialog {
 						break;
 					case 1:
 						String username = getUsernameTextField().getText();
-						String password = getPasswordField().getText();
+						String password = new String(getPasswordField().getPassword());
 						String host = getHostnameTextField().getText();
 						String path = getPathTextField().getText();
 						
 						location = new FTPLocation(username, password, host, path);
 						break;
 					}
+
 					setVisible(false);
 				}
 				
