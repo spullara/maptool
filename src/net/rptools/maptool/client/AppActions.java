@@ -63,6 +63,7 @@ import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionProgressDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
+import net.rptools.maptool.client.ui.ExportDialog;
 import net.rptools.maptool.client.ui.NewMapDialog;
 import net.rptools.maptool.client.ui.PreferencesDialog;
 import net.rptools.maptool.client.ui.ServerInfoDialog;
@@ -100,6 +101,10 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 
 			Location location = promptForLocation(MapTool.getCampaign().getExportLocation());
+			if (location == null) {
+				return;
+			}
+			
 			BufferedImage image = MapTool.takeScreenShot();
 			
 			exportImage(image, location);
@@ -113,6 +118,10 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 			
 			Location location = promptForLocation(MapTool.getCampaign().getExportLocation());
+			if (location == null) {
+				return;
+			}
+
 			BufferedImage image = MapTool.takeMapScreenShot();
 			
 			exportImage(image, location);
@@ -169,18 +178,24 @@ public class AppActions {
 
 			location.putContent(new BufferedInputStream(new ByteArrayInputStream(imageOut.toByteArray())));
 			
+			MapTool.getFrame().setStatusMessage("Saved screenshot");
+
 		} catch (IOException ioe) {
+			MapTool.showError("Could not export image: " + ioe);
 			ioe.printStackTrace();
 		} catch (Exception e) {
+			MapTool.showError("Could not export image: " + e);
 			e.printStackTrace();
 		}
-		
-		MapTool.getFrame().setStatusMessage("Saved screenshot");
 	}
 	
 	private static Location promptForLocation(Location originalLocation) {
 		
-		return new LocalLocation(new File("c:\\screenshot.png"));
+		ExportDialog dialog = new ExportDialog(originalLocation);
+		
+		dialog.setVisible(true);
+		
+		return dialog.getExportLocation();
 	}
 	
 	public static final Action ENFORCE_ZONE = new AdminClientAction() {
