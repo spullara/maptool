@@ -44,7 +44,8 @@ public class Token {
 	public enum Type {
 		TOP_DOWN,
 		CIRCLE,
-		SQUARE
+		SQUARE,
+		STAMP
 	}
 	
 	private MD5Key assetID;

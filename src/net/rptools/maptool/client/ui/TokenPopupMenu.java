@@ -21,7 +21,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.token.LightDialog;
-import net.rptools.maptool.client.ui.token.TokenNotesDialog;
+import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
 import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
@@ -568,7 +568,7 @@ public class TokenPopupMenu extends JPopupMenu {
 		
 		public void actionPerformed(ActionEvent e) {
 
-      TokenNotesDialog dialog = new TokenNotesDialog(tokenUnderMouse);
+      TokenPropertiesDialog dialog = new TokenPropertiesDialog(tokenUnderMouse);
       Rectangle b = MapTool.getFrame().getBounds();
       dialog.setLocation(b.x + (b.width - dialog.getWidth()) / 2, b.y + (b.height - dialog.getHeight()) / 2);
       dialog.setVisible(true);

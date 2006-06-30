@@ -67,7 +67,7 @@ import com.jeta.forms.components.panel.FormPanel;
  * @author jgorrell
  * @version $Revision$ $Date$ $Author$
  */
-public class TokenNotesDialog extends JDialog implements ActionListener, ModelChangeListener {
+public class TokenPropertiesDialog extends JDialog implements ActionListener, ModelChangeListener {
   
   /*---------------------------------------------------------------------------------------------
    * Instance Variables
@@ -151,7 +151,7 @@ public class TokenNotesDialog extends JDialog implements ActionListener, ModelCh
    * 
    * @param token The token being displayed.
    */
-  public TokenNotesDialog(Token token) {
+  public TokenPropertiesDialog(Token token) {
     super(MapTool.getFrame(), "Token Notes", true);
     setDefaultCloseOperation(HIDE_ON_CLOSE);
     FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/tokenNotesDialog.jfrm");

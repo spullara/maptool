@@ -895,7 +895,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	}
             }
             // Note the order where the top most token is at the end of the list
-            tokenLocationList.add(new TokenLocation(tokenBounds, token));
+            if (token.getTokenType() != Token.Type.STAMP) {
+            	tokenLocationList.add(new TokenLocation(tokenBounds, token));
+            }
 
             // OPTIMIZE:
 			BufferedImage image = null;
