@@ -872,28 +872,31 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	continue;
             }
 
-            for (TokenLocation location : tokenLocationList) {
-
-            	Rectangle r1 = location.bounds;
-            	
-            	// Are we covering anyone ?
-            	if (tokenBounds.intersects(r1)) {
-
-            		// Are we covering someone that is covering someone ?
-            		Rectangle oldRect = null;
-            		for (Rectangle r2 : coveredTokenSet) {
-            			
-            			if (tokenBounds.contains(r2)) {
-            				oldRect = r2;
-            				break;
-            			}
-            		}
-            		if (oldRect != null) {
-            			coveredTokenSet.remove(oldRect);
-            		}
-            		coveredTokenSet.add(tokenBounds);
-            	}
+            if (token.getTokenType() != Token.Type.STAMP) {
+	            for (TokenLocation location : tokenLocationList) {
+	
+	            	Rectangle r1 = location.bounds;
+	            	
+	            	// Are we covering anyone ?
+	            	if (tokenBounds.intersects(r1)) {
+	
+	            		// Are we covering someone that is covering someone ?
+	            		Rectangle oldRect = null;
+	            		for (Rectangle r2 : coveredTokenSet) {
+	            			
+	            			if (tokenBounds.contains(r2)) {
+	            				oldRect = r2;
+	            				break;
+	            			}
+	            		}
+	            		if (oldRect != null) {
+	            			coveredTokenSet.remove(oldRect);
+	            		}
+	            		coveredTokenSet.add(tokenBounds);
+	            	}
+	            }
             }
+            
             // Note the order where the top most token is at the end of the list
             if (token.getTokenType() != Token.Type.STAMP) {
             	tokenLocationList.add(new TokenLocation(tokenBounds, token));
