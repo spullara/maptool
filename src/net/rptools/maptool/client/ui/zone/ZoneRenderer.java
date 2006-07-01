@@ -851,8 +851,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         		continue;
         	}
         	
-            int width = (int)(TokenSize.getWidth(token, zone.getGrid()) * scale)-1;
-            int height = (int)(TokenSize.getHeight(token, zone.getGrid()) * scale)-1;
+            int width = (int)(TokenSize.getWidth(token, zone.getGrid()) * scale);
+            int height = (int)(TokenSize.getHeight(token, zone.getGrid()) * scale);
+            
+            if (token.getTokenType() != Token.Type.STAMP) {
+            	// Fit inside the grid
+            	width --;
+            	height --;
+            }
             
             ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
             int x = tokenScreenLocation.x + 1 + (int)(grid.getCellOffset().width*scale);
