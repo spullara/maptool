@@ -99,15 +99,6 @@ public class TokenPopupMenu extends JPopupMenu {
 		// TODO: Make this an action, not aic
 		visibilityMenuItem.addActionListener(new VisibilityAction());
 
-		// Rename
-		// TODO: Make this an action, not aic
-		JMenuItem renameMenuItem = new JMenuItem("Rename");
-		renameMenuItem.setEnabled(enabled);
-		if (selectedTokenSet.size() == 1) {
-
-			renameMenuItem.addActionListener(new RenameAction());
-		}
-
 		// Arrange
 		JMenu arrangeMenu = new JMenu("Arrange");
 		arrangeMenu.setEnabled(enabled);
@@ -193,7 +184,6 @@ public class TokenPopupMenu extends JPopupMenu {
 
 		add(sizeMenu);
 		add(snapToGridMenuItem);
-		add(renameMenuItem);
 		if (MapTool.getPlayer().isGM()
 				&& MapTool.getServerPolicy().useStrictTokenManagement()) {
 			add(ownerMenu);
@@ -467,26 +457,6 @@ public class TokenPopupMenu extends JPopupMenu {
 			}
 
 			renderer.repaint();
-		}
-	}
-
-	private class RenameAction extends AbstractAction {
-
-		public void actionPerformed(ActionEvent e) {
-
-			Token token = renderer.getZone().getToken(
-					selectedTokenSet.iterator().next());
-
-			String newName = (String) JOptionPane.showInputDialog(renderer,
-					"Pick a new name for this token", "Rename Token",
-					JOptionPane.QUESTION_MESSAGE, null, null, token.getName());
-			if (newName == null || newName.length() == 0) {
-				return;
-			}
-
-			token.setName(newName);
-			MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
-			MapTool.getFrame().repaint();
 		}
 	}
 

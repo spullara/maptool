@@ -83,6 +83,10 @@ public class Token {
    */
 	private String notes;
   
+	private String gmNotes;
+	
+	private String gmName;
+	
 	/**
 	 * A state properties for this token. This allows state to be added that can
 	 * change appearance of the token.
@@ -137,6 +141,26 @@ public class Token {
 		this.name = name;
 		this.assetID = assetID;
 		state = new HashMap<String, Object>();
+	}
+	
+	public String getGMNotes() {
+		return gmNotes;
+	}
+	
+	public void setGMNote(String notes) {
+		gmNotes = notes;
+	}
+	
+	public String getGMName() {
+		return gmName;
+	}
+	
+	public void setGMName(String name) {
+		gmName = name;
+	}
+	
+	public boolean isStamp() {
+		return getTokenType() == Type.STAMP;
 	}
 	
 	public Type getTokenType() {

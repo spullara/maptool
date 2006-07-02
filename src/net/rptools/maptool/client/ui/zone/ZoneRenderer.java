@@ -854,7 +854,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int width = (int)(TokenSize.getWidth(token, zone.getGrid()) * scale);
             int height = (int)(TokenSize.getHeight(token, zone.getGrid()) * scale);
             
-            if (token.getTokenType() != Token.Type.STAMP) {
+            if (!token.isStamp()) {
             	// Fit inside the grid
             	width --;
             	height --;
@@ -878,7 +878,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	continue;
             }
 
-            if (token.getTokenType() != Token.Type.STAMP) {
+            if (!token.isStamp()) {
 	            for (TokenLocation location : tokenLocationList) {
 	
 	            	Rectangle r1 = location.bounds;
@@ -904,7 +904,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             }
             
             // Note the order where the top most token is at the end of the list
-            if (token.getTokenType() != Token.Type.STAMP) {
+            if (!token.isStamp()) {
             	tokenLocationList.add(new TokenLocation(tokenBounds, token));
             }
 
@@ -943,7 +943,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			}
 
             // Draw image
-			if (token.hasFacing() && token.getTokenType() == Token.Type.TOP_DOWN) {
+			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp())) {
 				// Rotated
 				AffineTransform at = new AffineTransform();
 				at.translate(x, y);
