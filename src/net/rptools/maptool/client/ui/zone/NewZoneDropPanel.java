@@ -30,6 +30,7 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -79,17 +80,21 @@ public class NewZoneDropPanel extends JPanel implements DropTargetListener {
 
     /* (non-Javadoc)
      * @see java.awt.dnd.DropTargetListener#drop(java.awt.dnd.DropTargetDropEvent)
+     * @see ZoneSelectionPanel#drop(java.awt.dnd.DropTargetDropEvent) This is a copy of that code
      */
     public void drop(DropTargetDropEvent dtde) {
 
-    	Asset asset = TransferableHelper.getAsset(dtde);
-        dtde.dropComplete(asset != null);
+      List<Asset> assets = TransferableHelper.getAsset(dtde);
+      if (assets == null || assets.isEmpty()) {
+        dtde.dropComplete(false);
+        return;
+      }
 
-        if (asset != null) {
-        	
-        	Zone zone = ZoneFactory.createZone(Zone.Type.MAP, asset.getId());
-        	MapTool.addZone(zone);
-        }
+      // Just adding one map
+      Zone zone = ZoneFactory.createZone(Zone.Type.MAP, assets.get(0).getId());
+      MapTool.addZone(zone);
+      dtde.dropComplete(true);
+      repaint();
     }
 
     /* (non-Javadoc)

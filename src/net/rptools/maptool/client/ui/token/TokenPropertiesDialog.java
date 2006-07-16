@@ -50,9 +50,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import net.rptools.lib.AppUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.ModelChangeEvent;
@@ -61,7 +59,6 @@ import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.util.ImageManager;
-import net.rptools.maptool.util.TokenUtil;
 
 import com.jeta.forms.components.image.ImageComponent;
 import com.jeta.forms.components.panel.FormPanel;
@@ -95,8 +92,14 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	 */
 	private JTextField tokenName;
 
+  /**
+   * The game master's name for the token. It is only shown to the game master.
+   */
 	private JTextField tokenGMName;
 	
+  /**
+   * The game master's name for the token. It is only shown to the game master.
+   */
 	private JLabel tokenGMNameLabel;
 
 	/**
@@ -109,8 +112,14 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	 */
 	private JEditorPane notes;
 
+  /**
+   * Notes that are only shown to the game master.
+   */
 	private JEditorPane gmNotes;
 
+  /**
+   * The label for notes that are only shown to the game master.
+   */
 	private JLabel gmNotesLabel;
 	
 	/**
@@ -352,9 +361,8 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			if (!token.isSnapToScale())
 				size.setSelectedIndex(0);
 			else
-				size
-						.setSelectedItem(TokenSize.getSizeInstance(token
-								.getSize()));
+				size.setSelectedItem(TokenSize.getSizeInstance(
+            token.getSize()));
 
 			// Set the editable & enabled state
 			okButton.setEnabled(editable);

@@ -68,6 +68,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppPreferences;
@@ -1442,64 +1443,65 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     }
 
+    private void addTokens(List<Token> tokens, ZonePoint zp) {
+      GridCapabilities gridCaps = zone.getGrid().getCapabilities();
+      for (Token token : tokens) {
+        
+        // Check the name
+        token.setName(MapToolUtil.nextTokenId(zone, token.getName()));
+        
+        // Get the snap to grid value for the current prefs and abilities
+        token.setSnapToGrid(gridCaps.isSnapToGridSupported() && AppPreferences.getTokensStartSnapToGrid());
+        if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid())
+          zp = zone.getGrid().convert(zone.getGrid().convert(zp));
+        token.setX(zp.x);
+        token.setY(zp.y);
+        token.setVisible(AppPreferences.getNewTokensVisible());
+        
+        // Set the image properties
+        BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(token.getAssetID()));
+        token.setTokenType(TokenUtil.guessTokenType((BufferedImage)image));
+        token.setWidth(image.getWidth(null));
+        token.setHeight(image.getHeight(null));
+        
+        // He who drops, owns, if there are not players already set
+        if (!MapTool.getServerPolicy().useStrictTokenManagement())
+          token.setAllOwners();
+        else if (!token.hasOwners() && !MapTool.getPlayer().isGM())
+          token.addOwner(MapTool.getPlayer().getName());
+
+        // Save the token and tell everybody about it
+        zone.putToken(token);
+        MapTool.serverCommand().putToken(zone.getId(), token);
+      } // endfor
+      
+      // For convenience, select them
+      clearSelectedTokens();
+      for (Token token : tokens)
+        selectToken(token.getId());
+      requestFocusInWindow();
+      repaint();
+    }
+    
     /* (non-Javadoc)
      * @see java.awt.dnd.DropTargetListener#drop(java.awt.dnd.DropTargetDropEvent)
      */
     public void drop(DropTargetDropEvent dtde) {
-
-    	// TODO: This section needs to be consolidated with ZoneSelectionPanel.drop()
-    	Asset asset = TransferableHelper.getAsset(dtde);
+      final ZonePoint zp = new ScreenPoint((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY()).convertToZone(this);
     	GridCapabilities gridCaps = zone.getGrid().getCapabilities();
-    	if (asset != null) {
-	
-	        final Token token = new Token(MapToolUtil.nextTokenId(zone, asset.getName()), asset.getId());
-	        token.setSnapToGrid(gridCaps.isSnapToGridSupported() && AppPreferences.getTokensStartSnapToGrid());
-	        
-    		ZonePoint zp = new ScreenPoint((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY()).convertToZone(this);
-
-	        if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid()) {
-	        	
-//	        	System.out.println("drop:"+zp);
-//	        	System.out.println("cell:"+zone.getGrid().convert(zp));
-	        	
-	        	zp = zone.getGrid().convert(zone.getGrid().convert(zp));
-//	        	System.out.println("finl:" + zp);
-	        }
-
-        	// Request the image
-	        BufferedImage image = ImageManager.getImageAndWait(asset); 
-
-	        // Set defaults
-	        token.setX(zp.x);
-        	token.setY(zp.y);
-        	token.setVisible(AppPreferences.getNewTokensVisible());
-        	token.setTokenType(TokenUtil.guessTokenType((BufferedImage)image));
-        	token.setWidth(image.getWidth(null));
-        	token.setHeight(image.getHeight(null));
-	        
-	        // He who drops, owns
-	        if (MapTool.getServerPolicy().useStrictTokenManagement() && !MapTool.getPlayer().isGM()) {
-	        	token.addOwner(MapTool.getPlayer().getName());
-	        }
-	        
-	        zone.putToken(token);
-
-            MapTool.serverCommand().putToken(zone.getId(), token);
-
-            // For convenience, select it
-            clearSelectedTokens();
-            selectToken(token.getId());
-            
-            dtde.dropComplete(true);
-            requestFocusInWindow();
-	        repaint();
-	        
-	        // Go to a more appropriate tool
-	        MapTool.getFrame().getToolbox().setSelectedTool(PointerTool.class);
-	        return;
-    	}
-    	
-    	dtde.dropComplete(false);
+      List<Token> tokens = null;
+      List<Asset> assets = TransferableHelper.getAsset(dtde);
+    	if (assets != null) {
+        tokens = new ArrayList<Token>(assets.size());
+        for (Asset asset : assets)
+          tokens.add(new Token(asset.getName(), asset.getId()));
+        addTokens(tokens, zp);        
+    	} else {
+        tokens = TransferableHelper.getTokens(dtde.getTransferable());
+        if (tokens != null) 
+          addTokens(tokens, zp);
+      } // ednif
+      dtde.dropComplete(tokens != null);
     }
 
     /* (non-Javadoc)

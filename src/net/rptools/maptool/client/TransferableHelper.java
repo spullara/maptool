@@ -33,7 +33,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
@@ -42,6 +44,7 @@ import net.rptools.lib.transferable.FileTransferableHandler;
 import net.rptools.lib.transferable.ImageTransferableHandler;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.Token;
 
 /**
  * @author tcroft
@@ -50,40 +53,38 @@ public class TransferableHelper {
 
     // TODO: USE ImageTransferable in rplib
     private static final DataFlavor IMAGE_FLAVOR = new DataFlavor("image/x-java-image; class=java.awt.Image", "Image");
-
+    public final static DataFlavor TOKEN_LIST_FLAVOR = new DataFlavor(ArrayList.class, "Token List");
+    
 	/**
 	 * Takes a drop event and returns an asset
 	 * from it.  returns null if an asset could not be obtained
 	 */
-	public static Asset getAsset(DropTargetDropEvent dtde) {
+	public static List<Asset> getAsset(DropTargetDropEvent dtde) {
 		
         Transferable transferable = dtde.getTransferable();
     	dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+      List<Asset> assets = new ArrayList<Asset>();
 
-        Asset asset = null;
         try {
 	        // EXISTING ASSET
 	        if (transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)) {
 	
-	        	asset = handleTransferableAsset(transferable);
+	        	assets.add(handleTransferableAsset(transferable));
 	        } 
 	        
 	        else if (transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)) {
 	        	
-	        	asset = handleTransferableAssetReference(transferable);
+            assets.add(handleTransferableAssetReference(transferable));
 	        }
 	        
-            else {
-                // DIRECT/BROWSER
-            	try {
-            		asset = handleImage(dtde, transferable);
-            	} catch (UnsupportedFlavorException ufe) {
-
-                	// LOCAL FILESYSTEM
-                	asset = handleFileList(dtde, transferable);
-            	}
-
-            }
+          // LOCAL FILESYSTEM
+          else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+              assets = handleFileList(dtde, transferable);
+              
+          // DIRECT/BROWSER
+          } else if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
+            assets.add(handleImage(dtde, transferable));
+          }
             
         } catch (Exception e) {
         	System.err.println ("Could not retrieve asset: " + e);
@@ -91,21 +92,17 @@ public class TransferableHelper {
         	return null;
         }
 
-        if (asset == null) {
+        if (assets == null || assets.isEmpty()) {
             return null;
         }
         
-        if (!AssetManager.hasAsset(asset)) {
-    		AssetManager.putAsset(asset);
-        }
-        
-        // Add it to the server if we need to
-        if (!MapTool.getCampaign().containsAsset(asset)) {
-        	
+        for (Asset asset : assets) {
+          if (!AssetManager.hasAsset(asset)) 
+            AssetManager.putAsset(asset);          
+          if (!MapTool.getCampaign().containsAsset(asset)) 
             MapTool.serverCommand().putAsset(asset);
-        }
-
-        return asset;
+        } // endfor
+        return assets;
 	}
 
 	private static final DataFlavor URL_FLAVOR = new DataFlavor("text/plain; class=java.lang.String", "Image");
@@ -126,14 +123,12 @@ public class TransferableHelper {
         return asset;
     }
     
-	private static Asset handleFileList(DropTargetDropEvent dtde, Transferable transferable) throws Exception {
-		
+	private static List<Asset> handleFileList(DropTargetDropEvent dtde, Transferable transferable) throws Exception {
     	List<File> list = new FileTransferableHandler().getTransferObject(transferable);
-    	
-        // We only support using one at a time for now
-		Asset asset = AssetManager.createAsset(list.get(0));
-
-        return asset;
+      List<Asset> assets = new ArrayList<Asset>();
+    	for (File file : list)
+        assets.add(AssetManager.createAsset(file));
+    	return assets;
 	}
 	
 	private static Asset handleTransferableAssetReference(Transferable transferable) throws Exception {
@@ -145,4 +140,29 @@ public class TransferableHelper {
 		
         return (Asset) transferable.getTransferData(TransferableAsset.dataFlavor);
 	}
+  
+  /**
+   * Get the tokens from a token list data flavor.
+   * 
+   * @param transferable The data that was dropped.
+   * @return The tokens from the data or <code>null</code> if this isn't the proper
+   * data type.
+   */
+  public static List<Token> getTokens(Transferable transferable) {
+    try {
+      if (!transferable.isDataFlavorSupported(TOKEN_LIST_FLAVOR)) return null;
+      List tokenMaps = (List)transferable.getTransferData(TOKEN_LIST_FLAVOR);
+      List<Token> tokens = new ArrayList<Token>();
+      for (Object object : tokenMaps) {
+        if (!(object instanceof Map)) continue;
+        Map<String, Object> map = (Map<String, Object>)object;
+        if (!map.containsKey(Token.MAPTOOL + "name") || !map.containsKey(Token.MAPTOOL + "token")) continue;
+        tokens.add(new Token((Map<String, Object>)object));
+      } // endfor
+      return tokens;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    } // endtry
+  }
 }
