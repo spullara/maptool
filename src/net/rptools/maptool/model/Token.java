@@ -41,6 +41,7 @@ import javax.swing.ImageIcon;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.maptool.util.ImageManager;
 
 /**
  * This object represents the placeable objects on a map. For example an icon
@@ -470,16 +471,10 @@ public class Token {
     map.putAll(state);
     
     // Create the image from the asset and add it to the map
-    try {
-      Asset asset = AssetManager.getAsset(assetID);
-      Image image = null;
-      if (asset != null)
-        image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()));
-      if (image != null)
-        map.put(MAPTOOL + "token", new ImageIcon(image)); // Image icon makes it serializable.
-    } catch (IOException e) {
-      e.printStackTrace();
-    } // endtry    
+    Asset asset = AssetManager.getAsset(assetID);
+    Image image = ImageManager.getImageAndWait(asset);
+    if (image != null)
+      map.put(MAPTOOL + "token", new ImageIcon(image)); // Image icon makes it serializable.
     return map;
   }
   
@@ -524,6 +519,8 @@ public class Token {
       // Create the asset
       try {
         Asset asset = new Asset(name, ImageUtil.imageToBytes((BufferedImage)image));
+        if (!AssetManager.hasAsset(asset)) 
+          AssetManager.putAsset(asset);          
         assetID = asset.getId();
       } catch (IOException e) {
         e.printStackTrace();

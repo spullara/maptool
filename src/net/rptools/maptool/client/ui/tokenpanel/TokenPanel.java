@@ -107,7 +107,7 @@ public class TokenPanel extends JPanel implements ModelChangeListener {
                 }
             }
         });
-        
+        new TokenPanelTransferHandler(tokenList);
         add(BorderLayout.CENTER, new JScrollPane(tokenList));
     }
     

@@ -27,6 +27,8 @@ package net.rptools.maptool.client;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -68,34 +70,40 @@ public class MapToolUtil {
         return roll < percentage;
     }
 
+    public static final Pattern ENDS_IN_INDEX = Pattern.compile(" \\d$");
     public static String nextTokenId(Zone zone, String baseName) {
 
+      // Create a name
     	if (baseName == null) {
 	    	int nextId = nextTokenId.getAndIncrement();
 	    	char ch = (char)('a' + MapTool.getPlayerList().indexOf(MapTool.getPlayer()));
-    	
 	    	return ch + Integer.toString(nextId);
     	}
     	
-    	int index = 1;
-    	String name;
+      // Check for an already numbered name
+      baseName = baseName.trim();
+      Matcher matcher = ENDS_IN_INDEX.matcher(baseName);
+      int index = 0;
+      if (matcher.find()) {
+        index = Integer.parseInt(baseName.substring(matcher.start() + 1));
+        baseName = baseName.substring(0, matcher.start()).trim();
+      }
+      
+      // Find a valid index, if the index > 0 then add it to the name
+    	String name = baseName + (index == 0 ? "" : (" " + index));
     	List<Token> tokenList = zone.getTokens();
-    	while (true) { // At some point this will end
-    		
-    		for (Token token : tokenList) {
-    			
-    			name = baseName + " " + index; 
-    			if (token.getName() != null && token.getName().equals(name)) {
-    				
-    				// If we've found this token name, keep looking
-            		index ++;
-            		continue;
-    			}
-    		}
-    		break;
-    	}
-    	
-    	return baseName + " " + index;
+OUTTER: 
+      while (true) {  // Repeat until the name is unique       
+        for (Token token : tokenList) {
+          if (token.getName() != null && token.getName().equals(name)) {
+            index ++;
+            name = baseName + " " + index; 
+            continue OUTTER;
+          } // endif
+        } // endfor
+        break;
+      } // endwhile
+    	return name;
     }
     
     public static boolean isDebugEnabled() {
