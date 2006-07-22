@@ -481,6 +481,19 @@ public class AppActions {
 
 	};
 
+	public static final Action TOGGLE_SHOW_MOVEMENT_MEASUREMENTS = new DefaultClientAction() {
+		{
+			init("Show Movement Measurements");
+		}
+
+		public void execute(ActionEvent e) {
+
+			AppState.setShowMovementMeasurements(!AppState.getShowMovementMeasurements());
+			MapTool.getFrame().getCurrentZoneRenderer().repaint();
+		}
+
+	};
+
 	public static final Action REMOVE_ZONE = new ZoneAdminClientAction() {
 		{
 			init("action.removeZone");

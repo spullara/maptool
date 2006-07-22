@@ -679,7 +679,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 					y +=  10 + height;
 					x += scaledWidth/2;
                     
-					if (zone.getGrid().getCapabilities().isPathingSupported() && walker.getDistance() >= 1) {
+					if (AppState.getShowMovementMeasurements() && zone.getGrid().getCapabilities().isPathingSupported() && walker.getDistance() >= 1) {
 						GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
 						y += 20;
 					}
@@ -1489,18 +1489,18 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public void drop(DropTargetDropEvent dtde) {
       final ZonePoint zp = new ScreenPoint((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY()).convertToZone(this);
     	GridCapabilities gridCaps = zone.getGrid().getCapabilities();
-      List<Token> tokens = null;
-      List<Asset> assets = TransferableHelper.getAsset(dtde);
+        List<Token> tokens = null;
+        List<Asset> assets = TransferableHelper.getAsset(dtde);
     	if (assets != null) {
         tokens = new ArrayList<Token>(assets.size());
         for (Asset asset : assets)
           tokens.add(new Token(asset.getName(), asset.getId()));
-        addTokens(tokens, zp);        
+          addTokens(tokens, zp);        
     	} else {
         tokens = TransferableHelper.getTokens(dtde.getTransferable());
         if (tokens != null) 
           addTokens(tokens, zp);
-      } // ednif
+      }
       dtde.dropComplete(tokens != null);
     }
 

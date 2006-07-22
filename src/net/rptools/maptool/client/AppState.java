@@ -36,6 +36,7 @@ public class AppState {
     private static boolean showTokenNames = false;
     private static boolean linkPlayerViews = false;
     private static boolean useDoubleWideLine = true;
+    private static boolean showMovementMeasurements = true;
     private static File campaignFile;
     private static int gridSize = 1;
     
@@ -97,5 +98,13 @@ public class AppState {
 
 	public static void setCampaignFile(File campaignFile) {
 		AppState.campaignFile = campaignFile;
+	}
+	
+	public static void setShowMovementMeasurements(boolean show) {
+		showMovementMeasurements = show;
+	}
+	
+	public static boolean getShowMovementMeasurements() {
+		return showMovementMeasurements;
 	}
 }
