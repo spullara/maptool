@@ -134,7 +134,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	private BufferedImage fog;
 	private boolean updateFog;
 	
-	private FontMetrics fontMetrics;
 	private GeneralPath facingArrow;
 	
     // Optimizations
@@ -306,19 +305,32 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		repaint();
 	}
     
-    public void commitMoveSelectionSet (GUID keyToken) {
+    public void commitMoveSelectionSet (GUID keyTokenId) {
 
         // TODO: Quick hack to handle updating server state
-        SelectionSet set = selectionSetMap.get(keyToken);
+        SelectionSet set = selectionSetMap.get(keyTokenId);
 
-        removeMoveSelectionSet(keyToken);
-        MapTool.serverCommand().stopTokenMove(getZone().getId(), keyToken);
+        removeMoveSelectionSet(keyTokenId);
+        MapTool.serverCommand().stopTokenMove(getZone().getId(), keyTokenId);
 
+        Token keyToken = zone.getToken(keyTokenId);
+        CellPoint originPoint = zone.getGrid().convert(new ZonePoint(keyToken.getX(), keyToken.getY()));
+        
         for (GUID tokenGUID : set.getTokens()) {
             
             Token token = zone.getToken(tokenGUID);
-            token.setX(set.getOffsetX() + token.getX());
-            token.setY(set.getOffsetY() + token.getY());
+            
+            CellPoint tokenCell = zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
+            
+            int cellOffX = originPoint.x - tokenCell.x;
+            int cellOffY = originPoint.y - tokenCell.y;
+            
+            List<CellPoint> path = new LinkedList<CellPoint>();
+            for (CellPoint cp : set.getWalker().getPath()) {
+            	path.add(new CellPoint(cp.x - cellOffX, cp.y - cellOffY));
+            }
+            
+            token.applyMove(set.getOffsetX(), set.getOffsetY(), path);
 
             // No longer need this version
             replacementImageMap.remove(token);
@@ -410,7 +422,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public void paintComponent(Graphics g) {
 
         Graphics2D g2d = (Graphics2D) g;
-        fontMetrics = g.getFontMetrics();
 		
         if (zone == null) { return; }
         
@@ -943,6 +954,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				image = replacementImage;
 			}
 
+			// Previous path
+			if (token.getLastPath() != null) {
+//				renderPath(g2d, token.getLastPath(), )
+			}
+			
             // Draw image
 			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp())) {
 				// Rotated

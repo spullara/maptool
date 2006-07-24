@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.ListModel;
@@ -82,6 +83,13 @@ public class TokenListModel implements ListModel {
         		if (zone.isTokenVisible(token)) {
         			tokenList.add(token);
         		}
+        	}
+        }
+
+        for (ListIterator<Token> iter = tokenList.listIterator(); iter.hasNext();) {
+        	
+        	if (iter.next().isStamp()) {
+        		iter.remove();
         	}
         }
         

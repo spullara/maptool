@@ -66,6 +66,10 @@ public class Token {
 	private int y;
 	private int z;
 
+	private int lastX;
+	private int lastY;
+	private List<CellPoint> lastPath;
+	
 	private boolean snapToScale = true; // Whether the scaleX and scaleY
 										// represent snap-to-grid measurements
 
@@ -282,11 +286,31 @@ public class Token {
 	}
 
 	public void setX(int x) {
+		lastX = this.x;
 		this.x = x;
 	}
 
 	public int getY() {
+		lastY = this.y;
 		return y;
+	}
+
+	public void applyMove(int xOffset, int yOffset, List<CellPoint> path) {
+		setX(x + xOffset);
+		setY(y + yOffset);
+		lastPath = path;
+	}
+	
+	public int getLastY() {
+		return lastY;
+	}
+	
+	public int getLastX() {
+		return lastX;
+	}
+	
+	public List<CellPoint> getLastPath() {
+		return lastPath;
 	}
 
 	public void setY(int y) {
