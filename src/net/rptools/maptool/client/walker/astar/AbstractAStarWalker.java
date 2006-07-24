@@ -190,7 +190,7 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 
 	public int getDistance() {
 		if (distance == -1) {
-			distance = calculateDistance(getPath(), getZone().getFeetPerCell());
+			distance = calculateDistance(getPath().getCellPath(), getZone().getFeetPerCell());
 		}
 
 		return distance;

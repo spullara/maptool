@@ -24,9 +24,8 @@
  */
 package net.rptools.maptool.client.walker;
 
-import java.util.List;
-
 import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.Path;
 
 
 public interface ZoneWalker {
@@ -39,7 +38,7 @@ public interface ZoneWalker {
   public boolean isWaypoint(CellPoint point);
   
   public int getDistance();
-  public List<CellPoint> getPath();
+  public Path getPath();
   public CellPoint getLastPoint();
   
   /**

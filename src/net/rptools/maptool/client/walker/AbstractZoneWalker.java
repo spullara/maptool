@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Zone;
 
 public abstract class AbstractZoneWalker implements ZoneWalker {
@@ -82,22 +83,22 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
     	return oldPartial.end;
     }
     
-    public List<CellPoint> getPath() {
-    	List<CellPoint> ret = new ArrayList<CellPoint>();
+    public Path getPath() {
+    	Path path = new Path();
     	
     	PartialPath last = null;
     	for (PartialPath partial : partialPaths) {
     		if (partial.path != null && partial.path.size() > 1) {
-    			ret.addAll(partial.path.subList(0, partial.path.size() - 1));
+    			path.addAllPathCells(partial.path.subList(0, partial.path.size() - 1));
     		}
     		last = partial;
     	}
     	
     	if (last != null) {
-    		ret.add(last.end);
+    		path.addPathCell(last.end);
     	}
     	
-    	return ret;
+    	return path;
     }
     
     public boolean isWaypoint(CellPoint point) {

@@ -28,11 +28,8 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -54,7 +51,6 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,7 +64,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppPreferences;
@@ -79,9 +74,6 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
-import net.rptools.maptool.client.swing.Animatable;
-import net.rptools.maptool.client.swing.AnimationManager;
-import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenStates;
@@ -95,6 +87,7 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridCapabilities;
 import net.rptools.maptool.model.Label;
+import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
@@ -315,6 +308,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
         Token keyToken = zone.getToken(keyTokenId);
         CellPoint originPoint = zone.getGrid().convert(new ZonePoint(keyToken.getX(), keyToken.getY()));
+        Path path = set.getWalker().getPath();
         
         for (GUID tokenGUID : set.getTokens()) {
             
@@ -325,12 +319,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int cellOffX = originPoint.x - tokenCell.x;
             int cellOffY = originPoint.y - tokenCell.y;
             
-            List<CellPoint> path = new LinkedList<CellPoint>();
-            for (CellPoint cp : set.getWalker().getPath()) {
-            	path.add(new CellPoint(cp.x - cellOffX, cp.y - cellOffY));
-            }
-            
-            token.applyMove(set.getOffsetX(), set.getOffsetY(), path);
+            token.applyMove(set.getOffsetX(), set.getOffsetY(), path.derive(cellOffX, cellOffY));
 
             // No longer need this version
             replacementImageMap.remove(token);
@@ -654,7 +643,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				if (token == keyToken) {
 
 					if (zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
-						renderPath(g, walker, width/gridSize, height/gridSize);
+						renderPath(g, walker.getPath(), width/gridSize, height/gridSize);
 					} else {
 						g.setColor(Color.black);
 						ScreenPoint originPoint = ScreenPoint.fromZonePoint(this, token.getX()+width/2+(int)(grid.getCellOffset().width*scale), token.getY()+height/2+(int)(grid.getCellOffset().height*scale));
@@ -704,7 +693,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 	}
 	
-	public void renderPath(Graphics2D g, ZoneWalker walker, int width, int height) {
+	public void renderPath(Graphics2D g, Path path, int width, int height) {
 		Object oldRendering = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		CellPoint previousPoint = null;
@@ -717,11 +706,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		int yOffset = (int)((height-1)*getScaledGridSize()/2);
 
 		// JOINTS
-		List<CellPoint> path = walker.getPath();
+		List<CellPoint> cellPath = path.getCellPath();
 
 		Set<CellPoint> pathSet = new HashSet<CellPoint>();
 		Set<CellPoint> waypointSet = new HashSet<CellPoint>();
-		for (CellPoint p : path) {
+		for (CellPoint p : cellPath) {
 
 			for (int x = 0; x < width; x++) {
 				for (int y = 0; y < height; y++) {
@@ -729,7 +718,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 					pathSet.add(new CellPoint(p.x+x, p.y+y));
 				}
 			}
-			if (walker.isWaypoint(p) && previousPoint != null) {
+			if (path.isWaypoint(p) && previousPoint != null) {
 				waypointSet.add(new CellPoint(p.x + width/2, p.y+height/2));
 			}
 			previousPoint = p;
@@ -742,7 +731,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 		
 		previousPoint = null;
-		for (CellPoint p : path) {
+		for (CellPoint p : cellPath) {
 
 			if (previousPoint != null) {
 				// LATER: Optimize this
@@ -854,6 +843,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         Rectangle clipBounds = g.getClipBounds();
         float scale = zoneScale.getScale();
+        double gridSize = getScaledGridSize();
         coveredTokenSet.clear();
         tokenLocationList.clear();
         for (Token token : zone.getTokens()) {
@@ -956,7 +946,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 			// Previous path
 			if (token.getLastPath() != null) {
-//				renderPath(g2d, token.getLastPath(), )
+				renderPath(g, token.getLastPath(), (int)(width/gridSize), (int)(height/gridSize));
 			}
 			
             // Draw image
