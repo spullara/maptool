@@ -11,7 +11,6 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
@@ -176,6 +175,7 @@ public class TokenPopupMenu extends JPopupMenu {
 
 		add(new JSeparator());
 
+		add(new ShowPathsAction());
 		add(visibilityMenuItem);
 		add(new ChangeStateAction("light"));
 		add(arrangeMenu);
@@ -549,6 +549,25 @@ public class TokenPopupMenu extends JPopupMenu {
 		}
 	}
 
+	private class ShowPathsAction extends AbstractAction {
+		public ShowPathsAction() {
+			putValue(Action.NAME, "Show Path");
+		}
+		public void actionPerformed(ActionEvent e) {
+			
+			for (GUID tokenGUID : selectedTokenSet) {
+
+				Token token = renderer.getZone().getToken(tokenGUID);
+				if (token == null) {
+					continue;
+				}
+				
+				renderer.showPath(token);
+			}
+			renderer.repaint();
+		}
+	}
+	
 	private class DeleteAction extends AbstractAction {
 
 		public DeleteAction() {

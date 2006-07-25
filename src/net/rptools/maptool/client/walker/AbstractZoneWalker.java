@@ -97,7 +97,12 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
     	if (last != null) {
     		path.addPathCell(last.end);
     	}
-    	
+
+    	for (CellPoint cp : path.getCellPath()) {
+    		if (isWaypoint(cp)) {
+    			path.addWayPoint(cp);
+    		}
+    	}
     	return path;
     }
     

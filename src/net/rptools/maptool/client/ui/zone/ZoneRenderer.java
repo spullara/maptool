@@ -129,6 +129,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	
 	private GeneralPath facingArrow;
 	
+	private List<Token> showPathList = new ArrayList<Token>();
+	
     // Optimizations
     private Map<Token, BufferedImage> replacementImageMap = new HashMap<Token, BufferedImage>();
 
@@ -179,6 +181,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 //        fps.start();
     }
 
+    public void showPath(Token token) {
+    	showPathList.add(token);
+    }
+    
+    public void clearShowPaths() {
+    	showPathList.clear();
+    	repaint();
+    }
+    
     public Scale getZoneScale() {
     	return zoneScale;
     }
@@ -945,7 +956,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			}
 
 			// Previous path
-			if (token.getLastPath() != null) {
+			if (showPathList.contains(token)) {
 				renderPath(g, token.getLastPath(), (int)(width/gridSize), (int)(height/gridSize));
 			}
 			
@@ -1157,6 +1168,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     }
     
     public void clearSelectedTokens() {
+		clearShowPaths();
     	selectedTokenSet.clear();
     	repaint();
     }
