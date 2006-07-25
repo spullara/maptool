@@ -87,10 +87,6 @@ public class MapTool {
     private static ClientConnection conn;
     private static ClientMethodHandler handler;
     
-    // Components
-	private static JFileChooser loadFileChooser;
-	private static JFileChooser saveFileChooser;
-
 	private static ServiceAnnouncer announcer;
 	
 	public static void showError(String message) {
@@ -125,10 +121,6 @@ public class MapTool {
 		// We'll manage our own images
 		ImageIO.setUseCache(false);
 		
-		// Components
-		loadFileChooser = createLoadFileChooser();
-		saveFileChooser = createSaveFileChooser();
-
         playerList = new ObservableList<Player>();
         messageList = new ObservableList<TextMessage>(Collections.synchronizedList(new ArrayList<TextMessage>()));
         
@@ -490,42 +482,6 @@ public class MapTool {
     
 	public static MapToolFrame getFrame() {
 		return clientFrame;
-	}
-	
-	public static JFileChooser getLoadFileChooser() {
-		return loadFileChooser;
-	}
-	
-	public static JFileChooser getSaveFileChooser() {
-		return saveFileChooser;
-	}
-	
-	private static JFileChooser createLoadFileChooser() {
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setCurrentDirectory(AppPreferences.getLoadDir());
-		return fileChooser;
-	}
-	
-	private static JFileChooser createSaveFileChooser() {
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setCurrentDirectory(AppPreferences.getSaveDir());
-		return fileChooser;
-	}
-	
-	private static class HeapSpy implements Runnable {
-		
-		public void run() {
-
-			while (true) {
-				Runtime.getRuntime().gc();
-				System.out.println ("Memory: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()));
-				try {
-					Thread.sleep(1000);
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
 	}
 	
 	public static void main(String[] args) {
