@@ -956,7 +956,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			}
 
 			// Previous path
-			if (showPathList.contains(token)) {
+			if (showPathList.contains(token) && token.getLastPath() != null) {
 				renderPath(g, token.getLastPath(), (int)(width/gridSize), (int)(height/gridSize));
 			}
 			

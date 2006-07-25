@@ -300,6 +300,10 @@ public class Token {
 		setY(y + yOffset);
 		lastPath = path;
 	}
+
+	public void setLastPath(Path path) {
+		lastPath = path;
+	}
 	
 	public int getLastY() {
 		return lastY;

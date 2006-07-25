@@ -25,10 +25,12 @@ import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZonePoint;
 
 public class TokenPopupMenu extends JPopupMenu {
 
@@ -176,6 +178,7 @@ public class TokenPopupMenu extends JPopupMenu {
 		add(new JSeparator());
 
 		add(new ShowPathsAction());
+		add(new RevertLastMoveAction());
 		add(visibilityMenuItem);
 		add(new ChangeStateAction("light"));
 		add(arrangeMenu);
@@ -538,14 +541,14 @@ public class TokenPopupMenu extends JPopupMenu {
 		
 		public void actionPerformed(ActionEvent e) {
 
-      TokenPropertiesDialog dialog = new TokenPropertiesDialog(tokenUnderMouse);
-      Rectangle b = MapTool.getFrame().getBounds();
-      dialog.setLocation(b.x + (b.width - dialog.getWidth()) / 2, b.y + (b.height - dialog.getHeight()) / 2);
-      dialog.setVisible(true);
-			if (dialog.isTokenSaved()) {
-        renderer.repaint();
-				MapTool.serverCommand().putToken(renderer.getZone().getId(), tokenUnderMouse);
-			}
+	      TokenPropertiesDialog dialog = new TokenPropertiesDialog(tokenUnderMouse);
+	      Rectangle b = MapTool.getFrame().getBounds();
+	      dialog.setLocation(b.x + (b.width - dialog.getWidth()) / 2, b.y + (b.height - dialog.getHeight()) / 2);
+	      dialog.setVisible(true);
+	      if (dialog.isTokenSaved()) {
+	    	  renderer.repaint();
+	    	  MapTool.serverCommand().putToken(renderer.getZone().getId(), tokenUnderMouse);
+	      }
 		}
 	}
 
@@ -563,6 +566,58 @@ public class TokenPopupMenu extends JPopupMenu {
 				}
 				
 				renderer.showPath(token);
+			}
+			renderer.repaint();
+		}
+	}
+	
+	private class RevertLastMoveAction extends AbstractAction {
+		public RevertLastMoveAction() {
+			putValue(Action.NAME, "Revert Last Move");
+			
+			// Only available if there is a last move
+			for (GUID tokenGUID : selectedTokenSet) {
+
+				Token token = renderer.getZone().getToken(tokenGUID);
+				if (token == null) {
+					continue;
+				}
+				
+				if (token.getLastPath() == null) {
+					setEnabled(false);
+					break;
+				}
+			}
+		}
+		public void actionPerformed(ActionEvent e) {
+			
+			for (GUID tokenGUID : selectedTokenSet) {
+
+				Token token = renderer.getZone().getToken(tokenGUID);
+				if (token == null) {
+					continue;
+				}
+				
+				Path path = token.getLastPath();
+				if (path == null) {
+					continue;
+				}
+				
+				// Get the start cell of the last move
+				ZonePoint zp = renderer.getZone().getGrid().convert(path.getCellPath().get(0));
+				
+				// Relocate
+				token.setX(zp.x);
+				token.setY(zp.y);
+				
+				// Do it again to cancel out the last move position
+				token.setX(zp.x);
+				token.setY(zp.y);
+				
+				// No more last path
+				token.setLastPath(null);
+				
+				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
 			renderer.repaint();
 		}
