@@ -51,7 +51,7 @@ public class LoadAliasesMacro implements Macro {
     		aliasFile = new File(macro);
     	} else {
     	
-	    	JFileChooser chooser = MapTool.getLoadFileChooser();
+	    	JFileChooser chooser = MapTool.getFrame().getLoadFileChooser();
 			chooser.setDialogTitle("Load Aliases");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	

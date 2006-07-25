@@ -66,7 +66,7 @@ public class SaveTokenStatesMacro implements Macro {
     } else {
       
       // Not on the command line, ask the user for a file.
-      JFileChooser chooser = MapTool.getSaveFileChooser();
+      JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
       chooser.setDialogTitle("Save Token States");
       chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
       if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) return;

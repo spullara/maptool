@@ -299,7 +299,7 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 			String messageHistory = MapTool.getFrame().getCommandPanel().getMessageHistory();
 			
-	    	JFileChooser chooser = MapTool.getSaveFileChooser();
+	    	JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
 			chooser.setDialogTitle("Save Message History");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	
@@ -992,7 +992,7 @@ public class AppActions {
 
 		public void execute(ActionEvent ae) {
 
-			JFileChooser chooser = MapTool.getLoadFileChooser();
+			JFileChooser chooser = MapTool.getFrame().getLoadFileChooser();
 			chooser.setDialogTitle("Load Campaign");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
@@ -1063,7 +1063,7 @@ public class AppActions {
 
 			Campaign campaign = MapTool.getCampaign();
 
-			JFileChooser chooser = MapTool.getSaveFileChooser();
+			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
 			chooser.setDialogTitle("Save Campaign");
 
 			if (chooser.showSaveDialog(MapTool.getFrame()) == JFileChooser.APPROVE_OPTION) {
@@ -1215,7 +1215,7 @@ public class AppActions {
 
 				public void run() {
 
-					JFileChooser chooser = MapTool.getLoadFileChooser();
+					JFileChooser chooser = MapTool.getFrame().getLoadFileChooser();
 					chooser.setDialogTitle("Load Asset Tree");
 					chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 

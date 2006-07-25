@@ -51,6 +51,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
@@ -59,7 +60,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
@@ -173,6 +173,10 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	
 	private GlassPane glassPane;
   
+    // Components
+	private JFileChooser loadFileChooser;
+	private JFileChooser saveFileChooser;
+
     // TODO: I don't like this here, eventOverlay should be more abstracted
     private NotificationOverlay notificationOverlay = new NotificationOverlay();
 	
@@ -292,6 +296,22 @@ public class MapToolFrame extends JFrame implements WindowListener {
         new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
         
         restorePreferences();
+	}
+	
+	public JFileChooser getLoadFileChooser() {
+		if (loadFileChooser == null) {
+			loadFileChooser = new JFileChooser();
+			loadFileChooser.setCurrentDirectory(AppPreferences.getLoadDir());
+		}
+		return loadFileChooser;
+	}
+	
+	public JFileChooser getSaveFileChooser() {
+		if (saveFileChooser == null) {
+			saveFileChooser = new JFileChooser();
+			saveFileChooser.setCurrentDirectory(AppPreferences.getSaveDir());
+		}
+		return saveFileChooser;
 	}
 	
 	public void showControlPanel(JPanel panel) {

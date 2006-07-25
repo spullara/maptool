@@ -66,7 +66,7 @@ public class LoadTokenStatesMacro implements Macro {
     } else {
       
       // Ask the user for the token states file
-      JFileChooser chooser = MapTool.getLoadFileChooser();
+      JFileChooser chooser = MapTool.getFrame().getLoadFileChooser();
       chooser.setDialogTitle("Load Token States");
       chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
       if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) return;

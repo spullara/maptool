@@ -56,7 +56,7 @@ public class SaveAliasesMacro implements Macro {
     		aliasFile = new File(macro);
     	} else {
     	
-	    	JFileChooser chooser = MapTool.getSaveFileChooser();
+	    	JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
 			chooser.setDialogTitle("Save Aliases");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	
