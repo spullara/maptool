@@ -374,6 +374,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	        
 	        return;
 		}
+		
+		// WAYPOINT
+		if (SwingUtilities.isMiddleMouseButton(e) && isDraggingToken) {
+			// Waypoint
+            CellPoint cp = renderer.getZone().getGrid().convert(new ScreenPoint(mouseX, mouseY).convertToZone(renderer));
+            
+            renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), cp);
+            
+            MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), cp);
+			
+		}
         
 		// POPUP MENU
         if (SwingUtilities.isRightMouseButton(e) && !isDraggingToken) {
