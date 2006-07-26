@@ -92,6 +92,7 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.TOGGLE_GRID));
         menu.add(new JMenuItem(AppActions.TOGGLE_ASSET_PANEL));
         menu.add(new JMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));
+        menu.add(new JMenuItem(AppActions.TOGGLE_COMMAND_PANEL));
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.SHOW_FULLSCREEN));
         menu.addSeparator();

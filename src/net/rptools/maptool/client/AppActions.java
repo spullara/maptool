@@ -128,6 +128,20 @@ public class AppActions {
 		}
 	};
 	
+	public static final Action TOGGLE_COMMAND_PANEL = new DefaultClientAction() {
+		{
+			init("Command Panel");
+		}
+		public void execute(ActionEvent e) {
+			
+			if (MapTool.getFrame().getCommandPanel().isVisible()) {
+				MapTool.getFrame().hideCommandPanel();
+			} else {
+				MapTool.getFrame().showCommandPanel();
+			}
+		}
+	};
+	
 	public static final Action EXPORT_SCREENSHOT_LAST_LOCATION = new DefaultClientAction() {
 		{
 			init("Export Screenshot");

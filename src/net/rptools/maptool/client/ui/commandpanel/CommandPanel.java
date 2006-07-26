@@ -8,9 +8,6 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -20,28 +17,23 @@ import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.InputMap;
-import javax.swing.JCheckBox;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.Timer;
 
-import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
 
-public class CommandPanel extends JPanel implements Observer, MouseListener, MouseMotionListener {
+public class CommandPanel extends JPanel implements Observer {
 
 	private JTextField commandTextField;
-	private boolean mouseIsOver;
 	private MessagePanel messagePanel;
-	private Timer closeTimer;
 	private List<String> commandHistory = new LinkedList<String>();
 	private int commandHistoryIndex;
-	private JCheckBox stickyCheckBox = new JCheckBox();
 	
 	public CommandPanel() {
 		setLayout(new BorderLayout());
@@ -50,8 +42,6 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 		add(BorderLayout.NORTH, createTopPanel());
 		add(BorderLayout.SOUTH, getCommandTextField());
 		add(BorderLayout.CENTER, getMessagePanel());
-		
-		SwingUtil.addMouseListenerToHierarchy(this, this);
 	}
 	
 	public String getMessageHistory() {
@@ -66,10 +56,6 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 	@Override
 	public Dimension getMinimumSize() {
 		return getPreferredSize();
-	}
-	
-	public boolean isSticky() {
-		return stickyCheckBox.isSelected();
 	}
 	
 	public JTextField getCommandTextField() {
@@ -117,9 +103,20 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 			}
 		};
 		
-		panel.add(stickyCheckBox);
+		panel.add(createCloseButton());
 		
 		return panel;
+	}
+	
+	private JButton createCloseButton() {
+		JButton button = new JButton("X");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				MapTool.getFrame().hideCommandPanel();
+			}
+		});
+		
+		return button;
 	}
 	
 	/**
@@ -157,9 +154,7 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 		commandTextField.setText("");
 		validate();
 		
-		if (!mouseIsOver) {
-			MapTool.getFrame().hideCommandPanel();
-		}
+		MapTool.getFrame().hideCommandPanel();
 	}
 	
 	public void startMacro() {
@@ -244,43 +239,4 @@ public class CommandPanel extends JPanel implements Observer, MouseListener, Mou
 	    } // endswitch
 	}	
 	
-	////
-	// MOUSE LISTENER
-	public void mouseClicked(MouseEvent e) {}
-	public void mouseEntered(MouseEvent e) {
-		mouseIsOver = true;
-	}
-	public void mouseExited(MouseEvent e) {
-		mouseIsOver = false;
-
-		if (stickyCheckBox.isSelected()) {
-			return;
-		}
-		
-		if (closeTimer != null) {
-			closeTimer.stop();
-		}
-		closeTimer = new Timer(500, new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				if (!mouseIsOver && getCommandTextField().getText().length() == 0) {
-					cancelCommand();
-				}
-				
-				if (closeTimer != null) {
-					closeTimer.stop();
-					closeTimer = null;
-				}
-			}
-		});
-		closeTimer.start();
-	}
-	public void mousePressed(MouseEvent e) {}
-	public void mouseReleased(MouseEvent e) {}
-	
-	////
-	// MOUSE MOTION LISTENER
-	public void mouseDragged(MouseEvent e) {}
-	public void mouseMoved(MouseEvent e) {
-		mouseIsOver = true;
-	}
 }

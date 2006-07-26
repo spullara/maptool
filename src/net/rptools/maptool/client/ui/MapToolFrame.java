@@ -246,16 +246,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
         rendererBorderPanel = new JPanel(new GridLayout());
         rendererBorderPanel.add(zoneRendererPanel);
         rendererBorderPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        rendererBorderPanel.addMouseMotionListener(new MouseMotionAdapter(){
-        	@Override
-        	public void mouseMoved(MouseEvent e) {
-        		Dimension size = rendererBorderPanel.getSize();
-        		
-        		if (e.getY() > size.height-5) {
-        			showCommandPanel();
-        		}
-        	}
-        });
         
         // Split up/down
         rightSplitPane = new JSplitPaneEx();
@@ -266,9 +256,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
 
 		rightSplitPane.setTopComponent(rendererBorderPanel);
 		rightSplitPane.setBottomComponent(commandPanel);
-		
-		divider.addMouseMotionListener(commandPanel);
-		divider.addMouseListener(commandPanel);
 		
 		// Split left/right
 		mainSplitPane = new JSplitPaneEx();
@@ -379,7 +366,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 			chatActionLabel.setVisible(false);
 			chatActionLabel.addMouseListener(new MouseAdapter(){
 				@Override
-				public void mouseEntered(MouseEvent e) {
+				public void mousePressed(MouseEvent e) {
 					showCommandPanel();
 				}
 			});
@@ -408,10 +395,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	}
 	
 	public void hideCommandPanel() {
-		if (commandPanel.isSticky()) {
-			return;
-		}
-		
 		rightSplitPane.hideBottom();
 	}
 	
