@@ -453,7 +453,6 @@ public class TokenPopupMenu extends JPopupMenu {
 
 				token.setVisible(((JCheckBoxMenuItem) e.getSource())
 						.isSelected());
-				renderer.flush(token);
 
 				MapTool.serverCommand().putToken(renderer.getZone().getId(),
 						token);

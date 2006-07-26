@@ -475,39 +475,46 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      * @param g Paint on this graphic object.
      */
     private void renderTokenTemplates(Graphics2D g) {
-      float scale = zoneScale.getScale();
-      int scaledGridSize = (int)getScaledGridSize();
-      
-      // Find tokens with template state
-      // TODO: I really don't like this, it should be optimized
-      for (Token token : zone.getTokens()) {
-        for (String state : token.getStatePropertyNames()) {
-          Object value = token.getState(state);
-          if (value instanceof TokenTemplate) {
+		float scale = zoneScale.getScale();
+		int scaledGridSize = (int) getScaledGridSize();
 
-        	  // Only show if selected
-        	  if (!selectedTokenSet.contains(token.getId())) continue;
-        	  
-            // Calculate the token bounds
-            int width = (int)(TokenSize.getWidth(token, zone.getGrid()) * scale)-1;
-            int height = (int)(TokenSize.getHeight(token, zone.getGrid()) * scale)-1;
-            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
-            int x = tokenScreenLocation.x + 1;
-            int y = tokenScreenLocation.y + 1;
-            if (width < scaledGridSize) x += (scaledGridSize - width)/2;
-            if (height < scaledGridSize) y += (scaledGridSize - height)/2;
-            Rectangle bounds = new Rectangle(x, y, width, height);
-            
-            // Set up the graphics, paint the template, restore the graphics
-            Shape clip = g.getClip();
-            g.translate(bounds.x, bounds.y);
-            ((TokenTemplate)value).paintTemplate(g, token, bounds, this);
-            g.translate(-bounds.x, -bounds.y);
-            g.setClip(clip);
-          } 
-        } 
-      } 
-    }
+		// Find tokens with template state
+		// TODO: I really don't like this, it should be optimized
+		for (Token token : zone.getTokens()) {
+			for (String state : token.getStatePropertyNames()) {
+				Object value = token.getState(state);
+				if (value instanceof TokenTemplate) {
+
+					// Only show if selected
+					if (!AppState.isShowLightRadius()) {
+						continue;
+					}
+
+					// Calculate the token bounds
+					int width = (int) (TokenSize.getWidth(token, zone.getGrid()) * scale) - 1;
+					int height = (int) (TokenSize.getHeight(token, zone.getGrid()) * scale) - 1;
+					ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
+					int x = tokenScreenLocation.x + 1;
+					int y = tokenScreenLocation.y + 1;
+					if (width < scaledGridSize) {
+						x += (scaledGridSize - width) / 2;
+					}
+					if (height < scaledGridSize) {
+						y += (scaledGridSize - height) / 2;
+					}
+					Rectangle bounds = new Rectangle(x, y, width, height);
+
+					// Set up the graphics, paint the template, restore the
+					// graphics
+					Shape clip = g.getClip();
+					g.translate(bounds.x, bounds.y);
+					((TokenTemplate) value).paintTemplate(g, token, bounds,this);
+					g.translate(-bounds.x, -bounds.y);
+					g.setClip(clip);
+				}
+			}
+		}
+	}
     private void renderLabels(Graphics2D g) {
         
     	labelLocationList.clear();
@@ -1111,11 +1118,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         }
     }
 
-    // LATER: I don't like this mechanism, it's too ugly, and exposes too much
-    // of the internal workings.  Fix it later
-    public void flush(Token token) {
-    }
-    
     public Set<GUID> getSelectedTokenSet() {
     	return selectedTokenSet;
     }

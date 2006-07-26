@@ -72,103 +72,27 @@ import com.jeta.forms.components.panel.FormPanel;
 public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		ModelChangeListener {
 
-	/*---------------------------------------------------------------------------------------------
-	 * Instance Variables
-	 *-------------------------------------------------------------------------------------------*/
-
-	/**
-	 * This button will trigger the action to save the notes and close the
-	 * dialog.
-	 */
 	private AbstractButton okButton;
-
-	/**
-	 * This button will trigger the action to close the dialog.
-	 */
 	private AbstractButton cancelButton;
-
-	/**
-	 * The component that contains the name of the token.
-	 */
 	private JTextField tokenName;
-
-  /**
-   * The game master's name for the token. It is only shown to the game master.
-   */
 	private JTextField tokenGMName;
-	
-  /**
-   * The game master's name for the token. It is only shown to the game master.
-   */
 	private JLabel tokenGMNameLabel;
-
-	/**
-	 * The component that contains the icon for the token.
-	 */
 	private ImageComponent tokenIcon;
-
-	/**
-	 * The pane used to display token notes.
-	 */
 	private JEditorPane notes;
-
-  /**
-   * Notes that are only shown to the game master.
-   */
 	private JEditorPane gmNotes;
-
-  /**
-   * The label for notes that are only shown to the game master.
-   */
 	private JLabel gmNotesLabel;
-	
-	/**
-	 * The component that allows the shape of the token to be selected.
-	 */
 	private JComboBox shape;
-
-	/**
-	 * The component that allows the size of the token to be selected.
-	 */
 	private JComboBox size;
-
-	/**
-	 * The component that allows the token to be snapped to grid or not.
-	 */
 	private JCheckBox snapToGrid;
-
-	/**
-	 * The component that allows the token to be shown or hidden.
-	 */
 	private JCheckBox visible;
-
-	/**
-	 * The panel that holds all of the token states combo boxes.
-	 */
 	private JPanel statesPanel;
-
-	/**
-	 * The token currently being displayed to the user.
-	 */
 	private Token token;
-
-	/**
-	 * Has the token been saved.
-	 */
 	private boolean tokenSaved;
-
-	/*---------------------------------------------------------------------------------------------
-	 * Class Variables
-	 *-------------------------------------------------------------------------------------------*/
 
 	/**
 	 * The size used to constrain the icon.
 	 */
 	public static final int SIZE = 64;
-
-	/*---------------------------------------------------------------------------------------------
-	 * Constructor
-	 *-------------------------------------------------------------------------------------------*/
 
 	/**
 	 * Create a new token notes dialog.

@@ -57,10 +57,10 @@ public class Path {
 		
 		Path path = new Path();
 		for (CellPoint cp : cellList) {
-			path.addPathCell(new CellPoint(cp.x + cellOffsetX, cp.y + cellOffsetY));
+			path.addPathCell(new CellPoint(cp.x - cellOffsetX, cp.y - cellOffsetY));
 		}
 		for (CellPoint cp : waypointList) {
-			path.addWayPoint(new CellPoint(cp.x + cellOffsetX, cp.y + cellOffsetY));
+			path.addWayPoint(new CellPoint(cp.x - cellOffsetX, cp.y - cellOffsetY));
 		}
 		
 		return path;

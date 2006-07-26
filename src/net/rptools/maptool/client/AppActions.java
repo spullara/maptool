@@ -508,6 +508,19 @@ public class AppActions {
 
 	};
 
+	public static final Action TOGGLE_SHOW_LIGHT_RADIUS = new DefaultClientAction() {
+		{
+			init("Show Light Radius");
+		}
+
+		public void execute(ActionEvent e) {
+
+			AppState.setShowLightRadius(!AppState.isShowLightRadius());
+			MapTool.getFrame().getCurrentZoneRenderer().repaint();
+		}
+
+	};
+
 	public static final Action REMOVE_ZONE = new ZoneAdminClientAction() {
 		{
 			init("action.removeZone");

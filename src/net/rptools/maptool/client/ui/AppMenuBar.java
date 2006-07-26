@@ -89,6 +89,7 @@ public class AppMenuBar extends JMenuBar {
         menu.add(createZoomMenu());
         menu.add(new JMenuItem(AppActions.TOGGLE_SHOW_TOKEN_NAMES));
         menu.add(new JMenuItem(AppActions.TOGGLE_SHOW_MOVEMENT_MEASUREMENTS));
+        menu.add(new JMenuItem(AppActions.TOGGLE_SHOW_LIGHT_RADIUS));
         menu.add(new JMenuItem(AppActions.TOGGLE_GRID));
         menu.add(new JMenuItem(AppActions.TOGGLE_ASSET_PANEL));
         menu.add(new JMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));

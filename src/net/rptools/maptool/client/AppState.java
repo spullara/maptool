@@ -37,6 +37,7 @@ public class AppState {
     private static boolean linkPlayerViews = false;
     private static boolean useDoubleWideLine = true;
     private static boolean showMovementMeasurements = true;
+    private static boolean showLightRadius = true;
     private static File campaignFile;
     private static int gridSize = 1;
     
@@ -50,6 +51,14 @@ public class AppState {
       changeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
+    public static boolean isShowLightRadius() {
+    	return showLightRadius;
+    }
+    
+    public static void setShowLightRadius(boolean show) {
+    	showLightRadius = show;
+    }
+    
 	public static int getGridSize() {
     	return gridSize;
     }
