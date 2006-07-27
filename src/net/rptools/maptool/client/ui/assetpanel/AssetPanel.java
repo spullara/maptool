@@ -30,6 +30,7 @@ import java.awt.event.MouseListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -37,6 +38,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import net.rptools.lib.swing.ImagePanel;
 import net.rptools.lib.swing.SelectionListener;
@@ -47,6 +50,8 @@ import net.rptools.maptool.model.Asset;
 
 public class AssetPanel extends JComponent {
 
+	private static final ImageIcon FILTER_IMAGE = new ImageIcon(AssetPanel.class.getClassLoader().getResource("net/rptools/maptool/client/image/zoom.png"));
+	
 	private AssetTree assetTree;
 	private ImagePanel imagePanel;
 	private JTextField filterTextField;
@@ -94,7 +99,7 @@ public class AssetPanel extends JComponent {
     	panel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
     	
     	panel.add(BorderLayout.CENTER, getFilterTextField());
-    	panel.add(BorderLayout.WEST, new JLabel("Filter:"));
+    	panel.add(BorderLayout.WEST, new JLabel(" ", FILTER_IMAGE, JLabel.LEFT));
     	
     	return panel;
     }
@@ -119,8 +124,30 @@ public class AssetPanel extends JComponent {
     public JTextField getFilterTextField() {
     	if (filterTextField == null) {
     		filterTextField = new JTextField();
+    		filterTextField.getDocument().addDocumentListener(new DocumentListener(){
+    			public void changedUpdate(DocumentEvent e) {
+    				// no op
+    			}
+    			public void insertUpdate(DocumentEvent e) {
+    				updateFilter();
+    			}
+    			public void removeUpdate(DocumentEvent e) {
+    				updateFilter();
+    			}
+    		});
     	}
     	return filterTextField;
+    }
+
+    private void updateFilter() {
+    	ImageFileImagePanelModel model = (ImageFileImagePanelModel) imagePanel.getModel();
+    	if (model == null) {
+    		return;
+    	}
+    	
+    	model.setFilter(filterTextField.getText());
+    	// TODO: This should be event based
+    	imagePanel.repaint();
     }
     
     // TODO: Find a way around this, it's ugly
@@ -159,6 +186,7 @@ public class AssetPanel extends JComponent {
 	
 	public void setDirectory(Directory dir) {
 		imagePanel.setModel(new ImageFileImagePanelModel(dir));
+		updateFilter();
 	}
   
     public AssetTree getAssetTree() {

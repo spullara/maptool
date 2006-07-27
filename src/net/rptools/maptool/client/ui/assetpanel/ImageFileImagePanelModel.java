@@ -27,7 +27,11 @@ package net.rptools.maptool.client.ui.assetpanel;
 import java.awt.Image;
 import java.awt.datatransfer.Transferable;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.swing.ImagePanelModel;
@@ -39,13 +43,21 @@ import net.rptools.maptool.util.ImageManager;
 public class ImageFileImagePanelModel implements ImagePanelModel {
 
 	private Directory dir;
+    private String filter;
+	private List<File> fileList;
     
 	public ImageFileImagePanelModel(Directory dir) {
 		this.dir = dir;
+		refresh();
+	}
+
+	public void setFilter(String filter) {
+		this.filter = filter;
+		refresh();
 	}
 	
 	public int getImageCount() {
-		return dir.getFiles().size();
+		return fileList.size();
 	}
 
 	public Image getImage(int index) {
@@ -53,7 +65,7 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
         BufferedImage image = null;
 		if (dir instanceof AssetDirectory) {
 			
-			image = ((AssetDirectory) dir).getImageFor(dir.getFiles().get(index));
+			image = ((AssetDirectory) dir).getImageFor(fileList.get(index));
 		}
 
 		return image != null ?  image : ImageManager.UNKNOWN_IMAGE;
@@ -76,7 +88,7 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 	}
     
     public String getCaption(int index) {
-    	String name = dir.getFiles().get(index).getName();
+    	String name = fileList.get(index).getName();
         return FileUtil.getNameWithoutExtension(name);
     }
     
@@ -90,10 +102,23 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
     
     public Asset getAsset(int index) {
         try {
-            Asset asset = AssetManager.createAsset(dir.getFiles().get(index));
+            Asset asset = AssetManager.createAsset(fileList.get(index));
     		return asset;
         } catch (IOException ioe) {
             return null;
         }
+    }
+    
+    private void refresh() {
+    	fileList = new ArrayList<File>();
+    	fileList.addAll(dir.getFiles());
+    	if (filter != null && filter.length() > 0) {
+	    	for (ListIterator<File> iter = fileList.listIterator(); iter.hasNext();) {
+	    		File file = iter.next();
+	    		if (!file.getName().contains(filter)) {
+	    			iter.remove();
+	    		}
+	    	}
+    	}
     }
 }
