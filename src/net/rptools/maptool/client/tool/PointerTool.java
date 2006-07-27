@@ -590,6 +590,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 			int deltaX = point.x - leadToken.getX();
 			int deltaY = point.y - leadToken.getY();
+            boolean isVisible = false;
             Rectangle bounds = new Rectangle();
 			for (GUID tokenGUID : tokenSet) {
 				Token token = zone.getToken(tokenGUID);
@@ -601,14 +602,27 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				int y = token.getY() + deltaY;
 	            int width = TokenSize.getWidth(token, zone.getGrid());
 	            int height = TokenSize.getHeight(token, zone.getGrid());
-
-	            int fudgeW = (int)(width*.25);
-	            int fudgeH = (int)(height*.25);
-	            bounds.setBounds(x+fudgeW, y+fudgeH, width-fudgeW*2, height-fudgeH*2);
-
-	            if (!fow.contains(bounds)) {
-	            	return false;
+	            
+	            int fudgeSize = 10;
+	            
+	            bounds.width = fudgeSize;
+	            bounds.height = fudgeSize;
+	            
+	            for (int by = y; by < y + height; by += fudgeSize) {
+	            	for (int bx = x; bx < x + width; bx += fudgeSize) {
+	            		bounds.x = bx;
+	            		bounds.y = by;
+	            		
+	    	            if (fow.contains(bounds)) {
+	    	            	isVisible = true;
+	    	            	break;
+	    	            }
+	            	}
 	            }
+			}
+			
+			if (!isVisible) {
+				return false;
 			}
 		}
 		
