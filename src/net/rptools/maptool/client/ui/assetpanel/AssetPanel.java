@@ -25,6 +25,7 @@
 package net.rptools.maptool.client.ui.assetpanel;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.MouseListener;
 import java.util.List;
@@ -71,6 +72,7 @@ public class AssetPanel extends JComponent {
 		
 		imagePanel.setShowCaptions(true);
 		imagePanel.setSelectionMode(SelectionMode.SINGLE);
+		imagePanel.setFont(new Font("Helvetica", 0, 10));
         
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setContinuousLayout(true);

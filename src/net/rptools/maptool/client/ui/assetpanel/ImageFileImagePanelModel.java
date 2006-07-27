@@ -88,6 +88,10 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 	}
     
     public String getCaption(int index) {
+    	if (index < 0 || index >= fileList.size()) {
+    		return null;
+    	}
+    	
     	String name = fileList.get(index).getName();
         return FileUtil.getNameWithoutExtension(name);
     }
