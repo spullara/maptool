@@ -30,6 +30,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -124,5 +126,12 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 	    		}
 	    	}
     	}
+    	Collections.sort(fileList, filenameComparator);
     }
+    
+    private static Comparator<File> filenameComparator = new Comparator<File>() {
+    	public int compare(File o1, File o2) {
+    		return o1.getName().compareToIgnoreCase(o2.getName());
+    	}
+    };
 }
