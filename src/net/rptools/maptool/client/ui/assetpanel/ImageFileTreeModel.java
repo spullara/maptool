@@ -25,12 +25,15 @@
 package net.rptools.maptool.client.ui.assetpanel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+
+import net.rptools.maptool.model.AssetGroup;
 
 
 /**
@@ -70,7 +73,8 @@ public class ImageFileTreeModel implements TreeModel {
     
     public void addRootGroup (Directory directory) {
     	rootDirectories.add(directory);
-        fireNodesInsertedEvent(new TreeModelEvent(this, new Object[]{getRoot()}, 
+    	Collections.sort(rootDirectories, Directory.COMPARATOR);
+        fireStructureChangedEvent(new TreeModelEvent(this, new Object[]{getRoot()}, 
           new int[] { rootDirectories.size() - 1 }, new Object[] {directory}));
     }
     

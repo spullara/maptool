@@ -25,6 +25,7 @@
 package net.rptools.maptool.client.ui.assetpanel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.event.TreeModelEvent;
@@ -57,8 +58,9 @@ public class AssetTreeModel implements TreeModel {
 
     public void addRootGroup (AssetGroup group) {
     	rootAssetGroups.add(group);
-      fireNodesInsertedEvent(new TreeModelEvent(this, new Object[]{getRoot()}, 
-          new int[] { rootAssetGroups.size() - 1 }, new Object[] {group}));
+    	Collections.sort(rootAssetGroups, AssetGroup.GROUP_COMPARATOR);
+    	fireNodesInsertedEvent(new TreeModelEvent(this, new Object[]{getRoot()}, 
+    			new int[] { rootAssetGroups.size() - 1 }, new Object[] {group}));
     }
     
     /* (non-Javadoc)

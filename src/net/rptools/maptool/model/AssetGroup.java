@@ -57,8 +57,6 @@ public class AssetGroup {
     private List<Asset> assetList = new ArrayList<Asset>();
     private List<AssetGroup> assetGroupList = new ArrayList<AssetGroup>();
 
-    private static final Comparator<AssetGroup> GROUP_COMPARATOR = new AssetGroupComparator();
-    
     private static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {
         public boolean accept(File dir,String name) {
             name = name.toLowerCase();
@@ -287,10 +285,10 @@ public class AssetGroup {
         }
     }
     
-    private static class AssetGroupComparator implements Comparator<AssetGroup> {
+    public static final Comparator<AssetGroup> GROUP_COMPARATOR = new Comparator<AssetGroup>() {
         
         public int compare(AssetGroup o1,AssetGroup o2) {
             return o1.getName().toUpperCase().compareTo(o2.getName().toUpperCase());
         }
-    }
+    };
 }

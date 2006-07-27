@@ -31,6 +31,7 @@ import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -146,4 +147,12 @@ public class Directory {
         	parent.firePropertyChangeEvent(event);
         }
     }
+    
+    public static Comparator<Directory> COMPARATOR = new Comparator<Directory>() {
+    	public int compare(Directory o1, Directory o2) {
+    		String filename1 = o1.getPath().getName();
+    		String filename2 = o2.getPath().getName();
+    		return filename1.compareToIgnoreCase(filename2);
+    	}
+    };
 }
