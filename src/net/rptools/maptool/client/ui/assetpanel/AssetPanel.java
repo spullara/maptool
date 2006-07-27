@@ -25,13 +25,18 @@
 package net.rptools.maptool.client.ui.assetpanel;
 
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.MouseListener;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 
 import net.rptools.lib.swing.ImagePanel;
 import net.rptools.lib.swing.SelectionListener;
@@ -44,6 +49,7 @@ public class AssetPanel extends JComponent {
 
 	private AssetTree assetTree;
 	private ImagePanel imagePanel;
+	private JTextField filterTextField;
     
     private AssetPanelModel assetPanelModel;
 	
@@ -58,21 +64,40 @@ public class AssetPanel extends JComponent {
         assetTree = new AssetTree(this);
 		imagePanel = new ImagePanel();
 		
-		imagePanel.setShowCaptions(false);
+		imagePanel.setShowCaptions(true);
 		imagePanel.setSelectionMode(SelectionMode.SINGLE);
         
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setContinuousLayout(true);
         
 		splitPane.setTopComponent(new JScrollPane(assetTree));
-		splitPane.setBottomComponent(new JScrollPane(imagePanel));
+		splitPane.setBottomComponent(createSouthPanel());
 		splitPane.setDividerLocation(100);
 		
         new SplitPanePreferences(AppConstants.APP_NAME, controlName, splitPane);
         
-		setLayout(new BorderLayout());
-		add(BorderLayout.CENTER, splitPane);
+		setLayout(new GridLayout());
+		add(splitPane);
 	}
+    
+    private JPanel createSouthPanel() {
+    	JPanel panel = new JPanel(new BorderLayout());
+    	
+    	panel.add(BorderLayout.NORTH, createFilterPanel());
+    	panel.add(BorderLayout.CENTER, new JScrollPane(imagePanel));
+    	
+    	return panel;
+    }
+
+    private JPanel createFilterPanel() {
+    	JPanel panel = new JPanel(new BorderLayout());
+    	panel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+    	
+    	panel.add(BorderLayout.CENTER, getFilterTextField());
+    	panel.add(BorderLayout.WEST, new JLabel("Filter:"));
+    	
+    	return panel;
+    }
     
     public void addImageSelectionListener(SelectionListener listener) {
     	imagePanel.addSelectionListener(listener);
@@ -89,6 +114,13 @@ public class AssetPanel extends JComponent {
     public void showImagePanelPopup(JPopupMenu menu, int x, int y) {
         
         menu.show(imagePanel, x, y);
+    }
+    
+    public JTextField getFilterTextField() {
+    	if (filterTextField == null) {
+    		filterTextField = new JTextField();
+    	}
+    	return filterTextField;
     }
     
     // TODO: Find a way around this, it's ugly

@@ -76,7 +76,8 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 	}
     
     public String getCaption(int index) {
-        return "";
+    	String name = dir.getFiles().get(index).getName();
+        return FileUtil.getNameWithoutExtension(name);
     }
     
     public Object getID(int index) {
