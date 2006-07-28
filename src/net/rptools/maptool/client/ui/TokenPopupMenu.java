@@ -264,6 +264,7 @@ public class TokenPopupMenu extends JPopupMenu {
 				}
 
 				MapTool.serverCommand().putToken(zone.getId(), token);
+				MapTool.getFrame().updateTokenTree();
 			}
 		}
 	}

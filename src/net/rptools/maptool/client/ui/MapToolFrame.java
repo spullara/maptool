@@ -26,7 +26,6 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -38,7 +37,6 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
@@ -60,6 +58,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
+import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
@@ -83,6 +82,7 @@ import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ServerDisconnectHandler;
+import net.rptools.maptool.client.ZoneActivityListener;
 import net.rptools.maptool.client.swing.GlassPane;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
@@ -108,6 +108,8 @@ import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanel;
+import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeCellRenderer;
+import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeModel;
 import net.rptools.maptool.client.ui.zone.NewZoneDropPanel;
 import net.rptools.maptool.client.ui.zone.NotificationOverlay;
 import net.rptools.maptool.client.ui.zone.PointerOverlay;
@@ -220,6 +222,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         taskPanel.add("Image Explorer", assetPanel);
         taskPanel.add("Tokens", tokenPanel);
         taskPanel.add("Connections", new JScrollPane(createPlayerList()));
+        taskPanel.add("Token Tree", createTokenTreePanel());
         
         statusPanel = new StatusPanel();
         statusPanel.addPanel(new MemoryStatusBar());
@@ -427,6 +430,28 @@ public class MapToolFrame extends JFrame implements WindowListener {
         for (File file : assetRootList) {
             addAssetRoot(file);
         }
+    }
+    
+    private TokenPanelTreeModel tokenPanelTreeModel;
+    private JComponent createTokenTreePanel() {
+    	JTree tree = new JTree();
+    	tokenPanelTreeModel = new TokenPanelTreeModel(tree);
+    	tree.setModel(tokenPanelTreeModel);
+		tree.setCellRenderer(new TokenPanelTreeCellRenderer());
+    	
+		AppListeners.addZoneListener(new ZoneActivityListener() {
+			public void zoneActivated(Zone zone) {
+				tokenPanelTreeModel.setZone(zone);
+			}
+			public void zoneAdded(Zone zone) {
+				// nothing to do
+			}
+		});
+		
+    	return tree;
+    }
+    public void updateTokenTree() {
+    	tokenPanelTreeModel.update();
     }
     
     private AssetPanel createAssetPanel() {
