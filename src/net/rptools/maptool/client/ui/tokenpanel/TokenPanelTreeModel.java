@@ -28,10 +28,6 @@ import net.rptools.maptool.model.Zone;
 
 public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 
-	private String root = "Views";
-	
-	private Zone zone;
-	
     public enum View {
     	PLAYERS("Players"),
 		VISIBLE("Visible"),
@@ -47,12 +43,24 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 			return displayName;
 		}
 	}
+
+    private List<TokenFilter> filterList = new ArrayList<TokenFilter>();
     
+	private String root = "Views";
+	
+	private Zone zone;
+	
     private JTree tree;
     
     public TokenPanelTreeModel(JTree tree) {
     	this.tree = tree;
 		update();
+
+		// It would be useful to have this list be static, but it's really not that big of a memory footprint
+		// TODO: refactor to more tightly couple the View enum and the corresponding filter
+    	filterList.add(new VisibleTokenFilter());
+    	filterList.add(new StampFilter());
+    	filterList.add(new PlayerTokenFilter());
     }
 	
     private List<TreeModelListener> listenerList = new ArrayList<TreeModelListener>();
@@ -142,15 +150,25 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 	public void update() {
 		
 		currentViewList.clear();
+		viewMap.clear();
 		
         if (zone == null) {
             return;
         }
 
         // Add in the appropriate views
-        addPlayerTokens();
-		addVisibleTokens();
-		
+        for (Token token : zone.getTokens()) {
+        	for (TokenFilter filter : filterList) {
+        		filter.filter(token);
+        	}
+        }
+        
+        // Sort
+        for (List<Token> tokenList : viewMap.values()) {
+        	Collections.sort(tokenList, Token.NAME_COMPARATOR);
+        }
+
+        // Keep the expanded branches consistent
 		Enumeration<TreePath> expandedPaths = tree.getExpandedDescendants(new TreePath(root));
         fireStructureChangedEvent(new TreeModelEvent(this, new Object[]{getRoot()}, 
                 new int[] { currentViewList.size() - 1 }, new Object[] {View.VISIBLE}));
@@ -160,82 +178,6 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 		
 	}
 
-	private void addPlayerTokens() {
-
-		if (!MapTool.getServerPolicy().useStrictTokenManagement()) {
-			return;
-		}
-        currentViewList.add(View.PLAYERS);
-        List<Token> tokenList = new ArrayList<Token>();
-        viewMap.put(View.PLAYERS, tokenList);
-
-        if (MapTool.getPlayer().isGM()) {
-        	tokenList.addAll(zone.getTokens());
-        } else {
-        	for (Token token : zone.getTokens()) {
-        		if (zone.isTokenVisible(token)) {
-        			tokenList.add(token);
-        		}
-        	}
-        }
-
-        for (ListIterator<Token> iter = tokenList.listIterator(); iter.hasNext();) {
-        	
-        	Token token = iter.next();
-        	if (token.isStamp() || (!token.hasOwners() && !token.isOwnedByAll())) {
-        		iter.remove();
-        	}
-        	if (!AppUtil.playerOwnsToken(token) && !zone.isTokenVisible(token)) {
-        		iter.remove();
-        	}
-        		
-        }
-        
-        Collections.sort(tokenList, new Comparator<Token>(){
-           public int compare(Token o1, Token o2) {
-               String lName = o1.getName();
-               String rName = o2.getName();
-
-               return lName.compareTo(rName);
-            } 
-        });
-        
-	};
-	
-	private void addVisibleTokens() {
-        
-        currentViewList.add(View.VISIBLE);
-        List<Token> tokenList = new ArrayList<Token>();
-        viewMap.put(View.VISIBLE, tokenList);
-
-        if (MapTool.getPlayer().isGM()) {
-        	tokenList.addAll(zone.getTokens());
-        } else {
-        	for (Token token : zone.getTokens()) {
-        		if (zone.isTokenVisible(token)) {
-        			tokenList.add(token);
-        		}
-        	}
-        }
-
-        for (ListIterator<Token> iter = tokenList.listIterator(); iter.hasNext();) {
-        	
-        	if (iter.next().isStamp()) {
-        		iter.remove();
-        	}
-        }
-        
-        Collections.sort(tokenList, new Comparator<Token>(){
-           public int compare(Token o1, Token o2) {
-               String lName = o1.getName();
-               String rName = o2.getName();
-
-               return lName.compareTo(rName);
-            } 
-        });
-        
-	}
-	
     private void fireStructureChangedEvent(TreeModelEvent e) {
         TreeModelListener[] listeners = listenerList.toArray(new TreeModelListener[listenerList.size()]);
         for (TreeModelListener listener : listeners) {
@@ -250,9 +192,91 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
         }
     }
 
+    private abstract class TokenFilter {
+    	
+    	private View view;
+    	
+    	public TokenFilter(View view) {
+    		this.view = view;
+    	}
+    	
+    	private void filter(Token token) {
+    		
+    		if (accept(token)) {
+    			List<Token> tokenList = viewMap.get(view);
+    			if (tokenList == null) {
+    				currentViewList.add(view);
+    				tokenList = new ArrayList<Token>();
+    				viewMap.put(view, tokenList);
+    			}
+    			
+    			tokenList.add(token);
+    		}
+    	}
+    	
+    	protected abstract boolean accept(Token token);
+    }
+    
+    private class PlayerTokenFilter extends TokenFilter {
+    	
+    	public PlayerTokenFilter() {
+    		super(View.PLAYERS);
+    	}
+    	
+    	@Override
+    	protected boolean accept(Token token) {
+    		if (!MapTool.getServerPolicy().useStrictTokenManagement()) {
+    			return false;
+    		}
+
+    		// TODO: Simplify these cases
+        	if (token.isStamp() || (!token.hasOwners() && !token.isOwnedByAll())) {
+        		return false;
+        	}
+        	if (!AppUtil.playerOwnsToken(token) && !zone.isTokenVisible(token)) {
+        		return false;
+        	}
+        	
+        	return true;
+    	}
+    }
+    
+    private class StampFilter extends TokenFilter {
+    	
+    	public StampFilter() {
+    		super(View.STAMPS);
+    	}
+    	
+    	@Override
+    	protected boolean accept(Token token) {
+    		return MapTool.getPlayer().isGM() && token.isStamp();
+    	}
+    }
+    
+    private class VisibleTokenFilter extends TokenFilter {
+    	
+    	public VisibleTokenFilter() {
+    		super(View.VISIBLE);
+    	}
+    	
+    	@Override
+    	protected boolean accept(Token token) {
+    		
+    		if (token.isStamp()) {
+    			return false;
+    		}
+    		
+        	return MapTool.getPlayer().isGM() || zone.isTokenVisible(token);
+    	}
+    }
+    
     ////
     // MODEL CHANGE LISTENER
     public void modelChanged(ModelChangeEvent event) {
+//    	if (event.getModel() instanceof Token) {
+//    		Token token = (Token) event.getModel();
+//    		token.addModel
+//    	}
     	update();
     }
 }
