@@ -29,15 +29,12 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.TransferHandler;
 
-import net.rptools.maptool.client.TransferableHelper;
+import net.rptools.lib.transferable.MapToolTokenTransferData;
 import net.rptools.maptool.model.Token;
 
 /**
@@ -131,9 +128,9 @@ class TokenPanelTransferable implements Transferable {
   public Object getTransferData(DataFlavor aFlavor) throws UnsupportedFlavorException, IOException {
     if (!isDataFlavorSupported(aFlavor)) 
       throw new UnsupportedFlavorException(aFlavor);
-    List<Map<String, Object>> tokenList = new ArrayList<Map<String,Object>>();
+    MapToolTokenTransferData tokenList = new MapToolTokenTransferData();
     for (int i = 0; i < tokens.length; i++)
-      tokenList.add(((Token)tokens[i]).toMap());
+      tokenList.add(((Token)tokens[i]).toTransferData());
     return tokenList;
   }
 
@@ -141,14 +138,14 @@ class TokenPanelTransferable implements Transferable {
    * @see java.awt.datatransfer.Transferable#getTransferDataFlavors()
    */
   public DataFlavor[] getTransferDataFlavors() {
-    return new DataFlavor[] { TransferableHelper.TOKEN_LIST_FLAVOR };
+    return new DataFlavor[] { MapToolTokenTransferData.MAP_TOOL_TOKEN_LIST_FLAVOR };
   }
 
   /**
    * @see java.awt.datatransfer.Transferable#isDataFlavorSupported(java.awt.datatransfer.DataFlavor)
    */
   public boolean isDataFlavorSupported(DataFlavor aFlavor) {
-    return TransferableHelper.TOKEN_LIST_FLAVOR.equals(aFlavor);
+    return MapToolTokenTransferData.MAP_TOOL_TOKEN_LIST_FLAVOR.equals(aFlavor);
   }
   
 }

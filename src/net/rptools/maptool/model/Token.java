@@ -26,6 +26,7 @@ package net.rptools.maptool.model;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -41,6 +42,7 @@ import javax.swing.ImageIcon;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.lib.transferable.TokenTransferData;
 import net.rptools.maptool.util.ImageManager;
 
 /**
@@ -58,8 +60,6 @@ public class Token {
 		STAMP
 	}
   
-  public final static String MAPTOOL = "maptool:";
-
 	private MD5Key assetID;
 
 	private int x;
@@ -453,141 +453,162 @@ public class Token {
 	}
 
   /** @return Getter for notes */
-  public String getNotes() {
-    return notes;
-  }
+    public String getNotes() {
+        return notes;
+    }
 
-  /** @param aNotes Setter for notes */
-  public void setNotes(String aNotes) {
-    notes = aNotes;
-  }
-  
-  /**
-   * Convert the token into a hash map. This is used to ship all of the properties for 
-   * the token to other apps that do need access to the <code>Token</code> class.
-   * 
-   * @return A map containing the properties of the token.
-   */
-  public Map<String, Object> toMap() {
-    Map<String, Object> map = new HashMap<String, Object>();
-    map.put(MAPTOOL + "id", id.toString());
-    map.put(MAPTOOL + "assetID", assetID.toString());
-    map.put(MAPTOOL + "x", x);
-    map.put(MAPTOOL + "y", y);
-    map.put(MAPTOOL + "z", z);
-    map.put(MAPTOOL + "snapToScale", snapToScale);
-    map.put(MAPTOOL + "width", width);
-    map.put(MAPTOOL + "height", height);
-    map.put(MAPTOOL + "size", size);
-    map.put(MAPTOOL + "snapToGrid", snapToGrid);
-    map.put(MAPTOOL + "isVisible", isVisible);
-    map.put(MAPTOOL + "name", name);
-    map.put(MAPTOOL + "ownerList", ownerList);
-    map.put(MAPTOOL + "ownerType", ownerType);
-    map.put(MAPTOOL + "tokenType", tokenType);
-    map.put(MAPTOOL + "facing", facing);
-    map.put(MAPTOOL + "notes", notes);
-    map.put(MAPTOOL + "gmNotes", gmNotes);    
-    map.put(MAPTOOL + "gmName", gmName);
-    
-    // Put all of the serializable state into the map
-    for (String key : getStatePropertyNames()) {
-      Object value = getState(key);
-      if (value instanceof Serializable)
-        map.put(key, value);
-    } // endfor
-    map.putAll(state);
-    
-    // Create the image from the asset and add it to the map
-    Asset asset = AssetManager.getAsset(assetID);
-    Image image = ImageManager.getImageAndWait(asset);
-    if (image != null)
-      map.put(MAPTOOL + "token", new ImageIcon(image)); // Image icon makes it serializable.
-    return map;
-  }
-  
-  /**
-   * Constructor to create a new token from a map containing its property values. This
-   * is used to read in a new token from other apps that don't have access to the 
-   * <code>Token</code> class.
-   * 
-   * @param map Read the values from this map.
-   */
-  public Token(Map<String, Object> map) {
-    x = getInt(map, MAPTOOL + "x", 0);
-    y = getInt(map, MAPTOOL + "y", 0);
-    z = getInt(map, MAPTOOL + "z", 0);
-    snapToScale = getBoolean(map, MAPTOOL + "snapToScale", true);
-    width = getInt(map, MAPTOOL + "width", 1);
-    height = getInt(map, MAPTOOL + "height", 1);
-    size = getInt(map, MAPTOOL + "size", TokenSize.Size.Medium.value());
-    snapToGrid = getBoolean(map, MAPTOOL + "snapToGrid", true);
-    isVisible = getBoolean(map, MAPTOOL + "isVisible", true);
-    name = (String)map.get(MAPTOOL + "name");
-    ownerList = (Set<String>)map.get(MAPTOOL + "ownerList");
-    ownerType = getInt(map, MAPTOOL + "ownerType", 0);
-    tokenType = (String)map.get(MAPTOOL + "tokenType");
-    facing = (Integer)map.get(MAPTOOL + "facing");
-    notes = (String)map.get(MAPTOOL + "notes");
-    gmNotes = (String)map.get(MAPTOOL + "gmNotes");    
-    gmName = (String)map.get(MAPTOOL + "gmName");
-    
-    // Get the image for the token
-    ImageIcon icon = (ImageIcon)map.get(MAPTOOL + "token");
-    if (icon != null) {
-      
-      // Make sure there is a buffered image for it
-      Image image = icon.getImage();
-      if (!(image instanceof BufferedImage)) {
-        image = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), Transparency.TRANSLUCENT);
-        Graphics2D g = ((BufferedImage)image).createGraphics();
-        icon.paintIcon(null, g, 0, 0);
-      } // endif
-      
-      // Create the asset
-      try {
-        Asset asset = new Asset(name, ImageUtil.imageToBytes((BufferedImage)image));
-        if (!AssetManager.hasAsset(asset)) 
-          AssetManager.putAsset(asset);          
-        assetID = asset.getId();
-      } catch (IOException e) {
-        e.printStackTrace();
-      } // endtry
-    } // endtry
+    /**
+     * @param aNotes
+     *            Setter for notes
+     */
+    public void setNotes(String aNotes) {
+        notes = aNotes;
+    }
 
-    // Get all of the non maptool state
-    state = new HashMap<String, Object>();
-    for (String key : map.keySet()) {
-      if (key.startsWith(MAPTOOL)) continue;
-      setState(key, map.get(key));
-    } // endfor
-  }
-  
-  /**
-   * Get an integer value from the map or return the default value
-   *  
-   * @param map Get the value from this map
-   * @param propName The name of the property being read.
-   * @param defaultValue The value for the property if it is not set in the map.
-   * @return The value for the passed property
-   */
-  private static int getInt(Map<String, Object> map, String propName, int defaultValue) {
-    Integer integer = (Integer)map.get(propName);
-    if (integer == null) return defaultValue;
-    return integer.intValue();
-  }
-  
-  /**
-   * Get a boolean value from the map or return the default value
-   *  
-   * @param map Get the value from this map
-   * @param propName The name of the property being read.
-   * @param defaultValue The value for the property if it is not set in the map.
-   * @return The value for the passed property
-   */
-  private static boolean getBoolean(Map<String, Object> map, String propName, boolean defaultValue) {
-    Boolean bool = (Boolean)map.get(propName);
-    if (bool == null) return defaultValue;
-    return bool.booleanValue();
-  }
+    /**
+     * Convert the token into a hash map. This is used to ship all of the
+     * properties for the token to other apps that do need access to the
+     * <code>Token</code> class.
+     * 
+     * @return A map containing the properties of the token.
+     */
+    public TokenTransferData toTransferData() {
+        TokenTransferData td = new TokenTransferData();
+        td.setName(name);
+        td.setPlayers(ownerList);
+        td.setVisible(isVisible);
+        td.setLocation(new Point(x, y));
+        td.setFacing(facing);
+
+        // Set the properties
+        td.put(TokenTransferData.ID, id.toString());
+        td.put(TokenTransferData.ASSET_ID, assetID);
+        td.put(TokenTransferData.Z, z);
+        td.put(TokenTransferData.SNAP_TO_SCALE, snapToScale);
+        td.put(TokenTransferData.WIDTH, width);
+        td.put(TokenTransferData.HEIGHT, height);
+        td.put(TokenTransferData.SIZE, size);
+        td.put(TokenTransferData.SNAP_TO_GRID, snapToGrid);
+        td.put(TokenTransferData.OWNER_TYPE, ownerType);
+        td.put(TokenTransferData.TOKEN_TYPE, tokenType);
+        td.put(TokenTransferData.NOTES, notes);
+        td.put(TokenTransferData.GM_NOTES, gmNotes);
+        td.put(TokenTransferData.GM_NAME, gmName);
+
+        // Put all of the serializable state into the map
+        for (String key : getStatePropertyNames()) {
+            Object value = getState(key);
+            if (value instanceof Serializable)
+                td.put(key, value);
+        } // endfor
+        td.putAll(state);
+
+        // Create the image from the asset and add it to the map
+        Asset asset = AssetManager.getAsset(assetID);
+        Image image = ImageManager.getImageAndWait(asset);
+        if (image != null)
+            td.setToken(new ImageIcon(image)); // Image icon makes it serializable.
+        return td;
+    }
+
+    /**
+     * Constructor to create a new token from a transfer object containing its property
+     * values. This is used to read in a new token from other apps that don't
+     * have access to the <code>Token</code> class.
+     * 
+     * @param td
+     *            Read the values from this transfer object.
+     */
+    public Token(TokenTransferData td) {
+        if (td.getLocation() != null) {
+            x = td.getLocation().x;
+            y = td.getLocation().y;
+        } // endif
+        snapToScale = getBoolean(td, TokenTransferData.SNAP_TO_SCALE, true);
+        width = getInt(td, TokenTransferData.WIDTH, 1);
+        height = getInt(td, TokenTransferData.HEIGHT, 1);
+        size = getInt(td, TokenTransferData.SIZE, TokenSize.Size.Medium.value());
+        snapToGrid = getBoolean(td, TokenTransferData.SNAP_TO_GRID, true);
+        isVisible = td.isVisible();
+        name = td.getName();
+        ownerList = td.getPlayers();
+        ownerType = getInt(td, TokenTransferData.OWNER_TYPE,
+                ownerList == null ? OWNER_TYPE_ALL : OWNER_TYPE_LIST);
+        tokenType = (String) td.get(TokenTransferData.TOKEN_TYPE);
+        facing = td.getFacing();
+        notes = (String) td.get(TokenTransferData.NOTES);
+        gmNotes = (String) td.get(TokenTransferData.GM_NOTES);
+        gmName = (String) td.get(TokenTransferData.GM_NAME);
+
+        // Get the image for the token
+        ImageIcon icon = td.getToken();
+        if (icon != null) {
+
+            // Make sure there is a buffered image for it
+            Image image = icon.getImage();
+            if (!(image instanceof BufferedImage)) {
+                image = new BufferedImage(icon.getIconWidth(), icon
+                        .getIconHeight(), Transparency.TRANSLUCENT);
+                Graphics2D g = ((BufferedImage) image).createGraphics();
+                icon.paintIcon(null, g, 0, 0);
+            } // endif
+
+            // Create the asset
+            try {
+                Asset asset = new Asset(name, ImageUtil
+                        .imageToBytes((BufferedImage) image));
+                if (!AssetManager.hasAsset(asset))
+                    AssetManager.putAsset(asset);
+                assetID = asset.getId();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } // endtry
+        } // endtry
+
+        // Get all of the non maptool state
+        state = new HashMap<String, Object>();
+        for (String key : td.keySet()) {
+            if (key.startsWith(TokenTransferData.MAPTOOL))
+                continue;
+            setState(key, td.get(key));
+        } // endfor
+    }
+
+    /**
+     * Get an integer value from the map or return the default value
+     * 
+     * @param map
+     *            Get the value from this map
+     * @param propName
+     *            The name of the property being read.
+     * @param defaultValue
+     *            The value for the property if it is not set in the map.
+     * @return The value for the passed property
+     */
+    private static int getInt(Map<String, Object> map, String propName,
+            int defaultValue) {
+        Integer integer = (Integer) map.get(propName);
+        if (integer == null)
+            return defaultValue;
+        return integer.intValue();
+    }
+
+    /**
+     * Get a boolean value from the map or return the default value
+     * 
+     * @param map
+     *            Get the value from this map
+     * @param propName
+     *            The name of the property being read.
+     * @param defaultValue
+     *            The value for the property if it is not set in the map.
+     * @return The value for the passed property
+     */
+    private static boolean getBoolean(Map<String, Object> map, String propName,
+            boolean defaultValue) {
+        Boolean bool = (Boolean) map.get(propName);
+        if (bool == null)
+            return defaultValue;
+        return bool.booleanValue();
+    }
 }

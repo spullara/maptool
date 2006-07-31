@@ -1464,64 +1464,67 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     }
 
     private void addTokens(List<Token> tokens, ZonePoint zp) {
-      GridCapabilities gridCaps = zone.getGrid().getCapabilities();
-      for (Token token : tokens) {
+        GridCapabilities gridCaps = zone.getGrid().getCapabilities();
+        for (Token token : tokens) {
+            
+            // Check the name
+            token.setName(MapToolUtil.nextTokenId(zone, token.getName()));
+            
+            // Get the snap to grid value for the current prefs and abilities
+            token.setSnapToGrid(gridCaps.isSnapToGridSupported() && AppPreferences.getTokensStartSnapToGrid());
+            if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid())
+                zp = zone.getGrid().convert(zone.getGrid().convert(zp));
+            token.setX(zp.x);
+            token.setY(zp.y);
+            token.setVisible(AppPreferences.getNewTokensVisible());
+            
+            // Set the image properties
+            BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(token.getAssetID()));
+            token.setTokenType(TokenUtil.guessTokenType((BufferedImage)image));
+            token.setWidth(image.getWidth(null));
+            token.setHeight(image.getHeight(null));
+            
+            // He who drops, owns, if there are not players already set
+            if (!MapTool.getServerPolicy().useStrictTokenManagement())
+                token.setAllOwners();
+            else if (!token.hasOwners() && !MapTool.getPlayer().isGM())
+                token.addOwner(MapTool.getPlayer().getName());
+            
+            // Save the token and tell everybody about it
+            zone.putToken(token);
+            MapTool.serverCommand().putToken(zone.getId(), token);
+        } // endfor
         
-        // Check the name
-        token.setName(MapToolUtil.nextTokenId(zone, token.getName()));
-        
-        // Get the snap to grid value for the current prefs and abilities
-        token.setSnapToGrid(gridCaps.isSnapToGridSupported() && AppPreferences.getTokensStartSnapToGrid());
-        if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid())
-          zp = zone.getGrid().convert(zone.getGrid().convert(zp));
-        token.setX(zp.x);
-        token.setY(zp.y);
-        token.setVisible(AppPreferences.getNewTokensVisible());
-        
-        // Set the image properties
-        BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(token.getAssetID()));
-        token.setTokenType(TokenUtil.guessTokenType((BufferedImage)image));
-        token.setWidth(image.getWidth(null));
-        token.setHeight(image.getHeight(null));
-        
-        // He who drops, owns, if there are not players already set
-        if (!MapTool.getServerPolicy().useStrictTokenManagement())
-          token.setAllOwners();
-        else if (!token.hasOwners() && !MapTool.getPlayer().isGM())
-          token.addOwner(MapTool.getPlayer().getName());
-
-        // Save the token and tell everybody about it
-        zone.putToken(token);
-        MapTool.serverCommand().putToken(zone.getId(), token);
-      } // endfor
-      
-      // For convenience, select them
-      clearSelectedTokens();
-      for (Token token : tokens)
-        selectToken(token.getId());
-      requestFocusInWindow();
-      repaint();
+        // For convenience, select them
+        clearSelectedTokens();
+        for (Token token : tokens)
+            selectToken(token.getId());
+        requestFocusInWindow();
+        repaint();
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.awt.dnd.DropTargetListener#drop(java.awt.dnd.DropTargetDropEvent)
      */
     public void drop(DropTargetDropEvent dtde) {
-      final ZonePoint zp = new ScreenPoint((int)dtde.getLocation().getX(), (int)dtde.getLocation().getY()).convertToZone(this);
-    	GridCapabilities gridCaps = zone.getGrid().getCapabilities();
+        final ZonePoint zp = new ScreenPoint((int) dtde.getLocation().getX(),
+                (int) dtde.getLocation().getY()).convertToZone(this);
+        GridCapabilities gridCaps = zone.getGrid().getCapabilities();
         List<Token> tokens = null;
         List<Asset> assets = TransferableHelper.getAsset(dtde);
-    	if (assets != null) {
-        tokens = new ArrayList<Token>(assets.size());
-        for (Asset asset : assets)
-          tokens.add(new Token(asset.getName(), asset.getId()));
-          addTokens(tokens, zp);        
-    	} else {
-        tokens = TransferableHelper.getTokens(dtde.getTransferable());
-        if (tokens != null) 
-          addTokens(tokens, zp);
-      }
-      dtde.dropComplete(tokens != null);
+        if (assets != null) {
+            tokens = new ArrayList<Token>(assets.size());
+            for (Asset asset : assets)
+                tokens.add(new Token(asset.getName(), asset.getId()));
+            addTokens(tokens, zp);
+        } else {
+            tokens = TransferableHelper.getTokens(dtde.getTransferable());
+            if (tokens != null)
+                addTokens(tokens, zp);
+        }
+        dtde.dropComplete(tokens != null);
     }
 
     /* (non-Javadoc)

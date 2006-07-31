@@ -35,13 +35,17 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.transferable.FileTransferableHandler;
+import net.rptools.lib.transferable.GroupTokenTransferData;
 import net.rptools.lib.transferable.ImageTransferableHandler;
+import net.rptools.lib.transferable.TokenTransferData;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
@@ -53,7 +57,6 @@ public class TransferableHelper {
 
     // TODO: USE ImageTransferable in rplib
     private static final DataFlavor IMAGE_FLAVOR = new DataFlavor("image/x-java-image; class=java.awt.Image", "Image");
-    public final static DataFlavor TOKEN_LIST_FLAVOR = new DataFlavor(ArrayList.class, "Token List");
     
 	/**
 	 * Takes a drop event and returns an asset
@@ -141,28 +144,42 @@ public class TransferableHelper {
         return (Asset) transferable.getTransferData(TransferableAsset.dataFlavor);
 	}
   
-  /**
-   * Get the tokens from a token list data flavor.
-   * 
-   * @param transferable The data that was dropped.
-   * @return The tokens from the data or <code>null</code> if this isn't the proper
-   * data type.
-   */
-  public static List<Token> getTokens(Transferable transferable) {
-    try {
-      if (!transferable.isDataFlavorSupported(TOKEN_LIST_FLAVOR)) return null;
-      List tokenMaps = (List)transferable.getTransferData(TOKEN_LIST_FLAVOR);
-      List<Token> tokens = new ArrayList<Token>();
-      for (Object object : tokenMaps) {
-        if (!(object instanceof Map)) continue;
-        Map<String, Object> map = (Map<String, Object>)object;
-        if (!map.containsKey(Token.MAPTOOL + "name") || !map.containsKey(Token.MAPTOOL + "token")) continue;
-        tokens.add(new Token((Map<String, Object>)object));
-      } // endfor
-      return tokens;
-    } catch (Exception e) {
-      e.printStackTrace();
-      return null;
-    } // endtry
-  }
+    /**
+     * Get the tokens from a token list data flavor.
+     * 
+     * @param transferable
+     *            The data that was dropped.
+     * @return The tokens from the data or <code>null</code> if this isn't the
+     *         proper data type.
+     */
+    public static List<Token> getTokens(Transferable transferable) {
+        try {
+            if (!transferable.isDataFlavorSupported(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR))
+                return null;
+            List tokenMaps = (List)transferable.getTransferData(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR);
+            List<Token> tokens = new ArrayList<Token>();            
+            for (Object object : tokenMaps) {
+                if (!(object instanceof TokenTransferData))
+                    continue;
+                TokenTransferData td = (TokenTransferData) object;
+                if (td.getName() == null || td.getName().trim().length() == 0 || td.getToken() == null)
+                    continue;
+                tokens.add(new Token(td));
+            } // endfor
+            if (tokens.size() != tokenMaps.size()) {
+                final String message = "Added " + tokens.size() + " tokens." + 
+                    "\nThere were " + (tokenMaps.size() - tokens.size()) + " tokens that could not be added " +
+                    "because they were missing names or images.";
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        JOptionPane.showMessageDialog(MapTool.getFrame(), message, "Warning", JOptionPane.WARNING_MESSAGE);
+                    }
+                });
+            } // endif
+            return tokens;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } // endtry
+    }
 }
