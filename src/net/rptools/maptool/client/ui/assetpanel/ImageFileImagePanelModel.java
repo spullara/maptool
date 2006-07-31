@@ -54,7 +54,7 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 	}
 
 	public void setFilter(String filter) {
-		this.filter = filter;
+		this.filter = filter.toUpperCase();
 		refresh();
 	}
 	
@@ -121,7 +121,7 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
     	if (filter != null && filter.length() > 0) {
 	    	for (ListIterator<File> iter = fileList.listIterator(); iter.hasNext();) {
 	    		File file = iter.next();
-	    		if (!file.getName().contains(filter)) {
+	    		if (!file.getName().toUpperCase().contains(filter)) {
 	    			iter.remove();
 	    		}
 	    	}
