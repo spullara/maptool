@@ -31,6 +31,7 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,6 +60,12 @@ public class Token {
 		SQUARE,
 		STAMP
 	}
+	
+	public static final Comparator<Token> NAME_COMPARATOR = new Comparator<Token>() {
+		public int compare(Token o1, Token o2) {
+			return o1.getName().compareToIgnoreCase(o2.getName());
+		}
+	};
   
 	private MD5Key assetID;
 
