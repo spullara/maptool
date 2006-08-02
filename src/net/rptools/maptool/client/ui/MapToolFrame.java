@@ -222,7 +222,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         taskPanel.add("Image Explorer", assetPanel);
         taskPanel.add("Tokens", tokenPanel);
         taskPanel.add("Connections", new JScrollPane(createPlayerList()));
-        taskPanel.add("Token Tree", createTokenTreePanel());
+        //taskPanel.add("Token Tree", createTokenTreePanel());
         
         statusPanel = new StatusPanel();
         statusPanel.addPanel(new MemoryStatusBar());
