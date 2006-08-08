@@ -64,7 +64,7 @@ public class PersistenceUtil {
 			
 			persistedCampaign.assetMap.put(zone.getAssetID(), AssetManager.getAsset(zone.getAssetID()));
 			
-			for (Token token : zone.getTokens()) {
+			for (Token token : zone.getAllTokens()) {
 				
 				persistedCampaign.assetMap.put(token.getAssetID(), AssetManager.getAsset(token.getAssetID()));
 			}

@@ -157,7 +157,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
         }
 
         // Add in the appropriate views
-        for (Token token : zone.getTokens()) {
+        for (Token token : zone.getAllTokens()) {
         	for (TokenFilter filter : filterList) {
         		filter.filter(token);
         	}

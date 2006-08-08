@@ -91,7 +91,7 @@ public class MapToolUtil {
       
       // Find a valid index, if the index > 0 then add it to the name
     	String name = baseName + (index == 0 ? "" : (" " + index));
-    	List<Token> tokenList = zone.getTokens();
+    	List<Token> tokenList = zone.getAllTokens();
 OUTTER: 
       while (true) {  // Repeat until the name is unique       
         for (Token token : tokenList) {

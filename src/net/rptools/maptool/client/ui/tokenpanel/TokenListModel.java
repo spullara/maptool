@@ -77,9 +77,9 @@ public class TokenListModel implements ListModel {
         }
         
         if (MapTool.getPlayer().isGM()) {
-        	tokenList.addAll(zone.getTokens());
+        	tokenList.addAll(zone.getAllTokens());
         } else {
-        	for (Token token : zone.getTokens()) {
+        	for (Token token : zone.getAllTokens()) {
         		if (zone.isTokenVisible(token)) {
         			tokenList.add(token);
         		}

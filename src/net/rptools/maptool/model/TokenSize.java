@@ -63,7 +63,7 @@ public class TokenSize {
     }
     
     public static int getHeight(Token token, Grid grid) {
-        if (!token.isSnapToScale()) return token.getWidth();
+        if (!token.isSnapToScale()) return token.getHeight();
         return getSize(token, grid.getTokenSpace()).height;
     }
     

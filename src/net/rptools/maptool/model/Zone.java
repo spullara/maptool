@@ -334,7 +334,7 @@ public class Zone extends Token {
 	 * Returns the first token with a given name.  The name is matched case-insensitively.
 	 */
 	public Token getTokenByName(String name) {
-		for (Token token : getTokens()) {
+		for (Token token : getAllTokens()) {
 			if (token.getName().equalsIgnoreCase(name)) {
 				return token;
 			}
@@ -343,9 +343,33 @@ public class Zone extends Token {
 		return null;
 	}
 
-    public List<Token> getTokens() {
+    public List<Token> getAllTokens() {
     	List<Token> copy = new ArrayList<Token>();
     	copy.addAll(tokenOrderedList);
+        return Collections.unmodifiableList(copy);
+    }
+
+    // TODO: Replace the following two methods with a more generic filter mechanism
+    public List<Token> getNonBackgroundTokens() {
+    	List<Token> copy = new ArrayList<Token>();
+    	copy.addAll(tokenOrderedList);
+    	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
+    		Token token = iter.next();
+    		if (token.isBackground()) {
+    			iter.remove();
+    		}
+    	}
+        return Collections.unmodifiableList(copy);
+    }
+    public List<Token> getBackgroundTokens() {
+    	List<Token> copy = new ArrayList<Token>();
+    	copy.addAll(tokenOrderedList);
+    	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
+    		Token token = iter.next();
+    		if (!token.isBackground()) {
+    			iter.remove();
+    		}
+    	}
         return Collections.unmodifiableList(copy);
     }
 }

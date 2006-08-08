@@ -41,7 +41,6 @@ public class ExportDialog extends JDialog {
 	
 	public ExportDialog(Location location) {
 		super(MapTool.getFrame(), "Export Screenshot", true);
-
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 		formPanel = new FormPanel("net/rptools/maptool/client/ui/forms/exportDialog.jfrm");
@@ -61,9 +60,25 @@ public class ExportDialog extends JDialog {
 		setLayout(new GridLayout());
 		add(formPanel);
 		
+		initLocation(location);
+		
 		pack();
 	}
 
+	private void initLocation(Location location) {
+		if (location instanceof FTPLocation) {
+			FTPLocation ftpLocation = (FTPLocation) location;
+			getUsernameTextField().setText(ftpLocation.getUsername());
+			getHostnameTextField().setText(ftpLocation.getHostname());
+			getPasswordField().setText(ftpLocation.getPassword());
+			getPathTextField().setText(ftpLocation.getPath());
+		}
+//		if (location instanceof LocalLocation) {
+//			LocalLocation localLocation = (LocalLocation) location;
+//			get
+//		}
+	}
+	
 	public Location getExportLocation() {
 		return location;
 	}

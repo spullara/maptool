@@ -319,7 +319,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
         Token keyToken = zone.getToken(keyTokenId);
         CellPoint originPoint = zone.getGrid().convert(new ZonePoint(keyToken.getX(), keyToken.getY()));
-        Path path = set.getWalker().getPath();
+        Path path = set.getWalker() != null ? set.getWalker().getPath() : null;
         
         for (GUID tokenGUID : set.getTokens()) {
             
@@ -330,7 +330,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int cellOffX = originPoint.x - tokenCell.x;
             int cellOffY = originPoint.y - tokenCell.y;
             
-            token.applyMove(set.getOffsetX(), set.getOffsetY(), path.derive(cellOffX, cellOffY));
+            token.applyMove(set.getOffsetX(), set.getOffsetY(), path != null ? path.derive(cellOffX, cellOffY) : null);
 
             // No longer need this version
             replacementImageMap.remove(token);
@@ -427,11 +427,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         
     	renderBoard(g2d);
+        renderTokens(g2d, zone.getBackgroundTokens());
         renderDrawableOverlay(g2d);
         renderTokenTemplates(g2d);
         renderGrid(g2d);
         renderBorder(g2d);
-        renderTokens(g2d);
+        renderTokens(g2d, zone.getNonBackgroundTokens());
 		renderMoveSelectionSets(g2d);
         renderLabels(g2d);
 		
@@ -480,7 +481,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 		// Find tokens with template state
 		// TODO: I really don't like this, it should be optimized
-		for (Token token : zone.getTokens()) {
+		for (Token token : zone.getAllTokens()) {
 			for (String state : token.getStatePropertyNames()) {
 				Object value = token.getState(state);
 				if (value instanceof TokenTemplate) {
@@ -677,14 +678,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                     newScreenPoint.y += (scaledGridSize - scaledHeight)/2;
                 }
                 
-    			if (token.hasFacing() && token.getTokenType() == Token.Type.TOP_DOWN) {
+    			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp() || token.isBackground())) {
+
     				// Rotated
     				AffineTransform at = new AffineTransform();
     				at.translate(x, y);
-    				at.rotate(Math.toRadians(-token.getFacing() - 90), width/2, height/2); // facing defaults to down, or -90 degrees
+    				at.rotate(Math.toRadians(-token.getFacing() - 90), scaledWidth/2, scaledHeight/2); // facing defaults to down, or -90 degrees
     				at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
     				at.scale(getScale(), getScale());
     	            g.drawImage(ImageManager.getImage(AssetManager.getAsset(token.getAssetID())), at, this);
+    			
     			} else {
     				// Normal
     				g.drawImage(ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this), x, y, scaledWidth-1, scaledHeight-1, this);
@@ -694,7 +697,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				// Other details
 				if (token == keyToken) {
 
-					y +=  10 + height;
+					y +=  10 + scaledHeight;
 					x += scaledWidth/2;
                     
 					if (AppState.getShowMovementMeasurements() && zone.getGrid().getCapabilities().isPathingSupported() && walker.getDistance() >= 1) {
@@ -852,7 +855,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		return ((GeneralPath)facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)))).createTransformedShape(AffineTransform.getScaleInstance(getScale(), getScale()));
 	}
 	
-    protected void renderTokens(Graphics2D g) {
+    protected void renderTokens(Graphics2D g, List<Token> tokenList) {
 
     	Grid grid = zone.getGrid();
     	Dimension screenSize = getSize();
@@ -864,7 +867,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         double gridSize = getScaledGridSize();
         coveredTokenSet.clear();
         tokenLocationList.clear();
-        for (Token token : zone.getTokens()) {
+        for (Token token : tokenList) {
 
         	// Don't bother if it's not visible
         	if (!zone.isTokenVisible(token) && !MapTool.getPlayer().isGM()) {
@@ -898,7 +901,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	continue;
             }
 
-            if (!token.isStamp()) {
+            if (!token.isStamp() && !token.isBackground()) {
 	            for (TokenLocation location : tokenLocationList) {
 	
 	            	Rectangle r1 = location.bounds;
@@ -968,7 +971,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			}
 			
             // Draw image
-			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp())) {
+			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp() || token.isBackground())) {
 				// Rotated
 				AffineTransform at = new AffineTransform();
 				at.translate(x, y);
@@ -1089,7 +1092,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         	boolean isSelected = selectedTokenSet.contains(token.getId());
         	if (isSelected) {
                 // Border
-    			if (token.hasFacing() && token.getTokenType() == Token.Type.TOP_DOWN) {
+    			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp() || token.isBackground())) {
     				AffineTransform oldTransform = g.getTransform();
 
     				// Rotated

@@ -88,7 +88,7 @@ public class Campaign {
     			return true;
     		}
     		
-    		for (Token token : zone.getTokens()) {
+    		for (Token token : zone.getAllTokens()) {
     			
     			if (token.getAssetID().equals(key)) {
     				return true;

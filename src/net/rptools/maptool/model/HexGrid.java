@@ -66,7 +66,7 @@ public class HexGrid extends Grid {
 		super.setSize(size);
 		
 		topWidth = size/2;
-		sideSize = (int)(topWidth*Math.sin(Math.toRadians(30)));
+		sideSize = topWidth/2;
 		height = (int)(topWidth * Math.cos(Math.toRadians(30)));
 		
 		scaledHex = null;
@@ -169,7 +169,7 @@ public class HexGrid extends Grid {
 
 	@Override
 	public int getTokenSpace() {
-		return (int)(getSize() - sideSize);
+		return (int)(height * 2);
 	}
 	
 	@Override
@@ -186,13 +186,13 @@ public class HexGrid extends Grid {
 
         int count = 0;
         
-        g.setColor(Color.red);
-        CellPoint cp = new CellPoint(0,0);
-        ZonePoint zp = convert(cp);
-        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
-        g.fillOval(sp.x-4, sp.y-4, 8, 8);
-        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
-        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
+//        g.setColor(Color.red);
+//        CellPoint cp = new CellPoint(0,0);
+//        ZonePoint zp = convert(cp);
+//        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
+//        g.fillOval(sp.x-4, sp.y-4, 8, 8);
+//        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
+//        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
 
         g.setColor(new Color(getZone().getGridColor()));
 		for (double y = offY%(scaledHeight*2) - (scaledHeight*2); y < renderer.getSize().height; y += scaledHeight) {

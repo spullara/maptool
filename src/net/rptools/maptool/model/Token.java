@@ -58,7 +58,8 @@ public class Token {
 		TOP_DOWN,
 		CIRCLE,
 		SQUARE,
-		STAMP
+		STAMP,
+		BACKGROUND
 	}
 	
 	public static final Comparator<Token> NAME_COMPARATOR = new Comparator<Token>() {
@@ -184,6 +185,10 @@ public class Token {
 	
 	public boolean isStamp() {
 		return getTokenType() == Type.STAMP;
+	}
+	
+	public boolean isBackground() {
+		return getTokenType() == Type.BACKGROUND;
 	}
 	
 	public Type getTokenType() {

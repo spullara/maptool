@@ -285,7 +285,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 		// SELECTION
 		Token token = renderer.getTokenAt (e.getX(), e.getY());
-		if (token != null && !isDraggingToken) {
+		if (token != null && !isDraggingToken && SwingUtilities.isLeftMouseButton(e)) {
 
 			// Permission
 			if (!AppUtil.playerOwnsToken(token)) {
@@ -316,6 +316,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				// Starting a bound box selection
 				isDrawingSelectionBox = true;
 				selectionBoundBox = new Rectangle(e.getX(), e.getY(), 0, 0);
+			} else {
+				isNewTokenSelected = true;
 			}
 		}
 		
@@ -387,7 +389,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
         
 		// POPUP MENU
-        if (SwingUtilities.isRightMouseButton(e) && !isDraggingToken) {
+        if (SwingUtilities.isRightMouseButton(e) && !isDraggingToken && !isDraggingMap()) {
+        	
+        	if (isNewTokenSelected) {
+        		if (!SwingUtil.isShiftDown(e)) {
+        			renderer.clearSelectedTokens();
+        		}
+        		renderer.selectToken(tokenUnderMouse.getId());
+        	}
         	
         	if (tokenUnderMouse != null && renderer.getSelectedTokenSet().size() > 0) {
         		
@@ -545,16 +554,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	public boolean handleDragToken(ZonePoint zonePoint) {
 
 		// TODO: Optimize this (combine with calling code)
+	    zonePoint.translate(-dragOffsetX, -dragOffsetY);
 		if (tokenBeingDragged.isSnapToGrid()) {
 
 			CellPoint cellUnderMouse = renderer.getZone().getGrid().convert(zonePoint);
 			zonePoint = renderer.getZone().getGrid().convert(cellUnderMouse);
 			MapTool.getFrame().setStatusMessage("Cell: " + cellUnderMouse.x + ", " + cellUnderMouse.y);
 			
-		} else {
-		    zonePoint.translate(-dragOffsetX, -dragOffsetY);
-        }
-
+		}
 		// Don't bother if there isn't any movement
 		if (!renderer.hasMoveSelectionSetMoved(tokenBeingDragged.getId(), zonePoint)) {
 			return false;

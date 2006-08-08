@@ -104,6 +104,7 @@ public class AppActions {
 			if (location == null) {
 				return;
 			}
+			MapTool.getCampaign().setExportLocation(location);
 			
 			BufferedImage image = MapTool.takeScreenShot();
 			
@@ -122,6 +123,7 @@ public class AppActions {
 				return;
 			}
 
+			MapTool.getCampaign().setExportLocation(location);
 			BufferedImage image = MapTool.takeMapScreenShot();
 			
 			exportImage(image, location);
@@ -145,7 +147,7 @@ public class AppActions {
 	public static final Action EXPORT_SCREENSHOT_LAST_LOCATION = new DefaultClientAction() {
 		{
 			init("Export Screenshot");
-			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_MASK));
+			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
 		}
 		public void execute(ActionEvent e) {
 			
@@ -164,7 +166,7 @@ public class AppActions {
 	public static final Action EXPORT_MAP_SCREENSHOT_LAST_LOCATION = new DefaultClientAction() {
 		{
 			init("Export Map Screenshot");
-			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_MASK));
+			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
 		}
 		public void execute(ActionEvent e) {
 			
@@ -510,7 +512,7 @@ public class AppActions {
 
 	public static final Action TOGGLE_SHOW_LIGHT_RADIUS = new DefaultClientAction() {
 		{
-			init("Show Light Radius");
+			init("action.showLightRadius");
 		}
 
 		public void execute(ActionEvent e) {
