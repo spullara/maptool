@@ -317,7 +317,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				isDrawingSelectionBox = true;
 				selectionBoundBox = new Rectangle(e.getX(), e.getY(), 0, 0);
 			} else {
-				isNewTokenSelected = true;
+				if (tokenUnderMouse != null) {
+					isNewTokenSelected = true;
+				}
 			}
 		}
 		
@@ -391,11 +393,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		// POPUP MENU
         if (SwingUtilities.isRightMouseButton(e) && !isDraggingToken && !isDraggingMap()) {
         	
-        	if (isNewTokenSelected) {
+        	if (tokenUnderMouse != null && isNewTokenSelected) {
         		if (!SwingUtil.isShiftDown(e)) {
         			renderer.clearSelectedTokens();
         		}
         		renderer.selectToken(tokenUnderMouse.getId());
+                isNewTokenSelected = false;
         	}
         	
         	if (tokenUnderMouse != null && renderer.getSelectedTokenSet().size() > 0) {
