@@ -149,6 +149,7 @@ public class AssetPanel extends JComponent {
     	
     	model.setFilter(filterTextField.getText());
     	// TODO: This should be event based
+    	imagePanel.revalidate();
     	imagePanel.repaint();
     }
     
