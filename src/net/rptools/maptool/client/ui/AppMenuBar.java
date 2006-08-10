@@ -79,8 +79,6 @@ public class AppMenuBar extends JMenuBar {
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.EXIT));
 
-        //        menu.add(createAssetMenu());
-
         return menu;
     }
 
