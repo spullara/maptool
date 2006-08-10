@@ -163,8 +163,10 @@ public class AppMenuBar extends JMenuBar {
 
     	menu.add(new JMenuItem(basicQuickMap));
         menu.add(new JMenuItem(new AppActions.QuickMapAction("Sand", "net/rptools/lib/resource/image/texture/sand.jpg")));
-        menu.add(new JMenuItem(new AppActions.QuickMapAction("Water", "net/rptools/lib/resource/image/texture/water.jpg")));
         menu.add(new JMenuItem(new AppActions.QuickMapAction("Mud", "net/rptools/lib/resource/image/texture/crackedmud.jpg")));
+        menu.add(new JMenuItem(new AppActions.QuickMapAction("Ocean", "net/rptools/lib/resource/image/texture/ocean.jpg")));
+        menu.add(new JMenuItem(new AppActions.QuickMapAction("Starfield", "net/rptools/lib/resource/image/texture/starfield.jpg")));
+        menu.add(new JMenuItem(new AppActions.QuickMapAction("Cobblestone", "net/rptools/lib/resource/image/texture/cobblestone.jpg")));
     	
     	return menu;
     }
