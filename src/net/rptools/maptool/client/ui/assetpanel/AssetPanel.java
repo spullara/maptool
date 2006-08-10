@@ -27,6 +27,8 @@ package net.rptools.maptool.client.ui.assetpanel;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.util.List;
 
@@ -39,6 +41,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -58,7 +61,9 @@ public class AssetPanel extends JComponent {
 	private JTextField filterTextField;
     
     private AssetPanelModel assetPanelModel;
-	
+
+    private Timer updateFilterTimer;
+    
     public AssetPanel(String controlName) {
         this(controlName, new AssetPanelModel());
     }
@@ -141,16 +146,31 @@ public class AssetPanel extends JComponent {
     	return filterTextField;
     }
 
-    private void updateFilter() {
-    	ImageFileImagePanelModel model = (ImageFileImagePanelModel) imagePanel.getModel();
-    	if (model == null) {
-    		return;
+    private synchronized void updateFilter() {
+    	
+    	if (updateFilterTimer == null) {
+    		updateFilterTimer = new Timer(500, new ActionListener(){
+    			public void actionPerformed(ActionEvent e) {
+
+    		    	ImageFileImagePanelModel model = (ImageFileImagePanelModel) imagePanel.getModel();
+    		    	if (model == null) {
+    		    		return;
+    		    	}
+    		    	
+    		    	model.setFilter(filterTextField.getText());
+    		    	// TODO: This should be event based
+    		    	imagePanel.revalidate();
+    		    	imagePanel.repaint();
+    		    	
+    		    	updateFilterTimer.stop();
+    		    	updateFilterTimer = null;
+    			}
+    		});
+    		updateFilterTimer.start();
+    	} else {
+    		updateFilterTimer.restart();
     	}
     	
-    	model.setFilter(filterTextField.getText());
-    	// TODO: This should be event based
-    	imagePanel.revalidate();
-    	imagePanel.repaint();
     }
     
     // TODO: Find a way around this, it's ugly
