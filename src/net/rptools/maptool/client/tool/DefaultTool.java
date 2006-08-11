@@ -140,9 +140,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 
 		CellPoint cp = renderer.getZone().getGrid().convert(new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer));
 		if (cp != null) {	
-			MapTool.getFrame().setStatusMessage("Cell: " + cp.x + ", " + cp.y);
+			MapTool.getFrame().getCoordinateStatusBar().update(cp.x, cp.y);
 		} else {
-		    MapTool.getFrame().setStatusMessage("");
+		    MapTool.getFrame().getCoordinateStatusBar().clear();
         }
 	}
 	
@@ -150,9 +150,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 
 		CellPoint cellUnderMouse = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
 		if (cellUnderMouse != null) {
-			MapTool.getFrame().setStatusMessage("Cell: " + cellUnderMouse.x + ", " + cellUnderMouse.y);
+			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
 		} else {
-		    MapTool.getFrame().setStatusMessage("");
+		    MapTool.getFrame().getCoordinateStatusBar().clear();
         }
 		
 		// MAP MOVEMENT

@@ -40,8 +40,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Observer;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
@@ -63,6 +65,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
+import javax.swing.tree.TreePath;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.image.ImageUtil;
@@ -80,9 +83,11 @@ import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ServerDisconnectHandler;
 import net.rptools.maptool.client.ZoneActivityListener;
+import net.rptools.maptool.client.swing.CoordinateStatusBar;
 import net.rptools.maptool.client.swing.GlassPane;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
@@ -120,8 +125,10 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
+import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Pen;
 
 /**
@@ -168,6 +175,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	private ActivityMonitorPanel activityMonitor = new ActivityMonitorPanel();
 	private ProgressStatusBar progressBar = new ProgressStatusBar();
     private ConnectionStatusPanel connectionStatusPanel = new ConnectionStatusPanel();
+    private CoordinateStatusBar coordinateStatusBar;
     
 	private NewZoneDropPanel newZoneDropPanel;
 	
@@ -220,11 +228,11 @@ public class MapToolFrame extends JFrame implements WindowListener {
         aboutDialog.setSize(354, 400);
 
         taskPanel.add("Image Explorer", assetPanel);
-        taskPanel.add("Tokens", tokenPanel);
+        taskPanel.add("Tokens", createTokenTreePanel());
         taskPanel.add("Connections", new JScrollPane(createPlayerList()));
-        //taskPanel.add("Token Tree", createTokenTreePanel());
         
         statusPanel = new StatusPanel();
+        statusPanel.addPanel(getCoordinateStatusBar());
         statusPanel.addPanel(new MemoryStatusBar());
         //statusPanel.addPanel(progressBar);
         statusPanel.addPanel(connectionStatusPanel);
@@ -313,6 +321,13 @@ public class MapToolFrame extends JFrame implements WindowListener {
         visibleControlPanel = panel;
 	}
 
+	public CoordinateStatusBar getCoordinateStatusBar() {
+		if (coordinateStatusBar == null) {
+			coordinateStatusBar = new CoordinateStatusBar();
+		}
+		return coordinateStatusBar;
+	}
+	
 	public void hideControlPanel() {
 		if (visibleControlPanel != null) {
 			
@@ -434,10 +449,67 @@ public class MapToolFrame extends JFrame implements WindowListener {
     
     private TokenPanelTreeModel tokenPanelTreeModel;
     private JComponent createTokenTreePanel() {
-    	JTree tree = new JTree();
+    	final JTree tree = new JTree();
     	tokenPanelTreeModel = new TokenPanelTreeModel(tree);
     	tree.setModel(tokenPanelTreeModel);
 		tree.setCellRenderer(new TokenPanelTreeCellRenderer());
+		tree.addMouseListener(new MouseAdapter() {
+			// TODO: Make this a handler class, not an aic
+			@Override
+			public void mousePressed(MouseEvent e) {
+				tree.setSelectionPath(tree.getPathForLocation(e.getX(), e.getY()));
+				TreePath path = tree.getPathForLocation(e.getX(), e.getY());
+				if (path == null) {
+					return;
+				}
+				
+				Object row = path.getLastPathComponent(); 
+				int rowIndex = tree.getRowForLocation(e.getX(), e.getY());
+                if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+
+                	if (row instanceof Token) {
+                        Token token = (Token) row;
+                        getCurrentZoneRenderer().centerOn(new ZonePoint(token.getX(), token.getY()));
+                        getCurrentZoneRenderer().clearSelectedTokens();
+                        getCurrentZoneRenderer().selectToken(token.getId());
+                	}
+                }
+                if (SwingUtilities.isRightMouseButton(e)) {
+                	
+            		if (!SwingUtil.isShiftDown(e)) {
+            			tree.clearSelection();
+            		}
+        			tree.addSelectionInterval(rowIndex, rowIndex);
+
+                	final int x = e.getX();
+                	final int y = e.getY();
+                	EventQueue.invokeLater(new Runnable() {
+                		public void run() {
+                			
+                        	Token firstToken = null;
+                        	Set<GUID> selectedTokenSet = new HashSet<GUID>();
+                        	for (TreePath path : tree.getSelectionPaths()) {
+
+                        		if (path.getLastPathComponent() instanceof Token) {
+                        			Token token = (Token) path.getLastPathComponent();
+                            		if (firstToken == null) {
+                            			firstToken = token;
+                            		}
+                            		
+                            		if (AppUtil.playerOwnsToken(token)) {
+                            			selectedTokenSet.add(token.getId());
+                            		}
+                        		}
+                        	}
+                        	if (selectedTokenSet.size() > 0) {
+                        		
+                        		new TokenPopupMenu(selectedTokenSet, x, y, getCurrentZoneRenderer(), firstToken).showPopup(tree);
+                        	}
+                		}
+                	});
+                }
+			}
+		});
     	
 		AppListeners.addZoneListener(new ZoneActivityListener() {
 			public void zoneActivated(Zone zone) {

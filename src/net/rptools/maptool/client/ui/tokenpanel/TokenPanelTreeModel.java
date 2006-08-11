@@ -2,25 +2,20 @@ package net.rptools.maptool.client.ui.tokenpanel;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import javax.swing.JFrame;
 import javax.swing.JTree;
-import javax.swing.event.ListDataEvent;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
-import javax.swing.text.View;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Token;
@@ -33,8 +28,9 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 		VISIBLE("Visible"),
 		GROUPS("Groups"),
 		STAMPS("Stamps"),
+		BACKGROUND("Background"),
 		CLIPBOARD("Clipboard");
-		;
+
 		String displayName;
 		private View(String displayName) {
 			this.displayName = displayName;
@@ -59,8 +55,9 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 		// It would be useful to have this list be static, but it's really not that big of a memory footprint
 		// TODO: refactor to more tightly couple the View enum and the corresponding filter
     	filterList.add(new VisibleTokenFilter());
-    	filterList.add(new StampFilter());
     	filterList.add(new PlayerTokenFilter());
+    	filterList.add(new StampFilter());
+    	filterList.add(new BackgroundFilter());
     }
 	
     private List<TreeModelListener> listenerList = new ArrayList<TreeModelListener>();
@@ -156,10 +153,25 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
             return;
         }
 
+        // Plan to show all of the views in order to keep the 
+        // order
+        for (TokenFilter filter : filterList) {
+        	currentViewList.add(filter.view);
+        }
+        
         // Add in the appropriate views
         for (Token token : zone.getAllTokens()) {
         	for (TokenFilter filter : filterList) {
         		filter.filter(token);
+        	}
+        }
+
+        // Clear out any view without any tokens
+        for (ListIterator<View> viewIter = currentViewList.listIterator(); viewIter.hasNext();) {
+        	View view = viewIter.next();
+        	
+        	if (viewMap.get(view) == null || viewMap.get(view).size() == 0) {
+        		viewIter.remove();
         	}
         }
         
@@ -205,7 +217,6 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     		if (accept(token)) {
     			List<Token> tokenList = viewMap.get(view);
     			if (tokenList == null) {
-    				currentViewList.add(view);
     				tokenList = new ArrayList<Token>();
     				viewMap.put(view, tokenList);
     			}
@@ -253,6 +264,18 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     	}
     }
     
+    private class BackgroundFilter extends TokenFilter {
+    	
+    	public BackgroundFilter() {
+    		super(View.BACKGROUND);
+    	}
+    	
+    	@Override
+    	protected boolean accept(Token token) {
+    		return MapTool.getPlayer().isGM() && token.isBackground();
+    	}
+    }
+    
     private class VisibleTokenFilter extends TokenFilter {
     	
     	public VisibleTokenFilter() {
@@ -262,7 +285,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     	@Override
     	protected boolean accept(Token token) {
     		
-    		if (token.isStamp()) {
+    		if (token.isStamp() || token.isBackground()) {
     			return false;
     		}
     		

@@ -166,6 +166,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	public void actionPerformed(ActionEvent aE) {
 		if (aE.getSource() == okButton) {
 			updateToken();
+			MapTool.getFrame().updateTokenTree();
 			setVisible(false);
 		} else if (aE.getSource() == cancelButton) {
 			setVisible(false);
