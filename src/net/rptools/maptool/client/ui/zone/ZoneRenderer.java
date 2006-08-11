@@ -30,6 +30,7 @@ import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -1343,7 +1344,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	// Optimize: only need to calc this when grid size or scale changes
     	return getScale() * zone.getGrid().getSize();
     }
-	
+
+    /**
+     * This makes sure that any image updates get refreshed.  This could be a little smarter.
+     */
+    @Override
+    public boolean imageUpdate(Image img, int infoflags, int x, int y, int w, int h) {
+    	repaint();
+    	return super.imageUpdate(img, infoflags, x, y, w, h);
+    }
+    
 	/**
 	 * Represents a movement set
 	 */
