@@ -557,12 +557,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	public boolean handleDragToken(ZonePoint zonePoint) {
 
 		// TODO: Optimize this (combine with calling code)
-	    zonePoint.translate(-dragOffsetX, -dragOffsetY);
 		if (tokenBeingDragged.isSnapToGrid()) {
 
 			CellPoint cellUnderMouse = renderer.getZone().getGrid().convert(zonePoint);
 			zonePoint = renderer.getZone().getGrid().convert(cellUnderMouse);
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
+		} else {
+		    zonePoint.translate(-dragOffsetX, -dragOffsetY);
 		}
 
 		// Don't bother if there isn't any movement
