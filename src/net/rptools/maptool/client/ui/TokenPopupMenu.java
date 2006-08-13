@@ -172,6 +172,7 @@ public class TokenPopupMenu extends JPopupMenu {
 
 		// Organize
 		add(new SetFacingAction());
+		add(new ClearFacingAction());
 		add(new JMenuItem(new StartMoveAction()));
 		add(stateMenu);
 
@@ -304,6 +305,27 @@ public class TokenPopupMenu extends JPopupMenu {
 			tool.init(tokenUnderMouse, selectedTokenSet);
 			
 			toolbox.setSelectedTool(FacingTool.class);
+		}
+	}
+	
+	private class ClearFacingAction extends AbstractAction {
+		
+		public ClearFacingAction() {
+			super("Clear Facing");
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			for (GUID tokenGUID : selectedTokenSet) {
+
+				Token token = renderer.getZone().getToken(tokenGUID);
+				token.setFacing(null);
+				MapTool.serverCommand().putToken(renderer.getZone().getId(),
+						token);
+			}
+
+			renderer.repaint();
 		}
 	}
 	

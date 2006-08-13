@@ -60,6 +60,12 @@ public class Zone extends Token {
         LABEL_CHANGED
     }
     
+    public enum Layer {
+    	TOKEN,
+    	STAMP,
+    	BACKGROUND
+    }
+    
     public static final int DEFAULT_FEET_PER_CELL = 5;
     
     public interface Type {

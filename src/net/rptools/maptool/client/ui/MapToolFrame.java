@@ -462,7 +462,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
 				if (path == null) {
 					return;
 				}
-				
+
+				TokenPanelTreeModel model = (TokenPanelTreeModel) tree.getModel();
 				Object row = path.getLastPathComponent(); 
 				int rowIndex = tree.getRowForLocation(e.getX(), e.getY());
                 if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
@@ -507,6 +508,12 @@ public class MapToolFrame extends JFrame implements WindowListener {
                         	}
                 		}
                 	});
+                } else if (SwingUtilities.isLeftMouseButton(e)) {
+                	if (row instanceof TokenPanelTreeModel.View) {
+                		TokenPanelTreeModel.View view = (TokenPanelTreeModel.View)row; 
+                		getCurrentZoneRenderer().setActiveLayer(view.getLayer());
+                		tree.repaint();
+                	}
                 }
 			}
 		});

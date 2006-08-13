@@ -38,6 +38,7 @@ public class AppStyle {
 
 	public static ImageBorder border = ImageBorder.GRAY;
 	public static ImageBorder selectedBorder = ImageBorder.RED;
+	public static ImageBorder selectedStampBorder = ImageBorder.BLUE;
 
 	public static BufferedImage tokenInvisible;
 

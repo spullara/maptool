@@ -30,15 +30,18 @@ import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.awt.TexturePaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,6 +58,8 @@ import javax.swing.SwingUtilities;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
+import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
@@ -80,6 +85,8 @@ import net.rptools.maptool.util.ImageManager;
  */
 public class PointerTool extends DefaultTool implements ZoneOverlay {
 
+	private Paint nonAlphaSelectionPaint;
+	
 	private boolean isShowingTokenStackPopup;
     private boolean isShowingPointer; 
     private boolean isDraggingToken;
@@ -103,6 +110,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	public PointerTool () {
         try {
             setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/tool/PointerBlue16.png")));
+
+            // Selection color using psuedo translucency
+			BufferedImage grid = SwingUtil.replaceColor(ImageUtil.getImage("net/rptools/maptool/client/image/grid.png"), 0x202020, 0x0000ff);
+            nonAlphaSelectionPaint = new TexturePaint(grid, new Rectangle2D.Float(0, 0, grid.getWidth(), grid.getHeight()));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -906,7 +917,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			
 			Composite composite = g.getComposite();
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .25f));
-			g.setColor(AppStyle.selectionBoxFill);
+			// TODO: Use it's own preference, or genericize this one
+			g.setPaint(AppPreferences.getUseTranslucentFog() ? AppStyle.selectionBoxFill : nonAlphaSelectionPaint);
 			g.fillRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height,10, 10);
 			g.setComposite(composite);
 			

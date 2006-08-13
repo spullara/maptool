@@ -5,7 +5,7 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.rptools.maptool.client.MapTool"/>
 <booleanAttribute key="org.eclipse.hyades.trace.ui.ATTR_AUTO_MONITORING" value="false"/>
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_SET" value="org.eclipse.hyades.defaultProfilingSets.memory"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -DMAPTOOL_DEV=true"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -DMAPTOOL_DEV=true -Xmx256M"/>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>

@@ -63,10 +63,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.JComponent;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.lib.swing.ImageBorder;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
@@ -118,7 +120,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private DrawableRenderer drawableRenderer = new DrawableRenderer();
     
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
-    private List<TokenLocation> tokenLocationList = new LinkedList<TokenLocation>();
+    private Map<Zone.Layer, List<TokenLocation>> tokenLocationMap = new HashMap<Zone.Layer, List<TokenLocation>>();
     private Set<GUID> selectedTokenSet = new HashSet<GUID>();
     private List<LabelLocation> labelLocationList = new LinkedList<LabelLocation>();
     private Set<Rectangle> coveredTokenSet = new HashSet<Rectangle>();
@@ -138,6 +140,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	private Token tokenUnderMouse;
 
 	private ScreenPoint pointUnderMouse;
+	
+	private Zone.Layer activeLayer;
 	
 //    private FramesPerSecond fps = new FramesPerSecond();
 
@@ -425,8 +429,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         Graphics2D g2d = (Graphics2D) g;
 		
         if (zone == null) { return; }
-        
-        
+
+        // Clear internal state
+        tokenLocationMap.clear();
+        coveredTokenSet.clear();
+
+        // Rendering pipeline
     	renderBoard(g2d);
         renderTokens(g2d, zone.getBackgroundTokens());
         renderDrawableOverlay(g2d);
@@ -797,8 +805,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	public List<Token> getTokensOnScreen() {
 		List<Token> list = new ArrayList<Token>();
 
+		// Always assume tokens, for now
 		List<TokenLocation> tokenLocationListCopy = new ArrayList<TokenLocation>();
-		tokenLocationListCopy.addAll(tokenLocationList);
+		tokenLocationListCopy.addAll(getTokenLocations(Zone.Layer.TOKEN));
 		for (TokenLocation location : tokenLocationListCopy) {
 			list.add(location.token);
 		}
@@ -824,6 +833,31 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			}
 		});
 		
+		return list;
+	}
+	
+	public Zone.Layer getActiveLayer() {
+		return activeLayer != null ? activeLayer : Zone.Layer.TOKEN;
+	}
+	public void setActiveLayer(Zone.Layer layer) {
+		activeLayer = layer;
+		selectedTokenSet.clear();
+		repaint();
+	}
+	
+	/**
+	 * Get the token locations for the given layer, creates an empty list
+	 * if there are not locations for the given layer
+	 */
+	private List<TokenLocation> getTokenLocations(Zone.Layer layer) {
+		List<TokenLocation> list = tokenLocationMap.get(layer);
+		if (list != null) {
+			return list;
+		}
+		
+		list = new LinkedList<TokenLocation>();
+		tokenLocationMap.put(layer, list);
+	
 		return list;
 	}
 	
@@ -866,8 +900,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         Rectangle clipBounds = g.getClipBounds();
         float scale = zoneScale.getScale();
         double gridSize = getScaledGridSize();
-        coveredTokenSet.clear();
-        tokenLocationList.clear();
         for (Token token : tokenList) {
 
         	// Don't bother if it's not visible
@@ -902,8 +934,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	continue;
             }
 
+            // Stacking check
             if (!token.isStamp() && !token.isBackground()) {
-	            for (TokenLocation location : tokenLocationList) {
+	            for (TokenLocation location : getTokenLocations(Zone.Layer.TOKEN)) {
 	
 	            	Rectangle r1 = location.bounds;
 	            	
@@ -927,9 +960,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	            }
             }
             
+            // Keep track of the location on the screen
             // Note the order where the top most token is at the end of the list
-            if (!token.isStamp()) {
-            	tokenLocationList.add(new TokenLocation(tokenBounds, token));
+            List<TokenLocation> locationList = null;
+            if (!token.isStamp() && !token.isBackground()) {
+            	locationList = getTokenLocations(Zone.Layer.TOKEN);
+            } else {
+            	if (token.isStamp()) {
+            		locationList = getTokenLocations(Zone.Layer.STAMP);
+            	} 
+            	if (token.isBackground()) {
+            		locationList = getTokenLocations(Zone.Layer.BACKGROUND);
+            	}
+            }
+            if (locationList != null) {
+            	locationList.add(new TokenLocation(tokenBounds, token));
             }
 
             // OPTIMIZE:
@@ -1078,7 +1123,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         }
         
         // Selection and labels
-        for (TokenLocation location : tokenLocationList) {
+        for (TokenLocation location : getTokenLocations(getActiveLayer())) {
         	
         	Rectangle bounds = location.bounds;
         	
@@ -1092,6 +1137,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
         	boolean isSelected = selectedTokenSet.contains(token.getId());
         	if (isSelected) {
+        		ImageBorder selectedBorder = token.isStamp() || token.isBackground() ? AppStyle.selectedStampBorder : AppStyle.selectedBorder;
                 // Border
     			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp() || token.isBackground())) {
     				AffineTransform oldTransform = g.getTransform();
@@ -1099,11 +1145,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     				// Rotated
     				g.translate(bounds.x, bounds.y);
     				g.rotate(Math.toRadians(-token.getFacing() - 90), bounds.width/2, bounds.height/2); // facing defaults to down, or -90 degrees
-    				AppStyle.selectedBorder.paintAround(g, 0, 0, bounds.width, bounds.height);
+    				selectedBorder.paintAround(g, 0, 0, bounds.width, bounds.height);
 
     				g.setTransform(oldTransform);
     			} else {
-    				AppStyle.selectedBorder.paintAround(g, bounds);
+    				selectedBorder.paintAround(g, bounds);
     			}
         	}
 
@@ -1162,11 +1208,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     /**
      * Screen space rectangle
-     * @param rect
      */
     public void selectTokens(Rectangle rect) {
-    	
-    	for (TokenLocation location : tokenLocationList) {
+
+    	for (TokenLocation location : getTokenLocations(getActiveLayer())) {
     		if (rect.intersects(location.bounds)) {
     			selectToken(location.token.getId());
     		}
@@ -1181,7 +1226,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     public Rectangle getTokenBounds(Token token) {
     	
-    	for (TokenLocation location : tokenLocationList) {
+    	for (TokenLocation location : getTokenLocations(getActiveLayer())) {
     		if (location.token == token) {
     			return location.bounds;
     		}
@@ -1213,7 +1258,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	public Token getTokenAt (int x, int y) {
 		
 		List<TokenLocation> locationList = new ArrayList<TokenLocation>();
-		locationList.addAll(tokenLocationList);
+		locationList.addAll(getTokenLocations(getActiveLayer()));
 		Collections.reverse(locationList);
 		for (TokenLocation location : locationList) {
 			if (location.bounds.contains(x, y)) {
@@ -1232,7 +1277,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			if (bounds.contains(x, y)) {
 
 				List<Token> tokenList = new ArrayList<Token>();
-				for (TokenLocation location : tokenLocationList) {
+				for (TokenLocation location : getTokenLocations(getActiveLayer())) {
 					if (location.bounds.intersects(bounds)) {
 						tokenList.add(location.token);
 					}
@@ -1502,6 +1547,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 token.setAllOwners();
             else if (!token.hasOwners() && !MapTool.getPlayer().isGM())
                 token.addOwner(MapTool.getPlayer().getName());
+
+            // Token type
+            if (getActiveLayer() == Zone.Layer.BACKGROUND) {
+            	token.setTokenType(Token.Type.BACKGROUND);
+            }
+            if (getActiveLayer() == Zone.Layer.STAMP) {
+            	token.setTokenType(Token.Type.STAMP);
+            }
             
             // Save the token and tell everybody about it
             zone.putToken(token);
@@ -1529,13 +1582,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         List<Asset> assets = TransferableHelper.getAsset(dtde);
         if (assets != null) {
             tokens = new ArrayList<Token>(assets.size());
-            for (Asset asset : assets)
+            for (Asset asset : assets) {
                 tokens.add(new Token(asset.getName(), asset.getId()));
+            }
             addTokens(tokens, zp);
         } else {
             tokens = TransferableHelper.getTokens(dtde.getTransferable());
-            if (tokens != null)
+            if (tokens != null) {
                 addTokens(tokens, zp);
+            }
         }
         dtde.dropComplete(tokens != null);
     }

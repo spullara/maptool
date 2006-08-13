@@ -24,19 +24,27 @@ import net.rptools.maptool.model.Zone;
 public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 
     public enum View {
-    	PLAYERS("Players"),
-		VISIBLE("Visible"),
-		GROUPS("Groups"),
-		STAMPS("Stamps"),
-		BACKGROUND("Background"),
-		CLIPBOARD("Clipboard");
+		VISIBLE("Visible", Zone.Layer.TOKEN, true),
+    	PLAYERS("Players", Zone.Layer.TOKEN, false),
+		GROUPS("Groups", Zone.Layer.TOKEN, false),
+		STAMPS("Stamps", Zone.Layer.STAMP, true),
+		BACKGROUND("Background", Zone.Layer.BACKGROUND, true),
+		CLIPBOARD("Clipboard", Zone.Layer.TOKEN, false);
 
 		String displayName;
-		private View(String displayName) {
+		boolean required;
+		Zone.Layer layer;
+
+		private View(String displayName, Zone.Layer layer, boolean required) {
 			this.displayName = displayName;
+			this.required = required;
+			this.layer = layer;
 		}
 		public String getDisplayName() {
 			return displayName;
+		}
+		public Zone.Layer getLayer() {
+			return layer;
 		}
 	}
 
