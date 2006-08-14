@@ -113,7 +113,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     public static final int MIN_GRID_SIZE = 5;
     
-    protected Zone              zone;
+    protected Zone zone;
 
     private Scale zoneScale;
     
