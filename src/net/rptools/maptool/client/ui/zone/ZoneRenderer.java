@@ -663,11 +663,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				
             	int scaledWidth = (int)(width * scale);
             	int scaledHeight = (int)(height * scale);
+                int scaledGridWidth = (int)(grid.getCellWidth()*getScale());
+                int scaledGridHeight = (int)(grid.getCellHeight()*getScale());
             	
                 int x = newScreenPoint.x + 1 + (int)(grid.getCellOffset().width*scale);
                 int y = newScreenPoint.y + 1 + (int)(grid.getCellOffset().height*scale);
                 
-				// Show distance only on the key token
+                if (width < scaledGridWidth && token.isSnapToGrid()) {
+                    x += (scaledGridWidth - scaledWidth)/2;
+                }
+                if (height < scaledGridHeight && token.isSnapToGrid()) {
+                    y += (scaledGridHeight - scaledHeight)/2;
+                }
+
+                // Show distance only on the key token
 				if (token == keyToken) {
 
 					if (zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
@@ -921,10 +930,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int y = tokenScreenLocation.y + 1 + (int)(grid.getCellOffset().height*scale);
 
             // Center the token
-            if (width < scaledGridWidth) {
+            if (width < scaledGridWidth && token.isSnapToGrid()) {
                 x += (scaledGridWidth - width)/2;
             }
-            if (height < scaledGridHeight) {
+            if (height < scaledGridHeight && token.isSnapToGrid()) {
                 y += (scaledGridHeight - height)/2;
             }
             

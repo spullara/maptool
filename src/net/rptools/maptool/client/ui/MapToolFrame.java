@@ -466,13 +466,33 @@ public class MapToolFrame extends JFrame implements WindowListener {
 				TokenPanelTreeModel model = (TokenPanelTreeModel) tree.getModel();
 				Object row = path.getLastPathComponent(); 
 				int rowIndex = tree.getRowForLocation(e.getX(), e.getY());
-                if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                if (SwingUtilities.isLeftMouseButton(e)) {
 
+                	if (row instanceof TokenPanelTreeModel.View) {
+                		TokenPanelTreeModel.View view = (TokenPanelTreeModel.View)row; 
+                		getCurrentZoneRenderer().setActiveLayer(view.getLayer());
+                		tree.repaint();
+                	}
+                	
                 	if (row instanceof Token) {
-                        Token token = (Token) row;
-                        getCurrentZoneRenderer().centerOn(new ZonePoint(token.getX(), token.getY()));
-                        getCurrentZoneRenderer().clearSelectedTokens();
-                        getCurrentZoneRenderer().selectToken(token.getId());
+                		if (e.getClickCount() == 2) {
+	                        Token token = (Token) row;
+	                        getCurrentZoneRenderer().clearSelectedTokens();
+	                        getCurrentZoneRenderer().centerOn(new ZonePoint(token.getX(), token.getY()));
+	                        getCurrentZoneRenderer().selectToken(token.getId());
+                		} else {
+            				path = path.getParentPath();
+                			while (path != null) {
+                				row = path.getLastPathComponent();
+                				// TODO: Combine this code with the code above
+                				if (row instanceof TokenPanelTreeModel.View) {
+	                        		TokenPanelTreeModel.View view = (TokenPanelTreeModel.View)row; 
+	                        		getCurrentZoneRenderer().setActiveLayer(view.getLayer());
+	                        		tree.repaint();
+                				}
+                				path = path.getParentPath();
+                			}
+                		}
                 	}
                 }
                 if (SwingUtilities.isRightMouseButton(e)) {
@@ -508,12 +528,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
                         	}
                 		}
                 	});
-                } else if (SwingUtilities.isLeftMouseButton(e)) {
-                	if (row instanceof TokenPanelTreeModel.View) {
-                		TokenPanelTreeModel.View view = (TokenPanelTreeModel.View)row; 
-                		getCurrentZoneRenderer().setActiveLayer(view.getLayer());
-                		tree.repaint();
-                	}
                 }
 			}
 		});

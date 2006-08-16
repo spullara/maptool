@@ -39,7 +39,7 @@ public class TokenPanelTreeCellRenderer extends DefaultTreeCellRenderer {
         if (value instanceof Token) {
             Token token = (Token) value;
             
-            int height = getPreferredSize().height;
+            int height = getPreferredSize().height != 0 ? getPreferredSize().height : 15;
             if (image == null || image.getHeight() != height) {
             	image = new BufferedImage(height, height, Transparency.TRANSLUCENT);
             }
