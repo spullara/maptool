@@ -26,6 +26,7 @@ package net.rptools.maptool.client.tool;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -34,6 +35,7 @@ import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.event.ActionEvent;
@@ -41,10 +43,12 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,7 +63,6 @@ import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppPreferences;
-import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
@@ -94,12 +97,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     private boolean isDrawingSelectionBox;
     private boolean isSpaceDown;
     private boolean isMovingWithKeys;
+    private boolean isResizingToken;
+    private boolean isRotatingToken;
     private Rectangle selectionBoundBox;
 
 	private Token tokenBeingDragged;
 	private Token tokenUnderMouse;
 	
 	private TokenStackPanel tokenStackPanel = new TokenStackPanel();
+	
+	private Map<Shape, Token> rotateBoundsMap = new HashMap<Shape, Token>();
+	private Map<Shape, Token> resizeBoundsMap = new HashMap<Shape, Token>();
 	
     // Offset from token's X,Y when dragging. Values are in cell coordinates.
     private int dragOffsetX;
@@ -254,6 +262,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				repaint();
 			}
 		}
+		
+		
 		
 		// So that keystrokes end up in the right place
 		renderer.requestFocusInWindow();
@@ -932,6 +942,41 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (isShowingTokenStackPopup) {
 			
 			tokenStackPanel.paint(g);
+		} else {
+			
+			for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
+				Token token = renderer.getZone().getToken(tokenGUID);
+				if (token == null) {
+					continue;
+				}
+				
+				if (!token.isStamp() && !token.isBackground()) {
+					return;
+				}
+				
+				// Show sizing controls
+				Rectangle bounds = renderer.getTokenBounds(token);
+				if (bounds == null) {
+					continue;
+				}
+				
+				g.setColor(Color.black);
+				
+				// Resize
+				int x = bounds.x + bounds.width - 10;
+				int y = bounds.y + bounds.height - 10;
+				Rectangle resizeBounds = new Rectangle(x, y, 10, 10);
+				g.fill(resizeBounds);
+				resizeBoundsMap.put(resizeBounds, token);
+				
+				// Rotate
+				x = bounds.x + bounds.width/2;
+				y = bounds.y + bounds.height/2;
+				Ellipse2D rotateBounds = new Ellipse2D.Float(x+25, y-5, 10, 10);
+				g.drawLine(x, y, x + 30, y);
+				g.fill(rotateBounds);
+				rotateBoundsMap.put(rotateBounds, token);
+			}
 		}
 	}
 
