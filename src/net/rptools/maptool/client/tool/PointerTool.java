@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -263,8 +264,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 		}
 		
-		
-		
 		// So that keystrokes end up in the right place
 		renderer.requestFocusInWindow();
 		if (isDraggingMap()) {
@@ -278,6 +277,26 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		dragStartX = e.getX();
 		dragStartY = e.getY();
 
+		// Check token resizing
+		for (Entry<Shape, Token> entry : resizeBoundsMap.entrySet()) {
+			Shape bounds = entry.getKey();
+			if (bounds.contains(dragStartX, dragStartY)) {
+				dragOffsetX = bounds.getBounds().width + bounds.getBounds().x - e.getX();
+				dragOffsetY = bounds.getBounds().height + bounds.getBounds().y - e.getY();
+
+				isResizingToken = true;
+				return;
+			}
+		}
+
+		// Check token rotation
+		for (Entry<Shape, Token> entry : rotateBoundsMap.entrySet()) {
+			if (entry.getKey().contains(dragStartX, dragStartY)) {
+				isRotatingToken = true;
+				return;
+			}
+		}
+		
 		// Properties
 		if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
 			List<Token> tokenList = renderer.getTokenStackAt(mouseX, mouseY);
@@ -356,6 +375,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				isShowingTokenStackPopup = false;
 				repaint();
 			}
+		}
+		
+		if (isResizingToken) {
+            MapTool.serverCommand().putToken(renderer.getZone().getId(), tokenUnderMouse);
+			isResizingToken = false;
+			return;
 		}
 		
 		if (SwingUtilities.isLeftMouseButton(e)) {
@@ -472,8 +497,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 	}
 	
+	private ScreenPoint getNearestVertex(ScreenPoint point) {
+		ZonePoint zp = point.convertToZone(renderer);
+    	zp = renderer.getZone().getNearestVertex(zp);
+    	return ScreenPoint.fromZonePoint(renderer, zp);
+	}
+	
 	public void mouseDragged(MouseEvent e) {
 
+		mouseX = e.getX();
+		mouseY = e.getY();
+		
 		if (isShowingTokenStackPopup) {
 			isShowingTokenStackPopup = false;
 			if (tokenStackPanel.contains(e.getX(), e.getY())) {
@@ -483,9 +517,25 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				renderer.repaint();
 			}
 		}
-		
-		mouseX = e.getX();
-		mouseY = e.getY();
+
+		if (isResizingToken) {
+			
+			ScreenPoint sp = new ScreenPoint(mouseX + dragOffsetX, mouseY + dragOffsetY);
+			if (SwingUtil.isControlDown(e)) {
+				sp = getNearestVertex(sp);
+			}
+
+			ZonePoint zp = sp.convertToZone(renderer);
+			
+			int newWidth = Math.max(1, zp.x - tokenUnderMouse.getX());
+			int newHeight = Math.max(1, zp.y - tokenUnderMouse.getY());
+
+			tokenUnderMouse.setWidth(newWidth);
+			tokenUnderMouse.setHeight(newHeight);
+			
+			renderer.repaint();
+			return;
+		}
 		
 		CellPoint cellUnderMouse = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
 		if (cellUnderMouse != null) {
@@ -944,6 +994,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			tokenStackPanel.paint(g);
 		} else {
 			
+			resizeBoundsMap.clear();
+			rotateBoundsMap.clear();
 			for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
 				Token token = renderer.getZone().getToken(tokenGUID);
 				if (token == null) {
@@ -956,26 +1008,43 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				
 				// Show sizing controls
 				Rectangle bounds = renderer.getTokenBounds(token);
-				if (bounds == null) {
+				if (bounds == null || renderer.isTokenMoving(token)) {
 					continue;
 				}
 				
-				g.setColor(Color.black);
-				
 				// Resize
-				int x = bounds.x + bounds.width - 10;
-				int y = bounds.y + bounds.height - 10;
-				Rectangle resizeBounds = new Rectangle(x, y, 10, 10);
-				g.fill(resizeBounds);
-				resizeBoundsMap.put(resizeBounds, token);
+				if (!token.isSnapToScale()) {
+					int x = bounds.x + bounds.width - 10;
+					int y = bounds.y + bounds.height - 10;
+					Rectangle resizeBounds = new Rectangle(x, y, 10, 10);
+
+					resizeBoundsMap.put(resizeBounds, token);
+
+					g.setColor(Color.black);
+					g.fill(resizeBounds);
+
+					g.setColor(Color.gray);
+					g.draw(resizeBounds);
+				}
 				
 				// Rotate
-				x = bounds.x + bounds.width/2;
-				y = bounds.y + bounds.height/2;
-				Ellipse2D rotateBounds = new Ellipse2D.Float(x+25, y-5, 10, 10);
-				g.drawLine(x, y, x + 30, y);
-				g.fill(rotateBounds);
-				rotateBoundsMap.put(rotateBounds, token);
+//				int length = 35;
+//				int cx = bounds.x + bounds.width/2;
+//				int cy = bounds.y + bounds.height/2;
+//				int facing = token.getFacing() != null ? token.getFacing() : 0;
+//
+//				int x = (int)(cx + Math.cos(Math.toRadians(facing)) * length);
+//				int y = (int)(cy - Math.sin(Math.toRadians(facing)) * length);
+//				
+//				Ellipse2D rotateBounds = new Ellipse2D.Float(x-5, y-5, 10, 10);
+//				rotateBoundsMap.put(rotateBounds, token);
+//
+//				g.setColor(Color.black);
+//				g.drawLine(cx, cy, x, y);
+//				g.fill(rotateBounds);
+//				
+//				g.setColor(Color.gray);
+//				g.draw(rotateBounds);
 			}
 		}
 	}

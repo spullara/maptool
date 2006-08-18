@@ -696,19 +696,24 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                     newScreenPoint.y += (scaledGridSize - scaledHeight)/2;
                 }
                 
+                BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID())); 
     			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp() || token.isBackground())) {
 
     				// Rotated
     				AffineTransform at = new AffineTransform();
     				at.translate(x, y);
     				at.rotate(Math.toRadians(-token.getFacing() - 90), scaledWidth/2, scaledHeight/2); // facing defaults to down, or -90 degrees
-    				at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
+    				if (token.isSnapToScale()) {
+    					at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
+    				} else {
+    					at.scale((double) token.getWidth() / image.getWidth(), (double) token.getHeight() / image.getHeight());
+    				}
     				at.scale(getScale(), getScale());
-    	            g.drawImage(ImageManager.getImage(AssetManager.getAsset(token.getAssetID())), at, this);
+    	            g.drawImage(image, at, this);
     			
     			} else {
     				// Normal
-    				g.drawImage(ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this), x, y, scaledWidth-1, scaledHeight-1, this);
+    				g.drawImage(image, x, y, scaledWidth-1, scaledHeight-1, this);
     			}
                 
 
@@ -1031,7 +1036,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				AffineTransform at = new AffineTransform();
 				at.translate(x, y);
 				at.rotate(Math.toRadians(-token.getFacing() - 90), width/2, height/2); // facing defaults to down, or -90 degrees
-				at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
+
+				if (token.isSnapToScale()) {
+					at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
+				} else {
+					at.scale((double) token.getWidth() / image.getWidth(), (double) token.getHeight() / image.getHeight());
+				}
 				at.scale(getScale(), getScale());
 	            g.drawImage(image, at, this);
 			} else {
