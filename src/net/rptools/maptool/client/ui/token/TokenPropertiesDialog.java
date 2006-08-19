@@ -255,7 +255,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 
 		// No token? clear the dialog
 		boolean editable = player.isGM()
-				|| token.isOwner(player.getName());
+				|| !MapTool.getServerPolicy().useStrictTokenManagement() || token.isOwner(player.getName());
 		if (token == null) {
 			tokenName.setText("");
 			tokenName.setEditable(false);
