@@ -153,7 +153,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	private AssetPanel assetPanel;
 	private PointerOverlay pointerOverlay;
 	private CommandPanel commandPanel;
-    private TokenPanel tokenPanel;
     private AboutDialog aboutDialog;
     private ColorPicker colorPicker;
     private NewMapDialog newMapDialog;
@@ -203,7 +202,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		// Components
 		glassPane = new GlassPane();
 		assetPanel = createAssetPanel();
-        tokenPanel = new TokenPanel();
         taskPanel = new TaskPanelGroup(5);
         new TaskPanelGroupPreferences(AppConstants.APP_NAME, "TaskPanel", taskPanel);
         toolbox = new Toolbox();
@@ -228,7 +226,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         aboutDialog.setSize(354, 400);
 
         taskPanel.add("Image Explorer", assetPanel);
-        taskPanel.add("Tokens", createTokenTreePanel());
+        taskPanel.add("Tokens", new JScrollPane(createTokenTreePanel()));
         taskPanel.add("Connections", new JScrollPane(createPlayerList()));
         
         statusPanel = new StatusPanel();
@@ -803,12 +801,11 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		currentRenderer = renderer;
 		toolbox.setTargetRenderer(renderer);
 
-        tokenPanel.setZoneRenderer(renderer);
-        
 		if (renderer != null) {
 			AppListeners.fireZoneActivated(renderer.getZone());
 		}
-		
+
+		updateTokenTree();
 		AppActions.updateActions();
 		repaint();
 	}
