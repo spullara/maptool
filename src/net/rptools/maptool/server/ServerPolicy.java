@@ -27,15 +27,12 @@ package net.rptools.maptool.server;
 public class ServerPolicy {
 
 	private boolean strictTokenMovement;
+	private boolean isMovementLocked;
 	
 	public ServerPolicy() {
 		
 	}
 	
-	public ServerPolicy(Boolean strictTokenMovement) {
-		this.strictTokenMovement = strictTokenMovement;
-	}
-
 	/**
 	 * Whether token management can be done by everyone or 
 	 * only the GM and assigned tokens 
@@ -43,5 +40,17 @@ public class ServerPolicy {
 	 */
 	public boolean useStrictTokenManagement() {
 		return strictTokenMovement;
+	}
+	
+	public void setUseStrictTokenManagement(boolean strict) {
+		strictTokenMovement = strict;
+	}
+	
+	public boolean isMovementLocked() {
+		return isMovementLocked;
+	}
+	
+	public void setIsMovementLocked(boolean locked) {
+		isMovementLocked = locked;
 	}
 }

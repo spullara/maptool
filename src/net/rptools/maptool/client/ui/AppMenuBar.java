@@ -176,7 +176,10 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE));
         menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
+        menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_MOVEMENT_LOCK));
+        
         menu.addSeparator();
+
         JCheckBoxMenuItem item = new JCheckBoxMenuItem(AppActions.TOGGLE_DRAW_MEASUREMENTS);
         item.setSelected(true);
         menu.add(item);

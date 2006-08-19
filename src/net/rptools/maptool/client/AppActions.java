@@ -831,6 +831,20 @@ public class AppActions {
 		}
 	};
 
+	public static final Action TOGGLE_MOVEMENT_LOCK = new AdminClientAction() {
+		{
+			init("action.toggleMovementLock");
+		}
+
+		public void execute(ActionEvent e) {
+
+			ServerPolicy policy = MapTool.getServerPolicy();
+			policy.setIsMovementLocked(!policy.isMovementLocked());
+			
+			MapTool.updateServerPolicy(policy);
+		}
+	};
+
 	public static final Action START_SERVER = new ClientAction() {
 		{
 			init("action.serverStart");
@@ -860,7 +874,9 @@ public class AppActions {
 						return;
 					}
 
-					ServerPolicy policy = new ServerPolicy(dialog.useStrictTokenMovement());
+					ServerPolicy policy = new ServerPolicy();
+					policy.setUseStrictTokenManagement(dialog.useStrictTokenMovement());
+
 					ServerConfig config = new ServerConfig(
 							dialog.getGMPassword(), 
 							dialog.getPlayerPassword(),

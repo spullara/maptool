@@ -40,6 +40,7 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.ServerCommand;
+import net.rptools.maptool.server.ServerPolicy;
 
 public class ServerCommandClientImpl implements ServerCommand {
 
@@ -169,6 +170,10 @@ public class ServerCommandClientImpl implements ServerCommand {
     
     public void enforceZone(GUID zoneGUID) {
     	makeServerCall(COMMAND.enforceZone, zoneGUID);
+    }
+    
+    public void setServerPolicy(ServerPolicy policy) {
+    	makeServerCall(COMMAND.setServerPolicy, policy);
     }
     
 	private static void makeServerCall(ServerCommand.COMMAND command, Object... params) {

@@ -141,6 +141,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     public void startTokenDrag(Token keyToken) {
 		tokenBeingDragged = keyToken;
 		
+		if (!MapTool.getPlayer().isGM() && MapTool.getServerPolicy().isMovementLocked()) {
+			// Not allowed
+			return;
+		}
+		
 		renderer.addMoveSelectionSet(MapTool.getPlayer().getName(), tokenBeingDragged.getId(), renderer.getSelectedTokenSet(), false);
 		MapTool.serverCommand().startTokenMove(MapTool.getPlayer().getName(), renderer.getZone().getId(), tokenBeingDragged.getId(), renderer.getSelectedTokenSet());
 		
@@ -583,6 +588,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				renderer.selectToken(tokenUnderMouse.getId());
 			}
 			isNewTokenSelected = false;
+			
+			// Make user we're allowed
+			if (!MapTool.getPlayer().isGM() && MapTool.getServerPolicy().isMovementLocked()) {
+				return;
+			}
 			
 			// Might be dragging a token
 			String playerId = MapTool.getPlayer().getName();

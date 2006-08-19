@@ -72,7 +72,8 @@ public interface ServerCommand {
         removeLabel,
         sendTokensToBack,
         bringTokensToFront,
-        enforceZone
+        enforceZone,
+        setServerPolicy
     };
 
     public void setZoneHasFoW(GUID zoneGUID, boolean hasFog);
@@ -105,4 +106,5 @@ public interface ServerCommand {
     public void bringTokensToFront(GUID zoneGUID, Set<GUID> tokenSet);
     public void clearAllDrawings(GUID zoneGUID);
     public void enforceZone(GUID zoneGUID);
+    public void setServerPolicy(ServerPolicy policy);
 }

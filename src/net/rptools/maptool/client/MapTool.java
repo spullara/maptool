@@ -105,6 +105,15 @@ public class MapTool {
         // Not instantiatable
     }
     
+    public static void updateServerPolicy(ServerPolicy policy) {
+    	setServerPolicy(policy);
+    	
+    	// Give everyone the new policy
+    	if (serverCommand != null) {
+    		serverCommand.setServerPolicy(policy);
+    	}
+    }
+    
     public static BufferedImage takeScreenShot() {
     	return SwingUtil.takeScreenShot(clientFrame.getRootPane());
     }
