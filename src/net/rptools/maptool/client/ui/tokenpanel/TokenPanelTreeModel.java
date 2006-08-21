@@ -252,11 +252,8 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
         	if (token.isStamp() || (!token.hasOwners() && !token.isOwnedByAll())) {
         		return false;
         	}
-        	if (!AppUtil.playerOwnsToken(token) && !zone.isTokenVisible(token)) {
-        		return false;
-        	}
-        	
-        	return true;
+
+        	return token.hasOwners();
     	}
     }
     
@@ -297,7 +294,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     			return false;
     		}
     		
-        	return MapTool.getPlayer().isGM() || zone.isTokenVisible(token);
+        	return AppUtil.playerCanSee(zone, token);
     	}
     }
     
