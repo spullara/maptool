@@ -1202,7 +1202,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         	return false;
         }
         
-        if (!AppUtil.playerOwnsToken(token)) {
+        if (!AppUtil.playerOwns(token)) {
         	return false;
         }
 
@@ -1562,9 +1562,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             token.setHeight(image.getHeight(null));
             
             // He who drops, owns, if there are not players already set
-            if (!MapTool.getServerPolicy().useStrictTokenManagement())
-                token.setAllOwners();
-            else if (!token.hasOwners() && !MapTool.getPlayer().isGM())
+            if (!token.hasOwners() && !MapTool.getPlayer().isGM())
                 token.addOwner(MapTool.getPlayer().getName());
 
             // Token type
