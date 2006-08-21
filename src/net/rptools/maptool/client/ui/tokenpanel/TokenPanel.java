@@ -94,7 +94,7 @@ public class TokenPanel extends JPanel implements ModelChangeListener {
                         			firstToken = token;
                         		}
                         		
-                        		if (AppUtil.playerOwnsToken(token)) {
+                        		if (AppUtil.playerOwns(token)) {
                         			selectedTokenSet.add(token.getId());
                         		}
                         	}

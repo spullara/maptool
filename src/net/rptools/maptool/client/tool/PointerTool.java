@@ -197,7 +197,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     		for (TokenLocation location : tokenLocationList) {
     			if (location.getBounds().contains(p.x, p.y)) {
 
-    				if (!AppUtil.playerOwnsToken(location.getToken())) {
+    				if (!AppUtil.playerOwns(location.getToken())) {
     					return;
     				}
     				
@@ -333,7 +333,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (token != null && !isDraggingToken && SwingUtilities.isLeftMouseButton(e)) {
 
 			// Permission
-			if (!AppUtil.playerOwnsToken(token)) {
+			if (!AppUtil.playerOwns(token)) {
 				if (!SwingUtil.isShiftDown(e)) {
 					renderer.clearSelectedTokens();
 				}
@@ -741,7 +741,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					
 					Token token = renderer.getZone().getToken(tokenGUID);
 					
-					if (AppUtil.playerOwnsToken(token)) {
+					if (AppUtil.playerOwns(token)) {
                         renderer.getZone().removeToken(tokenGUID);
                         MapTool.serverCommand().removeToken(renderer.getZone().getId(), tokenGUID);
 					}

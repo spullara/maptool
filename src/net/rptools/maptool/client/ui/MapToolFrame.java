@@ -515,7 +515,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
                             			firstToken = token;
                             		}
                             		
-                            		if (AppUtil.playerOwnsToken(token)) {
+                            		if (AppUtil.playerOwns(token)) {
                             			selectedTokenSet.add(token.getId());
                             		}
                         		}

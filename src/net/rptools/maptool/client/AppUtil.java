@@ -28,6 +28,7 @@ import java.io.File;
 
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Zone;
 
 public class AppUtil {
 
@@ -61,7 +62,7 @@ public class AppUtil {
         return home;
     }
     
-    public static boolean playerOwnsToken(Token token) {
+    public static boolean playerOwns(Token token) {
 
     	Player player = MapTool.getPlayer();
     	
@@ -69,5 +70,14 @@ public class AppUtil {
     	if (!MapTool.getServerPolicy().useStrictTokenManagement()) {return true;}
         
     	return token.isOwner(player.getName());
+    }
+    
+    public static boolean playerCanSee (Zone zone, Token token) {
+    	Player player = MapTool.getPlayer();
+    	
+    	if (player.isGM()) {return true;}
+    	if (!MapTool.getServerPolicy().useStrictTokenManagement()) {return true;}
+    	
+    	return zone.isTokenVisible(token);
     }
 }
