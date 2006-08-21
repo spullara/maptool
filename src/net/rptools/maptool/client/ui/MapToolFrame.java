@@ -803,6 +803,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 
 		if (renderer != null) {
 			AppListeners.fireZoneActivated(renderer.getZone());
+			renderer.requestFocusInWindow();
 		}
 
 		updateTokenTree();
