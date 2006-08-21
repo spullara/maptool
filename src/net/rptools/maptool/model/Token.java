@@ -223,8 +223,7 @@ public class Token {
 	}
 
   public synchronized boolean hasOwners() {
-    if (ownerList == null) return false;
-    return !ownerList.isEmpty();
+    return ownerType == OWNER_TYPE_ALL || (ownerList != null && !ownerList.isEmpty());
   }
   
 	public synchronized void removeOwner(String playerId) {
