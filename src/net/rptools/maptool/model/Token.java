@@ -140,7 +140,9 @@ public class Token {
 		snapToGrid = token.snapToGrid;
 		isVisible = token.isVisible;
 		name = token.name;
-    notes = token.notes;
+	    notes = token.notes;
+	    gmName = token.gmName;
+	    gmNotes = token.gmNotes;
 
 		if (token.ownerList != null) {
 			ownerList = new HashSet<String>();
