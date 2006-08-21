@@ -662,7 +662,7 @@ public class TokenPopupMenu extends JPopupMenu {
 
 				Token token = renderer.getZone().getToken(tokenGUID);
 
-				if (AppUtil.playerOwnsToken(token)) {
+				if (AppUtil.playerOwns(token)) {
 					renderer.getZone().removeToken(tokenGUID);
 					MapTool.serverCommand().removeToken(
 							renderer.getZone().getId(), tokenGUID);
