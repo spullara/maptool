@@ -63,7 +63,7 @@ public class TokenPanelTreeCellRenderer extends DefaultTreeCellRenderer {
         	text = view.getDisplayName();
 
         	// Is this the active layer
-        	if (view.getLayer() == MapTool.getFrame().getCurrentZoneRenderer().getActiveLayer()) {
+        	if (MapTool.getFrame().getCurrentZoneRenderer() != null && view.getLayer() == MapTool.getFrame().getCurrentZoneRenderer().getActiveLayer()) {
         		hasFocus = false;
         		sel = false;
         	}
@@ -84,7 +84,7 @@ public class TokenPanelTreeCellRenderer extends DefaultTreeCellRenderer {
         	TokenPanelTreeModel.View view = (TokenPanelTreeModel.View)rowValue ;
         	
         	// Is this the active layer
-        	if (view.getLayer() == MapTool.getFrame().getCurrentZoneRenderer().getActiveLayer()) {
+        	if (MapTool.getFrame().getCurrentZoneRenderer() != null && view.getLayer() == MapTool.getFrame().getCurrentZoneRenderer().getActiveLayer()) {
         		Dimension size = getSize();
         		
         		g.setColor(Color.gray);
