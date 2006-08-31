@@ -646,7 +646,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 }
 				
             	// Don't bother if it's not visible
-            	if (!token.isVisible() && !MapTool.getPlayer().isGM()) {
+            	if (!token.isVisible() && !AppUtil.playerOwns(token)) {
             		continue;
             	}
 
@@ -917,7 +917,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         for (Token token : tokenList) {
 
         	// Don't bother if it's not visible
-        	if (!zone.isTokenVisible(token) && !MapTool.getPlayer().isGM()) {
+        	if (!zone.isTokenVisible(token) && !AppUtil.playerOwns(token)) {
         		continue;
         	}
         	
@@ -1211,10 +1211,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         	return false;
         }
 
-        if (!MapTool.getPlayer().isGM() && !zone.isTokenVisible(token)) {
-        	return false;
-        }
-        
+        // FOR NOW: if you own the token, you can select it
+//        if (!AppUtil.playerOwns(token) && !zone.isTokenVisible(token)) {
+//        	return false;
+//        }
+//        
         return true;
     }
     
