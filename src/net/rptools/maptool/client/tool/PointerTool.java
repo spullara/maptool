@@ -444,7 +444,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		// POPUP MENU
         if (SwingUtilities.isRightMouseButton(e) && !isDraggingToken && !isDraggingMap()) {
         	
-        	if (tokenUnderMouse != null && isNewTokenSelected) {
+        	if (tokenUnderMouse != null && !renderer.getSelectedTokenSet().contains(tokenUnderMouse.getId())) {
         		if (!SwingUtil.isShiftDown(e)) {
         			renderer.clearSelectedTokens();
         		}
