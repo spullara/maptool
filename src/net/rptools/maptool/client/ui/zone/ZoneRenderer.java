@@ -1172,10 +1172,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     			}
         	}
 
+        	// Name
         	if (AppState.isShowTokenNames() || isSelected || token == tokenUnderMouse) {
 
-        		// Name
-                GraphicsUtil.drawBoxedString(g, token.getName(), bounds.x + bounds.width/2, bounds.y + bounds.height + 10);
+        		String name = token.getName();
+        		if (MapTool.getPlayer().isGM() && token.getGMName() != null && token.getGMName().length() > 0) {
+        			name += " (" + token.getGMName() + ")";
+        		}
+        		
+                GraphicsUtil.drawBoxedString(g, name, bounds.x + bounds.width/2, bounds.y + bounds.height + 10);
             }
         }
         
