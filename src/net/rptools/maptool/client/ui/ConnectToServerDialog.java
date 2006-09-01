@@ -130,6 +130,8 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 		getTypeTabbedPane().setSelectedIndex(prefs.getTab());
 		getServerNameTextField().setText(prefs.getServerName());
 		getServerPasswordField().setText(prefs.getServerPassword());
+		
+		getRootPane().setDefaultButton(getOkButton());
 	}
 	
 	/* (non-Javadoc)

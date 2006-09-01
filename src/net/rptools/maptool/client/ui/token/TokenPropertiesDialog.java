@@ -40,6 +40,7 @@ import javax.swing.AbstractButton;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -121,11 +122,13 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		if (!MapTool.getPlayer().isGM()) {
 			visible.setVisible(false);
 			panel.getLabel("visibleLabel").setVisible(false);
-		} // endif
+		}
 
 		// Set up the buttons
 		okButton = panel.getButton("okButton");
 		okButton.addActionListener(this);
+		getRootPane().setDefaultButton((JButton) okButton);
+		
 		cancelButton = panel.getButton("cancelButton");
 		cancelButton.addActionListener(this);
 

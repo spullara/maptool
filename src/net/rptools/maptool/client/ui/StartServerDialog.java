@@ -122,6 +122,8 @@ public class StartServerDialog extends JDialog {
 
 		getServerNameTextField().setEnabled(prefs.registerServer());
 		getServerPasswordTextField().setEnabled(prefs.registerServer());
+		
+		getRootPane().setDefaultButton(getOkButton());
 	}
 	
 	public int getRole() {
