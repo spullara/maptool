@@ -42,18 +42,18 @@ import net.rptools.lib.net.Location;
 public class Campaign {
     private GUID id = new GUID();
     private Map<GUID, Zone> zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
-    private Location exportLocation;
+    private ExportInfo exportInfo;
 
     public GUID getId() {
         return id;
     }
 
-    public void setExportLocation(Location location) {
-    	exportLocation = location;
+    public void setExportInfo(ExportInfo exportInfo) {
+    	this.exportInfo = exportInfo;
     }
     
-    public Location getExportLocation() {
-    	return exportLocation;
+    public ExportInfo getExportInfo() {
+    	return exportInfo;
     }
     
     public void setId(GUID id) {

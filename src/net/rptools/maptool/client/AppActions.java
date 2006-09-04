@@ -32,14 +32,10 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -57,7 +53,6 @@ import javax.swing.KeyStroke;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.lib.net.LocalLocation;
 import net.rptools.lib.net.Location;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
@@ -77,6 +72,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.ExportInfo;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
@@ -100,35 +96,74 @@ public class AppActions {
 		}
 		public void execute(ActionEvent e) {
 
-			Location location = promptForLocation(MapTool.getCampaign().getExportLocation());
-			if (location == null) {
+			ExportInfo exportInfo = MapTool.getCampaign().getExportInfo();
+			ExportDialog dialog = new ExportDialog(exportInfo);
+			
+			dialog.setVisible(true);
+			
+			exportInfo = dialog.getExportInfo();
+			
+			if (exportInfo == null) {
 				return;
 			}
-			MapTool.getCampaign().setExportLocation(location);
 			
-			BufferedImage image = MapTool.takeScreenShot();
+			MapTool.getCampaign().setExportInfo(exportInfo);
 			
-			exportImage(image, location);
+			exportScreenCap(exportInfo);
 		}
 	};
 	
-	public static final Action EXPORT_MAP_SCREENSHOT = new DefaultClientAction() {
+	public static final Action EXPORT_SCREENSHOT_LAST_LOCATION = new DefaultClientAction() {
 		{
-			init("Export Map Screenshot as...");
+			init("Export Screenshot");
+			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
 		}
 		public void execute(ActionEvent e) {
 			
-			Location location = promptForLocation(MapTool.getCampaign().getExportLocation());
-			if (location == null) {
+			ExportInfo exportInfo = MapTool.getCampaign().getExportInfo();
+			if (exportInfo == null) {
+				EXPORT_SCREENSHOT.actionPerformed(e);
 				return;
 			}
-
-			MapTool.getCampaign().setExportLocation(location);
-			BufferedImage image = MapTool.takeMapScreenShot();
 			
-			exportImage(image, location);
+			exportScreenCap(exportInfo);
 		}
 	};
+	
+	private static void exportScreenCap(ExportInfo exportInfo) {
+		
+		BufferedImage screenCap = null;
+		switch (exportInfo.getType()) {
+		case ExportInfo.Type.APPLICATION:
+			screenCap = MapTool.takeScreenShot();
+			break;
+		case ExportInfo.Type.CURRENT_VIEW:
+			screenCap = MapTool.takeMapScreenShot();
+			break;
+		case ExportInfo.Type.FULL_MAP:
+			break;
+		}
+
+		MapTool.getFrame().setStatusMessage("Saving screenshot ...");
+		
+		try {
+
+			ByteArrayOutputStream imageOut = new ByteArrayOutputStream();
+			
+			ImageIO.write(screenCap, "png", imageOut);
+
+			exportInfo.getLocation().putContent(new BufferedInputStream(new ByteArrayInputStream(imageOut.toByteArray())));
+			
+			MapTool.getFrame().setStatusMessage("Saved screenshot");
+
+		} catch (IOException ioe) {
+			MapTool.showError("Could not export image: " + ioe);
+			ioe.printStackTrace();
+		} catch (Exception e) {
+			MapTool.showError("Could not export image: " + e);
+			e.printStackTrace();
+		}
+	}
 	
 	public static final Action TOGGLE_COMMAND_PANEL = new DefaultClientAction() {
 		{
@@ -143,76 +178,6 @@ public class AppActions {
 			}
 		}
 	};
-	
-	public static final Action EXPORT_SCREENSHOT_LAST_LOCATION = new DefaultClientAction() {
-		{
-			init("Export Screenshot");
-			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
-		}
-		public void execute(ActionEvent e) {
-			
-			Location location = MapTool.getCampaign().getExportLocation();
-			if (location == null) {
-				EXPORT_SCREENSHOT.actionPerformed(e);
-				return;
-			}
-			
-			BufferedImage image = MapTool.takeScreenShot();
-			
-			exportImage(image, location);
-		}
-	};
-	
-	public static final Action EXPORT_MAP_SCREENSHOT_LAST_LOCATION = new DefaultClientAction() {
-		{
-			init("Export Map Screenshot");
-			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
-		}
-		public void execute(ActionEvent e) {
-			
-			Location location = MapTool.getCampaign().getExportLocation();
-			if (location == null) {
-				EXPORT_MAP_SCREENSHOT.actionPerformed(e);
-				return;
-			}
-			
-			BufferedImage image = MapTool.takeScreenShot();
-			
-			exportImage(image, location);
-		}
-	};
-
-	private static void exportImage(BufferedImage image, Location location) {
-		
-		MapTool.getFrame().setStatusMessage("Saving screenshot ...");
-		
-		try {
-
-			ByteArrayOutputStream imageOut = new ByteArrayOutputStream();
-			
-			ImageIO.write(image, "png", imageOut);
-
-			location.putContent(new BufferedInputStream(new ByteArrayInputStream(imageOut.toByteArray())));
-			
-			MapTool.getFrame().setStatusMessage("Saved screenshot");
-
-		} catch (IOException ioe) {
-			MapTool.showError("Could not export image: " + ioe);
-			ioe.printStackTrace();
-		} catch (Exception e) {
-			MapTool.showError("Could not export image: " + e);
-			e.printStackTrace();
-		}
-	}
-	
-	private static Location promptForLocation(Location originalLocation) {
-		
-		ExportDialog dialog = new ExportDialog(originalLocation);
-		
-		dialog.setVisible(true);
-		
-		return dialog.getExportLocation();
-	}
 	
 	public static final Action ENFORCE_ZONE = new AdminClientAction() {
 		

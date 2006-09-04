@@ -67,8 +67,6 @@ public class AppMenuBar extends JMenuBar {
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT_LAST_LOCATION));
         menu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT));
-        menu.add(new JMenuItem(AppActions.EXPORT_MAP_SCREENSHOT_LAST_LOCATION));
-        menu.add(new JMenuItem(AppActions.EXPORT_MAP_SCREENSHOT));
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
         menu.addSeparator();
