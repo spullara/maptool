@@ -3,6 +3,8 @@ package net.rptools.maptool.client.ui;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 
 import javax.swing.JButton;
@@ -17,6 +19,7 @@ import net.rptools.lib.net.FTPLocation;
 import net.rptools.lib.net.LocalLocation;
 import net.rptools.lib.net.Location;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.ExportInfo;
 
@@ -110,10 +113,10 @@ public class ExportDialog extends JDialog {
 			getPasswordField().setText(ftpLocation.getPassword());
 			getPathTextField().setText(ftpLocation.getPath());
 		}
-//		if (location instanceof LocalLocation) {
-//			LocalLocation localLocation = (LocalLocation) location;
-//			get
-//		}
+		if (location instanceof LocalLocation) {
+			LocalLocation localLocation = (LocalLocation) location;
+			getFileChooser().setSelectedFile(localLocation.getFile());
+		}
 	}
 	
 	public ExportInfo getExportInfo() {
@@ -132,8 +135,6 @@ public class ExportDialog extends JDialog {
 	public JTabbedPane getTabbedPane() {
 		if (tabbedPane == null) {
 			tabbedPane = formPanel.getTabbedPane("tabs");
-			tabbedPane.setSelectedIndex(1);
-			tabbedPane.setEnabledAt(0, false);
 		}
 		return tabbedPane;
 	}
@@ -210,6 +211,9 @@ public class ExportDialog extends JDialog {
 			fileChooser = (JFileChooser) formPanel.getComponentByName("filechooser");
 			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			fileChooser.setMultiSelectionEnabled(false);
+			fileChooser.setCurrentDirectory(AppUtil.getUserHome());
+			
+			fileChooser.addPropertyChangeListener(new FileSelectionHandler());
 		}
 		
 		return fileChooser;
@@ -239,8 +243,8 @@ public class ExportDialog extends JDialog {
 						exportInfo.setType(ExportInfo.Type.APPLICATION);
 					} else if (getTypeCurrentViewRadio().isSelected()) {
 						exportInfo.setType(ExportInfo.Type.CURRENT_VIEW);
-					} else if (getTypeFullMapRadio().isSelected()) {
-						exportInfo.setType(ExportInfo.Type.FULL_MAP);
+//					} else if (getTypeFullMapRadio().isSelected()) {
+//						exportInfo.setType(ExportInfo.Type.FULL_MAP);
 					} else {
 						MapTool.showError("Must select a type");
 						return;
@@ -254,9 +258,15 @@ public class ExportDialog extends JDialog {
 						getFileChooser().approveSelection();
 
 						File file = getFileChooser().getSelectedFile();
-						if (file != null) {
-							exportInfo.setLocation(new LocalLocation(file));
+						if (file == null) {
+							file = new File(getFileChooser().getCurrentDirectory() + "/maptoolScreen");
 						}
+						
+						if (!file.getName().toLowerCase().endsWith(".png")) {
+							file = new File(file.getAbsolutePath() + ".png");
+						}
+						
+						exportInfo.setLocation(new LocalLocation(file));
 						break;
 					case 1:
 						String username = getUsernameTextField().getText();
@@ -294,5 +304,18 @@ public class ExportDialog extends JDialog {
 		}
 		
 		return cancelButton;
+	}
+	
+	private class FileSelectionHandler implements PropertyChangeListener {
+		
+		public void propertyChange(PropertyChangeEvent evt) {
+
+			if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
+				File selectedFile = getFileChooser().getSelectedFile();
+				
+				System.out.println ("SELECTED::" + selectedFile);
+//				setSelectedFile(selectedFile);
+			}
+		}
 	}
 }
