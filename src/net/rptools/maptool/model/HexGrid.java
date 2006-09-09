@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.geom.GeneralPath;
 
 import net.rptools.maptool.client.ScreenPoint;
@@ -194,6 +195,8 @@ public class HexGrid extends Grid {
 //        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
 //        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
 
+        Object oldAntiAlias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(new Color(getZone().getGridColor()));
 		for (double y = offY%(scaledHeight*2) - (scaledHeight*2); y < renderer.getSize().height; y += scaledHeight) {
 
@@ -207,6 +210,7 @@ public class HexGrid extends Grid {
 				g.translate(-(x + offsetX), -y);
 			}
 		}
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntiAlias);
 	}
 
 }
