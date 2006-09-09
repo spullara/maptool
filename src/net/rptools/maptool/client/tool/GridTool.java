@@ -38,6 +38,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -68,7 +69,7 @@ public class GridTool extends DefaultTool {
 
     private static enum Size { Increase, Decrease };
 
-    private JTextField gridSizeTextField;
+    private JSpinner gridSizeSpinner;
     private JTextField gridOffsetXTextField;
     private JTextField gridOffsetYTextField;
     private JETAColorWell colorWell;
@@ -95,8 +96,9 @@ public class GridTool extends DefaultTool {
         controlPanel = new FormPanel("net/rptools/maptool/client/ui/forms/adjustGridControlPanel.jfrm");
         controlPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
-        gridSizeTextField = controlPanel.getTextField("gridSize");
-        gridSizeTextField.addKeyListener(new UpdateGridListener());
+        gridSizeSpinner = controlPanel.getSpinner("gridSize");
+        gridSizeSpinner.getEditor().addKeyListener(new UpdateGridListener());
+        gridSizeSpinner.addChangeListener(new UpdateGridListener());
         
         gridOffsetXTextField = controlPanel.getTextField("offsetX");
         gridOffsetXTextField.addKeyListener(new UpdateGridListener());
@@ -145,7 +147,7 @@ public class GridTool extends DefaultTool {
 
 		Grid grid = zone.getGrid();
 		
-		gridSizeTextField.setText(Integer.toString(grid.getSize()));
+		gridSizeSpinner.setValue(grid.getSize());
 		gridOffsetXTextField.setText(Integer.toString(grid.getOffsetX()));
 		gridOffsetYTextField.setText(Integer.toString(grid.getOffsetY()));
 		colorWell.setColor(new Color(zone.getGridColor()));
@@ -157,7 +159,7 @@ public class GridTool extends DefaultTool {
 		Zone zone = renderer.getZone();
 
 		Grid grid = zone.getGrid();
-		grid.setSize(getInt(gridSizeTextField, Grid.MIN_GRID_SIZE));
+		grid.setSize(Math.max((Integer)gridSizeSpinner.getValue(), Grid.MIN_GRID_SIZE));
 		grid.setOffset(getInt(gridOffsetXTextField, 0), getInt(gridOffsetYTextField, 0));
 		zone.setGridColor(colorWell.getColor().getRGB());
 	
@@ -175,7 +177,9 @@ public class GridTool extends DefaultTool {
     }
 
     private int getInt(JTextComponent component, int defaultValue) {
-    	String value = component.getText();
+    	return getInt(component.getText(), defaultValue);
+    }
+    private int getInt(String value, int defaultValue) {
     	return value.length() > 0 ? Integer.parseInt(value.trim()) : defaultValue;
     }
     
@@ -366,13 +370,17 @@ public class GridTool extends DefaultTool {
     
     ////
     // ACTIONS
-    private class UpdateGridListener implements KeyListener {
+    private class UpdateGridListener implements KeyListener, ChangeListener {
     	public void keyPressed(KeyEvent e) {
     	}
     	public void keyReleased(KeyEvent e) {
     		copyControlPanelToGrid();
     	}
     	public void keyTyped(KeyEvent e) {
+    	}
+    	
+    	public void stateChanged(ChangeEvent e) {
+    		copyControlPanelToGrid();
     	}
     }
 }
