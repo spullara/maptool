@@ -7,6 +7,8 @@ import java.awt.Rectangle;
 
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.client.walker.ZoneWalker;
+import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
 
 public class SquareGrid extends Grid {
 
@@ -67,6 +69,11 @@ public class SquareGrid extends Grid {
         return new CellPoint(newX, newY);
 	}
 
+	@Override
+	public ZoneWalker createZoneWalker() {
+		return new AStarSquareEuclideanWalker(getZone());
+	}
+	
 	@Override
 	public int getTokenSpace() {
 		return getSize();

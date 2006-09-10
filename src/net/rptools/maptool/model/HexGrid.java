@@ -9,11 +9,13 @@ import java.awt.geom.GeneralPath;
 
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.client.walker.ZoneWalker;
+import net.rptools.maptool.client.walker.astar.AStarHexEuclideanWalker;
 
 public class HexGrid extends Grid {
 
 	private static final GridCapabilities GRID_CAPABILITIES= new GridCapabilities() {
-		public boolean isPathingSupported() {return false;}
+		public boolean isPathingSupported() {return true;}
 		public boolean isSnapToGridSupported() {return true;}
 	};
 	
@@ -60,6 +62,11 @@ public class HexGrid extends Grid {
 	@Override
 	public int[] getFacingAngles() {
 		return FACING_ANGLES;
+	}
+	
+	@Override
+	public ZoneWalker createZoneWalker() {
+		return new AStarHexEuclideanWalker(getZone());
 	}
 	
 	@Override

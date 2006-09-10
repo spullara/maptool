@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.model.Zone.Event;
 
 /**
@@ -57,6 +58,8 @@ public abstract class Grid {
 	public int getOffsetY() {
 		return offsetY;
 	}
+
+	public abstract ZoneWalker createZoneWalker();
 	
 	public void setSize(int size) {
     	if (size < MIN_GRID_SIZE) {
