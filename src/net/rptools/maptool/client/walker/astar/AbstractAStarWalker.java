@@ -40,10 +40,8 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 
 	private int distance = -1;
 
-	private int[][] neighborMap = new int[][] { { -1, -1, 10 }, { 0, -1, 5 },
-			{ 1, -1, 10 }, { -1, 0, 5 }, { 1, 0, 5 }, { -1, 1, 10 },
-			{ 0, 1, 5 }, { 1, 1, 10 } };
-
+	protected abstract int[][] getNeighborMap(int x, int y);
+	
 	@Override
 	protected List<CellPoint> calculatePath(CellPoint start, CellPoint end) {
 		List<AStarCellPoint> openList = new LinkedList<AStarCellPoint>();
@@ -59,6 +57,7 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 				break;
 			}
 
+			int[][] neighborMap = getNeighborMap(node.x, node.y);
 			for (int i = 0; i < neighborMap.length; i++) {
 				int x = node.x + neighborMap[i][0];
 				int y = node.y + neighborMap[i][1];
