@@ -27,12 +27,21 @@ package net.rptools.maptool.client.walker.astar;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Zone;
 
-public class AStarEuclideanWalker extends AbstractAStarWalker {
+public class AStarSquareEuclideanWalker extends AbstractAStarWalker {
 
-	public AStarEuclideanWalker (Zone zone) {
+	private int[][] neighborMap = new int[][] { { -1, -1, 10 }, { 0, -1, 5 },
+			{ 1, -1, 10 }, { -1, 0, 5 }, { 1, 0, 5 }, { -1, 1, 10 },
+			{ 0, 1, 5 }, { 1, 1, 10 } };
+
+	public AStarSquareEuclideanWalker (Zone zone) {
 		super(zone);
 	}
 
+	@Override
+	public int[][] getNeighborMap(int x, int y) {
+		return neighborMap;
+	}
+	
 	@Override
 	protected double gScore(CellPoint p1, CellPoint p2) {
 		return euclideanDistance(p1, p2);
