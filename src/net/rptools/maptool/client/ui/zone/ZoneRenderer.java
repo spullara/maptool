@@ -82,7 +82,7 @@ import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.token.TokenTemplate;
 import net.rptools.maptool.client.walker.ZoneWalker;
-import net.rptools.maptool.client.walker.astar.AStarEuclideanWalker;
+import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
@@ -743,14 +743,18 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		CellPoint previousPoint = null;
 		Point previousHalfPoint = null;
 		
+		Grid grid = zone.getGrid();
+		
+		Dimension cellOffset = grid.getCellOffset();
+
 		width = Math.max (width, 1);
 		height = Math.max(height, 1);
 		
 		int xOffset = (int)((width-1)*getScaledGridSize()/2);
 		int yOffset = (int)((height-1)*getScaledGridSize()/2);
 
-		// JOINTS
 		List<CellPoint> cellPath = path.getCellPath();
+		System.out.println(cellPath.get(0) + " - " + path.getCellPath().get(cellPath.size()-1));
 
 		Set<CellPoint> pathSet = new HashSet<CellPoint>();
 		Set<CellPoint> waypointSet = new HashSet<CellPoint>();
@@ -773,14 +777,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		for (CellPoint p : waypointSet) {
 			highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
 		}
-		
+
 		previousPoint = null;
 		for (CellPoint p : cellPath) {
 
 			if (previousPoint != null) {
-				// LATER: Optimize this
-				ScreenPoint origin = ScreenPoint.fromZonePoint(this, previousPoint.x*zone.getGrid().getSize()+zone.getGrid().getOffsetX()+(zone.getGrid().getSize()/2), previousPoint.y*zone.getGrid().getSize() + zone.getGrid().getOffsetY()+(zone.getGrid().getSize()/2));
-				ScreenPoint destination = ScreenPoint.fromZonePoint(this, p.x*zone.getGrid().getSize()+zone.getGrid().getOffsetX()+(zone.getGrid().getSize()/2), p.y*zone.getGrid().getSize() + zone.getGrid().getOffsetY()+(zone.getGrid().getSize()/2));
+
+				int ox = previousPoint.x*grid.getSize()+grid.getOffsetX()+(grid.getSize()/2) + cellOffset.width;
+				int oy = previousPoint.y*grid.getSize() + grid.getOffsetY()+(grid.getSize()/2) + cellOffset.height;
+				
+				int dx = p.x*grid.getSize()+grid.getOffsetX()+(grid.getSize()/2) + cellOffset.width;
+				int dy = p.y*grid.getSize() + grid.getOffsetY()+(grid.getSize()/2) + cellOffset.height;  
+					
+				ScreenPoint origin = ScreenPoint.fromZonePoint(this, ox, oy);
+				ScreenPoint destination = ScreenPoint.fromZonePoint(this, dx, dy);
 
 				int halfx = (int)((origin.x + destination.x)/2);
 				int halfy = (int)((origin.y + destination.y)/2);
@@ -788,7 +798,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 				if (previousHalfPoint != null) {
 					g.setColor(Color.blue);
-					QuadCurve2D curve = new QuadCurve2D.Float(previousHalfPoint.x+xOffset, previousHalfPoint.y+yOffset, origin.x+xOffset, origin.y+yOffset, halfPoint.x+xOffset, halfPoint.y+yOffset);
+					
+					int x1 = previousHalfPoint.x+xOffset;
+					int y1 = previousHalfPoint.y+yOffset;
+					
+					int x2 = origin.x+xOffset;
+					int y2 = origin.y+yOffset;
+					
+					int xh = halfPoint.x+xOffset;
+					int yh = halfPoint.y+yOffset;
+					
+					QuadCurve2D curve = new QuadCurve2D.Float(x1, y1, x2, y2, xh, yh);
 					g.draw(curve);
 				}
 
@@ -801,14 +821,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	
 	public void highlightCell(Graphics2D g, CellPoint point, BufferedImage image, float size) {
 		
-		int gridSize = (int) getScaledGridSize();
+		Grid grid = zone.getGrid();
+		double cwidth = grid.getCellWidth() * getScale();
+		double cheight = grid.getCellHeight() * getScale();
+
+		double iwidth = cwidth * size;
+		double iheight = cheight * size;
 		
 		// Top left of cell
-		int imgSize = (int)(gridSize * size);
 		ScreenPoint sp = point.convertToScreen(this);
-
-		//g.drawImage(image, p.x+imgSize/2, p.y+imgSize/2, imgSize, imgSize, this);
-		g.drawImage(image, sp.x + (int)((gridSize - imgSize)/2), sp.y + (int)((gridSize-imgSize)/2), imgSize, imgSize, this);
+		
+		sp.x += zone.getGrid().getCellOffset().width * getScale();
+		sp.y += zone.getGrid().getCellOffset().height * getScale();
+		
+		g.drawImage(image, sp.x + (int)((cwidth - iwidth)/2), sp.y + (int)((cheight-iheight)/2), (int)iwidth, (int)iheight, this);
 	}
 
 	/**
@@ -1446,11 +1472,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			this.playerId = playerId;
 			
 			token = zone.getToken(tokenGUID);
-			CellPoint tokenPoint = zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
 
 			if (ZoneRenderer.this.zone.getGrid().getCapabilities().isPathingSupported()) {
 				
-				walker = new AStarEuclideanWalker(zone);
+				CellPoint tokenPoint = zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
+				System.out.println("Start:" + tokenPoint);
+
+				walker = ZoneRenderer.this.zone.getGrid().createZoneWalker();
 				walker.setWaypoints(tokenPoint, tokenPoint);
 			}
 		}
