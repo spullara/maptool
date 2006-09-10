@@ -44,7 +44,7 @@ import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
-import net.rptools.maptool.client.walker.astar.AStarEuclideanWalker;
+import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.ZonePoint;
@@ -118,7 +118,7 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
         CellPoint cellPoint = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
         
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			walker = new AStarEuclideanWalker(renderer.getZone());
+			walker = new AStarSquareEuclideanWalker(renderer.getZone());
             walker.addWaypoints(cellPoint, cellPoint);
             renderer.repaint();
             return;

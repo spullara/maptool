@@ -41,6 +41,7 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -97,7 +98,7 @@ public class GridTool extends DefaultTool {
         controlPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
         gridSizeSpinner = controlPanel.getSpinner("gridSize");
-        gridSizeSpinner.getEditor().addKeyListener(new UpdateGridListener());
+        gridSizeSpinner.setModel(new SpinnerNumberModel());
         gridSizeSpinner.addChangeListener(new UpdateGridListener());
         
         gridOffsetXTextField = controlPanel.getTextField("offsetX");
@@ -380,6 +381,7 @@ public class GridTool extends DefaultTool {
     	}
     	
     	public void stateChanged(ChangeEvent e) {
+    		System.out.println("State changed");
     		copyControlPanelToGrid();
     	}
     }
