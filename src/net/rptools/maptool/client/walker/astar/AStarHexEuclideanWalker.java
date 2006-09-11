@@ -33,7 +33,7 @@ public class AStarHexEuclideanWalker extends AbstractAStarWalker {
 	private int[][] oddNeighborMap = new int[][] 
 	      { { -1, 0, 1 }, { 0, -1, 1 }, { 1, 0, 1 }, 
 			{ 0, 0, 0 },   			  { 0, 0, 0 }, 
-			{ 1, 1, 1 },  { 0, 1, 1 }, { 1, 1, 1 } };
+			{ -1, 1, 1 },  { 0, 1, 1 }, { 1, 1, 1 } };
 
 	private int[][] evenNeighborMap = new int[][] 
   	      { { -1, -1, 1 }, { 0, -1, 1 }, { 1, -1, 1 }, 

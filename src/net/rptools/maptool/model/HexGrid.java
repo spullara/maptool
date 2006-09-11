@@ -106,7 +106,7 @@ public class HexGrid extends Grid {
 	public CellPoint convert(ZonePoint zp) {
 
 		int xSect = (int)(zp.x / (sideSize + topWidth));
-		int ySect = (int)(zp.y / (2*height)) + (zp.y < 0 ? -1 : 0);
+		int ySect = (int)((zp.y / (2*height)) + (zp.y < 0 ? -1 : 0));
 
 		int xPxl = Math.abs((int)(zp.x - xSect * (sideSize + topWidth)));
 		int yPxl = Math.abs((int)(zp.y - ySect * (2 * height)));
@@ -164,7 +164,7 @@ public class HexGrid extends Grid {
 	@Override
 	public ZonePoint convert(CellPoint cp) {
 
-		int x = (int)(cp.x * (sideSize + topWidth));
+		int x = (int)Math.round(cp.x * (sideSize + topWidth));
 		int y = cp.y * 2 * height + (cp.x % 2 == 0  ||  cp.x < 0 ? 1 : 2) * height;
 		
 		return new ZonePoint(x, y);
@@ -217,6 +217,7 @@ public class HexGrid extends Grid {
 				g.translate(-(x + offsetX), -y);
 			}
 		}
+		
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntiAlias);
 	}
 
