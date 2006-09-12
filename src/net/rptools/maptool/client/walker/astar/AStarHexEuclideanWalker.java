@@ -24,6 +24,8 @@
  */
 package net.rptools.maptool.client.walker.astar;
 
+import java.util.List;
+
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -71,4 +73,8 @@ public class AStarHexEuclideanWalker extends AbstractAStarWalker {
         return Math.sqrt(a * a + b * b);
     }
 
+	@Override
+	protected int calculateDistance(List<CellPoint> path, int feetPerCell) {
+		return path != null && path.size() > 1 ? path.size() - 1 : 0;
+	}	
 }

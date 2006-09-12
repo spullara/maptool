@@ -24,6 +24,8 @@
  */
 package net.rptools.maptool.client.walker.astar;
 
+import java.util.List;
+
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Zone;
 
@@ -59,4 +61,63 @@ public class AStarSquareEuclideanWalker extends AbstractAStarWalker {
         return Math.sqrt(a * a + b * b);
     }
 
+	@Override
+	protected int calculateDistance(List<CellPoint> path, int feetPerCell) {
+		if (path == null || path.size() == 0)
+			return 0;
+
+		int distMethod1;
+
+		// LATER: When we add path barriers we have to remove method 1 completely.
+		// I am leaving it now for double checking since we had such a bad time with
+		// distance measurements.
+		
+		{ // method 1 (used for double check of new algorithm)
+			CellPoint start = path.get(0);
+			CellPoint end = path.get(path.size() - 1);
+
+			int numDiag = Math.min(Math.abs(start.x - end.x), Math.abs(start.y
+					- end.y));
+			int numStrt = Math.max(Math.abs(start.x - end.x), Math.abs(start.y
+					- end.y))
+					- numDiag;
+			distMethod1 = feetPerCell
+					* (numStrt + numDiag + numDiag / 2);
+		}
+
+		int distMethod2;
+		
+		{
+			int numDiag = 0;
+			int numStrt = 0;
+
+			CellPoint previousPoint = null;
+			for (CellPoint point : path) {
+				if (previousPoint != null) {
+					int change = Math.abs(previousPoint.x - point.x) + Math.abs(previousPoint.y - point.y);
+					
+					switch (change) {
+					case 1:
+						numStrt++;
+						break;
+					case 2:
+						numDiag++;
+						break;
+					default:
+						assert false : String.format("Illegal path, cells are not contiguous change=%d", change);
+						return -1;
+					}
+				}
+
+				previousPoint = point;
+			}
+
+			distMethod2 = feetPerCell
+			* (numStrt + numDiag + numDiag / 2);
+		}
+
+    // This assert is broken if you move the cursor to the left or above the second waypoint
+//		assert distMethod1 == distMethod2 : String.format("Inconsistent distances simple=%d, path based=%d", distMethod1, distMethod2);
+		return distMethod2;
+	}	
 }
