@@ -213,11 +213,11 @@ public class Zone extends Token {
     
     public ZonePoint getNearestVertex(ZonePoint point) {
     	
-    	int gridSize = grid.getSize();
-    	int gridx = (int)Math.round(point.x / (double)gridSize);
-    	int gridy = (int)Math.round(point.y / (double)gridSize);
+    	int gridx = (int)Math.round((point.x - grid.getOffsetX()) / (double)grid.getCellWidth());
+    	int gridy = (int)Math.round((point.y - grid.getOffsetY()) / (double)grid.getCellHeight());
     	
-    	return new ZonePoint(gridx * gridSize, gridy * gridSize);
+    	// Don't ask about the +1, I don't get it either.
+    	return new ZonePoint((int)(gridx * grid.getCellWidth() + grid.getOffsetX() + 1), (int)(gridy * grid.getCellHeight() + grid.getOffsetY() + 1));
     }
     
     public Area getExposedArea() {
