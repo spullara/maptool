@@ -112,6 +112,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public static final int HOVER_SIZE_THRESHOLD = 40;
     public static final int EDGE_LIMIT = 25; // can't move board past this edge
 
+    private static final Color CELL_HIGHLIGHT_COLOR = new Color(0xff, 0xff, 0xff, 0x80);
+    
     private static BufferedImage GRID_IMAGE;
     
     public static final int MIN_GRID_SIZE = 5;
@@ -757,7 +759,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		int yOffset = (int)((height-1)*getScaledGridSize()/2);
 
 		List<CellPoint> cellPath = path.getCellPath();
-		System.out.println(cellPath.get(0) + " - " + path.getCellPath().get(cellPath.size()-1));
 
 		Set<CellPoint> pathSet = new HashSet<CellPoint>();
 		Set<CellPoint> waypointSet = new HashSet<CellPoint>();
@@ -775,7 +776,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			previousPoint = p;
 		}
 		for (CellPoint p : pathSet) {
-			highlightCell(g, p, AppStyle.cellPathImage, 1.0f);
+			//highlightCell(g, p, AppStyle.cellPathImage, 1.0f);
+			highlightCell(g, p, grid.getCellShape(), 1.0f);
 		}
 		for (CellPoint p : waypointSet) {
 			highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
@@ -842,6 +844,22 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		sp.y += zone.getGrid().getCellOffset().height * getScale();
 		
 		g.drawImage(image, sp.x + (int)((cwidth - iwidth)/2), sp.y + (int)((cheight-iheight)/2), (int)iwidth, (int)iheight, this);
+	}
+
+	public void highlightCell(Graphics2D g, CellPoint point, Area shape, float size) {
+		
+		Grid grid = zone.getGrid();
+
+		// Top left of cell
+		ScreenPoint sp = point.convertToScreen(this);
+		
+		sp.x += zone.getGrid().getCellOffset().width * getScale();
+		sp.y += zone.getGrid().getCellOffset().height * getScale();
+		
+		g.setColor(CELL_HIGHLIGHT_COLOR);
+		g.translate(sp.x, sp.y);
+		g.fill(shape.createTransformedArea(AffineTransform.getScaleInstance(getScale(), getScale())));
+		g.translate(-sp.x, -sp.y);
 	}
 
 	/**
@@ -1412,23 +1430,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
    * @param screenPoint Find the cell for this point.
    * @return The cell coordinates of the passed screen point.
    */
-  public CellPoint getCellAt(ScreenPoint screenPoint) {
+    public CellPoint getCellAt(ScreenPoint screenPoint) {
     
-    float scale = zoneScale.getScale();
-    
-    int x = screenPoint.x;
-    int y = screenPoint.y;
-    
-    // Translate
-    x -= zoneScale.getOffsetX() + (int) (zone.getGrid().getOffsetX() * scale);
-    y -= zoneScale.getOffsetY() + (int) (zone.getGrid().getOffsetY() * scale);
-    
-    // Scale
-    x = (int)Math.floor(x / (zone.getGrid().getSize() * scale));
-    y = (int)Math.floor(y / (zone.getGrid().getSize() * scale));
-    
-    return new CellPoint(x, y);
-  }
+		ZonePoint zp = screenPoint.convertToZone(this);
+		
+		return zone.getGrid().convert(zp);
+    }
   
     public float getScale() {
     	return zoneScale.getScale();
