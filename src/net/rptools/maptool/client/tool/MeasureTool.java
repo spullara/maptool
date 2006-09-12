@@ -118,7 +118,7 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
         CellPoint cellPoint = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
         
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			walker = new AStarSquareEuclideanWalker(renderer.getZone());
+			walker = renderer.getZone().getGrid().createZoneWalker();
             walker.addWaypoints(cellPoint, cellPoint);
             renderer.repaint();
             return;
