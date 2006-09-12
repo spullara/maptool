@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 
 import net.rptools.maptool.client.ScreenPoint;
@@ -40,6 +41,11 @@ public class HexGrid extends Grid {
 	}
 	
 	@Override
+	protected Area createCellShape(int size) {
+		return new Area(createShape(height, sideSize, topWidth));
+	}
+	
+	@Override
 	public Dimension getCellOffset() {
 		return cellOffset;
 	}
@@ -71,7 +77,6 @@ public class HexGrid extends Grid {
 	
 	@Override
 	public void setSize(int size) {
-		super.setSize(size);
 		
 		topWidth = size/2;
 		sideSize = topWidth/2;
@@ -81,6 +86,10 @@ public class HexGrid extends Grid {
 		
 		//cellOffset = new Dimension((int)(sideSize/2), -height);
 		cellOffset = new Dimension(0, -height);
+
+		// TODO: this super checks min and max size limits, it should realy happen before we make the calcs
+		// but we also need to create the shape before calling super so that createCellShape() doesn't break
+		super.setSize(size);
 	}
 	
 	private void createShape(double scale) {
@@ -100,6 +109,19 @@ public class HexGrid extends Grid {
 		scaledHex.lineTo((int)(scaledSideSize + scaledTopWidth + scaledSideSize), (int)scaledHeight);
 
 		lastScale = scale;
+	}
+	
+	private GeneralPath createShape(double height, double sideSize, double topWidth) {
+
+		GeneralPath hex = new GeneralPath();
+		hex.moveTo(0, (int)height);
+		hex.lineTo((int)sideSize, 0);
+		hex.lineTo((int)(sideSize + topWidth), 0);
+		hex.lineTo((int)(sideSize + topWidth + sideSize), (int)height);
+		hex.lineTo((int)(sideSize + topWidth), (int)(height*2));
+		hex.lineTo((int)(sideSize), (int)(height*2));
+
+		return hex;
 	}
 	
 	@Override

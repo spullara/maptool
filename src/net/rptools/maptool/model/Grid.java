@@ -3,6 +3,7 @@ package net.rptools.maptool.model;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.Area;
 
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
@@ -23,6 +24,8 @@ public abstract class Grid {
 	
 	private Zone zone;
 
+	private Area cellShape;
+	
 	public Grid() {
 		setSize(getDefaultGridSize());
 	}
@@ -43,6 +46,20 @@ public abstract class Grid {
 	public void setZone(Zone zone) {
 		this.zone = zone;
 	}
+	
+	/**
+	 * Get an Area that represents the shape of a cell, non scaled
+	 * @return
+	 */
+	public Area getCellShape() {
+		return cellShape;
+	}
+	
+	protected void setCellShape(Area cellShape) {
+		this.cellShape = cellShape;
+	}
+
+	protected abstract Area createCellShape(int size);
 	
 	public void setOffset(int offsetX, int offsetY) {
 		this.offsetX = offsetX;
@@ -72,6 +89,8 @@ public abstract class Grid {
 
     	this.size = size;
 
+    	cellShape = createCellShape(size);
+    	
 		fireGridChanged();
 	}
 

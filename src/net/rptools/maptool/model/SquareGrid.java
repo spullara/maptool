@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.Area;
 
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -26,6 +27,11 @@ public class SquareGrid extends Grid {
 	public SquareGrid() {
 		super();
 		
+	}
+	
+	@Override
+	protected Area createCellShape(int size) {
+		return new Area(new Rectangle(0, 0, size, size));
 	}
 	
 	@Override
