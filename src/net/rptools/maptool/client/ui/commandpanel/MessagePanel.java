@@ -3,6 +3,7 @@ package net.rptools.maptool.client.ui.commandpanel;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseListener;
 
 import javax.swing.JPanel;
@@ -32,6 +33,18 @@ public class MessagePanel extends JPanel {
 
 	public String getMessagesText() {
 		return textPane.getText();
+	}
+	
+	@Override
+	public synchronized void addFocusListener(FocusListener l) {
+		super.addFocusListener(l);
+		textPane.addFocusListener(l);
+	}
+	
+	@Override
+	public synchronized void removeFocusListener(FocusListener l) {
+		super.removeFocusListener(l);
+		textPane.removeFocusListener(l);
 	}
 	
 	public void clearMessages() {
