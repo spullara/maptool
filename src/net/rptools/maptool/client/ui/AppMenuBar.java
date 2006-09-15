@@ -84,22 +84,26 @@ public class AppMenuBar extends JMenuBar {
         JMenu menu = I18N.createMenu("menu.view");
         menu.add(createZoomMenu());
         menu.add(new JMenuItem(AppActions.TOGGLE_SHOW_TOKEN_NAMES));
-//      menu.add(new JMenuItem(AppActions.TOGGLE_SHOW_MOVEMENT_MEASUREMENTS));
-        JCheckBoxMenuItem item = new JCheckBoxMenuItem(AppActions.TOGGLE_SHOW_MOVEMENT_MEASUREMENTS);
+
+        JCheckBoxMenuItem item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_MOVEMENT_MEASUREMENTS);
         item.setSelected(AppState.getShowMovementMeasurements());
         menu.add(item);
-//        menu.add(new JMenuItem(AppActions.TOGGLE_SHOW_LIGHT_RADIUS));
-        item = new JCheckBoxMenuItem(AppActions.TOGGLE_SHOW_LIGHT_RADIUS);
+
+        item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_LIGHT_RADIUS);
         item.setSelected(AppState.isShowLightRadius());
         menu.add(item);
 
-        menu.add(new JMenuItem(AppActions.TOGGLE_GRID));
-        menu.add(new JMenuItem(AppActions.TOGGLE_ASSET_PANEL));
-        menu.add(new JMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));
-        menu.add(new JMenuItem(AppActions.TOGGLE_COMMAND_PANEL));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_GRID));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_ASSET_PANEL));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_COMMAND_PANEL));
+        
         menu.addSeparator();
+
         menu.add(new JMenuItem(AppActions.SHOW_FULLSCREEN));
+
         menu.addSeparator();
+        
         menu.add(new JMenuItem(AppActions.SHOW_PREFERENCES));
 
         return menu;
@@ -121,8 +125,8 @@ public class AppMenuBar extends JMenuBar {
         menu.addSeparator();
         
         // MAP TOGGLES
-        menu.add(new JMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
-        menu.add(new JMenuItem(AppActions.TOGGLE_FOG));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_FOG));
 
         menu.addSeparator();
         
@@ -132,14 +136,14 @@ public class AppMenuBar extends JMenuBar {
         // LATER: This needs to be genericized, but it seems to constant, and so short, that I 
         // didn't feel compelled to do that in this impl
         JMenu gridSizeMenu = I18N.createMenu("action.gridSize");
-        JCheckBoxMenuItem gridSize1 = new JCheckBoxMenuItem(new AppActions.GridSizeAction(1));
-        JCheckBoxMenuItem gridSize3 = new JCheckBoxMenuItem(new AppActions.GridSizeAction(3));
-        JCheckBoxMenuItem gridSize5 = new JCheckBoxMenuItem(new AppActions.GridSizeAction(5));
+        JCheckBoxMenuItem gridSize1 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(1));
+        JCheckBoxMenuItem gridSize3 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(3));
+        JCheckBoxMenuItem gridSize5 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(5));
+
         ButtonGroup sizeGroup = new ButtonGroup();
         sizeGroup.add(gridSize1);
         sizeGroup.add(gridSize3);
         sizeGroup.add(gridSize5);
-        gridSize1.setSelected(true);
 
         gridSizeMenu.add(gridSize1);
         gridSizeMenu.add(gridSize3);
@@ -173,17 +177,13 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.ENTER_COMMAND));
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE));
-        menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
-        menu.add(new JCheckBoxMenuItem(AppActions.TOGGLE_MOVEMENT_LOCK));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_MOVEMENT_LOCK));
         
         menu.addSeparator();
 
-        JCheckBoxMenuItem item = new JCheckBoxMenuItem(AppActions.TOGGLE_DRAW_MEASUREMENTS);
-        item.setSelected(true);
-        menu.add(item);
-        item = new JCheckBoxMenuItem(AppActions.TOGGLE_DOUBLE_WIDE);
-        item.setSelected(AppState.useDoubleWideLine());
-        menu.add(item);
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DRAW_MEASUREMENTS));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DOUBLE_WIDE));
 
         if (MapToolUtil.isDebugEnabled()) {
             menu.addSeparator();

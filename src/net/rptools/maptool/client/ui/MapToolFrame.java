@@ -660,6 +660,10 @@ public class MapToolFrame extends JFrame implements WindowListener {
         }
     }
     
+    public boolean isAssetTreeVisible() {
+    	return !mainSplitPane.isLeftHidden();
+    }
+    
     public CommandPanel getCommandPanel() {
     	return commandPanel;
     }

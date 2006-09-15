@@ -169,6 +169,12 @@ public class AppActions {
 		{
 			init("Command Panel");
 		}
+		
+		@Override
+		public boolean isSelected() {
+			return MapTool.getFrame().getCommandPanel().isVisible();
+		}
+		
 		public void execute(ActionEvent e) {
 			
 			if (MapTool.getFrame().getCommandPanel().isVisible()) {
@@ -448,6 +454,11 @@ public class AppActions {
 			init("action.linkPlayerView");
 		}
 
+		@Override
+		public boolean isSelected() {
+			return AppState.isPlayerViewLinked();
+		}
+		
 		public void execute(ActionEvent e) {
 
 			AppState.setPlayerViewLinked(!AppState.isPlayerViewLinked());
@@ -467,10 +478,17 @@ public class AppActions {
 			init("Show Movement Measurements");
 		}
 
+		@Override
+		public boolean isSelected() {
+			return AppState.getShowMovementMeasurements();
+		}
+		
 		public void execute(ActionEvent e) {
 
 			AppState.setShowMovementMeasurements(!AppState.getShowMovementMeasurements());
-			MapTool.getFrame().getCurrentZoneRenderer().repaint();
+			if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+				MapTool.getFrame().getCurrentZoneRenderer().repaint();
+			}
 		}
 
 	};
@@ -480,10 +498,17 @@ public class AppActions {
 			init("action.showLightRadius");
 		}
 
+		@Override
+		public boolean isSelected() {
+			return AppState.isShowLightRadius();
+		}
+		
 		public void execute(ActionEvent e) {
 
 			AppState.setShowLightRadius(!AppState.isShowLightRadius());
-			MapTool.getFrame().getCurrentZoneRenderer().repaint();
+			if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+				MapTool.getFrame().getCurrentZoneRenderer().repaint();
+			}
 		}
 
 	};
@@ -646,6 +671,10 @@ public class AppActions {
 			}
 		}
 
+		public boolean isSelected() {
+			return AppState.isShowGrid();
+		}
+		
 		public void execute(ActionEvent e) {
 
 			AppState.setShowGrid(!AppState.isShowGrid());
@@ -659,6 +688,16 @@ public class AppActions {
 	public static final Action TOGGLE_FOG = new ZoneAdminClientAction() {
 		{
 			init("action.enableFogOfWar");
+		}
+		
+		@Override
+		public boolean isSelected() {
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			if (renderer == null) {
+				return false;
+			}
+			
+			return renderer.getZone().hasFog();
 		}
 
 		public void execute(ActionEvent e) {
@@ -705,6 +744,15 @@ public class AppActions {
 
 		{
 			init("action.hideMap");
+		}
+		
+		@Override
+		public boolean isSelected() {
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			if (renderer == null) {
+				return false;
+			}
+			return renderer.getZone().isVisible();
 		}
 
 		public void execute(ActionEvent e) {
@@ -786,6 +834,11 @@ public class AppActions {
 		{
 			init("action.showMapSelector");
 		}
+		
+		@Override
+		public boolean isSelected() {
+			return MapTool.getFrame().getZoneSelectionPanel().isVisible();
+		}
 
 		public void execute(ActionEvent e) {
 
@@ -799,6 +852,11 @@ public class AppActions {
 	public static final Action TOGGLE_MOVEMENT_LOCK = new AdminClientAction() {
 		{
 			init("action.toggleMovementLock");
+		}
+		
+		@Override
+		public boolean isSelected() {
+			return MapTool.getServerPolicy().isMovementLocked();
 		}
 
 		public void execute(ActionEvent e) {
@@ -1101,6 +1159,11 @@ public class AppActions {
 			putValue(Action.NAME, Integer.toString(size));
 			this.size = size;
 		}
+
+		@Override
+		public boolean isSelected() {
+			return AppState.getGridSize() == size;
+		}
 		
 		@Override
 		public void execute(ActionEvent arg0) {
@@ -1203,6 +1266,11 @@ public class AppActions {
 			init("action.showInformationPanel");
 		}
 
+		@Override
+		public boolean isSelected() {
+			return MapTool.getFrame().isAssetTreeVisible();
+		}
+		
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -1262,6 +1330,11 @@ public class AppActions {
 			init("action.toggleDrawMeasuements");
 		}
 
+		@Override
+		public boolean isSelected() {
+			return MapTool.getFrame().isPaintDrawingMeasurement();
+		}
+		
 		public void execute(ActionEvent ae) {
 			MapTool.getFrame().setPaintDrawingMeasurement(
 					!MapTool.getFrame().isPaintDrawingMeasurement());
@@ -1274,6 +1347,11 @@ public class AppActions {
 	  public static final Action TOGGLE_DOUBLE_WIDE = new DefaultClientAction() {
 	    {
 	      init("action.toggleDoubleWide");
+	    }
+	    
+	    @Override
+	    public boolean isSelected() {
+	    	return AppState.useDoubleWideLine();
 	    }
 
 	    public void execute(ActionEvent ae) {
@@ -1301,7 +1379,7 @@ public class AppActions {
 		}
 	}
 
-	private static abstract class ClientAction extends AbstractAction {
+	public static abstract class ClientAction extends AbstractAction {
 
 		public void init(String key) {
 			String name = net.rptools.maptool.language.I18N.getText(key);
@@ -1324,6 +1402,10 @@ public class AppActions {
 		}
 
 		public abstract boolean isAvailable();
+		
+		public boolean isSelected() {
+			return false;
+		}
 
 		public final void actionPerformed(ActionEvent e) {
 			execute(e);
@@ -1349,7 +1431,7 @@ public class AppActions {
 		}
 	}
 
-	private static abstract class AdminClientAction extends ClientAction {
+	public static abstract class AdminClientAction extends ClientAction {
 
 		@Override
 		public boolean isAvailable() {
@@ -1357,7 +1439,7 @@ public class AppActions {
 		}
 	}
 
-	private static abstract class ZoneAdminClientAction extends
+	public static abstract class ZoneAdminClientAction extends
 			AdminClientAction {
 
 		@Override
@@ -1367,7 +1449,7 @@ public class AppActions {
 		}
 	}
 
-	private static abstract class DefaultClientAction extends ClientAction {
+	public static abstract class DefaultClientAction extends ClientAction {
 
 		@Override
 		public boolean isAvailable() {
@@ -1375,7 +1457,7 @@ public class AppActions {
 		}
 	}
 
-	private static abstract class DeveloperClientAction extends ClientAction {
+	public static abstract class DeveloperClientAction extends ClientAction {
 
 		@Override
 		public boolean isAvailable() {
