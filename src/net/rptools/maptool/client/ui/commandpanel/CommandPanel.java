@@ -304,7 +304,9 @@ public class CommandPanel extends JPanel implements Observer {
 				if (SwingUtilities.isRightMouseButton(e)) {
 					
 					String newCommand = JOptionPane.showInputDialog(MapTool.getFrame(), "Command:", command);
-					setCommand(newCommand);
+					if (newCommand != null) {
+						setCommand(newCommand);
+					}
 				}
 			}
 		}
