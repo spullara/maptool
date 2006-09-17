@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -58,6 +59,7 @@ import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.ImageManager;
 
 
@@ -96,12 +98,31 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
                 if (renderer != null) {
 
                 	if (SwingUtilities.isLeftMouseButton(e)) {
+                		
+                		// Zone selection
                 		if (MapTool.getFrame().getCurrentZoneRenderer() != renderer) {
                     		MapTool.getFrame().setCurrentZoneRenderer(renderer);
                     		
                     		if (AppState.isPlayerViewLinked()) {
                     			MapTool.serverCommand().enforceZone(renderer.getZone().getId());
                     		}
+                		} else {
+
+                			// This doesn't work for unbounded yet
+                			if (renderer.getZone().getType() == Zone.Type.INFINITE) {
+                				return;
+                			}
+                			
+                			// Minimap interaction
+                			Rectangle bounds = getBoundsFor(renderer);
+                			
+                			int miniX = e.getX() - bounds.x;
+                			int miniY = e.getY() - bounds.y;
+                			
+                			int mapX = (int)(renderer.getZone().getWidth() * (miniX / (double)bounds.width));
+                			int mapY = (int)(renderer.getZone().getHeight() * (miniY / (double)bounds.height));
+                			
+                			renderer.centerOn(new ZonePoint(mapX, mapY));
                 		}
                 	}
                 }
@@ -191,6 +212,16 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
         }
     }
 
+    public Rectangle getBoundsFor(ZoneRenderer renderer) {
+    	
+    	for (Entry<Rectangle, ZoneRenderer> entry : boundsMap.entrySet()) {
+    		if (entry.getValue() == renderer) {
+    			return entry.getKey();
+    		}
+    	}
+    	return null;
+    }
+    
     public ZoneRenderer getRendererAt(int x, int y) {
         
         for (Rectangle rect : boundsMap.keySet()) {
