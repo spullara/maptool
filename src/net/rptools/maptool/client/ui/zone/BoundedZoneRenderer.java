@@ -27,6 +27,7 @@ package net.rptools.maptool.client.ui.zone;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Transparency;
@@ -88,15 +89,6 @@ public class BoundedZoneRenderer extends ZoneRenderer {
         	g2d.drawImage(bgImage, 0, 0, dim.width, dim.height, null);
         	g2d.dispose();
         	
-        	// Now that we have it, let's get the scale updated
-        	if (!getZoneScale().isInitialized()) {
-        		
-        		Scale zoneScale = new Scale(bgImage.getWidth(), bgImage.getHeight());
-            	zoneScale.initialize(getSize().width, getSize().height);
-        		
-            	setZoneScale(zoneScale);
-            	updateFog();
-        	}
         }
         
         Dimension imgSize = new Dimension(miniBackgroundImage.getWidth(), miniBackgroundImage.getHeight());
@@ -134,6 +126,22 @@ public class BoundedZoneRenderer extends ZoneRenderer {
         }
         
     	return miniMap;
+    }
+    
+    @Override
+    public void paintComponent(Graphics g) {
+    	// Now that we have it, let's get the scale updated
+    	BufferedImage backgroundImage = getBackgroundImage();
+    	if (backgroundImage != ImageManager.UNKNOWN_IMAGE && !getZoneScale().isInitialized()) {
+    		
+    		Scale zoneScale = new Scale(backgroundImage.getWidth(), backgroundImage.getHeight());
+        	zoneScale.initialize(getSize().width, getSize().height);
+    		
+        	setZoneScale(zoneScale);
+        	updateFog();
+    	}
+
+    	super.paintComponent(g);
     }
     
     private BufferedImage getBackgroundImage() {
