@@ -1596,11 +1596,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             
             // Get the snap to grid value for the current prefs and abilities
             token.setSnapToGrid(gridCaps.isSnapToGridSupported() && AppPreferences.getTokensStartSnapToGrid());
-            if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid())
+            if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid()) {
                 zp = zone.getGrid().convert(zone.getGrid().convert(zp));
+            }
             token.setX(zp.x);
             token.setY(zp.y);
-            token.setVisible(AppPreferences.getNewTokensVisible());
+            token.setVisible(!MapTool.getPlayer().isGM() || AppPreferences.getNewTokensVisible());
             
             // Set the image properties
             BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(token.getAssetID()));
