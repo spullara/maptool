@@ -968,7 +968,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         for (Token token : tokenList) {
 
         	// Don't bother if it's not visible
-        	if (!zone.isTokenVisible(token) && !AppUtil.playerOwns(token)) {
+        	if (!zone.isTokenVisible(token) && !MapTool.getPlayer().isGM()) {
         		continue;
         	}
         	
