@@ -102,7 +102,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	 *            The token being displayed.
 	 */
 	public TokenPropertiesDialog(Token token) {
-		super(MapTool.getFrame(), "Token Notes", true);
+		super(MapTool.getFrame(), "Token Properties", true);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		FormPanel panel = new FormPanel(
 				"net/rptools/maptool/client/ui/forms/tokenNotesDialog.jfrm");
@@ -134,7 +134,11 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 
 		// Set up the shape combo box
 		shape = panel.getComboBox("shape");
-		shape.setModel(new DefaultComboBoxModel(Token.Type.values()));
+		shape.setModel(new DefaultComboBoxModel(new Object[] {
+			Token.Type.SQUARE,
+			Token.Type.CIRCLE,
+			Token.Type.TOP_DOWN
+		}));
 
 		// Set up the size combo box
 		DefaultComboBoxModel model = new DefaultComboBoxModel(TokenSize.Size

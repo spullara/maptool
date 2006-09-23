@@ -684,7 +684,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 // Show distance only on the key token
 				if (token == keyToken) {
 
-					if (zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
+					if (!token.isBackground() && !token.isStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
 						renderPath(g, walker.getPath(), width/gridSize, height/gridSize);
 					} else {
 						g.setColor(Color.black);

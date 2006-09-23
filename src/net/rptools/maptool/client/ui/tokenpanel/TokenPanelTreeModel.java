@@ -46,6 +46,9 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 		public Zone.Layer getLayer() {
 			return layer;
 		}
+		public boolean isRequired () {
+			return required;
+		}
 	}
 
     private List<TokenFilter> filterList = new ArrayList<TokenFilter>();
@@ -178,7 +181,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
         for (ListIterator<View> viewIter = currentViewList.listIterator(); viewIter.hasNext();) {
         	View view = viewIter.next();
         	
-        	if (viewMap.get(view) == null || viewMap.get(view).size() == 0) {
+        	if (!view.isRequired() && (viewMap.get(view) == null || viewMap.get(view).size() == 0)) {
         		viewIter.remove();
         	}
         }

@@ -55,11 +55,21 @@ public class Token {
 	private GUID id = new GUID();
 
 	public enum Type {
-		TOP_DOWN,
-		CIRCLE,
-		SQUARE,
-		STAMP,
-		BACKGROUND
+		TOP_DOWN("Top down"),
+		CIRCLE("Circle"),
+		SQUARE("Square"),
+		STAMP("Stamp"),
+		BACKGROUND("Background");
+		
+		private String displayName;
+		
+		private Type(String displayName) {
+			this.displayName = displayName;
+		}
+		
+		public String toString() {
+			return displayName;
+		}
 	}
 	
 	public static final Comparator<Token> NAME_COMPARATOR = new Comparator<Token>() {

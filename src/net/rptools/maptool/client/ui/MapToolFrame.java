@@ -97,6 +97,7 @@ import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.MeasureTool;
 import net.rptools.maptool.client.tool.PointerTool;
+import net.rptools.maptool.client.tool.StampTool;
 import net.rptools.maptool.client.tool.TextTool;
 import net.rptools.maptool.client.tool.drawing.ConeTemplateTool;
 import net.rptools.maptool.client.tool.drawing.FreehandExposeTool;
@@ -112,7 +113,6 @@ import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
-import net.rptools.maptool.client.ui.tokenpanel.TokenPanel;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeCellRenderer;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeModel;
 import net.rptools.maptool.client.ui.zone.NewZoneDropPanel;
@@ -691,6 +691,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 
         // Tools
         toolbar.add(toolbox.createTool(PointerTool.class));
+        toolbar.add(toolbox.createTool(StampTool.class));
         toolbar.add(toolbox.createTool(MeasureTool.class));
         
         toolbar.add(Box.createHorizontalStrut(15));

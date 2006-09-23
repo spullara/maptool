@@ -1186,17 +1186,17 @@ public class AppActions {
 				asset = new Asset(null, FileUtil.loadResource(imagePath));
 
 				// Make smaller
-				BufferedImage iconImage = new BufferedImage(
-						QUICK_MAP_ICON_SIZE, QUICK_MAP_ICON_SIZE,
-						Transparency.OPAQUE);
-				BufferedImage image = ImageUtil.getImage(imagePath);
-
-				Graphics2D g = iconImage.createGraphics();
-				g.drawImage(image, 0, 0, QUICK_MAP_ICON_SIZE,
-						QUICK_MAP_ICON_SIZE, null);
-				g.dispose();
-
-				putValue(Action.SMALL_ICON, new ImageIcon(iconImage));
+//				BufferedImage iconImage = new BufferedImage(
+//						QUICK_MAP_ICON_SIZE, QUICK_MAP_ICON_SIZE,
+//						Transparency.OPAQUE);
+//				BufferedImage image = ImageUtil.getImage(imagePath);
+//
+//				Graphics2D g = iconImage.createGraphics();
+//				g.drawImage(image, 0, 0, QUICK_MAP_ICON_SIZE,
+//						QUICK_MAP_ICON_SIZE, null);
+//				g.dispose();
+//
+//				putValue(Action.SMALL_ICON, new ImageIcon(iconImage));
 				putValue(Action.NAME, name);
 
 				AssetManager.putAsset(asset);
