@@ -30,6 +30,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 
 import net.rptools.lib.FileUtil;
+import net.rptools.maptool.model.AssetManager;
 
 /**
  * Executes only the first time the application is run.
@@ -82,5 +83,7 @@ public class AppSetup {
 
         // Add as a resource root
 		AppPreferences.addAssetRoot(unzipDir);
+    	AssetManager.searchForImageReferences(unzipDir, AppConstants.IMAGE_FILE_FILTER);
+
     }
 }

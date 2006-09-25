@@ -27,15 +27,18 @@ package net.rptools.maptool.model;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppUtil;
+import net.rptools.maptool.client.MapTool;
 
 /**
  */
@@ -66,7 +69,7 @@ public class AssetManager {
 	}
 	
 	public static boolean hasAsset(MD5Key key) {
-		return assetMap.containsKey(key) || assetIsInPersistentCache(key);
+		return assetMap.containsKey(key) || assetIsInPersistentCache(key) || assetHasLocalReference(key);
 	}
 
     public static boolean hasAssetInMemory(MD5Key key) {
@@ -86,10 +89,41 @@ public class AssetManager {
 	public static Asset getAsset(MD5Key id) {
 		
 		Asset asset = assetMap.get(id);
+		if (asset != null) {
+			System.out.println("Found in memory cache");
+			return asset;
+		}
 		
-		if (asset == null && usePersistentCache) {
+		if (asset == null && usePersistentCache && assetIsInPersistentCache(id)) {
 			
 			asset = getFromPersistentCache(id);
+			System.out.println("Getting image from persistent cache: " + id);
+		}
+		if (asset == null && assetHasLocalReference(id)) {
+			
+			File imageFile = getLocalReference(id);
+
+			if (imageFile != null) {
+
+				try {
+					String name = FileUtil.getNameWithoutExtension(imageFile);
+					byte[] data = FileUtil.getBytes(imageFile.toURL());
+	
+					asset = new Asset(name, data);
+					
+					// Just to be sure the image didn't change
+					if (!asset.getId().equals(id)) {
+						throw new IOException ("Image reference did not match the requested image");
+					}
+					
+					// Put it in the persistent cache so we'll find it faster next time
+					putInPersistentCache(asset);
+					System.out.println("Getting image from local reference: " + id);
+				} catch (IOException ioe) {
+					// Log, but continue as if we didn't have a link
+					ioe.printStackTrace();
+				}
+			}
 		}
 		
         lastRetrievedAsset = asset;
@@ -192,6 +226,68 @@ public class AssetManager {
 		}
 	}
 	
+	private static File getLocalReference(MD5Key id) {
+
+		File lnkFile = getAssetLinkFile(id);
+		if (!lnkFile.exists()) {
+			return null;
+		}
+		try {
+			List<String> refList = FileUtil.getLines(lnkFile);
+			
+			for (String ref : refList) {
+				File refFile = new File(ref);
+				if (refFile.exists()) {
+					return refFile;
+				}
+			}
+			
+		} catch (IOException ioe) {
+			// Just so we know, but fall through to return false
+			ioe.printStackTrace();
+		}
+		
+		// Guess we don't have one
+		return null;
+	}
+	
+	/**
+	 * Store a pointer to where we've seen this asset before.
+	 */
+	public static void rememberLocalImageReference(File image) throws IOException {
+		
+		System.out.println("Remembering: " + image);
+		MD5Key id = new MD5Key(FileUtil.loadFile(image));
+		File lnkFile = getAssetLinkFile(id);
+
+		// See if we know about this one already
+		if (lnkFile.exists()) {
+			
+			List<String> referenceList = FileUtil.getLines(lnkFile);
+			for (String ref : referenceList) {
+				if (ref.equals(id.toString())) {
+					
+					// We already know about this one
+					return;
+				}
+			}
+		}
+		
+		// Keep track of this reference
+		FileOutputStream out = new FileOutputStream(lnkFile, true); // For appending
+
+		out.write((image.getAbsolutePath() + "\n").getBytes());
+		
+		out.close();
+
+		System.out.println("\tSaved.");
+	}
+
+	private static boolean assetHasLocalReference(MD5Key id) {
+		
+		return getLocalReference(id) != null;
+	}
+	
 	private static boolean assetIsInPersistentCache(Asset asset) {
 		return assetIsInPersistentCache(asset.getId());
 	}
@@ -220,4 +316,36 @@ public class AssetManager {
 	private static File getAssetInfoFile(MD5Key id) {
 		return new File (cacheDir.getAbsolutePath() + File.separator + id + ".info");
 	}
+
+	private static File getAssetLinkFile(MD5Key id) {
+		return new File (cacheDir.getAbsolutePath() + File.separator + id + ".lnk");
+	}
+
+	public static void searchForImageReferences(File rootDir, FilenameFilter fileFilter) {
+
+		for (File file : rootDir.listFiles()) {
+			
+			if (file.isDirectory()) {
+				searchForImageReferences(file, fileFilter);
+				continue;
+			}
+			
+			try {
+				if (fileFilter.accept(rootDir, file.getName())) {
+					if (MapTool.getFrame() != null) {
+						MapTool.getFrame().setStatusMessage("Storing local image reference: " + file.getName());
+					}
+					rememberLocalImageReference(file);
+				}
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+		}
+
+		// Done
+		if (MapTool.getFrame() != null) {
+			MapTool.getFrame().setStatusMessage("");
+		}
+	}
+
 }

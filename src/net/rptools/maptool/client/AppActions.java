@@ -220,6 +220,8 @@ public class AppActions {
 				// TODO: Remove this hardwiring
 		        File unzipDir = new File(AppConstants.UNZIP_DIR.getAbsolutePath() + File.separator + "Default");
 		        MapTool.getFrame().addAssetRoot(unzipDir);
+		    	AssetManager.searchForImageReferences(unzipDir, AppConstants.IMAGE_FILE_FILTER);
+
 			} catch (IOException ioe) {
 				MapTool.showError("Could not restore defaults: " + ioe);
 			}
@@ -1303,7 +1305,9 @@ public class AppActions {
 
 					File root = chooser.getSelectedFile();
 					MapTool.getFrame().addAssetRoot(root);
-					AppPreferences.addAssetRoot(root);
+			    	AssetManager.searchForImageReferences(root, AppConstants.IMAGE_FILE_FILTER);
+
+			    	AppPreferences.addAssetRoot(root);
 				}
 
 			});
