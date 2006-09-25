@@ -37,7 +37,7 @@ public abstract class AbstractRollMacro  implements Macro {
     protected void roll(int channel, String roll) {
         
         try {
-            MapTool.addMessage(new TextMessage(channel, null, MapTool.getPlayer().getName() + " rolls: (" + roll + ") => "+ roll(roll)));
+            MapTool.addMessage(new TextMessage(channel, null, MapTool.getPlayer().getName() + " rolls: " + roll + " => "+ roll(roll)));
         } catch (Exception e) {
             MapTool.addLocalMessage("Unknown roll '" + roll + "', use #d#+#");
         }
@@ -45,7 +45,7 @@ public abstract class AbstractRollMacro  implements Macro {
 
     private static final Random RANDOM = new Random();
     private static final Pattern BASIC_ROLL = Pattern.compile("(\\d*)\\s*d\\s*(\\d*)(\\s*[\\+,\\-]\\s*\\d+)?");
-    protected static int roll(String roll) {
+    protected static String roll(String roll) {
         
         Matcher m = BASIC_ROLL.matcher(roll);
         if (!m.matches()) {
@@ -72,15 +72,36 @@ public abstract class AbstractRollMacro  implements Macro {
         return roll(count, dice, modifier);
     }
 
-    protected static int roll(int count, int dice, int modifier) {
-        
+    protected static String roll(int count, int dice, int modifier) {
+
+    	StringBuilder builder = new StringBuilder();
+
+    	if (modifier != 0) {
+    		builder.append("(");
+    	}
+    	
         int result = 0;
         for (int i = 0; i < count; i++) {
-            int roll = (int)(dice * RANDOM.nextFloat());
-            result += roll + 1;
+            int roll = (int)(dice * RANDOM.nextFloat()) + 1;
+            
+            if (builder.length() > (modifier != 0 ? 1 : 0)) {
+            	builder.append(" + ");
+            }
+
+            builder.append(roll);
+
+            result += roll;
         }
         
-        return result + modifier;
+        if (modifier != 0) {
+        	builder.append(") + ");
+        	builder.append(modifier);
+        	result += modifier;
+        }
+        
+        builder.append(" => ").append(result + modifier);
+        
+        return builder.toString();
     }
 
 //    public static void main(String[] args) {
