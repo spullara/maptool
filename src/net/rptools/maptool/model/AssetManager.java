@@ -89,15 +89,10 @@ public class AssetManager {
 	public static Asset getAsset(MD5Key id) {
 		
 		Asset asset = assetMap.get(id);
-		if (asset != null) {
-			System.out.println("Found in memory cache");
-			return asset;
-		}
 		
 		if (asset == null && usePersistentCache && assetIsInPersistentCache(id)) {
 			
 			asset = getFromPersistentCache(id);
-			System.out.println("Getting image from persistent cache: " + id);
 		}
 		if (asset == null && assetHasLocalReference(id)) {
 			
@@ -118,7 +113,6 @@ public class AssetManager {
 					
 					// Put it in the persistent cache so we'll find it faster next time
 					putInPersistentCache(asset);
-					System.out.println("Getting image from local reference: " + id);
 				} catch (IOException ioe) {
 					// Log, but continue as if we didn't have a link
 					ioe.printStackTrace();
@@ -256,7 +250,6 @@ public class AssetManager {
 	 */
 	public static void rememberLocalImageReference(File image) throws IOException {
 		
-		System.out.println("Remembering: " + image);
 		MD5Key id = new MD5Key(FileUtil.loadFile(image));
 		File lnkFile = getAssetLinkFile(id);
 
@@ -279,8 +272,6 @@ public class AssetManager {
 		out.write((image.getAbsolutePath() + "\n").getBytes());
 		
 		out.close();
-
-		System.out.println("\tSaved.");
 	}
 
 	private static boolean assetHasLocalReference(MD5Key id) {
