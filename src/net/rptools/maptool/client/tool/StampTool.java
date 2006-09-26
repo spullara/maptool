@@ -170,7 +170,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	
     @Override
     public String getTooltip() {
-        return "Pointer tool";
+        return "Stamp tool";
     }
 
     public void startTokenDrag(Token keyToken) {
