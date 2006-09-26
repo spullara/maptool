@@ -68,10 +68,11 @@ public class TokenPopupMenu extends JPopupMenu {
 		JMenu sizeMenu = new JMenu("Size");
 		sizeMenu.setEnabled(enabled);
 
-		JMenuItem freeSize = new JMenuItem(new FreeSizeAction());
-
-		sizeMenu.add(freeSize);
-		sizeMenu.addSeparator();
+		// NOTE: tokens are not free sized, stamps are
+//		JMenuItem freeSize = new JMenuItem(new FreeSizeAction());
+//
+//		sizeMenu.add(freeSize);
+//		sizeMenu.addSeparator();
 
 		for (TokenSize.Size size : TokenSize.Size.values()) {
 			JMenuItem menuItem = new JCheckBoxMenuItem(new ChangeSizeAction(
