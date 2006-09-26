@@ -52,8 +52,8 @@ import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 
 import net.rptools.lib.FileUtil;
+import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.lib.net.Location;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionProgressDialog;
@@ -1180,31 +1180,33 @@ public class AppActions {
 
 	public static class QuickMapAction extends AdminClientAction {
 
-		private Asset asset;
+		private MD5Key assetId;
 
 		public QuickMapAction(String name, String imagePath) {
 
 			try {
-				asset = new Asset(null, FileUtil.loadResource(imagePath));
+				Asset asset = new Asset(name, FileUtil.loadResource(imagePath));
+				assetId = asset.getId();
 
 				// Make smaller
-//				BufferedImage iconImage = new BufferedImage(
-//						QUICK_MAP_ICON_SIZE, QUICK_MAP_ICON_SIZE,
-//						Transparency.OPAQUE);
-//				BufferedImage image = ImageUtil.getImage(imagePath);
-//
-//				Graphics2D g = iconImage.createGraphics();
-//				g.drawImage(image, 0, 0, QUICK_MAP_ICON_SIZE,
-//						QUICK_MAP_ICON_SIZE, null);
-//				g.dispose();
-//
-//				putValue(Action.SMALL_ICON, new ImageIcon(iconImage));
+				BufferedImage iconImage = new BufferedImage(
+						QUICK_MAP_ICON_SIZE, QUICK_MAP_ICON_SIZE,
+						Transparency.OPAQUE);
+				BufferedImage image = ImageUtil.getImage(imagePath);
+
+				Graphics2D g = iconImage.createGraphics();
+				g.drawImage(image, 0, 0, QUICK_MAP_ICON_SIZE,
+						QUICK_MAP_ICON_SIZE, null);
+				g.dispose();
+
+				putValue(Action.SMALL_ICON, new ImageIcon(iconImage));
 				putValue(Action.NAME, name);
 
+				// Put it in the cache for easy access
 				AssetManager.putAsset(asset);
-
-				// Preloaded
-				ImageManager.getImage(asset, null);
+				
+				// But don't use up any extra memory
+				AssetManager.removeAsset(asset.getId());
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
@@ -1217,7 +1219,7 @@ public class AppActions {
 
 				public void run() {
 
-					Zone zone = ZoneFactory.createZone(Zone.Type.INFINITE, asset.getId());
+					Zone zone = ZoneFactory.createZone(Zone.Type.INFINITE, assetId);
 					zone.getGrid().setOffset(0, 0);
 					zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
 
