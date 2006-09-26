@@ -466,12 +466,12 @@ public class MapToolFrame extends JFrame implements WindowListener {
 				int rowIndex = tree.getRowForLocation(e.getX(), e.getY());
                 if (SwingUtilities.isLeftMouseButton(e)) {
 
-                	if (row instanceof TokenPanelTreeModel.View) {
-                		TokenPanelTreeModel.View view = (TokenPanelTreeModel.View)row; 
-                		getCurrentZoneRenderer().setActiveLayer(view.getLayer());
-                		tree.repaint();
-                	}
-                	
+//                	if (row instanceof TokenPanelTreeModel.View) {
+//                		TokenPanelTreeModel.View view = (TokenPanelTreeModel.View)row; 
+//                		getCurrentZoneRenderer().setActiveLayer(view.getLayer());
+//                		tree.repaint();
+//                	}
+//                	
                 	if (row instanceof Token) {
                 		if (e.getClickCount() == 2) {
 	                        Token token = (Token) row;
