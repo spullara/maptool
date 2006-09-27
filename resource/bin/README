@@ -1,0 +1,52 @@
+~~~~~ ReadMe for RPTools.net family of RPG tools ~~~~
+
+RPTools provides the following programs to enhance your gaming experience.
+
+ * DiceTool - Feature-rich dice-rolling application.
+ * MapTool - Virtual tabletop application.
+ * InitTool - Combat initiative manager
+ * TokenTool - Gaming token creation tool.
+
+<<< Requirements >>>
+
+All of the RPTools.net applications are programmed in Java and can be used on the Windows, MacOS and Linux platforms.
+
+The Java Runtime Environment is required and can be downloaded from the Sun website:
+
+   http://java.sun.com/j2se/1.5.0/download.jsp
+
+
+<<< Starting & Using the Tools >>>
+
+All of the tools can be started using the Java Web Start technology from the links on the RPTools downloads page at:
+
+   http://www.rptools.net/doku.php?id=downloads
+
+Alternatively you can download the Zip Archive from the same location.  Extract the Zip Archive to a folder of your choosing.  In the folder you extract the archive to will be a JAR file named something like:
+
+   maptool-1.1.b*.jar
+
+This is a Java ARchive (.jar) and it is the actual program.  Double-clicking (Windows & MacOS) on the .jar file will start the program.
+
+
+<<< Troubleshooting >>>
+
+Program fails to start - If double-clicking on the .jar file fails to start the application, verify that you have a Java Runtime Environment installed.  From a command prompt, type "java -version" and hit enter. The Java version should be printed to the command prompt.  If you receive an error message, download and install the appropriate Java package for your operatin system at the URL noted above.
+
+Double-clicking opens WinRAR (or another archiver) - Some archiver programs incorrectly associate files ending with the '.jar' suffix.  Follow the instructions provided by the vendor of your archiver program to stop this behavior.  You may have to re-associate .jar files with Java.  Re-installing your Java runtime environment will normally fix this.
+
+Map takes forever to load (or never) [MapTool only] - Some larger maps may require more memory to initially load than the default Java Runtime Environment allocates.  Check the folder where you extracted the zip archive (for downloaded versions) for batch files that will start MapTools with more memory.  If no batch files (.bat) are present, you can start MapTool manually from a command prompt with:
+
+   java -Xmx256M -jar maptool-1.1.b*.jar
+
+Note you will have to use the filename that matches the version you have. The number after the -Xmx switch sets the amount of memory (256 Megabytes) to be allocated and can be adjusted as needed.
+
+Other Problems - Please come to the RPTools.net forums and post a message there describing the difficulties you are having.  Most problems can be addressed quickly by one of the many helpful forum members or one of the team members.
+
+Forums:  http://forums.rptools.net/index.php
+
+Documentation for the various tools can be found here:
+
+   http://www.rptools.net/doku.php?id=documentation
+
+~~~~~ ReadMe for RPTools.net family of RPG tools ~~~~
