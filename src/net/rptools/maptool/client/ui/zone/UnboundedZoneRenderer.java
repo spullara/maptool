@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.TexturePaint;
+import java.awt.Transparency;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppState;
+import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Zone;
@@ -45,9 +47,15 @@ import net.rptools.maptool.util.ImageManager;
 public class UnboundedZoneRenderer extends ZoneRenderer {
 
 	private BufferedImage tileImage;
+	private BufferedImage backbuffer;
+	private int lastScale;
+	private int lastX;
+	private int lastY;
 	
 	private boolean loaded;
 	
+	private boolean drawBackground = false;
+
 	public UnboundedZoneRenderer(Zone zone) {
 		super(zone);
 	}
@@ -63,14 +71,49 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 	protected void renderBoard(Graphics2D g) {
 
 		Dimension size = getSize();
+		if (backbuffer == null || backbuffer.getWidth() != size.width || backbuffer.getHeight() != size.height) {
+			backbuffer = new BufferedImage(size.width, size.height, Transparency.OPAQUE);
+			drawBackground = true;
+		}
+
+		Scale scale = getZoneScale();
+		if (scale.getOffsetX() != lastX || scale.getOffsetY() != lastY || scale.getIndex() != lastScale) {
+			drawBackground = true;
+		}
 		
-		BufferedImage tileImage = getTileImage();
-		Paint paint = new TexturePaint(tileImage, new Rectangle2D.Float(getViewOffsetX(), getViewOffsetY(), tileImage.getWidth()*getScale(), tileImage.getHeight()*getScale()));
-		g.setPaint(paint);
-		//g.fillRect(0, 0, size.width-1, size.height-1);
-		((Graphics2D)g).fill(g.getClipBounds());
+		if (drawBackground) {
+			BufferedImage tileImage = getTileImage();
+			
+			Graphics2D bbg = backbuffer.createGraphics();
+			Paint paint = new TexturePaint(tileImage, new Rectangle2D.Float(getViewOffsetX(), getViewOffsetY(), tileImage.getWidth()*getScale(), tileImage.getHeight()*getScale()));
+			bbg.setPaint(paint);
+			//g.fillRect(0, 0, size.width-1, size.height-1);
+			bbg.fill(g.getClipBounds());
+			bbg.dispose();
+			System.out.println("Painting background " + System.currentTimeMillis());
+			
+			drawBackground = false;
+		}
+
+		lastX = scale.getOffsetX();
+		lastY = scale.getOffsetY();
+		lastScale = scale.getIndex();
+		
+		g.drawImage(backbuffer, 0, 0, this);
+
+//		BufferedImage tileImage = getTileImage();
+//		Paint paint = new TexturePaint(tileImage, new Rectangle2D.Float(getViewOffsetX(), getViewOffsetY(), tileImage.getWidth()*getScale(), tileImage.getHeight()*getScale()));
+//		g.setPaint(paint);
+//		g.fill(g.getClipBounds());
 	}
 
+	@Override
+	public void flush() {
+		backbuffer = null;
+
+		super.flush();
+	}
+	
     @Override
 	public BufferedImage getMiniImage(int size) {
         // TODO: I suppose this should honor the size
@@ -98,6 +141,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 					tileImage = image;
 					
 					loaded = true;
+					drawBackground = true;
 				}
 				return image;
 			}
