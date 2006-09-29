@@ -15,7 +15,7 @@
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <intAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_LIMIT_INVOCATIONS_NUM" value="10000"/>
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_DESTINATION_FILE" value=""/>
-<stringAttribute key="yk-cpu-startup" value="nolib"/>
+<stringAttribute key="yk-cpu-startup" value="none"/>
 <booleanAttribute key="yk-disable-counts" value="false"/>
 <booleanAttribute key="yk-disable-alloc" value="false"/>
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_FILTER_SET" value="org.eclipse.hyades.trace.ui.filterSet.webspherej2ee"/>
@@ -25,6 +25,6 @@
 <intAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_LIMIT_SECONDS_NUM" value="5"/>
 <booleanAttribute key="yk-launch-ui" value="true"/>
 <booleanAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILE_TO_FILE" value="false"/>
-<booleanAttribute key="yk-startup-with-object-allocations" value="true"/>
+<booleanAttribute key="yk-startup-with-object-allocations" value="false"/>
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_DESTINATION_PROJECT" value="ProfileProject"/>
 </launchConfiguration>
