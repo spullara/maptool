@@ -777,7 +777,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 		for (CellPoint p : pathSet) {
 			//highlightCell(g, p, AppStyle.cellPathImage, 1.0f);
-			highlightCell(g, p, grid.getCellShape(), 1.0f);
+			highlightCell(g, p);
 		}
 		for (CellPoint p : waypointSet) {
 			highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
@@ -840,26 +840,35 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		// Top left of cell
 		ScreenPoint sp = point.convertToScreen(this);
 		
-		sp.x += zone.getGrid().getCellOffset().width * getScale();
-		sp.y += zone.getGrid().getCellOffset().height * getScale();
+		sp.x += zone.getGrid().getCellOffset().width * getScale() + 1;
+		sp.y += zone.getGrid().getCellOffset().height * getScale() + 1;
 		
 		g.drawImage(image, sp.x + (int)((cwidth - iwidth)/2), sp.y + (int)((cheight-iheight)/2), (int)iwidth, (int)iheight, this);
 	}
 
-	public void highlightCell(Graphics2D g, CellPoint point, Area shape, float size) {
-		
-		Grid grid = zone.getGrid();
+	private BufferedImage cellShape;
+	private int lastScale;
+	public void highlightCell(Graphics2D g, CellPoint point) {
 
-		// Top left of cell
-		ScreenPoint sp = point.convertToScreen(this);
+		if (cellShape == null || lastScale != getZoneScale().getIndex()) {
+			
+			Grid grid = zone.getGrid();
+			Area shape = grid.getCellShape().createTransformedArea(AffineTransform.getScaleInstance(getScale(), getScale()));
+
+			// Top left of cell
+			ScreenPoint sp = point.convertToScreen(this);
+
+			Rectangle rect = shape.getBounds();
+			cellShape = new BufferedImage(rect.width, rect.height, Transparency.TRANSLUCENT);
+			Graphics2D g2d = cellShape.createGraphics();
+			g2d.setColor(CELL_HIGHLIGHT_COLOR);
+			g2d.fill(shape);
+			g2d.dispose();
+			
+			lastScale = getZoneScale().getIndex();
+		}
 		
-		sp.x += zone.getGrid().getCellOffset().width * getScale();
-		sp.y += zone.getGrid().getCellOffset().height * getScale();
-		
-		g.setColor(CELL_HIGHLIGHT_COLOR);
-		g.translate(sp.x, sp.y);
-		g.fill(shape.createTransformedArea(AffineTransform.getScaleInstance(getScale(), getScale())));
-		g.translate(-sp.x, -sp.y);
+		highlightCell(g, point, cellShape, 1.0f);
 	}
 
 	/**

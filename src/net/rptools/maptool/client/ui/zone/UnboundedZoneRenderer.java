@@ -54,7 +54,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 	
 	private boolean loaded;
 	
-	private boolean drawBackground = false;
+	private boolean drawBackground = true;
 
 	public UnboundedZoneRenderer(Zone zone) {
 		super(zone);
@@ -87,10 +87,8 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 			Graphics2D bbg = backbuffer.createGraphics();
 			Paint paint = new TexturePaint(tileImage, new Rectangle2D.Float(getViewOffsetX(), getViewOffsetY(), tileImage.getWidth()*getScale(), tileImage.getHeight()*getScale()));
 			bbg.setPaint(paint);
-			//g.fillRect(0, 0, size.width-1, size.height-1);
-			bbg.fill(g.getClipBounds());
+			bbg.fillRect(0, 0, size.width, size.height);
 			bbg.dispose();
-			System.out.println("Painting background " + System.currentTimeMillis());
 			
 			drawBackground = false;
 		}
@@ -110,7 +108,9 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 	@Override
 	public void flush() {
 		backbuffer = null;
-
+		tileImage = null;
+		
+		loaded = false;
 		super.flush();
 	}
 	
