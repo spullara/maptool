@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.model;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -250,7 +251,7 @@ public class AssetManager {
 	 */
 	public static void rememberLocalImageReference(File image) throws IOException {
 		
-		MD5Key id = new MD5Key(FileUtil.loadFile(image));
+		MD5Key id = new MD5Key(new BufferedInputStream(new FileInputStream(image)));
 		File lnkFile = getAssetLinkFile(id);
 
 		// See if we know about this one already
