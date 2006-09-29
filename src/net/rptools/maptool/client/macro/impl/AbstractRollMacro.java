@@ -99,7 +99,7 @@ public abstract class AbstractRollMacro  implements Macro {
         	result += modifier;
         }
         
-        builder.append(" => ").append(result + modifier);
+        builder.append(" => ").append(result);
         
         return builder.toString();
     }
