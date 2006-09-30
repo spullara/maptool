@@ -40,7 +40,7 @@ public class WhisperMacro implements Macro {
         
         int index = macro.indexOf(" ");
         if (index < 0) {
-            MapTool.addMessage(TextMessage.me("Must supply a player name."));
+            MapTool.addMessage(TextMessage.me("<b>Must supply a player name.</b>"));
             return;
         }
         
@@ -52,7 +52,7 @@ public class WhisperMacro implements Macro {
             MapTool.addMessage(TextMessage.me("'" + playerName + "' is not connected."));
             return;
         }
-        if (MapTool.getPlayer().getName().equals(playerName)) {
+        if (MapTool.getPlayer().getName().equalsIgnoreCase(playerName)) {
             MapTool.addMessage(TextMessage.me("Talking to yourself again?"));
             return;
         }

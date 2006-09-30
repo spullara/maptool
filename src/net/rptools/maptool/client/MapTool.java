@@ -253,7 +253,8 @@ public class MapTool {
         if (message.isGM() && !getPlayer().isGM()) {
             return;
         }
-        if (message.isWhisper() && !getPlayer().getName().equals(message.getTarget())) {
+        System.out.println(message.getTarget() + " - " + getPlayer().getName());
+        if (message.isWhisper() && !getPlayer().getName().equalsIgnoreCase(message.getTarget())) {
             return;
         }
         
@@ -381,7 +382,7 @@ public class MapTool {
         
         for (int i = 0; i < playerList.size(); i++) {
             Player p = playerList.get(i);
-            if (p.getName().equals(player)) {
+            if (p.getName().equalsIgnoreCase(player)) {
                 return true;
             }
         }
