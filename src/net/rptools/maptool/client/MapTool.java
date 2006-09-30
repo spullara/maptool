@@ -253,7 +253,6 @@ public class MapTool {
         if (message.isGM() && !getPlayer().isGM()) {
             return;
         }
-        System.out.println(message.getTarget() + " - " + getPlayer().getName());
         if (message.isWhisper() && !getPlayer().getName().equalsIgnoreCase(message.getTarget())) {
             return;
         }
