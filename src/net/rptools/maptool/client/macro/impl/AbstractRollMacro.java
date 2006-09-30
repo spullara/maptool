@@ -40,7 +40,7 @@ public abstract class AbstractRollMacro  implements Macro {
             
             return text;
         } catch (Exception e) {
-            MapTool.addLocalMessage("Unknown roll '" + roll + "', use #d#+#");
+            MapTool.addLocalMessage("<b>Unknown roll '" + roll + "', use #d#+#</b>");
             return null;
         }
     }
