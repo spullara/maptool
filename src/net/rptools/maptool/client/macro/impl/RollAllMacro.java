@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.macro.impl;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
 
@@ -35,6 +36,10 @@ import net.rptools.maptool.model.TextMessage;
 public class RollAllMacro extends AbstractRollMacro {
 
     public void execute(String macro) {
-        roll(TextMessage.Channel.ALL, macro);
+        String result = roll(macro);
+        if (result != null) {
+        	
+            MapTool.addMessage(new TextMessage(TextMessage.Channel.ALL, null, MapTool.getPlayer().getName() + " rolls: " + result));
+        }
     }
 }

@@ -30,22 +30,24 @@ import java.util.regex.Pattern;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
-import net.rptools.maptool.model.TextMessage;
 
 public abstract class AbstractRollMacro  implements Macro {
 
-    protected void roll(int channel, String roll) {
+    protected String roll(String roll) {
         
         try {
-            MapTool.addMessage(new TextMessage(channel, null, MapTool.getPlayer().getName() + " rolls: " + roll + " => "+ roll(roll)));
+        	String text = roll + " => "+ rollInternal(roll);
+            
+            return text;
         } catch (Exception e) {
             MapTool.addLocalMessage("Unknown roll '" + roll + "', use #d#+#");
+            return null;
         }
     }
 
     private static final Random RANDOM = new Random();
     private static final Pattern BASIC_ROLL = Pattern.compile("(\\d*)\\s*d\\s*(\\d*)(\\s*[\\+,\\-]\\s*\\d+)?");
-    protected static String roll(String roll) {
+    protected static String rollInternal(String roll) {
         
         Matcher m = BASIC_ROLL.matcher(roll);
         if (!m.matches()) {
@@ -76,32 +78,41 @@ public abstract class AbstractRollMacro  implements Macro {
 
     	StringBuilder builder = new StringBuilder();
 
-    	if (modifier != 0) {
-    		builder.append("(");
-    	}
-    	
-        int result = 0;
-        for (int i = 0; i < count; i++) {
-            int roll = (int)(dice * RANDOM.nextFloat()) + 1;
-            
-            if (builder.length() > (modifier != 0 ? 1 : 0)) {
-            	builder.append(" + ");
+    	if (count > 1 || modifier != 0) {
+    		
+        	if (modifier != 0) {
+        		builder.append("(");
+        	}
+        	
+            int result = 0;
+            for (int i = 0; i < count; i++) {
+                int roll = rollDice(dice);
+                
+                if (builder.length() > (modifier != 0 ? 1 : 0)) {
+                	builder.append(" + ");
+                }
+
+                builder.append(roll);
+
+                result += roll;
             }
-
-            builder.append(roll);
-
-            result += roll;
-        }
-        
-        if (modifier != 0) {
-        	builder.append(") + ");
-        	builder.append(modifier);
-        	result += modifier;
-        }
-        
-        builder.append(" => ").append(result);
+            
+            if (modifier != 0) {
+            	builder.append(") + ");
+            	builder.append(modifier);
+            	result += modifier;
+            }
+            
+            builder.append(" => ").append(result);
+    	} else {
+    		builder.append(rollDice(dice) + modifier);
+    	}
         
         return builder.toString();
+    }
+    
+    protected static int rollDice(int dice) {
+    	return (int)(dice * RANDOM.nextFloat()) + 1;
     }
 
 //    public static void main(String[] args) {

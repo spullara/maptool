@@ -47,6 +47,7 @@ import net.rptools.maptool.client.macro.impl.LoadTokenStatesMacro;
 import net.rptools.maptool.client.macro.impl.RollAllMacro;
 import net.rptools.maptool.client.macro.impl.RollGMMacro;
 import net.rptools.maptool.client.macro.impl.RollMeMacro;
+import net.rptools.maptool.client.macro.impl.RollSecretMacro;
 import net.rptools.maptool.client.macro.impl.SaveAliasesMacro;
 import net.rptools.maptool.client.macro.impl.SaveTokenStatesMacro;
 import net.rptools.maptool.client.macro.impl.SayMacro;
@@ -84,10 +85,11 @@ public class MacroManager {
 		registerMacro(new LoadAliasesMacro());
 		registerMacro(new SaveAliasesMacro());
 		registerMacro(new ClearAliasesMacro());
-    registerMacro(new AddTokenStateMacro());
-    registerMacro(new LoadTokenStatesMacro());
-    registerMacro(new SaveTokenStatesMacro());
-    registerMacro(new SetTokenStateMacro());
+		registerMacro(new AddTokenStateMacro());
+		registerMacro(new LoadTokenStatesMacro());
+		registerMacro(new SaveTokenStatesMacro());
+		registerMacro(new SetTokenStateMacro());
+		registerMacro(new RollSecretMacro());
 
 		registerMacro(UNDEFINED_MACRO);
 	}

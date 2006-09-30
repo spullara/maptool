@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.macro.impl;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
 
@@ -35,6 +36,10 @@ import net.rptools.maptool.model.TextMessage;
 public class RollMeMacro extends AbstractRollMacro {
 
     public void execute(String macro) {
-        roll(TextMessage.Channel.ME, macro);
+        String result = roll(macro);
+        if (result != null) {
+        	
+        	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, "You roll to yourself: " + result));
+        }
     }
 }
