@@ -10,7 +10,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -27,6 +26,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -39,7 +40,7 @@ import net.rptools.maptool.model.TextMessage;
 
 public class CommandPanel extends JPanel implements Observer {
 
-	private JTextField commandTextField;
+	private JTextArea commandTextArea;
 	private MessagePanel messagePanel;
 	private List<String> commandHistory = new LinkedList<String>();
 	private int commandHistoryIndex;
@@ -49,7 +50,7 @@ public class CommandPanel extends JPanel implements Observer {
 		setBorder(BorderFactory.createLineBorder(Color.gray));
 		
 		add(BorderLayout.NORTH, createTopPanel());
-		add(BorderLayout.SOUTH, getCommandTextField());
+		add(BorderLayout.SOUTH, new JScrollPane(getCommandTextArea(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 		add(BorderLayout.CENTER, getMessagePanel());
 	}
 	
@@ -67,9 +68,9 @@ public class CommandPanel extends JPanel implements Observer {
 		return getPreferredSize();
 	}
 	
-	public JTextField getCommandTextField() {
-		if (commandTextField == null) {
-			commandTextField = new JTextField(){
+	public JTextArea getCommandTextArea() {
+		if (commandTextArea == null) {
+			commandTextArea = new JTextArea(){
 				@Override
 				protected void paintComponent(Graphics g) {
 					super.paintComponent(g);
@@ -79,9 +80,10 @@ public class CommandPanel extends JPanel implements Observer {
 					g.drawLine(0, 0, size.width, 0);
 				}
 			};
-			commandTextField.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-
-			ActionMap actions = commandTextField.getActionMap();
+			commandTextArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+			commandTextArea.setRows(3);
+			
+			ActionMap actions = commandTextArea.getActionMap();
 			actions.put(AppActions.COMMIT_COMMAND_ID,
 							AppActions.COMMIT_COMMAND);
 			actions.put(AppActions.ENTER_COMMAND_ID, AppActions.ENTER_COMMAND);
@@ -89,7 +91,7 @@ public class CommandPanel extends JPanel implements Observer {
 			actions.put(AppActions.COMMAND_UP_ID, new CommandHistoryUpAction());
 			actions.put(AppActions.COMMAND_DOWN_ID, new CommandHistoryDownAction());
 			
-			InputMap inputs = commandTextField.getInputMap();
+			InputMap inputs = commandTextArea.getInputMap();
 			inputs.put(KeyStroke.getKeyStroke("ESCAPE"),
 					AppActions.CANCEL_COMMAND_ID);
 			inputs.put(KeyStroke.getKeyStroke("ENTER"),
@@ -98,7 +100,7 @@ public class CommandPanel extends JPanel implements Observer {
 			inputs.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), AppActions.COMMAND_DOWN_ID);
 		}
 
-		return commandTextField;
+		return commandTextArea;
 	}
 
 	private JPanel createTopPanel() {
@@ -159,7 +161,7 @@ public class CommandPanel extends JPanel implements Observer {
 	 * Execute the command in the command field.
 	 */
 	public void commitCommand() {
-		String text = commandTextField.getText().trim();
+		String text = commandTextArea.getText().trim();
 		if (text.length() == 0) {
 			return;
 		}
@@ -176,7 +178,7 @@ public class CommandPanel extends JPanel implements Observer {
 			text = "/s " + text;
 		}
 		MacroManager.executeMacro(text);
-		commandTextField.setText("");
+		commandTextArea.setText("");
 	}
 	
 	public void clearMessagePanel() {
@@ -187,7 +189,7 @@ public class CommandPanel extends JPanel implements Observer {
 	 * Cancel the current command in the command field.
 	 */
 	public void cancelCommand() {
-		commandTextField.setText("");
+		commandTextArea.setText("");
 		validate();
 		
 		MapTool.getFrame().hideCommandPanel();
@@ -196,14 +198,14 @@ public class CommandPanel extends JPanel implements Observer {
 	public void startMacro() {
 		MapTool.getFrame().showCommandPanel();
 		
-		commandTextField.requestFocusInWindow();
-		commandTextField.setText("/");
+		commandTextArea.requestFocusInWindow();
+		commandTextArea.setText("/");
 	}
 
 	public void startChat() {
 		MapTool.getFrame().showCommandPanel();
 		
-		commandTextField.requestFocusInWindow();
+		commandTextArea.requestFocusInWindow();
 	}
 
 	private class CommandHistoryUpAction extends AbstractAction {
@@ -217,7 +219,7 @@ public class CommandPanel extends JPanel implements Observer {
 				commandHistoryIndex = 0;
 			}
 
-			commandTextField.setText(commandHistory.get(commandHistoryIndex));
+			commandTextArea.setText(commandHistory.get(commandHistoryIndex));
 		}
 	}
 	
@@ -229,17 +231,17 @@ public class CommandPanel extends JPanel implements Observer {
 			}
 			commandHistoryIndex ++;
 			if (commandHistoryIndex >= commandHistory.size()) {
-				commandTextField.setText("");
+				commandTextArea.setText("");
 				commandHistoryIndex = commandHistory.size();
 			} else {
-				commandTextField.setText(commandHistory.get(commandHistoryIndex));
+				commandTextArea.setText(commandHistory.get(commandHistoryIndex));
 			}
 		}
 	}
 	
 	@Override
 	public void requestFocus() {
-		commandTextField.requestFocus();
+		commandTextArea.requestFocus();
 	}
 	
 	private MessagePanel getMessagePanel() {
@@ -247,7 +249,7 @@ public class CommandPanel extends JPanel implements Observer {
 			messagePanel = new MessagePanel();
 			messagePanel.addFocusListener(new FocusAdapter() {
 				public void focusGained(java.awt.event.FocusEvent e) {
-					getCommandTextField().requestFocusInWindow();
+					commandTextArea.requestFocusInWindow();
 				}
 			});
 		}
@@ -283,7 +285,7 @@ public class CommandPanel extends JPanel implements Observer {
 
 				if (SwingUtilities.isLeftMouseButton(e)) {
 					if (command != null) {
-						JTextField commandField = MapTool.getFrame().getCommandPanel().getCommandTextField();
+						JTextArea commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
 
 						String commandToExecute = command;
 						
@@ -293,8 +295,8 @@ public class CommandPanel extends JPanel implements Observer {
 							commandToExecute = command.substring(0, command.length()-1);
 						}
 						
-						commandField.setText(commandToExecute);
-						commandField.requestFocusInWindow();
+						commandArea.setText(commandToExecute);
+						commandArea.requestFocusInWindow();
 						
 						if (commitCommand) {
 							MapTool.getFrame().getCommandPanel().commitCommand();
