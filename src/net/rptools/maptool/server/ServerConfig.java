@@ -30,7 +30,7 @@ import java.util.Random;
 
 public class ServerConfig {
 	
-    public static final int DEFAULT_PORT = 4444;
+    public static final int DEFAULT_PORT = 51234;
     
     public static final int PORT_RANGE_START = 4000;
     public static final int PORT_RANGE_END = 20000;
