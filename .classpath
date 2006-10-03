@@ -3,8 +3,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="tests"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/hessian"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/rplib"/>
 	<classpathentry kind="lib" path="lib/withay-util.jar"/>
 	<classpathentry sourcepath="C:/Download/hessian-2.1.12-src.jar" kind="lib" path="lib/hessian-2.1.12.jar"/>
 	<classpathentry sourcepath="/clientserver" kind="lib" path="lib/clientserver-1.0.b10.jar"/>
