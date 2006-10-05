@@ -450,6 +450,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		renderMoveSelectionSets(g2d);
         renderLabels(g2d);
 		
+        renderFog(g2d);
+        
         for (int i = 0; i < overlayList.size(); i++) {
             ZoneOverlay overlay = overlayList.get(i);
             overlay.paintOverlay(this, (Graphics2D) g);
@@ -458,8 +460,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         if (!zone.isVisible()) {
         	GraphicsUtil.drawBoxedString(g2d, "Zone not visible to players", getSize().width/2, 20);
         }
-        
-        renderFog(g2d);
         
         // Are we still waiting to show the zone ?
         if (isLoading()) {
