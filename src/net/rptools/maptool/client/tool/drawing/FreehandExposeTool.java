@@ -87,7 +87,7 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
 
         if (!MapTool.getPlayer().isGM()) {
             MapTool.showError("Must be a GM to change the fog of war.");
-            MapTool.getFrame().getCurrentZoneRenderer().repaint();
+            MapTool.getFrame().refresh();
             return;
         }
         

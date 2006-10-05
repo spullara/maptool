@@ -29,7 +29,7 @@ public class ZonePopupMenu extends JPopupMenu {
 					ZonePopupMenu.this.zone.setVisible(false);
 					MapTool.serverCommand().setZoneVisibility(ZonePopupMenu.this.zone.getId(), false);
 					MapTool.getFrame().getZoneSelectionPanel().flush();
-					MapTool.getFrame().repaint();
+					MapTool.getFrame().refresh();
 				}
 			};
 		} else {
@@ -42,7 +42,7 @@ public class ZonePopupMenu extends JPopupMenu {
 					ZonePopupMenu.this.zone.setVisible(true);
 					MapTool.serverCommand().setZoneVisibility(ZonePopupMenu.this.zone.getId(), true);
 					MapTool.getFrame().getZoneSelectionPanel().flush();
-					MapTool.getFrame().repaint();
+					MapTool.getFrame().refresh();
 				}
 			};
 		}

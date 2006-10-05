@@ -1174,9 +1174,7 @@ public class AppActions {
 		@Override
 		public void execute(ActionEvent arg0) {
 			AppState.setGridSize(size);
-			if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
-				MapTool.getFrame().getCurrentZoneRenderer().repaint();
-			}
+			MapTool.getFrame().refresh();
 		}
 	}
 	

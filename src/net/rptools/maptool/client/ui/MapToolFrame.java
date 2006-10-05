@@ -294,6 +294,12 @@ public class MapToolFrame extends JFrame implements WindowListener {
         restorePreferences();
 	}
 	
+	public void refresh() {
+		if (getCurrentZoneRenderer() != null) {
+			getCurrentZoneRenderer().repaint();
+		}
+	}
+	
 	public JFileChooser getLoadFileChooser() {
 		if (loadFileChooser == null) {
 			loadFileChooser = new JFileChooser();
@@ -331,7 +337,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 			
 			zoneRendererPanel.remove(visibleControlPanel);
 			visibleControlPanel = null;
-			getCurrentZoneRenderer().repaint();
+			refresh();
 		}
 	}
 	

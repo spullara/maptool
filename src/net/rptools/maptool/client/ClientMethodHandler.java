@@ -83,7 +83,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
             zone = MapTool.getCampaign().getZone(zoneGUID);
             zone.getDrawnElements().clear();
             
-            MapTool.getFrame().getCurrentZoneRenderer().repaint();
+            MapTool.getFrame().refresh();
         	break;
         case setZoneHasFoW:
         	
@@ -94,7 +94,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
             zone.setHasFog(hasFog);
             
             // In case we're looking at the zone
-            MapTool.getFrame().getCurrentZoneRenderer().repaint();
+            MapTool.getFrame().refresh();
         	break;
         	
         case exposeFoW:
@@ -144,7 +144,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
             break;
         case putAsset:
             AssetManager.putAsset((Asset) parameters[0]);
-            MapTool.getFrame().repaint();
+            MapTool.getFrame().refresh();
             break;
         case removeAsset:
             break;
@@ -155,7 +155,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	
         	zone.putToken(token);
         	
-        	MapTool.getFrame().repaint();
+        	MapTool.getFrame().refresh();
             break;
             
         case putLabel:
@@ -165,7 +165,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
             
             zone.putLabel(label);
             
-            MapTool.getFrame().repaint();
+            MapTool.getFrame().refresh();
             break;
         case removeToken:
             zoneGUID = (GUID) parameters[0];
@@ -174,7 +174,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
             zone.removeToken(tokenGUID);
             
-            MapTool.getFrame().repaint();
+            MapTool.getFrame().refresh();
             break;
         case removeLabel:
             zoneGUID = (GUID) parameters[0];
@@ -183,7 +183,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
             zone.removeLabel(labelGUID);
             
-            MapTool.getFrame().repaint();
+            MapTool.getFrame().refresh();
             break;
         case enforceZoneView: 
             
@@ -209,7 +209,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	
         	zone.addDrawable(new DrawnElement(drawable, pen));
         	
-        	MapTool.getFrame().repaint();
+        	MapTool.getFrame().refresh();
             break;
         
         case undoDraw:
@@ -219,7 +219,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
           zone.removeDrawable(drawableId);
 
 		  if (MapTool.getFrame().getCurrentZoneRenderer().getZone().getId().equals(zoneGUID) && zoneGUID != null) {
-			  MapTool.getFrame().getCurrentZoneRenderer().repaint();
+			  MapTool.getFrame().refresh();
 		  }
 
 		  break;
@@ -242,7 +242,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	}
         	
         	MapTool.getFrame().getZoneSelectionPanel().flush();
-        	MapTool.getFrame().repaint();
+        	MapTool.getFrame().refresh();
         	break;
 		  
         case setZoneGridSize:
@@ -258,19 +258,19 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	zone.getGrid().setOffset(xOffset, yOffset);
         	zone.setGridColor(color);
         	
-        	MapTool.getFrame().repaint();
+        	MapTool.getFrame().refresh();
         	break;
 
         case playerConnected:
         	
         	MapTool.addPlayer((Player) parameters[0]);
-        	MapTool.getFrame().repaint();
+        	MapTool.getFrame().refresh();
         	break;
 
         case playerDisconnected:
         	
         	MapTool.removePlayer((Player) parameters[0]);
-        	MapTool.getFrame().repaint();
+        	MapTool.getFrame().refresh();
         	break;
             
         case message:
@@ -280,12 +280,12 @@ public class ClientMethodHandler extends AbstractMethodHandler {
             
         case showPointer:
         	MapTool.getFrame().getPointerOverlay().addPointer((String) parameters[0], (Pointer) parameters[1]);
-        	MapTool.getFrame().repaint();
+        	MapTool.getFrame().refresh();
         	break;
         	
         case hidePointer:
         	MapTool.getFrame().getPointerOverlay().removePointer((String) parameters[0]);
-        	MapTool.getFrame().repaint();
+        	MapTool.getFrame().refresh();
         	break;
         	
         case startTokenMove:

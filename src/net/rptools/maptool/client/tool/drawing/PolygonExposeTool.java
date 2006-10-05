@@ -86,7 +86,7 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
 
         if (!MapTool.getPlayer().isGM()) {
             MapTool.showError("Must be a GM to change the fog of war.");
-            MapTool.getFrame().getCurrentZoneRenderer().repaint();
+            MapTool.getFrame().refresh();
             return;
         }
         

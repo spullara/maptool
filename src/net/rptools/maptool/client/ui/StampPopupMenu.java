@@ -368,7 +368,7 @@ public class StampPopupMenu extends JPopupMenu {
 			MapTool.serverCommand().bringTokensToFront(
 					renderer.getZone().getId(), selectedTokenSet);
 
-			MapTool.getFrame().repaint();
+			MapTool.getFrame().refresh();
 		}
 	}
 
@@ -379,7 +379,7 @@ public class StampPopupMenu extends JPopupMenu {
 			MapTool.serverCommand().sendTokensToBack(
 					renderer.getZone().getId(), selectedTokenSet);
 
-			MapTool.getFrame().repaint();
+			MapTool.getFrame().refresh();
 		}
 	}
 

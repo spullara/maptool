@@ -63,7 +63,7 @@ public class OvalExposeTool extends OvalTool {
 
 		if (!MapTool.getPlayer().isGM()) {
 			MapTool.showError("Must be a GM to change the fog of war.");
-			MapTool.getFrame().getCurrentZoneRenderer().repaint();
+			MapTool.getFrame().refresh();
 			return;
 		}
 

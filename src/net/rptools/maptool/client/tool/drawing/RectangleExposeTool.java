@@ -62,7 +62,7 @@ public class RectangleExposeTool extends RectangleTool {
 
 		if (!MapTool.getPlayer().isGM()) {
 			MapTool.showError("Must be a GM to change the fog of war.");
-			MapTool.getFrame().getCurrentZoneRenderer().repaint();
+			MapTool.getFrame().refresh();
 			return;
 		}
 		
