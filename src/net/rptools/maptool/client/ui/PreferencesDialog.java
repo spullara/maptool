@@ -23,6 +23,10 @@ public class PreferencesDialog extends JDialog {
 	private JCheckBox tokensStartSnapToGridCheckBox;
 	private JCheckBox newMapsVisibleCheckBox;
 	private JCheckBox newTokensVisibleCheckBox;
+	private JCheckBox stampsStartSnapToGridCheckBox;
+	private JCheckBox stampsStartFreeSizeCheckBox;
+	private JCheckBox backgroundsStartSnapToGridCheckBox;
+	private JCheckBox backgroundsStartFreeSizeCheckBox;
 	
 	public PreferencesDialog() {
 		super (MapTool.getFrame(), "Preferences", true);
@@ -45,6 +49,11 @@ public class PreferencesDialog extends JDialog {
 		tokensStartSnapToGridCheckBox = panel.getCheckBox("tokensStartSnapToGridCheckBox");
 		newMapsVisibleCheckBox = panel.getCheckBox("newMapsVisibleCheckBox");
 		newTokensVisibleCheckBox = panel.getCheckBox("newTokensVisibleCheckBox");
+		stampsStartFreeSizeCheckBox = panel.getCheckBox("stampsStartFreeSize");
+		stampsStartSnapToGridCheckBox = panel.getCheckBox("stampsStartSnapToGrid");
+		backgroundsStartFreeSizeCheckBox = panel.getCheckBox("backgroundsStartFreeSize");
+		backgroundsStartSnapToGridCheckBox = panel.getCheckBox("backgroundsStartSnapToGrid");
+		
 		
 		setInitialState();
 
@@ -79,6 +88,26 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setNewTokensVisible(newTokensVisibleCheckBox.isSelected());
 			}
 		});
+		stampsStartFreeSizeCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setStampsStartFreesize(stampsStartFreeSizeCheckBox.isSelected());
+			}
+		});
+		stampsStartSnapToGridCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setStampsStartSnapToGrid(stampsStartSnapToGridCheckBox.isSelected());
+			}
+		});
+		backgroundsStartFreeSizeCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setBackgroundsStartFreesize(backgroundsStartFreeSizeCheckBox.isSelected());
+			}
+		});
+		backgroundsStartSnapToGridCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setBackgroundsStartSnapToGrid(backgroundsStartSnapToGridCheckBox.isSelected());
+			}
+		});
 		
 		add(panel);
 		
@@ -101,5 +130,10 @@ public class PreferencesDialog extends JDialog {
 		tokensStartSnapToGridCheckBox.setSelected(AppPreferences.getTokensStartSnapToGrid());
 		newMapsVisibleCheckBox.setSelected(AppPreferences.getNewMapsVisible());
 		newTokensVisibleCheckBox.setSelected(AppPreferences.getNewTokensVisible());
+		stampsStartFreeSizeCheckBox.setSelected(AppPreferences.getStampsStartFreesize());
+		stampsStartSnapToGridCheckBox.setSelected(AppPreferences.getStampsStartSnapToGrid());
+		backgroundsStartFreeSizeCheckBox.setSelected(AppPreferences.getBackgroundsStartFreesize());
+		backgroundsStartSnapToGridCheckBox.setSelected(AppPreferences.getBackgroundsStartSnapToGrid());
+		
 	}
 }

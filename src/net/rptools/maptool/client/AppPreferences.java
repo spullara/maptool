@@ -53,6 +53,18 @@ public class AppPreferences {
     private static final String KEY_TOKENS_START_SNAP_TO_GRID = "newTokensStartSnapToGrid";
     private static final boolean DEFAULT_TOKENS_START_SNAP_TO_GRID = true;
 
+    private static final String KEY_STAMPS_START_SNAP_TO_GRID = "newStampsStartSnapToGrid";
+    private static final boolean DEFAULT_STAMPS_START_SNAP_TO_GRID = false;
+    
+    private static final String KEY_STAMPS_START_FREESIZE = "newStampsStartFreesize";
+    private static final boolean DEFAULT_STAMPS_START_FREESIZE = true;
+
+    private static final String KEY_BACKGROUNDS_START_SNAP_TO_GRID = "newBackgroundsStartSnapToGrid";
+    private static final boolean DEFAULT_BACKGROUNDS_START_SNAP_TO_GRID = false;
+    
+    private static final String KEY_BACKGROUNDS_START_FREESIZE = "newBackgroundsStartFreesize";
+    private static final boolean DEFAULT_BACKGROUNDS_START_FREESIZE = true;
+
     public static void setUseTranslucentFog(boolean flag) {
     	prefs.putBoolean(KEY_USE_TRANSLUCENT_FOG, flag);
     }
@@ -91,6 +103,38 @@ public class AppPreferences {
     
     public static boolean getTokensStartSnapToGrid() {
     	return prefs.getBoolean(KEY_TOKENS_START_SNAP_TO_GRID, DEFAULT_TOKENS_START_SNAP_TO_GRID);
+    }
+    
+    public static void setStampsStartSnapToGrid(boolean flag) {
+    	prefs.putBoolean(KEY_STAMPS_START_SNAP_TO_GRID, flag);
+    }
+    
+    public static boolean getStampsStartSnapToGrid() {
+    	return prefs.getBoolean(KEY_STAMPS_START_SNAP_TO_GRID, DEFAULT_STAMPS_START_SNAP_TO_GRID);
+    }
+    
+    public static void setStampsStartFreesize(boolean flag) {
+    	prefs.putBoolean(KEY_STAMPS_START_FREESIZE, flag);
+    }
+    
+    public static boolean getStampsStartFreesize() {
+    	return prefs.getBoolean(KEY_STAMPS_START_FREESIZE, DEFAULT_STAMPS_START_FREESIZE);
+    }
+    
+    public static void setBackgroundsStartSnapToGrid(boolean flag) {
+    	prefs.putBoolean(KEY_BACKGROUNDS_START_SNAP_TO_GRID, flag);
+    }
+    
+    public static boolean getBackgroundsStartSnapToGrid() {
+    	return prefs.getBoolean(KEY_BACKGROUNDS_START_SNAP_TO_GRID, DEFAULT_BACKGROUNDS_START_SNAP_TO_GRID);
+    }
+    
+    public static void setBackgroundsStartFreesize(boolean flag) {
+    	prefs.putBoolean(KEY_BACKGROUNDS_START_FREESIZE, flag);
+    }
+    
+    public static boolean getBackgroundsStartFreesize() {
+    	return prefs.getBoolean(KEY_BACKGROUNDS_START_FREESIZE, DEFAULT_BACKGROUNDS_START_FREESIZE);
     }
     
     public static void clearAssetRoots() {
