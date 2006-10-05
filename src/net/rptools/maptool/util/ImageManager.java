@@ -104,6 +104,9 @@ public class ImageManager {
     	return image;
     }
     public static BufferedImage getImage(Asset asset, ImageObserver... observers) {
+    	return getImage(asset, null, observers);
+    }
+    public static BufferedImage getImage(Asset asset, Map<String, Object> hints, ImageObserver... observers) {
 
     	if (asset == null) {
     		return UNKNOWN_IMAGE;
@@ -125,7 +128,7 @@ public class ImageManager {
         imageMap.put(asset.getId(), UNKNOWN_IMAGE);
         
         addObservers(asset.getId(), observers);
-        imageLoader.execute(new BackgroundImageLoader(asset));
+        imageLoader.execute(new BackgroundImageLoader(asset, hints));
         
         return UNKNOWN_IMAGE;
     }
@@ -158,15 +161,18 @@ public class ImageManager {
     private static class BackgroundImageLoader implements Runnable {
 
         private Asset asset;
-        public BackgroundImageLoader(Asset asset) {
+        private Map<String, Object> hints;
+        
+        public BackgroundImageLoader(Asset asset, Map<String, Object> hints) {
             this.asset = asset;
+            this.hints = hints;
         }
         
         public void run() {
             
         	BufferedImage image = null;
             try {
-                image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()));
+                image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()), hints);
                 
                 if (image != null) {
                     

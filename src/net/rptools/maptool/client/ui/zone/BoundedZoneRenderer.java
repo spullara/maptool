@@ -34,7 +34,10 @@ import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.Scale;
@@ -46,6 +49,12 @@ import net.rptools.maptool.util.ImageManager;
 public class BoundedZoneRenderer extends ZoneRenderer {
 
 	private static final int MINI_MAP_SIZE = 100;
+	
+	private static final Map<String, Object> BG_IMG_HINTS = new HashMap<String, Object> () {
+		{
+			put(ImageUtil.HINT_TRANSPARENCY, Transparency.OPAQUE);
+		}
+	};
 	
     private BufferedImage backgroundImage;
     private BufferedImage miniBackgroundImage;
@@ -164,7 +173,7 @@ public class BoundedZoneRenderer extends ZoneRenderer {
             backgroundImage = ImageManager.UNKNOWN_IMAGE;
         } else {
 
-        	backgroundImage = ImageManager.getImage(asset, this);
+        	backgroundImage = ImageManager.getImage(asset, BG_IMG_HINTS, this);
         	if (bgImageSize == null && backgroundImage != ImageManager.UNKNOWN_IMAGE) {
         		bgImageSize = new Dimension(backgroundImage.getWidth(), backgroundImage.getHeight());
         		zone.setWidth(bgImageSize.width);
