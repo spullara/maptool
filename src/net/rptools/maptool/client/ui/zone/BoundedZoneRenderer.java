@@ -185,32 +185,6 @@ public class BoundedZoneRenderer extends ZoneRenderer {
     	super.flush();
     }
     
-    @Override
-    protected void renderBorder(Graphics2D g2d) {
-    	
-    	Dimension size = getSize();
-    	
-    	g2d.setColor(Color.black);
-
-    	// TODO: Optimize this
-    	if (boardBounds.x > 0) {
-    		// Left
-        	g2d.fillRect(0, 0, boardBounds.x, size.height);
-    	}
-    	if (boardBounds.x + boardBounds.width < size.width) {
-    		// Right
-    		g2d.fillRect(boardBounds.x + boardBounds.width, 0, size.width - (boardBounds.x + boardBounds.width), size.height);
-    	}
-    	if (boardBounds.y > 0) {
-    		// Top
-    		g2d.fillRect(0, 0, size.width, boardBounds.y);
-    	}
-    	if (boardBounds.y + boardBounds.height < size.height) {
-    		// Bottom
-    		g2d.fillRect(0, boardBounds.y + boardBounds.height, size.width, size.height - (boardBounds.y + boardBounds.height));
-    	}
-    }
-    
     protected void renderBoard(Graphics2D g) {
 
         BufferedImage mapImage = getBackgroundImage();
@@ -223,6 +197,11 @@ public class BoundedZoneRenderer extends ZoneRenderer {
         int h = (int)(mapImage.getHeight() * scale);
         int x = getViewOffsetX();
         int y = getViewOffsetY();
+        
+        if (x > 0 || y > 0 || x + w < size.width || y + h < size.height) {
+        	g.setColor(Color.black);
+        	g.fill(g.getClipBounds());
+        }
         
         if (x > size.width - EDGE_LIMIT) {
             x = size.width - EDGE_LIMIT;
