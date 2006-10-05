@@ -50,6 +50,12 @@ public class Toolbox {
 	
 	private ButtonGroup buttonGroup = new ButtonGroup();
 	
+	public void updateTools() {
+		for (Tool tool : toolMap.values()) {
+			tool.setEnabled(tool.isAvailable());
+		}
+	}
+	
 	public void setSelectedTool(Class toolClass) {
 		Tool tool = toolMap.get(toolClass);
 		if (tool != null) {

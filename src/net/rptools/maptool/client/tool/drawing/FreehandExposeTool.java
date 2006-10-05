@@ -61,6 +61,12 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
     	return "tool.freehandexpose.instructions";
     }
     
+	@Override
+	public boolean isAvailable() {
+		return MapTool.getPlayer().isGM();
+	}
+
+    
     @Override
     // Override abstracttool to prevent color palette from
     // showing up

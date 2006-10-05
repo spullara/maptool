@@ -147,6 +147,11 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
             ioe.printStackTrace();
         }
     }
+	
+	@Override
+	public boolean isAvailable() {
+		return MapTool.getPlayer().isGM();
+	}
 
 	@Override
 	protected void detachFrom(ZoneRenderer renderer) {

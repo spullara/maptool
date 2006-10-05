@@ -26,6 +26,11 @@ public class OvalExposeTool extends OvalTool {
         }
     }
 
+	@Override
+	public boolean isAvailable() {
+		return MapTool.getPlayer().isGM();
+	}
+
     @Override
     // Override abstracttool to prevent color palette from
     // showing up

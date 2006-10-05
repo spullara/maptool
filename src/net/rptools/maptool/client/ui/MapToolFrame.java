@@ -734,6 +734,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         constraints.weightx = 1;
         constraints.gridx = 1;
         panel.add(new JLabel(), constraints);
+        
         return panel;
 	}
 	

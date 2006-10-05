@@ -69,6 +69,10 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
         setFocusPainted(false);
     }
 
+    public boolean isAvailable() {
+    	return true;
+    }
+    
     void setToolbox(Toolbox toolbox) {
     	this.toolbox = toolbox;
     }

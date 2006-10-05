@@ -56,6 +56,11 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
         }
     }
 
+	@Override
+	public boolean isAvailable() {
+		return MapTool.getPlayer().isGM();
+	}
+
     @Override
     public String getInstructions() {
     	return "tool.polyexpose.instructions";

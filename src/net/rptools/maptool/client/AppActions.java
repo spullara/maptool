@@ -1387,6 +1387,8 @@ public class AppActions {
 		for (ClientAction action : actionList) {
 			action.setEnabled(action.isAvailable());
 		}
+		
+		MapTool.getFrame().getToolbox().updateTools();
 	}
 
 	public static abstract class ClientAction extends AbstractAction {
