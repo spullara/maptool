@@ -56,13 +56,13 @@ import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
-import net.rptools.maptool.client.ui.ConnectionProgressDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.ExportDialog;
 import net.rptools.maptool.client.ui.NewMapDialog;
 import net.rptools.maptool.client.ui.PreferencesDialog;
 import net.rptools.maptool.client.ui.ServerInfoDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
+import net.rptools.maptool.client.ui.StaticMessageDialog;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.assetpanel.Directory;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -81,7 +81,6 @@ import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
-import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.PersistenceUtil;
 
 /**
@@ -791,7 +790,9 @@ public class AppActions {
 				return;
 			}
 
-			MapTool.serverCommand().setCampaign(new Campaign());
+			Campaign campaign = new Campaign();
+			MapTool.setCampaign(campaign);
+			MapTool.serverCommand().setCampaign(campaign);
 		}
 	};
 
@@ -986,7 +987,7 @@ public class AppActions {
 				public void run() {
 					boolean failed = false;
 					Campaign campaign = MapTool.getCampaign();
-					ConnectionProgressDialog progressDialog = new ConnectionProgressDialog();
+					StaticMessageDialog progressDialog = new StaticMessageDialog("Connecting");
 					try {
 						// I'm going to get struck by lighting for writing code like this.
 						// CLEAN ME CLEAN ME CLEAN ME !  I NEED A SWINGWORKER !
@@ -1066,30 +1067,45 @@ public class AppActions {
 
 		public void execute(ActionEvent ae) {
 
-			JFileChooser chooser = MapTool.getFrame().getLoadFileChooser();
+			final JFileChooser chooser = MapTool.getFrame().getLoadFileChooser();
 			chooser.setDialogTitle("Load Campaign");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
 			if (chooser.showOpenDialog(MapTool.getFrame()) == JFileChooser.APPROVE_OPTION) {
 
-				try {
-					File campaignFile = chooser.getSelectedFile();
-					Campaign campaign = PersistenceUtil.loadCampaign(campaignFile);
-
-					if (campaign != null) {
-
-						AppState.setCampaignFile(campaignFile);
-						AppPreferences.setLoadDir(campaignFile.getParentFile());
+				new Thread() {
+					public void run() {
 						
-						MapTool.setCampaign(campaign);
+						try {
+							File campaignFile = chooser.getSelectedFile();
+							StaticMessageDialog progressDialog = new StaticMessageDialog("Loading Campaign");
+							try {
+								// I'm going to get struck by lighting for writing code like this.
+								// CLEAN ME CLEAN ME CLEAN ME !  I NEED A SWINGWORKER !
+								MapTool.getFrame().showFilledGlassPane(progressDialog);
 
-						MapTool.serverCommand().setCampaign(campaign);
-						
+								Campaign campaign = PersistenceUtil.loadCampaign(campaignFile);
+
+								if (campaign != null) {
+
+									AppState.setCampaignFile(campaignFile);
+									AppPreferences.setLoadDir(campaignFile.getParentFile());
+									
+									MapTool.setCampaign(campaign);
+
+									MapTool.serverCommand().setCampaign(campaign);
+									
+								}
+
+							} finally {
+								MapTool.getFrame().hideGlassPane();
+							}
+
+						} catch (IOException ioe) {
+							MapTool.showError("Could not load campaign: " + ioe);
+						}
 					}
-
-				} catch (IOException ioe) {
-					MapTool.showError("Could not load campaign: " + ioe);
-				}
+				}.start();
 			}
 		}
 	};

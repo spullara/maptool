@@ -24,21 +24,23 @@ import net.rptools.maptool.model.Zone;
 public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 
     public enum View {
-		VISIBLE("Visible", Zone.Layer.TOKEN, true),
-    	PLAYERS("Players", Zone.Layer.TOKEN, false),
-		GROUPS("Groups", Zone.Layer.TOKEN, false),
-		STAMPS("Stamps", Zone.Layer.STAMP, true),
-		BACKGROUND("Background", Zone.Layer.BACKGROUND, true),
-		CLIPBOARD("Clipboard", Zone.Layer.TOKEN, false);
+		VISIBLE("Visible", Zone.Layer.TOKEN, true, false),
+    	PLAYERS("Players", Zone.Layer.TOKEN, false, false),
+		GROUPS("Groups", Zone.Layer.TOKEN, false, false),
+		STAMPS("Stamps", Zone.Layer.STAMP, true, true),
+		BACKGROUND("Background", Zone.Layer.BACKGROUND, true, true),
+		CLIPBOARD("Clipboard", Zone.Layer.TOKEN, false, true);
 
 		String displayName;
 		boolean required;
 		Zone.Layer layer;
+		boolean isAdmin;
 
-		private View(String displayName, Zone.Layer layer, boolean required) {
+		private View(String displayName, Zone.Layer layer, boolean required, boolean isAdmin) {
 			this.displayName = displayName;
 			this.required = required;
 			this.layer = layer;
+			this.isAdmin = isAdmin;
 		}
 		public String getDisplayName() {
 			return displayName;
@@ -167,6 +169,10 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
         // Plan to show all of the views in order to keep the 
         // order
         for (TokenFilter filter : filterList) {
+    		if (filter.view.isAdmin && !MapTool.getPlayer().isGM()) {
+    			continue;
+    		}
+    		
         	currentViewList.add(filter.view);
         }
         
