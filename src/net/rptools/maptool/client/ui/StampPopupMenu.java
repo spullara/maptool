@@ -24,6 +24,7 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
+import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.TokenUtil;
 
@@ -108,9 +109,9 @@ public class StampPopupMenu extends JPopupMenu {
 
 		JMenu changeTypeMenu = new JMenu("Change to");
 		
-		changeTypeMenu.add(new JMenuItem(new ChangeTypeAction(TokenUtil.guessTokenType(ImageManager.getImage(AssetManager.getAsset(tokenUnderMouse.getAssetID()))))));
-		changeTypeMenu.add(new JMenuItem(new ChangeTypeAction(Token.Type.STAMP)));
-		changeTypeMenu.add(new JMenuItem(new ChangeTypeAction(Token.Type.BACKGROUND)));
+		changeTypeMenu.add(new JMenuItem(new ChangeTypeAction(Zone.Layer.TOKEN)));
+		changeTypeMenu.add(new JMenuItem(new ChangeTypeAction(Zone.Layer.STAMP)));
+		changeTypeMenu.add(new JMenuItem(new ChangeTypeAction(Zone.Layer.BACKGROUND)));
 		
 		add(changeTypeMenu);
 	}
@@ -121,11 +122,11 @@ public class StampPopupMenu extends JPopupMenu {
 	
 	public class ChangeTypeAction extends AbstractAction{
 		
-		private Token.Type type;
+		private Zone.Layer layer;
 		
-		public ChangeTypeAction(Token.Type type) {
-			putValue(Action.NAME, type.toString());
-			this.type = type;
+		public ChangeTypeAction(Zone.Layer layer) {
+			putValue(Action.NAME, layer.toString());
+			this.layer = layer;
 		}
 		
 		public void actionPerformed(ActionEvent e) {
@@ -136,7 +137,7 @@ public class StampPopupMenu extends JPopupMenu {
 					continue;
 				}
 
-				token.setTokenType(type);
+				token.setLayer(layer);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
 			

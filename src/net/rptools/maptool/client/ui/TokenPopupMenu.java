@@ -204,8 +204,8 @@ public class TokenPopupMenu extends JPopupMenu {
 
 			JMenu changeTypeMenu = new JMenu("Change to");
 			
-			changeTypeMenu.add(new JMenuItem(new ChangeTypeAction(Token.Type.STAMP)));
-			changeTypeMenu.add(new JMenuItem(new ChangeTypeAction(Token.Type.BACKGROUND)));
+			changeTypeMenu.add(new JMenuItem(new ChangeTypeAction(Zone.Layer.STAMP)));
+			changeTypeMenu.add(new JMenuItem(new ChangeTypeAction(Zone.Layer.BACKGROUND)));
 			
 			add(changeTypeMenu);
 		}
@@ -219,11 +219,11 @@ public class TokenPopupMenu extends JPopupMenu {
 	
 	public class ChangeTypeAction extends AbstractAction{
 		
-		private Token.Type type;
+		private Zone.Layer layer;
 		
-		public ChangeTypeAction(Token.Type type) {
-			putValue(Action.NAME, type.toString());
-			this.type = type;
+		public ChangeTypeAction(Zone.Layer layer) {
+			putValue(Action.NAME, layer.toString());
+			this.layer = layer;
 		}
 		
 		public void actionPerformed(ActionEvent e) {
@@ -234,7 +234,7 @@ public class TokenPopupMenu extends JPopupMenu {
 					continue;
 				}
 
-				token.setTokenType(type);
+				token.setLayer(layer);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
 			

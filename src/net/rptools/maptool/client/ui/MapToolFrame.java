@@ -66,6 +66,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.image.ImageUtil;
@@ -457,54 +458,50 @@ public class MapToolFrame extends JFrame implements WindowListener {
     	tokenPanelTreeModel = new TokenPanelTreeModel(tree);
     	tree.setModel(tokenPanelTreeModel);
 		tree.setCellRenderer(new TokenPanelTreeCellRenderer());
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		tree.addMouseListener(new MouseAdapter() {
 			// TODO: Make this a handler class, not an aic
 			@Override
 			public void mousePressed(MouseEvent e) {
-				tree.setSelectionPath(tree.getPathForLocation(e.getX(), e.getY()));
+//				tree.setSelectionPath(tree.getPathForLocation(e.getX(), e.getY()));
 				TreePath path = tree.getPathForLocation(e.getX(), e.getY());
 				if (path == null) {
 					return;
 				}
 
-				TokenPanelTreeModel model = (TokenPanelTreeModel) tree.getModel();
 				Object row = path.getLastPathComponent(); 
 				int rowIndex = tree.getRowForLocation(e.getX(), e.getY());
                 if (SwingUtilities.isLeftMouseButton(e)) {
 
-//                	if (row instanceof TokenPanelTreeModel.View) {
-//                		TokenPanelTreeModel.View view = (TokenPanelTreeModel.View)row; 
-//                		getCurrentZoneRenderer().setActiveLayer(view.getLayer());
-//                		tree.repaint();
-//                	}
-//                	
-                	if (row instanceof Token) {
+            		if (!SwingUtil.isShiftDown(e)) {
+            			tree.clearSelection();
+            		}
+        			tree.addSelectionInterval(rowIndex, rowIndex);
+
+        			if (row instanceof Token) {
                 		if (e.getClickCount() == 2) {
 	                        Token token = (Token) row;
 	                        getCurrentZoneRenderer().clearSelectedTokens();
 	                        getCurrentZoneRenderer().centerOn(new ZonePoint(token.getX(), token.getY()));
+	                        
+	                        // Pick an appropriate tool
+	                        if (token.isToken()) {
+	                        	getToolbox().setSelectedTool(PointerTool.class);
+	                        } else {
+	                        	getCurrentZoneRenderer().setActiveLayer(token.isStamp() ? Zone.Layer.STAMP : Zone.Layer.BACKGROUND);
+	                        	getToolbox().setSelectedTool(StampTool.class);
+	                        }
+	                        
 	                        getCurrentZoneRenderer().selectToken(token.getId());
-                		} else {
-            				path = path.getParentPath();
-                			while (path != null) {
-                				row = path.getLastPathComponent();
-                				// TODO: Combine this code with the code above
-                				if (row instanceof TokenPanelTreeModel.View) {
-	                        		TokenPanelTreeModel.View view = (TokenPanelTreeModel.View)row; 
-	                        		getCurrentZoneRenderer().setActiveLayer(view.getLayer());
-	                        		tree.repaint();
-                				}
-                				path = path.getParentPath();
-                			}
                 		}
                 	}
                 }
                 if (SwingUtilities.isRightMouseButton(e)) {
                 	
-            		if (!SwingUtil.isShiftDown(e)) {
+                	if (!isRowSelected(tree.getSelectionRows(), rowIndex) && !SwingUtil.isShiftDown(e)) {
             			tree.clearSelection();
-            		}
-        			tree.addSelectionInterval(rowIndex, rowIndex);
+            			tree.addSelectionInterval(rowIndex, rowIndex);
+                	}
 
                 	final int x = e.getX();
                 	final int y = e.getY();
@@ -547,8 +544,19 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		
     	return tree;
     }
+
+    
     public void updateTokenTree() {
     	tokenPanelTreeModel.update();
+    }
+    
+    private boolean isRowSelected(int[] selectedRows, int row) {
+    	for (int selectedRow : selectedRows) {
+    		if (row == selectedRow) {
+    			return true;
+    		}
+    	}
+    	return false;
     }
     
     private AssetPanel createAssetPanel() {

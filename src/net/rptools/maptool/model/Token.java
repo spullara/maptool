@@ -57,9 +57,9 @@ public class Token {
 	public enum Type {
 		TOP_DOWN("Top down"),
 		CIRCLE("Circle"),
-		SQUARE("Square"),
-		STAMP("Stamp"),
-		BACKGROUND("Background");
+		SQUARE("Square");
+//		STAMP("Stamp"),
+//		BACKGROUND("Background");
 		
 		private String displayName;
 		
@@ -71,7 +71,7 @@ public class Token {
 			return displayName;
 		}
 	}
-	
+
 	public static final Comparator<Token> NAME_COMPARATOR = new Comparator<Token>() {
 		public int compare(Token o1, Token o2) {
 			return o1.getName().compareToIgnoreCase(o2.getName());
@@ -109,6 +109,7 @@ public class Token {
 	private static final int OWNER_TYPE_LIST = 0;
 	
 	private String tokenType; // TODO: Make tokens understand enums for hessian
+	private String layer;
 
 	private Integer facing = null;
 	
@@ -154,6 +155,8 @@ public class Token {
 	    gmName = token.gmName;
 	    gmNotes = token.gmNotes;
 
+	    layer = token.layer;
+	    
 		if (token.ownerList != null) {
 			ownerList = new HashSet<String>();
 			ownerList.addAll(token.ownerList);
@@ -196,19 +199,39 @@ public class Token {
 	}
 	
 	public boolean isStamp() {
-		return getTokenType() == Type.STAMP;
+		return getLayer() == Zone.Layer.STAMP;
 	}
 	
 	public boolean isBackground() {
-		return getTokenType() == Type.BACKGROUND;
+		return getLayer() == Zone.Layer.BACKGROUND;
+	}
+	
+	public boolean isToken() {
+		return getLayer() == Zone.Layer.TOKEN;
 	}
 	
 	public Type getTokenType() {
-		return tokenType != null ? Type.valueOf(tokenType) : Token.Type.SQUARE;  // TODO: make this a psf
+		try {
+			return tokenType != null ? Type.valueOf(tokenType) : Type.SQUARE;  // TODO: make this a psf
+		} catch (IllegalArgumentException iae) {
+			return Type.SQUARE;
+		}
 	}
 	
 	public void setTokenType(Type type) {
 		this.tokenType = type.name();
+	}
+	
+	public Zone.Layer getLayer() {
+		try {
+			return layer != null ? Zone.Layer.valueOf(layer) : Zone.Layer.TOKEN;
+		} catch (IllegalArgumentException iae) {
+			return Zone.Layer.TOKEN;
+		}
+	}
+	
+	public void setLayer(Zone.Layer layer) {
+		this.layer = layer.name();
 	}
 	
 	public boolean hasFacing() {

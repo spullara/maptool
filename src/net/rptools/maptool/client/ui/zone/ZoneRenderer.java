@@ -1619,12 +1619,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
             // Token type
             if (getActiveLayer() == Zone.Layer.BACKGROUND) {
-            	token.setTokenType(Token.Type.BACKGROUND);
+            	token.setLayer(Zone.Layer.BACKGROUND);
             	token.setSnapToScale(AppPreferences.getBackgroundsStartFreesize());
             	token.setSnapToGrid(AppPreferences.getBackgroundsStartSnapToGrid());
             }
             if (getActiveLayer() == Zone.Layer.STAMP) {
-            	token.setTokenType(Token.Type.STAMP);
+            	token.setLayer(Zone.Layer.STAMP);
             	token.setSnapToScale(AppPreferences.getStampsStartFreesize());
             	token.setSnapToGrid(AppPreferences.getStampsStartSnapToGrid());
             }

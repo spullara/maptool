@@ -60,11 +60,21 @@ public class Zone extends Token {
         LABEL_CHANGED
     }
     
-    public enum Layer {
-    	TOKEN,
-    	STAMP,
-    	BACKGROUND
-    }
+	public enum Layer {
+		TOKEN("Token"),
+		STAMP("Stamp"),
+		BACKGROUND("Background");
+		
+		private String displayName;
+		
+		private Layer(String displayName) {
+			this.displayName = displayName;
+		}
+		
+		public String toString() {
+			return displayName;
+		}
+	}
     
     public static final int DEFAULT_FEET_PER_CELL = 5;
     

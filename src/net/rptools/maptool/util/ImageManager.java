@@ -107,7 +107,7 @@ public class ImageManager {
     	return getImage(asset, null, observers);
     }
     public static BufferedImage getImage(Asset asset, Map<String, Object> hints, ImageObserver... observers) {
-
+    	
     	if (asset == null) {
     		return UNKNOWN_IMAGE;
     	}

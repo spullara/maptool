@@ -134,11 +134,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 
 		// Set up the shape combo box
 		shape = panel.getComboBox("shape");
-		shape.setModel(new DefaultComboBoxModel(new Object[] {
-			Token.Type.SQUARE,
-			Token.Type.CIRCLE,
-			Token.Type.TOP_DOWN
-		}));
+		shape.setModel(new DefaultComboBoxModel(Token.Type.values()));
 
 		// Set up the size combo box
 		DefaultComboBoxModel model = new DefaultComboBoxModel(TokenSize.Size
