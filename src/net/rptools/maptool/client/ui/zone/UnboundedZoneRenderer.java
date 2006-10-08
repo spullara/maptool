@@ -36,6 +36,7 @@ import java.io.IOException;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppState;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -122,7 +123,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 	
 	private BufferedImage getTileImage() {
 
-		if (tileImage != null) {
+		if (tileImage != null && tileImage != ImageManager.UNKNOWN_IMAGE) {
 			return tileImage;
 		}
 
@@ -144,6 +145,15 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 					drawBackground = true;
 				}
 				return image;
+			} else {
+
+	        	// Only request the asset once
+	        	if (tileImage == null) {
+	        		MapTool.serverCommand().getAsset(zone.getAssetID()); 
+	        	}
+	        	
+	            tileImage = ImageManager.UNKNOWN_IMAGE;
+				
 			}
 			
 			return ImageManager.UNKNOWN_IMAGE;
