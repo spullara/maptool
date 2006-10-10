@@ -57,14 +57,14 @@ public class ImageManager {
     static {
         
         try {
-            UNKNOWN_IMAGE = ImageUtil.getImage("net/rptools/maptool/client/image/unknown.png");
+            UNKNOWN_IMAGE = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/unknown.png");
         } catch (IOException ioe) {
             ioe.printStackTrace();
             UNKNOWN_IMAGE = ImageUtil.createCompatibleImage(10, 10, 0);
         }
         
         try {
-            BROKEN_IMAGE = ImageUtil.getImage("net/rptools/maptool/client/image/broken.png");
+            BROKEN_IMAGE = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/broken.png");
         } catch (IOException ioe) {
             ioe.printStackTrace();
             BROKEN_IMAGE = ImageUtil.createCompatibleImage(10, 10, 0);

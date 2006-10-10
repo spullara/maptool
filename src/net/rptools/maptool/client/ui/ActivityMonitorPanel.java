@@ -26,6 +26,7 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -50,11 +51,11 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 	private boolean receiveComplete;
 	private boolean transmitComplete;
 	
-	private static BufferedImage transmitOn;
-	private static BufferedImage transmitOff;
+	private static Image transmitOn;
+	private static Image transmitOff;
 	
-	private static BufferedImage receiveOn;
-	private static BufferedImage receiveOff;
+	private static Image receiveOn;
+	private static Image receiveOff;
 
 	private static long receiveStart;
 	private static long transmitStart;
@@ -70,8 +71,8 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 			receiveOn  = ImageUtil.getImage("net/rptools/maptool/client/image/receiveOn.png");
 			receiveOff = ImageUtil.getImage("net/rptools/maptool/client/image/activityOff.png");
 			
-			int width = Math.max(transmitOn.getWidth(), transmitOff.getWidth()) + Math.max(receiveOn.getWidth(), receiveOff.getWidth());
-			int height = Math.max(transmitOn.getHeight(), transmitOff.getHeight()) + Math.max(receiveOn.getHeight(), receiveOff.getHeight());
+			int width = Math.max(transmitOn.getWidth(null), transmitOff.getWidth(null)) + Math.max(receiveOn.getWidth(null), receiveOff.getWidth(null));
+			int height = Math.max(transmitOn.getHeight(null), transmitOff.getHeight(null)) + Math.max(receiveOn.getHeight(null), receiveOff.getHeight(null));
 			
 			prefSize = new Dimension(width + (PADDING * 2) + 2, height);
 		} catch (IOException ioe) {
@@ -90,11 +91,11 @@ public class ActivityMonitorPanel extends JComponent implements ActivityListener
 	 */
 	protected void paintComponent(Graphics g) {
 		
-		BufferedImage receiveImg = receiving ? receiveOn : receiveOff;
-		BufferedImage transmitImg = transmitting ? transmitOn : transmitOff;
+		Image receiveImg = receiving ? receiveOn : receiveOff;
+		Image transmitImg = transmitting ? transmitOn : transmitOff;
 		
-		g.drawImage(receiveImg, PADDING, (getSize().height - receiveImg.getHeight())/2, this);
-		g.drawImage(transmitImg, getSize().width - transmitImg.getWidth() - PADDING, (getSize().height - transmitImg.getHeight())/2, this);
+		g.drawImage(receiveImg, PADDING, (getSize().height - receiveImg.getHeight(null))/2, this);
+		g.drawImage(transmitImg, getSize().width - transmitImg.getWidth(null) - PADDING, (getSize().height - transmitImg.getHeight(null))/2, this);
 	}
 	
 	/* (non-Javadoc)

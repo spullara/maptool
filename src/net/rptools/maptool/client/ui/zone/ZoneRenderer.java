@@ -152,7 +152,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 	static {
 		try {
-			GRID_IMAGE = ImageUtil.getImage("net/rptools/maptool/client/image/grid.png");
+			GRID_IMAGE = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/grid.png");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

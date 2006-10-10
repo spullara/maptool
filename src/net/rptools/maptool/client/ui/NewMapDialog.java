@@ -8,6 +8,7 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -522,7 +523,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 
 	private class ImagePreviewWindow extends JComponent {
 		
-		private BufferedImage img;
+		private Image img;
 		
 		public ImagePreviewWindow() {
 			setPreferredSize(new Dimension(150, 100));
@@ -550,7 +551,7 @@ public class NewMapDialog extends JDialog implements WindowListener {
 			// Image
 			Dimension size = getSize();
 			if (img != null) {
-				Dimension imgSize = new Dimension(img.getWidth(), img.getHeight());
+				Dimension imgSize = new Dimension(img.getWidth(null), img.getHeight(null));
 				SwingUtil.constrainTo(imgSize, size.width, size.height);
 
 				// Border

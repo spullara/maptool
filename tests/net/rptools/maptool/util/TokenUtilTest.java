@@ -22,7 +22,7 @@ public class TokenUtilTest extends TestCase {
 		
 		assertEquals(Token.Type.SQUARE, TokenUtil.guessTokenType(img));
 
-		img = ImageUtil.getImage("net/rptools/maptool/client/image/squareToken.gif");
+		img = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/squareToken.gif");
 		
 		assertEquals(Token.Type.SQUARE, TokenUtil.guessTokenType(img));
 		
@@ -35,7 +35,7 @@ public class TokenUtilTest extends TestCase {
 		
 		assertEquals(Token.Type.CIRCLE, TokenUtil.guessTokenType(img));
 
-		img = ImageUtil.getImage("net/rptools/maptool/client/image/circleToken.png");
+		img = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/circleToken.png");
 		
 		assertEquals(Token.Type.CIRCLE, TokenUtil.guessTokenType(img));
 

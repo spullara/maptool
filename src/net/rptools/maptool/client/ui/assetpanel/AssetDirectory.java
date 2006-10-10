@@ -1,6 +1,7 @@
 package net.rptools.maptool.client.ui.assetpanel;
 
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
@@ -15,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.image.ThumbnailManager;
 import net.rptools.maptool.client.AppUtil;
 
@@ -27,9 +29,9 @@ public class AssetDirectory extends Directory {
 
     private static ThumbnailManager thumbnailManager = new ThumbnailManager(AppUtil.getAppHome("imageThumbs"), THUMBNAIL_SIZE); 
     
-	private Map<File, FutureTask<BufferedImage>> imageMap = new HashMap<File, FutureTask<BufferedImage>>();
+	private Map<File, FutureTask<Image>> imageMap = new HashMap<File, FutureTask<Image>>();
 
-	private static final BufferedImage INVALID_IMAGE = new BufferedImage(1, 1, Transparency.OPAQUE);
+	private static final Image INVALID_IMAGE = new BufferedImage(1, 1, Transparency.OPAQUE);
 	
 	private static ExecutorService largeImageLoaderService = Executors.newFixedThreadPool(1);
 	private static ExecutorService smallImageLoaderService = Executors.newFixedThreadPool(2);
@@ -58,9 +60,9 @@ public class AssetDirectory extends Directory {
 	 * @param imageFile
 	 * @return
 	 */
-	public BufferedImage getImageFor(File imageFile) {
+	public Image getImageFor(File imageFile) {
 
-		FutureTask<BufferedImage> future = imageMap.get(imageFile);
+		FutureTask<Image> future = imageMap.get(imageFile);
 		if (future != null) {
 			if (future.isDone()) {
 				try {
@@ -79,7 +81,7 @@ public class AssetDirectory extends Directory {
 		}
 		
 		// load the asset in the background
-		future = new FutureTask<BufferedImage>(new ImageLoader(imageFile)){
+		future = new FutureTask<Image>(new ImageLoader(imageFile)){
 			@Override
 			protected void done() {
 	            firePropertyChangeEvent(new PropertyChangeEvent(AssetDirectory.this, PROPERTY_IMAGE_LOADED, false, true));
@@ -100,7 +102,7 @@ public class AssetDirectory extends Directory {
 		return new AssetDirectory(directory, fileFilter);
 	}
 	
-	private class ImageLoader implements Callable<BufferedImage> {
+	private class ImageLoader implements Callable<Image> {
 		
 		private File imageFile;
 		
@@ -108,7 +110,7 @@ public class AssetDirectory extends Directory {
 			this.imageFile = imageFile;
 		}
 		
-		public BufferedImage call() throws Exception {
+		public Image call() throws Exception {
 
             // Have we been orphaned ?
             if (!continueProcessing.get()) {
@@ -116,7 +118,7 @@ public class AssetDirectory extends Directory {
             }
             
             // Load it up
-			BufferedImage thumbnail = null;
+			Image thumbnail = null;
 			try {
 				thumbnail = thumbnailManager.getThumbnail(imageFile);
 			} catch (Throwable t) {

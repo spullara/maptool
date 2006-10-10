@@ -1210,7 +1210,7 @@ public class AppActions {
 				BufferedImage iconImage = new BufferedImage(
 						QUICK_MAP_ICON_SIZE, QUICK_MAP_ICON_SIZE,
 						Transparency.OPAQUE);
-				BufferedImage image = ImageUtil.getImage(imagePath);
+				BufferedImage image = ImageUtil.getCompatibleImage(imagePath);
 
 				Graphics2D g = iconImage.createGraphics();
 				g.drawImage(image, 0, 0, QUICK_MAP_ICON_SIZE,

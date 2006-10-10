@@ -46,7 +46,7 @@ public class PointerOverlay implements ZoneOverlay {
 	
 	static {
 		try {
-		 POINTER_IMAGE = ImageUtil.getImage("net/rptools/maptool/client/image/pointer.png");
+		 POINTER_IMAGE = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/pointer.png");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

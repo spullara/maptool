@@ -56,7 +56,7 @@ public class AppStyle {
 		
 		try {
 			// Set defaults
-			tokenInvisible = ImageUtil.getImage("net/rptools/maptool/client/image/icon_invisible.png");
+			tokenInvisible = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/icon_invisible.png");
             cellPathImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/whiteBorder.png");
             cellWaypointImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/redDot.png");
             stackImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/stack.png");

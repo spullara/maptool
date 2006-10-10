@@ -64,7 +64,7 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 
 	public Image getImage(int index) {
 
-        BufferedImage image = null;
+        Image image = null;
 		if (dir instanceof AssetDirectory) {
 			
 			image = ((AssetDirectory) dir).getImageFor(fileList.get(index));

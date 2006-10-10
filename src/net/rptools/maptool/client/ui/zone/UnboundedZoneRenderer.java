@@ -23,7 +23,6 @@
  * SOFTWARE.
  */
 package net.rptools.maptool.client.ui.zone;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Paint;
@@ -35,7 +34,6 @@ import java.io.IOException;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.model.Asset;
@@ -131,7 +129,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 			MD5Key assetId = zone.getAssetID();
 			if (assetId == null) {
 				// TODO: make this static
-				tileImage = ImageUtil.getImage("net/rptools/lib/resource/image/texture/grass.png");
+				tileImage = ImageUtil.getCompatibleImage("net/rptools/lib/resource/image/texture/grass.png");
 				return tileImage;
 			}
 	
