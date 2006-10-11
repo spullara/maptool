@@ -47,6 +47,11 @@ public class DrawableRenderer {
 	
 	private boolean repaint = true;
 
+	public void flush() {
+		drawableEntries.clear();
+		drawableCount = -1;
+	}
+	
 	public void renderDrawables(Graphics g, List<DrawnElement> drawableList, int offsetX, int offsetY, double scale) {
 
 		if (drawableCount != drawableList.size()) {

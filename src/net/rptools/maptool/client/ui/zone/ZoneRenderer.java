@@ -388,6 +388,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      * Clear internal caches and backbuffers
      */
     public void flush() {
+    	ImageManager.flushImage(zone.getAssetID());
+    	drawableRenderer.flush();
+    	
         replacementImageMap.clear();
     }
     

@@ -97,7 +97,11 @@ public class BoundedZoneRenderer extends ZoneRenderer {
         	Graphics2D g2d = miniBackgroundImage.createGraphics();
         	g2d.drawImage(bgImage, 0, 0, dim.width, dim.height, null);
         	g2d.dispose();
-        	
+
+        	// Don't keep the image around if we don't need it
+        	if (MapTool.getFrame().getCurrentZoneRenderer() != this) {
+        		flush();
+        	}
         }
         
         Dimension imgSize = new Dimension(miniBackgroundImage.getWidth(), miniBackgroundImage.getHeight());
@@ -187,7 +191,6 @@ public class BoundedZoneRenderer extends ZoneRenderer {
     @Override
     public void flush() {
 
-    	ImageManager.flushImage(zone.getAssetID());
     	backgroundImage = null;
     	loaded = false;
     	

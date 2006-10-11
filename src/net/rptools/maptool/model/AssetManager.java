@@ -32,9 +32,11 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
@@ -51,6 +53,8 @@ public class AssetManager {
 	
     private static Asset lastRetrievedAsset;
 
+    private static Map<MD5Key, List<AssetAvailableListener>> assetListenerListMap  = new ConcurrentHashMap<MD5Key, List<AssetAvailableListener>>();
+    
     private static String NAME = "name";
     
 	static {
@@ -61,6 +65,17 @@ public class AssetManager {
 		}
 	}
 
+	public static void addAssetListener(MD5Key key, AssetAvailableListener listener) {
+
+		List<AssetAvailableListener> listenerList = assetListenerListMap.get(key);
+		if (listenerList == null) {
+			listenerList = new LinkedList<AssetAvailableListener>();
+			assetListenerListMap.put(key, listenerList);
+		}
+		
+		listenerList.add(listener);
+	}
+	
     public static Asset getLastRetrievedAsset() {
         return lastRetrievedAsset;
     }
@@ -85,6 +100,16 @@ public class AssetManager {
 		assetMap.put(asset.getId(), asset);
 		
 		putInPersistentCache(asset);
+		
+		// Listeners
+		List<AssetAvailableListener> listenerList = assetListenerListMap.get(asset.getId());
+		if (listenerList != null) {
+			for (AssetAvailableListener listener : listenerList) {
+				listener.assetAvailable(asset.getId());
+			}
+			
+			assetListenerListMap.remove(asset.getId());
+		}
 	}
 	
 	public static Asset getAsset(MD5Key id) {
