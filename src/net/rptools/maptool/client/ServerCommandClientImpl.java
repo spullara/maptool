@@ -25,10 +25,15 @@
 package net.rptools.maptool.client;
 
 import java.awt.geom.Area;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetAvailableListener;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
@@ -45,9 +50,11 @@ import net.rptools.maptool.server.ServerPolicy;
 public class ServerCommandClientImpl implements ServerCommand {
 
     private TimedEventQueue movementUpdateQueue = new TimedEventQueue(100);
+    private LinkedBlockingQueue<MD5Key> assetRetrieveQueue = new LinkedBlockingQueue<MD5Key>();
 	
 	public ServerCommandClientImpl() {
 		movementUpdateQueue.start();
+		new AssetRetrievalThread().start();
 	}
     
     public void setCampaign(Campaign campaign) {
@@ -71,7 +78,7 @@ public class ServerCommandClientImpl implements ServerCommand {
     }
 
     public void getAsset(MD5Key assetID) {
-        makeServerCall(COMMAND.getAsset, assetID);
+    	assetRetrieveQueue.add(assetID);
     }
 
     public void removeAsset(MD5Key assetID) {
@@ -181,6 +188,39 @@ public class ServerCommandClientImpl implements ServerCommand {
         MapTool.getConnection().callMethod(command.name(), params);
     }
     
+	private class AssetRetrievalThread extends Thread implements AssetAvailableListener {
+		@Override
+		public void run() {
+			
+			while (true) {
+				
+				try {
+					
+					// Request the asset
+					MD5Key key = assetRetrieveQueue.take();
+					AssetManager.addAssetListener(key, this);
+					
+					// Now wait until it arrives
+					synchronized(assetRetrieveQueue) {
+						makeServerCall(COMMAND.getAsset, key);
+
+						assetRetrieveQueue.wait();
+					}
+					
+				} catch (InterruptedException ie) {
+					// Keep going
+					ie.printStackTrace();
+				}
+			}
+		}
+		
+		public void assetAvailable(MD5Key key) {
+			synchronized(assetRetrieveQueue) {
+				assetRetrieveQueue.notify();
+			}
+		}
+	}
+	
     /**
      * Some events become obsolete very quickly, such as dragging a token
      * around.  This queue always has exactly one element, the more current
