@@ -51,7 +51,8 @@ public class ImageManager {
     public static BufferedImage UNKNOWN_IMAGE; 
     public static BufferedImage BROKEN_IMAGE;
 
-    private static ExecutorService imageLoader = Executors.newFixedThreadPool(3);
+    private static ExecutorService smallImageLoader = Executors.newFixedThreadPool(3);
+    private static ExecutorService largeImageLoader = Executors.newFixedThreadPool(1);
     private static Map<MD5Key, Set<ImageObserver>> imageObserverMap = new ConcurrentHashMap<MD5Key, Set<ImageObserver>>();
     
     static {
@@ -128,7 +129,13 @@ public class ImageManager {
         imageMap.put(asset.getId(), UNKNOWN_IMAGE);
         
         addObservers(asset.getId(), observers);
-        imageLoader.execute(new BackgroundImageLoader(asset, hints));
+        
+        if (asset.getImage().length > 128 * 1024) {  // 128k is a good "small" size image
+            largeImageLoader.execute(new BackgroundImageLoader(asset, hints));
+        } else {
+            smallImageLoader.execute(new BackgroundImageLoader(asset, hints));
+        	
+        }
         
         return UNKNOWN_IMAGE;
     }
