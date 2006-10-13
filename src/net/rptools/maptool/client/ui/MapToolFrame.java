@@ -940,9 +940,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 			  public void assetAvailable(net.rptools.lib.MD5Key key) {
 				  ZoneRenderer renderer = getCurrentZoneRenderer();
 				  if (renderer.getZone() == zone) {
-					  System.out.println("Getting image");
 					  ImageManager.getImage(AssetManager.getAsset(key), renderer);
-					  System.out.println("Done getting image");
 				  }
 			  }
 		  };
