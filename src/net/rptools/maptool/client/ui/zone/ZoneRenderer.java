@@ -1053,7 +1053,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			BufferedImage image = null;
             Asset asset = AssetManager.getAsset(token.getAssetID());
             if (asset == null) {
-                MapTool.serverCommand().getAsset(token.getAssetID());
 
                 // In the mean time, show a placeholder
                 image = ImageManager.UNKNOWN_IMAGE;

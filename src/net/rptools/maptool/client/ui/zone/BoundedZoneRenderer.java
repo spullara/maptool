@@ -169,11 +169,6 @@ public class BoundedZoneRenderer extends ZoneRenderer {
         Asset asset = AssetManager.getAsset(zone.getAssetID());
         if (asset == null) {
 
-        	// Only request the asset once
-        	if (backgroundImage == null) {
-        		MapTool.serverCommand().getAsset(zone.getAssetID()); 
-        	}
-        	
             backgroundImage = ImageManager.UNKNOWN_IMAGE;
         } else {
 

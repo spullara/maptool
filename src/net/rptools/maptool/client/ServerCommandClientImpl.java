@@ -54,7 +54,7 @@ public class ServerCommandClientImpl implements ServerCommand {
 	
 	public ServerCommandClientImpl() {
 		movementUpdateQueue.start();
-		new AssetRetrievalThread().start();
+//		new AssetRetrievalThread().start();
 	}
     
     public void setCampaign(Campaign campaign) {
@@ -78,7 +78,8 @@ public class ServerCommandClientImpl implements ServerCommand {
     }
 
     public void getAsset(MD5Key assetID) {
-    	assetRetrieveQueue.add(assetID);
+		makeServerCall(COMMAND.getAsset, assetID);
+//    	assetRetrieveQueue.add(assetID);
     }
 
     public void removeAsset(MD5Key assetID) {

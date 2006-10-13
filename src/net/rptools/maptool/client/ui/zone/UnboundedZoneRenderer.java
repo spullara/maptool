@@ -145,11 +145,6 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 				return image;
 			} else {
 
-	        	// Only request the asset once
-	        	if (tileImage == null) {
-	        		MapTool.serverCommand().getAsset(zone.getAssetID()); 
-	        	}
-	        	
 	            tileImage = ImageManager.UNKNOWN_IMAGE;
 				
 			}

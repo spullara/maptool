@@ -331,12 +331,10 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		BufferedImage assetImage = null;
 		Asset asset = AssetManager.getAsset(token.getAssetID());
 		if (asset == null) {
-			MapTool.serverCommand().getAsset(token.getAssetID());
 			assetImage = ImageManager.UNKNOWN_IMAGE;
 		} else {
-			assetImage = ImageManager.getImage(AssetManager.getAsset(token
-					.getAssetID()), this);
-		} // endif
+			assetImage = ImageManager.getImage(asset, this);
+		}
 
 		// Need to resize?
 		if (assetImage.getWidth() > SIZE || assetImage.getHeight() > SIZE) {
@@ -348,13 +346,13 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			} else {
 				dim.width = (int) ((dim.width / (double) dim.height) * SIZE);
 				dim.height = SIZE;
-			} // endif
+			}
 			BufferedImage image = new BufferedImage(dim.width, dim.height,
 					Transparency.BITMASK);
 			Graphics2D g = image.createGraphics();
 			g.drawImage(assetImage, 0, 0, dim.width, dim.height, null);
 			assetImage = image;
-		} // endif
+		}
 		return new ImageIcon(assetImage);
 	}
 

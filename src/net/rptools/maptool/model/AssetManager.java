@@ -32,10 +32,12 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.rptools.lib.FileUtil;
@@ -54,6 +56,7 @@ public class AssetManager {
     private static Asset lastRetrievedAsset;
 
     private static Map<MD5Key, List<AssetAvailableListener>> assetListenerListMap  = new ConcurrentHashMap<MD5Key, List<AssetAvailableListener>>();
+    private static Set<MD5Key> requestedSet = new HashSet<MD5Key>();
     
     private static String NAME = "name";
     
@@ -64,7 +67,11 @@ public class AssetManager {
 			usePersistentCache = true;
 		}
 	}
-
+	
+	public static boolean isAssetRequested(MD5Key key) {
+		return requestedSet.contains(key);
+	}
+	
 	public static void addAssetListener(MD5Key key, AssetAvailableListener listener) {
 
 		List<AssetAvailableListener> listenerList = assetListenerListMap.get(key);
@@ -100,16 +107,19 @@ public class AssetManager {
 		assetMap.put(asset.getId(), asset);
 		
 		putInPersistentCache(asset);
+
+		// Clear the waiting status
+		requestedSet.remove(asset.getId());
 		
-		// Listeners
-		List<AssetAvailableListener> listenerList = assetListenerListMap.get(asset.getId());
-		if (listenerList != null) {
-			for (AssetAvailableListener listener : listenerList) {
-				listener.assetAvailable(asset.getId());
-			}
-			
-			assetListenerListMap.remove(asset.getId());
-		}
+//		// Listeners
+//		List<AssetAvailableListener> listenerList = assetListenerListMap.get(asset.getId());
+//		if (listenerList != null) {
+//			for (AssetAvailableListener listener : listenerList) {
+//				listener.assetAvailable(asset.getId());
+//			}
+//			
+//			assetListenerListMap.remove(asset.getId());
+//		}
 	}
 	
 	public static Asset getAsset(MD5Key id) {
@@ -145,6 +155,9 @@ public class AssetManager {
 				}
 			}
 		}
+		if (asset == null && !isAssetRequested(id )) {
+			requestAssetFromServer(id);
+		}
 		
         lastRetrievedAsset = asset;
 		return asset;
@@ -160,6 +173,12 @@ public class AssetManager {
 		}
 
 		usePersistentCache = enable;
+	}
+
+	private static void requestAssetFromServer(MD5Key id) {
+		
+		requestedSet.add(id);
+        MapTool.serverCommand().getAsset(id);
 	}
 	
 	private static Asset getFromPersistentCache(MD5Key id) {
@@ -204,7 +223,7 @@ public class AssetManager {
 		}
 	}
 	
-	private static void putInPersistentCache(Asset asset) {
+	private static void putInPersistentCache(final Asset asset) {
 		
 		if (!usePersistentCache) {
 			return;
@@ -212,18 +231,24 @@ public class AssetManager {
 		
 		if (!assetIsInPersistentCache(asset)) {
 			
-			File assetFile = getAssetCacheFile(asset);
+			final File assetFile = getAssetCacheFile(asset);
 			
-			try {
-				// Image
-				OutputStream out = new FileOutputStream(assetFile);
-				out.write(asset.getImage());
-				out.close();
+                        new Thread() {
+                            public void run() {
+                                
+                                try {
+                                        assetFile.getParentFile().mkdirs();
+                                        // Image
+                                        OutputStream out = new FileOutputStream(assetFile);
+                                        out.write(asset.getImage());
+                                        out.close();
 
-			} catch (IOException ioe) {
-				System.err.println("Could not persist asset: " + ioe);
-				return;
-			}
+                                } catch (IOException ioe) {
+                                        System.err.println("Could not persist asset: " + ioe);
+                                        return;
+                                }
+                            }
+                        }.start();
 			
 		}
 		if (!assetInfoIsInPersistentCache(asset)) {
