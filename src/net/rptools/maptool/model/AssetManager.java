@@ -111,15 +111,15 @@ public class AssetManager {
 		// Clear the waiting status
 		requestedSet.remove(asset.getId());
 		
-//		// Listeners
-//		List<AssetAvailableListener> listenerList = assetListenerListMap.get(asset.getId());
-//		if (listenerList != null) {
-//			for (AssetAvailableListener listener : listenerList) {
-//				listener.assetAvailable(asset.getId());
-//			}
-//			
-//			assetListenerListMap.remove(asset.getId());
-//		}
+		// Listeners
+		List<AssetAvailableListener> listenerList = assetListenerListMap.get(asset.getId());
+		if (listenerList != null) {
+			for (AssetAvailableListener listener : listenerList) {
+				listener.assetAvailable(asset.getId());
+			}
+			
+			assetListenerListMap.remove(asset.getId());
+		}
 	}
 	
 	public static Asset getAsset(MD5Key id) {

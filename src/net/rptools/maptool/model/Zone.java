@@ -377,6 +377,18 @@ public class Zone extends Token {
     	}
         return Collections.unmodifiableList(copy);
     }
+    
+    public List<Token> getStampTokens() {
+    	List<Token> copy = new ArrayList<Token>();
+    	copy.addAll(tokenOrderedList);
+    	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
+    		Token token = iter.next();
+    		if (!token.isStamp()) {
+    			iter.remove();
+    		}
+    	}
+        return Collections.unmodifiableList(copy);
+    }
     public List<Token> getBackgroundTokens() {
     	List<Token> copy = new ArrayList<Token>();
     	copy.addAll(tokenOrderedList);

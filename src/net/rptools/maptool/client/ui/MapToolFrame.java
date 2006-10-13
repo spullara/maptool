@@ -69,6 +69,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.rptools.lib.FileUtil;
+import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.AboutDialog;
 import net.rptools.lib.swing.ColorPicker;
@@ -93,6 +94,7 @@ import net.rptools.maptool.client.swing.GlassPane;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
+import net.rptools.maptool.client.swing.SpacerStatusBar;
 import net.rptools.maptool.client.swing.StatusPanel;
 import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.GridTool;
@@ -122,6 +124,7 @@ import net.rptools.maptool.client.ui.zone.PointerOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneSelectionPanel;
 import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetAvailableListener;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.ObservableList;
@@ -131,6 +134,7 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Pen;
+import net.rptools.maptool.util.ImageManager;
 
 /**
  */
@@ -236,6 +240,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         //statusPanel.addPanel(progressBar);
         statusPanel.addPanel(connectionStatusPanel);
         statusPanel.addPanel(activityMonitor);
+        statusPanel.addPanel(new SpacerStatusBar(25));
         
         zoneSelectionPanel = new ZoneSelectionPanel();
         zoneSelectionPanel.setSize(100, 100);
@@ -290,6 +295,10 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		
 		setGlassPane(glassPane);
         
+		// TODO: Put together a class that handles adding in the listeners, just so that this doesn't
+		// get all cluttered
+		AppListeners.addZoneListener(new RequestZoneAssetsListener());
+		
         new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
         
         restorePreferences();
@@ -924,6 +933,76 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	  }
   }
 	
+  private class RequestZoneAssetsListener implements ZoneActivityListener {
+	  public void zoneActivated(final Zone zone) {
+
+		  AssetAvailableListener listener = new AssetAvailableListener() {
+			  public void assetAvailable(net.rptools.lib.MD5Key key) {
+				  ZoneRenderer renderer = getCurrentZoneRenderer();
+				  if (renderer.getZone() == zone) {
+					  System.out.println("Getting image");
+					  ImageManager.getImage(AssetManager.getAsset(key), renderer);
+					  System.out.println("Done getting image");
+				  }
+			  }
+		  };
+		  
+		  // Let's add all the assets, starting with the backgrounds
+		  for (Token token : zone.getBackgroundTokens()) {
+			  
+			  MD5Key key = token.getAssetID();
+
+			  if (AssetManager.hasAsset(key)) {
+				  ImageManager.getImage(AssetManager.getAsset(key));
+			  } else {
+				  
+				  if (!AssetManager.isAssetRequested(key)) {
+					  AssetManager.addAssetListener(token.getAssetID(), listener);
+					  
+					  // This will force a server request if we don't already have it
+					  AssetManager.getAsset(token.getAssetID());
+				  }
+			  }
+		  }
+
+		  // Now the stamps
+		  for (Token token : zone.getStampTokens()) {
+			  MD5Key key = token.getAssetID();
+			  
+			  if (AssetManager.hasAsset(key)) {
+				  ImageManager.getImage(AssetManager.getAsset(key));
+			  } else {
+				  
+				  if (!AssetManager.isAssetRequested(key)) {
+					  AssetManager.addAssetListener(token.getAssetID(), listener);
+					  
+					  // This will force a server request if we don't already have it
+					  AssetManager.getAsset(token.getAssetID());
+				  }
+			  }
+		  }
+		  
+		  // Now add the rest
+		  for (Token token : zone.getAllTokens()) {
+			  MD5Key key = token.getAssetID();
+			  
+			  if (AssetManager.hasAsset(key)) {
+				  ImageManager.getImage(AssetManager.getAsset(key));
+			  } else {
+				  
+				  if (!AssetManager.isAssetRequested(key)) {
+					  AssetManager.addAssetListener(key, listener);
+					  
+					  // This will force a server request if we don't already have it
+					  AssetManager.getAsset(token.getAssetID());
+				  }
+			  }
+		  }
+	  }
+	  public void zoneAdded(Zone zone) {
+	  }
+  }
+  
   ////
   // WINDOW LISTENER
   public void windowOpened(WindowEvent e){}
