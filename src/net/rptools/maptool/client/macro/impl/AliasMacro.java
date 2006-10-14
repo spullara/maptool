@@ -76,7 +76,9 @@ public class AliasMacro implements Macro {
 	
 	private void handlePrintAliases() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Aliases:<br>");
+		builder.append("<table border='1'>");
+		
+		builder.append("<tr><td><b>Alias</b></td><td><b>Command</b></td></tr>");
 		
 		Map<String, String> aliasMap = MacroManager.getAliasMap();
 		List<String> nameList = new ArrayList<String>();
@@ -88,9 +90,13 @@ public class AliasMacro implements Macro {
 			if (value == null) {
 				continue;
 			}
+
+			value = value.replace("<", "&lt;").replace(">", "&gt;");
 			
-			builder.append("&nbsp;&nbsp;&nbsp;/").append(name).append(" => ").append(value).append("<br>");
+			builder.append("<tr><td>").append(name).append("</td><td>").append(value).append("</td></tr>");
 		}
+		
+		builder.append("</table>");
 
 		MapTool.addLocalMessage(builder.toString());
 	}

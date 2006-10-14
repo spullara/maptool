@@ -25,31 +25,44 @@ public class HelpMacro implements Macro {
 	};
 
 	public void execute(String parameter) {
-		MapTool.addLocalMessage("List of current commands:");
+		
+		StringBuilder builder = new StringBuilder();
 
-		List<Macro> macros = new ArrayList<Macro>(MacroManager
-				.getRegisteredMacros());
+		List<Macro> macros = new ArrayList<Macro>(MacroManager.getRegisteredMacros());
 		Collections.sort(macros, MACRO_NAME_COMPARATOR);
 
+		builder.append("<table border='1'>");
+		builder.append("<tr><td><b>Command</b></td><td><b>Aliases</b></td><td><b>Description</b></td></tr>");
 		for (Macro macro : macros) {
 			MacroDefinition def = macro.getClass().getAnnotation(
 					MacroDefinition.class);
 			if (!def.hidden()) {
-				StringBuilder sb = new StringBuilder(64);
-				sb.append(def.name()).append(": ").append(
-						def.description());
+				builder.append("<TR>");
+
+				builder.append("<TD>").append(def.name()).append("</TD>");
+
+				builder.append("<td>");
 				String[] aliases = def.aliases();
 				if (aliases != null && aliases.length > 0) {
-					sb.append(" (");
 					for (int i = 0; i < aliases.length; i++) {
-						if (i > 0)
-							sb.append(", ");
-						sb.append(aliases[i]);
+						if (i > 0) {
+							builder.append(", ");
+						}
+						
+						builder.append(aliases[i]);
 					}
-					sb.append(")");
 				}
-				MapTool.addLocalMessage(sb.toString());
+				builder.append("</td>");
+
+				// Escape HTML from the desciption
+				String description = def.description().replace("<", "&lt;").replace(">", "&gt;");
+				
+				builder.append("<TD>").append(description).append("</td>");
+				
 			}
 		}
+		builder.append("</table>");
+		
+		MapTool.addLocalMessage(builder.toString());
 	}
 }
