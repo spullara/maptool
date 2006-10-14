@@ -600,9 +600,7 @@ public class TokenPopupMenu extends JPopupMenu {
 		
 		public void actionPerformed(ActionEvent e) {
 
-	      TokenPropertiesDialog dialog = new TokenPropertiesDialog(tokenUnderMouse);
-	      Rectangle b = MapTool.getFrame().getBounds();
-	      dialog.setLocation(b.x + (b.width - dialog.getWidth()) / 2, b.y + (b.height - dialog.getHeight()) / 2);
+	      TokenPropertiesDialog dialog = MapTool.getFrame().getTokenPropertiesDialog();
 	      dialog.setVisible(true);
 	      if (dialog.isTokenSaved()) {
 	    	  renderer.repaint();

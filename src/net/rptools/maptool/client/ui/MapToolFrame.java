@@ -116,6 +116,7 @@ import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
+import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeCellRenderer;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeModel;
 import net.rptools.maptool.client.ui.zone.NewZoneDropPanel;
@@ -190,6 +191,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
     // Components
 	private JFileChooser loadFileChooser;
 	private JFileChooser saveFileChooser;
+	
+	private TokenPropertiesDialog tokenPropertiesDialog = new TokenPropertiesDialog();
 
     // TODO: I don't like this here, eventOverlay should be more abstracted
     private NotificationOverlay notificationOverlay = new NotificationOverlay();
@@ -302,6 +305,10 @@ public class MapToolFrame extends JFrame implements WindowListener {
         new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
         
         restorePreferences();
+	}
+	
+	public TokenPropertiesDialog getTokenPropertiesDialog() {
+		return tokenPropertiesDialog;
 	}
 	
 	public void refresh() {

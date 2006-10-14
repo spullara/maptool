@@ -293,11 +293,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				Token token = renderer.getTokenAt(e.getX(), e.getY());
 				if (token != null) {
 
-					TokenPropertiesDialog dialog = new TokenPropertiesDialog(token);
-					Rectangle b = MapTool.getFrame().getBounds();
-					dialog.setLocation(b.x + (b.width - dialog.getWidth()) / 2, b.y + (b.height - dialog.getHeight()) / 2);
-					dialog.setVisible(true);
-					if (dialog.isTokenSaved()) {
+					TokenPropertiesDialog tokenPropertiesDialog = MapTool.getFrame().getTokenPropertiesDialog();
+					tokenPropertiesDialog.setToken(token);
+					tokenPropertiesDialog.setVisible(true);
+					if (tokenPropertiesDialog.isTokenSaved()) {
 						renderer.repaint();
 						MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 					}

@@ -51,6 +51,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -89,6 +90,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	private JPanel statesPanel;
 	private Token token;
 	private boolean tokenSaved;
+	private JLabel visibleLabel;
 
 	/**
 	 * The size used to constrain the icon.
@@ -101,7 +103,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	 * @param token
 	 *            The token being displayed.
 	 */
-	public TokenPropertiesDialog(Token token) {
+	public TokenPropertiesDialog() {
 		super(MapTool.getFrame(), "Token Properties", true);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		FormPanel panel = new FormPanel(
@@ -119,10 +121,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		
 		// Does visible get displayed?
 		visible = panel.getCheckBox("visible");
-		if (!MapTool.getPlayer().isGM()) {
-			visible.setVisible(false);
-			panel.getLabel("visibleLabel").setVisible(false);
-		}
+		visibleLabel = panel.getLabel("visibleLabel");
 
 		// Set up the buttons
 		okButton = panel.getButton("okButton");
@@ -155,8 +154,20 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 
 		// Set up the panel and view
 		add(panel);
-		setToken(token);
 		pack();
+	}
+	
+	@Override
+	public void setVisible(boolean b) {
+		if(b) {
+			SwingUtil.centerOver(this, MapTool.getFrame());
+
+			if (!MapTool.getPlayer().isGM()) {
+				visible.setVisible(false);
+				visibleLabel.setVisible(false);
+			}
+		}
+		super.setVisible(b);
 	}
 
 	/*---------------------------------------------------------------------------------------------
@@ -173,7 +184,9 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			setVisible(false);
 		} else if (aE.getSource() == cancelButton) {
 			setVisible(false);
-		} // endif
+		} 
+		
+		setToken(null);
 	}
 
 	/*---------------------------------------------------------------------------------------------
@@ -241,12 +254,16 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	public void setToken(Token aToken) {
 		if (aToken == token)
 			return;
-		if (token != null)
+		if (token != null) {
 			token.removeModelChangeListener(this);
+		}
+		
 		token = aToken;
-		if (token != null)
+		
+		if (token != null) {
 			token.addModelChangeListener(this);
-		setFields();
+			setFields();
+		}
 	}
 
 	/**
