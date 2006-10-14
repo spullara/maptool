@@ -352,7 +352,10 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	public void hideControlPanel() {
 		if (visibleControlPanel != null) {
 			
-			zoneRendererPanel.remove(visibleControlPanel);
+			if (zoneRendererPanel != null) {
+				zoneRendererPanel.remove(visibleControlPanel);
+			}
+			
 			visibleControlPanel = null;
 			refresh();
 		}
