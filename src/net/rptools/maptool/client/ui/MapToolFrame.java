@@ -534,7 +534,12 @@ public class MapToolFrame extends JFrame implements WindowListener {
                         	}
                         	if (selectedTokenSet.size() > 0) {
                         		
-                        		new TokenPopupMenu(selectedTokenSet, x, y, getCurrentZoneRenderer(), firstToken).showPopup(tree);
+                        		if (firstToken.isStamp() || firstToken.isBackground()) {
+                        			
+                            		new StampPopupMenu(selectedTokenSet, x, y, getCurrentZoneRenderer(), firstToken).showPopup(tree);
+                        		} else {
+                            		new TokenPopupMenu(selectedTokenSet, x, y, getCurrentZoneRenderer(), firstToken).showPopup(tree);
+                        		}
                         	}
                 		}
                 	});
@@ -560,6 +565,10 @@ public class MapToolFrame extends JFrame implements WindowListener {
     }
     
     private boolean isRowSelected(int[] selectedRows, int row) {
+    	if (selectedRows == null) {
+    		return false;
+    	}
+    	
     	for (int selectedRow : selectedRows) {
     		if (row == selectedRow) {
     			return true;
