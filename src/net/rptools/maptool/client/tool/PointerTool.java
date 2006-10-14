@@ -68,6 +68,7 @@ import net.rptools.maptool.client.ui.StampPopupMenu;
 import net.rptools.maptool.client.ui.TokenLocation;
 import net.rptools.maptool.client.ui.TokenPopupMenu;
 import net.rptools.maptool.client.ui.Tool;
+import net.rptools.maptool.client.ui.Toolbox;
 import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -679,6 +680,21 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 		actionMap.put(KeyStroke.getKeyStroke("control C"), AppActions.COPY_TOKENS);
 		actionMap.put(KeyStroke.getKeyStroke("control V"), AppActions.PASTE_TOKENS);
+		actionMap.put(KeyStroke.getKeyStroke("control R"), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				// TODO: Combine all this crap with the Stamp tool
+				if (renderer.getSelectedTokenSet().size() == 0) {
+					return;
+				}
+				
+				Toolbox toolbox = MapTool.getFrame().getToolbox(); 
+				
+				FacingTool tool = (FacingTool) toolbox.getTool(FacingTool.class);
+				tool.init(renderer.getZone().getToken(renderer.getSelectedTokenSet().iterator().next()), renderer.getSelectedTokenSet());
+				
+				toolbox.setSelectedTool(FacingTool.class);
+			}
+		});
 		
 		// TODO: Optimize this by making it non anonymous
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
