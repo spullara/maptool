@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,30 +14,38 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
+import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
+
+import com.jeta.forms.components.panel.FormPanel;
 
 public class CommandPanel extends JPanel implements Observer {
 
@@ -44,6 +53,8 @@ public class CommandPanel extends JPanel implements Observer {
 	private MessagePanel messagePanel;
 	private List<String> commandHistory = new LinkedList<String>();
 	private int commandHistoryIndex;
+	
+	private MacroButtonDialog macroButtonDialog = new MacroButtonDialog();
 	
 	public CommandPanel() {
 		setLayout(new BorderLayout());
@@ -104,15 +115,7 @@ public class CommandPanel extends JPanel implements Observer {
 	}
 
 	private JPanel createTopPanel() {
-		JPanel panel = new JPanel(new GridBagLayout()){
-			@Override
-			protected void paintComponent(Graphics g) {
-				g.setColor(Color.gray);
-				
-				Dimension size = getSize();
-				g.drawLine(0, size.height-1, size.width, size.height-1);
-			}
-		};
+		JPanel panel = new JPanel(new GridBagLayout());
 
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.gridx = 0;
@@ -137,10 +140,9 @@ public class CommandPanel extends JPanel implements Observer {
 	
 	private JPanel createMacroButtonPanel() {
 		JPanel panel = new JPanel();
-		panel.setOpaque(false);
 		
-		for (int i = 1; i < 20; i++) {
-			panel.add(new MacroButton(Integer.toString(i), null));
+		for (int i = 1; i < 40; i++) {
+			panel.add(new MacroButton(i, null));
 		}
 		
 		return panel;
@@ -264,11 +266,12 @@ public class CommandPanel extends JPanel implements Observer {
 	public class MacroButton extends JButton {
 		
 		private String command;
+		private MacroButtonPrefs prefs;
 		
-		public MacroButton(String label, String command) {
-			super(label);
+		public MacroButton(int index, String command) {
 			setCommand(command);
 			addMouseListener(new MouseHandler());
+			prefs = new MacroButtonPrefs(index, this);
 		}
 		
 		public void setCommand(String command) {
@@ -305,12 +308,123 @@ public class CommandPanel extends JPanel implements Observer {
 				}
 				if (SwingUtilities.isRightMouseButton(e)) {
 					
-					String newCommand = JOptionPane.showInputDialog(MapTool.getFrame(), "Command:", command);
-					if (newCommand != null) {
-						setCommand(newCommand);
-					}
+					macroButtonDialog.show(MacroButton.this);
+					prefs.savePreferences();
 				}
 			}
+		}
+		
+		// Put this here until we have a better place
+		private class MacroButtonPrefs {
+
+			private int index;
+			private MacroButton button;
+		    private Preferences prefs;
+		    
+		    private static final String PREF_LABEL_KEY = "label";
+		    private static final String PREF_COMMAND_KEY = "command";
+		    
+		    public MacroButtonPrefs(int index, MacroButton button) {
+		        this.button = button;
+		        this.index = index;
+		        
+		        prefs = Preferences.userRoot().node(AppConstants.APP_NAME + "/macros/" + index);        
+		        
+		        restorePreferences();
+		    }
+		    
+		    private void restorePreferences() {
+		        
+		        String label = prefs.get(PREF_LABEL_KEY, Integer.toString(index));
+		        String command = prefs.get(PREF_COMMAND_KEY, "");
+
+		        button.command = command;
+		        button.setText(label);
+		    }
+		    
+		    public void savePreferences() {
+		    	System.out.println("Saving: " + button.command);
+		        prefs.put(PREF_LABEL_KEY, button.getText());
+		        prefs.put(PREF_COMMAND_KEY, button.command);
+		    }
+		    
+		    ////
+		    // PROPERTY CHANGE LISTENER
+		    public void propertyChange(PropertyChangeEvent evt) {
+		        savePreferences();
+		    }
+		}
+	}
+	
+	private static class MacroButtonDialog extends JDialog {
+
+		FormPanel panel;
+		MacroButton button;
+		
+		public MacroButtonDialog() {
+			super (MapTool.getFrame(), "", true);
+			
+			panel = new FormPanel("net/rptools/maptool/client/ui/forms/macroButtonDialog.jfrm");
+			setContentPane(panel);
+			
+			installOKButton();
+			installCancelButton();
+			
+			pack();
+		}
+
+		private void installOKButton() {
+			JButton button = (JButton) panel.getButton("okButton");
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					save();
+				}
+			});
+			getRootPane().setDefaultButton(button);
+		}
+		
+		private void installCancelButton() {
+			JButton button = (JButton) panel.getButton("cancelButton");
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					cancel();
+				}
+			});
+		}
+		
+		@Override
+		public void setVisible(boolean b) {
+			if (b) {
+				SwingUtil.centerOver(this, MapTool.getFrame());
+			}
+			super.setVisible(b);
+		}
+		
+		public void show(MacroButton button) {
+			this.button = button;
+			
+			getLabelTextField().setText(button.getText());
+			getCommandTextArea().setText(button.command);
+			
+			setVisible(true);
+		}
+		
+		private void save() {
+			button.setText(getLabelTextField().getText());
+			button.command = getCommandTextArea().getText();
+			setVisible(false);
+		}
+		
+		private void cancel() {
+			setVisible(false);
+		}
+		
+		private JTextField getLabelTextField() {
+			return panel.getTextField("label");
+		}
+		
+		private JTextArea getCommandTextArea() {
+			return (JTextArea) panel.getTextComponent("command");
 		}
 	}
 	
