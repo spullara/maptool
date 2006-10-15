@@ -76,7 +76,6 @@ public class AppUtil {
     	Player player = MapTool.getPlayer();
     	
     	if (player.isGM()) {return true;}
-    	if (!MapTool.getServerPolicy().useStrictTokenManagement()) {return true;}
     	
     	return zone.isTokenVisible(token);
     }

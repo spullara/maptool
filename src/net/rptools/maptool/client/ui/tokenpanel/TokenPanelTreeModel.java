@@ -25,6 +25,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 
     public enum View {
 		VISIBLE("Visible", Zone.Layer.TOKEN, true, false),
+		NOTVISIBLE("Not Visible", Zone.Layer.TOKEN, false, true),
     	PLAYERS("Players", Zone.Layer.TOKEN, false, false),
 		GROUPS("Groups", Zone.Layer.TOKEN, false, false),
 		STAMPS("Stamps", Zone.Layer.STAMP, true, true),
@@ -68,6 +69,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 		// It would be useful to have this list be static, but it's really not that big of a memory footprint
 		// TODO: refactor to more tightly couple the View enum and the corresponding filter
     	filterList.add(new VisibleTokenFilter());
+    	filterList.add(new NotVisibleTokenFilter());
     	filterList.add(new PlayerTokenFilter());
     	filterList.add(new StampFilter());
     	filterList.add(new BackgroundFilter());
@@ -303,7 +305,24 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     			return false;
     		}
     		
-        	return AppUtil.playerCanSee(zone, token);
+        	return zone.isTokenVisible(token);
+    	}
+    }
+    
+    private class NotVisibleTokenFilter extends TokenFilter {
+    	
+    	public NotVisibleTokenFilter() {
+    		super(View.NOTVISIBLE);
+    	}
+    	
+    	@Override
+    	protected boolean accept(Token token) {
+    		
+    		if (token.isStamp() || token.isBackground()) {
+    			return false;
+    		}
+    		
+        	return !zone.isTokenVisible(token);
     	}
     }
     

@@ -1,6 +1,5 @@
 package net.rptools.maptool.client.ui;
 
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Set;
@@ -94,13 +93,6 @@ public class TokenPopupMenu extends JPopupMenu {
 				.getCapabilities().isSnapToGridSupported()
 				&& enabled);
 
-		// Visibility
-		JCheckBoxMenuItem visibilityMenuItem = new JCheckBoxMenuItem("Visible",
-				tokenUnderMouse.isVisible());
-		visibilityMenuItem.setEnabled(enabled);
-		// TODO: Make this an action, not aic
-		visibilityMenuItem.addActionListener(new VisibilityAction());
-
 		// Arrange
 		JMenu arrangeMenu = new JMenu("Arrange");
 		arrangeMenu.setEnabled(enabled);
@@ -181,7 +173,7 @@ public class TokenPopupMenu extends JPopupMenu {
 
 		add(new ShowPathsAction());
 		add(new RevertLastMoveAction());
-		add(visibilityMenuItem);
+		addToggledGM(new VisibilityAction(), tokenUnderMouse.isVisible());
 		add(new ChangeStateAction("light"));
 		add(arrangeMenu);
 		
@@ -211,6 +203,20 @@ public class TokenPopupMenu extends JPopupMenu {
 		}
 		
 		add(propertiesMenuItem);
+	}
+	
+	private void addGM(Action action) {
+		if (MapTool.getPlayer().isGM()) {
+			add(new JMenuItem(action));
+		}
+	}
+
+	private void addToggledGM(Action action, boolean checked) {
+		if (MapTool.getPlayer().isGM()) {
+			JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
+			item.setSelected(checked);
+			add(item);
+		}
 	}
 
 	public void showPopup(JComponent component) {
@@ -502,6 +508,10 @@ public class TokenPopupMenu extends JPopupMenu {
 
 	private class VisibilityAction extends AbstractAction {
 
+		{
+			putValue(Action.NAME, "Visible to players");
+		}
+		
 		public void actionPerformed(ActionEvent e) {
 
 			for (GUID guid : selectedTokenSet) {
@@ -511,9 +521,10 @@ public class TokenPopupMenu extends JPopupMenu {
 					continue;
 				}
 
-				token.setVisible(((JCheckBoxMenuItem) e.getSource())
-						.isSelected());
+				token.setVisible(((JCheckBoxMenuItem) e.getSource()).isSelected());
 
+				MapTool.getFrame().updateTokenTree();
+				
 				MapTool.serverCommand().putToken(renderer.getZone().getId(),
 						token);
 			}
