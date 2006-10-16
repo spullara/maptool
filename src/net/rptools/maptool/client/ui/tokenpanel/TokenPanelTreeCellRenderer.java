@@ -1,5 +1,6 @@
 package net.rptools.maptool.client.ui.tokenpanel;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -28,7 +29,8 @@ public class TokenPanelTreeCellRenderer extends DefaultTreeCellRenderer {
 
         String text = null;
         this.row = row;
-        
+
+        setBackgroundNonSelectionColor(Color.white);
         if (value instanceof Token) {
             Token token = (Token) value;
             
@@ -49,6 +51,10 @@ public class TokenPanelTreeCellRenderer extends DefaultTreeCellRenderer {
             g.dispose();
             
             text = token.getName();
+
+            if (!token.isVisible()) {
+            	setBackgroundNonSelectionColor(Color.lightGray);
+            }
         }        
         if (value instanceof TokenPanelTreeModel.View) {
         	TokenPanelTreeModel.View view = (TokenPanelTreeModel.View)value ;

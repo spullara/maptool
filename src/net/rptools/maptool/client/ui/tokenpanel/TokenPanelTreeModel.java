@@ -2,6 +2,7 @@ package net.rptools.maptool.client.ui.tokenpanel;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -24,8 +25,7 @@ import net.rptools.maptool.model.Zone;
 public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 
     public enum View {
-		VISIBLE("Visible", Zone.Layer.TOKEN, true, false),
-		NOTVISIBLE("Not Visible", Zone.Layer.TOKEN, false, true),
+		TOKENS("Tokens", Zone.Layer.TOKEN, true, false),
     	PLAYERS("Players", Zone.Layer.TOKEN, false, false),
 		GROUPS("Groups", Zone.Layer.TOKEN, false, false),
 		STAMPS("Stamps", Zone.Layer.STAMP, true, true),
@@ -68,8 +68,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 
 		// It would be useful to have this list be static, but it's really not that big of a memory footprint
 		// TODO: refactor to more tightly couple the View enum and the corresponding filter
-    	filterList.add(new VisibleTokenFilter());
-    	filterList.add(new NotVisibleTokenFilter());
+    	filterList.add(new TokenTokenFilter());
     	filterList.add(new PlayerTokenFilter());
     	filterList.add(new StampFilter());
     	filterList.add(new BackgroundFilter());
@@ -196,13 +195,13 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
         
         // Sort
         for (List<Token> tokenList : viewMap.values()) {
-        	Collections.sort(tokenList, Token.NAME_COMPARATOR);
+        	Collections.sort(tokenList, NAME_AND_STATE_COMPARATOR);
         }
 
         // Keep the expanded branches consistent
 		Enumeration<TreePath> expandedPaths = tree.getExpandedDescendants(new TreePath(root));
         fireStructureChangedEvent(new TreeModelEvent(this, new Object[]{getRoot()}, 
-                new int[] { currentViewList.size() - 1 }, new Object[] {View.VISIBLE}));
+                new int[] { currentViewList.size() - 1 }, new Object[] {View.TOKENS}));
         while (expandedPaths != null && expandedPaths.hasMoreElements()) {
         	tree.expandPath(expandedPaths.nextElement());
         }
@@ -292,10 +291,10 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     	}
     }
     
-    private class VisibleTokenFilter extends TokenFilter {
+    private class TokenTokenFilter extends TokenFilter {
     	
-    	public VisibleTokenFilter() {
-    		super(View.VISIBLE);
+    	public TokenTokenFilter() {
+    		super(View.TOKENS);
     	}
     	
     	@Override
@@ -305,27 +304,9 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     			return false;
     		}
     		
-        	return zone.isTokenVisible(token);
+        	return MapTool.getPlayer().isGM() ? true : zone.isTokenVisible(token);
     	}
     }
-    
-    private class NotVisibleTokenFilter extends TokenFilter {
-    	
-    	public NotVisibleTokenFilter() {
-    		super(View.NOTVISIBLE);
-    	}
-    	
-    	@Override
-    	protected boolean accept(Token token) {
-    		
-    		if (token.isStamp() || token.isBackground()) {
-    			return false;
-    		}
-    		
-        	return !zone.isTokenVisible(token);
-    	}
-    }
-    
     ////
     // MODEL CHANGE LISTENER
     public void modelChanged(ModelChangeEvent event) {
@@ -335,4 +316,17 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 //    	}
     	update();
     }
+    
+    ////
+    // SORTING
+	private static final Comparator<Token> NAME_AND_STATE_COMPARATOR = new Comparator<Token>() {
+		public int compare(Token o1, Token o2) {
+			if (o1.isVisible() != o2.isVisible()) {
+				return o1.isVisible() ? -1 : 1;
+			}
+			
+			return o1.getName().compareToIgnoreCase(o2.getName());
+		}
+	};
+
 }
