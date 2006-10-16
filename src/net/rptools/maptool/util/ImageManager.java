@@ -181,16 +181,13 @@ public class ImageManager {
             try {
                 image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()), hints);
                 
-                if (image != null) {
-                    
-                    // Replace placeholder with actual image
-                    imageMap.put(asset.getId(), image);
-                }
-                
             } catch (IOException ioe) {
                 ioe.printStackTrace();
-                imageMap.put(asset.getId(), BROKEN_IMAGE);
+                image = BROKEN_IMAGE;
             }
+
+            // Replace placeholder with actual image
+            imageMap.put(asset.getId(), image);
             
             // Notify observers
             Set<ImageObserver> observerSet = imageObserverMap.remove(asset.getId());
