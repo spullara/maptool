@@ -214,7 +214,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		String name = tokenName.getText();
 		if (name == null || (name = name.trim()).length() == 0) {
 			JOptionPane.showMessageDialog(this, "A name is required.");
-			throw new IllegalStateException("A name is set.");
+			throw new IllegalStateException("A name is required.");
 		} // endif
 
 		// Set the token values
