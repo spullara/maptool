@@ -381,7 +381,6 @@ public class GridTool extends DefaultTool {
     	}
     	
     	public void stateChanged(ChangeEvent e) {
-    		System.out.println("State changed");
     		copyControlPanelToGrid();
     	}
     }
