@@ -438,6 +438,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		public void actionPerformed(ActionEvent e) {
 
 	      TokenPropertiesDialog dialog = MapTool.getFrame().getTokenPropertiesDialog();
+	      dialog.setToken(tokenUnderMouse);
 	      dialog.setVisible(true);
 	      if (dialog.isTokenSaved()) {
 	    	  getRenderer().repaint();
