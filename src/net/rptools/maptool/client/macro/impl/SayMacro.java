@@ -24,6 +24,8 @@
  */
 package net.rptools.maptool.client.macro.impl;
 
+import java.awt.Color;
+
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
@@ -38,7 +40,17 @@ public class SayMacro implements Macro {
 
     public void execute(String macro) {
         StringBuilder sb = new StringBuilder();
-        sb.append(MapTool.getPlayer().getName()).append(": ").append(macro);
+
+        sb.append(MapTool.getPlayer().getName()).append(": ");
+        
+        Color color = MapTool.getFrame().getCommandPanel().getTextColorWell().getColor();
+        if (color != null) {
+        	sb.append("<span style='color:#").append(Integer.toHexString(color.getRGB()&0xffffff)).append("'>");
+        }
+        sb.append(macro);
+        if (color != null) {
+        	sb.append("</span>");
+        }
         MapTool.addMessage(TextMessage.say(sb.toString()));
     }
 }

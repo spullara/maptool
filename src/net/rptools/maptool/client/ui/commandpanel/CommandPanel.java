@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,7 +14,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -27,15 +25,17 @@ import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
@@ -53,6 +53,7 @@ public class CommandPanel extends JPanel implements Observer {
 	private MessagePanel messagePanel;
 	private List<String> commandHistory = new LinkedList<String>();
 	private int commandHistoryIndex;
+	private TextColorWell textColorWell;
 	
 	private MacroButtonDialog macroButtonDialog = new MacroButtonDialog();
 	
@@ -61,8 +62,26 @@ public class CommandPanel extends JPanel implements Observer {
 		setBorder(BorderFactory.createLineBorder(Color.gray));
 		
 		add(BorderLayout.NORTH, createTopPanel());
-		add(BorderLayout.SOUTH, new JScrollPane(getCommandTextArea(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+		add(BorderLayout.SOUTH, createSouthPanel());
 		add(BorderLayout.CENTER, getMessagePanel());
+	}
+
+	private JComponent createSouthPanel() {
+		
+		JPanel panel = new JPanel (new BorderLayout());
+	
+		panel.add(BorderLayout.WEST, createTextPropertiesPanel());
+		panel.add(BorderLayout.CENTER, new JScrollPane(getCommandTextArea(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+		
+		return panel;
+	}
+	
+	private JComponent createTextPropertiesPanel() {
+		JPanel panel = new JPanel();
+
+		panel.add(getTextColorWell());
+		
+		return panel;
 	}
 	
 	public String getMessageHistory() {
@@ -210,6 +229,14 @@ public class CommandPanel extends JPanel implements Observer {
 		commandTextArea.requestFocusInWindow();
 	}
 
+	public TextColorWell getTextColorWell() {
+		if (textColorWell == null) {
+			textColorWell = new TextColorWell();
+		}
+		
+		return textColorWell;
+	}
+	
 	private class CommandHistoryUpAction extends AbstractAction {
 		
 		public void actionPerformed(ActionEvent e) {
@@ -425,6 +452,37 @@ public class CommandPanel extends JPanel implements Observer {
 		
 		private JTextArea getCommandTextArea() {
 			return (JTextArea) panel.getTextComponent("command");
+		}
+	}
+	
+	public static class TextColorWell extends JPanel {
+
+		private Color color = Color.black;
+		
+		public TextColorWell() {
+			setMinimumSize(new Dimension(15, 15));
+			setPreferredSize(new Dimension(15, 15));
+			setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+			
+			addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent e) {
+					Color newColor = JColorChooser.showDialog(TextColorWell.this, "Text Color", color);
+					if (newColor != null) {
+						color = newColor;
+						repaint();
+					}
+				}
+			});
+		}
+	
+		public Color getColor() {
+			return color;
+		}
+		
+		@Override
+		protected void paintComponent(Graphics g) {
+			g.setColor(color);
+			g.fillRect(0, 0, getSize().width, getSize().height);
 		}
 	}
 	
