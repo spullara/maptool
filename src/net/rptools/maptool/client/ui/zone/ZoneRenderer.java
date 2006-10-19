@@ -66,6 +66,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 import com.sun.org.apache.xpath.internal.axes.WalkerFactory;
 
@@ -1237,7 +1238,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         			name += " (" + token.getGMName() + ")";
         		}
         		
-                GraphicsUtil.drawBoxedString(g, name, bounds.x + bounds.width/2, bounds.y + bounds.height + 10);
+        		Color background = token.isVisible() ? Color.white : Color.gray;
+        		Color foreground = token.isVisible() ? Color.black : Color.lightGray;
+                GraphicsUtil.drawBoxedString(g, name, bounds.x + bounds.width/2, bounds.y + bounds.height + 10, SwingUtilities.CENTER, background, foreground);
             }
         }
         
