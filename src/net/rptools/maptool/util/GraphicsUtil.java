@@ -45,6 +45,9 @@ public class GraphicsUtil {
     }
     
     public static Rectangle drawBoxedString(Graphics2D g, String string, int x, int y, int justification) {
+    	return drawBoxedString(g, string, x, y, justification, Color.white, Color.black);
+    }
+    public static Rectangle drawBoxedString(Graphics2D g, String string, int x, int y, int justification, Color background, Color foreground) {
     	
         if (string == null) {
             string = "";
@@ -71,16 +74,16 @@ public class GraphicsUtil {
 		
 		// Box
 		Rectangle boxBounds = new Rectangle(x, y, width, height);
-		g.setColor(Color.white);
+		g.setColor(background);
 		g.fillRect(boxBounds.x, boxBounds.y, boxBounds.width, boxBounds.height);
 		
     	AppStyle.border.paintWithin(g, boxBounds);
 		
 		// Renderer message
-		g.setColor(Color.black);
+		g.setColor(foreground);
 		int textX = x + BOX_PADDINGX;
 		int textY = y + BOX_PADDINGY + fm.getAscent();
-		
+
 		g.drawString(string, textX, textY);
 		
 		return boxBounds;
