@@ -1088,6 +1088,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				renderPath(g, token.getLastPath(), (int)(width/gridSize), (int)(height/gridSize));
 			}
 			
+			// Halo (TOPDOWN, CIRCLE)
+			if (token.hasHalo() && (token.getTokenType() == Token.Type.TOP_DOWN || token.getTokenType() == Token.Type.CIRCLE)) {
+				g.setColor(token.getHaloColor());
+				g.drawRect(x, y, width-1, height-1);
+			}
+			
             // Draw image
 			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp() || token.isBackground())) {
 				// Rotated
@@ -1105,6 +1111,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			} else {
 				// Normal
 	            g.drawImage(image, x, y, width, height, this);
+			}
+			
+			// Halo (SQUARE)
+			if (token.hasHalo() && token.getTokenType() == Token.Type.SQUARE) {
+				g.setColor(token.getHaloColor());
+				g.drawRect(x, y, width-1, height-1);
 			}
 			
 			// Facing ?

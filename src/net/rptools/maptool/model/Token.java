@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.model;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
@@ -113,6 +114,9 @@ public class Token {
 
 	private Integer facing = null;
 	
+	private Integer haloColorValue;
+	private transient Color haloColor;
+	
   /**
    * The notes that are displayed for this token.
    */
@@ -196,6 +200,27 @@ public class Token {
 	
 	public void setGMName(String name) {
 		gmName = name;
+	}
+	
+	public boolean hasHalo() {
+		return haloColorValue != null;
+	}
+	
+	public void setHaloColor(Color color) {
+		if (color != null) {
+			haloColorValue = color.getRGB();
+		} else {
+			haloColorValue = null;
+		}
+		haloColor = color;
+	}
+	
+	public Color getHaloColor() {
+		if (haloColor == null && haloColorValue != null) {
+			haloColor = new Color(haloColorValue);
+		}
+		
+		return haloColor;
 	}
 	
 	public boolean isStamp() {

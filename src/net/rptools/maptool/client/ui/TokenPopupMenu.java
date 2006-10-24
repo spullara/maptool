@@ -1,5 +1,6 @@
 package net.rptools.maptool.client.ui;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Set;
@@ -10,17 +11,11 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 
-import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.tool.FacingTool;
-import net.rptools.maptool.client.tool.PointerTool;
-import net.rptools.maptool.client.ui.AbstractTokenPopupMenu.SnapToGridAction;
 import net.rptools.maptool.client.ui.token.LightDialog;
-import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
 import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
@@ -28,13 +23,21 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 
 public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 	private boolean areTokensOwned;
+	
+	// TODO: This is temporary
+	private static final Object[][] HALO_COLORS = new Object[][] {
+		{"Black", Color.black},
+		{"Green", Color.green},
+		{"Yellow", Color.yellow},
+		{"Red", Color.red},
+		{"Orange", Color.orange}
+	};
 	
 	public TokenPopupMenu(Set<GUID> selectedTokenSet, int x, int y,
 			ZoneRenderer renderer, Token tokenUnderMouse) {
@@ -52,6 +55,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new ShowPathsAction());
 		add(new RevertLastMoveAction());
 		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
+		addGMItem(createHaloMenu());
 		add(new ChangeStateAction("light"));
 		addOwnedItem(createArrangeMenu());
 		
@@ -71,6 +75,32 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new ShowPropertiesDialogAction());
 	}
 
+	private JMenu createHaloMenu() {
+		JMenu haloMenu = new JMenu("Halo");
+
+		Color selectedColor = getTokenUnderMouse().getHaloColor();
+
+		JCheckBoxMenuItem noneMenu = new JCheckBoxMenuItem(new SetHaloAction(getRenderer(), selectedTokenSet, null, "None"));
+		if (selectedColor == null) {
+			noneMenu.setSelected(true);
+		}
+		haloMenu.add(noneMenu);
+		
+		haloMenu.add(new JSeparator());
+
+		for (Object[] row : HALO_COLORS) {
+			String name = (String)row[0];
+			Color color = (Color)row[1];
+			JCheckBoxMenuItem item = new JCheckBoxMenuItem(new SetHaloAction(getRenderer(), selectedTokenSet, color, name));
+			if (color.equals(selectedColor)) {
+				item.setSelected(true);
+			}
+			haloMenu.add(item);
+		}
+		
+		return haloMenu;
+	}
+	
 	private JMenu createStateMenu() {
 		JMenu stateMenu = I18N.createMenu("defaultTool.stateMenu");
 		stateMenu.add(new ChangeStateAction("clear"));
@@ -219,11 +249,11 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 				}
 
 				MapTool.serverCommand().putToken(zone.getId(), token);
-				MapTool.getFrame().updateTokenTree();
 			}
+			MapTool.getFrame().updateTokenTree();
 		}
 	}
-
+	
 	/**
 	 * Create a radio button menu item for a particuar state
 	 * 
@@ -243,6 +273,35 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			item.setSelected(true);
 		menu.add(item);
 		return item;
+	}
+
+	private class SetHaloAction extends AbstractAction {
+		
+		private Color color;
+		private Set<GUID> tokenSet;
+		private ZoneRenderer renderer;
+		
+		public SetHaloAction(ZoneRenderer renderer, Set<GUID> tokenSet, Color color, String name) {
+			this.color = color;
+			this.tokenSet = tokenSet;
+			this.renderer = renderer;
+			
+			putValue(Action.NAME, name);
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+
+			Zone zone = renderer.getZone();
+			for (GUID guid : tokenSet) {
+				Token token = zone.getToken(guid);
+
+				token.setHaloColor(color);
+
+				MapTool.serverCommand().putToken(zone.getId(), token);
+			}
+			MapTool.getFrame().updateTokenTree();
+			renderer.repaint();
+		}
 	}
 
 	/**
