@@ -112,6 +112,8 @@ public class CommandPanel extends JPanel implements Observer {
 			};
 			commandTextArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 			commandTextArea.setRows(3);
+			commandTextArea.setWrapStyleWord(true);
+			commandTextArea.setLineWrap(true);
 			
 			ActionMap actions = commandTextArea.getActionMap();
 			actions.put(AppActions.COMMIT_COMMAND_ID,
