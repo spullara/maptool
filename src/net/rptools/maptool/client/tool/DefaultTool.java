@@ -40,6 +40,7 @@ import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZonePoint;
 
 /**
  */
@@ -97,9 +98,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 
         if (isDraggingMap && SwingUtilities.isRightMouseButton(e)) {
             if (AppState.isPlayerViewLinked()) {
-    			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(),
-    					renderer.getViewOffsetX(), renderer.getViewOffsetY(),
-    					renderer.getScaleIndex());
+            	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
+    			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
             }
         }
 
@@ -192,9 +192,8 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 			renderer.zoomIn(e.getX(), e.getY());
 		}
         if (AppState.isPlayerViewLinked()) {
-			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(),
-					renderer.getViewOffsetX(), renderer.getViewOffsetY(),
-					renderer.getScaleIndex());
+        	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
+			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
         }
 		
 	}	

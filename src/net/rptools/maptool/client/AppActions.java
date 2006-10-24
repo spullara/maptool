@@ -464,11 +464,9 @@ public class AppActions {
 
 			AppState.setPlayerViewLinked(!AppState.isPlayerViewLinked());
 			if (AppState.isPlayerViewLinked()) {
-				ZoneRenderer renderer = MapTool.getFrame()
-						.getCurrentZoneRenderer();
-				MapTool.serverCommand().enforceZoneView(
-						renderer.getZone().getId(), renderer.getViewOffsetX(),
-						renderer.getViewOffsetY(), renderer.getScaleIndex());
+				ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+	        	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
+				MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
 			}
 		}
 
