@@ -423,7 +423,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 				
 				menu.add(sendToChatItem);
 				
-				JMenuItem sendAsEmoteItem = new JMenuItem("Send as Emote");
+				JMenuItem sendAsEmoteItem = new JMenuItem("Send as Emit");
 				sendAsEmoteItem.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 
