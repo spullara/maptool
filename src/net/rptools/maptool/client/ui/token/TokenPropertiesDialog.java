@@ -33,6 +33,8 @@ import java.awt.GridLayout;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.Set;
 
@@ -43,12 +45,17 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import net.rptools.lib.swing.SwingUtil;
@@ -152,6 +159,10 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		for (String state : states)
 			statesPanel.add(new JCheckBox(state));
 
+		// Setup
+		gmNotes.addMouseListener(new MouseHandler(gmNotes));
+		notes.addMouseListener(new MouseHandler(notes));
+		
 		// Set up the panel and view
 		add(panel);
 		pack();
@@ -376,5 +387,64 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	/** @return Getter for tokenSaved */
 	public boolean isTokenSaved() {
 		return tokenSaved;
+	}
+	
+	////
+	// HANDLER
+	public class MouseHandler extends MouseAdapter {
+		
+		JEditorPane source;
+		
+		public MouseHandler(JEditorPane source) {
+			this.source = source;
+		}
+		
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (SwingUtilities.isRightMouseButton(e)) {
+				
+				JPopupMenu menu = new JPopupMenu();
+				JMenuItem sendToChatItem = new JMenuItem("Send to Chat");
+				sendToChatItem.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+
+						String selectedText = source.getSelectedText();
+						if (selectedText == null) {
+							selectedText = source.getText();
+						}
+
+						// TODO: COmbine this with the code int MacroButton
+						JTextArea commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+
+						commandArea.setText(commandArea.getText() + selectedText);
+						commandArea.requestFocusInWindow();
+					}
+				});
+				
+				menu.add(sendToChatItem);
+				
+				JMenuItem sendAsEmoteItem = new JMenuItem("Send as Emote");
+				sendAsEmoteItem.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+
+						String selectedText = source.getSelectedText();
+						if (selectedText == null) {
+							selectedText = source.getText();
+						}
+
+						// TODO: COmbine this with the code int MacroButton
+						JTextArea commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+
+						commandArea.setText("/emit " + selectedText);
+						commandArea.requestFocusInWindow();
+						MapTool.getFrame().getCommandPanel().commitCommand();
+					}
+				});
+				
+				menu.add(sendAsEmoteItem);
+				
+				menu.show((JComponent)e.getSource(), e.getX(), e.getY());
+			}
+		}
 	}
 }
