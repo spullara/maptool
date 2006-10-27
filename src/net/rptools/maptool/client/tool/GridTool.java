@@ -37,6 +37,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -114,6 +115,13 @@ public class GridTool extends DefaultTool {
         	}
         });
 
+        JButton closeButton = (JButton) controlPanel.getComponentByName("closeButton");
+        closeButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		resetTool();
+        	}
+        });
+        
         zoomSlider = (JSlider) controlPanel.getComponentByName("zoomSlider");
         zoomSlider.setMinimum(0);
         zoomSlider.setMaximum(Scale.getScaleCount());
