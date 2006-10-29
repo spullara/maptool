@@ -29,18 +29,23 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Set;
 
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppState;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.util.TokenUtil;
 
 /**
  */
@@ -184,6 +189,57 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	// Mouse Wheel
 	public void mouseWheelMoved(MouseWheelEvent e) {
 
+		// QUICK ROTATE
+		if (SwingUtil.isShiftDown(e)) {
+
+			Set<GUID> tokenGUIDSet = renderer.getSelectedTokenSet();
+			if (tokenGUIDSet.size() == 0) {
+				return;
+			}
+
+			for (GUID tokenGUID : tokenGUIDSet) {
+				Token token = renderer.getZone().getToken(tokenGUID);
+				if (token == null) {
+					continue;
+				}
+				
+				if (!AppUtil.playerOwns(token)) {
+					continue;
+				}
+				
+				Integer facing = token.getFacing();
+				if (facing == null) {
+					facing = 0;
+				}
+
+				if (SwingUtil.isControlDown(e)) {
+
+					facing += e.getWheelRotation() > 0 ? 5 : -5;
+				} else {
+					int[] facingArray = renderer.getZone().getGrid().getFacingAngles();
+					int facingIndex = TokenUtil.getIndexNearestTo(facingArray, facing);
+					
+					facingIndex += e.getWheelRotation() > 0 ? 1 : -1;
+					if (facingIndex < 0) {
+						facingIndex = facingArray.length - 1;
+					}
+					if (facingIndex == facingArray.length) {
+						facingIndex = 0;
+					}
+					
+					facing = facingArray[facingIndex];
+				}
+				
+				token.setFacing(facing);
+				
+				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+			}
+
+			renderer.repaint();
+			return;
+		}
+		
+		// ZOOM
 		if (e.getWheelRotation() > 0) {
 			
 			renderer.zoomOut(e.getX(), e.getY());
