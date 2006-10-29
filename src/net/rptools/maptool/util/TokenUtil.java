@@ -35,6 +35,20 @@ import net.rptools.maptool.model.Token;
 
 public class TokenUtil {
 
+	public static int getIndexNearestTo(int[] array, int value) {
+		
+    	int delta = -1;
+    	int closest = -1;
+    	for (int i = 0; i < array.length; i++) {
+    		int currDelta = Math.abs(value - array[i]);
+    		if (delta < 0 || currDelta < delta) {
+    			closest = i;
+    			delta = currDelta;
+    		}
+    	}
+    	return closest;
+	}
+	
 	public static Token.Type guessTokenType(Image image) {
 		
 		if (image instanceof BufferedImage) {
