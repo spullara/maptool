@@ -1002,6 +1002,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             }
             
             Rectangle tokenBounds = new Rectangle(x, y, width, height);
+            
+            // Adjust based on facing
+            
+            
             if (x+width < 0 || x > screenSize.width || y+height < 0 || y > screenSize.height) {
             	// Not on the screen, don't have to worry about it
             	continue;
@@ -1202,13 +1206,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 // Check for an overlay state value and paint that
                 } else if (stateValue instanceof TokenOverlay) {
                   ((TokenOverlay)stateValue).paintOverlay(g, token, bounds);
-                } // endif
-              } // endfor
+                }
+              }
               
               // Restore the graphics context
               g.translate(-x, -y);
               g.setClip(clip);
-            } // endif
+            } 
         }
         
         // Selection and labels

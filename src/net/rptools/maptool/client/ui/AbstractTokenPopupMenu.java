@@ -1,5 +1,6 @@
 package net.rptools.maptool.client.ui;
 
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.util.Set;
 
@@ -21,10 +22,13 @@ import net.rptools.maptool.client.ui.token.LightDialog;
 import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.util.ImageManager;
+import net.rptools.maptool.util.TokenUtil;
 
 public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
@@ -165,6 +169,20 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 				}
 
 				token.setLayer(layer);
+				switch (layer) {
+				case BACKGROUND:
+				case STAMP:
+					token.setTokenType(Token.Type.TOP_DOWN);
+					break;
+				case TOKEN:
+					Image image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()));
+					if (image == null || image == ImageManager.UNKNOWN_IMAGE) {
+						token.setTokenType(Token.Type.TOP_DOWN);
+					} else {
+						token.setTokenType(TokenUtil.guessTokenType(image));
+					}
+					break;
+				}
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
 			

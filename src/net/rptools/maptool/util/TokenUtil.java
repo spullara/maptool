@@ -24,12 +24,57 @@
  */
 package net.rptools.maptool.util;
 
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.awt.image.PixelGrabber;
 
 import net.rptools.maptool.model.Token;
 
 public class TokenUtil {
 
+	public static Token.Type guessTokenType(Image image) {
+		
+		if (image instanceof BufferedImage) {
+			return guessTokenType((BufferedImage) image);
+		}
+		
+		int pixelCount = 0;
+        int width = image.getWidth(null);
+        int height = image.getHeight(null);
+        int [] pixelArray = new int [ width * height ];
+        PixelGrabber pg = new PixelGrabber( image, 0, 0, width, height, pixelArray, 0, width );
+        try 
+        {
+            pg.grabPixels();
+        } 
+        catch (InterruptedException e) 
+        {
+            System.err.println("interrupted waiting for pixels!");
+            return Token.Type.TOP_DOWN;
+        }
+
+        if ((pg.getStatus() & ImageObserver.ABORT) != 0) 
+        {
+            System.err.println("image fetch aborted or errored");
+            return Token.Type.TOP_DOWN;
+        }
+        
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                // Get the next pixel
+                int pixel = pixelArray [ y*width + x ];
+				if ((pixel&0xff000000) != 0) {
+					pixelCount ++;
+				}
+            }
+        }
+        
+        return guessTokenType(new Dimension(image.getWidth(null) ,image.getHeight(null)), pixelCount);
+	}
+	
 	public static Token.Type guessTokenType(BufferedImage image) {
 		
 		int pixelCount = 0;
@@ -43,8 +88,13 @@ public class TokenUtil {
 			}
 		}
 		
-		double circlePixelCount = (int)(Math.PI * (image.getWidth()/2) * (image.getHeight()/2));
-		double squarePixelCount = image.getWidth() * image.getHeight();
+		return guessTokenType(new Dimension(image.getWidth(), image.getHeight()), pixelCount);
+	}
+	
+	private static Token.Type guessTokenType(Dimension size, int pixelCount) {
+		
+		double circlePixelCount = (int)(Math.PI * (size.width/2) * (size.height/2));
+		double squarePixelCount = size.width * size.height;
 		double topDownPixelCount = circlePixelCount * 3 / 4; // arbitrary
 		
 		double circleResult = Math.abs(1-(pixelCount / circlePixelCount));
