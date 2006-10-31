@@ -184,7 +184,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     }
     
     public void enforceZoneView(GUID zoneGUID, int x, int y, int zoomIndex) {
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.enforceZoneView.name(), RPCContext.getCurrent().parameters);
+        forwardToClients();
     }
     
     public void exposeFoW(GUID zoneGUID, Area area) {
