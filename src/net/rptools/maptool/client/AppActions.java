@@ -555,9 +555,8 @@ public class AppActions {
 				return;
 			}
 
-			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(),
-					renderer.getViewOffsetX(), renderer.getViewOffsetY(),
-					renderer.getScaleIndex());
+			ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
+			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
 		}
 
 	};
