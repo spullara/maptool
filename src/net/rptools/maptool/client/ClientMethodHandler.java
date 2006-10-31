@@ -72,7 +72,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	zoneGUID = (GUID) parameters[0];
         	ZoneRenderer renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
         	
-        	if (renderer != null && (renderer.getZone().isVisible() || MapTool.getPlayer().isGM())) {
+        	if (renderer != null && renderer != MapTool.getFrame().getCurrentZoneRenderer() && (renderer.getZone().isVisible() || MapTool.getPlayer().isGM())) {
             	MapTool.getFrame().setCurrentZoneRenderer(renderer);
         	}
         	
@@ -186,7 +186,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
             MapTool.getFrame().refresh();
             break;
         case enforceZoneView: 
-            
+
             zoneGUID = (GUID) parameters[0];
             int x = (Integer)parameters[1];
             int y = (Integer)parameters[2];
@@ -196,7 +196,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
             if (renderer == null) {
                 return;
             }
-
+            
             renderer.centerOn(new ZonePoint(x, y));
             renderer.setScaleIndex(zoomIndex);
 
