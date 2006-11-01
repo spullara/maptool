@@ -125,35 +125,28 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 			return tileImage;
 		}
 
-		try {
-			MD5Key assetId = zone.getAssetID();
-			if (assetId == null) {
-				// TODO: make this static
-				tileImage = ImageUtil.getCompatibleImage("net/rptools/lib/resource/image/texture/grass.png");
-				return tileImage;
-			}
-	
-			Asset asset = AssetManager.getAsset(assetId);
-			if (asset != null) {
-				BufferedImage image = ImageManager.getImage(asset, this);
-				if (image != ImageManager.UNKNOWN_IMAGE) {
-					tileImage = image;
-					
-					loaded = true;
-					drawBackground = true;
-				}
-				return image;
-			} else {
+		MD5Key assetId = zone.getAssetID();
 
-	            tileImage = ImageManager.UNKNOWN_IMAGE;
+		Asset asset = AssetManager.getAsset(assetId);
+		if (asset != null) {
+			BufferedImage image = ImageManager.getImage(asset, this);
+			if (image != ImageManager.UNKNOWN_IMAGE) {
+
+				tileImage = image;
 				
+				loaded = true;
+				drawBackground = true;
+
+				repaint();
 			}
+			return image;
+		} else {
+
+            tileImage = ImageManager.UNKNOWN_IMAGE;
 			
-			return ImageManager.UNKNOWN_IMAGE;
-			
-		} catch (IOException ioe) {
-			return ImageManager.UNKNOWN_IMAGE;
 		}
+		
+		return ImageManager.UNKNOWN_IMAGE;
 	}
 	
 }

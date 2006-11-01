@@ -177,6 +177,8 @@ public class BoundedZoneRenderer extends ZoneRenderer {
         		bgImageSize = new Dimension(backgroundImage.getWidth(), backgroundImage.getHeight());
         		zone.setWidth(bgImageSize.width);
         		zone.setHeight(bgImageSize.height);
+        		
+        		repaint();
         	}
         }
         
