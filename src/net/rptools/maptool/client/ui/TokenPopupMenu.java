@@ -35,8 +35,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		{"Black", Color.black},
 		{"Green", Color.green},
 		{"Yellow", Color.yellow},
-		{"Red", Color.red},
-		{"Orange", Color.orange}
+		{"Orange", Color.orange},
+		{"Red", Color.red}
 	};
 	
 	public TokenPopupMenu(Set<GUID> selectedTokenSet, int x, int y,
