@@ -25,6 +25,7 @@
 package net.rptools.maptool.client.ui.zone;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Dimension;
@@ -36,6 +37,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.Transparency;
 import java.awt.dnd.DropTarget;
@@ -118,6 +120,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private static BufferedImage GRID_IMAGE;
     
     public static final int MIN_GRID_SIZE = 5;
+    private static final Stroke HALO_STROKE = new BasicStroke(2);
     
     protected Zone zone;
 
@@ -1094,8 +1097,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			
 			// Halo (TOPDOWN, CIRCLE)
 			if (token.hasHalo() && (token.getTokenType() == Token.Type.TOP_DOWN || token.getTokenType() == Token.Type.CIRCLE)) {
+				Stroke oldStroke = g.getStroke();
+				g.setStroke(HALO_STROKE);
 				g.setColor(token.getHaloColor());
-				g.drawRect(x, y, width-1, height-1);
+				g.drawRect(x, y, width, height);
+				g.setStroke(oldStroke);
 			}
 			
             // Draw image
@@ -1119,8 +1125,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			
 			// Halo (SQUARE)
 			if (token.hasHalo() && token.getTokenType() == Token.Type.SQUARE) {
+				Stroke oldStroke = g.getStroke();
+				g.setStroke(HALO_STROKE);
 				g.setColor(token.getHaloColor());
-				g.drawRect(x, y, width-1, height-1);
+				g.drawRect(x, y, width, height);
+				g.setStroke(oldStroke);
 			}
 			
 			// Facing ?
