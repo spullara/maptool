@@ -25,6 +25,7 @@ import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -163,7 +164,7 @@ public class CommandPanel extends JPanel implements Observer {
 		JPanel panel = new JPanel();
 		
 		for (int i = 1; i < 40; i++) {
-			panel.add(new MacroButton(i, null));
+			panel.add(new MacroButton(i, null, true));
 		}
 		
 		return panel;
@@ -295,20 +296,23 @@ public class CommandPanel extends JPanel implements Observer {
 	public class MacroButton extends JButton {
 		
 		private String command;
+		private boolean autoExecute;
 		private MacroButtonPrefs prefs;
 		
-		public MacroButton(int index, String command) {
+		public MacroButton(int index, String command, boolean autoExecute) {
 			setCommand(command);
+			setAutoExecute(autoExecute);
 			addMouseListener(new MouseHandler());
 			prefs = new MacroButtonPrefs(index, this);
+		}
+
+		public void setAutoExecute(boolean autoExecute) {
+			this.autoExecute = autoExecute;
 		}
 		
 		public void setCommand(String command) {
 			this.command = command;
 			setBackground(command != null ? Color.orange : null);
-			
-			String tooltip = "Left click to execute, Right click to set, User '/' at the end of command to execute immediately";
-			setToolTipText(command != null ? command : tooltip);
 		}
 		
 		private class MouseHandler extends MouseAdapter {
@@ -321,16 +325,10 @@ public class CommandPanel extends JPanel implements Observer {
 
 						String commandToExecute = command;
 						
-						boolean commitCommand = command.endsWith("/");
-						if (commitCommand) {
-							// Strip the execute directive
-							commandToExecute = command.substring(0, command.length()-1);
-						}
-						
 						commandArea.setText(commandToExecute);
 						commandArea.requestFocusInWindow();
 						
-						if (commitCommand) {
+						if (autoExecute) {
 							MapTool.getFrame().getCommandPanel().commitCommand();
 						}
 					}
@@ -352,6 +350,7 @@ public class CommandPanel extends JPanel implements Observer {
 		    
 		    private static final String PREF_LABEL_KEY = "label";
 		    private static final String PREF_COMMAND_KEY = "command";
+		    private static final String PREF_AUTO_EXECUTE = "autoExecute";
 		    
 		    public MacroButtonPrefs(int index, MacroButton button) {
 		        this.button = button;
@@ -366,15 +365,17 @@ public class CommandPanel extends JPanel implements Observer {
 		        
 		        String label = prefs.get(PREF_LABEL_KEY, Integer.toString(index));
 		        String command = prefs.get(PREF_COMMAND_KEY, "");
-
+		        boolean autoExecute = prefs.getBoolean(PREF_AUTO_EXECUTE, true);
+		        
 		        button.command = command;
 		        button.setText(label);
+		        button.setAutoExecute(autoExecute);
 		    }
 		    
 		    public void savePreferences() {
-		    	System.out.println("Saving: " + button.command);
 		        prefs.put(PREF_LABEL_KEY, button.getText());
 		        prefs.put(PREF_COMMAND_KEY, button.command);
+		        prefs.putBoolean(PREF_AUTO_EXECUTE, button.autoExecute);
 		    }
 		    
 		    ////
@@ -434,6 +435,7 @@ public class CommandPanel extends JPanel implements Observer {
 			
 			getLabelTextField().setText(button.getText());
 			getCommandTextArea().setText(button.command);
+			getAutoExecuteCheckBox().setSelected(button.autoExecute);
 			
 			setVisible(true);
 		}
@@ -441,11 +443,16 @@ public class CommandPanel extends JPanel implements Observer {
 		private void save() {
 			button.setText(getLabelTextField().getText());
 			button.command = getCommandTextArea().getText();
+			button.autoExecute = getAutoExecuteCheckBox().isSelected();
 			setVisible(false);
 		}
 		
 		private void cancel() {
 			setVisible(false);
+		}
+
+		private JCheckBox getAutoExecuteCheckBox() {
+			return  panel.getCheckBox("autoExecuteCheckBox");
 		}
 		
 		private JTextField getLabelTextField() {
