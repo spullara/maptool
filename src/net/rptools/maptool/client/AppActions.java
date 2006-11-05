@@ -91,7 +91,7 @@ public class AppActions {
 
 	public static final Action EXPORT_SCREENSHOT = new DefaultClientAction() {
 		{
-			init("Export Screenshot as...");
+			init("action.exportScreenShotAs");
 		}
 		public void execute(ActionEvent e) {
 
@@ -114,8 +114,7 @@ public class AppActions {
 	
 	public static final Action EXPORT_SCREENSHOT_LAST_LOCATION = new DefaultClientAction() {
 		{
-			init("Export Screenshot");
-			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+			init("action.exportScreenShot");
 		}
 		public void execute(ActionEvent e) {
 			
