@@ -142,6 +142,8 @@ public class MacroManager {
 			.compile("^(\\w+)\\s*(.*)$");
 
 	public static void executeMacro(String command) {
+		
+		command = preprocess(command);
 
 		int recurseCount = 0;
 		while (recurseCount < MAX_RECURSE_COUNT) {
@@ -198,6 +200,13 @@ public class MacroManager {
 		
 	}
 
+	static String preprocess(String command) {
+		
+		command = command.replace("\n", "<br>");
+		
+		return command;
+	}
+	
 	// Package level for testing
 	static String resolveAlias(String aliasText, String details) {
 		
