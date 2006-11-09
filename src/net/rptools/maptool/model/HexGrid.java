@@ -186,8 +186,8 @@ public class HexGrid extends Grid {
 	@Override
 	public ZonePoint convert(CellPoint cp) {
 
-		int x = (int)Math.round(cp.x * (sideSize + topWidth));
-		int y = cp.y * 2 * height + (cp.x % 2 == 0  ||  cp.x < 0 ? 1 : 2) * height;
+		int x = (int)Math.round(cp.x * (sideSize + topWidth)) + getOffsetX();
+		int y = cp.y * 2 * height + (cp.x % 2 == 0  ||  cp.x < 0 ? 1 : 2) * height + getOffsetY();
 		
 		return new ZonePoint(x, y);
 	}
