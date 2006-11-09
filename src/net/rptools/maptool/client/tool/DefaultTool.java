@@ -208,8 +208,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 				}
 				
 				Integer facing = token.getFacing();
+				System.out.println("FACE1: " + facing);
 				if (facing == null) {
-					facing = 0;
+					facing = -90; // natural alignment
 				}
 
 				if (SwingUtil.isControlDown(e)) {
@@ -230,6 +231,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 					facing = facingArray[facingIndex];
 				}
 				
+				System.out.println("       " + facing);
 				token.setFacing(facing);
 				
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
