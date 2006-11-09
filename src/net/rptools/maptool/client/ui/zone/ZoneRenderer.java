@@ -69,6 +69,7 @@ import java.util.Map.Entry;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import com.sun.org.apache.xpath.internal.axes.WalkerFactory;
 
@@ -152,6 +153,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	
 	private Zone.Layer activeLayer;
 	
+	private Timer repaintTimer;
+	
 //    private FramesPerSecond fps = new FramesPerSecond();
 
 	static {
@@ -193,6 +196,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         });
         
 //        fps.start();
+    }
+    
+    public void setRepaintTimer(Timer timer) {
+    	repaintTimer = timer;
     }
 
     public void showPath(Token token) {
@@ -438,6 +445,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     public void paintComponent(Graphics g) {
 
+    	if (repaintTimer != null) {
+    		repaintTimer.restart();
+    	}
+    	
         Graphics2D g2d = (Graphics2D) g;
 		
         if (zone == null) { return; }

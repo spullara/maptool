@@ -35,6 +35,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
@@ -62,6 +63,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
@@ -196,7 +198,10 @@ public class MapToolFrame extends JFrame implements WindowListener {
 
     // TODO: I don't like this here, eventOverlay should be more abstracted
     private NotificationOverlay notificationOverlay = new NotificationOverlay();
-	
+
+    // TODO: Find a better pattern for this
+    private Timer repaintTimer;
+    
 	public MapToolFrame() {
 		
 		// Set up the frame
@@ -305,6 +310,9 @@ public class MapToolFrame extends JFrame implements WindowListener {
         new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
         
         restorePreferences();
+        
+        repaintTimer = new Timer(1000, new RepaintTimer());
+        repaintTimer.start();
 	}
 	
 	public TokenPropertiesDialog getTokenPropertiesDialog() {
@@ -836,6 +844,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         if (currentRenderer != null) {
         	currentRenderer.flush();
             zoneRendererPanel.remove(currentRenderer);
+            currentRenderer.setRepaintTimer(null);
         }
         
 		// Back to the pointer
@@ -852,6 +861,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		if (renderer != null) {
 			AppListeners.fireZoneActivated(renderer.getZone());
 			renderer.requestFocusInWindow();
+			renderer.setRepaintTimer(repaintTimer);
 		}
 
 		updateTokenTree();
@@ -1047,4 +1057,16 @@ public class MapToolFrame extends JFrame implements WindowListener {
   public void windowActivated(WindowEvent e){}
   public void windowDeactivated(WindowEvent e){}
 
+  ////
+  // REPAINT TIMER
+  private class RepaintTimer implements ActionListener {
+	  
+	  public void actionPerformed(ActionEvent e) {
+		  ZoneRenderer renderer = getCurrentZoneRenderer();
+		  if (renderer != null) {
+			  renderer.repaint();
+		  }
+	  }
+  }
+  
 }
