@@ -267,7 +267,7 @@ public class DrawableUndoManager {
 	  public ClearCommand() {
 		  putValue(NAME, "Clear All Drawings");
 		  putValue(MNEMONIC_KEY, KeyEvent.VK_C);
-		  putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke("ctrl shift C"));
+		  putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke("ctrl shift D"));
 	  }
 
 	public void actionPerformed(ActionEvent arg0) {

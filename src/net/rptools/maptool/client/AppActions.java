@@ -165,7 +165,7 @@ public class AppActions {
 	
 	public static final Action TOGGLE_COMMAND_PANEL = new DefaultClientAction() {
 		{
-			init("Command Panel");
+			init("action.commandPanel");
 		}
 		
 		@Override
@@ -208,7 +208,7 @@ public class AppActions {
 	public static final Action RESTORE_DEFAULT_IMAGES = new DefaultClientAction() {
 		
 		{
-			init("Restore Default Images");
+			init("action.restoreDefaultImages");
 		}
 
 		public void execute(ActionEvent e) {
@@ -229,8 +229,7 @@ public class AppActions {
 	public static final Action SHOW_FULLSCREEN = new DefaultClientAction() {
 		
 		{
-			init("Fullscreen");
-			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt ENTER"));
+			init("action.fullscreen");
 		}
 
 		public void execute(ActionEvent e) {
@@ -267,7 +266,7 @@ public class AppActions {
 	
 	public static final Action SHOW_PREFERENCES = new DefaultClientAction() {
 		{
-			init("Preferences ...");
+			init("action.preferences");
 		}
 
 		public void execute(ActionEvent e) {
@@ -473,7 +472,7 @@ public class AppActions {
 
 	public static final Action TOGGLE_SHOW_MOVEMENT_MEASUREMENTS = new DefaultClientAction() {
 		{
-			init("Show Movement Measurements");
+			init("action.showMovementMeasures");
 		}
 
 		@Override
@@ -753,7 +752,7 @@ public class AppActions {
 			if (renderer == null) {
 				return false;
 			}
-			return renderer.getZone().isVisible();
+			return !renderer.getZone().isVisible();
 		}
 
 		public void execute(ActionEvent e) {
@@ -1408,7 +1407,7 @@ public class AppActions {
 			putValue(NAME, name);
 			int mnemonic = I18N.getMnemonic(key);
 			if (mnemonic != -1) {
-				putValue(MNEMONIC_KEY, KeyEvent.VK_C);
+				putValue(MNEMONIC_KEY, mnemonic);
 			}
 
 			String accel = I18N.getAccelerator(key);
