@@ -33,8 +33,8 @@ import java.util.List;
 public class Scale {
 
     private int              scaleIndex;
-    private static float     startScale = .15f;
-    private static float     endScale = 4;
+    private static float     startScale = .01f;
+    private static float     endScale = 10;
     private static float[]   scaleArray;
     
     public static int SCALE_1TO1_INDEX; // Automatically scanned for
@@ -61,7 +61,9 @@ public class Scale {
     	float scale = startScale;
     	while (scale <= endScale) {
     		
-    		if (scale < 1) {
+    		if (scale < .1) {
+    			scale += .01;
+    		} else if (scale < 1) {
     			scale += .05;
     		} else {
     			scale += .15;
