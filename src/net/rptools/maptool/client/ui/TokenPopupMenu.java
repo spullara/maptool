@@ -35,7 +35,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		{"Black", Color.black},
 		{"Green", Color.green},
 		{"Yellow", Color.yellow},
-		{"Orange", Color.orange},
+		{"Orange", new Color(255, 156, 0)}, // default orange is too light
 		{"Red", Color.red}
 	};
 	
