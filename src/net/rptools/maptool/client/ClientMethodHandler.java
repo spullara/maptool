@@ -197,8 +197,8 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 return;
             }
             
-            renderer.centerOn(new ZonePoint(x, y));
             renderer.setScaleIndex(zoomIndex);
+            renderer.centerOn(new ZonePoint(x, y));
 
             break;
         case draw:
