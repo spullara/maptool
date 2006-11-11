@@ -24,11 +24,15 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
+import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.ScreenPoint;
@@ -70,6 +74,8 @@ public class PointerOverlay implements ZoneOverlay {
 
                 int offX = 0;
                 int offY = 0;
+                int centX = 0;
+                int centY = 0;
                 BufferedImage image = null;
                 switch (p.pointer.getType()) {
                 case ARROW:
@@ -78,21 +84,39 @@ public class PointerOverlay implements ZoneOverlay {
                 	offY = - image.getHeight();
                 	break;
                 case SPEECH_BUBBLE:
-                	offX = -20;
-                	offY = -63;
+                	offX = -19;
+                	offY = -61;
+                	centX = 36;
+                	centY = 23;
                 	image = SPEECH_IMAGE;
                 	break;
                 case THOUGHT_BUBBLE:
-                	offX = -16;
+                	offX = -13;
                 	offY = -65;
+                	centX = 36;
+                	centY = 23;
                 	image = THOUGHT_IMAGE;
                 	break;
                 }
                 
 				g.drawImage(image, sPoint.x + offX, sPoint.y + offY, null);
 				
-				if (p.pointer.getType() == Pointer.Type.ARROW) {
+				switch (p.pointer.getType()) {
+				case ARROW:
 					GraphicsUtil.drawBoxedString(g, p.player, sPoint.x + POINTER_IMAGE.getWidth() - 5, sPoint.y - POINTER_IMAGE.getHeight()+3);
+					break;
+				case THOUGHT_BUBBLE:
+				case SPEECH_BUBBLE:
+					FontMetrics fm = renderer.getFontMetrics(renderer.getFont());
+					String name = p.player;
+					int len = SwingUtilities.computeStringWidth(fm, name);
+					
+					g.setColor(Color.black);
+					int x = sPoint.x + centX + offX + 5;
+					int y = sPoint.y + offY + centY + fm.getHeight()/2;
+					g.drawString(name, x - len/2, y);
+					
+					break;
 				}
 			}
 		}
