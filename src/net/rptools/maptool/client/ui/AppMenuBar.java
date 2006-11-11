@@ -157,7 +157,7 @@ public class AppMenuBar extends JMenuBar {
     protected JMenu createQuickMapMenu() {
     	JMenu menu = I18N.createMenu("menu.QuickMap");
     	AppActions.QuickMapAction basicQuickMap = new AppActions.QuickMapAction("Grass", "net/rptools/lib/resource/image/texture/grass.png"); 
-    	basicQuickMap.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl U"));
+    	basicQuickMap.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl shift N"));
 
     	menu.add(new JMenuItem(basicQuickMap));
         menu.add(new JMenuItem(new AppActions.QuickMapAction("Sand", "net/rptools/lib/resource/image/texture/sand.jpg")));
