@@ -26,7 +26,6 @@ package net.rptools.maptool.client.tool;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -719,47 +718,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 		});
 		
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				
-				if (isShowingPointer) {
-					isShowingPointer = false;
-					MapTool.serverCommand().hidePointer(MapTool.getPlayer().getName());
-				}
-				
-				isSpaceDown = false;
-			}
-		});
-		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				
-				if (isSpaceDown) {
-					return;
-				}
-				
-				if (isDraggingToken) {
-					
-					// Waypoint
-		            CellPoint cp = renderer.getZone().getGrid().convert(new ScreenPoint(mouseX, mouseY).convertToZone(renderer));
-		            
-		            renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), cp);
-		            
-		            MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), cp);
-					
-				} else {
-					
-					// Pointer
-					isShowingPointer = true;
-					
-					ZonePoint zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
-					Pointer pointer = new Pointer(renderer.getZone(), zp.x, zp.y, 0);
-					
-					MapTool.serverCommand().showPointer(MapTool.getPlayer().getName(), pointer);
-				}
-				
-				isSpaceDown = true;
-			}
-		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true), new StopPointerActionListener());
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, ActionEvent.CTRL_MASK, true), new StopPointerActionListener());
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, ActionEvent.SHIFT_MASK, true), new StopPointerActionListener());
+		
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), new PointerActionListener(Pointer.Type.ARROW));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, ActionEvent.CTRL_MASK, false), new PointerActionListener(Pointer.Type.SPEECH_BUBBLE));
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, ActionEvent.SHIFT_MASK, false), new PointerActionListener(Pointer.Type.THOUGHT_BUBBLE));
+
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -941,6 +907,62 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		handleDragToken(zp);
 	}
 
+	////
+	// POINTER KEY ACTION
+	private class PointerActionListener extends AbstractAction {
+
+		Pointer.Type type;
+		
+		public PointerActionListener(Pointer.Type type) {
+			this.type = type;
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			
+			if (isSpaceDown) {
+				return;
+			}
+			
+			if (isDraggingToken) {
+				
+				// Waypoint
+	            CellPoint cp = renderer.getZone().getGrid().convert(new ScreenPoint(mouseX, mouseY).convertToZone(renderer));
+	            
+	            renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), cp);
+	            
+	            MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), cp);
+				
+			} else {
+				
+				// Pointer
+				isShowingPointer = true;
+				
+				ZonePoint zp = new ScreenPoint(mouseX, mouseY).convertToZone(renderer);
+				Pointer pointer = new Pointer(renderer.getZone(), zp.x, zp.y, 0, type);
+				
+				MapTool.serverCommand().showPointer(MapTool.getPlayer().getName(), pointer);
+			}
+			
+			isSpaceDown = true;
+		}
+		
+	}
+	
+	////
+	// STOP POINTER ACTION
+	private class StopPointerActionListener extends AbstractAction {
+		
+		public void actionPerformed(ActionEvent e) {
+			
+			if (isShowingPointer) {
+				isShowingPointer = false;
+				MapTool.serverCommand().hidePointer(MapTool.getPlayer().getName());
+			}
+			
+			isSpaceDown = false;
+		}
+	}
+	
 	//// 
 	// ZoneOverlay
 	/* (non-Javadoc)

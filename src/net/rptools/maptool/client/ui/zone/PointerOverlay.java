@@ -43,10 +43,14 @@ public class PointerOverlay implements ZoneOverlay {
 
 	private List<PointerPair> pointerList = new ArrayList<PointerPair>();
 	private static BufferedImage POINTER_IMAGE;
+	private static BufferedImage SPEECH_IMAGE;
+	private static BufferedImage THOUGHT_IMAGE;
 	
 	static {
 		try {
 		 POINTER_IMAGE = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/pointer.png");
+		 SPEECH_IMAGE = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/speech.png");
+		 THOUGHT_IMAGE = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/thought.png");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -63,10 +67,33 @@ public class PointerOverlay implements ZoneOverlay {
 				
                 ZonePoint zPoint = new ZonePoint(p.pointer.getX(), p.pointer.getY());
                 ScreenPoint sPoint = ScreenPoint.fromZonePoint(renderer, zPoint);
-                
-				g.drawImage(POINTER_IMAGE, sPoint.x, sPoint.y - POINTER_IMAGE.getHeight(), null);
 
-				GraphicsUtil.drawBoxedString(g, p.player, sPoint.x + POINTER_IMAGE.getWidth() - 5, sPoint.y - POINTER_IMAGE.getHeight()+3);
+                int offX = 0;
+                int offY = 0;
+                BufferedImage image = null;
+                switch (p.pointer.getType()) {
+                case ARROW:
+    				image = POINTER_IMAGE;
+                	offX = 0;
+                	offY = - image.getHeight();
+                	break;
+                case SPEECH_BUBBLE:
+                	offX = -20;
+                	offY = -63;
+                	image = SPEECH_IMAGE;
+                	break;
+                case THOUGHT_BUBBLE:
+                	offX = -16;
+                	offY = -65;
+                	image = THOUGHT_IMAGE;
+                	break;
+                }
+                
+				g.drawImage(image, sPoint.x + offX, sPoint.y + offY, null);
+				
+				if (p.pointer.getType() == Pointer.Type.ARROW) {
+					GraphicsUtil.drawBoxedString(g, p.player, sPoint.x + POINTER_IMAGE.getWidth() - 5, sPoint.y - POINTER_IMAGE.getHeight()+3);
+				}
 			}
 		}
 		

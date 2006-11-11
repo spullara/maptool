@@ -29,22 +29,34 @@ package net.rptools.maptool.model;
  */
 public class Pointer {
 
+	public enum Type {
+		ARROW,
+		SPEECH_BUBBLE,
+		THOUGHT_BUBBLE
+	}
+	
 	private GUID zoneGUID;
 	private int x;
 	private int y;
 	private double direction; // 
+	private String type;
 	
 	public Pointer() {/* Hessian serializable */}
 	
-	public Pointer(Zone zone, int x, int y, double direction) {
+	public Pointer(Zone zone, int x, int y, double direction, Type type) {
 		this.zoneGUID = zone.getId();
 		this.x = x;
 		this.y = y;
 		this.direction = direction;
+		this.type = type.name();
 	}
 	
 	public String toString() {
 		return x + "." + y + "-" + direction;
+	}
+
+	public Type getType() {
+		return type != null ? Type.valueOf(type) : Type.ARROW;
 	}
 	
 	public GUID getZoneGUID() {
