@@ -52,7 +52,7 @@ public class PointerOverlay implements ZoneOverlay {
 	
 	static {
 		try {
-		 POINTER_IMAGE = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/pointer.png");
+		 POINTER_IMAGE = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/arrow.png");
 		 SPEECH_IMAGE = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/speech.png");
 		 THOUGHT_IMAGE = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/thought.png");
 		} catch (IOException ioe) {
@@ -80,8 +80,8 @@ public class PointerOverlay implements ZoneOverlay {
                 switch (p.pointer.getType()) {
                 case ARROW:
     				image = POINTER_IMAGE;
-                	offX = 0;
-                	offY = - image.getHeight();
+                	offX = 2;
+                	offY = - 36;
                 	break;
                 case SPEECH_BUBBLE:
                 	offX = -19;
@@ -103,7 +103,7 @@ public class PointerOverlay implements ZoneOverlay {
 				
 				switch (p.pointer.getType()) {
 				case ARROW:
-					GraphicsUtil.drawBoxedString(g, p.player, sPoint.x + POINTER_IMAGE.getWidth() - 5, sPoint.y - POINTER_IMAGE.getHeight()+3);
+					GraphicsUtil.drawBoxedString(g, p.player, sPoint.x + POINTER_IMAGE.getWidth()-10, sPoint.y - POINTER_IMAGE.getHeight()+15, SwingUtilities.LEFT);
 					break;
 				case THOUGHT_BUBBLE:
 				case SPEECH_BUBBLE:
