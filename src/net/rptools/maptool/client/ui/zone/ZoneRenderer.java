@@ -54,6 +54,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,6 +65,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Observer;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -73,6 +75,7 @@ import javax.swing.Timer;
 
 import com.sun.org.apache.xpath.internal.axes.WalkerFactory;
 
+import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.ImageBorder;
 import net.rptools.maptool.client.AppPreferences;
@@ -154,6 +157,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	private Zone.Layer activeLayer;
 	
 	private Timer repaintTimer;
+
+	private boolean isLoaded;
 	
 //    private FramesPerSecond fps = new FramesPerSecond();
 
@@ -403,6 +408,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	drawableRenderer.flush();
     	
         replacementImageMap.clear();
+        
+        isLoaded = false;
     }
     
     public Zone getZone() {
@@ -451,6 +458,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	
         Graphics2D g2d = (Graphics2D) g;
 		
+        // Are we still waiting to show the zone ?
+        if (isLoading()) {
+        	Dimension size = getSize();
+        	g2d.setColor(Color.black);
+        	g2d.fillRect(0, 0, size.width, size.height);
+        	
+        	GraphicsUtil.drawBoxedString(g2d, "    Loading    ", size.width/2, size.height/2);
+        	
+        	return;
+        }
+
         if (zone == null) { return; }
 
         // Clear internal state
@@ -478,17 +496,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         	GraphicsUtil.drawBoxedString(g2d, "Zone not visible to players", getSize().width/2, 20);
         }
         
-        // Are we still waiting to show the zone ?
-        if (isLoading()) {
-        	Dimension size = getSize();
-        	g2d.setColor(Color.black);
-        	g2d.fillRect(0, 0, size.width, size.height);
-        	
-        	GraphicsUtil.drawBoxedString(g2d, "    Loading    ", size.width/2, size.height/2);
-        	
-        	return;
-        }
-
 //        fps.bump();
 //        g.setColor(Color.white);
 //        g.drawString(fps.getFramesPerSecond() + "", 10, 10);
@@ -621,7 +628,42 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	repaint();
     }
     
-    public abstract boolean isLoading();
+    public boolean isLoading() {
+
+    	if (isLoaded) {
+    		// We're done, until the cache is cleared
+    		return false;
+    	}
+    	
+    	// Get a list of all the assets in the zone
+    	Set<MD5Key> assetSet = new HashSet<MD5Key>();
+    	assetSet.add(zone.getAssetID());
+    	for (Token token : zone.getAllTokens()) {
+    		assetSet.add(token.getAssetID());
+    	}
+    	
+    	// Make sure they are loaded
+    	boolean loaded = true;
+    	for (MD5Key id : assetSet) {
+    		
+    		// Have we gotten the actual data yet ?
+    		Asset asset = AssetManager.getAsset(id);
+    		if (asset == null) {
+    			loaded = false;
+    			break;
+    		}
+    		
+    		// Have we loaded the image into memory yet ?
+    		Image image  = ImageManager.getImage(asset, new ImageObserver[]{}); 
+    		if (image == null || image == ImageManager.UNKNOWN_IMAGE ) {
+    			loaded = false;
+    			break;
+    		}
+    	}
+
+    	isLoaded = loaded;
+    	return !isLoaded;
+    }
     
     protected void renderDrawableOverlay(Graphics g) {
         

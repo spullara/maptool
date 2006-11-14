@@ -30,11 +30,8 @@ import java.awt.TexturePaint;
 import java.awt.Transparency;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 import net.rptools.lib.MD5Key;
-import net.rptools.lib.image.ImageUtil;
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -51,17 +48,10 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 	private int lastX;
 	private int lastY;
 	
-	private boolean loaded;
-	
 	private boolean drawBackground = true;
 
 	public UnboundedZoneRenderer(Zone zone) {
 		super(zone);
-	}
-	
-	@Override
-	public boolean isLoading() {
-		return !loaded;
 	}
 	
 	/* (non-Javadoc)
@@ -97,11 +87,6 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 		lastScale = scale.getIndex();
 		
 		g.drawImage(backbuffer, 0, 0, this);
-
-//		BufferedImage tileImage = getTileImage();
-//		Paint paint = new TexturePaint(tileImage, new Rectangle2D.Float(getViewOffsetX(), getViewOffsetY(), tileImage.getWidth()*getScale(), tileImage.getHeight()*getScale()));
-//		g.setPaint(paint);
-//		g.fill(g.getClipBounds());
 	}
 
 	@Override
@@ -109,7 +94,6 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 		backbuffer = null;
 		tileImage = null;
 		
-		loaded = false;
 		super.flush();
 	}
 	
@@ -134,7 +118,6 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 
 				tileImage = image;
 				
-				loaded = true;
 				drawBackground = true;
 
 				repaint();
