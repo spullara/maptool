@@ -106,15 +106,18 @@ public class AppMenuBar extends JMenuBar {
         // didn't feel compelled to do that in this impl
         JMenu gridSizeMenu = I18N.createMenu("action.gridSize");
         JCheckBoxMenuItem gridSize1 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(1));
+        JCheckBoxMenuItem gridSize2 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(2));
         JCheckBoxMenuItem gridSize3 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(3));
         JCheckBoxMenuItem gridSize5 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(5));
 
         ButtonGroup sizeGroup = new ButtonGroup();
         sizeGroup.add(gridSize1);
+        sizeGroup.add(gridSize2);
         sizeGroup.add(gridSize3);
         sizeGroup.add(gridSize5);
 
         gridSizeMenu.add(gridSize1);
+        gridSizeMenu.add(gridSize2);
         gridSizeMenu.add(gridSize3);
         gridSizeMenu.add(gridSize5);
         menu.add(gridSizeMenu);
