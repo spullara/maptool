@@ -1155,6 +1155,11 @@ public class AppActions {
 
 				try {
 					File campaignFile = chooser.getSelectedFile();
+					if (campaignFile.getName().indexOf(".") < 0) {
+						campaignFile = new File(campaignFile.getAbsolutePath() + ".campaign");
+					}
+					
+					
 					PersistenceUtil.saveCampaign(campaign, campaignFile);
 					
 					AppState.setCampaignFile(campaignFile);
