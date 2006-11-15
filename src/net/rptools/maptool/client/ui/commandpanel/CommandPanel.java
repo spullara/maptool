@@ -279,11 +279,11 @@ public class CommandPanel extends JPanel implements Observer {
 	private MessagePanel getMessagePanel() {
 		if (messagePanel == null) {
 			messagePanel = new MessagePanel();
-			messagePanel.addFocusListener(new FocusAdapter() {
-				public void focusGained(java.awt.event.FocusEvent e) {
-					commandTextArea.requestFocusInWindow();
-				}
-			});
+//			messagePanel.addFocusListener(new FocusAdapter() {
+//				public void focusGained(java.awt.event.FocusEvent e) {
+//					commandTextArea.requestFocusInWindow();
+//				}
+//			});
 		}
 
 		return messagePanel;
