@@ -55,7 +55,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new ShowPathsAction());
 		add(new RevertLastMoveAction());
 		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
-		addGMItem(createHaloMenu());
+		add(createHaloMenu());
 		add(new ChangeStateAction("light"));
 		addOwnedItem(createArrangeMenu());
 		
