@@ -1258,27 +1258,8 @@ public class AppActions {
 
 				public void run() {
 
-//					NewMapDialog newMapDialog = MapTool.getFrame().getNewMapDialog();
 					NewMapDialog newMapDialog = new NewMapDialog(MapTool.getFrame());
 					newMapDialog.setVisible(true);
-//					Asset asset = newMapDialog.showDialog();
-//					if (asset == null) {
-//						return;
-//					}
-//
-//					// Keep track of the image
-//					if (!AssetManager.hasAsset(asset)) {
-//						AssetManager.putAsset(asset);
-//						MapTool.serverCommand().putAsset(asset);
-//					}
-//
-//					// Create the zone
-//					Zone zone = ZoneFactory.createZone(newMapDialog.getZoneType(), newMapDialog.getZoneName(), newMapDialog.getZoneFeetPerCell(), asset.getId());
-//					zone.setGrid(newMapDialog.getZoneGrid());
-//
-//					zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
-//					
-//					MapTool.addZone(zone);
 				}
 			});
 		}

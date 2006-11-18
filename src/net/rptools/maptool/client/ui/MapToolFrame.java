@@ -635,15 +635,11 @@ public class MapToolFrame extends JFrame implements WindowListener {
             }
             
             private void createZone(Asset asset, int type) {
-                
-                if (!AssetManager.hasAsset(asset)) {
-                    
-                    AssetManager.putAsset(asset);
-                    MapTool.serverCommand().putAsset(asset);
-                }
 
-                Zone zone = ZoneFactory.createZone(type, asset.getId());
-                MapTool.addZone(zone);
+				NewMapDialog newMapDialog = new NewMapDialog(MapTool.getFrame());
+				newMapDialog.setSelectedAsset(asset);
+				newMapDialog.setZoneType(type);
+				newMapDialog.setVisible(true);
             }
         });
         

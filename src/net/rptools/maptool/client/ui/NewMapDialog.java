@@ -1,25 +1,54 @@
 package net.rptools.maptool.client.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
 
+import net.rptools.lib.image.ImageUtil;
+import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
+import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.HexGrid;
+import net.rptools.maptool.model.SquareGrid;
+import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZoneFactory;
+import net.rptools.maptool.util.ImageManager;
 
 import com.jeta.forms.components.panel.FormPanel;
 
-public class NewMapDialog extends JDialog /*implements WindowListener*/ {
+public class NewMapDialog extends JDialog  {
 
 	public enum Status {
 		OK,
@@ -27,6 +56,24 @@ public class NewMapDialog extends JDialog /*implements WindowListener*/ {
 	}
 	
 	private Status status;
+	
+	private JFileChooser imageFileChooser;
+	private JButton okButton;
+	private JPanel previewWrapperPanel;
+	private ImagePreviewPanel browsePreviewPanel;
+	private ImagePreviewPanel imagePreviewPanel;
+	
+	private JRadioButton hexRadio;
+	private JRadioButton squareRadio;
+	private JRadioButton boundedRadio;
+	private JRadioButton unboundedRadio;
+	
+	private JTextField nameTextField;
+	private JTextField distancePerCellTextField;
+	
+	private JDialog imageExplorerDialog;
+	
+	private Asset selectedAsset;
 	
 	public NewMapDialog(JFrame owner) {
 		super (owner, "New Map", true);
@@ -46,58 +93,167 @@ public class NewMapDialog extends JDialog /*implements WindowListener*/ {
 		super.setVisible(b);
 	}
 	
+	public Asset getSelectedAsset() {
+		return selectedAsset;
+	}
+	
+	public void setSelectedAsset(Asset asset) {
+		selectedAsset = asset;
+		
+		BufferedImage image = ImageManager.getImageAndWait(asset);
+		getImagePreviewPanel().setImage(image);
+		ImageManager.flushImage(asset);
+	}
+	
 	private void initialize() {
 		
 		setLayout(new GridLayout());
 		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/newMapDialog.jfrm");
+
+		initNameTextField(panel);
+		initDistanceTextField(panel);
 		
 		initOKButton(panel);
 		initCancelButton(panel);
+		
+		initBrowseButton(panel);
+		initExplorerButton(panel);
+		
 		initPreviewPanel(panel);
-		initTypeCombo(panel);
-		initCellTypeCombo(panel);
+
+		initDistanceTextField(panel);
+		initUnitTextField(panel);
+		
+		initHexRadio(panel);
+		initSquareRadio(panel);
+		initUnboundedRadio(panel);
+		initBoundedRadio(panel);
 		
 		add(panel);
 		
 		pack();
+		
+		// Escape key
+		panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
+		panel.getActionMap().put("cancel", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				cancel();
+			}
+		});
+		
+		getRootPane().setDefaultButton(okButton);
+	}
+
+	private void cancel() {
+		status = Status.CANCEL;
+		setVisible(false);
 	}
 	
-	private void initCellTypeCombo(FormPanel panel) {
-		
-		JComboBox combo = panel.getComboBox("cellTypeCombo");
-		DefaultComboBoxModel model = new DefaultComboBoxModel();
-		model.addElement("Square");
-		model.addElement("Hex");
-		
-		combo.setModel(model);
+	private void accept() {
+		if (selectedAsset != null) {
+			
+			// Keep track of the image
+			if (!AssetManager.hasAsset(selectedAsset)) {
+				AssetManager.putAsset(selectedAsset);
+				MapTool.serverCommand().putAsset(selectedAsset);
+			}
+
+			// Create the zone
+			Zone zone = ZoneFactory.createZone(getZoneType(), getZoneName(), getZoneDistancePerCell(), selectedAsset.getId());
+			zone.setGrid(getZoneGrid());
+
+			zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
+			
+			MapTool.addZone(zone);
+		}
+
+		status = Status.OK;
+		setVisible(false);
 	}
 	
-	private void initTypeCombo(FormPanel panel) {
+	private void initHexRadio(FormPanel panel) {
+		hexRadio = panel.getRadioButton("hexRadio");
+	}
+	
+	private void initSquareRadio(FormPanel panel) {
+		squareRadio = panel.getRadioButton("squareRadio");
+		squareRadio.setSelected(true);
+	}
+	
+	private void initBoundedRadio(FormPanel panel) {
+		boundedRadio = panel.getRadioButton("boundedRadio");
+		boundedRadio.setSelected(true);
+	}
+	
+	private void initUnboundedRadio(FormPanel panel) {
+		unboundedRadio = panel.getRadioButton("unboundedRadio");
+	}
+	
+	private void initDistanceTextField(FormPanel panel) {
 		
-		JComboBox combo = panel.getComboBox("typeCombo");
-		DefaultComboBoxModel model = new DefaultComboBoxModel();
-		model.addElement("Bounded");
-		model.addElement("Unbounded");
+		distancePerCellTextField = panel.getTextField("distance");
+		distancePerCellTextField.setText("5");
+	}
+	
+	private void initUnitTextField(FormPanel panel) {
 		
-		combo.setModel(model);
+		JTextField textField = panel.getTextField("unit");
+		textField.setText("ft");
 	}
 	
 	private void initPreviewPanel(FormPanel panel) {
 		
 		JPanel previewPanel = panel.getPanel("previewPanel");
 		previewPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
-		previewPanel.setMinimumSize(new Dimension(100, 100));
-		previewPanel.setPreferredSize(new Dimension(100, 100));
-		previewPanel.setMaximumSize(new Dimension(100, 100));
+		previewPanel.setLayout(new GridLayout());
+		previewPanel.add(getImagePreviewPanel());
+	}
+	
+	private void initNameTextField(FormPanel panel) {
+		
+		nameTextField = panel.getTextField("name");
 	}
 	
 	private void initOKButton(FormPanel panel) {
 		
-		JButton button = (JButton) panel.getButton("okButton");
+		okButton = (JButton) panel.getButton("okButton");
+		okButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				accept();
+			}
+		});
+	}
+	
+	private void initBrowseButton(FormPanel panel) {
+		
+		JButton button = (JButton) panel.getButton("browseButton");
 		button.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				status = Status.OK;
-				setVisible(false);
+				if (getImageFileChooser().showOpenDialog(NewMapDialog.this) == JFileChooser.APPROVE_OPTION) {
+					File imageFile = getImageFileChooser().getSelectedFile();
+					if (imageFile == null || imageFile.isDirectory()) {
+						return;
+					}
+					
+					try {
+						selectedAsset = AssetManager.createAsset(imageFile);
+						getImagePreviewPanel().setImage(ImageUtil.getImage(imageFile));
+					} catch (IOException ioe) {
+						getImagePreviewPanel().setImage(null);
+						selectedAsset = null;
+					}
+				}
+			}
+		});
+	}
+	
+	private void initExplorerButton(FormPanel panel) {
+		
+		JButton button = (JButton) panel.getButton("explorerButton");
+		button.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				getImageExplorerDialog().setVisible(true);
 			}
 		});
 	}
@@ -113,99 +269,246 @@ public class NewMapDialog extends JDialog /*implements WindowListener*/ {
 		});
 	}
 	
-//	private JPanel jContentPane = null;
-//	private JPanel bottomPanel = null;
-//	private JPanel buttonPanel = null;
-//	private JPanel northPanel = null;
-//	private JPanel optionsPanel = null;
-//	private JRadioButton unboundedRadioButton = null;
-//	private JRadioButton boundedRadioButton = null;
-//	private JButton okButton = null;
-//	private JButton cancelButton = null;
-//	private JTabbedPane typeTabbedPane = null;
-//	private JPanel imageExplorerPanel = null;
-//	private JPanel filesystemPanel = null;
-//	private JPanel libraryPanel = null;
-//	private JFileChooser imageFileChooser = null;
-//	private ImagePreviewWindow imagePreviewPanel;
-//	
-//	private JPanel textOptionPanel = null;
-//	private JLabel nameLabel = null;
-//	private JTextField nameTextField = null;
-//	private JFormattedTextField feetPerCellTextField = null;
-//	private JPanel previewWrapperPanel = null;
-//	private JPanel eastPanel = null;
-//	private JPanel spacerPanel = null;
-//	private JPanel attributePanel = null;
-//
-//    private File selectedFile;
-//    private Asset selectedAsset;
-//    
-//    private Asset returnAsset;
-//	private JPanel row3Panel = null;
-//	private JPanel row2Panel = null;
-//	private JLabel fpcLabel = null;
-//	private JLabel spacerLabel = null;
-//	private JLabel gridTypeLabel = null;
-//	private JComboBox gridTypeComboBox = null;
-//	/**
-//	 * This is the default constructor
-//	 */
-//	public NewMapDialog(JFrame owner) {
-//		super(owner, true);
-//		initialize();
-//		
-//        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-//        addWindowListener(this);
-//        
-//        // Escape key
-//        getJContentPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),"cancel");
-//        getJContentPane().getActionMap().put("cancel", new AbstractAction() {
-//            public void actionPerformed(ActionEvent e) {
-//                cancel();
-//            }
-//        });
-//        
-//        getRootPane().setDefaultButton(getOkButton());
-//	}
-//
-//	
-//	
-////	public Rectangle getGridBounds() {
-////		return gridBounds;
-////	}
-////
-////
-////
-////	public void setGridBounds(Rectangle gridBounds) {
-////		this.gridBounds = gridBounds;
-////	}
-////
-////
-////
-////	public int getGridCountX() {
-////		return gridCountX;
-////	}
-////
-////
-////
-////	public void setGridCountX(int gridCountX) {
-////		this.gridCountX = gridCountX;
-////	}
-////
-////
-////
-////	public int getGridCountY() {
-////		return gridCountY;
-////	}
-////
-////
-////
-////	public void setGridCountY(int gridCountY) {
-////		this.gridCountY = gridCountY;
-////	}
-////
-//
+	private JFileChooser getImageFileChooser() {
+		if (imageFileChooser == null) {
+			imageFileChooser = new JFileChooser();
+			imageFileChooser.setFileFilter(new FileFilter() {
+				@Override
+				public boolean accept(File f) {
+					return f.isDirectory()
+							|| AppConstants.IMAGE_FILE_FILTER.accept(f
+									.getAbsoluteFile(), f.getName());
+				}
+
+				@Override
+				public String getDescription() {
+					return "Images only";
+				}
+			});
+			imageFileChooser.addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, new FileSystemSelectionHandler());
+			imageFileChooser.setAccessory(getPreviewWrapperPanel());
+		}
+		return imageFileChooser;
+	}
+	
+	private JPanel getPreviewWrapperPanel() {
+		if (previewWrapperPanel == null) {
+			GridLayout gridLayout = new GridLayout();
+			gridLayout.setRows(1);
+			gridLayout.setColumns(1);
+			previewWrapperPanel = new JPanel();
+			previewWrapperPanel.setBorder(BorderFactory.createCompoundBorder(
+					BorderFactory.createEmptyBorder(0, 5, 0, 0), BorderFactory
+							.createTitledBorder(null, "Preview",
+									TitledBorder.CENTER,
+									TitledBorder.BELOW_BOTTOM, null, null)));
+			previewWrapperPanel.setLayout(gridLayout);
+			previewWrapperPanel.add(getPreviewPanel(), null);
+		}
+		return previewWrapperPanel;
+	}
+
+	private ImagePreviewPanel getPreviewPanel() {
+		if (browsePreviewPanel == null) {
+
+			browsePreviewPanel = new ImagePreviewPanel();
+		}
+
+		return browsePreviewPanel;
+	}
+	
+	private ImagePreviewPanel getImagePreviewPanel() {
+		if (imagePreviewPanel == null) {
+
+			imagePreviewPanel = new ImagePreviewPanel();
+		}
+
+		return imagePreviewPanel;
+	}
+	
+	private JDialog getImageExplorerDialog() {
+		if (imageExplorerDialog == null) {
+			imageExplorerDialog = new ImageExplorerDialog();
+			
+		}
+		
+		return imageExplorerDialog;
+	}
+	
+	public int getZoneType() {
+		return boundedRadio.isSelected() ? Zone.Type.MAP : Zone.Type.INFINITE;
+	}
+	
+	public String getZoneName() {
+		return nameTextField.getText();
+	}
+	
+	public int getZoneDistancePerCell() {
+		try {
+			// TODO: Handle this in validation
+			return Integer.parseInt(distancePerCellTextField.getText());
+		} catch (NumberFormatException nfe) {
+			return 0;
+		}
+	}
+	
+	public Grid getZoneGrid() {
+		return hexRadio.isSelected() ? new HexGrid() : new SquareGrid();
+	}
+	
+	public void setZoneType(int type) {
+		switch (type) {
+		case Zone.Type.INFINITE:
+			unboundedRadio.setSelected(true);
+			break;
+		case Zone.Type.MAP:
+			boundedRadio.setSelected(true);
+			break;
+		}
+	}
+	
+	////
+	// IMAGE EXPLORER DIALOG
+	private class ImageExplorerDialog extends JDialog {
+		
+		private Asset asset;
+		
+		public ImageExplorerDialog() {
+			super (NewMapDialog.this, "Select an image", true);
+			setLayout(new BorderLayout());
+			add(BorderLayout.CENTER, createImageExplorerPanel());
+			add(BorderLayout.SOUTH, createButtonBar());
+			setSize(300, 400);
+		}
+		
+		@Override
+		public void setVisible(boolean b) {
+			if (b) {
+				SwingUtil.centerOver(this, NewMapDialog.this);
+				
+			}
+			super.setVisible(b);
+		}
+		
+		private JPanel createButtonBar() {
+			JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+			panel.add(createOKButton());
+			panel.add(createCancelButton());
+			
+			return panel;
+		}
+
+		private JButton createOKButton() {
+			JButton button = new JButton("OK");
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (asset != null) {
+						BufferedImage image = ImageManager.getImageAndWait(asset);
+						getImagePreviewPanel().setImage(image);
+						ImageManager.flushImage(asset); 
+						
+						selectedAsset = asset;
+					}
+					setVisible(false);
+				}
+			});
+			getRootPane().setDefaultButton(button);
+			
+			return button;
+		}
+
+		private JButton createCancelButton() {
+			JButton button = new JButton("Cancel");
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					setVisible(false);
+				}
+			});
+			
+			return button;
+		}
+		
+		private JPanel createImageExplorerPanel() {
+			JPanel imageExplorerPanel = new JPanel();
+			imageExplorerPanel.setLayout(new BorderLayout());
+
+			final AssetPanel assetPanel = new AssetPanel("imageExplorer", MapTool.getFrame().getAssetPanel().getModel());
+			assetPanel.addImageSelectionListener(new SelectionListener() {
+				public void selectionPerformed(List<Object> selectedList) {
+					// There should be exactly one
+					if (selectedList.size() != 1) {
+						return;
+					}
+
+					Integer imageIndex = (Integer) selectedList.get(0);
+
+					asset = assetPanel.getAsset(imageIndex);
+				}
+			});
+
+			imageExplorerPanel.add(BorderLayout.CENTER, assetPanel);
+			return imageExplorerPanel;
+		}
+	}
+
+	
+	////
+	// IMAGE PREVIEW PANEL
+	private class ImagePreviewPanel extends JComponent {
+
+		private Image img;
+
+		public ImagePreviewPanel() {
+			setPreferredSize(new Dimension(150, 100));
+			setMinimumSize(new Dimension(150, 100));
+		}
+
+		public void setImage(Image image) {
+
+			this.img = image;
+			repaint();
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+
+			// Image
+			Dimension size = getSize();
+			if (img != null) {
+				Dimension imgSize = new Dimension(img.getWidth(null), img
+						.getHeight(null));
+				SwingUtil.constrainTo(imgSize, size.width, size.height);
+
+				// Border
+				int x = (size.width - imgSize.width) / 2;
+				int y = (size.height - imgSize.height) / 2;
+
+				g.drawImage(img, x, y, imgSize.width, imgSize.height, null);
+				g.setColor(Color.black);
+				g.drawRect(x, y, imgSize.width - 1, imgSize.height - 1);
+			}
+
+		}
+	}
+	
+	////
+	// FILE SELECTION HANDLER
+	private class FileSystemSelectionHandler implements PropertyChangeListener {
+
+		public void propertyChange(PropertyChangeEvent evt) {
+			File selectedFile = getImageFileChooser().getSelectedFile();
+			
+			if (selectedFile != null && !selectedFile.isDirectory()) {
+				try {
+					Image img = ImageUtil.getImage(selectedFile);
+					getPreviewPanel().setImage(img);
+				} catch (IOException ioe) {
+					getPreviewPanel().setImage(null);
+				}
+			}
+		}
+	}
+	
 //	@Override
 //	public void setVisible(boolean b) {
 //
@@ -215,30 +518,6 @@ public class NewMapDialog extends JDialog /*implements WindowListener*/ {
 //		}
 //		super.setVisible(b);
 //	}
-//	
-//	public int getZoneType() {
-//		return boundedRadioButton.isSelected() ? Zone.Type.MAP : Zone.Type.INFINITE;
-//	}
-//    
-//	public Grid getZoneGrid() {
-//		return gridTypeComboBox.getSelectedIndex() == 0 ? new SquareGrid() : new HexGrid();
-//	}
-//	
-//    public String getZoneName() {
-//        return getNameTextField().getText();
-//    }
-//	
-//    public int getZoneFeetPerCell() {
-//        return Integer.parseInt(getFeetPerCellTextField().getText());
-//    }
-//    
-//	public Asset showDialog() {
-//		
-//        reset();
-//		setVisible(true);
-//        return returnAsset;
-//	}
-//    
 //    public void reset() {
 //        
 //        returnAsset = null;
@@ -269,295 +548,11 @@ public class NewMapDialog extends JDialog /*implements WindowListener*/ {
 //        
 //		setVisible(false);
 //	}
-//	
-//	/**
-//	 * This method initializes this
-//	 * 
-//	 * @return void
-//	 */
-//	private void initialize() {
-//		this.setSize(565, 506);
-//		this.setEnabled(true);
-//		this.setTitle("New Map");
-//		this.setContentPane(getJContentPane());
-//		
-//		ButtonGroup group = new ButtonGroup();
-//		group.add(unboundedRadioButton);
-//		group.add(boundedRadioButton);
-//	}
-//
-//	/**
-//	 * This method initializes jContentPane
-//	 * 
-//	 * @return javax.swing.JPanel
-//	 */
-//	private JPanel getJContentPane() {
-//		if (jContentPane == null) {
-//			BorderLayout borderLayout = new BorderLayout();
-//			borderLayout.setHgap(5);
-//			borderLayout.setVgap(5);
-//			jContentPane = new JPanel();
-//			jContentPane.setLayout(borderLayout);
-//			//jContentPane.add(getEastPanel(), java.awt.BorderLayout.EAST);
-//			jContentPane.add(getBottomPanel(), java.awt.BorderLayout.SOUTH);
-//			jContentPane.add(getNorthPanel(), java.awt.BorderLayout.NORTH);
-//			jContentPane.add(getTypeTabbedPane(), java.awt.BorderLayout.CENTER);
-//		}
-//		return jContentPane;
-//	}
-//
-//	/**
-//	 * This method initializes bottomPanel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JPanel getBottomPanel() {
-//		if (bottomPanel == null) {
-//			bottomPanel = new JPanel();
-//			bottomPanel.setLayout(new BorderLayout());
-//			bottomPanel.add(getButtonPanel(), java.awt.BorderLayout.SOUTH);
-//		}
-//		return bottomPanel;
-//	}
-//
-//	/**
-//	 * This method initializes buttonPanel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JPanel getButtonPanel() {
-//		if (buttonPanel == null) {
-//			FlowLayout flowLayout = new FlowLayout();
-//			flowLayout.setAlignment(java.awt.FlowLayout.RIGHT);
-//			buttonPanel = new JPanel();
-//			buttonPanel.setLayout(flowLayout);
-//			buttonPanel.add(getOkButton(), null);
-//			buttonPanel.add(getCancelButton(), null);
-//		}
-//		return buttonPanel;
-//	}
-//
-//	/**
-//	 * This method initializes eastPanel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JPanel getNorthPanel() {
-//		if (northPanel == null) {
-//			northPanel = new JPanel();
-//			northPanel.setLayout(new BorderLayout());
-//			northPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(3,5,3,5));
-//			northPanel.add(getOptionsPanel(), java.awt.BorderLayout.SOUTH);
-//		}
-//		return northPanel;
-//	}
-//
-//	/**
-//	 * This method initializes previewPanel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JComponent getPreviewPanel() {
-//		if (imagePreviewPanel == null) {
-//			
-//			imagePreviewPanel = new ImagePreviewWindow();
-//		}
-//		
-//		return imagePreviewPanel;
-//	}
-//
-//	/**
-//	 * This method initializes optionsPanel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JPanel getOptionsPanel() {
-//		if (optionsPanel == null) {
-//			GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
-//			gridBagConstraints11.gridx = 0;
-//			gridBagConstraints11.fill = java.awt.GridBagConstraints.HORIZONTAL;
-//			gridBagConstraints11.gridwidth = 1;
-//			gridBagConstraints11.weightx = 1.0D;
-//			gridBagConstraints11.ipadx = 0;
-//			gridBagConstraints11.insets = new java.awt.Insets(0,5,0,5);
-//			gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
-//			gridBagConstraints11.gridy = 1;
-//			optionsPanel = new JPanel();
-//			optionsPanel.setLayout(new GridBagLayout());
-//			optionsPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(5,0,0,0));
-//			optionsPanel.add(getTextOptionPanel(), gridBagConstraints11);
-//		}
-//		return optionsPanel;
-//	}
-//
-//	/**
-//	 * This method initializes unboundedRadioButton	
-//	 * 	
-//	 * @return javax.swing.JRadioButton	
-//	 */
-//	private JRadioButton getUnboundedRadioButton() {
-//		if (unboundedRadioButton == null) {
-//			unboundedRadioButton = new JRadioButton();
-//			unboundedRadioButton.setText("Unbounded");
-//			unboundedRadioButton.setSelected(false);
-//		}
-//		return unboundedRadioButton;
-//	}
-//
-//	/**
-//	 * This method initializes boundedRadioButton	
-//	 * 	
-//	 * @return javax.swing.JRadioButton	
-//	 */
-//	private JRadioButton getBoundedRadioButton() {
-//		if (boundedRadioButton == null) {
-//			boundedRadioButton = new JRadioButton();
-//			boundedRadioButton.setText("Bounded");
-//			boundedRadioButton.setSelected(true);
-//			boundedRadioButton.addItemListener(new java.awt.event.ItemListener() {
-//				public void itemStateChanged(java.awt.event.ItemEvent e) {
-//					if (boundedRadioButton.isSelected()) {
-//						//adjustGridButton.setEnabled(true);
-//					}
-//				}
-//			});
-//		}
-//		return boundedRadioButton;
-//	}
-//
-//	/**
-//	 * This method initializes okButton	
-//	 * 	
-//	 * @return javax.swing.JButton	
-//	 */
-//	private JButton getOkButton() {
-//		if (okButton == null) {
-//			okButton = new JButton();
-//			okButton.setText("OK");
-//			okButton.addActionListener(new ActionListener() {
-//				
-//				public void actionPerformed(ActionEvent e) {
-//					accept();
-//				}
-//			});
-//		}
-//		return okButton;
-//	}
-//
-//	/**
-//	 * This method initializes cancelButton	
-//	 * 	
-//	 * @return javax.swing.JButton	
-//	 */
-//	private JButton getCancelButton() {
-//		if (cancelButton == null) {
-//			cancelButton = new JButton();
-//			cancelButton.setText("Cancel");
-//			cancelButton.addActionListener(new ActionListener() {
-//				
-//				public void actionPerformed(ActionEvent e) {
-//					cancel();
-//				}
-//			});
-//		}
-//		return cancelButton;
-//	}
-//
-//	/**
-//	 * This method initializes typeTabbedPane	
-//	 * 	
-//	 * @return javax.swing.JTabbedPane	
-//	 */
-//	private JTabbedPane getTypeTabbedPane() {
-//		if (typeTabbedPane == null) {
-//			typeTabbedPane = new JTabbedPane();
-//			typeTabbedPane.addTab("Filesystem", null, getFilesystemPanel(), null);
-//			typeTabbedPane.addTab("Images", null, getImageExplorerPanel(), null);
-//			//typeTabbedPane.addTab("Library", null, getLibraryPanel(), null);
-//		}
-//		return typeTabbedPane;
-//	}
-//
 //	/**
 //	 * This method initializes imageExplorerPanel	
 //	 * 	
 //	 * @return javax.swing.JPanel	
 //	 */
-//	private JPanel getImageExplorerPanel() {
-//		if (imageExplorerPanel == null) {
-//			imageExplorerPanel = new JPanel();
-//			imageExplorerPanel.setLayout(new BorderLayout());
-//			
-//			final AssetPanel assetPanel = new AssetPanel("imageExplorer", MapTool.getFrame().getAssetPanel().getModel());
-//			assetPanel.addImageSelectionListener(new SelectionListener() {
-//				public void selectionPerformed(List<Object> selectedList) {
-//					// There should be exactly one
-//					if (selectedList.size() != 1) {
-//						return;
-//					}
-//					
-//					Integer imageIndex = (Integer) selectedList.get(0);
-//					
-//					setSelectedAsset(assetPanel.getAsset(imageIndex));
-//				}
-//			});
-//			
-//			imageExplorerPanel.add(BorderLayout.CENTER, assetPanel);
-//		}
-//		return imageExplorerPanel;
-//	}
-//
-//	/**
-//	 * This method initializes filesystemPanel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JPanel getFilesystemPanel() {
-//		if (filesystemPanel == null) {
-//			filesystemPanel = new JPanel();
-//			filesystemPanel.setLayout(new BorderLayout());
-//			filesystemPanel.add(getImageFileChooser(), java.awt.BorderLayout.NORTH);
-//		}
-//		return filesystemPanel;
-//	}
-//
-//	/**
-//	 * This method initializes libraryPanel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JPanel getLibraryPanel() {
-//		if (libraryPanel == null) {
-//			libraryPanel = new JPanel();
-//		}
-//		return libraryPanel;
-//	}
-//
-//	/**
-//	 * This method initializes imageFileChooser	
-//	 * 	
-//	 * @return javax.swing.JFileChooser	
-//	 */
-//	private JFileChooser getImageFileChooser() {
-//		if (imageFileChooser == null) {
-//			imageFileChooser = new JFileChooser();
-//			imageFileChooser.setControlButtonsAreShown(false);
-//			imageFileChooser.setFileFilter(new FileFilter() {
-//				@Override
-//				public boolean accept(File f) {
-//					return f.isDirectory() || AppConstants.IMAGE_FILE_FILTER.accept(f.getAbsoluteFile(), f.getName());
-//				}
-//				@Override
-//				public String getDescription() {
-//					return "Images only";
-//				}
-//			});
-//			imageFileChooser.addPropertyChangeListener(new FileSystemSelectionHandler());
-//			imageFileChooser.setAccessory(getPreviewWrapperPanel());
-//		}
-//		return imageFileChooser;
-//	}
-//	
 //	private void setSelectedFile(File file) {
 //		
 //		selectedFile = file;
@@ -578,62 +573,7 @@ public class NewMapDialog extends JDialog /*implements WindowListener*/ {
 //		//getAdjustGridButton().setEnabled(asset != null && getBoundedRadioButton().isSelected());
 //	}
 //
-//	private class ImagePreviewWindow extends JComponent {
-//		
-//		private Image img;
-//		
-//		public ImagePreviewWindow() {
-//			setPreferredSize(new Dimension(150, 100));
-//			setMinimumSize(new Dimension(150, 100));
-//		}
-//		
-//		public void setImage(File file) {
-//			if (file == null) {
-//				img = null;
-//				repaint();
-//				return;
-//			}
-//			
-//			try {
-//				img = ImageUtil.getImage(file);
-//			} catch (IOException ioe) {
-//				img = null;
-//			}
-//			repaint();
-//		}
-//		
-//		@Override
-//		protected void paintComponent(Graphics g) {
-//
-//			// Image
-//			Dimension size = getSize();
-//			if (img != null) {
-//				Dimension imgSize = new Dimension(img.getWidth(null), img.getHeight(null));
-//				SwingUtil.constrainTo(imgSize, size.width, size.height);
-//
-//				// Border
-//				int x = (size.width - imgSize.width)/2;
-//				int y = (size.height - imgSize.height)/2;
-//				
-//				g.drawImage(img, x, y, imgSize.width, imgSize.height, null);
-//				g.setColor(Color.black);
-//				g.drawRect(x, y, imgSize.width-1, imgSize.height-1);
-//			}	
-//
-//		}
-//	}
-//	
-//	private class FileSystemSelectionHandler implements PropertyChangeListener {
-//		
-//		public void propertyChange(PropertyChangeEvent evt) {
-//
-//			if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
-//				File selectedFile = getImageFileChooser().getSelectedFile();
-//				
-//				setSelectedFile(selectedFile);
-//			}
-//		}
-//	}
+
 //	
 //	////
 //	// WINDOW LISTENER
@@ -648,91 +588,6 @@ public class NewMapDialog extends JDialog /*implements WindowListener*/ {
 //	public void windowDeiconified(WindowEvent e) {}
 //	public void windowIconified(WindowEvent e) {}
 //	public void windowOpened(WindowEvent e) {}
-//
-//	/**
-//	 * This method initializes textOptionPanel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JPanel getTextOptionPanel() {
-//		if (textOptionPanel == null) {
-//			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
-//			gridBagConstraints7.fill = java.awt.GridBagConstraints.NONE;
-//			gridBagConstraints7.gridy = 4;
-//			gridBagConstraints7.weightx = 1.0;
-//			gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
-//			gridBagConstraints7.gridx = 1;
-//			GridBagConstraints gridBagConstraints = new GridBagConstraints();
-//			gridBagConstraints.gridx = 0;
-//			gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-//			gridBagConstraints.gridy = 4;
-//			gridTypeLabel = new JLabel();
-//			gridTypeLabel.setText("Grid:");
-//			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-//			gridBagConstraints3.gridx = 1;
-//			gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
-//			gridBagConstraints3.insets = new java.awt.Insets(0,0,3,0);
-//			gridBagConstraints3.gridy = 1;
-//			GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
-//			gridBagConstraints21.gridx = 2;
-//			gridBagConstraints21.insets = new java.awt.Insets(0,0,3,0);
-//			gridBagConstraints21.gridy = 0;
-//			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
-//			gridBagConstraints12.gridx = 1;
-//			gridBagConstraints12.anchor = java.awt.GridBagConstraints.WEST;
-//			gridBagConstraints12.gridy = 3;
-//			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-//			gridBagConstraints5.fill = java.awt.GridBagConstraints.NONE;
-//			gridBagConstraints5.gridy = 0;
-//			gridBagConstraints5.weightx = 1.0;
-//			gridBagConstraints5.gridwidth = 1;
-//			gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-//			gridBagConstraints5.insets = new java.awt.Insets(0,0,3,0);
-//			gridBagConstraints5.gridx = 1;
-//			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-//			gridBagConstraints4.anchor = java.awt.GridBagConstraints.WEST;
-//			gridBagConstraints4.insets = new java.awt.Insets(0,0,3,5);
-//			nameLabel = new JLabel();
-//			nameLabel.setText("Name:");
-//			textOptionPanel = new JPanel();
-//			textOptionPanel.setLayout(new GridBagLayout());
-//			textOptionPanel.add(nameLabel, gridBagConstraints4);
-//			textOptionPanel.add(getNameTextField(), gridBagConstraints5);
-//			textOptionPanel.add(getRow3Panel(), gridBagConstraints12);
-//			textOptionPanel.add(getRow2Panel(), gridBagConstraints3);
-//			textOptionPanel.add(gridTypeLabel, gridBagConstraints);
-//			textOptionPanel.add(getGridTypeComboBox(), gridBagConstraints7);
-//		}
-//		return textOptionPanel;
-//	}
-//
-//	/**
-//	 * This method initializes nameTextField	
-//	 * 	
-//	 * @return javax.swing.JTextField	
-//	 */
-//	private JTextField getNameTextField() {
-//		if (nameTextField == null) {
-//			nameTextField = new JTextField();
-//			nameTextField.setColumns(25);
-//		}
-//		return nameTextField;
-//	}
-//
-//	/**
-//	 * This method initializes feetPerCellTextField	
-//	 * 	
-//	 * @return javax.swing.JTextField	
-//	 */
-//	private JTextField getFeetPerCellTextField() {
-//		if (feetPerCellTextField == null) {
-//			feetPerCellTextField = new JFormattedTextField(new Integer(1000));
-//			feetPerCellTextField.setColumns(3);
-//			feetPerCellTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-//            feetPerCellTextField.setValue(Zone.DEFAULT_FEET_PER_CELL);
-//		}
-//		return feetPerCellTextField;
-//	}
 //
 //	/**
 //	 * This method initializes previewWrapperPanel	
@@ -751,112 +606,4 @@ public class NewMapDialog extends JDialog /*implements WindowListener*/ {
 //		}
 //		return previewWrapperPanel;
 //	}
-//
-//	/**
-//	 * This method initializes eastPanel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JPanel getEastPanel() {
-//		if (eastPanel == null) {
-//			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-//			gridBagConstraints6.gridx = 1;
-//			gridBagConstraints6.gridy = 2;
-//			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-//			gridBagConstraints1.gridx = 1;
-//			gridBagConstraints1.gridy = 0;
-//			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-//			gridBagConstraints2.gridx = 1;
-//			gridBagConstraints2.weighty = 1.0D;
-//			gridBagConstraints2.gridy = 3;
-//			eastPanel = new JPanel();
-//			eastPanel.setLayout(new GridBagLayout());
-//			eastPanel.add(getSpacerPanel(), gridBagConstraints2);
-//			eastPanel.add(getPreviewWrapperPanel(), gridBagConstraints1);
-//			eastPanel.add(getAttributePanel(), gridBagConstraints6);
-//		}
-//		return eastPanel;
-//	}
-//
-//	/**
-//	 * This method initializes spacerPanel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JPanel getSpacerPanel() {
-//		if (spacerPanel == null) {
-//			spacerPanel = new JPanel();
-//		}
-//		return spacerPanel;
-//	}
-//
-//	/**
-//	 * This method initializes attributePanel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JPanel getAttributePanel() {
-//		if (attributePanel == null) {
-//			attributePanel = new JPanel();
-//			attributePanel.setLayout(new BoxLayout(getAttributePanel(), BoxLayout.Y_AXIS));
-//		}
-//		return attributePanel;
-//	}
-//
-//	/**
-//	 * This method initializes row3Panel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JPanel getRow3Panel() {
-//		if (row3Panel == null) {
-//			spacerLabel = new JLabel();
-//			spacerLabel.setText("  ");
-//			FlowLayout flowLayout3 = new FlowLayout();
-//			flowLayout3.setAlignment(java.awt.FlowLayout.LEFT);
-//			flowLayout3.setVgap(0);
-//			flowLayout3.setHgap(0);
-//			row3Panel = new JPanel();
-//			row3Panel.setLayout(flowLayout3);
-//			row3Panel.add(getBoundedRadioButton(), null);
-//			row3Panel.add(spacerLabel, null);
-//			row3Panel.add(getUnboundedRadioButton(), null);
-//		}
-//		return row3Panel;
-//	}
-//
-//	/**
-//	 * This method initializes row2Panel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JPanel getRow2Panel() {
-//		if (row2Panel == null) {
-//			FlowLayout flowLayout4 = new FlowLayout();
-//			flowLayout4.setHgap(0);
-//			flowLayout4.setVgap(0);
-//			fpcLabel = new JLabel();
-//			fpcLabel.setText("   Feet per cell");
-//			row2Panel = new JPanel();
-//			row2Panel.setLayout(flowLayout4);
-//			row2Panel.add(getFeetPerCellTextField(), null);
-//			row2Panel.add(fpcLabel, null);
-//		}
-//		return row2Panel;
-//	}
-//
-//
-//
-//	/**
-//	 * This method initializes gridTypeComboBox	
-//	 * 	
-//	 * @return javax.swing.JComboBox	
-//	 */
-//	private JComboBox getGridTypeComboBox() {
-//		if (gridTypeComboBox == null) {
-//			gridTypeComboBox = new JComboBox(new String[]{"Square", "Hex"});
-//		}
-//		return gridTypeComboBox;
-//	}
-//	
 }
