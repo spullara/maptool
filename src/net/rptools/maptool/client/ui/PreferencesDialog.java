@@ -2,10 +2,15 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
@@ -13,6 +18,7 @@ import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.GridFactory;
 
 import com.jeta.forms.components.panel.FormPanel;
 
@@ -27,6 +33,7 @@ public class PreferencesDialog extends JDialog {
 	private JCheckBox stampsStartFreeSizeCheckBox;
 	private JCheckBox backgroundsStartSnapToGridCheckBox;
 	private JCheckBox backgroundsStartFreeSizeCheckBox;
+	private JComboBox defaultGridTypeCombo;
 	
 	public PreferencesDialog() {
 		super (MapTool.getFrame(), "Preferences", true);
@@ -53,7 +60,7 @@ public class PreferencesDialog extends JDialog {
 		stampsStartSnapToGridCheckBox = panel.getCheckBox("stampsStartSnapToGrid");
 		backgroundsStartFreeSizeCheckBox = panel.getCheckBox("backgroundsStartFreeSize");
 		backgroundsStartSnapToGridCheckBox = panel.getCheckBox("backgroundsStartSnapToGrid");
-		
+		defaultGridTypeCombo = panel.getComboBox("defaultGridTypeCombo");
 		
 		setInitialState();
 
@@ -106,6 +113,18 @@ public class PreferencesDialog extends JDialog {
 		backgroundsStartSnapToGridCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setBackgroundsStartSnapToGrid(backgroundsStartSnapToGridCheckBox.isSelected());
+			}
+		});
+
+		DefaultComboBoxModel model = new DefaultComboBoxModel();
+		model.addElement(GridFactory.SQUARE);
+		model.addElement(GridFactory.HEX);
+		model.setSelectedItem(AppPreferences.getDefaultGridType());
+		defaultGridTypeCombo.setModel(model);
+		defaultGridTypeCombo.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				AppPreferences.setDefaultGridType((String) defaultGridTypeCombo.getSelectedItem());
+				System.out.println("TYPE:  " + AppPreferences.getDefaultGridType());
 			}
 		});
 		

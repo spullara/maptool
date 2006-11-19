@@ -35,11 +35,13 @@ import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppConstants;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.HexGrid;
 import net.rptools.maptool.model.SquareGrid;
 import net.rptools.maptool.model.Zone;
@@ -174,11 +176,13 @@ public class NewMapDialog extends JDialog  {
 	
 	private void initHexRadio(FormPanel panel) {
 		hexRadio = panel.getRadioButton("hexRadio");
+		hexRadio.setSelected(GridFactory.isHex(AppPreferences.getDefaultGridType()));
 	}
 	
 	private void initSquareRadio(FormPanel panel) {
 		squareRadio = panel.getRadioButton("squareRadio");
-		squareRadio.setSelected(true);
+		squareRadio.setSelected(GridFactory.isSquare(AppPreferences.getDefaultGridType()));
+		
 	}
 	
 	private void initBoundedRadio(FormPanel panel) {

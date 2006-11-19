@@ -125,6 +125,10 @@ public class AppMenuBar extends JMenuBar {
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.REMOVE_ZONE));
         
+        menu.addSeparator();
+        
+        menu.add(new JMenuItem(AppActions.SHOW_PREFERENCES));
+
         return menu;
     }    
 
@@ -150,9 +154,6 @@ public class AppMenuBar extends JMenuBar {
 
         menu.add(new JMenuItem(AppActions.SHOW_FULLSCREEN));
 
-        menu.addSeparator();
-        
-        menu.add(new JMenuItem(AppActions.SHOW_PREFERENCES));
 
         return menu;
     }

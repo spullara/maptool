@@ -163,7 +163,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	private CommandPanel commandPanel;
     private AboutDialog aboutDialog;
     private ColorPicker colorPicker;
-    private NewMapDialog newMapDialog;
     private Toolbox toolbox;
     private ZoneSelectionPanel zoneSelectionPanel;
     private JPanel zoneRendererPanel;
@@ -446,13 +445,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	
 	public void hideCommandPanel() {
 		rightSplitPane.hideBottom();
-	}
-	
-	public NewMapDialog getNewMapDialog() {
-        if (newMapDialog == null) {
-            newMapDialog = new NewMapDialog(this);
-        }
-		return newMapDialog;
 	}
 	
     public ColorPicker getColorPicker() {

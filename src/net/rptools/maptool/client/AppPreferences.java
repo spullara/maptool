@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import net.rptools.maptool.model.GridFactory;
+
 
 public class AppPreferences {
 
@@ -65,6 +67,9 @@ public class AppPreferences {
     private static final String KEY_BACKGROUNDS_START_FREESIZE = "newBackgroundsStartFreesize";
     private static final boolean DEFAULT_BACKGROUNDS_START_FREESIZE = true;
 
+    private static final String KEY_DEFAULT_GRID_TYPE = "defaultGridType";
+    private static final String DEFAULT_DEFAULT_GRID_TYPE = GridFactory.SQUARE;
+    
     public static void setUseTranslucentFog(boolean flag) {
     	prefs.putBoolean(KEY_USE_TRANSLUCENT_FOG, flag);
     }
@@ -135,6 +140,14 @@ public class AppPreferences {
     
     public static boolean getBackgroundsStartFreesize() {
     	return prefs.getBoolean(KEY_BACKGROUNDS_START_FREESIZE, DEFAULT_BACKGROUNDS_START_FREESIZE);
+    }
+    
+    public static String getDefaultGridType() {
+    	return prefs.get(KEY_DEFAULT_GRID_TYPE, DEFAULT_DEFAULT_GRID_TYPE);
+    }
+    
+    public static void setDefaultGridType(String type) {
+    	prefs.put(KEY_DEFAULT_GRID_TYPE, type);
     }
     
     public static void clearAssetRoots() {

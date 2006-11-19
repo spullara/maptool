@@ -74,6 +74,7 @@ import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.ExportInfo;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -1238,6 +1239,7 @@ public class AppActions {
 				public void run() {
 
 					Zone zone = ZoneFactory.createZone(Zone.Type.INFINITE, assetId);
+					zone.setGrid(GridFactory.createGrid(AppPreferences.getDefaultGridType()));
 					zone.getGrid().setOffset(0, 0);
 					zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
 
