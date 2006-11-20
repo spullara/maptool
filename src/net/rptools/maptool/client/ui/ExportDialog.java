@@ -39,10 +39,11 @@ public class ExportDialog extends JDialog {
 	private JRadioButton typeCurrentViewRadio;
 	private JRadioButton typeFullMapRadio;
 
-	private JFileChooser fileChooser;
+	private JTextField locationTextField;
 
 	private JButton exportButton;
 	private JButton cancelButton;
+	private JButton browseButton;
 	
 	private FormPanel formPanel;
 	
@@ -61,10 +62,11 @@ public class ExportDialog extends JDialog {
 		getPasswordField();
 		getPathTextField();
 
-		getFileChooser();
+		getLocationTextField();
 		
 		getExportButton();
 		getCancelButton();
+		getBrowseButton();
 		
 		setLayout(new GridLayout());
 		add(formPanel);
@@ -115,7 +117,7 @@ public class ExportDialog extends JDialog {
 		}
 		if (location instanceof LocalLocation) {
 			LocalLocation localLocation = (LocalLocation) location;
-			getFileChooser().setSelectedFile(localLocation.getFile());
+			getLocationTextField().setText(localLocation.getFile().getAbsolutePath());
 		}
 	}
 	
@@ -206,17 +208,13 @@ public class ExportDialog extends JDialog {
 		return ftpPathTextField;
 	}
 	
-	public JFileChooser getFileChooser() {
-		if (fileChooser == null) {
-			fileChooser = (JFileChooser) formPanel.getComponentByName("filechooser");
-			fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-			fileChooser.setMultiSelectionEnabled(false);
-			fileChooser.setCurrentDirectory(AppUtil.getUserHome());
+	public JTextField getLocationTextField() {
+		if (locationTextField == null) {
 			
-			fileChooser.addPropertyChangeListener(new FileSelectionHandler());
+			locationTextField = formPanel.getTextField("locationTextField");
 		}
 		
-		return fileChooser;
+		return locationTextField;
 	}
 	
 	public JButton getExportButton() {
@@ -255,12 +253,8 @@ public class ExportDialog extends JDialog {
 					// TODO: Make this less fragile
 					switch (getTabbedPane().getSelectedIndex()) {
 					case 0:
-						getFileChooser().approveSelection();
 
-						File file = getFileChooser().getSelectedFile();
-						if (file == null) {
-							file = new File(getFileChooser().getCurrentDirectory() + "/maptoolScreen");
-						}
+						File file = new File(getLocationTextField().getText());
 						
 						if (!file.getName().toLowerCase().endsWith(".png")) {
 							file = new File(file.getAbsolutePath() + ".png");
@@ -305,17 +299,25 @@ public class ExportDialog extends JDialog {
 		
 		return cancelButton;
 	}
-	
-	private class FileSelectionHandler implements PropertyChangeListener {
-		
-		public void propertyChange(PropertyChangeEvent evt) {
 
-			if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
-				File selectedFile = getFileChooser().getSelectedFile();
-				
-				System.out.println ("SELECTED::" + selectedFile);
-//				setSelectedFile(selectedFile);
-			}
+	public JButton getBrowseButton() {
+		if (browseButton == null) {
+			browseButton = (JButton) formPanel.getButton("browseButton");
+			browseButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					JFileChooser chooser = new JFileChooser();
+					if (exportInfo != null && exportInfo.getLocation() instanceof LocalLocation) {
+						LocalLocation location = (LocalLocation) exportInfo.getLocation();
+						chooser.setSelectedFile(location.getFile());
+					}
+					
+					if (chooser.showOpenDialog(ExportDialog.this) == JFileChooser.APPROVE_OPTION) {
+						getLocationTextField().setText(chooser.getSelectedFile().getAbsolutePath());
+					}
+				}
+			});
 		}
+		
+		return cancelButton;
 	}
 }
