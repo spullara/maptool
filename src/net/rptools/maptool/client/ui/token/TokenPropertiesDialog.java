@@ -87,8 +87,8 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	private JTextField tokenGMName;
 	private JLabel tokenGMNameLabel;
 	private ImageComponent tokenIcon;
-	private JEditorPane notes;
-	private JEditorPane gmNotes;
+	private JTextArea notes;
+	private JTextArea gmNotes;
 	private JLabel gmNotesLabel;
 	private JComboBox shape;
 	private JComboBox size;
@@ -120,8 +120,8 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		tokenName = panel.getTextField("tokenName");
 		tokenGMName = panel.getTextField("tokenGMName");
 		tokenIcon = (ImageComponent) panel.getComponentByName("tokenIcon");
-		notes = (JEditorPane) panel.getTextComponent("notes");
-		gmNotes = (JEditorPane) panel.getTextComponent("gmNotes");
+		notes = (JTextArea) panel.getTextComponent("notes");
+		gmNotes = (JTextArea) panel.getTextComponent("gmNotes");
 		snapToGrid = panel.getCheckBox("snapToGrid");
 		gmNotesLabel = panel.getLabel("gmNotesLabel");
 		tokenGMNameLabel = panel.getLabel("tokenGMNameLabel");
@@ -393,9 +393,9 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	// HANDLER
 	public class MouseHandler extends MouseAdapter {
 		
-		JEditorPane source;
+		JTextArea source;
 		
-		public MouseHandler(JEditorPane source) {
+		public MouseHandler(JTextArea source) {
 			this.source = source;
 		}
 		
