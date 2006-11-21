@@ -103,14 +103,11 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	private Paint nonAlphaSelectionPaint;
 	
 	private boolean isShowingTokenStackPopup;
-    private boolean isShowingPointer; 
     private boolean isDraggingToken;
     private boolean isNewTokenSelected;
     private boolean isDrawingSelectionBox;
-    private boolean isSpaceDown;
     private boolean isMovingWithKeys;
     private boolean isResizingToken;
-    private boolean isRotatingToken;
     private Rectangle selectionBoundBox;
 
 	private Token tokenBeingDragged;
@@ -336,12 +333,12 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		}
 
 		// Check token rotation
-		for (Entry<Shape, Token> entry : rotateBoundsMap.entrySet()) {
-			if (entry.getKey().contains(dragStartX, dragStartY)) {
-				isRotatingToken = true;
-				return;
-			}
-		}
+//		for (Entry<Shape, Token> entry : rotateBoundsMap.entrySet()) {
+//			if (entry.getKey().contains(dragStartX, dragStartY)) {
+//				isRotatingToken = true;
+//				return;
+//			}
+//		}
 		
 		// Properties
 		if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
