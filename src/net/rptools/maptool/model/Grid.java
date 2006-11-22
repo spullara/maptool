@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.model.Zone.Event;
@@ -27,14 +28,13 @@ public abstract class Grid {
 	private Area cellShape;
 	
 	public Grid() {
-		setSize(getDefaultGridSize());
+		setSize(AppPreferences.getDefaultGridSize());
 	}
 	
 	public abstract CellPoint convert(ZonePoint zp);
 	public abstract ZonePoint convert(CellPoint cp);
 	public abstract GridCapabilities getCapabilities();
 	public abstract int getTokenSpace();
-	public abstract int getDefaultGridSize();
 	public abstract double getCellWidth();
 	public abstract double getCellHeight();
 	public abstract Dimension getCellOffset();

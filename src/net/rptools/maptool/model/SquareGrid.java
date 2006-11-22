@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
@@ -49,11 +50,6 @@ public class SquareGrid extends Grid {
 		return getSize();
 	}
 
-	@Override
-	public int getDefaultGridSize() {
-		return 40;
-	}
-	
 	@Override
 	public int[] getFacingAngles() {
 		return FACING_ANGLES;

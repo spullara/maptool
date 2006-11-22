@@ -61,11 +61,6 @@ public class HexGrid extends Grid {
 	}
 	
 	@Override
-	public int getDefaultGridSize() {
-		return 50;
-	}
-	
-	@Override
 	public int[] getFacingAngles() {
 		return FACING_ANGLES;
 	}

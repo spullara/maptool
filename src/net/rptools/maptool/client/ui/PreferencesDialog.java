@@ -7,12 +7,14 @@ import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppPreferences;
@@ -24,7 +26,10 @@ import com.jeta.forms.components.panel.FormPanel;
 
 public class PreferencesDialog extends JDialog {
 
+	// Performance
 	private JCheckBox useTranslucentFogCheckBox;
+
+	// Interactions
 	private JCheckBox newMapsHaveFOWCheckBox;
 	private JCheckBox tokensStartSnapToGridCheckBox;
 	private JCheckBox newMapsVisibleCheckBox;
@@ -33,7 +38,10 @@ public class PreferencesDialog extends JDialog {
 	private JCheckBox stampsStartFreeSizeCheckBox;
 	private JCheckBox backgroundsStartSnapToGridCheckBox;
 	private JCheckBox backgroundsStartFreeSizeCheckBox;
+
+	// Defaults
 	private JComboBox defaultGridTypeCombo;
+	private JTextField defaultGridSizeTextField;
 	
 	public PreferencesDialog() {
 		super (MapTool.getFrame(), "Preferences", true);
@@ -61,6 +69,7 @@ public class PreferencesDialog extends JDialog {
 		backgroundsStartFreeSizeCheckBox = panel.getCheckBox("backgroundsStartFreeSize");
 		backgroundsStartSnapToGridCheckBox = panel.getCheckBox("backgroundsStartSnapToGrid");
 		defaultGridTypeCombo = panel.getComboBox("defaultGridTypeCombo");
+		defaultGridSizeTextField = panel.getTextField("defaultGridSize");
 		
 		setInitialState();
 
@@ -115,6 +124,26 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setBackgroundsStartSnapToGrid(backgroundsStartSnapToGridCheckBox.isSelected());
 			}
 		});
+		defaultGridSizeTextField.getDocument().addDocumentListener(new DocumentListener() {
+			public void changedUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void insertUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void removeUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			
+			private void updateValue() {
+				try {
+					int value = Integer.parseInt(defaultGridSizeTextField.getText());
+					AppPreferences.setDefaultGridSize(value);
+				} catch (NumberFormatException nfe) {
+					// Ignore it
+				}
+			}
+		});
 
 		DefaultComboBoxModel model = new DefaultComboBoxModel();
 		model.addElement(GridFactory.SQUARE);
@@ -124,7 +153,6 @@ public class PreferencesDialog extends JDialog {
 		defaultGridTypeCombo.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				AppPreferences.setDefaultGridType((String) defaultGridTypeCombo.getSelectedItem());
-				System.out.println("TYPE:  " + AppPreferences.getDefaultGridType());
 			}
 		});
 		
@@ -153,6 +181,6 @@ public class PreferencesDialog extends JDialog {
 		stampsStartSnapToGridCheckBox.setSelected(AppPreferences.getStampsStartSnapToGrid());
 		backgroundsStartFreeSizeCheckBox.setSelected(AppPreferences.getBackgroundsStartFreesize());
 		backgroundsStartSnapToGridCheckBox.setSelected(AppPreferences.getBackgroundsStartSnapToGrid());
-		
+		defaultGridSizeTextField.setText(Integer.toString(AppPreferences.getDefaultGridSize()));
 	}
 }

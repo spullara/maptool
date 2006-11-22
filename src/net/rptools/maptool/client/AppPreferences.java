@@ -70,6 +70,17 @@ public class AppPreferences {
     private static final String KEY_DEFAULT_GRID_TYPE = "defaultGridType";
     private static final String DEFAULT_DEFAULT_GRID_TYPE = GridFactory.SQUARE;
     
+    private static final String KEY_DEFAULT_GRID_SIZE = "defaultGridSize";
+    private static final int DEFAULT_DEFAULT_GRID_SIZE = 40;
+    
+    public static void setDefaultGridSize(int size) {
+    	prefs.putInt(KEY_DEFAULT_GRID_SIZE, size);
+    }
+    
+    public static int getDefaultGridSize() {
+    	return prefs.getInt(KEY_DEFAULT_GRID_SIZE, DEFAULT_DEFAULT_GRID_SIZE);
+    }
+    
     public static void setUseTranslucentFog(boolean flag) {
     	prefs.putBoolean(KEY_USE_TRANSLUCENT_FOG, flag);
     }
