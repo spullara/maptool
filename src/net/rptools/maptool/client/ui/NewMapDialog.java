@@ -57,6 +57,8 @@ public class NewMapDialog extends JDialog  {
 		CANCEL
 	}
 	
+	private static File lastFilePath;
+	
 	private Status status;
 	
 	private JFileChooser imageFileChooser;
@@ -233,6 +235,7 @@ public class NewMapDialog extends JDialog  {
 						return;
 					}
 					
+					lastFilePath = new File(imageFile.getParentFile() + "/.");
 					try {
 						selectedAsset = AssetManager.createAsset(imageFile);
 						getImagePreviewPanel().setImage(ImageUtil.getImage(imageFile));
@@ -284,6 +287,9 @@ public class NewMapDialog extends JDialog  {
 			});
 			imageFileChooser.addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, new FileSystemSelectionHandler());
 			imageFileChooser.setAccessory(getPreviewWrapperPanel());
+			if (lastFilePath != null) {
+				imageFileChooser.setSelectedFile(lastFilePath);
+			}
 		}
 		return imageFileChooser;
 	}
