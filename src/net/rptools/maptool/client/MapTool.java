@@ -313,6 +313,8 @@ public class MapTool {
             if (currRenderer == null && (getPlayer().isGM() || zone.isVisible())){
                 currRenderer = renderer;
             }
+            
+            AppListeners.fireZoneAdded(zone);
         }
 
     	clientFrame.setCurrentZoneRenderer(currRenderer);
