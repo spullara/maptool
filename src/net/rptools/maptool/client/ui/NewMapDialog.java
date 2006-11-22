@@ -124,7 +124,6 @@ public class NewMapDialog extends JDialog  {
 		initPreviewPanel(panel);
 
 		initDistanceTextField(panel);
-		initUnitTextField(panel);
 		
 		initHexRadio(panel);
 		initSquareRadio(panel);
@@ -198,12 +197,6 @@ public class NewMapDialog extends JDialog  {
 		
 		distancePerCellTextField = panel.getTextField("distance");
 		distancePerCellTextField.setText("5");
-	}
-	
-	private void initUnitTextField(FormPanel panel) {
-		
-		JTextField textField = panel.getTextField("unit");
-		textField.setText("ft");
 	}
 	
 	private void initPreviewPanel(FormPanel panel) {
