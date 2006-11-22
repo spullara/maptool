@@ -102,7 +102,7 @@ public class ToolHelper {
    */
   public static void drawMeasurement(Graphics2D g, int distance, int x, int y) {
     if (!MapTool.getFrame().isPaintDrawingMeasurement()) return;
-    String radius = Integer.toString(distance) + "'";
+    String radius = Integer.toString(distance);
     GraphicsUtil.drawBoxedString(g, radius, x, y);
   }
   
