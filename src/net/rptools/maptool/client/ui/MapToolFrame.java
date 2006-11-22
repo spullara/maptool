@@ -345,6 +345,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		panel.setSize(panel.getPreferredSize());
         zoneRendererPanel.add(panel, PositionalLayout.Position.NE);
         zoneRendererPanel.setComponentZOrder(panel, 0);
+        zoneRendererPanel.revalidate();
+        zoneRendererPanel.repaint();
         
         visibleControlPanel = panel;
 	}
@@ -507,7 +509,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	                        if (token.isToken()) {
 	                        	getToolbox().setSelectedTool(PointerTool.class);
 	                        } else {
-	                        	getCurrentZoneRenderer().setActiveLayer(token.isStamp() ? Zone.Layer.STAMP : Zone.Layer.BACKGROUND);
+	                        	getCurrentZoneRenderer().setActiveLayer(token.isStamp() ? Zone.Layer.OBJECT : Zone.Layer.BACKGROUND);
 	                        	getToolbox().setSelectedTool(StampTool.class);
 	                        }
 	                        

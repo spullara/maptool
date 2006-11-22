@@ -62,7 +62,7 @@ public class Zone extends Token {
     
 	public enum Layer {
 		TOKEN("Token"),
-		STAMP("Stamp"),
+		OBJECT("Object"),
 		BACKGROUND("Background");
 		
 		private String displayName;

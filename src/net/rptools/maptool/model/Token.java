@@ -224,7 +224,7 @@ public class Token {
 	}
 	
 	public boolean isStamp() {
-		return getLayer() == Zone.Layer.STAMP;
+		return getLayer() == Zone.Layer.OBJECT;
 	}
 	
 	public boolean isBackground() {

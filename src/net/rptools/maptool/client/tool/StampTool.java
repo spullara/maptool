@@ -160,10 +160,10 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	@Override
 	protected void attachTo(ZoneRenderer renderer) {
 
+		MapTool.getFrame().showControlPanel(layerSelectionDialog);
 		super.attachTo(renderer);
 
 		layerSelectionDialog.updateViewSelection();
-		MapTool.getFrame().showControlPanel(layerSelectionDialog);
 	}
     
 	@Override
@@ -1092,7 +1092,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				list = panel.getList("layerList");
 				
 				DefaultListModel model = new DefaultListModel();
-				model.addElement(Zone.Layer.STAMP);
+				model.addElement(Zone.Layer.OBJECT);
 				model.addElement(Zone.Layer.BACKGROUND);
 	
 				list.setModel(model);

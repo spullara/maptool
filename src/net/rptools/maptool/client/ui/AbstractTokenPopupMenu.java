@@ -171,7 +171,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 				token.setLayer(layer);
 				switch (layer) {
 				case BACKGROUND:
-				case STAMP:
+				case OBJECT:
 					token.setTokenType(Token.Type.TOP_DOWN);
 					break;
 				case TOKEN:

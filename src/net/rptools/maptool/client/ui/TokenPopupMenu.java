@@ -71,7 +71,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 		add(new JSeparator());
 
-		addGMItem(createChangeToMenu(Zone.Layer.STAMP, Zone.Layer.BACKGROUND));
+		addGMItem(createChangeToMenu(Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
 		add(new ShowPropertiesDialogAction());
 	}
 

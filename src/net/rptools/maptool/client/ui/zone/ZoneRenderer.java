@@ -1100,7 +1100,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	locationList = getTokenLocations(Zone.Layer.TOKEN);
             } else {
             	if (token.isStamp()) {
-            		locationList = getTokenLocations(Zone.Layer.STAMP);
+            		locationList = getTokenLocations(Zone.Layer.OBJECT);
             	} 
             	if (token.isBackground()) {
             		locationList = getTokenLocations(Zone.Layer.BACKGROUND);
@@ -1707,8 +1707,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	token.setSnapToGrid(AppPreferences.getBackgroundsStartSnapToGrid());
             	token.setTokenType(Token.Type.TOP_DOWN);
             }
-            if (getActiveLayer() == Zone.Layer.STAMP) {
-            	token.setLayer(Zone.Layer.STAMP);
+            if (getActiveLayer() == Zone.Layer.OBJECT) {
+            	token.setLayer(Zone.Layer.OBJECT);
             	token.setSnapToScale(!AppPreferences.getStampsStartFreesize());
             	token.setSnapToGrid(AppPreferences.getStampsStartSnapToGrid());
             	token.setTokenType(Token.Type.TOP_DOWN);
