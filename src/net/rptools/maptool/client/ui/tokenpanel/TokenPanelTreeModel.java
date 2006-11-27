@@ -28,7 +28,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 		TOKENS("Tokens", Zone.Layer.TOKEN, true, false),
     	PLAYERS("Players", Zone.Layer.TOKEN, false, false),
 		GROUPS("Groups", Zone.Layer.TOKEN, false, false),
-		STAMPS("Stamps", Zone.Layer.OBJECT, true, true),
+		OBJECTS("Objects", Zone.Layer.OBJECT, true, true),
 		BACKGROUND("Background", Zone.Layer.BACKGROUND, true, true),
 		CLIPBOARD("Clipboard", Zone.Layer.TOKEN, false, true);
 
@@ -270,7 +270,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     private class StampFilter extends TokenFilter {
     	
     	public StampFilter() {
-    		super(View.STAMPS);
+    		super(View.OBJECTS);
     	}
     	
     	@Override
