@@ -667,7 +667,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     protected void renderDrawableOverlay(Graphics g) {
         
-    	drawableRenderer.renderDrawables(g, zone.getDrawnElements(), zoneScale.getOffsetX(), zoneScale.getOffsetY(), getScale());
+    	Rectangle viewport = new Rectangle(zoneScale.getOffsetX(), zoneScale.getOffsetY(), getSize().width, getSize().height);
+    	drawableRenderer.renderDrawables(g, zone.getDrawnElements(), viewport, getScale());
     }
     
     protected abstract void renderBoard(Graphics2D g);
