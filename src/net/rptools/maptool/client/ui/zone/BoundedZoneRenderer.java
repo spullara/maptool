@@ -60,8 +60,6 @@ public class BoundedZoneRenderer extends ZoneRenderer {
     private BufferedImage miniBackgroundImage;
     private Dimension bgImageSize;
     
-    private boolean loaded = false;
-    
     private Rectangle boardBounds = new Rectangle();
     
     public BoundedZoneRenderer (Zone zone) {
@@ -69,11 +67,6 @@ public class BoundedZoneRenderer extends ZoneRenderer {
         
         // Make sure we have requested the asset from the server
         getBackgroundImage();
-    }
-    
-    @Override
-    public boolean isLoading() {
-    	return !loaded;
     }
     
     @Override
@@ -162,7 +155,6 @@ public class BoundedZoneRenderer extends ZoneRenderer {
         if (zone == null) { return null; }
         if (backgroundImage != ImageManager.UNKNOWN_IMAGE && backgroundImage != null) { 
         	
-        	loaded = true;
         	return backgroundImage; 
         }
         
@@ -189,7 +181,6 @@ public class BoundedZoneRenderer extends ZoneRenderer {
     public void flush() {
 
     	backgroundImage = null;
-    	loaded = false;
     	
     	super.flush();
     }
