@@ -12,6 +12,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
@@ -37,6 +38,8 @@ public class TokenPanelTreeCellRenderer extends DefaultTreeCellRenderer {
             int height = getPreferredSize().height > 0 ? getPreferredSize().height : 15;
             if (image == null || image.getHeight() != height) {
             	image = new BufferedImage(height, height, Transparency.TRANSLUCENT);
+            } else {
+            	ImageUtil.clearImage(image);
             }
             
             // Make a thumbnail of the image
