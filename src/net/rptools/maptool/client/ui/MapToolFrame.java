@@ -238,7 +238,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
         aboutDialog.setSize(354, 400);
 
         taskPanel.add("Image Explorer", assetPanel);
-        taskPanel.add("Tokens", new JScrollPane(createTokenTreePanel()));
+        taskPanel.add("Tokens", new JScrollPane(createTokenTreePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
         taskPanel.add("Connections", new JScrollPane(createPlayerList()));
         
         statusPanel = new StatusPanel();
