@@ -65,15 +65,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Observer;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-
-import com.sun.org.apache.xpath.internal.axes.WalkerFactory;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -91,7 +87,6 @@ import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.token.TokenTemplate;
 import net.rptools.maptool.client.walker.ZoneWalker;
-import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
@@ -105,6 +100,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.TokenUtil;
@@ -668,7 +664,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     protected void renderDrawableOverlay(Graphics g) {
         
     	Rectangle viewport = new Rectangle(zoneScale.getOffsetX(), zoneScale.getOffsetY(), getSize().width, getSize().height);
-    	drawableRenderer.renderDrawables(g, zone.getDrawnElements(), viewport, getScale());
+    	List<DrawnElement> drawableList = new ArrayList<DrawnElement>();
+    	drawableList.addAll(zone.getDrawnElements());
+    	drawableRenderer.renderDrawables(g, drawableList, viewport, getScale());
     }
     
     protected abstract void renderBoard(Graphics2D g);
