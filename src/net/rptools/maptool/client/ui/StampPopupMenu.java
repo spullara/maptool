@@ -5,6 +5,7 @@ import java.util.Set;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 
+import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
@@ -26,6 +27,10 @@ public class StampPopupMenu extends AbstractTokenPopupMenu {
 		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
 		add(new ChangeStateAction("light"));
 		add(createArrangeMenu());
+		
+		add(new JSeparator());
+
+		add(AppActions.COPY_TOKENS);
 		
 		add(new JSeparator());
 

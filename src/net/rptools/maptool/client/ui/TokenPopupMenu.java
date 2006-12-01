@@ -14,6 +14,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 
+import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.token.LightDialog;
 import net.rptools.maptool.client.ui.token.TokenStates;
@@ -58,6 +59,10 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(createHaloMenu());
 		add(new ChangeStateAction("light"));
 		addOwnedItem(createArrangeMenu());
+		
+		add(new JSeparator());
+		
+		add(AppActions.COPY_TOKENS);
 		
 		add(new JSeparator());
 
