@@ -514,6 +514,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	                        }
 	                        
 	                        getCurrentZoneRenderer().selectToken(token.getId());
+	                        getCurrentZoneRenderer().requestFocusInWindow();
                 		}
                 	}
                 }
