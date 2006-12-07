@@ -802,6 +802,11 @@ public class AppActions {
 			if (renderer != null) {
 				Dimension size = renderer.getSize();
 				renderer.zoomIn(size.width / 2, size.height / 2);
+
+		        if (AppState.isPlayerViewLinked()) {
+		        	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
+					MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
+		        }
 			}
 		}
 	};
@@ -817,6 +822,10 @@ public class AppActions {
 				Dimension size = renderer.getSize();
 				renderer.zoomOut(size.width / 2, size.height / 2);
 			}
+	        if (AppState.isPlayerViewLinked()) {
+	        	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
+				MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
+	        }
 		}
 	};
 
@@ -830,6 +839,10 @@ public class AppActions {
 			if (renderer != null) {
 				renderer.zoomReset();
 			}
+	        if (AppState.isPlayerViewLinked()) {
+	        	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
+				MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
+	        }
 		}
 	};
 
