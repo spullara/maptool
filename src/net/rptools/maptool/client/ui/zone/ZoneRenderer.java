@@ -830,8 +830,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			previousPoint = p;
 		}
 		for (CellPoint p : pathSet) {
-			//highlightCell(g, p, AppStyle.cellPathImage, 1.0f);
-			highlightCell(g, p);
+			highlightCell(g, p, grid.getCellHighlight(), 1.0f);
+//			highlightCell(g, p);
 		}
 		for (CellPoint p : waypointSet) {
 			highlightCell(g, p, AppStyle.cellWaypointImage, .333f);

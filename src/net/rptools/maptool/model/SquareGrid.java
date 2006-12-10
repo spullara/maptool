@@ -5,8 +5,10 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
-import net.rptools.maptool.client.AppPreferences;
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
@@ -15,6 +17,16 @@ import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
 public class SquareGrid extends Grid {
 
 	private static final Dimension CELL_OFFSET = new Dimension(0, 0);
+	
+	private static BufferedImage pathHighlight;
+
+	static {
+		try {
+			pathHighlight = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/whiteBorder.png");
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
 	
 	private static final GridCapabilities CAPABILITIES = new GridCapabilities() {
 		public boolean isPathingSupported() {return true;}
@@ -28,6 +40,11 @@ public class SquareGrid extends Grid {
 	public SquareGrid() {
 		super();
 		
+	}
+	
+	@Override
+	public BufferedImage getCellHighlight() {
+		return pathHighlight;
 	}
 	
 	@Override

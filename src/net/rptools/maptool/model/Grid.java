@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
+import java.awt.image.BufferedImage;
 
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -54,6 +55,8 @@ public abstract class Grid {
 	public Area getCellShape() {
 		return cellShape;
 	}
+	
+	public abstract BufferedImage getCellHighlight();
 	
 	protected void setCellShape(Area cellShape) {
 		this.cellShape = cellShape;

@@ -7,7 +7,10 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
@@ -15,6 +18,16 @@ import net.rptools.maptool.client.walker.astar.AStarHexEuclideanWalker;
 
 public class HexGrid extends Grid {
 
+	private static BufferedImage pathHighlight;
+
+	static {
+		try {
+			pathHighlight = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/hexBorder.png");
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+	
 	private static final GridCapabilities GRID_CAPABILITIES= new GridCapabilities() {
 		public boolean isPathingSupported() {return true;}
 		public boolean isSnapToGridSupported() {return true;}
@@ -43,6 +56,11 @@ public class HexGrid extends Grid {
 	@Override
 	protected Area createCellShape(int size) {
 		return new Area(createShape(height, sideSize, topWidth));
+	}
+	
+	@Override
+	public BufferedImage getCellHighlight() {
+		return pathHighlight;
 	}
 	
 	@Override
