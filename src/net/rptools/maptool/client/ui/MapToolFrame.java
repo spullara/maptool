@@ -596,6 +596,19 @@ public class MapToolFrame extends JFrame implements WindowListener {
             @Override
             public void mouseReleased(MouseEvent e) {
                 // TODO use for real popup logic
+            	if (SwingUtilities.isLeftMouseButton(e)) {
+            		if (e.getClickCount() == 2) {
+            			
+                        List<Object> idList = panel.getSelectedIds();
+                        if (idList == null || idList.size() == 0) {
+                            return;
+                        }
+                        
+                        final int index = (Integer) idList.get(0);
+            			createZone(panel.getAsset(index), Zone.Type.MAP);
+            		}
+            	}
+            	
                 if (SwingUtilities.isRightMouseButton(e)) {
 
                     List<Object> idList = panel.getSelectedIds();
