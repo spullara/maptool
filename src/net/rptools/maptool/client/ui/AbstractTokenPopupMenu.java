@@ -82,7 +82,8 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		JMenu sizeMenu = new JMenu("Size");
 		
 		if (supportsFreesize) {
-			JMenuItem freeSize = new JMenuItem(new FreeSizeAction());
+			JCheckBoxMenuItem freeSize = new JCheckBoxMenuItem(new FreeSizeAction());
+			freeSize.setSelected(!tokenUnderMouse.isSnapToScale());
 	
 			sizeMenu.add(freeSize);
 			sizeMenu.addSeparator();
