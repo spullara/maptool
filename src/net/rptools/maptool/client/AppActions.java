@@ -94,43 +94,45 @@ public class AppActions {
 		{
 			init("action.exportScreenShotAs");
 		}
+
 		public void execute(ActionEvent e) {
 
 			ExportInfo exportInfo = MapTool.getCampaign().getExportInfo();
 			ExportDialog dialog = new ExportDialog(exportInfo);
-			
+
 			dialog.setVisible(true);
-			
+
 			exportInfo = dialog.getExportInfo();
-			
+
 			if (exportInfo == null) {
 				return;
 			}
-			
+
 			MapTool.getCampaign().setExportInfo(exportInfo);
-			
+
 			exportScreenCap(exportInfo);
 		}
 	};
-	
+
 	public static final Action EXPORT_SCREENSHOT_LAST_LOCATION = new DefaultClientAction() {
 		{
 			init("action.exportScreenShot");
 		}
+
 		public void execute(ActionEvent e) {
-			
+
 			ExportInfo exportInfo = MapTool.getCampaign().getExportInfo();
 			if (exportInfo == null) {
 				EXPORT_SCREENSHOT.actionPerformed(e);
 				return;
 			}
-			
+
 			exportScreenCap(exportInfo);
 		}
 	};
-	
+
 	private static void exportScreenCap(ExportInfo exportInfo) {
-		
+
 		BufferedImage screenCap = null;
 		switch (exportInfo.getType()) {
 		case ExportInfo.Type.APPLICATION:
@@ -144,15 +146,17 @@ public class AppActions {
 		}
 
 		MapTool.getFrame().setStatusMessage("Saving screenshot ...");
-		
+
 		try {
 
 			ByteArrayOutputStream imageOut = new ByteArrayOutputStream();
-			
+
 			ImageIO.write(screenCap, "png", imageOut);
 
-			exportInfo.getLocation().putContent(new BufferedInputStream(new ByteArrayInputStream(imageOut.toByteArray())));
-			
+			exportInfo.getLocation().putContent(
+					new BufferedInputStream(new ByteArrayInputStream(imageOut
+							.toByteArray())));
+
 			MapTool.getFrame().setStatusMessage("Saved screenshot");
 
 		} catch (IOException ioe) {
@@ -163,19 +167,19 @@ public class AppActions {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static final Action TOGGLE_COMMAND_PANEL = new DefaultClientAction() {
 		{
 			init("action.commandPanel");
 		}
-		
+
 		@Override
 		public boolean isSelected() {
 			return MapTool.getFrame().getCommandPanel().isVisible();
 		}
-		
+
 		public void execute(ActionEvent e) {
-			
+
 			if (MapTool.getFrame().getCommandPanel().isVisible()) {
 				MapTool.getFrame().hideCommandPanel();
 			} else {
@@ -183,9 +187,9 @@ public class AppActions {
 			}
 		}
 	};
-	
+
 	public static final Action ENFORCE_ZONE = new AdminClientAction() {
-		
+
 		{
 			init("action.enforceZone");
 		}
@@ -201,13 +205,13 @@ public class AppActions {
 			if (renderer == null) {
 				return;
 			}
-			
+
 			MapTool.serverCommand().enforceZone(renderer.getZone().getId());
 		}
 	};
-	
+
 	public static final Action RESTORE_DEFAULT_IMAGES = new DefaultClientAction() {
-		
+
 		{
 			init("action.restoreDefaultImages");
 		}
@@ -215,26 +219,29 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 			try {
 				AppSetup.installDefaultTokens();
-				
+
 				// TODO: Remove this hardwiring
-		        File unzipDir = new File(AppConstants.UNZIP_DIR.getAbsolutePath() + File.separator + "Default");
-		        MapTool.getFrame().addAssetRoot(unzipDir);
-		    	AssetManager.searchForImageReferences(unzipDir, AppConstants.IMAGE_FILE_FILTER);
+				File unzipDir = new File(AppConstants.UNZIP_DIR
+						.getAbsolutePath()
+						+ File.separator + "Default");
+				MapTool.getFrame().addAssetRoot(unzipDir);
+				AssetManager.searchForImageReferences(unzipDir,
+						AppConstants.IMAGE_FILE_FILTER);
 
 			} catch (IOException ioe) {
 				MapTool.showError("Could not restore defaults: " + ioe);
 			}
 		}
 	};
-	
+
 	public static final Action SHOW_FULLSCREEN = new DefaultClientAction() {
-		
+
 		{
 			init("action.fullscreen");
 		}
 
 		public void execute(ActionEvent e) {
-			
+
 			if (MapTool.getFrame().isFullScreen()) {
 				MapTool.getFrame().showWindowed();
 			} else {
@@ -242,7 +249,7 @@ public class AppActions {
 			}
 		}
 	};
-	
+
 	public static final Action SHOW_SERVER_INFO = new DefaultClientAction() {
 		{
 			init("action.showServerInfo");
@@ -259,12 +266,12 @@ public class AppActions {
 			if (MapTool.getServer() == null) {
 				return;
 			}
-			
+
 			ServerInfoDialog dialog = new ServerInfoDialog(MapTool.getServer());
 			dialog.setVisible(true);
 		}
 	};
-	
+
 	public static final Action SHOW_PREFERENCES = new DefaultClientAction() {
 		{
 			init("action.preferences");
@@ -277,31 +284,33 @@ public class AppActions {
 			dialog.setVisible(true);
 		}
 	};
-	
+
 	public static final Action SAVE_MESSAGE_HISTORY = new DefaultClientAction() {
 		{
 			init("action.saveMessageHistory");
 		}
-		
+
 		public void execute(ActionEvent e) {
-			String messageHistory = MapTool.getFrame().getCommandPanel().getMessageHistory();
-			
-	    	JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
+			String messageHistory = MapTool.getFrame().getCommandPanel()
+					.getMessageHistory();
+
+			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
 			chooser.setDialogTitle("Save Message History");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-	
+
 			if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 				return;
 			}
-			
+
 			File saveFile = chooser.getSelectedFile();
 			if (saveFile.getName().indexOf(".") < 0) {
 				saveFile = new File(saveFile.getAbsolutePath() + ".html");
 			}
-			if (saveFile.exists() && !MapTool.confirm("File exists, overwrite?")) {
+			if (saveFile.exists()
+					&& !MapTool.confirm("File exists, overwrite?")) {
 				return;
 			}
-			
+
 			try {
 				FileUtil.writeBytes(saveFile, messageHistory.getBytes());
 			} catch (IOException ioe) {
@@ -309,7 +318,7 @@ public class AppActions {
 			}
 		}
 	};
-	
+
 	public static final Action COPY_TOKENS = new DefaultClientAction() {
 		{
 			init("action.copyTokens");
@@ -352,7 +361,8 @@ public class AppActions {
 
 	};
 
-	private static final Pattern NAME_PATTERN = Pattern.compile("^(\\D*)(\\d+)$");
+	private static final Pattern NAME_PATTERN = Pattern
+			.compile("^(\\D*)(\\d+)$");
 
 	public static final Action PASTE_TOKENS = new DefaultClientAction() {
 		{
@@ -458,14 +468,18 @@ public class AppActions {
 		public boolean isSelected() {
 			return AppState.isPlayerViewLinked();
 		}
-		
+
 		public void execute(ActionEvent e) {
 
 			AppState.setPlayerViewLinked(!AppState.isPlayerViewLinked());
 			if (AppState.isPlayerViewLinked()) {
-				ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-	        	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
-				MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
+				ZoneRenderer renderer = MapTool.getFrame()
+						.getCurrentZoneRenderer();
+				ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2,
+						renderer.getHeight() / 2).convertToZone(renderer);
+				MapTool.serverCommand().enforceZoneView(
+						renderer.getZone().getId(), zp.x, zp.y,
+						renderer.getScaleIndex());
 			}
 		}
 
@@ -480,10 +494,11 @@ public class AppActions {
 		public boolean isSelected() {
 			return AppState.getShowMovementMeasurements();
 		}
-		
+
 		public void execute(ActionEvent e) {
 
-			AppState.setShowMovementMeasurements(!AppState.getShowMovementMeasurements());
+			AppState.setShowMovementMeasurements(!AppState
+					.getShowMovementMeasurements());
 			if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
 				MapTool.getFrame().getCurrentZoneRenderer().repaint();
 			}
@@ -500,7 +515,7 @@ public class AppActions {
 		public boolean isSelected() {
 			return AppState.isShowLightRadius();
 		}
-		
+
 		public void execute(ActionEvent e) {
 
 			AppState.setShowLightRadius(!AppState.isShowLightRadius());
@@ -554,8 +569,10 @@ public class AppActions {
 				return;
 			}
 
-			ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
-			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
+			ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2, renderer
+					.getHeight() / 2).convertToZone(renderer);
+			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(),
+					zp.x, zp.y, renderer.getScaleIndex());
 		}
 
 	};
@@ -580,8 +597,9 @@ public class AppActions {
 	};
 
 	public static final String COMMAND_UP_ID = "action.commandUp";
+
 	public static final String COMMAND_DOWN_ID = "action.commandDown";
-	
+
 	/**
 	 * Start entering text into the chat field
 	 */
@@ -675,7 +693,7 @@ public class AppActions {
 		public boolean isSelected() {
 			return AppState.isShowGrid();
 		}
-		
+
 		public void execute(ActionEvent e) {
 
 			AppState.setShowGrid(!AppState.isShowGrid());
@@ -690,14 +708,14 @@ public class AppActions {
 		{
 			init("action.enableFogOfWar");
 		}
-		
+
 		@Override
 		public boolean isSelected() {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			if (renderer == null) {
 				return false;
 			}
-			
+
 			return renderer.getZone().hasFog();
 		}
 
@@ -746,7 +764,7 @@ public class AppActions {
 		{
 			init("action.hideMap");
 		}
-		
+
 		@Override
 		public boolean isSelected() {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
@@ -787,6 +805,7 @@ public class AppActions {
 			}
 
 			Campaign campaign = new Campaign();
+			AppState.setCampaignFile(null);
 			MapTool.setCampaign(campaign);
 			MapTool.serverCommand().setCampaign(campaign);
 		}
@@ -803,10 +822,13 @@ public class AppActions {
 				Dimension size = renderer.getSize();
 				renderer.zoomIn(size.width / 2, size.height / 2);
 
-		        if (AppState.isPlayerViewLinked()) {
-		        	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
-					MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
-		        }
+				if (AppState.isPlayerViewLinked()) {
+					ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2,
+							renderer.getHeight() / 2).convertToZone(renderer);
+					MapTool.serverCommand().enforceZoneView(
+							renderer.getZone().getId(), zp.x, zp.y,
+							renderer.getScaleIndex());
+				}
 			}
 		}
 	};
@@ -822,10 +844,13 @@ public class AppActions {
 				Dimension size = renderer.getSize();
 				renderer.zoomOut(size.width / 2, size.height / 2);
 			}
-	        if (AppState.isPlayerViewLinked()) {
-	        	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
-				MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
-	        }
+			if (AppState.isPlayerViewLinked()) {
+				ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2,
+						renderer.getHeight() / 2).convertToZone(renderer);
+				MapTool.serverCommand().enforceZoneView(
+						renderer.getZone().getId(), zp.x, zp.y,
+						renderer.getScaleIndex());
+			}
 		}
 	};
 
@@ -839,10 +864,13 @@ public class AppActions {
 			if (renderer != null) {
 				renderer.zoomReset();
 			}
-	        if (AppState.isPlayerViewLinked()) {
-	        	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
-				MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
-	        }
+			if (AppState.isPlayerViewLinked()) {
+				ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2,
+						renderer.getHeight() / 2).convertToZone(renderer);
+				MapTool.serverCommand().enforceZoneView(
+						renderer.getZone().getId(), zp.x, zp.y,
+						renderer.getScaleIndex());
+			}
 		}
 	};
 
@@ -850,7 +878,7 @@ public class AppActions {
 		{
 			init("action.showMapSelector");
 		}
-		
+
 		@Override
 		public boolean isSelected() {
 			return MapTool.getFrame().getZoneSelectionPanel().isVisible();
@@ -869,7 +897,7 @@ public class AppActions {
 		{
 			init("action.toggleMovementLock");
 		}
-		
+
 		@Override
 		public boolean isSelected() {
 			return MapTool.getServerPolicy().isMovementLocked();
@@ -879,7 +907,7 @@ public class AppActions {
 
 			ServerPolicy policy = MapTool.getServerPolicy();
 			policy.setIsMovementLocked(!policy.isMovementLocked());
-			
+
 			MapTool.updateServerPolicy(policy);
 		}
 	};
@@ -914,16 +942,14 @@ public class AppActions {
 					}
 
 					ServerPolicy policy = new ServerPolicy();
-					policy.setUseStrictTokenManagement(dialog.useStrictTokenMovement());
+					policy.setUseStrictTokenManagement(dialog
+							.useStrictTokenMovement());
 
-					ServerConfig config = new ServerConfig(
-							dialog.getGMPassword(), 
-							dialog.getPlayerPassword(),
-							dialog.getPort(),
-							dialog.registerServer(),
-							dialog.getServerName(),
-							dialog.getServerPassword()
-							);
+					ServerConfig config = new ServerConfig(dialog
+							.getGMPassword(), dialog.getPlayerPassword(),
+							dialog.getPort(), dialog.registerServer(), dialog
+									.getServerName(), dialog
+									.getServerPassword());
 
 					// Use the existing campaign
 					Campaign campaign = MapTool.getCampaign();
@@ -932,19 +958,25 @@ public class AppActions {
 					try {
 						ServerDisconnectHandler.disconnectExpected = true;
 						MapTool.stopServer();
-						MapTool.startServer(dialog.getUsername(), config, policy, campaign);
+						MapTool.startServer(dialog.getUsername(), config,
+								policy, campaign);
 
 						// Connect to server
 						MapTool.createConnection("localhost", dialog.getPort(),
-								new Player(dialog.getUsername(), dialog.getRole(), dialog.getGMPassword()));
+								new Player(dialog.getUsername(), dialog
+										.getRole(), dialog.getGMPassword()));
 
 						// connecting
-						MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
+						MapTool.getFrame().getConnectionStatusPanel()
+								.setStatus(ConnectionStatusPanel.Status.server);
 					} catch (UnknownHostException uh) {
-						MapTool.showError("Whoah, 'localhost' is not a valid address.  Weird.");
+						MapTool
+								.showError("Whoah, 'localhost' is not a valid address.  Weird.");
 						failed = true;
 					} catch (IOException ioe) {
-						MapTool.showError("Could not connect to server: " + ioe);
+						MapTool
+								.showError("Could not connect to server: "
+										+ ioe);
 						failed = true;
 					}
 
@@ -952,7 +984,8 @@ public class AppActions {
 						try {
 							MapTool.startPersonalServer(campaign);
 						} catch (IOException ioe) {
-							MapTool.showError("Could not restart personal server");
+							MapTool
+									.showError("Could not restart personal server");
 						}
 					}
 
@@ -990,21 +1023,23 @@ public class AppActions {
 			// connecting
 			MapTool.getFrame().getConnectionStatusPanel().setStatus(
 					ConnectionStatusPanel.Status.connected);
-			
+
 			runBackground(new Runnable() {
 
 				public void run() {
 					boolean failed = false;
 					Campaign campaign = MapTool.getCampaign();
-					StaticMessageDialog progressDialog = new StaticMessageDialog("Connecting");
+					StaticMessageDialog progressDialog = new StaticMessageDialog(
+							"Connecting");
 					try {
-						// I'm going to get struck by lighting for writing code like this.
-						// CLEAN ME CLEAN ME CLEAN ME !  I NEED A SWINGWORKER !
+						// I'm going to get struck by lighting for writing code
+						// like this.
+						// CLEAN ME CLEAN ME CLEAN ME ! I NEED A SWINGWORKER !
 						MapTool.getFrame().showFilledGlassPane(progressDialog);
-						
-						MapTool.createConnection(dialog.getServer(), dialog.getPort(),
-								new Player(dialog.getUsername(), dialog.getRole(),
-										dialog.getPassword()));
+
+						MapTool.createConnection(dialog.getServer(), dialog
+								.getPort(), new Player(dialog.getUsername(),
+								dialog.getRole(), dialog.getPassword()));
 
 					} catch (UnknownHostException e1) {
 						MapTool.showError("Unknown host");
@@ -1015,17 +1050,17 @@ public class AppActions {
 					} finally {
 						MapTool.getFrame().hideGlassPane();
 					}
-					
+
 					if (failed) {
 						try {
 							MapTool.startPersonalServer(campaign);
 						} catch (IOException ioe) {
-							MapTool.showError("Could not restart personal server");
+							MapTool
+									.showError("Could not restart personal server");
 						}
 					}
 				}
 			});
-
 
 		}
 
@@ -1076,7 +1111,8 @@ public class AppActions {
 
 		public void execute(ActionEvent ae) {
 
-			final JFileChooser chooser = MapTool.getFrame().getLoadFileChooser();
+			final JFileChooser chooser = MapTool.getFrame()
+					.getLoadFileChooser();
 			chooser.setDialogTitle("Load Campaign");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
@@ -1084,26 +1120,33 @@ public class AppActions {
 
 				new Thread() {
 					public void run() {
-						
+
 						try {
 							File campaignFile = chooser.getSelectedFile();
-							StaticMessageDialog progressDialog = new StaticMessageDialog("Loading Campaign");
+							StaticMessageDialog progressDialog = new StaticMessageDialog(
+									"Loading Campaign");
 							try {
-								// I'm going to get struck by lighting for writing code like this.
-								// CLEAN ME CLEAN ME CLEAN ME !  I NEED A SWINGWORKER !
-								MapTool.getFrame().showFilledGlassPane(progressDialog);
+								// I'm going to get struck by lighting for
+								// writing code like this.
+								// CLEAN ME CLEAN ME CLEAN ME ! I NEED A
+								// SWINGWORKER !
+								MapTool.getFrame().showFilledGlassPane(
+										progressDialog);
 
-								Campaign campaign = PersistenceUtil.loadCampaign(campaignFile);
-
+								Campaign campaign = PersistenceUtil
+										.loadCampaign(campaignFile);
+								
 								if (campaign != null) {
 
 									AppState.setCampaignFile(campaignFile);
-									AppPreferences.setLoadDir(campaignFile.getParentFile());
-									
+									AppPreferences.setLoadDir(campaignFile
+											.getParentFile());
+
 									MapTool.setCampaign(campaign);
 
-									MapTool.serverCommand().setCampaign(campaign);
-									
+									MapTool.serverCommand().setCampaign(
+											campaign);
+
 								}
 
 							} finally {
@@ -1111,7 +1154,9 @@ public class AppActions {
 							}
 
 						} catch (IOException ioe) {
-							MapTool.showError("Could not load campaign: " + ioe);
+							MapTool
+									.showError("Could not load campaign: "
+											+ ioe);
 						}
 					}
 				}.start();
@@ -1128,19 +1173,20 @@ public class AppActions {
 		public boolean isAvailable() {
 			return (MapTool.isHostingServer() || MapTool.getPlayer().isGM());
 		}
-		
+
 		public void execute(ActionEvent ae) {
 
 			if (AppState.getCampaignFile() == null) {
 				SAVE_CAMPAIGN_AS.actionPerformed(ae);
 				return;
 			}
-			
+
 			// save to same place
 			Campaign campaign = MapTool.getCampaign();
 
 			try {
-				PersistenceUtil.saveCampaign(campaign, AppState.getCampaignFile());
+				PersistenceUtil.saveCampaign(campaign, AppState
+						.getCampaignFile());
 				MapTool.showInformation("msg.info.campaignSaved");
 			} catch (IOException ioe) {
 				MapTool.showError("Could not save campaign: " + ioe);
@@ -1157,7 +1203,7 @@ public class AppActions {
 		public boolean isAvailable() {
 			return MapTool.isHostingServer() || MapTool.getPlayer().isGM();
 		}
-		
+
 		public void execute(ActionEvent ae) {
 
 			Campaign campaign = MapTool.getCampaign();
@@ -1170,12 +1216,12 @@ public class AppActions {
 				try {
 					File campaignFile = chooser.getSelectedFile();
 					if (campaignFile.getName().indexOf(".") < 0) {
-						campaignFile = new File(campaignFile.getAbsolutePath() + ".cmpgn");
+						campaignFile = new File(campaignFile.getAbsolutePath()
+								+ ".cmpgn");
 					}
-					
-					
+
 					PersistenceUtil.saveCampaign(campaign, campaignFile);
-					
+
 					AppState.setCampaignFile(campaignFile);
 					AppPreferences.setSaveDir(campaignFile.getParentFile());
 
@@ -1190,7 +1236,7 @@ public class AppActions {
 	public static class GridSizeAction extends DefaultClientAction {
 
 		private int size;
-		
+
 		public GridSizeAction(int size) {
 			putValue(Action.NAME, Integer.toString(size));
 			this.size = size;
@@ -1200,14 +1246,14 @@ public class AppActions {
 		public boolean isSelected() {
 			return AppState.getGridSize() == size;
 		}
-		
+
 		@Override
 		public void execute(ActionEvent arg0) {
 			AppState.setGridSize(size);
 			MapTool.getFrame().refresh();
 		}
 	}
-	
+
 	private static final int QUICK_MAP_ICON_SIZE = 25;
 
 	public static class QuickMapAction extends AdminClientAction {
@@ -1236,7 +1282,7 @@ public class AppActions {
 
 				// Put it in the cache for easy access
 				AssetManager.putAsset(asset);
-				
+
 				// But don't use up any extra memory
 				AssetManager.removeAsset(asset.getId());
 			} catch (IOException ioe) {
@@ -1251,8 +1297,10 @@ public class AppActions {
 
 				public void run() {
 
-					Zone zone = ZoneFactory.createZone(Zone.Type.INFINITE, assetId);
-					zone.setGrid(GridFactory.createGrid(AppPreferences.getDefaultGridType()));
+					Zone zone = ZoneFactory.createZone(Zone.Type.INFINITE,
+							assetId);
+					zone.setGrid(GridFactory.createGrid(AppPreferences
+							.getDefaultGridType()));
 					zone.getGrid().setOffset(0, 0);
 					zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
 
@@ -1273,7 +1321,8 @@ public class AppActions {
 
 				public void run() {
 
-					NewMapDialog newMapDialog = new NewMapDialog(MapTool.getFrame());
+					NewMapDialog newMapDialog = new NewMapDialog(MapTool
+							.getFrame());
 					newMapDialog.setVisible(true);
 				}
 			});
@@ -1289,7 +1338,7 @@ public class AppActions {
 		public boolean isSelected() {
 			return MapTool.getFrame().isAssetTreeVisible();
 		}
-		
+
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -1312,7 +1361,8 @@ public class AppActions {
 
 				public void run() {
 
-					JFileChooser chooser = MapTool.getFrame().getLoadFileChooser();
+					JFileChooser chooser = MapTool.getFrame()
+							.getLoadFileChooser();
 					chooser.setDialogTitle("Load Asset Tree");
 					chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
@@ -1322,9 +1372,10 @@ public class AppActions {
 
 					File root = chooser.getSelectedFile();
 					MapTool.getFrame().addAssetRoot(root);
-			    	AssetManager.searchForImageReferences(root, AppConstants.IMAGE_FILE_FILTER);
+					AssetManager.searchForImageReferences(root,
+							AppConstants.IMAGE_FILE_FILTER);
 
-			    	AppPreferences.addAssetRoot(root);
+					AppPreferences.addAssetRoot(root);
 				}
 
 			});
@@ -1355,33 +1406,34 @@ public class AppActions {
 		public boolean isSelected() {
 			return MapTool.getFrame().isPaintDrawingMeasurement();
 		}
-		
+
 		public void execute(ActionEvent ae) {
 			MapTool.getFrame().setPaintDrawingMeasurement(
 					!MapTool.getFrame().isPaintDrawingMeasurement());
 		}
 	};
-  
-	  /**
-	   * Toggle drawing straight lines at double width on the line tool.
-	   */
-	  public static final Action TOGGLE_DOUBLE_WIDE = new DefaultClientAction() {
-	    {
-	      init("action.toggleDoubleWide");
-	    }
-	    
-	    @Override
-	    public boolean isSelected() {
-	    	return AppState.useDoubleWideLine();
-	    }
 
-	    public void execute(ActionEvent ae) {
-	    	
-	    	AppState.setUseDoubleWideLine(!AppState.useDoubleWideLine());
-        if (MapTool.getFrame() != null && MapTool.getFrame().getCurrentZoneRenderer() != null)
-          MapTool.getFrame().getCurrentZoneRenderer().repaint();
-	    }
-	  };
+	/**
+	 * Toggle drawing straight lines at double width on the line tool.
+	 */
+	public static final Action TOGGLE_DOUBLE_WIDE = new DefaultClientAction() {
+		{
+			init("action.toggleDoubleWide");
+		}
+
+		@Override
+		public boolean isSelected() {
+			return AppState.useDoubleWideLine();
+		}
+
+		public void execute(ActionEvent ae) {
+
+			AppState.setUseDoubleWideLine(!AppState.useDoubleWideLine());
+			if (MapTool.getFrame() != null
+					&& MapTool.getFrame().getCurrentZoneRenderer() != null)
+				MapTool.getFrame().getCurrentZoneRenderer().repaint();
+		}
+	};
 
 	private static List<ClientAction> actionList;
 
@@ -1398,7 +1450,7 @@ public class AppActions {
 		for (ClientAction action : actionList) {
 			action.setEnabled(action.isAvailable());
 		}
-		
+
 		MapTool.getFrame().getToolbox().updateTools();
 	}
 
@@ -1425,7 +1477,7 @@ public class AppActions {
 		}
 
 		public abstract boolean isAvailable();
-		
+
 		public boolean isSelected() {
 			return false;
 		}
