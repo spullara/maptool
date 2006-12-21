@@ -1038,7 +1038,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int width = (int)Math.ceil(TokenSize.getWidth(token, zone.getGrid()) * scale);
             int height = (int)Math.ceil(TokenSize.getHeight(token, zone.getGrid()) * scale);
             
-            if (!token.isStamp()) {
+            if (!token.isStamp() && !token.isBackground()) {
             	// Fit inside the grid
             	width --;
             	height --;
