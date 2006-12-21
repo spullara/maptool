@@ -28,6 +28,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GridBagConstraints;
@@ -93,6 +94,7 @@ import net.rptools.maptool.client.swing.GlassPane;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.PenWidthChooser;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
+import net.rptools.maptool.client.swing.ScrollableFlowPanel;
 import net.rptools.maptool.client.swing.SpacerStatusBar;
 import net.rptools.maptool.client.swing.StatusPanel;
 import net.rptools.maptool.client.tool.FacingTool;
@@ -170,50 +172,29 @@ public class MapToolFrame extends JFrame implements WindowListener {
 
 	// Components
 	private ZoneRenderer currentRenderer;
-
 	private AssetPanel assetPanel;
-
 	private PointerOverlay pointerOverlay;
-
 	private CommandPanel commandPanel;
-
 	private AboutDialog aboutDialog;
-
 	private ColorPicker colorPicker;
-
 	private Toolbox toolbox;
-
 	private ZoneSelectionPanel zoneSelectionPanel;
-
 	private JPanel zoneRendererPanel;
-
 	private JPanel visibleControlPanel;
-
 	private FullScreenFrame fullScreenFrame;
-
 	private JPanel rendererBorderPanel;
-
 	private List<ZoneRenderer> zoneRendererList;
-
 	private JMenuBar menuBar;
-
 	private PenWidthChooser widthChooser = new PenWidthChooser();
-
 	private StatusPanel statusPanel;
-
 	private ActivityMonitorPanel activityMonitor = new ActivityMonitorPanel();
-
 	private ProgressStatusBar progressBar = new ProgressStatusBar();
-
 	private ConnectionStatusPanel connectionStatusPanel = new ConnectionStatusPanel();
-
 	private CoordinateStatusBar coordinateStatusBar;
-
 	private NewZoneDropPanel newZoneDropPanel;
-
 	private JLabel chatActionLabel;
-
 	private GlassPane glassPane;
+	private JPanel macroButtonPanel;
 
 	// Components
 	private JFileChooser loadFileChooser;
@@ -343,6 +324,16 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		repaintTimer.start();
 	}
 
+	public JPanel createMacroButtonPanel() {
+		JPanel panel = new ScrollableFlowPanel(FlowLayout.LEFT);
+
+		for (int i = 1; i < 40; i++) {
+			panel.add(new MacroButton(i, null, true));
+		}
+		
+		return panel;
+	}
+	
 	public TokenPropertiesDialog getTokenPropertiesDialog() {
 		return tokenPropertiesDialog;
 	}
@@ -1156,7 +1147,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		CONNECTIONS("Connections"),
 		TOKEN_TREE("Tokens"),
 		IMAGE_EXPLORER("Image Explorer"),
-		CHAT("Chat");
+		CHAT("Chat"),
+		MACROS("Macros");
 		
 		private String displayName;
 		private MapToolView(String displayName) {
@@ -1187,6 +1179,11 @@ public class MapToolFrame extends JFrame implements WindowListener {
 			case TOKEN_TREE: component = new JScrollPane(createTokenTreePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); break;
 			case IMAGE_EXPLORER: component = assetPanel; break;
 			case CHAT: component = commandPanel; break;
+			case MACROS: component = new JScrollPane(createMacroButtonPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);break;
+			}
+			
+			if (component == null) {
+				throw new IllegalArgumentException("Could not find component for: " + viewId);
 			}
 			
 			dockable = createView(view, component);
@@ -1234,6 +1231,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 				seq.add(MapToolView.TOKEN_TREE.name(), MapToolView.IMAGE_EXPLORER.name(), DockingConstants.SOUTH_REGION, .3f);
 				seq.add(MapToolView.CONNECTIONS.name(), MapToolView.TOKEN_TREE.name(), DockingConstants.SOUTH_REGION, .5f);
 				seq.add(MapToolView.CHAT.name(), MapToolView.ZONE_RENDERER.name(), DockingConstants.SOUTH_REGION, .75f);
+				seq.add(MapToolView.MACROS.name(), MapToolView.CHAT.name(), DockingConstants.EAST_REGION, .75f);
 			}
 
 			return perspective;

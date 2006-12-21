@@ -56,13 +56,10 @@ public class CommandPanel extends JPanel implements Observer {
 	private int commandHistoryIndex;
 	private TextColorWell textColorWell;
 	
-	private MacroButtonDialog macroButtonDialog = new MacroButtonDialog();
-	
 	public CommandPanel() {
 		setLayout(new BorderLayout());
 		setBorder(BorderFactory.createLineBorder(Color.gray));
 		
-		add(BorderLayout.NORTH, createTopPanel());
 		add(BorderLayout.SOUTH, createSouthPanel());
 		add(BorderLayout.CENTER, getMessagePanel());
 	}
@@ -136,51 +133,6 @@ public class CommandPanel extends JPanel implements Observer {
 		return commandTextArea;
 	}
 
-	private JPanel createTopPanel() {
-		JPanel panel = new JPanel(new GridBagLayout());
-
-		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.gridx = 0;
-		constraints.gridy = 0;
-		constraints.weightx = 1;
-		constraints.anchor = GridBagConstraints.WEST;
-		
-		panel.add(createMacroButtonPanel(), constraints);
-		
-		constraints.weightx = 0;
-		constraints.gridx = 1;
-		JLabel spacer = new JLabel();
-		spacer.setMinimumSize(new Dimension(20, 10));
-		panel.add(spacer, constraints);
-		
-		constraints.gridx = 2;
-		constraints.insets = new Insets(0, 0, 0, 10);
-		panel.add(createCloseButton(), constraints);
-		
-		return panel;
-	}
-	
-	private JPanel createMacroButtonPanel() {
-		JPanel panel = new JPanel();
-		
-		for (int i = 1; i < 40; i++) {
-			panel.add(new MacroButton(i, null, true));
-		}
-		
-		return panel;
-	}
-	
-	private JButton createCloseButton() {
-		JButton button = new JButton("X");
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				MapTool.getFrame().hideCommandPanel();
-			}
-		});
-		
-		return button;
-	}
-	
 	/**
 	 * Execute the command in the command field.
 	 */
@@ -293,176 +245,7 @@ public class CommandPanel extends JPanel implements Observer {
 		messagePanel.addMessage(message);
 	}
 	
-	public class MacroButton extends JButton {
-		
-		private String command;
-		private boolean autoExecute;
-		private MacroButtonPrefs prefs;
-		
-		public MacroButton(int index, String command, boolean autoExecute) {
-			setCommand(command);
-			setAutoExecute(autoExecute);
-			addMouseListener(new MouseHandler());
-			prefs = new MacroButtonPrefs(index, this);
-		}
 
-		public void setAutoExecute(boolean autoExecute) {
-			this.autoExecute = autoExecute;
-		}
-		
-		public void setCommand(String command) {
-			this.command = command;
-			setBackground(command != null ? Color.orange : null);
-		}
-		
-		private class MouseHandler extends MouseAdapter {
-			@Override
-			public void mousePressed(MouseEvent e) {
-
-				if (SwingUtilities.isLeftMouseButton(e)) {
-					if (command != null) {
-						JTextArea commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
-
-						String commandToExecute = command;
-						
-						commandArea.setText(commandToExecute);
-						commandArea.requestFocusInWindow();
-						
-						if (autoExecute) {
-							MapTool.getFrame().getCommandPanel().commitCommand();
-						}
-					}
-				}
-				if (SwingUtilities.isRightMouseButton(e)) {
-					
-					macroButtonDialog.show(MacroButton.this);
-					prefs.savePreferences();
-				}
-			}
-		}
-		
-		// Put this here until we have a better place
-		private class MacroButtonPrefs {
-
-			private int index;
-			private MacroButton button;
-		    private Preferences prefs;
-		    
-		    private static final String PREF_LABEL_KEY = "label";
-		    private static final String PREF_COMMAND_KEY = "command";
-		    private static final String PREF_AUTO_EXECUTE = "autoExecute";
-		    
-		    public MacroButtonPrefs(int index, MacroButton button) {
-		        this.button = button;
-		        this.index = index;
-		        
-		        prefs = Preferences.userRoot().node(AppConstants.APP_NAME + "/macros/" + index);        
-		        
-		        restorePreferences();
-		    }
-		    
-		    private void restorePreferences() {
-		        
-		        String label = prefs.get(PREF_LABEL_KEY, Integer.toString(index));
-		        String command = prefs.get(PREF_COMMAND_KEY, "");
-		        boolean autoExecute = prefs.getBoolean(PREF_AUTO_EXECUTE, true);
-		        
-		        button.command = command;
-		        button.setText(label);
-		        button.setAutoExecute(autoExecute);
-		    }
-		    
-		    public void savePreferences() {
-		        prefs.put(PREF_LABEL_KEY, button.getText());
-		        prefs.put(PREF_COMMAND_KEY, button.command);
-		        prefs.putBoolean(PREF_AUTO_EXECUTE, button.autoExecute);
-		    }
-		    
-		    ////
-		    // PROPERTY CHANGE LISTENER
-		    public void propertyChange(PropertyChangeEvent evt) {
-		        savePreferences();
-		    }
-		}
-	}
-	
-	private static class MacroButtonDialog extends JDialog {
-
-		FormPanel panel;
-		MacroButton button;
-		
-		public MacroButtonDialog() {
-			super (MapTool.getFrame(), "", true);
-			
-			panel = new FormPanel("net/rptools/maptool/client/ui/forms/macroButtonDialog.jfrm");
-			setContentPane(panel);
-			
-			installOKButton();
-			installCancelButton();
-			
-			pack();
-		}
-
-		private void installOKButton() {
-			JButton button = (JButton) panel.getButton("okButton");
-			button.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					save();
-				}
-			});
-			getRootPane().setDefaultButton(button);
-		}
-		
-		private void installCancelButton() {
-			JButton button = (JButton) panel.getButton("cancelButton");
-			button.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					cancel();
-				}
-			});
-		}
-		
-		@Override
-		public void setVisible(boolean b) {
-			if (b) {
-				SwingUtil.centerOver(this, MapTool.getFrame());
-			}
-			super.setVisible(b);
-		}
-		
-		public void show(MacroButton button) {
-			this.button = button;
-			
-			getLabelTextField().setText(button.getText());
-			getCommandTextArea().setText(button.command);
-			getAutoExecuteCheckBox().setSelected(button.autoExecute);
-			
-			setVisible(true);
-		}
-		
-		private void save() {
-			button.setText(getLabelTextField().getText());
-			button.command = getCommandTextArea().getText();
-			button.autoExecute = getAutoExecuteCheckBox().isSelected();
-			setVisible(false);
-		}
-		
-		private void cancel() {
-			setVisible(false);
-		}
-
-		private JCheckBox getAutoExecuteCheckBox() {
-			return  panel.getCheckBox("autoExecuteCheckBox");
-		}
-		
-		private JTextField getLabelTextField() {
-			return panel.getTextField("label");
-		}
-		
-		private JTextArea getCommandTextArea() {
-			return (JTextArea) panel.getTextComponent("command");
-		}
-	}
 	
 	public static class TextColorWell extends JPanel {
 
