@@ -13,5 +13,7 @@
 	<classpathentry kind="lib" path="lib/clientserver-1.0.b11.jar"/>
 	<classpathentry kind="lib" path="lib/rplib-1.0.b72.jar"/>
 	<classpathentry kind="lib" path="lib/maptool.resource-1.0.b4.jar"/>
+	<classpathentry kind="lib" path="lib/flexdock-0.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

@@ -44,6 +44,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.flexdock.plaf.PlafManager;
+
 import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.lib.FileUtil;
@@ -502,6 +504,8 @@ public class MapTool {
         	
         	// Make the toggle button pressed state look more distinct
         	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
+
+    		PlafManager.setPreferredTheme("maptool"); 
         } catch (Exception e) {
             System.err.println("Exception during look and feel setup: " + e);
         }

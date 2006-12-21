@@ -65,10 +65,18 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
+import org.flexdock.docking.DockingConstants;
+import org.flexdock.docking.defaults.StandardBorderManager;
+import org.flexdock.plaf.PlafManager;
+import org.flexdock.plaf.common.border.ShadowBorder;
+import org.flexdock.view.View;
+import org.flexdock.view.Viewport;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
@@ -156,7 +164,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
     private boolean paintDrawingMeasurement = true;
     
 	// Components
-    private TaskPanelGroup taskPanel;
 	private ZoneRenderer currentRenderer;
 	private AssetPanel assetPanel;
 	private PointerOverlay pointerOverlay;
@@ -172,9 +179,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
     private List<ZoneRenderer> zoneRendererList;
     private JMenuBar menuBar;
     
-	private JSplitPaneEx mainSplitPane;
-	private JSplitPaneEx rightSplitPane;
-	
     private PenWidthChooser widthChooser = new PenWidthChooser();
 
 	private StatusPanel statusPanel;
@@ -214,8 +218,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		// Components
 		glassPane = new GlassPane();
 		assetPanel = createAssetPanel();
-        taskPanel = new TaskPanelGroup(5);
-        new TaskPanelGroupPreferences(AppConstants.APP_NAME, "TaskPanel", taskPanel);
         toolbox = new Toolbox();
         
         zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
@@ -237,10 +239,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
         aboutDialog = new AboutDialog(this, logo, credits);
         aboutDialog.setSize(354, 400);
 
-        taskPanel.add("Image Explorer", assetPanel);
-        taskPanel.add("Tokens", new JScrollPane(createTokenTreePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
-        taskPanel.add("Connections", new JScrollPane(createPlayerList()));
-        
         statusPanel = new StatusPanel();
         statusPanel.addPanel(getCoordinateStatusBar());
         statusPanel.addPanel(new MemoryStatusBar());
@@ -267,42 +265,42 @@ public class MapToolFrame extends JFrame implements WindowListener {
         
         rendererBorderPanel = new JPanel(new GridLayout());
         rendererBorderPanel.add(zoneRendererPanel);
-        rendererBorderPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         
-        // Split up/down
-        rightSplitPane = new JSplitPaneEx();
-        rightSplitPane.setBorder(null);
-        rightSplitPane.setOrientation(JSplitPaneEx.VERTICAL_SPLIT);
-		BasicSplitPaneDivider divider = ((BasicSplitPaneUI) rightSplitPane.getUI()).getDivider();
-		if (divider != null) divider.setBorder(null);
+        // Docking
+		JPanel dockingPanel = new JPanel(new BorderLayout(0, 0));
+		dockingPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-		rightSplitPane.setTopComponent(rendererBorderPanel);
-		rightSplitPane.setBottomComponent(commandPanel);
-		
-		// Split left/right
-		mainSplitPane = new JSplitPaneEx();
-		mainSplitPane.setBorder(null);
-		
-		mainSplitPane.setLeftComponent(taskPanel);
-		mainSplitPane.setRightComponent(rightSplitPane);
-		divider = ((BasicSplitPaneUI) mainSplitPane.getUI()).getDivider();
-		if (divider != null) divider.setBorder(null);
+		Viewport viewport = new Viewport();
+		viewport.setBorderManager(new StandardBorderManager(new ShadowBorder()));
+		dockingPanel.add(viewport, BorderLayout.CENTER);
+
+		View imageExplorer = createView("imageExplorer", "Image Explorer", assetPanel);
+		View connections = createView("connections", "Connections", new JScrollPane(createPlayerList()));
+		View tokenTree = createView("tokenTree", "Tokens", new JScrollPane(createTokenTreePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+		View zoneRenderer = createView("zoneRenderer", "Zone", rendererBorderPanel);
+		View chat = createView("chat", "Chat", commandPanel);
+
+		viewport.dock(imageExplorer);
+		zoneRenderer.setTitlebar(null);
+
+		imageExplorer.dock(zoneRenderer, DockingConstants.EAST_REGION, .25f);
+		imageExplorer.dock(tokenTree, DockingConstants.SOUTH_REGION, .3f);
+		tokenTree.dock(connections, DockingConstants.SOUTH_REGION, .5f);
+		zoneRenderer.dock(chat, DockingConstants.SOUTH_REGION, .75f); 		
         
-		JPanel mainInnerPanel = new JPanel(new BorderLayout());
-		mainInnerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 1));
-		mainInnerPanel.add(BorderLayout.CENTER, mainSplitPane);
-		
 		// Put it all together
 		menuBar = new AppMenuBar();
         setJMenuBar(menuBar);
 		setLayout(new BorderLayout());
-		add(BorderLayout.CENTER, mainInnerPanel);
+		add(BorderLayout.CENTER, dockingPanel);
 		add(BorderLayout.NORTH, createToolboxPanel());
 		add(BorderLayout.SOUTH, statusPanel);
+
 		
 		setGlassPane(glassPane);
         
-		// TODO: Put together a class that handles adding in the listeners, just so that this doesn't
+		// TODO: Put together a class that handles adding in the listeners, just
+		// so that this doesn't
 		// get all cluttered
 		AppListeners.addZoneListener(new RequestZoneAssetsListener());
 		
@@ -313,6 +311,19 @@ public class MapToolFrame extends JFrame implements WindowListener {
         repaintTimer = new Timer(1000, new RepaintTimer());
         repaintTimer.start();
 	}
+	
+	private View createView(String id, String text, JComponent panel) {
+		View view = new View(id, text);
+		view.addAction(DockingConstants.CLOSE_ACTION);
+		view.addAction(DockingConstants.PIN_ACTION);
+
+		JPanel p = new JPanel(new GridLayout());
+
+		p.add(panel);
+
+		view.setContentPane(p);
+		return view;
+	} 
 	
 	public TokenPropertiesDialog getTokenPropertiesDialog() {
 		return tokenPropertiesDialog;
@@ -402,10 +413,10 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	
 	@Override
 	public void setVisible(boolean b) {
-		mainSplitPane.setInitialDividerPosition(150);
-        rightSplitPane.setInitialDividerPosition(getSize().height-200);
-        new SplitPanePreferences(AppConstants.APP_NAME, "mainSplitPane", mainSplitPane);
-        new SplitPanePreferences(AppConstants.APP_NAME, "rightSplitPane", rightSplitPane);
+//		mainSplitPane.setInitialDividerPosition(150);
+//        rightSplitPane.setInitialDividerPosition(getSize().height-200);
+//        new SplitPanePreferences(AppConstants.APP_NAME, "mainSplitPane", mainSplitPane);
+//        new SplitPanePreferences(AppConstants.APP_NAME, "rightSplitPane", rightSplitPane);
 		super.setVisible(b);
 		hideCommandPanel();
 	}
@@ -431,22 +442,22 @@ public class MapToolFrame extends JFrame implements WindowListener {
 			    ObservableList<TextMessage> textList = MapTool.getMessageList();   
 			    ObservableList.Event event = (ObservableList.Event)arg; 
 
-			    if (rightSplitPane.isBottomHidden() && event == ObservableList.Event.append) {
-					
-					getChatActionLabel().setVisible(true);
-				}
+//			    if (rightSplitPane.isBottomHidden() && event == ObservableList.Event.append) {
+//					
+//					getChatActionLabel().setVisible(true);
+//				}
 			}
 		};
 	}
 	
 	public void showCommandPanel() {
 		chatActionLabel.setVisible(false);
-		rightSplitPane.showBottom();
+//		rightSplitPane.showBottom();
 		commandPanel.requestFocus();
 	}
 	
 	public void hideCommandPanel() {
-		rightSplitPane.hideBottom();
+//		rightSplitPane.hideBottom();
 	}
 	
     public ColorPicker getColorPicker() {
@@ -707,15 +718,16 @@ public class MapToolFrame extends JFrame implements WindowListener {
     
     public void toggleAssetTree() {
         
-        if (mainSplitPane.isLeftHidden()) {
-            mainSplitPane.showLeft();
-        } else {
-            mainSplitPane.hideLeft();
-        }
+//        if (mainSplitPane.isLeftHidden()) {
+//            mainSplitPane.showLeft();
+//        } else {
+//            mainSplitPane.hideLeft();
+//        }
     }
     
     public boolean isAssetTreeVisible() {
-    	return !mainSplitPane.isLeftHidden();
+//    	return !mainSplitPane.isLeftHidden();
+    	return true;
     }
     
     public CommandPanel getCommandPanel() {
@@ -730,9 +742,9 @@ public class MapToolFrame extends JFrame implements WindowListener {
         
     	assetPanel.addAssetRoot(new AssetDirectory(rootDir, AppConstants.IMAGE_FILE_FILTER));
     	
-        if (mainSplitPane.isLeftHidden()) {
-            mainSplitPane.showLeft();
-        }
+//        if (mainSplitPane.isLeftHidden()) {
+//            mainSplitPane.showLeft();
+//        }
     }
     
 	private JComponent createToolboxPanel() {
