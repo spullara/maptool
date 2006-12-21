@@ -26,6 +26,7 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -41,14 +42,16 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Observer;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -64,32 +67,18 @@ import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicSplitPaneDivider;
-import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
-import org.flexdock.docking.DockingConstants;
-import org.flexdock.docking.defaults.StandardBorderManager;
-import org.flexdock.plaf.PlafManager;
-import org.flexdock.plaf.common.border.ShadowBorder;
-import org.flexdock.view.View;
-import org.flexdock.view.Viewport;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.AboutDialog;
 import net.rptools.lib.swing.ColorPicker;
-import net.rptools.lib.swing.JSplitPaneEx;
 import net.rptools.lib.swing.PositionalLayout;
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.lib.swing.TaskPanelGroup;
 import net.rptools.lib.swing.preference.FramePreferences;
-import net.rptools.lib.swing.preference.SplitPanePreferences;
-import net.rptools.lib.swing.preference.TaskPanelGroupPreferences;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
@@ -142,131 +131,168 @@ import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.util.ImageManager;
 
+import org.flexdock.docking.Dockable;
+import org.flexdock.docking.DockableFactory;
+import org.flexdock.docking.DockingConstants;
+import org.flexdock.docking.DockingManager;
+import org.flexdock.docking.defaults.StandardBorderManager;
+import org.flexdock.docking.state.PersistenceException;
+import org.flexdock.perspective.LayoutSequence;
+import org.flexdock.perspective.Perspective;
+import org.flexdock.perspective.PerspectiveFactory;
+import org.flexdock.perspective.PerspectiveManager;
+import org.flexdock.perspective.persist.FilePersistenceHandler;
+import org.flexdock.perspective.persist.PersistenceHandler;
+import org.flexdock.plaf.common.border.ShadowBorder;
+import org.flexdock.view.View;
+import org.flexdock.view.Viewport;
+
 /**
  */
 public class MapToolFrame extends JFrame implements WindowListener {
-    private static final long serialVersionUID = 3905523813025329458L;
+	private static final long serialVersionUID = 3905523813025329458L;
 
 	// TODO: parameterize this (or make it a preference)
 	private static final int WINDOW_WIDTH = 800;
+
 	private static final int WINDOW_HEIGHT = 600;
 
-    private Pen pen = new Pen(Pen.DEFAULT);
-    
-    /**
-     * Are the drawing measurements being painted?
-     */
-    private boolean paintDrawingMeasurement = true;
-    
+	private Pen pen = new Pen(Pen.DEFAULT);
+
+	/**
+	 * Are the drawing measurements being painted?
+	 */
+	private boolean paintDrawingMeasurement = true;
+
 	// Components
 	private ZoneRenderer currentRenderer;
+
 	private AssetPanel assetPanel;
+
 	private PointerOverlay pointerOverlay;
+
 	private CommandPanel commandPanel;
-    private AboutDialog aboutDialog;
-    private ColorPicker colorPicker;
-    private Toolbox toolbox;
-    private ZoneSelectionPanel zoneSelectionPanel;
-    private JPanel zoneRendererPanel;
-    private JPanel visibleControlPanel;
-    private FullScreenFrame fullScreenFrame;
-    private JPanel rendererBorderPanel;    
-    private List<ZoneRenderer> zoneRendererList;
-    private JMenuBar menuBar;
-    
-    private PenWidthChooser widthChooser = new PenWidthChooser();
+
+	private AboutDialog aboutDialog;
+
+	private ColorPicker colorPicker;
+
+	private Toolbox toolbox;
+
+	private ZoneSelectionPanel zoneSelectionPanel;
+
+	private JPanel zoneRendererPanel;
+
+	private JPanel visibleControlPanel;
+
+	private FullScreenFrame fullScreenFrame;
+
+	private JPanel rendererBorderPanel;
+
+	private List<ZoneRenderer> zoneRendererList;
+
+	private JMenuBar menuBar;
+
+	private PenWidthChooser widthChooser = new PenWidthChooser();
 
 	private StatusPanel statusPanel;
+
 	private ActivityMonitorPanel activityMonitor = new ActivityMonitorPanel();
+
 	private ProgressStatusBar progressBar = new ProgressStatusBar();
-    private ConnectionStatusPanel connectionStatusPanel = new ConnectionStatusPanel();
-    private CoordinateStatusBar coordinateStatusBar;
-    
+
+	private ConnectionStatusPanel connectionStatusPanel = new ConnectionStatusPanel();
+
+	private CoordinateStatusBar coordinateStatusBar;
+
 	private NewZoneDropPanel newZoneDropPanel;
-	
+
 	private JLabel chatActionLabel;
-	
+
 	private GlassPane glassPane;
-  
-    // Components
+
+	// Components
 	private JFileChooser loadFileChooser;
+
 	private JFileChooser saveFileChooser;
-	
+
 	private TokenPropertiesDialog tokenPropertiesDialog = new TokenPropertiesDialog();
 
-    // TODO: I don't like this here, eventOverlay should be more abstracted
-    private NotificationOverlay notificationOverlay = new NotificationOverlay();
+	// TODO: I don't like this here, eventOverlay should be more abstracted
+	private NotificationOverlay notificationOverlay = new NotificationOverlay();
 
-    // TODO: Find a better pattern for this
-    private Timer repaintTimer;
-    
+	// TODO: Find a better pattern for this
+	private Timer repaintTimer;
+
 	public MapToolFrame() {
-		
+
 		// Set up the frame
-		super (AppConstants.APP_NAME);
+		super(AppConstants.APP_NAME);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		addWindowListener(this);
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		SwingUtil.centerOnScreen(this);
 		setFocusTraversalPolicy(new MapToolFocusTraversalPolicy());
-        
+
 		// Components
 		glassPane = new GlassPane();
 		assetPanel = createAssetPanel();
-        toolbox = new Toolbox();
-        
-        zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
-        pointerOverlay = new PointerOverlay();
-        colorPicker = new ColorPicker(this);
-        
-        String credits = "";
-        String version = "";
-        Image logo = null;
-        try {
-            credits = new String(FileUtil.loadResource("net/rptools/maptool/client/credits.html"));
-            version = MapTool.getVersion();
-            credits = credits.replace("%VERSION%", version);
-            logo = ImageUtil.getImage("net/rptools/lib/image/rptools-logo.png");
-        	
-        } catch (Exception ioe) {
-        	ioe.printStackTrace();
-        }
-        aboutDialog = new AboutDialog(this, logo, credits);
-        aboutDialog.setSize(354, 400);
+		toolbox = new Toolbox();
 
-        statusPanel = new StatusPanel();
-        statusPanel.addPanel(getCoordinateStatusBar());
-        statusPanel.addPanel(new MemoryStatusBar());
-        //statusPanel.addPanel(progressBar);
-        statusPanel.addPanel(connectionStatusPanel);
-        statusPanel.addPanel(activityMonitor);
-        statusPanel.addPanel(new SpacerStatusBar(25));
-        
-        zoneSelectionPanel = new ZoneSelectionPanel();
-        zoneSelectionPanel.setSize(100, 100);
-        AppListeners.addZoneListener(zoneSelectionPanel);
+		zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
+		pointerOverlay = new PointerOverlay();
+		colorPicker = new ColorPicker(this);
 
-        newZoneDropPanel = new NewZoneDropPanel();
-        
-        zoneRendererPanel = new JPanel(new PositionalLayout(5));
-        zoneRendererPanel.setBackground(Color.black);
-        zoneRendererPanel.add(newZoneDropPanel, PositionalLayout.Position.CENTER);
-        zoneRendererPanel.add(zoneSelectionPanel, PositionalLayout.Position.SE);
-        zoneRendererPanel.add(getChatActionLabel(), PositionalLayout.Position.SW);
-        
-        commandPanel = new CommandPanel();
-        MapTool.getMessageList().addObserver(commandPanel);
-        MapTool.getMessageList().addObserver(createChatIconMessageObserver());
-        
-        rendererBorderPanel = new JPanel(new GridLayout());
-        rendererBorderPanel.add(zoneRendererPanel);
-        
-        // Docking
+		String credits = "";
+		String version = "";
+		Image logo = null;
+		try {
+			credits = new String(FileUtil
+					.loadResource("net/rptools/maptool/client/credits.html"));
+			version = MapTool.getVersion();
+			credits = credits.replace("%VERSION%", version);
+			logo = ImageUtil.getImage("net/rptools/lib/image/rptools-logo.png");
+
+		} catch (Exception ioe) {
+			ioe.printStackTrace();
+		}
+		aboutDialog = new AboutDialog(this, logo, credits);
+		aboutDialog.setSize(354, 400);
+
+		statusPanel = new StatusPanel();
+		statusPanel.addPanel(getCoordinateStatusBar());
+		statusPanel.addPanel(new MemoryStatusBar());
+		// statusPanel.addPanel(progressBar);
+		statusPanel.addPanel(connectionStatusPanel);
+		statusPanel.addPanel(activityMonitor);
+		statusPanel.addPanel(new SpacerStatusBar(25));
+
+		zoneSelectionPanel = new ZoneSelectionPanel();
+		zoneSelectionPanel.setSize(100, 100);
+		AppListeners.addZoneListener(zoneSelectionPanel);
+
+		newZoneDropPanel = new NewZoneDropPanel();
+
+		zoneRendererPanel = new JPanel(new PositionalLayout(5));
+		zoneRendererPanel.setBackground(Color.black);
+		zoneRendererPanel.add(newZoneDropPanel,
+				PositionalLayout.Position.CENTER);
+		zoneRendererPanel.add(zoneSelectionPanel, PositionalLayout.Position.SE);
+		zoneRendererPanel.add(getChatActionLabel(),
+				PositionalLayout.Position.SW);
+
+		commandPanel = new CommandPanel();
+		MapTool.getMessageList().addObserver(commandPanel);
+		MapTool.getMessageList().addObserver(createChatIconMessageObserver());
+
+		rendererBorderPanel = new JPanel(new GridLayout());
+		rendererBorderPanel.add(zoneRendererPanel);
+
+		// Docking
 		JPanel dockingPanel = new JPanel(new BorderLayout(0, 0));
 		dockingPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -274,67 +300,59 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		viewport.setBorderManager(new StandardBorderManager(new ShadowBorder()));
 		dockingPanel.add(viewport, BorderLayout.CENTER);
 
-		View imageExplorer = createView("imageExplorer", "Image Explorer", assetPanel);
-		View connections = createView("connections", "Connections", new JScrollPane(createPlayerList()));
-		View tokenTree = createView("tokenTree", "Tokens", new JScrollPane(createTokenTreePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
-		View zoneRenderer = createView("zoneRenderer", "Zone", rendererBorderPanel);
-		View chat = createView("chat", "Chat", commandPanel);
+		DockingManager.setDockableFactory(new MapToolViewFactory());
 
-		viewport.dock(imageExplorer);
-		zoneRenderer.setTitlebar(null);
+		PerspectiveManager.setFactory(new MapToolPrespectiveFactory());
+		PerspectiveManager.getInstance().setCurrentPerspective(PERSPECTIVEID, true);
+		PerspectiveManager.setPersistenceHandler(new FilePersistenceHandler(AppUtil.getAppHome("config").getAbsolutePath() + "/layout.xml"));
 
-		imageExplorer.dock(zoneRenderer, DockingConstants.EAST_REGION, .25f);
-		imageExplorer.dock(tokenTree, DockingConstants.SOUTH_REGION, .3f);
-		tokenTree.dock(connections, DockingConstants.SOUTH_REGION, .5f);
-		zoneRenderer.dock(chat, DockingConstants.SOUTH_REGION, .75f); 		
-        
+		try{
+		    DockingManager.loadLayoutModel();
+			DockingManager.restoreLayout();
+		} catch(IOException e) {
+			e.printStackTrace();
+		} catch (PersistenceException e) {
+            e.printStackTrace();
+        }
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				DockingManager.setAutoPersist(true);
+			}
+		});
+
 		// Put it all together
 		menuBar = new AppMenuBar();
-        setJMenuBar(menuBar);
+		setJMenuBar(menuBar);
 		setLayout(new BorderLayout());
 		add(BorderLayout.CENTER, dockingPanel);
 		add(BorderLayout.NORTH, createToolboxPanel());
 		add(BorderLayout.SOUTH, statusPanel);
 
-		
 		setGlassPane(glassPane);
-        
+
 		// TODO: Put together a class that handles adding in the listeners, just
 		// so that this doesn't
 		// get all cluttered
 		AppListeners.addZoneListener(new RequestZoneAssetsListener());
-		
-        new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
-        
-        restorePreferences();
-        
-        repaintTimer = new Timer(1000, new RepaintTimer());
-        repaintTimer.start();
+
+		new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
+
+		restorePreferences();
+
+		repaintTimer = new Timer(1000, new RepaintTimer());
+		repaintTimer.start();
 	}
-	
-	private View createView(String id, String text, JComponent panel) {
-		View view = new View(id, text);
-		view.addAction(DockingConstants.CLOSE_ACTION);
-		view.addAction(DockingConstants.PIN_ACTION);
 
-		JPanel p = new JPanel(new GridLayout());
-
-		p.add(panel);
-
-		view.setContentPane(p);
-		return view;
-	} 
-	
 	public TokenPropertiesDialog getTokenPropertiesDialog() {
 		return tokenPropertiesDialog;
 	}
-	
+
 	public void refresh() {
 		if (getCurrentZoneRenderer() != null) {
 			getCurrentZoneRenderer().repaint();
 		}
 	}
-	
+
 	public JFileChooser getLoadFileChooser() {
 		if (loadFileChooser == null) {
 			loadFileChooser = new JFileChooser();
@@ -342,7 +360,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		}
 		return loadFileChooser;
 	}
-	
+
 	public JFileChooser getSaveFileChooser() {
 		if (saveFileChooser == null) {
 			saveFileChooser = new JFileChooser();
@@ -350,16 +368,16 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		}
 		return saveFileChooser;
 	}
-	
+
 	public void showControlPanel(JPanel panel) {
 
 		panel.setSize(panel.getPreferredSize());
-        zoneRendererPanel.add(panel, PositionalLayout.Position.NE);
-        zoneRendererPanel.setComponentZOrder(panel, 0);
-        zoneRendererPanel.revalidate();
-        zoneRendererPanel.repaint();
-        
-        visibleControlPanel = panel;
+		zoneRendererPanel.add(panel, PositionalLayout.Position.NE);
+		zoneRendererPanel.setComponentZOrder(panel, 0);
+		zoneRendererPanel.revalidate();
+		zoneRendererPanel.repaint();
+
+		visibleControlPanel = panel;
 	}
 
 	public CoordinateStatusBar getCoordinateStatusBar() {
@@ -368,39 +386,39 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		}
 		return coordinateStatusBar;
 	}
-	
+
 	public void hideControlPanel() {
 		if (visibleControlPanel != null) {
-			
+
 			if (zoneRendererPanel != null) {
 				zoneRendererPanel.remove(visibleControlPanel);
 			}
-			
+
 			visibleControlPanel = null;
 			refresh();
 		}
 	}
-	
+
 	public void showNonModalGlassPane(JComponent component, int x, int y) {
 		showGlassPane(component, x, y, false);
 	}
-	
+
 	public void showModalGlassPane(JComponent component, int x, int y) {
 		showGlassPane(component, x, y, true);
 	}
-	
+
 	private void showGlassPane(JComponent component, int x, int y, boolean modal) {
 		component.setSize(component.getPreferredSize());
 		component.setLocation(x, y);
-		
+
 		glassPane.setLayout(null);
 		glassPane.add(component);
 		glassPane.setModel(modal);
 		glassPane.setVisible(true);
 	}
-	
+
 	public void showFilledGlassPane(JComponent component) {
-		
+
 		glassPane.setLayout(new GridLayout());
 		glassPane.add(component);
 		glassPane.setVisible(true);
@@ -410,23 +428,25 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		glassPane.removeAll();
 		glassPane.setVisible(false);
 	}
-	
+
 	@Override
 	public void setVisible(boolean b) {
-//		mainSplitPane.setInitialDividerPosition(150);
-//        rightSplitPane.setInitialDividerPosition(getSize().height-200);
-//        new SplitPanePreferences(AppConstants.APP_NAME, "mainSplitPane", mainSplitPane);
-//        new SplitPanePreferences(AppConstants.APP_NAME, "rightSplitPane", rightSplitPane);
+		// mainSplitPane.setInitialDividerPosition(150);
+		// rightSplitPane.setInitialDividerPosition(getSize().height-200);
+		// new SplitPanePreferences(AppConstants.APP_NAME, "mainSplitPane",
+		// mainSplitPane);
+		// new SplitPanePreferences(AppConstants.APP_NAME, "rightSplitPane",
+		// rightSplitPane);
 		super.setVisible(b);
 		hideCommandPanel();
 	}
-	
+
 	public JLabel getChatActionLabel() {
 		if (chatActionLabel == null) {
-			chatActionLabel = new JLabel(new ImageIcon(AppStyle.chatImage)); 
+			chatActionLabel = new JLabel(new ImageIcon(AppStyle.chatImage));
 			chatActionLabel.setSize(chatActionLabel.getPreferredSize());
 			chatActionLabel.setVisible(false);
-			chatActionLabel.addMouseListener(new MouseAdapter(){
+			chatActionLabel.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
 					showCommandPanel();
@@ -435,442 +455,464 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		}
 		return chatActionLabel;
 	}
-	
+
 	private Observer createChatIconMessageObserver() {
 		return new Observer() {
 			public void update(java.util.Observable o, Object arg) {
-			    ObservableList<TextMessage> textList = MapTool.getMessageList();   
-			    ObservableList.Event event = (ObservableList.Event)arg; 
+				ObservableList<TextMessage> textList = MapTool.getMessageList();
+				ObservableList.Event event = (ObservableList.Event) arg;
 
-//			    if (rightSplitPane.isBottomHidden() && event == ObservableList.Event.append) {
-//					
-//					getChatActionLabel().setVisible(true);
-//				}
+				// if (rightSplitPane.isBottomHidden() && event ==
+				// ObservableList.Event.append) {
+				//					
+				// getChatActionLabel().setVisible(true);
+				// }
 			}
 		};
 	}
-	
+
 	public void showCommandPanel() {
 		chatActionLabel.setVisible(false);
-//		rightSplitPane.showBottom();
+		// rightSplitPane.showBottom();
 		commandPanel.requestFocus();
 	}
-	
+
 	public void hideCommandPanel() {
-//		rightSplitPane.hideBottom();
+		// rightSplitPane.hideBottom();
 	}
-	
-    public ColorPicker getColorPicker() {
-        return colorPicker;
-    }
-    
+
+	public ColorPicker getColorPicker() {
+		return colorPicker;
+	}
+
 	public void showAboutDialog() {
 		aboutDialog.setVisible(true);
 	}
-	
-    public ConnectionStatusPanel getConnectionStatusPanel() {
-        return connectionStatusPanel;
-    }
-    
-    public NotificationOverlay getNotificationOverlay() {
-        return notificationOverlay;
-    }
-    
-    private void restorePreferences() {
-        
-        List<File> assetRootList = AppPreferences.getAssetRoots();
-        for (File file : assetRootList) {
-            addAssetRoot(file);
-        }
-    }
-    
-    private TokenPanelTreeModel tokenPanelTreeModel;
-    private JComponent createTokenTreePanel() {
-    	final JTree tree = new JTree();
-    	tokenPanelTreeModel = new TokenPanelTreeModel(tree);
-    	tree.setModel(tokenPanelTreeModel);
+
+	public ConnectionStatusPanel getConnectionStatusPanel() {
+		return connectionStatusPanel;
+	}
+
+	public NotificationOverlay getNotificationOverlay() {
+		return notificationOverlay;
+	}
+
+	private void restorePreferences() {
+
+		List<File> assetRootList = AppPreferences.getAssetRoots();
+		for (File file : assetRootList) {
+			addAssetRoot(file);
+		}
+	}
+
+	private TokenPanelTreeModel tokenPanelTreeModel;
+
+	private JComponent createTokenTreePanel() {
+		final JTree tree = new JTree();
+		tokenPanelTreeModel = new TokenPanelTreeModel(tree);
+		tree.setModel(tokenPanelTreeModel);
 		tree.setCellRenderer(new TokenPanelTreeCellRenderer());
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+		tree.getSelectionModel().setSelectionMode(
+				TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		tree.addMouseListener(new MouseAdapter() {
 			// TODO: Make this a handler class, not an aic
 			@Override
 			public void mousePressed(MouseEvent e) {
-//				tree.setSelectionPath(tree.getPathForLocation(e.getX(), e.getY()));
+				// tree.setSelectionPath(tree.getPathForLocation(e.getX(),
+				// e.getY()));
 				TreePath path = tree.getPathForLocation(e.getX(), e.getY());
 				if (path == null) {
 					return;
 				}
 
-				Object row = path.getLastPathComponent(); 
+				Object row = path.getLastPathComponent();
 				int rowIndex = tree.getRowForLocation(e.getX(), e.getY());
-                if (SwingUtilities.isLeftMouseButton(e)) {
+				if (SwingUtilities.isLeftMouseButton(e)) {
 
-            		if (!SwingUtil.isShiftDown(e)) {
-            			tree.clearSelection();
-            		}
-        			tree.addSelectionInterval(rowIndex, rowIndex);
+					if (!SwingUtil.isShiftDown(e)) {
+						tree.clearSelection();
+					}
+					tree.addSelectionInterval(rowIndex, rowIndex);
 
-        			if (row instanceof Token) {
-                		if (e.getClickCount() == 2) {
-	                        Token token = (Token) row;
-	                        getCurrentZoneRenderer().clearSelectedTokens();
-	                        getCurrentZoneRenderer().centerOn(new ZonePoint(token.getX(), token.getY()));
-	                        
-	                        // Pick an appropriate tool
-	                        if (token.isToken()) {
-	                        	getToolbox().setSelectedTool(PointerTool.class);
-	                        } else {
-	                        	getCurrentZoneRenderer().setActiveLayer(token.isStamp() ? Zone.Layer.OBJECT : Zone.Layer.BACKGROUND);
-	                        	getToolbox().setSelectedTool(StampTool.class);
-	                        }
-	                        
-	                        getCurrentZoneRenderer().selectToken(token.getId());
-	                        getCurrentZoneRenderer().requestFocusInWindow();
-                		}
-                	}
-                }
-                if (SwingUtilities.isRightMouseButton(e)) {
-                	
-                	if (!isRowSelected(tree.getSelectionRows(), rowIndex) && !SwingUtil.isShiftDown(e)) {
-            			tree.clearSelection();
-            			tree.addSelectionInterval(rowIndex, rowIndex);
-                	}
+					if (row instanceof Token) {
+						if (e.getClickCount() == 2) {
+							Token token = (Token) row;
+							getCurrentZoneRenderer().clearSelectedTokens();
+							getCurrentZoneRenderer().centerOn(
+									new ZonePoint(token.getX(), token.getY()));
 
-                	final int x = e.getX();
-                	final int y = e.getY();
-                	EventQueue.invokeLater(new Runnable() {
-                		public void run() {
-                			
-                        	Token firstToken = null;
-                        	Set<GUID> selectedTokenSet = new HashSet<GUID>();
-                        	for (TreePath path : tree.getSelectionPaths()) {
+							// Pick an appropriate tool
+							if (token.isToken()) {
+								getToolbox().setSelectedTool(PointerTool.class);
+							} else {
+								getCurrentZoneRenderer().setActiveLayer(
+										token.isStamp() ? Zone.Layer.OBJECT
+												: Zone.Layer.BACKGROUND);
+								getToolbox().setSelectedTool(StampTool.class);
+							}
 
-                        		if (path.getLastPathComponent() instanceof Token) {
-                        			Token token = (Token) path.getLastPathComponent();
-                            		if (firstToken == null) {
-                            			firstToken = token;
-                            		}
-                            		
-                            		if (AppUtil.playerOwns(token)) {
-                            			selectedTokenSet.add(token.getId());
-                            		}
-                        		}
-                        	}
-                        	if (selectedTokenSet.size() > 0) {
-                        		
-                        		if (firstToken.isStamp() || firstToken.isBackground()) {
-                        			
-                            		new StampPopupMenu(selectedTokenSet, x, y, getCurrentZoneRenderer(), firstToken).showPopup(tree);
-                        		} else {
-                            		new TokenPopupMenu(selectedTokenSet, x, y, getCurrentZoneRenderer(), firstToken).showPopup(tree);
-                        		}
-                        	}
-                		}
-                	});
-                }
+							getCurrentZoneRenderer().selectToken(token.getId());
+							getCurrentZoneRenderer().requestFocusInWindow();
+						}
+					}
+				}
+				if (SwingUtilities.isRightMouseButton(e)) {
+
+					if (!isRowSelected(tree.getSelectionRows(), rowIndex)
+							&& !SwingUtil.isShiftDown(e)) {
+						tree.clearSelection();
+						tree.addSelectionInterval(rowIndex, rowIndex);
+					}
+
+					final int x = e.getX();
+					final int y = e.getY();
+					EventQueue.invokeLater(new Runnable() {
+						public void run() {
+
+							Token firstToken = null;
+							Set<GUID> selectedTokenSet = new HashSet<GUID>();
+							for (TreePath path : tree.getSelectionPaths()) {
+
+								if (path.getLastPathComponent() instanceof Token) {
+									Token token = (Token) path
+											.getLastPathComponent();
+									if (firstToken == null) {
+										firstToken = token;
+									}
+
+									if (AppUtil.playerOwns(token)) {
+										selectedTokenSet.add(token.getId());
+									}
+								}
+							}
+							if (selectedTokenSet.size() > 0) {
+
+								if (firstToken.isStamp()
+										|| firstToken.isBackground()) {
+
+									new StampPopupMenu(selectedTokenSet, x, y,
+											getCurrentZoneRenderer(),
+											firstToken).showPopup(tree);
+								} else {
+									new TokenPopupMenu(selectedTokenSet, x, y,
+											getCurrentZoneRenderer(),
+											firstToken).showPopup(tree);
+								}
+							}
+						}
+					});
+				}
 			}
 		});
-    	
+
 		AppListeners.addZoneListener(new ZoneActivityListener() {
 			public void zoneActivated(Zone zone) {
 				tokenPanelTreeModel.setZone(zone);
 			}
+
 			public void zoneAdded(Zone zone) {
 				// nothing to do
 			}
 		});
-		
-    	return tree;
-    }
 
-    
-    public void updateTokenTree() {
-    	tokenPanelTreeModel.update();
-    }
-    
-    private boolean isRowSelected(int[] selectedRows, int row) {
-    	if (selectedRows == null) {
-    		return false;
-    	}
-    	
-    	for (int selectedRow : selectedRows) {
-    		if (row == selectedRow) {
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-    
-    private AssetPanel createAssetPanel() {
-        final AssetPanel panel = new AssetPanel("mainAssetPanel");
-        panel.addImagePanelMouseListener(new MouseAdapter(){
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                // TODO use for real popup logic
-            	if (SwingUtilities.isLeftMouseButton(e)) {
-            		if (e.getClickCount() == 2) {
-            			
-                        List<Object> idList = panel.getSelectedIds();
-                        if (idList == null || idList.size() == 0) {
-                            return;
-                        }
-                        
-                        final int index = (Integer) idList.get(0);
-            			createZone(panel.getAsset(index), Zone.Type.MAP);
-            		}
-            	}
-            	
-                if (SwingUtilities.isRightMouseButton(e)) {
+		return tree;
+	}
 
-                    List<Object> idList = panel.getSelectedIds();
-                    if (idList == null || idList.size() == 0) {
-                        return;
-                    }
-                    
-                    final int index = (Integer) idList.get(0);
-                    
-                    JPopupMenu menu = new JPopupMenu();
-                    menu.add(new JMenuItem(new AbstractAction() {
-                        {
-                            putValue(NAME, "New Bounded Map");
-                        }
+	public void updateTokenTree() {
+		if (tokenPanelTreeModel != null) {
+			tokenPanelTreeModel.update();
+		}
+	}
 
-                        public void actionPerformed(ActionEvent e) {
+	private boolean isRowSelected(int[] selectedRows, int row) {
+		if (selectedRows == null) {
+			return false;
+		}
 
-                            createZone(panel.getAsset(index), Zone.Type.MAP);
-                        }
-                    }));
-                    menu.add(new JMenuItem(new AbstractAction() {
-                        {
-                            putValue(NAME, "New Unbounded Map");
-                        }
-                        public void actionPerformed(ActionEvent e) {
-                            createZone(panel.getAsset(index), Zone.Type.INFINITE);
-                        }
-                    }));
-                    
-                    panel.showImagePanelPopup(menu, e.getX(), e.getY());
-                }
-            }
-            
-            private void createZone(Asset asset, int type) {
+		for (int selectedRow : selectedRows) {
+			if (row == selectedRow) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private AssetPanel createAssetPanel() {
+		final AssetPanel panel = new AssetPanel("mainAssetPanel");
+		panel.addImagePanelMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO use for real popup logic
+				if (SwingUtilities.isLeftMouseButton(e)) {
+					if (e.getClickCount() == 2) {
+
+						List<Object> idList = panel.getSelectedIds();
+						if (idList == null || idList.size() == 0) {
+							return;
+						}
+
+						final int index = (Integer) idList.get(0);
+						createZone(panel.getAsset(index), Zone.Type.MAP);
+					}
+				}
+
+				if (SwingUtilities.isRightMouseButton(e)) {
+
+					List<Object> idList = panel.getSelectedIds();
+					if (idList == null || idList.size() == 0) {
+						return;
+					}
+
+					final int index = (Integer) idList.get(0);
+
+					JPopupMenu menu = new JPopupMenu();
+					menu.add(new JMenuItem(new AbstractAction() {
+						{
+							putValue(NAME, "New Bounded Map");
+						}
+
+						public void actionPerformed(ActionEvent e) {
+
+							createZone(panel.getAsset(index), Zone.Type.MAP);
+						}
+					}));
+					menu.add(new JMenuItem(new AbstractAction() {
+						{
+							putValue(NAME, "New Unbounded Map");
+						}
+
+						public void actionPerformed(ActionEvent e) {
+							createZone(panel.getAsset(index),
+									Zone.Type.INFINITE);
+						}
+					}));
+
+					panel.showImagePanelPopup(menu, e.getX(), e.getY());
+				}
+			}
+
+			private void createZone(Asset asset, int type) {
 
 				NewMapDialog newMapDialog = new NewMapDialog(MapTool.getFrame());
 				newMapDialog.setSelectedAsset(asset);
 				newMapDialog.setZoneType(type);
 				newMapDialog.setVisible(true);
-            }
-        });
-        
-        return panel;
-    }
-    
+			}
+		});
+
+		return panel;
+	}
+
 	public PointerOverlay getPointerOverlay() {
 		return pointerOverlay;
 	}
-	
+
 	public void setStatusMessage(final String message) {
-		SwingUtilities.invokeLater(new Runnable(){
+		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-			statusPanel.setStatus("  " + message);
+				statusPanel.setStatus("  " + message);
 			}
 		});
 	}
-	
-    protected JComponent createPlayerList() {
-        
-    	ClientConnectionPanel panel = new ClientConnectionPanel();
-        
-        return panel;
-    }
-    
-    public ActivityMonitorPanel getActivityMonitor() {
-        return activityMonitor;
-    }
-	
-    public void startIndeterminateAction() {
-    	progressBar.startIndeterminate();
-    }
-    
-    public void endIndeterminateAction() {
-    	progressBar.endIndeterminate();
-    }
-    
-    public void startDeterminateAction(int totalWork) {
-    	progressBar.startDeterminate(totalWork);
-    }
-    
-    public void updateDeterminateActionProgress(int additionalWorkCompleted) {
-    	progressBar.updateDeterminateProgress(additionalWorkCompleted);
-    }
-    
-    public void endDeterminateAction() {
-    	progressBar.endDeterminate();
-    }
-    
+
+	protected JComponent createPlayerList() {
+
+		ClientConnectionPanel panel = new ClientConnectionPanel();
+
+		return panel;
+	}
+
+	public ActivityMonitorPanel getActivityMonitor() {
+		return activityMonitor;
+	}
+
+	public void startIndeterminateAction() {
+		progressBar.startIndeterminate();
+	}
+
+	public void endIndeterminateAction() {
+		progressBar.endIndeterminate();
+	}
+
+	public void startDeterminateAction(int totalWork) {
+		progressBar.startDeterminate(totalWork);
+	}
+
+	public void updateDeterminateActionProgress(int additionalWorkCompleted) {
+		progressBar.updateDeterminateProgress(additionalWorkCompleted);
+	}
+
+	public void endDeterminateAction() {
+		progressBar.endDeterminate();
+	}
+
 	public ZoneSelectionPanel getZoneSelectionPanel() {
 		return zoneSelectionPanel;
 	}
-    
-    ///////////////////////////////////////////////////////////////////////////
-    // static methods
-    ///////////////////////////////////////////////////////////////////////////
-    
-    public void toggleAssetTree() {
-        
-//        if (mainSplitPane.isLeftHidden()) {
-//            mainSplitPane.showLeft();
-//        } else {
-//            mainSplitPane.hideLeft();
-//        }
-    }
-    
-    public boolean isAssetTreeVisible() {
-//    	return !mainSplitPane.isLeftHidden();
-    	return true;
-    }
-    
-    public CommandPanel getCommandPanel() {
-    	return commandPanel;
-    }
-    
-    public AssetPanel getAssetPanel() {
-      return assetPanel;
-    }
-    
-    public void addAssetRoot(File rootDir) {
-        
-    	assetPanel.addAssetRoot(new AssetDirectory(rootDir, AppConstants.IMAGE_FILE_FILTER));
-    	
-//        if (mainSplitPane.isLeftHidden()) {
-//            mainSplitPane.showLeft();
-//        }
-    }
-    
+
+	// /////////////////////////////////////////////////////////////////////////
+	// static methods
+	// /////////////////////////////////////////////////////////////////////////
+
+	public void toggleAssetTree() {
+
+		// if (mainSplitPane.isLeftHidden()) {
+		// mainSplitPane.showLeft();
+		// } else {
+		// mainSplitPane.hideLeft();
+		// }
+	}
+
+	public boolean isAssetTreeVisible() {
+		// return !mainSplitPane.isLeftHidden();
+		return true;
+	}
+
+	public CommandPanel getCommandPanel() {
+		return commandPanel;
+	}
+
+	public AssetPanel getAssetPanel() {
+		return assetPanel;
+	}
+
+	public void addAssetRoot(File rootDir) {
+
+		assetPanel.addAssetRoot(new AssetDirectory(rootDir,
+				AppConstants.IMAGE_FILE_FILTER));
+
+		// if (mainSplitPane.isLeftHidden()) {
+		// mainSplitPane.showLeft();
+		// }
+	}
+
 	private JComponent createToolboxPanel() {
 
-        JPanel panel = new JPanel(new GridBagLayout());
-        
-        JToolBar toolbar = new JToolBar();
-        toolbar.setFloatable(false);
-        toolbar.setRollover(true);
+		JPanel panel = new JPanel(new GridBagLayout());
 
-        // Tools
-        toolbar.add(toolbox.createTool(PointerTool.class));
-        toolbar.add(toolbox.createTool(StampTool.class));
-        toolbar.add(toolbox.createTool(MeasureTool.class));
-        
-        toolbar.add(Box.createHorizontalStrut(15));
-        
-        toolbar.add(toolbox.createTool(FreehandTool.class));
-        toolbar.add(toolbox.createTool(LineTool.class));
-        toolbar.add(toolbox.createTool(RectangleTool.class));
-        toolbar.add(toolbox.createTool(OvalTool.class));
-        //Tool textTool = new DrawnTextTool();
-        toolbar.add(toolbox.createTool(TextTool.class));
-        toolbar.add(toolbox.createTool(RadiusTemplateTool.class));
-        toolbar.add(toolbox.createTool(ConeTemplateTool.class));
-        toolbar.add(toolbox.createTool(LineTemplateTool.class));
-        
-        toolbar.add(Box.createHorizontalStrut(15));
-        
-        toolbar.add(toolbox.createTool(RectangleExposeTool.class));
-        toolbar.add(toolbox.createTool(OvalExposeTool.class));
-        toolbar.add(toolbox.createTool(PolygonExposeTool.class));
-        toolbar.add(toolbox.createTool(FreehandExposeTool.class));
-        
-        // Non visible tools
-        toolbox.createTool(GridTool.class);
-        toolbox.createTool(FacingTool.class);
-        
-        toolbar.add(Box.createHorizontalStrut(15));
+		JToolBar toolbar = new JToolBar();
+		toolbar.setFloatable(false);
+		toolbar.setRollover(true);
 
-        // Initialy selected
-        toolbox.setSelectedTool(PointerTool.class);
-        
-        // Organize
+		// Tools
+		toolbar.add(toolbox.createTool(PointerTool.class));
+		toolbar.add(toolbox.createTool(StampTool.class));
+		toolbar.add(toolbox.createTool(MeasureTool.class));
 
-        toolbar.add(widthChooser);
+		toolbar.add(Box.createHorizontalStrut(15));
 
-        toolbar.add(Box.createHorizontalStrut(15));
-        
-        GridBagConstraints constraints = new GridBagConstraints();
-        panel.add(toolbar, constraints);
-        
-        constraints.weightx = 1;
-        constraints.gridx = 1;
-        panel.add(new JLabel(), constraints);
-        
-        return panel;
+		toolbar.add(toolbox.createTool(FreehandTool.class));
+		toolbar.add(toolbox.createTool(LineTool.class));
+		toolbar.add(toolbox.createTool(RectangleTool.class));
+		toolbar.add(toolbox.createTool(OvalTool.class));
+		// Tool textTool = new DrawnTextTool();
+		toolbar.add(toolbox.createTool(TextTool.class));
+		toolbar.add(toolbox.createTool(RadiusTemplateTool.class));
+		toolbar.add(toolbox.createTool(ConeTemplateTool.class));
+		toolbar.add(toolbox.createTool(LineTemplateTool.class));
+
+		toolbar.add(Box.createHorizontalStrut(15));
+
+		toolbar.add(toolbox.createTool(RectangleExposeTool.class));
+		toolbar.add(toolbox.createTool(OvalExposeTool.class));
+		toolbar.add(toolbox.createTool(PolygonExposeTool.class));
+		toolbar.add(toolbox.createTool(FreehandExposeTool.class));
+
+		// Non visible tools
+		toolbox.createTool(GridTool.class);
+		toolbox.createTool(FacingTool.class);
+
+		toolbar.add(Box.createHorizontalStrut(15));
+
+		// Initialy selected
+		toolbox.setSelectedTool(PointerTool.class);
+
+		// Organize
+
+		toolbar.add(widthChooser);
+
+		toolbar.add(Box.createHorizontalStrut(15));
+
+		GridBagConstraints constraints = new GridBagConstraints();
+		panel.add(toolbar, constraints);
+
+		constraints.weightx = 1;
+		constraints.gridx = 1;
+		panel.add(new JLabel(), constraints);
+
+		return panel;
 	}
-	
-    public Pen getPen() {
-    	
-    	pen.setColor(colorPicker.getForegroundColor().getRGB());
-    	pen.setBackgroundColor(colorPicker.getBackgroundColor().getRGB());
-        pen.setThickness((Integer)widthChooser.getSelectedItem());
-        return pen;
-    }
-	
-    public List<ZoneRenderer> getZoneRenderers() {
-        // TODO: This should prob be immutable
-        return zoneRendererList;
-    }
-    
-    public ZoneRenderer getCurrentZoneRenderer() {
-        return currentRenderer;
-    }
-    
-    public void addZoneRenderer(ZoneRenderer renderer) {
-        zoneRendererList.add(renderer);
-    }
-    
-    public void removeZoneRenderer(ZoneRenderer renderer) {
-    	
-    	boolean isCurrent = renderer == getCurrentZoneRenderer();
-    	
-    	zoneRendererList.remove(renderer);
-    	if (isCurrent) {
-    		setCurrentZoneRenderer(zoneRendererList.size() > 0 ? zoneRendererList.get(0) : null);
-    	}
-    	
-    	zoneSelectionPanel.flush();
-    	zoneSelectionPanel.repaint();
-    }
-    
-    public void clearZoneRendererList() {
-        zoneRendererList.clear();
-        zoneSelectionPanel.flush();
-    	zoneSelectionPanel.repaint();
-    }
-	public void setCurrentZoneRenderer(ZoneRenderer renderer) {
-        
-        // Handle new renderers
-        // TODO: should this be here ?
-        if (renderer != null && !zoneRendererList.contains(renderer)) {
-            zoneRendererList.add(renderer);
-        }
 
-        // Handle first renderer
-        if (newZoneDropPanel != null) {
-        	zoneRendererPanel.remove(newZoneDropPanel);
-        	newZoneDropPanel = null;
-        }
-        
-        if (currentRenderer != null) {
-        	currentRenderer.flush();
-            zoneRendererPanel.remove(currentRenderer);
-            currentRenderer.setRepaintTimer(null);
-        }
-        
+	public Pen getPen() {
+
+		pen.setColor(colorPicker.getForegroundColor().getRGB());
+		pen.setBackgroundColor(colorPicker.getBackgroundColor().getRGB());
+		pen.setThickness((Integer) widthChooser.getSelectedItem());
+		return pen;
+	}
+
+	public List<ZoneRenderer> getZoneRenderers() {
+		// TODO: This should prob be immutable
+		return zoneRendererList;
+	}
+
+	public ZoneRenderer getCurrentZoneRenderer() {
+		return currentRenderer;
+	}
+
+	public void addZoneRenderer(ZoneRenderer renderer) {
+		zoneRendererList.add(renderer);
+	}
+
+	public void removeZoneRenderer(ZoneRenderer renderer) {
+
+		boolean isCurrent = renderer == getCurrentZoneRenderer();
+
+		zoneRendererList.remove(renderer);
+		if (isCurrent) {
+			setCurrentZoneRenderer(zoneRendererList.size() > 0 ? zoneRendererList
+					.get(0)
+					: null);
+		}
+
+		zoneSelectionPanel.flush();
+		zoneSelectionPanel.repaint();
+	}
+
+	public void clearZoneRendererList() {
+		zoneRendererList.clear();
+		zoneSelectionPanel.flush();
+		zoneSelectionPanel.repaint();
+	}
+
+	public void setCurrentZoneRenderer(ZoneRenderer renderer) {
+
+		// Handle new renderers
+		// TODO: should this be here ?
+		if (renderer != null && !zoneRendererList.contains(renderer)) {
+			zoneRendererList.add(renderer);
+		}
+
+		// Handle first renderer
+		if (newZoneDropPanel != null) {
+			zoneRendererPanel.remove(newZoneDropPanel);
+			newZoneDropPanel = null;
+		}
+
+		if (currentRenderer != null) {
+			currentRenderer.flush();
+			zoneRendererPanel.remove(currentRenderer);
+			currentRenderer.setRepaintTimer(null);
+		}
+
 		// Back to the pointer
 		getToolbox().setSelectedTool(PointerTool.class);
-		
-        if (renderer != null) {
-            zoneRendererPanel.add(renderer, PositionalLayout.Position.CENTER);
-            zoneRendererPanel.doLayout();
-        }
-        
+
+		if (renderer != null) {
+			zoneRendererPanel.add(renderer, PositionalLayout.Position.CENTER);
+			zoneRendererPanel.doLayout();
+		}
+
 		currentRenderer = renderer;
 		toolbox.setTargetRenderer(renderer);
 
@@ -884,205 +926,318 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		AppActions.updateActions();
 		repaint();
 	}
-	
+
 	public Toolbox getToolbox() {
 		return toolbox;
 	}
-	
+
 	public ZoneRenderer getZoneRenderer(Zone zone) {
-		
+
 		for (ZoneRenderer renderer : zoneRendererList) {
-			
+
 			if (zone == renderer.getZone()) {
 				return renderer;
 			}
 		}
-		
+
 		return null;
 	}
 
 	public ZoneRenderer getZoneRenderer(GUID zoneGUID) {
-		
+
 		for (ZoneRenderer renderer : zoneRendererList) {
-			
+
 			if (zoneGUID.equals(renderer.getZone().getId())) {
 				return renderer;
 			}
 		}
-		
+
 		return null;
 	}
 
-  /**
-   * Get the paintDrawingMeasurements for this MapToolClient.
-   *
-   * @return Returns the current value of paintDrawingMeasurements.
-   */
-  public boolean isPaintDrawingMeasurement() {
-    return paintDrawingMeasurement;
-  }
+	/**
+	 * Get the paintDrawingMeasurements for this MapToolClient.
+	 * 
+	 * @return Returns the current value of paintDrawingMeasurements.
+	 */
+	public boolean isPaintDrawingMeasurement() {
+		return paintDrawingMeasurement;
+	}
 
-  /**
-   * Set the value of paintDrawingMeasurements for this MapToolClient.
-   *
-   * @param aPaintDrawingMeasurements The paintDrawingMeasurements to set.
-   */
-  public void setPaintDrawingMeasurement(boolean aPaintDrawingMeasurements) {
-    paintDrawingMeasurement = aPaintDrawingMeasurements;
-  }
+	/**
+	 * Set the value of paintDrawingMeasurements for this MapToolClient.
+	 * 
+	 * @param aPaintDrawingMeasurements
+	 *            The paintDrawingMeasurements to set.
+	 */
+	public void setPaintDrawingMeasurement(boolean aPaintDrawingMeasurements) {
+		paintDrawingMeasurement = aPaintDrawingMeasurements;
+	}
 
-  public void showFullScreen() {
-	  
-	  GraphicsConfiguration graphicsConfig = getGraphicsConfiguration();
-	  GraphicsDevice device = graphicsConfig.getDevice();	  
-	  
-	  Rectangle bounds = graphicsConfig.getBounds();
+	public void showFullScreen() {
 
-	  fullScreenFrame = new FullScreenFrame();
-	  fullScreenFrame.add(zoneRendererPanel);
-	  
-	  fullScreenFrame.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
-	  
-	  fullScreenFrame.setJMenuBar(menuBar);
-	  menuBar.setVisible(false);
-	  
-	  fullScreenFrame.setVisible(true);
-	  
-	  this.setVisible(false);
-  }
-  
-  public boolean isFullScreen() {
-	  return fullScreenFrame != null;
-  }
-  
-  public void showWindowed() {
-	  if (fullScreenFrame == null) {
-		  return;
-	  }
+		GraphicsConfiguration graphicsConfig = getGraphicsConfiguration();
+		GraphicsDevice device = graphicsConfig.getDevice();
 
-      rendererBorderPanel.add(zoneRendererPanel);
-      setJMenuBar(menuBar);
-      menuBar.setVisible(true);
-	  this.setVisible(true);
-	  
-	  fullScreenFrame.dispose();
-	  
-	  fullScreenFrame = null;
-  }
-  
-  public class FullScreenFrame extends JFrame {
-	  
-	  public FullScreenFrame() {
-		setUndecorated(true);
+		Rectangle bounds = graphicsConfig.getBounds();
+
+		fullScreenFrame = new FullScreenFrame();
+		fullScreenFrame.add(zoneRendererPanel);
+
+		fullScreenFrame.setBounds(bounds.x, bounds.y, bounds.width,
+				bounds.height);
+
+		fullScreenFrame.setJMenuBar(menuBar);
+		menuBar.setVisible(false);
+
+		fullScreenFrame.setVisible(true);
+
+		this.setVisible(false);
+	}
+
+	public boolean isFullScreen() {
+		return fullScreenFrame != null;
+	}
+
+	public void showWindowed() {
+		if (fullScreenFrame == null) {
+			return;
+		}
+
+		rendererBorderPanel.add(zoneRendererPanel);
+		setJMenuBar(menuBar);
+		menuBar.setVisible(true);
+		this.setVisible(true);
+
+		fullScreenFrame.dispose();
+
+		fullScreenFrame = null;
+	}
+
+	public class FullScreenFrame extends JFrame {
+
+		public FullScreenFrame() {
+			setUndecorated(true);
+
+		}
+	}
+
+	private class RequestZoneAssetsListener implements ZoneActivityListener {
+		public void zoneActivated(final Zone zone) {
+
+			AssetAvailableListener listener = new AssetAvailableListener() {
+				public void assetAvailable(net.rptools.lib.MD5Key key) {
+					ZoneRenderer renderer = getCurrentZoneRenderer();
+					if (renderer.getZone() == zone) {
+						ImageManager.getImage(AssetManager.getAsset(key),
+								renderer);
+					}
+				}
+			};
+
+			// Let's add all the assets, starting with the backgrounds
+			for (Token token : zone.getBackgroundTokens()) {
+
+				MD5Key key = token.getAssetID();
+
+				if (AssetManager.hasAsset(key)) {
+					ImageManager.getImage(AssetManager.getAsset(key));
+				} else {
+
+					if (!AssetManager.isAssetRequested(key)) {
+						AssetManager.addAssetListener(token.getAssetID(),
+								listener);
+
+						// This will force a server request if we don't already
+						// have it
+						AssetManager.getAsset(token.getAssetID());
+					}
+				}
+			}
+
+			// Now the stamps
+			for (Token token : zone.getStampTokens()) {
+				MD5Key key = token.getAssetID();
+
+				if (AssetManager.hasAsset(key)) {
+					ImageManager.getImage(AssetManager.getAsset(key));
+				} else {
+
+					if (!AssetManager.isAssetRequested(key)) {
+						AssetManager.addAssetListener(token.getAssetID(),
+								listener);
+
+						// This will force a server request if we don't already
+						// have it
+						AssetManager.getAsset(token.getAssetID());
+					}
+				}
+			}
+
+			// Now add the rest
+			for (Token token : zone.getAllTokens()) {
+				MD5Key key = token.getAssetID();
+
+				if (AssetManager.hasAsset(key)) {
+					ImageManager.getImage(AssetManager.getAsset(key));
+				} else {
+
+					if (!AssetManager.isAssetRequested(key)) {
+						AssetManager.addAssetListener(key, listener);
+
+						// This will force a server request if we don't already
+						// have it
+						AssetManager.getAsset(token.getAssetID());
+					}
+				}
+			}
+		}
+
+		public void zoneAdded(Zone zone) {
+		}
+	}
+
+	// //
+	// WINDOW LISTENER
+	public void windowOpened(WindowEvent e) {
+	}
+
+	public void windowClosing(WindowEvent e) {
+
+		if (MapTool.isHostingServer()) {
+			if (!MapTool
+					.confirm("You are hosting a server.  Shutting down will disconnect all players.  Are you sure?")) {
+				return;
+			}
+		}
+
+		ServerDisconnectHandler.disconnectExpected = true;
+		MapTool.disconnect();
+
+		// We're done
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				System.exit(0);
+			}
+		});
+	}
+
+	public void windowClosed(WindowEvent e) {
+	}
+
+	public void windowIconified(WindowEvent e) {
+	}
+
+	public void windowDeiconified(WindowEvent e) {
+	}
+
+	public void windowActivated(WindowEvent e) {
+	}
+
+	public void windowDeactivated(WindowEvent e) {
+	}
+
+	// //
+	// REPAINT TIMER
+	private class RepaintTimer implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+			ZoneRenderer renderer = getCurrentZoneRenderer();
+			if (renderer != null) {
+				renderer.repaint();
+			}
+		}
+	}
+
+	// //
+	// DOCKABLE FACTORY
+	public enum MapToolView {
+		ZONE_RENDERER("Zone"),
+		CONNECTIONS("Connections"),
+		TOKEN_TREE("Tokens"),
+		IMAGE_EXPLORER("Image Explorer"),
+		CHAT("Chat");
 		
-	  }
-  }
+		private String displayName;
+		private MapToolView(String displayName) {
+			this.displayName = displayName;
+		}
+		
+		public String getDisplayName() {
+			return displayName;
+		}
+	}
+	private class MapToolViewFactory implements DockableFactory {
+
+		private Map<MapToolView, View> viewMap = new HashMap<MapToolView, View>();
+		
+		public Dockable getDockable(String viewId) {
+
+			MapToolView view = MapToolView.valueOf(viewId);
+			View dockable = viewMap.get(view);
+			
+			if (dockable != null) {
+				return dockable;
+			}
+			
+			JComponent component = null;
+			switch (MapToolView.valueOf(viewId)) {
+			case ZONE_RENDERER: component = rendererBorderPanel; break;
+			case CONNECTIONS: component = new JScrollPane(createPlayerList()); break;
+			case TOKEN_TREE: component = new JScrollPane(createTokenTreePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); break;
+			case IMAGE_EXPLORER: component = assetPanel; break;
+			case CHAT: component = commandPanel; break;
+			}
+			
+			dockable = createView(view, component);
+			viewMap.put(view, dockable);
+			
+			// Special case setup
+			if (view == MapToolView.ZONE_RENDERER) {
+				dockable.setTitlebar(null);
+			}
+
+			return dockable;
+		}
+
+		public Component getDockableComponent(String arg0) {
+			return null;
+		}
+
+		private View createView(MapToolView viewType, JComponent panel) {
+			View view = new View(viewType.name(), viewType.getDisplayName());
+			view.addAction(DockingConstants.CLOSE_ACTION);
+			view.addAction(DockingConstants.PIN_ACTION);
+
+			JPanel p = new JPanel(new GridLayout());
+
+			p.add(panel);
+
+			view.setContentPane(p);
+			return view;
+		}
+	}
 	
-  private class RequestZoneAssetsListener implements ZoneActivityListener {
-	  public void zoneActivated(final Zone zone) {
+	////
+	// PERSPECTIVE FACTORY
+	public static final String PERSPECTIVEID = "default";
+	private static class MapToolPrespectiveFactory implements PerspectiveFactory {
+		public Perspective getPerspective(String persistentId) {
+			Perspective perspective = null;
 
-		  AssetAvailableListener listener = new AssetAvailableListener() {
-			  public void assetAvailable(net.rptools.lib.MD5Key key) {
-				  ZoneRenderer renderer = getCurrentZoneRenderer();
-				  if (renderer.getZone() == zone) {
-					  ImageManager.getImage(AssetManager.getAsset(key), renderer);
-				  }
-			  }
-		  };
-		  
-		  // Let's add all the assets, starting with the backgrounds
-		  for (Token token : zone.getBackgroundTokens()) {
-			  
-			  MD5Key key = token.getAssetID();
+			if (PERSPECTIVEID.equals(persistentId)) {
+				perspective = new Perspective(PERSPECTIVEID, "Default");
+				LayoutSequence seq = perspective.getInitialSequence(true);
 
-			  if (AssetManager.hasAsset(key)) {
-				  ImageManager.getImage(AssetManager.getAsset(key));
-			  } else {
-				  
-				  if (!AssetManager.isAssetRequested(key)) {
-					  AssetManager.addAssetListener(token.getAssetID(), listener);
-					  
-					  // This will force a server request if we don't already have it
-					  AssetManager.getAsset(token.getAssetID());
-				  }
-			  }
-		  }
+				seq.add(MapToolView.IMAGE_EXPLORER.name());
+				seq.add(MapToolView.ZONE_RENDERER.name(), MapToolView.IMAGE_EXPLORER.name(), DockingConstants.EAST_REGION, .25f);
+				seq.add(MapToolView.TOKEN_TREE.name(), MapToolView.IMAGE_EXPLORER.name(), DockingConstants.SOUTH_REGION, .3f);
+				seq.add(MapToolView.CONNECTIONS.name(), MapToolView.TOKEN_TREE.name(), DockingConstants.SOUTH_REGION, .5f);
+				seq.add(MapToolView.CHAT.name(), MapToolView.ZONE_RENDERER.name(), DockingConstants.SOUTH_REGION, .75f);
+			}
 
-		  // Now the stamps
-		  for (Token token : zone.getStampTokens()) {
-			  MD5Key key = token.getAssetID();
-			  
-			  if (AssetManager.hasAsset(key)) {
-				  ImageManager.getImage(AssetManager.getAsset(key));
-			  } else {
-				  
-				  if (!AssetManager.isAssetRequested(key)) {
-					  AssetManager.addAssetListener(token.getAssetID(), listener);
-					  
-					  // This will force a server request if we don't already have it
-					  AssetManager.getAsset(token.getAssetID());
-				  }
-			  }
-		  }
-		  
-		  // Now add the rest
-		  for (Token token : zone.getAllTokens()) {
-			  MD5Key key = token.getAssetID();
-			  
-			  if (AssetManager.hasAsset(key)) {
-				  ImageManager.getImage(AssetManager.getAsset(key));
-			  } else {
-				  
-				  if (!AssetManager.isAssetRequested(key)) {
-					  AssetManager.addAssetListener(key, listener);
-					  
-					  // This will force a server request if we don't already have it
-					  AssetManager.getAsset(token.getAssetID());
-				  }
-			  }
-		  }
-	  }
-	  public void zoneAdded(Zone zone) {
-	  }
-  }
-  
-  ////
-  // WINDOW LISTENER
-  public void windowOpened(WindowEvent e){}
-  public void windowClosing(WindowEvent e){
-	  
-	  if (MapTool.isHostingServer()) {
-		  if (!MapTool.confirm("You are hosting a server.  Shutting down will disconnect all players.  Are you sure?")) {
-			  return;
-		  }
-	  }
-
-	  ServerDisconnectHandler.disconnectExpected = true;
-	  MapTool.disconnect();
-	  
-	  // We're done
-	  EventQueue.invokeLater(new Runnable() {
-		  public void run() {
-			  System.exit(0);
-		  }
-	  });
-  }
-  public void windowClosed(WindowEvent e){}
-  public void windowIconified(WindowEvent e){}
-  public void windowDeiconified(WindowEvent e){}
-  public void windowActivated(WindowEvent e){}
-  public void windowDeactivated(WindowEvent e){}
-
-  ////
-  // REPAINT TIMER
-  private class RepaintTimer implements ActionListener {
-	  
-	  public void actionPerformed(ActionEvent e) {
-		  ZoneRenderer renderer = getCurrentZoneRenderer();
-		  if (renderer != null) {
-			  renderer.repaint();
-		  }
-	  }
-  }
-  
+			return perspective;
+		}
+	}
+	
 }
