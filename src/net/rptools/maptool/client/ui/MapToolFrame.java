@@ -111,9 +111,11 @@ import net.rptools.maptool.client.tool.drawing.LineTool;
 import net.rptools.maptool.client.tool.drawing.OvalExposeTool;
 import net.rptools.maptool.client.tool.drawing.OvalTool;
 import net.rptools.maptool.client.tool.drawing.PolygonExposeTool;
+import net.rptools.maptool.client.tool.drawing.PolygonTopologyTool;
 import net.rptools.maptool.client.tool.drawing.RadiusTemplateTool;
 import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
+import net.rptools.maptool.client.tool.drawing.RectangleTopologyTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
@@ -287,14 +289,14 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		PerspectiveManager.getInstance().setCurrentPerspective(PERSPECTIVEID, true);
 		PerspectiveManager.setPersistenceHandler(new FilePersistenceHandler(AppUtil.getAppHome("config").getAbsolutePath() + "/layout.xml"));
 
-		try{
-		    DockingManager.loadLayoutModel();
+//		try{
+//		    DockingManager.loadLayoutModel();
 			DockingManager.restoreLayout();
-		} catch(IOException e) {
-			e.printStackTrace();
-		} catch (PersistenceException e) {
-            e.printStackTrace();
-        }
+//		} catch(IOException e) {
+//			e.printStackTrace();
+//		} catch (PersistenceException e) {
+//            e.printStackTrace();
+//        }
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				DockingManager.setAutoPersist(true);
@@ -809,6 +811,11 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		toolbar.add(toolbox.createTool(PolygonExposeTool.class));
 		toolbar.add(toolbox.createTool(FreehandExposeTool.class));
 
+		toolbar.add(Box.createHorizontalStrut(15));
+		
+		toolbar.add(toolbox.createTool(RectangleTopologyTool.class));
+		toolbar.add(toolbox.createTool(PolygonTopologyTool.class));
+		
 		// Non visible tools
 		toolbox.createTool(GridTool.class);
 		toolbox.createTool(FacingTool.class);

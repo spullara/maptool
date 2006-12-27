@@ -3,6 +3,8 @@ package net.rptools.maptool.client.ui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -18,12 +20,14 @@ import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.token.LightDialog;
 import net.rptools.maptool.client.ui.token.TokenStates;
+import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 
@@ -50,6 +54,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new ClearFacingAction());
 		add(new StartMoveAction());
 		addOwnedItem(createStateMenu());
+		add(new ExposeVisibleAreaAction());
 
 		add(new JSeparator());
 
@@ -78,6 +83,34 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 		addGMItem(createChangeToMenu(Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
 		add(new ShowPropertiesDialogAction());
+	}
+	
+	private class ExposeVisibleAreaAction extends AbstractAction {
+		public ExposeVisibleAreaAction() {
+			putValue(Action.NAME, "Expose visible area");
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+
+			for (GUID tokenGUID : selectedTokenSet) {
+				Token token = getRenderer().getZone().getToken(tokenGUID);
+				if (token == null) {
+					continue;
+				}
+				
+				if (!token.hasVision()) {
+					return;
+				}
+				
+				ZoneRenderer renderer = getRenderer();
+    			int width = TokenSize.getWidth(token, renderer.getZone().getGrid());
+    			int height = TokenSize.getHeight(token, renderer.getZone().getGrid());
+				Area visionArea = FogUtil.calculateVisibility(token.getX() + width/2, token.getY()+height/2, token.getVisionList().get(0).getArea(), getRenderer().getZone().getTopology());
+				renderer.getZone().exposeArea(visionArea);
+			}
+			getRenderer().repaint();
+		}
+		
 	}
 
 	private JMenu createHaloMenu() {

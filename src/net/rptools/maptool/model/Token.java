@@ -32,6 +32,8 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,6 +47,7 @@ import javax.swing.ImageIcon;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.transferable.TokenTransferData;
+import net.rptools.maptool.model.vision.RoundVision;
 import net.rptools.maptool.util.ImageManager;
 
 /**
@@ -117,6 +120,8 @@ public class Token {
 	private Integer haloColorValue;
 	private transient Color haloColor;
 	
+	private List<Vision> visionList;
+	
   /**
    * The notes that are displayed for this token.
    */
@@ -166,6 +171,11 @@ public class Token {
 			ownerList.addAll(token.ownerList);
 		}
 
+		if (token.visionList != null) {
+			visionList = new ArrayList<Vision>();
+			visionList.addAll(token.visionList);
+		}
+		
 		if (token.state != null) {
 			state = new HashMap<String, Object>(token.state);
 		}
@@ -269,6 +279,27 @@ public class Token {
 	
 	public Integer getFacing() {
 		return facing;
+	}
+
+	public boolean hasVision() {
+		return visionList != null && visionList.size() > 0;
+	}
+	
+	public void addVision(Vision vision) {
+		if (visionList == null) {
+			visionList = new ArrayList<Vision>();
+		}
+		visionList.add(vision);
+	}
+	
+	public void removeVision(Vision vision) {
+		if (visionList != null) {
+			visionList.remove(vision);
+		}
+	}
+	
+	public List<Vision> getVisionList() {
+		return (List<Vision>)(visionList != null ? Collections.unmodifiableList(visionList) : Collections.emptyList());
 	}
 
 	public synchronized void addOwner(String playerId) {

@@ -95,12 +95,16 @@ import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridCapabilities;
 import net.rptools.maptool.model.HexGrid;
 import net.rptools.maptool.model.Label;
+import net.rptools.maptool.model.ModelChangeEvent;
+import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
+import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawnElement;
+import net.rptools.maptool.model.vision.RoundVision;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.TokenUtil;
@@ -170,6 +174,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         if (zone == null) { throw new IllegalArgumentException("Zone cannot be null"); }
 
         this.zone = zone;
+        zone.addModelChangeListener(new ZoneModelChangeListener());
+        
         setFocusable(true);
         setZoneScale(new Scale());
         
@@ -477,6 +483,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         renderDrawableOverlay(g2d);
         renderTokenTemplates(g2d);
         renderGrid(g2d);
+        renderVision(g2d);
         renderTokens(g2d, zone.getNonBackgroundTokens());
 		renderMoveSelectionSets(g2d);
         renderLabels(g2d);
@@ -498,6 +505,38 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 //        g2d.setColor(Color.red);
 //        g2d.drawRect(g.getClipBounds().x, g.getClipBounds().y, g.getClipBounds().width-1, g.getClipBounds().height-1);
+    }
+    
+    private void renderVision(Graphics2D g) {
+
+    	Area visibleArea = null;
+    	g.setColor(new Color(255, 255, 255, 100));
+    	for (Token token : zone.getAllTokens()) {
+
+    		if (token.hasVision()) {
+    			int width = TokenSize.getWidth(token, zone.getGrid());
+    			int height = TokenSize.getHeight(token, zone.getGrid());
+    			
+    			for (Vision vision : token.getVisionList()) {
+    				
+    				Area visionArea = FogUtil.calculateVisibility(token.getX() + width/2, token.getY() + height/2, vision.getArea(), zone.getTopology());
+    				if (visionArea == null) {
+    					continue;
+    				}
+    				
+    				visionArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+    				visionArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+
+    				if (visibleArea == null) {
+    					visibleArea = new Area();
+    				}
+    				visibleArea.add(visionArea);
+    			}
+    		}
+    	}
+    	if (visibleArea != null) {
+    		g.fill(visibleArea);
+    	}
     }
     
     /**
@@ -1712,6 +1751,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	token.setSnapToGrid(AppPreferences.getStampsStartSnapToGrid());
             	token.setTokenType(Token.Type.TOP_DOWN);
             }
+
+//    		token.addVision(new RoundVision(zone.getGrid().getSize() * 25));
             
             // Save the token and tell everybody about it
             zone.putToken(token);
@@ -1760,6 +1801,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     }
 
+    ////
+    // ZONE MODEL CHANGE LISTENER
+    private class ZoneModelChangeListener implements ModelChangeListener {
+    	public void modelChanged(ModelChangeEvent event) {
+    		if (event.getEvent() == Zone.Event.FOG_CHANGED) {
+    			flushFog();
+    		}
+    		
+    	}
+    }
+    
     ////
     // COMPARABLE
     public int compareTo(Object o) {

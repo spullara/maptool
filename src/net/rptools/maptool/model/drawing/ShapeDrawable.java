@@ -56,4 +56,8 @@ public class ShapeDrawable extends AbstractDrawing {
         
         g.fill(shape);
     }
+    
+    public Shape getShape() {
+    	return shape;
+    }
 }

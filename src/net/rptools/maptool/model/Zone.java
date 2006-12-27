@@ -57,7 +57,8 @@ public class Zone extends Token {
         FOG_CHANGED,
         LABEL_ADDED,
         LABEL_REMOVED,
-        LABEL_CHANGED
+        LABEL_CHANGED,
+        TOPOLOGY_CHANGED
     }
     
 	public enum Layer {
@@ -108,6 +109,8 @@ public class Zone extends Token {
 
     private Area exposedArea = new Area();
     private boolean hasFog;
+
+    private Area topology = new Area();
     
     public static final Comparator<Token> TOKEN_Z_ORDER_COMPARATOR = new Comparator<Token>() {
     	public int compare(Token o1, Token o2) {
@@ -200,6 +203,25 @@ public class Zone extends Token {
         int h = TokenSize.getHeight(token, grid);
 
         return getExposedArea().intersects(x, y, w, h);
+    }
+    
+    public void clearTopology() {
+    	topology = new Area();
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.TOPOLOGY_CHANGED));
+    }
+    
+    public void addTopology(Area area) {
+    	topology.add(area);
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.TOPOLOGY_CHANGED));
+    }
+
+    public void removeTopology(Area area) {
+    	topology.subtract(area);
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.TOPOLOGY_CHANGED));
+    }
+    
+    public Area getTopology() {
+    	return topology;
     }
     
     public void clearExposedArea() {
