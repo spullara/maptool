@@ -308,7 +308,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		setJMenuBar(menuBar);
 		setLayout(new BorderLayout());
 		add(BorderLayout.CENTER, dockingPanel);
-		add(BorderLayout.NORTH, createToolboxPanel());
+		add(BorderLayout.NORTH, new ToolbarPanel(toolbox));
 		add(BorderLayout.SOUTH, statusPanel);
 
 		setGlassPane(glassPane);
@@ -777,68 +777,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		// if (mainSplitPane.isLeftHidden()) {
 		// mainSplitPane.showLeft();
 		// }
-	}
-
-	private JComponent createToolboxPanel() {
-
-		JPanel panel = new JPanel(new GridBagLayout());
-
-		JToolBar toolbar = new JToolBar();
-		toolbar.setFloatable(false);
-		toolbar.setRollover(true);
-
-		// Tools
-		toolbar.add(toolbox.createTool(PointerTool.class));
-		toolbar.add(toolbox.createTool(StampTool.class));
-		toolbar.add(toolbox.createTool(MeasureTool.class));
-
-		toolbar.add(Box.createHorizontalStrut(15));
-
-		toolbar.add(toolbox.createTool(FreehandTool.class));
-		toolbar.add(toolbox.createTool(LineTool.class));
-		toolbar.add(toolbox.createTool(RectangleTool.class));
-		toolbar.add(toolbox.createTool(OvalTool.class));
-		// Tool textTool = new DrawnTextTool();
-		toolbar.add(toolbox.createTool(TextTool.class));
-		toolbar.add(toolbox.createTool(RadiusTemplateTool.class));
-		toolbar.add(toolbox.createTool(ConeTemplateTool.class));
-		toolbar.add(toolbox.createTool(LineTemplateTool.class));
-
-		toolbar.add(Box.createHorizontalStrut(15));
-
-		toolbar.add(toolbox.createTool(RectangleExposeTool.class));
-		toolbar.add(toolbox.createTool(OvalExposeTool.class));
-		toolbar.add(toolbox.createTool(PolygonExposeTool.class));
-		toolbar.add(toolbox.createTool(FreehandExposeTool.class));
-
-		toolbar.add(Box.createHorizontalStrut(15));
-		
-		toolbar.add(toolbox.createTool(RectangleTopologyTool.class));
-		toolbar.add(toolbox.createTool(PolygonTopologyTool.class));
-		
-		// Non visible tools
-		toolbox.createTool(GridTool.class);
-		toolbox.createTool(FacingTool.class);
-
-		toolbar.add(Box.createHorizontalStrut(15));
-
-		// Initialy selected
-		toolbox.setSelectedTool(PointerTool.class);
-
-		// Organize
-
-		toolbar.add(widthChooser);
-
-		toolbar.add(Box.createHorizontalStrut(15));
-
-		GridBagConstraints constraints = new GridBagConstraints();
-		panel.add(toolbar, constraints);
-
-		constraints.weightx = 1;
-		constraints.gridx = 1;
-		panel.add(new JLabel(), constraints);
-
-		return panel;
 	}
 
 	public Pen getPen() {
