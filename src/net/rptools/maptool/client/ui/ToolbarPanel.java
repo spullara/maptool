@@ -19,6 +19,8 @@ import javax.swing.JToolBar;
 import javax.swing.border.BevelBorder;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.maptool.client.tool.FacingTool;
+import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.MeasureTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.StampTool;
@@ -59,6 +61,10 @@ public class ToolbarPanel extends JToolBar {
 		add(Box.createHorizontalStrut(10));
 		add(optionPanel);
 		add(Box.createHorizontalGlue());
+		
+		// Non visible tools
+		toolbox.createTool(GridTool.class);
+		toolbox.createTool(FacingTool.class);
 		
 	}
 	

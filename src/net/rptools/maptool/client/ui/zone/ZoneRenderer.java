@@ -104,6 +104,7 @@ import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawnElement;
+import net.rptools.maptool.model.vision.FacingConicVision;
 import net.rptools.maptool.model.vision.RoundVision;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
@@ -519,7 +520,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     			
     			for (Vision vision : token.getVisionList()) {
     				
-    				Area visionArea = FogUtil.calculateVisibility(token.getX() + width/2, token.getY() + height/2, vision.getArea(), zone.getTopology());
+    				Area visionArea = vision.getArea();
+    				if (visionArea == null) {
+    					continue;
+    				}
+    				
+    				visionArea = FogUtil.calculateVisibility(token.getX() + width/2, token.getY() + height/2, visionArea, zone.getTopology());
     				if (visionArea == null) {
     					continue;
     				}
@@ -1753,6 +1759,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             }
 
 //    		token.addVision(new RoundVision(zone.getGrid().getSize() * 25));
+    		token.addVision(new FacingConicVision(token.getId(), zone.getGrid().getSize() * 25));
             
             // Save the token and tell everybody about it
             zone.putToken(token);

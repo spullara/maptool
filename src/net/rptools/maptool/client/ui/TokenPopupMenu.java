@@ -3,7 +3,6 @@ package net.rptools.maptool.client.ui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.util.Set;
 
@@ -28,6 +27,7 @@ import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
+import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 
@@ -55,6 +55,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new StartMoveAction());
 		addOwnedItem(createStateMenu());
 		add(new ExposeVisibleAreaAction());
+		addOwnedItem(createVisionMenu());
 
 		add(new JSeparator());
 
@@ -137,6 +138,23 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 		
 		return haloMenu;
+	}
+	
+	private JMenu createVisionMenu() {
+		JMenu visionMenu = I18N.createMenu("defaultTool.visionMenu");
+		
+		if (selectedTokenSet.size() != 1) {
+			visionMenu.setEnabled(false);
+		} else {
+
+			for (Vision vision : getTokenUnderMouse().getVisionList()) {
+				visionMenu.add(new JCheckBoxMenuItem(vision.toString()));
+			}
+			
+			visionMenu.add(new JMenuItem("New Vision ..."));
+		}
+		
+		return visionMenu;
 	}
 	
 	private JMenu createStateMenu() {

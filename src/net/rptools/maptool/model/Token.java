@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -299,7 +300,15 @@ public class Token {
 	}
 	
 	public List<Vision> getVisionList() {
-		return (List<Vision>)(visionList != null ? Collections.unmodifiableList(visionList) : Collections.emptyList());
+		List<Vision> visionList = new LinkedList<Vision>();
+		if (visionList != null) {
+			for (Vision vision : visionList) {
+				if (vision.isEnabled()) {
+					visionList.add(vision);
+				}
+			}
+		}
+		return visionList;
 	}
 
 	public synchronized void addOwner(String playerId) {

@@ -6,9 +6,18 @@ public abstract class Vision {
 
 	private int distance;
 	private int angle; // degrees
+	private boolean enabled;
 
 	private transient Area area;
 	
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
 	/**
 	 * Angle in degrees
 	 */
