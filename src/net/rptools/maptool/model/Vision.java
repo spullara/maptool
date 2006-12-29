@@ -4,6 +4,11 @@ import java.awt.geom.Area;
 
 public abstract class Vision {
 
+	public enum Anchor {
+		CORNER,
+		CENTER
+	}
+	
 	private int distance;
 	private int angle; // degrees
 	private boolean enabled = true;
@@ -65,6 +70,9 @@ public abstract class Vision {
 	 * Specific vision types must be able to create the shape they represent
 	 */
 	protected abstract Area createArea(Zone zone);
+	
+	// This won't be abstract when anchor points are fleshed out, but rather a field on this class
+	public abstract Anchor getAnchor();
 
 	/**
 	 * Flush the cached vision information

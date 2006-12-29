@@ -106,9 +106,18 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 				ZoneRenderer renderer = getRenderer();
     			int width = TokenSize.getWidth(token, renderer.getZone().getGrid());
     			int height = TokenSize.getHeight(token, renderer.getZone().getGrid());
-				Area visionArea = FogUtil.calculateVisibility(token.getX() + width/2, token.getY()+height/2, token.getVisionList().get(0).getArea(renderer.getZone()), getRenderer().getZone().getTopology());
+    			
+				int x = token.getX();
+				int y = token.getY();
+				switch(token.getVisionList().get(0).getAnchor()) {
+				case CENTER:
+					x += width/2;
+					y += height/2;
+				}
+    			
+				Area visionArea = FogUtil.calculateVisibility(x, y, token.getVisionList().get(0).getArea(renderer.getZone()), getRenderer().getZone().getTopology());
 				renderer.getZone().exposeArea(visionArea);
-				MapTool.serverCommand().hideFoW(renderer.getZone().getId(), visionArea);
+				MapTool.serverCommand().exposeFoW(renderer.getZone().getId(), visionArea);
 			}
 			getRenderer().repaint();
 		}

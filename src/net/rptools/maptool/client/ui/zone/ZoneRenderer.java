@@ -531,7 +531,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     					continue;
     				}
     				
-    				visionArea = FogUtil.calculateVisibility(token.getX() + width/2, token.getY() + height/2, visionArea, zone.getTopology());
+    				int x = token.getX();
+    				int y = token.getY();
+    				switch(vision.getAnchor()) {
+    				case CENTER:
+    					x += width/2;
+    					y += height/2;
+    				}
+    				
+    				visionArea = FogUtil.calculateVisibility(x, y, visionArea, zone.getTopology());
     				if (visionArea == null) {
     					continue;
     				}
@@ -546,7 +554,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     				
     				if (token == tokenUnderMouse) {
     					Stroke oldStroke = g.getStroke();
-    			    	g.setColor(Color.white);
+    			    	g.setColor(new Color(200, 200, 200));
     					g.draw(visionArea);
     					g.setStroke(oldStroke);
     				}

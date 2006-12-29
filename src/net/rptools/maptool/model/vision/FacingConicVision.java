@@ -10,6 +10,7 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.Vision.Anchor;
 
 public class FacingConicVision extends Vision {
 
@@ -23,6 +24,11 @@ public class FacingConicVision extends Vision {
 	public FacingConicVision(GUID tokenGUID, int distance) {
 		setDistance(distance);
 		this.tokenGUID = tokenGUID;
+	}
+	
+	@Override
+	public Anchor getAnchor() {
+		return Vision.Anchor.CENTER;
 	}
 	
 	@Override

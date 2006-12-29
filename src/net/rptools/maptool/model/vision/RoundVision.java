@@ -5,6 +5,7 @@ import java.awt.geom.Ellipse2D;
 
 import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.Vision.Anchor;
 
 public class RoundVision extends Vision {
 
@@ -13,6 +14,11 @@ public class RoundVision extends Vision {
 	
 	public RoundVision(int distance) {
 		setDistance(distance);
+	}
+	
+	@Override
+	public Anchor getAnchor() {
+		return Vision.Anchor.CENTER;
 	}
 	
 	@Override

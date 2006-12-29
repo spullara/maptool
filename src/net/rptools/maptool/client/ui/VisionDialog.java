@@ -38,6 +38,7 @@ import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Vision;
+import net.rptools.maptool.model.vision.BlockyRoundVision;
 import net.rptools.maptool.model.vision.FacingConicVision;
 import net.rptools.maptool.model.vision.RoundVision;
 
@@ -97,7 +98,8 @@ public class VisionDialog extends JDialog {
 		} else {
 			list = new Object[]{
 					new RoundVision(),
-					new FacingConicVision(token.getId())
+					new FacingConicVision(token.getId()),
+					new BlockyRoundVision()
 			};
 		}
 		
@@ -121,6 +123,7 @@ public class VisionDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 
 				token.removeVision(vision);
+				close();
 			}
 		});
 		button.setEnabled(vision != null);
