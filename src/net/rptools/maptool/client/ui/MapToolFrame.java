@@ -241,7 +241,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 			logo = ImageUtil.getImage("net/rptools/lib/image/rptools-logo.png");
 
 		} catch (Exception ioe) {
-			ioe.printStackTrace();
+			System.err.println("Unable to load credits or version");
 		}
 		aboutDialog = new AboutDialog(this, logo, credits);
 		aboutDialog.setSize(354, 400);
@@ -319,7 +319,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		AppListeners.addZoneListener(new RequestZoneAssetsListener());
 
 		new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
-
+//		setSize(800, 600);
 		restorePreferences();
 
 		repaintTimer = new Timer(1000, new RepaintTimer());
