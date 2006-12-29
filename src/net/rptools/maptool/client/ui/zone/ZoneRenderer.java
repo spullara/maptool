@@ -510,8 +510,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     private void renderVision(Graphics2D g) {
 
+    	Object oldAntiAlias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+    	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    	
     	Area visibleArea = null;
-    	g.setColor(new Color(255, 255, 255, 100));
     	for (Token token : zone.getAllTokens()) {
 
     		if (token.hasVision()) {
@@ -520,7 +522,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     			
     			for (Vision vision : token.getVisionList()) {
     				
-    				Area visionArea = vision.getArea();
+    				if (!vision.isEnabled()) {
+    					continue;
+    				}
+    				
+    				Area visionArea = vision.getArea(getZone());
     				if (visionArea == null) {
     					continue;
     				}
@@ -537,12 +543,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     					visibleArea = new Area();
     				}
     				visibleArea.add(visionArea);
+    				
+    				if (token == tokenUnderMouse) {
+    					Stroke oldStroke = g.getStroke();
+    			    	g.setColor(Color.white);
+    					g.draw(visionArea);
+    					g.setStroke(oldStroke);
+    				}
     			}
     		}
     	}
     	if (visibleArea != null) {
+        	g.setColor(new Color(255, 255, 255, 100));
     		g.fill(visibleArea);
     	}
+    	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntiAlias);
     }
     
     /**
@@ -1758,9 +1773,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	token.setTokenType(Token.Type.TOP_DOWN);
             }
 
-//    		token.addVision(new RoundVision(zone.getGrid().getSize() * 25));
-    		token.addVision(new FacingConicVision(token.getId(), zone.getGrid().getSize() * 25));
-            
             // Save the token and tell everybody about it
             zone.putToken(token);
             MapTool.serverCommand().putToken(zone.getId(), token);

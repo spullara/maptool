@@ -290,7 +290,9 @@ public class Token {
 		if (visionList == null) {
 			visionList = new ArrayList<Vision>();
 		}
-		visionList.add(vision);
+		if (!visionList.contains(vision)) {
+			visionList.add(vision);
+		}
 	}
 	
 	public void removeVision(Vision vision) {
@@ -300,15 +302,7 @@ public class Token {
 	}
 	
 	public List<Vision> getVisionList() {
-		List<Vision> visionList = new LinkedList<Vision>();
-		if (visionList != null) {
-			for (Vision vision : visionList) {
-				if (vision.isEnabled()) {
-					visionList.add(vision);
-				}
-			}
-		}
-		return visionList;
+		return (List<Vision>)(visionList != null ? Collections.unmodifiableList(visionList) : Collections.emptyList());
 	}
 
 	public synchronized void addOwner(String playerId) {

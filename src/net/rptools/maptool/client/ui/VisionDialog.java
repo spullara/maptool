@@ -24,6 +24,9 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -31,6 +34,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JTextField;
 
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Vision;
@@ -41,7 +45,6 @@ import com.jeta.forms.components.panel.FormPanel;
 
 public class VisionDialog extends JDialog {
 
-	private boolean isNew;
 	private JTextField distanceTextField;
 	private JCheckBox enabledCheckBox;
 	private JComboBox typeCombo;
@@ -53,6 +56,7 @@ public class VisionDialog extends JDialog {
 	public VisionDialog(Token token, Vision vision) {
 		super(MapTool.getFrame(), "Vision", true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
 		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/visionDialog.jfrm");
 		
 		initEnabledCheckBox(panel, vision);
@@ -60,10 +64,19 @@ public class VisionDialog extends JDialog {
 		initTypeCombo(panel, token, vision);
 		
 		initDeleteButton(panel, token, vision);
-		initOKButton(panel, token, vision);
+		initOKButton(panel, token);
 		initCancelButton(panel);
-		
-		isNew = vision == null;
+	
+		setContentPane(panel);
+		pack();
+	}
+	
+	@Override
+	public void setVisible(boolean b) {
+		if (b) {
+			SwingUtil.centerOver(this, MapTool.getFrame());
+		}
+		super.setVisible(b);
 	}
 	
 	private void initEnabledCheckBox(FormPanel panel, Vision vision) {
@@ -89,18 +102,49 @@ public class VisionDialog extends JDialog {
 		}
 		
 		typeCombo.setModel(new DefaultComboBoxModel(list));
+		typeCombo.setEnabled(vision == null);
+		typeCombo.setSelectedIndex(0);
 	}
 	
-	private void initOKButton(FormPanel panel, Token token, Vision vision) {
-		JButton button = (JButton) panel.getButton("");
-		
+	private void initOKButton(FormPanel panel, final Token token) {
+		JButton button = (JButton) panel.getButton("okButton");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				commit(token);
+				close();
+			}
+		});
 	}
-	private void initDeleteButton(FormPanel panel, Token token, Vision vision) {
-		JButton button = (JButton) panel.getButton("");
-		
+	private void initDeleteButton(FormPanel panel, final Token token, final Vision vision) {
+		JButton button = (JButton) panel.getButton("deleteButton");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				token.removeVision(vision);
+			}
+		});
+		button.setEnabled(vision != null);
 	}
 	private void initCancelButton(FormPanel panel) {
-		JButton button = (JButton) panel.getButton("");
+		JButton button = (JButton) panel.getButton("cancelButton");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				close();
+			}
+		});
 		
+	}
+
+	private void commit(Token token) {
+		Vision vision = (Vision) typeCombo.getSelectedItem();
+		// TODO: Check for valid value
+		vision.setDistance(Integer.parseInt(distanceTextField.getText()));
+		vision.setEnabled(enabledCheckBox.isSelected());
+		
+		token.addVision(vision);
+	}
+	
+	private void close() {
+		setVisible(false);
 	}
 }

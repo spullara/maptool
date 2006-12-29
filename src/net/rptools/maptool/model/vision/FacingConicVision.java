@@ -9,6 +9,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Vision;
+import net.rptools.maptool.model.Zone;
 
 public class FacingConicVision extends Vision {
 
@@ -25,7 +26,7 @@ public class FacingConicVision extends Vision {
 	}
 	
 	@Override
-	public Area getArea() {
+	public Area getArea(Zone zone) {
 		Token token = getToken();
 		if (token == null) {
 			return null;
@@ -33,11 +34,11 @@ public class FacingConicVision extends Vision {
 		if (lastFacing != null && !lastFacing.equals(token.getFacing())) {
 			flush();
 		}
-		return super.getArea();
+		return super.getArea(zone);
 	}
 	
 	@Override
-	protected Area createArea() {
+	protected Area createArea(Zone zone) {
 
 		Token token = getToken();
 		if (token == null || token.getFacing() == null) {
@@ -45,7 +46,7 @@ public class FacingConicVision extends Vision {
 		}
 		
 		// Start round
-		int size = getDistance();
+		int size = getDistance() * getZonePointsPerCell(zone) * 2;
 		int half = size/2;
 		Area area = new Area(new Ellipse2D.Float(-half, -half, size, size));
 
@@ -64,5 +65,10 @@ public class FacingConicVision extends Vision {
 	
 	private Token getToken() {
 		return MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenGUID);
+	}
+	
+	@Override
+	public String toString() {
+		return "Conic Facing";
 	}
 }

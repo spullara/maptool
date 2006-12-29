@@ -7,6 +7,7 @@ public abstract class Vision {
 	private int distance;
 	private int angle; // degrees
 	private boolean enabled = true;
+	private int lastGridSize;
 
 	private transient Area area;
 	
@@ -52,23 +53,27 @@ public abstract class Vision {
 	/**
 	 * Get the area shape that this vision represents, in zone points, centered on the origin x,y
 	 */
-	public Area getArea() {
-		if (area == null) {
-			area = createArea();
+	public Area getArea(Zone zone) {
+		if (area == null || lastGridSize != zone.getGrid().getSize()) {
+			area = createArea(zone);
 		}
-		
+		lastGridSize = zone.getGrid().getSize();
 		return area;
 	}
 
 	/**
 	 * Specific vision types must be able to create the shape they represent
 	 */
-	protected abstract Area createArea();
+	protected abstract Area createArea(Zone zone);
 
 	/**
 	 * Flush the cached vision information
 	 */
 	protected void flush() {
 		area = null;
+	}
+	
+	protected int getZonePointsPerCell(Zone zone) {
+		return (int)(zone.getGrid().getSize() / zone.getFeetPerCell());
 	}
 }

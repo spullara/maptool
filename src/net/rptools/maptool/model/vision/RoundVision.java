@@ -1,10 +1,10 @@
 package net.rptools.maptool.model.vision;
 
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 
 import net.rptools.maptool.model.Vision;
+import net.rptools.maptool.model.Zone;
 
 public class RoundVision extends Vision {
 
@@ -16,12 +16,17 @@ public class RoundVision extends Vision {
 	}
 	
 	@Override
-	protected Area createArea() {
+	protected Area createArea(Zone zone) {
 
-		int size = getDistance();
+		int size = getDistance() * getZonePointsPerCell(zone)*2;
 		int half = size/2;
 		Area area = new Area(new Ellipse2D.Float(-half, -half, size, size));
 		
 		return area;
+	}
+	
+	@Override
+	public String toString() {
+		return "Round";
 	}
 }

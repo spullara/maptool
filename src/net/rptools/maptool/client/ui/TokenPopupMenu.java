@@ -55,7 +55,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new StartMoveAction());
 		addOwnedItem(createStateMenu());
 		add(new ExposeVisibleAreaAction());
-		addOwnedItem(createVisionMenu());
 
 		add(new JSeparator());
 
@@ -64,6 +63,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
 		add(createHaloMenu());
 		add(new ChangeStateAction("light"));
+		addOwnedItem(createVisionMenu());
 		addOwnedItem(createArrangeMenu());
 		
 		add(new JSeparator());
@@ -106,7 +106,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 				ZoneRenderer renderer = getRenderer();
     			int width = TokenSize.getWidth(token, renderer.getZone().getGrid());
     			int height = TokenSize.getHeight(token, renderer.getZone().getGrid());
-				Area visionArea = FogUtil.calculateVisibility(token.getX() + width/2, token.getY()+height/2, token.getVisionList().get(0).getArea(), getRenderer().getZone().getTopology());
+				Area visionArea = FogUtil.calculateVisibility(token.getX() + width/2, token.getY()+height/2, token.getVisionList().get(0).getArea(renderer.getZone()), getRenderer().getZone().getTopology());
 				renderer.getZone().exposeArea(visionArea);
 				MapTool.serverCommand().hideFoW(renderer.getZone().getId(), visionArea);
 			}
@@ -148,9 +148,15 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			visionMenu.setEnabled(false);
 		} else {
 
-			for (Vision vision : getTokenUnderMouse().getVisionList()) {
+			for (final Vision vision : getTokenUnderMouse().getVisionList()) {
 				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(vision.toString()); 
 				menuItem.setSelected(vision.isEnabled());
+				menuItem.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						new VisionDialog(getTokenUnderMouse(), vision).setVisible(true);
+						getRenderer().repaint();
+					}
+				});
 				
 				visionMenu.add(menuItem);
 			}
@@ -158,7 +164,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			JMenuItem newVisionMenuItem = new JMenuItem("New Vision ...");
 			newVisionMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					
+					new VisionDialog(getTokenUnderMouse()).setVisible(true);
 				}
 			});
 			visionMenu.add(newVisionMenuItem);
