@@ -56,6 +56,8 @@ public class ClientCommand {
         putLabel,
         removeLabel,
         enforceZone,
-        setServerPolicy
+        setServerPolicy,
+        addTopology,
+        removeTopology
     };
 }

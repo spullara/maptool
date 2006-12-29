@@ -73,12 +73,16 @@ public interface ServerCommand {
         sendTokensToBack,
         bringTokensToFront,
         enforceZone,
-        setServerPolicy
+        setServerPolicy,
+        addTopology,
+        removeTopology
     };
 
     public void setZoneHasFoW(GUID zoneGUID, boolean hasFog);
     public void exposeFoW(GUID zoneGUID, Area area);
     public void hideFoW(GUID zoneGUID, Area area);
+    public void addTopology(GUID zoneGUID, Area area);
+    public void removeTopology(GUID zoneGUID, Area area);
     public void enforceZoneView(GUID zoneGUID, int x, int y, int zoomIndex);
     public void setCampaign(Campaign campaign);
     public void getZone(GUID zoneGUID);

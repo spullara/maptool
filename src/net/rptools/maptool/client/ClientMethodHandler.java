@@ -339,6 +339,28 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	ServerPolicy policy = (ServerPolicy) parameters[0];
         	MapTool.setServerPolicy(policy);
         	break;
+        	
+        case addTopology:
+        	
+        	zoneGUID = (GUID) parameters[0];
+            area = (Area) parameters[1];
+
+            zone = MapTool.getCampaign().getZone(zoneGUID);
+            zone.addTopology(area);
+
+        	MapTool.getFrame().getZoneRenderer(zoneGUID).repaint();
+        	break;
+        	
+        case removeTopology:
+        	
+        	zoneGUID = (GUID) parameters[0];
+            area = (Area) parameters[1];
+
+            zone = MapTool.getCampaign().getZone(zoneGUID);
+            zone.removeTopology(area);
+
+            MapTool.getFrame().getZoneRenderer(zoneGUID).repaint();
+        	break;
         }
         
         	

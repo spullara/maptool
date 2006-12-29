@@ -101,6 +101,8 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case clearAllDrawings:        clearAllDrawings(context.getGUID(0)); break;
             case enforceZone:			  enforceZone(context.getGUID(0));break;
             case setServerPolicy:		  setServerPolicy((ServerPolicy) context.get(0));break;
+            case addTopology:             addTopology(context.getGUID(0), (Area) context.get(1)); break;
+            case removeTopology:          removeTopology(context.getGUID(0), (Area) context.get(1)); break;
             }
         } finally {
             RPCContext.setCurrent(null);
@@ -375,6 +377,22 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     
     public void setServerPolicy(ServerPolicy policy) {
     	forwardToClients();
+    }
+    
+    public void addTopology(GUID zoneGUID, Area area) {
+
+        Zone zone = server.getCampaign().getZone(zoneGUID);
+        zone.addTopology(area);
+
+        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.addTopology.name(), RPCContext.getCurrent().parameters);
+    }
+
+    public void removeTopology(GUID zoneGUID, Area area) {
+
+        Zone zone = server.getCampaign().getZone(zoneGUID);
+        zone.removeTopology(area);
+
+        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.removeTopology.name(), RPCContext.getCurrent().parameters);
     }
     
     ////
