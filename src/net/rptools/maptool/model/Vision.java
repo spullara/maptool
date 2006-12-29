@@ -6,7 +6,7 @@ public abstract class Vision {
 
 	private int distance;
 	private int angle; // degrees
-	private boolean enabled;
+	private boolean enabled = true;
 
 	private transient Area area;
 	

@@ -15,6 +15,10 @@ public class FacingConicVision extends Vision {
 	private Integer lastFacing;
 	private GUID tokenGUID;
 	
+	public FacingConicVision(GUID tokenGUID) {
+		this(tokenGUID, 0);
+	}
+	
 	public FacingConicVision(GUID tokenGUID, int distance) {
 		setDistance(distance);
 		this.tokenGUID = tokenGUID;

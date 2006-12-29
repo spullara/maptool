@@ -108,6 +108,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
     			int height = TokenSize.getHeight(token, renderer.getZone().getGrid());
 				Area visionArea = FogUtil.calculateVisibility(token.getX() + width/2, token.getY()+height/2, token.getVisionList().get(0).getArea(), getRenderer().getZone().getTopology());
 				renderer.getZone().exposeArea(visionArea);
+				MapTool.serverCommand().hideFoW(renderer.getZone().getId(), visionArea);
 			}
 			getRenderer().repaint();
 		}
@@ -148,10 +149,19 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		} else {
 
 			for (Vision vision : getTokenUnderMouse().getVisionList()) {
-				visionMenu.add(new JCheckBoxMenuItem(vision.toString()));
+				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(vision.toString()); 
+				menuItem.setSelected(vision.isEnabled());
+				
+				visionMenu.add(menuItem);
 			}
 			
-			visionMenu.add(new JMenuItem("New Vision ..."));
+			JMenuItem newVisionMenuItem = new JMenuItem("New Vision ...");
+			newVisionMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					
+				}
+			});
+			visionMenu.add(newVisionMenuItem);
 		}
 		
 		return visionMenu;

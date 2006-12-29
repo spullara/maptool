@@ -8,6 +8,9 @@ import net.rptools.maptool.model.Vision;
 
 public class RoundVision extends Vision {
 
+	public RoundVision() {
+	}
+	
 	public RoundVision(int distance) {
 		setDistance(distance);
 	}
