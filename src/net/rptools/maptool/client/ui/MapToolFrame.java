@@ -289,17 +289,17 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		PerspectiveManager.getInstance().setCurrentPerspective(PERSPECTIVEID, true);
 		PerspectiveManager.setPersistenceHandler(new FilePersistenceHandler(AppUtil.getAppHome("config").getAbsolutePath() + "/layout.xml"));
 
-//		try{
-//		    DockingManager.loadLayoutModel();
-			DockingManager.restoreLayout();
-//		} catch(IOException e) {
-//			e.printStackTrace();
-//		} catch (PersistenceException e) {
-//            e.printStackTrace();
-//        }
+		try{
+		    DockingManager.loadLayoutModel();
+		} catch(IOException e) {
+			e.printStackTrace();
+		} catch (PersistenceException e) {
+            e.printStackTrace();
+        }
+		DockingManager.setAutoPersist(true);
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				DockingManager.setAutoPersist(true);
+				DockingManager.restoreLayout();
 			}
 		});
 
