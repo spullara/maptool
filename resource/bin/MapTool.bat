@@ -1,1 +1,1 @@
-java -Xmx256M -jar maptool-1.1.b*.jar
+java -Xmx256M -jar maptool-*.jar
