@@ -852,9 +852,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 					y +=  10 + scaledHeight;
 					x += scaledWidth/2;
                     
-					if (AppState.getShowMovementMeasurements() && zone.getGrid().getCapabilities().isPathingSupported() && walker.getDistance() >= 1) {
-						GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
-						y += 20;
+					if (!token.isBackground()) {
+						if (AppState.getShowMovementMeasurements() && zone.getGrid().getCapabilities().isPathingSupported() && walker.getDistance() >= 1) {
+							GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
+							y += 20;
+						}
 					}
 					if (set.getPlayerId() != null && set.getPlayerId().length() >= 1) {
 						GraphicsUtil.drawBoxedString(g, set.getPlayerId(), x, y);

@@ -156,6 +156,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         renderer.commitMoveSelectionSet(tokenBeingDragged.getId()); // TODO: figure out a better way
         isDraggingToken = false;
         isMovingWithKeys = false;
+        
+        dragOffsetX = 0;
+        dragOffsetY = 0;
     }
     
     private void showTokenStackPopup(List<Token> tokenList, int x, int y) {
@@ -799,7 +802,25 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
+				handleKeyMove(0, 1);
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
 				handleKeyMove(1, 0);
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				handleKeyMove(-1, 0);
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				handleKeyMove(0, -1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0), new AbstractAction() {
