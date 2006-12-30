@@ -806,12 +806,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 // Show distance only on the key token
 				if (token == keyToken) {
 
-					if (!token.isBackground() && !token.isStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
-						renderPath(g, walker.getPath(), width/gridSize, height/gridSize);
-					} else {
-						g.setColor(Color.black);
-						ScreenPoint originPoint = ScreenPoint.fromZonePoint(this, token.getX()+width/2+(int)(grid.getCellOffset().width*scale), token.getY()+height/2+(int)(grid.getCellOffset().height*scale));
-						g.drawLine(originPoint.x, originPoint.y, x + scaledWidth/2, y + scaledHeight/2);
+					if (!token.isBackground()) {
+						if (!token.isStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
+							renderPath(g, walker.getPath(), width/gridSize, height/gridSize);
+						} else {
+							g.setColor(Color.black);
+							ScreenPoint originPoint = ScreenPoint.fromZonePoint(this, token.getX()+width/2+(int)(grid.getCellOffset().width*scale), token.getY()+height/2+(int)(grid.getCellOffset().height*scale));
+							g.drawLine(originPoint.x, originPoint.y, x + scaledWidth/2, y + scaledHeight/2);
+						}
 					}
 				}
 
@@ -1100,6 +1102,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
         	// Don't bother if it's not visible
         	if (!zone.isTokenVisible(token) && !MapTool.getPlayer().isGM()) {
+        		continue;
+        	}
+        	
+        	if (token.isBackground() && isTokenMoving(token)) {
         		continue;
         	}
         	
