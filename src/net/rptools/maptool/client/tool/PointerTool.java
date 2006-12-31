@@ -905,6 +905,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			dragStartY = token.getY();
 			startTokenDrag(token);
 		}
+		if (!isMovingWithKeys) {
+			dragOffsetX = 0;
+			dragOffsetY = 0;
+		}
 		
 		ZonePoint zp = null;
 		if (tokenBeingDragged.isSnapToGrid()) {
