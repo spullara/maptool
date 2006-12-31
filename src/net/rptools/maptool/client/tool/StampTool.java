@@ -1041,6 +1041,10 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			dragStartY = token.getY();
 			startTokenDrag(token);
 		}
+		if (!isMovingWithKeys) {
+			dragOffsetX = 0;
+			dragOffsetY = 0;
+		}
 		
 		ZonePoint zp = null;
 		if (tokenBeingDragged.isSnapToGrid()) {
@@ -1063,6 +1067,9 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 		isMovingWithKeys = true;
 		handleDragToken(zp);
+		if (tokenBeingDragged.isBackground()) {
+			stopTokenDrag();
+		}
 	}
 
 	//// 
