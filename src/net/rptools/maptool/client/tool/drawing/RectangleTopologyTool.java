@@ -37,6 +37,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -65,7 +66,12 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
         }
     }
     
-    @Override
+	@Override
+	public boolean isAvailable() {
+		return MapTool.getPlayer().isGM();
+	}
+
+	@Override
     public String getInstructions() {
     	return "tool.recttpology.instructions";
     }
@@ -78,20 +84,22 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 
     	Color oldColor = g.getColor();
-    	
-    	Zone zone = renderer.getZone();
-    	Area topology = zone.getTopology();
 
-    	double scale = renderer.getScale();
-    	AffineTransform transform = new AffineTransform();
-    	transform.scale(scale, scale);
-    	transform.translate(renderer.getViewOffsetX()/scale, renderer.getViewOffsetY()/scale);
-    	topology = topology.createTransformedArea(transform);
-
-    	g.setColor(Color.blue);
-    	g.fill(topology);
-
-    	g.setColor(oldColor);
+    	if (MapTool.getPlayer().isGM()) {
+	    	Zone zone = renderer.getZone();
+	    	Area topology = zone.getTopology();
+	
+	    	double scale = renderer.getScale();
+	    	AffineTransform transform = new AffineTransform();
+	    	transform.scale(scale, scale);
+	    	transform.translate(renderer.getViewOffsetX()/scale, renderer.getViewOffsetY()/scale);
+	    	topology = topology.createTransformedArea(transform);
+	
+	    	g.setColor(Color.blue);
+	    	g.fill(topology);
+	
+	    	g.setColor(oldColor);
+    	}
         if (rectangle != null) {
         	
         	Pen pen = getPen();
@@ -130,8 +138,10 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
 	            Area area = new Area(new java.awt.Rectangle(x1, y1, x2 - x1, y2 - y1));
 	            if (isEraser(e)) {
 		            renderer.getZone().removeTopology(area);
+		            MapTool.serverCommand().removeTopology(renderer.getZone().getId(), area);
 	            } else {
 		            renderer.getZone().addTopology(area);
+		            MapTool.serverCommand().addTopology(renderer.getZone().getId(), area);
 	            }
 	            renderer.repaint();
 	            // TODO: send this to the server

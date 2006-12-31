@@ -36,6 +36,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
@@ -59,7 +60,12 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
         }
     }
     
-    @Override
+	@Override
+	public boolean isAvailable() {
+		return MapTool.getPlayer().isGM();
+	}
+
+	@Override
     public String getInstructions() {
     	return "tool.poly.instructions";
     }
@@ -75,8 +81,10 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
 
         if (pen.isEraser()) {
             renderer.getZone().removeTopology(area);
+            MapTool.serverCommand().removeTopology(renderer.getZone().getId(), area);
         } else {
             renderer.getZone().addTopology(area);
+            MapTool.serverCommand().addTopology(renderer.getZone().getId(), area);
         }
         renderer.repaint();
     }
@@ -99,19 +107,21 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
     	Color oldColor = g.getColor();
     	
-    	Zone zone = renderer.getZone();
-    	Area topology = zone.getTopology();
-
-    	double scale = renderer.getScale();
-    	AffineTransform transform = new AffineTransform();
-    	transform.scale(scale, scale);
-    	transform.translate(renderer.getViewOffsetX()/scale, renderer.getViewOffsetY()/scale);
-    	topology = topology.createTransformedArea(transform);
-
-    	g.setColor(Color.blue);
-    	g.fill(topology);
-
-    	g.setColor(oldColor);
+    	if (MapTool.getPlayer().isGM()) {
+	    	Zone zone = renderer.getZone();
+	    	Area topology = zone.getTopology();
+	
+	    	double scale = renderer.getScale();
+	    	AffineTransform transform = new AffineTransform();
+	    	transform.scale(scale, scale);
+	    	transform.translate(renderer.getViewOffsetX()/scale, renderer.getViewOffsetY()/scale);
+	    	topology = topology.createTransformedArea(transform);
+	
+	    	g.setColor(Color.blue);
+	    	g.fill(topology);
+	
+	    	g.setColor(oldColor);
+    	}
 
     	super.paintOverlay(renderer, g);
     }

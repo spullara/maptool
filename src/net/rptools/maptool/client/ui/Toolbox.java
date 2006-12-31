@@ -58,7 +58,7 @@ public class Toolbox {
 	
 	public void setSelectedTool(Class toolClass) {
 		Tool tool = toolMap.get(toolClass);
-		if (tool != null) {
+		if (tool != null && tool.isAvailable()) {
 			tool.setSelected(true);
 		}
 	}
