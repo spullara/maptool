@@ -36,6 +36,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
@@ -117,7 +118,7 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
 	    	transform.translate(renderer.getViewOffsetX()/scale, renderer.getViewOffsetY()/scale);
 	    	topology = topology.createTransformedArea(transform);
 	
-	    	g.setColor(Color.blue);
+	    	g.setColor(AppStyle.topologyColor);
 	    	g.fill(topology);
 	
 	    	g.setColor(oldColor);

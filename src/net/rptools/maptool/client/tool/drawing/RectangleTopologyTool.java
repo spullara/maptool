@@ -37,6 +37,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.tool.ToolHelper;
@@ -95,21 +96,20 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
 	    	transform.translate(renderer.getViewOffsetX()/scale, renderer.getViewOffsetY()/scale);
 	    	topology = topology.createTransformedArea(transform);
 	
-	    	g.setColor(Color.blue);
+	    	g.setColor(AppStyle.topologyColor);
 	    	g.fill(topology);
 	
 	    	g.setColor(oldColor);
     	}
         if (rectangle != null) {
         	
-        	Pen pen = getPen();
-        	pen.setThickness((float)(pen.getThickness() * renderer.getScale()));
+        	Pen pen = new Pen();
         	
             if (pen.isEraser()) {
-                pen = new Pen(pen);
                 pen.setEraser(false);
-                pen.setColor(Color.white.getRGB());
-                pen.setBackgroundColor(Color.white.getRGB());
+                pen.setBackgroundColor(AppStyle.topologyRemoveColor.getRGB());
+            } else {
+            	pen.setBackgroundColor(AppStyle.topologyAddColor.getRGB());
             }
         	
             rectangle.draw(g, pen);
