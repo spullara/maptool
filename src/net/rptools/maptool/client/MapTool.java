@@ -25,12 +25,8 @@
 package net.rptools.maptool.client;
 
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Graphics2D;
 import java.awt.Toolkit;
-import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -39,12 +35,8 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-
-import org.flexdock.plaf.PlafManager;
 
 import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
@@ -65,6 +57,10 @@ import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.tsc.servicediscovery.ServiceAnnouncer;
+
+import org.flexdock.docking.DockingManager;
+import org.flexdock.plaf.PlafManager;
+
 import de.muntjak.tinylookandfeel.Theme;
 import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
 
@@ -512,11 +508,16 @@ public class MapTool {
 		
         // Draw frame contents on resize
         Toolkit.getDefaultToolkit().setDynamicLayout(true);        
-
-        initialize();
         
+        MapToolFrame.configureDocking();
+
         EventQueue.invokeLater(new Runnable() {
         	public void run() {
+                initialize();
+                
+        		// load the current layout state into the application frame
+        		DockingManager.restoreLayout();
+
         		clientFrame.setVisible(true);
         	}
         });

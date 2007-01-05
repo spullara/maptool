@@ -283,26 +283,6 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		viewport.setBorderManager(new StandardBorderManager(new ShadowBorder()));
 		dockingPanel.add(viewport, BorderLayout.CENTER);
 
-		DockingManager.setDockableFactory(new MapToolViewFactory());
-
-		PerspectiveManager.setFactory(new MapToolPrespectiveFactory());
-		PerspectiveManager.getInstance().setCurrentPerspective(PERSPECTIVEID, true);
-		PerspectiveManager.setPersistenceHandler(new FilePersistenceHandler(AppUtil.getAppHome("config").getAbsolutePath() + "/layout.xml"));
-
-		try{
-		    DockingManager.loadLayoutModel();
-		} catch(IOException e) {
-			e.printStackTrace();
-		} catch (PersistenceException e) {
-            e.printStackTrace();
-        }
-		DockingManager.setAutoPersist(true);
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				DockingManager.restoreLayout();
-			}
-		});
-
 		// Put it all together
 		menuBar = new AppMenuBar();
 		setJMenuBar(menuBar);
@@ -1085,6 +1065,24 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		}
 	}
 
+	public static void configureDocking() {
+		DockingManager.setDockableFactory(new MapToolViewFactory());
+
+		PerspectiveManager.setFactory(new MapToolPrespectiveFactory());
+		PerspectiveManager.getInstance().setCurrentPerspective(PERSPECTIVEID, true);
+		PerspectiveManager.setPersistenceHandler(new FilePersistenceHandler(AppUtil.getAppHome("config").getAbsolutePath() + "/layout.xml"));
+
+		try {
+			DockingManager.loadLayoutModel();
+		} catch(IOException e) {
+			e.printStackTrace();
+		} catch (PersistenceException e) {
+            e.printStackTrace();
+        }
+		// remember to store on shutdown
+		DockingManager.setAutoPersist(true);
+	}
+	
 	// //
 	// DOCKABLE FACTORY
 	public enum MapToolView {
@@ -1104,7 +1102,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 			return displayName;
 		}
 	}
-	private class MapToolViewFactory implements DockableFactory {
+	private static class MapToolViewFactory implements DockableFactory {
 
 		private Map<MapToolView, View> viewMap = new HashMap<MapToolView, View>();
 		
@@ -1119,12 +1117,12 @@ public class MapToolFrame extends JFrame implements WindowListener {
 			
 			JComponent component = null;
 			switch (MapToolView.valueOf(viewId)) {
-			case ZONE_RENDERER: component = rendererBorderPanel; break;
-			case CONNECTIONS: component = new JScrollPane(createPlayerList()); break;
-			case TOKEN_TREE: component = new JScrollPane(createTokenTreePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); break;
-			case IMAGE_EXPLORER: component = assetPanel; break;
-			case CHAT: component = commandPanel; break;
-			case MACROS: component = new JScrollPane(createMacroButtonPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);break;
+			case ZONE_RENDERER: component = MapTool.getFrame().rendererBorderPanel; break;
+			case CONNECTIONS: component = new JScrollPane(MapTool.getFrame().createPlayerList()); break;
+			case TOKEN_TREE: component = new JScrollPane(MapTool.getFrame().createTokenTreePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); break;
+			case IMAGE_EXPLORER: component = MapTool.getFrame().assetPanel; break;
+			case CHAT: component = MapTool.getFrame().commandPanel; break;
+			case MACROS: component = new JScrollPane(MapTool.getFrame().createMacroButtonPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);break;
 			}
 			
 			if (component == null) {
