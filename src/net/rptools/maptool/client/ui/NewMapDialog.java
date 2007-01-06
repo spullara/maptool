@@ -107,6 +107,8 @@ public class NewMapDialog extends JDialog  {
 		BufferedImage image = ImageManager.getImageAndWait(asset);
 		getImagePreviewPanel().setImage(image);
 		ImageManager.flushImage(asset);
+		
+		okButton.setEnabled(selectedAsset != null);
 	}
 	
 	private void initialize() {
@@ -222,6 +224,7 @@ public class NewMapDialog extends JDialog  {
 				accept();
 			}
 		});
+		okButton.setEnabled(selectedAsset != null);
 	}
 	
 	private void initBrowseButton(FormPanel panel) {
@@ -237,11 +240,11 @@ public class NewMapDialog extends JDialog  {
 					
 					lastFilePath = new File(imageFile.getParentFile() + "/.");
 					try {
-						selectedAsset = AssetManager.createAsset(imageFile);
+						setSelectedAsset(AssetManager.createAsset(imageFile));
 						getImagePreviewPanel().setImage(ImageUtil.getImage(imageFile));
 					} catch (IOException ioe) {
 						getImagePreviewPanel().setImage(null);
-						selectedAsset = null;
+						setSelectedAsset(null);
 					}
 				}
 			}
@@ -410,7 +413,7 @@ public class NewMapDialog extends JDialog  {
 						getImagePreviewPanel().setImage(image);
 						ImageManager.flushImage(asset); 
 						
-						selectedAsset = asset;
+						setSelectedAsset(asset);
 					}
 					setVisible(false);
 				}
