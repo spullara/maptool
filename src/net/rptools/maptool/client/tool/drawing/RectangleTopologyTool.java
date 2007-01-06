@@ -113,6 +113,7 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
         if (rectangle != null) {
         	
         	Pen pen = new Pen();
+        	pen.setEraser(getPen().isEraser());
         	
             if (pen.isEraser()) {
                 pen.setEraser(false);
