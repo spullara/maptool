@@ -66,7 +66,7 @@ import net.rptools.maptool.util.ImageManager;
 
 /**
  */
-public class ZoneSelectionPanel extends JPanel implements DropTargetListener, ZoneActivityListener, ModelChangeListener  {
+public class ZoneSelectionPanel extends JPanel implements ZoneActivityListener, ModelChangeListener  {
 
     private static final int PADDING = 5;
     private static final int SELECTED_SIZE = 75;
@@ -84,9 +84,6 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
         boundsMap = new HashMap<Rectangle, ZoneRenderer>();
         setOpaque(false);
         
-        // DnD
-        new DropTarget(this, this);
-
         // TODO: make this not an aic
         addMouseListener(new MouseAdapter(){
            
@@ -250,58 +247,6 @@ public class ZoneSelectionPanel extends JPanel implements DropTargetListener, Zo
     	int shortSize = SELECTED_SIZE + 2*PADDING;
     	
     	setSize((horizontal ? longSize : shortSize), (horizontal ? shortSize : longSize));
-    }
-    
-    ////
-    // DROP TARGET LISTENER
-    /* (non-Javadoc)
-     * @see java.awt.dnd.DropTargetListener#dragEnter(java.awt.dnd.DropTargetDragEvent)
-     */
-    public void dragEnter(DropTargetDragEvent dtde) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.dnd.DropTargetListener#dragExit(java.awt.dnd.DropTargetEvent)
-     */
-    public void dragExit(DropTargetEvent dte) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.dnd.DropTargetListener#dragOver(java.awt.dnd.DropTargetDragEvent)
-     */
-    public void dragOver(DropTargetDragEvent dtde) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.dnd.DropTargetListener#drop(java.awt.dnd.DropTargetDropEvent)
-     */
-    public void drop(DropTargetDropEvent dtde) {
-
-    	List<Asset> assets = TransferableHelper.getAsset(dtde);
-      if (assets == null || assets.isEmpty()) {
-        dtde.dropComplete(false);
-        return;
-      }
-
-      // Just adding one map
-      Zone zone = ZoneFactory.createZone(Zone.Type.MAP, assets.get(0).getId());
-      MapTool.addZone(zone);
-      dtde.dropComplete(true);
-      repaint();
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.dnd.DropTargetListener#dropActionChanged(java.awt.dnd.DropTargetDragEvent)
-     */
-    public void dropActionChanged(DropTargetDragEvent dtde) {
-        // TODO Auto-generated method stub
-
     }
     
     ////
