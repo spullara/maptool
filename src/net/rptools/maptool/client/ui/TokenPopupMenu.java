@@ -150,38 +150,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		return haloMenu;
 	}
 	
-	private JMenu createVisionMenu() {
-		JMenu visionMenu = I18N.createMenu("defaultTool.visionMenu");
-		
-		if (selectedTokenSet.size() != 1) {
-			visionMenu.setEnabled(false);
-		} else {
-
-			for (final Vision vision : getTokenUnderMouse().getVisionList()) {
-				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(vision.toString()); 
-				menuItem.setSelected(vision.isEnabled());
-				menuItem.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						new VisionDialog(getTokenUnderMouse(), vision).setVisible(true);
-						getRenderer().repaint();
-					}
-				});
-				
-				visionMenu.add(menuItem);
-			}
-			
-			JMenuItem newVisionMenuItem = new JMenuItem("New Vision ...");
-			newVisionMenuItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					new VisionDialog(getTokenUnderMouse()).setVisible(true);
-				}
-			});
-			visionMenu.add(newVisionMenuItem);
-		}
-		
-		return visionMenu;
-	}
-	
 	private JMenu createStateMenu() {
 		JMenu stateMenu = I18N.createMenu("defaultTool.stateMenu");
 		stateMenu.add(new ChangeStateAction("clear"));

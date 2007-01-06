@@ -38,6 +38,7 @@ import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Vision;
+import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.vision.BlockyRoundVision;
 import net.rptools.maptool.model.vision.FacingConicVision;
 import net.rptools.maptool.model.vision.RoundVision;
@@ -50,11 +51,11 @@ public class VisionDialog extends JDialog {
 	private JCheckBox enabledCheckBox;
 	private JComboBox typeCombo;
 
-	public VisionDialog(Token token) {
-		this(token, null);
+	public VisionDialog(Zone zone, Token token) {
+		this(zone, token, null);
 	}
 	
-	public VisionDialog(Token token, Vision vision) {
+	public VisionDialog(Zone zone, Token token, Vision vision) {
 		super(MapTool.getFrame(), "Vision", true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -65,7 +66,7 @@ public class VisionDialog extends JDialog {
 		initTypeCombo(panel, token, vision);
 		
 		initDeleteButton(panel, token, vision);
-		initOKButton(panel, token);
+		initOKButton(panel, zone, token);
 		initCancelButton(panel);
 	
 		setContentPane(panel);
@@ -108,11 +109,11 @@ public class VisionDialog extends JDialog {
 		typeCombo.setSelectedIndex(0);
 	}
 	
-	private void initOKButton(FormPanel panel, final Token token) {
+	private void initOKButton(FormPanel panel, final Zone zone, final Token token) {
 		JButton button = (JButton) panel.getButton("okButton");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				commit(token);
+				commit(zone, token);
 				close();
 			}
 		});
@@ -138,13 +139,15 @@ public class VisionDialog extends JDialog {
 		
 	}
 
-	private void commit(Token token) {
+	private void commit(Zone zone, Token token) {
 		Vision vision = (Vision) typeCombo.getSelectedItem();
 		// TODO: Check for valid value
 		vision.setDistance(Integer.parseInt(distanceTextField.getText()));
 		vision.setEnabled(enabledCheckBox.isSelected());
 		
 		token.addVision(vision);
+		
+		MapTool.serverCommand().putToken(zone.getId(), token);
 	}
 	
 	private void close() {

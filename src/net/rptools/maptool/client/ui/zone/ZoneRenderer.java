@@ -517,7 +517,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	for (Token token : zone.getAllTokens()) {
 
     		if (token.hasVision()) {
-    			int width = TokenSize.getWidth(token, zone.getGrid());
+    			
+            	// Don't bother if it's not a player token
+            	if (!token.isVisible()) {
+            		continue;
+            	}
+
+            	int width = TokenSize.getWidth(token, zone.getGrid());
     			int height = TokenSize.getHeight(token, zone.getGrid());
     			
     			for (Vision vision : token.getVisionList()) {

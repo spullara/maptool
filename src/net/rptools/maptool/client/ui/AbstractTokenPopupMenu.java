@@ -2,6 +2,7 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -26,6 +27,7 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
+import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.TokenUtil;
@@ -61,6 +63,38 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			changeTypeMenu.add(new JMenuItem(new ChangeTypeAction(layer)));
 		}
 		return changeTypeMenu;
+	}
+	
+	protected JMenu createVisionMenu() {
+		JMenu visionMenu = I18N.createMenu("defaultTool.visionMenu");
+		
+		if (selectedTokenSet.size() != 1) {
+			visionMenu.setEnabled(false);
+		} else {
+
+			for (final Vision vision : getTokenUnderMouse().getVisionList()) {
+				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(vision.toString()); 
+				menuItem.setSelected(vision.isEnabled());
+				menuItem.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						new VisionDialog(getRenderer().getZone(), getTokenUnderMouse(), vision).setVisible(true);
+						getRenderer().repaint();
+					}
+				});
+				
+				visionMenu.add(menuItem);
+			}
+			
+			JMenuItem newVisionMenuItem = new JMenuItem("New Vision ...");
+			newVisionMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					new VisionDialog(getRenderer().getZone(), getTokenUnderMouse()).setVisible(true);
+				}
+			});
+			visionMenu.add(newVisionMenuItem);
+		}
+		
+		return visionMenu;
 	}
 	
 	protected JMenu createArrangeMenu() {
