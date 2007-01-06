@@ -564,6 +564,21 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			if (SwingUtil.isControlDown(e)) {
 				sp = getNearestVertex(sp);
 			}
+			if (SwingUtil.isShiftDown(e)) {
+				ScreenPoint tokenPoint = ScreenPoint.fromZonePoint(renderer, tokenUnderMouse.getX(), tokenUnderMouse.getY());
+				
+				BufferedImage image = ImageManager.getImage(AssetManager.getAsset(tokenUnderMouse.getAssetID()));
+				double ratio = image.getWidth() / image.getHeight();
+				
+				int dx = sp.x - tokenPoint.x;
+				int dy = sp.y - tokenPoint.y;
+				
+				if (dx > dy) {
+					sp.y = (int)(tokenPoint.y + (dx / ratio));
+				} else {
+					sp.x = (int)(tokenPoint.x + (dy * ratio));
+				}
+			}
 
 			ZonePoint zp = sp.convertToZone(renderer);
 			
