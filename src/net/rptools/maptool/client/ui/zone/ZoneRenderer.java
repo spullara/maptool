@@ -210,8 +210,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	repaintTimer = timer;
     }
 
-    public void showPath(Token token) {
-    	showPathList.add(token);
+    public void showPath(Token token, boolean show) {
+    	if (show) {
+    		showPathList.add(token);
+    	} else {
+    		showPathList.remove(token);
+    	}
+    }
+    
+    public boolean isPathShowing(Token token) {
+    	return showPathList.contains(token);
     }
     
     public void clearShowPaths() {

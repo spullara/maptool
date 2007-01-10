@@ -38,6 +38,7 @@ import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Drawable;
+import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.ShapeDrawable;
@@ -139,7 +140,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
             if (pen.isEraser()) {
                 pen = new Pen(pen);
                 pen.setEraser(false);
-                pen.setColor(Color.white.getRGB());
+                pen.setPaint(new DrawableColorPaint(Color.white));
             }
 
             line.draw(g, pen);

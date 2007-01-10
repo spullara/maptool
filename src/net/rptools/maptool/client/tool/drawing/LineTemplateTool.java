@@ -25,7 +25,6 @@
 
 package net.rptools.maptool.client.tool.drawing;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
@@ -135,12 +134,12 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
       ScreenPoint vertex = template.getVertex();
       ScreenPoint pathVertex = ((LineTemplate) template).getPathVertex();
       paintTemplate(g, pen);
-      paintCursor(g, new Color(pen.getColor()), pen.getThickness(), vertex);
+      paintCursor(g, pen.getPaint().getPaint(), pen.getThickness(), vertex);
       if (pathVertex != null) {
-        paintCursor(g, new Color(pen.getColor()), pen.getThickness(), pathVertex);
+        paintCursor(g, pen.getPaint().getPaint(), pen.getThickness(), pathVertex);
         paintRadius(g, vertex);
-      } // endif
-    } // endif
+      }
+    }
   }
 
   /**

@@ -28,6 +28,7 @@ package net.rptools.maptool.client.tool.drawing;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -43,6 +44,7 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.AbstractTemplate;
+import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.RadiusTemplate;
 
@@ -190,9 +192,9 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @param thickness The thickness of the cursor.
    * @param vertex The vertex holding the cursor.
    */
-  protected void paintCursor(Graphics2D g, Color color, float thickness, ScreenPoint vertex) {
+  protected void paintCursor(Graphics2D g, Paint paint, float thickness, ScreenPoint vertex) {
     int halfCursor = CURSOR_WIDTH / 2;
-    g.setColor(color);
+    g.setPaint(paint);
     g.setStroke(new BasicStroke(thickness));
     g.drawLine(vertex.x - halfCursor, vertex.y, vertex.x + halfCursor, vertex.y);
     g.drawLine(vertex.x, vertex.y - halfCursor, vertex.x, vertex.y + halfCursor);
@@ -211,7 +213,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     pen.setThickness(3);
     if (pen.isEraser()) {
       pen.setEraser(false);
-      pen.setColor(Color.WHITE.getRGB());
+      pen.setPaint(new DrawableColorPaint(Color.WHITE));
     } // endif
     return pen;
   }
@@ -320,7 +322,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     if (painting && renderer != null) {
       Pen pen = getPenForOverlay();
       paintTemplate(g, pen);
-      paintCursor(g, new Color(pen.getColor()), pen.getThickness(), template.getVertex());
+      paintCursor(g, pen.getPaint().getPaint(), pen.getThickness(), template.getVertex());
       paintRadius(g, template.getVertex());
     } // endif
   }

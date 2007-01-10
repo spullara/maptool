@@ -1,66 +1,92 @@
 package net.rptools.maptool.client.ui.commandpanel;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
-import java.awt.event.FocusListener;
-import java.awt.event.MouseListener;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+import ca.odell.renderpack.HTMLTableCellRenderer;
 
 public class MessagePanel extends JPanel {
 
-	private StringBuffer messages;
-	private JTextPane textPane;
+	private JTable messageTable;
 	private JScrollPane scrollPane;
 	
 	public MessagePanel() {
 		setLayout(new BorderLayout());
-		messages = new StringBuffer();
-		textPane = new JTextPane();
-		textPane.setContentType("text/html");
-		textPane.setBorder(null);
-		textPane.setEditable(false);
 		
-		scrollPane = new JScrollPane(textPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		messageTable = createMessageTable();
+		
+		scrollPane = new JScrollPane(messageTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setBorder(null);
+		scrollPane.getViewport().setBackground(Color.white);
 		
 		add(BorderLayout.CENTER, scrollPane);
 	}
 
 	public String getMessagesText() {
-		return textPane.getText();
-	}
-	
-	@Override
-	public synchronized void addFocusListener(FocusListener l) {
-		super.addFocusListener(l);
-		textPane.addFocusListener(l);
-	}
-	
-	@Override
-	public synchronized void removeFocusListener(FocusListener l) {
-		super.removeFocusListener(l);
-		textPane.removeFocusListener(l);
+		return "FIXME";
 	}
 	
 	public void clearMessages() {
-		messages.setLength(0);
-		textPane.setText("");
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				messageTable.setModel(new DefaultTableModel());
+			}
+		});
 	}
 	
 	public void addMessage(final String message) {
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				messages.append("<div>").append(message).append("</div>");
-				textPane.setText("<html <style>div {font-family: sans-serif; font-size: 11pt} body {margin: 5px, 5px, 5px, 5px}</style>><body>" + messages.toString() + "</body></html>");
-				textPane.scrollRectToVisible(new Rectangle(0, textPane.getSize().height, 1, 1));
+				synchronized(messageTable) {
+					DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
+					if (model.getRowCount() > 0) {
+						model.removeRow(model.getRowCount()-1);
+					}
+					model.addRow(new Object[]{message});
+					
+					// This makes the bottom row scroll into view, otherwise it cuts off the last part of the last line
+					model.addRow(new Object[]{"testing"});
+				}
+			}
+		});
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
 			}
 		});
 	}
+
+	private JTable createMessageTable() {
+		JTable table = new JTable();
+		table.setModel(new DefaultTableModel(new Object[][]{}, new Object[]{""}));
+		table.setTableHeader(null);
+		table.getColumnModel().getColumn(0).setCellRenderer(new MessageCellRenderer());
+		table.setShowGrid(false);
+		table.setBackground(Color.white);
+		
+		return table;
+	}
 	
+	private static class MessageCellRenderer extends HTMLTableCellRenderer {
+		public MessageCellRenderer(){
+			super(true);
+			styleSheet.addRule("body { font-family: sans-serif; font-size: 11pt}");
+	    }
+		
+		@Override
+		public void writeObject(StringBuffer buff, JTable table, Object value, boolean isSelected, boolean isFocused, int row, int col) {
+
+			buff.append("<html><body>");
+			buff.append(value);
+			buff.append("</body></html>");
+		}
+	}
 }

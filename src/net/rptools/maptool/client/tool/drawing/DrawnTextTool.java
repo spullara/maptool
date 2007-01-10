@@ -308,11 +308,8 @@ public class DrawnTextTool extends AbstractDrawingTool implements
 		// Create a style for the component
 		Style style = textPane.addStyle("default", null);
 		TwoToneTextPane.setFont(style, Font.decode(font));
-		style
-				.addAttribute(StyleConstants.Foreground, new Color(pen
-						.getColor()));
-		style.addAttribute(StyleConstants.Background, new Color(pen
-				.getBackgroundColor()));
+//		style.addAttribute(StyleConstants.Foreground, new Color(pen.getColor()));
+//		style.addAttribute(StyleConstants.Background, new Color(pen.getBackgroundColor()));
 		textPane.setLogicalStyle(style);
 		return textPane;
 	}

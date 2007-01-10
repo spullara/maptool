@@ -34,13 +34,13 @@ public class Pen {
     public static int MODE_SOLID       = 0;
     public static int MODE_TRANSPARENT = 1;
 
-    public static Pen DEFAULT = new Pen(Color.BLACK.getRGB(), 3.0f);
+    public static Pen DEFAULT = new Pen(new DrawableColorPaint(Color.black), 3.0f);
 
     private int foregroundMode = MODE_SOLID;
-    private int color;
+    private DrawablePaint paint;
 
     private int backgroundMode = MODE_SOLID;
-    private int backgroundColor;
+    private DrawablePaint backgroundPaint;
 
     private float thickness;
     private boolean eraser;
@@ -48,39 +48,39 @@ public class Pen {
     public Pen() {
     }
 
-    public Pen(int color, float thickness) {
-        this(color, thickness, false);
+    public Pen(DrawablePaint paint, float thickness) {
+        this(paint, thickness, false);
     }
 
-    public Pen(int color, float thickness, boolean eraser) {
-        this.color = color;
+    public Pen(DrawablePaint paint, float thickness, boolean eraser) {
+        this.paint = paint;
         this.thickness = thickness;
         this.eraser = eraser;
     }
 
     public Pen(Pen copy) {
-        this.color = copy.color;
+        this.paint = copy.paint;
         this.foregroundMode = copy.foregroundMode;
-        this.backgroundColor = copy.backgroundColor;
+        this.backgroundPaint = copy.backgroundPaint;
         this.backgroundMode = copy.backgroundMode;
         this.thickness = copy.thickness;
         this.eraser = copy.eraser;
     }
 
-    public int getColor() {
-        return color;
+    public DrawablePaint getPaint() {
+        return paint;
     }
 
-    public void setColor(int color) {
-        this.color = color;
+    public void setPaint(DrawablePaint paint) {
+        this.paint = paint;
     }
 
-    public int getBackgroundColor() {
-        return backgroundColor;
+    public DrawablePaint getBackgroundPaint() {
+        return backgroundPaint;
     }
 
-    public void setBackgroundColor(int backgroundColor) {
-        this.backgroundColor = backgroundColor;
+    public void setBackgroundPaint(DrawablePaint paint) {
+        this.backgroundPaint = paint;
     }
 
     public boolean isEraser() {

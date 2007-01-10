@@ -31,10 +31,9 @@ import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -53,7 +52,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
-import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -64,7 +62,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -97,25 +94,8 @@ import net.rptools.maptool.client.swing.ProgressStatusBar;
 import net.rptools.maptool.client.swing.ScrollableFlowPanel;
 import net.rptools.maptool.client.swing.SpacerStatusBar;
 import net.rptools.maptool.client.swing.StatusPanel;
-import net.rptools.maptool.client.tool.FacingTool;
-import net.rptools.maptool.client.tool.GridTool;
-import net.rptools.maptool.client.tool.MeasureTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.StampTool;
-import net.rptools.maptool.client.tool.TextTool;
-import net.rptools.maptool.client.tool.drawing.ConeTemplateTool;
-import net.rptools.maptool.client.tool.drawing.FreehandExposeTool;
-import net.rptools.maptool.client.tool.drawing.FreehandTool;
-import net.rptools.maptool.client.tool.drawing.LineTemplateTool;
-import net.rptools.maptool.client.tool.drawing.LineTool;
-import net.rptools.maptool.client.tool.drawing.OvalExposeTool;
-import net.rptools.maptool.client.tool.drawing.OvalTool;
-import net.rptools.maptool.client.tool.drawing.PolygonExposeTool;
-import net.rptools.maptool.client.tool.drawing.PolygonTopologyTool;
-import net.rptools.maptool.client.tool.drawing.RadiusTemplateTool;
-import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
-import net.rptools.maptool.client.tool.drawing.RectangleTool;
-import net.rptools.maptool.client.tool.drawing.RectangleTopologyTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
@@ -136,6 +116,9 @@ import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.drawing.DrawableColorPaint;
+import net.rptools.maptool.model.drawing.DrawablePaint;
+import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.util.ImageManager;
 
@@ -150,7 +133,6 @@ import org.flexdock.perspective.Perspective;
 import org.flexdock.perspective.PerspectiveFactory;
 import org.flexdock.perspective.PerspectiveManager;
 import org.flexdock.perspective.persist.FilePersistenceHandler;
-import org.flexdock.perspective.persist.PersistenceHandler;
 import org.flexdock.plaf.common.border.ShadowBorder;
 import org.flexdock.view.View;
 import org.flexdock.view.Viewport;
@@ -197,6 +179,8 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	private JLabel chatActionLabel;
 	private GlassPane glassPane;
 	private JPanel macroButtonPanel;
+	
+	private TextureChooserPanel textureChooserPanel;
 
 	// Components
 	private JFileChooser loadFileChooser;
@@ -228,7 +212,10 @@ public class MapToolFrame extends JFrame implements WindowListener {
 
 		zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
 		pointerOverlay = new PointerOverlay();
+		
 		colorPicker = new ColorPicker(this);
+		textureChooserPanel = new TextureChooserPanel(colorPicker);
+		colorPicker.getPaintChooser().addPaintChooser(textureChooserPanel);
 
 		String credits = "";
 		String version = "";
@@ -659,6 +646,25 @@ public class MapToolFrame extends JFrame implements WindowListener {
 									Zone.Type.INFINITE);
 						}
 					}));
+					menu.addSeparator();
+					menu.add(new JMenuItem(new AbstractAction() {
+						{
+							putValue(NAME, "Use as paint");
+						}
+						public void actionPerformed(ActionEvent e) {
+							colorPicker.setForegroundPaint(new AssetPaint(panel.getAsset(index)));
+							textureChooserPanel.addTexture(panel.getAsset(index));
+						}
+					}));
+					menu.add(new JMenuItem(new AbstractAction() {
+						{
+							putValue(NAME, "Use as background paint");
+						}
+						public void actionPerformed(ActionEvent e) {
+							colorPicker.setBackgroundPaint(new AssetPaint(panel.getAsset(index)));
+							textureChooserPanel.addTexture(panel.getAsset(index));
+						}
+					}));
 
 					panel.showImagePanelPopup(menu, e.getX(), e.getY());
 				}
@@ -761,12 +767,27 @@ public class MapToolFrame extends JFrame implements WindowListener {
 
 	public Pen getPen() {
 
-		pen.setColor(colorPicker.getForegroundColor().getRGB());
-		pen.setBackgroundColor(colorPicker.getBackgroundColor().getRGB());
+		pen.setPaint(convertPaint(colorPicker.getForegroundPaint()));
+		pen.setBackgroundPaint(convertPaint(colorPicker.getBackgroundPaint()));
 		pen.setThickness((Integer) widthChooser.getSelectedItem());
 		return pen;
 	}
 
+	private DrawablePaint convertPaint(Paint paint) {
+		
+		if (paint instanceof Color) {
+			return new DrawableColorPaint((Color) paint);
+		}
+		if (paint instanceof AssetPaint) {
+			
+			Asset asset = ((AssetPaint) paint).getAsset();
+			// TODO: Transfer this asset if needed
+			return new DrawableTexturePaint(asset);
+		}
+		
+		throw new IllegalArgumentException("Invalid type of paint: " + paint.getClass().getName());
+	}
+	
 	public List<ZoneRenderer> getZoneRenderers() {
 		// TODO: This should prob be immutable
 		return zoneRendererList;

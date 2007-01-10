@@ -58,7 +58,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 		add(new JSeparator());
 
-		add(new ShowPathsAction());
+		addToggledItem(new ShowPathsAction(), renderer.isPathShowing(tokenUnderMouse));
 		add(new RevertLastMoveAction());
 		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
 		add(createHaloMenu());
@@ -467,7 +467,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 					continue;
 				}
 				
-				getRenderer().showPath(token);
+				getRenderer().showPath(token, !getRenderer().isPathShowing(getTokenUnderMouse()));
 			}
 			getRenderer().repaint();
 		}

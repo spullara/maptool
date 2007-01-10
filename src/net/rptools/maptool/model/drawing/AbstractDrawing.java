@@ -29,6 +29,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.Stroke;
 
 import net.rptools.maptool.model.GUID;
@@ -60,18 +61,18 @@ public abstract class AbstractDrawing implements Drawable {
         	g.setComposite(AlphaComposite.Clear);
         }
 
-        if (pen.getBackgroundMode() == Pen.MODE_SOLID) {
-            Color bgColor = new Color(pen.getBackgroundColor(), true);
+        if (pen.getBackgroundMode() == Pen.MODE_SOLID && pen.getBackgroundPaint() != null) {
+            Paint bgColor = pen.getBackgroundPaint().getPaint();
             
-            g.setColor(bgColor);
+            g.setPaint(bgColor);
             
             
             drawBackground(g);
         }
         
-        if (pen.getForegroundMode() == Pen.MODE_SOLID) {
-            Color color = new Color(pen.getColor(), true);
-        	g.setColor(color);
+        if (pen.getForegroundMode() == Pen.MODE_SOLID && pen.getPaint() != null) {
+            Paint paint = pen.getPaint().getPaint();
+        	g.setPaint(paint);
             draw(g);
         }
 

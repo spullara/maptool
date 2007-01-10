@@ -26,7 +26,6 @@ package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
@@ -40,10 +39,10 @@ import javax.swing.SwingUtilities;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.Rectangle;
 
@@ -117,9 +116,9 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
         	
             if (pen.isEraser()) {
                 pen.setEraser(false);
-                pen.setBackgroundColor(AppStyle.topologyRemoveColor.getRGB());
+                pen.setBackgroundPaint(new DrawableColorPaint(AppStyle.topologyRemoveColor));
             } else {
-            	pen.setBackgroundColor(AppStyle.topologyAddColor.getRGB());
+            	pen.setBackgroundPaint(new DrawableColorPaint(AppStyle.topologyAddColor));
             }
         	
             rectangle.draw(g, pen);

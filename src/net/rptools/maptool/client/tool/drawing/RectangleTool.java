@@ -39,6 +39,7 @@ import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.Rectangle;
 
@@ -81,8 +82,8 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
             if (pen.isEraser()) {
                 pen = new Pen(pen);
                 pen.setEraser(false);
-                pen.setColor(Color.white.getRGB());
-                pen.setBackgroundColor(Color.white.getRGB());
+                pen.setPaint(new DrawableColorPaint(Color.white));
+                pen.setBackgroundPaint(new DrawableColorPaint(Color.white));
             }
         	
             rectangle.draw(g, pen);
