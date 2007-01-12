@@ -498,13 +498,13 @@ public class MapTool {
 	public static void main(String[] args) {
 
         try {
-//        	UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
+        	UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
     		com.jidesoft.utils.Lm.verifyLicense("Trevor Croft", "rptools", "5MfIVe:WXJBDrToeLWPhMv3kI2s3VFo");
-            UIManager.setLookAndFeel(LookAndFeelFactory.WINDOWS_LNF);
+//            UIManager.setLookAndFeel(LookAndFeelFactory.WINDOWS_LNF);
     		LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
         	
         	// Make the toggle button pressed state look more distinct
-//        	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
+        	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
 
     		PlafManager.setPreferredTheme("maptool"); 
         } catch (Exception e) {

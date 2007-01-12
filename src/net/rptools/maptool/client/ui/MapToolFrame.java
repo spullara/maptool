@@ -813,7 +813,15 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		if (paint instanceof AssetPaint) {
 			
 			Asset asset = ((AssetPaint) paint).getAsset();
-			// TODO: Transfer this asset if needed
+			if (!MapTool.getCampaign().containsAsset(asset)) {
+				if (!AssetManager.hasAsset(asset)) {
+					AssetManager.putAsset(asset);
+				}
+				if (!MapTool.getCampaign().containsAsset(asset)) {
+					MapTool.serverCommand().putAsset(asset);
+				}
+			}
+			
 			return new DrawableTexturePaint(asset);
 		}
 		

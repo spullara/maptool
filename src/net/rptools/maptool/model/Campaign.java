@@ -31,7 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 import net.rptools.lib.MD5Key;
-import net.rptools.lib.net.Location;
+import net.rptools.maptool.client.ui.AssetPaint;
+import net.rptools.maptool.model.drawing.DrawnElement;
 
 
 /**
@@ -92,6 +93,17 @@ public class Campaign {
     			
     			if (token.getAssetID().equals(key)) {
     				return true;
+    			}
+    		}
+    		
+    		for (DrawnElement drawn : zone.getDrawnElements()) {
+    			if (drawn.getPen().getPaint().getPaint() instanceof AssetPaint) {
+    				if (((AssetPaint)drawn.getPen().getPaint().getPaint()).getAsset().getId().equals(key)) {
+    					return true;
+    				}
+    				if (((AssetPaint)drawn.getPen().getBackgroundPaint().getPaint()).getAsset().getId().equals(key)) {
+    					return true;
+    				}
     			}
     		}
     	}
