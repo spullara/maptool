@@ -61,6 +61,8 @@ import net.tsc.servicediscovery.ServiceAnnouncer;
 import org.flexdock.docking.DockingManager;
 import org.flexdock.plaf.PlafManager;
 
+import com.jidesoft.plaf.LookAndFeelFactory;
+
 import de.muntjak.tinylookandfeel.Theme;
 import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
 
@@ -496,10 +498,13 @@ public class MapTool {
 	public static void main(String[] args) {
 
         try {
-        	UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
+//        	UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
+    		com.jidesoft.utils.Lm.verifyLicense("Trevor Croft", "rptools", "5MfIVe:WXJBDrToeLWPhMv3kI2s3VFo");
+            UIManager.setLookAndFeel(LookAndFeelFactory.WINDOWS_LNF);
+    		LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
         	
         	// Make the toggle button pressed state look more distinct
-        	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
+//        	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
 
     		PlafManager.setPreferredTheme("maptool"); 
         } catch (Exception e) {
@@ -509,8 +514,6 @@ public class MapTool {
         // Draw frame contents on resize
         Toolkit.getDefaultToolkit().setDynamicLayout(true);        
         
-        MapToolFrame.configureDocking();
-
         EventQueue.invokeLater(new Runnable() {
         	public void run() {
                 initialize();

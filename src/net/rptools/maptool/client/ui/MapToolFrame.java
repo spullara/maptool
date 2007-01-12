@@ -43,10 +43,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Observer;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -65,9 +63,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.border.EmptyBorder;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+import javax.xml.parsers.ParserConfigurationException;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
@@ -122,31 +120,23 @@ import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.util.ImageManager;
 
-import org.flexdock.docking.Dockable;
-import org.flexdock.docking.DockableFactory;
-import org.flexdock.docking.DockingConstants;
 import org.flexdock.docking.DockingManager;
-import org.flexdock.docking.defaults.StandardBorderManager;
-import org.flexdock.docking.state.PersistenceException;
-import org.flexdock.perspective.LayoutSequence;
-import org.flexdock.perspective.Perspective;
-import org.flexdock.perspective.PerspectiveFactory;
-import org.flexdock.perspective.PerspectiveManager;
-import org.flexdock.perspective.persist.FilePersistenceHandler;
-import org.flexdock.plaf.common.border.ShadowBorder;
-import org.flexdock.view.View;
-import org.flexdock.view.Viewport;
+import org.xml.sax.SAXException;
+
+import com.jidesoft.docking.DefaultDockableHolder;
+import com.jidesoft.docking.DockableFrame;
 
 /**
  */
-public class MapToolFrame extends JFrame implements WindowListener {
+public class MapToolFrame extends DefaultDockableHolder implements WindowListener {
 	private static final long serialVersionUID = 3905523813025329458L;
 
 	// TODO: parameterize this (or make it a preference)
 	private static final int WINDOW_WIDTH = 800;
-
 	private static final int WINDOW_HEIGHT = 600;
 
+	private static final String DOCKING_PROFILE_NAME = "maptoolDocking";
+	
 	private Pen pen = new Pen(Pen.DEFAULT);
 
 	/**
@@ -262,24 +252,17 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		rendererBorderPanel = new JPanel(new GridLayout());
 		rendererBorderPanel.add(zoneRendererPanel);
 
-		// Docking
-		JPanel dockingPanel = new JPanel(new BorderLayout(0, 0));
-		dockingPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-		Viewport viewport = new Viewport();
-		viewport.setBorderManager(new StandardBorderManager(new ShadowBorder()));
-		dockingPanel.add(viewport, BorderLayout.CENTER);
-
 		// Put it all together
 		menuBar = new AppMenuBar();
 		setJMenuBar(menuBar);
 		setLayout(new BorderLayout());
-		add(BorderLayout.CENTER, dockingPanel);
 		add(BorderLayout.NORTH, new ToolbarPanel(toolbox));
 		add(BorderLayout.SOUTH, statusPanel);
 
 		setGlassPane(glassPane);
 
+		configureDocking();
+		
 		// TODO: Put together a class that handles adding in the listeners, just
 		// so that this doesn't
 		// get all cluttered
@@ -293,6 +276,55 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		repaintTimer.start();
 	}
 
+	public enum Frames {
+		CONNECTIONS,
+		TOKEN_TREE,
+		IMAGE_EXPLORER,
+		CHAT,
+		MACROS
+	}
+	private void configureDocking() {
+
+		getDockingManager().setProfileKey(DOCKING_PROFILE_NAME);
+		getDockingManager().setOutlineMode(com.jidesoft.docking.DockingManager.PARTIAL_OUTLINE_MODE);
+		getDockingManager().setUsePref(false);
+		getDockingManager().setLayoutDirectory(AppUtil.getAppHome("config").getAbsolutePath());
+
+		getDockingManager().getWorkspace().setAcceptDockableFrame(false);
+
+		// Main panel
+		getDockingManager().getWorkspace().add(rendererBorderPanel);
+		
+		// Docked frames
+		getDockingManager().addFrame(createDockingFrame(Frames.CONNECTIONS.name(), new JScrollPane(createPlayerList())));
+		getDockingManager().addFrame(createDockingFrame(Frames.TOKEN_TREE.name(), new JScrollPane(createTokenTreePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)));
+		getDockingManager().addFrame(createDockingFrame(Frames.IMAGE_EXPLORER.name(), assetPanel));
+		getDockingManager().addFrame(createDockingFrame(Frames.CHAT.name(), commandPanel));
+		getDockingManager().addFrame(createDockingFrame(Frames.MACROS.name(), new JScrollPane(createMacroButtonPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)));
+		
+		try {
+			getDockingManager().loadInitialLayout(MapToolFrame.class.getClassLoader().getResourceAsStream("net/rptools/maptool/client/ui/ilayout.xml"));
+		} catch (ParserConfigurationException e) {
+			MapTool.showError("Could not parse the layout file");
+			e.printStackTrace();
+		} catch (SAXException e) {
+			MapTool.showError("Could not parse the layout file");
+			e.printStackTrace();
+		} catch (IOException e) {
+			MapTool.showError("Could not load the layout file");
+			e.printStackTrace();
+		}
+        getDockingManager().loadLayoutData();
+		
+	}
+	
+	private static DockableFrame createDockingFrame(String id, Component component) {
+		DockableFrame frame = new DockableFrame(id);
+		frame.add(component);
+		
+		return frame;
+	}
+	
 	public JPanel createMacroButtonPanel() {
 		JPanel panel = new ScrollableFlowPanel(FlowLayout.LEFT);
 
@@ -1042,8 +1074,7 @@ public class MapToolFrame extends JFrame implements WindowListener {
 	public void windowClosing(WindowEvent e) {
 
 		if (MapTool.isHostingServer()) {
-			if (!MapTool
-					.confirm("You are hosting a server.  Shutting down will disconnect all players.  Are you sure?")) {
+			if (!MapTool.confirm("You are hosting a server.  Shutting down will disconnect all players.  Are you sure?")) {
 				return;
 			}
 		}
@@ -1051,15 +1082,14 @@ public class MapToolFrame extends JFrame implements WindowListener {
 		ServerDisconnectHandler.disconnectExpected = true;
 		MapTool.disconnect();
 
-		// We're done
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				System.exit(0);
-			}
-		});
+		getDockingManager().saveLayoutData();
+
+		setVisible(false);
+		dispose();
 	}
 
 	public void windowClosed(WindowEvent e) {
+		System.exit(0);
 	}
 
 	public void windowIconified(WindowEvent e) {
@@ -1085,121 +1115,4 @@ public class MapToolFrame extends JFrame implements WindowListener {
 			}
 		}
 	}
-
-	public static void configureDocking() {
-		DockingManager.setDockableFactory(new MapToolViewFactory());
-
-		PerspectiveManager.setFactory(new MapToolPrespectiveFactory());
-		PerspectiveManager.getInstance().setCurrentPerspective(PERSPECTIVEID, true);
-		PerspectiveManager.setPersistenceHandler(new FilePersistenceHandler(AppUtil.getAppHome("config").getAbsolutePath() + "/layout.xml"));
-
-		try {
-			DockingManager.loadLayoutModel();
-		} catch(IOException e) {
-			e.printStackTrace();
-		} catch (PersistenceException e) {
-            e.printStackTrace();
-        }
-		// remember to store on shutdown
-		DockingManager.setAutoPersist(true);
-	}
-	
-	// //
-	// DOCKABLE FACTORY
-	public enum MapToolView {
-		ZONE_RENDERER("Zone"),
-		CONNECTIONS("Connections"),
-		TOKEN_TREE("Tokens"),
-		IMAGE_EXPLORER("Image Explorer"),
-		CHAT("Chat"),
-		MACROS("Macros");
-		
-		private String displayName;
-		private MapToolView(String displayName) {
-			this.displayName = displayName;
-		}
-		
-		public String getDisplayName() {
-			return displayName;
-		}
-	}
-	private static class MapToolViewFactory implements DockableFactory {
-
-		private Map<MapToolView, View> viewMap = new HashMap<MapToolView, View>();
-		
-		public Dockable getDockable(String viewId) {
-
-			MapToolView view = MapToolView.valueOf(viewId);
-			View dockable = viewMap.get(view);
-			
-			if (dockable != null) {
-				return dockable;
-			}
-			
-			JComponent component = null;
-			switch (MapToolView.valueOf(viewId)) {
-			case ZONE_RENDERER: component = MapTool.getFrame().rendererBorderPanel; break;
-			case CONNECTIONS: component = new JScrollPane(MapTool.getFrame().createPlayerList()); break;
-			case TOKEN_TREE: component = new JScrollPane(MapTool.getFrame().createTokenTreePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); break;
-			case IMAGE_EXPLORER: component = MapTool.getFrame().assetPanel; break;
-			case CHAT: component = MapTool.getFrame().commandPanel; break;
-			case MACROS: component = new JScrollPane(MapTool.getFrame().createMacroButtonPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);break;
-			}
-			
-			if (component == null) {
-				throw new IllegalArgumentException("Could not find component for: " + viewId);
-			}
-			
-			dockable = createView(view, component);
-			viewMap.put(view, dockable);
-			
-			// Special case setup
-			if (view == MapToolView.ZONE_RENDERER) {
-				dockable.setTitlebar(null);
-			}
-
-			return dockable;
-		}
-
-		public Component getDockableComponent(String arg0) {
-			return null;
-		}
-
-		private View createView(MapToolView viewType, JComponent panel) {
-			View view = new View(viewType.name(), viewType.getDisplayName());
-			view.addAction(DockingConstants.CLOSE_ACTION);
-			view.addAction(DockingConstants.PIN_ACTION);
-
-			JPanel p = new JPanel(new GridLayout());
-
-			p.add(panel);
-
-			view.setContentPane(p);
-			return view;
-		}
-	}
-	
-	////
-	// PERSPECTIVE FACTORY
-	public static final String PERSPECTIVEID = "default";
-	private static class MapToolPrespectiveFactory implements PerspectiveFactory {
-		public Perspective getPerspective(String persistentId) {
-			Perspective perspective = null;
-
-			if (PERSPECTIVEID.equals(persistentId)) {
-				perspective = new Perspective(PERSPECTIVEID, "Default");
-				LayoutSequence seq = perspective.getInitialSequence(true);
-
-				seq.add(MapToolView.IMAGE_EXPLORER.name());
-				seq.add(MapToolView.ZONE_RENDERER.name(), MapToolView.IMAGE_EXPLORER.name(), DockingConstants.EAST_REGION, .25f);
-				seq.add(MapToolView.TOKEN_TREE.name(), MapToolView.IMAGE_EXPLORER.name(), DockingConstants.SOUTH_REGION, .3f);
-				seq.add(MapToolView.CONNECTIONS.name(), MapToolView.TOKEN_TREE.name(), DockingConstants.SOUTH_REGION, .5f);
-				seq.add(MapToolView.CHAT.name(), MapToolView.ZONE_RENDERER.name(), DockingConstants.SOUTH_REGION, .75f);
-				seq.add(MapToolView.MACROS.name(), MapToolView.CHAT.name(), DockingConstants.EAST_REGION, .75f);
-			}
-
-			return perspective;
-		}
-	}
-	
 }

@@ -24,6 +24,9 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -53,7 +56,7 @@ public class AppMenuBar extends JMenuBar {
     // when it isn't showin (fullscreen mode)
     @Override
     public boolean isShowing() {
-    	return MapTool.getFrame().isFullScreen() ? true : super.isShowing();
+    	return MapTool.getFrame() != null && MapTool.getFrame().isFullScreen() ? true : super.isShowing();
     }
 
     protected JMenu createFileMenu() {
@@ -198,6 +201,15 @@ public class AppMenuBar extends JMenuBar {
     protected JMenu createHelpMenu() {
         JMenu menu = I18N.createMenu("menu.help");
         menu.add(new JMenuItem(AppActions.RESTORE_DEFAULT_IMAGES));
+        menu.add(new AbstractAction() {
+        	{
+        		putValue(Action.NAME, "Restore layout");
+        	}
+        	public void actionPerformed(ActionEvent e) {
+        		MapTool.getFrame().getDockingManager().resetToDefault();
+        		
+        	}
+        });
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.SHOW_ABOUT));
         return menu;
