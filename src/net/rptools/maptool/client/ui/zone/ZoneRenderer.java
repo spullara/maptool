@@ -241,6 +241,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	});
     }
     
+    /**
+     * I _hate_ this method.  But couldn't think of a better way to tell the drawable renderer that a new image had arrived
+     * TODO: FIX THIS !  Perhaps add a new app listener for when new images show up, add the drawable renderer as a listener
+     */
+    public void flushDrawableRenderer() {
+    	drawableRenderer.flush();
+    }
+    
     public ScreenPoint getPointUnderMouse() {
     	return pointUnderMouse;
     }

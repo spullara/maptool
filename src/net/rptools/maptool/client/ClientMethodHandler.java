@@ -144,6 +144,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
             break;
         case putAsset:
             AssetManager.putAsset((Asset) parameters[0]);
+            MapTool.getFrame().getCurrentZoneRenderer().flushDrawableRenderer();
             MapTool.getFrame().refresh();
             break;
         case removeAsset:
