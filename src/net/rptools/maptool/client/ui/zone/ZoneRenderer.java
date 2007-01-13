@@ -500,8 +500,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         renderDrawableOverlay(g2d);
         renderTokenTemplates(g2d);
         renderGrid(g2d);
-        renderVision(g2d);
         renderTokens(g2d, zone.getNonBackgroundTokens());
+        renderVision(g2d);
 		renderMoveSelectionSets(g2d);
         renderLabels(g2d);
 		
