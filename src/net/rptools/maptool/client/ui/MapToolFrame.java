@@ -684,8 +684,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 							putValue(NAME, "Use as paint");
 						}
 						public void actionPerformed(ActionEvent e) {
-							colorPicker.setForegroundPaint(new AssetPaint(panel.getAsset(index)));
-							textureChooserPanel.addTexture(panel.getAsset(index));
+							Asset asset = panel.getAsset(index);
+							AssetManager.putAsset(asset);
+							colorPicker.setForegroundPaint(new AssetPaint(asset));
+							textureChooserPanel.addTexture(asset);
 						}
 					}));
 					menu.add(new JMenuItem(new AbstractAction() {
@@ -693,8 +695,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 							putValue(NAME, "Use as background paint");
 						}
 						public void actionPerformed(ActionEvent e) {
-							colorPicker.setBackgroundPaint(new AssetPaint(panel.getAsset(index)));
-							textureChooserPanel.addTexture(panel.getAsset(index));
+							Asset asset = panel.getAsset(index);
+							AssetManager.putAsset(asset);
+							colorPicker.setBackgroundPaint(new AssetPaint(asset));
+							textureChooserPanel.addTexture(asset);
 						}
 					}));
 

@@ -45,7 +45,8 @@ public class TextureChooserPanel extends AbstractPaintChooserPanel {
 	}
 
 	public void addTexture(Asset asset) {
-		((TextureChooserImagePanelModel)imagePanel.getModel()).textureList.add(asset);
+		
+		((TextureChooserImagePanelModel)imagePanel.getModel()).addAsset(asset);
 	}
 	
 	@Override
@@ -62,6 +63,12 @@ public class TextureChooserPanel extends AbstractPaintChooserPanel {
 				textureList.add(asset);
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
+			}
+		}
+		
+		public void addAsset(Asset asset) {
+			if (!textureList.contains(asset)) {
+				textureList.add(asset);
 			}
 		}
 		
