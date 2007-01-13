@@ -214,9 +214,11 @@ public class CommandPanel extends JPanel implements Observer {
 				return;
 			}
 			commandHistoryIndex ++;
-			if (commandHistoryIndex >= commandHistory.size()) {
+			if (commandHistoryIndex == commandHistory.size()) {
 				commandTextArea.setText("");
 				commandHistoryIndex = commandHistory.size();
+			} else if (commandHistoryIndex >= commandHistory.size()) {
+				commandHistoryIndex--;
 			} else {
 				commandTextArea.setText(commandHistory.get(commandHistoryIndex));
 			}
