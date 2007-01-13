@@ -24,10 +24,6 @@
  */
 package net.rptools.maptool.model;
 
-import java.io.File;
-import java.io.IOException;
-
-import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
 
 /**
@@ -70,5 +66,14 @@ public class Asset {
     }
     public String getName() {
     	return name;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+    	if (!(obj instanceof Asset)) {
+    		return false;
+    	}
+    	Asset asset = (Asset) obj;
+    	return asset.getId().equals(getId());
     }
 }
