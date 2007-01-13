@@ -76,7 +76,7 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
     }
 
     @Override
-    protected boolean isFill(MouseEvent e) {
+    protected boolean isBackgroundFill(MouseEvent e) {
     	// Expose tools are implied to be filled
     	return false;
     }

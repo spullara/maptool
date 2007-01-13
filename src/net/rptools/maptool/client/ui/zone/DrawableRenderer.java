@@ -117,7 +117,7 @@ public class DrawableRenderer {
 //			}
 			
 			Pen pen = element.getPen();
-			if (pen.getOpacity() != 1) {
+			if (pen.getOpacity() != 1 && pen.getOpacity() != 0 /* handle legacy pens, besides, it doesn't make sense to have a non visible pen*/) {
 				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, pen.getOpacity()));
 			}
 			drawable.draw(g, pen);

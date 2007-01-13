@@ -87,7 +87,6 @@ public class ToolbarPanel extends JToolBar {
 		panel.add(RectangleTool.class);
 		panel.add(OvalTool.class);
 		panel.add(TextTool.class);
-		panel.add(PolygonTool.class);
 
 		panel.fill();
 		return panel;

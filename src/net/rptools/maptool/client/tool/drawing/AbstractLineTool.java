@@ -112,7 +112,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
         }
         
         Drawable drawable = line;
-        if (isFill(e)) {
+        if (isBackgroundFill(e)) {
         	drawable = new ShapeDrawable(getPolygon(line));
         }
 
@@ -136,6 +136,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
 		if (line != null) {
             Pen pen = getPen();
             pen.setThickness((float)(pen.getThickness() * renderer.getScale()));
+            pen.setForegroundMode(Pen.MODE_SOLID);
             
             if (pen.isEraser()) {
                 pen = new Pen(pen);

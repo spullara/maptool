@@ -30,6 +30,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.lib.swing.ColorPicker;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
@@ -69,9 +70,9 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     	isEraser = eraser;
     }
     
-    protected boolean isFill(MouseEvent e) {
+    protected boolean isBackgroundFill(MouseEvent e) {
     	
-    	boolean defaultValue = MapTool.getFrame().getColorPicker().isFillSelected();
+    	boolean defaultValue = MapTool.getFrame().getColorPicker().isFillBackgroundSelected();
     	return defaultValue;
     }
     
@@ -100,7 +101,13 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     	Pen pen = new Pen(MapTool.getFrame().getPen());
 		pen.setEraser(isEraser);
 		
-		if (MapTool.getFrame().getColorPicker().isFillSelected()) {
+		ColorPicker picker = MapTool.getFrame().getColorPicker();
+		if (picker.isFillForegroundSelected()) {
+	        pen.setForegroundMode(Pen.MODE_SOLID);
+		} else {
+			pen.setForegroundMode(Pen.MODE_TRANSPARENT);
+		}
+		if (picker.isFillBackgroundSelected()) {
 	        pen.setBackgroundMode(Pen.MODE_SOLID);
 		} else {
 			pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
@@ -133,6 +140,10 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
      */
     protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
 
+    	if (!hasPaint(pen)) {
+    		return;
+    	}
+    	
     	// Send new textures
     	sendTexture(pen.getPaint());
     	sendTexture(pen.getBackgroundPaint());
@@ -142,6 +153,10 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
       
         // Allow it to be undone
         DrawableUndoManager.getInstance().addDrawable(zoneId, pen, drawable);
+    }
+    
+    private boolean hasPaint(Pen pen) {
+    	return pen.getForegroundMode() != Pen.MODE_TRANSPARENT || pen.getBackgroundMode() != Pen.MODE_TRANSPARENT;
     }
     
     private void sendTexture(DrawablePaint paint) {

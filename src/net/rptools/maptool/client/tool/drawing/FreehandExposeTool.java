@@ -77,7 +77,7 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
     }
 
     @Override
-    protected boolean isFill(MouseEvent e) {
+    protected boolean isBackgroundFill(MouseEvent e) {
     	// Expose tools are implied to be filled
     	return false;
     }
