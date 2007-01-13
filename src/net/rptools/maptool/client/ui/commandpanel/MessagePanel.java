@@ -30,7 +30,18 @@ public class MessagePanel extends JPanel {
 	}
 
 	public String getMessagesText() {
-		return "FIXME";
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append("<html><body>");
+		for (int i = 0; i < messageTable.getModel().getRowCount(); i++) {
+			
+			builder.append("<div>\n\t");
+			builder.append(messageTable.getModel().getValueAt(i, 0));
+			builder.append("</div>\n");
+		}
+		builder.append("</body></html>");
+		
+		return builder.toString();
 	}
 	
 	public void clearMessages() {
@@ -53,7 +64,7 @@ public class MessagePanel extends JPanel {
 					model.addRow(new Object[]{message});
 					
 					// This makes the bottom row scroll into view, otherwise it cuts off the last part of the last line
-					model.addRow(new Object[]{"testing"});
+					model.addRow(new Object[]{""});
 				}
 			}
 		});
