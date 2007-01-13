@@ -51,9 +51,9 @@ public class AppStyle {
     
     public static BufferedImage chatImage;
     
-    public static Color topologyColor = new Color(0, 0, 255, 180);
-    public static Color topologyAddColor = new Color(255, 0, 0, 180);
-    public static Color topologyRemoveColor = new Color(255, 255, 255, 180);
+    public static Color topologyColor = new Color(0, 0, 255, 150);
+    public static Color topologyAddColor = new Color(255, 0, 0, 150);
+    public static Color topologyRemoveColor = new Color(255, 255, 255, 150);
     
 	static {
 		

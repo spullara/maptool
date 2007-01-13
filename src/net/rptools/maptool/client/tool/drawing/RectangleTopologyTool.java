@@ -113,6 +113,7 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
         	
         	Pen pen = new Pen();
         	pen.setEraser(getPen().isEraser());
+            pen.setOpacity(AppStyle.topologyRemoveColor.getAlpha());
         	
             if (pen.isEraser()) {
                 pen.setEraser(false);
