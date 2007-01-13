@@ -18,7 +18,7 @@ import net.rptools.maptool.model.Zone.Event;
 public abstract class Grid {
 
     public static final int MIN_GRID_SIZE = 5;
-    public static final int MAX_GRID_SIZE = 250;
+    public static final int MAX_GRID_SIZE = 350;
 
 	private int offsetX = 0;
 	private int offsetY = 0;
