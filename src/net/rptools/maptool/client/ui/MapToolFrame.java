@@ -802,6 +802,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		pen.setPaint(convertPaint(colorPicker.getForegroundPaint()));
 		pen.setBackgroundPaint(convertPaint(colorPicker.getBackgroundPaint()));
 		pen.setThickness((Integer) widthChooser.getSelectedItem());
+		pen.setOpacity(colorPicker.getOpacity());
 		return pen;
 	}
 
@@ -813,15 +814,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		if (paint instanceof AssetPaint) {
 			
 			Asset asset = ((AssetPaint) paint).getAsset();
-			if (!MapTool.getCampaign().containsAsset(asset)) {
-				if (!AssetManager.hasAsset(asset)) {
-					AssetManager.putAsset(asset);
-				}
-				if (!MapTool.getCampaign().containsAsset(asset)) {
-					MapTool.serverCommand().putAsset(asset);
-				}
-			}
-			
 			return new DrawableTexturePaint(asset);
 		}
 		

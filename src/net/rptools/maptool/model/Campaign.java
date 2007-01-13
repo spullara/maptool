@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.model;
 
+import java.awt.Paint;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -32,6 +33,8 @@ import java.util.Map;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.ui.AssetPaint;
+import net.rptools.maptool.model.drawing.DrawablePaint;
+import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
 
 
@@ -97,11 +100,16 @@ public class Campaign {
     		}
     		
     		for (DrawnElement drawn : zone.getDrawnElements()) {
-    			if (drawn.getPen().getPaint().getPaint() instanceof AssetPaint) {
-    				if (((AssetPaint)drawn.getPen().getPaint().getPaint()).getAsset().getId().equals(key)) {
+    			DrawablePaint paint = drawn.getPen().getPaint(); 
+    			if (paint instanceof DrawableTexturePaint) {
+    				if (((DrawableTexturePaint)paint).getAssetId().equals(key)) {
     					return true;
     				}
-    				if (((AssetPaint)drawn.getPen().getBackgroundPaint().getPaint()).getAsset().getId().equals(key)) {
+    			}
+    			
+    			paint = drawn.getPen().getBackgroundPaint();
+    			if (paint instanceof DrawableTexturePaint) {
+    				if (((DrawableTexturePaint)paint).getAssetId().equals(key)) {
     					return true;
     				}
     			}

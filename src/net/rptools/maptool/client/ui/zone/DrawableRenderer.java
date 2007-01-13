@@ -24,7 +24,9 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -36,6 +38,7 @@ import java.util.List;
 
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
+import net.rptools.maptool.model.drawing.Pen;
 
 /**
  */
@@ -102,7 +105,8 @@ public class DrawableRenderer {
 		af.scale(scale, scale);
 		af.translate(viewport.x/scale, viewport.y/scale);
 		g.setTransform(af);
-		
+
+		Composite oldComposite = g.getComposite();
 		for (DrawnElement element : drawableList) {
 			
 			Drawable drawable = element.getDrawable();
@@ -112,7 +116,12 @@ public class DrawableRenderer {
 //				continue;
 //			}
 			
-			drawable.draw(g, element.getPen());
+			Pen pen = element.getPen();
+			if (pen.getOpacity() != 1) {
+				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, pen.getOpacity()));
+			}
+			drawable.draw(g, pen);
+			g.setComposite(oldComposite);
 		}
 		
 		g.dispose();

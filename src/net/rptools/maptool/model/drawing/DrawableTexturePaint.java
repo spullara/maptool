@@ -29,4 +29,11 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable 
 		return new TexturePaint(texture, new Rectangle2D.Float(0, 0, texture.getWidth(), texture.getHeight()));
 	}
 
+	public Asset getAsset() {
+		return AssetManager.getAsset(assetId);
+	}
+	
+	public MD5Key getAssetId() {
+		return assetId;
+	}
 }

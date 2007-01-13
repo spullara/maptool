@@ -44,6 +44,7 @@ public class Pen {
 
     private float thickness;
     private boolean eraser;
+    private float opacity;
 
     public Pen() {
     }
@@ -65,6 +66,7 @@ public class Pen {
         this.backgroundMode = copy.backgroundMode;
         this.thickness = copy.thickness;
         this.eraser = copy.eraser;
+        this.opacity = copy.opacity;
     }
 
     public DrawablePaint getPaint() {
@@ -114,4 +116,13 @@ public class Pen {
     public void setForegroundMode(int foregroundMode) {
         this.foregroundMode = foregroundMode;
     }
+
+	public float getOpacity() {
+		return opacity;
+	}
+
+	public void setOpacity(float opacity) {
+		this.opacity = opacity;
+	}
+    
 }
