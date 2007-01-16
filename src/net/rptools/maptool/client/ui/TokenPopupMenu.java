@@ -33,7 +33,6 @@ import net.rptools.maptool.model.ZonePoint;
 
 public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
-	private boolean areTokensOwned;
 	
 	// TODO: This is temporary
 	private static final Object[][] HALO_COLORS = new Object[][] {
@@ -48,12 +47,11 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			ZoneRenderer renderer, Token tokenUnderMouse) {
 		super(selectedTokenSet, x, y, renderer, tokenUnderMouse);
 
-		setOwnership();
-		
 		add(new SetFacingAction());
 		add(new ClearFacingAction());
 		add(new StartMoveAction());
 		addOwnedItem(createStateMenu());
+		addOwnedItem(createFlipMenu());
 		add(new ExposeVisibleAreaAction());
 
 		add(new JSeparator());
@@ -171,23 +169,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		return stateMenu;
 	}
 	
-	private void setOwnership() {
-		
-		areTokensOwned = true;
-		if (!MapTool.getPlayer().isGM()
-				&& MapTool.getServerPolicy().useStrictTokenManagement()) {
-			for (GUID tokenGUID : selectedTokenSet) {
-				Token token = getRenderer().getZone().getToken(tokenGUID);
-
-				if (!token.isOwner(MapTool.getPlayer().getName())) {
-					areTokensOwned = false;
-					break;
-				}
-			}
-		}
-
-	}
-	
 	protected JMenu createOwnerMenu() {
 
 		JMenu ownerMenu = I18N.createMenu("defaultTool.ownerMenu");
@@ -244,27 +225,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		
 		JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
 		item.setSelected(checked);
-		item.setEnabled(areTokensOwned);
+		item.setEnabled(tokensAreOwned());
 		add(item);
-	}
-
-	private void addOwnedItem(Action action) {
-		if (action == null) {
-			return;
-		}
-		
-		JMenuItem item = new JMenuItem(action);
-		item.setEnabled(areTokensOwned);
-		add(new JMenuItem(action));
-	}
-
-	private void addOwnedItem(JMenu menu) {
-		if (menu == null) {
-			return;
-		}
-		
-		menu.setEnabled(areTokensOwned);
-		add(menu);
 	}
 
 	public void showPopup(JComponent component) {

@@ -848,6 +848,22 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 }
                 
                 BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID())); 
+
+                // handle flipping
+    			BufferedImage workImage = image;
+    			if (token.isFlippedX() || token.isFlippedY()) {
+    				workImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getTransparency());
+    				
+    				int workW = image.getWidth() * (token.isFlippedX() ? -1 : 1);
+    				int workH = image.getHeight() * (token.isFlippedY() ? -1 : 1);
+    				int workX = token.isFlippedX() ? image.getWidth() : 0;
+    				int workY = token.isFlippedY() ? image.getHeight() : 0;
+    				
+    				Graphics2D wig = workImage.createGraphics();
+    				wig.drawImage(image, workX, workY, workW, workH, null);
+    				wig.dispose();
+    			}
+                
     			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp() || token.isBackground())) {
 
     				// Rotated
@@ -857,14 +873,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     				if (token.isSnapToScale()) {
     					at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
     				} else {
-    					at.scale((double) token.getWidth() / image.getWidth(), (double) token.getHeight() / image.getHeight());
+    					at.scale((double) token.getWidth() / workImage.getWidth(), (double) token.getHeight() / workImage.getHeight());
     				}
     				at.scale(getScale(), getScale());
-    	            g.drawImage(image, at, this);
+    	            g.drawImage(workImage, at, this);
     			
     			} else {
     				// Normal
-    				g.drawImage(image, x, y, scaledWidth-1, scaledHeight-1, this);
+    				g.drawImage(workImage, x, y, scaledWidth-1, scaledHeight-1, this);
     			}
                 
 
@@ -1253,6 +1269,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				g.drawRect(x, y, width, height);
 				g.setStroke(oldStroke);
 			}
+
+			// handle flipping
+			BufferedImage workImage = image;
+			if (token.isFlippedX() || token.isFlippedY()) {
+				workImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getTransparency());
+				
+				int workW = image.getWidth() * (token.isFlippedX() ? -1 : 1);
+				int workH = image.getHeight() * (token.isFlippedY() ? -1 : 1);
+				int workX = token.isFlippedX() ? image.getWidth() : 0;
+				int workY = token.isFlippedY() ? image.getHeight() : 0;
+				
+				Graphics2D wig = workImage.createGraphics();
+				wig.drawImage(image, workX, workY, workW, workH, null);
+				wig.dispose();
+			}
 			
             // Draw image
 			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp() || token.isBackground())) {
@@ -1264,15 +1295,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				if (token.isSnapToScale()) {
 					at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
 				} else {
-					at.scale((double) token.getWidth() / image.getWidth(), (double) token.getHeight() / image.getHeight());
+					at.scale((double) token.getWidth() / workImage.getWidth(), (double) token.getHeight() / workImage.getHeight());
 				}
 				at.scale(getScale(), getScale());
-	            g.drawImage(image, at, this);
+	            g.drawImage(workImage, at, this);
 			} else {
 				// Normal
-	            g.drawImage(image, x, y, width, height, this);
+	            g.drawImage(workImage, x, y, width, height, this);
 			}
-			
+
 			// Halo (SQUARE)
 			if (token.hasHalo() && token.getTokenType() == Token.Type.SQUARE) {
 				Stroke oldStroke = g.getStroke();

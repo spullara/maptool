@@ -21,6 +21,7 @@ public class StampPopupMenu extends AbstractTokenPopupMenu {
 		add(new SetFacingAction());
 		add(new ClearFacingAction());
 		add(new StartMoveAction());
+		add(createFlipMenu());
 
 		add(new JSeparator());
 

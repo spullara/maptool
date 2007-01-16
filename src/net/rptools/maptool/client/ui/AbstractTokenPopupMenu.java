@@ -34,6 +34,8 @@ import net.rptools.maptool.util.TokenUtil;
 
 public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
+	private boolean areTokensOwned;
+
 	private ZoneRenderer renderer;
 
 	int x, y;
@@ -50,10 +52,75 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		this.selectedTokenSet = selectedTokenSet;
 		this.tokenUnderMouse = tokenUnderMouse;
 
+		setOwnership();
+	}
+	
+	protected boolean tokensAreOwned() {
+		return areTokensOwned;
+	}
+	
+	private void setOwnership() {
+		
+		areTokensOwned = true;
+		if (!MapTool.getPlayer().isGM()
+				&& MapTool.getServerPolicy().useStrictTokenManagement()) {
+			for (GUID tokenGUID : selectedTokenSet) {
+				Token token = getRenderer().getZone().getToken(tokenGUID);
+
+				if (!token.isOwner(MapTool.getPlayer().getName())) {
+					areTokensOwned = false;
+					break;
+				}
+			}
+		}
+
 	}
 	
 	protected Token getTokenUnderMouse() {
 		return tokenUnderMouse;
+	}
+	
+	protected JMenu createFlipMenu() {
+		
+		JMenu flipMenu = new JMenu("Flip");
+		
+		flipMenu.add(new AbstractAction() {
+			{
+				putValue(NAME, "Horizontal");
+			}
+			public void actionPerformed(ActionEvent e) {
+				for (GUID tokenGUID : selectedTokenSet) {
+					Token token = renderer.getZone().getToken(tokenGUID);
+					if (token == null) {
+						continue;
+					}
+					
+					token.setFlippedX(!token.isFlippedX());
+					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+				}
+				MapTool.getFrame().refresh();
+			}
+		});
+		
+		flipMenu.add(new AbstractAction() {
+			{
+				putValue(NAME, "Vertical");
+			}
+			public void actionPerformed(ActionEvent e) {
+				for (GUID tokenGUID : selectedTokenSet) {
+					Token token = renderer.getZone().getToken(tokenGUID);
+					if (token == null) {
+						continue;
+					}
+					
+					token.setFlippedY(!token.isFlippedY());
+					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+				}
+				MapTool.getFrame().refresh();
+			}
+		});
+		
+		return flipMenu;
 	}
 	
 	protected JMenu createChangeToMenu(Zone.Layer... types) {
@@ -168,6 +235,17 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		}
 	}
 
+	protected void addToggledOwnedItem(Action action, boolean checked) {
+		if (action == null) {
+			return;
+		}
+		
+		JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
+		item.setSelected(checked);
+		item.setEnabled(areTokensOwned);
+		add(item);
+	}
+
 	protected void addToggledItem(Action action, boolean checked) {
 		if (action == null) {
 			return;
@@ -176,6 +254,25 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
 		item.setSelected(checked);
 		add(item);
+	}
+
+	protected void addOwnedItem(Action action) {
+		if (action == null) {
+			return;
+		}
+		
+		JMenuItem item = new JMenuItem(action);
+		item.setEnabled(areTokensOwned);
+		add(new JMenuItem(action));
+	}
+
+	protected void addOwnedItem(JMenu menu) {
+		if (menu == null) {
+			return;
+		}
+		
+		menu.setEnabled(areTokensOwned);
+		add(menu);
 	}
 
 	protected ZoneRenderer getRenderer() {

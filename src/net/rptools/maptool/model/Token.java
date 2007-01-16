@@ -123,6 +123,9 @@ public class Token {
 	
 	private List<Vision> visionList;
 	
+	private boolean isFlippedX;
+	private boolean isFlippedY;
+	
   /**
    * The notes that are displayed for this token.
    */
@@ -569,8 +572,24 @@ public class Token {
     public void setNotes(String aNotes) {
         notes = aNotes;
     }
+    
+    public boolean isFlippedY() {
+		return isFlippedY;
+	}
 
-    /**
+	public void setFlippedY(boolean isFlippedY) {
+		this.isFlippedY = isFlippedY;
+	}
+
+	public boolean isFlippedX() {
+		return isFlippedX;
+	}
+
+	public void setFlippedX(boolean isFlippedX) {
+		this.isFlippedX = isFlippedX;
+	}
+
+	/**
      * Convert the token into a hash map. This is used to ship all of the
      * properties for the token to other apps that do need access to the
      * <code>Token</code> class.
