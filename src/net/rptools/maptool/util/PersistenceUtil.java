@@ -40,6 +40,9 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.drawing.DrawablePaint;
+import net.rptools.maptool.model.drawing.DrawableTexturePaint;
+import net.rptools.maptool.model.drawing.DrawnElement;
 
 import com.caucho.hessian.io.HessianInput;
 import com.caucho.hessian.io.HessianOutput;
@@ -68,6 +71,23 @@ public class PersistenceUtil {
 				
 				persistedCampaign.assetMap.put(token.getAssetID(), AssetManager.getAsset(token.getAssetID()));
 			}
+
+			// Painted textures
+			for (DrawnElement drawn : zone.getDrawnElements()) {
+    			DrawablePaint paint = drawn.getPen().getPaint(); 
+    			if (paint instanceof DrawableTexturePaint) {
+    				MD5Key assetId = ((DrawableTexturePaint)paint).getAssetId();
+    				Asset asset = ((DrawableTexturePaint)paint).getAsset();
+    				persistedCampaign.assetMap.put(assetId, asset);
+    			}
+    			
+    			paint = drawn.getPen().getBackgroundPaint();
+    			if (paint instanceof DrawableTexturePaint) {
+    				MD5Key assetId = ((DrawableTexturePaint)paint).getAssetId();
+    				Asset asset = ((DrawableTexturePaint)paint).getAsset();
+    				persistedCampaign.assetMap.put(assetId, asset);
+    			}
+			}
 		}
 
 		out.writeObject(persistedCampaign);
@@ -90,9 +110,10 @@ public class PersistenceUtil {
 				AssetManager.putAsset(asset);
 			}
 
-            // Always send it to the server
-            // TODO: what to do when not connect to the server ?
-            MapTool.serverCommand().putAsset(asset);
+			if (!MapTool.isHostingServer() && !MapTool.isPersonalServer()) {
+				// If we are remotely installing this campaign, we'll need to send the image data to the server
+	            MapTool.serverCommand().putAsset(asset);
+			}
 		}
 		
 		return persistedCampaign.campaign;
