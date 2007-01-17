@@ -73,6 +73,18 @@ public class AppPreferences {
     private static final String KEY_DEFAULT_GRID_SIZE = "defaultGridSize";
     private static final int DEFAULT_DEFAULT_GRID_SIZE = 40;
     
+    private static final String KEY_FONT_SIZE = "fontSize";
+    private static final int DEFAULT_FONT_SIZE = 11;
+    
+    
+    public static void setFontSize(int size) {
+    	prefs.putInt(KEY_FONT_SIZE, size);
+    }
+    
+    public static int getFontSize() {
+    	return prefs.getInt(KEY_FONT_SIZE, DEFAULT_FONT_SIZE);
+    }
+    
     public static void setDefaultGridSize(int size) {
     	prefs.putInt(KEY_DEFAULT_GRID_SIZE, size);
     }

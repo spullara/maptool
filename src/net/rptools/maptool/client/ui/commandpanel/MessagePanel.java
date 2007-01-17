@@ -10,6 +10,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
+import net.rptools.maptool.client.AppPreferences;
+
 import ca.odell.renderpack.HTMLTableCellRenderer;
 
 public class MessagePanel extends JPanel {
@@ -27,6 +29,10 @@ public class MessagePanel extends JPanel {
 		scrollPane.getViewport().setBackground(Color.white);
 		
 		add(BorderLayout.CENTER, scrollPane);
+	}
+	
+	public void refreshRenderer() {
+		messageTable.getColumnModel().getColumn(0).setCellRenderer(new MessageCellRenderer());
 	}
 
 	public String getMessagesText() {
@@ -76,20 +82,20 @@ public class MessagePanel extends JPanel {
 	}
 
 	private JTable createMessageTable() {
-		JTable table = new JTable();
-		table.setModel(new DefaultTableModel(new Object[][]{}, new Object[]{""}));
-		table.setTableHeader(null);
-		table.getColumnModel().getColumn(0).setCellRenderer(new MessageCellRenderer());
-		table.setShowGrid(false);
-		table.setBackground(Color.white);
+		messageTable = new JTable();
+		messageTable.setModel(new DefaultTableModel(new Object[][]{}, new Object[]{""}));
+		messageTable.setTableHeader(null);
+		messageTable.setShowGrid(false);
+		messageTable.setBackground(Color.white);
+		refreshRenderer();
 		
-		return table;
+		return messageTable;
 	}
 	
 	private static class MessageCellRenderer extends HTMLTableCellRenderer {
 		public MessageCellRenderer(){
 			super(true);
-			styleSheet.addRule("body { font-family: sans-serif; font-size: 11pt}");
+			styleSheet.addRule("body { font-family: sans-serif; font-size: " + AppPreferences.getFontSize() + "pt}");
 	    }
 		
 		@Override
