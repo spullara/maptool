@@ -22,7 +22,9 @@ import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
@@ -52,7 +54,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new StartMoveAction());
 		addOwnedItem(createStateMenu());
 		addOwnedItem(createFlipMenu());
-		addGMItem(new ExposeVisibleAreaAction());
+		addGMItem(createExposeMenu());
 
 		add(new JSeparator());
 
@@ -84,9 +86,20 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new ShowPropertiesDialogAction());
 	}
 	
+	private JMenu createExposeMenu() {
+		
+		JMenu menu = new JMenu("Expose");
+		menu.add(new ExposeVisibleAreaAction());
+		menu.add(new ExposeLastPathAction());
+		
+		menu.setEnabled(getTokenUnderMouse().hasVision());
+		
+		return menu;
+	}
+	
 	private class ExposeVisibleAreaAction extends AbstractAction {
 		public ExposeVisibleAreaAction() {
-			putValue(Action.NAME, "Expose visible area");
+			putValue(Action.NAME, "Visible area");
 		}
 		
 		public void actionPerformed(ActionEvent e) {
@@ -98,7 +111,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 				}
 				
 				if (!token.hasVision()) {
-					return;
+					continue;
 				}
 				
 				ZoneRenderer renderer = getRenderer();
@@ -123,6 +136,68 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 					Area currVisionArea = FogUtil.calculateVisibility(x, y, vision.getArea(renderer.getZone()), getRenderer().getZone().getTopology());
 					if (currVisionArea != null) {
 						visionArea.add(currVisionArea);
+					}
+				}
+
+				renderer.getZone().exposeArea(visionArea);
+				MapTool.serverCommand().exposeFoW(renderer.getZone().getId(), visionArea);
+			}
+			getRenderer().repaint();
+		}
+		
+	}
+
+	private class ExposeLastPathAction extends AbstractAction {
+		public ExposeLastPathAction() {
+			putValue(Action.NAME, "Last path");
+			setEnabled(getTokenUnderMouse().getLastPath() != null);
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+
+			for (GUID tokenGUID : selectedTokenSet) {
+				Token token = getRenderer().getZone().getToken(tokenGUID);
+				if (token == null) {
+					continue;
+				}
+				
+				if (!token.hasVision()) {
+					continue;
+				}
+				
+				ZoneRenderer renderer = getRenderer();
+    			int width = TokenSize.getWidth(token, renderer.getZone().getGrid());
+    			int height = TokenSize.getHeight(token, renderer.getZone().getGrid());
+    			
+				Path lastPath = token.getLastPath();
+				if (lastPath == null) {
+					continue;
+				}
+				
+				Grid grid = getRenderer().getZone().getGrid();
+				Area visionArea = new Area();
+				for (CellPoint cell : lastPath.getCellPath()) {
+					
+					ZonePoint zp = grid.convert(cell); 
+					int x = zp.x;
+					int y = zp.y;
+					
+					for (Vision vision : token.getVisionList()) {
+
+						if (!vision.isEnabled()) {
+							continue;
+						}
+						
+						switch(vision.getAnchor()) {
+						case CENTER:
+							x += width/2;
+							y += height/2;
+						}
+		    			
+						Area currVisionArea = FogUtil.calculateVisibility(x, y, vision.getArea(renderer.getZone()), getRenderer().getZone().getTopology());
+						if (currVisionArea != null) {
+							visionArea.add(currVisionArea);
+						}
 					}
 				}
 
