@@ -121,7 +121,9 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 					}
 	    			
 					Area currVisionArea = FogUtil.calculateVisibility(x, y, vision.getArea(renderer.getZone()), getRenderer().getZone().getTopology());
-					visionArea.add(currVisionArea);
+					if (currVisionArea != null) {
+						visionArea.add(currVisionArea);
+					}
 				}
 
 				renderer.getZone().exposeArea(visionArea);
