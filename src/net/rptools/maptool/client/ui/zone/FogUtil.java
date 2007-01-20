@@ -41,7 +41,6 @@ public class FogUtil {
 		
 		Point lastPoint = null;
 		Point lastOutsidePoint = null;
-		boolean lastPointInVision = false;
 		for (PathIterator iter = topology.getPathIterator(null); !iter.isDone(); iter.next()) {
 			
 			int type = iter.currentSegment(coords);
@@ -59,8 +58,6 @@ public class FogUtil {
 				Point point = new Point((int)coords[i*2], (int)coords[i*2+1]);
 				Point outsidePoint = getProjectedPoint(origin, point, 100000);
 				
-				boolean pointInVision = vision.contains(point);
-
 				if (firstPoint == null) {
 					firstPoint = point;
 					firstOutsidePoint = outsidePoint;
@@ -68,10 +65,8 @@ public class FogUtil {
 
 				if (lastPoint != null) {
 					if (type != PathIterator.SEG_MOVETO) {
-//						if (lastPointInVision || pointInVision) {
-							Area blockedArea = createBlockArea(lastPoint, point, outsidePoint, lastOutsidePoint);
-							vision.subtract(blockedArea);
-//						}
+						Area blockedArea = createBlockArea(lastPoint, point, outsidePoint, lastOutsidePoint);
+						vision.subtract(blockedArea);
 					} else {
 						// Close the last shape
 						if (lastPoint != null) {
@@ -87,7 +82,6 @@ public class FogUtil {
 
 				lastPoint = point;
 				lastOutsidePoint = outsidePoint;
-				lastPointInVision = pointInVision;
 			}
 			
 		}
