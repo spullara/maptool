@@ -20,9 +20,12 @@ public class FogUtil {
 		}
 		
 		// Trim back to minimize the amount of work to do 
+		// Strategy: create an inverse of the area of the vision (since none of the points outside the vision matter
+		// and subtract that from the actual topology.  Note that since there is no Area inverse, just make a massive
+		// rectangle
 		topology = new Area(topology);
 		
-		Area outsideArea = new Area(new Rectangle(-1000000, -1000000, 2000000, 20000000));
+		Area outsideArea = new Area(new Rectangle(-10000000, -10000000, 20000000, 200000000));
 		outsideArea.subtract(new Area(vision.getBounds()));
 		topology.subtract(outsideArea);
 		
@@ -39,9 +42,7 @@ public class FogUtil {
 		Point lastPoint = null;
 		Point lastOutsidePoint = null;
 		boolean lastPointInVision = false;
-		int count = 0;
 		for (PathIterator iter = topology.getPathIterator(null); !iter.isDone(); iter.next()) {
-			count ++;
 			
 			int type = iter.currentSegment(coords);
 			int coordCount = 0;
@@ -90,7 +91,6 @@ public class FogUtil {
 			}
 			
 		}
-		System.out.println("Count: " + count);
 		
 		// Close the area
 		if (lastPoint != null) {
