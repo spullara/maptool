@@ -144,7 +144,6 @@ public class BoundedZoneRenderer extends ZoneRenderer {
         	zoneScale.initialize(getSize().width, getSize().height);
     		
         	setZoneScale(zoneScale);
-        	updateFog();
     	}
 
     	super.paintComponent(g);

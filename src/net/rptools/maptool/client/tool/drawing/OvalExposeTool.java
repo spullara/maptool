@@ -80,7 +80,7 @@ public class OvalExposeTool extends OvalTool {
 		}
 		
 		
-		MapTool.getFrame().getCurrentZoneRenderer().updateFog();
+		MapTool.getFrame().refresh();
 	}
     
     @Override

@@ -98,6 +98,7 @@ import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Path;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Vision;
@@ -141,7 +142,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 	private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
 
-	private BufferedImage fog;
 	private boolean updateFog;
 	
 	private GeneralPath facingArrow;
@@ -160,6 +160,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	private Timer repaintTimer;
 
 	private boolean isLoaded;
+
+	private Area currentTokenVisionArea;
 	
 //    private FramesPerSecond fps = new FramesPerSecond();
 
@@ -236,7 +238,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	
     	scale.addPropertyChangeListener(new PropertyChangeListener() {
     		public void propertyChange(java.beans.PropertyChangeEvent evt) {
-    			updateFog();
+    			repaint();
     		}
     	});
     }
@@ -477,7 +479,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     	Graphics2D g2d = (Graphics2D) g;
 		
-    	renderZone(g2d, new ZoneView(MapTool.getPlayer().getRole()));
+    	int role = MapTool.getPlayer().getRole();
+    	if (role == Player.Role.GM && AppState.isShowAsPlayer()) {
+    		role = Player.Role.PLAYER;
+    	}
+    	
+    	renderZone(g2d, new ZoneView(role));
     	
         if (!zone.isVisible()) {
         	GraphicsUtil.drawBoxedString(g2d, "Zone not visible to players", getSize().width/2, 20);
@@ -515,6 +522,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         renderLabels(g2d, view);
 		
         renderFog(g2d, view);
+
+        renderVisionOverlay(g2d, view);
         
         for (int i = 0; i < overlayList.size(); i++) {
             ZoneOverlay overlay = overlayList.get(i);
@@ -523,8 +532,23 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
     }
     
+    private void renderVisionOverlay(Graphics2D g, ZoneView view) {
+
+    	if (currentTokenVisionArea == null || !view.isGMView()) {
+    		return;
+    	}
+    	
+    	Object oldAA = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+    	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    	g.setColor(new Color(200, 200, 200));
+    	g.draw(currentTokenVisionArea);
+    	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA);
+    }
+    
     private void renderVision(Graphics2D g, ZoneView view) {
 
+    	currentTokenVisionArea = null;
+    	
     	Object oldAntiAlias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
     	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     	
@@ -565,8 +589,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     					continue;
     				}
     				
-    				visionArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-    				visionArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
 
     				if (visibleArea == null) {
     					visibleArea = new Area();
@@ -574,17 +596,33 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     				visibleArea.add(visionArea);
     				
     				if (token == tokenUnderMouse) {
-    					Stroke oldStroke = g.getStroke();
-    			    	g.setColor(new Color(200, 200, 200));
-    					g.draw(visionArea);
-    					g.setStroke(oldStroke);
+    			    	visionArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+    			    	visionArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+    					currentTokenVisionArea = visionArea;
+    					
+    					if (!view.isGMView()) {
+    						// Draw it under the fog
+    						g.setColor(new Color(200, 200, 200));
+    						g.draw(currentTokenVisionArea);
+    					}
     				}
     			}
     		}
     	}
     	if (visibleArea != null) {
-        	g.setColor(new Color(255, 255, 255, 100));
-    		g.fill(visibleArea);
+    		if (zone.hasFog()) {
+    		
+    			Area visitedArea = new Area(zone.getExposedArea());
+				visitedArea.subtract(visibleArea);
+				visitedArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+				visitedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+				
+	        	g.setColor(new Color(0, 0, 0, 80));
+	    		g.fill(visitedArea);
+    		} else {
+	        	g.setColor(new Color(255, 255, 255, 80));
+	    		g.fill(visibleArea);
+    		}
     	}
     	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntiAlias);
     }
@@ -661,58 +699,32 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	
     	// Update back buffer overlay size
     	boolean useAlphaFog = AppPreferences.getUseTranslucentFog();
-    	Dimension size = getSize();
-    	if (fog == null || fog.getWidth() != size.width || fog.getHeight() != size.height) {
-            
-            int type = view.isGMView() && useAlphaFog ? Transparency.TRANSLUCENT : Transparency.BITMASK; 
-    		fog = ImageUtil.createCompatibleImage (size.width, size.height, type);
+    	Area screenArea = new Area(g.getClip());
+		Area fogArea = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance(getScale(), getScale()));
+		fogArea = fogArea.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(), zoneScale.getOffsetY()));
+		screenArea.subtract(fogArea);
 
-    		updateFog = true;
-    	}
-    	
-    	// Render back buffer
-    	if (updateFog) {
-    		Graphics2D fogG = fog.createGraphics();
-        	if (view.isGMView() && !useAlphaFog) {
+		if (view.isGMView()) {
+    		if (useAlphaFog) {
+    			
+        		g.setColor(new Color(0, 0, 0, 110));
+    		} else {
         		Paint paint = new TexturePaint(GRID_IMAGE, new Rectangle2D.Float(0, 0, GRID_IMAGE.getWidth(), GRID_IMAGE.getHeight()));
-        		fogG.setPaint(paint);
-        	} else {
-        		fogG.setColor(Color.black);
-        	}
-    		fogG.fillRect(0, 0, fog.getWidth(), fog.getHeight());
-    		
-    		
-    		fogG.setComposite(AlphaComposite.Src);
-    		fogG.setColor(new Color(0, 0, 0, 0));
+        		g.setPaint(paint);
+    		}
+    	} else {
+    		g.setColor(Color.black);
+    	}
 
-    		Area area = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance(getScale(), getScale()));
-    		area = area.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(), zoneScale.getOffsetY()));
-    		fogG.fill(area);
-    		
-    		fogG.dispose();
-    		
-    		updateFog = false;
-    	}
-    	
-    	// Render fog
-    	Composite oldComposite = g.getComposite();
-    	if (view.isGMView() && useAlphaFog) {
-    		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .40f));
-    	}
-    	g.drawImage(fog, 0, 0, this);
-    	g.setComposite(oldComposite);
+		g.fill(screenArea);
+
+    	Object oldAA = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+    	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setColor(Color.black);
+		g.draw(fogArea);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA);
     }
 
-    public void updateFog() {
-    	updateFog = true;
-    	repaint();
-    }
-    
-    public void flushFog() {
-    	fog = null;
-    	repaint();
-    }
-    
     public boolean isLoading() {
 
     	if (isLoaded) {
@@ -1894,10 +1906,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     // ZONE MODEL CHANGE LISTENER
     private class ZoneModelChangeListener implements ModelChangeListener {
     	public void modelChanged(ModelChangeEvent event) {
-    		if (event.getEvent() == Zone.Event.FOG_CHANGED) {
-    			flushFog();
-    		}
-    		
+    		repaint();
     	}
     }
     

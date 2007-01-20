@@ -184,6 +184,7 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE));
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_MOVEMENT_LOCK));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_PLAYER_VIEW));
         
         menu.addSeparator();
 

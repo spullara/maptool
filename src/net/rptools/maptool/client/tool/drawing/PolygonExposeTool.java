@@ -103,7 +103,7 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
         }
         
         
-        MapTool.getFrame().getCurrentZoneRenderer().updateFog();
+        MapTool.getFrame().refresh();
     }
     
     @Override

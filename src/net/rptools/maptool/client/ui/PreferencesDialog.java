@@ -84,10 +84,7 @@ public class PreferencesDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setUseTranslucentFog(useTranslucentFogCheckBox.isSelected());
 				
-				ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-				if (renderer != null) {
-					renderer.flushFog();
-				}
+				MapTool.getFrame().refresh();
 			}
 		});
 		newMapsHaveFOWCheckBox.addActionListener(new ActionListener() {

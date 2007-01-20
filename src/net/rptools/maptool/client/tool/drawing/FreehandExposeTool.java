@@ -104,7 +104,7 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
         }
         
         
-        MapTool.getFrame().getCurrentZoneRenderer().updateFog();
+        MapTool.getFrame().refresh();
     }
     
     @Override

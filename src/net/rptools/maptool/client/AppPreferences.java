@@ -41,7 +41,7 @@ public class AppPreferences {
     private static final String KEY_LOAD_DIR = "loadDir";
     
     private static final String KEY_USE_TRANSLUCENT_FOG = "useTranslucentFog";
-    private static final boolean DEFAULT_USE_TRANSLUCENT_FOG = false;
+    private static final boolean DEFAULT_USE_TRANSLUCENT_FOG = true;
     
     private static final String KEY_NEW_MAPS_HAVE_FOW = "newMapsHaveFow";
     private static final boolean DEFAULT_NEW_MAPS_HAVE_FOW = false;

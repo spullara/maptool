@@ -484,6 +484,24 @@ public class AppActions {
 
 	};
 
+	public static final Action TOGGLE_SHOW_PLAYER_VIEW = new AdminClientAction() {
+		{
+			init("action.showPlayerView");
+		}
+
+		@Override
+		public boolean isSelected() {
+			return AppState.isShowAsPlayer();
+		}
+
+		public void execute(ActionEvent e) {
+
+			AppState.setShowAsPlayer(!AppState.isShowAsPlayer());
+			MapTool.getFrame().refresh();
+		}
+
+	};
+
 	public static final Action TOGGLE_SHOW_MOVEMENT_MEASUREMENTS = new DefaultClientAction() {
 		{
 			init("action.showMovementMeasures");

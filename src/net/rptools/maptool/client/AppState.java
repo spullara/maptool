@@ -40,6 +40,7 @@ public class AppState {
     private static boolean showLightRadius = true;
     private static File campaignFile;
     private static int gridSize = 1;
+    private static boolean showAsPlayer = false;
     
     private static PropertyChangeSupport changeSupport = new PropertyChangeSupport(AppState.class);
     
@@ -116,4 +117,14 @@ public class AppState {
 	public static boolean getShowMovementMeasurements() {
 		return showMovementMeasurements;
 	}
+
+	public static boolean isShowAsPlayer() {
+		return showAsPlayer;
+	}
+
+	public static void setShowAsPlayer(boolean showAsPlayer) {
+		AppState.showAsPlayer = showAsPlayer;
+	}
+	
+	
 }

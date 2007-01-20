@@ -79,7 +79,7 @@ public class RectangleExposeTool extends RectangleTool {
 		}
 		
 		
-		MapTool.getFrame().getCurrentZoneRenderer().updateFog();
+		MapTool.getFrame().refresh();
 	}
     
     @Override
