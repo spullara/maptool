@@ -474,9 +474,18 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	if (repaintTimer != null) {
     		repaintTimer.restart();
     	}
-    	
-        Graphics2D g2d = (Graphics2D) g;
+
+    	Graphics2D g2d = (Graphics2D) g;
 		
+    	renderZone(g2d, new ZoneView(MapTool.getPlayer().getRole()));
+    	
+        if (!zone.isVisible()) {
+        	GraphicsUtil.drawBoxedString(g2d, "Zone not visible to players", getSize().width/2, 20);
+        }
+    }
+    
+    public void renderZone(Graphics2D g2d, ZoneView view) {
+    	
         // Are we still waiting to show the zone ?
         if (isLoading()) {
         	Dimension size = getSize();
@@ -495,36 +504,26 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         coveredTokenSet.clear();
 
         // Rendering pipeline
-    	renderBoard(g2d);
-        renderTokens(g2d, zone.getBackgroundTokens());
-        renderDrawableOverlay(g2d);
-        renderTokenTemplates(g2d);
-        renderGrid(g2d);
-        renderTokens(g2d, zone.getNonBackgroundTokens());
-        renderVision(g2d);
-		renderMoveSelectionSets(g2d);
-        renderLabels(g2d);
+    	renderBoard(g2d, view);
+        renderTokens(g2d, zone.getBackgroundTokens(), view);
+        renderDrawableOverlay(g2d, view);
+        renderTokenTemplates(g2d, view);
+        renderGrid(g2d, view);
+        renderTokens(g2d, zone.getNonBackgroundTokens(), view);
+        renderVision(g2d, view);
+		renderMoveSelectionSets(g2d, view);
+        renderLabels(g2d, view);
 		
-        renderFog(g2d);
+        renderFog(g2d, view);
         
         for (int i = 0; i < overlayList.size(); i++) {
             ZoneOverlay overlay = overlayList.get(i);
-            overlay.paintOverlay(this, (Graphics2D) g);
+            overlay.paintOverlay(this, g2d);
         }
         
-        if (!zone.isVisible()) {
-        	GraphicsUtil.drawBoxedString(g2d, "Zone not visible to players", getSize().width/2, 20);
-        }
-        
-//        fps.bump();
-//        g.setColor(Color.white);
-//        g.drawString(fps.getFramesPerSecond() + "", 10, 10);
-
-//        g2d.setColor(Color.red);
-//        g2d.drawRect(g.getClipBounds().x, g.getClipBounds().y, g.getClipBounds().width-1, g.getClipBounds().height-1);
     }
     
-    private void renderVision(Graphics2D g) {
+    private void renderVision(Graphics2D g, ZoneView view) {
 
     	Object oldAntiAlias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
     	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -535,7 +534,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     		if (token.hasVision()) {
     			
             	// Don't bother if it's not a player token
-            	if (!token.isVisible() && !MapTool.getPlayer().isGM()) {
+            	if (!token.isVisible() && !view.isGMView()) {
             		continue;
             	}
 
@@ -595,7 +594,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      * 
      * @param g Paint on this graphic object.
      */
-    private void renderTokenTemplates(Graphics2D g) {
+    private void renderTokenTemplates(Graphics2D g, ZoneView view) {
 		float scale = zoneScale.getScale();
 		int scaledGridSize = (int) getScaledGridSize();
 
@@ -636,7 +635,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			}
 		}
 	}
-    private void renderLabels(Graphics2D g) {
+    private void renderLabels(Graphics2D g, ZoneView view) {
         
     	labelLocationList.clear();
         for (Label label : zone.getLabels()) {
@@ -654,7 +653,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         }
     }
 
-    private void renderFog(Graphics2D g) {
+    private void renderFog(Graphics2D g, ZoneView view) {
 
     	if (!zone.hasFog()) {
     		return;
@@ -665,7 +664,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	Dimension size = getSize();
     	if (fog == null || fog.getWidth() != size.width || fog.getHeight() != size.height) {
             
-            int type = MapTool.getPlayer().isGM() && useAlphaFog ? Transparency.TRANSLUCENT : Transparency.BITMASK; 
+            int type = view.isGMView() && useAlphaFog ? Transparency.TRANSLUCENT : Transparency.BITMASK; 
     		fog = ImageUtil.createCompatibleImage (size.width, size.height, type);
 
     		updateFog = true;
@@ -674,7 +673,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	// Render back buffer
     	if (updateFog) {
     		Graphics2D fogG = fog.createGraphics();
-        	if (MapTool.getPlayer().isGM() && !useAlphaFog) {
+        	if (view.isGMView() && !useAlphaFog) {
         		Paint paint = new TexturePaint(GRID_IMAGE, new Rectangle2D.Float(0, 0, GRID_IMAGE.getWidth(), GRID_IMAGE.getHeight()));
         		fogG.setPaint(paint);
         	} else {
@@ -697,7 +696,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	
     	// Render fog
     	Composite oldComposite = g.getComposite();
-    	if (MapTool.getPlayer().isGM() && useAlphaFog) {
+    	if (view.isGMView() && useAlphaFog) {
     		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .40f));
     	}
     	g.drawImage(fog, 0, 0, this);
@@ -751,7 +750,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	return !isLoaded;
     }
     
-    protected void renderDrawableOverlay(Graphics g) {
+    protected void renderDrawableOverlay(Graphics g, ZoneView view) {
         
     	Rectangle viewport = new Rectangle(zoneScale.getOffsetX(), zoneScale.getOffsetY(), getSize().width, getSize().height);
     	List<DrawnElement> drawableList = new ArrayList<DrawnElement>();
@@ -759,9 +758,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	drawableRenderer.renderDrawables(g, drawableList, viewport, getScale());
     }
     
-    protected abstract void renderBoard(Graphics2D g);
+    protected abstract void renderBoard(Graphics2D g, ZoneView view);
     
-    protected void renderGrid(Graphics2D g) {
+    protected void renderGrid(Graphics2D g, ZoneView view) {
         int gridSize = (int) (zone.getGrid().getSize() * getScale());
     	if (!AppState.isShowGrid() || gridSize < MIN_GRID_SIZE) {
     		return;
@@ -770,7 +769,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		zone.getGrid().draw(this, g, g.getClipBounds());
     }
     
-	protected void renderMoveSelectionSets(Graphics2D g) {
+	protected void renderMoveSelectionSets(Graphics2D g, ZoneView view) {
 	
 		Grid grid = zone.getGrid();
         int gridSize = grid.getSize();
@@ -795,7 +794,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 }
 				
             	// Don't bother if it's not visible
-            	if (!token.isVisible() && !MapTool.getPlayer().isGM()) {
+            	if (!token.isVisible() && !view.isGMView()) {
             		continue;
             	}
 
@@ -1128,7 +1127,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		return ((GeneralPath)facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)))).createTransformedShape(AffineTransform.getScaleInstance(getScale(), getScale()));
 	}
 	
-    protected void renderTokens(Graphics2D g, List<Token> tokenList) {
+    protected void renderTokens(Graphics2D g, List<Token> tokenList, ZoneView view) {
 
     	Grid grid = zone.getGrid();
     	Dimension screenSize = getSize();
@@ -1141,7 +1140,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         for (Token token : tokenList) {
 
         	// Don't bother if it's not visible
-        	if (!zone.isTokenVisible(token) && !MapTool.getPlayer().isGM()) {
+        	if (!zone.isTokenVisible(token) && !view.isGMView()) {
         		continue;
         	}
         	
@@ -1440,7 +1439,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         	if (AppState.isShowTokenNames() || isSelected || token == tokenUnderMouse) {
 
         		String name = token.getName();
-        		if (MapTool.getPlayer().isGM() && token.getGMName() != null && token.getGMName().length() > 0) {
+        		if (view.isGMView() && token.getGMName() != null && token.getGMName().length() > 0) {
         			name += " (" + token.getGMName() + ")";
         		}
         		
@@ -1804,6 +1803,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     private void addTokens(List<Token> tokens, ZonePoint zp) {
         GridCapabilities gridCaps = zone.getGrid().getCapabilities();
+        boolean isGM = MapTool.getPlayer().isGM();
+        
         for (Token token : tokens) {
             
             // Check the name
@@ -1816,7 +1817,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             }
             token.setX(zp.x);
             token.setY(zp.y);
-            token.setVisible(!MapTool.getPlayer().isGM() || AppPreferences.getNewTokensVisible());
+            token.setVisible(!isGM || AppPreferences.getNewTokensVisible());
             
             // Set the image properties
             BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(token.getAssetID()));
@@ -1825,7 +1826,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             token.setHeight(image.getHeight(null));
             
             // He who drops, owns, if there are not players already set
-            if (!token.hasOwners() && !MapTool.getPlayer().isGM())
+            if (!token.hasOwners() && !isGM)
                 token.addOwner(MapTool.getPlayer().getName());
 
             // Token type

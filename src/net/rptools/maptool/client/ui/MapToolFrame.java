@@ -167,7 +167,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private NewZoneDropPanel newZoneDropPanel;
 	private JLabel chatActionLabel;
 	private GlassPane glassPane;
-	private JPanel macroButtonPanel;
 	
 	private TextureChooserPanel textureChooserPanel;
 

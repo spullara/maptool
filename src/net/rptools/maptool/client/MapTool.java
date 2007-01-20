@@ -25,8 +25,11 @@
 package net.rptools.maptool.client;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Graphics2D;
 import java.awt.Toolkit;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -41,11 +44,11 @@ import javax.swing.UIManager;
 import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.lib.FileUtil;
-import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.MapToolFrame;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
+import net.rptools.maptool.client.ui.zone.ZoneView;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.ObservableList;
@@ -59,7 +62,6 @@ import net.rptools.maptool.server.ServerPolicy;
 import net.tsc.servicediscovery.ServiceAnnouncer;
 
 import com.jidesoft.plaf.LookAndFeelFactory;
-import com.sun.java.swing.SwingUtilities2;
 
 import de.muntjak.tinylookandfeel.Theme;
 import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
@@ -112,12 +114,19 @@ public class MapTool {
     	}
     }
     
-    public static BufferedImage takeScreenShot() {
-    	return SwingUtil.takeScreenShot(clientFrame.getRootPane());
-    }
-    
-    public static BufferedImage takeMapScreenShot() {
-    	return SwingUtil.takeScreenShot(clientFrame.getCurrentZoneRenderer(), "rptools.net");
+    public static BufferedImage takeMapScreenShot(ZoneView view) {
+    	ZoneRenderer renderer = clientFrame.getCurrentZoneRenderer();
+    	Dimension size = renderer.getSize();
+    	
+    	BufferedImage image = new BufferedImage(size.width, size.height, Transparency.OPAQUE);
+    	Graphics2D g = image.createGraphics();
+    	g.setClip(0, 0, size.width, size.height);
+    	
+    	renderer.renderZone(g, view);
+    	
+    	g.dispose();
+    	
+    	return image;
     }
     
 	private static void initialize() {

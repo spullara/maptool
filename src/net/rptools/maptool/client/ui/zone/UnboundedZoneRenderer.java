@@ -57,7 +57,7 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 	/* (non-Javadoc)
 	 * @see net.rptools.maptool.client.ZoneRenderer#renderBoard(java.awt.Graphics)
 	 */
-	protected void renderBoard(Graphics2D g) {
+	protected void renderBoard(Graphics2D g, ZoneView view) {
 
 		Dimension size = getSize();
 		if (backbuffer == null || backbuffer.getWidth() != size.width || backbuffer.getHeight() != size.height) {

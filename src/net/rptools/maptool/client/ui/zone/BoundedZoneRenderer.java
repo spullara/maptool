@@ -185,7 +185,7 @@ public class BoundedZoneRenderer extends ZoneRenderer {
     	super.flush();
     }
     
-    protected void renderBoard(Graphics2D g) {
+    protected void renderBoard(Graphics2D g, ZoneView view) {
 
         BufferedImage mapImage = getBackgroundImage();
 

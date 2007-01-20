@@ -36,7 +36,6 @@ public class ExportInfo {
 
 	// TODO: Make this an enum
 	public interface Type {
-		public static final int APPLICATION = 1;
 		public static final int CURRENT_VIEW = 2;
 		public static final int FULL_MAP = 3;
 	}

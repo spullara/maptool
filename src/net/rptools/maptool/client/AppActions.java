@@ -28,8 +28,6 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -67,6 +65,7 @@ import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.assetpanel.Directory;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneSelectionPanel;
+import net.rptools.maptool.client.ui.zone.ZoneView;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -134,12 +133,12 @@ public class AppActions {
 	private static void exportScreenCap(ExportInfo exportInfo) {
 
 		BufferedImage screenCap = null;
+		
+		int role = exportInfo.getView() == ExportInfo.View.GM ? Player.Role.GM : Player.Role.PLAYER;
+		
 		switch (exportInfo.getType()) {
-		case ExportInfo.Type.APPLICATION:
-			screenCap = MapTool.takeScreenShot();
-			break;
 		case ExportInfo.Type.CURRENT_VIEW:
-			screenCap = MapTool.takeMapScreenShot();
+			screenCap = MapTool.takeMapScreenShot(new ZoneView(role));
 			break;
 		case ExportInfo.Type.FULL_MAP:
 			break;

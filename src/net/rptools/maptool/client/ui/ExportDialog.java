@@ -73,6 +73,9 @@ public class ExportDialog extends JDialog {
 		
 		initExportInfo(exportInfo);
 		
+		// Until full map export is available
+		getTypeCurrentViewRadio().setSelected(true);
+		
 		getRootPane().setDefaultButton(getExportButton());
 		pack();
 	}
@@ -85,9 +88,6 @@ public class ExportDialog extends JDialog {
 		
 		// TYPE
 		switch (exportInfo.getType()) {
-		case ExportInfo.Type.APPLICATION:
-			getTypeApplicationRadio().setSelected(true);
-			break;
 		case ExportInfo.Type.CURRENT_VIEW:
 			getTypeCurrentViewRadio().setSelected(true);
 			break;
@@ -155,13 +155,6 @@ public class ExportDialog extends JDialog {
 		return viewPlayerRadio;
 	}
 	
-	public JRadioButton getTypeApplicationRadio() {
-		if (typeApplicationRadio == null) {
-			typeApplicationRadio = formPanel.getRadioButton("typeApplication");
-		}
-		return typeApplicationRadio;
-	}
-	
 	public JRadioButton getTypeCurrentViewRadio() {
 		if (typeCurrentViewRadio == null) {
 			typeCurrentViewRadio = formPanel.getRadioButton("typeCurrentView");
@@ -227,19 +220,17 @@ public class ExportDialog extends JDialog {
 					exportInfo = new ExportInfo();
 					
 					// VIEW
-//					if (getViewGMRadio().isSelected()) {
-//						exportInfo.setView(ExportInfo.View.GM);
-//					} else if (getViewPlayerRadio().isSelected()) {
-//						exportInfo.setView(ExportInfo.View.PLAYER);
-//					} else {
-//						MapTool.showError("Must select a view");
-//						return;
-//					}
+					if (getViewGMRadio().isSelected()) {
+						exportInfo.setView(ExportInfo.View.GM);
+					} else if (getViewPlayerRadio().isSelected()) {
+						exportInfo.setView(ExportInfo.View.PLAYER);
+					} else {
+						MapTool.showError("Must select a view");
+						return;
+					}
 					
 					// TYPE
-					if (getTypeApplicationRadio().isSelected()) {
-						exportInfo.setType(ExportInfo.Type.APPLICATION);
-					} else if (getTypeCurrentViewRadio().isSelected()) {
+					if (getTypeCurrentViewRadio().isSelected()) {
 						exportInfo.setType(ExportInfo.Type.CURRENT_VIEW);
 //					} else if (getTypeFullMapRadio().isSelected()) {
 //						exportInfo.setType(ExportInfo.Type.FULL_MAP);
