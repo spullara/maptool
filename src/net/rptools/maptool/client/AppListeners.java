@@ -35,6 +35,7 @@ import net.rptools.maptool.model.Zone;
 public class AppListeners {
 
 	private static List<ZoneActivityListener> zoneListenerList = Collections.synchronizedList(new ArrayList<ZoneActivityListener>());
+	private static List<PreferencesListener> preferencesListenerList = Collections.synchronizedList(new ArrayList<PreferencesListener>());
 	
 	public static void addZoneListener(ZoneActivityListener listener) {
 		zoneListenerList.add(listener);
@@ -55,6 +56,20 @@ public class AppListeners {
 		
 		for (ZoneActivityListener listener : zoneListenerList) {
 			listener.zoneActivated(zone);
+		}
+	}
+	
+	public static void addPreferencesListener(PreferencesListener listener) {
+		preferencesListenerList.add(listener);
+	}
+	
+	public boolean removePreferencesListener(PreferencesListener listener) {
+		return preferencesListenerList.remove(listener);
+	}
+	
+	public static void firePreferencesUpdated() {
+		for (PreferencesListener listener : preferencesListenerList) {
+			listener.preferencesUpdated();
 		}
 	}
 }

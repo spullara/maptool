@@ -62,6 +62,7 @@ import org.flexdock.docking.DockingManager;
 import org.flexdock.plaf.PlafManager;
 
 import com.jidesoft.plaf.LookAndFeelFactory;
+import com.sun.java.swing.SwingUtilities2;
 
 import de.muntjak.tinylookandfeel.Theme;
 import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
@@ -497,6 +498,10 @@ public class MapTool {
 	
 	public static void main(String[] args) {
 
+		// System properties
+		System.setProperty("swing.aatext", "true");
+		
+		// LAF
         try {
         	UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
     		com.jidesoft.utils.Lm.verifyLicense("Trevor Croft", "rptools", "5MfIVe:WXJBDrToeLWPhMv3kI2s3VFo");

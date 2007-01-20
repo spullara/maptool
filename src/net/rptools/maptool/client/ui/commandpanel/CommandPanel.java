@@ -3,50 +3,37 @@ package net.rptools.maptool.client.ui.commandpanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
-import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
-import net.rptools.maptool.client.AppConstants;
+import net.rptools.maptool.client.AppListeners;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.PreferencesListener;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
-
-import com.jeta.forms.components.panel.FormPanel;
 
 public class CommandPanel extends JPanel implements Observer {
 
@@ -112,6 +99,7 @@ public class CommandPanel extends JPanel implements Observer {
 			commandTextArea.setRows(3);
 			commandTextArea.setWrapStyleWord(true);
 			commandTextArea.setLineWrap(true);
+			commandTextArea.setFont(new Font("helvetica", 0, AppPreferences.getFontSize()));
 			
 			ActionMap actions = commandTextArea.getActionMap();
 			actions.put(AppActions.COMMIT_COMMAND_ID,
@@ -128,6 +116,14 @@ public class CommandPanel extends JPanel implements Observer {
 					AppActions.COMMIT_COMMAND_ID);
 			inputs.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), AppActions.COMMAND_UP_ID);
 			inputs.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), AppActions.COMMAND_DOWN_ID);
+			
+			// Resize on demand
+			AppListeners.addPreferencesListener(new PreferencesListener() {
+				public void preferencesUpdated() {
+					commandTextArea.setFont(commandTextArea.getFont().deriveFont((float)AppPreferences.getFontSize()));
+					doLayout();
+				}
+			});
 		}
 
 		return commandTextArea;
@@ -233,11 +229,13 @@ public class CommandPanel extends JPanel implements Observer {
 	private MessagePanel getMessagePanel() {
 		if (messagePanel == null) {
 			messagePanel = new MessagePanel();
-//			messagePanel.addFocusListener(new FocusAdapter() {
-//				public void focusGained(java.awt.event.FocusEvent e) {
-//					commandTextArea.requestFocusInWindow();
-//				}
-//			});
+			
+			// Update whenever the preferences change
+			AppListeners.addPreferencesListener(new PreferencesListener(){
+				public void preferencesUpdated() {
+					messagePanel.refreshRenderer();
+				}
+			});
 		}
 
 		return messagePanel;

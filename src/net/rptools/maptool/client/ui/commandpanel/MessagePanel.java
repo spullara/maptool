@@ -10,6 +10,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
+import com.sun.java.swing.SwingUtilities2;
+
 import net.rptools.maptool.client.AppPreferences;
 
 import ca.odell.renderpack.HTMLTableCellRenderer;
@@ -87,6 +89,7 @@ public class MessagePanel extends JPanel {
 		messageTable.setTableHeader(null);
 		messageTable.setShowGrid(false);
 		messageTable.setBackground(Color.white);
+		
 		refreshRenderer();
 		
 		return messageTable;

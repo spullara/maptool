@@ -74,7 +74,7 @@ public class AppPreferences {
     private static final int DEFAULT_DEFAULT_GRID_SIZE = 40;
     
     private static final String KEY_FONT_SIZE = "fontSize";
-    private static final int DEFAULT_FONT_SIZE = 11;
+    private static final int DEFAULT_FONT_SIZE = 12;
     
     
     public static void setFontSize(int size) {

@@ -17,6 +17,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -42,7 +43,10 @@ public class PreferencesDialog extends JDialog {
 	// Defaults
 	private JComboBox defaultGridTypeCombo;
 	private JTextField defaultGridSizeTextField;
-	
+
+	// Accessibility
+	private JTextField fontSizeTextField;
+
 	public PreferencesDialog() {
 		super (MapTool.getFrame(), "Preferences", true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -56,6 +60,7 @@ public class PreferencesDialog extends JDialog {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				setVisible(false);
 				dispose();
+				AppListeners.firePreferencesUpdated();
 			}
 		});
 		
@@ -70,6 +75,7 @@ public class PreferencesDialog extends JDialog {
 		backgroundsStartSnapToGridCheckBox = panel.getCheckBox("backgroundsStartSnapToGrid");
 		defaultGridTypeCombo = panel.getComboBox("defaultGridTypeCombo");
 		defaultGridSizeTextField = panel.getTextField("defaultGridSize");
+		fontSizeTextField = panel.getTextField("fontSize");
 		
 		setInitialState();
 
@@ -144,6 +150,28 @@ public class PreferencesDialog extends JDialog {
 				}
 			}
 		});
+		
+		fontSizeTextField.getDocument().addDocumentListener(new DocumentListener() {
+			public void changedUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void insertUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void removeUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			
+			private void updateValue() {
+				try {
+					int value = Integer.parseInt(fontSizeTextField.getText());
+					AppPreferences.setFontSize(value);
+				} catch (NumberFormatException nfe) {
+					// Ignore it
+				}
+			}
+		});
+		
 
 		DefaultComboBoxModel model = new DefaultComboBoxModel();
 		model.addElement(GridFactory.SQUARE);
@@ -182,5 +210,6 @@ public class PreferencesDialog extends JDialog {
 		backgroundsStartFreeSizeCheckBox.setSelected(AppPreferences.getBackgroundsStartFreesize());
 		backgroundsStartSnapToGridCheckBox.setSelected(AppPreferences.getBackgroundsStartSnapToGrid());
 		defaultGridSizeTextField.setText(Integer.toString(AppPreferences.getDefaultGridSize()));
+		fontSizeTextField.setText(Integer.toString(AppPreferences.getFontSize()));
 	}
 }
