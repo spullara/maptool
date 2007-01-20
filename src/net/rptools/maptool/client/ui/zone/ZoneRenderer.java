@@ -1876,7 +1876,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public void drop(DropTargetDropEvent dtde) {
         final ZonePoint zp = new ScreenPoint((int) dtde.getLocation().getX(),
                 (int) dtde.getLocation().getY()).convertToZone(this);
-        GridCapabilities gridCaps = zone.getGrid().getCapabilities();
+
         List<Token> tokens = null;
         List<Asset> assets = TransferableHelper.getAsset(dtde);
         if (assets != null) {
