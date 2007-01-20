@@ -1,6 +1,7 @@
 package net.rptools.maptool.client.ui.zone;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
@@ -17,7 +18,14 @@ public class FogUtil {
 		if (topology.contains(x, y)) {
 			return null;
 		}
-
+		
+		// Trim back to minimize the amount of work to do 
+		topology = new Area(topology);
+		
+		Area outsideArea = new Area(new Rectangle(-1000000, -1000000, 2000000, 20000000));
+		outsideArea.subtract(new Area(vision.getBounds()));
+		topology.subtract(outsideArea);
+		
 		// For simplicity, this catches some of the edge cases
 		vision.subtract(topology);
 		
@@ -31,7 +39,9 @@ public class FogUtil {
 		Point lastPoint = null;
 		Point lastOutsidePoint = null;
 		boolean lastPointInVision = false;
+		int count = 0;
 		for (PathIterator iter = topology.getPathIterator(null); !iter.isDone(); iter.next()) {
+			count ++;
 			
 			int type = iter.currentSegment(coords);
 			int coordCount = 0;
@@ -80,6 +90,7 @@ public class FogUtil {
 			}
 			
 		}
+		System.out.println("Count: " + count);
 		
 		// Close the area
 		if (lastPoint != null) {
