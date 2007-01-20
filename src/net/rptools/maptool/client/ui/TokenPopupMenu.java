@@ -52,7 +52,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new StartMoveAction());
 		addOwnedItem(createStateMenu());
 		addOwnedItem(createFlipMenu());
-		add(new ExposeVisibleAreaAction());
+		addGMItem(new ExposeVisibleAreaAction());
 
 		add(new JSeparator());
 
