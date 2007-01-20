@@ -58,9 +58,6 @@ import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.tsc.servicediscovery.ServiceAnnouncer;
 
-import org.flexdock.docking.DockingManager;
-import org.flexdock.plaf.PlafManager;
-
 import com.jidesoft.plaf.LookAndFeelFactory;
 import com.sun.java.swing.SwingUtilities2;
 
@@ -511,7 +508,6 @@ public class MapTool {
         	// Make the toggle button pressed state look more distinct
         	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
 
-    		PlafManager.setPreferredTheme("maptool"); 
         } catch (Exception e) {
             System.err.println("Exception during look and feel setup: " + e);
         }
@@ -521,12 +517,9 @@ public class MapTool {
         
         EventQueue.invokeLater(new Runnable() {
         	public void run() {
-                initialize();
+                    initialize();
                 
-        		// load the current layout state into the application frame
-        		DockingManager.restoreLayout();
-
-        		clientFrame.setVisible(true);
+                    clientFrame.setVisible(true);
         	}
         });
         
