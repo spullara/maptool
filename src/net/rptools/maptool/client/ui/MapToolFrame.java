@@ -192,6 +192,12 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		SwingUtil.centerOnScreen(this);
 		setFocusTraversalPolicy(new MapToolFocusTraversalPolicy());
+		
+		try {
+			setIconImage(ImageUtil.getImage("net/rptools/maptool/client/image/minilogo.png"));
+		} catch (IOException ioe) {
+			System.err.println ("Could not load icon image");
+		}
 
 		// Components
 		glassPane = new GlassPane();
