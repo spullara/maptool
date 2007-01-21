@@ -841,9 +841,17 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		zoneRendererList.remove(renderer);
 		if (isCurrent) {
-			setCurrentZoneRenderer(zoneRendererList.size() > 0 ? zoneRendererList
-					.get(0)
-					: null);
+			boolean rendererSet = false;
+			for (ZoneRenderer currRenderer : zoneRendererList) {
+				if (MapTool.getPlayer().isGM() || currRenderer.getZone().isVisible()) {
+					setCurrentZoneRenderer(currRenderer);
+					rendererSet = true;
+					break;
+				}
+			}
+			if (!rendererSet) {
+				setCurrentZoneRenderer(null);
+			}
 		}
 
 		zoneSelectionPanel.flush();
