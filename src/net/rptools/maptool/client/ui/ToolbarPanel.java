@@ -55,11 +55,11 @@ public class ToolbarPanel extends JToolBar {
 		optionPanel = new JPanel(new CardLayout());
 		optionPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED), BorderFactory.createEmptyBorder(2, 2, 2, 2)));
 		
-		add(createButton("net/rptools/maptool/client/image/tool/PointerBlue16.png", createPointerPanel()));
-		add(createButton("net/rptools/maptool/client/image/tool/FreehandLine16.png", createDrawPanel()));
-		add(createButton("net/rptools/maptool/client/image/tool/RadiusTemplate.png", createTemplatePanel()));
-		add(createButton("net/rptools/maptool/client/image/tool/FOGRectangle16.png", createFogPanel()));
-		add(createButton("net/rptools/maptool/client/image/tool/RectangleBlue16.png", createTopologyPanel()));
+		add(createButton("net/rptools/maptool/client/image/tool/PointerBlue16.png", createPointerPanel(), "Interaction Tools"));
+		add(createButton("net/rptools/maptool/client/image/tool/FreehandLine16.png", createDrawPanel(), "Drawing Tools"));
+		add(createButton("net/rptools/maptool/client/image/tool/RadiusTemplate.png", createTemplatePanel(), "Template Tools"));
+		add(createButton("net/rptools/maptool/client/image/tool/FOGRectangle16.png", createFogPanel(), "Fog of War tools"));
+		add(createButton("net/rptools/maptool/client/image/tool/RectangleBlue16.png", createTopologyPanel(), "Topology tools"));
 		add(Box.createHorizontalStrut(10));
 		add(optionPanel);
 		add(Box.createHorizontalGlue());
@@ -127,8 +127,9 @@ public class ToolbarPanel extends JToolBar {
 		return panel;
 	}
 	
-	private JToggleButton createButton(final String icon, final OptionPanel panel) {
+	private JToggleButton createButton(final String icon, final OptionPanel panel, String tooltip) {
 		final JToggleButton button = new JToggleButton();
+		button.setToolTipText(tooltip);
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (button.isSelected()) {
