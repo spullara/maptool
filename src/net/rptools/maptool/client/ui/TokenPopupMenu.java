@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Area;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -54,6 +56,9 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new StartMoveAction());
 		addOwnedItem(createStateMenu());
 		addOwnedItem(createFlipMenu());
+		add(new JSeparator());
+
+		addOwnedItem(createVisionMenu());
 		addGMItem(createExposeMenu());
 
 		add(new JSeparator());
@@ -63,7 +68,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
 		add(createHaloMenu());
 		add(new ChangeStateAction("light"));
-		addOwnedItem(createVisionMenu());
 		addOwnedItem(createArrangeMenu());
 		
 		add(new JSeparator());
@@ -91,6 +95,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		JMenu menu = new JMenu("Expose");
 		menu.add(new ExposeVisibleAreaAction());
 		menu.add(new ExposeLastPathAction());
+		menu.add(new ExposeVisibleAreaOnlyAction());
 		
 		menu.setEnabled(getTokenUnderMouse().hasVision());
 		
@@ -142,6 +147,70 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 				renderer.getZone().exposeArea(visionArea);
 				MapTool.serverCommand().exposeFoW(renderer.getZone().getId(), visionArea);
 			}
+			getRenderer().repaint();
+		}
+		
+	}
+
+	private class ExposeVisibleAreaOnlyAction extends AbstractAction {
+		public ExposeVisibleAreaOnlyAction() {
+			if (MapTool.getServerPolicy().useStrictTokenManagement()) {
+				putValue(Action.NAME, "Player visible area only");
+			} else {
+				putValue(Action.NAME, "Visible area only");
+			}
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+
+			ZoneRenderer renderer = getRenderer();
+			Area visionArea = new Area();
+			List<Token> tokenList = null;
+			if (MapTool.getServerPolicy().useStrictTokenManagement()) {
+				tokenList = renderer.getZone().getPlayerTokens();
+			} else {
+				tokenList = new ArrayList<Token>();
+				for (GUID tokenGUID : selectedTokenSet) {
+					Token token = getRenderer().getZone().getToken(tokenGUID);
+					if (token == null) {
+						continue;
+					}
+					
+					tokenList.add(token);
+				}
+			}
+			for (Token token : tokenList) {
+				
+				if (!token.hasVision()) {
+					continue;
+				}
+				
+    			int width = TokenSize.getWidth(token, renderer.getZone().getGrid());
+    			int height = TokenSize.getHeight(token, renderer.getZone().getGrid());
+    			
+				for (Vision vision : token.getVisionList()) {
+					int x = token.getX();
+					int y = token.getY();
+
+					if (!vision.isEnabled()) {
+						continue;
+					}
+					
+					switch(vision.getAnchor()) {
+					case CENTER:
+						x += width/2;
+						y += height/2;
+					}
+	    			
+					Area currVisionArea = FogUtil.calculateVisibility(x, y, vision.getArea(renderer.getZone()), getRenderer().getZone().getTopology());
+					if (currVisionArea != null) {
+						visionArea.add(currVisionArea);
+					}
+				}
+
+			}
+			renderer.getZone().setFogArea(visionArea);
+			MapTool.serverCommand().setFoW(renderer.getZone().getId(), visionArea);
 			getRenderer().repaint();
 		}
 		

@@ -108,6 +108,17 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         	MapTool.getFrame().refresh();
         	break;
         	
+        case setFoW:
+        	
+        	zoneGUID = (GUID) parameters[0];
+            area = (Area) parameters[1];
+
+            zone = MapTool.getCampaign().getZone(zoneGUID);
+            zone.setFogArea(area);
+
+        	MapTool.getFrame().refresh();
+        	break;
+        	
         case hideFoW:
         	
         	zoneGUID = (GUID) parameters[0];

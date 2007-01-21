@@ -168,6 +168,10 @@ public class ServerCommandClientImpl implements ServerCommand {
     	makeServerCall(COMMAND.exposeFoW, zoneGUID, area);
 	}
 	
+	public void setFoW(GUID zoneGUID, Area area) {
+    	makeServerCall(COMMAND.setFoW, zoneGUID, area);
+	}
+	
 	public void hideFoW(GUID zoneGUID, Area area) {
     	makeServerCall(COMMAND.hideFoW, zoneGUID, area);
 	}

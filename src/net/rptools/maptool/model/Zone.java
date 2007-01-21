@@ -234,6 +234,11 @@ public class Zone extends Token {
         fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
     }
     
+    public void setFogArea(Area area) {
+    	exposedArea = area;
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
+    }
+    
     public void hideArea(Area area) {
     	exposedArea.subtract(area);
         fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
@@ -406,6 +411,17 @@ public class Zone extends Token {
     	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
     		Token token = iter.next();
     		if (!token.isStamp()) {
+    			iter.remove();
+    		}
+    	}
+        return Collections.unmodifiableList(copy);
+    }
+    public List<Token> getPlayerTokens() {
+    	List<Token> copy = new ArrayList<Token>();
+    	copy.addAll(tokenOrderedList);
+    	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
+    		Token token = iter.next();
+    		if (!token.hasOwners()) {
     			iter.remove();
     		}
     	}

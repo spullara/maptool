@@ -53,6 +53,7 @@ public class ClientCommand {
         setZoneHasFoW,
         exposeFoW,
         hideFoW,
+        setFoW,
         putLabel,
         removeLabel,
         enforceZone,

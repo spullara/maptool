@@ -77,6 +77,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case getAsset:                getAsset((MD5Key) context.get(0)); break;
             case getZone:                 getZone(context.getGUID(0)); break;
             case hideFoW:                 hideFoW(context.getGUID(0), (Area) context.get(1)); break;
+            case setFoW:                  setFoW(context.getGUID(0), (Area) context.get(1)); break;
             case hidePointer:             hidePointer(context.getString(0)); break;
             case message:                 message((TextMessage)context.get(0)); break;
             case putAsset:                putAsset((Asset) context.get(0)); break;
@@ -211,6 +212,14 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         zone.hideArea(area);
 
         server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.hideFoW.name(), RPCContext.getCurrent().parameters);
+    }
+
+    public void setFoW(GUID zoneGUID, Area area) {
+
+        Zone zone = server.getCampaign().getZone(zoneGUID);
+        zone.setFogArea(area);
+
+        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setFoW.name(), RPCContext.getCurrent().parameters);
     }
 
     public void hidePointer(String player) {

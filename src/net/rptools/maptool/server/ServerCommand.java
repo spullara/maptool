@@ -68,6 +68,7 @@ public interface ServerCommand {
         setZoneHasFoW,
         exposeFoW,
         hideFoW,
+        setFoW,
         putLabel,
         removeLabel,
         sendTokensToBack,
@@ -81,6 +82,7 @@ public interface ServerCommand {
     public void setZoneHasFoW(GUID zoneGUID, boolean hasFog);
     public void exposeFoW(GUID zoneGUID, Area area);
     public void hideFoW(GUID zoneGUID, Area area);
+    public void setFoW(GUID zoneGUID, Area area);
     public void addTopology(GUID zoneGUID, Area area);
     public void removeTopology(GUID zoneGUID, Area area);
     public void enforceZoneView(GUID zoneGUID, int x, int y, int zoomIndex);
