@@ -54,6 +54,7 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
     private static final long serialVersionUID = 3258413928311830323L;
 
     protected Oval oval;
+    private ScreenPoint originPoint;
     
     public OvalTool() {
         try {
@@ -101,6 +102,7 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 	        
 	        if (oval == null) {
 	            oval = new Oval(sp.x, sp.y, sp.x, sp.y);
+	            originPoint = sp;
 	        } else {
 	            oval.getEndPoint().x = sp.x;
 	            oval.getEndPoint().y = sp.y;
@@ -138,10 +140,10 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 
     		ScreenPoint sp = getPoint(e);
     		
-	        if (oval != null) {
-	            oval.getEndPoint().x = sp.x;
-	            oval.getEndPoint().y = sp.y;
-	        }
+            oval.getEndPoint().x = sp.x;
+            oval.getEndPoint().y = sp.y;
+            oval.getStartPoint().x = originPoint.x - (sp.x - originPoint.x);
+            oval.getStartPoint().y = originPoint.y - (sp.y - originPoint.y);
 	        
 	        renderer.repaint();
     	}
