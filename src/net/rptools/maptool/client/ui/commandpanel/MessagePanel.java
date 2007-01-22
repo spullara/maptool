@@ -2,18 +2,22 @@ package net.rptools.maptool.client.ui.commandpanel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
-import com.sun.java.swing.SwingUtilities2;
-
 import net.rptools.maptool.client.AppPreferences;
-
 import ca.odell.renderpack.HTMLTableCellRenderer;
 
 public class MessagePanel extends JPanel {
@@ -66,19 +70,8 @@ public class MessagePanel extends JPanel {
 			public void run() {
 				synchronized(messageTable) {
 					DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
-					if (model.getRowCount() > 0) {
-						model.removeRow(model.getRowCount()-1);
-					}
 					model.addRow(new Object[]{message});
-					
-					// This makes the bottom row scroll into view, otherwise it cuts off the last part of the last line
-					model.addRow(new Object[]{""});
 				}
-			}
-		});
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
 			}
 		});
 	}
@@ -89,6 +82,19 @@ public class MessagePanel extends JPanel {
 		messageTable.setTableHeader(null);
 		messageTable.setShowGrid(false);
 		messageTable.setBackground(Color.white);
+		
+		// Always scroll to the bottom of the chat window on new messages
+		messageTable.addComponentListener(new ComponentListener() {
+			public void componentHidden(ComponentEvent e) {
+			}
+			public void componentMoved(ComponentEvent e) {
+			}
+			public void componentResized(ComponentEvent e) {
+				messageTable.scrollRectToVisible(new Rectangle(0, messageTable.getSize().height, 1, 1));
+			}
+			public void componentShown(ComponentEvent e) {
+			}
+		});
 		
 		refreshRenderer();
 		
