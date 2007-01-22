@@ -33,8 +33,8 @@ import net.rptools.maptool.client.tool.drawing.LineTemplateTool;
 import net.rptools.maptool.client.tool.drawing.LineTool;
 import net.rptools.maptool.client.tool.drawing.OvalExposeTool;
 import net.rptools.maptool.client.tool.drawing.OvalTool;
+import net.rptools.maptool.client.tool.drawing.PolyLineTopologyTool;
 import net.rptools.maptool.client.tool.drawing.PolygonExposeTool;
-import net.rptools.maptool.client.tool.drawing.PolygonTool;
 import net.rptools.maptool.client.tool.drawing.PolygonTopologyTool;
 import net.rptools.maptool.client.tool.drawing.RadiusTemplateTool;
 import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
@@ -122,6 +122,7 @@ public class ToolbarPanel extends JToolBar {
 		panel.add(RectangleTopologyTool.class);
 		panel.add(HollowRectangleTopologyTool.class);
 		panel.add(PolygonTopologyTool.class);	
+		panel.add(PolyLineTopologyTool.class);	
 
 		panel.fill();
 		return panel;

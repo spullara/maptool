@@ -27,6 +27,7 @@ package net.rptools.maptool.util;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 
 import javax.swing.SwingUtilities;
@@ -88,5 +89,21 @@ public class GraphicsUtil {
 		
 		return boxBounds;
     }
+    
+	public static Point getProjectedPoint(Point origin, Point target, int distance) {
+		
+		double x1 = origin.x;
+		double x2 = target.x;
+		
+		double y1 = origin.y;
+		double y2 = target.y;
+		
+		double angle = Math.atan2(y2 - y1, x2 - x1);
+		
+		double newX = x1 + distance * Math.cos(angle);
+		double newY = y1 + distance * Math.sin(angle);
+		
+		return new Point((int)newX, (int)newY);
+	}
     
 }

@@ -7,6 +7,8 @@ import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 
+import net.rptools.maptool.util.GraphicsUtil;
+
 public class FogUtil {
 
 	public static Area calculateVisibility(int x, int y, Area vision, Area topology) {
@@ -56,7 +58,7 @@ public class FogUtil {
 			for (int i = 0; i < coordCount; i++) {
 
 				Point point = new Point((int)coords[i*2], (int)coords[i*2+1]);
-				Point outsidePoint = getProjectedPoint(origin, point, 100000);
+				Point outsidePoint = GraphicsUtil.getProjectedPoint(origin, point, 100000);
 				
 				if (firstPoint == null) {
 					firstPoint = point;
@@ -107,20 +109,5 @@ public class FogUtil {
 		return new Area(path);
 	}
 	
-	private static Point getProjectedPoint(Point origin, Point target, int distance) {
-		
-		double x1 = origin.x;
-		double x2 = target.x;
-		
-		double y1 = origin.y;
-		double y2 = target.y;
-		
-		double angle = Math.atan2(y2 - y1, x2 - x1);
-		
-		double newX = x1 + distance * Math.cos(angle);
-		double newY = y1 + distance * Math.sin(angle);
-		
-		return new Point((int)newX, (int)newY);
-	}
 	
 }

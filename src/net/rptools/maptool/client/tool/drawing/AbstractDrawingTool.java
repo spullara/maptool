@@ -69,6 +69,9 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     protected void setIsEraser(boolean eraser) {
     	isEraser = eraser;
     }
+    protected boolean isEraser() {
+    	return isEraser;
+    }
     
     protected boolean isBackgroundFill(MouseEvent e) {
     	
