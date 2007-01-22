@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JTextArea;
@@ -27,8 +28,16 @@ public class MacroButtonDialog extends JDialog {
 		
 		installOKButton();
 		installCancelButton();
+		installHotKeyCombo();
 		
 		pack();
+	}
+	
+	private void installHotKeyCombo(){
+		String[] hotkeys = MacroButtonHotKeyManager.HOTKEYS;
+		JComboBox combo = (JComboBox)panel.getComboBox("hotKey");
+		for( int i = 0; i < hotkeys.length; i++ )
+			combo.insertItemAt(hotkeys[i], i);		
 	}
 
 	private void installOKButton() {
@@ -61,17 +70,25 @@ public class MacroButtonDialog extends JDialog {
 	public void show(MacroButton button) {
 		this.button = button;
 		
-		getLabelTextField().setText(button.getText());
+		getHotKeyCombo().setSelectedItem(button.getHotKey());
+		getLabelTextField().setText(button.getLabel());
 		getCommandTextArea().setText(button.getCommand());
 		getAutoExecuteCheckBox().setSelected(button.getAutoExecute());
+		getIncludeLabelCheckBox().setSelected(button.getIncludeLabel());
 		
 		setVisible(true);
 	}
 	
 	private void save() {
-		button.setText(getLabelTextField().getText());
+		
+		String hotKey = getHotKeyCombo().getSelectedItem().toString();
+		button.getHotKeyManager().assignKeyStroke(hotKey);
+		button.setLabel(getLabelTextField().getText());
+		button.setText(this.button.getButtonText());
 		button.setCommand(getCommandTextArea().getText());
 		button.setAutoExecute(getAutoExecuteCheckBox().isSelected());
+		button.setIncludeLabel(getIncludeLabelCheckBox().isSelected());
+		
 		setVisible(false);
 	}
 	
@@ -81,6 +98,14 @@ public class MacroButtonDialog extends JDialog {
 
 	private JCheckBox getAutoExecuteCheckBox() {
 		return  panel.getCheckBox("autoExecuteCheckBox");
+	}
+	
+	private JCheckBox getIncludeLabelCheckBox() {
+		return  panel.getCheckBox("includeLabelCheckBox");
+	}
+	
+	private JComboBox getHotKeyCombo() {
+		return panel.getComboBox("hotKey");
 	}
 	
 	private JTextField getLabelTextField() {

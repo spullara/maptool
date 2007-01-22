@@ -49,6 +49,7 @@ import java.util.Observer;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.swing.KeyStroke;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -66,6 +67,8 @@ import javax.swing.Timer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.swing.InputMap;
+import javax.swing.ActionMap;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
@@ -333,7 +336,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		JPanel panel = new ScrollableFlowPanel(FlowLayout.LEFT);
 
 		for (int i = 1; i < 40; i++) {
-			panel.add(new MacroButton(i, null, true));
+			panel.add(new MacroButton(i, null, true, false));
 		}
 		
 		return panel;
