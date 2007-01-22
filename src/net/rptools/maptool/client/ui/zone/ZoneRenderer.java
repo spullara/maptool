@@ -516,8 +516,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         renderDrawableOverlay(g2d, view);
         renderTokenTemplates(g2d, view);
         renderGrid(g2d, view);
-        renderTokens(g2d, zone.getNonBackgroundTokens(), view);
+        renderTokens(g2d, zone.getStampTokens(), view);
         renderVision(g2d, view);
+        renderTokens(g2d, zone.getTokens(), view);
 		renderMoveSelectionSets(g2d, view);
         renderLabels(g2d, view);
 		
@@ -620,6 +621,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	        	g.setColor(new Color(0, 0, 0, 80));
 	    		g.fill(visitedArea);
     		} else {
+				visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+				visibleArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
 	        	g.setColor(new Color(255, 255, 255, 80));
 	    		g.fill(visibleArea);
     		}

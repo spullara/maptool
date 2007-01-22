@@ -392,8 +392,10 @@ public class Zone extends Token {
         return Collections.unmodifiableList(copy);
     }
 
-    // TODO: Replace the following two methods with a more generic filter mechanism
-    public List<Token> getNonBackgroundTokens() {
+    /**
+     * This is the list of non-stamp tokens, both pc and npc
+     */
+    public List<Token> getTokens() {
     	List<Token> copy = new ArrayList<Token>();
     	copy.addAll(tokenOrderedList);
     	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
