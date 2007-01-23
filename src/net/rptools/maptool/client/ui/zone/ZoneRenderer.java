@@ -791,7 +791,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         float scale = zoneScale.getScale();
         int scaledGridSize = (int) getScaledGridSize();
 
-		for (SelectionSet set : selectionSetMap.values()) {
+        Set<SelectionSet> selections = new HashSet<SelectionSet>();
+        selections.addAll(selectionSetMap.values());
+		for (SelectionSet set : selections) {
 			
 			Token keyToken = zone.getToken(set.getKeyToken());
 			ZoneWalker walker = set.getWalker();
