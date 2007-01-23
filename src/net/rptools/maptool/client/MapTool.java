@@ -307,6 +307,7 @@ public class MapTool {
         // Clean up
         clientFrame.setCurrentZoneRenderer(null);
         clientFrame.clearZoneRendererList();
+        clientFrame.clearTokenTree();
         if (campaign == null) {
             return;
         }

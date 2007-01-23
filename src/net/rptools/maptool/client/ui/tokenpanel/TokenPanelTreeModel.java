@@ -163,10 +163,6 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 		currentViewList.clear();
 		viewMap.clear();
 		
-        if (zone == null) {
-            return;
-        }
-
         // Plan to show all of the views in order to keep the 
         // order
         for (TokenFilter filter : filterList) {
@@ -178,7 +174,11 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
         }
         
         // Add in the appropriate views
-        for (Token token : zone.getAllTokens()) {
+        List<Token> tokenList = new ArrayList<Token>();
+        if (zone != null) {
+        	tokenList = zone.getAllTokens();
+        }
+        for (Token token : tokenList) {
         	for (TokenFilter filter : filterList) {
         		filter.filter(token);
         	}
@@ -194,8 +194,8 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
         }
         
         // Sort
-        for (List<Token> tokenList : viewMap.values()) {
-        	Collections.sort(tokenList, NAME_AND_STATE_COMPARATOR);
+        for (List<Token> tokens : viewMap.values()) {
+        	Collections.sort(tokens, NAME_AND_STATE_COMPARATOR);
         }
 
         // Keep the expanded branches consistent
