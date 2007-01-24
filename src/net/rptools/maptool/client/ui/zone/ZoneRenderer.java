@@ -161,7 +161,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	private Timer repaintTimer;
 
 	private boolean isLoaded;
+	private boolean isUsingVision;
 
+	private Area visibleArea;
 	private Area currentTokenVisionArea;
 	
 //    private FramesPerSecond fps = new FramesPerSecond();
@@ -555,7 +557,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	Object oldAntiAlias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
     	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     	
-    	Area visibleArea = null;
+    	visibleArea = null;
     	for (Token token : zone.getAllTokens()) {
 
     		if (token.hasVision()) {
@@ -602,7 +604,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	    			}
 	    			
 	    			tokenVisionCache.put(token, tokenVision);
-    			} else {System.out.println("Using cache " + System.currentTimeMillis());}
+    			}
     			
     			if (tokenVision != null) {
 					if (visibleArea == null) {
@@ -625,7 +627,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     			}
     		}
     	}
-    	if (visibleArea != null) {
+    	isUsingVision = visibleArea != null;
+    	if (isUsingVision) {
     		if (zone.hasFog()) {
     		
     			Area visitedArea = new Area(zone.getExposedArea());
@@ -829,7 +832,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	if (!token.isVisible() && !view.isGMView()) {
             		continue;
             	}
-
+                
             	Asset asset = AssetManager.getAsset(token.getAssetID());
 	            if (asset == null) {
 	                continue;
@@ -854,6 +857,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 }
                 if (height < scaledGridHeight && token.isSnapToGrid()) {
                     y += (scaledGridHeight - scaledHeight)/2;
+                }
+
+                // Vision visibility
+                if (!view.isGMView() && isUsingVision) {
+                	if (!visibleArea.intersects(x, y, width, height)) {
+                		continue;
+                	}
                 }
 
                 // Show distance only on the key token
@@ -1203,12 +1213,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             
             Rectangle tokenBounds = new Rectangle(x, y, width, height);
             
-            // Adjust based on facing
-            
-            
             if (x+width < 0 || x > screenSize.width || y+height < 0 || y > screenSize.height) {
             	// Not on the screen, don't have to worry about it
             	continue;
+            }
+
+            // General visibility
+            if (!view.isGMView() && !zone.isTokenVisible(token)) {
+            	continue;
+            }
+            
+            // Vision visibility
+            if (!view.isGMView() && isUsingVision) {
+            	if (!visibleArea.intersects(tokenBounds)) {
+            		continue;
+            	}
             }
 
             // Stacking check
