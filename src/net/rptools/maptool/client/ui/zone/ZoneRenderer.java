@@ -1945,7 +1945,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     // ZONE MODEL CHANGE LISTENER
     private class ZoneModelChangeListener implements ModelChangeListener {
     	public void modelChanged(ModelChangeEvent event) {
-    		System.out.println("Event: " + event.getEvent());
+
     		Object evt = event.getEvent();
     		
     		if (evt == Zone.Event.TOPOLOGY_CHANGED) {
