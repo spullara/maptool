@@ -90,7 +90,6 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
     protected void completeDrawable(GUID zoneGUID, Pen pen, Drawable drawable) {
 
     	Area area = null;
-    	System.out.println(drawable);
     	if (drawable instanceof LineSegment) {
 //    		area = new Area(getPolygon((LineSegment) drawable));
     		area = createLineArea((LineSegment) drawable);
