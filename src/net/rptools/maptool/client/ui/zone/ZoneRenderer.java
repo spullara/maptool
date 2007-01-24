@@ -141,6 +141,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private Set<Rectangle> coveredTokenSet = new HashSet<Rectangle>();
 
 	private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
+	private Map<Token, Area> tokenVisionCache = new HashMap<Token, Area>();
 
 	private boolean updateFog;
 	
@@ -382,6 +383,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             // No longer need this version
             replacementImageMap.remove(token);
             
+            tokenVisionCache.remove(token);
             MapTool.serverCommand().putToken(zone.getId(), token);
         }
         
@@ -427,7 +429,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public void flush() {
     	ImageManager.flushImage(zone.getAssetID());
     	drawableRenderer.flush();
-    	
+    	tokenVisionCache.clear();
         replacementImageMap.clear();
         
         isLoaded = false;
@@ -566,47 +568,60 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	int width = TokenSize.getWidth(token, zone.getGrid());
     			int height = TokenSize.getHeight(token, zone.getGrid());
     			
-    			for (Vision vision : token.getVisionList()) {
+    			Area tokenVision = tokenVisionCache.get(token);
+    			if (tokenVision == null) {
     				
-    				if (!vision.isEnabled()) {
-    					continue;
-    				}
-    				
-    				Area visionArea = vision.getArea(getZone());
-    				if (visionArea == null) {
-    					continue;
-    				}
-    				
-    				int x = token.getX();
-    				int y = token.getY();
-    				switch(vision.getAnchor()) {
-    				case CENTER:
-    					x += width/2;
-    					y += height/2;
-    				}
-    				
-    				visionArea = FogUtil.calculateVisibility(x, y, visionArea, zone.getTopology());
-    				if (visionArea == null) {
-    					continue;
-    				}
-    				
+	    			for (Vision vision : token.getVisionList()) {
+	    				
+	    				if (!vision.isEnabled()) {
+	    					continue;
+	    				}
+	    				
+	    				Area visionArea = vision.getArea(getZone());
+	    				if (visionArea == null) {
+	    					continue;
+	    				}
+	    				
+	    				int x = token.getX();
+	    				int y = token.getY();
+	    				switch(vision.getAnchor()) {
+	    				case CENTER:
+	    					x += width/2;
+	    					y += height/2;
+	    				}
+	    				
+	    				visionArea = FogUtil.calculateVisibility(x, y, visionArea, zone.getTopology());
+	    				if (visionArea == null) {
+	    					continue;
+	    				}
 
-    				if (visibleArea == null) {
-    					visibleArea = new Area();
-    				}
-    				visibleArea.add(visionArea);
-    				
-    				if (token == tokenUnderMouse) {
-    			    	visionArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-    			    	visionArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-    					currentTokenVisionArea = visionArea;
-    					
-    					if (!view.isGMView()) {
-    						// Draw it under the fog
-    						g.setColor(new Color(200, 200, 200));
-    						g.draw(currentTokenVisionArea);
-    					}
-    				}
+	    				if (visionArea != null) {
+	        				tokenVision = new Area();
+	    				}
+	    				tokenVision.add(visionArea);
+	    			}
+	    			
+	    			tokenVisionCache.put(token, tokenVision);
+    			} else {System.out.println("Using cache " + System.currentTimeMillis());}
+    			
+    			if (tokenVision != null) {
+					if (visibleArea == null) {
+						visibleArea = new Area();
+					}
+					visibleArea.add(tokenVision);
+					
+					if (token == tokenUnderMouse) {
+						tokenVision = new Area(tokenVision); // Don't modify the original, which is now in the cache
+						tokenVision.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+						tokenVision.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+						currentTokenVisionArea = tokenVision;
+						
+						if (!view.isGMView()) {
+							// Draw the outline under the fog
+							g.setColor(new Color(200, 200, 200));
+							g.draw(currentTokenVisionArea);
+						}
+					}
     			}
     		}
     	}
@@ -1911,6 +1926,19 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     // ZONE MODEL CHANGE LISTENER
     private class ZoneModelChangeListener implements ModelChangeListener {
     	public void modelChanged(ModelChangeEvent event) {
+    		System.out.println("Event: " + event.getEvent());
+    		Object evt = event.getEvent();
+    		
+    		if (evt == Zone.Event.TOPOLOGY_CHANGED) {
+    			tokenVisionCache.clear();
+    		}
+    		if (evt == Zone.Event.TOKEN_CHANGED) {
+    			tokenVisionCache.remove(event.getModel());
+    		}
+    		if (evt == Zone.Event.TOKEN_REMOVED) {
+    			tokenVisionCache.remove(event.getModel());
+    		}
+    		
     		repaint();
     	}
     }
