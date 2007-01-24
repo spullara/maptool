@@ -24,6 +24,7 @@ public class MessagePanel extends JPanel {
 
 	private JTable messageTable;
 	private JScrollPane scrollPane;
+
 	
 	public MessagePanel() {
 		setLayout(new BorderLayout());
@@ -82,6 +83,7 @@ public class MessagePanel extends JPanel {
 		messageTable.setTableHeader(null);
 		messageTable.setShowGrid(false);
 		messageTable.setBackground(Color.white);
+        messageTable.setDefaultEditor(Object.class, null);
 		
 		// Always scroll to the bottom of the chat window on new messages
 		messageTable.addComponentListener(new ComponentListener() {
