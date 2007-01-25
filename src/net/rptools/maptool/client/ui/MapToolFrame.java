@@ -43,13 +43,14 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Observer;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.swing.KeyStroke;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -67,8 +68,6 @@ import javax.swing.Timer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.swing.InputMap;
-import javax.swing.ActionMap;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
@@ -146,6 +145,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	 */
 	private boolean paintDrawingMeasurement = true;
 
+	private Map<MTFrame, DockableFrame> frameMap = new HashMap<MTFrame, DockableFrame>();
+	
 	// Components
 	private ZoneRenderer currentRenderer;
 	private AssetPanel assetPanel;
@@ -283,7 +284,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		repaintTimer.start();
 	}
 
-	public enum Frames {
+	public enum MTFrame {
 		CONNECTIONS,
 		TOKEN_TREE,
 		IMAGE_EXPLORER,
@@ -291,6 +292,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		MACROS
 	}
 	private void configureDocking() {
+		
+		initializeFrames();
+		
 
 		getDockingManager().setProfileKey(DOCKING_PROFILE_NAME);
 		getDockingManager().setOutlineMode(com.jidesoft.docking.DockingManager.PARTIAL_OUTLINE_MODE);
@@ -303,11 +307,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		getDockingManager().getWorkspace().add(rendererBorderPanel);
 		
 		// Docked frames
-		getDockingManager().addFrame(createDockingFrame(Frames.CONNECTIONS.name(), new JScrollPane(createPlayerList())));
-		getDockingManager().addFrame(createDockingFrame(Frames.TOKEN_TREE.name(), new JScrollPane(createTokenTreePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)));
-		getDockingManager().addFrame(createDockingFrame(Frames.IMAGE_EXPLORER.name(), assetPanel));
-		getDockingManager().addFrame(createDockingFrame(Frames.CHAT.name(), commandPanel));
-		getDockingManager().addFrame(createDockingFrame(Frames.MACROS.name(), new JScrollPane(createMacroButtonPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)));
+		getDockingManager().addFrame(getFrame(MTFrame.CONNECTIONS));
+		getDockingManager().addFrame(getFrame(MTFrame.TOKEN_TREE));
+		getDockingManager().addFrame(getFrame(MTFrame.IMAGE_EXPLORER));
+		getDockingManager().addFrame(getFrame(MTFrame.CHAT));
+		getDockingManager().addFrame(getFrame(MTFrame.MACROS));
 		
 		try {
 			getDockingManager().loadInitialLayout(MapToolFrame.class.getClassLoader().getResourceAsStream("net/rptools/maptool/client/ui/ilayout.xml"));
@@ -325,8 +329,22 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		
 	}
 	
-	private static DockableFrame createDockingFrame(String id, Component component) {
-		DockableFrame frame = new DockableFrame(id);
+	public DockableFrame getFrame(MTFrame frame) {
+		return frameMap.get(frame);
+	}
+	
+	private void initializeFrames() {
+		
+		frameMap.put(MTFrame.CONNECTIONS,createDockingFrame(MTFrame.CONNECTIONS, new JScrollPane(createPlayerList())));
+		frameMap.put(MTFrame.TOKEN_TREE, createDockingFrame(MTFrame.TOKEN_TREE, new JScrollPane(createTokenTreePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)));
+		frameMap.put(MTFrame.IMAGE_EXPLORER, createDockingFrame(MTFrame.IMAGE_EXPLORER, assetPanel));
+		frameMap.put(MTFrame.CHAT, createDockingFrame(MTFrame.CHAT, commandPanel));
+		frameMap.put(MTFrame.MACROS, createDockingFrame(MTFrame.MACROS, new JScrollPane(createMacroButtonPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)));
+		
+	}
+	
+	private static DockableFrame createDockingFrame(MTFrame mtFrame, Component component) {
+		DockableFrame frame = new DockableFrame(mtFrame.name());
 		frame.add(component);
 		
 		return frame;

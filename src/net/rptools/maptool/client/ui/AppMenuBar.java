@@ -35,11 +35,14 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
+import com.jidesoft.docking.DockableFrame;
+
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.tool.drawing.DrawableUndoManager;
+import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.language.I18N;
 
 public class AppMenuBar extends JMenuBar {
@@ -49,6 +52,7 @@ public class AppMenuBar extends JMenuBar {
         add(createEditMenu());
         add(createViewMenu());
         add(createToolsMenu());
+        add(createWindowMenu());
         add(createHelpMenu());
     }
     
@@ -223,5 +227,16 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.ZOOM_RESET));
 
         return menu;
+    }
+    
+    protected JMenu createWindowMenu() {
+    	JMenu menu = I18N.createMenu("menu.window");
+    	
+    	for(MTFrame frame : MapToolFrame.MTFrame.values()) {
+    		JMenuItem menuItem = new RPCheckBoxMenuItem(new AppActions.ToggleWindowAction(frame));
+    		menu.add(menuItem);
+    	}
+    	
+    	return menu;
     }
 }

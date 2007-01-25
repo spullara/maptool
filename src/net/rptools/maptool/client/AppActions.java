@@ -61,6 +61,7 @@ import net.rptools.maptool.client.ui.PreferencesDialog;
 import net.rptools.maptool.client.ui.ServerInfoDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
 import net.rptools.maptool.client.ui.StaticMessageDialog;
+import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.assetpanel.Directory;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -82,6 +83,8 @@ import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.util.PersistenceUtil;
+
+import com.jidesoft.docking.DockableFrame;
 
 /**
  */
@@ -1452,6 +1455,36 @@ public class AppActions {
 		}
 	};
 
+	public static class ToggleWindowAction extends ClientAction {
+
+		private MTFrame mtFrame;
+		
+		public ToggleWindowAction(MTFrame mtFrame) {
+			this.mtFrame = mtFrame;
+			init(mtFrame.name());
+		}
+		
+		@Override
+		public boolean isSelected() {
+			return MapTool.getFrame().getFrame(mtFrame).isVisible();
+		}
+		
+		@Override
+		public boolean isAvailable() {
+			return true;
+		}
+		
+		@Override
+		public void execute(ActionEvent event) {
+			DockableFrame frame = MapTool.getFrame().getFrame(mtFrame);
+			if (frame.isVisible()) {
+				MapTool.getFrame().getDockingManager().hideFrame(mtFrame.name());
+			} else {
+				MapTool.getFrame().getDockingManager().showFrame(mtFrame.name());
+			}
+		}
+	}
+	
 	private static List<ClientAction> actionList;
 
 	private static List<ClientAction> getActionList() {
