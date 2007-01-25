@@ -1461,7 +1461,7 @@ public class AppActions {
 		
 		public ToggleWindowAction(MTFrame mtFrame) {
 			this.mtFrame = mtFrame;
-			init(mtFrame.name());
+			init(mtFrame.toString());
 		}
 		
 		@Override

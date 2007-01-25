@@ -285,11 +285,20 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public enum MTFrame {
-		CONNECTIONS,
-		TOKEN_TREE,
-		IMAGE_EXPLORER,
-		CHAT,
-		MACROS
+		CONNECTIONS("Connections"),
+		TOKEN_TREE("Token Tree"),
+		IMAGE_EXPLORER("Image Explorer"),
+		CHAT("Chat"),
+		MACROS("Macros");
+		
+		private String displayName;
+		
+		private MTFrame(String displayName) {
+			this.displayName = displayName;
+		}
+		public String toString() {
+			return displayName;
+		}
 	}
 	private void configureDocking() {
 		
@@ -345,6 +354,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	
 	private static DockableFrame createDockingFrame(MTFrame mtFrame, Component component) {
 		DockableFrame frame = new DockableFrame(mtFrame.name());
+		frame.setTabTitle(mtFrame.toString());
 		frame.add(component);
 		
 		return frame;
