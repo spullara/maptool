@@ -24,9 +24,15 @@
  */
 package net.rptools.maptool.client.walker.astar;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
 
 import net.rptools.maptool.client.walker.AbstractZoneWalker;
 import net.rptools.maptool.model.CellPoint;
@@ -44,15 +50,18 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 	
 	@Override
 	protected List<CellPoint> calculatePath(CellPoint start, CellPoint end) {
-		List<AStarCellPoint> openList = new LinkedList<AStarCellPoint>();
-		List<AStarCellPoint> closedList = new LinkedList<AStarCellPoint>();
+		List<AStarCellPoint> openList = new ArrayList<AStarCellPoint>();
+		Map<AStarCellPoint, AStarCellPoint> openSet = new HashMap<AStarCellPoint, AStarCellPoint>(); // For faster lookups
+		Set<AStarCellPoint> closedSet = new HashSet<AStarCellPoint>();
 
 		openList.add(new AStarCellPoint(start));
+		openSet.put(openList.get(0), openList.get(0));
 
 		AStarCellPoint node = null;
 
 		while (openList.size() > 0) {
 			node = openList.remove(0);
+			openSet.remove(node);
 			if (node.equals(end)) {
 				break;
 			}
@@ -62,7 +71,7 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 				int x = node.x + neighborMap[i][0];
 				int y = node.y + neighborMap[i][1];
 				AStarCellPoint neighborNode = new AStarCellPoint(x, y);
-				if (closedList.contains(neighborNode)) {
+				if (closedSet.contains(neighborNode)) {
 					continue;
 				}
 
@@ -70,8 +79,8 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 				neighborNode.gScore = gScore(start, neighborNode);
 				neighborNode.hScore = hScore(neighborNode, end);
 
-				if (openList.contains(neighborNode)) {
-					AStarCellPoint oldNode = getNode(openList, neighborNode);
+				if (openSet.containsKey(neighborNode)) {
+					AStarCellPoint oldNode = openSet.get(neighborNode);
 
 					// check if it is cheaper to get here the way that we just
 					// came, versus the previous path
@@ -84,9 +93,10 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 				}
 
 				pushNode(openList, neighborNode);
+				openSet.put(neighborNode, neighborNode);
 			}
 
-			closedList.add(node);
+			closedSet.add(node);
 			node = null;
 
 		}
@@ -103,25 +113,28 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 	}
 
 	private void pushNode(List<AStarCellPoint> list, AStarCellPoint node) {
-		for (int i = 0; i < list.size(); i++) {
-			AStarCellPoint listNode = list.get(i);
+		if (list.size() == 0) {
+			list.add(node);
+			return;
+		}
+		
+		if (node.cost() < list.get(0).cost()) {
+			list.add(0, node);
+			return;
+		}
+		
+		if (node.cost() > list.get(list.size()-1).cost()) {
+			list.add(node);
+			return;
+		}
 
+		for (ListIterator<AStarCellPoint> iter = list.listIterator(); iter.hasNext();) {
+			AStarCellPoint listNode = iter.next();
 			if (listNode.cost() > node.cost()) {
-				list.add(i, node);
+				iter.add(node);
 				return;
 			}
 		}
-		list.add(node);
-	}
-
-	private AStarCellPoint getNode(List<AStarCellPoint> list,
-			AStarCellPoint node) {
-		for (AStarCellPoint listNode : list) {
-			if (listNode.equals(node)) {
-				return node;
-			}
-		}
-		return null;
 	}
 
 	protected abstract int calculateDistance(List<CellPoint> path, int feetPerCell);
