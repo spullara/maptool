@@ -58,10 +58,11 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		addOwnedItem(createFlipMenu());
 		add(new JSeparator());
 
-		addOwnedItem(createVisionMenu());
-		addGMItem(createExposeMenu());
-
-		add(new JSeparator());
+		if (MapTool.getPlayer().isGM()) {
+			addGMItem(createVisionMenu());
+			addGMItem(createExposeMenu());
+			add(new JSeparator());
+		}
 
 		addToggledItem(new ShowPathsAction(), renderer.isPathShowing(tokenUnderMouse));
 		add(new RevertLastMoveAction());
@@ -95,7 +96,10 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		JMenu menu = new JMenu("Expose");
 		menu.add(new ExposeVisibleAreaAction());
 		menu.add(new ExposeLastPathAction());
-		menu.add(new ExposeVisibleAreaOnlyAction());
+		
+		if (getTokenUnderMouse().hasOwners()) {
+			menu.add(new ExposeVisibleAreaOnlyAction());
+		}
 		
 		menu.setEnabled(getTokenUnderMouse().hasVision());
 		
@@ -104,49 +108,12 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	
 	private class ExposeVisibleAreaAction extends AbstractAction {
 		public ExposeVisibleAreaAction() {
-			putValue(Action.NAME, "Visible area");
+			putValue(Action.NAME, "Visible area (Ctrl - R)");
 		}
 		
 		public void actionPerformed(ActionEvent e) {
 
-			for (GUID tokenGUID : selectedTokenSet) {
-				Token token = getRenderer().getZone().getToken(tokenGUID);
-				if (token == null) {
-					continue;
-				}
-				
-				if (!token.hasVision()) {
-					continue;
-				}
-				
-				ZoneRenderer renderer = getRenderer();
-    			int width = TokenSize.getWidth(token, renderer.getZone().getGrid());
-    			int height = TokenSize.getHeight(token, renderer.getZone().getGrid());
-    			
-				Area visionArea = new Area();
-				for (Vision vision : token.getVisionList()) {
-					int x = token.getX();
-					int y = token.getY();
-
-					if (!vision.isEnabled()) {
-						continue;
-					}
-					
-					switch(vision.getAnchor()) {
-					case CENTER:
-						x += width/2;
-						y += height/2;
-					}
-	    			
-					Area currVisionArea = FogUtil.calculateVisibility(x, y, vision.getArea(renderer.getZone()), getRenderer().getZone().getTopology());
-					if (currVisionArea != null) {
-						visionArea.add(currVisionArea);
-					}
-				}
-
-				renderer.getZone().exposeArea(visionArea);
-				MapTool.serverCommand().exposeFoW(renderer.getZone().getId(), visionArea);
-			}
+			FogUtil.exposeVisibleArea(getRenderer().getZone(), selectedTokenSet);
 			getRenderer().repaint();
 		}
 		
@@ -154,63 +121,12 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 	private class ExposeVisibleAreaOnlyAction extends AbstractAction {
 		public ExposeVisibleAreaOnlyAction() {
-			if (MapTool.getServerPolicy().useStrictTokenManagement()) {
-				putValue(Action.NAME, "Player visible area only");
-			} else {
-				putValue(Action.NAME, "Visible area only");
-			}
+			putValue(Action.NAME, "Player visible area only");
 		}
 		
 		public void actionPerformed(ActionEvent e) {
 
-			ZoneRenderer renderer = getRenderer();
-			Area visionArea = new Area();
-			List<Token> tokenList = null;
-			if (MapTool.getServerPolicy().useStrictTokenManagement()) {
-				tokenList = renderer.getZone().getPlayerTokens();
-			} else {
-				tokenList = new ArrayList<Token>();
-				for (GUID tokenGUID : selectedTokenSet) {
-					Token token = getRenderer().getZone().getToken(tokenGUID);
-					if (token == null) {
-						continue;
-					}
-					
-					tokenList.add(token);
-				}
-			}
-			for (Token token : tokenList) {
-				
-				if (!token.hasVision()) {
-					continue;
-				}
-				
-    			int width = TokenSize.getWidth(token, renderer.getZone().getGrid());
-    			int height = TokenSize.getHeight(token, renderer.getZone().getGrid());
-    			
-				for (Vision vision : token.getVisionList()) {
-					int x = token.getX();
-					int y = token.getY();
-
-					if (!vision.isEnabled()) {
-						continue;
-					}
-					
-					switch(vision.getAnchor()) {
-					case CENTER:
-						x += width/2;
-						y += height/2;
-					}
-	    			
-					Area currVisionArea = FogUtil.calculateVisibility(x, y, vision.getArea(renderer.getZone()), getRenderer().getZone().getTopology());
-					if (currVisionArea != null) {
-						visionArea.add(currVisionArea);
-					}
-				}
-
-			}
-			renderer.getZone().setFogArea(visionArea);
-			MapTool.serverCommand().setFoW(renderer.getZone().getId(), visionArea);
+			FogUtil.exposePCArea(getRenderer().getZone());
 			getRenderer().repaint();
 		}
 		
@@ -218,61 +134,12 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 	private class ExposeLastPathAction extends AbstractAction {
 		public ExposeLastPathAction() {
-			putValue(Action.NAME, "Last path");
+			putValue(Action.NAME, "Last path (Ctrl - P)");
 			setEnabled(getTokenUnderMouse().getLastPath() != null);
 		}
 		
 		public void actionPerformed(ActionEvent e) {
 
-			for (GUID tokenGUID : selectedTokenSet) {
-				Token token = getRenderer().getZone().getToken(tokenGUID);
-				if (token == null) {
-					continue;
-				}
-				
-				if (!token.hasVision()) {
-					continue;
-				}
-				
-				ZoneRenderer renderer = getRenderer();
-    			int width = TokenSize.getWidth(token, renderer.getZone().getGrid());
-    			int height = TokenSize.getHeight(token, renderer.getZone().getGrid());
-    			
-				Path lastPath = token.getLastPath();
-				if (lastPath == null) {
-					continue;
-				}
-				
-				Grid grid = getRenderer().getZone().getGrid();
-				Area visionArea = new Area();
-				for (CellPoint cell : lastPath.getCellPath()) {
-					
-					ZonePoint zp = grid.convert(cell); 
-					int x = zp.x;
-					int y = zp.y;
-					
-					for (Vision vision : token.getVisionList()) {
-
-						if (!vision.isEnabled()) {
-							continue;
-						}
-						
-						switch(vision.getAnchor()) {
-						case CENTER:
-							x += width/2;
-							y += height/2;
-						}
-		    			
-						Area currVisionArea = FogUtil.calculateVisibility(x, y, vision.getArea(renderer.getZone()), getRenderer().getZone().getTopology());
-						if (currVisionArea != null) {
-							visionArea.add(currVisionArea);
-						}
-					}
-				}
-
-				renderer.getZone().exposeArea(visionArea);
-				MapTool.serverCommand().exposeFoW(renderer.getZone().getId(), visionArea);
-			}
 			getRenderer().repaint();
 		}
 		

@@ -45,6 +45,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,6 +70,7 @@ import net.rptools.maptool.client.ui.TokenPopupMenu;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.Toolbox;
 import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
+import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
@@ -835,6 +837,16 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				cycleSelectedToken(-1);
 			}
 		});
+//		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
+//			public void actionPerformed(ActionEvent e) {
+//				FogUtil.exposeVisibleArea(getZone(), renderer.getSelectedTokenSet());
+//			}			
+//		});
+//		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
+//			public void actionPerformed(ActionEvent e) {
+//				FogUtil.exposeLastPath(getZone(), renderer.getSelectedTokenSet());
+//			}			
+//		});
 	}
 
 	private void cycleSelectedToken(int direction) {

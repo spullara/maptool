@@ -6,7 +6,18 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
+import java.util.Set;
 
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.Path;
+import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.TokenSize;
+import net.rptools.maptool.model.Vision;
+import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
 
 public class FogUtil {
@@ -109,5 +120,134 @@ public class FogUtil {
 		return new Area(path);
 	}
 	
+	public static void exposeVisibleArea(Zone zone, Set<GUID> tokenSet) {
+		
+		for (GUID tokenGUID : tokenSet) {
+			Token token = zone.getToken(tokenGUID);
+			if (token == null) {
+				continue;
+			}
+			
+			if (!token.hasVision()) {
+				continue;
+			}
+			
+			int width = TokenSize.getWidth(token, zone.getGrid());
+			int height = TokenSize.getHeight(token, zone.getGrid());
+			
+			Area visionArea = new Area();
+			for (Vision vision : token.getVisionList()) {
+				int x = token.getX();
+				int y = token.getY();
+
+				if (!vision.isEnabled()) {
+					continue;
+				}
+				
+				switch(vision.getAnchor()) {
+				case CENTER:
+					x += width/2;
+					y += height/2;
+				}
+    			
+				Area currVisionArea = FogUtil.calculateVisibility(x, y, vision.getArea(zone), zone.getTopology());
+				if (currVisionArea != null) {
+					visionArea.add(currVisionArea);
+				}
+			}
+
+			zone.exposeArea(visionArea);
+			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea);
+		}
+	}
 	
+	public static void exposePCArea(Zone zone) {
+		
+		Area visionArea = new Area();
+		for (Token token : zone.getPlayerTokens()) {
+			
+			if (!token.hasVision()) {
+				continue;
+			}
+			
+			int width = TokenSize.getWidth(token, zone.getGrid());
+			int height = TokenSize.getHeight(token, zone.getGrid());
+			
+			for (Vision vision : token.getVisionList()) {
+				int x = token.getX();
+				int y = token.getY();
+
+				if (!vision.isEnabled()) {
+					continue;
+				}
+				
+				switch(vision.getAnchor()) {
+				case CENTER:
+					x += width/2;
+					y += height/2;
+				}
+    			
+				Area currVisionArea = FogUtil.calculateVisibility(x, y, vision.getArea(zone), zone.getTopology());
+				if (currVisionArea != null) {
+					visionArea.add(currVisionArea);
+				}
+			}
+
+		}
+		zone.setFogArea(visionArea);
+		MapTool.serverCommand().setFoW(zone.getId(), visionArea);
+	}
+	
+	public static void exposeLastPath(Zone zone, Set<GUID> tokenSet) {
+
+		for (GUID tokenGUID : tokenSet) {
+			Token token = zone.getToken(tokenGUID);
+			if (token == null) {
+				continue;
+			}
+			
+			if (!token.hasVision()) {
+				continue;
+			}
+			
+			int width = TokenSize.getWidth(token, zone.getGrid());
+			int height = TokenSize.getHeight(token, zone.getGrid());
+			
+			Path lastPath = token.getLastPath();
+			if (lastPath == null) {
+				continue;
+			}
+			
+			Grid grid = zone.getGrid();
+			Area visionArea = new Area();
+			for (CellPoint cell : lastPath.getCellPath()) {
+				
+				ZonePoint zp = grid.convert(cell); 
+				int x = zp.x;
+				int y = zp.y;
+				
+				for (Vision vision : token.getVisionList()) {
+
+					if (!vision.isEnabled()) {
+						continue;
+					}
+					
+					switch(vision.getAnchor()) {
+					case CENTER:
+						x += width/2;
+						y += height/2;
+					}
+	    			
+					Area currVisionArea = FogUtil.calculateVisibility(x, y, vision.getArea(zone), zone.getTopology());
+					if (currVisionArea != null) {
+						visionArea.add(currVisionArea);
+					}
+				}
+			}
+
+			zone.exposeArea(visionArea);
+			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea);
+		}
+		
+	}
 }
