@@ -177,8 +177,10 @@ public class AssetManager {
 
 	private static void requestAssetFromServer(MD5Key id) {
 		
-		requestedSet.add(id);
-        MapTool.serverCommand().getAsset(id);
+		if (id != null) {
+			requestedSet.add(id);
+	        MapTool.serverCommand().getAsset(id);
+		}
 	}
 	
 	private static Asset getFromPersistentCache(MD5Key id) {

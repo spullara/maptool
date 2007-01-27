@@ -26,6 +26,7 @@ package net.rptools.maptool.model.drawing;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
 
 /**
  * An rectangle
@@ -61,13 +62,17 @@ public class Rectangle extends AbstractDrawing {
     }
 
     protected void draw(Graphics2D g) {
+    	
         int minX = Math.min(startPoint.x, endPoint.x);
         int minY = Math.min(startPoint.y, endPoint.y);
         
         int width = Math.abs(startPoint.x - endPoint.x);
         int height = Math.abs(startPoint.y - endPoint.y);
         
-        g.drawRect(minX, minY, width, height);
+    	Object oldAA = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+    	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        g.drawRect(minX, minY, width-1, height-1);
+    	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA);
     }
 
     protected void drawBackground(Graphics2D g) {
@@ -77,6 +82,9 @@ public class Rectangle extends AbstractDrawing {
         int width = Math.abs(startPoint.x - endPoint.x);
         int height = Math.abs(startPoint.y - endPoint.y);
         
-        g.fillRect(minX, minY, width, height);
+    	Object oldAA = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+    	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        g.fillRect(minX, minY, width-1, height-1);
+    	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA);
     }
 }

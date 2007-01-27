@@ -253,8 +253,8 @@ public class Zone extends Token {
     	int gridx = (int)Math.round((point.x - grid.getOffsetX()) / (double)grid.getCellWidth());
     	int gridy = (int)Math.round((point.y - grid.getOffsetY()) / (double)grid.getCellHeight());
     	
-    	// Don't ask about the +1, I don't get it either.
-    	return new ZonePoint((int)(gridx * grid.getCellWidth() + grid.getOffsetX() + 1), (int)(gridy * grid.getCellHeight() + grid.getOffsetY() + 1));
+//    	System.out.println("gx:" + gridx + " zx:" + (gridx * grid.getCellWidth() + grid.getOffsetX()));
+    	return new ZonePoint((int)(gridx * grid.getCellWidth() + grid.getOffsetX()), (int)(gridy * grid.getCellHeight() + grid.getOffsetY()));
     }
     
     public Area getExposedArea() {

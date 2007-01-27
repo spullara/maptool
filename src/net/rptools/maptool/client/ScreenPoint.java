@@ -50,9 +50,11 @@ public class ScreenPoint extends AbstractPoint {
         zY -= renderer.getViewOffsetY();
         
         // Scale
-        zX = (int)(zX / scale);
-        zY = (int)(zY / scale);
-        
+        zX = (int)Math.floor(zX / scale);
+        zY = (int)Math.floor(zY / scale);
+            
+//        System.out.println("s:" + scale + " x:" + x + " zx:" + zX + " c:" + (zX / scale) + " - " + Math.floor(zX / scale));
+
         return new ZonePoint(zX, zY);
     }
     
@@ -61,14 +63,14 @@ public class ScreenPoint extends AbstractPoint {
     }
     
     public static ScreenPoint fromZonePoint(ZoneRenderer renderer, int x, int y) {
-        
+
         double scale = renderer.getScale();
         
         int sX = x;
         int sY = y;
         
-        sX = (int)(sX * scale);
-        sY = (int)(sY * scale);
+        sX = (int)Math.ceil(sX * scale);
+        sY = (int)Math.ceil(sY * scale);
         
         // Translate
         sX += renderer.getViewOffsetX();

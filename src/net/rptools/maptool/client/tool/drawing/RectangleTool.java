@@ -132,9 +132,10 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
     }
     
     public void mouseMoved(MouseEvent e) {
+    	super.mouseMoved(e);
 
-    	ScreenPoint p = getPoint(e);
     	if (rectangle != null) {
+        	ScreenPoint p = getPoint(e);
 	
 	        if (rectangle != null) {
 	            rectangle.getEndPoint().x = p.x;

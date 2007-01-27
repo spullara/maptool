@@ -44,7 +44,9 @@ public class ZoneRendererFactory {
         }
         }
 
-        renderer.addOverlay(MapTool.getFrame().getPointerOverlay());
+        if (MapTool.getFrame() != null) {
+        	renderer.addOverlay(MapTool.getFrame().getPointerOverlay());
+        }
 
         return renderer;
     }
