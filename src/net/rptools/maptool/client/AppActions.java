@@ -83,6 +83,7 @@ import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.util.PersistenceUtil;
+import net.rptools.maptool.util.PersistenceUtil.PersistedCampaign;
 
 import com.jidesoft.docking.DockableFrame;
 
@@ -1153,20 +1154,24 @@ public class AppActions {
 								MapTool.getFrame().showFilledGlassPane(
 										progressDialog);
 
-								Campaign campaign = PersistenceUtil
-										.loadCampaign(campaignFile);
+								PersistedCampaign campaign = PersistenceUtil.loadCampaign(campaignFile);
 								
 								if (campaign != null) {
 
 									AppState.setCampaignFile(campaignFile);
-									AppPreferences.setLoadDir(campaignFile
-											.getParentFile());
+									AppPreferences.setLoadDir(campaignFile.getParentFile());
 
-									MapTool.setCampaign(campaign);
+									MapTool.setCampaign(campaign.campaign);
 
-									MapTool.serverCommand().setCampaign(
-											campaign);
+									MapTool.serverCommand().setCampaign(campaign.campaign);
 
+									if (campaign.currentZoneId != null) {
+										MapTool.getFrame().setCurrentZoneRenderer(MapTool.getFrame().getZoneRenderer(campaign.currentZoneId));
+										
+										if (campaign.currentView != null) {
+											MapTool.getFrame().getCurrentZoneRenderer().setZoneScale(campaign.currentView);
+										}
+									}
 								}
 
 							} finally {

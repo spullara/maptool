@@ -27,10 +27,11 @@ package net.rptools.maptool.client.ui;
 import java.awt.Point;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Scale {
+public class Scale implements Serializable {
 
     private int              scaleIndex;
     private static float     startScale = .01f;
@@ -42,7 +43,7 @@ public class Scale {
     private static String PROPERTY_SCALE = "scale";
     private static String PROPERTY_OFFSET = "offset";
     
-    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    private transient PropertyChangeSupport propertyChangeSupport;
     
     private int offsetX;
     private int offsetY;
@@ -98,19 +99,19 @@ public class Scale {
     }
     
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-    	propertyChangeSupport.addPropertyChangeListener(listener);
+    	getPropertyChangeSupport().addPropertyChangeListener(listener);
     }
     
     public void addPropertyChangeListener(String property, PropertyChangeListener listener) {
-    	propertyChangeSupport.addPropertyChangeListener(property, listener);
+    	getPropertyChangeSupport().addPropertyChangeListener(property, listener);
     }
     
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-    	propertyChangeSupport.removePropertyChangeListener(listener);
+    	getPropertyChangeSupport().removePropertyChangeListener(listener);
     }
     
     public void removePropertyChangeListener(String property, PropertyChangeListener listener) {
-    	propertyChangeSupport.removePropertyChangeListener(property, listener);
+    	getPropertyChangeSupport().removePropertyChangeListener(property, listener);
     }
     
     public int getOffsetX() {
@@ -129,7 +130,7 @@ public class Scale {
     	offsetX = x;
     	offsetY = y;
     	
-    	propertyChangeSupport.firePropertyChange(PROPERTY_OFFSET, new Point(oldX, oldY), new Point(offsetX, offsetY));
+    	getPropertyChangeSupport().firePropertyChange(PROPERTY_OFFSET, new Point(oldX, oldY), new Point(offsetX, offsetY));
     }
     
     public int getIndex() {
@@ -144,14 +145,14 @@ public class Scale {
         
         scaleIndex = index;
         
-        propertyChangeSupport.firePropertyChange(PROPERTY_SCALE, oldIndex, scaleIndex);
+        getPropertyChangeSupport().firePropertyChange(PROPERTY_SCALE, oldIndex, scaleIndex);
     }
     
     public float reset() {
         float oldScale = scaleArray[scaleIndex];
         scaleIndex = SCALE_1TO1_INDEX;
 
-        propertyChangeSupport.firePropertyChange(PROPERTY_SCALE, oldScale, scaleIndex);
+        getPropertyChangeSupport().firePropertyChange(PROPERTY_SCALE, oldScale, scaleIndex);
         return oldScale;
     }
     
@@ -185,6 +186,13 @@ public class Scale {
     
     public boolean isInitialized() {
     	return initialized;
+    }
+    
+    private PropertyChangeSupport getPropertyChangeSupport() {
+    	if (propertyChangeSupport == null) {
+    		 propertyChangeSupport = new PropertyChangeSupport(this);
+    	}
+    	return propertyChangeSupport;
     }
     
     /**

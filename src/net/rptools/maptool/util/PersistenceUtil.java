@@ -35,9 +35,12 @@ import java.util.Map;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.Scale;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.DrawablePaint;
@@ -89,12 +92,18 @@ public class PersistenceUtil {
     			}
 			}
 		}
+		
+		ZoneRenderer currentZoneRenderer = MapTool.getFrame().getCurrentZoneRenderer();
+		if (currentZoneRenderer != null) {
+			persistedCampaign.currentZoneId = currentZoneRenderer.getZone().getId();
+			persistedCampaign.currentView = currentZoneRenderer.getZoneScale();
+		}
 
 		out.writeObject(persistedCampaign);
 		os.close();		
 	}
 	
-	public static Campaign loadCampaign(File campaignFile) throws IOException {
+	public static PersistedCampaign loadCampaign(File campaignFile) throws IOException {
 		
 		InputStream is = new FileInputStream(campaignFile);
 		HessianInput in = new HessianInput(is);
@@ -116,13 +125,14 @@ public class PersistenceUtil {
 			}
 		}
 		
-		return persistedCampaign.campaign;
+		return persistedCampaign;
 	}
 	
 	public static class PersistedCampaign {
 		
 		public Campaign campaign;
 		public Map<MD5Key, Asset> assetMap = new HashMap<MD5Key, Asset>();
-		
+		public GUID currentZoneId;
+		public Scale currentView;
 	}
 }

@@ -24,10 +24,8 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -105,8 +103,6 @@ import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawnElement;
-import net.rptools.maptool.model.vision.FacingConicVision;
-import net.rptools.maptool.model.vision.RoundVision;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.TokenUtil;
@@ -143,8 +139,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
 	private Map<Token, Area> tokenVisionCache = new HashMap<Token, Area>();
 
-	private boolean updateFog;
-	
 	private GeneralPath facingArrow;
 	
 	private List<Token> showPathList = new ArrayList<Token>();
@@ -236,7 +230,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	return zoneScale;
     }
     
-    protected void setZoneScale(Scale scale) {
+    public void setZoneScale(Scale scale) {
     	zoneScale = scale;
     	
     	scale.addPropertyChangeListener(new PropertyChangeListener() {
