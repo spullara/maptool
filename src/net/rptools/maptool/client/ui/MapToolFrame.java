@@ -456,18 +456,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		glassPane.setVisible(false);
 	}
 
-	@Override
-	public void setVisible(boolean b) {
-		// mainSplitPane.setInitialDividerPosition(150);
-		// rightSplitPane.setInitialDividerPosition(getSize().height-200);
-		// new SplitPanePreferences(AppConstants.APP_NAME, "mainSplitPane",
-		// mainSplitPane);
-		// new SplitPanePreferences(AppConstants.APP_NAME, "rightSplitPane",
-		// rightSplitPane);
-		super.setVisible(b);
-		hideCommandPanel();
-	}
-
 	public JLabel getChatActionLabel() {
 		if (chatActionLabel == null) {
 			chatActionLabel = new JLabel(new ImageIcon(AppStyle.chatImage));
@@ -848,6 +836,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		pen.setBackgroundPaint(convertPaint(colorPicker.getBackgroundPaint()));
 		pen.setThickness((Integer) widthChooser.getSelectedItem());
 		pen.setOpacity(colorPicker.getOpacity());
+		pen.setThickness(colorPicker.getStrokeWidth());
 		return pen;
 	}
 
