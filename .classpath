@@ -16,6 +16,6 @@
 	<classpathentry kind="lib" path="lib/renderpack-1.2004.jar"/>
 	<classpathentry kind="lib" path="lib/jide-common-1.9.4_7.jar"/>
 	<classpathentry kind="lib" path="lib/jide-dock-1.9.4_7.jar"/>
-	<classpathentry kind="lib" path="lib/rplib-1.0.b77.jar"/>
+	<classpathentry kind="lib" path="lib/rplib-1.0.b78.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

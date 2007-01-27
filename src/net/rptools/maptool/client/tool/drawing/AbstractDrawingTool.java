@@ -53,16 +53,26 @@ import net.rptools.maptool.model.drawing.Pen;
 public abstract class AbstractDrawingTool extends DefaultTool implements MouseListener, ZoneOverlay {
     
     private boolean isEraser;
+    
+    private boolean isSnapToGridSelected;
+    private boolean isEraseSelected;
 
 	protected void attachTo(ZoneRenderer renderer) {
 		MapTool.getFrame().showControlPanel(MapTool.getFrame().getColorPicker());
 		renderer.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+		
+		MapTool.getFrame().getColorPicker().setSnapSelected(isSnapToGridSelected);
+		MapTool.getFrame().getColorPicker().setEraseSelected(isEraseSelected);
 		super.attachTo(renderer);
 	}
 
 	protected void detachFrom(ZoneRenderer renderer) {
 		MapTool.getFrame().hideControlPanel();
 		renderer.setCursor(Cursor.getDefaultCursor());
+		
+		isSnapToGridSelected = MapTool.getFrame().getColorPicker().isSnapSelected();
+		isEraseSelected = MapTool.getFrame().getColorPicker().isEraseSelected();
+		
 		super.detachFrom(renderer);
 	}
     
