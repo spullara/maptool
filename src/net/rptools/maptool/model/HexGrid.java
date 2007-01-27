@@ -11,7 +11,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarHexEuclideanWalker;
@@ -34,7 +33,7 @@ public class HexGrid extends Grid {
 	};
 	
 	private static final int[] FACING_ANGLES = new int[] {
-		-135, -90, -45, 45, 90, 135
+		-150, -90, -30, 30, 90, 150
 	};
 	
 	private double sideSize;
@@ -75,7 +74,7 @@ public class HexGrid extends Grid {
 	
 	@Override
 	public double getCellWidth() {
-		return topWidth + sideSize*2;
+		return topWidth*2; // topWidth is sideSize*2;
 	}
 	
 	@Override
@@ -90,15 +89,17 @@ public class HexGrid extends Grid {
 	
 	@Override
 	public void setSize(int size) {
-		
-		topWidth = size/2;
+		// Using size as the face-to-face distance or 
+		// minor diameter of the hex.
+		topWidth = size/Math.sqrt(3);
 		sideSize = topWidth/2;
-		height = (int)(topWidth * Math.cos(Math.toRadians(30)));
+		height = size/2;
 		
 		scaledHex = null;
-		
-		//cellOffset = new Dimension((int)(sideSize/2), -height);
-		cellOffset = new Dimension(0, -height);
+
+		// Cell offset gives the offset to apply to the 
+		// cell zone coords to draw images/tokens
+		cellOffset = new Dimension((int)-topWidth, -height);
 
 		// TODO: this super checks min and max size limits, it should realy happen before we make the calcs
 		// but we also need to create the shape before calling super so that createCellShape() doesn't break
@@ -115,12 +116,14 @@ public class HexGrid extends Grid {
 		scaledTopWidth = topWidth*scale;
 		scaledSideSize = sideSize*scale;
 		
+		scaledHex = createShape(scaledHeight, scaledSideSize, scaledTopWidth);
+		/*
 		scaledHex = new GeneralPath();
 		scaledHex.moveTo(0, (int)scaledHeight);
 		scaledHex.lineTo((int)scaledSideSize, 0);
 		scaledHex.lineTo((int)(scaledSideSize + scaledTopWidth), 0);
 		scaledHex.lineTo((int)(scaledSideSize + scaledTopWidth + scaledSideSize), (int)scaledHeight);
-
+		*/
 		lastScale = scale;
 	}
 	
@@ -131,17 +134,33 @@ public class HexGrid extends Grid {
 		hex.lineTo((int)sideSize, 0);
 		hex.lineTo((int)(sideSize + topWidth), 0);
 		hex.lineTo((int)(sideSize + topWidth + sideSize), (int)height);
-		hex.lineTo((int)(sideSize + topWidth), (int)(height*2));
-		hex.lineTo((int)(sideSize), (int)(height*2));
+		//hex.lineTo((int)(sideSize + topWidth), (int)(height*2));
+		//hex.lineTo((int)(sideSize), (int)(height*2));
 
 		return hex;
 	}
 	
 	@Override
 	public CellPoint convert(ZonePoint zp) {
-
-		int xSect = (int)(zp.x / (sideSize + topWidth));
-		int ySect = (int)((zp.y / (2*height)) + (zp.y < 0 ? -1 : 0));
+		int xSect;
+		int ySect;
+		
+		if (zp.x < 0) {
+			xSect = (int)(zp.x / (sideSize + topWidth)) - 1;			
+		} else {
+			xSect = (int)(zp.x / (sideSize + topWidth));			
+		}
+		if (zp.y < 0) {
+			if (xSect % 2 == 1)
+				ySect = (int)((zp.y - height) / (2*height)) - 1;
+			else
+				ySect = (int)(zp.y / (2*height)) - 1;
+		} else {
+			if (xSect % 2 == 1)
+				ySect = (int)((zp.y - height)/ (2*height));
+			else
+				ySect = (int)(zp.y / (2*height));
+		}
 
 		int xPxl = Math.abs((int)(zp.x - xSect * (sideSize + topWidth)));
 		int yPxl = Math.abs((int)(zp.y - ySect * (2 * height)));
@@ -152,55 +171,61 @@ public class HexGrid extends Grid {
 		double m = sideSize / height;
 		
 //		System.out.format("gx:%d gy:%d px:%d py:%d m:%f\n", xSect, ySect, xPxl, yPxl, m);
+//		System.out.format("gx:%d gy:%d px:%d py:%d\n", xSect, ySect, zp.x, zp.y);
 
 		switch (xSect % 2) {
 		case 0:
-
-			if (xPxl < sideSize - yPxl * m) {
-				gridX = xSect - 1;
-				gridY = ySect - 1;
+			if ( yPxl <= height ) {
+				if (xPxl < sideSize - yPxl * m) {
+					gridX = xSect - 1;
+					gridY = ySect - 1;
+				}
+			} else {
+				if (xPxl < (yPxl - height) * m) {
+					gridX = xSect - 1;
+					//gridY = ySect;
+				}
 			}
-			
-			if (xPxl < - sideSize - xPxl * m) {
-				gridX = xSect - 1;
-				gridY = ySect;
-			}
-			
 			break;
 		case 1:
-			
 			if (yPxl >= height) {
-				
-				if (xPxl < (2 * sideSize - yPxl * m)) {
+				if (xPxl < (sideSize - (yPxl - height) * m) ) {
 					gridX = xSect - 1;
-					gridY = ySect;
+					//gridY = ySect;
 				} else {
-					gridX = xSect;
-					gridY = ySect;
+					//gridX = xSect;
+					//gridY = ySect;
 				}
-				
 			} else {
-				
-				if (xPxl < yPxl * m) {
+				if (xPxl < (yPxl * m) ) {
 					gridX = xSect - 1;
-					gridY = ySect;
+					//gridY = ySect;
 				} else {
-					gridX = xSect;
+					//gridX = xSect;
 					gridY = ySect - 1;
 				}
 			}
 			
 			break;
 		}
+//		System.out.format("gx:%d gy:%d\n", gridX, gridY);
 		
 		return new CellPoint(gridX, gridY);
 	}
 
+	/* (non-Javadoc)
+	 * @see net.rptools.maptool.model.Grid#convert(net.rptools.maptool.model.CellPoint)
+	 * 
+	 * Returns the center point of the hex as the ZonePoint. cellOffset is
+	 * used to position tokens correctly.
+	 */
 	@Override
 	public ZonePoint convert(CellPoint cp) {
-
-		int x = (int)Math.round(cp.x * (sideSize + topWidth)) + getOffsetX();
-		int y = cp.y * 2 * height + (cp.x % 2 == 0  ||  cp.x < 0 ? 1 : 2) * height + getOffsetY();
+		int x,y;
+		
+		x = (int)Math.round(cp.x * (sideSize + topWidth) + topWidth) + getOffsetX();			
+		
+		y = cp.y * 2 * height + (cp.x % 2 == 0 ? 1 : 2)* height + getOffsetY();
 		
 		return new ZonePoint(x, y);
 	}
@@ -220,7 +245,7 @@ public class HexGrid extends Grid {
 
 		double scale = renderer.getScale();
 
-		double scaledSize = scale * getSize();
+//		double scaledSize = scale * getSize();
 		
         createShape(scale);
         
@@ -245,7 +270,7 @@ public class HexGrid extends Grid {
 			double offsetX = (int)(count % 2 == 0 ? 0 : -(scaledSideSize + scaledTopWidth));
 			count ++;
 
-			for (double x = offX%(scaledSize+scaledTopWidth) - (scaledSize+scaledTopWidth); x < renderer.getSize().width + scaledTopWidth; x += scaledSideSize*2 + scaledTopWidth*2) {
+			for (double x = offX%(3 * scaledTopWidth) - (3 * scaledTopWidth); x < renderer.getSize().width + scaledTopWidth; x += scaledSideSize*2 + scaledTopWidth*2) {
 
 				g.translate(x + offsetX, y);
 				g.draw(scaledHex);
