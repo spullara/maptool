@@ -710,23 +710,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 					menu.addSeparator();
 					menu.add(new JMenuItem(new AbstractAction() {
 						{
-							putValue(NAME, "Use as paint");
+							putValue(NAME, "Add to paint palette");
 						}
 						public void actionPerformed(ActionEvent e) {
 							Asset asset = panel.getAsset(index);
 							AssetManager.putAsset(asset);
-							colorPicker.setForegroundPaint(new AssetPaint(asset));
-							textureChooserPanel.addTexture(asset);
-						}
-					}));
-					menu.add(new JMenuItem(new AbstractAction() {
-						{
-							putValue(NAME, "Use as background paint");
-						}
-						public void actionPerformed(ActionEvent e) {
-							Asset asset = panel.getAsset(index);
-							AssetManager.putAsset(asset);
-							colorPicker.setBackgroundPaint(new AssetPaint(asset));
 							textureChooserPanel.addTexture(asset);
 						}
 					}));

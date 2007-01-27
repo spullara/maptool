@@ -47,6 +47,7 @@ public class TextureChooserPanel extends AbstractPaintChooserPanel {
 	public void addTexture(Asset asset) {
 		
 		((TextureChooserImagePanelModel)imagePanel.getModel()).addAsset(asset);
+		repaint();
 	}
 	
 	@Override
