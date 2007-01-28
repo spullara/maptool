@@ -52,6 +52,7 @@ public class AppMenuBar extends JMenuBar {
         add(createEditMenu());
         add(createViewMenu());
         add(createToolsMenu());
+        add(createWindowMenu());
         add(createHelpMenu());
     }
     
@@ -228,6 +229,17 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.ZOOM_RESET));
 
         return menu;
+    }
+    
+    protected JMenu createWindowMenu() {
+    	JMenu menu = I18N.createMenu("menu.window");
+    	
+    	for(MTFrame frame : MapToolFrame.MTFrame.values()) {
+    		JMenuItem menuItem = new RPCheckBoxMenuItem(new AppActions.ToggleWindowAction(frame));
+    		menu.add(menuItem);
+    	}
+    	
+    	return menu;
     }
     
     protected JMenu createRecentCampaignMenu() {
