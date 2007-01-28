@@ -486,14 +486,18 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		};
 	}
 
+	public boolean isCommandPanelVisible() {
+		return getFrame(MTFrame.CHAT).isShowing();
+	}
+	
 	public void showCommandPanel() {
 		chatActionLabel.setVisible(false);
-		// rightSplitPane.showBottom();
+		getDockingManager().showFrame(MTFrame.CHAT.name());
 		commandPanel.requestFocus();
 	}
 
 	public void hideCommandPanel() {
-		// rightSplitPane.hideBottom();
+		getDockingManager().hideFrame(MTFrame.CHAT.name());
 	}
 
 	public ColorPicker getColorPicker() {

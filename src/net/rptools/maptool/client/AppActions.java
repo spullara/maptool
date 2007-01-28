@@ -609,7 +609,8 @@ public class AppActions {
 		}
 
 		public void execute(ActionEvent e) {
-			if (!MapTool.getFrame().getCommandPanel().isVisible()) {
+			if (!MapTool.getFrame().isCommandPanelVisible()) {
+				MapTool.getFrame().showCommandPanel();
 				MapTool.getFrame().getCommandPanel().startChat();
 			} else {
 				MapTool.getFrame().hideCommandPanel();
