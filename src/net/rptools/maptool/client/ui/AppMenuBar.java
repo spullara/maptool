@@ -35,24 +35,23 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
-import com.jidesoft.docking.DockableFrame;
-
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MRUCampaignManager;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.tool.drawing.DrawableUndoManager;
-import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.language.I18N;
 
 public class AppMenuBar extends JMenuBar {
+	
+	public static MRUCampaignManager mruManager;
 
     public AppMenuBar() {
         add(createFileMenu());
         add(createEditMenu());
         add(createViewMenu());
         add(createToolsMenu());
-        add(createWindowMenu());
         add(createHelpMenu());
     }
     
@@ -64,27 +63,29 @@ public class AppMenuBar extends JMenuBar {
     }
 
     protected JMenu createFileMenu() {
-        JMenu menu = I18N.createMenu("menu.file");
-
-        menu.add(new JMenuItem(AppActions.NEW_CAMPAIGN));
-        menu.add(new JMenuItem(AppActions.LOAD_CAMPAIGN));
-        menu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN));
-        menu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN_AS));
-        menu.add(new JMenuItem(AppActions.SAVE_MESSAGE_HISTORY));
-        menu.addSeparator();
-        menu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT_LAST_LOCATION));
-        menu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT));
-        menu.addSeparator();
-        menu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
-        menu.addSeparator();
-        menu.add(new JMenuItem(AppActions.START_SERVER));
-        menu.add(new JMenuItem(AppActions.CONNECT_TO_SERVER));
-        menu.add(new JMenuItem(AppActions.DISCONNECT_FROM_SERVER));
-        menu.add(new JMenuItem(AppActions.SHOW_SERVER_INFO));
-        menu.addSeparator();
-        menu.add(new JMenuItem(AppActions.EXIT));
-
-        return menu;
+        JMenu fileMenu = I18N.createMenu("menu.file");
+        
+    	fileMenu.add(new JMenuItem(AppActions.NEW_CAMPAIGN));
+    	fileMenu.add(new JMenuItem(AppActions.LOAD_CAMPAIGN));
+        fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN));
+        fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN_AS));
+        fileMenu.add(new JMenuItem(AppActions.SAVE_MESSAGE_HISTORY));
+        fileMenu.addSeparator();
+        fileMenu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT_LAST_LOCATION));
+        fileMenu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT));
+        fileMenu.addSeparator();
+        fileMenu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
+        fileMenu.addSeparator();
+        fileMenu.add(new JMenuItem(AppActions.START_SERVER));
+        fileMenu.add(new JMenuItem(AppActions.CONNECT_TO_SERVER));
+        fileMenu.add(new JMenuItem(AppActions.DISCONNECT_FROM_SERVER));
+        fileMenu.add(new JMenuItem(AppActions.SHOW_SERVER_INFO));
+        fileMenu.addSeparator();
+        fileMenu.add(createRecentCampaignMenu());
+        fileMenu.addSeparator();
+        fileMenu.add(new JMenuItem(AppActions.EXIT));
+                
+        return fileMenu;
     }
     
     protected JMenu createEditMenu() {
@@ -229,14 +230,9 @@ public class AppMenuBar extends JMenuBar {
         return menu;
     }
     
-    protected JMenu createWindowMenu() {
-    	JMenu menu = I18N.createMenu("menu.window");
-    	
-    	for(MTFrame frame : MapToolFrame.MTFrame.values()) {
-    		JMenuItem menuItem = new RPCheckBoxMenuItem(new AppActions.ToggleWindowAction(frame));
-    		menu.add(menuItem);
-    	}
-    	
-    	return menu;
+    protected JMenu createRecentCampaignMenu() {
+    	JMenu menu = I18N.createMenu("menu.recent");
+    	mruManager = new MRUCampaignManager(menu);
+    	return mruManager.GetMRUMenu();
     }
 }

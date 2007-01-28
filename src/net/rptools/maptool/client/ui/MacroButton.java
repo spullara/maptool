@@ -89,7 +89,7 @@ public class MacroButton extends JButton {
 		if( hotKey.equals(MacroButtonHotKeyManager.HOTKEYS[0]) )
 			return label;
 		else
-			return label + " (" + hotKey + ")";
+			return "<html>" + label + "<font size=-3> (" + hotKey + ")</font></html>";
 	}
 	
 	

@@ -47,12 +47,14 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JMenuBar;
 import javax.swing.KeyStroke;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
+import net.rptools.maptool.client.ui.AppMenuBar;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.ExportDialog;
@@ -364,9 +366,6 @@ public class AppActions {
 
 	};
 
-	private static final Pattern NAME_PATTERN = Pattern
-			.compile("^(\\D*)(\\d+)$");
-
 	public static final Action PASTE_TOKENS = new DefaultClientAction() {
 		{
 			init("action.pasteTokens");
@@ -407,27 +406,9 @@ public class AppActions {
 
 				token.setX(token.getX() + zonePoint.x);
 				token.setY(token.getY() + zonePoint.y);
-
-				// If we're copying to the same zone, the token needs a new name
-				String name = token.getName();
-				Matcher m = NAME_PATTERN.matcher(token.getName());
-				if (m.find()) {
-					name = m.group(1);
-					int num = Integer.parseInt(m.group(2)) + 1;
-
-					// Find the next available token number, this
-					// has to break at some point.
-					while (zone.getTokenByName(name + num) != null) {
-						num++;
-					}
-
-					name += num;
-				} else {
-					name += "1";
-				}
-
-				token.setName(name);
-
+			
+				// check the token's name
+				token.setName(MapToolUtil.nextTokenId(zone, token.getName()));
 				zone.putToken(token);
 				MapTool.serverCommand().putToken(zone.getId(), token);
 			}
@@ -1139,56 +1120,63 @@ public class AppActions {
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
 			if (chooser.showOpenDialog(MapTool.getFrame()) == JFileChooser.APPROVE_OPTION) {
-
-				new Thread() {
-					public void run() {
-
-						try {
-							File campaignFile = chooser.getSelectedFile();
-							StaticMessageDialog progressDialog = new StaticMessageDialog(
-									"Loading Campaign");
-							try {
-								// I'm going to get struck by lighting for
-								// writing code like this.
-								// CLEAN ME CLEAN ME CLEAN ME ! I NEED A
-								// SWINGWORKER !
-								MapTool.getFrame().showFilledGlassPane(
-										progressDialog);
-
-								PersistedCampaign campaign = PersistenceUtil.loadCampaign(campaignFile);
-								
-								if (campaign != null) {
-
-									AppState.setCampaignFile(campaignFile);
-									AppPreferences.setLoadDir(campaignFile.getParentFile());
-
-									MapTool.setCampaign(campaign.campaign);
-
-									MapTool.serverCommand().setCampaign(campaign.campaign);
-
-									if (campaign.currentZoneId != null) {
-										MapTool.getFrame().setCurrentZoneRenderer(MapTool.getFrame().getZoneRenderer(campaign.currentZoneId));
-										
-										if (campaign.currentView != null) {
-											MapTool.getFrame().getCurrentZoneRenderer().setZoneScale(campaign.currentView);
-										}
-									}
-								}
-
-							} finally {
-								MapTool.getFrame().hideGlassPane();
-							}
-
-						} catch (IOException ioe) {
-							MapTool
-									.showError("Could not load campaign: "
-											+ ioe);
-						}
-					}
-				}.start();
+				File campaignFile = chooser.getSelectedFile();
+				LoadCampaign(campaignFile);
 			}
 		}
 	};
+	
+	
+	public static void LoadCampaign(final File campaignFile) {
+		
+		new Thread() {
+			public void run() {
+
+				try {
+					StaticMessageDialog progressDialog = new StaticMessageDialog(
+							"Loading Campaign");
+					try {
+						// I'm going to get struck by lighting for
+						// writing code like this.
+						// CLEAN ME CLEAN ME CLEAN ME ! I NEED A
+						// SWINGWORKER !
+						MapTool.getFrame().showFilledGlassPane(
+								progressDialog);
+
+						PersistedCampaign campaign = PersistenceUtil.loadCampaign(campaignFile);
+						
+						if (campaign != null) {
+
+							AppState.setCampaignFile(campaignFile);
+							AppPreferences.setLoadDir(campaignFile.getParentFile());
+							
+							AppMenuBar.mruManager.addMRUCampaign(campaignFile);
+
+							MapTool.setCampaign(campaign.campaign);
+
+							MapTool.serverCommand().setCampaign(campaign.campaign);
+									
+							if (campaign.currentZoneId != null) {
+								MapTool.getFrame().setCurrentZoneRenderer(MapTool.getFrame().getZoneRenderer(campaign.currentZoneId));
+									
+								if (campaign.currentView != null) {
+									MapTool.getFrame().getCurrentZoneRenderer().setZoneScale(campaign.currentView);
+								}
+							}			
+						}
+
+					} finally {
+						MapTool.getFrame().hideGlassPane();
+					}
+
+				} catch (IOException ioe) {
+					MapTool
+							.showError("Could not load campaign: "
+									+ ioe);
+				}
+			}
+		}.start();
+	}
 
 	public static final Action SAVE_CAMPAIGN = new DefaultClientAction() {
 		{
@@ -1214,6 +1202,7 @@ public class AppActions {
 				PersistenceUtil.saveCampaign(campaign, AppState
 						.getCampaignFile());
 				MapTool.showInformation("msg.info.campaignSaved");
+				AppMenuBar.mruManager.addMRUCampaign(AppState.getCampaignFile());
 			} catch (IOException ioe) {
 				MapTool.showError("Could not save campaign: " + ioe);
 			}
@@ -1250,7 +1239,7 @@ public class AppActions {
 
 					AppState.setCampaignFile(campaignFile);
 					AppPreferences.setSaveDir(campaignFile.getParentFile());
-
+					AppMenuBar.mruManager.addMRUCampaign(AppState.getCampaignFile());
 					MapTool.showInformation("msg.info.campaignSaved");
 				} catch (IOException ioe) {
 					MapTool.showError("Could not save campaign: " + ioe);
@@ -1596,4 +1585,19 @@ public class AppActions {
 					&& "true".equals(System.getProperty("MAPTOOL_DEV"));
 		}
 	}
+	
+	public static class OpenMRUCampaign extends AbstractAction {
+		
+		private File campaignFile;
+
+		public OpenMRUCampaign(File file, int position) {
+			campaignFile = file;
+			putValue(Action.NAME, position + " " + campaignFile.getName());
+		}
+		
+		public void actionPerformed(ActionEvent ae) {
+			AppActions.LoadCampaign(campaignFile);			
+		}
+	}
+
 }

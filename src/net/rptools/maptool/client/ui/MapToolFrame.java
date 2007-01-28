@@ -52,7 +52,9 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -63,6 +65,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.tree.TreePath;
@@ -269,6 +272,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		setGlassPane(glassPane);
 
+		removeWindowsF10();
 		configureDocking();
 		
 		// TODO: Put together a class that handles adding in the listeners, just
@@ -1148,5 +1152,14 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				renderer.repaint();
 			}
 		}
+	}
+	
+	//Windows OS defaults F10 to the menubar, noooooo!! We want for macro buttons
+	private void removeWindowsF10() {
+		
+		InputMap imap = menuBar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+		Object action = imap.get(KeyStroke.getKeyStroke("F10"));
+		ActionMap amap = menuBar.getActionMap();
+		amap.getParent().remove(action);
 	}
 }

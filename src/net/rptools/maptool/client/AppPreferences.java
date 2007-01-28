@@ -27,7 +27,10 @@ package net.rptools.maptool.client;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.rptools.maptool.model.GridFactory;
 
@@ -39,6 +42,7 @@ public class AppPreferences {
     private static final String KEY_ASSET_ROOTS = "assetRoots";
     private static final String KEY_SAVE_DIR = "saveDir";
     private static final String KEY_LOAD_DIR = "loadDir";
+    private static final String KEY_MRU_CAMPAIGNS = "mruCampaigns";
     
     private static final String KEY_USE_TRANSLUCENT_FOG = "useTranslucentFog";
     private static final boolean DEFAULT_USE_TRANSLUCENT_FOG = true;
@@ -75,7 +79,7 @@ public class AppPreferences {
     
     private static final String KEY_FONT_SIZE = "fontSize";
     private static final int DEFAULT_FONT_SIZE = 12;
-    
+        
     
     public static void setFontSize(int size) {
     	prefs.putInt(KEY_FONT_SIZE, size);
@@ -241,4 +245,31 @@ public class AppPreferences {
             addAssetRoot(dir);
         }
     }
+    
+    
+    public static void setMruCampaigns (List<File> mruCampaigns) {
+    	
+    	String combined = "";
+		for (ListIterator<File> iter = mruCampaigns.listIterator(); iter.hasNext();) {
+			combined += iter.next().getPath();
+			combined += File.pathSeparator;
+		}
+		prefs.put(KEY_MRU_CAMPAIGNS, combined);
+    }
+    
+    
+    public static List<File> getMruCampaigns() {
+
+        List<File> mruCampaigns = new ArrayList<File>();
+        String combined = prefs.get(KEY_MRU_CAMPAIGNS, null);
+        if (combined != null) {
+            String[] all = combined.split(File.pathSeparator);
+            for (int i = 0; i < all.length; i++)
+                mruCampaigns.add(new File(all[i]));
+        }
+        return mruCampaigns;
+    }
+
+    
+    
 }

@@ -70,42 +70,44 @@ public class MapToolUtil {
         return roll < percentage;
     }
 
-    public static final Pattern ENDS_IN_INDEX = Pattern.compile(" \\d$");
+	private static final Pattern NAME_PATTERN = Pattern.compile("(.*) (\\d+)");
     public static String nextTokenId(Zone zone, String baseName) {
-
-      // Create a name
+    	
+        // Create a name
     	if (baseName == null) {
 	    	int nextId = nextTokenId.getAndIncrement();
 	    	char ch = (char)('a' + MapTool.getPlayerList().indexOf(MapTool.getPlayer()));
 	    	return ch + Integer.toString(nextId);
     	}
     	
-      // Check for an already numbered name
-      baseName = baseName.trim();
-      Matcher matcher = ENDS_IN_INDEX.matcher(baseName);
-      int index = 0;
-      if (matcher.find()) {
-        index = Integer.parseInt(baseName.substring(matcher.start() + 1));
-        baseName = baseName.substring(0, matcher.start()).trim();
-      }
-      
-      // Find a valid index, if the index > 0 then add it to the name
-    	String name = baseName + (index == 0 ? "" : (" " + index));
-    	List<Token> tokenList = zone.getAllTokens();
-OUTTER: 
-      while (true) {  // Repeat until the name is unique       
-        for (Token token : tokenList) {
-          if (token.getName() != null && token.getName().equals(name)) {
-            index ++;
-            name = baseName + " " + index; 
-            continue OUTTER;
-          } // endif
-        } // endfor
-        break;
-      } // endwhile
-    	return name;
+    	baseName = baseName.trim();
+    	String newName;
+		Matcher m = NAME_PATTERN.matcher(baseName);
+		
+		if (m.find())
+			newName = m.group(1);
+		else
+			newName = baseName;
+
+		if (zone.getTokenByName(newName) != null)
+		{			
+			int num = 2;
+
+			// Find the next available token number, this
+			// has to break at some point.
+			while (zone.getTokenByName(newName + " " + num) != null) {
+				num++;
+			}
+
+			newName += " ";
+			newName += num;
+		}	
+
+		return newName;
+		
     }
-    
+
+    	
     public static boolean isDebugEnabled() {
     	return System.getProperty("MAPTOOL_DEV") != null;
     }
