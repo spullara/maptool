@@ -43,7 +43,8 @@ public abstract class Vision {
 	 * The Vision's menu label
 	 */	
 	public String getLabel() {
-		return "<html>"  + name + " <font size=-2>(" + this + "-" + Integer.toString(distance) + ")</font></html>";
+		System.out.println(name);
+		return "<html>"  + (name != null ? name : "") + " <font size=-2>(" + this + "-" + Integer.toString(distance) + ")</font></html>";
 	}
 
 	/**

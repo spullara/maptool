@@ -36,11 +36,6 @@ public class BlockyRoundVision extends Vision {
 		return "Blocky Round";
 	}
 	
-	@Override
-	public String getLabel() {
-		return "<html>"  + name + " <font size=-2>(BR-" + Integer.toString(distance) + ")</font></html>";
-	}
-	
 	private enum Quadrant {
 		NE, NW, SE, SW
 	}
