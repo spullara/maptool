@@ -1225,7 +1225,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             }
             
             // Vision visibility
-            if (!view.isGMView() && isUsingVision) {
+            if (!view.isGMView() && token.isToken() && isUsingVision) {
             	if (!visibleArea.intersects(tokenBounds)) {
             		continue;
             	}
