@@ -109,7 +109,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	
 	private class ExposeVisibleAreaAction extends AbstractAction {
 		public ExposeVisibleAreaAction() {
-			putValue(Action.NAME, "Visible area (Ctrl - R)");
+			putValue(Action.NAME, "Visible area (Ctrl - I)");
 		}
 		
 		public void actionPerformed(ActionEvent e) {
