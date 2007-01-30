@@ -154,8 +154,10 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 						}
 						if (SwingUtilities.isRightMouseButton(e)) {	
 							new VisionDialog(getRenderer().getZone(), getTokenUnderMouse(), vision).setVisible(true);
-							getRenderer().repaint();
 						}
+						getRenderer().flush(getTokenUnderMouse());
+						MapTool.serverCommand().putToken(renderer.getZone().getId(), getTokenUnderMouse());
+						getRenderer().repaint();
 					}
 				});
 
