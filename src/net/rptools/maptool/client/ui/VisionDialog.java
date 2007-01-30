@@ -47,6 +47,7 @@ import com.jeta.forms.components.panel.FormPanel;
 
 public class VisionDialog extends JDialog {
 
+	private JTextField nameTextField;
 	private JTextField distanceTextField;
 	private JCheckBox enabledCheckBox;
 	private JComboBox typeCombo;
@@ -61,6 +62,7 @@ public class VisionDialog extends JDialog {
 
 		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/visionDialog.jfrm");
 		
+		initNameTextField(panel, vision);
 		initEnabledCheckBox(panel, vision);
 		initDistanceTextField(panel, vision);
 		initTypeCombo(panel, token, vision);
@@ -79,6 +81,11 @@ public class VisionDialog extends JDialog {
 			SwingUtil.centerOver(this, MapTool.getFrame());
 		}
 		super.setVisible(b);
+	}
+	
+	private void initNameTextField(FormPanel panel, Vision vision) {
+		nameTextField = panel.getTextField("name");
+		nameTextField.setText(vision != null ? vision.getName() : "");
 	}
 	
 	private void initEnabledCheckBox(FormPanel panel, Vision vision) {
@@ -142,6 +149,7 @@ public class VisionDialog extends JDialog {
 	private void commit(Zone zone, Token token) {
 		Vision vision = (Vision) typeCombo.getSelectedItem();
 		// TODO: Check for valid value
+		vision.setName(nameTextField.getText());
 		vision.setDistance(Integer.parseInt(distanceTextField.getText()));
 		vision.setEnabled(enabledCheckBox.isSelected());
 		

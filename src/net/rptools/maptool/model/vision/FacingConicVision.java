@@ -77,4 +77,9 @@ public class FacingConicVision extends Vision {
 	public String toString() {
 		return "Conic Facing";
 	}
+
+	@Override
+	public String getLabel() {
+		return "<html>"  + name + " <font size=-2>(C-" + Integer.toString(distance) + ")</font></html>";
+	}
 }

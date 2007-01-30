@@ -9,7 +9,7 @@ import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 
 public class BlockyRoundVision extends Vision {
-
+	
 	public BlockyRoundVision() {
 	}
 	
@@ -34,6 +34,11 @@ public class BlockyRoundVision extends Vision {
 	@Override
 	public String toString() {
 		return "Blocky Round";
+	}
+	
+	@Override
+	public String getLabel() {
+		return "<html>"  + name + " <font size=-2>(BR-" + Integer.toString(distance) + ")</font></html>";
 	}
 	
 	private enum Quadrant {

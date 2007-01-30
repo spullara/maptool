@@ -35,4 +35,9 @@ public class RoundVision extends Vision {
 	public String toString() {
 		return "Round";
 	}
+	
+	@Override
+	public String getLabel() {
+		return "<html>"  + name + " <font size=-2>(R-" + Integer.toString(distance) + ")</font></html>";
+	}
 }

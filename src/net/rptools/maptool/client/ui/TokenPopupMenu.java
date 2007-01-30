@@ -73,6 +73,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		
 		add(new JSeparator());
 		
+		add(AppActions.CUT_TOKENS);
 		add(AppActions.COPY_TOKENS);
 		
 		add(new JSeparator());

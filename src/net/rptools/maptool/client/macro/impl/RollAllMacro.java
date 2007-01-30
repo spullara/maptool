@@ -39,7 +39,7 @@ public class RollAllMacro extends AbstractRollMacro {
         String result = roll(macro);
         if (result != null) {
         	
-            MapTool.addMessage(new TextMessage(TextMessage.Channel.ALL, null, MapTool.getPlayer().getName() + " rolls: " + result));
+            MapTool.addMessage(new TextMessage(TextMessage.Channel.ALL, null, "* " + MapTool.getPlayer().getName() + " rolls: " + result));
         }
     }
 }

@@ -9,7 +9,8 @@ public abstract class Vision {
 		CENTER
 	}
 	
-	private int distance;
+	protected String name;
+	protected int distance;
 	private int angle; // degrees
 	private boolean enabled = true;
 	private int lastGridSize;
@@ -22,6 +23,27 @@ public abstract class Vision {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+	
+	/**
+	 * The Vision's name
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	/**
+	 * The Vision's name
+	 */
+	public String getName() {
+		return name;
+	}
+	
+	/**
+	 * The Vision's menu label
+	 */	
+	public String getLabel() {
+		return "<html>"  + name + " <font size=-2>(" + this + "-" + Integer.toString(distance) + ")</font></html>";
 	}
 
 	/**

@@ -682,6 +682,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	protected void installKeystrokes(Map<KeyStroke, Action> actionMap) {
 		super.installKeystrokes(actionMap);
 		
+		actionMap.put(KeyStroke.getKeyStroke("control X"), AppActions.CUT_TOKENS);
 		actionMap.put(KeyStroke.getKeyStroke("control C"), AppActions.COPY_TOKENS);
 		actionMap.put(KeyStroke.getKeyStroke("control V"), AppActions.PASTE_TOKENS);
 		actionMap.put(KeyStroke.getKeyStroke("control R"), new AbstractAction() {

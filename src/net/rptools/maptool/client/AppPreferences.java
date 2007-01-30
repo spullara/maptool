@@ -249,12 +249,12 @@ public class AppPreferences {
     
     public static void setMruCampaigns (List<File> mruCampaigns) {
     	
-    	String combined = "";
+    	StringBuilder combined = new StringBuilder("");
 		for (ListIterator<File> iter = mruCampaigns.listIterator(); iter.hasNext();) {
-			combined += iter.next().getPath();
-			combined += File.pathSeparator;
+			combined.append(iter.next().getPath());
+			combined.append(File.pathSeparator);
 		}
-		prefs.put(KEY_MRU_CAMPAIGNS, combined);
+		prefs.put(KEY_MRU_CAMPAIGNS, combined.toString());
     }
     
     

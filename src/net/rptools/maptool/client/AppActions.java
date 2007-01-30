@@ -323,6 +323,40 @@ public class AppActions {
 			}
 		}
 	};
+	
+	public static final Action CUT_TOKENS = new DefaultClientAction() {
+		{
+			init("action.cutTokens");
+		}
+		
+		@Override
+		public boolean isAvailable() {
+			return super.isAvailable()
+					&& MapTool.getFrame().getCurrentZoneRenderer() != null;
+		}
+		
+		public void execute(ActionEvent e) {
+			
+			copyTokens();
+			
+			// delete tokens
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			Zone zone = renderer.getZone();
+			Set<GUID> selectedSet = renderer.getSelectedTokenSet();
+			
+			for (GUID tokenGUID : selectedSet) {
+				
+				Token token = zone.getToken(tokenGUID);
+				
+				if (AppUtil.playerOwns(token)) {
+                    renderer.getZone().removeToken(tokenGUID);
+                    MapTool.serverCommand().removeToken(renderer.getZone().getId(), tokenGUID);
+				}
+			}
+		
+			renderer.clearSelectedTokens();
+		}
+	};
 
 	public static final Action COPY_TOKENS = new DefaultClientAction() {
 		{
@@ -336,35 +370,38 @@ public class AppActions {
 		}
 
 		public void execute(ActionEvent e) {
-
-			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-			Zone zone = renderer.getZone();
-			Set<GUID> selectedSet = renderer.getSelectedTokenSet();
-
-			Integer top = null;
-			Integer left = null;
-			tokenCopySet = new HashSet<Token>();
-			for (GUID guid : selectedSet) {
-				Token token = zone.getToken(guid);
-
-				if (top == null || token.getY() < top) {
-					top = token.getY();
-				}
-				if (left == null || token.getX() < left) {
-					left = token.getX();
-				}
-
-				tokenCopySet.add(new Token(token));
-			}
-
-			// Normalize
-			for (Token token : tokenCopySet) {
-				token.setX(token.getX() - left);
-				token.setY(token.getY() - top);
-			}
+			copyTokens();
 		}
 
 	};
+	
+	private static final void copyTokens() {
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+		Zone zone = renderer.getZone();
+		Set<GUID> selectedSet = renderer.getSelectedTokenSet();
+
+		Integer top = null;
+		Integer left = null;
+		tokenCopySet = new HashSet<Token>();
+		for (GUID guid : selectedSet) {
+			Token token = zone.getToken(guid);
+
+			if (top == null || token.getY() < top) {
+				top = token.getY();
+			}
+			if (left == null || token.getX() < left) {
+				left = token.getX();
+			}
+
+			tokenCopySet.add(new Token(token));
+		}
+
+		// Normalize
+		for (Token token : tokenCopySet) {
+			token.setX(token.getX() - left);
+			token.setY(token.getY() - top);
+		}
+	}
 
 	public static final Action PASTE_TOKENS = new DefaultClientAction() {
 		{
@@ -1121,13 +1158,13 @@ public class AppActions {
 
 			if (chooser.showOpenDialog(MapTool.getFrame()) == JFileChooser.APPROVE_OPTION) {
 				File campaignFile = chooser.getSelectedFile();
-				LoadCampaign(campaignFile);
+				loadCampaign(campaignFile);
 			}
 		}
 	};
 	
 	
-	public static void LoadCampaign(final File campaignFile) {
+	private static void loadCampaign(final File campaignFile) {
 		
 		new Thread() {
 			public void run() {
@@ -1596,7 +1633,7 @@ public class AppActions {
 		}
 		
 		public void actionPerformed(ActionEvent ae) {
-			AppActions.LoadCampaign(campaignFile);			
+			AppActions.loadCampaign(campaignFile);			
 		}
 	}
 

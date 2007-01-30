@@ -7,6 +7,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.KeyStroke;
@@ -84,12 +86,25 @@ public class MacroButton extends JButton {
 		setBackground(command != null ? Color.orange : null);
 	}
 	
+	/**
+	 *  Get the text for the macro button by filtering out
+	 *   label macro (if any), and add hotkey hint (if any)
+	 */
 	public String getButtonText() {
-		
-		if( hotKey.equals(MacroButtonHotKeyManager.HOTKEYS[0]) )
-			return label;
+	
+		String buttonLabel;
+		final Pattern MACRO_LABEL = Pattern.compile("^(/\\w+\\s+)(.*)$");
+		Matcher m = MACRO_LABEL.matcher(label);
+		if(m.matches())
+			buttonLabel = m.group(2);
 		else
-			return "<html>" + label + "<font size=-3> (" + hotKey + ")</font></html>";
+			buttonLabel = label;
+		
+		// if there is no hotkey (HOTKEY[0]) then no need to add hint
+		if( hotKey.equals(MacroButtonHotKeyManager.HOTKEYS[0]) )
+			return buttonLabel;
+		else
+			return "<html>" + buttonLabel + "<font size=-3> (" + hotKey + ")</font></html>";
 	}
 	
 	
@@ -115,7 +130,7 @@ public class MacroButton extends JButton {
 			JTextArea commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
 
 			if (includeLabel) {
-				String commandToExecute = "/th " + label;
+				String commandToExecute = label;
 				commandArea.setText(commandToExecute);
 		
 				MapTool.getFrame().getCommandPanel().commitCommand();

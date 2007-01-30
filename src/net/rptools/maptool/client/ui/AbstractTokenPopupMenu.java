@@ -3,6 +3,8 @@ package net.rptools.maptool.client.ui;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -13,6 +15,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
@@ -131,7 +134,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		}
 		return changeTypeMenu;
 	}
-	
+
 	protected JMenu createVisionMenu() {
 		JMenu visionMenu = I18N.createMenu("defaultTool.visionMenu");
 		
@@ -140,15 +143,22 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		} else {
 
 			for (final Vision vision : getTokenUnderMouse().getVisionList()) {
-				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(vision.toString()); 
+				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(vision.getLabel()); 
 				menuItem.setSelected(vision.isEnabled());
-				menuItem.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						new VisionDialog(getRenderer().getZone(), getTokenUnderMouse(), vision).setVisible(true);
-						getRenderer().repaint();
+				menuItem.addMouseListener( new MouseAdapter() {
+					@Override
+					public void mousePressed(MouseEvent e) {
+						if (SwingUtilities.isLeftMouseButton(e)) {
+                            // reverse whatever the current enablement is
+                            vision.setEnabled(!vision.isEnabled());
+						}
+						if (SwingUtilities.isRightMouseButton(e)) {	
+							new VisionDialog(getRenderer().getZone(), getTokenUnderMouse(), vision).setVisible(true);
+							getRenderer().repaint();
+						}
 					}
 				});
-				
+
 				visionMenu.add(menuItem);
 			}
 			
