@@ -418,6 +418,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public void centerOn(CellPoint point) {
         centerOn(zone.getGrid().convert(point));
     }
+
+    public void flush(Token token) {
+    	tokenVisionCache.remove(token);
+    }
     
     /**
      * Clear internal caches and backbuffers
@@ -632,9 +636,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				
 	        	g.setColor(new Color(0, 0, 0, 80));
 	    		g.fill(visitedArea);
-    		} else {
+	    		
 				visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
 				visibleArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+    		} else {
+    			visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+    			visibleArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
 	        	g.setColor(new Color(255, 255, 255, 80));
 	    		g.fill(visibleArea);
     		}
