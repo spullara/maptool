@@ -121,6 +121,7 @@ public class FacingTool extends DefaultTool {
     		}
     		
     		token.setFacing(degrees);
+    		renderer.flush(token);
     	}
 
     	renderer.repaint(); // TODO: shrink this
@@ -137,6 +138,7 @@ public class FacingTool extends DefaultTool {
     			continue;
     		}
     		
+    		renderer.flush(token);
     		MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
     	}
 		
