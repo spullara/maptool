@@ -3,9 +3,6 @@ package net.rptools.maptool.client.ui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Area;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -24,14 +21,10 @@ import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.TokenSize;
-import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 
@@ -141,6 +134,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		
 		public void actionPerformed(ActionEvent e) {
 
+			FogUtil.exposeLastPath(getRenderer().getZone(), selectedTokenSet);
 			getRenderer().repaint();
 		}
 		
