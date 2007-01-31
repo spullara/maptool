@@ -605,11 +605,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     			if (tokenVision == null) {
     				
 	    			for (Vision vision : token.getVisionList()) {
-	    				System.out.println("1 " + vision.getLabel());
 	    				if (!vision.isEnabled()) {
 	    					continue;
 	    				}
-	    				System.out.println("2");
 	    				
 	    				Area visionArea = vision.getArea(getZone());
 	    				if (visionArea == null) {
@@ -628,12 +626,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	    				if (visionArea == null) {
 	    					continue;
 	    				}
-	    				System.out.println("3");
 
 	    				if (visionArea != null && tokenVision == null) {
 	        				tokenVision = new Area();
 	    				}
-	    				System.out.println("4");
 	    				tokenVision.add(visionArea);
 	    			}
 	    			
