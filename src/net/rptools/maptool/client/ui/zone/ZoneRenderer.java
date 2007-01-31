@@ -824,6 +824,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				
 				Token token = zone.getToken(tokenGUID);
                 
+				boolean isOwner = token.isOwner(MapTool.getPlayer().getName());
+				
                 // Perhaps deleted ?
                 if (token == null) {
                     continue;
@@ -861,16 +863,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 }
 
                 // Vision visibility
-                if (!view.isGMView() && isUsingVision) {
-                	if (!visibleArea.intersects(x, y, width, height)) {
-                		continue;
-                	}
-                }
-
+				Rectangle clip = g.getClipBounds();
+				if (token.isToken() && !view.isGMView() && !isOwner && visibleArea != null) {
+					// Only show the part of the path that is visible
+					g.setClip(visibleArea);
+				}
+				
                 // Show distance only on the key token
 				if (token == keyToken) {
 
 					if (!token.isBackground()) {
+						
 						if (!token.isStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
 							renderPath(g, walker.getPath(), width/gridSize, height/gridSize);
 						} else {
@@ -906,6 +909,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     				wig.dispose();
     			}
                 
+    			
+    			// Draw token
     			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp() || token.isBackground())) {
 
     				// Rotated
@@ -924,7 +929,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     				// Normal
     				g.drawImage(workImage, x, y, scaledWidth-1, scaledHeight-1, this);
     			}
-                
 
 				// Other details
 				if (token == keyToken) {
@@ -942,6 +946,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 						GraphicsUtil.drawBoxedString(g, set.getPlayerId(), x, y);
 					}
 				}
+				g.setClip(clip);
 				
 			}
 
@@ -1337,6 +1342,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			}
 			
             // Draw image
+			Shape clip = g.getClipBounds();
+			if (token.isToken() && !view.isGMView() && !token.isOwner(MapTool.getPlayer().getName()) && visibleArea != null) {
+				g.setClip(visibleArea);
+			}
 			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp() || token.isBackground())) {
 				// Rotated
 				AffineTransform at = new AffineTransform();
@@ -1354,6 +1363,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 				// Normal
 	            g.drawImage(workImage, x, y, width, height, this);
 			}
+			g.setClip(clip);
 
 			// Halo (SQUARE)
 			if (token.hasHalo() && token.getTokenType() == Token.Type.SQUARE) {
@@ -1429,7 +1439,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             if (!token.getStatePropertyNames().isEmpty()) {
               
               // Set up the graphics so that the overlay can just be painted.
-              Shape clip = g.getClip();
+              clip = g.getClip();
               g.translate(x, y);
               Rectangle bounds = new Rectangle(0, 0, width, height);
               Rectangle overlayClip = g.getClipBounds().intersection(bounds);
