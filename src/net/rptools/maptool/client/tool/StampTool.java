@@ -361,6 +361,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 					tokenPropertiesDialog.setVisible(true);
 					if (tokenPropertiesDialog.isTokenSaved()) {
 						renderer.repaint();
+						renderer.flush(token);
 						MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 					}
 				}
@@ -424,6 +425,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		}
 		
 		if (isResizingToken) {
+			renderer.flush(tokenUnderMouse);
             MapTool.serverCommand().putToken(renderer.getZone().getId(), tokenUnderMouse);
 			isResizingToken = false;
 			return;

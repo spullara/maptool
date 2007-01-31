@@ -232,6 +232,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 				
 				token.setFacing(facing);
 				
+				renderer.flush(token);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
 

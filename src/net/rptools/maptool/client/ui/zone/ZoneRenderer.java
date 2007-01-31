@@ -379,7 +379,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             // No longer need this version
             replacementImageMap.remove(token);
             
-            tokenVisionCache.remove(token);
+            flush(token);
             MapTool.serverCommand().putToken(zone.getId(), token);
         }
         

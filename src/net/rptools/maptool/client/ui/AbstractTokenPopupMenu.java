@@ -99,6 +99,8 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 					}
 					
 					token.setFlippedX(!token.isFlippedX());
+					
+					renderer.flush(token);
 					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 				}
 				MapTool.getFrame().refresh();
@@ -117,6 +119,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 					}
 					
 					token.setFlippedY(!token.isFlippedY());
+					renderer.flush(token);
 					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 				}
 				MapTool.getFrame().refresh();
@@ -327,6 +330,8 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 					}
 					break;
 				}
+				
+				renderer.flush(token);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
 			
@@ -387,8 +392,8 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 				Token token = renderer.getZone().getToken(tokenGUID);
 				token.setFacing(null);
-				MapTool.serverCommand().putToken(renderer.getZone().getId(),
-						token);
+				renderer.flush(token);
+				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
 
 			renderer.repaint();
@@ -486,10 +491,11 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 							.setState(aE.getActionCommand(),
 									((JCheckBoxMenuItem) aE.getSource())
 											.isSelected() ? Boolean.TRUE : null);
-				} // endif
-				MapTool.serverCommand().putToken(renderer.getZone().getId(),
-						token);
-			} // endfor
+				}
+				
+				renderer.flush(token);
+				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+			} 
 			renderer.repaint();
 		}
 	}
@@ -516,8 +522,8 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 				Token token = renderer.getZone().getToken(tokenGUID);
 				token.setSize(size.value());
 				token.setSnapToScale(true);
-				MapTool.serverCommand().putToken(renderer.getZone().getId(),
-						token);
+				renderer.flush(token);
+				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
 
 			renderer.repaint();

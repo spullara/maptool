@@ -303,6 +303,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					tokenPropertiesDialog.setVisible(true);
 					if (tokenPropertiesDialog.isTokenSaved()) {
 						renderer.repaint();
+						renderer.flush(token);
 						MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 					}
 				}
