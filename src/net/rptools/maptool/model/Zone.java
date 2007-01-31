@@ -400,7 +400,7 @@ public class Zone extends Token {
     	copy.addAll(tokenOrderedList);
     	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
     		Token token = iter.next();
-    		if (token.isBackground()) {
+    		if (token.isBackground() || token.isStamp()) {
     			iter.remove();
     		}
     	}
