@@ -512,6 +512,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         tokenLocationMap.clear();
         coveredTokenSet.clear();
 
+        calculateVision(view);
+        
         // Rendering pipeline
     	renderBoard(g2d, view);
         renderTokens(g2d, zone.getBackgroundTokens(), view);
@@ -550,82 +552,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     private void renderVision(Graphics2D g, ZoneView view) {
 
-    	currentTokenVisionArea = null;
-    	
     	Object oldAntiAlias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
     	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     	
-    	visibleArea = null;
-    	for (Token token : zone.getAllTokens()) {
-
-    		if (token.hasVision()) {
-    			
-            	// Don't bother if it's not a player token
-            	if (!token.isVisible() && !view.isGMView()) {
-            		continue;
-            	}
-
-            	int width = TokenSize.getWidth(token, zone.getGrid());
-    			int height = TokenSize.getHeight(token, zone.getGrid());
-    			
-    			Area tokenVision = tokenVisionCache.get(token);
-    			if (tokenVision == null) {
-    				
-	    			for (Vision vision : token.getVisionList()) {
-	    				
-	    				if (!vision.isEnabled()) {
-	    					continue;
-	    				}
-	    				
-	    				Area visionArea = vision.getArea(getZone());
-	    				if (visionArea == null) {
-	    					continue;
-	    				}
-	    				
-	    				int x = token.getX();
-	    				int y = token.getY();
-	    				switch(vision.getAnchor()) {
-	    				case CENTER:
-	    					x += width/2;
-	    					y += height/2;
-	    				}
-	    				
-	    				visionArea = FogUtil.calculateVisibility(x, y, visionArea, zone.getTopology());
-	    				if (visionArea == null) {
-	    					continue;
-	    				}
-
-	    				if (visionArea != null) {
-	        				tokenVision = new Area();
-	    				}
-	    				tokenVision.add(visionArea);
-	    			}
-	    			
-	    			tokenVisionCache.put(token, tokenVision);
-    			}
-    			
-    			if (tokenVision != null) {
-					if (visibleArea == null) {
-						visibleArea = new Area();
-					}
-					visibleArea.add(tokenVision);
-					
-					if (token == tokenUnderMouse) {
-						tokenVision = new Area(tokenVision); // Don't modify the original, which is now in the cache
-						tokenVision.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-						tokenVision.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-						currentTokenVisionArea = tokenVision;
-						
-						if (!view.isGMView()) {
-							// Draw the outline under the fog
-							g.setColor(new Color(200, 200, 200));
-							g.draw(currentTokenVisionArea);
-						}
-					}
-    			}
-    		}
-    	}
-    	isUsingVision = visibleArea != null;
     	if (isUsingVision) {
     		if (zone.hasFog()) {
     		
@@ -646,7 +575,87 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	    		g.fill(visibleArea);
     		}
     	}
+    	if (currentTokenVisionArea != null && !view.isGMView()) {
+			// Draw the outline under the fog
+			g.setColor(new Color(200, 200, 200));
+			g.draw(currentTokenVisionArea);
+    	}
+    	
     	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntiAlias);
+    }
+    
+    private void calculateVision(ZoneView view) {
+
+    	currentTokenVisionArea = null;
+    	
+    	visibleArea = null;
+    	for (Token token : zone.getAllTokens()) {
+
+    		if (token.hasVision()) {
+    			
+            	// Don't bother if it's not a player token
+            	if (!token.isVisible() && !view.isGMView()) {
+            		continue;
+            	}
+
+            	int width = TokenSize.getWidth(token, zone.getGrid());
+    			int height = TokenSize.getHeight(token, zone.getGrid());
+    			
+    			Area tokenVision = tokenVisionCache.get(token);
+    			if (tokenVision == null) {
+    				
+	    			for (Vision vision : token.getVisionList()) {
+	    				System.out.println("1 " + vision.getLabel());
+	    				if (!vision.isEnabled()) {
+	    					continue;
+	    				}
+	    				System.out.println("2");
+	    				
+	    				Area visionArea = vision.getArea(getZone());
+	    				if (visionArea == null) {
+	    					continue;
+	    				}
+	    				
+	    				int x = token.getX();
+	    				int y = token.getY();
+	    				switch(vision.getAnchor()) {
+	    				case CENTER:
+	    					x += width/2;
+	    					y += height/2;
+	    				}
+	    				
+	    				visionArea = FogUtil.calculateVisibility(x, y, visionArea, zone.getTopology());
+	    				if (visionArea == null) {
+	    					continue;
+	    				}
+	    				System.out.println("3");
+
+	    				if (visionArea != null && tokenVision == null) {
+	        				tokenVision = new Area();
+	    				}
+	    				System.out.println("4");
+	    				tokenVision.add(visionArea);
+	    			}
+	    			
+	    			tokenVisionCache.put(token, tokenVision);
+    			}
+    			
+    			if (tokenVision != null) {
+					if (visibleArea == null) {
+						visibleArea = new Area();
+					}
+					visibleArea.add(tokenVision);
+					
+					if (token == tokenUnderMouse) {
+						tokenVision = new Area(tokenVision); // Don't modify the original, which is now in the cache
+						tokenVision.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+						tokenVision.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+						currentTokenVisionArea = tokenVision;
+					}
+    			}
+    		}
+    	}
+    	isUsingVision = visibleArea != null;
     }
     
     /**
