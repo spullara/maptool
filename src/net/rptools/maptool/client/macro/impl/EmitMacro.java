@@ -43,7 +43,7 @@ public class EmitMacro implements Macro {
     	}
     	
         StringBuilder sb = new StringBuilder();
-        sb.append("<i>").append(macro).append("</i>");
+        sb.append("<i><b>").append(macro).append("<b></i>");
         MapTool.addMessage(TextMessage.say(sb.toString()));
     }
 }
