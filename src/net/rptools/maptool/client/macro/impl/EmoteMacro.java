@@ -38,7 +38,11 @@ public class EmoteMacro implements Macro {
 
     public void execute(String macro) {
         StringBuilder sb = new StringBuilder();
-        sb.append(MapTool.getPlayer().getName()).append(" ").append(macro);
+        sb.append("<span style='color:green'>");
+        sb.append(MapTool.getPlayer().getName());
+        sb.append(" ");
+        sb.append(macro);
+        sb.append("</span>");
         MapTool.addMessage(TextMessage.say(sb.toString()));
     }
 }
