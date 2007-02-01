@@ -24,13 +24,15 @@
  */
 package net.rptools.maptool.client;
 
-import java.util.List;
+import java.awt.Color;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 
 public class MapToolUtil {
@@ -39,6 +41,30 @@ public class MapToolUtil {
 
     private static AtomicInteger nextTokenId = new AtomicInteger(1);
     
+    /**
+     * The map of color names to color values
+     */
+    private static final Map<String, Color> COLOR_MAP = new LinkedHashMap<String, Color>();
+
+    /**
+     * Set up the color map
+     */
+    static {
+      COLOR_MAP.put("black", Color.BLACK);
+      COLOR_MAP.put("blue", Color.BLUE);
+      COLOR_MAP.put("cyan", Color.CYAN);
+      COLOR_MAP.put("darkgray", Color.DARK_GRAY);
+      COLOR_MAP.put("gray", Color.GRAY);
+      COLOR_MAP.put("green", Color.GREEN);
+      COLOR_MAP.put("lightgray", Color.LIGHT_GRAY);
+      COLOR_MAP.put("magenta", Color.MAGENTA);
+      COLOR_MAP.put("orange", Color.ORANGE);
+      COLOR_MAP.put("pink", Color.PINK);
+      COLOR_MAP.put("red", Color.RED);
+      COLOR_MAP.put("white", Color.WHITE);
+      COLOR_MAP.put("yellow", Color.YELLOW);
+    }
+
     public static int getRandomNumber ( int max )
     {
         return getRandomNumber ( 0, max );
@@ -110,5 +136,17 @@ public class MapToolUtil {
     	
     public static boolean isDebugEnabled() {
     	return System.getProperty("MAPTOOL_DEV") != null;
+    }
+
+    public static boolean isValidColor(String name) {
+    	return COLOR_MAP.containsKey(name);
+    }
+	
+    public static Color getColor(String name) {
+    	return COLOR_MAP.get(name);
+    }
+    
+    public static Set<String> getColorNames() {
+    	return COLOR_MAP.keySet();
     }
 }

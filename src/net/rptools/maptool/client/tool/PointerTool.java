@@ -410,13 +410,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 		// WAYPOINT
 		if (SwingUtilities.isMiddleMouseButton(e) && isDraggingToken) {
-			// Waypoint
-            CellPoint cp = renderer.getZone().getGrid().convert(new ScreenPoint(mouseX, mouseY).convertToZone(renderer));
-            
-            renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), cp);
-            
-            MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), cp);
-			
+			setWaypoint();
 		}
         
 		// POPUP MENU
@@ -444,7 +438,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
         super.mouseReleased(e);
 	}
-    
+	
 	////
 	// MouseMotion
 	/* (non-Javadoc)
@@ -598,6 +592,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		// TODO: Optimize this (combine with calling code)
 		if (tokenBeingDragged.isSnapToGrid()) {
 
+			// cellUnderMouse actually token position if token being dragged with keys.
 			CellPoint cellUnderMouse = renderer.getZone().getGrid().convert(zonePoint);
 			zonePoint = renderer.getZone().getGrid().convert(cellUnderMouse);
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
@@ -946,6 +941,15 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		handleDragToken(zp);
 	}
 
+	
+	private void setWaypoint() {
+		CellPoint cp = renderer.getZone().getGrid().convert(new ZonePoint(dragStartX, dragStartY));
+        
+		renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), cp);
+        
+        MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), cp);
+	}
+	
 	////
 	// POINTER KEY ACTION
 	private class PointerActionListener extends AbstractAction {
@@ -963,14 +967,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 			
 			if (isDraggingToken) {
-				
-				// Waypoint
-	            CellPoint cp = renderer.getZone().getGrid().convert(new ScreenPoint(mouseX, mouseY).convertToZone(renderer));
-	            
-	            renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), cp);
-	            
-	            MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), cp);
-				
+				setWaypoint();		
 			} else {
 				
 				// Pointer

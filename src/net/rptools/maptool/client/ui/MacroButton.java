@@ -1,8 +1,5 @@
 package net.rptools.maptool.client.ui;
 
-
-import java.awt.Color;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -10,18 +7,20 @@ import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.AbstractAction;
-import javax.swing.KeyStroke;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-import javax.swing.JComponent;
 
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolUtil;
+import net.rptools.maptool.util.GraphicsUtil;
 
 public class MacroButton extends JButton {
 	
+	//private static final String defaultColorKey = "lightgray";
+		
+	private String colorKey;
 	private String hotKey;
 	private String command;
 	private String label;
@@ -34,9 +33,10 @@ public class MacroButton extends JButton {
 	private static MacroButtonDialog macroButtonDialog = new MacroButtonDialog();
 
 	public MacroButton(int index, String command, boolean autoExecute, boolean includeLabel) {
-		
+
+		setColor(null);
 		setHotKey(MacroButtonHotKeyManager.HOTKEYS[0]);
-		setLabel(Integer.toString(index));
+		setMacroLabel(Integer.toString(index));
 		setCommand(command);
 		setAutoExecute(autoExecute);
 		setIncludeLabel(includeLabel);
@@ -71,21 +71,42 @@ public class MacroButton extends JButton {
 		return includeLabel;
 	}	
 	
-	public String getLabel() {
+	public String getMacroLabel() {
 		return label;
 	}
-	public void setLabel(String label) {
+	public void setMacroLabel(String label) {
 		this.label = label;
 	}
 	
 	public String getCommand() {
 		return command;
 	}
+	
 	public void setCommand(String command) {
 		this.command = command;
-		setBackground(command != null ? Color.orange : null);
 	}
 	
+
+	public void setColor(String colorKey) {
+	
+		this.colorKey = colorKey;
+
+		if (!MapToolUtil.isValidColor(colorKey))
+			setBackground(null);
+		else {
+			// because the text is dark, we need to lighten the darker colors
+			setBackground(GraphicsUtil.lighter(MapToolUtil.getColor(colorKey)));
+		}
+	}
+	
+	public String getColor() {
+		if (!MapToolUtil.isValidColor(colorKey))
+			return "default";
+		else
+			return colorKey;
+	}
+	
+
 	/**
 	 *  Get the text for the macro button by filtering out
 	 *   label macro (if any), and add hotkey hint (if any)
@@ -168,6 +189,7 @@ public class MacroButton extends JButton {
 		private MacroButton button;
 	    private Preferences prefs;
 	    
+	    private static final String PREF_COLOR_KEY = "color";
 	    private static final String PREF_LABEL_KEY = "label";
 	    private static final String PREF_COMMAND_KEY = "command";
 	    private static final String PREF_AUTO_EXECUTE = "autoExecute";
@@ -185,6 +207,7 @@ public class MacroButton extends JButton {
 	    
 	    private void restorePreferences() {
 	        
+	    	String colorKey = prefs.get(PREF_COLOR_KEY, null);
 	        String label = prefs.get(PREF_LABEL_KEY, Integer.toString(index));
 	        String command = prefs.get(PREF_COMMAND_KEY, "");
 	        boolean autoExecute = prefs.getBoolean(PREF_AUTO_EXECUTE, true);
@@ -194,6 +217,7 @@ public class MacroButton extends JButton {
 	        button.command = command;
 	        button.label = label;
 	        button.hotKeyManager.assignKeyStroke(hotKey);
+	        button.setColor(colorKey);
 	        button.setText(getButtonText());
 	        button.setAutoExecute(autoExecute);
 	        button.setIncludeLabel(includeLabel);
@@ -201,6 +225,7 @@ public class MacroButton extends JButton {
 	    }
 	    
 	    public void savePreferences() {
+	    	prefs.put(PREF_COLOR_KEY, colorKey);
 	        prefs.put(PREF_LABEL_KEY, button.label);
 	        prefs.put(PREF_COMMAND_KEY, button.command);
 	        prefs.putBoolean(PREF_AUTO_EXECUTE, button.autoExecute);

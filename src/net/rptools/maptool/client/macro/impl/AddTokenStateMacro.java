@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.ui.token.ColorDotTokenOverlay;
@@ -77,30 +78,12 @@ public class AddTokenStateMacro implements Macro {
   /**
    * The map of color names to color values
    */
-  public static final Map<String, Color> COLOR_MAP = new HashMap<String, Color>();
-  
-  /**
-   * The map of color names to color values
-   */
   public static final Map<String, Quadrant> CORNER_MAP = new HashMap<String, Quadrant>();
   
   /**
-   * Set up the color and corner maps
+   * Set up the corner maps
    */
   static {
-    COLOR_MAP.put("black", Color.BLACK);
-    COLOR_MAP.put("blue", Color.BLUE);
-    COLOR_MAP.put("cyan", Color.CYAN);
-    COLOR_MAP.put("darkgray", Color.DARK_GRAY);
-    COLOR_MAP.put("gray", Color.GRAY);
-    COLOR_MAP.put("green", Color.GREEN);
-    COLOR_MAP.put("lightgray", Color.LIGHT_GRAY);
-    COLOR_MAP.put("magenta", Color.MAGENTA);
-    COLOR_MAP.put("orange", Color.ORANGE);
-    COLOR_MAP.put("pink", Color.PINK);
-    COLOR_MAP.put("red", Color.RED);
-    COLOR_MAP.put("white", Color.WHITE);
-    COLOR_MAP.put("yellow", Color.YELLOW);
     CORNER_MAP.put("nw", Quadrant.NORTH_WEST);
     CORNER_MAP.put("ne", Quadrant.NORTH_EAST);
     CORNER_MAP.put("sw", Quadrant.SOUTH_WEST);
@@ -230,13 +213,13 @@ public class AddTokenStateMacro implements Macro {
     try {
       return Color.decode(name);
     } catch (NumberFormatException e) {
-      if (!COLOR_MAP.containsKey(name.toLowerCase())) {
+      if (!MapToolUtil.isValidColor(name.toLowerCase())) {
         MapTool.addLocalMessage("An invalid color '" + name + "' was passed as a paramter. Valid values are " +
             "hex or integer numbers or the name of a common color (black, blue, cyan, darkgray, gray, green, " +
             "lightgray, magenta, orange, pink, red, white, yellow");
         throw new IllegalArgumentException("An invalid color '" + name + "' was passed as a paramter.");
       } // endif
-      return COLOR_MAP.get(name);
+      return MapToolUtil.getColor(name);
     } // endtry
   }
   

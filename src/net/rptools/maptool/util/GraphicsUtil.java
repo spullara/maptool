@@ -105,5 +105,26 @@ public class GraphicsUtil {
 		
 		return new Point((int)newX, (int)newY);
 	}
+
+	/**
+	 * Returns a lighter color (as opposed to a brighter color as in the brighter() method
+	 *  of the Color class) 
+	 */
+	public static Color lighter(Color c) {
+
+		if (c == null)
+			return null;
+		else {
+			int r = c.getRed();
+			int g = c.getGreen();
+			int b = c.getBlue();
+			
+			r += 64*(255 - r)/255;
+			g += 64*(255 - g)/255;
+			b += 64*(255 - b)/255;	
+			
+			return new Color(r, g, b);
+		}
+	}
     
 }

@@ -154,6 +154,12 @@ public class Token {
 		x = token.x;
 		y = token.y;
 
+		// These properties shouldn't be transferred, they are more transient and relate to token history, not to new tokens
+		//		lastX = token.lastX;
+		//		lastY = token.lastY;
+		//		lastPath = token.lastPath;
+		
+
 		snapToScale = token.snapToScale;
 		width = token.width;
 		height = token.height;
@@ -392,15 +398,19 @@ public class Token {
 	public int getX() {
 		return x;
 	}
+	
+	public int getY() {
+		return y;
+	}
 
 	public void setX(int x) {
 		lastX = this.x;
 		this.x = x;
 	}
-
-	public int getY() {
+	
+	public void setY(int y) {
 		lastY = this.y;
-		return y;
+		this.y = y;
 	}
 
 	public void applyMove(int xOffset, int yOffset, Path path) {
@@ -425,9 +435,6 @@ public class Token {
 		return lastPath;
 	}
 
-	public void setY(int y) {
-		this.y = y;
-	}
 
 	/**
 	 * @return Returns the scaleX.
