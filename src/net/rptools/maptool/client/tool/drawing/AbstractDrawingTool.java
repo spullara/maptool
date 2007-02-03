@@ -35,12 +35,16 @@ import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.tool.DefaultTool;
+import net.rptools.maptool.client.tool.LayerSelectionDialog;
+import net.rptools.maptool.client.tool.LayerSelectionDialog.LayerSelectionListener;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.Zone.Layer;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
@@ -56,9 +60,25 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     
     private boolean isSnapToGridSelected;
     private boolean isEraseSelected;
+    private LayerSelectionDialog layerSelectionDialog;
 
+    private static Zone.Layer selectedLayer = Zone.Layer.TOKEN;
+
+    {
+		layerSelectionDialog = new LayerSelectionDialog(new Zone.Layer[]{Zone.Layer.TOKEN, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND}, new LayerSelectionListener() {
+			public void layerSelected(Layer layer) {
+				selectedLayer = layer;
+			}
+		});
+    	
+    }
+    
 	protected void attachTo(ZoneRenderer renderer) {
-		MapTool.getFrame().showControlPanel(MapTool.getFrame().getColorPicker());
+		if (MapTool.getPlayer().isGM()) {
+			MapTool.getFrame().showControlPanel(MapTool.getFrame().getColorPicker(), layerSelectionDialog);
+		} else {
+			MapTool.getFrame().showControlPanel(MapTool.getFrame().getColorPicker());
+		}
 		renderer.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 		
 		MapTool.getFrame().getColorPicker().setSnapSelected(isSnapToGridSelected);
@@ -156,6 +176,7 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     	if (!hasPaint(pen)) {
     		return;
     	}
+    	drawable.setLayer(selectedLayer);
     	
     	// Send new textures
     	sendTexture(pen.getPaint());

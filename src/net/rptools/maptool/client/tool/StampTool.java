@@ -74,6 +74,7 @@ import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.client.tool.LayerSelectionDialog.LayerSelectionListener;
 import net.rptools.maptool.client.ui.StampPopupMenu;
 import net.rptools.maptool.client.ui.TokenLocation;
 import net.rptools.maptool.client.ui.TokenPopupMenu;
@@ -91,6 +92,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.Zone.Layer;
 import net.rptools.maptool.util.ImageManager;
 
 import com.jeta.forms.components.panel.FormPanel;
@@ -119,7 +121,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	private Map<Shape, Token> rotateBoundsMap = new HashMap<Shape, Token>();
 	private Map<Shape, Token> resizeBoundsMap = new HashMap<Shape, Token>();
 	
-	private LayerSelectionDialog layerSelectionDialog = new LayerSelectionDialog();
+	private LayerSelectionDialog layerSelectionDialog;
 	
     // Offset from token's X,Y when dragging. Values are in cell coordinates.
     private int dragOffsetX;
@@ -136,6 +138,15 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	}
 	
 	public StampTool () {
+		
+		layerSelectionDialog = new LayerSelectionDialog(new Zone.Layer[]{Zone.Layer.OBJECT, Zone.Layer.BACKGROUND}, new LayerSelectionListener() {
+			public void layerSelected(Layer layer) {
+				if (renderer != null) {
+					renderer.setActiveLayer(layer);
+				}
+			}
+		});
+		
         try {
             setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/tool/stamp.png")));
 
@@ -1177,52 +1188,4 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		}
 	}
 
-	private class LayerSelectionDialog extends JPanel {
-		
-		private FormPanel panel;
-		private JList list;
-		
-		public LayerSelectionDialog() {
-			panel = new FormPanel("net/rptools/maptool/client/ui/forms/layerSelectionDialog.jfrm");
-			
-			getLayerList();
-			
-			setLayout(new GridLayout(1, 1));
-			add(panel);
-		}
-
-		public void updateViewSelection() {
-			
-			int index = list.getSelectedIndex();
-			if (index >= 0) {
-				renderer.setActiveLayer((Zone.Layer) list.getModel().getElementAt(index));
-			}
-		}
-		
-		private JList getLayerList() {
-			
-			if (list == null) {
-				list = panel.getList("layerList");
-				
-				DefaultListModel model = new DefaultListModel();
-				model.addElement(Zone.Layer.OBJECT);
-				model.addElement(Zone.Layer.BACKGROUND);
-	
-				list.setModel(model);
-				list.setSelectedIndex(0);
-				list.addListSelectionListener(new ListSelectionListener(){
-	
-					public void valueChanged(ListSelectionEvent e) {
-						if (e.getValueIsAdjusting()) {
-							return;
-						}
-						
-						updateViewSelection();
-					}
-				});
-			}
-			
-			return list;
-		}
-	}
 }

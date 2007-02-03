@@ -82,15 +82,19 @@ public class Toolbox {
 			toolMap.put(toolClass, tool);
 			tool.setToolbox(this);
 		} catch (InstantiationException e) {
+			e.printStackTrace();
 			MapTool.showError("Could not instantiate tool class: " + toolClass);
 			return null;
 		} catch (IllegalAccessException e) {
+			e.printStackTrace();
 			MapTool.showError("Constructor must be public for tool: " + toolClass);
 			return null;
 		} catch (NoSuchMethodException nsme) {
+			nsme.printStackTrace();
 			MapTool.showError("Constructor must have a public constructor with a Toolbox argument for tool: " + toolClass);
 			return null;
 		} catch (InvocationTargetException ite) {
+			ite.printStackTrace();
 			MapTool.showError("Failed in constructor of tool: " + toolClass + " - " + ite);
 			return null;
 		}

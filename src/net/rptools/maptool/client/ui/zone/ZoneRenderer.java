@@ -516,11 +516,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         // Rendering pipeline
     	renderBoard(g2d, view);
+        renderDrawableOverlay(g2d, view, Zone.Layer.BACKGROUND);
         renderTokens(g2d, zone.getBackgroundTokens(), view);
-        renderDrawableOverlay(g2d, view);
+        renderDrawableOverlay(g2d, view, Zone.Layer.OBJECT);
         renderTokenTemplates(g2d, view);
         renderGrid(g2d, view);
         renderTokens(g2d, zone.getStampTokens(), view);
+        renderDrawableOverlay(g2d, view, Zone.Layer.TOKEN);
         renderVision(g2d, view);
         renderTokens(g2d, zone.getTokens(), view);
 		renderMoveSelectionSets(g2d, view);
@@ -789,12 +791,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	return !isLoaded;
     }
     
-    protected void renderDrawableOverlay(Graphics g, ZoneView view) {
+    protected void renderDrawableOverlay(Graphics g, ZoneView view, Zone.Layer layer) {
         
     	Rectangle viewport = new Rectangle(zoneScale.getOffsetX(), zoneScale.getOffsetY(), getSize().width, getSize().height);
-    	List<DrawnElement> drawableList = new ArrayList<DrawnElement>();
-    	drawableList.addAll(zone.getDrawnElements());
-    	drawableRenderer.renderDrawables(g, drawableList, viewport, getScale());
+    	drawableRenderer.renderDrawables(g, zone, layer, viewport, getScale());
     }
     
     protected abstract void renderBoard(Graphics2D g, ZoneView view);

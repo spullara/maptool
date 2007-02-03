@@ -102,6 +102,8 @@ public class Zone extends Token {
     private int feetPerCell = DEFAULT_FEET_PER_CELL;
     
     private List<DrawnElement> drawables = new LinkedList<DrawnElement>();
+    private List<DrawnElement> objectDrawables = new LinkedList<DrawnElement>();
+    private List<DrawnElement> backgroundDrawables = new LinkedList<DrawnElement>();
 
     private Map<GUID, Label> labels = new LinkedHashMap<GUID, Label>();
     private Map<GUID, Token> tokenMap = new HashMap<GUID, Token>();
@@ -318,12 +320,34 @@ public class Zone extends Token {
     ///////////////////////////////////////////////////////////////////////////
 
     public void addDrawable(DrawnElement drawnElement) {
-    	drawables.add(drawnElement);
+    	switch(drawnElement.getDrawable().getLayer()){
+    		case OBJECT: objectDrawables.add(drawnElement); break;
+    		case BACKGROUND: backgroundDrawables.add(drawnElement); break;
+    		default:
+    			drawables.add(drawnElement);
+    			
+    	}
         fireModelChangeEvent(new ModelChangeEvent(this, Event.DRAWABLE_ADDED, drawnElement));
     }
     
     public List<DrawnElement> getDrawnElements() {
-    	return drawables;
+    	return getDrawnElements(Zone.Layer.TOKEN);
+    }
+    
+    public List<DrawnElement> getObjectDrawnElements() {
+    	return getDrawnElements(Zone.Layer.OBJECT);
+    }
+    
+    public List<DrawnElement> getBackgroundDrawnElements() {
+    	return getDrawnElements(Zone.Layer.BACKGROUND);
+    }
+
+    public List<DrawnElement> getDrawnElements(Zone.Layer layer) {
+    	switch(layer) {
+    	case OBJECT: return objectDrawables;
+    	case BACKGROUND: return backgroundDrawables;
+    	default: return drawables;
+    	}
     }
     
     public void removeDrawable(GUID drawableId) {

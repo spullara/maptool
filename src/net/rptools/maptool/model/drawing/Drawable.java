@@ -27,13 +27,17 @@ package net.rptools.maptool.model.drawing;
 import java.awt.Graphics2D;
 
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Zone;
 
 
 /**
  * @author drice
  */
 public interface Drawable {
+	
     public void draw(Graphics2D g, Pen pen);
     public java.awt.Rectangle getBounds();
     public GUID getId();
+    public Zone.Layer getLayer();
+    public void setLayer(Zone.Layer layer);
 }

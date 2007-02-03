@@ -26,13 +26,13 @@ package net.rptools.maptool.model.drawing;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Stroke;
 
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Zone;
 
 /**
  * Abstract drawing.  This class takes care of setting up the Pen since that
@@ -40,11 +40,13 @@ import net.rptools.maptool.model.GUID;
  */
 public abstract class AbstractDrawing implements Drawable {
 
-  /**
-   * The unique identifier for this drawable. It is immutable.
-   */
-  private GUID id = new GUID();
-  
+	/**
+	 * The unique identifier for this drawable. It is immutable.
+	 */
+	private GUID id = new GUID();
+
+	private String layer;
+	
     /* (non-Javadoc)
      * @see maptool.model.drawing.Drawable#draw(java.awt.Graphics2D, maptool.model.drawing.Pen)
      */
@@ -93,7 +95,15 @@ public abstract class AbstractDrawing implements Drawable {
       return id;
     }
 
-    /**
+	public void setLayer(Zone.Layer layer) {
+		this.layer = layer != null ? layer.name() : null;
+	}
+	
+	public Zone.Layer getLayer() {
+		return layer != null ? Zone.Layer.valueOf(layer) : Zone.Layer.TOKEN;
+	}
+
+	/**
      * Use the id for equals.
      * 
      * @see java.lang.Object#equals(java.lang.Object)

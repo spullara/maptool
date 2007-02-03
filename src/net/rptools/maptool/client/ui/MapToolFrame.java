@@ -31,6 +31,8 @@ import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Paint;
@@ -400,15 +402,29 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		return saveFileChooser;
 	}
 
-	public void showControlPanel(JPanel panel) {
+	public void showControlPanel(JPanel... panels) {
 
-		panel.setSize(panel.getPreferredSize());
-		zoneRendererPanel.add(panel, PositionalLayout.Position.NE);
-		zoneRendererPanel.setComponentZOrder(panel, 0);
+		JPanel layoutPanel = new JPanel(new GridBagLayout());
+
+		int i = 0;
+		for (JPanel panel : panels) {
+			
+			GridBagConstraints gbc = new GridBagConstraints();
+			gbc.gridx = 1;
+			gbc.gridy = i;
+			gbc.weightx = 1;
+			
+			layoutPanel.add(panel, gbc);
+			i++;
+		}
+		layoutPanel.setSize(layoutPanel.getPreferredSize());
+
+		zoneRendererPanel.add(layoutPanel, PositionalLayout.Position.NE);
+		zoneRendererPanel.setComponentZOrder(layoutPanel, 0);
 		zoneRendererPanel.revalidate();
 		zoneRendererPanel.repaint();
 
-		visibleControlPanel = panel;
+		visibleControlPanel = layoutPanel;
 	}
 
 	public CoordinateStatusBar getCoordinateStatusBar() {
