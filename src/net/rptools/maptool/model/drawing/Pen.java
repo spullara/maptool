@@ -46,6 +46,11 @@ public class Pen {
     private boolean eraser;
     private float opacity;
 
+    // ***** Legacy support, these supports drawables from 1.1
+    private int color;
+    private int backgroundColor;
+    
+    
     public Pen() {
     }
 
@@ -125,4 +130,12 @@ public class Pen {
 		this.opacity = opacity;
 	}
     
+    // ***** Legacy support, these supports drawables from 1.1
+	// Note the lack of mutators
+    public int getColor() {
+        return color;
+    }
+    public int getBackgroundColor() {
+        return backgroundColor;
+    }
 }

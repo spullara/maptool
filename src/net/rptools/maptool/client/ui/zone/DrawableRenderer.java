@@ -139,7 +139,6 @@ public class DrawableRenderer {
 		for (DrawnElement element : drawableListCopy) {
 			
 			Drawable drawable = element.getDrawable();
-			
 //			if (!drawable.getBounds().intersects(viewport)) {
 //				// Not onscreen
 //				continue;
