@@ -20,7 +20,7 @@ public class OvalExposeTool extends OvalTool {
 
     public OvalExposeTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/FOGCircle16.png"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/drawcirc.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

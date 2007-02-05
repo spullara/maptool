@@ -148,7 +148,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		});
 		
         try {
-            setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/tool/stamp.png")));
+            setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/tool/stamper.png")));
 
             // Selection color using psuedo translucency
 			BufferedImage grid = SwingUtil.replaceColor(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/grid.png"), 0x202020, 0x0000ff);

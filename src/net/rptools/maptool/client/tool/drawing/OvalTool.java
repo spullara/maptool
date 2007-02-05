@@ -58,7 +58,7 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
     
     public OvalTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/CircleBlue16.png"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/drawcirc.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

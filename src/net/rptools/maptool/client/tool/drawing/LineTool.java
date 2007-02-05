@@ -44,7 +44,7 @@ public class LineTool extends AbstractLineTool implements MouseMotionListener {
 
     public LineTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/StraightLine16.png"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/draws.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

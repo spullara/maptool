@@ -57,7 +57,7 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
     
     public RectangleTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/RectangleBlue16.png"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/top.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

@@ -57,7 +57,7 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 	
 	public TextTool () {
         try {
-            setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/Tool_Draw_Write.gif")));
+            setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/tool/text.png")));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
