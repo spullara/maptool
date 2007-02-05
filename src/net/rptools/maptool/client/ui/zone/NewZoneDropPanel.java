@@ -91,7 +91,7 @@ public class NewZoneDropPanel extends JPanel implements DropTargetListener {
       }
 
       // Just adding one map
-      Zone zone = ZoneFactory.createZone(Zone.Type.MAP, assets.get(0).getId());
+      Zone zone = ZoneFactory.createZone(Zone.MapType.MAP, assets.get(0).getId());
       MapTool.addZone(zone);
       dtde.dropComplete(true);
       repaint();

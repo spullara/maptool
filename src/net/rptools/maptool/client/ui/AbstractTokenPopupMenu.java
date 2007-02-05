@@ -319,14 +319,14 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 				switch (layer) {
 				case BACKGROUND:
 				case OBJECT:
-					token.setTokenType(Token.Type.TOP_DOWN);
+					token.setShape(Token.TokenShape.TOP_DOWN);
 					break;
 				case TOKEN:
 					Image image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()));
 					if (image == null || image == ImageManager.UNKNOWN_IMAGE) {
-						token.setTokenType(Token.Type.TOP_DOWN);
+						token.setShape(Token.TokenShape.TOP_DOWN);
 					} else {
-						token.setTokenType(TokenUtil.guessTokenType(image));
+						token.setShape(TokenUtil.guessTokenType(image));
 					}
 					break;
 				}

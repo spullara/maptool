@@ -79,7 +79,7 @@ public class Zone extends Token {
     
     public static final int DEFAULT_FEET_PER_CELL = 5;
     
-    public interface Type {
+    public interface MapType {
         public static final int MAP = 0;
         public static final int INFINITE = 1;
     }
@@ -271,11 +271,11 @@ public class Zone extends Token {
     	this.feetPerCell = feetPerCell;
     }
     
-    public void setType(int type) {
+    public void setMapType(int type) {
         this.type = type;
     }
     
-    public int getType() {
+    public int getMapType() {
         return type;
     }
     
@@ -447,7 +447,7 @@ public class Zone extends Token {
     	copy.addAll(tokenOrderedList);
     	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
     		Token token = iter.next();
-    		if (!token.hasOwners()) {
+    		if (token.getType() != Token.Type.PC) {
     			iter.remove();
     		}
     	}

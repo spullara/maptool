@@ -49,7 +49,7 @@ public class TokenUtil {
     	return closest;
 	}
 	
-	public static Token.Type guessTokenType(Image image) {
+	public static Token.TokenShape guessTokenType(Image image) {
 		
 		if (image instanceof BufferedImage) {
 			return guessTokenType((BufferedImage) image);
@@ -67,13 +67,13 @@ public class TokenUtil {
         catch (InterruptedException e) 
         {
             System.err.println("interrupted waiting for pixels!");
-            return Token.Type.TOP_DOWN;
+            return Token.TokenShape.TOP_DOWN;
         }
 
         if ((pg.getStatus() & ImageObserver.ABORT) != 0) 
         {
             System.err.println("image fetch aborted or errored");
-            return Token.Type.TOP_DOWN;
+            return Token.TokenShape.TOP_DOWN;
         }
         
         for (int y = 0; y < height; y++) {
@@ -89,7 +89,7 @@ public class TokenUtil {
         return guessTokenType(new Dimension(image.getWidth(null) ,image.getHeight(null)), pixelCount);
 	}
 	
-	public static Token.Type guessTokenType(BufferedImage image) {
+	public static Token.TokenShape guessTokenType(BufferedImage image) {
 		
 		int pixelCount = 0;
 		
@@ -105,7 +105,7 @@ public class TokenUtil {
 		return guessTokenType(new Dimension(image.getWidth(), image.getHeight()), pixelCount);
 	}
 	
-	private static Token.Type guessTokenType(Dimension size, int pixelCount) {
+	private static Token.TokenShape guessTokenType(Dimension size, int pixelCount) {
 		
 		double circlePixelCount = (int)(Math.PI * (size.width/2) * (size.height/2));
 		double squarePixelCount = size.width * size.height;
@@ -116,11 +116,11 @@ public class TokenUtil {
 		double topDownResult = Math.abs(1-(pixelCount / topDownPixelCount));
 		
 		if (circleResult < squareResult && circleResult < topDownResult) {
-			return Token.Type.CIRCLE;
+			return Token.TokenShape.CIRCLE;
 		}
 		if (squareResult < circleResult && squareResult < topDownResult) {
-			return Token.Type.SQUARE;
+			return Token.TokenShape.SQUARE;
 		}
-		return Token.Type.TOP_DOWN;
+		return Token.TokenShape.TOP_DOWN;
 	}
 }

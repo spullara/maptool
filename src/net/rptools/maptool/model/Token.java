@@ -37,7 +37,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +47,6 @@ import javax.swing.ImageIcon;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.transferable.TokenTransferData;
-import net.rptools.maptool.model.vision.RoundVision;
 import net.rptools.maptool.util.ImageManager;
 
 /**
@@ -59,22 +57,26 @@ import net.rptools.maptool.util.ImageManager;
 public class Token {
 	private GUID id = new GUID();
 
-	public enum Type {
+	public enum TokenShape {
 		TOP_DOWN("Top down"),
 		CIRCLE("Circle"),
 		SQUARE("Square");
-//		STAMP("Stamp"),
-//		BACKGROUND("Background");
 		
 		private String displayName;
 		
-		private Type(String displayName) {
+		private TokenShape(String displayName) {
 			this.displayName = displayName;
 		}
 		
 		public String toString() {
 			return displayName;
 		}
+	}
+	
+	public enum Type {
+		PC,
+		NPC,
+		MARKER
 	}
 
 	public static final Comparator<Token> NAME_COMPARATOR = new Comparator<Token>() {
@@ -113,8 +115,11 @@ public class Token {
 	private static final int OWNER_TYPE_ALL = 1;
 	private static final int OWNER_TYPE_LIST = 0;
 	
-	private String tokenType; // TODO: Make tokens understand enums for hessian
+	private String tokenShape;
+	private String tokenType;
 	private String layer;
+	
+	private String propertyType = Campaign.DEFAULT_TOKEN_PROPERTY_TYPE;
 
 	private Integer facing = null;
 	
@@ -140,6 +145,11 @@ public class Token {
 	 * change appearance of the token.
 	 */
 	private Map<String, Object> state;
+	
+	/**
+	 * Properties
+	 */
+	private Map<String, Object> propertyMap;
 
 	// Transient so that it isn't transfered over the wire
 	private transient List<ModelChangeListener> listenerList = new CopyOnWriteArrayList<ModelChangeListener>();
@@ -165,6 +175,7 @@ public class Token {
 		height = token.height;
 		size = token.size;
 		facing = token.facing;
+		tokenShape = token.tokenShape;
 		tokenType = token.tokenType;
 
 		snapToGrid = token.snapToGrid;
@@ -190,6 +201,9 @@ public class Token {
 			state = new HashMap<String, Object>(token.state);
 		}
     
+		if (token.propertyMap != null) {
+			propertyMap = new HashMap<String, Object>(token.propertyMap);
+		}
 	}
 
 	public Token() {
@@ -204,8 +218,17 @@ public class Token {
 		this.name = name;
 		this.assetID = assetID;
 		state = new HashMap<String, Object>();
+		propertyMap = new HashMap<String, Object>();
 	}
 	
+	public String getPropertyType() {
+		return propertyType;
+	}
+
+	public void setPropertyType(String propertyType) {
+		this.propertyType = propertyType;
+	}
+
 	public String getGMNotes() {
 		return gmNotes;
 	}
@@ -255,15 +278,27 @@ public class Token {
 		return getLayer() == Zone.Layer.TOKEN;
 	}
 	
-	public Type getTokenType() {
+	public TokenShape getShape() {
 		try {
-			return tokenType != null ? Type.valueOf(tokenType) : Type.SQUARE;  // TODO: make this a psf
+			return tokenShape != null ? TokenShape.valueOf(tokenShape) : TokenShape.SQUARE;  // TODO: make this a psf
 		} catch (IllegalArgumentException iae) {
-			return Type.SQUARE;
+			return TokenShape.SQUARE;
 		}
 	}
 	
-	public void setTokenType(Type type) {
+	public void setShape(TokenShape type) {
+		this.tokenShape = type.name();
+	}
+	
+	public Type getType() {
+		try {
+			return tokenType != null ? Type.valueOf(tokenType) : Type.NPC;  // TODO: make this a psf
+		} catch (IllegalArgumentException iae) {
+			return Type.NPC;
+		}
+	}
+	
+	public void setType(Type type) {
 		this.tokenType = type.name();
 	}
 	
@@ -355,8 +390,8 @@ public class Token {
 	}
 
 	public synchronized boolean isOwner(String playerId) {
-		return ownerType == OWNER_TYPE_ALL
-				|| (ownerList != null && ownerList.contains(playerId));
+		return getType() == Type.PC && (ownerType == OWNER_TYPE_ALL
+				|| (ownerList != null && ownerList.contains(playerId)));
 	}
 
 	public boolean equals(Object o) {
@@ -556,6 +591,18 @@ public class Token {
 			return state.remove(aState);
 		return state.put(aState, aValue);
 	}
+	
+	public void setProperty(String key, Object value) {
+		propertyMap.put(key, value);
+	}
+	
+	public Object getProperty(String key) {
+		return propertyMap.get(key);
+	}
+	
+	public Set<String> getPropertyNames() {
+		return propertyMap.keySet();
+	}
 
 	/**
 	 * Get a set containing the names of all set properties on this token.
@@ -621,7 +668,7 @@ public class Token {
         td.put(TokenTransferData.SIZE, size);
         td.put(TokenTransferData.SNAP_TO_GRID, snapToGrid);
         td.put(TokenTransferData.OWNER_TYPE, ownerType);
-        td.put(TokenTransferData.TOKEN_TYPE, tokenType);
+        td.put(TokenTransferData.TOKEN_TYPE, tokenShape);
         td.put(TokenTransferData.NOTES, notes);
         td.put(TokenTransferData.GM_NOTES, gmNotes);
         td.put(TokenTransferData.GM_NAME, gmName);
@@ -665,7 +712,7 @@ public class Token {
         ownerList = td.getPlayers();
         ownerType = getInt(td, TokenTransferData.OWNER_TYPE,
                 ownerList == null ? OWNER_TYPE_ALL : OWNER_TYPE_LIST);
-        tokenType = (String) td.get(TokenTransferData.TOKEN_TYPE);
+        tokenShape = (String) td.get(TokenTransferData.TOKEN_TYPE);
         facing = td.getFacing();
         notes = (String) td.get(TokenTransferData.NOTES);
         gmNotes = (String) td.get(TokenTransferData.GM_NOTES);

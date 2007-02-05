@@ -1349,7 +1349,7 @@ public class AppActions {
 
 				public void run() {
 
-					Zone zone = ZoneFactory.createZone(Zone.Type.INFINITE,
+					Zone zone = ZoneFactory.createZone(Zone.MapType.INFINITE,
 							assetId);
 					zone.setGrid(GridFactory.createGrid(AppPreferences
 							.getDefaultGridType()));

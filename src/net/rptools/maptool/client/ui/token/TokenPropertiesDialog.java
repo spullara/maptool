@@ -25,9 +25,9 @@
 
 package net.rptools.maptool.client.ui.token;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Transparency;
@@ -36,6 +36,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractButton;
@@ -47,7 +50,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -56,7 +58,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.border.TitledBorder;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
@@ -71,6 +72,11 @@ import net.rptools.maptool.util.ImageManager;
 
 import com.jeta.forms.components.image.ImageComponent;
 import com.jeta.forms.components.panel.FormPanel;
+import com.jeta.forms.gui.form.FormAccessor;
+import com.jidesoft.grid.AbstractPropertyTableModel;
+import com.jidesoft.grid.Property;
+import com.jidesoft.grid.PropertyPane;
+import com.jidesoft.grid.PropertyTable;
 
 /**
  * This dialog is used to display all of the token states and notes to the user.
@@ -89,7 +95,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	private ImageComponent tokenIcon;
 	private JTextArea notes;
 	private JTextArea gmNotes;
-	private JLabel gmNotesLabel;
+	private JPanel gmNotesPanel;
 	private JComboBox shape;
 	private JComboBox size;
 	private JCheckBox snapToGrid;
@@ -98,6 +104,8 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	private Token token;
 	private boolean tokenSaved;
 	private JLabel visibleLabel;
+	private PropertyTable propertyTable;
+	private JComboBox propertyTypeCombo;
 
 	/**
 	 * The size used to constrain the icon.
@@ -114,58 +122,87 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		super(MapTool.getFrame(), "Token Properties", true);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		FormPanel panel = new FormPanel(
-				"net/rptools/maptool/client/ui/forms/tokenNotesDialog.jfrm");
+				"net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.jfrm");
 
-		// Get the components
+		initNotesPanel(panel);
+		initTokenDetails(panel);
+		initConfigPanel(panel);
+		initButtons(panel);
+		initPropertiesPanel(panel);
+		initStatesPanel(panel);
+		
+		add(panel);
+		pack();
+	}
+
+	private void initNotesPanel(FormPanel panel) {
+		
+		notes = (JTextArea) panel.getTextComponent("notes");
+		notes.addMouseListener(new MouseHandler(notes));
+
+		gmNotes = (JTextArea) panel.getTextComponent("gmNotes");
+		gmNotes.addMouseListener(new MouseHandler(gmNotes));
+
+		gmNotesPanel = panel.getPanel("gmNotesPanel");
+	}
+	
+	private void initTokenDetails(FormPanel panel) {
 		tokenName = panel.getTextField("tokenName");
 		tokenGMName = panel.getTextField("tokenGMName");
 		tokenIcon = (ImageComponent) panel.getComponentByName("tokenIcon");
-		notes = (JTextArea) panel.getTextComponent("notes");
-		gmNotes = (JTextArea) panel.getTextComponent("gmNotes");
-		snapToGrid = panel.getCheckBox("snapToGrid");
-		gmNotesLabel = panel.getLabel("gmNotesLabel");
-		tokenGMNameLabel = panel.getLabel("tokenGMNameLabel");
+		tokenIcon.setPreferredSize(new Dimension(100, 100));
+		tokenIcon.setMinimumSize(new Dimension(100, 100));
 		
-		// Does visible get displayed?
+		tokenGMNameLabel = panel.getLabel("tokenGMNameLabel");
+	}
+
+	private void initConfigPanel(FormPanel panel) {
+
 		visible = panel.getCheckBox("visible");
 		visibleLabel = panel.getLabel("visibleLabel");
 
-		// Set up the buttons
+		shape = panel.getComboBox("shape");
+		shape.setModel(new DefaultComboBoxModel(Token.TokenShape.values()));
+
+		DefaultComboBoxModel model = new DefaultComboBoxModel(TokenSize.Size.values());
+		model.insertElementAt("Free Size", 0);
+		size = panel.getComboBox("size");
+		size.setModel(model);
+		
+		snapToGrid = panel.getCheckBox("snapToGrid");
+	}
+	
+	private void initButtons(FormPanel panel) {
 		okButton = panel.getButton("okButton");
 		okButton.addActionListener(this);
 		getRootPane().setDefaultButton((JButton) okButton);
 		
 		cancelButton = panel.getButton("cancelButton");
 		cancelButton.addActionListener(this);
+	}
+	
+	private void initPropertiesPanel(FormPanel panel) {
 
-		// Set up the shape combo box
-		shape = panel.getComboBox("shape");
-		shape.setModel(new DefaultComboBoxModel(Token.Type.values()));
+		propertyTable = new PropertyTable();
+		
+		PropertyPane pane = new PropertyPane(propertyTable);
+		pane.setPreferredSize(new Dimension(100, 300));
+		
+		FormAccessor accessor = panel.getFormAccessor("propertiesPanel");
+		accessor.replaceBean("propertiesTable", pane);
+		
+		propertyTypeCombo = panel.getComboBox("propertyTypeCombo");
+	}
 
-		// Set up the size combo box
-		DefaultComboBoxModel model = new DefaultComboBoxModel(TokenSize.Size
-				.values());
-		model.insertElementAt("Free Size", 0);
-		size = panel.getComboBox("size");
-		size.setModel(model);
-
+	private void initStatesPanel(FormPanel panel) {
 		// Set up all of the state combo boxes.
 		statesPanel = panel.getPanel("statesPanel");
 		statesPanel.removeAll();
-		TitledBorder border = (TitledBorder) statesPanel.getBorder();
-		border.setTitleFont(border.getTitleFont().deriveFont(Font.PLAIN));
 		Set<String> states = TokenStates.getStates();
 		statesPanel.setLayout(new GridLayout(0, 4));
-		for (String state : states)
+		for (String state : states) {
 			statesPanel.add(new JCheckBox(state));
-
-		// Setup
-		gmNotes.addMouseListener(new MouseHandler(gmNotes));
-		notes.addMouseListener(new MouseHandler(notes));
-		
-		// Set up the panel and view
-		add(panel);
-		pack();
+		}		
 	}
 	
 	@Override
@@ -233,7 +270,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		token.setGMName(tokenGMName.getText());
 		token.setNotes(notes.getText());
 		token.setGMNote(gmNotes.getText());
-		token.setTokenType((Token.Type) shape.getSelectedItem());
+		token.setShape((Token.TokenShape) shape.getSelectedItem());
 		token.setSnapToGrid(snapToGrid.isSelected());
 		token.setVisible(visible.isSelected());
 
@@ -263,6 +300,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	 *            The token to be displayed
 	 */
 	public void setToken(Token aToken) {
+
 		if (aToken == token)
 			return;
 		if (token != null) {
@@ -274,7 +312,19 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		if (token != null) {
 			token.addModelChangeListener(this);
 			setFields();
+			
+			// TODO: Put this in its own method updateTypeCombo or something
+			List<String> typeList = new ArrayList<String>();
+			typeList.addAll(MapTool.getCampaign().getTokenTypes());
+			Collections.sort(typeList);
+			
+			propertyTable.setModel(new TokenPropertyTableModel());
+			propertyTable.expandAll();
+			
+			propertyTypeCombo.setModel(new DefaultComboBoxModel(typeList.toArray()));
+			propertyTypeCombo.setSelectedItem(token.getPropertyType());
 		}
+
 	}
 
 	/**
@@ -311,7 +361,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			tokenIcon.setIcon(getTokenIcon());
 			notes.setText(token.getNotes());
 			gmNotes.setText(token.getGMNotes());
-			shape.setSelectedItem(token.getTokenType());
+			shape.setSelectedItem(token.getShape());
 			snapToGrid.setSelected(token.isSnapToGrid());
 			visible.setSelected(token.isVisible());
 			if (!token.isSnapToScale())
@@ -331,8 +381,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			
 		} // endif
 
-		gmNotes.setVisible(player.isGM());
-		gmNotesLabel.setVisible(player.isGM());
+		gmNotesPanel.setVisible(player.isGM());
 		tokenGMName.setVisible(player.isGM());
 		tokenGMNameLabel.setVisible(player.isGM());
 		
@@ -447,4 +496,48 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			}
 		}
 	}
+	
+	////
+	// MODELS
+	private class TokenPropertyTableModel extends AbstractPropertyTableModel {
+
+		@Override
+		public Property getProperty(int index) {
+			
+			List<String> propertyList = MapTool.getCampaign().getTokenPropertyList(token.getPropertyType());
+			
+			return new TokenProperty(propertyList.get(index));
+		}
+
+		@Override
+		public int getPropertyCount() {
+			List<String> propertyList = MapTool.getCampaign().getTokenPropertyList(token.getPropertyType()); 
+			return propertyList != null ? propertyList.size() : 0;
+		}
+		
+		private class TokenProperty extends Property {
+			private String key;
+			
+			public TokenProperty(String key) {
+				super(key, key, String.class, "Core");
+				this.key = key;
+			}
+			
+			@Override
+			public Object getValue() {
+				return token.getProperty(key);
+			}
+
+			@Override
+			public void setValue(Object value) {
+				token.setProperty(key, value);
+			}
+
+			@Override
+			public boolean hasValue() {
+				return token.getProperty(key) != null;
+			}
+		}
+	}
+	
 }

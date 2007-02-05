@@ -697,7 +697,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 						}
 
 						final int index = (Integer) idList.get(0);
-						createZone(panel.getAsset(index), Zone.Type.MAP);
+						createZone(panel.getAsset(index), Zone.MapType.MAP);
 					}
 				}
 
@@ -718,7 +718,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 						public void actionPerformed(ActionEvent e) {
 
-							createZone(panel.getAsset(index), Zone.Type.MAP);
+							createZone(panel.getAsset(index), Zone.MapType.MAP);
 						}
 					}));
 					menu.add(new JMenuItem(new AbstractAction() {
@@ -728,7 +728,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 						public void actionPerformed(ActionEvent e) {
 							createZone(panel.getAsset(index),
-									Zone.Type.INFINITE);
+									Zone.MapType.INFINITE);
 						}
 					}));
 					menu.addSeparator();

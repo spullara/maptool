@@ -109,7 +109,7 @@ public class ZoneSelectionPanel extends JPanel implements ZoneActivityListener, 
                 		} else {
 
                 			// This doesn't work for unbounded yet
-                			if (renderer.getZone().getType() == Zone.Type.INFINITE) {
+                			if (renderer.getZone().getMapType() == Zone.MapType.INFINITE) {
                 				return;
                 			}
                 			

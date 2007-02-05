@@ -20,11 +20,11 @@ public class TokenUtilTest extends TestCase {
 		g.fillRect(0, 0, 100, 100);
 		g.dispose();
 		
-		assertEquals(Token.Type.SQUARE, TokenUtil.guessTokenType(img));
+		assertEquals(Token.TokenShape.SQUARE, TokenUtil.guessTokenType(img));
 
 		img = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/squareToken.gif");
 		
-		assertEquals(Token.Type.SQUARE, TokenUtil.guessTokenType(img));
+		assertEquals(Token.TokenShape.SQUARE, TokenUtil.guessTokenType(img));
 		
 		// CIRCLE
 		img = new BufferedImage(100, 100, Transparency.BITMASK);
@@ -33,11 +33,11 @@ public class TokenUtilTest extends TestCase {
 		g.fillOval(0, 0, 100, 100);
 		g.dispose();
 		
-		assertEquals(Token.Type.CIRCLE, TokenUtil.guessTokenType(img));
+		assertEquals(Token.TokenShape.CIRCLE, TokenUtil.guessTokenType(img));
 
 		img = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/circleToken.png");
 		
-		assertEquals(Token.Type.CIRCLE, TokenUtil.guessTokenType(img));
+		assertEquals(Token.TokenShape.CIRCLE, TokenUtil.guessTokenType(img));
 
 		// TOP DOWN
 		img = new BufferedImage(100, 100, Transparency.BITMASK);
@@ -48,6 +48,6 @@ public class TokenUtilTest extends TestCase {
 		g.fillRect(0, 50, 100, 10);
 		g.dispose();
 		
-		assertEquals(Token.Type.TOP_DOWN, TokenUtil.guessTokenType(img));
+		assertEquals(Token.TokenShape.TOP_DOWN, TokenUtil.guessTokenType(img));
 	}
 }

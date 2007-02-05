@@ -72,8 +72,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new JSeparator());
 
 		addOwnedItem(createSizeMenu(false));
-		addOwnedToggledItem(new SnapToGridAction(tokenUnderMouse.isSnapToGrid(), renderer), tokenUnderMouse.isSnapToGrid());
-		addGMItem(createOwnerMenu());
 
 		add(new JSeparator());
 
@@ -177,55 +175,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		return stateMenu;
 	}
 	
-	protected JMenu createOwnerMenu() {
 
-		JMenu ownerMenu = I18N.createMenu("defaultTool.ownerMenu");
-		if (!MapTool.getServerPolicy().useStrictTokenManagement()) {
-			return null;
-		}
-
-		JCheckBoxMenuItem allMenuItem = new JCheckBoxMenuItem("All");
-		allMenuItem.addActionListener(new AllOwnershipAction());
-		ownerMenu.add(allMenuItem);
-
-		JMenuItem removeAllMenuItem = new JMenuItem("Remove All");
-		removeAllMenuItem.addActionListener(new RemoveAllOwnershipAction());
-		ownerMenu.add(removeAllMenuItem);
-		ownerMenu.add(new JSeparator());
-
-		int playerCount = 0;
-		for (Player player : (Iterable<Player>) MapTool.getPlayerList()) {
-
-			if (player.isGM()) {
-				continue;
-			}
-
-			boolean selected = false;
-
-			for (GUID tokenGUID : selectedTokenSet) {
-				Token token = getRenderer().getZone().getToken(tokenGUID);
-				if (token.isOwner(player.getName())) {
-					selected = true;
-					break;
-				}
-			}
-			JCheckBoxMenuItem playerMenu = new PlayerOwnershipMenu(player
-					.getName(), selected, selectedTokenSet, getRenderer()
-					.getZone());
-
-			ownerMenu.add(playerMenu);
-			playerCount++;
-		}
-
-		if (playerCount == 0) {
-			JMenuItem noPlayerMenu = new JMenuItem("No players");
-			noPlayerMenu.setEnabled(false);
-			ownerMenu.add(noPlayerMenu);
-		}
-
-		return ownerMenu;
-	}
-	
 	protected void addOwnedToggledItem(Action action, boolean checked) {
 		if (action == null) {
 			return;

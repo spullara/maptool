@@ -33,12 +33,12 @@ public class ZoneRendererFactory {
 	public static ZoneRenderer newRenderer(Zone zone) {
         
         ZoneRenderer renderer = null;
-        switch (zone.getType()) {
-        case Zone.Type.INFINITE: {
+        switch (zone.getMapType()) {
+        case Zone.MapType.INFINITE: {
             renderer = new UnboundedZoneRenderer(zone);
             break;
         }
-        case Zone.Type.MAP:
+        case Zone.MapType.MAP:
         default: {
             renderer = new BoundedZoneRenderer(zone);
         }

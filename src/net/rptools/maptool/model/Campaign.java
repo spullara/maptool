@@ -24,15 +24,15 @@
  */
 package net.rptools.maptool.model;
 
-import java.awt.Paint;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.rptools.lib.MD5Key;
-import net.rptools.maptool.client.ui.AssetPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
@@ -44,14 +44,37 @@ import net.rptools.maptool.model.drawing.DrawnElement;
  * all of the images that will appear on it.
  */
 public class Campaign {
+	
+	public static final String DEFAULT_TOKEN_PROPERTY_TYPE = "Basic";
+	
     private GUID id = new GUID();
     private Map<GUID, Zone> zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
     private ExportInfo exportInfo;
+    private Map<String, List<String>> tokenTypeMap;
 
     public GUID getId() {
         return id;
     }
 
+    public List<String> getTokenTypes() {
+    	List<String> list = new ArrayList<String>();
+    	list.addAll(getTokenTypeMap().keySet());
+    	Collections.sort(list);
+    	return list;
+    }
+
+    public List<String> getTokenPropertyList(String tokenType) {
+    	return getTokenTypeMap().get(tokenType);
+    }
+    
+    private Map<String, List<String>> getTokenTypeMap() {
+    	if (tokenTypeMap == null) {
+    		tokenTypeMap = new HashMap<String, List<String>>();
+    		tokenTypeMap.put(DEFAULT_TOKEN_PROPERTY_TYPE, Arrays.asList(new String[]{"Health", "Armor"}));
+    	}
+    	return tokenTypeMap;
+    }
+    
     public void setExportInfo(ExportInfo exportInfo) {
     	this.exportInfo = exportInfo;
     }

@@ -916,7 +916,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 
     			
     			// Draw token
-    			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp() || token.isBackground())) {
+    			if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp() || token.isBackground())) {
 
     				// Rotated
     				AffineTransform at = new AffineTransform();
@@ -1323,7 +1323,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			}
 			
 			// Halo (TOPDOWN, CIRCLE)
-			if (token.hasHalo() && (token.getTokenType() == Token.Type.TOP_DOWN || token.getTokenType() == Token.Type.CIRCLE)) {
+			if (token.hasHalo() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.getShape() == Token.TokenShape.CIRCLE)) {
 				Stroke oldStroke = g.getStroke();
 				g.setStroke(HALO_STROKE);
 				g.setColor(token.getHaloColor());
@@ -1351,7 +1351,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			if (token.isToken() && !view.isGMView() && !token.isOwner(MapTool.getPlayer().getName()) && visibleArea != null) {
 				g.setClip(visibleArea);
 			}
-			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp() || token.isBackground())) {
+			if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp() || token.isBackground())) {
 				// Rotated
 				AffineTransform at = new AffineTransform();
 				at.translate(x, y);
@@ -1371,7 +1371,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			g.setClip(clip);
 
 			// Halo (SQUARE)
-			if (token.hasHalo() && token.getTokenType() == Token.Type.SQUARE) {
+			if (token.hasHalo() && token.getShape() == Token.TokenShape.SQUARE) {
 				Stroke oldStroke = g.getStroke();
 				g.setStroke(HALO_STROKE);
 				g.setColor(token.getHaloColor());
@@ -1383,7 +1383,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             // TODO: Optimize this by doing it once per token per facing
 			if (token.hasFacing()) {
 
-				Token.Type tokenType = token.getTokenType();
+				Token.TokenShape tokenType = token.getShape();
 				switch(tokenType) {
 				case CIRCLE:
 					int size = TokenSize.getWidth(token, zone.getGrid())/2;
@@ -1488,7 +1488,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         	if (isSelected) {
         		ImageBorder selectedBorder = token.isStamp() || token.isBackground() ? AppStyle.selectedStampBorder : AppStyle.selectedBorder;
                 // Border
-    			if (token.hasFacing() && (token.getTokenType() == Token.Type.TOP_DOWN || token.isStamp() || token.isBackground())) {
+    			if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp() || token.isBackground())) {
     				AffineTransform oldTransform = g.getTransform();
 
     				// Rotated
@@ -1888,27 +1888,31 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             
             // Set the image properties
             BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(token.getAssetID()));
-            token.setTokenType(TokenUtil.guessTokenType((BufferedImage)image));
+            token.setShape(TokenUtil.guessTokenType((BufferedImage)image));
             token.setWidth(image.getWidth(null));
             token.setHeight(image.getHeight(null));
             
             // He who drops, owns, if there are not players already set
-            if (!token.hasOwners() && !isGM)
+            if (!token.hasOwners() && !isGM) {
                 token.addOwner(MapTool.getPlayer().getName());
+            }
 
-            // Token type
+            // Token rotation type
             if (getActiveLayer() == Zone.Layer.BACKGROUND) {
             	token.setLayer(Zone.Layer.BACKGROUND);
             	token.setSnapToScale(!AppPreferences.getBackgroundsStartFreesize());
             	token.setSnapToGrid(AppPreferences.getBackgroundsStartSnapToGrid());
-            	token.setTokenType(Token.Type.TOP_DOWN);
+            	token.setShape(Token.TokenShape.TOP_DOWN);
             }
             if (getActiveLayer() == Zone.Layer.OBJECT) {
             	token.setLayer(Zone.Layer.OBJECT);
             	token.setSnapToScale(!AppPreferences.getStampsStartFreesize());
             	token.setSnapToGrid(AppPreferences.getStampsStartSnapToGrid());
-            	token.setTokenType(Token.Type.TOP_DOWN);
+            	token.setShape(Token.TokenShape.TOP_DOWN);
             }
+            
+            // Token type
+            token.setType(isGM ? Token.Type.NPC : Token.Type.PC);
 
             // Save the token and tell everybody about it
             zone.putToken(token);

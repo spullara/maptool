@@ -342,7 +342,7 @@ public class NewMapDialog extends JDialog  {
 	}
 	
 	public int getZoneType() {
-		return boundedRadio.isSelected() ? Zone.Type.MAP : Zone.Type.INFINITE;
+		return boundedRadio.isSelected() ? Zone.MapType.MAP : Zone.MapType.INFINITE;
 	}
 	
 	public String getZoneName() {
@@ -364,10 +364,10 @@ public class NewMapDialog extends JDialog  {
 	
 	public void setZoneType(int type) {
 		switch (type) {
-		case Zone.Type.INFINITE:
+		case Zone.MapType.INFINITE:
 			unboundedRadio.setSelected(true);
 			break;
-		case Zone.Type.MAP:
+		case Zone.MapType.MAP:
 			boundedRadio.setSelected(true);
 			break;
 		}
