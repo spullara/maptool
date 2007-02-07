@@ -37,6 +37,7 @@ import net.rptools.maptool.model.TextMessage;
 
 public class CommandPanel extends JPanel implements Observer {
 
+		
 	private JTextArea commandTextArea;
 	private MessagePanel messagePanel;
 	private List<String> commandHistory = new LinkedList<String>();
@@ -249,8 +250,9 @@ public class CommandPanel extends JPanel implements Observer {
 	
 	public static class TextColorWell extends JPanel {
 
-		private Color color = Color.black;
-		
+		//Set the Color from the saved chat color from AppPreferences
+		private Color color = AppPreferences.getChatColor();
+				
 		public TextColorWell() {
 			setMinimumSize(new Dimension(15, 15));
 			setPreferredSize(new Dimension(15, 15));
@@ -262,6 +264,7 @@ public class CommandPanel extends JPanel implements Observer {
 					if (newColor != null) {
 						color = newColor;
 						repaint();
+						AppPreferences.setChatColor(color); //Set the Chat Color in AppPreferences
 					}
 				}
 			});

@@ -24,13 +24,12 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.prefs.Preferences;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.Token;
@@ -92,7 +91,18 @@ public class AppPreferences {
     
     private static final String KEY_FONT_SIZE = "fontSize";
     private static final int DEFAULT_FONT_SIZE = 12;
- 
+    
+    private static final String KEY_CHAT_COLOR = "chatColor";
+    private static final Color DEFAULT_CHAT_COLOR = Color.black;
+     
+    public static void setChatColor(Color color){
+    	prefs.putInt(KEY_CHAT_COLOR, color.getRGB());
+    }
+
+    public static Color getChatColor() {
+		return new Color (prefs.getInt(KEY_CHAT_COLOR, DEFAULT_CHAT_COLOR.getRGB()));
+	}
+    
     public static void setSaveReminder( boolean reminder ) {
     	prefs.putBoolean(KEY_SAVE_REMINDER, reminder);
     }
