@@ -120,8 +120,9 @@ public class VisionDialog extends JDialog {
 		JButton button = (JButton) panel.getButton("okButton");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				commit(zone, token);
-				close();
+				if (commit(zone, token)) {
+					close();
+				}
 			}
 		});
 	}
@@ -146,16 +147,30 @@ public class VisionDialog extends JDialog {
 		
 	}
 
-	private void commit(Zone zone, Token token) {
+	private boolean commit(Zone zone, Token token) {
 		Vision vision = (Vision) typeCombo.getSelectedItem();
-		// TODO: Check for valid value
+
+		if ( distanceTextField.getText().trim().length() == 0) {
+			MapTool.showError("Distance Text Field is empty, enter a distance.");
+			return false;
+		}
+
+		int distance = 0;
+		try	{
+			distance = Integer.parseInt(distanceTextField.getText());
+		} catch(NumberFormatException nfex){
+				MapTool.showError("Distance must be numeric");
+				return false;
+		}
 		vision.setName(nameTextField.getText());
-		vision.setDistance(Integer.parseInt(distanceTextField.getText()));
 		vision.setEnabled(enabledCheckBox.isSelected());
+		vision.setDistance(distance);
 		
 		token.addVision(vision);
 		
 		MapTool.serverCommand().putToken(zone.getId(), token);
+		
+		return true;
 	}
 	
 	private void close() {
