@@ -65,7 +65,6 @@ public class TransferableHelper {
 	public static List<Asset> getAsset(DropTargetDropEvent dtde) {
 		
         Transferable transferable = dtde.getTransferable();
-    	dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
       List<Asset> assets = new ArrayList<Asset>();
 
         try {
@@ -154,8 +153,6 @@ public class TransferableHelper {
      */
     public static List<Token> getTokens(Transferable transferable) {
         try {
-            if (!transferable.isDataFlavorSupported(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR))
-                return null;
             List tokenMaps = (List)transferable.getTransferData(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR);
             List<Token> tokens = new ArrayList<Token>();            
             for (Object object : tokenMaps) {
@@ -181,5 +178,16 @@ public class TransferableHelper {
             e.printStackTrace();
             return null;
         } // endtry
+    }
+    
+    public static boolean isSupportedAssetFlavor(Transferable transferable) {
+        return transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)
+                || transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)
+                || transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)
+                || transferable.isDataFlavorSupported(URL_FLAVOR); 
+    }
+    
+    public static boolean isSupportedTokenFlavor(Transferable transferable) {
+        return transferable.isDataFlavorSupported(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR);
     }
 }

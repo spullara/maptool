@@ -38,6 +38,8 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.Transparency;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
@@ -1942,6 +1944,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public void drop(DropTargetDropEvent dtde) {
         final ZonePoint zp = new ScreenPoint((int) dtde.getLocation().getX(),
                 (int) dtde.getLocation().getY()).convertToZone(this);
+
+        Transferable t = dtde.getTransferable();
+        if (!(TransferableHelper.isSupportedAssetFlavor(t) 
+                || TransferableHelper.isSupportedTokenFlavor(t))
+                || (dtde.getDropAction() & DnDConstants.ACTION_COPY_OR_MOVE) == 0) {
+            dtde.rejectDrop(); // Not a supported flavor or not a copy/move
+            return;
+        }
+        dtde.acceptDrop(dtde.getDropAction());
 
         List<Token> tokens = null;
         List<Asset> assets = TransferableHelper.getAsset(dtde);
