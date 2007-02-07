@@ -89,6 +89,8 @@ public class MapTool {
     
 	private static ServiceAnnouncer announcer;
 	
+    private static AutoSaveManager autoSaveManager = new AutoSaveManager();
+	
 	public static void showError(String message) {
 		JOptionPane.showMessageDialog(clientFrame, I18N.getText(message), "Error", JOptionPane.ERROR_MESSAGE);
 	}
@@ -129,6 +131,10 @@ public class MapTool {
     	return image;
     }
     
+	public static AutoSaveManager getAutoSaveManager() {
+		return autoSaveManager;
+	}
+
 	private static void initialize() {
 		
         // First timer
@@ -154,7 +160,7 @@ public class MapTool {
         	e.printStackTrace();
         }
         AppActions.updateActions();
-
+        
 	}
 	
 	public static String getVersion() {
@@ -530,6 +536,9 @@ public class MapTool {
                     initialize();
                 
                     clientFrame.setVisible(true);
+                    
+                    // Check to see if there is an autosave file from mt crashing
+                    getAutoSaveManager().check();
         	}
         });
         

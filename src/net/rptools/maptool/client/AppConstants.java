@@ -35,7 +35,7 @@ public class AppConstants {
     public static final String APP_NAME = "MapTool";
 
     public static final File UNZIP_DIR = AppUtil.getAppHome("resource");
-    
+ 
 	public static final ServiceGroup SERVICE_GROUP = new ServiceGroup("maptool");
 
 	public static final Color DEFAULT_GRID_COLOR = Color.darkGray;

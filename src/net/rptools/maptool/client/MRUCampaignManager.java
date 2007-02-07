@@ -39,7 +39,8 @@ import javax.swing.JMenuItem;
  */
 public class MRUCampaignManager {
 
-	private static final int DEFAULT_MAX_MRU = 10;
+	//To increase max mru's need to update mnemonics code
+	private static final int DEFAULT_MAX_MRU = 9;
 	private JMenu mruMenu;
 	private List<File> mruCampaigns;	
 		
@@ -60,6 +61,10 @@ public class MRUCampaignManager {
 	 * Adds a new Campaign to the MRU list, then resorts the list and updates the menu
 	 */
 	public void addMRUCampaign(File newCampaign) {
+		
+		//don't add the autosave recovery file until it is resaved
+		if(newCampaign == AutoSaveManager.AUTOSAVE_FILE)
+			return;
 		
 		if( mruCampaigns.size() == 0 ) {
 			mruCampaigns.add(newCampaign);
@@ -100,8 +105,15 @@ public class MRUCampaignManager {
 				if(i > DEFAULT_MAX_MRU){
 					break;
 				}
-				Action action = new AppActions.OpenMRUCampaign((File)iter.next(), i++);
-				mruMenu.add(action);
+				File nextFile = iter.next();
+				// Check to see if the file has been deleted
+				if(nextFile.exists()) {
+					Action action = new AppActions.OpenMRUCampaign(nextFile, i++);
+					mruMenu.add(action);
+				}
+				else {
+					iter.remove();
+				}
 			}
 		}
 	}

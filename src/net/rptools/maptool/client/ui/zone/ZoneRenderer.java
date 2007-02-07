@@ -1881,9 +1881,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         for (Token token : tokens) {
             
-            // Check the name
-            token.setName(MapToolUtil.nextTokenId(zone, token.getName()));
-            
             // Get the snap to grid value for the current prefs and abilities
             token.setSnapToGrid(gridCaps.isSnapToGridSupported() && AppPreferences.getTokensStartSnapToGrid());
             if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid()) {
@@ -1917,6 +1914,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	token.setSnapToGrid(AppPreferences.getStampsStartSnapToGrid());
             	token.setShape(Token.TokenShape.TOP_DOWN);
             }
+
+            // Check the name (after Token layer is set as name relies on layer)
+            token.setName(MapToolUtil.nextTokenId(zone, token));
             
             // Token type
             token.setType(isGM ? Token.Type.NPC : Token.Type.PC);

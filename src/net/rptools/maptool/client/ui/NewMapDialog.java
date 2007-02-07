@@ -2,17 +2,12 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -28,7 +23,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
 import net.rptools.lib.image.ImageUtil;
@@ -61,10 +55,8 @@ public class NewMapDialog extends JDialog  {
 	
 	private Status status;
 	
-	private JFileChooser imageFileChooser;
+	private PreviewPanelFileChooser imageFileChooser;
 	private JButton okButton;
-	private JPanel previewWrapperPanel;
-	private ImagePreviewPanel browsePreviewPanel;
 	private ImagePreviewPanel imagePreviewPanel;
 	
 	private JRadioButton hexRadio;
@@ -272,9 +264,9 @@ public class NewMapDialog extends JDialog  {
 		});
 	}
 	
-	private JFileChooser getImageFileChooser() {
+	private PreviewPanelFileChooser getImageFileChooser() {
 		if (imageFileChooser == null) {
-			imageFileChooser = new JFileChooser();
+			imageFileChooser = new PreviewPanelFileChooser();
 			imageFileChooser.setFileFilter(new FileFilter() {
 				@Override
 				public boolean accept(File f) {
@@ -288,39 +280,11 @@ public class NewMapDialog extends JDialog  {
 					return "Images only";
 				}
 			});
-			imageFileChooser.addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, new FileSystemSelectionHandler());
-			imageFileChooser.setAccessory(getPreviewWrapperPanel());
 			if (lastFilePath != null) {
-				imageFileChooser.setSelectedFile(lastFilePath);
+				imageFileChooser.setCurrentDirectory(lastFilePath);
 			}
 		}
 		return imageFileChooser;
-	}
-	
-	private JPanel getPreviewWrapperPanel() {
-		if (previewWrapperPanel == null) {
-			GridLayout gridLayout = new GridLayout();
-			gridLayout.setRows(1);
-			gridLayout.setColumns(1);
-			previewWrapperPanel = new JPanel();
-			previewWrapperPanel.setBorder(BorderFactory.createCompoundBorder(
-					BorderFactory.createEmptyBorder(0, 5, 0, 0), BorderFactory
-							.createTitledBorder(null, "Preview",
-									TitledBorder.CENTER,
-									TitledBorder.BELOW_BOTTOM, null, null)));
-			previewWrapperPanel.setLayout(gridLayout);
-			previewWrapperPanel.add(getPreviewPanel(), null);
-		}
-		return previewWrapperPanel;
-	}
-
-	private ImagePreviewPanel getPreviewPanel() {
-		if (browsePreviewPanel == null) {
-
-			browsePreviewPanel = new ImagePreviewPanel();
-		}
-
-		return browsePreviewPanel;
 	}
 	
 	private ImagePreviewPanel getImagePreviewPanel() {
@@ -457,64 +421,7 @@ public class NewMapDialog extends JDialog  {
 		}
 	}
 
-	
-	////
-	// IMAGE PREVIEW PANEL
-	private class ImagePreviewPanel extends JComponent {
 
-		private Image img;
-
-		public ImagePreviewPanel() {
-			setPreferredSize(new Dimension(150, 100));
-			setMinimumSize(new Dimension(150, 100));
-		}
-
-		public void setImage(Image image) {
-
-			this.img = image;
-			repaint();
-		}
-
-		@Override
-		protected void paintComponent(Graphics g) {
-
-			// Image
-			Dimension size = getSize();
-			if (img != null) {
-				Dimension imgSize = new Dimension(img.getWidth(null), img
-						.getHeight(null));
-				SwingUtil.constrainTo(imgSize, size.width, size.height);
-
-				// Border
-				int x = (size.width - imgSize.width) / 2;
-				int y = (size.height - imgSize.height) / 2;
-
-				g.drawImage(img, x, y, imgSize.width, imgSize.height, null);
-				g.setColor(Color.black);
-				g.drawRect(x, y, imgSize.width - 1, imgSize.height - 1);
-			}
-
-		}
-	}
-	
-	////
-	// FILE SELECTION HANDLER
-	private class FileSystemSelectionHandler implements PropertyChangeListener {
-
-		public void propertyChange(PropertyChangeEvent evt) {
-			File selectedFile = getImageFileChooser().getSelectedFile();
-			
-			if (selectedFile != null && !selectedFile.isDirectory()) {
-				try {
-					Image img = ImageUtil.getImage(selectedFile);
-					getPreviewPanel().setImage(img);
-				} catch (IOException ioe) {
-					getPreviewPanel().setImage(null);
-				}
-			}
-		}
-	}
-	
 //	@Override
 //	public void setVisible(boolean b) {
 //

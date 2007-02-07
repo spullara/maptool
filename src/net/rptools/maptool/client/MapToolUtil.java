@@ -33,10 +33,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.Timer;
+
+import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 
 public class MapToolUtil {
-
+	
     private static Random random = new Random ( System.currentTimeMillis() );
 
     private static AtomicInteger nextTokenId = new AtomicInteger(1);
@@ -50,18 +53,18 @@ public class MapToolUtil {
      * Set up the color map
      */
     static {
+      COLOR_MAP.put("white", Color.WHITE);
+      COLOR_MAP.put("lightgray", Color.LIGHT_GRAY);
+      COLOR_MAP.put("gray", Color.GRAY);
+      COLOR_MAP.put("darkgray", Color.DARK_GRAY);
       COLOR_MAP.put("black", Color.BLACK);
       COLOR_MAP.put("blue", Color.BLUE);
       COLOR_MAP.put("cyan", Color.CYAN);
-      COLOR_MAP.put("darkgray", Color.DARK_GRAY);
-      COLOR_MAP.put("gray", Color.GRAY);
       COLOR_MAP.put("green", Color.GREEN);
-      COLOR_MAP.put("lightgray", Color.LIGHT_GRAY);
       COLOR_MAP.put("magenta", Color.MAGENTA);
       COLOR_MAP.put("orange", Color.ORANGE);
       COLOR_MAP.put("pink", Color.PINK);
       COLOR_MAP.put("red", Color.RED);
-      COLOR_MAP.put("white", Color.WHITE);
       COLOR_MAP.put("yellow", Color.YELLOW);
     }
 
@@ -97,32 +100,54 @@ public class MapToolUtil {
     }
 
 	private static final Pattern NAME_PATTERN = Pattern.compile("(.*) (\\d+)");
-    public static String nextTokenId(Zone zone, String baseName) {
+    public static String nextTokenId(Zone zone, Token token) {
+    	   	
+    	boolean isToken = token.isToken();
+    	String baseName = token.getName();
+    	String newName;
     	
-        // Create a name
-    	if (baseName == null) {
+    	if(isToken && AppPreferences.getNewTokenNaming().equals(Token.NAME_USE_CREATURE)) {
+    		newName = "Creature";
+    	}
+    	else if (baseName == null) {
 	    	int nextId = nextTokenId.getAndIncrement();
 	    	char ch = (char)('a' + MapTool.getPlayerList().indexOf(MapTool.getPlayer()));
 	    	return ch + Integer.toString(nextId);
     	}
-    	
-    	baseName = baseName.trim();
-    	String newName;
-		Matcher m = NAME_PATTERN.matcher(baseName);
-		
-		if (m.find())
-			newName = m.group(1);
-		else
-			newName = baseName;
+    	else {
+        	baseName = baseName.trim();
+    		Matcher m = NAME_PATTERN.matcher(baseName);
+    		
+    		if (m.find())
+    			newName = m.group(1);
+    		else
+    			newName = baseName;
+    	}
 
-		if (zone.getTokenByName(newName) != null)
-		{			
-			int num = 2;
+    	boolean random = (isToken && AppPreferences.getDuplicateTokenNumber().equals(Token.NUM_RANDOM));
+    	
+		if (zone.getTokenByName(newName) != null || random)
+		{		
+			int num;
+			if (random && isToken) {
+				// When 90 or more tokens, move to incremental naming or may never
+				// find a number if they all have this creature's base name
+				if (zone.getAllTokens().size() >= 89)
+					num = 10;
+				else
+					num = getRandomNumber(10,99);
+			}
+			else {
+				num = 2;
+			}
 
 			// Find the next available token number, this
 			// has to break at some point.
 			while (zone.getTokenByName(newName + " " + num) != null) {
-				num++;
+				if (random && zone.getAllTokens().size() < 89)
+					num = getRandomNumber(10,99);
+				else
+					num++;
 			}
 
 			newName += " ";
@@ -149,4 +174,5 @@ public class MapToolUtil {
     public static Set<String> getColorNames() {
     	return COLOR_MAP.keySet();
     }
+    
 }

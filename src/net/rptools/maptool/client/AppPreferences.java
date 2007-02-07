@@ -33,6 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.rptools.maptool.model.GridFactory;
+import net.rptools.maptool.model.Token;
 
 
 public class AppPreferences {
@@ -43,6 +44,18 @@ public class AppPreferences {
     private static final String KEY_SAVE_DIR = "saveDir";
     private static final String KEY_LOAD_DIR = "loadDir";
     private static final String KEY_MRU_CAMPAIGNS = "mruCampaigns";
+    
+    private static final String KEY_SAVE_REMINDER = "autoSaveIncrement";
+    private static final boolean DEFAULT_SAVE_REMINDER = true;
+    
+    private static final String KEY_AUTO_SAVE_INCREMENT = "autoSaveIncrement";
+    private static final int DEFAULT_AUTO_SAVE_INCREMENT = 2;
+    
+    private static final String KEY_DUPLICATE_TOKEN_NUMBER = "duplicateTokenNumber";
+    private static final String DEFAULT_DUPLICATE_TOKEN_NUMBER = Token.NUM_INCREMENT;
+    
+    private static final String KEY_NEW_TOKEN_NAMING = "newTokenNaming";
+    private static final String DEFAULT_NEW_TOKEN_NAMING = Token.NAME_USE_FILENAME;
     
     private static final String KEY_USE_TRANSLUCENT_FOG = "useTranslucentFog";
     private static final boolean DEFAULT_USE_TRANSLUCENT_FOG = true;
@@ -79,8 +92,39 @@ public class AppPreferences {
     
     private static final String KEY_FONT_SIZE = "fontSize";
     private static final int DEFAULT_FONT_SIZE = 12;
-        
+ 
+    public static void setSaveReminder( boolean reminder ) {
+    	prefs.putBoolean(KEY_SAVE_REMINDER, reminder);
+    }
     
+    public static boolean getSaveReminder() {
+    	return prefs.getBoolean(KEY_SAVE_REMINDER, DEFAULT_SAVE_REMINDER);
+    }
+    
+    public static void setAutoSaveIncrement( int increment ) {
+    	prefs.putInt(KEY_AUTO_SAVE_INCREMENT, increment);
+    }
+    
+    public static int getAutoSaveIncrement() {
+    	return prefs.getInt(KEY_AUTO_SAVE_INCREMENT, DEFAULT_AUTO_SAVE_INCREMENT);
+    }
+    
+    public static void setDuplicateTokenNumber (String numbering) {
+    	prefs.put(KEY_DUPLICATE_TOKEN_NUMBER, numbering);
+    }
+    
+    public static String getDuplicateTokenNumber () {
+        return prefs.get(KEY_DUPLICATE_TOKEN_NUMBER, DEFAULT_DUPLICATE_TOKEN_NUMBER);
+    }
+    
+    public static void setNewTokenNaming (String naming) {
+    	prefs.put(KEY_NEW_TOKEN_NAMING, naming);
+    }
+    
+    public static String getNewTokenNaming () {
+        return prefs.get(KEY_NEW_TOKEN_NAMING, DEFAULT_NEW_TOKEN_NAMING);
+    }
+
     public static void setFontSize(int size) {
     	prefs.putInt(KEY_FONT_SIZE, size);
     }

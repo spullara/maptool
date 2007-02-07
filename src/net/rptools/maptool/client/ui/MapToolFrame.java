@@ -63,6 +63,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -86,9 +87,11 @@ import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ServerDisconnectHandler;
 import net.rptools.maptool.client.ZoneActivityListener;
 import net.rptools.maptool.client.swing.CoordinateStatusBar;
@@ -1126,17 +1129,42 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public void windowClosing(WindowEvent e) {
+		
+		if (!confirmClose()) {
+			return;
+		} 
 
+		closingMaintenance();
+	}
+	
+	public boolean confirmClose() {
 		if (MapTool.isHostingServer()) {
 			if (!MapTool.confirm("You are hosting a server.  Shutting down will disconnect all players.  Are you sure?")) {
-				return;
+				return false;
 			}
 		}
-
+		return true;
+	}
+	
+	public void closingMaintenance() {
 		ServerDisconnectHandler.disconnectExpected = true;
 		MapTool.disconnect();
 
 		getDockingManager().saveLayoutData();
+		
+		if (AppPreferences.getSaveReminder() ) {
+			if( JOptionPane.showConfirmDialog(
+					MapTool.getFrame(), 
+						"Would you like to save your campaign before you exit?", 
+						"Save Reminder", 
+						JOptionPane.OK_OPTION) == JOptionPane.OK_OPTION) {
+						
+				AppActions.SAVE_CAMPAIGN.actionPerformed(null);
+			}
+		}
+		
+		// If closing cleanly, then remove the autosave file
+		MapTool.getAutoSaveManager().purge();
 
 		setVisible(false);
 		dispose();

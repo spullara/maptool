@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +57,12 @@ import net.rptools.maptool.util.ImageManager;
  */
 public class Token {
 	private GUID id = new GUID();
+	
+	public static final String NAME_USE_FILENAME = "Use Filename";
+	public static final String NAME_USE_CREATURE = "Use \"Creature\"";
+	
+	public static final String NUM_INCREMENT = "Increment";
+	public static final String NUM_RANDOM = "Random 2-digit";
 
 	public enum TokenShape {
 		TOP_DOWN("Top down"),

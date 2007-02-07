@@ -18,8 +18,6 @@ import net.rptools.maptool.util.GraphicsUtil;
 
 public class MacroButton extends JButton {
 	
-	//private static final String defaultColorKey = "lightgray";
-		
 	private String colorKey;
 	private String hotKey;
 	private String command;
@@ -34,7 +32,7 @@ public class MacroButton extends JButton {
 
 	public MacroButton(int index, String command, boolean autoExecute, boolean includeLabel) {
 
-		setColor(null);
+		setColor("");
 		setHotKey(MacroButtonHotKeyManager.HOTKEYS[0]);
 		setMacroLabel(Integer.toString(index));
 		setCommand(command);
@@ -91,6 +89,7 @@ public class MacroButton extends JButton {
 	
 		this.colorKey = colorKey;
 
+		//If the key doesn't correspond to one of our colors, then use the default
 		if (!MapToolUtil.isValidColor(colorKey))
 			setBackground(null);
 		else {
@@ -207,7 +206,7 @@ public class MacroButton extends JButton {
 	    
 	    private void restorePreferences() {
 	        
-	    	String colorKey = prefs.get(PREF_COLOR_KEY, null);
+	    	String colorKey = prefs.get(PREF_COLOR_KEY, "");
 	        String label = prefs.get(PREF_LABEL_KEY, Integer.toString(index));
 	        String command = prefs.get(PREF_COMMAND_KEY, "");
 	        boolean autoExecute = prefs.getBoolean(PREF_AUTO_EXECUTE, true);

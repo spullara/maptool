@@ -24,6 +24,10 @@
  */
 package net.rptools.maptool.util;
 
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -33,10 +37,15 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
+
 import net.rptools.lib.MD5Key;
+import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.client.ui.zone.ZoneView;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
@@ -98,9 +107,48 @@ public class PersistenceUtil {
 			persistedCampaign.currentZoneId = currentZoneRenderer.getZone().getId();
 			persistedCampaign.currentView = currentZoneRenderer.getZoneScale();
 		}
-
+		
+		// Save the campaign thumbnail
+		saveCampaignThumbnail(campaignFile.getName());        
+		
 		out.writeObject(persistedCampaign);
 		os.close();		
+	}
+
+	/* A public function because I think it should be called when a campaign is opened as well
+	* so if it is opened then closed without saving, there is still a preview created;
+	* however, the rendering of the campaign appears to complete after AppActions.loadCampaign 
+	* returns, causing the preview to always appear as black if this method is called from
+	* within loadCampaign.  Either need to find another place to call saveCampaignThumbnail
+	* upon opening, or code to delay it's call until the render is complete.  =P
+	*/
+	static public void saveCampaignThumbnail(String fileName) {
+		BufferedImage screen = MapTool.takeMapScreenShot(new ZoneView(MapTool.getPlayer().getRole()));
+		
+		Dimension imgSize = new Dimension(screen.getWidth(null), screen.getHeight(null));
+		SwingUtil.constrainTo(imgSize, 200, 200);
+
+		BufferedImage thumb = new BufferedImage(imgSize.width,imgSize.height, BufferedImage.TYPE_INT_BGR);
+		Graphics2D g2d = thumb.createGraphics();
+		g2d.drawImage(screen, 0, 0, imgSize.width, imgSize.height, null);
+        g2d.dispose();
+        
+		File thumbFile = getCampaignThumbnailFile(fileName);
+        
+        try{
+        	ImageIO.write(thumb, "jpg", thumbFile);
+        }
+        catch (IOException ioe) {
+        	MapTool.showError("Could not save the campaign preview image: " + ioe);
+        }
+	}
+	
+	/**
+	 * Gets a file pointing to where the campaign's thumbnail image should be.
+	 * @param fileName The campaign's file name.
+	 */
+	static public File getCampaignThumbnailFile(String fileName) {
+		return new File(AppUtil.getAppHome("campaignthumbs"), fileName + ".jpg");
 	}
 	
 	public static PersistedCampaign loadCampaign(File campaignFile) throws IOException {

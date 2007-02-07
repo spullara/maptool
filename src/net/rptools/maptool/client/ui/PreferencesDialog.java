@@ -12,16 +12,20 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GridFactory;
+import net.rptools.maptool.model.Token;
 
 import com.jeta.forms.components.panel.FormPanel;
 
@@ -39,10 +43,15 @@ public class PreferencesDialog extends JDialog {
 	private JCheckBox stampsStartFreeSizeCheckBox;
 	private JCheckBox backgroundsStartSnapToGridCheckBox;
 	private JCheckBox backgroundsStartFreeSizeCheckBox;
+	private JComboBox duplicateTokenCombo;
+	private JComboBox tokenNamingCombo;
 
 	// Defaults
 	private JComboBox defaultGridTypeCombo;
 	private JTextField defaultGridSizeTextField;
+	
+	private JSpinner autoSaveSpinner;
+	private JCheckBox saveReminderCheckBox;
 
 	// Accessibility
 	private JTextField fontSizeTextField;
@@ -64,6 +73,11 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		
+		
+		saveReminderCheckBox = panel.getCheckBox("saveReminderCheckBox");
+		autoSaveSpinner = panel.getSpinner("autoSaveSpinner");
+		duplicateTokenCombo = panel.getComboBox("duplicateTokenCombo");
+		tokenNamingCombo = panel.getComboBox("tokenNamingCombo");
 		useTranslucentFogCheckBox = panel.getCheckBox("useTranslucentFogCheckBox");
 		newMapsHaveFOWCheckBox = panel.getCheckBox("newMapsHaveFOWCheckBox");
 		tokensStartSnapToGridCheckBox = panel.getCheckBox("tokensStartSnapToGridCheckBox");
@@ -80,6 +94,18 @@ public class PreferencesDialog extends JDialog {
 		setInitialState();
 
 		// And keep it updated
+		saveReminderCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setSaveReminder(saveReminderCheckBox.isSelected());
+			}
+		});
+        autoSaveSpinner.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent ce) {
+				int newInterval = (Integer)autoSaveSpinner.getValue();
+				AppPreferences.setAutoSaveIncrement(newInterval);
+				MapTool.getAutoSaveManager().setInterval(newInterval);
+			}
+		});
 		useTranslucentFogCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setUseTranslucentFog(useTranslucentFogCheckBox.isSelected());
@@ -170,16 +196,39 @@ public class PreferencesDialog extends JDialog {
 		});
 		
 
-		DefaultComboBoxModel model = new DefaultComboBoxModel();
-		model.addElement(GridFactory.SQUARE);
-		model.addElement(GridFactory.HEX);
-		model.setSelectedItem(AppPreferences.getDefaultGridType());
-		defaultGridTypeCombo.setModel(model);
+		DefaultComboBoxModel gridTypeModel = new DefaultComboBoxModel();
+		gridTypeModel.addElement(GridFactory.SQUARE);
+		gridTypeModel.addElement(GridFactory.HEX);
+		gridTypeModel.setSelectedItem(AppPreferences.getDefaultGridType());
+		defaultGridTypeCombo.setModel(gridTypeModel);
 		defaultGridTypeCombo.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				AppPreferences.setDefaultGridType((String) defaultGridTypeCombo.getSelectedItem());
 			}
 		});
+		
+		DefaultComboBoxModel tokenNumModel = new DefaultComboBoxModel();
+		tokenNumModel.addElement(Token.NUM_INCREMENT);
+		tokenNumModel.addElement(Token.NUM_RANDOM);
+		tokenNumModel.setSelectedItem(AppPreferences.getDuplicateTokenNumber());
+		duplicateTokenCombo.setModel(tokenNumModel);
+		duplicateTokenCombo.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				AppPreferences.setDuplicateTokenNumber((String) duplicateTokenCombo.getSelectedItem());
+			}
+		});
+		
+		DefaultComboBoxModel tokenNameModel = new DefaultComboBoxModel();
+		tokenNameModel.addElement(Token.NAME_USE_FILENAME);
+		tokenNameModel.addElement(Token.NAME_USE_CREATURE);
+		tokenNameModel.setSelectedItem(AppPreferences.getNewTokenNaming());
+		tokenNamingCombo.setModel(tokenNameModel);
+		tokenNamingCombo.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				AppPreferences.setNewTokenNaming((String) tokenNamingCombo.getSelectedItem());
+			}
+		});
+		
 		
 		add(panel);
 		
@@ -197,6 +246,8 @@ public class PreferencesDialog extends JDialog {
 
 	private void setInitialState() {
 		
+		saveReminderCheckBox.setSelected(AppPreferences.getSaveReminder());
+		autoSaveSpinner.setValue(AppPreferences.getAutoSaveIncrement());
 		useTranslucentFogCheckBox.setSelected(AppPreferences.getUseTranslucentFog());
 		newMapsHaveFOWCheckBox.setSelected(AppPreferences.getNewMapsHaveFOW());
 		tokensStartSnapToGridCheckBox.setSelected(AppPreferences.getTokensStartSnapToGrid());

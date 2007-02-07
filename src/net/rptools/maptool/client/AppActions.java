@@ -39,15 +39,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-import javax.swing.JMenuBar;
 import javax.swing.KeyStroke;
 
 import net.rptools.lib.FileUtil;
@@ -60,6 +57,7 @@ import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.ExportDialog;
 import net.rptools.maptool.client.ui.NewMapDialog;
 import net.rptools.maptool.client.ui.PreferencesDialog;
+import net.rptools.maptool.client.ui.PreviewPanelFileChooser;
 import net.rptools.maptool.client.ui.ServerInfoDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
 import net.rptools.maptool.client.ui.StaticMessageDialog;
@@ -443,9 +441,11 @@ public class AppActions {
 
 				token.setX(token.getX() + zonePoint.x);
 				token.setY(token.getY() + zonePoint.y);
-			
+				
+				// paste into correct layer
+				token.setLayer(renderer.getActiveLayer());	
 				// check the token's name
-				token.setName(MapToolUtil.nextTokenId(zone, token.getName()));
+				token.setName(MapToolUtil.nextTokenId(zone, token));
 				zone.putToken(token);
 				MapTool.serverCommand().putToken(zone.getId(), token);
 			}
@@ -1151,8 +1151,7 @@ public class AppActions {
 
 		public void execute(ActionEvent ae) {
 
-			final JFileChooser chooser = MapTool.getFrame()
-					.getLoadFileChooser();
+			JFileChooser chooser = new CampaignPreviewFileChooser();
 			chooser.setDialogTitle("Load Campaign");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
@@ -1164,7 +1163,15 @@ public class AppActions {
 	};
 	
 	
-	private static void loadCampaign(final File campaignFile) {
+	private static class CampaignPreviewFileChooser extends PreviewPanelFileChooser {
+		
+		@Override
+		protected File getImageFileOfSelectedFile() {
+			return PersistenceUtil.getCampaignThumbnailFile(getSelectedFile().getName());
+		}
+	}
+	
+	public static void loadCampaign(final File campaignFile) {
 		
 		new Thread() {
 			public void run() {
@@ -1190,8 +1197,10 @@ public class AppActions {
 							AppMenuBar.mruManager.addMRUCampaign(campaignFile);
 
 							MapTool.setCampaign(campaign.campaign);
-
 							MapTool.serverCommand().setCampaign(campaign.campaign);
+							
+							MapTool.getAutoSaveManager().setInterval(AppPreferences.getAutoSaveIncrement());
+							MapTool.getAutoSaveManager().tidy();
 									
 							if (campaign.currentZoneId != null) {
 								MapTool.getFrame().setCurrentZoneRenderer(MapTool.getFrame().getZoneRenderer(campaign.currentZoneId));
@@ -1238,8 +1247,8 @@ public class AppActions {
 			try {
 				PersistenceUtil.saveCampaign(campaign, AppState
 						.getCampaignFile());
-				MapTool.showInformation("msg.info.campaignSaved");
 				AppMenuBar.mruManager.addMRUCampaign(AppState.getCampaignFile());
+				MapTool.showInformation("msg.info.campaignSaved");
 			} catch (IOException ioe) {
 				MapTool.showError("Could not save campaign: " + ioe);
 			}
@@ -1441,8 +1450,13 @@ public class AppActions {
 
 		public void execute(ActionEvent ae) {
 
-			// TODO: if connected, then show confirmation dialog
-			System.exit(0);
+			if(!MapTool.getFrame().confirmClose()) {
+				return;
+			}
+			else {
+				MapTool.getFrame().closingMaintenance();
+				System.exit(0);
+			}
 		}
 	};
 
@@ -1629,7 +1643,31 @@ public class AppActions {
 
 		public OpenMRUCampaign(File file, int position) {
 			campaignFile = file;
-			putValue(Action.NAME, position + " " + campaignFile.getName());
+			String label = position + " " + campaignFile.getName();
+			putValue(Action.NAME, label);
+			
+			if (position <= 9) {
+				int keyCode = KeyStroke.getKeyStroke(Integer.toString(position)).getKeyCode();
+				putValue(Action.MNEMONIC_KEY, keyCode);
+			}
+			
+			// Use the saved campaign thumbnail as a tooltip
+			File thumbFile = PersistenceUtil.getCampaignThumbnailFile(campaignFile.getName());
+			String htmlTip;
+			
+			if (thumbFile.exists()){
+				htmlTip = "<html><img src=\"file:///" + thumbFile.getPath() + "\"></html>";
+			}
+			else {
+				htmlTip = "No preview available";
+			}
+			
+			/* There is some extra space appearing to the right of the images, which
+			* sounds similar to what was reported in this bug (bottom half):
+			* http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5047379
+			* Removing the mnemonic will remove this extra space.
+			*/
+			putValue(Action.SHORT_DESCRIPTION, htmlTip);
 		}
 		
 		public void actionPerformed(ActionEvent ae) {
