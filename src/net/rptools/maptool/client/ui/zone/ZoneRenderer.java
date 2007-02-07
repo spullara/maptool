@@ -128,7 +128,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     private Scale zoneScale;
     
-    private DrawableRenderer drawableRenderer = new DrawableRenderer();
+    private DrawableRenderer backgroundDrawableRenderer = new DrawableRenderer();
+    private DrawableRenderer objectDrawableRenderer = new DrawableRenderer();
+    private DrawableRenderer tokenDrawableRenderer = new DrawableRenderer();
     
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
     private Map<Zone.Layer, List<TokenLocation>> tokenLocationMap = new HashMap<Zone.Layer, List<TokenLocation>>();
@@ -245,7 +247,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      * TODO: FIX THIS !  Perhaps add a new app listener for when new images show up, add the drawable renderer as a listener
      */
     public void flushDrawableRenderer() {
-    	drawableRenderer.flush();
+    	backgroundDrawableRenderer.flush();
+    	objectDrawableRenderer.flush();
+    	tokenDrawableRenderer.flush();
     }
     
     public ScreenPoint getPointUnderMouse() {
@@ -428,7 +432,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
      */
     public void flush() {
     	ImageManager.flushImage(zone.getAssetID());
-    	drawableRenderer.flush();
+    	flushDrawableRenderer();
     	tokenVisionCache.clear();
         replacementImageMap.clear();
         
@@ -516,13 +520,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         // Rendering pipeline
     	renderBoard(g2d, view);
-        renderDrawableOverlay(g2d, view, Zone.Layer.BACKGROUND);
+        renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, Zone.Layer.BACKGROUND);
         renderTokens(g2d, zone.getBackgroundTokens(), view);
-        renderDrawableOverlay(g2d, view, Zone.Layer.OBJECT);
+        renderDrawableOverlay(g2d, objectDrawableRenderer, view, Zone.Layer.OBJECT);
         renderTokenTemplates(g2d, view);
         renderGrid(g2d, view);
         renderTokens(g2d, zone.getStampTokens(), view);
-        renderDrawableOverlay(g2d, view, Zone.Layer.TOKEN);
+        renderDrawableOverlay(g2d, tokenDrawableRenderer, view, Zone.Layer.TOKEN);
         renderVision(g2d, view);
         renderTokens(g2d, zone.getTokens(), view);
 		renderMoveSelectionSets(g2d, view);
@@ -791,10 +795,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	return !isLoaded;
     }
     
-    protected void renderDrawableOverlay(Graphics g, ZoneView view, Zone.Layer layer) {
+    protected void renderDrawableOverlay(Graphics g, DrawableRenderer renderer, ZoneView view, Zone.Layer layer) {
         
     	Rectangle viewport = new Rectangle(zoneScale.getOffsetX(), zoneScale.getOffsetY(), getSize().width, getSize().height);
-    	drawableRenderer.renderDrawables(g, zone, layer, viewport, getScale());
+    	List<DrawnElement> list = new ArrayList<DrawnElement>();
+    	list.addAll(zone.getDrawnElements(layer));
+    	
+    	renderer.renderDrawables(g, list, viewport, getScale());
     }
     
     protected abstract void renderBoard(Graphics2D g, ZoneView view);

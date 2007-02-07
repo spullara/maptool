@@ -34,12 +34,8 @@ import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
@@ -48,59 +44,47 @@ import net.rptools.maptool.model.drawing.Pen;
  */
 public class DrawableRenderer {
 
-	private Map<Zone.Layer, BufferedImage> backBufferMap = new HashMap<Zone.Layer, BufferedImage>();
-	private Map<Zone.Layer, Rectangle> lastViewportMap = new HashMap<Zone.Layer, Rectangle>();
-	private Map<Zone.Layer, Double> lastScaleMap = new HashMap<Zone.Layer, Double>();
-	private Map<Zone.Layer, Integer> lastDrawableListSizeMap = new HashMap<Zone.Layer, Integer>();
+	private BufferedImage backBuffer;
+	private Rectangle lastViewport;
+	private double lastScale;
+	private int lastDrawableListSize;
 	
 	public void flush() {
-		backBufferMap.clear();
-		lastViewportMap.clear();
-		lastDrawableListSizeMap.clear();
+		backBuffer = null;
 	}
 	
-	private void flush(Zone.Layer layer) {
-		backBufferMap.remove(layer);
-		lastViewportMap.remove(layer);
-		lastDrawableListSizeMap.remove(layer);
-	}
-	
-	public void renderDrawables(Graphics g, Zone zone, Zone.Layer layer, Rectangle viewport, double scale) {
+	public void renderDrawables(Graphics g, List<DrawnElement> drawableList, Rectangle viewport, double scale) {
 
-		List<DrawnElement> drawableList = zone.getDrawnElements(layer);
-		
 		// NOTHING TO DO
 		if (drawableList == null || drawableList.size() == 0) {
-			flush(layer);
+			flush();
 			return;
 		}
 
-		Rectangle lastViewport = lastViewportMap.get(layer);
-		Double lastScale = lastScaleMap.get(layer);
-		
-		boolean viewChanged = lastViewport == null || (lastViewport.width != viewport.width || lastViewport.height != viewport.height);
-		if (viewChanged) {
-			backBufferMap.clear();
-		}
-		
-		boolean newBackbuffer = false;
-		BufferedImage backBuffer = backBufferMap.get(layer);
+		boolean viewSizeChanged = lastViewport == null || (lastViewport.width != viewport.width || lastViewport.height != viewport.height);
+		boolean viewMoved = lastViewport == null || viewport.x != lastViewport.x || viewport.y != lastViewport.y; 
+		boolean viewScaled = lastScale != scale;
+		boolean hasNewDrawables = lastDrawableListSize != drawableList.size();
 
 		// CREATE BACKBUFFER
-		if (backBuffer == null || viewChanged) {
-			backBuffer = new BufferedImage(viewport.width, viewport.height, Transparency.TRANSLUCENT);
-			backBufferMap.put(layer, backBuffer);
+		boolean newBackbuffer = true;
+		if (backBuffer == null || viewSizeChanged || viewMoved || hasNewDrawables || viewScaled) {
+
+			if (viewSizeChanged) {
+				backBuffer = new BufferedImage(viewport.width, viewport.height, Transparency.TRANSLUCENT);
+			}
+			if (!viewSizeChanged && viewMoved) {
+				clearImage(backBuffer);
+			}
+			if (!viewSizeChanged && (hasNewDrawables || viewScaled)) {
+				clearImage(backBuffer);
+			}
 			
 			newBackbuffer = true;
 		}
 		
 		// SCENERY CHANGE
-		Integer lastDrawableListSizeInt = lastDrawableListSizeMap.get(layer);
-		int lastDrawableListSize = lastDrawableListSizeInt != null ? lastDrawableListSizeInt : -1;
-		if (newBackbuffer || lastDrawableListSize != drawableList.size() || lastViewport.x != viewport.x || lastViewport.y != viewport.y || lastScale != scale) {
-			if (!newBackbuffer) {
-				clearBackbuffer(backBuffer);
-			}
+		if (newBackbuffer) {
 			
 			drawDrawables(backBuffer, drawableList, viewport, scale);
 		}
@@ -109,12 +93,12 @@ public class DrawableRenderer {
 		g.drawImage(backBuffer, 0, 0, null);
 		
 		// REMEMBER
-		lastViewportMap.put(layer, viewport);
-		lastScaleMap.put(layer, scale);
-		lastDrawableListSizeMap.put(layer, drawableList.size());
+		lastViewport = viewport;
+		lastScale = scale;
+		lastDrawableListSize = drawableList.size();
 	}
 
-	private void clearBackbuffer(BufferedImage backBuffer) {
+	private void clearImage(BufferedImage backBuffer) {
         Graphics2D g2d = backBuffer.createGraphics();
         g2d.setBackground(new Color(0, 0, 0, 0)	);
 		g2d.clearRect(0, 0, backBuffer.getWidth(), backBuffer.getHeight());
@@ -122,9 +106,6 @@ public class DrawableRenderer {
 	}
 	
 	private void drawDrawables(BufferedImage backBuffer, List<DrawnElement> drawableList, Rectangle viewport, double scale) {
-		
-		List<DrawnElement> drawableListCopy = new ArrayList<DrawnElement>(drawableList.size());
-		drawableListCopy.addAll(drawableList);
 		
 		Graphics2D g = backBuffer.createGraphics();
 		g.setClip(0, 0, backBuffer.getWidth(), backBuffer.getHeight());
@@ -136,13 +117,9 @@ public class DrawableRenderer {
 		g.setTransform(af);
 
 		Composite oldComposite = g.getComposite();
-		for (DrawnElement element : drawableListCopy) {
+		for (DrawnElement element : drawableList) {
 			
 			Drawable drawable = element.getDrawable();
-//			if (!drawable.getBounds().intersects(viewport)) {
-//				// Not onscreen
-//				continue;
-//			}
 			
 			Pen pen = element.getPen();
 			if (pen.getOpacity() != 1 && pen.getOpacity() != 0 /* handle legacy pens, besides, it doesn't make sense to have a non visible pen*/) {
