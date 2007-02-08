@@ -130,9 +130,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     private Scale zoneScale;
     
-    private DrawableRenderer backgroundDrawableRenderer = new DrawableRenderer();
-    private DrawableRenderer objectDrawableRenderer = new DrawableRenderer();
-    private DrawableRenderer tokenDrawableRenderer = new DrawableRenderer();
+    private DrawableRenderer backgroundDrawableRenderer = new BackBufferDrawableRenderer();
+    private DrawableRenderer objectDrawableRenderer = new BackBufferDrawableRenderer();
+    private DrawableRenderer tokenDrawableRenderer = new BackBufferDrawableRenderer();
     
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
     private Map<Zone.Layer, List<TokenLocation>> tokenLocationMap = new HashMap<Zone.Layer, List<TokenLocation>>();
@@ -1916,7 +1916,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	token.setSnapToGrid(AppPreferences.getStampsStartSnapToGrid());
             	token.setShape(Token.TokenShape.TOP_DOWN);
             }
-
+            
             // Check the name (after Token layer is set as name relies on layer)
             token.setName(MapToolUtil.nextTokenId(zone, token));
             
