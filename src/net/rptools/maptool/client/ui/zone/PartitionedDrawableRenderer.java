@@ -214,8 +214,8 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	
 	private void clearImage(BufferedImage backBuffer) {
         Graphics2D g2d = backBuffer.createGraphics();
-        g2d.setBackground(new Color(0, 0, 0, 0)	);
-		g2d.clearRect(0, 0, backBuffer.getWidth(), backBuffer.getHeight());
+        g2d.setComposite(AlphaComposite.Clear);
+		g2d.fillRect(0, 0, backBuffer.getWidth(), backBuffer.getHeight());
 		g2d.dispose();
 	}
 	
