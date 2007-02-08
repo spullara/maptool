@@ -33,6 +33,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,10 +51,12 @@ import net.rptools.maptool.model.drawing.Pen;
 public class PartitionedDrawableRenderer implements DrawableRenderer {
 
 	private static final BufferedImage NO_IMAGE = new BufferedImage(1, 1, Transparency.OPAQUE);
-	private static final int CHUNK_SIZE = 1024;
+	private static final int CHUNK_SIZE = 256;
 	
 	private Map<String, BufferedImage> chunkMap = new HashMap<String, BufferedImage>();
 	private static List<BufferedImage> chunkPool = new LinkedList<BufferedImage>();
+	
+	private int maxChunkPoolSize;
 	
 	private double lastDrawableCount;
 	private double lastScale;
@@ -63,6 +66,9 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	private int verticalChunkCount;
 	
 	public void flush() {
+		for (BufferedImage image : chunkMap.values()) {
+			releaseChunk(image);
+		}
 		chunkMap.clear();
 	}
 	
@@ -75,16 +81,13 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		}
 
 		if (drawableList.size() != lastDrawableCount || lastScale != scale) {
-			for (BufferedImage image : chunkMap.values()) {
-				clearImage(image);
-				chunkPool.add(image);
-			}
 			flush();
 		}
 		
 		if (lastViewport == null || viewport.width != lastViewport.width || viewport.height != lastViewport.height) {
 			horizontalChunkCount = (int)Math.ceil(viewport.width/(double)CHUNK_SIZE) + 1;
 			verticalChunkCount = (int)Math.ceil(viewport.height/(double)CHUNK_SIZE) + 1;
+			maxChunkPoolSize = horizontalChunkCount + verticalChunkCount - 1;
 		}
 
 		int gridx = (int)Math.floor(-viewport.x / (double)CHUNK_SIZE);
@@ -105,7 +108,6 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 				String key = getKey(cellX, cellY);
 				BufferedImage chunk = chunkMap.get(key);
 				if (chunk == null) {
-//					System.out.println("Creating: " + key);
 					chunk = createChunk(drawableList, cellX, cellY, scale);
 					chunkMap.put(key, chunk);
 				}
@@ -114,7 +116,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 					g.drawImage(chunk, x, y, null);
 				}
 				chunkCache.remove(key);
-//				
+				
 //				if (col%2 == 0) {
 //					if (row%2 == 0) {
 //						g.setColor(Color.white);
@@ -134,11 +136,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		}
 		for (String key : chunkCache) {
 //			System.out.println("Removing: " + key);
-			BufferedImage image = chunkMap.remove(key);
-			if (image != NO_IMAGE) {
-				clearImage(image);
-				chunkPool.add(image);
-			}
+			releaseChunk(chunkMap.remove(key));
 		}
 		
 		// REMEMBER
@@ -152,47 +150,82 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		int x = gridx * CHUNK_SIZE;
 		int y = gridy * CHUNK_SIZE;
 
-		BufferedImage image = getNewChunk();
-		Graphics2D g = image.createGraphics();
-		Composite oldComposite = g.getComposite();
-		
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-		AffineTransform af = new AffineTransform();
-		af.translate(-x, -y);
-		af.scale(scale, scale);
-		g.setTransform(af);
+		BufferedImage image = null;
+		Composite oldComposite = null;
+		Graphics2D g = null;
 
 		for (DrawnElement element : drawableList) {
 			
 			Drawable drawable = element.getDrawable();
+			
+			Rectangle2D drawnBounds = drawable.getBounds();
+			Rectangle2D chunkBounds = new Rectangle((int)(gridx * (CHUNK_SIZE/scale)), (int)(gridy * (CHUNK_SIZE/scale)), (int)(CHUNK_SIZE/scale), (int)(CHUNK_SIZE/scale));
+//			if (gridx == 0 && gridy == 1) {
+//				System.out.println(drawnBounds.intersects(chunkBounds));
+//				System.out.println(drawnBounds + " - " + chunkBounds);
+//			}
+			
+			// TODO: handle pen size
+			if (!drawnBounds.intersects(chunkBounds)) {
+				continue;
+			}
+			
+			if (image == null) {
+				image = getNewChunk();
+				g = image.createGraphics();
+				g.setClip(0, 0, CHUNK_SIZE, CHUNK_SIZE);
+				oldComposite = g.getComposite();
+				
+				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+				AffineTransform af = new AffineTransform();
+				af.translate(-x, -y);
+				af.scale(scale, scale);
+				g.setTransform(af);
+			}
+
 
 			Pen pen = element.getPen();
 			if (pen.getOpacity() != 1 && pen.getOpacity() != 0 /* handle legacy pens, besides, it doesn't make sense to have a non visible pen*/) {
 				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, pen.getOpacity()));
 			}
+//			if (gridx == 0 && gridy == 1) {
+//				System.out.println("draw");
+//			}
 			drawable.draw(g, pen);
 			g.setComposite(oldComposite);
 		}
 		
-		g.dispose();
-		
-//		if (isEmpty(image)) {
-//			chunkPool.add(image);
-//			image = NO_IMAGE;
+		if (g != null) {
+			g.dispose();
+		}
+//		if (image != null && isEmpty(image)) {
+//			releaseChunk(image);
+//			image = null;
 //		}
+		if (image == null) {
+			image = NO_IMAGE;
+		}
 		
 		return image;
 	}
 	
+	private void releaseChunk(BufferedImage image) {
+		if (image == NO_IMAGE || chunkPool.size() >= maxChunkPoolSize) {
+			return;
+		}
+		clearImage(image);
+		chunkPool.add(image);
+	}
+	
 	private BufferedImage getNewChunk() {
 		if (chunkPool.size() > 0) {
-			System.out.println("Using pooled: " + chunkPool.size());
+//			System.out.println("Using pooled: " + chunkPool.size());
 			return chunkPool.remove(0);
 		}
 		
-		System.out.println("Creating new");
-		return new BufferedImage(CHUNK_SIZE, CHUNK_SIZE, Transparency.TRANSLUCENT);
+//		System.out.println("Creating new");
+		return new BufferedImage(CHUNK_SIZE, CHUNK_SIZE, Transparency.BITMASK);
 	}
 	
 	private String getKey(int col, int row) {
