@@ -289,7 +289,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 //		setSize(800, 600);
 		restorePreferences();
 
-		repaintTimer = new Timer(1000, new RepaintTimer());
+		repaintTimer = new Timer(2000, new RepaintTimer());
 		repaintTimer.start();
 	}
 
