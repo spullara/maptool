@@ -225,7 +225,6 @@ public class Token {
 		this.name = name;
 		this.assetID = assetID;
 		state = new HashMap<String, Object>();
-		propertyMap = new HashMap<String, Object>();
 	}
 	
 	public String getPropertyType() {
@@ -600,15 +599,22 @@ public class Token {
 	}
 	
 	public void setProperty(String key, Object value) {
-		propertyMap.put(key, value);
+		getPropertyMap().put(key, value);
 	}
 	
 	public Object getProperty(String key) {
-		return propertyMap.get(key);
+		return getPropertyMap().get(key);
 	}
 	
 	public Set<String> getPropertyNames() {
 		return propertyMap.keySet();
+	}
+	
+	private Map<String, Object> getPropertyMap() {
+		if (propertyMap == null) {
+			propertyMap = new HashMap<String, Object>();
+		}
+		return propertyMap;
 	}
 
 	/**
