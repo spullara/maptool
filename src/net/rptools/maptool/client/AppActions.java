@@ -171,26 +171,6 @@ public class AppActions {
 		}
 	}
 
-	public static final Action TOGGLE_COMMAND_PANEL = new DefaultClientAction() {
-		{
-			init("action.commandPanel");
-		}
-
-		@Override
-		public boolean isSelected() {
-			return MapTool.getFrame().getCommandPanel().isVisible();
-		}
-
-		public void execute(ActionEvent e) {
-
-			if (MapTool.getFrame().getCommandPanel().isVisible()) {
-				MapTool.getFrame().hideCommandPanel();
-			} else {
-				MapTool.getFrame().showCommandPanel();
-			}
-		}
-	};
-
 	public static final Action ENFORCE_ZONE = new AdminClientAction() {
 
 		{
@@ -1387,27 +1367,6 @@ public class AppActions {
 					newMapDialog.setVisible(true);
 				}
 			});
-		}
-	};
-
-	public static final Action TOGGLE_ASSET_PANEL = new DefaultClientAction() {
-		{
-			init("action.showInformationPanel");
-		}
-
-		@Override
-		public boolean isSelected() {
-			return MapTool.getFrame().isAssetTreeVisible();
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see net.rptools.maptool.client.ClientActions.ClientAction#execute(java.awt.event.ActionEvent)
-		 */
-		public void execute(ActionEvent e) {
-
-			MapTool.getFrame().toggleAssetTree();
 		}
 	};
 

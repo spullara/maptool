@@ -51,6 +51,7 @@ public class AppMenuBar extends JMenuBar {
     public AppMenuBar() {
         add(createFileMenu());
         add(createEditMenu());
+        add(createMapMenu());
         add(createViewMenu());
         add(createToolsMenu());
         add(createWindowMenu());
@@ -90,50 +91,35 @@ public class AppMenuBar extends JMenuBar {
         return fileMenu;
     }
     
-    protected JMenu createEditMenu() {
-        JMenu menu = I18N.createMenu("menu.edit");
-        
+    protected JMenu createMapMenu() {
+    	JMenu menu = I18N.createMenu("menu.map");
+    	
         // MAP CREATION
         menu.add(new JMenuItem(AppActions.NEW_MAP));
         menu.add(createQuickMapMenu());
+    	
+        menu.addSeparator();
+    	
+        // MAP TOGGLES
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_FOG));
+        menu.add(new JMenuItem(AppActions.ADJUST_GRID));
+
+        menu.addSeparator();
+        menu.add(new JMenuItem(AppActions.REMOVE_ZONE));
+
+        return menu;
+    }
+    
+    protected JMenu createEditMenu() {
+        JMenu menu = I18N.createMenu("menu.edit");
+        
         
         // DRAWABLES
-        menu.addSeparator();
         menu.add(new JMenuItem(DrawableUndoManager.getInstance().getUndoCommand()));
         menu.add(new JMenuItem(DrawableUndoManager.getInstance().getRedoCommand()));
         menu.add(new JMenuItem(DrawableUndoManager.getInstance().getClearCommand()));
 
-        // MAP TOGGLES
-        menu.addSeparator();
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_FOG));
-
-        // GRID
-        menu.addSeparator();
-        menu.add(new JMenuItem(AppActions.ADJUST_GRID));
-        
-        // LATER: This needs to be genericized, but it seems to constant, and so short, that I 
-        // didn't feel compelled to do that in this impl
-        JMenu gridSizeMenu = I18N.createMenu("action.gridSize");
-        JCheckBoxMenuItem gridSize1 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(1));
-        JCheckBoxMenuItem gridSize2 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(2));
-        JCheckBoxMenuItem gridSize3 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(3));
-        JCheckBoxMenuItem gridSize5 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(5));
-
-        ButtonGroup sizeGroup = new ButtonGroup();
-        sizeGroup.add(gridSize1);
-        sizeGroup.add(gridSize2);
-        sizeGroup.add(gridSize3);
-        sizeGroup.add(gridSize5);
-
-        gridSizeMenu.add(gridSize1);
-        gridSizeMenu.add(gridSize2);
-        gridSizeMenu.add(gridSize3);
-        gridSizeMenu.add(gridSize5);
-        menu.add(gridSizeMenu);
-        
-        menu.addSeparator();
-        menu.add(new JMenuItem(AppActions.REMOVE_ZONE));
         
         menu.addSeparator();
         
@@ -155,10 +141,27 @@ public class AppMenuBar extends JMenuBar {
         item.setSelected(AppState.isShowLightRadius());
         menu.add(item);
 
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_GRID));
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_ASSET_PANEL));
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_COMMAND_PANEL));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_GRID));
+        // LATER: This needs to be genericized, but it seems to constant, and so short, that I 
+        // didn't feel compelled to do that in this impl
+        JMenu gridSizeMenu = I18N.createMenu("action.gridSize");
+        JCheckBoxMenuItem gridSize1 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(1));
+        JCheckBoxMenuItem gridSize2 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(2));
+        JCheckBoxMenuItem gridSize3 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(3));
+        JCheckBoxMenuItem gridSize5 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(5));
+
+        ButtonGroup sizeGroup = new ButtonGroup();
+        sizeGroup.add(gridSize1);
+        sizeGroup.add(gridSize2);
+        sizeGroup.add(gridSize3);
+        sizeGroup.add(gridSize5);
+
+        gridSizeMenu.add(gridSize1);
+        gridSizeMenu.add(gridSize2);
+        gridSizeMenu.add(gridSize3);
+        gridSizeMenu.add(gridSize5);
+        menu.add(gridSizeMenu);
         
         menu.addSeparator();
 
@@ -209,15 +212,6 @@ public class AppMenuBar extends JMenuBar {
     protected JMenu createHelpMenu() {
         JMenu menu = I18N.createMenu("menu.help");
         menu.add(new JMenuItem(AppActions.RESTORE_DEFAULT_IMAGES));
-        menu.add(new AbstractAction() {
-        	{
-        		putValue(Action.NAME, "Restore layout");
-        	}
-        	public void actionPerformed(ActionEvent e) {
-        		MapTool.getFrame().getDockingManager().resetToDefault();
-        		
-        	}
-        });
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.SHOW_ABOUT));
         return menu;
@@ -239,8 +233,20 @@ public class AppMenuBar extends JMenuBar {
     		JMenuItem menuItem = new RPCheckBoxMenuItem(new AppActions.ToggleWindowAction(frame));
     		menu.add(menuItem);
     	}
+
+    	menu.addSeparator();
     	
-    	return menu;
+        menu.add(new AbstractAction() {
+        	{
+        		putValue(Action.NAME, "Restore layout");
+        	}
+        	public void actionPerformed(ActionEvent e) {
+        		MapTool.getFrame().getDockingManager().resetToDefault();
+        		
+        	}
+        });
+
+        return menu;
     }
     
     protected JMenu createRecentCampaignMenu() {

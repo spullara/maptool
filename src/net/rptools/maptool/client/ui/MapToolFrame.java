@@ -813,20 +813,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	// static methods
 	// /////////////////////////////////////////////////////////////////////////
 
-	public void toggleAssetTree() {
-
-		// if (mainSplitPane.isLeftHidden()) {
-		// mainSplitPane.showLeft();
-		// } else {
-		// mainSplitPane.hideLeft();
-		// }
-	}
-
-	public boolean isAssetTreeVisible() {
-		// return !mainSplitPane.isLeftHidden();
-		return true;
-	}
-
 	public CommandPanel getCommandPanel() {
 		return commandPanel;
 	}
