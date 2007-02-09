@@ -593,10 +593,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     }
     
     private void calculateVision(ZoneView view) {
-
+    	
     	currentTokenVisionArea = null;
     	
     	visibleArea = null;
+    	long start = System.currentTimeMillis();
     	for (Token token : zone.getAllTokens()) {
 
     		if (token.hasVision()) {
@@ -630,7 +631,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	    					y += height/2;
 	    				}
 	    				
-	    				visionArea = FogUtil.calculateVisibility(x, y, visionArea, zone.getTopology());
+	    				visionArea = FogUtil.calculateVisibility2(x, y, visionArea, zone.getTopology());
 	    				if (visionArea == null) {
 	    					continue;
 	    				}
@@ -659,6 +660,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     			}
     		}
     	}
+    	System.out.println("Calc: " + (System.currentTimeMillis() - start));
     	isUsingVision = visibleArea != null;
     }
     
