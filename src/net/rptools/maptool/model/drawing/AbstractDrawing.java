@@ -109,7 +109,7 @@ public abstract class AbstractDrawing implements Drawable {
 	}
 	
 	public Zone.Layer getLayer() {
-		return layer != null ? Zone.Layer.valueOf(layer) : Zone.Layer.TOKEN;
+		return layer != null ? Zone.Layer.valueOf(layer) : Zone.Layer.OBJECT;
 	}
 
 	/**
