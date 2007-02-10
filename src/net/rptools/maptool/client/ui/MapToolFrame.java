@@ -187,7 +187,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	private JFileChooser saveFileChooser;
 
-	private TokenPropertiesDialog tokenPropertiesDialog = new TokenPropertiesDialog();
+	private TokenPropertiesDialog tokenPropertiesDialog;
 
 	// TODO: I don't like this here, eventOverlay should be more abstracted
 	private NotificationOverlay notificationOverlay = new NotificationOverlay();
@@ -380,6 +380,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 	
 	public TokenPropertiesDialog getTokenPropertiesDialog() {
+		if (tokenPropertiesDialog == null) {
+			tokenPropertiesDialog = new TokenPropertiesDialog();
+		}
 		return tokenPropertiesDialog;
 	}
 
