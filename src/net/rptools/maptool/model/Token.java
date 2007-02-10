@@ -386,6 +386,11 @@ public class Token {
 		ownerList = null;
 	}
 
+	public Set<String> getOwners() {
+		
+		return ownerList != null ? Collections.unmodifiableSet(ownerList) : new HashSet<String>();
+	}
+	
 	public boolean isOwnedByAll() {
 		return ownerType == OWNER_TYPE_ALL;
 	}

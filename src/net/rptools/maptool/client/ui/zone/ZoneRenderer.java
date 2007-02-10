@@ -660,7 +660,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     			}
     		}
     	}
-    	System.out.println("Calc: " + (System.currentTimeMillis() - start));
+//    	System.out.println("Calc: " + (System.currentTimeMillis() - start));
     	isUsingVision = visibleArea != null;
     }
     

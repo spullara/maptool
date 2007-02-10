@@ -25,7 +25,6 @@
 
 package net.rptools.maptool.client.ui.token;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -42,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractButton;
+import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -55,6 +55,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -65,6 +67,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
+import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
@@ -77,6 +80,9 @@ import com.jidesoft.grid.AbstractPropertyTableModel;
 import com.jidesoft.grid.Property;
 import com.jidesoft.grid.PropertyPane;
 import com.jidesoft.grid.PropertyTable;
+import com.jidesoft.swing.CheckBoxList;
+import com.jidesoft.swing.DefaultSelectable;
+import com.jidesoft.swing.Selectable;
 
 /**
  * This dialog is used to display all of the token states and notes to the user.
@@ -106,6 +112,10 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	private JLabel visibleLabel;
 	private PropertyTable propertyTable;
 	private JComboBox propertyTypeCombo;
+	private JComboBox tokenTypeCombo;
+	private JCheckBox allPlayersCheckbox;
+	private CheckBoxList ownerList;
+	private JTabbedPane tabs;
 
 	/**
 	 * The size used to constrain the icon.
@@ -124,15 +134,27 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		FormPanel panel = new FormPanel(
 				"net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.jfrm");
 
+		tabs = panel.getTabbedPane("tabs");
+		
 		initNotesPanel(panel);
 		initTokenDetails(panel);
 		initConfigPanel(panel);
 		initButtons(panel);
 		initPropertiesPanel(panel);
 		initStatesPanel(panel);
+		initOwnershipPanel(panel);
 		
 		add(panel);
 		pack();
+	}
+	
+	private void initOwnershipPanel(FormPanel panel) {
+	
+		allPlayersCheckbox = panel.getCheckBox("allPlayersCheckbox");
+		
+		ownerList = new CheckBoxList();
+		
+		panel.getFormAccessor("ownershipPanel").replaceBean("ownershipList", new JScrollPane(ownerList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 	}
 
 	private void initNotesPanel(FormPanel panel) {
@@ -154,6 +176,12 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		tokenIcon.setMinimumSize(new Dimension(100, 100));
 		
 		tokenGMNameLabel = panel.getLabel("tokenGMNameLabel");
+		
+		tokenTypeCombo = panel.getComboBox("typeCombo");
+		DefaultComboBoxModel model = new DefaultComboBoxModel();
+		model.addElement(Token.Type.NPC);
+		model.addElement(Token.Type.PC);
+		tokenTypeCombo.setModel(model);
 	}
 
 	private void initConfigPanel(FormPanel panel) {
@@ -273,6 +301,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		token.setShape((Token.TokenShape) shape.getSelectedItem());
 		token.setSnapToGrid(snapToGrid.isSelected());
 		token.setVisible(visible.isSelected());
+		token.setType((Token.Type) tokenTypeCombo.getSelectedItem());
 
 		// Get size
 		if (size.getSelectedIndex() == 0) {
@@ -289,7 +318,22 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			String state = cb.getText();
 			token.setState(state, cb.isSelected() ? Boolean.TRUE
 					: Boolean.FALSE);
-		} // endfor
+		}
+		
+		// Ownership
+		token.clearAllOwners();
+		if (allPlayersCheckbox.isSelected()) {
+			token.setAllOwners();
+		} else {
+			token.clearAllOwners();
+		}
+		for (int i = 0; i < ownerList.getModel().getSize(); i++) {
+			DefaultSelectable selectable = (DefaultSelectable) ownerList.getModel().getElementAt(i);
+			if (selectable.isSelected()) {
+				token.addOwner((String) selectable.getObject());
+			}
+		}
+		
 		tokenSaved = true;
 	}
 
@@ -323,8 +367,12 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			
 			propertyTypeCombo.setModel(new DefaultComboBoxModel(typeList.toArray()));
 			propertyTypeCombo.setSelectedItem(token.getPropertyType());
+			
+			ownerList.setModel(new OwnerListModel());
+			allPlayersCheckbox.setSelected(token.isOwnedByAll());
 		}
 
+		tabs.setSelectedIndex(0);
 	}
 
 	/**
@@ -378,23 +426,22 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			size.setEnabled(editable);
 			snapToGrid.setEnabled(editable);
 			visible.setEnabled(editable);
-			
-		} // endif
+			tokenTypeCombo.setSelectedItem(token.getType());
+		} 
 
 		gmNotesPanel.setVisible(player.isGM());
 		tokenGMName.setVisible(player.isGM());
 		tokenGMNameLabel.setVisible(player.isGM());
+		tokenTypeCombo.setEnabled(player.isGM());
 		
 		// Handle the states
 		Component[] states = statesPanel.getComponents();
 		for (int i = 0; i < states.length; i++) {
 			JCheckBox state = (JCheckBox) states[i];
 			state.setEnabled(token != null && editable);
-			Boolean stateValue = token != null ? (Boolean) token.getState(state
-					.getText()) : null;
-			state.setSelected(stateValue == null ? false : stateValue
-					.booleanValue());
-		} // endfor
+			Boolean stateValue = token != null ? (Boolean) token.getState(state.getText()) : null;
+			state.setSelected(stateValue == null ? false : stateValue.booleanValue());
+		}
 	}
 
 	/**
@@ -539,5 +586,38 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			}
 		}
 	}
-	
+
+	private class OwnerListModel extends AbstractListModel {
+
+		List<Selectable> ownerList = new ArrayList<Selectable>();
+		
+		public OwnerListModel() {
+			List<String> list = new ArrayList<String>();
+			list.addAll(token.getOwners());
+			
+			ObservableList<Player> playerList = MapTool.getPlayerList(); 
+			for (Object item : playerList) {
+				Player player = (Player) item;
+				String playerId = player.getName();
+				if (!list.contains(playerId)) {
+					list.add(playerId);
+				}
+			}
+			
+			Collections.sort(list);
+			
+			for (String id : list) {
+				Selectable selectable = new DefaultSelectable(id);
+				selectable.setSelected(list.contains(id));
+			}
+		}
+		
+		public Object getElementAt(int index) {
+
+			return ownerList.get(index);
+		}
+		public int getSize() {
+			return ownerList.size();
+		}
+	}
 }
