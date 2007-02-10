@@ -101,6 +101,7 @@ public class ConnectToServerDialog extends JDialog implements AnnouncementListen
 	 */
 	public ConnectToServerDialog() {
 		super(MapTool.getFrame(), "Connect to Server", true);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		initialize();
 		
 		finder = new ServiceFinder(AppConstants.SERVICE_GROUP);

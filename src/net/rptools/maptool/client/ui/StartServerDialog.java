@@ -89,6 +89,7 @@ public class StartServerDialog extends JDialog {
 	 */
 	public StartServerDialog() {
 		super(MapTool.getFrame(), "Start Server", true);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		initialize();
 		
 		getRootPane().setDefaultButton(okButton);
