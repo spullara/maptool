@@ -24,6 +24,8 @@
  */
 package net.rptools.maptool.model;
 
+import net.rptools.maptool.client.MapTool;
+
 
 public class TextMessage {
 
@@ -40,33 +42,35 @@ public class TextMessage {
     private int channel;
     private String target;
     private String message;
-
+    private String source;
+    
     ////
     // CONSTRUCTION
-    public TextMessage(int channel, String target, String message) {
+    public TextMessage(int channel, String target, String source, String message) {
         this.channel = channel;
         this.target = target;
         this.message = message;
+        this.source = source;
     }
     
     public static TextMessage say(String message) {
-        return new TextMessage(Channel.SAY, null, message);
+        return new TextMessage(Channel.SAY, null, MapTool.getPlayer().getName(), message);
     }
     
     public static TextMessage gm(String message) {
-        return new TextMessage(Channel.GM, null, message);
+        return new TextMessage(Channel.GM, null, MapTool.getPlayer().getName(), message);
     }
     
     public static TextMessage me(String message) {
-        return new TextMessage(Channel.ME, null, message);
+        return new TextMessage(Channel.ME, null, MapTool.getPlayer().getName(), message);
     }
     
     public static TextMessage group(String target, String message) {
-        return new TextMessage(Channel.GROUP, target, message);
+        return new TextMessage(Channel.GROUP, target, MapTool.getPlayer().getName(), message);
     }
     
     public static TextMessage whisper(String target, String message) {
-        return new TextMessage(Channel.WHISPER, target, message);
+        return new TextMessage(Channel.WHISPER, target, MapTool.getPlayer().getName(), message);
     }
     
     ////
@@ -83,6 +87,10 @@ public class TextMessage {
         return message;
     }
 
+    public String getSource() {
+    	return source;
+    }
+    
     ////
     // CONVENIENCE
     public boolean isGM () {
