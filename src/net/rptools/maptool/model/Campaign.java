@@ -70,7 +70,7 @@ public class Campaign {
     private Map<String, List<String>> getTokenTypeMap() {
     	if (tokenTypeMap == null) {
     		tokenTypeMap = new HashMap<String, List<String>>();
-    		tokenTypeMap.put(DEFAULT_TOKEN_PROPERTY_TYPE, Arrays.asList(new String[]{"Health", "Armor"}));
+    		tokenTypeMap.put(DEFAULT_TOKEN_PROPERTY_TYPE, Arrays.asList(new String[]{"Strength", "Dexterity", "Constitution", "Intelligence", "Wisdon", "HP", "AC", "Attach", "Defense", "Movement"}));
     	}
     	return tokenTypeMap;
     }
