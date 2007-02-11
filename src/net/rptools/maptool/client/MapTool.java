@@ -36,6 +36,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -273,12 +274,19 @@ public class MapTool {
         messageList.add(message);
     }
 
+    private static final Pattern CHEATER_PATTERN = Pattern.compile("\\[\\W*roll");
     /**
      * These are the messages that are generated locally
      * @param channel
      * @param message
      */
     public static void addMessage(TextMessage message) {
+    	
+    	if (CHEATER_PATTERN.matcher(message.getMessage()).matches()) {
+    		addServerMessage(TextMessage.me("Cheater. You have been reported."));
+    		serverCommand().message(TextMessage.gm(getPlayer().getName() + " was caught <i>cheating</i>: " + message.getMessage()));
+    		return;
+    	}
         
         // Filter stuff
         addServerMessage(message);
@@ -419,7 +427,7 @@ public class MapTool {
 	public static Player getPlayer() {
 		return player;
 	}
-	
+    
 	public static void startPersonalServer(Campaign campaign) throws IOException {
 		
 		ServerConfig config = ServerConfig.createPersonalServerConfig();
@@ -437,6 +445,7 @@ public class MapTool {
     public static void createConnection(String host, int port, Player player) throws UnknownHostException, IOException {
 
     	MapTool.player = player;
+    	MapTool.getFrame().getCommandPanel().setIdentity(null);
     	
     	ClientConnection clientConn = new MapToolConnection(host, port, player);
     	

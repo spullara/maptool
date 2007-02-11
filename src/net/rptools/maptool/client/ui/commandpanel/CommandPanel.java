@@ -20,6 +20,7 @@ import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -37,12 +38,14 @@ import net.rptools.maptool.model.TextMessage;
 
 public class CommandPanel extends JPanel implements Observer {
 
-		
+	private JLabel characterLabel;
 	private JTextArea commandTextArea;
 	private MessagePanel messagePanel;
 	private List<String> commandHistory = new LinkedList<String>();
 	private int commandHistoryIndex;
 	private TextColorWell textColorWell;
+	
+	private String identity;
 	
 	public CommandPanel() {
 		setLayout(new BorderLayout());
@@ -51,12 +54,22 @@ public class CommandPanel extends JPanel implements Observer {
 		add(BorderLayout.SOUTH, createSouthPanel());
 		add(BorderLayout.CENTER, getMessagePanel());
 	}
-
+	
+    public String getIdentity() {
+    	return ( identity == null ? MapTool.getPlayer().getName() : identity );
+    }
+    
+    public void setIdentity( String identity ) {
+    	this.identity = identity;
+    	setCharacterLabel("Speaking as: " + getIdentity() );
+    }
+	
 	private JComponent createSouthPanel() {
 		
 		JPanel panel = new JPanel (new BorderLayout());
-	
+		
 		panel.add(BorderLayout.WEST, createTextPropertiesPanel());
+		panel.add(BorderLayout.NORTH, createCharacterLabel());
 		panel.add(BorderLayout.CENTER, new JScrollPane(getCommandTextArea(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 		
 		return panel;
@@ -73,6 +86,10 @@ public class CommandPanel extends JPanel implements Observer {
 	public String getMessageHistory() {
 		return messagePanel.getMessagesText();
 	}
+	
+	public void setCharacterLabel( String label ) {
+		characterLabel.setText( label );
+	}
 
 	@Override
 	public Dimension getPreferredSize() {
@@ -82,6 +99,15 @@ public class CommandPanel extends JPanel implements Observer {
 	@Override
 	public Dimension getMinimumSize() {
 		return getPreferredSize();
+	}
+	
+	public JLabel createCharacterLabel() {
+		
+		characterLabel = new JLabel();
+		characterLabel.setText("");
+		characterLabel.setBorder(BorderFactory.createEmptyBorder(1,5,1,5));
+		
+		return characterLabel;
 	}
 	
 	public JTextArea getCommandTextArea() {
@@ -242,7 +268,7 @@ public class CommandPanel extends JPanel implements Observer {
 		return messagePanel;
 	}
 
-	public void addMessage(String message) {
+	public void addMessage(TextMessage message) {
 		messagePanel.addMessage(message);
 	}
 	
@@ -288,7 +314,7 @@ public class CommandPanel extends JPanel implements Observer {
 	    ObservableList.Event event = (ObservableList.Event)arg; 
 	    switch (event) {
 	    case append:
-	      addMessage(textList.get(textList.size() - 1).getMessage());
+	      addMessage(textList.get(textList.size() - 1));
 	      break;
 	    case add:
 	    case remove:

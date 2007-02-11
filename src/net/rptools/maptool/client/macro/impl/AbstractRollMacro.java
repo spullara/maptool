@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.macro.impl;
 
+import java.net.URL;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,13 +46,25 @@ public abstract class AbstractRollMacro  implements Macro {
         }
     }
 
+    private static final Pattern INLINE_ROLL = Pattern.compile("\\[([^\\]]*)\\]");
+    public static String inlineRoll(String line) {
+        Matcher m = INLINE_ROLL.matcher(line);
+        StringBuffer buf = new StringBuffer();
+   		while( m.find()) {
+       		m.appendReplacement(buf, "[roll "+m.group(1) + " => " + rollInternal(m.group(1))+"]" );
+       	}
+   		m.appendTail(buf);
+
+   		return buf.toString();
+    }
+
     private static final Random RANDOM = new Random();
     private static final Pattern BASIC_ROLL = Pattern.compile("(\\d*)\\s*d\\s*(\\d*)(\\s*[\\+,\\-]\\s*\\d+)?");
     protected static String rollInternal(String roll) {
         
         Matcher m = BASIC_ROLL.matcher(roll);
         if (!m.matches()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Invalid roll '" + roll + "'");
         }
 
         int count = m.group(1) != null && m.group(1).length() > 0 ? Integer.parseInt(m.group(1)) : 1;

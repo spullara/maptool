@@ -40,8 +40,6 @@ public class SayMacro implements Macro {
 
     public void execute(String macro) {
         StringBuilder sb = new StringBuilder();
-
-        sb.append(MapTool.getPlayer().getName()).append(": ");
         
         Color color = MapTool.getFrame().getCommandPanel().getTextColorWell().getColor();
         if (color != null) {

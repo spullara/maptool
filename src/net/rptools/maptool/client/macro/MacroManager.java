@@ -35,6 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.macro.impl.AbstractRollMacro;
 import net.rptools.maptool.client.macro.impl.AddTokenStateMacro;
 import net.rptools.maptool.client.macro.impl.AliasMacro;
 import net.rptools.maptool.client.macro.impl.ClearAliasesMacro;
@@ -43,6 +44,7 @@ import net.rptools.maptool.client.macro.impl.EmitMacro;
 import net.rptools.maptool.client.macro.impl.EmoteMacro;
 import net.rptools.maptool.client.macro.impl.GotoMacro;
 import net.rptools.maptool.client.macro.impl.HelpMacro;
+import net.rptools.maptool.client.macro.impl.ImpersonateMacro;
 import net.rptools.maptool.client.macro.impl.LoadAliasesMacro;
 import net.rptools.maptool.client.macro.impl.LoadTokenStatesMacro;
 import net.rptools.maptool.client.macro.impl.RollAllMacro;
@@ -94,6 +96,7 @@ public class MacroManager {
 		registerMacro(new RollSecretMacro());
 		registerMacro(new EmitMacro());
 		registerMacro(new ThinkMacro());
+		registerMacro(new ImpersonateMacro());
 
 		registerMacro(UNDEFINED_MACRO);
 	}
@@ -142,63 +145,71 @@ public class MacroManager {
 
 	private static final Pattern MACRO_PAT = Pattern
 			.compile("^(\\w+)\\s*(.*)$");
-
+	
 	public static void executeMacro(String command) {
-		
-		command = preprocess(command);
 
-		int recurseCount = 0;
-		while (recurseCount < MAX_RECURSE_COUNT) {
-
-			recurseCount++;
-
-			command = command.trim();
-			if (command == null || command.length() == 0) {
-				return;
-			}
-			
-			if (command.charAt(0) == '/') {
-				command = command.substring(1);
-			} else {
-				// Default to a say
-				command = "s " + command;
-			}
-
-			// Macro name is the first word
-			Matcher m = MACRO_PAT.matcher(command);
-			if (m.matches()) {
-				String key = m.group(1);
-				String details = m.group(2);
-
-				Macro macro = getRegisteredMacro(key);
-
-				if (macro != UNDEFINED_MACRO) {
-					executeMacro(macro, details);
-					return;
-				}
-
-				// Is it an alias ?
-				String alias = aliasMap.get(key);
-				if (alias == null) {
-
-					executeMacro(UNDEFINED_MACRO, command);
+		try {
+			command = preprocess(command);
+	
+			int recurseCount = 0;
+			while (recurseCount < MAX_RECURSE_COUNT) {
+	
+				recurseCount++;
+	
+				command = command.trim();
+				if (command == null || command.length() == 0) {
 					return;
 				}
 				
-				command = resolveAlias(alias, details);
-				continue;
-			} else {
-
-				// Undefined macro shows the bad command
-				executeMacro(UNDEFINED_MACRO, command);
-				return;
+				if (command.charAt(0) == '/') {
+					command = command.substring(1);
+				} else {
+					// Default to a say
+					command = "s " + command;
+				}
+	
+				// preprocess line
+				command = AbstractRollMacro.inlineRoll(command);
+				
+				
+				// Macro name is the first word
+				Matcher m = MACRO_PAT.matcher(command);
+				if (m.matches()) {
+					String key = m.group(1);
+					String details = m.group(2);
+	
+					Macro macro = getRegisteredMacro(key);
+	
+					if (macro != UNDEFINED_MACRO) {
+						executeMacro(macro, details);
+						return;
+					}
+	
+					// Is it an alias ?
+					String alias = aliasMap.get(key);
+					if (alias == null) {
+	
+						executeMacro(UNDEFINED_MACRO, command);
+						return;
+					}
+					
+					command = resolveAlias(alias, details);
+					continue;
+				} else {
+	
+					// Undefined macro shows the bad command
+					executeMacro(UNDEFINED_MACRO, command);
+					return;
+				}
 			}
+		} catch (Exception e) {
+			MapTool.addLocalMessage("Could not execute the command: " + e.getMessage());
+			return;
 		}
 		
 		// We'll only get here if the recurseCount is exceeded
 		MapTool.addLocalMessage("'" + command
 				+ "': Too many resolves, perhaps an infinite loop?");
-		return;
 		
 	}
 

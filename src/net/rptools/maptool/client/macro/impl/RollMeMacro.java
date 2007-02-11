@@ -39,7 +39,7 @@ public class RollMeMacro extends AbstractRollMacro {
         String result = roll(macro);
         if (result != null) {
         	
-        	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, "* You roll to yourself: " + result));
+        	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "* You roll to yourself: " + result));
         }
     }
 }

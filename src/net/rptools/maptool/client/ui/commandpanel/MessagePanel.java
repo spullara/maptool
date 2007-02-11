@@ -2,22 +2,20 @@ package net.rptools.maptool.client.ui.commandpanel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.beans.PropertyChangeListener;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JViewport;
-import javax.swing.SwingUtilities;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.model.TextMessage;
 import ca.odell.renderpack.HTMLTableCellRenderer;
 
 public class MessagePanel extends JPanel {
@@ -65,7 +63,7 @@ public class MessagePanel extends JPanel {
 		});
 	}
 	
-	public void addMessage(final String message) {
+	public void addMessage(final TextMessage message) {
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -78,7 +76,24 @@ public class MessagePanel extends JPanel {
 	}
 
 	private JTable createMessageTable() {
-		messageTable = new JTable();
+		messageTable = new JTable() {
+			@Override
+			public String getToolTipText(MouseEvent event) {
+
+		        Point p = event.getPoint();
+
+		        // Locate the renderer under the event location
+		        int hitRowIndex = rowAtPoint(p);
+
+		        if (hitRowIndex != -1) {
+					DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
+					TextMessage message = (TextMessage) model.getValueAt(hitRowIndex, 0);
+					return message.getSource();
+		        }
+
+		        return null;
+			}
+		};
 		messageTable.setModel(new DefaultTableModel(new Object[][]{}, new Object[]{""}));
 		messageTable.setTableHeader(null);
 		messageTable.setShowGrid(false);
@@ -112,8 +127,15 @@ public class MessagePanel extends JPanel {
 		@Override
 		public void writeObject(StringBuffer buff, JTable table, Object value, boolean isSelected, boolean isFocused, int row, int col) {
 
+			TextMessage message = (TextMessage) value;
+			
+			String text = message.getMessage();
+			
+			// Roll validation
+			text = text.replaceAll("\\[roll", "[*");
+			
 			buff.append("<html><body>");
-			buff.append(value);
+			buff.append(text);
 			buff.append("</body></html>");
 		}
 	}

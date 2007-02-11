@@ -1,5 +1,4 @@
 /* The MIT License
- * 
  * Copyright (c) 2005 David Rice, Trevor Croft
  * 
  * Permission is hereby granted, free of charge, to any person 
@@ -25,22 +24,32 @@
 package net.rptools.maptool.client.macro.impl;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
+import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.model.TextMessage;
 
 @MacroDefinition(
-        name = "rollsecret",
-        aliases = { "rsec" },
-        description = "Roll and broadcast the result to only the gm and hide the result even from yourself."
+        name = "impersonate",
+        aliases = { "im" },
+        description = "Impersonate Character."
     )
-public class RollSecretMacro extends AbstractRollMacro {
+public class ImpersonateMacro implements Macro {
+	
+	public void execute(String macro) {
 
-    public void execute(String macro) {
-        String result = roll(macro);
-        if (result != null) {
-        	
-            MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), "* " + MapTool.getPlayer().getName() + " rolls secretly to you: " + result));
-        	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "You roll secretly to the GM"));
+		int index = macro.indexOf(":");
+		if ( index > 0 ) {
+			MapTool.getFrame().getCommandPanel().setIdentity(macro.substring(0,index));
+			MacroManager.executeMacro(macro.substring(index+1));
+			MapTool.getFrame().getCommandPanel().setIdentity(null);
+		} else if ( macro.length() > 0 ) {
+			MapTool.getFrame().getCommandPanel().setIdentity(macro);
+            MapTool.addMessage(TextMessage.me("You're now impersonating "+macro));
+        } else {
+        	MapTool.getFrame().getCommandPanel().setIdentity(null);
+            MapTool.addMessage(TextMessage.me("You're no longer impersonating anyone"));
         }
-    }
+	}
+
 }
