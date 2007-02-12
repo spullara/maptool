@@ -133,7 +133,7 @@ public class FogUtil {
 		// For simplicity, this catches some of the edge cases
 		vision.subtract(topology);
 
-		System.out.println(pointList.size() + " - " + skip);
+//		System.out.println(pointList.size() + " - " + skip);
 		
 		return vision;
 	}	
