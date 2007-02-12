@@ -29,6 +29,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
 
 import javax.swing.SwingUtilities;
 
@@ -126,5 +128,36 @@ public class GraphicsUtil {
 			return new Color(r, g, b);
 		}
 	}
+    
+    public static Area createAreaBetween(Point a, Point b, int width) {
+    	
+    	// Find the angle that is perpendicular to the slope of the points
+    	double rise = b.y - a.y;
+    	double run = b.x - a.x;
+    	
+    	double theta1 = Math.atan2(rise, run) - Math.PI/2;
+    	double theta2 = Math.atan2(rise, run) + Math.PI/2;
+
+    	double ax1 = a.x + width * Math.cos(theta1);
+    	double ay1 = a.y + width * Math.sin(theta1);
+    	
+    	double ax2 = a.x + width * Math.cos(theta2);
+    	double ay2 = a.y + width * Math.sin(theta2);
+    	
+    	double bx1 = b.x + width * Math.cos(theta1);
+    	double by1 = b.y + width * Math.sin(theta1);
+    	
+    	double bx2 = b.x + width * Math.cos(theta2);
+    	double by2 = b.y + width * Math.sin(theta2);
+
+    	GeneralPath path = new GeneralPath();
+    	path.moveTo((float)ax1, (float)ay1);
+    	path.lineTo((float)ax2, (float)ay2);
+    	path.lineTo((float)bx2, (float)by2);
+    	path.lineTo((float)bx1, (float)by1);
+    	path.closePath();
+    	
+    	return new Area(path);
+    }
     
 }

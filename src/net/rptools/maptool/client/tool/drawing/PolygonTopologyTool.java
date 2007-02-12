@@ -32,13 +32,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
-import java.awt.geom.GeneralPath;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-import net.rptools.lib.swing.ColorPicker;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -48,6 +46,7 @@ import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.ShapeDrawable;
+import net.rptools.maptool.util.GraphicsUtil;
 
 
 /**
@@ -118,7 +117,7 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
     			continue;
     		}
     		
-    		Area segmentArea = createAreaBetween(lastPoint, point, 2);
+    		Area segmentArea = GraphicsUtil.createAreaBetween(lastPoint, point, 2);
     		lineArea.add(segmentArea);
     		
     		lastPoint = point;
@@ -137,37 +136,6 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
 		return pen;
     }
 
-    private Area createAreaBetween(Point a, Point b, int width) {
-    	
-    	// Find the angle that is perpendicular to the slope of the points
-    	double rise = b.y - a.y;
-    	double run = b.x - a.x;
-    	
-    	double theta1 = Math.atan2(rise, run) - Math.PI/2;
-    	double theta2 = Math.atan2(rise, run) + Math.PI/2;
-
-    	double ax1 = a.x + width * Math.cos(theta1);
-    	double ay1 = a.y + width * Math.sin(theta1);
-    	
-    	double ax2 = a.x + width * Math.cos(theta2);
-    	double ay2 = a.y + width * Math.sin(theta2);
-    	
-    	double bx1 = b.x + width * Math.cos(theta1);
-    	double by1 = b.y + width * Math.sin(theta1);
-    	
-    	double bx2 = b.x + width * Math.cos(theta2);
-    	double by2 = b.y + width * Math.sin(theta2);
-
-    	GeneralPath path = new GeneralPath();
-    	path.moveTo((float)ax1, (float)ay1);
-    	path.lineTo((float)ax2, (float)ay2);
-    	path.lineTo((float)bx2, (float)by2);
-    	path.lineTo((float)bx1, (float)by1);
-    	path.closePath();
-    	
-    	return new Area(path);
-    }
-    
     protected Polygon getPolygon(LineSegment line) {
         Polygon polygon = new Polygon();
         for (Point point : line.getPoints()) {
