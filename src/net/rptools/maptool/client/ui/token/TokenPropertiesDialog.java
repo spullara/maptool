@@ -27,6 +27,7 @@ package net.rptools.maptool.client.ui.token;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Transparency;
@@ -362,14 +363,20 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			typeList.addAll(MapTool.getCampaign().getTokenTypes());
 			Collections.sort(typeList);
 			
-			propertyTable.setModel(new TokenPropertyTableModel());
-			propertyTable.expandAll();
-			
 			propertyTypeCombo.setModel(new DefaultComboBoxModel(typeList.toArray()));
 			propertyTypeCombo.setSelectedItem(token.getPropertyType());
 			
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					propertyTable.setModel(new TokenPropertyTableModel());
+					propertyTable.expandAll();
+				}
+			});
+			
 			ownerList.setModel(new OwnerListModel());
 			allPlayersCheckbox.setSelected(token.isOwnedByAll());
+		} else {
+			propertyTable.setModel(new EmptyPropertyTableModel());
 		}
 
 		tabs.setSelectedIndex(0);
@@ -548,6 +555,8 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	// MODELS
 	private class TokenPropertyTableModel extends AbstractPropertyTableModel {
 
+		private Token token;
+		
 		@Override
 		public Property getProperty(int index) {
 			
@@ -556,9 +565,16 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			return new TokenProperty(propertyList.get(index));
 		}
 
+		private Token getToken() {
+			if (token == null) {
+				token = TokenPropertiesDialog.this.token;
+			}
+			return token;
+		}
+		
 		@Override
 		public int getPropertyCount() {
-			List<String> propertyList = MapTool.getCampaign().getTokenPropertyList(token.getPropertyType()); 
+			List<String> propertyList = MapTool.getCampaign().getTokenPropertyList(getToken().getPropertyType()); 
 			return propertyList != null ? propertyList.size() : 0;
 		}
 		
@@ -572,18 +588,31 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			
 			@Override
 			public Object getValue() {
-				return token.getProperty(key);
+				System.out.println("Valu:" + token);
+				return getToken().getProperty(key);
 			}
 
 			@Override
 			public void setValue(Object value) {
-				token.setProperty(key, value);
+				System.out.println("setValu:" + token);
+				getToken().setProperty(key, value);
 			}
 
 			@Override
 			public boolean hasValue() {
-				return token.getProperty(key) != null;
+				return getToken().getProperty(key) != null;
 			}
+		}
+	}
+	
+	private class EmptyPropertyTableModel extends AbstractPropertyTableModel {
+		@Override
+		public Property getProperty(int arg0) {
+			return null;
+		}
+		@Override
+		public int getPropertyCount() {
+			return 0;
 		}
 	}
 
