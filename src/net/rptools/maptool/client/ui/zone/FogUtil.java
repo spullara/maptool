@@ -45,7 +45,7 @@ public class FogUtil {
 		topology = new Area(topology);
 		
 		Area outsideArea = new Area(new Rectangle(-10000000, -10000000, 20000000, 200000000));
-		outsideArea.subtract(new Area(vision.getBounds()));
+		outsideArea.subtract(vision);
 		topology.subtract(outsideArea);
 		
 		List<AreaPoint> pointList = new ArrayList<AreaPoint>();
