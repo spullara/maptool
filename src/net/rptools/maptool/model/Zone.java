@@ -351,16 +351,23 @@ public class Zone extends Token {
     }
     
     public void removeDrawable(GUID drawableId) {
-      ListIterator<DrawnElement> i = drawables.listIterator();
-      while (i.hasNext()) {
-          DrawnElement drawable = i.next();
-          if (drawable.getDrawable().getId().equals(drawableId)) {
-            i.remove();
-            
-            fireModelChangeEvent(new ModelChangeEvent(this, Event.DRAWABLE_REMOVED, drawable));
-            return;
-          }
-      }
+    	// Since we don't know anything about the drawable, look through all the layers
+    	removeDrawable(drawables, drawableId);
+    	removeDrawable(backgroundDrawables, drawableId);
+    	removeDrawable(objectDrawables, drawableId);
+    }
+
+    private void removeDrawable(List<DrawnElement> drawableList, GUID drawableId) {
+        ListIterator<DrawnElement> i = drawableList.listIterator();
+        while (i.hasNext()) {
+            DrawnElement drawable = i.next();
+            if (drawable.getDrawable().getId().equals(drawableId)) {
+              i.remove();
+              
+              fireModelChangeEvent(new ModelChangeEvent(this, Event.DRAWABLE_REMOVED, drawable));
+              return;
+            }
+        }
     }
     
     ///////////////////////////////////////////////////////////////////////////
