@@ -70,9 +70,25 @@ public class Campaign {
     private Map<String, List<String>> getTokenTypeMap() {
     	if (tokenTypeMap == null) {
     		tokenTypeMap = new HashMap<String, List<String>>();
-    		tokenTypeMap.put(DEFAULT_TOKEN_PROPERTY_TYPE, Arrays.asList(new String[]{"Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma", "HP", "AC", "Attack", "Defense", "Movement"}));
+    		tokenTypeMap.put(DEFAULT_TOKEN_PROPERTY_TYPE, createBasicPropertyList());
     	}
     	return tokenTypeMap;
+    }
+    
+    private List<String> createBasicPropertyList() {
+    	List<String> list = new ArrayList<String>();
+    	list.add("Strength");
+    	list.add("Dexterity");
+    	list.add("Constitution");
+    	list.add("Intelligence");
+    	list.add("Wisdom");
+    	list.add("Charisma");
+    	list.add("HP");
+    	list.add("AC");
+    	list.add("Defense");
+    	list.add("Movement");
+    	list.add("Elevation");
+    	return list;
     }
     
     public void setExportInfo(ExportInfo exportInfo) {

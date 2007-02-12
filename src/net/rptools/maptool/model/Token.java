@@ -122,8 +122,8 @@ public class Token {
 	private static final int OWNER_TYPE_ALL = 1;
 	private static final int OWNER_TYPE_LIST = 0;
 	
-	private String tokenShape;
-	private String tokenType;
+	private String tokenType; // TODO: 2.0 => change this to tokenShape
+	private String tokenMobType; // TODO: 2.0 => change this to tokenType
 	private String layer;
 	
 	private String propertyType = Campaign.DEFAULT_TOKEN_PROPERTY_TYPE;
@@ -182,8 +182,8 @@ public class Token {
 		height = token.height;
 		size = token.size;
 		facing = token.facing;
-		tokenShape = token.tokenShape;
 		tokenType = token.tokenType;
+		tokenMobType = token.tokenMobType;
 
 		snapToGrid = token.snapToGrid;
 		isVisible = token.isVisible;
@@ -286,26 +286,26 @@ public class Token {
 	
 	public TokenShape getShape() {
 		try {
-			return tokenShape != null ? TokenShape.valueOf(tokenShape) : TokenShape.SQUARE;  // TODO: make this a psf
+			return tokenType != null ? TokenShape.valueOf(tokenType) : TokenShape.SQUARE;  // TODO: make this a psf
 		} catch (IllegalArgumentException iae) {
 			return TokenShape.SQUARE;
 		}
 	}
 	
 	public void setShape(TokenShape type) {
-		this.tokenShape = type.name();
+		this.tokenType = type.name();
 	}
 	
 	public Type getType() {
 		try {
-			return tokenType != null ? Type.valueOf(tokenType) : Type.NPC;  // TODO: make this a psf
+			return tokenMobType != null ? Type.valueOf(tokenMobType) : Type.NPC;  // TODO: make this a psf
 		} catch (IllegalArgumentException iae) {
 			return Type.NPC;
 		}
 	}
 	
 	public void setType(Type type) {
-		this.tokenType = type.name();
+		this.tokenMobType = type.name();
 	}
 	
 	public Zone.Layer getLayer() {
@@ -686,7 +686,7 @@ public class Token {
         td.put(TokenTransferData.SIZE, size);
         td.put(TokenTransferData.SNAP_TO_GRID, snapToGrid);
         td.put(TokenTransferData.OWNER_TYPE, ownerType);
-        td.put(TokenTransferData.TOKEN_TYPE, tokenShape);
+        td.put(TokenTransferData.TOKEN_TYPE, tokenType);
         td.put(TokenTransferData.NOTES, notes);
         td.put(TokenTransferData.GM_NOTES, gmNotes);
         td.put(TokenTransferData.GM_NAME, gmName);
@@ -730,7 +730,7 @@ public class Token {
         ownerList = td.getPlayers();
         ownerType = getInt(td, TokenTransferData.OWNER_TYPE,
                 ownerList == null ? OWNER_TYPE_ALL : OWNER_TYPE_LIST);
-        tokenShape = (String) td.get(TokenTransferData.TOKEN_TYPE);
+        tokenType = (String) td.get(TokenTransferData.TOKEN_TYPE);
         facing = td.getFacing();
         notes = (String) td.get(TokenTransferData.NOTES);
         gmNotes = (String) td.get(TokenTransferData.GM_NOTES);
