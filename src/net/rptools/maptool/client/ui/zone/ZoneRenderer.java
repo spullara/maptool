@@ -579,7 +579,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     		} else {
     			visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
     			visibleArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-	        	g.setColor(new Color(255, 255, 255, 80));
+	        	g.setColor(new Color(255, 255, 255, 40));
 	    		g.fill(visibleArea);
     		}
     	}
