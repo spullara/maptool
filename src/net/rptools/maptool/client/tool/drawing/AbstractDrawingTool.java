@@ -60,11 +60,11 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     
     private boolean isSnapToGridSelected;
     private boolean isEraseSelected;
-    private LayerSelectionDialog layerSelectionDialog;
+    private static LayerSelectionDialog layerSelectionDialog;
 
     private static Zone.Layer selectedLayer = Zone.Layer.TOKEN;
 
-    {
+    static {
 		layerSelectionDialog = new LayerSelectionDialog(new Zone.Layer[]{Zone.Layer.TOKEN, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND}, new LayerSelectionListener() {
 			public void layerSelected(Layer layer) {
 				selectedLayer = layer;
