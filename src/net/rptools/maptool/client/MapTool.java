@@ -51,11 +51,14 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
 import net.rptools.maptool.client.ui.zone.ZoneView;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.server.MapToolServer;
 import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
@@ -161,6 +164,22 @@ public class MapTool {
         	e.printStackTrace();
         }
         AppActions.updateActions();
+        
+        try {
+			Asset asset = new Asset("Grasslands", FileUtil.loadResource("net/rptools/lib/resource/image/texture/grass.png"));
+            Zone zone = ZoneFactory.createZone(Zone.MapType.INFINITE, asset.getId());
+
+            // TODO: This should really be in the factory method
+			zone.setGrid(GridFactory.createGrid(AppPreferences
+					.getDefaultGridType()));
+			zone.getGrid().setOffset(0, 0);
+			zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
+
+			MapTool.addZone(zone);
+            
+        } catch (IOException ioe) {
+        	ioe.printStackTrace();
+        }
         
 	}
 	
