@@ -14,6 +14,7 @@ import net.rptools.maptool.util.ImageManager;
 public class DrawableTexturePaint extends DrawablePaint implements Serializable {
 
 	private MD5Key assetId;
+	private transient BufferedImage image;
 
 	public DrawableTexturePaint() {
 		// Serializable
@@ -25,7 +26,16 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable 
 	
 	@Override
 	public Paint getPaint() {
-		BufferedImage texture = ImageManager.getImageAndWait(AssetManager.getAsset(assetId));
+		BufferedImage texture = null;
+		if (image != null) {
+			texture = image;
+		} else {
+			texture = ImageManager.getImageAndWait(AssetManager.getAsset(assetId));
+			if (texture != ImageManager.UNKNOWN_IMAGE) {
+				image = texture;
+			}
+		}
+
 		return new TexturePaint(texture, new Rectangle2D.Float(0, 0, texture.getWidth(), texture.getHeight()));
 	}
 
