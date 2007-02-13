@@ -113,6 +113,8 @@ public class Zone extends Token {
     private boolean hasFog;
 
     private Area topology = new Area();
+ 
+    private boolean drawableLayerParsingHasHappened = false; // TODO: 2.0 -> remove this variable
     
     public static final Comparator<Token> TOKEN_Z_ORDER_COMPARATOR = new Comparator<Token>() {
     	public int compare(Token o1, Token o2) {
@@ -327,10 +329,28 @@ public class Zone extends Token {
     			drawables.add(drawnElement);
     			
     	}
+    	
         fireModelChangeEvent(new ModelChangeEvent(this, Event.DRAWABLE_ADDED, drawnElement));
     }
     
     public List<DrawnElement> getDrawnElements() {
+    	if (!drawableLayerParsingHasHappened) {
+        	// TODO: 2.0 -> remove this.  This is temporary to handle the transition of non layered drawables to layered
+        	List<DrawnElement> toRemoveList = new LinkedList<DrawnElement>();
+        	for (DrawnElement element : drawables) {
+        		if (element.getDrawable().getLayer() != Layer.TOKEN) {
+        			toRemoveList.add(element);
+        			switch(element.getDrawable().getLayer()) {
+        			case OBJECT: objectDrawables.add(element); break;
+        			case BACKGROUND: backgroundDrawables.add(element); break;
+        			}
+        		}
+        	}
+        	for (DrawnElement element : toRemoveList) {
+        		drawables.remove(element);
+        	}
+        	drawableLayerParsingHasHappened = true;
+    	}
     	return getDrawnElements(Zone.Layer.TOKEN);
     }
     
