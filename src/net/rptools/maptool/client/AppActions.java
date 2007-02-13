@@ -1147,6 +1147,9 @@ public class AppActions {
 		
 		@Override
 		protected File getImageFileOfSelectedFile() {
+			if (getSelectedFile() == null) {
+				return null;
+			}
 			return PersistenceUtil.getCampaignThumbnailFile(getSelectedFile().getName());
 		}
 	}
