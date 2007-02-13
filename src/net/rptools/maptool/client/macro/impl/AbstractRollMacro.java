@@ -46,7 +46,7 @@ public abstract class AbstractRollMacro  implements Macro {
         }
     }
 
-    private static final Pattern INLINE_ROLL = Pattern.compile("\\[([^\\]]*)\\]");
+    private static final Pattern INLINE_ROLL = Pattern.compile("\\[\\s*(\\d[^\\]]*)\\]");
     public static String inlineRoll(String line) {
         Matcher m = INLINE_ROLL.matcher(line);
         StringBuffer buf = new StringBuffer();
