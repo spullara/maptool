@@ -297,19 +297,12 @@ public class MapTool {
         messageList.add(message);
     }
 
-    private static final Pattern CHEATER_PATTERN = Pattern.compile("\\[\\W*roll");
     /**
      * These are the messages that are generated locally
      * @param channel
      * @param message
      */
     public static void addMessage(TextMessage message) {
-    	
-    	if (CHEATER_PATTERN.matcher(message.getMessage()).matches()) {
-    		addServerMessage(TextMessage.me("Cheater. You have been reported."));
-    		serverCommand().message(TextMessage.gm(getPlayer().getName() + " was caught <i>cheating</i>: " + message.getMessage()));
-    		return;
-    	}
         
         // Filter stuff
         addServerMessage(message);

@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -156,6 +157,7 @@ public class CommandPanel extends JPanel implements Observer {
 		return commandTextArea;
 	}
 
+    private static final Pattern CHEATER_PATTERN = Pattern.compile(".*\\[[^\\]]*(roll|\\*).*");
 	/**
 	 * Execute the command in the command field.
 	 */
@@ -164,6 +166,13 @@ public class CommandPanel extends JPanel implements Observer {
 		if (text.length() == 0) {
 			return;
 		}
+
+    	if (CHEATER_PATTERN.matcher(text).matches()) {
+    		MapTool.addServerMessage(TextMessage.me("Cheater. You have been reported."));
+    		MapTool.serverCommand().message(TextMessage.gm(MapTool.getPlayer().getName() + " was caught <i>cheating</i>: " + text));
+    		commandTextArea.setText("");
+    		return;
+    	}
 
 		// Command history
 		// Don't store up a bunch of repeats
