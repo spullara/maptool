@@ -51,12 +51,32 @@ public class Campaign {
     private Map<GUID, Zone> zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
     private ExportInfo exportInfo;
     private Map<String, List<String>> tokenTypeMap;
+    
+    private boolean isBeingSerialized;
 
     public GUID getId() {
         return id;
     }
 
-    public List<String> getTokenTypes() {
+    /**
+     * This is a workaround to avoid the renderer and the serializer interating on the drawables at the same time
+     */
+    public boolean isBeingSerialized() {
+		return isBeingSerialized;
+	}
+
+
+
+    /**
+     * This is a workaround to avoid the renderer and the serializer interating on the drawables at the same time
+     */
+	public void setBeingSerialized(boolean isBeingSerialized) {
+		this.isBeingSerialized = isBeingSerialized;
+	}
+
+
+
+	public List<String> getTokenTypes() {
     	List<String> list = new ArrayList<String>();
     	list.addAll(getTokenTypeMap().keySet());
     	Collections.sort(list);

@@ -58,7 +58,12 @@ public class ServerCommandClientImpl implements ServerCommand {
 	}
     
     public void setCampaign(Campaign campaign) {
-        makeServerCall(COMMAND.setCampaign, campaign);
+    	try {
+	    	campaign.setBeingSerialized(true);
+	        makeServerCall(COMMAND.setCampaign, campaign);
+    	} finally {
+	        campaign.setBeingSerialized(false);
+    	}
     }
 
     public void getZone(GUID zoneGUID) {

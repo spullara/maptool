@@ -512,6 +512,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         	return;
         }
 
+        if (MapTool.getCampaign().isBeingSerialized()) {
+        	Dimension size = getSize();
+        	g2d.setColor(Color.black);
+        	g2d.fillRect(0, 0, size.width, size.height);
+        	
+        	GraphicsUtil.drawBoxedString(g2d, "    Please Wait    ", size.width/2, size.height/2);
+        	
+        	return;
+        }
+        
         if (zone == null) { return; }
 
         // Clear internal state
@@ -522,13 +532,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         // Rendering pipeline
     	renderBoard(g2d, view);
-        renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, Zone.Layer.BACKGROUND);
+        renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, zone.getBackgroundDrawnElements());
         renderTokens(g2d, zone.getBackgroundTokens(), view);
-        renderDrawableOverlay(g2d, objectDrawableRenderer, view, Zone.Layer.OBJECT);
+        renderDrawableOverlay(g2d, objectDrawableRenderer, view, zone.getObjectDrawnElements());
         renderTokenTemplates(g2d, view);
         renderGrid(g2d, view);
         renderTokens(g2d, zone.getStampTokens(), view);
-        renderDrawableOverlay(g2d, tokenDrawableRenderer, view, Zone.Layer.TOKEN);
+        renderDrawableOverlay(g2d, tokenDrawableRenderer, view, zone.getDrawnElements());
         renderVision(g2d, view);
         renderTokens(g2d, zone.getTokens(), view);
 		renderMoveSelectionSets(g2d, view);
@@ -799,12 +809,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	return !isLoaded;
     }
     
-    protected void renderDrawableOverlay(Graphics g, DrawableRenderer renderer, ZoneView view, Zone.Layer layer) {
+    protected void renderDrawableOverlay(Graphics g, DrawableRenderer renderer, ZoneView view, List<DrawnElement> drawnElements) {
         
     	Rectangle viewport = new Rectangle(zoneScale.getOffsetX(), zoneScale.getOffsetY(), getSize().width, getSize().height);
     	List<DrawnElement> list = new ArrayList<DrawnElement>();
-    	list.addAll(zone.getDrawnElements(layer));
-    	
+    	list.addAll(drawnElements);
+
     	renderer.renderDrawables(g, list, viewport, getScale());
     }
     
