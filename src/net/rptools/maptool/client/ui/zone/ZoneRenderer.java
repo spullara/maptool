@@ -138,7 +138,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private Map<Zone.Layer, List<TokenLocation>> tokenLocationMap = new HashMap<Zone.Layer, List<TokenLocation>>();
     private Set<GUID> selectedTokenSet = new HashSet<GUID>();
     private List<LabelLocation> labelLocationList = new LinkedList<LabelLocation>();
-    private Set<Rectangle> coveredTokenSet = new HashSet<Rectangle>();
+    private Set<Area> coveredTokenSet = new HashSet<Area>();
 
 	private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
 	private Map<Token, Area> tokenVisionCache = new HashMap<Token, Area>();
@@ -607,7 +607,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	currentTokenVisionArea = null;
     	
     	visibleArea = null;
-    	long start = System.currentTimeMillis();
     	for (Token token : zone.getAllTokens()) {
 
     		if (token.hasVision()) {
@@ -670,7 +669,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     			}
     		}
     	}
-//    	System.out.println("Calc: " + (System.currentTimeMillis() - start));
     	isUsingVision = visibleArea != null;
     }
     
@@ -1092,9 +1090,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 			Grid grid = zone.getGrid();
 			Area shape = grid.getCellShape().createTransformedArea(AffineTransform.getScaleInstance(getScale(), getScale()));
 
-			// Top left of cell
-			ScreenPoint sp = point.convertToScreen(this);
-
 			Rectangle rect = shape.getBounds();
 			cellShape = new BufferedImage(rect.width, rect.height, Transparency.TRANSLUCENT);
 			Graphics2D g2d = cellShape.createGraphics();
@@ -1204,7 +1199,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     protected void renderTokens(Graphics2D g, List<Token> tokenList, ZoneView view) {
 
     	Grid grid = zone.getGrid();
-    	Dimension screenSize = getSize();
         int scaledGridWidth = (int)(grid.getCellWidth()*getScale());
         int scaledGridHeight = (int)(grid.getCellHeight()*getScale());
         
@@ -1243,9 +1237,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 y += (scaledGridHeight - height)/2;
             }
             
-            Rectangle tokenBounds = new Rectangle(x, y, width, height);
+            Rectangle origBounds = new Rectangle(x, y, width, height);
+            Area tokenBounds = new Area(origBounds);
+            if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
+            	tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), width/2 + x, height/2 + y)); // facing defaults to down, or -90 degrees
+            }
             
-            if (x+width < 0 || x > screenSize.width || y+height < 0 || y > screenSize.height) {
+            if (!tokenBounds.getBounds().intersects(clipBounds)) {
             	// Not on the screen, don't have to worry about it
             	continue;
             }
@@ -1257,7 +1255,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             
             // Vision visibility
             if (!view.isGMView() && token.isToken() && isUsingVision) {
-            	if (!visibleArea.intersects(tokenBounds)) {
+            	if (!visibleArea.getBounds().intersects(tokenBounds.getBounds())) {
             		continue;
             	}
             }
@@ -1266,16 +1264,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             if (!token.isStamp() && !token.isBackground()) {
 	            for (TokenLocation location : getTokenLocations(Zone.Layer.TOKEN)) {
 	
-	            	Rectangle r1 = location.bounds;
+	            	Area r1 = location.bounds;
 	            	
 	            	// Are we covering anyone ?
-	            	if (tokenBounds.intersects(r1)) {
+	            	if (tokenBounds.getBounds().intersects(r1.getBounds())) {
 	
 	            		// Are we covering someone that is covering someone ?
-	            		Rectangle oldRect = null;
-	            		for (Rectangle r2 : coveredTokenSet) {
+	            		Area oldRect = null;
+	            		for (Area r2 : coveredTokenSet) {
 	            			
-	            			if (tokenBounds.contains(r2)) {
+	            			if (tokenBounds.getBounds().contains(r2.getBounds())) {
 	            				oldRect = r2;
 	            				break;
 	            			}
@@ -1302,7 +1300,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	}
             }
             if (locationList != null) {
-            	locationList.add(new TokenLocation(tokenBounds, token));
+            	locationList.add(new TokenLocation(tokenBounds, origBounds, token));
             }
 
             // OPTIMIZE:
@@ -1490,16 +1488,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
               g.translate(-x, -y);
               g.setClip(clip);
             } 
+            
+            g.setColor(Color.yellow);
+            g.draw(tokenBounds);
         }
         
         // Selection and labels
         for (TokenLocation location : getTokenLocations(getActiveLayer())) {
         	
-        	Rectangle bounds = location.bounds;
+        	Area bounds = location.bounds;
+        	Rectangle origBounds = location.origBounds;
         	
         	// TODO: This isn't entirely accurate as it doesn't account for the actual text
         	// to be in the clipping bounds, but I'll fix that later
-            if (!bounds.intersects(clipBounds)) {
+            if (!location.bounds.getBounds().intersects(clipBounds)) {
                 continue;
             }
 
@@ -1513,13 +1515,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     				AffineTransform oldTransform = g.getTransform();
 
     				// Rotated
-    				g.translate(bounds.x, bounds.y);
-    				g.rotate(Math.toRadians(-token.getFacing() - 90), bounds.width/2, bounds.height/2); // facing defaults to down, or -90 degrees
-    				selectedBorder.paintAround(g, 0, 0, bounds.width, bounds.height);
+    				g.translate(origBounds.getBounds().x, origBounds.getBounds().y);
+    				g.rotate(Math.toRadians(-token.getFacing() - 90), origBounds.getBounds().width/2, origBounds.getBounds().height/2); // facing defaults to down, or -90 degrees
+    				selectedBorder.paintAround(g, 0, 0, origBounds.getBounds().width, origBounds.getBounds().height);
 
     				g.setTransform(oldTransform);
     			} else {
-    				selectedBorder.paintAround(g, bounds);
+    				selectedBorder.paintAround(g, origBounds.getBounds());
     			}
         	}
 
@@ -1533,15 +1535,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         		
         		Color background = token.isVisible() ? Color.white : Color.gray;
         		Color foreground = token.isVisible() ? Color.black : Color.lightGray;
-                GraphicsUtil.drawBoxedString(g, name, bounds.x + bounds.width/2, bounds.y + bounds.height + 10, SwingUtilities.CENTER, background, foreground);
+                GraphicsUtil.drawBoxedString(g, name, bounds.getBounds().x + bounds.getBounds().width/2, bounds.getBounds().y + bounds.getBounds().height + 10, SwingUtilities.CENTER, background, foreground);
             }
         }
         
         // Stacks
-        for (Rectangle rect : coveredTokenSet) {
+        for (Area rect : coveredTokenSet) {
         	
         	BufferedImage stackImage = AppStyle.stackImage;
-        	g.drawImage(stackImage, rect.x + rect.width - stackImage.getWidth() + 2, rect.y - 2, null);
+        	g.drawImage(stackImage, rect.getBounds().x + rect.getBounds().width - stackImage.getWidth() + 2, rect.getBounds().y - 2, null);
         }
     }
 
@@ -1590,7 +1592,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public void selectTokens(Rectangle rect) {
 
     	for (TokenLocation location : getTokenLocations(getActiveLayer())) {
-    		if (rect.intersects(location.bounds)) {
+    		if (rect.intersects(location.bounds.getBounds())) {
     			selectToken(location.token.getId());
     		}
     	}
@@ -1602,7 +1604,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	repaint();
     }
     
-    public Rectangle getTokenBounds(Token token) {
+    public Area getTokenBounds(Token token) {
     	
     	for (TokenLocation location : getTokenLocations(getActiveLayer())) {
     		if (location.token == token) {
@@ -1649,14 +1651,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 	public List<Token> getTokenStackAt (int x, int y) {
 		
-		List<Rectangle> stackList = new ArrayList<Rectangle>();
+		List<Area> stackList = new ArrayList<Area>();
 		stackList.addAll(coveredTokenSet);
-		for (Rectangle bounds : stackList) {
+		for (Area bounds : stackList) {
 			if (bounds.contains(x, y)) {
 
 				List<Token> tokenList = new ArrayList<Token>();
 				for (TokenLocation location : getTokenLocations(getActiveLayer())) {
-					if (location.bounds.intersects(bounds)) {
+					if (location.bounds.getBounds().intersects(bounds.getBounds())) {
 						tokenList.add(location.token);
 					}
 				}
@@ -1851,12 +1853,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	}
 
 	private static class TokenLocation {
-		public Rectangle bounds;
+		public Area bounds;
+		public Rectangle origBounds;
 		public Token token;
 		
-		public TokenLocation(Rectangle bounds, Token token) {
+		public TokenLocation(Area bounds, Rectangle origBounds, Token token) {
 			this.bounds = bounds;
 			this.token = token;
+			this.origBounds = origBounds;
 		}
 	}
 	

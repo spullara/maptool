@@ -1145,7 +1145,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				}
 				
 				// Show sizing controls
-				Rectangle bounds = renderer.getTokenBounds(token);
+				Rectangle bounds = renderer.getTokenBounds(token).getBounds();
 				if (bounds == null || renderer.isTokenMoving(token)) {
 					continue;
 				}

@@ -100,7 +100,7 @@ public class FacingTool extends DefaultTool {
     public void mouseMoved(MouseEvent e) {
     	super.mouseMoved(e);
     	
-    	Rectangle bounds = renderer.getTokenBounds(tokenUnderMouse);
+    	Rectangle bounds = renderer.getTokenBounds(tokenUnderMouse).getBounds();
     	
     	int x = bounds.x + bounds.width/2;
     	int y = bounds.y + bounds.height/2;
