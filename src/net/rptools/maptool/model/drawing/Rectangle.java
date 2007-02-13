@@ -34,6 +34,7 @@ import java.awt.RenderingHints;
 public class Rectangle extends AbstractDrawing {
     protected Point startPoint;
     protected Point endPoint;
+    private transient java.awt.Rectangle bounds;
     
     public Rectangle(int startX, int startY, int endX, int endY) {
 
@@ -45,12 +46,17 @@ public class Rectangle extends AbstractDrawing {
 	 * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
 	 */
 	public java.awt.Rectangle getBounds() {
-        int x = Math.min(startPoint.x, endPoint.x);
-        int y = Math.min(startPoint.y, endPoint.y);
-        int width = Math.abs(endPoint.x - startPoint.x);
-        int height = Math.abs(endPoint.y - startPoint.y);
+
+		if (bounds == null) {
+	        int x = Math.min(startPoint.x, endPoint.x);
+	        int y = Math.min(startPoint.y, endPoint.y);
+	        int width = Math.abs(endPoint.x - startPoint.x);
+	        int height = Math.abs(endPoint.y - startPoint.y);
+	        
+	        bounds = new java.awt.Rectangle(x, y, width, height);
+		}
         
-		return new java.awt.Rectangle(x, y, width, height);
+		return bounds;
 	}
     
     public Point getStartPoint() {
