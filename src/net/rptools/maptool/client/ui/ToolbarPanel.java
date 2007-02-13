@@ -14,6 +14,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.border.BevelBorder;
@@ -53,13 +54,14 @@ public class ToolbarPanel extends JToolBar {
 		
 		this.toolbox = toolbox;
 		optionPanel = new JPanel(new CardLayout());
-		optionPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED), BorderFactory.createEmptyBorder(2, 2, 2, 2)));
 		
 		add(createButton("net/rptools/maptool/client/image/tool/pointer.png", createPointerPanel(), "Interaction Tools"));
 		add(createButton("net/rptools/maptool/client/image/tool/pencil.png", createDrawPanel(), "Drawing Tools"));
 		add(createButton("net/rptools/maptool/client/image/tool/template.png", createTemplatePanel(), "Template Tools"));
 		add(createButton("net/rptools/maptool/client/image/tool/fogsqr.png", createFogPanel(), "Fog of War tools"));
 		add(createButton("net/rptools/maptool/client/image/tool/eye.png", createTopologyPanel(), "Topology tools"));
+		add(Box.createHorizontalStrut(10));
+		add(new JSeparator(JSeparator.VERTICAL));
 		add(Box.createHorizontalStrut(10));
 		add(optionPanel);
 		add(Box.createHorizontalGlue());
