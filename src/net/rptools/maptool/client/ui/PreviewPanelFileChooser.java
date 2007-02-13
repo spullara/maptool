@@ -46,6 +46,8 @@ public class PreviewPanelFileChooser extends JFileChooser {
 				} catch (IOException ioe) {
 					getPreviewPanel().setImage(null);
 				}
+			} else {
+				getPreviewPanel().setImage(null);
 			}
 		}
 	}
