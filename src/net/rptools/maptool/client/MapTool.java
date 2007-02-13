@@ -63,6 +63,7 @@ import net.rptools.maptool.server.MapToolServer;
 import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
+import net.rptools.maptool.util.ImageManager;
 import net.tsc.servicediscovery.ServiceAnnouncer;
 
 import com.jidesoft.plaf.LookAndFeelFactory;
@@ -175,6 +176,9 @@ public class MapTool {
 			zone.getGrid().setOffset(0, 0);
 			zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
 
+			// Make sure the image is loaded to avoid a flash screen when it becomes visible
+			ImageManager.getImageAndWait(asset);
+			
 			MapTool.addZone(zone);
             
         } catch (IOException ioe) {
