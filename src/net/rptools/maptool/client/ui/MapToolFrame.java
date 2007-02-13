@@ -1142,12 +1142,17 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		getDockingManager().saveLayoutData();
 		
 		if (AppPreferences.getSaveReminder() ) {
-			if( JOptionPane.showConfirmDialog(
+			int result = JOptionPane.showConfirmDialog(
 					MapTool.getFrame(), 
-						"Would you like to save your campaign before you exit?", 
-						"Save Reminder", 
-						JOptionPane.OK_OPTION) == JOptionPane.OK_OPTION) {
-						
+					"Would you like to save your campaign before you exit?", 
+					"Save Reminder", 
+					JOptionPane.YES_NO_CANCEL_OPTION);
+			
+			if (result == JOptionPane.CANCEL_OPTION) {
+				return;
+			}
+			
+			if(result  == JOptionPane.YES_OPTION) {
 				AppActions.SAVE_CAMPAIGN.actionPerformed(null);
 			}
 		}
