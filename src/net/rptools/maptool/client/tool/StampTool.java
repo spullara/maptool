@@ -1145,15 +1145,15 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				}
 				
 				// Show sizing controls
-				Rectangle bounds = renderer.getTokenBounds(token).getBounds();
+				Area bounds = renderer.getTokenBounds(token);
 				if (bounds == null || renderer.isTokenMoving(token)) {
 					continue;
 				}
 				
 				// Resize
 				if (!token.isSnapToScale()) {
-					int x = bounds.x + bounds.width - resizeImage.getWidth();
-					int y = bounds.y + bounds.height - resizeImage.getHeight();
+					int x = bounds.getBounds().x + bounds.getBounds().width - resizeImage.getWidth();
+					int y = bounds.getBounds().y + bounds.getBounds().height - resizeImage.getHeight();
 					Rectangle resizeBounds = new Rectangle(x, y, resizeImage.getWidth(), resizeImage.getHeight());
 
 					resizeBoundsMap.put(resizeBounds, token);
