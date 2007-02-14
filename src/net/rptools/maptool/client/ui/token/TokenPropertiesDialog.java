@@ -588,13 +588,11 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			
 			@Override
 			public Object getValue() {
-				System.out.println("Valu:" + token);
 				return getToken().getProperty(key);
 			}
 
 			@Override
 			public void setValue(Object value) {
-				System.out.println("setValu:" + token);
 				getToken().setProperty(key, value);
 			}
 
