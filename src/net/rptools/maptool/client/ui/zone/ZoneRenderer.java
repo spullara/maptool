@@ -1489,8 +1489,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
               g.setClip(clip);
             } 
             
-            g.setColor(Color.yellow);
-            g.draw(tokenBounds);
         }
         
         // Selection and labels
