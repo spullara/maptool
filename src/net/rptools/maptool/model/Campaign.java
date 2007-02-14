@@ -52,7 +52,7 @@ public class Campaign {
     private ExportInfo exportInfo;
     private Map<String, List<String>> tokenTypeMap;
     
-    private boolean isBeingSerialized;
+    private transient boolean isBeingSerialized;
 
     public GUID getId() {
         return id;
