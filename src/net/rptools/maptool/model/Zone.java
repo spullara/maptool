@@ -437,6 +437,16 @@ public class Zone extends Token {
 		return null;
 	}
 
+	public List<DrawnElement> getAllDrawnElements() {
+		List<DrawnElement> list = new ArrayList<DrawnElement>();
+		
+		list.addAll(getDrawnElements());
+		list.addAll(getObjectDrawnElements());
+		list.addAll(getBackgroundDrawnElements());
+		
+		return list;
+	}
+	
     public List<Token> getAllTokens() {
     	List<Token> copy = new ArrayList<Token>();
     	copy.addAll(tokenOrderedList);

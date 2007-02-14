@@ -85,7 +85,7 @@ public class PersistenceUtil {
 			}
 
 			// Painted textures
-			for (DrawnElement drawn : zone.getDrawnElements()) {
+			for (DrawnElement drawn : zone.getAllDrawnElements()) {
     			DrawablePaint paint = drawn.getPen().getPaint(); 
     			if (paint instanceof DrawableTexturePaint) {
     				MD5Key assetId = ((DrawableTexturePaint)paint).getAssetId();
