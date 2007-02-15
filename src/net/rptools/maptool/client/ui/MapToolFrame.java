@@ -55,6 +55,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
@@ -87,11 +88,9 @@ import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
-import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ServerDisconnectHandler;
 import net.rptools.maptool.client.ZoneActivityListener;
 import net.rptools.maptool.client.swing.CoordinateStatusBar;
@@ -354,7 +353,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private void initializeFrames() {
 		
 		frameMap.put(MTFrame.CONNECTIONS,createDockingFrame(MTFrame.CONNECTIONS, new JScrollPane(createPlayerList())));
-		frameMap.put(MTFrame.TOKEN_TREE, createDockingFrame(MTFrame.TOKEN_TREE, new JScrollPane(createTokenTreePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)));
+		frameMap.put(MTFrame.TOKEN_TREE, createDockingFrame(MTFrame.TOKEN_TREE, new JScrollPane(createTokenTreePanel())));
 		frameMap.put(MTFrame.IMAGE_EXPLORER, createDockingFrame(MTFrame.IMAGE_EXPLORER, assetPanel));
 		frameMap.put(MTFrame.CHAT, createDockingFrame(MTFrame.CHAT, commandPanel));
 		frameMap.put(MTFrame.MACROS, createDockingFrame(MTFrame.MACROS, new JScrollPane(createMacroButtonPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)));

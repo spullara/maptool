@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import net.rptools.lib.image.ImageUtil;
@@ -22,13 +23,15 @@ public class TokenPanelTreeCellRenderer extends DefaultTreeCellRenderer {
 
     private BufferedImage image;
     private int row;
+    private int rowWidth;
+    
     
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row,
             boolean hasFocus) {
 
         setBorder(null);
 
-        String text = null;
+        String text = "";
         this.row = row;
 
         setBackgroundNonSelectionColor(Color.white);
@@ -40,7 +43,7 @@ public class TokenPanelTreeCellRenderer extends DefaultTreeCellRenderer {
             	height = 15;
             }
             if (image == null || image.getHeight() != height) {
-            	image = new BufferedImage(height, height, Transparency.TRANSLUCENT);
+            	image = new BufferedImage(height, height, Transparency.BITMASK);
             } else {
             	ImageUtil.clearImage(image);
             }
@@ -70,13 +73,16 @@ public class TokenPanelTreeCellRenderer extends DefaultTreeCellRenderer {
         
         super.getTreeCellRendererComponent(tree, text, sel, expanded, leaf, row, hasFocus);
 
+        Icon icon = getIcon();
+        rowWidth = (icon != null ? icon.getIconWidth() + 2 : 0 ) + SwingUtilities.computeStringWidth(getFontMetrics(getFont()), text);
+        
         return this;
     }
     
     @Override
     public Dimension getPreferredSize() {
     	int height = row > 0 ? getFontMetrics(getFont()).getHeight() + 4 : 0;
-    	return new Dimension(100, height);
+    	return new Dimension(super.getPreferredSize().width, height);
     }
     
     @Override
