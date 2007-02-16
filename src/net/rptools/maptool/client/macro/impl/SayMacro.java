@@ -41,6 +41,8 @@ public class SayMacro implements Macro {
     public void execute(String macro) {
         StringBuilder sb = new StringBuilder();
         
+        sb.append(MapTool.getFrame().getCommandPanel().getIdentity()).append(": ");
+
         Color color = MapTool.getFrame().getCommandPanel().getTextColorWell().getColor();
         if (color != null) {
         	sb.append("<span style='color:#").append(Integer.toHexString(color.getRGB()&0xffffff)).append("'>");
