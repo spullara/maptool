@@ -606,10 +606,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	
     	currentTokenVisionArea = null;
     	
+    	isUsingVision = false;
     	visibleArea = null;
     	for (Token token : zone.getAllTokens()) {
 
     		if (token.hasVision()) {
+    			isUsingVision = true; // Doesn't even have to be enabled, just exist
     			
             	// Don't bother if it's not a player token
             	if (!token.isVisible() && !view.isGMView()) {
@@ -669,7 +671,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     			}
     		}
     	}
-    	isUsingVision = visibleArea != null;
     }
     
     /**
