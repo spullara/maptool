@@ -82,6 +82,8 @@ import com.jidesoft.grid.Property;
 import com.jidesoft.grid.PropertyPane;
 import com.jidesoft.grid.PropertyTable;
 import com.jidesoft.swing.CheckBoxList;
+import com.jidesoft.swing.CheckBoxListSelectionModel;
+import com.jidesoft.swing.CheckBoxListWithSelectable;
 import com.jidesoft.swing.DefaultSelectable;
 import com.jidesoft.swing.Selectable;
 
@@ -115,7 +117,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	private JComboBox propertyTypeCombo;
 	private JComboBox tokenTypeCombo;
 	private JCheckBox allPlayersCheckbox;
-	private CheckBoxList ownerList;
+	private CheckBoxListWithSelectable ownerList;
 	private JTabbedPane tabs;
 
 	/**
@@ -153,7 +155,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	
 		allPlayersCheckbox = panel.getCheckBox("allPlayersCheckbox");
 		
-		ownerList = new CheckBoxList();
+		ownerList = new CheckBoxListWithSelectable();
 		
 		panel.getFormAccessor("ownershipPanel").replaceBean("ownershipList", new JScrollPane(ownerList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 	}
@@ -325,9 +327,8 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		token.clearAllOwners();
 		if (allPlayersCheckbox.isSelected()) {
 			token.setAllOwners();
-		} else {
-			token.clearAllOwners();
 		}
+		
 		for (int i = 0; i < ownerList.getModel().getSize(); i++) {
 			DefaultSelectable selectable = (DefaultSelectable) ownerList.getModel().getElementAt(i);
 			if (selectable.isSelected()) {
@@ -356,27 +357,14 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		
 		if (token != null) {
 			token.addModelChangeListener(this);
-			setFields();
 			
-			// TODO: Put this in its own method updateTypeCombo or something
 			List<String> typeList = new ArrayList<String>();
 			typeList.addAll(MapTool.getCampaign().getTokenTypes());
 			Collections.sort(typeList);
-			
 			propertyTypeCombo.setModel(new DefaultComboBoxModel(typeList.toArray()));
-			propertyTypeCombo.setSelectedItem(token.getPropertyType());
+
+			setFields();
 			
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					propertyTable.setModel(new TokenPropertyTableModel());
-					propertyTable.expandAll();
-				}
-			});
-			
-			ownerList.setModel(new OwnerListModel());
-			allPlayersCheckbox.setSelected(token.isOwnedByAll());
-		} else {
-			propertyTable.setModel(new EmptyPropertyTableModel());
 		}
 
 		tabs.setSelectedIndex(0);
@@ -407,40 +395,59 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			visible.setSelected(false);
 			visible.setEnabled(false);
 			okButton.setEnabled(false);
+			
+			propertyTable.setModel(new EmptyPropertyTableModel());
 			return;
-		} else {
+		}
 
-			// Set the fields from the token.
-			tokenName.setText(token.getName());
-			tokenGMName.setText(token.getGMName());
-			tokenIcon.setIcon(getTokenIcon());
-			notes.setText(token.getNotes());
-			gmNotes.setText(token.getGMNotes());
-			shape.setSelectedItem(token.getShape());
-			snapToGrid.setSelected(token.isSnapToGrid());
-			visible.setSelected(token.isVisible());
-			if (!token.isSnapToScale())
-				size.setSelectedIndex(0);
-			else
-				size.setSelectedItem(TokenSize.getSizeInstance(
-            token.getSize()));
+		// Set the fields from the token.
+		tokenName.setText(token.getName());
+		tokenGMName.setText(token.getGMName());
+		tokenIcon.setIcon(getTokenIcon());
+		notes.setText(token.getNotes());
+		gmNotes.setText(token.getGMNotes());
+		shape.setSelectedItem(token.getShape());
+		snapToGrid.setSelected(token.isSnapToGrid());
+		visible.setSelected(token.isVisible());
+		if (!token.isSnapToScale())
+			size.setSelectedIndex(0);
+		else
+			size.setSelectedItem(TokenSize.getSizeInstance(
+        token.getSize()));
 
-			// Set the editable & enabled state
-			okButton.setEnabled(editable);
-			notes.setEditable(editable);
-			tokenName.setEditable(editable);
-			shape.setEnabled(editable);
-			size.setEnabled(editable);
-			snapToGrid.setEnabled(editable);
-			visible.setEnabled(editable);
-			tokenTypeCombo.setSelectedItem(token.getType());
-		} 
+		// Set the editable & enabled state
+		okButton.setEnabled(editable);
+		notes.setEditable(editable);
+		tokenName.setEditable(editable);
+		shape.setEnabled(editable);
+		size.setEnabled(editable);
+		snapToGrid.setEnabled(editable);
+		visible.setEnabled(editable);
+		tokenTypeCombo.setSelectedItem(token.getType());
 
 		gmNotesPanel.setVisible(player.isGM());
 		tokenGMName.setVisible(player.isGM());
 		tokenGMNameLabel.setVisible(player.isGM());
 		tokenTypeCombo.setEnabled(player.isGM());
 		
+		propertyTypeCombo.setSelectedItem(token.getPropertyType());
+		
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				propertyTable.setModel(new TokenPropertyTableModel());
+				propertyTable.expandAll();
+			}
+		});
+				
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				ownerList.setModel(new OwnerListModel());
+			}
+		});
+		
+		System.out.println(token.isOwnedByAll());
+		allPlayersCheckbox.setSelected(token.isOwnedByAll());
+
 		// Handle the states
 		Component[] states = statesPanel.getComponents();
 		for (int i = 0; i < states.length; i++) {
@@ -620,7 +627,8 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		
 		public OwnerListModel() {
 			List<String> list = new ArrayList<String>();
-			list.addAll(token.getOwners());
+			Set<String> ownerSet = token.getOwners();
+			list.addAll(ownerSet);
 			
 			ObservableList<Player> playerList = MapTool.getPlayerList(); 
 			for (Object item : playerList) {
@@ -635,12 +643,12 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			
 			for (String id : list) {
 				Selectable selectable = new DefaultSelectable(id);
-				selectable.setSelected(list.contains(id));
+				selectable.setSelected(ownerSet.contains(id));
+				ownerList.add(selectable);
 			}
 		}
 		
 		public Object getElementAt(int index) {
-
 			return ownerList.get(index);
 		}
 		public int getSize() {

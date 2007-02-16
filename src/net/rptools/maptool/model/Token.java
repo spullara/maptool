@@ -401,7 +401,7 @@ public class Token {
 	}
 
 	public synchronized boolean isOwner(String playerId) {
-		return getType() == Type.PC && (ownerType == OWNER_TYPE_ALL
+		return /*getType() == Type.PC && */(ownerType == OWNER_TYPE_ALL
 				|| (ownerList != null && ownerList.contains(playerId)));
 	}
 
