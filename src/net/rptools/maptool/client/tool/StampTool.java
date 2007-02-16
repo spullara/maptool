@@ -364,7 +364,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				showTokenStackPopup(tokenList, e.getX(), e.getY());
 			} else {
 				// Single
-				Token token = renderer.getTokenAt(e.getX(), e.getY());
+				Token token = getTokenAt(e.getX(), e.getY());
 				if (token != null) {
 
 					TokenPropertiesDialog tokenPropertiesDialog = MapTool.getFrame().getTokenPropertiesDialog();
@@ -382,7 +382,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		}
 		
 		// SELECTION
-		Token token = renderer.getTokenAt (e.getX(), e.getY());
+		Token token = getTokenAt (e.getX(), e.getY());
 		if (token != null && !isDraggingToken && SwingUtilities.isLeftMouseButton(e)) {
 
 			// Permission
@@ -467,7 +467,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				}
 				
 		        // SELECT SINGLE TOKEN
-		        Token token = renderer.getTokenAt(e.getX(), e.getY());
+		        Token token = getTokenAt(e.getX(), e.getY());
 		        if (token != null && SwingUtilities.isLeftMouseButton(e) && !isDraggingToken && !SwingUtil.isShiftDown(e)) {
 		
 		    		// Only if it isn't already being moved
@@ -545,9 +545,23 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			return;
 		}
 		
-		tokenUnderMouse = renderer.getTokenAt(mouseX, mouseY);
+		tokenUnderMouse = getTokenAt(mouseX, mouseY);
+		
 		renderer.setMouseOver(tokenUnderMouse);
 		
+	}
+
+	private Token getTokenAt(int x, int y) {
+		Token token = renderer.getTokenAt(mouseX, mouseY);
+		if (token == null) {
+			for (Shape bounds : resizeBoundsMap.keySet()) {
+				if (bounds.contains(mouseX, mouseY)) {
+					token = resizeBoundsMap.get(bounds);
+				}
+			}
+		}
+		
+		return token;
 	}
 	
 	private ScreenPoint getNearestVertex(ScreenPoint point) {
