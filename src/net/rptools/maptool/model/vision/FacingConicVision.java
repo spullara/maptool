@@ -57,8 +57,8 @@ public class FacingConicVision extends Vision {
 		Area area = new Area(new Ellipse2D.Float(-half, -half, size, size));
 
 		// Cut off the part that isn't in the cone
-		area.subtract(new Area(new Rectangle(-1000, 1, 2000, 2000)));
-		area.subtract(new Area(new Rectangle(-1000, -1000, 999, 2000)));
+		area.subtract(new Area(new Rectangle(-100000, 1, 200000, 200000)));
+		area.subtract(new Area(new Rectangle(-100000, -100000, 99999, 200000)));
 		
 		// Rotate
 		int angle = (-token.getFacing() + 45);
