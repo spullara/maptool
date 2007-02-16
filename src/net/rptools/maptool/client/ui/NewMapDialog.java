@@ -4,13 +4,16 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -85,6 +88,8 @@ public class NewMapDialog extends JDialog  {
 	public void setVisible(boolean b) {
 		if (b) {
 			SwingUtil.centerOver(this, MapTool.getFrame());
+		} else {
+			getImagePreviewPanel().setImage(null);
 		}
 		super.setVisible(b);
 	}
@@ -95,7 +100,9 @@ public class NewMapDialog extends JDialog  {
 	
 	public void setSelectedAsset(Asset asset) {
 		selectedAsset = asset;
-		
+
+		Map<String, Object> hintMap = new HashMap<String, Object>();
+		hintMap.put(ImageUtil.HINT_TRANSPARENCY, Transparency.OPAQUE); // All backgrounds are opaque
 		BufferedImage image = ImageManager.getImageAndWait(asset);
 		getImagePreviewPanel().setImage(image);
 		ImageManager.flushImage(asset);
@@ -232,8 +239,8 @@ public class NewMapDialog extends JDialog  {
 					
 					lastFilePath = new File(imageFile.getParentFile() + "/.");
 					try {
-						setSelectedAsset(AssetManager.createAsset(imageFile));
-						getImagePreviewPanel().setImage(ImageUtil.getImage(imageFile));
+						Asset asset = AssetManager.createAsset(imageFile);
+						setSelectedAsset(asset);
 					} catch (IOException ioe) {
 						getImagePreviewPanel().setImage(null);
 						setSelectedAsset(null);

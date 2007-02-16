@@ -1,23 +1,21 @@
 package net.rptools.maptool.client.ui;
 
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-
-import java.io.File;
-import java.io.IOException;
-
+import net.rptools.lib.image.ThumbnailManager;
 import net.rptools.maptool.client.AppPreferences;
-import net.rptools.maptool.util.PersistenceUtil;
-
-import net.rptools.lib.image.ImageUtil;
+import net.rptools.maptool.client.AppUtil;
 
 /*
  * A File chooser with an image preview panel
@@ -26,6 +24,7 @@ public class PreviewPanelFileChooser extends JFileChooser {
 	
 	private JPanel previewWrapperPanel;
 	private ImagePreviewPanel browsePreviewPanel;
+	private ThumbnailManager thumbnailManager = new ThumbnailManager(AppUtil.getAppHome("previewPanelThumbs"), new Dimension(150, 150));
 	
 	public PreviewPanelFileChooser() {
 		this.setCurrentDirectory(AppPreferences.getLoadDir());	
@@ -41,7 +40,7 @@ public class PreviewPanelFileChooser extends JFileChooser {
 			
 			if (previewFile != null && !previewFile.isDirectory()) {
 				try {	
-					Image img = ImageUtil.getImage(previewFile);
+					Image img = thumbnailManager.getThumbnail(previewFile);
 					getPreviewPanel().setImage(img);
 				} catch (IOException ioe) {
 					getPreviewPanel().setImage(null);
