@@ -56,6 +56,9 @@ public class PreviewPanelFileChooser extends JFileChooser {
 		return getSelectedFile();
 	}
 	
+	public Image getSelectedThumbnailImage() {
+		return browsePreviewPanel.getImage();
+	}
 	
 	private JPanel getPreviewWrapperPanel() {
 		if (previewWrapperPanel == null) {

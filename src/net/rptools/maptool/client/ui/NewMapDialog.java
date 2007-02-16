@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -98,14 +99,15 @@ public class NewMapDialog extends JDialog  {
 		return selectedAsset;
 	}
 	
-	public void setSelectedAsset(Asset asset) {
+	public void setSelectedAsset(Asset asset, Image thumbImage) {
 		selectedAsset = asset;
 
-		Map<String, Object> hintMap = new HashMap<String, Object>();
-		hintMap.put(ImageUtil.HINT_TRANSPARENCY, Transparency.OPAQUE); // All backgrounds are opaque
-		BufferedImage image = ImageManager.getImageAndWait(asset);
-		getImagePreviewPanel().setImage(image);
-		ImageManager.flushImage(asset);
+		if (asset != null && thumbImage == null) {
+			// TODO: Really need a thumbnail manager for assets
+			thumbImage = ImageManager.getImageAndWait(asset);
+			ImageManager.flushImage(asset); 
+		}
+		getImagePreviewPanel().setImage(thumbImage);
 		
 		okButton.setEnabled(selectedAsset != null);
 	}
@@ -240,10 +242,9 @@ public class NewMapDialog extends JDialog  {
 					lastFilePath = new File(imageFile.getParentFile() + "/.");
 					try {
 						Asset asset = AssetManager.createAsset(imageFile);
-						setSelectedAsset(asset);
+						setSelectedAsset(asset, getImageFileChooser().getSelectedThumbnailImage());
 					} catch (IOException ioe) {
-						getImagePreviewPanel().setImage(null);
-						setSelectedAsset(null);
+						setSelectedAsset(null, null);
 					}
 				}
 			}
@@ -380,11 +381,7 @@ public class NewMapDialog extends JDialog  {
 			button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if (asset != null) {
-						BufferedImage image = ImageManager.getImageAndWait(asset);
-						getImagePreviewPanel().setImage(image);
-						ImageManager.flushImage(asset); 
-						
-						setSelectedAsset(asset);
+						setSelectedAsset(asset, null);
 					}
 					setVisible(false);
 				}

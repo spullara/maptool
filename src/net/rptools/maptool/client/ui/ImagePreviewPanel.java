@@ -47,6 +47,10 @@ public class ImagePreviewPanel extends JComponent {
 		this.img = image;
 		repaint();
 	}
+	
+	public Image getImage() {
+		return img;
+	}
 
 	@Override
 	protected void paintComponent(Graphics g) {

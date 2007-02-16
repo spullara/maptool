@@ -755,7 +755,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			private void createZone(Asset asset, int type) {
 
 				NewMapDialog newMapDialog = new NewMapDialog(MapTool.getFrame());
-				newMapDialog.setSelectedAsset(asset);
+				newMapDialog.setSelectedAsset(asset, null);
 				newMapDialog.setZoneType(type);
 				newMapDialog.setVisible(true);
 			}
