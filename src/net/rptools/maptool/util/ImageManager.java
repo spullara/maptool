@@ -74,9 +74,12 @@ public class ImageManager {
     }
     
     public static BufferedImage getImageAndWait(Asset asset) {
+    	return getImageAndWait(asset, null);
+    }
+    public static BufferedImage getImageAndWait(Asset asset, Map<String, Object> hintMap) {
       
-      // Null asset causes the loadLatch.await() to hang
-      if (asset == null)
+    	// Null asset causes the loadLatch.await() to hang
+    	if (asset == null)
         return UNKNOWN_IMAGE;
 
     	final CountDownLatch loadLatch = new CountDownLatch(1);
