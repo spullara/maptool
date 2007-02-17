@@ -171,6 +171,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			newVisionMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					new VisionDialog(getRenderer().getZone(), getTokenUnderMouse()).setVisible(true);
+					getRenderer().flush(getTokenUnderMouse());
 				}
 			});
 			visionMenu.add(newVisionMenuItem);
