@@ -47,8 +47,12 @@ public class FacingConicVision extends Vision {
 	protected Area createArea(Zone zone) {
 
 		Token token = getToken();
-		if (token == null || token.getFacing() == null) {
+		if (token == null) {
 			return null;
+		}
+		
+		if (token.getFacing() == null) {
+			token.setFacing(0);
 		}
 		
 		// Start round
