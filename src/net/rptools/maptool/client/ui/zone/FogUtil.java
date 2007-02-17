@@ -30,6 +30,10 @@ public class FogUtil {
 
 	public static Area calculateVisibility(int x, int y, Area vision, Area topology) {
 
+		if (vision == null) {
+			return null;
+		}
+		
 		vision = new Area(vision);
 		vision.transform(AffineTransform.getTranslateInstance(x, y));
 		
@@ -239,8 +243,6 @@ public class FogUtil {
 		// For simplicity, this catches some of the edge cases
 		vision.subtract(topology);
 
-		System.out.println(pointList.size() + " - " + skip);
-		
 		return vision;
 	}	
 	
