@@ -574,23 +574,32 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     	
     	if (isUsingVision) {
-    		if (zone.hasFog()) {
-    		
-    			Area visitedArea = new Area(zone.getExposedArea());
-				visitedArea.subtract(visibleArea);
-				visitedArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-				visitedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-				
-	        	g.setColor(new Color(0, 0, 0, 80));
-	    		g.fill(visitedArea);
+    		if (visibleArea != null) {
+	    		if (zone.hasFog()) {
 	    		
-				visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-				visibleArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+	    			Area visitedArea = new Area(zone.getExposedArea());
+					visitedArea.subtract(visibleArea);
+					visitedArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+					visitedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+					
+		        	g.setColor(new Color(0, 0, 0, 80));
+		    		g.fill(visitedArea);
+		    		
+					visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+					visibleArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+	    		} else {
+	    			visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+	    			visibleArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+		        	g.setColor(new Color(255, 255, 255, 40));
+		    		g.fill(visibleArea);
+	    		}
     		} else {
-    			visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-    			visibleArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-	        	g.setColor(new Color(255, 255, 255, 40));
-	    		g.fill(visibleArea);
+    			Area exposedArea = new Area(zone.getExposedArea());
+    			exposedArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+    			exposedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+    			
+	        	g.setColor(new Color(0, 0, 0, 80));
+	    		g.fill(exposedArea);
     		}
     	}
     	if (currentTokenVisionArea != null && !view.isGMView()) {
