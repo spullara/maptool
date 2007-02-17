@@ -107,7 +107,13 @@ public class MessagePanel extends JPanel {
 			public void componentMoved(ComponentEvent e) {
 			}
 			public void componentResized(ComponentEvent e) {
-				messageTable.scrollRectToVisible(new Rectangle(0, messageTable.getSize().height, 1, 1));
+				if (messageTable.getRowCount() == 0) {
+					return;
+				}
+				
+				TextMessage lastMessage = (TextMessage) messageTable.getValueAt(messageTable.getRowCount()-1, 0); 
+				Rectangle rowBounds = new Rectangle(0, messageTable.getSize().height, 1, 1);
+				messageTable.scrollRectToVisible(rowBounds);
 			}
 			public void componentShown(ComponentEvent e) {
 			}
