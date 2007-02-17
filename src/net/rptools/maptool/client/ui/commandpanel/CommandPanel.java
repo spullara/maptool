@@ -62,7 +62,11 @@ public class CommandPanel extends JPanel implements Observer {
     
     public void setIdentity( String identity ) {
     	this.identity = identity;
-    	setCharacterLabel("Speaking as: " + getIdentity() );
+    	if (identity == null || identity.equals(MapTool.getPlayer().getName())) {
+    		setCharacterLabel("");
+    	} else {
+    		setCharacterLabel("Speaking as: " + getIdentity() );
+    	}
     }
 	
 	private JComponent createSouthPanel() {
@@ -104,7 +108,7 @@ public class CommandPanel extends JPanel implements Observer {
 	
 	public JLabel createCharacterLabel() {
 		
-		characterLabel = new JLabel();
+		characterLabel = new JLabel("", JLabel.RIGHT);
 		characterLabel.setText("");
 		characterLabel.setBorder(BorderFactory.createEmptyBorder(1,5,1,5));
 		
