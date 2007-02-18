@@ -8,7 +8,7 @@ public class TestHexGrid extends TestCase {
 		
 		int start = -100;
 		//int start = 0;
-		HexGrid grid = new HexGrid();
+		HexGrid grid = new HexGridHorizontal();
 		
 		for (int y = start; y < 100; y ++) {
 			
@@ -26,7 +26,7 @@ public class TestHexGrid extends TestCase {
 	
 	public void testSpotCheck() throws Exception {
 		
-		HexGrid grid = new HexGrid();
+		HexGrid grid = new HexGridHorizontal();
 		
 		CellPoint cp1 = new CellPoint(4,1);
 		CellPoint cp2 = new CellPoint(3,1);

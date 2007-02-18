@@ -52,6 +52,7 @@ import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.AppMenuBar;
+import net.rptools.maptool.client.ui.ClientConnectionPanel;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.ExportDialog;
@@ -92,6 +93,22 @@ import com.jidesoft.docking.DockableFrame;
 public class AppActions {
 
 	private static Set<Token> tokenCopySet = null;
+	
+	
+	public static final Action MRU_LIST = new DefaultClientAction() {
+		{
+			init("menu.recent");
+		}
+		
+		@Override
+		public boolean isAvailable() {
+			return MapTool.isHostingServer() || MapTool.isPersonalServer();
+		}
+
+		public void execute(ActionEvent ae) {
+			// Do nothing
+		}
+	};
 
 	public static final Action EXPORT_SCREENSHOT = new DefaultClientAction() {
 		{
@@ -458,6 +475,43 @@ public class AppActions {
 			assetPanel.removeAssetRoot(dir);
 		}
 
+	};
+	
+	public static final Action BOOT_CONNECTED_PLAYER = new DefaultClientAction() {
+		{
+			init("action.bootConnectedPlayer");
+		}
+		
+		@Override
+		public boolean isAvailable() {
+			return MapTool.isHostingServer();
+		}
+		
+		public void execute(ActionEvent e) {
+			ClientConnectionPanel panel = MapTool.getFrame().getConnectionPanel();
+			Player selectedPlayer = (Player)panel.getSelectedValue();
+			
+			if (selectedPlayer == null) {
+				MapTool.showError("msg.error.mustSelectPlayerFirst");
+				return;
+			}
+			
+			if(MapTool.getPlayer().equals(selectedPlayer)) {
+				MapTool.showError("msg.error.cantBootSelf");
+				return;
+			}
+			
+			if(MapTool.isPlayerConnected(selectedPlayer.getName()) &&
+					MapTool.confirm("Are you sure you want to boot " + 
+						selectedPlayer.getName() + "?")) {
+				MapTool.serverCommand().bootPlayer(selectedPlayer.getName());
+				MapTool.showInformation(selectedPlayer.getName() + " has been disconnected.");
+				return;
+			}
+			
+			MapTool.showError("msg.error.failedToBoot");
+
+		}
 	};
 
 	public static final Action TOGGLE_LINK_PLAYER_VIEW = new AdminClientAction() {
@@ -1104,20 +1158,25 @@ public class AppActions {
 				return;
 			}
 
-			Campaign campaign = MapTool.isHostingServer() ? MapTool
-					.getCampaign() : new Campaign();
-			ServerDisconnectHandler.disconnectExpected = true;
-			MapTool.stopServer();
-			MapTool.disconnect();
-
-			try {
-				MapTool.startPersonalServer(campaign);
-			} catch (IOException ioe) {
-				MapTool.showError("Could not restart personal server");
-			}
+			disconnectFromServer();
 		}
 
 	};
+	
+	public static void disconnectFromServer() {
+		
+		Campaign campaign = MapTool.isHostingServer() ? MapTool
+				.getCampaign() : new Campaign();
+		ServerDisconnectHandler.disconnectExpected = true;
+		MapTool.stopServer();
+		MapTool.disconnect();
+
+		try {
+			MapTool.startPersonalServer(campaign);
+		} catch (IOException ioe) {
+			MapTool.showError("Could not restart personal server");
+		}
+	}
 
 	public static final Action LOAD_CAMPAIGN = new DefaultClientAction() {
 		{
@@ -1177,7 +1236,7 @@ public class AppActions {
 							AppState.setCampaignFile(campaignFile);
 							AppPreferences.setLoadDir(campaignFile.getParentFile());
 							
-							AppMenuBar.mruManager.addMRUCampaign(campaignFile);
+							AppMenuBar.getMruManager().addMRUCampaign(campaignFile);
 
 							MapTool.setCampaign(campaign.campaign);
 							MapTool.serverCommand().setCampaign(campaign.campaign);
@@ -1230,7 +1289,7 @@ public class AppActions {
 			try {
 				PersistenceUtil.saveCampaign(campaign, AppState
 						.getCampaignFile());
-				AppMenuBar.mruManager.addMRUCampaign(AppState.getCampaignFile());
+				AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
 				MapTool.showInformation("msg.info.campaignSaved");
 			} catch (IOException ioe) {
 				MapTool.showError("Could not save campaign: " + ioe);
@@ -1268,7 +1327,7 @@ public class AppActions {
 
 					AppState.setCampaignFile(campaignFile);
 					AppPreferences.setSaveDir(campaignFile.getParentFile());
-					AppMenuBar.mruManager.addMRUCampaign(AppState.getCampaignFile());
+					AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
 					MapTool.showInformation("msg.info.campaignSaved");
 				} catch (IOException ioe) {
 					MapTool.showError("Could not save campaign: " + ioe);

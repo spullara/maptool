@@ -46,6 +46,7 @@ import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.ServerPolicy;
+import net.rptools.maptool.client.ServerDisconnectHandler;
 
 
 /**
@@ -67,6 +68,15 @@ public class ClientMethodHandler extends AbstractMethodHandler {
         Zone zone;
         
         switch (cmd) {
+        case bootPlayer:
+			String playerName = (String) parameters[0];
+			if(MapTool.getPlayer().getName().equals(playerName)) {
+				ServerDisconnectHandler.disconnectExpected = true;
+				AppActions.disconnectFromServer();
+				MapTool.showInformation("You have been booted from the server.");		
+			}
+	
+        	break;
         case enforceZone:
         	
         	zoneGUID = (GUID) parameters[0];

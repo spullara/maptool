@@ -93,7 +93,6 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridCapabilities;
-import net.rptools.maptool.model.HexGrid;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
@@ -1029,47 +1028,50 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		}
 
 		// Line path
-		// TODO: Make this work with hexes
-		if (!(grid instanceof HexGrid)) {
+		if (grid.getCapabilities().isPathLineSupported() ) {
+			
 			previousPoint = null;
 			for (CellPoint p : cellPath) {
-	
+				
 				if (previousPoint != null) {
-	
-					int ox = (int)(previousPoint.x*grid.getCellWidth()+grid.getOffsetX()+(grid.getCellWidth()/2) + cellOffset.width);
-					int oy = (int)(previousPoint.y*grid.getCellHeight() + grid.getOffsetY()+(grid.getCellHeight()/2) + cellOffset.height);
 					
-					int dx = (int)(p.x*grid.getCellWidth()+grid.getOffsetX()+(grid.getCellHeight()/2) + cellOffset.width);
-					int dy = (int)(p.y*grid.getCellHeight() + grid.getOffsetY()+(grid.getCellHeight()/2) + cellOffset.height);  
-						
+					ZonePoint ozp = grid.convert(previousPoint);
+					int ox = ozp.x + (int)grid.getCellWidth()/2 + cellOffset.width;
+					int oy = ozp.y + (int)grid.getCellHeight()/2 + cellOffset.height;
+					
+					ZonePoint dzp = grid.convert(p);
+					int dx = dzp.x + (int)grid.getCellWidth()/2 + cellOffset.width;
+					int dy = dzp.y + (int)grid.getCellHeight()/2 + cellOffset.height;
+					
 					ScreenPoint origin = ScreenPoint.fromZonePoint(this, ox, oy);
 					ScreenPoint destination = ScreenPoint.fromZonePoint(this, dx, dy);
-	
+					
 					int halfx = (int)((origin.x + destination.x)/2);
 					int halfy = (int)((origin.y + destination.y)/2);
 					Point halfPoint = new Point(halfx, halfy);
-	
+					
 					if (previousHalfPoint != null) {
 						g.setColor(Color.blue);
 						
-						int x1 = previousHalfPoint.x+xOffset+cellOffset.width;
-						int y1 = previousHalfPoint.y+yOffset+cellOffset.height;
+						int x1 = previousHalfPoint.x+xOffset;
+						int y1 = previousHalfPoint.y+yOffset;
 						
-						int x2 = origin.x+xOffset+cellOffset.width;
-						int y2 = origin.y+yOffset+cellOffset.height;
+						int x2 = origin.x+xOffset;
+						int y2 = origin.y+yOffset;
 						
-						int xh = halfPoint.x+xOffset+cellOffset.width;
-						int yh = halfPoint.y+yOffset+cellOffset.height;
+						int xh = halfPoint.x+xOffset;
+						int yh = halfPoint.y+yOffset;
 						
 						QuadCurve2D curve = new QuadCurve2D.Float(x1, y1, x2, y2, xh, yh);
 						g.draw(curve);
-					}
-	
+					}	
+
 					previousHalfPoint = halfPoint;
 				}
 				previousPoint = p;
 			}
 		}
+
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldRendering);		
 	}
 	

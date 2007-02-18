@@ -56,6 +56,10 @@ public class ServerCommandClientImpl implements ServerCommand {
 		movementUpdateQueue.start();
 //		new AssetRetrievalThread().start();
 	}
+	
+	public void bootPlayer(String player) {
+		makeServerCall(COMMAND.bootPlayer, player);
+	}
     
     public void setCampaign(Campaign campaign) {
     	try {

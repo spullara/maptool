@@ -12,12 +12,10 @@ import java.io.IOException;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.client.walker.ZoneWalker;
-import net.rptools.maptool.client.walker.astar.AStarHexEuclideanWalker;
 
-public class HexGrid extends Grid {
+public abstract class HexGrid extends Grid {
 
-	private static BufferedImage pathHighlight;
+	protected static BufferedImage pathHighlight;
 
 	static {
 		try {
@@ -30,36 +28,37 @@ public class HexGrid extends Grid {
 	private static final GridCapabilities GRID_CAPABILITIES= new GridCapabilities() {
 		public boolean isPathingSupported() {return true;}
 		public boolean isSnapToGridSupported() {return true;}
+		public boolean isPathLineSupported() {return true;}
 	};
 	
-	private static final int[] FACING_ANGLES = new int[] {
-		-150, -90, -30, 30, 90, 150
-	};
+	protected int[] facingAngles;
 	
-	private double sideSize;
-	private int height;
-	private double topWidth;
+	// Hex defining variables for convenience
+	protected double edgeProjection;
+	protected int minorRadius;
+	protected double edgeLength;
 	
+	// Hex defining variables scaled for zoom
+	private double scaledEdgeProjection;
+	private double scaledMinorRadius;
+	private double scaledEdgeLength;
 	private GeneralPath scaledHex;
-	private double scaledSideSize;
-	private double scaledHeight;
-	private double scaledTopWidth;
 	private double lastScale = -1;
-
+	
+	/**
+	 * The offset required to translate from the center of a cell
+	 * to the top right (x_min, y_min) of the cell's bounding rectangle.
+	 */
 	private Dimension cellOffset;
 	
 	public HexGrid() {
 		super();
+		initFacingAngles();
 	}
 	
 	@Override
 	protected Area createCellShape(int size) {
-		return new Area(createShape(height, sideSize, topWidth));
-	}
-	
-	@Override
-	public BufferedImage getCellHighlight() {
-		return pathHighlight;
+		return new Area(createShape(minorRadius, edgeProjection, edgeLength));
 	}
 	
 	@Override
@@ -67,129 +66,197 @@ public class HexGrid extends Grid {
 		return cellOffset;
 	}
 	
-	@Override
-	public double getCellHeight() {
-		return height*2;
-	}
-	
-	@Override
-	public double getCellWidth() {
-		return topWidth*2; // topWidth is sideSize*2;
-	}
+	/**
+	 * The offset required to translate from the center of a cell
+	 * to the top right (x_min, y_min) of the cell's bounding rectangle.
+	 */
+	protected abstract Dimension setCellOffset();
 	
 	@Override
 	public int[] getFacingAngles() {
-		return FACING_ANGLES;
-	}
-	
-	@Override
-	public ZoneWalker createZoneWalker() {
-		return new AStarHexEuclideanWalker(getZone());
+		return facingAngles;
 	}
 	
 	@Override
 	public void setSize(int size) {
-		// Using size as the face-to-face distance or 
+		// Using size as the edge-to-edge distance or 
 		// minor diameter of the hex.
-		topWidth = size/Math.sqrt(3);
-		sideSize = topWidth/2;
-		height = size/2;
+		
+		size = constrainSize(size);
+
+		edgeLength = size/Math.sqrt(3);
+		edgeProjection = edgeLength/2;
+		minorRadius = size/2;
 		
 		scaledHex = null;
 
 		// Cell offset gives the offset to apply to the 
 		// cell zone coords to draw images/tokens
-		cellOffset = new Dimension((int)-topWidth, -height);
+		cellOffset = setCellOffset();
 
-		// TODO: this super checks min and max size limits, it should realy happen before we make the calcs
-		// but we also need to create the shape before calling super so that createCellShape() doesn't break
 		super.setSize(size);
+
 	}
-	
-	private void createShape(double scale) {
+			
+	protected void createShape(double scale) {
 
 		if (lastScale == scale && scaledHex != null) {
 			return;
 		}
 		
-		scaledHeight = height*scale;
-		scaledTopWidth = topWidth*scale;
-		scaledSideSize = sideSize*scale;
+		scaledMinorRadius = minorRadius*scale;
+		scaledEdgeLength = edgeLength*scale;
+		scaledEdgeProjection = edgeProjection*scale;
 		
-		scaledHex = createShape(scaledHeight, scaledSideSize, scaledTopWidth);
-		/*
-		scaledHex = new GeneralPath();
-		scaledHex.moveTo(0, (int)scaledHeight);
-		scaledHex.lineTo((int)scaledSideSize, 0);
-		scaledHex.lineTo((int)(scaledSideSize + scaledTopWidth), 0);
-		scaledHex.lineTo((int)(scaledSideSize + scaledTopWidth + scaledSideSize), (int)scaledHeight);
-		*/
+		scaledHex = createShape(scaledMinorRadius, scaledEdgeProjection, scaledEdgeLength);
+
 		lastScale = scale;
 	}
 	
-	private GeneralPath createShape(double height, double sideSize, double topWidth) {
+	private GeneralPath createShape(double minorRadius, double edgeProjection, double edgeLength) {
 
 		GeneralPath hex = new GeneralPath();
-		hex.moveTo(0, (int)height);
-		hex.lineTo((int)sideSize, 0);
-		hex.lineTo((int)(sideSize + topWidth), 0);
-		hex.lineTo((int)(sideSize + topWidth + sideSize), (int)height);
-		//hex.lineTo((int)(sideSize + topWidth), (int)(height*2));
-		//hex.lineTo((int)(sideSize), (int)(height*2));
+		hex.moveTo(0, (int)minorRadius);
+		hex.lineTo((int)edgeProjection, 0);
+		hex.lineTo((int)(edgeProjection + edgeLength), 0);
+		hex.lineTo((int)(edgeProjection + edgeLength + edgeProjection), (int)minorRadius);
+		
+		orientHex(hex);
 
 		return hex;
 	}
 	
+	/**
+	 * Default orientation is for a vertical hex grid
+	 * Override for other orientations
+	 * @param hex
+	 */
+	protected void orientHex(GeneralPath hex) {
+		return;
+	}
+
 	@Override
-	public CellPoint convert(ZonePoint zp) {
+	public GridCapabilities getCapabilities() {
+		return GRID_CAPABILITIES;
+	}
+
+	@Override
+	public int getTokenSpace() {
+		return (int)(minorRadius * 2);
+	}
+	
+	protected abstract void initFacingAngles();
+	protected abstract void setGridDrawTranslation(Graphics2D g, double u, double v);
+	protected abstract double getRendererSizeU(ZoneRenderer renderer);
+	protected abstract double getRendererSizeV(ZoneRenderer renderer);
+	protected abstract int getOffV(ZoneRenderer renderer);
+	protected abstract int getOffU(ZoneRenderer renderer);
+	
+	@Override
+	public void draw(ZoneRenderer renderer, Graphics2D g, Rectangle bounds) {
+
+        createShape(renderer.getScale());
+        
+        int offU = getOffU(renderer);
+        int offV = getOffV(renderer);
+
+        int count = 0;
+
+        Object oldAntiAlias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setColor(new Color(getZone().getGridColor()));
+                
+		for (double v = offV%(scaledMinorRadius*2) - (scaledMinorRadius*2);
+				v < getRendererSizeV(renderer);
+				v += scaledMinorRadius) {
+
+			double offsetU = (int)(count % 2 == 0 ? 0 :
+					-(scaledEdgeProjection + scaledEdgeLength));
+					count ++;
+
+			for (double u = offU%(3 * scaledEdgeLength) - (3 * scaledEdgeLength);
+					u < getRendererSizeU(renderer) + scaledEdgeLength;
+					u += scaledEdgeProjection*2 + scaledEdgeLength*2) {
+
+				setGridDrawTranslation( g, u + offsetU, v);
+				g.draw(scaledHex);
+				setGridDrawTranslation( g, -(u + offsetU), -v);
+			}
+		}
+		
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntiAlias);
+	}
+	
+	/**
+	 * Generic form of getOffsetX for ease of transforming to other
+	 * grid orientations.
+	 * @return The U component of the grid's offset.
+	 */
+	protected abstract int getOffsetU();
+	
+	/**
+	 * Generic form of getOffsetY for ease of transforming to other
+	 * grid orientations.
+	 * @return The V component of the grid's offset.
+	 */
+	protected abstract int getOffsetV();
+	
+	/**
+	 * A method used by HexGrid.convert(ZonePoint zp) to allow for alternate grid orientations
+	 * @return Coordinates in Cell-space of the ZonePoint
+	 */
+	protected CellPoint convertZP(int zpU, int zpV) {
 		int xSect;
 		int ySect;
 		
-		if (zp.x < 0) {
-			xSect = (int)(zp.x / (sideSize + topWidth)) - 1;			
+		int offsetZpU = zpU - getOffsetU();
+		int offsetZpV = zpV - getOffsetV();
+		
+		if (offsetZpU < 0) {
+			xSect = (int)(offsetZpU / (edgeProjection + edgeLength)) - 1;			
 		} else {
-			xSect = (int)(zp.x / (sideSize + topWidth));			
+			xSect = (int)(offsetZpU / (edgeProjection + edgeLength));			
 		}
-		if (zp.y < 0) {
-			if (xSect % 2 == 1)
-				ySect = (int)((zp.y - height) / (2*height)) - 1;
+		if (offsetZpV < 0) {
+			if (Math.abs(xSect) % 2 == 1)
+				ySect = (int)((offsetZpV - minorRadius) / (2*minorRadius)) - 1;
 			else
-				ySect = (int)(zp.y / (2*height)) - 1;
+				ySect = (int)(offsetZpV / (2*minorRadius)) - 1;
 		} else {
-			if (xSect % 2 == 1)
-				ySect = (int)((zp.y - height)/ (2*height));
+			if (Math.abs(xSect) % 2 == 1)
+				ySect = (int)((offsetZpV - minorRadius)/ (2*minorRadius));
 			else
-				ySect = (int)(zp.y / (2*height));
+				ySect = (int)(offsetZpV / (2*minorRadius));
 		}
 
-		int xPxl = Math.abs((int)(zp.x - xSect * (sideSize + topWidth)));
-		int yPxl = Math.abs((int)(zp.y - ySect * (2 * height)));
+		int xPxl = Math.abs((int)(offsetZpU - xSect * (edgeProjection + edgeLength)));
+		int yPxl = Math.abs((int)(offsetZpV - ySect * (2 * minorRadius)));
 
 		int gridX = xSect;
 		int gridY = ySect;
 		
-		double m = sideSize / height;
+		double m = edgeProjection / minorRadius;
 		
 //		System.out.format("gx:%d gy:%d px:%d py:%d m:%f\n", xSect, ySect, xPxl, yPxl, m);
 //		System.out.format("gx:%d gy:%d px:%d py:%d\n", xSect, ySect, zp.x, zp.y);
 
-		switch (xSect % 2) {
+		switch (Math.abs(xSect) % 2) {
 		case 0:
-			if ( yPxl <= height ) {
-				if (xPxl < sideSize - yPxl * m) {
+			if ( yPxl <= minorRadius ) {
+				if (xPxl < edgeProjection - yPxl * m) {
 					gridX = xSect - 1;
 					gridY = ySect - 1;
 				}
 			} else {
-				if (xPxl < (yPxl - height) * m) {
+				if (xPxl < (yPxl - minorRadius) * m) {
 					gridX = xSect - 1;
 					//gridY = ySect;
 				}
 			}
 			break;
 		case 1:
-			if (yPxl >= height) {
-				if (xPxl < (sideSize - (yPxl - height) * m) ) {
+			if (yPxl >= minorRadius) {
+				if (xPxl < (edgeProjection - (yPxl - minorRadius) * m) ) {
 					gridX = xSect - 1;
 					//gridY = ySect;
 				} else {
@@ -213,72 +280,19 @@ public class HexGrid extends Grid {
 		return new CellPoint(gridX, gridY);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.rptools.maptool.model.Grid#convert(net.rptools.maptool.model.CellPoint)
-	 * 
-	 * Returns the center point of the hex as the ZonePoint. cellOffset is
-	 * used to position tokens correctly.
-	 */
-	@Override
-	public ZonePoint convert(CellPoint cp) {
-		int x,y;
-		
-		x = (int)Math.round(cp.x * (sideSize + topWidth) + topWidth) + getOffsetX();			
-		
-		y = cp.y * 2 * height + (cp.x % 2 == 0 ? 1 : 2)* height + getOffsetY();
-		
-		return new ZonePoint(x, y);
-	}
-
-	@Override
-	public GridCapabilities getCapabilities() {
-		return GRID_CAPABILITIES;
-	}
-
-	@Override
-	public int getTokenSpace() {
-		return (int)(height * 2);
-	}
 	
-	@Override
-	public void draw(ZoneRenderer renderer, Graphics2D g, Rectangle bounds) {
-
-		double scale = renderer.getScale();
-
-//		double scaledSize = scale * getSize();
+	/**
+	 * A method used by HexGrid.convert(CellPoint cp) to allow for alternate grid orientations
+	 * @return A ZonePoint positioned at the center of the Hex
+	 */
+	protected ZonePoint convertCP(int cpU, int cpV) {
+		int u,v;
 		
-        createShape(scale);
-        
-        int offX = (int)(renderer.getViewOffsetX() + getOffsetX()*scale);
-        int offY = (int)(renderer.getViewOffsetY() + getOffsetY()*scale);
-
-        int count = 0;
-        
-//        g.setColor(Color.red);
-//        CellPoint cp = new CellPoint(0,0);
-//        ZonePoint zp = convert(cp);
-//        ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
-//        g.fillOval(sp.x-4, sp.y-4, 8, 8);
-//        g.drawLine(sp.x, 0, sp.x, renderer.getSize().height);
-//        g.drawLine(0, sp.y, renderer.getSize().width, sp.y);
-
-        Object oldAntiAlias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setColor(new Color(getZone().getGridColor()));
-		for (double y = offY%(scaledHeight*2) - (scaledHeight*2); y < renderer.getSize().height; y += scaledHeight) {
-
-			double offsetX = (int)(count % 2 == 0 ? 0 : -(scaledSideSize + scaledTopWidth));
-			count ++;
-
-			for (double x = offX%(3 * scaledTopWidth) - (3 * scaledTopWidth); x < renderer.getSize().width + scaledTopWidth; x += scaledSideSize*2 + scaledTopWidth*2) {
-
-				g.translate(x + offsetX, y);
-				g.draw(scaledHex);
-				g.translate(-(x + offsetX), -y);
-			}
-		}
+		u = (int)Math.round(cpU * (edgeProjection + edgeLength) + edgeLength) + getOffsetU();			
 		
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntiAlias);
+		v = cpV * 2 * minorRadius + (Math.abs(cpU) % 2 == 0 ? 1 : 2)* minorRadius + getOffsetV();
+		
+		return new ZonePoint(u, v);
 	}
 
 }

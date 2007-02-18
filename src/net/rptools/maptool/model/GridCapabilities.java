@@ -4,4 +4,5 @@ public interface GridCapabilities {
 
 	public boolean isSnapToGridSupported();
 	public boolean isPathingSupported();
+	public boolean isPathLineSupported();
 }

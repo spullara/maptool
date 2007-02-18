@@ -43,6 +43,7 @@ import net.rptools.maptool.model.drawing.Pen;
 public interface ServerCommand {
 
     public static enum COMMAND {
+    	bootPlayer,
         setCampaign, 
         getZone, 
         putZone, 
@@ -79,6 +80,7 @@ public interface ServerCommand {
         removeTopology
     };
 
+    public void bootPlayer(String player);
     public void setZoneHasFoW(GUID zoneGUID, boolean hasFog);
     public void exposeFoW(GUID zoneGUID, Area area);
     public void hideFoW(GUID zoneGUID, Area area);

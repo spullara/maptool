@@ -198,7 +198,8 @@ public class PreferencesDialog extends JDialog {
 
 		DefaultComboBoxModel gridTypeModel = new DefaultComboBoxModel();
 		gridTypeModel.addElement(GridFactory.SQUARE);
-		gridTypeModel.addElement(GridFactory.HEX);
+		gridTypeModel.addElement(GridFactory.HEX_HORI);
+		gridTypeModel.addElement(GridFactory.HEX_VERT);
 		gridTypeModel.setSelectedItem(AppPreferences.getDefaultGridType());
 		defaultGridTypeCombo.setModel(gridTypeModel);
 		defaultGridTypeCombo.addItemListener(new ItemListener() {

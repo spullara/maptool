@@ -31,6 +31,7 @@ public class SquareGrid extends Grid {
 	private static final GridCapabilities CAPABILITIES = new GridCapabilities() {
 		public boolean isPathingSupported() {return true;}
 		public boolean isSnapToGridSupported() {return true;}
+		public boolean isPathLineSupported() {return true;}
 	};
 
 	private static final int[] FACING_ANGLES = new int[] {

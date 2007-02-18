@@ -30,21 +30,16 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 
-public class AStarHexEuclideanWalker extends AbstractAStarWalker {
+public abstract class AbstractAStarHexEuclideanWalker extends AbstractAStarWalker {
 
-	private int[][] oddNeighborMap = new int[][] 
-	      { { -1, 0, 1 }, { 0, -1, 1 }, { 1, 0, 1 }, 
-			{ 0, 0, 0 },   			  { 0, 0, 0 }, 
-			{ -1, 1, 1 },  { 0, 1, 1 }, { 1, 1, 1 } };
+	protected int[][] oddNeighborMap;
+	protected int[][] evenNeighborMap;
 
-	private int[][] evenNeighborMap = new int[][] 
-  	      { { -1, -1, 1 }, { 0, -1, 1 }, { 1, -1, 1 }, 
-			{ 0, 0, 0 },   			  { 0, 0, 0 }, 
-			{ -1, 0, 1 },  { 0, 1, 1 }, { 1, 0, 1 } };
-
-	public AStarHexEuclideanWalker (Zone zone) {
+	public AbstractAStarHexEuclideanWalker (Zone zone) {
 		super(zone);
 	}
+	
+	protected abstract void initNeighborMaps();
 
 	@Override
 	protected int[][] getNeighborMap(int x, int y) {
@@ -75,6 +70,8 @@ public class AStarHexEuclideanWalker extends AbstractAStarWalker {
 
 	@Override
 	protected int calculateDistance(List<CellPoint> path, int feetPerCell) {
-		return path != null && path.size() > 1 ? path.size() - 1 : 0;
+		int cellsMoved = path != null && path.size() > 1 ? path.size() - 1 : 0;
+		return cellsMoved * feetPerCell;
 	}	
 }
+

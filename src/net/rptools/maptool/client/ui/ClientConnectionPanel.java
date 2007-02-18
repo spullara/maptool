@@ -24,10 +24,16 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.awt.event.MouseListener;
+
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
 
+import net.rptools.lib.swing.PopupListener;
+import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.PlayerListModel;
 
@@ -39,10 +45,29 @@ public class ClientConnectionPanel extends JList {
         setModel(new PlayerListModel(MapTool.getPlayerList()));
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setCellRenderer(new ConnectionCellRenderer());
+        
+        addMouseListener(createPopupListener());
 	}
 	
 	private static class ConnectionCellRenderer extends DefaultListCellRenderer {
 		
 		
 	}
+	
+    private MouseListener createPopupListener() {
+        
+        PopupListener listener = new PopupListener(createPopupMenu());
+        
+        return listener;
+    }
+    
+    private JPopupMenu createPopupMenu() {
+        
+        JPopupMenu menu = new JPopupMenu ();
+        menu.add(new JMenuItem(AppActions.BOOT_CONNECTED_PLAYER));
+        
+        return menu;
+    }
+    
+
 }

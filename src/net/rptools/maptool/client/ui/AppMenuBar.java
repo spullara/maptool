@@ -46,7 +46,7 @@ import net.rptools.maptool.language.I18N;
 
 public class AppMenuBar extends JMenuBar {
 	
-	public static MRUCampaignManager mruManager;
+	private static MRUCampaignManager mruManager;
 
     public AppMenuBar() {
         add(createFileMenu());
@@ -250,8 +250,11 @@ public class AppMenuBar extends JMenuBar {
     }
     
     protected JMenu createRecentCampaignMenu() {
-    	JMenu menu = I18N.createMenu("menu.recent");
-    	mruManager = new MRUCampaignManager(menu);
+    	mruManager = new MRUCampaignManager(new JMenu(AppActions.MRU_LIST));
     	return mruManager.GetMRUMenu();
+    }
+    
+    public static MRUCampaignManager getMruManager() {
+    	return mruManager;
     }
 }

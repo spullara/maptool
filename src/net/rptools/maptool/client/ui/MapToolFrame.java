@@ -157,6 +157,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	// Components
 	private ZoneRenderer currentRenderer;
 	private AssetPanel assetPanel;
+	private ClientConnectionPanel connectionPanel;
 	private PointerOverlay pointerOverlay;
 	private CommandPanel commandPanel;
 	private AboutDialog aboutDialog;
@@ -213,6 +214,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		// Components
 		glassPane = new GlassPane();
 		assetPanel = createAssetPanel();
+		connectionPanel = createConnectionPanel();
 		toolbox = new Toolbox();
 
 		zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
@@ -352,7 +354,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	
 	private void initializeFrames() {
 		
-		frameMap.put(MTFrame.CONNECTIONS,createDockingFrame(MTFrame.CONNECTIONS, new JScrollPane(createPlayerList())));
+		frameMap.put(MTFrame.CONNECTIONS,createDockingFrame(MTFrame.CONNECTIONS, new JScrollPane(connectionPanel)));
 		frameMap.put(MTFrame.TOKEN_TREE, createDockingFrame(MTFrame.TOKEN_TREE, new JScrollPane(createTokenTreePanel())));
 		frameMap.put(MTFrame.IMAGE_EXPLORER, createDockingFrame(MTFrame.IMAGE_EXPLORER, assetPanel));
 		frameMap.put(MTFrame.CHAT, createDockingFrame(MTFrame.CHAT, commandPanel));
@@ -686,6 +688,13 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		}
 		return false;
 	}
+	
+	
+	private ClientConnectionPanel createConnectionPanel() {
+		final ClientConnectionPanel panel = new ClientConnectionPanel();
+
+		return panel;
+	}
 
 	private AssetPanel createAssetPanel() {
 		final AssetPanel panel = new AssetPanel("mainAssetPanel");
@@ -776,13 +785,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		});
 	}
 
-	protected JComponent createPlayerList() {
-
-		ClientConnectionPanel panel = new ClientConnectionPanel();
-
-		return panel;
-	}
-
 	public ActivityMonitorPanel getActivityMonitor() {
 		return activityMonitor;
 	}
@@ -817,6 +819,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	public CommandPanel getCommandPanel() {
 		return commandPanel;
+	}
+	
+	public ClientConnectionPanel getConnectionPanel() {
+		return connectionPanel;
 	}
 
 	public AssetPanel getAssetPanel() {

@@ -70,6 +70,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             
         	switch (cmd) {
             
+        	case bootPlayer:			  bootPlayer(context.getString(0)); break;
             case bringTokensToFront:      bringTokensToFront(context.getGUID(0), (Set<GUID>) context.get(1)); break;
             case draw:                    draw(context.getGUID(0), (Pen) context.get(1), (Drawable) context.get(2)); break;
             case enforceZoneView:         enforceZoneView(context.getGUID(0), context.getInt(1), context.getInt(2), context.getInt(3)); break;
@@ -359,6 +360,10 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 
     public void showPointer(String player, Pointer pointer) {
         server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.showPointer.name(), RPCContext.getCurrent().parameters);
+    }
+    
+    public void bootPlayer(String player) {
+    	forwardToClients();
     }
 
     public void startTokenMove(String playerId, GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList) {

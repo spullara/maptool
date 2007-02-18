@@ -40,7 +40,8 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridFactory;
-import net.rptools.maptool.model.HexGrid;
+import net.rptools.maptool.model.HexGridHorizontal;
+import net.rptools.maptool.model.HexGridVertical;
 import net.rptools.maptool.model.SquareGrid;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
@@ -63,7 +64,8 @@ public class NewMapDialog extends JDialog  {
 	private JButton okButton;
 	private ImagePreviewPanel imagePreviewPanel;
 	
-	private JRadioButton hexRadio;
+	private JRadioButton hexVertRadio;
+	private JRadioButton hexHoriRadio;
 	private JRadioButton squareRadio;
 	private JRadioButton boundedRadio;
 	private JRadioButton unboundedRadio;
@@ -130,7 +132,8 @@ public class NewMapDialog extends JDialog  {
 
 		initDistanceTextField(panel);
 		
-		initHexRadio(panel);
+		initHexHoriRadio(panel);
+		initHexVertRadio(panel);
 		initSquareRadio(panel);
 		initUnboundedRadio(panel);
 		initBoundedRadio(panel);
@@ -178,9 +181,14 @@ public class NewMapDialog extends JDialog  {
 		setVisible(false);
 	}
 	
-	private void initHexRadio(FormPanel panel) {
-		hexRadio = panel.getRadioButton("hexRadio");
-		hexRadio.setSelected(GridFactory.isHex(AppPreferences.getDefaultGridType()));
+	private void initHexHoriRadio(FormPanel panel) {
+		hexHoriRadio = panel.getRadioButton("hexHoriRadio");
+		hexHoriRadio.setSelected(GridFactory.isHexHorizontal(AppPreferences.getDefaultGridType()));
+	}
+	
+	private void initHexVertRadio(FormPanel panel) {
+		hexVertRadio = panel.getRadioButton("hexVertRadio");
+		hexVertRadio.setSelected(GridFactory.isHexVertical(AppPreferences.getDefaultGridType()));
 	}
 	
 	private void initSquareRadio(FormPanel panel) {
@@ -331,7 +339,15 @@ public class NewMapDialog extends JDialog  {
 	}
 	
 	public Grid getZoneGrid() {
-		return hexRadio.isSelected() ? new HexGrid() : new SquareGrid();
+		if (hexHoriRadio.isSelected()) {
+			return new HexGridHorizontal();
+		}
+		if (hexVertRadio.isSelected()) {
+			return new HexGridVertical();
+		}
+		else {
+			return new SquareGrid();
+		}
 	}
 	
 	public void setZoneType(int type) {
