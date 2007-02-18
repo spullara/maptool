@@ -158,6 +158,8 @@ public class Token {
 	 */
 	private Map<String, Object> propertyMap;
 
+	private Map<String, String> macroMap;
+
 	// Transient so that it isn't transfered over the wire
 	private transient List<ModelChangeListener> listenerList = new CopyOnWriteArrayList<ModelChangeListener>();
 
@@ -210,6 +212,10 @@ public class Token {
     
 		if (token.propertyMap != null) {
 			propertyMap = new HashMap<String, Object>(token.propertyMap);
+		}
+
+		if (token.macroMap != null) {
+			macroMap = new HashMap<String, String>(token.macroMap);
 		}
 	}
 
@@ -612,7 +618,7 @@ public class Token {
 	}
 	
 	public Set<String> getPropertyNames() {
-		return propertyMap.keySet();
+		return getPropertyMap().keySet();
 	}
 	
 	private Map<String, Object> getPropertyMap() {
@@ -622,6 +628,26 @@ public class Token {
 		return propertyMap;
 	}
 
+	public void setMacroMap(Map<String, String> map) {
+		getMacroMap().clear();
+		getMacroMap().putAll(map);
+	}
+	
+	public Set<String> getMacroNames() {
+		return getMacroMap().keySet();
+	}
+	
+	public String getMacro(String key) {
+		return getMacroMap().get(key);
+	}
+	
+	private Map<String, String> getMacroMap() {
+		if (macroMap == null) {
+			macroMap = new HashMap<String, String>();
+		}
+		return macroMap;
+	}
+	
 	/**
 	 * Get a set containing the names of all set properties on this token.
 	 * 

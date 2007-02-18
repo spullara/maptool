@@ -38,7 +38,10 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.AbstractButton;
@@ -51,6 +54,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -58,14 +62,17 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.table.AbstractTableModel;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.Association;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.ObservableList;
@@ -81,8 +88,6 @@ import com.jidesoft.grid.AbstractPropertyTableModel;
 import com.jidesoft.grid.Property;
 import com.jidesoft.grid.PropertyPane;
 import com.jidesoft.grid.PropertyTable;
-import com.jidesoft.swing.CheckBoxList;
-import com.jidesoft.swing.CheckBoxListSelectionModel;
 import com.jidesoft.swing.CheckBoxListWithSelectable;
 import com.jidesoft.swing.DefaultSelectable;
 import com.jidesoft.swing.Selectable;
@@ -119,6 +124,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	private JCheckBox allPlayersCheckbox;
 	private CheckBoxListWithSelectable ownerList;
 	private JTabbedPane tabs;
+	private JTable macroTable;
 
 	/**
 	 * The size used to constrain the icon.
@@ -146,9 +152,16 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		initPropertiesPanel(panel);
 		initStatesPanel(panel);
 		initOwnershipPanel(panel);
+		initMacroPanel(panel);
 		
 		add(panel);
 		pack();
+	}
+	
+	private void initMacroPanel(FormPanel panel) {
+
+		macroTable = panel.getTable("macroTable");
+		
 	}
 	
 	private void initOwnershipPanel(FormPanel panel) {
@@ -336,6 +349,9 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			}
 		}
 		
+		// Macros
+		token.setMacroMap(((MacroTableModel)macroTable.getModel()).getMap());
+		
 		tokenSaved = true;
 	}
 
@@ -442,6 +458,12 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				ownerList.setModel(new OwnerListModel());
+			}
+		});
+
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				macroTable.setModel(new MacroTableModel(token));
 			}
 		});
 		
@@ -654,5 +676,97 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		public int getSize() {
 			return ownerList.size();
 		}
+	}
+	
+	private static class MacroTableModel extends AbstractTableModel {
+		
+		private Association<String, String> newRow = new Association<String, String>("", "");
+		private List<Association<String, String>> rowList = new ArrayList<Association<String, String>>();
+		
+		public MacroTableModel(Token token) {
+			for (String macroName : token.getMacroNames()) {
+				rowList.add(new Association<String, String>(macroName, token.getMacro(macroName)));
+			}
+			
+			Collections.sort(rowList, new Comparator<Association<String, String>>() {
+				public int compare(Association<String, String> o1, Association<String, String> o2) {
+
+					return o1.getLeft().compareToIgnoreCase(o2.getLeft());
+				}
+			});
+		}
+		
+		public int getColumnCount() {
+			return 2;
+		}
+		public int getRowCount() {
+			return rowList.size() + 1;
+		}
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			if (rowIndex == getRowCount() - 1) {
+				switch(columnIndex) {
+				case 0: return newRow.getLeft();
+				case 1: return newRow.getRight();
+				}
+				return "";
+			}
+			
+			switch (columnIndex) {
+			case 0: return rowList.get(rowIndex).getLeft();
+			case 1: return rowList.get(rowIndex).getRight();
+			}
+			return "";
+		}
+		@Override
+		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+			if (rowIndex == getRowCount() - 1) {
+				switch(columnIndex) {
+				case 0: newRow.setLeft((String)aValue); break;
+				case 1: newRow.setRight((String)aValue); break;
+				}
+				
+				rowList.add(newRow);
+				newRow = new Association<String, String>("", "");
+				return;
+			}
+			
+			switch(columnIndex) {
+			case 0: rowList.get(rowIndex).setLeft((String)aValue); break;
+			case 1: rowList.get(rowIndex).setRight((String)aValue); break;
+			}
+		}
+		@Override
+		public String getColumnName(int column) {
+			switch (column) {
+			case 0: return "Key";
+			case 1: return "Value";
+			}
+			return "";
+		}
+		@Override
+		public boolean isCellEditable(int rowIndex, int columnIndex) {
+			return true;
+		}
+		
+		public Map<String, String> getMap() {
+			Map<String, String> map = new HashMap<String, String>();
+			
+			for (Association<String, String> row : rowList) {
+				map.put(row.getLeft(), row.getRight());
+			}
+			
+			return map;
+		}
+	}
+	
+	public static void main(String[] args) {
+		
+		Token token = new Token();
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setBounds(100, 100, 200, 200);
+		frame.setLayout(new GridLayout());
+		frame.add(new JScrollPane(new JTable(new MacroTableModel(token))));
+		frame.setVisible(true);
 	}
 }
