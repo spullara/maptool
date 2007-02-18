@@ -159,6 +159,7 @@ public class Token {
 	private Map<String, Object> propertyMap;
 
 	private Map<String, String> macroMap;
+	private Map<String, String> speechMap;
 
 	// Transient so that it isn't transfered over the wire
 	private transient List<ModelChangeListener> listenerList = new CopyOnWriteArrayList<ModelChangeListener>();
@@ -216,6 +217,10 @@ public class Token {
 
 		if (token.macroMap != null) {
 			macroMap = new HashMap<String, String>(token.macroMap);
+		}
+
+		if (token.speechMap != null) {
+			speechMap = new HashMap<String, String>(token.speechMap);
 		}
 	}
 
@@ -646,6 +651,26 @@ public class Token {
 			macroMap = new HashMap<String, String>();
 		}
 		return macroMap;
+	}
+	
+	public void setSpeechMap(Map<String, String> map) {
+		getSpeechMap().clear();
+		getSpeechMap().putAll(map);
+	}
+	
+	public Set<String> getSpeechNames() {
+		return getSpeechMap().keySet();
+	}
+	
+	public String getSpeech(String key) {
+		return getSpeechMap().get(key);
+	}
+	
+	private Map<String, String> getSpeechMap() {
+		if (speechMap == null) {
+			speechMap = new HashMap<String, String>();
+		}
+		return speechMap;
 	}
 	
 	/**

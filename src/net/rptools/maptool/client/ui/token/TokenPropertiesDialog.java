@@ -125,7 +125,8 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	private CheckBoxListWithSelectable ownerList;
 	private JTabbedPane tabs;
 	private JTable macroTable;
-
+	private JTable speechTable;
+	
 	/**
 	 * The size used to constrain the icon.
 	 */
@@ -153,6 +154,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		initStatesPanel(panel);
 		initOwnershipPanel(panel);
 		initMacroPanel(panel);
+		initSpeechPanel(panel);
 		
 		add(panel);
 		pack();
@@ -161,6 +163,12 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	private void initMacroPanel(FormPanel panel) {
 
 		macroTable = panel.getTable("macroTable");
+		
+	}
+	
+	private void initSpeechPanel(FormPanel panel) {
+
+		speechTable = panel.getTable("speechTable");
 		
 	}
 	
@@ -350,7 +358,8 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		}
 		
 		// Macros
-		token.setMacroMap(((MacroTableModel)macroTable.getModel()).getMap());
+		token.setMacroMap(((KeyValueTableModel)macroTable.getModel()).getMap());
+		token.setSpeechMap(((KeyValueTableModel)speechTable.getModel()).getMap());
 		
 		tokenSaved = true;
 	}
@@ -467,7 +476,12 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			}
 		});
 		
-		System.out.println(token.isOwnedByAll());
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				speechTable.setModel(new SpeechTableModel(token));
+			}
+		});
+		
 		allPlayersCheckbox.setSelected(token.isOwnedByAll());
 
 		// Handle the states
@@ -678,12 +692,10 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		}
 	}
 	
-	private static class MacroTableModel extends AbstractTableModel {
-		
-		private Association<String, String> newRow = new Association<String, String>("", "");
-		private List<Association<String, String>> rowList = new ArrayList<Association<String, String>>();
+	private static class MacroTableModel extends KeyValueTableModel {
 		
 		public MacroTableModel(Token token) {
+			List<Association<String, String>> rowList = new ArrayList<Association<String, String>>();
 			for (String macroName : token.getMacroNames()) {
 				rowList.add(new Association<String, String>(macroName, token.getMacro(macroName)));
 			}
@@ -694,6 +706,52 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 					return o1.getLeft().compareToIgnoreCase(o2.getLeft());
 				}
 			});
+			init(rowList);
+		}
+		@Override
+		public String getColumnName(int column) {
+			switch (column) {
+			case 0: return "Key";
+			case 1: return "Macro";
+			}
+			return "";
+		}
+	}
+
+	private static class SpeechTableModel extends KeyValueTableModel {
+		
+		public SpeechTableModel(Token token) {
+			List<Association<String, String>> rowList = new ArrayList<Association<String, String>>();
+			for (String speechName : token.getSpeechNames()) {
+				rowList.add(new Association<String, String>(speechName, token.getSpeech(speechName)));
+			}
+			
+			Collections.sort(rowList, new Comparator<Association<String, String>>() {
+				public int compare(Association<String, String> o1, Association<String, String> o2) {
+
+					return o1.getLeft().compareToIgnoreCase(o2.getLeft());
+				}
+			});
+			init(rowList);
+		}
+		
+		@Override
+		public String getColumnName(int column) {
+			switch (column) {
+			case 0: return "Key";
+			case 1: return "Speech Text";
+			}
+			return "";
+		}
+	}
+
+	private static class KeyValueTableModel extends AbstractTableModel {
+		
+		private Association<String, String> newRow = new Association<String, String>("", "");
+		private List<Association<String, String>> rowList;
+
+		protected void init(List<Association<String, String>> rowList) {
+			this.rowList = rowList;
 		}
 		
 		public int getColumnCount() {
@@ -759,14 +817,4 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		}
 	}
 	
-	public static void main(String[] args) {
-		
-		Token token = new Token();
-		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setBounds(100, 100, 200, 200);
-		frame.setLayout(new GridLayout());
-		frame.add(new JScrollPane(new JTable(new MacroTableModel(token))));
-		frame.setVisible(true);
-	}
 }

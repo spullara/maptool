@@ -12,6 +12,7 @@ import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
+import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppActions;
@@ -47,6 +48,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new SetFacingAction());
 		add(new ClearFacingAction());
 		add(new StartMoveAction());
+		addOwnedItem(createMacroMenu());
+		addOwnedItem(createSpeechMenu());
 		addOwnedItem(createStateMenu());
 		addOwnedItem(createFlipMenu());
 		add(new JSeparator());
@@ -81,6 +84,34 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 		addGMItem(createChangeToMenu(Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
 		add(new ShowPropertiesDialogAction());
+	}
+	
+	private JMenu createMacroMenu() {
+		
+		if (selectedTokenSet.size() != 1 || getTokenUnderMouse().getMacroNames().size() == 0) {
+			return null;
+		}
+		
+		JMenu menu = new JMenu("Macros");
+		for (String key : getTokenUnderMouse().getMacroNames()) {
+			menu.add(new RunMacroAction(key, getTokenUnderMouse().getMacro(key)));
+		}
+		
+		return menu;
+	}
+	
+	private JMenu createSpeechMenu() {
+		
+		if (selectedTokenSet.size() != 1 || getTokenUnderMouse().getSpeechNames().size() == 0) {
+			return null;
+		}
+		
+		JMenu menu = new JMenu("Speech");
+		for (String key : getTokenUnderMouse().getSpeechNames()) {
+			menu.add(new SayAction(key, getTokenUnderMouse().getSpeech(key)));
+		}
+		
+		return menu;
 	}
 	
 	private JMenu createExposeMenu() {
@@ -453,6 +484,42 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 				MapTool.serverCommand().putToken(zone.getId(), token);
 			}
 			getRenderer().repaint();
+		}
+	}
+	
+	public class RunMacroAction extends AbstractAction {
+
+		private String macro;
+		
+		public RunMacroAction(String key, String macro) {
+			putValue(Action.NAME, key);
+			this.macro = macro;
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			String identity = getTokenUnderMouse().getName();
+			String command = "/im " + identity + ":" + macro;
+			JTextArea commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+			commandArea.setText(command);
+			MapTool.getFrame().getCommandPanel().commitCommand();
+		}
+	}
+
+	public class SayAction extends AbstractAction {
+
+		private String speech;
+		
+		public SayAction(String key, String speech) {
+			putValue(Action.NAME, key);
+			this.speech = speech;
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			String identity = getTokenUnderMouse().getName();
+			String command = "/im " + identity + ":" + speech;
+			JTextArea commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+			commandArea.setText(command);
+			MapTool.getFrame().getCommandPanel().commitCommand();
 		}
 	}
 }
