@@ -49,8 +49,9 @@ public class LineSegment extends AbstractDrawing {
     protected void draw(Graphics2D g) {
         Point previousPoint = null;
         for (Point point : points) {
-            if (previousPoint != null) 
+            if (previousPoint != null) {
                 g.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
+            }
             previousPoint = point;
         }
     }
@@ -77,6 +78,15 @@ public class LineSegment extends AbstractDrawing {
 			if (point.y > maxY) {maxY = point.y;}
 		}
 		
-		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+		// Special casing
+		Rectangle bounds = new Rectangle(minX, minY, maxX - minX, maxY - minY);
+		if (bounds.width < 1) {
+			bounds.width = 1;
+		}
+		if (bounds.height < 1) {
+			bounds.height = 1;
+		}
+		
+		return bounds;
 	}
 }
