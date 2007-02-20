@@ -13,6 +13,12 @@ import java.io.IOException;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 
+/**
+ * An abstract hex grid class that uses generic cartesian-coordinates
+ * for calculations to allow for various hex grid orientations.
+ * 
+ * The v-axis points along the direction of edge to edge hexes
+ */
 public abstract class HexGrid extends Grid {
 
 	protected static BufferedImage pathHighlight;
@@ -61,9 +67,65 @@ public abstract class HexGrid extends Grid {
 		return new Area(createShape(minorRadius, edgeProjection, edgeLength));
 	}
 	
+	/**
+	 * @return Distance from the center to edge of a hex
+	 */
+	public double getVRadius() {
+		return minorRadius;
+	}
+	
+	/**
+	 * @return Distance from the center to vertex of a hex
+	 */
+	public double getURadius() {
+		return edgeLength;
+	}
+	
 	@Override
 	public Dimension getCellOffset() {
 		return cellOffset;
+	}
+	
+	/**
+	 * A generic form of getCellOffset() where V is the axis of edge to edge hexes.
+	 * @return The offset required to translate from the center of a cell
+	 * to the least edge (v_min)
+	 */
+	public double getCellOffsetV() {
+		return -minorRadius;
+	}
+	
+	/**
+	 * A generic form of getCellOffset() where U is the axis perpendicular
+	 * to the line of edge to edge hexes.
+	 * @return The offset required to translate from the center of a cell
+	 * to the least vertex (u_min)
+	 */
+	public double getCellOffsetU() {
+		return -(int)edgeLength;
+	}
+
+	
+	/**
+	 * @param numCells Number of cells to average over
+	 * @return The midpoint along the v-axis of the cell group.  This will
+	 * always land in the center of a cell
+	 */
+	public double getCellGroupCenterVComponent(int numCells) {
+		return minorRadius*numCells;
+	}
+
+	/**
+	 * Currently only works for "square" cell groups (ie numCellsU == numCellsV)
+	 * @param numCellsU Number of cells to "average" over
+	 * @return The closest cell-center, or vertex to the midpoint along
+	 * the u-axis of the cell group
+	 */
+	public double getCellGroupCenterUComponent(int numCellsU ) {
+		if( numCellsU % 2 == 0 ) {
+			return (edgeLength + edgeProjection)*numCellsU/2;
+		}
+		return ((edgeLength + edgeProjection)*numCellsU + edgeProjection)/2;
 	}
 	
 	/**
@@ -72,6 +134,7 @@ public abstract class HexGrid extends Grid {
 	 */
 	protected abstract Dimension setCellOffset();
 	
+
 	@Override
 	public int[] getFacingAngles() {
 		return facingAngles;

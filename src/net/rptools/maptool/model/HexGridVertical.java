@@ -31,7 +31,7 @@ public class HexGridVertical extends HexGrid {
 	
 	@Override
 	public double getCellWidth() {
-		return edgeLength*2; // edgeLength is edgeProjection*2;
+		return edgeLength + edgeProjection*2; // edgeLength is edgeProjection*2;
 	}
 	
 	@Override

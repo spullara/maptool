@@ -93,6 +93,7 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridCapabilities;
+import net.rptools.maptool.model.HexGrid;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
@@ -105,6 +106,7 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.util.GraphicsUtil;
+import net.rptools.maptool.util.HexGridUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.TokenUtil;
 
@@ -646,8 +648,28 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	    				int y = token.getY();
 	    				switch(vision.getAnchor()) {
 	    				case CENTER:
-	    					x += width/2;
-	    					y += height/2;
+	    					Grid grid = zone.getGrid();
+	    					if (grid instanceof HexGrid && token.isToken()) {
+	    						
+	    						// move to the top right of the token's base cell
+	    						x += grid.getCellOffset().width;
+	    			            y += grid.getCellOffset().height;
+	    			            
+	    			            // now move to the top right of the token's bounding rectangle
+	    						int scaledGridWidth = (int)(grid.getCellWidth()*getScale());
+	    						int scaledGridHeight = (int)(grid.getCellHeight()*getScale());
+	    			            x += HexGridUtil.getPositionXOffset(token.getSize(), scaledGridWidth, (HexGrid)grid);
+	    			            y += HexGridUtil.getPositionYOffset(token.getSize(), scaledGridHeight, (HexGrid)grid);
+	    			     
+	    			            // At last! from here we can move to the token's center!
+	    			            Point p = HexGridUtil.getCellGroupCenterOffset((HexGrid)grid, token.getSize(), 1);
+	    		        		x += p.x;
+	    		        		y += p.y;
+	    					}
+	    					else {
+	    						x += width/2;
+	    						y += height/2;
+	    					}
 	    				}
 	    				
 	    				visionArea = FogUtil.calculateVisibility3(x, y, visionArea, zone.getTopology());
@@ -836,13 +858,17 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		zone.getGrid().draw(this, g, g.getClipBounds());
     }
     
+    private boolean isHexGrid() {
+    	return zone.getGrid() instanceof HexGrid ? true : false;
+    }
+    
 	protected void renderMoveSelectionSets(Graphics2D g, ZoneView view) {
 	
 		Grid grid = zone.getGrid();
         int gridSize = grid.getSize();
         float scale = zoneScale.getScale();
         int scaledGridSize = (int) getScaledGridSize();
-
+        
         Set<SelectionSet> selections = new HashSet<SelectionSet>();
         selections.addAll(selectionSetMap.values());
 		for (SelectionSet set : selections) {
@@ -887,7 +913,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	
                 int x = newScreenPoint.x + 1 + (int)(grid.getCellOffset().width*scale);
                 int y = newScreenPoint.y + 1 + (int)(grid.getCellOffset().height*scale);
-                
+                    
+                // Postion square tokens on a hex grid
+                if( isHexGrid() && token.isToken() ) {
+                   x += HexGridUtil.getPositionXOffset(token.getSize(), scaledGridWidth, (HexGrid)grid);
+                   y += HexGridUtil.getPositionYOffset(token.getSize(), scaledGridHeight, (HexGrid)grid);
+                }
+                // Center the token if it is smaller than a grid cell
                 if (width < scaledGridWidth && token.isSnapToGrid()) {
                     x += (scaledGridWidth - scaledWidth)/2;
                 }
@@ -998,9 +1030,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 		width = Math.max (width, 1);
 		height = Math.max(height, 1);
-		
-		int xOffset = (int)((width-1)*getScaledGridSize()/2);
-		int yOffset = (int)((height-1)*getScaledGridSize()/2);
 
 		List<CellPoint> cellPath = path.getCellPath();
 
@@ -1008,20 +1037,31 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 		Set<CellPoint> waypointSet = new HashSet<CellPoint>();
 		for (CellPoint p : cellPath) {
 
-			for (int x = 0; x < width; x++) {
-				for (int y = 0; y < height; y++) {
-					
-					pathSet.add(new CellPoint(p.x+x, p.y+y));
+			// Get those funky hex shapes if we have a hex grid
+			if( isHexGrid() ) {
+				pathSet.addAll(HexGridUtil.getIncludedCells(width, p, (HexGrid)grid) );
+			}
+			else {
+				for (int x = 0; x < width; x++) {
+					for (int y = 0; y < height; y++) {
+						
+						pathSet.add(new CellPoint(p.x+x, p.y+y));
+					}
 				}
 			}
+
 			if (path.isWaypoint(p) && previousPoint != null) {
-				waypointSet.add(new CellPoint(p.x + width/2, p.y+height/2));
+				if( isHexGrid() ) {
+					waypointSet.add(HexGridUtil.getWaypoint((HexGrid)grid, p, width, height));
+				}
+				else {
+					waypointSet.add(new CellPoint(p.x + width/2, p.y+height/2));
+				}
 			}
 			previousPoint = p;
 		}
 		for (CellPoint p : pathSet) {
 			highlightCell(g, p, grid.getCellHighlight(), 1.0f);
-//			highlightCell(g, p);
 		}
 		for (CellPoint p : waypointSet) {
 			highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
@@ -1029,6 +1069,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
 		// Line path
 		if (grid.getCapabilities().isPathLineSupported() ) {
+			
+			
+			int xOffset;
+			int yOffset;
+			if( isHexGrid() ) {
+				Point lineOffset = HexGridUtil.getCellGroupCenterOffset((HexGrid)grid, width, height, getScale());
+				xOffset = lineOffset.x;
+				yOffset = lineOffset.y;
+			}
+			else {
+				// Move line path to middle of cell group, if token size > Medium
+				xOffset = (int)((width-1)*getScaledGridSize()/2);
+				yOffset = (int)((height-1)*getScaledGridSize()/2);
+			}
 			
 			previousPoint = null;
 			for (CellPoint p : cellPath) {
@@ -1228,9 +1282,18 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         		continue;
         	}
         	
-            int width = (int)Math.ceil(TokenSize.getWidth(token, zone.getGrid()) * scale);
-            int height = (int)Math.ceil(TokenSize.getHeight(token, zone.getGrid()) * scale);
-            
+        	int height;
+        	int width;
+        	if( isHexGrid() && token.isToken() ) {
+        		Dimension d = HexGridUtil.getTokenDimensions(token.getSize(),(HexGrid)grid, scale);
+        		height = d.height;
+        		width = d.width;
+        	}
+        	else {
+        		width = (int)Math.ceil(TokenSize.getWidth(token, zone.getGrid()) * scale);
+        		height = (int)Math.ceil(TokenSize.getHeight(token, zone.getGrid()) * scale);
+        	}
+        	
             if (!token.isStamp() && !token.isBackground()) {
             	// Fit inside the grid
             	width --;
@@ -1241,9 +1304,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int x = tokenScreenLocation.x + 1 + (int)(grid.getCellOffset().width*scale);
             int y = tokenScreenLocation.y + 1 + (int)(grid.getCellOffset().height*scale);
 
-            // Center the token
+            // Postion tokens on a hex grid
+            if( isHexGrid() && token.isToken() ) {
+               x += HexGridUtil.getPositionXOffset(token.getSize(), scaledGridWidth, (HexGrid)grid);
+               y += HexGridUtil.getPositionYOffset(token.getSize(), scaledGridHeight, (HexGrid)grid);
+            }
+            
+            // Center the token if it is smaller than a grid cell
             if (width < scaledGridWidth && token.isSnapToGrid()) {
-                x += (scaledGridWidth - width)/2;
+            	x += (scaledGridWidth - width)/2;
             }
             if (height < scaledGridHeight && token.isSnapToGrid()) {
                 y += (scaledGridHeight - height)/2;
@@ -1397,7 +1466,15 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	            g.drawImage(workImage, at, this);
 			} else {
 				// Normal
-	            g.drawImage(workImage, x, y, width, height, this);
+				
+				if ( isHexGrid() && token.isToken()) { // Keep token aspect ratio square on hex grid
+					int newSize = width < height ? width : height; 
+					Dimension d = HexGridUtil.getTokenAdjust((HexGrid)grid, width, height, token.getSize());
+					g.drawImage(workImage, x+d.width, y+d.height, newSize, newSize, this);
+				}
+				else {
+					g.drawImage(workImage, x, y, width, height, this);
+				}
 			}
 			g.setClip(clip);
 
