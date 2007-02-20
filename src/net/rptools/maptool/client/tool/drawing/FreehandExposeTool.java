@@ -66,6 +66,13 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
 		return MapTool.getPlayer().isGM();
 	}
 
+	@Override
+	protected Pen getPen() {
+		Pen pen = super.getPen();
+		pen.setThickness(1);
+		
+		return pen;
+	}
     
     @Override
     // Override abstracttool to prevent color palette from

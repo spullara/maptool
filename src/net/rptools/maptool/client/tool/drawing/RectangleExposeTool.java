@@ -54,6 +54,7 @@ public class RectangleExposeTool extends RectangleTool {
     protected Pen getPen() {
     	Pen pen = super.getPen();
     	pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
+    	pen.setThickness(1);
     	return pen;
     }
 

@@ -82,6 +82,14 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
     }
     
     @Override
+    protected Pen getPen() {
+    	Pen pen = super.getPen();
+    	pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
+    	pen.setThickness(1);
+    	return pen;
+    }
+
+    @Override
     protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
 
         if (!MapTool.getPlayer().isGM()) {
