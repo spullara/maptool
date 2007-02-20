@@ -132,7 +132,8 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
 		pen.setEraser(isEraser());
 		pen.setForegroundMode(Pen.MODE_TRANSPARENT);
         pen.setBackgroundMode(Pen.MODE_SOLID);
-
+        pen.setThickness(1);
+        
 		return pen;
     }
 
