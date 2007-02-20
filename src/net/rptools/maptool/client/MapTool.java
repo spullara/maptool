@@ -168,7 +168,7 @@ public class MapTool {
         
         try {
 			Asset asset = new Asset("Grasslands", FileUtil.loadResource("net/rptools/lib/resource/image/texture/grass.png"));
-            Zone zone = ZoneFactory.createZone(Zone.MapType.INFINITE, asset.getId());
+            final Zone zone = ZoneFactory.createZone(Zone.MapType.INFINITE, asset.getId());
 
             // TODO: This should really be in the factory method
 			zone.setGrid(GridFactory.createGrid(AppPreferences
@@ -179,8 +179,12 @@ public class MapTool {
 			// Make sure the image is loaded to avoid a flash screen when it becomes visible
 			ImageManager.getImageAndWait(asset);
 			
-			MapTool.addZone(zone);
-            
+			
+            EventQueue.invokeLater(new Runnable() {
+            	public void run() {
+        			MapTool.addZone(zone);
+            	}
+            });
         } catch (IOException ioe) {
         	ioe.printStackTrace();
         }
