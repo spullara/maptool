@@ -24,16 +24,12 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Transparency;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -53,13 +49,10 @@ import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.ZoneActivityListener;
-import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.ImageManager;
 
@@ -68,7 +61,7 @@ import net.rptools.maptool.util.ImageManager;
  */
 public class ZoneSelectionPanel extends JPanel implements ZoneActivityListener, ModelChangeListener  {
 
-    private static final int PADDING = 5;
+    private static final int PADDING = 7;
     private static final int SELECTED_SIZE = 75;
     private static final int UNSELECTED_SIZE = 30;
     
@@ -191,9 +184,11 @@ public class ZoneSelectionPanel extends JPanel implements ZoneActivityListener, 
 	            boundsMap.put(new Rectangle(x, y, size.width, size.height), renderer);
 	            
 	            if (isSelectedZone) {
-	            	AppStyle.selectedBorder.paintAround(g2d, x, y, size.width, size.height);
+	            	AppStyle.miniMapBorder.paintAround(g2d, x, y, size.width, size.height);
 	            } else {
-	            	AppStyle.border.paintWithin(g2d, x, y, size.width, size.height);
+	            	g2d.setColor(Color.black);
+	            	g2d.drawRect(x, y, size.width-1, size.height-1);
+//	            	AppStyle.border.paintWithin(g2d, x, y, size.width, size.height);
 	            }
 	            
 	            if (horizontal) {
