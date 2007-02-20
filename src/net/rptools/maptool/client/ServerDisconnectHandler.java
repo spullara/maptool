@@ -29,6 +29,7 @@ import java.io.IOException;
 import net.rptools.clientserver.simple.AbstractConnection;
 import net.rptools.clientserver.simple.DisconnectHandler;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.CampaignFactory;
 
 /**
  * This class handles when the server inexplicably disconnects
@@ -47,7 +48,7 @@ public class ServerDisconnectHandler implements DisconnectHandler {
     		MapTool.showError("Server has disconnected.");
 
     		try {
-    			MapTool.startPersonalServer(new Campaign());
+    			MapTool.startPersonalServer(CampaignFactory.createBasicCampaign());
     		} catch (IOException ioe) {
     			MapTool.showError("Could not restart personal server");
     		}

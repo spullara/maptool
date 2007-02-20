@@ -53,6 +53,7 @@ import net.rptools.maptool.client.ui.zone.ZoneView;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.CampaignFactory;
 import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
@@ -160,34 +161,11 @@ public class MapTool {
         player = new Player("", 0, "");
         
         try {
-        	startPersonalServer(new Campaign());
+        	startPersonalServer(CampaignFactory.createBasicCampaign());
         } catch (Exception e) {
         	e.printStackTrace();
         }
         AppActions.updateActions();
-        
-        try {
-			Asset asset = new Asset("Grasslands", FileUtil.loadResource("net/rptools/lib/resource/image/texture/grass.png"));
-            final Zone zone = ZoneFactory.createZone(Zone.MapType.INFINITE, asset.getId());
-
-            // TODO: This should really be in the factory method
-			zone.setGrid(GridFactory.createGrid(AppPreferences
-					.getDefaultGridType()));
-			zone.getGrid().setOffset(0, 0);
-			zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
-
-			// Make sure the image is loaded to avoid a flash screen when it becomes visible
-			ImageManager.getImageAndWait(asset);
-			
-			
-            EventQueue.invokeLater(new Runnable() {
-            	public void run() {
-        			MapTool.addZone(zone);
-            	}
-            });
-        } catch (IOException ioe) {
-        	ioe.printStackTrace();
-        }
         
 	}
 	

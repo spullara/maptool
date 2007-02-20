@@ -72,6 +72,7 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.CampaignFactory;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.ExportInfo;
 import net.rptools.maptool.model.GUID;
@@ -1165,8 +1166,7 @@ public class AppActions {
 	
 	public static void disconnectFromServer() {
 		
-		Campaign campaign = MapTool.isHostingServer() ? MapTool
-				.getCampaign() : new Campaign();
+		Campaign campaign = MapTool.isHostingServer() ? MapTool.getCampaign() : CampaignFactory.createBasicCampaign();
 		ServerDisconnectHandler.disconnectExpected = true;
 		MapTool.stopServer();
 		MapTool.disconnect();
