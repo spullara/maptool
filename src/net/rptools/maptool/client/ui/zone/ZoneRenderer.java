@@ -1336,7 +1336,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             
             // Vision visibility
             if (!view.isGMView() && token.isToken() && isUsingVision) {
-            	if (!visibleArea.getBounds().intersects(tokenBounds.getBounds())) {
+            	if (!GraphicsUtil.intersects(visibleArea, tokenBounds)) {
             		continue;
             	}
             }
@@ -1627,11 +1627,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         }
         
         // Stacks
+		Shape clip = g.getClipBounds();
+		if (!view.isGMView() && visibleArea != null) {
+			g.setClip(visibleArea);
+		}
         for (Area rect : coveredTokenSet) {
         	
         	BufferedImage stackImage = AppStyle.stackImage;
         	g.drawImage(stackImage, rect.getBounds().x + rect.getBounds().width - stackImage.getWidth() + 2, rect.getBounds().y - 2, null);
         }
+        g.setClip(clip);
     }
 
     public Set<GUID> getSelectedTokenSet() {

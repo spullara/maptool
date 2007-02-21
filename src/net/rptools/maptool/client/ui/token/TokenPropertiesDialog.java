@@ -127,6 +127,14 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	private JTable macroTable;
 	private JTable speechTable;
 	
+	private static final int INDX_NOTES = 0;
+	private static final int INDX_PROPERTIES = 1;
+	private static final int INDX_STATE = 2;
+	private static final int INDX_MACROS = 3;
+	private static final int INDX_SPEECH = 4;
+	private static final int INDX_OWNERSHIP = 5;
+	private static final int INDX_CONFIG = 6;
+	
 	/**
 	 * The size used to constrain the icon.
 	 */
@@ -389,10 +397,23 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			propertyTypeCombo.setModel(new DefaultComboBoxModel(typeList.toArray()));
 
 			setFields();
-			
+			updateView();
 		}
 
 		tabs.setSelectedIndex(0);
+	}
+	
+	private void updateView() {
+		
+		Player player = MapTool.getPlayer();
+		
+		// TODO: Figure out a way to not hard wire this.  It's ugly.  I hate it.  Please, for the love of all that is holy FIX THIS CODE !
+		tabs.setEnabledAt(INDX_PROPERTIES, player.isGM() || token.isOwner(player.getName()));
+		tabs.setEnabledAt(INDX_STATE, player.isGM() || token.isOwner(player.getName()));
+		tabs.setEnabledAt(INDX_MACROS, player.isGM() || token.isOwner(player.getName()));
+		tabs.setEnabledAt(INDX_SPEECH, player.isGM() || token.isOwner(player.getName()));
+		tabs.setEnabledAt(INDX_OWNERSHIP, player.isGM() || token.isOwner(player.getName()));
+		tabs.setEnabledAt(INDX_CONFIG, player.isGM() || token.isOwner(player.getName()));
 	}
 
 	/**

@@ -268,7 +268,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 		MapTool.getFrame().setCurrentZoneRenderer(currentRenderer);
                 	}
                 	
-                	MapTool.getFrame().getZoneSelectionPanel().flush();
+                	MapTool.getFrame().getZoneMiniMapPanel().flush();
                 	MapTool.getFrame().refresh();
                 	break;
         		  

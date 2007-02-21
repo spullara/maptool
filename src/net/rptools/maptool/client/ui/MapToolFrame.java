@@ -112,8 +112,8 @@ import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeModel;
 import net.rptools.maptool.client.ui.zone.NewZoneDropPanel;
 import net.rptools.maptool.client.ui.zone.NotificationOverlay;
 import net.rptools.maptool.client.ui.zone.PointerOverlay;
+import net.rptools.maptool.client.ui.zone.ZoneMiniMapPanel;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.client.ui.zone.ZoneSelectionPanel;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetAvailableListener;
 import net.rptools.maptool.model.AssetManager;
@@ -163,7 +163,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private AboutDialog aboutDialog;
 	private ColorPicker colorPicker;
 	private Toolbox toolbox;
-	private ZoneSelectionPanel zoneSelectionPanel;
+	private ZoneMiniMapPanel zoneMiniMapPanel;
 	private JPanel zoneRendererPanel;
 	private JPanel visibleControlPanel;
 	private FullScreenFrame fullScreenFrame;
@@ -248,9 +248,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		statusPanel.addPanel(activityMonitor);
 		statusPanel.addPanel(new SpacerStatusBar(25));
 
-		zoneSelectionPanel = new ZoneSelectionPanel();
-		zoneSelectionPanel.setSize(100, 100);
-		AppListeners.addZoneListener(zoneSelectionPanel);
+		zoneMiniMapPanel = new ZoneMiniMapPanel();
+		zoneMiniMapPanel.setSize(100, 100);
+		AppListeners.addZoneListener(zoneMiniMapPanel);
 
 		newZoneDropPanel = new NewZoneDropPanel();
 
@@ -258,7 +258,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		zoneRendererPanel.setBackground(Color.black);
 		zoneRendererPanel.add(newZoneDropPanel,
 				PositionalLayout.Position.CENTER);
-		zoneRendererPanel.add(zoneSelectionPanel, PositionalLayout.Position.SE);
+		zoneRendererPanel.add(zoneMiniMapPanel, PositionalLayout.Position.SE);
 		zoneRendererPanel.add(getChatActionLabel(),
 				PositionalLayout.Position.SW);
 
@@ -267,6 +267,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		MapTool.getMessageList().addObserver(createChatIconMessageObserver());
 
 		rendererBorderPanel = new JPanel(new GridLayout());
+		rendererBorderPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
 		rendererBorderPanel.add(zoneRendererPanel);
 
 		// Put it all together
@@ -809,8 +810,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		progressBar.endDeterminate();
 	}
 
-	public ZoneSelectionPanel getZoneSelectionPanel() {
-		return zoneSelectionPanel;
+	public ZoneMiniMapPanel getZoneMiniMapPanel() {
+		return zoneMiniMapPanel;
 	}
 
 	// /////////////////////////////////////////////////////////////////////////
@@ -895,14 +896,14 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			}
 		}
 
-		zoneSelectionPanel.flush();
-		zoneSelectionPanel.repaint();
+		zoneMiniMapPanel.flush();
+		zoneMiniMapPanel.repaint();
 	}
 
 	public void clearZoneRendererList() {
 		zoneRendererList.clear();
-		zoneSelectionPanel.flush();
-		zoneSelectionPanel.repaint();
+		zoneMiniMapPanel.flush();
+		zoneMiniMapPanel.repaint();
 	}
 
 	public void setCurrentZoneRenderer(ZoneRenderer renderer) {

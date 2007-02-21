@@ -44,6 +44,7 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 
@@ -66,7 +67,6 @@ import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.assetpanel.Directory;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.client.ui.zone.ZoneSelectionPanel;
 import net.rptools.maptool.client.ui.zone.ZoneView;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
@@ -862,7 +862,7 @@ public class AppActions {
 
 			MapTool.serverCommand().setZoneVisibility(zone.getId(),
 					zone.isVisible());
-			MapTool.getFrame().getZoneSelectionPanel().flush();
+			MapTool.getFrame().getZoneMiniMapPanel().flush();
 			MapTool.getFrame().repaint();
 		}
 	};
@@ -956,13 +956,12 @@ public class AppActions {
 
 		@Override
 		public boolean isSelected() {
-			return MapTool.getFrame().getZoneSelectionPanel().isVisible();
+			return MapTool.getFrame().getZoneMiniMapPanel().isVisible();
 		}
 
 		public void execute(ActionEvent e) {
 
-			ZoneSelectionPanel panel = MapTool.getFrame()
-					.getZoneSelectionPanel();
+			JComponent panel = MapTool.getFrame().getZoneMiniMapPanel();
 
 			panel.setVisible(!panel.isVisible());
 		}

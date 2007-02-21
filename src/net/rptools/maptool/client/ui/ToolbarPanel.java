@@ -2,24 +2,27 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-import javax.swing.BorderFactory;
+import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.border.BevelBorder;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.maptool.client.AppListeners;
+import net.rptools.maptool.client.ZoneActivityListener;
 import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.MeasureTool;
@@ -41,6 +44,7 @@ import net.rptools.maptool.client.tool.drawing.RadiusTemplateTool;
 import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTopologyTool;
+import net.rptools.maptool.model.Zone;
 
 public class ToolbarPanel extends JToolBar {
 
@@ -65,11 +69,49 @@ public class ToolbarPanel extends JToolBar {
 		add(Box.createHorizontalStrut(10));
 		add(optionPanel);
 		add(Box.createHorizontalGlue());
+		add(Box.createHorizontalStrut(10));
+		add(new JSeparator(JSeparator.VERTICAL));
+		add(Box.createHorizontalStrut(10));
+		add(createZoneNameLabel());
+		add(Box.createHorizontalStrut(5));
+		add(createZoneSelectionButton());
 		
 		// Non visible tools
 		toolbox.createTool(GridTool.class);
 		toolbox.createTool(FacingTool.class);
 		
+	}
+	
+	private JLabel createZoneNameLabel() {
+		
+		final JLabel label = new JLabel("", JLabel.RIGHT);
+		label.setMinimumSize(new Dimension(150, 10));
+		label.setPreferredSize(new Dimension(150, 16));
+		AppListeners.addZoneListener(new ZoneActivityListener() {
+			public void zoneActivated(Zone zone) {
+				String name = zone.getName();
+				if (name == null || name.length() == 0) {
+					name = "Map";
+				}
+				label.setText(name);
+			}
+			public void zoneAdded(Zone zone) {
+			}
+		});
+		
+		return label;
+	}
+	
+	private JButton createZoneSelectionButton() {
+		final JButton button = new JButton(new ImageIcon(getClass().getClassLoader().getResource("net/rptools/maptool/client/image/arrow_right.png")));
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ZoneSelectionPopup popup = new ZoneSelectionPopup();
+				popup.show(button, button.getSize().width - popup.getPreferredSize().width , 0);
+				
+			}
+		});
+		return button;
 	}
 	
 	private OptionPanel createPointerPanel() {

@@ -159,5 +159,16 @@ public class GraphicsUtil {
     	
     	return new Area(path);
     }
-    
+
+    public static boolean intersects(Area lhs, Area rhs) {
+    	
+    	if (!lhs.getBounds().intersects(rhs.getBounds())) {
+    		return false;
+    	}
+    	
+    	Area newArea = new Area(lhs);
+    	newArea.intersect(rhs);
+    	
+    	return !newArea.isEmpty();
+    }
 }

@@ -110,6 +110,10 @@ public class NewMapDialog extends JDialog  {
 			ImageManager.flushImage(asset); 
 		}
 		getImagePreviewPanel().setImage(thumbImage);
+
+		if (getZoneName().length() == 0) {
+			nameTextField.setText(asset.getName());
+		}
 		
 		okButton.setEnabled(selectedAsset != null);
 	}

@@ -21,6 +21,7 @@ public class CampaignFactory {
 					.getDefaultGridType()));
 			zone.getGrid().setOffset(0, 0);
 			zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
+			zone.setName("Grasslands");
 
 			// Make sure the image is loaded to avoid a flash screen when it becomes visible
 			ImageManager.getImageAndWait(asset);
