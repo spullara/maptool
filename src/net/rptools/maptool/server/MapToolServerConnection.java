@@ -89,6 +89,8 @@ public class MapToolServerConnection extends ServerConnection  implements Server
      * Handle late connections
      */
     public void connectionAdded(net.rptools.clientserver.simple.client.ClientConnection conn) {
+
+    	server.configureConnection(conn.getId());
     	
         for (String id : playerMap.keySet()) {
         	
@@ -101,6 +103,8 @@ public class MapToolServerConnection extends ServerConnection  implements Server
     
     public void connectionRemoved(net.rptools.clientserver.simple.client.ClientConnection conn) {
 
+    	server.releaseConnection(conn.getId());
+    	
         server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.playerDisconnected.name(), playerMap.get(conn.getId().toUpperCase()));
         playerMap.remove(conn.getId().toUpperCase());
     }

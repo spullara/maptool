@@ -345,11 +345,11 @@ public class AssetManager {
 		return getAssetCacheFile(id).exists();
 	}
 	
-	private static File getAssetCacheFile(Asset asset) {
+	public static File getAssetCacheFile(Asset asset) {
 		return getAssetCacheFile(asset.getId());
 	}
 
-	private static File getAssetCacheFile(MD5Key id) {
+	public static File getAssetCacheFile(MD5Key id) {
 		return new File (cacheDir.getAbsolutePath() + File.separator + id);
 	}
 	

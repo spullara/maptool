@@ -25,18 +25,28 @@
 package net.rptools.maptool.server;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.Map.Entry;
 
 import net.rptools.clientserver.hessian.server.ServerConnection;
 import net.rptools.clientserver.simple.server.ServerObserver;
+import net.rptools.maptool.client.ClientCommand;
 import net.rptools.maptool.client.MapToolRegistry;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.transfer.AssetChunk;
+import net.rptools.maptool.transfer.AssetProducer;
+import net.rptools.maptool.transfer.AssetTransferManager;
 
 
 /**
  * @author drice
  */
 public class MapToolServer {
+	
+	private static final int ASSET_CHUNK_SIZE = 1024;
 
     private final MapToolServerConnection conn;
     private final ServerMethodHandler handler;
@@ -46,6 +56,10 @@ public class MapToolServer {
 	private ServerPolicy policy;
 	
 	private HeartbeatThread heartbeatThread;
+	
+	private Map<String, AssetTransferManager> assetManagerMap = Collections.synchronizedMap(new HashMap<String, AssetTransferManager>());
+	
+	private AssetProducerThread assetProducerThread;
 
     public MapToolServer(ServerConfig config, ServerPolicy policy) throws IOException {
     	
@@ -55,6 +69,9 @@ public class MapToolServer {
 
 		campaign = new Campaign();
 		
+		assetProducerThread = new AssetProducerThread();
+		assetProducerThread.start();
+		
 		this.config = config;
 		this.policy = policy;
 		
@@ -63,6 +80,19 @@ public class MapToolServer {
 			heartbeatThread = new HeartbeatThread();
 			heartbeatThread.start();
 		}
+    }
+    
+    public void configureConnection(String id) {
+    	assetManagerMap.put(id, new AssetTransferManager());
+    }
+    
+    public void releaseConnection(String id) {
+    	assetManagerMap.remove(id);
+    }
+    
+    public void addAssetProducer(String connectionId, AssetProducer producer) {
+    	AssetTransferManager manager = assetManagerMap.get(connectionId);
+    	manager.addProducer(producer);
     }
 
     public void addObserver(ServerObserver observer) {
@@ -113,6 +143,10 @@ public class MapToolServer {
     		if (heartbeatThread != null) {
     			heartbeatThread.shutdown();
     		}
+    		
+    		if (assetProducerThread != null) {
+    			assetProducerThread.shutdown();
+    		}
     	} catch (IOException e) {
     		// Not too concerned about this
     		e.printStackTrace();
@@ -146,6 +180,49 @@ public class MapToolServer {
     	public void shutdown() {
     		stop = true;
     		interrupt();
+    	}
+    }
+    
+    ////
+    // CLASSES
+    private class AssetProducerThread extends Thread {
+    	
+    	private boolean stop = false;
+    	
+    	@Override
+    	public void run() {
+    		
+    		while (!stop) {
+    			try {
+
+    				boolean lookForMore = false;
+    				for (Entry<String, AssetTransferManager> entry : assetManagerMap.entrySet()) {
+    					
+    					AssetChunk chunk = entry.getValue().nextChunk(ASSET_CHUNK_SIZE);
+    					if (chunk != null) {
+    						lookForMore = true;
+    						
+    				        getConnection().callMethod(entry.getKey(), ClientCommand.COMMAND.updateAssetTransfer.name(), chunk);
+    					}
+    				}
+    				if (lookForMore) {
+    					continue;
+    				}
+    				
+    				// Sleep for a bit
+    				synchronized (this) {
+    					Thread.sleep(500);
+    				}
+    				
+    			} catch (Exception e) {
+    				e.printStackTrace();
+    				// keep on going
+    			}
+    		}
+    	}
+    	
+    	public void shutdown() {
+    		stop = true;
     	}
     }
     

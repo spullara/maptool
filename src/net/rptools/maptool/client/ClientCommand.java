@@ -27,6 +27,8 @@ package net.rptools.maptool.client;
 public class ClientCommand {
 
     public static enum COMMAND { 
+    	startAssetTransfer,
+    	updateAssetTransfer,
     	bootPlayer,
         setCampaign, 
         putZone, 

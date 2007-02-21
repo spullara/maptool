@@ -25,6 +25,7 @@
 package net.rptools.maptool.server;
 
 import java.awt.geom.Area;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,6 +48,7 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
+import net.rptools.maptool.transfer.AssetProducer;
 
 /**
  * @author drice
@@ -201,6 +203,19 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 
     public void getAsset(MD5Key assetID) {
         server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putAsset.name(), AssetManager.getAsset(assetID));
+//    	AssetProducer producer = new AssetProducer(assetID, AssetManager.getAssetCacheFile(assetID));
+//    	try {
+//
+//    		server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.startAssetTransfer.name(), producer.getHeader());
+//    		server.addAssetProducer(RPCContext.getCurrent().id, producer);
+//    		
+//    	} catch (IOException ioe) {
+//    		ioe.printStackTrace();
+//    		
+//    		// Old fashioned way
+//            server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putAsset.name(), AssetManager.getAsset(assetID));
+//    	}
+    	
     }
     
     public void getZone(GUID zoneGUID) {
