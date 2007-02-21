@@ -30,10 +30,6 @@ public class FogUtil {
 
 	public static Area calculateVisibility(int x, int y, Area vision, Area topology) {
 
-		if (vision == null) {
-			return null;
-		}
-		
 		vision = new Area(vision);
 		vision.transform(AffineTransform.getTranslateInstance(x, y));
 		
@@ -88,14 +84,11 @@ public class FogUtil {
 
 				if (lastPoint != null) {
 					if (type != PathIterator.SEG_MOVETO) {
-						Area blockedArea = createBlockArea(lastPoint, point, outsidePoint, lastOutsidePoint);
-						pointList.add(new AreaPoint(lastPoint, point, blockedArea, getDistance(originPoint, point)));
+						pointList.add(new AreaPoint(lastPoint, point, outsidePoint, lastOutsidePoint, getDistance(originPoint, point)));
 					} else {
 						// Close the last shape
 						if (lastPoint != null) {
-							
-							Area blockedArea = createBlockArea(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint);
-							pointList.add(new AreaPoint(lastPoint, point, blockedArea, getDistance(originPoint, point)));
+							pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, getDistance(originPoint, point)));
 						}
 						
 						firstPoint = point;
@@ -111,8 +104,7 @@ public class FogUtil {
 		
 		// Close the area
 		if (lastPoint != null) {
-			Area blockedArea = createBlockArea(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint);
-			pointList.add(new AreaPoint(firstPoint, lastPoint, blockedArea, getDistance(originPoint, lastPoint)));
+			pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, getDistance(originPoint, lastPoint)));
 		}
 
 		Collections.sort(pointList, new Comparator<AreaPoint>() {
@@ -124,117 +116,13 @@ public class FogUtil {
 		
 		int skip = 0;
 		for (AreaPoint point : pointList) {
-			Area face = GraphicsUtil.createAreaBetween(point.p1, point.p2, 1);
-			face.intersect(vision);
-			if (face.isEmpty()) {
-				skip++;
-				continue;
-			}
-			
-			vision.subtract(point.quad);
-		}
-
-		// For simplicity, this catches some of the edge cases
-		vision.subtract(topology);
-
-//		System.out.println(pointList.size() + " - " + skip);
-		
-		return vision;
-	}	
-	
-	public static Area calculateVisibility3(int x, int y, Area vision, Area topology) {
-
-		vision = new Area(vision);
-		vision.transform(AffineTransform.getTranslateInstance(x, y));
-		
-		// sanity check
-		if (topology.contains(x, y)) {
-			return null;
-		}
-		
-		// Trim back to minimize the amount of work to do 
-		// Strategy: create an inverse of the area of the vision (since none of the points outside the vision matter
-		// and subtract that from the actual topology.  Note that since there is no Area inverse, just make a massive
-		// rectangle
-		topology = new Area(topology);
-		
-		Area outsideArea = new Area(new Rectangle(-10000000, -10000000, 20000000, 200000000));
-		outsideArea.subtract(new Area(vision.getBounds()));
-		topology.subtract(outsideArea);
-		
-		List<AreaPoint> pointList = new ArrayList<AreaPoint>();
-		
-		double[] coords = new double[6];
-
-		Point origin = new Point(x, y);
-		
-		Point firstPoint = null;
-		Point firstOutsidePoint = null;
-		
-		Point lastPoint = null;
-		Point lastOutsidePoint = null;
-		Point originPoint = new Point(x, y);
-		for (PathIterator iter = topology.getPathIterator(null); !iter.isDone(); iter.next()) {
-			
-			int type = iter.currentSegment(coords);
-			int coordCount = 0;
-			switch (type) {
-			case PathIterator.SEG_CLOSE: coordCount = 0; break;
-			case PathIterator.SEG_CUBICTO: coordCount = 3; break;
-			case PathIterator.SEG_LINETO: coordCount = 1; break;
-			case PathIterator.SEG_MOVETO: coordCount = 1;break;
-			case PathIterator.SEG_QUADTO: coordCount = 2;break;
-			}
-			
-			for (int i = 0; i < coordCount; i++) {
-
-				Point point = new Point((int)coords[i*2], (int)coords[i*2+1]);
-				Point outsidePoint = GraphicsUtil.getProjectedPoint(origin, point, 100000);
-				
-				if (firstPoint == null) {
-					firstPoint = point;
-					firstOutsidePoint = outsidePoint;
+			if (!vision.contains(point.p1) && !vision.contains(point.p2)) {
+				Area face = GraphicsUtil.createAreaBetween(point.p1, point.p2, 1);
+				face.intersect(vision);
+				if (face.isEmpty()) {
+					skip ++;
+					continue;
 				}
-
-				if (lastPoint != null) {
-					if (type != PathIterator.SEG_MOVETO) {
-						pointList.add(new AreaPoint(lastPoint, point, outsidePoint, lastOutsidePoint, null, getDistance(originPoint, point)));
-					} else {
-						// Close the last shape
-						if (lastPoint != null) {
-							pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, null, getDistance(originPoint, point)));
-						}
-						
-						firstPoint = point;
-						firstOutsidePoint = outsidePoint;
-					}
-				}
-
-				lastPoint = point;
-				lastOutsidePoint = outsidePoint;
-			}
-			
-		}
-		
-		// Close the area
-		if (lastPoint != null) {
-			pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, null, getDistance(originPoint, lastPoint)));
-		}
-
-		Collections.sort(pointList, new Comparator<AreaPoint>() {
-			public int compare(AreaPoint o1, AreaPoint o2) {
-				
-				return o1.distance < o2.distance ? -1 : o2.distance < o1.distance ? 1 : 0;
-			}
-		});
-		
-		int skip = 0;
-		for (AreaPoint point : pointList) {
-			Area face = GraphicsUtil.createAreaBetween(point.p1, point.p2, 1);
-			face.intersect(vision);
-			if (face.isEmpty()) {
-				skip ++;
-				continue;
 			}
 			Area blockedArea = createBlockArea(point.p1, point.p2, point.p3, point.p4);
 			vision.subtract(blockedArea);
@@ -246,6 +134,7 @@ public class FogUtil {
 		return vision;
 	}	
 	
+
 	private static double getDistance(Point p1, Point p2) {
 		double a = p2.x - p1.x;
 		double b = p2.y - p1.y;
@@ -257,18 +146,14 @@ public class FogUtil {
 		Point p2;
 		Point p3;
 		Point p4;
-		Area quad;
+
 		double distance;
 		
-		public AreaPoint(Point p1, Point p2, Area quad, double distance) {
-			this(p1, p2, null, null, quad, distance);
-		}
-		public AreaPoint(Point p1, Point p2, Point p3, Point p4, Area quad, double distance) {
+		public AreaPoint(Point p1, Point p2, Point p3, Point p4, double distance) {
 			this.p1 = p1;
 			this.p2 = p2;
 			this.p3 = p3;
 			this.p4 = p4;
-			this.quad = quad;
 			this.distance = distance;
 		}
 	}
@@ -441,7 +326,7 @@ public class FogUtil {
 		
 		start = System.currentTimeMillis();
 		for (int i = 0; i < 10; i++) {
-			calculateVisibility3(2500, 2500, vision, topology);
+//			calculateVisibility2(2500, 2500, vision, topology);
 		}
 		System.out.println("2: " + (System.currentTimeMillis() - start));
 	}

@@ -672,7 +672,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	    					}
 	    				}
 	    				
-	    				visionArea = FogUtil.calculateVisibility3(x, y, visionArea, zone.getTopology());
+	    				visionArea = FogUtil.calculateVisibility(x, y, visionArea, zone.getTopology());
 	    				if (visionArea == null) {
 	    					continue;
 	    				}
