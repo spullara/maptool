@@ -55,8 +55,10 @@ public class AssetTransferHandler implements ConsumerListener {
 			return;
 		}
 
+		// Install it into our system
 		AssetManager.putAsset(asset);
-		
+
+		// Remove the temp file
 		data.delete();
 	}
 

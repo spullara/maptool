@@ -1,17 +1,20 @@
 package net.rptools.maptool.model.drawing;
 
+import java.awt.Image;
 import java.awt.Paint;
 import java.awt.TexturePaint;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.Serializable;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.ImageManager;
 
-public class DrawableTexturePaint extends DrawablePaint implements Serializable {
+public class DrawableTexturePaint extends DrawablePaint implements Serializable, ImageObserver {
 
 	private MD5Key assetId;
 	private transient BufferedImage image;
@@ -33,6 +36,8 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable 
 			texture = ImageManager.getImageAndWait(AssetManager.getAsset(assetId));
 			if (texture != ImageManager.UNKNOWN_IMAGE) {
 				image = texture;
+			} else {
+				ImageManager.addObservers(assetId, this);
 			}
 		}
 
@@ -45,5 +50,15 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable 
 	
 	public MD5Key getAssetId() {
 		return assetId;
+	}
+	
+	////
+	// IMAGE OBSERVER
+	public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
+		if (infoflags == ImageObserver.ALLBITS) {
+			MapTool.getFrame().getCurrentZoneRenderer().flushDrawableRenderer();
+			MapTool.getFrame().refresh();
+		}
+		return false;
 	}
 }

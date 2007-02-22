@@ -211,7 +211,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	}
 	
 	private void releaseChunk(BufferedImage image) {
-		if (image == NO_IMAGE || chunkPool.size() >= maxChunkPoolSize) {
+		if (image == null || image == NO_IMAGE || chunkPool.size() >= maxChunkPoolSize) {
 			return;
 		}
 		clearImage(image);
