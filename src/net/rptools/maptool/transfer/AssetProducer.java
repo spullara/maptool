@@ -23,6 +23,7 @@ public class AssetProducer {
 		if (!assetFile.exists() || assetFile.isDirectory()) {
 			throw new IllegalArgumentException(assetFile + " is an invalid asset path");
 		}
+		this.id = id;
 		this.name = name;
 		this.assetFile = assetFile;
 		length = assetFile.length();
