@@ -19,7 +19,7 @@ public class AssetTransferTest extends TestCase {
 		File tmpFile = createTempFile(data);
 		
 		// PRODUCER
-		AssetProducer producer = new AssetProducer("Testing", tmpFile);
+		AssetProducer producer = new AssetProducer("Testing", "onetwo", tmpFile);
 		AssetHeader header = producer.getHeader();
 		
 		assertNotNull(header);

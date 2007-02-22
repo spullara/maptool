@@ -17,6 +17,14 @@ public class AssetTransferManager {
 	private List<AssetProducer> producerList = new LinkedList<AssetProducer>();
 	
 	/**
+	 * Clear out all existing consumers and producers
+	 */
+	public synchronized void flush() {
+		consumerMap.clear();
+		producerList.clear();
+	}
+	
+	/**
 	 * Add a new producer to the chunk queue.  Assumes that the header has already been transferred
 	 * to the consumer.  Producer chunks can then be retrieved via nextChunk()
 	 */
@@ -73,7 +81,7 @@ public class AssetTransferManager {
 		consumer.update(chunk);
 		if (consumer.isComplete()) {
 			for (ConsumerListener listener : consumerListenerList) {
-				listener.assetComplete(consumer.getId(), consumer.getFilename());
+				listener.assetComplete(consumer.getId(), consumer.getName(), consumer.getFilename());
 			}
 			consumerMap.remove(consumer.getId());
 		}

@@ -58,7 +58,7 @@ public class AssetManager {
     private static Map<MD5Key, List<AssetAvailableListener>> assetListenerListMap  = new ConcurrentHashMap<MD5Key, List<AssetAvailableListener>>();
     private static Set<MD5Key> requestedSet = new HashSet<MD5Key>();
     
-    private static String NAME = "name";
+    public static final String NAME = "name";
     
 	static {
 		

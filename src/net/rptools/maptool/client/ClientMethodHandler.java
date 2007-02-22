@@ -26,6 +26,7 @@ package net.rptools.maptool.client;
 
 import java.awt.EventQueue;
 import java.awt.geom.Area;
+import java.io.IOException;
 import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
@@ -47,7 +48,9 @@ import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.ServerPolicy;
-import net.rptools.maptool.client.ServerDisconnectHandler;
+import net.rptools.maptool.transfer.AssetChunk;
+import net.rptools.maptool.transfer.AssetConsumer;
+import net.rptools.maptool.transfer.AssetHeader;
 
 
 /**
@@ -388,9 +391,19 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 	break;
                 
                 case startAssetTransfer:
+                	AssetHeader header = (AssetHeader) parameters[0];
+                	MapTool.getAssetTransferManager().addConsumer(new AssetConsumer(AppUtil.getAppHome("tmp"), header));
                 	break;
                 	
                 case updateAssetTransfer:
+                	AssetChunk chunk = (AssetChunk) parameters[0];
+                	
+                	try {
+                		MapTool.getAssetTransferManager().update(chunk);
+                	} catch (IOException ioe) {
+                		// TODO: do something intelligent like clear the transfer manager, and clear the "we're waiting for" flag so that it gets requested again
+                		ioe.printStackTrace();
+                	}
                 	break;
                 }
         	}

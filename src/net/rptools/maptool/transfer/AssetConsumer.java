@@ -50,6 +50,10 @@ public class AssetConsumer {
 		return header.getId();
 	}
 	
+	public String getName() {
+		return header.getName();
+	}
+	
 	/**
 	 * Add the next chunk of data to this consumer
 	 * @param chunk produced from the corresponding AssetProducer

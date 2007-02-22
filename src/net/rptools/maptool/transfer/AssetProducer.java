@@ -14,14 +14,16 @@ import java.io.Serializable;
 public class AssetProducer {
 
 	private Serializable id;
+	private String name;
 	private File assetFile;
 	private long length;
 	private long currentPosition = 0;
 	
-	public AssetProducer(Serializable id, File assetFile) {
+	public AssetProducer(Serializable id, String name, File assetFile) {
 		if (!assetFile.exists() || assetFile.isDirectory()) {
 			throw new IllegalArgumentException(assetFile + " is an invalid asset path");
 		}
+		this.name = name;
 		this.assetFile = assetFile;
 		length = assetFile.length();
 	}
@@ -31,7 +33,7 @@ public class AssetProducer {
 	 * @throws IOException
 	 */
 	public AssetHeader getHeader() throws IOException {
-		return new AssetHeader(id, assetFile.length());
+		return new AssetHeader(id, name, assetFile.length());
 	}
 
 	/**

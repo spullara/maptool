@@ -345,6 +345,10 @@ public class MapTool {
     	serverPolicy = policy;
     }
     
+    public static AssetTransferManager getAssetTransferManager() {
+    	return assetTransferManager;
+    }
+    
 	public static void startServer(String id, ServerConfig config, ServerPolicy policy, Campaign campaign) throws IOException {
 		
 		if (server != null) {
@@ -352,6 +356,8 @@ public class MapTool {
 			showError("Server is already started");
 			return;
 		}
+
+		assetTransferManager.flush();
 		
 		// TODO: the client and server campaign MUST be different objects.  Figure out a better init method
 		server = new MapToolServer (config, policy);

@@ -202,19 +202,18 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     }
 
     public void getAsset(MD5Key assetID) {
-        server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putAsset.name(), AssetManager.getAsset(assetID));
-//    	AssetProducer producer = new AssetProducer(assetID, AssetManager.getAssetCacheFile(assetID));
-//    	try {
-//
-//    		server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.startAssetTransfer.name(), producer.getHeader());
-//    		server.addAssetProducer(RPCContext.getCurrent().id, producer);
-//    		
-//    	} catch (IOException ioe) {
-//    		ioe.printStackTrace();
-//    		
-//    		// Old fashioned way
-//            server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putAsset.name(), AssetManager.getAsset(assetID));
-//    	}
+    	try {
+        	AssetProducer producer = new AssetProducer(assetID, AssetManager.getAssetInfo(assetID).getProperty(AssetManager.NAME), AssetManager.getAssetCacheFile(assetID));
+
+    		server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.startAssetTransfer.name(), producer.getHeader());
+    		server.addAssetProducer(RPCContext.getCurrent().id, producer);
+    		
+    	} catch (IOException ioe) {
+    		ioe.printStackTrace();
+    		
+    		// Old fashioned way
+            server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putAsset.name(), AssetManager.getAsset(assetID));
+    	}
     	
     }
     

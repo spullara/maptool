@@ -5,5 +5,5 @@ import java.io.Serializable;
 
 public interface ConsumerListener {
 
-	public void assetComplete(Serializable id, File data);
+	public void assetComplete(Serializable id, String name, File data);
 }
