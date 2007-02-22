@@ -36,7 +36,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -51,20 +50,17 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
 import net.rptools.maptool.client.ui.zone.ZoneView;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignFactory;
-import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.server.MapToolServer;
 import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
-import net.rptools.maptool.util.ImageManager;
+import net.rptools.maptool.transfer.AssetTransferManager;
 import net.tsc.servicediscovery.ServiceAnnouncer;
 
 import com.jidesoft.plaf.LookAndFeelFactory;
@@ -80,6 +76,8 @@ public class MapTool {
     private static MapToolServer server;
     private static ServerCommand serverCommand;
     private static ServerPolicy serverPolicy;
+    
+    private static AssetTransferManager assetTransferManager;
 
     private static String version;
     
@@ -148,6 +146,9 @@ public class MapTool {
 		
 		// We'll manage our own images
 		ImageIO.setUseCache(false);
+		
+		assetTransferManager = new AssetTransferManager();
+		assetTransferManager.addConsumerListener(new AssetTransferHandler());
 		
         playerList = new ObservableList<Player>();
         messageList = new ObservableList<TextMessage>(Collections.synchronizedList(new ArrayList<TextMessage>()));

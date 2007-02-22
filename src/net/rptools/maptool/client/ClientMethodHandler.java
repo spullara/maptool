@@ -386,6 +386,12 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 
                     MapTool.getFrame().getZoneRenderer(zoneGUID).repaint();
                 	break;
+                
+                case startAssetTransfer:
+                	break;
+                	
+                case updateAssetTransfer:
+                	break;
                 }
         	}
         });
