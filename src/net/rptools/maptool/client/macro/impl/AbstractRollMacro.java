@@ -24,16 +24,20 @@
  */
 package net.rptools.maptool.client.macro.impl;
 
+import java.math.BigDecimal;
 import java.net.URL;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.rptools.common.expression.ExpressionParser;
+import net.rptools.common.expression.Result;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
+import net.rptools.parser.ParserException;
 
 public abstract class AbstractRollMacro  implements Macro {
-
+	
     protected String roll(String roll) {
         
         try {
@@ -58,88 +62,19 @@ public abstract class AbstractRollMacro  implements Macro {
    		return buf.toString();
     }
 
-    private static final Random RANDOM = new Random();
-    private static final Pattern BASIC_ROLL = Pattern.compile("(\\d*)\\s*d\\s*(\\d*)(\\s*[\\+,\\-]\\s*\\d+)?");
     protected static String rollInternal(String roll) {
-        
-        Matcher m = BASIC_ROLL.matcher(roll);
-        if (!m.matches()) {
-            throw new IllegalArgumentException("Invalid roll '" + roll + "'");
-        }
+    	
+      	try {
+			Result result = new ExpressionParser().evaluate(roll);
 
-        int count = m.group(1) != null && m.group(1).length() > 0 ? Integer.parseInt(m.group(1)) : 1;
-        int dice = Integer.parseInt(m.group(2));
-        int modifier = 0;
-        if (m.group(3) != null) {
-            String modStr = m.group(3).replace('+', ' ');
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < modStr.length(); i++) {
-                char ch = modStr.charAt(i);
-                switch(ch) {
-                case '0': case '1': case '2': case '3': case '4': case '5': 
-                case '6': case '7': case '8': case '9': case '-':
-                    builder.append(ch);
-                }
-            }
-            modifier = Integer.parseInt(builder.toString());
-        }
-        
-        return roll(count, dice, modifier);
+	    	StringBuilder sb = new StringBuilder();
+	    	
+	    	sb.append(result.getDetailExpression()).append(" => ").append((BigDecimal) result.getValue());
+	
+	        return sb.toString();
+		} catch (ParserException e) {
+			return "Invalid expression: " + roll;
+		}
+    	
     }
-
-    protected static String roll(int count, int dice, int modifier) {
-
-    	StringBuilder builder = new StringBuilder();
-
-    	if (count > 1 || modifier != 0) {
-    		
-        	if (modifier != 0) {
-        		builder.append("(");
-        	}
-        	
-            int result = 0;
-            for (int i = 0; i < count; i++) {
-                int roll = rollDice(dice);
-                
-                if (builder.length() > (modifier != 0 ? 1 : 0)) {
-                	builder.append(" + ");
-                }
-
-                builder.append(roll);
-
-                result += roll;
-            }
-            
-            if (modifier != 0) {
-            	builder.append(") + ");
-            	builder.append(modifier);
-            	result += modifier;
-            }
-            
-            builder.append(" => ").append(result);
-    	} else {
-    		builder.append(rollDice(dice) + modifier);
-    	}
-        
-        return builder.toString();
-    }
-    
-    protected static int rollDice(int dice) {
-    	return (int)(dice * RANDOM.nextFloat()) + 1;
-    }
-
-//    public static void main(String[] args) {
-//        
-//        for (int i = 0; i < 10; i++) {
-//            roll("d2 + 2");
-//        }
-//        
-//        for (int i = 0; i < 10; i++) {
-//            roll("2d4");
-//        }
-//        
-//        for (int i = 0; i < 10; i++) {
-//            roll("2d4+4");
-//        }
-//    }
 }
