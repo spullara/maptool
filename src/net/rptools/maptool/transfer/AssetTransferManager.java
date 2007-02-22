@@ -85,7 +85,6 @@ public class AssetTransferManager {
 			}
 			consumerMap.remove(consumer.getId());
 		}
-		System.out.println("Update: " + consumerMap.size());
 	}
 	
 	/**
