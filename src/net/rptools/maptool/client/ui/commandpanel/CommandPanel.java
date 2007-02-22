@@ -171,6 +171,14 @@ public class CommandPanel extends JPanel implements Observer {
 			return;
 		}
 
+		// Command history
+		// Don't store up a bunch of repeats
+		if (commandHistory.size() == 0 || !text.equals(commandHistory.get(commandHistory.size()-1))) {
+			commandHistory.add(text);
+		}
+		commandHistoryIndex = commandHistory.size();
+
+		// Detect whether the person is attempting to fake rolls. 
     	if (CHEATER_PATTERN.matcher(text).matches()) {
     		MapTool.addServerMessage(TextMessage.me("Cheater. You have been reported."));
     		MapTool.serverCommand().message(TextMessage.gm(MapTool.getPlayer().getName() + " was caught <i>cheating</i>: " + text));
@@ -178,13 +186,6 @@ public class CommandPanel extends JPanel implements Observer {
     		return;
     	}
 
-		// Command history
-		// Don't store up a bunch of repeats
-		if (commandHistory.size() == 0 || !text.equals(commandHistory.get(commandHistory.size()-1))) {
-			commandHistory.add(text);
-		}
-		commandHistoryIndex = commandHistory.size();
-		
 		if (text.charAt(0) != '/') {
 			// Assume a "SAY"
 			text = "/s " + text;
