@@ -59,6 +59,7 @@ public class Oval extends Rectangle {
         int width = Math.abs(startPoint.x - endPoint.x);
         int height = Math.abs(startPoint.y - endPoint.y);
         
+        g.drawOval(minX, minY, width-1, height-1);
         g.fillOval(minX, minY, width-1, height-1);
     }
 }

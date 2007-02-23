@@ -33,11 +33,9 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable,
 		if (image != null) {
 			texture = image;
 		} else {
-			texture = ImageManager.getImageAndWait(AssetManager.getAsset(assetId));
+			texture = ImageManager.getImage(AssetManager.getAsset(assetId), this);
 			if (texture != ImageManager.UNKNOWN_IMAGE) {
 				image = texture;
-			} else {
-				ImageManager.addObservers(assetId, this);
 			}
 		}
 
@@ -55,10 +53,9 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable,
 	////
 	// IMAGE OBSERVER
 	public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-		if (infoflags == ImageObserver.ALLBITS) {
-			MapTool.getFrame().getCurrentZoneRenderer().flushDrawableRenderer();
-			MapTool.getFrame().refresh();
-		}
+		System.out.println("imageUpdate");
+		MapTool.getFrame().getCurrentZoneRenderer().flushDrawableRenderer();
+		MapTool.getFrame().refresh();
 		return false;
 	}
 }
