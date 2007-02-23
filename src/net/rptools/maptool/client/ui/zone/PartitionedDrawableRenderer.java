@@ -41,6 +41,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
@@ -53,10 +54,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	private static final BufferedImage NO_IMAGE = new BufferedImage(1, 1, Transparency.OPAQUE);
 	private static final int CHUNK_SIZE = 256;
 	
-	private Map<String, BufferedImage> chunkMap = new HashMap<String, BufferedImage>();
-	private static List<BufferedImage> chunkPool = new LinkedList<BufferedImage>();
-	
-	private int maxChunkPoolSize;
+	private Map<String, BufferedImage> chunkMap = new ConcurrentHashMap<String, BufferedImage>();
 	
 	private double lastDrawableCount;
 	private double lastScale;
@@ -66,9 +64,6 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	private int verticalChunkCount;
 	
 	public void flush() {
-		for (BufferedImage image : chunkMap.values()) {
-			releaseChunk(image);
-		}
 		chunkMap.clear();
 	}
 	
@@ -80,6 +75,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 			return;
 		}
 
+		// View changed ?
 		if (drawableList.size() != lastDrawableCount || lastScale != scale) {
 			flush();
 		}
@@ -87,9 +83,9 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		if (lastViewport == null || viewport.width != lastViewport.width || viewport.height != lastViewport.height) {
 			horizontalChunkCount = (int)Math.ceil(viewport.width/(double)CHUNK_SIZE) + 1;
 			verticalChunkCount = (int)Math.ceil(viewport.height/(double)CHUNK_SIZE) + 1;
-			maxChunkPoolSize = horizontalChunkCount + verticalChunkCount - 1;
 		}
 
+		// Compute grid
 		int gridx = (int)Math.floor(-viewport.x / (double)CHUNK_SIZE);
 		int gridy = (int)Math.floor(-viewport.y / (double)CHUNK_SIZE);
 
@@ -112,7 +108,6 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 					chunkMap.put(key, chunk);
 				}
 				if (chunk != null && chunk != NO_IMAGE) {
-//					System.out.println("Drawing: " + key);
 					g.drawImage(chunk, x, y, null);
 				}
 				chunkCache.remove(key);
@@ -134,8 +129,9 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 //				g.drawString(key, x + CHUNK_SIZE/2, y + CHUNK_SIZE/2);
 			}
 		}
+		
+		// Free up chunks that have gone offscreen
 		for (String key : chunkCache) {
-//			System.out.println("Removing: " + key);
 			releaseChunk(chunkMap.remove(key));
 		}
 		
@@ -160,10 +156,6 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 			
 			Rectangle2D drawnBounds = drawable.getBounds();
 			Rectangle2D chunkBounds = new Rectangle((int)(gridx * (CHUNK_SIZE/scale)), (int)(gridy * (CHUNK_SIZE/scale)), (int)(CHUNK_SIZE/scale), (int)(CHUNK_SIZE/scale));
-//			if (gridx == 0 && gridy == 1) {
-//				System.out.println(drawnBounds.intersects(chunkBounds));
-//				System.out.println(drawnBounds + " - " + chunkBounds);
-//			}
 			
 			// TODO: handle pen size
 			if (!drawnBounds.intersects(chunkBounds)) {
@@ -189,9 +181,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 			if (pen.getOpacity() != 1 && pen.getOpacity() != 0 /* handle legacy pens, besides, it doesn't make sense to have a non visible pen*/) {
 				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, pen.getOpacity()));
 			}
-//			if (gridx == 0 && gridy == 1) {
-//				System.out.println("draw");
-//			}
+
 			drawable.draw(g, pen);
 			g.setComposite(oldComposite);
 		}
@@ -199,10 +189,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		if (g != null) {
 			g.dispose();
 		}
-//		if (image != null && isEmpty(image)) {
-//			releaseChunk(image);
-//			image = null;
-//		}
+
 		if (image == null) {
 			image = NO_IMAGE;
 		}
@@ -211,49 +198,16 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	}
 	
 	private void releaseChunk(BufferedImage image) {
-		if (image == null || image == NO_IMAGE || chunkPool.size() >= maxChunkPoolSize) {
-			return;
-		}
-		clearImage(image);
-		chunkPool.add(image);
 	}
 	
 	private BufferedImage getNewChunk() {
-		if (chunkPool.size() > 0) {
-//			System.out.println("Using pooled: " + chunkPool.size());
-			return chunkPool.remove(0);
-		}
-		
-//		System.out.println("Creating new");
-		return new BufferedImage(CHUNK_SIZE, CHUNK_SIZE, Transparency.BITMASK);
+		BufferedImage image = new BufferedImage(CHUNK_SIZE, CHUNK_SIZE, Transparency.BITMASK);
+		image.setAccelerationPriority(1);
+		return image;
 	}
 	
 	private String getKey(int col, int row) {
 		return col + "." + row;
-	}
-	
-	private boolean isEmpty(BufferedImage image) {
-		
-		for (int row = 0; row < image.getHeight(); row++) {
-			for (int col = 0; col < image.getWidth(); col++) {
-				if (image.getRGB(col, row) > 0) {
-					return false;
-				}
-			}
-		}
-		
-		return true;
-	}
-	
-	private void clearImage(BufferedImage backBuffer) {
-		if (backBuffer == null) {
-			return;
-		}
-		
-        Graphics2D g2d = backBuffer.createGraphics();
-        g2d.setComposite(AlphaComposite.Clear);
-		g2d.fillRect(0, 0, backBuffer.getWidth(), backBuffer.getHeight());
-		g2d.dispose();
 	}
 	
 }
