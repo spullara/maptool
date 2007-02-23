@@ -30,14 +30,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.model.drawing.DrawablePaint;
+import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
 
 /**
@@ -451,6 +455,34 @@ public class Zone extends Token {
     	List<Token> copy = new ArrayList<Token>();
     	copy.addAll(tokenOrderedList);
         return Collections.unmodifiableList(copy);
+    }
+    
+    public Set<MD5Key> getAllAssetIds() {
+    	
+    	Set<MD5Key> idSet = new HashSet<MD5Key>();
+
+    	// Zone
+    	idSet.add(getAssetID());
+    	
+    	// Tokens
+    	for (Token token : getAllTokens()) {
+    		idSet.add(token.getAssetID());
+    	}
+    	
+		// Painted textures
+		for (DrawnElement drawn : getAllDrawnElements()) {
+			DrawablePaint paint = drawn.getPen().getPaint(); 
+			if (paint instanceof DrawableTexturePaint) {
+				idSet.add(((DrawableTexturePaint)paint).getAssetId());
+			}
+			
+			paint = drawn.getPen().getBackgroundPaint();
+			if (paint instanceof DrawableTexturePaint) {
+				idSet.add(((DrawableTexturePaint)paint).getAssetId());
+			}
+		}
+		
+		return idSet;
     }
 
     /**
