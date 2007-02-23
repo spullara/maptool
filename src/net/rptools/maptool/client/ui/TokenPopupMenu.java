@@ -136,7 +136,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		
 		public void actionPerformed(ActionEvent e) {
 
-			FogUtil.exposeVisibleArea(getRenderer().getZone(), selectedTokenSet);
+			FogUtil.exposeVisibleArea(getRenderer(), selectedTokenSet);
 			getRenderer().repaint();
 		}
 		
@@ -149,7 +149,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		
 		public void actionPerformed(ActionEvent e) {
 
-			FogUtil.exposePCArea(getRenderer().getZone());
+			FogUtil.exposePCArea(getRenderer());
 			getRenderer().repaint();
 		}
 		
@@ -163,7 +163,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		
 		public void actionPerformed(ActionEvent e) {
 
-			FogUtil.exposeLastPath(getRenderer().getZone(), selectedTokenSet);
+			FogUtil.exposeLastPath(getRenderer(), selectedTokenSet);
 			getRenderer().repaint();
 		}
 		

@@ -18,6 +18,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.HexGrid;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
@@ -25,6 +26,7 @@ import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
+import net.rptools.maptool.util.HexGridUtil;
 
 public class FogUtil {
 
@@ -170,8 +172,9 @@ public class FogUtil {
 		return new Area(path);
 	}
 	
-	public static void exposeVisibleArea(Zone zone, Set<GUID> tokenSet) {
-		
+	public static void exposeVisibleArea(ZoneRenderer renderer, Set<GUID> tokenSet) {
+
+		Zone zone = renderer.getZone();
 		for (GUID tokenGUID : tokenSet) {
 			Token token = zone.getToken(tokenGUID);
 			if (token == null) {
@@ -194,13 +197,9 @@ public class FogUtil {
 					continue;
 				}
 				
-				switch(vision.getAnchor()) {
-				case CENTER:
-					x += width/2;
-					y += height/2;
-				}
+				Point p = calculateVisionCenter(token, vision, renderer, x, y, width, height);
     			
-				Area currVisionArea = FogUtil.calculateVisibility(x, y, vision.getArea(zone), zone.getTopology());
+				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone), zone.getTopology());
 				if (currVisionArea != null) {
 					visionArea.add(currVisionArea);
 				}
@@ -211,7 +210,9 @@ public class FogUtil {
 		}
 	}
 	
-	public static void exposePCArea(Zone zone) {
+	public static void exposePCArea(ZoneRenderer renderer) {
+
+		Zone zone = renderer.getZone();
 		
 		Area visionArea = new Area();
 		for (Token token : zone.getPlayerTokens()) {
@@ -231,13 +232,9 @@ public class FogUtil {
 					continue;
 				}
 				
-				switch(vision.getAnchor()) {
-				case CENTER:
-					x += width/2;
-					y += height/2;
-				}
+				Point p = calculateVisionCenter(token, vision, renderer, x, y, width, height);
     			
-				Area currVisionArea = FogUtil.calculateVisibility(x, y, vision.getArea(zone), zone.getTopology());
+				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone), zone.getTopology());
 				if (currVisionArea != null) {
 					visionArea.add(currVisionArea);
 				}
@@ -248,8 +245,9 @@ public class FogUtil {
 		MapTool.serverCommand().setFoW(zone.getId(), visionArea);
 	}
 	
-	public static void exposeLastPath(Zone zone, Set<GUID> tokenSet) {
+	public static void exposeLastPath(ZoneRenderer renderer, Set<GUID> tokenSet) {
 
+		Zone zone = renderer.getZone();
 		for (GUID tokenGUID : tokenSet) {
 			Token token = zone.getToken(tokenGUID);
 			if (token == null) {
@@ -281,14 +279,10 @@ public class FogUtil {
 					if (!vision.isEnabled()) {
 						continue;
 					}
-					
-					switch(vision.getAnchor()) {
-					case CENTER:
-						x += width/2;
-						y += height/2;
-					}
+
+					Point p = calculateVisionCenter(token, vision, renderer, x, y, width, height);
 	    			
-					Area currVisionArea = FogUtil.calculateVisibility(x, y, vision.getArea(zone), zone.getTopology());
+					Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone), zone.getTopology());
 					if (currVisionArea != null) {
 						visionArea.add(currVisionArea);
 					}
@@ -299,6 +293,42 @@ public class FogUtil {
 			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea);
 		}
 		
+	}
+	
+	/**
+	 * Find the center point of a vision
+	 * TODO: This is a horrible horrible method.  the API is just plain disgusting.  But it'll work to consolidate
+	 * all the places this has to be done until we can encapsulate it into the vision itself
+	 */
+	public static Point calculateVisionCenter(Token token, Vision vision, ZoneRenderer renderer, int x, int y, int width, int height) {
+		
+		switch(vision.getAnchor()) {
+		case CENTER:
+			Grid grid = renderer.getZone().getGrid();
+			if (grid instanceof HexGrid && token.isToken()) {
+				
+				// move to the top right of the token's base cell
+				x += grid.getCellOffset().width;
+	            y += grid.getCellOffset().height;
+	            
+	            // now move to the top right of the token's bounding rectangle
+				int scaledGridWidth = (int)(grid.getCellWidth()*renderer.getScale());
+				int scaledGridHeight = (int)(grid.getCellHeight()*renderer.getScale());
+	            x += HexGridUtil.getPositionXOffset(token.getSize(), scaledGridWidth, (HexGrid)grid);
+	            y += HexGridUtil.getPositionYOffset(token.getSize(), scaledGridHeight, (HexGrid)grid);
+	     
+	            // At last! from here we can move to the token's center!
+	            Point p = HexGridUtil.getCellGroupCenterOffset((HexGrid)grid, token.getSize(), 1);
+        		x += p.x;
+        		y += p.y;
+			}
+			else {
+				x += width/2;
+				y += height/2;
+			}
+		}
+
+		return new Point(x, y);
 	}
 	
 	public static void main(String[] args) {

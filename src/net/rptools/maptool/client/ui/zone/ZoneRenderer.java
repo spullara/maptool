@@ -643,36 +643,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	    				if (visionArea == null) {
 	    					continue;
 	    				}
+
+	    				Point p = FogUtil.calculateVisionCenter(token, vision, this, token.getX(), token.getY(), width, height);
 	    				
-	    				int x = token.getX();
-	    				int y = token.getY();
-	    				switch(vision.getAnchor()) {
-	    				case CENTER:
-	    					Grid grid = zone.getGrid();
-	    					if (grid instanceof HexGrid && token.isToken()) {
-	    						
-	    						// move to the top right of the token's base cell
-	    						x += grid.getCellOffset().width;
-	    			            y += grid.getCellOffset().height;
-	    			            
-	    			            // now move to the top right of the token's bounding rectangle
-	    						int scaledGridWidth = (int)(grid.getCellWidth()*getScale());
-	    						int scaledGridHeight = (int)(grid.getCellHeight()*getScale());
-	    			            x += HexGridUtil.getPositionXOffset(token.getSize(), scaledGridWidth, (HexGrid)grid);
-	    			            y += HexGridUtil.getPositionYOffset(token.getSize(), scaledGridHeight, (HexGrid)grid);
-	    			     
-	    			            // At last! from here we can move to the token's center!
-	    			            Point p = HexGridUtil.getCellGroupCenterOffset((HexGrid)grid, token.getSize(), 1);
-	    		        		x += p.x;
-	    		        		y += p.y;
-	    					}
-	    					else {
-	    						x += width/2;
-	    						y += height/2;
-	    					}
-	    				}
-	    				
-	    				visionArea = FogUtil.calculateVisibility(x, y, visionArea, zone.getTopology());
+	    				visionArea = FogUtil.calculateVisibility(p.x, p.y, visionArea, zone.getTopology());
 	    				if (visionArea == null) {
 	    					continue;
 	    				}

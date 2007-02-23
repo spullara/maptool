@@ -836,12 +836,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				FogUtil.exposeVisibleArea(getZone(), renderer.getSelectedTokenSet());
+				FogUtil.exposeVisibleArea(renderer, renderer.getSelectedTokenSet());
 			}			
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				FogUtil.exposeLastPath(getZone(), renderer.getSelectedTokenSet());
+				FogUtil.exposeLastPath(renderer, renderer.getSelectedTokenSet());
 			}			
 		});
 	}
