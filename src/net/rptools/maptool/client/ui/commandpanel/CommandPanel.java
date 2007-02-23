@@ -161,7 +161,7 @@ public class CommandPanel extends JPanel implements Observer {
 		return commandTextArea;
 	}
 
-    private static final Pattern CHEATER_PATTERN = Pattern.compile(".*\\[[^\\]]*(roll|\\*).*");
+    private static final Pattern CHEATER_PATTERN = Pattern.compile("(?:«|»|&#171;|&#187;|&laquo;|&raquo;)");
 	/**
 	 * Execute the command in the command field.
 	 */
@@ -179,7 +179,7 @@ public class CommandPanel extends JPanel implements Observer {
 		commandHistoryIndex = commandHistory.size();
 
 		// Detect whether the person is attempting to fake rolls. 
-    	if (CHEATER_PATTERN.matcher(text).matches()) {
+    	if (CHEATER_PATTERN.matcher(text).find()) {
     		MapTool.addServerMessage(TextMessage.me("Cheater. You have been reported."));
     		MapTool.serverCommand().message(TextMessage.gm(MapTool.getPlayer().getName() + " was caught <i>cheating</i>: " + text));
     		commandTextArea.setText("");

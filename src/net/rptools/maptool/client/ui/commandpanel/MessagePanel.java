@@ -138,7 +138,7 @@ public class MessagePanel extends JPanel {
 			String text = message.getMessage();
 			
 			// Roll validation
-			text = text.replaceAll("\\[roll", "[*");
+			text = text.replaceAll("\\[roll\\s*([^\\]]*)]", "&#171;$1&#187;");
 			
 			buff.append("<html><body>");
 			buff.append(text);
