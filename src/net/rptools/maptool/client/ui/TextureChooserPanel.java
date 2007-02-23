@@ -77,7 +77,7 @@ public class TextureChooserPanel extends AbstractPaintChooserPanel {
 			return null;
 		}
 		public Object getID(int index) {
-			return textureList.get(index);
+			return index >= 0 ? textureList.get(index) : null;
 		}
 		public Image getImage(int index) {
 			return ImageManager.getImageAndWait(textureList.get(index));
