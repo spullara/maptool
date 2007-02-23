@@ -46,7 +46,7 @@ import net.rptools.maptool.transfer.AssetTransferManager;
  */
 public class MapToolServer {
 	
-	private static final int ASSET_CHUNK_SIZE = 1024;
+	private static final int ASSET_CHUNK_SIZE = 5 * 1024;
 
     private final MapToolServerConnection conn;
     private final ServerMethodHandler handler;
