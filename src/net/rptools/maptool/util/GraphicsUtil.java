@@ -161,6 +161,10 @@ public class GraphicsUtil {
     }
 
     public static boolean intersects(Area lhs, Area rhs) {
+
+    	if (lhs == null || lhs.isEmpty() || rhs == null || rhs.isEmpty()) {
+    		return false;
+    	}
     	
     	if (!lhs.getBounds().intersects(rhs.getBounds())) {
     		return false;
