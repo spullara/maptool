@@ -1093,24 +1093,25 @@ public class AppActions {
 
 			ServerDisconnectHandler.disconnectExpected = true;
 			MapTool.stopServer();
+			
+			// Install a temporary gimped campaign until we get the one from the server
+			MapTool.setCampaign(new Campaign());
 
 			// connecting
 			MapTool.getFrame().getConnectionStatusPanel().setStatus(
 					ConnectionStatusPanel.Status.connected);
+
+			// Show the user something interesting until we've got the campaign
+			// Look in ClientMethodHandler.setCampaign() for the corresponding hideGlassPane
+			StaticMessageDialog progressDialog = new StaticMessageDialog("Connecting");
+			MapTool.getFrame().showFilledGlassPane(progressDialog);
 
 			runBackground(new Runnable() {
 
 				public void run() {
 					boolean failed = false;
 					Campaign campaign = MapTool.getCampaign();
-					StaticMessageDialog progressDialog = new StaticMessageDialog(
-							"Connecting");
 					try {
-						// I'm going to get struck by lighting for writing code
-						// like this.
-						// CLEAN ME CLEAN ME CLEAN ME ! I NEED A SWINGWORKER !
-						MapTool.getFrame().showFilledGlassPane(progressDialog);
-
 						MapTool.createConnection(dialog.getServer(), dialog
 								.getPort(), new Player(dialog.getUsername(),
 								dialog.getRole(), dialog.getPassword()));
@@ -1121,16 +1122,13 @@ public class AppActions {
 					} catch (IOException e1) {
 						MapTool.showError("IO Error: " + e1);
 						failed = true;
-					} finally {
-						MapTool.getFrame().hideGlassPane();
 					}
-
+					
 					if (failed) {
 						try {
 							MapTool.startPersonalServer(campaign);
 						} catch (IOException ioe) {
-							MapTool
-									.showError("Could not restart personal server");
+							MapTool.showError("Could not restart personal server");
 						}
 					}
 				}
@@ -1164,7 +1162,6 @@ public class AppActions {
 	};
 	
 	public static void disconnectFromServer() {
-		
 		Campaign campaign = MapTool.isHostingServer() ? MapTool.getCampaign() : CampaignFactory.createBasicCampaign();
 		ServerDisconnectHandler.disconnectExpected = true;
 		MapTool.stopServer();

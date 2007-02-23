@@ -149,6 +149,9 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 case setCampaign:
                 	Campaign campaign = (Campaign) parameters[0];
                 	MapTool.setCampaign(campaign);
+                	
+                	// Hide the "Connecting" overlay
+					MapTool.getFrame().hideGlassPane();
                     break;
                     
                 case putZone:
