@@ -68,6 +68,11 @@ public class AppMenuBar extends JMenuBar {
     protected JMenu createFileMenu() {
         JMenu fileMenu = I18N.createMenu("menu.file");
         
+        // MAP CREATION
+        fileMenu.add(new JMenuItem(AppActions.NEW_MAP));
+        fileMenu.add(createQuickMapMenu());
+    	
+        fileMenu.addSeparator();
     	fileMenu.add(new JMenuItem(AppActions.NEW_CAMPAIGN));
     	fileMenu.add(new JMenuItem(AppActions.LOAD_CAMPAIGN));
         fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN));
@@ -93,12 +98,6 @@ public class AppMenuBar extends JMenuBar {
     
     protected JMenu createMapMenu() {
     	JMenu menu = I18N.createMenu("menu.map");
-    	
-        // MAP CREATION
-        menu.add(new JMenuItem(AppActions.NEW_MAP));
-        menu.add(createQuickMapMenu());
-    	
-        menu.addSeparator();
     	
         // MAP TOGGLES
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
@@ -130,6 +129,10 @@ public class AppMenuBar extends JMenuBar {
 
     protected JMenu createViewMenu() {
         JMenu menu = I18N.createMenu("menu.view");
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_PLAYER_VIEW));
+
+        menu.addSeparator();
+
         menu.add(createZoomMenu());
         menu.add(new JMenuItem(AppActions.TOGGLE_SHOW_TOKEN_NAMES));
 
@@ -164,7 +167,6 @@ public class AppMenuBar extends JMenuBar {
         menu.add(gridSizeMenu);
         
         menu.addSeparator();
-
         menu.add(new JMenuItem(AppActions.SHOW_FULLSCREEN));
 
 
@@ -194,7 +196,6 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.ENFORCE_ZONE));
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_MOVEMENT_LOCK));
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_PLAYER_VIEW));
         
         menu.addSeparator();
 
