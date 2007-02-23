@@ -1,5 +1,6 @@
 package net.rptools.maptool.client.ui;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
@@ -9,6 +10,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -104,11 +106,15 @@ public class ZoneSelectionPopup extends JPopupMenu {
 			g.fillRect(0, 0, size.width, size.height);
 
 			if (!renderer.getZone().isVisible()) {
+				Stroke oldStroke = g2d.getStroke();
 				g.setColor(isSelected ? Color.darkGray : Color.lightGray);
+				g2d.setStroke(new BasicStroke(2));
 				
 				for (int i = 0; i < size.width*2 || i < size.height*2; i += 10) {
 					g.drawLine(i, 0, 0, i);
 				}
+				
+				g2d.setStroke(oldStroke);
 			}
 			
 			// Map
