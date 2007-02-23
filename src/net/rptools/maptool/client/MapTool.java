@@ -533,7 +533,7 @@ public class MapTool {
         	UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
     		com.jidesoft.utils.Lm.verifyLicense("Trevor Croft", "rptools", "5MfIVe:WXJBDrToeLWPhMv3kI2s3VFo");
 //            UIManager.setLookAndFeel(LookAndFeelFactory.WINDOWS_LNF);
-    		LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
+    		LookAndFeelFactory.installJideExtension(LookAndFeelFactory.ECLIPSE3X_STYLE);
         	
         	// Make the toggle button pressed state look more distinct
         	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
