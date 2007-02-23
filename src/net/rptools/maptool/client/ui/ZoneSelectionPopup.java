@@ -96,25 +96,21 @@ public class ZoneSelectionPopup extends JPopupMenu {
 			Object oldAA = g2d.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+			boolean isSelected = renderer == MapTool.getFrame().getCurrentZoneRenderer(); 
+			
 			// Background
 			Dimension size = getSize();
-			g.setColor(renderer == MapTool.getFrame().getCurrentZoneRenderer() ? Color.lightGray : Color.white);
+			g.setColor(isSelected ? Color.lightGray : Color.white);
 			g.fillRect(0, 0, size.width, size.height);
 
 			if (!renderer.getZone().isVisible()) {
-				g.setColor(Color.darkGray);
+				g.setColor(isSelected ? Color.darkGray : Color.lightGray);
 				
-				for (int i = 0; i < size.width || i < size.height; i += 10) {
+				for (int i = 0; i < size.width*2 || i < size.height*2; i += 10) {
 					g.drawLine(i, 0, 0, i);
 				}
 			}
 			
-			// Label
-			String name = renderer.getZone().getName();
-			if (name == null || name.length() == 0) {
-				name = "Map";
-			}
-
 			// Map
 			BufferedImage img = renderer.getMiniImage(MAP_SIZE_WIDTH);
 	        if (img == null || img == ImageManager.UNKNOWN_IMAGE) {
@@ -128,9 +124,23 @@ public class ZoneSelectionPopup extends JPopupMenu {
 			SwingUtil.constrainTo(imgSize, MAP_SIZE_WIDTH, MAP_SIZE_HEIGHT);
 			g.drawImage(img, (size.width - imgSize.width)/2, PADDING + insets.top, imgSize.width, imgSize.height, this);
 
-			g.setColor(Color.black);
+			// Label
+			String name = renderer.getZone().getName();
+			if (name == null || name.length() == 0) {
+				name = "Map";
+			}
+
 			int nameWidth = SwingUtilities.computeStringWidth(g.getFontMetrics(), name);
-			g.drawString(name, size.width/2 - nameWidth/2, size.height - g.getFontMetrics().getDescent() - insets.bottom);
+			FontMetrics fm = g.getFontMetrics();
+			
+			if (!renderer.getZone().isVisible()) {
+				// Clear out the lines from the label
+				g.setColor(isSelected ? Color.lightGray : Color.white);
+				g.fillRect((size.width - nameWidth)/2-3, size.height - fm.getHeight() - insets.bottom, nameWidth+6, fm.getHeight()); 
+			}
+			
+			g.setColor(Color.black);
+			g.drawString(name, size.width/2 - nameWidth/2, size.height - fm.getDescent() - insets.bottom);
 			
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA);
 		}
