@@ -10,6 +10,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -33,7 +34,7 @@ public class ZoneSelectionPopup extends JPopupMenu {
 	
 	public ZoneSelectionPopup() {
 		
-		List<ZoneRenderer> rendererList = MapTool.getFrame().getZoneRenderers();
+		List<ZoneRenderer> rendererList = new LinkedList<ZoneRenderer>(MapTool.getFrame().getZoneRenderers());
 		if (!MapTool.getPlayer().isGM()) {
 			for (ListIterator<ZoneRenderer> iter = rendererList.listIterator(); iter.hasNext();) {
 				ZoneRenderer renderer = iter.next();
@@ -45,7 +46,7 @@ public class ZoneSelectionPopup extends JPopupMenu {
 		
 		int rows = rendererList.size() >= 3 ? (int)Math.ceil(rendererList.size() / 3.0) : 1;
 		int cols = rendererList.size() >= 3 ? 3 : rendererList.size();
-		System.out.println(rows + ", " + cols);
+
 		setLayout(new GridLayout(rows, cols));
 		
 		for (ZoneRenderer renderer : rendererList) {
