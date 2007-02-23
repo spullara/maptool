@@ -1405,6 +1405,9 @@ public class AppActions {
 							.getDefaultGridType()));
 					zone.getGrid().setOffset(0, 0);
 					zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
+					
+					Asset asset = AssetManager.getAsset(assetId);
+					zone.setName(asset.getName());
 
 					MapTool.addZone(zone);
 				}
