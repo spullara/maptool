@@ -60,6 +60,8 @@ public class AssetTransferHandler implements ConsumerListener {
 
 		// Remove the temp file
 		data.delete();
+		
+		MapTool.getFrame().refresh();
 	}
 
 }
