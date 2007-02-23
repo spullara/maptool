@@ -809,11 +809,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	}
     	
     	// Get a list of all the assets in the zone
-    	Set<MD5Key> assetSet = new HashSet<MD5Key>();
-    	assetSet.add(zone.getAssetID());
-    	for (Token token : zone.getAllTokens()) {
-    		assetSet.add(token.getAssetID());
-    	}
+    	Set<MD5Key> assetSet = zone.getAllAssetIds();
     	
     	// Make sure they are loaded
     	boolean loaded = true;
