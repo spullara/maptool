@@ -71,10 +71,10 @@ public class ASyncPartitionedDrawableRenderer implements DrawableRenderer {
 	}
 	
 	public void flush() {
-		for (BufferedImage image : chunkMap.values()) {
-			releaseChunk(image);
-		}
-		chunkMap.clear();
+//		for (BufferedImage image : chunkMap.values()) {
+//			releaseChunk(image);
+//		}
+//		chunkMap.clear();
 		renderQueue.clear();
 	}
 	
@@ -90,11 +90,21 @@ public class ASyncPartitionedDrawableRenderer implements DrawableRenderer {
 			flush();
 		}
 		
+		boolean forceRedraw = true;
 		if (lastViewport == null || viewport.width != lastViewport.width || viewport.height != lastViewport.height) {
 			horizontalChunkCount = (int)Math.ceil(viewport.width/(double)CHUNK_SIZE) + 1;
 			verticalChunkCount = (int)Math.ceil(viewport.height/(double)CHUNK_SIZE) + 1;
+			forceRedraw = true;
 		}
 
+		forceRedraw = lastScale != scale || !lastViewport.equals(viewport);
+		
+		// REMEMBER
+		lastViewport = viewport;
+		lastDrawableCount = drawableList.size();
+		lastScale = scale;
+
+		// Calculate cells
 		int gridx = (int)Math.floor(-viewport.x / (double)CHUNK_SIZE);
 		int gridy = (int)Math.floor(-viewport.y / (double)CHUNK_SIZE);
 
@@ -112,11 +122,14 @@ public class ASyncPartitionedDrawableRenderer implements DrawableRenderer {
 
 				String key = getKey(cellX, cellY);
 				BufferedImage chunk = chunkMap.get(key);
-				if (chunk == null) {
+				if (chunk == null || forceRedraw) {
+					
 					createChunk(drawableList, cellX, cellY, scale, viewport);
 					
-					chunk = NO_IMAGE;
+					if (chunk == null) chunk = NO_IMAGE;
 					chunkMap.put(key, chunk);
+				} else {
+//					System.out.println("cache: " + getKey(cellX, cellY) + " - " + (chunk == NO_IMAGE));
 				}
 				if (chunk != null && chunk != NO_IMAGE) {
 //					System.out.println("Drawing: " + key);
@@ -146,13 +159,10 @@ public class ASyncPartitionedDrawableRenderer implements DrawableRenderer {
 			releaseChunk(chunkMap.remove(key));
 		}
 		
-		// REMEMBER
-		lastViewport = viewport;
-		lastDrawableCount = drawableList.size();
-		lastScale = scale;
 	}
 
 	private void createChunk(List<DrawnElement> drawableList, int gridx, int gridy, double scale, Rectangle view) {
+//		System.out.println("create: " + getKey(gridx, gridy));
 		renderQueue.add(new QueuedRenderer(drawableList, gridx, gridy, scale, view));
 	}
 	
@@ -235,10 +245,11 @@ public class ASyncPartitionedDrawableRenderer implements DrawableRenderer {
 	}
 	
 	private static BufferedImage getNewChunk() {
+//		System.out.println("New chunk");
 		return new BufferedImage(CHUNK_SIZE, CHUNK_SIZE, Transparency.BITMASK);
 	}
 	
-	private String getKey(int col, int row) {
+	private static String getKey(int col, int row) {
 		return col + "." + row;
 	}
 	
@@ -261,7 +272,9 @@ public class ASyncPartitionedDrawableRenderer implements DrawableRenderer {
 		}
 		
 		public void render() {
+//			System.out.println("rendering:" + getKey(cellX, cellY));
 			BufferedImage chunk = renderChunk(this);
+//			System.out.println("putting:" + getKey(cellX, cellY) + " - " + (chunk == NO_IMAGE));
 			chunkMap.put(getKey(cellX, cellY), chunk);
 		}
 	}
@@ -274,6 +287,7 @@ public class ASyncPartitionedDrawableRenderer implements DrawableRenderer {
 				try {
 					QueuedRenderer renderer = renderQueue.take();
 					if (!renderer.isValid()) {
+//						System.out.println("invalid: " + getKey(renderer.cellX, renderer.cellY));
 						continue;
 					}
 					
