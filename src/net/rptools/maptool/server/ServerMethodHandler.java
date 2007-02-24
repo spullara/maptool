@@ -34,6 +34,7 @@ import java.util.Set;
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.ClientCommand;
+import net.rptools.maptool.common.MapToolConstants;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
@@ -205,7 +206,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     	try {
         	AssetProducer producer = new AssetProducer(assetID, AssetManager.getAssetInfo(assetID).getProperty(AssetManager.NAME), AssetManager.getAssetCacheFile(assetID));
 
-    		server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.startAssetTransfer.name(), producer.getHeader());
+    		server.getConnection().callMethod(RPCContext.getCurrent().id, MapToolConstants.Channel.IMAGE, ClientCommand.COMMAND.startAssetTransfer.name(), producer.getHeader());
     		server.addAssetProducer(RPCContext.getCurrent().id, producer);
     		
     	} catch (IOException ioe) {

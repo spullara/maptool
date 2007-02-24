@@ -35,6 +35,7 @@ import net.rptools.clientserver.hessian.server.ServerConnection;
 import net.rptools.clientserver.simple.server.ServerObserver;
 import net.rptools.maptool.client.ClientCommand;
 import net.rptools.maptool.client.MapToolRegistry;
+import net.rptools.maptool.common.MapToolConstants;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.transfer.AssetChunk;
 import net.rptools.maptool.transfer.AssetProducer;
@@ -202,7 +203,7 @@ public class MapToolServer {
     					if (chunk != null) {
     						lookForMore = true;
     						
-    				        getConnection().callMethod(entry.getKey(), ClientCommand.COMMAND.updateAssetTransfer.name(), chunk);
+    				        getConnection().callMethod(entry.getKey(), MapToolConstants.Channel.IMAGE, ClientCommand.COMMAND.updateAssetTransfer.name(), chunk);
     					}
     				}
     				if (lookForMore) {
