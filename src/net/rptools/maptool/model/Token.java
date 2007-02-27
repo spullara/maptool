@@ -195,6 +195,9 @@ public class Token {
 	    gmName = token.gmName;
 	    gmNotes = token.gmNotes;
 
+	    isFlippedX = token.isFlippedX;
+	    isFlippedY = token.isFlippedY;
+	    
 	    layer = token.layer;
 	    
 		if (token.ownerList != null) {
