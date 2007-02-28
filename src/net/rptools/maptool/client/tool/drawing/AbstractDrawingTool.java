@@ -65,7 +65,7 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     private static Zone.Layer selectedLayer = Zone.Layer.TOKEN;
 
     static {
-		layerSelectionDialog = new LayerSelectionDialog(new Zone.Layer[]{Zone.Layer.TOKEN, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND}, new LayerSelectionListener() {
+		layerSelectionDialog = new LayerSelectionDialog(new Zone.Layer[]{Zone.Layer.TOKEN, Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND}, new LayerSelectionListener() {
 			public void layerSelected(Layer layer) {
 				selectedLayer = layer;
 			}

@@ -134,6 +134,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private DrawableRenderer backgroundDrawableRenderer = new PartitionedDrawableRenderer();
     private DrawableRenderer objectDrawableRenderer = new PartitionedDrawableRenderer();
     private DrawableRenderer tokenDrawableRenderer = new PartitionedDrawableRenderer();
+    private DrawableRenderer gmDrawableRenderer = new PartitionedDrawableRenderer();
     
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
     private Map<Zone.Layer, List<TokenLocation>> tokenLocationMap = new HashMap<Zone.Layer, List<TokenLocation>>();
@@ -253,6 +254,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     	backgroundDrawableRenderer.flush();
     	objectDrawableRenderer.flush();
     	tokenDrawableRenderer.flush();
+    	gmDrawableRenderer.flush();
     }
     
     public ScreenPoint getPointUnderMouse() {
@@ -538,6 +540,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         renderDrawableOverlay(g2d, objectDrawableRenderer, view, zone.getObjectDrawnElements());
         renderTokenTemplates(g2d, view);
         renderGrid(g2d, view);
+        if (view.isGMView()) {
+            renderDrawableOverlay(g2d, gmDrawableRenderer, view, zone.getGMDrawnElements());
+        }
         renderTokens(g2d, zone.getStampTokens(), view);
         renderDrawableOverlay(g2d, tokenDrawableRenderer, view, zone.getDrawnElements());
         renderVision(g2d, view);

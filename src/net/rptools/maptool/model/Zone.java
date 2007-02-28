@@ -67,6 +67,7 @@ public class Zone extends Token {
     
 	public enum Layer {
 		TOKEN("Token"),
+		GM("GM"),
 		OBJECT("Object"),
 		BACKGROUND("Background");
 		
@@ -106,6 +107,7 @@ public class Zone extends Token {
     private int feetPerCell = DEFAULT_FEET_PER_CELL;
     
     private List<DrawnElement> drawables = new LinkedList<DrawnElement>();
+    private List<DrawnElement> gmDrawables = new LinkedList<DrawnElement>();
     private List<DrawnElement> objectDrawables = new LinkedList<DrawnElement>();
     private List<DrawnElement> backgroundDrawables = new LinkedList<DrawnElement>();
 
@@ -329,6 +331,7 @@ public class Zone extends Token {
     	switch(drawnElement.getDrawable().getLayer()){
     		case OBJECT: objectDrawables.add(drawnElement); break;
     		case BACKGROUND: backgroundDrawables.add(drawnElement); break;
+    		case GM: gmDrawables.add(drawnElement); break;
     		default:
     			drawables.add(drawnElement);
     			
@@ -346,6 +349,7 @@ public class Zone extends Token {
         			toRemoveList.add(element);
         			switch(element.getDrawable().getLayer()) {
         			case OBJECT: objectDrawables.add(element); break;
+        			case GM: gmDrawables.add(element);break;
         			case BACKGROUND: backgroundDrawables.add(element); break;
         			}
         		}
@@ -362,6 +366,11 @@ public class Zone extends Token {
     	return getDrawnElements(Zone.Layer.OBJECT);
     }
     
+    public List<DrawnElement> getGMDrawnElements() {
+    	System.out.println(getDrawnElements(Zone.Layer.GM).size());
+    	return getDrawnElements(Zone.Layer.GM);
+    }
+    
     public List<DrawnElement> getBackgroundDrawnElements() {
     	return getDrawnElements(Zone.Layer.BACKGROUND);
     }
@@ -369,6 +378,7 @@ public class Zone extends Token {
     public List<DrawnElement> getDrawnElements(Zone.Layer layer) {
     	switch(layer) {
     	case OBJECT: return objectDrawables;
+    	case GM: return gmDrawables;
     	case BACKGROUND: return backgroundDrawables;
     	default: return drawables;
     	}
@@ -379,6 +389,7 @@ public class Zone extends Token {
     	removeDrawable(drawables, drawableId);
     	removeDrawable(backgroundDrawables, drawableId);
     	removeDrawable(objectDrawables, drawableId);
+    	removeDrawable(gmDrawables, drawableId);
     }
 
     private void removeDrawable(List<DrawnElement> drawableList, GUID drawableId) {
@@ -447,6 +458,7 @@ public class Zone extends Token {
 		list.addAll(getDrawnElements());
 		list.addAll(getObjectDrawnElements());
 		list.addAll(getBackgroundDrawnElements());
+		list.addAll(getGMDrawnElements());
 		
 		return list;
 	}
