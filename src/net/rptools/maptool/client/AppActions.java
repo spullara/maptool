@@ -1095,6 +1095,7 @@ public class AppActions {
 			MapTool.stopServer();
 			
 			// Install a temporary gimped campaign until we get the one from the server
+			final Campaign oldCampaign = MapTool.getCampaign();
 			MapTool.setCampaign(new Campaign());
 
 			// connecting
@@ -1110,7 +1111,6 @@ public class AppActions {
 
 				public void run() {
 					boolean failed = false;
-					Campaign campaign = MapTool.getCampaign();
 					try {
 						MapTool.createConnection(dialog.getServer(), dialog
 								.getPort(), new Player(dialog.getUsername(),
@@ -1124,9 +1124,10 @@ public class AppActions {
 						failed = true;
 					}
 					
-					if (failed) {
+					if (failed || MapTool.getConnection() == null) {
+						MapTool.getFrame().hideGlassPane();
 						try {
-							MapTool.startPersonalServer(campaign);
+							MapTool.startPersonalServer(oldCampaign);
 						} catch (IOException ioe) {
 							MapTool.showError("Could not restart personal server");
 						}

@@ -367,7 +367,6 @@ public class Zone extends Token {
     }
     
     public List<DrawnElement> getGMDrawnElements() {
-    	System.out.println(getDrawnElements(Zone.Layer.GM).size());
     	return getDrawnElements(Zone.Layer.GM);
     }
     
