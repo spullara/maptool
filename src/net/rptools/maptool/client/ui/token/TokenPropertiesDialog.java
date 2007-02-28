@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.AbstractButton;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
@@ -53,8 +52,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -70,6 +67,7 @@ import javax.swing.table.AbstractTableModel;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.swing.AbeilleDialog;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Association;
@@ -82,8 +80,6 @@ import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.util.ImageManager;
 
 import com.jeta.forms.components.image.ImageComponent;
-import com.jeta.forms.components.panel.FormPanel;
-import com.jeta.forms.gui.form.FormAccessor;
 import com.jidesoft.grid.AbstractPropertyTableModel;
 import com.jidesoft.grid.Property;
 import com.jidesoft.grid.PropertyPane;
@@ -98,35 +94,9 @@ import com.jidesoft.swing.Selectable;
  * @author jgorrell
  * @version $Revision$ $Date$ $Author$
  */
-public class TokenPropertiesDialog extends JDialog implements ActionListener,
+public class TokenPropertiesDialog extends AbeilleDialog implements ActionListener,
 		ModelChangeListener {
 
-	private AbstractButton okButton;
-	private AbstractButton cancelButton;
-	private JTextField tokenName;
-	private JTextField tokenGMName;
-	private JLabel tokenGMNameLabel;
-	private ImageComponent tokenIcon;
-	private JTextArea notes;
-	private JTextArea gmNotes;
-	private JPanel gmNotesPanel;
-	private JComboBox shape;
-	private JComboBox size;
-	private JCheckBox snapToGrid;
-	private JCheckBox visible;
-	private JPanel statesPanel;
-	private Token token;
-	private boolean tokenSaved;
-	private JLabel visibleLabel;
-	private PropertyTable propertyTable;
-	private JComboBox propertyTypeCombo;
-	private JComboBox tokenTypeCombo;
-	private JCheckBox allPlayersCheckbox;
-	private CheckBoxListWithSelectable ownerList;
-	private JTabbedPane tabs;
-	private JTable macroTable;
-	private JTable speechTable;
-	
 	private static final int INDX_NOTES = 0;
 	private static final int INDX_PROPERTIES = 1;
 	private static final int INDX_STATE = 2;
@@ -134,6 +104,9 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	private static final int INDX_SPEECH = 4;
 	private static final int INDX_OWNERSHIP = 5;
 	private static final int INDX_CONFIG = 6;
+
+	private Token token;
+	private boolean tokenSaved;
 	
 	/**
 	 * The size used to constrain the icon.
@@ -147,133 +120,201 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	 *            The token being displayed.
 	 */
 	public TokenPropertiesDialog() {
-		super(MapTool.getFrame(), "Token Properties", true);
+		super("net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.jfrm", MapTool.getFrame(), "Token Properties", true);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		FormPanel panel = new FormPanel(
-				"net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.jfrm");
 
-		tabs = panel.getTabbedPane("tabs");
+		initNotesPanel();
+		initTokenDetails();
+		initConfigPanel();
+		initButtons();
+		initPropertiesPanel();
+		initStatesPanel();
+		initOwnershipPanel();
+		initMacroPanel();
+		initSpeechPanel();
 		
-		initNotesPanel(panel);
-		initTokenDetails(panel);
-		initConfigPanel(panel);
-		initButtons(panel);
-		initPropertiesPanel(panel);
-		initStatesPanel(panel);
-		initOwnershipPanel(panel);
-		initMacroPanel(panel);
-		initSpeechPanel(panel);
-		
-		add(panel);
 		pack();
 	}
 	
-	private void initMacroPanel(FormPanel panel) {
+	public JTabbedPane getTabbedPane() {
+		return (JTabbedPane)getComponent("tabs");
+	}
 
-		macroTable = panel.getTable("macroTable");
-		
+	public JTextArea getNotesTextArea() {
+		return (JTextArea) getComponent("notes");
 	}
 	
-	private void initSpeechPanel(FormPanel panel) {
-
-		speechTable = panel.getTable("speechTable");
-		
+	public JTextArea getGMNotesTextArea() {
+		return (JTextArea) getComponent("gmNotes");
 	}
 	
-	private void initOwnershipPanel(FormPanel panel) {
-	
-		allPlayersCheckbox = panel.getCheckBox("allPlayersCheckbox");
-		
-		ownerList = new CheckBoxListWithSelectable();
-		
-		panel.getFormAccessor("ownershipPanel").replaceBean("ownershipList", new JScrollPane(ownerList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
-	}
-
-	private void initNotesPanel(FormPanel panel) {
-		
-		notes = (JTextArea) panel.getTextComponent("notes");
-		notes.addMouseListener(new MouseHandler(notes));
-
-		gmNotes = (JTextArea) panel.getTextComponent("gmNotes");
-		gmNotes.addMouseListener(new MouseHandler(gmNotes));
-
-		gmNotesPanel = panel.getPanel("gmNotesPanel");
+	private JLabel getGMNameLabel() {
+		return (JLabel) getComponent("tokenGMNameLabel");
 	}
 	
-	private void initTokenDetails(FormPanel panel) {
-		tokenName = panel.getTextField("tokenName");
-		tokenGMName = panel.getTextField("tokenGMName");
-		tokenIcon = (ImageComponent) panel.getComponentByName("tokenIcon");
-		tokenIcon.setPreferredSize(new Dimension(100, 100));
-		tokenIcon.setMinimumSize(new Dimension(100, 100));
-		
-		tokenGMNameLabel = panel.getLabel("tokenGMNameLabel");
-		
-		tokenTypeCombo = panel.getComboBox("typeCombo");
-		DefaultComboBoxModel model = new DefaultComboBoxModel();
-		model.addElement(Token.Type.NPC);
-		model.addElement(Token.Type.PC);
-		tokenTypeCombo.setModel(model);
-	}
-
-	private void initConfigPanel(FormPanel panel) {
-
-		visible = panel.getCheckBox("visible");
-		visibleLabel = panel.getLabel("visibleLabel");
-
-		shape = panel.getComboBox("shape");
-		shape.setModel(new DefaultComboBoxModel(Token.TokenShape.values()));
-
-		DefaultComboBoxModel model = new DefaultComboBoxModel(TokenSize.Size.values());
-		model.insertElementAt("Free Size", 0);
-		size = panel.getComboBox("size");
-		size.setModel(model);
-		
-		snapToGrid = panel.getCheckBox("snapToGrid");
+	public JTextField getNameTextField() {
+		return (JTextField) getComponent("tokenName");
 	}
 	
-	private void initButtons(FormPanel panel) {
-		okButton = panel.getButton("okButton");
-		okButton.addActionListener(this);
-		getRootPane().setDefaultButton((JButton) okButton);
-		
-		cancelButton = panel.getButton("cancelButton");
-		cancelButton.addActionListener(this);
+	public JTextField getGMNameTextField() {
+		return (JTextField) getComponent("tokenGMName");
 	}
 	
-	private void initPropertiesPanel(FormPanel panel) {
+	public JComboBox getTypeCombo() {
+		JComboBox combo = (JComboBox) getComponent("typeCombo");
+		if (initialize(combo)) {
+			
+			DefaultComboBoxModel model = new DefaultComboBoxModel();
+			model.addElement(Token.Type.NPC);
+			model.addElement(Token.Type.PC);
+			combo.setModel(model);
+		}
+		return combo;
+	}
+	
+	public ImageComponent getTokenIconPanel() {
+		ImageComponent component = (ImageComponent) getComponent("tokenIcon");
+		if (initialize(component)) {
+			component.setPreferredSize(new Dimension(100, 100));
+			component.setMinimumSize(new Dimension(100, 100));
+		}
+		return component;
+	}
+	
+	public JComboBox getShapeCombo() {
+		JComboBox combo = (JComboBox) getComponent("shape");
+		if (initialize(combo)) {
+			combo.setModel(new DefaultComboBoxModel(Token.TokenShape.values()));
+		}
+		return combo;
+	}
 
-		propertyTable = new PropertyTable();
+	public JComboBox getSizeCombo() {
+		JComboBox combo = (JComboBox) getComponent("size");
+		if (initialize(combo)) {
+			DefaultComboBoxModel model = new DefaultComboBoxModel(TokenSize.Size.values());
+			model.insertElementAt("Free Size", 0);
+			combo.setModel(model);
+		}
+		return combo;
+	}
+
+	public JComboBox getPropertyTypeCombo() {
+		return (JComboBox) getComponent("propertyTypeCombo");
+	}
+
+	public JButton getOKButton() {
+		JButton button = (JButton) getComponent("okButton");
+		if (initialize(button)) {
+			button.addActionListener(this);
+			getRootPane().setDefaultButton((JButton) button);
+		}
+		return button;
+	}
+
+	public JButton getCancelButton() {
+		JButton button = (JButton) getComponent("cancelButton");
+		if (initialize(button)) {
+			button.addActionListener(this);
+		}
+		return button;
+	}
+
+	public JCheckBox getSnapToGridCheckBox() {
+		return (JCheckBox) getComponent("snapToGrid");
+	}
+	
+	public PropertyTable getPropertyTable() {
+		return (PropertyTable) getComponent("propertiesTable");
+	}
+	
+	public JPanel getStatesPanel() {
+		JPanel panel = (JPanel) getComponent("statesPanel");
+		if (initialize(panel)) {
+			panel.removeAll();
+			Set<String> states = TokenStates.getStates();
+			panel.setLayout(new GridLayout(0, 4));
+			for (String state : states) {
+				panel.add(new JCheckBox(state));
+			}		
+		}
+		return panel;
+	}
+	
+	public JCheckBox getVisibleCheckBox() {
+		return (JCheckBox) getComponent("visible");
+	}
+	
+	public JCheckBox getAllPlayersCheckBox() {
+		return (JCheckBox) getComponent("allPlayersCheckbox");
+	}
+	
+	public JTable getMacroTable() {
+		return (JTable) getComponent("macroTable");
+	}
+	
+	public JTable getSpeechTable() {
+		return (JTable) getComponent("speechTable");
+	}
+
+	private JLabel getVisibleLabel() {
+		return (JLabel) getComponent("visibleLabel");
+	}
+	
+	private JPanel getGMNotesPanel() {
+		return (JPanel) getComponent("gmNotesPanel");
+	}
+	
+	public CheckBoxListWithSelectable getOwnerList() {
+		return (CheckBoxListWithSelectable) getComponent("ownerList");
+	}
+	
+	private void initMacroPanel() {}
+	
+	private void initSpeechPanel() {}
+	
+	private void initOwnershipPanel() {
+		
+		CheckBoxListWithSelectable list = new CheckBoxListWithSelectable();
+		list.setName("ownerList");
+		replaceComponent("ownershipPanel", "ownershipList", new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+	}
+
+	private void initNotesPanel() {
+		getNotesTextArea().addMouseListener(new MouseHandler(getNotesTextArea()));
+		getGMNotesTextArea().addMouseListener(new MouseHandler(getGMNotesTextArea()));
+	}
+	
+	private void initTokenDetails() {
+//		tokenGMNameLabel = panel.getLabel("tokenGMNameLabel");
+	}
+
+	private void initConfigPanel() {}
+	
+	private void initButtons() {
+		// This will initialize them
+		getOKButton();
+		getCancelButton();
+	}
+	
+	private void initPropertiesPanel() {
+
+		PropertyTable propertyTable = new PropertyTable();
+		propertyTable.setName("propertiesTable");
 		
 		PropertyPane pane = new PropertyPane(propertyTable);
 		pane.setPreferredSize(new Dimension(100, 300));
 		
-		FormAccessor accessor = panel.getFormAccessor("propertiesPanel");
-		accessor.replaceBean("propertiesTable", pane);
-		
-		propertyTypeCombo = panel.getComboBox("propertyTypeCombo");
+		replaceComponent("propertiesPanel", "propertiesTable", pane);
 	}
 
-	private void initStatesPanel(FormPanel panel) {
-		// Set up all of the state combo boxes.
-		statesPanel = panel.getPanel("statesPanel");
-		statesPanel.removeAll();
-		Set<String> states = TokenStates.getStates();
-		statesPanel.setLayout(new GridLayout(0, 4));
-		for (String state : states) {
-			statesPanel.add(new JCheckBox(state));
-		}		
+	private void initStatesPanel() {
 	}
 	
 	@Override
 	public void setVisible(boolean b) {
 		if(b) {
 			SwingUtil.centerOver(this, MapTool.getFrame());
-
-			if (!MapTool.getPlayer().isGM()) {
-				visible.setVisible(false);
-				visibleLabel.setVisible(false);
-			}
 		}
 		super.setVisible(b);
 	}
@@ -286,11 +327,11 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent aE) {
-		if (aE.getSource() == okButton) {
+		if (aE.getSource() == getOKButton()) {
 			updateToken();
 			MapTool.getFrame().updateTokenTree();
 			setVisible(false);
-		} else if (aE.getSource() == cancelButton) {
+		} else if (aE.getSource() == getCancelButton()) {
 			setVisible(false);
 		} 
 		
@@ -319,7 +360,7 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 	public void updateToken() {
 
 		// Check the name
-		String name = tokenName.getText();
+		String name = getNameTextField().getText();
 		if (name == null || (name = name.trim()).length() == 0) {
 			JOptionPane.showMessageDialog(this, "A name is required.");
 			throw new IllegalStateException("A name is required.");
@@ -327,24 +368,24 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 
 		// Set the token values
 		token.setName(name);
-		token.setGMName(tokenGMName.getText());
-		token.setNotes(notes.getText());
-		token.setGMNote(gmNotes.getText());
-		token.setShape((Token.TokenShape) shape.getSelectedItem());
-		token.setSnapToGrid(snapToGrid.isSelected());
-		token.setVisible(visible.isSelected());
-		token.setType((Token.Type) tokenTypeCombo.getSelectedItem());
+		token.setGMName(getGMNameTextField().getText());
+		token.setNotes(getNotesTextArea().getText());
+		token.setGMNote(getGMNotesTextArea().getText());
+		token.setShape((Token.TokenShape) getShapeCombo().getSelectedItem());
+		token.setSnapToGrid(getSnapToGridCheckBox().isSelected());
+		token.setVisible(getVisibleCheckBox().isSelected());
+		token.setType((Token.Type) getTypeCombo().getSelectedItem());
 
 		// Get size
-		if (size.getSelectedIndex() == 0) {
+		if (getSizeCombo().getSelectedIndex() == 0) {
 			token.setSnapToScale(false);
 		} else {
 			token.setSnapToScale(true);
-			token.setSize(((TokenSize.Size) size.getSelectedItem()).value());
+			token.setSize(((TokenSize.Size) getSizeCombo().getSelectedItem()).value());
 		} // endif
 
 		// Get the states
-		Component[] components = statesPanel.getComponents();
+		Component[] components = getStatesPanel().getComponents();
 		for (int i = 0; i < components.length; i++) {
 			JCheckBox cb = (JCheckBox) components[i];
 			String state = cb.getText();
@@ -354,20 +395,20 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 		
 		// Ownership
 		token.clearAllOwners();
-		if (allPlayersCheckbox.isSelected()) {
+		if (getAllPlayersCheckBox().isSelected()) {
 			token.setAllOwners();
 		}
 		
-		for (int i = 0; i < ownerList.getModel().getSize(); i++) {
-			DefaultSelectable selectable = (DefaultSelectable) ownerList.getModel().getElementAt(i);
+		for (int i = 0; i < getOwnerList().getModel().getSize(); i++) {
+			DefaultSelectable selectable = (DefaultSelectable) getOwnerList().getModel().getElementAt(i);
 			if (selectable.isSelected()) {
 				token.addOwner((String) selectable.getObject());
 			}
 		}
 		
 		// Macros
-		token.setMacroMap(((KeyValueTableModel)macroTable.getModel()).getMap());
-		token.setSpeechMap(((KeyValueTableModel)speechTable.getModel()).getMap());
+		token.setMacroMap(((KeyValueTableModel)getMacroTable().getModel()).getMap());
+		token.setSpeechMap(((KeyValueTableModel)getSpeechTable().getModel()).getMap());
 		
 		tokenSaved = true;
 	}
@@ -394,26 +435,46 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 			List<String> typeList = new ArrayList<String>();
 			typeList.addAll(MapTool.getCampaign().getTokenTypes());
 			Collections.sort(typeList);
-			propertyTypeCombo.setModel(new DefaultComboBoxModel(typeList.toArray()));
+			getPropertyTypeCombo().setModel(new DefaultComboBoxModel(typeList.toArray()));
 
 			setFields();
 			updateView();
 		}
 
-		tabs.setSelectedIndex(0);
+		getTabbedPane().setSelectedIndex(0);
 	}
 	
 	private void updateView() {
 		
 		Player player = MapTool.getPlayer();
 		
-		// TODO: Figure out a way to not hard wire this.  It's ugly.  I hate it.  Please, for the love of all that is holy FIX THIS CODE !
-		tabs.setEnabledAt(INDX_PROPERTIES, player.isGM() || token.isOwner(player.getName()));
-		tabs.setEnabledAt(INDX_STATE, player.isGM() || token.isOwner(player.getName()));
-		tabs.setEnabledAt(INDX_MACROS, player.isGM() || token.isOwner(player.getName()));
-		tabs.setEnabledAt(INDX_SPEECH, player.isGM() || token.isOwner(player.getName()));
-		tabs.setEnabledAt(INDX_OWNERSHIP, player.isGM() || token.isOwner(player.getName()));
-		tabs.setEnabledAt(INDX_CONFIG, player.isGM() || token.isOwner(player.getName()));
+		boolean isEnabled = player.isGM() || token.isOwner(player.getName());
+		
+		getTabbedPane().setEnabledAt(INDX_PROPERTIES, isEnabled);
+		getTabbedPane().setEnabledAt(INDX_STATE, isEnabled);
+		getTabbedPane().setEnabledAt(INDX_MACROS, isEnabled);
+		getTabbedPane().setEnabledAt(INDX_SPEECH, isEnabled);
+		getTabbedPane().setEnabledAt(INDX_OWNERSHIP, isEnabled);
+		getTabbedPane().setEnabledAt(INDX_CONFIG, isEnabled);
+		
+		// Set the editable & enabled state
+		boolean editable = player.isGM() || !MapTool.getServerPolicy().useStrictTokenManagement() || token.isOwner(player.getName());
+		getOKButton().setEnabled(editable);
+		
+		getNotesTextArea().setEditable(editable);
+		getNameTextField().setEditable(editable);
+		getShapeCombo().setEnabled(editable);
+		getSizeCombo().setEnabled(editable);
+		getSnapToGridCheckBox().setEnabled(editable);
+		getVisibleCheckBox().setEnabled(editable);
+		getTypeCombo().setSelectedItem(token.getType());
+
+		getGMNotesPanel().setVisible(player.isGM());
+		getGMNameTextField().setVisible(player.isGM());
+		getGMNameLabel().setVisible(player.isGM());
+		getTypeCombo().setEnabled(player.isGM());
+		getVisibleCheckBox().setVisible(player.isGM());
+		getVisibleLabel().setVisible(player.isGM());
 	}
 
 	/**
@@ -423,90 +484,56 @@ public class TokenPropertiesDialog extends JDialog implements ActionListener,
 
 		Player player = MapTool.getPlayer();
 
-		// No token? clear the dialog
 		boolean editable = player.isGM()
 				|| !MapTool.getServerPolicy().useStrictTokenManagement() || token.isOwner(player.getName());
-		if (token == null) {
-			tokenName.setText("");
-			tokenName.setEditable(false);
-			tokenIcon.setIcon(null);
-			notes.setText("");
-			notes.setEditable(false);
-			shape.setSelectedIndex(-1);
-			shape.setEnabled(false);
-			size.setSelectedIndex(-1);
-			size.setEnabled(false);
-			snapToGrid.setSelected(false);
-			snapToGrid.setEnabled(false);
-			visible.setSelected(false);
-			visible.setEnabled(false);
-			okButton.setEnabled(false);
-			
-			propertyTable.setModel(new EmptyPropertyTableModel());
-			return;
-		}
 
 		// Set the fields from the token.
-		tokenName.setText(token.getName());
-		tokenGMName.setText(token.getGMName());
-		tokenIcon.setIcon(getTokenIcon());
-		notes.setText(token.getNotes());
-		gmNotes.setText(token.getGMNotes());
-		shape.setSelectedItem(token.getShape());
-		snapToGrid.setSelected(token.isSnapToGrid());
-		visible.setSelected(token.isVisible());
+		getNameTextField().setText(token.getName());
+		getGMNameTextField().setText(token.getGMName());
+		
+		getTokenIconPanel().setIcon(getTokenIcon());
+		getNotesTextArea().setText(token.getNotes());
+		getGMNotesTextArea().setText(token.getGMNotes());
+		getShapeCombo().setSelectedItem(token.getShape());
+		getSnapToGridCheckBox().setSelected(token.isSnapToGrid());
+		getVisibleCheckBox().setSelected(token.isVisible());
 		if (!token.isSnapToScale())
-			size.setSelectedIndex(0);
+			getSizeCombo().setSelectedIndex(0);
 		else
-			size.setSelectedItem(TokenSize.getSizeInstance(
+			getSizeCombo().setSelectedItem(TokenSize.getSizeInstance(
         token.getSize()));
 
-		// Set the editable & enabled state
-		okButton.setEnabled(editable);
-		notes.setEditable(editable);
-		tokenName.setEditable(editable);
-		shape.setEnabled(editable);
-		size.setEnabled(editable);
-		snapToGrid.setEnabled(editable);
-		visible.setEnabled(editable);
-		tokenTypeCombo.setSelectedItem(token.getType());
-
-		gmNotesPanel.setVisible(player.isGM());
-		tokenGMName.setVisible(player.isGM());
-		tokenGMNameLabel.setVisible(player.isGM());
-		tokenTypeCombo.setEnabled(player.isGM());
-		
-		propertyTypeCombo.setSelectedItem(token.getPropertyType());
+		getPropertyTypeCombo().setSelectedItem(token.getPropertyType());
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				propertyTable.setModel(new TokenPropertyTableModel());
-				propertyTable.expandAll();
+				getPropertyTable().setModel(new TokenPropertyTableModel());
+				getPropertyTable().expandAll();
 			}
 		});
 				
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				ownerList.setModel(new OwnerListModel());
+				getOwnerList().setModel(new OwnerListModel());
 			}
 		});
 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				macroTable.setModel(new MacroTableModel(token));
+				getMacroTable().setModel(new MacroTableModel(token));
 			}
 		});
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				speechTable.setModel(new SpeechTableModel(token));
+				getSpeechTable().setModel(new SpeechTableModel(token));
 			}
 		});
 		
-		allPlayersCheckbox.setSelected(token.isOwnedByAll());
+		getAllPlayersCheckBox().setSelected(token.isOwnedByAll());
 
 		// Handle the states
-		Component[] states = statesPanel.getComponents();
+		Component[] states = getStatesPanel().getComponents();
 		for (int i = 0; i < states.length; i++) {
 			JCheckBox state = (JCheckBox) states[i];
 			state.setEnabled(token != null && editable);
