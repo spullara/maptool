@@ -125,6 +125,8 @@ public class MapToolUtil {
     	}
 
     	boolean random = (isToken && AppPreferences.getDuplicateTokenNumber().equals(Token.NUM_RANDOM));
+    	boolean addNumToGM = !AppPreferences.getTokenNumberDisplay().equals(Token.NUM_ON_NAME);
+    	boolean addNumToName = !AppPreferences.getTokenNumberDisplay().equals(Token.NUM_ON_GM);
     	
 		if (zone.getTokenByName(newName) != null || random)
 		{		
@@ -150,8 +152,14 @@ public class MapToolUtil {
 					num++;
 			}
 
-			newName += " ";
-			newName += num;
+			if ( addNumToName ) {
+				newName += " ";
+				newName += num;
+			}
+			
+			if ( addNumToGM ) {
+				token.setGMName(Integer.toString(num));
+			}
 		}	
 
 		return newName;

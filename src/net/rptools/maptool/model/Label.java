@@ -45,6 +45,10 @@ public class Label {
         this.y = y;
     }
     
+    public Label(Label label) {
+    	this(label.label, label.x, label.y);
+    }
+    
     public String getLabel() {
         return label;
     }

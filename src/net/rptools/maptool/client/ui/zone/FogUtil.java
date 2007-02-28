@@ -302,33 +302,20 @@ public class FogUtil {
 	 */
 	public static Point calculateVisionCenter(Token token, Vision vision, ZoneRenderer renderer, int x, int y, int width, int height) {
 		
+		Point p = new Point(0,0);
+		
 		switch(vision.getAnchor()) {
 		case CENTER:
-			Grid grid = renderer.getZone().getGrid();
-			if (grid instanceof HexGrid && token.isToken()) {
-				
-				// move to the top right of the token's base cell
-				x += grid.getCellOffset().width;
-	            y += grid.getCellOffset().height;
-	            
-	            // now move to the top right of the token's bounding rectangle
-				int scaledGridWidth = (int)(grid.getCellWidth()*renderer.getScale());
-				int scaledGridHeight = (int)(grid.getCellHeight()*renderer.getScale());
-	            x += HexGridUtil.getPositionXOffset(token.getSize(), scaledGridWidth, (HexGrid)grid);
-	            y += HexGridUtil.getPositionYOffset(token.getSize(), scaledGridHeight, (HexGrid)grid);
-	     
-	            // At last! from here we can move to the token's center!
-	            Point p = HexGridUtil.getCellGroupCenterOffset((HexGrid)grid, token.getSize(), 1);
-        		x += p.x;
-        		y += p.y;
-			}
-			else {
-				x += width/2;
-				y += height/2;
-			}
+			Grid grid = renderer.getZone().getGrid();			
+			Point pOffset = grid.cellGroupCenterOffset(height, width, token.isToken());
+			p.x += pOffset.x;
+			p.y += pOffset.y;
 		}
+		
+		p.x += x;
+		p.y += y;
 
-		return new Point(x, y);
+		return p;
 	}
 	
 	public static void main(String[] args) {

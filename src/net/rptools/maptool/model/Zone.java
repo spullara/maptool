@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,6 +44,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
+import net.rptools.maptool.client.AppPreferences;
 
 /**
  * This object represents the maps that will appear for placement of {@link Token}s.  This
@@ -140,6 +142,68 @@ public class Zone extends Token {
         this.type = type;
         
         setGrid(new SquareGrid());
+    }
+    
+    public Zone(Zone zone) {
+    	super(zone.getAssetID());
+    	type = zone.type;
+    	
+    	setName("copy of " + zone.getName());
+
+    	try{
+        	grid = (Grid)zone.grid.clone();
+        	grid.setZone(this);
+		} catch (CloneNotSupportedException cnse) {
+			cnse.printStackTrace();
+		}
+
+        feetPerCell = zone.feetPerCell;
+        
+        imageScaleX = zone.imageScaleX;
+        imageScaleY = zone.imageScaleY;
+        
+		if (zone.drawables != null) {
+			drawables = new LinkedList<DrawnElement>();
+			drawables.addAll(zone.drawables);
+		}
+		
+		if (zone.objectDrawables != null) {
+			objectDrawables = new LinkedList<DrawnElement>();
+			objectDrawables.addAll(zone.objectDrawables);
+		}
+
+		if (zone.backgroundDrawables != null) {
+			backgroundDrawables = new LinkedList<DrawnElement>();
+			backgroundDrawables.addAll(zone.backgroundDrawables);
+		}
+		
+		if (zone.gmDrawables != null) {
+			gmDrawables = new LinkedList<DrawnElement>();
+			gmDrawables.addAll(zone.gmDrawables);
+		}
+		
+		if (zone.labels != null) {
+			Iterator i = zone.labels.keySet().iterator();
+			while (i.hasNext()) {
+				this.putLabel( new Label( zone.labels.get(i.next()) ) );
+			}
+		}
+		
+		if (zone.tokenMap != null) {
+			Iterator i = zone.tokenMap.keySet().iterator();
+			while (i.hasNext()) {
+				this.putToken( new Token( zone.tokenMap.get(i.next()) ) );
+			}
+		}
+
+        exposedArea = (Area)zone.exposedArea.clone();
+        topology = (Area)zone.topology.clone();
+        
+        // in case the current map is visible but user wants the new map hidden or FOW
+        hasFog = AppPreferences.getNewMapsHaveFOW();
+        setVisible(AppPreferences.getNewMapsVisible());
+        
+            
     }
     
     public void setGrid(Grid grid) {

@@ -47,6 +47,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
+import javax.swing.JOptionPane;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
@@ -595,6 +596,24 @@ public class AppActions {
 			AppState.setShowLightRadius(!AppState.isShowLightRadius());
 			if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
 				MapTool.getFrame().getCurrentZoneRenderer().repaint();
+			}
+		}
+
+	};
+	
+	public static final Action COPY_ZONE = new ZoneAdminClientAction() {
+		{
+			init("action.copyZone");
+		}
+
+		public void execute(ActionEvent e) {
+
+			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+			String zoneName = JOptionPane.showInputDialog("New map name:", "copy of " + zone.getName());
+			if (zoneName != null) {
+				Zone zoneCopy = new Zone(zone);
+				zoneCopy.setName(zoneName);
+				MapTool.addZone(zoneCopy);
 			}
 		}
 

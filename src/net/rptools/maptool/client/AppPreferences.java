@@ -47,6 +47,9 @@ public class AppPreferences {
     private static final String KEY_SAVE_REMINDER = "autoSaveIncrement";
     private static final boolean DEFAULT_SAVE_REMINDER = true;
     
+    private static final String KEY_TOKEN_NUMBER_DISPLAY = "tokenNumberDisplayg";
+    private static final String DEFAULT_TOKEN_NUMBER_DISPLAY = Token.NUM_ON_NAME;
+    
     private static final String KEY_AUTO_SAVE_INCREMENT = "autoSaveIncrement";
     private static final int DEFAULT_AUTO_SAVE_INCREMENT = 2;
     
@@ -117,6 +120,14 @@ public class AppPreferences {
     
     public static int getAutoSaveIncrement() {
     	return prefs.getInt(KEY_AUTO_SAVE_INCREMENT, DEFAULT_AUTO_SAVE_INCREMENT);
+    }
+    
+    public static void setTokenNumberDisplay (String display) {
+    	prefs.put(KEY_TOKEN_NUMBER_DISPLAY, display);
+    }
+    
+    public static String getTokenNumberDisplay () {
+        return prefs.get(KEY_TOKEN_NUMBER_DISPLAY, DEFAULT_TOKEN_NUMBER_DISPLAY);
     }
     
     public static void setDuplicateTokenNumber (String numbering) {

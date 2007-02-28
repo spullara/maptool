@@ -45,6 +45,7 @@ public class PreferencesDialog extends JDialog {
 	private JCheckBox backgroundsStartFreeSizeCheckBox;
 	private JComboBox duplicateTokenCombo;
 	private JComboBox tokenNamingCombo;
+	private JComboBox showNumberingCombo;
 
 	// Defaults
 	private JComboBox defaultGridTypeCombo;
@@ -73,7 +74,7 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		
-		
+		showNumberingCombo = panel.getComboBox("showNumberingCombo");
 		saveReminderCheckBox = panel.getCheckBox("saveReminderCheckBox");
 		autoSaveSpinner = panel.getSpinner("autoSaveSpinner");
 		duplicateTokenCombo = panel.getComboBox("duplicateTokenCombo");
@@ -230,6 +231,17 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		
+		DefaultComboBoxModel showNumModel = new DefaultComboBoxModel();
+		showNumModel.addElement(Token.NUM_ON_NAME);
+		showNumModel.addElement(Token.NUM_ON_GM);
+		showNumModel.addElement(Token.NUM_ON_BOTH);
+		showNumModel.setSelectedItem(AppPreferences.getTokenNumberDisplay());
+		showNumberingCombo.setModel(showNumModel);
+		showNumberingCombo.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				AppPreferences.setTokenNumberDisplay((String) showNumberingCombo.getSelectedItem());
+			}
+		});
 		
 		add(panel);
 		

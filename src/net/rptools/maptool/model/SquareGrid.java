@@ -3,10 +3,13 @@ package net.rptools.maptool.model;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppState;
@@ -142,6 +145,33 @@ public class SquareGrid extends Grid {
             	g.fillRect((int)(col + offX - (AppState.getGridSize()/2)), bounds.y, AppState.getGridSize(), bounds.height);
             }
         }
+	}
+	
+	@Override
+	public Set<CellPoint> getOccupiedCells(int height, int width, CellPoint baseCellPoint) {
+		Set<CellPoint> occupiedSet = new HashSet<CellPoint>();
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				occupiedSet.add(new CellPoint(baseCellPoint.x+x, baseCellPoint.y+y));
+			}
+		}
+		
+		return occupiedSet;
+	}
+	
+	@Override
+	public CellPoint getWaypointPosition(int height, int width, CellPoint baseCellPoint) {
+		return new CellPoint(baseCellPoint.x + width/2, baseCellPoint.y+height/2);
+	}
+	
+	@Override
+	public Point cellGroupCenterOffset(int height, int width, boolean isToken) {
+		return new Point (width/2, height/2);
+	}
+	
+	@Override
+	public Point cellGroupTopLeftOffset(int height, int width, boolean isToken) {
+		return new Point(0,0);
 	}
 
 }
