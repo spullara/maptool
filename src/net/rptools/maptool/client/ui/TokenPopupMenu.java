@@ -122,7 +122,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		menu.add(new ExposeVisibleAreaAction());
 		menu.add(new ExposeLastPathAction());
 		
-		if (getTokenUnderMouse().hasOwners()) {
+		if (getTokenUnderMouse().hasOwners() && MapTool.getPlayer().isGM()) {
 			menu.add(new ExposeVisibleAreaOnlyAction());
 		}
 		

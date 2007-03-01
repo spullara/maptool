@@ -835,18 +835,20 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 		});
 		
-		if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
-			actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
-				public void actionPerformed(ActionEvent e) {
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
 					FogUtil.exposeVisibleArea(renderer, renderer.getSelectedTokenSet());
-				}			
-			});
-			actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
-				public void actionPerformed(ActionEvent e) {
+				}
+			}			
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
 					FogUtil.exposeLastPath(renderer, renderer.getSelectedTokenSet());
-				}			
-			});
-		}
+				}
+			}			
+		});
 	}
 
 	private void cycleSelectedToken(int direction) {
