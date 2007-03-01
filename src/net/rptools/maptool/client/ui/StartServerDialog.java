@@ -28,7 +28,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -55,118 +54,10 @@ public class StartServerDialog extends AbeilleDialog {
 		super("net/rptools/maptool/client/ui/forms/startServerDialog.jfrm", MapTool.getFrame(), "Start Server", true);
 		setTitle("Start Server");
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+		init();
 		
 		pack();
-	}
-	
-	public JTextField getUsernameTextField() {
-		JTextField textfield = (JTextField) getComponent("usernameField");
-		if (initialize(textfield)) {
-			textfield.setText(prefs.getUsername());
-		}
-		return textfield;
-	}
-	
-	public JTextField getPortTextField() {
-		JTextField textfield = (JTextField) getComponent("portField");
-		if (initialize(textfield)) {
-			textfield.setText(Integer.toString(prefs.getPort()));
-		}
-		return textfield;
-	}
-	
-	public JTextField getGMPasswordTextField() {
-		JTextField textfield = (JTextField) getComponent("gmPasswordField");
-		if (initialize(textfield)) {
-			textfield.setText(prefs.getGMPassword());
-		}
-		return textfield;
-	}
-	
-	public JTextField getPlayerPasswordTextField() {
-		JTextField textfield = (JTextField) getComponent("playerPasswordField");
-		if (initialize(textfield)) {
-			textfield.setText(prefs.getPlayerPassword());
-		}
-		return textfield;
-	}
-	
-	public JTextField getRPToolsNameTextField() {
-		JTextField textfield = (JTextField) getComponent("rptoolsNameField");
-		if (initialize(textfield)) {
-		}
-		return textfield;
-	}
-	
-	public JButton getOKButton() {
-		JButton button = (JButton) getComponent("okButton");
-		if (initialize(button)) {
-			button.addActionListener(new java.awt.event.ActionListener() { 
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					
-					// TODO: put these into a validation method
-					if (getPortTextField().getText().length() == 0) {
-						MapTool.showError("Must supply a port");
-						return;
-					}
-					try {
-						Integer.parseInt(getPortTextField().getText());
-					} catch (NumberFormatException nfe) {
-						MapTool.showError("Port must be numeric");
-						return;
-					}
-
-					if (getUsernameTextField().getText().length() == 0) {
-						MapTool.showError("Must supply a username");
-						return;
-					}
-					
-					option = OPTION_OK;
-					setVisible(false);
-					
-					// Prefs
-					StartServerDialogPreferences prefs = new StartServerDialogPreferences();
-					prefs.setUsername(getUsernameTextField().getText());
-					prefs.setPort(Integer.parseInt(getPortTextField().getText()));
-					prefs.setGMPassword(getGMPasswordTextField().getText());
-					prefs.setPlayerPassword(getPlayerPasswordTextField().getText());
-					prefs.setRole(getRole());
-					prefs.setServerName(getRPToolsNameTextField().getText());
-				}
-			});
-			
-			getRootPane().setDefaultButton(button);
-		}
-		return button;
-	}
-
-	public JButton getCancelButton() {
-		JButton button = (JButton) getComponent("cancelButton");
-		if (initialize(button)) {
-			button.addActionListener(new ActionListener() { 
-				public void actionPerformed(ActionEvent e) {    
-					option = OPTION_CANCEL;
-					setVisible(false);
-				}
-			});
-		}
-		return button;
-	}
-	
-	public JComboBox getRoleCombo() {
-		JComboBox combo = (JComboBox) getComponent("roleCombo");
-		if (initialize(combo)) {
-			DefaultComboBoxModel model = new DefaultComboBoxModel(new String[]{"Player", "GM"});
-			combo.setModel(model);
-		}
-		return combo;
-	}
-	
-	public JCheckBox getUseStrictOwnershipCheckbox() {
-		JCheckBox checkbox = (JCheckBox) getComponent("strictOwnershipCheckbox");
-		if (initialize(checkbox)) {
-		}
-		return checkbox;
 	}
 	
 	public int getRole() {
@@ -184,6 +75,198 @@ public class StartServerDialog extends AbeilleDialog {
 		}
 	}
 
+	public int getOption() {
+		return option;
+	}
+
+	public JTextField getUsernameTextField() {
+		return (JTextField) getComponent("usernameField");
+	}
+	
+	public JTextField getPortTextField() {
+		return (JTextField) getComponent("portField");
+	}
+
+	public JTextField getGMPasswordTextField() {
+		return (JTextField) getComponent("gmPasswordField");
+	}
+	
+	public JTextField getPlayerPasswordTextField() {
+		return (JTextField) getComponent("playerPasswordField");
+	}
+	
+	public JTextField getRPToolsNameTextField() {
+		return (JTextField) getComponent("rptoolsNameField");
+	}
+
+	public JButton getOKButton() {
+		return (JButton) getComponent("okButton");
+	}
+	
+	public JButton getCancelButton() {
+		return (JButton) getComponent("cancelButton");
+	}
+
+	public JComboBox getRoleCombo() {
+		return (JComboBox) getComponent("roleCombo");
+	}
+	
+	public JCheckBox getUseStrictOwnershipCheckbox() {
+		return (JCheckBox) getComponent("strictOwnershipCheckbox");
+	}
+
+	public JButton getTestConnectionButton() {
+		return (JButton) getComponent("testConnectionButton");
+	}
+
+	public JCheckBox getRPToolsPrivateCheckbox() {
+		return (JCheckBox) getComponent("rptoolsPrivateCheckbox");
+	}
+	
+	public JCheckBox getPlayersCanRevealVisionCheckbox() {
+		return (JCheckBox) getComponent("playersCanRevealCheckbox");
+	}
+	
+	private void init() {
+		
+		initUsernameTextField();
+		initPortTextField();
+		initGMPasswordTextField();
+		initPlayerPasswordTextField();
+		initRPToolsNameTextField();
+		initOKButton();
+		initCancelButton();
+		initRoleCombo();
+		initUseStrictOwnershipCheckbox();
+		initTestConnectionButton();
+		initRPToolsPrivateCheckbox();
+		initPlayersCanRevealVisionCheckbox();
+	}
+	
+	private void initUsernameTextField() {
+		getUsernameTextField().setText(prefs.getUsername());
+	}
+
+	private void initPortTextField() {
+		getPortTextField().setText(Integer.toString(prefs.getPort()));
+	}
+	
+	private void initGMPasswordTextField() {
+		getGMPasswordTextField().setText(prefs.getGMPassword());
+	}
+
+	private void initPlayerPasswordTextField() {
+		getPlayerPasswordTextField().setText(prefs.getPlayerPassword());
+	}
+
+	private void initRPToolsNameTextField() {
+		getRPToolsNameTextField().setText(prefs.getRPToolsName());
+	}
+	
+	private void initOKButton() {
+		getOKButton().addActionListener(new java.awt.event.ActionListener() { 
+			public void actionPerformed(java.awt.event.ActionEvent e) {    
+				
+				// TODO: put these into a validation method
+				if (getPortTextField().getText().length() == 0) {
+					MapTool.showError("Must supply a port");
+					return;
+				}
+				try {
+					Integer.parseInt(getPortTextField().getText());
+				} catch (NumberFormatException nfe) {
+					MapTool.showError("Port must be numeric");
+					return;
+				}
+
+				if (getUsernameTextField().getText().length() == 0) {
+					MapTool.showError("Must supply a username");
+					return;
+				}
+				
+				option = OPTION_OK;
+				setVisible(false);
+				
+				// Prefs
+				prefs.setUsername(getUsernameTextField().getText());
+				prefs.setPort(Integer.parseInt(getPortTextField().getText()));
+				prefs.setGMPassword(getGMPasswordTextField().getText());
+				prefs.setPlayerPassword(getPlayerPasswordTextField().getText());
+				prefs.setRole(getRole());
+				prefs.setRPToolsName(getRPToolsNameTextField().getText());
+				prefs.setStrictTokenOwnership(getUseStrictOwnershipCheckbox().isSelected());
+				prefs.setRPToolsPrivate(getRPToolsPrivateCheckbox().isSelected());
+				prefs.setPlayersCanRevealVision(getPlayersCanRevealVisionCheckbox().isSelected());
+			}
+		});
+		getRootPane().setDefaultButton(getOKButton());
+	}
+	
+	private void initCancelButton() {
+		getCancelButton().addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) {    
+				option = OPTION_CANCEL;
+				setVisible(false);
+			}
+		});
+	}
+
+	private void initRoleCombo() {
+		DefaultComboBoxModel model = new DefaultComboBoxModel(new String[]{"Player", "GM"});
+		getRoleCombo().setModel(model);
+		getRoleCombo().setSelectedIndex(prefs.getRole());
+	}
+	
+	private void initUseStrictOwnershipCheckbox() {
+		getUseStrictOwnershipCheckbox().setSelected(prefs.useStrictTokenOwnership());
+	}
+	
+	private void initTestConnectionButton() {
+		getTestConnectionButton().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new Thread(new Runnable() {
+					public void run() {
+						
+						EchoServer server = null;
+						try {
+							// Create a temporary server that will listen on the port we
+							// want to start MapTool on.  This provides two things: First
+							// it tells us we can open that port, second it creates a way
+							// for the connection test service to call back and verify it is
+							// the type of service we want.
+							// LATER: Extend EchoServer to do something more than just parrot the input
+							server = new EchoServer(getPort());
+							server.start();
+							
+							if (MapToolRegistry.testConnection(getPort())) {
+								MapTool.showInformation("Success! I could successfully connect to your computer from the internet.");
+							} else {
+								MapTool.showError("Could not see your computer from the internet");
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+							MapTool.showError("Unable to see your computer from the internet.  Check your firewall port settings.");
+						} finally {
+							// Need to make sure it dies so that it doesn't keep the port open ...
+							// we're going to need it very soon !
+							if (server != null) {
+								server.stop();
+							}
+						}
+					}
+				}).start();
+			}
+		});
+	}
+	
+	private void initRPToolsPrivateCheckbox() {
+		getRPToolsPrivateCheckbox().setSelected(prefs.getRPToolsPrivate());
+	}
+	
+	private void initPlayersCanRevealVisionCheckbox() {
+		getPlayersCanRevealVisionCheckbox().setSelected(prefs.getPlayersCanRevealVision());
+	}
+	
 	public void setVisible(boolean b) {
 		
 		if (b) {
@@ -192,50 +275,5 @@ public class StartServerDialog extends AbeilleDialog {
 		super.setVisible(b);
 	}
 	
-	public int getOption() {
-		return option;
-	}
-	
-	public JButton getTestRegisterButton() {
-		JButton button = (JButton) getComponent("testConnectionButton");
-		if (initialize(button)) {
-			button.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					new Thread(new Runnable() {
-						public void run() {
-							
-							EchoServer server = null;
-							try {
-								// Create a temporary server that will listen on the port we
-								// want to start MapTool on.  This provides two things: First
-								// it tells us we can open that port, second it creates a way
-								// for the connection test service to call back and verify it is
-								// the type of service we want.
-								// LATER: Extend EchoServer to do something more than just parrot the input
-								server = new EchoServer(getPort());
-								server.start();
-								
-								if (MapToolRegistry.testConnection(getPort())) {
-									MapTool.showInformation("Success! I could successfully connect to your computer from the internet.");
-								} else {
-									MapTool.showError("Could not see your computer from the internet");
-								}
-							} catch (Exception e) {
-								e.printStackTrace();
-								MapTool.showError("Unable to see your computer from the internet.  Check your firewall port settings.");
-							} finally {
-								// Need to make sure it dies so that it doesn't keep the port open ...
-								// we're going to need it very soon !
-								if (server != null) {
-									server.stop();
-								}
-							}
-						}
-					}).start();
-				}
-			});
-		}
-		return button;
-	}
 	
 }

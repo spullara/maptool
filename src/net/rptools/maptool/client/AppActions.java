@@ -1035,14 +1035,11 @@ public class AppActions {
 					}
 
 					ServerPolicy policy = new ServerPolicy();
-					policy.setUseStrictTokenManagement(dialog
-							.useStrictTokenMovement());
+					policy.setUseStrictTokenManagement(dialog.getUseStrictOwnershipCheckbox().isSelected());
+					policy.setPlayersCanRevealVision(dialog.getPlayersCanRevealVisionCheckbox().isSelected());
 
-					ServerConfig config = new ServerConfig(dialog
-							.getGMPassword(), dialog.getPlayerPassword(),
-							dialog.getPort(), dialog.registerServer(), dialog
-									.getServerName(), dialog
-									.getServerPassword());
+					ServerConfig config = new ServerConfig(dialog.getGMPasswordTextField().getText(), dialog.getPlayerPasswordTextField().getText(),
+							dialog.getPort(), dialog.getRPToolsNameTextField().getText(), dialog.getRPToolsPrivateCheckbox().isSelected());
 
 					// Use the existing campaign
 					Campaign campaign = MapTool.getCampaign();
@@ -1051,17 +1048,14 @@ public class AppActions {
 					try {
 						ServerDisconnectHandler.disconnectExpected = true;
 						MapTool.stopServer();
-						MapTool.startServer(dialog.getUsername(), config,
-								policy, campaign);
+						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, campaign);
 
 						// Connect to server
 						MapTool.createConnection("localhost", dialog.getPort(),
-								new Player(dialog.getUsername(), dialog
-										.getRole(), dialog.getGMPassword()));
+								new Player(dialog.getUsernameTextField().getText(), dialog.getRole(), dialog.getGMPasswordTextField().getText()));
 
 						// connecting
-						MapTool.getFrame().getConnectionStatusPanel()
-								.setStatus(ConnectionStatusPanel.Status.server);
+						MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
 					} catch (UnknownHostException uh) {
 						MapTool
 								.showError("Whoah, 'localhost' is not a valid address.  Weird.");

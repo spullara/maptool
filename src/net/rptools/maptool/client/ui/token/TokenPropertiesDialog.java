@@ -123,6 +123,19 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		super("net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.jfrm", MapTool.getFrame(), "Token Properties", true);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 
+		init();
+		
+		pack();
+	}
+	
+	private void init() {
+		initTypeCombo();
+		initTokenIconPanel();
+		
+		initOKButton();
+		initCancelButton();
+		
+		// Panels
 		initNotesPanel();
 		initTokenDetails();
 		initConfigPanel();
@@ -132,8 +145,6 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		initOwnershipPanel();
 		initMacroPanel();
 		initSpeechPanel();
-		
-		pack();
 	}
 	
 	public JTabbedPane getTabbedPane() {
@@ -160,64 +171,64 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		return (JTextField) getComponent("tokenGMName");
 	}
 	
+	private void initTypeCombo() {
+		DefaultComboBoxModel model = new DefaultComboBoxModel();
+		model.addElement(Token.Type.NPC);
+		model.addElement(Token.Type.PC);
+		getTypeCombo().setModel(model);
+	}
+	
 	public JComboBox getTypeCombo() {
-		JComboBox combo = (JComboBox) getComponent("typeCombo");
-		if (initialize(combo)) {
-			
-			DefaultComboBoxModel model = new DefaultComboBoxModel();
-			model.addElement(Token.Type.NPC);
-			model.addElement(Token.Type.PC);
-			combo.setModel(model);
-		}
-		return combo;
+		return (JComboBox) getComponent("typeCombo");
+	}
+	
+	private void initTokenIconPanel() {
+		getTokenIconPanel().setPreferredSize(new Dimension(100, 100));
+		getTokenIconPanel().setMinimumSize(new Dimension(100, 100));
+		
 	}
 	
 	public ImageComponent getTokenIconPanel() {
-		ImageComponent component = (ImageComponent) getComponent("tokenIcon");
-		if (initialize(component)) {
-			component.setPreferredSize(new Dimension(100, 100));
-			component.setMinimumSize(new Dimension(100, 100));
-		}
-		return component;
+		return (ImageComponent) getComponent("tokenIcon");
+	}
+	
+	private void initShapeCombo() {
+		getShapeCombo().setModel(new DefaultComboBoxModel(Token.TokenShape.values()));
 	}
 	
 	public JComboBox getShapeCombo() {
-		JComboBox combo = (JComboBox) getComponent("shape");
-		if (initialize(combo)) {
-			combo.setModel(new DefaultComboBoxModel(Token.TokenShape.values()));
-		}
-		return combo;
+		return (JComboBox) getComponent("shape");
 	}
 
+	private void initSizeCombo() {
+		DefaultComboBoxModel model = new DefaultComboBoxModel(TokenSize.Size.values());
+		model.insertElementAt("Free Size", 0);
+		getSizeCombo().setModel(model);
+	}
+	
 	public JComboBox getSizeCombo() {
-		JComboBox combo = (JComboBox) getComponent("size");
-		if (initialize(combo)) {
-			DefaultComboBoxModel model = new DefaultComboBoxModel(TokenSize.Size.values());
-			model.insertElementAt("Free Size", 0);
-			combo.setModel(model);
-		}
-		return combo;
+		return (JComboBox) getComponent("size");
 	}
 
 	public JComboBox getPropertyTypeCombo() {
 		return (JComboBox) getComponent("propertyTypeCombo");
 	}
 
+	private void initOKButton() {
+		getOKButton().addActionListener(this);
+		getRootPane().setDefaultButton(getOKButton());
+	}
+	
 	public JButton getOKButton() {
-		JButton button = (JButton) getComponent("okButton");
-		if (initialize(button)) {
-			button.addActionListener(this);
-			getRootPane().setDefaultButton((JButton) button);
-		}
-		return button;
+		return (JButton) getComponent("okButton");
 	}
 
+	private void initCancelButton() {
+		getCancelButton().addActionListener(this);
+	}
+	
 	public JButton getCancelButton() {
-		JButton button = (JButton) getComponent("cancelButton");
-		if (initialize(button)) {
-			button.addActionListener(this);
-		}
-		return button;
+		return (JButton) getComponent("cancelButton");
 	}
 
 	public JCheckBox getSnapToGridCheckBox() {
@@ -227,18 +238,19 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 	public PropertyTable getPropertyTable() {
 		return (PropertyTable) getComponent("propertiesTable");
 	}
+
+	private void initStatesPanel() {
+		JPanel panel = getStatesPanel();
+		panel.removeAll();
+		Set<String> states = TokenStates.getStates();
+		panel.setLayout(new GridLayout(0, 4));
+		for (String state : states) {
+			panel.add(new JCheckBox(state));
+		}		
+	}
 	
 	public JPanel getStatesPanel() {
-		JPanel panel = (JPanel) getComponent("statesPanel");
-		if (initialize(panel)) {
-			panel.removeAll();
-			Set<String> states = TokenStates.getStates();
-			panel.setLayout(new GridLayout(0, 4));
-			for (String state : states) {
-				panel.add(new JCheckBox(state));
-			}		
-		}
-		return panel;
+		return (JPanel) getComponent("statesPanel");
 	}
 	
 	public JCheckBox getVisibleCheckBox() {
@@ -289,7 +301,10 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 //		tokenGMNameLabel = panel.getLabel("tokenGMNameLabel");
 	}
 
-	private void initConfigPanel() {}
+	private void initConfigPanel() {
+		initShapeCombo();
+		initSizeCombo();
+	}
 	
 	private void initButtons() {
 		// This will initialize them
@@ -308,9 +323,6 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		replaceComponent("propertiesPanel", "propertiesTable", pane);
 	}
 
-	private void initStatesPanel() {
-	}
-	
 	@Override
 	public void setVisible(boolean b) {
 		if(b) {
@@ -694,17 +706,6 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		}
 	}
 	
-	private class EmptyPropertyTableModel extends AbstractPropertyTableModel {
-		@Override
-		public Property getProperty(int arg0) {
-			return null;
-		}
-		@Override
-		public int getPropertyCount() {
-			return 0;
-		}
-	}
-
 	private class OwnerListModel extends AbstractListModel {
 
 		List<Selectable> ownerList = new ArrayList<Selectable>();

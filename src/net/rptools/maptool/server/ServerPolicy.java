@@ -28,6 +28,7 @@ public class ServerPolicy {
 
 	private boolean strictTokenMovement;
 	private boolean isMovementLocked;
+	private boolean playersCanRevealVision;
 	
 	public ServerPolicy() {
 		
@@ -52,5 +53,13 @@ public class ServerPolicy {
 	
 	public void setIsMovementLocked(boolean locked) {
 		isMovementLocked = locked;
+	}
+	
+	public void setPlayersCanRevealVision(boolean flag) {
+		playersCanRevealVision = flag;
+	}
+	
+	public boolean getPlayersCanRevealVision() {
+		return playersCanRevealVision;
 	}
 }

@@ -13,7 +13,6 @@ import com.jeta.forms.components.panel.FormPanel;
 public class AbeilleDialog extends JDialog {
 
 	private FormPanel panel;
-	private Set<Component> initializedSet = new HashSet<Component>();
 	
 	public AbeilleDialog(String panelForm, Frame owner, String title, boolean modal) {
 		super(owner, title, modal);
@@ -30,18 +29,6 @@ public class AbeilleDialog extends JDialog {
 	
 	protected Component getComponent(String name) {
 		return panel.getComponentByName(name);
-	}
-	
-	/**
-	 * Returns true if the component needs to be initialized.  Will only return 'true' 
-	 * the first time this is called for this component
-	 */
-	protected boolean initialize(Component c) {
-		boolean initialized = initializedSet.contains(c);
-		if (!initialized) {
-			initializedSet.add(c);
-		}
-		return !initialized;
 	}
 	
 }

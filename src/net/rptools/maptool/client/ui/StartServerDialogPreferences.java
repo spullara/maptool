@@ -17,10 +17,11 @@ public class StartServerDialogPreferences {
     private static final String KEY_PLAYER_PASSWORD = "playerPassword";
     private static final String KEY_USE_GM_PASSWORD = "useGMPassword";
     private static final String KEY_USE_PLAYER_PASSWORD = "usePlayerPassword";
-    private static final String KEY_STRICT_TOKEN_MOVEMENT = "strictTokenMovement";
+    private static final String KEY_STRICT_TOKEN_OWNERSHIP = "strictTokenOwnership";
     private static final String KEY_REGISTER_SERVER = "registerServer";
-    private static final String KEY_SERVER_NAME = "serverName";
-    private static final String KEY_SERVER_PASSWORD = "serverPassword";
+    private static final String KEY_RPTOOLS_NAME = "rptoolsName";
+    private static final String KEY_RPTOOLS_PRIVATE = "rptoolsPrivate";
+    private static final String KEY_PLAYERS_CAN_REVEAL_VISION = "playersCanRevealVisionCheckbox";
     
     public int getRole () {
     	return prefs.getInt(KEY_ROLE, Player.Role.GM);
@@ -78,12 +79,12 @@ public class StartServerDialogPreferences {
     	prefs.putInt(KEY_PORT, port);
     }
     
-    public boolean useStrictTokenMovement() {
-    	return prefs.getBoolean(KEY_STRICT_TOKEN_MOVEMENT, false);
+    public boolean useStrictTokenOwnership() {
+    	return prefs.getBoolean(KEY_STRICT_TOKEN_OWNERSHIP, false);
     }
     
-    public void setStrictTokenMovement(boolean use) {
-    	prefs.putBoolean(KEY_STRICT_TOKEN_MOVEMENT, use);
+    public void setStrictTokenOwnership(boolean use) {
+    	prefs.putBoolean(KEY_STRICT_TOKEN_OWNERSHIP, use);
     }
 
     public boolean registerServer() {
@@ -94,20 +95,27 @@ public class StartServerDialogPreferences {
     	prefs.putBoolean(KEY_REGISTER_SERVER, register);
     }
     
-    public void setServerPassword(String password) {
-    	prefs.put(KEY_SERVER_PASSWORD, password);
+    public void setRPToolsName(String name) {
+    	prefs.put(KEY_RPTOOLS_NAME, name);
     }
     
-    public String getServerPassword() {
-    	return prefs.get(KEY_SERVER_PASSWORD, "");
+    public String getRPToolsName() {
+    	return prefs.get(KEY_RPTOOLS_NAME, "");
     }
     
-    public void setServerName(String name) {
-    	prefs.put(KEY_SERVER_NAME, name);
+    public void setRPToolsPrivate(boolean flag) {
+    	prefs.putBoolean(KEY_RPTOOLS_PRIVATE, flag);
     }
     
-    public String getServerName() {
-    	return prefs.get(KEY_SERVER_NAME, "");
+    public boolean getRPToolsPrivate() {
+    	return prefs.getBoolean(KEY_RPTOOLS_PRIVATE, false);
     }
     
+    public void setPlayersCanRevealVision(boolean flag) {
+    	prefs.putBoolean(KEY_PLAYERS_CAN_REVEAL_VISION, flag);
+    }
+    
+    public boolean getPlayersCanRevealVision() {
+    	return prefs.getBoolean(KEY_PLAYERS_CAN_REVEAL_VISION, false);
+    }
 }
