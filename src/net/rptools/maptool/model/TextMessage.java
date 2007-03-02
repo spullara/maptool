@@ -73,6 +73,10 @@ public class TextMessage {
         return new TextMessage(Channel.WHISPER, target, MapTool.getPlayer().getName(), message);
     }
     
+    public String toString() {
+    	return message;
+    }
+    
     ////
     // PROPERTIES
     public int getChannel() {
