@@ -26,7 +26,7 @@ package net.rptools.maptool.client.ui.zone;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension ;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -34,7 +34,7 @@ import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.Shape ;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.Transparency;
@@ -46,15 +46,16 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent ;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.QuadCurve2D;
-import java.awt.geom.Rectangle2D ;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,19 +68,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JComponent ;
+import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.ImageBorder;
-import net.rptools.maptool.client.AppPreferences ;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.MapToolUtil ;
+import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.ui.Scale;
@@ -88,27 +89,27 @@ import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.token.TokenTemplate;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetManager ;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridCapabilities;
-import net.rptools.maptool.model.HexGrid ;
+import net.rptools.maptool.model.HexGrid;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Path;
-import net.rptools.maptool.model.Player ;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZonePoint ;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.HexGridUtil;
 import net.rptools.maptool.util.ImageManager;
-import net.rptools.maptool.util.TokenUtil ;
+import net.rptools.maptool.util.TokenUtil;
 
 
 /**
@@ -144,6 +145,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
     private Map<Token, Area> tokenVisionCache = new HashMap<Token, Area>();
+    private Map<Token, TokenLocation> tokenLocationCache = new HashMap<Token, TokenLocation>();
 
     private GeneralPath facingArrow;
     
@@ -240,7 +242,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         zoneScale = scale;
         
         scale.addPropertyChangeListener (new PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+            public void propertyChange(PropertyChangeEvent evt) {
+            	
+            	if (Scale.PROPERTY_SCALE.equals(evt.getPropertyName())) {
+            		tokenLocationCache.clear();
+            	}
+            	
                 repaint();
             }
         });
@@ -430,6 +437,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
     public void flush(Token token) {
         tokenVisionCache.remove(token);
+        tokenLocationCache.remove(token);
     }
     
     /**
@@ -1230,49 +1238,58 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 continue;
             }
             
-            int height = TokenSize.getWidth(token, zone.getGrid());
-            int width = TokenSize.getHeight(token, zone.getGrid());
-            int scaledHeight;
-            int scaledWidth;
-            if( isHexGrid() && token.isToken() ) {
-                Dimension d = HexGridUtil.getTokenDimensions(token.getSize(),(HexGrid)grid, scale);
-                scaledHeight = d.height;
-                scaledWidth = d.width;
-            }
-            else {
-                scaledWidth = (int)Math.ceil(height * scale);
-                scaledHeight = (int)Math.ceil(width * scale);
+            TokenLocation location = tokenLocationCache.get(token);
+            if (location == null) {
+	            int height = TokenSize.getWidth(token, zone.getGrid());
+	            int width = TokenSize.getHeight(token, zone.getGrid());
+	            int scaledHeight;
+	            int scaledWidth;
+	            if( isHexGrid() && token.isToken() ) {
+	                Dimension d = HexGridUtil.getTokenDimensions(token.getSize(),(HexGrid)grid, scale);
+	                scaledHeight = d.height;
+	                scaledWidth = d.width;
+	            }
+	            else {
+	                scaledWidth = (int)Math.ceil(height * scale);
+	                scaledHeight = (int)Math.ceil(width * scale);
+	            }
+	            
+	            if (!token.isStamp() && !token.isBackground()) {
+	                // Fit inside the grid
+	                scaledWidth --;
+	                scaledHeight --;
+	            }
+	            
+	            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, token.getX(), token.getY());
+	            int x = tokenScreenLocation.x + 1;
+	            int y = tokenScreenLocation.y + 1;
+	                
+	            Point p = grid.cellGroupTopLeftOffset(height, width, token.isToken());
+	            x += p.x*scale;
+	            y += p.y*scale;
+	            
+	            // Center the token if it is smaller than a grid cell
+	            if (scaledWidth < scaledGridWidth && token.isSnapToGrid()) {
+	                x += (scaledGridWidth - scaledWidth)/2;
+	            }
+	            if (scaledHeight < scaledGridHeight && token.isSnapToGrid()) {
+	                y += (scaledGridHeight - scaledHeight)/2;
+	            }
+	            
+	            Rectangle origBounds = new Rectangle(x, y, scaledWidth, scaledHeight);
+	            Area tokenBounds = new Area(origBounds);
+	            if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
+	                tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth/2 + x, scaledHeight/2 + y)); // facing defaults to down, or -90 degrees
+	            }
+	            
+	            location = new TokenLocation(tokenBounds, origBounds, token, x, y, width, height, scaledWidth, scaledHeight);
+	            tokenLocationCache.put(token, location);
+
+            } else {
+            	location.validate();
             }
             
-            if (!token.isStamp() && !token.isBackground()) {
-                // Fit inside the grid
-                scaledWidth --;
-                scaledHeight --;
-            }
-            
-            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, token.getX(), token.getY());
-            int x = tokenScreenLocation.x + 1;
-            int y = tokenScreenLocation.y + 1;
-                
-            Point p = grid.cellGroupTopLeftOffset(height, width, token.isToken());
-            x += p.x*scale;
-            y += p.y*scale;
-            
-            // Center the token if it is smaller than a grid cell
-            if (scaledWidth < scaledGridWidth && token.isSnapToGrid()) {
-                x += (scaledGridWidth - scaledWidth)/2;
-            }
-            if (scaledHeight < scaledGridHeight && token.isSnapToGrid()) {
-                y += (scaledGridHeight - scaledHeight)/2;
-            }
-            
-            Rectangle origBounds = new Rectangle(x, y, scaledWidth, scaledHeight);
-            Area tokenBounds = new Area(origBounds);
-            if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
-                tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth/2 + x, scaledHeight/2 + y)); // facing defaults to down, or -90 degrees
-            }
-            
-            if (!tokenBounds.getBounds().intersects(clipBounds)) {
+            if (!location.bounds.intersects(clipBounds)) {
                 // Not on the screen, don't have to worry about it
                 continue;
             }
@@ -1284,25 +1301,25 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             
             // Vision visibility
             if (!view.isGMView() && token.isToken() && isUsingVision) {
-                if (!GraphicsUtil.intersects(visibleArea, tokenBounds)) {
+                if (!GraphicsUtil.intersects(visibleArea, location.bounds)) {
                     continue;
                 }
             }
 
             // Stacking check
             if (!token.isStamp() && !token.isBackground()) {
-                for (TokenLocation location : getTokenLocations(Zone.Layer.TOKEN)) {
+                for (TokenLocation currLocation : getTokenLocations(Zone.Layer.TOKEN)) {
     
-                    Area r1 = location.bounds;
+                    Area r1 = currLocation.bounds;
                     
                     // Are we covering anyone ?
-                    if (tokenBounds.getBounds().intersects(r1.getBounds())) {
+                    if (location.bounds.intersects(r1.getBounds())) {
     
                         // Are we covering someone that is covering someone ?
                         Area oldRect = null;
                         for (Area r2 : coveredTokenSet) {
                             
-                            if (tokenBounds.getBounds().contains(r2.getBounds ())) {
+                            if (location.bounds.getBounds().contains(r2.getBounds ())) {
                                 oldRect = r2;
                                 break;
                             }
@@ -1310,7 +1327,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                         if (oldRect != null) {
                              coveredTokenSet.remove(oldRect);
                         }
-                        coveredTokenSet.add(tokenBounds);
+                        coveredTokenSet.add(location.bounds);
                     }
                 }
             }
@@ -1329,7 +1346,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 }
             }
             if (locationList != null) {
-                 locationList.add(new TokenLocation(tokenBounds, origBounds, token));
+                 locationList.add(location);
             }
 
             // OPTIMIZE:
@@ -1348,7 +1365,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             // NOTE: this takes place AFTER resizing the image, that's so that the user
             // sufferes a pause only once while scaling, and not as new tokens are
             // scrolled onto the screen
-            if (!tokenBounds.intersects(clipBounds)) {
+            if (!location.bounds.intersects(clipBounds)) {
                 continue;
             }
 
@@ -1367,7 +1384,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
             // Previous path
             if (showPathList.contains(token) && token.getLastPath() != null) {
-                renderPath(g, token.getLastPath(), (int)(scaledWidth/gridSize), (int)(scaledHeight/gridSize));
+                renderPath(g, token.getLastPath(), (int)(location.scaledWidth/gridSize), (int)(location.scaledHeight/gridSize));
             }
             
             // Halo (TOPDOWN, CIRCLE)
@@ -1375,8 +1392,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 Stroke oldStroke = g.getStroke();
                 g.setStroke(HALO_STROKE);
                 g.setColor(token.getHaloColor());
-                g.drawRect(x, y, scaledWidth, scaledHeight);
-                 g.setStroke(oldStroke);
+                g.drawRect(location.x, location.y, location.scaledWidth, location.scaledHeight);
+                g.setStroke(oldStroke);
             }
 
             // handle flipping
@@ -1402,8 +1419,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             if ( token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp() || token.isBackground())) {
                 // Rotated
                 AffineTransform at = new AffineTransform();
-                 at.translate(x, y);
-                at.rotate(Math.toRadians(-token.getFacing() - 90), scaledWidth/2, scaledHeight/2); // facing defaults to down, or -90 degrees
+                 at.translate(location.x, location.y);
+                at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2, location.scaledHeight/2); // facing defaults to down, or -90 degrees
 
                 if (token.isSnapToScale()) {
                      at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
@@ -1416,12 +1433,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 // Normal
                 
                 if ( isHexGrid() && token.isToken()) { // Keep token aspect ratio square on hex grid
-                    int newSize = scaledWidth < scaledHeight ? scaledWidth : scaledHeight;
-                    Dimension d = HexGridUtil.getTokenAdjust((HexGrid)grid, scaledWidth, scaledHeight, token.getSize());
-                    g.drawImage(workImage, x+d.width, y+d.height, newSize, newSize, this);
+                    int newSize = location.scaledWidth < location.scaledHeight ? location.scaledWidth : location.scaledHeight;
+                    Dimension d = HexGridUtil.getTokenAdjust((HexGrid)grid, location.scaledWidth, location.scaledHeight, token.getSize());
+                    g.drawImage(workImage, location.x+d.width, location.y+d.height, newSize, newSize, this);
                 }
                 else {
-                    g.drawImage(workImage, x, y, scaledWidth, scaledHeight, this);
+                    g.drawImage(workImage, location.x, location.y, location.scaledWidth, location.scaledHeight, this);
                 }
             }
             g.setClip(clip);
@@ -1431,7 +1448,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 Stroke oldStroke = g.getStroke();
                 g.setStroke(HALO_STROKE);
                 g.setColor (token.getHaloColor());
-                g.drawRect(x, y, scaledWidth, scaledHeight);
+                g.drawRect(location.x, location.y, location.scaledWidth, location.scaledHeight);
                 g.setStroke(oldStroke);
             }
             
@@ -1446,8 +1463,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                     
                     Shape arrow = getCircleFacingArrow(token.getFacing(), size);
 
-                    int cx = x + scaledWidth/2;
-                    int cy = y + scaledHeight/2;
+                    int cx = location.x + location.scaledWidth/2;
+                    int cy = location.y + location.scaledHeight/2;
                     
                     g.translate(cx, cy);
                     g.setColor(Color.yellow);
@@ -1462,12 +1479,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                     int facing = token.getFacing();
                     arrow = getSquareFacingArrow(facing, size);
 
-                    cx = x + scaledWidth/2;
-                    cy = y + scaledHeight/2;
+                    cx = location.x + location.scaledWidth/2;
+                    cy = location.y + location.scaledHeight/2;
 
                     // Find the edge of the image
-                    int xp = scaledWidth/2;
-                    int yp = scaledHeight/2;
+                    int xp = location.scaledWidth/2;
+                    int yp = location.scaledHeight/2;
                     
                     if (facing >= 45 && facing <= 135 || facing <= -45 && facing >= -135) {
                         xp = (int)(yp / Math.tan(Math.toRadians(facing)));
@@ -1501,8 +1518,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
               
               // Set up the graphics so that the overlay can just be painted.
               clip = g.getClip();
-              g.translate(x, y);
-              Rectangle bounds = new Rectangle(0, 0, scaledWidth, scaledHeight);
+              g.translate(location.x, location.y);
+              Rectangle bounds = new Rectangle(0, 0, location.scaledWidth, location.scaledHeight);
               Rectangle overlayClip = g.getClipBounds().intersection(bounds);
               g.setClip(overlayClip);
               
@@ -1522,10 +1539,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
               }
               
               // Restore the graphics context
-              g.translate(-x, -y);
+              g.translate(-location.x, -location.y);
               g.setClip(clip);
             }
-            
         }
         
         // Selection and labels
@@ -1585,6 +1601,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             g.drawImage(stackImage, rect.getBounds().x + rect.getBounds().width - stackImage.getWidth() + 2, rect.getBounds().y - 2, null);
         }
         g.setClip(clip);
+        
     }
 
     public Set<GUID> getSelectedTokenSet() {
@@ -1892,16 +1909,52 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         }
     }
 
-    private static class TokenLocation {
+    private class TokenLocation {
         public Area bounds;
         public Rectangle origBounds;
         public Token token;
         
-        public TokenLocation(Area bounds, Rectangle origBounds, Token token) {
+        public int height;
+        public int width;
+        public int scaledHeight;
+        public int scaledWidth;
+        public int x;
+        public int y;
+
+        public int offsetX;
+        public int offsetY;
+        
+        public TokenLocation(Area bounds, Rectangle origBounds, Token token, int x, int y, int width, int height, int scaledWidth, int scaledHeight) {
             this.bounds = bounds;
             this.token = token;
             this.origBounds = origBounds;
+            this.width = width;
+            this.height = height;
+            this.scaledWidth = scaledWidth;
+            this.scaledHeight = scaledHeight;
+            this.x = x;
+            this.y = y;
+            
+            offsetX = getViewOffsetX();
+            offsetY = getViewOffsetY();
         }
+        
+        public void validate() {
+        	int deltaX = getViewOffsetX() - offsetX; 
+        	int deltaY = getViewOffsetY() - offsetY;
+        	
+        	if (deltaX != 0 || deltaY != 0) {
+	    		x += deltaX;
+	    		y += deltaY;
+	    		origBounds.x += deltaX;
+	    		origBounds.y += deltaY;
+	    		bounds.transform(AffineTransform.getTranslateInstance(deltaX, deltaY));
+	    		
+	    		offsetX = getViewOffsetX();
+	    		offsetY = getViewOffsetY();
+        	}
+        }
+        
     }
     
     private static class LabelLocation {
@@ -2045,11 +2098,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             if (evt == Zone.Event.TOPOLOGY_CHANGED) {
                 tokenVisionCache.clear();
             }
-            if (evt == Zone.Event.TOKEN_CHANGED) {
+            if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
                 tokenVisionCache.remove(event.getModel());
-            }
-            if (evt == Zone.Event.TOKEN_REMOVED) {
-                tokenVisionCache.remove(event.getModel());
+                tokenLocationCache.remove(event.getModel());
             }
             
             repaint();
