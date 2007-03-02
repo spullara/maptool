@@ -76,6 +76,11 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
 	public boolean isAvailable() {
 		return MapTool.getPlayer().isGM();
 	}
+	
+	@Override
+	protected boolean drawMeasurement() {
+		return false;
+	}
 
 	@Override
     public String getInstructions() {
