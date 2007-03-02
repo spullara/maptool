@@ -1,11 +1,20 @@
 package net.rptools.maptool.client.ui.commandpanel;
 
+import static net.rptools.maptool.model.ObservableList.Event.add;
+import static net.rptools.maptool.model.ObservableList.Event.append;
+import static net.rptools.maptool.model.ObservableList.Event.clear;
+import static net.rptools.maptool.model.ObservableList.Event.remove;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -18,6 +27,8 @@ import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
@@ -25,12 +36,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
+import javax.swing.plaf.basic.BasicToggleButtonUI;
 
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.PreferencesListener;
 import net.rptools.maptool.client.macro.MacroManager;
@@ -45,6 +59,7 @@ public class CommandPanel extends JPanel implements Observer {
 	private List<String> commandHistory = new LinkedList<String>();
 	private int commandHistoryIndex;
 	private TextColorWell textColorWell;
+	private JToggleButton scrollLockButton;
 	
 	private String identity;
 	
@@ -69,21 +84,53 @@ public class CommandPanel extends JPanel implements Observer {
     	}
     }
 	
+    public JToggleButton getScrollLockButton() {
+    	if (scrollLockButton == null) {
+    		scrollLockButton = new JToggleButton();
+    		scrollLockButton.setIcon(new ImageIcon(AppStyle.chatScrollImage));
+    		scrollLockButton.setSelectedIcon(new ImageIcon(AppStyle.chatScrollLockImage));
+    		scrollLockButton.setToolTipText("Scroll lock");
+    		scrollLockButton.setUI(new BasicToggleButtonUI());
+    		scrollLockButton.setBorderPainted(false);
+    		scrollLockButton.setFocusPainted(false);
+    		scrollLockButton.setPreferredSize(new Dimension(16, 16));
+    	}
+    	
+    	return scrollLockButton;
+    }
+    
 	private JComponent createSouthPanel() {
 		
 		JPanel panel = new JPanel (new BorderLayout());
 		
-		panel.add(BorderLayout.WEST, createTextPropertiesPanel());
+		panel.add(BorderLayout.EAST, createTextPropertiesPanel());
 		panel.add(BorderLayout.NORTH, createCharacterLabel());
-		panel.add(BorderLayout.CENTER, new JScrollPane(getCommandTextArea(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+		panel.add(BorderLayout.CENTER, createCommandPanel());
 		
 		return panel;
 	}
+
+	private JComponent createCommandPanel() {
+		
+		JScrollPane pane = new JScrollPane(getCommandTextArea(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);		
+		return pane;
+	}
 	
 	private JComponent createTextPropertiesPanel() {
-		JPanel panel = new JPanel();
+		JPanel panel = new JPanel(new GridBagLayout());
+		panel.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 3));
 
-		panel.add(getTextColorWell());
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		
+		panel.add(getTextColorWell(), constraints);
+		
+		constraints.gridy++;
+		panel.add(Box.createVerticalStrut(2), constraints);
+		
+		constraints.gridy++;
+		panel.add(getScrollLockButton(), constraints);
 		
 		return panel;
 	}

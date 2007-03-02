@@ -51,6 +51,8 @@ public class AppStyle {
     public static Color selectionBoxFill = Color.blue;
     
     public static BufferedImage chatImage;
+    public static BufferedImage chatScrollImage;
+    public static BufferedImage chatScrollLockImage;
     
     public static Color topologyColor = new Color(0, 0, 255, 150);
     public static Color topologyAddColor = new Color(255, 0, 0, 150);
@@ -64,6 +66,8 @@ public class AppStyle {
             cellWaypointImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/redDot.png");
             stackImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/stack.png");
             chatImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chat.png");
+            chatScrollImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments.png"); 
+            chatScrollLockImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments_delete.png"); 
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

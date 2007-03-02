@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -15,6 +16,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.TextMessage;
 import ca.odell.renderpack.HTMLTableCellRenderer;
 
@@ -31,7 +33,18 @@ public class MessagePanel extends JPanel {
 		
 		scrollPane = new JScrollPane(messageTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setBorder(null);
+		scrollPane.getViewport().setBorder(null);
 		scrollPane.getViewport().setBackground(Color.white);
+		scrollPane.getVerticalScrollBar().addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				
+				boolean lock = (scrollPane.getSize().height + scrollPane.getVerticalScrollBar().getValue()) < scrollPane.getVerticalScrollBar().getMaximum();
+
+				// The user has manually scrolled the scrollbar, Scroll lock time baby !
+				MapTool.getFrame().getCommandPanel().getScrollLockButton().setSelected(lock);
+			}
+		});
 		
 		add(BorderLayout.CENTER, scrollPane);
 	}
@@ -111,9 +124,11 @@ public class MessagePanel extends JPanel {
 					return;
 				}
 				
-				TextMessage lastMessage = (TextMessage) messageTable.getValueAt(messageTable.getRowCount()-1, 0); 
-				Rectangle rowBounds = new Rectangle(0, messageTable.getSize().height, 1, 1);
-				messageTable.scrollRectToVisible(rowBounds);
+				if (!MapTool.getFrame().getCommandPanel().getScrollLockButton().isSelected()) {
+					TextMessage lastMessage = (TextMessage) messageTable.getValueAt(messageTable.getRowCount()-1, 0); 
+					Rectangle rowBounds = new Rectangle(0, messageTable.getSize().height, 1, 1);
+					messageTable.scrollRectToVisible(rowBounds);
+				}
 			}
 			public void componentShown(ComponentEvent e) {
 			}
