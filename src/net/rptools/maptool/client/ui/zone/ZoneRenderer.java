@@ -1220,6 +1220,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     protected void renderTokens(Graphics2D g, List<Token> tokenList, ZoneView view) {
 
+        Rectangle viewport = new Rectangle(0, 0, getSize().width, getSize().height);
         Grid grid = zone.getGrid();
         int scaledGridWidth = (int)( grid.getCellWidth()*getScale());
         int scaledGridHeight = (int)(grid.getCellHeight()*getScale());
@@ -1239,55 +1240,54 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             }
             
             TokenLocation location = tokenLocationCache.get(token);
-            if (location == null) {
-	            int height = TokenSize.getWidth(token, zone.getGrid());
-	            int width = TokenSize.getHeight(token, zone.getGrid());
-	            int scaledHeight;
-	            int scaledWidth;
-	            if( isHexGrid() && token.isToken() ) {
-	                Dimension d = HexGridUtil.getTokenDimensions(token.getSize(),(HexGrid)grid, scale);
-	                scaledHeight = d.height;
-	                scaledWidth = d.width;
-	            }
-	            else {
-	                scaledWidth = (int)Math.ceil(height * scale);
-	                scaledHeight = (int)Math.ceil(width * scale);
-	            }
-	            
-	            if (!token.isStamp() && !token.isBackground()) {
-	                // Fit inside the grid
-	                scaledWidth --;
-	                scaledHeight --;
-	            }
-	            
-	            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, token.getX(), token.getY());
-	            int x = tokenScreenLocation.x + 1;
-	            int y = tokenScreenLocation.y + 1;
-	                
-	            Point p = grid.cellGroupTopLeftOffset(height, width, token.isToken());
-	            x += p.x*scale;
-	            y += p.y*scale;
-	            
-	            // Center the token if it is smaller than a grid cell
-	            if (scaledWidth < scaledGridWidth && token.isSnapToGrid()) {
-	                x += (scaledGridWidth - scaledWidth)/2;
-	            }
-	            if (scaledHeight < scaledGridHeight && token.isSnapToGrid()) {
-	                y += (scaledGridHeight - scaledHeight)/2;
-	            }
-	            
-	            Rectangle origBounds = new Rectangle(x, y, scaledWidth, scaledHeight);
-	            Area tokenBounds = new Area(origBounds);
-	            if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
-	                tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth/2 + x, scaledHeight/2 + y)); // facing defaults to down, or -90 degrees
-	            }
-	            
-	            location = new TokenLocation(tokenBounds, origBounds, token, x, y, width, height, scaledWidth, scaledHeight);
-	            tokenLocationCache.put(token, location);
-
-            } else {
-            	location.validate();
+            if (location != null && !location.maybeOnscreen(viewport)) {
+            	continue;
             }
+
+            int height = TokenSize.getWidth(token, zone.getGrid());
+            int width = TokenSize.getHeight(token, zone.getGrid());
+            int scaledHeight;
+            int scaledWidth;
+            if( isHexGrid() && token.isToken() ) {
+                Dimension d = HexGridUtil.getTokenDimensions(token.getSize(),(HexGrid)grid, scale);
+                scaledHeight = d.height;
+                scaledWidth = d.width;
+            }
+            else {
+                scaledWidth = (int)Math.ceil(height * scale);
+                scaledHeight = (int)Math.ceil(width * scale);
+            }
+            
+            if (!token.isStamp() && !token.isBackground()) {
+                // Fit inside the grid
+                scaledWidth --;
+                scaledHeight --;
+            }
+            
+            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, token.getX(), token.getY());
+            int x = tokenScreenLocation.x + 1;
+            int y = tokenScreenLocation.y + 1;
+                
+            Point p = grid.cellGroupTopLeftOffset(height, width, token.isToken());
+            x += p.x*scale;
+            y += p.y*scale;
+            
+            // Center the token if it is smaller than a grid cell
+            if (scaledWidth < scaledGridWidth && token.isSnapToGrid()) {
+                x += (scaledGridWidth - scaledWidth)/2;
+            }
+            if (scaledHeight < scaledGridHeight && token.isSnapToGrid()) {
+                y += (scaledGridHeight - scaledHeight)/2;
+            }
+            
+            Rectangle origBounds = new Rectangle(x, y, scaledWidth, scaledHeight);
+            Area tokenBounds = new Area(origBounds);
+            if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
+                tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth/2 + x, scaledHeight/2 + y)); // facing defaults to down, or -90 degrees
+            }
+            
+            location = new TokenLocation(tokenBounds, origBounds, token, x, y, width, height, scaledWidth, scaledHeight);
+            tokenLocationCache.put(token, location);
             
             if (!location.bounds.intersects(clipBounds)) {
                 // Not on the screen, don't have to worry about it
@@ -1913,6 +1913,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         public Area bounds;
         public Rectangle origBounds;
         public Token token;
+
+        public Rectangle boundsCache;
         
         public int height;
         public int width;
@@ -1937,24 +1939,26 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             
             offsetX = getViewOffsetX();
             offsetY = getViewOffsetY();
+            
+            boundsCache = bounds.getBounds();
         }
         
-        public void validate() {
+        public boolean maybeOnscreen(Rectangle viewport) {
         	int deltaX = getViewOffsetX() - offsetX; 
         	int deltaY = getViewOffsetY() - offsetY;
-        	
-        	if (deltaX != 0 || deltaY != 0) {
-	    		x += deltaX;
-	    		y += deltaY;
-	    		origBounds.x += deltaX;
-	    		origBounds.y += deltaY;
-	    		bounds.transform(AffineTransform.getTranslateInstance(deltaX, deltaY));
-	    		
-	    		offsetX = getViewOffsetX();
-	    		offsetY = getViewOffsetY();
+
+        	boundsCache.x += deltaX;
+        	boundsCache.y += deltaY;
+
+    		offsetX = getViewOffsetX();
+    		offsetY = getViewOffsetY();
+
+    		if (!boundsCache.intersects(viewport)) {
+        		return false;
         	}
+            return true;
         }
-        
+
     }
     
     private static class LabelLocation {

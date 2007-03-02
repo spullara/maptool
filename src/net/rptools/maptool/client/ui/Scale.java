@@ -40,8 +40,8 @@ public class Scale implements Serializable {
     
     public static int SCALE_1TO1_INDEX; // Automatically scanned for
 
-    private static String PROPERTY_SCALE = "scale";
-    private static String PROPERTY_OFFSET = "offset";
+    public static String PROPERTY_SCALE = "scale";
+    public static String PROPERTY_OFFSET = "offset";
     
     private transient PropertyChangeSupport propertyChangeSupport;
     
