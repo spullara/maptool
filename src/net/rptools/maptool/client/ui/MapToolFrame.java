@@ -256,11 +256,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		zoneRendererPanel = new JPanel(new PositionalLayout(5));
 		zoneRendererPanel.setBackground(Color.black);
-		zoneRendererPanel.add(newZoneDropPanel,
-				PositionalLayout.Position.CENTER);
+		zoneRendererPanel.add(newZoneDropPanel, PositionalLayout.Position.CENTER);
 		zoneRendererPanel.add(zoneMiniMapPanel, PositionalLayout.Position.SE);
-		zoneRendererPanel.add(getChatActionLabel(),
-				PositionalLayout.Position.SW);
+		zoneRendererPanel.add(getChatActionLabel(), PositionalLayout.Position.SW);
 
 		commandPanel = new CommandPanel();
 		MapTool.getMessageList().addObserver(commandPanel);

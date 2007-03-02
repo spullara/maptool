@@ -277,6 +277,9 @@ public class MapTool {
             return;
         }
         
+        if (!getFrame().isCommandPanelVisible()) {
+        	getFrame().getChatActionLabel().setVisible(true);
+        }
         messageList.add(message);
     }
 
