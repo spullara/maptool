@@ -258,6 +258,16 @@ public class Zone extends Token {
     	return exposedArea.contains(point.x, point.y);
     }
     
+    public boolean isEmpty() {
+    	return 
+			(drawables == null || drawables.size() == 0) && 
+			(gmDrawables == null || drawables.size() == 0) && 
+			(objectDrawables == null || drawables.size() == 0) && 
+			(backgroundDrawables == null || drawables.size() == 0) && 
+    		(tokenOrderedList == null || tokenOrderedList.size() == 0) && 
+    		(labels != null || labels.size() == 0);
+    }
+    
     public boolean isTokenVisible(Token token) {
 
         // Base case, nothing is visible

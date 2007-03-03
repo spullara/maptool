@@ -420,7 +420,21 @@ public class MapTool {
         return false;
     }
     
+    public static void removeZone(Zone zone) {
+		MapTool.serverCommand().removeZone(zone.getId());
+		MapTool.getFrame().removeZoneRenderer(MapTool.getFrame().getZoneRenderer(zone.getId()));
+		MapTool.getCampaign().removeZone(zone.getId());
+    }
+    
 	public static void addZone(Zone zone) {
+
+		if (getCampaign().getZones().size() == 1) {
+			// Remove the default map
+			Zone singleZone = getCampaign().getZones().get(0);
+			if (singleZone.isEmpty()) {
+				removeZone(singleZone);
+			}
+		}
 		
         getCampaign().putZone(zone);
 

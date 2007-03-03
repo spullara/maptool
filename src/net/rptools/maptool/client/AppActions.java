@@ -631,9 +631,7 @@ public class AppActions {
 			}
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-			MapTool.serverCommand().removeZone(renderer.getZone().getId());
-			MapTool.getFrame().removeZoneRenderer(renderer);
-			MapTool.getCampaign().removeZone(renderer.getZone().getId());
+			MapTool.removeZone(renderer.getZone());
 		}
 
 	};
