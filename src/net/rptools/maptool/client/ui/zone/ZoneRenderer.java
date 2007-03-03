@@ -519,7 +519,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             g2d.setColor(Color.black);
             g2d.fillRect(0, 0, size.width , size.height);
             
-            GraphicsUtil.drawBoxedString(g2d, "    Loading ... " + loadingProgress + "%", size.width/2, size.height/2);
+            GraphicsUtil.drawBoxedString(g2d, "    Loading ... " + loadingProgress + "%    ", size.width/2, size.height/2);
             
             return;
         }
@@ -821,7 +821,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             // We made it !  This image is ready
             count ++;
         }
-        System.out.println(count + " - " + assetSet.size() + " - " + System.currentTimeMillis());
+
         loadingProgress = (int)((count / (double)assetSet.size()) * 100);
 
         isLoaded = loaded;
