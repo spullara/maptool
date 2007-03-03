@@ -37,6 +37,8 @@ import java.util.List;
 public class LineSegment extends AbstractDrawing {
 	
     private List<Point> points = new ArrayList<Point>();
+    private transient int lastPointCount = -1;
+    private transient Rectangle cachedBounds;
 
     /** Manipulate the points by calling {@link #getPoints} and then adding {@link Point} objects
      * to the returned {@link List}.
@@ -49,7 +51,7 @@ public class LineSegment extends AbstractDrawing {
     protected void draw(Graphics2D g) {
         Point previousPoint = null;
         for (Point point : points) {
-            if (previousPoint != null) {
+            if (previousPoint != null && !previousPoint.equals(point)) {
                 g.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
             }
             previousPoint = point;
@@ -65,28 +67,28 @@ public class LineSegment extends AbstractDrawing {
 	 */
 	public Rectangle getBounds() {
 
-		int minX = Integer.MAX_VALUE;
-		int minY = Integer.MAX_VALUE;
-		int maxX = Integer.MIN_VALUE;
-		int maxY = Integer.MIN_VALUE;
-		
+		if (lastPointCount == points.size()) {
+			return cachedBounds;
+		}
+
+		Rectangle bounds = new Rectangle(points.get(0));
 		for (Point point : points) {
 			
-			if (point.x < minX) {minX = point.x;}
-			if (point.x > maxX) {maxX = point.x;}
-			if (point.y < minY) {minY = point.y;}
-			if (point.y > maxY) {maxY = point.y;}
+			bounds.add(point);
 		}
+//		System.out.println(points);
 		
 		// Special casing
-		Rectangle bounds = new Rectangle(minX, minY, maxX - minX, maxY - minY);
+		System.out.println(bounds);
 		if (bounds.width < 1) {
 			bounds.width = 1;
 		}
 		if (bounds.height < 1) {
 			bounds.height = 1;
 		}
-		
+
+		cachedBounds = bounds;
+		lastPointCount = points.size();
 		return bounds;
 	}
 }

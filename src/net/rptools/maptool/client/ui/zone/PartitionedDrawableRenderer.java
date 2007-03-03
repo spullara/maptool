@@ -44,7 +44,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.rptools.maptool.model.drawing.Drawable;
+import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
+import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
 
 /**
@@ -111,7 +113,8 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 					g.drawImage(chunk, x, y, null);
 				}
 				chunkCache.remove(key);
-				
+
+				// Partition boundaries
 //				if (col%2 == 0) {
 //					if (row%2 == 0) {
 //						g.setColor(Color.white);
@@ -150,18 +153,27 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		Composite oldComposite = null;
 		Graphics2D g = null;
 
+		int count = 0;
 		for (DrawnElement element : drawableList) {
 			
 			Drawable drawable = element.getDrawable();
 			
-			Rectangle2D drawnBounds = drawable.getBounds();
+			Rectangle2D drawnBounds = new Rectangle(drawable.getBounds());
 			Rectangle2D chunkBounds = new Rectangle((int)(gridx * (CHUNK_SIZE/scale)), (int)(gridy * (CHUNK_SIZE/scale)), (int)(CHUNK_SIZE/scale), (int)(CHUNK_SIZE/scale));
 			
-			// TODO: handle pen size
+			// Handle pen size
+			Pen pen = element.getPen();
+			int penSize = (int)(pen.getThickness()/2 + 1);
+			drawnBounds.setRect(drawnBounds.getX() - penSize, drawnBounds.getY() - penSize, drawnBounds.getWidth() + pen.getThickness(), drawnBounds.getHeight() + pen.getThickness());
+			
 			if (!drawnBounds.intersects(chunkBounds)) {
 				continue;
 			}
 			
+			if (drawable instanceof LineSegment) {
+				count ++;
+			}
+
 			if (image == null) {
 				image = getNewChunk();
 				g = image.createGraphics();
@@ -177,13 +189,23 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 			}
 
 
-			Pen pen = element.getPen();
 			if (pen.getOpacity() != 1 && pen.getOpacity() != 0 /* handle legacy pens, besides, it doesn't make sense to have a non visible pen*/) {
 				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, pen.getOpacity()));
 			}
 
 			drawable.draw(g, pen);
+			if (drawable instanceof LineSegment) {
+				Pen newPen = new Pen(pen);
+				newPen.setThickness(1);
+
+				// Show where the line segments are
+//				newPen.setPaint(new DrawableColorPaint(Color.blue));
+//				drawable.draw(g, newPen);
+			}
 			g.setComposite(oldComposite);
+		}
+		if (count > 0) {
+			System.out.println("Line segments " + gridx + "." + gridy + ": " + count + " - " + System.currentTimeMillis());
 		}
 		
 		if (g != null) {
