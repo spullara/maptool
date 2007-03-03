@@ -162,6 +162,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     private Timer repaintTimer;
 
+    private int loadingProgress;
     private boolean isLoaded;
     private boolean isUsingVision;
 
@@ -518,7 +519,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             g2d.setColor(Color.black);
             g2d.fillRect(0, 0, size.width , size.height);
             
-            GraphicsUtil.drawBoxedString(g2d, "    Loading    ", size.width/2, size.height/2);
+            GraphicsUtil.drawBoxedString(g2d, "    Loading ... " + loadingProgress + "%", size.width/2, size.height/2);
             
             return;
         }
@@ -799,6 +800,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         Set<MD5Key> assetSet = zone.getAllAssetIds();
         
         // Make sure they are loaded
+        int count = 0;
         boolean loaded = true;
         for (MD5Key id : assetSet) {
             
@@ -806,16 +808,21 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             Asset asset = AssetManager.getAsset(id);
             if (asset == null) {
                 loaded = false;
-                break;
+                continue;
             }
             
             // Have we loaded the image into memory yet ?
             Image image  = ImageManager.getImage(asset, new ImageObserver[]{});
             if (image == null || image == ImageManager.UNKNOWN_IMAGE ) {
                 loaded = false;
-                break;
+                continue;
             }
+
+            // We made it !  This image is ready
+            count ++;
         }
+        System.out.println(count + " - " + assetSet.size() + " - " + System.currentTimeMillis());
+        loadingProgress = (int)((count / (double)assetSet.size()) * 100);
 
         isLoaded = loaded;
         return !isLoaded;
