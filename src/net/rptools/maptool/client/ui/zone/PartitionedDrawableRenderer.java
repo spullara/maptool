@@ -25,7 +25,6 @@
 package net.rptools.maptool.client.ui.zone;
 
 import java.awt.AlphaComposite;
-import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -37,14 +36,12 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map.Entry;
 
 import net.rptools.maptool.model.drawing.Drawable;
-import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
@@ -54,9 +51,12 @@ import net.rptools.maptool.model.drawing.Pen;
 public class PartitionedDrawableRenderer implements DrawableRenderer {
 
 	private static final BufferedImage NO_IMAGE = new BufferedImage(1, 1, Transparency.OPAQUE);
-	private static final int CHUNK_SIZE = 256;
+	private static final int CHUNK_SIZE = 512;
+	private static final int EXPENSIVE_THRESHOLD = 100; // Any chunk that takes this long will be cached, cost is in milliseconds
+	private static final int MAX_EXPENSIVE_CHUNK_COUNT = (int)((15*1024*1024.0) / (CHUNK_SIZE * CHUNK_SIZE * 8)); // 15 megs 
 	
-	private Map<String, BufferedImage> chunkMap = new ConcurrentHashMap<String, BufferedImage>();
+	private Map<String, BufferedImage> chunkMap = new HashMap<String, BufferedImage>();
+	private Map<String, LRUEntry<BufferedImage>> expensiveChunkMap = new HashMap<String, LRUEntry<BufferedImage>>();
 	
 	private double lastDrawableCount;
 	private double lastScale;
@@ -67,6 +67,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	
 	public void flush() {
 		chunkMap.clear();
+		expensiveChunkMap.clear();
 	}
 	
 	public void renderDrawables(Graphics g, List<DrawnElement> drawableList, Rectangle viewport, double scale) {
@@ -106,8 +107,34 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 				String key = getKey(cellX, cellY);
 				BufferedImage chunk = chunkMap.get(key);
 				if (chunk == null) {
-					chunk = createChunk(drawableList, cellX, cellY, scale);
-					chunkMap.put(key, chunk);
+					if (expensiveChunkMap.containsKey(key)) {
+						chunk = expensiveChunkMap.get(key).getObject();
+					} else {
+						long start = System.currentTimeMillis();
+						chunk = createChunk(drawableList, cellX, cellY, scale);
+						long duration = System.currentTimeMillis() - start;
+
+						// Hold on to chunks that are expensive to render.  We'll use a little cache space to improve overall feel
+						if (duration > EXPENSIVE_THRESHOLD) {
+							if (expensiveChunkMap.size() >= MAX_EXPENSIVE_CHUNK_COUNT) {
+								String oldestKey = null;
+								LRUEntry<BufferedImage> oldest = null;
+								for (Entry<String, LRUEntry<BufferedImage>> entry : expensiveChunkMap.entrySet()) {
+									if (oldest == null || entry.getValue().getLastAccess() < oldest.getLastAccess()) {
+										oldest = entry.getValue();
+										oldestKey = entry.getKey();
+									}
+								}
+								if (oldestKey != null) {
+									expensiveChunkMap.remove(key);
+								}
+							}
+							expensiveChunkMap.put(key, new LRUEntry<BufferedImage>(chunk));
+//							System.out.println("Expensive map size: " + expensiveChunkMap.size() + " - " + System.currentTimeMillis());
+						}
+						
+						chunkMap.put(key, chunk);
+					}
 				}
 				if (chunk != null && chunk != NO_IMAGE) {
 					g.drawImage(chunk, x, y, null);
@@ -205,7 +232,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 			g.setComposite(oldComposite);
 		}
 		if (count > 0) {
-			System.out.println("Line segments " + gridx + "." + gridy + ": " + count + " - " + System.currentTimeMillis());
+//			System.out.println("Line segments " + gridx + "." + gridy + ": " + count + " - " + System.currentTimeMillis());
 		}
 		
 		if (g != null) {
@@ -231,5 +258,25 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	private String getKey(int col, int row) {
 		return col + "." + row;
 	}
-	
+
+	// TODO: Put this somewhere accessible to all, or use a preexisting version
+	private static class LRUEntry<E> {
+		
+		private long lastAccess;
+		private E object;
+		
+		public LRUEntry(E object) {
+			lastAccess = System.currentTimeMillis();
+			this.object = object;
+		}
+		
+		public long getLastAccess() {
+			return lastAccess;
+		}
+		
+		public E getObject() {
+			lastAccess = System.currentTimeMillis();
+			return object;
+		}
+	}
 }
