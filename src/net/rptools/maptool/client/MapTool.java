@@ -39,6 +39,7 @@ import java.util.Comparator;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
 import net.rptools.clientserver.ActivityListener;
@@ -64,6 +65,7 @@ import net.rptools.maptool.transfer.AssetTransferManager;
 import net.tsc.servicediscovery.ServiceAnnouncer;
 
 import com.jidesoft.plaf.LookAndFeelFactory;
+import com.jidesoft.plaf.LookAndFeelFactory.UIDefaultsCustomizer;
 
 import de.muntjak.tinylookandfeel.Theme;
 import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
@@ -550,7 +552,13 @@ public class MapTool {
         	UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
     		com.jidesoft.utils.Lm.verifyLicense("Trevor Croft", "rptools", "5MfIVe:WXJBDrToeLWPhMv3kI2s3VFo");
 //            UIManager.setLookAndFeel(LookAndFeelFactory.WINDOWS_LNF);
-    		LookAndFeelFactory.installJideExtension(LookAndFeelFactory.ECLIPSE3X_STYLE);
+    		LookAndFeelFactory.addUIDefaultsCustomizer(new LookAndFeelFactory.UIDefaultsCustomizer(){
+    			public void customize(UIDefaults defaults) {
+    				// Remove red border around menus
+    				defaults.put("PopupMenu.foreground", Color.lightGray);
+    			}
+    		});
+    		LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
         	
         	// Make the toggle button pressed state look more distinct
         	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
