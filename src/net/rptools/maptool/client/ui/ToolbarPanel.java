@@ -103,7 +103,7 @@ public class ToolbarPanel extends JToolBar {
 	}
 	
 	private JButton createZoneSelectionButton() {
-		final JButton button = new JButton(new ImageIcon(getClass().getClassLoader().getResource("net/rptools/maptool/client/image/arrow_down.png")));
+		final JButton button = new JButton(new ImageIcon(getClass().getClassLoader().getResource("net/rptools/maptool/client/image/application_double.png")));
 		button.setToolTipText("Select Map");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
