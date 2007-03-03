@@ -69,10 +69,6 @@ public class AppMenuBar extends JMenuBar {
         JMenu fileMenu = I18N.createMenu("menu.file");
         
         // MAP CREATION
-        fileMenu.add(new JMenuItem(AppActions.NEW_MAP));
-        fileMenu.add(createQuickMapMenu());
-    	
-        fileMenu.addSeparator();
     	fileMenu.add(new JMenuItem(AppActions.NEW_CAMPAIGN));
     	fileMenu.add(new JMenuItem(AppActions.LOAD_CAMPAIGN));
         fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN));
@@ -99,6 +95,11 @@ public class AppMenuBar extends JMenuBar {
     protected JMenu createMapMenu() {
     	JMenu menu = I18N.createMenu("menu.map");
     	
+        menu.add(new JMenuItem(AppActions.NEW_MAP));
+        menu.add(createQuickMapMenu());
+    	
+        menu.addSeparator();
+        
         // MAP TOGGLES
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_FOG));
