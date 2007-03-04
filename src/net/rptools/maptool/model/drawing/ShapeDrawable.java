@@ -54,7 +54,6 @@ public class ShapeDrawable extends AbstractDrawing {
 
     protected void drawBackground(Graphics2D g) {
 
-    	g.draw(shape);
         g.fill(shape);
     }
     
