@@ -546,6 +546,7 @@ public class MapTool {
 
 		// System properties
 		System.setProperty("swing.aatext", "true");
+		//System.setProperty("sun.java2d.opengl", "true");
 		
 		// LAF
         try {
