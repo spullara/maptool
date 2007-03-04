@@ -1307,7 +1307,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             }
             
             // Vision visibility
-            if (!view.isGMView() && token.isToken() && isUsingVision) {
+            if (!view.isGMView() && token.isToken() && isUsingVision && zone.hasFog()) {
                 if (!GraphicsUtil.intersects(visibleArea, location.bounds)) {
                     continue;
                 }
@@ -1420,7 +1420,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             
             // Draw image
             Shape clip = g.getClipBounds();
-            if (token.isToken() && !view.isGMView() && !token.isOwner(MapTool.getPlayer().getName()) && visibleArea != null) {
+            if (token.isToken() && !view.isGMView() && !token.isOwner(MapTool.getPlayer().getName()) && visibleArea != null && zone.hasFog()) {
                 g.setClip(visibleArea);
             }
             if ( token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp() || token.isBackground())) {
