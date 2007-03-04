@@ -76,10 +76,8 @@ public class LineSegment extends AbstractDrawing {
 			
 			bounds.add(point);
 		}
-//		System.out.println(points);
 		
 		// Special casing
-		System.out.println(bounds);
 		if (bounds.width < 1) {
 			bounds.width = 1;
 		}
