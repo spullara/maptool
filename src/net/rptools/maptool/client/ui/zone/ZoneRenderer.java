@@ -609,12 +609,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                     g.fill(visibleArea);
                 }
             } else {
-                Area exposedArea = new Area( zone.getExposedArea());
-                exposedArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-                exposedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-                
-                g.setColor(new Color(0, 0, 0, 80));
-                g.fill(exposedArea);
+            	if (zone.hasFog()) {
+	                Area exposedArea = new Area( zone.getExposedArea());
+	                exposedArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+	                exposedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+	                
+	                g.setColor(new Color(0, 0, 0, 80));
+	                g.fill(exposedArea);
+            	}
             }
         }
         if (currentTokenVisionArea != null && !view.isGMView()) {
