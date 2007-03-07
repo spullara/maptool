@@ -80,10 +80,8 @@ public class MessagePanel extends JPanel {
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				synchronized(messageTable) {
-					DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
-					model.addRow(new Object[]{message});
-				}
+				DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
+				model.addRow(new Object[]{message});
 			}
 		});
 	}
