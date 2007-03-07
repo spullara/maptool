@@ -90,17 +90,20 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 
 		// Compute grid
 		int gridx = (int)Math.floor(-viewport.x / (double)CHUNK_SIZE);
-		int gridy = (int)Math.floor(-viewport.y / (double)CHUNK_SIZE);
+		int gridy = (int)Math.floor(-viewport.y / (double)CHUNK_SIZE); 
 
+		// OK, weirdest hack ever.  Basically, when the viewport.x is exactly divisible by the chunk size, the gridx decrements
+		// too early, creating a visual jump in the drawables.  I don't know the exact cause, but this seems to account for it
+		// note that it only happens in the negative space.  Weird.
+		gridx += (viewport.x > CHUNK_SIZE && (viewport.x%CHUNK_SIZE == 0) ? -1 : 0);
+		gridy += (viewport.y > CHUNK_SIZE && (viewport.y%CHUNK_SIZE == 0) ? -1 : 0);
+		
 		Set<String> chunkCache = new HashSet<String>();
 		chunkCache.addAll(chunkMap.keySet());
 		for (int row = 0; row < verticalChunkCount; row++) {
 			
 			for (int col = 0; col < horizontalChunkCount; col++) {
 
-				int x = col * CHUNK_SIZE - ((CHUNK_SIZE - viewport.x))%CHUNK_SIZE - (gridx < -1 ? CHUNK_SIZE : 0);
-				int y = row * CHUNK_SIZE - ((CHUNK_SIZE - viewport.y))%CHUNK_SIZE - (gridy < -1 ? CHUNK_SIZE : 0);
-				
 				int cellX = gridx + col;
 				int cellY = gridy + row;
 
@@ -137,6 +140,11 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 					}
 				}
 				if (chunk != null && chunk != NO_IMAGE) {
+					int x = col * CHUNK_SIZE - ((CHUNK_SIZE - viewport.x))%CHUNK_SIZE - (gridx < -1 ? CHUNK_SIZE : 0);
+					int y = row * CHUNK_SIZE - ((CHUNK_SIZE - viewport.y))%CHUNK_SIZE - (gridy < -1 ? CHUNK_SIZE : 0);
+					if (col == 0 && row == 0) {
+						System.out.println((((CHUNK_SIZE - viewport.y))%CHUNK_SIZE) + " - " + cellY + " - " + gridy + " - " + viewport.y);
+					}
 					g.drawImage(chunk, x, y, null);
 				}
 				chunkCache.remove(key);
@@ -162,7 +170,11 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		
 		// Free up chunks that have gone offscreen
 		for (String key : chunkCache) {
-			releaseChunk(chunkMap.remove(key));
+			// Never clear out the no images because they don't take any space and 
+			// prevent us from having to recalculate them
+			if (chunkMap.get(key) != NO_IMAGE) {
+				releaseChunk(chunkMap.remove(key));
+			}
 		}
 		
 		// REMEMBER
