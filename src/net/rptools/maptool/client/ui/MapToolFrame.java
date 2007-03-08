@@ -372,7 +372,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	public JPanel createMacroButtonPanel() {
 		JPanel panel = new ScrollableFlowPanel(FlowLayout.LEFT);
 
-		for (int i = 1; i < 40; i++) {
+		for (int i = 1; i <= 100; i++) {
 			panel.add(new MacroButton(i, null, true, false));
 		}
 		
