@@ -223,7 +223,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     				return;
     			}
     			tokenUnderMouse = token;
-    			new TokenPopupMenu(Collections.singleton(token.getId()), event.getX(), event.getY(), renderer, token).showPopup(renderer);
+    			Set<GUID> selectedSet = new HashSet<GUID>();
+    			selectedSet.add(token.getId());
+    			new TokenPopupMenu(selectedSet, event.getX(), event.getY(), renderer, token).showPopup(renderer);
     		}
     	}
     	
