@@ -72,6 +72,7 @@ import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.border.BevelBorder;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import javax.xml.parsers.ParserConfigurationException;
@@ -411,6 +412,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	public void showControlPanel(JPanel... panels) {
 
 		JPanel layoutPanel = new JPanel(new GridBagLayout());
+		layoutPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
 		int i = 0;
 		for (JPanel panel : panels) {
@@ -419,6 +421,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			gbc.gridx = 1;
 			gbc.gridy = i;
 			gbc.weightx = 1;
+			gbc.fill = GridBagConstraints.BOTH;
 			
 			layoutPanel.add(panel, gbc);
 			i++;

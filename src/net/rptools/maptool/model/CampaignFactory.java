@@ -9,11 +9,13 @@ import net.rptools.maptool.util.ImageManager;
 
 public class CampaignFactory {
 
+	public static final String DEFAULT_MAP_NAME = "Grasslands";
+	
 	public static Campaign createBasicCampaign() {
 		Campaign campaign = new Campaign();
 		
         try {
-			Asset asset = new Asset("Grasslands", FileUtil.loadResource("net/rptools/lib/resource/image/texture/grass.png"));
+			Asset asset = new Asset(DEFAULT_MAP_NAME, FileUtil.loadResource("net/rptools/lib/resource/image/texture/grass.png"));
             final Zone zone = ZoneFactory.createZone(Zone.MapType.INFINITE, asset.getId());
 
             // TODO: This should really be in the factory method

@@ -15,12 +15,12 @@
 	<classpathentry kind="lib" path="lib/jide-common-1.9.4_7.jar"/>
 	<classpathentry kind="lib" path="lib/jide-dock-1.9.4_7.jar"/>
 	<classpathentry kind="lib" path="lib/jide-grids-1.9.4.jar"/>
-	<classpathentry kind="lib" path="lib/rplib-1.0.b79.jar"/>
 	<classpathentry kind="lib" path="lib/antlr-2.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/dicelib-1.0.b0.jar"/>
 	<classpathentry kind="lib" path="lib/js-1.6R5.jar"/>
 	<classpathentry kind="lib" path="lib/parser-1.0.b3.jar"/>
 	<classpathentry kind="lib" path="lib/clientserver-1.0.b12.jar"/>
 	<classpathentry kind="lib" path="lib/rplib.resource-1.0.b10.jar"/>
+	<classpathentry kind="lib" path="lib/rplib-1.0.b80.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
