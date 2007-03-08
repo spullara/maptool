@@ -3,6 +3,7 @@ package net.rptools.maptool.client.tool;
 import java.awt.GridLayout;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -24,6 +25,7 @@ public class LayerSelectionDialog extends JPanel {
 		panel = new FormPanel("net/rptools/maptool/client/ui/forms/layerSelectionDialog.jfrm");
 		this.listener = listener;
 		this.layerList = layerList;
+		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		
 		getLayerList();
 		
