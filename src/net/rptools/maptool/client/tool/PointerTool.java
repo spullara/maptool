@@ -48,6 +48,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -200,50 +202,54 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     	}
     	public void handleMousePressed(MouseEvent event) {
     		if (event.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(event)) {
-        		Point p = event.getPoint();
-        		for (TokenLocation location : tokenLocationList) {
-        			if (location.getBounds().contains(p.x, p.y)) {
-        				
-    					TokenPropertiesDialog tokenPropertiesDialog = MapTool.getFrame().getTokenPropertiesDialog();
-    					tokenPropertiesDialog.setToken(location.getToken());
-    					tokenPropertiesDialog.setVisible(true);
-    					if (tokenPropertiesDialog.isTokenSaved()) {
-    						renderer.repaint();
-    						renderer.flush(location.getToken());
-    						MapTool.serverCommand().putToken(renderer.getZone().getId(), location.getToken());
-    					}
-        				return;
-        			}
-        		}
+    			Token token = getTokenAt(event.getX(), event.getY());
+    			if (token == null) {
+    				return;
+    			}
+
+    			// TODO: Combine this with the code just like it below
+				TokenPropertiesDialog tokenPropertiesDialog = MapTool.getFrame().getTokenPropertiesDialog();
+				tokenPropertiesDialog.setToken(token);
+				tokenPropertiesDialog.setVisible(true);
+				if (tokenPropertiesDialog.isTokenSaved()) {
+					renderer.repaint();
+					renderer.flush(token);
+					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+				}
+    		}
+    		if (SwingUtilities.isRightMouseButton(event)) {
+    			Token token = getTokenAt(event.getX(), event.getY());
+    			if (token == null) {
+    				return;
+    			}
+    			tokenUnderMouse = token;
+    			new TokenPopupMenu(Collections.singleton(token.getId()), event.getX(), event.getY(), renderer, token).showPopup(renderer);
     		}
     	}
     	
     	public void handleMouseMotionEvent(MouseEvent event) {
 
-    		Point p = event.getPoint();
-    		for (TokenLocation location : tokenLocationList) {
-    			if (location.getBounds().contains(p.x, p.y)) {
+    		Token token = getTokenAt(event.getX(), event.getY());
+    		if (token == null) {
+    			return;
+    		}
+    		
+			if (!AppUtil.playerOwns(token)) {
+				return;
+			}
+			
+			renderer.clearSelectedTokens();
+			boolean selected = renderer.selectToken(token.getId());
 
-    				if (!AppUtil.playerOwns(location.getToken())) {
-    					return;
-    				}
-    				
-    				renderer.clearSelectedTokens();
-    				boolean selected = renderer.selectToken(location.getToken().getId());
-
-    				if (selected) {
-	    				Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
-	    				if (!(tool instanceof PointerTool)) {
-	    					return;
-	    				}
-	    				
-	    				tokenUnderMouse = location.getToken();
-	    				((PointerTool) tool).startTokenDrag(location.getToken());
-    				}
-
-    				return;
-    			}
-    		}			
+			if (selected) {
+				Tool tool = MapTool.getFrame().getToolbox().getSelectedTool();
+				if (!(tool instanceof PointerTool)) {
+					return;
+				}
+				
+				tokenUnderMouse = token;
+				((PointerTool) tool).startTokenDrag(token);
+			}
     	}
     	
     	public void paint(Graphics g) {
@@ -279,6 +285,15 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     			tokenLocationList.add(new TokenLocation(bounds, token));
     		}
     	}    	
+    	
+    	public Token getTokenAt(int x, int y) {
+    		for (TokenLocation location : tokenLocationList) {
+    			if (location.getBounds().contains(x, y)) {
+    				return location.getToken();
+    			}
+    		}
+    		return null;
+    	}
     	
     	public boolean contains(int x, int y) {
     		return new Rectangle(this.x, this.y, getSize().width, getSize().height).contains(x, y);
