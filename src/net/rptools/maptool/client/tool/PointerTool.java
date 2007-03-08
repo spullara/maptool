@@ -26,8 +26,11 @@ package net.rptools.maptool.client.tool;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
@@ -45,7 +48,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,6 +84,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 
 /**
@@ -188,11 +191,31 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     	
     	public Dimension getSize() {
     		int gridSize = (int)renderer.getScaledGridSize();
-    		return new Dimension(tokenList.size()*(gridSize + PADDING) + PADDING, gridSize + PADDING*2);
+    		FontMetrics fm = getFontMetrics(getFont());
+    		return new Dimension(tokenList.size()*(gridSize + PADDING) + PADDING, gridSize + PADDING*2 + fm.getHeight()+10);
     	}
     	
-    	public void handleMouseEvent(MouseEvent event) {
-    		// Nothing to do right now
+    	public void handleMouseReleased(MouseEvent event) {
+    		
+    	}
+    	public void handleMousePressed(MouseEvent event) {
+    		if (event.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(event)) {
+        		Point p = event.getPoint();
+        		for (TokenLocation location : tokenLocationList) {
+        			if (location.getBounds().contains(p.x, p.y)) {
+        				
+    					TokenPropertiesDialog tokenPropertiesDialog = MapTool.getFrame().getTokenPropertiesDialog();
+    					tokenPropertiesDialog.setToken(location.getToken());
+    					tokenPropertiesDialog.setVisible(true);
+    					if (tokenPropertiesDialog.isTokenSaved()) {
+    						renderer.repaint();
+    						renderer.flush(location.getToken());
+    						MapTool.serverCommand().putToken(renderer.getZone().getId(), location.getToken());
+    					}
+        				return;
+        			}
+        		}
+    		}
     	}
     	
     	public void handleMouseMotionEvent(MouseEvent event) {
@@ -228,8 +251,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     		Dimension size = getSize();
     		int gridSize = (int)renderer.getScaledGridSize();
     		
+    		FontMetrics fm = g.getFontMetrics();
+    		
     		// Background
-    		g.setColor(getBackground());
+    		((Graphics2D)g).setPaint(new GradientPaint(x, y, Color.white, x+size.width, y+size.height, Color.gray));
     		g.fillRect(x, y, size.width, size.height);
     		
     		// Border
@@ -249,6 +274,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     			Rectangle bounds = new Rectangle(x + PADDING + i*(gridSize + PADDING), y + PADDING, imgSize.width, imgSize.height);
     			g.drawImage(image, bounds.x, bounds.y, bounds.width, bounds.height, renderer);
     			
+    			GraphicsUtil.drawBoxedString((Graphics2D) g, token.getName(), bounds.x+bounds.width/2, bounds.y+bounds.height+fm.getAscent());
+    			
     			tokenLocationList.add(new TokenLocation(bounds, token));
     		}
     	}    	
@@ -265,7 +292,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		if (isShowingTokenStackPopup) {
 			if (tokenStackPanel.contains(e.getX(), e.getY())) {
-				tokenStackPanel.handleMouseEvent(e);
+				tokenStackPanel.handleMousePressed(e);
 				return;
 			} else {
 				isShowingTokenStackPopup = false;
@@ -358,7 +385,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		if (isShowingTokenStackPopup) {
 			if (tokenStackPanel.contains(e.getX(), e.getY())) {
-				tokenStackPanel.handleMouseEvent(e);
+				tokenStackPanel.handleMouseReleased(e);
 				return;
 			} else {
 				isShowingTokenStackPopup = false;
