@@ -433,7 +433,7 @@ public class MapTool {
 		if (getCampaign().getZones().size() == 1) {
 			// Remove the default map
 			Zone singleZone = getCampaign().getZones().get(0);
-			if (singleZone.isEmpty()) {
+			if (CampaignFactory.DEFAULT_MAP_NAME.equals(singleZone.getName()) && singleZone.isEmpty()) {
 				removeZone(singleZone);
 			}
 		}
