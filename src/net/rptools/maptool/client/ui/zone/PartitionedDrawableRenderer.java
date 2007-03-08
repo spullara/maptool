@@ -142,9 +142,6 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 				if (chunk != null && chunk != NO_IMAGE) {
 					int x = col * CHUNK_SIZE - ((CHUNK_SIZE - viewport.x))%CHUNK_SIZE - (gridx < -1 ? CHUNK_SIZE : 0);
 					int y = row * CHUNK_SIZE - ((CHUNK_SIZE - viewport.y))%CHUNK_SIZE - (gridy < -1 ? CHUNK_SIZE : 0);
-					if (col == 0 && row == 0) {
-						System.out.println((((CHUNK_SIZE - viewport.y))%CHUNK_SIZE) + " - " + cellY + " - " + gridy + " - " + viewport.y);
-					}
 					g.drawImage(chunk, x, y, null);
 				}
 				chunkCache.remove(key);
