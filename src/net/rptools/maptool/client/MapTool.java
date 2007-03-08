@@ -65,7 +65,6 @@ import net.rptools.maptool.transfer.AssetTransferManager;
 import net.tsc.servicediscovery.ServiceAnnouncer;
 
 import com.jidesoft.plaf.LookAndFeelFactory;
-import com.jidesoft.plaf.LookAndFeelFactory.UIDefaultsCustomizer;
 
 import de.muntjak.tinylookandfeel.Theme;
 import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
@@ -231,7 +230,9 @@ public class MapTool {
             });
             
             if (!player.equals(MapTool.getPlayer())) {	
-            	getFrame().getNotificationOverlay().addEvent(player.getName() + " has connected");
+            	String announcement = player.getName() + " has connected.";
+            	getFrame().getNotificationOverlay().addEvent(announcement);
+    			addLocalMessage("<span style='color:#0000ff'><i>" + announcement + "</i></span>");
             }
         }
 	}
@@ -255,7 +256,9 @@ public class MapTool {
 		playerList.remove(player);
 
 		if (MapTool.getPlayer() != null && !player.equals(MapTool.getPlayer())) {
-			getFrame().getNotificationOverlay().addEvent(player.getName() + " has disconnected");
+			String announcement = player.getName() + " has disconnected.";
+			getFrame().getNotificationOverlay().addEvent(announcement);
+			addLocalMessage("<span style='color:#0000ff'><i>" + announcement + "</i></span>");
 		}
 	}
 	
@@ -536,6 +539,7 @@ public class MapTool {
         }
         
         MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.disconnected);
+		addLocalMessage("<span style='color:blue'><i>You have disconnected.</i></span>");
     }
     
 	public static MapToolFrame getFrame() {
