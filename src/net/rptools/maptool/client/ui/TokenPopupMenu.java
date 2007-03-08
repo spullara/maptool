@@ -55,10 +55,12 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new JSeparator());
 
 		if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
+			
+			add(createExposeMenu());
+
 			if (MapTool.getPlayer().isGM()) {
 				addGMItem(createVisionMenu());
 			}
-			add(createExposeMenu());
 			add(new JSeparator());
 		}
 
