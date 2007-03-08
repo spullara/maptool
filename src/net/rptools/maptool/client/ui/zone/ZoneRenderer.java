@@ -509,6 +509,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         if (!zone.isVisible()) {
             GraphicsUtil.drawBoxedString(g2d, "Zone not visible to players", getSize().width/2, 20);
         }
+        if (AppState.isShowAsPlayer()) {
+            GraphicsUtil.drawBoxedString(g2d, "Player View", getSize().width/2, 20);
+        }
     }
     
     public void renderZone(Graphics2D g2d, ZoneView view) {
