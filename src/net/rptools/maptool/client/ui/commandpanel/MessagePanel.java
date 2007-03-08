@@ -71,7 +71,10 @@ public class MessagePanel extends JPanel {
 	public void clearMessages() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				messageTable.setModel(new DefaultTableModel());
+				DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
+				while (model.getRowCount() > 0) {
+					model.removeRow(0);
+				}
 			}
 		});
 	}
