@@ -43,6 +43,7 @@ public class AppPreferences {
     private static final String KEY_SAVE_DIR = "saveDir";
     private static final String KEY_LOAD_DIR = "loadDir";
     private static final String KEY_MRU_CAMPAIGNS = "mruCampaigns";
+    private static final String KEY_SAVED_PAINT_TEXTURES = "savedTextures";
     
     private static final String KEY_SAVE_REMINDER = "autoSaveIncrement";
     private static final boolean DEFAULT_SAVE_REMINDER = true;
@@ -241,7 +242,7 @@ public class AppPreferences {
     public static void setDefaultGridType(String type) {
     	prefs.put(KEY_DEFAULT_GRID_TYPE, type);
     }
-    
+
     public static void clearAssetRoots() {
         prefs.put(KEY_ASSET_ROOTS, "");
     }
@@ -335,6 +336,29 @@ public class AppPreferences {
         return mruCampaigns;
     }
 
+    
+    public static void setSavedPaintTextures (List<File> savedTextures) {
+    	
+    	StringBuilder combined = new StringBuilder("");
+		for (ListIterator<File> iter = savedTextures.listIterator(); iter.hasNext();) {
+			combined.append(iter.next().getPath());
+			combined.append(File.pathSeparator);
+		}
+		prefs.put(KEY_SAVED_PAINT_TEXTURES, combined.toString());
+    }
+    
+    
+    public static List<File> getSavedPaintTextures() {
+
+        List<File> savedTextures = new ArrayList<File>();
+        String combined = prefs.get(KEY_SAVED_PAINT_TEXTURES, null);
+        if (combined != null) {
+            String[] all = combined.split(File.pathSeparator);
+            for (int i = 0; i < all.length; i++)
+            	savedTextures.add(new File(all[i]));
+        }
+        return savedTextures;
+    }
     
     
 }

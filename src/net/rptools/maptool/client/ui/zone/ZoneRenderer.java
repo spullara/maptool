@@ -1236,7 +1236,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         Rectangle clipBounds = g.getClipBounds();
         float scale = zoneScale.getScale();
-        double gridSize = getScaledGridSize();
+        int gridSize = grid.getSize();
         for (Token token : tokenList) {
 
             // Don't bother if it's not visible
@@ -1393,7 +1393,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
             // Previous path
             if (showPathList.contains(token) && token.getLastPath() != null) {
-                renderPath(g, token.getLastPath(), (int)(location.scaledWidth/gridSize), (int)(location.scaledHeight/gridSize));
+                renderPath(g, token.getLastPath(), height/gridSize, width/gridSize);
             }
             
             // Halo (TOPDOWN, CIRCLE)

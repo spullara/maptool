@@ -26,17 +26,17 @@ public class HexGridVertical extends HexGrid {
 	
 	@Override
 	public double getCellHeight() {
-		return minorRadius*2;
+		return getVRadius()*2;
 	}
 	
 	@Override
 	public double getCellWidth() {
-		return edgeLength + edgeProjection*2; // edgeLength is edgeProjection*2;
+		return getURadius()*2;
 	}
 	
 	@Override
 	protected Dimension setCellOffset() {
-		return new Dimension((int)-edgeLength, -minorRadius);
+		return new Dimension((int)getCellOffsetU(), (int)getCellOffsetV());
 	}
 	
 	

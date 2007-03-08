@@ -219,4 +219,21 @@ public abstract class Grid implements Cloneable{
 	 */
 	public abstract Point cellGroupTopLeftOffset(int height, int width, boolean isToken);
 	
+	/**
+	 * Override if getCapabilities.isSecondDimensionAdjustmentSupported() returns true
+	 * @param length the second settable dimension
+	 * @return
+	 */
+	public void setSecondDimension(double length) {
+		return;
+	}
+	
+	/**
+	 * Override if getCapabilities.isSecondDimensionAdjustmentSupported() returns true
+	 *  @return length the curent value of the second settable dimension
+	 */
+	public double getSecondDimension() {
+		return 0;
+	}
+	
 }

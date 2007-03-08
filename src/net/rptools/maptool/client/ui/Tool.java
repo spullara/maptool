@@ -172,7 +172,15 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
        * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
        */
       public void actionPerformed(ActionEvent e) {
-        resetTool();
+    	  // This should probably go somewhere else like MapToolFrame...
+    	  // but it was just too easy to plop down here to resist =)
+    	  // although having it here will be a quick reminder about competing 
+    	  // Escape actions.
+			if (MapTool.getFrame().isFullScreen()) {
+				MapTool.getFrame().showWindowed();
+			}
+			
+			resetTool();
       }
     }
     

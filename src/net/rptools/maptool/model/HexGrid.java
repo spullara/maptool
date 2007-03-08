@@ -23,6 +23,10 @@ import net.rptools.maptool.util.HexGridUtil;
  * The v-axis points along the direction of edge to edge hexes
  */
 public abstract class HexGrid extends Grid {
+	
+	// A regular hexagon is one where all angles are 60 degrees.
+	// the ratio = minor_radius / edge_length
+	public static double REGULAR_HEX_RATIO = Math.sqrt(3)/2;
 
 	protected static BufferedImage pathHighlight;
 
@@ -38,14 +42,20 @@ public abstract class HexGrid extends Grid {
 		public boolean isPathingSupported() {return true;}
 		public boolean isSnapToGridSupported() {return true;}
 		public boolean isPathLineSupported() {return true;}
+		public boolean isSecondDimensionAdjustmentSupported() {return true;}
 	};
 	
 	protected int[] facingAngles;
 	
+	/**
+	 * minorRadius / edgeLength
+	 */
+	private double hexRatio = REGULAR_HEX_RATIO;
+	
 	// Hex defining variables for convenience
-	protected double edgeProjection;
-	protected int minorRadius;
-	protected double edgeLength;
+	private double edgeProjection;
+	private double minorRadius;
+	private double edgeLength;
 	
 	// Hex defining variables scaled for zoom
 	private double scaledEdgeProjection;
@@ -67,6 +77,8 @@ public abstract class HexGrid extends Grid {
 	
 	@Override
 	protected Area createCellShape(int size) {
+		// don't use size.  it has already been used to set the minorRadius
+		// and will only introduce a rounding error.
 		return new Area(createShape(minorRadius, edgeProjection, edgeLength));
 	}
 	
@@ -81,7 +93,7 @@ public abstract class HexGrid extends Grid {
 	 * @return Distance from the center to vertex of a hex
 	 */
 	public double getURadius() {
-		return edgeLength;
+		return edgeLength/2 + edgeProjection;
 	}
 	
 	@Override
@@ -95,7 +107,7 @@ public abstract class HexGrid extends Grid {
 	 * to the least edge (v_min)
 	 */
 	public double getCellOffsetV() {
-		return -minorRadius;
+		return -getVRadius();
 	}
 	
 	/**
@@ -105,7 +117,7 @@ public abstract class HexGrid extends Grid {
 	 * to the least vertex (u_min)
 	 */
 	public double getCellOffsetU() {
-		return -(int)edgeLength;
+		return -getURadius();
 	}
 
 	
@@ -115,7 +127,7 @@ public abstract class HexGrid extends Grid {
 	 * always land in the center of a cell
 	 */
 	public double getCellGroupCenterVComponent(int numCells) {
-		return minorRadius*numCells;
+		return getVRadius()*numCells;
 	}
 
 	/**
@@ -145,14 +157,18 @@ public abstract class HexGrid extends Grid {
 	
 	@Override
 	public void setSize(int size) {
+
+		if (hexRatio == 0) {
+			hexRatio = REGULAR_HEX_RATIO;
+		}
+		
 		// Using size as the edge-to-edge distance or 
 		// minor diameter of the hex.
-		
 		size = constrainSize(size);
 
-		edgeLength = size/Math.sqrt(3);
-		edgeProjection = edgeLength/2;
-		minorRadius = size/2;
+		minorRadius = (double)size/2;
+		edgeLength = minorRadius/hexRatio;
+		edgeProjection = Math.sqrt(edgeLength*edgeLength - minorRadius*minorRadius); // Pythagorus
 		
 		scaledHex = null;
 
@@ -208,7 +224,7 @@ public abstract class HexGrid extends Grid {
 
 	@Override
 	public int getTokenSpace() {
-		return (int)(minorRadius * 2);
+		return (int)(getVRadius() * 2);
 	}
 	
 	protected abstract void initFacingAngles();
@@ -240,9 +256,9 @@ public abstract class HexGrid extends Grid {
 					-(scaledEdgeProjection + scaledEdgeLength));
 					count ++;
 
-			for (double u = offU%(3 * scaledEdgeLength) - (3 * scaledEdgeLength);
-					u < getRendererSizeU(renderer) + scaledEdgeLength;
-					u += scaledEdgeProjection*2 + scaledEdgeLength*2) {
+			for (double u = offU%(2*scaledEdgeLength + 2*scaledEdgeProjection) - (2*scaledEdgeLength + 2*scaledEdgeProjection);
+					u < getRendererSizeU(renderer)+2*scaledEdgeLength + 2*scaledEdgeProjection;
+					u += 2*scaledEdgeLength + 2*scaledEdgeProjection) {
 
 				setGridDrawTranslation( g, u + offsetU, v);
 				g.draw(scaledHex);
@@ -356,7 +372,7 @@ public abstract class HexGrid extends Grid {
 		
 		u = (int)Math.round(cpU * (edgeProjection + edgeLength) + edgeLength) + getOffsetU();			
 		
-		v = cpV * 2 * minorRadius + (Math.abs(cpU) % 2 == 0 ? 1 : 2)* minorRadius + getOffsetV();
+		v = (int)(cpV * 2 * minorRadius + (Math.abs(cpU) % 2 == 0 ? 1 : 2)* minorRadius + getOffsetV());
 		
 		return new ZonePoint(u, v);
 	}
@@ -422,6 +438,27 @@ public abstract class HexGrid extends Grid {
         }
 
         return new Point(x,y);
+	}
+	
+	@Override
+	public void setSecondDimension(double length) {
+		if (length < minorRadius*2 ) {
+			hexRatio = REGULAR_HEX_RATIO;
+		}
+		else {
+			//	some linear algebra and a quadratic equation results in:
+			double aspectRatio = length / (2*minorRadius);
+			double a = 0.75;
+			double c = -(aspectRatio*aspectRatio+1)*minorRadius*minorRadius;
+			double b = minorRadius*aspectRatio;
+			edgeLength = (-b + Math.sqrt(b*b - 4*a*c))/(2*a);
+			hexRatio = minorRadius/edgeLength;
+		}
+	}
+
+	@Override
+	public double getSecondDimension() {
+		return getURadius()*2;
 	}
 
 }

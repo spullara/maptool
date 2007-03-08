@@ -27,6 +27,8 @@ package net.rptools.maptool.client.tool;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
@@ -57,10 +59,12 @@ import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.HexGrid;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 
 import com.jeta.forms.components.colors.JETAColorWell;
+import com.jeta.forms.components.label.JETALabel;
 import com.jeta.forms.components.panel.FormPanel;
 
 
@@ -76,6 +80,9 @@ public class GridTool extends DefaultTool {
     private JTextField gridOffsetYTextField;
     private JETAColorWell colorWell;
     private JSlider zoomSlider;
+    
+    private JTextField gridSecondDimension;
+    private JETALabel gridSecondDimensionLabel;
     
     private FormPanel controlPanel;
     
@@ -108,6 +115,10 @@ public class GridTool extends DefaultTool {
         gridOffsetYTextField = controlPanel.getTextField("offsetY");
         gridOffsetYTextField.addKeyListener(new UpdateGridListener());
         
+        gridSecondDimensionLabel = (JETALabel)controlPanel.getLabel("gridSecondDimensionLabel");
+        gridSecondDimension = controlPanel.getTextField("gridSecondDimension");
+        gridSecondDimension.addFocusListener(new UpdateGridListener());
+   
         colorWell = (JETAColorWell) controlPanel.getComponentByName("colorWell");
         colorWell.addActionListener(new ActionListener(){
         	public void actionPerformed(ActionEvent e) {
@@ -156,22 +167,48 @@ public class GridTool extends DefaultTool {
 
 		Grid grid = zone.getGrid();
 		
+		updateSecondDimension(grid, true);	
 		gridSizeSpinner.setValue(grid.getSize());
 		gridOffsetXTextField.setText(Integer.toString(grid.getOffsetX()));
 		gridOffsetYTextField.setText(Integer.toString(grid.getOffsetY()));
 		colorWell.setColor(new Color(zone.getGridColor()));
 		zoomSlider.setValue(renderer.getScaleIndex());
+
 	}
 	
+	/**
+	 * Updates the panel's text or the grids second settable dimension.
+	 * @param toPanel true = from grid to panel, false = from panel to grid
+	 * @param grid
+	 */
+	private void updateSecondDimension(Grid grid, boolean toPanel) {
+		if ( grid.getCapabilities().isSecondDimensionAdjustmentSupported() ) {
+			
+			if (toPanel) {
+				// truncate to 3 decimal places
+				double secondDim = Math.round(grid.getSecondDimension()*1000.0)/1000.0;
+				gridSecondDimension.setText(Double.toString(secondDim));
+			}
+			else { // toGrid
+				double newMajDiameter = getDouble((String)gridSecondDimension.getText(), 0);
+				grid.setSecondDimension(newMajDiameter);
+			}
+		}		
+	}
+
+		
 	private void copyControlPanelToGrid() {
 		
 		Zone zone = renderer.getZone();
 
 		Grid grid = zone.getGrid();
+		
+		updateSecondDimension(grid, false);
 		grid.setSize(Math.max((Integer)gridSizeSpinner.getValue(), Grid.MIN_GRID_SIZE));
+		updateSecondDimension(grid, true);
 		grid.setOffset(getInt(gridOffsetXTextField, 0), getInt(gridOffsetYTextField, 0));
 		zone.setGridColor(colorWell.getColor().getRGB());
-	
+		
 		renderer.repaint();
 	}
 
@@ -191,6 +228,9 @@ public class GridTool extends DefaultTool {
     private int getInt(String value, int defaultValue) {
     	return value.length() > 0 ? Integer.parseInt(value.trim()) : defaultValue;
     }
+    private double getDouble(String value, double defaultValue) {
+    	return value.length() > 0 ? Double.parseDouble(value.trim()) : defaultValue;
+    }
     
     /* (non-Javadoc)
 	 * @see maptool.client.Tool#attachTo(maptool.client.ZoneRenderer)
@@ -199,6 +239,12 @@ public class GridTool extends DefaultTool {
 		
 		oldShowGrid = AppState.isShowGrid();
 		AppState.setShowGrid(true);
+		
+		Grid grid = renderer.getZone().getGrid();
+		
+        boolean showSecond = grid.getCapabilities().isSecondDimensionAdjustmentSupported() ? true : false;
+		gridSecondDimension.setVisible(showSecond);
+		gridSecondDimensionLabel.setVisible(showSecond);
 		
 		MapTool.getFrame().showControlPanel(controlPanel);
 		renderer.repaint();
@@ -318,6 +364,7 @@ public class GridTool extends DefaultTool {
         switch (direction) {
         case Increase:
             renderer.adjustGridSize(1);
+            updateSecondDimension(renderer.getZone().getGrid(), true);
             
             if (renderer.getZone().getGrid().getSize() != oldGridSize) {
             	renderer.moveGridBy(-cell.x, -cell.y);
@@ -325,7 +372,8 @@ public class GridTool extends DefaultTool {
             break;
         case Decrease:
             renderer.adjustGridSize(-1);
-
+            updateSecondDimension(renderer.getZone().getGrid(), true);
+            
             if (renderer.getZone().getGrid().getSize() != oldGridSize) {
             	renderer.moveGridBy(cell.x, cell.y);
             }
@@ -379,7 +427,7 @@ public class GridTool extends DefaultTool {
     
     ////
     // ACTIONS
-    private class UpdateGridListener implements KeyListener, ChangeListener {
+    private class UpdateGridListener implements KeyListener, ChangeListener, FocusListener {
     	public void keyPressed(KeyEvent e) {
     	}
     	public void keyReleased(KeyEvent e) {
@@ -390,6 +438,12 @@ public class GridTool extends DefaultTool {
     	
     	public void stateChanged(ChangeEvent e) {
     		copyControlPanelToGrid();
+    	}
+    	
+    	public void focusLost(FocusEvent e) {
+    		copyControlPanelToGrid();
+    	}
+    	public void focusGained(FocusEvent e) {
     	}
     }
 }
