@@ -86,8 +86,7 @@ public class Token {
 	
 	public enum Type {
 		PC,
-		NPC,
-		MARKER
+		NPC
 	}
 
 	public static final Comparator<Token> NAME_COMPARATOR = new Comparator<Token>() {

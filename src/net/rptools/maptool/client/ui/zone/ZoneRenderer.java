@@ -84,6 +84,7 @@ import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.ui.Scale;
+import net.rptools.maptool.client.ui.token.NewTokenDialog;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.token.TokenTemplate;
@@ -1598,7 +1599,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 
                 Color background = token.isVisible() ? Color.white : Color.gray;
                 Color foreground = token.isVisible() ? Color.black : Color.lightGray;
-                GraphicsUtil.drawBoxedString(g, name, bounds.getBounds().x + bounds.getBounds ().width/2, bounds.getBounds().y + bounds.getBounds().height + 10, SwingUtilities.CENTER, background, foreground);
+                int offset = 10 + (isSelected ? 3 : 0);
+                GraphicsUtil.drawBoxedString(g, name, bounds.getBounds().x + bounds.getBounds ().width/2, bounds.getBounds().y + bounds.getBounds().height + offset, SwingUtilities.CENTER, background, foreground);
             }
         }
         
@@ -2006,6 +2008,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         GridCapabilities gridCaps = zone.getGrid().getCapabilities();
         boolean isGM = MapTool.getPlayer().isGM();
         
+        ScreenPoint sp = ScreenPoint.fromZonePoint(this, zp);
+        Point dropPoint = new Point(sp.x, sp.y);
+        SwingUtilities.convertPointToScreen(dropPoint, this);
         for (Token token : tokens) {
             
             // Get the snap to grid value for the current prefs and abilities
@@ -2046,7 +2051,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             token.setName(MapToolUtil.nextTokenId(zone, token));
             
             // Token type
-            token.setType(isGM ? Token.Type.NPC : Token.Type.PC);
+            if (isGM) {
+            	if (getActiveLayer() == Zone.Layer.TOKEN) {
+	            	NewTokenDialog dialog = new NewTokenDialog(token, dropPoint.x, dropPoint.y);
+	            	dialog.setVisible(true);
+	            	if (!dialog.isSuccess()) {
+	            		continue;
+	            	}
+            	} else {
+            		token.setType(Token.Type.NPC);
+            	}
+            } else {
+            	// Player dropped, player token
+                token.setType(Token.Type.PC);
+            }
 
             // Save the token and tell everybody about it
             zone.putToken(token);
