@@ -738,7 +738,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                     g.translate(bounds.x, bounds.y);
                     ((TokenTemplate) value).paintTemplate(g, token, bounds,this);
                     g.translate(-bounds.x, -bounds.y);
-                     g.setClip(clip);
+                    g.setClip(clip);
                 }
             }
         }
@@ -926,7 +926,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 Rectangle clip = g.getClipBounds();
                 if (token.isToken() && !view.isGMView() && !isOwner && visibleArea != null) {
                     // Only show the part of the path that is visible
-                    g.setClip(visibleArea);
+                	Area clipArea = new Area(clip);
+                	clipArea.intersect(visibleArea);
+                    g.setClip(clipArea);
                 }
                 
                 // Show distance only on the key token
@@ -1427,7 +1429,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             // Draw image
             Shape clip = g.getClipBounds();
             if (token.isToken() && !view.isGMView() && !token.isOwner(MapTool.getPlayer().getName()) && visibleArea != null && zone.hasFog()) {
-                g.setClip(visibleArea);
+            	Area clipArea = new Area(clip);
+            	clipArea.intersect(visibleArea);
+                g.setClip(clipArea);
             }
             if ( token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp() || token.isBackground())) {
                 // Rotated
@@ -1607,7 +1611,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         // Stacks
         Shape clip = g.getClipBounds();
         if (!view.isGMView() && visibleArea != null) {
-            g.setClip(visibleArea);
+        	Area clipArea = new Area(clip);
+        	clipArea.intersect(visibleArea);
+            g.setClip(clipArea);
         }
         for (Area rect : coveredTokenSet) {
             
