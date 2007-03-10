@@ -1136,7 +1136,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				String notes = builder.toString();
 				notes = notes.replace("\n", "<br>");
 				
-				Dimension size = htmlRenderer.setText(notes.toString(), (int)(renderer.getWidth()*.65), (int)(renderer.getHeight()*.65));
+				Dimension size = htmlRenderer.setText(notes.toString(), (int)(renderer.getWidth()*.75), (int)(renderer.getHeight()*.75));
 				Point location = new Point(bounds.getBounds().x+bounds.getBounds().width/2 - size.width/2, bounds.getBounds().y);
 
 				location.x = 4;
