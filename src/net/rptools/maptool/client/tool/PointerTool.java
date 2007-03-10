@@ -1105,40 +1105,34 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (tokenUnderMouse == null && markerUnderMouse != null) {
 			Area bounds = renderer.getMarkerBounds(markerUnderMouse);
  
-			StringBuilder allTheNotes = new StringBuilder();
-
-			if (!StringUtil.isEmpty(markerUnderMouse.getNotes())) {
-				allTheNotes.append(markerUnderMouse.getNotes());
-				// add a gap between player and gmNotes
-				if (markerUnderMouse.getGMNotes() != null) {
-					allTheNotes.append("\n\n");
-				}
-			}
-			
-			if (!StringUtil.isEmpty(markerUnderMouse.getGMNotes())) {
-				allTheNotes.append("** GM NOTES for ");
-				allTheNotes.append(markerUnderMouse.getName()).append(":\n");
-				allTheNotes.append(markerUnderMouse.getGMNotes());
-			}
-			
 //			GraphicsUtil.drawPopup(g, allTheNotes.toString(),
 //					bounds.getBounds().x + bounds.getBounds().width/2, bounds.getBounds().y,
 //					SwingUtilities.CENTER, (int)(renderer.getWidth()*0.75));
 			
 			if (bounds != null) {
+				boolean showGMNotes = MapTool.getPlayer().isGM() && !StringUtil.isEmpty(markerUnderMouse.getGMNotes());
+				
 				StringBuilder builder = new StringBuilder();
-				if (markerUnderMouse.getNotes() != null) {
+
+				if (!StringUtil.isEmpty(markerUnderMouse.getNotes())) {
 					builder.append(markerUnderMouse.getNotes());
-					if (markerUnderMouse.getGMNotes() != null) {
-						builder.append("<br><br>");
-					}
-					if (markerUnderMouse.getGMNotes() != null) {
-						builder.append("** <i>").append(markerUnderMouse.getGMNotes()).append("</i>");
+					// add a gap between player and gmNotes
+					if (showGMNotes) {
+						builder.append("\n\n");
 					}
 				}
 				
-				Dimension size = htmlRenderer.setText(builder.toString(), (int)(renderer.getWidth()*.65), (int)(renderer.getHeight()*.65));
-				Point location = new Point(bounds.getBounds().x+bounds.getBounds().width/2 - size.width/2, bounds.getBounds().y);
+				if (showGMNotes) {
+					builder.append("** GM NOTES for ");
+					builder.append(markerUnderMouse.getName()).append(":\n");
+					builder.append(markerUnderMouse.getGMNotes());
+				}
+
+				String notes = builder.toString();
+				notes = notes.replace("\n", "<br>");
+				
+				Dimension size = htmlRenderer.setText(notes.toString(), (int)(renderer.getWidth()*.65), (int)(renderer.getHeight()*.65));
+				Point location = new Point(bounds.getBounds().x+bounds.getBounds().width/2 - size.width/2, bounds.getBounds().y + bounds.getBounds().height/2 - size.height/2);
 
 				if (location.x + size.width > viewSize.width) {
 					location.x = viewSize.width - size.width;

@@ -110,6 +110,7 @@ import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.HexGridUtil;
 import net.rptools.maptool.util.ImageManager;
+import net.rptools.maptool.util.StringUtil;
 import net.rptools.maptool.util.TokenUtil;
 
 
@@ -1313,15 +1314,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             location = new TokenLocation(tokenBounds, origBounds, token, x, y, width, height, scaledWidth, scaledHeight);
             tokenLocationCache.put(token, location);
             
-            if (token.isMarker()) {
-            	markerLocationMap.put(token, location);
-            }
-            
-            if (!location.bounds.intersects(clipBounds)) {
-                // Not on the screen, don't have to worry about it
-                continue;
-            }
-
             // General visibility
             if (!view.isGMView() && !zone.isTokenVisible(token)) {
                 continue;
@@ -1332,6 +1324,20 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 if (!GraphicsUtil.intersects(visibleArea, location.bounds)) {
                     continue;
                 }
+            }
+
+            // Markers
+            if (token.isMarker()) {
+            	if (!view.isGMView() && StringUtil.isEmpty(token.getNotes())) {
+            		// Not visible to player
+            		continue;
+            	}
+            	markerLocationMap.put(token, location);
+            }
+            
+            if (!location.bounds.intersects(clipBounds)) {
+                // Not on the screen, don't have to worry about it
+                continue;
             }
 
             // Stacking check
@@ -1634,12 +1640,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             g.drawImage(stackImage, rect.getBounds().x + rect.getBounds().width - stackImage.getWidth() + 2, rect.getBounds().y - 2, null);
         }
 
-        
-        // Markers
-        for (TokenLocation location : getMarkerLocations() ) {
-            BufferedImage stackImage = AppStyle.markerImage;
-            g.drawImage(stackImage, location.bounds.getBounds().x, location.bounds.getBounds().y, null);
-        }
+//        // Markers
+//        for (TokenLocation location : getMarkerLocations() ) {
+//            BufferedImage stackImage = AppStyle.markerImage;
+//            g.drawImage(stackImage, location.bounds.getBounds().x, location.bounds.getBounds().y, null);
+//        }
         
         g.setClip(clip);
         
