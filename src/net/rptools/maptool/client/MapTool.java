@@ -510,6 +510,8 @@ public class MapTool {
 
     public static void disconnect() {
 
+    	boolean isPersonalServer = server.getConfig().isPersonalServer();
+    	
     	if (announcer != null) {
     		announcer.stop();
     		announcer = null;
@@ -520,7 +522,7 @@ public class MapTool {
         }
         
     	// Unregister ourselves
-    	if (server != null && server.getConfig().isServerRegistered() && !server.getConfig().isPersonalServer()) {
+    	if (server != null && server.getConfig().isServerRegistered() && !isPersonalServer) {
     		try {
     			MapToolRegistry.unregisterInstance(server.getConfig().getPort());
     		} catch (Throwable t) {
@@ -539,7 +541,10 @@ public class MapTool {
         }
         
         MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.disconnected);
-		addLocalMessage("<span style='color:blue'><i>You have disconnected.</i></span>");
+        
+        if (!isPersonalServer) {
+        	addLocalMessage("<span style='color:blue'><i>You have disconnected.</i></span>");
+        }
     }
     
 	public static MapToolFrame getFrame() {
