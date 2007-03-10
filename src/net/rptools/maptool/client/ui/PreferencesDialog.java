@@ -46,7 +46,6 @@ public class PreferencesDialog extends JDialog {
 	private JComboBox duplicateTokenCombo;
 	private JComboBox tokenNamingCombo;
 	private JComboBox showNumberingCombo;
-	private JComboBox hexAspectCombo;
 
 	// Defaults
 	private JComboBox defaultGridTypeCombo;
@@ -75,7 +74,6 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		
-		hexAspectCombo = panel.getComboBox("hexAspectCombo");
 		showNumberingCombo = panel.getComboBox("showNumberingCombo");
 		saveReminderCheckBox = panel.getCheckBox("saveReminderCheckBox");
 		autoSaveSpinner = panel.getSpinner("autoSaveSpinner");
@@ -208,16 +206,6 @@ public class PreferencesDialog extends JDialog {
 		defaultGridTypeCombo.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				AppPreferences.setDefaultGridType((String) defaultGridTypeCombo.getSelectedItem());
-			}
-		});
-		
-		DefaultComboBoxModel hexAspectModel = new DefaultComboBoxModel();
-		hexAspectModel.setSelectedItem(AppPreferences.getDefaultGridType());
-		hexAspectModel.addElement("Standard -> 1:2/sqrt(3)");
-		hexAspectCombo.setModel(hexAspectModel);
-		hexAspectCombo.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				//AppPreferences.setDefaultGridType((String) hexAspectCombo.getSelectedItem());
 			}
 		});
 		
