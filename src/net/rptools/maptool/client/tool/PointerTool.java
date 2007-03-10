@@ -1140,14 +1140,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (location.x + size.width > viewSize.width) {
 					location.x = viewSize.width - size.width;
 				}
-				if (location.x < 0) {
-					location.x = 0;
+				if (location.x < 4) {
+					location.x = 4;
 				}
-				if (location.y + size.height > viewSize.height) {
-					location.y = viewSize.height - size.height;
+				if (location.y + size.height > viewSize.height-4) {
+					location.y = viewSize.height - size.height-4;
 				}
-				if (location.y < 0) {
-					location.y = 0;
+				if (location.y < 4) {
+					location.y = 4;
 				}
 				
 				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .5f));
