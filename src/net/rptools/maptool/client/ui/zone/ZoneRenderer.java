@@ -147,6 +147,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
     private Map<Token, Area> tokenVisionCache = new HashMap<Token, Area>();
     private Map<Token, TokenLocation> tokenLocationCache = new HashMap<Token, TokenLocation>();
+    private Map<Token, TokenLocation> markerLocationMap = new HashMap<Token, TokenLocation>();
 
     private GeneralPath facingArrow;
     
@@ -543,6 +544,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         // Clear internal state
         tokenLocationMap.clear();
         coveredTokenSet.clear();
+        markerLocationMap.clear();
 
         calculateVision(view);
         
@@ -1304,6 +1306,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             location = new TokenLocation(tokenBounds, origBounds, token, x, y, width, height, scaledWidth, scaledHeight);
             tokenLocationCache.put(token, location);
             
+            if (token.isMarker()) {
+            	markerLocationMap.put(token, location);
+            }
+            
             if (!location.bounds.intersects(clipBounds)) {
                 // Not on the screen, don't have to worry about it
                 continue;
@@ -1691,6 +1697,11 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         return null;
     }
+
+    public Area getMarkerBounds(Token token) {
+    	TokenLocation location = markerLocationMap.get(token);
+    	return location != null ? location.bounds : null;
+    }
     
     public Rectangle getLabelBounds(Label label) {
         
@@ -1726,6 +1737,19 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         return null;
     }
 
+    public Token getMarkerAt (int x, int y) {
+
+    	List<TokenLocation> locationList = new ArrayList<TokenLocation>();
+        locationList.addAll(markerLocationMap.values());
+        for (TokenLocation location : locationList) {
+            if (location.bounds.contains(x, y)) {
+                return location.token;
+            }
+        }
+        
+        return null;
+    }
+    
     public List<Token> getTokenStackAt (int x, int y) {
         
         List<Area> stackList = new ArrayList<Area>();

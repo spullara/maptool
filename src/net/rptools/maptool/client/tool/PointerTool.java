@@ -61,6 +61,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.lib.swing.ImageBorder;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppPreferences;
@@ -68,6 +69,7 @@ import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.client.swing.HTMLPanelRenderer;
 import net.rptools.maptool.client.ui.StampPopupMenu;
 import net.rptools.maptool.client.ui.TokenLocation;
 import net.rptools.maptool.client.ui.TokenPopupMenu;
@@ -106,8 +108,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 	private Token tokenBeingDragged;
 	private Token tokenUnderMouse;
+	private Token markerUnderMouse;
 	
 	private TokenStackPanel tokenStackPanel = new TokenStackPanel();
+	
+	private HTMLPanelRenderer htmlRenderer = new HTMLPanelRenderer();
 	
     // Offset from token's X,Y when dragging. Values are in cell coordinates.
     private int dragOffsetX;
@@ -125,6 +130,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+        
+        htmlRenderer.setBackground(new Color(0, 0, 0, 200));
+        htmlRenderer.setForeground(Color.white);
+        htmlRenderer.setOpaque(false);
+        htmlRenderer.addStyleSheetRule("body{color:white}");
     }
 	
 	@Override
@@ -132,6 +142,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		super.attachTo(renderer);
 		
 		renderer.setActiveLayer(Zone.Layer.TOKEN);
+		htmlRenderer.attach(renderer);
+	}
+	
+	@Override
+	protected void detachFrom(ZoneRenderer renderer) {
+		super.detachFrom(renderer);
+		htmlRenderer.detach(renderer);
 	}
     
 	@Override
@@ -520,7 +537,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 		tokenUnderMouse = renderer.getTokenAt(mouseX, mouseY);
 		renderer.setMouseOver(tokenUnderMouse);
-		
+
+		Token marker = renderer.getMarkerAt(mouseX, mouseY);
+		if (marker != markerUnderMouse) {
+			markerUnderMouse = marker;
+			renderer.repaint();
+		}
 	}
 	
 	public void mouseDragged(MouseEvent e) {
@@ -1055,12 +1077,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 */
 	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 		
+		Composite composite = g.getComposite();
 		if (selectionBoundBox != null) {
 			
 			Stroke stroke = g.getStroke();
 			g.setStroke(new BasicStroke(2));
 			
-			Composite composite = g.getComposite();
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .25f));
 			// TODO: Use it's own preference, or genericize this one
 			g.setPaint(AppPreferences.getUseTranslucentFog() ? AppStyle.selectionBoxFill : nonAlphaSelectionPaint);
@@ -1077,6 +1099,34 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (isShowingTokenStackPopup) {
 			
 			tokenStackPanel.paint(g);
+		}
+		
+		if (tokenUnderMouse == null && markerUnderMouse != null) {
+			Area bounds = renderer.getMarkerBounds(markerUnderMouse);
+			
+			if (bounds != null) {
+				StringBuilder builder = new StringBuilder();
+				if (markerUnderMouse.getNotes() != null) {
+					builder.append(markerUnderMouse.getNotes());
+					if (markerUnderMouse.getGMNotes() != null) {
+						builder.append("<br><br>");
+					}
+					if (markerUnderMouse.getGMNotes() != null) {
+						builder.append("** <i>").append(markerUnderMouse.getGMNotes()).append("</i>");
+					}
+				}
+				
+				Point location = new Point(bounds.getBounds().x+bounds.getBounds().width - 10, bounds.getBounds().y);
+				Dimension size = htmlRenderer.setText(builder.toString(), 200, 100);
+
+				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .5f));
+				g.setColor(Color.black);
+				g.fillRect(location.x, location.y, size.width, size.height);
+				g.setComposite(composite);
+				
+				htmlRenderer.render(g, location.x, location.y);
+				AppStyle.border.paintAround(g, location.x, location.y, size.width, size.height);
+			}
 		}
 	}
 

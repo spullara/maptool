@@ -24,7 +24,10 @@
  */
 package net.rptools.maptool.util;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -35,6 +38,10 @@ import java.awt.geom.GeneralPath;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.AppStyle;
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+
 
 /**
  */
@@ -42,6 +49,102 @@ public class GraphicsUtil {
 
 	private static final int BOX_PADDINGX = 5;
 	private static final int BOX_PADDINGY = 2;
+	
+	/**
+	 * A multiline text wrapping popup.  
+	 * @param string - the string to display in he popup
+	 * @param maxWidth - the max width in pixels before wrapping the text
+	 */
+	public static Rectangle drawPopup(Graphics2D g, String string,
+			int x, int y, int justification, int maxWidth) {
+		
+		return drawPopup(g, string, x, y, justification, Color.black, Color.white, maxWidth, 0.5f);
+	}	
+	
+	// TODO Make it intelligent, ie detect the edges of the viewable area and adjust accordingly
+	public static Rectangle drawPopup(Graphics2D g, String string,
+										int x, int y, int justification,
+										Color background, Color foreground, 
+										int maxWidth, float alpha) {
+    	
+        if (string == null) {
+            string = "";
+        }
+        
+		// TODO: expand to work for variable width fonts.
+        Font oldFont = g.getFont();
+        Font fixedWidthFont = new Font("Courier New", 0, 12);
+        g.setFont(fixedWidthFont);
+    	FontMetrics fm = g.getFontMetrics();
+    	
+
+	    	
+    	StringBuilder sb = new StringBuilder();
+    	while (SwingUtilities.computeStringWidth(fm, sb.toString()) < maxWidth) {
+    		sb.append("0");
+    	}
+        int maxChars = sb.length()-1;
+            			
+        string = StringUtil.wrapText( string, Math.min( maxChars, string.length() ) );
+        
+		String pattern = "\n";
+		String[] stringByLine = string.split(pattern);
+		int rows = stringByLine.length;
+		
+		String longestRow = new String();
+		for (int i=0; i<rows; i++) {
+			if (longestRow.length() < stringByLine[i].length() ) {
+				longestRow = stringByLine[i];
+			}
+		}
+		
+		int strPixelHeight = fm.getHeight();
+		int strPixelWidth = SwingUtilities.computeStringWidth(fm, longestRow);
+
+		int width = strPixelWidth + BOX_PADDINGX*2;
+		int height = strPixelHeight*rows + BOX_PADDINGY*2; 
+
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+		
+		y = Math.max(y - height, BOX_PADDINGY);	
+		switch (justification) {
+		case SwingUtilities.CENTER:
+			x = x - strPixelWidth/2 - BOX_PADDINGX;
+			break;
+		case SwingUtilities.RIGHT:
+			x = x - strPixelWidth - BOX_PADDINGX;
+			break;
+		case SwingUtilities.LEFT:
+			break;
+		}
+		
+		x = Math.max(x, BOX_PADDINGX);
+		x = Math.min(x, renderer.getWidth() - width - BOX_PADDINGX);
+		
+		
+		// Box
+		Composite oldComposite = g.getComposite();
+		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+		
+		Rectangle boxBounds = new Rectangle(x, y, width, height);
+		g.setColor(background);
+		g.fillRect(boxBounds.x, boxBounds.y, boxBounds.width, boxBounds.height);
+    	AppStyle.border.paintWithin(g, boxBounds);
+    	g.setComposite(oldComposite);
+    	
+		// Renderer message
+		g.setColor(foreground);
+
+		for (int i = 0; i < stringByLine.length; i++) {
+			int textX = x + BOX_PADDINGX;
+			int textY = y + BOX_PADDINGY + fm.getAscent() + strPixelHeight*i;
+			g.drawString(stringByLine[i], textX, textY);
+		}
+		
+		g.setFont(oldFont);
+		
+		return boxBounds;
+	}
 	
     public static Rectangle drawBoxedString(Graphics2D g, String string, int centerX, int centerY) {
     	return drawBoxedString(g, string, centerX, centerY, SwingUtilities.CENTER);
@@ -109,8 +212,8 @@ public class GraphicsUtil {
 	}
 
 	/**
-	 * Returns a lighter color (as opposed to a brighter color as in the brighter() method
-	 *  of the Color class) 
+	 * @return a lighter color, as opposed to a brighter color as in Color.brighter().
+	 *  This prevents light colors from getting bleached out.
 	 */
 	public static Color lighter(Color c) {
 

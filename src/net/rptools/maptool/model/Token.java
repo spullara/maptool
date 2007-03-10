@@ -45,10 +45,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.ImageIcon;
 
+import antlr.StringUtils;
+
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.lib.transferable.TokenTransferData;
 import net.rptools.maptool.util.ImageManager;
+import net.rptools.maptool.util.StringUtil;
 
 /**
  * This object represents the placeable objects on a map. For example an icon
@@ -242,6 +246,10 @@ public class Token {
 		this.name = name;
 		this.assetID = assetID;
 		state = new HashMap<String, Object>();
+	}
+
+	public boolean isMarker() {
+		return (isStamp() || isBackground()) && (!StringUtil.isEmpty(notes) || !StringUtil.isEmpty(gmNotes));
 	}
 	
 	public String getPropertyType() {
