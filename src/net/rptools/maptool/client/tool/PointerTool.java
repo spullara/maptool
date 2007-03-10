@@ -134,6 +134,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         htmlRenderer.setForeground(Color.white);
         htmlRenderer.setOpaque(false);
         htmlRenderer.addStyleSheetRule("body{color:white}");
+        htmlRenderer.addStyleSheetRule(".title{font-size: 14pt}");
     }
 	
 	@Override
@@ -1115,6 +1116,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				StringBuilder builder = new StringBuilder();
 
 				if (!StringUtil.isEmpty(markerUnderMouse.getNotes())) {
+					builder.append("<b><span class='title'>").append(markerUnderMouse.getName()).append("</span></b><br>");
 					builder.append(markerUnderMouse.getNotes());
 					// add a gap between player and gmNotes
 					if (showGMNotes) {
@@ -1123,8 +1125,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				}
 				
 				if (showGMNotes) {
-					builder.append("** GM NOTES for ");
-					builder.append(markerUnderMouse.getName()).append(":\n");
+					builder.append("<b><span class='title'>GM Notes");
+					if (!StringUtil.isEmpty(markerUnderMouse.getGMName())) {
+						builder.append(" - ").append(markerUnderMouse.getGMName());
+					}
+					builder.append(":</span></b><br>");
 					builder.append(markerUnderMouse.getGMNotes());
 				}
 
