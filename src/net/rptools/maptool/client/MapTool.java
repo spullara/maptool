@@ -510,7 +510,7 @@ public class MapTool {
 
     public static void disconnect() {
 
-    	boolean isPersonalServer = server.getConfig().isPersonalServer();
+    	boolean isPersonalServer = server != null && server.getConfig().isPersonalServer();
     	
     	if (announcer != null) {
     		announcer.stop();
