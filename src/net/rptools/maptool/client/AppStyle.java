@@ -47,6 +47,8 @@ public class AppStyle {
 	
     public static BufferedImage stackImage;
     
+    public static BufferedImage markerImage;
+    
     public static Color selectionBoxOutline = Color.black;
     public static Color selectionBoxFill = Color.blue;
     
@@ -65,6 +67,7 @@ public class AppStyle {
 			tokenInvisible = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/icon_invisible.png");
             cellWaypointImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/redDot.png");
             stackImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/stack.png");
+            markerImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/marker.png");
             chatImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chat.png");
             chatScrollImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments.png"); 
             chatScrollLockImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments_delete.png"); 

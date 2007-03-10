@@ -1206,6 +1206,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         return list;
     }
     
+    private List<TokenLocation> getMarkerLocations() {
+       	List<TokenLocation> list = new ArrayList<TokenLocation>();
+        list.addAll(markerLocationMap.values());
+        
+        return list;
+    }
+    
     // TODO: I don't like this hardwiring
     protected Shape getCircleFacingArrow(int angle, int size) {
 
@@ -1626,6 +1633,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             BufferedImage stackImage = AppStyle.stackImage ;
             g.drawImage(stackImage, rect.getBounds().x + rect.getBounds().width - stackImage.getWidth() + 2, rect.getBounds().y - 2, null);
         }
+
+        
+        // Markers
+        for (TokenLocation location : getMarkerLocations() ) {
+            BufferedImage stackImage = AppStyle.markerImage;
+            g.drawImage(stackImage, location.bounds.getBounds().x, location.bounds.getBounds().y, null);
+        }
+        
         g.setClip(clip);
         
     }

@@ -48,7 +48,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +60,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.lib.swing.ImageBorder;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppPreferences;
@@ -90,6 +88,7 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
+import net.rptools.maptool.util.StringUtil;
 
 /**
  */
@@ -1077,6 +1076,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 */
 	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 		
+		Dimension viewSize = renderer.getSize();
+		
 		Composite composite = g.getComposite();
 		if (selectionBoundBox != null) {
 			
@@ -1103,6 +1104,26 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 		if (tokenUnderMouse == null && markerUnderMouse != null) {
 			Area bounds = renderer.getMarkerBounds(markerUnderMouse);
+ 
+			StringBuilder allTheNotes = new StringBuilder();
+
+			if (!StringUtil.isEmpty(markerUnderMouse.getNotes())) {
+				allTheNotes.append(markerUnderMouse.getNotes());
+				// add a gap between player and gmNotes
+				if (markerUnderMouse.getGMNotes() != null) {
+					allTheNotes.append("\n\n");
+				}
+			}
+			
+			if (!StringUtil.isEmpty(markerUnderMouse.getGMNotes())) {
+				allTheNotes.append("** GM NOTES for ");
+				allTheNotes.append(markerUnderMouse.getName()).append(":\n");
+				allTheNotes.append(markerUnderMouse.getGMNotes());
+			}
+			
+//			GraphicsUtil.drawPopup(g, allTheNotes.toString(),
+//					bounds.getBounds().x + bounds.getBounds().width/2, bounds.getBounds().y,
+//					SwingUtilities.CENTER, (int)(renderer.getWidth()*0.75));
 			
 			if (bounds != null) {
 				StringBuilder builder = new StringBuilder();
@@ -1116,9 +1137,22 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					}
 				}
 				
-				Point location = new Point(bounds.getBounds().x+bounds.getBounds().width - 10, bounds.getBounds().y);
-				Dimension size = htmlRenderer.setText(builder.toString(), 200, 100);
+				Dimension size = htmlRenderer.setText(builder.toString(), (int)(renderer.getWidth()*.65), (int)(renderer.getHeight()*.65));
+				Point location = new Point(bounds.getBounds().x+bounds.getBounds().width/2 - size.width/2, bounds.getBounds().y);
 
+				if (location.x + size.width > viewSize.width) {
+					location.x = viewSize.width - size.width;
+				}
+				if (location.x < 0) {
+					location.x = 0;
+				}
+				if (location.y + size.height > viewSize.height) {
+					location.y = viewSize.height - size.height;
+				}
+				if (location.y < 0) {
+					location.y = 0;
+				}
+				
 				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .5f));
 				g.setColor(Color.black);
 				g.fillRect(location.x, location.y, size.width, size.height);
@@ -1129,6 +1163,5 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 		}
 	}
-
 	
 }

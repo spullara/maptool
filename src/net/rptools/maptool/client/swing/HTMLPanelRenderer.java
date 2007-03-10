@@ -44,7 +44,7 @@ public class HTMLPanelRenderer extends JTextPane {
 		setSize(maxWidth, maxHeight);
 		size = getPreferredSize();
 		
-		size.width = maxWidth;
+		size.width = Math.min(size.width, maxWidth);
 		
 		return size;
 	}

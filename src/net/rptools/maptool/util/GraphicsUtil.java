@@ -39,7 +39,6 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 
 
@@ -61,7 +60,6 @@ public class GraphicsUtil {
 		return drawPopup(g, string, x, y, justification, Color.black, Color.white, maxWidth, 0.5f);
 	}	
 	
-	// TODO Make it intelligent, ie detect the edges of the viewable area and adjust accordingly
 	public static Rectangle drawPopup(Graphics2D g, String string,
 										int x, int y, int justification,
 										Color background, Color foreground, 
@@ -76,8 +74,6 @@ public class GraphicsUtil {
         Font fixedWidthFont = new Font("Courier New", 0, 12);
         g.setFont(fixedWidthFont);
     	FontMetrics fm = g.getFontMetrics();
-    	
-
 	    	
     	StringBuilder sb = new StringBuilder();
     	while (SwingUtilities.computeStringWidth(fm, sb.toString()) < maxWidth) {
