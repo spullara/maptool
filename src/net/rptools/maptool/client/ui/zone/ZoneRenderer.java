@@ -1328,10 +1328,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
             // Markers
             if (token.isMarker()) {
-            	if (!view.isGMView() && StringUtil.isEmpty(token.getNotes())) {
-            		// Not visible to player
-            		continue;
-            	}
             	markerLocationMap.put(token, location);
             }
             
