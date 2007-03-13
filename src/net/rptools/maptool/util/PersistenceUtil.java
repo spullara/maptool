@@ -26,8 +26,9 @@ package net.rptools.maptool.util;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -67,7 +68,7 @@ public class PersistenceUtil {
 	public static void saveCampaign(Campaign campaign, File campaignFile) throws IOException {
 		
 		// This is a veeeeeery primitive form of perstence, and will be changing very soon
-		OutputStream os = new FileOutputStream(campaignFile);
+		OutputStream os = new BufferedOutputStream(new FileOutputStream(campaignFile));
 		HessianOutput out = new HessianOutput(os);
 		
 		PersistedCampaign persistedCampaign = new PersistedCampaign();
@@ -153,7 +154,7 @@ public class PersistenceUtil {
 	
 	public static PersistedCampaign loadCampaign(File campaignFile) throws IOException {
 		
-		InputStream is = new FileInputStream(campaignFile);
+		InputStream is = new BufferedInputStream(new FileInputStream(campaignFile));
 		HessianInput in = new HessianInput(is);
 
 		PersistedCampaign persistedCampaign = (PersistedCampaign) in.readObject(null);
