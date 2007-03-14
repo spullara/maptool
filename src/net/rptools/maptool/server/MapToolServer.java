@@ -133,6 +133,10 @@ public class MapToolServer {
     	return policy;
     }
     
+    public ServerMethodHandler getMethodHandler() {
+    	return handler;
+    }
+    
     public ServerConfig getConfig() {
     	return config;
     }

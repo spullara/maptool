@@ -83,6 +83,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.util.PersistenceUtil;
@@ -1247,7 +1248,12 @@ public class AppActions {
 							AppMenuBar.getMruManager().addMRUCampaign(campaignFile);
 
 							MapTool.setCampaign(campaign.campaign);
-							MapTool.serverCommand().setCampaign(campaign.campaign);
+							// Bypass the serialization when we are hosting the server
+							if (MapTool.isHostingServer() || MapTool.isPersonalServer()) {
+								MapTool.getServer().getMethodHandler().handleMethod(MapTool.getPlayer().getName(), ServerCommand.COMMAND.setCampaign.name(), new Object[]{campaign.campaign});
+							} else {
+								MapTool.serverCommand().setCampaign(campaign.campaign);
+							}
 							
 							MapTool.getAutoSaveManager().setInterval(AppPreferences.getAutoSaveIncrement());
 							MapTool.getAutoSaveManager().tidy();
