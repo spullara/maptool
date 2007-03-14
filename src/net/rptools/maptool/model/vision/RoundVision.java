@@ -26,7 +26,7 @@ public class RoundVision extends Vision {
 
 		int size = getDistance() * getZonePointsPerCell(zone)*2;
 		int half = size/2;
-		Area area = new Area(new Ellipse2D.Float(-half, -half, size, size));
+		Area area = new Area(new Ellipse2D.Double(-half, -half, size, size));
 		
 		return area;
 	}
