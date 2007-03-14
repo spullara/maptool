@@ -171,7 +171,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private JPanel rendererBorderPanel;
 	private List<ZoneRenderer> zoneRendererList;
 	private JMenuBar menuBar;
-	private PenWidthChooser widthChooser = new PenWidthChooser();
 	private StatusPanel statusPanel;
 	private ActivityMonitorPanel activityMonitor = new ActivityMonitorPanel();
 	private ProgressStatusBar progressBar = new ProgressStatusBar();
@@ -845,7 +844,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		pen.setPaint(convertPaint(colorPicker.getForegroundPaint()));
 		pen.setBackgroundPaint(convertPaint(colorPicker.getBackgroundPaint()));
-		pen.setThickness((Integer) widthChooser.getSelectedItem());
+		pen.setThickness(colorPicker.getStrokeWidth());
 		pen.setOpacity(colorPicker.getOpacity());
 		pen.setThickness(colorPicker.getStrokeWidth());
 		return pen;
