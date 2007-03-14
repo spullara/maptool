@@ -71,7 +71,7 @@ public class OvalExposeTool extends OvalTool {
 		Zone zone = MapTool.getCampaign().getZone(zoneId);
 
 		Rectangle bounds = drawable.getBounds();
-		Area area = new Area(new Ellipse2D.Float(bounds.x, bounds.y, bounds.width, bounds.height));
+		Area area = new Area(new Ellipse2D.Double(bounds.x, bounds.y, bounds.width, bounds.height));
 		if (pen.isEraser()) {
 			zone.hideArea(area);
 			MapTool.serverCommand().hideFoW(zone.getId(), area);
