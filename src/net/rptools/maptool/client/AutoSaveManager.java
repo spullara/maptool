@@ -100,7 +100,7 @@ public class AutoSaveManager implements ActionListener {
 		working = true;
 		long start = System.currentTimeMillis();
 		final Campaign campaign = new Campaign(MapTool.getCampaign());
-		System.out.println("Time: " + (System.currentTimeMillis() - start));
+		//System.out.println("Time: " + (System.currentTimeMillis() - start));
 
 		// Now that we have a copy of the model, save that one
 		// TODO: Replace this with a swing worker
