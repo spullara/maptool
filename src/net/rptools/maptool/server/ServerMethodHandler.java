@@ -65,7 +65,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 
     public void handleMethod(String id, String method, Object[] parameters) {
         ServerCommand.COMMAND cmd = Enum.valueOf(ServerCommand.COMMAND.class, method);
-        System.out.println("ServerMethodHandler#handleMethod: " + id + " - " + cmd.name());
+        //System.out.println("ServerMethodHandler#handleMethod: " + id + " - " + cmd.name());
 
         try {
             RPCContext context = new RPCContext(id, method, parameters); 
