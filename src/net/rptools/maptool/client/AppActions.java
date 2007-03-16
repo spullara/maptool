@@ -1255,7 +1255,7 @@ public class AppActions {
 								MapTool.serverCommand().setCampaign(campaign.campaign);
 							}
 							
-							MapTool.getAutoSaveManager().setInterval(AppPreferences.getAutoSaveIncrement());
+							MapTool.getAutoSaveManager().restart();
 							MapTool.getAutoSaveManager().tidy();
 									
 							if (campaign.currentZoneId != null) {

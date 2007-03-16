@@ -24,13 +24,19 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
+
+import com.caucho.hessian.io.HessianOutput;
 
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.util.PersistenceUtil;
@@ -44,25 +50,31 @@ public class AutoSaveManager implements ActionListener {
 	
 	private Timer autoSaveTimer;
 	public static final File AUTOSAVE_FILE = new File(AppUtil.getAppHome("autosave"), "AutoSave.cmpgn");
+
+	private boolean working;
+	
+	public void start() {
+		restart();
+	}
 	
 	/**
-	 * Begins the autosave feature and sets it's interval
 	 */
-	public void setInterval(int intervalInMinutes)
+	public void restart()
 	{
+		int interval = AppPreferences.getAutoSaveIncrement();
 		
 		//convert to milliseconds
-		int delay = intervalInMinutes*60*1000;
+		int delay = interval*60*1000;
 		
 		if (autoSaveTimer == null) {
-			if(intervalInMinutes <= 0) {
+			if(interval <= 0) {
 				return;
 			} else {
 				autoSaveTimer = new Timer(delay, this);
 				autoSaveTimer.start();
 			}		
 		} else {
-			if(intervalInMinutes <= 0) {
+			if(interval <= 0) {
 				autoSaveTimer.stop();
 				autoSaveTimer = null;
 			} else {
@@ -74,17 +86,34 @@ public class AutoSaveManager implements ActionListener {
 
 	public void actionPerformed(ActionEvent e)
 	{
+		if (working) {
+			return;
+		}
 
+		MapTool.getFrame().setStatusMessage("Autosaving campaign ...");
+		
+		// This occurs on the event dispatch thread, so it's ok to mess with the models
+		// We need to clone the campaign so that we can save in the background, but
+		// not have concurrency issues with the original model
+		// NOTE: This is a cheesy way to clone the campaign, but it makes it so that I
+		// don't have to keep all the various models' clone method updated on each change 
+		working = true;
+		long start = System.currentTimeMillis();
+		final Campaign campaign = new Campaign(MapTool.getCampaign());
+		System.out.println("Time: " + (System.currentTimeMillis() - start));
+
+		// Now that we have a copy of the model, save that one
+		// TODO: Replace this with a swing worker
 		new Thread(new Runnable(){
 			public void run() {
 				try {
-					Campaign campaign = MapTool.getCampaign();
-					MapTool.getFrame().setStatusMessage("Autosaving campaign ...");
 					PersistenceUtil.saveCampaign(campaign, AUTOSAVE_FILE);
 					MapTool.getFrame().setStatusMessage("Autosave complete");
 				} catch (IOException ioe) {
 					MapTool.showError("Autosave failed: " + ioe);
 				}
+				
+				working = false;
 			}
 		}).start();
 	}

@@ -588,6 +588,7 @@ public class MapTool {
                     
                     // Check to see if there is an autosave file from mt crashing
                     getAutoSaveManager().check();
+                    getAutoSaveManager().restart();
         	}
         });
         

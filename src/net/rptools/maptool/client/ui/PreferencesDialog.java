@@ -104,7 +104,7 @@ public class PreferencesDialog extends JDialog {
 			public void stateChanged(ChangeEvent ce) {
 				int newInterval = (Integer)autoSaveSpinner.getValue();
 				AppPreferences.setAutoSaveIncrement(newInterval);
-				MapTool.getAutoSaveManager().setInterval(newInterval);
+				MapTool.getAutoSaveManager().restart();
 			}
 		});
 		useTranslucentFogCheckBox.addActionListener(new ActionListener() {

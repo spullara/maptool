@@ -29,6 +29,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -175,6 +177,17 @@ public class PersistenceUtil {
 		}
 		
 		return persistedCampaign;
+	}
+	
+	public static <T> T hessianClone(T object) throws IOException {
+
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		HessianOutput out = new HessianOutput(os);
+		out.writeObject(object);
+
+		HessianInput in = new HessianInput(new ByteArrayInputStream(os.toByteArray()));
+
+		return (T)in.readObject();
 	}
 	
 	public static class PersistedCampaign {

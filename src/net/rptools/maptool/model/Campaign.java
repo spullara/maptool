@@ -25,12 +25,12 @@
 package net.rptools.maptool.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.model.drawing.DrawablePaint;
@@ -54,6 +54,29 @@ public class Campaign {
     
     private transient boolean isBeingSerialized;
 
+    public Campaign() {
+    	// No op
+    }
+
+    public Campaign (Campaign campaign) {
+
+    	zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
+    	for (Entry<GUID, Zone> entry : campaign.zones.entrySet()) {
+    		zones.put(entry.getKey(), new Zone(entry.getValue()));
+    	}
+    	if (tokenTypeMap != null) {
+        	tokenTypeMap = new HashMap<String, List<String>>(); 
+        	for (Entry<String, List<String>> entry : campaign.tokenTypeMap.entrySet()) {
+
+        		List<String> typeList = new ArrayList<String>();
+        		typeList.addAll(tokenTypeMap.get(entry.getKey()));
+
+        		tokenTypeMap.put(entry.getKey(), typeList);
+        	}
+    		
+    	}
+    }
+    
     public GUID getId() {
         return id;
     }
