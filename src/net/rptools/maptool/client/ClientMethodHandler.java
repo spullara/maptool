@@ -408,6 +408,17 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 		ioe.printStackTrace();
                 	}
                 	break;
+                case renameZone:
+                	
+                	zoneGUID = (GUID) parameters[0];
+                	String name = (String) parameters[1];
+                	
+                	zone = MapTool.getCampaign().getZone(zoneGUID);
+                	if (zone != null) {
+                		zone.setName(name);
+                	}
+                	
+                	break;
                 }
         	}
         });

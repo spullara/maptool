@@ -77,7 +77,8 @@ public interface ServerCommand {
         enforceZone,
         setServerPolicy,
         addTopology,
-        removeTopology
+        removeTopology,
+        renameZone
     };
 
     public void bootPlayer(String player);
@@ -115,4 +116,5 @@ public interface ServerCommand {
     public void clearAllDrawings(GUID zoneGUID);
     public void enforceZone(GUID zoneGUID);
     public void setServerPolicy(ServerPolicy policy);
+    public void renameZone(GUID zoneGUID, String name);
 }

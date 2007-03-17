@@ -236,6 +236,24 @@ public class AppActions {
 			}
 		}
 	};
+	
+	public static final Action RENAME_ZONE = new AdminClientAction() {
+		
+		{
+			init("action.renameMap");
+		}
+		
+		@Override
+		public void execute(ActionEvent e) {
+
+			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+			String name = JOptionPane.showInputDialog(MapTool.getFrame(), "Rename " + (zone.getName() != null ? '"' + zone.getName() + "'" : ""), zone.getName() != null ? zone.getName(): "");
+			if (name != null) {
+				zone.setName(name);
+				MapTool.serverCommand().renameZone(zone.getId(), name);
+			}
+		}
+	};
 
 	public static final Action SHOW_FULLSCREEN = new DefaultClientAction() {
 

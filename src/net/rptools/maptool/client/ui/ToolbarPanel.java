@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -44,6 +43,9 @@ import net.rptools.maptool.client.tool.drawing.RadiusTemplateTool;
 import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTopologyTool;
+import net.rptools.maptool.model.ModelChangeEvent;
+import net.rptools.maptool.model.ModelChangeListener;
+import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 
 public class ToolbarPanel extends JToolBar {
@@ -51,6 +53,7 @@ public class ToolbarPanel extends JToolBar {
 	private ButtonGroup buttonGroup = new ButtonGroup();
 	private JPanel optionPanel;
 	private Toolbox toolbox;
+	private JLabel mapNameLabel;
 	
 	public ToolbarPanel(Toolbox toolbox) {
 		setFloatable(false);
@@ -72,7 +75,7 @@ public class ToolbarPanel extends JToolBar {
 		add(Box.createHorizontalStrut(10));
 		add(new JSeparator(JSeparator.VERTICAL));
 		add(Box.createHorizontalStrut(10));
-		add(createZoneNameLabel());
+		add(getZoneNameLabel());
 		add(Box.createHorizontalStrut(5));
 		add(createZoneSelectionButton());
 		
@@ -82,24 +85,43 @@ public class ToolbarPanel extends JToolBar {
 		
 	}
 	
-	private JLabel createZoneNameLabel() {
-		
-		final JLabel label = new JLabel("", JLabel.RIGHT);
-		label.setMinimumSize(new Dimension(150, 10));
-		label.setPreferredSize(new Dimension(150, 16));
-		AppListeners.addZoneListener(new ZoneActivityListener() {
-			public void zoneActivated(Zone zone) {
-				String name = zone.getName();
-				if (name == null || name.length() == 0) {
-					name = "Map";
+	public JLabel getZoneNameLabel() {
+		if (mapNameLabel == null) {
+			mapNameLabel = new JLabel("", JLabel.RIGHT);
+			mapNameLabel.setMinimumSize(new Dimension(150, 10));
+			mapNameLabel.setPreferredSize(new Dimension(150, 16));
+			AppListeners.addZoneListener(new ZoneActivityListener() {
+				public void zoneActivated(Zone zone) {
+					if (currentZone != null) {
+						currentZone.removeModelChangeListener(zoneChangeListener);
+					}
+					updateMapLabel(zone);
+					zone.addModelChangeListener(zoneChangeListener);
+					currentZone = zone;
 				}
-				label.setText(name);
-			}
-			public void zoneAdded(Zone zone) {
-			}
-		});
+				public void zoneAdded(Zone zone) {
+				}
+			});
+		}
 		
-		return label;
+		return mapNameLabel;
+	}
+
+	private Zone currentZone;
+	private ModelChangeListener zoneChangeListener = new ModelChangeListener() {
+		public void modelChanged(ModelChangeEvent event) {
+			if (event.getEvent() == Token.ChangeEvent.name) {
+				updateMapLabel((Zone)event.getModel());
+			}
+		}
+	};
+	
+	private void updateMapLabel(Zone zone) {
+		String name = zone.getName();
+		if (name == null || name.length() == 0) {
+			name = "Map";
+		}
+		getZoneNameLabel().setText(name);
 	}
 	
 	private JButton createZoneSelectionButton() {

@@ -448,6 +448,7 @@ public class Token {
 
 	public void setName(String name) {
 		this.name = name;
+		fireModelChangeEvent(new ModelChangeEvent(this, ChangeEvent.name, name));
 	}
 
 	public MD5Key getAssetID() {

@@ -108,6 +108,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case setServerPolicy:		  setServerPolicy((ServerPolicy) context.get(0));break;
             case addTopology:             addTopology(context.getGUID(0), (Area) context.get(1)); break;
             case removeTopology:          removeTopology(context.getGUID(0), (Area) context.get(1)); break;
+            case renameZone:			  renameZone(context.getGUID(0), context.getString(1));break;
             }
         } finally {
             RPCContext.setCurrent(null);
@@ -240,6 +241,10 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 
     public void hidePointer(String player) {
         forwardToAllClients();
+    }
+    
+    public void renameZone(GUID zoneGUID, String name) {
+    	forwardToAllClients();
     }
     
     public void message(TextMessage message) {
