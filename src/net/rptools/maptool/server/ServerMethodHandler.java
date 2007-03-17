@@ -244,7 +244,11 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     }
     
     public void renameZone(GUID zoneGUID, String name) {
-    	forwardToAllClients();
+    	Zone zone = server.getCampaign().getZone(zoneGUID);
+    	if (zone != null) {
+    		zone.setName(name);
+    		forwardToAllClients();
+    	}
     }
     
     public void message(TextMessage message) {
