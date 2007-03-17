@@ -59,6 +59,8 @@ public class AppStyle {
     public static Color topologyColor = new Color(0, 0, 255, 150);
     public static Color topologyAddColor = new Color(255, 0, 0, 150);
     public static Color topologyRemoveColor = new Color(255, 255, 255, 150);
+
+    public static BufferedImage boundedBackgroundTile;
     
 	static {
 		
@@ -71,6 +73,7 @@ public class AppStyle {
             chatImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chat.png");
             chatScrollImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments.png"); 
             chatScrollLockImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments_delete.png"); 
+            boundedBackgroundTile = ImageUtil.getCompatibleImage("net/rptools/lib/resource/image/texture/black.png");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

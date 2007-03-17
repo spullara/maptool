@@ -30,6 +30,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.TexturePaint;
 import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -39,6 +40,7 @@ import java.util.Map;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.model.Asset;
@@ -59,6 +61,7 @@ public class BoundedZoneRenderer extends ZoneRenderer {
     private BufferedImage backgroundImage;
     private BufferedImage miniBackgroundImage;
     private Dimension bgImageSize;
+	private BufferedImage backbuffer;
     
     private Rectangle boardBounds = new Rectangle();
     
@@ -180,6 +183,7 @@ public class BoundedZoneRenderer extends ZoneRenderer {
     public void flush() {
 
     	backgroundImage = null;
+    	backbuffer = null;
     	
     	super.flush();
     }
@@ -217,6 +221,17 @@ public class BoundedZoneRenderer extends ZoneRenderer {
         if (y + h < EDGE_LIMIT) {
             y = EDGE_LIMIT - h;
         }
+        
+        // Draw a background image.  This is an attempt to resolve map flickering that occurs on 
+        // some graphics boards with some versions of java (jdk1.5_7 up to but not including java 6)
+		if (backbuffer == null || backbuffer.getWidth() != size.width || backbuffer.getHeight() != size.height) {
+			backbuffer = new BufferedImage(size.width, size.height, Transparency.OPAQUE);
+			Graphics2D g2d = backbuffer.createGraphics();
+	        g2d.setPaint(new TexturePaint(AppStyle.boundedBackgroundTile, new Rectangle(0, 0, AppStyle.boundedBackgroundTile.getWidth(), AppStyle.boundedBackgroundTile.getHeight())));
+	        g2d.fillRect(0, 0, size.width, size.height);
+	        g2d.dispose();
+		}
+		g.drawImage(backbuffer, 0, 0, this);
         
         // Map
         g.drawImage(mapImage, x, y, w, h, this);
