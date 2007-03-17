@@ -1142,11 +1142,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 	
 	public void closingMaintenance() {
-		ServerDisconnectHandler.disconnectExpected = true;
-		MapTool.disconnect();
-
-		getDockingManager().saveLayoutData();
-		
 		if (AppPreferences.getSaveReminder()) {
 			if (MapTool.getPlayer().isGM()) {
 				int result = JOptionPane.showConfirmDialog(
@@ -1169,6 +1164,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				}
 			}
 		}
+		
+		ServerDisconnectHandler.disconnectExpected = true;
+		MapTool.disconnect();
+
+		getDockingManager().saveLayoutData();
 		
 		// If closing cleanly, then remove the autosave file
 		MapTool.getAutoSaveManager().purge();
