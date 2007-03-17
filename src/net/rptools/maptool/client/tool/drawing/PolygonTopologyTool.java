@@ -43,6 +43,7 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
+import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.ShapeDrawable;
@@ -138,6 +139,7 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
 		pen.setForegroundMode(Pen.MODE_TRANSPARENT);
         pen.setBackgroundMode(Pen.MODE_SOLID);
         pen.setThickness(1);
+        pen.setPaint(new DrawableColorPaint(isEraser() ? AppStyle.topologyRemoveColor : AppStyle.topologyAddColor));
         
 		return pen;
     }

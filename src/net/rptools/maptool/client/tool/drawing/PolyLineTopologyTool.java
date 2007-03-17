@@ -33,7 +33,10 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.model.drawing.DrawableColorPaint;
+import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
 
@@ -68,6 +71,7 @@ public class PolyLineTopologyTool extends PolygonTopologyTool implements MouseMo
 		pen.setForegroundMode(Pen.MODE_SOLID);
         pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
         pen.setThickness(1);
+        pen.setPaint(new DrawableColorPaint(isEraser() ? AppStyle.topologyRemoveColor : AppStyle.topologyAddColor));
 
 		return pen;
     }
