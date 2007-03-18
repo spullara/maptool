@@ -1327,7 +1327,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             }
 
             // Markers
-            if (token.isMarker()) {
+            if (token.isMarker() && canSeeMarker(token)) {
             	markerLocationMap.put(token, location);
             }
             
@@ -1644,6 +1644,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         g.setClip(clip);
         
+    }
+    
+    private boolean canSeeMarker(Token token) {
+    	return MapTool.getPlayer().isGM() || !StringUtil.isEmpty(token.getNotes());
     }
 
     public Set<GUID> getSelectedTokenSet() {
