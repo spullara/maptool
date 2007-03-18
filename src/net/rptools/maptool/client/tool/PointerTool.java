@@ -1103,13 +1103,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			tokenStackPanel.paint(g);
 		}
 		
+		// Hovers
 		if (tokenUnderMouse == null && markerUnderMouse != null) {
 			Area bounds = renderer.getMarkerBounds(markerUnderMouse);
  
-//			GraphicsUtil.drawPopup(g, allTheNotes.toString(),
-//					bounds.getBounds().x + bounds.getBounds().width/2, bounds.getBounds().y,
-//					SwingUtilities.CENTER, (int)(renderer.getWidth()*0.75));
-			
 			if (bounds != null) {
 				boolean showGMNotes = MapTool.getPlayer().isGM() && !StringUtil.isEmpty(markerUnderMouse.getGMNotes());
 				
@@ -1136,12 +1133,15 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				String notes = builder.toString();
 				notes = notes.replace("\n", "<br>");
 				
+				// Anchor next to the token
 				Dimension size = htmlRenderer.setText(notes.toString(), (int)(renderer.getWidth()*.75), (int)(renderer.getHeight()*.75));
 				Point location = new Point(bounds.getBounds().x+bounds.getBounds().width/2 - size.width/2, bounds.getBounds().y);
 
+				// Anchor in the bottom left corner
 				location.x = 4;
 				location.y = viewSize.height - size.height-4;
-				
+
+				// Keep it on screen
 				if (location.x + size.width > viewSize.width) {
 					location.x = viewSize.width - size.width;
 				}
@@ -1154,13 +1154,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (location.y < 4) {
 					location.y = 4;
 				}
-				
+
+				// Background
 				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .5f));
 				g.setColor(Color.black);
 				g.fillRect(location.x, location.y, size.width, size.height);
 				g.setComposite(composite);
-				
+
+				// Content
 				htmlRenderer.render(g, location.x, location.y);
+				
+				// Border
 				AppStyle.border.paintAround(g, location.x, location.y, size.width, size.height);
 			}
 		}
