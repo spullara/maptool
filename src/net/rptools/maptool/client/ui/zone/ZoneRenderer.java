@@ -148,7 +148,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
     private Map<Token, Area> tokenVisionCache = new HashMap<Token, Area>();
     private Map<Token, TokenLocation> tokenLocationCache = new HashMap<Token, TokenLocation>();
-    private Map<Token, TokenLocation> markerLocationMap = new HashMap<Token, TokenLocation>();
+    private List<TokenLocation> markerLocationList = new ArrayList<TokenLocation>();
 
     private GeneralPath facingArrow;
     
@@ -545,7 +545,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         // Clear internal state
         tokenLocationMap.clear();
         coveredTokenSet.clear();
-        markerLocationMap.clear();
+        markerLocationList.clear();
 
         calculateVision(view);
         
@@ -1207,13 +1207,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         return list;
     }
     
-    private List<TokenLocation> getMarkerLocations() {
-       	List<TokenLocation> list = new ArrayList<TokenLocation>();
-        list.addAll(markerLocationMap.values());
-        
-        return list;
-    }
-    
     // TODO: I don't like this hardwiring
     protected Shape getCircleFacingArrow(int angle, int size) {
 
@@ -1328,7 +1321,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
             // Markers
             if (token.isMarker() && canSeeMarker(token)) {
-            	markerLocationMap.put(token, location);
+            	markerLocationList.add(location);
             }
             
             if (!location.bounds.intersects(clipBounds)) {
@@ -1719,8 +1712,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     }
 
     public Area getMarkerBounds(Token token) {
-    	TokenLocation location = markerLocationMap.get(token);
-    	return location != null ? location.bounds : null;
+    	for (TokenLocation location : markerLocationList) {
+    		if (location.token == token) {
+    			return location.bounds;
+    		}
+    	}
+    	return null;
     }
     
     public Rectangle getLabelBounds(Label label) {
@@ -1760,7 +1757,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public Token getMarkerAt (int x, int y) {
 
     	List<TokenLocation> locationList = new ArrayList<TokenLocation>();
-        locationList.addAll(markerLocationMap.values());
+        locationList.addAll(markerLocationList);
+        Collections.reverse(locationList);
         for (TokenLocation location : locationList) {
             if (location.bounds.contains(x, y)) {
                 return location.token;
