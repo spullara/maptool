@@ -145,7 +145,10 @@ public class MapToolUtil {
 
 			// Find the next available token number, this
 			// has to break at some point.
-			while (zone.getTokenByName(newName + " " + num) != null) {
+			
+			while (zone.getTokenByName(newName + " " + num) != null ||
+					// Or, check for repeat in numbering in the GM Name.
+					( zone.getTokenByName(newName)!= null && zone.getTokenByGMName(Integer.toString(num)) != null) ) {
 				if (random && zone.getAllTokens().size() < 89)
 					num = getRandomNumber(10,99);
 				else

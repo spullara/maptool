@@ -132,7 +132,7 @@ public class NewTokenDialog extends AbeilleDialog {
 	}
 	
 	public void initGMNameTextField() {
-		getGMNameTextField().setText(token.getName());
+		getGMNameTextField().setText(token.getGMName());
 	}
 	
 	public void initNPCTypeRadio() {

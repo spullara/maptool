@@ -524,6 +524,19 @@ public class Zone extends Token {
 		
 		return null;
 	}
+	
+	/**
+	 * Returns the first token with a given GM name.  The name is matched case-insensitively.
+	 */
+	public Token getTokenByGMName(String name) {
+		for (Token token : getAllTokens()) {
+			if (token.getGMName().equalsIgnoreCase(name)) {
+				return token;
+			}
+		}
+		
+		return null;
+	}
 
 	public List<DrawnElement> getAllDrawnElements() {
 		List<DrawnElement> list = new ArrayList<DrawnElement>();
