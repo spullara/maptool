@@ -598,17 +598,27 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         if (isUsingVision) {
             if (visibleArea != null) {
                 if (zone.hasFog ()) {
-                
-                    Area visitedArea = new Area(zone.getExposedArea());
-                    visitedArea.subtract(visibleArea);
-                    visitedArea.transform(AffineTransform.getScaleInstance (getScale(), getScale()));
-                    visitedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-                    
-                    g.setColor(new Color(0, 0, 0, 80));
-                    g.fill(visitedArea);
-                    
+
                     visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
                     visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
+                    
+                    // NOTE: There was a simpler way to do this by simply subtracting the visible area from the exposed area
+                    // but that caused the subtract to go into an infinite loop deeeeep in the geometry code, on only some
+                    // machines, quite randomly.  So the code was changed to avoid that subtraction and we end up with this:
+                    
+                    Area clip = new Area(new Rectangle(0, 0, getSize().width-1, getSize().height-1));
+                    clip.subtract(visibleArea);
+
+                    Area visitedArea = new Area(zone.getExposedArea());
+                    visitedArea.transform(AffineTransform.getScaleInstance (getScale(), getScale()));
+                    visitedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+
+                    Shape oldClip = g.getClip();
+                    g.setClip(clip);
+                    g.setColor(new Color(0, 0, 0, 80));
+                    g.fill(visitedArea);
+                    g.setClip(oldClip);
+                    
                 } else {
                     visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
                     visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
