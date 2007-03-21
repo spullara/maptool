@@ -28,6 +28,7 @@ import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
@@ -103,6 +104,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     private boolean isDrawingSelectionBox;
     private boolean isSpaceDown;
     private boolean isMovingWithKeys;
+    private boolean isShowingHover;
     private Rectangle selectionBoundBox;
 
 	private Token tokenBeingDragged;
@@ -429,8 +431,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 		if (SwingUtilities.isLeftMouseButton(e)) {
 	        try {
-	            SwingUtil.showPointer(renderer);
 	
+				renderer.setCursor(Cursor.getPredefinedCursor(markerUnderMouse != null ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
+		        if (markerUnderMouse != null && !isShowingHover) {
+		        	isShowingHover = true;
+		        	repaint();
+		        }
+
 		        // SELECTION BOUND BOX
 		        if (isDrawingSelectionBox) {
 		        	isDrawingSelectionBox = false;
@@ -448,6 +455,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 				// DRAG TOKEN COMPLETE
 				if (isDraggingToken) {
+		            SwingUtil.showPointer(renderer);
 					stopTokenDrag();
 				}
 				
@@ -541,6 +549,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		Token marker = renderer.getMarkerAt(mouseX, mouseY);
 		if (marker != markerUnderMouse) {
 			markerUnderMouse = marker;
+			
+			renderer.setCursor(Cursor.getPredefinedCursor(markerUnderMouse != null ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
+			MapTool.getFrame().setStatusMessage(markerUnderMouse != null ? markerUnderMouse.getName() : "");
+		}
+		if (markerUnderMouse == null && isShowingHover) {
+			isShowingHover = false;
 			renderer.repaint();
 		}
 	}
@@ -579,6 +593,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				selectionBoundBox.y = Math.min(y1, y2);
 				selectionBoundBox.width = Math.abs(x1 - x2);
 				selectionBoundBox.height = Math.abs(y1 - y2);
+				
+				// NOTE: This is a weird one that has to do with the order of the mouseReleased event.  if the selection
+				// box started the drag while hovering over a marker, we need to tell it to not show the marker after the
+				// drag is complete
+				markerUnderMouse = null;
 				
 				renderer.repaint();
 				return;
@@ -1104,7 +1123,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 		
 		// Hovers
-		if (tokenUnderMouse == null && markerUnderMouse != null) {
+		if (tokenUnderMouse == null && markerUnderMouse != null && isShowingHover) {
 			Area bounds = renderer.getMarkerBounds(markerUnderMouse);
  
 			if (bounds != null) {
