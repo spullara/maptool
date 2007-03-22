@@ -44,6 +44,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
+import net.rptools.maptool.util.StringUtil;
 import net.rptools.maptool.client.AppPreferences;
 
 /**
@@ -530,6 +531,10 @@ public class Zone extends Token {
 	 */
 	public Token getTokenByGMName(String name) {
 		for (Token token : getAllTokens()) {
+			if (StringUtil.isEmpty(token.getGMName())) {
+				continue;
+			}
+			
 			if (token.getGMName().equalsIgnoreCase(name)) {
 				return token;
 			}
