@@ -3,6 +3,9 @@ package net.rptools.maptool.client.ui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -97,7 +100,9 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 		
 		JMenu menu = new JMenu("Macros");
-		for (String key : getTokenUnderMouse().getMacroNames()) {
+		List<String> keyList = new ArrayList<String>(getTokenUnderMouse().getMacroNames());
+		Collections.sort(keyList);
+		for (String key : keyList) {
 			menu.add(new RunMacroAction(key, getTokenUnderMouse().getMacro(key)));
 		}
 		
@@ -111,7 +116,9 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 		
 		JMenu menu = new JMenu("Speech");
-		for (String key : getTokenUnderMouse().getSpeechNames()) {
+		List<String> keyList = new ArrayList<String>(getTokenUnderMouse().getSpeechNames());
+		Collections.sort(keyList);
+		for (String key : keyList) {
 			menu.add(new SayAction(key, getTokenUnderMouse().getSpeech(key)));
 		}
 		
