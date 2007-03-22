@@ -105,7 +105,7 @@ public class MapToolServerConnection extends ServerConnection  implements Server
 
     	server.releaseConnection(conn.getId());
     	
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.playerDisconnected.name(), playerMap.get(conn.getId().toUpperCase()));
+        server.getConnection().broadcastCallMethod(new String[]{conn.getId()}, ClientCommand.COMMAND.playerDisconnected.name(), playerMap.get(conn.getId().toUpperCase()));
         playerMap.remove(conn.getId().toUpperCase());
     }
     
