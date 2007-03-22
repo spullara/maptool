@@ -518,6 +518,10 @@ public class Zone extends Token {
 	 */
 	public Token getTokenByName(String name) {
 		for (Token token : getAllTokens()) {
+			if (StringUtil.isEmpty(token.getName())) {
+				continue;
+			}
+
 			if (token.getName().equalsIgnoreCase(name)) {
 				return token;
 			}
