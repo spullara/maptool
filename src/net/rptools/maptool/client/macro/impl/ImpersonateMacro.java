@@ -27,7 +27,10 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.TextMessage;
+import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Zone;
 
 @MacroDefinition(
         name = "impersonate",
@@ -40,16 +43,48 @@ public class ImpersonateMacro implements Macro {
 
 		int index = macro.indexOf(":");
 		if ( index > 0 ) {
-			MapTool.getFrame().getCommandPanel().setIdentity(macro.substring(0,index));
-			MacroManager.executeMacro(macro.substring(index+1));
-			MapTool.getFrame().getCommandPanel().setIdentity(null);
+			String name = macro.substring(0,index);
+			if (canImpersonate(name)) {
+				MapTool.getFrame().getCommandPanel().setIdentity(name);
+				MacroManager.executeMacro(macro.substring(index+1));
+				MapTool.getFrame().getCommandPanel().setIdentity(null);
+			}
 		} else if ( macro.length() > 0 ) {
-			MapTool.getFrame().getCommandPanel().setIdentity(macro);
-            MapTool.addMessage(TextMessage.me("You're now impersonating "+macro));
+			if (canImpersonate(macro)) {
+				MapTool.getFrame().getCommandPanel().setIdentity(macro);
+	            MapTool.addMessage(TextMessage.me("You're now impersonating "+macro));
+			}
         } else {
         	MapTool.getFrame().getCommandPanel().setIdentity(null);
             MapTool.addMessage(TextMessage.me("You're no longer impersonating anyone"));
         }
 	}
 
+	private boolean canImpersonate(String name) {
+
+		if (MapTool.getPlayer().isGM()) {
+			return true;
+		}
+		// Check for token ownership
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+		if (renderer == null) {
+			MapTool.addLocalMessage("You can only impersonate tokens that you own");
+			return false;
+		}
+		
+		Zone zone = renderer.getZone();
+		Token token = zone.getTokenByName(name);
+		
+		if (token == null) {
+			MapTool.addLocalMessage("You can only impersonate tokens that you own");
+			return false;
+		}
+		
+		if (!token.isOwner(MapTool.getPlayer().getName())) {
+			MapTool.addLocalMessage("You can only impersonate tokens that you own");
+			return false;
+		}
+		
+		return true;
+	}
 }
