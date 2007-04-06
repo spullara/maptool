@@ -19,9 +19,9 @@ public class MapToolRegistry {
 		}
 	}
 	
-    public static String findInstance(String id, String password) {
+    public static String findInstance(String id) {
         checkService();
-        return service.findInstance(id, password);
+        return service.findInstance(id, null);
     }
 
     public static String getAddress() {
@@ -69,17 +69,17 @@ public class MapToolRegistry {
 		heartBeat(4444);
 		
 		Thread.sleep(delay);
-		System.out.println ("Find: " + findInstance("my test", null));
+		System.out.println ("Find: " + findInstance("my test"));
 
 		Thread.sleep(delay);
         System.out.println ("RERegister");
         registerInstance("my test", 4444, "my password");
         
         Thread.sleep(delay);
-        System.out.println ("Find: " + findInstance("my test", null));
+        System.out.println ("Find: " + findInstance("my test"));
 		
         Thread.sleep(delay);
-        System.out.println ("Find: " + findInstance("my test", "my password"));
+        System.out.println ("Find: " + findInstance("my test"));
 
         Thread.sleep(delay);
 		System.out.println ("UnRegister");
