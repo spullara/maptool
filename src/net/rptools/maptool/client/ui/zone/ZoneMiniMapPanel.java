@@ -119,7 +119,14 @@ public class ZoneMiniMapPanel extends JPanel implements ZoneActivityListener, Mo
     }
 
     public Dimension getPreferredSize() {
+    	if (MapTool.getFrame() == null) {
+    		return new Dimension(0, 0);
+    	}
+    	
     	ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+    	if (renderer == null) {
+    		return new Dimension(0, 0);
+    	}
         BufferedImage img = renderer.getMiniImage(SIZE_WIDTH);
         if (img == null || img == ImageManager.UNKNOWN_IMAGE) {
             img = ImageManager.UNKNOWN_IMAGE;
