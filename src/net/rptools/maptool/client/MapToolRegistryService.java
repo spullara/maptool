@@ -10,7 +10,7 @@ public interface MapToolRegistryService {
 	public int registerInstance(String id, int port, String password);
 	public void unregisterInstance(int port);
 
-    public String findInstance(String id, String password);
+    public String findInstance(String id, String deprecated);
     
 	public boolean testConnection(int port);
 	
