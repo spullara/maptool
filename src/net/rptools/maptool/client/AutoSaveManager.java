@@ -89,6 +89,11 @@ public class AutoSaveManager implements ActionListener {
 		if (working) {
 			return;
 		}
+		
+		// Don't autosave if we don't "own" the campaign
+		if (!MapTool.isHostingServer() && !MapTool.isPersonalServer()) {
+			return;
+		}
 
 		MapTool.getFrame().setStatusMessage("Autosaving campaign ...");
 		
