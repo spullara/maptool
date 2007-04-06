@@ -207,6 +207,7 @@ public class Token {
 	    
 	    layer = token.layer;
 	    
+	    ownerType = token.ownerType;
 		if (token.ownerList != null) {
 			ownerList = new HashSet<String>();
 			ownerList.addAll(token.ownerList);
