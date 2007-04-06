@@ -94,7 +94,7 @@ public class MapTool {
     
 	private static ServiceAnnouncer announcer;
 	
-    private static AutoSaveManager autoSaveManager = new AutoSaveManager();
+    private static AutoSaveManager autoSaveManager;
 	
 	public static void showError(String message) {
 		JOptionPane.showMessageDialog(clientFrame, I18N.getText(message), "Error", JOptionPane.ERROR_MESSAGE);
@@ -137,6 +137,9 @@ public class MapTool {
     }
     
 	public static AutoSaveManager getAutoSaveManager() {
+		if (autoSaveManager == null) {
+			autoSaveManager = new AutoSaveManager();
+		}
 		return autoSaveManager;
 	}
 
