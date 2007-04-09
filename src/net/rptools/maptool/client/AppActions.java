@@ -509,7 +509,7 @@ public class AppActions {
 		
 		@Override
 		public boolean isAvailable() {
-			return MapTool.isHostingServer();
+			return MapTool.isHostingServer() || MapTool.getPlayer().isGM();
 		}
 		
 		public void execute(ActionEvent e) {
