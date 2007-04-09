@@ -163,6 +163,10 @@ public class AppActions {
 		switch (exportInfo.getType()) {
 		case ExportInfo.Type.CURRENT_VIEW:
 			screenCap = MapTool.takeMapScreenShot(new ZoneView(role));
+			if (screenCap == null) {
+				MapTool.getFrame().setStatusMessage("Could not get screencap");
+				return;
+			}
 			break;
 		case ExportInfo.Type.FULL_MAP:
 			break;

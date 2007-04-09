@@ -123,6 +123,10 @@ public class MapTool {
     
     public static BufferedImage takeMapScreenShot(ZoneView view) {
     	ZoneRenderer renderer = clientFrame.getCurrentZoneRenderer();
+    	if (renderer == null) {
+    		return null;
+    	}
+    	
     	Dimension size = renderer.getSize();
     	
     	BufferedImage image = new BufferedImage(size.width, size.height, Transparency.OPAQUE);

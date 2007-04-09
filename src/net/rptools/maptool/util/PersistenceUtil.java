@@ -127,6 +127,9 @@ public class PersistenceUtil {
 	*/
 	static public void saveCampaignThumbnail(String fileName) {
 		BufferedImage screen = MapTool.takeMapScreenShot(new ZoneView(MapTool.getPlayer().getRole()));
+		if (screen == null) {
+			return;
+		}
 		
 		Dimension imgSize = new Dimension(screen.getWidth(null), screen.getHeight(null));
 		SwingUtil.constrainTo(imgSize, 200, 200);
