@@ -107,7 +107,7 @@ public class MapToolServer {
     	conn.removeObserver(observer);
     }
     
-    public ServerConnection getConnection() {
+    public MapToolServerConnection getConnection() {
         return conn;
     }
     
