@@ -632,7 +632,7 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 
 			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
-			String zoneName = JOptionPane.showInputDialog("New map name:", "copy of " + zone.getName());
+			String zoneName = JOptionPane.showInputDialog("New map name:", "Copy of " + zone.getName());
 			if (zoneName != null) {
 				Zone zoneCopy = new Zone(zone);
 				zoneCopy.setName(zoneName);
