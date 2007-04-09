@@ -149,7 +149,7 @@ public class Zone extends Token {
     	super(zone.getAssetID());
     	type = zone.type;
     	
-    	setName("copy of " + zone.getName());
+    	setName(zone.getName());
 
     	try{
         	grid = (Grid)zone.grid.clone();
