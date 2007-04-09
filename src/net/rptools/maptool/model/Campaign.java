@@ -62,7 +62,8 @@ public class Campaign {
 
     	zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
     	for (Entry<GUID, Zone> entry : campaign.zones.entrySet()) {
-    		zones.put(entry.getKey(), new Zone(entry.getValue()));
+    		Zone copy = new Zone(entry.getValue());
+    		zones.put(copy.getId(), copy);
     	}
     	if (tokenTypeMap != null) {
         	tokenTypeMap = new HashMap<String, List<String>>(); 
