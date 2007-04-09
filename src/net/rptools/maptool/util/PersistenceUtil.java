@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -177,6 +178,15 @@ public class PersistenceUtil {
 				// If we are remotely installing this campaign, we'll need to send the image data to the server
 	            MapTool.serverCommand().putAsset(asset);
 			}
+		}
+		
+		// Do some sanity work on the campaign
+		// This specifically handles the case when the zone mappings
+		// are out of sync in the save file
+		Campaign campaign = persistedCampaign.campaign;
+		List<Zone> zoneList = campaign.getZones();
+		for (Zone zone : zoneList) {
+			campaign.putZone(zone);
 		}
 		
 		return persistedCampaign;
