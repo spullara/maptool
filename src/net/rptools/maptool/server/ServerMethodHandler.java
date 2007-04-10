@@ -109,6 +109,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case addTopology:             addTopology(context.getGUID(0), (Area) context.get(1)); break;
             case removeTopology:          removeTopology(context.getGUID(0), (Area) context.get(1)); break;
             case renameZone:			  renameZone(context.getGUID(0), context.getString(1));break;
+            case heartbeat:				  heartbeat(context.getString(0));
             }
         } finally {
             RPCContext.setCurrent(null);
@@ -139,6 +140,10 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     
     ////
     // SERVER COMMAND
+    public void heartbeat(String data) {
+    	// Nothing to do yet
+    }
+    
     public void enforceZone(GUID zoneGUID) {
     	forwardToClients();
     }
@@ -388,6 +393,9 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     
     public void bootPlayer(String player) {
     	forwardToClients();
+    	
+    	// And just to be sure, remove them from the server
+    	server.releaseConnection(player);
     }
 
     public void startTokenMove(String playerId, GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList) {

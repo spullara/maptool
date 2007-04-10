@@ -176,6 +176,8 @@ public class MapTool {
         }
         AppActions.updateActions();
         
+        // TODO: make this more formal when we switch to mina
+        new ServerHeartBeatThread().start();
 	}
 	
 	public static String getVersion() {
@@ -600,6 +602,28 @@ public class MapTool {
         });
         
 //        new Thread(new HeapSpy()).start();
+	}
+	
+	private static class ServerHeartBeatThread extends Thread {
+		@Override
+		public void run() {
+			
+			// This should always run, so we should be able to safely
+			// loop forever
+			while (true) {
+				try {
+					Thread.sleep(20000); 
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				ServerCommand command = serverCommand;
+				if (command != null) {
+					command.heartbeat(getPlayer().getName());
+				}
+				
+			}
+		}
 	}
 	
 	private static class ActivityProgressListener implements ActivityListener {

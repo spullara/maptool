@@ -57,6 +57,10 @@ public class ServerCommandClientImpl implements ServerCommand {
 //		new AssetRetrievalThread().start();
 	}
 	
+	public void heartbeat(String data) {
+		makeServerCall(COMMAND.heartbeat, data);
+	}
+    
 	public void bootPlayer(String player) {
 		makeServerCall(COMMAND.bootPlayer, player);
 	}

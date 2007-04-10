@@ -78,7 +78,8 @@ public interface ServerCommand {
         setServerPolicy,
         addTopology,
         removeTopology,
-        renameZone
+        renameZone,
+        heartbeat
     };
 
     public void bootPlayer(String player);
@@ -117,4 +118,5 @@ public interface ServerCommand {
     public void enforceZone(GUID zoneGUID);
     public void setServerPolicy(ServerPolicy policy);
     public void renameZone(GUID zoneGUID, String name);
+    public void heartbeat(String data);
 }
