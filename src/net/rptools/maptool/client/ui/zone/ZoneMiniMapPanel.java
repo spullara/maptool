@@ -61,6 +61,8 @@ public class ZoneMiniMapPanel extends JPanel implements ZoneActivityListener, Mo
     private Rectangle bounds;
     private BufferedImage backBuffer;
     
+    private Zone zone;
+    
     public ZoneMiniMapPanel() {
      
         addMouseListener(new MouseHandler());
@@ -160,6 +162,14 @@ public class ZoneMiniMapPanel extends JPanel implements ZoneActivityListener, Mo
     }
 
     public void zoneActivated(Zone zone) {
+    	
+    	if (this.zone != null) {
+    		this.zone.removeModelChangeListener(this);
+    	}
+
+    	this.zone = zone;
+    	this.zone.addModelChangeListener(this);
+    	
     	flush();
     	resize();
     	getParent().doLayout();
@@ -169,8 +179,11 @@ public class ZoneMiniMapPanel extends JPanel implements ZoneActivityListener, Mo
     ////
     // ModelChangeListener
     public void modelChanged(ModelChangeEvent event) {
-    	flush();
-    	repaint();
+    	
+    	if (event.getEvent() == Zone.Event.FOG_CHANGED) {
+	    	flush();
+	    	repaint();
+    	}
     }
     
     ////
