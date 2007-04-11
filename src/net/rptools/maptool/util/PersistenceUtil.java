@@ -38,8 +38,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 
@@ -184,8 +186,9 @@ public class PersistenceUtil {
 		// This specifically handles the case when the zone mappings
 		// are out of sync in the save file
 		Campaign campaign = persistedCampaign.campaign;
-		List<Zone> zoneList = campaign.getZones();
-		for (Zone zone : zoneList) {
+		Set<Zone> zoneSet = new HashSet<Zone>(campaign.getZones());
+		campaign.removeAllZones();
+		for (Zone zone : zoneSet) {
 			campaign.putZone(zone);
 		}
 		
