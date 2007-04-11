@@ -159,6 +159,10 @@ public class Campaign {
         zones.put(zone.getId(), zone);
     }
 
+    public void removeAllZones() {
+    	zones.clear();
+    }
+    
     public void removeZone(GUID id) {
         zones.remove(id);
     }
