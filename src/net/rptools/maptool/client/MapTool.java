@@ -32,6 +32,7 @@ import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -121,8 +122,8 @@ public class MapTool {
     	}
     }
     
-    public static BufferedImage takeMapScreenShot(ZoneView view) {
-    	ZoneRenderer renderer = clientFrame.getCurrentZoneRenderer();
+    public static BufferedImage takeMapScreenShot(final ZoneView view) {
+    	final ZoneRenderer renderer = clientFrame.getCurrentZoneRenderer();
     	if (renderer == null) {
     		return null;
     	}
@@ -130,10 +131,26 @@ public class MapTool {
     	Dimension size = renderer.getSize();
     	
     	BufferedImage image = new BufferedImage(size.width, size.height, Transparency.OPAQUE);
-    	Graphics2D g = image.createGraphics();
+    	final Graphics2D g = image.createGraphics();
     	g.setClip(0, 0, size.width, size.height);
     	
-    	renderer.renderZone(g, view);
+    	// Have to do this on the EDT so that there aren't any odd side effects of rendering
+    	// using a renderer that's onscreen
+    	if (!EventQueue.isDispatchThread()) {
+	    	try {
+		    	EventQueue.invokeAndWait(new Runnable() {
+		    		public void run() {
+		    	    	renderer.renderZone(g, view);
+		    		}
+		    	});
+	    	} catch (InterruptedException ie) {
+	    		ie.printStackTrace();
+	    	} catch (InvocationTargetException ite) {
+	    		ite.printStackTrace();
+	    	}
+    	} else {
+    		renderer.renderZone(g, view);
+    	}
     	
     	g.dispose();
     	
