@@ -137,7 +137,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private DrawableRenderer backgroundDrawableRenderer = new PartitionedDrawableRenderer();
     private DrawableRenderer objectDrawableRenderer = new BackBufferDrawableRenderer();
     private DrawableRenderer tokenDrawableRenderer = new BackBufferDrawableRenderer();
-    private DrawableRenderer gmDrawableRenderer = new PartitionedDrawableRenderer();
+    private DrawableRenderer gmDrawableRenderer = new BackBufferDrawableRenderer();
     
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
     private Map<Zone.Layer , List<TokenLocation>> tokenLocationMap = new HashMap<Zone.Layer, List<TokenLocation>>();
