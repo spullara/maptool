@@ -42,7 +42,7 @@ import net.rptools.maptool.model.drawing.Pen;
 
 /**
  */
-public class BackBufferDrawableRenderer {
+public class BackBufferDrawableRenderer implements DrawableRenderer {
 
 	private BufferedImage backBuffer;
 	private Rectangle lastViewport;
@@ -111,10 +111,10 @@ public class BackBufferDrawableRenderer {
 			
 			Drawable drawable = element.getDrawable();
 			
-//			if (!drawable.getBounds().intersects(viewport)) {
-//				// Not onscreen
-//				continue;
-//			}
+			if (!drawable.getBounds().intersects(viewport)) {
+				// Not onscreen
+				continue;
+			}
 			
 			Pen pen = element.getPen();
 			if (pen.getOpacity() != 1 && pen.getOpacity() != 0 /* handle legacy pens, besides, it doesn't make sense to have a non visible pen*/) {
