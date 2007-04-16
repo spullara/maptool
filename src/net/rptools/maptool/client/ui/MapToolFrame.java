@@ -232,7 +232,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 					.loadResource("net/rptools/maptool/client/credits.html"));
 			version = MapTool.getVersion();
 			credits = credits.replace("%VERSION%", version);
-			logo = ImageUtil.getImage("net/rptools/lib/image/rptools-logo.png");
+			logo = ImageUtil.getImage("net/rptools/maptool/client/image/maptool-logo.png");
 
 		} catch (Exception ioe) {
 			System.err.println("Unable to load credits or version");

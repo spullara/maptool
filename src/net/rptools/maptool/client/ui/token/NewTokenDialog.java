@@ -47,6 +47,7 @@ import net.rptools.maptool.client.swing.AbeilleDialog;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
 
 /**
@@ -113,6 +114,10 @@ public class NewTokenDialog extends AbeilleDialog {
 
 	public JRadioButton getNPCTypeRadio() {
 		return (JRadioButton) getComponent("npcType");
+	}
+	
+	public JRadioButton getMarkerTypeRadio() {
+		return (JRadioButton) getComponent("markerType");
 	}
 	
 	public JRadioButton getPCTypeRadio() {
@@ -206,6 +211,12 @@ public class NewTokenDialog extends AbeilleDialog {
 		}
 		if (getPCTypeRadio().isSelected()) {
 			token.setType(Token.Type.PC);
+		}
+		if (getMarkerTypeRadio().isSelected()) {
+			token.setType(Token.Type.NPC);
+			token.setLayer(Zone.Layer.OBJECT);
+			token.setGMNote("Marker"); // In order for it to be recognized as a marker, it needs something in the notes field 
+			token.setVisible(false);
 		}
 	}
 
