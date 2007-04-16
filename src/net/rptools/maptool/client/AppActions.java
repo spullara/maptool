@@ -1269,13 +1269,14 @@ public class AppActions {
 							
 							AppMenuBar.getMruManager().addMRUCampaign(campaignFile);
 
-							MapTool.setCampaign(campaign.campaign);
 							// Bypass the serialization when we are hosting the server
-							if (MapTool.isHostingServer() || MapTool.isPersonalServer()) {
-								MapTool.getServer().getMethodHandler().handleMethod(MapTool.getPlayer().getName(), ServerCommand.COMMAND.setCampaign.name(), new Object[]{campaign.campaign});
-							} else {
+							// TODO: This optimization doesn't work since the player name isn't the right thing to exclude this thread
+//							if (MapTool.isHostingServer() || MapTool.isPersonalServer()) {
+//								MapTool.getServer().getMethodHandler().handleMethod(MapTool.getPlayer().getName(), ServerCommand.COMMAND.setCampaign.name(), new Object[]{campaign.campaign});
+//							} else {
 								MapTool.serverCommand().setCampaign(campaign.campaign);
-							}
+//							}
+							MapTool.setCampaign(campaign.campaign);
 							
 							MapTool.getAutoSaveManager().restart();
 							MapTool.getAutoSaveManager().tidy();
