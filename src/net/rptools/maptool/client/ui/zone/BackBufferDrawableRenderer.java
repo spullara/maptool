@@ -96,7 +96,7 @@ public class BackBufferDrawableRenderer implements DrawableRenderer {
 	}
 	
 	private void drawDrawables(List<DrawnElement> drawableList, Rectangle viewport, double scale) {
-		
+
 		Graphics2D g = backBuffer.createGraphics();
 		g.setClip(0, 0, backBuffer.getWidth(), backBuffer.getHeight());
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -111,10 +111,10 @@ public class BackBufferDrawableRenderer implements DrawableRenderer {
 			
 			Drawable drawable = element.getDrawable();
 			
-			if (!drawable.getBounds().intersects(viewport)) {
-				// Not onscreen
-				continue;
-			}
+//			if (!drawable.getBounds().intersects(viewport)) {
+//				// Not onscreen
+//				continue;
+//			}
 			
 			Pen pen = element.getPen();
 			if (pen.getOpacity() != 1 && pen.getOpacity() != 0 /* handle legacy pens, besides, it doesn't make sense to have a non visible pen*/) {
