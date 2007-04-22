@@ -13,13 +13,15 @@ import net.rptools.maptool.client.walker.astar.AStarHorizHexEuclideanWalker;
 
 public class HexGridHorizontal extends HexGrid {
 
+	private static final int[] FACING_ANGLES = new int[] {-150, -90, -30, 30, 90, 150};
+	
 	public HexGridHorizontal() {
 		super();
 	}
-	
+
 	@Override
-	protected void initFacingAngles() {
-		facingAngles = new int[] {-120, -60, 0, 60, 120, 180};
+	public int[] getFacingAngles() {
+		return FACING_ANGLES;
 	}
 	
 	@Override

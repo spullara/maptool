@@ -45,8 +45,6 @@ public abstract class HexGrid extends Grid {
 		public boolean isSecondDimensionAdjustmentSupported() {return true;}
 	};
 	
-	protected int[] facingAngles;
-	
 	/**
 	 * minorRadius / edgeLength
 	 */
@@ -72,7 +70,6 @@ public abstract class HexGrid extends Grid {
 	
 	public HexGrid() {
 		super();
-		initFacingAngles();
 	}
 	
 	@Override
@@ -151,11 +148,6 @@ public abstract class HexGrid extends Grid {
 	
 
 	@Override
-	public int[] getFacingAngles() {
-		return facingAngles;
-	}
-	
-	@Override
 	public void setSize(int size) {
 
 		if (hexRatio == 0) {
@@ -227,7 +219,6 @@ public abstract class HexGrid extends Grid {
 		return (int)(getVRadius() * 2);
 	}
 	
-	protected abstract void initFacingAngles();
 	protected abstract void setGridDrawTranslation(Graphics2D g, double u, double v);
 	protected abstract double getRendererSizeU(ZoneRenderer renderer);
 	protected abstract double getRendererSizeV(ZoneRenderer renderer);
