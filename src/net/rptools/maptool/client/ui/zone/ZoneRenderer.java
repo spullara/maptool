@@ -76,6 +76,7 @@ import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.ImageBorder;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
@@ -2070,7 +2071,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private void addTokens(List<Token> tokens, ZonePoint zp) {
         GridCapabilities gridCaps = zone.getGrid().getCapabilities();
         boolean isGM = MapTool.getPlayer().isGM();
-        
+
         ScreenPoint sp = ScreenPoint.fromZonePoint(this, zp);
         Point dropPoint = new Point(sp.x, sp.y);
         SwingUtilities.convertPointToScreen(dropPoint, this);
@@ -2136,8 +2137,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         // For convenience, select them
         clearSelectedTokens();
-        for (Token token : tokens)
+        for (Token token : tokens) {
             selectToken(token.getId());
+        }
+        
+        // Copy them to the clipboard so that we can quickly copy them onto the map
+        AppActions.copyTokens(tokens);
+        
         requestFocusInWindow();
         repaint();
     }

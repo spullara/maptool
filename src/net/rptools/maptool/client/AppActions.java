@@ -357,12 +357,13 @@ public class AppActions {
 		
 		public void execute(ActionEvent e) {
 			
-			copyTokens();
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			Set<GUID> selectedSet = renderer.getSelectedTokenSet();
+
+			copyTokens(selectedSet);
 			
 			// delete tokens
-			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			Zone zone = renderer.getZone();
-			Set<GUID> selectedSet = renderer.getSelectedTokenSet();
 			
 			for (GUID tokenGUID : selectedSet) {
 				
@@ -390,21 +391,40 @@ public class AppActions {
 		}
 
 		public void execute(ActionEvent e) {
-			copyTokens();
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			copyTokens(renderer.getSelectedTokenSet());
 		}
 
 	};
 	
-	private static final void copyTokens() {
+	public static final void copyTokens(Set<GUID> tokenSet) {
+
+		List<Token> tokenList = new ArrayList<Token>();
+		
 		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 		Zone zone = renderer.getZone();
-		Set<GUID> selectedSet = renderer.getSelectedTokenSet();
 
 		Integer top = null;
 		Integer left = null;
 		tokenCopySet = new HashSet<Token>();
-		for (GUID guid : selectedSet) {
+		for (GUID guid : tokenSet) {
 			Token token = zone.getToken(guid);
+			if (token != null) {
+				tokenList.add(token);
+			}
+		}
+		
+		copyTokens(tokenList);
+	}
+
+	public static final void copyTokens(List<Token> tokenList) {
+
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+
+		Integer top = null;
+		Integer left = null;
+		tokenCopySet = new HashSet<Token>();
+		for (Token token : tokenList) {
 
 			if (top == null || token.getY() < top) {
 				top = token.getY();
