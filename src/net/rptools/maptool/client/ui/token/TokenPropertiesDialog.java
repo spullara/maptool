@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
@@ -269,6 +270,14 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		return (JTable) getComponent("speechTable");
 	}
 
+	public JButton getSpeechClearAllButton() {
+		return (JButton) getComponent("speechClearAllButton");
+	}
+	
+	public JButton getMacroClearAllButton() {
+		return (JButton) getComponent("macroClearAllButton");
+	}
+	
 	private JLabel getVisibleLabel() {
 		return (JLabel) getComponent("visibleLabel");
 	}
@@ -281,15 +290,48 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		return (CheckBoxListWithSelectable) getComponent("ownerList");
 	}
 	
-	private void initMacroPanel() {}
+	private void initMacroPanel() {
+		
+		getMacroClearAllButton().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (!MapTool.confirm("Are you sure you want to clear all macros for this token?")) {
+					return;
+				}
+				
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						getMacroTable().setModel(new MacroTableModel());
+					}
+				});
+			}
+		});
+	}
 	
-	private void initSpeechPanel() {}
+	private void initSpeechPanel() {
+		
+		getSpeechClearAllButton().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				if (!MapTool.confirm("Are you sure you want to clear all speech for this token?")) {
+					return;
+				}
+				
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						getSpeechTable().setModel(new SpeechTableModel());
+					}
+				});
+			}
+		});
+	}
 	
 	private void initOwnershipPanel() {
 		
 		CheckBoxListWithSelectable list = new CheckBoxListWithSelectable();
 		list.setName("ownerList");
 		replaceComponent("ownershipPanel", "ownershipList", new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+		
 	}
 
 	private void initNotesPanel() {
@@ -757,6 +799,10 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 			});
 			init(rowList);
 		}
+		public MacroTableModel() {
+			init(new ArrayList<Association<String, String>>());
+		}
+		
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
@@ -783,7 +829,9 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 			});
 			init(rowList);
 		}
-		
+		public SpeechTableModel() {
+			init(new ArrayList<Association<String, String>>());
+		}
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
@@ -859,6 +907,10 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 			Map<String, String> map = new HashMap<String, String>();
 			
 			for (Association<String, String> row : rowList) {
+				if (row.getLeft() == null || row.getLeft().trim().length() == 0) {
+					continue;
+				}
+				
 				map.put(row.getLeft(), row.getRight());
 			}
 			
