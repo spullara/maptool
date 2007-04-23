@@ -75,6 +75,7 @@ import javax.swing.Timer;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.ImageBorder;
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
@@ -1276,15 +1277,19 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             int width = TokenSize.getHeight(token, zone.getGrid());
             int scaledHeight;
             int scaledWidth;
-            if( isHexGrid() && token.isToken() ) {
-                Dimension d = HexGridUtil.getTokenDimensions(token.getSize(),(HexGrid)grid, scale);
-                scaledHeight = d.height;
-                scaledWidth = d.width;
-            }
-            else {
+//            if( isHexGrid() && token.isToken() ) {
+//                Dimension d = HexGridUtil.getTokenDimensions(token.getSize(),(HexGrid)grid, scale);
+//                
+//                Dimension sz = new Dimension(width, height);
+//                SwingUtil.constrainTo(sz, d.width, d.height);
+//
+//                scaledHeight = sz.height;
+//                scaledWidth = sz.width;
+//            }
+//            else {
                 scaledWidth = (int)Math.ceil(height * scale);
                 scaledHeight = (int)Math.ceil(width * scale);
-            }
+//            }
             
             if (!token.isStamp() && !token.isBackground()) {
                 // Fit inside the grid
@@ -1467,14 +1472,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             } else {
                 // Normal
                 
-                if ( isHexGrid() && token.isToken()) { // Keep token aspect ratio square on hex grid
-                    int newSize = location.scaledWidth < location.scaledHeight ? location.scaledWidth : location.scaledHeight;
-                    Dimension d = HexGridUtil.getTokenAdjust((HexGrid)grid, location.scaledWidth, location.scaledHeight, token.getSize());
-                    g.drawImage(workImage, location.x+d.width, location.y+d.height, newSize, newSize, this);
-                }
-                else {
+//                if ( isHexGrid() && token.isToken()) { // Keep token aspect ratio square on hex grid
+//                    int newSize = location.scaledWidth < location.scaledHeight ? location.scaledWidth : location.scaledHeight;
+//                    Dimension d = HexGridUtil.getTokenAdjust((HexGrid)grid, location.scaledWidth, location.scaledHeight, token.getSize());
+//                    g.drawImage(workImage, location.x+d.width, location.y+d.height, newSize, newSize, this);
+//                }
+//                else {
                     g.drawImage(workImage, location.x, location.y, location.scaledWidth, location.scaledHeight, this);
-                }
+//                }
             }
             g.setClip(clip);
 
