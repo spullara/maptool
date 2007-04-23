@@ -486,8 +486,12 @@ public class AppActions {
 				
 				// paste into correct layer
 				token.setLayer(renderer.getActiveLayer());	
-				// check the token's name
-				token.setName(MapToolUtil.nextTokenId(zone, token));
+
+				// check the token's name, don't change PC token names ... ever
+				if (origToken.getType() != Token.Type.PC) {
+					token.setName(MapToolUtil.nextTokenId(zone, token));
+				}
+
 				zone.putToken(token);
 				MapTool.serverCommand().putToken(zone.getId(), token);
 			}
