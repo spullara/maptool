@@ -59,7 +59,7 @@ public abstract class HexGrid extends Grid {
 	private double scaledEdgeProjection;
 	private double scaledMinorRadius;
 	private double scaledEdgeLength;
-	private GeneralPath scaledHex;
+	private transient GeneralPath scaledHex;
 	private double lastScale = -1;
 	
 	/**
@@ -228,7 +228,7 @@ public abstract class HexGrid extends Grid {
 	@Override
 	public void draw(ZoneRenderer renderer, Graphics2D g, Rectangle bounds) {
 
-        createShape(renderer.getScale());
+		createShape(renderer.getScale());
         
         int offU = getOffU(renderer);
         int offV = getOffV(renderer);
