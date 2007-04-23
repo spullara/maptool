@@ -241,11 +241,11 @@ public class StartServerDialog extends AbeilleDialog {
 							if (MapToolRegistry.testConnection(getPort())) {
 								MapTool.showInformation("Success! I could successfully connect to your computer from the internet.");
 							} else {
-								MapTool.showError("Could not see your computer from the internet");
+								MapTool.showError("Could not see your computer from the internet.<br><br>It could be a port forwarding issue, see http://portforward.com for instructions on how to set up port forwarding");
 							}
 						} catch (Exception e) {
 							e.printStackTrace();
-							MapTool.showError("Unable to see your computer from the internet.  Check your firewall port settings.");
+							MapTool.showError("Unable to see your computer from the internet.  <br><br>It could be a port forwarding issue, see http://portforward.com for instructions on how to set up port forwarding.");
 						} finally {
 							// Need to make sure it dies so that it doesn't keep the port open ...
 							// we're going to need it very soon !
