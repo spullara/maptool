@@ -46,6 +46,7 @@ import javax.swing.UIManager;
 import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.lib.FileUtil;
+import net.rptools.maptool.client.swing.SplashScreen;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.MapToolFrame;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -582,8 +583,11 @@ public class MapTool {
 		// System properties
 		System.setProperty("swing.aatext", "true");
 		//System.setProperty("sun.java2d.opengl", "true");
-		
-		// LAF
+
+        final SplashScreen splash = new SplashScreen("net/rptools/maptool/client/image/maptool_splash.png", getVersion());
+        splash.showSplashScreen();
+
+        // LAF
         try {
         	UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
     		com.jidesoft.utils.Lm.verifyLicense("Trevor Croft", "rptools", "5MfIVe:WXJBDrToeLWPhMv3kI2s3VFo");
@@ -602,10 +606,12 @@ public class MapTool {
         } catch (Exception e) {
             System.err.println("Exception during look and feel setup: " + e);
         }
-		
+
+        
         // Draw frame contents on resize
         Toolkit.getDefaultToolkit().setDynamicLayout(true);        
         
+
         EventQueue.invokeLater(new Runnable() {
         	public void run() {
                     initialize();
@@ -615,6 +621,8 @@ public class MapTool {
                     // Check to see if there is an autosave file from mt crashing
                     getAutoSaveManager().check();
                     getAutoSaveManager().restart();
+
+                    splash.hideSplashScreen();
         	}
         });
         
