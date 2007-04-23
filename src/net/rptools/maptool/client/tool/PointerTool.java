@@ -927,6 +927,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				}
 			}			
 		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
+					FogUtil.exposePCArea(renderer);
+				}
+			}			
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
