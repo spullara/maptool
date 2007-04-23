@@ -99,7 +99,7 @@ public class MapTool {
     private static AutoSaveManager autoSaveManager;
 	
 	public static void showError(String message) {
-		JOptionPane.showMessageDialog(clientFrame, I18N.getText(message), "Error", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(clientFrame, "<html><body>"+I18N.getText(message)+"</body></html>", "Error", JOptionPane.ERROR_MESSAGE);
 	}
 	
 	public static void showInformation(String message) {
