@@ -152,7 +152,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 	private class ExposeVisibleAreaOnlyAction extends AbstractAction {
 		public ExposeVisibleAreaOnlyAction() {
-			putValue(Action.NAME, "Player visible area only");
+			putValue(Action.NAME, "Player visible area only (Ctrl - Shift - O)");
 		}
 		
 		public void actionPerformed(ActionEvent e) {
