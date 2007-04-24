@@ -10,7 +10,7 @@ import net.rptools.maptool.client.walker.astar.AStarVertHexEuclideanWalker;
 
 public class HexGridVertical extends HexGrid {
 	
-	private static final int[] FACING_ANGLES =  new int[] {-120, -60, 0, 60, 120, 180};
+	private static final int[] FACING_ANGLES = new int[] {-150, -90, -30, 30, 90, 150};
 	
 	public HexGridVertical() {
 		super();
