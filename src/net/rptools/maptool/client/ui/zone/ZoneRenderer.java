@@ -512,7 +512,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         renderZone(g2d, new ZoneView(role));
         
         if (!zone.isVisible()) {
-            GraphicsUtil.drawBoxedString(g2d, "Zone not visible to players", getSize().width/2, 20);
+            GraphicsUtil.drawBoxedString(g2d, "Map not visible to players", getSize().width/2, 20);
         }
         if (AppState.isShowAsPlayer()) {
             GraphicsUtil.drawBoxedString(g2d, "Player View", getSize().width/2, 20);
@@ -601,25 +601,25 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             if (visibleArea != null) {
                 if (zone.hasFog ()) {
 
-//                    visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-//                    visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
-//                    
-//                    // NOTE: There was a simpler way to do this by simply subtracting the visible area from the exposed area
-//                    // but that caused the subtract to go into an infinite loop deeeeep in the geometry code, on only some
-//                    // machines, quite randomly.  So the code was changed to avoid that subtraction and we end up with this:
-//                    
-//                    Area clip = new Area(new Rectangle(0, 0, getSize().width-1, getSize().height-1));
-//                    clip.subtract(visibleArea);
-//
-//                    Area visitedArea = new Area(zone.getExposedArea());
-//                    visitedArea.transform(AffineTransform.getScaleInstance (getScale(), getScale()));
-//                    visitedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-//
-//                    Shape oldClip = g.getClip();
-//                    g.setClip(clip);
-//                    g.setColor(new Color(0, 0, 0, 80));
-//                    g.fill(visitedArea);
-//                    g.setClip(oldClip);
+                    visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+                    visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
+                    
+                    // NOTE: There was a simpler way to do this by simply subtracting the visible area from the exposed area
+                    // but that caused the subtract to go into an infinite loop deeeeep in the geometry code, on only some
+                    // machines, quite randomly.  So the code was changed to avoid that subtraction and we end up with this:
+                    
+                    Area clip = new Area(new Rectangle(0, 0, getSize().width-1, getSize().height-1));
+                    clip.subtract(visibleArea);
+
+                    Area visitedArea = new Area(zone.getExposedArea());
+                    visitedArea.transform(AffineTransform.getScaleInstance (getScale(), getScale()));
+                    visitedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+
+                    Shape oldClip = g.getClip();
+                    g.setClip(clip);
+                    g.setColor(new Color(0, 0, 0, 80));
+                    g.fill(visitedArea);
+                    g.setClip(oldClip);
                     
                 } else {
                     visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
@@ -806,7 +806,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         Object oldAA = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(Color.black);
-//         g.draw(fogArea);
+         g.draw(fogArea);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA);
     }
 
