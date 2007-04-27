@@ -26,6 +26,7 @@ package net.rptools.maptool.client.ui.zone;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Rectangle;
 import java.awt.TexturePaint;
 import java.awt.Transparency;
 import java.awt.geom.Rectangle2D;
@@ -50,6 +51,8 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 	
 	private boolean drawBackground = true;
 
+	private BufferedImage miniImage;
+	
 	public UnboundedZoneRenderer(Zone zone) {
 		super(zone);
 	}
@@ -99,8 +102,15 @@ public class UnboundedZoneRenderer extends ZoneRenderer {
 	
     @Override
 	public BufferedImage getMiniImage(int size) {
-        // TODO: I suppose this should honor the size
-		return getTileImage();
+    	if (miniImage == null && getTileImage() != ImageManager.UNKNOWN_IMAGE) {
+    		miniImage = new BufferedImage(size, size, Transparency.OPAQUE);
+    		Graphics2D g = miniImage.createGraphics();
+    		g.setPaint(new TexturePaint(getTileImage(), new Rectangle(0, 0, miniImage.getWidth(), miniImage.getHeight())));
+    		g.fillRect(0, 0, size, size);
+    		g.dispose();
+    	}
+
+		return miniImage;
 	}
 	
 	private BufferedImage getTileImage() {
