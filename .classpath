@@ -20,7 +20,7 @@
 	<classpathentry kind="lib" path="lib/parser-1.0.b3.jar"/>
 	<classpathentry kind="lib" path="lib/clientserver-1.0.b12.jar"/>
 	<classpathentry kind="lib" path="lib/rplib.resource-1.0.b10.jar"/>
-	<classpathentry kind="lib" path="lib/rplib-1.0.b81.jar"/>
 	<classpathentry kind="lib" path="lib/maptool.resource-1.0.b6.jar"/>
+	<classpathentry kind="lib" path="lib/rplib-1.0.b82.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
