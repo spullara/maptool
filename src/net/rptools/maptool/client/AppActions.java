@@ -944,10 +944,13 @@ public class AppActions {
 				return;
 			}
 
-			Campaign campaign = new Campaign();
+			Campaign campaign = CampaignFactory.createBasicCampaign();
 			AppState.setCampaignFile(null);
 			MapTool.setCampaign(campaign);
 			MapTool.serverCommand().setCampaign(campaign);
+			
+			ImageManager.flush();
+			MapTool.getFrame().setCurrentZoneRenderer(MapTool.getFrame().getZoneRenderer(campaign.getZones().get(0)));
 		}
 	};
 
