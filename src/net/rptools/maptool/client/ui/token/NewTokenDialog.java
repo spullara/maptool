@@ -92,6 +92,7 @@ public class NewTokenDialog extends AbeilleDialog {
 		initNameTextField();
 		initGMNameTextField();
 		initNPCTypeRadio();
+		initMarkerTypeRadio();
 		
 		initTokenIconPanel();
 		
@@ -142,6 +143,10 @@ public class NewTokenDialog extends AbeilleDialog {
 	
 	public void initNPCTypeRadio() {
 		getNPCTypeRadio().setSelected(true);
+	}
+	
+	public void initMarkerTypeRadio() {
+		getMarkerTypeRadio().setVisible(false);
 	}
 	
 	private void initTokenIconPanel() {
