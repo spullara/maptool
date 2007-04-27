@@ -86,6 +86,7 @@ import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
+import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.PersistenceUtil;
 import net.rptools.maptool.util.PersistenceUtil.PersistedCampaign;
 
@@ -1276,13 +1277,13 @@ public class AppActions {
 				try {
 					StaticMessageDialog progressDialog = new StaticMessageDialog(
 							"Loading Campaign");
+
 					try {
 						// I'm going to get struck by lighting for
 						// writing code like this.
 						// CLEAN ME CLEAN ME CLEAN ME ! I NEED A
 						// SWINGWORKER !
-						MapTool.getFrame().showFilledGlassPane(
-								progressDialog);
+						MapTool.getFrame().showFilledGlassPane(progressDialog);
 
 						PersistedCampaign campaign = PersistenceUtil.loadCampaign(campaignFile);
 						
@@ -1305,6 +1306,11 @@ public class AppActions {
 							MapTool.getAutoSaveManager().restart();
 							MapTool.getAutoSaveManager().tidy();
 									
+							// Flush the images associated with the current campaign
+							// Do this juuuuuust before we get ready to show the new campaign, since we
+							// don't want the old campaign reloading images while we loaded the new campaign
+							ImageManager.flush();
+
 							if (campaign.currentZoneId != null) {
 								MapTool.getFrame().setCurrentZoneRenderer(MapTool.getFrame().getZoneRenderer(campaign.currentZoneId));
 									

@@ -73,6 +73,10 @@ public class ImageManager {
         
     }
     
+    public static void flush() {
+    	imageMap.clear();
+    }
+    
     public static BufferedImage getImageAndWait(Asset asset) {
     	return getImageAndWait(asset, null);
     }
