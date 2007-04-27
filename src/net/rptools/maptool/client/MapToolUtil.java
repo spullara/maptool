@@ -106,62 +106,65 @@ public class MapToolUtil {
     	String baseName = token.getName();
     	String newName;
     	
+    	Integer newNum = null;
     	if(isToken && AppPreferences.getNewTokenNaming().equals(Token.NAME_USE_CREATURE)) {
     		newName = "Creature";
-    	}
-    	else if (baseName == null) {
-	    	int nextId = nextTokenId.getAndIncrement();
+    	} else if (baseName == null) {
+
+    		int nextId = nextTokenId.getAndIncrement();
 	    	char ch = (char)('a' + MapTool.getPlayerList().indexOf(MapTool.getPlayer()));
 	    	return ch + Integer.toString(nextId);
-    	}
-    	else {
-        	baseName = baseName.trim();
+    	} else {
+        	
+    		baseName = baseName.trim();
     		Matcher m = NAME_PATTERN.matcher(baseName);
     		
-    		if (m.find())
+    		if (m.find()) {
     			newName = m.group(1);
-    		else
+    			newNum = Integer.parseInt(m.group(2));
+    		} else {
     			newName = baseName;
+    		}
     	}
 
     	boolean random = (isToken && AppPreferences.getDuplicateTokenNumber().equals(Token.NUM_RANDOM));
     	boolean addNumToGM = !AppPreferences.getTokenNumberDisplay().equals(Token.NUM_ON_NAME);
     	boolean addNumToName = !AppPreferences.getTokenNumberDisplay().equals(Token.NUM_ON_GM);
     	
-		if (zone.getTokenByName(newName) != null || random)
+		if (newNum != null || random || zone.getTokenByName(newName) != null)
 		{		
-			int num;
 			if (random && isToken) {
 				// When 90 or more tokens, move to incremental naming or may never
 				// find a number if they all have this creature's base name
-				if (zone.getAllTokens().size() >= 89)
-					num = 10;
-				else
-					num = getRandomNumber(10,99);
-			}
-			else {
-				num = 2;
+				if (zone.getAllTokens().size() >= 89) {
+					newNum = 10;
+				} else {
+					newNum = getRandomNumber(10,99);
+				}
+			} 
+			if (newNum == null) {
+				newNum = 2;
 			}
 
 			// Find the next available token number, this
 			// has to break at some point.
 			
-			while (zone.getTokenByName(newName + " " + num) != null ||
+			while (zone.getTokenByName(newName + " " + newNum) != null ||
 					// Or, check for repeat in numbering in the GM Name.
-					( zone.getTokenByName(newName)!= null && zone.getTokenByGMName(Integer.toString(num)) != null) ) {
+					( zone.getTokenByName(newName)!= null && zone.getTokenByGMName(Integer.toString(newNum)) != null) ) {
 				if (random && zone.getAllTokens().size() < 89)
-					num = getRandomNumber(10,99);
+					newNum = getRandomNumber(10,99);
 				else
-					num++;
+					newNum++;
 			}
 
 			if ( addNumToName ) {
 				newName += " ";
-				newName += num;
+				newName += newNum;
 			}
 			
 			if ( addNumToGM ) {
-				token.setGMName(Integer.toString(num));
+				token.setGMName(Integer.toString(newNum));
 			}
 		}	
 
