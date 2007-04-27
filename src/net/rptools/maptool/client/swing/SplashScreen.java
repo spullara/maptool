@@ -33,9 +33,9 @@ public class SplashScreen extends JFrame {
 				int x = 5;
 				int y = imgHeight - fm.getDescent() - 5;
 				
-				g.setColor(new Color(255, 255, 255, 220));
-				g.fillRect(x-2, y - fm.getAscent() - 2, SwingUtilities.computeStringWidth(fm, text) + 4, fm.getHeight() + 4);
-				
+//				g.setColor(new Color(255, 255, 255, 220));
+//				g.fillRect(x-2, y - fm.getAscent() - 2, SwingUtilities.computeStringWidth(fm, text) + 4, fm.getHeight() + 4);
+//				
 				g.setColor(Color.black);
 				g.drawString(text, x, y);
 			}
