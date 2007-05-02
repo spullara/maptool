@@ -179,16 +179,16 @@ public class AppMenuBar extends JMenuBar {
 
     protected JMenu createQuickMapMenu() {
     	JMenu menu = I18N.createMenu("menu.QuickMap");
-    	AppActions.QuickMapAction basicQuickMap = new AppActions.QuickMapAction("Grass", "net/rptools/lib/resource/image/texture/grass.png"); 
+    	AppActions.QuickMapAction basicQuickMap = new AppActions.QuickMapAction("Grass", "Textures/Grass.png"); 
     	basicQuickMap.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl shift N"));
 
     	menu.add(new JMenuItem(basicQuickMap));
-        menu.add(new JMenuItem(new AppActions.QuickMapAction("Sand", "net/rptools/lib/resource/image/texture/sand.jpg")));
-        menu.add(new JMenuItem(new AppActions.QuickMapAction("Mud", "net/rptools/lib/resource/image/texture/crackedmud.jpg")));
-        menu.add(new JMenuItem(new AppActions.QuickMapAction("Ocean", "net/rptools/lib/resource/image/texture/ocean.jpg")));
-        menu.add(new JMenuItem(new AppActions.QuickMapAction("Starfield", "net/rptools/lib/resource/image/texture/starfield.jpg")));
-        menu.add(new JMenuItem(new AppActions.QuickMapAction("Cobblestone", "net/rptools/lib/resource/image/texture/cobblestone.jpg")));
-        menu.add(new JMenuItem(new AppActions.QuickMapAction("Black", "net/rptools/lib/resource/image/texture/black.png")));
+        menu.add(new JMenuItem(new AppActions.QuickMapAction("Sand", "Textures/Sand.jpg")));
+        menu.add(new JMenuItem(new AppActions.QuickMapAction("Mud", "Textures/Cracked Mud.jpg")));
+        menu.add(new JMenuItem(new AppActions.QuickMapAction("Ocean", "Textures/Ocean.jpg")));
+        menu.add(new JMenuItem(new AppActions.QuickMapAction("Starfield", "Textures/Starfield.jpg")));
+        menu.add(new JMenuItem(new AppActions.QuickMapAction("Cobblestone", "Textures/Cobblestone.jpg")));
+        menu.add(new JMenuItem(new AppActions.QuickMapAction("Black", "Textures/Black.png")));
     	
     	return menu;
     }

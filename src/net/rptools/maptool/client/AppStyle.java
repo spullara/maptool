@@ -73,7 +73,7 @@ public class AppStyle {
             chatImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chat.png");
             chatScrollImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments.png"); 
             chatScrollLockImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments_delete.png"); 
-            boundedBackgroundTile = ImageUtil.getCompatibleImage("net/rptools/lib/resource/image/texture/black.png");
+            boundedBackgroundTile = ImageUtil.getCompatibleImage("Textures/Black.png");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

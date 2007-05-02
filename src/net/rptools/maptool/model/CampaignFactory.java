@@ -15,7 +15,7 @@ public class CampaignFactory {
 		Campaign campaign = new Campaign();
 		
         try {
-			Asset asset = new Asset(DEFAULT_MAP_NAME, FileUtil.loadResource("net/rptools/lib/resource/image/texture/grass.png"));
+			Asset asset = new Asset(DEFAULT_MAP_NAME, FileUtil.loadResource("Textures/Grass.png"));
             final Zone zone = ZoneFactory.createZone(Zone.MapType.INFINITE, asset.getId());
 
             // TODO: This should really be in the factory method

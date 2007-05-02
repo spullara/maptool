@@ -107,14 +107,6 @@ public class TextureChooserPanel extends AbstractPaintChooserPanel {
 		private List<Asset> textureList = new ArrayList<Asset>();
 		public TextureChooserImagePanelModel() {
 
-			try {
-				Asset asset = new Asset("Cobblestone", FileUtil.loadResource("net/rptools/lib/resource/image/texture/cobblestone.jpg"));
-				textureList.add(asset);
-								
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-			
 			loadSavedTextures();
 		}
 		
