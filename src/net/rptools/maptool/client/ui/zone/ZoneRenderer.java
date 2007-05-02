@@ -174,6 +174,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private Area visibleArea;
     private Area currentTokenVisionArea;
     
+    private BufferedImage fogBuffer;
+    private boolean flushFog = true;
+    
 //    private FramesPerSecond fps = new FramesPerSecond();
 
     static {
@@ -252,6 +255,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	
             	if (Scale.PROPERTY_SCALE.equals(evt.getPropertyName())) {
             		tokenLocationCache.clear();
+            		flushFog = true;
+            	}
+            	if (Scale.PROPERTY_OFFSET.equals(evt.getPropertyName())) {
+            		flushFog = true;
             	}
             	
                 repaint();
@@ -454,6 +461,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         flushDrawableRenderer();
         tokenVisionCache.clear();
         replacementImageMap.clear();
+        fogBuffer = null;
         
         isLoaded = false;
     }
@@ -599,7 +607,14 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         
         if (isUsingVision) {
             if (visibleArea != null) {
-                if (zone.hasFog ()) {
+	            if (AppPreferences.getUseTranslucentFog()) {
+	                g.setColor(new Color(0, 0, 0, 80));
+	            } else {
+	                Paint paint = new TexturePaint(GRID_IMAGE, new Rectangle2D.Float (getViewOffsetX(), getViewOffsetY(), GRID_IMAGE.getWidth(), GRID_IMAGE.getHeight()));
+	                g.setPaint(paint);
+	            }
+
+    	        if (zone.hasFog ()) {
 
                     visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
                     visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
@@ -617,7 +632,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 
                     Shape oldClip = g.getClip();
                     g.setClip(clip);
-                    g.setColor(new Color(0, 0, 0, 80));
                     g.fill(visitedArea);
                     g.setClip(oldClip);
                     
@@ -633,7 +647,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	                exposedArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
 	                exposedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
 	                
-	                g.setColor(new Color(0, 0, 0, 80));
 	                g.fill(exposedArea);
             	}
             }
@@ -782,32 +795,47 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             return;
         }
         
-         //Update back buffer overlay size
-        boolean useAlphaFog = AppPreferences.getUseTranslucentFog();
-        Area screenArea = new Area(g.getClip());
-        Area fogArea = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance (getScale(), getScale()));
-        fogArea = fogArea.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(), zoneScale.getOffsetY()));
-        screenArea.subtract(fogArea);
-        
-        if ( view.isGMView()) {
-            if (useAlphaFog) {
-                
-                g.setColor(new Color(0, 0, 0, 110));
-            } else {
-                Paint paint = new TexturePaint(GRID_IMAGE, new Rectangle2D.Float (0, 0, GRID_IMAGE.getWidth(), GRID_IMAGE.getHeight()));
-                g.setPaint(paint);
-            }
-        } else {
-            g.setColor(Color.black);
+        Dimension size = getSize();
+        if (flushFog || fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
+	        boolean useAlphaFog = AppPreferences.getUseTranslucentFog();
+
+	        if (fogBuffer == null) {
+        		fogBuffer = new BufferedImage(size.width, size.height, view.isGMView() && useAlphaFog ? Transparency.TRANSLUCENT : Transparency.BITMASK);
+        	} else {
+            	ImageUtil.clearImage(fogBuffer);
+        	}
+        	
+        	Graphics2D buffG = fogBuffer.createGraphics();
+
+        	//Update back buffer overlay size
+	        Area screenArea = new Area(new Rectangle(0, 0, size.width-1, size.height-1));
+	        Area fogArea = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance (getScale(), getScale()));
+	        fogArea = fogArea.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(), zoneScale.getOffsetY()));
+	        screenArea.subtract(fogArea);
+	        
+	        if ( view.isGMView()) {
+	            if (useAlphaFog) {
+	                
+	                buffG.setColor(new Color(0, 0, 0, 110));
+	            } else {
+	                Paint paint = new TexturePaint(GRID_IMAGE, new Rectangle2D.Float (getViewOffsetX(), getViewOffsetY(), GRID_IMAGE.getWidth(), GRID_IMAGE.getHeight()));
+	                buffG.setPaint(paint);
+	            }
+	        } else {
+	        	buffG.setColor(Color.black);
+	        }
+	
+	        buffG.fill(screenArea);
+	
+	        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	        buffG.setColor(Color.black);
+	        buffG.draw(fogArea);
+	        
+	        buffG.dispose();
+	        flushFog = false;
         }
-
-        g.fill(screenArea);
-
-        Object oldAA = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setColor(Color.black);
-         g.draw(fogArea);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA);
+        
+        g.drawImage(fogBuffer, 0, 0, this);
     }
 
     public boolean isLoading() {
@@ -2204,6 +2232,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
                 tokenVisionCache.remove(event.getModel());
                 tokenLocationCache.remove(event.getModel());
+            }
+            if (evt == Zone.Event.FOG_CHANGED) {
+            	flushFog = true;
             }
             
             repaint();
