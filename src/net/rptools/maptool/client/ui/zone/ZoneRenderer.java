@@ -177,6 +177,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private BufferedImage fogBuffer;
     private boolean flushFog = true;
     
+    // I don't like this, at all, but it'll work for now, basically keep track of when the fog cache
+    // needs to be flushed in the case of switching views
+    private ZoneView lastView;
+    
 //    private FramesPerSecond fps = new FramesPerSecond();
 
     static {
@@ -585,6 +589,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             overlay.paintOverlay(this, g2d);
         }
         
+        lastView = view;
     }
     
     private void renderVisionOverlay(Graphics2D g, ZoneView view) {
@@ -610,7 +615,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	            if (AppPreferences.getUseTranslucentFog()) {
 	                g.setColor(new Color(0, 0, 0, 80));
 	            } else {
-	                Paint paint = new TexturePaint(GRID_IMAGE, new Rectangle2D.Float (getViewOffsetX(), getViewOffsetY(), GRID_IMAGE.getWidth(), GRID_IMAGE.getHeight()));
+	            	int x = 0;
+	            	int y = 0;
+	                Paint paint = new TexturePaint(GRID_IMAGE, new Rectangle2D.Float (x, y, GRID_IMAGE.getWidth(), GRID_IMAGE.getHeight()));
 	                g.setPaint(paint);
 	            }
 
@@ -794,9 +801,13 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         if (!zone.hasFog()) {
             return;
         }
+        if (lastView == null || view.isGMView() != lastView.isGMView()) {
+        	flushFog =  true;
+        }
         
         Dimension size = getSize();
         if (flushFog || fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
+
 	        boolean useAlphaFog = AppPreferences.getUseTranslucentFog();
 
 	        if (fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
@@ -818,7 +829,9 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	                
 	                buffG.setColor(new Color(0, 0, 0, 110));
 	            } else {
-	                Paint paint = new TexturePaint(GRID_IMAGE, new Rectangle2D.Float (getViewOffsetX(), getViewOffsetY(), GRID_IMAGE.getWidth(), GRID_IMAGE.getHeight()));
+	            	int x = 0;
+	            	int y = 0;
+	                Paint paint = new TexturePaint(GRID_IMAGE, new Rectangle2D.Float (x, y, GRID_IMAGE.getWidth(), GRID_IMAGE.getHeight()));
 	                buffG.setPaint(paint);
 	            }
 	        } else {
