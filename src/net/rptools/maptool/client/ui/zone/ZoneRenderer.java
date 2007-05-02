@@ -799,7 +799,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         if (flushFog || fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
 	        boolean useAlphaFog = AppPreferences.getUseTranslucentFog();
 
-	        if (fogBuffer == null) {
+	        if (fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
         		fogBuffer = new BufferedImage(size.width, size.height, view.isGMView() && useAlphaFog ? Transparency.TRANSLUCENT : Transparency.BITMASK);
         	} else {
             	ImageUtil.clearImage(fogBuffer);
