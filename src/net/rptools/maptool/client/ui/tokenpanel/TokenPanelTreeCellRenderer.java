@@ -60,6 +60,9 @@ public class TokenPanelTreeCellRenderer extends DefaultTreeCellRenderer {
             g.dispose();
             
             text = token.getName();
+            if (token.getGMName() != null && token.getGMName().length() > 0) {
+            	text += " (" + token.getGMName() + ")";
+            }
 
             if (!token.isVisible()) {
             	setBackgroundNonSelectionColor(Color.lightGray);
