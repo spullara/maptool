@@ -15,6 +15,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
@@ -60,7 +61,7 @@ public class TokenPanelTreeCellRenderer extends DefaultTreeCellRenderer {
             g.dispose();
             
             text = token.getName();
-            if (token.getGMName() != null && token.getGMName().length() > 0) {
+            if (MapTool.getPlayer().isGM() && token.getGMName() != null && token.getGMName().length() > 0) {
             	text += " (" + token.getGMName() + ")";
             }
 
