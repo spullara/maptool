@@ -52,7 +52,7 @@ public class AppPreferences {
     private static final String DEFAULT_TOKEN_NUMBER_DISPLAY = Token.NUM_ON_NAME;
     
     private static final String KEY_AUTO_SAVE_INCREMENT = "autoSaveIncrement";
-    private static final int DEFAULT_AUTO_SAVE_INCREMENT = 2;
+    private static final int DEFAULT_AUTO_SAVE_INCREMENT = 5; // Minutes
     
     private static final String KEY_DUPLICATE_TOKEN_NUMBER = "duplicateTokenNumber";
     private static final String DEFAULT_DUPLICATE_TOKEN_NUMBER = Token.NUM_INCREMENT;
