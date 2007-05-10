@@ -1,5 +1,6 @@
 package net.rptools.maptool.client.ui.tokenpanel;
 
+import java.awt.EventQueue;
 import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,6 +92,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 			zone.removeModelChangeListener(this);
 		}
 		this.zone = zone;
+		update();
 		
 		if (zone != null) {
 			zone.addModelChangeListener(this);
@@ -159,9 +161,17 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 	public void removeTreeModelListener(TreeModelListener l) {
 		listenerList.remove(l);
 	}
-	
+
 	public void update() {
-		
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+		    	updateInternal();
+			}
+		});
+	}
+	
+	private void updateInternal() {
+
 		currentViewList.clear();
 		viewMap.clear();
 		
@@ -302,6 +312,11 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     	@Override
     	protected boolean accept(Token token) {
     		
+    		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+    		if (renderer == null) {
+    			return false;
+    		}
+
     		if (token.isStamp() || token.isBackground()) {
     			return false;
     		}
@@ -311,17 +326,13 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     		}
     		
     		// Check visibility
-    		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-    		Zone zone = renderer.getZone();
-    		if (zone.hasFog()) {
-    			Area exposedArea = renderer.getVisibleArea();
-    			if (exposedArea != null) {
-        			System.out.println(exposedArea + " - " + token.getName() + " - " + renderer.getTokenBounds(token));
-    				if (!GraphicsUtil.intersects(exposedArea, renderer.getTokenBounds(token))) {
-    					return false;
-    				}
-    			}
-    		}
+			Area visibleArea = renderer.getVisibleArea();
+			if (visibleArea != null) {
+				Area tokenBounds = renderer.getTokenBounds(token);
+				if (tokenBounds == null || !GraphicsUtil.intersects(visibleArea, tokenBounds)) {
+					return false;
+				}
+			}
     		
         	return zone.isTokenVisible(token);
     	}
@@ -329,10 +340,6 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     ////
     // MODEL CHANGE LISTENER
     public void modelChanged(ModelChangeEvent event) {
-//    	if (event.getModel() instanceof Token) {
-//    		Token token = (Token) event.getModel();
-//    		token.addModel
-//    	}
     	update();
     }
     

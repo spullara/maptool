@@ -532,6 +532,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     }
     
     public void renderZone(Graphics2D g2d, ZoneView view) {
+
+    	// Do this smack dab first so that even if we need to show the "Loading" indicator, 
+    	// we can still start to figure things out like the token tree visibility
+        calculateVision(view);
         
         // Are we still waiting to show the zone ?
         if (isLoading()) {
@@ -561,8 +565,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         coveredTokenSet.clear();
         markerLocationList.clear();
 
-        calculateVision(view);
-        
         // Rendering pipeline
         renderBoard(g2d, view);
         renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, zone.getBackgroundDrawnElements());
@@ -892,6 +894,12 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         loadingProgress = (int)((count / (double)assetSet.size()) * 100);
 
         isLoaded = loaded;
+        
+        if (isLoaded) {
+            // Notify the token tree that it should update
+            MapTool.getFrame().updateTokenTree();
+        }
+        
         return !isLoaded;
     }
     
@@ -1763,7 +1771,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     }
     
     public Area getTokenBounds(Token token) {
-        
+
     	TokenLocation location = tokenLocationCache.get(token);
     	return location != null ? location.bounds : null;
     }
