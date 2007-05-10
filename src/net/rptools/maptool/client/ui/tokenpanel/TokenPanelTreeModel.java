@@ -1,5 +1,6 @@
 package net.rptools.maptool.client.ui.tokenpanel;
 
+import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,12 +16,13 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.util.GraphicsUtil;
 
 public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 
@@ -304,7 +306,24 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     			return false;
     		}
     		
-        	return MapTool.getPlayer().isGM() ? true : zone.isTokenVisible(token);
+    		if (MapTool.getPlayer().isGM()) {
+    			return true;
+    		}
+    		
+    		// Check visibility
+    		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+    		Zone zone = renderer.getZone();
+    		if (zone.hasFog()) {
+    			Area exposedArea = renderer.getVisibleArea();
+    			if (exposedArea != null) {
+        			System.out.println(exposedArea + " - " + token.getName() + " - " + renderer.getTokenBounds(token));
+    				if (!GraphicsUtil.intersects(exposedArea, renderer.getTokenBounds(token))) {
+    					return false;
+    				}
+    			}
+    		}
+    		
+        	return zone.isTokenVisible(token);
     	}
     }
     ////

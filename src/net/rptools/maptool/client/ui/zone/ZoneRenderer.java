@@ -592,6 +592,10 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         lastView = view;
     }
     
+    public Area getVisibleArea() {
+    	return visibleArea;
+    }
+    
     private void renderVisionOverlay(Graphics2D g, ZoneView view) {
 
         if (currentTokenVisionArea == null || !view.isGMView()) {
@@ -730,6 +734,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 }
             }
         }
+        
     }
     
     /**
@@ -1759,13 +1764,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     
     public Area getTokenBounds(Token token) {
         
-        for (TokenLocation location : getTokenLocations(getActiveLayer())) {
-            if (location.token == token) {
-                return location.bounds;
-            }
-        }
-        
-        return null;
+    	TokenLocation location = tokenLocationCache.get(token);
+    	return location != null ? location.bounds : null;
     }
 
     public Area getMarkerBounds(Token token) {
