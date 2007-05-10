@@ -431,6 +431,11 @@ public class Token {
 				|| (ownerList != null && ownerList.contains(playerId)));
 	}
 
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
+	
 	public boolean equals(Object o) {
 		if (!(o instanceof Token)) {
 			return false;
