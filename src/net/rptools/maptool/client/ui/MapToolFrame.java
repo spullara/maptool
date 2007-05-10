@@ -943,7 +943,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			renderer.setRepaintTimer(repaintTimer);
 		}
 
-		updateTokenTree();
 		AppActions.updateActions();
 		repaint();
 	}
