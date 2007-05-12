@@ -32,8 +32,8 @@ import net.rptools.maptool.util.ImageManager;
 
 public class ZoneSelectionPopup extends JPopupMenu {
 
-	private static final int MAP_SIZE_WIDTH = 120;
-	private static final int MAP_SIZE_HEIGHT = 100;
+	private static final int MAP_SIZE_WIDTH = 100;
+	private static final int MAP_SIZE_HEIGHT = 80;
 	private static final int PADDING = 3;
 	
 	public ZoneSelectionPopup() {
@@ -48,8 +48,8 @@ public class ZoneSelectionPopup extends JPopupMenu {
 			}
 		}
 		
-		int rows = rendererList.size() >= 3 ? (int)Math.ceil(rendererList.size() / 3.0) : 1;
-		int cols = rendererList.size() >= 3 ? 3 : rendererList.size();
+		int rows = rendererList.size() >= 6 ? (int)Math.ceil(rendererList.size() / 6.0) : 1;
+		int cols = rendererList.size() >= 6 ? 6 : rendererList.size();
 
 		setLayout(new GridLayout(rows, cols));
 		
