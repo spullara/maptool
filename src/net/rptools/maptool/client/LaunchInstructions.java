@@ -30,7 +30,10 @@ import javax.swing.JOptionPane;
 public class LaunchInstructions {
 
 	public static void main(String[] args) {
-		JOptionPane.showMessageDialog(new JFrame(), "Please run MapTool by double clicking one of the 'Launch MapTool' files.", "Usage", JOptionPane.INFORMATION_MESSAGE);
-		System.exit(0);
+		if (args.length == 0 || !"run".equals(args[0])) {
+			JOptionPane.showMessageDialog(new JFrame(), "Please run MapTool by double clicking one of the 'Launch MapTool' files.", "Usage", JOptionPane.INFORMATION_MESSAGE);
+			System.exit(0);
+		}
+		MapTool.main(args);
 	}
 }
