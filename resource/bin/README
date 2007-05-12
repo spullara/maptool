@@ -24,7 +24,7 @@ All of the tools can be started using the Java Web Start technology from the lin
 
 Alternatively you can download the Zip Archive from the same location.  Extract the Zip Archive to a folder of your choosing.  In the folder you extract the archive to will be a JAR file named something like:
 
-   maptool-1.1.b*.jar
+   maptool-1.2.b*.jar
 
 This is a Java ARchive (.jar) and it is the actual program.  Double-clicking (Windows & MacOS) on the .jar file will start the program.
 
