@@ -1,1 +1,1 @@
-java -Xmx1024M -jar maptool-*.jar
+javaw -Xmx1024M -jar maptool-*.jar run
