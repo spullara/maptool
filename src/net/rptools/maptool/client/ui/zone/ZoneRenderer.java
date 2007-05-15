@@ -416,6 +416,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             MapTool.serverCommand().putToken(zone.getId(), token);
         }
         
+        MapTool.getFrame().updateTokenTree();
     }
 
     public boolean isTokenMoving(Token token) {
@@ -2256,6 +2257,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
             	flushFog = true;
             }
             
+            MapTool.getFrame().updateTokenTree();
             repaint();
         }
     }
