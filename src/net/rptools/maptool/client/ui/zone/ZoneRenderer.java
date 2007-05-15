@@ -532,7 +532,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     }
     
     public void renderZone(Graphics2D g2d, ZoneView view) {
-
+        
     	// Do this smack dab first so that even if we need to show the "Loading" indicator, 
     	// we can still start to figure things out like the token tree visibility
         calculateVision(view);
@@ -736,7 +736,6 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 }
             }
         }
-        
     }
     
     /**
@@ -1771,7 +1770,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     }
     
     public Area getTokenBounds(Token token) {
-
+        
     	TokenLocation location = tokenLocationCache.get(token);
     	return location != null ? location.bounds : null;
     }
@@ -2251,8 +2250,7 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
                 tokenVisionCache.clear();
             }
             if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
-                tokenVisionCache.remove(event.getModel());
-                tokenLocationCache.remove(event.getModel());
+            	flush((Token)event.getArg());
             }
             if (evt == Zone.Event.FOG_CHANGED) {
             	flushFog = true;
