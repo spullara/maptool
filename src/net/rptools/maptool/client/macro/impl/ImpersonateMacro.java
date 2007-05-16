@@ -35,7 +35,7 @@ import net.rptools.maptool.model.Zone;
 @MacroDefinition(
         name = "impersonate",
         aliases = { "im" },
-        description = "Impersonate Character."
+        description = "Speak as if you were something/one else"
     )
 public class ImpersonateMacro implements Macro {
 	
