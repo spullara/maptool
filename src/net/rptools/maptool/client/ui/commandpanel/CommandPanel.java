@@ -208,7 +208,7 @@ public class CommandPanel extends JPanel implements Observer {
 		return commandTextArea;
 	}
 
-    private static final Pattern CHEATER_PATTERN = Pattern.compile("(?:«|»|&#171;|&#187;|&laquo;|&raquo;)");
+    private static final Pattern CHEATER_PATTERN = Pattern.compile("(?:«|»|&#171;|&#187;|&laquo;|&raquo;)|\\[roll");
 	/**
 	 * Execute the command in the command field.
 	 */
