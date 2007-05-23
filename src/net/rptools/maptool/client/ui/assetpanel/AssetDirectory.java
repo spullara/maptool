@@ -1,6 +1,5 @@
 package net.rptools.maptool.client.ui.assetpanel;
 
-import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
@@ -16,18 +15,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import net.rptools.lib.image.ImageUtil;
-import net.rptools.lib.image.ThumbnailManager;
-import net.rptools.maptool.client.AppUtil;
+import net.rptools.maptool.client.MapTool;
 
 public class AssetDirectory extends Directory {
 
     public static final String PROPERTY_IMAGE_LOADED = "imageLoaded";
-    
-    // TODO: make this configurable
-    private static final Dimension THUMBNAIL_SIZE = new Dimension (100, 100);
-
-    private static ThumbnailManager thumbnailManager = new ThumbnailManager(AppUtil.getAppHome("imageThumbs"), THUMBNAIL_SIZE); 
     
 	private Map<File, FutureTask<Image>> imageMap = new HashMap<File, FutureTask<Image>>();
 
@@ -120,7 +112,7 @@ public class AssetDirectory extends Directory {
             // Load it up
 			Image thumbnail = null;
 			try {
-				thumbnail = thumbnailManager.getThumbnail(imageFile);
+				thumbnail = MapTool.getThumbnailManager().getThumbnail(imageFile);
 			} catch (Throwable t) {
                 t.printStackTrace();
 				thumbnail = INVALID_IMAGE;

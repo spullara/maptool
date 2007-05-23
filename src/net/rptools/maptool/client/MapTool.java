@@ -46,6 +46,7 @@ import javax.swing.UIManager;
 import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.lib.FileUtil;
+import net.rptools.lib.image.ThumbnailManager;
 import net.rptools.maptool.client.swing.SplashScreen;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.MapToolFrame;
@@ -75,7 +76,11 @@ import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
  */
 public class MapTool {
 	
-	private static MapToolFrame clientFrame;
+    private static final Dimension THUMBNAIL_SIZE = new Dimension (100, 100);
+
+    private static ThumbnailManager thumbnailManager; 
+
+    private static MapToolFrame clientFrame;
     private static MapToolServer server;
     private static ServerCommand serverCommand;
     private static ServerPolicy serverPolicy;
@@ -422,6 +427,14 @@ public class MapTool {
         		MapTool.showError("Unable to register your server: " + e);
         	}
         }
+	}
+	
+	public static ThumbnailManager getThumbnailManager() {
+		if (thumbnailManager == null) {
+			 thumbnailManager = new ThumbnailManager(AppUtil.getAppHome("imageThumbs"), THUMBNAIL_SIZE);
+		}
+		
+		return thumbnailManager;
 	}
 	
 	public static void stopServer() {

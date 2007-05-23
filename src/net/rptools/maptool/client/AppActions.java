@@ -26,6 +26,7 @@ package net.rptools.maptool.client;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
@@ -46,8 +47,8 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.KeyStroke;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
@@ -83,7 +84,6 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
-import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.util.ImageManager;
@@ -1433,17 +1433,17 @@ public class AppActions {
 
 		private MD5Key assetId;
 
-		public QuickMapAction(String name, String imagePath) {
+		public QuickMapAction(String name, File imagePath) {
 
 			try {
-				Asset asset = new Asset(name, FileUtil.loadResource(imagePath));
+				Asset asset = new Asset(name, FileUtil.loadFile(imagePath));
 				assetId = asset.getId();
 
 				// Make smaller
 				BufferedImage iconImage = new BufferedImage(
 						QUICK_MAP_ICON_SIZE, QUICK_MAP_ICON_SIZE,
 						Transparency.OPAQUE);
-				BufferedImage image = ImageUtil.getCompatibleImage(imagePath);
+				Image image = MapTool.getThumbnailManager().getThumbnail(imagePath);
 
 				Graphics2D g = iconImage.createGraphics();
 				g.drawImage(image, 0, 0, QUICK_MAP_ICON_SIZE,

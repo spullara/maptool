@@ -25,6 +25,7 @@
 package net.rptools.maptool.client.ui;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -35,8 +36,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
+import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.AppActions;
+import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppState;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MRUCampaignManager;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
@@ -179,17 +183,16 @@ public class AppMenuBar extends JMenuBar {
 
     protected JMenu createQuickMapMenu() {
     	JMenu menu = I18N.createMenu("menu.QuickMap");
-    	AppActions.QuickMapAction basicQuickMap = new AppActions.QuickMapAction("Grass", "Textures/Grass.png"); 
-    	basicQuickMap.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl shift N"));
-
-    	menu.add(new JMenuItem(basicQuickMap));
-        menu.add(new JMenuItem(new AppActions.QuickMapAction("Sand", "Textures/Sand.jpg")));
-        menu.add(new JMenuItem(new AppActions.QuickMapAction("Mud", "Textures/Cracked Mud.jpg")));
-        menu.add(new JMenuItem(new AppActions.QuickMapAction("Ocean", "Textures/Ocean.jpg")));
-        menu.add(new JMenuItem(new AppActions.QuickMapAction("Starfield", "Textures/Starfield.jpg")));
-        menu.add(new JMenuItem(new AppActions.QuickMapAction("Cobblestone", "Textures/Cobblestone.jpg")));
-        menu.add(new JMenuItem(new AppActions.QuickMapAction("Black", "Textures/Black.png")));
     	
+    	File textureDir = AppUtil.getAppHome("resource/Default/Textures");
+    	
+    	for (File file : textureDir.listFiles(AppConstants.IMAGE_FILE_FILTER)) {
+    		
+            menu.add(new JMenuItem(new AppActions.QuickMapAction(FileUtil.getNameWithoutExtension(file), file)));
+    	}
+    	
+//    	basicQuickMap.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl shift N"));
+
     	return menu;
     }
 
