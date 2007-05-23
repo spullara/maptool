@@ -29,10 +29,13 @@ import javax.swing.JOptionPane;
 
 public class LaunchInstructions {
 
+	private static final String USAGE = "<html><body>You are running MapTool with minimal memory allocated, you may experience odd behavior, " +
+			"especially when connecting to or hosting a server.<br><br>  " +
+			"MapTool will launch anyway, but it is recommended that you use one of the 'Launch' scripts instead.</body></html>";
+	
 	public static void main(String[] args) {
 		if (args.length == 0 || !"run".equals(args[0])) {
-			JOptionPane.showMessageDialog(new JFrame(), "Please run MapTool by double clicking one of the 'Launch MapTool' files.", "Usage", JOptionPane.INFORMATION_MESSAGE);
-			System.exit(0);
+			JOptionPane.showMessageDialog(new JFrame(), USAGE, "Usage", JOptionPane.INFORMATION_MESSAGE);
 		}
 		MapTool.main(args);
 	}
