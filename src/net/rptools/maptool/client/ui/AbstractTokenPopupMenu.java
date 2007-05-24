@@ -1,5 +1,6 @@
 package net.rptools.maptool.client.ui;
 
+import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,7 +16,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
@@ -151,16 +151,15 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 				menuItem.addMouseListener( new MouseAdapter() {
 					@Override
 					public void mousePressed(MouseEvent e) {
-						if (SwingUtilities.isLeftMouseButton(e)) {
-                            // reverse whatever the current enablement is
-                            vision.setEnabled(!vision.isEnabled());
-						}
-						if (SwingUtilities.isRightMouseButton(e)) {	
-							new VisionDialog(getRenderer().getZone(), getTokenUnderMouse(), vision).setVisible(true);
-						}
-						getRenderer().flush(getTokenUnderMouse());
-						MapTool.serverCommand().putToken(renderer.getZone().getId(), getTokenUnderMouse());
-						getRenderer().repaint();
+						EventQueue.invokeLater(new Runnable() {
+							public void run() {
+								new VisionDialog(getRenderer().getZone(), getTokenUnderMouse(), vision).setVisible(true);
+
+								getRenderer().flush(getTokenUnderMouse());
+								MapTool.serverCommand().putToken(renderer.getZone().getId(), getTokenUnderMouse());
+								getRenderer().repaint();
+							}
+						});
 					}
 				});
 
