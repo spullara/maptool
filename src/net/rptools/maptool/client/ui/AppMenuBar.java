@@ -26,6 +26,7 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -34,11 +35,11 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.KeyStroke;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
+import net.rptools.maptool.client.AppSetup;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MRUCampaignManager;
@@ -185,6 +186,17 @@ public class AppMenuBar extends JMenuBar {
     	JMenu menu = I18N.createMenu("menu.QuickMap");
     	
     	File textureDir = AppUtil.getAppHome("resource/Default/Textures");
+    	
+    	// Make sure the images exist
+    	if (textureDir.listFiles().length == 0) {
+    		try {
+    			AppSetup.installDefaultTokens();
+    		} catch (IOException ioe) {
+    			ioe.printStackTrace();
+    			menu.add(new JMenuItem("Error loading quickmaps"));
+    			return menu;
+    		}
+    	}
     	
     	for (File file : textureDir.listFiles(AppConstants.IMAGE_FILE_FILTER)) {
     		

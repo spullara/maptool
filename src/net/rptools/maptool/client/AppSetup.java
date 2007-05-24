@@ -57,30 +57,12 @@ public class AppSetup {
     
     public static void installDefaultTokens() throws IOException {
 
-    	// Find the jar with the tokens
-    	URL url = AppSetup.class.getClassLoader().getResource("package.xml");
-    	if (url == null) {
-    		return;
-    	}
-    	
-    	String fileURL = URLDecoder.decode(url.toString());
-    	fileURL = fileURL.substring("jar:file:".length());
-    	fileURL = fileURL.substring(0, fileURL.indexOf("!"));
-    	if (fileURL.startsWith("\\")) {
-    		fileURL = fileURL.substring(1);
-    	}
-
-    	File sourceFile = new File(fileURL);
     	
         // Create the directory
         File unzipDir = new File(AppConstants.UNZIP_DIR.getAbsolutePath() + File.separator + "Default");
-        unzipDir.mkdirs();
 
-        FileUtil.unzipFile(sourceFile, unzipDir);
+        FileUtil.unzip("default_images.zip", unzipDir);
         
-        // Don't need the manifest file
-        FileUtil.delete(new File(unzipDir.getAbsolutePath() + File.separator + "META-INF"));
-
         // Add as a resource root
 		AppPreferences.addAssetRoot(unzipDir);
     	AssetManager.searchForImageReferences(unzipDir, AppConstants.IMAGE_FILE_FILTER);
