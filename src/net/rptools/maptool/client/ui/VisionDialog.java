@@ -125,6 +125,8 @@ public class VisionDialog extends JDialog {
 				}
 			}
 		});
+		
+		getRootPane().setDefaultButton(button);
 	}
 	private void initDeleteButton(FormPanel panel, final Token token, final Vision vision) {
 		JButton button = (JButton) panel.getButton("deleteButton");
