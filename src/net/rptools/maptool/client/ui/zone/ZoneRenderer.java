@@ -456,6 +456,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     public void flush(Token token) {
         tokenVisionCache.remove(token);
         tokenLocationCache.remove(token);
+        
+        flushFog = true;
     }
     
     /**
@@ -660,7 +662,8 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
 	                Area exposedArea = new Area( zone.getExposedArea());
 	                exposedArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
 	                exposedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-	                
+
+	                g.setColor(new Color(0, 0, 0, view.isGMView() ? 80 : 255));
 	                g.fill(exposedArea);
             	}
             }
