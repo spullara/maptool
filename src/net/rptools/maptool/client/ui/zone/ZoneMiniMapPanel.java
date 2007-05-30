@@ -172,7 +172,8 @@ public class ZoneMiniMapPanel extends JPanel implements ZoneActivityListener, Mo
     	
     	flush();
     	resize();
-    	getParent().doLayout();
+    	
+//    	getParent().doLayout();
     	repaint();
     }
     
