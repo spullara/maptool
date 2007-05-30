@@ -67,8 +67,6 @@ public class NewMapDialog extends JDialog  {
 	private JRadioButton hexVertRadio;
 	private JRadioButton hexHoriRadio;
 	private JRadioButton squareRadio;
-	private JRadioButton boundedRadio;
-	private JRadioButton unboundedRadio;
 	
 	private JTextField nameTextField;
 	private JTextField distancePerCellTextField;
@@ -139,8 +137,6 @@ public class NewMapDialog extends JDialog  {
 		initHexHoriRadio(panel);
 		initHexVertRadio(panel);
 		initSquareRadio(panel);
-		initUnboundedRadio(panel);
-		initBoundedRadio(panel);
 		
 		add(panel);
 		
@@ -173,7 +169,7 @@ public class NewMapDialog extends JDialog  {
 			}
 
 			// Create the zone
-			Zone zone = ZoneFactory.createZone(getZoneType(), getZoneName(), getZoneDistancePerCell(), selectedAsset.getId());
+			Zone zone = ZoneFactory.createZone(getZoneName(), getZoneDistancePerCell(), selectedAsset.getId());
 			zone.setGrid(getZoneGrid());
 
 			zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
@@ -199,15 +195,6 @@ public class NewMapDialog extends JDialog  {
 		squareRadio = panel.getRadioButton("squareRadio");
 		squareRadio.setSelected(GridFactory.isSquare(AppPreferences.getDefaultGridType()));
 		
-	}
-	
-	private void initBoundedRadio(FormPanel panel) {
-		boundedRadio = panel.getRadioButton("boundedRadio");
-		boundedRadio.setSelected(true);
-	}
-	
-	private void initUnboundedRadio(FormPanel panel) {
-		unboundedRadio = panel.getRadioButton("unboundedRadio");
 	}
 	
 	private void initDistanceTextField(FormPanel panel) {
@@ -325,10 +312,6 @@ public class NewMapDialog extends JDialog  {
 		return imageExplorerDialog;
 	}
 	
-	public int getZoneType() {
-		return boundedRadio.isSelected() ? Zone.MapType.MAP : Zone.MapType.INFINITE;
-	}
-	
 	public String getZoneName() {
 		return nameTextField.getText();
 	}
@@ -351,17 +334,6 @@ public class NewMapDialog extends JDialog  {
 		}
 		else {
 			return new SquareGrid();
-		}
-	}
-	
-	public void setZoneType(int type) {
-		switch (type) {
-		case Zone.MapType.INFINITE:
-			unboundedRadio.setSelected(true);
-			break;
-		case Zone.MapType.MAP:
-			boundedRadio.setSelected(true);
-			break;
 		}
 	}
 	

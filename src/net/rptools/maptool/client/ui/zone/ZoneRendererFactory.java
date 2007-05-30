@@ -32,17 +32,7 @@ public class ZoneRendererFactory {
 
 	public static ZoneRenderer newRenderer(Zone zone) {
         
-        ZoneRenderer renderer = null;
-        switch (zone.getMapType()) {
-        case Zone.MapType.INFINITE: {
-            renderer = new UnboundedZoneRenderer(zone);
-            break;
-        }
-        case Zone.MapType.MAP:
-        default: {
-            renderer = new BoundedZoneRenderer(zone);
-        }
-        }
+        ZoneRenderer renderer = new ZoneRenderer(zone);
 
         if (MapTool.getFrame() != null) {
         	renderer.addOverlay(MapTool.getFrame().getPointerOverlay());

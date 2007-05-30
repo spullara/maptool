@@ -118,7 +118,7 @@ import net.rptools.maptool.util.TokenUtil;
 
 /**
  */
-public abstract class ZoneRenderer extends JComponent implements DropTargetListener, Comparable {
+public class ZoneRenderer extends JComponent implements DropTargetListener, Comparable {
     private static final long serialVersionUID = 3832897780066104884L;
 
     // TODO: Perhaps make this a user defined limit
@@ -177,7 +177,16 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
     private BufferedImage fogBuffer;
     private boolean flushFog = true;
     
-    // I don't like this, at all, but it'll work for now, basically keep track of when the fog cache
+	private BufferedImage tileImage;
+
+	private BufferedImage miniImage;
+	private BufferedImage backbuffer;
+	private boolean drawBackground = true;
+	private int lastX;
+	private int lastY;
+
+
+	// I don't like this, at all, but it'll work for now, basically keep track of when the fog cache
     // needs to be flushed in the case of switching views
     private ZoneView lastView;
     
@@ -509,9 +518,48 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         zoneScale.setIndex(zoomIndex);
     }
     
-    public abstract BufferedImage getMiniImage(int size);
+	public BufferedImage getMiniImage(int size) {
+    	if (miniImage == null && getTileImage() != ImageManager.UNKNOWN_IMAGE) {
+    		miniImage = new BufferedImage(size, size, Transparency.OPAQUE);
+    		Graphics2D g = miniImage.createGraphics();
+    		g.setPaint(new TexturePaint(getTileImage(), new Rectangle(0, 0, miniImage.getWidth(), miniImage.getHeight())));
+    		g.fillRect(0, 0, size, size);
+    		g.dispose();
+    	}
+
+		return miniImage;
+	}
     
-    public void paintComponent(Graphics g) {
+	private BufferedImage getTileImage() {
+
+		if (tileImage != null && tileImage != ImageManager.UNKNOWN_IMAGE) {
+			return tileImage;
+		}
+
+		MD5Key assetId = zone.getAssetID();
+
+		Asset asset = AssetManager.getAsset(assetId);
+		if (asset != null) {
+			BufferedImage image = ImageManager.getImage(asset, this);
+			if (image != ImageManager.UNKNOWN_IMAGE) {
+
+				tileImage = image;
+				
+				drawBackground = true;
+
+				repaint();
+			}
+			return image;
+		} else {
+
+            tileImage = ImageManager.UNKNOWN_IMAGE;
+			
+		}
+		
+		return ImageManager.UNKNOWN_IMAGE;
+	}
+
+	public void paintComponent(Graphics g) {
 
         if (repaintTimer != null) {
             repaintTimer.restart();
@@ -915,8 +963,38 @@ public abstract class ZoneRenderer extends JComponent implements DropTargetListe
         renderer.renderDrawables (g, list, viewport, getScale());
     }
     
-    protected abstract void renderBoard(Graphics2D g, ZoneView view);
-    
+	protected void renderBoard(Graphics2D g, ZoneView view) {
+
+		Dimension size = getSize();
+		if (backbuffer == null || backbuffer.getWidth() != size.width || backbuffer.getHeight() != size.height) {
+			backbuffer = new BufferedImage(size.width, size.height, Transparency.OPAQUE);
+			drawBackground = true;
+		}
+
+		Scale scale = getZoneScale();
+		if (scale.getOffsetX() != lastX || scale.getOffsetY() != lastY || scale.getIndex() != lastScale) {
+			drawBackground = true;
+		}
+		
+		if (drawBackground) {
+			BufferedImage tileImage = getTileImage();
+			
+			Graphics2D bbg = backbuffer.createGraphics();
+			Paint paint = new TexturePaint(tileImage, new Rectangle2D.Float(getViewOffsetX(), getViewOffsetY(), tileImage.getWidth()*getScale(), tileImage.getHeight()*getScale()));
+			bbg.setPaint(paint);
+			bbg.fillRect(0, 0, size.width, size.height);
+			bbg.dispose();
+			
+			drawBackground = false;
+		}
+
+		lastX = scale.getOffsetX();
+		lastY = scale.getOffsetY();
+		lastScale = scale.getIndex();
+		
+		g.drawImage(backbuffer, 0, 0, this);
+	}    
+	
     protected void renderGrid(Graphics2D g, ZoneView view) {
         int gridSize = (int) ( zone.getGrid().getSize() * getScale());
         if (!AppState.isShowGrid() || gridSize < MIN_GRID_SIZE) {

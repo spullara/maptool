@@ -52,7 +52,7 @@ import net.rptools.maptool.client.AppPreferences;
  * object extends Token because the background image is a scaled asset, which
  * is exactly the definition of a Token.
  */
-public class Zone extends Token {
+public class Zone extends BaseModel {
     
     public enum Event {
         TOKEN_ADDED,
@@ -87,11 +87,6 @@ public class Zone extends Token {
     
     public static final int DEFAULT_FEET_PER_CELL = 5;
     
-    public interface MapType {
-        public static final int MAP = 0;
-        public static final int INFINITE = 1;
-    }
-    
     // The zones should be ordered.  We could have the server assign each zone
     // an incrementing number as new zones are created, but that would take a lot
     // more ellegance than we really need.  Instead, let's just keep track of the
@@ -100,12 +95,12 @@ public class Zone extends Token {
     // the same millisecond since the epoc.
     private long creationTime = System.currentTimeMillis();
     
-    private Grid grid;
+	private GUID id = new GUID();
+
+	private Grid grid;
     private int gridColor = Color.darkGray.getRGB();
     private float imageScaleX = 1;
     private float imageScaleY = 1;
-    
-    private int type;
     
     private int feetPerCell = DEFAULT_FEET_PER_CELL;
     
@@ -122,8 +117,14 @@ public class Zone extends Token {
     private boolean hasFog;
 
     private Area topology = new Area();
- 
-    private boolean drawableLayerParsingHasHappened = false; // TODO: 2.0 -> remove this variable
+
+    private MD5Key backgroundAsset;
+    private String name;
+    private boolean isVisible;
+    
+    // These are transitionary properties, very soon the width and height won't matter
+    private int height;
+    private int width;
     
     public static final Comparator<Token> TOKEN_Z_ORDER_COMPARATOR = new Comparator<Token>() {
     	public int compare(Token o1, Token o2) {
@@ -138,16 +139,26 @@ public class Zone extends Token {
         // Exists for serialization purposes
     }
 
-    public Zone(int type, MD5Key backgroundAsset) {
-        super(backgroundAsset);
-        this.type = type;
+    public Zone(MD5Key backgroundAsset) {
+        this.backgroundAsset = backgroundAsset;
         
         setGrid(new SquareGrid());
     }
+
+    public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public MD5Key getAssetID() {
+    	return backgroundAsset;
+    }
     
     public Zone(Zone zone) {
-    	super(zone.getAssetID());
-    	type = zone.type;
+    	backgroundAsset = zone.backgroundAsset;
     	
     	setName(zone.getName());
 
@@ -207,7 +218,37 @@ public class Zone extends Token {
             
     }
     
-    public void setGrid(Grid grid) {
+    public GUID getId() {
+		return id;
+	}
+
+    
+    
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public boolean isVisible() {
+		return isVisible;
+	}
+
+	public void setVisible(boolean isVisible) {
+		this.isVisible = isVisible;
+	}
+
+	public void setGrid(Grid grid) {
     	this.grid = grid;
     	grid.setZone(this);
         fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
@@ -354,14 +395,6 @@ public class Zone extends Token {
     	this.feetPerCell = feetPerCell;
     }
     
-    public void setMapType(int type) {
-        this.type = type;
-    }
-    
-    public int getMapType() {
-        return type;
-    }
-    
     public int getLargestZOrder() {
         return tokenOrderedList.size() > 0 ? tokenOrderedList.get(tokenOrderedList.size()-1).getZOrder() : 0;
     }
@@ -416,24 +449,6 @@ public class Zone extends Token {
     }
     
     public List<DrawnElement> getDrawnElements() {
-    	if (!drawableLayerParsingHasHappened) {
-        	// TODO: 2.0 -> remove this.  This is temporary to handle the transition of non layered drawables to layered
-        	List<DrawnElement> toRemoveList = new LinkedList<DrawnElement>();
-        	for (DrawnElement element : drawables) {
-        		if (element.getDrawable().getLayer() != Layer.TOKEN) {
-        			toRemoveList.add(element);
-        			switch(element.getDrawable().getLayer()) {
-        			case OBJECT: objectDrawables.add(element); break;
-        			case GM: gmDrawables.add(element);break;
-        			case BACKGROUND: backgroundDrawables.add(element); break;
-        			}
-        		}
-        	}
-        	for (DrawnElement element : toRemoveList) {
-        		drawables.remove(element);
-        	}
-        	drawableLayerParsingHasHappened = true;
-    	}
     	return getDrawnElements(Zone.Layer.TOKEN);
     }
     

@@ -97,7 +97,6 @@ import net.rptools.maptool.client.ZoneActivityListener;
 import net.rptools.maptool.client.swing.CoordinateStatusBar;
 import net.rptools.maptool.client.swing.GlassPane;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
-import net.rptools.maptool.client.swing.PenWidthChooser;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
 import net.rptools.maptool.client.swing.ScrollableFlowPanel;
 import net.rptools.maptool.client.swing.SpacerStatusBar;
@@ -110,7 +109,6 @@ import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
 import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeCellRenderer;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeModel;
-import net.rptools.maptool.client.ui.zone.NewZoneDropPanel;
 import net.rptools.maptool.client.ui.zone.NotificationOverlay;
 import net.rptools.maptool.client.ui.zone.PointerOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneMiniMapPanel;
@@ -176,7 +174,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private ProgressStatusBar progressBar = new ProgressStatusBar();
 	private ConnectionStatusPanel connectionStatusPanel = new ConnectionStatusPanel();
 	private CoordinateStatusBar coordinateStatusBar;
-	private NewZoneDropPanel newZoneDropPanel;
 	private JLabel chatActionLabel;
 	private GlassPane glassPane;
 	
@@ -251,13 +248,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		zoneMiniMapPanel = new ZoneMiniMapPanel();
 		zoneMiniMapPanel.setSize(100, 100);
 		AppListeners.addZoneListener(zoneMiniMapPanel);
-
-		newZoneDropPanel = new NewZoneDropPanel();
-
+//
 		zoneRendererPanel = new JPanel(new PositionalLayout(5));
 		zoneRendererPanel.setBackground(Color.black);
-		zoneRendererPanel.add(newZoneDropPanel, PositionalLayout.Position.CENTER);
-		zoneRendererPanel.add(zoneMiniMapPanel, PositionalLayout.Position.SE);
+//		zoneRendererPanel.add(zoneMiniMapPanel, PositionalLayout.Position.SE);
 		zoneRendererPanel.add(getChatActionLabel(), PositionalLayout.Position.SW);
 
 		commandPanel = new CommandPanel();
@@ -712,7 +706,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 						}
 
 						final int index = (Integer) idList.get(0);
-						createZone(panel.getAsset(index), Zone.MapType.MAP);
+						createZone(panel.getAsset(index));
 					}
 				}
 
@@ -728,22 +722,12 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 					JPopupMenu menu = new JPopupMenu();
 					menu.add(new JMenuItem(new AbstractAction() {
 						{
-							putValue(NAME, "New Bounded Map");
+							putValue(NAME, "New Map");
 						}
 
 						public void actionPerformed(ActionEvent e) {
 
-							createZone(panel.getAsset(index), Zone.MapType.MAP);
-						}
-					}));
-					menu.add(new JMenuItem(new AbstractAction() {
-						{
-							putValue(NAME, "New Unbounded Map");
-						}
-
-						public void actionPerformed(ActionEvent e) {
-							createZone(panel.getAsset(index),
-									Zone.MapType.INFINITE);
+							createZone(panel.getAsset(index));
 						}
 					}));
 					menu.addSeparator();
@@ -762,11 +746,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				}
 			}
 
-			private void createZone(Asset asset, int type) {
+			private void createZone(Asset asset) {
 
 				NewMapDialog newMapDialog = new NewMapDialog(MapTool.getFrame());
 				newMapDialog.setSelectedAsset(asset, null);
-				newMapDialog.setZoneType(type);
 				newMapDialog.setVisible(true);
 			}
 		});
@@ -912,12 +895,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		// TODO: should this be here ?
 		if (renderer != null && !zoneRendererList.contains(renderer)) {
 			zoneRendererList.add(renderer);
-		}
-
-		// Handle first renderer
-		if (newZoneDropPanel != null) {
-			zoneRendererPanel.remove(newZoneDropPanel);
-			newZoneDropPanel = null;
 		}
 
 		if (currentRenderer != null) {

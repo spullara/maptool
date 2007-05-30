@@ -206,20 +206,15 @@ public class ZoneMiniMapPanel extends JPanel implements ZoneActivityListener, Mo
             
 	    	if (SwingUtilities.isLeftMouseButton(e)) {
 	    		
-    			// This doesn't work for unbounded yet
-	    		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-    			if (renderer == null || renderer.getZone().getMapType() == Zone.MapType.INFINITE) {
-    				return;
-    			}
-    			
     			// Minimap interaction
-    			int miniX = e.getX() - bounds.x;
-    			int miniY = e.getY() - bounds.y;
-    			
-    			int mapX = (int)(renderer.getZone().getWidth() * (miniX / (double)bounds.width));
-    			int mapY = (int)(renderer.getZone().getHeight() * (miniY / (double)bounds.height));
-    			
-    			renderer.centerOn(new ZonePoint(mapX, mapY));
+	    		// TODO: Make this work for unbounded
+//    			int miniX = e.getX() - bounds.x;
+//    			int miniY = e.getY() - bounds.y;
+//    			
+//    			int mapX = (int)(renderer.getZone().getWidth() * (miniX / (double)bounds.width));
+//    			int mapY = (int)(renderer.getZone().getHeight() * (miniY / (double)bounds.height));
+//    			
+//    			renderer.centerOn(new ZonePoint(mapX, mapY));
     		}
         }    	
     }

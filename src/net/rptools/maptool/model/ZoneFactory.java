@@ -6,9 +6,9 @@ import net.rptools.maptool.client.AppState;
 
 public class ZoneFactory {
 
-	public static Zone createZone(int type, String name, int feetPerCell, MD5Key backgroundAsset) {
+	public static Zone createZone(String name, int feetPerCell, MD5Key backgroundAsset) {
 		
-		Zone zone = new Zone(type, backgroundAsset);
+		Zone zone = new Zone(backgroundAsset);
 		zone.setVisible(AppPreferences.getNewMapsVisible());
 		zone.setHasFog(AppPreferences.getNewMapsHaveFOW());
 		zone.setName(name);
@@ -16,8 +16,8 @@ public class ZoneFactory {
 
 	    return zone;
 	}
-	public static Zone createZone(int type, MD5Key backgroundAsset) {
+	public static Zone createZone(MD5Key backgroundAsset) {
 		
-		return createZone(type, "", Zone.DEFAULT_FEET_PER_CELL, backgroundAsset);
+		return createZone("", Zone.DEFAULT_FEET_PER_CELL, backgroundAsset);
 	}
 }

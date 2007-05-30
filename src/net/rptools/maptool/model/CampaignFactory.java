@@ -22,7 +22,7 @@ public class CampaignFactory {
         	if (grassImage.exists()) {
         	
 				Asset asset = new Asset(DEFAULT_MAP_NAME, FileUtil.loadFile(grassImage));
-	            final Zone zone = ZoneFactory.createZone(Zone.MapType.INFINITE, asset.getId());
+	            final Zone zone = ZoneFactory.createZone(asset.getId());
 	
 	            // TODO: This should really be in the factory method
 				zone.setGrid(GridFactory.createGrid(AppPreferences

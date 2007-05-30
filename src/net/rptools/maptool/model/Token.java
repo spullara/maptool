@@ -59,7 +59,7 @@ import net.rptools.maptool.util.StringUtil;
  * that represents a character would exist as an {@link Asset} (the image
  * itself) and a location and scale.
  */
-public class Token {
+public class Token extends BaseModel {
 	private GUID id = new GUID();
 	
 	public static final String NAME_USE_FILENAME = "Use Filename";
@@ -167,9 +167,6 @@ public class Token {
 
 	private Map<String, String> macroMap;
 	private Map<String, String> speechMap;
-
-	// Transient so that it isn't transfered over the wire
-	private transient List<ModelChangeListener> listenerList = new CopyOnWriteArrayList<ModelChangeListener>();
 
 	public enum ChangeEvent {
 		name
@@ -592,21 +589,6 @@ public class Token {
 
 	public void setSnapToGrid(boolean snapToGrid) {
 		this.snapToGrid = snapToGrid;
-	}
-
-	public void addModelChangeListener(ModelChangeListener listener) {
-		listenerList.add(listener);
-	}
-
-	public void removeModelChangeListener(ModelChangeListener listener) {
-		listenerList.remove(listener);
-	}
-
-	protected void fireModelChangeEvent(ModelChangeEvent event) {
-
-		for (ModelChangeListener listener : listenerList) {
-			listener.modelChanged(event);
-		}
 	}
 
 	/**

@@ -153,7 +153,7 @@ public class AppMenuBar extends JMenuBar {
         item.setSelected(AppState.isShowLightRadius());
         menu.add(item);
 
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));
+//        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_GRID));
         // LATER: This needs to be genericized, but it seems to constant, and so short, that I 
         // didn't feel compelled to do that in this impl
@@ -175,6 +175,10 @@ public class AppMenuBar extends JMenuBar {
         gridSizeMenu.add(gridSize5);
         menu.add(gridSizeMenu);
         
+        menu.addSeparator();
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DRAW_MEASUREMENTS));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DOUBLE_WIDE));
+
         menu.addSeparator();
         menu.add(new JMenuItem(AppActions.SHOW_FULLSCREEN));
 
@@ -217,12 +221,8 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_MOVEMENT_LOCK));
         
-        menu.addSeparator();
-
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DRAW_MEASUREMENTS));
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DOUBLE_WIDE));
-
         if (MapToolUtil.isDebugEnabled()) {
+            menu.addSeparator();
             menu.addSeparator();
             menu.add(new JMenuItem(AppActions.RANDOMLY_ADD_LAST_ASSET));
         }
