@@ -59,7 +59,7 @@ import net.rptools.maptool.client.ui.ClientConnectionPanel;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.ExportDialog;
-import net.rptools.maptool.client.ui.NewMapDialog;
+import net.rptools.maptool.client.ui.MapPropertiesDialog;
 import net.rptools.maptool.client.ui.PreferencesDialog;
 import net.rptools.maptool.client.ui.PreviewPanelFileChooser;
 import net.rptools.maptool.client.ui.ServerInfoDialog;
@@ -1493,7 +1493,7 @@ public class AppActions {
 
 				public void run() {
 
-					NewMapDialog newMapDialog = new NewMapDialog(MapTool
+					MapPropertiesDialog newMapDialog = new MapPropertiesDialog(MapTool
 							.getFrame());
 					newMapDialog.setVisible(true);
 				}

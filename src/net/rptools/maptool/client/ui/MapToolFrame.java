@@ -218,7 +218,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		pointerOverlay = new PointerOverlay();
 		
 		colorPicker = new ColorPicker(this);
-		textureChooserPanel = new TextureChooserPanel(colorPicker);
+		textureChooserPanel = new TextureChooserPanel(colorPicker, assetPanel.getModel());
 		colorPicker.getPaintChooser().addPaintChooser(textureChooserPanel);
 
 		String credits = "";
@@ -730,17 +730,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 							createZone(panel.getAsset(index));
 						}
 					}));
-					menu.addSeparator();
-					menu.add(new JMenuItem(new AbstractAction() {
-						{
-							putValue(NAME, "Add to paint palette");
-						}
-						public void actionPerformed(ActionEvent e) {
-							Asset asset = panel.getAsset(index);
-							AssetManager.putAsset(asset);
-							textureChooserPanel.addTexture(asset);
-						}
-					}));
 
 					panel.showImagePanelPopup(menu, e.getX(), e.getY());
 				}
@@ -748,7 +737,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 			private void createZone(Asset asset) {
 
-				NewMapDialog newMapDialog = new NewMapDialog(MapTool.getFrame());
+				MapPropertiesDialog newMapDialog = new MapPropertiesDialog(MapTool.getFrame());
 				newMapDialog.setBackgroundAsset(asset, null);
 				newMapDialog.setVisible(true);
 			}

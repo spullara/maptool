@@ -42,7 +42,7 @@ import net.rptools.maptool.util.ImageManager;
 import com.jeta.forms.components.panel.FormPanel;
 import com.jeta.forms.gui.form.FormAccessor;
 
-public class NewMapDialog extends JDialog  {
+public class MapPropertiesDialog extends JDialog  {
 
 	private static final int AUTO_REPEAT_THRESHOLD = 200;
 	
@@ -64,7 +64,7 @@ public class NewMapDialog extends JDialog  {
 	
 	private Zone zone;
 	
-	public NewMapDialog(JFrame owner) {
+	public MapPropertiesDialog(JFrame owner) {
 		super (owner, "Map Properties", true);
 		
 		initialize();
@@ -113,7 +113,7 @@ public class NewMapDialog extends JDialog  {
 	private void initialize() {
 		
 		setLayout(new GridLayout());
-		formPanel = new FormPanel("net/rptools/maptool/client/ui/forms/newMapDialog.jfrm");
+		formPanel = new FormPanel("net/rptools/maptool/client/ui/forms/mapPropertiesDialog.jfrm");
 
 		initDistanceTextField();
 		

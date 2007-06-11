@@ -68,7 +68,7 @@ public class AssetPanel extends JComponent {
         this(controlName, new AssetPanelModel());
     }
     public AssetPanel(String controlName, AssetPanelModel model) {
-    	this(controlName, model, JSplitPane.HORIZONTAL_SPLIT);
+    	this(controlName, model, JSplitPane.VERTICAL_SPLIT);
     }
     public AssetPanel(String controlName, AssetPanelModel model, int splitPaneDirection) {
 		
@@ -82,7 +82,7 @@ public class AssetPanel extends JComponent {
 		imagePanel.setSelectionMode(SelectionMode.SINGLE);
 		imagePanel.setFont(new Font("Helvetica", 0, 10));
         
-		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		JSplitPane splitPane = new JSplitPane(splitPaneDirection);
         splitPane.setContinuousLayout(true);
         
 		splitPane.setTopComponent(new JScrollPane(assetTree));
