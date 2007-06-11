@@ -68,6 +68,9 @@ public class AssetPanel extends JComponent {
         this(controlName, new AssetPanelModel());
     }
     public AssetPanel(String controlName, AssetPanelModel model) {
+    	this(controlName, model, JSplitPane.HORIZONTAL_SPLIT);
+    }
+    public AssetPanel(String controlName, AssetPanelModel model, int splitPaneDirection) {
 		
         assetPanelModel = model;
         model.addImageUpdateObserver(this);
