@@ -473,7 +473,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
      * Clear internal caches and backbuffers
      */
     public void flush() {
-        ImageManager.flushImage(zone.getAssetID());
+        ImageManager.flushImage(zone.getBackgroundAssetId());
+        ImageManager.flushImage(zone.getForegroundAssetId());
         flushDrawableRenderer();
         tokenVisionCache.clear();
         replacementImageMap.clear();
@@ -536,7 +537,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			return tileImage;
 		}
 
-		MD5Key assetId = zone.getAssetID();
+		MD5Key assetId = zone.getBackgroundAssetId();
 
 		Asset asset = AssetManager.getAsset(assetId);
 		if (asset != null) {
@@ -918,6 +919,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         // Get a list of all the assets in the zone
         Set<MD5Key> assetSet = zone.getAllAssetIds();
+        assetSet.remove(null); // remove bad data
         
         // Make sure they are loaded
         int count = 0;
@@ -980,9 +982,18 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			BufferedImage tileImage = getTileImage();
 			
 			Graphics2D bbg = backbuffer.createGraphics();
+			
+			// Background texture
 			Paint paint = new TexturePaint(tileImage, new Rectangle2D.Float(getViewOffsetX(), getViewOffsetY(), tileImage.getWidth()*getScale(), tileImage.getHeight()*getScale()));
 			bbg.setPaint(paint);
 			bbg.fillRect(0, 0, size.width, size.height);
+			
+			// Foreground texture
+			if (zone.getForegroundAssetId() != null) {
+				BufferedImage foreImage = ImageManager.getImage(AssetManager.getAsset(zone.getForegroundAssetId()), this);
+				bbg.drawImage(foreImage, getViewOffsetX(), getViewOffsetY(), (int)(tileImage.getWidth()*getScale()), (int)(tileImage.getHeight()*getScale()), null);
+			}
+			
 			bbg.dispose();
 			
 			drawBackground = false;

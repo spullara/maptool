@@ -102,7 +102,7 @@ public class Zone extends BaseModel {
     private float imageScaleX = 1;
     private float imageScaleY = 1;
     
-    private int feetPerCell = DEFAULT_FEET_PER_CELL;
+    private int unitsPerCell = DEFAULT_FEET_PER_CELL;
     
     private List<DrawnElement> drawables = new LinkedList<DrawnElement>();
     private List<DrawnElement> gmDrawables = new LinkedList<DrawnElement>();
@@ -119,6 +119,7 @@ public class Zone extends BaseModel {
     private Area topology = new Area();
 
     private MD5Key backgroundAsset;
+    private MD5Key mapAsset;
     private String name;
     private boolean isVisible;
     
@@ -136,13 +137,22 @@ public class Zone extends BaseModel {
     };
     
     public Zone() {
-        // Exists for serialization purposes
+        setGrid(new SquareGrid());
     }
 
-    public Zone(MD5Key backgroundAsset) {
-        this.backgroundAsset = backgroundAsset;
-        
-        setGrid(new SquareGrid());
+    public void setBackgroundAsset(MD5Key id) {
+    	backgroundAsset = id;
+    }
+
+    public void setBackgroundAsset(Asset asset) {
+    	setBackgroundAsset(asset.getId());
+    }
+    
+    public void setMapAsset(MD5Key id) {
+    	mapAsset = id;
+    }
+    public void setMapAsset(Asset asset) {
+    	setMapAsset(asset.getId());
     }
 
     public String getName() {
@@ -153,12 +163,17 @@ public class Zone extends BaseModel {
 		this.name = name;
 	}
 
-	public MD5Key getAssetID() {
+	public MD5Key getForegroundAssetId() {
+		return mapAsset;
+	}
+	
+	public MD5Key getBackgroundAssetId() {
     	return backgroundAsset;
     }
     
     public Zone(Zone zone) {
     	backgroundAsset = zone.backgroundAsset;
+    	mapAsset = zone.mapAsset;
     	
     	setName(zone.getName());
 
@@ -169,7 +184,7 @@ public class Zone extends BaseModel {
 			cnse.printStackTrace();
 		}
 
-        feetPerCell = zone.feetPerCell;
+        unitsPerCell = zone.unitsPerCell;
         
         imageScaleX = zone.imageScaleX;
         imageScaleY = zone.imageScaleY;
@@ -387,12 +402,12 @@ public class Zone extends BaseModel {
     	return exposedArea;
     }
     
-    public int getFeetPerCell() {
-    	return feetPerCell;
+    public int getUnitsPerCell() {
+    	return unitsPerCell;
     }
     
-    public void setFeetPerCell(int feetPerCell) {
-    	this.feetPerCell = feetPerCell;
+    public void setUnitsPerCell(int unitsPerCell) {
+    	this.unitsPerCell = unitsPerCell;
     }
     
     public int getLargestZOrder() {
@@ -584,7 +599,8 @@ public class Zone extends BaseModel {
     	Set<MD5Key> idSet = new HashSet<MD5Key>();
 
     	// Zone
-    	idSet.add(getAssetID());
+    	idSet.add(getBackgroundAssetId());
+    	idSet.add(getForegroundAssetId());
     	
     	// Tokens
     	for (Token token : getAllTokens()) {
@@ -603,6 +619,9 @@ public class Zone extends BaseModel {
 				idSet.add(((DrawableTexturePaint)paint).getAssetId());
 			}
 		}
+		
+		// It's easier to just remove null at the end than to do a is-null check on each asset
+		idSet.remove(null);
 		
 		return idSet;
     }

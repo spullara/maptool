@@ -50,6 +50,7 @@ public class PreferencesDialog extends JDialog {
 	// Defaults
 	private JComboBox defaultGridTypeCombo;
 	private JTextField defaultGridSizeTextField;
+	private JTextField defaultUnitsPerCellTextField;
 	
 	private JSpinner autoSaveSpinner;
 	private JCheckBox saveReminderCheckBox;
@@ -90,6 +91,7 @@ public class PreferencesDialog extends JDialog {
 		backgroundsStartSnapToGridCheckBox = panel.getCheckBox("backgroundsStartSnapToGrid");
 		defaultGridTypeCombo = panel.getComboBox("defaultGridTypeCombo");
 		defaultGridSizeTextField = panel.getTextField("defaultGridSize");
+		defaultUnitsPerCellTextField = panel.getTextField("defaultUnitsPerCell");
 		fontSizeTextField = panel.getTextField("fontSize");
 		
 		setInitialState();
@@ -169,6 +171,27 @@ public class PreferencesDialog extends JDialog {
 				try {
 					int value = Integer.parseInt(defaultGridSizeTextField.getText());
 					AppPreferences.setDefaultGridSize(value);
+				} catch (NumberFormatException nfe) {
+					// Ignore it
+				}
+			}
+		});
+		
+		defaultUnitsPerCellTextField.getDocument().addDocumentListener(new DocumentListener() {
+			public void changedUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void insertUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void removeUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			
+			private void updateValue() {
+				try {
+					int value = Integer.parseInt(defaultUnitsPerCellTextField.getText());
+					AppPreferences.setDefaultUnitsPerCell(value);
 				} catch (NumberFormatException nfe) {
 					// Ignore it
 				}
@@ -271,6 +294,7 @@ public class PreferencesDialog extends JDialog {
 		backgroundsStartFreeSizeCheckBox.setSelected(AppPreferences.getBackgroundsStartFreesize());
 		backgroundsStartSnapToGridCheckBox.setSelected(AppPreferences.getBackgroundsStartSnapToGrid());
 		defaultGridSizeTextField.setText(Integer.toString(AppPreferences.getDefaultGridSize()));
+		defaultUnitsPerCellTextField.setText(Integer.toString(AppPreferences.getDefaultUnitsPerCell()));
 		fontSizeTextField.setText(Integer.toString(AppPreferences.getFontSize()));
 	}
 }

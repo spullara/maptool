@@ -749,7 +749,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			private void createZone(Asset asset) {
 
 				NewMapDialog newMapDialog = new NewMapDialog(MapTool.getFrame());
-				newMapDialog.setSelectedAsset(asset, null);
+				newMapDialog.setBackgroundAsset(asset, null);
 				newMapDialog.setVisible(true);
 			}
 		});

@@ -1,27 +1,22 @@
 package net.rptools.maptool.client.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -29,7 +24,6 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
-import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppConstants;
@@ -37,20 +31,21 @@ import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.HexGridHorizontal;
 import net.rptools.maptool.model.HexGridVertical;
 import net.rptools.maptool.model.SquareGrid;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.util.ImageManager;
 
 import com.jeta.forms.components.panel.FormPanel;
+import com.jeta.forms.gui.form.FormAccessor;
 
 public class NewMapDialog extends JDialog  {
 
+	private static final int AUTO_REPEAT_THRESHOLD = 200;
+	
 	public enum Status {
 		OK,
 		CANCEL
@@ -61,26 +56,22 @@ public class NewMapDialog extends JDialog  {
 	private Status status;
 	
 	private PreviewPanelFileChooser imageFileChooser;
-	private JButton okButton;
 	private ImagePreviewPanel imagePreviewPanel;
 	
-	private JRadioButton hexVertRadio;
-	private JRadioButton hexHoriRadio;
-	private JRadioButton squareRadio;
+	private FormPanel formPanel;
 	
-	private JTextField nameTextField;
-	private JTextField distancePerCellTextField;
+	private Asset backgroundAsset;
 	
-	private JDialog imageExplorerDialog;
-	
-	private Asset selectedAsset;
+	private Zone zone;
 	
 	public NewMapDialog(JFrame owner) {
-		super (owner, "New Map", true);
+		super (owner, "Map Properties", true);
 		
 		initialize();
+		
+		pack();
 	}
-	
+
 	public Status getStatus() {
 		return status;
 	}
@@ -92,15 +83,16 @@ public class NewMapDialog extends JDialog  {
 		} else {
 			getImagePreviewPanel().setImage(null);
 		}
+		
 		super.setVisible(b);
 	}
 	
-	public Asset getSelectedAsset() {
-		return selectedAsset;
+	public Asset getBackgroundAsset() {
+		return backgroundAsset;
 	}
 	
-	public void setSelectedAsset(Asset asset, Image thumbImage) {
-		selectedAsset = asset;
+	public void setBackgroundAsset(Asset asset, Image thumbImage) {
+		backgroundAsset = asset;
 
 		if (asset != null && thumbImage == null) {
 			// TODO: Really need a thumbnail manager for assets
@@ -110,48 +102,47 @@ public class NewMapDialog extends JDialog  {
 		getImagePreviewPanel().setImage(thumbImage);
 
 		if (getZoneName().length() == 0) {
-			nameTextField.setText(asset.getName());
+			getNameTextField().setText(asset.getName());
 		}
 		
-		okButton.setEnabled(selectedAsset != null);
+		getOKButton().setEnabled(backgroundAsset != null);
+		
+		initRepeatCheckBox();
 	}
 	
 	private void initialize() {
 		
 		setLayout(new GridLayout());
-		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/newMapDialog.jfrm");
+		formPanel = new FormPanel("net/rptools/maptool/client/ui/forms/newMapDialog.jfrm");
 
-		initNameTextField(panel);
-		initDistanceTextField(panel);
+		initDistanceTextField();
 		
-		initOKButton(panel);
-		initCancelButton(panel);
+		initOKButton();
+		initCancelButton();
 		
-		initBrowseButton(panel);
-		initExplorerButton(panel);
-		
-		initPreviewPanel(panel);
+		initMapPreviewPanel();
 
-		initDistanceTextField(panel);
+		initDistanceTextField();
+		initPixelsPerCellTextField();
+
+		initRepeatCheckBox();
 		
-		initHexHoriRadio(panel);
-		initHexVertRadio(panel);
-		initSquareRadio(panel);
+		initHexHoriRadio();
+		initHexVertRadio();
+		initSquareRadio();
 		
-		add(panel);
-		
-		pack();
+		add(formPanel);
 		
 		// Escape key
-		panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+		formPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
 				KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
-		panel.getActionMap().put("cancel", new AbstractAction() {
+		formPanel.getActionMap().put("cancel", new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				cancel();
 			}
 		});
 		
-		getRootPane().setDefaultButton(okButton);
+		getRootPane().setDefaultButton(getOKButton());
 	}
 
 	private void cancel() {
@@ -160,110 +151,175 @@ public class NewMapDialog extends JDialog  {
 	}
 	
 	private void accept() {
-		if (selectedAsset != null) {
-			
-			// Keep track of the image
-			if (!AssetManager.hasAsset(selectedAsset)) {
-				AssetManager.putAsset(selectedAsset);
-				MapTool.serverCommand().putAsset(selectedAsset);
-			}
-
-			// Create the zone
-			Zone zone = ZoneFactory.createZone(getZoneName(), getZoneDistancePerCell(), selectedAsset.getId());
-			zone.setGrid(getZoneGrid());
-
-			zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
-			
-			MapTool.addZone(zone);
-		}
-
+//		if (backgroundAsset != null) {
+//			
+//			// Keep track of the image
+//			if (!AssetManager.hasAsset(backgroundAsset)) {
+//				AssetManager.putAsset(backgroundAsset);
+//				MapTool.serverCommand().putAsset(backgroundAsset);
+//			}
+//
+//			// Create the zone
+//			Zone zone = ZoneFactory.createZone(getZoneName(), getZoneDistancePerCell(), null, backgroundAsset.getId());
+//			zone.setGrid(getZoneGrid());
+//
+//			zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
+//			
+//			MapTool.addZone(zone);
+//		}
+//
+		copyUIToZone();
+		
 		status = Status.OK;
 		setVisible(false);
 	}
 	
-	private void initHexHoriRadio(FormPanel panel) {
-		hexHoriRadio = panel.getRadioButton("hexHoriRadio");
-		hexHoriRadio.setSelected(GridFactory.isHexHorizontal(AppPreferences.getDefaultGridType()));
+	public JCheckBox getRepeatCheckBox() {
+		return formPanel.getCheckBox("repeat");
 	}
 	
-	private void initHexVertRadio(FormPanel panel) {
-		hexVertRadio = panel.getRadioButton("hexVertRadio");
-		hexVertRadio.setSelected(GridFactory.isHexVertical(AppPreferences.getDefaultGridType()));
+	private void initRepeatCheckBox() {
+		if (getBackgroundAsset() != null) {
+			BufferedImage image = ImageManager.getImageAndWait(getBackgroundAsset());
+			getRepeatCheckBox().setSelected(image.getWidth() < AUTO_REPEAT_THRESHOLD || image.getHeight() < AUTO_REPEAT_THRESHOLD);
+		}
+	}
+
+	public JRadioButton getHexHorizontalRadio() {
+		return formPanel.getRadioButton("hexHoriRadio");
 	}
 	
-	private void initSquareRadio(FormPanel panel) {
-		squareRadio = panel.getRadioButton("squareRadio");
-		squareRadio.setSelected(GridFactory.isSquare(AppPreferences.getDefaultGridType()));
+	public JRadioButton getHexVerticalRadio() {
+		return formPanel.getRadioButton("hexVertRadio");
+	}
+	
+	public JRadioButton getSquareRadio() {
+		return formPanel.getRadioButton("squareRadio");
+	}
+
+	public void setZone(Zone zone) {
+		this.zone = zone;
+		
+		copyZoneToUI();
+	}
+	
+	private void copyZoneToUI() {
+		
+		getNameTextField().setText(zone.getName());
+		getDistanceTextField().setText(Integer.toString(zone.getUnitsPerCell()));
+		getPixelsPerCellTextField().setText(Integer.toString(zone.getGrid().getSize()));
+		
+		getHexHorizontalRadio().setSelected(zone.getGrid() instanceof HexGridHorizontal);
+		getHexVerticalRadio().setSelected(zone.getGrid() instanceof HexGridVertical);
+		getSquareRadio().setSelected(zone.getGrid() instanceof SquareGrid);
+	}
+	
+	private void copyUIToZone() {
+		
+		zone.setName(getNameTextField().getText().trim());
+		zone.setUnitsPerCell(Integer.parseInt(getDistanceTextField().getText()));
+		
+		zone.getGrid().setSize(Integer.parseInt(getPixelsPerCellTextField().getText()));
+
+		// TODO: Handle grid type changes
+	}
+	
+	private void initHexHoriRadio() {
+		getHexHorizontalRadio().setSelected(GridFactory.isHexHorizontal(AppPreferences.getDefaultGridType()));
+	}
+	
+	private void initHexVertRadio() {
+		getHexVerticalRadio().setSelected(GridFactory.isHexVertical(AppPreferences.getDefaultGridType()));
+	}
+	
+	private void initSquareRadio() {
+		getSquareRadio().setSelected(GridFactory.isSquare(AppPreferences.getDefaultGridType()));
 		
 	}
 	
-	private void initDistanceTextField(FormPanel panel) {
+	public JTextField getDistanceTextField() {
+		return formPanel.getTextField("distance");
+	}
+
+	private void initDistanceTextField() {
 		
-		distancePerCellTextField = panel.getTextField("distance");
-		distancePerCellTextField.setText("5");
+		getDistanceTextField().setText("5");
 	}
 	
-	private void initPreviewPanel(FormPanel panel) {
-		
-		JPanel previewPanel = panel.getPanel("previewPanel");
+	private void initMapPreviewPanel() {
+
+		FormAccessor accessor = formPanel.getFormAccessor("previewPanel");
+		JPanel previewPanel = new JPanel(new GridLayout());
 		previewPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
-		previewPanel.setLayout(new GridLayout());
 		previewPanel.add(getImagePreviewPanel());
+		
+		accessor.replaceBean("mapPreviewPanel", previewPanel);
 	}
 	
-	private void initNameTextField(FormPanel panel) {
+	public JTextField getNameTextField() {
 		
-		nameTextField = panel.getTextField("name");
+		return formPanel.getTextField("name");
+	}
+
+	public JButton getOKButton() {
+		return (JButton) formPanel.getButton("okButton");
 	}
 	
-	private void initOKButton(FormPanel panel) {
+	private void initOKButton() {
 		
-		okButton = (JButton) panel.getButton("okButton");
-		okButton.addActionListener(new ActionListener(){
+		getOKButton().addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				accept();
 			}
 		});
-		okButton.setEnabled(selectedAsset != null);
+		getOKButton().setEnabled(backgroundAsset != null);
+	}
+
+	public JButton getBackgroundButton() {
+		return (JButton) formPanel.getButton("backgroundButton");
 	}
 	
-	private void initBrowseButton(FormPanel panel) {
-		
-		JButton button = (JButton) panel.getButton("browseButton");
-		button.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				if (getImageFileChooser().showOpenDialog(NewMapDialog.this) == JFileChooser.APPROVE_OPTION) {
-					File imageFile = getImageFileChooser().getSelectedFile();
-					if (imageFile == null || imageFile.isDirectory()) {
-						return;
-					}
-					
-					lastFilePath = new File(imageFile.getParentFile() + "/.");
-					try {
-						Asset asset = AssetManager.createAsset(imageFile);
-						setSelectedAsset(asset, getImageFileChooser().getSelectedThumbnailImage());
-					} catch (IOException ioe) {
-						setSelectedAsset(null, null);
-					}
-				}
-			}
-		});
+	public JButton getMapButton() {
+		return (JButton) formPanel.getButton("mapButton");
 	}
 	
-	private void initExplorerButton(FormPanel panel) {
-		
-		JButton button = (JButton) panel.getButton("explorerButton");
-		button.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				getImageExplorerDialog().setVisible(true);
-			}
-		});
+	public JButton getFogButton() {
+		return (JButton) formPanel.getButton("fogButton");
 	}
 	
-	private void initCancelButton(FormPanel panel) {
+	public JButton getBrowseButton() {
+		return (JButton) formPanel.getButton("browseButton");
+	}
+	
+//	private void initBrowseButton() {
+//		
+//		getBrowseButton().addActionListener(new ActionListener(){
+//			public void actionPerformed(ActionEvent e) {
+//				if (getImageFileChooser().showOpenDialog(NewMapDialog.this) == JFileChooser.APPROVE_OPTION) {
+//					File imageFile = getImageFileChooser().getSelectedFile();
+//					if (imageFile == null || imageFile.isDirectory()) {
+//						return;
+//					}
+//					
+//					lastFilePath = new File(imageFile.getParentFile() + "/.");
+//					try {
+//						Asset asset = AssetManager.createAsset(imageFile);
+//						setBackgroundAsset(asset, getImageFileChooser().getSelectedThumbnailImage());
+//					} catch (IOException ioe) {
+//						setBackgroundAsset(null, null);
+//					}
+//				}
+//			}
+//		});
+//	}
+	
+	public JButton getCancelButton() {
+		return (JButton) formPanel.getButton("cancelButton");
+	}
+	
+	private void initCancelButton() {
 		
-		JButton button = (JButton) panel.getButton("cancelButton");
-		button.addActionListener(new ActionListener(){
+		getCancelButton().addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				status = Status.CANCEL;
 				setVisible(false);
@@ -298,221 +354,72 @@ public class NewMapDialog extends JDialog  {
 		if (imagePreviewPanel == null) {
 
 			imagePreviewPanel = new ImagePreviewPanel();
+			imagePreviewPanel.setPreferredSize(new Dimension(120, 120));
 		}
 
 		return imagePreviewPanel;
 	}
 	
-	private JDialog getImageExplorerDialog() {
-		if (imageExplorerDialog == null) {
-			imageExplorerDialog = new ImageExplorerDialog();
-			
-		}
-		
-		return imageExplorerDialog;
+	public JTextField getPixelsPerCellTextField() {
+		return formPanel.getTextField("pixelsPerCell");
+	}
+	
+	private void initPixelsPerCellTextField() {
+		getPixelsPerCellTextField().setText(Integer.toString(AppPreferences.getDefaultGridSize()));
 	}
 	
 	public String getZoneName() {
-		return nameTextField.getText();
+		return getNameTextField().getText();
 	}
 	
 	public int getZoneDistancePerCell() {
 		try {
 			// TODO: Handle this in validation
-			return Integer.parseInt(distancePerCellTextField.getText());
+			return Integer.parseInt(getDistanceTextField().getText());
 		} catch (NumberFormatException nfe) {
 			return 0;
 		}
 	}
 	
 	public Grid getZoneGrid() {
-		if (hexHoriRadio.isSelected()) {
-			return new HexGridHorizontal();
+		Grid grid = null;
+		if (getHexHorizontalRadio().isSelected()) {
+			grid = new HexGridHorizontal();
 		}
-		if (hexVertRadio.isSelected()) {
-			return new HexGridVertical();
+		if (getHexVerticalRadio().isSelected()) {
+			grid = new HexGridVertical();
 		}
 		else {
-			return new SquareGrid();
+			grid = new SquareGrid();
 		}
+		
+		grid.setSize(Integer.parseInt(getPixelsPerCellTextField().getText()));
+		
+		return grid;
 	}
 	
-	////
-	// IMAGE EXPLORER DIALOG
-	private class ImageExplorerDialog extends JDialog {
-		
-		private Asset asset;
-		
-		public ImageExplorerDialog() {
-			super (NewMapDialog.this, "Select an image", true);
-			setLayout(new BorderLayout());
-			add(BorderLayout.CENTER, createImageExplorerPanel());
-			add(BorderLayout.SOUTH, createButtonBar());
-			setSize(300, 400);
-		}
-		
-		@Override
-		public void setVisible(boolean b) {
-			if (b) {
-				SwingUtil.centerOver(this, NewMapDialog.this);
-				
+	private JComponent createImageExplorerPanel() {
+
+		final AssetPanel assetPanel = new AssetPanel("imageExplorer", MapTool.getFrame().getAssetPanel().getModel());
+		assetPanel.addImageSelectionListener(new SelectionListener() {
+			public void selectionPerformed(List<Object> selectedList) {
+				// There should be exactly one
+				if (selectedList.size() != 1) {
+					return;
+				}
+
+				Integer imageIndex = (Integer) selectedList.get(0);
+
+				if (getBackgroundAsset() != null) {
+					// Tighten memory usage
+					ImageManager.flushImage(getBackgroundAsset());
+				}
+				setBackgroundAsset(assetPanel.getAsset(imageIndex), ImageManager.getImageAndWait(assetPanel.getAsset(imageIndex)));
 			}
-			super.setVisible(b);
-		}
-		
-		private JPanel createButtonBar() {
-			JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-			panel.add(createOKButton());
-			panel.add(createCancelButton());
-			
-			return panel;
-		}
+		});
 
-		private JButton createOKButton() {
-			JButton button = new JButton("OK");
-			button.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					if (asset != null) {
-						setSelectedAsset(asset, null);
-					}
-					setVisible(false);
-				}
-			});
-			getRootPane().setDefaultButton(button);
-			
-			return button;
-		}
-
-		private JButton createCancelButton() {
-			JButton button = new JButton("Cancel");
-			button.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					setVisible(false);
-				}
-			});
-			
-			return button;
-		}
-		
-		private JPanel createImageExplorerPanel() {
-			JPanel imageExplorerPanel = new JPanel();
-			imageExplorerPanel.setLayout(new BorderLayout());
-
-			final AssetPanel assetPanel = new AssetPanel("imageExplorer", MapTool.getFrame().getAssetPanel().getModel());
-			assetPanel.addImageSelectionListener(new SelectionListener() {
-				public void selectionPerformed(List<Object> selectedList) {
-					// There should be exactly one
-					if (selectedList.size() != 1) {
-						return;
-					}
-
-					Integer imageIndex = (Integer) selectedList.get(0);
-
-					asset = assetPanel.getAsset(imageIndex);
-				}
-			});
-
-			imageExplorerPanel.add(BorderLayout.CENTER, assetPanel);
-			return imageExplorerPanel;
-		}
+		return assetPanel;
 	}
+	
 
-
-//	@Override
-//	public void setVisible(boolean b) {
-//
-//		if (b) {
-//			setSelectedFile(null);
-//			SwingUtil.centerOver(this, getOwner());
-//		}
-//		super.setVisible(b);
-//	}
-//    public void reset() {
-//        
-//        returnAsset = null;
-//        selectedAsset = null;
-//        selectedFile = null;
-//        
-//        getImageFileChooser().setSelectedFile(null);
-//    }
-//	
-//	public void accept() {
-//        try {
-//            returnAsset = selectedAsset != null ? selectedAsset : AssetManager.createAsset(selectedFile);
-//        } catch (IOException ioe) {
-//            MapTool.showError("Could not load asset: " + ioe);
-//            returnAsset = null;
-//        }
-//
-//        setVisible(false);
-//	}
-//	
-//	public void cancel() {
-//		
-//		selectedFile = null;
-//        selectedAsset = null;
-//        returnAsset = null;
-//        
-////        gridBounds = null;
-//        
-//		setVisible(false);
-//	}
-//	/**
-//	 * This method initializes imageExplorerPanel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private void setSelectedFile(File file) {
-//		
-//		selectedFile = file;
-//        selectedAsset = null;
-//        
-//		imagePreviewPanel.setImage(selectedFile);
-//		
-//		getOkButton().setEnabled(file != null);
-//		//getAdjustGridButton().setEnabled(file != null && getBoundedRadioButton().isSelected());
-//	}
-//	
-//	private void setSelectedAsset(Asset asset) {
-//		
-//		selectedAsset = asset;
-//		selectedFile = null;
-//		
-//		getOkButton().setEnabled(asset != null);
-//		//getAdjustGridButton().setEnabled(asset != null && getBoundedRadioButton().isSelected());
-//	}
-//
-
-//	
-//	////
-//	// WINDOW LISTENER
-//	public void windowActivated(WindowEvent e) {
-//	    getNameTextField().requestFocus();
-//    }
-//	public void windowClosed(WindowEvent e) {}
-//	public void windowClosing(WindowEvent e) {
-//        cancel();
-//    }
-//	public void windowDeactivated(WindowEvent e) {}
-//	public void windowDeiconified(WindowEvent e) {}
-//	public void windowIconified(WindowEvent e) {}
-//	public void windowOpened(WindowEvent e) {}
-//
-//	/**
-//	 * This method initializes previewWrapperPanel	
-//	 * 	
-//	 * @return javax.swing.JPanel	
-//	 */
-//	private JPanel getPreviewWrapperPanel() {
-//		if (previewWrapperPanel == null) {
-//			GridLayout gridLayout = new GridLayout();
-//			gridLayout.setRows(1);
-//			gridLayout.setColumns(1);
-//			previewWrapperPanel = new JPanel();
-//			previewWrapperPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0), BorderFactory.createTitledBorder(null, "Preview", TitledBorder.CENTER, TitledBorder.BELOW_BOTTOM, null, null)));
-//			previewWrapperPanel.setLayout(gridLayout);
-//			previewWrapperPanel.add(getPreviewPanel(), null);
-//		}
-//		return previewWrapperPanel;
-//	}
 }

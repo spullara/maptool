@@ -123,7 +123,7 @@ public class ZoneSelectionPopup extends JPopupMenu {
 	            img = ImageManager.UNKNOWN_IMAGE;
 	            
 	            // Let's wake up when the image arrives
-	            ImageManager.addObservers(renderer.getZone().getAssetID(), this);
+	            ImageManager.addObservers(renderer.getZone().getBackgroundAssetId(), this);
 	        }
 
 	        Dimension imgSize = new Dimension(img.getWidth(), img.getHeight());

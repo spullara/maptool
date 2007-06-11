@@ -175,7 +175,11 @@ public class Campaign {
     	
     	for (Zone zone : zones.values()) {
     		
-    		if (zone.getAssetID() != null && zone.getAssetID().equals(key)) {
+    		if (zone.getBackgroundAssetId() != null && zone.getBackgroundAssetId().equals(key)) {
+    			return true;
+    		}
+    		
+    		if (zone.getForegroundAssetId() != null && zone.getForegroundAssetId().equals(key)) {
     			return true;
     		}
     		

@@ -93,6 +93,12 @@ public class AppPreferences {
     private static final String KEY_DEFAULT_GRID_SIZE = "defaultGridSize";
     private static final int DEFAULT_DEFAULT_GRID_SIZE = 40;
     
+    private static final String KEY_DEFAULT_GRID_COLOR = "defaultGridColor";
+    private static final int DEFAULT_DEFAULT_GRID_COLOR = 0x646464;
+    
+    private static final String KEY_DEFAULT_UNITS_PER_CELL = "unitsPerCell";
+    private static final int DEFAULT_DEFAULT_UNITES_PER_CELL = 5;
+    
     private static final String KEY_FONT_SIZE = "fontSize";
     private static final int DEFAULT_FONT_SIZE = 12;
     
@@ -155,12 +161,28 @@ public class AppPreferences {
     	return prefs.getInt(KEY_FONT_SIZE, DEFAULT_FONT_SIZE);
     }
     
+    public static void setDefaultGridColor(Color color) {
+    	prefs.putInt(KEY_DEFAULT_GRID_COLOR, color.getRGB());
+    }
+    
+    public static Color getDefaultGridColor() {
+    	return new Color(prefs.getInt(KEY_DEFAULT_GRID_COLOR, DEFAULT_DEFAULT_GRID_COLOR));
+    }
+    
     public static void setDefaultGridSize(int size) {
     	prefs.putInt(KEY_DEFAULT_GRID_SIZE, size);
     }
     
     public static int getDefaultGridSize() {
     	return prefs.getInt(KEY_DEFAULT_GRID_SIZE, DEFAULT_DEFAULT_GRID_SIZE);
+    }
+    
+    public static void setDefaultUnitsPerCell(int size) {
+    	prefs.putInt(KEY_DEFAULT_UNITS_PER_CELL, size);
+    }
+    
+    public static int getDefaultUnitsPerCell() {
+    	return prefs.getInt(KEY_DEFAULT_UNITS_PER_CELL, DEFAULT_DEFAULT_UNITES_PER_CELL);
     }
     
     public static void setUseTranslucentFog(boolean flag) {

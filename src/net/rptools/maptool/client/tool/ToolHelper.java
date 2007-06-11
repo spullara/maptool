@@ -111,7 +111,7 @@ public class ToolHelper {
 		int a = p2.x - p1.x;
 		int b = p2.y - p1.y;
 
-		return Math.sqrt(a * a + b * b) * renderer.getZone().getFeetPerCell()
+		return Math.sqrt(a * a + b * b) * renderer.getZone().getUnitsPerCell()
 				/ renderer.getScaledGridSize();
 	}
 }

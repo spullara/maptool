@@ -228,7 +228,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     if (template.getRadius() > 0) {
       ScreenPoint centerText = new ScreenPoint(p.x, p.y); // Must copy point
       centerText.translate(CURSOR_WIDTH, -CURSOR_WIDTH);
-      ToolHelper.drawMeasurement(g, template.getRadius() * renderer.getZone().getFeetPerCell(), centerText.x, centerText.y);
+      ToolHelper.drawMeasurement(g, template.getRadius() * renderer.getZone().getUnitsPerCell(), centerText.x, centerText.y);
     } // endif
   }
 

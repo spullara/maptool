@@ -1470,13 +1470,10 @@ public class AppActions {
 
 				public void run() {
 
-					Zone zone = ZoneFactory.createZone(assetId);
-					zone.setGrid(GridFactory.createGrid(AppPreferences
-							.getDefaultGridType()));
-					zone.getGrid().setOffset(0, 0);
-					zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
-					
 					Asset asset = AssetManager.getAsset(assetId);
+
+					Zone zone = ZoneFactory.createZone();
+					zone.setBackgroundAsset(asset);
 					zone.setName(asset.getName());
 
 					MapTool.addZone(zone);

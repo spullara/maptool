@@ -83,7 +83,8 @@ public class PersistenceUtil {
 		// Save all assets in active use
 		for (Zone zone : campaign.getZones()) {
 			
-			persistedCampaign.assetMap.put(zone.getAssetID(), AssetManager.getAsset(zone.getAssetID()));
+			persistedCampaign.assetMap.put(zone.getBackgroundAssetId(), AssetManager.getAsset(zone.getBackgroundAssetId()));
+			persistedCampaign.assetMap.put(zone.getForegroundAssetId(), AssetManager.getAsset(zone.getForegroundAssetId()));
 			
 			for (Token token : zone.getAllTokens()) {
 				
