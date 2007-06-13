@@ -120,6 +120,8 @@ public class Zone extends BaseModel {
 
     private MD5Key backgroundAsset;
     private MD5Key mapAsset;
+    private MD5Key fogAsset;
+    
     private String name;
     private boolean isVisible;
     
@@ -170,6 +172,10 @@ public class Zone extends BaseModel {
 	public MD5Key getBackgroundAssetId() {
     	return backgroundAsset;
     }
+	
+	public MD5Key getFogAssetId() {
+		return fogAsset;
+	}
     
     public Zone(Zone zone) {
     	backgroundAsset = zone.backgroundAsset;

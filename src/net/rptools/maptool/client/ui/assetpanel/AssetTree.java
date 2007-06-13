@@ -49,7 +49,7 @@ public class AssetTree extends JTree implements TreeSelectionListener {
         super(assetPanel.getModel().getImageFileTreeModel());
         
 		this.assetPanel = assetPanel;
-		
+
         setCellRenderer(new AssetTreeCellRenderer());
         
         addMouseListener(createPopupListener());

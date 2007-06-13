@@ -49,6 +49,7 @@ import net.rptools.lib.swing.ImagePanel;
 import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.ImagePanel.SelectionMode;
 import net.rptools.lib.swing.preference.SplitPanePreferences;
+import net.rptools.lib.swing.preference.TreePreferences;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.model.Asset;
 
@@ -90,6 +91,7 @@ public class AssetPanel extends JComponent {
 		splitPane.setDividerLocation(100);
 		
         new SplitPanePreferences(AppConstants.APP_NAME, controlName, splitPane);
+        new TreePreferences(AppConstants.APP_NAME, controlName, assetTree);
         
 		setLayout(new GridLayout());
 		add(splitPane);

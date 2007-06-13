@@ -35,6 +35,11 @@ public class AssetDirectory extends Directory {
 	}
 
 	@Override
+	public String toString() {
+		return getPath().getName();
+	}
+	
+	@Override
 	public void refresh() {
 		imageMap.clear();
         
