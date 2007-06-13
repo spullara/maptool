@@ -25,4 +25,9 @@ public class DrawableColorPaint extends DrawablePaint implements Serializable {
 		return colorCache;
 	}
 
+	@Override
+	public Paint getPaint(int offsetX, int offsetY, double scale) {
+		return getPaint();
+	}
+	
 }

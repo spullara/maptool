@@ -220,7 +220,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		pointerOverlay = new PointerOverlay();
 		
 		colorPicker = new ColorPicker(this);
-		textureChooserPanel = new TextureChooserPanel(colorPicker.getPaintChooser(), assetPanel.getModel());
+		textureChooserPanel = new TextureChooserPanel(colorPicker.getPaintChooser(), assetPanel.getModel(), "imageExplorerTextureChooser");
 		colorPicker.getPaintChooser().addPaintChooser(textureChooserPanel);
 
 		String credits = "";

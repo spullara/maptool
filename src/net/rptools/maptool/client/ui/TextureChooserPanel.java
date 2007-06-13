@@ -19,16 +19,19 @@ public class TextureChooserPanel extends AbstractPaintChooserPanel {
 	private ImagePanel imagePanel;
 	
 	public TextureChooserPanel(PaintChooser paintChooser, AssetPanelModel model) {
+		this(paintChooser, model, "textureChooser");
+	}
+	public TextureChooserPanel(PaintChooser paintChooser, AssetPanelModel model, String controlName) {
 		setLayout(new GridLayout());
 
 		this.paintChooser = paintChooser;
 		
-		add(createImageExplorerPanel(model));
+		add(createImageExplorerPanel(model, controlName));
 	}
 	
-	private JComponent createImageExplorerPanel(AssetPanelModel model) {
+	private JComponent createImageExplorerPanel(AssetPanelModel model, String controlName) {
 
-		final AssetPanel assetPanel = new AssetPanel("paintChooserImageExplorer", model, JSplitPane.HORIZONTAL_SPLIT);
+		final AssetPanel assetPanel = new AssetPanel(controlName, model, JSplitPane.HORIZONTAL_SPLIT);
 		assetPanel.addImageSelectionListener(new SelectionListener() {
 			public void selectionPerformed(List<Object> selectedList) {
 				// There should be exactly one

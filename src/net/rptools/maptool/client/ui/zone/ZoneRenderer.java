@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -841,10 +842,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         Dimension size = getSize();
         if (flushFog || fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
 
-	        boolean useAlphaFog = AppPreferences.getUseTranslucentFog();
-
 	        if (fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
-        		fogBuffer = new BufferedImage(size.width, size.height, view.isGMView() && useAlphaFog ? Transparency.TRANSLUCENT : Transparency.BITMASK);
+        		fogBuffer = new BufferedImage(size.width, size.height, view.isGMView() ? Transparency.TRANSLUCENT : Transparency.BITMASK);
         	} else {
             	ImageUtil.clearImage(fogBuffer);
         	}
@@ -856,23 +855,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        Area fogArea = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance (getScale(), getScale()));
 	        fogArea = fogArea.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(), zoneScale.getOffsetY()));
 	        screenArea.subtract(fogArea);
-	        
+
+	        // Fill
+	        buffG.setPaint(zone.getFogPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale()));
 	        if ( view.isGMView()) {
-	            if (useAlphaFog) {
-	                
-	                buffG.setColor(new Color(0, 0, 0, 110));
-	            } else {
-	            	int x = 0;
-	            	int y = 0;
-	                Paint paint = new TexturePaint(GRID_IMAGE, new Rectangle2D.Float (x, y, GRID_IMAGE.getWidth(), GRID_IMAGE.getHeight()));
-	                buffG.setPaint(paint);
-	            }
-	        } else {
-	        	buffG.setColor(Color.black);
+	        	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .6f));
 	        }
-	
 	        buffG.fill(screenArea);
-	
+
+	        // Outline
+        	buffG.setComposite(AlphaComposite.Src);
 	        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	        buffG.setColor(Color.black);
 	        buffG.draw(fogArea);
@@ -956,8 +948,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			Graphics2D bbg = backbuffer.createGraphics();
 			
 			// Background texture
-//			Paint paint = new TexturePaint(tileImage, new Rectangle2D.Float(getViewOffsetX(), getViewOffsetY(), tileImage.getWidth()*getScale(), tileImage.getHeight()*getScale()));
-			Paint paint = zone.getBackgroundPaint().getPaint();
+			Paint paint = zone.getBackgroundPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale());
 			bbg.setPaint(paint);
 			bbg.fillRect(0, 0, size.width, size.height);
 			

@@ -10,6 +10,7 @@ import net.rptools.maptool.model.Asset;
 public abstract class DrawablePaint implements Serializable {
 
 	public abstract Paint getPaint();
+	public abstract Paint getPaint(int offsetX, int offsetY, double scale);
 	
 	public static DrawablePaint convertPaint(Paint paint) {
 		
