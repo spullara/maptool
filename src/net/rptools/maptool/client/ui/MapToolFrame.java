@@ -43,6 +43,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -121,6 +122,7 @@ import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
@@ -218,7 +220,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		pointerOverlay = new PointerOverlay();
 		
 		colorPicker = new ColorPicker(this);
-		textureChooserPanel = new TextureChooserPanel(colorPicker, assetPanel.getModel());
+		textureChooserPanel = new TextureChooserPanel(colorPicker.getPaintChooser(), assetPanel.getModel());
 		colorPicker.getPaintChooser().addPaintChooser(textureChooserPanel);
 
 		String credits = "";
@@ -737,9 +739,21 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 			private void createZone(Asset asset) {
 
+				Zone zone = ZoneFactory.createZone();
+				BufferedImage image = ImageManager.getImageAndWait(asset);
+				if (image.getWidth() < 200 || image.getHeight() < 200) {
+					zone.setBackgroundPaint(new DrawableTexturePaint(asset));
+				} else {
+					zone.setMapAsset(asset.getId());
+				}
 				MapPropertiesDialog newMapDialog = new MapPropertiesDialog(MapTool.getFrame());
-				newMapDialog.setBackgroundAsset(asset, null);
+				newMapDialog.setZone(zone);
+
 				newMapDialog.setVisible(true);
+				
+				if (newMapDialog.getStatus() == MapPropertiesDialog.Status.OK) {
+					MapTool.addZone(zone);
+				}
 			}
 		});
 
@@ -814,27 +828,14 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	public Pen getPen() {
 
-		pen.setPaint(convertPaint(colorPicker.getForegroundPaint()));
-		pen.setBackgroundPaint(convertPaint(colorPicker.getBackgroundPaint()));
+		pen.setPaint(DrawablePaint.convertPaint(colorPicker.getForegroundPaint()));
+		pen.setBackgroundPaint(DrawablePaint.convertPaint(colorPicker.getBackgroundPaint()));
 		pen.setThickness(colorPicker.getStrokeWidth());
 		pen.setOpacity(colorPicker.getOpacity());
 		pen.setThickness(colorPicker.getStrokeWidth());
 		return pen;
 	}
 
-	private DrawablePaint convertPaint(Paint paint) {
-		
-		if (paint instanceof Color) {
-			return new DrawableColorPaint((Color) paint);
-		}
-		if (paint instanceof AssetPaint) {
-			
-			Asset asset = ((AssetPaint) paint).getAsset();
-			return new DrawableTexturePaint(asset);
-		}
-		
-		throw new IllegalArgumentException("Invalid type of paint: " + paint.getClass().getName());
-	}
 	
 	public List<ZoneRenderer> getZoneRenderers() {
 		// TODO: This should prob be immutable

@@ -29,25 +29,21 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import net.rptools.lib.MD5Key;
 import net.rptools.lib.swing.ColorPicker;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.tool.DefaultTool;
 import net.rptools.maptool.client.tool.LayerSelectionDialog;
 import net.rptools.maptool.client.tool.LayerSelectionDialog.LayerSelectionListener;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.Zone.Layer;
 import net.rptools.maptool.model.drawing.Drawable;
-import net.rptools.maptool.model.drawing.DrawablePaint;
-import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.Pen;
 
 
@@ -179,8 +175,8 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     	drawable.setLayer(selectedLayer);
     	
     	// Send new textures
-    	sendTexture(pen.getPaint());
-    	sendTexture(pen.getBackgroundPaint());
+    	MapToolUtil.uploadTexture(pen.getPaint());
+    	MapToolUtil.uploadTexture(pen.getBackgroundPaint());
     	
 		// Tell the local/server to render the drawable.
         MapTool.serverCommand().draw(zoneId, pen, drawable);
@@ -193,17 +189,4 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     	return pen.getForegroundMode() != Pen.MODE_TRANSPARENT || pen.getBackgroundMode() != Pen.MODE_TRANSPARENT;
     }
     
-    private void sendTexture(DrawablePaint paint) {
-    	
-    	if (paint instanceof DrawableTexturePaint) {
-    		MD5Key assetId = ((DrawableTexturePaint)paint).getAssetId();
-    		if (!MapTool.getCampaign().containsAsset(assetId)) {
-    			Asset asset = ((DrawableTexturePaint)paint).getAsset();
-    			if (!AssetManager.hasAsset(assetId)) {
-    				AssetManager.putAsset(asset);
-    			}
-    			MapTool.serverCommand().putAsset(asset);
-    		}
-    	}
-    }
 }

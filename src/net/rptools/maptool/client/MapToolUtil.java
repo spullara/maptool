@@ -35,8 +35,13 @@ import java.util.regex.Pattern;
 
 import javax.swing.Timer;
 
+import net.rptools.lib.MD5Key;
+import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.drawing.DrawablePaint;
+import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 
 public class MapToolUtil {
 	
@@ -187,6 +192,20 @@ public class MapToolUtil {
     
     public static Set<String> getColorNames() {
     	return COLOR_MAP.keySet();
+    }
+    
+    public static void uploadTexture(DrawablePaint paint) {
+    	
+    	if (paint instanceof DrawableTexturePaint) {
+    		MD5Key assetId = ((DrawableTexturePaint)paint).getAssetId();
+    		if (!MapTool.getCampaign().containsAsset(assetId)) {
+    			Asset asset = ((DrawableTexturePaint)paint).getAsset();
+    			if (!AssetManager.hasAsset(assetId)) {
+    				AssetManager.putAsset(asset);
+    			}
+    			MapTool.serverCommand().putAsset(asset);
+    		}
+    	}
     }
     
 }

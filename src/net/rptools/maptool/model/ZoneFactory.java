@@ -1,13 +1,15 @@
 package net.rptools.maptool.model;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
-import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppUtil;
+import net.rptools.maptool.model.drawing.DrawableColorPaint;
+import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.util.ImageManager;
 
 public class ZoneFactory {
@@ -37,7 +39,8 @@ public class ZoneFactory {
 		Zone zone = new Zone();
 		
 		zone.setName(DEFAULT_MAP_NAME);
-		zone.setBackgroundAsset(AssetManager.getAsset(defaultImageId));
+		zone.setBackgroundPaint(new DrawableTexturePaint(defaultImageId));
+		zone.setFogPaint(new DrawableColorPaint(Color.black));
 
 		zone.setVisible(AppPreferences.getNewMapsVisible());
 		zone.setHasFog(AppPreferences.getNewMapsHaveFOW());

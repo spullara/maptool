@@ -84,6 +84,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.util.ImageManager;
@@ -1473,7 +1474,7 @@ public class AppActions {
 					Asset asset = AssetManager.getAsset(assetId);
 
 					Zone zone = ZoneFactory.createZone();
-					zone.setBackgroundAsset(asset);
+					zone.setBackgroundPaint(new DrawableTexturePaint(asset.getId()));
 					zone.setName(asset.getName());
 
 					MapTool.addZone(zone);
@@ -1493,9 +1494,15 @@ public class AppActions {
 
 				public void run() {
 
-					MapPropertiesDialog newMapDialog = new MapPropertiesDialog(MapTool
-							.getFrame());
+					Zone zone = ZoneFactory.createZone();
+					MapPropertiesDialog newMapDialog = new MapPropertiesDialog(MapTool.getFrame());
+					newMapDialog.setZone(zone);
+
 					newMapDialog.setVisible(true);
+					
+					if (newMapDialog.getStatus() == MapPropertiesDialog.Status.OK) {
+						MapTool.addZone(zone);
+					}
 				}
 			});
 		}

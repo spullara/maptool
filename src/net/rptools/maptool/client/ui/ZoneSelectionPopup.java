@@ -28,6 +28,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.util.ImageManager;
 
 public class ZoneSelectionPopup extends JPopupMenu {
@@ -123,7 +124,9 @@ public class ZoneSelectionPopup extends JPopupMenu {
 	            img = ImageManager.UNKNOWN_IMAGE;
 	            
 	            // Let's wake up when the image arrives
-	            ImageManager.addObservers(renderer.getZone().getBackgroundAssetId(), this);
+	            if (renderer.getZone().getBackgroundPaint() instanceof DrawableTexturePaint) {
+	            	ImageManager.addObservers(((DrawableTexturePaint)renderer.getZone().getBackgroundPaint()).getAssetId(), this);
+	            }
 	        }
 
 	        Dimension imgSize = new Dimension(img.getWidth(), img.getHeight());

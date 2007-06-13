@@ -92,7 +92,7 @@ public class ZoneMiniMapPanel extends JPanel implements ZoneActivityListener, Mo
 	            img = ImageManager.UNKNOWN_IMAGE;
 	            
 	            // Let's wake up when the image arrives
-	            ImageManager.addObservers(renderer.getZone().getBackgroundAssetId(), this);
+//	            ImageManager.addObservers(renderer.getZone().getBackgroundAssetId(), this);
 	        }
 	            
 	        ImageBorder border = AppStyle.miniMapBorder;
@@ -134,7 +134,7 @@ public class ZoneMiniMapPanel extends JPanel implements ZoneActivityListener, Mo
             img = ImageManager.UNKNOWN_IMAGE;
             
             // Let's wake up when the image arrives
-            ImageManager.addObservers(renderer.getZone().getBackgroundAssetId(), this);
+//            ImageManager.addObservers(renderer.getZone().getBackgroundAssetId(), this);
         }
         
         ImageBorder border = AppStyle.miniMapBorder;

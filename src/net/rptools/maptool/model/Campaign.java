@@ -30,12 +30,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import net.rptools.lib.MD5Key;
-import net.rptools.maptool.model.drawing.DrawablePaint;
-import net.rptools.maptool.model.drawing.DrawableTexturePaint;
-import net.rptools.maptool.model.drawing.DrawnElement;
 
 
 /**
@@ -174,36 +172,10 @@ public class Campaign {
     public boolean containsAsset(MD5Key key) {
     	
     	for (Zone zone : zones.values()) {
-    		
-    		if (zone.getBackgroundAssetId() != null && zone.getBackgroundAssetId().equals(key)) {
+
+    		Set<MD5Key> assetSet = zone.getAllAssetIds();
+    		if (assetSet.contains(key)) {
     			return true;
-    		}
-    		
-    		if (zone.getForegroundAssetId() != null && zone.getForegroundAssetId().equals(key)) {
-    			return true;
-    		}
-    		
-    		for (Token token : zone.getAllTokens()) {
-    			
-    			if (token.getAssetID().equals(key)) {
-    				return true;
-    			}
-    		}
-    		
-    		for (DrawnElement drawn : zone.getDrawnElements()) {
-    			DrawablePaint paint = drawn.getPen().getPaint(); 
-    			if (paint instanceof DrawableTexturePaint) {
-    				if (((DrawableTexturePaint)paint).getAssetId().equals(key)) {
-    					return true;
-    				}
-    			}
-    			
-    			paint = drawn.getPen().getBackgroundPaint();
-    			if (paint instanceof DrawableTexturePaint) {
-    				if (((DrawableTexturePaint)paint).getAssetId().equals(key)) {
-    					return true;
-    				}
-    			}
     		}
     	}
     	

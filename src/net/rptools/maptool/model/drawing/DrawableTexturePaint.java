@@ -23,10 +23,13 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable,
 		// Serializable
 	}
 	
-	public DrawableTexturePaint(Asset asset) {
-		assetId = asset.getId();
+	public DrawableTexturePaint(MD5Key id) {
+		assetId = id;
 	}
-	
+	public DrawableTexturePaint(Asset asset) {
+		this(asset.getId());
+	}
+
 	@Override
 	public Paint getPaint() {
 		BufferedImage texture = null;

@@ -7,22 +7,21 @@ import javax.swing.JComponent;
 import javax.swing.JSplitPane;
 
 import net.rptools.lib.swing.AbstractPaintChooserPanel;
-import net.rptools.lib.swing.ColorPicker;
 import net.rptools.lib.swing.ImagePanel;
+import net.rptools.lib.swing.PaintChooser;
 import net.rptools.lib.swing.SelectionListener;
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanelModel;
 
 public class TextureChooserPanel extends AbstractPaintChooserPanel {
 
-	private ColorPicker colorPicker;
+	private PaintChooser paintChooser;
 	private ImagePanel imagePanel;
 	
-	public TextureChooserPanel(ColorPicker picker, AssetPanelModel model) {
+	public TextureChooserPanel(PaintChooser paintChooser, AssetPanelModel model) {
 		setLayout(new GridLayout());
 
-		colorPicker = picker;
+		this.paintChooser = paintChooser;
 		
 		add(createImageExplorerPanel(model));
 	}
@@ -39,7 +38,7 @@ public class TextureChooserPanel extends AbstractPaintChooserPanel {
 
 				Integer imageIndex = (Integer) selectedList.get(0);
 
-				colorPicker.getPaintChooser().setPaint(new AssetPaint(assetPanel.getAsset(imageIndex)));
+				paintChooser.setPaint(new AssetPaint(assetPanel.getAsset(imageIndex)));
 			}
 		});
 

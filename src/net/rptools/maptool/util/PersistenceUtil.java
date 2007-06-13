@@ -83,29 +83,9 @@ public class PersistenceUtil {
 		// Save all assets in active use
 		for (Zone zone : campaign.getZones()) {
 			
-			persistedCampaign.assetMap.put(zone.getBackgroundAssetId(), AssetManager.getAsset(zone.getBackgroundAssetId()));
-			persistedCampaign.assetMap.put(zone.getForegroundAssetId(), AssetManager.getAsset(zone.getForegroundAssetId()));
-			
-			for (Token token : zone.getAllTokens()) {
-				
-				persistedCampaign.assetMap.put(token.getAssetID(), AssetManager.getAsset(token.getAssetID()));
-			}
-
-			// Painted textures
-			for (DrawnElement drawn : zone.getAllDrawnElements()) {
-    			DrawablePaint paint = drawn.getPen().getPaint(); 
-    			if (paint instanceof DrawableTexturePaint) {
-    				MD5Key assetId = ((DrawableTexturePaint)paint).getAssetId();
-    				Asset asset = ((DrawableTexturePaint)paint).getAsset();
-    				persistedCampaign.assetMap.put(assetId, asset);
-    			}
-    			
-    			paint = drawn.getPen().getBackgroundPaint();
-    			if (paint instanceof DrawableTexturePaint) {
-    				MD5Key assetId = ((DrawableTexturePaint)paint).getAssetId();
-    				Asset asset = ((DrawableTexturePaint)paint).getAsset();
-    				persistedCampaign.assetMap.put(assetId, asset);
-    			}
+			Set<MD5Key> assetSet = zone.getAllAssetIds();
+			for (MD5Key key : assetSet) {
+				persistedCampaign.assetMap.put(key, AssetManager.getAsset(key));
 			}
 		}
 		

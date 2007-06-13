@@ -108,6 +108,7 @@ import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.HexGridUtil;
@@ -473,8 +474,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
      * Clear internal caches and backbuffers
      */
     public void flush() {
-        ImageManager.flushImage(zone.getBackgroundAssetId());
-        ImageManager.flushImage(zone.getForegroundAssetId());
+    	if (zone.getBackgroundPaint() instanceof DrawableTexturePaint) {
+    		ImageManager.flushImage(((DrawableTexturePaint)zone.getBackgroundPaint()).getAssetId());
+    	}
+        ImageManager.flushImage(zone.getMapAssetId());
         flushDrawableRenderer();
         tokenVisionCache.clear();
         replacementImageMap.clear();
@@ -520,46 +523,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     }
     
 	public BufferedImage getMiniImage(int size) {
-    	if (miniImage == null && getTileImage() != ImageManager.UNKNOWN_IMAGE) {
-    		miniImage = new BufferedImage(size, size, Transparency.OPAQUE);
-    		Graphics2D g = miniImage.createGraphics();
-    		g.setPaint(new TexturePaint(getTileImage(), new Rectangle(0, 0, miniImage.getWidth(), miniImage.getHeight())));
-    		g.fillRect(0, 0, size, size);
-    		g.dispose();
-    	}
+//    	if (miniImage == null && getTileImage() != ImageManager.UNKNOWN_IMAGE) {
+//    		miniImage = new BufferedImage(size, size, Transparency.OPAQUE);
+//    		Graphics2D g = miniImage.createGraphics();
+//    		g.setPaint(new TexturePaint(getTileImage(), new Rectangle(0, 0, miniImage.getWidth(), miniImage.getHeight())));
+//    		g.fillRect(0, 0, size, size);
+//    		g.dispose();
+//    	}
 
 		return miniImage;
 	}
     
-	private BufferedImage getTileImage() {
-
-		if (tileImage != null && tileImage != ImageManager.UNKNOWN_IMAGE) {
-			return tileImage;
-		}
-
-		MD5Key assetId = zone.getBackgroundAssetId();
-
-		Asset asset = AssetManager.getAsset(assetId);
-		if (asset != null) {
-			BufferedImage image = ImageManager.getImage(asset, this);
-			if (image != ImageManager.UNKNOWN_IMAGE) {
-
-				tileImage = image;
-				
-				drawBackground = true;
-
-				repaint();
-			}
-			return image;
-		} else {
-
-            tileImage = ImageManager.UNKNOWN_IMAGE;
-			
-		}
-		
-		return ImageManager.UNKNOWN_IMAGE;
-	}
-
 	public void paintComponent(Graphics g) {
 
         if (repaintTimer != null) {
@@ -979,18 +953,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		}
 		
 		if (drawBackground) {
-			BufferedImage tileImage = getTileImage();
-			
 			Graphics2D bbg = backbuffer.createGraphics();
 			
 			// Background texture
-			Paint paint = new TexturePaint(tileImage, new Rectangle2D.Float(getViewOffsetX(), getViewOffsetY(), tileImage.getWidth()*getScale(), tileImage.getHeight()*getScale()));
+//			Paint paint = new TexturePaint(tileImage, new Rectangle2D.Float(getViewOffsetX(), getViewOffsetY(), tileImage.getWidth()*getScale(), tileImage.getHeight()*getScale()));
+			Paint paint = zone.getBackgroundPaint().getPaint();
 			bbg.setPaint(paint);
 			bbg.fillRect(0, 0, size.width, size.height);
 			
 			// Foreground texture
-			if (zone.getForegroundAssetId() != null) {
-				BufferedImage foreImage = ImageManager.getImage(AssetManager.getAsset(zone.getForegroundAssetId()), this);
+			if (zone.getMapAssetId() != null) {
+				BufferedImage foreImage = ImageManager.getImage(AssetManager.getAsset(zone.getMapAssetId()), this);
 				bbg.drawImage(foreImage, getViewOffsetX(), getViewOffsetY(), (int)(tileImage.getWidth()*getScale()), (int)(tileImage.getHeight()*getScale()), null);
 			}
 			

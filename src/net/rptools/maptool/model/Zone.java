@@ -40,12 +40,12 @@ import java.util.Map;
 import java.util.Set;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.util.StringUtil;
-import net.rptools.maptool.client.AppPreferences;
 
 /**
  * This object represents the maps that will appear for placement of {@link Token}s.  This
@@ -118,9 +118,9 @@ public class Zone extends BaseModel {
 
     private Area topology = new Area();
 
-    private MD5Key backgroundAsset;
+    private DrawablePaint backgroundPaint;
     private MD5Key mapAsset;
-    private MD5Key fogAsset;
+    private DrawablePaint fogPaint;
     
     private String name;
     private boolean isVisible;
@@ -142,19 +142,16 @@ public class Zone extends BaseModel {
         setGrid(new SquareGrid());
     }
 
-    public void setBackgroundAsset(MD5Key id) {
-    	backgroundAsset = id;
+    public void setBackgroundPaint(DrawablePaint paint) {
+    	backgroundPaint = paint;
     }
 
-    public void setBackgroundAsset(Asset asset) {
-    	setBackgroundAsset(asset.getId());
-    }
-    
     public void setMapAsset(MD5Key id) {
     	mapAsset = id;
     }
-    public void setMapAsset(Asset asset) {
-    	setMapAsset(asset.getId());
+    
+    public void setFogPaint(DrawablePaint paint) {
+    	fogPaint = paint;
     }
 
     public String getName() {
@@ -165,20 +162,20 @@ public class Zone extends BaseModel {
 		this.name = name;
 	}
 
-	public MD5Key getForegroundAssetId() {
+	public MD5Key getMapAssetId() {
 		return mapAsset;
 	}
 	
-	public MD5Key getBackgroundAssetId() {
-    	return backgroundAsset;
+	public DrawablePaint getBackgroundPaint() {
+    	return backgroundPaint;
     }
 	
-	public MD5Key getFogAssetId() {
-		return fogAsset;
+	public DrawablePaint getFogPaint() {
+		return fogPaint;
 	}
     
     public Zone(Zone zone) {
-    	backgroundAsset = zone.backgroundAsset;
+    	backgroundPaint = zone.backgroundPaint;
     	mapAsset = zone.mapAsset;
     	
     	setName(zone.getName());
@@ -605,8 +602,13 @@ public class Zone extends BaseModel {
     	Set<MD5Key> idSet = new HashSet<MD5Key>();
 
     	// Zone
-    	idSet.add(getBackgroundAssetId());
-    	idSet.add(getForegroundAssetId());
+    	if (getBackgroundPaint() != null) {
+    		idSet.add(((DrawableTexturePaint)getBackgroundPaint()).getAssetId());
+    	}
+    	idSet.add(getMapAssetId());
+    	if (getFogPaint() instanceof DrawableTexturePaint) {
+    		idSet.add(((DrawableTexturePaint)getFogPaint()).getAssetId());
+    	}
     	
     	// Tokens
     	for (Token token : getAllTokens()) {
