@@ -191,6 +191,7 @@ public class Token extends BaseModel {
 		facing = token.facing;
 		tokenType = token.tokenType;
 		tokenMobType = token.tokenMobType;
+		haloColorValue = token.haloColorValue;
 
 		snapToGrid = token.snapToGrid;
 		isVisible = token.isVisible;
