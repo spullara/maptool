@@ -62,6 +62,7 @@ public class MapPropertiesDialog extends JDialog  {
 	
 	private PreviewPanelFileChooser imageFileChooser;
 	private MapPreviewPanel imagePreviewPanel;
+	private MapSelectorDialog mapSelectorDialog;
 	
 	private FormPanel formPanel;
 	
@@ -133,6 +134,8 @@ public class MapPropertiesDialog extends JDialog  {
 		TextureChooserPanel textureChooserPanel = new TextureChooserPanel(paintChooser, MapTool.getFrame().getAssetPanel().getModel(), "mapPropertiesTextureChooser");
 		paintChooser.addPaintChooser(textureChooserPanel);
 
+		mapSelectorDialog = new MapSelectorDialog();
+		
 		getRootPane().setDefaultButton(getOKButton());
 	}
 
@@ -293,7 +296,15 @@ public class MapPropertiesDialog extends JDialog  {
 	private void initMapButton() {
 		getMapButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+
+				Asset asset = mapSelectorDialog.chooseAsset();
+				if (asset == null) {
+					return;
+				}
 				
+				mapAsset = asset;
+				
+				updatePreview();
 			}
 		});
 		
@@ -436,6 +447,10 @@ public class MapPropertiesDialog extends JDialog  {
 		
 		private JButton createFilesystemButton() {
 			JButton button = new JButton();
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+				}
+			});
 			
 			return button;
 		}
@@ -448,12 +463,18 @@ public class MapPropertiesDialog extends JDialog  {
 
 		private JButton createOKButton() {
 			JButton button = new JButton();
-			
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					setVisible(false);
+				}
+			});
 			return button;
 		}
 
 		private JButton createCancelButton() {
 			JButton button = new JButton();
+			selectedAsset = null;
+			setVisible(false);
 			
 			return button;
 		}
