@@ -139,6 +139,9 @@ public class Token extends BaseModel {
 	
 	private Integer haloColorValue;
 	private transient Color haloColor;
+    
+    private Integer visionOverlayColorValue;
+    private transient Color visionOverlayColor;
 	
 	private List<Vision> visionList;
 	
@@ -204,6 +207,8 @@ public class Token extends BaseModel {
 	    isFlippedY = token.isFlippedY;
 	    
 	    layer = token.layer;
+        
+        visionOverlayColor = token.visionOverlayColor;
 	    
 	    ownerType = token.ownerType;
 		if (token.ownerList != null) {
@@ -715,6 +720,23 @@ public class Token extends BaseModel {
 	public void setFlippedX(boolean isFlippedX) {
 		this.isFlippedX = isFlippedX;
 	}
+    
+    public Color getVisionOverlayColor() {
+		if (visionOverlayColor == null && visionOverlayColorValue != null) {
+			visionOverlayColor = new Color(visionOverlayColorValue);
+		}
+		
+        return visionOverlayColor;
+    }
+
+    public void setVisionOverlayColor(Color color) {
+		if (color != null) {
+			visionOverlayColorValue = color.getRGB();
+		} else {
+			visionOverlayColorValue = null;
+		}
+		visionOverlayColor = color;
+    }    
 
 	/**
      * Convert the token into a hash map. This is used to ship all of the

@@ -1,7 +1,6 @@
 package net.rptools.maptool.client.tool;
 
 import java.awt.GridLayout;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;

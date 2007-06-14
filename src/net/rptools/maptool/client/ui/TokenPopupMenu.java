@@ -3,6 +3,7 @@ package net.rptools.maptool.client.ui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -32,16 +34,22 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 
-public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
+public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	
 	// TODO: This is temporary
-	private static final Object[][] HALO_COLORS = new Object[][] {
-		{"Black", Color.black},
-		{"Green", Color.green},
-		{"Yellow", Color.yellow},
-		{"Orange", new Color(255, 156, 0)}, // default orange is too light
-		{"Red", Color.red}
+	private static final Object[][] COLOR_ARRAY = new Object[][] {
+		{"Black", Color.black, Color.white},
+		{"Green", Color.green, Color.black},
+		{"Yellow", Color.yellow, Color.black},
+		{"Orange", new Color(255, 156, 0), Color.black}, // default orange is too light
+		{"Red", Color.red, Color.black},
+        {"Blue", Color.blue, Color.black},
+        {"Cyan", Color.cyan, Color.black},
+        {"Dark Gray", Color.darkGray, Color.black},
+        {"Magenta", Color.magenta, Color.black},
+        {"Pink", Color.pink, Color.black},
+        {"White", Color.white, Color.black}
 	};
 	
 	public TokenPopupMenu(Set<GUID> selectedTokenSet, int x, int y,
@@ -71,6 +79,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new RevertLastMoveAction());
 		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
 		add(createHaloMenu());
+        add(createVisionOverlayColorAreaMenu());
 		add(new ChangeStateAction("light"));
 		addOwnedItem(createArrangeMenu());
 		
@@ -178,31 +187,62 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 
 	private JMenu createHaloMenu() {
-		JMenu haloMenu = new JMenu("Halo");
-
-		Color selectedColor = getTokenUnderMouse().getHaloColor();
-
-		JCheckBoxMenuItem noneMenu = new JCheckBoxMenuItem(new SetHaloAction(getRenderer(), selectedTokenSet, null, "None"));
-		if (selectedColor == null) {
-			noneMenu.setSelected(true);
-		}
-		haloMenu.add(noneMenu);
-		
-		haloMenu.add(new JSeparator());
-
-		for (Object[] row : HALO_COLORS) {
-			String name = (String)row[0];
-			Color color = (Color)row[1];
-			JCheckBoxMenuItem item = new JCheckBoxMenuItem(new SetHaloAction(getRenderer(), selectedTokenSet, color, name));
-			if (color.equals(selectedColor)) {
-				item.setSelected(true);
-			}
-			haloMenu.add(item);
-		}
-		
-		return haloMenu;
+        return createColorAreaMenu("token.popup.menu.halo", getTokenUnderMouse().getHaloColor(), SetHaloAction.class, SetColorChooserAction.class);
 	}
-	
+    
+    private JMenu createVisionOverlayColorAreaMenu() {
+        return createColorAreaMenu("token.popup.menu.vision.overlay", getTokenUnderMouse().getVisionOverlayColor(), SetVisionOverlayColorAction.class, SetVisionOverlayColorChooserAction.class);
+    }    
+    
+    private JMenu createColorAreaMenu(String title, Color selectedColor, Class standardColorActionClass, Class customColorActionClass) {
+        JMenu haloMenu = new JMenu(I18N.getText(title));
+        
+        try {
+            Constructor standardColorActionConstructor = standardColorActionClass.getConstructor( 
+                        new Class[]{ TokenPopupMenu.class, ZoneRenderer.class, Set.class, Color.class, String.class} );
+            
+            Constructor customColorActionConstructor = customColorActionClass.getConstructor( 
+                        new Class[]{ TokenPopupMenu.class, ZoneRenderer.class, Set.class, String.class} );
+            
+            JCheckBoxMenuItem noneMenu = new JCheckBoxMenuItem((Action)standardColorActionConstructor.newInstance( 
+                        new Object[] {this, getRenderer(), selectedTokenSet, null, "None"}));           
+            
+            JCheckBoxMenuItem customMenu = new JCheckBoxMenuItem((Action)customColorActionConstructor.newInstance( 
+                        new Object[] {this, getRenderer(), selectedTokenSet, "Custom"}));
+            
+            if (selectedColor == null) {
+                noneMenu.setSelected(true);
+            } else {
+                customMenu.setSelected(true);
+            }
+            
+            haloMenu.add(noneMenu);
+            haloMenu.add(customMenu);
+            
+            haloMenu.add(new JSeparator());
+    
+            for (Object[] row : COLOR_ARRAY) {
+                String name = (String)row[0];
+                Color bgColor = (Color)row[1];
+                Color fgColor = (Color) row[2];
+                
+                JCheckBoxMenuItem item = new JCheckBoxMenuItem((Action)standardColorActionConstructor.newInstance(new Object[] {this, getRenderer(), selectedTokenSet, bgColor, name}));
+                item.setBackground(bgColor);
+                item.setForeground(fgColor);
+                
+                if (bgColor.equals(selectedColor)) {
+                    item.setSelected(true);
+                    customMenu.setSelected(false);
+                }
+                
+                haloMenu.add(item);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        
+        return haloMenu;
+    }
+    	
 	private JMenu createStateMenu() {
 		JMenu stateMenu = I18N.createMenu("defaultTool.stateMenu");
 		stateMenu.add(new ChangeStateAction("clear"));
@@ -295,9 +335,9 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 	private class SetHaloAction extends AbstractAction {
 		
-		private Color color;
-		private Set<GUID> tokenSet;
-		private ZoneRenderer renderer;
+		protected Color color;
+        protected Set<GUID> tokenSet;
+        protected ZoneRenderer renderer;
 		
 		public SetHaloAction(ZoneRenderer renderer, Set<GUID> tokenSet, Color color, String name) {
 			this.color = color;
@@ -313,14 +353,81 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			for (GUID guid : tokenSet) {
 				Token token = zone.getToken(guid);
 
-				token.setHaloColor(color);
+                updateToken(token, color);
 
 				MapTool.serverCommand().putToken(zone.getId(), token);
 			}
 			MapTool.getFrame().updateTokenTree();
 			renderer.repaint();
 		}
+        
+        protected void updateToken(Token token, Color color) {
+            token.setHaloColor(color);
+        }
 	}
+    
+    private class SetColorChooserAction extends AbstractAction {
+        protected Color currentColor;
+        protected Set<GUID> tokenSet;
+        protected ZoneRenderer renderer;
+        private String title = "Choose Halo Color";
+        
+        public SetColorChooserAction(ZoneRenderer renderer, Set<GUID> tokenSet, String name) {
+            this.tokenSet = tokenSet;
+            this.renderer = renderer;
+            this.currentColor = renderer.getZone().getToken((GUID) tokenSet.iterator().next()).getHaloColor();            
+            putValue(Action.NAME, name);
+        }
+        
+        public void actionPerformed(ActionEvent e) { 
+            Color color = showColorChooserDialog();
+            if (color != null)  {                
+                Zone zone = renderer.getZone();            
+                for (GUID guid : tokenSet) {
+                    Token token = zone.getToken(guid);
+
+                    updateToken(token, color);
+
+                    MapTool.serverCommand().putToken(zone.getId(), token);
+                }
+                MapTool.getFrame().updateTokenTree();
+                renderer.repaint();;                
+            }
+        }
+        
+        protected Color showColorChooserDialog() {
+            return JColorChooser.showDialog(MapTool.getFrame().getContentPane(), "Choose Halo Color", currentColor);
+        }
+        
+        protected void updateToken(Token token, Color color) {
+            token.setHaloColor(color);
+        }
+    }    
+       
+    private class SetVisionOverlayColorChooserAction extends SetColorChooserAction {        
+        public SetVisionOverlayColorChooserAction(ZoneRenderer renderer, Set<GUID> tokenSet, String name) {
+            super(renderer, tokenSet, name);
+            this.currentColor = renderer.getZone().getToken((GUID) tokenSet.iterator().next()).getVisionOverlayColor();
+        }
+        
+        protected Color showColorChooserDialog() {
+            return JColorChooser.showDialog(MapTool.getFrame().getContentPane(), "Choose Vision Overlay Color", currentColor);
+        }
+        
+        protected void updateToken(Token token, Color color) {
+            token.setVisionOverlayColor(color);
+        }
+    }
+    
+    private class SetVisionOverlayColorAction extends SetHaloAction {
+        public SetVisionOverlayColorAction(ZoneRenderer renderer, Set tokenSet, Color color, String name) {
+            super(renderer, tokenSet, color, name);
+        }
+        
+        protected void updateToken(Token token, Color color) {
+            token.setVisionOverlayColor(color);
+        }
+    }
 
 	/**
 	 * Internal class used to handle token state changes.

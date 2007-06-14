@@ -132,7 +132,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     private static BufferedImage GRID_IMAGE;
     
     public static final int MIN_GRID_SIZE = 5;
-    private static final Stroke HALO_STROKE = new BasicStroke(2);
+    //private static final Stroke HALO_STROKE = new BasicStroke(2);
     
     protected Zone zone;
 
@@ -627,15 +627,24 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     
     private void renderVisionOverlay(Graphics2D g, ZoneView view) {
 
-        if (currentTokenVisionArea == null || !view.isGMView()) {
+        if (currentTokenVisionArea == null || (!AppUtil.playerOwns(tokenUnderMouse) && !view.isGMView()) ) {
             return;
         }
         
         Object oldAA = g.getRenderingHint (RenderingHints.KEY_ANTIALIASING);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setColor(new Color(200, 200, 200));
-        g.draw(currentTokenVisionArea);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA);
+        g.setColor(new Color(200, 200, 200));        
+        g.draw(currentTokenVisionArea);  
+        
+        boolean useHaloColor = tokenUnderMouse.getHaloColor() != null && AppPreferences.getUseHaloColorOnVisionOverlay();
+        
+        if (tokenUnderMouse.getVisionOverlayColor() != null || useHaloColor) {
+            Color visionColor = useHaloColor ? tokenUnderMouse.getHaloColor() : tokenUnderMouse.getVisionOverlayColor();
+            g.setColor(new Color(visionColor.getRed(), visionColor.getGreen(), visionColor.getBlue(), AppPreferences.getVisionOverlayOpacity()));
+            g.fill(currentTokenVisionArea);
+        }
+        
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA); 
     }
     
     private void renderVision(Graphics2D g, ZoneView view) {
@@ -692,7 +701,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	}
             }
         }
-        if (currentTokenVisionArea != null && !view.isGMView()) {
+        
+         if (currentTokenVisionArea != null && !view.isGMView()) {
             // Draw the outline under the fog
             g.setColor(new Color(200, 200, 200));
             g.draw(currentTokenVisionArea);
@@ -1336,7 +1346,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         int width = (int)(size * .35);
         
         facingArrow = new GeneralPath();
-         facingArrow.moveTo(base, -width);
+        facingArrow.moveTo(base, -width);
         facingArrow.lineTo(size, 0);
         facingArrow.lineTo(base, width);
         facingArrow.lineTo(base, -width);
@@ -1539,7 +1549,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // Halo (TOPDOWN, CIRCLE)
             if (token.hasHalo() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.getShape() == Token.TokenShape.CIRCLE)) {
                 Stroke oldStroke = g.getStroke();
-                g.setStroke(HALO_STROKE);
+                g.setStroke( new BasicStroke(AppPreferences.getHaloLineWidth()));
                 g.setColor(token.getHaloColor());
                 g.drawRect(location.x, location.y, location.scaledWidth, location.scaledHeight);
                 g.setStroke(oldStroke);
@@ -1597,7 +1607,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // Halo (SQUARE)
             if (token.hasHalo() && token.getShape() == Token.TokenShape.SQUARE) {
                 Stroke oldStroke = g.getStroke();
-                g.setStroke(HALO_STROKE);
+                g.setStroke(new BasicStroke(AppPreferences.getHaloLineWidth()));
                 g.setColor (token.getHaloColor());
                 g.drawRect(location.x, location.y, location.scaledWidth, location.scaledHeight);
                 g.setStroke(oldStroke);

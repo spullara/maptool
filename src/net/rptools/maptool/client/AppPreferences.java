@@ -60,6 +60,18 @@ public class AppPreferences {
     private static final String KEY_NEW_TOKEN_NAMING = "newTokenNaming";
     private static final String DEFAULT_NEW_TOKEN_NAMING = Token.NAME_USE_FILENAME;
     
+    private static final String KEY_USE_HALO_COLOR_ON_VISION_OVERLAY = "useHaloColorForVisionOverlay";
+    private static final boolean DEFAULT_USE_HALO_COLOR_ON_VISION_OVERLAY = false;
+    
+    private static final String KEY_VISION_OVERLAY_OPACITY = "visionOverlayOpacity";
+    private static final int DEFAULT_VISION_OVERLAY_OPACITY = 60;
+    
+    private static final String KEY_HALO_LINE_WIDTH = "haloLineWidth";
+    private static final int DEFAULT_HALO_LINE_WIDTH = 2;
+    
+    private static final String KEY_AUTO_REVEAL_VISION_ON_GM_MOVEMENT = "autoRevealVisionOnGMMove";
+    private static final boolean DEFAULT_AUTO_REVEAL_VISION_ON_GM_MOVEMENT = false;
+    
     private static final String KEY_USE_TRANSLUCENT_FOG = "useTranslucentFog";
     private static final boolean DEFAULT_USE_TRANSLUCENT_FOG = true;
     
@@ -151,6 +163,38 @@ public class AppPreferences {
     
     public static String getNewTokenNaming () {
         return prefs.get(KEY_NEW_TOKEN_NAMING, DEFAULT_NEW_TOKEN_NAMING);
+    }
+    
+    public static void setUseHaloColorOnVisionOverlay (boolean flag) {
+        prefs.putBoolean(KEY_USE_HALO_COLOR_ON_VISION_OVERLAY, flag);
+    }
+    
+    public static boolean getUseHaloColorOnVisionOverlay () {
+        return prefs.getBoolean(KEY_USE_HALO_COLOR_ON_VISION_OVERLAY, DEFAULT_USE_HALO_COLOR_ON_VISION_OVERLAY);
+    }
+    
+    public static void setAutoRevealVisionOnGMMovement (boolean flag) {
+        prefs.putBoolean(KEY_AUTO_REVEAL_VISION_ON_GM_MOVEMENT, flag);
+    }
+    
+    public static boolean getAutoRevealVisionOnGMMovement () {
+        return prefs.getBoolean(KEY_AUTO_REVEAL_VISION_ON_GM_MOVEMENT, DEFAULT_AUTO_REVEAL_VISION_ON_GM_MOVEMENT);
+    }    
+    
+    public static void setVisionOverlayOpacity(int size) {
+        prefs.putInt(KEY_VISION_OVERLAY_OPACITY, size);
+    }
+    
+    public static int getVisionOverlayOpacity() {
+        return prefs.getInt(KEY_VISION_OVERLAY_OPACITY, DEFAULT_VISION_OVERLAY_OPACITY);
+    }
+    
+    public static void setHaloLineWidth(int size) {
+        prefs.putInt(KEY_HALO_LINE_WIDTH, size);
+    }
+    
+    public static int getHaloLineWidth() {
+        return prefs.getInt(KEY_HALO_LINE_WIDTH, DEFAULT_HALO_LINE_WIDTH);
     }
 
     public static void setFontSize(int size) {

@@ -185,6 +185,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         
         dragOffsetX = 0;
         dragOffsetY = 0;
+        
+		if (AppPreferences.getAutoRevealVisionOnGMMovement() && (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision())) {
+			FogUtil.exposeVisibleArea(renderer, renderer.getSelectedTokenSet());
+		} 
     }
     
     private void showTokenStackPopup(List<Token> tokenList, int x, int y) {

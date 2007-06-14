@@ -22,7 +22,6 @@ import javax.swing.event.DocumentListener;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
-import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.Token;
@@ -46,6 +45,11 @@ public class PreferencesDialog extends JDialog {
 	private JComboBox duplicateTokenCombo;
 	private JComboBox tokenNamingCombo;
 	private JComboBox showNumberingCombo;
+    
+    private JSpinner haloLineWidthSpinner;
+    private JSpinner visionOverlayOpacitySpinner;
+    private JCheckBox useHaloColorAsVisionOverlayCheckBox;
+    private JCheckBox autoRevealVisionOnGMMoveCheckBox;
 
 	// Defaults
 	private JComboBox defaultGridTypeCombo;
@@ -93,7 +97,11 @@ public class PreferencesDialog extends JDialog {
 		defaultGridSizeTextField = panel.getTextField("defaultGridSize");
 		defaultUnitsPerCellTextField = panel.getTextField("defaultUnitsPerCell");
 		fontSizeTextField = panel.getTextField("fontSize");
-		
+		haloLineWidthSpinner = panel.getSpinner("haloLineWidthSpinner");
+		visionOverlayOpacitySpinner = panel.getSpinner("visionOverlayOpacitySpinner");
+		useHaloColorAsVisionOverlayCheckBox = panel.getCheckBox("useHaloColorAsVisionOverlayCheckBox");
+		autoRevealVisionOnGMMoveCheckBox = panel.getCheckBox("autoRevealVisionOnGMMoveCheckBox");
+
 		setInitialState();
 
 		// And keep it updated
@@ -197,6 +205,26 @@ public class PreferencesDialog extends JDialog {
 				}
 			}
 		});
+        haloLineWidthSpinner.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent ce) {
+                AppPreferences.setHaloLineWidth((Integer)haloLineWidthSpinner.getValue());
+            }
+        });        
+        visionOverlayOpacitySpinner.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent ce) {
+                AppPreferences.setVisionOverlayOpacity((Integer)visionOverlayOpacitySpinner.getValue());
+            }
+        });        
+        useHaloColorAsVisionOverlayCheckBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                AppPreferences.setUseHaloColorOnVisionOverlay(useHaloColorAsVisionOverlayCheckBox.isSelected());
+            }
+        });        
+        autoRevealVisionOnGMMoveCheckBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                AppPreferences.setAutoRevealVisionOnGMMovement(autoRevealVisionOnGMMoveCheckBox.isSelected());
+            }
+        });
 		
 		fontSizeTextField.getDocument().addDocumentListener(new DocumentListener() {
 			public void changedUpdate(DocumentEvent e) {
@@ -296,5 +324,9 @@ public class PreferencesDialog extends JDialog {
 		defaultGridSizeTextField.setText(Integer.toString(AppPreferences.getDefaultGridSize()));
 		defaultUnitsPerCellTextField.setText(Integer.toString(AppPreferences.getDefaultUnitsPerCell()));
 		fontSizeTextField.setText(Integer.toString(AppPreferences.getFontSize()));
+		haloLineWidthSpinner.setValue(AppPreferences.getHaloLineWidth());
+		visionOverlayOpacitySpinner.setValue(AppPreferences.getVisionOverlayOpacity());
+		useHaloColorAsVisionOverlayCheckBox.setSelected(AppPreferences.getUseHaloColorOnVisionOverlay());
+		autoRevealVisionOnGMMoveCheckBox.setSelected(AppPreferences.getAutoRevealVisionOnGMMovement());
 	}
 }

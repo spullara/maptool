@@ -123,7 +123,7 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
     			continue;
     		}
     		
-    		Area segmentArea = GraphicsUtil.createAreaBetween(lastPoint, point, 2);
+    		Area segmentArea = GraphicsUtil.createAreaBetween(lastPoint, point, 1);
     		lineArea.add(segmentArea);
     		
     		lastPoint = point;
@@ -138,7 +138,7 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
 		pen.setEraser(isEraser());
 		pen.setForegroundMode(Pen.MODE_TRANSPARENT);
         pen.setBackgroundMode(Pen.MODE_SOLID);
-        pen.setThickness(1);
+        pen.setThickness(1.0f);
         pen.setPaint(new DrawableColorPaint(isEraser() ? AppStyle.topologyRemoveColor : AppStyle.topologyAddColor));
         
 		return pen;

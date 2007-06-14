@@ -77,7 +77,7 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
         if (oval != null) {
         	Pen pen = getPen();
-          pen.setThickness((float)(pen.getThickness() * renderer.getScale()));
+        	pen.setThickness((float)(pen.getThickness() * renderer.getScale()));
         	
             if (pen.isEraser()) {
                 pen = new Pen(pen);
