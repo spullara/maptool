@@ -274,4 +274,43 @@ public class GraphicsUtil {
     	
     	return !newArea.isEmpty();
     }
+    
+    public static Area createLineSegmentEllipse(int x1, int y1, int x2, int y2) {
+
+    	int x = Math.min(x1, x2);
+    	int y = Math.min(y1, y2);
+    	
+    	int w = Math.abs(x1 - x2);
+    	int h = Math.abs(y1 - y2);
+    	
+    	// Operate from the center of the ellipse
+    	x += w/2;
+    	y += h/2;
+    	
+        // The Ellipse class uses curves, which doesn't work with the topology, so we have to create a geometric ellipse
+        // out of line segments
+        GeneralPath path = new GeneralPath();
+
+        int a = w/2;
+        int b = h/2;
+
+        boolean firstMove = true;
+        for (double t = -Math.PI; t <= Math.PI; t+= .2) { // TODO: Configure the number of points, the increment value is (2pi/steps)
+        	
+        	int px = (int)(x + a * Math.cos(t));
+        	int py = (int)(y + b * Math.sin(t));
+
+        	if (firstMove) {
+        		path.moveTo(px, py);
+
+        		firstMove = false;
+        	} else {
+        		path.lineTo(px, py);
+        	}
+        }
+        path.closePath();
+        return new Area(path);
+    }
+    
+    
 }

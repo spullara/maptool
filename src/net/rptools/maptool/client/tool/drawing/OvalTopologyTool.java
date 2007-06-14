@@ -23,6 +23,7 @@ import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.Oval;
 import net.rptools.maptool.model.drawing.Pen;
+import net.rptools.maptool.util.GraphicsUtil;
 
 public class OvalTopologyTool extends AbstractDrawingTool implements MouseMotionListener {
 
@@ -124,7 +125,7 @@ public class OvalTopologyTool extends AbstractDrawingTool implements MouseMotion
 	            oval.getStartPoint().setLocation(startPoint.x, startPoint.y);
 	            oval.getEndPoint().setLocation(endPoint.x, endPoint.y);
 
-	            Area area = new Area( new java.awt.geom.Ellipse2D.Float(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y));
+	            Area area = GraphicsUtil.createLineSegmentEllipse(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
 
 	            if (isEraser(e)) {
 		            renderer.getZone().removeTopology(area);

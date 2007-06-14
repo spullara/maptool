@@ -23,6 +23,7 @@ import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.Oval;
 import net.rptools.maptool.model.drawing.Pen;
+import net.rptools.maptool.util.GraphicsUtil;
 
 public class HollowOvalTopologyTool extends AbstractDrawingTool implements MouseMotionListener {
 
@@ -33,7 +34,7 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
 	
     public HollowOvalTopologyTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/drawcirc.png"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/drawopencirc.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -125,11 +126,17 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
 	            oval.getStartPoint().setLocation(startPoint.x, startPoint.y);
 	            oval.getEndPoint().setLocation(endPoint.x, endPoint.y);
 
-	            Area area = new Area( new java.awt.geom.Ellipse2D.Float(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y));
+	            Area area = GraphicsUtil.createLineSegmentEllipse(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
 	            
 	            // Still use the whole area if it's an erase action
 	            if (!isEraser(e)) {
-	            	Area innerArea = new Area( new java.awt.geom.Ellipse2D.Float(startPoint.x+1, startPoint.y+1, (endPoint.x - startPoint.x)-2, (endPoint.y - startPoint.y)-2)); 
+	            	int x1 = Math.min(startPoint.x, endPoint.x) + 2;
+	            	int y1 = Math.min(startPoint.y, endPoint.y) + 2;
+	            	
+	            	int x2 = Math.max(startPoint.x, endPoint.x) - 2;
+	            	int y2 = Math.max(startPoint.y, endPoint.y) - 2;
+	            	
+	            	Area innerArea = GraphicsUtil.createLineSegmentEllipse(x1, y1, x2, y2); 
 		            area.subtract(innerArea);
 	            }	            
 	            
