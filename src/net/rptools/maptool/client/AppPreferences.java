@@ -103,7 +103,7 @@ public class AppPreferences {
     private static final String DEFAULT_DEFAULT_GRID_TYPE = GridFactory.SQUARE;
     
     private static final String KEY_DEFAULT_GRID_SIZE = "defaultGridSize";
-    private static final int DEFAULT_DEFAULT_GRID_SIZE = 40;
+    private static final int DEFAULT_DEFAULT_GRID_SIZE = 50;
     
     private static final String KEY_DEFAULT_GRID_COLOR = "defaultGridColor";
     private static final int DEFAULT_DEFAULT_GRID_COLOR = 0x646464;
