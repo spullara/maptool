@@ -55,7 +55,7 @@ public abstract class AbstractRollMacro  implements Macro {
         Matcher m = INLINE_ROLL.matcher(line);
         StringBuffer buf = new StringBuffer();
    		while( m.find()) {
-       		m.appendReplacement(buf, "[roll "+m.group(1) + " => " + rollInternal(m.group(1))+"]" );
+       		m.appendReplacement(buf, "[roll "+m.group(1) + " : " + rollInternal(m.group(1))+"]" );
        	}
    		m.appendTail(buf);
 
@@ -69,8 +69,11 @@ public abstract class AbstractRollMacro  implements Macro {
 
 	    	StringBuilder sb = new StringBuilder();
 	    	
-	    	System.out.println(result.getExpression() + " - " + result.getDetailExpression());
-	    	sb.append(result.getDetailExpression()).append(" => ").append((BigDecimal) result.getValue());
+	    	if (result.getDetailExpression().equals(result.getValue().toString())) {
+	    		sb.append(result.getDetailExpression());
+	    	} else {
+	    		sb.append(result.getDetailExpression()).append(" = ").append((BigDecimal) result.getValue());
+	    	}
 	
 	        return sb.toString();
 		} catch (ParserException e) {
