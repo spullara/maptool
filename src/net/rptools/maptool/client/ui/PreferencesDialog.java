@@ -146,12 +146,12 @@ public class PreferencesDialog extends JDialog {
 		});
 		stampsStartFreeSizeCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				AppPreferences.setStampsStartFreesize(stampsStartFreeSizeCheckBox.isSelected());
+				AppPreferences.setObjectsStartFreesize(stampsStartFreeSizeCheckBox.isSelected());
 			}
 		});
 		stampsStartSnapToGridCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				AppPreferences.setStampsStartSnapToGrid(stampsStartSnapToGridCheckBox.isSelected());
+				AppPreferences.setObjectsStartSnapToGrid(stampsStartSnapToGridCheckBox.isSelected());
 			}
 		});
 		backgroundsStartFreeSizeCheckBox.addActionListener(new ActionListener() {
@@ -317,8 +317,8 @@ public class PreferencesDialog extends JDialog {
 		tokensStartSnapToGridCheckBox.setSelected(AppPreferences.getTokensStartSnapToGrid());
 		newMapsVisibleCheckBox.setSelected(AppPreferences.getNewMapsVisible());
 		newTokensVisibleCheckBox.setSelected(AppPreferences.getNewTokensVisible());
-		stampsStartFreeSizeCheckBox.setSelected(AppPreferences.getStampsStartFreesize());
-		stampsStartSnapToGridCheckBox.setSelected(AppPreferences.getStampsStartSnapToGrid());
+		stampsStartFreeSizeCheckBox.setSelected(AppPreferences.getObjectsStartFreesize());
+		stampsStartSnapToGridCheckBox.setSelected(AppPreferences.getObjectsStartSnapToGrid());
 		backgroundsStartFreeSizeCheckBox.setSelected(AppPreferences.getBackgroundsStartFreesize());
 		backgroundsStartSnapToGridCheckBox.setSelected(AppPreferences.getBackgroundsStartSnapToGrid());
 		defaultGridSizeTextField.setText(Integer.toString(AppPreferences.getDefaultGridSize()));

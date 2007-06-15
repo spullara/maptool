@@ -2197,31 +2197,49 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
             token.setX(zp.x);
             token.setY(zp.y);
-            token.setVisible(!isGM || AppPreferences.getNewTokensVisible());
             
             // Set the image properties
             BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(token.getAssetID()));
             token.setShape(TokenUtil.guessTokenType((BufferedImage)image));
             token.setWidth(image.getWidth(null));
             token.setHeight(image.getHeight(null));
+            token.setLayer(getActiveLayer());
             
             // He who drops, owns, if there are not players already set
             if (!token.hasOwners() && !isGM) {
                 token.addOwner(MapTool.getPlayer().getName());
             }
 
-            // Token rotation type
-            if (getActiveLayer() == Zone.Layer.BACKGROUND) {
-                token.setLayer (Zone.Layer.BACKGROUND);
+            // Token type
+            switch (getActiveLayer()) {
+            case TOKEN: {
+
+            	// Players can't drop invisible tokens
+                token.setVisible(!isGM || AppPreferences.getNewTokensVisible());
+            	break;
+            }
+            case GM: {
+            	// GM Layer is not visible to players.
+                token.setVisible(false);
+            	break;
+            }
+            case BACKGROUND: {
+            	
+                token.setShape (Token.TokenShape.TOP_DOWN);
+
                 token.setSnapToScale(!AppPreferences.getBackgroundsStartFreesize());
                 token.setSnapToGrid(AppPreferences.getBackgroundsStartSnapToGrid());
-                token.setShape (Token.TokenShape.TOP_DOWN);
+                token.setVisible(AppPreferences.getNewBackgroundsVisible());
+            	break;
             }
-            if (getActiveLayer() == Zone.Layer.OBJECT) {
-                token.setLayer(Zone.Layer.OBJECT);
-                token.setSnapToScale(!AppPreferences.getStampsStartFreesize());
-                token.setSnapToGrid(AppPreferences.getStampsStartSnapToGrid());
+            case OBJECT: {
                 token.setShape(Token.TokenShape.TOP_DOWN);
+
+                token.setSnapToScale(!AppPreferences.getObjectsStartFreesize());
+                token.setSnapToGrid(AppPreferences.getObjectsStartSnapToGrid());
+                token.setVisible(AppPreferences.getNewObjectsVisible());
+            	break;
+            }
             }
             
             // Check the name (after Token layer is set as name relies on layer)

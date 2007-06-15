@@ -84,14 +84,20 @@ public class AppPreferences {
     private static final String KEY_NEW_MAPS_VISIBLE = "newMapsVisible";
     private static final boolean DEFAULT_NEW_MAPS_VISIBLE = true;
     
+    private static final String KEY_NEW_OBJECTS_VISIBLE = "newObjectsVisible";
+    private static final boolean DEFAULT_NEW_OBJECTS_VISIBLE = true;
+    
+    private static final String KEY_NEW_BACKGROUNDS_VISIBLE = "newBackgroundsVisible";
+    private static final boolean DEFAULT_NEW_BACKGROUNDS_VISIBLE = true;
+    
     private static final String KEY_TOKENS_START_SNAP_TO_GRID = "newTokensStartSnapToGrid";
     private static final boolean DEFAULT_TOKENS_START_SNAP_TO_GRID = true;
 
-    private static final String KEY_STAMPS_START_SNAP_TO_GRID = "newStampsStartSnapToGrid";
-    private static final boolean DEFAULT_STAMPS_START_SNAP_TO_GRID = false;
+    private static final String KEY_OBJECTS_START_SNAP_TO_GRID = "newStampsStartSnapToGrid";
+    private static final boolean DEFAULT_OBJECTS_START_SNAP_TO_GRID = false;
     
-    private static final String KEY_STAMPS_START_FREESIZE = "newStampsStartFreesize";
-    private static final boolean DEFAULT_STAMPS_START_FREESIZE = true;
+    private static final String KEY_OBJECTS_START_FREESIZE = "newStampsStartFreesize";
+    private static final boolean DEFAULT_OBJECTS_START_FREESIZE = true;
 
     private static final String KEY_BACKGROUNDS_START_SNAP_TO_GRID = "newBackgroundsStartSnapToGrid";
     private static final boolean DEFAULT_BACKGROUNDS_START_SNAP_TO_GRID = false;
@@ -261,6 +267,22 @@ public class AppPreferences {
     	return prefs.getBoolean(KEY_NEW_MAPS_VISIBLE, DEFAULT_NEW_MAPS_VISIBLE);
     }
     
+    public static void setNewObjectsVisible(boolean flag) {
+    	prefs.putBoolean(KEY_NEW_OBJECTS_VISIBLE, flag);
+    }
+    
+    public static boolean getNewObjectsVisible() {
+    	return prefs.getBoolean(KEY_NEW_OBJECTS_VISIBLE, DEFAULT_NEW_OBJECTS_VISIBLE);
+    }
+    
+    public static void setNewBackgroundsVisible(boolean flag) {
+    	prefs.putBoolean(KEY_NEW_BACKGROUNDS_VISIBLE, flag);
+    }
+    
+    public static boolean getNewBackgroundsVisible() {
+    	return prefs.getBoolean(KEY_NEW_BACKGROUNDS_VISIBLE, DEFAULT_NEW_BACKGROUNDS_VISIBLE);
+    }
+    
     public static void setTokensStartSnapToGrid(boolean flag) {
     	prefs.putBoolean(KEY_TOKENS_START_SNAP_TO_GRID, flag);
     }
@@ -269,20 +291,20 @@ public class AppPreferences {
     	return prefs.getBoolean(KEY_TOKENS_START_SNAP_TO_GRID, DEFAULT_TOKENS_START_SNAP_TO_GRID);
     }
     
-    public static void setStampsStartSnapToGrid(boolean flag) {
-    	prefs.putBoolean(KEY_STAMPS_START_SNAP_TO_GRID, flag);
+    public static void setObjectsStartSnapToGrid(boolean flag) {
+    	prefs.putBoolean(KEY_OBJECTS_START_SNAP_TO_GRID, flag);
     }
     
-    public static boolean getStampsStartSnapToGrid() {
-    	return prefs.getBoolean(KEY_STAMPS_START_SNAP_TO_GRID, DEFAULT_STAMPS_START_SNAP_TO_GRID);
+    public static boolean getObjectsStartSnapToGrid() {
+    	return prefs.getBoolean(KEY_OBJECTS_START_SNAP_TO_GRID, DEFAULT_OBJECTS_START_SNAP_TO_GRID);
     }
     
-    public static void setStampsStartFreesize(boolean flag) {
-    	prefs.putBoolean(KEY_STAMPS_START_FREESIZE, flag);
+    public static void setObjectsStartFreesize(boolean flag) {
+    	prefs.putBoolean(KEY_OBJECTS_START_FREESIZE, flag);
     }
     
-    public static boolean getStampsStartFreesize() {
-    	return prefs.getBoolean(KEY_STAMPS_START_FREESIZE, DEFAULT_STAMPS_START_FREESIZE);
+    public static boolean getObjectsStartFreesize() {
+    	return prefs.getBoolean(KEY_OBJECTS_START_FREESIZE, DEFAULT_OBJECTS_START_FREESIZE);
     }
     
     public static void setBackgroundsStartSnapToGrid(boolean flag) {
