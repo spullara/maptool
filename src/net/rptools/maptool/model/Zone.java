@@ -602,7 +602,7 @@ public class Zone extends BaseModel {
     	Set<MD5Key> idSet = new HashSet<MD5Key>();
 
     	// Zone
-    	if (getBackgroundPaint() != null) {
+    	if (getBackgroundPaint() instanceof DrawableTexturePaint) {
     		idSet.add(((DrawableTexturePaint)getBackgroundPaint()).getAssetId());
     	}
     	idSet.add(getMapAssetId());
