@@ -123,6 +123,9 @@ public class AssetManager {
 	}
 	
 	public static Asset getAsset(MD5Key id) {
+		if (id == null) {
+			return null;
+		}
 		
 		Asset asset = assetMap.get(id);
 		
