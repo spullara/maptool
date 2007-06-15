@@ -179,8 +179,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     private BufferedImage fogBuffer;
     private boolean flushFog = true;
     
-	private BufferedImage tileImage;
-
 	private BufferedImage miniImage;
 	private BufferedImage backbuffer;
 	private boolean drawBackground = true;
@@ -962,10 +960,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			bbg.setPaint(paint);
 			bbg.fillRect(0, 0, size.width, size.height);
 			
-			// Foreground texture
+			// Map
 			if (zone.getMapAssetId() != null) {
-				BufferedImage foreImage = ImageManager.getImage(AssetManager.getAsset(zone.getMapAssetId()), this);
-				bbg.drawImage(foreImage, getViewOffsetX(), getViewOffsetY(), (int)(tileImage.getWidth()*getScale()), (int)(tileImage.getHeight()*getScale()), null);
+				BufferedImage mapImage = ImageManager.getImage(AssetManager.getAsset(zone.getMapAssetId()), this);
+				bbg.drawImage(mapImage, getViewOffsetX(), getViewOffsetY(), (int)(mapImage.getWidth()*getScale()), (int)(mapImage.getHeight()*getScale()), null);
 			}
 			
 			bbg.dispose();

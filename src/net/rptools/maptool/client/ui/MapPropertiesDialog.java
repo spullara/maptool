@@ -214,6 +214,7 @@ public class MapPropertiesDialog extends JDialog  {
 
 		zone.setFogPaint(fogPaint);
 		zone.setBackgroundPaint(backgroundPaint);
+		zone.setMapAsset(mapAsset != null ? mapAsset.getId() : null);
 		
 		// TODO: Handle grid type changes
 	}
@@ -427,6 +428,14 @@ public class MapPropertiesDialog extends JDialog  {
 			
 			setSize(300, 400);
 		}
+
+		@Override
+		public void setVisible(boolean b) {
+			if (b) {
+				SwingUtil.centerOver(this, MapTool.getFrame());
+			}
+			super.setVisible(b);
+		}
 		
 		private JPanel createButtonBar() {
 			JPanel panel = new JPanel(new BorderLayout());
@@ -446,7 +455,7 @@ public class MapPropertiesDialog extends JDialog  {
 		}
 		
 		private JButton createFilesystemButton() {
-			JButton button = new JButton();
+			JButton button = new JButton("Filesystem ...");
 			button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 				}
@@ -456,13 +465,13 @@ public class MapPropertiesDialog extends JDialog  {
 		}
 
 		private JButton createClearButton() {
-			JButton button = new JButton();
+			JButton button = new JButton("Clear");
 			
 			return button;
 		}
 
 		private JButton createOKButton() {
-			JButton button = new JButton();
+			JButton button = new JButton("OK");
 			button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					setVisible(false);
@@ -472,7 +481,7 @@ public class MapPropertiesDialog extends JDialog  {
 		}
 
 		private JButton createCancelButton() {
-			JButton button = new JButton();
+			JButton button = new JButton("Cancel");
 			selectedAsset = null;
 			setVisible(false);
 			
@@ -560,8 +569,12 @@ public class MapPropertiesDialog extends JDialog  {
 			if (mapAsset != null) {
 				BufferedImage image = ImageManager.getImageAndWait(mapAsset);
 				Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
-				SwingUtil.constrainTo(imgSize, size.width-10-10-10, size.height-10-10-10);
-				g.drawImage(image, 30, 30, imgSize.width, imgSize.height, this);
+				SwingUtil.constrainTo(imgSize, size.width-10*4, size.height-10*4);
+				
+				int x = (size.width-imgSize.width)/2;
+				int y = (size.height-imgSize.height)/2;
+				
+				g.drawImage(image, x, y, imgSize.width, imgSize.height, this);
 			}
 		}
 	}
