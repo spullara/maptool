@@ -50,7 +50,7 @@ public abstract class AbstractRollMacro  implements Macro {
         }
     }
 
-    private static final Pattern INLINE_ROLL = Pattern.compile("\\[\\s*(\\d[^\\]]*)\\]");
+    private static final Pattern INLINE_ROLL = Pattern.compile("\\[\\s*((\\d|d)[^\\]]*)\\]");
     public static String inlineRoll(String line) {
         Matcher m = INLINE_ROLL.matcher(line);
         StringBuffer buf = new StringBuffer();
@@ -69,6 +69,7 @@ public abstract class AbstractRollMacro  implements Macro {
 
 	    	StringBuilder sb = new StringBuilder();
 	    	
+	    	System.out.println(result.getExpression() + " - " + result.getDetailExpression());
 	    	sb.append(result.getDetailExpression()).append(" => ").append((BigDecimal) result.getValue());
 	
 	        return sb.toString();
