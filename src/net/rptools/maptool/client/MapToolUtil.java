@@ -196,13 +196,18 @@ public class MapToolUtil {
     
     public static void uploadTexture(DrawablePaint paint) {
     	
+    	if (paint == null) {
+    		return;
+    	}
+    	
     	if (paint instanceof DrawableTexturePaint) {
     		MD5Key assetId = ((DrawableTexturePaint)paint).getAssetId();
-    		if (!MapTool.getCampaign().containsAsset(assetId)) {
-    			Asset asset = ((DrawableTexturePaint)paint).getAsset();
-    			if (!AssetManager.hasAsset(assetId)) {
-    				AssetManager.putAsset(asset);
-    			}
+			Asset asset = ((DrawableTexturePaint)paint).getAsset();
+			if (!AssetManager.hasAsset(assetId)) {
+				AssetManager.putAsset(asset);
+			}
+
+			if (!MapTool.isHostingServer() && !MapTool.getCampaign().containsAsset(assetId)) {
     			MapTool.serverCommand().putAsset(asset);
     		}
     	}

@@ -32,6 +32,7 @@ import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -90,6 +91,19 @@ public class MapPropertiesDialog extends JDialog  {
 	public void setVisible(boolean b) {
 		if (b) {
 			SwingUtil.centerOver(this, MapTool.getFrame());
+		} else {
+			if (status == Status.OK) {
+
+				// Push the assets to the server
+				MapToolUtil.uploadTexture(backgroundPaint);
+				MapToolUtil.uploadTexture(fogPaint);
+				if (mapAsset != null) {
+					AssetManager.putAsset(mapAsset);
+					if (!MapTool.isHostingServer()) {
+						MapTool.serverCommand().putAsset(mapAsset);
+					}
+				}
+			}
 		}
 		
 		super.setVisible(b);
