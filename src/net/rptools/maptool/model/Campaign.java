@@ -48,7 +48,7 @@ public class Campaign {
     private GUID id = new GUID();
     private Map<GUID, Zone> zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
     private ExportInfo exportInfo;
-    private Map<String, List<String>> tokenTypeMap;
+    private Map<String, List<TokenProperty>> tokenTypeMap;
     
     private transient boolean isBeingSerialized;
 
@@ -64,10 +64,10 @@ public class Campaign {
     		zones.put(copy.getId(), copy);
     	}
     	if (tokenTypeMap != null) {
-        	tokenTypeMap = new HashMap<String, List<String>>(); 
-        	for (Entry<String, List<String>> entry : campaign.tokenTypeMap.entrySet()) {
+        	tokenTypeMap = new HashMap<String, List<TokenProperty>>(); 
+        	for (Entry<String, List<TokenProperty>> entry : campaign.tokenTypeMap.entrySet()) {
 
-        		List<String> typeList = new ArrayList<String>();
+        		List<TokenProperty> typeList = new ArrayList<TokenProperty>();
         		typeList.addAll(tokenTypeMap.get(entry.getKey()));
 
         		tokenTypeMap.put(entry.getKey(), typeList);
@@ -105,31 +105,35 @@ public class Campaign {
     	return list;
     }
 
-    public List<String> getTokenPropertyList(String tokenType) {
+    public List<TokenProperty> getTokenPropertyList(String tokenType) {
     	return getTokenTypeMap().get(tokenType);
     }
     
-    private Map<String, List<String>> getTokenTypeMap() {
+    public void putTokenType(String name, List<TokenProperty> propertyList) {
+    	getTokenTypeMap().put(name, propertyList);
+    }
+    
+    private Map<String, List<TokenProperty>> getTokenTypeMap() {
     	if (tokenTypeMap == null) {
-    		tokenTypeMap = new HashMap<String, List<String>>();
+    		tokenTypeMap = new HashMap<String, List<TokenProperty>>();
     		tokenTypeMap.put(DEFAULT_TOKEN_PROPERTY_TYPE, createBasicPropertyList());
     	}
     	return tokenTypeMap;
     }
     
-    private List<String> createBasicPropertyList() {
-    	List<String> list = new ArrayList<String>();
-    	list.add("Strength");
-    	list.add("Dexterity");
-    	list.add("Constitution");
-    	list.add("Intelligence");
-    	list.add("Wisdom");
-    	list.add("Charisma");
-    	list.add("HP");
-    	list.add("AC");
-    	list.add("Defense");
-    	list.add("Movement");
-    	list.add("Elevation");
+    private List<TokenProperty> createBasicPropertyList() {
+    	List<TokenProperty> list = new ArrayList<TokenProperty>();
+    	list.add(new TokenProperty("Strength"));
+    	list.add(new TokenProperty("Dexterity"));
+    	list.add(new TokenProperty("Constitution"));
+    	list.add(new TokenProperty("Intelligence"));
+    	list.add(new TokenProperty("Wisdom"));
+    	list.add(new TokenProperty("Charisma"));
+    	list.add(new TokenProperty("HP", true));
+    	list.add(new TokenProperty("AC", true));
+    	list.add(new TokenProperty("Defense"));
+    	list.add(new TokenProperty("Movement", true));
+    	list.add(new TokenProperty("Elevation", true));
     	return list;
     }
     

@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.AbstractAction;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
@@ -705,9 +704,9 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		@Override
 		public Property getProperty(int index) {
 			
-			List<String> propertyList = MapTool.getCampaign().getTokenPropertyList(token.getPropertyType());
+			List<net.rptools.maptool.model.TokenProperty> propertyList = MapTool.getCampaign().getTokenPropertyList(token.getPropertyType());
 			
-			return new TokenProperty(propertyList.get(index));
+			return new TokenProperty(propertyList.get(index).getName());
 		}
 
 		private Token getToken() {
@@ -719,7 +718,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		
 		@Override
 		public int getPropertyCount() {
-			List<String> propertyList = MapTool.getCampaign().getTokenPropertyList(getToken().getPropertyType()); 
+			List<net.rptools.maptool.model.TokenProperty> propertyList = MapTool.getCampaign().getTokenPropertyList(getToken().getPropertyType()); 
 			return propertyList != null ? propertyList.size() : 0;
 		}
 		

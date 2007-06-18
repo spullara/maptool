@@ -55,6 +55,7 @@ import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.ui.AppMenuBar;
+import net.rptools.maptool.client.ui.CampaignPropertiesDialog;
 import net.rptools.maptool.client.ui.ClientConnectionPanel;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
@@ -1404,6 +1405,36 @@ public class AppActions {
 					MapTool.showError("Could not save campaign: " + ioe);
 				}
 			}
+		}
+	};
+
+	public static final Action CAMPAIGN_PROPERTIES = new DefaultClientAction() {
+		{
+			init("action.campaignProperties");
+		}
+
+		@Override
+		public boolean isAvailable() {
+			return MapTool.getPlayer().isGM();
+		}
+
+		public void execute(ActionEvent ae) {
+
+			Campaign campaign = MapTool.getCampaign();
+
+			// TODO: There should probably be only one of these
+			CampaignPropertiesDialog dialog = new CampaignPropertiesDialog(MapTool.getFrame());
+			dialog.setCampaign(campaign);
+			
+			dialog.setVisible(true);
+			
+			if (dialog.getStatus() == CampaignPropertiesDialog.Status.CANCEL) {
+				return;
+			}
+
+			// TODO: Make this pass all properties, but we don't have that framework yet, so send what we 
+			// know the old fashioned way
+			MapTool.serverCommand().updateCampaign(Campaign.DEFAULT_TOKEN_PROPERTY_TYPE, campaign.getTokenPropertyList(Campaign.DEFAULT_TOKEN_PROPERTY_TYPE));
 		}
 	};
 

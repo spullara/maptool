@@ -27,6 +27,7 @@ package net.rptools.maptool.client;
 import java.awt.EventQueue;
 import java.awt.geom.Area;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
@@ -42,6 +43,7 @@ import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -418,6 +420,12 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 		zone.setName(name);
                 	}
                 	
+                	break;
+                case updateCampaign:
+                	String typeName = (String)parameters[0];
+                	List<TokenProperty> propertyList = (List<TokenProperty>) parameters[1];
+                	
+                	MapTool.getCampaign().putTokenType(typeName, propertyList);
                 	break;
                 }
         	}

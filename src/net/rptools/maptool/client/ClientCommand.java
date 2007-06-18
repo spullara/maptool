@@ -63,6 +63,7 @@ public class ClientCommand {
         setServerPolicy,
         addTopology,
         removeTopology,
-        renameZone
+        renameZone,
+        updateCampaign
     };
 }

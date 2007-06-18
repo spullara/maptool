@@ -25,6 +25,7 @@
 package net.rptools.maptool.server;
 
 import java.awt.geom.Area;
+import java.util.List;
 import java.util.Set;
 
 import net.rptools.lib.MD5Key;
@@ -36,6 +37,7 @@ import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.Pen;
@@ -79,7 +81,8 @@ public interface ServerCommand {
         addTopology,
         removeTopology,
         renameZone,
-        heartbeat
+        heartbeat,
+        updateCampaign
     };
 
     public void bootPlayer(String player);
@@ -119,4 +122,5 @@ public interface ServerCommand {
     public void setServerPolicy(ServerPolicy policy);
     public void renameZone(GUID zoneGUID, String name);
     public void heartbeat(String data);
+    public void updateCampaign(String typeName, List<TokenProperty> propertyList);
 }

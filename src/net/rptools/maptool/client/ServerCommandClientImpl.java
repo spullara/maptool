@@ -41,6 +41,7 @@ import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.Pen;
@@ -74,6 +75,10 @@ public class ServerCommandClientImpl implements ServerCommand {
     	}
     }
 
+    public void updateCampaign(String typeName, List<TokenProperty> propertyList) {
+    	makeServerCall(COMMAND.updateCampaign, typeName, propertyList);
+    }
+    
     public void getZone(GUID zoneGUID) {
         makeServerCall(COMMAND.getZone, zoneGUID);
     }

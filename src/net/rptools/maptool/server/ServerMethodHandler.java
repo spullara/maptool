@@ -34,6 +34,7 @@ import java.util.Set;
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.ClientCommand;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.common.MapToolConstants;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -45,6 +46,7 @@ import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
@@ -109,7 +111,8 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case addTopology:             addTopology(context.getGUID(0), (Area) context.get(1)); break;
             case removeTopology:          removeTopology(context.getGUID(0), (Area) context.get(1)); break;
             case renameZone:			  renameZone(context.getGUID(0), context.getString(1));break;
-            case heartbeat:				  heartbeat(context.getString(0));
+            case heartbeat:				  heartbeat(context.getString(0));break;
+            case updateCampaign:		  updateCampaign(context.getString(0), (List<TokenProperty>)context.get(1));break;
             }
         } finally {
             RPCContext.setCurrent(null);
@@ -145,6 +148,12 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     }
     
     public void enforceZone(GUID zoneGUID) {
+    	forwardToClients();
+    }
+    
+    public void updateCampaign(String typeName, List<TokenProperty> propertyList) {
+    	server.getCampaign().putTokenType(typeName, propertyList);
+
     	forwardToClients();
     }
     
