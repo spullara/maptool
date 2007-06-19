@@ -38,6 +38,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridFactory;
+import net.rptools.maptool.model.GridlessGrid;
 import net.rptools.maptool.model.HexGridHorizontal;
 import net.rptools.maptool.model.HexGridVertical;
 import net.rptools.maptool.model.SquareGrid;
@@ -198,6 +199,10 @@ public class MapPropertiesDialog extends JDialog  {
 		return formPanel.getRadioButton("squareRadio");
 	}
 
+	public JRadioButton getNoGridRadio() {
+		return formPanel.getRadioButton("noGridRadio");
+	}
+
 	public void setZone(Zone zone) {
 		this.zone = zone;
 		
@@ -213,6 +218,7 @@ public class MapPropertiesDialog extends JDialog  {
 		getHexHorizontalRadio().setSelected(zone.getGrid() instanceof HexGridHorizontal);
 		getHexVerticalRadio().setSelected(zone.getGrid() instanceof HexGridVertical);
 		getSquareRadio().setSelected(zone.getGrid() instanceof SquareGrid);
+		getNoGridRadio().setSelected(zone.getGrid() instanceof GridlessGrid);
 		
 		fogPaint = zone.getFogPaint();
 		backgroundPaint = zone.getBackgroundPaint();
@@ -224,7 +230,7 @@ public class MapPropertiesDialog extends JDialog  {
 		zone.setName(getNameTextField().getText().trim());
 		zone.setUnitsPerCell(Integer.parseInt(getDistanceTextField().getText()));
 		
-		zone.getGrid().setSize(Integer.parseInt(getPixelsPerCellTextField().getText()));
+		zone.setGrid(createZoneGrid());
 
 		zone.setFogPaint(fogPaint);
 		zone.setBackgroundPaint(backgroundPaint);
@@ -243,7 +249,10 @@ public class MapPropertiesDialog extends JDialog  {
 	
 	private void initSquareRadio() {
 		getSquareRadio().setSelected(GridFactory.isSquare(AppPreferences.getDefaultGridType()));
-		
+	}
+	
+	private void initNoGridRadio() {
+		getNoGridRadio().setSelected(GridFactory.isNone(AppPreferences.getDefaultGridType()));
 	}
 	
 	public JTextField getDistanceTextField() {
@@ -412,18 +421,22 @@ public class MapPropertiesDialog extends JDialog  {
 		}
 	}
 	
-	public Grid getZoneGrid() {
+	private Grid createZoneGrid() {
+		
 		Grid grid = null;
 		if (getHexHorizontalRadio().isSelected()) {
-			grid = new HexGridHorizontal();
+			grid = GridFactory.createGrid(GridFactory.HEX_HORI);
 		}
 		if (getHexVerticalRadio().isSelected()) {
-			grid = new HexGridVertical();
+			grid = GridFactory.createGrid(GridFactory.HEX_VERT);
 		}
-		else {
-			grid = new SquareGrid();
+		if (getSquareRadio().isSelected()) {
+			grid = GridFactory.createGrid(GridFactory.SQUARE);
 		}
-		
+		if (getNoGridRadio().isSelected()) {
+			grid = GridFactory.createGrid(GridFactory.NONE);
+		}
+
 		grid.setSize(Integer.parseInt(getPixelsPerCellTextField().getText()));
 		
 		return grid;

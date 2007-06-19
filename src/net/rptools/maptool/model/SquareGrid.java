@@ -99,11 +99,6 @@ public class SquareGrid extends Grid {
 	}
 	
 	@Override
-	public int getTokenSpace() {
-		return getSize();
-	}
-	
-	@Override
 	public ZonePoint convert(CellPoint cp) {
 
         return new ZonePoint((int)(cp.x * getSize() + getOffsetX()), 

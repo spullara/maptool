@@ -24,6 +24,9 @@ public abstract class Grid implements Cloneable{
     public static final int MIN_GRID_SIZE = 5;
     public static final int MAX_GRID_SIZE = 350;
 
+    private static final Dimension NO_DIM = new Dimension();
+    private static final Point NO_POINT = new Point();
+    
 	private int offsetX = 0;
 	private int offsetY = 0;
 	private int size;
@@ -65,11 +68,21 @@ public abstract class Grid implements Cloneable{
 	 */
 	public abstract ZonePoint convert(CellPoint cp);
 	
-	public abstract int[] getFacingAngles();
+	public int[] getFacingAngles() {
+		return null;
+	}
+
 	public abstract GridCapabilities getCapabilities();
-	public abstract int getTokenSpace();
-	public abstract double getCellWidth();
-	public abstract double getCellHeight();
+	
+	public int getTokenSpace() {
+		return getSize();
+	}
+	public double getCellWidth() {
+		return 0;
+	}
+	public double getCellHeight() {
+		return 0;
+	}
 	
 	/**
 	 * @return The offset required to translate from the center of a cell
@@ -83,7 +96,9 @@ public abstract class Grid implements Cloneable{
 	 * ZonePoint returned by myHexGrid.convert(CellPoint cp) in an equivalent
 	 * position to that returned by myHexGrid.convert(CellPoint cp)....I think ;)
 	 */
-	public abstract Dimension getCellOffset();
+	public Dimension getCellOffset() {
+		return NO_DIM;
+	}
 	
 	public Zone getZone() {
 		return zone;
@@ -97,7 +112,10 @@ public abstract class Grid implements Cloneable{
 		return cellShape;
 	}
 	
-	public abstract BufferedImage getCellHighlight();
+	public BufferedImage getCellHighlight(){
+		return null;
+	}
+	
 	protected abstract Area createCellShape(int size);
 
 	protected void setCellShape(Area cellShape) {
@@ -130,7 +148,9 @@ public abstract class Grid implements Cloneable{
 		return offsetY;
 	}
 
-	public abstract ZoneWalker createZoneWalker();
+	public ZoneWalker createZoneWalker(){
+		return null;
+	}
 	
 	
 	/**
@@ -181,7 +201,9 @@ public abstract class Grid implements Cloneable{
 	/**
 	 * Draws the grid scaled to the renderer's scale and within the renderer's boundaries
 	 */
-	public abstract void draw(ZoneRenderer renderer, Graphics2D g, Rectangle bounds);
+	public void draw(ZoneRenderer renderer, Graphics2D g, Rectangle bounds) {
+		// Do nothing
+	}
 	
 	/**
 	 * @return The Set of cells occupied by a token of the specified dimensions
@@ -191,7 +213,9 @@ public abstract class Grid implements Cloneable{
 	 * @param height height of the group in cell dimensions
 	 * @param width width of the group in cell dimensions
 	 */
-	public abstract Set<CellPoint> getOccupiedCells(int height, int width, CellPoint baseCellPoint);
+	public Set<CellPoint> getOccupiedCells(int height, int width, CellPoint baseCellPoint) {
+		return null;
+	}
 	
 	/**
 	 * @return The cell where the waypoint should be set to.
@@ -201,7 +225,9 @@ public abstract class Grid implements Cloneable{
 	 * @param height height of the group in cell dimensions
 	 * @param width width of the group in cell dimensions
 	 */
-	public abstract CellPoint getWaypointPosition(int height, int width, CellPoint baseCellPoint);
+	public CellPoint getWaypointPosition(int height, int width, CellPoint baseCellPoint){
+		return null;
+	}
 	
 	/**
 	 * @return The offset required to translate from the top-left of a group of cells
@@ -209,7 +235,9 @@ public abstract class Grid implements Cloneable{
 	 * @param height height of the group of cells
 	 * @param width width of the group of cells
 	 */
-	public abstract Point cellGroupCenterOffset(int height, int width, boolean isToken);
+	public Point cellGroupCenterOffset(int height, int width, boolean isToken){
+		return NO_POINT;
+	}
 	
 	/**
 	 * @return The offset required to translate from the top-left of a cell group's 
@@ -217,7 +245,9 @@ public abstract class Grid implements Cloneable{
 	 * @param height height of the group of cells
 	 * @param width width of the group of cells
 	 */
-	public abstract Point cellGroupTopLeftOffset(int height, int width, boolean isToken);
+	public Point cellGroupTopLeftOffset(int height, int width, boolean isToken) {
+		return NO_POINT;
+	}
 	
 	/**
 	 * Override if getCapabilities.isSecondDimensionAdjustmentSupported() returns true
@@ -225,7 +255,6 @@ public abstract class Grid implements Cloneable{
 	 * @return
 	 */
 	public void setSecondDimension(double length) {
-		return;
 	}
 	
 	/**

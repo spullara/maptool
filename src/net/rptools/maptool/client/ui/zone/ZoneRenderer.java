@@ -1132,9 +1132,24 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     x += scaledWidth/2;
                     
                     if (!token.isBackground()) {
-                        if (AppState.getShowMovementMeasurements () && zone.getGrid().getCapabilities().isPathingSupported() && walker.getDistance() >= 1) {
-                            GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
-                            y += 20;
+                        if (AppState.getShowMovementMeasurements ()) {
+                        	String distance = "";
+                        	if (zone.getGrid().getCapabilities().isPathingSupported()) {
+                        		if (walker.getDistance() >= 1) {
+                        			distance = Integer.toString(walker.getDistance());
+                        		}
+                        	} else {
+                        		int a = set.offsetX;
+                        		int b = set.offsetY;
+                        		
+                        		double c = Math.sqrt(a*a + b*b)/zone.getUnitsPerCell();
+                        		
+                        		distance = String.format("%.2f", c);
+                        	}
+                        	if (distance.length() > 0) {
+	                			GraphicsUtil.drawBoxedString(g, distance, x, y);
+	                            y += 20;
+	                        }
                         }
                     }
                     if (set.getPlayerId() != null && set.getPlayerId().length() >= 1) {
