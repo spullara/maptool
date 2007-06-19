@@ -125,6 +125,9 @@ public class CampaignPropertiesDialog extends JDialog  {
 			if (property.isHighPriority()) {
 				builder.append("*");
 			}
+			if (property.isOwnerOnly()) {
+				builder.append("@");
+			}
 			builder.append(property.getName()).append("\n");
 		}
 		
@@ -144,9 +147,20 @@ public class CampaignPropertiesDialog extends JDialog  {
 				}
 				
 				TokenProperty property = new TokenProperty();
-				if (line.startsWith("*")) {
-					property.setHighPriority(true);
-					line = line.substring(1);
+				while (true) {
+					if (line.startsWith("*")) {
+						property.setHighPriority(true);
+						line = line.substring(1);
+						continue;
+					}
+					if (line.startsWith("@")) {
+						property.setOwnerOnly(true);
+						line = line.substring(1);
+						continue;
+					}
+					
+					// Ran out of special characters
+					break;
 				}
 				property.setName(line);
 

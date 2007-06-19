@@ -411,7 +411,6 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 	 * Update the token to match the state of the dialog
 	 */
 	public void updateToken() {
-		Thread.dumpStack();
 
 		// Check the name
 		String name = getNameTextField().getText();
