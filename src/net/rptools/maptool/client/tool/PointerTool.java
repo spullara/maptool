@@ -68,6 +68,7 @@ import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.swing.HTMLPanelRenderer;
 import net.rptools.maptool.client.ui.CCGSheet;
@@ -127,7 +128,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 	static {
 		try {
-			ccgSheet = new CCGSheet(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/ccg_basic.jpg"), new Rectangle(30, 30, 140, 77), new Rectangle(18, 145, 167, 118));
+//			ccgSheet = new CCGSheet(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/ccg_basic.jpg"), new Rectangle(30, 30, 140, 77), new Rectangle(18, 145, 167, 118));
+			ccgSheet = new CCGSheet(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/ccg_small.png"), new Rectangle(23, 23, 123, 60), new Rectangle(18, 114, 133, 86));
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -1152,14 +1154,21 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			
 			Map<String, String> propertyMap = new LinkedHashMap<String, String>();
 			propertyMap.put("Name", tokenUnderMouse.getName());
-			if (MapTool.getPlayer().isGM()) {
+			if (MapTool.getPlayer().isGM() && tokenUnderMouse.getGMName() != null && tokenUnderMouse.getGMName().length() > 0) {
 				propertyMap.put("GM Name", tokenUnderMouse.getGMName());
 			}
 			for (TokenProperty property : MapTool.getCampaign().getTokenPropertyList(tokenUnderMouse.getPropertyType())) {
 				
 				if (property.isHighPriority()) {
-					Object propertyValue = tokenUnderMouse.getProperty(property.getName());
-					propertyMap.put(property.getName(), propertyValue != null ? propertyValue.toString() : "");
+					
+					if (!property.isOwnerOnly() || AppUtil.playerOwns(tokenUnderMouse)) {
+						Object propertyValue = tokenUnderMouse.getProperty(property.getName());
+						if (propertyValue != null) {
+							if (propertyValue.toString().length() > 0) {
+								propertyMap.put(property.getName(), propertyValue.toString());
+							}
+						}
+					}
 				}
 			}
 			

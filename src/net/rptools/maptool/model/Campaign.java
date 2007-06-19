@@ -129,11 +129,11 @@ public class Campaign {
     	list.add(new TokenProperty("Intelligence"));
     	list.add(new TokenProperty("Wisdom"));
     	list.add(new TokenProperty("Charisma"));
-    	list.add(new TokenProperty("HP", true));
-    	list.add(new TokenProperty("AC", true));
+    	list.add(new TokenProperty("HP", true, true));
+    	list.add(new TokenProperty("AC", true, true));
     	list.add(new TokenProperty("Defense"));
-    	list.add(new TokenProperty("Movement", true));
-    	list.add(new TokenProperty("Elevation", true));
+    	list.add(new TokenProperty("Movement"));
+    	list.add(new TokenProperty("Elevation", true, false));
     	return list;
     }
     
