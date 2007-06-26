@@ -92,19 +92,6 @@ public class MapPropertiesDialog extends JDialog  {
 	public void setVisible(boolean b) {
 		if (b) {
 			SwingUtil.centerOver(this, MapTool.getFrame());
-		} else {
-			if (status == Status.OK) {
-
-				// Push the assets to the server
-				MapToolUtil.uploadTexture(backgroundPaint);
-				MapToolUtil.uploadTexture(fogPaint);
-				if (mapAsset != null) {
-					AssetManager.putAsset(mapAsset);
-					if (!MapTool.isHostingServer()) {
-						MapTool.serverCommand().putAsset(mapAsset);
-					}
-				}
-			}
 		}
 		
 		super.setVisible(b);
@@ -160,23 +147,16 @@ public class MapPropertiesDialog extends JDialog  {
 	}
 	
 	private void accept() {
-//		if (backgroundAsset != null) {
-//			
-//			// Keep track of the image
-//			if (!AssetManager.hasAsset(backgroundAsset)) {
-//				AssetManager.putAsset(backgroundAsset);
-//				MapTool.serverCommand().putAsset(backgroundAsset);
-//			}
-//
-//			// Create the zone
-//			Zone zone = ZoneFactory.createZone(getZoneName(), getZoneDistancePerCell(), null, backgroundAsset.getId());
-//			zone.setGrid(getZoneGrid());
-//
-//			zone.setGridColor(AppConstants.DEFAULT_GRID_COLOR.getRGB());
-//			
-//			MapTool.addZone(zone);
-//		}
-//
+		// Push the assets to the server
+		MapToolUtil.uploadTexture(backgroundPaint);
+		MapToolUtil.uploadTexture(fogPaint);
+		if (mapAsset != null) {
+			AssetManager.putAsset(mapAsset);
+			if (!MapTool.isHostingServer()) {
+				MapTool.serverCommand().putAsset(mapAsset);
+			}
+		}
+
 		copyUIToZone();
 		
 		status = Status.OK;
