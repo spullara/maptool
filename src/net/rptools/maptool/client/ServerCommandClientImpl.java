@@ -101,7 +101,6 @@ public class ServerCommandClientImpl implements ServerCommand {
 
     public void getAsset(MD5Key assetID) {
 		makeServerCall(COMMAND.getAsset, assetID);
-//    	assetRetrieveQueue.add(assetID);
     }
 
     public void removeAsset(MD5Key assetID) {
@@ -223,39 +222,6 @@ public class ServerCommandClientImpl implements ServerCommand {
         MapTool.getConnection().callMethod(command.name(), params);
     }
     
-	private class AssetRetrievalThread extends Thread implements AssetAvailableListener {
-		@Override
-		public void run() {
-			
-			while (true) {
-				
-				try {
-					
-					// Request the asset
-					MD5Key key = assetRetrieveQueue.take();
-					AssetManager.addAssetListener(key, this);
-					
-					// Now wait until it arrives
-					synchronized(assetRetrieveQueue) {
-						makeServerCall(COMMAND.getAsset, key);
-
-						assetRetrieveQueue.wait();
-					}
-					
-				} catch (InterruptedException ie) {
-					// Keep going
-					ie.printStackTrace();
-				}
-			}
-		}
-		
-		public void assetAvailable(MD5Key key) {
-			synchronized(assetRetrieveQueue) {
-				assetRetrieveQueue.notify();
-			}
-		}
-	}
-	
     /**
      * Some events become obsolete very quickly, such as dragging a token
      * around.  This queue always has exactly one element, the more current
