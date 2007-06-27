@@ -71,12 +71,13 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.swing.HTMLPanelRenderer;
-import net.rptools.maptool.client.ui.CCGSheet;
 import net.rptools.maptool.client.ui.StampPopupMenu;
 import net.rptools.maptool.client.ui.TokenLocation;
 import net.rptools.maptool.client.ui.TokenPopupMenu;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.Toolbox;
+import net.rptools.maptool.client.ui.minisheet.MiniSheet;
+import net.rptools.maptool.client.ui.statsheet.MetaStatSheet;
 import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
 import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
@@ -118,18 +119,20 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	private TokenStackPanel tokenStackPanel = new TokenStackPanel();
 	
 	private HTMLPanelRenderer htmlRenderer = new HTMLPanelRenderer();
-	private static CCGSheet ccgSheet;
+	private static MiniSheet ccgSheet;
 	
     // Offset from token's X,Y when dragging. Values are in cell coordinates.
     private int dragOffsetX;
     private int dragOffsetY;
 	private int dragStartX;
 	private int dragStartY;
+	
+	private MetaStatSheet metaStatSheet;
 
 	static {
 		try {
 //			ccgSheet = new CCGSheet(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/ccg_basic.jpg"), new Rectangle(30, 30, 140, 77), new Rectangle(18, 145, 167, 118));
-			ccgSheet = new CCGSheet(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/ccg_small.png"), new Rectangle(23, 23, 123, 60), new Rectangle(18, 114, 133, 86));
+			ccgSheet = new MiniSheet(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/ccg_small.png"), new Rectangle(23, 23, 123, 60), new Rectangle(18, 114, 133, 86));
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -144,6 +147,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			BufferedImage grid = SwingUtil.replaceColor(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/grid.png"), 0x202020, 0x0000ff);
             nonAlphaSelectionPaint = new TexturePaint(grid, new Rectangle2D.Float(0, 0, grid.getWidth(), grid.getHeight()));
             
+            metaStatSheet = new MetaStatSheet("net/rptools/maptool/client/ui/statsheet/sidestat.png", new Rectangle(13, 13, 117, 57), "net/rptools/maptool/client/ui/statsheet/topstat.png", new Rectangle(13, 13, 120, 47));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -1150,13 +1154,37 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 		
 		// CCG
+//		if (tokenUnderMouse != null && !isDraggingToken) {
+//			
+//			Map<String, String> propertyMap = new LinkedHashMap<String, String>();
+//			propertyMap.put("Name", tokenUnderMouse.getName());
+//			if (MapTool.getPlayer().isGM() && tokenUnderMouse.getGMName() != null && tokenUnderMouse.getGMName().length() > 0) {
+//				propertyMap.put("GM Name", tokenUnderMouse.getGMName());
+//			}
+//			for (TokenProperty property : MapTool.getCampaign().getTokenPropertyList(tokenUnderMouse.getPropertyType())) {
+//				
+//				if (property.isHighPriority()) {
+//					
+//					if (!property.isOwnerOnly() || AppUtil.playerOwns(tokenUnderMouse)) {
+//						Object propertyValue = tokenUnderMouse.getProperty(property.getName());
+//						if (propertyValue != null) {
+//							if (propertyValue.toString().length() > 0) {
+//								propertyMap.put(property.getName(), propertyValue.toString());
+//							}
+//						}
+//					}
+//				}
+//			}
+//			
+//			g.translate(5, viewSize.height - ccgSheet.getHeight()-5);
+//			ccgSheet.render(g, ImageManager.getImage(AssetManager.getAsset(tokenUnderMouse.getAssetID())), propertyMap);
+//			g.translate(5, -(viewSize.height - ccgSheet.getHeight()-5));
+//		}
+//		
+		// StatSheet
 		if (tokenUnderMouse != null && !isDraggingToken) {
 			
 			Map<String, String> propertyMap = new LinkedHashMap<String, String>();
-			propertyMap.put("Name", tokenUnderMouse.getName());
-			if (MapTool.getPlayer().isGM() && tokenUnderMouse.getGMName() != null && tokenUnderMouse.getGMName().length() > 0) {
-				propertyMap.put("GM Name", tokenUnderMouse.getGMName());
-			}
 			for (TokenProperty property : MapTool.getCampaign().getTokenPropertyList(tokenUnderMouse.getPropertyType())) {
 				
 				if (property.isHighPriority()) {
@@ -1172,11 +1200,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				}
 			}
 			
-			g.translate(5, viewSize.height - ccgSheet.getHeight()-5);
-			ccgSheet.render(g, ImageManager.getImage(AssetManager.getAsset(tokenUnderMouse.getAssetID())), propertyMap);
-			g.translate(5, -(viewSize.height - ccgSheet.getHeight()-5));
+			if (propertyMap.size() > 0) {
+				metaStatSheet.render(g, propertyMap, renderer.getTokenBounds(tokenUnderMouse).getBounds(), viewSize);
+			}
 		}
-		
+
 		// Hovers
 		if (tokenUnderMouse == null && markerUnderMouse != null && isShowingHover) {
 			Area bounds = renderer.getMarkerBounds(markerUnderMouse);

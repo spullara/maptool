@@ -19,7 +19,7 @@
 	<classpathentry kind="lib" path="lib/js-1.6R5.jar"/>
 	<classpathentry kind="lib" path="lib/clientserver-1.0.b12.jar"/>
 	<classpathentry kind="lib" path="lib/parser-1.0.b3.jar"/>
-	<classpathentry kind="lib" path="lib/rplib-1.0.b87.jar"/>
-	<classpathentry kind="lib" path="lib/maptool.resource-1.0.b14.jar"/>
+	<classpathentry kind="lib" path="lib/maptool.resource-1.0.b15.jar"/>
+	<classpathentry kind="lib" path="lib/rplib-1.0.b88.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

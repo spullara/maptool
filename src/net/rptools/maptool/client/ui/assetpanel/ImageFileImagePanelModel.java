@@ -107,6 +107,10 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
     }
     
     public Asset getAsset(int index) {
+    	if (index < 0) {
+    		return null;
+    	}
+    	
         try {
             Asset asset = AssetManager.createAsset(fileList.get(index));
     		return asset;
