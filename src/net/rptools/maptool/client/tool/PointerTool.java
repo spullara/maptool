@@ -147,7 +147,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			BufferedImage grid = SwingUtil.replaceColor(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/grid.png"), 0x202020, 0x0000ff);
             nonAlphaSelectionPaint = new TexturePaint(grid, new Rectangle2D.Float(0, 0, grid.getWidth(), grid.getHeight()));
             
-            metaStatSheet = new MetaStatSheet("net/rptools/maptool/client/ui/statsheet/sidestat.png", new Rectangle(13, 13, 117, 57), "net/rptools/maptool/client/ui/statsheet/topstat.png", new Rectangle(13, 13, 120, 47));
+            metaStatSheet = new MetaStatSheet("net/rptools/maptool/client/ui/statsheet/lightgray/statsheet.properties");
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
