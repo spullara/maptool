@@ -463,6 +463,9 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		token.setMacroMap(((KeyValueTableModel)getMacroTable().getModel()).getMap());
 		token.setSpeechMap(((KeyValueTableModel)getSpeechTable().getModel()).getMap());
 		
+		// Properties
+		((TokenPropertyTableModel)getPropertyTable().getModel()).applyTo(token);
+		
 		tokenSaved = true;
 	}
 
@@ -699,27 +702,44 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 	// MODELS
 	private class TokenPropertyTableModel extends AbstractPropertyTableModel {
 
-		private Token token;
+		private Map<String, String> propertyMap;
+		private List<net.rptools.maptool.model.TokenProperty> propertyList; 
+
+		private Map<String, String> getPropertyMap() {
+			if (propertyMap == null) {
+				propertyMap = new HashMap<String, String>();
+				
+				List<net.rptools.maptool.model.TokenProperty> propertyList = getPropertyList();
+				for (net.rptools.maptool.model.TokenProperty property : propertyList) {
+					propertyMap.put(property.getName(), (String) token.getProperty(property.getName()));
+				}
+			}
+			return propertyMap;
+		}
+		
+		private List<net.rptools.maptool.model.TokenProperty> getPropertyList() {
+			if (propertyList == null) {
+				propertyList = MapTool.getCampaign().getTokenPropertyList(token.getPropertyType());
+			}
+			return propertyList;
+		}
+		
+		public void applyTo(Token token) {
+			
+			for (net.rptools.maptool.model.TokenProperty property : getPropertyList()) {
+				token.setProperty(property.getName(), getPropertyMap().get(property.getName()));
+			}
+		}
 		
 		@Override
 		public Property getProperty(int index) {
 			
-			List<net.rptools.maptool.model.TokenProperty> propertyList = MapTool.getCampaign().getTokenPropertyList(token.getPropertyType());
-			
-			return new TokenProperty(propertyList.get(index).getName());
+			return new TokenProperty(getPropertyList().get(index).getName());
 		}
 
-		private Token getToken() {
-			if (token == null) {
-				token = TokenPropertiesDialog.this.token;
-			}
-			return token;
-		}
-		
 		@Override
 		public int getPropertyCount() {
-			List<net.rptools.maptool.model.TokenProperty> propertyList = MapTool.getCampaign().getTokenPropertyList(getToken().getPropertyType()); 
-			return propertyList != null ? propertyList.size() : 0;
+			return getPropertyList() != null ? getPropertyList().size() : 0;
 		}
 		
 		private class TokenProperty extends Property {
@@ -732,17 +752,17 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 			
 			@Override
 			public Object getValue() {
-				return getToken().getProperty(key);
+				return getPropertyMap().get(key);
 			}
 
 			@Override
 			public void setValue(Object value) {
-				getToken().setProperty(key, value);
+				getPropertyMap().put(key, (String)value);
 			}
 
 			@Override
 			public boolean hasValue() {
-				return getToken().getProperty(key) != null;
+				return getPropertyMap().get(key) != null;
 			}
 		}
 	}
