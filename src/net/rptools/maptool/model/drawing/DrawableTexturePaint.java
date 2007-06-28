@@ -19,6 +19,7 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable,
 	private MD5Key assetId;
 	private double scale;
 	private transient BufferedImage image;
+	private transient Asset asset;
 
 	public DrawableTexturePaint() {
 		// Serializable
@@ -33,9 +34,11 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable,
 	}
 	public DrawableTexturePaint(Asset asset) {
 		this(asset.getId());
+		this.asset = asset;
 	}
 	public DrawableTexturePaint(Asset asset, double scale) {
 		this(asset.getId(), 1);
+		this.asset = asset;
 	}
 
 	@Override
@@ -44,7 +47,7 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable,
 		if (image != null) {
 			texture = image;
 		} else {
-			texture = ImageManager.getImage(AssetManager.getAsset(assetId), this);
+			texture = ImageManager.getImage(getAsset(), this);
 			if (texture != ImageManager.UNKNOWN_IMAGE) {
 				image = texture;
 			}
@@ -59,7 +62,11 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable,
 	}
 
 	public Asset getAsset() {
-		return AssetManager.getAsset(assetId);
+		if (asset == null) {
+			asset = AssetManager.getAsset(assetId);
+		}
+		
+		return asset;
 	}
 	
 	public MD5Key getAssetId() {
