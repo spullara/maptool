@@ -127,7 +127,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	private int dragStartX;
 	private int dragStartY;
 	
-	private MetaStatSheet metaStatSheet;
+	private MetaStatSheet pcMetaStatSheet;
+	private MetaStatSheet npcMetaStatSheet;
 
 	static {
 		try {
@@ -147,7 +148,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			BufferedImage grid = SwingUtil.replaceColor(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/grid.png"), 0x202020, 0x0000ff);
             nonAlphaSelectionPaint = new TexturePaint(grid, new Rectangle2D.Float(0, 0, grid.getWidth(), grid.getHeight()));
             
-            metaStatSheet = new MetaStatSheet("net/rptools/maptool/client/ui/statsheet/lightgray/statsheet.properties");
+            pcMetaStatSheet = new MetaStatSheet("net/rptools/maptool/client/ui/statsheet/lightgray/statsheet.properties");
+            npcMetaStatSheet = new MetaStatSheet("net/rptools/maptool/client/ui/statsheet/blue/statsheet.properties");
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -1201,7 +1203,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 			
 			if (propertyMap.size() > 0) {
-				metaStatSheet.render(g, propertyMap, renderer.getTokenBounds(tokenUnderMouse).getBounds(), viewSize);
+				if (tokenUnderMouse.getType() == Token.Type.NPC) {
+					npcMetaStatSheet.render(g, propertyMap, renderer.getTokenBounds(tokenUnderMouse).getBounds(), viewSize);
+				} else {
+					pcMetaStatSheet.render(g, propertyMap, renderer.getTokenBounds(tokenUnderMouse).getBounds(), viewSize);
+				}
 			}
 		}
 
