@@ -1,10 +1,5 @@
 package net.rptools.maptool.client.ui.commandpanel;
 
-import static net.rptools.maptool.model.ObservableList.Event.add;
-import static net.rptools.maptool.model.ObservableList.Event.append;
-import static net.rptools.maptool.model.ObservableList.Event.clear;
-import static net.rptools.maptool.model.ObservableList.Event.remove;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -13,8 +8,6 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -69,6 +62,7 @@ public class CommandPanel extends JPanel implements Observer {
 		
 		add(BorderLayout.SOUTH, createSouthPanel());
 		add(BorderLayout.CENTER, getMessagePanel());
+		
 	}
 	
     public String getIdentity() {

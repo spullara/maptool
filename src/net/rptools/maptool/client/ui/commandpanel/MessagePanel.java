@@ -25,6 +25,7 @@ public class MessagePanel extends JPanel {
 	private JTable messageTable;
 	private JScrollPane scrollPane;
 
+	private static final String SND_MESSAGE_RECEIVED = "messageReceived";
 	
 	public MessagePanel() {
 		setLayout(new BorderLayout());
@@ -47,6 +48,8 @@ public class MessagePanel extends JPanel {
 		});
 		
 		add(BorderLayout.CENTER, scrollPane);
+		
+		MapTool.getSoundManager().registerSoundEvent(SND_MESSAGE_RECEIVED, MapTool.getSoundManager().getRegisteredSound("Clink"));
 	}
 	
 	public void refreshRenderer() {
@@ -80,6 +83,10 @@ public class MessagePanel extends JPanel {
 	}
 	
 	public void addMessage(final TextMessage message) {
+		
+		if (!message.getSource().equals(MapTool.getPlayer().getName())) {
+			MapTool.playSound(SND_MESSAGE_RECEIVED);
+		}
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {

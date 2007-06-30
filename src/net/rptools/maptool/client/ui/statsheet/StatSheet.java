@@ -1,10 +1,10 @@
 package net.rptools.maptool.client.ui.statsheet;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Map;
@@ -50,6 +50,7 @@ public class StatSheet {
 		Object oldAA = SwingUtil.useAntiAliasing(g);
 		
 		g.drawImage(backgroundImage, 0, 0, null);
+		g.setColor(Color.black);
 		
 		int cols = (int)Math.ceil(Math.sqrt(propertyMap.size()));
 		int rows = (int)Math.ceil(propertyMap.size() / (double)cols);

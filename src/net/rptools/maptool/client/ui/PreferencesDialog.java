@@ -50,6 +50,8 @@ public class PreferencesDialog extends JDialog {
     private JSpinner visionOverlayOpacitySpinner;
     private JCheckBox useHaloColorAsVisionOverlayCheckBox;
     private JCheckBox autoRevealVisionOnGMMoveCheckBox;
+    private JCheckBox playSystemSoundCheckBox;
+    private JCheckBox playSystemSoundOnlyWhenNotFocusedCheckBox;
 
 	// Defaults
 	private JComboBox defaultGridTypeCombo;
@@ -101,6 +103,8 @@ public class PreferencesDialog extends JDialog {
 		visionOverlayOpacitySpinner = panel.getSpinner("visionOverlayOpacitySpinner");
 		useHaloColorAsVisionOverlayCheckBox = panel.getCheckBox("useHaloColorAsVisionOverlayCheckBox");
 		autoRevealVisionOnGMMoveCheckBox = panel.getCheckBox("autoRevealVisionOnGMMoveCheckBox");
+		playSystemSoundCheckBox = panel.getCheckBox("playSystemSounds");
+		playSystemSoundOnlyWhenNotFocusedCheckBox = panel.getCheckBox("soundsOnlyWhenNotFocused");
 
 		setInitialState();
 
@@ -225,6 +229,17 @@ public class PreferencesDialog extends JDialog {
                 AppPreferences.setAutoRevealVisionOnGMMovement(autoRevealVisionOnGMMoveCheckBox.isSelected());
             }
         });
+        playSystemSoundCheckBox.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		AppPreferences.setPlaySystemSounds(playSystemSoundCheckBox.isSelected());
+        	}
+        });
+		
+        playSystemSoundOnlyWhenNotFocusedCheckBox.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		AppPreferences.setPlaySystemSoundsOnlyWhenNotFocused(playSystemSoundOnlyWhenNotFocusedCheckBox.isSelected());
+        	}
+        });
 		
 		fontSizeTextField.getDocument().addDocumentListener(new DocumentListener() {
 			public void changedUpdate(DocumentEvent e) {
@@ -328,5 +343,7 @@ public class PreferencesDialog extends JDialog {
 		visionOverlayOpacitySpinner.setValue(AppPreferences.getVisionOverlayOpacity());
 		useHaloColorAsVisionOverlayCheckBox.setSelected(AppPreferences.getUseHaloColorOnVisionOverlay());
 		autoRevealVisionOnGMMoveCheckBox.setSelected(AppPreferences.getAutoRevealVisionOnGMMovement());
+		playSystemSoundCheckBox.setSelected(AppPreferences.getPlaySystemSounds());
+		playSystemSoundOnlyWhenNotFocusedCheckBox.setSelected(AppPreferences.getPlaySystemSoundsOnlyWhenNotFocused());
 	}
 }

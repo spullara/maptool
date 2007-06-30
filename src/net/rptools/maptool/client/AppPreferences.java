@@ -122,7 +122,29 @@ public class AppPreferences {
     
     private static final String KEY_CHAT_COLOR = "chatColor";
     private static final Color DEFAULT_CHAT_COLOR = Color.black;
-     
+    
+    private static final String KEY_PLAY_SYSTEM_SOUNDS = "playSystemSounds";
+    private static final boolean DEFAULT_PLAY_SYSTEM_SOUNDS = true;
+
+    private static final String KEY_SOUNDS_ONLY_WHEN_NOT_FOCUSED = "playSystemSoundsOnlyWhenNotFocused";
+    private static final boolean DEFAULT_SOUNDS_ONLY_WHEN_NOT_FOCUSED = false;
+
+    public static void setPlaySystemSounds(boolean play) {
+    	prefs.putBoolean(KEY_PLAY_SYSTEM_SOUNDS, play);
+    }
+    
+    public static boolean getPlaySystemSounds() {
+    	return prefs.getBoolean(KEY_PLAY_SYSTEM_SOUNDS, DEFAULT_PLAY_SYSTEM_SOUNDS);
+    }
+    
+    public static void setPlaySystemSoundsOnlyWhenNotFocused(boolean play) {
+    	prefs.putBoolean(KEY_SOUNDS_ONLY_WHEN_NOT_FOCUSED, play);
+    }
+    
+    public static boolean getPlaySystemSoundsOnlyWhenNotFocused() {
+    	return prefs.getBoolean(KEY_SOUNDS_ONLY_WHEN_NOT_FOCUSED, DEFAULT_SOUNDS_ONLY_WHEN_NOT_FOCUSED);
+    }
+    
     public static void setChatColor(Color color){
     	prefs.putInt(KEY_CHAT_COLOR, color.getRGB());
     }

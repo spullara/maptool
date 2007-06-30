@@ -47,6 +47,7 @@ import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.image.ThumbnailManager;
+import net.rptools.lib.sound.SoundManager;
 import net.rptools.maptool.client.swing.SplashScreen;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.MapToolFrame;
@@ -104,6 +105,8 @@ public class MapTool {
 	
     private static AutoSaveManager autoSaveManager;
 	
+    private static SoundManager soundManager;
+    
 	public static void showError(String message) {
 		JOptionPane.showMessageDialog(clientFrame, "<html><body>"+I18N.getText(message)+"</body></html>", "Error", JOptionPane.ERROR_MESSAGE);
 	}
@@ -120,6 +123,20 @@ public class MapTool {
         // Not instantiatable
     }
     
+    public static SoundManager getSoundManager() {
+    	return soundManager;
+    }
+    
+    public static void playSound(String eventId) {
+    	if (AppPreferences.getPlaySystemSounds()) {
+    		System.out.println("isInFocus() " + isInFocus());
+    		if (AppPreferences.getPlaySystemSoundsOnlyWhenNotFocused() && isInFocus()) {
+    			return;
+    		}
+    		soundManager.playSoundEvent(eventId);
+    	}
+    }
+    
     public static void updateServerPolicy(ServerPolicy policy) {
     	setServerPolicy(policy);
     	
@@ -127,6 +144,11 @@ public class MapTool {
     	if (serverCommand != null) {
     		serverCommand.setServerPolicy(policy);
     	}
+    }
+    
+    public static boolean isInFocus() {
+    	// TODO: This should probably also check owned windows
+    	return getFrame().isFocused();
     }
     
     public static BufferedImage takeMapScreenShot(final ZoneView view) {
@@ -178,6 +200,13 @@ public class MapTool {
 		
 		// We'll manage our own images
 		ImageIO.setUseCache(false);
+		
+		soundManager = new SoundManager();
+		try {
+			soundManager.configure("net/rptools/maptool/client/sounds.properties");
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
 		
 		assetTransferManager = new AssetTransferManager();
 		assetTransferManager.addConsumerListener(new AssetTransferHandler());
