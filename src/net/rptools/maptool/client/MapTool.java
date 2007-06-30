@@ -46,6 +46,7 @@ import javax.swing.UIManager;
 import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.lib.FileUtil;
+import net.rptools.lib.TaskBarFlasher;
 import net.rptools.lib.image.ThumbnailManager;
 import net.rptools.lib.sound.SoundManager;
 import net.rptools.maptool.client.swing.SplashScreen;
@@ -106,6 +107,7 @@ public class MapTool {
     private static AutoSaveManager autoSaveManager;
 	
     private static SoundManager soundManager;
+    private static TaskBarFlasher taskbarFlasher;
     
 	public static void showError(String message) {
 		JOptionPane.showMessageDialog(clientFrame, "<html><body>"+I18N.getText(message)+"</body></html>", "Error", JOptionPane.ERROR_MESSAGE);
@@ -129,7 +131,6 @@ public class MapTool {
     
     public static void playSound(String eventId) {
     	if (AppPreferences.getPlaySystemSounds()) {
-    		System.out.println("isInFocus() " + isInFocus());
     		if (AppPreferences.getPlaySystemSoundsOnlyWhenNotFocused() && isInFocus()) {
     			return;
     		}
@@ -347,6 +348,12 @@ public class MapTool {
         if (!getFrame().isCommandPanelVisible()) {
         	getFrame().getChatActionLabel().setVisible(true);
         }
+        
+        // Flashing
+        if (!isInFocus()) {
+        	taskbarFlasher.flash();
+        }
+        
         messageList.add(message);
     }
 
@@ -666,10 +673,16 @@ public class MapTool {
                     getAutoSaveManager().restart();
 
                     splash.hideSplashScreen();
+                    
+                    postInitialize();
         	}
         });
         
 //        new Thread(new HeapSpy()).start();
+	}
+	
+	private static void postInitialize() {
+		taskbarFlasher = new TaskBarFlasher(clientFrame);
 	}
 	
 	private static class ServerHeartBeatThread extends Thread {
