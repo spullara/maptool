@@ -34,9 +34,12 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 import javax.swing.SwingUtilities;
 
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -48,6 +51,28 @@ public class GraphicsUtil {
 
 	private static final int BOX_PADDINGX = 5;
 	private static final int BOX_PADDINGY = 2;
+	
+	// TODO: Make this configurable
+	private static final String LABEL_BOX_IMG = "net/rptools/maptool/client/image/labelbox.png";
+	
+	private static BufferedImage labelBoxLeftImage;
+	private static BufferedImage labelBoxRightImage;
+	private static BufferedImage labelBoxMiddleImage;
+	private static int leftMargin = 4;
+	private static int rightMargin = 4;
+	
+	static {
+		try {
+			BufferedImage image = ImageUtil.getCompatibleImage(LABEL_BOX_IMG);
+			
+			labelBoxLeftImage = image.getSubimage(0, 0, leftMargin, image.getHeight());
+			labelBoxRightImage = image.getSubimage(image.getWidth()-rightMargin, 0, rightMargin, image.getHeight());
+			labelBoxMiddleImage = image.getSubimage(leftMargin, 0, image.getWidth() - leftMargin - rightMargin, image.getHeight());
+			
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
 	
 	/**
 	 * A multiline text wrapping popup.  
@@ -176,10 +201,9 @@ public class GraphicsUtil {
 		
 		// Box
 		Rectangle boxBounds = new Rectangle(x, y, width, height);
-		g.setColor(background);
-		g.fillRect(boxBounds.x, boxBounds.y, boxBounds.width, boxBounds.height);
-		
-    	AppStyle.border.paintWithin(g, boxBounds);
+		g.drawImage(labelBoxLeftImage, x, y, labelBoxLeftImage.getWidth(), height, null);
+		g.drawImage(labelBoxRightImage, x+width-rightMargin, y, rightMargin, height, null);
+		g.drawImage(labelBoxMiddleImage, x+leftMargin, y, width-rightMargin-leftMargin, height, null);
 		
 		// Renderer message
 		g.setColor(foreground);
