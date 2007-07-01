@@ -64,7 +64,13 @@ public class ToolbarPanel extends JToolBar {
 		this.toolbox = toolbox;
 		optionPanel = new JPanel(new CardLayout());
 		
-		add(createButton("net/rptools/maptool/client/image/tool/pointer.png", createPointerPanel(), "Interaction Tools"));
+		final OptionPanel pointerGroupOptionPanel = createPointerPanel();
+		final JToggleButton pointerGroupButton = createButton("net/rptools/maptool/client/image/tool/pointer.png", pointerGroupOptionPanel, "Interaction Tools"); 
+		
+		pointerGroupButton.setSelected(true);
+		pointerGroupOptionPanel.activate();
+		
+		add(pointerGroupButton);
 		add(createButton("net/rptools/maptool/client/image/tool/pencil.png", createDrawPanel(), "Drawing Tools"));
 		add(createButton("net/rptools/maptool/client/image/tool/template.png", createTemplatePanel(), "Template Tools"));
 		add(createButton("net/rptools/maptool/client/image/tool/fogsqr.png", createFogPanel(), "Fog of War tools"));
@@ -84,6 +90,7 @@ public class ToolbarPanel extends JToolBar {
 		// Non visible tools
 		toolbox.createTool(GridTool.class);
 		toolbox.createTool(FacingTool.class);
+	
 		
 	}
 	

@@ -893,9 +893,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			currentRenderer.setRepaintTimer(null);
 		}
 
-		// Back to the pointer
-		getToolbox().setSelectedTool(PointerTool.class);
-
 		if (renderer != null) {
 			zoneRendererPanel.add(renderer, PositionalLayout.Position.CENTER);
 			zoneRendererPanel.doLayout();

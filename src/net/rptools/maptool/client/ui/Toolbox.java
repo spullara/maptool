@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.awt.EventQueue;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -60,6 +61,7 @@ public class Toolbox {
 		Tool tool = toolMap.get(toolClass);
 		if (tool != null && tool.isAvailable()) {
 			tool.setSelected(true);
+			setSelectedTool(tool);
 		}
 	}
 	
@@ -102,43 +104,37 @@ public class Toolbox {
 		return tool;
 	}
 	
-	public void setTargetRenderer(ZoneRenderer renderer) {
-		
-		if (currentRenderer != null && currentTool != null) {
-			currentTool.removeListeners(currentRenderer);
-			currentTool.detachFrom(currentRenderer);
-			
-			if (renderer != null && currentTool instanceof ZoneOverlay) {
-				renderer.removeOverlay((ZoneOverlay)currentTool);
+	public void setTargetRenderer(final ZoneRenderer renderer) {
+
+		// Need to be synchronous with the timing of the invokes within this method
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				final Tool oldTool = currentTool;
+				
+				// Disconnect the current tool from the current renderer
+				setSelectedTool((Tool)null);
+
+				// Update the renderer
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						currentRenderer = renderer;
+					}
+				});
+				
+				// Attach the old tool to the new renderer
+				setSelectedTool(oldTool);
 			}
-            if (renderer != null) {
-                renderer.removeOverlay(MapTool.getFrame().getNotificationOverlay());
-            }
-		}
-		
-		currentRenderer = renderer;
-		if (currentRenderer != null && currentTool != null) {
-			currentTool.addListeners(currentRenderer);
-			currentTool.attachTo(currentRenderer);
-			
-			if (currentTool instanceof ZoneOverlay) {
-				renderer.addOverlay((ZoneOverlay) currentTool);
-			}
-            
-            currentRenderer.addOverlay(MapTool.getFrame().getNotificationOverlay());
-		}
-		
+		});
 	}
 	
 	public void setSelectedTool(final Tool tool) {
-
-		if (tool == currentTool) {
-			return;
-		}
 		
-		SwingUtilities.invokeLater(new Runnable() {
+		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				
+				if (tool == currentTool) {
+					return;
+				}
+
 				if (currentTool != null) {
                     if (currentRenderer != null) {
     					currentTool.removeListeners(currentRenderer);

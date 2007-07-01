@@ -50,7 +50,7 @@ import net.rptools.maptool.language.I18N;
 
 /**
  */
-public abstract class Tool extends JToggleButton implements ChangeListener, ActionListener {
+public abstract class Tool extends JToggleButton implements ActionListener {
 
 	private Toolbox toolbox;
     
@@ -61,7 +61,6 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
         // Map the escape key reset this tool.
     	installKeystrokes(keyActionMap);
 
-        addChangeListener(this);
         addActionListener(this);
         
         setToolTipText(I18N.getText(getTooltip()));
@@ -185,20 +184,10 @@ public abstract class Tool extends JToggleButton implements ChangeListener, Acti
     }
     
     ////
-    // CHANGE LISTENER
-    public void stateChanged(ChangeEvent e) {
-
-        if (isSelected()) {
-            toolbox.setSelectedTool(Tool.this);
-        }
-    }
-    
-    ////
     // ACTION LISTENER
     public void actionPerformed(ActionEvent e) {
-        if (!isSelected()) {
-            // Don't let us unselect
-            setSelected(true);
+        if (isSelected()) {
+            toolbox.setSelectedTool(Tool.this);
         }
     }
 }
