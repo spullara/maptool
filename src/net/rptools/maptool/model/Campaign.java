@@ -123,17 +123,17 @@ public class Campaign {
     
     private List<TokenProperty> createBasicPropertyList() {
     	List<TokenProperty> list = new ArrayList<TokenProperty>();
-    	list.add(new TokenProperty("Strength"));
-    	list.add(new TokenProperty("Dexterity"));
-    	list.add(new TokenProperty("Constitution"));
-    	list.add(new TokenProperty("Intelligence"));
-    	list.add(new TokenProperty("Wisdom"));
-    	list.add(new TokenProperty("Charisma"));
+    	list.add(new TokenProperty("Strength", "Str"));
+    	list.add(new TokenProperty("Dexterity", "Dex"));
+    	list.add(new TokenProperty("Constitution", "Cons"));
+    	list.add(new TokenProperty("Intelligence", "Int"));
+    	list.add(new TokenProperty("Wisdom", "Wis"));
+    	list.add(new TokenProperty("Charisma", "Char"));
     	list.add(new TokenProperty("HP", true, true));
     	list.add(new TokenProperty("AC", true, true));
-    	list.add(new TokenProperty("Defense"));
-    	list.add(new TokenProperty("Movement"));
-    	list.add(new TokenProperty("Elevation", true, false));
+    	list.add(new TokenProperty("Defense", "Def"));
+    	list.add(new TokenProperty("Movement", "Move"));
+    	list.add(new TokenProperty("Elevation", "Elev", true, false));
     	return list;
     }
     

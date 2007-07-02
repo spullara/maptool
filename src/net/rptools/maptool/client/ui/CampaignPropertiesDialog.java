@@ -41,8 +41,8 @@ public class CampaignPropertiesDialog extends JDialog  {
 	
 	public CampaignPropertiesDialog(JFrame owner) {
 		super (owner, "Campaign Properties", true);
-		setMinimumSize(new Dimension(400, 400));
-		setPreferredSize(new Dimension(400, 400));
+		setMinimumSize(new Dimension(450, 450));
+		setPreferredSize(new Dimension(450, 450));
 		
 		initialize();
 		
@@ -128,7 +128,11 @@ public class CampaignPropertiesDialog extends JDialog  {
 			if (property.isOwnerOnly()) {
 				builder.append("@");
 			}
-			builder.append(property.getName()).append("\n");
+			builder.append(property.getName());
+			if (property.getShortName() != null) {
+				builder.append(" (").append(property.getShortName()).append(")");
+			}
+			builder.append("\n");
 		}
 		
 		getTokenPropertiesTextArea().setText(builder.toString());
@@ -147,6 +151,8 @@ public class CampaignPropertiesDialog extends JDialog  {
 				}
 				
 				TokenProperty property = new TokenProperty();
+				
+				// Prefix
 				while (true) {
 					if (line.startsWith("*")) {
 						property.setHighPriority(true);
@@ -162,6 +168,17 @@ public class CampaignPropertiesDialog extends JDialog  {
 					// Ran out of special characters
 					break;
 				}
+				
+				// Suffix
+				int index = line.indexOf("(");
+				if (index > 0) {
+					String shortName = line.substring(index+1, line.indexOf(")", index)).trim();
+					if (shortName.length() > 0) {
+						property.setShortName(shortName);
+					}
+					line = line.substring(0, index).trim();
+				}
+				
 				property.setName(line);
 
 				propertyList.add(property);

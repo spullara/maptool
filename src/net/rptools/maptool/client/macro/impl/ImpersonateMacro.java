@@ -42,12 +42,13 @@ public class ImpersonateMacro implements Macro {
 	public void execute(String macro) {
 
 		int index = macro.indexOf(":");
+		String oldIdentity = MapTool.getFrame().getCommandPanel().getIdentity();
 		if ( index > 0 ) {
 			String name = macro.substring(0,index);
 			if (canImpersonate(name)) {
 				MapTool.getFrame().getCommandPanel().setIdentity(name);
 				MacroManager.executeMacro(macro.substring(index+1));
-				MapTool.getFrame().getCommandPanel().setIdentity(null);
+				MapTool.getFrame().getCommandPanel().setIdentity(oldIdentity);
 			}
 		} else if ( macro.length() > 0 ) {
 			if (canImpersonate(macro)) {
