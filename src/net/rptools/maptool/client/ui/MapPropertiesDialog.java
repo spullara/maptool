@@ -307,6 +307,7 @@ public class MapPropertiesDialog extends JDialog  {
 				}
 				
 				mapAsset = asset;
+				getNameTextField().setText(asset.getName());
 				
 				updatePreview();
 			}
