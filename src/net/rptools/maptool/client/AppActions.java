@@ -1000,6 +1000,9 @@ public class AppActions {
 	};
 
 	public static final Action ZOOM_RESET = new DefaultClientAction() {
+		
+		private Integer lastZoom;
+		
 		{
 			init("action.zoom100");
 		}
@@ -1007,7 +1010,17 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			if (renderer != null) {
-				renderer.zoomReset();
+
+				if (lastZoom != null) {
+					// Go back to the previous zoom
+					renderer.setScaleIndex(lastZoom);
+					
+					// But make sure the next time we'll go back to 1:1
+					lastZoom = null;
+				} else {
+					lastZoom = renderer.getScaleIndex();
+					renderer.zoomReset();
+				}
 			}
 			if (AppState.isPlayerViewLinked()) {
 				ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2,
