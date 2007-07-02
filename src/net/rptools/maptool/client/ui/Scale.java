@@ -156,6 +156,10 @@ public class Scale implements Serializable {
         return oldScale;
     }
     
+    public int getOneToOneScaleIndex() {
+    	return SCALE_1TO1_INDEX;
+    }
+    
     public float getScale() {
         return scaleArray[scaleIndex];
     }

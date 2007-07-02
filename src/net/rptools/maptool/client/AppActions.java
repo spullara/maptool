@@ -1011,7 +1011,11 @@ public class AppActions {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			if (renderer != null) {
 
-				if (lastZoom != null) {
+				int scale = renderer.getScaleIndex();
+
+				// Revert to last zoom if we have one, but don't if the user has manually 
+				// changed the scale since the last reset zoom (one to one index)
+				if (lastZoom != null && renderer.getZoneScale().getOneToOneScaleIndex() == scale) {
 					// Go back to the previous zoom
 					renderer.setScaleIndex(lastZoom);
 					
