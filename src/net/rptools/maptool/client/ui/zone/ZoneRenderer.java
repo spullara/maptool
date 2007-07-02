@@ -826,7 +826,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         for (Label label : zone.getLabels()) {
 
             ZonePoint zp = new ZonePoint(label.getX(), label.getY());
-            if (!zone.isPointVisible(zp)) {
+            if (!zone.isPointVisible(zp, view.getRole())) {
                 continue;
             }
             

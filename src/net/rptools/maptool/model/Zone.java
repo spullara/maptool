@@ -309,9 +309,9 @@ public class Zone extends BaseModel {
         fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
     }
 
-    public boolean isPointVisible(ZonePoint point) {
+    public boolean isPointVisible(ZonePoint point, int role) {
     	
-    	if (!hasFog() || MapTool.getPlayer().isGM()) {
+    	if (!hasFog() || role == Player.Role.GM) {
     		return true;
     	}
     	
