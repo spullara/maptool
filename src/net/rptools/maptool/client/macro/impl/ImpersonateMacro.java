@@ -53,11 +53,9 @@ public class ImpersonateMacro implements Macro {
 		} else if ( macro.length() > 0 ) {
 			if (canImpersonate(macro)) {
 				MapTool.getFrame().getCommandPanel().setIdentity(macro);
-	            MapTool.addMessage(TextMessage.me("You're now impersonating "+macro));
 			}
         } else {
         	MapTool.getFrame().getCommandPanel().setIdentity(null);
-            MapTool.addMessage(TextMessage.me("You're no longer impersonating anyone"));
         }
 	}
 
