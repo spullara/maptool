@@ -13,6 +13,8 @@ import net.rptools.maptool.client.swing.ResourceLoader;
 
 public class MetaStatSheet {
 
+	private static final int PADDING = 5;
+	
 	private StatSheet topSheet;
 	private StatSheet bottomSheet;
 	private StatSheet leftSheet;
@@ -59,24 +61,24 @@ public class MetaStatSheet {
 		int midY = anchorBounds.y + anchorBounds.height/2;
 		
 		// Try to fit it onto the screen
-		if (leftSheet.getWidth() < anchorBounds.x && leftSheet.getHeight()/2 + midY < viewBounds.height && midY - leftSheet.getHeight()/2 > 0) {
+		if (leftSheet.getWidth() < anchorBounds.x - PADDING && leftSheet.getHeight()/2 + midY < viewBounds.height && midY - leftSheet.getHeight()/2 > 0) {
 			sheet = leftSheet;
-			x = anchorBounds.x - leftSheet.getWidth();
+			x = anchorBounds.x - leftSheet.getWidth() - PADDING;
 			y = midY - leftSheet.getHeight()/2;
 			
-		} else if (rightSheet.getWidth() + anchorBounds.x + anchorBounds.width < viewBounds.width && rightSheet.getHeight()/2 + midY < viewBounds.height  && midY - leftSheet.getHeight()/2 > 0) {
+		} else if (rightSheet.getWidth() + anchorBounds.x + anchorBounds.width + PADDING < viewBounds.width && rightSheet.getHeight()/2 + midY < viewBounds.height  && midY - leftSheet.getHeight()/2 > 0) {
 			sheet = rightSheet;
-			x = anchorBounds.x + anchorBounds.width;
+			x = anchorBounds.x + anchorBounds.width + PADDING;
 			y = midY - rightSheet.getHeight()/2;
 			
-		} else if (anchorBounds.y - topSheet.getHeight() > 0) {
+		} else if (anchorBounds.y - topSheet.getHeight() - PADDING > 0) {
 			sheet = topSheet;
 			x = midX - topSheet.getWidth()/2;
-			y = anchorBounds.y - topSheet.getHeight();
+			y = anchorBounds.y - topSheet.getHeight() - PADDING;
 		} else {
 			sheet = bottomSheet;
 			x = midX - bottomSheet.getWidth()/2;
-			y = anchorBounds.y + anchorBounds.height;
+			y = anchorBounds.y + anchorBounds.height + PADDING;
 		}
 		
 		g.translate(x, y);
