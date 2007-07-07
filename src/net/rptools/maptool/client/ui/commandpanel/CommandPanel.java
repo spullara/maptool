@@ -43,6 +43,7 @@ import net.rptools.maptool.client.PreferencesListener;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
+import net.rptools.maptool.util.StringUtil;
 
 public class CommandPanel extends JPanel implements Observer {
 
@@ -227,6 +228,19 @@ public class CommandPanel extends JPanel implements Observer {
     		return;
     	}
 
+    	// Make sure they aren't trying to break out of the div
+    	int divCount = StringUtil.countOccurances(text, "<div");
+    	int closeDivCount = StringUtil.countOccurances(text, "</div>");
+    	while (closeDivCount < divCount) {
+    		text += "</div>";
+    		closeDivCount ++;
+    	}
+    	if (closeDivCount > divCount) {
+    		MapTool.addServerMessage(TextMessage.me("You have too many &lt;/div&gt;."));
+    		commandTextArea.setText("");
+    		return;
+    	}
+    	
 		if (text.charAt(0) != '/') {
 			// Assume a "SAY"
 			text = "/s " + text;

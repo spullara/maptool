@@ -40,17 +40,21 @@ public class SayMacro implements Macro {
 
     public void execute(String macro) {
         StringBuilder sb = new StringBuilder();
-        
+
+        sb.append("<table cellpadding=0><tr><td valign=top style=\"margin-right: 5px\">");
         sb.append(MapTool.getFrame().getCommandPanel().getIdentity()).append(": ");
+        sb.append("</td><td>");
 
         Color color = MapTool.getFrame().getCommandPanel().getTextColorWell().getColor();
         if (color != null) {
-        	sb.append("<div style='color:#").append(Integer.toHexString(color.getRGB()&0xffffff)).append("'>");
+        	sb.append("<span style='color:#").append(Integer.toHexString(color.getRGB()&0xffffff)).append("'>");
         }
         sb.append(macro);
         if (color != null) {
-        	sb.append("</div>");
+        	sb.append("</span>");
         }
+        sb.append("</td></tr></table>");
+        
         MapTool.addMessage(TextMessage.say(sb.toString()));
     }
 }

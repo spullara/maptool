@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.io.IOException;
@@ -35,17 +37,21 @@ public class MessagePanel extends JPanel {
 		textPane = new JEditorPane();
 		textPane.setEditable(false);
 		textPane.setEditorKit(new HTMLEditorKit());
+		textPane.addComponentListener(new ComponentListener() {
+			public void componentHidden(ComponentEvent e) {}
+			public void componentMoved(ComponentEvent e) {}
+			public void componentResized(ComponentEvent e) {
+				// Jump to the bottom on new text
+				if (!MapTool.getFrame().getCommandPanel().getScrollLockButton().isSelected()) {
+					Rectangle rowBounds = new Rectangle(0, textPane.getSize().height, 1, 1);
+					textPane.scrollRectToVisible(rowBounds);
+				}
+			}
+			public void componentShown(ComponentEvent e) {}
+		});
 		
 		document = (HTMLDocument) textPane.getDocument();
-		
-		// Create the style
-		StyleSheet style = document.getStyleSheet();
-		style.addRule("span{text-align:left; background: red}");
-		style.addRule("div{text-align:left}");
-		style.addRule("body{align:left;width:100%}");
-		style.addRule("td{text-align:left}");
-		style.addRule("body { font-family: sans-serif; font-size: " + AppPreferences.getFontSize() + "pt}");
-
+		refreshRenderer();
 		
 		scrollPane = new JScrollPane(textPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setBorder(null);
@@ -69,6 +75,10 @@ public class MessagePanel extends JPanel {
 	}
 	
 	public void refreshRenderer() {
+		// Create the style
+		StyleSheet style = document.getStyleSheet();
+		style.addRule("body { font-family: sans-serif; font-size: " + AppPreferences.getFontSize() + "pt}");
+
 		repaint();
 	}
 
@@ -95,9 +105,8 @@ public class MessagePanel extends JPanel {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				
-				String text = "<span>"+message.getMessage()+"</span>";
+				String text = "<div>"+message.getMessage()+"</div>";
 				text = text.replaceAll("\\[roll\\s*([^\\]]*)]", "&#171;$1&#187;");
-				System.out.println(text);
 				
 				Element element = document.getElement("body");
 				try {
@@ -107,15 +116,6 @@ public class MessagePanel extends JPanel {
 				} catch (BadLocationException ble) {
 					ble.printStackTrace();
 				}
-				
-				EventQueue.invokeLater(new Runnable() {
-					public void run() {
-						if (!MapTool.getFrame().getCommandPanel().getScrollLockButton().isSelected()) {
-							Rectangle rowBounds = new Rectangle(0, textPane.getSize().height, 1, 1);
-							textPane.scrollRectToVisible(rowBounds);
-						}
-					}
-				});
 			}
 		});
 	}

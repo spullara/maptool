@@ -83,4 +83,15 @@ public class StringUtil {
 	public static boolean isEmpty(String string) {
 		return string == null || string.trim().length() == 0;
 	}
+	
+	public static int countOccurances(String source, String str) {
+		
+		int count = 0;
+		int index = 0;
+		while ((index = source.indexOf(str, index)) >= 0) {
+			count ++;
+			index += str.length();
+		}
+		return count;
+	}
 }
