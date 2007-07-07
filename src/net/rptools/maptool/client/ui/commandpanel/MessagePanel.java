@@ -1,38 +1,53 @@
 package net.rptools.maptool.client.ui.commandpanel;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
-import java.awt.Point;
+import java.awt.GridLayout;
 import java.awt.Rectangle;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.io.IOException;
 
+import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.TextMessage;
-import ca.odell.renderpack.HTMLTableCellRenderer;
 
 public class MessagePanel extends JPanel {
 
-	private JTable messageTable;
 	private JScrollPane scrollPane;
+	private HTMLDocument document;
+	private JEditorPane textPane;
 
 	private static final String SND_MESSAGE_RECEIVED = "messageReceived";
 	
 	public MessagePanel() {
-		setLayout(new BorderLayout());
+		setLayout(new GridLayout());
+
+		textPane = new JEditorPane();
+		textPane.setEditable(false);
+		textPane.setEditorKit(new HTMLEditorKit());
 		
-		messageTable = createMessageTable();
+		document = (HTMLDocument) textPane.getDocument();
 		
-		scrollPane = new JScrollPane(messageTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		// Create the style
+		StyleSheet style = document.getStyleSheet();
+		style.addRule("span{text-align:left; background: red}");
+		style.addRule("div{text-align:left}");
+		style.addRule("body{align:left;width:100%}");
+		style.addRule("td{text-align:left}");
+		style.addRule("body { font-family: sans-serif; font-size: " + AppPreferences.getFontSize() + "pt}");
+
+		
+		scrollPane = new JScrollPane(textPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setBorder(null);
 		scrollPane.getViewport().setBorder(null);
 		scrollPane.getViewport().setBackground(Color.white);
@@ -47,37 +62,26 @@ public class MessagePanel extends JPanel {
 			}
 		});
 		
-		add(BorderLayout.CENTER, scrollPane);
+		add(scrollPane);
+		clearMessages();
 		
 		MapTool.getSoundManager().registerSoundEvent(SND_MESSAGE_RECEIVED, MapTool.getSoundManager().getRegisteredSound("Clink"));
 	}
 	
 	public void refreshRenderer() {
-		messageTable.getColumnModel().getColumn(0).setCellRenderer(new MessageCellRenderer());
+		repaint();
 	}
 
 	public String getMessagesText() {
-		StringBuilder builder = new StringBuilder();
 		
-		builder.append("<html><body>");
-		for (int i = 0; i < messageTable.getModel().getRowCount(); i++) {
-			
-			builder.append("<div>\n\t");
-			builder.append(messageTable.getModel().getValueAt(i, 0));
-			builder.append("</div>\n");
-		}
-		builder.append("</body></html>");
-		
-		return builder.toString();
+		return textPane.getText();
 	}
 	
 	public void clearMessages() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
-				while (model.getRowCount() > 0) {
-					model.removeRow(0);
-				}
+				textPane.setText("<html><body id=\"body\"></body></html>");
+				
 			}
 		});
 	}
@@ -90,82 +94,30 @@ public class MessagePanel extends JPanel {
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
-				model.addRow(new Object[]{message});
-			}
-		});
-	}
-
-	private JTable createMessageTable() {
-		messageTable = new JTable() {
-			@Override
-			public String getToolTipText(MouseEvent event) {
-
-		        Point p = event.getPoint();
-
-		        // Locate the renderer under the event location
-		        int hitRowIndex = rowAtPoint(p);
-
-		        if (hitRowIndex != -1) {
-					DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
-					TextMessage message = (TextMessage) model.getValueAt(hitRowIndex, 0);
-					return message.getSource();
-		        }
-
-		        return null;
-			}
-		};
-		messageTable.setModel(new DefaultTableModel(new Object[][]{}, new Object[]{""}));
-		messageTable.setTableHeader(null);
-		messageTable.setShowGrid(false);
-		messageTable.setBackground(Color.white);
-        messageTable.setDefaultEditor(Object.class, null);
-		
-		// Always scroll to the bottom of the chat window on new messages
-		messageTable.addComponentListener(new ComponentListener() {
-			public void componentHidden(ComponentEvent e) {
-			}
-			public void componentMoved(ComponentEvent e) {
-			}
-			public void componentResized(ComponentEvent e) {
-				if (messageTable.getRowCount() == 0) {
-					return;
+				
+				String text = "<span>"+message.getMessage()+"</span>";
+				text = text.replaceAll("\\[roll\\s*([^\\]]*)]", "&#171;$1&#187;");
+				System.out.println(text);
+				
+				Element element = document.getElement("body");
+				try {
+					document.insertBeforeEnd(element, text);
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				} catch (BadLocationException ble) {
+					ble.printStackTrace();
 				}
 				
-				if (!MapTool.getFrame().getCommandPanel().getScrollLockButton().isSelected()) {
-					TextMessage lastMessage = (TextMessage) messageTable.getValueAt(messageTable.getRowCount()-1, 0); 
-					Rectangle rowBounds = new Rectangle(0, messageTable.getSize().height, 1, 1);
-					messageTable.scrollRectToVisible(rowBounds);
-				}
-			}
-			public void componentShown(ComponentEvent e) {
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						if (!MapTool.getFrame().getCommandPanel().getScrollLockButton().isSelected()) {
+							Rectangle rowBounds = new Rectangle(0, textPane.getSize().height, 1, 1);
+							textPane.scrollRectToVisible(rowBounds);
+						}
+					}
+				});
 			}
 		});
-		
-		refreshRenderer();
-		
-		return messageTable;
 	}
-	
-	private static class MessageCellRenderer extends HTMLTableCellRenderer {
-		public MessageCellRenderer(){
-			super(true);
-			styleSheet.addRule("body { font-family: sans-serif; font-size: " + AppPreferences.getFontSize() + "pt}");
-	    }
-		
-		@Override
-		public void writeObject(StringBuffer buff, JTable table, Object value, boolean isSelected, boolean isFocused, int row, int col) {
 
-			TextMessage message = (TextMessage) value;
-			
-			String text = message.getMessage();
-			
-			// Roll validation
-			text = text.replaceAll("\\[roll\\s*([^\\]]*)]", "&#171;$1&#187;");
-			
-			buff.append("<html><body>");
-			buff.append(text);
-			buff.append("</body></html>");
-		}
-	}
 }
