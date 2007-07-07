@@ -45,6 +45,7 @@ import javax.swing.UIManager;
 
 import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.lib.EventDispatcher;
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.TaskBarFlasher;
 import net.rptools.lib.image.ThumbnailManager;
@@ -79,6 +80,19 @@ import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
  */
 public class MapTool {
 	
+	public static enum ZoneEvent {
+		
+		Added,
+		Removed,
+		Activated,
+		Deactivated
+		
+	}
+	
+	public static enum PreferencesEvent {
+		Changed
+	}
+	
     private static final Dimension THUMBNAIL_SIZE = new Dimension (100, 100);
 
     private static ThumbnailManager thumbnailManager; 
@@ -108,6 +122,8 @@ public class MapTool {
 	
     private static SoundManager soundManager;
     private static TaskBarFlasher taskbarFlasher;
+
+    private static EventDispatcher eventDispatcher;
     
 	public static void showError(String message) {
 		JOptionPane.showMessageDialog(clientFrame, "<html><body>"+I18N.getText(message)+"</body></html>", "Error", JOptionPane.ERROR_MESSAGE);
@@ -194,6 +210,15 @@ public class MapTool {
 		return autoSaveManager;
 	}
 
+	public static EventDispatcher getEventDispatcher() {
+		return eventDispatcher;
+	}
+	
+	private static void registerEvents() {
+		getEventDispatcher().registerEvents(ZoneEvent.values());
+		getEventDispatcher().registerEvents(PreferencesEvent.values());
+	}
+	
 	private static void initialize() {
 		
         // First timer
@@ -202,6 +227,9 @@ public class MapTool {
 		// We'll manage our own images
 		ImageIO.setUseCache(false);
 		
+		eventDispatcher = new EventDispatcher();
+		registerEvents();
+
 		soundManager = new SoundManager();
 		try {
 			soundManager.configure("net/rptools/maptool/client/sounds.properties");
@@ -412,7 +440,7 @@ public class MapTool {
                 currRenderer = renderer;
             }
             
-            AppListeners.fireZoneAdded(zone);
+            eventDispatcher.fireEvent(ZoneEvent.Added, campaign, null, zone);
         }
 
     	clientFrame.setCurrentZoneRenderer(currRenderer);
@@ -522,7 +550,7 @@ public class MapTool {
 
         serverCommand().putZone(zone);
         
-        AppListeners.fireZoneAdded(zone);
+        eventDispatcher.fireEvent(ZoneEvent.Added, getCampaign(), null, zone);
         
         // Show the new zone
         clientFrame.setCurrentZoneRenderer(ZoneRendererFactory.newRenderer(zone));

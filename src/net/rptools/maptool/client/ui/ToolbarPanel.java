@@ -19,9 +19,9 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
+import net.rptools.lib.AppEventListener;
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.maptool.client.AppListeners;
-import net.rptools.maptool.client.ZoneActivityListener;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.MeasureTool;
@@ -99,16 +99,16 @@ public class ToolbarPanel extends JToolBar {
 			mapNameLabel = new JLabel("", JLabel.RIGHT);
 			mapNameLabel.setMinimumSize(new Dimension(150, 10));
 			mapNameLabel.setPreferredSize(new Dimension(150, 16));
-			AppListeners.addZoneListener(new ZoneActivityListener() {
-				public void zoneActivated(Zone zone) {
+			MapTool.getEventDispatcher().addListener(MapTool.ZoneEvent.Activated, new AppEventListener() {
+				public void handleAppEvent(net.rptools.lib.AppEvent event) {
 					if (currentZone != null) {
 						currentZone.removeModelChangeListener(zoneChangeListener);
 					}
+					
+					Zone zone = (Zone)event.getNewValue();
 					updateMapLabel(zone);
 					zone.addModelChangeListener(zoneChangeListener);
 					currentZone = zone;
-				}
-				public void zoneAdded(Zone zone) {
 				}
 			});
 		}

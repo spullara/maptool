@@ -34,14 +34,15 @@ import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicToggleButtonUI;
 
+import net.rptools.lib.AppEvent;
+import net.rptools.lib.AppEventListener;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
-import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.PreferencesListener;
 import net.rptools.maptool.client.macro.MacroManager;
+import net.rptools.maptool.client.ui.PreferencesDialog;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.util.StringUtil;
@@ -194,8 +195,8 @@ public class CommandPanel extends JPanel implements Observer {
 			inputs.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), AppActions.COMMAND_DOWN_ID);
 			
 			// Resize on demand
-			AppListeners.addPreferencesListener(new PreferencesListener() {
-				public void preferencesUpdated() {
+			MapTool.getEventDispatcher().addListener(MapTool.PreferencesEvent.Changed, new AppEventListener() {
+				public void handleAppEvent(AppEvent event) {
 					commandTextArea.setFont(commandTextArea.getFont().deriveFont((float)AppPreferences.getFontSize()));
 					doLayout();
 				}
@@ -329,8 +330,8 @@ public class CommandPanel extends JPanel implements Observer {
 			messagePanel = new MessagePanel();
 			
 			// Update whenever the preferences change
-			AppListeners.addPreferencesListener(new PreferencesListener(){
-				public void preferencesUpdated() {
+			MapTool.getEventDispatcher().addListener(MapTool.PreferencesEvent.Changed, new AppEventListener() {
+				public void handleAppEvent(AppEvent event) {
 					messagePanel.refreshRenderer();
 				}
 			});
@@ -365,6 +366,8 @@ public class CommandPanel extends JPanel implements Observer {
 					}
 				}
 			});
+			
+			setToolTipText("Set the color of your speech text");
 		}
 	
 		public Color getColor() {

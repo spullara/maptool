@@ -43,17 +43,15 @@ import net.rptools.lib.swing.ImageBorder;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ZoneActivityListener;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.ImageManager;
 
 
 /**
  */
-public class ZoneMiniMapPanel extends JPanel implements ZoneActivityListener, ModelChangeListener  {
+public class ZoneMiniMapPanel extends JPanel implements ModelChangeListener  {
 
 	private static final int SIZE_WIDTH = 125;
 	private static final int SIZE_HEIGHT = 100;
@@ -158,6 +156,7 @@ public class ZoneMiniMapPanel extends JPanel implements ZoneActivityListener, Mo
     
     ////
     // Zone Listener
+    // TODO: Add this as an AppEventListener
     public void zoneAdded(Zone zone) {
     }
 

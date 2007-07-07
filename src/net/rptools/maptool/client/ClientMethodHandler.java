@@ -167,7 +167,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 		MapTool.getFrame().setCurrentZoneRenderer(renderer);
                 	}
                 	
-                	AppListeners.fireZoneAdded(zone);
+                    MapTool.getEventDispatcher().fireEvent(MapTool.ZoneEvent.Added, MapTool.getCampaign(), null, zone);
                     break;
                 case removeZone:
                 	zoneGUID = (GUID)parameters[0];

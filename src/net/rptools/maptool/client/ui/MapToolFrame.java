@@ -35,7 +35,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -78,6 +77,8 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import javax.xml.parsers.ParserConfigurationException;
 
+import net.rptools.lib.AppEvent;
+import net.rptools.lib.AppEventListener;
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -88,13 +89,11 @@ import net.rptools.lib.swing.SwingUtil;
 import net.rptools.lib.swing.preference.FramePreferences;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
-import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ServerDisconnectHandler;
-import net.rptools.maptool.client.ZoneActivityListener;
 import net.rptools.maptool.client.swing.CoordinateStatusBar;
 import net.rptools.maptool.client.swing.GlassPane;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
@@ -124,7 +123,6 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
-import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.Pen;
@@ -137,7 +135,7 @@ import com.jidesoft.docking.DockableFrame;
 
 /**
  */
-public class MapToolFrame extends DefaultDockableHolder implements WindowListener {
+public class MapToolFrame extends DefaultDockableHolder implements WindowListener, AppEventListener {
 	private static final long serialVersionUID = 3905523813025329458L;
 
 	// TODO: parameterize this (or make it a preference)
@@ -249,8 +247,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		zoneMiniMapPanel = new ZoneMiniMapPanel();
 		zoneMiniMapPanel.setSize(100, 100);
-		AppListeners.addZoneListener(zoneMiniMapPanel);
-//
+
 		zoneRendererPanel = new JPanel(new PositionalLayout(5));
 		zoneRendererPanel.setBackground(Color.black);
 //		zoneRendererPanel.add(zoneMiniMapPanel, PositionalLayout.Position.SE);
@@ -276,10 +273,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		removeWindowsF10();
 		configureDocking();
 		
-		// TODO: Put together a class that handles adding in the listeners, just
-		// so that this doesn't
-		// get all cluttered
-		AppListeners.addZoneListener(new RequestZoneAssetsListener());
+		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
 
 		new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
 //		setSize(800, 600);
@@ -648,15 +642,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			}
 		});
 
-		AppListeners.addZoneListener(new ZoneActivityListener() {
-			public void zoneActivated(Zone zone) {
-				tokenPanelTreeModel.setZone(zone);
+		MapTool.getEventDispatcher().addListener(new AppEventListener() {
+			public void handleAppEvent(AppEvent event) {
+				tokenPanelTreeModel.setZone((Zone) event.getNewValue());
 			}
-
-			public void zoneAdded(Zone zone) {
-				// nothing to do
-			}
-		});
+		}, MapTool.ZoneEvent.Activated);
 
 		return tree;
 	}
@@ -902,7 +892,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		toolbox.setTargetRenderer(renderer);
 
 		if (renderer != null) {
-			AppListeners.fireZoneActivated(renderer.getZone());
+			MapTool.getEventDispatcher().fireEvent(MapTool.ZoneEvent.Activated, this, null, renderer.getZone());
 			renderer.requestFocusInWindow();
 			renderer.setRepaintTimer(repaintTimer);
 		}
@@ -1006,78 +996,79 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		}
 	}
 
-	private class RequestZoneAssetsListener implements ZoneActivityListener {
-		public void zoneActivated(final Zone zone) {
-
-			AssetAvailableListener listener = new AssetAvailableListener() {
-				public void assetAvailable(net.rptools.lib.MD5Key key) {
-					ZoneRenderer renderer = getCurrentZoneRenderer();
-					if (renderer.getZone() == zone) {
-						ImageManager.getImage(AssetManager.getAsset(key),
-								renderer);
-					}
-				}
-			};
-
-			// Let's add all the assets, starting with the backgrounds
-			for (Token token : zone.getBackgroundTokens()) {
-
-				MD5Key key = token.getAssetID();
-
-				if (AssetManager.hasAsset(key)) {
-					ImageManager.getImage(AssetManager.getAsset(key));
-				} else {
-
-					if (!AssetManager.isAssetRequested(key)) {
-						AssetManager.addAssetListener(token.getAssetID(),
-								listener);
-
-						// This will force a server request if we don't already
-						// have it
-						AssetManager.getAsset(token.getAssetID());
-					}
+	////
+	// APP EVENT LISTENER
+	public void handleAppEvent(AppEvent evt) {
+		if (evt.getId() != MapTool.ZoneEvent.Activated) {
+			return;
+		}
+		
+		final Zone zone = (Zone)evt.getNewValue();
+		AssetAvailableListener listener = new AssetAvailableListener() {
+			public void assetAvailable(net.rptools.lib.MD5Key key) {
+				ZoneRenderer renderer = getCurrentZoneRenderer();
+				if (renderer.getZone() == zone) {
+					ImageManager.getImage(AssetManager.getAsset(key),
+							renderer);
 				}
 			}
+		};
 
-			// Now the stamps
-			for (Token token : zone.getStampTokens()) {
-				MD5Key key = token.getAssetID();
+		// Let's add all the assets, starting with the backgrounds
+		for (Token token : zone.getBackgroundTokens()) {
 
-				if (AssetManager.hasAsset(key)) {
-					ImageManager.getImage(AssetManager.getAsset(key));
-				} else {
+			MD5Key key = token.getAssetID();
 
-					if (!AssetManager.isAssetRequested(key)) {
-						AssetManager.addAssetListener(token.getAssetID(),
-								listener);
+			if (AssetManager.hasAsset(key)) {
+				ImageManager.getImage(AssetManager.getAsset(key));
+			} else {
 
-						// This will force a server request if we don't already
-						// have it
-						AssetManager.getAsset(token.getAssetID());
-					}
-				}
-			}
+				if (!AssetManager.isAssetRequested(key)) {
+					AssetManager.addAssetListener(token.getAssetID(),
+							listener);
 
-			// Now add the rest
-			for (Token token : zone.getAllTokens()) {
-				MD5Key key = token.getAssetID();
-
-				if (AssetManager.hasAsset(key)) {
-					ImageManager.getImage(AssetManager.getAsset(key));
-				} else {
-
-					if (!AssetManager.isAssetRequested(key)) {
-						AssetManager.addAssetListener(key, listener);
-
-						// This will force a server request if we don't already
-						// have it
-						AssetManager.getAsset(token.getAssetID());
-					}
+					// This will force a server request if we don't already
+					// have it
+					AssetManager.getAsset(token.getAssetID());
 				}
 			}
 		}
 
-		public void zoneAdded(Zone zone) {
+		// Now the stamps
+		for (Token token : zone.getStampTokens()) {
+			MD5Key key = token.getAssetID();
+
+			if (AssetManager.hasAsset(key)) {
+				ImageManager.getImage(AssetManager.getAsset(key));
+			} else {
+
+				if (!AssetManager.isAssetRequested(key)) {
+					AssetManager.addAssetListener(token.getAssetID(),
+							listener);
+
+					// This will force a server request if we don't already
+					// have it
+					AssetManager.getAsset(token.getAssetID());
+				}
+			}
+		}
+
+		// Now add the rest
+		for (Token token : zone.getAllTokens()) {
+			MD5Key key = token.getAssetID();
+
+			if (AssetManager.hasAsset(key)) {
+				ImageManager.getImage(AssetManager.getAsset(key));
+			} else {
+
+				if (!AssetManager.isAssetRequested(key)) {
+					AssetManager.addAssetListener(key, listener);
+
+					// This will force a server request if we don't already
+					// have it
+					AssetManager.getAsset(token.getAssetID());
+				}
+			}
 		}
 	}
 

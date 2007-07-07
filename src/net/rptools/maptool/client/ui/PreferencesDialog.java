@@ -20,7 +20,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.GridFactory;
@@ -77,7 +76,7 @@ public class PreferencesDialog extends JDialog {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				setVisible(false);
 				dispose();
-				AppListeners.firePreferencesUpdated();
+				MapTool.getEventDispatcher().fireEvent(MapTool.PreferencesEvent.Changed);
 			}
 		});
 		
