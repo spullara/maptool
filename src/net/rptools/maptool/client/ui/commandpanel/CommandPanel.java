@@ -34,6 +34,7 @@ import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicToggleButtonUI;
 
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppListeners;
 import net.rptools.maptool.client.AppPreferences;
@@ -174,6 +175,7 @@ public class CommandPanel extends JPanel implements Observer {
 			commandTextArea.setWrapStyleWord(true);
 			commandTextArea.setLineWrap(true);
 			commandTextArea.setFont(new Font("helvetica", 0, AppPreferences.getFontSize()));
+			SwingUtil.useAntiAliasing(commandTextArea);
 			
 			ActionMap actions = commandTextArea.getActionMap();
 			actions.put(AppActions.COMMIT_COMMAND_ID,
