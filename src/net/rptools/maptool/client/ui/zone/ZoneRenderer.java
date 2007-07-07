@@ -1178,20 +1178,27 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         List<CellPoint> cellPath = path.getCellPath();
 
         Set<CellPoint> pathSet = new HashSet<CellPoint>();
-        Set<CellPoint> waypointSet = new HashSet<CellPoint>();
+        List<CellPoint> waypointList = new LinkedList<CellPoint>();
+        boolean lastPointExistedInWaypointSet = false;
         for (CellPoint p : cellPath) {
 
             pathSet.addAll(grid.getOccupiedCells(height, width, p));
 
             if (path.isWaypoint(p) && previousPoint != null) {
-                waypointSet.add(grid.getWaypointPosition(height, width, p));
+                waypointList.add(grid.getWaypointPosition(height, width, p));
             }
             previousPoint = p;
         }
+        
+        // Don't show the final path point as a waypoint, it's redundant, and ugly
+        if (waypointList.size() > 0) {
+        	waypointList.remove(waypointList.size()-1);
+        }
+        
         for (CellPoint p : pathSet) {
             highlightCell(g, p, grid.getCellHighlight(), 1.0f);
         }
-        for (CellPoint p : waypointSet) {
+        for (CellPoint p : waypointList) {
             highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
         }
 
