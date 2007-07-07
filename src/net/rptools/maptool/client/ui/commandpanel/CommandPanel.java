@@ -150,7 +150,7 @@ public class CommandPanel extends JPanel implements Observer {
 	
 	public JLabel createCharacterLabel() {
 		
-		characterLabel = new JLabel("", JLabel.RIGHT);
+		characterLabel = new JLabel("", JLabel.LEFT);
 		characterLabel.setText("");
 		characterLabel.setBorder(BorderFactory.createEmptyBorder(1,5,1,5));
 		
