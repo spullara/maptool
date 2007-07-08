@@ -79,6 +79,7 @@ public class PersistenceUtil {
 		PersistedCampaign persistedCampaign = new PersistedCampaign();
 		
 		persistedCampaign.campaign = campaign;
+		persistedCampaign.mapToolVersion = MapTool.getVersion();
 		
 		// Save all assets in active use
 		for (Zone zone : campaign.getZones()) {
@@ -193,5 +194,6 @@ public class PersistenceUtil {
 		public Map<MD5Key, Asset> assetMap = new HashMap<MD5Key, Asset>();
 		public GUID currentZoneId;
 		public Scale currentView;
+		public String mapToolVersion;
 	}
 }
