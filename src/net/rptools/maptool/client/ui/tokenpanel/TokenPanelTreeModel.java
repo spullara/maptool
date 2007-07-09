@@ -28,11 +28,11 @@ import net.rptools.maptool.util.GraphicsUtil;
 public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 
     public enum View {
-		TOKENS("Tokens", Zone.Layer.TOKEN, true, false),
+		TOKENS("Tokens", Zone.Layer.TOKEN, false, true),
     	PLAYERS("Players", Zone.Layer.TOKEN, false, false),
 		GROUPS("Groups", Zone.Layer.TOKEN, false, false),
-		OBJECTS("Objects", Zone.Layer.OBJECT, true, true),
-		BACKGROUND("Background", Zone.Layer.BACKGROUND, true, true),
+		OBJECTS("Objects", Zone.Layer.OBJECT, false, true),
+		BACKGROUND("Background", Zone.Layer.BACKGROUND, false, true),
 		CLIPBOARD("Clipboard", Zone.Layer.TOKEN, false, true);
 
 		String displayName;
@@ -266,16 +266,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     	
     	@Override
     	protected boolean accept(Token token) {
-    		if (!MapTool.getServerPolicy().useStrictTokenManagement()) {
-    			return false;
-    		}
-
-    		// TODO: Simplify these cases
-        	if (token.isStamp() || (!token.hasOwners() && !token.isOwnedByAll())) {
-        		return false;
-        	}
-
-        	return token.hasOwners();
+        	return token.getType() == Token.Type.PC;
     	}
     }
     
@@ -317,7 +308,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     			return false;
     		}
 
-    		if (token.isStamp() || token.isBackground()) {
+    		if (token.isStamp() || token.isBackground() || token.getType() == Token.Type.PC) {
     			return false;
     		}
     		
