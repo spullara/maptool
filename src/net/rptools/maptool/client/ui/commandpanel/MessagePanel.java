@@ -101,8 +101,8 @@ public class MessagePanel extends JPanel {
 		// Create the style
 		StyleSheet style = document.getStyleSheet();
 		style.addRule("body { font-family: sans-serif; font-size: " + AppPreferences.getFontSize() + "pt}");
-		style.addRule("div {margin-bottom: 5px");
-//		style.addRule("span.roll {border: 1px black solid");
+		style.addRule("div {margin-bottom: 5px}");
+		style.addRule("span.roll {background:#efefef}");
 
 		repaint();
 	}
@@ -131,7 +131,7 @@ public class MessagePanel extends JPanel {
 			public void run() {
 				
 				String text = "<div>"+message.getMessage()+"</div>";
-				text = text.replaceAll("\\[roll\\s*([^\\]]*)]", "<span class='roll' style='background:#cfcfcf;color:black;border-style:inset'>&nbsp;$1&nbsp;</span>");
+				text = text.replaceAll("\\[roll\\s*([^\\]]*)]", "&#171;<span class='roll' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
 				
 				Element element = document.getElement("body");
 				try {
