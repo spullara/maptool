@@ -28,7 +28,7 @@ import net.rptools.maptool.util.GraphicsUtil;
 public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 
     public enum View {
-		TOKENS("Tokens", Zone.Layer.TOKEN, false, true),
+		TOKENS("Tokens", Zone.Layer.TOKEN, false, false),
     	PLAYERS("Players", Zone.Layer.TOKEN, false, false),
 		GROUPS("Groups", Zone.Layer.TOKEN, false, false),
 		OBJECTS("Objects", Zone.Layer.OBJECT, false, true),
