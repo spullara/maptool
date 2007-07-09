@@ -76,6 +76,7 @@ import javax.swing.Timer;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.ImageBorder;
+import net.rptools.lib.swing.ImageLabel;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppPreferences;
@@ -1765,8 +1766,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     name += " (" + token.getGMName() + ")";
                 }
                 
-                Color background = token.isVisible() ? Color.white : Color.gray;
-                Color foreground = token.isVisible() ? Color.black : Color.lightGray;
+                ImageLabel background = token.isVisible() ? token.getType() == Token.Type.NPC ? GraphicsUtil.BLUE_LABEL : GraphicsUtil.GREY_LABEL : GraphicsUtil.DARK_GREY_LABEL;
+                Color foreground = token.isVisible() ? token.getType() == Token.Type.NPC ? Color.white : Color.black : Color.white;
                 int offset = 10 + (isSelected ? 3 : 0);
                 GraphicsUtil.drawBoxedString(g, name, bounds.getBounds().x + bounds.getBounds ().width/2, bounds.getBounds().y + bounds.getBounds().height + offset, SwingUtilities.CENTER, background, foreground);
             }

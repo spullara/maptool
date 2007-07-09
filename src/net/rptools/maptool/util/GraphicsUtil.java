@@ -40,6 +40,7 @@ import java.io.IOException;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.lib.swing.ImageLabel;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -49,30 +50,13 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
  */
 public class GraphicsUtil {
 
-	private static final int BOX_PADDINGX = 5;
+	private static final int BOX_PADDINGX = 10;
 	private static final int BOX_PADDINGY = 2;
 	
 	// TODO: Make this configurable
-	private static final String LABEL_BOX_IMG = "net/rptools/maptool/client/image/labelbox.png";
-	
-	private static BufferedImage labelBoxLeftImage;
-	private static BufferedImage labelBoxRightImage;
-	private static BufferedImage labelBoxMiddleImage;
-	private static int leftMargin = 4;
-	private static int rightMargin = 4;
-	
-	static {
-		try {
-			BufferedImage image = ImageUtil.getCompatibleImage(LABEL_BOX_IMG);
-			
-			labelBoxLeftImage = image.getSubimage(0, 0, leftMargin, image.getHeight());
-			labelBoxRightImage = image.getSubimage(image.getWidth()-rightMargin, 0, rightMargin, image.getHeight());
-			labelBoxMiddleImage = image.getSubimage(leftMargin, 0, image.getWidth() - leftMargin - rightMargin, image.getHeight());
-			
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-	}
+	public static final ImageLabel GREY_LABEL = new ImageLabel("net/rptools/maptool/client/image/grayLabelbox.png", 4, 4);
+	public static final ImageLabel BLUE_LABEL = new ImageLabel("net/rptools/maptool/client/image/blueLabelbox.png", 4, 4);
+	public static final ImageLabel DARK_GREY_LABEL = new ImageLabel("net/rptools/maptool/client/image/darkGreyLabelbox.png", 4, 4);
 	
 	/**
 	 * A multiline text wrapping popup.  
@@ -172,9 +156,9 @@ public class GraphicsUtil {
     }
     
     public static Rectangle drawBoxedString(Graphics2D g, String string, int x, int y, int justification) {
-    	return drawBoxedString(g, string, x, y, justification, Color.white, Color.black);
+    	return drawBoxedString(g, string, x, y, justification, GREY_LABEL, Color.black);
     }
-    public static Rectangle drawBoxedString(Graphics2D g, String string, int x, int y, int justification, Color background, Color foreground) {
+    public static Rectangle drawBoxedString(Graphics2D g, String string, int x, int y, int justification, ImageLabel background, Color foreground) {
     	
         if (string == null) {
             string = "";
@@ -201,9 +185,7 @@ public class GraphicsUtil {
 		
 		// Box
 		Rectangle boxBounds = new Rectangle(x, y, width, height);
-		g.drawImage(labelBoxLeftImage, x, y, labelBoxLeftImage.getWidth(), height, null);
-		g.drawImage(labelBoxRightImage, x+width-rightMargin, y, rightMargin, height, null);
-		g.drawImage(labelBoxMiddleImage, x+leftMargin, y, width-rightMargin-leftMargin, height, null);
+		background.renderLabel(g, x, y, width, height);
 		
 		// Renderer message
 		g.setColor(foreground);
