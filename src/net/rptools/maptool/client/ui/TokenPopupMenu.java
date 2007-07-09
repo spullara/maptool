@@ -18,6 +18,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppActions;
@@ -617,7 +618,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		public void actionPerformed(ActionEvent e) {
 			String identity = getTokenUnderMouse().getName();
 			String command = "/im " + identity + ":" + macro;
-			JTextArea commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+			JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
 			commandArea.setText(command);
 			MapTool.getFrame().getCommandPanel().commitCommand();
 		}
@@ -635,7 +636,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		public void actionPerformed(ActionEvent e) {
 			String identity = getTokenUnderMouse().getName();
 			String command = "/im " + identity + ":" + speech;
-			JTextArea commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+			JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
 			commandArea.setText(command);
 			MapTool.getFrame().getCommandPanel().commitCommand();
 		}

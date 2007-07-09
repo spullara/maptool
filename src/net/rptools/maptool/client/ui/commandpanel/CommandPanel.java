@@ -29,10 +29,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicToggleButtonUI;
+import javax.swing.text.Document;
+import javax.swing.text.html.StyleSheet;
 
 import net.rptools.lib.AppEvent;
 import net.rptools.lib.AppEventListener;
@@ -42,7 +45,6 @@ import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroManager;
-import net.rptools.maptool.client.ui.PreferencesDialog;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.util.StringUtil;
@@ -50,7 +52,7 @@ import net.rptools.maptool.util.StringUtil;
 public class CommandPanel extends JPanel implements Observer {
 
 	private JLabel characterLabel;
-	private JTextArea commandTextArea;
+	private JTextPane commandTextArea;
 	private MessagePanel messagePanel;
 	private List<String> commandHistory = new LinkedList<String>();
 	private int commandHistoryIndex;
@@ -159,9 +161,9 @@ public class CommandPanel extends JPanel implements Observer {
 		return characterLabel;
 	}
 	
-	public JTextArea getCommandTextArea() {
+	public JTextPane getCommandTextArea() {
 		if (commandTextArea == null) {
-			commandTextArea = new JTextArea(){
+			commandTextArea = new JTextPane(){
 				@Override
 				protected void paintComponent(Graphics g) {
 					super.paintComponent(g);
@@ -172,10 +174,8 @@ public class CommandPanel extends JPanel implements Observer {
 				}
 			};
 			commandTextArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-			commandTextArea.setRows(3);
-			commandTextArea.setWrapStyleWord(true);
-			commandTextArea.setLineWrap(true);
-			commandTextArea.setFont(new Font("helvetica", 0, AppPreferences.getFontSize()));
+			commandTextArea.setPreferredSize(new Dimension(50, 50));
+			commandTextArea.setFont(new Font("sans-serif", 0, AppPreferences.getFontSize()));
 			SwingUtil.useAntiAliasing(commandTextArea);
 			
 			ActionMap actions = commandTextArea.getActionMap();
@@ -399,7 +399,7 @@ public class CommandPanel extends JPanel implements Observer {
 	      break;
 	    default:
 	      throw new IllegalArgumentException("Unknown event: " + event);
-	    } // endswitch
+	    } 
 	}	
 	
 }

@@ -62,6 +62,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
@@ -664,7 +665,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 						}
 
 						// TODO: COmbine this with the code int MacroButton
-						JTextArea commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+						JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
 
 						commandArea.setText(commandArea.getText() + selectedText);
 						commandArea.requestFocusInWindow();
@@ -683,7 +684,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 						}
 
 						// TODO: COmbine this with the code int MacroButton
-						JTextArea commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+						JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
 
 						commandArea.setText("/emit " + selectedText);
 						commandArea.requestFocusInWindow();

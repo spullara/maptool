@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.AppConstants;
@@ -147,7 +148,7 @@ public class MacroButton extends JButton {
 		
 		if (command != null) {
 			
-			JTextArea commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+			JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
 
 			if (includeLabel) {
 				String commandToExecute = label;
