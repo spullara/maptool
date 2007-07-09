@@ -46,7 +46,6 @@ public class SayMacro implements Macro {
         String identity = MapTool.getFrame().getCommandPanel().getIdentity();
         sb.append("<table cellpadding=0><tr>");
         
-        System.out.println(AppPreferences.getShowAvatarInChat());
         if (!identity.equals(MapTool.getPlayer().getName()) && AppPreferences.getShowAvatarInChat()) {
         	Token token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokenByName(identity);
         	if (token != null) {
