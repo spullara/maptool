@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -28,14 +29,11 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicToggleButtonUI;
-import javax.swing.text.Document;
-import javax.swing.text.html.StyleSheet;
 
 import net.rptools.lib.AppEvent;
 import net.rptools.lib.AppEventListener;
@@ -45,8 +43,11 @@ import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroManager;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
+import net.rptools.maptool.model.Token;
+import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
 
 public class CommandPanel extends JPanel implements Observer {
@@ -58,6 +59,7 @@ public class CommandPanel extends JPanel implements Observer {
 	private int commandHistoryIndex;
 	private TextColorWell textColorWell;
 	private JToggleButton scrollLockButton;
+	private AvatarPanel avatarPanel;
 	
 	private String identity;
 	
@@ -78,8 +80,18 @@ public class CommandPanel extends JPanel implements Observer {
     	this.identity = identity;
     	if (identity == null || identity.equals(MapTool.getPlayer().getName())) {
     		setCharacterLabel("");
+    		avatarPanel.setImage(null);
     	} else {
     		setCharacterLabel("Speaking as: " + getIdentity() );
+    		
+    		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+    			Token token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokenByName(identity);
+    			if (token != null) {
+    				avatarPanel.setImage(ImageManager.getImageAndWait(AssetManager.getAsset(token.getAssetID())));
+    			} else {
+    				avatarPanel.setImage(null);
+    			}
+    		}
     	}
     }
 	
@@ -101,14 +113,25 @@ public class CommandPanel extends JPanel implements Observer {
 	private JComponent createSouthPanel() {
 		
 		JPanel panel = new JPanel (new BorderLayout());
+
+		JPanel subPanel = new JPanel (new BorderLayout());
+		subPanel.add(BorderLayout.EAST, createTextPropertiesPanel());
+		subPanel.add(BorderLayout.NORTH, createCharacterLabel());
+		subPanel.add(BorderLayout.CENTER, createCommandPanel());
 		
-		panel.add(BorderLayout.EAST, createTextPropertiesPanel());
-		panel.add(BorderLayout.NORTH, createCharacterLabel());
-		panel.add(BorderLayout.CENTER, createCommandPanel());
+		panel.add(BorderLayout.WEST, createAvatarPanel());
+		panel.add(BorderLayout.CENTER, subPanel);
 		
 		return panel;
 	}
 
+	private JComponent createAvatarPanel() {
+		
+		avatarPanel = new AvatarPanel(new Dimension(60, 60));
+		
+		return avatarPanel;
+	}
+	
 	private JComponent createCommandPanel() {
 		
 		JScrollPane pane = new JScrollPane(getCommandTextArea(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);		
@@ -174,7 +197,7 @@ public class CommandPanel extends JPanel implements Observer {
 				}
 			};
 			commandTextArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-			commandTextArea.setPreferredSize(new Dimension(50, 50));
+			commandTextArea.setPreferredSize(new Dimension(50, 40));
 			commandTextArea.setFont(new Font("sans-serif", 0, AppPreferences.getFontSize()));
 			SwingUtil.useAntiAliasing(commandTextArea);
 			
@@ -378,6 +401,43 @@ public class CommandPanel extends JPanel implements Observer {
 		protected void paintComponent(Graphics g) {
 			g.setColor(color);
 			g.fillRect(0, 0, getSize().width, getSize().height);
+		}
+	}
+	
+	private static class AvatarPanel extends JComponent {
+
+		private static final int PADDING = 5;
+		
+		private Image image;
+		private Dimension preferredSize;
+		
+		public AvatarPanel(Dimension preferredSize) {
+			this.preferredSize = preferredSize;
+			
+			setImage(null);
+		}
+
+		public void setImage(Image image) {
+			this.image = image;
+			setPreferredSize(image != null ? preferredSize : new Dimension(0, 0));
+			invalidate();
+			repaint();
+		}
+		
+		@Override
+		protected void paintComponent(Graphics g) {
+			Dimension size = getSize();
+			g.setColor(getBackground());
+			g.fillRect(0, 0, size.width, size.height);
+			
+			if (image == null) {
+				return;
+			}
+			
+			Dimension imgSize = new Dimension(image.getWidth(null), image.getHeight(null));
+			SwingUtil.constrainTo(imgSize, size.width-PADDING*2, size.height-PADDING*2);
+
+			g.drawImage(image, (size.width-imgSize.width)/2, (size.height-imgSize.height)/2, imgSize.width, imgSize.width, this);
 		}
 	}
 	
