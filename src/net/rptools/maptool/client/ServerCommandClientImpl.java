@@ -25,15 +25,12 @@
 package net.rptools.maptool.client;
 
 import java.awt.geom.Area;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetAvailableListener;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
@@ -218,8 +215,10 @@ public class ServerCommandClientImpl implements ServerCommand {
     }
     
 	private static void makeServerCall(ServerCommand.COMMAND command, Object... params) {
-        
-        MapTool.getConnection().callMethod(command.name(), params);
+        if (MapTool.getConnection() != null) {
+            MapTool.getConnection().callMethod(command.name(), params);
+        	
+        }
     }
     
     /**
