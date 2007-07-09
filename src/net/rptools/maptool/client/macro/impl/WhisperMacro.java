@@ -58,7 +58,7 @@ public class WhisperMacro implements Macro {
         }
         
         // Send
-        MapTool.addMessage(TextMessage.whisper(playerName, MapTool.getFrame().getCommandPanel().getIdentity()+" whispers: "+message));
-        MapTool.addMessage(TextMessage.me("You whisper to " + playerName + ": "+message));
+        MapTool.addMessage(TextMessage.whisper(playerName, "<span class='whisper' style='color:blue'>" + MapTool.getFrame().getCommandPanel().getIdentity()+" whispers: "+message+"</span>"));
+        MapTool.addMessage(TextMessage.me("<span class='whisper' style='color:blue'>You whisper to " + playerName + ": "+message));
     }
 }
