@@ -33,6 +33,7 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,6 +50,7 @@ import net.rptools.lib.EventDispatcher;
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.TaskBarFlasher;
 import net.rptools.lib.image.ThumbnailManager;
+import net.rptools.lib.net.RPTURLStreamHandlerFactory;
 import net.rptools.lib.sound.SoundManager;
 import net.rptools.maptool.client.swing.SplashScreen;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
@@ -665,6 +667,11 @@ public class MapTool {
         final SplashScreen splash = new SplashScreen("net/rptools/maptool/client/image/maptool_splash.png", getVersion());
         splash.showSplashScreen();
 
+        // Protocol handlers
+        RPTURLStreamHandlerFactory factory = new RPTURLStreamHandlerFactory();
+        factory.registerProtocol("asset", new AssetURLStreamHandler());
+		URL.setURLStreamHandlerFactory(factory);
+        
         // LAF
         try {
         	UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");

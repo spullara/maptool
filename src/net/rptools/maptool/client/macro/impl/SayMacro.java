@@ -26,10 +26,12 @@ package net.rptools.maptool.client.macro.impl;
 
 import java.awt.Color;
 
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
+import net.rptools.maptool.model.Token;
 
 @MacroDefinition(
 	name = "say",
@@ -41,9 +43,20 @@ public class SayMacro implements Macro {
     public void execute(String macro) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("<table cellpadding=0><tr><td valign=top style=\"margin-right: 5px\">");
-        sb.append(MapTool.getFrame().getCommandPanel().getIdentity()).append(": ");
-        sb.append("</td><td>");
+        String identity = MapTool.getFrame().getCommandPanel().getIdentity();
+        sb.append("<table cellpadding=0><tr>");
+        
+        System.out.println(AppPreferences.getShowAvatarInChat());
+        if (!identity.equals(MapTool.getPlayer().getName()) && AppPreferences.getShowAvatarInChat()) {
+        	Token token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokenByName(identity);
+        	if (token != null) {
+	        	sb.append("<td valign=top width=15 style=\"padding-right:5px\"><img src=\"asset://").append(token.getAssetID()).append("\" width=\"20\" height=\"20\"></td>");
+        	}
+        }
+        
+        sb.append("<td valign=top style=\"margin-right: 5px\">");
+        sb.append(identity).append(": ");
+        sb.append("</td><td valign=top>");
 
         Color color = MapTool.getFrame().getCommandPanel().getTextColorWell().getColor();
         if (color != null) {
@@ -53,7 +66,9 @@ public class SayMacro implements Macro {
         if (color != null) {
         	sb.append("</span>");
         }
-        sb.append("</td></tr></table>");
+        sb.append("</td>");
+        
+        sb.append("</tr></table>");
         
         MapTool.addMessage(TextMessage.say(sb.toString()));
     }

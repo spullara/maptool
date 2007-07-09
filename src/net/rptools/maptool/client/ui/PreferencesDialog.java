@@ -52,6 +52,8 @@ public class PreferencesDialog extends JDialog {
     private JCheckBox playSystemSoundCheckBox;
     private JCheckBox playSystemSoundOnlyWhenNotFocusedCheckBox;
 
+    private JCheckBox showAvatarInChat;
+    
 	// Defaults
 	private JComboBox defaultGridTypeCombo;
 	private JTextField defaultGridSizeTextField;
@@ -59,6 +61,7 @@ public class PreferencesDialog extends JDialog {
 	
 	private JSpinner autoSaveSpinner;
 	private JCheckBox saveReminderCheckBox;
+	
 
 	// Accessibility
 	private JTextField fontSizeTextField;
@@ -104,10 +107,16 @@ public class PreferencesDialog extends JDialog {
 		autoRevealVisionOnGMMoveCheckBox = panel.getCheckBox("autoRevealVisionOnGMMoveCheckBox");
 		playSystemSoundCheckBox = panel.getCheckBox("playSystemSounds");
 		playSystemSoundOnlyWhenNotFocusedCheckBox = panel.getCheckBox("soundsOnlyWhenNotFocused");
+		showAvatarInChat = panel.getCheckBox("showChatAvatar");
 
 		setInitialState();
 
 		// And keep it updated
+		showAvatarInChat.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setShowAvatarInChat(showAvatarInChat.isSelected());
+			}
+		});
 		saveReminderCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setSaveReminder(saveReminderCheckBox.isSelected());
@@ -344,5 +353,6 @@ public class PreferencesDialog extends JDialog {
 		autoRevealVisionOnGMMoveCheckBox.setSelected(AppPreferences.getAutoRevealVisionOnGMMovement());
 		playSystemSoundCheckBox.setSelected(AppPreferences.getPlaySystemSounds());
 		playSystemSoundOnlyWhenNotFocusedCheckBox.setSelected(AppPreferences.getPlaySystemSoundsOnlyWhenNotFocused());
+		showAvatarInChat.setSelected(AppPreferences.getShowAvatarInChat());
 	}
 }

@@ -129,6 +129,17 @@ public class AppPreferences {
     private static final String KEY_SOUNDS_ONLY_WHEN_NOT_FOCUSED = "playSystemSoundsOnlyWhenNotFocused";
     private static final boolean DEFAULT_SOUNDS_ONLY_WHEN_NOT_FOCUSED = false;
 
+    private static final String KEY_SHOW_AVATAR_IN_CHAT = "showAvatarInChat";
+    private static final boolean DEFAULT_SHOW_AVATAR_IN_CHAT = true;
+    
+    public static void setShowAvatarInChat(boolean show) {
+    	prefs.putBoolean(KEY_SHOW_AVATAR_IN_CHAT, show);
+    }
+    
+    public static boolean getShowAvatarInChat() {
+    	return prefs.getBoolean(KEY_SHOW_AVATAR_IN_CHAT, DEFAULT_SHOW_AVATAR_IN_CHAT);
+    }
+    
     public static void setPlaySystemSounds(boolean play) {
     	prefs.putBoolean(KEY_PLAY_SYSTEM_SOUNDS, play);
     }
