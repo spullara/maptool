@@ -490,8 +490,12 @@ public class MapPropertiesDialog extends JDialog  {
 
 		private JButton createCancelButton() {
 			JButton button = new JButton("Cancel");
-			selectedAsset = null;
-			setVisible(false);
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					selectedAsset = null;
+					setVisible(false);
+				}
+			});
 			
 			return button;
 		}
