@@ -28,6 +28,7 @@ import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -41,49 +42,61 @@ public class ImpersonateMacro implements Macro {
 	
 	public void execute(String macro) {
 
-		int index = macro.indexOf(":");
-		String oldIdentity = MapTool.getFrame().getCommandPanel().getIdentity();
-		if ( index > 0 ) {
-			String name = macro.substring(0,index);
-			if (canImpersonate(name)) {
-				MapTool.getFrame().getCommandPanel().setIdentity(name);
-				MacroManager.executeMacro(macro.substring(index+1));
-				MapTool.getFrame().getCommandPanel().setIdentity(oldIdentity);
-			}
-		} else if ( macro.length() > 0 ) {
-			if (canImpersonate(macro)) {
-				MapTool.getFrame().getCommandPanel().setIdentity(macro);
-			}
-        } else {
+		macro = macro.trim();
+
+		// Stop impersonating
+		if (macro == null || macro.length() == 0) {
         	MapTool.getFrame().getCommandPanel().setIdentity(null);
+        	return;
+		}
+
+		// Figure out what we want to impersonate
+		String oldIdentity = MapTool.getFrame().getCommandPanel().getIdentity();
+
+		String name = macro;
+		int index = macro.indexOf(":");
+		if (index > 0) {
+			name = macro.substring(0, index).trim();
+			macro = macro.substring(index+1);
+		}
+		
+		Token token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokenByName(name);
+		if (token == null) {
+			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokenByGMName(name);
+		}
+		if (token == null) {
+			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(GUID.valueOf(name));
+		}
+		if (token != null) {
+			name = token.getName();
+		}
+
+		// Permission
+		if (!canImpersonate(token)) {
+			MapTool.addLocalMessage("You can only impersonate tokens that you own");
+			return;
+		}
+		
+		// Impersonate
+		if ( index > 0 ) {
+			MapTool.getFrame().getCommandPanel().setIdentity(name);
+			MacroManager.executeMacro(macro);
+			MapTool.getFrame().getCommandPanel().setIdentity(oldIdentity);
+		} else {
+			MapTool.getFrame().getCommandPanel().setIdentity(name);
         }
 	}
 
-	private boolean canImpersonate(String name) {
+	private boolean canImpersonate(Token token) {
 
 		if (MapTool.getPlayer().isGM()) {
 			return true;
 		}
-		// Check for token ownership
-		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-		if (renderer == null) {
-			MapTool.addLocalMessage("You can only impersonate tokens that you own");
-			return false;
-		}
-		
-		Zone zone = renderer.getZone();
-		Token token = zone.getTokenByName(name);
 		
 		if (token == null) {
-			MapTool.addLocalMessage("You can only impersonate tokens that you own");
 			return false;
 		}
 		
-		if (!token.isOwner(MapTool.getPlayer().getName())) {
-			MapTool.addLocalMessage("You can only impersonate tokens that you own");
-			return false;
-		}
-		
-		return true;
+		return token.isOwner(MapTool.getPlayer().getName());
 	}
 }

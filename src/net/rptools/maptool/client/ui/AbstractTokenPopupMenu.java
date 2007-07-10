@@ -15,6 +15,7 @@ import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppUtil;
@@ -580,6 +581,20 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		}
 	}
 
+	public class ImpersonateAction extends AbstractAction {
+		
+		public ImpersonateAction() {
+			putValue(Action.NAME, "Impersonate");
+		}
+		public void actionPerformed(ActionEvent e) {
+			JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+
+			commandArea.setText("/im " + tokenUnderMouse.getId());
+			MapTool.getFrame().getCommandPanel().commitCommand();
+			commandArea.requestFocusInWindow();
+		}
+	}
+	
 	public class StartMoveAction extends AbstractAction {
 
 		public StartMoveAction() {
