@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -20,16 +21,19 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.filechooser.FileFilter;
 
 import net.rptools.lib.swing.PaintChooser;
 import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
@@ -347,28 +351,28 @@ public class MapPropertiesDialog extends JDialog  {
 		});
 	}
 	
-//	private PreviewPanelFileChooser getImageFileChooser() {
-//		if (imageFileChooser == null) {
-//			imageFileChooser = new PreviewPanelFileChooser();
-//			imageFileChooser.setFileFilter(new FileFilter() {
-//				@Override
-//				public boolean accept(File f) {
-//					return f.isDirectory()
-//							|| AppConstants.IMAGE_FILE_FILTER.accept(f
-//									.getAbsoluteFile(), f.getName());
-//				}
-//
-//				@Override
-//				public String getDescription() {
-//					return "Images only";
-//				}
-//			});
-//			if (lastFilePath != null) {
-//				imageFileChooser.setCurrentDirectory(lastFilePath);
-//			}
-//		}
-//		return imageFileChooser;
-//	}
+	private PreviewPanelFileChooser getImageFileChooser() {
+		if (imageFileChooser == null) {
+			imageFileChooser = new PreviewPanelFileChooser();
+			imageFileChooser.setFileFilter(new FileFilter() {
+				@Override
+				public boolean accept(File f) {
+					return f.isDirectory()
+							|| AppConstants.IMAGE_FILE_FILTER.accept(f
+									.getAbsoluteFile(), f.getName());
+				}
+
+				@Override
+				public String getDescription() {
+					return "Images only";
+				}
+			});
+			if (lastFilePath != null) {
+				imageFileChooser.setCurrentDirectory(lastFilePath);
+			}
+		}
+		return imageFileChooser;
+	}
 	
 	private MapPreviewPanel getMapPreviewPanel() {
 		if (imagePreviewPanel == null) {
@@ -450,7 +454,7 @@ public class MapPropertiesDialog extends JDialog  {
 			
 			JPanel leftPanel = new JPanel();
 			leftPanel.add(createFilesystemButton());
-			leftPanel.add(createClearButton());
+//			leftPanel.add(createClearButton());
 			
 			JPanel rightPanel = new JPanel();
 			rightPanel.add(createOKButton());
@@ -466,17 +470,34 @@ public class MapPropertiesDialog extends JDialog  {
 			JButton button = new JButton("Filesystem ...");
 			button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					setVisible(false);
+					if (getImageFileChooser().showOpenDialog(MapPropertiesDialog.this) == JFileChooser.APPROVE_OPTION) {
+						File imageFile = getImageFileChooser().getSelectedFile();
+						if (imageFile == null || imageFile.isDirectory()) {
+							return;
+						}
+						
+						lastFilePath = new File(imageFile.getParentFile() + "/.");
+						try {
+							selectedAsset = AssetManager.createAsset(imageFile);
+							updatePreview();
+//							setBackgroundAsset(asset, getImageFileChooser().getSelectedThumbnailImage());
+						} catch (IOException ioe) {
+							MapTool.showError("Could not load that map: " + ioe);
+							selectedAsset = null;
+						}
+					}
 				}
 			});
 			
 			return button;
 		}
 
-		private JButton createClearButton() {
-			JButton button = new JButton("Clear");
-			
-			return button;
-		}
+//		private JButton createClearButton() {
+//			JButton button = new JButton("Clear");
+//			
+//			return button;
+//		}
 
 		private JButton createOKButton() {
 			JButton button = new JButton("OK");
@@ -531,26 +552,6 @@ public class MapPropertiesDialog extends JDialog  {
 		}
 	}
 	
-//	
-//	getBackgroundButton().addActionListener(new ActionListener(){
-//		public void actionPerformed(ActionEvent e) {
-//			if (getImageFileChooser().showOpenDialog(NewMapDialog.this) == JFileChooser.APPROVE_OPTION) {
-//				File imageFile = getImageFileChooser().getSelectedFile();
-//				if (imageFile == null || imageFile.isDirectory()) {
-//					return;
-//				}
-//				
-//				lastFilePath = new File(imageFile.getParentFile() + "/.");
-//				try {
-//					Asset asset = AssetManager.createAsset(imageFile);
-//					setBackgroundAsset(asset, getImageFileChooser().getSelectedThumbnailImage());
-//				} catch (IOException ioe) {
-//					setBackgroundAsset(null, null);
-//				}
-//			}
-//		}
-//	});
-
 	private class MapPreviewPanel extends JComponent {
 		
 		@Override
