@@ -319,7 +319,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     			
     			Token token = tokenList.get(i);
     			
-    			BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), renderer);
+    			BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), renderer);
     			
     			Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
     			SwingUtil.constrainTo(imgSize, gridSize);

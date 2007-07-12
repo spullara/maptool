@@ -48,7 +48,7 @@ public class TokenListCellRenderer extends DefaultListCellRenderer {
         super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         if (value instanceof Token) {
             Token token = (Token) value;
-            image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this);
+            image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), this);
             name = token.getName();
             
             setText(" "); // hack to keep the row height the right size

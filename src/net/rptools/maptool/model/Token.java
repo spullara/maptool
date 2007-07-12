@@ -37,19 +37,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.ImageIcon;
 
-import antlr.StringUtils;
-
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.lib.swing.SwingUtil;
 import net.rptools.lib.transferable.TokenTransferData;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
@@ -98,8 +93,9 @@ public class Token extends BaseModel {
 			return o1.getName().compareToIgnoreCase(o2.getName());
 		}
 	};
-  
-	private MD5Key assetID;
+
+	private Map<String, MD5Key> imageAssetMap;
+	private String currentImageAsset;
 
 	private int x;
 	private int y;
@@ -177,7 +173,8 @@ public class Token extends BaseModel {
 
 	public Token(Token token) {
 		id = new GUID();
-		assetID = token.assetID;
+		currentImageAsset = token.currentImageAsset;
+		
 		x = token.x;
 		y = token.y;
 
@@ -236,6 +233,10 @@ public class Token extends BaseModel {
 		if (token.speechMap != null) {
 			speechMap = new HashMap<String, String>(token.speechMap);
 		}
+		
+		if (token.imageAssetMap != null) {
+			imageAssetMap = new HashMap<String, MD5Key>(token.imageAssetMap);
+		}
 	}
 
 	public Token() {
@@ -246,10 +247,14 @@ public class Token extends BaseModel {
 		this("", assetID);
 	}
 
-	public Token(String name, MD5Key assetID) {
+	public Token(String name, MD5Key assetId) {
 		this.name = name;
-		this.assetID = assetID;
+
 		state = new HashMap<String, Object>();
+		imageAssetMap = new HashMap<String, MD5Key>();
+
+		// NULL key is the default
+		imageAssetMap.put(null, assetId);
 	}
 
 	public boolean isMarker() {
@@ -460,12 +465,20 @@ public class Token extends BaseModel {
 		fireModelChangeEvent(new ModelChangeEvent(this, ChangeEvent.name, name));
 	}
 
-	public MD5Key getAssetID() {
-		return assetID;
+	public MD5Key getImageAssetId() {
+		MD5Key assetId = imageAssetMap.get(currentImageAsset);
+		if (assetId == null) {
+			assetId = imageAssetMap.get(null); // default image
+		}
+		return assetId;
 	}
 
-	public void setAsset(MD5Key assetID) {
-		this.assetID = assetID;
+	public void setImageAsset(String name, MD5Key assetId) {
+		imageAssetMap.put(name, assetId);
+	}
+	
+	public void setImageAsset(String name) {
+		currentImageAsset = name;
 	}
 
 	public GUID getId() {
@@ -755,7 +768,7 @@ public class Token extends BaseModel {
 
         // Set the properties
         td.put(TokenTransferData.ID, id.toString());
-        td.put(TokenTransferData.ASSET_ID, assetID);
+        td.put(TokenTransferData.ASSET_ID, imageAssetMap.get(null));
         td.put(TokenTransferData.Z, z);
         td.put(TokenTransferData.SNAP_TO_SCALE, snapToScale);
         td.put(TokenTransferData.WIDTH, width);
@@ -773,11 +786,11 @@ public class Token extends BaseModel {
             Object value = getState(key);
             if (value instanceof Serializable)
                 td.put(key, value);
-        } // endfor
+        } 
         td.putAll(state);
 
         // Create the image from the asset and add it to the map
-        Asset asset = AssetManager.getAsset(assetID);
+        Asset asset = AssetManager.getAsset(imageAssetMap.get(null));
         Image image = ImageManager.getImageAndWait(asset);
         if (image != null)
             td.setToken(new ImageIcon(image)); // Image icon makes it serializable.
@@ -796,7 +809,7 @@ public class Token extends BaseModel {
         if (td.getLocation() != null) {
             x = td.getLocation().x;
             y = td.getLocation().y;
-        } // endif
+        } 
         snapToScale = getBoolean(td, TokenTransferData.SNAP_TO_SCALE, true);
         width = getInt(td, TokenTransferData.WIDTH, 1);
         height = getInt(td, TokenTransferData.HEIGHT, 1);
@@ -824,7 +837,7 @@ public class Token extends BaseModel {
                         .getIconHeight(), Transparency.TRANSLUCENT);
                 Graphics2D g = ((BufferedImage) image).createGraphics();
                 icon.paintIcon(null, g, 0, 0);
-            } // endif
+            } 
 
             // Create the asset
             try {
@@ -832,11 +845,11 @@ public class Token extends BaseModel {
                         .imageToBytes((BufferedImage) image));
                 if (!AssetManager.hasAsset(asset))
                     AssetManager.putAsset(asset);
-                assetID = asset.getId();
+                imageAssetMap.put(null, asset.getId());
             } catch (IOException e) {
                 e.printStackTrace();
-            } // endtry
-        } // endtry
+            } 
+        } 
 
         // Get all of the non maptool state
         state = new HashMap<String, Object>();

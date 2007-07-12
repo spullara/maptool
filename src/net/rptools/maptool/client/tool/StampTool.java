@@ -290,7 +290,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
     			
     			Token token = tokenList.get(i);
     			
-    			BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), renderer);
+    			BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), renderer);
     			
     			Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
     			SwingUtil.constrainTo(imgSize, gridSize);
@@ -594,7 +594,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			if (SwingUtil.isShiftDown(e)) {
 				ScreenPoint tokenPoint = ScreenPoint.fromZonePoint(renderer, tokenUnderMouse.getX(), tokenUnderMouse.getY());
 				
-				BufferedImage image = ImageManager.getImage(AssetManager.getAsset(tokenUnderMouse.getAssetID()));
+				BufferedImage image = ImageManager.getImage(AssetManager.getAsset(tokenUnderMouse.getImageAssetId()));
 				double ratio = image.getWidth() / (double) image.getHeight();
 				
 				int dx = sp.x - tokenPoint.x;

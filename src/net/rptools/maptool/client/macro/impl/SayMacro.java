@@ -49,7 +49,7 @@ public class SayMacro implements Macro {
         if (!identity.equals(MapTool.getPlayer().getName()) && AppPreferences.getShowAvatarInChat()) {
         	Token token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokenByName(identity);
         	if (token != null) {
-	        	sb.append("<td valign=top width=15 style=\"padding-right:5px\"><img src=\"asset://").append(token.getAssetID()).append("\" width=\"20\" height=\"20\"></td>");
+	        	sb.append("<td valign=top width=15 style=\"padding-right:5px\"><img src=\"asset://").append(token.getImageAssetId()).append("\" width=\"20\" height=\"20\"></td>");
         	}
         }
         

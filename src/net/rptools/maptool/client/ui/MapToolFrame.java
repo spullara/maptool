@@ -1017,45 +1017,45 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		// Let's add all the assets, starting with the backgrounds
 		for (Token token : zone.getBackgroundTokens()) {
 
-			MD5Key key = token.getAssetID();
+			MD5Key key = token.getImageAssetId();
 
 			if (AssetManager.hasAsset(key)) {
 				ImageManager.getImage(AssetManager.getAsset(key));
 			} else {
 
 				if (!AssetManager.isAssetRequested(key)) {
-					AssetManager.addAssetListener(token.getAssetID(),
+					AssetManager.addAssetListener(token.getImageAssetId(),
 							listener);
 
 					// This will force a server request if we don't already
 					// have it
-					AssetManager.getAsset(token.getAssetID());
+					AssetManager.getAsset(token.getImageAssetId());
 				}
 			}
 		}
 
 		// Now the stamps
 		for (Token token : zone.getStampTokens()) {
-			MD5Key key = token.getAssetID();
+			MD5Key key = token.getImageAssetId();
 
 			if (AssetManager.hasAsset(key)) {
 				ImageManager.getImage(AssetManager.getAsset(key));
 			} else {
 
 				if (!AssetManager.isAssetRequested(key)) {
-					AssetManager.addAssetListener(token.getAssetID(),
+					AssetManager.addAssetListener(token.getImageAssetId(),
 							listener);
 
 					// This will force a server request if we don't already
 					// have it
-					AssetManager.getAsset(token.getAssetID());
+					AssetManager.getAsset(token.getImageAssetId());
 				}
 			}
 		}
 
 		// Now add the rest
 		for (Token token : zone.getAllTokens()) {
-			MD5Key key = token.getAssetID();
+			MD5Key key = token.getImageAssetId();
 
 			if (AssetManager.hasAsset(key)) {
 				ImageManager.getImage(AssetManager.getAsset(key));
@@ -1066,7 +1066,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 					// This will force a server request if we don't already
 					// have it
-					AssetManager.getAsset(token.getAssetID());
+					AssetManager.getAsset(token.getImageAssetId());
 				}
 			}
 		}

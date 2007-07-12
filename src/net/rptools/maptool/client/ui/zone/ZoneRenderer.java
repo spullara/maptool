@@ -1025,7 +1025,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     continue;
                 }
                 
-                Asset asset = AssetManager.getAsset(token.getAssetID());
+                Asset asset = AssetManager.getAsset(token.getImageAssetId());
                 if (asset == null) {
                     continue;
                 }
@@ -1088,7 +1088,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     newScreenPoint.y += (scaledGridSize - scaledHeight)/2;
                 }
                 
-                BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()));
+                BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
 
                 // handle flipping
                 BufferedImage workImage = image;
@@ -1531,14 +1531,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             // OPTIMIZE:
             BufferedImage image = null;
-            Asset asset = AssetManager.getAsset(token.getAssetID ());
+            Asset asset = AssetManager.getAsset(token.getImageAssetId ());
             if (asset == null) {
 
                 // In the mean time, show a placeholder
                 image = ImageManager.UNKNOWN_IMAGE;
             } else {
             
-                image = ImageManager.getImage(AssetManager.getAsset(token.getAssetID()), this);
+                image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), this);
             }
 
             // Only draw if we're visible
@@ -2222,7 +2222,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             token.setY(zp.y);
             
             // Set the image properties
-            BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(token.getAssetID()));
+            BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(token.getImageAssetId()));
             token.setShape(TokenUtil.guessTokenType((BufferedImage)image));
             token.setWidth(image.getWidth(null));
             token.setHeight(image.getHeight(null));

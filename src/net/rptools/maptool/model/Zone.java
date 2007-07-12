@@ -612,7 +612,7 @@ public class Zone extends BaseModel {
     	
     	// Tokens
     	for (Token token : getAllTokens()) {
-    		idSet.add(token.getAssetID());
+    		idSet.add(token.getImageAssetId());
     	}
     	
 		// Painted textures

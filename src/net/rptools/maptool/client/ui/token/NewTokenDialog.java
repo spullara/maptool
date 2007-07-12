@@ -234,7 +234,7 @@ public class NewTokenDialog extends AbeilleDialog {
 
 		// Get the base image && find the new size for the icon
 		BufferedImage assetImage = null;
-		Asset asset = AssetManager.getAsset(token.getAssetID());
+		Asset asset = AssetManager.getAsset(token.getImageAssetId());
 		if (asset == null) {
 			assetImage = ImageManager.UNKNOWN_IMAGE;
 		} else {

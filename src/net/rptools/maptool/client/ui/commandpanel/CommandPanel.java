@@ -87,7 +87,7 @@ public class CommandPanel extends JPanel implements Observer {
     		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
     			Token token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokenByName(identity);
     			if (token != null) {
-    				avatarPanel.setImage(ImageManager.getImageAndWait(AssetManager.getAsset(token.getAssetID())));
+    				avatarPanel.setImage(ImageManager.getImageAndWait(AssetManager.getAsset(token.getImageAssetId())));
     			} else {
     				avatarPanel.setImage(null);
     			}
