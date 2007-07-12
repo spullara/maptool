@@ -125,8 +125,8 @@ public class Token extends BaseModel {
 	private static final int OWNER_TYPE_ALL = 1;
 	private static final int OWNER_TYPE_LIST = 0;
 	
-	private String tokenShape; // TODO: 2.0 => change this to tokenShape
-	private String tokenType; // TODO: 2.0 => change this to tokenType
+	private String tokenShape;
+	private String tokenType;
 	private String layer;
 	
 	private String propertyType = Campaign.DEFAULT_TOKEN_PROPERTY_TYPE;
