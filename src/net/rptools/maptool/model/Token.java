@@ -125,8 +125,8 @@ public class Token extends BaseModel {
 	private static final int OWNER_TYPE_ALL = 1;
 	private static final int OWNER_TYPE_LIST = 0;
 	
-	private String tokenType; // TODO: 2.0 => change this to tokenShape
-	private String tokenMobType; // TODO: 2.0 => change this to tokenType
+	private String tokenShape; // TODO: 2.0 => change this to tokenShape
+	private String tokenType; // TODO: 2.0 => change this to tokenType
 	private String layer;
 	
 	private String propertyType = Campaign.DEFAULT_TOKEN_PROPERTY_TYPE;
@@ -189,8 +189,8 @@ public class Token extends BaseModel {
 		height = token.height;
 		size = token.size;
 		facing = token.facing;
+		tokenShape = token.tokenShape;
 		tokenType = token.tokenType;
-		tokenMobType = token.tokenMobType;
 		haloColorValue = token.haloColorValue;
 
 		snapToGrid = token.snapToGrid;
@@ -320,26 +320,26 @@ public class Token extends BaseModel {
 	
 	public TokenShape getShape() {
 		try {
-			return tokenType != null ? TokenShape.valueOf(tokenType) : TokenShape.SQUARE;  // TODO: make this a psf
+			return tokenShape != null ? TokenShape.valueOf(tokenShape) : TokenShape.SQUARE;  // TODO: make this a psf
 		} catch (IllegalArgumentException iae) {
 			return TokenShape.SQUARE;
 		}
 	}
 	
 	public void setShape(TokenShape type) {
-		this.tokenType = type.name();
+		this.tokenShape = type.name();
 	}
 	
 	public Type getType() {
 		try {
-			return tokenMobType != null ? Type.valueOf(tokenMobType) : Type.NPC;  // TODO: make this a psf
+			return tokenType != null ? Type.valueOf(tokenType) : Type.NPC;  // TODO: make this a psf
 		} catch (IllegalArgumentException iae) {
 			return Type.NPC;
 		}
 	}
 	
 	public void setType(Type type) {
-		this.tokenMobType = type.name();
+		this.tokenType = type.name();
 	}
 	
 	public Zone.Layer getLayer() {
@@ -481,6 +481,10 @@ public class Token extends BaseModel {
 		currentImageAsset = name;
 	}
 
+	public Set<MD5Key> getAllImageAssets() {
+		return new HashSet<MD5Key>(imageAssetMap.values());
+	}
+	
 	public GUID getId() {
 		return id;
 	}
@@ -776,7 +780,7 @@ public class Token extends BaseModel {
         td.put(TokenTransferData.SIZE, size);
         td.put(TokenTransferData.SNAP_TO_GRID, snapToGrid);
         td.put(TokenTransferData.OWNER_TYPE, ownerType);
-        td.put(TokenTransferData.TOKEN_TYPE, tokenType);
+        td.put(TokenTransferData.TOKEN_TYPE, tokenShape);
         td.put(TokenTransferData.NOTES, notes);
         td.put(TokenTransferData.GM_NOTES, gmNotes);
         td.put(TokenTransferData.GM_NAME, gmName);
@@ -820,7 +824,7 @@ public class Token extends BaseModel {
         ownerList = td.getPlayers();
         ownerType = getInt(td, TokenTransferData.OWNER_TYPE,
                 ownerList == null ? OWNER_TYPE_ALL : OWNER_TYPE_LIST);
-        tokenType = (String) td.get(TokenTransferData.TOKEN_TYPE);
+        tokenShape = (String) td.get(TokenTransferData.TOKEN_TYPE);
         facing = td.getFacing();
         notes = (String) td.get(TokenTransferData.NOTES);
         gmNotes = (String) td.get(TokenTransferData.GM_NOTES);
