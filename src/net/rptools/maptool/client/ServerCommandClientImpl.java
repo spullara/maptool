@@ -32,7 +32,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
-import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Pointer;
@@ -40,6 +39,7 @@ import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.ServerCommand;
@@ -169,7 +169,7 @@ public class ServerCommandClientImpl implements ServerCommand {
 		movementUpdateQueue.enqueue(COMMAND.updateTokenMove, zoneGUID, tokenGUID, x, y);
 	}
 
-	public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, CellPoint cp) {
+	public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, ZonePoint cp) {
     	movementUpdateQueue.flush();
     	makeServerCall(COMMAND.toggleTokenMoveWaypoint, zoneGUID, tokenGUID, cp);
     }

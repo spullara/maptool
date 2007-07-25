@@ -24,7 +24,7 @@
  */
 package net.rptools.maptool.model;
 
-public abstract class AbstractPoint {
+public abstract class AbstractPoint implements Cloneable {
 
     public int x;
     public int y;
@@ -51,5 +51,14 @@ public abstract class AbstractPoint {
 
     public String toString() {
         return "[" + x + "," + y + "]";
+    }
+    
+    public AbstractPoint clone() {
+    	try {
+    	    return (AbstractPoint) super.clone();
+    	} catch (CloneNotSupportedException e) {
+    	    // this shouldn't happen, since we are Cloneable
+    	    throw new InternalError();
+    	}
     }
 }

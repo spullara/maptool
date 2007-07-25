@@ -17,7 +17,6 @@ import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
-import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
@@ -28,6 +27,7 @@ import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
@@ -585,7 +585,13 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 				}
 				
 				// Get the start cell of the last move
-				ZonePoint zp = zone.getGrid().convert(path.getCellPath().get(0));
+				// TODO: I don't like this hard wiring, find a better way
+				ZonePoint zp = null;
+				if (path.getCellPath().get(0) instanceof CellPoint) {
+					zp = zone.getGrid().convert((CellPoint)path.getCellPath().get(0));
+				} else {
+					zp = (ZonePoint)path.getCellPath().get(0);
+				}
 				
 				// Relocate
 				token.setX(zp.x);

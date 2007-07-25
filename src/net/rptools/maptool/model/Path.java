@@ -24,43 +24,50 @@
  */
 package net.rptools.maptool.model;
 
+import java.awt.Point;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Path {
+public class Path<T extends AbstractPoint> {
 
-	private List<CellPoint> cellList = new LinkedList<CellPoint>();
-	private List<CellPoint> waypointList = new LinkedList<CellPoint>();
+	private List<T> cellList = new LinkedList<T>();
+	private List<T> waypointList = new LinkedList<T>();
 	
-	public void addPathCell(CellPoint point) {
+	public void addPathCell(T point) {
 		cellList.add(point);
 	}
 	
-	public void addAllPathCells(List<CellPoint> cells) {
+	public void addAllPathCells(List<T> cells) {
 		cellList.addAll(cells);
 	}
 	
-	public List<CellPoint> getCellPath() {
+	public List<T> getCellPath() {
 		return Collections.unmodifiableList(cellList);
 	}
 	
-	public void addWayPoint(CellPoint point) {
+	public void addWayPoint(T point) {
 		waypointList.add(point);
 	}
 	
-	public boolean isWaypoint(CellPoint point) {
+	public boolean isWaypoint(T point) {
 		return waypointList.contains(point);
 	}
 	
-	public Path derive(int cellOffsetX, int cellOffsetY) {
+	public Path<T> derive(int cellOffsetX, int cellOffsetY) {
 		
-		Path path = new Path();
-		for (CellPoint cp : cellList) {
-			path.addPathCell(new CellPoint(cp.x - cellOffsetX, cp.y - cellOffsetY));
+		Path<T> path = new Path<T>();
+		for (T cp : cellList) {
+			T np = (T) cp.clone(); 
+			np.x -= cellOffsetX;
+			np.y -= cellOffsetY;
+			path.addPathCell(np);
 		}
-		for (CellPoint cp : waypointList) {
-			path.addWayPoint(new CellPoint(cp.x - cellOffsetX, cp.y - cellOffsetY));
+		for (T cp : waypointList) {
+			T np = (T) cp.clone(); 
+			np.x -= cellOffsetX;
+			np.y -= cellOffsetY;
+			path.addWayPoint(np);
 		}
 		
 		return path;

@@ -261,7 +261,7 @@ public class FogUtil {
 			int width = TokenSize.getWidth(token, zone.getGrid());
 			int height = TokenSize.getHeight(token, zone.getGrid());
 			
-			Path lastPath = token.getLastPath();
+			Path<CellPoint> lastPath = (Path<CellPoint>) token.getLastPath();
 			if (lastPath == null) {
 				continue;
 			}

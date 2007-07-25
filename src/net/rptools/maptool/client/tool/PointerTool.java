@@ -1066,11 +1066,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 	
 	private void setWaypoint() {
-		CellPoint cp = renderer.getZone().getGrid().convert(new ZonePoint(dragStartX, dragStartY));
+		ZonePoint p = new ZonePoint(dragStartX, dragStartY);
+
+		renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), p);
         
-		renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), cp);
-        
-        MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), cp);
+        MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), p);
 	}
 	
 	////

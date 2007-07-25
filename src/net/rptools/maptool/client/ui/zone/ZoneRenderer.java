@@ -376,7 +376,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         repaint();
     }
 
-    public void toggleMoveSelectionSetWaypoint(GUID keyToken, CellPoint location) {
+    public void toggleMoveSelectionSetWaypoint(GUID keyToken, ZonePoint location) {
         SelectionSet set = selectionSetMap.get(keyToken);
         if (set == null) {
             return;
@@ -1073,9 +1073,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                         if (!token.isStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
                             renderPath(g, walker.getPath(), width/gridSize, height/gridSize);
                         } else {
+                        	Object oldAA = SwingUtil.useAntiAliasing(g);
                             g.setColor(Color.black);
-                            ScreenPoint originPoint = ScreenPoint.fromZonePoint(this, token.getX()+width/2+(int)(grid.getCellOffset().width*scale), token.getY()+height/2+(int)(grid.getCellOffset().height*scale));
-                            g.drawLine(originPoint.x, originPoint.y , x + scaledWidth/2, y + scaledHeight/2);
+                            ScreenPoint lastPoint = ScreenPoint.fromZonePoint(this, token.getX()+width/2+(int)(grid.getCellOffset().width*scale), token.getY()+height/2+(int)(grid.getCellOffset().height*scale));
+                            for (ZonePoint zp : set.gridlessPath.getCellPath()) {
+	                            ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x + width/2+(int)(grid.getCellOffset().width*scale), zp.y + height/2+(int)(grid.getCellOffset().height*scale));
+	                            g.drawLine(lastPoint.x, lastPoint.y , nextPoint.x, nextPoint.y);
+	                            lastPoint = nextPoint;
+                            }
+                            g.drawLine(lastPoint.x, lastPoint.y, x + scaledWidth/2, y + scaledHeight/2);
+
+                            SwingUtil.restoreAntiAliasing(g, oldAA);
                         }
                     }
                 }
@@ -1135,17 +1143,30 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     if (!token.isBackground()) {
                         if (AppState.getShowMovementMeasurements ()) {
                         	String distance = "";
-                        	if (zone.getGrid().getCapabilities().isPathingSupported()) {
+                        	if (zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
                         		if (walker.getDistance() >= 1) {
                         			distance = Integer.toString(walker.getDistance());
                         		}
                         	} else {
-                        		int a = set.offsetX;
-                        		int b = set.offsetY;
                         		
-                        		double c = Math.sqrt(a*a + b*b)/zone.getUnitsPerCell();
-                        		
-                        		distance = String.format("%.2f", c);
+                        		double c = 0;
+                        		ZonePoint lastPoint = new ZonePoint(token.getX(), token.getY());
+                                for (ZonePoint zp : set.gridlessPath.getCellPath()) {
+                                	
+                                	int a = lastPoint.x - zp.x;
+                                	int b = lastPoint.y - zp.y;
+                                	
+                                	c += Math.sqrt(a*a + b*b)/zone.getUnitsPerCell();
+                                	
+                                	lastPoint = zp;
+                                }
+                                
+                        		int a = lastPoint.x - (set.offsetX + token.getX());
+                        		int b = lastPoint.y - (set.offsetY + token.getY());
+
+                                c +=  Math.sqrt(a*a + b*b)/zone.getUnitsPerCell();
+                                
+                        		distance = String.format("%.1f", c);
                         	}
                         	if (distance.length() > 0) {
 	                			GraphicsUtil.drawBoxedString(g, distance, x, y);
@@ -2049,6 +2070,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         private String playerId;
         private ZoneWalker walker;
         private Token token;
+        private Path<ZonePoint> gridlessPath;
         
         // Pixel distance from keyToken's origin
         private int offsetX;
@@ -2062,12 +2084,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
             token = zone.getToken(tokenGUID);
 
-            if (ZoneRenderer.this.zone.getGrid().getCapabilities().isPathingSupported()) {
-                
-                CellPoint tokenPoint = zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
+            if (token.isSnapToGrid()) {
+                if (ZoneRenderer.this.zone.getGrid().getCapabilities().isPathingSupported()) {
+                    
+                    CellPoint tokenPoint = zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
 
-                walker = ZoneRenderer.this.zone.getGrid().createZoneWalker();
-                walker.setWaypoints(tokenPoint, tokenPoint);
+                    walker = ZoneRenderer.this.zone.getGrid().createZoneWalker();
+                    walker.setWaypoints(tokenPoint, tokenPoint);
+                }
+            } else {
+            	gridlessPath = new Path<ZonePoint>();
             }
         }
         
@@ -2092,7 +2118,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             offsetX = x;
             offsetY = y;
             
-            if (ZoneRenderer.this.zone.getGrid().getCapabilities().isPathingSupported()) {
+            if (ZoneRenderer.this.zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
                 CellPoint point = zone.getGrid().convert(new ZonePoint( token.getX()+x, token.getY()+y));
     
                 walker.replaceLastWaypoint(point);
@@ -2105,9 +2131,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
      *
      * @param location The point where the waypoint is toggled.
      */
-        public void toggleWaypoint(CellPoint location) {
+        public void toggleWaypoint(ZonePoint location) {
+//    		CellPoint cp = renderer.getZone().getGrid().convert(new ZonePoint(dragStartX, dragStartY));
           
-            walker.toggleWaypoint(location);
+        	if (token.isSnapToGrid()) {
+        		walker.toggleWaypoint(getZone().getGrid().convert(location));
+        	} else {
+        		gridlessPath.addWayPoint(location);
+        		gridlessPath.addPathCell(location);
+        	}
         }
         
         public int getOffsetX() {

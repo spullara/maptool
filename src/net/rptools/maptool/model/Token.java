@@ -103,7 +103,7 @@ public class Token extends BaseModel {
 
 	private int lastX;
 	private int lastY;
-	private Path lastPath;
+	private Path<? extends AbstractPoint> lastPath;
 	
 	private boolean snapToScale = true; // Whether the scaleX and scaleY
 										// represent snap-to-grid measurements
@@ -511,13 +511,13 @@ public class Token extends BaseModel {
 		this.y = y;
 	}
 
-	public void applyMove(int xOffset, int yOffset, Path path) {
+	public void applyMove(int xOffset, int yOffset, Path<AbstractPoint> path) {
 		setX(x + xOffset);
 		setY(y + yOffset);
 		lastPath = path;
 	}
 
-	public void setLastPath(Path path) {
+	public void setLastPath(Path<? extends AbstractPoint> path) {
 		lastPath = path;
 	}
 	
@@ -529,7 +529,7 @@ public class Token extends BaseModel {
 		return lastX;
 	}
 	
-	public Path getLastPath() {
+	public Path<? extends AbstractPoint> getLastPath() {
 		return lastPath;
 	}
 

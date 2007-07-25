@@ -32,6 +32,10 @@ public class AStarCellPoint extends CellPoint {
 	double hScore;
 	double gScore;
 
+	public AStarCellPoint() {
+		super (0, 0);
+	}
+	
 	public AStarCellPoint(int x, int y) {
 		super(x, y);
 	}

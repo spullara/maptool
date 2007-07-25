@@ -83,8 +83,8 @@ public abstract class AbstractZoneWalker implements ZoneWalker {
     	return oldPartial.end;
     }
     
-    public Path getPath() {
-    	Path path = new Path();
+    public Path<CellPoint> getPath() {
+    	Path<CellPoint> path = new Path<CellPoint>();
     	
     	PartialPath last = null;
     	for (PartialPath partial : partialPaths) {
