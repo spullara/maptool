@@ -17,20 +17,28 @@ import net.rptools.lib.swing.SwingUtil;
 
 public class StatSheet {
 
-	private static final Font FONT_PROPERTY_KEY = new Font("Helvetica", Font.BOLD, 12);
-	private static final Font FONT_PROPERTY_VALUE = new Font("Helvetica", 0, 12);
+	private static final Font PROP_KEY_FONT = new Font("Helvetica", Font.BOLD, 12);
+	private static final Font PROP_VALUE_FONT = new Font("Helvetica", 0, 12);
+	private static final Color PROP_KEY_COLOR = Color.black;
+	private static final Color PROP_VALUE_COLOR = Color.red;
 
 	private BufferedImage backgroundImage;
 	private Rectangle bounds;
-
-	public StatSheet(String background, Rectangle bounds) throws IOException {
-		this.bounds = bounds;
-		backgroundImage = ImageUtil.getCompatibleImage(background);
-	}
+	private Font attributeFont;
+	private Color attributeColor;
+	private Font valueFont;
+	private Color valueColor;
 	
-	public StatSheet(BufferedImage backgroundImage, Rectangle bounds) {
+	public StatSheet(BufferedImage backgroundImage, Rectangle bounds, Font attributeFont, Color attributeColor, Font valueFont, Color valueColor) {
 		this.bounds = bounds;
 		this.backgroundImage = backgroundImage;
+
+		this.attributeFont = attributeFont != null ? attributeFont : PROP_KEY_FONT;
+		this.attributeColor = attributeColor != null ? attributeColor : PROP_KEY_COLOR;
+		
+		this.valueFont = valueFont != null ? valueFont : PROP_VALUE_FONT;
+		this.valueColor = valueColor != null ? valueColor : PROP_VALUE_COLOR;
+		
 	}
 
 	public int getWidth() {
@@ -61,17 +69,29 @@ public class StatSheet {
 		int row = 0;
 		int col = 0;
 		for (Entry<String, String> entry : propertyMap.entrySet()) {
+
+			FontMetrics fm = g.getFontMetrics();
+
+			int x = bounds.x + col*colWidth;
+			int y = bounds.y+fm.getAscent()+ row*rowHeight;
 			
 			// Key
-			g.setFont(FONT_PROPERTY_KEY);
-			FontMetrics fm = g.getFontMetrics();
-			g.drawString(entry.getKey(), bounds.x + col*colWidth, bounds.y+fm.getAscent()+ row*rowHeight);
+			g.setFont(attributeFont);
+			g.setColor(attributeColor);
+			g.drawString(entry.getKey(), x, y);
+
+			int strWidth = SwingUtilities.computeStringWidth(fm, entry.getKey());
+			x += strWidth + 2;
+
+			g.drawString(":", x, y);
+			
+			x += SwingUtilities.computeStringWidth(fm, ":") + 7;
 			
 			// Value
-			g.setFont(FONT_PROPERTY_VALUE);
+			g.setFont(valueFont);
+			g.setColor(valueColor);
 			fm = g.getFontMetrics();
-			int strWidth = SwingUtilities.computeStringWidth(fm, entry.getValue());
-			g.drawString(entry.getValue(), bounds.x+ col*colWidth + (colWidth-strWidth)/2, bounds.y+fm.getHeight() + rowHeight*row + (rowHeight-fm.getHeight()*2)/2 + fm.getAscent());
+			g.drawString(entry.getValue(), x, y);
 			
 			col++;
 			if (col == cols) {

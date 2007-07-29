@@ -1,6 +1,8 @@
 package net.rptools.maptool.client.ui.statsheet;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -36,19 +38,29 @@ public class MetaStatSheet {
 		
 		BufferedImage rightImage = ImageUtil.getCompatibleImage(props.getProperty("rightImage"));
 		Rectangle rightBounds = ResourceLoader.loadRectangle(props.getProperty("rightBounds"));
+
+		Font attributeFont = null;
+		if (props.containsKey("attributeFont")) {
+			attributeFont = Font.decode(props.getProperty("attributeFont"));
+		}
+		Color attributeColor = null;
+		if (props.containsKey("attributeColor")) {
+			attributeColor = Color.decode(props.getProperty("attributeColor"));
+		}
 		
-		topSheet = new StatSheet(topImage, topBounds);
-		bottomSheet = new StatSheet(bottomImage, bottomBounds);
-		leftSheet = new StatSheet(leftImage, leftBounds);
-		rightSheet = new StatSheet(rightImage, rightBounds);
-	}
-	
-	public MetaStatSheet(BufferedImage leftImage, Rectangle leftBounds, BufferedImage rightImage, Rectangle rightBounds, BufferedImage topImage, Rectangle topBounds, BufferedImage bottomImage, Rectangle bottomBounds) {
+		Font valueFont = null;
+		if (props.containsKey("valueFont")) {
+			valueFont = Font.decode(props.getProperty("valueFont"));
+		}
+		Color valueColor = null;
+		if (props.containsKey("valueColor")) {
+			valueColor = Color.decode(props.getProperty("valueColor"));
+		}
 		
-			topSheet = new StatSheet(topImage, topBounds);
-			bottomSheet = new StatSheet(bottomImage, bottomBounds);
-			leftSheet = new StatSheet(leftImage, leftBounds);
-			rightSheet = new StatSheet(rightImage, rightBounds);
+		topSheet = new StatSheet(topImage, topBounds, attributeFont, attributeColor, valueFont, valueColor);
+		bottomSheet = new StatSheet(bottomImage, bottomBounds, attributeFont, attributeColor, valueFont, valueColor);
+		leftSheet = new StatSheet(leftImage, leftBounds, attributeFont, attributeColor, valueFont, valueColor);
+		rightSheet = new StatSheet(rightImage, rightBounds, attributeFont, attributeColor, valueFont, valueColor);
 	}
 	
 	public void render(Graphics2D g, Map<String, String> propertyMap, Rectangle anchorBounds, Dimension viewBounds) {
