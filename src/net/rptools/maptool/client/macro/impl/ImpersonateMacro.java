@@ -65,7 +65,11 @@ public class ImpersonateMacro implements Macro {
 			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokenByGMName(name);
 		}
 		if (token == null) {
-			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(GUID.valueOf(name));
+			try {
+				token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(GUID.valueOf(name));
+			} catch (Exception e) {
+				// indication of not a GUID, OK to ignore
+			}
 		}
 		if (token != null) {
 			name = token.getName();
