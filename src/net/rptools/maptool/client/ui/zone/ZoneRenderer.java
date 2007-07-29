@@ -1065,7 +1065,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     g.setClip(clipArea);
                 }
                 
-                // Show distance only on the key token
+                // Show path only on the key token
                 if (token == keyToken) {
 
                     if (!token.isBackground()) {
@@ -1135,7 +1135,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
 
                 // Other details
-                if (token == keyToken) {
+                Rectangle tokenNewLocationBounds = new Rectangle(token.getX() + setOffsetX, token.getY() + setOffsetY, width, height);
+                boolean isVisible = view.isGMView() || (visibleArea != null ?  visibleArea.intersects(tokenNewLocationBounds) : zone.hasFog() ? zone.getExposedArea().intersects(tokenNewLocationBounds) : true);
+                if (!view.isGMView()) {
+                	System.out.println(zone.getExposedArea().intersects(tokenNewLocationBounds) + " - " + tokenNewLocationBounds + " - " + zone.getExposedArea().getBounds());
+                }
+                if (token == keyToken && isVisible) {
 
                     y +=  10 + scaledHeight;
                     x += scaledWidth/2;
