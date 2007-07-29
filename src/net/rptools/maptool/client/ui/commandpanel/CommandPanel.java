@@ -8,10 +8,13 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -37,6 +40,7 @@ import javax.swing.plaf.basic.BasicToggleButtonUI;
 
 import net.rptools.lib.AppEvent;
 import net.rptools.lib.AppEventListener;
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppPreferences;
@@ -407,19 +411,42 @@ public class CommandPanel extends JPanel implements Observer {
 	private static class AvatarPanel extends JComponent {
 
 		private static final int PADDING = 5;
+		private static BufferedImage cancelButton;
+
+		static {
+			try {
+				cancelButton = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/cancel_sm.png");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		private Image image;
 		private Dimension preferredSize;
+		private Rectangle cancelBounds;
 		
 		public AvatarPanel(Dimension preferredSize) {
 			this.preferredSize = preferredSize;
 			
 			setImage(null);
+			
+			addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if (cancelBounds != null && cancelBounds.contains(e.getPoint())) {
+						JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+
+						commandArea.setText("/im");
+						MapTool.getFrame().getCommandPanel().commitCommand();
+					}
+				}
+			});
 		}
 
 		public void setImage(Image image) {
 			this.image = image;
 			setPreferredSize(image != null ? preferredSize : new Dimension(0, 0));
+			
 			invalidate();
 			repaint();
 		}
@@ -430,6 +457,7 @@ public class CommandPanel extends JPanel implements Observer {
 			g.setColor(getBackground());
 			g.fillRect(0, 0, size.width, size.height);
 			
+			cancelBounds = null;
 			if (image == null) {
 				return;
 			}
@@ -438,6 +466,12 @@ public class CommandPanel extends JPanel implements Observer {
 			SwingUtil.constrainTo(imgSize, size.width-PADDING*2, size.height-PADDING*2);
 
 			g.drawImage(image, (size.width-imgSize.width)/2, (size.height-imgSize.height)/2, imgSize.width, imgSize.width, this);
+			
+			// Cancel
+			int x = size.width - cancelButton.getWidth();
+			int y = 2;
+			g.drawImage(cancelButton, x, y, this);
+			cancelBounds = new Rectangle(x, y, cancelButton.getWidth(), cancelButton.getHeight());
 		}
 	}
 	
