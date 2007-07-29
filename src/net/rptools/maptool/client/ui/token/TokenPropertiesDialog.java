@@ -382,6 +382,19 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 	 */
 	public void actionPerformed(ActionEvent aE) {
 		if (aE.getSource() == getOKButton()) {
+			
+			if (getMacroTable().isEditing()) {
+				getMacroTable().getCellEditor().stopCellEditing();
+			}
+			
+			if (getSpeechTable().isEditing()) {
+				getSpeechTable().getCellEditor().stopCellEditing();
+			}
+			
+			if (getPropertyTable().isEditing()) {
+				getPropertyTable().getCellEditor().stopCellEditing();
+			}
+			
 			updateToken();
 			MapTool.getFrame().updateTokenTree();
 			setVisible(false);
