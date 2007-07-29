@@ -1137,9 +1137,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 // Other details
                 Rectangle tokenNewLocationBounds = new Rectangle(token.getX() + setOffsetX, token.getY() + setOffsetY, width, height);
                 boolean isVisible = view.isGMView() || (visibleArea != null ?  visibleArea.intersects(tokenNewLocationBounds) : zone.hasFog() ? zone.getExposedArea().intersects(tokenNewLocationBounds) : true);
-                if (!view.isGMView()) {
-                	System.out.println(zone.getExposedArea().intersects(tokenNewLocationBounds) + " - " + tokenNewLocationBounds + " - " + zone.getExposedArea().getBounds());
-                }
                 if (token == keyToken && isVisible) {
 
                     y +=  10 + scaledHeight;
