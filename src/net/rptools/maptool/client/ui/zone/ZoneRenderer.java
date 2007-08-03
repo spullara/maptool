@@ -1135,49 +1135,50 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
 
                 // Other details
-                Rectangle tokenNewLocationBounds = new Rectangle(token.getX() + setOffsetX, token.getY() + setOffsetY, width, height);
-                boolean isVisible = view.isGMView() || (visibleArea != null ?  visibleArea.intersects(tokenNewLocationBounds) : zone.hasFog() ? zone.getExposedArea().intersects(tokenNewLocationBounds) : true);
-                if (token == keyToken && isVisible) {
+                if (token == keyToken) {
 
-                    y +=  10 + scaledHeight;
-                    x += scaledWidth/2;
-                    
-                    if (!token.isBackground()) {
-                        if (AppState.getShowMovementMeasurements ()) {
-                        	String distance = "";
-                        	if (zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
-                        		if (walker.getDistance() >= 1) {
-                        			distance = Integer.toString(walker.getDistance());
-                        		}
-                        	} else {
-                        		
-                        		double c = 0;
-                        		ZonePoint lastPoint = new ZonePoint(token.getX(), token.getY());
-                                for (ZonePoint zp : set.gridlessPath.getCellPath()) {
-                                	
-                                	int a = lastPoint.x - zp.x;
-                                	int b = lastPoint.y - zp.y;
-                                	
-                                	c += Math.sqrt(a*a + b*b)/zone.getUnitsPerCell();
-                                	
-                                	lastPoint = zp;
-                                }
-                                
-                        		int a = lastPoint.x - (set.offsetX + token.getX());
-                        		int b = lastPoint.y - (set.offsetY + token.getY());
-
-                                c +=  Math.sqrt(a*a + b*b)/zone.getUnitsPerCell();
-                                
-                        		distance = String.format("%.1f", c);
-                        	}
-                        	if (distance.length() > 0) {
-	                			GraphicsUtil.drawBoxedString(g, distance, x, y);
-	                            y += 20;
+                	// Essentially, if the token is visible on the screen it will be in the location cache
+                    if (tokenLocationCache.containsKey(token)) {
+	                    y +=  10 + scaledHeight;
+	                    x += scaledWidth/2;
+	                    
+	                    if (!token.isBackground()) {
+	                        if (AppState.getShowMovementMeasurements ()) {
+	                        	String distance = "";
+	                        	if (zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
+	                        		if (walker.getDistance() >= 1) {
+	                        			distance = Integer.toString(walker.getDistance());
+	                        		}
+	                        	} else {
+	                        		
+	                        		double c = 0;
+	                        		ZonePoint lastPoint = new ZonePoint(token.getX(), token.getY());
+	                                for (ZonePoint zp : set.gridlessPath.getCellPath()) {
+	                                	
+	                                	int a = lastPoint.x - zp.x;
+	                                	int b = lastPoint.y - zp.y;
+	                                	
+	                                	c += Math.sqrt(a*a + b*b)/zone.getUnitsPerCell();
+	                                	
+	                                	lastPoint = zp;
+	                                }
+	                                
+	                        		int a = lastPoint.x - (set.offsetX + token.getX());
+	                        		int b = lastPoint.y - (set.offsetY + token.getY());
+	
+	                                c +=  Math.sqrt(a*a + b*b)/zone.getUnitsPerCell();
+	                                
+	                        		distance = String.format("%.1f", c);
+	                        	}
+	                        	if (distance.length() > 0) {
+		                			GraphicsUtil.drawBoxedString(g, distance, x, y);
+		                            y += 20;
+		                        }
 	                        }
-                        }
-                    }
-                    if (set.getPlayerId() != null && set.getPlayerId().length() >= 1) {
-                        GraphicsUtil.drawBoxedString (g, set.getPlayerId(), x, y);
+	                    }
+	                    if (set.getPlayerId() != null && set.getPlayerId().length() >= 1) {
+	                        GraphicsUtil.drawBoxedString (g, set.getPlayerId(), x, y);
+	                    }
                     }
                 }
                 g.setClip(clip);
