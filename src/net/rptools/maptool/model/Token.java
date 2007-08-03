@@ -754,6 +754,12 @@ public class Token extends BaseModel {
 		}
 		visionOverlayColor = color;
     }    
+    
+    @Override
+    public String toString() {
+    	return "Token: " + id;
+    }
+    
 
 	/**
      * Convert the token into a hash map. This is used to ship all of the
