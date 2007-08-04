@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.tool;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -38,15 +39,13 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.maptool.client.AppStyle;
-import net.rptools.maptool.client.MapTool;
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
-import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
 import net.rptools.maptool.model.CellPoint;
-import net.rptools.maptool.model.Pointer;
+import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
 
@@ -56,6 +55,7 @@ import net.rptools.maptool.util.GraphicsUtil;
 public class MeasureTool extends DefaultTool implements ZoneOverlay {
 
 	private ZoneWalker walker;
+	private Path<ZonePoint> gridlessPath;
 	
 	public MeasureTool () {
         try {
@@ -77,17 +77,61 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
     
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
         
-        if (walker == null) {
+        if (walker == null && gridlessPath == null) {
             return;
         }
 
-        renderer.renderPath(g, walker.getPath(), 1, 1);
+        if (walker != null) {
+	        renderer.renderPath(g, walker.getPath(), 1, 1);
+	
+	        ScreenPoint sp = walker.getLastPoint().convertToScreen(renderer);
+	        
+	        int y = sp.y - 10;
+	        int x = sp.x + (int)(renderer.getScaledGridSize()/2);
+	        GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
+        } else {
+        	Object oldAA = SwingUtil.useAntiAliasing(g);
+            g.setColor(Color.black);
+            ScreenPoint lastPoint = null;
+            for (ZonePoint zp : gridlessPath.getCellPath()) {
+            	if (lastPoint == null) {
+            		lastPoint = ScreenPoint.fromZonePoint(renderer, zp);
+            		continue;
+            	}
+                ScreenPoint nextPoint = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
+                g.drawLine(lastPoint.x, lastPoint.y , nextPoint.x, nextPoint.y);
+                lastPoint = nextPoint;
+            }
+            
+            // distance
+    		double c = 0;
+    		ZonePoint lastZP = null;
+            for (ZonePoint zp : gridlessPath.getCellPath()) {
 
-        ScreenPoint sp = walker.getLastPoint().convertToScreen(renderer);
-        
-        int y = sp.y - 10;
-        int x = sp.x + (int)(renderer.getScaledGridSize()/2);
-        GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
+            	if (lastZP == null) {
+            		lastZP = zp;
+            		continue;
+            	}
+            	
+            	int a = lastZP.x - zp.x;
+            	int b = lastZP.y - zp.y;
+
+            	c += Math.sqrt(a*a + b*b)/renderer.getZone().getUnitsPerCell();
+            	
+            	lastZP = zp;
+            }
+            
+//    		int a = lastPoint.x - (set.offsetX + token.getX());
+//    		int b = lastPoint.y - (set.offsetY + token.getY());
+//
+//            c +=  Math.sqrt(a*a + b*b)/zone.getUnitsPerCell();
+            
+    		String distance = String.format("%.1f", c);
+	        GraphicsUtil.drawBoxedString(g, distance, lastZP.x, lastZP.y - 20);
+            
+            
+            SwingUtil.restoreAntiAliasing(g, oldAA);
+        }
     }
     
     @Override
@@ -97,13 +141,18 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
-				if (walker == null) {
+				if (walker == null && gridlessPath == null) {
 					return;
 				}
 				
 				// Waypoint
-		        CellPoint cp = renderer.getZone().getGrid().convert(new ScreenPoint(mouseX, mouseY).convertToZone(renderer));
-		        walker.toggleWaypoint(cp);
+				if (walker != null) {
+			        CellPoint cp = renderer.getZone().getGrid().convert(new ScreenPoint(mouseX, mouseY).convertToZone(renderer));
+			        walker.toggleWaypoint(cp);
+				} else {
+					gridlessPath.addWayPoint(new ScreenPoint(mouseX, mouseY).convertToZone(renderer));
+					gridlessPath.addPathCell(new ScreenPoint(mouseX, mouseY).convertToZone(renderer));
+				}
 			}
 		});
     }
@@ -115,11 +164,20 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
 
 		ZoneRenderer renderer = (ZoneRenderer) e.getSource();
         
-        CellPoint cellPoint = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
         
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			walker = renderer.getZone().getGrid().createZoneWalker();
-            walker.addWaypoints(cellPoint, cellPoint);
+			if (renderer.getZone().getGrid().getCapabilities().isPathingSupported()) {
+		        CellPoint cellPoint = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
+				walker = renderer.getZone().getGrid().createZoneWalker();
+	            walker.addWaypoints(cellPoint, cellPoint);
+			} else {
+				gridlessPath = new Path<ZonePoint>();
+				gridlessPath.addPathCell(new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer));
+				
+				// Add a second one that will be replaced as the mouse moves around the screen
+				gridlessPath.addPathCell(new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer));
+			}
+			
             renderer.repaint();
             return;
 		} 
@@ -135,6 +193,8 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
 		if (SwingUtilities.isLeftMouseButton(e)) {
 		
 			walker = null;
+			gridlessPath = null;
+			
 			renderer.repaint();
             return;
 		}
@@ -153,8 +213,13 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
         }
 
         ZoneRenderer renderer = (ZoneRenderer) e.getSource();
-        CellPoint cellPoint = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
-        walker.replaceLastWaypoint(cellPoint);
+        if (renderer.getZone().getGrid().getCapabilities().isPathingSupported()) {
+	        CellPoint cellPoint = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY()));
+	        walker.replaceLastWaypoint(cellPoint);
+        }  else {
+        	gridlessPath.replaceLastPoint(new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer));
+        }
+        
         renderer.repaint();
     }
 }

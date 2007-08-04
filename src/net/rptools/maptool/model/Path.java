@@ -46,6 +46,11 @@ public class Path<T extends AbstractPoint> {
 		return Collections.unmodifiableList(cellList);
 	}
 	
+	public void replaceLastPoint(T point) {
+		cellList.remove(cellList.size()-1);
+		cellList.add(point);
+	}
+	
 	public void addWayPoint(T point) {
 		waypointList.add(point);
 	}
