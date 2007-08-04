@@ -60,7 +60,8 @@ public class StatSheet {
 		g.drawImage(backgroundImage, 0, 0, null);
 		g.setColor(Color.black);
 		
-		int cols = (int)Math.ceil(Math.sqrt(propertyMap.size()));
+		int cols = 2;
+//		int cols = (int)Math.ceil(Math.sqrt(propertyMap.size()));
 		int rows = (int)Math.ceil(propertyMap.size() / (double)cols);
 		
 		int rowHeight = bounds.height / rows;
