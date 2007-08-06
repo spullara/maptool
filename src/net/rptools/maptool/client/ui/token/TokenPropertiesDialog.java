@@ -91,9 +91,6 @@ import com.jidesoft.swing.Selectable;
 
 /**
  * This dialog is used to display all of the token states and notes to the user.
- * 
- * @author jgorrell
- * @version $Revision$ $Date$ $Author$
  */
 public class TokenPropertiesDialog extends AbeilleDialog implements ActionListener,
 		ModelChangeListener {
@@ -346,6 +343,21 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 	private void initConfigPanel() {
 		initShapeCombo();
 		initSizeCombo();
+		
+		initCharsheetPanel();
+	}
+	
+	private void initCharsheetPanel() {
+		CharsheetPanel panel = new CharsheetPanel();
+		panel.setPreferredSize(new Dimension(150, 125));
+		panel.setName("charsheet");
+		panel.setLayout(new GridLayout());
+		
+		replaceComponent("charsheetPanel", "charsheet", panel);
+	}
+	
+	public CharsheetPanel getCharSheetPanel() {
+		return (CharsheetPanel) getComponent("charsheet");
 	}
 	
 	private void initButtons() {
@@ -479,6 +491,15 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		
 		// Properties
 		((TokenPropertyTableModel)getPropertyTable().getModel()).applyTo(token);
+	
+		// Charsheet
+		token.setCharsheetImage(getCharSheetPanel().getSheetAssetId());
+		if (token.getCharsheetImage() != null) {
+			// Make sure the server has the image
+			if (!MapTool.getCampaign().containsAsset(token.getCharsheetImage())) {
+				MapTool.serverCommand().putAsset(AssetManager.getAsset(token.getCharsheetImage()));
+			}
+		}
 		
 		tokenSaved = true;
 	}
@@ -545,6 +566,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		getTypeCombo().setEnabled(player.isGM());
 		getVisibleCheckBox().setVisible(player.isGM());
 		getVisibleLabel().setVisible(player.isGM());
+		
 	}
 
 	/**
@@ -610,6 +632,9 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 			Boolean stateValue = token != null ? (Boolean) token.getState(state.getText()) : null;
 			state.setSelected(stateValue == null ? false : stateValue.booleanValue());
 		}
+		
+		// Charsheet
+		getCharSheetPanel().setSheetAssetId(token.getCharsheetImage());
 	}
 
 	/**

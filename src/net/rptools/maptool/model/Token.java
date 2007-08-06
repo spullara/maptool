@@ -144,6 +144,8 @@ public class Token extends BaseModel {
 	private boolean isFlippedX;
 	private boolean isFlippedY;
 	
+	private MD5Key charsheetImage;
+	
   /**
    * The notes that are displayed for this token.
    */
@@ -482,7 +484,17 @@ public class Token extends BaseModel {
 	}
 
 	public Set<MD5Key> getAllImageAssets() {
-		return new HashSet<MD5Key>(imageAssetMap.values());
+		Set<MD5Key> assetSet = new HashSet<MD5Key>(imageAssetMap.values()); 
+		assetSet.add(charsheetImage);
+		return assetSet;
+	}
+	
+	public MD5Key getCharsheetImage() {
+		return charsheetImage;
+	}
+	
+	public void setCharsheetImage(MD5Key charsheetImage) {
+		this.charsheetImage = charsheetImage;
 	}
 	
 	public GUID getId() {

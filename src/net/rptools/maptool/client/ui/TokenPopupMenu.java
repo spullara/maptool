@@ -65,6 +65,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		addOwnedItem(createSpeechMenu());
 		addOwnedItem(createStateMenu());
 		addOwnedItem(createFlipMenu());
+		add(new ShowCharsheetAction());
 		add(new JSeparator());
 
 		if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
@@ -184,6 +185,20 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 			FogUtil.exposeLastPath(getRenderer(), selectedTokenSet);
 			getRenderer().repaint();
+		}
+		
+	}
+
+	private class ShowCharsheetAction extends AbstractAction {
+		public ShowCharsheetAction() {
+			putValue(Action.NAME, "Show Character Sheet");
+			setEnabled(getTokenUnderMouse().getCharsheetImage() != null);
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+
+			AssetViewerDialog dialog = new AssetViewerDialog(getTokenUnderMouse().getName() + "'s Character Sheet", getTokenUnderMouse().getCharsheetImage());
+			dialog.setVisible(true);
 		}
 		
 	}
