@@ -10,7 +10,7 @@ import java.net.URLStreamHandler;
  * @author trevor
  *
  */
-public class AssetURLStreamHandler extends URLStreamHandler {
+public class EmptyURLStreamHandler extends URLStreamHandler {
 
 	@Override
 	protected URLConnection openConnection(URL u) throws IOException {

@@ -667,7 +667,7 @@ public class MapTool {
 
         // Protocol handlers
         RPTURLStreamHandlerFactory factory = new RPTURLStreamHandlerFactory();
-        factory.registerProtocol("asset", new AssetURLStreamHandler());
+        factory.registerProtocol("asset", new EmptyURLStreamHandler());
 		URL.setURLStreamHandlerFactory(factory);
         
         // LAF

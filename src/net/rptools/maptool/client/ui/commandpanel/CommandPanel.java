@@ -1,5 +1,10 @@
 package net.rptools.maptool.client.ui.commandpanel;
 
+import static net.rptools.maptool.model.ObservableList.Event.add;
+import static net.rptools.maptool.model.ObservableList.Event.append;
+import static net.rptools.maptool.model.ObservableList.Event.clear;
+import static net.rptools.maptool.model.ObservableList.Event.remove;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -8,29 +13,38 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
+import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
@@ -47,6 +61,7 @@ import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroManager;
+import net.rptools.maptool.client.ui.chat.ChatProcessor;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
@@ -64,6 +79,10 @@ public class CommandPanel extends JPanel implements Observer {
 	private TextColorWell textColorWell;
 	private JToggleButton scrollLockButton;
 	private AvatarPanel avatarPanel;
+	private JButton emotePopupButton;
+	private JPopupMenu emotePopup;
+	
+	private ChatProcessor chatProcessor;
 	
 	private String identity;
 	
@@ -73,6 +92,45 @@ public class CommandPanel extends JPanel implements Observer {
 		
 		add(BorderLayout.SOUTH, createSouthPanel());
 		add(BorderLayout.CENTER, getMessagePanel());
+		
+		initializeSmilies();
+	}
+	
+	private void initializeSmilies() {
+
+		emotePopup = new JPopupMenu();
+
+		// SMILIES
+		Properties smileyProps = new Properties();
+		try {
+			smileyProps.loadFromXML(ChatProcessor.class.getClassLoader().getResourceAsStream("net/rptools/maptool/client/ui/chat/smileyMap.xml"));
+		} catch (IOException ioe) {
+			System.err.println("Could not load smiley map: " + ioe);
+		}
+
+		// Wrap values with img tag
+		for (Enumeration e = smileyProps.propertyNames(); e.hasMoreElements();) {
+			String key = (String) e.nextElement();
+
+			// This is an incredibly bad hack to avoid writing an xml parser for the smiley map. I'm feeling lazy today.
+			StringTokenizer strtok = new StringTokenizer(smileyProps.getProperty(key), "|");
+			String value = strtok.nextToken();
+			String example = strtok.nextToken();
+			
+			String imgValue = "<img src='cp://" + value + "'>"; 
+			smileyProps.setProperty(key, imgValue);
+			
+			JMenuItem item = new JMenuItem(new InsertEmoteAction(value, example)) {
+				{
+					setPreferredSize(new Dimension(25, 16));
+				}
+			};
+			
+			emotePopup.add(item);
+		}
+		
+		chatProcessor = new ChatProcessor();
+		chatProcessor.install(smileyProps);
 		
 	}
 	
@@ -97,6 +155,28 @@ public class CommandPanel extends JPanel implements Observer {
     			}
     		}
     	}
+    }
+    
+    public JButton getEmotePopupButton() {
+    	if (emotePopupButton == null) {
+    		
+    		try {
+    			emotePopupButton = new JButton(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/smiley/emsmile.png")));
+    			emotePopupButton.setMargin(new Insets(0, 0, 0, 0));
+    			emotePopupButton.setContentAreaFilled(false);
+    			emotePopupButton.setBorderPainted(false);
+    			emotePopupButton.setFocusPainted(false);
+    			emotePopupButton.setOpaque(false);
+    			emotePopupButton.addActionListener(new ActionListener() {
+    				public void actionPerformed(ActionEvent e) {
+    					emotePopup.show(emotePopupButton, 0, 0);
+    				}
+    			});
+    		} catch (IOException ioe) {
+    			ioe.printStackTrace();
+    		}
+    	}
+    	return emotePopupButton;
     }
 	
     public JToggleButton getScrollLockButton() {
@@ -157,6 +237,11 @@ public class CommandPanel extends JPanel implements Observer {
 		
 		constraints.gridy++;
 		panel.add(getScrollLockButton(), constraints);
+
+		constraints.gridx = 1;
+		constraints.gridy = 0;
+		
+		panel.add(getEmotePopupButton(), constraints);
 		
 		return panel;
 	}
@@ -250,6 +335,8 @@ public class CommandPanel extends JPanel implements Observer {
 		}
 		commandHistoryIndex = commandHistory.size();
 
+		text = chatProcessor.process(text);
+		
 		// Detect whether the person is attempting to fake rolls. 
     	if (CHEATER_PATTERN.matcher(text).find()) {
     		MapTool.addServerMessage(TextMessage.me("Cheater. You have been reported."));
@@ -472,6 +559,30 @@ public class CommandPanel extends JPanel implements Observer {
 			int y = 2;
 			g.drawImage(cancelButton, x, y, this);
 			cancelBounds = new Rectangle(x, y, cancelButton.getWidth(), cancelButton.getHeight());
+		}
+	}
+	
+	////
+	// EMOTE 
+	private class InsertEmoteAction extends AbstractAction {
+
+		private String emoteImageSrc;
+		private String insert;
+		
+		public InsertEmoteAction(String emoteImageSrc, String insert) {
+			// This will force the image to be loaded into memory for use in the message panel
+			try {
+				putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage(emoteImageSrc)));
+				this.emoteImageSrc = emoteImageSrc;
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+			this.insert = insert;
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			getCommandTextArea().setText(getCommandTextArea().getText() + insert);
+			getCommandTextArea().requestFocusInWindow();
 		}
 	}
 	

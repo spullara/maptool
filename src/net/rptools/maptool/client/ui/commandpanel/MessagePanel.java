@@ -30,6 +30,7 @@ import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.chat.ChatProcessor;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.util.ImageManager;
@@ -93,7 +94,7 @@ public class MessagePanel extends JPanel {
 		
 		add(scrollPane);
 		clearMessages();
-		
+
 		MapTool.getSoundManager().registerSoundEvent(SND_MESSAGE_RECEIVED, MapTool.getSoundManager().getRegisteredSound("Clink"));
 	}
 	
