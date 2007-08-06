@@ -186,9 +186,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	private TokenPropertiesDialog tokenPropertiesDialog;
 
-	// TODO: I don't like this here, eventOverlay should be more abstracted
-	private NotificationOverlay notificationOverlay = new NotificationOverlay();
-
 	// TODO: Find a better pattern for this
 	private Timer repaintTimer;
 
@@ -528,10 +525,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	public ConnectionStatusPanel getConnectionStatusPanel() {
 		return connectionStatusPanel;
-	}
-
-	public NotificationOverlay getNotificationOverlay() {
-		return notificationOverlay;
 	}
 
 	private void restorePreferences() {

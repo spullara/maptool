@@ -324,7 +324,6 @@ public class MapTool {
             
             if (!player.equals(MapTool.getPlayer())) {	
             	String announcement = player.getName() + " has connected.";
-            	getFrame().getNotificationOverlay().addEvent(announcement);
     			addLocalMessage("<span style='color:#0000ff'><i>" + announcement + "</i></span>");
             }
         }
@@ -350,7 +349,6 @@ public class MapTool {
 
 		if (MapTool.getPlayer() != null && !player.equals(MapTool.getPlayer())) {
 			String announcement = player.getName() + " has disconnected.";
-			getFrame().getNotificationOverlay().addEvent(announcement);
 			addLocalMessage("<span style='color:#0000ff'><i>" + announcement + "</i></span>");
 		}
 	}
