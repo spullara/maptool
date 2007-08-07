@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.jeta.forms.gui.common.parsers.TokenMgrError;
+
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.impl.AbstractRollMacro;
 import net.rptools.maptool.client.macro.impl.AddTokenStateMacro;
@@ -51,6 +53,8 @@ import net.rptools.maptool.client.macro.impl.RollAllMacro;
 import net.rptools.maptool.client.macro.impl.RollGMMacro;
 import net.rptools.maptool.client.macro.impl.RollMeMacro;
 import net.rptools.maptool.client.macro.impl.RollSecretMacro;
+import net.rptools.maptool.client.macro.impl.RunTokenMacroMacro;
+import net.rptools.maptool.client.macro.impl.RunTokenSpeechMacro;
 import net.rptools.maptool.client.macro.impl.SaveAliasesMacro;
 import net.rptools.maptool.client.macro.impl.SaveTokenStatesMacro;
 import net.rptools.maptool.client.macro.impl.SayMacro;
@@ -97,6 +101,8 @@ public class MacroManager {
 		registerMacro(new EmitMacro());
 		registerMacro(new ThinkMacro());
 		registerMacro(new ImpersonateMacro());
+		registerMacro(new RunTokenMacroMacro());
+		registerMacro(new RunTokenSpeechMacro());
 
 		registerMacro(UNDEFINED_MACRO);
 	}
