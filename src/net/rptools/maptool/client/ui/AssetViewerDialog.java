@@ -13,7 +13,10 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -135,6 +138,7 @@ public class AssetViewerDialog extends JDialog {
 					}
 				}
 			});
+			
 		}
 		
 		@Override
@@ -143,8 +147,6 @@ public class AssetViewerDialog extends JDialog {
 			Graphics2D g2d = (Graphics2D) g;
 			
 			Dimension size = getSize();
-			g.setColor(Color.black);
-			g.fillRect(0, 0, size.width, size.height);
 			
 			BufferedImage image = ImageManager.getImage(AssetManager.getAsset(assetId), this);
 			if (!sized) {
