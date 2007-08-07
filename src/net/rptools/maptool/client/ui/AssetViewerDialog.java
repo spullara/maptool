@@ -10,6 +10,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -118,15 +119,16 @@ public class AssetViewerDialog extends JDialog {
 						
 						BufferedImage image = ImageManager.getImage(AssetManager.getAsset(assetId), AssetViewerDialog.this);
 						double ratio = image.getWidth()/(double)image.getHeight();
-						if (ratio >= 1) {
-							size.height = (int)(size.width / ratio);
-						} else {
-							size.width = (int)(size.height / ratio);
+						size.height = (int)(size.width / ratio);
+
+						// Keep it within the screen
+						Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+						if (size.width > screenSize.width || size.height > screenSize.height) {
+							SwingUtil.constrainTo(size, screenSize.width, screenSize.height);
 						}
-						
+
 						AssetViewerDialog.this.setSize(size.width, size.height);
 						AssetViewerDialog.this.validate();
-						
 						
 						dragStartX = e.getX();
 						dragStartY = e.getY();
@@ -210,11 +212,22 @@ public class AssetViewerDialog extends JDialog {
 
 	private void updateSize(Image img) {
 
-		getContentPane().setPreferredSize(new Dimension(img.getWidth(null), img.getHeight(null)));
-		getContentPane().setMinimumSize(new Dimension(img.getWidth(null), img.getHeight(null)));
+		Dimension size = new Dimension(img.getWidth(null), img.getHeight(null));
+		
+		// Keep it within the screen
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		if (size.width > screenSize.width || size.height > screenSize.height) {
+			SwingUtil.constrainTo(size, screenSize.width, screenSize.height);
+		}
+		
+		getContentPane().setPreferredSize(size);
+		getContentPane().setMinimumSize(size);
 
 		pack();
 
+		// Keep it on screen
 		SwingUtil.centerOver(this, MapTool.getFrame());
+		Point p = getLocation();
+		setLocation(Math.max(0, p.x), Math.max(0, p.y));
 	}
 }
