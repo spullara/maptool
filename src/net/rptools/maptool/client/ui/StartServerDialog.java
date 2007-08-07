@@ -46,7 +46,7 @@ public class StartServerDialog extends AbeilleDialog {
 	public static final int OPTION_OK = 0;
 	public static final int OPTION_CANCEL = 1;
 	
-	private int option;
+	private int option = OPTION_CANCEL;
 
 	private StartServerDialogPreferences prefs = new StartServerDialogPreferences();
 
