@@ -41,7 +41,7 @@ public class CharsheetPanel extends JPanel implements DropTargetListener {
 		this.sheetAssetId = sheetAssetId;
 		
 		if (sheetAssetId == null) {
-			JLabel label = new JLabel("<html><body><center>Drop charsheet image here</center></body></html>");
+			JLabel label = new JLabel("<html><body>Drop charsheet image here</body></html>", JLabel.CENTER);
 			label.setForeground(Color.white);
 			add(label);
 		} else {
