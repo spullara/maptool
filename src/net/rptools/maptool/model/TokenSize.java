@@ -72,6 +72,10 @@ public class TokenSize {
         Dimension size = new Dimension(token.getWidth(), token.getHeight());
         int destSize = (int) (getSizeInstance(token.getSize()).sizeFactor() * gridSize); 
         SwingUtil.constrainTo(size, destSize);
+
+        // Now support bleed-out
+        size.width *= token.getSizeScale();
+        size.height *= token.getSizeScale();
         
         return size;
     }

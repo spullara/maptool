@@ -100,6 +100,11 @@ public class Token extends BaseModel {
 	private int x;
 	private int y;
 	private int z;
+	
+	private int anchorX;
+	private int anchorY;
+	
+	private double sizeScale = 1;
 
 	private int lastX;
 	private int lastY;
@@ -209,6 +214,11 @@ public class Token extends BaseModel {
         
         visionOverlayColor = token.visionOverlayColor;
 	    
+        charsheetImage = token.charsheetImage;
+        anchorX = token.anchorX;
+        anchorY = token.anchorY;
+        sizeScale = token.sizeScale;
+        
 	    ownerType = token.ownerType;
 		if (token.ownerList != null) {
 			ownerList = new HashSet<String>();
@@ -772,7 +782,23 @@ public class Token extends BaseModel {
     	return "Token: " + id;
     }
     
+    public void setAnchor(int x, int y) {
+    	anchorX = x;
+    	anchorY = y;
+    }
 
+    public Point getAnchor() {
+    	return new Point(anchorX, anchorY);
+    }
+    
+    public double getSizeScale() {
+    	return sizeScale;
+    }
+    
+    public void setSizeScale(double scale) {
+    	sizeScale = scale;
+    }
+    
 	/**
      * Convert the token into a hash map. This is used to ship all of the
      * properties for the token to other apps that do need access to the

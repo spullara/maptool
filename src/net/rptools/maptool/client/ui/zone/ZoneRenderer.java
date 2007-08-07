@@ -1466,7 +1466,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 scaledHeight --;
             }
             
-            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, token.getX(), token.getY());
+            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, token.getX() + token.getAnchor().x, token.getY() + token.getAnchor().y);
             int x = tokenScreenLocation.x + 1;
             int y = tokenScreenLocation.y + 1;
                 

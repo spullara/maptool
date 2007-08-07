@@ -345,6 +345,15 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		initSizeCombo();
 		
 		initCharsheetPanel();
+		initTokenLayoutPanel();
+	}
+
+	private void initTokenLayoutPanel() {
+		TokenLayoutPanel layoutPanel = new TokenLayoutPanel();
+		layoutPanel.setPreferredSize(new Dimension(150, 125));
+		layoutPanel.setName("tokenLayout");
+		
+		replaceComponent("tokenLayoutPanel", "tokenLayout", layoutPanel);
 	}
 	
 	private void initCharsheetPanel() {
@@ -358,6 +367,10 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 	
 	public CharsheetPanel getCharSheetPanel() {
 		return (CharsheetPanel) getComponent("charsheet");
+	}
+	
+	public TokenLayoutPanel getTokenLayoutPanel() {
+		return (TokenLayoutPanel) getComponent("tokenLayout");
 	}
 	
 	private void initButtons() {
@@ -500,6 +513,9 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 				MapTool.serverCommand().putAsset(AssetManager.getAsset(token.getCharsheetImage()));
 			}
 		}
+
+		token.setSizeScale(getTokenLayoutPanel().getSizeScale());
+		token.setAnchor(getTokenLayoutPanel().getAnchorX(), getTokenLayoutPanel().getAnchorY());
 		
 		tokenSaved = true;
 	}
@@ -633,8 +649,9 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 			state.setSelected(stateValue == null ? false : stateValue.booleanValue());
 		}
 		
-		// Charsheet
+		// Other
 		getCharSheetPanel().setSheetAssetId(token.getCharsheetImage());
+		getTokenLayoutPanel().setToken(token);
 	}
 
 	/**

@@ -25,6 +25,7 @@
 package net.rptools.maptool.client;
 
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Transparency;
@@ -79,7 +80,6 @@ import net.rptools.maptool.model.CampaignFactory;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.ExportInfo;
 import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -1307,7 +1307,7 @@ public class AppActions {
 						// SWINGWORKER !
 						MapTool.getFrame().showFilledGlassPane(progressDialog);
 
-						PersistedCampaign campaign = PersistenceUtil.loadCampaign(campaignFile);
+						final PersistedCampaign campaign = PersistenceUtil.loadCampaign(campaignFile);
 						
 						if (campaign != null) {
 
@@ -1335,8 +1335,9 @@ public class AppActions {
 
 							if (campaign.currentZoneId != null) {
 								MapTool.getFrame().setCurrentZoneRenderer(MapTool.getFrame().getZoneRenderer(campaign.currentZoneId));
-									
-								if (campaign.currentView != null) {
+
+								// TODO: This is wrong
+								if (campaign.currentView != null && MapTool.getFrame().getCurrentZoneRenderer() != null) {
 									MapTool.getFrame().getCurrentZoneRenderer().setZoneScale(campaign.currentView);
 								}
 							}			
