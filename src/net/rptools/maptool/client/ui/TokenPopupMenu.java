@@ -21,6 +21,7 @@ import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppActions;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.token.LightDialog;
 import net.rptools.maptool.client.ui.token.TokenStates;
@@ -65,7 +66,9 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		addOwnedItem(createSpeechMenu());
 		addOwnedItem(createStateMenu());
 		addOwnedItem(createFlipMenu());
-		add(new ShowCharsheetAction());
+		if (getTokenUnderMouse().getCharsheetImage() != null && AppUtil.playerOwns(getTokenUnderMouse())) {
+			add(new ShowCharsheetAction());
+		}
 		add(new JSeparator());
 
 		if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
@@ -198,6 +201,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		public void actionPerformed(ActionEvent e) {
 
 			AssetViewerDialog dialog = new AssetViewerDialog(getTokenUnderMouse().getName() + "'s Character Sheet", getTokenUnderMouse().getCharsheetImage());
+			dialog.pack();
 			dialog.setVisible(true);
 		}
 		
