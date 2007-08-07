@@ -722,8 +722,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 isUsingVision = true; // Doesn't even have to be enabled, just exist
                 
                 // Don't bother if it's not a player token
-                if (!token.isVisible() && !view.isGMView()) {
-                    continue;
+                if (!view.isGMView()) {
+
+                	if (!token.isVisible() || token.getType() != Token.Type.PC) {
+                		continue;
+                	}
                 }
 
                 int width = TokenSize.getWidth(token, zone.getGrid());
