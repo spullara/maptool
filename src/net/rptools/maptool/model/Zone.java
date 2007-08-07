@@ -42,6 +42,7 @@ import java.util.Set;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
@@ -86,6 +87,8 @@ public class Zone extends BaseModel {
 	}
     
     public static final int DEFAULT_FEET_PER_CELL = 5;
+    
+    public static final DrawablePaint DEFAULT_FOG = new DrawableColorPaint(Color.black);
     
     // The zones should be ordered.  We could have the server assign each zone
     // an incrementing number as new zones are created, but that would take a lot
@@ -171,7 +174,7 @@ public class Zone extends BaseModel {
     }
 	
 	public DrawablePaint getFogPaint() {
-		return fogPaint;
+		return fogPaint != null ? fogPaint : DEFAULT_FOG;
 	}
     
     public Zone(Zone zone) {
