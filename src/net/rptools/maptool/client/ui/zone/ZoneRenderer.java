@@ -1070,9 +1070,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                         } else {
                         	Object oldAA = SwingUtil.useAntiAliasing(g);
                             g.setColor(Color.black);
-                            ScreenPoint lastPoint = ScreenPoint.fromZonePoint(this, token.getX()+width/2+(int)(grid.getCellOffset().width*scale), token.getY()+height/2+(int)(grid.getCellOffset().height*scale));
+                            ScreenPoint lastPoint = ScreenPoint.fromZonePoint(this, token.getX()+(int)(grid.getCellOffset().width*scale), token.getY()+(int)(grid.getCellOffset().height*scale));
                             for (ZonePoint zp : set.gridlessPath.getCellPath()) {
-	                            ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x + width/2+(int)(grid.getCellOffset().width*scale), zp.y + height/2+(int)(grid.getCellOffset().height*scale));
+	                            ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x +(int)(grid.getCellOffset().width*scale), zp.y + (int)(grid.getCellOffset().height*scale));
 	                            g.drawLine(lastPoint.x, lastPoint.y , nextPoint.x, nextPoint.y);
 	                            lastPoint = nextPoint;
                             }
