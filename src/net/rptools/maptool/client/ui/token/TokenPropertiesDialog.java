@@ -885,7 +885,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
-			case 0: return "Label";
+			case 0: return "ID";
 			case 1: return "Action";
 			}
 			return "";
@@ -914,7 +914,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
-			case 0: return "Label";
+			case 0: return "ID";
 			case 1: return "Speech Text";
 			}
 			return "";
