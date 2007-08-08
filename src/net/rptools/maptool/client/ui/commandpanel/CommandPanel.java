@@ -96,6 +96,10 @@ public class CommandPanel extends JPanel implements Observer {
 		initializeSmilies();
 	}
 	
+	public ChatProcessor getChatProcessor() {
+		return chatProcessor;
+	}
+	
 	private void initializeSmilies() {
 
 		emotePopup = new JPopupMenu();
@@ -335,8 +339,6 @@ public class CommandPanel extends JPanel implements Observer {
 		}
 		commandHistoryIndex = commandHistory.size();
 
-		text = chatProcessor.process(text);
-		
 		// Detect whether the person is attempting to fake rolls. 
     	if (CHEATER_PATTERN.matcher(text).find()) {
     		MapTool.addServerMessage(TextMessage.me("Cheater. You have been reported."));

@@ -18,6 +18,10 @@ public class ChatProcessor {
 	}
 	
 	public String process(String incoming) {
+		if (incoming == null) {
+			return null;
+		}
+		
 		for (ChatTranslationRule rule : translationRuleList) {
 			incoming = rule.translate(incoming);
 		}

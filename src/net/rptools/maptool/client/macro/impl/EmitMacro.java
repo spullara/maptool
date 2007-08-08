@@ -34,9 +34,10 @@ import net.rptools.maptool.model.TextMessage;
 	aliases = { "e" },
 	description = "Broadcast text to all connected players without indicating who sent it (GM only command)."
 )
-public class EmitMacro implements Macro {
+public class EmitMacro extends AbstractMacro {
 
     public void execute(String macro) {
+    	macro = processText(macro);
     	if (!MapTool.getPlayer().isGM()) {
     		MapTool.addMessage(TextMessage.me("<b>You must be a GM to do that</b>"));
     		return;

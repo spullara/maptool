@@ -34,7 +34,7 @@ import net.rptools.maptool.model.TextMessage;
 	aliases = { "w" },
 	description = "Send a message to a specific player."
 )
-public class WhisperMacro implements Macro {
+public class WhisperMacro extends AbstractMacro {
 
     public void execute(String macro) {
         
@@ -45,7 +45,7 @@ public class WhisperMacro implements Macro {
         }
         
         String playerName = macro.substring(0, index);
-        String message = macro.substring(index+1);
+        String message = processText(macro.substring(index+1));
         
         // Validate
         if (!MapTool.isPlayerConnected(playerName)) {

@@ -34,9 +34,10 @@ import net.rptools.maptool.model.TextMessage;
 	aliases = { "me" },
 	description = "Broadcast an emote to all connected players."
 )
-public class EmoteMacro implements Macro {
+public class EmoteMacro extends AbstractMacro {
 
     public void execute(String macro) {
+    	macro = processText(macro);
         StringBuilder sb = new StringBuilder();
         
     	// Prevent spoofing

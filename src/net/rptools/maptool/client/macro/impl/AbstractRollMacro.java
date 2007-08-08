@@ -36,7 +36,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.parser.ParserException;
 
-public abstract class AbstractRollMacro  implements Macro {
+public abstract class AbstractRollMacro extends AbstractMacro {
 	
     protected String roll(String roll) {
         

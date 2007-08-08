@@ -38,9 +38,11 @@ import net.rptools.maptool.model.Token;
 	aliases = { "s" },
 	description = "Broadcast a message to all connected players."
 )
-public class SayMacro implements Macro {
+public class SayMacro extends AbstractMacro {
 
     public void execute(String macro) {
+    	macro = processText(macro);
+    	
         StringBuilder sb = new StringBuilder();
 
         String identity = MapTool.getFrame().getCommandPanel().getIdentity();

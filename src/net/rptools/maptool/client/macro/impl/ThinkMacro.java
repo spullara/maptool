@@ -34,9 +34,10 @@ import net.rptools.maptool.model.TextMessage;
         aliases = { "th" },
         description = "Send a message only to yourself."
     )
-public class ThinkMacro implements Macro {
+public class ThinkMacro extends AbstractMacro {
 	    
 	public void execute(String macro) {
+		macro = processText(macro);
         StringBuilder sb = new StringBuilder();
         sb.append("<i>").append(macro).append(":</i>");
         MapTool.addMessage(TextMessage.me(sb.toString()));
