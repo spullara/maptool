@@ -123,6 +123,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.Pen;
@@ -728,6 +729,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 					zone.setBackgroundPaint(new DrawableTexturePaint(asset));
 				} else {
 					zone.setMapAsset(asset.getId());
+					zone.setBackgroundPaint(new DrawableColorPaint(Color.black));
 				}
 				MapPropertiesDialog newMapDialog = new MapPropertiesDialog(MapTool.getFrame());
 				newMapDialog.setZone(zone);
