@@ -705,7 +705,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 			// cellUnderMouse actually token position if token being dragged with keys.
 			CellPoint cellUnderMouse = renderer.getZone().getGrid().convert(zonePoint);
-			zonePoint = renderer.getZone().getGrid().convert(cellUnderMouse);
+			zonePoint = renderer.getZone().getGrid().getCenterPoint(cellUnderMouse);
+			
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
 		} else {
 		    zonePoint.translate(-dragOffsetX, -dragOffsetY);

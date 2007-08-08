@@ -1033,7 +1033,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     continue;
                 }
                 
-                ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, token.getX() + setOffsetX, token.getY() + setOffsetY);
+                ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, token.getX() + setOffsetX + token.getAnchor().x, token.getY() + setOffsetY + token.getAnchor().y);
                 
                 // OPTIMIZE: combine this with the code in renderTokens()
                 int width = TokenSize.getWidth(token, zone.getGrid());
@@ -1044,21 +1044,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 int scaledGridWidth = (int)(grid.getCellWidth()*getScale());
                 int scaledGridHeight = (int)(grid.getCellHeight()*getScale());
                 
-                int x = newScreenPoint.x + 1;
-                int y = newScreenPoint.y + 1;;
+                int x = newScreenPoint.x + 1 - scaledWidth/2;
+                int y = newScreenPoint.y + 1 - scaledHeight/2;
                     
                 Point p = grid.cellGroupTopLeftOffset(height, width, token.isToken ());
                 x += p.x*scale;
                 y += p.y*scale;
                 
-                // Center the token if it is smaller than a grid cell
-                if (scaledWidth < scaledGridWidth && token.isSnapToGrid()) {
-                    x += (scaledGridWidth - scaledWidth)/2;
-                }
-                if (scaledHeight < scaledGridHeight && token.isSnapToGrid()) {
-                    y += (scaledGridHeight - scaledHeight)/2;
-                }
-
                 // Vision visibility
                 Rectangle clip = g.getClipBounds();
                 if (token.isToken() && !view.isGMView() && !isOwner && visibleArea != null) {
@@ -1116,14 +1108,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                      wig.dispose();
                 }
                 
-                
                 // Draw token
                 if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp () || token.isBackground())) {
 
                     // Rotated
                     AffineTransform at = new AffineTransform();
                     at.translate(x, y);
-                    at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2, scaledHeight/2); // facing defaults to down, or -90 degrees
+
+                    at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale, scaledHeight/2 - token.getAnchor().y*scale); // facing defaults to down, or -90 degrees
                     if (token.isSnapToScale()) {
                         at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
                     } else {
@@ -1466,26 +1458,22 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 scaledHeight --;
             }
             
-            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, token.getX() + token.getAnchor().x, token.getY() + token.getAnchor().y);
-            int x = tokenScreenLocation.x + 1;
-            int y = tokenScreenLocation.y + 1;
+            int tx = token.getX() + token.getAnchor().x;
+            int ty = token.getY() + token.getAnchor().y;
+            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, tx, ty);
+            
+            // Centered on the image center point
+            int x = tokenScreenLocation.x + 1 - scaledWidth/2;
+            int y = tokenScreenLocation.y + 1 - scaledHeight/2;
                 
             Point p = grid.cellGroupTopLeftOffset(height, width, token.isToken());
             x += p.x*scale;
             y += p.y*scale;
             
-            // Center the token if it is smaller than a grid cell
-            if (scaledWidth < scaledGridWidth && token.isSnapToGrid()) {
-                x += (scaledGridWidth - scaledWidth)/2;
-            }
-            if (scaledHeight < scaledGridHeight && token.isSnapToGrid()) {
-                y += (scaledGridHeight - scaledHeight)/2;
-            }
-            
             Rectangle origBounds = new Rectangle(x, y, scaledWidth, scaledHeight);
             Area tokenBounds = new Area(origBounds);
             if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
-                tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth/2 + x, scaledHeight/2 + y)); // facing defaults to down, or -90 degrees
+                tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth/2 + x - (token.getAnchor().x*scale), scaledHeight/2 + y - (token.getAnchor().y*scale))); // facing defaults to down, or -90 degrees
             }
             
             location = new TokenLocation(tokenBounds, origBounds, token, x, y, width, height, scaledWidth, scaledHeight);
@@ -1520,7 +1508,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     Area r1 = currLocation.bounds;
                     
                     // Are we covering anyone ?
-                    if (location.bounds.intersects(r1.getBounds())) {
+                    if (GraphicsUtil.intersects(location.bounds, r1)) {
     
                         // Are we covering someone that is covering someone ?
                         Area oldRect = null;
@@ -1628,8 +1616,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             if ( token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp() || token.isBackground())) {
                 // Rotated
                 AffineTransform at = new AffineTransform();
-                 at.translate(location.x, location.y);
-                at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2, location.scaledHeight/2); // facing defaults to down, or -90 degrees
+                at.translate(location.x, location.y);
+                at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale), location.scaledHeight/2 - (token.getAnchor().y*scale)); // facing defaults to down, or -90 degrees
 
                 if (token.isSnapToScale()) {
                      at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
@@ -1776,7 +1764,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
                     // Rotated
                     g.translate(origBounds.getBounds().x, origBounds.getBounds().y);
-                     g.rotate(Math.toRadians(-token.getFacing() - 90), origBounds.getBounds().width/2, origBounds.getBounds().height/2); // facing defaults to down, or -90 degrees
+                     g.rotate(Math.toRadians(-token.getFacing() - 90), origBounds.getBounds().width/2 - (token.getAnchor().x*scale), origBounds.getBounds().height/2 - (token.getAnchor().y*scale)); // facing defaults to down, or -90 degrees
                     selectedBorder.paintAround(g, 0, 0, origBounds.getBounds ().width, origBounds.getBounds().height);
 
                     g.setTransform(oldTransform);
@@ -2254,7 +2242,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // Get the snap to grid value for the current prefs and abilities
             token.setSnapToGrid(gridCaps.isSnapToGridSupported() && AppPreferences.getTokensStartSnapToGrid());
             if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid()) {
-                zp = zone.getGrid().convert(zone.getGrid().convert(zp));
+                zp = zone.getGrid().getCenterPoint(zone.getGrid().convert(zp));
             }
             token.setX(zp.x);
             token.setY(zp.y);

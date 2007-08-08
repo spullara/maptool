@@ -304,13 +304,13 @@ public class FogUtil {
 		
 		Point p = new Point(0,0);
 		
-		switch(vision.getAnchor()) {
-		case CENTER:
-			Grid grid = renderer.getZone().getGrid();			
-			Point pOffset = grid.cellGroupCenterOffset(height, width, token.isToken());
-			p.x += pOffset.x;
-			p.y += pOffset.y;
-		}
+//		switch(vision.getAnchor()) {
+//		case CENTER:
+//			Grid grid = renderer.getZone().getGrid();			
+//			Point pOffset = grid.cellGroupCenterOffset(height, width, token.isToken());
+//			p.x += pOffset.x;
+//			p.y += pOffset.y;
+//		}
 		
 		p.x += x;
 		p.y += y;

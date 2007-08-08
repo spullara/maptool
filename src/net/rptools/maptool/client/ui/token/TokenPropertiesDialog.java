@@ -451,6 +451,10 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 	 */
 	public void updateToken() {
 
+		if (token == null) {
+			return;
+		}
+		
 		// Check the name
 		String name = getNameTextField().getText();
 		if (name == null || (name = name.trim()).length() == 0) {

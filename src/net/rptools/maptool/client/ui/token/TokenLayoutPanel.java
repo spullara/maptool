@@ -40,7 +40,7 @@ public class TokenLayoutPanel extends JPanel {
 					return;
 				}
 				
-				double delta = e.getWheelRotation() > 0 ? .1 : -.1;
+				double delta = e.getWheelRotation() > 0 ? -.1 : .1;
 				
 				double scale = token.getSizeScale() + delta;
 
@@ -104,9 +104,17 @@ public class TokenLayoutPanel extends JPanel {
 	protected void paintComponent(Graphics g) {
 
 		Dimension size = getSize();
-
-		// Gather info
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+
+		if (!zone.getGrid().getCapabilities().isSnapToGridSupported()) {
+			g.setColor(Color.black);
+			g.fillRect(0, 0, size.width, size.height);
+			g.setColor(Color.white);
+			g.drawString("Not supported", 30, 65);
+			return;
+		}
+		
+		// Gather info
 		
 		Paint backgroundPaint = zone.getBackgroundPaint().getPaint();
 

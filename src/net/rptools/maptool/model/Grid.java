@@ -44,6 +44,12 @@ public abstract class Grid implements Cloneable{
 		setOffset(grid.offsetX, grid.offsetY);
 	}
 	
+	public ZonePoint getCenterPoint(CellPoint cellPoint) {
+		ZonePoint zp = convert(cellPoint);
+		zp.x += getCellWidth()/2;
+		zp.y += getCellHeight()/2;
+		return zp;
+	}
 
 	public Object clone () 
     	throws CloneNotSupportedException

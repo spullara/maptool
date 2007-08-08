@@ -101,7 +101,7 @@ public class Zone extends BaseModel {
 	private GUID id = new GUID();
 
 	private Grid grid;
-    private int gridColor = Color.darkGray.getRGB();
+    private int gridColor = Color.black.getRGB();
     private float imageScaleX = 1;
     private float imageScaleY = 1;
     
