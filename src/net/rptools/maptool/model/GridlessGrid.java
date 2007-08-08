@@ -11,6 +11,14 @@ public class GridlessGrid extends Grid {
 		public boolean isSecondDimensionAdjustmentSupported() {return false;}
 	};
 
+	private static final int[] FACING_ANGLES = new int[] {
+		-135, -90, -45, 0, 45, 90, 135, 180
+	};
+	
+	@Override
+	public int[] getFacingAngles() {
+		return FACING_ANGLES;
+	}
 	
 	@Override
 	public ZonePoint convert(CellPoint cp) {
