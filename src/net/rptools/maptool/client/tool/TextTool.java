@@ -55,6 +55,10 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 
 	private Label selectedLabel;
 	
+	private int dragStartX;
+	private int dragStartY;
+	private boolean isDragging;
+	
 	public TextTool () {
         try {
             setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/tool/text.png")));
@@ -113,8 +117,20 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     // MOUSE
     @Override
     public void mousePressed(MouseEvent e) {
+		dragStartX = e.getX();
+		dragStartY = e.getY();
+		
+		super.mousePressed(e);
+    }
+    
+    @Override
+    public void mouseReleased(MouseEvent e) {
 
-    	ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+    	if (isDragging) {
+    		isDragging = false;
+    		return;
+    	}
+    	
     	if (SwingUtilities.isLeftMouseButton(e)) {
 
     		Label label = renderer.getLabelAt(e.getX(), e.getY());
@@ -156,6 +172,32 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     		renderer.repaint();
     	}
     	
-    	super.mousePressed(e);
+    	super.mouseReleased(e);
+    }
+    
+    @Override
+    public void mouseDragged(MouseEvent e) {
+    	
+    	if (selectedLabel == null) {
+    		return;
+    	}
+
+    	isDragging = true;
+    	
+    	int dx = e.getX() - dragStartX;
+    	int dy = e.getY() - dragStartY;
+    	
+    	ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, new ZonePoint(selectedLabel.getX(), selectedLabel.getY()));
+    	sp.x += dx;
+    	sp.y += dy;
+    	ZonePoint zp = sp.convertToZone(renderer);
+    	
+    	selectedLabel.setX(zp.x);
+    	selectedLabel.setY(zp.y);
+    	
+    	dragStartX = e.getX();
+    	dragStartY = e.getY();
+    	
+    	renderer.repaint();
     }
 }
