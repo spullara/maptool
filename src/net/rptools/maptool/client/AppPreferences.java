@@ -112,7 +112,7 @@ public class AppPreferences {
     private static final int DEFAULT_DEFAULT_GRID_SIZE = 50;
     
     private static final String KEY_DEFAULT_GRID_COLOR = "defaultGridColor";
-    private static final int DEFAULT_DEFAULT_GRID_COLOR = 0x646464;
+    private static final int DEFAULT_DEFAULT_GRID_COLOR = Color.black.getRGB();
     
     private static final String KEY_DEFAULT_UNITS_PER_CELL = "unitsPerCell";
     private static final int DEFAULT_DEFAULT_UNITES_PER_CELL = 5;
