@@ -148,7 +148,7 @@ public class MessagePanel extends JPanel {
 
 	private static class MessagePanelImageCache extends Dictionary {
 
-		private Map<URL, Image> imageMap = new HashMap<URL, Image>();
+		private Map<String, Image> imageMap = new HashMap<String, Image>();
 		
 		@Override
 		public Enumeration elements() {
@@ -159,8 +159,9 @@ public class MessagePanel extends JPanel {
 		public Object get(Object key) {
 			URL url = (URL) key;
 			
-			Image image = imageMap.get(url);
-			if (!imageMap.containsKey(url)) {
+			// URLs take a huge amount of time in equals(), so simplify by converting to a string
+			Image image = imageMap.get(url.toString());
+			if (image == null) {
 
 				String protocol = url.getProtocol();
 				String path = url.getHost() + url.getPath();
@@ -182,7 +183,7 @@ public class MessagePanel extends JPanel {
 					image = Toolkit.getDefaultToolkit().createImage(url);
 				}
 				
-				imageMap.put(url, image);
+				imageMap.put(url.toString(), image);
 			}
 			
 			return image;
