@@ -46,7 +46,7 @@ public class TokenLayoutPanel extends JPanel {
 
 				// Range
 				scale = Math.max(.1, scale);
-				scale = Math.min(2, scale);
+				scale = Math.min(3, scale);
 				
 				token.setSizeScale(scale);
 				
