@@ -345,6 +345,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		initSizeCombo();
 		
 		initCharsheetPanel();
+		initPortraitPanel();
 		initTokenLayoutPanel();
 	}
 
@@ -357,7 +358,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 	}
 	
 	private void initCharsheetPanel() {
-		CharsheetPanel panel = new CharsheetPanel();
+		ImageAssetPanel panel = new ImageAssetPanel();
 		panel.setPreferredSize(new Dimension(150, 125));
 		panel.setName("charsheet");
 		panel.setLayout(new GridLayout());
@@ -365,8 +366,21 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		replaceComponent("charsheetPanel", "charsheet", panel);
 	}
 	
-	public CharsheetPanel getCharSheetPanel() {
-		return (CharsheetPanel) getComponent("charsheet");
+	private void initPortraitPanel() {
+		ImageAssetPanel panel = new ImageAssetPanel();
+		panel.setPreferredSize(new Dimension(150, 125));
+		panel.setName("portrait");
+		panel.setLayout(new GridLayout());
+		
+		replaceComponent("portraitPanel", "portrait", panel);
+	}
+	
+	public ImageAssetPanel getPortraitPanel() {
+		return (ImageAssetPanel) getComponent("portrait");
+	}
+	
+	public ImageAssetPanel getCharSheetPanel() {
+		return (ImageAssetPanel) getComponent("charsheet");
 	}
 	
 	public TokenLayoutPanel getTokenLayoutPanel() {
@@ -510,11 +524,18 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		((TokenPropertyTableModel)getPropertyTable().getModel()).applyTo(token);
 	
 		// Charsheet
-		token.setCharsheetImage(getCharSheetPanel().getSheetAssetId());
+		token.setCharsheetImage(getCharSheetPanel().getImageId());
 		if (token.getCharsheetImage() != null) {
 			// Make sure the server has the image
 			if (!MapTool.getCampaign().containsAsset(token.getCharsheetImage())) {
 				MapTool.serverCommand().putAsset(AssetManager.getAsset(token.getCharsheetImage()));
+			}
+		}
+		token.setPortraitImage(getPortraitPanel().getImageId());
+		if (token.getPortraitImage() != null) {
+			// Make sure the server has the image
+			if (!MapTool.getCampaign().containsAsset(token.getPortraitImage())) {
+				MapTool.serverCommand().putAsset(AssetManager.getAsset(token.getPortraitImage()));
 			}
 		}
 
@@ -654,7 +675,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		}
 		
 		// Other
-		getCharSheetPanel().setSheetAssetId(token.getCharsheetImage());
+		getCharSheetPanel().setImageId(token.getCharsheetImage());
 		getTokenLayoutPanel().setToken(token);
 	}
 

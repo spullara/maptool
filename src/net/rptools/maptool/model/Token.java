@@ -150,6 +150,7 @@ public class Token extends BaseModel {
 	private boolean isFlippedY;
 	
 	private MD5Key charsheetImage;
+	private MD5Key portraitImage;
 	
   /**
    * The notes that are displayed for this token.
@@ -215,6 +216,7 @@ public class Token extends BaseModel {
         visionOverlayColor = token.visionOverlayColor;
 	    
         charsheetImage = token.charsheetImage;
+        portraitImage = token.portraitImage;
         anchorX = token.anchorX;
         anchorY = token.anchorY;
         sizeScale = token.sizeScale;
@@ -496,7 +498,16 @@ public class Token extends BaseModel {
 	public Set<MD5Key> getAllImageAssets() {
 		Set<MD5Key> assetSet = new HashSet<MD5Key>(imageAssetMap.values()); 
 		assetSet.add(charsheetImage);
+		assetSet.add(portraitImage);
 		return assetSet;
+	}
+	
+	public MD5Key getPortraitImage() {
+		return portraitImage;
+	}
+	
+	public void setPortraitImage(MD5Key image) {
+		portraitImage = image;
 	}
 	
 	public MD5Key getCharsheetImage() {

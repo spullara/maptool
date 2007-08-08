@@ -25,24 +25,24 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
 
-public class CharsheetPanel extends JPanel implements DropTargetListener {
+public class ImageAssetPanel extends JPanel implements DropTargetListener {
 
-	private MD5Key sheetAssetId;
+	private MD5Key imageId;
 
-	public CharsheetPanel() {
+	public ImageAssetPanel() {
 		new DropTarget(this, this);
 	}
 	
-	public MD5Key getSheetAssetId() {
-		return sheetAssetId;
+	public MD5Key getImageId() {
+		return imageId;
 	}
 	
-	public void setSheetAssetId(MD5Key sheetAssetId) {
-		this.sheetAssetId = sheetAssetId;
+	public void setImageId(MD5Key sheetAssetId) {
+		this.imageId = sheetAssetId;
 		
 		if (sheetAssetId == null) {
 			removeAll();
-			JLabel label = new JLabel("<html><body>Drop charsheet image here</body></html>", JLabel.CENTER);
+			JLabel label = new JLabel("<html><body>Drop image here</body></html>", JLabel.CENTER);
 			label.setForeground(Color.white);
 			add(label);
 		} else {
@@ -58,11 +58,11 @@ public class CharsheetPanel extends JPanel implements DropTargetListener {
 		g.setColor(Color.black);
 		g.fillRect(0, 0, size.width, size.height);
 		
-		if (sheetAssetId == null) {
+		if (imageId == null) {
 			return;
 		}
 		
-		BufferedImage image = ImageManager.getImage(AssetManager.getAsset(sheetAssetId), this);
+		BufferedImage image = ImageManager.getImage(AssetManager.getAsset(imageId), this);
 		
 		Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
 		SwingUtil.constrainTo(imgSize, size.width-8, size.height-8);
@@ -96,7 +96,7 @@ public class CharsheetPanel extends JPanel implements DropTargetListener {
         	return;
         }
         
-        setSheetAssetId(assets.get(0).getId());
+        setImageId(assets.get(0).getId());
 	}
 	public void dropActionChanged(DropTargetDragEvent dtde) {
 	}
