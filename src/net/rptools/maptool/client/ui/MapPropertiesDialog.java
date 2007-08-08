@@ -139,6 +139,7 @@ public class MapPropertiesDialog extends JDialog  {
 		paintChooser = new PaintChooser();
 		TextureChooserPanel textureChooserPanel = new TextureChooserPanel(paintChooser, MapTool.getFrame().getAssetPanel().getModel(), "mapPropertiesTextureChooser");
 		paintChooser.addPaintChooser(textureChooserPanel);
+		paintChooser.setPreferredSize(new Dimension(450, 400));
 
 		mapSelectorDialog = new MapSelectorDialog();
 		
