@@ -280,6 +280,17 @@ public class GraphicsUtil {
     	
     	return !newArea.isEmpty();
     }
+
+    /**
+     * True if the lhs area totally contains the rhs area
+     */
+    public static boolean contains(Area lhs, Area rhs) {
+    	
+    	Area newArea = new Area(rhs);
+    	newArea.subtract(lhs);
+    	
+    	return newArea.isEmpty();
+    }
     
     public static Area createLineSegmentEllipse(int x1, int y1, int x2, int y2) {
 
