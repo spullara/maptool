@@ -676,6 +676,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		
 		// Other
 		getCharSheetPanel().setImageId(token.getCharsheetImage());
+		getPortraitPanel().setImageId(token.getPortraitImage());
 		getTokenLayoutPanel().setToken(token);
 	}
 

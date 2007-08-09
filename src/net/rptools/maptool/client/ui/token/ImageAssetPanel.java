@@ -3,6 +3,7 @@ package net.rptools.maptool.client.ui.token;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
@@ -10,6 +11,8 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +22,7 @@ import javax.swing.JPanel;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -29,8 +33,18 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
 
 	private MD5Key imageId;
 
+	private Rectangle cancelBounds;
+	
 	public ImageAssetPanel() {
 		new DropTarget(this, this);
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (cancelBounds != null && cancelBounds.contains(e.getX(), e.getY())) {
+					setImageId(null);
+				}
+			}
+		});
 	}
 	
 	public MD5Key getImageId() {
@@ -48,6 +62,7 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
 		} else {
 			removeAll();
 		}
+		revalidate();
 		repaint();
 	}
 	
@@ -68,6 +83,15 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
 		SwingUtil.constrainTo(imgSize, size.width-8, size.height-8);
 		
 		g.drawImage(image, (size.width - imgSize.width)/2, (size.height - imgSize.height)/2, imgSize.width, imgSize.height, this);
+		
+		// cancel
+		BufferedImage cancelButton = AppStyle.cancelButton;
+		int x = size.width - cancelButton.getWidth() - 1;
+		int y = 1;
+		
+		g.drawImage(cancelButton, x, y, this);
+		cancelBounds = new Rectangle(x, y, cancelButton.getWidth(), cancelButton.getHeight());
+		
 	}
 	
 	////

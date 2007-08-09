@@ -500,15 +500,6 @@ public class CommandPanel extends JPanel implements Observer {
 	private static class AvatarPanel extends JComponent {
 
 		private static final int PADDING = 5;
-		private static BufferedImage cancelButton;
-
-		static {
-			try {
-				cancelButton = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/cancel_sm.png");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 		
 		private Image image;
 		private Dimension preferredSize;
@@ -557,6 +548,7 @@ public class CommandPanel extends JPanel implements Observer {
 			g.drawImage(image, (size.width-imgSize.width)/2, (size.height-imgSize.height)/2, imgSize.width, imgSize.width, this);
 			
 			// Cancel
+			BufferedImage cancelButton = AppStyle.cancelButton;
 			int x = size.width - cancelButton.getWidth();
 			int y = 2;
 			g.drawImage(cancelButton, x, y, this);

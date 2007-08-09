@@ -62,6 +62,8 @@ public class AppStyle {
 
     public static BufferedImage boundedBackgroundTile;
     
+    public static BufferedImage cancelButton;
+    
 	static {
 		
 		try {
@@ -74,6 +76,8 @@ public class AppStyle {
             chatScrollImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments.png"); 
             chatScrollLockImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments_delete.png"); 
             boundedBackgroundTile = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/Black.png");
+            
+			cancelButton = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/cancel_sm.png");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
