@@ -68,7 +68,6 @@ import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.swing.HTMLPanelRenderer;
 import net.rptools.maptool.client.ui.StampPopupMenu;
@@ -1216,6 +1215,30 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 		}
 
+		// Portrait
+		if (tokenUnderMouse != null && !isDraggingToken && tokenUnderMouse.getPortraitImage() != null) {
+			
+			BufferedImage image = ImageManager.getImage(AssetManager.getAsset(tokenUnderMouse.getPortraitImage()));
+			Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
+			
+			// Minsize
+			if (imgSize.width < 100 || imgSize.height < 100) {
+				SwingUtil.constrainTo(imgSize, 100);
+			}
+			// Maxsize
+			if (imgSize.width > 200 || imgSize.height > 200) {
+				SwingUtil.constrainTo(imgSize, 200);
+			}
+			
+			// Label
+			int padding = 7;
+			g.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
+			g.fillRect(padding, viewSize.height - imgSize.height - padding, imgSize.width, imgSize.height);
+			g.drawImage(image, padding, viewSize.height - imgSize.height - padding, imgSize.width, imgSize.height, this);
+			AppStyle.miniMapBorder.paintAround(g, padding, viewSize.height - imgSize.height - padding, imgSize.width, imgSize.height);
+			GraphicsUtil.drawBoxedString(g, tokenUnderMouse.getName(), padding + imgSize.width/2, viewSize.height - padding - 5);
+		}
+		
 		// Hovers
 		if (tokenUnderMouse == null && markerUnderMouse != null && isShowingHover) {
 			Area bounds = renderer.getMarkerBounds(markerUnderMouse);
