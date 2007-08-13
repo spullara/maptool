@@ -38,10 +38,10 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.Rectangle;
@@ -123,13 +123,13 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
             	pen.setBackgroundPaint(new DrawableColorPaint(AppStyle.topologyAddColor));
             }
         	
-            rectangle.draw(g, pen);
+            paintTransformed(g, renderer, rectangle, pen);
         }
     }
-
+    
     public void mousePressed(MouseEvent e) {
 
-    	ScreenPoint sp = getPoint(e);
+    	ZonePoint sp = getPoint(e);
     	
     	if (SwingUtilities.isLeftMouseButton(e)) {
 	        if (rectangle == null) {
@@ -138,13 +138,10 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
 	            rectangle.getEndPoint().x = sp.x;
 	            rectangle.getEndPoint().y = sp.y;
 	            
-	            ZonePoint startPoint = new ScreenPoint((int) rectangle.getStartPoint().getX(), (int) rectangle.getStartPoint().getY()).convertToZone(renderer); 
-	            ZonePoint endPoint = new ScreenPoint((int) rectangle.getEndPoint().getX(), (int) rectangle.getEndPoint().getY()).convertToZone(renderer);
-	
-	            int x1 = Math.min(startPoint.x, endPoint.x);
-	            int x2 = Math.max(startPoint.x, endPoint.x);
-	            int y1 = Math.min(startPoint.y, endPoint.y);
-	            int y2 = Math.max(startPoint.y, endPoint.y);
+	            int x1 = Math.min(rectangle.getStartPoint().x, rectangle.getEndPoint().x);
+	            int x2 = Math.max(rectangle.getStartPoint().x, rectangle.getEndPoint().x);
+	            int y1 = Math.min(rectangle.getStartPoint().y, rectangle.getEndPoint().y);
+	            int y2 = Math.max(rectangle.getStartPoint().y, rectangle.getEndPoint().y);
 	            
 	            Area area = new Area(new java.awt.Rectangle(x1, y1, x2 - x1, y2 - y1));
 	            if (isEraser(e)) {
@@ -176,7 +173,7 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
     
     public void mouseMoved(MouseEvent e) {
 
-    	ScreenPoint p = getPoint(e);
+    	ZonePoint p = getPoint(e);
     	if (rectangle != null) {
 	
 	        if (rectangle != null) {

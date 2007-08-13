@@ -30,7 +30,7 @@ public class OvalTopologyTool extends AbstractDrawingTool implements MouseMotion
     private static final long serialVersionUID = 3258413928311830321L;
 
     protected Oval oval;
-    private ScreenPoint originPoint;    
+    private ZonePoint originPoint;    
     
     public OvalTopologyTool() {
         try {
@@ -98,7 +98,7 @@ public class OvalTopologyTool extends AbstractDrawingTool implements MouseMotion
             	pen.setBackgroundPaint(new DrawableColorPaint(AppStyle.topologyAddColor));
             }
 
-            oval.draw(g, pen);
+            paintTransformed(g, renderer, oval, pen);
             
             Point start = oval.getStartPoint();
             Point end = oval.getEndPoint();
@@ -110,22 +110,16 @@ public class OvalTopologyTool extends AbstractDrawingTool implements MouseMotion
     public void mousePressed(MouseEvent e) {
     	
     	if (SwingUtilities.isLeftMouseButton(e)) {
-	    	ScreenPoint sp = getPoint(e);
+	    	ZonePoint zp = getPoint(e);
 	        
 	        if (oval == null) {
-	            oval = new Oval(sp.x, sp.y, sp.x, sp.y);
-	            originPoint = sp;
+	            oval = new Oval(zp.x, zp.y, zp.x, zp.y);
+	            originPoint = zp;
 	        } else {
-	            oval.getEndPoint().x = sp.x;
-	            oval.getEndPoint().y = sp.y;
+	            oval.getEndPoint().x = zp.x;
+	            oval.getEndPoint().y = zp.y;
 	            
-	            ZonePoint startPoint = new ScreenPoint((int) oval.getStartPoint().getX(), (int) oval.getStartPoint().getY()).convertToZone(renderer); 
-	            ZonePoint endPoint = new ScreenPoint((int) oval.getEndPoint().getX(), (int) oval.getEndPoint().getY()).convertToZone(renderer);
-	
-	            oval.getStartPoint().setLocation(startPoint.x, startPoint.y);
-	            oval.getEndPoint().setLocation(endPoint.x, endPoint.y);
-
-	            Area area = GraphicsUtil.createLineSegmentEllipse(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+	            Area area = GraphicsUtil.createLineSegmentEllipse(oval.getStartPoint().x, oval.getStartPoint().y, oval.getEndPoint().x, oval.getEndPoint().y);
 
 	            if (isEraser(e)) {
 		            renderer.getZone().removeTopology(area);
@@ -155,7 +149,7 @@ public class OvalTopologyTool extends AbstractDrawingTool implements MouseMotion
     
     public void mouseMoved(MouseEvent e) {
     	if (oval != null) {
-    		ScreenPoint sp = getPoint(e);
+    		ZonePoint sp = getPoint(e);
     		
             oval.getEndPoint().x = sp.x;
             oval.getEndPoint().y = sp.y;

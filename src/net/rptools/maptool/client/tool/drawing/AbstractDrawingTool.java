@@ -28,6 +28,7 @@ import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.AffineTransform;
 
 import net.rptools.lib.swing.ColorPicker;
 import net.rptools.lib.swing.SwingUtil;
@@ -68,7 +69,19 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
 		});
     	
     }
-    
+
+    protected void paintTransformed(Graphics2D g, ZoneRenderer renderer, Drawable drawing, Pen pen) {
+
+    	AffineTransform transform = new AffineTransform();
+    	transform.translate(renderer.getViewOffsetX(), renderer.getViewOffsetY());
+    	transform.scale(renderer.getScale(), renderer.getScale());
+    	
+    	AffineTransform oldTransform = g.getTransform();
+    	g.transform(transform);
+    	drawing.draw(g, pen);
+    	g.setTransform(oldTransform);
+    }
+
 	protected void attachTo(ZoneRenderer renderer) {
 		if (MapTool.getPlayer().isGM()) {
 			MapTool.getFrame().showControlPanel(MapTool.getFrame().getColorPicker(), layerSelectionDialog);
@@ -145,16 +158,16 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
 		return pen;
     }
     
-    protected ScreenPoint getPoint(MouseEvent e) {
+    protected ZonePoint getPoint(MouseEvent e) {
     	
     	ScreenPoint sp = new ScreenPoint(e.getX(), e.getY());
+    	ZonePoint zp = sp.convertToZone(renderer);
     	if (isSnapToGrid(e)) {
-			ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
 	    	zp = renderer.getZone().getNearestVertex(zp);
 	    	sp = ScreenPoint.fromZonePoint(renderer, zp);
-    	}
+    	} 
 
-    	return sp;
+    	return zp;
     }
     
     public abstract void paintOverlay(ZoneRenderer renderer, Graphics2D g);

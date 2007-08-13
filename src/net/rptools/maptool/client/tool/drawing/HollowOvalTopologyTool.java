@@ -30,7 +30,7 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
     private static final long serialVersionUID = 3258413928311830325L;
 
     protected Oval oval;
-    private ScreenPoint originPoint;
+    private ZonePoint originPoint;
 	
     public HollowOvalTopologyTool() {
         try {
@@ -99,7 +99,7 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
             	pen.setBackgroundPaint(new DrawableColorPaint(AppStyle.topologyAddColor));
             }
 
-            oval.draw(g, pen);
+            paintTransformed(g, renderer, oval, pen);
             
             Point start = oval.getStartPoint();
             Point end = oval.getEndPoint();
@@ -111,30 +111,24 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
     public void mousePressed(MouseEvent e) {
 
     	if (SwingUtilities.isLeftMouseButton(e)) {
-	    	ScreenPoint sp = getPoint(e);
+	    	ZonePoint zp = getPoint(e);
 	        
 	        if (oval == null) {
-	            oval = new Oval(sp.x, sp.y, sp.x, sp.y);
-	            originPoint = sp;
+	            oval = new Oval(zp.x, zp.y, zp.x, zp.y);
+	            originPoint = zp;
 	        } else {
-	            oval.getEndPoint().x = sp.x;
-	            oval.getEndPoint().y = sp.y;
+	            oval.getEndPoint().x = zp.x;
+	            oval.getEndPoint().y = zp.y;
 	            
-	            ZonePoint startPoint = new ScreenPoint((int) oval.getStartPoint().getX(), (int) oval.getStartPoint().getY()).convertToZone(renderer); 
-	            ZonePoint endPoint = new ScreenPoint((int) oval.getEndPoint().getX(), (int) oval.getEndPoint().getY()).convertToZone(renderer);
-	
-	            oval.getStartPoint().setLocation(startPoint.x, startPoint.y);
-	            oval.getEndPoint().setLocation(endPoint.x, endPoint.y);
-
-	            Area area = GraphicsUtil.createLineSegmentEllipse(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+	            Area area = GraphicsUtil.createLineSegmentEllipse(oval.getStartPoint().x, oval.getStartPoint().y, oval.getEndPoint().x, oval.getEndPoint().y);
 	            
 	            // Still use the whole area if it's an erase action
 	            if (!isEraser(e)) {
-	            	int x1 = Math.min(startPoint.x, endPoint.x) + 2;
-	            	int y1 = Math.min(startPoint.y, endPoint.y) + 2;
+	            	int x1 = Math.min(oval.getStartPoint().x, oval.getEndPoint().x) + 2;
+	            	int y1 = Math.min(oval.getStartPoint().y, oval.getEndPoint().y) + 2;
 	            	
-	            	int x2 = Math.max(startPoint.x, endPoint.x) - 2;
-	            	int y2 = Math.max(startPoint.y, endPoint.y) - 2;
+	            	int x2 = Math.max(oval.getStartPoint().x, oval.getEndPoint().x) - 2;
+	            	int y2 = Math.max(oval.getStartPoint().y, oval.getEndPoint().y) - 2;
 	            	
 	            	Area innerArea = GraphicsUtil.createLineSegmentEllipse(x1, y1, x2, y2); 
 		            area.subtract(innerArea);
@@ -168,7 +162,7 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
     
     public void mouseMoved(MouseEvent e) {
     	if (oval != null) {
-    		ScreenPoint sp = getPoint(e);
+    		ZonePoint sp = getPoint(e);
     		
             oval.getEndPoint().x = sp.x;
             oval.getEndPoint().y = sp.y;

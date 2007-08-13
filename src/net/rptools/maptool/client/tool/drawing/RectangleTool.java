@@ -77,7 +77,6 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
         if (rectangle != null) {
         	
         	Pen pen = getPen();
-			pen.setThickness((float) (pen.getThickness() * renderer.getScale()));
             pen.setForegroundMode(Pen.MODE_SOLID);
         	
             if (pen.isEraser()) {
@@ -87,31 +86,31 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
                 pen.setBackgroundPaint(new DrawableColorPaint(Color.white));
             }
         	
-            rectangle.draw(g, pen);
+            paintTransformed(g, renderer, rectangle, pen);
             
             Point start = rectangle.getStartPoint();
             Point end = rectangle.getEndPoint();
             
-            ToolHelper.drawBoxedMeasurement(renderer, g, new ScreenPoint(start.x, start.y), new ScreenPoint(end.x, end.y));
+            ToolHelper.drawBoxedMeasurement(renderer, g, ScreenPoint.fromZonePoint(renderer, start.x, start.y), ScreenPoint.fromZonePoint(renderer, end.x, end.y));
         }
     }
 
     public void mousePressed(MouseEvent e) {
 
-    	ScreenPoint sp = getPoint(e);
+    	ZonePoint zp = getPoint(e);
     	
     	if (SwingUtilities.isLeftMouseButton(e)) {
 	        if (rectangle == null) {
-	            rectangle = new Rectangle(sp.x, sp.y, sp.x, sp.y);
+	            rectangle = new Rectangle(zp.x, zp.y, zp.x, zp.y);
 	        } else {
-	            rectangle.getEndPoint().x = sp.x;
-	            rectangle.getEndPoint().y = sp.y;
+	            rectangle.getEndPoint().x = zp.x;
+	            rectangle.getEndPoint().y = zp.y;
 	            
-	            ZonePoint startPoint = new ScreenPoint((int) rectangle.getStartPoint().getX(), (int) rectangle.getStartPoint().getY()).convertToZone(renderer); 
-	            ZonePoint endPoint = new ScreenPoint((int) rectangle.getEndPoint().getX(), (int) rectangle.getEndPoint().getY()).convertToZone(renderer);
-	
-	            rectangle.getStartPoint().setLocation(startPoint.x, startPoint.y);
-	            rectangle.getEndPoint().setLocation(endPoint.x, endPoint.y);
+	        	if (isSnapToGrid(e)) {
+	        		// Width is always one pixel shy, let's fudge it a bit
+	        		rectangle.getEndPoint().x ++;
+	        		rectangle.getEndPoint().y ++;
+	        	}
 	            
 	            completeDrawable(renderer.getZone().getId(), getPen(), rectangle);
 	            rectangle = null;
@@ -135,7 +134,7 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
     	super.mouseMoved(e);
 
     	if (rectangle != null) {
-        	ScreenPoint p = getPoint(e);
+        	ZonePoint p = getPoint(e);
 	
 	        if (rectangle != null) {
 	            rectangle.getEndPoint().x = p.x;

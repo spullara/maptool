@@ -124,28 +124,25 @@ public class HollowRectangleTopologyTool extends AbstractDrawingTool implements 
             	pen.setBackgroundPaint(new DrawableColorPaint(AppStyle.topologyAddColor));
             }
         	
-            rectangle.draw(g, pen);
+            paintTransformed(g, renderer, rectangle, pen);
         }
     }
 
     public void mousePressed(MouseEvent e) {
 
-    	ScreenPoint sp = getPoint(e);
+    	ZonePoint zp = getPoint(e);
     	
     	if (SwingUtilities.isLeftMouseButton(e)) {
 	        if (rectangle == null) {
-	            rectangle = new Rectangle(sp.x, sp.y, sp.x, sp.y);
+	            rectangle = new Rectangle(zp.x, zp.y, zp.x, zp.y);
 	        } else {
-	            rectangle.getEndPoint().x = sp.x;
-	            rectangle.getEndPoint().y = sp.y;
+	            rectangle.getEndPoint().x = zp.x;
+	            rectangle.getEndPoint().y = zp.y;
 	            
-	            ZonePoint startPoint = new ScreenPoint((int) rectangle.getStartPoint().getX(), (int) rectangle.getStartPoint().getY()).convertToZone(renderer); 
-	            ZonePoint endPoint = new ScreenPoint((int) rectangle.getEndPoint().getX(), (int) rectangle.getEndPoint().getY()).convertToZone(renderer);
-	
-	            int x1 = Math.min(startPoint.x, endPoint.x);
-	            int x2 = Math.max(startPoint.x, endPoint.x);
-	            int y1 = Math.min(startPoint.y, endPoint.y);
-	            int y2 = Math.max(startPoint.y, endPoint.y);
+	            int x1 = Math.min(rectangle.getStartPoint().x, rectangle.getEndPoint().x);
+	            int x2 = Math.max(rectangle.getStartPoint().x, rectangle.getEndPoint().x);
+	            int y1 = Math.min(rectangle.getStartPoint().y, rectangle.getEndPoint().y);
+	            int y2 = Math.max(rectangle.getStartPoint().y, rectangle.getEndPoint().y);
 	            
 	            Area area = new Area(new java.awt.Rectangle(x1-1, y1-1, x2 - x1 + 2, y2 - y1 + 2));
 	            
@@ -184,7 +181,7 @@ public class HollowRectangleTopologyTool extends AbstractDrawingTool implements 
     
     public void mouseMoved(MouseEvent e) {
 
-    	ScreenPoint p = getPoint(e);
+    	ZonePoint p = getPoint(e);
     	if (rectangle != null) {
 	
 	        if (rectangle != null) {

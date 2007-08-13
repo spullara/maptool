@@ -33,6 +33,8 @@ import java.awt.event.MouseListener;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -73,16 +75,19 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
     }
 
     protected Point addPoint(MouseEvent e) {
+    	if (SwingUtilities.isRightMouseButton(e)) {
+    		return null;
+    	}
     	
-    	ScreenPoint sp = getPoint(e);
+    	ZonePoint zp = getPoint(e);
     	
         if (line == null) return null; // Escape has been pressed
-        Point ret = new Point(sp.x, sp.y);
+        Point ret = new Point(zp.x, zp.y);
     	
 
         line.getPoints().add(ret);
-        currentX = sp.x;
-        currentY = sp.y;
+        currentX = zp.x;
+        currentY = zp.y;
     
         renderer.repaint();
         
@@ -102,14 +107,6 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
     protected void stopLine(MouseEvent e) {
         if (line == null) return; // Escape has been pressed
         addPoint(e);
-        
-        for (Point p : line.getPoints()) {
-
-			ZonePoint zp = new ScreenPoint(p.x, p.y).convertToZone(renderer);
-
-            p.x = zp.x;
-            p.y = zp.y;
-        }
         
         Drawable drawable = line;
         if (isBackgroundFill(e) && line.getPoints().size() > 3) { // TODO: There's a bug where the last point is duplicated, hence 3 points
@@ -135,7 +132,6 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 		if (line != null) {
             Pen pen = getPen();
-            pen.setThickness((float)(pen.getThickness() * renderer.getScale()));
             pen.setForegroundMode(Pen.MODE_SOLID);
             
             if (pen.isEraser()) {
@@ -144,14 +140,20 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
                 pen.setPaint(new DrawableColorPaint(Color.white));
             }
 
-            line.draw(g, pen);
+            paintTransformed(g, renderer, line, pen);
+            
             List<Point> pointList = line.getPoints();
             if (!drawMeasurementDisabled && pointList.size() > 1 && drawMeasurement()) {
                 
                 Point start = pointList.get(pointList.size()-2);
                 Point end = pointList.get(pointList.size()-1);
 
-            	ToolHelper.drawMeasurement(renderer, g, new ScreenPoint(start.x, start.y), new ScreenPoint(end.x, end.y));
+                ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, start.x, start.y);
+                ScreenPoint ep = ScreenPoint.fromZonePoint(renderer, end.x, end.y);
+
+                ep.y -= 15;
+                
+            	ToolHelper.drawMeasurement(renderer, g, sp, ep);
             }
         }
 	}
