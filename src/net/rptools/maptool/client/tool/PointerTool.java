@@ -119,6 +119,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	
 	private HTMLPanelRenderer htmlRenderer = new HTMLPanelRenderer();
 	private static MiniSheet ccgSheet;
+
+	private static int PADDING = 7;
 	
     // Offset from token's X,Y when dragging. Values are in cell coordinates.
     private int dragOffsetX;
@@ -154,9 +156,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         }
         
         htmlRenderer.setBackground(new Color(0, 0, 0, 200));
-        htmlRenderer.setForeground(Color.white);
+        htmlRenderer.setForeground(Color.black);
         htmlRenderer.setOpaque(false);
-        htmlRenderer.addStyleSheetRule("body{color:white}");
+        htmlRenderer.addStyleSheetRule("body{color:black;font-weight:bold}");
         htmlRenderer.addStyleSheetRule(".title{font-size: 14pt}");
     }
 	
@@ -350,6 +352,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	// Mouse
 	public void mousePressed(MouseEvent e) {
 		super.mousePressed(e);
+
+		if (isShowingHover) {
+			isShowingHover = false;
+			markerUnderMouse = renderer.getMarkerAt(e.getX(), e.getY());
+			repaint();
+		}
 
 		if (isShowingTokenStackPopup) {
 			if (tokenStackPanel.contains(e.getX(), e.getY())) {
@@ -577,10 +585,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			
 			renderer.setCursor(Cursor.getPredefinedCursor(markerUnderMouse != null ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
 			MapTool.getFrame().setStatusMessage(markerUnderMouse != null ? markerUnderMouse.getName() : "");
-		}
-		if (markerUnderMouse == null && isShowingHover) {
-			isShowingHover = false;
-			renderer.repaint();
 		}
 	}
 	
@@ -1231,12 +1235,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 			
 			// Label
-			int padding = 7;
 			g.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
-			g.fillRect(padding, viewSize.height - imgSize.height - padding, imgSize.width, imgSize.height);
-			g.drawImage(image, padding, viewSize.height - imgSize.height - padding, imgSize.width, imgSize.height, this);
-			AppStyle.miniMapBorder.paintAround(g, padding, viewSize.height - imgSize.height - padding, imgSize.width, imgSize.height);
-			GraphicsUtil.drawBoxedString(g, tokenUnderMouse.getName(), padding + imgSize.width/2, viewSize.height - padding - 5);
+			g.fillRect(PADDING, viewSize.height - imgSize.height - PADDING, imgSize.width, imgSize.height);
+			g.drawImage(image, PADDING, viewSize.height - imgSize.height - PADDING, imgSize.width, imgSize.height, this);
+			AppStyle.miniMapBorder.paintAround(g, PADDING, viewSize.height - imgSize.height - PADDING, imgSize.width, imgSize.height);
+			AppStyle.shadowBorder.paintWithin(g, PADDING, viewSize.height - imgSize.height - PADDING, imgSize.width, imgSize.height);
+			GraphicsUtil.drawBoxedString(g, tokenUnderMouse.getName(), PADDING + imgSize.width/2, viewSize.height - PADDING - 5);
 		}
 		
 		// Hovers
@@ -1274,8 +1278,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				Point location = new Point(bounds.getBounds().x+bounds.getBounds().width/2 - size.width/2, bounds.getBounds().y);
 
 				// Anchor in the bottom left corner
-				location.x = 4;
-				location.y = viewSize.height - size.height-4;
+				location.x = 4 + PADDING;
+				location.y = viewSize.height - size.height-4-PADDING;
 
 				// Keep it on screen
 				if (location.x + size.width > viewSize.width) {
@@ -1292,16 +1296,20 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				}
 
 				// Background
-				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .5f));
-				g.setColor(Color.black);
+//				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .5f));
+//				g.setColor(Color.black);
+//				g.fillRect(location.x, location.y, size.width, size.height);
+//				g.setComposite(composite);
+				g.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
 				g.fillRect(location.x, location.y, size.width, size.height);
-				g.setComposite(composite);
 
 				// Content
 				htmlRenderer.render(g, location.x, location.y);
 				
 				// Border
-				AppStyle.border.paintAround(g, location.x, location.y, size.width, size.height);
+				AppStyle.miniMapBorder.paintAround(g, location.x, location.y, size.width, size.height);
+				AppStyle.shadowBorder.paintWithin(g, location.x, location.y, size.width, size.height);
+//				AppStyle.border.paintAround(g, location.x, location.y, size.width, size.height);
 			}
 		}
 	}

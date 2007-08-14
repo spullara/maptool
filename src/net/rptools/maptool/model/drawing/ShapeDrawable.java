@@ -25,6 +25,7 @@
 package net.rptools.maptool.model.drawing;
 
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 
 /**
@@ -33,10 +34,14 @@ import java.awt.Shape;
 public class ShapeDrawable extends AbstractDrawing {
 
     private Shape shape;
+    private boolean useAntiAliasing;
     
+    public ShapeDrawable(Shape shape, boolean useAntiAliasing) {
+    	this.shape = shape;
+    	this.useAntiAliasing = useAntiAliasing;
+    }
     public ShapeDrawable(Shape shape) {
-
-        this.shape = shape;
+        this(shape, true);
     }
     
     /* (non-Javadoc)
@@ -48,16 +53,30 @@ public class ShapeDrawable extends AbstractDrawing {
 	}
     
     protected void draw(Graphics2D g) {
-        
+
+    	Object oldAA = applyAA(g);
         g.draw(shape);
+        restoreAA(g, oldAA);
     }
 
     protected void drawBackground(Graphics2D g) {
 
+    	Object oldAA = applyAA(g);
         g.fill(shape);
+        restoreAA(g, oldAA);
     }
     
     public Shape getShape() {
     	return shape;
+    }
+    
+    private Object applyAA(Graphics2D g) {
+    	Object oldAA = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+    	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, useAntiAliasing ? RenderingHints.VALUE_ANTIALIAS_ON : RenderingHints.VALUE_ANTIALIAS_OFF);
+    	return oldAA;
+    }
+    
+    private void restoreAA(Graphics2D g, Object oldAA) {
+    	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA);
     }
 }

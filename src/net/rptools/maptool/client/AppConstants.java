@@ -40,6 +40,7 @@ public class AppConstants {
 	public static final ServiceGroup SERVICE_GROUP = new ServiceGroup("maptool");
 
 	public static final ImageBorder GRAY_BORDER = new ImageBorder("net/rptools/maptool/client/image/border/gray");
+	public static final ImageBorder SHADOW_BORDER = new ImageBorder("net/rptools/maptool/client/image/border/shadow");
 
 	public static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {
         public boolean accept(File dir,String name) {

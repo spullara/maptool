@@ -13,6 +13,9 @@ public abstract class DrawablePaint implements Serializable {
 	public abstract Paint getPaint(int offsetX, int offsetY, double scale);
 	
 	public static DrawablePaint convertPaint(Paint paint) {
+		if (paint == null) {
+			return null;
+		}
 		
 		if (paint instanceof Color) {
 			return new DrawableColorPaint((Color) paint);

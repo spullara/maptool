@@ -26,7 +26,7 @@ package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
@@ -41,7 +41,7 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.Pen;
-import net.rptools.maptool.model.drawing.Rectangle;
+import net.rptools.maptool.model.drawing.ShapeDrawable;
 
 
 /**
@@ -54,6 +54,7 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
     private static final long serialVersionUID = 3258413928311830323L;
 
     protected Rectangle rectangle;
+    protected ZonePoint originPoint;
     
     public RectangleTool() {
         try {
@@ -77,7 +78,6 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
         if (rectangle != null) {
         	
         	Pen pen = getPen();
-            pen.setForegroundMode(Pen.MODE_SOLID);
         	
             if (pen.isEraser()) {
                 pen = new Pen(pen);
@@ -85,13 +85,10 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
                 pen.setPaint(new DrawableColorPaint(Color.white));
                 pen.setBackgroundPaint(new DrawableColorPaint(Color.white));
             }
-        	
-            paintTransformed(g, renderer, rectangle, pen);
+
+            paintTransformed(g, renderer, new ShapeDrawable(rectangle, false), pen);
             
-            Point start = rectangle.getStartPoint();
-            Point end = rectangle.getEndPoint();
-            
-            ToolHelper.drawBoxedMeasurement(renderer, g, ScreenPoint.fromZonePoint(renderer, start.x, start.y), ScreenPoint.fromZonePoint(renderer, end.x, end.y));
+            ToolHelper.drawBoxedMeasurement(renderer, g, ScreenPoint.fromZonePoint(renderer, rectangle.x, rectangle.y), ScreenPoint.fromZonePoint(renderer, rectangle.x + rectangle.width, rectangle.y+rectangle.height));
         }
     }
 
@@ -101,18 +98,23 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
     	
     	if (SwingUtilities.isLeftMouseButton(e)) {
 	        if (rectangle == null) {
-	            rectangle = new Rectangle(zp.x, zp.y, zp.x, zp.y);
+	        	originPoint = zp;
+	            rectangle = createRect(originPoint, originPoint);
 	        } else {
-	            rectangle.getEndPoint().x = zp.x;
-	            rectangle.getEndPoint().y = zp.y;
+	            rectangle.width = zp.x - rectangle.x;
+	            rectangle.height = zp.y - rectangle.y;
 	            
-	        	if (isSnapToGrid(e)) {
-	        		// Width is always one pixel shy, let's fudge it a bit
-	        		rectangle.getEndPoint().x ++;
-	        		rectangle.getEndPoint().y ++;
-	        	}
+	            if (rectangle.width <= 0 || rectangle.height <= 0) { 
+	            	return;
+	            }
 	            
-	            completeDrawable(renderer.getZone().getId(), getPen(), rectangle);
+//	        	if (isSnapToGrid(e)) {
+//	        		// Width is always one pixel shy, let's fudge it a bit
+//	        		rectangle.getEndPoint().x ++;
+//	        		rectangle.getEndPoint().y ++;
+//	        	}
+	            
+	            completeDrawable(renderer.getZone().getId(), getPen(), new ShapeDrawable(rectangle, false));
 	            rectangle = null;
 	        }
         
@@ -136,10 +138,7 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
     	if (rectangle != null) {
         	ZonePoint p = getPoint(e);
 	
-	        if (rectangle != null) {
-	            rectangle.getEndPoint().x = p.x;
-	            rectangle.getEndPoint().y = p.y;
-	        }
+            rectangle = createRect(originPoint, p);
 	        
 	        renderer.repaint();
     	}

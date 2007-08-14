@@ -26,6 +26,7 @@ package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Cursor;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
@@ -68,6 +69,17 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
 			}
 		});
     	
+    }
+    
+    protected Rectangle createRect(ZonePoint originPoint, ZonePoint newPoint) {
+    	
+    	int x = Math.min(originPoint.x, newPoint.x);
+    	int y = Math.min(originPoint.y, newPoint.y);
+    	
+    	int w = Math.max(originPoint.x, newPoint.x) - x;
+    	int h = Math.max(originPoint.y, newPoint.y) - y;
+    	
+    	return new Rectangle(x, y, w, h);
     }
 
     protected void paintTransformed(Graphics2D g, ZoneRenderer renderer, Drawable drawing, Pen pen) {

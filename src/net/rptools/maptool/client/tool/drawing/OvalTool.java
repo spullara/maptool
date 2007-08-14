@@ -26,9 +26,10 @@ package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Ellipse2D;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -40,8 +41,8 @@ import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
-import net.rptools.maptool.model.drawing.Oval;
 import net.rptools.maptool.model.drawing.Pen;
+import net.rptools.maptool.model.drawing.ShapeDrawable;
 
 
 /**
@@ -53,7 +54,7 @@ import net.rptools.maptool.model.drawing.Pen;
 public class OvalTool extends AbstractDrawingTool implements MouseMotionListener {
     private static final long serialVersionUID = 3258413928311830323L;
 
-    protected Oval oval;
+    protected Rectangle oval;
     private ZonePoint originPoint;
     
     public OvalTool() {
@@ -85,12 +86,9 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
                 pen.setBackgroundPaint(new DrawableColorPaint(Color.white));
             }
 
-            paintTransformed(g, renderer, oval, pen);
+            paintTransformed(g, renderer, new ShapeDrawable(new Ellipse2D.Float(oval.x, oval.y, oval.width, oval.height)), pen);
             
-            Point start = oval.getStartPoint();
-            Point end = oval.getEndPoint();
-            
-            ToolHelper.drawBoxedMeasurement(renderer, g, new ScreenPoint(start.x, start.y), new ScreenPoint(end.x, end.y));
+            ToolHelper.drawBoxedMeasurement(renderer, g, ScreenPoint.fromZonePoint(renderer, oval.x, oval.y), ScreenPoint.fromZonePoint(renderer, oval.x + oval.width, oval.y+oval.height));
         }
     }
 
@@ -100,13 +98,13 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 	    	ZonePoint zp = getPoint(e);
 	        
 	        if (oval == null) {
-	            oval = new Oval(zp.x, zp.y, zp.x, zp.y);
-	            originPoint = zp;
+	        	originPoint = zp;
+	        	oval = createRect(zp, zp);
 	        } else {
-	            oval.getEndPoint().x = zp.x;
-	            oval.getEndPoint().y = zp.y;
+	        	oval.width = zp.x - oval.x;
+	            oval.height = zp.y - oval.y;
 	            
-	            completeDrawable(renderer.getZone().getId(), getPen(), oval);
+	            completeDrawable(renderer.getZone().getId(), getPen(), new ShapeDrawable(new Ellipse2D.Float(oval.x, oval.y, oval.width, oval.height), true));
 	            oval = null;
 	        }
 	
@@ -131,12 +129,9 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
     	
     	if (oval != null) {
 
-    		ZonePoint sp = getPoint(e);
+    		ZonePoint p = getPoint(e);
     		
-            oval.getEndPoint().x = sp.x;
-            oval.getEndPoint().y = sp.y;
-            oval.getStartPoint().x = originPoint.x - (sp.x - originPoint.x);
-            oval.getStartPoint().y = originPoint.y - (sp.y - originPoint.y);
+    		oval = createRect(originPoint, p);
 	        
 	        renderer.repaint();
     	}
