@@ -101,10 +101,9 @@ public class RectangleTool extends AbstractDrawingTool implements MouseMotionLis
 	        	originPoint = zp;
 	            rectangle = createRect(originPoint, originPoint);
 	        } else {
-	            rectangle.width = zp.x - rectangle.x;
-	            rectangle.height = zp.y - rectangle.y;
+	        	rectangle = createRect(originPoint, zp);
 	            
-	            if (rectangle.width <= 0 || rectangle.height <= 0) { 
+	            if (rectangle.width == 0 && rectangle.height == 0) { 
 	            	return;
 	            }
 	            

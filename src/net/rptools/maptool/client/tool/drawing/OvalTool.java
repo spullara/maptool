@@ -101,8 +101,7 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 	        	originPoint = zp;
 	        	oval = createRect(zp, zp);
 	        } else {
-	        	oval.width = zp.x - oval.x;
-	            oval.height = zp.y - oval.y;
+	        	oval = createRect(originPoint, zp);
 	            
 	            completeDrawable(renderer.getZone().getId(), getPen(), new ShapeDrawable(new Ellipse2D.Float(oval.x, oval.y, oval.width, oval.height), true));
 	            oval = null;
