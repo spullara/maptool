@@ -1044,8 +1044,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 int scaledGridWidth = (int)(grid.getCellWidth()*getScale());
                 int scaledGridHeight = (int)(grid.getCellHeight()*getScale());
                 
-                int x = newScreenPoint.x + 1 - scaledWidth/2;
-                int y = newScreenPoint.y + 1 - scaledHeight/2;
+                // Tokens are centered
+                int x = newScreenPoint.x + 1 - (token.isToken() ? scaledWidth/2 : 0);
+                int y = newScreenPoint.y + 1 - (token.isToken() ? scaledHeight/2 : 0);
                     
                 Point p = grid.cellGroupTopLeftOffset(height, width, token.isToken ());
                 x += p.x*scale;
@@ -1063,7 +1064,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 // Show path only on the key token
                 if (token == keyToken) {
 
-                    if (!token.isBackground()) {
+                    if (!token.isBackground() && !token.isStamp()) {
                         
                         if (!token.isStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
                             renderPath(g, walker.getPath(), width/gridSize, height/gridSize);
@@ -1092,6 +1093,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
                 
                 BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
+                BufferedImage replacementImage = replacementImageMap.get(token);
+                if (replacementImage == null) {
+
+                    replacementImage = ImageUtil.rgbToGrayscale(image);
+                    
+                    replacementImageMap.put(token, replacementImage);
+                }
+                
+                image = replacementImage;
 
                 // handle flipping
                 BufferedImage workImage = image;
@@ -1425,7 +1435,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 continue;
             }
             
-            if (token.isBackground() && isTokenMoving(token)) {
+            if ((token.isBackground() || token.isStamp()) && isTokenMoving(token)) {
                 continue;
             }
             
@@ -1462,9 +1472,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             int ty = token.getY() + token.getAnchor().y;
             ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, tx, ty);
             
-            // Centered on the image center point
-            int x = tokenScreenLocation.x + 1 - scaledWidth/2;
-            int y = tokenScreenLocation.y + 1 - scaledHeight/2;
+            // Tokens are centered on the image center point
+            int x = tokenScreenLocation.x + 1 - (token.isToken() ? scaledWidth/2 : 0);
+            int y = tokenScreenLocation.y + 1 - (token.isToken() ? scaledHeight/2 : 0);
                 
             Point p = grid.cellGroupTopLeftOffset(height, width, token.isToken());
             x += p.x*scale;
@@ -1562,19 +1572,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // scrolled onto the screen
             if (!location.bounds.intersects(clipBounds)) {
                 continue;
-            }
-
-            // Moving ?
-            if (isTokenMoving(token)) {
-                BufferedImage replacementImage = replacementImageMap.get(token);
-                if (replacementImage == null) {
-
-                    replacementImage = ImageUtil.rgbToGrayscale(image);
-                    
-                    replacementImageMap.put(token, replacementImage);
-                }
-                
-                image = replacementImage;
             }
 
             // Previous path

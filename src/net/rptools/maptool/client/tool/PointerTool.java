@@ -60,6 +60,7 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
@@ -108,9 +109,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     private boolean isDrawingSelectionBox;
     private boolean isSpaceDown;
     private boolean isMovingWithKeys;
-    private boolean isShowingHover;
     private Rectangle selectionBoundBox;
 
+    // Hovers
+    private boolean isShowingHover;
+    private Area hoverTokenBounds;
+    private String hoverTokenNotes;
+    private Timer hoverPopupTimer;
+    
 	private Token tokenBeingDragged;
 	private Token tokenUnderMouse;
 	private Token markerUnderMouse;
@@ -355,6 +361,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		if (isShowingHover) {
 			isShowingHover = false;
+			hoverTokenBounds = null;
+			hoverTokenNotes = null;
 			markerUnderMouse = renderer.getMarkerAt(e.getX(), e.getY());
 			repaint();
 		}
@@ -468,6 +476,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				renderer.setCursor(Cursor.getPredefinedCursor(markerUnderMouse != null ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
 		        if (markerUnderMouse != null && !isShowingHover) {
 		        	isShowingHover = true;
+		        	hoverTokenBounds = renderer.getMarkerBounds(markerUnderMouse);
+		        	hoverTokenNotes = createHoverNote(markerUnderMouse);
+		        	if (hoverTokenBounds == null) {
+		        		// Uhhhh, where's the token ?
+		        		isShowingHover = false;
+		        	}
 		        	repaint();
 		        }
 
@@ -1244,74 +1258,75 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 		
 		// Hovers
-		if (tokenUnderMouse == null && markerUnderMouse != null && isShowingHover) {
-			Area bounds = renderer.getMarkerBounds(markerUnderMouse);
+		if (isShowingHover) {
  
-			if (bounds != null) {
-				boolean showGMNotes = MapTool.getPlayer().isGM() && !StringUtil.isEmpty(markerUnderMouse.getGMNotes());
-				
-				StringBuilder builder = new StringBuilder();
+			// Anchor next to the token
+			Dimension size = htmlRenderer.setText(hoverTokenNotes, (int)(renderer.getWidth()*.75), (int)(renderer.getHeight()*.75));
+			Point location = new Point(hoverTokenBounds.getBounds().x+hoverTokenBounds.getBounds().width/2 - size.width/2, hoverTokenBounds.getBounds().y);
 
-				if (!StringUtil.isEmpty(markerUnderMouse.getNotes())) {
-					builder.append("<b><span class='title'>").append(markerUnderMouse.getName()).append("</span></b><br>");
-					builder.append(markerUnderMouse.getNotes());
-					// add a gap between player and gmNotes
-					if (showGMNotes) {
-						builder.append("\n\n");
-					}
-				}
-				
-				if (showGMNotes) {
-					builder.append("<b><span class='title'>GM Notes");
-					if (!StringUtil.isEmpty(markerUnderMouse.getGMName())) {
-						builder.append(" - ").append(markerUnderMouse.getGMName());
-					}
-					builder.append(":</span></b><br>");
-					builder.append(markerUnderMouse.getGMNotes());
-				}
+			// Anchor in the bottom left corner
+			location.x = 4 + PADDING;
+			location.y = viewSize.height - size.height-4-PADDING;
 
-				String notes = builder.toString();
-				notes = notes.replace("\n", "<br>");
-				
-				// Anchor next to the token
-				Dimension size = htmlRenderer.setText(notes.toString(), (int)(renderer.getWidth()*.75), (int)(renderer.getHeight()*.75));
-				Point location = new Point(bounds.getBounds().x+bounds.getBounds().width/2 - size.width/2, bounds.getBounds().y);
+			// Keep it on screen
+			if (location.x + size.width > viewSize.width) {
+				location.x = viewSize.width - size.width;
+			}
+			if (location.x < 4) {
+				location.x = 4;
+			}
+			if (location.y + size.height > viewSize.height-4) {
+				location.y = viewSize.height - size.height-4;
+			}
+			if (location.y < 4) {
+				location.y = 4;
+			}
 
-				// Anchor in the bottom left corner
-				location.x = 4 + PADDING;
-				location.y = viewSize.height - size.height-4-PADDING;
-
-				// Keep it on screen
-				if (location.x + size.width > viewSize.width) {
-					location.x = viewSize.width - size.width;
-				}
-				if (location.x < 4) {
-					location.x = 4;
-				}
-				if (location.y + size.height > viewSize.height-4) {
-					location.y = viewSize.height - size.height-4;
-				}
-				if (location.y < 4) {
-					location.y = 4;
-				}
-
-				// Background
+			// Background
 //				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .5f));
 //				g.setColor(Color.black);
 //				g.fillRect(location.x, location.y, size.width, size.height);
 //				g.setComposite(composite);
-				g.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
-				g.fillRect(location.x, location.y, size.width, size.height);
+			g.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
+			g.fillRect(location.x, location.y, size.width, size.height);
 
-				// Content
-				htmlRenderer.render(g, location.x, location.y);
-				
-				// Border
-				AppStyle.miniMapBorder.paintAround(g, location.x, location.y, size.width, size.height);
-				AppStyle.shadowBorder.paintWithin(g, location.x, location.y, size.width, size.height);
+			// Content
+			htmlRenderer.render(g, location.x, location.y);
+			
+			// Border
+			AppStyle.miniMapBorder.paintAround(g, location.x, location.y, size.width, size.height);
+			AppStyle.shadowBorder.paintWithin(g, location.x, location.y, size.width, size.height);
 //				AppStyle.border.paintAround(g, location.x, location.y, size.width, size.height);
+		}
+	}
+	
+	private String createHoverNote(Token marker) {
+		boolean showGMNotes = MapTool.getPlayer().isGM() && !StringUtil.isEmpty(marker.getGMNotes());
+		
+		StringBuilder builder = new StringBuilder();
+
+		if (!StringUtil.isEmpty(marker.getNotes())) {
+			builder.append("<b><span class='title'>").append(marker.getName()).append("</span></b><br>");
+			builder.append(markerUnderMouse.getNotes());
+			// add a gap between player and gmNotes
+			if (showGMNotes) {
+				builder.append("\n\n");
 			}
 		}
+		
+		if (showGMNotes) {
+			builder.append("<b><span class='title'>GM Notes");
+			if (!StringUtil.isEmpty(marker.getGMName())) {
+				builder.append(" - ").append(marker.getGMName());
+			}
+			builder.append(":</span></b><br>");
+			builder.append(marker.getGMNotes());
+		}
+
+		String notes = builder.toString();
+		notes = notes.replace("\n", "<br>");
+
+		return builder.toString();
 	}
 	
 }
