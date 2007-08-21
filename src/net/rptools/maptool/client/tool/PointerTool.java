@@ -474,7 +474,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	        try {
 	
 				renderer.setCursor(Cursor.getPredefinedCursor(markerUnderMouse != null ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
-		        if (markerUnderMouse != null && !isShowingHover) {
+		        if (markerUnderMouse != null && !isShowingHover && !isDraggingToken) {
 		        	isShowingHover = true;
 		        	hoverTokenBounds = renderer.getMarkerBounds(markerUnderMouse);
 		        	hoverTokenNotes = createHoverNote(markerUnderMouse);
