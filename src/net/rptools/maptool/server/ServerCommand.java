@@ -61,6 +61,7 @@ public interface ServerCommand {
         message,
         undoDraw,
         showPointer,
+        movePointer,
         hidePointer,
         startTokenMove,
         stopTokenMove,
@@ -111,6 +112,7 @@ public interface ServerCommand {
     public void message(TextMessage message);
     public void showPointer(String player, Pointer pointer);
     public void hidePointer(String player);
+    public void movePointer(String player, int x, int y);
     public void startTokenMove(String playerId, GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList);
     public void updateTokenMove(GUID zoneGUID, GUID tokenGUID, int x, int y);
     public void stopTokenMove(GUID zoneGUID, GUID tokenGUID);

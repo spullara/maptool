@@ -113,6 +113,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case renameZone:			  renameZone(context.getGUID(0), context.getString(1));break;
             case heartbeat:				  heartbeat(context.getString(0));break;
             case updateCampaign:		  updateCampaign(context.getString(0), (List<TokenProperty>)context.get(1));break;
+            case movePointer: 			  movePointer(context.getString(0), context.getInt(1), context.getInt(2));break;
             }
         } finally {
             RPCContext.setCurrent(null);
@@ -255,6 +256,10 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 
     public void hidePointer(String player) {
         forwardToAllClients();
+    }
+    
+    public void movePointer(String player, int x, int y) {
+    	forwardToAllClients();
     }
     
     public void renameZone(GUID zoneGUID, String name) {

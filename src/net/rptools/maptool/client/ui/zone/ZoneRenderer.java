@@ -1093,15 +1093,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
                 
                 BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
-                BufferedImage replacementImage = replacementImageMap.get(token);
-                if (replacementImage == null) {
-
-                    replacementImage = ImageUtil.rgbToGrayscale(image);
-                    
-                    replacementImageMap.put(token, replacementImage);
-                }
-                
-                image = replacementImage;
 
                 // handle flipping
                 BufferedImage workImage = image;
@@ -1572,6 +1563,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // scrolled onto the screen
             if (!location.bounds.intersects(clipBounds)) {
                 continue;
+            }
+
+            // Moving ?
+            if (isTokenMoving(token)) {
+                BufferedImage replacementImage = replacementImageMap.get(token);
+                if (replacementImage == null) {
+
+                    replacementImage = ImageUtil.rgbToGrayscale(image);
+                    
+                    replacementImageMap.put(token, replacementImage);
+                }
+                
+                image = replacementImage;
             }
 
             // Previous path

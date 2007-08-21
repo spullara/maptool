@@ -59,6 +59,10 @@ public class ServerCommandClientImpl implements ServerCommand {
 		makeServerCall(COMMAND.heartbeat, data);
 	}
     
+	public void movePointer(String player, int x, int y) {
+		makeServerCall(COMMAND.movePointer, player, x, y);
+	}
+	
 	public void bootPlayer(String player) {
 		makeServerCall(COMMAND.bootPlayer, player);
 	}

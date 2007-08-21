@@ -566,6 +566,21 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 		super.mouseMoved(e);
 		
+		if (isShowingPointer) {
+			ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
+			
+        	Pointer pointer = MapTool.getFrame().getPointerOverlay().getPointer(MapTool.getPlayer().getName());
+        	if (pointer != null) {
+	        	pointer.setX(zp.x);
+	        	pointer.setY(zp.y);
+	        	
+	        	renderer.repaint();
+	        	
+	        	MapTool.serverCommand().movePointer(MapTool.getPlayer().getName(), zp.x, zp.y);
+        	}
+        	return;
+		}
+		
 		if (isShowingTokenStackPopup) {
 			if (tokenStackPanel.contains(e.getX(), e.getY())) {
 				return;

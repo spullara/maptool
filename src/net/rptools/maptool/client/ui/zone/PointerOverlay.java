@@ -137,6 +137,16 @@ public class PointerOverlay implements ZoneOverlay {
 		}
 	}
 	
+	public Pointer getPointer(String player) {
+		for (int i = 0; i < pointerList.size(); i++) {
+			
+			if (pointerList.get(i).player.equals(player)) {
+				return pointerList.get(i).pointer;
+			}
+		}
+		return null;
+	}
+	
 	private class PointerPair {
 		Pointer pointer;
 		String player;

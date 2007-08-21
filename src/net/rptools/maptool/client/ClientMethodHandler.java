@@ -427,6 +427,17 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 	
                 	MapTool.getCampaign().putTokenType(typeName, propertyList);
                 	break;
+                case movePointer:
+                	String player = (String)parameters[0];
+                	x = (Integer)parameters[1];
+                	y = (Integer)parameters[2];
+                	
+                	Pointer pointer = MapTool.getFrame().getPointerOverlay().getPointer(player);
+                	pointer.setX(x);
+                	pointer.setY(y);
+                	
+                	MapTool.getFrame().refresh();
+                	break;
                 }
         	}
         });
