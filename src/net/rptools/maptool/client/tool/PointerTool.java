@@ -82,6 +82,7 @@ import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
 import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.client.ui.zone.ZoneView;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
@@ -474,7 +475,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	        try {
 	
 				renderer.setCursor(Cursor.getPredefinedCursor(markerUnderMouse != null ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
-		        if (markerUnderMouse != null && !isShowingHover && !isDraggingToken) {
+		        if (tokenUnderMouse == null && markerUnderMouse != null && !isShowingHover && !isDraggingToken) {
 		        	isShowingHover = true;
 		        	hoverTokenBounds = renderer.getMarkerBounds(markerUnderMouse);
 		        	hoverTokenNotes = createHoverNote(markerUnderMouse);
@@ -1249,7 +1250,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 
 		// Portrait
-		if (tokenUnderMouse != null && !isDraggingToken && tokenUnderMouse.getPortraitImage() != null) {
+		if (tokenUnderMouse != null && !isDraggingToken && tokenUnderMouse.getPortraitImage() != null && AppUtil.tokenIsVisible(renderer.getZone(), tokenUnderMouse, new ZoneView(MapTool.getPlayer().getRole()))) {
 			
 			BufferedImage image = ImageManager.getImage(AssetManager.getAsset(tokenUnderMouse.getPortraitImage()));
 			Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
