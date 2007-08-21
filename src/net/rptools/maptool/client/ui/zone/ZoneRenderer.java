@@ -1069,14 +1069,30 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                         if (!token.isStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
                             renderPath(g, walker.getPath(), width/gridSize, height/gridSize);
                         } else {
+                        	Color highlight = new Color(255, 255, 255, 80);
+                        	Stroke highlightStroke = new BasicStroke(9);
+                        	Stroke oldStroke = g.getStroke();
                         	Object oldAA = SwingUtil.useAntiAliasing(g);
-                            g.setColor(Color.black);
                             ScreenPoint lastPoint = ScreenPoint.fromZonePoint(this, token.getX()+(int)(grid.getCellOffset().width*scale), token.getY()+(int)(grid.getCellOffset().height*scale));
                             for (ZonePoint zp : set.gridlessPath.getCellPath()) {
 	                            ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x +(int)(grid.getCellOffset().width*scale), zp.y + (int)(grid.getCellOffset().height*scale));
+	                            
+	                            g.setColor(highlight);
+	                            g.setStroke(highlightStroke);
+	                            g.drawLine(lastPoint.x, lastPoint.y , nextPoint.x, nextPoint.y);
+	                            
+	                            g.setStroke(oldStroke);
+	                            g.setColor(Color.blue);
 	                            g.drawLine(lastPoint.x, lastPoint.y , nextPoint.x, nextPoint.y);
 	                            lastPoint = nextPoint;
                             }
+                            
+                            g.setColor(highlight);
+                            g.setStroke(highlightStroke);
+                            g.drawLine(lastPoint.x, lastPoint.y, x + scaledWidth/2, y + scaledHeight/2);
+                            
+                            g.setStroke(oldStroke);
+                            g.setColor(Color.blue);
                             g.drawLine(lastPoint.x, lastPoint.y, x + scaledWidth/2, y + scaledHeight/2);
 
                             SwingUtil.restoreAntiAliasing(g, oldAA);
