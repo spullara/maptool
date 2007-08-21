@@ -127,8 +127,8 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
 //            c +=  Math.sqrt(a*a + b*b)/zone.getUnitsPerCell();
             
     		String distance = String.format("%.1f", c);
-	        GraphicsUtil.drawBoxedString(g, distance, lastZP.x, lastZP.y - 20);
-            
+    		ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, lastZP.x, lastZP.y);
+	        GraphicsUtil.drawBoxedString(g, distance, sp.x, sp.y - 20);
             
             SwingUtil.restoreAntiAliasing(g, oldAA);
         }
