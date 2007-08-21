@@ -1,20 +1,17 @@
 package net.rptools.maptool.client.ui.commandpanel;
 
-import static net.rptools.maptool.model.ObservableList.Event.add;
-import static net.rptools.maptool.model.ObservableList.Event.append;
-import static net.rptools.maptool.model.ObservableList.Event.clear;
-import static net.rptools.maptool.model.ObservableList.Event.remove;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -545,6 +542,7 @@ public class CommandPanel extends JPanel implements Observer {
 			Dimension imgSize = new Dimension(image.getWidth(null), image.getHeight(null));
 			SwingUtil.constrainTo(imgSize, size.width-PADDING*2, size.height-PADDING*2);
 
+			((Graphics2D)g).setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 			g.drawImage(image, (size.width-imgSize.width)/2, (size.height-imgSize.height)/2, imgSize.width, imgSize.width, this);
 			
 			// Cancel
