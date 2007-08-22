@@ -120,6 +120,12 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 		dragStartX = e.getX();
 		dragStartY = e.getY();
 		
+    	if (SwingUtilities.isLeftMouseButton(e)) {
+
+    		selectedLabel = renderer.getLabelAt(e.getX(), e.getY());
+			renderer.repaint();
+    	}
+    	
 		super.mousePressed(e);
     }
     
@@ -133,29 +139,11 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     	
     	if (SwingUtilities.isLeftMouseButton(e)) {
 
-    		Label label = renderer.getLabelAt(e.getX(), e.getY());
-    		
-    		if (label == null && selectedLabel != null) {
-    			selectedLabel = null;
-    			renderer.repaint();
-    			return;
-    		}
-    		
-    		if (label != selectedLabel) {
-    			selectedLabel = null;
-    		}
-    		
+    		Label label = selectedLabel;
     		if (label == null) {
     			
         		ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
-    			label = new Label("", zp.x, zp.y);
-    		} else {
-    			
-    			if (selectedLabel == null) {
-    				selectedLabel = label;
-    				renderer.repaint();
-    				return;
-    			}
+        		label = new Label("", zp.x, zp.y);
     		}
     		
     		String text = JOptionPane.showInputDialog(MapTool.getFrame(), "Label Text", label.getLabel());
@@ -178,6 +166,8 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     @Override
     public void mouseDragged(MouseEvent e) {
     	
+    	super.mouseDragged(e);
+
     	if (selectedLabel == null) {
     		return;
     	}
@@ -199,5 +189,6 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     	dragStartY = e.getY();
     	
     	renderer.repaint();
+    	
     }
 }
