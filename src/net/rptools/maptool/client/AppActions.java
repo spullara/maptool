@@ -477,7 +477,7 @@ public class AppActions {
 			if (snapToGrid) {
 
 				CellPoint cellPoint = zone.getGrid().convert(zonePoint);
-				zonePoint = zone.getGrid().convert(cellPoint);
+				zonePoint = renderer.getZone().getGrid().getCenterPoint(cellPoint);
 			}
 
 			for (Token origToken : tokenCopySet) {
