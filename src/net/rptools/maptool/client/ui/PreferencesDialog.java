@@ -37,6 +37,7 @@ public class PreferencesDialog extends JDialog {
 	private JCheckBox tokensStartSnapToGridCheckBox;
 	private JCheckBox newMapsVisibleCheckBox;
 	private JCheckBox newTokensVisibleCheckBox;
+	private JCheckBox tokensStartFreeSizeCheckBox;
 	private JCheckBox stampsStartSnapToGridCheckBox;
 	private JCheckBox stampsStartFreeSizeCheckBox;
 	private JCheckBox backgroundsStartSnapToGridCheckBox;
@@ -94,6 +95,7 @@ public class PreferencesDialog extends JDialog {
 		newMapsVisibleCheckBox = panel.getCheckBox("newMapsVisibleCheckBox");
 		newTokensVisibleCheckBox = panel.getCheckBox("newTokensVisibleCheckBox");
 		stampsStartFreeSizeCheckBox = panel.getCheckBox("stampsStartFreeSize");
+		tokensStartFreeSizeCheckBox = panel.getCheckBox("tokensStartFreeSize");
 		stampsStartSnapToGridCheckBox = panel.getCheckBox("stampsStartSnapToGrid");
 		backgroundsStartFreeSizeCheckBox = panel.getCheckBox("backgroundsStartFreeSize");
 		backgroundsStartSnapToGridCheckBox = panel.getCheckBox("backgroundsStartSnapToGrid");
@@ -159,6 +161,11 @@ public class PreferencesDialog extends JDialog {
 		stampsStartFreeSizeCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setObjectsStartFreesize(stampsStartFreeSizeCheckBox.isSelected());
+			}
+		});
+		tokensStartFreeSizeCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setTokensStartFreesize(tokensStartFreeSizeCheckBox.isSelected());
 			}
 		});
 		stampsStartSnapToGridCheckBox.addActionListener(new ActionListener() {
@@ -341,6 +348,7 @@ public class PreferencesDialog extends JDialog {
 		newMapsVisibleCheckBox.setSelected(AppPreferences.getNewMapsVisible());
 		newTokensVisibleCheckBox.setSelected(AppPreferences.getNewTokensVisible());
 		stampsStartFreeSizeCheckBox.setSelected(AppPreferences.getObjectsStartFreesize());
+		tokensStartFreeSizeCheckBox.setSelected(AppPreferences.getTokensStartFreesize());
 		stampsStartSnapToGridCheckBox.setSelected(AppPreferences.getObjectsStartSnapToGrid());
 		backgroundsStartFreeSizeCheckBox.setSelected(AppPreferences.getBackgroundsStartFreesize());
 		backgroundsStartSnapToGridCheckBox.setSelected(AppPreferences.getBackgroundsStartSnapToGrid());

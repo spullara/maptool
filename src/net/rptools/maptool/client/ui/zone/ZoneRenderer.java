@@ -2282,6 +2282,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             	// Players can't drop invisible tokens
                 token.setVisible(!isGM || AppPreferences.getNewTokensVisible());
+                if (AppPreferences.getTokensStartFreesize()) {
+                	token.setSnapToScale(false);
+                }
             	break;
             }
             case GM: {

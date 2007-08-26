@@ -96,7 +96,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		
 		add(new JSeparator());
 
-		addOwnedItem(createSizeMenu(false));
+		addOwnedItem(createSizeMenu(true));
 
 		add(new JSeparator());
 

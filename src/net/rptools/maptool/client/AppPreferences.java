@@ -90,6 +90,9 @@ public class AppPreferences {
     private static final String KEY_NEW_BACKGROUNDS_VISIBLE = "newBackgroundsVisible";
     private static final boolean DEFAULT_NEW_BACKGROUNDS_VISIBLE = true;
     
+    private static final String KEY_TOKENS_START_FREESIZE = "newTokensStartFreesize";
+    private static final boolean DEFAULT_TOKENS_START_FREESIZE = false;
+
     private static final String KEY_TOKENS_START_SNAP_TO_GRID = "newTokensStartSnapToGrid";
     private static final boolean DEFAULT_TOKENS_START_SNAP_TO_GRID = true;
 
@@ -330,6 +333,14 @@ public class AppPreferences {
     
     public static boolean getObjectsStartSnapToGrid() {
     	return prefs.getBoolean(KEY_OBJECTS_START_SNAP_TO_GRID, DEFAULT_OBJECTS_START_SNAP_TO_GRID);
+    }
+
+    public static void setTokensStartFreesize(boolean flag) {
+    	prefs.putBoolean(KEY_TOKENS_START_FREESIZE, flag);
+    }
+    
+    public static boolean getTokensStartFreesize() {
+    	return prefs.getBoolean(KEY_TOKENS_START_FREESIZE, DEFAULT_TOKENS_START_FREESIZE);
     }
     
     public static void setObjectsStartFreesize(boolean flag) {
