@@ -149,6 +149,7 @@ public class MacroButton extends JButton {
 		if (command != null) {
 			
 			JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+			String oldText = commandArea.getText();
 
 			if (includeLabel) {
 				String commandToExecute = label;
@@ -161,7 +162,8 @@ public class MacroButton extends JButton {
 			String commandsToExecute[] = parseMultiLineCommand(command);
 			
 			for (int i = 0; i < commandsToExecute.length; i++) {
-				commandArea.setText(commandsToExecute[i]);
+				// If we aren't auto execute, then append the text instead of replace it
+				commandArea.setText((!autoExecute ? oldText + " " : "") + commandsToExecute[i]);
 				if (autoExecute) {	
 					MapTool.getFrame().getCommandPanel().commitCommand();
 				}
