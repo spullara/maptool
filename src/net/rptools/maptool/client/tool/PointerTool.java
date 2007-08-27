@@ -1320,6 +1320,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		boolean showGMNotes = MapTool.getPlayer().isGM() && !StringUtil.isEmpty(marker.getGMNotes());
 		
 		StringBuilder builder = new StringBuilder();
+		
+		if (marker.getPortraitImage() != null) {
+			builder.append("<table><tr><td valign=top>");
+		}
 
 		if (!StringUtil.isEmpty(marker.getNotes())) {
 			builder.append("<b><span class='title'>").append(marker.getName()).append("</span></b><br>");
@@ -1337,6 +1341,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 			builder.append(":</span></b><br>");
 			builder.append(marker.getGMNotes());
+		}
+
+		if (marker.getPortraitImage() != null) {
+			builder.append("</td><td valign=top>");
+			builder.append("<img src=asset://").append(marker.getPortraitImage()).append("></tr></table>");
 		}
 
 		String notes = builder.toString();
