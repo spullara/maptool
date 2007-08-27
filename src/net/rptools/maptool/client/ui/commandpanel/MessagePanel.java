@@ -3,19 +3,12 @@ package net.rptools.maptool.client.ui.commandpanel;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.io.IOException;
-import java.net.URL;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
@@ -26,21 +19,17 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
-import net.rptools.lib.MD5Key;
-import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.chat.ChatProcessor;
-import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.client.swing.HTMLPanelImageCache;
 import net.rptools.maptool.model.TextMessage;
-import net.rptools.maptool.util.ImageManager;
 
 public class MessagePanel extends JPanel {
 
 	private JScrollPane scrollPane;
 	private HTMLDocument document;
 	private JEditorPane textPane;
-	private MessagePanelImageCache imageCache;
+	private HTMLPanelImageCache imageCache;
 
 	private static final String SND_MESSAGE_RECEIVED = "messageReceived";
 	
@@ -71,7 +60,7 @@ public class MessagePanel extends JPanel {
 		document = (HTMLDocument) textPane.getDocument();
 		
 		// Use a little bit of black magic to get our images to display correctly
-		imageCache = new MessagePanelImageCache();
+		imageCache = new HTMLPanelImageCache();
 		document.putProperty(IMAGE_CACHE_PROPERTY, imageCache);
 		
 		// Initialize and prepare for usage
@@ -117,7 +106,7 @@ public class MessagePanel extends JPanel {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				textPane.setText("<html><body id=\"body\"></body></html>");
-				imageCache.imageMap.clear();
+				imageCache.flush();
 			}
 		});
 	}
@@ -146,72 +135,4 @@ public class MessagePanel extends JPanel {
 		});
 	}
 
-	private static class MessagePanelImageCache extends Dictionary {
-
-		private Map<String, Image> imageMap = new HashMap<String, Image>();
-		
-		@Override
-		public Enumeration elements() {
-			// Not used
-			return null;
-		}
-		@Override
-		public Object get(Object key) {
-			URL url = (URL) key;
-			
-			// URLs take a huge amount of time in equals(), so simplify by converting to a string
-			Image image = imageMap.get(url.toString());
-			if (image == null) {
-
-				String protocol = url.getProtocol();
-				String path = url.getHost() + url.getPath();
-
-				if ("cp".equals(protocol)) {
-					try {
-						image = ImageUtil.getImage(path);
-					} catch (IOException ioe) {
-						// TODO: Show my own broken image
-						ioe.printStackTrace();
-					}
-				} else if ("asset".equals(protocol)) {
-
-					image = ImageManager.getImageAndWait(AssetManager.getAsset(new MD5Key(path)));
-					
-				} else {
-					
-					// Normal method
-					image = Toolkit.getDefaultToolkit().createImage(url);
-				}
-				
-				imageMap.put(url.toString(), image);
-			}
-			
-			return image;
-		}
-		@Override
-		public boolean isEmpty() {
-			// Not used
-			return false;
-		}
-		@Override
-		public Enumeration keys() {
-			// Not used
-			return null;
-		}
-		@Override
-		public Object put(Object key, Object value) {
-			// Not used
-			return null;
-		}
-		@Override
-		public Object remove(Object key) {
-			// Not used
-			return null;
-		}
-		@Override
-		public int size() {
-			// Not used
-			return 0;
-		}
-	}
 }
