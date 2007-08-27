@@ -1041,14 +1041,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 
                 int scaledWidth = (int)(width * scale);
                 int scaledHeight = (int)(height * scale);
-                int scaledGridWidth = (int)(grid.getCellWidth()*getScale());
-                int scaledGridHeight = (int)(grid.getCellHeight()*getScale());
                 
                 // Tokens are centered
                 int x = newScreenPoint.x + 1 - (token.isToken() ? scaledWidth/2 : 0);
                 int y = newScreenPoint.y + 1 - (token.isToken() ? scaledHeight/2 : 0);
                     
-                Point p = grid.cellGroupTopLeftOffset(height, width, token.isToken ());
+                Point p = grid.cellGroupCenterOffset(height, width, token.isToken ());
                 x += p.x*scale;
                 y += p.y*scale;
                 
@@ -1483,7 +1481,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             int x = tokenScreenLocation.x + 1 - (token.isToken() ? scaledWidth/2 : 0);
             int y = tokenScreenLocation.y + 1 - (token.isToken() ? scaledHeight/2 : 0);
                 
-            Point p = grid.cellGroupTopLeftOffset(height, width, token.isToken());
+            Point p = token.isToken() ? grid.cellGroupCenterOffset(height, width, token.isToken()) : grid.cellGroupTopLeftOffset(height, width, token.isToken());
             x += p.x*scale;
             y += p.y*scale;
             
