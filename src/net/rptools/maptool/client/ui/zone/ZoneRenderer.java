@@ -1760,7 +1760,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
               g.translate(-location.x, -location.y);
               g.setClip(clip);
             }
-            
+
+            // DEBUGGING
+//            ScreenPoint tmpsp = ScreenPoint.fromZonePoint(this, new ZonePoint(token.getX(), token.getY()));
+//            g.setColor(Color.red);
+//            g.drawLine(tmpsp.x, 0, tmpsp.x, getSize().height);
+//            g.drawLine(0, tmpsp.y, getSize().width, tmpsp.y);
         }
         
         // Selection and labels

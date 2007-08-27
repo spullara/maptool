@@ -38,4 +38,8 @@ public class GridlessGrid extends Grid {
 		return GRID_CAPABILITIES;
 	}
 
+	@Override
+	public ZonePoint getCenterPoint(CellPoint cellPoint) {
+		return convert(cellPoint);
+	}
 }

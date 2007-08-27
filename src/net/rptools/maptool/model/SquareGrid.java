@@ -160,6 +160,13 @@ public class SquareGrid extends Grid {
 		return new CellPoint(baseCellPoint.x + width/2, baseCellPoint.y+height/2);
 	}
 	
+	public ZonePoint getCenterPoint(CellPoint cellPoint) {
+		ZonePoint zp = convert(cellPoint);
+		zp.x += getCellWidth()/2;
+		zp.y += getCellHeight()/2;
+		return zp;
+	}
+
 	@Override
 	public Point cellGroupCenterOffset(int height, int width, boolean isToken) {
 		return new Point (width/2, height/2);

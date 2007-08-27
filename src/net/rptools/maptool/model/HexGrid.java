@@ -45,6 +45,13 @@ public abstract class HexGrid extends Grid {
 		public boolean isSecondDimensionAdjustmentSupported() {return true;}
 	};
 	
+	@Override
+	public ZonePoint getCenterPoint(CellPoint cellPoint) {
+		
+		ZonePoint zp = convert(cellPoint);
+		return zp;
+	}
+	
 	/**
 	 * minorRadius / edgeLength
 	 */
