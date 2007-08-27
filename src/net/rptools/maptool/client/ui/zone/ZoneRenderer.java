@@ -1039,17 +1039,23 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 int width = TokenSize.getWidth(token, zone.getGrid());
                 int height = TokenSize.getHeight(token, zone.getGrid());
                 
-                int scaledWidth = (int)(width * scale);
-                int scaledHeight = (int)(height * scale);
+                int scaledWidth = (int)Math.ceil(height * scale);
+                int scaledHeight = (int)Math.ceil(width * scale);
                 
-                // Tokens are centered
+                if (!token.isStamp() && !token.isBackground()) {
+                    // Fit inside the grid
+                    scaledWidth --;
+                    scaledHeight --;
+                }
+
+                // Tokens are centered on the image center point
                 int x = newScreenPoint.x + 1 - (token.isToken() ? scaledWidth/2 : 0);
                 int y = newScreenPoint.y + 1 - (token.isToken() ? scaledHeight/2 : 0);
                     
-                Point p = grid.cellGroupCenterOffset(height, width, token.isToken ());
-                x += p.x*scale;
-                y += p.y*scale;
-                
+//                Point p = grid.cellGroupCenterOffset(height, width, token.isToken ());
+//                x += p.x*scale;
+//                y += p.y*scale;
+//                
                 // Vision visibility
                 Rectangle clip = g.getClipBounds();
                 if (token.isToken() && !view.isGMView() && !isOwner && visibleArea != null) {
@@ -1141,7 +1147,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 
                 } else {
                     // Normal
-                    g.drawImage(workImage, x, y, scaledWidth-1, scaledHeight-1, this);
+                    g.drawImage(workImage, x, y, scaledWidth, scaledHeight, this);
                 }
 
                 // Other details
@@ -1481,9 +1487,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             int x = tokenScreenLocation.x + 1 - (token.isToken() ? scaledWidth/2 : 0);
             int y = tokenScreenLocation.y + 1 - (token.isToken() ? scaledHeight/2 : 0);
                 
-            Point p = token.isToken() ? grid.cellGroupCenterOffset(height, width, token.isToken()) : grid.cellGroupTopLeftOffset(height, width, token.isToken());
-            x += p.x*scale;
-            y += p.y*scale;
+//            Point p = token.isToken() ? grid.cellGroupCenterOffset(height, width, token.isToken()) : grid.cellGroupTopLeftOffset(height, width, token.isToken());
+//            x += p.x*scale;
+//            y += p.y*scale;
             
             Rectangle origBounds = new Rectangle(x, y, scaledWidth, scaledHeight);
             Area tokenBounds = new Area(origBounds);
@@ -1754,6 +1760,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
               g.translate(-location.x, -location.y);
               g.setClip(clip);
             }
+            
         }
         
         // Selection and labels
