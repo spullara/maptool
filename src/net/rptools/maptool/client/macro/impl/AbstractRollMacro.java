@@ -55,7 +55,14 @@ public abstract class AbstractRollMacro extends AbstractMacro {
         Matcher m = INLINE_ROLL.matcher(line);
         StringBuffer buf = new StringBuffer();
    		while( m.find()) {
-       		m.appendReplacement(buf, "[roll "+m.group(1) + " &#8658; " + rollInternal(m.group(1))+"]" );
+   			String roll = m.group(1);
+   			
+   			// Preprocessed roll already ?
+   			if (roll.startsWith("roll")) {
+   				continue;
+   			}
+   			
+   			m.appendReplacement(buf, "[roll "+ roll + " &#8658; " + rollInternal(roll)+"]" );
        	}
    		m.appendTail(buf);
 
