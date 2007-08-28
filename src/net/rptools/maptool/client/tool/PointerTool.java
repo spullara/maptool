@@ -65,6 +65,7 @@ import javax.swing.Timer;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
+import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
@@ -165,7 +166,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         htmlRenderer.setBackground(new Color(0, 0, 0, 200));
         htmlRenderer.setForeground(Color.black);
         htmlRenderer.setOpaque(false);
-        htmlRenderer.addStyleSheetRule("body{color:black;font-weight:bold}");
+        htmlRenderer.addStyleSheetRule("body{color:black}");
         htmlRenderer.addStyleSheetRule(".title{font-size: 14pt}");
     }
 	
@@ -474,6 +475,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (SwingUtilities.isLeftMouseButton(e)) {
 	        try {
 	
+	        	// MARKER
 				renderer.setCursor(Cursor.getPredefinedCursor(markerUnderMouse != null ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
 		        if (tokenUnderMouse == null && markerUnderMouse != null && !isShowingHover && !isDraggingToken) {
 		        	isShowingHover = true;
@@ -1260,8 +1262,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				SwingUtil.constrainTo(imgSize, 100);
 			}
 			// Maxsize
-			if (imgSize.width > 200 || imgSize.height > 200) {
-				SwingUtil.constrainTo(imgSize, 200);
+			if (imgSize.width > AppConstants.PORTRAIT_SIZE_CAP || imgSize.height > AppConstants.PORTRAIT_SIZE_CAP) {
+				SwingUtil.constrainTo(imgSize, AppConstants.PORTRAIT_SIZE_CAP);
 			}
 			
 			// Label
@@ -1344,8 +1346,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 
 		if (marker.getPortraitImage() != null) {
+			
+			BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(marker.getPortraitImage()));
+			Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
+			if (imgSize.width > AppConstants.PORTRAIT_SIZE_CAP || imgSize.height > AppConstants.PORTRAIT_SIZE_CAP) {
+				SwingUtil.constrainTo(imgSize, AppConstants.PORTRAIT_SIZE_CAP);
+			}
 			builder.append("</td><td valign=top>");
-			builder.append("<img src=asset://").append(marker.getPortraitImage()).append("></tr></table>");
+			builder.append("<img src=asset://").append(marker.getPortraitImage()).append(" width=").append(imgSize.width).append(" height=").append(imgSize.height).append("></tr></table>");
 		}
 
 		String notes = builder.toString();

@@ -42,6 +42,8 @@ public class AppConstants {
 	public static final ImageBorder GRAY_BORDER = new ImageBorder("net/rptools/maptool/client/image/border/gray");
 	public static final ImageBorder SHADOW_BORDER = new ImageBorder("net/rptools/maptool/client/image/border/shadow");
 
+	public static final int PORTRAIT_SIZE_CAP = 200;
+	
 	public static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {
         public boolean accept(File dir,String name) {
             name = name.toLowerCase();

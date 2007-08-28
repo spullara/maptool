@@ -272,7 +272,7 @@ public class Token extends BaseModel {
 	}
 
 	public boolean isMarker() {
-		return (isStamp() || isBackground()) && (!StringUtil.isEmpty(notes) || !StringUtil.isEmpty(gmNotes));
+		return (isStamp() || isBackground()) && (!StringUtil.isEmpty(notes) || !StringUtil.isEmpty(gmNotes) || portraitImage != null);
 	}
 	
 	public String getPropertyType() {
