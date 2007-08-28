@@ -1357,9 +1357,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 
 		String notes = builder.toString();
-		notes = notes.replace("\n", "<br>");
+		notes = notes.replaceAll("\n", "<br>");
 
-		return builder.toString();
+		return notes;
 	}
 	
 }
