@@ -258,8 +258,10 @@ public class FogUtil {
 		return Math.abs(Math.sqrt(a+b));
 	}
 	
+	private static List<Area> skippedAreaList = new ArrayList<Area>();
 	public static Area calculateVisibility3(int x, int y, Area vision, AreaData topology) {
-
+		skippedAreaList.clear();
+		
 		vision = new Area(vision);
 		vision.transform(AffineTransform.getTranslateInstance(x, y));
 		
@@ -275,7 +277,8 @@ public class FogUtil {
 		int blockCount = 0;
 		for (Area area : topology.getAreaList(origin)) {
 		
-			if (!vision.intersects(area.getBounds())) {
+			if (clearedArea.contains(area.getBounds())) {
+				skippedAreaList.add(area);
 				continue;
 			}
 				
@@ -354,6 +357,7 @@ public class FogUtil {
 				r.height = Math.max(point.p1.y, point.p2.y) - r.y+2;
 	
 				if (clearedArea.contains(r)) {
+					
 					continue;
 				}
 				Area blockedArea = createBlockArea(point.p1, point.p2, point.p3, point.p4);
@@ -690,11 +694,11 @@ public class FogUtil {
 		final int topSize = 10000;
 		final Area topology = new Area();
 		Random r = new Random(12345);
-		for (int i = 0; i < 550; i++) {
+		for (int i = 0; i < 1000; i++) {
 			int x = r.nextInt(topSize);
 			int y = r.nextInt(topSize);
-			int w = r.nextInt(250) + 50;
-			int h = r.nextInt(250) + 50;
+			int w = r.nextInt(500) + 50;
+			int h = r.nextInt(500) + 50;
 			
 			topology.add(new Area(new Rectangle(x, y, w, h)));
 		}
@@ -721,7 +725,7 @@ public class FogUtil {
 		Area area1 = new Area();
 //		JOptionPane.showMessageDialog(new JFrame(), "Hello");
 		long start = System.currentTimeMillis();
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 1; i++) {
 			area1 = calculateVisibility3(topSize/2, topSize/2, vision, data);
 		}
 		System.out.println("1: " + (System.currentTimeMillis() - start));
@@ -729,7 +733,7 @@ public class FogUtil {
 		
 		Area area2 = null;
 		start = System.currentTimeMillis();
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 1; i++) {
 			area2 = calculateVisibility2(topSize/2, topSize/2, vision, data);
 		}
 		System.out.println("2: " + (System.currentTimeMillis() - start));
@@ -754,7 +758,7 @@ public class FogUtil {
 						int y = (int)(e.getY() / (size.height/2.0/topSize)/2);
 						
 						long start = System.currentTimeMillis();
-						theArea = calculateVisibility2(x, y, vision, data);
+						theArea = calculateVisibility3(x, y, vision, data);
 						System.out.println("Calc: " + (System.currentTimeMillis() - start));
 						repaint();
 					}
@@ -798,6 +802,12 @@ public class FogUtil {
 				g.setColor(Color.black);
 				g.drawLine(size.width/4, size.height/2-4, size.width/4, size.height/2+4);
 				g.drawLine(size.width/4-4, size.height/2, size.width/4+4, size.height/2);
+				
+				g.setColor(Color.red);
+				System.out.println("Size: " + data.metaList.size() + " - " + skippedAreaList.size());
+				for (Area area : skippedAreaList) {
+					g2d.fill(area.createTransformedArea(at));
+				}
 				g2d.translate(-200, 0);
 			}
 		});
