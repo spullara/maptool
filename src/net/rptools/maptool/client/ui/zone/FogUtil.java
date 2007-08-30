@@ -1,12 +1,19 @@
 package net.rptools.maptool.client.ui.zone;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,11 +21,13 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
-import net.rptools.maptool.model.HexGrid;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenSize;
@@ -26,7 +35,6 @@ import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
-import net.rptools.maptool.util.HexGridUtil;
 
 public class FogUtil {
 
@@ -132,11 +140,115 @@ public class FogUtil {
 
 		// For simplicity, this catches some of the edge cases
 		vision.subtract(topology);
-
+		System.out.println("Skip: " + skip);
 		return vision;
 	}	
 	
+	public static Area calculateVisibility2(int x, int y, Area vision, AreaData topology) {
 
+		vision = new Area(vision);
+		vision.transform(AffineTransform.getTranslateInstance(x, y));
+		
+		// sanity check
+		if (topology.contains(x, y)) {
+			return null;
+		}
+		
+		Point origin = new Point(x, y);
+		
+		int skip = 0;
+		for (Area area : topology.getAreaList(origin)) {
+		
+			if (!vision.intersects(area.getBounds())) {
+				continue;
+			}
+				
+			// Simple method to clear some nasty artifacts
+			vision.subtract(area);
+			
+			List<AreaPoint> pointList = new ArrayList<AreaPoint>();
+			
+			double[] coords = new double[6];
+	
+			Point firstPoint = null;
+			Point firstOutsidePoint = null;
+			
+			Point lastPoint = null;
+			Point lastOutsidePoint = null;
+			Point originPoint = new Point(x, y);
+			for (PathIterator iter = area.getPathIterator(null); !iter.isDone(); iter.next()) {
+				
+				int type = iter.currentSegment(coords);
+				int coordCount = 0;
+				switch (type) {
+				case PathIterator.SEG_CLOSE: coordCount = 0; break;
+				case PathIterator.SEG_CUBICTO: coordCount = 3; break;
+				case PathIterator.SEG_LINETO: coordCount = 1; break;
+				case PathIterator.SEG_MOVETO: coordCount = 1;break;
+				case PathIterator.SEG_QUADTO: coordCount = 2;break;
+				}
+				
+				for (int i = 0; i < coordCount; i++) {
+	
+					Point point = new Point((int)coords[i*2], (int)coords[i*2+1]);
+					Point outsidePoint = GraphicsUtil.getProjectedPoint(origin, point, 100000);
+					
+					if (firstPoint == null) {
+						firstPoint = point;
+						firstOutsidePoint = outsidePoint;
+					}
+	
+					if (lastPoint != null) {
+						if (type != PathIterator.SEG_MOVETO) {
+							pointList.add(new AreaPoint(lastPoint, point, outsidePoint, lastOutsidePoint, getDistance(originPoint, point)));
+						} else {
+							// Close the last shape
+							if (lastPoint != null) {
+								pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, getDistance(originPoint, point)));
+							}
+							
+							firstPoint = point;
+							firstOutsidePoint = outsidePoint;
+						}
+					}
+	
+					lastPoint = point;
+					lastOutsidePoint = outsidePoint;
+				}
+				
+			}
+			
+			// Close the area
+			if (lastPoint != null) {
+				pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, getDistance(originPoint, lastPoint)));
+			}
+	
+			Collections.sort(pointList, new Comparator<AreaPoint>() {
+				public int compare(AreaPoint o1, AreaPoint o2) {
+					
+					return o1.distance < o2.distance ? -1 : o2.distance < o1.distance ? 1 : 0;
+				}
+			});
+			
+			for (AreaPoint point : pointList) {
+				Rectangle r = new Rectangle();
+				r.x = Math.min(point.p1.x, point.p2.x)-1;
+				r.y = Math.min(point.p1.y, point.p2.y)-1;
+				r.width = Math.max(point.p1.x, point.p2.x) - r.x+2;
+				r.height = Math.max(point.p1.y, point.p2.y) - r.y+2;
+	
+				if (!vision.intersects(r)) {
+					skip++;
+					continue;
+				}
+				Area blockedArea = createBlockArea(point.p1, point.p2, point.p3, point.p4);
+				vision.subtract(blockedArea);
+			}
+		}
+		
+		// For simplicity, this catches some of the edge cases
+		return vision;
+	}	
 	private static double getDistance(Point p1, Point p2) {
 		double a = p2.x - p1.x;
 		double b = p2.y - p1.y;
@@ -317,34 +429,260 @@ public class FogUtil {
 
 		return p;
 	}
+
+	public static class AreaData {
+
+		private Area area;
+
+		private List<AreaMeta> metaList;
+		
+		public AreaData(Area area) {
+			// Keep our own copy
+			this.area = new Area(area);
+		}
+		
+		public boolean contains(int x, int y) {
+			for (AreaMeta meta : metaList) {
+				if (meta.area.contains(x, y)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		public List<Area> getAreaList(final Point centerPoint) {
+			List<AreaMeta> areaMetaList = new ArrayList<AreaMeta>(metaList);
+			
+			Collections.sort(areaMetaList, new Comparator<AreaMeta>() {
+				public int compare(AreaMeta o1, AreaMeta o2) {
+					Double d1 = centerPoint.distance(o1.getCenterPoint());
+					Double d2 = centerPoint.distance(o2.getCenterPoint());
+					return d1.compareTo(d2);
+				}
+			});
+			
+			List<Area> areaList = new ArrayList<Area>();
+			for (AreaMeta meta : areaMetaList) {
+				areaList.add(meta.area);
+			}
+
+			return areaList;
+		}
+		
+		private void digest() {
+
+			if (metaList != null) {
+				// Already digested
+				return;
+			}
+			
+			metaList = new ArrayList<AreaMeta>();
+			
+			// Break the big area into independent areas
+			double[] coords = new double[6];
+			AreaMeta areaMeta = new AreaMeta();
+			for (PathIterator iter = area.getPathIterator(null); !iter.isDone(); iter.next()) {
+				
+				int type = iter.currentSegment(coords);
+				switch (type) {
+				case PathIterator.SEG_CLOSE: {
+
+					areaMeta.close();
+					metaList.add(areaMeta);
+					break;
+				}
+				case PathIterator.SEG_LINETO: {
+					areaMeta.addPoint(coords[0], coords[1]);
+					break;
+				}
+				case PathIterator.SEG_MOVETO: {
+					
+					areaMeta = new AreaMeta();
+					areaMeta.addPoint(coords[0], coords[1]);
+					break;
+				}
+				
+				// NOT SUPPORTED
+//				case PathIterator.SEG_CUBICTO: coordCount = 3; break;
+//				case PathIterator.SEG_QUADTO: coordCount = 2;break;
+				}
+				
+			}
+		}
+	}
+	private static class AreaMeta {
+
+		Area area;
+		PointNode pointNodeList;
+		Point2D centerPoint;
+		
+		// Only used during construction
+		GeneralPath path; 
+		PointNode lastPointNode;
+		
+		public AreaMeta() {
+		}
+		
+		public Point2D getCenterPoint() {
+			if (centerPoint == null) {
+				centerPoint = new Point2D.Double(area.getBounds().x + area.getBounds().width/2, area.getBounds().y + area.getBounds().height/2);
+			}
+			return centerPoint;
+		}
+		
+		public void addPoint(double x, double y) {
+			PointNode pointNode = new PointNode(new Point2D.Double(x, y));
+			
+			if (path == null) {
+				path = new GeneralPath();
+				path.moveTo(x, y);
+				
+				pointNodeList = pointNode;
+			} else {
+				path.lineTo(x, y);
+				
+				lastPointNode.next = pointNode;
+				pointNode.previous = lastPointNode;
+			}
+			
+			lastPointNode = pointNode;
+		}
+		
+		public void close() {
+			area = new Area(path);
+
+			// Close the circle
+			lastPointNode.next = pointNodeList;
+			pointNodeList.previous = lastPointNode;
+			lastPointNode = null;
+			
+			path = null;
+		}
+	}
+
+	private static class PointNode {
+		PointNode previous;
+		PointNode next;
+		
+		Point2D point;
+		
+		public PointNode(Point2D point) {
+			this.point = point;
+		}
+	}
 	
 	public static void main(String[] args) {
 		
-		Area topology = new Area();
+		System.out.println("Creating topology");
+		final int topSize = 10000;
+		final Area topology = new Area();
 		Random r = new Random(12345);
-		for (int i = 0; i < 200; i++) {
-			int x = r.nextInt(5000);
-			int y = r.nextInt(5000);
-			int w = r.nextInt(25) + 25;
-			int h = r.nextInt(25) + 25;
+		for (int i = 0; i < 550; i++) {
+			int x = r.nextInt(topSize);
+			int y = r.nextInt(topSize);
+			int w = r.nextInt(250) + 50;
+			int h = r.nextInt(250) + 50;
 			
-			topology.add(new Area(new Ellipse2D.Float(x, y, w, h)));
+			topology.add(new Area(new Rectangle(x, y, w, h)));
 		}
 		
-		topology.subtract(new Area(new Ellipse2D.Float(2500-10, 2500-10, 20, 20)));
+		// Make sure the the center point is not contained inside the blocked area
+		topology.subtract(new Area(new Rectangle(topSize/2-200, topSize/2-200, 400, 400)));
 		
-		Area vision = new Area(new Ellipse2D.Float(0, 0, 2000, 2000));
+		final Area vision = new Area(new Rectangle(-Integer.MAX_VALUE/2, -Integer.MAX_VALUE/2, Integer.MAX_VALUE, Integer.MAX_VALUE));
 		
+		int pointCount = 0;
+		for (PathIterator iter = topology.getPathIterator(null); !iter.isDone(); iter.next()) {
+			pointCount++;
+		}
+		
+		System.out.println("Starting test " + pointCount + " points");
+
+		Area area1 = new Area();
 		long start = System.currentTimeMillis();
-		for (int i = 0; i < 10; i++) {
-			calculateVisibility(2500, 2500, vision, topology);
+		for (int i = 0; i < 1; i++) {
+//			area1 = calculateVisibility(topSize/2, topSize/2, vision, topology);
 		}
 		System.out.println("1: " + (System.currentTimeMillis() - start));
 		
+		final AreaData data = new AreaData(topology);
+		data.digest();
+		Area area2 = null;
 		start = System.currentTimeMillis();
-		for (int i = 0; i < 10; i++) {
-//			calculateVisibility2(2500, 2500, vision, topology);
+		for (int i = 0; i < 1; i++) {
+			area2 = calculateVisibility2(topSize/2, topSize/2, vision, data);
 		}
 		System.out.println("2: " + (System.currentTimeMillis() - start));
+		
+		System.out.println("Equal: " + (area2.equals(area1)));
+
+		final Area a1 = area1;
+		final Area a2 = area2;
+		JFrame f = new JFrame();
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.setBounds(0, 0, 400, 200);
+		f.setLayout(new GridLayout());
+		f.add(new JPanel() {
+			Area theArea = a2;
+			{
+				addMouseMotionListener(new MouseMotionAdapter() {
+					@Override
+					public void mouseDragged(MouseEvent e) {
+						
+						Dimension size = getSize();
+						int x = (int)((e.getX() - (size.width/2)) / (size.width/2.0/topSize));
+						int y = (int)(e.getY() / (size.height/2.0/topSize)/2);
+						
+						long start = System.currentTimeMillis();
+						theArea = calculateVisibility2(x, y, vision, data);
+						System.out.println(System.currentTimeMillis() - start);
+						repaint();
+					}
+				});
+			}
+			@Override
+			protected void paintComponent(Graphics g) {
+
+				Dimension size = getSize();
+				g.setColor(Color.white);
+				g.fillRect(0, 0, size.width, size.height);
+				
+				Graphics2D g2d = (Graphics2D)g;
+				
+				AffineTransform at = AffineTransform.getScaleInstance((size.width/2)/(double)topSize, (size.height)/(double)topSize);
+				Area top = topology.createTransformedArea(at);
+				
+				g.setColor (Color.black);
+				g.drawLine(size.width/2, 0, size.width/2, size.height);
+
+				g.setClip(new Rectangle(0, 0, size.width/2, size.height));
+				g.setColor(Color.green);
+				g2d.fill(top);
+				
+				g.setColor(Color.lightGray);
+				g2d.fill(a1.createTransformedArea(at));
+				
+				g.setColor(Color.black);
+				g.drawLine(size.width/4, size.height/2-4, size.width/4, size.height/2+4);
+				g.drawLine(size.width/4-4, size.height/2, size.width/4+4, size.height/2);
+
+				g.setClip(new Rectangle(size.width/2, 0, size.width/2, size.height));
+				g2d.translate(200, 0);
+				g.setColor(Color.green);
+				g2d.fill(top);
+				g.setColor(Color.gray);
+				if (theArea != null) {
+					g2d.fill(theArea.createTransformedArea(at));
+				}
+				
+				g.setColor(Color.black);
+				g.drawLine(size.width/4, size.height/2-4, size.width/4, size.height/2+4);
+				g.drawLine(size.width/4-4, size.height/2, size.width/4+4, size.height/2);
+				g2d.translate(-200, 0);
+			}
+		});
+		f.setVisible(true);
+		
 	}
+
 }
