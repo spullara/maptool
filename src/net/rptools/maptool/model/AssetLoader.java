@@ -187,7 +187,7 @@ public class AssetLoader {
 					if (split >= 0) {
 						ref = ref.substring(split+1);
 					}
-					FileUtil.getNameWithoutExtension(ref);
+					ref = FileUtil.getNameWithoutExtension(ref);
 					AssetManager.putAsset(new Asset(ref, data));
 
 					completeRequest(id);
