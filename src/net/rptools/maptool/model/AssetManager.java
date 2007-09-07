@@ -56,9 +56,10 @@ public class AssetManager {
     private static Asset lastRetrievedAsset;
 
     private static Map<MD5Key, List<AssetAvailableListener>> assetListenerListMap  = new ConcurrentHashMap<MD5Key, List<AssetAvailableListener>>();
-    private static Set<MD5Key> requestedSet = new HashSet<MD5Key>();
     
     public static final String NAME = "name";
+    
+    private static AssetLoader assetLoader = new AssetLoader();
     
 	static {
 		
@@ -69,7 +70,7 @@ public class AssetManager {
 	}
 	
 	public static boolean isAssetRequested(MD5Key key) {
-		return requestedSet.contains(key);
+		return assetLoader.isIdRequested(key);
 	}
 	
 	public static void addAssetListener(MD5Key key, AssetAvailableListener listener) {
@@ -109,7 +110,7 @@ public class AssetManager {
 		putInPersistentCache(asset);
 
 		// Clear the waiting status
-		requestedSet.remove(asset.getId());
+		assetLoader.completeRequest(asset.getId());
 		
 		// Listeners
 		List<AssetAvailableListener> listenerList = assetListenerListMap.get(asset.getId());
@@ -181,8 +182,7 @@ public class AssetManager {
 	private static void requestAssetFromServer(MD5Key id) {
 		
 		if (id != null) {
-			requestedSet.add(id);
-	        MapTool.serverCommand().getAsset(id);
+			assetLoader.requestAsset(id);
 		}
 	}
 	
