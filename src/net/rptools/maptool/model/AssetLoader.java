@@ -47,6 +47,15 @@ public class AssetLoader {
 		repositoryMap.put(repository, getIndexMap(repository));
 	}
 
+	public synchronized void removeRepository(String repository) {
+		repositoryStateMap.remove(repository);
+		repositoryMap.remove(repository);
+	}
+	
+	public synchronized boolean isIdRequested(MD5Key id) {
+		return requestedIdSet.contains(id);
+	}
+	
 	protected Map<String, String> getIndexMap(String repository) {
 		Map<String, String> indexMap = new HashMap<String, String>();
 		try {
