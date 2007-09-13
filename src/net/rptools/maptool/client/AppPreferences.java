@@ -135,6 +135,17 @@ public class AppPreferences {
     private static final String KEY_SHOW_AVATAR_IN_CHAT = "showAvatarInChat";
     private static final boolean DEFAULT_SHOW_AVATAR_IN_CHAT = true;
     
+    private static final String KEY_SHOW_DIALOG_ON_NEW_TOKEN = "showDialogOnNewToken";
+    private static final boolean DEFAULT_SHOW_DIALOG_ON_NEW_TOKEN = true;
+    
+    public static void setShowDialogOnNewToken(boolean show) {
+    	prefs.putBoolean(KEY_SHOW_DIALOG_ON_NEW_TOKEN, show);
+    }
+    
+    public static boolean getShowDialogOnNewToken() {
+    	return prefs.getBoolean(KEY_SHOW_DIALOG_ON_NEW_TOKEN, DEFAULT_SHOW_DIALOG_ON_NEW_TOKEN);
+    }
+    
     public static void setShowAvatarInChat(boolean show) {
     	prefs.putBoolean(KEY_SHOW_AVATAR_IN_CHAT, show);
     }

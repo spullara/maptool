@@ -2326,14 +2326,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
             // Token type
             if (isGM) {
+        		token.setType(Token.Type.NPC);
             	if (getActiveLayer() == Zone.Layer.TOKEN) {
-	            	NewTokenDialog dialog = new NewTokenDialog(token, dropPoint.x, dropPoint.y);
-	            	dialog.setVisible(true);
-	            	if (!dialog.isSuccess()) {
-	            		continue;
-	            	}
-            	} else {
-            		token.setType(Token.Type.NPC);
+            		if (AppPreferences.getShowDialogOnNewToken()) {
+		            	NewTokenDialog dialog = new NewTokenDialog(token, dropPoint.x, dropPoint.y);
+		            	dialog.showDialog();
+		            	if (!dialog.isSuccess()) {
+		            		continue;
+		            	}
+            		}
             	}
             } else {
             	// Player dropped, player token

@@ -63,6 +63,7 @@ public class PreferencesDialog extends JDialog {
 	private JSpinner autoSaveSpinner;
 	private JCheckBox saveReminderCheckBox;
 	
+	private JCheckBox showDialogOnNewToken;
 
 	// Accessibility
 	private JTextField fontSizeTextField;
@@ -110,6 +111,7 @@ public class PreferencesDialog extends JDialog {
 		playSystemSoundCheckBox = panel.getCheckBox("playSystemSounds");
 		playSystemSoundOnlyWhenNotFocusedCheckBox = panel.getCheckBox("soundsOnlyWhenNotFocused");
 		showAvatarInChat = panel.getCheckBox("showChatAvatar");
+		showDialogOnNewToken = panel.getCheckBox("showDialogOnNewToken");
 
 		setInitialState();
 
@@ -122,6 +124,12 @@ public class PreferencesDialog extends JDialog {
 		saveReminderCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setSaveReminder(saveReminderCheckBox.isSelected());
+			}
+		});
+		showDialogOnNewToken.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setShowDialogOnNewToken(showDialogOnNewToken.isSelected());
 			}
 		});
         autoSaveSpinner.addChangeListener(new ChangeListener() {
@@ -340,6 +348,7 @@ public class PreferencesDialog extends JDialog {
 
 	private void setInitialState() {
 		
+		showDialogOnNewToken.setSelected(AppPreferences.getShowDialogOnNewToken());
 		saveReminderCheckBox.setSelected(AppPreferences.getSaveReminder());
 		autoSaveSpinner.setValue(AppPreferences.getAutoSaveIncrement());
 		useTranslucentFogCheckBox.setSelected(AppPreferences.getUseTranslucentFog());
