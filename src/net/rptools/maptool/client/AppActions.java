@@ -1095,56 +1095,55 @@ public class AppActions {
 
 					// TODO: Need to shut down the existing server first;
 					StartServerDialog dialog = new StartServerDialog();
+					dialog.showDialog();
 
-					dialog.setVisible(true);
-
-					if (dialog.getOption() == StartServerDialog.OPTION_CANCEL) {
-						return;
-					}
-
-					ServerPolicy policy = new ServerPolicy();
-					policy.setUseStrictTokenManagement(dialog.getUseStrictOwnershipCheckbox().isSelected());
-					policy.setPlayersCanRevealVision(dialog.getPlayersCanRevealVisionCheckbox().isSelected());
-
-					ServerConfig config = new ServerConfig(dialog.getGMPasswordTextField().getText(), dialog.getPlayerPasswordTextField().getText(),
-							dialog.getPort(), dialog.getRPToolsNameTextField().getText(), dialog.getRPToolsPrivateCheckbox().isSelected());
-
-					// Use the existing campaign
-					Campaign campaign = MapTool.getCampaign();
-
-					boolean failed = false;
-					try {
-						ServerDisconnectHandler.disconnectExpected = true;
-						MapTool.stopServer();
-						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, campaign);
-
-						// Connect to server
-						MapTool.createConnection("localhost", dialog.getPort(),
-								new Player(dialog.getUsernameTextField().getText(), dialog.getRole(), dialog.getGMPasswordTextField().getText()));
-
-						// connecting
-						MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
-					} catch (UnknownHostException uh) {
-						MapTool
-								.showError("Whoah, 'localhost' is not a valid address.  Weird.");
-						failed = true;
-					} catch (IOException ioe) {
-						MapTool
-								.showError("Could not connect to server: "
-										+ ioe);
-						failed = true;
-					}
-
-					if (failed) {
-						try {
-							MapTool.startPersonalServer(campaign);
-						} catch (IOException ioe) {
-							MapTool
-									.showError("Could not restart personal server");
-						}
-					}
-
-					MapTool.serverCommand().setCampaign(campaign);
+//					if (dialog.getOption() == StartServerDialog.OPTION_CANCEL) {
+//						return;
+//					}
+//
+//					ServerPolicy policy = new ServerPolicy();
+//					policy.setUseStrictTokenManagement(dialog.getUseStrictOwnershipCheckbox().isSelected());
+//					policy.setPlayersCanRevealVision(dialog.getPlayersCanRevealVisionCheckbox().isSelected());
+//
+//					ServerConfig config = new ServerConfig(dialog.getGMPasswordTextField().getText(), dialog.getPlayerPasswordTextField().getText(),
+//							dialog.getPort(), dialog.getRPToolsNameTextField().getText(), dialog.getRPToolsPrivateCheckbox().isSelected());
+//
+//					// Use the existing campaign
+//					Campaign campaign = MapTool.getCampaign();
+//
+//					boolean failed = false;
+//					try {
+//						ServerDisconnectHandler.disconnectExpected = true;
+//						MapTool.stopServer();
+//						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, campaign);
+//
+//						// Connect to server
+//						MapTool.createConnection("localhost", dialog.getPort(),
+//								new Player(dialog.getUsernameTextField().getText(), dialog.getRole(), dialog.getGMPasswordTextField().getText()));
+//
+//						// connecting
+//						MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
+//					} catch (UnknownHostException uh) {
+//						MapTool
+//								.showError("Whoah, 'localhost' is not a valid address.  Weird.");
+//						failed = true;
+//					} catch (IOException ioe) {
+//						MapTool
+//								.showError("Could not connect to server: "
+//										+ ioe);
+//						failed = true;
+//					}
+//
+//					if (failed) {
+//						try {
+//							MapTool.startPersonalServer(campaign);
+//						} catch (IOException ioe) {
+//							MapTool
+//									.showError("Could not restart personal server");
+//						}
+//					}
+//
+//					MapTool.serverCommand().setCampaign(campaign);
 				}
 			});
 		}

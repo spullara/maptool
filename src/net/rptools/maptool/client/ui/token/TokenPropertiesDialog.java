@@ -54,21 +54,19 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
-import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.swing.AbeilleDialog;
+import net.rptools.maptool.client.swing.AbeillePanel;
+import net.rptools.maptool.client.swing.GenericDialog;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Association;
@@ -92,8 +90,7 @@ import com.jidesoft.swing.Selectable;
 /**
  * This dialog is used to display all of the token states and notes to the user.
  */
-public class TokenPropertiesDialog extends AbeilleDialog implements ActionListener,
-		ModelChangeListener {
+public class TokenPropertiesDialog extends AbeillePanel {
 
 	private static final int INDX_NOTES = 0;
 	private static final int INDX_PROPERTIES = 1;
@@ -106,6 +103,8 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 	private Token token;
 	private boolean tokenSaved;
 	
+	private GenericDialog dialog;
+
 	/**
 	 * The size used to constrain the icon.
 	 */
@@ -118,31 +117,79 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 	 *            The token being displayed.
 	 */
 	public TokenPropertiesDialog() {
-		super("net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.jfrm", MapTool.getFrame(), "Token Properties", true);
-		setDefaultCloseOperation(HIDE_ON_CLOSE);
+		super("net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.jfrm");
 
-		init();
-		
-		pack();
+		panelInit();
 	}
 	
-	private void init() {
-		initTypeCombo();
-		initTokenIconPanel();
+	public void showDialog(Token token) {
+		this.token = token;
 		
-		initOKButton();
-		initCancelButton();
+		dialog = new GenericDialog("New Token", MapTool.getFrame(), this);
 		
-		// Panels
-		initNotesPanel();
-		initTokenDetails();
-		initConfigPanel();
-		initButtons();
-		initPropertiesPanel();
-		initStatesPanel();
-		initOwnershipPanel();
-		initMacroPanel();
-		initSpeechPanel();
+		bind(token);
+
+		getRootPane().setDefaultButton(getOKButton());
+		dialog.showDialog();
+	}
+
+	@Override
+	public void bind(Object model) {
+
+		// ICON
+		getTokenIconPanel().setIcon(getTokenIcon());
+
+		// PROPERTIES
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				getPropertyTable().setModel(new TokenPropertyTableModel());
+				getPropertyTable().expandAll();
+			}
+		});
+		
+		// STATES
+		Component[] states = getStatesPanel().getComponents();
+		for (int i = 0; i < states.length; i++) {
+			JCheckBox state = (JCheckBox) states[i];
+			Boolean stateValue = (Boolean) token.getState(state.getText());
+			state.setSelected(stateValue == null ? false : stateValue.booleanValue());
+		}
+		
+		// OWNER LIST
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				getOwnerList().setModel(new OwnerListModel());
+			}
+		});
+
+		// MACRO TABLE
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				getMacroTable().setModel(new MacroTableModel(token));
+			}
+		});
+
+		// SPEECH TABLE
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				getSpeechTable().setModel(new SpeechTableModel(token));
+			}
+		});
+
+//		Player player = MapTool.getPlayer();
+//				boolean editable = player.isGM()
+//						|| !MapTool.getServerPolicy().useStrictTokenManagement() || token.isOwner(player.getName());
+//		getAllPlayersCheckBox().setSelected(token.isOwnedByAll());
+
+		// OTHER
+		getShapeCombo().setSelectedItem(token.getShape());
+		getSizeCombo().setSelectedItem(token.isSnapToScale() ? TokenSize.getSizeInstance(token.getSize()) : 0);
+		getPropertyTypeCombo().setSelectedItem(token.getPropertyType());
+		getCharSheetPanel().setImageId(token.getCharsheetImage());
+		getPortraitPanel().setImageId(token.getPortraitImage());
+		getTokenLayoutPanel().setToken(token);
+		
+		super.bind(model);
 	}
 	
 	public JTabbedPane getTabbedPane() {
@@ -150,37 +197,37 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 	}
 
 	public JTextArea getNotesTextArea() {
-		return (JTextArea) getComponent("notes");
+		return (JTextArea) getComponent("@notes");
 	}
 	
 	public JTextArea getGMNotesTextArea() {
-		return (JTextArea) getComponent("gmNotes");
+		return (JTextArea) getComponent("@GMNotes");
 	}
 	
-	private JLabel getGMNameLabel() {
-		return (JLabel) getComponent("tokenGMNameLabel");
-	}
+//	private JLabel getGMNameLabel() {
+//		return (JLabel) getComponent("tokenGMNameLabel");
+//	}
+//	
+//	public JTextField getNameTextField() {
+//		return (JTextField) getComponent("tokenName");
+//	}
+//	
+//	public JTextField getGMNameTextField() {
+//		return (JTextField) getComponent("tokenGMName");
+//	}
 	
-	public JTextField getNameTextField() {
-		return (JTextField) getComponent("tokenName");
-	}
-	
-	public JTextField getGMNameTextField() {
-		return (JTextField) getComponent("tokenGMName");
-	}
-	
-	private void initTypeCombo() {
+	public void initTypeCombo() {
 		DefaultComboBoxModel model = new DefaultComboBoxModel();
 		model.addElement(Token.Type.NPC);
 		model.addElement(Token.Type.PC);
-		getTypeCombo().setModel(model);
+//		getTypeCombo().setModel(model);
 	}
 	
 	public JComboBox getTypeCombo() {
-		return (JComboBox) getComponent("typeCombo");
+		return (JComboBox) getComponent("@type");
 	}
 	
-	private void initTokenIconPanel() {
+	public void initTokenIconPanel() {
 		getTokenIconPanel().setPreferredSize(new Dimension(100, 100));
 		getTokenIconPanel().setMinimumSize(new Dimension(100, 100));
 		
@@ -190,7 +237,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		return (ImageComponent) getComponent("tokenIcon");
 	}
 	
-	private void initShapeCombo() {
+	public void initShapeCombo() {
 		getShapeCombo().setModel(new DefaultComboBoxModel(Token.TokenShape.values()));
 	}
 	
@@ -198,7 +245,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		return (JComboBox) getComponent("shape");
 	}
 
-	private void initSizeCombo() {
+	public void initSizeCombo() {
 		DefaultComboBoxModel model = new DefaultComboBoxModel(TokenSize.Size.values());
 		model.insertElementAt("Free Size", 0);
 		getSizeCombo().setModel(model);
@@ -212,32 +259,130 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		return (JComboBox) getComponent("propertyTypeCombo");
 	}
 
-	private void initOKButton() {
-		getOKButton().addActionListener(this);
-		getRootPane().setDefaultButton(getOKButton());
+	public void initOKButton() {
+		getOKButton().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (commit()) {
+					unbind();
+					dialog.closeDialog();
+				}
+			}
+		});
+	}
+	
+	@Override
+	public boolean commit() {
+
+		// Commit any in-process edits
+		if (getMacroTable().isEditing()) {
+			getMacroTable().getCellEditor().stopCellEditing();
+		}
+		
+		if (getSpeechTable().isEditing()) {
+			getSpeechTable().getCellEditor().stopCellEditing();
+		}
+		
+		if (getPropertyTable().isEditing()) {
+			getPropertyTable().getCellEditor().stopCellEditing();
+		}
+
+		// Commit the changes to the token properties
+		if (!super.commit()) {
+			return false;
+		}
+		
+		// SIZE
+		if (getSizeCombo().getSelectedIndex() == 0) {
+			token.setSnapToScale(false);
+		} else {
+			token.setSnapToScale(true);
+			token.setSize(((TokenSize.Size) getSizeCombo().getSelectedItem()).value());
+		}
+
+		// Get the states
+		Component[] components = getStatesPanel().getComponents();
+		for (int i = 0; i < components.length; i++) {
+			JCheckBox cb = (JCheckBox) components[i];
+			String state = cb.getText();
+			token.setState(state, cb.isSelected() ? Boolean.TRUE
+					: Boolean.FALSE);
+		}
+
+		// Ownership
+		token.clearAllOwners();
+		
+		for (int i = 0; i < getOwnerList().getModel().getSize(); i++) {
+			DefaultSelectable selectable = (DefaultSelectable) getOwnerList().getModel().getElementAt(i);
+			if (selectable.isSelected()) {
+				token.addOwner((String) selectable.getObject());
+			}
+		}
+
+		// SHAPE
+		token.setShape((Token.TokenShape)getShapeCombo().getSelectedItem());
+		
+		// Macros
+		token.setMacroMap(((KeyValueTableModel)getMacroTable().getModel()).getMap());
+		token.setSpeechMap(((KeyValueTableModel)getSpeechTable().getModel()).getMap());
+		
+		// Properties
+		((TokenPropertyTableModel)getPropertyTable().getModel()).applyTo(token);
+	
+		// Charsheet
+		token.setCharsheetImage(getCharSheetPanel().getImageId());
+		if (token.getCharsheetImage() != null) {
+			// Make sure the server has the image
+			if (!MapTool.getCampaign().containsAsset(token.getCharsheetImage())) {
+				MapTool.serverCommand().putAsset(AssetManager.getAsset(token.getCharsheetImage()));
+			}
+		}
+		
+		// PORTRAIT
+		token.setPortraitImage(getPortraitPanel().getImageId());
+		if (token.getPortraitImage() != null) {
+			// Make sure the server has the image
+			if (!MapTool.getCampaign().containsAsset(token.getPortraitImage())) {
+				MapTool.serverCommand().putAsset(AssetManager.getAsset(token.getPortraitImage()));
+			}
+		}
+
+		// LAYOUT
+		token.setSizeScale(getTokenLayoutPanel().getSizeScale());
+		token.setAnchor(getTokenLayoutPanel().getAnchorX(), getTokenLayoutPanel().getAnchorY());
+
+		// OTHER
+		tokenSaved = true;
+		
+		// Update UI
+		MapTool.getFrame().updateTokenTree();
+		
+		return true;
 	}
 	
 	public JButton getOKButton() {
 		return (JButton) getComponent("okButton");
 	}
 
-	private void initCancelButton() {
-		getCancelButton().addActionListener(this);
+	public void initCancelButton() {
+		getCancelButton().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				unbind();
+				dialog.closeDialog();
+			}
+		});
 	}
 	
 	public JButton getCancelButton() {
 		return (JButton) getComponent("cancelButton");
 	}
 
-	public JCheckBox getSnapToGridCheckBox() {
-		return (JCheckBox) getComponent("snapToGrid");
-	}
-	
 	public PropertyTable getPropertyTable() {
 		return (PropertyTable) getComponent("propertiesTable");
 	}
 
-	private void initStatesPanel() {
+	public void initStatesPanel() {
 		JPanel panel = getStatesPanel();
 		panel.removeAll();
 		Set<String> states = TokenStates.getStates();
@@ -249,14 +394,6 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 	
 	public JPanel getStatesPanel() {
 		return (JPanel) getComponent("statesPanel");
-	}
-	
-	public JCheckBox getVisibleCheckBox() {
-		return (JCheckBox) getComponent("visible");
-	}
-	
-	public JCheckBox getAllPlayersCheckBox() {
-		return (JCheckBox) getComponent("allPlayersCheckbox");
 	}
 	
 	public JTable getMacroTable() {
@@ -287,7 +424,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		return (CheckBoxListWithSelectable) getComponent("ownerList");
 	}
 	
-	private void initMacroPanel() {
+	public void initMacroPanel() {
 		
 		getMacroClearAllButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -305,7 +442,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		});
 	}
 	
-	private void initSpeechPanel() {
+	public void initSpeechPanel() {
 		
 		getSpeechClearAllButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -323,7 +460,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		});
 	}
 	
-	private void initOwnershipPanel() {
+	public void initOwnershipPanel() {
 		
 		CheckBoxListWithSelectable list = new CheckBoxListWithSelectable();
 		list.setName("ownerList");
@@ -331,25 +468,16 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		
 	}
 
-	private void initNotesPanel() {
-		getNotesTextArea().addMouseListener(new MouseHandler(getNotesTextArea()));
-		getGMNotesTextArea().addMouseListener(new MouseHandler(getGMNotesTextArea()));
-	}
+//	public void initNotesPanel() {
+//		getNotesTextArea().addMouseListener(new MouseHandler(getNotesTextArea()));
+//		getGMNotesTextArea().addMouseListener(new MouseHandler(getGMNotesTextArea()));
+//	}
 	
-	private void initTokenDetails() {
+	public void initTokenDetails() {
 //		tokenGMNameLabel = panel.getLabel("tokenGMNameLabel");
 	}
 
-	private void initConfigPanel() {
-		initShapeCombo();
-		initSizeCombo();
-		
-		initCharsheetPanel();
-		initPortraitPanel();
-		initTokenLayoutPanel();
-	}
-
-	private void initTokenLayoutPanel() {
+	public void initTokenLayoutPanel() {
 		TokenLayoutPanel layoutPanel = new TokenLayoutPanel();
 		layoutPanel.setPreferredSize(new Dimension(150, 125));
 		layoutPanel.setName("tokenLayout");
@@ -357,7 +485,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		replaceComponent("tokenLayoutPanel", "tokenLayout", layoutPanel);
 	}
 	
-	private void initCharsheetPanel() {
+	public void initCharsheetPanel() {
 		ImageAssetPanel panel = new ImageAssetPanel();
 		panel.setPreferredSize(new Dimension(150, 125));
 		panel.setName("charsheet");
@@ -366,7 +494,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		replaceComponent("charsheetPanel", "charsheet", panel);
 	}
 	
-	private void initPortraitPanel() {
+	public void initPortraitPanel() {
 		ImageAssetPanel panel = new ImageAssetPanel();
 		panel.setPreferredSize(new Dimension(150, 125));
 		panel.setName("portrait");
@@ -387,13 +515,7 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		return (TokenLayoutPanel) getComponent("tokenLayout");
 	}
 	
-	private void initButtons() {
-		// This will initialize them
-		getOKButton();
-		getCancelButton();
-	}
-	
-	private void initPropertiesPanel() {
+	public void initPropertiesPanel() {
 
 		PropertyTable propertyTable = new PropertyTable();
 		propertyTable.setName("propertiesTable");
@@ -404,281 +526,71 @@ public class TokenPropertiesDialog extends AbeilleDialog implements ActionListen
 		replaceComponent("propertiesPanel", "propertiesTable", pane);
 	}
 
-	@Override
-	public void setVisible(boolean b) {
-		if(b) {
-			SwingUtil.centerOver(this, MapTool.getFrame());
-		}
-		super.setVisible(b);
-	}
 
-	/*---------------------------------------------------------------------------------------------
-	 * ActionListener Interface Methods
-	 *-------------------------------------------------------------------------------------------*/
-
-	/**
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent aE) {
-		if (aE.getSource() == getOKButton()) {
-			
-			if (getMacroTable().isEditing()) {
-				getMacroTable().getCellEditor().stopCellEditing();
-			}
-			
-			if (getSpeechTable().isEditing()) {
-				getSpeechTable().getCellEditor().stopCellEditing();
-			}
-			
-			if (getPropertyTable().isEditing()) {
-				getPropertyTable().getCellEditor().stopCellEditing();
-			}
-			
-			updateToken();
-			MapTool.getFrame().updateTokenTree();
-			setVisible(false);
-		} else if (aE.getSource() == getCancelButton()) {
-			setVisible(false);
-		} 
-		
-		setToken(null);
-	}
-
-	/*---------------------------------------------------------------------------------------------
-	 * ModelChangeListener Interface Methods
-	 *-------------------------------------------------------------------------------------------*/
-
-	/**
-	 * @see net.rptools.maptool.model.ModelChangeListener#modelChanged(net.rptools.maptool.model.ModelChangeEvent)
-	 */
-	public void modelChanged(ModelChangeEvent aEvent) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*---------------------------------------------------------------------------------------------
-	 * Instance Methods
-	 *-------------------------------------------------------------------------------------------*/
-
-	/**
-	 * Update the token to match the state of the dialog
-	 */
-	public void updateToken() {
-
-		if (token == null) {
-			return;
-		}
-		
-		// Check the name
-		String name = getNameTextField().getText();
-		if (name == null || (name = name.trim()).length() == 0) {
-			JOptionPane.showMessageDialog(this, "A name is required.");
-			throw new IllegalStateException("A name is required.");
-		} // endif
-
-		// Set the token values
-		token.setName(name);
-		token.setGMName(getGMNameTextField().getText());
-		token.setNotes(getNotesTextArea().getText());
-		token.setGMNote(getGMNotesTextArea().getText());
-		token.setShape((Token.TokenShape) getShapeCombo().getSelectedItem());
-		token.setSnapToGrid(getSnapToGridCheckBox().isSelected());
-		token.setVisible(getVisibleCheckBox().isSelected());
-		token.setType((Token.Type) getTypeCombo().getSelectedItem());
-
-		// Get size
-		if (getSizeCombo().getSelectedIndex() == 0) {
-			token.setSnapToScale(false);
-		} else {
-			token.setSnapToScale(true);
-			token.setSize(((TokenSize.Size) getSizeCombo().getSelectedItem()).value());
-		} // endif
-
-		// Get the states
-		Component[] components = getStatesPanel().getComponents();
-		for (int i = 0; i < components.length; i++) {
-			JCheckBox cb = (JCheckBox) components[i];
-			String state = cb.getText();
-			token.setState(state, cb.isSelected() ? Boolean.TRUE
-					: Boolean.FALSE);
-		}
-		
-		// Ownership
-		token.clearAllOwners();
-		if (getAllPlayersCheckBox().isSelected()) {
-			token.setAllOwners();
-		}
-		
-		for (int i = 0; i < getOwnerList().getModel().getSize(); i++) {
-			DefaultSelectable selectable = (DefaultSelectable) getOwnerList().getModel().getElementAt(i);
-			if (selectable.isSelected()) {
-				token.addOwner((String) selectable.getObject());
-			}
-		}
-		
-		// Macros
-		token.setMacroMap(((KeyValueTableModel)getMacroTable().getModel()).getMap());
-		token.setSpeechMap(((KeyValueTableModel)getSpeechTable().getModel()).getMap());
-		
-		// Properties
-		((TokenPropertyTableModel)getPropertyTable().getModel()).applyTo(token);
+//	/**
+//	 * Set the currently displayed token.
+//	 * 
+//	 * @param aToken
+//	 *            The token to be displayed
+//	 */
+//	public void setToken(Token aToken) {
+//
+//		if (aToken == token)
+//			return;
+//		if (token != null) {
+//			token.removeModelChangeListener(this);
+//		}
+//		
+//		token = aToken;
+//		
+//		if (token != null) {
+//			token.addModelChangeListener(this);
+//			
+//			List<String> typeList = new ArrayList<String>();
+//			typeList.addAll(MapTool.getCampaign().getTokenTypes());
+//			Collections.sort(typeList);
+//			getPropertyTypeCombo().setModel(new DefaultComboBoxModel(typeList.toArray()));
+//
+//			setFields();
+//			updateView();
+//		}
+//
+//		getTabbedPane().setSelectedIndex(0);
+//	}
 	
-		// Charsheet
-		token.setCharsheetImage(getCharSheetPanel().getImageId());
-		if (token.getCharsheetImage() != null) {
-			// Make sure the server has the image
-			if (!MapTool.getCampaign().containsAsset(token.getCharsheetImage())) {
-				MapTool.serverCommand().putAsset(AssetManager.getAsset(token.getCharsheetImage()));
-			}
-		}
-		token.setPortraitImage(getPortraitPanel().getImageId());
-		if (token.getPortraitImage() != null) {
-			// Make sure the server has the image
-			if (!MapTool.getCampaign().containsAsset(token.getPortraitImage())) {
-				MapTool.serverCommand().putAsset(AssetManager.getAsset(token.getPortraitImage()));
-			}
-		}
-
-		token.setSizeScale(getTokenLayoutPanel().getSizeScale());
-		token.setAnchor(getTokenLayoutPanel().getAnchorX(), getTokenLayoutPanel().getAnchorY());
-		
-		tokenSaved = true;
-	}
-
-	/**
-	 * Set the currently displayed token.
-	 * 
-	 * @param aToken
-	 *            The token to be displayed
-	 */
-	public void setToken(Token aToken) {
-
-		if (aToken == token)
-			return;
-		if (token != null) {
-			token.removeModelChangeListener(this);
-		}
-		
-		token = aToken;
-		
-		if (token != null) {
-			token.addModelChangeListener(this);
-			
-			List<String> typeList = new ArrayList<String>();
-			typeList.addAll(MapTool.getCampaign().getTokenTypes());
-			Collections.sort(typeList);
-			getPropertyTypeCombo().setModel(new DefaultComboBoxModel(typeList.toArray()));
-
-			setFields();
-			updateView();
-		}
-
-		getTabbedPane().setSelectedIndex(0);
-	}
-	
-	private void updateView() {
-		
-		Player player = MapTool.getPlayer();
-		
-		boolean isEnabled = player.isGM() || token.isOwner(player.getName());
-		
-		getTabbedPane().setEnabledAt(INDX_PROPERTIES, isEnabled);
-		getTabbedPane().setEnabledAt(INDX_STATE, isEnabled);
-		getTabbedPane().setEnabledAt(INDX_MACROS, isEnabled);
-		getTabbedPane().setEnabledAt(INDX_SPEECH, isEnabled);
-		getTabbedPane().setEnabledAt(INDX_OWNERSHIP, isEnabled);
-		getTabbedPane().setEnabledAt(INDX_CONFIG, isEnabled);
-		
-		// Set the editable & enabled state
-		boolean editable = player.isGM() || !MapTool.getServerPolicy().useStrictTokenManagement() || token.isOwner(player.getName());
-		getOKButton().setEnabled(editable);
-		
-		getNotesTextArea().setEditable(editable);
-		getNameTextField().setEditable(editable);
-		getShapeCombo().setEnabled(editable);
-		getSizeCombo().setEnabled(editable);
-		getSnapToGridCheckBox().setEnabled(editable);
-		getVisibleCheckBox().setEnabled(editable);
-		getTypeCombo().setSelectedItem(token.getType());
-
-		getGMNotesPanel().setVisible(player.isGM());
-		getGMNameTextField().setVisible(player.isGM());
-		getGMNameLabel().setVisible(player.isGM());
-		getTypeCombo().setEnabled(player.isGM());
-		getVisibleCheckBox().setVisible(player.isGM());
-		getVisibleLabel().setVisible(player.isGM());
-		
-	}
-
-	/**
-	 * Set the fields to match the state of the current token
-	 */
-	public void setFields() {
-
-		Player player = MapTool.getPlayer();
-
-		boolean editable = player.isGM()
-				|| !MapTool.getServerPolicy().useStrictTokenManagement() || token.isOwner(player.getName());
-
-		// Set the fields from the token.
-		getNameTextField().setText(token.getName());
-		getGMNameTextField().setText(token.getGMName());
-		
-		getTokenIconPanel().setIcon(getTokenIcon());
-		getNotesTextArea().setText(token.getNotes());
-		getGMNotesTextArea().setText(token.getGMNotes());
-		getShapeCombo().setSelectedItem(token.getShape());
-		getSnapToGridCheckBox().setSelected(token.isSnapToGrid());
-		getVisibleCheckBox().setSelected(token.isVisible());
-		if (!token.isSnapToScale())
-			getSizeCombo().setSelectedIndex(0);
-		else
-			getSizeCombo().setSelectedItem(TokenSize.getSizeInstance(
-        token.getSize()));
-
-		getPropertyTypeCombo().setSelectedItem(token.getPropertyType());
-		
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				getPropertyTable().setModel(new TokenPropertyTableModel());
-				getPropertyTable().expandAll();
-			}
-		});
-				
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				getOwnerList().setModel(new OwnerListModel());
-			}
-		});
-
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				getMacroTable().setModel(new MacroTableModel(token));
-			}
-		});
-		
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				getSpeechTable().setModel(new SpeechTableModel(token));
-			}
-		});
-		
-		getAllPlayersCheckBox().setSelected(token.isOwnedByAll());
-
-		// Handle the states
-		Component[] states = getStatesPanel().getComponents();
-		for (int i = 0; i < states.length; i++) {
-			JCheckBox state = (JCheckBox) states[i];
-			state.setEnabled(token != null && editable);
-			Boolean stateValue = token != null ? (Boolean) token.getState(state.getText()) : null;
-			state.setSelected(stateValue == null ? false : stateValue.booleanValue());
-		}
-		
-		// Other
-		getCharSheetPanel().setImageId(token.getCharsheetImage());
-		getPortraitPanel().setImageId(token.getPortraitImage());
-		getTokenLayoutPanel().setToken(token);
-	}
+//	private void updateView() {
+//		
+//		Player player = MapTool.getPlayer();
+//		
+//		boolean isEnabled = player.isGM() || token.isOwner(player.getName());
+//		
+//		getTabbedPane().setEnabledAt(INDX_PROPERTIES, isEnabled);
+//		getTabbedPane().setEnabledAt(INDX_STATE, isEnabled);
+//		getTabbedPane().setEnabledAt(INDX_MACROS, isEnabled);
+//		getTabbedPane().setEnabledAt(INDX_SPEECH, isEnabled);
+//		getTabbedPane().setEnabledAt(INDX_OWNERSHIP, isEnabled);
+//		getTabbedPane().setEnabledAt(INDX_CONFIG, isEnabled);
+//		
+//		// Set the editable & enabled state
+//		boolean editable = player.isGM() || !MapTool.getServerPolicy().useStrictTokenManagement() || token.isOwner(player.getName());
+//		getOKButton().setEnabled(editable);
+//		
+//		getNotesTextArea().setEditable(editable);
+//		getNameTextField().setEditable(editable);
+//		getShapeCombo().setEnabled(editable);
+//		getSizeCombo().setEnabled(editable);
+//		getSnapToGridCheckBox().setEnabled(editable);
+//		getVisibleCheckBox().setEnabled(editable);
+//		getTypeCombo().setSelectedItem(token.getType());
+//
+//		getGMNotesPanel().setVisible(player.isGM());
+//		getGMNameTextField().setVisible(player.isGM());
+//		getGMNameLabel().setVisible(player.isGM());
+//		getTypeCombo().setEnabled(player.isGM());
+//		getVisibleCheckBox().setVisible(player.isGM());
+//		getVisibleLabel().setVisible(player.isGM());
+//		
+//	}
 
 	/**
 	 * Get and icon from the asset manager and scale it properly.

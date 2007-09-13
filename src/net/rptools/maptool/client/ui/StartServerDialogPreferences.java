@@ -15,8 +15,6 @@ public class StartServerDialogPreferences {
     private static final String KEY_PORT = "port";
     private static final String KEY_GM_PASSWORD = "gmPassword";
     private static final String KEY_PLAYER_PASSWORD = "playerPassword";
-    private static final String KEY_USE_GM_PASSWORD = "useGMPassword";
-    private static final String KEY_USE_PLAYER_PASSWORD = "usePlayerPassword";
     private static final String KEY_STRICT_TOKEN_OWNERSHIP = "strictTokenOwnership";
     private static final String KEY_REGISTER_SERVER = "registerServer";
     private static final String KEY_RPTOOLS_NAME = "rptoolsName";
@@ -39,14 +37,6 @@ public class StartServerDialogPreferences {
     	prefs.put(KEY_USERNAME, name);
     }
     
-    public boolean getUseGMPassword() {
-    	return prefs.getBoolean(KEY_USE_GM_PASSWORD, false);
-    }
-    
-    public void setUseGMPassword(boolean use) {
-    	prefs.putBoolean(KEY_USE_GM_PASSWORD, use);
-    }
-    
     public void setGMPassword(String password) {
     	prefs.put(KEY_GM_PASSWORD, password);
     }
@@ -63,14 +53,6 @@ public class StartServerDialogPreferences {
     	return prefs.get(KEY_PLAYER_PASSWORD, "");
     }
     
-    public boolean getUsePlayerPassword() {
-    	return prefs.getBoolean(KEY_USE_PLAYER_PASSWORD, false);
-    }
-    
-    public void setUsePlayerPassword(boolean use) {
-    	prefs.putBoolean(KEY_USE_PLAYER_PASSWORD, use);
-    }
-    
     public int getPort() {
     	return prefs.getInt(KEY_PORT, ServerConfig.DEFAULT_PORT);
     }
@@ -79,11 +61,11 @@ public class StartServerDialogPreferences {
     	prefs.putInt(KEY_PORT, port);
     }
     
-    public boolean useStrictTokenOwnership() {
+    public boolean getUseStrictTokenOwnership() {
     	return prefs.getBoolean(KEY_STRICT_TOKEN_OWNERSHIP, false);
     }
     
-    public void setStrictTokenOwnership(boolean use) {
+    public void setUseStrictTokenOwnership(boolean use) {
     	prefs.putBoolean(KEY_STRICT_TOKEN_OWNERSHIP, use);
     }
 

@@ -39,24 +39,22 @@ import javax.swing.JButton;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-import com.jeta.forms.components.image.ImageComponent;
-
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.swing.AbeilleDialog;
+import net.rptools.maptool.client.swing.AbeillePanel;
+import net.rptools.maptool.client.swing.GenericDialog;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
 
+import com.jeta.forms.components.image.ImageComponent;
+
 /**
  * This dialog is used to display all of the token states and notes to the user.
- * 
- * @author jgorrell
- * @version $Revision$ $Date$ $Author$
  */
-public class NewTokenDialog extends AbeilleDialog {
+public class NewTokenDialog extends AbeillePanel<Token> {
 
 	/**
 	 * The size used to constrain the icon.
@@ -69,6 +67,8 @@ public class NewTokenDialog extends AbeilleDialog {
 	private int centerX;
 	private int centerY;
 	
+	private GenericDialog dialog;
+	
 	/**
 	 * Create a new token notes dialog.
 	 * 
@@ -76,55 +76,64 @@ public class NewTokenDialog extends AbeilleDialog {
 	 *            The token being displayed.
 	 */
 	public NewTokenDialog(Token token, int x, int y) {
-		super("net/rptools/maptool/client/ui/forms/newTokenDialog.jfrm", MapTool.getFrame(), "New Token", true);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		super("net/rptools/maptool/client/ui/forms/newTokenDialog.jfrm");
+
 		this.token = token;
 		centerX = x;
 		centerY = y;
-		
-		init();
-		
-		pack();
+	
+		panelInit();
 	}
 	
-	private void init() {
+	public void showDialog() {
+		dialog = new GenericDialog("New Token", MapTool.getFrame(), this) {
+			@Override
+			protected void positionInitialView() {
+				
+				// Position over the drop spot
+				Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+				Dimension size = getSize();
+				int x = centerX - size.width/2;
+				int y = centerY - size.height/2;
+				if (x < 0) {x = 0;}
+				if (y < 0) {y = 0;}
+				if (x+size.width > screenSize.width) {x = screenSize.width-size.width;}
+				if (y+size.height > screenSize.height) {y = screenSize.height-size.height;}
+				
+				setLocation(x, y);
+			}
+		};
 		
-		initNameTextField();
-		initGMNameTextField();
-		initNPCTypeRadio();
-		initMarkerTypeRadio();
-		
-		initTokenIconPanel();
-		
-		initOKButton();
-		initCancelButton();
-		
-	}
+		bind(token);
 
+		getRootPane().setDefaultButton(getOKButton());
+		dialog.showDialog();
+	}
+	
 	public ImageComponent getTokenIconPanel() {
 		return (ImageComponent) getComponent("tokenIcon");
 	}
 
-	public JTextField getNameTextField() {
-		return (JTextField) getComponent("name");
-	}
-	
-	public JTextField getGMNameTextField() {
-		return (JTextField) getComponent("gmName");
-	}
-
-	public JRadioButton getNPCTypeRadio() {
-		return (JRadioButton) getComponent("npcType");
-	}
-	
-	public JRadioButton getMarkerTypeRadio() {
-		return (JRadioButton) getComponent("markerType");
-	}
-	
-	public JRadioButton getPCTypeRadio() {
-		return (JRadioButton) getComponent("pcType");
-	}
-	
+//	public JTextField getNameTextField() {
+//		return (JTextField) getComponent("name");
+//	}
+//	
+//	public JTextField getGMNameTextField() {
+//		return (JTextField) getComponent("gmName");
+//	}
+//
+//	public JRadioButton getNPCTypeRadio() {
+//		return (JRadioButton) getComponent("npcType");
+//	}
+//	
+//	public JRadioButton getMarkerTypeRadio() {
+//		return (JRadioButton) getComponent("markerType");
+//	}
+//	
+//	public JRadioButton getPCTypeRadio() {
+//		return (JRadioButton) getComponent("pcType");
+//	}
+//	
 	public JButton getOKButton() {
 		return (JButton) getComponent("okButton");
 	}
@@ -133,44 +142,44 @@ public class NewTokenDialog extends AbeilleDialog {
 		return (JButton) getComponent("cancelButton");
 	}
 	
-	public void initNameTextField() {
-		getNameTextField().setText(token.getName());
-	}
-	
-	public void initGMNameTextField() {
-		getGMNameTextField().setText(token.getGMName());
-	}
-	
-	public void initNPCTypeRadio() {
-		getNPCTypeRadio().setSelected(true);
-	}
-	
-	public void initMarkerTypeRadio() {
-		getMarkerTypeRadio().setVisible(false);
-	}
-	
-	private void initTokenIconPanel() {
+//	public void initNameTextField() {
+//		getNameTextField().setText(token.getName());
+//	}
+//	
+//	public void initGMNameTextField() {
+//		getGMNameTextField().setText(token.getGMName());
+//	}
+//	
+//	public void initNPCTypeRadio() {
+//		getNPCTypeRadio().setSelected(true);
+//	}
+//	
+//	public void initMarkerTypeRadio() {
+//		getMarkerTypeRadio().setVisible(false);
+//	}
+//	
+	public void initTokenIconPanel() {
 		getTokenIconPanel().setPreferredSize(new Dimension(100, 100));
 		getTokenIconPanel().setMinimumSize(new Dimension(100, 100));
 		getTokenIconPanel().setIcon(getTokenIcon());
 	}
 	
-	private void initOKButton() {
+	public void initOKButton() {
 		getOKButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				success = true;
-				updateToken();
-				close();
+				if (commit()) {
+					dialog.closeDialog();
+				}
 			}
 		});
-		getRootPane().setDefaultButton(getOKButton());
 	}
 	
-	private void initCancelButton() {
+	public void initCancelButton() {
 		getCancelButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				success = false;
-				close();
+				dialog.closeDialog();
 			}
 		});
 	}
@@ -179,52 +188,27 @@ public class NewTokenDialog extends AbeilleDialog {
 		return success;
 	}
 	
-	private void close() {
-		setVisible(false);
-	}
-	
-	@Override
-	public void setVisible(boolean b) {
-		if(b) {
-			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-			Dimension size = getSize();
-			int x = centerX - size.width/2;
-			int y = centerY - size.height/2;
-			if (x < 0) {x = 0;}
-			if (y < 0) {y = 0;}
-			if (x+size.width > screenSize.width) {x = screenSize.width-size.width;}
-			if (y+size.height > screenSize.height) {y = screenSize.height-size.height;}
-			
-			setLocation(x, y);
-		}
-		super.setVisible(b);
-	}
-
-	/*---------------------------------------------------------------------------------------------
-	 * Instance Methods
-	 *-------------------------------------------------------------------------------------------*/
-
-	/**
-	 * Update the token to match the state of the dialog
-	 */
-	public void updateToken() {
-
-		token.setName(getNameTextField().getText());
-		token.setGMName(getGMNameTextField().getText());
-		if (getNPCTypeRadio().isSelected()) {
-			token.setType(Token.Type.NPC);
-		}
-		if (getPCTypeRadio().isSelected()) {
-			token.setType(Token.Type.PC);
-		}
-		if (getMarkerTypeRadio().isSelected()) {
-			token.setType(Token.Type.NPC);
-			token.setLayer(Zone.Layer.OBJECT);
-			token.setGMNote("Marker"); // In order for it to be recognized as a marker, it needs something in the notes field 
-			token.setVisible(false);
-		}
-	}
-
+//	/**
+//	 * Update the token to match the state of the dialog
+//	 */
+//	public void updateToken() {
+//
+//		token.setName(getNameTextField().getText());
+//		token.setGMName(getGMNameTextField().getText());
+//		if (getNPCTypeRadio().isSelected()) {
+//			token.setType(Token.Type.NPC);
+//		}
+//		if (getPCTypeRadio().isSelected()) {
+//			token.setType(Token.Type.PC);
+//		}
+//		if (getMarkerTypeRadio().isSelected()) {
+//			token.setType(Token.Type.NPC);
+//			token.setLayer(Zone.Layer.OBJECT);
+//			token.setGMNote("Marker"); // In order for it to be recognized as a marker, it needs something in the notes field 
+//			token.setVisible(false);
+//		}
+//	}
+//
 	/**
 	 * Get and icon from the asset manager and scale it properly.
 	 * 

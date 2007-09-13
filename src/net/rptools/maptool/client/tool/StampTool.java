@@ -368,8 +368,8 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				if (token != null) {
 
 					TokenPropertiesDialog tokenPropertiesDialog = MapTool.getFrame().getTokenPropertiesDialog();
-					tokenPropertiesDialog.setToken(token);
-					tokenPropertiesDialog.setVisible(true);
+					tokenPropertiesDialog.showDialog(tokenUnderMouse);
+
 					if (tokenPropertiesDialog.isTokenSaved()) {
 						renderer.repaint();
 						renderer.flush(token);

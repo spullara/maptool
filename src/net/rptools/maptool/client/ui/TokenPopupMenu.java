@@ -529,7 +529,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			for (GUID tokenGUID : selectedTokenSet) {
 				Token token = zone.getToken(tokenGUID);
 				if (token != null) {
-					token.setAllOwners();
+					token.setOwnedByAll(true);
 					MapTool.serverCommand().putToken(zone.getId(), token);
 				}
 			}
