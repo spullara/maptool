@@ -287,7 +287,7 @@ public class Token extends BaseModel {
 		return gmNotes;
 	}
 	
-	public void setGMNote(String notes) {
+	public void setGMNotes(String notes) {
 		gmNotes = notes;
 	}
 	
@@ -429,9 +429,13 @@ public class Token extends BaseModel {
 		}
 	}
 
-	public synchronized void setAllOwners() {
-		ownerType = OWNER_TYPE_ALL;
-		ownerList = null;
+	public synchronized void setOwnedByAll(boolean ownedByAll) {
+		if (ownedByAll) {
+			ownerType = OWNER_TYPE_ALL;
+			ownerList = null;
+		} else {
+			ownerType = OWNER_TYPE_LIST;
+		}
 	}
 
 	public Set<String> getOwners() {
@@ -445,7 +449,6 @@ public class Token extends BaseModel {
 
 	public synchronized void clearAllOwners() {
 		ownerList = null;
-		ownerType = OWNER_TYPE_LIST;
 	}
 
 	public synchronized boolean isOwner(String playerId) {
