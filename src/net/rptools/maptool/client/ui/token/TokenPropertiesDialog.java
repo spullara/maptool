@@ -183,7 +183,11 @@ public class TokenPropertiesDialog extends AbeillePanel {
 
 		// OTHER
 		getShapeCombo().setSelectedItem(token.getShape());
-		getSizeCombo().setSelectedItem(token.isSnapToScale() ? TokenSize.getSizeInstance(token.getSize()) : 0);
+		if (token.isSnapToScale()) {
+			getSizeCombo().setSelectedItem( TokenSize.getSizeInstance(token.getSize()));
+		} else {
+			getSizeCombo().setSelectedIndex(0);
+		}
 		getPropertyTypeCombo().setSelectedItem(token.getPropertyType());
 		getCharSheetPanel().setImageId(token.getCharsheetImage());
 		getPortraitPanel().setImageId(token.getPortraitImage());
@@ -261,7 +265,6 @@ public class TokenPropertiesDialog extends AbeillePanel {
 
 	public void initOKButton() {
 		getOKButton().addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (commit()) {
 					unbind();
@@ -366,7 +369,6 @@ public class TokenPropertiesDialog extends AbeillePanel {
 
 	public void initCancelButton() {
 		getCancelButton().addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				unbind();
 				dialog.closeDialog();

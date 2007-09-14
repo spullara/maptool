@@ -127,7 +127,6 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		showDialogOnNewToken.addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setShowDialogOnNewToken(showDialogOnNewToken.isSelected());
 			}
