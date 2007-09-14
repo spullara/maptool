@@ -596,7 +596,7 @@ public class FogUtil {
 			metaList = new ArrayList<AreaMeta>();
 			
 			// Break the big area into independent areas
-			double[] coords = new double[6];
+			float[] coords = new float[6];
 			AreaMeta areaMeta = new AreaMeta();
 			for (PathIterator iter = area.getPathIterator(null); !iter.isDone(); iter.next()) {
 				
@@ -647,7 +647,7 @@ public class FogUtil {
 			return centerPoint;
 		}
 		
-		public void addPoint(double x, double y) {
+		public void addPoint(float x, float y) {
 			PointNode pointNode = new PointNode(new Point2D.Double(x, y));
 			
 			if (path == null) {
