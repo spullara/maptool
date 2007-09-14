@@ -1,5 +1,7 @@
 package net.rptools.maptool.client;
 
+import java.util.List;
+
 public interface MapToolRegistryService {
 
 	public static final int CODE_UNKNOWN = 0;
@@ -11,6 +13,7 @@ public interface MapToolRegistryService {
 	public void unregisterInstance(int port);
 
     public String findInstance(String id, String deprecated);
+    public List<String> findAllInstances();
     
 	public boolean testConnection(int port);
 	

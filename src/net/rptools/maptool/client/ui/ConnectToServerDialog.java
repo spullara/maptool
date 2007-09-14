@@ -35,11 +35,15 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JList;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolRegistry;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
 import net.tsc.servicediscovery.AnnouncementListener;
@@ -49,13 +53,20 @@ import net.tsc.servicediscovery.ServiceFinder;
  */
 public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPreferences> implements AnnouncementListener{
 
-	private ServiceFinder finder;
+	private static ServiceFinder finder;
+	static {
+		finder = new ServiceFinder(AppConstants.SERVICE_GROUP);
+	}
 
 	private boolean accepted;
 
 	private GenericDialog dialog;
 
-	private JList serverList;
+	private JList localServerList;
+	private JList remoteServerList;
+	
+	private int port;
+	private String hostname;
 	
 	/**
 	 * This is the default constructor
@@ -83,10 +94,11 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 
 	@Override
 	public void bind(ConnectToServerDialogPreferences model) {
-		finder = new ServiceFinder(AppConstants.SERVICE_GROUP);
-		finder.addAnnouncementListener(this);
 		
+		finder.addAnnouncementListener(this);
 		finder.find();
+
+		System.out.println(MapToolRegistry.findAllInstances());
 
 		super.bind(model);
 	}
@@ -94,6 +106,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 	@Override
 	public void unbind() {
 		// Shutting down
+		finder.removeAnnouncementListener(this);
 		finder.dispose();
 		
 		super.unbind();
@@ -132,11 +145,11 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		getRoleComboBox().setModel(new DefaultComboBoxModel(new String[]{"Player", "GM"}));
 	}
 
-	private JList getServerList() {
-		if (serverList == null) {
-			serverList = new JList(new DefaultListModel());
-			serverList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			serverList.addMouseListener(new MouseAdapter() {
+	private JList getLocalServerList() {
+		if (localServerList == null) {
+			localServerList = new JList(new DefaultListModel());
+			localServerList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			localServerList.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent e) {
 					if (e.getClickCount() == 2) {
 						handleOK();
@@ -144,7 +157,22 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 				};
 			});
 		}
-		return serverList;
+		return localServerList;
+	}
+
+	private JList getRemoteServerList() {
+		if (remoteServerList == null) {
+			remoteServerList = new JList(new DefaultListModel());
+			remoteServerList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			remoteServerList.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent e) {
+					if (e.getClickCount() == 2) {
+						handleOK();
+					}
+				};
+			});
+		}
+		return remoteServerList;
 	}
 
 	
@@ -156,96 +184,115 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		getRescanButton().addActionListener(new ActionListener() {
 				
 			public void actionPerformed(ActionEvent e) {
-				((DefaultListModel)getServerList().getModel()).clear();
+				((DefaultListModel)getLocalServerList().getModel()).clear();
 				finder.find();
 			}
 		});
 	}
 	
+	public JTextField getUsernameTextField() {
+		return (JTextField) getComponent("@username");
+	}
+
+	public JTextField getPortTextField() {
+		return (JTextField) getComponent("@port");
+	}
+
+	public JTextField getHostTextField() {
+		return (JTextField) getComponent("@host");
+	}
+
+	public JTextField getServerNameTextField() {
+		return (JTextField) getComponent("@serverName");
+	}
+
+	public JTabbedPane getTabPane() {
+		return (JTabbedPane) getComponent("tabPane");
+	}
+	
 	private void handleOK() {
-//		if (usernameTextField.getText().length() == 0) {
-//			MapTool.showError("Must supply a username");
-//			return;
-//		}					
-//
-//		switch (getTypeTabbedPane().getSelectedIndex()) {
-//		// LAN
-//		case 0:
-//			if (getServerList().getSelectedIndex() < 0) {
-//				MapTool.showError("Must select a server");
-//				return;
-//			}
-//			
-//			// OK
-//			ServerInfo info = (ServerInfo) getServerList().getSelectedValue();
-//			selectedPort = info.port;
-//			selectedServerAddress = info.address.getHostAddress();
-//			
-//			break;
-//			
-//	    // Internet
-//		case 2:
-//			// TODO: put these into a validation method
-//			if (portTextField.getText().length() == 0) {
-//				MapTool.showError("Must supply a port");
-//				return;
-//			}
-//			try {
-//				Integer.parseInt(portTextField.getText());
-//			} catch (NumberFormatException nfe) {
-//				MapTool.showError("Port must be numeric");
-//				return;
-//			}
-//
-//			if (serverTextField.getText().length() == 0) {
-//				MapTool.showError("Must supply a server");
-//				return;
-//			}					
-//
-//			// OK
-//			selectedPort = Integer.parseInt(getPortTextField().getText());
-//			selectedServerAddress = getServerTextField().getText();
-//			break;
-//			
-//		// RPTools.net
-//		case 1:
-//			
-//			if (serverNameTextField.getText().length() == 0) {
-//				MapTool.showError("Must supply a server name");
-//				return;
-//			}
-//			
-//			// Do the lookup
-//			String serverInfo = MapToolRegistry.findInstance(serverNameTextField.getText());
-//			if (serverInfo == null || serverInfo.length() == 0) {
-//				MapTool.showError("Could not find that server.");
-//				return;
-//			}
-//			
-//			String[] data = serverInfo.split(":");
-//			selectedServerAddress = data[0];
-//			selectedPort = Integer.parseInt(data[1]);
-//			break;
+		if (getUsernameTextField().getText().length() == 0) {
+			MapTool.showError("Must supply a username");
+			return;
+		}					
+
+		JComponent selectedPanel = (JComponent) getTabPane().getSelectedComponent();
+		if ("lanPanel".equals(selectedPanel.getName())) {
+			
+			if (getLocalServerList().getSelectedIndex() < 0) {
+				MapTool.showError("Must select a server");
+				return;
+			}
+			
+			// OK
+			ServerInfo info = (ServerInfo) getLocalServerList().getSelectedValue();
+			port = info.port;
+			hostname = info.address.getHostAddress();
+			
+		}
+		if ("directPanel".equals(selectedPanel.getName())) {
+
+			// TODO: put these into a validation method
+			if (getPortTextField().getText().length() == 0) {
+				MapTool.showError("Must supply a port");
+				return;
+			}
+			try {
+				Integer.parseInt(getPortTextField().getText());
+			} catch (NumberFormatException nfe) {
+				MapTool.showError("Port must be numeric");
+				return;
+			}
+
+			if (getHostTextField().getText().length() == 0) {
+				MapTool.showError("Must supply a server");
+				return;
+			}					
+
+			// OK
+			port = Integer.parseInt(getPortTextField().getText());
+			hostname = getServerNameTextField().getText();
+		}
+		if ("rptoolsPanel".equals(selectedPanel.getName())) {
+			if (getServerNameTextField().getText().length() == 0) {
+				MapTool.showError("Must supply a server name");
+				return;
+			}
+			
+			// Do the lookup
+			String serverInfo = MapToolRegistry.findInstance(getServerNameTextField().getText());
+			if (serverInfo == null || serverInfo.length() == 0) {
+				MapTool.showError("Could not find that server.");
+				return;
+			}
+			
+			String[] data = serverInfo.split(":");
+			hostname = data[0];
+			port = Integer.parseInt(data[1]);
+		}
+		
+		System.out.println(hostname + " - " + port);
+		
+//		if (commit()) {
+//			dialog.closeDialog();
 //		}
-//		
-//		option = OPTION_OK;
-//		setVisible(false);
-//		
-//		// Prefs
-//		ConnectToServerDialogPreferences prefs = new ConnectToServerDialogPreferences();
-//		prefs.setUsername(getUsername());
-//		prefs.setHost(getServer());
-//		prefs.setPort(getPort());
-//		prefs.setRole(getRole());
-//		prefs.setPassword(getPassword());
-//		prefs.setTab(getTypeTabbedPane().getSelectedIndex());		
-//		prefs.setServerName(getServerNameTextField().getText());
+	}
+	
+	@Override
+	public boolean commit() {
+		
+		ConnectToServerDialogPreferences prefs = new ConnectToServerDialogPreferences();
+		
+		// Not bindable .. yet
+		prefs.setTab(getTabPane().getSelectedIndex());
+
+		return super.commit();
 	}
 
 	////
 	// ANNOUNCEMENT LISTENER
 	public void serviceAnnouncement(String type, InetAddress address, int port, byte[] data) {
-		((DefaultListModel)getServerList().getModel()).addElement(new ServerInfo(new String(data), address, port));
+		((DefaultListModel)getLocalServerList().getModel()).addElement(new ServerInfo(new String(data), address, port));
 	}
 
 	private class ServerInfo {
