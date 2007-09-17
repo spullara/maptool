@@ -66,9 +66,6 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 
 	private GenericDialog dialog;
 
-	private JList localServerList;
-	private JList remoteServerList;
-	
 	private int port;
 	private String hostname;
 	
@@ -81,6 +78,14 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		setPreferredSize(new Dimension(400, 400));
 		
 		panelInit();
+	}
+	
+	public int getPort() {
+		return port;
+	}
+
+	public String getServer() {
+		return hostname;
 	}
 	
 	public void showDialog() {

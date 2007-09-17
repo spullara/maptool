@@ -67,6 +67,7 @@ import net.rptools.maptool.client.ui.PreferencesDialog;
 import net.rptools.maptool.client.ui.PreviewPanelFileChooser;
 import net.rptools.maptool.client.ui.ServerInfoDialog;
 import net.rptools.maptool.client.ui.StartServerDialog;
+import net.rptools.maptool.client.ui.StartServerDialogPreferences;
 import net.rptools.maptool.client.ui.StaticMessageDialog;
 import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
@@ -1098,53 +1099,55 @@ public class AppActions {
 					StartServerDialog dialog = new StartServerDialog();
 					dialog.showDialog();
 
-//					if (dialog.getOption() == StartServerDialog.OPTION_CANCEL) {
-//						return;
-//					}
-//
-//					ServerPolicy policy = new ServerPolicy();
-//					policy.setUseStrictTokenManagement(dialog.getUseStrictOwnershipCheckbox().isSelected());
-//					policy.setPlayersCanRevealVision(dialog.getPlayersCanRevealVisionCheckbox().isSelected());
-//
-//					ServerConfig config = new ServerConfig(dialog.getGMPasswordTextField().getText(), dialog.getPlayerPasswordTextField().getText(),
-//							dialog.getPort(), dialog.getRPToolsNameTextField().getText(), dialog.getRPToolsPrivateCheckbox().isSelected());
-//
-//					// Use the existing campaign
-//					Campaign campaign = MapTool.getCampaign();
-//
-//					boolean failed = false;
-//					try {
-//						ServerDisconnectHandler.disconnectExpected = true;
-//						MapTool.stopServer();
-//						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, campaign);
-//
-//						// Connect to server
-//						MapTool.createConnection("localhost", dialog.getPort(),
-//								new Player(dialog.getUsernameTextField().getText(), dialog.getRole(), dialog.getGMPasswordTextField().getText()));
-//
-//						// connecting
-//						MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
-//					} catch (UnknownHostException uh) {
-//						MapTool
-//								.showError("Whoah, 'localhost' is not a valid address.  Weird.");
-//						failed = true;
-//					} catch (IOException ioe) {
-//						MapTool
-//								.showError("Could not connect to server: "
-//										+ ioe);
-//						failed = true;
-//					}
-//
-//					if (failed) {
-//						try {
-//							MapTool.startPersonalServer(campaign);
-//						} catch (IOException ioe) {
-//							MapTool
-//									.showError("Could not restart personal server");
-//						}
-//					}
-//
-//					MapTool.serverCommand().setCampaign(campaign);
+					if (!dialog.accepted()) {
+						return;
+					}
+
+					StartServerDialogPreferences serverProps = new StartServerDialogPreferences();
+					
+					ServerPolicy policy = new ServerPolicy();
+					policy.setUseStrictTokenManagement(serverProps.getUseStrictTokenOwnership());
+					policy.setPlayersCanRevealVision(serverProps.getPlayersCanRevealVision());
+
+					ServerConfig config = new ServerConfig(serverProps.getGMPassword(), serverProps.getPlayerPassword(),
+							serverProps.getPort(), serverProps.getRPToolsName());
+
+					// Use the existing campaign
+					Campaign campaign = MapTool.getCampaign();
+
+					boolean failed = false;
+					try {
+						ServerDisconnectHandler.disconnectExpected = true;
+						MapTool.stopServer();
+						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, campaign);
+
+						// Connect to server
+						MapTool.createConnection("localhost", serverProps.getPort(),
+								new Player(dialog.getUsernameTextField().getText(), serverProps.getRole(), serverProps.getGMPassword()));
+
+						// connecting
+						MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
+					} catch (UnknownHostException uh) {
+						MapTool
+								.showError("Whoah, 'localhost' is not a valid address.  Weird.");
+						failed = true;
+					} catch (IOException ioe) {
+						MapTool
+								.showError("Could not connect to server: "
+										+ ioe);
+						failed = true;
+					}
+
+					if (failed) {
+						try {
+							MapTool.startPersonalServer(campaign);
+						} catch (IOException ioe) {
+							MapTool
+									.showError("Could not restart personal server");
+						}
+					}
+
+					MapTool.serverCommand().setCampaign(campaign);
 				}
 			});
 		}
@@ -1163,7 +1166,7 @@ public class AppActions {
 
 		public void execute(ActionEvent e) {
 
-			ConnectToServerDialog dialog = new ConnectToServerDialog();
+			final ConnectToServerDialog dialog = new ConnectToServerDialog();
 
 			dialog.showDialog();
 
@@ -1191,29 +1194,26 @@ public class AppActions {
 
 				public void run() {
 					boolean failed = false;
-//					try {
-//						ConnectToServerDialogPreferences prefs = new ConnectToServerDialogPreferences();
-//						String server = prefs.getServerName();
-//						MapTool.createConnection(dialog.getServer(), dialog
-//								.getPort(), new Player(dialog.getUsername(),
-//								dialog.getRole(), dialog.getPassword()));
-//
-//					} catch (UnknownHostException e1) {
-//						MapTool.showError("Unknown host");
-//						failed = true;
-//					} catch (IOException e1) {
-//						MapTool.showError("IO Error: " + e1);
-//						failed = true;
-//					}
-//					
-//					if (failed || MapTool.getConnection() == null) {
-//						MapTool.getFrame().hideGlassPane();
-//						try {
-//							MapTool.startPersonalServer(oldCampaign);
-//						} catch (IOException ioe) {
-//							MapTool.showError("Could not restart personal server");
-//						}
-//					}
+					try {
+						ConnectToServerDialogPreferences prefs = new ConnectToServerDialogPreferences();
+						MapTool.createConnection(dialog.getServer(), dialog.getPort(), new Player(prefs.getUsername(), prefs.getRole(), prefs.getPassword()));
+
+					} catch (UnknownHostException e1) {
+						MapTool.showError("Unknown host");
+						failed = true;
+					} catch (IOException e1) {
+						MapTool.showError("IO Error: " + e1);
+						failed = true;
+					}
+					
+					if (failed || MapTool.getConnection() == null) {
+						MapTool.getFrame().hideGlassPane();
+						try {
+							MapTool.startPersonalServer(oldCampaign);
+						} catch (IOException ioe) {
+							MapTool.showError("Could not restart personal server");
+						}
+					}
 				}
 			});
 

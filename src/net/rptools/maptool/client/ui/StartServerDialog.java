@@ -48,10 +48,7 @@ import net.rptools.maptool.model.Player;
  */
 public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences> {
 
-	public static final int OPTION_OK = 0;
-	public static final int OPTION_CANCEL = 1;
-	
-	private int option = OPTION_CANCEL;
+	private boolean accepted;
 
 	private StartServerDialogPreferences prefs;
 	private GenericDialog dialog;
@@ -60,6 +57,10 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 		super("net/rptools/maptool/client/ui/forms/startServerDialog.jfrm");
 
 		panelInit();
+	}
+	
+	public boolean accepted() {
+		return accepted;
 	}
 	
 	public void showDialog() {
@@ -123,7 +124,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 				}
 				
 				if (commit()) {
-					option = OPTION_OK;
+					accepted = true;
 					dialog.closeDialog();
 				}
 				
@@ -134,7 +135,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 	public void initCancelButton() {
 		getCancelButton().addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) {    
-				option = OPTION_CANCEL;
+				accepted = false;
 				dialog.closeDialog();
 			}
 		});

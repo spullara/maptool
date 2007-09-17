@@ -39,29 +39,23 @@ public class ServerConfig {
 	private String gmPassword;
 	private String playerPassword;
 	private boolean personalServer;
-	private boolean serverPrivate;
 	private String serverName;
 	
 	public ServerConfig() {
 		/* no op */
 	}
 	
-	public ServerConfig(String gmPassword, String playerPassword, int port, String serverName, boolean serverPrivate) {
+	public ServerConfig(String gmPassword, String playerPassword, int port, String serverName) {
 		this.gmPassword = gmPassword;
 		this.playerPassword = playerPassword;
 		this.port = port;
 		this.serverName = serverName;
-		this.serverPrivate = serverPrivate;
 	}
 	
 	public boolean isServerRegistered() {
 		return serverName != null && serverName.length() > 0;
 	}
 
-	public boolean isServerPrivate() {
-		return serverPrivate;
-	}
-	
 	public String getServerName() {
 		return serverName;
 	}
