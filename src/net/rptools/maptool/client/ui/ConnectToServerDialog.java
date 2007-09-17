@@ -24,8 +24,8 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -34,7 +34,6 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -46,6 +45,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppConstants;
@@ -55,7 +56,8 @@ import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
 import net.tsc.servicediscovery.AnnouncementListener;
 import net.tsc.servicediscovery.ServiceFinder;
-import net.tsc.servicediscovery.ServiceFinder;
+
+import org.jdesktop.swingworker.SwingWorker;
 /**
  * @author trevor
  */
@@ -178,11 +180,28 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 	}
 	
 	private void updateRemoteServerList() {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				getRemoteServerTable().setModel(new RemoteServerTableModel(MapToolRegistry.findAllInstances()));
+		new SwingWorker<Object, Object>() {
+			
+			RemoteServerTableModel model = null;
+			
+			@Override
+			protected Object doInBackground() throws Exception {
+				model = new RemoteServerTableModel(MapToolRegistry.findAllInstances());
+				return null;
 			}
-		});
+			@Override
+			protected void done() {
+				getRemoteServerTable().setModel(model);
+				TableColumn column = getRemoteServerTable().getColumnModel().getColumn(1);
+				column.setPreferredWidth(70);
+				column.setMaxWidth(70);
+				column.setCellRenderer(new DefaultTableCellRenderer() {
+					{
+						setHorizontalAlignment(RIGHT);
+					}
+				});
+			}
+		}.execute();
 	}
 	
 	public void initRemoteServerTable() {
