@@ -207,7 +207,7 @@ public class AppActions {
 	public static final Action EXPORT_CAMPAIGN_REPO = new AdminClientAction() {
 
 		{
-			init("Campaign Repo");
+			init("Campaign Repository File");
 		}
 		
 		@Override
