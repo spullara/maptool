@@ -31,6 +31,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractListModel;
@@ -41,8 +42,10 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.AbstractTableModel;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppConstants;
@@ -51,6 +54,7 @@ import net.rptools.maptool.client.MapToolRegistry;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
 import net.tsc.servicediscovery.AnnouncementListener;
+import net.tsc.servicediscovery.ServiceFinder;
 import net.tsc.servicediscovery.ServiceFinder;
 /**
  * @author trevor
@@ -109,8 +113,6 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		updateLocalServerList();
 		updateRemoteServerList();
 		
-		System.out.println(MapToolRegistry.findAllInstances());
-
 		super.bind(model);
 	}
 
@@ -176,40 +178,36 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 	}
 	
 	private void updateRemoteServerList() {
-		final List<String> serverList = MapToolRegistry.findAllInstances();
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				getRemoteServerList().setModel(new AbstractListModel() {
-					public Object getElementAt(int index) {
-						return serverList.get(index);
-					}
-					public int getSize() {
-						return serverList.size();
-					}
-				});
+				getRemoteServerTable().setModel(new RemoteServerTableModel(MapToolRegistry.findAllInstances()));
 			}
 		});
 	}
 	
-	public void initRemoteServerList() {
-		getRemoteServerList().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		getRemoteServerList().addMouseListener(new MouseAdapter() {
+	public void initRemoteServerTable() {
+		getRemoteServerTable().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		getRemoteServerTable().addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					getServerNameTextField().setText(getRemoteServerList().getSelectedValue().toString());
+					getServerNameTextField().setText(getRemoteServerTable().getModel().getValueAt(getRemoteServerTable().getSelectedRow(), 0).toString());
 					handleOK();
 				}
 			};
 		});
 	}
 	
-	public JList getRemoteServerList() {
-		return (JList) getComponent("aliasList");
+	public JTable getRemoteServerTable() {
+		return (JTable) getComponent("aliasTable");
 	}
 
 	
 	public JButton getRescanButton() {
 		return (JButton) getComponent("rescanButton");
+	}
+	
+	public JButton getRefreshButton() {
+		return (JButton) getComponent("refreshButton");
 	}
 	
 	public void initRescanButton() {
@@ -218,6 +216,15 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 			public void actionPerformed(ActionEvent e) {
 				((DefaultListModel)getLocalServerList().getModel()).clear();
 				finder.find();
+			}
+		});
+	}
+	
+	public void initRefreshButton() {
+		getRefreshButton().addActionListener(new ActionListener() {
+				
+			public void actionPerformed(ActionEvent e) {
+				updateRemoteServerList();
 			}
 		});
 	}
@@ -292,9 +299,10 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 			}
 			
 			// Do the lookup
-			String serverInfo = MapToolRegistry.findInstance(getServerNameTextField().getText());
+			String serverName = getServerNameTextField().getText();
+			String serverInfo = MapToolRegistry.findInstance(serverName);
 			if (serverInfo == null || serverInfo.length() == 0) {
-				MapTool.showError("Could not find that server.");
+				MapTool.showError("Could not find server: " + serverName);
 				return;
 			}
 			
@@ -303,11 +311,10 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 			port = Integer.parseInt(data[1]);
 		}
 		
-		System.out.println(hostname + " - " + port);
-		
-//		if (commit()) {
-//			dialog.closeDialog();
-//		}
+		if (commit()) {
+			accepted = true;
+			dialog.closeDialog();
+		}
 	}
 	
 	@Override
@@ -321,6 +328,47 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		return super.commit();
 	}
 
+	private static class RemoteServerTableModel extends AbstractTableModel {
+
+		private List<String[]> data;
+		
+		public RemoteServerTableModel(List<String> encodedData) {
+			data = new ArrayList<String[]>(encodedData.size());
+			for (String line : encodedData) {
+				String[] row = line.split(":");
+				
+				if (row.length == 1) {
+					row = new String[]{row[0], "Pre 1.3"};
+				}
+				
+				data.add(row);
+			}
+			
+		}
+
+		@Override
+		public String getColumnName(int column) {
+			switch(column) {
+			case 0: return "Server Name";
+			case 1: return "Version";
+			}
+			return "";
+		}
+		
+		public int getColumnCount() {
+			return 2;
+		}
+		public int getRowCount() {
+			return data.size();
+		}
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			
+			String[] row = data.get(rowIndex);
+			
+			return row[columnIndex];
+		}
+	}
+	
 	////
 	// ANNOUNCEMENT LISTENER
 	public void serviceAnnouncement(String type, InetAddress address, int port, byte[] data) {

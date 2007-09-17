@@ -22,7 +22,7 @@ public class MapToolRegistry {
 	
     public static String findInstance(String id) {
         checkService();
-        return service.findInstance(id, null);
+        return service.findInstance(id);
     }
 
     public static List<String> findAllInstances() {
