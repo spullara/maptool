@@ -35,9 +35,9 @@ public class MapToolRegistry {
     	return service.getAddress();
     }
     
-    public static int registerInstance(String id, int port, String password) {
+    public static int registerInstance(String id, int port) {
 		checkService();
-		return service.registerInstance(id, port, password);
+		return service.registerInstance(id, port, MapTool.getVersion());
 	}
 	
 	public static void unregisterInstance(int port) {
@@ -67,7 +67,7 @@ public class MapToolRegistry {
 		
 		Thread.sleep(delay);
 		System.out.println ("Register");
-		registerInstance("my test", 4444, null);
+		registerInstance("my test", 4444);
 		
 		Thread.sleep(delay);
 		System.out.println ("Heartbeat");
@@ -79,7 +79,7 @@ public class MapToolRegistry {
 
 		Thread.sleep(delay);
         System.out.println ("RERegister");
-        registerInstance("my test", 4444, "my password");
+        registerInstance("my test", 4444);
         
         Thread.sleep(delay);
         System.out.println ("Find: " + findInstance("my test"));

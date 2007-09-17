@@ -312,7 +312,7 @@ public class Zone extends BaseModel {
         fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
     }
 
-    public boolean isPointVisible(ZonePoint point, int role) {
+    public boolean isPointVisible(ZonePoint point, Player.Role role) {
     	
     	if (!hasFog() || role == Player.Role.GM) {
     		return true;

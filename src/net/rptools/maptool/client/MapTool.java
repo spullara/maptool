@@ -251,7 +251,7 @@ public class MapTool {
         
         serverCommand = new ServerCommandClientImpl();
         
-        player = new Player("", 0, "");
+        player = new Player("", Player.Role.GM, "");
         
         try {
         	startPersonalServer(CampaignFactory.createBasicCampaign());
@@ -483,7 +483,7 @@ public class MapTool {
         // Registered ?
         if (config.isServerRegistered() && !config.isPersonalServer()) {
         	try {
-	        	int result = MapToolRegistry.registerInstance(config.getServerName(), config.getPort(), config.getServerPassword());
+	        	int result = MapToolRegistry.registerInstance(config.getServerName(), config.getPort());
 	        	if (result == 3) {
 	        		MapTool.showError("That ID is already in use, server not registered");
 	        	}

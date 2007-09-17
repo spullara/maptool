@@ -29,20 +29,23 @@ package net.rptools.maptool.model;
  */
 public class Player {
 
-	public interface Role {
+	public enum Role {
 		
-		// TODO: These should be dynamically driven
-		public static final int PLAYER = 0;
-		public static final int GM  = 1;
+		PLAYER,
+		GM
 	}
 	
 	private String name; // Primary Key
-	private int role;
+	private String role;
 	private String password;
 	
-	public Player (String name, int role, String password) {
+	public Player() {
+		// For serialization
+	}
+	
+	public Player (String name, Role role, String password) {
 		this.name = name;
-		this.role = role;
+		this.role = role.name();
 		this.password = password;
 	}
 	
@@ -61,7 +64,7 @@ public class Player {
 	}
 	
 	public boolean isGM() {
-		return role == Role.GM;
+		return getRole() == Role.GM;
 	}
 	
 	/**
@@ -88,11 +91,11 @@ public class Player {
 	/**
 	 * @return Returns the role.
 	 */
-	public int getRole() {
-		return role;
+	public Role getRole() {
+		return Role.valueOf(role);
 	}
 	
 	public String toString() {
-		return name + " " + (role == Role.PLAYER ? "(Player)" : "(GM)");
+		return name + " " + (getRole() == Role.PLAYER ? "(Player)" : "(GM)");
 	}
 }

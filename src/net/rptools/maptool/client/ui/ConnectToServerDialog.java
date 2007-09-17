@@ -25,12 +25,15 @@
 package net.rptools.maptool.client.ui;
 
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.InetAddress;
+import java.util.List;
 
+import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -41,6 +44,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolRegistry;
@@ -96,8 +100,10 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 	public void bind(ConnectToServerDialogPreferences model) {
 		
 		finder.addAnnouncementListener(this);
-		finder.find();
 
+		updateLocalServerList();
+		updateRemoteServerList();
+		
 		System.out.println(MapToolRegistry.findAllInstances());
 
 		super.bind(model);
@@ -145,34 +151,55 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		getRoleComboBox().setModel(new DefaultComboBoxModel(new String[]{"Player", "GM"}));
 	}
 
-	private JList getLocalServerList() {
-		if (localServerList == null) {
-			localServerList = new JList(new DefaultListModel());
-			localServerList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			localServerList.addMouseListener(new MouseAdapter() {
-				public void mouseClicked(MouseEvent e) {
-					if (e.getClickCount() == 2) {
-						handleOK();
-					}
-				};
-			});
-		}
-		return localServerList;
+	public void initLocalServerList() {
+		getLocalServerList().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		getLocalServerList().addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					handleOK();
+				}
+			};
+		});
+		
+	}
+	public JList getLocalServerList() {
+		return (JList)getComponent("localServerList");
 	}
 
-	private JList getRemoteServerList() {
-		if (remoteServerList == null) {
-			remoteServerList = new JList(new DefaultListModel());
-			remoteServerList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			remoteServerList.addMouseListener(new MouseAdapter() {
-				public void mouseClicked(MouseEvent e) {
-					if (e.getClickCount() == 2) {
-						handleOK();
+	private void updateLocalServerList() {
+		finder.find();
+	}
+	
+	private void updateRemoteServerList() {
+		final List<String> serverList = MapToolRegistry.findAllInstances();
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				getRemoteServerList().setModel(new AbstractListModel() {
+					public Object getElementAt(int index) {
+						return serverList.get(index);
 					}
-				};
-			});
-		}
-		return remoteServerList;
+					public int getSize() {
+						return serverList.size();
+					}
+				});
+			}
+		});
+	}
+	
+	public void initRemoteServerList() {
+		getRemoteServerList().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		getRemoteServerList().addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					getServerNameTextField().setText(getRemoteServerList().getSelectedValue().toString());
+					handleOK();
+				}
+			};
+		});
+	}
+	
+	public JList getRemoteServerList() {
+		return (JList) getComponent("aliasList");
 	}
 
 	
@@ -217,7 +244,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		}					
 
 		JComponent selectedPanel = (JComponent) getTabPane().getSelectedComponent();
-		if ("lanPanel".equals(selectedPanel.getName())) {
+		if (SwingUtil.hasComponent(selectedPanel, "lanPanel")) {
 			
 			if (getLocalServerList().getSelectedIndex() < 0) {
 				MapTool.showError("Must select a server");
@@ -230,7 +257,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 			hostname = info.address.getHostAddress();
 			
 		}
-		if ("directPanel".equals(selectedPanel.getName())) {
+		if (SwingUtil.hasComponent(selectedPanel, "directPanel")) {
 
 			// TODO: put these into a validation method
 			if (getPortTextField().getText().length() == 0) {
@@ -253,7 +280,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 			port = Integer.parseInt(getPortTextField().getText());
 			hostname = getServerNameTextField().getText();
 		}
-		if ("rptoolsPanel".equals(selectedPanel.getName())) {
+		if (SwingUtil.hasComponent(selectedPanel, "rptoolsPanel")) {
 			if (getServerNameTextField().getText().length() == 0) {
 				MapTool.showError("Must supply a server name");
 				return;

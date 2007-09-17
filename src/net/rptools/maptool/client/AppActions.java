@@ -162,7 +162,7 @@ public class AppActions {
 
 		BufferedImage screenCap = null;
 		
-		int role = exportInfo.getView() == ExportInfo.View.GM ? Player.Role.GM : Player.Role.PLAYER;
+		Player.Role role = exportInfo.getView() == ExportInfo.View.GM ? Player.Role.GM : Player.Role.PLAYER;
 		
 		switch (exportInfo.getType()) {
 		case ExportInfo.Type.CURRENT_VIEW:

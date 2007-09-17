@@ -20,8 +20,8 @@
 	<classpathentry kind="lib" path="lib/jl1.0.jar"/>
 	<classpathentry kind="lib" path="lib/dicelib-1.0.b2.jar"/>
 	<classpathentry kind="lib" path="lib/parser-1.0.b5.jar"/>
-	<classpathentry kind="lib" path="lib/rplib-1.0.b93.jar"/>
 	<classpathentry kind="lib" path="lib/yasb-0.2-21012007.jar"/>
-	<classpathentry kind="lib" path="lib/servicediscoverylib-1.0.b3.jar"/>
+	<classpathentry kind="lib" path="lib/servicediscoverylib-1.0.b5.jar"/>
+	<classpathentry kind="lib" path="lib/rplib-1.0.b94.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

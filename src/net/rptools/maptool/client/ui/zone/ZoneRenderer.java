@@ -542,7 +542,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         Graphics2D g2d = (Graphics2D) g;
         
-        int role = MapTool.getPlayer().getRole();
+        Player.Role role = MapTool.getPlayer().getRole();
         if (role == Player.Role.GM && AppState.isShowAsPlayer()) {
             role = Player.Role.PLAYER;
         }

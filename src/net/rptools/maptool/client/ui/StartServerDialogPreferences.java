@@ -11,7 +11,7 @@ public class StartServerDialogPreferences {
     private static Preferences prefs = Preferences.userRoot().node(AppConstants.APP_NAME + "/prefs/server");        
 
     private static final String KEY_USERNAME = "name";
-    private static final String KEY_ROLE = "role";
+    private static final String KEY_ROLE = "playerRole";
     private static final String KEY_PORT = "port";
     private static final String KEY_GM_PASSWORD = "gmPassword";
     private static final String KEY_PLAYER_PASSWORD = "playerPassword";
@@ -21,12 +21,12 @@ public class StartServerDialogPreferences {
     private static final String KEY_RPTOOLS_PRIVATE = "rptoolsPrivate";
     private static final String KEY_PLAYERS_CAN_REVEAL_VISION = "playersCanRevealVisionCheckbox";
     
-    public int getRole () {
-    	return prefs.getInt(KEY_ROLE, Player.Role.GM);
+    public Player.Role getRole () {
+    	return Player.Role.valueOf(prefs.get(KEY_ROLE, Player.Role.GM.name()));
     }
     
-    public void setRole(int role) {
-    	prefs.putInt(KEY_ROLE, role);
+    public void setRole(Player.Role role) {
+    	prefs.put(KEY_ROLE, role.name());
     }
 
     public String getUsername() {

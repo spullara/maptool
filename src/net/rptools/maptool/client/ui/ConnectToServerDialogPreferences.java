@@ -11,7 +11,7 @@ public class ConnectToServerDialogPreferences {
     private static Preferences prefs = Preferences.userRoot().node(AppConstants.APP_NAME + "/prefs/connect");        
 
     private static final String KEY_USERNAME = "name";
-    private static final String KEY_ROLE = "role";
+    private static final String KEY_ROLE = "playerRole";
     private static final String KEY_HOST = "host";
     private static final String KEY_PORT = "port";
     private static final String KEY_PASSWORD = "password";
@@ -26,12 +26,12 @@ public class ConnectToServerDialogPreferences {
     	prefs.put(KEY_USERNAME, name);
     }
     
-    public int getRole () {
-    	return prefs.getInt(KEY_ROLE, Player.Role.PLAYER);
+    public Player.Role getRole () {
+    	return Player.Role.valueOf(prefs.get(KEY_ROLE, Player.Role.PLAYER.name()));
     }
     
-    public void setRole(int role) {
-    	prefs.putInt(KEY_ROLE, role);
+    public void setRole(Player.Role role) {
+    	prefs.put(KEY_ROLE, role.name());
     }
 
     public void setHost(String host) {

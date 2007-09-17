@@ -40,7 +40,6 @@ public class ServerConfig {
 	private String playerPassword;
 	private boolean personalServer;
 	private boolean serverPrivate;
-	private String serverPassword;
 	private String serverName;
 	
 	public ServerConfig() {
@@ -65,10 +64,6 @@ public class ServerConfig {
 	
 	public String getServerName() {
 		return serverName;
-	}
-	
-	public String getServerPassword() {
-		return serverPassword;
 	}
 	
 	public boolean gmPasswordMatches(String password) {

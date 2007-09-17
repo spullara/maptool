@@ -104,7 +104,12 @@ public class AbeillePanel <T> extends JPanel {
 		this.model = model;
 		
 		Binder.bindContainer(model.getClass(), panel, UpdateTime.NEVER);
+		preModelBind();
 		Binder.modelToView(model, panel);
+	}
+	
+	protected void preModelBind() {
+		// Do nothing
 	}
 	
 	public boolean commit() {

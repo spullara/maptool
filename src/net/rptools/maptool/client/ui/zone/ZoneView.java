@@ -4,13 +4,13 @@ import net.rptools.maptool.model.Player;
 
 public class ZoneView {
 
-	private int role;
+	private Player.Role role;
 	
-	public ZoneView(int role) {
+	public ZoneView(Player.Role role) {
 		this.role = role;
 	}
 	
-	public int getRole() {
+	public Player.Role getRole() {
 		return role;
 	}
 	
