@@ -69,6 +69,11 @@ public class Asset {
     }
     
     @Override
+    public int hashCode() {
+    	return getId().hashCode();
+    }
+    
+    @Override
     public boolean equals(Object obj) {
     	if (!(obj instanceof Asset)) {
     		return false;
