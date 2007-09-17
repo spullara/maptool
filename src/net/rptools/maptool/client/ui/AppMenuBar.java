@@ -79,10 +79,8 @@ public class AppMenuBar extends JMenuBar {
         fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN));
         fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN_AS));
         fileMenu.add(new JMenuItem(AppActions.SAVE_MESSAGE_HISTORY));
-        fileMenu.add(new JMenuItem(AppActions.CAMPAIGN_PROPERTIES));
         fileMenu.addSeparator();
-        fileMenu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT_LAST_LOCATION));
-        fileMenu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT));
+        fileMenu.add(createExportMenu());
         fileMenu.addSeparator();
         fileMenu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
         fileMenu.addSeparator();
@@ -96,6 +94,19 @@ public class AppMenuBar extends JMenuBar {
         fileMenu.add(new JMenuItem(AppActions.EXIT));
                 
         return fileMenu;
+    }
+    
+    protected JMenu createExportMenu() {
+    	JMenu menu = new JMenu("Export");
+
+    	menu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT_LAST_LOCATION));
+        menu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT));
+
+        menu.addSeparator();
+        
+        menu.add(new JMenuItem(AppActions.EXPORT_CAMPAIGN_REPO));
+        
+        return menu;
     }
     
     protected JMenu createMapMenu() {
@@ -123,8 +134,6 @@ public class AppMenuBar extends JMenuBar {
     protected JMenu createEditMenu() {
         JMenu menu = I18N.createMenu("menu.edit");
         
-        
-        // DRAWABLES
         menu.add(new JMenuItem(DrawableUndoManager.getInstance().getUndoCommand()));
         menu.add(new JMenuItem(DrawableUndoManager.getInstance().getRedoCommand()));
         menu.add(new JMenuItem(DrawableUndoManager.getInstance().getClearCommand()));
@@ -132,6 +141,7 @@ public class AppMenuBar extends JMenuBar {
         
         menu.addSeparator();
         
+        menu.add(new JMenuItem(AppActions.CAMPAIGN_PROPERTIES));
         menu.add(new JMenuItem(AppActions.SHOW_PREFERENCES));
 
         return menu;
@@ -222,12 +232,6 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_MOVEMENT_LOCK));
         
-        if (MapToolUtil.isDebugEnabled()) {
-            menu.addSeparator();
-            menu.addSeparator();
-            menu.add(new JMenuItem(AppActions.RANDOMLY_ADD_LAST_ASSET));
-        }
-
         return menu;
     }
 

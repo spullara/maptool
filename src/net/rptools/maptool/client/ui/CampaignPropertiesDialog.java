@@ -9,18 +9,23 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.TokenProperty;
 
@@ -74,6 +79,8 @@ public class CampaignPropertiesDialog extends JDialog  {
 
 		initOKButton();
 		initCancelButton();
+		initAddRepoButton();
+		initDeleteRepoButton();
 		
 		add(formPanel);
 		
@@ -88,6 +95,40 @@ public class CampaignPropertiesDialog extends JDialog  {
 
 		getRootPane().setDefaultButton(getOKButton());
 	}
+	
+	public JTextField getNewServerTextField() {
+		return formPanel.getTextField("newServer");
+	}
+	
+	private void initAddRepoButton() {
+		JButton button = (JButton) formPanel.getButton("addRepoButton");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				String newRepo = getNewServerTextField().getText();
+				if (newRepo == null || newRepo.length() == 0) {
+					return;
+				}
+				
+				// TODO: Check for uniqueness
+				((DefaultListModel)getRepositoryList().getModel()).addElement(newRepo);
+			}
+		});
+	}
+	
+	public void initDeleteRepoButton() {
+		JButton button = (JButton) formPanel.getButton("deleteRepoButton");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int[] selectedRows = getRepositoryList().getSelectedIndices();
+				Arrays.sort(selectedRows);
+				for (int i = selectedRows.length-1; i >= 0; i--) {
+					((DefaultListModel)getRepositoryList().getModel()).remove(selectedRows[i]);
+				}
+			}
+		});
+	}
 
 	private void cancel() {
 		status = Status.CANCEL;
@@ -96,6 +137,8 @@ public class CampaignPropertiesDialog extends JDialog  {
 	
 	private void accept() {
 		copyUIToCampaign();
+		
+		AssetManager.updateRepositoryList();
 		
 		status = Status.OK;
 		setVisible(false);
@@ -110,11 +153,31 @@ public class CampaignPropertiesDialog extends JDialog  {
 	private void copyCampaignToUI() {
 		
 		parseTokenProperties(campaign.getTokenPropertyList(Campaign.DEFAULT_TOKEN_PROPERTY_TYPE));
+		updateRepositoryList();
+	}
+	
+	private void updateRepositoryList() {
+
+		DefaultListModel model = new DefaultListModel();
+		for (String repo : campaign.getRemoteRepositoryList()) {
+			model.addElement(repo);
+		}
+		getRepositoryList().setModel(model);
+	}
+	
+	public JList getRepositoryList() {
+		return formPanel.getList("repoList");
 	}
 	
 	private void copyUIToCampaign() {
 		
 		campaign.putTokenType(Campaign.DEFAULT_TOKEN_PROPERTY_TYPE, compileTokenProperties());
+		
+		campaign.getRemoteRepositoryList().clear();
+		for (int i = 0; i < getRepositoryList().getModel().getSize(); i++) {
+			String repo = (String) getRepositoryList().getModel().getElementAt(i);
+			campaign.getRemoteRepositoryList().add(repo);
+		}
 	}
 	
 	private void parseTokenProperties(List<TokenProperty> propertyList) {

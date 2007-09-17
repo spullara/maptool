@@ -69,6 +69,13 @@ public class AssetManager {
 		}
 	}
 	
+	public static void updateRepositoryList() {
+		assetLoader.removeAllRepositories();
+		for (String repo : MapTool.getCampaign().getRemoteRepositoryList()) {
+			assetLoader.addRepository(repo);
+		}
+	}
+	
 	public static boolean isAssetRequested(MD5Key key) {
 		return assetLoader.isIdRequested(key);
 	}

@@ -35,12 +35,16 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -200,6 +204,99 @@ public class AppActions {
 		}
 	}
 
+	public static final Action EXPORT_CAMPAIGN_REPO = new AdminClientAction() {
+
+		{
+			init("Campaign Repo");
+		}
+		
+		@Override
+		public void execute(ActionEvent e) {
+
+			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
+			
+			// Get target location
+			if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
+				return;
+			}
+			
+			// Default extension
+			File selectedFile = chooser.getSelectedFile();
+			if (!selectedFile.getName().toUpperCase().endsWith("ZIP")) {
+				selectedFile = new File(selectedFile.getAbsolutePath() + ".zip");
+			}
+				
+			if (selectedFile.exists()) {
+				if (!MapTool.confirm("File exists, would you like to overwrite?")) {
+					return;
+				}
+			}
+
+			// Create index
+			Campaign campaign = MapTool.getCampaign();
+			Set<Asset> assetSet = new HashSet<Asset>();
+			for (Zone zone : campaign.getZones()) {
+				
+				for (MD5Key key : zone.getAllAssetIds()) {
+					assetSet.add (AssetManager.getAsset(key));
+				}
+			}
+			
+			// Export to temp location
+			File tmpFile = new File(AppUtil.getAppHome("tmp").getAbsolutePath() + "/" + System.currentTimeMillis() + ".export");
+
+			try {
+				ZipOutputStream out = new ZipOutputStream(new FileOutputStream(tmpFile));
+				
+				StringBuilder builder = new StringBuilder();
+				for (Asset asset : assetSet) {
+
+					// Index it
+					builder.append(asset.getId()).append(" assets/").append(asset.getId()).append("\n");
+					
+					// Save it
+					ZipEntry entry = new ZipEntry("assets/" + asset.getId().toString());
+					out.putNextEntry(entry);
+					out.write(asset.getImage());
+				}
+				
+				// Handle the index
+				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				GZIPOutputStream gzout = new GZIPOutputStream(bout); 
+				gzout.write(builder.toString().getBytes());
+				gzout.close();
+				
+				ZipEntry entry = new ZipEntry("index.gz");
+				out.putNextEntry(entry);
+				out.write(bout.toByteArray());
+				out.closeEntry();
+				
+				out.close();
+				
+				// Move to new location
+				File mvFile = new File(AppUtil.getAppHome("tmp").getAbsolutePath() + "/" + selectedFile.getName());
+				if (selectedFile.exists()) {
+					FileUtil.copyFile(selectedFile, mvFile);
+					selectedFile.delete();
+				}
+				
+				FileUtil.copyFile(tmpFile, selectedFile);
+				tmpFile.delete();
+				
+				if (mvFile.exists()) {
+					mvFile.delete();
+				}
+				
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				MapTool.showError("Could not export campaign repository file: " + ioe);
+				return;
+			}
+			
+			MapTool.showInformation("Campaign exported.");
+		}
+	};
+	
 	public static final Action ENFORCE_ZONE = new AdminClientAction() {
 
 		{
@@ -787,27 +884,6 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 			MapTool.getFrame().getCommandPanel().cancelCommand();
 		}
-	};
-
-	public static final Action RANDOMLY_ADD_LAST_ASSET = new DeveloperClientAction() {
-		{
-			init("action.debug.duplicateLastIcon");
-		}
-
-		public void execute(ActionEvent e) {
-
-			Asset asset = AssetManager.getLastRetrievedAsset();
-			for (int i = 0; i < 100; i++) {
-
-				Token token = new Token(asset.getId());
-				token.setX(MapToolUtil.getRandomNumber(100 * 5));
-				token.setY(MapToolUtil.getRandomNumber(100 * 5));
-				MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(
-						token);
-			}
-			MapTool.getFrame().getCurrentZoneRenderer().repaint();
-		}
-
 	};
 
 	public static final Action ADJUST_GRID = new ZoneAdminClientAction() {

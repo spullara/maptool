@@ -49,6 +49,7 @@ public class Campaign {
     private Map<GUID, Zone> zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
     private ExportInfo exportInfo;
     private Map<String, List<TokenProperty>> tokenTypeMap;
+    private List<String> remoteRepositoryList;
     
     private transient boolean isBeingSerialized;
 
@@ -56,6 +57,14 @@ public class Campaign {
     	// No op
     }
 
+    public List<String> getRemoteRepositoryList() {
+    	if (remoteRepositoryList == null) {
+    		remoteRepositoryList = new ArrayList<String>();
+    		remoteRepositoryList.add("http://rptools.net/image-indexes/gallery.rpax.gz");
+    	}
+    	return remoteRepositoryList;
+    }
+    
     public Campaign (Campaign campaign) {
 
     	zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());

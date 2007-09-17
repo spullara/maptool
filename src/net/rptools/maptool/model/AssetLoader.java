@@ -52,6 +52,11 @@ public class AssetLoader {
 		repositoryMap.remove(repository);
 	}
 	
+	public synchronized void removeAllRepositories() {
+		repositoryMap.clear();
+		repositoryStateMap.clear();
+	}
+	
 	public synchronized boolean isIdRequested(MD5Key id) {
 		return requestedIdSet.contains(id);
 	}
@@ -70,8 +75,10 @@ public class AssetLoader {
 			
 			indexMap = parseIndex(decode(index));
 		} catch (MalformedURLException e) {
+			System.out.println("Invalid repository: " + repository);
 			repositoryStateMap.put(repository, RepoState.BAD_URL);
 		} catch (IOException e) {
+			System.out.println("Could not retrieve index for '" + repository + "': " + e);
 			repositoryStateMap.put(repository, RepoState.UNAVAILABLE);
 		}
 
@@ -175,10 +182,12 @@ public class AssetLoader {
 				// Create the reference, need to work relative to the repo indx file
 				int split = repo.lastIndexOf('/');
 				
-				// Get the content
 				try {
+					// make the URL http safe
 					String path = repo.substring(0, split+1) + ref;
 					path = path.replaceAll(" ", "%20");
+
+					// Get the content
 					byte[] data = FileUtil.getBytes(new URL(path));
 					
 					// Verify the content
@@ -196,10 +205,12 @@ public class AssetLoader {
 					if (split >= 0) {
 						ref = ref.substring(split+1);
 					}
+//					System.out.println("Got " + id + " from " + repo);
 					ref = FileUtil.getNameWithoutExtension(ref);
 					AssetManager.putAsset(new Asset(ref, data));
 
 					completeRequest(id);
+					return;
 				} catch (IOException ioe) {
 					// Well, try a different repo
 					ioe.printStackTrace();
@@ -212,6 +223,7 @@ public class AssetLoader {
 			// Last resort, ask the MT server
 			// We can drop off the end of this runnable because it'll background load the 
 			// image from the server
+//			System.out.println("Got " + id + " from MT");
 	        MapTool.serverCommand().getAsset(id);
 		}
 	}

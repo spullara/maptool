@@ -59,6 +59,7 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
 import net.rptools.maptool.client.ui.zone.ZoneView;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignFactory;
 import net.rptools.maptool.model.ObservableList;
@@ -444,6 +445,8 @@ public class MapTool {
         }
 
     	clientFrame.setCurrentZoneRenderer(currRenderer);
+    	
+    	AssetManager.updateRepositoryList();
     }
     
     public static void setServerPolicy(ServerPolicy policy) {
