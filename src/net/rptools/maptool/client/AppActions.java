@@ -1529,7 +1529,7 @@ public class AppActions {
 
 			// TODO: Make this pass all properties, but we don't have that framework yet, so send what we 
 			// know the old fashioned way
-			MapTool.serverCommand().updateCampaign(Campaign.DEFAULT_TOKEN_PROPERTY_TYPE, campaign.getTokenPropertyList(Campaign.DEFAULT_TOKEN_PROPERTY_TYPE));
+			MapTool.serverCommand().updateCampaign(Campaign.DEFAULT_TOKEN_PROPERTY_TYPE, campaign.getTokenPropertyList(Campaign.DEFAULT_TOKEN_PROPERTY_TYPE), campaign.getRemoteRepositoryList());
 		}
 	};
 

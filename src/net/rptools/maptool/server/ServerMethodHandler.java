@@ -112,7 +112,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case removeTopology:          removeTopology(context.getGUID(0), (Area) context.get(1)); break;
             case renameZone:			  renameZone(context.getGUID(0), context.getString(1));break;
             case heartbeat:				  heartbeat(context.getString(0));break;
-            case updateCampaign:		  updateCampaign(context.getString(0), (List<TokenProperty>)context.get(1));break;
+            case updateCampaign:		  updateCampaign(context.getString(0), (List<TokenProperty>)context.get(1), (List<String>)context.get(2));break;
             case movePointer: 			  movePointer(context.getString(0), context.getInt(1), context.getInt(2));break;
             }
         } finally {
@@ -152,8 +152,10 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     	forwardToClients();
     }
     
-    public void updateCampaign(String typeName, List<TokenProperty> propertyList) {
+    public void updateCampaign(String typeName, List<TokenProperty> propertyList, List<String> repositoryList) {
     	server.getCampaign().putTokenType(typeName, propertyList);
+    	server.getCampaign().getRemoteRepositoryList().clear();
+    	server.getCampaign().getRemoteRepositoryList().addAll(repositoryList);
 
     	forwardToClients();
     }

@@ -424,8 +424,14 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 case updateCampaign:
                 	String typeName = (String)parameters[0];
                 	List<TokenProperty> propertyList = (List<TokenProperty>) parameters[1];
+                	List<String> repositoryList = (List<String>) parameters[2];
                 	
                 	MapTool.getCampaign().putTokenType(typeName, propertyList);
+                	MapTool.getCampaign().getRemoteRepositoryList().clear();
+                	MapTool.getCampaign().getRemoteRepositoryList().addAll(repositoryList);
+                	
+                	AssetManager.updateRepositoryList();
+                	
                 	break;
                 case movePointer:
                 	String player = (String)parameters[0];

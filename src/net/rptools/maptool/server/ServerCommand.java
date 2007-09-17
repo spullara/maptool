@@ -124,5 +124,5 @@ public interface ServerCommand {
     public void setServerPolicy(ServerPolicy policy);
     public void renameZone(GUID zoneGUID, String name);
     public void heartbeat(String data);
-    public void updateCampaign(String typeName, List<TokenProperty> propertyList);
+    public void updateCampaign(String typeName, List<TokenProperty> propertyList, List<String> repositoryList);
 }

@@ -76,7 +76,7 @@ public class ServerCommandClientImpl implements ServerCommand {
     	}
     }
 
-    public void updateCampaign(String typeName, List<TokenProperty> propertyList) {
+    public void updateCampaign(String typeName, List<TokenProperty> propertyList, List<String> repositoryList) {
     	makeServerCall(COMMAND.updateCampaign, typeName, propertyList);
     }
     
