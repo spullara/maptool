@@ -141,7 +141,7 @@ public class FogUtil {
 
 		// For simplicity, this catches some of the edge cases
 		vision.subtract(topology);
-		System.out.println("Skip: " + skip);
+//		System.out.println("Skip: " + skip);
 		return vision;
 	}	
 	
