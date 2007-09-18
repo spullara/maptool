@@ -288,26 +288,6 @@ public class MapTool {
         return serverCommand;
     }
     
-    public static void startIndeterminateAction() {
-    	//clientFrame.startIndeterminateAction();
-    }
-    
-    public static void endIndeterminateAction() {
-    	//clientFrame.endIndeterminateAction();
-    }
-    
-    public static void startDeterminateAction(int totalWork) {
-    	//clientFrame.startDeterminateAction(totalWork);
-    }
-    
-    public static void updateDeterminateActionProgress(int additionalWorkCompleted) {
-    	//clientFrame.updateDeterminateActionProgress(additionalWorkCompleted);
-    }
-    
-    public static void endDeterminateAction() {
-    	//clientFrame.endDeterminateAction();
-    }
-
     public static MapToolServer getServer() {
     	return server;
     }
@@ -587,7 +567,6 @@ public class MapTool {
 	    	
     	clientConn.addMessageHandler(handler);
     	clientConn.addActivityListener(clientFrame.getActivityMonitor());
-    	clientConn.addActivityListener(new ActivityProgressListener());
     	clientConn.addDisconnectHandler(new ServerDisconnectHandler());
         
     	clientConn.start();
@@ -743,18 +722,4 @@ public class MapTool {
 		}
 	}
 	
-	private static class ActivityProgressListener implements ActivityListener {
-		/* (non-Javadoc)
-		 * @see net.rptools.clientserver.ActivityListener#notify(net.rptools.clientserver.ActivityListener.Direction, net.rptools.clientserver.ActivityListener.State, int, int)
-		 */
-		public void notify(Direction direction, State state, int total, int current) {
-
-			if (state == State.Start) {
-				MapTool.startIndeterminateAction();
-			} else if (state == State.Complete) {
-                MapTool.endIndeterminateAction();
-			}
-		}
-	}
-
 }

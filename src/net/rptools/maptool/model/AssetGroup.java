@@ -175,7 +175,6 @@ public class AssetGroup {
             assetGroupList.clear();
 
             try {
-                MapTool.startIndeterminateAction();
 
                 // Update subgroups
                 File[] subdirArray = location.listFiles(DIRECTORY_FILE_FILTER);
@@ -201,8 +200,6 @@ public class AssetGroup {
                 }
                 
                 tempAssetGroupFiles.clear();
-                
-                MapTool.endIndeterminateAction();
             }
             
             groupsLoaded = true;
@@ -222,7 +219,6 @@ public class AssetGroup {
             assetList.clear();
 
             try {
-                MapTool.startIndeterminateAction();
 
                 // Update images for this group
                 File[] imageFileArray = location.listFiles(IMAGE_FILE_FILTER);
@@ -256,8 +252,6 @@ public class AssetGroup {
             } finally {
                 // Cleanup
                 tempAssetFiles.clear();
-                
-                MapTool.endIndeterminateAction();
             }
             filesLoaded = true;
         }

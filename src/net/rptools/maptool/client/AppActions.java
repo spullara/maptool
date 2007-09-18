@@ -1812,12 +1812,7 @@ public class AppActions {
 		public void runBackground(final Runnable r) {
 			new Thread() {
 				public void run() {
-					try {
-						MapTool.startIndeterminateAction();
-						r.run();
-					} finally {
-						MapTool.endIndeterminateAction();
-					}
+					r.run();
 
 					updateActions();
 				}
