@@ -682,6 +682,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		panel.addImagePanelMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
+				
 				// TODO use for real popup logic
 				if (SwingUtilities.isLeftMouseButton(e)) {
 					if (e.getClickCount() == 2) {
@@ -696,7 +697,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 					}
 				}
 
-				if (SwingUtilities.isRightMouseButton(e)) {
+				if (SwingUtilities.isRightMouseButton(e) && MapTool.getPlayer().isGM()) {
 
 					List<Object> idList = panel.getSelectedIds();
 					if (idList == null || idList.size() == 0) {
