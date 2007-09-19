@@ -13,6 +13,8 @@ import java.io.IOException;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
@@ -55,6 +57,11 @@ public class MessagePanel extends JPanel {
 				}
 			}
 			public void componentShown(ComponentEvent e) {}
+		});
+		textPane.addHyperlinkListener(new HyperlinkListener() {
+			public void hyperlinkUpdate(HyperlinkEvent e) {
+				MapTool.showDocument(e.getURL().toString());
+			}
 		});
 		
 		document = (HTMLDocument) textPane.getDocument();
@@ -122,6 +129,7 @@ public class MessagePanel extends JPanel {
 				
 				String text = "<div>"+message.getMessage()+"</div>";
 				text = text.replaceAll("\\[roll\\s*([^\\]]*)]", "&#171;<span class='roll' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
+				text = text.replaceAll("(http://\\S+)\\s", "<a href=\"$1\">$1</a>");
 				
 				Element element = document.getElement("body");
 				try {

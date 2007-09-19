@@ -74,6 +74,7 @@ import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.transfer.AssetTransferManager;
 import net.tsc.servicediscovery.ServiceAnnouncer;
 
+import com.centerkey.utils.BareBonesBrowserLaunch;
 import com.jidesoft.plaf.LookAndFeelFactory;
 
 import de.muntjak.tinylookandfeel.Theme;
@@ -142,6 +143,10 @@ public class MapTool {
 	
     private MapTool() {
         // Not instantiatable
+    }
+    
+    public static void showDocument(String url) {
+    	BareBonesBrowserLaunch.openURL(url);    	
     }
     
     public static SoundManager getSoundManager() {
