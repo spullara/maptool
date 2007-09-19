@@ -60,7 +60,7 @@ public class HollowRectangleTopologyTool extends AbstractDrawingTool implements 
     
     public HollowRectangleTopologyTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/polycut.png"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/top-blue-hrect.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

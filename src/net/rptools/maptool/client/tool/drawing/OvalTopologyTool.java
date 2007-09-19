@@ -34,7 +34,7 @@ public class OvalTopologyTool extends AbstractDrawingTool implements MouseMotion
     
     public OvalTopologyTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/drawcirc.png"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/top-blue-oval.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

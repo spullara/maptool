@@ -59,7 +59,7 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
 	
 	public MeasureTool () {
         try {
-            setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/Tool_Measure.gif")));
+            setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/tool/ruler-blue.png")));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

@@ -49,7 +49,7 @@ public class PolyLineTopologyTool extends PolygonTopologyTool implements MouseMo
 
     public PolyLineTopologyTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/draws.png"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/top-blue-free.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

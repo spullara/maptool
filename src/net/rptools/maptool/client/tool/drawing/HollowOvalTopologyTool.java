@@ -34,7 +34,7 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
 	
     public HollowOvalTopologyTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/drawopencirc.png"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/top-blue-hoval.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

@@ -42,7 +42,7 @@ public class FreehandTool extends AbstractLineTool implements MouseMotionListene
 
     public FreehandTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/drawl.png"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/draw-blue-freehndlines.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

@@ -2309,6 +2309,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 token.setSnapToScale(!AppPreferences.getBackgroundsStartFreesize());
                 token.setSnapToGrid(AppPreferences.getBackgroundsStartSnapToGrid());
                 token.setVisible(AppPreferences.getNewBackgroundsVisible());
+
+                // Center on drop point
+                if (!token.isSnapToScale() && !token.isSnapToGrid()) {
+                	token.setX(token.getX() - token.getWidth()/2);
+                	token.setY(token.getY() - token.getHeight()/2);
+                }
             	break;
             }
             case OBJECT: {
@@ -2317,6 +2323,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 token.setSnapToScale(!AppPreferences.getObjectsStartFreesize());
                 token.setSnapToGrid(AppPreferences.getObjectsStartSnapToGrid());
                 token.setVisible(AppPreferences.getNewObjectsVisible());
+
+                // Center on drop point
+                if (!token.isSnapToScale() && !token.isSnapToGrid()) {
+                	token.setX(token.getX() - token.getWidth()/2);
+                	token.setY(token.getY() - token.getHeight()/2);
+                }
             	break;
             }
             }

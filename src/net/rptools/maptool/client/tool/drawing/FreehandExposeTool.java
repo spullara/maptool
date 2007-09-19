@@ -50,7 +50,7 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
 
     public FreehandExposeTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/drawl.png"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/fog-blue-free.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }

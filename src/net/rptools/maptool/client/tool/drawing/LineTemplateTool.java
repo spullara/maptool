@@ -74,7 +74,7 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
   public LineTemplateTool() {
     try {
       setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream(
-          "net/rptools/maptool/client/image/tool/templateline.png"))));
+          "net/rptools/maptool/client/image/tool/temp-blue-line.png"))));
     } catch (IOException ioe) {
       ioe.printStackTrace();
     } // endtry

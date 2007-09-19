@@ -60,7 +60,7 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
     
     public RectangleTopologyTool() {
         try {
-            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/top.png"))));
+            setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/top-blue-rect.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
