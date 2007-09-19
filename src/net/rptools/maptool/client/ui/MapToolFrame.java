@@ -895,6 +895,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		AppActions.updateActions();
 		repaint();
+		
+		setTitle("MapTool" + (renderer != null ? " - " + renderer.getZone().getName() : ""));
 	}
 
 	public Toolbox getToolbox() {

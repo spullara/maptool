@@ -1,12 +1,13 @@
 package net.rptools.maptool.client.ui;
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 
 import javax.swing.Box;
@@ -19,9 +20,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
-import net.rptools.lib.AppEventListener;
 import net.rptools.lib.image.ImageUtil;
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.MeasureTool;
@@ -45,20 +44,14 @@ import net.rptools.maptool.client.tool.drawing.RadiusTemplateTool;
 import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTopologyTool;
-import net.rptools.maptool.model.ModelChangeEvent;
-import net.rptools.maptool.model.ModelChangeListener;
-import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.Zone;
 
 public class ToolbarPanel extends JToolBar {
 
 	private ButtonGroup buttonGroup = new ButtonGroup();
 	private JPanel optionPanel;
 	private Toolbox toolbox;
-	private JLabel mapNameLabel;
 	
 	public ToolbarPanel(Toolbox toolbox) {
-		setFloatable(false);
 		setRollover(true);
 		
 		this.toolbox = toolbox;
@@ -70,71 +63,47 @@ public class ToolbarPanel extends JToolBar {
 		pointerGroupButton.setSelected(true);
 		pointerGroupOptionPanel.activate();
 		
+		final JSeparator vertSplit = new JSeparator(JSeparator.VERTICAL);
+		final Component vertSpacer = Box.createHorizontalStrut(10);
+		
+		final JSeparator horizontalSplit = new JSeparator(JSeparator.HORIZONTAL);
+		horizontalSplit.setVisible(false);
+		final Component horizontalSpacer = Box.createVerticalStrut(10);
+		horizontalSpacer.setVisible(false);
+		
 		add(pointerGroupButton);
 		add(createButton("net/rptools/maptool/client/image/tool/draw-blue.png", createDrawPanel(), "Drawing Tools"));
 		add(createButton("net/rptools/maptool/client/image/tool/temp-blue-cone.png", createTemplatePanel(), "Template Tools"));
 		add(createButton("net/rptools/maptool/client/image/tool/fog-blue.png", createFogPanel(), "Fog of War tools"));
 		add(createButton("net/rptools/maptool/client/image/tool/eye-blue.png", createTopologyPanel(), "Topology tools"));
-		add(Box.createHorizontalStrut(10));
-		add(new JSeparator(JSeparator.VERTICAL));
-		add(Box.createHorizontalStrut(10));
-		add(optionPanel);
-		add(Box.createHorizontalGlue());
-		add(Box.createHorizontalStrut(10));
-		add(new JSeparator(JSeparator.VERTICAL));
-		add(Box.createHorizontalStrut(10));
-		add(getZoneNameLabel());
-		add(Box.createHorizontalStrut(5));
 		add(createZoneSelectionButton());
+		add(vertSplit);
+		add(horizontalSplit);
+		add(vertSpacer);
+		add(horizontalSpacer);
+		add(optionPanel);
 		
 		// Non visible tools
 		toolbox.createTool(GridTool.class);
 		toolbox.createTool(FacingTool.class);
 	
-		
-	}
-	
-	public JLabel getZoneNameLabel() {
-		if (mapNameLabel == null) {
-			mapNameLabel = new JLabel("", JLabel.RIGHT);
-			mapNameLabel.setMinimumSize(new Dimension(150, 10));
-			mapNameLabel.setPreferredSize(new Dimension(150, 16));
-			MapTool.getEventDispatcher().addListener(MapTool.ZoneEvent.Activated, new AppEventListener() {
-				public void handleAppEvent(net.rptools.lib.AppEvent event) {
-					if (currentZone != null) {
-						currentZone.removeModelChangeListener(zoneChangeListener);
-					}
-					
-					Zone zone = (Zone)event.getNewValue();
-					updateMapLabel(zone);
-					zone.addModelChangeListener(zoneChangeListener);
-					currentZone = zone;
-				}
-			});
-		}
-		
-		return mapNameLabel;
-	}
-
-	private Zone currentZone;
-	private ModelChangeListener zoneChangeListener = new ModelChangeListener() {
-		public void modelChanged(ModelChangeEvent event) {
-			if (event.getEvent() == Token.ChangeEvent.name) {
-				updateMapLabel((Zone)event.getModel());
+		addPropertyChangeListener("orientation", new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+				
+				int orientation = (Integer) evt.getNewValue();
+				
+				horizontalSplit.setVisible(orientation == JToolBar.VERTICAL);
+				horizontalSpacer.setVisible(orientation == JToolBar.VERTICAL);
+				
+				vertSplit.setVisible(orientation == JToolBar.HORIZONTAL);
+				vertSpacer.setVisible(orientation == JToolBar.HORIZONTAL);
 			}
-		}
-	};
-	
-	private void updateMapLabel(Zone zone) {
-		String name = zone.getName();
-		if (name == null || name.length() == 0) {
-			name = "Map";
-		}
-		getZoneNameLabel().setText(name);
+		});
+		
 	}
 	
 	private JButton createZoneSelectionButton() {
-		final JButton button = new JButton(new ImageIcon(getClass().getClassLoader().getResource("net/rptools/maptool/client/image/application_double.png")));
+		final JButton button = new JButton(new ImageIcon(getClass().getClassLoader().getResource("net/rptools/maptool/client/image/tool/btn-world.png")));
 		button.setToolTipText("Select Map");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -152,7 +121,6 @@ public class ToolbarPanel extends JToolBar {
 		panel.add(StampTool.class);
 		panel.add(MeasureTool.class);
 
-		panel.fill();
 		return panel;
 	}
 	
@@ -165,7 +133,6 @@ public class ToolbarPanel extends JToolBar {
 		panel.add(OvalTool.class);
 		panel.add(TextTool.class);
 
-		panel.fill();
 		return panel;
 	}
 	
@@ -176,7 +143,6 @@ public class ToolbarPanel extends JToolBar {
 		panel.add(ConeTemplateTool.class);
 		panel.add(LineTemplateTool.class);
 
-		panel.fill();
 		return panel;
 	}
 	
@@ -188,7 +154,6 @@ public class ToolbarPanel extends JToolBar {
 		panel.add(PolygonExposeTool.class);
 		panel.add(FreehandExposeTool.class);
 
-		panel.fill();
 		return panel;
 	}
 	
@@ -202,8 +167,6 @@ public class ToolbarPanel extends JToolBar {
 		panel.add(PolygonTopologyTool.class);
 		panel.add(PolyLineTopologyTool.class);
 		
-
-		panel.fill();
 		return panel;
 	}
 	
@@ -234,19 +197,23 @@ public class ToolbarPanel extends JToolBar {
 
 	private class OptionPanel extends JToolBar {
 
-		private Class firstTool;
-		private Class currentTool;
+		private Class<? extends Tool> firstTool;
+		private Class<? extends Tool> currentTool;
 		
 		public OptionPanel() {
-			setLayout(new GridBagLayout());
-//			setLayout(new FlowLayout(FlowLayout.LEFT));
 			setFloatable(false);
 			setRollover(true);
 			setBorder(null);
 			setBorderPainted(false);
+			
+			ToolbarPanel.this.addPropertyChangeListener("orientation", new PropertyChangeListener() {
+				public void propertyChange(PropertyChangeEvent evt) {
+					setOrientation((Integer)evt.getNewValue());
+				}
+			});
 		}
 
-		public void add(Class toolClass) {
+		public void add(Class<? extends Tool> toolClass) {
 			if (firstTool == null) {
 				firstTool = toolClass;
 			}
@@ -261,27 +228,6 @@ public class ToolbarPanel extends JToolBar {
 			});
 			
 			add(tool);
-		}
-		
-		@Override
-		public Component add(Component comp) {
-
-			GridBagConstraints constraints = new GridBagConstraints();
-			constraints.gridx = getComponentCount();
-			constraints.gridy = 1;
-			
-			super.add(comp, constraints);
-			return comp;
-		}
-		
-		public void fill() {
-
-			GridBagConstraints constraints = new GridBagConstraints();
-			constraints.gridx = getComponentCount();
-			constraints.gridy = 1;
-			constraints.weightx = 1;
-			
-			super.add(new JLabel(), constraints);
 		}
 		
 		private void activate() {
