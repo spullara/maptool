@@ -133,6 +133,10 @@ public class MapTool {
 		JOptionPane.showMessageDialog(clientFrame, "<html><body>"+I18N.getText(message)+"</body></html>", "Error", JOptionPane.ERROR_MESSAGE);
 	}
 	
+	public static void showWarning(String message) {
+		JOptionPane.showMessageDialog(clientFrame, "<html><body>"+I18N.getText(message)+"</body></html>", "Warning", JOptionPane.WARNING_MESSAGE);
+	}
+	
 	public static void showInformation(String message) {
 		JOptionPane.showMessageDialog(clientFrame, I18N.getText(message), "Info", JOptionPane.INFORMATION_MESSAGE);
 	}
@@ -703,6 +707,8 @@ public class MapTool {
 	
 	private static void postInitialize() {
 		taskbarFlasher = new TaskBarFlasher(clientFrame);
+		
+		showWarning("WARNING!!! This is a HIGHLY experimental version.<p><p>BACK UP YOUR CAMPAIGN FILE *BEFORE* USING THIS VERSION !!!<p><p>We are not responsible for destroyed campaign files.<p><p>Happy Mapping :)<p><p>-Trev");
 	}
 	
 	private static class ServerHeartBeatThread extends Thread {

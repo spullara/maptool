@@ -21,6 +21,7 @@
 	<classpathentry kind="lib" path="lib/parser-1.0.b5.jar"/>
 	<classpathentry kind="lib" path="lib/yasb-0.2-21012007.jar"/>
 	<classpathentry kind="lib" path="lib/servicediscoverylib-1.0.b5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/rplib"/>
 	<classpathentry kind="lib" path="lib/rplib-1.0.b94.jar"/>
 	<classpathentry kind="lib" path="lib/swing-worker-0.1.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3_min-1.1.3.4.O.jar"/>

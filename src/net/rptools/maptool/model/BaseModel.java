@@ -23,5 +23,9 @@ public class BaseModel {
 			listener.modelChanged(event);
 		}
 	}
-
+	
+	private Object readResolve() {
+		listenerList = new CopyOnWriteArrayList<ModelChangeListener>();
+		return this;
+	}
 }

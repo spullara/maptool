@@ -1454,11 +1454,11 @@ public class AppActions {
 			Campaign campaign = MapTool.getCampaign();
 
 			try {
-				PersistenceUtil.saveCampaign(campaign, AppState
-						.getCampaignFile());
+				PersistenceUtil.saveCampaign(campaign, AppState.getCampaignFile());
 				AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
 				MapTool.showInformation("msg.info.campaignSaved");
 			} catch (IOException ioe) {
+				ioe.printStackTrace();
 				MapTool.showError("Could not save campaign: " + ioe);
 			}
 		}
@@ -1497,6 +1497,7 @@ public class AppActions {
 					AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
 					MapTool.showInformation("msg.info.campaignSaved");
 				} catch (IOException ioe) {
+					ioe.printStackTrace();
 					MapTool.showError("Could not save campaign: " + ioe);
 				}
 			}

@@ -28,24 +28,21 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.lib.io.PackedFile;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
@@ -56,11 +53,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.drawing.DrawablePaint;
-import net.rptools.maptool.model.drawing.DrawableTexturePaint;
-import net.rptools.maptool.model.drawing.DrawnElement;
 
 import com.caucho.hessian.io.HessianInput;
 import com.caucho.hessian.io.HessianOutput;
@@ -70,37 +63,51 @@ import com.caucho.hessian.io.HessianOutput;
  */
 public class PersistenceUtil {
 
+	private static final String PROP_VERSION = "version";
+	
+	static {
+		PackedFile.init(AppUtil.getAppHome("tmp"));
+	}
+	
 	public static void saveCampaign(Campaign campaign, File campaignFile) throws IOException {
 		
-		// This is a veeeeeery primitive form of perstence, and will be changing very soon
-		OutputStream os = new BufferedOutputStream(new FileOutputStream(campaignFile));
-		HessianOutput out = new HessianOutput(os);
-		
+		PackedFile pakFile = new PackedFile(campaignFile);
+
+		// Configure the meta file (this is for legacy support)
 		PersistedCampaign persistedCampaign = new PersistedCampaign();
 		
 		persistedCampaign.campaign = campaign;
-		persistedCampaign.mapToolVersion = MapTool.getVersion();
-		
-		// Save all assets in active use
-		for (Zone zone : campaign.getZones()) {
-			
-			Set<MD5Key> assetSet = zone.getAllAssetIds();
-			for (MD5Key key : assetSet) {
-				persistedCampaign.assetMap.put(key, AssetManager.getAsset(key));
-			}
-		}
-		
+
+		// Keep track of the current view
 		ZoneRenderer currentZoneRenderer = MapTool.getFrame().getCurrentZoneRenderer();
 		if (currentZoneRenderer != null) {
 			persistedCampaign.currentZoneId = currentZoneRenderer.getZone().getId();
 			persistedCampaign.currentView = currentZoneRenderer.getZoneScale();
 		}
 		
+		// Save all assets in active use
+		for (Zone zone : campaign.getZones()) {
+			
+			Set<MD5Key> assetSet = zone.getAllAssetIds();
+			for (MD5Key key : assetSet) {
+				
+				// Put in a placeholder 
+				persistedCampaign.assetMap.put(key, null);
+				
+				// And store the asset elsewhere
+				pakFile.putFile("assets/" + key, AssetManager.getAsset(key));
+			}
+		}
+		
+		pakFile.setContent(persistedCampaign);
+		pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+		
+		pakFile.save();
+		pakFile.close();
+		
 		// Save the campaign thumbnail
 		saveCampaignThumbnail(campaignFile.getName());        
 		
-		out.writeObject(persistedCampaign);
-		os.close();		
 	}
 
 	/* A public function because I think it should be called when a campaign is opened as well
@@ -138,11 +145,46 @@ public class PersistenceUtil {
 	 * Gets a file pointing to where the campaign's thumbnail image should be.
 	 * @param fileName The campaign's file name.
 	 */
-	static public File getCampaignThumbnailFile(String fileName) {
+	public static File getCampaignThumbnailFile(String fileName) {
 		return new File(AppUtil.getAppHome("campaignthumbs"), fileName + ".jpg");
 	}
 	
 	public static PersistedCampaign loadCampaign(File campaignFile) throws IOException {
+		
+		// Try the new way first
+		PackedFile pakfile = new PackedFile(campaignFile);
+		try {
+			
+			// Sanity check
+			String version = (String)pakfile.getProperty(PROP_VERSION);
+			System.out.println("Version: " + version);
+			
+			PersistedCampaign persistedCampaign = (PersistedCampaign) pakfile.getContent();
+
+			// Now load up any images that we need
+			// Note that the values are all placeholders
+			for (MD5Key key : persistedCampaign.assetMap.keySet()) {
+				
+				if (!AssetManager.hasAsset(key)) {
+					Asset asset = (Asset) pakfile.getFileObject("assets/" + key);
+					AssetManager.putAsset(asset);
+
+					if (!MapTool.isHostingServer() && !MapTool.isPersonalServer()) {
+						// If we are remotely installing this campaign, we'll need to send the image data to the server
+			            MapTool.serverCommand().putAsset(asset);
+					}
+				}
+			}
+			
+			return persistedCampaign;
+		} catch (IOException ioe) {
+			
+			// Well, try the old way
+			return loadLegacyCampaign(campaignFile);
+		}
+	}
+	
+	public static PersistedCampaign loadLegacyCampaign(File campaignFile) throws IOException {
 		
 		InputStream is = new BufferedInputStream(new FileInputStream(campaignFile));
 		HessianInput in = new HessianInput(is);
