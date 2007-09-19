@@ -1039,8 +1039,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 int width = TokenSize.getWidth(token, zone.getGrid());
                 int height = TokenSize.getHeight(token, zone.getGrid());
                 
-                int scaledWidth = (int)Math.ceil(height * scale);
-                int scaledHeight = (int)Math.ceil(width * scale);
+                int scaledWidth = (int)Math.ceil(width * scale);
+                int scaledHeight = (int)Math.ceil(height * scale);
                 
                 if (!token.isStamp() && !token.isBackground()) {
                     // Fit inside the grid
