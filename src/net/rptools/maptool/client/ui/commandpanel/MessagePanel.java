@@ -60,7 +60,9 @@ public class MessagePanel extends JPanel {
 		});
 		textPane.addHyperlinkListener(new HyperlinkListener() {
 			public void hyperlinkUpdate(HyperlinkEvent e) {
-				MapTool.showDocument(e.getURL().toString());
+				if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+					MapTool.showDocument(e.getURL().toString());
+				}
 			}
 		});
 		
@@ -129,7 +131,9 @@ public class MessagePanel extends JPanel {
 				
 				String text = "<div>"+message.getMessage()+"</div>";
 				text = text.replaceAll("\\[roll\\s*([^\\]]*)]", "&#171;<span class='roll' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
-				text = text.replaceAll("(http://\\S+)\\s", "<a href=\"$1\">$1</a>");
+				
+				// Auto inline expansion
+				text = text.replaceAll("(http://[a-zA-Z0-9_\\.%-]+)", "<a href=\"$1\">$1</a>");
 				
 				Element element = document.getElement("body");
 				try {
