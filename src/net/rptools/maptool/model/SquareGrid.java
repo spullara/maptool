@@ -8,7 +8,10 @@ import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.rptools.lib.image.ImageUtil;
@@ -45,6 +48,12 @@ public class SquareGrid extends Grid {
 	public SquareGrid() {
 		super();
 		
+	}
+	
+	@Override
+	public Rectangle getBounds(CellPoint cp) {
+		
+		return new Rectangle(cp.x * getSize(), cp.y * getSize(), getSize(), getSize());
 	}
 	
 	@Override

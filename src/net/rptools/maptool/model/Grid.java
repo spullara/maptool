@@ -6,11 +6,11 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
-import java.net.MalformedURLException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import net.rptools.maptool.client.AppPreferences;
-import net.rptools.maptool.client.MapToolRegistryService;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.model.Zone.Event;
@@ -46,6 +46,10 @@ public abstract class Grid implements Cloneable{
 	
 	public abstract ZonePoint getCenterPoint(CellPoint cellPoint);
 
+	public List<TokenFootprint> getTokenFootprints() {
+		return Collections.emptyList();
+	}
+	
 	public Object clone () 
     	throws CloneNotSupportedException
     {
@@ -205,6 +209,8 @@ public abstract class Grid implements Cloneable{
 	public void draw(ZoneRenderer renderer, Graphics2D g, Rectangle bounds) {
 		// Do nothing
 	}
+	
+	public abstract Rectangle getBounds(CellPoint cp);
 	
 	/**
 	 * @return The Set of cells occupied by a token of the specified dimensions

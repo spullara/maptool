@@ -1,5 +1,6 @@
 package net.rptools.maptool.model;
 
+import java.awt.Rectangle;
 import java.awt.geom.Area;
 
 public class GridlessGrid extends Grid {
@@ -18,6 +19,11 @@ public class GridlessGrid extends Grid {
 	@Override
 	public int[] getFacingAngles() {
 		return FACING_ANGLES;
+	}
+	
+	@Override
+	public Rectangle getBounds(CellPoint cp) {
+		return null;
 	}
 	
 	@Override

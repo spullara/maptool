@@ -2,6 +2,7 @@ package net.rptools.maptool.model;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -90,6 +91,12 @@ public class HexGridVertical extends HexGrid {
 	@Override
 	public ZonePoint convert(CellPoint cp) {
 		return convertCP(cp.x, cp.y);
+	}
+	
+	@Override
+	public Rectangle getBounds(CellPoint cp) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

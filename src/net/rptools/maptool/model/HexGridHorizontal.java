@@ -2,6 +2,7 @@ package net.rptools.maptool.model;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.image.AffineTransformOp;
@@ -22,6 +23,12 @@ public class HexGridHorizontal extends HexGrid {
 	@Override
 	public int[] getFacingAngles() {
 		return FACING_ANGLES;
+	}
+	
+	@Override
+	public Rectangle getBounds(CellPoint cp) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	@Override
