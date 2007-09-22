@@ -2312,8 +2312,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
                 // Center on drop point
                 if (!token.isSnapToScale() && !token.isSnapToGrid()) {
-                	token.setX(token.getX() - token.getWidth()/2);
-                	token.setY(token.getY() - token.getHeight()/2);
+                	token.setX(token.getX() - TokenSize.getWidth(token, zone.getGrid())/2);
+                	token.setY(token.getY() - TokenSize.getHeight(token, zone.getGrid())/2);
                 }
             	break;
             }
@@ -2326,8 +2326,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
                 // Center on drop point
                 if (!token.isSnapToScale() && !token.isSnapToGrid()) {
-                	token.setX(token.getX() - token.getWidth()/2);
-                	token.setY(token.getY() - token.getHeight()/2);
+                	token.setX(token.getX() - TokenSize.getWidth(token, zone.getGrid())/2);
+                	token.setY(token.getY() - TokenSize.getHeight(token, zone.getGrid())/2);
                 }
             	break;
             }
