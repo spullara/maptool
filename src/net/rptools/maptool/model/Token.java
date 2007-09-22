@@ -115,7 +115,8 @@ public class Token extends BaseModel {
 
 	private int width = 1; // Default to using exactly 1x1 grid cell
 	private int height = 1;
-	private int size = TokenSize.Size.Medium.value(); // Abstract size
+
+	private Map<Class<? extends Grid>, GUID> sizeMap;
 
 	private boolean snapToGrid = true; // Whether the token snaps to the
 										// current grid or is free floating
@@ -195,7 +196,6 @@ public class Token extends BaseModel {
 		snapToScale = token.snapToScale;
 		width = token.width;
 		height = token.height;
-		size = token.size;
 		facing = token.facing;
 		tokenShape = token.tokenShape;
 		tokenType = token.tokenType;
@@ -250,6 +250,10 @@ public class Token extends BaseModel {
 		
 		if (token.imageAssetMap != null) {
 			imageAssetMap = new HashMap<String, MD5Key>(token.imageAssetMap);
+		}
+		
+		if (token.sizeMap != null) {
+			sizeMap = new HashMap<Class<? extends Grid>, GUID>(token.sizeMap);
 		}
 	}
 
@@ -630,18 +634,21 @@ public class Token extends BaseModel {
 	/**
 	 * @return Returns the size.
 	 */
-	public int getSize() {
-		return size;
+	public TokenFootprint getFootprint(Grid grid) {
+		return grid.getFootprint(getSizeMap().get(grid.getClass()));
+	}
+	
+	public TokenFootprint setFootprint(Grid grid, TokenFootprint footprint) {
+		return grid.getFootprint(getSizeMap().put(grid.getClass(), footprint.getId()));
 	}
 
-	/**
-	 * @param size
-	 *            The size to set.
-	 */
-	public void setSize(int size) {
-		this.size = size;
+	private Map<Class<? extends Grid>, GUID> getSizeMap() {
+		if (sizeMap == null) {
+			sizeMap = new HashMap<Class<? extends Grid>, GUID>();
+		}
+		return sizeMap;
 	}
-
+	
 	public boolean isSnapToGrid() {
 		return snapToGrid;
 	}
@@ -835,7 +842,7 @@ public class Token extends BaseModel {
         td.put(TokenTransferData.SNAP_TO_SCALE, snapToScale);
         td.put(TokenTransferData.WIDTH, width);
         td.put(TokenTransferData.HEIGHT, height);
-        td.put(TokenTransferData.SIZE, size);
+//        td.put(TokenTransferData.SIZE, size);
         td.put(TokenTransferData.SNAP_TO_GRID, snapToGrid);
         td.put(TokenTransferData.OWNER_TYPE, ownerType);
         td.put(TokenTransferData.TOKEN_TYPE, tokenShape);
@@ -875,7 +882,7 @@ public class Token extends BaseModel {
         snapToScale = getBoolean(td, TokenTransferData.SNAP_TO_SCALE, true);
         width = getInt(td, TokenTransferData.WIDTH, 1);
         height = getInt(td, TokenTransferData.HEIGHT, 1);
-        size = getInt(td, TokenTransferData.SIZE, TokenSize.Size.Medium.value());
+//        size = getInt(td, TokenTransferData.SIZE, TokenSize.Size.Medium.value());
         snapToGrid = getBoolean(td, TokenTransferData.SNAP_TO_GRID, true);
         isVisible = td.isVisible();
         name = td.getName();

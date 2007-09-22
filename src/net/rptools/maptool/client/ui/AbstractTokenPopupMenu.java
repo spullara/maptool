@@ -29,8 +29,9 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.TokenSize;
+import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
@@ -206,10 +207,10 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			sizeMenu.addSeparator();
 		}
 		
-		for (TokenSize.Size size : TokenSize.Size.values()) {
-			JMenuItem menuItem = new JCheckBoxMenuItem(new ChangeSizeAction(
-					size.name(), size));
-			if (tokenUnderMouse.isSnapToScale() && tokenUnderMouse.getSize() == size.value()) {
+		Grid grid = renderer.getZone().getGrid();
+		for (TokenFootprint footprint : grid.getFootprints()) {
+			JMenuItem menuItem = new JCheckBoxMenuItem(new ChangeSizeAction(footprint));
+			if (tokenUnderMouse.isSnapToScale() && tokenUnderMouse.getFootprint(grid) == footprint) {
 				menuItem.setSelected(true);
 			}
 
@@ -503,11 +504,11 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 	public class ChangeSizeAction extends AbstractAction {
 
-		private TokenSize.Size size;
+		private TokenFootprint footprint;
 
-		public ChangeSizeAction(String label, TokenSize.Size size) {
-			super(label);
-			this.size = size;
+		public ChangeSizeAction(TokenFootprint footprint) {
+			super(footprint.getName());
+			this.footprint = footprint;
 		}
 
 		/*
@@ -521,7 +522,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			for (GUID tokenGUID : selectedTokenSet) {
 
 				Token token = renderer.getZone().getToken(tokenGUID);
-				token.setSize(size.value());
+				token.setFootprint(renderer.getZone().getGrid(), footprint);
 				token.setSnapToScale(true);
 				renderer.flush(token);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);

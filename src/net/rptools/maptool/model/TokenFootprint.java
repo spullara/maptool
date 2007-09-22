@@ -30,6 +30,10 @@ public class TokenFootprint {
 		}
 	}
 	
+	public GUID getId() {
+		return id;
+	}
+	
 	public String getName() { 
 		return name;
 	}
@@ -51,4 +55,12 @@ public class TokenFootprint {
 		return bounds;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof TokenFootprint)) {
+			return false;
+		}
+		
+		return ((TokenFootprint)obj).id.equals(id);
+	}
 }

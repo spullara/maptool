@@ -25,10 +25,15 @@ public class SquareGrid extends Grid {
 	private static final Dimension CELL_OFFSET = new Dimension(0, 0);
 	
 	private static BufferedImage pathHighlight;
+	
+	private static List<TokenFootprint> footprintList;
 
 	static {
 		try {
 			pathHighlight = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/whiteBorder.png");
+			
+			footprintList = loadFootprints("net/rptools/maptool/model/squareGridFootprints.xml");
+			System.out.println(footprintList);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

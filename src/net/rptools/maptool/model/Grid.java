@@ -6,14 +6,18 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.model.Zone.Event;
+
+import com.thoughtworks.xstream.XStream;
 
 /**
  * Base class for grids.
@@ -46,7 +50,28 @@ public abstract class Grid implements Cloneable{
 	
 	public abstract ZonePoint getCenterPoint(CellPoint cellPoint);
 
-	public List<TokenFootprint> getTokenFootprints() {
+	protected static List<TokenFootprint> loadFootprints(String path) throws IOException {
+		return (List<TokenFootprint>) new XStream().fromXML(new String(FileUtil.loadResource(path)));
+	}
+
+	public TokenFootprint getDefaultFootprint() {
+		return getFootprints().get(0);
+	}
+	
+	public TokenFootprint getFootprint(GUID guid) {
+		if (guid == null) {
+			return getDefaultFootprint();
+		}
+		
+		for (TokenFootprint footprint : getFootprints()) {
+			if (footprint.getId().equals(guid)) {
+				return footprint;
+			}
+		}
+		return getDefaultFootprint();
+	}
+	
+	public List<TokenFootprint> getFootprints() {
 		return Collections.emptyList();
 	}
 	
