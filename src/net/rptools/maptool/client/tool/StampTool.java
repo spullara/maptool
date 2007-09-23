@@ -31,7 +31,6 @@ import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -56,15 +55,9 @@ import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
-import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
@@ -87,15 +80,11 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.Zone.Layer;
 import net.rptools.maptool.util.ImageManager;
-
-import com.jeta.forms.components.panel.FormPanel;
 
 /**
  */
@@ -588,13 +577,14 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		if (isResizingToken) {
 			
 			ScreenPoint sp = new ScreenPoint(mouseX + dragOffsetX, mouseY + dragOffsetY);
+			BufferedImage image = ImageManager.getImage(AssetManager.getAsset(tokenUnderMouse.getImageAssetId()));
+
 			if (SwingUtil.isControlDown(e)) {
 				sp = getNearestVertex(sp);
 			}
 			if (SwingUtil.isShiftDown(e)) {
 				ScreenPoint tokenPoint = ScreenPoint.fromZonePoint(renderer, tokenUnderMouse.getX(), tokenUnderMouse.getY());
 				
-				BufferedImage image = ImageManager.getImage(AssetManager.getAsset(tokenUnderMouse.getImageAssetId()));
 				double ratio = image.getWidth() / (double) image.getHeight();
 				
 				int dx = sp.x - tokenPoint.x;
@@ -612,8 +602,8 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			int newWidth = Math.max(5, zp.x - tokenUnderMouse.getX());
 			int newHeight = Math.max(5, zp.y - tokenUnderMouse.getY());
 
-			tokenUnderMouse.setWidth(newWidth);
-			tokenUnderMouse.setHeight(newHeight);
+			tokenUnderMouse.setScaleX(newWidth/image.getWidth());
+			tokenUnderMouse.setScaleY(newHeight/image.getHeight());
 			
 			renderer.repaint();
 			return;
@@ -729,72 +719,11 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			return false;
 		}
 		
-		// Make sure it's a valid move
-		if (!validateMove(tokenBeingDragged, renderer.getSelectedTokenSet(), zonePoint)) {
-			return false;
-		}
-
 		dragStartX = zonePoint.x;
 		dragStartY = zonePoint.y;
 
 		renderer.updateMoveSelectionSet(tokenBeingDragged.getId(), zonePoint);
 		MapTool.serverCommand().updateTokenMove(renderer.getZone().getId(), tokenBeingDragged.getId(), zonePoint.x, zonePoint.y);
-		return true;
-	}
-
-	private boolean validateMove(Token leadToken, Set<GUID> tokenSet, ZonePoint point) {
-
-		Zone zone = renderer.getZone();
-		if (MapTool.getPlayer().isGM()) {
-			return true;
-		}
-		
-		if (zone.hasFog()) {
-			
-			// Check that the new position for each token is within the exposed area
-			Area fow = zone.getExposedArea();
-			if (fow == null) {
-				return true;
-			}
-
-			int deltaX = point.x - leadToken.getX();
-			int deltaY = point.y - leadToken.getY();
-            boolean isVisible = false;
-            Rectangle bounds = new Rectangle();
-			for (GUID tokenGUID : tokenSet) {
-				Token token = zone.getToken(tokenGUID);
-				if (token == null) {
-					continue;
-				}
-				
-				int x = token.getX() + deltaX;
-				int y = token.getY() + deltaY;
-	            int width = TokenSize.getWidth(token, zone.getGrid());
-	            int height = TokenSize.getHeight(token, zone.getGrid());
-	            
-	            int fudgeSize = 10;
-	            
-	            bounds.width = fudgeSize;
-	            bounds.height = fudgeSize;
-	            
-	            for (int by = y; by < y + height; by += fudgeSize) {
-	            	for (int bx = x; bx < x + width; bx += fudgeSize) {
-	            		bounds.x = bx;
-	            		bounds.y = by;
-	            		
-	    	            if (fow.contains(bounds)) {
-	    	            	isVisible = true;
-	    	            	break;
-	    	            }
-	            	}
-	            }
-			}
-			
-			if (!isVisible) {
-				return false;
-			}
-		}
-		
 		return true;
 	}
 
@@ -1099,11 +1028,10 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			
 			zp = renderer.getZone().getGrid().convert(cp);
 		} else {
-			int width = TokenSize.getWidth(tokenBeingDragged, renderer.getZone().getGrid());
-			int height = TokenSize.getHeight(tokenBeingDragged, renderer.getZone().getGrid());
+			Dimension tokenSize = tokenBeingDragged.getSize(renderer.getZone().getGrid());
 			
-			int x = dragStartX + (micro ? dx : (width*dx));
-			int y = dragStartY + (micro ? dy : (height*dy));
+			int x = dragStartX + (micro ? dx : (tokenSize.width*dx));
+			int y = dragStartY + (micro ? dy : (tokenSize.height*dy));
 			
 			zp = new ZonePoint(x, y);
 		}

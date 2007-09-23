@@ -19,7 +19,6 @@ import javax.swing.JPanel;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
 
@@ -123,7 +122,7 @@ public class TokenLayoutPanel extends JPanel {
 
 		BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
 
-		Dimension tokenSize = new Dimension(TokenSize.getWidth(token, zone.getGrid()), TokenSize.getHeight(token, zone.getGrid()));
+		Dimension tokenSize = token.getSize(zone.getGrid());
 		
 		Point centerPoint = new Point(size.width/2, size.height/2);
 		

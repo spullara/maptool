@@ -34,6 +34,7 @@
       <id>
         <baGUID>fwABAc9lFSoFAAAAKgABAQ==</baGUID>
       </id>
+      <isDefault>true</isDefault>
     </net.rptools.maptool.model.TokenFootprint>
     <net.rptools.maptool.model.TokenFootprint>
       <cellSet>

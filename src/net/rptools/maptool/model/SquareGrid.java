@@ -33,7 +33,6 @@ public class SquareGrid extends Grid {
 			pathHighlight = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/whiteBorder.png");
 			
 			footprintList = loadFootprints("net/rptools/maptool/model/squareGridFootprints.xml");
-			System.out.println(footprintList);
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -53,6 +52,11 @@ public class SquareGrid extends Grid {
 	public SquareGrid() {
 		super();
 		
+	}
+
+	@Override
+	public List<TokenFootprint> getFootprints() {
+		return footprintList;
 	}
 	
 	@Override

@@ -25,9 +25,11 @@
 package net.rptools.maptool.model;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -113,8 +115,12 @@ public class Token extends BaseModel {
 	private boolean snapToScale = true; // Whether the scaleX and scaleY
 										// represent snap-to-grid measurements
 
-	private int width = 1; // Default to using exactly 1x1 grid cell
-	private int height = 1;
+	// These are the original image width and height
+	private int width;
+	private int height;
+	
+	private double scaleX = 1;
+	private double scaleY = 1;
 
 	private Map<Class<? extends Grid>, GUID> sizeMap;
 
@@ -196,6 +202,8 @@ public class Token extends BaseModel {
 		snapToScale = token.snapToScale;
 		width = token.width;
 		height = token.height;
+		scaleX = token.scaleX;
+		scaleY = token.scaleY;
 		facing = token.facing;
 		tokenShape = token.tokenShape;
 		tokenType = token.tokenType;
@@ -275,6 +283,14 @@ public class Token extends BaseModel {
 		imageAssetMap.put(null, assetId);
 	}
 
+	public void setWidth(int width) {
+		this.width = width;
+	}
+	
+	public void setHeight(int height) {
+		this.height = height;
+	}
+	
 	public boolean isMarker() {
 		return (isStamp() || isBackground()) && (!StringUtil.isEmpty(notes) || !StringUtil.isEmpty(gmNotes) || portraitImage != null);
 	}
@@ -573,35 +589,29 @@ public class Token extends BaseModel {
 		return lastPath;
 	}
 
+	public Dimension getSize(Grid grid) {
+		
+		TokenFootprint footprint = getFootprint(grid);
 
-	/**
-	 * @return Returns the scaleX.
-	 */
-	public int getWidth() {
-		return width;
+		Rectangle bounds = footprint.getBounds(grid);
+		
+		return new Dimension(bounds.width, bounds.height);
 	}
 
-	/**
-	 * @param scaleX
-	 *            The scaleX to set.
-	 */
-	public void setWidth(int width) {
-		this.width = width;
+	public double getScaleX() {
+		return scaleX;
+	}
+	
+	public double getScaleY() {
+		return scaleY;
+	}
+	
+	public void setScaleX(double scaleX) {
+		this.scaleX = scaleX;
 	}
 
-	/**
-	 * @return Returns the sizeY.
-	 */
-	public int getHeight() {
-		return height;
-	}
-
-	/**
-	 * @param height
-	 *            The sizeY to set.
-	 */
-	public void setHeight(int height) {
-		this.height = height;
+	public void setScaleY(double scaleY) {
+		this.scaleY = scaleY;
 	}
 
 	/**
@@ -840,8 +850,8 @@ public class Token extends BaseModel {
         td.put(TokenTransferData.ASSET_ID, imageAssetMap.get(null));
         td.put(TokenTransferData.Z, z);
         td.put(TokenTransferData.SNAP_TO_SCALE, snapToScale);
-        td.put(TokenTransferData.WIDTH, width);
-        td.put(TokenTransferData.HEIGHT, height);
+        td.put(TokenTransferData.WIDTH, scaleX);
+        td.put(TokenTransferData.HEIGHT, scaleY);
 //        td.put(TokenTransferData.SIZE, size);
         td.put(TokenTransferData.SNAP_TO_GRID, snapToGrid);
         td.put(TokenTransferData.OWNER_TYPE, ownerType);
@@ -880,8 +890,8 @@ public class Token extends BaseModel {
             y = td.getLocation().y;
         } 
         snapToScale = getBoolean(td, TokenTransferData.SNAP_TO_SCALE, true);
-        width = getInt(td, TokenTransferData.WIDTH, 1);
-        height = getInt(td, TokenTransferData.HEIGHT, 1);
+        scaleX = getInt(td, TokenTransferData.WIDTH, 1);
+        scaleY = getInt(td, TokenTransferData.HEIGHT, 1);
 //        size = getInt(td, TokenTransferData.SIZE, TokenSize.Size.Medium.value());
         snapToGrid = getBoolean(td, TokenTransferData.SNAP_TO_GRID, true);
         isVisible = td.isVisible();

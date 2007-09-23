@@ -16,18 +16,33 @@ public class TokenFootprint {
 	
 	private String name;
 	private GUID id;
-
+	private boolean isDefault;
+	
 	public TokenFootprint() {
 		// for serialization
 	}
 	
-	public TokenFootprint(String name, Point... points) {
+	public TokenFootprint(String name, boolean isDefault, Point... points) {
 		this.name = name;
 		id = new GUID();
+		this.isDefault = isDefault;
 		
 		for (Point p : points) {
 			cellSet.add(p);
 		}
+		
+	}
+	
+	public TokenFootprint(String name, Point... points) {
+		this(name, false, points);
+	}
+
+	public void setDefault(boolean isDefault) {
+		this.isDefault = isDefault;
+	}
+	
+	public boolean isDefault() {
+		return isDefault;
 	}
 	
 	public GUID getId() {
@@ -37,13 +52,18 @@ public class TokenFootprint {
 	public String getName() { 
 		return name;
 	}
+
+	public Rectangle getBounds(Grid grid) {
+		return getBounds(grid, null);
+	}
 	
 	/**
 	 * Return a rectangle that exactly bounds the footprint, values are in ZonePoint space
 	 */
 	public Rectangle getBounds(Grid grid, CellPoint cell) {
 
-		Rectangle cellBounds = grid.getBounds(cell);
+		cell = cell != null ? cell : new CellPoint(0, 0);
+		Rectangle cellBounds = grid.getBounds(cell) ;
 		Rectangle bounds = new Rectangle(cellBounds);
 		
 		for (Point p : cellSet) {

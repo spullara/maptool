@@ -106,14 +106,12 @@ import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.util.GraphicsUtil;
-import net.rptools.maptool.util.HexGridUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.maptool.util.TokenUtil;
@@ -729,8 +727,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 	}
                 }
 
-                int width = TokenSize.getWidth(token, zone.getGrid());
-                int height = TokenSize.getHeight(token, zone.getGrid());
+                Dimension size = token.getSize(zone.getGrid());
                 
                 Area tokenVision = tokenVisionCache.get(token);
                 if (tokenVision == null) {
@@ -745,7 +742,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                             continue;
                         }
 
-                        Point p = FogUtil.calculateVisionCenter(token, vision, this, token.getX(), token.getY(), width, height);
+                        Point p = FogUtil.calculateVisionCenter(token, vision, this, token.getX(), token.getY(), size.width, size.height);
                         
                         visionArea = FogUtil.calculateVisibility(p.x, p.y, visionArea, zone.getTopology());
                         if (visionArea == null) {
@@ -800,8 +797,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     }
 
                     // Calculate the token bounds
-                    int width = (int) (TokenSize.getWidth(token, zone.getGrid()) * scale) - 1;
-                    int height = (int) (TokenSize.getHeight(token, zone.getGrid()) * scale) - 1;
+                    Dimension size = token.getSize(zone.getGrid());
+                    int width = (int) (size.width * scale) - 1;
+                    int height = (int) (size.height * scale) - 1;
                     ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
                     int x = tokenScreenLocation.x + 1;
                     int y = tokenScreenLocation.y + 1;
@@ -1033,14 +1031,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     continue;
                 }
                 
-                ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, token.getX() + setOffsetX + token.getAnchor().x, token.getY() + setOffsetY + token.getAnchor().y);
-                
                 // OPTIMIZE: combine this with the code in renderTokens()
-                int width = TokenSize.getWidth(token, zone.getGrid());
-                int height = TokenSize.getHeight(token, zone.getGrid());
+                Rectangle footprint = token.getFootprint(zone.getGrid()).getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
                 
-                int scaledWidth = (int)Math.ceil(width * scale);
-                int scaledHeight = (int)Math.ceil(height * scale);
+                int tx = (footprint.x+footprint.width/2) + setOffsetX + token.getAnchor().x;
+                int ty = (footprint.y+footprint.height/2) + setOffsetY + token.getAnchor().y;
+                ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, tx, ty);
+                
+                int scaledWidth = (int)Math.ceil(footprint.width * scale);
+                int scaledHeight = (int)Math.ceil(footprint.height * scale);
                 
                 if (!token.isStamp() && !token.isBackground()) {
                     // Fit inside the grid
@@ -1071,7 +1070,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     if (!token.isBackground() && !token.isStamp()) {
                         
                         if (!token.isStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
-                            renderPath(g, walker.getPath(), width/gridSize, height/gridSize);
+                            renderPath(g, walker.getPath(), footprint.width/gridSize, footprint.height/gridSize);
                         } else {
                         	Color highlight = new Color(255, 255, 255, 80);
                         	Stroke highlightStroke = new BasicStroke(9);
@@ -1138,9 +1137,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
                     at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale, scaledHeight/2 - token.getAnchor().y*scale); // facing defaults to down, or -90 degrees
                     if (token.isSnapToScale()) {
-                        at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
+                        at.scale(token.getScaleX(), token.getScaleY());
                     } else {
-                        at.scale((double) token.getWidth() / workImage.getWidth (), (double) token.getHeight() / workImage.getHeight());
+                    	Dimension tokenSize = token.getSize(zone.getGrid());
+                        at.scale((double) tokenSize.width / workImage.getWidth (), (double) tokenSize.height / workImage.getHeight());
                     }
                     at.scale(getScale(), getScale());
                     g.drawImage(workImage, at, this);
@@ -1455,8 +1455,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	continue;
             }
 
-            int height = TokenSize.getWidth(token, zone.getGrid());
-            int width = TokenSize.getHeight(token, zone.getGrid());
+            Rectangle footprint = token.getFootprint(zone.getGrid()).getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
+
             int scaledHeight;
             int scaledWidth;
 //            if( isHexGrid() && token.isToken() ) {
@@ -1469,8 +1469,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //                scaledWidth = sz.width;
 //            }
 //            else {
-                scaledWidth = (int)Math.ceil(height * scale);
-                scaledHeight = (int)Math.ceil(width * scale);
+                scaledWidth = (int)Math.ceil(footprint.height * scale);
+                scaledHeight = (int)Math.ceil(footprint.width * scale);
 //            }
             
             if (!token.isStamp() && !token.isBackground()) {
@@ -1479,8 +1479,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 scaledHeight --;
             }
             
-            int tx = token.getX() + token.getAnchor().x;
-            int ty = token.getY() + token.getAnchor().y;
+            int tx = (footprint.x+footprint.width/2) + token.getAnchor().x;
+            int ty = (footprint.y+footprint.height/2) + token.getAnchor().y;
             ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, tx, ty);
             
             // Tokens are centered on the image center point
@@ -1497,7 +1497,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth/2 + x - (token.getAnchor().x*scale), scaledHeight/2 + y - (token.getAnchor().y*scale))); // facing defaults to down, or -90 degrees
             }
             
-            location = new TokenLocation(tokenBounds, origBounds, token, x, y, width, height, scaledWidth, scaledHeight);
+            location = new TokenLocation(tokenBounds, origBounds, token, x, y, footprint.width, footprint.height, scaledWidth, scaledHeight);
             tokenLocationCache.put(token, location);
             
             // General visibility
@@ -1600,7 +1600,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             // Previous path
             if (showPathList.contains(token) && token.getLastPath() != null) {
-                renderPath(g, token.getLastPath(), height/gridSize, width/gridSize);
+                renderPath(g, token.getLastPath(), footprint.height/gridSize, footprint.width/gridSize);
             }
             
             // Halo (TOPDOWN, CIRCLE)
@@ -1641,9 +1641,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale), location.scaledHeight/2 - (token.getAnchor().y*scale)); // facing defaults to down, or -90 degrees
 
                 if (token.isSnapToScale()) {
-                     at.scale((double)TokenSize.getWidth(token, zone.getGrid()) / token.getWidth(), (double)TokenSize.getHeight(token, zone.getGrid()) / token.getHeight());
+                     at.scale(token.getScaleX(), token.getScaleY());
                 } else {
-                    at.scale((double) token.getWidth() / workImage.getWidth(), (double) token.getHeight() / workImage.getHeight());
+                    Dimension tokenSize = token.getSize(zone.getGrid());
+                    at.scale((double) tokenSize.width / workImage.getWidth(), (double) tokenSize.height / workImage.getHeight());
                 }
                 at.scale(getScale(), getScale());
                 g.drawImage(workImage, at, this);
@@ -1677,9 +1678,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 Token.TokenShape tokenType = token.getShape();
                 switch(tokenType) {
                 case CIRCLE:
-                    int size = TokenSize.getWidth (token, zone.getGrid())/2;
                     
-                    Shape arrow = getCircleFacingArrow(token.getFacing(), size);
+                    Shape arrow = getCircleFacingArrow(token.getFacing(), footprint.width);
 
                     int cx = location.x + location.scaledWidth/2;
                     int cy = location.y + location.scaledHeight/2;
@@ -1692,10 +1692,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     g.translate(-cx, -cy);
                     break;
                 case SQUARE:
-                    size = TokenSize.getWidth(token, zone.getGrid())/2;
                     
                     int facing = token.getFacing();
-                    arrow = getSquareFacingArrow(facing, size);
+                    arrow = getSquareFacingArrow(facing, footprint.width);
 
                     cx = location.x + location.scaledWidth/2;
                     cy = location.y + location.scaledHeight/2;
@@ -2280,6 +2279,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             token.setWidth(image.getWidth(null));
             token.setHeight(image.getHeight(null));
             token.setLayer(getActiveLayer());
+            token.setFootprint(zone.getGrid(), zone.getGrid().getDefaultFootprint());
             
             // He who drops, owns, if there are not players already set
             if (!token.hasOwners() && !isGM) {
@@ -2287,6 +2287,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
 
             // Token type
+            Dimension size = token.getSize(zone.getGrid());
             switch (getActiveLayer()) {
             case TOKEN: {
 
@@ -2312,8 +2313,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
                 // Center on drop point
                 if (!token.isSnapToScale() && !token.isSnapToGrid()) {
-                	token.setX(token.getX() - TokenSize.getWidth(token, zone.getGrid())/2);
-                	token.setY(token.getY() - TokenSize.getHeight(token, zone.getGrid())/2);
+                	
+                	token.setX(token.getX() - size.width/2);
+                	token.setY(token.getY() - size.height/2);
                 }
             	break;
             }
@@ -2326,8 +2328,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
                 // Center on drop point
                 if (!token.isSnapToScale() && !token.isSnapToGrid()) {
-                	token.setX(token.getX() - TokenSize.getWidth(token, zone.getGrid())/2);
-                	token.setY(token.getY() - TokenSize.getHeight(token, zone.getGrid())/2);
+                	token.setX(token.getX() - size.width/2);
+                	token.setY(token.getY() - size.height/2);
                 }
             	break;
             }

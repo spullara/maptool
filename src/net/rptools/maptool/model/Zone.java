@@ -25,6 +25,7 @@
 package net.rptools.maptool.model;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,7 +42,6 @@ import java.util.Set;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppPreferences;
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
@@ -346,10 +346,9 @@ public class Zone extends BaseModel {
         // Token is visible, and there is fog
         int x = token.getX();
         int y = token.getY();
-        int w = TokenSize.getWidth(token, grid);
-        int h = TokenSize.getHeight(token, grid);
+        Dimension tokenSize = token.getSize(grid);
 
-        return getExposedArea().intersects(x, y, w, h);
+        return getExposedArea().intersects(x, y, tokenSize.width, tokenSize.height);
     }
     
     public void clearTopology() {

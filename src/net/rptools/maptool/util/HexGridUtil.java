@@ -32,8 +32,6 @@ import java.util.Set;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.HexGrid;
 import net.rptools.maptool.model.HexGridHorizontal;
-import net.rptools.maptool.model.HexGridVertical;
-import net.rptools.maptool.model.TokenSize;
 
 
 /**
@@ -72,25 +70,6 @@ public class HexGridUtil {
 		return cp;
 	}
 
-	public static Dimension getTokenAdjust(HexGrid grid, int width, int height, int tokenSize) {
-		
-		int sizeFactor = (int)TokenSize.getSizeInstance(tokenSize).sizeFactor();
-		int dU = 0;
-		int dV = 0;
-
-		// V component will always be larger, except for a single cell
-		if (sizeFactor > 1) {
-			dV = Math.abs(width-height)/2;
-		}
-		else {
-			dU = Math.abs(width-height)/2;
-		}
-
-		CellPoint cp = fromUVCoords(dU, dV, grid);
-		
-		return new Dimension(cp.x, cp.y);
-	}
-	
 	public static CellPoint getWaypoint(HexGrid grid, CellPoint cp, int width, int height) {
 	
 		if( width == height ) {
@@ -118,31 +97,6 @@ public class HexGridUtil {
 		
 		return new Point(cp.x,cp.y);
 	}
-	
-	/**
-	 * @return The hex grid aligning dimensions of a token
-	 */
-	public static Dimension getTokenDimensions(int tokenSize, HexGrid grid, float scale) {
-		
-		float sizeFactor = TokenSize.getSizeInstance(tokenSize).sizeFactor();
-		int dimU = 0;
-		int dimV = 0;
-
-		dimV = (int)(sizeFactor*grid.getVRadius()*2*scale);
-		
-		if(sizeFactor < 1) { // Token's smaller than Medium
-			dimU = dimV;
-		}
-		else { 
-			dimU = (int)((sizeFactor*grid.getURadius()*1.5 + grid.getURadius()*0.5) *scale);
-			dimU -= 2; // pull in by a couple pixels.  Not sure why this is required
-		}
-
-		CellPoint cp = fromUVCoords(dimU, dimV, grid);
-		
-		return new Dimension(cp.x,cp.y);
-	}
-	
 	
 	/**********************************************************************************
 	 * The following methods are for handling hex token patterns as used in d20 games *

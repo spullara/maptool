@@ -22,7 +22,6 @@ import java.util.Random;
 import java.util.Set;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.rptools.maptool.client.MapTool;
@@ -31,7 +30,6 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -414,8 +412,7 @@ public class FogUtil {
 				continue;
 			}
 			
-			int width = TokenSize.getWidth(token, zone.getGrid());
-			int height = TokenSize.getHeight(token, zone.getGrid());
+			Dimension size = token.getSize(zone.getGrid());
 			
 			Area visionArea = new Area();
 			for (Vision vision : token.getVisionList()) {
@@ -426,7 +423,7 @@ public class FogUtil {
 					continue;
 				}
 				
-				Point p = calculateVisionCenter(token, vision, renderer, x, y, width, height);
+				Point p = calculateVisionCenter(token, vision, renderer, x, y, size.width, size.height);
     			
 				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone), zone.getTopology());
 				if (currVisionArea != null) {
@@ -450,8 +447,7 @@ public class FogUtil {
 				continue;
 			}
 			
-			int width = TokenSize.getWidth(token, zone.getGrid());
-			int height = TokenSize.getHeight(token, zone.getGrid());
+			Dimension size = token.getSize(zone.getGrid());
 			
 			for (Vision vision : token.getVisionList()) {
 				int x = token.getX();
@@ -461,7 +457,7 @@ public class FogUtil {
 					continue;
 				}
 				
-				Point p = calculateVisionCenter(token, vision, renderer, x, y, width, height);
+				Point p = calculateVisionCenter(token, vision, renderer, x, y, size.width, size.height);
     			
 				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone), zone.getTopology());
 				if (currVisionArea != null) {
@@ -487,8 +483,7 @@ public class FogUtil {
 				continue;
 			}
 			
-			int width = TokenSize.getWidth(token, zone.getGrid());
-			int height = TokenSize.getHeight(token, zone.getGrid());
+			Dimension size = token.getSize(zone.getGrid());
 			
 			Path<CellPoint> lastPath = (Path<CellPoint>) token.getLastPath();
 			if (lastPath == null) {
@@ -509,7 +504,7 @@ public class FogUtil {
 						continue;
 					}
 
-					Point p = calculateVisionCenter(token, vision, renderer, x, y, width, height);
+					Point p = calculateVisionCenter(token, vision, renderer, x, y, size.width, size.height);
 	    			
 					Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone), zone.getTopology());
 					if (currVisionArea != null) {

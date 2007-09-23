@@ -55,6 +55,13 @@ public abstract class Grid implements Cloneable{
 	}
 
 	public TokenFootprint getDefaultFootprint() {
+		for (TokenFootprint footprint : getFootprints()) {
+			if (footprint.isDefault()) {
+				return footprint;
+			}
+		}
+		
+		// None specified, use the first
 		return getFootprints().get(0);
 	}
 	

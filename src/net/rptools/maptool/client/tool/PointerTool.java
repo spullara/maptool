@@ -91,7 +91,6 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
-import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
@@ -792,16 +791,16 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				
 				int x = token.getX() + deltaX;
 				int y = token.getY() + deltaY;
-	            int width = TokenSize.getWidth(token, zone.getGrid());
-	            int height = TokenSize.getHeight(token, zone.getGrid());
+				Dimension tokenSize = token.getSize(zone.getGrid());
+				// TODO: This doesn't handle freesize tokens
 	            
 	            int fudgeSize = 10;
 	            
 	            bounds.width = fudgeSize;
 	            bounds.height = fudgeSize;
 	            
-	            for (int by = y; by < y + height; by += fudgeSize) {
-	            	for (int bx = x; bx < x + width; bx += fudgeSize) {
+	            for (int by = y; by < y + tokenSize.height; by += fudgeSize) {
+	            	for (int bx = x; bx < x + tokenSize.width; bx += fudgeSize) {
 	            		bounds.x = bx;
 	            		bounds.y = by;
 	            		
@@ -1088,10 +1087,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			
 			zp = renderer.getZone().getGrid().convert(cp);
 		} else {
-			int size = TokenSize.getWidth(tokenBeingDragged, renderer.getZone().getGrid());
+			Dimension tokenSize = tokenBeingDragged.getSize(renderer.getZone().getGrid());
 			
-			int x = dragStartX + (size*dx);
-			int y = dragStartY + (size*dy);
+			int x = dragStartX + (tokenSize.width*dx);
+			int y = dragStartY + (tokenSize.height*dy);
 			
 			zp = new ZonePoint(x, y);
 		}

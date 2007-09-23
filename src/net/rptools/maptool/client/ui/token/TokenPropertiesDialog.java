@@ -37,6 +37,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -70,12 +71,9 @@ import net.rptools.maptool.client.swing.GenericDialog;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Association;
-import net.rptools.maptool.model.ModelChangeEvent;
-import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.TokenSize;
 import net.rptools.maptool.util.ImageManager;
 
 import com.jeta.forms.components.image.ImageComponent;
@@ -184,7 +182,7 @@ public class TokenPropertiesDialog extends AbeillePanel {
 		// OTHER
 		getShapeCombo().setSelectedItem(token.getShape());
 		if (token.isSnapToScale()) {
-			getSizeCombo().setSelectedItem( TokenSize.getSizeInstance(token.getSize()));
+			getSizeCombo().setSelectedItem(token.getFootprint(MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid()));
 		} else {
 			getSizeCombo().setSelectedIndex(0);
 		}
@@ -250,7 +248,7 @@ public class TokenPropertiesDialog extends AbeillePanel {
 	}
 
 	public void initSizeCombo() {
-		DefaultComboBoxModel model = new DefaultComboBoxModel(TokenSize.Size.values());
+		DefaultComboBoxModel model = new DefaultComboBoxModel(MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid().getFootprints().toArray());
 		model.insertElementAt("Free Size", 0);
 		getSizeCombo().setModel(model);
 	}
@@ -300,7 +298,6 @@ public class TokenPropertiesDialog extends AbeillePanel {
 			token.setSnapToScale(false);
 		} else {
 			token.setSnapToScale(true);
-			token.setSize(((TokenSize.Size) getSizeCombo().getSelectedItem()).value());
 		}
 
 		// Get the states

@@ -18,7 +18,7 @@ public class TokenFootprintCreator {
 			new TokenFootprint("Diminutive"),
 			new TokenFootprint("Tiny"),
 			new TokenFootprint("Small"),
-			new TokenFootprint("Medium"),
+			new TokenFootprint("Medium", true),
 			new TokenFootprint("Large", points(2)),
 			new TokenFootprint("Huge", points(3)),
 			new TokenFootprint("Gargantuan", points(4)),
