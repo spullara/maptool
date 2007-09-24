@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -105,7 +106,7 @@ public class Directory {
     private void load() {
         if (files == null && subdirs == null) {
 
-            files = Collections.unmodifiableList((List<File>)addAll(new ArrayList(), directory.listFiles(fileFilter)));
+            files = Collections.unmodifiableList(Arrays.asList(directory.listFiles(fileFilter)));
             File [] subdirList = directory.listFiles(DIRECTORY_FILTER);
             subdirs = new ArrayList<Directory>();
             for (int i = 0; i < subdirList.length; i++) {
@@ -122,13 +123,6 @@ public class Directory {
         public boolean accept(File pathname) {
             return pathname.isDirectory();
         }
-    }
-    
-    private static List addAll(List list, Object[] elems) {
-        for (Object o : elems) {
-            list.add(o);
-        }
-        return list;
     }
     
     protected Directory newDirectory(File directory, FilenameFilter fileFilter) {

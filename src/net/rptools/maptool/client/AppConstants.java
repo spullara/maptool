@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import net.rptools.lib.swing.ImageBorder;
+import net.rptools.maptool.model.Token;
 import net.tsc.servicediscovery.ServiceGroup;
 
 public class AppConstants {
@@ -51,7 +52,11 @@ public class AppConstants {
                     name.endsWith(".png") ||
                     name.endsWith(".jpg") ||
                     name.endsWith(".jpeg") ||
-                    name.endsWith(".gif");
+                    name.endsWith(".gif") ||
+                    
+                    // RPTools Token format
+                    name.endsWith(Token.FILE_EXTENSION)
+                    ;
         }
     };
     

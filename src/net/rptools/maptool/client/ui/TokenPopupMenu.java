@@ -106,6 +106,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 		addGMItem(createChangeToMenu(Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
 		add(new ShowPropertiesDialogAction());
+		addOwnedItem(new SaveAction());
 	}
 	
 	private JMenu createMacroMenu() {

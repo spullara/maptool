@@ -26,6 +26,7 @@ package net.rptools.maptool.util;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -42,6 +43,7 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.io.PackedFile;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppUtil;
@@ -53,6 +55,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 
 import com.caucho.hessian.io.HessianInput;
@@ -217,6 +220,77 @@ public class PersistenceUtil {
 		}
 		
 		return persistedCampaign;
+	}
+	
+	public static BufferedImage getTokenThumbnail(File file) throws Exception {
+
+		PackedFile pakFile = new PackedFile(file);
+
+		BufferedImage thumb = null; 
+		if (pakFile.hasFile(Token.FILE_THUMBNAIL)) {
+			thumb = ImageIO.read(pakFile.getFile(Token.FILE_THUMBNAIL));
+		} 
+		
+		pakFile.close();
+		
+		return thumb;
+	}
+	
+	public static void saveToken(Token token, File file) throws IOException {
+		
+		PackedFile pakFile = new PackedFile(file);
+
+		for (MD5Key assetId : token.getAllImageAssets()) {
+			if (assetId == null) {
+				continue;
+			}
+			
+			// And store the asset elsewhere
+			pakFile.putFile("assets/" + assetId, AssetManager.getAsset(assetId));
+		}
+		
+		// Thumbnail
+		BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
+		Dimension sz = new Dimension(image.getWidth(), image.getHeight());
+		SwingUtil.constrainTo(sz, 50);
+		BufferedImage thumb = new BufferedImage(sz.width, sz.height, BufferedImage.TRANSLUCENT);
+		Graphics2D g = thumb.createGraphics();
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g.drawImage(image, 0, 0, sz.width, sz.height, null);
+		g.dispose();
+		
+		pakFile.putFile(Token.FILE_THUMBNAIL, ImageUtil.imageToBytes(thumb, "png"));
+		
+		pakFile.setContent(token);
+		pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+		
+		pakFile.save();
+		pakFile.close();
+		
+	}
+	
+	public static Token loadToken(File file) throws IOException {
+		
+		PackedFile pakFile = new PackedFile(file);
+		
+		// TODO: Check version
+		Token token = (Token) pakFile.getContent();
+		
+		for (MD5Key key : token.getAllImageAssets()) {
+			
+			if (!AssetManager.hasAsset(key)) {
+				Asset asset = (Asset) pakFile.getFileObject("assets/" + key);
+				AssetManager.putAsset(asset);
+
+				if (!MapTool.isHostingServer() && !MapTool.isPersonalServer()) {
+					// If we are remotely installing this token, we'll need to send the image data to the server
+		            MapTool.serverCommand().putAsset(asset);
+				}
+			}
+		}
+
+		return token;
 	}
 	
 	public static <T> T hessianClone(T object) throws IOException {

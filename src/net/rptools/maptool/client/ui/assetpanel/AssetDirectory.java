@@ -16,6 +16,8 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.model.Token;
+import net.rptools.maptool.util.PersistenceUtil;
 
 public class AssetDirectory extends Directory {
 
@@ -117,7 +119,11 @@ public class AssetDirectory extends Directory {
             // Load it up
 			Image thumbnail = null;
 			try {
-				thumbnail = MapTool.getThumbnailManager().getThumbnail(imageFile);
+				if (imageFile.getName().toLowerCase().endsWith(Token.FILE_EXTENSION)) {
+					thumbnail = PersistenceUtil.getTokenThumbnail(imageFile);
+				} else {
+					thumbnail = MapTool.getThumbnailManager().getThumbnail(imageFile);
+				}
 			} catch (Throwable t) {
                 t.printStackTrace();
 				thumbnail = INVALID_IMAGE;

@@ -6,18 +6,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
+import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.tool.FacingTool;
@@ -35,6 +39,7 @@ import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
+import net.rptools.maptool.util.PersistenceUtil;
 import net.rptools.maptool.util.TokenUtil;
 
 public abstract class AbstractTokenPopupMenu extends JPopupMenu {
@@ -364,6 +369,46 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		}
 	}
 
+	public class SaveAction extends AbstractAction {
+		
+		public SaveAction() {
+			super("Save");
+			
+			if (selectedTokenSet.size() > 1) {
+				setEnabled(false);
+			}
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			
+			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser(); 
+			if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
+				return;
+			}
+			
+			File file = chooser.getSelectedFile();
+			
+			// Auto-extension
+			if (!file.getName().endsWith(Token.FILE_EXTENSION)) {
+				file = new File(file.getAbsolutePath() + "." + Token.FILE_EXTENSION);
+			}
+			
+			// Confirm
+			if (file.exists()) {
+				if (!MapTool.confirm("File exists, would you like to overwrite?")) {
+					return;
+				}
+			}
+			
+			try {
+				PersistenceUtil.saveToken(tokenUnderMouse, file);
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				MapTool.showError("Could not save token: " + ioe);
+			}
+		}
+	}
+	
 	public class SetFacingAction extends AbstractAction {
 		
 		public SetFacingAction() {

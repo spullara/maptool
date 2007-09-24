@@ -59,6 +59,9 @@ import net.rptools.maptool.util.StringUtil;
 public class Token extends BaseModel {
 	private GUID id = new GUID();
 	
+	public static final String FILE_EXTENSION = "rptok";
+	public static final String FILE_THUMBNAIL = "thumbnail";
+	
 	public static final String NAME_USE_FILENAME = "Use Filename";
 	public static final String NAME_USE_CREATURE = "Use \"Creature\"";
 	
@@ -182,6 +185,9 @@ public class Token extends BaseModel {
 	private Map<String, String> macroMap;
 	private Map<String, String> speechMap;
 
+	// Deprecated, here to allow deserialization
+	private transient int size; // 1.3b16
+	
 	public enum ChangeEvent {
 		name
 	}
