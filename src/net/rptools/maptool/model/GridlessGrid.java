@@ -2,6 +2,7 @@ package net.rptools.maptool.model;
 
 import java.awt.Rectangle;
 import java.awt.geom.Area;
+import java.util.List;
 
 public class GridlessGrid extends Grid {
 
@@ -15,6 +16,11 @@ public class GridlessGrid extends Grid {
 	private static final int[] FACING_ANGLES = new int[] {
 		-135, -90, -45, 0, 45, 90, 135, 180
 	};
+	
+	@Override
+	public List<TokenFootprint> getFootprints() {
+		return null;
+	}
 	
 	@Override
 	public int[] getFacingAngles() {

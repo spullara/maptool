@@ -78,9 +78,7 @@ public abstract class Grid implements Cloneable{
 		return getDefaultFootprint();
 	}
 	
-	public List<TokenFootprint> getFootprints() {
-		return Collections.emptyList();
-	}
+	public abstract List<TokenFootprint> getFootprints();
 	
 	public Object clone () 
     	throws CloneNotSupportedException

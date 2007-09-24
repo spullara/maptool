@@ -93,11 +93,5 @@ public class HexGridVertical extends HexGrid {
 		return convertCP(cp.x, cp.y);
 	}
 	
-	@Override
-	public Rectangle getBounds(CellPoint cp) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
 

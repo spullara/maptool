@@ -44,6 +44,7 @@ public class TokenFootprint {
 			occupiedSet.add(new CellPoint(centerPoint.x + offset.x, centerPoint.y + offset.y));
 		}
 		
+		System.out.println(occupiedSet);
 		return occupiedSet;
 	}
 	

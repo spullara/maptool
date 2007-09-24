@@ -14,22 +14,40 @@ public class TokenFootprintCreator {
 		
 		List<TokenFootprint> footprintList = Arrays.asList(new TokenFootprint[]{
 
-			new TokenFootprint("Fine"),
-			new TokenFootprint("Diminutive"),
-			new TokenFootprint("Tiny"),
-			new TokenFootprint("Small"),
+//			new TokenFootprint("Medium", true),
+//			new TokenFootprint("Large", squarePoints(2)),
+//			new TokenFootprint("Huge", squarePoints(3)),
+//			new TokenFootprint("Gargantuan", squarePoints(4)),
+//			new TokenFootprint("Colossal", squarePoints(6)),
+
 			new TokenFootprint("Medium", true),
-			new TokenFootprint("Large", points(2)),
-			new TokenFootprint("Huge", points(3)),
-			new TokenFootprint("Gargantuan", points(4)),
-			new TokenFootprint("Colossal", points(6)),
+			new TokenFootprint("Large", points(new int[][] {
+			{0, 1},
+			{1, 0},
+			})),
+			
+//			new TokenFootprint("Large", points(new int[][] {
+//					{},
+//					{},
+//					}))
 		});
 		
 		XStream xstream = new XStream();
 		System.out.println(xstream.toXML(footprintList));
 	}
+
+	private static Point[] points(int[][] points) {
+		
+		Point[] pa = new Point[points.length];
+		
+		for (int i = 0; i < points.length; i++) {
+			pa[i] = new Point(points[i][0], points[i][1]);
+		}
+		
+		return pa;
+	}
 	
-	private static Point[] points(int size) {
+	private static Point[] squarePoints(int size) {
 		
 		Point[] pa = new Point[size*size-1];
 		

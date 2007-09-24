@@ -1453,8 +1453,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //                scaledWidth = sz.width;
 //            }
 //            else {
-                scaledWidth = (int)Math.ceil(footprint.height * scale);
-                scaledHeight = (int)Math.ceil(footprint.width * scale);
+                scaledWidth = (int)Math.ceil(footprint.width * scale);
+                scaledHeight = (int)Math.ceil(footprint.height * scale);
 //            }
             
             if (!token.isStamp() && !token.isBackground()) {

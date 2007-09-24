@@ -26,12 +26,6 @@ public class HexGridHorizontal extends HexGrid {
 	}
 	
 	@Override
-	public Rectangle getBounds(CellPoint cp) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
 	public BufferedImage getCellHighlight() {
 		// rotate the default path highlight 90 degrees
 		AffineTransform at = new AffineTransform();

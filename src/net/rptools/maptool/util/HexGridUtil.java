@@ -80,28 +80,5 @@ public class HexGridUtil {
 		return cp;
 	}
 	
-	/**
-	 * 
-	 * @param width Token width in Cells
-	 * @return
-	 */
-	public static Point getCellGroupCenterOffset(HexGrid grid, int width, float scale) {
-		int sizeFactor = width;
-		int pU = 0;
-		int pV = 0;
-
-		pU = (int)(grid.getCellGroupCenterUComponent(sizeFactor)*scale);
-		pV = (int)(grid.getCellGroupCenterVComponent(sizeFactor)*scale);
-			
-		CellPoint cp = fromUVCoords(pU, pV, grid);
-		
-		return new Point(cp.x,cp.y);
-	}
-	
-	/**********************************************************************************
-	 * The following methods are for handling hex token patterns as used in d20 games *
-	 * as described here: http://www.d20srd.org/srd/variant/adventuring/hexGrid.htm   *
-	 **********************************************************************************/
-	
 
 }

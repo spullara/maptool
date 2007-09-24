@@ -6,10 +6,12 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import net.rptools.lib.image.ImageUtil;
@@ -29,10 +31,13 @@ public abstract class HexGrid extends Grid {
 	public static double REGULAR_HEX_RATIO = Math.sqrt(3)/2;
 
 	protected static BufferedImage pathHighlight;
+	private static List<TokenFootprint> footprintList;
 
 	static {
 		try {
 			pathHighlight = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/hexBorder.png");
+
+			footprintList = loadFootprints("net/rptools/maptool/model/hexGridFootprints.xml");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -41,15 +46,36 @@ public abstract class HexGrid extends Grid {
 	private static final GridCapabilities GRID_CAPABILITIES= new GridCapabilities() {
 		public boolean isPathingSupported() {return true;}
 		public boolean isSnapToGridSupported() {return true;}
-		public boolean isPathLineSupported() {return true;}
+		public boolean isPathLineSupported() {return false;}
 		public boolean isSecondDimensionAdjustmentSupported() {return true;}
 	};
+	
+	@Override
+	public Rectangle getBounds(CellPoint cp) {
+
+		// This is naive, but, give it a try
+		ZonePoint zp = getCenterPoint(cp);
+		Shape shape = getCellShape();
+
+		zp.x -= shape.getBounds().width/2;
+		zp.y -= shape.getBounds().height/2;
+		
+		int w = shape.getBounds().width;
+		int h = shape.getBounds().height;
+		
+		return new Rectangle(zp.x, zp.y, w, h);
+	}
 	
 	@Override
 	public ZonePoint getCenterPoint(CellPoint cellPoint) {
 		
 		ZonePoint zp = convert(cellPoint);
 		return zp;
+	}
+	
+	@Override
+	public List<TokenFootprint> getFootprints() {
+		return footprintList;
 	}
 	
 	/**
@@ -126,28 +152,6 @@ public abstract class HexGrid extends Grid {
 
 	
 	/**
-	 * @param numCells Number of cells to average over
-	 * @return The midpoint along the v-axis of the cell group.  This will
-	 * always land in the center of a cell
-	 */
-	public double getCellGroupCenterVComponent(int numCells) {
-		return getVRadius()*numCells;
-	}
-
-	/**
-	 * Currently only works for "square" cell groups (ie numCellsU == numCellsV)
-	 * @param numCellsU Number of cells to "average" over
-	 * @return The closest cell-center, or vertex to the midpoint along
-	 * the u-axis of the cell group
-	 */
-	public double getCellGroupCenterUComponent(int numCellsU ) {
-		if( numCellsU % 2 == 0 ) {
-			return (edgeLength + edgeProjection)*numCellsU/2;
-		}
-		return ((edgeLength + edgeProjection)*numCellsU + edgeProjection)/2;
-	}
-	
-	/**
 	 * The offset required to translate from the center of a cell
 	 * to the top right (x_min, y_min) of the cell's bounding rectangle.
 	 */
@@ -189,12 +193,27 @@ public abstract class HexGrid extends Grid {
 		scaledEdgeLength = edgeLength*scale;
 		scaledEdgeProjection = edgeProjection*scale;
 		
-		scaledHex = createShape(scaledMinorRadius, scaledEdgeProjection, scaledEdgeLength);
+		scaledHex = createHalfShape(scaledMinorRadius, scaledEdgeProjection, scaledEdgeLength);
 
 		lastScale = scale;
 	}
 	
 	private GeneralPath createShape(double minorRadius, double edgeProjection, double edgeLength) {
+
+		GeneralPath hex = new GeneralPath();
+		hex.moveTo(0, (int)minorRadius);
+		hex.lineTo((int)edgeProjection, 0);
+		hex.lineTo((int)(edgeProjection + edgeLength), 0);
+		hex.lineTo((int)(edgeProjection + edgeLength + edgeProjection), (int)minorRadius);
+		hex.lineTo((int)(edgeProjection + edgeLength), (int)(minorRadius*2));
+		hex.lineTo((int)(edgeProjection), (int)(minorRadius*2));
+		
+		orientHex(hex);
+
+		return hex;
+	}
+	
+	private GeneralPath createHalfShape(double minorRadius, double edgeProjection, double edgeLength) {
 
 		GeneralPath hex = new GeneralPath();
 		hex.moveTo(0, (int)minorRadius);
@@ -236,7 +255,7 @@ public abstract class HexGrid extends Grid {
 	public void draw(ZoneRenderer renderer, Graphics2D g, Rectangle bounds) {
 
 		createShape(renderer.getScale());
-        
+		
         int offU = getOffU(renderer);
         int offV = getOffV(renderer);
 

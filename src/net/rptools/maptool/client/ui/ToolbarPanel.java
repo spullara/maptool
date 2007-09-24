@@ -59,7 +59,7 @@ public class ToolbarPanel extends JToolBar {
 		optionPanel = new JPanel(new CardLayout());
 		
 		final OptionPanel pointerGroupOptionPanel = createPointerPanel();
-		final JToggleButton pointerGroupButton = createButton("net/rptools/maptool/client/image/tool/pointer-blue.png", pointerGroupOptionPanel, "Interaction Tools"); 
+		final JToggleButton pointerGroupButton = createButton("net/rptools/maptool/client/image/tool/pointer-blue.png", "net/rptools/maptool/client/image/tool/pointer-blue.png", pointerGroupOptionPanel, "Interaction Tools"); 
 		
 		pointerGroupButton.setSelected(true);
 		pointerGroupOptionPanel.activate();
@@ -73,10 +73,10 @@ public class ToolbarPanel extends JToolBar {
 		horizontalSpacer.setVisible(false);
 		
 		add(pointerGroupButton);
-		add(createButton("net/rptools/maptool/client/image/tool/draw-blue.png", createDrawPanel(), "Drawing Tools"));
-		add(createButton("net/rptools/maptool/client/image/tool/temp-blue-cone.png", createTemplatePanel(), "Template Tools"));
-		add(createButton("net/rptools/maptool/client/image/tool/fog-blue.png", createFogPanel(), "Fog of War tools"));
-		add(createButton("net/rptools/maptool/client/image/tool/eye-blue.png", createTopologyPanel(), "Topology tools"));
+		add(createButton("net/rptools/maptool/client/image/tool/draw-blue.png", "net/rptools/maptool/client/image/tool/draw-blue-off.png", createDrawPanel(), "Drawing Tools"));
+		add(createButton("net/rptools/maptool/client/image/tool/temp-blue-cone.png", "net/rptools/maptool/client/image/tool/temp-blue-cone.png", createTemplatePanel(), "Template Tools"));
+		add(createButton("net/rptools/maptool/client/image/tool/fog-blue.png", "net/rptools/maptool/client/image/tool/fog-blue.png", createFogPanel(), "Fog of War tools"));
+		add(createButton("net/rptools/maptool/client/image/tool/eye-blue.png", "net/rptools/maptool/client/image/tool/eye-blue.png", createTopologyPanel(), "Topology tools"));
 		add(createZoneSelectionButton());
 		add(vertSplit);
 		add(horizontalSplit);
@@ -104,7 +104,8 @@ public class ToolbarPanel extends JToolBar {
 	}
 	
 	private JButton createZoneSelectionButton() {
-		final JButton button = new JButton(new ImageIcon(getClass().getClassLoader().getResource("net/rptools/maptool/client/image/tool/btn-world.png")));
+		final JButton button = new JButton(new ImageIcon(getClass().getClassLoader().getResource("net/rptools/maptool/client/image/tool/btn-world-off.png")));
+		button.setSelectedIcon(new ImageIcon(getClass().getClassLoader().getResource("net/rptools/maptool/client/image/tool/btn-world.png")));
 		button.setToolTipText("Select Map");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -171,7 +172,7 @@ public class ToolbarPanel extends JToolBar {
 		return panel;
 	}
 	
-	private JToggleButton createButton(final String icon, final OptionPanel panel, String tooltip) {
+	private JToggleButton createButton(final String icon, final String offIcon, final OptionPanel panel, String tooltip) {
 		final JToggleButton button = new JToggleButton();
 		button.setToolTipText(tooltip);
 		button.addActionListener(new ActionListener() {
@@ -183,7 +184,8 @@ public class ToolbarPanel extends JToolBar {
 			}
 		});
 		try {
-			button.setIcon(new ImageIcon(ImageUtil.getImage(icon)));
+			button.setIcon(new ImageIcon(ImageUtil.getImage(offIcon)));
+			button.setSelectedIcon(new ImageIcon(ImageUtil.getImage(icon)));
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
