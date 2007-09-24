@@ -7,14 +7,14 @@ import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
+import net.rptools.maptool.model.TokenFootprint.OffsetTranslator;
 import net.rptools.maptool.model.Zone.Event;
 
 import com.thoughtworks.xstream.XStream;
@@ -50,10 +50,18 @@ public abstract class Grid implements Cloneable{
 	
 	public abstract ZonePoint getCenterPoint(CellPoint cellPoint);
 
-	protected static List<TokenFootprint> loadFootprints(String path) throws IOException {
-		return (List<TokenFootprint>) new XStream().fromXML(new String(FileUtil.loadResource(path)));
-	}
+	protected List<TokenFootprint> loadFootprints(String path, OffsetTranslator... translators) throws IOException {
 
+		List<TokenFootprint> footprintList = (List<TokenFootprint>) new XStream().fromXML(new String(FileUtil.loadResource(path)));
+		for (TokenFootprint footprint : footprintList) {
+			for (OffsetTranslator ot : translators) {
+				footprint.addOffsetTranslator(ot);
+			}
+		}
+		
+		return footprintList;
+	}
+	
 	public TokenFootprint getDefaultFootprint() {
 		for (TokenFootprint footprint : getFootprints()) {
 			if (footprint.isDefault()) {

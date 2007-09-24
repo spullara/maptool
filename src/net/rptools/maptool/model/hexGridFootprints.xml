@@ -4,7 +4,7 @@
       <cellSet/>
       <name>Medium</name>
       <id>
-        <baGUID>wKgCY2MzxTUBAAAAAIACYw==</baGUID>
+        <baGUID>fwABAQllXDgBAAAAOAABAQ==</baGUID>
       </id>
       <isDefault>true</isDefault>
     </net.rptools.maptool.model.TokenFootprint>
@@ -21,7 +21,40 @@
       </cellSet>
       <name>Large</name>
       <id>
-        <baGUID>wKgCY2MzxTUCAAAAAIACYw==</baGUID>
+        <baGUID>fwABAQllXDgCAAAAOAABAQ==</baGUID>
+      </id>
+      <isDefault>false</isDefault>
+    </net.rptools.maptool.model.TokenFootprint>
+    <net.rptools.maptool.model.TokenFootprint>
+      <cellSet>
+        <java.awt.Point>
+          <x>1</x>
+          <y>-1</y>
+        </java.awt.Point>
+        <java.awt.Point>
+          <x>-1</x>
+          <y>-1</y>
+        </java.awt.Point>
+        <java.awt.Point>
+          <x>-1</x>
+          <y>0</y>
+        </java.awt.Point>
+        <java.awt.Point>
+          <x>1</x>
+          <y>0</y>
+        </java.awt.Point>
+        <java.awt.Point>
+          <x>0</x>
+          <y>-1</y>
+        </java.awt.Point>
+        <java.awt.Point>
+          <x>0</x>
+          <y>1</y>
+        </java.awt.Point>
+      </cellSet>
+      <name>Huge</name>
+      <id>
+        <baGUID>fwABAQllXDgDAAAAOAABAQ==</baGUID>
       </id>
       <isDefault>false</isDefault>
     </net.rptools.maptool.model.TokenFootprint>

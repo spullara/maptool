@@ -4,14 +4,26 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.List;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarVertHexEuclideanWalker;
+import net.rptools.maptool.model.TokenFootprint.OffsetTranslator;
 
 public class HexGridVertical extends HexGrid {
 	
 	private static final int[] FACING_ANGLES = new int[] {-150, -90, -30, 30, 90, 150};
+	
+	private static final OffsetTranslator OFFSET_TRANSLATOR = new OffsetTranslator() {
+		public void translate(CellPoint originPoint, CellPoint offsetPoint) {
+			if (originPoint.x%2==1 && offsetPoint.x%2==0) {
+				offsetPoint.y++;
+			}
+		}
+	};
 	
 	public HexGridVertical() {
 		super();
@@ -92,6 +104,10 @@ public class HexGridVertical extends HexGrid {
 	public ZonePoint convert(CellPoint cp) {
 		return convertCP(cp.x, cp.y);
 	}
-	
+
+	@Override
+	protected OffsetTranslator getOffsetTranslator() {
+		return OFFSET_TRANSLATOR;
+	}
 }
 

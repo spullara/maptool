@@ -7,14 +7,26 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.List;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarHorizHexEuclideanWalker;
+import net.rptools.maptool.model.TokenFootprint.OffsetTranslator;
 
 public class HexGridHorizontal extends HexGrid {
 
 	private static final int[] FACING_ANGLES =  new int[] {-120, -60, 0, 60, 120, 180};
+	
+	private static final OffsetTranslator OFFSET_TRANSLATOR = new OffsetTranslator() {
+		public void translate(CellPoint originPoint, CellPoint offsetPoint) {
+			if (originPoint.y%2==1 && offsetPoint.y%2==0) {
+				offsetPoint.x++;
+			}
+		}
+	};
 	
 	public HexGridHorizontal() {
 		super();
@@ -111,6 +123,10 @@ public class HexGridHorizontal extends HexGrid {
 		ZonePoint zp = convertCP(cp.y, cp.x);
 		return new ZonePoint(zp.y, zp.x);
 	}
-	
+
+	@Override
+	protected OffsetTranslator getOffsetTranslator() {
+		return OFFSET_TRANSLATOR;
+	}
 }
 

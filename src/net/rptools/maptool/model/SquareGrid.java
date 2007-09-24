@@ -16,6 +16,7 @@ import java.util.Set;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.AppState;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
@@ -32,7 +33,6 @@ public class SquareGrid extends Grid {
 		try {
 			pathHighlight = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/whiteBorder.png");
 			
-			footprintList = loadFootprints("net/rptools/maptool/model/squareGridFootprints.xml");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -56,6 +56,15 @@ public class SquareGrid extends Grid {
 
 	@Override
 	public List<TokenFootprint> getFootprints() {
+		if (footprintList == null) {
+			try {
+				footprintList = loadFootprints("net/rptools/maptool/model/squareGridFootprints.xml");
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				MapTool.showError("Could not load square grid footprints");
+			}
+
+		}
 		return footprintList;
 	}
 	

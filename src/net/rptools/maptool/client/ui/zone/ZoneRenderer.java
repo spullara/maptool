@@ -1132,26 +1132,26 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
                 
                 // Draw token
-                if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp () || token.isBackground())) {
-
-                    // Rotated
-                    AffineTransform at = new AffineTransform();
-                    at.translate(x, y);
-
-                    at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale, scaledHeight/2 - token.getAnchor().y*scale); // facing defaults to down, or -90 degrees
-                    if (token.isSnapToScale()) {
-                        at.scale(token.getScaleX(), token.getScaleY());
-                    } else {
-                    	Dimension tokenSize = token.getSize(zone.getGrid());
-                        at.scale((double) tokenSize.width / workImage.getWidth (), (double) tokenSize.height / workImage.getHeight());
-                    }
-                    at.scale(getScale(), getScale());
-                    g.drawImage(workImage, at, this);
-                
-                } else {
-                    // Normal
-                    g.drawImage(workImage, x, y, scaledWidth, scaledHeight, this);
-                }
+//                if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp () || token.isBackground())) {
+//
+//                    // Rotated
+//                    AffineTransform at = new AffineTransform();
+//                    at.translate(x, y);
+//
+//                    at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale, scaledHeight/2 - token.getAnchor().y*scale); // facing defaults to down, or -90 degrees
+//                    if (token.isSnapToScale()) {
+//                        at.scale(token.getScaleX(), token.getScaleY());
+//                    } else {
+//                    	Dimension tokenSize = token.getSize(zone.getGrid());
+//                        at.scale((double) tokenSize.width / workImage.getWidth (), (double) tokenSize.height / workImage.getHeight());
+//                    }
+//                    at.scale(getScale(), getScale());
+//                    g.drawImage(workImage, at, this);
+//                
+//                } else {
+//                    // Normal
+//                    g.drawImage(workImage, x, y, scaledWidth, scaledHeight, this);
+//                }
 
                 // Other details
                 if (token == keyToken) {
@@ -1574,7 +1574,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 BufferedImage replacementImage = replacementImageMap.get(token);
                 if (replacementImage == null) {
 
-                    replacementImage = ImageUtil.rgbToGrayscale(image);
+//                    replacementImage = ImageUtil.rgbToGrayscale(image);
+                	replacementImage = new BufferedImage(1, 1, BufferedImage.TRANSLUCENT);
                     
                     replacementImageMap.put(token, replacementImage);
                 }

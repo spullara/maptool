@@ -3,7 +3,6 @@ package net.rptools.maptool.model;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
@@ -12,11 +11,11 @@ import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.util.HexGridUtil;
+import net.rptools.maptool.model.TokenFootprint.OffsetTranslator;
 
 /**
  * An abstract hex grid class that uses generic cartesian-coordinates
@@ -31,13 +30,12 @@ public abstract class HexGrid extends Grid {
 	public static double REGULAR_HEX_RATIO = Math.sqrt(3)/2;
 
 	protected static BufferedImage pathHighlight;
+
 	private static List<TokenFootprint> footprintList;
 
 	static {
 		try {
 			pathHighlight = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/hexBorder.png");
-
-			footprintList = loadFootprints("net/rptools/maptool/model/hexGridFootprints.xml");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -71,11 +69,6 @@ public abstract class HexGrid extends Grid {
 		
 		ZonePoint zp = convert(cellPoint);
 		return zp;
-	}
-	
-	@Override
-	public List<TokenFootprint> getFootprints() {
-		return footprintList;
 	}
 	
 	/**
@@ -415,4 +408,18 @@ public abstract class HexGrid extends Grid {
 		return getURadius()*2;
 	}
 
+	@Override
+	public List<TokenFootprint> getFootprints() {
+		if (footprintList == null) {
+			try {
+				footprintList = loadFootprints("net/rptools/maptool/model/hexGridFootprints.xml", getOffsetTranslator());
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				MapTool.showError("Could not load Hex Grid footprints");
+			}
+		}
+		return footprintList;
+	}
+	
+	protected abstract OffsetTranslator getOffsetTranslator();
 }

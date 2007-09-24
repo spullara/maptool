@@ -3,7 +3,10 @@ package net.rptools.maptool.model;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This class represents the set of cells a token occupies based on its size.
@@ -17,6 +20,8 @@ public class TokenFootprint {
 	private String name;
 	private GUID id;
 	private boolean isDefault;
+	
+	private transient List<OffsetTranslator> translatorList = new LinkedList<OffsetTranslator>();
 	
 	public TokenFootprint() {
 		// for serialization
@@ -33,6 +38,10 @@ public class TokenFootprint {
 		
 	}
 	
+	public void addOffsetTranslator(OffsetTranslator translator) {
+		translatorList.add(translator);
+	}
+	
 	public Set<CellPoint> getOccupiedCells(CellPoint centerPoint) {
 		Set<CellPoint> occupiedSet = new HashSet<CellPoint>();
 
@@ -41,10 +50,13 @@ public class TokenFootprint {
 		
 		// Relative
 		for (Point offset : cellSet) {
-			occupiedSet.add(new CellPoint(centerPoint.x + offset.x, centerPoint.y + offset.y));
+			CellPoint cp = new CellPoint(centerPoint.x + offset.x, centerPoint.y + offset.y);
+			for (OffsetTranslator translator : translatorList) {
+				translator.translate(centerPoint, cp);
+			}
+			occupiedSet.add(cp);
 		}
 		
-		System.out.println(occupiedSet);
 		return occupiedSet;
 	}
 	
@@ -78,12 +90,10 @@ public class TokenFootprint {
 	public Rectangle getBounds(Grid grid, CellPoint cell) {
 
 		cell = cell != null ? cell : new CellPoint(0, 0);
-		Rectangle cellBounds = grid.getBounds(cell) ;
-		Rectangle bounds = new Rectangle(cellBounds);
+		Rectangle bounds = new Rectangle(grid.getBounds(cell));
 		
-		for (Point p : cellSet) {
+		for (CellPoint cp : getOccupiedCells(cell)) {
 			
-			CellPoint cp = new CellPoint(cell.x + p.x, cell.y + p.y);
 			bounds.add(grid.getBounds(cp));
 		}
 		
@@ -98,4 +108,14 @@ public class TokenFootprint {
 		
 		return ((TokenFootprint)obj).id.equals(id);
 	}
+	
+	private Object readResolve() {
+		translatorList = new LinkedList<OffsetTranslator>();
+		return this;
+	}
+
+	public static interface OffsetTranslator {
+		public void translate(CellPoint originPoint, CellPoint offsetPoint);
+	}
+	
 }

@@ -22,14 +22,29 @@ public class TokenFootprintCreator {
 
 			new TokenFootprint("Medium", true),
 			new TokenFootprint("Large", points(new int[][] {
-			{0, 1},
-			{1, 0},
+				{0, 1},
+				{1, 0},
 			})),
 			
+			new TokenFootprint("Large", points(new int[][] {
+				{0, 1},
+				{1, 0},
+				{-1, 0},
+				{-1, -1},
+				{0, -1},
+				{1, -1}
+			})),
+					
 //			new TokenFootprint("Large", points(new int[][] {
 //					{},
 //					{},
-//					}))
+//					})),
+//					
+//			new TokenFootprint("Large", points(new int[][] {
+//					{},
+//					{},
+//					})),
+					
 		});
 		
 		XStream xstream = new XStream();
