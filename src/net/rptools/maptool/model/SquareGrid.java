@@ -161,38 +161,11 @@ public class SquareGrid extends Grid {
         }
 	}
 	
-	@Override
-	public Set<CellPoint> getOccupiedCells(int height, int width, CellPoint baseCellPoint) {
-		Set<CellPoint> occupiedSet = new HashSet<CellPoint>();
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				occupiedSet.add(new CellPoint(baseCellPoint.x+x, baseCellPoint.y+y));
-			}
-		}
-		
-		return occupiedSet;
-	}
-	
-	@Override
-	public CellPoint getWaypointPosition(int height, int width, CellPoint baseCellPoint) {
-		return new CellPoint(baseCellPoint.x + width/2, baseCellPoint.y+height/2);
-	}
-	
 	public ZonePoint getCenterPoint(CellPoint cellPoint) {
 		ZonePoint zp = convert(cellPoint);
 		zp.x += getCellWidth()/2;
 		zp.y += getCellHeight()/2;
 		return zp;
-	}
-
-	@Override
-	public Point cellGroupCenterOffset(int height, int width, boolean isToken) {
-		return new Point (width/2, height/2);
-	}
-	
-	@Override
-	public Point cellGroupTopLeftOffset(int height, int width, boolean isToken) {
-		return new Point(0,0);
 	}
 
 }

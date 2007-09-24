@@ -33,6 +33,20 @@ public class TokenFootprint {
 		
 	}
 	
+	public Set<CellPoint> getOccupiedCells(CellPoint centerPoint) {
+		Set<CellPoint> occupiedSet = new HashSet<CellPoint>();
+
+		// Implied
+		occupiedSet.add(centerPoint);
+		
+		// Relative
+		for (Point offset : cellSet) {
+			occupiedSet.add(new CellPoint(centerPoint.x + offset.x, centerPoint.y + offset.y));
+		}
+		
+		return occupiedSet;
+	}
+	
 	public TokenFootprint(String name, Point... points) {
 		this(name, false, points);
 	}

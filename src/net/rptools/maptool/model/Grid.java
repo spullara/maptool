@@ -245,50 +245,6 @@ public abstract class Grid implements Cloneable{
 	public abstract Rectangle getBounds(CellPoint cp);
 	
 	/**
-	 * @return The Set of cells occupied by a token of the specified dimensions
-	 * @param baseCellPoint The token's base cell point coords<br>
-	 * *<i>SquareGrid</i> - Token's top left cell<br>
-	 * *<i>HexGrid</i> - Varies based on cell size (see HexGridUtil)
-	 * @param height height of the group in cell dimensions
-	 * @param width width of the group in cell dimensions
-	 */
-	public Set<CellPoint> getOccupiedCells(int height, int width, CellPoint baseCellPoint) {
-		return null;
-	}
-	
-	/**
-	 * @return The cell where the waypoint should be set to.
-	 * @param baseCellPoint The token's base cell point location<br>
-	 * *<i>SquareGrid</i> - Token's top left cell<br>
-	 * *<i>HexGrid</i> - Varies based on cell size (see HexGridUtil)
-	 * @param height height of the group in cell dimensions
-	 * @param width width of the group in cell dimensions
-	 */
-	public CellPoint getWaypointPosition(int height, int width, CellPoint baseCellPoint){
-		return null;
-	}
-	
-	/**
-	 * @return The offset required to translate from the top-left of a group of cells
-	 * (or their bounding rectangle) to the center of the group of cells
-	 * @param height height of the group of cells
-	 * @param width width of the group of cells
-	 */
-	public Point cellGroupCenterOffset(int height, int width, boolean isToken){
-		return NO_POINT;
-	}
-	
-	/**
-	 * @return The offset required to translate from the top-left of a cell group's 
-	 * base cell, to the top left of the cell group (or bounding rectangle)
-	 * @param height height of the group of cells
-	 * @param width width of the group of cells
-	 */
-	public Point cellGroupTopLeftOffset(int height, int width, boolean isToken) {
-		return NO_POINT;
-	}
-	
-	/**
 	 * Override if getCapabilities.isSecondDimensionAdjustmentSupported() returns true
 	 * @param length the second settable dimension
 	 * @return

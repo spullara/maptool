@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.plaf.basic.BasicToolBarUI;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.tool.FacingTool;

@@ -376,69 +376,6 @@ public abstract class HexGrid extends Grid {
 	}
 	
 	@Override
-	public Set<CellPoint> getOccupiedCells(int height, int width, CellPoint baseCellPoint) {
-		// Future prefs could allow for various standards of hex creature sizes?
-		return HexGridUtil.getD20OccupiedCells(width, baseCellPoint, this);
-	}
-	
-	@Override
-	public CellPoint getWaypointPosition(int height, int width, CellPoint baseCellPoint) {
-		return HexGridUtil.getWaypoint(this, baseCellPoint, width, height);
-	}
-
-	@Override
-	public Point cellGroupCenterOffset(int height, int width, boolean isToken) {
-        int x = cellOffset.width;
-        int y = cellOffset.height;
-        
-        // If the cell group is a token then translate to
-        // the closest vertex or cell center to the token's center
-        if ( isToken )  {
-        	
-        	// Now move to the top right of the cell group's bounding rectangle
-        	int tokenSize = Math.max((int)Math.round(width/getCellWidth()), 1);
-        	
-        	Point p = new Point();
-        	
-        	// if it is a d20 pattern token then offset appropriately (currently the only option)
-        	p = HexGridUtil.getD20GroupOffset(tokenSize, 1, this);
-        	x += p.x;
-        	y += p.y;
-        	
-        	// From the top right corner translate to the closest vertex or cell center
-        	// to the cell group's center 
-            p = HexGridUtil.getCellGroupCenterOffset(this, tokenSize, 1);
-            x += p.x;
-            y += p.y;
-        }
-        else {
-        	x += width/2 < getCellWidth() ? getCellWidth()/2 : width/2;
-        	y += height/2 < getCellHeight() ? getCellHeight()/2 : height/2;
-        }
-
-        return new Point (x, y);
-	}
-	
-	@Override
-	public Point cellGroupTopLeftOffset(int height, int width, boolean isToken) {
-		int x = 0;
-		int y = 0;
-		
-        x = cellOffset.width;
-        y = cellOffset.height;
-
-        if( isToken ) {
-        	// Account for funky token hex patterns
-        	int tokenSize = Math.max((int)Math.round(width/getCellWidth()), 1);
-        	Point p = HexGridUtil.getD20GroupOffset(tokenSize, 1, this);
-        	x += p.x;
-        	y += p.y;
-        }
-
-        return new Point(x,y);
-	}
-	
-	@Override
 	public void setSecondDimension(double length) {
 		if (length < minorRadius*2 ) {
 			hexRatio = REGULAR_HEX_RATIO;

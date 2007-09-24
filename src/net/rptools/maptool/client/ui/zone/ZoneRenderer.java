@@ -106,6 +106,7 @@ import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -184,6 +185,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	private int lastX;
 	private int lastY;
 
+    private BufferedImage cellShape;
+    private int lastScale;
 
 	// I don't like this, at all, but it'll work for now, basically keep track of when the fog cache
     // needs to be flushed in the case of switching views
@@ -1070,7 +1073,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     if (!token.isBackground() && !token.isStamp()) {
                         
                         if (!token.isStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
-                            renderPath(g, walker.getPath(), footprint.width/gridSize, footprint.height/gridSize);
+                            renderPath(g, walker.getPath(), token.getFootprint(zone.getGrid()));
                         } else {
                         	Color highlight = new Color(255, 255, 255, 80);
                         	Stroke highlightStroke = new BasicStroke(9);
@@ -1204,7 +1207,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         }
     }
     
-    public void renderPath(Graphics2D g, Path path, int width, int height) {
+    public void renderPath(Graphics2D g, Path path, TokenFootprint footprint) {
         Object oldRendering = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         CellPoint previousPoint = null;
@@ -1213,20 +1216,22 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         Grid grid = zone.getGrid();
         float scale = getScale();
 
-        width = Math.max (width, 1);
-        height = Math.max(height, 1);
-
+        Rectangle footprintBounds = footprint.getBounds(grid);
+        
         List<CellPoint> cellPath = path.getCellPath();
 
         Set<CellPoint> pathSet = new HashSet<CellPoint>();
-        List<CellPoint> waypointList = new LinkedList<CellPoint>();
+        List<ZonePoint> waypointList = new LinkedList<ZonePoint>();
         boolean lastPointExistedInWaypointSet = false;
         for (CellPoint p : cellPath) {
 
-            pathSet.addAll(grid.getOccupiedCells(height, width, p));
+            pathSet.addAll(footprint.getOccupiedCells(p));
 
             if (path.isWaypoint(p) && previousPoint != null) {
-                waypointList.add(grid.getWaypointPosition(height, width, p));
+            	ZonePoint zp = grid.convert(p);
+            	zp.x += footprintBounds.width/2;
+            	zp.y += footprintBounds.height/2;
+                waypointList.add(zp);
             }
             previousPoint = p;
         }
@@ -1235,25 +1240,27 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         if (waypointList.size() > 0) {
         	waypointList.remove(waypointList.size()-1);
         }
-        
+
         for (CellPoint p : pathSet) {
-            highlightCell(g, p, grid.getCellHighlight(), 1.0f);
+            highlightCell(g, grid.getCenterPoint(p), grid.getCellHighlight(), 1.0f);
         }
-        for (CellPoint p : waypointList) {
+        for (ZonePoint p : waypointList) {
             highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
         }
 
         // Line path
         if (grid.getCapabilities().isPathLineSupported() ) {
 
-            Point lineOffset = grid.cellGroupCenterOffset ((int)(height*grid.getCellHeight()), (int)(width*grid.getCellWidth()), true);
-            
+            ZonePoint lineOffset = new ZonePoint(footprintBounds.x + footprintBounds.width/2, footprintBounds.y + footprintBounds.height/2);
+
             int xOffset = (int)(lineOffset.x * scale);
             int yOffset = (int)(lineOffset.y * scale);
 
+            g.setColor(Color.blue);
+
             previousPoint = null;
             for (CellPoint p : cellPath) {
-                
+
                 if (previousPoint != null) {
                     
                     ZonePoint ozp = grid.convert(previousPoint);
@@ -1272,7 +1279,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     Point halfPoint = new Point(halfx, halfy);
                     
                     if (previousHalfPoint != null) {
-                        g.setColor(Color.blue);
                         
                         int x1 = previousHalfPoint.x+xOffset;
                         int y1 = previousHalfPoint.y+yOffset;
@@ -1297,6 +1303,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     }
     
     public void highlightCell(Graphics2D g, CellPoint point, BufferedImage image, float size) {
+    	highlightCell(g, zone.getGrid().convert(point), image, size);
+    }
+    
+    public void highlightCell(Graphics2D g, ZonePoint point, BufferedImage image, float size) {
         
         Grid grid = zone.getGrid();
         double cwidth = grid.getCellWidth() * getScale();
@@ -1305,35 +1315,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         double iwidth = cwidth * size;
         double iheight = cheight * size;
         
-        // Top left of cell
-        ScreenPoint sp = point.convertToScreen(this);
+        ScreenPoint sp = ScreenPoint.fromZonePoint(this, point);
         
-        sp.x += zone.getGrid().getCellOffset().width * getScale() + 1;
-        sp.y += zone.getGrid().getCellOffset().height * getScale() + 1;
-        
-        g.drawImage (image, sp.x + (int)((cwidth - iwidth)/2), sp.y + (int)((cheight-iheight)/2), (int)iwidth, (int)iheight, this);
-    }
-
-    private BufferedImage cellShape;
-    private int lastScale;
-    public void highlightCell(Graphics2D g, CellPoint point) {
-
-        if (cellShape == null || lastScale != getZoneScale().getIndex()) {
-            
-            Grid grid = zone.getGrid();
-            Area shape = grid.getCellShape().createTransformedArea(AffineTransform.getScaleInstance (getScale(), getScale()));
-
-            Rectangle rect = shape.getBounds();
-            cellShape = new BufferedImage(rect.width, rect.height, Transparency.TRANSLUCENT);
-            Graphics2D g2d = cellShape.createGraphics ();
-            g2d.setColor(CELL_HIGHLIGHT_COLOR);
-            g2d.fill(shape);
-            g2d.dispose();
-            
-            lastScale = getZoneScale().getIndex();
-        }
-        
-        highlightCell(g, point, cellShape, 1.0f);
+        g.drawImage (image, (int)(sp.x - iwidth/2), (int)(sp.y - iheight/2), (int)iwidth, (int)iheight, this);
     }
 
     /**
@@ -1600,7 +1584,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             // Previous path
             if (showPathList.contains(token) && token.getLastPath() != null) {
-                renderPath(g, token.getLastPath(), footprint.height/gridSize, footprint.width/gridSize);
+                renderPath(g, token.getLastPath(), token.getFootprint(zone.getGrid()));
             }
             
             // Halo (TOPDOWN, CIRCLE)
