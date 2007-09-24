@@ -31,6 +31,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.InetAddress;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +59,8 @@ import net.tsc.servicediscovery.AnnouncementListener;
 import net.tsc.servicediscovery.ServiceFinder;
 
 import org.jdesktop.swingworker.SwingWorker;
+
+import yasb.Binder;
 /**
  * @author trevor
  */
@@ -84,6 +87,11 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		setPreferredSize(new Dimension(400, 400));
 		
 		panelInit();
+	}
+	
+	@Override
+	protected void preModelBind() {
+		Binder.setFormat(getPortTextField(), new DecimalFormat("####"));
 	}
 	
 	public int getPort() {
