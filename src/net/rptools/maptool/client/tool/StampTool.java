@@ -598,11 +598,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				int dx = sp.x - tokenPoint.x;
 				int dy = sp.y - tokenPoint.y;
 				
-//				if (dx > dy) {
-					sp.y = (int)(tokenPoint.y + (dx / ratio));
-//				} else {
-//					sp.x = (int)(tokenPoint.x + (dy * ratio));
-//				}
+				sp.y = (int)(tokenPoint.y + (dx / ratio));
 			}
 
 			ZonePoint zp = sp.convertToZone(renderer);
