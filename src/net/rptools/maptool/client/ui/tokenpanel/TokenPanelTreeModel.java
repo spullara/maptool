@@ -31,6 +31,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 		TOKENS("Tokens", Zone.Layer.TOKEN, false, false),
     	PLAYERS("Players", Zone.Layer.TOKEN, false, false),
 		GROUPS("Groups", Zone.Layer.TOKEN, false, false),
+		GM("GM", Zone.Layer.GM, false, true),
 		OBJECTS("Objects", Zone.Layer.OBJECT, false, true),
 		BACKGROUND("Background", Zone.Layer.BACKGROUND, false, true),
 		CLIPBOARD("Clipboard", Zone.Layer.TOKEN, false, true);
@@ -73,7 +74,8 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 		// TODO: refactor to more tightly couple the View enum and the corresponding filter
     	filterList.add(new TokenTokenFilter());
     	filterList.add(new PlayerTokenFilter());
-    	filterList.add(new StampFilter());
+    	filterList.add(new GMFilter());
+    	filterList.add(new ObjectFilter());
     	filterList.add(new BackgroundFilter());
     }
 	
@@ -270,15 +272,27 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     	}
     }
     
-    private class StampFilter extends TokenFilter {
+    private class ObjectFilter extends TokenFilter {
     	
-    	public StampFilter() {
+    	public ObjectFilter() {
     		super(View.OBJECTS);
     	}
     	
     	@Override
     	protected boolean accept(Token token) {
-    		return MapTool.getPlayer().isGM() && token.isStamp();
+    		return MapTool.getPlayer().isGM() && token.isObjectStamp();
+    	}
+    }
+    
+    private class GMFilter extends TokenFilter {
+    	
+    	public GMFilter() {
+    		super(View.GM);
+    	}
+    	
+    	@Override
+    	protected boolean accept(Token token) {
+    		return MapTool.getPlayer().isGM() && token.isGMStamp();
     	}
     }
     
@@ -290,7 +304,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     	
     	@Override
     	protected boolean accept(Token token) {
-    		return MapTool.getPlayer().isGM() && token.isBackground();
+    		return MapTool.getPlayer().isGM() && token.isBackgroundStamp();
     	}
     }
     
@@ -308,7 +322,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     			return false;
     		}
 
-    		if (token.isStamp() || token.isBackground() || token.getType() == Token.Type.PC) {
+    		if (token.isStamp() || token.getType() == Token.Type.PC) {
     			return false;
     		}
     		

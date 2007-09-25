@@ -298,7 +298,7 @@ public class Token extends BaseModel {
 	}
 	
 	public boolean isMarker() {
-		return (isStamp() || isBackground()) && (!StringUtil.isEmpty(notes) || !StringUtil.isEmpty(gmNotes) || portraitImage != null);
+		return isStamp() && (!StringUtil.isEmpty(notes) || !StringUtil.isEmpty(gmNotes) || portraitImage != null);
 	}
 	
 	public String getPropertyType() {
@@ -346,13 +346,26 @@ public class Token extends BaseModel {
 		return haloColor;
 	}
 	
-	public boolean isStamp() {
+	public boolean isObjectStamp() {
 		return getLayer() == Zone.Layer.OBJECT;
 	}
 	
-	public boolean isBackground() {
+	public boolean isGMStamp() {
+		return getLayer() == Zone.Layer.GM;
+	}
+	
+	public boolean isBackgroundStamp() {
 		return getLayer() == Zone.Layer.BACKGROUND;
 	}
+	
+	public boolean isStamp() {
+		switch(getLayer()) {
+		case BACKGROUND:
+		case OBJECT:
+		case GM:
+			return true;
+		}
+		return false;	}
 	
 	public boolean isToken() {
 		return getLayer() == Zone.Layer.TOKEN;

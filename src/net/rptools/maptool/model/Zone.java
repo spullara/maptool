@@ -644,7 +644,7 @@ public class Zone extends BaseModel {
     	copy.addAll(tokenOrderedList);
     	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
     		Token token = iter.next();
-    		if (token.isBackground() || token.isStamp()) {
+    		if (token.isStamp()) {
     			iter.remove();
     		}
     	}
@@ -656,7 +656,7 @@ public class Zone extends BaseModel {
     	copy.addAll(tokenOrderedList);
     	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
     		Token token = iter.next();
-    		if (!token.isStamp()) {
+    		if (!token.isObjectStamp()) {
     			iter.remove();
     		}
     	}
@@ -673,12 +673,23 @@ public class Zone extends BaseModel {
     	}
         return Collections.unmodifiableList(copy);
     }
-    public List<Token> getBackgroundTokens() {
+    public List<Token> getBackgroundStamps() {
     	List<Token> copy = new ArrayList<Token>();
     	copy.addAll(tokenOrderedList);
     	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
     		Token token = iter.next();
-    		if (!token.isBackground()) {
+    		if (!token.isBackgroundStamp()) {
+    			iter.remove();
+    		}
+    	}
+        return Collections.unmodifiableList(copy);
+    }
+    public List<Token> getGMStamps() {
+    	List<Token> copy = new ArrayList<Token>();
+    	copy.addAll(tokenOrderedList);
+    	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
+    		Token token = iter.next();
+    		if (!token.isGMStamp()) {
     			iter.remove();
     		}
     	}

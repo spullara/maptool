@@ -148,7 +148,7 @@ public class FacingTool extends DefaultTool {
     
     @Override
     protected void resetTool() {
-    	if (tokenUnderMouse.isStamp() || tokenUnderMouse.isBackground()) {
+    	if (tokenUnderMouse.isStamp()) {
     	  	  MapTool.getFrame().getToolbox().setSelectedTool(StampTool.class);
     	} else {
     	  	  MapTool.getFrame().getToolbox().setSelectedTool(PointerTool.class);

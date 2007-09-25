@@ -577,7 +577,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 								getToolbox().setSelectedTool(PointerTool.class);
 							} else {
 								getCurrentZoneRenderer().setActiveLayer(
-										token.isStamp() ? Zone.Layer.OBJECT
+										token.isObjectStamp() ? Zone.Layer.OBJECT
 												: Zone.Layer.BACKGROUND);
 								getToolbox().setSelectedTool(StampTool.class);
 							}
@@ -618,8 +618,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 							}
 							if (selectedTokenSet.size() > 0) {
 
-								if (firstToken.isStamp()
-										|| firstToken.isBackground()) {
+								if (firstToken.isStamp()) {
 
 									new StampPopupMenu(selectedTokenSet, x, y,
 											getCurrentZoneRenderer(),
@@ -1013,7 +1012,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		};
 
 		// Let's add all the assets, starting with the backgrounds
-		for (Token token : zone.getBackgroundTokens()) {
+		for (Token token : zone.getBackgroundStamps()) {
 
 			MD5Key key = token.getImageAssetId();
 

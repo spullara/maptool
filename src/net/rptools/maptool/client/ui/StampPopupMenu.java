@@ -46,7 +46,7 @@ public class StampPopupMenu extends AbstractTokenPopupMenu {
 
 		add(new JSeparator());
 
-		add(createChangeToMenu(Zone.Layer.TOKEN, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
+//		add(createChangeToMenu(Zone.Layer.TOKEN, Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
 		add(new ShowPropertiesDialogAction());
 	}
 }

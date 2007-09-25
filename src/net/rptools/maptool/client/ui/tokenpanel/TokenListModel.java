@@ -88,7 +88,7 @@ public class TokenListModel implements ListModel {
 
         for (ListIterator<Token> iter = tokenList.listIterator(); iter.hasNext();) {
         	
-        	if (iter.next().isStamp()) {
+        	if (iter.next().isObjectStamp()) {
         		iter.remove();
         	}
         }

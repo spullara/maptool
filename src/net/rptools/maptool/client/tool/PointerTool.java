@@ -544,10 +544,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         	
         	if (tokenUnderMouse != null && renderer.getSelectedTokenSet().size() > 0) {
         		
-        		if (!tokenUnderMouse.isStamp() && !tokenUnderMouse.isBackground()) {
-        			new TokenPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
-        		} else {
+        		if (tokenUnderMouse.isStamp()) {
         			new StampPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
+        		} else {
+        			new TokenPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
         		}
         		
         		return;

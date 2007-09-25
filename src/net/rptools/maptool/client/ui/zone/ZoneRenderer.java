@@ -595,11 +595,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         // Rendering pipeline
         renderBoard(g2d, view);
         renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, zone.getBackgroundDrawnElements());
-        renderTokens(g2d, zone.getBackgroundTokens(), view);
+        renderTokens(g2d, zone.getBackgroundStamps(), view);
         renderDrawableOverlay(g2d, objectDrawableRenderer, view, zone.getObjectDrawnElements());
         renderTokenTemplates(g2d, view);
         renderGrid(g2d, view);
         if (view.isGMView()) {
+        	renderTokens(g2d, zone.getGMStamps(), view);
             renderDrawableOverlay(g2d, gmDrawableRenderer, view, zone.getGMDrawnElements());
         }
         renderTokens(g2d, zone.getStampTokens(), view);
@@ -1044,7 +1045,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 int scaledWidth = (int)Math.ceil(footprint.width * scale);
                 int scaledHeight = (int)Math.ceil(footprint.height * scale);
                 
-                if (!token.isStamp() && !token.isBackground()) {
+                if (!token.isObjectStamp() && !token.isBackgroundStamp()) {
                     // Fit inside the grid
                     scaledWidth --;
                     scaledHeight --;
@@ -1054,10 +1055,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 int x = newScreenPoint.x + 1 - (token.isToken() ? scaledWidth/2 : 0);
                 int y = newScreenPoint.y + 1 - (token.isToken() ? scaledHeight/2 : 0);
                     
-//                Point p = grid.cellGroupCenterOffset(height, width, token.isToken ());
-//                x += p.x*scale;
-//                y += p.y*scale;
-//                
                 // Vision visibility
                 Rectangle clip = g.getClipBounds();
                 if (token.isToken() && !view.isGMView() && !isOwner && visibleArea != null) {
@@ -1070,9 +1067,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 // Show path only on the key token
                 if (token == keyToken) {
 
-                    if (!token.isBackground() && !token.isStamp()) {
+                    if (!token.isStamp()) {
                         
-                        if (!token.isStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
+                        if (!token.isObjectStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
                             renderPath(g, walker.getPath(), token.getFootprint(zone.getGrid()));
                         } else {
                         	Color highlight = new Color(255, 255, 255, 80);
@@ -1132,36 +1129,36 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
                 
                 // Draw token
-//                if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp () || token.isBackground())) {
-//
-//                    // Rotated
-//                    AffineTransform at = new AffineTransform();
-//                    at.translate(x, y);
-//
-//                    at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale, scaledHeight/2 - token.getAnchor().y*scale); // facing defaults to down, or -90 degrees
-//                    if (token.isSnapToScale()) {
-//                        at.scale(token.getScaleX(), token.getScaleY());
-//                    } else {
-//                    	Dimension tokenSize = token.getSize(zone.getGrid());
-//                        at.scale((double) tokenSize.width / workImage.getWidth (), (double) tokenSize.height / workImage.getHeight());
-//                    }
-//                    at.scale(getScale(), getScale());
-//                    g.drawImage(workImage, at, this);
-//                
-//                } else {
-//                    // Normal
-//                    g.drawImage(workImage, x, y, scaledWidth, scaledHeight, this);
-//                }
+                if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp())) {
+
+                    // Rotated
+                    AffineTransform at = new AffineTransform();
+                    at.translate(x, y);
+
+                    at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale, scaledHeight/2 - token.getAnchor().y*scale); // facing defaults to down, or -90 degrees
+                    if (token.isSnapToScale()) {
+                        at.scale(token.getScaleX(), token.getScaleY());
+                    } else {
+                    	Dimension tokenSize = token.getSize(zone.getGrid());
+                        at.scale((double) tokenSize.width / workImage.getWidth (), (double) tokenSize.height / workImage.getHeight());
+                    }
+                    at.scale(getScale(), getScale());
+                    g.drawImage(workImage, at, this);
+                
+                } else {
+                    // Normal
+                    g.drawImage(workImage, x, y, scaledWidth, scaledHeight, this);
+                }
 
                 // Other details
                 if (token == keyToken) {
 
-                	// Essentially, if the token is visible on the screen it will be in the location cache
+                	// if the token is visible on the screen it will be in the location cache
                     if (tokenLocationCache.containsKey(token)) {
 	                    y +=  10 + scaledHeight;
 	                    x += scaledWidth/2;
 	                    
-	                    if (!token.isBackground()) {
+	                    if (!token.isStamp()) {
 	                        if (AppState.getShowMovementMeasurements ()) {
 	                        	String distance = "";
 	                        	if (zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
@@ -1430,7 +1427,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 continue;
             }
             
-            if ((token.isBackground() || token.isStamp()) && isTokenMoving(token)) {
+            if (token.isStamp() && isTokenMoving(token)) {
                 continue;
             }
             
@@ -1443,21 +1440,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             int scaledHeight;
             int scaledWidth;
-//            if( isHexGrid() && token.isToken() ) {
-//                Dimension d = HexGridUtil.getTokenDimensions(token.getSize(),(HexGrid)grid, scale);
-//                
-//                Dimension sz = new Dimension(width, height);
-//                SwingUtil.constrainTo(sz, d.width, d.height);
-//
-//                scaledHeight = sz.height;
-//                scaledWidth = sz.width;
-//            }
-//            else {
-                scaledWidth = (int)Math.ceil(footprint.width * scale);
-                scaledHeight = (int)Math.ceil(footprint.height * scale);
-//            }
+            scaledWidth = (int)Math.ceil(footprint.width * scale);
+            scaledHeight = (int)Math.ceil(footprint.height * scale);
             
-            if (!token.isStamp() && !token.isBackground()) {
+            if (!token.isObjectStamp() && !token.isBackgroundStamp()) {
                 // Fit inside the grid
                 scaledWidth --;
                 scaledHeight --;
@@ -1471,10 +1457,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             int x = tokenScreenLocation.x + 1 - (token.isToken() ? scaledWidth/2 : 0);
             int y = tokenScreenLocation.y + 1 - (token.isToken() ? scaledHeight/2 : 0);
                 
-//            Point p = token.isToken() ? grid.cellGroupCenterOffset(height, width, token.isToken()) : grid.cellGroupTopLeftOffset(height, width, token.isToken());
-//            x += p.x*scale;
-//            y += p.y*scale;
-            
             Rectangle origBounds = new Rectangle(x, y, scaledWidth, scaledHeight);
             Area tokenBounds = new Area(origBounds);
             if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
@@ -1507,7 +1489,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
 
             // Stacking check
-            if (!token.isStamp() && !token.isBackground()) {
+            if (!token.isStamp()) {
                 for (TokenLocation currLocation : getTokenLocations(Zone.Layer.TOKEN)) {
     
                     Area r1 = currLocation.bounds;
@@ -1535,14 +1517,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // Keep track of the location on the screen
             // Note the order where the top most token is at the end of the list
             List<TokenLocation> locationList = null;
-            if (!token.isStamp() && !token.isBackground()) {
+            if (!token.isStamp()) {
                 locationList = getTokenLocations(Zone.Layer.TOKEN);
             } else {
-                if (token.isStamp()) {
+                if (token.isObjectStamp()) {
                     locationList = getTokenLocations(Zone.Layer.OBJECT);
                 }
-                if (token.isBackground()) {
+                if (token.isBackgroundStamp()) {
                     locationList = getTokenLocations(Zone.Layer.BACKGROUND);
+                }
+                if (token.isGMStamp()) {
+                    locationList = getTokenLocations(Zone.Layer.GM);
                 }
             }
             if (locationList != null) {
@@ -1574,8 +1559,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 BufferedImage replacementImage = replacementImageMap.get(token);
                 if (replacementImage == null) {
 
-//                    replacementImage = ImageUtil.rgbToGrayscale(image);
-                	replacementImage = new BufferedImage(1, 1, BufferedImage.TRANSLUCENT);
+                    replacementImage = ImageUtil.rgbToGrayscale(image);
                     
                     replacementImageMap.put(token, replacementImage);
                 }
@@ -1619,7 +1603,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	clipArea.intersect(visibleArea);
                 g.setClip(clipArea);
             }
-            if ( token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp() || token.isBackground())) {
+            if ( token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isObjectStamp() || token.isBackgroundStamp())) {
                 // Rotated
                 AffineTransform at = new AffineTransform();
                 at.translate(location.x, location.y);
@@ -1636,14 +1620,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             } else {
                 // Normal
                 
-//                if ( isHexGrid() && token.isToken()) { // Keep token aspect ratio square on hex grid
-//                    int newSize = location.scaledWidth < location.scaledHeight ? location.scaledWidth : location.scaledHeight;
-//                    Dimension d = HexGridUtil.getTokenAdjust((HexGrid)grid, location.scaledWidth, location.scaledHeight, token.getSize());
-//                    g.drawImage(workImage, location.x+d.width, location.y+d.height, newSize, newSize, this);
-//                }
-//                else {
-                    g.drawImage(workImage, location.x, location.y, location.scaledWidth, location.scaledHeight, this);
-//                }
+                g.drawImage(workImage, location.x, location.y, location.scaledWidth, location.scaledHeight, this);
             }
             g.setClip(clip);
 
@@ -1768,9 +1745,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             boolean isSelected = selectedTokenSet.contains(token.getId());
             if (isSelected) {
-                ImageBorder selectedBorder = token.isStamp() || token.isBackground() ? AppStyle.selectedStampBorder : AppStyle.selectedBorder;
+                ImageBorder selectedBorder = token.isStamp() ? AppStyle.selectedStampBorder : AppStyle.selectedBorder;
                 // Border
-                if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp() || token.isBackground ())) {
+                if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp ())) {
                     AffineTransform oldTransform = g.getTransform();
 
                     // Rotated

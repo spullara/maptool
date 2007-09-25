@@ -128,7 +128,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	
 	public StampTool () {
 		
-		layerSelectionDialog = new LayerSelectionDialog(new Zone.Layer[]{Zone.Layer.OBJECT, Zone.Layer.BACKGROUND}, new LayerSelectionListener() {
+		layerSelectionDialog = new LayerSelectionDialog(new Zone.Layer[]{Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND}, new LayerSelectionListener() {
 			public void layerSelected(Layer layer) {
 				if (renderer != null) {
 					renderer.setActiveLayer(layer);
@@ -486,10 +486,10 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
         	
         	if (tokenUnderMouse != null && renderer.getSelectedTokenSet().size() > 0) {
         		
-        		if (!tokenUnderMouse.isStamp() && !tokenUnderMouse.isBackground()) {
-        			new TokenPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
-        		} else {
+        		if (tokenUnderMouse.isStamp()) {
         			new StampPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
+        		} else {
+        			new TokenPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
         		}
         		
         		return;
@@ -1038,7 +1038,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 		isMovingWithKeys = true;
 		handleDragToken(zp);
-		if (tokenBeingDragged.isBackground()) {
+		if (tokenBeingDragged.isBackgroundStamp()) {
 			stopTokenDrag();
 		}
 	}
@@ -1082,7 +1082,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 					continue;
 				}
 				
-				if (!token.isStamp() && !token.isBackground()) {
+				if (!token.isStamp()) {
 					return;
 				}
 				
