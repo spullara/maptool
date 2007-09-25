@@ -40,6 +40,7 @@ import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.Transparency;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
@@ -87,6 +88,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
+import net.rptools.maptool.client.TransferableToken;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.client.ui.token.NewTokenDialog;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
@@ -2241,7 +2243,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     }
 
-    private void addTokens(List<Token> tokens, ZonePoint zp) {
+    private void addTokens(List<Token> tokens, ZonePoint zp, boolean configureToken) {
         GridCapabilities gridCaps = zone.getGrid().getCapabilities();
         boolean isGM = MapTool.getPlayer().isGM();
 
@@ -2259,12 +2261,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             token.setY(zp.y);
             
             // Set the image properties
-            BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(token.getImageAssetId()));
-            token.setShape(TokenUtil.guessTokenType((BufferedImage)image));
-            token.setWidth(image.getWidth(null));
-            token.setHeight(image.getHeight(null));
-            token.setLayer(getActiveLayer());
-            token.setFootprint(zone.getGrid(), zone.getGrid().getDefaultFootprint());
+            if (configureToken) {
+	            BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(token.getImageAssetId()));
+	            token.setShape(TokenUtil.guessTokenType((BufferedImage)image));
+	            token.setWidth(image.getWidth(null));
+	            token.setHeight(image.getHeight(null));
+	            token.setLayer(getActiveLayer());
+	            token.setFootprint(zone.getGrid(), zone.getGrid().getDefaultFootprint());
+            }
             
             // He who drops, owns, if there are not players already set
             if (!token.hasOwners() && !isGM) {
@@ -2281,11 +2285,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 if (AppPreferences.getTokensStartFreesize()) {
                 	token.setSnapToScale(false);
                 }
-            	break;
-            }
-            case GM: {
-            	// GM Layer is not visible to players.
-                token.setVisible(false);
             	break;
             }
             case BACKGROUND: {
@@ -2343,7 +2342,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // Save the token and tell everybody about it
             zone.putToken(token);
             MapTool.serverCommand().putToken(zone.getId(), token);
-        } // endfor
+        }
         
         // For convenience, select them
         clearSelectedTokens();
@@ -2383,12 +2382,23 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             for (Asset asset : assets) {
                 tokens.add(new Token(asset.getName(), asset.getId()));
             }
-            addTokens(tokens, zp);
+            addTokens(tokens, zp, true);
         } else {
-            tokens = TransferableHelper.getTokens(dtde.getTransferable ());
-            if (tokens != null) {
-                addTokens(tokens, zp);
-            }
+        	if (t.isDataFlavorSupported(TransferableToken.dataFlavor)) {
+        		try {
+        			tokens = Collections.singletonList((Token)t.getTransferData(TransferableToken.dataFlavor));
+        			addTokens(tokens, zp, false);
+        		} catch (UnsupportedFlavorException ufe) {
+        			ufe.printStackTrace();
+        		} catch (IOException ioe) {
+        			ioe.printStackTrace();
+        		}
+        	} else {
+        	
+	            tokens = TransferableHelper.getTokens(dtde.getTransferable ());
+                addTokens(tokens, zp, true);
+        	}
+
         }
         dtde.dropComplete(tokens != null);
     }

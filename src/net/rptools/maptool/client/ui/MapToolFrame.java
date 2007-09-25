@@ -682,20 +682,20 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				
-				// TODO use for real popup logic
-				if (SwingUtilities.isLeftMouseButton(e)) {
-					if (e.getClickCount() == 2) {
-
-						List<Object> idList = panel.getSelectedIds();
-						if (idList == null || idList.size() == 0) {
-							return;
-						}
-
-						final int index = (Integer) idList.get(0);
-						createZone(panel.getAsset(index));
-					}
-				}
-
+//				// TODO use for real popup logic
+//				if (SwingUtilities.isLeftMouseButton(e)) {
+//					if (e.getClickCount() == 2) {
+//
+//						List<Object> idList = panel.getSelectedIds();
+//						if (idList == null || idList.size() == 0) {
+//							return;
+//						}
+//
+//						final int index = (Integer) idList.get(0);
+//						createZone(panel.getAsset(index));
+//					}
+//				}
+//
 				if (SwingUtilities.isRightMouseButton(e) && MapTool.getPlayer().isGM()) {
 
 					List<Object> idList = panel.getSelectedIds();

@@ -188,6 +188,7 @@ public class TransferableHelper {
     }
     
     public static boolean isSupportedTokenFlavor(Transferable transferable) {
-        return transferable.isDataFlavorSupported(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR);
+        return transferable.isDataFlavorSupported(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR) || 
+        	transferable.isDataFlavorSupported(TransferableToken.dataFlavor);
     }
 }

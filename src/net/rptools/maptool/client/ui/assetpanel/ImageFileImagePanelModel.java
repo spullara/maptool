@@ -37,10 +37,14 @@ import java.util.ListIterator;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.swing.ImagePanelModel;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableAsset;
+import net.rptools.maptool.client.TransferableToken;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
+import net.rptools.maptool.util.PersistenceUtil;
 
 public class ImageFileImagePanelModel implements ImagePanelModel {
 
@@ -75,6 +79,21 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 
 	public Transferable getTransferable(int index) {
 		Asset asset = null;
+		
+		File file = fileList.get(index);
+		if (file.getName().toLowerCase().endsWith(Token.FILE_EXTENSION)) {
+			
+			try {
+				Token token = PersistenceUtil.loadToken(file);
+				
+				return new TransferableToken(token);
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				MapTool.showError("Could not load that token: " + ioe);
+				return null;
+			}
+		}
+		
 		if (dir instanceof AssetDirectory) {
 			asset = getAsset(index);
             

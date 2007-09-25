@@ -278,6 +278,9 @@ public class PersistenceUtil {
 		Token token = (Token) pakFile.getContent();
 		
 		for (MD5Key key : token.getAllImageAssets()) {
+			if (key == null) {
+				continue;
+			}
 			
 			if (!AssetManager.hasAsset(key)) {
 				Asset asset = (Asset) pakFile.getFileObject("assets/" + key);
