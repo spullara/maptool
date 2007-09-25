@@ -38,6 +38,11 @@ public class TokenFootprint {
 		
 	}
 	
+	@Override
+	public String toString() {
+		return name;
+	}
+	
 	public void addOffsetTranslator(OffsetTranslator translator) {
 		translatorList.add(translator);
 	}
