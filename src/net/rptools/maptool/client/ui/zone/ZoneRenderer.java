@@ -1042,8 +1042,25 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 int ty = (footprint.y+footprint.height/2) + setOffsetY + token.getAnchor().y;
                 ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, tx, ty);
                 
-                int scaledWidth = (int)Math.ceil(footprint.width * scale);
-                int scaledHeight = (int)Math.ceil(footprint.height * scale);
+                BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
+
+                int scaledWidth;
+                int scaledHeight;
+
+                Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
+                if (token.isSnapToScale()) {
+                	
+                    scaledWidth = (int)Math.ceil(footprint.width * scale * token.getSizeScale());
+                    scaledHeight = (int)Math.ceil(footprint.height * scale * token.getSizeScale());
+
+	                SwingUtil.constrainTo(imgSize, scaledWidth, scaledHeight);
+	                scaledWidth = imgSize.width;
+	                scaledHeight = imgSize.height;
+                } else {
+                	
+                	scaledWidth = (int)(imgSize.width * token.getScaleX() * scale);
+                	scaledHeight = (int)(imgSize.height * token.getScaleY() * scale);
+                }
                 
                 if (!token.isObjectStamp() && !token.isBackgroundStamp()) {
                     // Fit inside the grid
@@ -1111,8 +1128,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     newScreenPoint.y += (scaledGridSize - scaledHeight)/2;
                 }
                 
-                BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
-
                 // handle flipping
                 BufferedImage workImage = image;
                 if (token.isFlippedX() || token.isFlippedY()) {
@@ -1414,12 +1429,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         Rectangle viewport = new Rectangle(0, 0, getSize().width, getSize().height);
         Grid grid = zone.getGrid();
-        int scaledGridWidth = (int)( grid.getCellWidth()*getScale());
-        int scaledGridHeight = (int)(grid.getCellHeight()*getScale());
         
         Rectangle clipBounds = g.getClipBounds();
         float scale = zoneScale.getScale();
-        int gridSize = grid.getSize();
         for (Token token : tokenList) {
 
             // Don't bother if it's not visible
@@ -1438,12 +1450,36 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             Rectangle footprint = token.getFootprint(zone.getGrid()).getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
 
+            // OPTIMIZE:
+            BufferedImage image = null;
+            Asset asset = AssetManager.getAsset(token.getImageAssetId ());
+            if (asset == null) {
+
+                // In the mean time, show a placeholder
+                image = ImageManager.UNKNOWN_IMAGE;
+            } else {
+            
+                image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), this);
+            }
+
             int scaledHeight;
             int scaledWidth;
-            scaledWidth = (int)Math.ceil(footprint.width * scale);
-            scaledHeight = (int)Math.ceil(footprint.height * scale);
             
-            if (!token.isObjectStamp() && !token.isBackgroundStamp()) {
+            Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
+            if (token.isSnapToScale()) {
+	            scaledWidth = (int)Math.ceil(footprint.width * scale * token.getSizeScale());
+	            scaledHeight = (int)Math.ceil(footprint.height * scale * token.getSizeScale());
+	            
+	            SwingUtil.constrainTo(imgSize, scaledWidth, scaledHeight);
+	            
+	            scaledWidth = imgSize.width;
+	            scaledHeight = imgSize.height;
+            } else {
+            	scaledWidth = (int)(imgSize.width * token.getScaleX() * scale);
+            	scaledHeight = (int)(imgSize.height * token.getScaleY() * scale);
+            }
+            
+            if (!token.isStamp()) {
                 // Fit inside the grid
                 scaledWidth --;
                 scaledHeight --;
@@ -1532,18 +1568,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
             if (locationList != null) {
                  locationList.add(location);
-            }
-
-            // OPTIMIZE:
-            BufferedImage image = null;
-            Asset asset = AssetManager.getAsset(token.getImageAssetId ());
-            if (asset == null) {
-
-                // In the mean time, show a placeholder
-                image = ImageManager.UNKNOWN_IMAGE;
-            } else {
-            
-                image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), this);
             }
 
             // Only draw if we're visible

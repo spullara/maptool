@@ -67,6 +67,10 @@ public class LayerSelectionDialog extends JPanel {
 		return list;
 	}
 	
+	public void setSelectedLayer(Zone.Layer layer) {
+		list.setSelectedValue(layer, true);
+	}
+	
 	public static interface LayerSelectionListener {
 		public void layerSelected(Zone.Layer layer);
 	}

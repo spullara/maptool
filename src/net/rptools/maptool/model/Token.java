@@ -614,7 +614,7 @@ public class Token extends BaseModel {
 
 		Rectangle bounds = footprint.getBounds(grid);
 		
-		return new Dimension(bounds.width, bounds.height);
+		return new Dimension((int)(bounds.width*sizeScale), (int)(bounds.height*sizeScale));
 	}
 
 	public double getScaleX() {
