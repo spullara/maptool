@@ -123,7 +123,7 @@ public class TokenPropertiesDialog extends AbeillePanel {
 	public void showDialog(Token token) {
 		this.token = token;
 		
-		dialog = new GenericDialog("New Token", MapTool.getFrame(), this) {
+		dialog = new GenericDialog("Token Properties", MapTool.getFrame(), this) {
 			@Override
 			public void closeDialog() {
 				// TODO: I don't like this.  There should really be a AbeilleDialog class that does this
