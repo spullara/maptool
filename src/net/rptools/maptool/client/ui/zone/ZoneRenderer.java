@@ -1152,10 +1152,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
                     at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale, scaledHeight/2 - token.getAnchor().y*scale); // facing defaults to down, or -90 degrees
                     if (token.isSnapToScale()) {
-                        at.scale(token.getScaleX(), token.getScaleY());
-                    } else {
                     	Dimension tokenSize = token.getSize(zone.getGrid());
-                        at.scale((double) tokenSize.width / workImage.getWidth (), (double) tokenSize.height / workImage.getHeight());
+                    	SwingUtil.constrainTo(imgSize, tokenSize.width, tokenSize.height);
+                        at.scale((double) imgSize.width / workImage.getWidth (), (double) imgSize.height / workImage.getHeight());
                     }
                     at.scale(getScale(), getScale());
                     g.drawImage(workImage, at, this);
@@ -1627,17 +1626,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	clipArea.intersect(visibleArea);
                 g.setClip(clipArea);
             }
-            if ( token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isObjectStamp() || token.isBackgroundStamp())) {
+            if ( token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp())) {
                 // Rotated
                 AffineTransform at = new AffineTransform();
                 at.translate(location.x, location.y);
                 at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale), location.scaledHeight/2 - (token.getAnchor().y*scale)); // facing defaults to down, or -90 degrees
 
                 if (token.isSnapToScale()) {
-                     at.scale(token.getScaleX(), token.getScaleY());
-                } else {
                     Dimension tokenSize = token.getSize(zone.getGrid());
-                    at.scale((double) tokenSize.width / workImage.getWidth(), (double) tokenSize.height / workImage.getHeight());
+                    SwingUtil.constrainTo(imgSize, tokenSize.width, tokenSize.height);
+                    
+                    at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
                 }
                 at.scale(getScale(), getScale());
                 g.drawImage(workImage, at, this);
