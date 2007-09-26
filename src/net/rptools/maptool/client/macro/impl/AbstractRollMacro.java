@@ -72,7 +72,7 @@ public abstract class AbstractRollMacro extends AbstractMacro {
     protected static String rollInternal(String roll) {
     	
       	try {
-			Result result = new ExpressionParser().evaluate(roll);
+			Result result = MapTool.getExpressionParser().evaluate(roll);
 
 	    	StringBuilder sb = new StringBuilder();
 	    	

@@ -46,6 +46,7 @@ import javax.swing.UIManager;
 
 import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
+import net.rptools.common.expression.ExpressionParser;
 import net.rptools.lib.EventDispatcher;
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.TaskBarFlasher;
@@ -128,6 +129,8 @@ public class MapTool {
     private static TaskBarFlasher taskbarFlasher;
 
     private static EventDispatcher eventDispatcher;
+    
+    private static ExpressionParser parser;
     
 	public static void showError(String message) {
 		JOptionPane.showMessageDialog(clientFrame, "<html><body>"+I18N.getText(message)+"</body></html>", "Error", JOptionPane.ERROR_MESSAGE);
@@ -404,6 +407,14 @@ public class MapTool {
             campaign = new Campaign();
         }
         return campaign;
+    }
+    
+    public static ExpressionParser getExpressionParser() {
+        if (parser == null) {
+            parser = new ExpressionParser();
+        }
+        
+        return parser;
     }
     
     public static void setCampaign(Campaign campaign) {
