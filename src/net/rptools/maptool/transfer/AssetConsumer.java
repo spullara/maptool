@@ -83,7 +83,7 @@ public class AssetConsumer {
 	}
 
 	public double getPercentComplete() {
-		return currentPosition / header.getSize();
+		return currentPosition / (double)header.getSize();
 	}
 	
 	public long getSize() {

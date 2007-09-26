@@ -67,4 +67,7 @@ public class AssetTransferHandler implements ConsumerListener {
 	public void assetUpdated(Serializable id) {
 		// Nothing to do
 	}
+	public void assetAdded(Serializable id) {
+		// Nothing to do
+	}
 }

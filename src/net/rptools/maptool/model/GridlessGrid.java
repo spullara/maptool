@@ -2,10 +2,13 @@ package net.rptools.maptool.model;
 
 import java.awt.Rectangle;
 import java.awt.geom.Area;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GridlessGrid extends Grid {
 
+	private static List<TokenFootprint> footprintList;
+	
 	private static final GridCapabilities GRID_CAPABILITIES= new GridCapabilities() {
 		public boolean isPathingSupported() {return false;}
 		public boolean isSnapToGridSupported() {return false;}
@@ -19,7 +22,14 @@ public class GridlessGrid extends Grid {
 	
 	@Override
 	public List<TokenFootprint> getFootprints() {
-		return null;
+		if (footprintList == null) {
+			footprintList = new ArrayList<TokenFootprint>() {
+				{
+					add(new TokenFootprint("Standard"));
+				}
+			};
+		}
+		return footprintList;
 	}
 	
 	@Override
@@ -29,7 +39,8 @@ public class GridlessGrid extends Grid {
 	
 	@Override
 	public Rectangle getBounds(CellPoint cp) {
-		return null;
+		
+		return new Rectangle(cp.x, cp.y, getSize(), getSize());
 	}
 	
 	@Override

@@ -64,6 +64,10 @@ public class AssetTransferManager {
 		}
 		
 		consumerMap.put(consumer.getId(), consumer);
+
+		for (ConsumerListener listener : consumerListenerList) {
+			listener.assetAdded(consumer.getId());
+		}
 	}
 
 	/**
@@ -80,10 +84,15 @@ public class AssetTransferManager {
 		
 		consumer.update(chunk);
 		if (consumer.isComplete()) {
+			consumerMap.remove(consumer.getId());
+
 			for (ConsumerListener listener : consumerListenerList) {
 				listener.assetComplete(consumer.getId(), consumer.getName(), consumer.getFilename());
 			}
-			consumerMap.remove(consumer.getId());
+		} else {
+			for (ConsumerListener listener : consumerListenerList) {
+				listener.assetUpdated(consumer.getId());
+			}
 		}
 	}
 	
@@ -91,10 +100,8 @@ public class AssetTransferManager {
 	 * Get a list of current asset consumers, this is a good way to know what's going on in the system
 	 */
 	public synchronized List<AssetConsumer> getAssetConsumers() {
-		List<AssetConsumer> consumerList = new ArrayList<AssetConsumer>();
-		consumerList.addAll(consumerMap.values());
 		
-		return consumerList;
+		return new ArrayList<AssetConsumer>(consumerMap.values());
 	}
 	
 	public void addConsumerListener(ConsumerListener listener) {

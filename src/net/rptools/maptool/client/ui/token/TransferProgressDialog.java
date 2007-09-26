@@ -98,6 +98,7 @@ public class TransferProgressDialog extends AbeillePanel<Token> implements Consu
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				getTransferTable().setModel(model);
+				
 			}
 		});
 	}
@@ -109,19 +110,23 @@ public class TransferProgressDialog extends AbeillePanel<Token> implements Consu
 	
 	private static class TransferTableModel extends AbstractTableModel {
 
-		private List<AssetConsumer> consumerList = MapTool.getAssetTransferManager().getAssetConsumers();
+		private List<AssetConsumer> consumerList;
 		
 		public TransferTableModel() {
-			
+			consumerList = MapTool.getAssetTransferManager().getAssetConsumers();
 		}
 		
 		public int getColumnCount() {
 			return 3;
 		}
 		public int getRowCount() {
-			return consumerList.size();
+			return Math.max(consumerList.size(), 1);
 		}
 		public Object getValueAt(int rowIndex, int columnIndex) {
+
+			if (consumerList.size() == 0) {
+				return columnIndex == 0 ? "None" : "";
+			}
 			
 			AssetConsumer consumer = consumerList.get(rowIndex);
 			
@@ -150,6 +155,9 @@ public class TransferProgressDialog extends AbeillePanel<Token> implements Consu
 		updateTransferTable();
 	}
 	public void assetUpdated(Serializable id) {
+		getTransferTable().repaint();
+	}
+	public void assetAdded(Serializable id) {
 		updateTransferTable();
 	}
 }
