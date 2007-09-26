@@ -724,6 +724,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			private void createZone(Asset asset) {
 
 				Zone zone = ZoneFactory.createZone();
+				zone.setName(asset.getName());
 				BufferedImage image = ImageManager.getImageAndWait(asset);
 				if (image.getWidth() < 200 || image.getHeight() < 200) {
 					zone.setBackgroundPaint(new DrawableTexturePaint(asset));
