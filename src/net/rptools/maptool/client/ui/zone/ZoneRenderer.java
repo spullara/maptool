@@ -1157,6 +1157,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     	Dimension tokenSize = token.getSize(zone.getGrid());
                     	SwingUtil.constrainTo(imgSize, tokenSize.width, tokenSize.height);
                         at.scale((double) imgSize.width / workImage.getWidth (), (double) imgSize.height / workImage.getHeight());
+                    } else {
+                    	at.scale(token.getScaleX(), token.getScaleY());
                     }
                     at.scale(getScale(), getScale());
                     g.drawImage(workImage, at, this);
@@ -1639,6 +1641,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     SwingUtil.constrainTo(imgSize, tokenSize.width, tokenSize.height);
                     
                     at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
+                } else {
+                	at.scale(token.getScaleX(), token.getScaleY());
                 }
                 at.scale(getScale(), getScale());
                 g.drawImage(workImage, at, this);
