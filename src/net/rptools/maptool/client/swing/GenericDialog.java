@@ -21,7 +21,11 @@ public class GenericDialog extends JDialog {
 	private boolean hasPositionedItself;
 	
 	public GenericDialog(String title, Frame parent, JPanel panel) {
-		super(parent, title, true);
+		this(title, parent, panel, true);
+	}
+	
+	public GenericDialog(String title, Frame parent, JPanel panel, boolean modal) {
+		super(parent, title, modal);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		
 		this.panel = panel;

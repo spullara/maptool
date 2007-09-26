@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.Arrays;
 import java.util.List;
 
+import net.rptools.lib.GUID;
 import net.rptools.maptool.model.TokenFootprint;
 
 import com.thoughtworks.xstream.XStream;
@@ -11,6 +12,10 @@ import com.thoughtworks.xstream.XStream;
 public class TokenFootprintCreator {
 	
 	public static void main(String[] args) {
+		
+		System.out.println(new GUID());
+		System.out.println(new GUID());
+		System.out.println(new GUID());
 		
 		List<TokenFootprint> footprintList = Arrays.asList(new TokenFootprint[]{
 

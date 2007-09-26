@@ -76,6 +76,7 @@ import net.rptools.maptool.client.ui.StaticMessageDialog;
 import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.assetpanel.Directory;
+import net.rptools.maptool.client.ui.token.TransferProgressDialog;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneView;
 import net.rptools.maptool.language.I18N;
@@ -894,6 +895,27 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 
 			MapTool.getFrame().getToolbox().setSelectedTool(GridTool.class);
+		}
+
+	};
+
+	private static TransferProgressDialog transferProgressDialog;
+	public static final Action SHOW_TRANSFER_WINDOW = new DefaultClientAction() {
+		{
+			init("Show Transfer Window");
+		}
+
+		public void execute(ActionEvent e) {
+
+			if (transferProgressDialog == null) {
+				 transferProgressDialog = new TransferProgressDialog();
+			}
+			
+			if (transferProgressDialog.isShowing()) {
+				return;
+			}
+			
+			transferProgressDialog.showDialog();
 		}
 
 	};

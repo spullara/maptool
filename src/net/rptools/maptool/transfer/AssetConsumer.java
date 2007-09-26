@@ -82,6 +82,14 @@ public class AssetConsumer {
 		return currentPosition >= header.getSize();
 	}
 
+	public double getPercentComplete() {
+		return currentPosition / header.getSize();
+	}
+	
+	public long getSize() {
+		return header.getSize();
+	}
+	
 	/**
 	 * When complete this will point to the file containing the data
 	 * @return

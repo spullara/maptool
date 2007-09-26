@@ -255,13 +255,6 @@ public class AppMenuBar extends JMenuBar {
     protected JMenu createWindowMenu() {
     	JMenu menu = I18N.createMenu("menu.window");
     	
-    	for(MTFrame frame : MapToolFrame.MTFrame.values()) {
-    		JMenuItem menuItem = new RPCheckBoxMenuItem(new AppActions.ToggleWindowAction(frame));
-    		menu.add(menuItem);
-    	}
-
-    	menu.addSeparator();
-    	
         menu.add(new AbstractAction() {
         	{
         		putValue(Action.NAME, "Restore layout");
@@ -271,6 +264,16 @@ public class AppMenuBar extends JMenuBar {
         		
         	}
         });
+
+    	menu.addSeparator();
+
+    	for(MTFrame frame : MapToolFrame.MTFrame.values()) {
+    		JMenuItem menuItem = new RPCheckBoxMenuItem(new AppActions.ToggleWindowAction(frame));
+    		menu.add(menuItem);
+    	}
+
+        menu.addSeparator();
+        menu.add(new JMenuItem(AppActions.SHOW_TRANSFER_WINDOW));
 
         return menu;
     }

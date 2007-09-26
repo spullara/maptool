@@ -64,4 +64,7 @@ public class AssetTransferHandler implements ConsumerListener {
 		MapTool.getFrame().refresh();
 	}
 
+	public void assetUpdated(Serializable id) {
+		// Nothing to do
+	}
 }
