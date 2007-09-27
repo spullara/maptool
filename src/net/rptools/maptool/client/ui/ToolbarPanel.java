@@ -59,7 +59,7 @@ public class ToolbarPanel extends JToolBar {
 		optionPanel = new JPanel(new CardLayout());
 		
 		final OptionPanel pointerGroupOptionPanel = createPointerPanel();
-		final JToggleButton pointerGroupButton = createButton("net/rptools/maptool/client/image/tool/pointer-blue.png", "net/rptools/maptool/client/image/tool/pointer-blue.png", pointerGroupOptionPanel, "Interaction Tools"); 
+		final JToggleButton pointerGroupButton = createButton("net/rptools/maptool/client/image/tool/pointer-blue.png", "net/rptools/maptool/client/image/tool/pointer-blue-off.png", pointerGroupOptionPanel, "Interaction Tools"); 
 		
 		pointerGroupButton.setSelected(true);
 		pointerGroupOptionPanel.activate();
@@ -74,9 +74,9 @@ public class ToolbarPanel extends JToolBar {
 		
 		add(pointerGroupButton);
 		add(createButton("net/rptools/maptool/client/image/tool/draw-blue.png", "net/rptools/maptool/client/image/tool/draw-blue-off.png", createDrawPanel(), "Drawing Tools"));
-		add(createButton("net/rptools/maptool/client/image/tool/temp-blue-cone.png", "net/rptools/maptool/client/image/tool/temp-blue-cone.png", createTemplatePanel(), "Template Tools"));
-		add(createButton("net/rptools/maptool/client/image/tool/fog-blue.png", "net/rptools/maptool/client/image/tool/fog-blue.png", createFogPanel(), "Fog of War tools"));
-		add(createButton("net/rptools/maptool/client/image/tool/eye-blue.png", "net/rptools/maptool/client/image/tool/eye-blue.png", createTopologyPanel(), "Topology tools"));
+		add(createButton("net/rptools/maptool/client/image/tool/temp-blue-cone.png", "net/rptools/maptool/client/image/tool/temp-blue-off.png", createTemplatePanel(), "Template Tools"));
+		add(createButton("net/rptools/maptool/client/image/tool/fog-blue.png", "net/rptools/maptool/client/image/tool/fog-blue-off.png", createFogPanel(), "Fog of War tools"));
+		add(createButton("net/rptools/maptool/client/image/tool/eye-blue.png", "net/rptools/maptool/client/image/tool/eye-blue-off.png", createTopologyPanel(), "Topology tools"));
 		add(createZoneSelectionButton());
 		add(vertSplit);
 		add(horizontalSplit);

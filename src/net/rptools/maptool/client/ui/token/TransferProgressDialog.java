@@ -35,8 +35,10 @@ import java.text.NumberFormat;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumnModel;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.AbeillePanel;
@@ -99,6 +101,9 @@ public class TransferProgressDialog extends AbeillePanel<Token> implements Consu
 			public void run() {
 				getTransferTable().setModel(model);
 				
+				TableColumnModel colModel = getTransferTable().getColumnModel();
+				colModel.getColumn(1).setMaxWidth(100);
+				colModel.getColumn(2).setMaxWidth(75);
 			}
 		});
 	}
@@ -132,12 +137,18 @@ public class TransferProgressDialog extends AbeillePanel<Token> implements Consu
 			
 			switch(columnIndex) {
 			case 0: return consumer.getId();
-			case 1: return consumer.getSize();
+			case 1: return formatSize(consumer.getSize());
 			case 2: return NumberFormat.getPercentInstance().format(consumer.getPercentComplete());
 			}
 			
 			return null;
 		}
+		
+		private String formatSize(long size) {
+			
+			return NumberFormat.getIntegerInstance().format(size/1024) + "k";
+		}
+		
 		@Override
 		public String getColumnName(int column) {
 			switch(column) {

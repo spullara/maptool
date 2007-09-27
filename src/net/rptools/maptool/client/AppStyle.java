@@ -75,7 +75,7 @@ public class AppStyle {
             cellWaypointImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/redDot.png");
             stackImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/stack.png");
             markerImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/marker.png");
-            chatImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chat.png");
+            chatImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chat-blue.png");
             chatScrollImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments.png"); 
             chatScrollLockImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments_delete.png"); 
             boundedBackgroundTile = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/Black.png");

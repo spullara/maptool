@@ -360,6 +360,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		private List<String[]> data;
 		
 		public RemoteServerTableModel(List<String> encodedData) {
+			System.out.println(encodedData);
 			data = new ArrayList<String[]>(encodedData.size());
 			for (String line : encodedData) {
 				String[] row = line.split(":");
