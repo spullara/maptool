@@ -51,6 +51,8 @@ public class Campaign {
     private Map<String, List<TokenProperty>> tokenTypeMap;
     private List<String> remoteRepositoryList;
     
+    private Map<String, LookupTable> lookupTableMap;
+    
     private transient boolean isBeingSerialized;
 
     public Campaign() {
@@ -72,16 +74,19 @@ public class Campaign {
     		Zone copy = new Zone(entry.getValue());
     		zones.put(copy.getId(), copy);
     	}
-    	if (tokenTypeMap != null) {
+    	if (campaign.tokenTypeMap != null) {
         	tokenTypeMap = new HashMap<String, List<TokenProperty>>(); 
         	for (Entry<String, List<TokenProperty>> entry : campaign.tokenTypeMap.entrySet()) {
 
         		List<TokenProperty> typeList = new ArrayList<TokenProperty>();
-        		typeList.addAll(tokenTypeMap.get(entry.getKey()));
+        		typeList.addAll(campaign.tokenTypeMap.get(entry.getKey()));
 
         		tokenTypeMap.put(entry.getKey(), typeList);
         	}
     		
+    	}
+    	if (campaign.lookupTableMap != null) {
+    		lookupTableMap = new HashMap<String, LookupTable>(campaign.lookupTableMap);
     	}
     }
     
@@ -128,6 +133,13 @@ public class Campaign {
     		tokenTypeMap.put(DEFAULT_TOKEN_PROPERTY_TYPE, createBasicPropertyList());
     	}
     	return tokenTypeMap;
+    }
+    
+    public Map<String, LookupTable> getLookupTableMap() {
+    	if (lookupTableMap == null) {
+    		lookupTableMap = new HashMap<String, LookupTable>();
+    	}
+    	return lookupTableMap;
     }
     
     private List<TokenProperty> createBasicPropertyList() {

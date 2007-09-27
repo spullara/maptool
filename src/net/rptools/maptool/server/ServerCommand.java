@@ -26,6 +26,7 @@ package net.rptools.maptool.server;
 
 import java.awt.geom.Area;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.rptools.lib.MD5Key;
@@ -33,6 +34,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Label;
+import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
@@ -124,5 +126,5 @@ public interface ServerCommand {
     public void setServerPolicy(ServerPolicy policy);
     public void renameZone(GUID zoneGUID, String name);
     public void heartbeat(String data);
-    public void updateCampaign(String typeName, List<TokenProperty> propertyList, List<String> repositoryList);
+    public void updateCampaign(String typeName, List<TokenProperty> propertyList, List<String> repositoryList, Map<String, LookupTable> lookupTableMap);
 }

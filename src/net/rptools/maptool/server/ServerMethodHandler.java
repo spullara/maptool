@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
@@ -38,10 +39,10 @@ import net.rptools.maptool.common.MapToolConstants;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
-import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Label;
+import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
@@ -112,7 +113,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case removeTopology:          removeTopology(context.getGUID(0), (Area) context.get(1)); break;
             case renameZone:			  renameZone(context.getGUID(0), context.getString(1));break;
             case heartbeat:				  heartbeat(context.getString(0));break;
-            case updateCampaign:		  updateCampaign(context.getString(0), (List<TokenProperty>)context.get(1), (List<String>)context.get(2));break;
+            case updateCampaign:		  updateCampaign(context.getString(0), (List<TokenProperty>)context.get(1), (List<String>)context.get(2), (Map<String, LookupTable>)context.get(3));break;
             case movePointer: 			  movePointer(context.getString(0), context.getInt(1), context.getInt(2));break;
             }
         } finally {
@@ -152,10 +153,12 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     	forwardToClients();
     }
     
-    public void updateCampaign(String typeName, List<TokenProperty> propertyList, List<String> repositoryList) {
+    public void updateCampaign(String typeName, List<TokenProperty> propertyList, List<String> repositoryList, Map<String, LookupTable> lookupTableMap) {
     	server.getCampaign().putTokenType(typeName, propertyList);
     	server.getCampaign().getRemoteRepositoryList().clear();
     	server.getCampaign().getRemoteRepositoryList().addAll(repositoryList);
+    	server.getCampaign().getLookupTableMap().clear();
+    	server.getCampaign().getLookupTableMap().putAll(lookupTableMap);
 
     	forwardToClients();
     }

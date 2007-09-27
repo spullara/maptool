@@ -26,6 +26,7 @@ package net.rptools.maptool.client;
 
 import java.awt.geom.Area;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -34,6 +35,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Label;
+import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
@@ -76,8 +78,8 @@ public class ServerCommandClientImpl implements ServerCommand {
     	}
     }
 
-    public void updateCampaign(String typeName, List<TokenProperty> propertyList, List<String> repositoryList) {
-    	makeServerCall(COMMAND.updateCampaign, typeName, propertyList);
+    public void updateCampaign(String typeName, List<TokenProperty> propertyList, List<String> repositoryList, Map<String, LookupTable> lookupTableMap) {
+    	makeServerCall(COMMAND.updateCampaign, typeName, propertyList, repositoryList, lookupTableMap);
     }
     
     public void getZone(GUID zoneGUID) {
