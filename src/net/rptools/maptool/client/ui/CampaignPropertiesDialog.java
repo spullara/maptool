@@ -231,7 +231,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 					int min = 0;
 					int max = 0;
 					
-					split = rangeStr.indexOf("-");
+					split = rangeStr.indexOf("-", rangeStr.charAt(0) == '-' ? 1 : 0); // Allow negative numbers
 					try {
 						if (split < 0) {
 							min = Integer.parseInt(rangeStr);
