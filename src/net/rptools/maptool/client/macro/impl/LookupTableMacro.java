@@ -27,6 +27,7 @@ package net.rptools.maptool.client.macro.impl;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
+import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.TextMessage;
 
@@ -64,14 +65,22 @@ public class LookupTableMacro extends AbstractMacro {
     		MapTool.addLocalMessage("No such table '" + tableName + "'");
     		return;
     	}
+    	
+    	String result = lookupTable.getLookup(value);
 
+    	// Command handling
+    	if (result != null && result.startsWith("/")) {
+    		MacroManager.executeMacro(result);
+    		return;
+    	}
+    	
     	sb.append("Table ").append(tableName).append(" (");
         sb.append(MapTool.getFrame().getCommandPanel().getIdentity());
         sb.append("): ");
         
         sb.append("<span style='color:red'>");
         
-        sb.append(lookupTable.getLookup(value));
+        sb.append(result);
         sb.append("</span>");
         MapTool.addMessage(TextMessage.say(sb.toString()));
     }

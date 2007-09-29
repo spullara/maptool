@@ -52,7 +52,8 @@ public class LookupTable {
 
 			for (LookupEntry entry : getEntryList()) {
 				if (tableResult >= entry.min && tableResult <= entry.max) {
-					return "[" + tableResult + "] " + entry.result;
+					// Support for "/" commands
+					return entry.result.startsWith("/") ? entry.result : "[" + tableResult + "] " + entry.result;
 				}
 			}
 			
