@@ -31,6 +31,7 @@ import java.awt.Graphics2D;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.ZonePoint;
 
 /**
  * Base class for the radius, line, and cone templates.
@@ -52,17 +53,12 @@ public abstract class AbstractTemplate extends AbstractDrawing {
   /**
    * The location of the vertex where painting starts.
    */
-  private ScreenPoint vertex = new ScreenPoint(0, 0);
+  private ZonePoint vertex = new ZonePoint(0, 0);
   
   /**
    * The id of the zone where this drawable is painted.
    */
   private GUID zoneId;
-  
-  /**
-   * The scale used for determining sizes as an overlay
-   */
-  private double scale = 1.0;
   
   /*---------------------------------------------------------------------------------------------
    * Class Variables
@@ -171,7 +167,7 @@ public abstract class AbstractTemplate extends AbstractDrawing {
    *
    * @return Returns the current value of vertex.
    */
-  public ScreenPoint getVertex() {
+  public ZonePoint getVertex() {
     return vertex;
   }
 
@@ -180,7 +176,7 @@ public abstract class AbstractTemplate extends AbstractDrawing {
    *
    * @param vertex The vertex to set.
    */
-  public void setVertex(ScreenPoint vertex) {
+  public void setVertex(ZonePoint vertex) {
     this.vertex = vertex;
   }
 
@@ -203,24 +199,6 @@ public abstract class AbstractTemplate extends AbstractDrawing {
   }
 
   /**
-   * Get the scale for this RadiusTemplate.
-   *
-   * @return Returns the current value of scale.
-   */
-  public double getScale() {
-    return scale;
-  }
-
-  /**
-   * Set the value of scale for this RadiusTemplate.
-   *
-   * @param scale The scale to set.
-   */
-  public void setScale(double scale) {
-    this.scale = scale;
-  }
-
-  /**
    * Paint the border or area of the template
    * 
    * @param g Where to paint
@@ -231,7 +209,7 @@ public abstract class AbstractTemplate extends AbstractDrawing {
     if (radius == 0) return;
 
     // Find the proper distance
-    int gridSize = (int)(MapTool.getCampaign().getZone(zoneId).getGrid().getSize() * scale);
+    int gridSize = MapTool.getCampaign().getZone(zoneId).getGrid().getSize();
     for (int y = 0; y < radius; y++) {
       for (int x = 0; x < radius; x++) {
        
@@ -346,7 +324,7 @@ public abstract class AbstractTemplate extends AbstractDrawing {
   protected int getYMult(Quadrant q) {
     return ((q == Quadrant.NORTH_WEST || q == Quadrant.NORTH_EAST) ? -1 : +1);
   }
-
+  
   /*---------------------------------------------------------------------------------------------
    * Class Methods 
    *-------------------------------------------------------------------------------------------*/
@@ -424,4 +402,5 @@ public abstract class AbstractTemplate extends AbstractDrawing {
    * is offset from the vertex by <code>x</code> & <code>y</code>.
    */
   protected abstract void paintArea(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance);
+
 }

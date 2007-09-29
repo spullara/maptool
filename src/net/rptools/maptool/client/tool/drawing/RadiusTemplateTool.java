@@ -32,6 +32,7 @@ import java.awt.Paint;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -86,7 +87,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * <code>null</code> then this would be the first time that the control key had been
    * reported in the mouse event.
    */
-  protected ScreenPoint controlOffset;
+  protected ZonePoint controlOffset;
   
   /*---------------------------------------------------------------------------------------------
    * Class Variables
@@ -136,8 +137,8 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @param point The current point.
    * @return Flag indicating that the value changed.
    */
-  protected boolean setCellAtMouse(MouseEvent e, ScreenPoint point) {
-    ScreenPoint working = getCellAtMouse(e);
+  protected boolean setCellAtMouse(MouseEvent e, ZonePoint point) {
+    ZonePoint working = getCellAtMouse(e);
     if (!working.equals(point)) {
       point.x = working.x;
       point.y = working.y;
@@ -154,18 +155,20 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @param e The event to be checked.
    * @return The cell at the mouse point in screen coordinates.
    */
-  protected ScreenPoint getCellAtMouse(MouseEvent e) {
+  protected ZonePoint getCellAtMouse(MouseEvent e) {
 
-    // Find the upper left corner of the cell that the mouse is in.
-    ScreenPoint working = renderer.getCellAt(new ScreenPoint(e.getX(), e.getY())).convertToScreen(renderer);
+    // Find the cell that the mouse is in.
+    ZonePoint mouse = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
+    CellPoint cp = renderer.getZone().getGrid().convert(mouse);
+    ZonePoint working = renderer.getZone().getGrid().convert(cp);
 
     // If the mouse is over half way to the next vertext, move it there
     // (both X & Y)
-    int grid = (int) (renderer.getZone().getGrid().getSize() * renderer.getScale());
-    if (e.getX() - working.x >= grid / 2)
-      working.x += grid;
-    if (e.getY() - working.y >= grid / 2)
-      working.y += grid;
+    int grid = (int)(renderer.getZone().getGrid().getSize() * renderer.getScale());
+    if (mouse.x - working.x >= grid / 2)
+      working.x += renderer.getZone().getGrid().getSize();
+    if (mouse.y - working.y >= grid / 2)
+      working.y += renderer.getZone().getGrid().getSize();
     return working;
   }
 
@@ -176,9 +179,8 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @return The radius between the current mouse location and the vertex location.
    */
   protected int getRadiusAtMouse(MouseEvent e) {
-    ScreenPoint working = getCellAtMouse(e);
-    CellPoint workingCell = renderer.getCellAt(working);
-    CellPoint vertexCell = renderer.getCellAt(template.getVertex());
+    CellPoint workingCell = renderer.getZone().getGrid().convert(getCellAtMouse(e));
+    CellPoint vertexCell = renderer.getZone().getGrid().convert(template.getVertex());
     int x = Math.abs(workingCell.x - vertexCell.x);
     int y = Math.abs(workingCell.y - vertexCell.y);
     return AbstractTemplate.getDistance(x, y);
@@ -188,11 +190,11 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * Paint a cursor
    * 
    * @param g Where to paint.
-   * @param color The color of the cursor
+   * @param paint Data to draw the curser
    * @param thickness The thickness of the cursor.
    * @param vertex The vertex holding the cursor.
    */
-  protected void paintCursor(Graphics2D g, Paint paint, float thickness, ScreenPoint vertex) {
+  protected void paintCursor(Graphics2D g, Paint paint, float thickness, ZonePoint vertex) {
     int halfCursor = CURSOR_WIDTH / 2;
     g.setPaint(paint);
     g.setStroke(new BasicStroke(thickness));
@@ -224,7 +226,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @param g Where to paint.
    * @param p Vertex where radius is painted.
    */
-  protected void paintRadius(Graphics2D g, ScreenPoint p) {
+  protected void paintRadius(Graphics2D g, ZonePoint p) {
     if (template.getRadius() > 0) {
       ScreenPoint centerText = new ScreenPoint(p.x, p.y); // Must copy point
       centerText.translate(CURSOR_WIDTH, -CURSOR_WIDTH);
@@ -233,28 +235,16 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
   }
 
   /**
-   * Paint the template at the current scale.
-   * 
-   * @param g Where to paint.
-   * @param pen Pen used to paint.
-   */
-  protected void paintTemplate(Graphics2D g, Pen pen) {
-    template.setScale(renderer.getScale());
-    template.draw(g, pen);
-    template.setScale(1.0);
-  }
-
-  /**
    * New instance of the template, at the passed vertex
    * 
    * @param vertex The starting vertex for the new template or
    * <code>null</code> if we should use the current template's vertex.
    */
-  protected void resetTool(ScreenPoint vertex) {
+  protected void resetTool(ZonePoint vertex) {
     anchorSet = false;
     if (vertex == null) {
       vertex = template.getVertex();
-      vertex = new ScreenPoint(vertex.x, vertex.y); // Must create copy!
+      vertex = new ZonePoint(vertex.x, vertex.y); // Must create copy!
     } // endif
     template = createBaseTemplate();
     template.setVertex(vertex);
@@ -271,8 +261,8 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @param e The mouse movement event.
    * @param vertex The vertex being modified. 
    */
-  protected void handleControlOffset(MouseEvent e, ScreenPoint vertex) {
-    ScreenPoint working = getCellAtMouse(e);
+  protected void handleControlOffset(MouseEvent e, ZonePoint vertex) {
+    ZonePoint working = getCellAtMouse(e);
     if (controlOffset == null) {
       controlOffset = working;
       controlOffset.x = working.x - vertex.x;
@@ -296,7 +286,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
    */
   public void mouseMoved(MouseEvent e) {
-    ScreenPoint vertex = template.getVertex();
+    ZonePoint vertex = template.getVertex();
     if (!anchorSet) {
       setCellAtMouse(e, vertex);
       controlOffset = null;  
@@ -318,12 +308,16 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    *      java.awt.Graphics2D)
    */
   @Override
-  public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
+  public void paintOverlay(ZoneRenderer renderer, Graphics2D g)
+  {
     if (painting && renderer != null) {
       Pen pen = getPenForOverlay();
-      paintTemplate(g, pen);
+      AffineTransform old = g.getTransform();
+      g.setTransform(getPaintTransform(renderer));
+      template.draw(g, pen);
       paintCursor(g, pen.getPaint().getPaint(), pen.getThickness(), template.getVertex());
       paintRadius(g, template.getVertex());
+      g.setTransform(old);
     } // endif
   }
 
@@ -416,16 +410,11 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
 	    // Set the eraser, set the drawable, reset the tool.
 	    setIsEraser(isEraser(e));
 	    template.setRadius(getRadiusAtMouse(e));
-	    ScreenPoint vertex = template.getVertex();
-	    ScreenPoint newPoint = new ScreenPoint(vertex.x, vertex.y);
-	    ZonePoint zPoint = vertex.convertToZone(renderer);
-	    vertex.x = zPoint.x;
-	    vertex.y = zPoint.y;
+	    ZonePoint vertex = template.getVertex();
+	    ZonePoint newPoint = new ZonePoint(vertex.x, vertex.y);
 	    completeDrawable(renderer.getZone().getId(), getPen(), template);
 	    setIsEraser(false);
 	    resetTool(newPoint);
-    } else {
-    	super.mousePressed(e);
     }
   }
 

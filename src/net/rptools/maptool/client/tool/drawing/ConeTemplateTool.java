@@ -33,6 +33,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.AbstractTemplate;
 import net.rptools.maptool.model.drawing.ConeTemplate;
 import net.rptools.maptool.model.drawing.RadiusTemplate;
@@ -109,8 +110,9 @@ public class ConeTemplateTool extends RadiusTemplateTool {
       handleControlOffset(e, template.getVertex());
     } else {
       template.setRadius(getRadiusAtMouse(e));
-      ScreenPoint vertex = template.getVertex();
-      ((ConeTemplate) template).setDirection(RadiusTemplate.Direction.findDirection(e.getX(), e.getY(), vertex.x, vertex.y));
+      ZonePoint vertex = template.getVertex();
+      ZonePoint mouse = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
+      ((ConeTemplate) template).setDirection(RadiusTemplate.Direction.findDirection(mouse.x, mouse.y, vertex.x, vertex.y));
       renderer.repaint();
       controlOffset = null;
     } // endif

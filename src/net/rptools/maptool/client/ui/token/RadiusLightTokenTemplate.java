@@ -29,9 +29,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.RadiusTemplate;
 
 /**
@@ -97,7 +97,7 @@ public class RadiusLightTokenTemplate extends RadiusTemplate implements TokenTem
    * Default constructor sets a radius of 20' and gets the current pen.
    */
   public RadiusLightTokenTemplate() {
-    setVertex(new ScreenPoint(0, 0));
+    setVertex(new ZonePoint(0, 0));
     setRadius(4);
     setBrightColor(new Color(255, 255, 0, 255/6));
   }
@@ -112,23 +112,22 @@ public class RadiusLightTokenTemplate extends RadiusTemplate implements TokenTem
   public void paintTemplate(Graphics2D aG, Token aToken, Rectangle aBounds, ZoneRenderer aRenderer) {
     
     // Offset for the corner
-    ScreenPoint v = getVertex();
+    ZonePoint v = getVertex();
     Quadrant c = Quadrant.valueOf(corner);
-    float multiplier = 1;//TokenSize.Size.values()[aToken.getSize()].sizeFactor();
+    int multiplier = 1;//TokenSize.Size.values()[aToken.getSize()].sizeFactor();
     if (multiplier < 1) multiplier = 1;
-    int offset = (int)(aRenderer.getScaledGridSize() * multiplier);
     switch (c) {
     case NORTH_EAST:
-      v.x = offset;
+      v.x = multiplier * aRenderer.getZone().getGrid().getSize();
       v.y = 0;
       break;
     case SOUTH_WEST:
       v.x = 0;
-      v.y = offset;
+      v.y = multiplier * aRenderer.getZone().getGrid().getSize();
       break;
     case SOUTH_EAST:
-      v.x = offset;
-      v.y = offset;
+      v.x = multiplier * aRenderer.getZone().getGrid().getSize();
+      v.y = multiplier * aRenderer.getZone().getGrid().getSize();
       break;
     case NORTH_WEST:
     default:
@@ -139,7 +138,6 @@ public class RadiusLightTokenTemplate extends RadiusTemplate implements TokenTem
     
     // Set scale and zone id
     setZoneId(aRenderer.getZone().getId());
-    setScale(aRenderer.getScale());
     paint(aG, isBrightBorder() || isShadowBorder(), true);
   }
 

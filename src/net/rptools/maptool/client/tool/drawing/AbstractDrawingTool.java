@@ -82,12 +82,16 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     	return new Rectangle(x, y, w, h);
     }
 
+    protected AffineTransform getPaintTransform(ZoneRenderer renderer) {
+        AffineTransform transform = new AffineTransform();
+        transform.translate(renderer.getViewOffsetX(), renderer.getViewOffsetY());
+        transform.scale(renderer.getScale(), renderer.getScale());
+        return transform;
+    }
+    
     protected void paintTransformed(Graphics2D g, ZoneRenderer renderer, Drawable drawing, Pen pen) {
 
-    	AffineTransform transform = new AffineTransform();
-    	transform.translate(renderer.getViewOffsetX(), renderer.getViewOffsetY());
-    	transform.scale(renderer.getScale(), renderer.getScale());
-    	
+    	AffineTransform transform = getPaintTransform(renderer);
     	AffineTransform oldTransform = g.getTransform();
     	g.transform(transform);
     	drawing.draw(g, pen);

@@ -28,20 +28,19 @@ package net.rptools.maptool.client.tool.drawing;
 import java.awt.Graphics2D;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.AppState;
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.AbstractTemplate;
-import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.LineTemplate;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.AbstractTemplate.Quadrant;
@@ -102,10 +101,10 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
   }
 
   /**
-   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#resetTool(net.rptools.maptool.client.ScreenPoint)
+   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#resetTool(net.rptools.maptool.model.ZonePoint)
    */
   @Override
-  protected void resetTool(ScreenPoint aVertex) {
+  protected void resetTool(ZonePoint aVertex) {
     super.resetTool(aVertex);
     pathAnchorSet = false;
     ((LineTemplate) template).setDoubleWide(AppState.useDoubleWideLine());
@@ -131,14 +130,17 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
   public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
     if (painting && renderer != null) {
       Pen pen = getPenForOverlay();
-      ScreenPoint vertex = template.getVertex();
-      ScreenPoint pathVertex = ((LineTemplate) template).getPathVertex();
-      paintTemplate(g, pen);
+      AffineTransform old = g.getTransform();
+      g.setTransform(getPaintTransform(renderer));
+      ZonePoint vertex = template.getVertex();
+      ZonePoint pathVertex = ((LineTemplate) template).getPathVertex();
+      template.draw(g, pen);
       paintCursor(g, pen.getPaint().getPaint(), pen.getThickness(), vertex);
       if (pathVertex != null) {
         paintCursor(g, pen.getPaint().getPaint(), pen.getThickness(), pathVertex);
         paintRadius(g, vertex);
       }
+      g.setTransform(old);
     }
   }
 
@@ -152,21 +154,6 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
   }
   
   /**
-   * @see net.rptools.maptool.client.tool.drawing.AbstractDrawingTool#completeDrawable(net.rptools.maptool.model.GUID, net.rptools.maptool.model.drawing.Pen, net.rptools.maptool.model.drawing.Drawable)
-   */
-  @Override
-  protected void completeDrawable(GUID aZoneId, Pen aPen, Drawable aDrawable) {
-    
-    // Need to convert the pathVertex in the line template before we complete the template
-    LineTemplate template = (LineTemplate)aDrawable;
-    ScreenPoint vertex = template.getPathVertex();
-    ZonePoint zPoint = vertex.convertToZone(renderer);
-    vertex.x = zPoint.x;
-    vertex.y = zPoint.y;
-    super.completeDrawable(aZoneId, aPen, aDrawable);
-  }
-  
-  /**
    * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#mousePressed(java.awt.event.MouseEvent)
    */
   @Override
@@ -174,18 +161,20 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
     if (!painting)
       return;
     
-    // Need to set the anchor?
-    controlOffset = null;
-    if (!anchorSet) {
-      anchorSet = true;
-      return;
+    if (SwingUtilities.isLeftMouseButton(aE)) {
+        
+        // Need to set the anchor?
+        controlOffset = null;
+        if (!anchorSet) {
+            anchorSet = true;
+            return;
+        } // endif
+        if (!pathAnchorSet) {
+            pathAnchorSet = true;
+            return;
+        } // endif
     } // endif
     
-    if (!pathAnchorSet) {
-      pathAnchorSet = true;
-      return;
-    } // endif
-
     // Let the radius code finish the template
     super.mousePressed(aE);
   }
@@ -201,8 +190,8 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
     
     // Setting anchor point
     LineTemplate lt = (LineTemplate) template;
-    ScreenPoint pathVertex = lt.getPathVertex();
-    ScreenPoint vertex = lt.getVertex();
+    ZonePoint pathVertex = lt.getPathVertex();
+    ZonePoint vertex = lt.getVertex();
     if (!anchorSet) {
       setCellAtMouse(e, vertex);
       controlOffset = null;
@@ -214,7 +203,7 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
       
       // The path vertex remains null until it is set the first time.
       if (pathVertex == null) {
-        pathVertex = new ScreenPoint(vertex.x, vertex.y);
+        pathVertex = new ZonePoint(vertex.x, vertex.y);
         lt.setPathVertex(pathVertex);
       } // endif
       if (pathVertex != null && setCellAtMouse(e, pathVertex)) 

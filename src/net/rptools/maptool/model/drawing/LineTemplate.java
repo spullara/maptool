@@ -57,7 +57,7 @@ public class LineTemplate extends AbstractTemplate {
   /**
    * This vertex is used to determine the path.
    */
-  private ScreenPoint pathVertex;
+  private ZonePoint pathVertex;
 
   /**
    * The calculated path for this line.
@@ -143,7 +143,7 @@ public class LineTemplate extends AbstractTemplate {
       return;
 
     // Paint each element in the path
-    int gridSize = (int) (MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize() * getScale());
+    int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
     ListIterator<ScreenPoint> i = path.listIterator();
     while (i.hasNext()) {
       ScreenPoint p = i.next();
@@ -162,10 +162,10 @@ public class LineTemplate extends AbstractTemplate {
   }
 
   /**
-   * @see net.rptools.maptool.model.drawing.AbstractTemplate#setVertex(ScreenPoint)
+   * @see net.rptools.maptool.model.drawing.AbstractTemplate#setVertex(ZonePoint)
    */
   @Override
-  public void setVertex(ScreenPoint vertex) {
+  public void setVertex(ZonePoint vertex) {
     clearPath();
     super.setVertex(vertex);
   }
@@ -197,7 +197,7 @@ public class LineTemplate extends AbstractTemplate {
     int radius = getRadius();
 
     // Is there a slope?
-    ScreenPoint vertex = getVertex();
+    ZonePoint vertex = getVertex();
     if (vertex.equals(pathVertex))
       return null;
     double dx = pathVertex.x - vertex.x;
@@ -221,8 +221,8 @@ public class LineTemplate extends AbstractTemplate {
         int y = p.y;
 
         // Which border does the point exit the cell?
-        double xValue = new BigDecimal((y + 1) / m, MathContext.DECIMAL32).doubleValue();
-        double yValue = new BigDecimal((x + 1) * m, MathContext.DECIMAL32).doubleValue();
+        double xValue = new BigDecimal((y + 1) / m, MathContext.DECIMAL128).doubleValue();
+        double yValue = new BigDecimal((x + 1) * m, MathContext.DECIMAL128).doubleValue();
         if (xValue == x + 1 && yValue == y + 1) {
 
           // Special case, right on the diagonal
@@ -234,7 +234,8 @@ public class LineTemplate extends AbstractTemplate {
         } else if (Math.floor(yValue) == y) {
           path.add(getPointFromPool(x + 1, y));
         } else {
-          System.err.println("I can't do math: m=" + m + " x=" + x + " xValue=" + xValue + " y=" + y + " yValue=" + yValue);
+          System.err.println("I can't do math: dx=" + dx + " dy=" + dy + " m=" + m + " x=" + x + " xValue=" + xValue + " y=" + y + " yValue=" + yValue);
+          return path;
         } // endif
         p = path.get(path.size() - 1);
       } // endwhile
@@ -293,7 +294,7 @@ public class LineTemplate extends AbstractTemplate {
    *
    * @return Returns the current value of pathVertex.
    */
-  public ScreenPoint getPathVertex() {
+  public ZonePoint getPathVertex() {
     return pathVertex;
   }
 
@@ -302,7 +303,7 @@ public class LineTemplate extends AbstractTemplate {
    *
    * @param pathVertex The pathVertex to set.
    */
-  public void setPathVertex(ScreenPoint pathVertex) {
+  public void setPathVertex(ZonePoint pathVertex) {
     if (pathVertex.equals(this.pathVertex)) return;
     clearPath();
     this.pathVertex = pathVertex;
@@ -375,7 +376,7 @@ public class LineTemplate extends AbstractTemplate {
   public void setDoubleWide(boolean aDoubleWide) {
     doubleWide = aDoubleWide;
   }
-  
+
   /*---------------------------------------------------------------------------------------------
    * Drawable Interface Methods
    *-------------------------------------------------------------------------------------------*/
@@ -386,9 +387,9 @@ public class LineTemplate extends AbstractTemplate {
   public Rectangle getBounds() {
     
     // Get all of the numbers needed for the calculation
-    ScreenPoint v = getVertex();
+    ZonePoint v = getVertex();
     Quadrant quadrant = getQuadrant();
-    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize() * getScale());
+    int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
     
     // Find the point that is farthest away in the path, then adjust 
     ScreenPoint pv = new ScreenPoint(-1, -1);

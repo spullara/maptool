@@ -29,7 +29,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.model.ZonePoint;
 
 /**
  * The radius template draws a highlight over all the squares effected from a specific
@@ -118,9 +118,9 @@ public class RadiusTemplate extends AbstractTemplate {
    * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
    */
   public Rectangle getBounds() {
-    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize() * getScale());
+    int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
     int quadrantSize = getRadius() * gridSize + BOUNDS_PADDING;
-    ScreenPoint vertex = getVertex();
+    ZonePoint vertex = getVertex();
     return new Rectangle(vertex.x - quadrantSize, vertex.y - quadrantSize, quadrantSize * 2, quadrantSize * 2);
   }
 }

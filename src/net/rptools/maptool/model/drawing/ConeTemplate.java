@@ -29,7 +29,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.model.ZonePoint;
 
 /**
  * The cone template draws a highlight over all the squares effected from a specific
@@ -237,11 +237,11 @@ public class ConeTemplate extends RadiusTemplate {
    * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
    */
   public Rectangle getBounds() {
-    int gridSize = (int)(MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize() * getScale());
+    int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
     int quadrantSize = getRadius() * gridSize + BOUNDS_PADDING;
     
     // Find the x,y loc
-    ScreenPoint vertex = getVertex();
+    ZonePoint vertex = getVertex();
     int x = vertex.x;
     if (getDirection() == Direction.NORTH_WEST || getDirection() == Direction.WEST || getDirection() == Direction.SOUTH_WEST
         || getDirection() == Direction.NORTH || getDirection() == Direction.SOUTH)

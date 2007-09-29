@@ -29,9 +29,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.ConeTemplate;
 
 /**
@@ -97,7 +97,7 @@ public class ConeLightTokenTemplate extends ConeTemplate implements TokenTemplat
    * Default constructor sets a radius of 20' and gets the current pen.
    */
   public ConeLightTokenTemplate() {
-    setVertex(new ScreenPoint(0, 0));
+    setVertex(new ZonePoint(0, 0));
     setRadius(4);
     setBrightColor(new Color(255, 255, 0, 255/6));
   }
@@ -112,20 +112,20 @@ public class ConeLightTokenTemplate extends ConeTemplate implements TokenTemplat
   public void paintTemplate(Graphics2D aG, Token aToken, Rectangle aBounds, ZoneRenderer aRenderer) {
     
     // Offset for the corner
-    ScreenPoint v = getVertex();
+    ZonePoint v = getVertex();
     Quadrant c = Quadrant.valueOf(corner);
     switch (c) {
     case NORTH_EAST:
-      v.x = (int)aRenderer.getScaledGridSize();
+      v.x = aRenderer.getZone().getGrid().getSize();
       v.y = 0;
       break;
     case SOUTH_WEST:
       v.x = 0;
-      v.y = (int)aRenderer.getScaledGridSize();
+      v.y = aRenderer.getZone().getGrid().getSize();
       break;
     case SOUTH_EAST:
-      v.x = (int)aRenderer.getScaledGridSize();
-      v.y = (int)aRenderer.getScaledGridSize();
+      v.x = aRenderer.getZone().getGrid().getSize();
+      v.y = aRenderer.getZone().getGrid().getSize();
       break;
     case NORTH_WEST:
     default:
@@ -136,7 +136,6 @@ public class ConeLightTokenTemplate extends ConeTemplate implements TokenTemplat
     
     // Set scale and zone id
     setZoneId(aRenderer.getZone().getId());
-    setScale(aRenderer.getScale());
     paint(aG, isBrightBorder() || isShadowBorder(), true);
   }
 
