@@ -1091,13 +1091,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                         if (!token.isObjectStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
                             renderPath(g, walker.getPath(), token.getFootprint(zone.getGrid()));
                         } else {
+                        	
+                        	// Line
                         	Color highlight = new Color(255, 255, 255, 80);
                         	Stroke highlightStroke = new BasicStroke(9);
                         	Stroke oldStroke = g.getStroke();
                         	Object oldAA = SwingUtil.useAntiAliasing(g);
-                            ScreenPoint lastPoint = ScreenPoint.fromZonePoint(this, token.getX()+(int)(grid.getCellOffset().width*scale), token.getY()+(int)(grid.getCellOffset().height*scale));
+                            ScreenPoint lastPoint = ScreenPoint.fromZonePoint(this, token.getX()+(int)(grid.getCellOffset().width*scale+scaledWidth/2), token.getY()+(int)(grid.getCellOffset().height*scale+scaledHeight/2));
                             for (ZonePoint zp : set.gridlessPath.getCellPath()) {
-	                            ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x +(int)(grid.getCellOffset().width*scale), zp.y + (int)(grid.getCellOffset().height*scale));
+	                            ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x +(int)(grid.getCellOffset().width*scale+scaledWidth/2), zp.y + (int)(grid.getCellOffset().height*scale+scaledHeight/2));
 	                            
 	                            g.setColor(highlight);
 	                            g.setStroke(highlightStroke);
@@ -1118,6 +1120,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                             g.drawLine(lastPoint.x, lastPoint.y, x + scaledWidth/2, y + scaledHeight/2);
 
                             SwingUtil.restoreAntiAliasing(g, oldAA);
+                            
+                            // Waypoints
+                            for (ZonePoint p : set.gridlessPath.getCellPath()) {
+
+                            	p = new ZonePoint(p.x +(int)(grid.getCellOffset().width*scale+scaledWidth/2), p.y + (int)(grid.getCellOffset().height*scale+scaledHeight/2));
+                                highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
+                            }
                         }
                     }
                 }
