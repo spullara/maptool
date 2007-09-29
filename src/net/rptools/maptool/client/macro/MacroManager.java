@@ -177,8 +177,11 @@ public class MacroManager {
 				}
 	
 				// preprocess line
-				command = AbstractRollMacro.inlineRoll(command);
-				
+				if (!command.startsWith("alias")) {
+					// TODO: Fix this.  The command framework should know whether expansion should
+					// happen.  Until then we need to avoid expanding values in the alias command
+					command = AbstractRollMacro.inlineRoll(command);
+				}
 				
 				// Macro name is the first word
 				Matcher m = MACRO_PAT.matcher(command);
