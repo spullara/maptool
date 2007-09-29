@@ -317,7 +317,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 
 			// OK
 			port = Integer.parseInt(getPortTextField().getText());
-			hostname = getServerNameTextField().getText();
+			hostname = getHostTextField().getText();
 		}
 		if (SwingUtil.hasComponent(selectedPanel, "rptoolsPanel")) {
 			if (getServerNameTextField().getText().length() == 0) {
