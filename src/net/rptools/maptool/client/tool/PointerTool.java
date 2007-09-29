@@ -70,6 +70,7 @@ import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.swing.HTMLPanelRenderer;
 import net.rptools.maptool.client.ui.StampPopupMenu;
@@ -256,7 +257,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     	public void handleMousePressed(MouseEvent event) {
     		if (event.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(event)) {
     			Token token = getTokenAt(event.getX(), event.getY());
-    			if (token == null) {
+    			if (token == null || !AppUtil.playerOwns(token)) {
     				return;
     			}
 
@@ -402,6 +403,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				// Single
 				Token token = renderer.getTokenAt(e.getX(), e.getY());
 				if (token != null) {
+					
+					if (!AppUtil.playerOwns(token)) {
+						return;
+					}
 
 					TokenPropertiesDialog tokenPropertiesDialog = MapTool.getFrame().getTokenPropertiesDialog();
 					tokenPropertiesDialog.showDialog(tokenUnderMouse);
