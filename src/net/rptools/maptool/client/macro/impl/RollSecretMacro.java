@@ -39,8 +39,12 @@ public class RollSecretMacro extends AbstractRollMacro {
         String result = roll(macro);
         if (result != null) {
         	
-            MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), "* " + MapTool.getPlayer().getName() + " rolls secretly to you: " + result));
-        	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "You roll secretly to the GM"));
+            if (!MapTool.getPlayer().isGM()) {
+            	MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), "* " + MapTool.getPlayer().getName() + " rolls secretly to you: " + result));
+            	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "You roll secretly to the GM"));
+            } else {
+            	MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), "* " + " You roll secretly: " + result));
+            }
         }
     }
 }
