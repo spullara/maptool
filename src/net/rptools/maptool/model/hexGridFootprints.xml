@@ -6,6 +6,7 @@
       <id>
         <baGUID>fwABAQllXDgBAAAAOAABAQ==</baGUID>
       </id>
+      <scale>1</scale>
       <isDefault>true</isDefault>
     </net.rptools.maptool.model.TokenFootprint>
     <net.rptools.maptool.model.TokenFootprint>
@@ -23,6 +24,7 @@
       <id>
         <baGUID>fwABAQllXDgCAAAAOAABAQ==</baGUID>
       </id>
+      <scale>1</scale>
       <isDefault>false</isDefault>
     </net.rptools.maptool.model.TokenFootprint>
     <net.rptools.maptool.model.TokenFootprint>
@@ -57,6 +59,7 @@
         <baGUID>fwABAQllXDgDAAAAOAABAQ==</baGUID>
       </id>
       <isDefault>false</isDefault>
+      <scale>1</scale>
     </net.rptools.maptool.model.TokenFootprint>
   </a>
 </java.util.Arrays_-ArrayList>

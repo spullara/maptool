@@ -20,6 +20,7 @@ public class TokenFootprint {
 	private String name;
 	private GUID id;
 	private boolean isDefault;
+	private double scale = 1;
 	
 	private transient List<OffsetTranslator> translatorList = new LinkedList<OffsetTranslator>();
 	
@@ -27,10 +28,11 @@ public class TokenFootprint {
 		// for serialization
 	}
 	
-	public TokenFootprint(String name, boolean isDefault, Point... points) {
+	public TokenFootprint(String name, boolean isDefault, double scale, Point... points) {
 		this.name = name;
 		id = new GUID();
 		this.isDefault = isDefault;
+		this.scale = scale;
 		
 		for (Point p : points) {
 			cellSet.add(p);
@@ -66,7 +68,7 @@ public class TokenFootprint {
 	}
 	
 	public TokenFootprint(String name, Point... points) {
-		this(name, false, points);
+		this(name, false, 1, points);
 	}
 
 	public void setDefault(boolean isDefault) {
@@ -87,6 +89,10 @@ public class TokenFootprint {
 
 	public Rectangle getBounds(Grid grid) {
 		return getBounds(grid, null);
+	}
+	
+	public double getScale() {
+		return scale;
 	}
 	
 	/**

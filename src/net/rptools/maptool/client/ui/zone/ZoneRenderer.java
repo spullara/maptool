@@ -1038,10 +1038,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
                 
                 // OPTIMIZE: combine this with the code in renderTokens()
-                Rectangle footprint = token.getFootprint(zone.getGrid()).getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
+                TokenFootprint footprint = token.getFootprint(zone.getGrid());
+                Rectangle footprintBounds = footprint.getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
                 
-                int tx = (footprint.x+footprint.width/2) + setOffsetX + token.getAnchor().x;
-                int ty = (footprint.y+footprint.height/2) + setOffsetY + token.getAnchor().y;
+                int tx = (footprintBounds.x+footprintBounds.width/2) + setOffsetX + token.getAnchor().x;
+                int ty = (footprintBounds.y+footprintBounds.height/2) + setOffsetY + token.getAnchor().y;
                 ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, tx, ty);
                 
                 BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
@@ -1052,8 +1053,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
                 if (token.isSnapToScale()) {
                 	
-                    scaledWidth = (int)Math.ceil(footprint.width * scale * token.getSizeScale());
-                    scaledHeight = (int)Math.ceil(footprint.height * scale * token.getSizeScale());
+                    scaledWidth = (int)Math.ceil(footprintBounds.width * scale * token.getSizeScale()*footprint.getScale());
+                    scaledHeight = (int)Math.ceil(footprintBounds.height * scale * token.getSizeScale()*footprint.getScale());
 
 	                SwingUtil.constrainTo(imgSize, scaledWidth, scaledHeight);
 	                scaledWidth = imgSize.width;
@@ -1460,7 +1461,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	continue;
             }
 
-            Rectangle footprint = token.getFootprint(zone.getGrid()).getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
+            TokenFootprint footprint = token.getFootprint(zone.getGrid());
+            Rectangle footprintBounds = footprint.getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
 
             // OPTIMIZE:
             BufferedImage image = null;
@@ -1479,8 +1481,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
             Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
             if (token.isSnapToScale()) {
-	            scaledWidth = (int)Math.ceil(footprint.width * scale * token.getSizeScale());
-	            scaledHeight = (int)Math.ceil(footprint.height * scale * token.getSizeScale());
+	            scaledWidth = (int)Math.ceil(footprintBounds.width * scale * token.getSizeScale()*footprint.getScale());
+	            scaledHeight = (int)Math.ceil(footprintBounds.height * scale * token.getSizeScale()*footprint.getScale());
 	            
 	            SwingUtil.constrainTo(imgSize, scaledWidth, scaledHeight);
 	            
@@ -1497,8 +1499,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 scaledHeight --;
             }
             
-            int tx = (footprint.x+footprint.width/2) + token.getAnchor().x;
-            int ty = (footprint.y+footprint.height/2) + token.getAnchor().y;
+            int tx = (footprintBounds.x+footprintBounds.width/2) + token.getAnchor().x;
+            int ty = (footprintBounds.y+footprintBounds.height/2) + token.getAnchor().y;
             ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, tx, ty);
             
             // Tokens are centered on the image center point
@@ -1511,7 +1513,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth/2 + x - (token.getAnchor().x*scale), scaledHeight/2 + y - (token.getAnchor().y*scale))); // facing defaults to down, or -90 degrees
             }
             
-            location = new TokenLocation(tokenBounds, origBounds, token, x, y, footprint.width, footprint.height, scaledWidth, scaledHeight);
+            location = new TokenLocation(tokenBounds, origBounds, token, x, y, footprintBounds.width, footprintBounds.height, scaledWidth, scaledHeight);
             tokenLocationCache.put(token, location);
             
             // General visibility
@@ -1679,7 +1681,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 switch(tokenType) {
                 case CIRCLE:
                     
-                    Shape arrow = getCircleFacingArrow(token.getFacing(), footprint.width);
+                    Shape arrow = getCircleFacingArrow(token.getFacing(), footprintBounds.width);
 
                     int cx = location.x + location.scaledWidth/2;
                     int cy = location.y + location.scaledHeight/2;
@@ -1694,7 +1696,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 case SQUARE:
                     
                     int facing = token.getFacing();
-                    arrow = getSquareFacingArrow(facing, footprint.width);
+                    arrow = getSquareFacingArrow(facing, footprintBounds.width);
 
                     cx = location.x + location.scaledWidth/2;
                     cy = location.y + location.scaledHeight/2;

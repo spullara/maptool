@@ -13,32 +13,30 @@ public class TokenFootprintCreator {
 	
 	public static void main(String[] args) {
 		
-		System.out.println(new GUID());
-		System.out.println(new GUID());
-		System.out.println(new GUID());
-		
 		List<TokenFootprint> footprintList = Arrays.asList(new TokenFootprint[]{
 
-//			new TokenFootprint("Medium", true),
+			// SQUARE
+			new TokenFootprint("Medium", true, 1.0),
 //			new TokenFootprint("Large", squarePoints(2)),
 //			new TokenFootprint("Huge", squarePoints(3)),
 //			new TokenFootprint("Gargantuan", squarePoints(4)),
 //			new TokenFootprint("Colossal", squarePoints(6)),
 
-			new TokenFootprint("Medium", true),
-			new TokenFootprint("Large", points(new int[][] {
-				{0, 1},
-				{1, 0},
-			})),
-			
-			new TokenFootprint("Large", points(new int[][] {
-				{0, 1},
-				{1, 0},
-				{-1, 0},
-				{-1, -1},
-				{0, -1},
-				{1, -1}
-			})),
+			// HEXES
+//			new TokenFootprint("Medium", true, 1.0),
+//			new TokenFootprint("Large", points(new int[][] {
+//				{0, 1},
+//				{1, 0},
+//			})),
+//			
+//			new TokenFootprint("Large", points(new int[][] {
+//				{0, 1},
+//				{1, 0},
+//				{-1, 0},
+//				{-1, -1},
+//				{0, -1},
+//				{1, -1}
+//			})),
 					
 //			new TokenFootprint("Large", points(new int[][] {
 //					{},

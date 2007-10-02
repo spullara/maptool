@@ -6,6 +6,7 @@
       <id>
         <baGUID>fwABAc1lFSoBAAAAKgABAQ==</baGUID>
       </id>
+      <scale>0.5</scale>
     </net.rptools.maptool.model.TokenFootprint>
     <net.rptools.maptool.model.TokenFootprint>
       <cellSet/>
@@ -13,6 +14,7 @@
       <id>
         <baGUID>fwABAc1lFSoCAAAAKgABAQ==</baGUID>
       </id>
+      <scale>0.5</scale>
     </net.rptools.maptool.model.TokenFootprint>
     <net.rptools.maptool.model.TokenFootprint>
       <cellSet/>
@@ -20,6 +22,7 @@
       <id>
         <baGUID>fwABAc5lFSoDAAAAKgABAA==</baGUID>
       </id>
+      <scale>0.5</scale>
     </net.rptools.maptool.model.TokenFootprint>
     <net.rptools.maptool.model.TokenFootprint>
       <cellSet/>
@@ -27,6 +30,7 @@
       <id>
         <baGUID>fwABAc5lFSoEAAAAKgABAA==</baGUID>
       </id>
+      <scale>0.75</scale>
     </net.rptools.maptool.model.TokenFootprint>
     <net.rptools.maptool.model.TokenFootprint>
       <cellSet/>
@@ -34,6 +38,7 @@
       <id>
         <baGUID>fwABAc9lFSoFAAAAKgABAQ==</baGUID>
       </id>
+      <scale>1</scale>
       <isDefault>true</isDefault>
     </net.rptools.maptool.model.TokenFootprint>
     <net.rptools.maptool.model.TokenFootprint>
@@ -55,6 +60,7 @@
       <id>
         <baGUID>fwABAdBlFSoGAAAAKgABAA==</baGUID>
       </id>
+      <scale>1</scale>
     </net.rptools.maptool.model.TokenFootprint>
     <net.rptools.maptool.model.TokenFootprint>
       <cellSet>
@@ -95,6 +101,7 @@
       <id>
         <baGUID>fwABAdBlFSoHAAAAKgABAA==</baGUID>
       </id>
+      <scale>1</scale>
     </net.rptools.maptool.model.TokenFootprint>
     <net.rptools.maptool.model.TokenFootprint>
       <cellSet>
@@ -163,6 +170,7 @@
       <id>
         <baGUID>fwABAdFlFSoIAAAAKgABAQ==</baGUID>
       </id>
+      <scale>1</scale>
     </net.rptools.maptool.model.TokenFootprint>
     <net.rptools.maptool.model.TokenFootprint>
       <cellSet>
@@ -311,6 +319,7 @@
       <id>
         <baGUID>fwABAeFlFSoJAAAAKgABAQ==</baGUID>
       </id>
+      <scale>1</scale>
     </net.rptools.maptool.model.TokenFootprint>
   </a>
 </java.util.Arrays_-ArrayList>
