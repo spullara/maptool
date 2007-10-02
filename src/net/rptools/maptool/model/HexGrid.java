@@ -55,8 +55,8 @@ public abstract class HexGrid extends Grid {
 		ZonePoint zp = getCenterPoint(cp);
 		Shape shape = getCellShape();
 
-		zp.x -= shape.getBounds().width/2;
-		zp.y -= shape.getBounds().height/2;
+		zp.x -= shape.getBounds().width/2 + getOffsetX();
+		zp.y -= shape.getBounds().height/2 + getOffsetY();
 		
 		int w = shape.getBounds().width;
 		int h = shape.getBounds().height;

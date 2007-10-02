@@ -1097,9 +1097,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                         	Stroke highlightStroke = new BasicStroke(9);
                         	Stroke oldStroke = g.getStroke();
                         	Object oldAA = SwingUtil.useAntiAliasing(g);
-                            ScreenPoint lastPoint = ScreenPoint.fromZonePoint(this, token.getX()+(int)(grid.getCellOffset().width*scale+scaledWidth/2), token.getY()+(int)(grid.getCellOffset().height*scale+scaledHeight/2));
+                            ScreenPoint lastPoint = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
                             for (ZonePoint zp : set.gridlessPath.getCellPath()) {
-	                            ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x +(int)(grid.getCellOffset().width*scale+scaledWidth/2), zp.y + (int)(grid.getCellOffset().height*scale+scaledHeight/2));
+	                            ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x, zp.y);
 	                            
 	                            g.setColor(highlight);
 	                            g.setStroke(highlightStroke);
@@ -1124,7 +1124,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                             // Waypoints
                             for (ZonePoint p : set.gridlessPath.getCellPath()) {
 
-                            	p = new ZonePoint(p.x +(int)(grid.getCellOffset().width*scale+scaledWidth/2), p.y + (int)(grid.getCellOffset().height*scale+scaledHeight/2));
+                            	p = new ZonePoint(p.x, p.y);
                                 highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
                             }
                         }
