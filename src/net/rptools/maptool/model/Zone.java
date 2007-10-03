@@ -42,6 +42,7 @@ import java.util.Set;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
@@ -563,6 +564,22 @@ public class Zone extends BaseModel {
 		}
 		
 		return null;
+	}
+	
+	public Token resolveToken(String identifier) {
+		
+		Token token = getTokenByName(identifier);
+		if (token == null) {
+			token = getTokenByGMName(identifier);
+		}
+		if (token == null) {
+			try {
+				token = getToken(GUID.valueOf(identifier));
+			} catch (Exception e) {
+				// indication of not a GUID, OK to ignore
+			}
+		}
+		return token;
 	}
 	
 	/**

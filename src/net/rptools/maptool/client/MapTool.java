@@ -411,7 +411,7 @@ public class MapTool {
     
     public static ExpressionParser getExpressionParser() {
         if (parser == null) {
-            parser = new ExpressionParser();
+            parser = new ExpressionParser(new MapToolVariableResolver());
         }
         
         return parser;
