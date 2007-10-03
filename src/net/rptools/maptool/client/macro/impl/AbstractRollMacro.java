@@ -79,7 +79,7 @@ public abstract class AbstractRollMacro extends AbstractMacro {
 	    	if (result.getDetailExpression().equals(result.getValue().toString())) {
 	    		sb.append(result.getDetailExpression());
 	    	} else {
-	    		sb.append(result.getDetailExpression()).append(" = ").append((BigDecimal) result.getValue());
+	    		sb.append(result.getDetailExpression()).append(" = ").append(result.getValue());
 	    	}
 	
 	        return sb.toString();
