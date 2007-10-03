@@ -61,6 +61,7 @@ import net.rptools.maptool.client.macro.impl.SaveTokenStatesMacro;
 import net.rptools.maptool.client.macro.impl.SayMacro;
 import net.rptools.maptool.client.macro.impl.SetTokenStateMacro;
 import net.rptools.maptool.client.macro.impl.ThinkMacro;
+import net.rptools.maptool.client.macro.impl.ToGMMacro;
 import net.rptools.maptool.client.macro.impl.UndefinedMacro;
 import net.rptools.maptool.client.macro.impl.WhisperMacro;
 
@@ -105,6 +106,7 @@ public class MacroManager {
 		registerMacro(new RunTokenMacroMacro());
 		registerMacro(new RunTokenSpeechMacro());
 		registerMacro(new LookupTableMacro());
+		registerMacro(new ToGMMacro());
 
 		registerMacro(UNDEFINED_MACRO);
 	}
