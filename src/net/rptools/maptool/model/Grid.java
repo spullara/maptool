@@ -48,8 +48,6 @@ public abstract class Grid implements Cloneable{
 		setOffset(grid.offsetX, grid.offsetY);
 	}
 	
-	public abstract ZonePoint getCenterPoint(CellPoint cellPoint);
-
 	protected List<TokenFootprint> loadFootprints(String path, OffsetTranslator... translators) throws IOException {
 
 		List<TokenFootprint> footprintList = (List<TokenFootprint>) new XStream().fromXML(new String(FileUtil.loadResource(path)));

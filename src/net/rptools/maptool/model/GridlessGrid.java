@@ -62,11 +62,6 @@ public class GridlessGrid extends Grid {
 	}
 
 	@Override
-	public ZonePoint getCenterPoint(CellPoint cellPoint) {
-		return convert(cellPoint);
-	}
-	
-	@Override
 	public double getCellWidth() {
 		return getSize();
 	}

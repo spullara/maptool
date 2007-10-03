@@ -1041,12 +1041,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 TokenFootprint footprint = token.getFootprint(zone.getGrid());
                 Rectangle footprintBounds = footprint.getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
                 
-                int tx = (footprintBounds.x+footprintBounds.width/2) + setOffsetX + token.getAnchor().x;
-                int ty = (footprintBounds.y+footprintBounds.height/2) + setOffsetY + token.getAnchor().y;
                 if (!token.isSnapToGrid()) {
     	            footprintBounds.x = token.getX();
     	            footprintBounds.y = token.getY();
                 }
+
+                int tx = (footprintBounds.x+footprintBounds.width/2) + setOffsetX + token.getAnchor().x;
+                int ty = (footprintBounds.y+footprintBounds.height/2) + setOffsetY + token.getAnchor().y;
 
                 ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, tx, ty);
                 
@@ -1097,13 +1098,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                         if (!token.isObjectStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
                             renderPath(g, walker.getPath(), token.getFootprint(zone.getGrid()));
                         } else {
-                        	
+
                         	// Line
                         	Color highlight = new Color(255, 255, 255, 80);
                         	Stroke highlightStroke = new BasicStroke(9);
                         	Stroke oldStroke = g.getStroke();
                         	Object oldAA = SwingUtil.useAntiAliasing(g);
-                            ScreenPoint lastPoint = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
+                            ScreenPoint lastPoint = ScreenPoint.fromZonePoint(this, token.getX()+footprintBounds.width/2, token.getY()+footprintBounds.height/2);
                             for (ZonePoint zp : set.gridlessPath.getCellPath()) {
 	                            ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x, zp.y);
 	                            
@@ -1272,7 +1273,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         }
 
         for (CellPoint p : pathSet) {
-            highlightCell(g, grid.getCenterPoint(p), grid.getCellHighlight(), 1.0f);
+        	ZonePoint zp = grid.convert(p);
+        	zp.x += grid.getCellWidth()/2;
+        	zp.y += grid.getCellHeight()/2;
+            highlightCell(g, zp, grid.getCellHighlight(), 1.0f);
         }
         for (ZonePoint p : waypointList) {
             highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
@@ -1281,7 +1285,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         // Line path
         if (grid.getCapabilities().isPathLineSupported() ) {
 
-            ZonePoint lineOffset = new ZonePoint(footprintBounds.x + footprintBounds.width/2, footprintBounds.y + footprintBounds.height/2);
+            ZonePoint lineOffset = new ZonePoint(footprintBounds.x + footprintBounds.width/2 - grid.getOffsetX(), footprintBounds.y + footprintBounds.height/2 - grid.getOffsetY());
 
             int xOffset = (int)(lineOffset.x * scale);
             int yOffset = (int)(lineOffset.y * scale);
@@ -1330,10 +1334,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         }
 
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldRendering);        
-    }
-    
-    public void highlightCell(Graphics2D g, CellPoint point, BufferedImage image, float size) {
-    	highlightCell(g, zone.getGrid().convert(point), image, size);
     }
     
     public void highlightCell(Graphics2D g, ZonePoint point, BufferedImage image, float size) {
@@ -2279,7 +2279,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // Get the snap to grid value for the current prefs and abilities
             token.setSnapToGrid(gridCaps.isSnapToGridSupported() && AppPreferences.getTokensStartSnapToGrid());
             if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid()) {
-                zp = zone.getGrid().getCenterPoint(zone.getGrid().convert(zp));
+                zp = zone.getGrid().convert(zone.getGrid().convert(zp));
             }
             token.setX(zp.x);
             token.setY(zp.y);

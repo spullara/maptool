@@ -52,7 +52,7 @@ public abstract class HexGrid extends Grid {
 	public Rectangle getBounds(CellPoint cp) {
 
 		// This is naive, but, give it a try
-		ZonePoint zp = getCenterPoint(cp);
+		ZonePoint zp = convert(cp);
 		Shape shape = getCellShape();
 
 		zp.x -= shape.getBounds().width/2 + getOffsetX();
@@ -62,13 +62,6 @@ public abstract class HexGrid extends Grid {
 		int h = shape.getBounds().height;
 		
 		return new Rectangle(zp.x, zp.y, w, h);
-	}
-	
-	@Override
-	public ZonePoint getCenterPoint(CellPoint cellPoint) {
-		
-		ZonePoint zp = convert(cellPoint);
-		return zp;
 	}
 	
 	/**

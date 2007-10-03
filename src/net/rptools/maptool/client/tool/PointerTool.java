@@ -91,6 +91,7 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -744,7 +745,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 			// cellUnderMouse actually token position if token being dragged with keys.
 			CellPoint cellUnderMouse = renderer.getZone().getGrid().convert(zonePoint);
-			zonePoint = renderer.getZone().getGrid().getCenterPoint(cellUnderMouse);
+			zonePoint = renderer.getZone().getGrid().convert(cellUnderMouse);
 			
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
 		} else {
@@ -1106,8 +1107,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 	
 	private void setWaypoint() {
+		
 		ZonePoint p = new ZonePoint(dragStartX, dragStartY);
 
+		TokenFootprint footprint = tokenBeingDragged.getFootprint(renderer.getZone().getGrid());
+		Rectangle footprintBounds = footprint.getBounds(renderer.getZone().getGrid());
+		
+		p.translate(footprintBounds.width/2, footprintBounds.height/2);
+		
 		renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), p);
         
         MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), p);
