@@ -595,8 +595,8 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				
 				double ratio = image.getWidth() / (double) image.getHeight();
 				
-				int dx = sp.x - tokenPoint.x;
-				int dy = sp.y - tokenPoint.y;
+				int dx = (int)(sp.x - tokenPoint.x);
+				int dy = (int)(sp.y - tokenPoint.y);
 				
 				sp.y = (int)(tokenPoint.y + (dx / ratio));
 			}

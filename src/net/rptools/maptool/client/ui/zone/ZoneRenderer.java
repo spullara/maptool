@@ -806,9 +806,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     Dimension size = token.getSize(zone.getGrid());
                     int width = (int) (size.width * scale) - 1;
                     int height = (int) (size.height * scale) - 1;
-                    ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint(this, token.getX(), token.getY());
-                    int x = tokenScreenLocation.x + 1;
-                    int y = tokenScreenLocation.y + 1;
+                    ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePointRnd(this, token.getX(), token.getY());
+                    int x = (int)(tokenScreenLocation.x + 1);
+                    int y = (int)(tokenScreenLocation.y + 1);
                     if (width < scaledGridSize) {
                         x += (scaledGridSize - width) / 2;
                     }
@@ -838,9 +838,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 continue;
             }
             
-            ScreenPoint sp = ScreenPoint.fromZonePoint(this, zp.x, zp.y);
+            ScreenPoint sp = ScreenPoint.fromZonePointRnd(this, zp.x, zp.y);
             
-            Rectangle bounds = GraphicsUtil.drawBoxedString(g, label.getLabel(), sp.x, sp.y);
+            Rectangle bounds = GraphicsUtil.drawBoxedString(g, label.getLabel(), (int)sp.x, (int)sp.y);
             
             labelLocationList.add(new LabelLocation(bounds, label));
         }
@@ -1059,10 +1059,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
                 if (token.isSnapToScale()) {
                 	
-                    scaledWidth = (int)Math.ceil(footprintBounds.width * scale * token.getSizeScale()*footprint.getScale());
-                    scaledHeight = (int)Math.ceil(footprintBounds.height * scale * token.getSizeScale()*footprint.getScale());
+    	            scaledWidth = (int)Math.ceil(footprintBounds.width * scale * token.getSizeScale()*footprint.getScale()) + (token.isToken() ? -1 : 0);
+    	            scaledHeight = (int)Math.ceil(footprintBounds.height * scale * token.getSizeScale()*footprint.getScale()) + (token.isToken() ? -1 : 0);
 
 	                SwingUtil.constrainTo(imgSize, scaledWidth, scaledHeight);
+
 	                scaledWidth = imgSize.width;
 	                scaledHeight = imgSize.height;
                 } else {
@@ -1078,8 +1079,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
 
                 // Tokens are centered on the image center point
-                int x = newScreenPoint.x + 1 - (token.isToken() ? scaledWidth/2 : 0);
-                int y = newScreenPoint.y + 1 - (token.isToken() ? scaledHeight/2 : 0);
+                int x = (int)(newScreenPoint.x - (token.isToken() ? scaledWidth/2.0 : 0));
+                int y = (int)(newScreenPoint.y - (token.isToken() ? scaledHeight/2.0 : 0));
                     
                 // Vision visibility
                 Rectangle clip = g.getClipBounds();
@@ -1104,27 +1105,27 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                         	Stroke highlightStroke = new BasicStroke(9);
                         	Stroke oldStroke = g.getStroke();
                         	Object oldAA = SwingUtil.useAntiAliasing(g);
-                            ScreenPoint lastPoint = ScreenPoint.fromZonePoint(this, token.getX()+footprintBounds.width/2, token.getY()+footprintBounds.height/2);
+                            ScreenPoint lastPoint = ScreenPoint.fromZonePointRnd(this, token.getX()+footprintBounds.width/2, token.getY()+footprintBounds.height/2);
                             for (ZonePoint zp : set.gridlessPath.getCellPath()) {
 	                            ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x, zp.y);
 	                            
 	                            g.setColor(highlight);
 	                            g.setStroke(highlightStroke);
-	                            g.drawLine(lastPoint.x, lastPoint.y , nextPoint.x, nextPoint.y);
+	                            g.drawLine((int)lastPoint.x, (int)lastPoint.y , (int)nextPoint.x, (int)nextPoint.y);
 	                            
 	                            g.setStroke(oldStroke);
 	                            g.setColor(Color.blue);
-	                            g.drawLine(lastPoint.x, lastPoint.y , nextPoint.x, nextPoint.y);
+	                            g.drawLine((int)lastPoint.x, (int)lastPoint.y , (int)nextPoint.x, (int)nextPoint.y);
 	                            lastPoint = nextPoint;
                             }
                             
                             g.setColor(highlight);
                             g.setStroke(highlightStroke);
-                            g.drawLine(lastPoint.x, lastPoint.y, x + scaledWidth/2, y + scaledHeight/2);
+                            g.drawLine((int)lastPoint.x, (int)lastPoint.y, x + scaledWidth/2, y + scaledHeight/2);
                             
                             g.setStroke(oldStroke);
                             g.setColor(Color.blue);
-                            g.drawLine(lastPoint.x, lastPoint.y, x + scaledWidth/2, y + scaledHeight/2);
+                            g.drawLine((int)lastPoint.x, (int)lastPoint.y, x + scaledWidth/2, y + scaledHeight/2);
 
                             SwingUtil.restoreAntiAliasing(g, oldAA);
                             
@@ -1317,8 +1318,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                         int x1 = previousHalfPoint.x+xOffset;
                         int y1 = previousHalfPoint.y+yOffset;
                         
-                        int x2 = origin.x+xOffset;
-                        int y2 = origin.y+yOffset;
+                        int x2 = (int)origin.x+xOffset;
+                        int y2 = (int)origin.y+yOffset;
                         
                         int xh = halfPoint.x+xOffset;
                         int yh = halfPoint.y+yOffset;
@@ -1485,13 +1486,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), this);
             }
 
-            int scaledHeight;
-            int scaledWidth;
+            int scaledHeight = 0;
+            int scaledWidth = 0;
             
+            if (!token.isStamp()) {
+                // Fit inside the grid
+                scaledWidth --;
+                scaledHeight --;
+            }
+
             Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
             if (token.isSnapToScale()) {
-	            scaledWidth = (int)Math.ceil(footprintBounds.width * scale * token.getSizeScale()*footprint.getScale());
-	            scaledHeight = (int)Math.ceil(footprintBounds.height * scale * token.getSizeScale()*footprint.getScale());
+	            scaledWidth = (int)Math.ceil(footprintBounds.width * scale * token.getSizeScale()*footprint.getScale()) + (token.isToken() ? -1 : 0);
+	            scaledHeight = (int)Math.ceil(footprintBounds.height * scale * token.getSizeScale()*footprint.getScale()) + (token.isToken() ? -1 : 0);
 	            
 	            SwingUtil.constrainTo(imgSize, scaledWidth, scaledHeight);
 	            
@@ -1502,19 +1509,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	scaledHeight = (int)(imgSize.height * token.getScaleY() * scale);
             }
             
-            if (!token.isStamp()) {
-                // Fit inside the grid
-                scaledWidth --;
-                scaledHeight --;
-            }
             
-            int tx = (footprintBounds.x+footprintBounds.width/2) + token.getAnchor().x;
-            int ty = (footprintBounds.y+footprintBounds.height/2) + token.getAnchor().y;
+            double tx = (footprintBounds.x+footprintBounds.width/2.0) + token.getAnchor().x;
+            double ty = (footprintBounds.y+footprintBounds.height/2.0) + token.getAnchor().y;
             ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, tx, ty);
             
             // Tokens are centered on the image center point
-            int x = tokenScreenLocation.x + 1 - (token.isToken() ? scaledWidth/2 : 0);
-            int y = tokenScreenLocation.y + 1 - (token.isToken() ? scaledHeight/2 : 0);
+            int x = (int)(tokenScreenLocation.x - (token.isToken() ? scaledWidth/2.0 : 0));
+            int y = (int)(tokenScreenLocation.y - (token.isToken() ? scaledHeight/2.0 : 0));
                 
             Rectangle origBounds = new Rectangle(x, y, scaledWidth, scaledHeight);
             Area tokenBounds = new Area(origBounds);
@@ -2272,7 +2274,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         boolean isGM = MapTool.getPlayer().isGM();
 
         ScreenPoint sp = ScreenPoint.fromZonePoint(this, zp);
-        Point dropPoint = new Point(sp.x, sp.y);
+        Point dropPoint = new Point((int)sp.x, (int)sp.y);
         SwingUtilities.convertPointToScreen(dropPoint, this);
         for (Token token : tokens) {
             

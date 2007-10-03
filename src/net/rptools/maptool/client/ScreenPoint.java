@@ -24,14 +24,16 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.geom.Point2D;
+
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.AbstractPoint;
 import net.rptools.maptool.model.ZonePoint;
 
 
-public class ScreenPoint extends AbstractPoint {
+public class ScreenPoint extends Point2D.Double {
 
-    public ScreenPoint(int x, int y) {
+    public ScreenPoint(double x, double y) {
         super(x, y);
     }
     
@@ -42,8 +44,8 @@ public class ScreenPoint extends AbstractPoint {
 
         double scale = renderer.getScale();
 
-        int zX = x;
-        int zY = y;
+        double zX = x;
+        double zY = y;
         
         // Translate
         zX -= renderer.getViewOffsetX();
@@ -55,29 +57,54 @@ public class ScreenPoint extends AbstractPoint {
             
 //        System.out.println("s:" + scale + " x:" + x + " zx:" + zX + " c:" + (zX / scale) + " - " + Math.floor(zX / scale));
 
-        return new ZonePoint(zX, zY);
+        return new ZonePoint((int)zX, (int)zY);
     }
     
     public static ScreenPoint fromZonePoint(ZoneRenderer renderer, ZonePoint zp) {
     	return fromZonePoint(renderer, zp.x, zp.y);
     }
     
-    public static ScreenPoint fromZonePoint(ZoneRenderer renderer, int x, int y) {
+    public static ScreenPoint fromZonePoint(ZoneRenderer renderer, double x, double y) {
 
         double scale = renderer.getScale();
         
-        int sX = x;
-        int sY = y;
+        double sX = x;
+        double sY = y;
         
-        sX = (int)Math.ceil(sX * scale);
-        sY = (int)Math.ceil(sY * scale);
+        sX = sX * scale;
+        sY = sY * scale;
         
         // Translate
         sX += renderer.getViewOffsetX();
         sY += renderer.getViewOffsetY();
-        
+
         return new ScreenPoint(sX, sY);
     }
+    
+    public static ScreenPoint fromZonePointRnd(ZoneRenderer renderer, double x, double y) {
+    	ScreenPoint sp = fromZonePoint(renderer, x, y);
+    	sp.x = Math.round(sp.x);
+    	sp.y = Math.round(sp.y);
+    	
+    	return sp;
+    }
+    
+    public static ScreenPoint fromZonePointHigh(ZoneRenderer renderer, double x, double y) {
+    	ScreenPoint sp = fromZonePoint(renderer, x, y);
+    	sp.x = Math.ceil(sp.x);
+    	sp.y = Math.ceil(sp.y);
+    	
+    	return sp;
+    }
+    
+    public static ScreenPoint fromZonePointLow(ZoneRenderer renderer, double x, double y) {
+    	ScreenPoint sp = fromZonePoint(renderer, x, y);
+    	sp.x = Math.floor(sp.x);
+    	sp.y = Math.floor(sp.y);
+    	
+    	return sp;
+    }
+    
     
     public String toString() {
         return "ScreenPoint" + super.toString();
@@ -90,5 +117,10 @@ public class ScreenPoint extends AbstractPoint {
       if (!(pt instanceof ScreenPoint)) return false;
       ScreenPoint spt = (ScreenPoint)pt;
       return spt.x == x && spt.y == y;
+    }
+
+    public void translate(int dx, int dy) {
+        x += dx;
+        y += dy;
     }
 }

@@ -70,7 +70,7 @@ public class PointerOverlay implements ZoneOverlay {
 			if (p.pointer.getZoneGUID().equals(zone.getId())) {
 				
                 ZonePoint zPoint = new ZonePoint(p.pointer.getX(), p.pointer.getY());
-                ScreenPoint sPoint = ScreenPoint.fromZonePoint(renderer, zPoint);
+                ScreenPoint sPoint = ScreenPoint.fromZonePointRnd(renderer, zPoint.x, zPoint.y);
 
                 int offX = 0;
                 int offY = 0;
@@ -99,11 +99,11 @@ public class PointerOverlay implements ZoneOverlay {
                 	break;
                 }
                 
-				g.drawImage(image, sPoint.x + offX, sPoint.y + offY, null);
+				g.drawImage(image, (int)sPoint.x + offX, (int)sPoint.y + offY, null);
 				
 				switch (p.pointer.getType()) {
 				case ARROW:
-					GraphicsUtil.drawBoxedString(g, p.player, sPoint.x + POINTER_IMAGE.getWidth()-10, sPoint.y - POINTER_IMAGE.getHeight()+15, SwingUtilities.LEFT);
+					GraphicsUtil.drawBoxedString(g, p.player, (int)sPoint.x + POINTER_IMAGE.getWidth()-10, (int)sPoint.y - POINTER_IMAGE.getHeight()+15, SwingUtilities.LEFT);
 					break;
 				case THOUGHT_BUBBLE:
 				case SPEECH_BUBBLE:
@@ -112,8 +112,8 @@ public class PointerOverlay implements ZoneOverlay {
 					int len = SwingUtilities.computeStringWidth(fm, name);
 					
 					g.setColor(Color.black);
-					int x = sPoint.x + centX + offX + 5;
-					int y = sPoint.y + offY + centY + fm.getHeight()/2;
+					int x = (int)sPoint.x + centX + offX + 5;
+					int y = (int)sPoint.y + offY + centY + fm.getHeight()/2;
 					g.drawString(name, x - len/2, y);
 					
 					break;

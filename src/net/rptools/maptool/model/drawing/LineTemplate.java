@@ -108,8 +108,8 @@ public class LineTemplate extends AbstractTemplate {
       ScreenPoint p = path.get(i);
 
       // Ignore diagonal cells and cells that are not adjacent
-      int dx = p.x - x;
-      int dy = p.y - y;
+      int dx = (int)p.x - x;
+      int dy = (int)p.y - y;
       if (Math.abs(dx) == Math.abs(dy) || Math.abs(dx) > 1 || Math.abs(dy) > 1)
         continue;
 
@@ -147,16 +147,16 @@ public class LineTemplate extends AbstractTemplate {
     ListIterator<ScreenPoint> i = path.listIterator();
     while (i.hasNext()) {
       ScreenPoint p = i.next();
-      int xOff = p.x * gridSize;
-      int yOff = p.y * gridSize;
-      int distance = getDistance(p.x, p.y);
+      int xOff = (int)p.x * gridSize;
+      int yOff = (int)p.y * gridSize;
+      int distance = getDistance((int)p.x, (int)p.y);
 
       // Paint what is needed.
       if (area) {
-        paintArea(g, p.x, p.y, xOff, yOff, gridSize, distance);
+        paintArea(g, (int)p.x, (int)p.y, xOff, yOff, gridSize, distance);
       } // endif
       if (border) {
-        paintBorder(g, p.x, p.y, xOff, yOff, gridSize, i.previousIndex());
+        paintBorder(g, (int)p.x, (int)p.y, xOff, yOff, gridSize, i.previousIndex());
       } // endif
     } // endfor
   }
@@ -216,9 +216,9 @@ public class LineTemplate extends AbstractTemplate {
 
       // Find the path
       ScreenPoint p = path.get(path.size() - 1);
-      while (getDistance(p.x, p.y) <= radius) {
-        int x = p.x;
-        int y = p.y;
+      while (getDistance((int)p.x, (int)p.y) <= radius) {
+        int x = (int)p.x;
+        int y = (int)p.y;
 
         // Which border does the point exit the cell?
         double xValue = new BigDecimal((y + 1) / m, MathContext.DECIMAL128).doubleValue();
@@ -407,20 +407,20 @@ public class LineTemplate extends AbstractTemplate {
     // Adjust for straight lines and left most & upper points when in the West or North quadrants
     boolean yAxisLine = v.x == pv.x && doubleWide;
     boolean xAxisLine = v.y == pv.y && doubleWide;
-    int x = Math.min(v.x, pv.x) - BOUNDS_PADDING;
+    int x = (int)(Math.min(v.x, pv.x) - BOUNDS_PADDING);
     if (quadrant == Quadrant.NORTH_WEST || quadrant == Quadrant.SOUTH_WEST)
       x -= gridSize * 2;
     else if (yAxisLine)
       x -= gridSize;
-    int y = Math.min(v.y, pv.y) - BOUNDS_PADDING; 
+    int y = (int)(Math.min(v.y, pv.y) - BOUNDS_PADDING); 
     if (quadrant == Quadrant.NORTH_WEST || quadrant == Quadrant.NORTH_EAST)
       y -= gridSize * 2;
     else if (xAxisLine)
       y -= gridSize;
     
     // Calulate the size
-    int width = Math.abs(v.x - pv.x) + (gridSize + BOUNDS_PADDING) * 2 + (yAxisLine ? gridSize : 0); 
-    int height = Math.abs(v.y - pv.y) + (gridSize + BOUNDS_PADDING) * 2 + (xAxisLine ? gridSize : 0);
+    int width = (int)(Math.abs(v.x - pv.x) + (gridSize + BOUNDS_PADDING) * 2 + (yAxisLine ? gridSize : 0)); 
+    int height = (int)(Math.abs(v.y - pv.y) + (gridSize + BOUNDS_PADDING) * 2 + (xAxisLine ? gridSize : 0));
     return new Rectangle(x, y, width, height);
   }
 }

@@ -86,8 +86,8 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
 	
 	        ScreenPoint sp = walker.getLastPoint().convertToScreen(renderer);
 	        
-	        int y = sp.y - 10;
-	        int x = sp.x + (int)(renderer.getScaledGridSize()/2);
+	        int y = (int)sp.y - 10;
+	        int x = (int)sp.x + (int)(renderer.getScaledGridSize()/2);
 	        GraphicsUtil.drawBoxedString(g, Integer.toString(walker.getDistance()), x, y);
         } else {
         	Object oldAA = SwingUtil.useAntiAliasing(g);
@@ -99,7 +99,7 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
             		continue;
             	}
                 ScreenPoint nextPoint = ScreenPoint.fromZonePoint(renderer, zp.x, zp.y);
-                g.drawLine(lastPoint.x, lastPoint.y , nextPoint.x, nextPoint.y);
+                g.drawLine((int)lastPoint.x, (int)lastPoint.y , (int)nextPoint.x, (int)nextPoint.y);
                 lastPoint = nextPoint;
             }
             
@@ -128,7 +128,7 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
             
     		String distance = String.format("%.1f", c);
     		ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, lastZP.x, lastZP.y);
-	        GraphicsUtil.drawBoxedString(g, distance, sp.x, sp.y - 20);
+	        GraphicsUtil.drawBoxedString(g, distance, (int)sp.x, (int)sp.y - 20);
             
             SwingUtil.restoreAntiAliasing(g, oldAA);
         }

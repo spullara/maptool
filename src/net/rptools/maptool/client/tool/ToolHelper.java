@@ -45,10 +45,10 @@ public class ToolHelper {
 	  if (!MapTool.getFrame().isPaintDrawingMeasurement()) return;
     
 		// Calculations
-		int left = Math.min(startPoint.x, endPoint.x);
-		int top = Math.min(startPoint.y, endPoint.y);
-		int right = Math.max(startPoint.x, endPoint.x);
-		int bottom = Math.max(startPoint.y, endPoint.y);
+		int left = (int)Math.min(startPoint.x, endPoint.x);
+		int top = (int)Math.min(startPoint.y, endPoint.y);
+		int right = (int)Math.max(startPoint.x, endPoint.x);
+		int bottom = (int)Math.max(startPoint.y, endPoint.y);
 
 		// HORIZONTAL Measure
 		g.setColor(Color.black);
@@ -89,7 +89,7 @@ public class ToolHelper {
 		String displayString = String.format("%1.1f", euclideanDistance(
 				renderer, startPoint, endPoint));
 
-		GraphicsUtil.drawBoxedString(g, displayString, endPoint.x + (dirLeft ? -10 : 10), endPoint.y, dirLeft ? SwingUtilities.LEFT : SwingUtilities.RIGHT);
+		GraphicsUtil.drawBoxedString(g, displayString, (int)endPoint.x + (dirLeft ? -10 : 10), (int)endPoint.y, dirLeft ? SwingUtilities.LEFT : SwingUtilities.RIGHT);
 	}
 
   /**
@@ -106,10 +106,10 @@ public class ToolHelper {
     GraphicsUtil.drawBoxedString(g, radius, x, y);
   }
   
-	private static double euclideanDistance(ZoneRenderer renderer, AbstractPoint p1,
-			AbstractPoint p2) {
-		int a = p2.x - p1.x;
-		int b = p2.y - p1.y;
+	private static double euclideanDistance(ZoneRenderer renderer, ScreenPoint p1,
+			ScreenPoint p2) {
+		double a = p2.x - p1.x;
+		double b = p2.y - p1.y;
 
 		return Math.sqrt(a * a + b * b) * renderer.getZone().getUnitsPerCell()
 				/ renderer.getScaledGridSize();
