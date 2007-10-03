@@ -1043,6 +1043,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 
                 int tx = (footprintBounds.x+footprintBounds.width/2) + setOffsetX + token.getAnchor().x;
                 int ty = (footprintBounds.y+footprintBounds.height/2) + setOffsetY + token.getAnchor().y;
+                if (!token.isSnapToGrid()) {
+    	            footprintBounds.x = token.getX();
+    	            footprintBounds.y = token.getY();
+                }
+
                 ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, tx, ty);
                 
                 BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
@@ -1463,7 +1468,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             TokenFootprint footprint = token.getFootprint(zone.getGrid());
             Rectangle footprintBounds = footprint.getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
-
+            if (!token.isSnapToGrid()) {
+	            footprintBounds.x = token.getX();
+	            footprintBounds.y = token.getY();
+            }
+            
             // OPTIMIZE:
             BufferedImage image = null;
             Asset asset = AssetManager.getAsset(token.getImageAssetId ());
