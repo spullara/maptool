@@ -29,6 +29,7 @@ public class ServerPolicy {
 	private boolean strictTokenMovement;
 	private boolean isMovementLocked;
 	private boolean playersCanRevealVision;
+	private boolean useIndividualViews;
 	
 	public ServerPolicy() {
 		
@@ -62,4 +63,14 @@ public class ServerPolicy {
 	public boolean getPlayersCanRevealVision() {
 		return playersCanRevealVision;
 	}
+
+	public boolean isUseIndividualViews() {
+		return useIndividualViews;
+	}
+
+	public void setUseIndividualViews(boolean useIndividualViews) {
+		this.useIndividualViews = useIndividualViews;
+	}
+	
+	
 }

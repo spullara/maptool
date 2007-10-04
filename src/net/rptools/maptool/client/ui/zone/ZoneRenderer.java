@@ -733,7 +733,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 	}
                 }
 
-                Dimension size = token.getSize(zone.getGrid());
+                // Permission
+                if (MapTool.getServerPolicy().isUseIndividualViews()) {
+                	if (!AppUtil.playerOwns(token)) {
+                		continue;
+                	}
+                }
+                
+                TokenFootprint footprint = token.getFootprint(zone.getGrid());
+                Rectangle footprintBounds = footprint.getBounds(zone.getGrid());
                 
                 Area tokenVision = tokenVisionCache.get(token);
                 if (tokenVision == null) {
@@ -748,7 +756,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                             continue;
                         }
 
-                        Point p = FogUtil.calculateVisionCenter(token, vision, this, token.getX(), token.getY(), size.width, size.height);
+                        Point p = FogUtil.calculateVisionCenter(token, vision, this, token.getX(), token.getY(), footprintBounds.width, footprintBounds.height);
                         
                         visionArea = FogUtil.calculateVisibility(p.x, p.y, visionArea, zone.getTopology());
                         if (visionArea == null) {

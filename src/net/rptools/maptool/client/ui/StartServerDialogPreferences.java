@@ -20,6 +20,7 @@ public class StartServerDialogPreferences {
     private static final String KEY_RPTOOLS_NAME = "rptoolsName";
     private static final String KEY_RPTOOLS_PRIVATE = "rptoolsPrivate";
     private static final String KEY_PLAYERS_CAN_REVEAL_VISION = "playersCanRevealVisionCheckbox";
+    private static final String KEY_USE_INDIVIDUAL_VIEWS = "useIndividualViews";
     
     public Player.Role getRole () {
     	return Player.Role.valueOf(prefs.get(KEY_ROLE, Player.Role.GM.name()));
@@ -99,5 +100,13 @@ public class StartServerDialogPreferences {
     
     public boolean getPlayersCanRevealVision() {
     	return prefs.getBoolean(KEY_PLAYERS_CAN_REVEAL_VISION, false);
+    }
+    
+    public void setUseIndividualViews(boolean flag) {
+    	prefs.putBoolean(KEY_USE_INDIVIDUAL_VIEWS, flag);
+    }
+    
+    public boolean getUseIndividualViews() {
+    	return prefs.getBoolean(KEY_USE_INDIVIDUAL_VIEWS, false);
     }
 }

@@ -526,20 +526,7 @@ public class FogUtil {
 	 */
 	public static Point calculateVisionCenter(Token token, Vision vision, ZoneRenderer renderer, int x, int y, int width, int height) {
 		
-		Point p = new Point(0,0);
-		
-//		switch(vision.getAnchor()) {
-//		case CENTER:
-//			Grid grid = renderer.getZone().getGrid();			
-//			Point pOffset = grid.cellGroupCenterOffset(height, width, token.isToken());
-//			p.x += pOffset.x;
-//			p.y += pOffset.y;
-//		}
-		
-		p.x += x;
-		p.y += y;
-
-		return p;
+		return new Point(x + width/2, y + height/2);
 	}
 
 	public static class AreaData {

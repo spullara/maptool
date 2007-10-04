@@ -60,7 +60,8 @@ public abstract class HexGrid extends Grid {
 		
 		int w = shape.getBounds().width;
 		int h = shape.getBounds().height;
-		
+
+//		System.out.println(new Rectangle(zp.x, zp.y, w, h));
 		return new Rectangle(zp.x, zp.y, w, h);
 	}
 	
