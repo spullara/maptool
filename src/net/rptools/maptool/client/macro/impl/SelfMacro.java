@@ -30,11 +30,11 @@ import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
 
 @MacroDefinition(
-        name = "think",
-        aliases = { "th" },
+        name = "self",
+        aliases = { "self" },
         description = "Send a message only to yourself."
     )
-public class ThinkMacro extends AbstractMacro {
+public class SelfMacro extends AbstractMacro {
 	    
 	public void execute(String macro) {
 		macro = processText(macro);
