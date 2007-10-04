@@ -741,7 +741,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
                 
                 TokenFootprint footprint = token.getFootprint(zone.getGrid());
-                Rectangle footprintBounds = footprint.getBounds(zone.getGrid());
+                Rectangle footprintBounds = footprint.getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
                 
                 Area tokenVision = tokenVisionCache.get(token);
                 if (tokenVision == null) {
@@ -756,7 +756,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                             continue;
                         }
 
-                        Point p = FogUtil.calculateVisionCenter(token, vision, this, token.getX(), token.getY(), footprintBounds.width, footprintBounds.height);
+                        Point p = FogUtil.calculateVisionCenter(token, vision, this, footprintBounds.x, footprintBounds.y, footprintBounds.width, footprintBounds.height);
                         
                         visionArea = FogUtil.calculateVisibility(p.x, p.y, visionArea, zone.getTopology());
                         if (visionArea == null) {
@@ -1263,8 +1263,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         Set<CellPoint> pathSet = new HashSet<CellPoint>();
         List<ZonePoint> waypointList = new LinkedList<ZonePoint>();
         boolean lastPointExistedInWaypointSet = false;
+        System.out.println("-----");
         for (CellPoint p : cellPath) {
-
             pathSet.addAll(footprint.getOccupiedCells(p));
 
             if (path.isWaypoint(p) && previousPoint != null) {
@@ -1281,14 +1281,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         	waypointList.remove(waypointList.size()-1);
         }
 
+        Dimension cellOffset = zone.getGrid().getCellOffset();
         for (CellPoint p : pathSet) {
         	ZonePoint zp = grid.convert(p);
-        	zp.x += grid.getCellWidth()/2;
-        	zp.y += grid.getCellHeight()/2;
+        	zp.x += grid.getCellWidth()/2 + cellOffset.width;
+        	zp.y += grid.getCellHeight()/2 + cellOffset.height;
             highlightCell(g, zp, grid.getCellHighlight(), 1.0f);
         }
         for (ZonePoint p : waypointList) {
-            highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
+        	ZonePoint zp = new ZonePoint(p.x + cellOffset.width, p.y + cellOffset.height);
+            highlightCell(g, zp, AppStyle.cellWaypointImage, .333f);
         }
 
         // Line path
