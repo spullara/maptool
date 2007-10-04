@@ -155,6 +155,7 @@ public class Campaign {
     	list.add(new TokenProperty("Defense", "Def"));
     	list.add(new TokenProperty("Movement", "Mov"));
     	list.add(new TokenProperty("Elevation", "Elv", true, false));
+    	list.add(new TokenProperty("Description", "Des"));
     	return list;
     }
     
