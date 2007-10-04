@@ -1262,8 +1262,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         Set<CellPoint> pathSet = new HashSet<CellPoint>();
         List<ZonePoint> waypointList = new LinkedList<ZonePoint>();
-        boolean lastPointExistedInWaypointSet = false;
-        System.out.println("-----");
         for (CellPoint p : cellPath) {
             pathSet.addAll(footprint.getOccupiedCells(p));
 
