@@ -35,7 +35,7 @@ public class Scale implements Serializable {
 
     private int              scaleIndex;
     private static float     startScale = .01f;
-    private static float     endScale = 10;
+    private static float     endScale = 20;
     private static float[]   scaleArray;
     
     public static int SCALE_1TO1_INDEX; // Automatically scanned for
