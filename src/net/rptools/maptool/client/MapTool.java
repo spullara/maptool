@@ -38,15 +38,16 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
-import net.rptools.clientserver.ActivityListener;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.common.expression.ExpressionParser;
+import net.rptools.common.expression.Result;
 import net.rptools.lib.EventDispatcher;
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.TaskBarFlasher;
@@ -73,6 +74,11 @@ import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.transfer.AssetTransferManager;
+import net.rptools.parser.Parser;
+import net.rptools.parser.ParserException;
+import net.rptools.parser.function.EvaluationException;
+import net.rptools.parser.function.Function;
+import net.rptools.parser.function.ParameterException;
 import net.tsc.servicediscovery.ServiceAnnouncer;
 
 import com.centerkey.utils.BareBonesBrowserLaunch;
@@ -130,6 +136,8 @@ public class MapTool {
 
     private static EventDispatcher eventDispatcher;
     
+    private static final int PARSER_MAX_RECURSE = 50;
+    private static int parserRecurseDepth;
     private static ExpressionParser parser;
     
 	public static void showError(String message) {
@@ -409,12 +417,27 @@ public class MapTool {
         return campaign;
     }
     
-    public static ExpressionParser getExpressionParser() {
+    public static Result parse(String expression) throws ParserException {
         if (parser == null) {
             parser = new ExpressionParser(new MapToolVariableResolver());
         }
         
-        return parser;
+    	if (parserRecurseDepth > PARSER_MAX_RECURSE) {
+    		throw new ParserException("Max recurse limit reached");
+    	}
+        try {
+        	parserRecurseDepth ++;
+        	return parser.evaluate(expression);
+        } catch (RuntimeException re) {
+        	
+        	if (re.getCause() instanceof ParserException) {
+        		throw (ParserException) re.getCause();
+        	}
+        	
+        	throw re;
+        } finally {
+        	parserRecurseDepth--;
+        }
     }
     
     public static void setCampaign(Campaign campaign) {

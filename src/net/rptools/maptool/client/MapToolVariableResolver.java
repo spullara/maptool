@@ -11,7 +11,7 @@ import net.rptools.parser.VariableModifiers;
 public class MapToolVariableResolver extends MapVariableResolver {
 
 	@Override
-	public boolean containsVariable(String name, VariableModifiers mods) throws ParserException {
+	public boolean containsVariable(String name, VariableModifiers mods) {
 
 		// If we don't have the value then we'll prompt for it
 		return true;
@@ -36,11 +36,11 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		}
 
 		// Prompt
-		if (result == null) {
-			result = JOptionPane.showInputDialog(MapTool.getFrame(), "Value for: " + name, "Input Value", JOptionPane.QUESTION_MESSAGE);
+		if (result == null || mods == VariableModifiers.Prompt) {
+			result = JOptionPane.showInputDialog(MapTool.getFrame(), "Value for: " + name, "Input Value", JOptionPane.QUESTION_MESSAGE, null, null, result != null ? result.toString() : "");
 		}
-		
-		return result;
+
+		return MapTool.parse(result.toString()).getValue();
 	}
 	
 	@Override

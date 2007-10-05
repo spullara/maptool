@@ -24,16 +24,11 @@
  */
 package net.rptools.maptool.client.macro.impl;
 
-import java.math.BigDecimal;
-import java.net.URL;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.macro.Macro;
 import net.rptools.parser.ParserException;
 
 public abstract class AbstractRollMacro extends AbstractMacro {
@@ -72,7 +67,7 @@ public abstract class AbstractRollMacro extends AbstractMacro {
     protected static String rollInternal(String roll) {
     	
       	try {
-			Result result = MapTool.getExpressionParser().evaluate(roll);
+			Result result = MapTool.parse(roll);
 
 	    	StringBuilder sb = new StringBuilder();
 	    	
