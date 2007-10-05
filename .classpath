@@ -24,8 +24,8 @@
 	<classpathentry kind="lib" path="lib/xstream-1.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/clientserver-1.0.b13.jar"/>
 	<classpathentry kind="lib" path="lib/BareBonesBrowserLaunch.jar"/>
-	<classpathentry kind="lib" path="lib/dicelib-1.0.b4.jar"/>
 	<classpathentry kind="lib" path="lib/rplib-1.0.b96.jar"/>
-	<classpathentry kind="lib" path="lib/parser-1.0.b9.jar"/>
+	<classpathentry kind="lib" path="lib/dicelib-1.0.b5.jar"/>
+	<classpathentry kind="lib" path="lib/parser-1.0.b10.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

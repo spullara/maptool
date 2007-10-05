@@ -5,19 +5,20 @@ import javax.swing.JOptionPane;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.MapVariableResolver;
+import net.rptools.parser.ParserException;
 import net.rptools.parser.VariableModifiers;
 
 public class MapToolVariableResolver extends MapVariableResolver {
 
 	@Override
-	public boolean containsVariable(String name, VariableModifiers mods) {
+	public boolean containsVariable(String name, VariableModifiers mods) throws ParserException {
 
 		// If we don't have the value then we'll prompt for it
 		return true;
 	}
 
 	@Override
-	public Object getVariable(String name, VariableModifiers mods) {
+	public Object getVariable(String name, VariableModifiers mods) throws ParserException {
 
 		Object result = null;
 		Token token = getTokenInContext();
@@ -43,7 +44,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 	}
 	
 	@Override
-	public void setVariable(String arg0, VariableModifiers arg1, Object arg2) {
+	public void setVariable(String arg0, VariableModifiers arg1, Object arg2) throws ParserException {
 
 		super.setVariable(arg0, arg1, arg2);
 	}
