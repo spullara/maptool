@@ -1013,7 +1013,7 @@ public class AppActions {
 			if (renderer == null) {
 				return false;
 			}
-			return !renderer.getZone().isVisible();
+			return renderer.getZone().isVisible();
 		}
 
 		public void execute(ActionEvent e) {
