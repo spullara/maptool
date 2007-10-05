@@ -138,9 +138,11 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
       paintCursor(g, pen.getPaint().getPaint(), pen.getThickness(), vertex);
       if (pathVertex != null) {
         paintCursor(g, pen.getPaint().getPaint(), pen.getThickness(), pathVertex);
-        paintRadius(g, vertex);
       }
       g.setTransform(old);
+      if (pathVertex != null) {
+          paintRadius(g, vertex);
+      }
     }
   }
 

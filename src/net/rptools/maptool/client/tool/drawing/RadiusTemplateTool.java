@@ -228,7 +228,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    */
   protected void paintRadius(Graphics2D g, ZonePoint p) {
     if (template.getRadius() > 0) {
-      ScreenPoint centerText = new ScreenPoint(p.x, p.y); // Must copy point
+      ScreenPoint centerText = ScreenPoint.fromZonePoint(renderer, p);
       centerText.translate(CURSOR_WIDTH, -CURSOR_WIDTH);
       ToolHelper.drawMeasurement(g, template.getRadius() * renderer.getZone().getUnitsPerCell(), (int)centerText.x, (int)centerText.y);
     } // endif
@@ -316,8 +316,8 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
       g.setTransform(getPaintTransform(renderer));
       template.draw(g, pen);
       paintCursor(g, pen.getPaint().getPaint(), pen.getThickness(), template.getVertex());
-      paintRadius(g, template.getVertex());
       g.setTransform(old);
+      paintRadius(g, template.getVertex());
     } // endif
   }
 
