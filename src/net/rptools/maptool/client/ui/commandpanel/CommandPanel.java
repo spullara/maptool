@@ -78,6 +78,7 @@ public class CommandPanel extends JPanel implements Observer {
 	private AvatarPanel avatarPanel;
 	private JButton emotePopupButton;
 	private JPopupMenu emotePopup;
+	private String typedCommandBuffer;
 	
 	private ChatProcessor chatProcessor;
 	
@@ -333,6 +334,7 @@ public class CommandPanel extends JPanel implements Observer {
 		// Don't store up a bunch of repeats
 		if (commandHistory.size() == 0 || !text.equals(commandHistory.get(commandHistory.size()-1))) {
 			commandHistory.add(text);
+			typedCommandBuffer = null;
 		}
 		commandHistoryIndex = commandHistory.size();
 
@@ -406,6 +408,11 @@ public class CommandPanel extends JPanel implements Observer {
 			if (commandHistory.size() == 0) {
 				return;
 			}
+			
+			if (commandHistoryIndex == commandHistory.size()) {
+				typedCommandBuffer = getCommandTextArea().getText();
+			}
+			
 			commandHistoryIndex --;
 			if (commandHistoryIndex < 0) {
 				commandHistoryIndex = 0;
@@ -423,7 +430,7 @@ public class CommandPanel extends JPanel implements Observer {
 			}
 			commandHistoryIndex ++;
 			if (commandHistoryIndex == commandHistory.size()) {
-				commandTextArea.setText("");
+				commandTextArea.setText(typedCommandBuffer != null ? typedCommandBuffer : "");
 				commandHistoryIndex = commandHistory.size();
 			} else if (commandHistoryIndex >= commandHistory.size()) {
 				commandHistoryIndex--;
