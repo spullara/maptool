@@ -107,6 +107,9 @@ public class TokenFootprint {
 			
 			bounds.add(grid.getBounds(cp));
 		}
+
+		bounds.x += grid.getOffsetX();
+		bounds.y += grid.getOffsetY();
 		
 		return bounds;
 	}

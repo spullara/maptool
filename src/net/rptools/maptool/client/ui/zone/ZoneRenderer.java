@@ -125,16 +125,9 @@ import net.rptools.maptool.util.TokenUtil;
 public class ZoneRenderer extends JComponent implements DropTargetListener, Comparable {
     private static final long serialVersionUID = 3832897780066104884L;
 
-    // TODO: Perhaps make this a user defined limit
-    public static final int HOVER_SIZE_THRESHOLD = 40;
-    public static final int EDGE_LIMIT = 25; // can't move board past this edge
-
-    private static final Color CELL_HIGHLIGHT_COLOR = new Color(0xff, 0xff, 0xff, 0x80);
-    
     private static BufferedImage GRID_IMAGE;
     
     public static final int MIN_GRID_SIZE = 5;
-    //private static final Stroke HALO_STROKE = new BasicStroke(2);
     
     protected Zone zone;
 

@@ -118,7 +118,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     private boolean isShowingHover;
     private Area hoverTokenBounds;
     private String hoverTokenNotes;
-    private Timer hoverPopupTimer;
     
 	private Token tokenBeingDragged;
 	private Token tokenUnderMouse;
@@ -1110,11 +1109,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 		ZonePoint p = new ZonePoint(dragStartX, dragStartY);
 
-		TokenFootprint footprint = tokenBeingDragged.getFootprint(renderer.getZone().getGrid());
-		Rectangle footprintBounds = footprint.getBounds(renderer.getZone().getGrid());
-		
-		p.translate(footprintBounds.width/2, footprintBounds.height/2);
-		
 		renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), p);
         
         MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), p);

@@ -71,7 +71,7 @@ public class SquareGrid extends Grid {
 	@Override
 	public Rectangle getBounds(CellPoint cp) {
 		
-		return new Rectangle(cp.x * getSize()+getOffsetX(), cp.y * getSize()+getOffsetY(), getSize(), getSize());
+		return new Rectangle(cp.x * getSize(), cp.y * getSize(), getSize(), getSize());
 	}
 	
 	@Override
