@@ -402,7 +402,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         Token keyToken = zone.getToken(keyTokenId);
         CellPoint originPoint = zone.getGrid().convert(new ZonePoint(keyToken.getX (), keyToken.getY()));
-        Path path = set.getWalker() != null ? set.getWalker().getPath() : null;
+        Path path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath != null ? set.gridlessPath : null;
         
         for (GUID tokenGUID : set.getTokens()) {
             
