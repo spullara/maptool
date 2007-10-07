@@ -735,6 +735,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 
                 TokenFootprint footprint = token.getFootprint(zone.getGrid());
                 Rectangle footprintBounds = footprint.getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
+                if (!token.isSnapToGrid()) {
+    	            footprintBounds.x = token.getX();
+    	            footprintBounds.y = token.getY();
+                }
                 
                 Area tokenVision = tokenVisionCache.get(token);
                 if (tokenVision == null) {
