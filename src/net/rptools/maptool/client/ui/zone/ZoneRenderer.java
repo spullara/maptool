@@ -2413,7 +2413,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         } else {
         	if (t.isDataFlavorSupported(TransferableToken.dataFlavor)) {
         		try {
-        			tokens = Collections.singletonList((Token)t.getTransferData(TransferableToken.dataFlavor));
+        			// Make a copy so that it gets a new unique GUID
+        			tokens = Collections.singletonList(new Token((Token)t.getTransferData(TransferableToken.dataFlavor)));
         			addTokens(tokens, zp, false);
         		} catch (UnsupportedFlavorException ufe) {
         			ufe.printStackTrace();
