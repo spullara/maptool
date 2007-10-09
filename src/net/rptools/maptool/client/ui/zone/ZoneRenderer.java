@@ -733,12 +733,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 	}
                 }
                 
-                TokenFootprint footprint = token.getFootprint(zone.getGrid());
-                Rectangle footprintBounds = footprint.getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
-                if (!token.isSnapToGrid()) {
-    	            footprintBounds.x = token.getX();
-    	            footprintBounds.y = token.getY();
-                }
+                Rectangle footprintBounds = token.getBounds(zone);
                 
                 Area tokenVision = tokenVisionCache.get(token);
                 if (tokenVision == null) {
@@ -1044,12 +1039,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 
                 // OPTIMIZE: combine this with the code in renderTokens()
                 TokenFootprint footprint = token.getFootprint(zone.getGrid());
-                Rectangle footprintBounds = footprint.getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
-                
-                if (!token.isSnapToGrid()) {
-    	            footprintBounds.x = token.getX();
-    	            footprintBounds.y = token.getY();
-                }
+                Rectangle footprintBounds = token.getBounds(zone);
 
                 int tx = (footprintBounds.x+footprintBounds.width/2) + setOffsetX + token.getAnchor().x;
                 int ty = (footprintBounds.y+footprintBounds.height/2) + setOffsetY + token.getAnchor().y;
@@ -1473,11 +1463,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
 
             TokenFootprint footprint = token.getFootprint(zone.getGrid());
-            Rectangle footprintBounds = footprint.getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(token.getX(), token.getY())));
-            if (!token.isSnapToGrid()) {
-	            footprintBounds.x = token.getX();
-	            footprintBounds.y = token.getY();
-            }
+            Rectangle footprintBounds = token.getBounds(zone);
             
             // OPTIMIZE:
             BufferedImage image = null;

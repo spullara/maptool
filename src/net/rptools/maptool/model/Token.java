@@ -660,6 +660,17 @@ public class Token extends BaseModel {
 		return name != null ? name : "";
 	}
 
+	public Rectangle getBounds(Zone zone) {
+		TokenFootprint footprint = getFootprint(zone.getGrid());
+        Rectangle footprintBounds = footprint.getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(getX(), getY())));
+        if (!isSnapToGrid()) {
+            footprintBounds.x = getX();
+            footprintBounds.y = getY();
+        }
+        
+		return footprintBounds;
+	}
+	
 	/**
 	 * @return Returns the size.
 	 */

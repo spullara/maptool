@@ -412,7 +412,7 @@ public class FogUtil {
 				continue;
 			}
 			
-			Dimension size = token.getSize(zone.getGrid());
+			Rectangle size = token.getBounds(zone);
 			
 			Area visionArea = new Area();
 			for (Vision vision : token.getVisionList()) {
@@ -423,7 +423,7 @@ public class FogUtil {
 					continue;
 				}
 				
-				Point p = calculateVisionCenter(token, vision, renderer, x, y, size.width, size.height);
+				Point p = calculateVisionCenter(token, vision, renderer, size.x, size.y, size.width, size.height);
     			
 				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone), zone.getTopology());
 				if (currVisionArea != null) {
@@ -525,7 +525,7 @@ public class FogUtil {
 	 * all the places this has to be done until we can encapsulate it into the vision itself
 	 */
 	public static Point calculateVisionCenter(Token token, Vision vision, ZoneRenderer renderer, int x, int y, int width, int height) {
-		
+		Grid grid = renderer.getZone().getGrid();
 		return new Point(x + width/2, y + height/2);
 	}
 
