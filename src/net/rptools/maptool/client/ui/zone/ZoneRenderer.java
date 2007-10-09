@@ -1683,7 +1683,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 switch(tokenType) {
                 case CIRCLE:
                     
-                    Shape arrow = getCircleFacingArrow(token.getFacing(), footprintBounds.width);
+                    Shape arrow = getCircleFacingArrow(token.getFacing(), footprintBounds.width/2);
 
                     int cx = location.x + location.scaledWidth/2;
                     int cy = location.y + location.scaledHeight/2;
@@ -1698,7 +1698,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 case SQUARE:
                     
                     int facing = token.getFacing();
-                    arrow = getSquareFacingArrow(facing, footprintBounds.width);
+                    arrow = getSquareFacingArrow(facing, footprintBounds.width/2);
 
                     cx = location.x + location.scaledWidth/2;
                     cy = location.y + location.scaledHeight/2;
