@@ -102,8 +102,6 @@ public class OvalTopologyTool extends AbstractDrawingTool implements MouseMotion
             
             Point start = oval.getStartPoint();
             Point end = oval.getEndPoint();
-            
-            ToolHelper.drawBoxedMeasurement(renderer, g, new ScreenPoint(start.x, start.y), new ScreenPoint(end.x, end.y));
         }
     }
 
