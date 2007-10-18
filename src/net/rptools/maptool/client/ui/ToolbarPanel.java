@@ -77,12 +77,13 @@ public class ToolbarPanel extends JToolBar {
 		add(createButton("net/rptools/maptool/client/image/tool/temp-blue-cone.png", "net/rptools/maptool/client/image/tool/temp-blue-off.png", createTemplatePanel(), "Template Tools"));
 		add(createButton("net/rptools/maptool/client/image/tool/fog-blue.png", "net/rptools/maptool/client/image/tool/fog-blue-off.png", createFogPanel(), "Fog of War tools"));
 		add(createButton("net/rptools/maptool/client/image/tool/eye-blue.png", "net/rptools/maptool/client/image/tool/eye-blue-off.png", createTopologyPanel(), "Topology tools"));
-		add(createZoneSelectionButton());
 		add(vertSplit);
 		add(horizontalSplit);
 		add(vertSpacer);
 		add(horizontalSpacer);
 		add(optionPanel);
+		add(Box.createGlue());
+		add(createZoneSelectionButton());
 		
 		// Non visible tools
 		toolbox.createTool(GridTool.class);
