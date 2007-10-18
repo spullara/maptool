@@ -24,7 +24,9 @@
  */
 package net.rptools.maptool.client.ui.assetpanel;
 
+import java.awt.Color;
 import java.awt.Image;
+import java.awt.Paint;
 import java.awt.datatransfer.Transferable;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -36,6 +38,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import net.rptools.lib.FileUtil;
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.ImagePanelModel;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableAsset;
@@ -48,6 +51,17 @@ import net.rptools.maptool.util.PersistenceUtil;
 
 public class ImageFileImagePanelModel implements ImagePanelModel {
 
+	private static final Color TOKEN_BG_COLOR = new Color(255, 250, 205);
+	private static Image rptokenDecorationImage;
+	
+	static {
+		try {
+			rptokenDecorationImage = ImageUtil.getImage("net/rptools/maptool/client/image/rptokIcon.png");
+		} catch (IOException ioe) {
+			rptokenDecorationImage = null;
+		}
+	}
+	
 	private Directory dir;
     private String filter;
 	private List<File> fileList;
@@ -66,6 +80,14 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 		return fileList.size();
 	}
 
+	public Paint getBackground(int index) {
+		return Token.isTokenFile(fileList.get(0).getName()) ? TOKEN_BG_COLOR : null;
+	}
+	
+	public Image[] getDecorations(int index) {
+		return Token.isTokenFile(fileList.get(0).getName()) ? new Image[]{rptokenDecorationImage} : null;
+	}
+	
 	public Image getImage(int index) {
 
         Image image = null;
