@@ -1006,4 +1006,8 @@ public class Token extends BaseModel {
             return defaultValue;
         return bool.booleanValue();
     }
+    
+    public static boolean isTokenFile(String filename) {
+    	return filename != null && filename.toLowerCase().endsWith(FILE_EXTENSION);
+    }
 }
