@@ -31,9 +31,9 @@
                 maximized="false" preferredAutohideSide="-1"
                 preferredSize="200; 200" rearrangable="true"
                 showGripper="false" showTitleBar="true"
-                sideDockAllowed="true" sideTitle="IMAGE_EXPLORER"
+                sideDockAllowed="true" sideTitle="Library"
                 slidingAutohide="true" tabDockAllowed="true"
-                tabTitle="IMAGE_EXPLORER" title="IMAGE_EXPLORER" undockedBounds="971; 131; 200; 200"/>
+                tabTitle="Library" title="Library" undockedBounds="971; 131; 200; 200"/>
             <DockableFrame autohidable="true" autohide="false"
                 autohideHeight="200" autohideShowing="false"
                 autohideWidth="200" availableButtons="15"
@@ -44,9 +44,9 @@
                 maximized="false" preferredAutohideSide="-1"
                 preferredSize="200; 200" rearrangable="true"
                 showGripper="false" showTitleBar="true"
-                sideDockAllowed="true" sideTitle="TOKEN_TREE"
+                sideDockAllowed="true" sideTitle="Map Explorer"
                 slidingAutohide="true" tabDockAllowed="true"
-                tabTitle="TOKEN_TREE" title="TOKEN_TREE" undockedBounds="10; 10; 200; 200"/>
+                tabTitle="Map Explorer" title="Map Explorer" undockedBounds="10; 10; 200; 200"/>
             <DockableFrame autohidable="true" autohide="false"
                 autohideHeight="200" autohideShowing="false"
                 autohideWidth="200" availableButtons="15"
@@ -57,9 +57,9 @@
                 maximized="false" preferredAutohideSide="-1"
                 preferredSize="200; 200" rearrangable="true"
                 showGripper="false" showTitleBar="true"
-                sideDockAllowed="true" sideTitle="CONNECTIONS"
+                sideDockAllowed="true" sideTitle="Connections"
                 slidingAutohide="true" tabDockAllowed="true"
-                tabTitle="CONNECTIONS" title="CONNECTIONS" undockedBounds="10; 10; 200; 200"/>
+                tabTitle="Connections" title="Connections" undockedBounds="10; 10; 200; 200"/>
             <DockableFrame autohidable="true" autohide="false"
                 autohideHeight="200" autohideShowing="false"
                 autohideWidth="200" availableButtons="15"
@@ -70,9 +70,9 @@
                 maximized="false" preferredAutohideSide="-1"
                 preferredSize="200; 200" rearrangable="true"
                 showGripper="false" showTitleBar="true"
-                sideDockAllowed="true" sideTitle="CHAT"
+                sideDockAllowed="true" sideTitle="Chat"
                 slidingAutohide="true" tabDockAllowed="true"
-                tabTitle="CHAT" title="CHAT" undockedBounds="10; 10; 200; 200"/>
+                tabTitle="Chat" title="Chat" undockedBounds="10; 10; 200; 200"/>
             <DockableFrame autohidable="true" autohide="false"
                 autohideHeight="200" autohideShowing="false"
                 autohideWidth="200" availableButtons="15"
@@ -83,9 +83,9 @@
                 maximized="false" preferredAutohideSide="-1"
                 preferredSize="200; 200" rearrangable="true"
                 showGripper="false" showTitleBar="true"
-                sideDockAllowed="true" sideTitle="MACROS"
+                sideDockAllowed="true" sideTitle="Macros"
                 slidingAutohide="true" tabDockAllowed="true"
-                tabTitle="MACROS" title="MACROS" undockedBounds="10; 10; 200; 200"/>
+                tabTitle="Macros" title="Macros" undockedBounds="10; 10; 200; 200"/>
         </DockableFrames>
     </DockingManager>
 </Managers>
