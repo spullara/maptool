@@ -74,7 +74,7 @@ public class ToolbarPanel extends JToolBar {
 		
 		add(pointerGroupButton);
 		add(createButton("net/rptools/maptool/client/image/tool/draw-blue.png", "net/rptools/maptool/client/image/tool/draw-blue-off.png", createDrawPanel(), "Drawing Tools"));
-		add(createButton("net/rptools/maptool/client/image/tool/temp-blue-cone.png", "net/rptools/maptool/client/image/tool/temp-blue-off.png", createTemplatePanel(), "Template Tools"));
+		add(createButton("net/rptools/maptool/client/image/tool/temp-blue.png", "net/rptools/maptool/client/image/tool/temp-blue-off.png", createTemplatePanel(), "Template Tools"));
 		add(createButton("net/rptools/maptool/client/image/tool/fog-blue.png", "net/rptools/maptool/client/image/tool/fog-blue-off.png", createFogPanel(), "Fog of War tools"));
 		add(createButton("net/rptools/maptool/client/image/tool/eye-blue.png", "net/rptools/maptool/client/image/tool/eye-blue-off.png", createTopologyPanel(), "Topology tools"));
 		add(vertSplit);
