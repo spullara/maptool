@@ -1,5 +1,6 @@
 package net.rptools.maptool.model;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -13,6 +14,8 @@ import java.io.IOException;
 import java.util.List;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.TokenFootprint.OffsetTranslator;
@@ -248,9 +251,9 @@ public abstract class HexGrid extends Grid {
 
         int count = 0;
 
-        Object oldAntiAlias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        Object oldAntiAlias = SwingUtil.useAntiAliasing(g);
         g.setColor(new Color(getZone().getGridColor()));
+        g.setStroke(new BasicStroke(AppState.getGridSize()));
                 
 		for (double v = offV%(scaledMinorRadius*2) - (scaledMinorRadius*2);
 				v < getRendererSizeV(renderer);
