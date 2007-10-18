@@ -33,7 +33,7 @@
                 showGripper="false" showTitleBar="true"
                 sideDockAllowed="true" sideTitle="Library"
                 slidingAutohide="true" tabDockAllowed="true"
-                tabTitle="Library" title="Library" undockedBounds="971; 131; 200; 200"/>
+                tabTitle="Library" title="Resource Library" undockedBounds="971; 131; 200; 200"/>
             <DockableFrame autohidable="true" autohide="false"
                 autohideHeight="200" autohideShowing="false"
                 autohideWidth="200" availableButtons="15"

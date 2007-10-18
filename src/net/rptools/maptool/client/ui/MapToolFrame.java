@@ -351,7 +351,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	
 	private static DockableFrame createDockingFrame(MTFrame mtFrame, Component component) {
 		DockableFrame frame = new DockableFrame(mtFrame.name());
-		frame.setTitle(mtFrame.toString());
 		frame.add(component);
 		
 		return frame;
