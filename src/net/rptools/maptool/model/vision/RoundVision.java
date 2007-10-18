@@ -3,9 +3,9 @@ package net.rptools.maptool.model.vision;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 
+import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.Vision.Anchor;
 
 public class RoundVision extends Vision {
 
@@ -22,7 +22,7 @@ public class RoundVision extends Vision {
 	}
 	
 	@Override
-	protected Area createArea(Zone zone) {
+	protected Area createArea(Zone zone, Token token) {
 
 		int size = getDistance() * getZonePointsPerCell(zone)*2;
 		int half = size/2;

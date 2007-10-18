@@ -425,7 +425,7 @@ public class FogUtil {
 				
 				Point p = calculateVisionCenter(token, vision, renderer, size.x, size.y, size.width, size.height);
     			
-				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone), zone.getTopology());
+				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), zone.getTopology());
 				if (currVisionArea != null) {
 					visionArea.add(currVisionArea);
 				}
@@ -459,7 +459,7 @@ public class FogUtil {
 				
 				Point p = calculateVisionCenter(token, vision, renderer, x, y, size.width, size.height);
     			
-				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone), zone.getTopology());
+				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), zone.getTopology());
 				if (currVisionArea != null) {
 					visionArea.add(currVisionArea);
 				}
@@ -506,7 +506,7 @@ public class FogUtil {
 
 					Point p = calculateVisionCenter(token, vision, renderer, x, y, size.width, size.height);
 	    			
-					Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone), zone.getTopology());
+					Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), zone.getTopology());
 					if (currVisionArea != null) {
 						visionArea.add(currVisionArea);
 					}

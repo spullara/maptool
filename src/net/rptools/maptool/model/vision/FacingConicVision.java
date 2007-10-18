@@ -15,15 +15,15 @@ import net.rptools.maptool.model.Vision.Anchor;
 public class FacingConicVision extends Vision {
 
 	private Integer lastFacing;
-	private GUID tokenGUID;
 	
-	public FacingConicVision(GUID tokenGUID) {
-		this(tokenGUID, 0);
+	// DEPRECATED: here to support the serialization
+	private transient GUID tokenGUID;
+	
+	public FacingConicVision() {
 	}
 	
-	public FacingConicVision(GUID tokenGUID, int distance) {
+	public FacingConicVision(int distance) {
 		setDistance(distance);
-		this.tokenGUID = tokenGUID;
 	}
 	
 	@Override
@@ -32,21 +32,22 @@ public class FacingConicVision extends Vision {
 	}
 	
 	@Override
-	public Area getArea(Zone zone) {
-		Token token = getToken();
+	public Area getArea(Zone zone, Token token) {
+
 		if (token == null) {
 			return null;
 		}
-		if (lastFacing != null && !lastFacing.equals(token.getFacing())) {
+
+		if (lastFacing == null || !lastFacing.equals(token.getFacing())) {
 			flush();
+			lastFacing = token.getFacing();
 		}
-		return super.getArea(zone);
+		return super.getArea(zone, token);
 	}
 	
 	@Override
-	protected Area createArea(Zone zone) {
+	protected Area createArea(Zone zone, Token token) {
 
-		Token token = getToken();
 		if (token == null) {
 			return null;
 		}
@@ -71,10 +72,6 @@ public class FacingConicVision extends Vision {
 		lastFacing = token.getFacing();
 		
 		return area;
-	}
-	
-	private Token getToken() {
-		return MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenGUID);
 	}
 	
 	@Override

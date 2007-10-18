@@ -743,7 +743,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                             continue;
                         }
                         
-                        Area visionArea = vision.getArea(getZone());
+                        Area visionArea = vision.getArea(getZone(), token);
                         if (visionArea == null) {
                             continue;
                         }

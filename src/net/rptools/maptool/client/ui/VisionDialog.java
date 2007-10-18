@@ -106,7 +106,7 @@ public class VisionDialog extends JDialog {
 		} else {
 			list = new Object[]{
 					new RoundVision(),
-					new FacingConicVision(token.getId()),
+					new FacingConicVision(),
 					new BlockyRoundVision()
 			};
 		}

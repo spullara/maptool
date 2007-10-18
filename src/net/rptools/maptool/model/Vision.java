@@ -80,9 +80,9 @@ public abstract class Vision {
 	/**
 	 * Get the area shape that this vision represents, in zone points, centered on the origin x,y
 	 */
-	public Area getArea(Zone zone) {
+	public Area getArea(Zone zone, Token token) {
 		if (area == null || lastGridSize != zone.getGrid().getSize()) {
-			area = createArea(zone);
+			area = createArea(zone, token);
 		}
 		lastGridSize = zone.getGrid().getSize();
 		return area;
@@ -91,7 +91,7 @@ public abstract class Vision {
 	/**
 	 * Specific vision types must be able to create the shape they represent
 	 */
-	protected abstract Area createArea(Zone zone);
+	protected abstract Area createArea(Zone zone, Token token);
 	
 	// This won't be abstract when anchor points are fleshed out, but rather a field on this class
 	public abstract Anchor getAnchor();

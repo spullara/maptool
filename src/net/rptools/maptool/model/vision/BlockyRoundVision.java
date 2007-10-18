@@ -5,6 +5,7 @@ import java.awt.geom.Area;
 import java.awt.geom.NoninvertibleTransformException;
 
 import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 
@@ -18,7 +19,7 @@ public class BlockyRoundVision extends Vision {
 	}
 	
 	@Override
-	protected Area createArea(Zone zone) {
+	protected Area createArea(Zone zone, Token token) {
 
 		int size = getDistance() * getZonePointsPerCell(zone);
 		Area area = drawCells(size, zone);
