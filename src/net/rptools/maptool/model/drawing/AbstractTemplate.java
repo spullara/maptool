@@ -29,7 +29,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.ZonePoint;
 
@@ -219,9 +218,9 @@ public abstract class AbstractTemplate extends AbstractDrawing {
         
         // Template specific painting
         if (border)
-          paintBorder(g, x, y, xOff, yOff, gridSize, Math.round(getDistance(x, y)));
+          paintBorder(g, x, y, xOff, yOff, gridSize, getDistance(x, y));
         if (area)
-          paintArea(g, x, y, xOff, yOff, gridSize, Math.round(getDistance(x, y)));
+          paintArea(g, x, y, xOff, yOff, gridSize, getDistance(x, y));
       } // endfor
     } // endfor
   }
@@ -402,5 +401,4 @@ public abstract class AbstractTemplate extends AbstractDrawing {
    * is offset from the vertex by <code>x</code> & <code>y</code>.
    */
   protected abstract void paintArea(Graphics2D g, int x, int y, int xOff, int yOff, int gridSize, int distance);
-
 }

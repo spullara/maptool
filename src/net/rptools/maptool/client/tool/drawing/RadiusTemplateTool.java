@@ -278,25 +278,51 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     } // endif
   }
   
-  /*---------------------------------------------------------------------------------------------
-   * MouseMotionListener Interface Methods
-   *-------------------------------------------------------------------------------------------*/
-
   /**
-   * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+   * Set the radius on a mouse move after the anchor has been set.
+   * 
+   * @param e Current mouse locations
    */
-  public void mouseMoved(MouseEvent e) {
+  protected void setRadiusFromAnchor(MouseEvent e) {
+    template.setRadius(getRadiusAtMouse(e));
+  }
+  
+  /**
+   * Handle mouse mevement. Done here so that subclasses can still benefit from the code in
+   * DefaultTool w/o rewritting it.
+   * 
+   * @param e Current mouse location
+   */
+  protected void handleMouseMovement(MouseEvent e) {
+      
+    // Set the anchor
     ZonePoint vertex = template.getVertex();
     if (!anchorSet) {
       setCellAtMouse(e, vertex);
-      controlOffset = null;  
+      controlOffset = null;
+      
+    // Move the anchor if control pressed.
     } else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
       handleControlOffset(e, vertex);
+      
+    // Set the radius and repaint
     } else {
-      template.setRadius(getRadiusAtMouse(e));
+      setRadiusFromAnchor(e);
       renderer.repaint();
       controlOffset = null;  
     } // endif
+  }
+  
+  /*---------------------------------------------------------------------------------------------
+   * DefaultTool Interface Methods
+   *-------------------------------------------------------------------------------------------*/
+
+  /**
+   * @see net.rptools.maptool.client.tool.DefaultTool#mouseMoved(java.awt.event.MouseEvent)
+   */
+  public void mouseMoved(MouseEvent e) {
+    super.mouseMoved(e);
+    handleMouseMovement(e);
   }
 
   /*---------------------------------------------------------------------------------------------
@@ -392,6 +418,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
    */
   public void mousePressed(MouseEvent e) {
+    super.mousePressed(e);
     if (!painting)
       return;
 
@@ -422,6 +449,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
    */
   public void mouseEntered(MouseEvent e) {
+    super.mouseEntered(e);
     painting = true;
     renderer.repaint();
   }
@@ -430,6 +458,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
    */
   public void mouseExited(MouseEvent e) {
+    super.mouseExited(e);
     painting = false;
     renderer.repaint();
   }

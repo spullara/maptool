@@ -792,6 +792,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         // Find tokens with template state
         // TODO: I really don't like this, it should be optimized
+        AffineTransform old = g.getTransform();
+        AffineTransform t = new AffineTransform();
+        g.setTransform(t);
         for (Token token : zone.getAllTokens()) {
             for (String state : token.getStatePropertyNames()) {
                 Object value = token.getState(state);
@@ -808,7 +811,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     int height = (int) (size.height * scale) - 1;
                     ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePointRnd(this, token.getX(), token.getY());
                     int x = (int)(tokenScreenLocation.x + 1);
-                    int y = (int)(tokenScreenLocation.y + 1);
+                    int y = (int)(tokenScreenLocation.y);
                     if (width < scaledGridSize) {
                         x += (scaledGridSize - width) / 2;
                     }
@@ -817,16 +820,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     }
                     Rectangle bounds = new Rectangle(x, y, width, height);
 
-                    // Set up the graphics, paint the template, restore the
-                    // graphics
-                    Shape clip = g.getClip();
-                    g.translate(bounds.x, bounds.y);
-                    ((TokenTemplate) value).paintTemplate(g, token, bounds,this);
-                    g.translate(-bounds.x, -bounds.y);
-                    g.setClip(clip);
+                    // Set up the graphics, paint the template, restore the graphics
+                    t.setTransform(old);
+                    t.translate(bounds.x, bounds.y);
+                    t.scale(getScale(), getScale());
+                    g.setTransform(t);
+                    ((TokenTemplate)value).paintTemplate(g, token, bounds, this);
                 }
             }
         }
+        g.setTransform(old);
     }
     private void renderLabels(Graphics2D g, ZoneView view) {
         

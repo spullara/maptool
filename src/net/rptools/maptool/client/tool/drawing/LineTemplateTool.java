@@ -181,79 +181,84 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
     super.mousePressed(aE);
   }
 
-  /*---------------------------------------------------------------------------------------------
-   * MouseMotionListener Interface Methods
-   *-------------------------------------------------------------------------------------------*/
-
   /**
-   * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#handleMouseMovement(java.awt.event.MouseEvent)
    */
-  public void mouseMoved(MouseEvent e) {
-    
-    // Setting anchor point
-    LineTemplate lt = (LineTemplate) template;
-    ZonePoint pathVertex = lt.getPathVertex();
-    ZonePoint vertex = lt.getVertex();
-    if (!anchorSet) {
-      setCellAtMouse(e, vertex);
-      controlOffset = null;
-    } else if (!pathAnchorSet && (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
-      handleControlOffset(e, vertex);
-    } else if (!pathAnchorSet) {
-      template.setRadius(getRadiusAtMouse(e));
-      controlOffset = null;
+  @Override
+  protected void handleMouseMovement(MouseEvent e) {
       
-      // The path vertex remains null until it is set the first time.
-      if (pathVertex == null) {
-        pathVertex = new ZonePoint(vertex.x, vertex.y);
-        lt.setPathVertex(pathVertex);
-      } // endif
-      if (pathVertex != null && setCellAtMouse(e, pathVertex)) 
-        lt.clearPath();
+      // Setting anchor point?
+      LineTemplate lt = (LineTemplate) template;
+      ZonePoint pathVertex = lt.getPathVertex();
+      ZonePoint vertex = lt.getVertex();
+      if (!anchorSet) {
+        setCellAtMouse(e, vertex);
+        controlOffset = null;
         
-        // Determine which of the extra squares are used on diagonals
-      if (pathVertex != null) { 
-        double dx = pathVertex.x - vertex.x;
-        double dy = pathVertex.y - vertex.y;
-        if (dx != 0 && dy != 0) { // Ignore straight lines
-          boolean mouseSlopeGreater = false;
-          double m = Math.abs(dy / dx);
-          double edx = e.getX() - vertex.x;
-          double edy = e.getY() - vertex.y;
-          if (edx != 0 && edy != 0) { // Handle straight lines differently
-            double em = Math.abs(edy / edx);
-            mouseSlopeGreater = em > m;
-          } else if (edx == 0) {
-            mouseSlopeGreater = true;
-          } // endif
-          if (mouseSlopeGreater != lt.isMouseSlopeGreater()) {
-            lt.setMouseSlopeGreater(mouseSlopeGreater);
-            renderer.repaint();
+      // Let control move the anchor
+      } else if (!pathAnchorSet && (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
+        handleControlOffset(e, vertex);
+        
+      // Setting path anchor?
+      } else if (!pathAnchorSet) {
+        template.setRadius(getRadiusAtMouse(e));
+        controlOffset = null;
+        
+        // The path vertex remains null until it is set the first time.
+        if (pathVertex == null) {
+          pathVertex = new ZonePoint(vertex.x, vertex.y);
+          lt.setPathVertex(pathVertex);
+        } // endif
+        if (pathVertex != null && setCellAtMouse(e, pathVertex)) 
+          lt.clearPath();
+          
+          // Determine which of the extra squares are used on diagonals
+        if (pathVertex != null) { 
+          double dx = pathVertex.x - vertex.x;
+          double dy = pathVertex.y - vertex.y;
+          if (dx != 0 && dy != 0) { // Ignore straight lines
+            boolean mouseSlopeGreater = false;
+            double m = Math.abs(dy / dx);
+            double edx = e.getX() - vertex.x;
+            double edy = e.getY() - vertex.y;
+            if (edx != 0 && edy != 0) { // Handle straight lines differently
+              double em = Math.abs(edy / edx);
+              mouseSlopeGreater = em > m;
+            } else if (edx == 0) {
+              mouseSlopeGreater = true;
+            } // endif
+            if (mouseSlopeGreater != lt.isMouseSlopeGreater()) {
+              lt.setMouseSlopeGreater(mouseSlopeGreater);
+              renderer.repaint();
+            } // endif
           } // endif
         } // endif
-      } // endif
-    } else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
-      handleControlOffset(e, pathVertex);
-    } else {
-      template.setRadius(getRadiusAtMouse(e));
-      renderer.repaint();
-      controlOffset = null;
-      return;
-    } // endif
-    
-    // Quadrant change?
-    if (pathVertex != null) {
-      int dx = e.getX() - vertex.x;
-      int dy = e.getY() - vertex.y;
-      AbstractTemplate.Quadrant quadrant = (dx < 0) ? (dy < 0 ? Quadrant.NORTH_WEST : Quadrant.SOUTH_WEST)
-          : (dy < 0 ? Quadrant.NORTH_EAST : Quadrant.SOUTH_EAST);
-      if (quadrant != lt.getQuadrant()) {
-        lt.setQuadrant(quadrant);
+        
+      // Let control move the path anchor
+      } else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
+        handleControlOffset(e, pathVertex);
+        
+      // Set the final radius
+      } else {
+        template.setRadius(getRadiusAtMouse(e));
         renderer.repaint();
+        controlOffset = null;
+        return;
       } // endif
-    } // endif
+      
+      // Quadrant change?
+      if (pathVertex != null) {
+        int dx = e.getX() - vertex.x;
+        int dy = e.getY() - vertex.y;
+        AbstractTemplate.Quadrant quadrant = (dx < 0) ? (dy < 0 ? Quadrant.NORTH_WEST : Quadrant.SOUTH_WEST)
+            : (dy < 0 ? Quadrant.NORTH_EAST : Quadrant.SOUTH_EAST);
+        if (quadrant != lt.getQuadrant()) {
+          lt.setQuadrant(quadrant);
+          renderer.repaint();
+        } // endif
+      } // endif
   }
-  
+
   /*---------------------------------------------------------------------------------------------
    * PropertyChangeListener Interface Methods
    *-------------------------------------------------------------------------------------------*/

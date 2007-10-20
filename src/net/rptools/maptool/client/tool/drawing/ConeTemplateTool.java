@@ -25,7 +25,6 @@
 
 package net.rptools.maptool.client.tool.drawing;
 
-import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 
@@ -94,27 +93,17 @@ public class ConeTemplateTool extends RadiusTemplateTool {
   public String getInstructions() {
     return "tool.cone.instructions";
   }
-
-  /*---------------------------------------------------------------------------------------------
-   * MouseMotionListener Interface Methods
-   *-------------------------------------------------------------------------------------------*/
-
+  
   /**
-   * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#setRadiusFromAnchor(java.awt.event.MouseEvent)
    */
-  public void mouseMoved(MouseEvent e) {
-    if (!anchorSet) {
-      setCellAtMouse(e, template.getVertex()); // Set the vertex
-      controlOffset = null;  
-    } else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK) {
-      handleControlOffset(e, template.getVertex());
-    } else {
-      template.setRadius(getRadiusAtMouse(e));
-      ZonePoint vertex = template.getVertex();
-      ZonePoint mouse = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
-      ((ConeTemplate) template).setDirection(RadiusTemplate.Direction.findDirection(mouse.x, mouse.y, vertex.x, vertex.y));
-      renderer.repaint();
-      controlOffset = null;
-    } // endif
+  @Override
+  protected void setRadiusFromAnchor(MouseEvent e) {
+    super.setRadiusFromAnchor(e);
+    
+    // Set the direction based on the mouse location too
+    ZonePoint vertex = template.getVertex();
+    ZonePoint mouse = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
+    ((ConeTemplate) template).setDirection(RadiusTemplate.Direction.findDirection(mouse.x, mouse.y, vertex.x, vertex.y));
   }
 }

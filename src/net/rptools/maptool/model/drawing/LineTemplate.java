@@ -29,6 +29,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -200,19 +201,21 @@ public class LineTemplate extends AbstractTemplate {
     ZonePoint vertex = getVertex();
     if (vertex.equals(pathVertex))
       return null;
-    double dx = pathVertex.x - vertex.x;
-    double dy = pathVertex.y - vertex.y;
+    int dx = pathVertex.x - vertex.x;
+    int dy = pathVertex.y - vertex.y;
 
     // Start the line at 0,0
     clearPath();
     path = new ArrayList<ScreenPoint>();
     path.add(getPointFromPool(0, 0));
+    MathContext mc = MathContext.DECIMAL128;
+    MathContext rmc = new MathContext(MathContext.DECIMAL64.getPrecision(), RoundingMode.DOWN);
     if (dx != 0 && dy != 0) {
 
       // Calculate quadrant and the slope
       setQuadrant((dx < 0) ? (dy < 0 ? Quadrant.NORTH_WEST : Quadrant.SOUTH_WEST) : (dy < 0 ? Quadrant.NORTH_EAST
           : Quadrant.SOUTH_EAST));
-      double m = Math.abs(dy / dx);
+      BigDecimal m = BigDecimal.valueOf(dy).divide(BigDecimal.valueOf(dx), mc).abs();
 
       // Find the path
       ScreenPoint p = path.get(path.size() - 1);
@@ -221,8 +224,8 @@ public class LineTemplate extends AbstractTemplate {
         int y = (int)p.y;
 
         // Which border does the point exit the cell?
-        double xValue = new BigDecimal((y + 1) / m, MathContext.DECIMAL128).doubleValue();
-        double yValue = new BigDecimal((x + 1) * m, MathContext.DECIMAL128).doubleValue();
+        double xValue = BigDecimal.valueOf(y + 1).divide(m, mc).round(rmc).doubleValue();
+        double yValue = BigDecimal.valueOf(x + 1).multiply(m, mc).round(rmc).doubleValue();
         if (xValue == x + 1 && yValue == y + 1) {
 
           // Special case, right on the diagonal
