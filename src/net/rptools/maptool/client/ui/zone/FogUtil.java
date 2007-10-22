@@ -7,17 +7,21 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Random;
 import java.util.Set;
 
@@ -143,113 +147,6 @@ public class FogUtil {
 		return vision;
 	}	
 	
-	public static Area calculateVisibility2(int x, int y, Area vision, AreaData topology) {
-
-		vision = new Area(vision);
-		vision.transform(AffineTransform.getTranslateInstance(x, y));
-		
-		// sanity check
-		if (topology.contains(x, y)) {
-			return null;
-		}
-		
-		Point origin = new Point(x, y);
-		
-		int blockCount = 0;
-		for (Area area : topology.getAreaList(origin)) {
-		
-			if (!vision.intersects(area.getBounds())) {
-				continue;
-			}
-				
-			// Simple method to clear some nasty artifacts
-//			vision.subtract(area);
-			
-			List<AreaPoint> pointList = new ArrayList<AreaPoint>();
-			
-			double[] coords = new double[6];
-	
-			Point firstPoint = null;
-			Point firstOutsidePoint = null;
-			
-			Point lastPoint = null;
-			Point lastOutsidePoint = null;
-			Point originPoint = new Point(x, y);
-			for (PathIterator iter = area.getPathIterator(null); !iter.isDone(); iter.next()) {
-				
-				int type = iter.currentSegment(coords);
-				int coordCount = 0;
-				switch (type) {
-				case PathIterator.SEG_CLOSE: coordCount = 0; break;
-				case PathIterator.SEG_CUBICTO: coordCount = 3; break;
-				case PathIterator.SEG_LINETO: coordCount = 1; break;
-				case PathIterator.SEG_MOVETO: coordCount = 1;break;
-				case PathIterator.SEG_QUADTO: coordCount = 2;break;
-				}
-				
-				for (int i = 0; i < coordCount; i++) {
-	
-					Point point = new Point((int)coords[i*2], (int)coords[i*2+1]);
-					Point outsidePoint = GraphicsUtil.getProjectedPoint(origin, point, 100000);
-					
-					if (firstPoint == null) {
-						firstPoint = point;
-						firstOutsidePoint = outsidePoint;
-					}
-	
-					if (lastPoint != null) {
-						if (type != PathIterator.SEG_MOVETO) {
-							pointList.add(new AreaPoint(lastPoint, point, outsidePoint, lastOutsidePoint, getDistance(originPoint, point)));
-						} else {
-							// Close the last shape
-							if (lastPoint != null) {
-								pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, getDistance(originPoint, point)));
-							}
-							
-							firstPoint = point;
-							firstOutsidePoint = outsidePoint;
-						}
-					}
-	
-					lastPoint = point;
-					lastOutsidePoint = outsidePoint;
-				}
-				
-			}
-			
-			// Close the area
-			if (lastPoint != null) {
-				pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, getDistance(originPoint, lastPoint)));
-			}
-	
-			Collections.sort(pointList, new Comparator<AreaPoint>() {
-				public int compare(AreaPoint o1, AreaPoint o2) {
-					
-					return o1.distance < o2.distance ? -1 : o2.distance < o1.distance ? 1 : 0;
-				}
-			});
-			
-			for (AreaPoint point : pointList) {
-				Rectangle r = new Rectangle();
-				r.x = Math.min(point.p1.x, point.p2.x)-1;
-				r.y = Math.min(point.p1.y, point.p2.y)-1;
-				r.width = Math.max(point.p1.x, point.p2.x) - r.x+2;
-				r.height = Math.max(point.p1.y, point.p2.y) - r.y+2;
-	
-				if (!vision.intersects(r)) {
-					continue;
-				}
-				Area blockedArea = createBlockArea(point.p1, point.p2, point.p3, point.p4);
-				vision.subtract(blockedArea);
-				blockCount++;
-			}
-		}
-//		System.out.println("Blockcount: " + blockCount);
-		
-		// For simplicity, this catches some of the edge cases
-		return vision;
-	}	
-
 	private static double getDistance(Point p1, Point p2) {
 		double a = p2.x - p1.x;
 		double b = p2.y - p1.y;
@@ -273,13 +170,15 @@ public class FogUtil {
 		Area clearedArea = new Area();
 		
 		int blockCount = 0;
-		for (Area area : topology.getAreaList(origin)) {
+		for (AreaMeta areaMeta : topology.getAreaList(origin)) {
 		
-			if (clearedArea.contains(area.getBounds())) {
-				skippedAreaList.add(area);
+			if (clearedArea.contains(areaMeta.area.getBounds())) {
+				skippedAreaList.add(areaMeta.area);
 				continue;
 			}
-				
+			
+			Set<String> frontFaces = areaMeta.getFrontFaces(origin);
+			
 			// Simple method to clear some nasty artifacts
 //			vision.subtract(area);
 			
@@ -293,52 +192,53 @@ public class FogUtil {
 			Point lastPoint = null;
 			Point lastOutsidePoint = null;
 			Point originPoint = new Point(x, y);
-			for (PathIterator iter = area.getPathIterator(null); !iter.isDone(); iter.next()) {
+			for (PathIterator iter = areaMeta.area.getPathIterator(null); !iter.isDone(); iter.next()) {
 				
 				int type = iter.currentSegment(coords);
-				int coordCount = 0;
-				switch (type) {
-				case PathIterator.SEG_CLOSE: coordCount = 0; break;
-				case PathIterator.SEG_CUBICTO: coordCount = 3; break;
-				case PathIterator.SEG_LINETO: coordCount = 1; break;
-				case PathIterator.SEG_MOVETO: coordCount = 1;break;
-				case PathIterator.SEG_QUADTO: coordCount = 2;break;
+				if (type != PathIterator.SEG_LINETO && type != PathIterator.SEG_MOVETO) {
+					continue;
 				}
 				
-				for (int i = 0; i < coordCount; i++) {
-	
-					Point point = new Point((int)coords[i*2], (int)coords[i*2+1]);
-					Point outsidePoint = GraphicsUtil.getProjectedPoint(origin, point, 100000);
-					
-					if (firstPoint == null) {
+				Point point = new Point((int)coords[0], (int)coords[1]);
+				Point outsidePoint = GraphicsUtil.getProjectedPoint(origin, point, 100000);
+				
+				if (firstPoint == null) {
+					firstPoint = point;
+					firstOutsidePoint = outsidePoint;
+				}
+
+				if (lastPoint != null) {
+					if (type != PathIterator.SEG_MOVETO) {
+						pointList.add(new AreaPoint(lastPoint, point, outsidePoint, lastOutsidePoint, getDistance(originPoint, point)));
+					} else {
+						// Close the last shape
+						if (lastPoint != null) {
+							pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, getDistance(originPoint, point)));
+						}
+						
 						firstPoint = point;
 						firstOutsidePoint = outsidePoint;
 					}
-	
-					if (lastPoint != null) {
-						if (type != PathIterator.SEG_MOVETO) {
-							pointList.add(new AreaPoint(lastPoint, point, outsidePoint, lastOutsidePoint, getDistance(originPoint, point)));
-						} else {
-							// Close the last shape
-							if (lastPoint != null) {
-								pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, getDistance(originPoint, point)));
-							}
-							
-							firstPoint = point;
-							firstOutsidePoint = outsidePoint;
-						}
-					}
-	
-					lastPoint = point;
-					lastOutsidePoint = outsidePoint;
 				}
-				
+
+				lastPoint = point;
+				lastOutsidePoint = outsidePoint;
 			}
 			
 			// Close the area
 			if (lastPoint != null) {
 				pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, getDistance(originPoint, lastPoint)));
 			}
+			
+			int removeCount = 0;
+			for (ListIterator<AreaPoint> pointIter = pointList.listIterator(); pointIter.hasNext();) {
+				AreaPoint point = pointIter.next();
+				if (!frontFaces.contains(getLineSegmentId(point.p1, point.p2))) {
+					removeCount ++;
+					pointIter.remove();
+				}
+			}
+			System.out.println("Remove: " + removeCount);
 	
 			Collections.sort(pointList, new Comparator<AreaPoint>() {
 				public int compare(AreaPoint o1, AreaPoint o2) {
@@ -529,6 +429,138 @@ public class FogUtil {
 		return new Point(x + width/2, y + height/2);
 	}
 
+	private static double getAngle(Point2D origin, Point2D target) {
+		
+		double angle = Math.toDegrees(Math.atan2((origin.getY() - target.getY()),(target.getX() - origin.getX())));
+		if (angle < 0) {
+			angle += 360;
+		}
+		
+		return angle;
+	}
+	
+	private static double getAngleDelta(double sourceAngle, double targetAngle) {
+		
+		// Normalize
+		targetAngle -= sourceAngle;
+		
+		if (targetAngle > 180) {
+			targetAngle -= 360;
+		}
+		if (targetAngle < -180) {
+			targetAngle += 360; 
+		}
+		
+		return targetAngle;
+	}
+
+	private static Line2D findClosestLine(Point2D origin, PointNode pointList) {
+		
+		Line2D line = null;
+		double distance = 0;
+
+		PointNode node = pointList;
+		do {
+			Line2D newLine = new Line2D.Double(node.previous.point, node.point);
+			double newDistance = getDistanceToCenter(origin, newLine);
+			if (line == null || newDistance < distance) {
+				line = newLine;
+				distance = newDistance;
+			}
+			
+			node = node.next;
+		} while (node != pointList);
+		
+		return line;
+	}
+	
+	private static double getDistanceToCenter(Point2D p, Line2D line) {
+		
+		Point2D midPoint = new Point2D.Double((line.getP1().getX() + line.getP2().getX())/2, (line.getP1().getY() + line.getP2().getY())/2);
+
+		return Math.hypot(midPoint.getX()-p.getX(), midPoint.getY()-p.getY());
+	}
+
+	private static Point2D getCloserPoint(Point2D origin, Line2D line) {
+		
+		double dist1 = Math.hypot(origin.getX() - line.getP1().getX(), origin.getY() - line.getP1().getY());
+		double dist2 = Math.hypot(origin.getX() - line.getP2().getX(), origin.getY() - line.getP2().getY());
+		
+		return dist1 < dist2 ? line.getP1() : line.getP2();
+	}
+
+	private static Point2D theClosestPoint = null;
+
+	private static Set<String> getFrontFaces(PointNode nodeList, Point2D origin) {
+		
+		Set<String> frontFaces = new HashSet<String>();
+		
+		Point2D closest = getCloserPoint(origin, findClosestLine(origin, nodeList));
+		theClosestPoint = closest;
+		PointNode closestNode = nodeList;
+		do {
+			if (closestNode.point.equals(closest)) {
+				break;
+			}
+			closestNode = closestNode.next;
+			
+		} while (closestNode != nodeList);
+		
+		// Determine whether the first line segment is visible
+		Line2D l1 = new Line2D.Double(origin, closestNode.next.point);
+		Line2D l2 = new Line2D.Double(closestNode.point, closestNode.previous.point);
+		boolean frontFace = !(l1.intersectsLine(l2));
+		
+		double originAngle = getAngle(origin, closestNode.point);
+		double pointAngle = getAngle(closestNode.point, closestNode.next.point);
+		int lastDirection = getAngleDelta(originAngle, pointAngle) > 0 ? 1 : -1;
+
+		System.out.println(frontFace + " - " + getAngleDelta(pointAngle, originAngle) + " - " + lastDirection);
+		PointNode node = closestNode;
+		do {
+		
+			Point2D point = node.point;
+			Point2D nextPoint = node.next.point;
+			
+			originAngle = getAngle(origin, point);
+			pointAngle = getAngle(origin, nextPoint);
+
+			System.out.println(originAngle + ", " + pointAngle + ", " + getAngleDelta(originAngle, pointAngle));
+			if (getAngleDelta(originAngle, pointAngle) > 0) {
+				if (lastDirection < 0) {
+					frontFace = !frontFace;
+					lastDirection = 1;
+				}
+			} else {
+				if (lastDirection > 0) {
+					frontFace = !frontFace;
+					lastDirection = -1;
+				}
+			}
+
+			if (frontFace) {
+				frontFaces.add(getLineSegmentId(nextPoint, point));
+			}
+			
+			node = node.next;
+			
+		} while (node != nodeList);
+		
+		return frontFaces;
+	}	
+	
+	private static String getLineSegmentId(Point2D p1, Point2D p2) {
+
+		int x1 = (int)Math.min(p1.getX(), p2.getX());
+		int x2 = (int)Math.max(p1.getX(), p2.getX());
+		
+		int y1 = (int)Math.min(p1.getY(), p2.getY());
+		int y2 = (int)Math.max(p1.getY(), p2.getY());
+		
+		return String.format("%d.%d-%d%d", x1, x2, y1, y2);
+	}
+
+	
 	public static class AreaData {
 
 		private Area area;
@@ -549,7 +581,7 @@ public class FogUtil {
 			return false;
 		}
 		
-		public List<Area> getAreaList(final Point centerPoint) {
+		public List<AreaMeta> getAreaList(final Point centerPoint) {
 			List<AreaMeta> areaMetaList = new ArrayList<AreaMeta>(metaList);
 			
 			Collections.sort(areaMetaList, new Comparator<AreaMeta>() {
@@ -560,12 +592,7 @@ public class FogUtil {
 				}
 			});
 			
-			List<Area> areaList = new ArrayList<Area>();
-			for (AreaMeta meta : areaMetaList) {
-				areaList.add(meta.area);
-			}
-
-			return areaList;
+			return areaMetaList;
 		}
 		
 		private void digest() {
@@ -585,8 +612,21 @@ public class FogUtil {
 				int type = iter.currentSegment(coords);
 				switch (type) {
 				case PathIterator.SEG_CLOSE: {
-
 					areaMeta.close();
+
+					for (ListIterator<AreaMeta> metaIter = metaList.listIterator(); metaIter.hasNext();) {
+						AreaMeta meta = metaIter.next();
+						
+						// Look for holes
+						if (GraphicsUtil.intersects(areaMeta.area, meta.area) && meta.isHole()) {
+							
+							// This is a hole.  Holes are always created before their parent, so pull out the existing
+							// area and remove it from the new area
+							metaIter.remove();
+							areaMeta.area.subtract(meta.area);
+						}
+					}
+					
 					metaList.add(areaMeta);
 					break;
 				}
@@ -595,7 +635,6 @@ public class FogUtil {
 					break;
 				}
 				case PathIterator.SEG_MOVETO: {
-					
 					areaMeta = new AreaMeta();
 					areaMeta.addPoint(coords[0], coords[1]);
 					break;
@@ -607,6 +646,9 @@ public class FogUtil {
 				}
 				
 			}
+			
+			// No longer needed
+			area = null;
 		}
 	}
 	private static class AreaMeta {
@@ -627,6 +669,25 @@ public class FogUtil {
 				centerPoint = new Point2D.Double(area.getBounds().x + area.getBounds().width/2, area.getBounds().y + area.getBounds().height/2);
 			}
 			return centerPoint;
+		}
+		
+		public Set<String> getFrontFaces(Point2D origin) {
+			
+			return FogUtil.getFrontFaces(pointNodeList, origin);
+		}
+		
+		public boolean isHole() {
+			
+			double angle = 0;
+			
+
+			PointNode currNode = pointNodeList.next;
+			while (currNode != pointNodeList) {
+				angle += getAngleDelta(getAngle(currNode.previous.point, currNode.point), getAngle(currNode.point, currNode.next.point));
+				currNode = currNode.next;
+			}
+			
+			return angle < 0;
 		}
 		
 		public void addPoint(float x, float y) {
@@ -670,7 +731,9 @@ public class FogUtil {
 		}
 	}
 	
-	public static void main(String[] args) {
+	
+	
+	public static void main2(String[] args) {
 		
 		System.out.println("Creating topology");
 		final int topSize = 10000;
@@ -701,7 +764,6 @@ public class FogUtil {
 		
 		// Make sure all classes are loaded
 		calculateVisibility3(topSize/2, topSize/2, vision, data);
-		calculateVisibility2(topSize/2, topSize/2, vision, data);
 
 		
 		Area area1 = new Area();
@@ -710,26 +772,14 @@ public class FogUtil {
 		for (int i = 0; i < 1; i++) {
 			area1 = calculateVisibility3(topSize/2, topSize/2, vision, data);
 		}
-		System.out.println("1: " + (System.currentTimeMillis() - start));
-//		JOptionPane.showMessageDialog(new JFrame(), "world");
-		
-		Area area2 = null;
-		start = System.currentTimeMillis();
-		for (int i = 0; i < 1; i++) {
-			area2 = calculateVisibility2(topSize/2, topSize/2, vision, data);
-		}
-		System.out.println("2: " + (System.currentTimeMillis() - start));
-		
-		System.out.println("Equal: " + (area2.equals(area1)));
 
 		final Area a1 = area1;
-		final Area a2 = area2;
 		JFrame f = new JFrame();
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setBounds(0, 0, 400, 200);
 		f.setLayout(new GridLayout());
 		f.add(new JPanel() {
-			Area theArea = a2;
+			Area theArea = null;
 			{
 				addMouseMotionListener(new MouseMotionAdapter() {
 					@Override
@@ -797,4 +847,104 @@ public class FogUtil {
 		
 	}
 
+	public static void main(String[] args) {
+		
+		final Area topology = new Area();
+		topology.add(new Area(new Rectangle(100, 100, 200, 200)));
+//		topology.subtract(new Area(new Rectangle(110, 110, 50, 50)));
+//		topology.subtract(new Area(new Rectangle(200, 200, 50, 50)));
+//		topology.add(new Area(new Rectangle(115, 115, 10, 10)));
+		
+		final Area vision = new Area(new Rectangle(-Integer.MAX_VALUE/2, -Integer.MAX_VALUE/2, Integer.MAX_VALUE, Integer.MAX_VALUE));
+		
+		int pointCount = 0;
+		for (PathIterator iter = topology.getPathIterator(null); !iter.isDone(); iter.next()) {
+			pointCount++;
+		}
+		
+		final AreaData data = new AreaData(topology);
+		data.digest();
+		
+		final Area area = new Area();
+		calculateVisibility3(200, 200, vision, data);
+
+		JFrame f = new JFrame();
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.setBounds(100, 100, 500, 500);
+		f.setLayout(new GridLayout());
+		f.add(new JPanel() {
+			Area theArea = area;
+			int x = 200;
+			int y = 200;
+			{
+				addMouseMotionListener(new MouseMotionAdapter() {
+					@Override
+					public void mouseDragged(MouseEvent e) {
+						
+						Dimension size = getSize();
+						x = e.getX();
+						y = e.getY();
+						
+						long start = System.currentTimeMillis();
+						theArea = calculateVisibility3(x, y, vision, data);
+//						System.out.println("Calc: " + (System.currentTimeMillis() - start));
+						repaint();
+					}
+				});
+				addMouseListener(new MouseAdapter() {
+					@Override
+					public void mousePressed(MouseEvent e) {
+						
+						Dimension size = getSize();
+						x = e.getX();
+						y = e.getY();
+						
+						long start = System.currentTimeMillis();
+						theArea = calculateVisibility3(x, y, vision, data);
+//						System.out.println("Calc: " + (System.currentTimeMillis() - start));
+						repaint();
+					}
+				});
+			}
+			@Override
+			protected void paintComponent(Graphics g) {
+
+				Dimension size = getSize();
+				g.setColor(Color.white);
+				g.fillRect(0, 0, size.width, size.height);
+				
+				Graphics2D g2d = (Graphics2D)g;
+
+				g.setColor(Color.gray);
+				g2d.fill(topology);
+				
+				g.setColor(Color.lightGray);
+				if (theArea != null) {
+					g2d.fill(theArea);
+				}
+				
+				g.setColor(Color.black);
+				g.drawLine(x, y-4, x, y+4);
+				g.drawLine(x-4, y, x+4, y);
+
+				g.setColor(Color.red);
+//				System.out.println("Size: " + data.metaList.size() + " - " + skippedAreaList.size());
+//				for (Area area : skippedAreaList) {
+//					g2d.fill(area);
+//				}
+				
+				g.setColor(Color.green);
+				for (AreaMeta areaMeta : data.getAreaList(new Point(0, 0))) {
+					g2d.fill(areaMeta.area);
+				}
+				
+				g.setColor(Color.blue);
+				if (theClosestPoint != null) {
+					g.fillOval((int)(theClosestPoint.getX() - 4), (int)(theClosestPoint.getY() - 4), 8, 8);
+				}
+			}
+		});
+		f.setVisible(true);
+		
+	}
 }
