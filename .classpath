@@ -26,6 +26,6 @@
 	<classpathentry kind="lib" path="lib/BareBonesBrowserLaunch.jar"/>
 	<classpathentry kind="lib" path="lib/parser-1.0.b10.jar" sourcepath="/parser"/>
 	<classpathentry kind="lib" path="lib/dicelib-1.0.b6.jar"/>
-	<classpathentry kind="lib" path="lib/rplib-1.0.b97.jar"/>
+	<classpathentry kind="lib" path="lib/rplib-1.0.b98.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
