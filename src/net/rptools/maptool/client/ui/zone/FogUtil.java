@@ -30,6 +30,8 @@ import java.util.Set;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import net.rptools.lib.GeometryUtil;
+import net.rptools.lib.GeometryUtil.PointNode;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
@@ -99,11 +101,11 @@ public class FogUtil {
 
 				if (lastPoint != null) {
 					if (type != PathIterator.SEG_MOVETO) {
-						pointList.add(new AreaPoint(lastPoint, point, outsidePoint, lastOutsidePoint, getDistance(originPoint, point)));
+						pointList.add(new AreaPoint(lastPoint, point, outsidePoint, lastOutsidePoint, GeometryUtil.getDistance(originPoint, point)));
 					} else {
 						// Close the last shape
 						if (lastPoint != null) {
-							pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, getDistance(originPoint, point)));
+							pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, GeometryUtil.getDistance(originPoint, point)));
 						}
 						
 						firstPoint = point;
@@ -119,7 +121,7 @@ public class FogUtil {
 		
 		// Close the area
 		if (lastPoint != null) {
-			pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, getDistance(originPoint, lastPoint)));
+			pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, GeometryUtil.getDistance(originPoint, lastPoint)));
 		}
 
 		Collections.sort(pointList, new Comparator<AreaPoint>() {
@@ -148,12 +150,6 @@ public class FogUtil {
 //		System.out.println("Skip: " + skip);
 		return vision;
 	}	
-	
-	private static double getDistance(Point p1, Point p2) {
-		double a = p2.x - p1.x;
-		double b = p2.y - p1.y;
-		return Math.abs(Math.sqrt(a+b));
-	}
 	
 	private static List<Area> skippedAreaList = new ArrayList<Area>();
 	private static Set<Line2D> frontFaceSet = new HashSet<Line2D>();
@@ -213,11 +209,11 @@ public class FogUtil {
 
 				if (lastPoint != null) {
 					if (type != PathIterator.SEG_MOVETO) {
-						pointList.add(new AreaPoint(lastPoint, point, outsidePoint, lastOutsidePoint, getDistance(originPoint, point)));
+						pointList.add(new AreaPoint(lastPoint, point, outsidePoint, lastOutsidePoint, GeometryUtil.getDistance(originPoint, point)));
 					} else {
 						// Close the last shape
 						if (lastPoint != null) {
-							pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, getDistance(originPoint, point)));
+							pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, GeometryUtil.getDistance(originPoint, point)));
 						}
 						
 						firstPoint = point;
@@ -231,13 +227,13 @@ public class FogUtil {
 			
 			// Close the area
 			if (lastPoint != null) {
-				pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, getDistance(originPoint, lastPoint)));
+				pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, GeometryUtil.getDistance(originPoint, lastPoint)));
 			}
 			
 			int removeCount = 0;
 			for (ListIterator<AreaPoint> pointIter = pointList.listIterator(); pointIter.hasNext();) {
 				AreaPoint point = pointIter.next();
-				if (!frontFaces.contains(getLineSegmentId(point.p1, point.p2))) {
+				if (!frontFaces.contains(GeometryUtil.getLineSegmentId(point.p1, point.p2))) {
 					removeCount ++;
 					pointIter.remove();
 				} else {
@@ -305,15 +301,6 @@ public class FogUtil {
 		path.closePath();
 		
 		return new Area(path);
-	}
-	
-	private static int countAreaPoints(Area area) {
-		
-		int count = 0;
-		for (PathIterator iter = area.getPathIterator(null); !iter.isDone(); iter.next()) {
-			count++;
-		}
-		return count;
 	}
 	
 	public static void exposeVisibleArea(ZoneRenderer renderer, Set<GUID> tokenSet) {
@@ -446,365 +433,10 @@ public class FogUtil {
 		return new Point(x + width/2, y + height/2);
 	}
 
-	private static double getAngle(Point2D origin, Point2D target) {
-		
-		double angle = Math.toDegrees(Math.atan2((origin.getY() - target.getY()),(target.getX() - origin.getX())));
-		if (angle < 0) {
-			angle += 360;
-		}
-		
-		return angle;
-	}
-	
-	private static double getAngleDelta(double sourceAngle, double targetAngle) {
-		
-		// Normalize
-		targetAngle -= sourceAngle;
-		
-		if (targetAngle > 180) {
-			targetAngle -= 360;
-		}
-		if (targetAngle < -180) {
-			targetAngle += 360; 
-		}
-		
-		return targetAngle;
-	}
 
-	private static Line2D findClosestLine(Point2D origin, PointNode pointList) {
-		
-		Line2D line = null;
-		double distance = 0;
 
-		PointNode node = pointList;
-		do {
-			Line2D newLine = new Line2D.Double(node.previous.point, node.point);
-			double newDistance = getDistanceToCenter(origin, newLine);
-			if (line == null || newDistance < distance) {
-				line = newLine;
-				distance = newDistance;
-			}
-			
-			node = node.next;
-		} while (node != pointList);
 
-		return line;
-	}
-	
-	private static double getDistanceToCenter(Point2D p, Line2D line) {
-		
-		Point2D midPoint = new Point2D.Double((line.getP1().getX() + line.getP2().getX())/2, (line.getP1().getY() + line.getP2().getY())/2);
 
-		return Math.hypot(midPoint.getX()-p.getX(), midPoint.getY()-p.getY());
-	}
-
-	private static Point2D getCloserPoint(Point2D origin, Line2D line) {
-		
-		double dist1 = Math.hypot(origin.getX() - line.getP1().getX(), origin.getY() - line.getP1().getY());
-		double dist2 = Math.hypot(origin.getX() - line.getP2().getX(), origin.getY() - line.getP2().getY());
-		
-		return dist1 < dist2 ? line.getP1() : line.getP2();
-	}
-
-	private static Set<String> getFrontFaces(PointNode nodeList, Point2D origin) {
-		
-		Set<String> frontFaces = new HashSet<String>();
-		
-		Line2D closestLine = findClosestLine(origin, nodeList);
-		Point2D closestPoint = getCloserPoint(origin, closestLine);
-		PointNode closestNode = nodeList;
-		do {
-			if (closestNode.point.equals(closestPoint)) {
-				break;
-			}
-			closestNode = closestNode.next;
-			
-		} while (closestNode != nodeList);
-		Point2D secondPoint = closestLine.getP1().equals(closestPoint) ? closestLine.getP2() : closestLine.getP1();
-		Point2D thirdPoint = secondPoint.equals(closestNode.next.point) ? closestNode.previous.point : closestNode.next.point;
-		
-		// Determine whether the first line segment is visible
-		Line2D l1 = new Line2D.Double(origin, secondPoint);
-		Line2D l2 = new Line2D.Double(closestNode.point, thirdPoint);
-		boolean frontFace = !(l1.intersectsLine(l2));
-		if (frontFace) {
-			frontFaces.add(getLineSegmentId(closestPoint, secondPoint));
-		}
-		
-		
-		Point2D startPoint = closestNode.previous.point.equals(secondPoint) ? secondPoint : closestNode.point;
-		Point2D endPoint = closestNode.point.equals(startPoint) ? secondPoint : closestNode.point;
-		double originAngle = getAngle(origin, startPoint);
-		double pointAngle = getAngle(startPoint, endPoint);
-		int lastDirection = getAngleDelta(originAngle, pointAngle) > 0 ? 1 : -1;
-
-//		System.out.format("%s: %.2f %s, %.2f %s => %.2f : %d : %s\n", frontFace, originAngle, startPoint.toString(), pointAngle, endPoint.toString(), getAngleDelta(originAngle, pointAngle), lastDirection, (closestNode.previous.point.equals(secondPoint) ? "second" : "closest").toString());
-		PointNode node = secondPoint.equals(closestNode.next.point) ? closestNode.next : closestNode;
-		do {
-		
-			Point2D point = node.point;
-			Point2D nextPoint = node.next.point;
-			
-			originAngle = getAngle(origin, point);
-			pointAngle = getAngle(origin, nextPoint);
-
-//			System.out.println(point + ":" + originAngle + ", " + nextPoint + ":"+ pointAngle + ", " + getAngleDelta(originAngle, pointAngle));
-			if (getAngleDelta(originAngle, pointAngle) > 0) {
-				if (lastDirection < 0) {
-					frontFace = !frontFace;
-					lastDirection = 1;
-				}
-			} else {
-				if (lastDirection > 0) {
-					frontFace = !frontFace;
-					lastDirection = -1;
-				}
-			}
-
-			if (frontFace) {
-				frontFaces.add(getLineSegmentId(nextPoint, point));
-			}
-			
-			node = node.next;
-			
-		} while (!node.point.equals(closestPoint));
-		
-		return frontFaces;
-	}	
-	
-	private static String getLineSegmentId(Point2D p1, Point2D p2) {
-
-		int x1 = (int)Math.min(p1.getX(), p2.getX());
-		int x2 = (int)Math.max(p1.getX(), p2.getX());
-		
-		int y1 = (int)Math.min(p1.getY(), p2.getY());
-		int y2 = (int)Math.max(p1.getY(), p2.getY());
-		
-		return String.format("%d.%d-%d.%d", x1, x2, y1, y2);
-	}
-
-	
-	public static class AreaData {
-
-		private Area area;
-
-		private List<AreaMeta> metaList;
-		
-		public AreaData(Area area) {
-			// Keep our own copy
-			this.area = new Area(area);
-		}
-		
-		public boolean contains(int x, int y) {
-			for (AreaMeta meta : metaList) {
-				if (meta.area.contains(x, y)) {
-					return true;
-				}
-			}
-			return false;
-		}
-		
-		public List<AreaMeta> getAreaList(final Point centerPoint) {
-			List<AreaMeta> areaMetaList = new ArrayList<AreaMeta>(metaList);
-			
-			Collections.sort(areaMetaList, new Comparator<AreaMeta>() {
-				public int compare(AreaMeta o1, AreaMeta o2) {
-					Double d1 = centerPoint.distance(o1.getCenterPoint());
-					Double d2 = centerPoint.distance(o2.getCenterPoint());
-					return d1.compareTo(d2);
-				}
-			});
-			
-			return areaMetaList;
-		}
-		
-		private void digest() {
-
-			if (metaList != null) {
-				// Already digested
-				return;
-			}
-			
-			metaList = new ArrayList<AreaMeta>();
-
-			List<Area> areaQueue = new LinkedList<Area>();
-			List<Point> splitPoints = new LinkedList<Point>();
-			areaQueue.add(area);
-			while (areaQueue.size() > 0) {
-				Area area = areaQueue.remove(0);
-				
-				// Break the big area into independent areas
-				float[] coords = new float[6];
-				AreaMeta areaMeta = new AreaMeta();
-				for (PathIterator iter = area.getPathIterator(null); !iter.isDone(); iter.next()) {
-					
-					int type = iter.currentSegment(coords);
-					switch (type) {
-					case PathIterator.SEG_CLOSE: {
-						areaMeta.close();
-	
-						splitPoints.clear();
-						for (ListIterator<AreaMeta> metaIter = metaList.listIterator(); metaIter.hasNext();) {
-							AreaMeta meta = metaIter.next();
-							
-							// Look for holes
-							if (GraphicsUtil.intersects(areaMeta.area, meta.area) && meta.isHole()) {
-								
-								// This is a hole.  Holes are always created before their parent, so pull out the existing
-								// area and remove it from the new area
-								metaIter.remove();
-								areaMeta.area.subtract(meta.area);
-
-								// Split this hole to rid ourselves of holes
-								// Because of the way areas are bounded, if we split
-								// through the center point it will cut the hole into at least 2 pieces
-								Rectangle bounds = meta.area.getBounds();
-								splitPoints.add(new Point(bounds.x+bounds.width/2, bounds.y+bounds.height/2));
-							}
-						}
-						
-						if (splitPoints.size() > 0) {
-
-							// Split on one hole (pick it arbitrarily), and resolve the new resulting areas.
-							// If there are still holes remaining they will be caught here
-							Point point = splitPoints.iterator().next();
-								
-							Rectangle bounds = areaMeta.area.getBounds();
-							Area part1 = new Area(areaMeta.area);
-							part1.intersect(new Area(new Rectangle(bounds.x, bounds.y, point.x - bounds.x, bounds.height)));
-							areaQueue.add(part1);
-							
-							Area part2 = new Area(areaMeta.area);
-							part2.intersect(new Area(new Rectangle(point.x, bounds.y, (bounds.x + bounds.width) - point.x, bounds.height)));
-							areaQueue.add(part2);
-							
-						} else if (countAreaPoints(areaMeta.area) > 25) {
-
-							Rectangle bounds = areaMeta.area.getBounds();
-							
-							int w = bounds.width > bounds.height ? bounds.width/2 : bounds.width;
-							int h = bounds.width > bounds.height ? bounds.height : bounds.height/2;
-							
-							Area part1 = new Area(areaMeta.area);
-							part1.intersect(new Area(new Rectangle(bounds.x, bounds.y, w, h)));
-							areaQueue.add(part1);
-							
-							Area part2 = new Area(areaMeta.area);
-							part2.intersect(new Area(new Rectangle((bounds.x+bounds.width)-w, (bounds.y+bounds.height)-h, w, h)));
-							areaQueue.add(part2);
-
-						} else {
-							metaList.add(areaMeta);
-						}
-						
-						break;
-					}
-					case PathIterator.SEG_LINETO: {
-						areaMeta.addPoint(coords[0], coords[1]);
-						break;
-					}
-					case PathIterator.SEG_MOVETO: {
-						areaMeta = new AreaMeta();
-						areaMeta.addPoint(coords[0], coords[1]);
-						break;
-					}
-					
-					// NOT SUPPORTED
-	//				case PathIterator.SEG_CUBICTO: coordCount = 3; break;
-	//				case PathIterator.SEG_QUADTO: coordCount = 2;break;
-					}
-					
-				}
-			}
-			
-			// No longer needed
-			System.out.println("Size: " + metaList.size());
-			area = null;
-		}
-	}
-	
-	private static class AreaMeta {
-
-		Area area;
-		PointNode pointNodeList;
-		Point2D centerPoint;
-		
-		// Only used during construction
-		GeneralPath path; 
-		PointNode lastPointNode;
-		
-		public AreaMeta() {
-		}
-		
-		public Point2D getCenterPoint() {
-			if (centerPoint == null) {
-				centerPoint = new Point2D.Double(area.getBounds().x + area.getBounds().width/2, area.getBounds().y + area.getBounds().height/2);
-			}
-			return centerPoint;
-		}
-		
-		public Set<String> getFrontFaces(Point2D origin) {
-			
-			return FogUtil.getFrontFaces(pointNodeList, origin);
-		}
-		
-		public boolean isHole() {
-			
-			double angle = 0;
-			
-
-			PointNode currNode = pointNodeList.next;
-			while (currNode != pointNodeList) {
-				angle += getAngleDelta(getAngle(currNode.previous.point, currNode.point), getAngle(currNode.point, currNode.next.point));
-				currNode = currNode.next;
-			}
-			
-			return angle < 0;
-		}
-		
-		public void addPoint(float x, float y) {
-			PointNode pointNode = new PointNode(new Point2D.Double(x, y));
-			
-			if (path == null) {
-				path = new GeneralPath();
-				path.moveTo(x, y);
-				
-				pointNodeList = pointNode;
-			} else {
-				path.lineTo(x, y);
-				
-				lastPointNode.next = pointNode;
-				pointNode.previous = lastPointNode;
-			}
-			
-			lastPointNode = pointNode;
-		}
-		
-		public void close() {
-			area = new Area(path);
-
-			// Close the circle
-			lastPointNode.next = pointNodeList;
-			pointNodeList.previous = lastPointNode;
-			lastPointNode = null;
-			
-			path = null;
-		}
-	}
-
-	private static class PointNode {
-		PointNode previous;
-		PointNode next;
-		
-		Point2D point;
-		
-		public PointNode(Point2D point) {
-			this.point = point;
-		}
-	}
-	
-	
-	
 	public static void main(String[] args) {
 		
 		System.out.println("Creating topology");
