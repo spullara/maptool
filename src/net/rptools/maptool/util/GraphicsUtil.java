@@ -292,7 +292,7 @@ public class GraphicsUtil {
     	return newArea.isEmpty();
     }
     
-    public static Area createLineSegmentEllipse(int x1, int y1, int x2, int y2) {
+    public static Area createLineSegmentEllipse(int x1, int y1, int x2, int y2, int steps) {
 
     	int x = Math.min(x1, x2);
     	int y = Math.min(y1, y2);
@@ -312,7 +312,7 @@ public class GraphicsUtil {
         int b = h/2;
 
         boolean firstMove = true;
-        for (double t = -Math.PI; t <= Math.PI; t+= .2) { // TODO: Configure the number of points, the increment value is (2pi/steps)
+        for (double t = -Math.PI; t <= Math.PI; t+= (2*Math.PI/steps)) {
         	
         	int px = (int)(x + a * Math.cos(t));
         	int py = (int)(y + b * Math.sin(t));
