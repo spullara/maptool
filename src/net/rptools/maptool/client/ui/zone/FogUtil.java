@@ -45,117 +45,7 @@ import net.rptools.maptool.util.GraphicsUtil;
 
 public class FogUtil {
 
-	public static Area calculateVisibility(int x, int y, Area vision, Area topology) {
-
-		vision = new Area(vision);
-		vision.transform(AffineTransform.getTranslateInstance(x, y));
-		
-		// sanity check
-		if (topology.contains(x, y)) {
-			return null;
-		}
-		
-		// Trim back to minimize the amount of work to do 
-		// Strategy: create an inverse of the area of the vision (since none of the points outside the vision matter
-		// and subtract that from the actual topology.  Note that since there is no Area inverse, just make a massive
-		// rectangle
-		topology = new Area(topology);
-		
-		Area outsideArea = new Area(new Rectangle(-10000000, -10000000, 20000000, 200000000));
-		outsideArea.subtract(vision);
-		topology.subtract(outsideArea);
-		
-		List<AreaPoint> pointList = new ArrayList<AreaPoint>();
-		
-		double[] coords = new double[6];
-
-		Point origin = new Point(x, y);
-		
-		Point firstPoint = null;
-		Point firstOutsidePoint = null;
-		
-		Point lastPoint = null;
-		Point lastOutsidePoint = null;
-		Point originPoint = new Point(x, y);
-		for (PathIterator iter = topology.getPathIterator(null); !iter.isDone(); iter.next()) {
-			
-			int type = iter.currentSegment(coords);
-			int coordCount = 0;
-			switch (type) {
-			case PathIterator.SEG_CLOSE: coordCount = 0; break;
-			case PathIterator.SEG_CUBICTO: coordCount = 3; break;
-			case PathIterator.SEG_LINETO: coordCount = 1; break;
-			case PathIterator.SEG_MOVETO: coordCount = 1;break;
-			case PathIterator.SEG_QUADTO: coordCount = 2;break;
-			}
-			
-			for (int i = 0; i < coordCount; i++) {
-
-				Point point = new Point((int)coords[i*2], (int)coords[i*2+1]);
-				Point outsidePoint = GraphicsUtil.getProjectedPoint(origin, point, 100000);
-				
-				if (firstPoint == null) {
-					firstPoint = point;
-					firstOutsidePoint = outsidePoint;
-				}
-
-				if (lastPoint != null) {
-					if (type != PathIterator.SEG_MOVETO) {
-						pointList.add(new AreaPoint(lastPoint, point, outsidePoint, lastOutsidePoint, GeometryUtil.getDistance(originPoint, point)));
-					} else {
-						// Close the last shape
-						if (lastPoint != null) {
-							pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, GeometryUtil.getDistance(originPoint, point)));
-						}
-						
-						firstPoint = point;
-						firstOutsidePoint = outsidePoint;
-					}
-				}
-
-				lastPoint = point;
-				lastOutsidePoint = outsidePoint;
-			}
-			
-		}
-		
-		// Close the area
-		if (lastPoint != null) {
-			pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, GeometryUtil.getDistance(originPoint, lastPoint)));
-		}
-
-		Collections.sort(pointList, new Comparator<AreaPoint>() {
-			public int compare(AreaPoint o1, AreaPoint o2) {
-				
-				return o1.distance < o2.distance ? -1 : o2.distance < o1.distance ? 1 : 0;
-			}
-		});
-		
-		int skip = 0;
-		for (AreaPoint point : pointList) {
-			if (!vision.contains(point.p1) && !vision.contains(point.p2)) {
-				Area face = GraphicsUtil.createAreaBetween(point.p1, point.p2, 1);
-				face.intersect(vision);
-				if (face.isEmpty()) {
-					skip ++;
-					continue;
-				}
-			}
-			Area blockedArea = createBlockArea(point.p1, point.p2, point.p3, point.p4);
-			vision.subtract(blockedArea);
-		}
-
-		// For simplicity, this catches some of the edge cases
-		vision.subtract(topology);
-//		System.out.println("Skip: " + skip);
-		return vision;
-	}	
-	
-	private static List<Area> skippedAreaList = new ArrayList<Area>();
-	private static Set<Line2D> frontFaceSet = new HashSet<Line2D>();
-	public static Area calculateVisibility3(int x, int y, Area vision, AreaData topology) {
-		skippedAreaList.clear();
-		frontFaceSet.clear();
+	public static Area calculateVisibility(int x, int y, Area vision, AreaData topology) {
 		
 		vision = new Area(vision);
 		vision.transform(AffineTransform.getTranslateInstance(x, y));
@@ -170,13 +60,11 @@ public class FogUtil {
 		Area clearedArea = new Area();
 		
 		int blockCount = 0;
+		int pointCount = 0;
+		int origSize = 0;
+		int afterSize = 0;
 		for (AreaMeta areaMeta : topology.getAreaList(origin)) {
 		
-			if (clearedArea.contains(areaMeta.area.getBounds())) {
-				skippedAreaList.add(areaMeta.area);
-				continue;
-			}
-			
 			Set<String> frontFaces = areaMeta.getFrontFaces(origin);
 			
 			// Simple method to clear some nasty artifacts
@@ -198,6 +86,8 @@ public class FogUtil {
 				if (type != PathIterator.SEG_LINETO && type != PathIterator.SEG_MOVETO) {
 					continue;
 				}
+				
+				pointCount ++;
 				
 				Point point = new Point((int)coords[0], (int)coords[1]);
 				Point outsidePoint = GraphicsUtil.getProjectedPoint(origin, point, 100000);
@@ -230,18 +120,15 @@ public class FogUtil {
 				pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, GeometryUtil.getDistance(originPoint, lastPoint)));
 			}
 			
-			int removeCount = 0;
+			origSize = pointList.size();
 			for (ListIterator<AreaPoint> pointIter = pointList.listIterator(); pointIter.hasNext();) {
 				AreaPoint point = pointIter.next();
 				if (!frontFaces.contains(GeometryUtil.getLineSegmentId(point.p1, point.p2))) {
-					removeCount ++;
 					pointIter.remove();
-				} else {
-					frontFaceSet.add(new Line2D.Double(point.p1, point.p2));
 				}
 			}
-//			System.out.println("Remove: " + removeCount);
-	
+			afterSize = pointList.size();
+			
 			Collections.sort(pointList, new Comparator<AreaPoint>() {
 				public int compare(AreaPoint o1, AreaPoint o2) {
 					
@@ -265,7 +152,7 @@ public class FogUtil {
 				blockCount++;
 			}
 		}
-		System.out.println("Areas: " + blockCount);
+		System.out.println(pointCount + " : " + origSize + " : " + afterSize + " : " + blockCount);
 
 		// For simplicity, this catches some of the edge cases
 		vision.subtract(clearedArea);
@@ -329,7 +216,7 @@ public class FogUtil {
 				
 				Point p = calculateVisionCenter(token, vision, renderer, size.x, size.y, size.width, size.height);
     			
-				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), zone.getTopology());
+				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), renderer.getTopologyAreaData());
 				if (currVisionArea != null) {
 					visionArea.add(currVisionArea);
 				}
@@ -363,7 +250,7 @@ public class FogUtil {
 				
 				Point p = calculateVisionCenter(token, vision, renderer, x, y, size.width, size.height);
     			
-				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), zone.getTopology());
+				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), renderer.getTopologyAreaData());
 				if (currVisionArea != null) {
 					visionArea.add(currVisionArea);
 				}
@@ -410,7 +297,7 @@ public class FogUtil {
 
 					Point p = calculateVisionCenter(token, vision, renderer, x, y, size.width, size.height);
 	    			
-					Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), zone.getTopology());
+					Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), renderer.getTopologyAreaData());
 					if (currVisionArea != null) {
 						visionArea.add(currVisionArea);
 					}
@@ -467,14 +354,14 @@ public class FogUtil {
 		data.digest();
 		
 		// Make sure all classes are loaded
-		calculateVisibility3(topSize/2, topSize/2, vision, data);
+		calculateVisibility(topSize/2, topSize/2, vision, data);
 
 		
 		Area area1 = new Area();
 //		JOptionPane.showMessageDialog(new JFrame(), "Hello");
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 1; i++) {
-			area1 = calculateVisibility3(topSize/2, topSize/2, vision, data);
+			area1 = calculateVisibility(topSize/2, topSize/2, vision, data);
 		}
 
 		final Area a1 = area1;
@@ -495,7 +382,7 @@ public class FogUtil {
 						int y = (int)(e.getY() / (size.height/2.0/topSize)/2);
 						
 						long start = System.currentTimeMillis();
-						theArea = calculateVisibility3(x, y, vision, data);
+						theArea = calculateVisibility(x, y, vision, data);
 						System.out.println("Calc: " + (System.currentTimeMillis() - start));
 						repaint();
 					}
@@ -509,7 +396,7 @@ public class FogUtil {
 						int y = (int)(e.getY() / (size.height/2.0/topSize)/2);
 						
 						long start = System.currentTimeMillis();
-						theArea = calculateVisibility3(x, y, vision, data);
+						theArea = calculateVisibility(x, y, vision, data);
 						System.out.println("Calc: " + (System.currentTimeMillis() - start));
 						repaint();
 					}
@@ -610,7 +497,7 @@ public class FogUtil {
 						y = e.getY();
 						
 						long start = System.currentTimeMillis();
-						theArea = calculateVisibility3(x, y, vision, data);
+						theArea = calculateVisibility(x, y, vision, data);
 //						System.out.println("Calc: " + (System.currentTimeMillis() - start));
 						repaint();
 					}
@@ -624,7 +511,7 @@ public class FogUtil {
 						y = e.getY();
 						
 						long start = System.currentTimeMillis();
-						theArea = calculateVisibility3(x, y, vision, data);
+						theArea = calculateVisibility(x, y, vision, data);
 //						System.out.println("Calc: " + (System.currentTimeMillis() - start));
 						repaint();
 					}
@@ -664,10 +551,6 @@ public class FogUtil {
 					g2d.draw(areaMeta.area);
 				}
 				
-				g.setColor(Color.orange);
-				for (Line2D line : frontFaceSet) {
-					g2d.draw(line);
-				}
 			}
 		});
 		f.setVisible(true);

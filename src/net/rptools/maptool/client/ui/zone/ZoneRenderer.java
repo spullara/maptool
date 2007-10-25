@@ -186,8 +186,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	// I don't like this, at all, but it'll work for now, basically keep track of when the fog cache
     // needs to be flushed in the case of switching views
     private ZoneView lastView;
-    
-//    private FramesPerSecond fps = new FramesPerSecond();
+
+    private AreaData topologyAreaData;
 
     static {
         try {
@@ -707,6 +707,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING , oldAntiAlias);
     }
     
+    public AreaData getTopologyAreaData() {
+    	if (topologyAreaData == null) {
+    		topologyAreaData = new AreaData(zone.getTopology());
+    		topologyAreaData.digest();
+    	}
+    	return topologyAreaData;
+    }
+    
     private void calculateVision(ZoneView view) {
         
         currentTokenVisionArea = null;
@@ -750,7 +758,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
                         Point p = FogUtil.calculateVisionCenter(token, vision, this, footprintBounds.x, footprintBounds.y, footprintBounds.width, footprintBounds.height);
                         
-                        visionArea = FogUtil.calculateVisibility(p.x, p.y, visionArea, zone.getTopology());
+                        visionArea = FogUtil.calculateVisibility(p.x, p.y, visionArea, getTopologyAreaData());
                         if (visionArea == null) {
                             continue;
                         }
@@ -2441,6 +2449,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
             if (evt == Zone.Event.TOPOLOGY_CHANGED) {
                 tokenVisionCache.clear();
+                topologyAreaData = null;
             }
             if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
             	flush((Token)event.getArg());
