@@ -30,6 +30,7 @@ import java.awt.geom.Point2D;
 import java.util.Set;
 
 import net.rptools.lib.GeometryUtil;
+import net.rptools.lib.LineSegmentId;
 import net.rptools.lib.GeometryUtil.PointNode;
 
 public class AreaMeta {
@@ -52,7 +53,7 @@ public class AreaMeta {
 		return centerPoint;
 	}
 	
-	public Set<String> getFrontFaces(Point2D origin) {
+	public Set<LineSegmentId> getFrontFaces(Point2D origin) {
 		
 		return GeometryUtil.getFrontFaces(pointNodeList, origin);
 	}

@@ -31,6 +31,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import net.rptools.lib.GeometryUtil;
+import net.rptools.lib.LineSegmentId;
 import net.rptools.lib.GeometryUtil.PointNode;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.CellPoint;
@@ -59,17 +60,21 @@ public class FogUtil {
 		
 		Area clearedArea = new Area();
 		
-		int blockCount = 0;
-		int pointCount = 0;
-		int origSize = 0;
-		int afterSize = 0;
+//		int blockCount = 0;
+//		int skippedAreas = 0;
+//		System.out.println("Size: "+ topology.getAreaList(origin).size());
 		for (AreaMeta areaMeta : topology.getAreaList(origin)) {
-		
-			Set<String> frontFaces = areaMeta.getFrontFaces(origin);
+//			int pointCount = 0;
+//			int origSize = 0;
+//			int afterSize = 0;
+
+			if (clearedArea.contains(areaMeta.area.getBounds())) {
+//				skippedAreas++;
+				continue;
+			}
 			
-			// Simple method to clear some nasty artifacts
-//			vision.subtract(area);
-			
+			Set<LineSegmentId> frontFaces = areaMeta.getFrontFaces(origin);
+
 			List<AreaPoint> pointList = new ArrayList<AreaPoint>();
 			
 			double[] coords = new double[6];
@@ -87,10 +92,10 @@ public class FogUtil {
 					continue;
 				}
 				
-				pointCount ++;
+//				pointCount ++;
 				
 				Point point = new Point((int)coords[0], (int)coords[1]);
-				Point outsidePoint = GraphicsUtil.getProjectedPoint(origin, point, 100000);
+				Point outsidePoint = GraphicsUtil.getProjectedPoint(origin, point, Integer.MAX_VALUE/2);
 				
 				if (firstPoint == null) {
 					firstPoint = point;
@@ -120,14 +125,14 @@ public class FogUtil {
 				pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, GeometryUtil.getDistance(originPoint, lastPoint)));
 			}
 			
-			origSize = pointList.size();
+//			origSize = pointList.size();
 			for (ListIterator<AreaPoint> pointIter = pointList.listIterator(); pointIter.hasNext();) {
 				AreaPoint point = pointIter.next();
-				if (!frontFaces.contains(GeometryUtil.getLineSegmentId(point.p1, point.p2))) {
+				if (!frontFaces.contains(new LineSegmentId(point.p1, point.p2))) {
 					pointIter.remove();
 				}
 			}
-			afterSize = pointList.size();
+//			afterSize = pointList.size();
 			
 			Collections.sort(pointList, new Comparator<AreaPoint>() {
 				public int compare(AreaPoint o1, AreaPoint o2) {
@@ -147,13 +152,15 @@ public class FogUtil {
 					
 					continue;
 				}
-				Area blockedArea = createBlockArea(point.p1, point.p2, point.p3, point.p4);
-				clearedArea.add(blockedArea);
-				blockCount++;
-			}
-		}
-		System.out.println(pointCount + " : " + origSize + " : " + afterSize + " : " + blockCount);
 
+				Area blockedArea = createBlockArea(point.p1, point.p2, point.p3, point.p4);
+				
+				clearedArea.add(blockedArea);
+//				blockCount++;
+			}
+//			System.out.println(pointCount + " : " + origSize + " : " + afterSize);
+		}
+//		System.out.println("Blocks: " + blockCount + " : Skipped: " + skippedAreas);
 		// For simplicity, this catches some of the edge cases
 		vision.subtract(clearedArea);
 
