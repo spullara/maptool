@@ -40,6 +40,8 @@ import net.rptools.maptool.util.GraphicsUtil;
 
 
 public class AreaData {
+	
+	private static final int POINT_COUNT_THRESHOLD = 100;
 
 	private Area area;
 
@@ -133,7 +135,7 @@ public class AreaData {
 						part2.intersect(new Area(new Rectangle(point.x, bounds.y, (bounds.x + bounds.width) - point.x, bounds.height)));
 						areaQueue.add(part2);
 						
-					} else if (GeometryUtil.countAreaPoints(areaMeta.area) > 25) {
+					} else if (GeometryUtil.countAreaPoints(areaMeta.area) > POINT_COUNT_THRESHOLD) {
 
 						Rectangle bounds = areaMeta.area.getBounds();
 						
