@@ -120,7 +120,7 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
 	            oval.getEndPoint().x = zp.x;
 	            oval.getEndPoint().y = zp.y;
 	            
-	            Area area = GraphicsUtil.createLineSegmentEllipse(oval.getStartPoint().x, oval.getStartPoint().y, oval.getEndPoint().x, oval.getEndPoint().y);
+	            Area area = GraphicsUtil.createLineSegmentEllipse(oval.getStartPoint().x, oval.getStartPoint().y, oval.getEndPoint().x, oval.getEndPoint().y, 10);
 	            
 	            // Still use the whole area if it's an erase action
 	            if (!isEraser(e)) {
@@ -130,7 +130,7 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
 	            	int x2 = Math.max(oval.getStartPoint().x, oval.getEndPoint().x) - 2;
 	            	int y2 = Math.max(oval.getStartPoint().y, oval.getEndPoint().y) - 2;
 	            	
-	            	Area innerArea = GraphicsUtil.createLineSegmentEllipse(x1, y1, x2, y2); 
+	            	Area innerArea = GraphicsUtil.createLineSegmentEllipse(x1, y1, x2, y2, 10); 
 		            area.subtract(innerArea);
 	            }	            
 	            

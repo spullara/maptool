@@ -117,7 +117,7 @@ public class OvalTopologyTool extends AbstractDrawingTool implements MouseMotion
 	            oval.getEndPoint().x = zp.x;
 	            oval.getEndPoint().y = zp.y;
 	            
-	            Area area = GraphicsUtil.createLineSegmentEllipse(oval.getStartPoint().x, oval.getStartPoint().y, oval.getEndPoint().x, oval.getEndPoint().y);
+	            Area area = GraphicsUtil.createLineSegmentEllipse(oval.getStartPoint().x, oval.getStartPoint().y, oval.getEndPoint().x, oval.getEndPoint().y, 10);
 
 	            if (isEraser(e)) {
 		            renderer.getZone().removeTopology(area);
