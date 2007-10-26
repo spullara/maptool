@@ -16,14 +16,13 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Random;
 import java.util.Set;
 
@@ -31,8 +30,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import net.rptools.lib.GeometryUtil;
-import net.rptools.lib.LineSegmentId;
-import net.rptools.lib.GeometryUtil.PointNode;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
@@ -73,87 +70,50 @@ public class FogUtil {
 				continue;
 			}
 			
-			Set<LineSegmentId> frontFaces = areaMeta.getFrontFaces(origin);
-
-			List<AreaPoint> pointList = new ArrayList<AreaPoint>();
+			LinkedList<Line2D> lineList = new LinkedList<Line2D>(areaMeta.getFrontFaces(origin));
 			
-			double[] coords = new double[6];
-	
-			Point firstPoint = null;
-			Point firstOutsidePoint = null;
-			
-			Point lastPoint = null;
-			Point lastOutsidePoint = null;
-			Point originPoint = new Point(x, y);
-			for (PathIterator iter = areaMeta.area.getPathIterator(null); !iter.isDone(); iter.next()) {
-				
-				int type = iter.currentSegment(coords);
-				if (type != PathIterator.SEG_LINETO && type != PathIterator.SEG_MOVETO) {
-					continue;
-				}
-				
-//				pointCount ++;
-				
-				Point point = new Point((int)coords[0], (int)coords[1]);
-				Point outsidePoint = GraphicsUtil.getProjectedPoint(origin, point, Integer.MAX_VALUE/2);
-				
-				if (firstPoint == null) {
-					firstPoint = point;
-					firstOutsidePoint = outsidePoint;
-				}
-
-				if (lastPoint != null) {
-					if (type != PathIterator.SEG_MOVETO) {
-						pointList.add(new AreaPoint(lastPoint, point, outsidePoint, lastOutsidePoint, GeometryUtil.getDistance(originPoint, point)));
-					} else {
-						// Close the last shape
-						if (lastPoint != null) {
-							pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, GeometryUtil.getDistance(originPoint, point)));
-						}
-						
-						firstPoint = point;
-						firstOutsidePoint = outsidePoint;
-					}
-				}
-
-				lastPoint = point;
-				lastOutsidePoint = outsidePoint;
-			}
-			
-			// Close the area
-			if (lastPoint != null) {
-				pointList.add(new AreaPoint(firstPoint, lastPoint, lastOutsidePoint, firstOutsidePoint, GeometryUtil.getDistance(originPoint, lastPoint)));
-			}
-			
+			// TODO: Is this a valuable thing to look for ?  That's a lot of lines to check for a couple fringe cases
 //			origSize = pointList.size();
-			for (ListIterator<AreaPoint> pointIter = pointList.listIterator(); pointIter.hasNext();) {
-				AreaPoint point = pointIter.next();
-				if (!frontFaces.contains(new LineSegmentId(point.p1, point.p2))) {
-					pointIter.remove();
-				}
-			}
+//			for (ListIterator<Line2D> pointIter = lineList.listIterator(); pointIter.hasNext();) {
+//				Line2D line = pointIter.next();
+//				LineSegmentId lineId = new LineSegmentId(line.getP1(), line.getP2());
+//				if (handledFaces.contains(lineId)) {
+//					pointIter.remove();
+//				}
+//				
+//				// Our algorithm can end up splitting shapes, which creates duplicates faces
+//				// that overlap between two areas, be sure to ignore those since they've already
+//				// been handled
+//				handledFaces.add(lineId);
+//			}
 //			afterSize = pointList.size();
 			
-			Collections.sort(pointList, new Comparator<AreaPoint>() {
-				public int compare(AreaPoint o1, AreaPoint o2) {
+			List<RelativeLine> relativeLineList = new LinkedList<RelativeLine>();
+			for (Iterator<Line2D> lineIter = lineList.iterator(); lineIter.hasNext();) {
+				Line2D line = lineIter.next();
+				relativeLineList.add(new RelativeLine(line, GeometryUtil.getDistance(origin, GeometryUtil.getCloserPoint(origin, line))));
+			}
+			
+			Collections.sort(relativeLineList, new Comparator<RelativeLine>() {
+				public int compare(RelativeLine o1, RelativeLine o2) {
 					
 					return o1.distance < o2.distance ? -1 : o2.distance < o1.distance ? 1 : 0;
 				}
 			});
 			
-			for (AreaPoint point : pointList) {
-				Rectangle r = new Rectangle();
-				r.x = Math.min(point.p1.x, point.p2.x)-1;
-				r.y = Math.min(point.p1.y, point.p2.y)-1;
-				r.width = Math.max(point.p1.x, point.p2.x) - r.x+2;
-				r.height = Math.max(point.p1.y, point.p2.y) - r.y+2;
+			for (RelativeLine rline : relativeLineList) {
+				Line2D line = rline.line;
+				
+				double rx = Math.min(line.getP1().getX(), line.getP2().getX())-1;
+				double ry = Math.min(line.getP1().getY(), line.getP2().getY())-1;
+				double width = Math.max(line.getP1().getX(), line.getP2().getX()) - rx+2;
+				double height = Math.max(line.getP1().getY(), line.getP2().getY()) - ry+2;
 	
-				if (clearedArea.contains(r)) {
-					
+				if (clearedArea.contains(new Rectangle2D.Double(rx, ry, width, height))) {
 					continue;
 				}
 
-				Area blockedArea = createBlockArea(point.p1, point.p2, point.p3, point.p4);
+				Area blockedArea = createBlockArea(origin, line);
 				
 				clearedArea.add(blockedArea);
 //				blockCount++;
@@ -168,30 +128,28 @@ public class FogUtil {
 		return vision;
 	}	
 
-	private static class AreaPoint {
-		Point p1;
-		Point p2;
-		Point p3;
-		Point p4;
-
-		double distance;
-		
-		public AreaPoint(Point p1, Point p2, Point p3, Point p4, double distance) {
-			this.p1 = p1;
-			this.p2 = p2;
-			this.p3 = p3;
-			this.p4 = p4;
+	private static class RelativeLine {
+		private Line2D line;
+		private double distance;
+		public RelativeLine(Line2D line, double distance) {
+			this.line = line;
 			this.distance = distance;
 		}
 	}
 	
-	private static Area createBlockArea(Point p1, Point p2, Point p3, Point p4) {
+	private static Area createBlockArea(Point2D origin, Line2D line) {
+
+		Point2D p1 = line.getP1();
+		Point2D p2 = line.getP2();
+		
+		Point2D p1out = GraphicsUtil.getProjectedPoint(origin, p1, Integer.MAX_VALUE/2);
+		Point2D p2out = GraphicsUtil.getProjectedPoint(origin, p2, Integer.MAX_VALUE/2);
+		
 		GeneralPath path = new GeneralPath();
-		path.moveTo(p1.x, p1.y);
-		path.lineTo(p2.x, p2.y);
-		path.lineTo(p3.x, p3.y);
-		path.lineTo(p4.x, p4.y);
-		path.lineTo(p1.x, p1.y);
+		path.moveTo(p1.getX(), p1.getY());
+		path.lineTo(p2.getX(), p2.getY());
+		path.lineTo(p2out.getX(), p2out.getY());
+		path.lineTo(p1out.getX(), p1out.getY());
 		path.closePath();
 		
 		return new Area(path);

@@ -26,6 +26,7 @@ package net.rptools.maptool.client.ui.zone;
 
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Set;
 
@@ -53,7 +54,7 @@ public class AreaMeta {
 		return centerPoint;
 	}
 	
-	public Set<LineSegmentId> getFrontFaces(Point2D origin) {
+	public Set<Line2D> getFrontFaces(Point2D origin) {
 		
 		return GeometryUtil.getFrontFaces(pointNodeList, origin);
 	}

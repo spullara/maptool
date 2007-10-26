@@ -34,6 +34,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -197,20 +198,20 @@ public class GraphicsUtil {
 		return boxBounds;
     }
     
-	public static Point getProjectedPoint(Point origin, Point target, int distance) {
+	public static Point2D getProjectedPoint(Point2D origin, Point2D target, int distance) {
 		
-		double x1 = origin.x;
-		double x2 = target.x;
+		double x1 = origin.getX();
+		double x2 = target.getX();
 		
-		double y1 = origin.y;
-		double y2 = target.y;
+		double y1 = origin.getY();
+		double y2 = target.getY();
 		
 		double angle = Math.atan2(y2 - y1, x2 - x1);
 		
 		double newX = x1 + distance * Math.cos(angle);
 		double newY = y1 + distance * Math.sin(angle);
 		
-		return new Point((int)newX, (int)newY);
+		return new Point2D.Double(newX, newY);
 	}
 
 	/**
