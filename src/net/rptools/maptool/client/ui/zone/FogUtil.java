@@ -145,11 +145,12 @@ public class FogUtil {
 		Point2D p1out = GraphicsUtil.getProjectedPoint(origin, p1, Integer.MAX_VALUE/2);
 		Point2D p2out = GraphicsUtil.getProjectedPoint(origin, p2, Integer.MAX_VALUE/2);
 		
+		// TODO: Remove the (float) when we move to jdk6
 		GeneralPath path = new GeneralPath();
-		path.moveTo(p1.getX(), p1.getY());
-		path.lineTo(p2.getX(), p2.getY());
-		path.lineTo(p2out.getX(), p2out.getY());
-		path.lineTo(p1out.getX(), p1out.getY());
+		path.moveTo((float)p1.getX(), (float)p1.getY());
+		path.lineTo((float)p2.getX(), (float)p2.getY());
+		path.lineTo((float)p2out.getX(), (float)p2out.getY());
+		path.lineTo((float)p1out.getX(), (float)p1out.getY());
 		path.closePath();
 		
 		return new Area(path);
