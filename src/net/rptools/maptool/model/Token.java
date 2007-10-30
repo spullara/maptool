@@ -660,8 +660,8 @@ public class Token extends BaseModel {
         
         // Sizing
         if (!isSnapToScale()) {
-        	width = this.width;
-        	height = this.height;
+        	width = this.width * getScaleX();
+        	height = this.height * getScaleY();
         } else {
         	width = footprintBounds.width * footprint.getScale() * sizeScale;
         	height = footprintBounds.height * footprint.getScale() * sizeScale;
@@ -679,6 +679,10 @@ public class Token extends BaseModel {
         
         footprintBounds.width = (int)width; // perhaps make this a double
         footprintBounds.height = (int)height;
+        
+        // Offset
+        footprintBounds.x += anchorX;
+        footprintBounds.y += anchorY;
 
 		return footprintBounds;
 	}

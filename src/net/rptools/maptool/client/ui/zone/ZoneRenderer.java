@@ -1024,9 +1024,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             Token keyToken = zone.getToken(set.getKeyToken());
             ZoneWalker walker = set.getWalker();
 
-            int setOffsetX = set.getOffsetX();
-            int setOffsetY = set.getOffsetY();
-            
             for (GUID tokenGUID : set.getTokens()) {
                 
                 Token token = zone.getToken(tokenGUID);
@@ -1050,43 +1047,23 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 
                 // OPTIMIZE: combine this with the code in renderTokens()
                 Rectangle footprintBounds = token.getBounds(zone);
-
-                int tx = (footprintBounds.x+footprintBounds.width/2) + setOffsetX + token.getAnchor().x;
-                int ty = (footprintBounds.y+footprintBounds.height/2) + setOffsetY + token.getAnchor().y;
-
-                ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, tx, ty);
+                ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, footprintBounds.x + set.getOffsetX(), footprintBounds.y + set.getOffsetY());
                 
                 BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
 
-                int scaledWidth;
-                int scaledHeight;
+                int scaledWidth = (int)(footprintBounds.width * scale);
+                int scaledHeight = (int)(footprintBounds.height * scale);
 
-                Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
-                if (token.isSnapToScale()) {
-                	
-    	            scaledWidth = (int)Math.ceil(footprintBounds.width * scale) + (token.isToken() ? -1 : 0);
-    	            scaledHeight = (int)Math.ceil(footprintBounds.height * scale) + (token.isToken() ? -1 : 0);
-
-	                SwingUtil.constrainTo(imgSize, scaledWidth, scaledHeight);
-
-	                scaledWidth = imgSize.width;
-	                scaledHeight = imgSize.height;
-                } else {
-                	
-                	scaledWidth = (int)(imgSize.width * token.getScaleX() * scale);
-                	scaledHeight = (int)(imgSize.height * token.getScaleY() * scale);
-                }
-                
-                if (!token.isObjectStamp() && !token.isBackgroundStamp()) {
-                    // Fit inside the grid
-                    scaledWidth --;
-                    scaledHeight --;
-                }
+//                if (!token.isObjectStamp() && !token.isBackgroundStamp()) {
+//                    // Fit inside the grid
+//                    scaledWidth --;
+//                    scaledHeight --;
+//                }
 
                 // Tokens are centered on the image center point
-                int x = (int)(newScreenPoint.x - (token.isToken() ? scaledWidth/2.0 : 0));
-                int y = (int)(newScreenPoint.y - (token.isToken() ? scaledHeight/2.0 : 0));
-                    
+                int x = (int)(newScreenPoint.x);
+                int y = (int)(newScreenPoint.y);
+                
                 // Vision visibility
                 Rectangle clip = g.getClipBounds();
                 if (token.isToken() && !view.isGMView() && !isOwner && visibleArea != null) {
@@ -1144,14 +1121,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     }
                 }
 
-                // Center token in cell if it is smaller than a single cell
-                if (scaledWidth < scaledGridSize) {
-                    newScreenPoint.x += (scaledGridSize - scaledWidth)/2;
-                }
-                if (scaledHeight < scaledGridSize) {
-                    newScreenPoint.y += (scaledGridSize - scaledHeight)/2;
-                }
-                
                 // handle flipping
                 BufferedImage workImage = image;
                 if (token.isFlippedX() || token.isFlippedY()) {
@@ -1168,28 +1137,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
                 
                 // Draw token
-                if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp())) {
+                AffineTransform at = new AffineTransform();
+                at.translate(x, y);
 
-                    // Rotated
-                    AffineTransform at = new AffineTransform();
-                    at.translate(x, y);
-
-                    at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale, scaledHeight/2 - token.getAnchor().y*scale); // facing defaults to down, or -90 degrees
-                    if (token.isSnapToScale()) {
-                    	Rectangle tokenSize = token.getBounds(zone);
-                    	SwingUtil.constrainTo(imgSize, tokenSize.width, tokenSize.height);
-                        at.scale((double) imgSize.width / workImage.getWidth (), (double) imgSize.height / workImage.getHeight());
-                    } else {
-                    	at.scale(token.getScaleX(), token.getScaleY());
-                    }
-                    at.scale(getScale(), getScale());
-                    g.drawImage(workImage, at, this);
-                
-                } else {
-                    // Normal
-                    g.drawImage(workImage, x, y, scaledWidth, scaledHeight, this);
+                if (token.hasFacing()) {
+                	at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale, scaledHeight/2 - token.getAnchor().y*scale); // facing defaults to down, or -90 degrees
                 }
-
+                
+                at.scale((double) footprintBounds.width / workImage.getWidth (), (double) footprintBounds.height / workImage.getHeight());
+                at.scale(getScale(), getScale());
+                g.drawImage(workImage, at, this);
+   
                 // Other details
                 if (token == keyToken) {
 
@@ -1452,7 +1410,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     protected void renderTokens(Graphics2D g, List<Token> tokenList, ZoneView view) {
 
         Rectangle viewport = new Rectangle(0, 0, getSize().width, getSize().height);
-        Grid grid = zone.getGrid();
         
         Rectangle clipBounds = g.getClipBounds();
         float scale = zoneScale.getScale();
@@ -1474,7 +1431,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             Rectangle footprintBounds = token.getBounds(zone);
             
-            // OPTIMIZE:
             BufferedImage image = null;
             Asset asset = AssetManager.getAsset(token.getImageAssetId ());
             if (asset == null) {
@@ -1486,37 +1442,20 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), this);
             }
 
-            int scaledHeight = 0;
-            int scaledWidth = 0;
+            int scaledWidth = (int)(footprintBounds.width*scale);
+            int scaledHeight = (int)(footprintBounds.height*scale);
             
-            if (!token.isStamp()) {
-                // Fit inside the grid
-                scaledWidth --;
-                scaledHeight --;
-            }
+//            if (!token.isStamp()) {
+//                // Fit inside the grid
+//                scaledWidth --;
+//                scaledHeight --;
+//            }
 
-            Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
-            if (token.isSnapToScale()) {
-	            scaledWidth = (int)Math.ceil(footprintBounds.width * scale) + (token.isToken() ? -1 : 0);
-	            scaledHeight = (int)Math.ceil(footprintBounds.height * scale) + (token.isToken() ? -1 : 0);
-	            
-	            SwingUtil.constrainTo(imgSize, scaledWidth, scaledHeight);
-	            
-	            scaledWidth = imgSize.width;
-	            scaledHeight = imgSize.height;
-            } else {
-            	scaledWidth = (int)(imgSize.width * token.getScaleX() * scale);
-            	scaledHeight = (int)(imgSize.height * token.getScaleY() * scale);
-            }
-            
-            
-            double tx = (footprintBounds.x+footprintBounds.width/2.0) + token.getAnchor().x;
-            double ty = (footprintBounds.y+footprintBounds.height/2.0) + token.getAnchor().y;
-            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, tx, ty);
+            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, footprintBounds.x, footprintBounds.y);
             
             // Tokens are centered on the image center point
-            int x = (int)(tokenScreenLocation.x - (token.isToken() ? scaledWidth/2.0 : 0));
-            int y = (int)(tokenScreenLocation.y - (token.isToken() ? scaledHeight/2.0 : 0));
+            int x = (int)tokenScreenLocation.x;
+            int y = (int)tokenScreenLocation.y;
                 
             Rectangle origBounds = new Rectangle(x, y, scaledWidth, scaledHeight);
             Area tokenBounds = new Area(origBounds);
@@ -1652,27 +1591,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	clipArea.intersect(visibleArea);
                 g.setClip(clipArea);
             }
-            if ( token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp())) {
-                // Rotated
-                AffineTransform at = new AffineTransform();
-                at.translate(location.x, location.y);
-                at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale), location.scaledHeight/2 - (token.getAnchor().y*scale)); // facing defaults to down, or -90 degrees
 
-                if (token.isSnapToScale()) {
-                    Rectangle tokenSize = token.getBounds(zone);
-                    SwingUtil.constrainTo(imgSize, tokenSize.width, tokenSize.height);
-                    
-                    at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
-                } else {
-                	at.scale(token.getScaleX(), token.getScaleY());
-                }
-                at.scale(getScale(), getScale());
-                g.drawImage(workImage, at, this);
-            } else {
-                // Normal
-                
-                g.drawImage(workImage, location.x, location.y, location.scaledWidth, location.scaledHeight, this);
+            // Rotated
+            AffineTransform at = new AffineTransform();
+            at.translate(location.x, location.y);
+            if (token.hasFacing()) {
+            	at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale), location.scaledHeight/2 - (token.getAnchor().y*scale)); // facing defaults to down, or -90 degrees
             }
+
+            at.scale((double) footprintBounds.width / workImage.getWidth(), (double) footprintBounds.height / workImage.getHeight());
+            at.scale(getScale(), getScale());
+            g.drawImage(workImage, at, this);
             g.setClip(clip);
 
             // Halo (SQUARE)
