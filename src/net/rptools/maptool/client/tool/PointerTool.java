@@ -793,8 +793,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				
 				int x = token.getX() + deltaX;
 				int y = token.getY() + deltaY;
-				Dimension tokenSize = token.getSize(zone.getGrid());
-				// TODO: This doesn't handle freesize tokens
+				Rectangle tokenSize = token.getBounds(zone);
 	            
 	            int fudgeSize = 10;
 	            
@@ -1089,7 +1088,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			
 			zp = renderer.getZone().getGrid().convert(cp);
 		} else {
-			Dimension tokenSize = tokenBeingDragged.getSize(renderer.getZone().getGrid());
+			Rectangle tokenSize = tokenBeingDragged.getBounds(renderer.getZone());
 			
 			int x = dragStartX + (tokenSize.width*dx);
 			int y = dragStartY + (tokenSize.height*dy);
@@ -1108,8 +1107,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		if (!tokenBeingDragged.isSnapToGrid()) {
 			// Center on the token
-			TokenFootprint footprint = tokenBeingDragged.getFootprint(renderer.getZone().getGrid());
-			Rectangle footprintBounds = footprint.getBounds(renderer.getZone().getGrid());
+			Rectangle footprintBounds = tokenBeingDragged.getBounds(renderer.getZone());
 			
 			p.translate(footprintBounds.width/2, footprintBounds.height/2);
 		}

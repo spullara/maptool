@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -123,10 +124,9 @@ public class TokenLayoutPanel extends JPanel {
 
 		BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
 
-		Dimension tokenSize = token.getSize(zone.getGrid());
+		Rectangle tokenSize = token.getBounds(zone);
 		Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
 		SwingUtil.constrainTo(imgSize, tokenSize.width, tokenSize.height);
-		tokenSize = imgSize;
 		
 		Point centerPoint = new Point(size.width/2, size.height/2);
 		
@@ -146,7 +146,7 @@ public class TokenLayoutPanel extends JPanel {
 		g2d.translate(-offsetX, -offsetY);
 
 		// Token
-		g2d.drawImage(image, centerPoint.x - tokenSize.width/2 + token.getAnchor().x, centerPoint.y - tokenSize.height/2 + token.getAnchor().y, tokenSize.width, tokenSize.height, this);
+		g2d.drawImage(image, centerPoint.x - imgSize.width/2 + token.getAnchor().x, centerPoint.y - imgSize.height/2 + token.getAnchor().y, imgSize.width, imgSize.height, this);
 		
 	}
 }

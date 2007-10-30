@@ -204,7 +204,7 @@ public class FogUtil {
 				continue;
 			}
 			
-			Dimension size = token.getSize(zone.getGrid());
+			Rectangle size = token.getBounds(zone);
 			
 			for (Vision vision : token.getVisionList()) {
 				int x = token.getX();
@@ -240,7 +240,7 @@ public class FogUtil {
 				continue;
 			}
 			
-			Dimension size = token.getSize(zone.getGrid());
+			Rectangle size = token.getBounds(zone);
 			
 			Path<CellPoint> lastPath = (Path<CellPoint>) token.getLastPath();
 			if (lastPath == null) {

@@ -1032,7 +1032,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			
 			zp = renderer.getZone().getGrid().convert(cp);
 		} else {
-			Dimension tokenSize = tokenBeingDragged.getSize(renderer.getZone().getGrid());
+			Rectangle tokenSize = tokenBeingDragged.getBounds(renderer.getZone());
 			
 			int x = dragStartX + (micro ? dx : (tokenSize.width*dx));
 			int y = dragStartY + (micro ? dy : (tokenSize.height*dy));

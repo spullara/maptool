@@ -814,7 +814,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     }
 
                     // Calculate the token bounds
-                    Dimension size = token.getSize(zone.getGrid());
+                    Rectangle size = token.getBounds(zone);
                     int width = (int) (size.width * scale) - 1;
                     int height = (int) (size.height * scale) - 1;
                     ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePointRnd(this, token.getX(), token.getY());
@@ -1049,7 +1049,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
                 
                 // OPTIMIZE: combine this with the code in renderTokens()
-                TokenFootprint footprint = token.getFootprint(zone.getGrid());
                 Rectangle footprintBounds = token.getBounds(zone);
 
                 int tx = (footprintBounds.x+footprintBounds.width/2) + setOffsetX + token.getAnchor().x;
@@ -1065,8 +1064,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
                 if (token.isSnapToScale()) {
                 	
-    	            scaledWidth = (int)Math.ceil(footprintBounds.width * scale * token.getSizeScale()*footprint.getScale()) + (token.isToken() ? -1 : 0);
-    	            scaledHeight = (int)Math.ceil(footprintBounds.height * scale * token.getSizeScale()*footprint.getScale()) + (token.isToken() ? -1 : 0);
+    	            scaledWidth = (int)Math.ceil(footprintBounds.width * scale) + (token.isToken() ? -1 : 0);
+    	            scaledHeight = (int)Math.ceil(footprintBounds.height * scale) + (token.isToken() ? -1 : 0);
 
 	                SwingUtil.constrainTo(imgSize, scaledWidth, scaledHeight);
 
@@ -1177,7 +1176,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
                     at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale, scaledHeight/2 - token.getAnchor().y*scale); // facing defaults to down, or -90 degrees
                     if (token.isSnapToScale()) {
-                    	Dimension tokenSize = token.getSize(zone.getGrid());
+                    	Rectangle tokenSize = token.getBounds(zone);
                     	SwingUtil.constrainTo(imgSize, tokenSize.width, tokenSize.height);
                         at.scale((double) imgSize.width / workImage.getWidth (), (double) imgSize.height / workImage.getHeight());
                     } else {
@@ -1473,7 +1472,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	continue;
             }
 
-            TokenFootprint footprint = token.getFootprint(zone.getGrid());
             Rectangle footprintBounds = token.getBounds(zone);
             
             // OPTIMIZE:
@@ -1499,8 +1497,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
             if (token.isSnapToScale()) {
-	            scaledWidth = (int)Math.ceil(footprintBounds.width * scale * token.getSizeScale()*footprint.getScale()) + (token.isToken() ? -1 : 0);
-	            scaledHeight = (int)Math.ceil(footprintBounds.height * scale * token.getSizeScale()*footprint.getScale()) + (token.isToken() ? -1 : 0);
+	            scaledWidth = (int)Math.ceil(footprintBounds.width * scale) + (token.isToken() ? -1 : 0);
+	            scaledHeight = (int)Math.ceil(footprintBounds.height * scale) + (token.isToken() ? -1 : 0);
 	            
 	            SwingUtil.constrainTo(imgSize, scaledWidth, scaledHeight);
 	            
@@ -1661,7 +1659,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale), location.scaledHeight/2 - (token.getAnchor().y*scale)); // facing defaults to down, or -90 degrees
 
                 if (token.isSnapToScale()) {
-                    Dimension tokenSize = token.getSize(zone.getGrid());
+                    Rectangle tokenSize = token.getBounds(zone);
                     SwingUtil.constrainTo(imgSize, tokenSize.width, tokenSize.height);
                     
                     at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
@@ -2304,7 +2302,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
 
             // Token type
-            Dimension size = token.getSize(zone.getGrid());
+            Rectangle size = token.getBounds(zone);
             switch (getActiveLayer()) {
             case TOKEN: {
 
