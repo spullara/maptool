@@ -247,6 +247,13 @@ public class MapTool {
         // First timer
 		AppSetup.install();
 		
+		// Clean up after ourselves
+		try {
+			FileUtil.delete(AppUtil.getAppHome("tmp"), 2);
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		
 		// We'll manage our own images
 		ImageIO.setUseCache(false);
 		
