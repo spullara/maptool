@@ -672,9 +672,14 @@ public class Token extends BaseModel {
             footprintBounds.x = getX();
             footprintBounds.y = getY();
         } else {
-        	// Center it on the footprint
-        	footprintBounds.x -= (width - footprintBounds.width)/2;
-        	footprintBounds.y -= (height - footprintBounds.height)/2;
+        	if (!isBackgroundStamp()) {
+	        	// Center it on the footprint
+	        	footprintBounds.x -= (width - footprintBounds.width)/2;
+	        	footprintBounds.y -= (height - footprintBounds.height)/2;
+        	} else {
+//	        	footprintBounds.x -= zone.getGrid().getSize()/2;
+//	        	footprintBounds.y -= zone.getGrid().getSize()/2;
+        	}
         }
         
         footprintBounds.width = (int)width; // perhaps make this a double

@@ -336,8 +336,8 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		for (Entry<Shape, Token> entry : resizeBoundsMap.entrySet()) {
 			Shape bounds = entry.getKey();
 			if (bounds.contains(dragStartX, dragStartY)) {
-				dragOffsetX = bounds.getBounds().width + bounds.getBounds().x - e.getX();
-				dragOffsetY = bounds.getBounds().height + bounds.getBounds().y - e.getY();
+				dragOffsetX = bounds.getBounds().x + bounds.getBounds().width - e.getX();
+				dragOffsetY = bounds.getBounds().y + bounds.getBounds().height - e.getY();
 
 				isResizingToken = true;
 				return;
@@ -567,6 +567,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
     	return ScreenPoint.fromZonePoint(renderer, zp);
 	}
 	
+	ScreenPoint p = new ScreenPoint(0, 0);
 	public void mouseDragged(MouseEvent e) {
 
 		mouseX = e.getX();
@@ -596,15 +597,15 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				double ratio = image.getWidth() / (double) image.getHeight();
 				
 				int dx = (int)(sp.x - tokenPoint.x);
-				int dy = (int)(sp.y - tokenPoint.y);
 				
 				sp.y = (int)(tokenPoint.y + (dx / ratio));
 			}
 
 			ZonePoint zp = sp.convertToZone(renderer);
+			p = ScreenPoint.fromZonePoint(renderer, zp);
 			
-			int newWidth = Math.max(5, zp.x - tokenUnderMouse.getX());
-			int newHeight = Math.max(5, zp.y - tokenUnderMouse.getY());
+			int newWidth = Math.max(3, (zp.x  - tokenUnderMouse.getX())*(tokenUnderMouse.isSnapToGrid() && !tokenUnderMouse.isBackgroundStamp()? 2 : 1));
+			int newHeight = Math.max(3, (zp.y - tokenUnderMouse.getY())*(tokenUnderMouse.isSnapToGrid() && !tokenUnderMouse.isBackgroundStamp()? 2 : 1));
 
 			tokenUnderMouse.setScaleX(newWidth/(double)image.getWidth());
 			tokenUnderMouse.setScaleY(newHeight/(double)image.getHeight());
@@ -711,6 +712,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		// TODO: Optimize this (combine with calling code)
 		if (tokenBeingDragged.isSnapToGrid()) {
 
+			zonePoint.translate(-dragOffsetX, -dragOffsetY);
 			CellPoint cellUnderMouse = renderer.getZone().getGrid().convert(zonePoint);
 			zonePoint = renderer.getZone().getGrid().convert(cellUnderMouse);
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
@@ -899,6 +901,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			public void actionPerformed(ActionEvent e) {
 				
 				cycleSelectedToken(1);
+				
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
@@ -1111,6 +1114,9 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 					g.setColor(Color.lightGray);
 					g.drawRect(resizeBounds.x-2, resizeBounds.y-2, resizeBounds.width + 4, resizeBounds.height + 4);
 				}
+				
+//				g.setColor(Color.red);
+//				g.fillRect((int)(p.x-2), (int)(p.y-2), 4, 4);
 				
 				// Rotate
 //				int length = 35;
