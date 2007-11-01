@@ -49,6 +49,7 @@ public abstract class HexGrid extends Grid {
 		public boolean isSnapToGridSupported() {return true;}
 		public boolean isPathLineSupported() {return false;}
 		public boolean isSecondDimensionAdjustmentSupported() {return true;}
+		public boolean isCoordinatesSupported() {return false;}
 	};
 	
 	@Override

@@ -14,6 +14,7 @@ public class GridlessGrid extends Grid {
 		public boolean isSnapToGridSupported() {return false;}
 		public boolean isPathLineSupported() {return false;}
 		public boolean isSecondDimensionAdjustmentSupported() {return false;}
+		public boolean isCoordinatesSupported() {return false;}
 	};
 
 	private static final int[] FACING_ANGLES = new int[] {

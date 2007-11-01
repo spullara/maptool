@@ -166,6 +166,7 @@ public class AppMenuBar extends JMenuBar {
 
 //        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_GRID));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_COORDINATES));
         // LATER: This needs to be genericized, but it seems to constant, and so short, that I 
         // didn't feel compelled to do that in this impl
         JMenu gridSizeMenu = I18N.createMenu("action.gridSize");

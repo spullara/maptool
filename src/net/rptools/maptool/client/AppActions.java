@@ -946,6 +946,30 @@ public class AppActions {
 		}
 	};
 
+	public static final Action TOGGLE_COORDINATES = new DefaultClientAction() {
+		{
+			init("action.showCoordinates");
+			putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
+		}
+
+		@Override
+		public boolean isAvailable() {
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			return renderer != null && renderer.getZone().getGrid().getCapabilities().isCoordinatesSupported();
+		}
+		
+		public boolean isSelected() {
+			return AppState.isShowCoordinates();
+		}
+
+		public void execute(ActionEvent e) {
+
+			AppState.setShowCoordinates(!AppState.isShowCoordinates());
+
+			MapTool.getFrame().getCurrentZoneRenderer().repaint();
+		}
+	};
+
 	public static final Action TOGGLE_FOG = new ZoneAdminClientAction() {
 		{
 			init("action.enableFogOfWar");

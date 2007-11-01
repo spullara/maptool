@@ -594,6 +594,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         renderDrawableOverlay(g2d, objectDrawableRenderer, view, zone.getObjectDrawnElements());
         renderTokenTemplates(g2d, view);
         renderGrid(g2d, view);
+        renderCoordinates(g2d, view);
         if (view.isGMView()) {
         	renderTokens(g2d, zone.getGMStamps(), view);
             renderDrawableOverlay(g2d, gmDrawableRenderer, view, zone.getGMDrawnElements());
@@ -984,7 +985,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				BufferedImage mapImage = ImageManager.getImage(AssetManager.getAsset(zone.getMapAssetId()), this);
 				bbg.drawImage(mapImage, getViewOffsetX(), getViewOffsetY(), (int)(mapImage.getWidth()*getScale()), (int)(mapImage.getHeight()*getScale()), null);
 			}
-			
+
 			bbg.dispose();
 			
 			drawBackground = false;
@@ -1004,6 +1005,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         }
         
         zone.getGrid().draw(this, g, g.getClipBounds());
+    }
+    
+    protected void renderCoordinates(Graphics2D g, ZoneView view) {
+    	if (AppState.isShowCoordinates()) {
+    		zone.getGrid().drawCoordinatesOverlay(g, this);
+    	}
     }
     
     private boolean isHexGrid() {

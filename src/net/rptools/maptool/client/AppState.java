@@ -33,6 +33,7 @@ public class AppState {
     public static final String USE_DOUBLE_WIDE_PROP_NAME = "useDoubleWide";
     
     private static boolean showGrid = false;
+    private static boolean showCoordinates = false;
     private static boolean showTokenNames = false;
     private static boolean linkPlayerViews = false;
     private static boolean useDoubleWideLine = true;
@@ -84,6 +85,14 @@ public class AppState {
     
     public static void setShowGrid(boolean flag) {
     	showGrid = flag;
+    }
+
+    public static boolean isShowCoordinates() {
+    	return showCoordinates;
+    }
+    
+    public static void setShowCoordinates(boolean flag) {
+    	showCoordinates = flag;
     }
 
     public static void setShowTokenNames(boolean flag) {

@@ -2,21 +2,22 @@ package net.rptools.maptool.model;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
@@ -43,6 +44,7 @@ public class SquareGrid extends Grid {
 		public boolean isSnapToGridSupported() {return true;}
 		public boolean isPathLineSupported() {return true;}
 		public boolean isSecondDimensionAdjustmentSupported() {return false;}
+		public boolean isCoordinatesSupported() {return true;}
 	};
 
 	private static final int[] FACING_ANGLES = new int[] {
@@ -54,6 +56,71 @@ public class SquareGrid extends Grid {
 		
 	}
 
+	@Override
+	public void drawCoordinatesOverlay(Graphics2D g, ZoneRenderer renderer) {
+
+		Object oldAA = SwingUtil.useAntiAliasing(g);
+		
+		Font font = g.getFont().deriveFont(20f).deriveFont(Font.BOLD);
+		g.setFont(font);
+		FontMetrics fm = g.getFontMetrics();
+		
+		double cellSize = renderer.getScaledGridSize();
+		CellPoint topLeft = convert(new ScreenPoint(0, 0).convertToZone(renderer));
+		ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, convert(topLeft));
+		
+		
+		Dimension size = renderer.getSize();
+		
+		int startX = SwingUtilities.computeStringWidth(fm, "MMM") + 10;
+		
+		double x = sp.x + cellSize/2; // Start at middle of the cell that's on screen
+		int nextAvailableSpace = -1;
+		while (x < size.width) {
+
+			String coord = Integer.toString(topLeft.x);
+			
+			int strWidth = SwingUtilities.computeStringWidth(fm, coord);
+			int strX = (int)x - strWidth/2;
+
+			if (x > startX && strX > nextAvailableSpace) {
+				g.setColor(Color.black);
+				g.drawString(coord, strX, fm.getHeight());
+				g.setColor(Color.orange);
+				g.drawString(coord, strX-1, fm.getHeight()-1);
+				
+				nextAvailableSpace = strX + strWidth + 10;
+			}
+			
+			x += cellSize;
+			topLeft.x ++;
+		}
+		
+		double y = sp.y + cellSize/2; // Start at middle of the cell that's on screen
+		nextAvailableSpace = -1;
+		while (y < size.height) {
+			
+			String coord = Integer.toString(topLeft.y);
+			
+			int strY = (int)y + fm.getAscent()/2;
+
+			if (y > fm.getHeight() && strY > nextAvailableSpace) {
+			
+				g.setColor(Color.black);
+				g.drawString(coord, 10, strY);
+				g.setColor(Color.yellow);
+				g.drawString(coord, 10-1, strY-1);
+				
+				nextAvailableSpace = strY + fm.getAscent()/2 + 10;
+			}
+			
+			y += cellSize;
+			topLeft.y ++;
+		}
+		
+		SwingUtil.restoreAntiAliasing(g, oldAA);
+	}
+	
 	@Override
 	public List<TokenFootprint> getFootprints() {
 		if (footprintList == null) {

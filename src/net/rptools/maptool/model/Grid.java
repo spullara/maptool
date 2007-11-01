@@ -48,6 +48,10 @@ public abstract class Grid implements Cloneable{
 		setOffset(grid.offsetX, grid.offsetY);
 	}
 	
+	public void drawCoordinatesOverlay(Graphics2D g, ZoneRenderer renderer) {
+		// Do nothing my default
+	}
+	
 	protected List<TokenFootprint> loadFootprints(String path, OffsetTranslator... translators) throws IOException {
 
 		List<TokenFootprint> footprintList = (List<TokenFootprint>) new XStream().fromXML(new String(FileUtil.loadResource(path)));
