@@ -607,7 +607,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			int newWidth = Math.max(3, (zp.x  - tokenUnderMouse.getX())*(tokenUnderMouse.isSnapToGrid() && !tokenUnderMouse.isBackgroundStamp()? 2 : 1));
 			int newHeight = Math.max(3, (zp.y - tokenUnderMouse.getY())*(tokenUnderMouse.isSnapToGrid() && !tokenUnderMouse.isBackgroundStamp()? 2 : 1));
 
-			if (tokenUnderMouse.isSnapToGrid() && tokenUnderMouse.isObjectStamp()) {
+			if (SwingUtil.isControlDown(e) && tokenUnderMouse.isSnapToGrid() && tokenUnderMouse.isObjectStamp()) {
 				// Account for the 1/2 cell on each side of the stamp (since it's anchored in the center)
 				newWidth += renderer.getZone().getGrid().getSize();
 				newHeight += renderer.getZone().getGrid().getSize();
