@@ -116,7 +116,7 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
             	int a = lastZP.x - zp.x;
             	int b = lastZP.y - zp.y;
 
-            	c += Math.sqrt(a*a + b*b)/renderer.getZone().getUnitsPerCell();
+            	c += Math.sqrt(a*a + b*b);
             	
             	lastZP = zp;
             }
@@ -125,6 +125,9 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
 //    		int b = lastPoint.y - (set.offsetY + token.getY());
 //
 //            c +=  Math.sqrt(a*a + b*b)/zone.getUnitsPerCell();
+
+            c /= renderer.getZone().getGrid().getSize();
+            c *= renderer.getZone().getUnitsPerCell();
             
     		String distance = String.format("%.1f", c);
     		ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, lastZP.x, lastZP.y);
