@@ -1173,19 +1173,21 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                        	} else {
 	                        		
 	                        		double c = 0;
-	                        		ZonePoint lastPoint = new ZonePoint(token.getX(), token.getY());
+	                        		System.out.println("---------");
+	                                ZonePoint lastPoint = new ZonePoint(token.getX()+footprintBounds.width/2, token.getY()+footprintBounds.height/2);
 	                                for (ZonePoint zp : set.gridlessPath.getCellPath()) {
-	                                	
+	                                	System.out.println("zp: " + zp);
 	                                	int a = lastPoint.x - zp.x;
 	                                	int b = lastPoint.y - zp.y;
 	                                	
 	                                	c += Math.hypot(a, b);
-	                                	
+	                                	System.out.println("a:" + a + " b:" + b + " c:" + c);
 	                                	lastPoint = zp;
 	                                }
 	                                
-	                        		int a = lastPoint.x - (set.offsetX + token.getX());
-	                        		int b = lastPoint.y - (set.offsetY + token.getY());
+	                                ZonePoint finalPoint = new ZonePoint((set.offsetX + token.getX())+footprintBounds.width/2, (set.offsetY + token.getY())+footprintBounds.height/2);
+	                        		int a = lastPoint.x - finalPoint.x;
+	                        		int b = lastPoint.y - finalPoint.y;
 	
 	                                c +=  Math.hypot(a, b);
 	                                c /= zone.getGrid().getSize(); // Number of "cells"
