@@ -1179,7 +1179,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                                	int a = lastPoint.x - zp.x;
 	                                	int b = lastPoint.y - zp.y;
 	                                	
-	                                	c += Math.sqrt(a*a + b*b)/zone.getUnitsPerCell();
+	                                	c += Math.hypot(a, b);
 	                                	
 	                                	lastPoint = zp;
 	                                }
@@ -1187,7 +1187,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                        		int a = lastPoint.x - (set.offsetX + token.getX());
 	                        		int b = lastPoint.y - (set.offsetY + token.getY());
 	
-	                                c +=  Math.sqrt(a*a + b*b)/zone.getUnitsPerCell();
+	                                c +=  Math.hypot(a, b);
+	                                c /= zone.getGrid().getSize(); // Number of "cells"
+	                                c *= zone.getUnitsPerCell(); // "actual" distance traveled
 	                                
 	                        		distance = String.format("%.1f", c);
 	                        	}
