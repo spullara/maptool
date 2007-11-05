@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,6 +51,8 @@ public class Campaign {
     private ExportInfo exportInfo;
     private Map<String, List<TokenProperty>> tokenTypeMap;
     private List<String> remoteRepositoryList;
+
+    private Map<GUID, LightSource> lightSourceMap;
     
     private Map<String, LookupTable> lookupTableMap;
     
@@ -87,6 +90,9 @@ public class Campaign {
     	}
     	if (campaign.lookupTableMap != null) {
     		lookupTableMap = new HashMap<String, LookupTable>(campaign.lookupTableMap);
+    	}
+    	if (campaign.lightSourceMap != null) {
+    		lightSourceMap = new HashMap<GUID, LightSource>(campaign.lightSourceMap);
     	}
     }
     
@@ -140,6 +146,22 @@ public class Campaign {
     		lookupTableMap = new HashMap<String, LookupTable>();
     	}
     	return lookupTableMap;
+    }
+    
+    public Map<GUID, LightSource> getLightSourceMap() {
+    	if (lightSourceMap == null) {
+    		lightSourceMap = new HashMap<GUID, LightSource>();
+
+    		try {
+	    		for (LightSource source : LightSource.getDefaultLightSources()) {
+	    			lightSourceMap.put(source.getId(), source);
+	    		}
+    		} catch (IOException ioe) {
+    			ioe.printStackTrace(); 
+    		}
+    	}
+    	
+    	return lightSourceMap;
     }
     
     private List<TokenProperty> createBasicPropertyList() {
