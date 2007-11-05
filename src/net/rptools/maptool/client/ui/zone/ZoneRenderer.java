@@ -724,7 +724,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         visibleArea = null;
         for (Token token : zone.getAllTokens()) {
 
-            if (token.hasVision()) {
+            if (token.hasSight ()) {
                 isUsingVision = true; // Doesn't even have to be enabled, just exist
                 
                 // Don't bother if it's not a player token

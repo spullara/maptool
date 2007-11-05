@@ -25,6 +25,20 @@ public class LightSource {
 		id = new GUID();
 		this.name = name;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof LightSource)) {
+			return false;
+		}
+		
+		return ((LightSource)obj).id.equals(id);
+	}
+	
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
 	
 	public GUID getId() {
 		return id;
@@ -63,6 +77,10 @@ public class LightSource {
 	public static List<LightSource> getDefaultLightSources() throws IOException {
 		
 		return (List<LightSource>) new XStream().fromXML(new String(FileUtil.loadResource("net/rptools/maptool/model/squareGridFootprints.xml")));
+	}
+	
+	public String toString() {
+		return name;
 	}
 	
 	////

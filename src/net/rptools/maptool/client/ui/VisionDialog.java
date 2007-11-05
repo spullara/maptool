@@ -133,7 +133,7 @@ public class VisionDialog extends JDialog {
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				token.removeVision(vision);
+//				token.removeVision(vision);
 				close();
 			}
 		});
@@ -168,7 +168,7 @@ public class VisionDialog extends JDialog {
 		vision.setEnabled(enabledCheckBox.isSelected());
 		vision.setDistance(distance);
 		
-		token.addVision(vision);
+//		token.addVision(vision);
 		
 		MapTool.serverCommand().putToken(zone.getId(), token);
 		

@@ -21,7 +21,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
-import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.tool.FacingTool;
@@ -145,46 +144,46 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		return changeTypeMenu;
 	}
 
-	protected JMenu createVisionMenu() {
-		JMenu visionMenu = I18N.createMenu("defaultTool.visionMenu");
-		
-		if (selectedTokenSet.size() != 1) {
-			visionMenu.setEnabled(false);
-		} else {
-
-			for (final Vision vision : getTokenUnderMouse().getVisionList()) {
-				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(vision.getLabel()); 
-				menuItem.setSelected(vision.isEnabled());
-				menuItem.addMouseListener( new MouseAdapter() {
-					@Override
-					public void mousePressed(MouseEvent e) {
-						EventQueue.invokeLater(new Runnable() {
-							public void run() {
-								new VisionDialog(getRenderer().getZone(), getTokenUnderMouse(), vision).setVisible(true);
-
-								getRenderer().flush(getTokenUnderMouse());
-								MapTool.serverCommand().putToken(renderer.getZone().getId(), getTokenUnderMouse());
-								getRenderer().repaint();
-							}
-						});
-					}
-				});
-
-				visionMenu.add(menuItem);
-			}
-			
-			JMenuItem newVisionMenuItem = new JMenuItem("New Vision ...");
-			newVisionMenuItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					new VisionDialog(getRenderer().getZone(), getTokenUnderMouse()).setVisible(true);
-					getRenderer().flush(getTokenUnderMouse());
-				}
-			});
-			visionMenu.add(newVisionMenuItem);
-		}
-		
-		return visionMenu;
-	}
+//	protected JMenu createVisionMenu() {
+//		JMenu visionMenu = I18N.createMenu("defaultTool.visionMenu");
+//		
+//		if (selectedTokenSet.size() != 1) {
+//			visionMenu.setEnabled(false);
+//		} else {
+//
+//			for (final Vision vision : getTokenUnderMouse().getVisionList()) {
+//				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(vision.getLabel()); 
+//				menuItem.setSelected(vision.isEnabled());
+//				menuItem.addMouseListener( new MouseAdapter() {
+//					@Override
+//					public void mousePressed(MouseEvent e) {
+//						EventQueue.invokeLater(new Runnable() {
+//							public void run() {
+//								new VisionDialog(getRenderer().getZone(), getTokenUnderMouse(), vision).setVisible(true);
+//
+//								getRenderer().flush(getTokenUnderMouse());
+//								MapTool.serverCommand().putToken(renderer.getZone().getId(), getTokenUnderMouse());
+//								getRenderer().repaint();
+//							}
+//						});
+//					}
+//				});
+//
+//				visionMenu.add(menuItem);
+//			}
+//			
+//			JMenuItem newVisionMenuItem = new JMenuItem("New Vision ...");
+//			newVisionMenuItem.addActionListener(new ActionListener() {
+//				public void actionPerformed(ActionEvent e) {
+//					new VisionDialog(getRenderer().getZone(), getTokenUnderMouse()).setVisible(true);
+//					getRenderer().flush(getTokenUnderMouse());
+//				}
+//			});
+//			visionMenu.add(newVisionMenuItem);
+//		}
+//		
+//		return visionMenu;
+//	}
 	
 	protected JMenu createArrangeMenu() {
 		JMenu arrangeMenu = new JMenu("Arrange");

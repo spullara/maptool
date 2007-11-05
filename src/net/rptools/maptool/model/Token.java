@@ -25,7 +25,6 @@
 package net.rptools.maptool.model;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
@@ -39,7 +38,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -154,13 +155,13 @@ public class Token extends BaseModel {
     private Integer visionOverlayColorValue;
     private transient Color visionOverlayColor;
 	
-	private List<Vision> visionList;
-	
 	private boolean isFlippedX;
 	private boolean isFlippedY;
 	
 	private MD5Key charsheetImage;
 	private MD5Key portraitImage;
+	
+	private List<AttachedLightSource> lightSourceList;
 	
   /**
    * The notes that are displayed for this token.
@@ -187,6 +188,7 @@ public class Token extends BaseModel {
 
 	// Deprecated, here to allow deserialization
 	private transient int size; // 1.3b16
+//	private transient List<Vision> visionList;
 	
 	public enum ChangeEvent {
 		name
@@ -241,9 +243,8 @@ public class Token extends BaseModel {
 			ownerList.addAll(token.ownerList);
 		}
 
-		if (token.visionList != null) {
-			visionList = new ArrayList<Vision>();
-			visionList.addAll(token.visionList);
+		if (token.lightSourceList != null) {
+			lightSourceList = new ArrayList<AttachedLightSource>(token.lightSourceList);
 		}
 		
 		if (token.state != null) {
@@ -419,29 +420,36 @@ public class Token extends BaseModel {
 		return facing;
 	}
 
-	public boolean hasVision() {
-		return visionList != null && visionList.size() > 0;
-	}
-	
-	public void addVision(Vision vision) {
-		if (visionList == null) {
-			visionList = new ArrayList<Vision>();
-		}
-		if (!visionList.contains(vision)) {
-			visionList.add(vision);
-		}
-	}
-	
-	public void removeVision(Vision vision) {
-		if (visionList != null) {
-			visionList.remove(vision);
-		}
-	}
-	
-	public List<Vision> getVisionList() {
-		return (List<Vision>)(visionList != null ? Collections.unmodifiableList(visionList) : Collections.emptyList());
+	public boolean hasSight() {
+		// TODO: This has to be MUCH more selective
+		return !isStamp();
 	}
 
+	public void addLightSource(LightSource source, Direction direction) {
+		if (lightSourceList == null) {
+			lightSourceList = new ArrayList<AttachedLightSource>();
+		}
+		lightSourceList.add(new AttachedLightSource(source, direction));
+	}
+	
+	public void removeLightSource(LightSource source) {
+		if (lightSourceList == null) {
+			return;
+		}
+		
+		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+			AttachedLightSource als = i.next();
+			if (als.getLightSource().equals(source)) {
+				i.remove();
+				break;
+			}
+		}
+	}
+	
+	public List<AttachedLightSource> getLightSources() {
+		return lightSourceList != null ? Collections.unmodifiableList(lightSourceList) : new LinkedList<AttachedLightSource>();
+	}
+	
 	public synchronized void addOwner(String playerId) {
 		ownerType = OWNER_TYPE_LIST;
 		if (ownerList == null) {

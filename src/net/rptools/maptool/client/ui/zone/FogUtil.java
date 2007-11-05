@@ -165,7 +165,7 @@ public class FogUtil {
 				continue;
 			}
 			
-			if (!token.hasVision()) {
+			if (!token.hasSight()) {
 				continue;
 			}
 			
@@ -200,7 +200,7 @@ public class FogUtil {
 		Area visionArea = new Area();
 		for (Token token : zone.getPlayerTokens()) {
 			
-			if (!token.hasVision()) {
+			if (!token.hasSight()) {
 				continue;
 			}
 			
@@ -236,7 +236,7 @@ public class FogUtil {
 				continue;
 			}
 			
-			if (!token.hasVision()) {
+			if (!token.hasSight()) {
 				continue;
 			}
 			

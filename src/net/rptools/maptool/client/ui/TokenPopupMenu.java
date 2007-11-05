@@ -75,10 +75,10 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			
 			add(createExposeMenu());
 
-			if (MapTool.getPlayer().isGM()) {
-				addGMItem(createVisionMenu());
-			}
-			add(new JSeparator());
+//			if (MapTool.getPlayer().isGM()) {
+//				addGMItem(createVisionMenu());
+//			}
+//			add(new JSeparator());
 		}
 
 		addToggledItem(new ShowPathsAction(), renderer.isPathShowing(tokenUnderMouse));
@@ -148,7 +148,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		menu.add(new ExposeLastPathAction());
 		menu.add(new ExposeVisibleAreaOnlyAction());
 		
-		menu.setEnabled(getTokenUnderMouse().hasVision());
+		menu.setEnabled(getTokenUnderMouse().hasSight());
 		
 		return menu;
 	}
