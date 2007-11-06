@@ -446,6 +446,10 @@ public class Token extends BaseModel {
 		}
 	}
 	
+	public boolean hasLightSources() {
+		return lightSourceList != null && lightSourceList.size() > 0;
+	}
+	
 	public List<AttachedLightSource> getLightSources() {
 		return lightSourceList != null ? Collections.unmodifiableList(lightSourceList) : new LinkedList<AttachedLightSource>();
 	}

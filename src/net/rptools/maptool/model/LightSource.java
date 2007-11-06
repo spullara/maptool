@@ -1,19 +1,20 @@
 package net.rptools.maptool.model;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 import net.rptools.lib.FileUtil;
-import net.rptools.maptool.model.TokenFootprint.OffsetTranslator;
 
 import com.thoughtworks.xstream.XStream;
 
 public class LightSource {
 
-	private List<Light> lightList = new LinkedList<Light>();
+	private List<Light> lightList;
 	private String name;
 	private GUID id;
 	
@@ -53,20 +54,65 @@ public class LightSource {
 	}
 
 	public void add(Light source) {
-		lightList.add(source);
+		getLightList().add(source);
 	}
 	
 	public void remove(Light source) {
-		lightList.remove(source);
+		getLightList().remove(source);
 	}
 	
-	public Area getArea(Token token, Grid grid) {
+	private List<Light> getLightList() {
+		if (lightList == null) {
+			lightList = new LinkedList<Light>();
+		}
+		return lightList;
+	}
+	
+	public Area getArea(Token token, Grid grid, Direction position) {
+
+		Rectangle footprintBounds = token.getFootprint(grid).getBounds(grid, grid.convert(new ZonePoint(token.getX(), token.getY())));
 
 		Area area = new Area();
-		for (Light source : lightList) {
-			area.add(source.getArea(token, grid));
+		for (Light light : getLightList()) {
+			area.add(light.getArea(token, grid));
 		}
 		
+		int tx = footprintBounds.x;
+		int ty = footprintBounds.y;
+		switch (position) {
+		case NW:
+			tx -= footprintBounds.width/2;
+			ty -= footprintBounds.height/2;
+			break;
+		case N:
+			ty -= footprintBounds.height/2;
+			break;
+		case NE:
+			tx += footprintBounds.width/2;
+			ty -= footprintBounds.height/2;
+			break;
+		case W:
+			tx -= footprintBounds.width/2;
+			break;
+		case CENTER:
+			break;
+		case E:
+			tx += footprintBounds.width/2;
+			break;
+		case SW:
+			tx -= footprintBounds.width/2;
+			ty += footprintBounds.height/2;
+			break;
+		case S:
+			ty += footprintBounds.height/2;
+			break;
+		case SE:
+			tx += footprintBounds.width/2;
+			ty += footprintBounds.height/2;
+			break;
+		}
+		
+		area.transform(AffineTransform.getTranslateInstance(tx, ty));
 		return area;
 	}
 
@@ -76,18 +122,11 @@ public class LightSource {
 
 	public static List<LightSource> getDefaultLightSources() throws IOException {
 		
-		return (List<LightSource>) new XStream().fromXML(new String(FileUtil.loadResource("net/rptools/maptool/model/squareGridFootprints.xml")));
+		return (List<LightSource>) new XStream().fromXML(new String(FileUtil.loadResource("net/rptools/maptool/model/lightSources.xml")));
 	}
 	
 	public String toString() {
 		return name;
-	}
-	
-	////
-	// XSTREAM
-	private Object readResolve() {
-		lightList = new LinkedList<Light>();
-		return this;
 	}
 	
 }

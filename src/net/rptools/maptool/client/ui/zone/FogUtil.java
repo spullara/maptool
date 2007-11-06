@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
@@ -171,25 +172,15 @@ public class FogUtil {
 			
 			Rectangle size = token.getBounds(zone);
 			
-			Area visionArea = new Area();
-			for (Vision vision : token.getVisionList()) {
-				int x = token.getX();
-				int y = token.getY();
+			Point p = calculateVisionCenter(token, zone);
 
-				if (!vision.isEnabled()) {
-					continue;
-				}
-				
-				Point p = calculateVisionCenter(token, vision, renderer, size.x, size.y, size.width, size.height);
-    			
-				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), renderer.getTopologyAreaData());
-				if (currVisionArea != null) {
-					visionArea.add(currVisionArea);
-				}
+			int visionDistance = zone.getTokenVisionDistance();
+            Area tokenVision = FogUtil.calculateVisibility(p.x, p.y, new Area(new Ellipse2D.Double(p.x-visionDistance, p.y-visionDistance, visionDistance*2, visionDistance*2)), renderer.getTopologyAreaData());
+
+			if (tokenVision != null) {
+				zone.exposeArea(tokenVision);
+				MapTool.serverCommand().exposeFoW(zone.getId(), tokenVision);
 			}
-
-			zone.exposeArea(visionArea);
-			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea);
 		}
 	}
 	
@@ -204,22 +195,12 @@ public class FogUtil {
 				continue;
 			}
 			
-			Rectangle size = token.getBounds(zone);
-			
-			for (Vision vision : token.getVisionList()) {
-				int x = token.getX();
-				int y = token.getY();
+			Point p = calculateVisionCenter(token, zone);
 
-				if (!vision.isEnabled()) {
-					continue;
-				}
-				
-				Point p = calculateVisionCenter(token, vision, renderer, x, y, size.width, size.height);
-    			
-				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), renderer.getTopologyAreaData());
-				if (currVisionArea != null) {
-					visionArea.add(currVisionArea);
-				}
+			int visionDistance = zone.getTokenVisionDistance();
+            Area tokenVision = FogUtil.calculateVisibility(p.x, p.y, new Area(new Ellipse2D.Double(p.x-visionDistance, p.y-visionDistance, visionDistance*2, visionDistance*2)), renderer.getTopologyAreaData());
+			if (tokenVision != null) {
+				visionArea.add(tokenVision);
 			}
 
 		}
@@ -240,38 +221,30 @@ public class FogUtil {
 				continue;
 			}
 			
-			Rectangle size = token.getBounds(zone);
-			
 			Path<CellPoint> lastPath = (Path<CellPoint>) token.getLastPath();
 			if (lastPath == null) {
 				continue;
 			}
 			
-			Grid grid = zone.getGrid();
-			Area visionArea = new Area();
-			for (CellPoint cell : lastPath.getCellPath()) {
-				
-				ZonePoint zp = grid.convert(cell); 
-				int x = zp.x;
-				int y = zp.y;
-				
-				for (Vision vision : token.getVisionList()) {
-
-					if (!vision.isEnabled()) {
-						continue;
-					}
-
-					Point p = calculateVisionCenter(token, vision, renderer, x, y, size.width, size.height);
-	    			
-					Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), renderer.getTopologyAreaData());
-					if (currVisionArea != null) {
-						visionArea.add(currVisionArea);
-					}
-				}
-			}
-
-			zone.exposeArea(visionArea);
-			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea);
+//			Grid grid = zone.getGrid();
+//			Area visionArea = new Area();
+//			for (CellPoint cell : lastPath.getCellPath()) {
+//				
+//				ZonePoint zp = grid.convert(cell); 
+//				int x = zp.x;
+//				int y = zp.y;
+//				
+//				Point p = calculateVisionCenter(token, zone);
+//    			
+//				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), renderer.getTopologyAreaData());
+//				if (currVisionArea != null) {
+//					visionArea.add(currVisionArea);
+//				}
+//				}
+//			}
+//
+//			zone.exposeArea(visionArea);
+//			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea);
 		}
 		
 	}
@@ -281,9 +254,21 @@ public class FogUtil {
 	 * TODO: This is a horrible horrible method.  the API is just plain disgusting.  But it'll work to consolidate
 	 * all the places this has to be done until we can encapsulate it into the vision itself
 	 */
-	public static Point calculateVisionCenter(Token token, Vision vision, ZoneRenderer renderer, int x, int y, int width, int height) {
-		Grid grid = renderer.getZone().getGrid();
-		return new Point(x + width/2, y + height/2);
+	public static Point calculateVisionCenter(Token token, Zone zone) {
+		
+		Grid grid = zone.getGrid();
+		Rectangle footprintBounds = token.getFootprint(grid).getBounds(grid, grid.convert(new ZonePoint(token.getX(), token.getY())));
+		int x, y;
+		
+		if (token.isSnapToScale()) {
+			x = footprintBounds.x + footprintBounds.width/2;
+			y = footprintBounds.y + footprintBounds.height/2;
+		} else {
+			x = token.getX();
+			y = token.getY();
+		}
+		
+		return new Point(x, y);
 	}
 
 

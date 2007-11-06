@@ -1,6 +1,7 @@
 package net.rptools.maptool.model;
 
 import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 
 import net.rptools.maptool.model.drawing.DrawablePaint;
 
@@ -48,6 +49,8 @@ public class Light {
 	}
 	
 	public Area getArea(Token token, Grid grid) {
-		return null;
+		double size = radius;
+//		double size = radius * grid.getSize();
+		return new Area(new Ellipse2D.Double(-size, -size, size*2, size*2));
 	}
 }

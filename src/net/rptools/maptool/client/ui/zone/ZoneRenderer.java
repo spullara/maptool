@@ -52,6 +52,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
@@ -97,12 +98,15 @@ import net.rptools.maptool.client.ui.token.TokenTemplate;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.AttachedLightSource;
 import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.Direction;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridCapabilities;
 import net.rptools.maptool.model.HexGrid;
 import net.rptools.maptool.model.Label;
+import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Path;
@@ -146,6 +150,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
     private Map<Token, Area> tokenVisionCache = new HashMap<Token, Area>();
+    private Map<Token, Area> lightSourceCache = new HashMap<Token, Area>();
     private Map<Token, TokenLocation> tokenLocationCache = new HashMap<Token, TokenLocation>();
     private List<TokenLocation> markerLocationList = new ArrayList<TokenLocation>();
 
@@ -170,6 +175,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     private Area visibleArea;
     private Area currentTokenVisionArea;
+    private Area lightSourceArea;
     
     private BufferedImage fogBuffer;
     private boolean flushFog = true;
@@ -463,6 +469,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         tokenVisionCache.remove(token);
         tokenLocationCache.remove(token);
         
+        lightSourceCache.remove(token);
+        lightSourceArea = null;
+        
         flushFog = true;
     }
     
@@ -615,6 +624,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             overlay.paintOverlay(this, g2d);
         }
         
+//        if (lightSourceArea != null) {
+//	        g2d.setColor(Color.yellow);
+//	        g2d.fill(lightSourceArea.createTransformedArea(AffineTransform.getScaleInstance (getScale(), getScale())));
+//        }
+//        
         lastView = view;
     }
     
@@ -716,77 +730,106 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	return topologyAreaData;
     }
     
+    public Area getLightSourceArea() {
+    	return lightSourceArea;
+    }
+    
     private void calculateVision(ZoneView view) {
         
         currentTokenVisionArea = null;
         
-        isUsingVision = false;
-        visibleArea = null;
+        
+        // Calculate lights
+        lightSourceArea = null;
         for (Token token : zone.getAllTokens()) {
+        	
+        	if (!token.hasLightSources()) {
+        		continue;
+        	}
+        	
+        	Area area = null;//lightSourceCache.get(token);
+        	if (area == null) {
+        		
+        		area = new Area();
+        		for (AttachedLightSource attachedLightSource : token.getLightSources()) {
+        			
+        			LightSource lightSource = MapTool.getCampaign().getLightSourceMap().get(attachedLightSource.getLightSource());
+        			if (lightSource == null) {
+        				continue;
+        			}
+        			
+        			area.add(lightSource.getArea(token, zone.getGrid(), attachedLightSource.getDirection()));
+        			
+        			// Clip to visible area
+                    Point p = FogUtil.calculateVisionCenter(token, zone);
+        			area = FogUtil.calculateVisibility(p.x, p.y, area, getTopologyAreaData());
+        		}
+        		System.out.println(area.getBounds());
+        		
+        		lightSourceCache.put(token, area);
+        	}
+        	
+        	// Lazy create
+        	if (lightSourceArea == null) {
+        		lightSourceArea = new Area();
+        	}
+        	
+        	// Combine all light source visible area
+        	lightSourceArea.add(area);
+        }
+        
+        // Calculate vision
+        isUsingVision = lightSourceArea != null || (zone.getTopology() != null && !zone.getTopology().isEmpty());
+        visibleArea = null;
+        if (isUsingVision) {
+	        for (Token token : zone.getAllTokens()) {
+	
+	            if (token.hasSight ()) {
+	                
+	                // Don't bother if it's not a player token
+	                if (!view.isGMView()) {
+	
+	                	if (!token.isVisible() || token.getType() != Token.Type.PC) {
+	                		continue;
+	                	}
+	                }
+	
+	                // Permission
+	                if (MapTool.getServerPolicy().isUseIndividualViews() && !AppUtil.playerOwns(token)) {
+	            		continue;
+	                }
+	                
+	                Area tokenVision = tokenVisionCache.get(token);
+	                if (tokenVision == null) {
+	                    
+	                    Point p = FogUtil.calculateVisionCenter(token, zone);
+	                    
+	                    int visionDistance = zone.getTokenVisionDistance();
+	                    tokenVision = FogUtil.calculateVisibility(p.x, p.y, new Area(new Ellipse2D.Double(p.x-visionDistance, p.y-visionDistance, visionDistance*2, visionDistance*2)), getTopologyAreaData());
 
-            if (token.hasSight ()) {
-                isUsingVision = true; // Doesn't even have to be enabled, just exist
-                
-                // Don't bother if it's not a player token
-                if (!view.isGMView()) {
-
-                	if (!token.isVisible() || token.getType() != Token.Type.PC) {
-                		continue;
-                	}
-                }
-
-                // Permission
-                if (MapTool.getServerPolicy().isUseIndividualViews()) {
-                	if (!AppUtil.playerOwns(token)) {
-                		continue;
-                	}
-                }
-                
-                Rectangle footprintBounds = token.getBounds(zone);
-                
-                Area tokenVision = tokenVisionCache.get(token);
-                if (tokenVision == null) {
-                    
-                    for (Vision vision : token.getVisionList()) {
-                        if (!vision.isEnabled()) {
-                            continue;
-                        }
-                        
-                        Area visionArea = vision.getArea(getZone(), token);
-                        if (visionArea == null) {
-                            continue;
-                        }
-
-                        Point p = FogUtil.calculateVisionCenter(token, vision, this, footprintBounds.x, footprintBounds.y, footprintBounds.width, footprintBounds.height);
-                        
-                        visionArea = FogUtil.calculateVisibility(p.x, p.y, visionArea, getTopologyAreaData());
-                        if (visionArea == null) {
-                            continue;
-                        }
-
-                        if (visionArea != null && tokenVision == null) {
-                            tokenVision = new Area();
-                        }
-                        tokenVision.add(visionArea);
-                    }
-                    
-                    tokenVisionCache.put(token, tokenVision);
-                }
-                
-                if (tokenVision != null) {
-                    if (visibleArea == null) {
-                        visibleArea = new Area();
-                    }
-                    visibleArea.add(tokenVision);
-                    
-                    if (token == tokenUnderMouse) {
-                        tokenVision = new Area(tokenVision); // Don't modify the original, which is now in the cache
-                        tokenVision.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-                        tokenVision.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-                        currentTokenVisionArea = tokenVision;
-                    }
-                }
-            }
+	                    // Now apply light sources
+	                    if (lightSourceArea != null) {
+	                    	tokenVision.intersect(lightSourceArea);
+	                    }
+	                    
+	                    tokenVisionCache.put(token, tokenVision);
+	                }
+	                
+	                if (tokenVision != null) {
+	                    if (visibleArea == null) {
+	                        visibleArea = new Area();
+	                    }
+	                    visibleArea.add(tokenVision);
+	                    
+	                    if (token == tokenUnderMouse) {
+	                        tokenVision = new Area(tokenVision); // Don't modify the original, which is now in the cache
+	                        tokenVision.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+	                        tokenVision.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+	                        currentTokenVisionArea = tokenVision;
+	                    }
+	                }
+	            }
+	        }
         }
     }
     
@@ -2305,6 +2348,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 token.setType(Token.Type.PC);
             }
 
+            token.addLightSource(MapTool.getCampaign().getLightSourceMap().entrySet().iterator().next().getValue(), Direction.CENTER);
+            
             // Save the token and tell everybody about it
             zone.putToken(token);
             MapTool.serverCommand().putToken(zone.getId(), token);

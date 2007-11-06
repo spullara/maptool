@@ -105,6 +105,8 @@ public class Zone extends BaseModel {
     private float imageScaleX = 1;
     private float imageScaleY = 1;
     
+    private int tokenVisionDistance = 2000;
+    
     private int unitsPerCell = DEFAULT_FEET_PER_CELL;
     
     private List<DrawnElement> drawables = new LinkedList<DrawnElement>();
@@ -151,6 +153,10 @@ public class Zone extends BaseModel {
 
     public void setMapAsset(MD5Key id) {
     	mapAsset = id;
+    }
+    
+    public int getTokenVisionDistance() {
+    	return tokenVisionDistance ;
     }
     
     public void setFogPaint(DrawablePaint paint) {
@@ -610,9 +616,7 @@ public class Zone extends BaseModel {
 	}
 	
     public List<Token> getAllTokens() {
-    	List<Token> copy = new ArrayList<Token>();
-    	copy.addAll(tokenOrderedList);
-        return Collections.unmodifiableList(copy);
+        return Collections.unmodifiableList(new ArrayList<Token>(tokenOrderedList));
     }
     
     public Set<MD5Key> getAllAssetIds() {
@@ -656,8 +660,7 @@ public class Zone extends BaseModel {
      * This is the list of non-stamp tokens, both pc and npc
      */
     public List<Token> getTokens() {
-    	List<Token> copy = new ArrayList<Token>();
-    	copy.addAll(tokenOrderedList);
+    	List<Token> copy = new LinkedList<Token>(tokenOrderedList);
     	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
     		Token token = iter.next();
     		if (token.isStamp()) {
@@ -668,8 +671,7 @@ public class Zone extends BaseModel {
     }
     
     public List<Token> getStampTokens() {
-    	List<Token> copy = new ArrayList<Token>();
-    	copy.addAll(tokenOrderedList);
+    	List<Token> copy = new LinkedList<Token>(tokenOrderedList);
     	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
     		Token token = iter.next();
     		if (!token.isObjectStamp()) {
@@ -679,8 +681,7 @@ public class Zone extends BaseModel {
         return Collections.unmodifiableList(copy);
     }
     public List<Token> getPlayerTokens() {
-    	List<Token> copy = new ArrayList<Token>();
-    	copy.addAll(tokenOrderedList);
+    	List<Token> copy = new LinkedList<Token>(tokenOrderedList);
     	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
     		Token token = iter.next();
     		if (token.getType() != Token.Type.PC) {
@@ -690,8 +691,7 @@ public class Zone extends BaseModel {
         return Collections.unmodifiableList(copy);
     }
     public List<Token> getBackgroundStamps() {
-    	List<Token> copy = new ArrayList<Token>();
-    	copy.addAll(tokenOrderedList);
+    	List<Token> copy = new LinkedList<Token>(tokenOrderedList);
     	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
     		Token token = iter.next();
     		if (!token.isBackgroundStamp()) {
@@ -701,8 +701,7 @@ public class Zone extends BaseModel {
         return Collections.unmodifiableList(copy);
     }
     public List<Token> getGMStamps() {
-    	List<Token> copy = new ArrayList<Token>();
-    	copy.addAll(tokenOrderedList);
+    	List<Token> copy = new LinkedList<Token>(tokenOrderedList);
     	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
     		Token token = iter.next();
     		if (!token.isGMStamp()) {
