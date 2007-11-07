@@ -12,7 +12,7 @@ import net.rptools.lib.FileUtil;
 
 import com.thoughtworks.xstream.XStream;
 
-public class LightSource {
+public class LightSource implements Comparable {
 
 	private List<Light> lightList;
 	private String name;
@@ -68,17 +68,18 @@ public class LightSource {
 		return lightList;
 	}
 	
-	public Area getArea(Token token, Grid grid, Direction position) {
+	public Area getArea(Token token, Zone zone, Direction position) {
 
+		Grid grid = zone.getGrid();
 		Rectangle footprintBounds = token.getFootprint(grid).getBounds(grid, grid.convert(new ZonePoint(token.getX(), token.getY())));
 
 		Area area = new Area();
 		for (Light light : getLightList()) {
-			area.add(light.getArea(token, grid));
+			area.add(light.getArea(token, zone));
 		}
 		
-		int tx = footprintBounds.x;
-		int ty = footprintBounds.y;
+		int tx = 0;
+		int ty = 0;
 		switch (position) {
 		case NW:
 			tx -= footprintBounds.width/2;
@@ -128,5 +129,13 @@ public class LightSource {
 	public String toString() {
 		return name;
 	}
-	
+
+	////
+	// COMPARE TO
+	public int compareTo(Object o) {
+		if (!(o instanceof LightSource)) {
+			return 0;
+		}
+		return name.compareTo(((LightSource)o).name);
+	}
 }

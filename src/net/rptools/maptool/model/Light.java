@@ -48,9 +48,8 @@ public class Light {
 		this.arcAngle = arcAngle;
 	}
 	
-	public Area getArea(Token token, Grid grid) {
-		double size = radius;
-//		double size = radius * grid.getSize();
+	public Area getArea(Token token, Zone zone) {
+		double size = radius / zone.getUnitsPerCell() * zone.getGrid().getSize();
 		return new Area(new Ellipse2D.Double(-size, -size, size*2, size*2));
 	}
 }

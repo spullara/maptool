@@ -1,13 +1,12 @@
 package net.rptools.maptool.client.ui;
 
-import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -31,11 +30,12 @@ import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.Direction;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
-import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.PersistenceUtil;
@@ -83,6 +83,22 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			}
 		}
 
+	}
+
+	protected JMenu createLightSourceMenu() {
+		JMenu menu = new JMenu("Light Source");
+		
+		List<LightSource> lightSourceList = new ArrayList<LightSource>(MapTool.getCampaign().getLightSourceMap().values());
+		Collections.sort(lightSourceList);
+		for (LightSource lightSource : lightSourceList) {
+			
+			JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(new ToggleLightSourceAction(lightSource));
+			menuItem.setSelected(tokenUnderMouse.hasLightSource(lightSource));
+
+			menu.add(menuItem);
+		}
+		
+		return menu;
 	}
 	
 	protected Token getTokenUnderMouse() {
@@ -366,6 +382,33 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			
 			renderer.repaint();
 		}
+	}
+	
+	public class ToggleLightSourceAction extends AbstractAction {
+		
+		private LightSource lightSource;
+		public ToggleLightSourceAction(LightSource lightSource) {
+			super(lightSource.getName());
+			this.lightSource = lightSource;
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			for (GUID tokenGUID : selectedTokenSet) {
+				Token token = renderer.getZone().getToken(tokenGUID);
+				if (token == null) {
+					continue;
+				}
+				
+				if (token.hasLightSource(lightSource)) {
+					token.removeLightSource(lightSource);
+				} else {
+					token.addLightSource(lightSource, Direction.CENTER);
+				}
+			}
+		}
+		
 	}
 
 	public class SaveAction extends AbstractAction {

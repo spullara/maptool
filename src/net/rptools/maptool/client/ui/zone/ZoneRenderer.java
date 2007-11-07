@@ -753,18 +753,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         		area = new Area();
         		for (AttachedLightSource attachedLightSource : token.getLightSources()) {
         			
-        			LightSource lightSource = MapTool.getCampaign().getLightSourceMap().get(attachedLightSource.getLightSource());
+        			LightSource lightSource = MapTool.getCampaign().getLightSourceMap().get(attachedLightSource.getLightSourceId());
         			if (lightSource == null) {
         				continue;
         			}
         			
-        			area.add(lightSource.getArea(token, zone.getGrid(), attachedLightSource.getDirection()));
+        			area.add(lightSource.getArea(token, zone, attachedLightSource.getDirection()));
         			
         			// Clip to visible area
                     Point p = FogUtil.calculateVisionCenter(token, zone);
         			area = FogUtil.calculateVisibility(p.x, p.y, area, getTopologyAreaData());
         		}
-        		System.out.println(area.getBounds());
         		
         		lightSourceCache.put(token, area);
         	}
@@ -2347,8 +2346,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	// Player dropped, player token
                 token.setType(Token.Type.PC);
             }
-
-            token.addLightSource(MapTool.getCampaign().getLightSourceMap().entrySet().iterator().next().getValue(), Direction.CENTER);
             
             // Save the token and tell everybody about it
             zone.putToken(token);

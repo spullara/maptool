@@ -18,7 +18,7 @@ public class AttachedLightSource {
 		return direction != null ? Direction.valueOf(direction) : Direction.CENTER;
 	}
 
-	public GUID getLightSource() {
+	public GUID getLightSourceId() {
 		return lightSourceId;
 	}
 }

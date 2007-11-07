@@ -439,13 +439,27 @@ public class Token extends BaseModel {
 		
 		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
 			AttachedLightSource als = i.next();
-			if (als.getLightSource().equals(source)) {
+			if (als.getLightSourceId().equals(source.getId())) {
 				i.remove();
 				break;
 			}
 		}
 	}
 	
+	public boolean hasLightSource(LightSource source) {
+		if (lightSourceList == null) {
+			return false;
+		}
+		
+		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
+			AttachedLightSource als = i.next();
+			if (als.getLightSourceId().equals(source.getId())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public boolean hasLightSources() {
 		return lightSourceList != null && lightSourceList.size() > 0;
 	}

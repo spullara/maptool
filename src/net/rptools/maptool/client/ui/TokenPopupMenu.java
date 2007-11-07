@@ -87,6 +87,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(createHaloMenu());
         add(createVisionOverlayColorAreaMenu());
 		add(new ChangeStateAction("light"));
+		addOwnedItem(createLightSourceMenu());
 		addOwnedItem(createArrangeMenu());
 		
 		add(new JSeparator());
