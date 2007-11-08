@@ -61,8 +61,8 @@ public class SquareGrid extends Grid {
 
 		Object oldAA = SwingUtil.useAntiAliasing(g);
 		
-		Font font = g.getFont().deriveFont(20f).deriveFont(Font.BOLD);
-		g.setFont(font);
+		Font oldFont = g.getFont();
+		g.setFont(g.getFont().deriveFont(20f).deriveFont(Font.BOLD));
 		FontMetrics fm = g.getFontMetrics();
 		
 		double cellSize = renderer.getScaledGridSize();
@@ -118,6 +118,7 @@ public class SquareGrid extends Grid {
 			topLeft.y ++;
 		}
 		
+		g.setFont(oldFont);
 		SwingUtil.restoreAntiAliasing(g, oldAA);
 	}
 	
