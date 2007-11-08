@@ -50,6 +50,16 @@ public class LookupTable {
 			Result result = expressionParser.evaluate(roll);
 			tableResult = Integer.parseInt(result.getValue().toString());
 
+			Integer minmin = Integer.MAX_VALUE;
+			Integer maxmax = Integer.MIN_VALUE;
+			
+			for (LookupEntry entry : getEntryList()) {
+				if(entry.min < minmin) { minmin = entry.min; }
+				if(entry.max > maxmax) { maxmax = entry.max; }
+			}
+			if(tableResult > maxmax) { tableResult = maxmax; }
+			if(tableResult < minmin) { tableResult = minmin; }
+			
 			for (LookupEntry entry : getEntryList()) {
 				if (tableResult >= entry.min && tableResult <= entry.max) {
 					// Support for "/" commands
