@@ -85,7 +85,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new RevertLastMoveAction());
 		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
 		add(createHaloMenu());
-        add(createVisionOverlayColorAreaMenu());
 		addOwnedItem(createLightSourceMenu());
 		addOwnedItem(createArrangeMenu());
 		
@@ -211,10 +210,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	private JMenu createHaloMenu() {
         return createColorAreaMenu("token.popup.menu.halo", getTokenUnderMouse().getHaloColor(), SetHaloAction.class, SetColorChooserAction.class);
 	}
-    
-    private JMenu createVisionOverlayColorAreaMenu() {
-        return createColorAreaMenu("token.popup.menu.vision.overlay", getTokenUnderMouse().getVisionOverlayColor(), SetVisionOverlayColorAction.class, SetVisionOverlayColorChooserAction.class);
-    }    
     
     private JMenu createColorAreaMenu(String title, Color selectedColor, Class standardColorActionClass, Class customColorActionClass) {
         JMenu haloMenu = new JMenu(I18N.getText(title));

@@ -472,6 +472,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         lightSourceCache.remove(token);
         lightSourceArea = null;
         
+        if (token.hasLightSources()) {
+        	// Have to recalculate all token vision
+        	tokenVisionCache.clear();
+        }
+        
         flushFog = true;
     }
     
@@ -685,7 +690,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     
                     Area clip = new Area(new Rectangle(0, 0, getSize().width-1, getSize().height-1));
                     clip.subtract(visibleArea);
-
                     Area visitedArea = new Area(zone.getExposedArea());
                     visitedArea.transform(AffineTransform.getScaleInstance (getScale(), getScale()));
                     visitedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
@@ -747,9 +751,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         		continue;
         	}
         	
-        	Area area = null;//lightSourceCache.get(token);
+        	Area area = lightSourceCache.get(token);
         	if (area == null) {
-        		
+
         		area = new Area();
         		for (AttachedLightSource attachedLightSource : token.getLightSources()) {
         			
@@ -761,6 +765,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         			// Clip to visible area
                     Point p = FogUtil.calculateVisionCenter(token, zone);
         			Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSource.getArea(token, zone, attachedLightSource.getDirection()), getTopologyAreaData());
+
         			if (visibleArea != null) {
         				area.add(visibleArea);
         			}
