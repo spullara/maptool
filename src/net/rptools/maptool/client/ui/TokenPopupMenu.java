@@ -62,6 +62,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new ClearFacingAction());
 		add(new StartMoveAction());
 		addOwnedItem(new ImpersonateAction());
+		addOwnedItem(createSizeMenu(true));
 		addOwnedItem(createMacroMenu());
 		addOwnedItem(createSpeechMenu());
 		addOwnedItem(createStateMenu());
@@ -69,6 +70,15 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		if (getTokenUnderMouse().getCharsheetImage() != null && AppUtil.playerOwns(getTokenUnderMouse())) {
 			add(new ShowCharsheetAction());
 		}
+		add(createHaloMenu());
+		addOwnedItem(createArrangeMenu());
+		addGMItem(createChangeToMenu(Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
+
+		add(new JSeparator());
+
+		addToggledItem(new ShowPathsAction(), renderer.isPathShowing(tokenUnderMouse));
+		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
+		
 		add(new JSeparator());
 
 		if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
@@ -81,29 +91,17 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 //			add(new JSeparator());
 		}
 
-		addToggledItem(new ShowPathsAction(), renderer.isPathShowing(tokenUnderMouse));
-		add(new RevertLastMoveAction());
-		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
-		add(createHaloMenu());
 		addOwnedItem(createLightSourceMenu());
-		addOwnedItem(createArrangeMenu());
 		
 		add(new JSeparator());
 		
 		add(AppActions.CUT_TOKENS);
 		add(AppActions.COPY_TOKENS);
-		
-		add(new JSeparator());
-
-		addOwnedItem(createSizeMenu(true));
-
-		add(new JSeparator());
-
 		add(new JMenuItem(new DeleteAction()));
 
 		add(new JSeparator());
 
-		addGMItem(createChangeToMenu(Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
+		add(new RevertLastMoveAction());
 		add(new ShowPropertiesDialogAction());
 		addOwnedItem(new SaveAction());
 	}

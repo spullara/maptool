@@ -7,12 +7,13 @@ import java.awt.geom.Area;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import net.rptools.lib.FileUtil;
 
 import com.thoughtworks.xstream.XStream;
 
-public class LightSource implements Comparable {
+public class LightSource  {
 
 	private List<Light> lightList;
 	private String name;
@@ -121,21 +122,14 @@ public class LightSource implements Comparable {
 		
 	}
 
-	public static List<LightSource> getDefaultLightSources() throws IOException {
+	public static Map<String, List<LightSource>> getDefaultLightSources() throws IOException {
 		
-		return (List<LightSource>) new XStream().fromXML(new String(FileUtil.loadResource("net/rptools/maptool/model/lightSources.xml")));
+		return (Map<String, List<LightSource>>) new XStream().fromXML(new String(FileUtil.loadResource("net/rptools/maptool/model/defaultLightSourcesMap.xml")));
 	}
 	
 	public String toString() {
 		return name;
 	}
 
-	////
-	// COMPARE TO
-	public int compareTo(Object o) {
-		if (!(o instanceof LightSource)) {
-			return 0;
-		}
-		return name.compareTo(((LightSource)o).name);
-	}
+	
 }

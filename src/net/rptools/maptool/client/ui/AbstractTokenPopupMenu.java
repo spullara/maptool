@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -87,15 +89,21 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 	protected JMenu createLightSourceMenu() {
 		JMenu menu = new JMenu("Light Source");
-		
-		List<LightSource> lightSourceList = new ArrayList<LightSource>(MapTool.getCampaign().getLightSourceMap().values());
-		Collections.sort(lightSourceList);
-		for (LightSource lightSource : lightSourceList) {
-			
-			JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(new ToggleLightSourceAction(lightSource));
-			menuItem.setSelected(tokenUnderMouse.hasLightSource(lightSource));
 
-			menu.add(menuItem);
+		for (Entry<String, Map<GUID, LightSource>> entry : MapTool.getCampaign().getLightSourcesMap().entrySet()) {
+			JMenu subMenu = new JMenu(entry.getKey());
+			
+			List<LightSource> lightSourceList = new ArrayList<LightSource>(entry.getValue().values());
+			for (LightSource lightSource : lightSourceList) {
+				
+				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(new ToggleLightSourceAction(lightSource));
+				menuItem.setSelected(tokenUnderMouse.hasLightSource(lightSource));
+
+				subMenu.add(menuItem);
+			}
+			
+			menu.add(subMenu);
+			
 		}
 		
 		return menu;

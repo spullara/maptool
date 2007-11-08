@@ -757,7 +757,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         		area = new Area();
         		for (AttachedLightSource attachedLightSource : token.getLightSources()) {
         			
-        			LightSource lightSource = MapTool.getCampaign().getLightSourceMap().get(attachedLightSource.getLightSourceId());
+        			LightSource lightSource = MapTool.getCampaign().getLightSource(attachedLightSource.getLightSourceId());
         			if (lightSource == null) {
         				continue;
         			}

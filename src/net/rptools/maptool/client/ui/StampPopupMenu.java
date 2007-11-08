@@ -6,6 +6,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 
 import net.rptools.maptool.client.AppActions;
+import net.rptools.maptool.client.ui.AbstractTokenPopupMenu.SaveAction;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
@@ -22,30 +23,26 @@ public class StampPopupMenu extends AbstractTokenPopupMenu {
 		add(new ClearFacingAction());
 		add(new StartMoveAction());
 		add(createFlipMenu());
+		add(createSizeMenu(true));
+		add(createArrangeMenu());
+		add(createChangeToMenu(Zone.Layer.TOKEN, Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
 
 		add(new JSeparator());
-
-		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
 		addOwnedItem(createLightSourceMenu());
-		add(createArrangeMenu());
+		add(new JSeparator());
+
+		addToggledItem(new SnapToGridAction(tokenUnderMouse.isSnapToGrid(), renderer), tokenUnderMouse.isSnapToGrid());
+		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
 		
 		add(new JSeparator());
 
 		add(AppActions.CUT_TOKENS);
 		add(AppActions.COPY_TOKENS);
-		
-		add(new JSeparator());
-
-		add(createSizeMenu(true));
-		addToggledItem(new SnapToGridAction(tokenUnderMouse.isSnapToGrid(), renderer), tokenUnderMouse.isSnapToGrid());
-
-		add(new JSeparator());
-
 		add(new JMenuItem(new DeleteAction()));
 
 		add(new JSeparator());
 
-		add(createChangeToMenu(Zone.Layer.TOKEN, Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
 		add(new ShowPropertiesDialogAction());
+		add(new SaveAction());
 	}
 }

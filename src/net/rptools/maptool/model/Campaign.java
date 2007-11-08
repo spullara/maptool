@@ -52,7 +52,7 @@ public class Campaign {
     private Map<String, List<TokenProperty>> tokenTypeMap;
     private List<String> remoteRepositoryList;
 
-    private Map<GUID, LightSource> lightSourceMap;
+    private Map<String, Map<GUID, LightSource>> lightSourcesMap;
     
     private Map<String, LookupTable> lookupTableMap;
     
@@ -91,8 +91,9 @@ public class Campaign {
     	if (campaign.lookupTableMap != null) {
     		lookupTableMap = new HashMap<String, LookupTable>(campaign.lookupTableMap);
     	}
-    	if (campaign.lightSourceMap != null) {
-    		lightSourceMap = new HashMap<GUID, LightSource>(campaign.lightSourceMap);
+    	if (campaign.lightSourcesMap != null) {
+    		// TODO: This doesn't feel right, should we deep copy, or does this do that automatically ?
+    		lightSourcesMap = new HashMap<String, Map<GUID, LightSource>>(campaign.lightSourcesMap);
     	}
     }
     
@@ -148,20 +149,41 @@ public class Campaign {
     	return lookupTableMap;
     }
     
-    public Map<GUID, LightSource> getLightSourceMap() {
-    	if (lightSourceMap == null) {
-    		lightSourceMap = new HashMap<GUID, LightSource>();
+    public LightSource getLightSource(GUID lightSourceId) {
+
+    	for (Map<GUID, LightSource> map : getLightSourcesMap().values()) {
+    		if (map.containsKey(lightSourceId)) {
+    			return map.get(lightSourceId);
+    		}
+    	}
+    	return null;
+    }
+
+    public Map<String, Map<GUID, LightSource>> getLightSourcesMap() {
+    	if (lightSourcesMap == null) {
+    		lightSourcesMap = new HashMap<String, Map<GUID, LightSource>>();
 
     		try {
-	    		for (LightSource source : LightSource.getDefaultLightSources()) {
-	    			lightSourceMap.put(source.getId(), source);
-	    		}
+    			Map<String, List<LightSource>> map = LightSource.getDefaultLightSources();
+    			for (String key : map.keySet()) {
+    				
+    	    		Map<GUID, LightSource> lightSourceMap = new LinkedHashMap<GUID, LightSource>();
+    	    		for (LightSource source : map.get(key)) {
+    	    			lightSourceMap.put(source.getId(), source);
+    	    		}
+    	    		lightSourcesMap.put(key, lightSourceMap);
+    			}
     		} catch (IOException ioe) {
     			ioe.printStackTrace(); 
     		}
+    		
     	}
-    	
-    	return lightSourceMap;
+
+    	return lightSourcesMap;
+    }
+    
+    public Map<GUID, LightSource> getLightSourceMap(String type) {
+    	return getLightSourcesMap().get(type);
     }
     
     private List<TokenProperty> createBasicPropertyList() {
