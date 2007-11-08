@@ -26,7 +26,7 @@ public class StampPopupMenu extends AbstractTokenPopupMenu {
 		add(new JSeparator());
 
 		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
-		add(new ChangeStateAction("light"));
+		addOwnedItem(createLightSourceMenu());
 		add(createArrangeMenu());
 		
 		add(new JSeparator());
