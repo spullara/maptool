@@ -758,11 +758,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         				continue;
         			}
         			
-        			area.add(lightSource.getArea(token, zone, attachedLightSource.getDirection()));
-        			
         			// Clip to visible area
                     Point p = FogUtil.calculateVisionCenter(token, zone);
-        			area = FogUtil.calculateVisibility(p.x, p.y, area, getTopologyAreaData());
+        			Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSource.getArea(token, zone, attachedLightSource.getDirection()), getTopologyAreaData());
+        			if (visibleArea != null) {
+        				area.add(visibleArea);
+        			}
         		}
         		
         		lightSourceCache.put(token, area);
