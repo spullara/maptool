@@ -1614,6 +1614,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 renderPath(g, token.getLastPath(), token.getFootprint(zone.getGrid()));
             }
             
+            Shape clip = g.getClipBounds();
+            if (token.isToken() && !view.isGMView() && !token.isOwner(MapTool.getPlayer().getName()) && visibleArea != null) {
+            	Area clipArea = new Area(clip);
+            	clipArea.intersect(visibleArea);
+                g.setClip(clipArea);
+            }
+
             // Halo (TOPDOWN, CIRCLE)
             if (token.hasHalo() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.getShape() == Token.TokenShape.CIRCLE)) {
                 Stroke oldStroke = g.getStroke();
@@ -1638,13 +1645,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 wig.dispose();
             }
             
-            // Draw image
-            Shape clip = g.getClipBounds();
-            if (token.isToken() && !view.isGMView() && !token.isOwner(MapTool.getPlayer().getName()) && visibleArea != null) {
-            	Area clipArea = new Area(clip);
-            	clipArea.intersect(visibleArea);
-                g.setClip(clipArea);
-            }
 
             // Rotated
             AffineTransform at = new AffineTransform();
@@ -1656,16 +1656,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             at.scale((double) footprintBounds.width / workImage.getWidth(), (double) footprintBounds.height / workImage.getHeight());
             at.scale(getScale(), getScale());
             g.drawImage(workImage, at, this);
-            g.setClip(clip);
 
             // Halo (SQUARE)
             if (token.hasHalo() && token.getShape() == Token.TokenShape.SQUARE) {
+                
                 Stroke oldStroke = g.getStroke();
                 g.setStroke(new BasicStroke(AppPreferences.getHaloLineWidth()));
                 g.setColor (token.getHaloColor());
                 g.drawRect(location.x, location.y, location.scaledWidth, location.scaledHeight);
                 g.setStroke(oldStroke);
             }
+            g.setClip(clip);
             
             // Facing ?
             // TODO: Optimize this by doing it once per token per facing
