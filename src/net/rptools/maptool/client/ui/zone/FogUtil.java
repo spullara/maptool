@@ -58,16 +58,15 @@ public class FogUtil {
 		
 		Area clearedArea = new Area();
 		
-//		int blockCount = 0;
-//		int skippedAreas = 0;
-//		System.out.println("Size: "+ topology.getAreaList(origin).size());
+		int blockCount = 0;
+		int skippedAreas = 0;
 		for (AreaMeta areaMeta : topology.getAreaList(origin)) {
 //			int pointCount = 0;
 //			int origSize = 0;
 //			int afterSize = 0;
 
 			if (clearedArea.contains(areaMeta.area.getBounds())) {
-//				skippedAreas++;
+				skippedAreas++;
 				continue;
 			}
 			
@@ -117,11 +116,10 @@ public class FogUtil {
 				Area blockedArea = createBlockArea(origin, line);
 				
 				clearedArea.add(blockedArea);
-//				blockCount++;
+				blockCount++;
 			}
-//			System.out.println(pointCount + " : " + origSize + " : " + afterSize);
 		}
-//		System.out.println("Blocks: " + blockCount + " : Skipped: " + skippedAreas);
+		System.out.println("Blocks: " + blockCount + " : Skipped: " + skippedAreas);
 		// For simplicity, this catches some of the edge cases
 		vision.subtract(clearedArea);
 

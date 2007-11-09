@@ -634,6 +634,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //	        g2d.fill(lightSourceArea.createTransformedArea(AffineTransform.getScaleInstance (getScale(), getScale())));
 //        }
 //        
+        
+        
+//        g2d.setColor(Color.red);
+//        for (AreaMeta meta : getTopologyAreaData().getAreaList()) {
+//        	
+//	        Area area = new Area(meta.getArea().getBounds()).createTransformedArea(AffineTransform.getScaleInstance (getScale(), getScale()));
+//	        area = area.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(), zoneScale.getOffsetY()));
+//        	g2d.draw(area);
+//        }
+        
         lastView = view;
     }
     
@@ -643,7 +653,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     
     private void renderVisionOverlay(Graphics2D g, ZoneView view) {
 
-        if (currentTokenVisionArea == null || (!AppUtil.playerOwns(tokenUnderMouse) && !view.isGMView()) ) {
+        if (currentTokenVisionArea == null || !view.isGMView()) {
             return;
         }
         

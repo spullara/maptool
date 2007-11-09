@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
+import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
@@ -31,7 +32,6 @@ import java.awt.geom.Point2D;
 import java.util.Set;
 
 import net.rptools.lib.GeometryUtil;
-import net.rptools.lib.LineSegmentId;
 import net.rptools.lib.GeometryUtil.PointNode;
 
 public class AreaMeta {
@@ -57,6 +57,10 @@ public class AreaMeta {
 	public Set<Line2D> getFrontFaces(Point2D origin) {
 		
 		return GeometryUtil.getFrontFaces(pointNodeList, origin);
+	}
+	
+	public Area getArea() {
+		return new Area(area);
 	}
 	
 	public boolean isHole() {

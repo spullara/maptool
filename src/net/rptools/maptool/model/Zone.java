@@ -156,7 +156,7 @@ public class Zone extends BaseModel {
     }
     
     public int getTokenVisionDistance() {
-    	return tokenVisionDistance / grid.getSize() * getUnitsPerCell();
+    	return tokenVisionDistance;
     }
     
     public void setFogPaint(DrawablePaint paint) {

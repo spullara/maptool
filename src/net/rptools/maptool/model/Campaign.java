@@ -58,6 +58,9 @@ public class Campaign {
     
     private transient boolean isBeingSerialized;
 
+    // DEPRECATED: here to support old serialized versions
+    private Map<GUID, LightSource> lightSourceMap;
+    
     public Campaign() {
     	// No op
     }

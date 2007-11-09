@@ -61,6 +61,10 @@ public class AreaData {
 		return false;
 	}
 	
+	public List<AreaMeta> getAreaList() {
+		return new ArrayList<AreaMeta>(metaList);
+	}
+	
 	public List<AreaMeta> getAreaList(final Point centerPoint) {
 		List<AreaMeta> areaMetaList = new ArrayList<AreaMeta>(metaList);
 		
@@ -165,7 +169,6 @@ public class AreaData {
 					areaMeta.addPoint(coords[0], coords[1]);
 					break;
 				}
-				
 				// NOT SUPPORTED
 //				case PathIterator.SEG_CUBICTO: coordCount = 3; break;
 //				case PathIterator.SEG_QUADTO: coordCount = 2;break;
@@ -175,7 +178,7 @@ public class AreaData {
 		}
 		
 		// No longer needed
-//		System.out.println("Size: " + metaList.size());
+		System.out.println("Size: " + metaList.size());
 		area = null;
 	}
 }
