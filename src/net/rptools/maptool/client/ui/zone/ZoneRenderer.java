@@ -804,22 +804,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	            		continue;
 	                }
 	                
-	                Area tokenVision = tokenVisionCache.get(token);
-	                if (tokenVision == null) {
-	                    
-	                    Point p = FogUtil.calculateVisionCenter(token, zone);
-	                    
-	                    int visionDistance = zone.getTokenVisionDistance();
-	                    tokenVision = FogUtil.calculateVisibility(p.x, p.y, new Area(new Ellipse2D.Double(p.x-visionDistance, p.y-visionDistance, visionDistance*2, visionDistance*2)), getTopologyAreaData());
-
-	                    // Now apply light sources
-	                    if (tokenVision != null && lightSourceArea != null) {
-	                    	tokenVision.intersect(lightSourceArea);
-	                    }
-	                    
-	                    tokenVisionCache.put(token, tokenVision);
-	                }
-	                
+	                Area tokenVision = getTokenVision(token);	                
 	                if (tokenVision != null) {
 	                    if (visibleArea == null) {
 	                        visibleArea = new Area();
@@ -836,6 +821,26 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	            }
 	        }
         }
+    }
+    
+    public Area getTokenVision(Token token) {
+        Area tokenVision = tokenVisionCache.get(token);
+        if (tokenVision == null) {
+            
+            Point p = FogUtil.calculateVisionCenter(token, zone);
+            
+            int visionDistance = zone.getTokenVisionDistance();
+            tokenVision = FogUtil.calculateVisibility(p.x, p.y, new Area(new Ellipse2D.Double(p.x-visionDistance, p.y-visionDistance, visionDistance*2, visionDistance*2)), getTopologyAreaData());
+
+            // Now apply light sources
+            if (tokenVision != null && lightSourceArea != null) {
+            	tokenVision.intersect(lightSourceArea);
+            }
+            
+            tokenVisionCache.put(token, tokenVision);
+        }
+
+        return tokenVision;
     }
     
     /**

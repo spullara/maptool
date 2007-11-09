@@ -21,6 +21,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,7 +38,6 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
@@ -169,13 +169,8 @@ public class FogUtil {
 			if (!token.hasSight()) {
 				continue;
 			}
-			
-			Rectangle size = token.getBounds(zone);
-			
-			Point p = calculateVisionCenter(token, zone);
 
-			int visionDistance = zone.getTokenVisionDistance();
-            Area tokenVision = FogUtil.calculateVisibility(p.x, p.y, new Area(new Ellipse2D.Double(p.x-visionDistance, p.y-visionDistance, visionDistance*2, visionDistance*2)), renderer.getTopologyAreaData());
+			Area tokenVision = renderer.getTokenVision(token);
 
 			if (tokenVision != null) {
 				zone.exposeArea(tokenVision);
@@ -186,26 +181,16 @@ public class FogUtil {
 	
 	public static void exposePCArea(ZoneRenderer renderer) {
 
-		Zone zone = renderer.getZone();
-		
-		Area visionArea = new Area();
-		for (Token token : zone.getPlayerTokens()) {
+		Set<GUID> tokenSet = new HashSet<GUID>();
+		for (Token token : renderer.getZone().getPlayerTokens()) {
 			
 			if (!token.hasSight()) {
 				continue;
 			}
 			
-			Point p = calculateVisionCenter(token, zone);
-
-			int visionDistance = zone.getTokenVisionDistance();
-            Area tokenVision = FogUtil.calculateVisibility(p.x, p.y, new Area(new Ellipse2D.Double(p.x-visionDistance, p.y-visionDistance, visionDistance*2, visionDistance*2)), renderer.getTopologyAreaData());
-			if (tokenVision != null) {
-				visionArea.add(tokenVision);
-			}
-
+			tokenSet.add(token.getId());
 		}
-		zone.setFogArea(visionArea);
-		MapTool.serverCommand().setFoW(zone.getId(), visionArea);
+		exposeVisibleArea(renderer, tokenSet);
 	}
 	
 	public static void exposeLastPath(ZoneRenderer renderer, Set<GUID> tokenSet) {
@@ -226,8 +211,9 @@ public class FogUtil {
 				continue;
 			}
 			
-//			Grid grid = zone.getGrid();
-//			Area visionArea = new Area();
+			Grid grid = zone.getGrid();
+			Area visionArea = new Area();
+
 //			for (CellPoint cell : lastPath.getCellPath()) {
 //				
 //				ZonePoint zp = grid.convert(cell); 
@@ -239,7 +225,6 @@ public class FogUtil {
 //				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), renderer.getTopologyAreaData());
 //				if (currVisionArea != null) {
 //					visionArea.add(currVisionArea);
-//				}
 //				}
 //			}
 //

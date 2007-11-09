@@ -105,7 +105,7 @@ public class Zone extends BaseModel {
     private float imageScaleX = 1;
     private float imageScaleY = 1;
     
-    private int tokenVisionDistance = 2000;
+    private int tokenVisionDistance = 10000;
     
     private int unitsPerCell = DEFAULT_FEET_PER_CELL;
     
@@ -156,7 +156,7 @@ public class Zone extends BaseModel {
     }
     
     public int getTokenVisionDistance() {
-    	return tokenVisionDistance ;
+    	return tokenVisionDistance / grid.getSize() * getUnitsPerCell();
     }
     
     public void setFogPaint(DrawablePaint paint) {
