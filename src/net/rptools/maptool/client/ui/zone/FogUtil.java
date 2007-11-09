@@ -101,6 +101,7 @@ public class FogUtil {
 				}
 			});
 			
+			List<Area> blockList = new LinkedList<Area>();
 			for (RelativeLine rline : relativeLineList) {
 				Line2D line = rline.line;
 				
@@ -113,11 +114,24 @@ public class FogUtil {
 					continue;
 				}
 
-				Area blockedArea = createBlockArea(origin, line);
+				blockList.add(createBlockArea(origin, line));
 				
-				clearedArea.add(blockedArea);
 				blockCount++;
 			}
+			
+			while (blockList.size() > 1) {
+				
+				Area a1 = blockList.remove(0);
+				Area a2 = blockList.remove(0);
+				
+				a1.add(a2);
+				blockList.add(a1);
+			}
+			
+			if (blockList.size() > 0) {
+				clearedArea.add(blockList.remove(0));
+			}
+			
 		}
 		System.out.println("Blocks: " + blockCount + " : Skipped: " + skippedAreas);
 		// For simplicity, this catches some of the edge cases
@@ -126,7 +140,6 @@ public class FogUtil {
 		
 		return vision;
 	}	
-
 	private static class RelativeLine {
 		private Line2D line;
 		private double distance;

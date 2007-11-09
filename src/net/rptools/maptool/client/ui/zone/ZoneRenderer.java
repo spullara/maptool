@@ -840,7 +840,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             Point p = FogUtil.calculateVisionCenter(token, zone);
             
             int visionDistance = zone.getTokenVisionDistance();
+//            long start = System.currentTimeMillis();
             tokenVision = FogUtil.calculateVisibility(p.x, p.y, new Area(new Ellipse2D.Double(p.x-visionDistance, p.y-visionDistance, visionDistance*2, visionDistance*2)), getTopologyAreaData());
+//            System.out.println("Time: " + (System.currentTimeMillis() - start));
 
             // Now apply light sources
             if (tokenVision != null && lightSourceArea != null) {
