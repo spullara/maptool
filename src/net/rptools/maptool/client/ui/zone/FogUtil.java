@@ -133,7 +133,8 @@ public class FogUtil {
 			}
 			
 		}
-		System.out.println("Blocks: " + blockCount + " : Skipped: " + skippedAreas);
+//		System.out.println("Blocks: " + blockCount + " : Skipped: " + skippedAreas);
+
 		// For simplicity, this catches some of the edge cases
 		vision.subtract(clearedArea);
 
@@ -253,12 +254,19 @@ public class FogUtil {
 	public static Point calculateVisionCenter(Token token, Zone zone) {
 		
 		Grid grid = zone.getGrid();
-		Rectangle footprintBounds = token.getFootprint(grid).getBounds(grid, grid.convert(new ZonePoint(token.getX(), token.getY())));
-		int x, y;
+		int x=0, y=0;
 		
 		if (token.isSnapToScale()) {
-			x = footprintBounds.x + footprintBounds.width/2;
-			y = footprintBounds.y + footprintBounds.height/2;
+
+			Rectangle bounds = null;
+			if (token.isSnapToGrid()) {
+				bounds = token.getFootprint(grid).getBounds(grid, grid.convert(new ZonePoint(token.getX(), token.getY())));
+			} else {
+				bounds = token.getBounds(zone);
+			}
+
+			x = bounds.x + bounds.width/2;
+			y = bounds.y + bounds.height/2;
 		} else {
 			x = token.getX();
 			y = token.getY();

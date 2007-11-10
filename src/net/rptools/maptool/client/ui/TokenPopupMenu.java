@@ -76,11 +76,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 		add(new JSeparator());
 
-		addToggledItem(new ShowPathsAction(), renderer.isPathShowing(tokenUnderMouse));
-		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
-		
-		add(new JSeparator());
-
 		if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
 			
 			add(createExposeMenu());
@@ -92,6 +87,11 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 
 		addOwnedItem(createLightSourceMenu());
+		
+		add(new JSeparator());
+
+		addToggledItem(new ShowPathsAction(), renderer.isPathShowing(tokenUnderMouse));
+		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
 		
 		add(new JSeparator());
 		
