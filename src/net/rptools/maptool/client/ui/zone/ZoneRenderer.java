@@ -774,7 +774,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         			
         			// Clip to visible area
                     Point p = FogUtil.calculateVisionCenter(token, zone);
-        			Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSource.getArea(token, zone, attachedLightSource.getDirection()), getTopologyAreaData());
+                    Area lightSourceArea = lightSource.getArea(token, zone, attachedLightSource.getDirection());
+        			Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopologyAreaData());
 
         			if (visibleArea != null) {
         				area.add(visibleArea);
@@ -841,7 +842,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
             int visionDistance = zone.getTokenVisionDistance();
 //            long start = System.currentTimeMillis();
-            tokenVision = FogUtil.calculateVisibility(p.x, p.y, new Area(new Ellipse2D.Double(p.x-visionDistance, p.y-visionDistance, visionDistance*2, visionDistance*2)), getTopologyAreaData());
+            Area visionArea = new Area(new Ellipse2D.Double(-visionDistance, -visionDistance, visionDistance*2, visionDistance*2));
+            tokenVision = FogUtil.calculateVisibility(p.x, p.y, visionArea, getTopologyAreaData());
 //            System.out.println("Time: " + (System.currentTimeMillis() - start));
 
             // Now apply light sources
@@ -1238,15 +1240,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                        	} else {
 	                        		
 	                        		double c = 0;
-	                        		System.out.println("---------");
 	                                ZonePoint lastPoint = new ZonePoint(token.getX()+footprintBounds.width/2, token.getY()+footprintBounds.height/2);
 	                                for (ZonePoint zp : set.gridlessPath.getCellPath()) {
-	                                	System.out.println("zp: " + zp);
+
 	                                	int a = lastPoint.x - zp.x;
 	                                	int b = lastPoint.y - zp.y;
 	                                	
 	                                	c += Math.hypot(a, b);
-	                                	System.out.println("a:" + a + " b:" + b + " c:" + c);
+
 	                                	lastPoint = zp;
 	                                }
 	                                
