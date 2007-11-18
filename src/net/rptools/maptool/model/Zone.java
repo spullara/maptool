@@ -86,6 +86,8 @@ public class Zone extends BaseModel {
 		}
 	}
     
+	public static final int DEFAULT_TOKEN_VISION_DISTANCE = 10000;
+	
     public static final int DEFAULT_FEET_PER_CELL = 5;
     
     public static final DrawablePaint DEFAULT_FOG = new DrawableColorPaint(Color.black);
@@ -105,7 +107,7 @@ public class Zone extends BaseModel {
     private float imageScaleX = 1;
     private float imageScaleY = 1;
     
-    private int tokenVisionDistance = 10000;
+    private int tokenVisionDistance = DEFAULT_TOKEN_VISION_DISTANCE;
     
     private int unitsPerCell = DEFAULT_FEET_PER_CELL;
     
@@ -156,6 +158,10 @@ public class Zone extends BaseModel {
     }
     
     public int getTokenVisionDistance() {
+    	if (tokenVisionDistance == 0) {
+    		// TODO: This is here to provide transition between pre 1.3b19 an 1.3b19.  Remove later
+    		tokenVisionDistance = DEFAULT_TOKEN_VISION_DISTANCE;
+    	}
     	return tokenVisionDistance;
     }
     
@@ -710,4 +716,5 @@ public class Zone extends BaseModel {
     	}
         return Collections.unmodifiableList(copy);
     }
+    
 }
