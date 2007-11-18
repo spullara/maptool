@@ -70,23 +70,8 @@ public class FogUtil {
 				continue;
 			}
 			
-			LinkedList<Line2D> lineList = new LinkedList<Line2D>(areaMeta.getFrontFaces(origin));
-			
-			// TODO: Is this a valuable thing to look for ?  That's a lot of lines to check for a couple fringe cases
-//			origSize = pointList.size();
-//			for (ListIterator<Line2D> pointIter = lineList.listIterator(); pointIter.hasNext();) {
-//				Line2D line = pointIter.next();
-//				LineSegmentId lineId = new LineSegmentId(line.getP1(), line.getP2());
-//				if (handledFaces.contains(lineId)) {
-//					pointIter.remove();
-//				}
-//				
-//				// Our algorithm can end up splitting shapes, which creates duplicates faces
-//				// that overlap between two areas, be sure to ignore those since they've already
-//				// been handled
-//				handledFaces.add(lineId);
-//			}
-//			afterSize = pointList.size();
+			LinkedList<Line2D> lineList = new LinkedList<Line2D>(areaMeta.getAllFaces());
+//			LinkedList<Line2D> lineList = new LinkedList<Line2D>(areaMeta.getFrontFaces(origin));
 			
 			List<RelativeLine> relativeLineList = new LinkedList<RelativeLine>();
 			for (Iterator<Line2D> lineIter = lineList.iterator(); lineIter.hasNext();) {
@@ -141,6 +126,7 @@ public class FogUtil {
 		
 		return vision;
 	}	
+	
 	private static class RelativeLine {
 		private Line2D line;
 		private double distance;

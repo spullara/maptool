@@ -24,11 +24,11 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
-import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.util.HashSet;
 import java.util.Set;
 
 import net.rptools.lib.GeometryUtil;
@@ -57,6 +57,21 @@ public class AreaMeta {
 	public Set<Line2D> getFrontFaces(Point2D origin) {
 		
 		return GeometryUtil.getFrontFaces(pointNodeList, origin);
+	}
+	
+	public Set<Line2D> getAllFaces() {
+		
+		Set<Line2D> faceSet = new HashSet<Line2D>();
+		
+		PointNode node = pointNodeList;
+		do {
+			faceSet.add(new Line2D.Double(node.point, node.previous.point));
+			
+			node = node.next;
+			
+		} while (!node.point.equals(pointNodeList.point));
+		
+		return faceSet;
 	}
 	
 	public Area getArea() {
