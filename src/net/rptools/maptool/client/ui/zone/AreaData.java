@@ -178,7 +178,7 @@ public class AreaData {
 		}
 		
 		// No longer needed
-		System.out.println("Size: " + metaList.size());
+//		System.out.println("Size: " + metaList.size());
 		area = null;
 	}
 }
