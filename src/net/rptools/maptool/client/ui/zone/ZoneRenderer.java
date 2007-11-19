@@ -801,17 +801,20 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	
 	            if (token.hasSight ()) {
 	                
-	                // Don't bother if it's not a player token
-	                if (!view.isGMView()) {
-	
-	                	if (!token.isVisible() || token.getType() != Token.Type.PC) {
-	                		continue;
-	                	}
+	                // Don't bother if it's not visible
+	                if (!view.isGMView() && !token.isVisible()) {
+                		continue;
 	                }
 	
 	                // Permission
-	                if (MapTool.getServerPolicy().isUseIndividualViews() && !AppUtil.playerOwns(token)) {
-	            		continue;
+	                if (MapTool.getServerPolicy().isUseIndividualViews()) {
+	                	if (!AppUtil.playerOwns(token)) {
+	                		continue;
+	                	}
+	                } else {
+	                	if (token.getType() != Token.Type.PC) {
+	                		continue;
+	                	}
 	                }
 	                
 	                Area tokenVision = getTokenVision(token);	                
@@ -1083,10 +1086,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     
     protected void renderMoveSelectionSets(Graphics2D g, ZoneView view) {
     
+    	// Short circuit
+    	if (isUsingVision && visibleArea == null) {
+    		return;
+    	}
+    	
         Grid grid = zone.getGrid();
-        int gridSize = grid.getSize();
         float scale = zoneScale.getScale();
-        int scaledGridSize = (int) getScaledGridSize();
         
         Set<SelectionSet> selections = new HashSet<SelectionSet>();
         selections.addAll(selectionSetMap.values());
@@ -1125,19 +1131,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 int scaledWidth = (int)(footprintBounds.width * scale);
                 int scaledHeight = (int)(footprintBounds.height * scale);
 
-//                if (!token.isObjectStamp() && !token.isBackgroundStamp()) {
-//                    // Fit inside the grid
-//                    scaledWidth --;
-//                    scaledHeight --;
-//                }
-
                 // Tokens are centered on the image center point
                 int x = (int)(newScreenPoint.x);
                 int y = (int)(newScreenPoint.y);
                 
                 // Vision visibility
                 Rectangle clip = g.getClipBounds();
-                if (token.isToken() && !view.isGMView() && !isOwner && visibleArea != null) {
+                if (!view.isGMView() && !isOwner && visibleArea != null) {
+
                     // Only show the part of the path that is visible
                 	Area clipArea = new Area(clip);
                 	clipArea.intersect(visibleArea);
