@@ -757,7 +757,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         lightSourceArea = null;
         for (Token token : zone.getAllTokens()) {
         	
-        	if (!token.hasLightSources()) {
+        	if (!token.hasLightSources() || !token.isVisible()) {
         		continue;
         	}
         	
