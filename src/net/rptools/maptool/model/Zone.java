@@ -552,7 +552,7 @@ public class Zone extends BaseModel {
         Token token = this.tokenMap.remove(id);
         if (token != null) {
         	tokenOrderedList.remove(token);
-            fireModelChangeEvent(new ModelChangeEvent(this, Event.DRAWABLE_REMOVED, token));
+            fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_REMOVED, token));
         }
     }
 	
