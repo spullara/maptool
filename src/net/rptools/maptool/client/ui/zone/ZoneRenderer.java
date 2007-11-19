@@ -1212,7 +1212,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 AffineTransform at = new AffineTransform();
                 at.translate(x, y);
 
-                if (token.hasFacing()) {
+                if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
                 	at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale, scaledHeight/2 - token.getAnchor().y*scale); // facing defaults to down, or -90 degrees
                 }
                 
@@ -1670,7 +1670,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // Rotated
             AffineTransform at = new AffineTransform();
             at.translate(location.x, location.y);
-            if (token.hasFacing()) {
+            if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
             	at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale), location.scaledHeight/2 - (token.getAnchor().y*scale)); // facing defaults to down, or -90 degrees
             }
 
