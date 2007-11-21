@@ -49,6 +49,12 @@ public class Campaign {
     private GUID id = new GUID();
     private Map<GUID, Zone> zones = Collections.synchronizedMap(new LinkedHashMap<GUID, Zone>());
     private ExportInfo exportInfo;
+    
+    private CampaignProperties campaignProperties = new CampaignProperties();
+    
+    private transient boolean isBeingSerialized;
+
+    // DEPRECATED: As of 1.3b20 these are now in campaignProperties, but are here for backward compatibility
     private Map<String, List<TokenProperty>> tokenTypeMap;
     private List<String> remoteRepositoryList;
 
@@ -56,21 +62,35 @@ public class Campaign {
     
     private Map<String, LookupTable> lookupTableMap;
     
-    private transient boolean isBeingSerialized;
-
-    // DEPRECATED: here to support old serialized versions
+    // DEPRECATED: as of 1.3b19 here to support old serialized versions
     private Map<GUID, LightSource> lightSourceMap;
     
     public Campaign() {
     	// No op
     }
 
-    public List<String> getRemoteRepositoryList() {
-    	if (remoteRepositoryList == null) {
-    		remoteRepositoryList = new ArrayList<String>();
-    		remoteRepositoryList.add("http://rptools.net/image-indexes/gallery.rpax.gz");
+    private void checkCampaignPropertyConversion() {
+    	if (tokenTypeMap != null) {
+    		campaignProperties.setTokenTypeMap(tokenTypeMap);
+    		tokenTypeMap = null;
     	}
-    	return remoteRepositoryList;
+    	if (remoteRepositoryList != null) {
+    		campaignProperties.setRemoteRepositoryList(remoteRepositoryList);
+    		remoteRepositoryList = null;
+    	}
+    	if (lightSourcesMap != null) {
+    		campaignProperties.setLightSourcesMap(lightSourcesMap);
+    		lightSourcesMap = null;
+    	}
+    	if (lookupTableMap != null) {
+    		campaignProperties.setLookupTableMap(lookupTableMap);
+    		lookupTableMap = null;
+    	}
+    }
+    
+    public List<String> getRemoteRepositoryList() {
+    	checkCampaignPropertyConversion(); // TODO: Remove, for compatibility 1.3b19-1.3b20
+    	return campaignProperties.getRemoteRepositoryList();
     }
     
     public Campaign (Campaign campaign) {
@@ -80,24 +100,7 @@ public class Campaign {
     		Zone copy = new Zone(entry.getValue());
     		zones.put(copy.getId(), copy);
     	}
-    	if (campaign.tokenTypeMap != null) {
-        	tokenTypeMap = new HashMap<String, List<TokenProperty>>(); 
-        	for (Entry<String, List<TokenProperty>> entry : campaign.tokenTypeMap.entrySet()) {
-
-        		List<TokenProperty> typeList = new ArrayList<TokenProperty>();
-        		typeList.addAll(campaign.tokenTypeMap.get(entry.getKey()));
-
-        		tokenTypeMap.put(entry.getKey(), typeList);
-        	}
-    		
-    	}
-    	if (campaign.lookupTableMap != null) {
-    		lookupTableMap = new HashMap<String, LookupTable>(campaign.lookupTableMap);
-    	}
-    	if (campaign.lightSourcesMap != null) {
-    		// TODO: This doesn't feel right, should we deep copy, or does this do that automatically ?
-    		lightSourcesMap = new HashMap<String, Map<GUID, LightSource>>(campaign.lightSourcesMap);
-    	}
+    	campaignProperties = new CampaignProperties(campaign.campaignProperties);
     }
     
     public GUID getId() {
@@ -138,18 +141,13 @@ public class Campaign {
     }
     
     private Map<String, List<TokenProperty>> getTokenTypeMap() {
-    	if (tokenTypeMap == null) {
-    		tokenTypeMap = new HashMap<String, List<TokenProperty>>();
-    		tokenTypeMap.put(DEFAULT_TOKEN_PROPERTY_TYPE, createBasicPropertyList());
-    	}
-    	return tokenTypeMap;
+    	checkCampaignPropertyConversion(); // TODO: Remove, for compatibility 1.3b19-1.3b20
+    	return campaignProperties.getTokenTypeMap();
     }
     
     public Map<String, LookupTable> getLookupTableMap() {
-    	if (lookupTableMap == null) {
-    		lookupTableMap = new HashMap<String, LookupTable>();
-    	}
-    	return lookupTableMap;
+    	checkCampaignPropertyConversion(); // TODO: Remove, for compatibility 1.3b19-1.3b20
+    	return campaignProperties.getLookupTableMap();
     }
     
     public LightSource getLightSource(GUID lightSourceId) {
@@ -163,26 +161,8 @@ public class Campaign {
     }
 
     public Map<String, Map<GUID, LightSource>> getLightSourcesMap() {
-    	if (lightSourcesMap == null) {
-    		lightSourcesMap = new HashMap<String, Map<GUID, LightSource>>();
-
-    		try {
-    			Map<String, List<LightSource>> map = LightSource.getDefaultLightSources();
-    			for (String key : map.keySet()) {
-    				
-    	    		Map<GUID, LightSource> lightSourceMap = new LinkedHashMap<GUID, LightSource>();
-    	    		for (LightSource source : map.get(key)) {
-    	    			lightSourceMap.put(source.getId(), source);
-    	    		}
-    	    		lightSourcesMap.put(key, lightSourceMap);
-    			}
-    		} catch (IOException ioe) {
-    			ioe.printStackTrace(); 
-    		}
-    		
-    	}
-
-    	return lightSourcesMap;
+    	checkCampaignPropertyConversion(); // TODO: Remove, for compatibility 1.3b19-1.3b20
+    	return campaignProperties.getLightSourcesMap();
     }
     
     public Map<GUID, LightSource> getLightSourceMap(String type) {
