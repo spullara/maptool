@@ -59,6 +59,8 @@ import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.client.ui.chat.ChatProcessor;
+import net.rptools.maptool.client.ui.chat.ChatTranslationRuleGroup;
+import net.rptools.maptool.client.ui.chat.SmileyChatTranslationRuleGroup;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
@@ -76,8 +78,8 @@ public class CommandPanel extends JPanel implements Observer {
 	private TextColorWell textColorWell;
 	private JToggleButton scrollLockButton;
 	private AvatarPanel avatarPanel;
-	private JButton emotePopupButton;
 	private JPopupMenu emotePopup;
+	private JButton emotePopupButton;
 	private String typedCommandBuffer;
 	
 	private ChatProcessor chatProcessor;
@@ -100,39 +102,11 @@ public class CommandPanel extends JPanel implements Observer {
 	
 	private void initializeSmilies() {
 
-		emotePopup = new JPopupMenu();
+		SmileyChatTranslationRuleGroup smileyRuleGroup = new SmileyChatTranslationRuleGroup();
+		emotePopup = smileyRuleGroup.getEmotePopup();
 
-		// SMILIES
-		Properties smileyProps = new Properties();
-		try {
-			smileyProps.loadFromXML(ChatProcessor.class.getClassLoader().getResourceAsStream("net/rptools/maptool/client/ui/chat/smileyMap.xml"));
-		} catch (IOException ioe) {
-			System.err.println("Could not load smiley map: " + ioe);
-		}
-
-		// Wrap values with img tag
-		for (Enumeration e = smileyProps.propertyNames(); e.hasMoreElements();) {
-			String key = (String) e.nextElement();
-
-			// This is an incredibly bad hack to avoid writing an xml parser for the smiley map. I'm feeling lazy today.
-			StringTokenizer strtok = new StringTokenizer(smileyProps.getProperty(key), "|");
-			String value = strtok.nextToken();
-			String example = strtok.nextToken();
-			
-			String imgValue = "<img src='cp://" + value + "'>"; 
-			smileyProps.setProperty(key, imgValue);
-			
-			JMenuItem item = new JMenuItem(new InsertEmoteAction(value, example)) {
-				{
-					setPreferredSize(new Dimension(25, 16));
-				}
-			};
-			
-			emotePopup.add(item);
-		}
-		
 		chatProcessor = new ChatProcessor();
-		chatProcessor.install(smileyProps);
+		chatProcessor.install(smileyRuleGroup);
 		
 	}
 	
@@ -558,30 +532,6 @@ public class CommandPanel extends JPanel implements Observer {
 			int y = 2;
 			g.drawImage(cancelButton, x, y, this);
 			cancelBounds = new Rectangle(x, y, cancelButton.getWidth(), cancelButton.getHeight());
-		}
-	}
-	
-	////
-	// EMOTE 
-	private class InsertEmoteAction extends AbstractAction {
-
-		private String emoteImageSrc;
-		private String insert;
-		
-		public InsertEmoteAction(String emoteImageSrc, String insert) {
-			// This will force the image to be loaded into memory for use in the message panel
-			try {
-				putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage(emoteImageSrc)));
-				this.emoteImageSrc = emoteImageSrc;
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-			this.insert = insert;
-		}
-		
-		public void actionPerformed(ActionEvent e) {
-			getCommandTextArea().setText(getCommandTextArea().getText() + insert);
-			getCommandTextArea().requestFocusInWindow();
 		}
 	}
 	

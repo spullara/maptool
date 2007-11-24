@@ -2,7 +2,7 @@ package net.rptools.maptool.client.ui.chat;
 
 import java.util.regex.Pattern;
 
-public class RegularExpressionTranslationRule implements ChatTranslationRule {
+public class RegularExpressionTranslationRule extends AbstractChatTranslationRule {
 
 	private Pattern pattern;
 	private String replaceWith;

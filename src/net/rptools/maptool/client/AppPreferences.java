@@ -138,6 +138,17 @@ public class AppPreferences {
     private static final String KEY_SHOW_DIALOG_ON_NEW_TOKEN = "showDialogOnNewToken";
     private static final boolean DEFAULT_SHOW_DIALOG_ON_NEW_TOKEN = true;
     
+    private static final String KEY_INSERT_SMILIES = "insertSmilies";
+    private static final boolean DEFAULT_SHOW_SMILIES = true;
+
+    public static void setShowSmilies(boolean show) {
+    	prefs.putBoolean(KEY_INSERT_SMILIES, show);
+    }
+    
+    public static boolean getShowSmilies() {
+    	return prefs.getBoolean(KEY_INSERT_SMILIES, DEFAULT_SHOW_SMILIES);
+    }
+    
     public static void setShowDialogOnNewToken(boolean show) {
     	prefs.putBoolean(KEY_SHOW_DIALOG_ON_NEW_TOKEN, show);
     }

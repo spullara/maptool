@@ -749,7 +749,7 @@ public class MapTool {
 	private static void postInitialize() {
 		taskbarFlasher = new TaskBarFlasher(clientFrame);
 		
-		showWarning("WARNING!!! This is an experimental version.<p><p>** Of particular note:<ul><li> New Light implementation <li>Lots of token positioning and sizing bug fixes</ul><p>  Please test them, but don't rely on them yet as they may change over the next couple builds<p><p>Happy Mapping :)<p><p>-Trev");
+//		showWarning("WARNING!!! This is an experimental version.<p><p>** Of particular note:<ul><li> New Light implementation <li>Lots of token positioning and sizing bug fixes</ul><p>  Please test them, but don't rely on them yet as they may change over the next couple builds<p><p>Happy Mapping :)<p><p>-Trev");
 	}
 	
 	private static class ServerHeartBeatThread extends Thread {

@@ -50,6 +50,7 @@ public class PreferencesDialog extends JDialog {
     private JSpinner visionOverlayOpacitySpinner;
     private JCheckBox useHaloColorAsVisionOverlayCheckBox;
     private JCheckBox autoRevealVisionOnGMMoveCheckBox;
+    private JCheckBox showSmiliesCheckBox;
     private JCheckBox playSystemSoundCheckBox;
     private JCheckBox playSystemSoundOnlyWhenNotFocusedCheckBox;
 
@@ -108,6 +109,7 @@ public class PreferencesDialog extends JDialog {
 		visionOverlayOpacitySpinner = panel.getSpinner("visionOverlayOpacitySpinner");
 		useHaloColorAsVisionOverlayCheckBox = panel.getCheckBox("useHaloColorAsVisionOverlayCheckBox");
 		autoRevealVisionOnGMMoveCheckBox = panel.getCheckBox("autoRevealVisionOnGMMoveCheckBox");
+		showSmiliesCheckBox = panel.getCheckBox("showSmiliesCheckBox");
 		playSystemSoundCheckBox = panel.getCheckBox("playSystemSounds");
 		playSystemSoundOnlyWhenNotFocusedCheckBox = panel.getCheckBox("soundsOnlyWhenNotFocused");
 		showAvatarInChat = panel.getCheckBox("showChatAvatar");
@@ -251,6 +253,11 @@ public class PreferencesDialog extends JDialog {
                 AppPreferences.setAutoRevealVisionOnGMMovement(autoRevealVisionOnGMMoveCheckBox.isSelected());
             }
         });
+        showSmiliesCheckBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                AppPreferences.setShowSmilies(showSmiliesCheckBox.isSelected());
+            }
+        });
         playSystemSoundCheckBox.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		AppPreferences.setPlaySystemSounds(playSystemSoundCheckBox.isSelected());
@@ -367,6 +374,7 @@ public class PreferencesDialog extends JDialog {
 		visionOverlayOpacitySpinner.setValue(AppPreferences.getVisionOverlayOpacity());
 		useHaloColorAsVisionOverlayCheckBox.setSelected(AppPreferences.getUseHaloColorOnVisionOverlay());
 		autoRevealVisionOnGMMoveCheckBox.setSelected(AppPreferences.getAutoRevealVisionOnGMMovement());
+		showSmiliesCheckBox.setSelected(AppPreferences.getShowSmilies());
 		playSystemSoundCheckBox.setSelected(AppPreferences.getPlaySystemSounds());
 		playSystemSoundOnlyWhenNotFocusedCheckBox.setSelected(AppPreferences.getPlaySystemSoundsOnlyWhenNotFocused());
 		showAvatarInChat.setSelected(AppPreferences.getShowAvatarInChat());

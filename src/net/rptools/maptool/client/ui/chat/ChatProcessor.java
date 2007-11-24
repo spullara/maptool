@@ -1,40 +1,27 @@
 package net.rptools.maptool.client.ui.chat;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Properties;
 
 public class ChatProcessor {
 
-	private List<ChatTranslationRule> translationRuleList = new ArrayList<ChatTranslationRule>();
-	
-	public void addTranslationRule(ChatTranslationRule rule) {
-		translationRuleList.add(rule);
-	}
-	
-	public void removeTranslationRule(ChatTranslationRule rule) {
-		translationRuleList.remove(rule);
-	}
+	private List<ChatTranslationRuleGroup> translationRuleGroupList = new ArrayList<ChatTranslationRuleGroup>();
 	
 	public String process(String incoming) {
 		if (incoming == null) {
 			return null;
 		}
 		
-		for (ChatTranslationRule rule : translationRuleList) {
-			incoming = rule.translate(incoming);
+		for (ChatTranslationRuleGroup ruleGroup : translationRuleGroupList) {
+			if (!ruleGroup.isEnabled()) {
+				continue;
+			}
+			incoming = ruleGroup.translate(incoming);
 		}
 		return incoming;
 	}
 	
-	public void install(Properties translationMap) {
-
-		for (Enumeration e = translationMap.propertyNames(); e.hasMoreElements();) {
-			String key = (String) e.nextElement();
-			String value = translationMap.getProperty(key);
-			
-			addTranslationRule(new RegularExpressionTranslationRule(key, value));
-		}
+	public void install(ChatTranslationRuleGroup ruleGroup) {
+		translationRuleGroupList.add(ruleGroup);
 	}
 }
