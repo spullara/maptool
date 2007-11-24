@@ -26,9 +26,9 @@ package net.rptools.maptool.client.macro.impl;
 
 import java.awt.Color;
 
+import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
@@ -51,7 +51,11 @@ public class SayMacro extends AbstractMacro {
         if (!identity.equals(MapTool.getPlayer().getName()) && AppPreferences.getShowAvatarInChat()) {
         	Token token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokenByName(identity);
         	if (token != null) {
-	        	sb.append("<td valign=top width=15 style=\"padding-right:5px\"><img src=\"asset://").append(token.getImageAssetId()).append("\" width=\"20\" height=\"20\"></td>");
+        		MD5Key imageId = token.getPortraitImage();
+        		if (imageId == null) {
+        			imageId = token.getImageAssetId();
+        		}
+	        	sb.append("<td valign=top width=40 style=\"padding-right:5px\"><img src=\"asset://").append(imageId).append("\" width=\"40\" height=\"40\"></td>");
         	}
         }
         
