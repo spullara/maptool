@@ -62,7 +62,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new ClearFacingAction());
 		add(new StartMoveAction());
 		addOwnedItem(new ImpersonateAction());
-		addOwnedItem(createSizeMenu(true));
+		addOwnedItem(createSizeMenu());
 		addOwnedItem(createMacroMenu());
 		addOwnedItem(createSpeechMenu());
 		addOwnedItem(createStateMenu());

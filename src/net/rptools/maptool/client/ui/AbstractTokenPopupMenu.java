@@ -223,17 +223,15 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		return arrangeMenu;
 	}
 	
-	protected JMenu createSizeMenu(boolean supportsFreesize) {
+	protected JMenu createSizeMenu() {
 		
 		JMenu sizeMenu = new JMenu("Size");
 		
-		if (supportsFreesize) {
-			JCheckBoxMenuItem freeSize = new JCheckBoxMenuItem(new FreeSizeAction());
-			freeSize.setSelected(!tokenUnderMouse.isSnapToScale());
-	
-			sizeMenu.add(freeSize);
-			sizeMenu.addSeparator();
-		}
+		JCheckBoxMenuItem freeSize = new JCheckBoxMenuItem(new FreeSizeAction());
+		freeSize.setSelected(!tokenUnderMouse.isSnapToScale());
+
+		sizeMenu.add(freeSize);
+		sizeMenu.addSeparator();
 		
 		Grid grid = renderer.getZone().getGrid();
 		for (TokenFootprint footprint : grid.getFootprints()) {
@@ -373,7 +371,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 	public class FreeSizeAction extends AbstractAction {
 		
 		public FreeSizeAction() {
-			putValue(Action.NAME, "Free Size");
+			putValue(Action.NAME, tokenUnderMouse.isStamp() ? "Free Size" : "Natural Size");
 		}
 		
 		public void actionPerformed(ActionEvent e) {

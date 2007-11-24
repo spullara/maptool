@@ -23,7 +23,7 @@ public class StampPopupMenu extends AbstractTokenPopupMenu {
 		add(new ClearFacingAction());
 		add(new StartMoveAction());
 		add(createFlipMenu());
-		add(createSizeMenu(true));
+		add(createSizeMenu());
 		add(createArrangeMenu());
 		add(createChangeToMenu(Zone.Layer.TOKEN, Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
 
