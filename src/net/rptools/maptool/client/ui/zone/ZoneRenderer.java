@@ -608,7 +608,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         renderDrawableOverlay(g2d, objectDrawableRenderer, view, zone.getObjectDrawnElements());
         renderTokenTemplates(g2d, view);
         renderGrid(g2d, view);
-        renderCoordinates(g2d, view);
         if (view.isGMView()) {
         	renderTokens(g2d, zone.getGMStamps(), view);
             renderDrawableOverlay(g2d, gmDrawableRenderer, view, zone.getGMDrawnElements());
@@ -628,6 +627,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             ZoneOverlay overlay = overlayList.get(i);
             overlay.paintOverlay(this, g2d);
         }
+
+        renderCoordinates(g2d, view);
         
 //        if (lightSourceArea != null) {
 //	        g2d.setColor(Color.yellow);
