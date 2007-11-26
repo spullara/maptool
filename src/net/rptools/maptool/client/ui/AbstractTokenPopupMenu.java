@@ -371,7 +371,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 	public class FreeSizeAction extends AbstractAction {
 		
 		public FreeSizeAction() {
-			putValue(Action.NAME, tokenUnderMouse.isStamp() ? "Free Size" : "Natural Size");
+			putValue(Action.NAME, tokenUnderMouse.isStamp() ? "Free Size" : "Native Size");
 		}
 		
 		public void actionPerformed(ActionEvent e) {
