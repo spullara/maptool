@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JTextArea;
@@ -36,6 +38,7 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.TokenProperty;
+import net.rptools.maptool.util.PersistenceUtil;
 
 import com.jeta.forms.components.panel.FormPanel;
 
@@ -94,6 +97,8 @@ public class CampaignPropertiesDialog extends JDialog  {
 		initDeleteTableButton();
 		initUpdateTableButton();
 		initTableList();
+		initImportButton();
+		initExportButton();
 		
 		add(formPanel);
 		
@@ -441,12 +446,54 @@ public class CampaignPropertiesDialog extends JDialog  {
 		return (JButton) formPanel.getButton("cancelButton");
 	}
 	
+	public JButton getImportButton() {
+		return (JButton) formPanel.getButton("importButton");
+	}
+	
+	public JButton getExportButton() {
+		return (JButton) formPanel.getButton("exportButton");
+	}
+	
 	private void initCancelButton() {
 		
 		getCancelButton().addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				status = Status.CANCEL;
 				setVisible(false);
+			}
+		});
+	}
+	
+	private void initImportButton() {
+		
+		getImportButton().addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				
+				JFileChooser chooser = MapTool.getFrame().getLoadFileChooser();
+				if (chooser.showOpenDialog(MapTool.getFrame() != JFileChooser.APPROVE_OPTION) {
+					return;
+				}
+				
+				try {
+					CampaignProperties properties = PersistenceUtil.loadCampaignProperties(chooser.getSelectedFile());
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	private void initExportButton() {
+		
+		getExportButton().addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				
+				JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
+				if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
+					return;
+				}
+				
+				
 			}
 		});
 	}

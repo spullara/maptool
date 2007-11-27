@@ -33,6 +33,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -54,12 +55,14 @@ import net.rptools.maptool.client.ui.zone.ZoneView;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 
 import com.caucho.hessian.io.HessianInput;
 import com.caucho.hessian.io.HessianOutput;
+import com.thoughtworks.xstream.XStream;
 
 /**
  * @author trevor
@@ -294,6 +297,20 @@ public class PersistenceUtil {
 		}
 
 		return token;
+	}
+	
+	public static CampaignProperties loadCampaignProperties(File file) throws IOException {
+
+		if (!file.exists()) {
+			throw new FileNotFoundException();
+		}
+		
+		return (CampaignProperties) new XStream().fromXML(new FileInputStream(file));
+	}
+	
+	public static void saveCampaignProperties(Campaign campaign, File file) throws IOException {
+		
+		
 	}
 	
 	public static <T> T hessianClone(T object) throws IOException {
