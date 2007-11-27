@@ -36,6 +36,7 @@ import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.util.PersistenceUtil;
@@ -470,7 +471,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 			public void actionPerformed(ActionEvent e) {
 				
 				JFileChooser chooser = MapTool.getFrame().getLoadFileChooser();
-				if (chooser.showOpenDialog(MapTool.getFrame() != JFileChooser.APPROVE_OPTION) {
+				if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 					return;
 				}
 				
