@@ -1210,14 +1210,23 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
                 
                 // Draw token
+                Dimension imgSize = new Dimension(workImage.getWidth(), workImage.getHeight());
+                SwingUtil.constrainTo(imgSize, footprintBounds.width, footprintBounds.height);
+
+                int offsetx = (int)(imgSize.width < footprintBounds.width ? (footprintBounds.width - imgSize.width)/2 * getScale() : 0);
+                int offsety = (int)(imgSize.height < footprintBounds.height ? (footprintBounds.height - imgSize.height)/2 * getScale() : 0);
+                
+                int tx = x + offsetx;
+                int ty = y + offsety;
+                
                 AffineTransform at = new AffineTransform();
-                at.translate(x, y);
+                at.translate(tx, ty);
 
                 if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
-                	at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale, scaledHeight/2 - token.getAnchor().y*scale); // facing defaults to down, or -90 degrees
+                	at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale - offsetx, scaledHeight/2 - token.getAnchor().y*scale - offsety); // facing defaults to down, or -90 degrees
                 }
                 
-                at.scale((double) footprintBounds.width / workImage.getWidth (), (double) footprintBounds.height / workImage.getHeight());
+                at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
                 at.scale(getScale(), getScale());
                 g.drawImage(workImage, at, this);
    
@@ -1668,14 +1677,26 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
             
 
-            // Rotated
-            AffineTransform at = new AffineTransform();
-            at.translate(location.x, location.y);
-            if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
-            	at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale), location.scaledHeight/2 - (token.getAnchor().y*scale)); // facing defaults to down, or -90 degrees
-            }
+            // Position
+            Dimension imgSize = new Dimension(workImage.getWidth(), workImage.getHeight());
+            SwingUtil.constrainTo(imgSize, footprintBounds.width, footprintBounds.height);
 
-            at.scale((double) footprintBounds.width / workImage.getWidth(), (double) footprintBounds.height / workImage.getHeight());
+            int offsetx = (int)(imgSize.width < footprintBounds.width ? (footprintBounds.width - imgSize.width)/2 * getScale() : 0);
+            int offsety = (int)(imgSize.height < footprintBounds.height ? (footprintBounds.height - imgSize.height)/2 * getScale() : 0);
+
+            int tx = location.x + offsetx;
+            int ty = location.y + offsety;
+            
+            AffineTransform at = new AffineTransform();
+            at.translate(tx, ty);
+
+            // Rotated
+            if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
+            	at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale) - offsetx, location.scaledHeight/2 - (token.getAnchor().y*scale) - offsety); // facing defaults to down, or -90 degrees
+            }
+            
+            // Draw the token
+            at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
             at.scale(getScale(), getScale());
             g.drawImage(workImage, at, this);
 
@@ -1802,19 +1823,24 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             boolean isSelected = selectedTokenSet.contains(token.getId());
             if (isSelected) {
+                Rectangle footprintBounds = token.getBounds(zone);
+                ScreenPoint sp = ScreenPoint.fromZonePoint(this, footprintBounds.x, footprintBounds.y);
+                double width = footprintBounds.width * getScale();
+                double height = footprintBounds.height * getScale();
+
                 ImageBorder selectedBorder = token.isStamp() ? AppStyle.selectedStampBorder : AppStyle.selectedBorder;
                 // Border
                 if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp ())) {
                     AffineTransform oldTransform = g.getTransform();
 
                     // Rotated
-                    g.translate(origBounds.getBounds().x, origBounds.getBounds().y);
-                     g.rotate(Math.toRadians(-token.getFacing() - 90), origBounds.getBounds().width/2 - (token.getAnchor().x*scale), origBounds.getBounds().height/2 - (token.getAnchor().y*scale)); // facing defaults to down, or -90 degrees
-                    selectedBorder.paintAround(g, 0, 0, origBounds.getBounds ().width, origBounds.getBounds().height);
+                    g.translate(sp.x, sp.y);
+                    g.rotate(Math.toRadians(-token.getFacing() - 90), width/2 - (token.getAnchor().x*scale), height/2 - (token.getAnchor().y*scale)); // facing defaults to down, or -90 degrees
+                    selectedBorder.paintAround(g, 0, 0, (int)width, (int)height);
 
                     g.setTransform(oldTransform);
                 } else {
-                    selectedBorder.paintAround(g, origBounds.getBounds());
+                    selectedBorder.paintAround(g, (int)sp.x, (int)sp.y, (int)width, (int)height);
                 }
             }
 
