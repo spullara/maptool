@@ -33,10 +33,37 @@ public class CampaignProperties {
     		tokenTypeMap.put(entry.getKey(), typeList);
     	}
 
+    	remoteRepositoryList = new ArrayList<String>(properties.remoteRepositoryList);
+    	
 		lookupTableMap = new HashMap<String, LookupTable>(properties.lookupTableMap);
 
 		// TODO: This doesn't feel right, should we deep copy, or does this do that automatically ?
 		lightSourcesMap = new HashMap<String, Map<GUID, LightSource>>(properties.lightSourcesMap);
+    }
+    
+    public void mergeInto(CampaignProperties properties) {
+    	
+    	if (tokenTypeMap != null) {
+    		// This will replace any dups
+    		properties.tokenTypeMap.putAll(tokenTypeMap);
+    	}
+    	
+    	if (remoteRepositoryList != null) {
+    		// Need to cull out dups
+    		for (String repo : properties.remoteRepositoryList) {
+    			if (!remoteRepositoryList.contains(repo)) {
+    				properties.remoteRepositoryList.add(repo);
+    			}
+    		}
+    	}
+    	
+    	if (lightSourcesMap != null) {
+    		properties.lightSourcesMap.putAll(lightSourcesMap);
+    	}
+    	
+    	if (lookupTableMap != null) {
+    		properties.lookupTableMap.putAll(lookupTableMap);
+    	}
     }
     
     public Map<String, List<TokenProperty>> getTokenTypeMap() {
@@ -48,6 +75,10 @@ public class CampaignProperties {
     	tokenTypeMap = map;
     }
     
+    public List<TokenProperty> getTokenPropertyList(String tokenType) {
+    	return getTokenTypeMap().get(tokenType);
+    }
+
     public List<String> getRemoteRepositoryList() {
     	return remoteRepositoryList;
     }

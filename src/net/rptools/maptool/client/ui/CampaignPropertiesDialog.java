@@ -73,13 +73,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 	@Override
 	public void setVisible(boolean b) {
 		if (b) {
-			updateTableList();
 			SwingUtil.centerOver(this, MapTool.getFrame());
-		} else {
-			if (status == Status.OK) {
-
-				// TODO: Push info to the server
-			}
 		}
 		
 		super.setVisible(b);
@@ -318,19 +312,20 @@ public class CampaignPropertiesDialog extends JDialog  {
 	public void setCampaign(Campaign campaign) {
 		this.campaign = campaign;
 		
-		copyCampaignToUI();
+		copyCampaignToUI(campaign.getCampaignProperties());
 	}
 	
-	private void copyCampaignToUI() {
+	private void copyCampaignToUI(CampaignProperties properties) {
 		
-		parseTokenProperties(campaign.getTokenPropertyList(Campaign.DEFAULT_TOKEN_PROPERTY_TYPE));
-		updateRepositoryList();
+		parseTokenProperties(properties.getTokenPropertyList(Campaign.DEFAULT_TOKEN_PROPERTY_TYPE));
+		updateRepositoryList(properties);
+		updateTableList();
 	}
 	
-	private void updateRepositoryList() {
+	private void updateRepositoryList(CampaignProperties properties) {
 
 		DefaultListModel model = new DefaultListModel();
-		for (String repo : campaign.getRemoteRepositoryList()) {
+		for (String repo : properties.getRemoteRepositoryList()) {
 			model.addElement(repo);
 		}
 		getRepositoryList().setModel(model);
@@ -474,12 +469,25 @@ public class CampaignPropertiesDialog extends JDialog  {
 				if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 					return;
 				}
-				
-				try {
-					CampaignProperties properties = PersistenceUtil.loadCampaignProperties(chooser.getSelectedFile());
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
+
+				final File selectedFile = chooser.getSelectedFile();
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {
+							CampaignProperties properties = PersistenceUtil.loadCampaignProperties(selectedFile);
+							
+							// TODO: Allow specifying whether it is a replace or merge
+							MapTool.getCampaign().mergeCampaignProperties(properties);
+							
+							
+							copyCampaignToUI(properties);
+							
+						} catch (IOException ioe) {
+							ioe.printStackTrace();
+							MapTool.showError("Could not load properties: " + ioe);
+						}
+					}
+				});
 			}
 		});
 	}
@@ -489,12 +497,31 @@ public class CampaignPropertiesDialog extends JDialog  {
 		getExportButton().addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				
+				// TODO: Remove this hack.  Specifically, make the export use a properties object
+				// composed of the current dialog entries instead of directly from the campaign
+				copyUIToCampaign();
+				// END HACK
+				
 				JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
 				if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 					return;
 				}
 				
+				File selectedFile = chooser.getSelectedFile();
+				if (selectedFile.exists()) {
+					if (!MapTool.confirm("Overwrite existing file?")) {
+						return;
+					}
+				}
 				
+				try {
+					PersistenceUtil.saveCampaignProperties(campaign, chooser.getSelectedFile());
+					
+					MapTool.showInformation("Properties Saved.");
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+					MapTool.showError("Could not save properties: " + ioe);
+				}
 			}
 		});
 	}

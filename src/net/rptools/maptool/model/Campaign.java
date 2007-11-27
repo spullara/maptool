@@ -234,5 +234,20 @@ public class Campaign {
     	
     	return false;
     }
-	
+
+    public void mergeCampaignProperties(CampaignProperties properties) {
+    	properties.mergeInto(campaignProperties);
+    }
+    
+    public void replaceCampaignProperties(CampaignProperties properties) {
+    	campaignProperties = new CampaignProperties(properties);
+    }
+    
+    /**
+     * Get a copy of the properties.  This is for persistence.  Modification of the properties
+     * do not affect this campaign
+     */
+    public CampaignProperties getCampaignProperties() {
+    	return new CampaignProperties(campaignProperties);
+    }
 }

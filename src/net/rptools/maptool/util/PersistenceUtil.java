@@ -34,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -163,7 +164,6 @@ public class PersistenceUtil {
 			
 			// Sanity check
 			String version = (String)pakfile.getProperty(PROP_VERSION);
-			System.out.println("Version: " + version);
 			
 			PersistedCampaign persistedCampaign = (PersistedCampaign) pakfile.getContent();
 
@@ -310,7 +310,14 @@ public class PersistenceUtil {
 	
 	public static void saveCampaignProperties(Campaign campaign, File file) throws IOException {
 		
+		// Put this in FileUtil
+		if (file.getName().indexOf(".") < 0) {
+			file = new File(file.getAbsolutePath()
+					+ ".mtprops");
+		}
+
 		
+		new XStream().toXML(campaign.getCampaignProperties(), new FileOutputStream(file));
 	}
 	
 	public static <T> T hessianClone(T object) throws IOException {

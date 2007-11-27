@@ -27,7 +27,6 @@ package net.rptools.maptool.client;
 import java.awt.EventQueue;
 import java.awt.geom.Area;
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
@@ -36,14 +35,13 @@ import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
-import net.rptools.maptool.model.CellPoint;
+import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -422,13 +420,9 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 	
                 	break;
                 case updateCampaign:
-                	String typeName = (String)parameters[0];
-                	List<TokenProperty> propertyList = (List<TokenProperty>) parameters[1];
-                	List<String> repositoryList = (List<String>) parameters[2];
+                	CampaignProperties properties = (CampaignProperties) parameters[0];
                 	
-                	MapTool.getCampaign().putTokenType(typeName, propertyList);
-                	MapTool.getCampaign().getRemoteRepositoryList().clear();
-                	MapTool.getCampaign().getRemoteRepositoryList().addAll(repositoryList);
+                	MapTool.getCampaign().replaceCampaignProperties(properties);
                 	
                 	AssetManager.updateRepositoryList();
                 	

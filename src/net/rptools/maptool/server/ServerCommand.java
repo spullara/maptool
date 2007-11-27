@@ -32,6 +32,7 @@ import java.util.Set;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.LookupTable;
@@ -126,5 +127,5 @@ public interface ServerCommand {
     public void setServerPolicy(ServerPolicy policy);
     public void renameZone(GUID zoneGUID, String name);
     public void heartbeat(String data);
-    public void updateCampaign(String typeName, List<TokenProperty> propertyList, List<String> repositoryList, Map<String, LookupTable> lookupTableMap);
+    public void updateCampaign(CampaignProperties properties);
 }
