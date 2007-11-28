@@ -102,6 +102,11 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 	        	oval = createRect(zp, zp);
 	        } else {
 	        	oval = createRect(originPoint, zp);
+	    		oval.x -= oval.width;
+	    		oval.y -= oval.height;
+	    		
+	    		oval.width *= 2;
+	    		oval.height *= 2;
 	            
 	            completeDrawable(renderer.getZone().getId(), getPen(), new ShapeDrawable(new Ellipse2D.Float(oval.x, oval.y, oval.width, oval.height), true));
 	            oval = null;
@@ -128,9 +133,14 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
     	
     	if (oval != null) {
 
-    		ZonePoint p = getPoint(e);
+    		ZonePoint sp = getPoint(e);
     		
-    		oval = createRect(originPoint, p);
+    		oval = createRect(originPoint, sp);
+    		oval.x -= oval.width;
+    		oval.y -= oval.height;
+    		
+    		oval.width *= 2;
+    		oval.height *= 2;
 	        
 	        renderer.repaint();
     	}
