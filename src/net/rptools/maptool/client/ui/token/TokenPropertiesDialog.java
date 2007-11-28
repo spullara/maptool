@@ -90,14 +90,6 @@ import com.jidesoft.swing.Selectable;
  */
 public class TokenPropertiesDialog extends AbeillePanel {
 
-	private static final int INDX_NOTES = 0;
-	private static final int INDX_PROPERTIES = 1;
-	private static final int INDX_STATE = 2;
-	private static final int INDX_MACROS = 3;
-	private static final int INDX_SPEECH = 4;
-	private static final int INDX_OWNERSHIP = 5;
-	private static final int INDX_CONFIG = 6;
-
 	private Token token;
 	private boolean tokenSaved;
 	

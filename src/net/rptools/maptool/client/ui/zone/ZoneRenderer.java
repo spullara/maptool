@@ -799,7 +799,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         visibleArea = null;
         if (isUsingVision) {
 	        for (Token token : zone.getAllTokens()) {
-	
+
 	            if (token.hasSight ()) {
 	                
 	                // Don't bother if it's not visible
@@ -813,14 +813,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                		continue;
 	                	}
 	                } else {
-	                	if (token.getType() != Token.Type.PC) {
+	                	if (token.getType() != Token.Type.PC && !view.isGMView()) {
 	                		continue;
 	                	}
 	                }
 	                
 	                Area tokenVision = getTokenVision(token);	                
 	                if (tokenVision != null) {
-	                    if (visibleArea == null) {
+
+	                	if (visibleArea == null) {
 	                        visibleArea = new Area();
 	                    }
 	                    visibleArea.add(tokenVision);
@@ -1694,7 +1695,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
             	at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale) - offsetx, location.scaledHeight/2 - (token.getAnchor().y*scale) - offsety); // facing defaults to down, or -90 degrees
             }
-            
+
             // Draw the token
             at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
             at.scale(getScale(), getScale());

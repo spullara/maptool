@@ -107,20 +107,17 @@ public class TokenLayoutPanel extends JPanel {
 		Dimension size = getSize();
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 
-		if (!zone.getGrid().getCapabilities().isSnapToGridSupported()) {
-			g.setColor(Color.black);
-			g.fillRect(0, 0, size.width, size.height);
-			g.setColor(Color.white);
-			g.drawString("Not supported", 30, 65);
-			return;
-		}
+//		if (!zone.getGrid().getCapabilities().isSnapToGridSupported()) {
+//			g.setColor(Color.black);
+//			g.fillRect(0, 0, size.width, size.height);
+//			g.setColor(Color.white);
+//			g.drawString("Not supported", 30, 65);
+//			return;
+//		}
 		
 		// Gather info
 		
 		Paint backgroundPaint = zone.getBackgroundPaint().getPaint();
-
-		Color gridColor = new Color(zone.getGridColor());
-		Area gridShape = zone.getGrid().getCellShape();
 
 		BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
 
@@ -137,14 +134,18 @@ public class TokenLayoutPanel extends JPanel {
 		g2d.fillRect(0, 0, size.width, size.height);
 		
 		// Grid
-		int offsetX = (size.width - gridShape.getBounds().width)/2;
-		int offsetY = (size.height - gridShape.getBounds().height)/2;
-		g2d.setColor(gridColor);
+		if (zone.getGrid().getCapabilities().isSnapToGridSupported()) {
+			Color gridColor = new Color(zone.getGridColor());
+			Area gridShape = zone.getGrid().getCellShape();
+			int offsetX = (size.width - gridShape.getBounds().width)/2;
+			int offsetY = (size.height - gridShape.getBounds().height)/2;
+			g2d.setColor(gridColor);
+			
+			g2d.translate(offsetX, offsetY);
+			g2d.draw(gridShape);
+			g2d.translate(-offsetX, -offsetY);
+		}
 		
-		g2d.translate(offsetX, offsetY);
-		g2d.draw(gridShape);
-		g2d.translate(-offsetX, -offsetY);
-
 		// Token
 		g2d.drawImage(image, centerPoint.x - imgSize.width/2 + token.getAnchor().x, centerPoint.y - imgSize.height/2 + token.getAnchor().y, imgSize.width, imgSize.height, this);
 		
