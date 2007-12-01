@@ -242,21 +242,15 @@ public class FogUtil {
 		Grid grid = zone.getGrid();
 		int x=0, y=0;
 		
-		if (token.isSnapToScale()) {
-
-			Rectangle bounds = null;
-			if (token.isSnapToGrid()) {
-				bounds = token.getFootprint(grid).getBounds(grid, grid.convert(new ZonePoint(token.getX(), token.getY())));
-			} else {
-				bounds = token.getBounds(zone);
-			}
-
-			x = bounds.x + bounds.width/2;
-			y = bounds.y + bounds.height/2;
+		Rectangle bounds = null;
+		if (token.isSnapToGrid()) {
+			bounds = token.getFootprint(grid).getBounds(grid, grid.convert(new ZonePoint(token.getX(), token.getY())));
 		} else {
-			x = token.getX();
-			y = token.getY();
+			bounds = token.getBounds(zone);
 		}
+
+		x = bounds.x + bounds.width/2;
+		y = bounds.y + bounds.height/2;
 		
 		return new Point(x, y);
 	}
