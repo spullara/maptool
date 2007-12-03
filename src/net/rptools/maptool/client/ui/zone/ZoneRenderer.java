@@ -1017,7 +1017,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //	        buffG.setColor(Color.black);
 //	        buffG.draw(fogArea);
 
-	        GraphicsUtil.renderSoftClipping(buffG, fogArea, (int)(40 * getScale()), .6);
+	        GraphicsUtil.renderSoftClipping(buffG, fogArea, (int)(zone.getGrid().getSize() * getScale()*.5), .6);
 	        
 	        buffG.dispose();
 	        flushFog = false;
