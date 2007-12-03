@@ -341,7 +341,7 @@ public class GraphicsUtil {
         g2.setComposite(AlphaComposite.Src);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         float alpha = (float)initialAlpha / width;
-        for (int i = 0; i < width; i++) {
+        for (int i = 1; i < width; i+=2) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, alpha * i));
             g2.setStroke(new BasicStroke(width - i));
             g2.draw(shape);
