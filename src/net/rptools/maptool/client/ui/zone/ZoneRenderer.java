@@ -27,6 +27,7 @@ package net.rptools.maptool.client.ui.zone;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -274,7 +275,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             		flushFog = true;
             	}
             	if (Scale.PROPERTY_OFFSET.equals(evt.getPropertyName())) {
-            		flushFog = true;
+//            		flushFog = true;
             	}
             	
                 repaint();
@@ -753,6 +754,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         currentTokenVisionArea = null;
         
+        long startTime = System.currentTimeMillis();
         
         // Calculate lights
         lightSourceArea = null;
@@ -836,6 +838,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	            }
 	        }
         }
+        
+//        System.out.println("Vision calc: " + (System.currentTimeMillis() - startTime));
     }
     
     public Area getTokenVision(Token token) {
@@ -927,6 +931,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         }
     }
 
+    Integer fogX = null;
+    Integer fogY = null;
     private void renderFog(Graphics2D g, ZoneView view) {
 
         if (!zone.hasFog()) {
@@ -937,18 +943,63 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         }
         
         Dimension size = getSize();
-        if (flushFog || fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
 
-	        if (fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
-        		fogBuffer = new BufferedImage(size.width, size.height, view.isGMView() ? Transparency.TRANSLUCENT : Transparency.BITMASK);
-        	} else {
-            	ImageUtil.clearImage(fogBuffer);
+        // Optimization for panning
+        Area fogClip = null;
+        if (!flushFog && fogX != null && fogY != null && (fogX != getViewOffsetX() || fogY != getViewOffsetY())) {
+        	if (Math.abs(fogX - getViewOffsetX()) < size.width && Math.abs(fogY - getViewOffsetY()) < size.height) {
+        		int deltaX = getViewOffsetX() - fogX;
+        		int deltaY = getViewOffsetY() - fogY;
+        		
+            	Graphics2D buffG = fogBuffer.createGraphics();
+            	
+            	buffG.setComposite(AlphaComposite.Src);
+            	buffG.copyArea(0, 0, size.width, size.height, deltaX, deltaY);
+            	
+            	buffG.dispose();
+            	
+            	fogClip = new Area();
+            	if (deltaX < 0) {
+            		fogClip.add(new Area(new Rectangle(size.width+deltaX, 0, -deltaX, size.height)));
+            	} else if (deltaX > 0){
+            		fogClip.add(new Area(new Rectangle(0, 0, deltaX, size.height)));
+            	}
+            	
+            	if (deltaY < 0) {
+            		fogClip.add(new Area(new Rectangle(0, size.height + deltaY, size.width, -deltaY)));
+            	} else if (deltaY > 0) {
+            		fogClip.add(new Area(new Rectangle(0, 0, size.width, deltaY)));
+            	}
+        		
         	}
+        	flushFog = true;
+        }
+        if (flushFog || fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
+            fogX = getViewOffsetX();
+            fogY = getViewOffsetY();
+
+            boolean newImage = false;
+	        if (fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
+	        	newImage = true;
+        		fogBuffer = new BufferedImage(size.width, size.height, view.isGMView() ? Transparency.TRANSLUCENT : Transparency.BITMASK);
+        	} 
         	
         	Graphics2D buffG = fogBuffer.createGraphics();
+        	if (fogClip != null) {
+        		buffG.setClip(fogClip);
+        	}
+        	
+        	if (!newImage){
+    			Composite oldComposite = buffG.getComposite();
+    			buffG.setComposite(AlphaComposite.Clear);
 
+    			buffG.fillRect(0, 0, size.width, size.height);
+            	
+    			buffG.setComposite(oldComposite);
+        	}
+        	
         	//Update back buffer overlay size
-	        Area screenArea = new Area(new Rectangle(0, 0, size.width-1, size.height-1));
+	        Area screenArea = new Area(new Rectangle(0, 0, size.width, size.height));
 	        Area fogArea = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance (getScale(), getScale()));
 	        fogArea = fogArea.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(), zoneScale.getOffsetY()));
 	        screenArea.subtract(fogArea);
@@ -961,10 +1012,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        buffG.fill(screenArea);
 
 	        // Outline
-        	buffG.setComposite(AlphaComposite.Src);
-	        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	        buffG.setColor(Color.black);
-	        buffG.draw(fogArea);
+//        	buffG.setComposite(AlphaComposite.Src);
+//	        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//	        buffG.setColor(Color.black);
+//	        buffG.draw(fogArea);
+
+	        GraphicsUtil.renderSoftClipping(buffG, fogArea, (int)(40 * getScale()), .6);
 	        
 	        buffG.dispose();
 	        flushFog = false;

@@ -25,6 +25,7 @@
 package net.rptools.maptool.util;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Font;
@@ -32,6 +33,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
@@ -330,5 +333,21 @@ public class GraphicsUtil {
         return new Area(path);
     }
     
-    
+    public static void renderSoftClipping(Graphics2D g2, Shape shape, int width, double initialAlpha) {
+    	Object oldAA = g2.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+    	Composite oldComp = g2.getComposite();
+    	Shape oldClip = g2.getClip();
+    	g2.setClip(shape);
+        g2.setComposite(AlphaComposite.Src);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        float alpha = (float)initialAlpha / width;
+        for (int i = 0; i < width; i++) {
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, alpha * i));
+            g2.setStroke(new BasicStroke(width - i));
+            g2.draw(shape);
+        }
+        g2.setComposite(oldComp);
+        g2.setClip(oldClip);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA);
+    }    
 }
