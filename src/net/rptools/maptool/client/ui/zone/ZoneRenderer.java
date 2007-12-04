@@ -130,8 +130,6 @@ import net.rptools.maptool.util.TokenUtil;
 public class ZoneRenderer extends JComponent implements DropTargetListener, Comparable {
     private static final long serialVersionUID = 3832897780066104884L;
 
-    private static BufferedImage GRID_IMAGE;
-    
     public static final int MIN_GRID_SIZE = 5;
     
     protected Zone zone;
@@ -196,14 +194,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     private AreaData topologyAreaData;
 
-    static {
-        try {
-            GRID_IMAGE = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/grid.png");
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-    }
-    
     public ZoneRenderer(Zone zone) {
         if (zone == null) { throw new IllegalArgumentException("Zone cannot be null"); }
 
@@ -682,14 +672,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         if (isUsingVision) {
             if (visibleArea != null) {
-	            if (AppPreferences.getUseTranslucentFog()) {
-	                g.setColor(new Color(0, 0, 0, 80));
-	            } else {
-	            	int x = 0;
-	            	int y = 0;
-	                Paint paint = new TexturePaint(GRID_IMAGE, new Rectangle2D.Float (x, y, GRID_IMAGE.getWidth(), GRID_IMAGE.getHeight()));
-	                g.setPaint(paint);
-	            }
+                g.setColor(new Color(0, 0, 0, 80));
 
     	        if (zone.hasFog ()) {
 
@@ -709,6 +692,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     Shape oldClip = g.getClip();
                     g.setClip(clip);
                     g.fill(visitedArea);
+                    if (AppPreferences.getUseSoftFogEdges()) {
+                    	g.setClip(visitedArea);
+            	        GraphicsUtil.renderSoftClipping(g, visibleArea, (int)(zone.getGrid().getSize() * getScale()*.25), .30);
+                    }
                     g.setClip(oldClip);
                     
                 } else {
@@ -985,9 +972,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         	} 
         	
         	Graphics2D buffG = fogBuffer.createGraphics();
-        	if (fogClip != null) {
-        		buffG.setClip(fogClip);
-        	}
+    		buffG.setClip(fogClip != null ? fogClip : new Rectangle(0, 0, size.width-1, size.height-1));
         	
         	if (!newImage){
     			Composite oldComposite = buffG.getComposite();
@@ -1011,13 +996,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        }
 	        buffG.fill(screenArea);
 
-	        // Outline
-//        	buffG.setComposite(AlphaComposite.Src);
-//	        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//	        buffG.setColor(Color.black);
-//	        buffG.draw(fogArea);
+	        if (AppPreferences.getUseSoftFogEdges() && !isUsingVision) {
+	        	
+		        GraphicsUtil.renderSoftClipping(buffG, fogArea, (int)(zone.getGrid().getSize() * getScale()*.25), view.isGMView() ? .6 : 1, AlphaComposite.SRC);
+	        } else {
+		        // Outline
+	        	buffG.setComposite(AlphaComposite.Src);
+		        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		        buffG.setColor(Color.black);
+		        buffG.draw(fogArea);
+	        }
 
-	        GraphicsUtil.renderSoftClipping(buffG, fogArea, (int)(zone.getGrid().getSize() * getScale()*.5), .6);
 	        
 	        buffG.dispose();
 	        flushFog = false;

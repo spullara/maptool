@@ -103,8 +103,6 @@ import net.rptools.maptool.util.StringUtil;
  */
 public class PointerTool extends DefaultTool implements ZoneOverlay {
 	
-	private Paint nonAlphaSelectionPaint;
-	
 	private boolean isShowingTokenStackPopup;
     private boolean isShowingPointer; 
     private boolean isDraggingToken;
@@ -153,10 +151,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         try {
             setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/tool/pointer-blue.png")));
 
-            // Selection color using psuedo translucency
-			BufferedImage grid = SwingUtil.replaceColor(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/grid.png"), 0x202020, 0x0000ff);
-            nonAlphaSelectionPaint = new TexturePaint(grid, new Rectangle2D.Float(0, 0, grid.getWidth(), grid.getHeight()));
-            
             pcMetaStatSheet = new MetaStatSheet("net/rptools/maptool/client/ui/statsheet/lightgray/statsheet.properties");
             npcMetaStatSheet = new MetaStatSheet("net/rptools/maptool/client/ui/statsheet/blue/statsheet.properties");
         } catch (IOException ioe) {
@@ -1182,8 +1176,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			g.setStroke(new BasicStroke(2));
 			
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .25f));
-			// TODO: Use it's own preference, or genericize this one
-			g.setPaint(AppPreferences.getUseTranslucentFog() ? AppStyle.selectionBoxFill : nonAlphaSelectionPaint);
+			g.setPaint(AppStyle.selectionBoxFill);
 			g.fillRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height,10, 10);
 			g.setComposite(composite);
 			

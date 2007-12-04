@@ -72,8 +72,8 @@ public class AppPreferences {
     private static final String KEY_AUTO_REVEAL_VISION_ON_GM_MOVEMENT = "autoRevealVisionOnGMMove";
     private static final boolean DEFAULT_AUTO_REVEAL_VISION_ON_GM_MOVEMENT = false;
     
-    private static final String KEY_USE_TRANSLUCENT_FOG = "useTranslucentFog";
-    private static final boolean DEFAULT_USE_TRANSLUCENT_FOG = true;
+    private static final String KEY_USE_SOFT_FOG_EDGES = "useSoftFog";
+    private static final boolean DEFAULT_USE_SOFT_FOG_EDGES = true;
     
     private static final String KEY_NEW_MAPS_HAVE_FOW = "newMapsHaveFow";
     private static final boolean DEFAULT_NEW_MAPS_HAVE_FOW = false;
@@ -293,12 +293,12 @@ public class AppPreferences {
     	return prefs.getInt(KEY_DEFAULT_UNITS_PER_CELL, DEFAULT_DEFAULT_UNITES_PER_CELL);
     }
     
-    public static void setUseTranslucentFog(boolean flag) {
-    	prefs.putBoolean(KEY_USE_TRANSLUCENT_FOG, flag);
+    public static void setUseSoftFogEdges(boolean flag) {
+    	prefs.putBoolean(KEY_USE_SOFT_FOG_EDGES, flag);
     }
     
-    public static boolean getUseTranslucentFog() {
-    	return prefs.getBoolean(KEY_USE_TRANSLUCENT_FOG, DEFAULT_USE_TRANSLUCENT_FOG);
+    public static boolean getUseSoftFogEdges() {
+    	return prefs.getBoolean(KEY_USE_SOFT_FOG_EDGES, DEFAULT_USE_SOFT_FOG_EDGES);
     }
     
     public static void setNewMapsHaveFOW(boolean flag) {

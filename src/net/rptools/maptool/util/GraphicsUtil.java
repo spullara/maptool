@@ -332,22 +332,38 @@ public class GraphicsUtil {
         path.closePath();
         return new Area(path);
     }
-    
-    public static void renderSoftClipping(Graphics2D g2, Shape shape, int width, double initialAlpha) {
-    	Object oldAA = g2.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-    	Composite oldComp = g2.getComposite();
-    	Shape oldClip = g2.getClip();
-    	g2.setClip(shape);
-        g2.setComposite(AlphaComposite.Src);
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+
+    /**
+     * This version mixes the alpha with the existing image, to do a faster style for backbuffer overlays, use the
+     * other signature and supply AlphaComposite.SRC as the composite rule
+     * @param g
+     * @param shape
+     * @param width
+     * @param initialAlpha
+     */
+    public static void renderSoftClipping(Graphics2D g, Shape shape, int width, double initialAlpha) {
+    	renderSoftClipping(g, shape, width, initialAlpha, AlphaComposite.SRC_OVER);
+    }
+    public static void renderSoftClipping(Graphics2D g, Shape shape, int width, double initialAlpha, int compositeRule) {
+
+    	// Our method actually uses double the width, let's update internally
+    	width *= 2;
+    	
+    	// Make a copy so that we don't have to revert our changes
+    	Graphics2D g2 = (Graphics2D)g.create();
+
+    	Area newClip = new Area(g.getClip()); 
+    	newClip.intersect(new Area(shape));
+    	
+    	g2.setClip(newClip);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF); // Faster without antialiasing, and looks just as good
         float alpha = (float)initialAlpha / width;
         for (int i = 1; i < width; i+=2) {
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, alpha * i));
+            g2.setComposite(AlphaComposite.getInstance(compositeRule, alpha * i));
             g2.setStroke(new BasicStroke(width - i));
             g2.draw(shape);
         }
-        g2.setComposite(oldComp);
-        g2.setClip(oldClip);
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA);
+        
+        g2.dispose();
     }    
 }

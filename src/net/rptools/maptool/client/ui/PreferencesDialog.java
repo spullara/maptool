@@ -30,7 +30,7 @@ import com.jeta.forms.components.panel.FormPanel;
 public class PreferencesDialog extends JDialog {
 
 	// Performance
-	private JCheckBox useTranslucentFogCheckBox;
+    private JCheckBox useSoftFogEdgesCheckBox;
 
 	// Interactions
 	private JCheckBox newMapsHaveFOWCheckBox;
@@ -91,7 +91,7 @@ public class PreferencesDialog extends JDialog {
 		autoSaveSpinner = panel.getSpinner("autoSaveSpinner");
 		duplicateTokenCombo = panel.getComboBox("duplicateTokenCombo");
 		tokenNamingCombo = panel.getComboBox("tokenNamingCombo");
-		useTranslucentFogCheckBox = panel.getCheckBox("useTranslucentFogCheckBox");
+		useSoftFogEdgesCheckBox = panel.getCheckBox("useSoftFogEdgesCheckBox");
 		newMapsHaveFOWCheckBox = panel.getCheckBox("newMapsHaveFOWCheckBox");
 		tokensStartSnapToGridCheckBox = panel.getCheckBox("tokensStartSnapToGridCheckBox");
 		newMapsVisibleCheckBox = panel.getCheckBox("newMapsVisibleCheckBox");
@@ -140,9 +140,9 @@ public class PreferencesDialog extends JDialog {
 				MapTool.getAutoSaveManager().restart();
 			}
 		});
-		useTranslucentFogCheckBox.addActionListener(new ActionListener() {
+		useSoftFogEdgesCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				AppPreferences.setUseTranslucentFog(useTranslucentFogCheckBox.isSelected());
+				AppPreferences.setUseSoftFogEdges(useSoftFogEdgesCheckBox.isSelected());
 				
 				MapTool.getFrame().refresh();
 			}
@@ -357,7 +357,7 @@ public class PreferencesDialog extends JDialog {
 		showDialogOnNewToken.setSelected(AppPreferences.getShowDialogOnNewToken());
 		saveReminderCheckBox.setSelected(AppPreferences.getSaveReminder());
 		autoSaveSpinner.setValue(AppPreferences.getAutoSaveIncrement());
-		useTranslucentFogCheckBox.setSelected(AppPreferences.getUseTranslucentFog());
+		useSoftFogEdgesCheckBox.setSelected(AppPreferences.getUseSoftFogEdges());
 		newMapsHaveFOWCheckBox.setSelected(AppPreferences.getNewMapsHaveFOW());
 		tokensStartSnapToGridCheckBox.setSelected(AppPreferences.getTokensStartSnapToGrid());
 		newMapsVisibleCheckBox.setSelected(AppPreferences.getNewMapsVisible());

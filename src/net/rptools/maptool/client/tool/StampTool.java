@@ -92,8 +92,6 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 	private static BufferedImage resizeImage;
 	
-	private Paint nonAlphaSelectionPaint;
-	
 	private boolean isShowingTokenStackPopup;
     private boolean isDraggingToken;
     private boolean isNewTokenSelected;
@@ -141,10 +139,6 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		
         try {
             setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/tool/stamper.png")));
-
-            // Selection color using psuedo translucency
-			BufferedImage grid = SwingUtil.replaceColor(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/grid.png"), 0x202020, 0x0000ff);
-            nonAlphaSelectionPaint = new TexturePaint(grid, new Rectangle2D.Float(0, 0, grid.getWidth(), grid.getHeight()));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -1070,8 +1064,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			
 			Composite composite = g.getComposite();
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .25f));
-			// TODO: Use it's own preference, or genericize this one
-			g.setPaint(AppPreferences.getUseTranslucentFog() ? AppStyle.selectionBoxFill : nonAlphaSelectionPaint);
+			g.setPaint(AppStyle.selectionBoxFill);
 			g.fillRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height,10, 10);
 			g.setComposite(composite);
 			
