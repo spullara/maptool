@@ -333,18 +333,7 @@ public class GraphicsUtil {
         return new Area(path);
     }
 
-    /**
-     * This version mixes the alpha with the existing image, to do a faster style for backbuffer overlays, use the
-     * other signature and supply AlphaComposite.SRC as the composite rule
-     * @param g
-     * @param shape
-     * @param width
-     * @param initialAlpha
-     */
     public static void renderSoftClipping(Graphics2D g, Shape shape, int width, double initialAlpha) {
-    	renderSoftClipping(g, shape, width, initialAlpha, AlphaComposite.SRC_OVER);
-    }
-    public static void renderSoftClipping(Graphics2D g, Shape shape, int width, double initialAlpha, int compositeRule) {
 
     	// Our method actually uses double the width, let's update internally
     	width *= 2;
@@ -354,13 +343,19 @@ public class GraphicsUtil {
 
     	Area newClip = new Area(g.getClip()); 
     	newClip.intersect(new Area(shape));
-    	
+
     	g2.setClip(newClip);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF); // Faster without antialiasing, and looks just as good
-        float alpha = (float)initialAlpha / width;
+
+        float alpha = (float)initialAlpha / width / 4;
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
         for (int i = 1; i < width; i+=2) {
-            g2.setComposite(AlphaComposite.getInstance(compositeRule, alpha * i));
-            g2.setStroke(new BasicStroke(width - i));
+//        	if (alpha * i < .2) {
+//        		// Too faded to see anyway, don't waste cycles on it
+//        		continue;
+//        	}
+
+            g2.setStroke(new BasicStroke(i));
             g2.draw(shape);
         }
         

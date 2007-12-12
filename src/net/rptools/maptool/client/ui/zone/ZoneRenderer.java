@@ -667,62 +667,18 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     
     private void renderVision(Graphics2D g, ZoneView view) {
 
-        Object oldAntiAlias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING );
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        
-        if (isUsingVision) {
-            if (visibleArea != null) {
-                g.setColor(new Color(0, 0, 0, 80));
-
-    	        if (zone.hasFog ()) {
-
-                    visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-                    visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
-                    
-                    // NOTE: There was a simpler way to do this by simply subtracting the visible area from the exposed area
-                    // but that caused the subtract to go into an infinite loop deeeeep in the geometry code, on only some
-                    // machines, quite randomly.  So the code was changed to avoid that subtraction and we end up with this:
-                    
-                    Area clip = new Area(new Rectangle(0, 0, getSize().width-1, getSize().height-1));
-                    clip.subtract(visibleArea);
-                    Area visitedArea = new Area(zone.getExposedArea());
-                    visitedArea.transform(AffineTransform.getScaleInstance (getScale(), getScale()));
-                    visitedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-
-                    Shape oldClip = g.getClip();
-                    g.setClip(clip);
-                    g.fill(visitedArea);
-                    if (AppPreferences.getUseSoftFogEdges()) {
-                    	g.setClip(visitedArea);
-            	        GraphicsUtil.renderSoftClipping(g, visibleArea, (int)(zone.getGrid().getSize() * getScale()*.25), .30);
-                    }
-                    g.setClip(oldClip);
-                    
-                } else {
-                    visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-                    visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
-                    g.setColor(new Color(255, 255, 255, 40));
-                    g.fill(visibleArea);
-                }
-            } else {
-            	if (zone.hasFog()) {
-	                Area exposedArea = new Area( zone.getExposedArea());
-	                exposedArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-	                exposedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-
-	                g.setColor(new Color(0, 0, 0, view.isGMView() ? 80 : 255));
-	                g.fill(exposedArea);
-            	}
-            }
-        }
-        
-         if (currentTokenVisionArea != null && !view.isGMView()) {
-            // Draw the outline under the fog
-            g.setColor(new Color(200, 200, 200));
-            g.draw(currentTokenVisionArea);
-        }
-        
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING , oldAntiAlias);
+//        Object oldAntiAlias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING );
+//        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//        
+//
+//        
+//         if (currentTokenVisionArea != null && !view.isGMView()) {
+//            // Draw the outline under the fog
+//            g.setColor(new Color(200, 200, 200));
+//            g.draw(currentTokenVisionArea);
+//        }
+//        
+//        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING , oldAntiAlias);
     }
     
     public AreaData getTopologyAreaData() {
@@ -972,7 +928,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         	} 
         	
         	Graphics2D buffG = fogBuffer.createGraphics();
-    		buffG.setClip(fogClip != null ? fogClip : new Rectangle(0, 0, size.width-1, size.height-1));
+    		buffG.setClip(fogClip != null ? fogClip : new Rectangle(0, 0, size.width, size.height));
+    		SwingUtil.useAntiAliasing(buffG);
         	
         	if (!newImage){
     			Composite oldComposite = buffG.getComposite();
@@ -984,27 +941,66 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         	}
         	
         	//Update back buffer overlay size
-	        Area screenArea = new Area(new Rectangle(0, 0, size.width, size.height));
-	        Area fogArea = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance (getScale(), getScale()));
-	        fogArea = fogArea.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(), zoneScale.getOffsetY()));
-	        screenArea.subtract(fogArea);
+	        Area exposedArea = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance (getScale(), getScale()));
+	        exposedArea = exposedArea.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(), zoneScale.getOffsetY()));
 
 	        // Fill
 	        buffG.setPaint(zone.getFogPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale()));
-	        if ( view.isGMView()) {
-	        	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .6f));
-	        }
-	        buffG.fill(screenArea);
+        	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : .1f));
+	        buffG.fillRect(0, 0, size.width, size.height);
+	        
+	        // Cut out the exposed area
+        	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
+        	buffG.fill(exposedArea);
 
-	        if (AppPreferences.getUseSoftFogEdges() && !isUsingVision) {
-	        	
-		        GraphicsUtil.renderSoftClipping(buffG, fogArea, (int)(zone.getGrid().getSize() * getScale()*.25), view.isGMView() ? .6 : 1, AlphaComposite.SRC);
+	        // Soft fog
+	        if (isUsingVision) {
+            	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
+	            if (visibleArea != null) {
+	            	buffG.setColor(new Color(0, 0, 0, 80));
+
+	    	        if (zone.hasFog ()) {
+
+	                    visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+	                    visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
+	                    
+	                    // Fill in the exposed area (TODO: perhaps combine this with the clearing of the same area above)
+	                    buffG.fill(exposedArea);
+
+	                    buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
+	                    Area clip = new Area(buffG.getClip());
+	                    clip.intersect(exposedArea);
+	                    Shape oldClip = buffG.getClip();
+	                    buffG.setClip(clip);
+	                    buffG.fill(visibleArea);
+	                    buffG.setClip(oldClip);
+	                } else {
+//	                    visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+//	                    visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
+//	                    buffG.setColor(new Color(255, 255, 255, 40));
+//	                    buffG.fill(visibleArea);
+	                }
+	            } else {
+//	            	if (zone.hasFog()) {
+//		                Area exposedArea = new Area( zone.getExposedArea());
+//		                exposedArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+//		                exposedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
+//
+//		                buffG.setColor(new Color(0, 0, 0, view.isGMView() ? 80 : 255));
+//		                buffG.fill(exposedArea);
+//	            	}
+	            }
+	        }
+	        
+	        // Outline
+	        if (AppPreferences.getUseSoftFogEdges()) {
+		        GraphicsUtil.renderSoftClipping(buffG, exposedArea, (int)(zone.getGrid().getSize() * getScale()*.25), view.isGMView() ? .6 : 1);
 	        } else {
-		        // Outline
+
 	        	buffG.setComposite(AlphaComposite.Src);
 		        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		        buffG.setColor(Color.black);
-		        buffG.draw(fogArea);
+		        buffG.draw(exposedArea);
 	        }
 
 	        
