@@ -347,7 +347,8 @@ public class GraphicsUtil {
     	g2.setClip(newClip);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF); // Faster without antialiasing, and looks just as good
 
-        float alpha = (float)initialAlpha / width / 4;
+//        float alpha = (float)initialAlpha / width / 6;
+        float alpha = .04f;
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
         for (int i = 1; i < width; i+=2) {
 //        	if (alpha * i < .2) {

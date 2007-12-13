@@ -993,7 +993,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        }
 	        
 	        // Outline
-	        if (AppPreferences.getUseSoftFogEdges()) {
+	        if (false && AppPreferences.getUseSoftFogEdges()) {
 		        GraphicsUtil.renderSoftClipping(buffG, exposedArea, (int)(zone.getGrid().getSize() * getScale()*.25), view.isGMView() ? .6 : 1);
 	        } else {
 
