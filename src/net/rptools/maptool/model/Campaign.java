@@ -70,6 +70,11 @@ public class Campaign {
     }
 
     private void checkCampaignPropertyConversion() {
+    	
+    	if (campaignProperties == null) {
+    		campaignProperties = new CampaignProperties();
+    	}
+    	
     	if (tokenTypeMap != null) {
     		campaignProperties.setTokenTypeMap(tokenTypeMap);
     		tokenTypeMap = null;
