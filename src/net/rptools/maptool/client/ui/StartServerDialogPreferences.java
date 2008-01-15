@@ -21,6 +21,7 @@ public class StartServerDialogPreferences {
     private static final String KEY_RPTOOLS_PRIVATE = "rptoolsPrivate";
     private static final String KEY_PLAYERS_CAN_REVEAL_VISION = "playersCanRevealVisionCheckbox";
     private static final String KEY_USE_INDIVIDUAL_VIEWS = "useIndividualViews";
+    private static final String KEY_USE_UPNP = "useUPnP";
     
     public Player.Role getRole () {
     	return Player.Role.valueOf(prefs.get(KEY_ROLE, Player.Role.GM.name()));
@@ -108,5 +109,13 @@ public class StartServerDialogPreferences {
     
     public boolean getUseIndividualViews() {
     	return prefs.getBoolean(KEY_USE_INDIVIDUAL_VIEWS, false);
+    }
+    
+    public void setUseUPnP(boolean op) {
+    	prefs.putBoolean(KEY_USE_UPNP, op);
+    }
+    
+    public boolean getUseUPnP() {
+    	return prefs.getBoolean(KEY_USE_UPNP, false);
     }
 }

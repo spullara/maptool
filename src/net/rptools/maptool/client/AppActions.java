@@ -25,7 +25,6 @@
 package net.rptools.maptool.client;
 
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Transparency;
@@ -97,10 +96,10 @@ import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.PersistenceUtil;
+import net.rptools.maptool.util.UPnPUtil;
 import net.rptools.maptool.util.PersistenceUtil.PersistedCampaign;
 
 import com.jidesoft.docking.DockableFrame;
-
 /**
  */
 public class AppActions {
@@ -1238,6 +1237,11 @@ public class AppActions {
 					// Use the existing campaign
 					Campaign campaign = MapTool.getCampaign();
 
+					// Use UPnP to open port in router
+					if (serverProps.getUseUPnP()) {
+						UPnPUtil.openPort(serverProps.getPort());
+					}
+					
 					boolean failed = false;
 					try {
 						ServerDisconnectHandler.disconnectExpected = true;
@@ -1372,6 +1376,16 @@ public class AppActions {
 		ServerDisconnectHandler.disconnectExpected = true;
 		MapTool.stopServer();
 		MapTool.disconnect();
+
+		/*
+		 * Close UPnP port mapping if used
+		 */
+		StartServerDialogPreferences serverProps = new StartServerDialogPreferences();
+		if (serverProps.getUseUPnP()) {
+			
+			int port = serverProps.getPort();		
+			UPnPUtil.closePort(port);
+		}
 
 		try {
 			MapTool.startPersonalServer(campaign);

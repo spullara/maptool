@@ -27,22 +27,19 @@ package net.rptools.maptool.client.ui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
-import java.text.FieldPosition;
-import java.text.NumberFormat;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
-
-import yasb.Binder;
 
 import net.rptools.lib.service.EchoServer;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolRegistry;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
-import net.rptools.maptool.model.Player;
+import net.rptools.maptool.util.UPnPUtil;
+import yasb.Binder;
 /**
  * @author trevor
  */
@@ -98,6 +95,10 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 		return (JButton) getComponent("testConnectionButton");
 	}
 
+	public JCheckBox getUseUPnPCheckbox() {
+		return (JCheckBox) getComponent("@useUPnP");
+	}
+	
 	@Override
 	protected void preModelBind() {
 		Binder.setFormat(getPortTextField(), new DecimalFormat("####"));
@@ -161,10 +162,16 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 							server = new EchoServer(port);
 							server.start();
 							
+							if (getUseUPnPCheckbox().isSelected()) {
+								UPnPUtil.openPort(port);
+							}
 							if (MapToolRegistry.testConnection(port)) {
 								MapTool.showInformation("Success! I could successfully connect to your computer from the internet.");
 							} else {
 								MapTool.showError("Could not see your computer from the internet.<br><br>It could be a port forwarding issue, see http://portforward.com for instructions on how to set up port forwarding");
+							}
+							if (getUseUPnPCheckbox().isSelected()) {
+								UPnPUtil.closePort(port);
 							}
 						} catch (NumberFormatException nfe) {
 							MapTool.showError("Port must be a number");
@@ -183,5 +190,5 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 				}).start();
 			}
 		});
-	}
+	}	
 }
