@@ -82,10 +82,12 @@ public class AreaMeta {
 		
 		double angle = 0;
 		
-
 		PointNode currNode = pointNodeList.next;
+
 		while (currNode != pointNodeList) {
-			angle += GeometryUtil.getAngleDelta(GeometryUtil.getAngle(currNode.previous.point, currNode.point), GeometryUtil.getAngle(currNode.point, currNode.next.point));
+			double currAngle = GeometryUtil.getAngleDelta(GeometryUtil.getAngle(currNode.previous.point, currNode.point), GeometryUtil.getAngle(currNode.point, currNode.next.point)); 
+
+			angle += currAngle;
 			currNode = currNode.next;
 		}
 		
@@ -93,7 +95,16 @@ public class AreaMeta {
 	}
 	
 	public void addPoint(float x, float y) {
+
 		PointNode pointNode = new PointNode(new Point2D.Double(x, y));
+		
+
+		// Don't add if we haven't moved
+		if (lastPointNode != null) {
+			if (lastPointNode.point.equals(pointNode.point)) {
+				return;
+			}
+		}
 		
 		if (path == null) {
 			path = new GeneralPath();
