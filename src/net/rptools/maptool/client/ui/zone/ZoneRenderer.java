@@ -2519,6 +2519,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             if (evt == Zone.Event.TOPOLOGY_CHANGED) {
                 tokenVisionCache.clear();
                 topologyAreaData = null;
+                flushFog = true; 
             }
             if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
             	flush((Token)event.getArg());
