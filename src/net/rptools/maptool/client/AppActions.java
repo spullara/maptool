@@ -1377,16 +1377,6 @@ public class AppActions {
 		MapTool.stopServer();
 		MapTool.disconnect();
 
-		/*
-		 * Close UPnP port mapping if used
-		 */
-		StartServerDialogPreferences serverProps = new StartServerDialogPreferences();
-		if (serverProps.getUseUPnP()) {
-			
-			int port = serverProps.getPort();		
-			UPnPUtil.closePort(port);
-		}
-
 		try {
 			MapTool.startPersonalServer(campaign);
 		} catch (IOException ioe) {

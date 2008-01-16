@@ -57,6 +57,7 @@ import net.rptools.lib.sound.SoundManager;
 import net.rptools.maptool.client.swing.SplashScreen;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.MapToolFrame;
+import net.rptools.maptool.client.ui.StartServerDialogPreferences;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
 import net.rptools.maptool.client.ui.zone.ZoneView;
@@ -74,6 +75,7 @@ import net.rptools.maptool.server.ServerCommand;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.transfer.AssetTransferManager;
+import net.rptools.maptool.util.UPnPUtil;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.EvaluationException;
@@ -647,7 +649,15 @@ public class MapTool {
 
     public static void disconnect() {
 
-    	boolean isPersonalServer = server != null && server.getConfig().isPersonalServer();
+		// Close UPnP port mapping if used
+		StartServerDialogPreferences serverProps = new StartServerDialogPreferences();
+		if (serverProps.getUseUPnP()) {
+			
+			int port = serverProps.getPort();		
+			UPnPUtil.closePort(port);
+		}
+
+		boolean isPersonalServer = server != null && server.getConfig().isPersonalServer();
     	
     	if (announcer != null) {
     		announcer.stop();
