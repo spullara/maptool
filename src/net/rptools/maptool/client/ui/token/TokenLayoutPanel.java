@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.TexturePaint;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -18,6 +19,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
@@ -107,18 +109,7 @@ public class TokenLayoutPanel extends JPanel {
 		Dimension size = getSize();
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 
-//		if (!zone.getGrid().getCapabilities().isSnapToGridSupported()) {
-//			g.setColor(Color.black);
-//			g.fillRect(0, 0, size.width, size.height);
-//			g.setColor(Color.white);
-//			g.drawString("Not supported", 30, 65);
-//			return;
-//		}
-		
 		// Gather info
-		
-		Paint backgroundPaint = zone.getBackgroundPaint().getPaint();
-
 		BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
 
 		Rectangle tokenSize = token.getBounds(zone);
@@ -130,16 +121,16 @@ public class TokenLayoutPanel extends JPanel {
 		Graphics2D g2d = (Graphics2D) g;
 	
 		// Background
-		g2d.setPaint(backgroundPaint);
+		((Graphics2D)g).setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
 		g2d.fillRect(0, 0, size.width, size.height);
+		AppStyle.shadowBorder.paintWithin((Graphics2D)g, 0, 0, size.width, size.height);
 		
 		// Grid
 		if (zone.getGrid().getCapabilities().isSnapToGridSupported()) {
-			Color gridColor = new Color(zone.getGridColor());
 			Area gridShape = zone.getGrid().getCellShape();
 			int offsetX = (size.width - gridShape.getBounds().width)/2;
 			int offsetY = (size.height - gridShape.getBounds().height)/2;
-			g2d.setColor(gridColor);
+			g2d.setColor(Color.black);
 			
 			g2d.translate(offsetX, offsetY);
 			g2d.draw(gridShape);
