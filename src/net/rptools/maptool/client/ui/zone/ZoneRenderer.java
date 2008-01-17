@@ -781,6 +781,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	            }
 	        }
         }
+        if (visibleArea != null) {
+            visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+            visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
+        }
         
 //        System.out.println("Vision calc: " + (System.currentTimeMillis() - startTime));
     }
@@ -961,9 +965,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 	    	        if (zone.hasFog ()) {
 
-	                    visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-	                    visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
-	                    
 	                    // Fill in the exposed area (TODO: perhaps combine this with the clearing of the same area above)
 	                    buffG.fill(exposedArea);
 
@@ -975,8 +976,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                    buffG.fill(visibleArea);
 	                    buffG.setClip(oldClip);
 	                } else {
-	                    visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-	                    visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
+
 	                    buffG.setColor(new Color(255, 255, 255, 40));
 	                    buffG.fill(visibleArea);
 	                }
