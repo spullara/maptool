@@ -946,7 +946,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 	        // Fill
 	        buffG.setPaint(zone.getFogPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale()));
-        	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : .1f));
+        	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f));
 	        buffG.fillRect(0, 0, size.width, size.height);
 	        
 	        // Cut out the exposed area
@@ -975,20 +975,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                    buffG.fill(visibleArea);
 	                    buffG.setClip(oldClip);
 	                } else {
-//	                    visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-//	                    visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
-//	                    buffG.setColor(new Color(255, 255, 255, 40));
-//	                    buffG.fill(visibleArea);
+	                    visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
+	                    visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
+	                    buffG.setColor(new Color(255, 255, 255, 40));
+	                    buffG.fill(visibleArea);
 	                }
 	            } else {
-//	            	if (zone.hasFog()) {
-//		                Area exposedArea = new Area( zone.getExposedArea());
-//		                exposedArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-//		                exposedArea.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-//
-//		                buffG.setColor(new Color(0, 0, 0, view.isGMView() ? 80 : 255));
-//		                buffG.fill(exposedArea);
-//	            	}
+	            	if (zone.hasFog()) {
+
+		                buffG.setColor(new Color(0, 0, 0, 80));
+		                buffG.fill(exposedArea);
+	            	}
 	            }
 	        }
 	        
