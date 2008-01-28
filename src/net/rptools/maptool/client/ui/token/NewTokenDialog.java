@@ -36,10 +36,12 @@ import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
@@ -142,6 +144,10 @@ public class NewTokenDialog extends AbeillePanel<Token> {
 		return (JButton) getComponent("cancelButton");
 	}
 	
+	public JCheckBox getShowDialogCheckbox() {
+		return (JCheckBox) getComponent("showDialogCheckbox");
+	}
+	
 //	public void initNameTextField() {
 //		getNameTextField().setText(token.getName());
 //	}
@@ -168,6 +174,10 @@ public class NewTokenDialog extends AbeillePanel<Token> {
 		getOKButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				success = true;
+				if (!getShowDialogCheckbox().isSelected()) {
+					AppPreferences.setShowDialogOnNewToken(false);
+				}
+				
 				if (commit()) {
 					dialog.closeDialog();
 				}
