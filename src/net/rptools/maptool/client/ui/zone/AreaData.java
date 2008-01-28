@@ -91,6 +91,7 @@ public class AreaData {
 		List<Area> areaQueue = new LinkedList<Area>();
 		List<Point> splitPoints = new LinkedList<Point>();
 		areaQueue.add(area);
+		
 		while (areaQueue.size() > 0) {
 			Area area = areaQueue.remove(0);
 			
@@ -139,21 +140,6 @@ public class AreaData {
 						part2.intersect(new Area(new Rectangle(point.x, bounds.y, (bounds.x + bounds.width) - point.x, bounds.height)));
 						areaQueue.add(part2);
 						
-					} else if (GeometryUtil.countAreaPoints(areaMeta.area) > POINT_COUNT_THRESHOLD) {
-
-						Rectangle bounds = areaMeta.area.getBounds();
-						
-						int w = bounds.width > bounds.height ? bounds.width/2 : bounds.width;
-						int h = bounds.width > bounds.height ? bounds.height : bounds.height/2;
-						
-						Area part1 = new Area(areaMeta.area);
-						part1.intersect(new Area(new Rectangle(bounds.x, bounds.y, w, h)));
-						areaQueue.add(part1);
-						
-						Area part2 = new Area(areaMeta.area);
-						part2.intersect(new Area(new Rectangle((bounds.x+bounds.width)-w, (bounds.y+bounds.height)-h, w, h)));
-						areaQueue.add(part2);
-
 					} else {
 						metaList.add(areaMeta);
 					}
@@ -176,6 +162,24 @@ public class AreaData {
 				
 			}
 		}
+		
+		// Optimization, if any area is larger than the threshold, split it and go through the resolution
+		// cycle again
+//		if (GeometryUtil.countAreaPoints(areaMeta.area) > POINT_COUNT_THRESHOLD) {
+//
+//			Rectangle bounds = areaMeta.area.getBounds();
+//			
+//			int w = bounds.width > bounds.height ? bounds.width/2 : bounds.width;
+//			int h = bounds.width > bounds.height ? bounds.height : bounds.height/2;
+//			
+//			Area part1 = new Area(areaMeta.area);
+//			part1.intersect(new Area(new Rectangle(bounds.x, bounds.y, w, h)));
+//			areaQueue.add(part1);
+//			
+//			Area part2 = new Area(areaMeta.area);
+//			part2.intersect(new Area(new Rectangle((bounds.x+bounds.width)-w, (bounds.y+bounds.height)-h, w, h)));
+//			areaQueue.add(part2);
+//		}		
 		
 		// No longer needed
 //		System.out.println("Size: " + metaList.size());
