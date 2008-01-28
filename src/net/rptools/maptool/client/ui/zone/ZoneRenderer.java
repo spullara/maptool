@@ -605,14 +605,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         }
         renderTokens(g2d, zone.getStampTokens(), view);
         renderDrawableOverlay(g2d, tokenDrawableRenderer, view, zone.getDrawnElements());
-        renderVision(g2d, view);
+        renderPlayerVisionOverlay(g2d, view);
         renderTokens(g2d, zone.getTokens(), view);
         renderMoveSelectionSets(g2d, view);
         renderLabels(g2d, view);
         
         renderFog(g2d, view);
 
-        renderVisionOverlay(g2d, view);
+        renderGMVisionOverlay(g2d, view);
         
         for (int i = 0; i < overlayList.size(); i++) {
             ZoneOverlay overlay = overlayList.get(i);
@@ -643,9 +643,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	return visibleArea;
     }
     
+    private void renderPlayerVisionOverlay(Graphics2D g, ZoneView view) {
+    	if (!view.isGMView()) {
+    		renderVisionOverlay(g, view);
+    	}
+    }
+    private void renderGMVisionOverlay(Graphics2D g, ZoneView view) {
+    	if (view.isGMView()) {
+    		renderVisionOverlay(g, view);
+    	}
+    }
     private void renderVisionOverlay(Graphics2D g, ZoneView view) {
 
-        if (currentTokenVisionArea == null || !view.isGMView()) {
+        if (currentTokenVisionArea == null) {
             return;
         }
         
@@ -665,7 +675,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA); 
     }
     
-    private void renderVision(Graphics2D g, ZoneView view) {
+    private void renderPlayerVision(Graphics2D g, ZoneView view) {
 
 //        Object oldAntiAlias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING );
 //        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
