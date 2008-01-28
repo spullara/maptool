@@ -2196,7 +2196,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
             token = zone.getToken(tokenGUID);
 
-            if (token.isSnapToGrid()) {
+            if (token.isSnapToGrid() && zone.getGrid().getCapabilities().isSnapToGridSupported()) {
                 if (ZoneRenderer.this.zone.getGrid().getCapabilities().isPathingSupported()) {
                     
                     CellPoint tokenPoint = zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
