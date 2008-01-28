@@ -446,7 +446,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         Zone zone = server.getCampaign().getZone(zoneGUID);
         zone.addTopology(area);
 
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.addTopology.name(), RPCContext.getCurrent().parameters);
+        forwardToClients();
     }
 
     public void removeTopology(GUID zoneGUID, Area area) {
@@ -454,7 +454,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         Zone zone = server.getCampaign().getZone(zoneGUID);
         zone.removeTopology(area);
 
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.removeTopology.name(), RPCContext.getCurrent().parameters);
+        forwardToClients();
     }
     
     ////
