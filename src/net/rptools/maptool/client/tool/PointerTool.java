@@ -1044,28 +1044,33 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	
 	private void handleKeyMove(int dx, int dy) {
 
+		Token keyToken = null;
 		if (!isDraggingToken) {
 			
 			// Start
 			Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
-			if (selectedTokenSet.size() != 1) {
-				// only allow one at a time
-				return;
-			}
-			
-			Token token = renderer.getZone().getToken(selectedTokenSet.iterator().next());
-			if (token == null) {
-				return;
-			}
 
-			// Only one person at a time
-			if (renderer.isTokenMoving(token)) {
-				return;
+			for (GUID tokenId : selectedTokenSet) {
+				
+				Token token = renderer.getZone().getToken(tokenId);
+				if (token == null) {
+					return;
+				}
+
+				// Need a key token to orient the move from, just arbitraily pick the first one
+				if (keyToken == null) {
+					keyToken = token;
+				}
+				
+				// Only one person at a time
+				if (renderer.isTokenMoving(token)) {
+					return;
+				}
 			}
 			
-			dragStartX = token.getX();
-			dragStartY = token.getY();
-			startTokenDrag(token);
+			dragStartX = keyToken.getX();
+			dragStartY = keyToken.getY();
+			startTokenDrag(keyToken);
 		}
 		if (!isMovingWithKeys) {
 			dragOffsetX = 0;
