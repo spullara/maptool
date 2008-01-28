@@ -791,6 +791,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     
     public Area getTokenVision(Token token) {
         Area tokenVision = tokenVisionCache.get(token);
+
         if (tokenVision == null) {
             
             Point p = FogUtil.calculateVisionCenter(token, zone);
@@ -2516,6 +2517,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             if (evt == Zone.Event.TOPOLOGY_CHANGED) {
                 tokenVisionCache.clear();
                 topologyAreaData = null;
+                lightSourceArea = null;
+                lightSourceCache.clear();
                 flushFog = true; 
             }
             if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
