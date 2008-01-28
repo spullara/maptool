@@ -1903,6 +1903,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 Color foreground = token.isVisible() ? token.getType() == Token.Type.NPC ? Color.white : Color.black : Color.white;
                 int offset = 10 + (isSelected ? 3 : 0);
                 GraphicsUtil.drawBoxedString(g, name, bounds.getBounds().x + bounds.getBounds ().width/2, bounds.getBounds().y + bounds.getBounds().height + offset, SwingUtilities.CENTER, background, foreground);
+                
+                if (token.getLabel() != null && token.getLabel().trim().length() > 0) {
+	                offset += 16 + (isSelected ? 3 : 0);
+	                GraphicsUtil.drawBoxedString(g, token.getLabel(), bounds.getBounds().x + bounds.getBounds ().width/2, bounds.getBounds().y + bounds.getBounds().height + offset, SwingUtilities.CENTER, background, foreground);
+                }
             }
         }
         

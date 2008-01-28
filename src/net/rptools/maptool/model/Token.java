@@ -163,6 +163,8 @@ public class Token extends BaseModel {
 	
 	private List<AttachedLightSource> lightSourceList;
 	
+	private String label;
+	
   /**
    * The notes that are displayed for this token.
    */
@@ -223,6 +225,7 @@ public class Token extends BaseModel {
 	    notes = token.notes;
 	    gmName = token.gmName;
 	    gmNotes = token.gmNotes;
+	    label = token.label;
 
 	    isFlippedX = token.isFlippedX;
 	    isFlippedY = token.isFlippedY;
@@ -330,6 +333,14 @@ public class Token extends BaseModel {
 		return haloColorValue != null;
 	}
 	
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
 	public void setHaloColor(Color color) {
 		if (color != null) {
 			haloColorValue = color.getRGB();
