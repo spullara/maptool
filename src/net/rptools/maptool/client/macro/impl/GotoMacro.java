@@ -41,7 +41,7 @@ import net.rptools.maptool.model.ZonePoint;
 	description = "Goto location or token. /goto X,Y or /goto <tokenname>"
 )
 public class GotoMacro implements Macro {
-	private static Pattern COORD_PAT = Pattern.compile("(\\d+)\\s*,\\s*(\\d+)");
+	private static Pattern COORD_PAT = Pattern.compile("(-?\\d+)\\s*,\\s*(-?\\d+)");
 
     public void execute(String parameter) {
     	Matcher m = COORD_PAT.matcher(parameter.trim());
