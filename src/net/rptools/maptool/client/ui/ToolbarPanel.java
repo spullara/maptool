@@ -88,6 +88,7 @@ public class ToolbarPanel extends JToolBar {
 		// Non visible tools
 		toolbox.createTool(GridTool.class);
 		toolbox.createTool(FacingTool.class);
+		toolbox.createTool(StampTool.class);
 	
 		addPropertyChangeListener("orientation", new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
@@ -120,7 +121,6 @@ public class ToolbarPanel extends JToolBar {
 	private OptionPanel createPointerPanel() {
 		OptionPanel panel = new OptionPanel();
 		panel.add(PointerTool.class);
-		panel.add(StampTool.class);
 		panel.add(MeasureTool.class);
 
 		return panel;

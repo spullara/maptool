@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Zone;
 
 import com.jeta.forms.components.panel.FormPanel;
@@ -32,7 +33,7 @@ public class LayerSelectionDialog extends JPanel {
 		add(panel);
 	}
 
-	public void updateViewSelection() {
+	public void fireViewSelectionChange() {
 		
 		int index = list.getSelectedIndex();
 		if (index >= 0 && listener != null) {
@@ -40,6 +41,10 @@ public class LayerSelectionDialog extends JPanel {
 		}
 	}
 
+	public void updateViewList() {
+		getLayerList().setSelectedValue(MapTool.getFrame().getCurrentZoneRenderer().getActiveLayer(), true);
+	}
+	
 	private JList getLayerList() {
 		
 		if (list == null) {
@@ -58,7 +63,7 @@ public class LayerSelectionDialog extends JPanel {
 						return;
 					}
 					
-					updateViewSelection();
+					fireViewSelectionChange();
 				}
 			});
 			list.setSelectedIndex(0);

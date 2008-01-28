@@ -73,6 +73,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.swing.HTMLPanelRenderer;
+import net.rptools.maptool.client.tool.LayerSelectionDialog.LayerSelectionListener;
 import net.rptools.maptool.client.ui.StampPopupMenu;
 import net.rptools.maptool.client.ui.TokenLocation;
 import net.rptools.maptool.client.ui.TokenPopupMenu;
@@ -95,6 +96,7 @@ import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.Zone.Layer;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
@@ -137,6 +139,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	private MetaStatSheet pcMetaStatSheet;
 	private MetaStatSheet npcMetaStatSheet;
 
+	private LayerSelectionDialog layerSelectionDialog;
+
 	static {
 		try {
 //			ccgSheet = new CCGSheet(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/ccg_basic.jpg"), new Rectangle(30, 30, 140, 77), new Rectangle(18, 145, 167, 118));
@@ -162,6 +166,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
         htmlRenderer.setOpaque(false);
         htmlRenderer.addStyleSheetRule("body{color:black}");
         htmlRenderer.addStyleSheetRule(".title{font-size: 14pt}");
+        
+		layerSelectionDialog = new LayerSelectionDialog(new Zone.Layer[]{Zone.Layer.TOKEN, Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND}, new LayerSelectionListener() {
+			public void layerSelected(Layer layer) {
+				if (renderer != null) {
+					renderer.setActiveLayer(layer);
+					if (layer != Zone.Layer.TOKEN) {
+						  MapTool.getFrame().getToolbox().setSelectedTool(StampTool.class);
+					}
+				}
+			}
+		});
     }
 	
 	@Override
@@ -169,12 +184,20 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		super.attachTo(renderer);
 		
 		renderer.setActiveLayer(Zone.Layer.TOKEN);
+
+		if (MapTool.getPlayer().isGM()) {
+			MapTool.getFrame().showControlPanel(layerSelectionDialog);
+		}
+
 		htmlRenderer.attach(renderer);
+		
+		layerSelectionDialog.updateViewList();
 	}
 	
 	@Override
 	protected void detachFrom(ZoneRenderer renderer) {
 		super.detachFrom(renderer);
+		MapTool.getFrame().hideControlPanel();
 		htmlRenderer.detach(renderer);
 	}
     

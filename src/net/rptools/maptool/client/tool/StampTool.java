@@ -116,9 +116,6 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	private int dragStartX;
 	private int dragStartY;
 
-	// Internal
-	private boolean firstUse = true;
-	
 	static {
 		try {
 			resizeImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/arrow_out.png");
@@ -129,10 +126,13 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	
 	public StampTool () {
 		
-		layerSelectionDialog = new LayerSelectionDialog(new Zone.Layer[]{Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND}, new LayerSelectionListener() {
+		layerSelectionDialog = new LayerSelectionDialog(new Zone.Layer[]{Zone.Layer.TOKEN, Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND}, new LayerSelectionListener() {
 			public void layerSelected(Layer layer) {
 				if (renderer != null) {
 					renderer.setActiveLayer(layer);
+					if (layer == Zone.Layer.TOKEN) {
+						  MapTool.getFrame().getToolbox().setSelectedTool(PointerTool.class);
+					}
 				}
 			}
 		});
@@ -158,15 +158,11 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	@Override
 	protected void attachTo(ZoneRenderer renderer) {
 
-		if (firstUse) {
-			layerSelectionDialog.setSelectedLayer(Zone.Layer.OBJECT);
-			firstUse = false;
-		}
-		
 		MapTool.getFrame().showControlPanel(layerSelectionDialog);
 		super.attachTo(renderer);
+		
+		layerSelectionDialog.updateViewList();
 
-		layerSelectionDialog.updateViewSelection();
 	}
     
 	@Override
