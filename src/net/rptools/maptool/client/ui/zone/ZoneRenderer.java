@@ -1842,7 +1842,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
               AffineTransform transform = new AffineTransform();
               transform.translate(location.x+g.getTransform().getTranslateX(), location.y+g.getTransform().getTranslateY());
               if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
-              	transform.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale) - offsetx, location.scaledHeight/2 - (token.getAnchor().y*scale) - offsety); // facing defaults to down, or -90 degrees
+            	  transform.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale), location.scaledHeight/2 - (token.getAnchor().y*scale)); // facing defaults to down, or -90 degrees
               }
               Graphics2D locg = (Graphics2D)g.create();
               locg.setTransform(transform);
