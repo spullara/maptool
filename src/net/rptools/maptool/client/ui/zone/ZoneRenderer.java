@@ -1260,8 +1260,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 Dimension imgSize = new Dimension(workImage.getWidth(), workImage.getHeight());
                 SwingUtil.constrainTo(imgSize, footprintBounds.width, footprintBounds.height);
 
-                int offsetx = (int)(imgSize.width < footprintBounds.width ? (footprintBounds.width - imgSize.width)/2 * getScale() : 0);
-                int offsety = (int)(imgSize.height < footprintBounds.height ? (footprintBounds.height - imgSize.height)/2 * getScale() : 0);
+                int offsetx = 0;
+                int offsety = 0;
+                if (token.isSnapToScale()) {
+	                offsetx = (int)(imgSize.width < footprintBounds.width ? (footprintBounds.width - imgSize.width)/2 * getScale() : 0);
+	                offsety = (int)(imgSize.height < footprintBounds.height ? (footprintBounds.height - imgSize.height)/2 * getScale() : 0);
+                }
                 
                 int tx = x + offsetx;
                 int ty = y + offsety;
@@ -1273,8 +1277,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 	at.rotate(Math.toRadians (-token.getFacing() - 90), scaledWidth/2 - token.getAnchor().x*scale - offsetx, scaledHeight/2 - token.getAnchor().y*scale - offsety); // facing defaults to down, or -90 degrees
                 }
                 
-                at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
-                at.scale(getScale(), getScale());
+                if (token.isSnapToScale()) {
+                	at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
+                    at.scale(getScale(), getScale());
+                } else {
+                	at.scale((double) scaledWidth / workImage.getWidth(), (double) scaledHeight / workImage.getHeight());
+                }
                 g.drawImage(workImage, at, this);
    
                 // Other details
@@ -1728,9 +1736,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             Dimension imgSize = new Dimension(workImage.getWidth(), workImage.getHeight());
             SwingUtil.constrainTo(imgSize, footprintBounds.width, footprintBounds.height);
 
-            int offsetx = (int)(imgSize.width < footprintBounds.width ? (footprintBounds.width - imgSize.width)/2 * getScale() : 0);
-            int offsety = (int)(imgSize.height < footprintBounds.height ? (footprintBounds.height - imgSize.height)/2 * getScale() : 0);
-
+            int offsetx = 0;
+            int offsety = 0;
+            
+            if (token.isSnapToScale()) {
+	            offsetx = (int)(imgSize.width < footprintBounds.width ? (footprintBounds.width - imgSize.width)/2 * getScale() : 0);
+	            offsety = (int)(imgSize.height < footprintBounds.height ? (footprintBounds.height - imgSize.height)/2 * getScale() : 0);
+            }
+            
             int tx = location.x + offsetx;
             int ty = location.y + offsety;
             
@@ -1745,11 +1758,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // Draw the token
             if (token.isSnapToScale()) {
             	at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
+                at.scale(getScale(), getScale());
             } else {
-//            	at.scale((double) workImage.getWidth(), (double) workImage.getHeight());
-            	at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
+            	at.scale((double) scaledWidth / workImage.getWidth(), (double) scaledHeight / workImage.getHeight());
             }
-            at.scale(getScale(), getScale());
             g.drawImage(workImage, at, this);
 
             // Halo (SQUARE)
