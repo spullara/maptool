@@ -1743,7 +1743,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
 
             // Draw the token
-            at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
+            if (token.isSnapToScale()) {
+            	at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
+            } else {
+//            	at.scale((double) workImage.getWidth(), (double) workImage.getHeight());
+            	at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
+            }
             at.scale(getScale(), getScale());
             g.drawImage(workImage, at, this);
 
@@ -1822,10 +1827,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
               
               // Set up the graphics so that the overlay can just be painted.
               clip = g.getClip();
-              g.translate(location.x, location.y);
+              AffineTransform transform = new AffineTransform();
+              transform.translate(location.x+g.getTransform().getTranslateX(), location.y+g.getTransform().getTranslateY());
+              if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
+              	transform.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale) - offsetx, location.scaledHeight/2 - (token.getAnchor().y*scale) - offsety); // facing defaults to down, or -90 degrees
+              }
+              Graphics2D locg = (Graphics2D)g.create();
+              locg.setTransform(transform);
               Rectangle bounds = new Rectangle(0, 0, location.scaledWidth, location.scaledHeight);
               Rectangle overlayClip = g.getClipBounds().intersection(bounds);
-              g.setClip(overlayClip);
+              locg.setClip(overlayClip);
               
               // Check each of the set values
               for (String state : token.getStatePropertyNames()) {
@@ -1834,17 +1845,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 // Check for the on/off states & paint them
                 if (stateValue instanceof Boolean && ((Boolean)stateValue).booleanValue()) {
                   TokenOverlay overlay =  TokenStates.getOverlay(state);
-                  if (overlay != null) overlay.paintOverlay(g, token, bounds);
+                  if (overlay != null) overlay.paintOverlay(locg, token, bounds);
                 
                 // Check for an overlay state value and paint that
                 } else if (stateValue instanceof TokenOverlay) {
-                  ((TokenOverlay)stateValue).paintOverlay(g, token, bounds);
+                  ((TokenOverlay)stateValue).paintOverlay(locg, token, bounds);
                 }
               }
-              
-              // Restore the graphics context
-              g.translate(-location.x, -location.y);
-              g.setClip(clip);
             }
 
             // DEBUGGING
