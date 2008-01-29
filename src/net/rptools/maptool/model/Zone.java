@@ -71,7 +71,7 @@ public class Zone extends BaseModel {
     
 	public enum Layer {
 		TOKEN("Token"),
-		GM("GM"),
+		GM("Hidden"),
 		OBJECT("Object"),
 		BACKGROUND("Background");
 		
