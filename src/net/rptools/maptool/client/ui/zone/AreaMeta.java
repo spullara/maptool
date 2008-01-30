@@ -129,6 +129,15 @@ public class AreaMeta {
 		pointNodeList.previous = lastPointNode;
 		lastPointNode = null;
 		
+		// For some odd reason, sometimes the first and last point are the same, which causes
+		// bugs in the way areas are calculated
+		if (pointNodeList.point.equals(pointNodeList.previous.point)) {
+			// Pull out the dupe node
+			PointNode trueLastPoint = pointNodeList.previous.previous;
+			trueLastPoint.next = pointNodeList;
+			pointNodeList.previous = trueLastPoint;
+		}
+		
 		path = null;
 	}
 }
