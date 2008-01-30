@@ -38,7 +38,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -76,11 +75,7 @@ import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.transfer.AssetTransferManager;
 import net.rptools.maptool.util.UPnPUtil;
-import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
-import net.rptools.parser.function.EvaluationException;
-import net.rptools.parser.function.Function;
-import net.rptools.parser.function.ParameterException;
 import net.tsc.servicediscovery.ServiceAnnouncer;
 
 import com.centerkey.utils.BareBonesBrowserLaunch;
@@ -137,6 +132,8 @@ public class MapTool {
     private static TaskBarFlasher taskbarFlasher;
 
     private static EventDispatcher eventDispatcher;
+    
+    private static AppConfiguration configuration;
     
     private static final int PARSER_MAX_RECURSE = 50;
     private static int parserRecurseDepth;
@@ -244,7 +241,13 @@ public class MapTool {
 		getEventDispatcher().registerEvents(PreferencesEvent.values());
 	}
 	
+	public static AppConfiguration getConfiguration() {
+		return configuration;
+	}
+	
 	private static void initialize() {
+		
+		configuration = new AppConfiguration("net/rptools/maptool/client/configuration.properties");
 		
         // First timer
 		AppSetup.install();

@@ -1686,6 +1686,57 @@ public class AppActions {
 		}
 	};
 
+	public static final Action SHOW_DOCUMENTATION = new DefaultClientAction() {
+		{
+			init("action.showDocumentation");
+		}
+
+		public void execute(java.awt.event.ActionEvent e) {
+
+			runBackground(new Runnable() {
+
+				public void run() {
+
+					MapTool.showDocument(MapTool.getConfiguration().getHelpURL());
+				}
+			});
+		}
+	};
+
+	public static final Action SHOW_TUTORIALS = new DefaultClientAction() {
+		{
+			init("action.showTutorials");
+		}
+
+		public void execute(java.awt.event.ActionEvent e) {
+
+			runBackground(new Runnable() {
+
+				public void run() {
+
+					MapTool.showDocument(MapTool.getConfiguration().getTutorialsURL());
+				}
+			});
+		}
+	};
+
+	public static final Action SHOW_FORUMS = new DefaultClientAction() {
+		{
+			init("action.showForums");
+		}
+
+		public void execute(java.awt.event.ActionEvent e) {
+
+			runBackground(new Runnable() {
+
+				public void run() {
+
+					MapTool.showDocument(MapTool.getConfiguration().getForumURL());
+				}
+			});
+		}
+	};
+
 	public static final Action ADD_ASSET_PANEL = new DefaultClientAction() {
 		{
 			init("action.addIconSelector");
