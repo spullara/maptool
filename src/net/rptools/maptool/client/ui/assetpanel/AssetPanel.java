@@ -96,6 +96,10 @@ public class AssetPanel extends JComponent {
 		setLayout(new GridLayout());
 		add(splitPane);
 	}
+
+    public void setThumbSize(int size) {
+    	imagePanel.setGridSize(size);
+    }
     
     private JPanel createSouthPanel() {
     	JPanel panel = new JPanel(new BorderLayout());

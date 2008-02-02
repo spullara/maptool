@@ -28,6 +28,6 @@
 	<classpathentry kind="lib" path="lib/dicelib-1.0.b8.jar"/>
 	<classpathentry kind="lib" path="lib/commons-jxpath-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/sbbi-upnplib-1.0.4.jar"/>
-	<classpathentry kind="lib" path="lib/rplib-1.0.b101.jar"/>
+	<classpathentry kind="lib" path="lib/rplib-1.0.b102.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

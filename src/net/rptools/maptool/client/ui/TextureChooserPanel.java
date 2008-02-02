@@ -44,6 +44,7 @@ public class TextureChooserPanel extends AbstractPaintChooserPanel {
 				paintChooser.setPaint(new AssetPaint(assetPanel.getAsset(imageIndex)));
 			}
 		});
+		assetPanel.setThumbSize(100);
 
 		return assetPanel;
 	}
