@@ -560,6 +560,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     
     public void renderZone(Graphics2D g2d, ZoneView view) {
         
+    	g2d.setFont(AppStyle.labelFont);
+    	Object oldAA = SwingUtil.useAntiAliasing(g2d);
+    	
     	// Do this smack dab first so that even if we need to show the "Loading" indicator, 
     	// we can still start to figure things out like the token tree visibility
         calculateVision(view);
@@ -635,6 +638,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //	        area = area.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(), zoneScale.getOffsetY()));
 //        	g2d.draw(area);
 //        }
+        
+        SwingUtil.restoreAntiAliasing(g2d, oldAA);
         
         lastView = view;
     }

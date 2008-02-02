@@ -30,11 +30,12 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Paint;
+import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -45,7 +46,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,14 +54,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
+import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppActions;
@@ -70,7 +71,6 @@ import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.swing.HTMLPanelRenderer;
 import net.rptools.maptool.client.tool.LayerSelectionDialog.LayerSelectionListener;
@@ -79,8 +79,6 @@ import net.rptools.maptool.client.ui.TokenLocation;
 import net.rptools.maptool.client.ui.TokenPopupMenu;
 import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.Toolbox;
-import net.rptools.maptool.client.ui.minisheet.MiniSheet;
-import net.rptools.maptool.client.ui.statsheet.MetaStatSheet;
 import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
 import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
@@ -92,7 +90,6 @@ import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -126,8 +123,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	private TokenStackPanel tokenStackPanel = new TokenStackPanel();
 	
 	private HTMLPanelRenderer htmlRenderer = new HTMLPanelRenderer();
-	private static MiniSheet ccgSheet;
 
+	private BufferedImage statSheet;
+	private Token tokenOnStatSheet;
+	
 	private static int PADDING = 7;
 	
     // Offset from token's X,Y when dragging. Values are in cell coordinates.
@@ -136,27 +135,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	private int dragStartX;
 	private int dragStartY;
 	
-	private MetaStatSheet pcMetaStatSheet;
-	private MetaStatSheet npcMetaStatSheet;
-
 	private LayerSelectionDialog layerSelectionDialog;
 
-	static {
-		try {
-//			ccgSheet = new CCGSheet(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/ccg_basic.jpg"), new Rectangle(30, 30, 140, 77), new Rectangle(18, 145, 167, 118));
-			ccgSheet = new MiniSheet(ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/ccg_small.png"), new Rectangle(23, 23, 123, 60), new Rectangle(18, 114, 133, 86));
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-		
-	}
-	
 	public PointerTool () {
         try {
             setIcon(new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/tool/pointer-blue.png")));
-
-            pcMetaStatSheet = new MetaStatSheet("net/rptools/maptool/client/ui/statsheet/lightgray/statsheet.properties");
-            npcMetaStatSheet = new MetaStatSheet("net/rptools/maptool/client/ui/statsheet/blue/statsheet.properties");
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -632,6 +615,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		
 		tokenUnderMouse = renderer.getTokenAt(mouseX, mouseY);
 		renderer.setMouseOver(tokenUnderMouse);
+		
+		if (tokenUnderMouse == null) {
+			statSheet = null;
+		}
 
 		Token marker = renderer.getMarkerAt(mouseX, mouseY);
 		if (marker != markerUnderMouse) {
@@ -1220,88 +1207,119 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			tokenStackPanel.paint(g);
 		}
 		
-		// CCG
-//		if (tokenUnderMouse != null && !isDraggingToken) {
-//			
-//			Map<String, String> propertyMap = new LinkedHashMap<String, String>();
-//			propertyMap.put("Name", tokenUnderMouse.getName());
-//			if (MapTool.getPlayer().isGM() && tokenUnderMouse.getGMName() != null && tokenUnderMouse.getGMName().length() > 0) {
-//				propertyMap.put("GM Name", tokenUnderMouse.getGMName());
-//			}
-//			for (TokenProperty property : MapTool.getCampaign().getTokenPropertyList(tokenUnderMouse.getPropertyType())) {
-//				
-//				if (property.isHighPriority()) {
-//					
-//					if (!property.isOwnerOnly() || AppUtil.playerOwns(tokenUnderMouse)) {
-//						Object propertyValue = tokenUnderMouse.getProperty(property.getName());
-//						if (propertyValue != null) {
-//							if (propertyValue.toString().length() > 0) {
-//								propertyMap.put(property.getName(), propertyValue.toString());
-//							}
-//						}
-//					}
-//				}
-//			}
-//			
-//			g.translate(5, viewSize.height - ccgSheet.getHeight()-5);
-//			ccgSheet.render(g, ImageManager.getImage(AssetManager.getAsset(tokenUnderMouse.getAssetID())), propertyMap);
-//			g.translate(5, -(viewSize.height - ccgSheet.getHeight()-5));
-//		}
-//		
-		// StatSheet
-		if (tokenUnderMouse != null && !isDraggingToken) {
+		// Statsheet
+		if (tokenUnderMouse != null && !isDraggingToken && AppUtil.tokenIsVisible(renderer.getZone(), tokenUnderMouse, new ZoneView(MapTool.getPlayer().getRole()))) {
 			
-			Map<String, String> propertyMap = new LinkedHashMap<String, String>();
-			for (TokenProperty property : MapTool.getCampaign().getTokenPropertyList(tokenUnderMouse.getPropertyType())) {
+			if (tokenOnStatSheet == null || !tokenOnStatSheet.equals(tokenUnderMouse) || statSheet == null) {
+				tokenOnStatSheet = tokenUnderMouse;
 				
-				if (property.isHighPriority()) {
+				// Portrait
+				MD5Key portraitId = tokenUnderMouse.getPortraitImage() != null ? tokenUnderMouse.getPortraitImage() : tokenUnderMouse.getImageAssetId();
+				BufferedImage image = ImageManager.getImage(AssetManager.getAsset(portraitId));
+	
+				Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
+				
+				// Minsize
+				if (imgSize.width < 100 || imgSize.height < 100) {
+					SwingUtil.constrainTo(imgSize, 100);
+				}
+				// Maxsize
+				if (imgSize.width > AppConstants.PORTRAIT_SIZE_CAP || imgSize.height > AppConstants.PORTRAIT_SIZE_CAP) {
+					SwingUtil.constrainTo(imgSize, AppConstants.PORTRAIT_SIZE_CAP);
+				}
+				
+				// Stats
+				Dimension statSize = null;
+				Map<String, String> propertyMap = new LinkedHashMap<String, String>();
+				for (TokenProperty property : MapTool.getCampaign().getTokenPropertyList(tokenUnderMouse.getPropertyType())) {
 					
-					if (!property.isOwnerOnly() || AppUtil.playerOwns(tokenUnderMouse)) {
-						Object propertyValue = tokenUnderMouse.getProperty(property.getName());
-						if (propertyValue != null) {
-							if (propertyValue.toString().length() > 0) {
-								String propName = property.getName();
-								if (property.getShortName() != null) {
-									propName = property.getShortName();
+					if (property.isHighPriority()) {
+						
+						if (!property.isOwnerOnly() || AppUtil.playerOwns(tokenUnderMouse)) {
+							Object propertyValue = tokenUnderMouse.getProperty(property.getName());
+							if (propertyValue != null) {
+								if (propertyValue.toString().length() > 0) {
+									String propName = property.getName();
+									if (property.getShortName() != null) {
+										propName = property.getShortName();
+									}
+									propertyMap.put(propName, propertyValue.toString());
 								}
-								propertyMap.put(propName, propertyValue.toString());
 							}
 						}
 					}
 				}
-			}
-			
-			if (propertyMap.size() > 0) {
-				if (tokenUnderMouse.getType() == Token.Type.NPC) {
-					npcMetaStatSheet.render(g, propertyMap, renderer.getTokenBounds(tokenUnderMouse).getBounds(), viewSize);
-				} else {
-					pcMetaStatSheet.render(g, propertyMap, renderer.getTokenBounds(tokenUnderMouse).getBounds(), viewSize);
+				
+				Font font = AppStyle.labelFont;
+				FontMetrics fm = g.getFontMetrics(font);
+				if (propertyMap.size() > 0) {
+					
+					// Figure out size requirements
+					int height = propertyMap.size() * (fm.getHeight() + PADDING);
+					int width = -1;
+					for (Entry<String, String> entry : propertyMap.entrySet()) {
+	
+						int lineWidth = SwingUtilities.computeStringWidth(fm, entry.getKey() + "  " + entry.getValue());
+						if (width < 0 || lineWidth > width) {
+							width = lineWidth;
+						}
+					}
+					
+					statSize = new Dimension(width + PADDING * 3, height);
 				}
-			}
-		}
+				
+				// Create the space for the image
+				int width = imgSize.width + (statSize != null ? statSize.width : 0) + AppStyle.miniMapBorder.getLeftMargin() + AppStyle.miniMapBorder.getRightMargin();
+				int height = Math.max(imgSize.height, (statSize != null ? statSize.height + AppStyle.miniMapBorder.getRightMargin() : 0)) + AppStyle.miniMapBorder.getTopMargin() + AppStyle.miniMapBorder.getBottomMargin();
+				statSheet = new BufferedImage(width, height, BufferedImage.BITMASK);
+				Graphics2D statsG = statSheet.createGraphics();
+				statsG.setClip(new Rectangle(0, 0, width, height));
+				statsG.setFont(font);
+				SwingUtil.useAntiAliasing(statsG);
+				
+				// Draw the stats first, right aligned
+				if (statSize != null) {
+					Rectangle bounds = new Rectangle(width - statSize.width - AppStyle.miniMapBorder.getRightMargin(), statSize.height == height ? 0 : height - statSize.height - AppStyle.miniMapBorder.getBottomMargin(), statSize.width, statSize.height);
+	
+					statsG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
+					statsG.fill(bounds);
+					AppStyle.miniMapBorder.paintAround(statsG, bounds);
+					AppStyle.shadowBorder.paintWithin(statsG, bounds);
+					
+					// Stats
+					int y = bounds.y + fm.getHeight();
+					for (Entry<String, String> entry : propertyMap.entrySet()) {
 
-		// Portrait
-		if (tokenUnderMouse != null && !isDraggingToken && tokenUnderMouse.getPortraitImage() != null && AppUtil.tokenIsVisible(renderer.getZone(), tokenUnderMouse, new ZoneView(MapTool.getPlayer().getRole()))) {
+						// Box
+						statsG.setColor(new Color(249, 241, 230, 140));
+						statsG.fillRect(bounds.x, y - fm.getAscent(), bounds.width - PADDING/2, fm.getHeight());
+						statsG.setColor(new Color(175, 163, 149));
+						statsG.drawRect(bounds.x, y - fm.getAscent(), bounds.width - PADDING/2, fm.getHeight());
+						
+						// Values
+						statsG.setColor(Color.black);
+						statsG.drawString(entry.getKey(), bounds.x + PADDING * 2, y);
+						int strw = SwingUtilities.computeStringWidth(fm, entry.getValue());
+						statsG.drawString(entry.getValue(), bounds.x + bounds.width - strw - PADDING, y);
+						
+						y += PADDING + fm.getHeight();
+					}
+				}
+				
+				// Draw the portrait
+				Rectangle bounds = new Rectangle(AppStyle.miniMapBorder.getLeftMargin(), height - imgSize.height - AppStyle.miniMapBorder.getBottomMargin(), imgSize.width, imgSize.height);
+
+				statsG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
+				statsG.fill(bounds);
+				statsG.drawImage(image, bounds.x, bounds.y, imgSize.width, imgSize.height, this);
+				AppStyle.miniMapBorder.paintAround(statsG, bounds);
+				AppStyle.shadowBorder.paintWithin(statsG, bounds);
+				GraphicsUtil.drawBoxedString(statsG, tokenUnderMouse.getName(), bounds.width/2, bounds.height - 5);
 			
-			BufferedImage image = ImageManager.getImage(AssetManager.getAsset(tokenUnderMouse.getPortraitImage()));
-			Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
-			
-			// Minsize
-			if (imgSize.width < 100 || imgSize.height < 100) {
-				SwingUtil.constrainTo(imgSize, 100);
+				statsG.dispose();
 			}
-			// Maxsize
-			if (imgSize.width > AppConstants.PORTRAIT_SIZE_CAP || imgSize.height > AppConstants.PORTRAIT_SIZE_CAP) {
-				SwingUtil.constrainTo(imgSize, AppConstants.PORTRAIT_SIZE_CAP);
-			}
 			
-			// Label
-			g.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
-			g.fillRect(PADDING, viewSize.height - imgSize.height - PADDING, imgSize.width, imgSize.height);
-			g.drawImage(image, PADDING, viewSize.height - imgSize.height - PADDING, imgSize.width, imgSize.height, this);
-			AppStyle.miniMapBorder.paintAround(g, PADDING, viewSize.height - imgSize.height - PADDING, imgSize.width, imgSize.height);
-			AppStyle.shadowBorder.paintWithin(g, PADDING, viewSize.height - imgSize.height - PADDING, imgSize.width, imgSize.height);
-			GraphicsUtil.drawBoxedString(g, tokenUnderMouse.getName(), PADDING + imgSize.width/2, viewSize.height - PADDING - 5);
+			g.drawImage(statSheet, 5, viewSize.height - statSheet.getHeight() - 5, this);
 		}
 		
 		// Hovers

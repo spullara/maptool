@@ -5,9 +5,9 @@
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="lib" path="lib/withay-util.jar"/>
 	<classpathentry kind="lib" path="lib/abeille-formsrt-2.0.jar"/>
-	<classpathentry sourcepath="C:/Workspaces/Maptool/clientserver/lib/hessian-2.1.12-src.jar" kind="lib" path="lib/hessian-2.1.12.jar"/>
+	<classpathentry kind="lib" path="lib/hessian-2.1.12.jar" sourcepath="C:/Workspaces/Maptool/clientserver/lib/hessian-2.1.12-src.jar"/>
 	<classpathentry kind="lib" path="lib/tinylaf-1.3.04.jar"/>
-	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.1.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JUNIT_HOME/junit.jar"/>
+	<classpathentry kind="var" path="JUNIT_HOME/junit.jar" sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.1.0/src/org.junit_3.8.1/junitsrc.zip"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jide-common-1.9.4_7.jar"/>
 	<classpathentry kind="lib" path="lib/renderpack-1.2004.jar"/>
@@ -24,10 +24,10 @@
 	<classpathentry kind="lib" path="lib/xstream-1.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/clientserver-1.0.b13.jar"/>
 	<classpathentry kind="lib" path="lib/BareBonesBrowserLaunch.jar"/>
-	<classpathentry sourcepath="/parser" kind="lib" path="lib/parser-1.0.b10.jar"/>
-	<classpathentry kind="lib" path="lib/rplib-1.0.b100.jar"/>
+	<classpathentry kind="lib" path="lib/parser-1.0.b10.jar" sourcepath="/parser"/>
 	<classpathentry kind="lib" path="lib/dicelib-1.0.b8.jar"/>
 	<classpathentry kind="lib" path="lib/commons-jxpath-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/sbbi-upnplib-1.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/rplib-1.0.b101.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
