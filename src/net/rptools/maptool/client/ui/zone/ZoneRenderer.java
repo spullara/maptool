@@ -2400,9 +2400,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	            token.setShape(TokenUtil.guessTokenType((BufferedImage)image));
 	            token.setWidth(image.getWidth(null));
 	            token.setHeight(image.getHeight(null));
-	            token.setLayer(getActiveLayer());
 	            token.setFootprint(zone.getGrid(), zone.getGrid().getDefaultFootprint());
             }
+
+            // Always set the layer
+            token.setLayer(getActiveLayer());
             
             // He who drops, owns, if there are not players already set
             if (!token.hasOwners() && !isGM) {
