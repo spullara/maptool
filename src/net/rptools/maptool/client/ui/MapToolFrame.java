@@ -96,6 +96,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ServerDisconnectHandler;
 import net.rptools.maptool.client.swing.CoordinateStatusBar;
 import net.rptools.maptool.client.swing.GlassPane;
+import net.rptools.maptool.client.swing.ImageChooserDialog;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
 import net.rptools.maptool.client.swing.ScrollableFlowPanel;
@@ -153,6 +154,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private boolean paintDrawingMeasurement = true;
 
 	private Map<MTFrame, DockableFrame> frameMap = new HashMap<MTFrame, DockableFrame>();
+	
+	private ImageChooserDialog imageChooserDialog;
 	
 	// Components
 	private ZoneRenderer currentRenderer;
@@ -279,6 +282,13 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		repaintTimer = new Timer(2000, new RepaintTimer());
 		repaintTimer.start();
+	}
+	
+	public ImageChooserDialog getImageChooserDialog() {
+		if (imageChooserDialog == null) {
+			imageChooserDialog = new ImageChooserDialog(this);
+		}
+		return imageChooserDialog;
 	}
 
 	public enum MTFrame {

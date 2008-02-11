@@ -67,6 +67,7 @@ public class AppStyle {
     public static BufferedImage boundedBackgroundTile;
     
     public static BufferedImage cancelButton;
+    public static BufferedImage addButton;
     
     public static BufferedImage panelTexture;
     
@@ -85,6 +86,7 @@ public class AppStyle {
             panelTexture = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/panelTexture.jpg");
             
 			cancelButton = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/cancel_sm.png");
+			addButton = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/add_sm.png");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

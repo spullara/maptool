@@ -222,6 +222,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 
     public void getAsset(MD5Key assetID) {
     	try {
+    		System.out.println("GET: " + assetID);
         	AssetProducer producer = new AssetProducer(assetID, AssetManager.getAssetInfo(assetID).getProperty(AssetManager.NAME), AssetManager.getAssetCacheFile(assetID));
 
     		server.getConnection().callMethod(RPCContext.getCurrent().id, MapToolConstants.Channel.IMAGE, ClientCommand.COMMAND.startAssetTransfer.name(), producer.getHeader());

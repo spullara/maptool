@@ -25,11 +25,12 @@
 package net.rptools.maptool.client.macro.impl;
 
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.TextMessage;
+import net.rptools.maptool.model.LookupTable.LookupEntry;
+import net.rptools.parser.ParserException;
 
 @MacroDefinition(
 	name = "table",
@@ -65,23 +66,28 @@ public class LookupTableMacro extends AbstractMacro {
     		MapTool.addLocalMessage("No such table '" + tableName + "'");
     		return;
     	}
-    	
-    	String result = lookupTable.getLookup(value);
 
-    	// Command handling
-    	if (result != null && result.startsWith("/")) {
-    		MacroManager.executeMacro(result);
-    		return;
+    	try {
+	    	LookupEntry result = lookupTable.getLookup(value);
+	    	String lookupValue = result.getValue();
+	
+	    	// Command handling
+	    	if (result != null && lookupValue.startsWith("/")) {
+	    		MacroManager.executeMacro(lookupValue);
+	    		return;
+	    	}
+	    	
+	    	sb.append("Table ").append(tableName).append(" (");
+	        sb.append(MapTool.getFrame().getCommandPanel().getIdentity());
+	        sb.append("): ");
+	        
+	        sb.append("<span style='color:red'>");
+	        
+	        sb.append(lookupValue);
+	        sb.append("</span>");
+	        MapTool.addMessage(TextMessage.say(sb.toString()));
+    	} catch (ParserException pe) {
+	        MapTool.addLocalMessage("Could not do table lookup: " + pe.getMessage());
     	}
-    	
-    	sb.append("Table ").append(tableName).append(" (");
-        sb.append(MapTool.getFrame().getCommandPanel().getIdentity());
-        sb.append("): ");
-        
-        sb.append("<span style='color:red'>");
-        
-        sb.append(result);
-        sb.append("</span>");
-        MapTool.addMessage(TextMessage.say(sb.toString()));
     }
 }

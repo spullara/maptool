@@ -1,4 +1,4 @@
-package net.rptools.maptool.client.ui;
+package net.rptools.maptool.client.ui.campaignproperties;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -53,6 +53,8 @@ public class CampaignPropertiesDialog extends JDialog  {
 	private Status status;
 	
 	private FormPanel formPanel;
+	
+	private LookupTablePanel lookupTablePanel;
 
 	private Campaign campaign;
 	
@@ -88,12 +90,13 @@ public class CampaignPropertiesDialog extends JDialog  {
 		initCancelButton();
 		initAddRepoButton();
 		initDeleteRepoButton();
-		initNewTableButton();
-		initDeleteTableButton();
-		initUpdateTableButton();
-		initTableList();
+
 		initImportButton();
 		initExportButton();
+
+		lookupTablePanel = new LookupTablePanel();
+		
+		formPanel.getFormAccessor("lookuptableTab").replaceBean("lookuptablePanel", lookupTablePanel);
 		
 		add(formPanel);
 		
@@ -114,27 +117,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 		return formPanel.getTextField("newServer");
 	}
 	
-	private void initTableList() {
-		JList list = getTableList();
-		list.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		list.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
-				if (e.getValueIsAdjusting()) {
-					return;
-				}
-
-				String name = (String) getTableList().getSelectedValue();
-				
-				LookupTable lt = campaign.getLookupTableMap().get(name);
-				
-				getTableNameTextField().setText(lt != null ? lt.getName() : "");
-				getTableDefinitionArea().setText(lt != null ? lt.toString() : "");
-				getTableRollTextField().setText(lt != null ? lt.getRoll() : "");
-			}
-		});
-	}
-	
 	private void initAddRepoButton() {
 		JButton button = (JButton) formPanel.getButton("addRepoButton");
 		button.addActionListener(new ActionListener() {
@@ -151,114 +133,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 		});
 	}
 
-	public JTextField getTableNameTextField() {
-		return formPanel.getTextField("tableName");
-	}
-
-	public JTextField getTableRollTextField() {
-		return formPanel.getTextField("defaultTableRoll");
-	}
-
-	public JEditorPane getTableDefinitionArea() {
-		return (JEditorPane) formPanel.getTextComponent("tableDefinition");
-	}
-
-	public JList getTableList() {
-		return formPanel.getList("tableList");
-	}
-	
-	private void initNewTableButton() {
-		JButton button = (JButton) formPanel.getButton("newTableButton");
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				getTableNameTextField().setText("");
-				getTableDefinitionArea().setText("");
-				
-				getTableNameTextField().requestFocusInWindow();
-			}
-		});
-	}
-
-	private void initDeleteTableButton() {
-		JButton button = (JButton) formPanel.getButton("deleteTableButton");
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				String name = (String) getTableList().getSelectedValue();
-				
-				if (MapTool.confirm("Delete table '" + name + "'")) {
-					campaign.getLookupTableMap().remove(name);
-					updateTableList();
-				}
-			}
-		});
-	}
-
-	private void initUpdateTableButton() {
-		JButton button = (JButton) formPanel.getButton("updateTableButton");
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				String name = getTableNameTextField().getText().trim();
-				if (name.length() == 0) {
-					MapTool.showError("Must have a name");
-					return;
-				}
-				
-				LookupTable lookupTable = new LookupTable(name);
-				lookupTable.setRoll(getTableRollTextField().getText());
-				
-				String definition = getTableDefinitionArea().getText();
-				String[] rows = definition.split("\n");
-				for (String row : rows) {
-					
-					row = row.trim();
-					
-					if (row.length() == 0) {
-						continue;
-					}
-
-					int split = row.indexOf("=");
-					if (split < 1) {
-						MapTool.showError("Could not parse line: " + row);
-						return;
-					}
-
-					String rangeStr = row.substring(0, split).trim();
-					String resultStr = row.substring(split+1).trim();
-					
-					int min = 0;
-					int max = 0;
-					
-					split = rangeStr.indexOf("-", rangeStr.charAt(0) == '-' ? 1 : 0); // Allow negative numbers
-					try {
-						if (split < 0) {
-							min = Integer.parseInt(rangeStr);
-							max = min;
-						} else {
-							min = Integer.parseInt(rangeStr.substring(0, split).trim());
-							max = Integer.parseInt(rangeStr.substring(split+1).trim());
-						}
-					} catch (NumberFormatException nfe) {
-						MapTool.showError("Could not parse range: " + rangeStr);
-						return;
-					}
-					
-					lookupTable.addEntry(min, max, resultStr);
-				}
-
-				// This will override the table with the same name
-				campaign.getLookupTableMap().put(name, lookupTable);
-				
-				getTableNameTextField().setText("");
-				getTableDefinitionArea().setText("");
-				getTableRollTextField().setText("");
-				
-				updateTableList();
-			}
-		});
-	}
 
 	public void initDeleteRepoButton() {
 		JButton button = (JButton) formPanel.getButton("deleteRepoButton");
@@ -274,27 +148,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 		});
 	}
 	
-	private void updateTableList() {
-		
-		final List<String> nameList = new ArrayList<String>();
-
-		for (String name : campaign.getLookupTableMap().keySet()) {
-			nameList.add(name);
-		}
-		
-		Collections.sort(nameList);
-		
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				DefaultListModel model = new DefaultListModel();
-				for (String name : nameList) {
-					model.addElement(name);
-				}
-				getTableList().setModel(model);
-			}
-		});
-	}
-
 	private void cancel() {
 		status = Status.CANCEL;
 		setVisible(false);
@@ -312,6 +165,8 @@ public class CampaignPropertiesDialog extends JDialog  {
 	public void setCampaign(Campaign campaign) {
 		this.campaign = campaign;
 		
+		lookupTablePanel.attach(campaign);
+		
 		copyCampaignToUI(campaign.getCampaignProperties());
 	}
 	
@@ -319,7 +174,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 		
 		parseTokenProperties(properties.getTokenPropertyList(Campaign.DEFAULT_TOKEN_PROPERTY_TYPE));
 		updateRepositoryList(properties);
-		updateTableList();
+//		updateTableList();
 	}
 	
 	private void updateRepositoryList(CampaignProperties properties) {

@@ -1,9 +1,14 @@
 package net.rptools.maptool.client.ui.token;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.TexturePaint;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
@@ -11,40 +16,98 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JLabel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppStyle;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
+import net.rptools.maptool.client.swing.ImageChooserDialog;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
-import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
 
 public class ImageAssetPanel extends JPanel implements DropTargetListener {
-
+	
 	private MD5Key imageId;
 
-	private Rectangle cancelBounds;
+	private JButton cancelButton;
+	private JButton addButton;
 	
 	public ImageAssetPanel() {
 		new DropTarget(this, this);
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (cancelBounds != null && cancelBounds.contains(e.getX(), e.getY())) {
+		
+		init();
+	}
+	
+	private void init() {
+		setLayout(new BorderLayout());
+		
+		add(BorderLayout.NORTH, createNorthPanel());
+		
+		setImageId(null);
+	}
+	
+	private JPanel createNorthPanel() {
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		panel.setOpaque(false);
+
+		panel.add(getAddButton());
+		panel.add(getCancelButton());
+		
+		return panel;
+	}
+	
+	public JButton getCancelButton() {
+		if (cancelButton == null) {
+			cancelButton = new JButton(new ImageIcon(AppStyle.cancelButton));
+			cancelButton.setContentAreaFilled(false);
+			cancelButton.setBorderPainted(false);
+			cancelButton.setFocusable(false);
+			cancelButton.setMargin(new Insets(0, 0, 0, 0));
+			
+			cancelButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
 					setImageId(null);
 				}
-			}
-		});
+			});
+		}
+		return cancelButton;
+	}
+	
+	public JButton getAddButton() {
+		if (addButton == null) {
+			addButton = new JButton(new ImageIcon(AppStyle.addButton));
+			addButton.setContentAreaFilled(false);
+			addButton.setBorderPainted(false);
+			addButton.setFocusable(false);
+			addButton.setMargin(new Insets(0, 0, 0, 0));
+			
+			addButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					
+					ImageChooserDialog chooserDialog = MapTool.getFrame().getImageChooserDialog();
+					
+					chooserDialog.setVisible(true);
+					
+					MD5Key imageId = chooserDialog.getImageId();
+					if (imageId == null) {
+						return;
+					}
+					
+					setImageId(imageId);
+				}
+			});
+		}
+		return addButton;
 	}
 	
 	public MD5Key getImageId() {
@@ -53,15 +116,9 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
 	
 	public void setImageId(MD5Key sheetAssetId) {
 		this.imageId = sheetAssetId;
+
+		getCancelButton().setVisible(sheetAssetId != null);
 		
-		if (sheetAssetId == null) {
-			removeAll();
-			JLabel label = new JLabel("<html><body>Drop image here</body></html>", JLabel.CENTER);
-			label.setForeground(Color.white);
-			add(label);
-		} else {
-			removeAll();
-		}
 		revalidate();
 		repaint();
 	}
@@ -70,7 +127,7 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
 	protected void paintComponent(Graphics g) {
 		
 		Dimension size = getSize();
-		g.setColor(Color.black);
+		((Graphics2D)g).setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
 		g.fillRect(0, 0, size.width, size.height);
 		
 		if (imageId == null) {
@@ -83,15 +140,6 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
 		SwingUtil.constrainTo(imgSize, size.width-8, size.height-8);
 		
 		g.drawImage(image, (size.width - imgSize.width)/2, (size.height - imgSize.height)/2, imgSize.width, imgSize.height, this);
-		
-		// cancel
-		BufferedImage cancelButton = AppStyle.cancelButton;
-		int x = size.width - cancelButton.getWidth() - 1;
-		int y = 1;
-		
-		g.drawImage(cancelButton, x, y, this);
-		cancelBounds = new Rectangle(x, y, cancelButton.getWidth(), cancelButton.getHeight());
-		
 	}
 	
 	////
@@ -124,5 +172,5 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
 	}
 	public void dropActionChanged(DropTargetDragEvent dtde) {
 	}
-	
+
 }
