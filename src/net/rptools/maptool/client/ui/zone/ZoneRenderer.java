@@ -1139,11 +1139,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     
     protected void renderMoveSelectionSets(Graphics2D g, ZoneView view) {
     
-    	// Short circuit
-    	if (isUsingVision && visibleArea == null) {
-    		return;
-    	}
-    	
         Grid grid = zone.getGrid();
         float scale = zoneScale.getScale();
         
