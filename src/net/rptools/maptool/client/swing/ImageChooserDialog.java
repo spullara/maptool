@@ -17,6 +17,8 @@ import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
+import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 
 public class ImageChooserDialog extends JDialog {
 
@@ -48,7 +50,11 @@ public class ImageChooserDialog extends JDialog {
 					return;
 				}
 				
-				imageId = imageChooser.getAsset((Integer)selected.get(0)).getId();
+				Asset asset = imageChooser.getAsset((Integer)selected.get(0)); 
+				imageId = asset.getId();
+				
+				// Put the asset into the asset manager since we have the asset handy here
+				AssetManager.putAsset(asset);
 			}
 		});
 	}
