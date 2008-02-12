@@ -77,15 +77,20 @@ public class LookupTableMacro extends AbstractMacro {
 	    		return;
 	    	}
 	    	
-	    	sb.append("Table ").append(tableName).append(" (");
-	        sb.append(MapTool.getFrame().getCommandPanel().getIdentity());
-	        sb.append("): ");
-	        
-	        sb.append("<span style='color:red'>");
-	        
-	        sb.append(lookupValue);
-	        sb.append("</span>");
-	        MapTool.addMessage(TextMessage.say(sb.toString()));
+	    	if (result.getImageId() != null) {
+	    		sb.append("<img src=\"asset://").append(result.getImageId()).append("\" alt=\"").append(result.getValue()).append("\">");
+	    	} else {
+		    	sb.append("Table ").append(tableName).append(" (");
+		        sb.append(MapTool.getFrame().getCommandPanel().getIdentity());
+		        sb.append("): ");
+		        
+		        sb.append("<span style='color:red'>");
+		        
+		        sb.append(lookupValue);
+		        sb.append("</span>");
+	    	}
+
+	    	MapTool.addMessage(TextMessage.say(sb.toString()));
     	} catch (ParserException pe) {
 	        MapTool.addLocalMessage("Could not do table lookup: " + pe.getMessage());
     	}
