@@ -6,7 +6,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 
 import net.rptools.maptool.client.AppActions;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.ui.AbstractTokenPopupMenu.SaveAction;
+import net.rptools.maptool.client.ui.AbstractTokenPopupMenu.ShowHandoutAction;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
@@ -25,7 +27,9 @@ public class StampPopupMenu extends AbstractTokenPopupMenu {
 		add(createFlipMenu());
 		add(createSizeMenu());
 		add(createArrangeMenu());
-		add(createChangeToMenu(Zone.Layer.TOKEN, Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
+		if (getTokenUnderMouse().getCharsheetImage() != null && AppUtil.playerOwns(getTokenUnderMouse())) {
+			add(new ShowHandoutAction());
+		}
 
 		add(new JSeparator());
 		addOwnedItem(createLightSourceMenu());
@@ -33,6 +37,7 @@ public class StampPopupMenu extends AbstractTokenPopupMenu {
 
 		addToggledItem(new SnapToGridAction(tokenUnderMouse.isSnapToGrid(), renderer), tokenUnderMouse.isSnapToGrid());
 		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
+		add(createChangeToMenu(Zone.Layer.TOKEN, Zone.Layer.GM, Zone.Layer.OBJECT, Zone.Layer.BACKGROUND));
 		
 		add(new JSeparator());
 

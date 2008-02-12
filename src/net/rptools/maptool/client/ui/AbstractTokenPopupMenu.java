@@ -87,6 +87,21 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 	}
 
+	protected class ShowHandoutAction extends AbstractAction {
+		public ShowHandoutAction() {
+			putValue(Action.NAME, "Show Handout");
+			setEnabled(getTokenUnderMouse().getCharsheetImage() != null);
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+
+			AssetViewerDialog dialog = new AssetViewerDialog(getTokenUnderMouse().getName() + "'s Character Sheet", getTokenUnderMouse().getCharsheetImage());
+			dialog.pack();
+			dialog.setVisible(true);
+		}
+		
+	}
+
 	protected JMenu createLightSourceMenu() {
 		JMenu menu = new JMenu("Light Source");
 

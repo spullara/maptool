@@ -68,7 +68,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		addOwnedItem(createStateMenu());
 		addOwnedItem(createFlipMenu());
 		if (getTokenUnderMouse().getCharsheetImage() != null && AppUtil.playerOwns(getTokenUnderMouse())) {
-			add(new ShowCharsheetAction());
+			add(new ShowHandoutAction());
 		}
 		add(createHaloMenu());
 		addOwnedItem(createArrangeMenu());
@@ -186,21 +186,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 			FogUtil.exposeLastPath(getRenderer(), selectedTokenSet);
 			getRenderer().repaint();
-		}
-		
-	}
-
-	private class ShowCharsheetAction extends AbstractAction {
-		public ShowCharsheetAction() {
-			putValue(Action.NAME, "Show Character Sheet");
-			setEnabled(getTokenUnderMouse().getCharsheetImage() != null);
-		}
-		
-		public void actionPerformed(ActionEvent e) {
-
-			AssetViewerDialog dialog = new AssetViewerDialog(getTokenUnderMouse().getName() + "'s Character Sheet", getTokenUnderMouse().getCharsheetImage());
-			dialog.pack();
-			dialog.setVisible(true);
 		}
 		
 	}
