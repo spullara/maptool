@@ -1219,14 +1219,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	
 				Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
 				
-				// Minsize
-				if (imgSize.width < 100 || imgSize.height < 100) {
-					SwingUtil.constrainTo(imgSize, 100);
-				}
-				// Maxsize
-				if (imgSize.width > AppConstants.PORTRAIT_SIZE_CAP || imgSize.height > AppConstants.PORTRAIT_SIZE_CAP) {
-					SwingUtil.constrainTo(imgSize, AppConstants.PORTRAIT_SIZE_CAP);
-				}
+				// Size
+				SwingUtil.constrainTo(imgSize, AppConstants.PORTRAIT_SIZE);
 				
 				// Stats
 				Dimension statSize = null;
@@ -1250,76 +1244,80 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					}
 				}
 				
-				Font font = AppStyle.labelFont;
-				FontMetrics fm = g.getFontMetrics(font);
-				if (propertyMap.size() > 0) {
+				if (tokenUnderMouse.getPortraitImage() != null || propertyMap.size() > 0) {
+					Font font = AppStyle.labelFont;
+					FontMetrics fm = g.getFontMetrics(font);
+					if (propertyMap.size() > 0) {
+						
+						// Figure out size requirements
+						int height = propertyMap.size() * (fm.getHeight() + PADDING);
+						int width = -1;
+						for (Entry<String, String> entry : propertyMap.entrySet()) {
+		
+							int lineWidth = SwingUtilities.computeStringWidth(fm, entry.getKey() + "  " + entry.getValue());
+							if (width < 0 || lineWidth > width) {
+								width = lineWidth;
+							}
+						}
+						
+						statSize = new Dimension(width + PADDING * 3, height);
+					}
 					
-					// Figure out size requirements
-					int height = propertyMap.size() * (fm.getHeight() + PADDING);
-					int width = -1;
-					for (Entry<String, String> entry : propertyMap.entrySet()) {
+					// Create the space for the image
+					int width = imgSize.width + (statSize != null ? statSize.width : 0) + AppStyle.miniMapBorder.getLeftMargin() + AppStyle.miniMapBorder.getRightMargin();
+					int height = Math.max(imgSize.height, (statSize != null ? statSize.height + AppStyle.miniMapBorder.getRightMargin() : 0)) + AppStyle.miniMapBorder.getTopMargin() + AppStyle.miniMapBorder.getBottomMargin();
+					statSheet = new BufferedImage(width, height, BufferedImage.BITMASK);
+					Graphics2D statsG = statSheet.createGraphics();
+					statsG.setClip(new Rectangle(0, 0, width, height));
+					statsG.setFont(font);
+					SwingUtil.useAntiAliasing(statsG);
+					
+					// Draw the stats first, right aligned
+					if (statSize != null) {
+						Rectangle bounds = new Rectangle(width - statSize.width - AppStyle.miniMapBorder.getRightMargin(), statSize.height == height ? 0 : height - statSize.height - AppStyle.miniMapBorder.getBottomMargin(), statSize.width, statSize.height);
+		
+						statsG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
+						statsG.fill(bounds);
+						AppStyle.miniMapBorder.paintAround(statsG, bounds);
+						AppStyle.shadowBorder.paintWithin(statsG, bounds);
+						
+						// Stats
+						int y = bounds.y + fm.getHeight();
+						for (Entry<String, String> entry : propertyMap.entrySet()) {
 	
-						int lineWidth = SwingUtilities.computeStringWidth(fm, entry.getKey() + "  " + entry.getValue());
-						if (width < 0 || lineWidth > width) {
-							width = lineWidth;
+							// Box
+							statsG.setColor(new Color(249, 241, 230, 140));
+							statsG.fillRect(bounds.x, y - fm.getAscent(), bounds.width - PADDING/2, fm.getHeight());
+							statsG.setColor(new Color(175, 163, 149));
+							statsG.drawRect(bounds.x, y - fm.getAscent(), bounds.width - PADDING/2, fm.getHeight());
+							
+							// Values
+							statsG.setColor(Color.black);
+							statsG.drawString(entry.getKey(), bounds.x + PADDING * 2, y);
+							int strw = SwingUtilities.computeStringWidth(fm, entry.getValue());
+							statsG.drawString(entry.getValue(), bounds.x + bounds.width - strw - PADDING, y);
+							
+							y += PADDING + fm.getHeight();
 						}
 					}
 					
-					statSize = new Dimension(width + PADDING * 3, height);
-				}
-				
-				// Create the space for the image
-				int width = imgSize.width + (statSize != null ? statSize.width : 0) + AppStyle.miniMapBorder.getLeftMargin() + AppStyle.miniMapBorder.getRightMargin();
-				int height = Math.max(imgSize.height, (statSize != null ? statSize.height + AppStyle.miniMapBorder.getRightMargin() : 0)) + AppStyle.miniMapBorder.getTopMargin() + AppStyle.miniMapBorder.getBottomMargin();
-				statSheet = new BufferedImage(width, height, BufferedImage.BITMASK);
-				Graphics2D statsG = statSheet.createGraphics();
-				statsG.setClip(new Rectangle(0, 0, width, height));
-				statsG.setFont(font);
-				SwingUtil.useAntiAliasing(statsG);
-				
-				// Draw the stats first, right aligned
-				if (statSize != null) {
-					Rectangle bounds = new Rectangle(width - statSize.width - AppStyle.miniMapBorder.getRightMargin(), statSize.height == height ? 0 : height - statSize.height - AppStyle.miniMapBorder.getBottomMargin(), statSize.width, statSize.height);
+					// Draw the portrait
+					Rectangle bounds = new Rectangle(AppStyle.miniMapBorder.getLeftMargin(), height - imgSize.height - AppStyle.miniMapBorder.getBottomMargin(), imgSize.width, imgSize.height);
 	
 					statsG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
 					statsG.fill(bounds);
+					statsG.drawImage(image, bounds.x, bounds.y, imgSize.width, imgSize.height, this);
 					AppStyle.miniMapBorder.paintAround(statsG, bounds);
 					AppStyle.shadowBorder.paintWithin(statsG, bounds);
-					
-					// Stats
-					int y = bounds.y + fm.getHeight();
-					for (Entry<String, String> entry : propertyMap.entrySet()) {
-
-						// Box
-						statsG.setColor(new Color(249, 241, 230, 140));
-						statsG.fillRect(bounds.x, y - fm.getAscent(), bounds.width - PADDING/2, fm.getHeight());
-						statsG.setColor(new Color(175, 163, 149));
-						statsG.drawRect(bounds.x, y - fm.getAscent(), bounds.width - PADDING/2, fm.getHeight());
-						
-						// Values
-						statsG.setColor(Color.black);
-						statsG.drawString(entry.getKey(), bounds.x + PADDING * 2, y);
-						int strw = SwingUtilities.computeStringWidth(fm, entry.getValue());
-						statsG.drawString(entry.getValue(), bounds.x + bounds.width - strw - PADDING, y);
-						
-						y += PADDING + fm.getHeight();
-					}
-				}
+					GraphicsUtil.drawBoxedString(statsG, tokenUnderMouse.getName(), bounds.width/2, bounds.height - 5);
 				
-				// Draw the portrait
-				Rectangle bounds = new Rectangle(AppStyle.miniMapBorder.getLeftMargin(), height - imgSize.height - AppStyle.miniMapBorder.getBottomMargin(), imgSize.width, imgSize.height);
+					statsG.dispose();
+				}
 
-				statsG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
-				statsG.fill(bounds);
-				statsG.drawImage(image, bounds.x, bounds.y, imgSize.width, imgSize.height, this);
-				AppStyle.miniMapBorder.paintAround(statsG, bounds);
-				AppStyle.shadowBorder.paintWithin(statsG, bounds);
-				GraphicsUtil.drawBoxedString(statsG, tokenUnderMouse.getName(), bounds.width/2, bounds.height - 5);
-			
-				statsG.dispose();
+				if (statSheet != null) {
+					g.drawImage(statSheet, 5, viewSize.height - statSheet.getHeight() - 5, this);
+				}
 			}
-			
-			g.drawImage(statSheet, 5, viewSize.height - statSheet.getHeight() - 5, this);
 		}
 		
 		// Hovers
@@ -1396,8 +1394,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			
 			BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(marker.getPortraitImage()));
 			Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
-			if (imgSize.width > AppConstants.PORTRAIT_SIZE_CAP || imgSize.height > AppConstants.PORTRAIT_SIZE_CAP) {
-				SwingUtil.constrainTo(imgSize, AppConstants.PORTRAIT_SIZE_CAP);
+			if (imgSize.width > AppConstants.PORTRAIT_SIZE || imgSize.height > AppConstants.PORTRAIT_SIZE) {
+				SwingUtil.constrainTo(imgSize, AppConstants.PORTRAIT_SIZE);
 			}
 			builder.append("</td><td valign=top>");
 			builder.append("<img src=asset://").append(marker.getPortraitImage()).append(" width=").append(imgSize.width).append(" height=").append(imgSize.height).append("></tr></table>");
