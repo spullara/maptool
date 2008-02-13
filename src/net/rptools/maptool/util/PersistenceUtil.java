@@ -231,7 +231,14 @@ public class PersistenceUtil {
 
 		BufferedImage thumb = null; 
 		if (pakFile.hasFile(Token.FILE_THUMBNAIL)) {
-			thumb = ImageIO.read(pakFile.getFile(Token.FILE_THUMBNAIL));
+			InputStream in = pakFile.getFile(Token.FILE_THUMBNAIL);
+			try {
+				thumb = ImageIO.read(in);
+			} finally {
+				if (in != null) {
+					in.close();
+				}
+			}
 		} 
 		
 		pakFile.close();
