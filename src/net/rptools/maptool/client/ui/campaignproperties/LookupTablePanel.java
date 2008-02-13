@@ -28,9 +28,11 @@ import javax.swing.table.TableModel;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.ImageChooserDialog;
 import net.rptools.maptool.client.ui.token.ImageAssetPanel;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.LookupTable.LookupEntry;
@@ -181,6 +183,8 @@ public class LookupTablePanel extends AbeillePanel {
 				lookupTable.setRoll(getTableRollTextField().getText());
 				lookupTable.setTableImage(tableImageAssetPanel.getImageId());
 
+				MapToolUtil.uploadAsset(AssetManager.getAsset(tableImageAssetPanel.getImageId()));
+				
 				for (int i = 0; i < tableModel.getRowCount(); i++) {
 					
 					String range = ((String) tableModel.getValueAt(i, 0)).trim();
@@ -211,6 +215,7 @@ public class LookupTablePanel extends AbeillePanel {
 					MD5Key image = null;
 					if (imageId != null) {
 						image = new MD5Key(imageId);
+						MapToolUtil.uploadAsset(AssetManager.getAsset(image));
 					}
 					lookupTable.addEntry(min, max, value, image);
 				}

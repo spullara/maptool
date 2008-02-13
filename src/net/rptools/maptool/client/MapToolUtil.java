@@ -201,16 +201,19 @@ public class MapToolUtil {
     	}
     	
     	if (paint instanceof DrawableTexturePaint) {
-    		MD5Key assetId = ((DrawableTexturePaint)paint).getAssetId();
 			Asset asset = ((DrawableTexturePaint)paint).getAsset();
-			if (!AssetManager.hasAsset(assetId)) {
-				AssetManager.putAsset(asset);
-			}
-
-			if (!MapTool.isHostingServer() && !MapTool.getCampaign().containsAsset(assetId)) {
-    			MapTool.serverCommand().putAsset(asset);
-    		}
+			uploadAsset(asset);
     	}
+    }
+    
+    public static void uploadAsset(Asset asset) {
+		if (!AssetManager.hasAsset(asset.getId())) {
+			AssetManager.putAsset(asset);
+		}
+
+		if (!MapTool.isHostingServer() && !MapTool.getCampaign().containsAsset(asset.getId())) {
+			MapTool.serverCommand().putAsset(asset);
+		}
     }
     
 }
