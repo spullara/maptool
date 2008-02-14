@@ -112,6 +112,14 @@ public class TokenPropertiesDialog extends AbeillePanel {
 		panelInit();
 	}
 	
+	public void initPlayerNotesTextArea() {
+		getNotesTextArea().addMouseListener(new MouseHandler(getNotesTextArea()));
+	}
+	
+	public void initGMNotesTextArea() {
+		getGMNotesTextArea().addMouseListener(new MouseHandler(getGMNotesTextArea()));
+	}
+	
 	public void showDialog(Token token) {
 		this.token = token;
 		
