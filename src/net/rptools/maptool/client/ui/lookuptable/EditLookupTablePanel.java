@@ -1,4 +1,4 @@
-package net.rptools.maptool.client.ui.campaignproperties;
+package net.rptools.maptool.client.ui.lookuptable;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -37,14 +37,14 @@ import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.LookupTable.LookupEntry;
 
-public class LookupTablePanel extends AbeillePanel {
+public class EditLookupTablePanel extends AbeillePanel {
 
 	private Campaign campaign;
 	private ImageAssetPanel tableImageAssetPanel;
 	private int defaultRowHeight;
 	
-	public LookupTablePanel() {
-		super("net/rptools/maptool/client/ui/forms/lookuptablePanel.jfrm");
+	public EditLookupTablePanel() {
+		super("net/rptools/maptool/client/ui/forms/editLookuptablePanel.jfrm");
 		
 		initDeleteTableButton();
 		initNewTableButton();

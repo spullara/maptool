@@ -34,6 +34,7 @@ import javax.swing.event.ListSelectionListener;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.lookuptable.EditLookupTablePanel;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
@@ -54,7 +55,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 	
 	private FormPanel formPanel;
 	
-	private LookupTablePanel lookupTablePanel;
+	private EditLookupTablePanel lookupTablePanel;
 
 	private Campaign campaign;
 	
@@ -94,7 +95,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 		initImportButton();
 		initExportButton();
 
-		lookupTablePanel = new LookupTablePanel();
+		lookupTablePanel = new EditLookupTablePanel();
 		
 		formPanel.getFormAccessor("lookuptableTab").replaceBean("lookuptablePanel", lookupTablePanel);
 		

@@ -86,6 +86,19 @@
                 sideDockAllowed="true" sideTitle="Macros"
                 slidingAutohide="true" tabDockAllowed="true"
                 tabTitle="Macros" title="Macros" undockedBounds="10; 10; 200; 200"/>
+            <DockableFrame autohidable="true" autohide="false"
+                autohideHeight="200" autohideShowing="false"
+                autohideWidth="200" availableButtons="15"
+                dockable="true" docked="false" dockedHeight="200"
+                dockedWidth="100" floatable="true" floated="true"
+                hidable="true" hidden="true" initIndex="4" initMode="4"
+                initSide="2" key="LOOKUP_TABLES" maximizable="true"
+                maximized="false" preferredAutohideSide="-1"
+                preferredSize="100; 100" rearrangable="true"
+                showGripper="false" showTitleBar="true"
+                sideDockAllowed="true" sideTitle="LOOKUP_TABLES"
+                slidingAutohide="true" tabDockAllowed="true"
+                tabTitle="Tables" title="Tables" undockedBounds="10; 10; 150; 200"/>
         </DockableFrames>
     </DockingManager>
 </Managers>

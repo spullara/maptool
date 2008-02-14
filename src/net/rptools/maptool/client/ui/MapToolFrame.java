@@ -296,7 +296,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		TOKEN_TREE("Map Explorer"),
 		IMAGE_EXPLORER("Library"),
 		CHAT("Chat"),
-		MACROS("Macros");
+		MACROS("Macros"),
+		LOOKUP_TABLES("Tables");
 		
 		private String displayName;
 		
@@ -328,6 +329,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		getDockingManager().addFrame(getFrame(MTFrame.IMAGE_EXPLORER));
 		getDockingManager().addFrame(getFrame(MTFrame.CHAT));
 		getDockingManager().addFrame(getFrame(MTFrame.MACROS));
+		getDockingManager().addFrame(getFrame(MTFrame.LOOKUP_TABLES));
 		
 		try {
 			getDockingManager().loadInitialLayout(MapToolFrame.class.getClassLoader().getResourceAsStream("net/rptools/maptool/client/ui/ilayout.xml"));
@@ -356,7 +358,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		frameMap.put(MTFrame.IMAGE_EXPLORER, createDockingFrame(MTFrame.IMAGE_EXPLORER, assetPanel));
 		frameMap.put(MTFrame.CHAT, createDockingFrame(MTFrame.CHAT, commandPanel));
 		frameMap.put(MTFrame.MACROS, createDockingFrame(MTFrame.MACROS, new JScrollPane(createMacroButtonPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)));
-		
+		frameMap.put(MTFrame.LOOKUP_TABLES, createDockingFrame(MTFrame.LOOKUP_TABLES, new JScrollPane(createLookupTablePanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)));
 	}
 	
 	private static DockableFrame createDockingFrame(MTFrame mtFrame, Component component) {
@@ -364,6 +366,13 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		frame.add(component);
 		
 		return frame;
+	}
+
+	public JPanel createLookupTablePanel() {
+		JPanel panel = new JPanel();
+		panel.add(new JLabel("Hello world"));
+		
+		return panel;
 	}
 	
 	public JPanel createMacroButtonPanel() {
