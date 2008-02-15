@@ -4,26 +4,22 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
@@ -34,7 +30,6 @@ import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.ImageChooserDialog;
 import net.rptools.maptool.client.ui.token.ImageAssetPanel;
 import net.rptools.maptool.model.AssetManager;
-import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.LookupTable.LookupEntry;
 
@@ -45,10 +40,11 @@ public class EditLookupTablePanel extends AbeillePanel {
 	private int defaultRowHeight;
 	
 	private boolean accepted = false;
+	private boolean newTable = false;
 	
 	public EditLookupTablePanel() {
 		super("net/rptools/maptool/client/ui/forms/editLookuptablePanel.jfrm");
-		
+
 		panelInit();
 	}
 	
@@ -121,14 +117,17 @@ public class EditLookupTablePanel extends AbeillePanel {
 		replaceComponent("mainForm", "tableImage", tableImageAssetPanel);
 	}
 
-	public void attach(final LookupTable lookupTable) {
-		this.lookupTable = lookupTable;
+	public void attach(LookupTable lookupTable) {
+	
+		newTable = lookupTable == null;
+		
+		this.lookupTable = newTable ? new LookupTable() : lookupTable;
 		
 		accepted = false;
 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				getTableDefinitionTable().setModel(createLookupTableModel(lookupTable));
+				getTableDefinitionTable().setModel(createLookupTableModel(EditLookupTablePanel.this.lookupTable));
 				updateDefinitionTableRowHeights();
 			}
 		});
@@ -167,6 +166,12 @@ public class EditLookupTablePanel extends AbeillePanel {
 				String name = getTableNameTextField().getText().trim();
 				if (name.length() == 0) {
 					MapTool.showError("Must have a name");
+					return;
+				}
+				
+				LookupTable existingTable = MapTool.getCampaign().getLookupTableMap().get(name);
+				if (existingTable != null && existingTable != lookupTable) {
+					MapTool.showError("A table with that name already exists");
 					return;
 				}
 				
@@ -223,12 +228,14 @@ public class EditLookupTablePanel extends AbeillePanel {
 				
 				accepted = true;
 				
-				setVisible(false);
-
+				close();
 			}
 		});
 	}
 
+	private void close() {
+		SwingUtilities.getWindowAncestor(this).setVisible(false);
+	}
 	
 	private void updateDefinitionTableRowHeights() {
 

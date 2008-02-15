@@ -31,6 +31,7 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JScrollPane;
 
 import net.rptools.lib.swing.ImagePanel;
 import net.rptools.lib.swing.SwingUtil;
@@ -56,8 +57,6 @@ public class LookupTablePanel extends AbeillePanel {
 			editorDialog.setSize(500, 400);
 			editorDialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 
-			editorPanel = new EditLookupTablePanel();
-			
 			editorDialog.add(editorPanel);
 			
 			SwingUtil.centerOver(editorDialog, MapTool.getFrame());
@@ -71,7 +70,7 @@ public class LookupTablePanel extends AbeillePanel {
 		imagePanel.setModel(new LookupTableImagePanelModel());
 		imagePanel.setSelectionMode(ImagePanel.SelectionMode.SINGLE);
 		
-		replaceComponent("mainForm", "imagePanel", imagePanel);
+		replaceComponent("mainForm", "imagePanel", new JScrollPane(imagePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 	}
 	
 	public void initEditorPanel() {
@@ -103,7 +102,8 @@ public class LookupTablePanel extends AbeillePanel {
 	}
 	
 	public void initDuplicateButton() {
-		getEditButton().addActionListener(new ActionListener() {
+		getDuplicateButton().setMargin(new Insets(0, 0, 0, 0));
+		getDuplicateButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				List<Object> ids = getImagePanel().getSelectedIds();
@@ -116,6 +116,7 @@ public class LookupTablePanel extends AbeillePanel {
 				
 				editorPanel.attach(lookupTable);
 				
+				getEditorDialog().setTitle("New Table");
 				getEditorDialog().setVisible(true);
 				
 			}
@@ -136,6 +137,7 @@ public class LookupTablePanel extends AbeillePanel {
 				
 				editorPanel.attach(lookupTable);
 				
+				getEditorDialog().setTitle("Edit Table");
 				getEditorDialog().setVisible(true);
 				
 			}
@@ -147,8 +149,9 @@ public class LookupTablePanel extends AbeillePanel {
 		getNewButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				editorPanel.attach(new LookupTable());
+				editorPanel.attach(null);
 				
+				getEditorDialog().setTitle("New Table");
 				getEditorDialog().setVisible(true);
 				
 			}
