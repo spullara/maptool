@@ -24,9 +24,12 @@
  */
 package net.rptools.maptool.client.ui.lookuptable;
 
+import java.awt.Color;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -67,8 +70,30 @@ public class LookupTablePanel extends AbeillePanel {
 	
 	public void initImagePanel() {
 		imagePanel = new ImagePanel();
+		imagePanel.setBackground(Color.white);
 		imagePanel.setModel(new LookupTableImagePanelModel());
 		imagePanel.setSelectionMode(ImagePanel.SelectionMode.SINGLE);
+		imagePanel.addMouseListener(new MouseAdapter() { 
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+				if (e.getClickCount() == 2) {
+					
+					List<Object> ids = getImagePanel().getSelectedIds();
+					if (ids == null || ids.size() == 0) {
+						return;
+					}
+					
+					LookupTable lookupTable = MapTool.getCampaign().getLookupTableMap().get((String)ids.get(0));
+					if (lookupTable == null) {
+						return;
+					}
+					
+					  MapTool.getFrame().getCommandPanel().getCommandTextArea().setText("/tbl " + lookupTable.getName());
+					  MapTool.getFrame().getCommandPanel().commitCommand();
+				}
+			}
+		});
 		
 		replaceComponent("mainForm", "imagePanel", new JScrollPane(imagePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 	}
@@ -119,6 +144,8 @@ public class LookupTablePanel extends AbeillePanel {
 				getEditorDialog().setTitle("New Table");
 				getEditorDialog().setVisible(true);
 				
+				imagePanel.clearSelection();
+				repaint();
 			}
 		});
 	}
@@ -154,6 +181,8 @@ public class LookupTablePanel extends AbeillePanel {
 				getEditorDialog().setTitle("New Table");
 				getEditorDialog().setVisible(true);
 				
+				imagePanel.clearSelection();
+				repaint();
 			}
 		});
 	}
@@ -173,7 +202,12 @@ public class LookupTablePanel extends AbeillePanel {
 				if (MapTool.confirm("Delete table '" + lookupTable.getName() + "'")) {
 					MapTool.getCampaign().getLookupTableMap().remove(lookupTable.getName());
 					MapTool.serverCommand().updateCampaign(MapTool.getCampaign().getCampaignProperties());
+					
+					imagePanel.clearSelection();
+					repaint();
+					System.out.println(imagePanel.getSelectedIds());
 				}
+				
 			}
 		});
 	}

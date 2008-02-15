@@ -71,6 +71,7 @@ public class AppStyle {
     
     public static BufferedImage panelTexture;
     
+    public static BufferedImage lookupTableDefaultImage;
 	static {
 		
 		try {
@@ -87,6 +88,8 @@ public class AppStyle {
             
 			cancelButton = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/cancel_sm.png");
 			addButton = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/add_sm.png");
+
+			lookupTableDefaultImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/document.jpg");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

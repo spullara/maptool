@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.rptools.lib.swing.ImagePanelModel;
+import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.LookupTable;
@@ -69,7 +70,7 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 			return ImageManager.BROKEN_IMAGE;
 		}
 		
-		Image image = ImageManager.UNKNOWN_IMAGE;
+		Image image = AppStyle.lookupTableDefaultImage;
 		if (table.getTableImage() != null) {
 			image = ImageManager.getImage(AssetManager.getAsset(table.getTableImage()), imageObservers);
 		}

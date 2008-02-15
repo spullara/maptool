@@ -28,7 +28,7 @@ public class LookupTable {
 		tableImage = table.tableImage;
 		
 		if (table.entryList != null) {
-			getEntryList().addAll(table.entryList);
+			getInternalEntryList().addAll(table.entryList);
 		}
 	}
 	

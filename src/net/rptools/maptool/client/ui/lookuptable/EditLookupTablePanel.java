@@ -125,6 +125,12 @@ public class EditLookupTablePanel extends AbeillePanel {
 		
 		accepted = false;
 
+		getTableNameTextField().setText(this.lookupTable.getName());
+		getTableRollTextField().setText(this.lookupTable.getRoll());
+		tableImageAssetPanel.setImageId(this.lookupTable.getTableImage());
+
+		getTableNameTextField().requestFocusInWindow();
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				getTableDefinitionTable().setModel(createLookupTableModel(EditLookupTablePanel.this.lookupTable));
@@ -151,6 +157,16 @@ public class EditLookupTablePanel extends AbeillePanel {
 
 	public JList getTableList() {
 		return (JList) getComponent("tableList");
+	}
+	
+	public void initCancelButton() {
+		JButton button = (JButton) getComponent("cancelButton");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				accepted = false;
+				close();
+			}
+		});
 	}
 	
 	public void initAcceptButton() {
@@ -181,6 +197,7 @@ public class EditLookupTablePanel extends AbeillePanel {
 					return;
 				}
 
+				lookupTable.setName(getTableNameTextField().getText());
 				lookupTable.setRoll(getTableRollTextField().getText());
 				lookupTable.setTableImage(tableImageAssetPanel.getImageId());
 
@@ -257,7 +274,7 @@ public class EditLookupTablePanel extends AbeillePanel {
 				String value = entry.getValue();
 				MD5Key imageId = entry.getImageId();
 				
-				rows.add(Arrays.asList(new String[]{range, value, imageId.toString()}));
+				rows.add(Arrays.asList(new String[]{range, value, imageId != null ? imageId.toString() : null}));
 			}
 		}
 			
