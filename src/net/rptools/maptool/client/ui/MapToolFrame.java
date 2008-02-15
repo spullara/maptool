@@ -107,6 +107,7 @@ import net.rptools.maptool.client.tool.StampTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
+import net.rptools.maptool.client.ui.lookuptable.LookupTablePanel;
 import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeCellRenderer;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeModel;
@@ -369,10 +370,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public JPanel createLookupTablePanel() {
-		JPanel panel = new JPanel();
-		panel.add(new JLabel("Hello world"));
 		
-		return panel;
+		return new LookupTablePanel();
 	}
 	
 	public JPanel createMacroButtonPanel() {

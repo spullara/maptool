@@ -207,6 +207,10 @@ public class MapToolUtil {
     }
     
     public static void uploadAsset(Asset asset) {
+    	if (asset == null) {
+    		return;
+    	}
+    	
 		if (!AssetManager.hasAsset(asset.getId())) {
 			AssetManager.putAsset(asset);
 		}

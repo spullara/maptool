@@ -27,49 +27,82 @@ package net.rptools.maptool.client.ui.lookuptable;
 import java.awt.Image;
 import java.awt.Paint;
 import java.awt.datatransfer.Transferable;
+import java.awt.image.ImageObserver;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import net.rptools.lib.swing.ImagePanelModel;
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.LookupTable;
+import net.rptools.maptool.util.ImageManager;
 
 public class LookupTableImagePanelModel implements ImagePanelModel {
+	
+	private ImageObserver[] imageObservers;
+	
+	public LookupTableImagePanelModel(ImageObserver... observers) {
+		imageObservers = observers;
+	}
 
 	public int getImageCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return MapTool.getCampaign().getLookupTableMap().size();
 	}
 
 	public Transferable getTransferable(int arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Object getID(int arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public Object getID(int index) {
+		if (index < 0) {
+			return null;
+		}
+		
+		return getLookupTableIDList().get(index);
 	}
 
-	public Image getImage(Object arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public Image getImage(Object id) {
+
+		LookupTable table = MapTool.getCampaign().getLookupTableMap().get(id);
+		if (table == null) {
+			return ImageManager.BROKEN_IMAGE;
+		}
+		
+		Image image = ImageManager.UNKNOWN_IMAGE;
+		if (table.getTableImage() != null) {
+			image = ImageManager.getImage(AssetManager.getAsset(table.getTableImage()), imageObservers);
+		}
+		
+		return image;
 	}
 
-	public Image getImage(int arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public Image getImage(int index) {
+		return getImage(getID(index));
 	}
 
-	public String getCaption(int arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public String getCaption(int index) {
+		if (index < 0) {
+			return "";
+		}
+
+		LookupTable table = MapTool.getCampaign().getLookupTableMap().get(getID(index));
+		
+		return table.getName();
 	}
 
 	public Paint getBackground(int arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Image[] getDecorations(int arg0) {
-		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private List<String> getLookupTableIDList() {
+		List<String> idList = new ArrayList<String>(MapTool.getCampaign().getLookupTableMap().keySet());
+		Collections.sort(idList);
+		return idList;
 	}
 
 }

@@ -23,6 +23,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
@@ -39,26 +40,24 @@ import net.rptools.maptool.model.LookupTable.LookupEntry;
 
 public class EditLookupTablePanel extends AbeillePanel {
 
-	private Campaign campaign;
+	private LookupTable lookupTable;
 	private ImageAssetPanel tableImageAssetPanel;
 	private int defaultRowHeight;
+	
+	private boolean accepted = false;
 	
 	public EditLookupTablePanel() {
 		super("net/rptools/maptool/client/ui/forms/editLookuptablePanel.jfrm");
 		
-		initDeleteTableButton();
-		initNewTableButton();
-		initUpdateTableButton();
-		initTableList();
-		initTableImage();
-		initTableDefinitionTable();
+		panelInit();
 	}
 	
-	private void initTableDefinitionTable() {
+	public void initTableDefinitionTable() {
 
 		defaultRowHeight = getTableDefinitionTable().getRowHeight();
 		
 		getTableDefinitionTable().setDefaultRenderer(ImageAssetPanel.class, new ImageCellRenderer());
+		getTableDefinitionTable().setModel(createLookupTableModel(new LookupTable()));
 		getTableDefinitionTable().addMouseListener(new MouseAdapter() {
 			
 			@Override
@@ -114,7 +113,7 @@ public class EditLookupTablePanel extends AbeillePanel {
 		});
 	}
 	
-	private void initTableImage() {
+	public void initTableImage() {
 
 		tableImageAssetPanel = new ImageAssetPanel();
 		tableImageAssetPanel.setPreferredSize(new Dimension(150, 150));
@@ -122,13 +121,21 @@ public class EditLookupTablePanel extends AbeillePanel {
 		replaceComponent("mainForm", "tableImage", tableImageAssetPanel);
 	}
 
-	public void attach(Campaign campaign) {
-		this.campaign = campaign;
-
-		updateTableList();
-		getTableDefinitionTable().setModel(createLookupTableModel(null));
-		updateDefinitionTableRowHeights();
+	public void attach(final LookupTable lookupTable) {
+		this.lookupTable = lookupTable;
 		
+		accepted = false;
+
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				getTableDefinitionTable().setModel(createLookupTableModel(lookupTable));
+				updateDefinitionTableRowHeights();
+			}
+		});
+	}
+	
+	public boolean accepted() {
+		return accepted;
 	}
 	
 	public JTextField getTableNameTextField() {
@@ -147,26 +154,16 @@ public class EditLookupTablePanel extends AbeillePanel {
 		return (JList) getComponent("tableList");
 	}
 	
-	private void initDeleteTableButton() {
-		JButton button = (JButton) getComponent("deleteTableButton");
+	public void initAcceptButton() {
+		JButton button = (JButton) getComponent("acceptButton");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
-				String name = (String) getTableList().getSelectedValue();
 				
-				if (MapTool.confirm("Delete table '" + name + "'")) {
-					campaign.getLookupTableMap().remove(name);
-					updateTableList();
+				// Commit any in-process edits
+				if (getTableDefinitionTable().isEditing()) {
+					getTableDefinitionTable().getCellEditor().stopCellEditing();
 				}
-			}
-		});
-	}
-
-	private void initUpdateTableButton() {
-		JButton button = (JButton) getComponent("updateTableButton");
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
+				
 				String name = getTableNameTextField().getText().trim();
 				if (name.length() == 0) {
 					MapTool.showError("Must have a name");
@@ -178,13 +175,13 @@ public class EditLookupTablePanel extends AbeillePanel {
 					MapTool.showError("Must have at least one row");
 					return;
 				}
-				
-				LookupTable lookupTable = new LookupTable(name);
+
 				lookupTable.setRoll(getTableRollTextField().getText());
 				lookupTable.setTableImage(tableImageAssetPanel.getImageId());
 
 				MapToolUtil.uploadAsset(AssetManager.getAsset(tableImageAssetPanel.getImageId()));
-				
+
+				lookupTable.clearEntries();
 				for (int i = 0; i < tableModel.getRowCount(); i++) {
 					
 					String range = ((String) tableModel.getValueAt(i, 0)).trim();
@@ -213,38 +210,25 @@ public class EditLookupTablePanel extends AbeillePanel {
 					}
 					
 					MD5Key image = null;
-					if (imageId != null) {
+					if (imageId != null && imageId.length() > 0) {
 						image = new MD5Key(imageId);
 						MapToolUtil.uploadAsset(AssetManager.getAsset(image));
 					}
 					lookupTable.addEntry(min, max, value, image);
 				}
 
-				// This will override the table with the same name
-				campaign.getLookupTableMap().put(name, lookupTable);
+				// This will add it if it is new
+				MapTool.getCampaign().getLookupTableMap().put(name, lookupTable);
+				MapTool.serverCommand().updateCampaign(MapTool.getCampaign().getCampaignProperties());
 				
-				getTableNameTextField().setText("");
-				getTableDefinitionTable().setModel(createLookupTableModel(null));
-				getTableRollTextField().setText("");
+				accepted = true;
 				
-				updateTableList();
+				setVisible(false);
+
 			}
 		});
 	}
 
-	private void initNewTableButton() {
-		JButton button = (JButton) getComponent("newTableButton");
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				getTableNameTextField().setText("");
-				getTableDefinitionTable().setModel(createLookupTableModel(null));
-				updateDefinitionTableRowHeights();
-				
-				getTableNameTextField().requestFocusInWindow();
-			}
-		});
-	}
 	
 	private void updateDefinitionTableRowHeights() {
 
@@ -254,52 +238,6 @@ public class EditLookupTablePanel extends AbeillePanel {
 			String imageId = (String)table.getModel().getValueAt(row, 2);
 			table.setRowHeight(row, imageId != null && imageId.length() > 0 ? 100 : defaultRowHeight);
 		}
-	}
-	
-	private void updateTableList() {
-		
-		final List<String> nameList = new ArrayList<String>();
-
-		for (String name : campaign.getLookupTableMap().keySet()) {
-			nameList.add(name);
-		}
-		
-		Collections.sort(nameList);
-		
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				DefaultListModel model = new DefaultListModel();
-				for (String name : nameList) {
-					model.addElement(name);
-				}
-				getTableList().setModel(model);
-			}
-		});
-	}
-	
-	private void initTableList() {
-		JList list = getTableList();
-		list.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		list.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
-				if (e.getValueIsAdjusting()) {
-					return;
-				}
-
-				String name = (String) getTableList().getSelectedValue();
-				
-				LookupTable lt = campaign.getLookupTableMap().get(name);
-				
-				getTableNameTextField().setText(lt != null ? lt.getName() : "");
-				getTableRollTextField().setText(lt != null ? lt.getRoll() : "");
-				getTableDefinitionTable().setModel(createLookupTableModel(lt));
-				
-				tableImageAssetPanel.setImageId(lt != null ? lt.getTableImage() : null);
-				updateDefinitionTableRowHeights();
-
-			}
-		});
 	}
 	
 	private LookupTableTableModel createLookupTableModel(LookupTable lookupTable) {

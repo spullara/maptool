@@ -195,6 +195,10 @@ public class AssetManager {
 	
 	private static Asset getFromPersistentCache(MD5Key id) {
 		
+		if (id == null || id.toString().length() == 0) {
+			return null;
+		}
+		
 		if (!assetIsInPersistentCache(id)) {
 			return null;
 		}

@@ -24,23 +24,58 @@
  */
 package net.rptools.maptool.client.ui.lookuptable;
 
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
 import javax.swing.JButton;
+import javax.swing.JDialog;
 
 import net.rptools.lib.swing.ImagePanel;
+import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.AbeillePanel;
+import net.rptools.maptool.model.LookupTable;
 
 public class LookupTablePanel extends AbeillePanel {
 
 	private ImagePanel imagePanel;
+	private JDialog editorDialog;
+	private EditLookupTablePanel editorPanel;
 	
 	public LookupTablePanel() {
-		super("net/rptools/maptool/client/ui/forms/lookuptablePanel.jfrm");
+		super("net/rptools/maptool/client/ui/forms/lookupTablePanel.jfrm");
 		
-		initImagePanel();
+		panelInit();
 	}
 
-	private void initImagePanel() {
+	public JDialog getEditorDialog() {
+		if (editorDialog == null) {
+			editorDialog = new JDialog(MapTool.getFrame(), true);
+			editorDialog.setSize(500, 400);
+			editorDialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+
+			editorPanel = new EditLookupTablePanel();
+			
+			editorDialog.add(editorPanel);
+			
+			SwingUtil.centerOver(editorDialog, MapTool.getFrame());
+		}
+		
+		return editorDialog;
+	}
+	
+	public void initImagePanel() {
 		imagePanel = new ImagePanel();
+		imagePanel.setModel(new LookupTableImagePanelModel());
+		imagePanel.setSelectionMode(ImagePanel.SelectionMode.SINGLE);
+		
+		replaceComponent("mainForm", "imagePanel", imagePanel);
+	}
+	
+	public void initEditorPanel() {
+		editorPanel = new EditLookupTablePanel();
 	}
 	
 	public JButton getNewButton() {
@@ -48,22 +83,97 @@ public class LookupTablePanel extends AbeillePanel {
 	}
 	
 	public JButton getEditButton() {
-		return (JButton) getComponent("newButton");
+		return (JButton) getComponent("editButton");
 	}
 	
 	public JButton getDeleteButton() {
-		return (JButton) getComponent("newButton");
+		return (JButton) getComponent("deleteButton");
 	}
 	
 	public JButton getDuplicateButton() {
-		return (JButton) getComponent("newButton");
+		return (JButton) getComponent("duplicateButton");
 	}
 	
 	public JButton getRunButton() {
-		return (JButton) getComponent("newButton");
+		return (JButton) getComponent("runButton");
 	}
 	
 	public ImagePanel getImagePanel() {
 		return imagePanel;
 	}
+	
+	public void initDuplicateButton() {
+		getEditButton().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				List<Object> ids = getImagePanel().getSelectedIds();
+				if (ids == null || ids.size() == 0) {
+					return;
+				}
+				
+				LookupTable lookupTable = new LookupTable(MapTool.getCampaign().getLookupTableMap().get((String)ids.get(0)));
+				lookupTable.setName(lookupTable.getName());
+				
+				editorPanel.attach(lookupTable);
+				
+				getEditorDialog().setVisible(true);
+				
+			}
+		});
+	}
+	
+	public void initEditTableButton() {
+		getEditButton().setMargin(new Insets(0, 0, 0, 0));
+		getEditButton().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				List<Object> ids = getImagePanel().getSelectedIds();
+				if (ids == null || ids.size() == 0) {
+					return;
+				}
+				
+				LookupTable lookupTable = MapTool.getCampaign().getLookupTableMap().get((String)ids.get(0));
+				
+				editorPanel.attach(lookupTable);
+				
+				getEditorDialog().setVisible(true);
+				
+			}
+		});
+	}
+
+	public void initNewTableButton() {
+		getNewButton().setMargin(new Insets(0, 0, 0, 0));
+		getNewButton().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				editorPanel.attach(new LookupTable());
+				
+				getEditorDialog().setVisible(true);
+				
+			}
+		});
+	}
+
+	public void initDeleteTableButton() {
+		getDeleteButton().setMargin(new Insets(0, 0, 0, 0));
+		getDeleteButton().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				List<Object> ids = getImagePanel().getSelectedIds();
+				if (ids == null || ids.size() == 0) {
+					return;
+				}
+				
+				LookupTable lookupTable = MapTool.getCampaign().getLookupTableMap().get((String)ids.get(0));
+
+				if (MapTool.confirm("Delete table '" + lookupTable.getName() + "'")) {
+					MapTool.getCampaign().getLookupTableMap().remove(lookupTable.getName());
+					MapTool.serverCommand().updateCampaign(MapTool.getCampaign().getCampaignProperties());
+				}
+			}
+		});
+	}
+
+
 }

@@ -55,8 +55,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 	
 	private FormPanel formPanel;
 	
-	private EditLookupTablePanel lookupTablePanel;
-
 	private Campaign campaign;
 	
 	public CampaignPropertiesDialog(JFrame owner) {
@@ -77,6 +75,8 @@ public class CampaignPropertiesDialog extends JDialog  {
 	public void setVisible(boolean b) {
 		if (b) {
 			SwingUtil.centerOver(this, MapTool.getFrame());
+		} else {
+			MapTool.getFrame().repaint();
 		}
 		
 		super.setVisible(b);
@@ -95,10 +95,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 		initImportButton();
 		initExportButton();
 
-		lookupTablePanel = new EditLookupTablePanel();
-		
-		formPanel.getFormAccessor("lookuptableTab").replaceBean("lookuptablePanel", lookupTablePanel);
-		
 		add(formPanel);
 		
 		// Escape key
@@ -165,8 +161,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 	
 	public void setCampaign(Campaign campaign) {
 		this.campaign = campaign;
-		
-		lookupTablePanel.attach(campaign);
 		
 		copyCampaignToUI(campaign.getCampaignProperties());
 	}

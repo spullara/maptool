@@ -18,12 +18,26 @@ public class LookupTable {
 	private String defaultRoll;
 	private MD5Key tableImage;
 
-	public LookupTable(String name) {
-		this.name = name;
+	
+	public LookupTable() {
+	}
+	
+	public LookupTable(LookupTable table) {
+		name = table.name;
+		defaultRoll = table.defaultRoll;
+		tableImage = table.tableImage;
+		
+		if (table.entryList != null) {
+			getEntryList().addAll(table.entryList);
+		}
 	}
 	
 	public void setRoll(String roll) {
 		defaultRoll = roll;
+	}
+	
+	public void clearEntries() {
+		getInternalEntryList().clear();
 	}
 	
 	public void addEntry(int min, int max, String result, MD5Key imageId) {
@@ -36,6 +50,10 @@ public class LookupTable {
 
 	public String getRoll() {
 		return getDefaultRoll();
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	public String getName() {
@@ -95,7 +113,7 @@ public class LookupTable {
 			}
 		}
 		
-		return "d" + (max - min + 1) + (min - 1 != 0 ? "+" + (min-1) : "");
+		return min != null ? "d" + (max - min + 1) + (min - 1 != 0 ? "+" + (min-1) : "") : "";
 	}
 	
 	private List<LookupEntry> getInternalEntryList() {
