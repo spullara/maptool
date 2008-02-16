@@ -1264,7 +1264,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					}
 					
 					// Create the space for the image
-					int width = imgSize.width + (statSize != null ? statSize.width : 0) + AppStyle.miniMapBorder.getLeftMargin() + AppStyle.miniMapBorder.getRightMargin();
+					int width = imgSize.width + (statSize != null ? statSize.width + AppStyle.miniMapBorder.getRightMargin() : 0) + AppStyle.miniMapBorder.getLeftMargin() + AppStyle.miniMapBorder.getRightMargin();
 					int height = Math.max(imgSize.height, (statSize != null ? statSize.height + AppStyle.miniMapBorder.getRightMargin() : 0)) + AppStyle.miniMapBorder.getTopMargin() + AppStyle.miniMapBorder.getBottomMargin();
 					statSheet = new BufferedImage(width, height, BufferedImage.BITMASK);
 					Graphics2D statsG = statSheet.createGraphics();
@@ -1275,7 +1275,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					// Draw the stats first, right aligned
 					if (statSize != null) {
 						Rectangle bounds = new Rectangle(width - statSize.width - AppStyle.miniMapBorder.getRightMargin(), statSize.height == height ? 0 : height - statSize.height - AppStyle.miniMapBorder.getBottomMargin(), statSize.width, statSize.height);
-		
+
 						statsG.setPaint(new TexturePaint(AppStyle.panelTexture, new Rectangle(0, 0, AppStyle.panelTexture.getWidth(), AppStyle.panelTexture.getHeight())));
 						statsG.fill(bounds);
 						AppStyle.miniMapBorder.paintAround(statsG, bounds);
@@ -1309,7 +1309,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					statsG.drawImage(image, bounds.x, bounds.y, imgSize.width, imgSize.height, this);
 					AppStyle.miniMapBorder.paintAround(statsG, bounds);
 					AppStyle.shadowBorder.paintWithin(statsG, bounds);
-					GraphicsUtil.drawBoxedString(statsG, tokenUnderMouse.getName(), bounds.width/2, bounds.height - 5);
+					
+					// Label
+					GraphicsUtil.drawBoxedString(statsG, tokenUnderMouse.getName(), bounds.width/2 + AppStyle.miniMapBorder.getLeftMargin(), height - 15);
 				
 					statsG.dispose();
 				}
