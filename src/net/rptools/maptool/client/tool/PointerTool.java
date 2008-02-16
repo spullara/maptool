@@ -1316,9 +1316,10 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					statsG.dispose();
 				}
 
-				if (statSheet != null) {
-					g.drawImage(statSheet, 5, viewSize.height - statSheet.getHeight() - 5, this);
-				}
+			}
+
+			if (statSheet != null) {
+				g.drawImage(statSheet, 5, viewSize.height - statSheet.getHeight() - 5, this);
 			}
 		}
 		
