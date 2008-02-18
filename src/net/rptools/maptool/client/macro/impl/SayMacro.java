@@ -55,7 +55,7 @@ public class SayMacro extends AbstractMacro {
         		if (imageId == null) {
         			imageId = token.getImageAssetId();
         		}
-	        	sb.append("<td valign=top width=40 style=\"padding-right:5px\"><img src=\"asset://").append(imageId).append("\" width=\"40\" height=\"40\"></td>");
+	        	sb.append("<td valign=top width=40 style=\"padding-right:5px\"><img src=\"asset://").append(imageId).append("-40\" ></td>");
         	}
         }
         

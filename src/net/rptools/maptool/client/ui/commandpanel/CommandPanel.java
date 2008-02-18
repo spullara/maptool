@@ -294,7 +294,7 @@ public class CommandPanel extends JPanel implements Observer {
 		return commandTextArea;
 	}
 
-    private static final Pattern CHEATER_PATTERN = Pattern.compile("(?:«|»|&#171;|&#187;|&laquo;|&raquo;)|\\[roll");
+    private static final Pattern CHEATER_PATTERN = Pattern.compile("(?:ï¿½|ï¿½|&#171;|&#187;|&laquo;|&raquo;)|\\[roll");
 	/**
 	 * Execute the command in the command field.
 	 */
@@ -524,7 +524,7 @@ public class CommandPanel extends JPanel implements Observer {
 			SwingUtil.constrainTo(imgSize, size.width-PADDING*2, size.height-PADDING*2);
 
 			((Graphics2D)g).setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-			g.drawImage(image, (size.width-imgSize.width)/2, (size.height-imgSize.height)/2, imgSize.width, imgSize.width, this);
+			g.drawImage(image, (size.width-imgSize.width)/2, (size.height-imgSize.height)/2, imgSize.width, imgSize.height, this);
 			
 			// Cancel
 			BufferedImage cancelButton = AppStyle.cancelButton;

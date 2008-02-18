@@ -1,7 +1,11 @@
 package net.rptools.maptool.client.swing;
 
+import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Dictionary;
@@ -11,6 +15,7 @@ import java.util.Map;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.ImageManager;
 
@@ -49,9 +54,30 @@ public class HTMLPanelImageCache extends Dictionary<URL, Image> {
 				}
 			} else if ("asset".equals(protocol)) {
 
-				image = ImageManager.getImageAndWait(AssetManager
-						.getAsset(new MD5Key(path)));
+				// Look for size request
+				int index = path.indexOf("-");
+				int size = -1;
+				if (index >= 0) {
+					String szStr = path.substring(index+1);
+					path = path.substring(0, index);
+					size = Integer.parseInt(szStr);
+				}
+				
+				image = ImageManager.getImageAndWait(AssetManager.getAsset(new MD5Key(path)));
 
+				if (size > 0) {
+					Dimension sz = new Dimension(image.getWidth(null), image.getHeight(null));
+					SwingUtil.constrainTo(sz, size);
+					
+					BufferedImage img = new BufferedImage(sz.width, sz.height, ImageUtil.pickBestTransparency(image));
+					Graphics2D g = img.createGraphics();
+					g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+					g.drawImage(image, 0, 0, sz.width, sz.height, null);
+					g.dispose();
+					
+					image = img;
+				}
+				
 			} else {
 
 				// Normal method
