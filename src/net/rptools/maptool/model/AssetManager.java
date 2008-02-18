@@ -149,7 +149,7 @@ public class AssetManager {
 
 				try {
 					String name = FileUtil.getNameWithoutExtension(imageFile);
-					byte[] data = FileUtil.getBytes(imageFile.toURL());
+					byte[] data = FileUtil.getBytes(imageFile);
 	
 					asset = new Asset(name, data);
 					
