@@ -76,9 +76,11 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable,
 	////
 	// IMAGE OBSERVER
 	public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-		System.out.println("imageUpdate");
-		MapTool.getFrame().getCurrentZoneRenderer().flushDrawableRenderer();
-		MapTool.getFrame().refresh();
+
+		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+			MapTool.getFrame().getCurrentZoneRenderer().flushDrawableRenderer();
+			MapTool.getFrame().refresh();
+		}
 		return false;
 	}
 }
