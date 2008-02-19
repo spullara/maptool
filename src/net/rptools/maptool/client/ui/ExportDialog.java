@@ -71,6 +71,11 @@ public class ExportDialog extends JDialog {
 		setLayout(new GridLayout());
 		add(formPanel);
 		
+		if (!MapTool.getPlayer().isGM()) {
+			getViewGMRadio().setEnabled(false);
+			getViewPlayerRadio().setSelected(true);
+		}
+
 		initExportInfo(exportInfo);
 		
 		// Until full map export is available
