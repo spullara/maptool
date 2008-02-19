@@ -15,7 +15,6 @@
 	<classpathentry kind="lib" path="lib/jide-grids-1.9.4.jar"/>
 	<classpathentry kind="lib" path="lib/antlr-2.7.6.jar"/>
 	<classpathentry kind="lib" path="lib/js-1.6R5.jar"/>
-	<classpathentry kind="lib" path="lib/maptool.resource-1.0.b15.jar"/>
 	<classpathentry kind="lib" path="lib/jl1.0.jar"/>
 	<classpathentry kind="lib" path="lib/yasb-0.2-21012007.jar"/>
 	<classpathentry kind="lib" path="lib/servicediscoverylib-1.0.b5.jar"/>
@@ -30,5 +29,6 @@
 	<classpathentry kind="lib" path="lib/sbbi-upnplib-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/decktool-1.0.b1.jar"/>
 	<classpathentry kind="lib" path="lib/rplib-1.0.b105.jar"/>
+	<classpathentry kind="lib" path="lib/maptool.resource-1.0.b16.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
