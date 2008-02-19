@@ -90,13 +90,13 @@
                 autohideHeight="200" autohideShowing="false"
                 autohideWidth="200" availableButtons="15"
                 dockable="true" docked="false" dockedHeight="200"
-                dockedWidth="150" floatable="true" floated="true"
+                dockedWidth="150" floatable="true" floated="false"
                 hidable="true" hidden="true" initIndex="4" initMode="4"
                 initSide="2" key="LOOKUP_TABLES" maximizable="true"
                 maximized="false" preferredAutohideSide="-1"
                 preferredSize="150; 150" rearrangable="true"
                 showGripper="false" showTitleBar="true"
-                sideDockAllowed="true" sideTitle="LOOKUP_TABLES"
+                sideDockAllowed="true" sideTitle="Tables"
                 slidingAutohide="true" tabDockAllowed="true"
                 tabTitle="Tables" title="Tables" undockedBounds="10; 10; 150; 200"/>
         </DockableFrames>

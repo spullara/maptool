@@ -630,6 +630,8 @@ public class MapTool {
         if (clientConn.isAlive()) {
         	conn = clientConn;
     	}
+        
+        clientFrame.getLookupTablePanel().updateView();
     }
     
     public static void closeConnection() throws IOException {

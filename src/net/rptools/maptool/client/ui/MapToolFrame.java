@@ -183,6 +183,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private GlassPane glassPane;
 	
 	private TextureChooserPanel textureChooserPanel;
+	
+	private LookupTablePanel lookupTablePanel;
 
 	// Components
 	private JFileChooser loadFileChooser;
@@ -359,7 +361,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		frameMap.put(MTFrame.IMAGE_EXPLORER, createDockingFrame(MTFrame.IMAGE_EXPLORER, assetPanel));
 		frameMap.put(MTFrame.CHAT, createDockingFrame(MTFrame.CHAT, commandPanel));
 		frameMap.put(MTFrame.MACROS, createDockingFrame(MTFrame.MACROS, new JScrollPane(createMacroButtonPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)));
-		frameMap.put(MTFrame.LOOKUP_TABLES, createDockingFrame(MTFrame.LOOKUP_TABLES, createLookupTablePanel()));
+		frameMap.put(MTFrame.LOOKUP_TABLES, createDockingFrame(MTFrame.LOOKUP_TABLES, getLookupTablePanel()));
 	}
 	
 	private static DockableFrame createDockingFrame(MTFrame mtFrame, Component component) {
@@ -369,9 +371,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		return frame;
 	}
 
-	public JPanel createLookupTablePanel() {
-		
-		return new LookupTablePanel();
+	public LookupTablePanel getLookupTablePanel() {
+		if (lookupTablePanel == null) {
+			lookupTablePanel = new LookupTablePanel();
+		}
+		return lookupTablePanel;
 	}
 	
 	public JPanel createMacroButtonPanel() {

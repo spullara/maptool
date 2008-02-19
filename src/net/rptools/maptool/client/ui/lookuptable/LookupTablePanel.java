@@ -34,6 +34,7 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import net.rptools.lib.swing.ImagePanel;
@@ -52,6 +53,13 @@ public class LookupTablePanel extends AbeillePanel {
 		super("net/rptools/maptool/client/ui/forms/lookupTablePanel.jfrm");
 		
 		panelInit();
+	}
+	
+	public void updateView() {
+		
+		getButtonPanel().setVisible(MapTool.getPlayer().isGM());
+		revalidate();
+		repaint();
 	}
 
 	public JDialog getEditorDialog() {
@@ -96,6 +104,10 @@ public class LookupTablePanel extends AbeillePanel {
 		});
 		
 		replaceComponent("mainForm", "imagePanel", new JScrollPane(imagePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+	}
+	
+	public JPanel getButtonPanel() {
+		return (JPanel) getComponent("buttonPanel");
 	}
 	
 	public void initEditorPanel() {
