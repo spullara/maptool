@@ -433,7 +433,7 @@ public class Token extends BaseModel {
 
 	public boolean hasSight() {
 		// TODO: This has to be MUCH more selective
-		return !isStamp();
+		return !isStamp() && getType() == Type.PC;
 	}
 
 	public void addLightSource(LightSource source, Direction direction) {
