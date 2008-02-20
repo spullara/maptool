@@ -1397,8 +1397,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			
 			BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(marker.getPortraitImage()));
 			Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
-			if (imgSize.width > AppConstants.PORTRAIT_SIZE || imgSize.height > AppConstants.PORTRAIT_SIZE) {
-				SwingUtil.constrainTo(imgSize, AppConstants.PORTRAIT_SIZE);
+			if (imgSize.width > AppConstants.NOTE_PORTRAIT_SIZE || imgSize.height > AppConstants.NOTE_PORTRAIT_SIZE) {
+				SwingUtil.constrainTo(imgSize, AppConstants.NOTE_PORTRAIT_SIZE);
 			}
 			builder.append("</td><td valign=top>");
 			builder.append("<img src=asset://").append(marker.getPortraitImage()).append(" width=").append(imgSize.width).append(" height=").append(imgSize.height).append("></tr></table>");
