@@ -238,6 +238,7 @@ public class AppMenuBar extends JMenuBar {
 
     protected JMenu createHelpMenu() {
         JMenu menu = I18N.createMenu("menu.help");
+        menu.add(new JMenuItem(AppActions.ADD_DEFAULT_TABLES));
         menu.add(new JMenuItem(AppActions.RESTORE_DEFAULT_IMAGES));
         menu.add(new JMenuItem(AppActions.SHOW_DOCUMENTATION));
         menu.add(new JMenuItem(AppActions.SHOW_TUTORIALS));

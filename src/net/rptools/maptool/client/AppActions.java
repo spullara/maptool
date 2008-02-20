@@ -36,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -83,14 +84,17 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignFactory;
+import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.ExportInfo;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.LookupTable.LookupEntry;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
@@ -339,6 +343,36 @@ public class AppActions {
 
 			} catch (IOException ioe) {
 				MapTool.showError("Could not restore defaults: " + ioe);
+			}
+		}
+	};
+	
+	public static final Action ADD_DEFAULT_TABLES = new DefaultClientAction() {
+
+		{
+			init("action.addDefaultTables");
+		}
+
+		public void execute(ActionEvent e) {
+			try {
+				// Load the defaults
+				InputStream in = AppActions.class.getClassLoader().getResourceAsStream("net/rptools/maptool/client/defaultTables.mtprops");
+				CampaignProperties properties = PersistenceUtil.loadCampaignProperties(in);
+				in.close();
+
+				// Make sure the images have been installed
+				// Just pick a table and spot check
+				LookupTable lookupTable = properties.getLookupTableMap().values().iterator().next();
+				if (!AssetManager.hasAsset(lookupTable.getTableImage())) {
+					AppSetup.installDefaultTokens();
+				}
+
+				MapTool.getCampaign().mergeCampaignProperties(properties);
+				
+				MapTool.getFrame().repaint();
+
+			} catch (IOException ioe) {
+				MapTool.showError("Could not install default tables: " + ioe);
 			}
 		}
 	};

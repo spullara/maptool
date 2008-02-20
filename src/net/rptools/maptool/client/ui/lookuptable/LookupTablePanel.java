@@ -79,7 +79,7 @@ public class LookupTablePanel extends AbeillePanel {
 	public void initImagePanel() {
 		imagePanel = new ImagePanel();
 		imagePanel.setBackground(Color.white);
-		imagePanel.setModel(new LookupTableImagePanelModel());
+		imagePanel.setModel(new LookupTableImagePanelModel(this));
 		imagePanel.setSelectionMode(ImagePanel.SelectionMode.SINGLE);
 		imagePanel.addMouseListener(new MouseAdapter() { 
 			@Override
@@ -217,7 +217,6 @@ public class LookupTablePanel extends AbeillePanel {
 					
 					imagePanel.clearSelection();
 					repaint();
-					System.out.println(imagePanel.getSelectedIds());
 				}
 				
 			}

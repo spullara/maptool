@@ -307,12 +307,24 @@ public class PersistenceUtil {
 	}
 	
 	public static CampaignProperties loadCampaignProperties(File file) throws IOException {
-
+		
 		if (!file.exists()) {
 			throw new FileNotFoundException();
 		}
 		
-		return (CampaignProperties) new XStream().fromXML(new FileInputStream(file));
+		FileInputStream in = new FileInputStream(file);
+		try {
+			return loadCampaignProperties(in);
+		} finally {
+			if (in != null) {
+				in.close();
+			}
+		}
+	}
+	
+	public static CampaignProperties loadCampaignProperties(InputStream in) throws IOException {
+		
+		return (CampaignProperties) new XStream().fromXML(in);
 	}
 	
 	public static void saveCampaignProperties(Campaign campaign, File file) throws IOException {

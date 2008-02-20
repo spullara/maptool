@@ -105,6 +105,8 @@ public class EditLookupTablePanel extends AbeillePanel {
 				getTableDefinitionTable().getModel().setValueAt(imageIdStr, row, column);
 
 				updateDefinitionTableRowHeights();
+				
+				getTableDefinitionTable().repaint();
 			}
 		});
 	}
