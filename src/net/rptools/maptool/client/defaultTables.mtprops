@@ -1030,7 +1030,7 @@
           </net.rptools.maptool.model.LookupTable_-LookupEntry>
         </entryList>
         <name>Standard w/ Joker</name>
-        <defaultRoll>d52</defaultRoll>
+        <defaultRoll>d53</defaultRoll>
         <tableImage>
           <id>8d7950b9f17a21bd7ff1ea36badd11e8</id>
         </tableImage>
