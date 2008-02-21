@@ -24,6 +24,8 @@
  */
 package net.rptools.maptool.client.macro.impl;
 
+import java.util.List;
+
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
@@ -47,13 +49,12 @@ public class LookupTableMacro extends AbstractMacro {
         	MapTool.addLocalMessage("Must specify a table");
         	return;
         }
-        
-        int split = macro.indexOf(" ");
-        String tableName = macro;
+
+        List<String> words = splitNextWord(macro);
+        String tableName = words.get(0);
         String value = null;
-        if (split > 0) {
-        	tableName = macro.substring(0, split).trim();
-        	value = macro.substring(split+1).trim();
+        if (words.size() > 1) {
+        	value = words.get(1);
         	
         	if (value.length() == 0) {
         		value = null;
@@ -77,13 +78,13 @@ public class LookupTableMacro extends AbstractMacro {
 	    		return;
 	    	}
 	    	
+	    	sb.append("Table ").append(tableName).append(" (");
+	        sb.append(MapTool.getFrame().getCommandPanel().getIdentity());
+	        sb.append("): ");
+	        
 	    	if (result.getImageId() != null) {
 	    		sb.append("<img src=\"asset://").append(result.getImageId()).append("\" alt=\"").append(result.getValue()).append("\">");
 	    	} else {
-		    	sb.append("Table ").append(tableName).append(" (");
-		        sb.append(MapTool.getFrame().getCommandPanel().getIdentity());
-		        sb.append("): ");
-		        
 		        sb.append("<span style='color:red'>");
 		        
 		        sb.append(lookupValue);
