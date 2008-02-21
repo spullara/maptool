@@ -199,7 +199,7 @@ public class EditLookupTablePanel extends AbeillePanel {
 					return;
 				}
 
-				lookupTable.setName(getTableNameTextField().getText());
+				lookupTable.setName(name);
 				lookupTable.setRoll(getTableRollTextField().getText());
 				lookupTable.setTableImage(tableImageAssetPanel.getImageId());
 

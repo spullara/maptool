@@ -97,7 +97,7 @@ public class LookupTablePanel extends AbeillePanel {
 						return;
 					}
 					
-					  MapTool.getFrame().getCommandPanel().getCommandTextArea().setText("/tbl " + lookupTable.getName());
+					  MapTool.getFrame().getCommandPanel().getCommandTextArea().setText("/tbl \"" + lookupTable.getName() + "\"");
 					  MapTool.getFrame().getCommandPanel().commitCommand();
 				}
 			}
