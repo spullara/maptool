@@ -160,6 +160,11 @@ public class LookupTable {
 		
 		private MD5Key imageId;
 		
+		/**
+		 * @Deprecated here to prevent xstream from breaking b24-b25
+		 */
+		private String result;
+		
 		public LookupEntry(int min, int max, String result, MD5Key imageId) {
 			this.min = min;
 			this.max = max;
@@ -180,6 +185,11 @@ public class LookupTable {
 		}
 
 		public String getValue() {
+			// Temporary fix to convert b24 to b25
+			if (result != null) {
+				value = result;
+				result = null;
+			}
 			return value;
 		}
 		
