@@ -37,7 +37,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -66,6 +65,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
 import net.rptools.maptool.model.Asset;
@@ -76,7 +76,6 @@ import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
 
-import com.jeta.forms.components.image.ImageComponent;
 import com.jidesoft.grid.AbstractPropertyTableModel;
 import com.jidesoft.grid.Property;
 import com.jidesoft.grid.PropertyPane;
@@ -94,6 +93,8 @@ public class TokenPropertiesDialog extends AbeillePanel {
 	private boolean tokenSaved;
 	
 	private GenericDialog dialog;
+	
+	private ImageAssetPanel imagePanel;
 
 	/**
 	 * The size used to constrain the icon.
@@ -140,9 +141,9 @@ public class TokenPropertiesDialog extends AbeillePanel {
 
 	@Override
 	public void bind(Object model) {
-
+		
 		// ICON
-		getTokenIconPanel().setIcon(getTokenIcon());
+		getTokenIconPanel().setImageId(token.getImageAssetId());
 
 		// PROPERTIES
 		EventQueue.invokeLater(new Runnable() {
@@ -242,8 +243,14 @@ public class TokenPropertiesDialog extends AbeillePanel {
 		
 	}
 	
-	public ImageComponent getTokenIconPanel() {
-		return (ImageComponent) getComponent("tokenIcon");
+	public ImageAssetPanel getTokenIconPanel() {
+		if (imagePanel == null) {
+			imagePanel = new ImageAssetPanel();
+			imagePanel.setAllowEmptyImage(false);
+			
+			replaceComponent("mainPanel", "tokenImage", imagePanel);
+		}
+		return imagePanel;
 	}
 	
 	public void initShapeCombo() {
@@ -343,6 +350,12 @@ public class TokenPropertiesDialog extends AbeillePanel {
 			if (!MapTool.getCampaign().containsAsset(token.getCharsheetImage())) {
 				MapTool.serverCommand().putAsset(AssetManager.getAsset(token.getCharsheetImage()));
 			}
+		}
+		
+		// IMAGE
+		if (!token.getImageAssetId().equals(getTokenIconPanel().getImageId())) {
+			token.setImageAsset(null, getTokenIconPanel().getImageId()); // Default image for now
+			MapToolUtil.uploadAsset(AssetManager.getAsset(getTokenIconPanel().getImageId()));
 		}
 		
 		// PORTRAIT

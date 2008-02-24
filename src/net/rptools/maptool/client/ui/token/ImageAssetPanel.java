@@ -42,6 +42,8 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
 	private JButton cancelButton;
 	private JButton addButton;
 	
+	private boolean allowEmpty = true;
+	
 	public ImageAssetPanel() {
 		new DropTarget(this, this);
 		
@@ -114,10 +116,14 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
 		return imageId;
 	}
 	
+	public void setAllowEmptyImage(boolean allow) {
+		allowEmpty = allow;
+	}
+	
 	public void setImageId(MD5Key sheetAssetId) {
 		this.imageId = sheetAssetId;
 
-		getCancelButton().setVisible(sheetAssetId != null);
+		getCancelButton().setVisible(allowEmpty && sheetAssetId != null);
 		
 		revalidate();
 		repaint();
