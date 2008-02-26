@@ -461,11 +461,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         tokenLocationCache.remove(token);
         
         lightSourceCache.remove(token);
-        lightSourceArea = null;
         
         if (token.hasLightSources()) {
         	// Have to recalculate all token vision
         	tokenVisionCache.clear();
+            lightSourceArea = null;
         }
         
         flushFog = true;
@@ -715,43 +715,45 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         long startTime = System.currentTimeMillis();
         
         // Calculate lights
-        lightSourceArea = null;
-        for (Token token : zone.getAllTokens()) {
-        	
-        	if (!token.hasLightSources() || !token.isVisible()) {
-        		continue;
-        	}
-        	
-        	Area area = lightSourceCache.get(token);
-        	if (area == null) {
+        if (lightSourceArea == null) {
 
-        		area = new Area();
-        		for (AttachedLightSource attachedLightSource : token.getLightSources()) {
-        			
-        			LightSource lightSource = MapTool.getCampaign().getLightSource(attachedLightSource.getLightSourceId());
-        			if (lightSource == null) {
-        				continue;
-        			}
-        			
-                    Point p = FogUtil.calculateVisionCenter(token, zone);
-                    Area lightSourceArea = lightSource.getArea(token, zone, attachedLightSource.getDirection());
-        			Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopologyAreaData());
-
-        			if (visibleArea != null) {
-        				area.add(visibleArea);
-        			}
-        		}
-        		
-        		lightSourceCache.put(token, area);
-        	}
-        	
-        	// Lazy create
-        	if (lightSourceArea == null) {
-        		lightSourceArea = new Area();
-        	}
-        	
-        	// Combine all light source visible area
-        	lightSourceArea.add(area);
+	        for (Token token : zone.getAllTokens()) {
+	        	
+	        	if (!token.hasLightSources() || !token.isVisible()) {
+	        		continue;
+	        	}
+	        	
+	        	Area area = lightSourceCache.get(token);
+	        	if (area == null) {
+	
+	        		area = new Area();
+	        		for (AttachedLightSource attachedLightSource : token.getLightSources()) {
+	        			
+	        			LightSource lightSource = MapTool.getCampaign().getLightSource(attachedLightSource.getLightSourceId());
+	        			if (lightSource == null) {
+	        				continue;
+	        			}
+	        			
+	                    Point p = FogUtil.calculateVisionCenter(token, zone);
+	                    Area lightSourceArea = lightSource.getArea(token, zone, attachedLightSource.getDirection());
+	        			Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopologyAreaData());
+	
+	        			if (visibleArea != null) {
+	        				area.add(visibleArea);
+	        			}
+	        		}
+	        		
+	        		lightSourceCache.put(token, area);
+	        	}
+	        	
+	        	// Lazy create
+	        	if (lightSourceArea == null) {
+	        		lightSourceArea = new Area();
+	        	}
+	        	
+	        	// Combine all light source visible area
+	        	lightSourceArea.add(area);
+	        }
         }
         
         // Calculate vision
@@ -1555,11 +1557,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         float scale = zoneScale.getScale();
         for (Token token : tokenList) {
 
-            // Don't bother if it's not visible
-            if (!zone.isTokenVisible(token) && !view.isGMView()) {
-                continue;
-            }
-            
             if (token.isStamp() && isTokenMoving(token)) {
                 continue;
             }
@@ -1569,6 +1566,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	continue;
             }
 
+            // Don't bother if it's not visible
+            // NOTE: Not going to use zone.isTokenVisible as it is very slow.  In fact, it's faster
+            // to just draw the tokens and let them be clipped
+            if (!token.isVisible() && !view.isGMView()) {
+                continue;
+            }
+            
             Rectangle footprintBounds = token.getBounds(zone);
             
             BufferedImage image = null;
