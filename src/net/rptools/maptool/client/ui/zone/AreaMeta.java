@@ -37,10 +37,12 @@ import net.rptools.lib.GeometryUtil.PointNode;
 public class AreaMeta {
 
 	Area area;
-	PointNode pointNodeList;
 	Point2D centerPoint;
+	Set<AreaFace> faceSet;
 	
 	// Only used during construction
+	boolean isHole;
+	PointNode pointNodeList;
 	GeneralPath path; 
 	PointNode lastPointNode;
 	
@@ -54,24 +56,22 @@ public class AreaMeta {
 		return centerPoint;
 	}
 	
-	public Set<Line2D> getFrontFaces(Point2D origin) {
-		
-		return GeometryUtil.getFrontFaces(pointNodeList, origin);
-	}
-	
-	public Set<Line2D> getAllFaces() {
-		
-		Set<Line2D> faceSet = new HashSet<Line2D>();
-		
-		PointNode node = pointNodeList;
-		do {
-			faceSet.add(new Line2D.Double(node.point, node.previous.point));
-			
-			node = node.next;
-			
-		} while (!node.point.equals(pointNodeList.point));
-		
-		return faceSet;
+	public Set<AreaFace> getFrontFaces(Point2D origin) {
+
+		Set<AreaFace> faces = new HashSet<AreaFace>();
+		for (AreaFace face : faceSet) {
+			double originAngle = GeometryUtil.getAngle(origin, face.getMidPoint());
+			double delta = GeometryUtil.getAngleDelta(originAngle, face.getFacing()); 
+//			System.out.println(originAngle + " - " + delta);
+			if (Math.abs(delta) < 90) {
+				continue;
+			}
+
+			faces.add(face);
+		}
+
+		System.out.println("Size: " + faceSet.size() + " Rem: " + faces.size());
+		return faces;
 	}
 	
 	public Area getArea() {
@@ -79,19 +79,7 @@ public class AreaMeta {
 	}
 	
 	public boolean isHole() {
-		
-		double angle = 0;
-		
-		PointNode currNode = pointNodeList.next;
-
-		while (currNode != pointNodeList) {
-			double currAngle = GeometryUtil.getAngleDelta(GeometryUtil.getAngle(currNode.previous.point, currNode.point), GeometryUtil.getAngle(currNode.point, currNode.next.point)); 
-
-			angle += currAngle;
-			currNode = currNode.next;
-		}
-		
-		return angle < 0;
+		return isHole;
 	}
 	
 	public void addPoint(float x, float y) {
@@ -138,6 +126,40 @@ public class AreaMeta {
 			pointNodeList.previous = trueLastPoint;
 		}
 		
+		computeIsHole();
+		computeFaces();
+		
+		// Don't need point list anymore
+		pointNodeList = null;
 		path = null;
+	}
+
+	private void computeIsHole() {
+		double angle = 0;
+		
+		PointNode currNode = pointNodeList.next;
+
+		while (currNode != pointNodeList) {
+			double currAngle = GeometryUtil.getAngleDelta(GeometryUtil.getAngle(currNode.previous.point, currNode.point), GeometryUtil.getAngle(currNode.point, currNode.next.point)); 
+
+			angle += currAngle;
+			currNode = currNode.next;
+		}
+		
+		isHole = angle < 0;
+		
+	}
+	
+	private void computeFaces() {
+		faceSet = new HashSet<AreaFace>();
+	
+		PointNode node = pointNodeList;
+		do {
+			faceSet.add(new AreaFace(node.point, node.previous.point));
+			
+			node = node.next;
+			
+		} while (!node.point.equals(pointNodeList.point));
+		
 	}
 }

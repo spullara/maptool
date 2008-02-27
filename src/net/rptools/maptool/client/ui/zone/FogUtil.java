@@ -70,12 +70,9 @@ public class FogUtil {
 				continue;
 			}
 			
-			LinkedList<Line2D> lineList = new LinkedList<Line2D>(areaMeta.getAllFaces());
-//			LinkedList<Line2D> lineList = new LinkedList<Line2D>(areaMeta.getFrontFaces(origin));
-			
 			List<RelativeLine> relativeLineList = new LinkedList<RelativeLine>();
-			for (Iterator<Line2D> lineIter = lineList.iterator(); lineIter.hasNext();) {
-				Line2D line = lineIter.next();
+			for (AreaFace face : areaMeta.getFrontFaces(new Point(x, y))) {
+				Line2D line = new Line2D.Double(face.getP1(), face.getP2());
 				relativeLineList.add(new RelativeLine(line, GeometryUtil.getDistance(origin, GeometryUtil.getCloserPoint(origin, line))));
 			}
 			
@@ -88,6 +85,7 @@ public class FogUtil {
 			
 			List<Area> blockList = new LinkedList<Area>();
 			for (RelativeLine rline : relativeLineList) {
+				
 				Line2D line = rline.line;
 				
 				double rx = Math.min(line.getP1().getX(), line.getP2().getX())-1;
