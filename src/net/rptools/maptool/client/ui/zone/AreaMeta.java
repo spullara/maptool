@@ -62,7 +62,7 @@ public class AreaMeta {
 		for (AreaFace face : faceSet) {
 			double originAngle = GeometryUtil.getAngle(origin, face.getMidPoint());
 			double delta = GeometryUtil.getAngleDelta(originAngle, face.getFacing()); 
-//			System.out.println(originAngle + " - " + delta);
+
 			if (Math.abs(delta) < 90) {
 				continue;
 			}
@@ -70,7 +70,6 @@ public class AreaMeta {
 			faces.add(face);
 		}
 
-		System.out.println("Size: " + faceSet.size() + " Rem: " + faces.size());
 		return faces;
 	}
 	
