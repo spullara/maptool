@@ -170,7 +170,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     private boolean isUsingVision;
 
     private Area visibleArea;
-    private Area currentTokenVisionArea;
+    private Area visibleScreenArea;
     
     private BufferedImage fogBuffer;
     private boolean flushFog = true;
@@ -457,6 +457,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         tokenLocationCache.remove(token);
         
         lightSourceCache.remove(token);
+        visibleArea = null;
         
         if (token.hasLightSources()) {
         	// Have to recalculate all token vision
@@ -639,7 +640,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         lastView = view;
     }
     
-    public Area getVisibleArea() {
+    /**
+     * This is the visible area in Screen space
+     * @return
+     */
+    public Area getVisibleScreenArea() {
     	return visibleArea;
     }
     
@@ -655,12 +660,18 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     }
     private void renderVisionOverlay(Graphics2D g, ZoneView view) {
 
+    	Area currentTokenVisionArea = tokenVisionCache.get(tokenUnderMouse);
         if (currentTokenVisionArea == null) {
             return;
         }
         
-        Object oldAA = g.getRenderingHint (RenderingHints.KEY_ANTIALIASING);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    	AffineTransform af = new AffineTransform();
+    	af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
+    	af.scale(getScale(), getScale());
+
+    	AffineTransform oldTransform = g.getTransform();
+        g.setTransform(af);
+        Object oldAA = SwingUtil.useAntiAliasing(g);
         g.setColor(new Color(200, 200, 200));        
         g.draw(currentTokenVisionArea);  
         
@@ -671,8 +682,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             g.setColor(new Color(visionColor.getRed(), visionColor.getGreen(), visionColor.getBlue(), AppPreferences.getVisionOverlayOpacity()));
             g.fill(currentTokenVisionArea);
         }
-        
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAA); 
+
+        g.setTransform(oldTransform);
+        SwingUtil.restoreAntiAliasing(g, oldAA); 
     }
     
     private void renderPlayerVision(Graphics2D g, ZoneView view) {
@@ -700,8 +712,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     }
     
     private void calculateVision(ZoneView view) {
-        
-        currentTokenVisionArea = null;
         
         long startTime = System.currentTimeMillis();
         
@@ -742,8 +752,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         // Calculate vision
         isUsingVision = lightSourceCache.size() > 0 || (zone.getTopology() != null && !zone.getTopology().isEmpty());
-        visibleArea = null;
-        if (isUsingVision) {
+        if (visibleArea == null && isUsingVision) {
 	        for (Token token : zone.getAllTokens()) {
 
 	            if (token.hasSight ()) {
@@ -772,19 +781,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                    }
 	                    visibleArea.add(tokenVision);
 	                    
-	                    if (token == tokenUnderMouse) {
-	                    	
-	                    	currentTokenVisionArea = tokenVision.createTransformedArea(af);
-	                    }
 	                }
 	            }
 	        }
+	        
+	        if (visibleArea != null) {
+	        	visibleScreenArea = visibleArea.createTransformedArea(af);
+	        }
         }
-        if (visibleArea != null) {
-        	visibleArea.transform(af);
-        }
-        
-//        System.out.println("Vision calc: " + (System.currentTimeMillis() - startTime));
     }
     
     public Area getTokenVision(Token token) {
@@ -950,7 +954,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         	} 
         	
         	Graphics2D buffG = fogBuffer.createGraphics();
-        	fogClip = null;
     		buffG.setClip(fogClip != null ? fogClip : new Rectangle(0, 0, size.width, size.height));
     		SwingUtil.useAntiAliasing(buffG);
         	
@@ -972,10 +975,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         	AffineTransform af = new AffineTransform();
         	af.translate(getViewOffsetX(), getViewOffsetY());
         	af.scale(getScale(), getScale());
-	        Area exposedArea = zone.getExposedArea().createTransformedArea(af);
 
+        	AffineTransform oldTransform = buffG.getTransform();
+	        buffG.setTransform(af);
         	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-        	buffG.fill(exposedArea);
+        	buffG.fill(zone.getExposedArea());
 
 	        // Soft fog
 	        if (isUsingVision) {
@@ -985,16 +989,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 	    	        if (zone.hasFog ()) {
 
-	                    // Fill in the exposed area (TODO: perhaps combine this with the clearing of the same area above)
-	                    buffG.fill(exposedArea);
+	                    // Fill in the exposed area
+	                    buffG.fill(zone.getExposedArea());
 
 	                    buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-	                    Area clip = new Area(buffG.getClip());
-	                    clip.intersect(exposedArea);
-	                    Shape oldClip = buffG.getClip();
-	                    buffG.setClip(clip);
+	                    buffG.setClip(zone.getExposedArea());
+	                    
 	                    buffG.fill(visibleArea);
-	                    buffG.setClip(oldClip);
 	                } else {
 
 	                    buffG.setColor(new Color(255, 255, 255, 40));
@@ -1004,20 +1005,20 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	            	if (zone.hasFog()) {
 
 		                buffG.setColor(new Color(0, 0, 0, 80));
-		                buffG.fill(exposedArea);
+		                buffG.fill(zone.getExposedArea());
 	            	}
 	            }
 	        }
 	        
 	        // Outline
 	        if (false && AppPreferences.getUseSoftFogEdges()) {
-		        GraphicsUtil.renderSoftClipping(buffG, exposedArea, (int)(zone.getGrid().getSize() * getScale()*.25), view.isGMView() ? .6 : 1);
+		        GraphicsUtil.renderSoftClipping(buffG, zone.getExposedArea(), (int)(zone.getGrid().getSize() * getScale()*.25), view.isGMView() ? .6 : 1);
 	        } else {
 
 	        	buffG.setComposite(AlphaComposite.Src);
 		        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		        buffG.setColor(Color.black);
-		        buffG.draw(exposedArea);
+		        buffG.draw(zone.getExposedArea());
 	        }
 
 	        
@@ -1193,7 +1194,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
                     // Only show the part of the path that is visible
                 	Area clipArea = new Area(clip);
-                	clipArea.intersect(visibleArea);
+                	clipArea.intersect(visibleScreenArea);
                     g.setClip(clipArea);
                 }
                 
@@ -1619,7 +1620,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
             // Vision visibility
             if (!view.isGMView() && token.isToken() && isUsingVision) {
-                if (!GraphicsUtil.intersects(visibleArea, location.bounds)) {
+                if (!GraphicsUtil.intersects(visibleScreenArea, location.bounds)) {
                     continue;
                 }
             }
@@ -1707,9 +1708,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
             
             Shape clip = g.getClipBounds();
-            if (token.isToken() && !view.isGMView() && !token.isOwner(MapTool.getPlayer().getName()) && visibleArea != null) {
+            if (token.isToken() && !view.isGMView() && !token.isOwner(MapTool.getPlayer().getName()) && visibleScreenArea != null) {
             	Area clipArea = new Area(clip);
-            	clipArea.intersect(visibleArea);
+            	clipArea.intersect(visibleScreenArea);
                 g.setClip(clipArea);
             }
 
@@ -1938,9 +1939,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         // Stacks
         Shape clip = g.getClipBounds();
-        if (!view.isGMView() && visibleArea != null) {
+        if (!view.isGMView() && visibleScreenArea != null) {
         	Area clipArea = new Area(clip);
-        	clipArea.intersect(visibleArea);
+        	clipArea.intersect(visibleScreenArea);
             g.setClip(clipArea);
         }
         for (Area rect : coveredTokenSet) {

@@ -331,7 +331,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     		}
     		
     		// Check visibility
-			Area visibleArea = renderer.getVisibleArea();
+			Area visibleArea = renderer.getVisibleScreenArea();
 			if (visibleArea != null) {
 				Area tokenBounds = renderer.getTokenBounds(token);
 				if (tokenBounds == null || !GraphicsUtil.intersects(visibleArea, tokenBounds)) {
