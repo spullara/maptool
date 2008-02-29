@@ -401,13 +401,13 @@ public class GraphicsUtil {
 
     	GeneralPath path = new GeneralPath();
     	Point2D initialPoint = bottomList.remove(0);
-    	path.moveTo(initialPoint.getX(), initialPoint.getY());
+    	path.moveTo((float)initialPoint.getX(), (float)initialPoint.getY());
 
     	for (Point2D point : bottomList) {
-    		path.lineTo(point.getX(), point.getY());
+    		path.lineTo((float)point.getX(), (float)point.getY());
     	}
     	for (Point2D point : topList) {
-    		path.lineTo(point.getX(), point.getY());
+    		path.lineTo((float)point.getX(), (float)point.getY());
     	}
     	path.closePath();
 
