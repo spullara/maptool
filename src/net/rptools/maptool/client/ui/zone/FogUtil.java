@@ -12,7 +12,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.PathIterator;
@@ -21,10 +20,11 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -113,6 +113,101 @@ public class FogUtil {
 			
 			if (blockList.size() > 0) {
 				clearedArea.add(blockList.remove(0));
+			}
+			
+		}
+//		System.out.println("Blocks: " + blockCount + " : Skipped: " + skippedAreas);
+
+		// For simplicity, this catches some of the edge cases
+		vision.subtract(clearedArea);
+
+		
+		return vision;
+	}	
+	public static Area calculateVisibility2(int x, int y, Area vision, AreaData topology) {
+		
+		vision = new Area(vision);
+		vision.transform(AffineTransform.getTranslateInstance(x, y));
+		
+		// sanity check
+		if (topology.contains(x, y)) {
+			return null;
+		}
+		
+		Point origin = new Point(x, y);
+		
+		Area clearedArea = new Area();
+		
+		int blockCount = 0;
+		int skippedAreas = 0;
+		for (AreaMeta areaMeta : topology.getAreaList(origin)) {
+//			int pointCount = 0;
+//			int origSize = 0;
+//			int afterSize = 0;
+
+			if (clearedArea.contains(areaMeta.area.getBounds())) {
+				skippedAreas++;
+				continue;
+			}
+
+			List<Area> blockedAreas = new LinkedList<Area>();
+			Map<Point2D, AreaFace> nextFaceMap = new HashMap<Point2D, AreaFace>();
+			Map<Point2D, AreaFace> previousFaceMap = new HashMap<Point2D, AreaFace>();
+			
+			for (AreaFace face : areaMeta.getFrontFaces(new Point(x, y))) {
+				previousFaceMap.put(face.getP2(), face);
+				nextFaceMap.put(face.getP1(), face);
+			}
+
+			while (nextFaceMap.size() > 0) {
+				
+				AreaFace face = nextFaceMap.values().iterator().next();
+				AreaFace origFace = face;
+				nextFaceMap.remove(face.getP1());
+				
+				List<AreaFace> faceList = new LinkedList<AreaFace>();
+				faceList.add(face);
+				
+				// Go as far left as possible
+				AreaFace nextFace = null;
+				while ((nextFace = nextFaceMap.remove(face.getP2())) != null) {
+					faceList.add(nextFace);
+					face = nextFace;
+				}
+				
+				// Fog as far right as possible
+				face = origFace;
+				AreaFace previousFace = null;
+				while ((previousFace = previousFaceMap.remove(face.getP1())) != null) {
+					faceList.add(0, previousFace);
+					face = previousFace;
+				}
+				
+				// Create the shape
+				Point2D leftPoint = faceList.get(0).getP1();
+				Point2D leftProjectedPoint = GraphicsUtil.getProjectedPoint(origin, leftPoint, Integer.MAX_VALUE/2);
+
+				Point2D rightPoint = faceList.get(faceList.size()-1).getP2();
+				Point2D rightProjectedPoint = GraphicsUtil.getProjectedPoint(origin, rightPoint, Integer.MAX_VALUE/2);
+
+				GeneralPath path = new GeneralPath();
+				path.moveTo(leftPoint.getX(), leftPoint.getY());
+//				System.out.println("Move: " + leftPoint.getX() + "x" + leftPoint.getY());
+				for (AreaFace currFace : faceList) {
+					path.lineTo(currFace.getP2().getX(), currFace.getP2().getY());
+//					System.out.println("Line: " + currFace.getP1().getX() + "x" + currFace.getP1().getY());
+				}
+				path.lineTo(rightProjectedPoint.getX(), rightProjectedPoint.getY());
+//				System.out.println("Line: " + rightProjectedPoint.getX() + "x" + rightProjectedPoint.getY());
+				path.lineTo(leftProjectedPoint.getX(), leftProjectedPoint.getY());
+//				System.out.println("Line: " + leftProjectedPoint.getX() + "x" + leftProjectedPoint.getY());
+				path.closePath();
+				
+				blockedAreas.add(new Area(path));
+			}
+			
+			while (blockedAreas.size() > 0) {
+				clearedArea.add(blockedAreas.remove(0));
 			}
 			
 		}
@@ -254,7 +349,56 @@ public class FogUtil {
 	}
 
 
+	public static void main4(String[] args) {
+		
+		final int topSize = 10000;
 
+		final Area topology = new Area();
+		Random r = new Random(12345);
+		for (int i = 0; i < 100; i++) {
+			int x = r.nextInt(topSize);
+			int y = r.nextInt(topSize);
+			int w = r.nextInt(500) + 50;
+			int h = r.nextInt(500) + 50;
+			
+			topology.add(new Area(new Rectangle(x, y, w, h)));
+		}
+		
+		// Make sure the the center point is not contained inside the blocked area
+		topology.subtract(new Area(new Rectangle(topSize/2-100, topSize/2-100, 200, 200)));
+		
+		AreaData data = new AreaData(topology);
+		data.digest();
+		
+		Area vision = new Area(new Rectangle(-Integer.MAX_VALUE/2, -Integer.MAX_VALUE/2, Integer.MAX_VALUE, Integer.MAX_VALUE));
+		
+		final Area area = calculateVisibility(20, 0, vision, data);
+
+		final Area area2 = calculateVisibility2(topSize/2, topSize/2, vision, data);
+		
+		JFrame f = new JFrame();
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.setBounds(10, 10, 200, 200);
+		
+		JPanel p = new JPanel() {
+			@Override
+			protected void paintComponent(Graphics g) {
+				
+				Dimension size = getSize();
+				g.setColor(Color.white);
+				g.fillRect(0, 0, size.width, size.height);
+				
+				g.setColor(Color.gray);
+				((Graphics2D)g).setTransform(AffineTransform.getScaleInstance(size.width/topSize, size.width/topSize));
+				((Graphics2D)g).fill(area);
+			}
+		};
+		
+		f.add(p);
+		f.setVisible(true);
+		
+//		System.out.println(area.equals(area2));
+	}
 
 
 	public static void main(String[] args) {
@@ -263,7 +407,7 @@ public class FogUtil {
 		final int topSize = 10000;
 		final Area topology = new Area();
 		Random r = new Random(12345);
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 500; i++) {
 			int x = r.nextInt(topSize);
 			int y = r.nextInt(topSize);
 			int w = r.nextInt(500) + 50;
@@ -315,7 +459,7 @@ public class FogUtil {
 						int y = (int)(e.getY() / (size.height/2.0/topSize)/2);
 						
 						long start = System.currentTimeMillis();
-						theArea = calculateVisibility(x, y, vision, data);
+						theArea = calculateVisibility2(x, y, vision, data);
 						System.out.println("Calc: " + (System.currentTimeMillis() - start));
 						repaint();
 					}

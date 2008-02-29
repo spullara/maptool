@@ -38,7 +38,6 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Stroke;
-import java.awt.TexturePaint;
 import java.awt.Transparency;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -101,7 +100,6 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.AttachedLightSource;
 import net.rptools.maptool.model.CellPoint;
-import net.rptools.maptool.model.Direction;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridCapabilities;
@@ -114,7 +112,6 @@ import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
-import net.rptools.maptool.model.Vision;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
@@ -174,7 +171,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     private Area visibleArea;
     private Area currentTokenVisionArea;
-    private Area lightSourceArea;
     
     private BufferedImage fogBuffer;
     private boolean flushFog = true;
@@ -465,7 +461,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         if (token.hasLightSources()) {
         	// Have to recalculate all token vision
         	tokenVisionCache.clear();
-            lightSourceArea = null;
         }
         
         flushFog = true;
@@ -563,10 +558,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	g2d.setFont(AppStyle.labelFont);
     	Object oldAA = SwingUtil.useAntiAliasing(g2d);
     	
-    	// Do this smack dab first so that even if we need to show the "Loading" indicator, 
-    	// we can still start to figure things out like the token tree visibility
-        calculateVision(view);
-        
         // Are we still waiting to show the zone ?
         if (isLoading()) {
             Dimension size = getSize();
@@ -590,11 +581,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         if (zone == null) { return; }
 
+        
         // Clear internal state
         tokenLocationMap.clear();
         coveredTokenSet.clear();
         markerLocationList.clear();
 
+        // Prepare
+        calculateVision(view);
+        
         // Rendering pipeline
         renderBoard(g2d, view);
         renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, zone.getBackgroundDrawnElements());
@@ -704,60 +699,49 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	return topologyAreaData;
     }
     
-    public Area getLightSourceArea() {
-    	return lightSourceArea;
-    }
-    
     private void calculateVision(ZoneView view) {
         
         currentTokenVisionArea = null;
         
         long startTime = System.currentTimeMillis();
         
-        // Calculate lights
-        if (lightSourceArea == null) {
+    	AffineTransform af = new AffineTransform();
+    	af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
+    	af.scale(getScale(), getScale());
 
-	        for (Token token : zone.getAllTokens()) {
-	        	
-	        	if (!token.hasLightSources() || !token.isVisible()) {
-	        		continue;
-	        	}
-	        	
-	        	Area area = lightSourceCache.get(token);
-	        	if (area == null) {
-	
-	        		area = new Area();
-	        		for (AttachedLightSource attachedLightSource : token.getLightSources()) {
-	        			
-	        			LightSource lightSource = MapTool.getCampaign().getLightSource(attachedLightSource.getLightSourceId());
-	        			if (lightSource == null) {
-	        				continue;
-	        			}
-	        			
-	                    Point p = FogUtil.calculateVisionCenter(token, zone);
-	                    Area lightSourceArea = lightSource.getArea(token, zone, attachedLightSource.getDirection());
-	        			Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopologyAreaData());
-	
-	        			if (visibleArea != null) {
-	        				area.add(visibleArea);
-	        			}
-	        		}
-	        		
-	        		lightSourceCache.put(token, area);
-	        	}
-	        	
-	        	// Lazy create
-	        	if (lightSourceArea == null) {
-	        		lightSourceArea = new Area();
-	        	}
-	        	
-	        	// Combine all light source visible area
-	        	lightSourceArea.add(area);
-	        }
+    	// Calculate lights
+        for (Token token : zone.getAllTokens()) {
+        	
+        	if (!token.hasLightSources() || !token.isVisible()) {
+        		continue;
+        	}
+        	
+        	Area area = lightSourceCache.get(token);
+        	if (area == null) {
+
+        		area = new Area();
+        		for (AttachedLightSource attachedLightSource : token.getLightSources()) {
+        			
+        			LightSource lightSource = MapTool.getCampaign().getLightSource(attachedLightSource.getLightSourceId());
+        			if (lightSource == null) {
+        				continue;
+        			}
+        			
+                    Point p = FogUtil.calculateVisionCenter(token, zone);
+                    Area lightSourceArea = lightSource.getArea(token, zone, attachedLightSource.getDirection());
+        			Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopologyAreaData());
+
+        			if (visibleArea != null) {
+        				area.add(visibleArea);
+        			}
+        		}
+        		
+        		lightSourceCache.put(token, area);
+        	}
         }
         
         // Calculate vision
-        isUsingVision = lightSourceArea != null || (zone.getTopology() != null && !zone.getTopology().isEmpty());
+        isUsingVision = lightSourceCache.size() > 0 || (zone.getTopology() != null && !zone.getTopology().isEmpty());
         visibleArea = null;
         if (isUsingVision) {
 	        for (Token token : zone.getAllTokens()) {
@@ -789,18 +773,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                    visibleArea.add(tokenVision);
 	                    
 	                    if (token == tokenUnderMouse) {
-	                        tokenVision = new Area(tokenVision); // Don't modify the original, which is now in the cache
-	                        tokenVision.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-	                        tokenVision.transform(AffineTransform.getTranslateInstance(getViewOffsetX(), getViewOffsetY()));
-	                        currentTokenVisionArea = tokenVision;
+	                    	
+	                    	currentTokenVisionArea = tokenVision.createTransformedArea(af);
 	                    }
 	                }
 	            }
 	        }
         }
         if (visibleArea != null) {
-            visibleArea.transform(AffineTransform.getScaleInstance(getScale(), getScale()));
-            visibleArea.transform(AffineTransform.getTranslateInstance (getViewOffsetX(), getViewOffsetY()));
+        	visibleArea.transform(af);
         }
         
 //        System.out.println("Vision calc: " + (System.currentTimeMillis() - startTime));
@@ -818,8 +799,27 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             tokenVision = FogUtil.calculateVisibility(p.x, p.y, visionArea, getTopologyAreaData());
 
             // Now apply light sources
-            if (tokenVision != null && lightSourceArea != null) {
-            	tokenVision.intersect(lightSourceArea);
+            if (tokenVision != null) {
+
+            	Rectangle2D origBounds = tokenVision.getBounds();
+            	List<Area> intersects = new LinkedList<Area>();
+	            for (Area lightArea : lightSourceCache.values()) {
+	            	
+	            	if (origBounds.intersects(lightArea.getBounds2D())) {
+	            		Area intersection = new Area(tokenVision);
+	            		intersection.intersect(lightArea);
+	                	intersects.add(intersection);
+	            	}
+	            }
+				while (intersects.size() > 1) {
+					
+					Area a1 = intersects.remove(0);
+					Area a2 = intersects.remove(0);
+					
+					a1.add(a2);
+					intersects.add(a1);
+				}
+	            tokenVision = intersects.size() > 0 ? intersects.get(0) : null;
             }
             
             tokenVisionCache.put(token, tokenVision);
@@ -950,6 +950,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         	} 
         	
         	Graphics2D buffG = fogBuffer.createGraphics();
+        	fogClip = null;
     		buffG.setClip(fogClip != null ? fogClip : new Rectangle(0, 0, size.width, size.height));
     		SwingUtil.useAntiAliasing(buffG);
         	
@@ -962,16 +963,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     			buffG.setComposite(oldComposite);
         	}
         	
-        	//Update back buffer overlay size
-	        Area exposedArea = zone.getExposedArea().createTransformedArea(AffineTransform.getScaleInstance (getScale(), getScale()));
-	        exposedArea = exposedArea.createTransformedArea(AffineTransform.getTranslateInstance(zoneScale.getOffsetX(), zoneScale.getOffsetY()));
-
 	        // Fill
 	        buffG.setPaint(zone.getFogPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale()));
         	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f));
 	        buffG.fillRect(0, 0, size.width, size.height);
 	        
 	        // Cut out the exposed area
+        	AffineTransform af = new AffineTransform();
+        	af.translate(getViewOffsetX(), getViewOffsetY());
+        	af.scale(getScale(), getScale());
+	        Area exposedArea = zone.getExposedArea().createTransformedArea(af);
+
         	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
         	buffG.fill(exposedArea);
 
@@ -2557,7 +2559,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             if (evt == Zone.Event.TOPOLOGY_CHANGED) {
                 tokenVisionCache.clear();
                 topologyAreaData = null;
-                lightSourceArea = null;
                 lightSourceCache.clear();
                 flushFog = true; 
             }

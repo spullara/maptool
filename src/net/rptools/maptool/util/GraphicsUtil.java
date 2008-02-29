@@ -28,25 +28,33 @@ import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import net.rptools.lib.image.ImageUtil;
+import net.rptools.lib.GeometryUtil;
 import net.rptools.lib.swing.ImageLabel;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.zone.AreaData;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 
 
@@ -361,5 +369,91 @@ public class GraphicsUtil {
         }
         
         g2.dispose();
-    }    
+    }   
+    
+    public static Area createLine(int width, Point2D... points) {
+
+    	if (points.length < 2) {
+    		throw new IllegalArgumentException("Must supply at least two points");
+    	}
+    	
+    	List<Point2D> bottomList = new ArrayList<Point2D>(points.length);
+    	List<Point2D> topList = new ArrayList<Point2D>(points.length);
+
+    	for (int i = 0; i < points.length; i++) {
+    		
+    		double angle = i < points.length-1 ? GeometryUtil.getAngle(points[i], points[i+1]) : GeometryUtil.getAngle(points[i-1], points[i]);
+    		double lastAngle = i > 0 ? GeometryUtil.getAngle(points[i], points[i-1]) : GeometryUtil.getAngle(points[i], points[i+1]);
+    		
+    		double delta = i > 0 && i < points.length-1 ? Math.abs(GeometryUtil.getAngleDelta(angle, lastAngle)) : 180/*creates a 90 angle*/;
+
+    		double bottomAngle = (angle + delta/2)%360;
+    		double topAngle = bottomAngle + 180;
+    		System.out.println(angle + " - " + delta + " - " + bottomAngle + " - " + topAngle);
+    		
+    		bottomList.add(getPoint(points[i], bottomAngle, width));
+    		topList.add(getPoint(points[i], topAngle, width));
+    	}
+    	
+//    	System.out.println(bottomList);
+//    	System.out.println(topList);
+    	Collections.reverse(topList);
+
+    	GeneralPath path = new GeneralPath();
+    	Point2D initialPoint = bottomList.remove(0);
+    	path.moveTo(initialPoint.getX(), initialPoint.getY());
+
+    	for (Point2D point : bottomList) {
+    		path.lineTo(point.getX(), point.getY());
+    	}
+    	for (Point2D point : topList) {
+    		path.lineTo(point.getX(), point.getY());
+    	}
+    	path.closePath();
+
+    	return new Area(path);
+    }
+    
+    private static Point2D getPoint(Point2D point, double angle, double length) {
+    	
+		double x = point.getX() + length * Math.cos(Math.toRadians(angle));
+		double y = point.getY() - length * Math.sin(Math.toRadians(angle));
+		
+//		System.out.println(point + " - " + angle + " - " + x + "x" + y + " - " + Math.cos(Math.toRadians(angle)) + " - " + Math.sin(Math.toRadians(angle)) + " - " + Math.toRadians(angle));
+		return new Point2D.Double(x, y);
+    }
+    
+	public static void main(String[] args) {
+
+		final Point2D[] points = new Point2D[]{new Point(20, 20), new Point(50, 50), new Point(80, 20), new Point(100, 100)};
+//		final Point2D[] points = new Point2D[]{new Point(50, 50), new Point(20, 20), new Point(20, 100), new Point(50,75)};
+		final Area line = createLine(10, points);
+		
+		JFrame f = new JFrame();
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.setBounds(10, 10, 200, 200);
+		
+		JPanel p = new JPanel() {
+			@Override
+			protected void paintComponent(Graphics g) {
+				
+				Dimension size = getSize();
+				g.setColor(Color.white);
+				g.fillRect(0, 0, size.width, size.height);
+				
+				g.setColor(Color.gray);
+				((Graphics2D)g).fill(line);
+				
+				g.setColor(Color.red);
+				for (Point2D p : points) {
+					g.fillRect((int)(p.getX()-1), (int)(p.getY()-1), 2, 2);
+				}
+			}
+		};
+		
+		f.add(p);
+		f.setVisible(true);
+		
+//		System.out.println(area.equals(area2));
+	}
 }
