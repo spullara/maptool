@@ -191,15 +191,16 @@ public class FogUtil {
 				Point2D rightProjectedPoint = GraphicsUtil.getProjectedPoint(origin, rightPoint, Integer.MAX_VALUE/2);
 
 				GeneralPath path = new GeneralPath();
-				path.moveTo(leftPoint.getX(), leftPoint.getY());
+				// Java 5 restriction to use floats, remove them for added precision when we move to java 6
+				path.moveTo((float)leftPoint.getX(), (float)leftPoint.getY());
 //				System.out.println("Move: " + leftPoint.getX() + "x" + leftPoint.getY());
 				for (AreaFace currFace : faceList) {
-					path.lineTo(currFace.getP2().getX(), currFace.getP2().getY());
+					path.lineTo((float)currFace.getP2().getX(), (float)currFace.getP2().getY());
 //					System.out.println("Line: " + currFace.getP1().getX() + "x" + currFace.getP1().getY());
 				}
-				path.lineTo(rightProjectedPoint.getX(), rightProjectedPoint.getY());
+				path.lineTo((float)rightProjectedPoint.getX(), (float)rightProjectedPoint.getY());
 //				System.out.println("Line: " + rightProjectedPoint.getX() + "x" + rightProjectedPoint.getY());
-				path.lineTo(leftProjectedPoint.getX(), leftProjectedPoint.getY());
+				path.lineTo((float)leftProjectedPoint.getX(), (float)leftProjectedPoint.getY());
 //				System.out.println("Line: " + leftProjectedPoint.getX() + "x" + leftProjectedPoint.getY());
 				path.closePath();
 				
