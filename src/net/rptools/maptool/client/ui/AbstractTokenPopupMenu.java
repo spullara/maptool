@@ -732,7 +732,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 	public class ShowPropertiesDialogAction extends AbstractAction {
 		
 		public ShowPropertiesDialogAction() {
-			putValue(Action.NAME, "Properties ...");
+			putValue(Action.NAME, "Edit ...");
 		}
 		
 		public void actionPerformed(ActionEvent e) {
