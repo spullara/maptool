@@ -28,7 +28,7 @@ import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.StampTool;
 import net.rptools.maptool.client.ui.token.LightDialog;
-import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
+import net.rptools.maptool.client.ui.token.EditTokenDialog;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
@@ -737,7 +737,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		
 		public void actionPerformed(ActionEvent e) {
 
-	      TokenPropertiesDialog dialog = MapTool.getFrame().getTokenPropertiesDialog();
+	      EditTokenDialog dialog = MapTool.getFrame().getTokenPropertiesDialog();
 	      dialog.showDialog(tokenUnderMouse);
 	      if (dialog.isTokenSaved()) {
 	    	  getRenderer().repaint();

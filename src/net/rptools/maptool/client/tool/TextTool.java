@@ -27,23 +27,29 @@ package net.rptools.maptool.client.tool;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import com.jeta.forms.components.colors.JETAColorWell;
+
 import net.rptools.lib.image.ImageUtil;
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Label;
@@ -71,6 +77,8 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 	protected void attachTo(ZoneRenderer renderer) {
 		renderer.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		super.attachTo(renderer);
+		
+		selectedLabel = null;
 	}
 
 	@Override
@@ -120,12 +128,11 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 		dragStartX = e.getX();
 		dragStartY = e.getY();
 		
-    	if (SwingUtilities.isLeftMouseButton(e)) {
-
-    		selectedLabel = renderer.getLabelAt(e.getX(), e.getY());
+		Label label = renderer.getLabelAt(e.getX(), e.getY());
+		if (label != selectedLabel) {
+			selectedLabel = label;
 			renderer.repaint();
-    	}
-    	
+		}
 		super.mousePressed(e);
     }
     
@@ -139,19 +146,25 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     	
     	if (SwingUtilities.isLeftMouseButton(e)) {
 
-    		Label label = selectedLabel;
+    		Label label = renderer.getLabelAt(e.getX(), e.getY());
     		if (label == null) {
     			
         		ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
         		label = new Label("", zp.x, zp.y);
+    		} else {
+    			if (label != selectedLabel) {
+    				selectedLabel = label;
+    				renderer.repaint();
+    				return;
+    			}
     		}
+
+    		EditLabelDialog dialog = new EditLabelDialog(label);
+    		dialog.setVisible(true);
     		
-    		String text = JOptionPane.showInputDialog(MapTool.getFrame(), "Label Text", label.getLabel());
-    		if (text == null) {
+    		if (!dialog.isAccepted()) {
     			return;
     		}
-    		
-    		label.setLabel(text);
     		
     		renderer.getZone().putLabel(label);
     		MapTool.serverCommand().putLabel(renderer.getZone().getId(), label);
@@ -168,7 +181,7 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     	
     	super.mouseDragged(e);
 
-    	if (selectedLabel == null) {
+    	if (selectedLabel == null || SwingUtilities.isRightMouseButton(e)) {
     		return;
     	}
 
@@ -190,5 +203,99 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     	
     	renderer.repaint();
     	
+    }
+    
+    public class EditLabelDialog extends JDialog {
+    	
+    	private boolean accepted;
+
+    	public EditLabelDialog(Label label) {
+    		super(MapTool.getFrame(), "Edit Label", true);
+    		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    		
+    		EditLabelPanel panel = new EditLabelPanel(this); 
+    		panel.bind(label);
+    		
+    		add(panel);
+    		
+    		getRootPane().setDefaultButton(panel.getOKButton());
+
+    		pack();
+    	}
+    	
+    	public boolean isAccepted() {
+    		return accepted;
+    	}
+    	
+    	@Override
+    	public void setVisible(boolean b) {
+    		if (b) {
+    			SwingUtil.centerOver(this, getOwner());
+    		}
+    		super.setVisible(b);
+    	}
+    }
+    
+    public class EditLabelPanel extends AbeillePanel<Label> {
+
+    	private EditLabelDialog dialog;
+    	
+    	public EditLabelPanel(EditLabelDialog dialog) {
+    		super("net/rptools/maptool/client/ui/forms/editLabelDialog.jfrm");
+
+    		this.dialog = dialog;
+    		
+    		panelInit();
+    		
+    		getLabelTextField().setSelectionStart(0);
+    		getLabelTextField().setSelectionEnd(getLabelTextField().getText().length());
+    		getLabelTextField().setCaretPosition(getLabelTextField().getText().length());
+    	}
+    	
+    	@Override
+    	public void bind(Label model) {
+    		getColorWell().setColor(model.getForegroundColor());
+    		super.bind(model);
+    	}
+
+    	@Override
+    	public boolean commit() {
+    		getModel().setForegroundColor(getColorWell().getColor());
+    		return super.commit();
+    	}
+    	
+    	public JETAColorWell getColorWell() {
+    		return (JETAColorWell) getComponent("foregroundColor");
+    	}
+    	
+    	public JTextField getLabelTextField() {
+    		return (JTextField)getComponent("@label");
+    	}
+    	
+    	public JButton getOKButton() {
+    		return (JButton) getComponent("okButton");
+    	}
+    	
+    	public void initOKButton() {
+    		getOKButton().addActionListener(new ActionListener() {
+    			public void actionPerformed(ActionEvent e) {
+    				dialog.accepted = true;
+    				commit();
+    				close();
+    			}
+    		});
+    	}
+
+    	public void initCancelButton() {
+    		((JButton)getComponent("cancelButton")).addActionListener(new ActionListener() {
+    			public void actionPerformed(ActionEvent e) {
+    				close();
+    			}
+    		});
+    	}
+
+    	private void close() {
+    		dialog.setVisible(false);
+    	}
     }
 }

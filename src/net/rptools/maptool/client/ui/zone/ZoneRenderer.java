@@ -29,6 +29,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -893,8 +894,23 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
             
             ScreenPoint sp = ScreenPoint.fromZonePointRnd(this, zp.x, zp.y);
-            
-            Rectangle bounds = GraphicsUtil.drawBoxedString(g, label.getLabel(), (int)sp.x, (int)sp.y);
+
+            Rectangle bounds = null;
+            if (label.isShowBackground()) {
+            	
+            	bounds = GraphicsUtil.drawBoxedString(g, label.getLabel(), (int)sp.x, (int)sp.y, SwingUtilities.CENTER, GraphicsUtil.GREY_LABEL, label.getForegroundColor());
+            } else {
+            	FontMetrics fm = g.getFontMetrics();
+        		int strWidth = SwingUtilities.computeStringWidth(fm, label.getLabel());
+            	
+        		int x = (int)(sp.x - strWidth/2);
+        		int y = (int)(sp.y - fm.getAscent()); 
+
+        		g.setColor(label.getForegroundColor());
+        		g.drawString(label.getLabel(), x, y + fm.getAscent());
+        		
+        		bounds = new Rectangle(x, y, strWidth, fm.getHeight());
+            }
             
             labelLocationList.add(new LabelLocation(bounds, label));
         }
@@ -915,32 +931,35 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         // Optimization for panning
         Area fogClip = null;
+        
         if (!flushFog && fogX != null && fogY != null && (fogX != getViewOffsetX() || fogY != getViewOffsetY())) {
-        	if (Math.abs(fogX - getViewOffsetX()) < size.width && Math.abs(fogY - getViewOffsetY()) < size.height) {
-        		int deltaX = getViewOffsetX() - fogX;
-        		int deltaY = getViewOffsetY() - fogY;
-        		
-            	Graphics2D buffG = fogBuffer.createGraphics();
-            	
-            	buffG.setComposite(AlphaComposite.Src);
-            	buffG.copyArea(0, 0, size.width, size.height, deltaX, deltaY);
-            	
-            	buffG.dispose();
-            	
-            	fogClip = new Area();
-            	if (deltaX < 0) {
-            		fogClip.add(new Area(new Rectangle(size.width+deltaX, 0, -deltaX, size.height)));
-            	} else if (deltaX > 0){
-            		fogClip.add(new Area(new Rectangle(0, 0, deltaX, size.height)));
-            	}
-            	
-            	if (deltaY < 0) {
-            		fogClip.add(new Area(new Rectangle(0, size.height + deltaY, size.width, -deltaY)));
-            	} else if (deltaY > 0) {
-            		fogClip.add(new Area(new Rectangle(0, 0, size.width, deltaY)));
-            	}
-        		
-        	}
+            // This optimization does not seem to keep the alpha channel correctly, and sometimes leaves 
+            // lines on some graphics boards, we'll leave it out for now
+//        	if (Math.abs(fogX - getViewOffsetX()) < size.width && Math.abs(fogY - getViewOffsetY()) < size.height) {
+//        		int deltaX = getViewOffsetX() - fogX;
+//        		int deltaY = getViewOffsetY() - fogY;
+//        		
+//            	Graphics2D buffG = fogBuffer.createGraphics();
+//            	
+//            	buffG.setComposite(AlphaComposite.Src);
+//            	buffG.copyArea(0, 0, size.width, size.height, deltaX, deltaY);
+//            	
+//            	buffG.dispose();
+//            	
+//            	fogClip = new Area();
+//            	if (deltaX < 0) {
+//            		fogClip.add(new Area(new Rectangle(size.width+deltaX, 0, -deltaX, size.height)));
+//            	} else if (deltaX > 0){
+//            		fogClip.add(new Area(new Rectangle(0, 0, deltaX, size.height)));
+//            	}
+//            	
+//            	if (deltaY < 0) {
+//            		fogClip.add(new Area(new Rectangle(0, size.height + deltaY, size.width, -deltaY)));
+//            	} else if (deltaY > 0) {
+//            		fogClip.add(new Area(new Rectangle(0, 0, size.width, deltaY)));
+//            	}
+//        		
+//        	}
         	flushFog = true;
         }
         if (flushFog || fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
@@ -993,9 +1012,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                    buffG.fill(zone.getExposedArea());
 
 	                    buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
+	                    Shape oldClip = buffG.getClip();
 	                    buffG.setClip(zone.getExposedArea());
 	                    
 	                    buffG.fill(visibleArea);
+	                    
+	                    buffG.setClip(oldClip);
 	                } else {
 
 	                    buffG.setColor(new Color(255, 255, 255, 40));
@@ -1017,6 +1039,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 	        	buffG.setComposite(AlphaComposite.Src);
 		        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		        buffG.setStroke(new BasicStroke(2));
 		        buffG.setColor(Color.black);
 		        buffG.draw(zone.getExposedArea());
 	        }

@@ -87,7 +87,7 @@ import com.jidesoft.swing.Selectable;
 /**
  * This dialog is used to display all of the token states and notes to the user.
  */
-public class TokenPropertiesDialog extends AbeillePanel {
+public class EditTokenDialog extends AbeillePanel {
 
 	private Token token;
 	private boolean tokenSaved;
@@ -107,7 +107,7 @@ public class TokenPropertiesDialog extends AbeillePanel {
 	 * @param token
 	 *            The token being displayed.
 	 */
-	public TokenPropertiesDialog() {
+	public EditTokenDialog() {
 		super("net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.jfrm");
 
 		panelInit();
@@ -124,7 +124,7 @@ public class TokenPropertiesDialog extends AbeillePanel {
 	public void showDialog(Token token) {
 		this.token = token;
 		
-		dialog = new GenericDialog("Token Properties", MapTool.getFrame(), this) {
+		dialog = new GenericDialog("Edit Token", MapTool.getFrame(), this) {
 			@Override
 			public void closeDialog() {
 				// TODO: I don't like this.  There should really be a AbeilleDialog class that does this

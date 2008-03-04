@@ -108,7 +108,7 @@ import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
 import net.rptools.maptool.client.ui.lookuptable.LookupTablePanel;
-import net.rptools.maptool.client.ui.token.TokenPropertiesDialog;
+import net.rptools.maptool.client.ui.token.EditTokenDialog;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeCellRenderer;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeModel;
 import net.rptools.maptool.client.ui.zone.NotificationOverlay;
@@ -191,7 +191,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	private JFileChooser saveFileChooser;
 
-	private TokenPropertiesDialog tokenPropertiesDialog;
+	private EditTokenDialog tokenPropertiesDialog;
 
 	// TODO: Find a better pattern for this
 	private Timer repaintTimer;
@@ -388,9 +388,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		return panel;
 	}
 	
-	public TokenPropertiesDialog getTokenPropertiesDialog() {
+	public EditTokenDialog getTokenPropertiesDialog() {
 		if (tokenPropertiesDialog == null) {
-			tokenPropertiesDialog = new TokenPropertiesDialog();
+			tokenPropertiesDialog = new EditTokenDialog();
 		}
 		return tokenPropertiesDialog;
 	}

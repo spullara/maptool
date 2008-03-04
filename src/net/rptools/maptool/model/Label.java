@@ -24,11 +24,15 @@
  */
 package net.rptools.maptool.model;
 
+import java.awt.Color;
+
 public class Label {
 
     private GUID id;
     private String label;
     private int x, y;
+    private boolean showBackground;
+    private int foregroundColor;
     
     public Label() {
         this("");
@@ -76,5 +80,21 @@ public class Label {
     public void setY(int y) {
         this.y = y;
     }
+
+	public boolean isShowBackground() {
+		return showBackground;
+	}
+
+	public void setShowBackground(boolean showBackground) {
+		this.showBackground = showBackground;
+	}
+
+	public Color getForegroundColor() {
+		return new Color(foregroundColor);
+	}
+
+	public void setForegroundColor(Color foregroundColor) {
+		this.foregroundColor = foregroundColor.getRGB();
+	}
     
 }
