@@ -666,13 +666,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             return;
         }
         
-    	AffineTransform af = new AffineTransform();
-    	af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
-    	af.scale(getScale(), getScale());
+        g = (Graphics2D)g.create();
+        g.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
+    	g.scale(getScale(), getScale());
 
-    	AffineTransform oldTransform = g.getTransform();
-        g.setTransform(af);
-        Object oldAA = SwingUtil.useAntiAliasing(g);
+        SwingUtil.useAntiAliasing(g);
         g.setColor(new Color(200, 200, 200));        
         g.draw(currentTokenVisionArea);  
         
@@ -683,9 +681,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             g.setColor(new Color(visionColor.getRed(), visionColor.getGreen(), visionColor.getBlue(), AppPreferences.getVisionOverlayOpacity()));
             g.fill(currentTokenVisionArea);
         }
-
-        g.setTransform(oldTransform);
-        SwingUtil.restoreAntiAliasing(g, oldAA); 
+        
+        g.dispose();
     }
     
     private void renderPlayerVision(Graphics2D g, ZoneView view) {

@@ -92,22 +92,18 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
 
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 
-    	Color oldColor = g.getColor();
-
     	if (MapTool.getPlayer().isGM()) {
 	    	Zone zone = renderer.getZone();
 	    	Area topology = zone.getTopology();
 	
-	    	double scale = renderer.getScale();
-	    	AffineTransform transform = new AffineTransform();
-	    	transform.scale(scale, scale);
-	    	transform.translate(renderer.getViewOffsetX()/scale, renderer.getViewOffsetY()/scale);
-	    	topology = topology.createTransformedArea(transform);
+    		Graphics2D g2 = (Graphics2D) g.create();
+	    	g2.translate(renderer.getViewOffsetX(), renderer.getViewOffsetY());
+	    	g2.scale(renderer.getScale(), renderer.getScale());
 	
-	    	g.setColor(AppStyle.topologyColor);
-	    	g.fill(topology);
+	    	g2.setColor(AppStyle.topologyColor);
+	    	g2.fill(topology);
 	
-	    	g.setColor(oldColor);
+	    	g2.dispose();
     	}
         if (rectangle != null) {
         	

@@ -59,13 +59,22 @@ public class FogUtil {
 		Area clearedArea = new Area();
 		
 		int blockCount = 0;
+		int quickSkippedAreas = 0;
 		int skippedAreas = 0;
+		int skippedAdds = 0;
 		for (AreaMeta areaMeta : topology.getAreaList(origin)) {
 //			int pointCount = 0;
 //			int origSize = 0;
 //			int afterSize = 0;
 
+			// Quick check
 			if (clearedArea.contains(areaMeta.area.getBounds())) {
+				quickSkippedAreas++;
+				continue;
+			}
+			// Slower, but more accurate, should be faster than doing all the adds() below
+			if (GraphicsUtil.contains(clearedArea, areaMeta.area)) {
+//				skippedAdds += areaMeta.getFrontFaces(new Point(x, y)).size();
 				skippedAreas++;
 				continue;
 			}
@@ -116,7 +125,7 @@ public class FogUtil {
 			}
 			
 		}
-//		System.out.println("Blocks: " + blockCount + " : Skipped: " + skippedAreas);
+//		System.out.println("Blocks: " + blockCount + " Quick: " + quickSkippedAreas + " Skipped: " + skippedAreas + " AddsSkipped: " + skippedAdds);
 
 		// For simplicity, this catches some of the edge cases
 		vision.subtract(clearedArea);
@@ -124,103 +133,7 @@ public class FogUtil {
 		
 		return vision;
 	}	
-	public static Area calculateVisibility2(int x, int y, Area vision, AreaData topology) {
-		
-		vision = new Area(vision);
-		vision.transform(AffineTransform.getTranslateInstance(x, y));
-		
-		// sanity check
-		if (topology.contains(x, y)) {
-			return null;
-		}
-		
-		Point origin = new Point(x, y);
-		
-		Area clearedArea = new Area();
-		
-		int blockCount = 0;
-		int skippedAreas = 0;
-		for (AreaMeta areaMeta : topology.getAreaList(origin)) {
-//			int pointCount = 0;
-//			int origSize = 0;
-//			int afterSize = 0;
 
-			if (clearedArea.contains(areaMeta.area.getBounds())) {
-				skippedAreas++;
-				continue;
-			}
-
-			List<Area> blockedAreas = new LinkedList<Area>();
-			Map<Point2D, AreaFace> nextFaceMap = new HashMap<Point2D, AreaFace>();
-			Map<Point2D, AreaFace> previousFaceMap = new HashMap<Point2D, AreaFace>();
-			
-			for (AreaFace face : areaMeta.getFrontFaces(new Point(x, y))) {
-				previousFaceMap.put(face.getP2(), face);
-				nextFaceMap.put(face.getP1(), face);
-			}
-
-			while (nextFaceMap.size() > 0) {
-				
-				AreaFace face = nextFaceMap.values().iterator().next();
-				AreaFace origFace = face;
-				nextFaceMap.remove(face.getP1());
-				
-				List<AreaFace> faceList = new LinkedList<AreaFace>();
-				faceList.add(face);
-				
-				// Go as far left as possible
-				AreaFace nextFace = null;
-				while ((nextFace = nextFaceMap.remove(face.getP2())) != null) {
-					faceList.add(nextFace);
-					face = nextFace;
-				}
-				
-				// Fog as far right as possible
-				face = origFace;
-				AreaFace previousFace = null;
-				while ((previousFace = previousFaceMap.remove(face.getP1())) != null) {
-					faceList.add(0, previousFace);
-					face = previousFace;
-				}
-				
-				// Create the shape
-				Point2D leftPoint = faceList.get(0).getP1();
-				Point2D leftProjectedPoint = GraphicsUtil.getProjectedPoint(origin, leftPoint, Integer.MAX_VALUE/2);
-
-				Point2D rightPoint = faceList.get(faceList.size()-1).getP2();
-				Point2D rightProjectedPoint = GraphicsUtil.getProjectedPoint(origin, rightPoint, Integer.MAX_VALUE/2);
-
-				GeneralPath path = new GeneralPath();
-				// Java 5 restriction to use floats, remove them for added precision when we move to java 6
-				path.moveTo((float)leftPoint.getX(), (float)leftPoint.getY());
-//				System.out.println("Move: " + leftPoint.getX() + "x" + leftPoint.getY());
-				for (AreaFace currFace : faceList) {
-					path.lineTo((float)currFace.getP2().getX(), (float)currFace.getP2().getY());
-//					System.out.println("Line: " + currFace.getP1().getX() + "x" + currFace.getP1().getY());
-				}
-				path.lineTo((float)rightProjectedPoint.getX(), (float)rightProjectedPoint.getY());
-//				System.out.println("Line: " + rightProjectedPoint.getX() + "x" + rightProjectedPoint.getY());
-				path.lineTo((float)leftProjectedPoint.getX(), (float)leftProjectedPoint.getY());
-//				System.out.println("Line: " + leftProjectedPoint.getX() + "x" + leftProjectedPoint.getY());
-				path.closePath();
-				
-				blockedAreas.add(new Area(path));
-			}
-			
-			while (blockedAreas.size() > 0) {
-				clearedArea.add(blockedAreas.remove(0));
-			}
-			
-		}
-//		System.out.println("Blocks: " + blockCount + " : Skipped: " + skippedAreas);
-
-		// For simplicity, this catches some of the edge cases
-		vision.subtract(clearedArea);
-
-		
-		return vision;
-	}	
-	
 	private static class RelativeLine {
 		private Line2D line;
 		private double distance;
@@ -375,7 +288,7 @@ public class FogUtil {
 		
 		final Area area = calculateVisibility(20, 0, vision, data);
 
-		final Area area2 = calculateVisibility2(topSize/2, topSize/2, vision, data);
+		final Area area2 = calculateVisibility(topSize/2, topSize/2, vision, data);
 		
 		JFrame f = new JFrame();
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -460,7 +373,7 @@ public class FogUtil {
 						int y = (int)(e.getY() / (size.height/2.0/topSize)/2);
 						
 						long start = System.currentTimeMillis();
-						theArea = calculateVisibility2(x, y, vision, data);
+						theArea = calculateVisibility(x, y, vision, data);
 						System.out.println("Calc: " + (System.currentTimeMillis() - start));
 						repaint();
 					}
