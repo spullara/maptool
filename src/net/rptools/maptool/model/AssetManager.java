@@ -356,7 +356,7 @@ public class AssetManager {
 	
 	private static boolean assetIsInPersistentCache(MD5Key id) {
 
-		return getAssetCacheFile(id).exists();
+		return getAssetCacheFile(id).exists() && getAssetCacheFile(id).length() > 0;
 	}
 	
 	public static File getAssetCacheFile(Asset asset) {
