@@ -1271,15 +1271,15 @@ public class AppActions {
 					// Use the existing campaign
 					Campaign campaign = MapTool.getCampaign();
 
-					// Use UPnP to open port in router
-					if (serverProps.getUseUPnP()) {
-						UPnPUtil.openPort(serverProps.getPort());
-					}
-					
 					boolean failed = false;
 					try {
 						ServerDisconnectHandler.disconnectExpected = true;
 						MapTool.stopServer();
+						
+						// Use UPnP to open port in router
+						if (serverProps.getUseUPnP()) {
+							UPnPUtil.openPort(serverProps.getPort());
+						}
 						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, campaign);
 
 						// Connect to server
