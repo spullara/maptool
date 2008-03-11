@@ -812,7 +812,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             tokenVision = FogUtil.calculateVisibility(p.x, p.y, visionArea, getTopologyAreaData());
 
             // Now apply light sources
-            if (tokenVision != null) {
+            if (lightCount > 0 && tokenVision != null) {
 
             	Rectangle2D origBounds = tokenVision.getBounds();
             	List<Area> intersects = new LinkedList<Area>();
