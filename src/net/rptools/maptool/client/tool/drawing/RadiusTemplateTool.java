@@ -341,7 +341,10 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
       AffineTransform old = g.getTransform();
       g.setTransform(getPaintTransform(renderer));
       template.draw(g, pen);
-      paintCursor(g, pen.getPaint().getPaint(), pen.getThickness(), template.getVertex());
+      
+      if (pen.getPaint() != null) {
+	      paintCursor(g, pen.getPaint().getPaint(), pen.getThickness(), template.getVertex());
+      }
       g.setTransform(old);
       paintRadius(g, template.getVertex());
     } // endif
