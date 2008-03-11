@@ -64,6 +64,7 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 	private int dragStartX;
 	private int dragStartY;
 	private boolean isDragging;
+	private boolean selectedNewLabel;
 	
 	public TextTool () {
         try {
@@ -131,7 +132,10 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 		Label label = renderer.getLabelAt(e.getX(), e.getY());
 		if (label != selectedLabel) {
 			selectedLabel = label;
+			selectedNewLabel = true;
 			renderer.repaint();
+		} else {
+			selectedNewLabel = false;
 		}
 		super.mousePressed(e);
     }
@@ -152,7 +156,7 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
         		ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
         		label = new Label("", zp.x, zp.y);
     		} else {
-    			if (label != selectedLabel) {
+    			if (selectedNewLabel) {
     				selectedLabel = label;
     				renderer.repaint();
     				return;
