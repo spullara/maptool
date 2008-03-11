@@ -58,6 +58,9 @@ public class HTMLPanelImageCache {
 				
 				image = ImageManager.getImage(AssetManager.getAsset(new MD5Key(path)), observers);
 				boolean imageLoaded = image != ImageManager.UNKNOWN_IMAGE;
+				if (!imageLoaded) {
+					size = 38;
+				}
 
 				if (size > 0) {
 					Dimension sz = new Dimension(image.getWidth(null), image.getHeight(null));

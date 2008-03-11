@@ -47,6 +47,7 @@ public class Label {
         this.label = label;
         this.x = x;
         this.y = y;
+        showBackground = true;
     }
     
     public Label(Label label) {

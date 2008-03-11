@@ -2,6 +2,7 @@ package net.rptools.maptool.client.swing;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -13,6 +14,7 @@ import java.net.URL;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
@@ -688,16 +690,6 @@ public class MessagePanelImageView extends View {
                 }
             }
 
-	    // Make sure the image starts loading:
-            if ((newState & (WIDTH_FLAG | HEIGHT_FLAG)) != 0) {
-                Toolkit.getDefaultToolkit().prepareImage(newImage, newWidth,
-                                                         newHeight,
-                                                         imageObserver);
-            }
-            else {
-                Toolkit.getDefaultToolkit().prepareImage(newImage, -1, -1,
-                                                         imageObserver);
-            }
 
             boolean createText = false;
 	    synchronized(this) {
