@@ -800,7 +800,9 @@ public class MessagePanelImageView extends View {
         	safePreferenceChanged();
         	refreshImage();
 
-        	// Repaint when done or when new pixels arrive:
+            preferenceChanged(null, true, true);
+
+            // Repaint when done or when new pixels arrive:
             if ((flags & (FRAMEBITS|ALLBITS)) != 0) {
                 repaint(0);
             }
