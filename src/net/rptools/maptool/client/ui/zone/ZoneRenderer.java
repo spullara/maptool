@@ -172,6 +172,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     private Area visibleArea;
     private Area visibleScreenArea;
+    private int lightCount;
     
     private BufferedImage fogBuffer;
     private boolean flushFog = true;
@@ -715,6 +716,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         long startTime = System.currentTimeMillis();
         
     	// Calculate lights
+        int lastLightCount = lightCount;
+        lightCount = 0;
         for (Token token : zone.getAllTokens()) {
         	
         	if (!token.hasLightSources() || !token.isVisible()) {
@@ -740,9 +743,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         				area.add(visibleArea);
         			}
         		}
-        		
+
         		lightSourceCache.put(token, area);
         	}
+        	lightCount ++;
+        }
+
+        if (lastLightCount != lightCount) {
+        	// Have to calculate all vision again
+        	tokenVisionCache.clear();
         }
         
         // Calculate vision
@@ -767,7 +776,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                		continue;
 	                	}
 	                }
-	                
+
 	                Area tokenVision = getTokenVision(token);	                
 	                if (tokenVision != null) {
 
@@ -823,7 +832,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					a1.add(a2);
 					intersects.add(a1);
 				}
-	            tokenVision = intersects.size() > 0 ? intersects.get(0) : null;
+	            tokenVision = intersects.size() > 0 ? intersects.get(0) : new Area();
             }
             
             tokenVisionCache.put(token, tokenVision);
