@@ -190,7 +190,7 @@ public class Token extends BaseModel {
 
 	// Deprecated, here to allow deserialization
 	private transient int size; // 1.3b16
-//	private transient List<Vision> visionList;
+	private transient List<Vision> visionList; // 1.3b18
 	
 	public enum ChangeEvent {
 		name
