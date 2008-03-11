@@ -264,7 +264,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	if (Scale.PROPERTY_OFFSET.equals(evt.getPropertyName())) {
 //            		flushFog = true;
             	}
-            	
+
+            	visibleScreenArea = null;
                 repaint();
             }
         });
@@ -713,10 +714,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         long startTime = System.currentTimeMillis();
         
-    	AffineTransform af = new AffineTransform();
-    	af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
-    	af.scale(getScale(), getScale());
-
     	// Calculate lights
         for (Token token : zone.getAllTokens()) {
         	
@@ -783,9 +780,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	            }
 	        }
 	        
-	        if (visibleArea != null) {
-	        	visibleScreenArea = visibleArea.createTransformedArea(af);
-	        }
+        }
+
+        if (visibleArea != null && visibleScreenArea == null) {
+        	AffineTransform af = new AffineTransform();
+        	af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
+        	af.scale(getScale(), getScale());
+
+        	visibleScreenArea = visibleArea.createTransformedArea(af);
         }
     }
     
