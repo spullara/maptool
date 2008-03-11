@@ -24,6 +24,7 @@ import javax.swing.text.html.StyleSheet;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.HTMLPanelImageCache;
+import net.rptools.maptool.client.swing.MessagePanelEditorKit;
 import net.rptools.maptool.model.TextMessage;
 
 public class MessagePanel extends JPanel {
@@ -31,7 +32,6 @@ public class MessagePanel extends JPanel {
 	private JScrollPane scrollPane;
 	private HTMLDocument document;
 	private JEditorPane textPane;
-	private HTMLPanelImageCache imageCache;
 
 	private static final String SND_MESSAGE_RECEIVED = "messageReceived";
 	
@@ -45,7 +45,7 @@ public class MessagePanel extends JPanel {
 
 		textPane = new JEditorPane();
 		textPane.setEditable(false);
-		textPane.setEditorKit(new HTMLEditorKit());
+		textPane.setEditorKit(new MessagePanelEditorKit());
 		textPane.addComponentListener(new ComponentListener() {
 			public void componentHidden(ComponentEvent e) {}
 			public void componentMoved(ComponentEvent e) {}
@@ -67,10 +67,6 @@ public class MessagePanel extends JPanel {
 		});
 		
 		document = (HTMLDocument) textPane.getDocument();
-		
-		// Use a little bit of black magic to get our images to display correctly
-		imageCache = new HTMLPanelImageCache();
-		document.putProperty(IMAGE_CACHE_PROPERTY, imageCache);
 		
 		// Initialize and prepare for usage
 		refreshRenderer();
@@ -115,7 +111,7 @@ public class MessagePanel extends JPanel {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				textPane.setText("<html><body id=\"body\"></body></html>");
-				imageCache.flush();
+				((MessagePanelEditorKit)textPane.getEditorKit()).flush();
 			}
 		});
 	}
