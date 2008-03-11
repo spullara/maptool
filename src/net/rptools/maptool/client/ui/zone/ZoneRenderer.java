@@ -668,20 +668,22 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             return;
         }
         
-        g = (Graphics2D)g.create();
-        g.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
-    	g.scale(getScale(), getScale());
+    	AffineTransform af = new AffineTransform();
+    	af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
+    	af.scale(getScale(), getScale());
 
+    	Area area = currentTokenVisionArea.createTransformedArea(af);
+    	
         SwingUtil.useAntiAliasing(g);
         g.setColor(new Color(200, 200, 200));        
-        g.draw(currentTokenVisionArea);  
+        g.draw(area);  
         
         boolean useHaloColor = tokenUnderMouse.getHaloColor() != null && AppPreferences.getUseHaloColorOnVisionOverlay();
         
         if (tokenUnderMouse.getVisionOverlayColor() != null || useHaloColor) {
             Color visionColor = useHaloColor ? tokenUnderMouse.getHaloColor() : tokenUnderMouse.getVisionOverlayColor();
             g.setColor(new Color(visionColor.getRed(), visionColor.getGreen(), visionColor.getBlue(), AppPreferences.getVisionOverlayOpacity()));
-            g.fill(currentTokenVisionArea);
+            g.fill(area);
         }
         
         g.dispose();
@@ -1045,11 +1047,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		        GraphicsUtil.renderSoftClipping(buffG, zone.getExposedArea(), (int)(zone.getGrid().getSize() * getScale()*.25), view.isGMView() ? .6 : 1);
 	        } else {
 
+	        	buffG.setTransform(new AffineTransform());
 	        	buffG.setComposite(AlphaComposite.Src);
 		        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		        buffG.setStroke(new BasicStroke(2));
+		        buffG.setStroke(new BasicStroke(1));
 		        buffG.setColor(Color.black);
-		        buffG.draw(zone.getExposedArea());
+		        buffG.draw(zone.getExposedArea().createTransformedArea(af));
 	        }
 
 	        
