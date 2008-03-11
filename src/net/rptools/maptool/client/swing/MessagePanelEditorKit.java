@@ -17,7 +17,7 @@ public class MessagePanelEditorKit extends HTMLEditorKit {
 
 	private ViewFactory viewFactory = new MessagePanelViewFactory();
 
-	private HTMLPanelImageCache imageCache = new HTMLPanelImageCache();
+	private ImageLoaderCache imageCache = new ImageLoaderCache();
 
 	public MessagePanelEditorKit() {
 		viewFactory = new MessagePanelViewFactory();

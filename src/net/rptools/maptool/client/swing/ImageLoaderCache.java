@@ -6,6 +6,7 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Dictionary;
@@ -19,23 +20,15 @@ import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.ImageManager;
 
-public class HTMLPanelImageCache extends Dictionary<URL, Image> {
+public class ImageLoaderCache {
 
 	private Map<String, Image> imageMap = new HashMap<String, Image>();
-
+	
 	public void flush() {
 		imageMap.clear();
 	}
 	
-	@Override
-	public Enumeration elements() {
-		// Not used
-		return null;
-	}
-
-	@Override
-	public Image get(Object key) {
-		URL url = (URL) key;
+	public Image get(URL url, ImageObserver... observers) {
 
 		// URLs take a huge amount of time in equals(), so simplify by
 		// converting to a string
@@ -63,7 +56,11 @@ public class HTMLPanelImageCache extends Dictionary<URL, Image> {
 					size = Integer.parseInt(szStr);
 				}
 				
-				image = ImageManager.getImageAndWait(AssetManager.getAsset(new MD5Key(path)));
+				image = ImageManager.getImage(AssetManager.getAsset(new MD5Key(path)), observers);
+				boolean imageLoaded = image != ImageManager.UNKNOWN_IMAGE;
+				if (!imageLoaded) {
+					size = 38;
+				}
 
 				if (size > 0) {
 					Dimension sz = new Dimension(image.getWidth(null), image.getHeight(null));
@@ -78,6 +75,13 @@ public class HTMLPanelImageCache extends Dictionary<URL, Image> {
 					image = img;
 				}
 				
+				if (imageLoaded) {
+					// Don't have to load it again
+					imageMap.put(url.toString(), image);
+				}
+				
+				return image;
+				
 			} else {
 
 				// Normal method
@@ -90,33 +94,4 @@ public class HTMLPanelImageCache extends Dictionary<URL, Image> {
 		return image;
 	}
 
-	@Override
-	public boolean isEmpty() {
-		// Not used
-		return false;
-	}
-
-	@Override
-	public Enumeration keys() {
-		// Not used
-		return null;
-	}
-
-	@Override
-	public Image put(URL key, Image value) {
-		// Not used
-		return null;
-	}
-
-	@Override
-	public Image remove(Object key) {
-		// Not used
-		return null;
-	}
-
-	@Override
-	public int size() {
-		// Not used
-		return 0;
-	}
 }

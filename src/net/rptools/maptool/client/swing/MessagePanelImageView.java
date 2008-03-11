@@ -41,7 +41,7 @@ import javax.swing.text.html.StyleSheet;
 // THIS STARTED LIFE AS A COMPLETE COPY OF IMAGEVIEW BECAUSE THE SUN API DEVELOPER FOR IT SUCKS EGGS
 public class MessagePanelImageView extends View {
 
-	private HTMLPanelImageCache imageCache;
+	private ImageLoaderCache imageCache;
 
 	/**
      * Property name for pending image icon
@@ -110,7 +110,7 @@ public class MessagePanelImageView extends View {
      *
      * @param elem the element to create a view for
      */
-    public MessagePanelImageView(Element elem, HTMLPanelImageCache imageCache) {
+    public MessagePanelImageView(Element elem, ImageLoaderCache imageCache) {
     	super(elem);
 	fBounds = new Rectangle();
         imageObserver = new ImageHandler();
