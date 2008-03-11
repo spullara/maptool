@@ -46,6 +46,7 @@ public class AreaData {
 	private Area area;
 
 	private List<AreaMeta> metaList;
+	private List<Area> holeList = new ArrayList<Area>();
 	
 	public AreaData(Area area) {
 		// Keep our own copy
@@ -77,6 +78,17 @@ public class AreaData {
 		});
 		
 		return areaMetaList;
+	}
+
+	public Area getHoleAt(int x, int y) {
+		
+		for (Area area : holeList) {
+			if (area.contains(x, y)) {
+				return area;
+			}
+		}
+		
+		return null;
 	}
 	
 	public void digest() {
@@ -122,6 +134,9 @@ public class AreaData {
 							// through the center point it will cut the hole into at least 2 pieces
 							Rectangle bounds = meta.area.getBounds();
 							splitPoints.add(new Point(bounds.x+bounds.width/2, bounds.y+bounds.height/2));
+							
+							// Keep track of the hole for future reference
+							holeList.add(meta.area);
 						}
 					}
 					

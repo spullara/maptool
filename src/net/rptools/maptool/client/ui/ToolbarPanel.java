@@ -29,6 +29,7 @@ import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.StampTool;
 import net.rptools.maptool.client.tool.TextTool;
 import net.rptools.maptool.client.tool.drawing.ConeTemplateTool;
+import net.rptools.maptool.client.tool.drawing.FillTopologyTool;
 import net.rptools.maptool.client.tool.drawing.FreehandExposeTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
 import net.rptools.maptool.client.tool.drawing.HollowOvalTopologyTool;
@@ -168,6 +169,7 @@ public class ToolbarPanel extends JToolBar {
 		panel.add(HollowOvalTopologyTool.class);		
 		panel.add(PolygonTopologyTool.class);
 		panel.add(PolyLineTopologyTool.class);
+//		panel.add(FillTopologyTool.class);
 		
 		return panel;
 	}
