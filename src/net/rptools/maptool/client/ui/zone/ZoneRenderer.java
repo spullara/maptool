@@ -685,8 +685,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             g.setColor(new Color(visionColor.getRed(), visionColor.getGreen(), visionColor.getBlue(), AppPreferences.getVisionOverlayOpacity()));
             g.fill(area);
         }
-        
-        g.dispose();
     }
     
     private void renderPlayerVision(Graphics2D g, ZoneView view) {
@@ -999,7 +997,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        buffG.setPaint(zone.getFogPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale()));
         	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f));
 	        buffG.fillRect(0, 0, size.width, size.height);
-	        
+
 	        // Cut out the exposed area
         	AffineTransform af = new AffineTransform();
         	af.translate(getViewOffsetX(), getViewOffsetY());
@@ -1059,7 +1057,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        buffG.dispose();
 	        flushFog = false;
         }
-        
+
         g.drawImage(fogBuffer, 0, 0, this);
     }
 
@@ -1648,7 +1646,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             tokenLocationCache.put(token, location);
             
             // General visibility
-            if (!view.isGMView() && !zone.isTokenVisible(token)) {
+            if (!view.isGMView() && !token.isVisible()) {
                 continue;
             }
             
@@ -1744,6 +1742,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             Shape clip = g.getClipBounds();
             if (token.isToken() && !view.isGMView() && !token.isOwner(MapTool.getPlayer().getName()) && visibleScreenArea != null) {
             	Area clipArea = new Area(clip);
+            	
             	clipArea.intersect(visibleScreenArea);
                 g.setClip(clipArea);
             }
@@ -1803,6 +1802,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             } else {
             	at.scale((double) scaledWidth / workImage.getWidth(), (double) scaledHeight / workImage.getHeight());
             }
+
             g.drawImage(workImage, at, this);
 
             // Halo (SQUARE)
