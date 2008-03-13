@@ -997,7 +997,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        buffG.setPaint(zone.getFogPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale()));
         	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f));
 	        buffG.fillRect(0, 0, size.width, size.height);
-
+	        
 	        // Cut out the exposed area
         	AffineTransform af = new AffineTransform();
         	af.translate(getViewOffsetX(), getViewOffsetY());
@@ -1057,7 +1057,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        buffG.dispose();
 	        flushFog = false;
         }
-
+        
         g.drawImage(fogBuffer, 0, 0, this);
     }
 
@@ -1222,7 +1222,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 
                 // Vision visibility
                 Rectangle clip = g.getClipBounds();
-                if (!view.isGMView() && !isOwner && visibleArea != null) {
+                if (!view.isGMView() && !isOwner && isUsingVision) {
 
                     // Only show the part of the path that is visible
                 	Area clipArea = new Area(clip);
