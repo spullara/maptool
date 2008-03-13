@@ -1223,7 +1223,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 
                 // Vision visibility
                 Rectangle clip = g.getClipBounds();
-                if (!view.isGMView() && !isOwner && isUsingVision) {
+                if (!view.isGMView() && !isOwner && isUsingVision && visibleScreenArea != null) {
 
                     // Only show the part of the path that is visible
                 	Area clipArea = new Area(clip);
