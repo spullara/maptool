@@ -461,6 +461,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         lightSourceCache.remove(token);
         visibleArea = null;
+        visibleScreenArea = null;
         
         if (token.hasLightSources()) {
         	// Have to recalculate all token vision
