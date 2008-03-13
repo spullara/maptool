@@ -100,7 +100,7 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
     	
-    	if (selectedLabel != null) {
+    	if (selectedLabel != null && renderer.getLabelBounds(selectedLabel) != null) {
     		AppStyle.selectedBorder.paintWithin(g, renderer.getLabelBounds(selectedLabel));
     	}
     }
