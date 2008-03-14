@@ -131,7 +131,6 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 		
 		Label label = renderer.getLabelAt(e.getX(), e.getY());
 		if (label != selectedLabel) {
-			selectedLabel = label;
 			selectedNewLabel = true;
 			renderer.repaint();
 		} else {
@@ -153,8 +152,13 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     		Label label = renderer.getLabelAt(e.getX(), e.getY());
     		if (label == null) {
     			
-        		ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
-        		label = new Label("", zp.x, zp.y);
+    			if (selectedLabel == null) {
+	        		ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
+	        		label = new Label("", zp.x, zp.y);
+    			} else {
+    				selectedLabel = null;
+    				renderer.repaint();
+    			}
     		} else {
     			if (selectedNewLabel) {
     				selectedLabel = label;
@@ -185,8 +189,16 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     	
     	super.mouseDragged(e);
 
-    	if (selectedLabel == null || SwingUtilities.isRightMouseButton(e)) {
-    		return;
+    	if (!isDragging) {
+    		// Setup
+        	Label label = renderer.getLabelAt(e.getX(), e.getY());
+        	if (selectedLabel == null || selectedLabel != label) {
+        		selectedLabel = label;
+        	}
+
+        	if (selectedLabel == null || SwingUtilities.isRightMouseButton(e)) {
+        		return;
+        	}
     	}
 
     	isDragging = true;
@@ -194,10 +206,7 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     	int dx = e.getX() - dragStartX;
     	int dy = e.getY() - dragStartY;
     	
-    	ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, new ZonePoint(selectedLabel.getX(), selectedLabel.getY()));
-    	sp.x += dx;
-    	sp.y += dy;
-    	ZonePoint zp = sp.convertToZone(renderer);
+    	ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
     	
     	selectedLabel.setX(zp.x);
     	selectedLabel.setY(zp.y);
