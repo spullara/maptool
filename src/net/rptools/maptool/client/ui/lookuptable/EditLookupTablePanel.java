@@ -198,6 +198,11 @@ public class EditLookupTablePanel extends AbeillePanel {
 					MapTool.showError("Must have at least one row");
 					return;
 				}
+				
+				if (!name.equals(lookupTable.getName())) {
+					// Remove the lookup
+					MapTool.getCampaign().getLookupTableMap().remove(lookupTable.getName());
+				}
 
 				lookupTable.setName(name);
 				lookupTable.setRoll(getTableRollTextField().getText());
