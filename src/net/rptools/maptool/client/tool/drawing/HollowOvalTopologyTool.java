@@ -99,10 +99,6 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
 
             paintTransformed(g, renderer, oval, pen);
             
-            Point start = oval.getStartPoint();
-            Point end = oval.getEndPoint();
-            
-            ToolHelper.drawBoxedMeasurement(renderer, g, new ScreenPoint(start.x, start.y), new ScreenPoint(end.x, end.y));
         }
     }    
     
