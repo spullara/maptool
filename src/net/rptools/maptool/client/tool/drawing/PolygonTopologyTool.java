@@ -24,14 +24,14 @@
  */
 package net.rptools.maptool.client.tool.drawing;
 
-import java.awt.Color;
+import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -47,7 +47,6 @@ import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.ShapeDrawable;
-import net.rptools.maptool.util.GraphicsUtil;
 
 
 /**
@@ -114,22 +113,21 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
     
     private Area createLineArea(LineSegment line) {
     	
-    	Area lineArea = new Area();
-    	Point lastPoint = null;
+    	GeneralPath gp = null;
     	for (Point point : line.getPoints()) {
-    		
-    		if (lastPoint == null) {
-    			lastPoint = point;
+
+    		if (gp == null) {
+    			gp = new GeneralPath();
+    			gp.moveTo(point.x, point.y);
     			continue;
     		}
     		
-    		Area segmentArea = GraphicsUtil.createAreaBetween(lastPoint, point, 1);
-    		lineArea.add(segmentArea);
-    		
-    		lastPoint = point;
+    		gp.lineTo(point.x, point.y);
     	}
+
+    	BasicStroke stroke = new BasicStroke(2);
     	
-    	return lineArea;
+    	return new Area(stroke.createStrokedShape(gp));
     }
 
     protected Pen getPen() {
