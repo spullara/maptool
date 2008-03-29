@@ -50,11 +50,11 @@ public class CampaignPropertiesDialog extends JDialog  {
 		OK,
 		CANCEL
 	}
+
+	private TokenPropertiesManagementPanel tokenPropertiesPanel;
 	
 	private Status status;
-	
 	private FormPanel formPanel;
-	
 	private Campaign campaign;
 	
 	public CampaignPropertiesDialog(JFrame owner) {
@@ -87,6 +87,8 @@ public class CampaignPropertiesDialog extends JDialog  {
 		setLayout(new GridLayout());
 		formPanel = new FormPanel("net/rptools/maptool/client/ui/forms/campaignPropertiesDialog.jfrm");
 
+		initTokenPropertiesDialog(formPanel);
+		
 		initOKButton();
 		initCancelButton();
 		initAddRepoButton();
@@ -108,6 +110,14 @@ public class CampaignPropertiesDialog extends JDialog  {
 
 		getRootPane().setDefaultButton(getOKButton());
 		
+	}
+	
+	private void initTokenPropertiesDialog(FormPanel panel) {
+
+		tokenPropertiesPanel = new TokenPropertiesManagementPanel();
+		
+		panel.getFormAccessor("propertiesPanel").replaceBean("tokenPropertiesPanel", tokenPropertiesPanel);
+		panel.reset();
 	}
 	
 	public JTextField getNewServerTextField() {
@@ -165,10 +175,10 @@ public class CampaignPropertiesDialog extends JDialog  {
 		copyCampaignToUI(campaign.getCampaignProperties());
 	}
 	
-	private void copyCampaignToUI(CampaignProperties properties) {
+	private void copyCampaignToUI(CampaignProperties campaignProperties) {
 		
-		parseTokenProperties(properties.getTokenPropertyList(Campaign.DEFAULT_TOKEN_PROPERTY_TYPE));
-		updateRepositoryList(properties);
+		tokenPropertiesPanel.copyCampaignToUI(campaignProperties);
+		updateRepositoryList(campaignProperties);
 //		updateTableList();
 	}
 	
@@ -187,7 +197,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 	
 	private void copyUIToCampaign() {
 		
-		campaign.putTokenType(Campaign.DEFAULT_TOKEN_PROPERTY_TYPE, compileTokenProperties());
+		tokenPropertiesPanel.copyUIToCampaign(campaign);
 		
 		campaign.getRemoteRepositoryList().clear();
 		for (int i = 0; i < getRepositoryList().getModel().getSize(); i++) {
@@ -196,80 +206,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 		}
 	}
 	
-	private void parseTokenProperties(List<TokenProperty> propertyList) {
 
-		StringBuilder builder = new StringBuilder();
-		
-		for (TokenProperty property : propertyList) {
-			if (property.isHighPriority()) {
-				builder.append("*");
-			}
-			if (property.isOwnerOnly()) {
-				builder.append("@");
-			}
-			builder.append(property.getName());
-			if (property.getShortName() != null) {
-				builder.append(" (").append(property.getShortName()).append(")");
-			}
-			builder.append("\n");
-		}
-		
-		getTokenPropertiesTextArea().setText(builder.toString());
-	}
-	
-	private List<TokenProperty> compileTokenProperties() {
-
-		List<TokenProperty> propertyList = new ArrayList<TokenProperty>();
-		BufferedReader reader = new BufferedReader(new StringReader(getTokenPropertiesTextArea().getText()));
-		String line = null;
-		try {
-			while ((line = reader.readLine()) != null) {
-				line = line.trim();
-				if (line.length() == 0) {
-					continue;
-				}
-				
-				TokenProperty property = new TokenProperty();
-				
-				// Prefix
-				while (true) {
-					if (line.startsWith("*")) {
-						property.setHighPriority(true);
-						line = line.substring(1);
-						continue;
-					}
-					if (line.startsWith("@")) {
-						property.setOwnerOnly(true);
-						line = line.substring(1);
-						continue;
-					}
-					
-					// Ran out of special characters
-					break;
-				}
-				
-				// Suffix
-				int index = line.indexOf("(");
-				if (index > 0) {
-					String shortName = line.substring(index+1, line.indexOf(")", index)).trim();
-					if (shortName.length() > 0) {
-						property.setShortName(shortName);
-					}
-					line = line.substring(0, index).trim();
-				}
-				
-				property.setName(line);
-
-				propertyList.add(property);
-			}
-			
-		} catch (IOException ioe) {
-			// If this happens, I'll check into the nearest insane asylum
-			ioe.printStackTrace();
-		}
-
-		return propertyList;
-	}
 	
 	public JTextArea getTokenPropertiesTextArea() {
 		return (JTextArea) formPanel.getTextComponent("tokenProperties");

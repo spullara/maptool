@@ -145,7 +145,7 @@ public class Campaign {
     	getTokenTypeMap().put(name, propertyList);
     }
     
-    private Map<String, List<TokenProperty>> getTokenTypeMap() {
+    public Map<String, List<TokenProperty>> getTokenTypeMap() {
     	checkCampaignPropertyConversion(); // TODO: Remove, for compatibility 1.3b19-1.3b20
     	return campaignProperties.getTokenTypeMap();
     }

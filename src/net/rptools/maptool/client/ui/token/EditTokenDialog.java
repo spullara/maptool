@@ -33,6 +33,8 @@ import java.awt.GridLayout;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -146,12 +148,7 @@ public class EditTokenDialog extends AbeillePanel {
 		getTokenIconPanel().setImageId(token.getImageAssetId());
 
 		// PROPERTIES
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				getPropertyTable().setModel(new TokenPropertyTableModel());
-				getPropertyTable().expandAll();
-			}
-		});
+		updatePropertiesTable(token.getPropertyType());
 		
 		// STATES
 		Component[] states = getStatesPanel().getComponents();
@@ -266,6 +263,27 @@ public class EditTokenDialog extends AbeillePanel {
 		model.insertElementAt("Free Size", 0);
 		getSizeCombo().setModel(model);
 	}
+
+	public void initPropertyTypeCombo() {
+		List<String> typeList = new ArrayList<String>(MapTool.getCampaign().getTokenTypes());
+		Collections.sort(typeList);
+		DefaultComboBoxModel model = new DefaultComboBoxModel(typeList.toArray());
+		getPropertyTypeCombo().setModel(model);
+		getPropertyTypeCombo().addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				updatePropertiesTable((String)getPropertyTypeCombo().getSelectedItem());
+			}
+		});
+	}
+	
+	private void updatePropertiesTable(final String propertyType) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				getPropertyTable().setModel(new TokenPropertyTableModel());
+				getPropertyTable().expandAll();
+			}
+		});
+	}
 	
 	public JComboBox getSizeCombo() {
 		return (JComboBox) getComponent("size");
@@ -313,6 +331,9 @@ public class EditTokenDialog extends AbeillePanel {
 		} else {
 			token.setSnapToScale(true);
 		}
+		
+		// Other
+		token.setPropertyType((String)getPropertyTypeCombo().getSelectedItem());
 
 		// Get the states
 		Component[] components = getStatesPanel().getComponents();
@@ -732,7 +753,7 @@ public class EditTokenDialog extends AbeillePanel {
 		
 		private List<net.rptools.maptool.model.TokenProperty> getPropertyList() {
 			if (propertyList == null) {
-				propertyList = MapTool.getCampaign().getTokenPropertyList(token.getPropertyType());
+				propertyList = MapTool.getCampaign().getTokenPropertyList((String)getPropertyTypeCombo().getSelectedItem());
 			}
 			return propertyList;
 		}
