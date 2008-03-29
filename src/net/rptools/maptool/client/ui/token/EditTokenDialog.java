@@ -148,6 +148,7 @@ public class EditTokenDialog extends AbeillePanel {
 		getTokenIconPanel().setImageId(token.getImageAssetId());
 
 		// PROPERTIES
+		updatePropertyTypeCombo();
 		updatePropertiesTable(token.getPropertyType());
 		
 		// STATES
@@ -265,6 +266,10 @@ public class EditTokenDialog extends AbeillePanel {
 	}
 
 	public void initPropertyTypeCombo() {
+		updatePropertyTypeCombo();
+	}
+
+	private void updatePropertyTypeCombo() {
 		List<String> typeList = new ArrayList<String>(MapTool.getCampaign().getTokenTypes());
 		Collections.sort(typeList);
 		DefaultComboBoxModel model = new DefaultComboBoxModel(typeList.toArray());
