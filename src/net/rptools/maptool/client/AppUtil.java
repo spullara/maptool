@@ -26,7 +26,7 @@ package net.rptools.maptool.client;
 
 import java.io.File;
 
-import net.rptools.maptool.client.ui.zone.ZoneView;
+import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -73,7 +73,7 @@ public class AppUtil {
     	return token.isOwner(player.getName());
     }
     
-    public static boolean tokenIsVisible(Zone zone, Token token, ZoneView view) {
+    public static boolean tokenIsVisible(Zone zone, Token token, PlayerView view) {
     	
     	if (view.isGMView()) {return true;}
     	

@@ -78,7 +78,7 @@ import net.rptools.maptool.client.ui.assetpanel.Directory;
 import net.rptools.maptool.client.ui.campaignproperties.CampaignPropertiesDialog;
 import net.rptools.maptool.client.ui.token.TransferProgressDialog;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.client.ui.zone.ZoneView;
+import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -175,7 +175,7 @@ public class AppActions {
 		
 		switch (exportInfo.getType()) {
 		case ExportInfo.Type.CURRENT_VIEW:
-			screenCap = MapTool.takeMapScreenShot(new ZoneView(role));
+			screenCap = MapTool.takeMapScreenShot(new PlayerView(role));
 			if (screenCap == null) {
 				MapTool.getFrame().setStatusMessage("Could not get screencap");
 				return;

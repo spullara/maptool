@@ -52,7 +52,7 @@ import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.client.ui.zone.ZoneView;
+import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
@@ -125,7 +125,7 @@ public class PersistenceUtil {
 	* upon opening, or code to delay it's call until the render is complete.  =P
 	*/
 	static public void saveCampaignThumbnail(String fileName) {
-		BufferedImage screen = MapTool.takeMapScreenShot(new ZoneView(MapTool.getPlayer().getRole()));
+		BufferedImage screen = MapTool.takeMapScreenShot(new PlayerView(MapTool.getPlayer().getRole()));
 		if (screen == null) {
 			return;
 		}

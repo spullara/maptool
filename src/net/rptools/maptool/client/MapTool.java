@@ -59,7 +59,7 @@ import net.rptools.maptool.client.ui.MapToolFrame;
 import net.rptools.maptool.client.ui.StartServerDialogPreferences;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
-import net.rptools.maptool.client.ui.zone.ZoneView;
+import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
@@ -190,7 +190,7 @@ public class MapTool {
     	return getFrame().isFocused();
     }
     
-    public static BufferedImage takeMapScreenShot(final ZoneView view) {
+    public static BufferedImage takeMapScreenShot(final PlayerView view) {
     	final ZoneRenderer renderer = clientFrame.getCurrentZoneRenderer();
     	if (renderer == null) {
     		return null;

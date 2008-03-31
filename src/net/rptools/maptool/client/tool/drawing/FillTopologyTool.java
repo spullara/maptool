@@ -72,14 +72,14 @@ public class FillTopologyTool extends DefaultTool implements ZoneOverlay {
 		
 		ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
 		
-		Area holeArea = renderer.getTopologyAreaData().getHoleAt(zp.x, zp.y); 
-		if (holeArea == null) {
-			MapTool.showError("Must click in an enclosed area");
-			return;
-		}
-		
-        renderer.getZone().addTopology(holeArea);
-        MapTool.serverCommand().addTopology(renderer.getZone().getId(), holeArea);
+//		Area holeArea = renderer.getTopologyAreaData().getHoleAt(zp.x, zp.y); 
+//		if (holeArea == null) {
+//			MapTool.showError("Must click in an enclosed area");
+//			return;
+//		}
+//		
+//        renderer.getZone().addTopology(holeArea);
+//        MapTool.serverCommand().addTopology(renderer.getZone().getId(), holeArea);
         
         renderer.repaint();
 	}

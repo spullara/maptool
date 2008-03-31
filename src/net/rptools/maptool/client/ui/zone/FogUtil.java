@@ -175,7 +175,7 @@ public class FogUtil {
 				continue;
 			}
 
-			Area tokenVision = renderer.getTokenVision(token);
+			Area tokenVision = renderer.getVisibleArea(token);
 
 			if (tokenVision != null) {
 				zone.exposeArea(tokenVision);

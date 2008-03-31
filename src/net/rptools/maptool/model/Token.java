@@ -162,6 +162,7 @@ public class Token extends BaseModel {
 	private MD5Key portraitImage;
 	
 	private List<AttachedLightSource> lightSourceList;
+	private String sightType;
 	
 	private String label;
 	
@@ -239,6 +240,7 @@ public class Token extends BaseModel {
         anchorX = token.anchorX;
         anchorY = token.anchorY;
         sizeScale = token.sizeScale;
+        sightType = token.sightType;
         
 	    ownerType = token.ownerType;
 		if (token.ownerList != null) {
@@ -432,8 +434,7 @@ public class Token extends BaseModel {
 	}
 
 	public boolean hasSight() {
-		// TODO: This has to be MUCH more selective
-		return !isStamp() && getType() == Type.PC;
+		return getType() == Type.PC || sightType != null;
 	}
 
 	public void addLightSource(LightSource source, Direction direction) {
@@ -729,6 +730,14 @@ public class Token extends BaseModel {
 		return footprintBounds;
 	}
 	
+	public String getSightType() {
+		return sightType;
+	}
+
+	public void setSightType(String sightType) {
+		this.sightType = sightType;
+	}
+
 	/**
 	 * @return Returns the size.
 	 */

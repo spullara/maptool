@@ -19,6 +19,8 @@ public class CampaignProperties {
     
     private Map<String, LookupTable> lookupTableMap;
 
+    private Map<String, SightType> sightTypeMap;
+    
     public CampaignProperties() {
     	init();
     }
@@ -35,7 +37,15 @@ public class CampaignProperties {
 
     	remoteRepositoryList = new ArrayList<String>(properties.remoteRepositoryList);
     	
-		lookupTableMap = new HashMap<String, LookupTable>(properties.lookupTableMap);
+		lookupTableMap = new HashMap<String, LookupTable>();
+		if (properties.lookupTableMap != null) {
+			lookupTableMap.putAll(properties.lookupTableMap);
+		}
+
+		sightTypeMap = new HashMap<String, SightType>();
+		if (properties.sightTypeMap != null) {
+			sightTypeMap.putAll(properties.sightTypeMap);
+		}
 
 		// TODO: This doesn't feel right, should we deep copy, or does this do that automatically ?
 		lightSourcesMap = new HashMap<String, Map<GUID, LightSource>>(properties.lightSourcesMap);
@@ -63,6 +73,10 @@ public class CampaignProperties {
     	
     	if (lookupTableMap != null) {
     		properties.lookupTableMap.putAll(lookupTableMap);
+    	}
+    	
+    	if (sightTypeMap != null) {
+    		properties.sightTypeMap.putAll(sightTypeMap);
     	}
     }
     
@@ -111,6 +125,7 @@ public class CampaignProperties {
     	initLightSourcesMap();
     	initRemoteRepositoryList();
     	initTokenTypeMap();
+    	initSightTypeMap();
     }
 
     private void initLookupTableMap() {
@@ -150,6 +165,19 @@ public class CampaignProperties {
 		remoteRepositoryList.add("http://rptools.net/image-indexes/gallery.rpax.gz");
     }
     
+    
+    private void initSightTypeMap() {
+    	
+    	sightTypeMap = new HashMap<String, SightType>();
+    	
+    	sightTypeMap.put("Lowlight", new SightType("Lowlight", 2, null));
+    	
+    	try {
+    		sightTypeMap.put("Darkvision", new SightType("Darkvision", 1, LightSource.getDefaultLightSources().get("D20").get(1)));
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    }
     
     private void initTokenTypeMap() {
     	if (tokenTypeMap != null) {
