@@ -1,5 +1,6 @@
 package net.rptools.maptool.client.ui.campaignproperties;
 
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -88,10 +89,14 @@ public class TokenPropertiesManagementPanel extends AbeillePanel<CampaignPropert
 	public void initNewButton() {
 		getNewButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				getTokenTypeName().setText("");
-				getTokenTypeName().setEnabled(true);
-				getTokenPropertiesArea().setText("");
+
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						// This will force a reset
+						getTokenTypeList().getSelectionModel().clearSelection();
+						reset();
+					}
+				});
 			}
 		});
 	}
@@ -126,9 +131,9 @@ public class TokenPropertiesManagementPanel extends AbeillePanel<CampaignPropert
 		
 		editingType = type;
 		
-		getTokenTypeName().setText(type);
+		getTokenTypeName().setText(type != null ? type : "");
 		getTokenTypeName().setEditable(!CampaignProperties.DEFAULT_TOKEN_PROPERTY_TYPE.equals(type));
-		getTokenPropertiesArea().setText(compileTokenProperties(tokenTypeMap.get(type)));
+		getTokenPropertiesArea().setText(type != null ? compileTokenProperties(tokenTypeMap.get(type)) : "");
 	}
 	
 	private void update() {
@@ -144,10 +149,7 @@ public class TokenPropertiesManagementPanel extends AbeillePanel<CampaignPropert
 	
 	private void reset() {
 		
-		getTokenTypeName().setText("");
-		getTokenTypeName().setEnabled(true);
-		getTokenPropertiesArea().setText("");
-		editingType = null;
+		bind((String)null);
 	}
 	
 	private void updateTypeList() {
@@ -157,6 +159,11 @@ public class TokenPropertiesManagementPanel extends AbeillePanel<CampaignPropert
 	
 	private String compileTokenProperties(List<TokenProperty> propertyList) {
 
+		// Sanity
+		if (propertyList == null) {
+			return "";
+		}
+		
 		StringBuilder builder = new StringBuilder();
 		
 		for (TokenProperty property : propertyList) {
