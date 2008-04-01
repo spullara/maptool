@@ -6,7 +6,7 @@ public class TokenProperty implements Serializable {
 
 	private String name;
 	private String shortName;
-	private boolean showOnStatSheet;
+	private boolean highPriority; // showOnStatSheet; so that 1.3b28 files load in 1.3b29
 	private boolean ownerOnly;
 	private boolean gmOnly;
 	
@@ -43,10 +43,10 @@ public class TokenProperty implements Serializable {
 	}
 
 	public boolean isShowOnStateSheet() {
-		return showOnStatSheet;
+		return highPriority;
 	}
 	public void setShowOnStatSheet(boolean showOnStatSheet) {
-		this.showOnStatSheet = showOnStatSheet;
+		this.highPriority = showOnStatSheet;
 	}
 	public String getName() {
 		return name;
