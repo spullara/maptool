@@ -195,11 +195,13 @@ public class ZoneView implements ModelChangeListener {
 	}
 	
     private void flush(Token token) {
+    	boolean hadLightSource = lightSourceCache.get(token) != null;
+    	
         tokenVisionCache.remove(token);
         lightSourceCache.remove(token);
         visibleAreaMap.clear();
         
-        if (token.hasLightSources()) {
+        if (hadLightSource) {
         	// Have to recalculate all token vision
         	tokenVisionCache.clear();
         }
