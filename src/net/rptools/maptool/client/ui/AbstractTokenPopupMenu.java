@@ -432,6 +432,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 				renderer.flush(token);
 
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+				renderer.getZone().putToken(token);
 
 				renderer.repaint();
 			}
