@@ -193,11 +193,11 @@ public class CampaignProperties {
     	list.add(new TokenProperty("Intelligence", "Int"));
     	list.add(new TokenProperty("Wisdom", "Wis"));
     	list.add(new TokenProperty("Charisma", "Char"));
-    	list.add(new TokenProperty("HP", true, true));
-    	list.add(new TokenProperty("AC", true, true));
+    	list.add(new TokenProperty("HP", true, true, false));
+    	list.add(new TokenProperty("AC", true, true, false));
     	list.add(new TokenProperty("Defense", "Def"));
     	list.add(new TokenProperty("Movement", "Mov"));
-    	list.add(new TokenProperty("Elevation", "Elv", true, false));
+    	list.add(new TokenProperty("Elevation", "Elv", true, false, false));
     	list.add(new TokenProperty("Description", "Des"));
 
     	tokenTypeMap.put(DEFAULT_TOKEN_PROPERTY_TYPE, list);

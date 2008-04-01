@@ -6,29 +6,31 @@ public class TokenProperty implements Serializable {
 
 	private String name;
 	private String shortName;
-	private boolean highPriority;
+	private boolean showOnStatSheet;
 	private boolean ownerOnly;
+	private boolean gmOnly;
 	
 	public TokenProperty() {
 		// For serialization
 	}
 
 	public TokenProperty(String name) {
-		this(name, null, false, false);
+		this(name, null, false, false, false);
 	}
 	
 	public TokenProperty(String name, String shortName) {
-		this(name, shortName, false, false);
+		this(name, shortName, false, false, false);
 	}
 	
-	public TokenProperty(String name, boolean highPriority, boolean isGMOnly) {
-		this(name, null, highPriority, isGMOnly);
+	public TokenProperty(String name, boolean highPriority, boolean isOwnerOnly, boolean isGMOnly) {
+		this(name, null, highPriority, isOwnerOnly, isGMOnly);
 	}
-	public TokenProperty(String name, String shortName, boolean highPriority, boolean isGMOnly) {
+	public TokenProperty(String name, String shortName, boolean highPriority, boolean isOwnerOnly, boolean isGMOnly) {
 		this.name = name;
 		this.shortName = shortName;
-		this.highPriority = highPriority;
-		this.ownerOnly = isGMOnly;
+		this.showOnStatSheet = highPriority;
+		this.ownerOnly = isOwnerOnly;
+		this.gmOnly = isGMOnly;
 	}
 
 	
@@ -36,15 +38,15 @@ public class TokenProperty implements Serializable {
 		return ownerOnly;
 	}
 
-	public void setOwnerOnly(boolean gmOnly) {
-		this.ownerOnly = gmOnly;
+	public void setOwnerOnly(boolean ownerOnly) {
+		this.ownerOnly = ownerOnly;
 	}
 
-	public boolean isHighPriority() {
-		return highPriority;
+	public boolean isShowOnStateSheet() {
+		return showOnStatSheet;
 	}
-	public void setHighPriority(boolean highPriority) {
-		this.highPriority = highPriority;
+	public void setShowOnStatSheet(boolean showOnStatSheet) {
+		this.showOnStatSheet = showOnStatSheet;
 	}
 	public String getName() {
 		return name;
@@ -59,6 +61,14 @@ public class TokenProperty implements Serializable {
 
 	public void setShortName(String shortName) {
 		this.shortName = shortName;
+	}
+
+	public boolean isGMOnly() {
+		return gmOnly;
+	}
+
+	public void setGMOnly(boolean gmOnly) {
+		this.gmOnly = gmOnly;
 	}
 
 	

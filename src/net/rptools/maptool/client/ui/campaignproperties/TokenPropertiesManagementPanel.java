@@ -167,11 +167,14 @@ public class TokenPropertiesManagementPanel extends AbeillePanel<CampaignPropert
 		StringBuilder builder = new StringBuilder();
 		
 		for (TokenProperty property : propertyList) {
-			if (property.isHighPriority()) {
+			if (property.isShowOnStateSheet()) {
 				builder.append("*");
 			}
 			if (property.isOwnerOnly()) {
 				builder.append("@");
+			}
+			if (property.isGMOnly()) {
+				builder.append("#");
 			}
 			builder.append(property.getName());
 			if (property.getShortName() != null) {
@@ -200,12 +203,17 @@ public class TokenPropertiesManagementPanel extends AbeillePanel<CampaignPropert
 				// Prefix
 				while (true) {
 					if (line.startsWith("*")) {
-						property.setHighPriority(true);
+						property.setShowOnStatSheet(true);
 						line = line.substring(1);
 						continue;
 					}
 					if (line.startsWith("@")) {
 						property.setOwnerOnly(true);
+						line = line.substring(1);
+						continue;
+					}
+					if (line.startsWith("#")) {
+						property.setGMOnly(true);
 						line = line.substring(1);
 						continue;
 					}

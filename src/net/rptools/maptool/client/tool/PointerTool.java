@@ -1227,18 +1227,24 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				Map<String, String> propertyMap = new LinkedHashMap<String, String>();
 				for (TokenProperty property : MapTool.getCampaign().getTokenPropertyList(tokenUnderMouse.getPropertyType())) {
 					
-					if (property.isHighPriority()) {
+					if (property.isShowOnStateSheet()) {
+
+						if (property.isGMOnly() && !MapTool.getPlayer().isGM()) {
+							continue;
+						}
 						
-						if (!property.isOwnerOnly() || AppUtil.playerOwns(tokenUnderMouse)) {
-							Object propertyValue = tokenUnderMouse.getProperty(property.getName());
-							if (propertyValue != null) {
-								if (propertyValue.toString().length() > 0) {
-									String propName = property.getName();
-									if (property.getShortName() != null) {
-										propName = property.getShortName();
-									}
-									propertyMap.put(propName, propertyValue.toString());
+						if (property.isOwnerOnly() && !AppUtil.playerOwns(tokenUnderMouse)) {
+							continue;
+						}
+						
+						Object propertyValue = tokenUnderMouse.getProperty(property.getName());
+						if (propertyValue != null) {
+							if (propertyValue.toString().length() > 0) {
+								String propName = property.getName();
+								if (property.getShortName() != null) {
+									propName = property.getShortName();
 								}
+								propertyMap.put(propName, propertyValue.toString());
 							}
 						}
 					}
