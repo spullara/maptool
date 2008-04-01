@@ -28,7 +28,7 @@ public class TokenProperty implements Serializable {
 	public TokenProperty(String name, String shortName, boolean highPriority, boolean isOwnerOnly, boolean isGMOnly) {
 		this.name = name;
 		this.shortName = shortName;
-		this.showOnStatSheet = highPriority;
+		this.highPriority = highPriority;
 		this.ownerOnly = isOwnerOnly;
 		this.gmOnly = isGMOnly;
 	}
