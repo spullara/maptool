@@ -174,23 +174,6 @@ public class Campaign {
     	return getLightSourcesMap().get(type);
     }
     
-    private List<TokenProperty> createBasicPropertyList() {
-    	List<TokenProperty> list = new ArrayList<TokenProperty>();
-    	list.add(new TokenProperty("Strength", "Str"));
-    	list.add(new TokenProperty("Dexterity", "Dex"));
-    	list.add(new TokenProperty("Constitution", "Con"));
-    	list.add(new TokenProperty("Intelligence", "Int"));
-    	list.add(new TokenProperty("Wisdom", "Wis"));
-    	list.add(new TokenProperty("Charisma", "Char"));
-    	list.add(new TokenProperty("HP", true, true));
-    	list.add(new TokenProperty("AC", true, true));
-    	list.add(new TokenProperty("Defense", "Def"));
-    	list.add(new TokenProperty("Movement", "Mov"));
-    	list.add(new TokenProperty("Elevation", "Elv", true, false));
-    	list.add(new TokenProperty("Description", "Des"));
-    	return list;
-    }
-    
     public void setExportInfo(ExportInfo exportInfo) {
     	this.exportInfo = exportInfo;
     }
