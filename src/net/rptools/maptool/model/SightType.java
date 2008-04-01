@@ -28,9 +28,15 @@ public class SightType {
 	public void setMultiplier(double multiplier) {
 		this.multiplier = multiplier;
 	}
+
+	public boolean hasPersonalLightSource() {
+		return personalLightSource != null;
+	}
+	
 	public LightSource getPersonalLightSource() {
 		return personalLightSource;
 	}
+	
 	public void setPersonalLightSource(LightSource personalLightSource) {
 		this.personalLightSource = personalLightSource;
 	}

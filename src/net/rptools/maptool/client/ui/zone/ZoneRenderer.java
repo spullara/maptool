@@ -411,6 +411,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
             flush(token);
             MapTool.serverCommand().putToken(zone.getId(), token);
+            zone.putToken(token);
         }
         
         MapTool.getFrame().updateTokenTree();

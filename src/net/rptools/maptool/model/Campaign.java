@@ -131,8 +131,13 @@ public class Campaign {
 
 
 	public List<String> getTokenTypes() {
-    	List<String> list = new ArrayList<String>();
-    	list.addAll(getTokenTypeMap().keySet());
+    	List<String> list = new ArrayList<String>(getTokenTypeMap().keySet());
+    	Collections.sort(list);
+    	return list;
+    }
+
+	public List<String> getSightTypes() {
+    	List<String> list = new ArrayList<String>(getSightTypeMap().keySet());
     	Collections.sort(list);
     	return list;
     }
@@ -148,6 +153,15 @@ public class Campaign {
     public Map<String, List<TokenProperty>> getTokenTypeMap() {
     	checkCampaignPropertyConversion(); // TODO: Remove, for compatibility 1.3b19-1.3b20
     	return campaignProperties.getTokenTypeMap();
+    }
+
+    public SightType getSightType(String type) {
+    	return getSightTypeMap().get(type != null ? type : campaignProperties.getDefaultSightType());
+    }
+    
+    public Map<String, SightType> getSightTypeMap() {
+    	checkCampaignPropertyConversion();
+    	return campaignProperties.getSightTypeMap();
     }
     
     public Map<String, LookupTable> getLookupTableMap() {

@@ -1,6 +1,7 @@
 package net.rptools.maptool.client.ui.zone;
 
 import java.awt.Point;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
@@ -15,9 +16,11 @@ import java.util.Set;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.AttachedLightSource;
+import net.rptools.maptool.model.Direction;
 import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
+import net.rptools.maptool.model.SightType;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 
@@ -35,6 +38,8 @@ public class ZoneView implements ModelChangeListener {
 	public ZoneView(Zone zone) {
 		
 		this.zone = zone;
+		
+		findLightSources();
 		
 		zone.addModelChangeListener(this);
 	}
@@ -80,9 +85,8 @@ public class ZoneView implements ModelChangeListener {
 				continue;
 			}
 			
-            Point p = FogUtil.calculateVisionCenter(lightSourceToken, zone);
-            Area lightSourceArea = lightSource.getArea(lightSourceToken, zone, attachedLightSource.getDirection());
-			Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopologyAreaData());
+	        SightType sight = MapTool.getCampaign().getSightType(token.getSightType());
+			Area visibleArea = calculateLightSourceArea(lightSource, lightSourceToken, sight, attachedLightSource.getDirection());
 
 			if (visibleArea != null) {
 				area.add(visibleArea);
@@ -95,6 +99,23 @@ public class ZoneView implements ModelChangeListener {
 		return area;
     }
 	
+    private Area calculateLightSourceArea(LightSource lightSource, Token lightSourceToken, SightType sight, Direction direction) {
+    	
+        Point p = FogUtil.calculateVisionCenter(lightSourceToken, zone);
+        Area lightSourceArea = lightSource.getArea(lightSourceToken, zone, direction);
+        
+        // TODO: This won't work with directed light, need to add an anchor or something
+        System.out.println(sight.getName());
+        if (sight.getMultiplier() != 1) {
+        	System.out.println("Before: " + lightSourceArea.getBounds());
+        	lightSourceArea.transform(AffineTransform.getScaleInstance(sight.getMultiplier(), sight.getMultiplier()));
+        	System.out.println("After: " + lightSourceArea.getBounds());
+        	
+        }
+        
+		return FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopologyAreaData());
+    }
+    
 	public Area getVisibleArea(Token token) {
 
 		// Sanity
@@ -114,33 +135,47 @@ public class ZoneView implements ModelChangeListener {
         Area visibleArea = new Area(new Ellipse2D.Double(-visionDistance, -visionDistance, visionDistance*2, visionDistance*2));
         visibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopologyAreaData());
 
-        if (visibleArea != null) {
-        	Rectangle2D origBounds = visibleArea.getBounds();
-        	
-    		// Combine all light sources that might intersect our vision
-        	List<Area> intersects = new LinkedList<Area>();
-    		for (Token lightSourceToken : lightSourceSet) {
-    			
-    			Area lightArea = getLightSourceArea(token, lightSourceToken);
+        // Simple case
+        if (lightSourceSet.size() > 0) {
+        
+	        if (visibleArea != null) {
+	        	Rectangle2D origBounds = visibleArea.getBounds();
+	        	
+	    		// Combine all light sources that might intersect our vision
+	        	List<Area> intersects = new LinkedList<Area>();
+	    		for (Token lightSourceToken : lightSourceSet) {
+	    			
+	    			Area lightArea = getLightSourceArea(token, lightSourceToken);
+	
+	    			if (origBounds.intersects(lightArea.getBounds2D())) {
+	            		Area intersection = new Area(visibleArea);
+	            		intersection.intersect(lightArea);
+	                	intersects.add(intersection);
+	            	}
+	    		}
+	        	
+	            // Check for personal vision
+	            SightType sight = MapTool.getCampaign().getSightType(token.getSightType());
+	            if (sight != null && sight.hasPersonalLightSource()) {
+	    			Area lightArea = calculateLightSourceArea(sight.getPersonalLightSource(), token, sight, Direction.CENTER);
+	    			if (lightArea != null) {
+	            		Area intersection = new Area(visibleArea);
+	            		intersection.intersect(lightArea);
+	                	intersects.add(intersection);
+	    			}
+	            }
 
-    			if (origBounds.intersects(lightArea.getBounds2D())) {
-            		Area intersection = new Area(visibleArea);
-            		intersection.intersect(lightArea);
-                	intersects.add(intersection);
-            	}
-    		}
-        	
-			while (intersects.size() > 1) {
-				
-				Area a1 = intersects.remove(0);
-				Area a2 = intersects.remove(0);
-				
-				a1.add(a2);
-				intersects.add(a1);
-			}
-            visibleArea = intersects.size() > 0 ? intersects.get(0) : new Area();
-
-            // Check for personal vision
+				while (intersects.size() > 1) {
+					
+					Area a1 = intersects.remove(0);
+					Area a2 = intersects.remove(0);
+					
+					a1.add(a2);
+					intersects.add(a1);
+				}
+	
+	            visibleArea = intersects.size() > 0 ? intersects.get(0) : new Area();
+	        }
         }
         
         tokenVisionCache.put(token, visibleArea);
@@ -148,16 +183,28 @@ public class ZoneView implements ModelChangeListener {
 		return visibleArea;
 	}
 
+	private void findLightSources() {
+		
+		lightSourceSet.clear();
+		
+		for (Token token : zone.getAllTokens()) {
+			if (token.hasLightSources()) {
+				lightSourceSet.add(token);
+			}
+		}
+	}
 	
     private void flush(Token token) {
         tokenVisionCache.remove(token);
         lightSourceCache.remove(token);
+        visibleAreaMap.clear();
         
-    	System.out.println("Flush");
         if (token.hasLightSources()) {
         	// Have to recalculate all token vision
         	tokenVisionCache.clear();
-        	visibleAreaMap.clear();
+        }
+        if (token.hasSight()) {
+            visibleAreaMap.clear();
         }
     }
 
@@ -220,6 +267,23 @@ public class ZoneView implements ModelChangeListener {
             if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
             	flush((Token)event.getArg());
             }
+            if (evt == Zone.Event.TOKEN_ADDED || evt == Zone.Event.TOKEN_CHANGED) {
+            	Token token = (Token) event.getArg();
+            	if (token.hasLightSources()) {
+            		lightSourceSet.add(token);
+            	} else {
+            		lightSourceSet.remove(token);
+            	}
+            	
+            	if (token.hasSight()) {
+                    visibleAreaMap.clear();
+            	}
+            }
+            if (evt == Zone.Event.TOKEN_REMOVED) {
+            	Token token = (Token) event.getModel();
+        		lightSourceSet.remove(token);
+            }
+            
 		}
 	}
 	

@@ -21,6 +21,8 @@ public class CampaignProperties {
 
     private Map<String, SightType> sightTypeMap;
     
+    private String defaultSightType;
+    
     public CampaignProperties() {
     	init();
     }
@@ -42,6 +44,7 @@ public class CampaignProperties {
 			lookupTableMap.putAll(properties.lookupTableMap);
 		}
 
+		defaultSightType = properties.defaultSightType;
 		sightTypeMap = new HashMap<String, SightType>();
 		if (properties.sightTypeMap != null) {
 			sightTypeMap.putAll(properties.sightTypeMap);
@@ -82,6 +85,10 @@ public class CampaignProperties {
     
     public Map<String, List<TokenProperty>> getTokenTypeMap() {
     	return tokenTypeMap;
+    }
+
+    public Map<String, SightType> getSightTypeMap() {
+    	return sightTypeMap;
     }
 
     // TODO: This is for conversion from 1.3b19-1.3b20
@@ -165,11 +172,16 @@ public class CampaignProperties {
 		remoteRepositoryList.add("http://rptools.net/image-indexes/gallery.rpax.gz");
     }
     
+    public String getDefaultSightType() {
+    	return defaultSightType;
+    }
     
     private void initSightTypeMap() {
     	
     	sightTypeMap = new HashMap<String, SightType>();
     	
+    	defaultSightType = "Normal";
+    	sightTypeMap.put("Normal", new SightType("Normal", 1, null));
     	sightTypeMap.put("Lowlight", new SightType("Lowlight", 2, null));
     	
     	try {

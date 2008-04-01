@@ -269,6 +269,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					renderer.repaint();
 					renderer.flush(token);
 					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+					renderer.getZone().putToken(token);
 				}
     		}
     		if (SwingUtilities.isRightMouseButton(event)) {
@@ -415,6 +416,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						renderer.repaint();
 						renderer.flush(token);
 						MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+						renderer.getZone().putToken(token);
 					}
 				}
 			}

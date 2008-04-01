@@ -151,6 +151,9 @@ public class EditTokenDialog extends AbeillePanel {
 		updatePropertyTypeCombo();
 		updatePropertiesTable(token.getPropertyType());
 		
+		// SIGHT
+		updateSightTypeCombo();
+		
 		// STATES
 		Component[] states = getStatesPanel().getComponents();
 		for (int i = 0; i < states.length; i++) {
@@ -193,6 +196,7 @@ public class EditTokenDialog extends AbeillePanel {
 			getSizeCombo().setSelectedIndex(0);
 		}
 		getPropertyTypeCombo().setSelectedItem(token.getPropertyType());
+		getSightTypeCombo().setSelectedItem(token.getSightType() != null ? token.getSightType() : MapTool.getCampaign().getCampaignProperties().getDefaultSightType());
 		getCharSheetPanel().setImageId(token.getCharsheetImage());
 		getPortraitPanel().setImageId(token.getPortraitImage());
 		getTokenLayoutPanel().setToken(token);
@@ -281,6 +285,13 @@ public class EditTokenDialog extends AbeillePanel {
 		});
 	}
 	
+	private void updateSightTypeCombo() {
+		List<String> typeList = new ArrayList<String>(MapTool.getCampaign().getSightTypes());
+		Collections.sort(typeList);
+		DefaultComboBoxModel model = new DefaultComboBoxModel(typeList.toArray());
+		getSightTypeCombo().setModel(model);
+	}
+	
 	private void updatePropertiesTable(final String propertyType) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -296,6 +307,10 @@ public class EditTokenDialog extends AbeillePanel {
 
 	public JComboBox getPropertyTypeCombo() {
 		return (JComboBox) getComponent("propertyTypeCombo");
+	}
+
+	public JComboBox getSightTypeCombo() {
+		return (JComboBox) getComponent("sightTypeCombo");
 	}
 
 	public void initOKButton() {
@@ -339,6 +354,7 @@ public class EditTokenDialog extends AbeillePanel {
 		
 		// Other
 		token.setPropertyType((String)getPropertyTypeCombo().getSelectedItem());
+		token.setSightType((String)getSightTypeCombo().getSelectedItem());
 
 		// Get the states
 		Component[] components = getStatesPanel().getComponents();
