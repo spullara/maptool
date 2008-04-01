@@ -201,7 +201,7 @@ public class ZoneView implements ModelChangeListener {
         lightSourceCache.remove(token);
         visibleAreaMap.clear();
         
-        if (hadLightSource) {
+        if (hadLightSource || token.hasLightSources()) {
         	// Have to recalculate all token vision
         	tokenVisionCache.clear();
         }
