@@ -185,7 +185,7 @@ public class CampaignProperties {
     	sightTypeMap.put("Lowlight", new SightType("Lowlight", 2, null));
     	
     	try {
-    		sightTypeMap.put("Darkvision", new SightType("Darkvision", 1, LightSource.getDefaultLightSources().get("D20").get(1)));
+    		sightTypeMap.put("Darkvision", new SightType("Darkvision", 1, LightSource.getDefaultLightSources().get("Generic").get(5)));
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
