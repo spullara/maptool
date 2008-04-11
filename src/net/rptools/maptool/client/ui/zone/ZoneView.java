@@ -287,7 +287,7 @@ public class ZoneView implements ModelChangeListener {
             	}
             }
             if (evt == Zone.Event.TOKEN_REMOVED) {
-            	Token token = (Token) event.getModel();
+            	Token token = (Token) event.getArg();
         		lightSourceSet.remove(token);
             }
             
