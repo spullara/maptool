@@ -454,6 +454,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     public void flush(Token token) {
         tokenLocationCache.remove(token);
         
+        // This should be smarter, but whatever
+        visibleScreenArea = null;
+        
         flushFog = true;
     }
     
