@@ -51,4 +51,9 @@ public class ModelChangeEvent {
     public Object getEvent() {
         return eventType;
     }
+    
+    @Override
+    public String toString() {
+    	return "ModelChangeEvent: " + model + " - " + eventType + " - " + arg;
+    }
 }
