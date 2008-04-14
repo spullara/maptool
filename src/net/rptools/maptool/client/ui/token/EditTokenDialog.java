@@ -196,7 +196,7 @@ public class EditTokenDialog extends AbeillePanel {
 			getSizeCombo().setSelectedIndex(0);
 		}
 		getPropertyTypeCombo().setSelectedItem(token.getPropertyType());
-		getSightTypeCombo().setSelectedItem(token.getSightType() != null ? token.getSightType() : MapTool.getCampaign().getCampaignProperties().getDefaultSightType());
+		getSightTypeCombo().setSelectedItem(token.getSightType() != null ? token.getSightType() : 0);
 		getCharSheetPanel().setImageId(token.getCharsheetImage());
 		getPortraitPanel().setImageId(token.getPortraitImage());
 		getTokenLayoutPanel().setToken(token);
@@ -288,6 +288,7 @@ public class EditTokenDialog extends AbeillePanel {
 	private void updateSightTypeCombo() {
 		List<String> typeList = new ArrayList<String>(MapTool.getCampaign().getSightTypes());
 		Collections.sort(typeList);
+		typeList.add(0, "None");
 		DefaultComboBoxModel model = new DefaultComboBoxModel(typeList.toArray());
 		getSightTypeCombo().setModel(model);
 	}
@@ -354,7 +355,7 @@ public class EditTokenDialog extends AbeillePanel {
 		
 		// Other
 		token.setPropertyType((String)getPropertyTypeCombo().getSelectedItem());
-		token.setSightType((String)getSightTypeCombo().getSelectedItem());
+		token.setSightType(getSightTypeCombo().getSelectedIndex() > 1 ? (String)getSightTypeCombo().getSelectedItem() : null);
 
 		// Get the states
 		Component[] components = getStatesPanel().getComponents();

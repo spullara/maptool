@@ -279,7 +279,7 @@ public class ZoneView implements ModelChangeListener {
             	if (token.hasLightSources()) {
             		lightSourceSet.add(token.getId());
             	} else {
-            		lightSourceSet.remove(token);
+            		lightSourceSet.remove(token.getId());
             	}
             	
             	if (token.hasSight()) {
