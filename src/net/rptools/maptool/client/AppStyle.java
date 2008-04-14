@@ -43,7 +43,7 @@ public class AppStyle {
 	public static ImageBorder miniMapBorder = AppConstants.GRAY_BORDER;
 	public static ImageBorder shadowBorder = AppConstants.SHADOW_BORDER;
 
-	public static Font labelFont = Font.decode("serif-BOLD-12");
+	public static Font labelFont = Font.decode("serif-NORMAL-12");
 	
 	public static BufferedImage tokenInvisible;
 
