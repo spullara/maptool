@@ -77,7 +77,7 @@ public class DiskBasedPartitionedDrawableRenderer implements DrawableRenderer {
 			}
 			
 			CACHE_DIR.mkdirs();
-		} catch (IOException ioe) {
+		} catch (Exception ioe) {
 			ioe.printStackTrace();
 		}
 	}
@@ -94,7 +94,7 @@ public class DiskBasedPartitionedDrawableRenderer implements DrawableRenderer {
 					FileUtil.delete(chunkDir);
 			}
 			chunkDir.mkdirs();
-		} catch (IOException ioe) {
+		} catch (Exception ioe) {
 			ioe.printStackTrace();
 		}
 		chunkMap.clear();
