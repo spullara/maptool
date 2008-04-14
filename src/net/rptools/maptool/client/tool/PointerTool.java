@@ -129,6 +129,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	
 	private static int PADDING = 7;
 	
+	private Font boldFont = AppStyle.labelFont.deriveFont(Font.BOLD);
+	
     // Offset from token's X,Y when dragging. Values are in cell coordinates.
     private int dragOffsetX;
     private int dragOffsetY;
@@ -1254,15 +1256,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				
 				if (tokenUnderMouse.getPortraitImage() != null || propertyMap.size() > 0) {
 					Font font = AppStyle.labelFont;
-					FontMetrics fm = g.getFontMetrics(font);
+					FontMetrics valueFM = g.getFontMetrics(font);
+					FontMetrics keyFM = g.getFontMetrics(boldFont);
+					int rowHeight = Math.max(valueFM.getHeight(), keyFM.getHeight());
 					if (propertyMap.size() > 0) {
 						
 						// Figure out size requirements
-						int height = propertyMap.size() * (fm.getHeight() + PADDING);
+						int height = propertyMap.size() * (rowHeight + PADDING);
 						int width = -1;
 						for (Entry<String, String> entry : propertyMap.entrySet()) {
 		
-							int lineWidth = SwingUtilities.computeStringWidth(fm, entry.getKey() + "  " + entry.getValue());
+							int lineWidth = SwingUtilities.computeStringWidth(keyFM, entry.getKey()) + SwingUtilities.computeStringWidth(valueFM, "  " + entry.getValue());
 							if (width < 0 || lineWidth > width) {
 								width = lineWidth;
 							}
@@ -1290,22 +1294,24 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						AppStyle.shadowBorder.paintWithin(statsG, bounds);
 						
 						// Stats
-						int y = bounds.y + fm.getHeight();
+						int y = bounds.y + rowHeight;
 						for (Entry<String, String> entry : propertyMap.entrySet()) {
 	
 							// Box
 							statsG.setColor(new Color(249, 241, 230, 140));
-							statsG.fillRect(bounds.x, y - fm.getAscent(), bounds.width - PADDING/2, fm.getHeight());
+							statsG.fillRect(bounds.x, y - keyFM.getAscent(), bounds.width - PADDING/2, rowHeight);
 							statsG.setColor(new Color(175, 163, 149));
-							statsG.drawRect(bounds.x, y - fm.getAscent(), bounds.width - PADDING/2, fm.getHeight());
+							statsG.drawRect(bounds.x, y - keyFM.getAscent(), bounds.width - PADDING/2, rowHeight);
 							
 							// Values
 							statsG.setColor(Color.black);
+							statsG.setFont(boldFont);
 							statsG.drawString(entry.getKey(), bounds.x + PADDING * 2, y);
-							int strw = SwingUtilities.computeStringWidth(fm, entry.getValue());
+							statsG.setFont(font);
+							int strw = SwingUtilities.computeStringWidth(valueFM, entry.getValue());
 							statsG.drawString(entry.getValue(), bounds.x + bounds.width - strw - PADDING, y);
 							
-							y += PADDING + fm.getHeight();
+							y += PADDING + rowHeight;
 						}
 					}
 					
