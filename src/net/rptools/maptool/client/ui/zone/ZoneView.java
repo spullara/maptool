@@ -118,7 +118,7 @@ public class ZoneView implements ModelChangeListener {
 	public Area getVisibleArea(Token token) {
 
 		// Sanity
-		if (token == null || !token.hasSight()) {
+		if (token == null || !token.getHasSight()) {
 			return null;
 		}
 		
@@ -209,7 +209,7 @@ public class ZoneView implements ModelChangeListener {
         	// Have to recalculate all token vision
         	tokenVisionCache.clear();
         }
-        if (token.hasSight()) {
+        if (token.getHasSight()) {
             visibleAreaMap.clear();
         }
     }
@@ -229,7 +229,7 @@ public class ZoneView implements ModelChangeListener {
     	// Calculate it
         for (Token token : zone.getAllTokens()) {
 
-            if (!token.hasSight ()) {
+            if (!token.getHasSight ()) {
             	continue;
             }
                 
@@ -282,7 +282,7 @@ public class ZoneView implements ModelChangeListener {
             		lightSourceSet.remove(token.getId());
             	}
             	
-            	if (token.hasSight()) {
+            	if (token.getHasSight()) {
                     visibleAreaMap.clear();
             	}
             }

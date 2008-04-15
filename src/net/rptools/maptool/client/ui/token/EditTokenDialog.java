@@ -73,6 +73,7 @@ import net.rptools.maptool.client.swing.GenericDialog;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Association;
+import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
@@ -196,7 +197,7 @@ public class EditTokenDialog extends AbeillePanel {
 			getSizeCombo().setSelectedIndex(0);
 		}
 		getPropertyTypeCombo().setSelectedItem(token.getPropertyType());
-		getSightTypeCombo().setSelectedItem(token.getSightType() != null ? token.getSightType() : 0);
+		getSightTypeCombo().setSelectedItem(token.getSightType() != null ? token.getSightType() : MapTool.getCampaign().getCampaignProperties().getDefaultSightType());
 		getCharSheetPanel().setImageId(token.getCharsheetImage());
 		getPortraitPanel().setImageId(token.getPortraitImage());
 		getTokenLayoutPanel().setToken(token);
@@ -288,7 +289,7 @@ public class EditTokenDialog extends AbeillePanel {
 	private void updateSightTypeCombo() {
 		List<String> typeList = new ArrayList<String>(MapTool.getCampaign().getSightTypes());
 		Collections.sort(typeList);
-		typeList.add(0, "None");
+
 		DefaultComboBoxModel model = new DefaultComboBoxModel(typeList.toArray());
 		getSightTypeCombo().setModel(model);
 	}
@@ -355,7 +356,7 @@ public class EditTokenDialog extends AbeillePanel {
 		
 		// Other
 		token.setPropertyType((String)getPropertyTypeCombo().getSelectedItem());
-		token.setSightType(getSightTypeCombo().getSelectedIndex() > 1 ? (String)getSightTypeCombo().getSelectedItem() : null);
+		token.setSightType((String)getSightTypeCombo().getSelectedItem());
 
 		// Get the states
 		Component[] components = getStatesPanel().getComponents();

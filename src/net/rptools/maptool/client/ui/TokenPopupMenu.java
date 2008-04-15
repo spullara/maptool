@@ -145,7 +145,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		menu.add(new ExposeLastPathAction());
 		menu.add(new ExposeVisibleAreaOnlyAction());
 		
-		menu.setEnabled(getTokenUnderMouse().hasSight());
+		menu.setEnabled(getTokenUnderMouse().getHasSight());
 		
 		return menu;
 	}

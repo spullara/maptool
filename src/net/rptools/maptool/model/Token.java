@@ -163,6 +163,7 @@ public class Token extends BaseModel {
 	
 	private List<AttachedLightSource> lightSourceList;
 	private String sightType;
+	private boolean hasSight;
 	
 	private String label;
 	
@@ -241,6 +242,7 @@ public class Token extends BaseModel {
         anchorY = token.anchorY;
         sizeScale = token.sizeScale;
         sightType = token.sightType;
+        hasSight = token.hasSight;
         
 	    ownerType = token.ownerType;
 		if (token.ownerList != null) {
@@ -293,6 +295,10 @@ public class Token extends BaseModel {
 
 		// NULL key is the default
 		imageAssetMap.put(null, assetId);
+	}
+
+	public void setHasSight(boolean hasSight) {
+		this.hasSight = hasSight;
 	}
 
 	public void setWidth(int width) {
@@ -433,8 +439,8 @@ public class Token extends BaseModel {
 		return facing;
 	}
 
-	public boolean hasSight() {
-		return getType() == Type.PC || sightType != null;
+	public boolean getHasSight() {
+		return getType() == Type.PC || hasSight;
 	}
 
 	public void addLightSource(LightSource source, Direction direction) {

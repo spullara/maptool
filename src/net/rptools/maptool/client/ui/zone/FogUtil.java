@@ -171,7 +171,7 @@ public class FogUtil {
 				continue;
 			}
 			
-			if (!token.hasSight()) {
+			if (!token.getHasSight()) {
 				continue;
 			}
 
@@ -189,7 +189,7 @@ public class FogUtil {
 		Set<GUID> tokenSet = new HashSet<GUID>();
 		for (Token token : renderer.getZone().getPlayerTokens()) {
 			
-			if (!token.hasSight()) {
+			if (!token.getHasSight()) {
 				continue;
 			}
 			
@@ -207,7 +207,7 @@ public class FogUtil {
 				continue;
 			}
 			
-			if (!token.hasSight()) {
+			if (!token.getHasSight()) {
 				continue;
 			}
 			
