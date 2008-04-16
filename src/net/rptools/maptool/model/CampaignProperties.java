@@ -84,10 +84,16 @@ public class CampaignProperties {
     }
     
     public Map<String, List<TokenProperty>> getTokenTypeMap() {
+    	if (tokenTypeMap == null) {
+    		initTokenTypeMap();
+    	}
     	return tokenTypeMap;
     }
 
     public Map<String, SightType> getSightTypeMap() {
+    	if (sightTypeMap == null) {
+    		initSightTypeMap();
+    	}
     	return sightTypeMap;
     }
 
@@ -101,6 +107,9 @@ public class CampaignProperties {
     }
 
     public List<String> getRemoteRepositoryList() {
+    	if (remoteRepositoryList == null) {
+    		initRemoteRepositoryList();
+    	}
     	return remoteRepositoryList;
     }
 
@@ -110,6 +119,9 @@ public class CampaignProperties {
     }
     
     public Map<String, Map<GUID, LightSource>> getLightSourcesMap() {
+    	if (lightSourcesMap == null) {
+    		initLightSourcesMap();
+    	}
     	return lightSourcesMap;
     }
     
@@ -119,6 +131,9 @@ public class CampaignProperties {
     }
 
     public Map<String, LookupTable> getLookupTableMap() {
+    	if (lookupTableMap == null) {
+    		initLookupTableMap();
+    	}
     	return lookupTableMap;
     }
 
