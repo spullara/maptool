@@ -1688,24 +1688,26 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 case SQUARE:
                     
                     int facing = token.getFacing();
+                    while (facing < 0) {facing += 360;} // TODO: this should really be done in Token.setFacing() but I didn't want to take the chance of breaking something, so change this when it's safe to break stuff
+                    facing %= 360;
                     arrow = getSquareFacingArrow(facing, footprintBounds.width/2);
 
                     cx = location.x + location.scaledWidth/2;
                     cy = location.y + location.scaledHeight/2;
 
                     // Find the edge of the image
+                    // TODO: Man, this is horrible, there's gotta be a better way to do this
                     int xp = location.scaledWidth/2;
                     int yp = location.scaledHeight/2;
-                    
-                    if (facing >= 45 && facing <= 135 || facing <= -45 && facing >= -135) {
+                    if (facing >= 45 && facing <= 135 || facing >= 225 && facing <= 315) {
                         xp = (int)(yp / Math.tan(Math.toRadians(facing)));
-                        if (facing < 0 ) {
+                        if (facing > 180 ) {
                             xp = -xp;
                             yp = -yp;
                         }
                     } else {
                         yp = (int)(xp * Math.tan(Math.toRadians(facing)));
-                        if (facing > 135 || facing < -135) {
+                        if (facing > 90 && facing < 270) {
                             xp = -xp;
                             yp = -yp;
                         }
