@@ -15,6 +15,7 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
@@ -190,7 +191,7 @@ public class SquareGrid extends Grid {
 
 	@Override
 	public ZoneWalker createZoneWalker() {
-		return new AStarSquareEuclideanWalker(getZone());
+		return new AStarSquareEuclideanWalker(getZone(), AppPreferences.getMovementMetric());
 	}
 	
 	@Override

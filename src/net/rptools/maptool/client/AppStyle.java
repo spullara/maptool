@@ -60,9 +60,9 @@ public class AppStyle {
     public static BufferedImage chatScrollImage;
     public static BufferedImage chatScrollLockImage;
     
-    public static Color topologyColor = new Color(0, 0, 255, 150);
-    public static Color topologyAddColor = new Color(255, 0, 0, 150);
-    public static Color topologyRemoveColor = new Color(255, 255, 255, 150);
+    public static Color topologyColor = new Color(0, 0, 255, 128);
+    public static Color topologyAddColor = new Color(255, 0, 0, 128);
+    public static Color topologyRemoveColor = new Color(255, 255, 255, 128);
 
     public static BufferedImage boundedBackgroundTile;
     

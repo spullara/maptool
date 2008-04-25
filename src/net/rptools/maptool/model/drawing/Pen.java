@@ -44,7 +44,7 @@ public class Pen {
 
     private float thickness;
     private boolean eraser;
-    private float opacity;
+    private float opacity = 1;
 
     // ***** Legacy support, these supports drawables from 1.1
     private int color;

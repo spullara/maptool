@@ -86,15 +86,18 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
         	
         	Pen pen = new Pen();
         	pen.setEraser(getPen().isEraser());
-            pen.setOpacity(AppStyle.topologyRemoveColor.getAlpha());
-            pen.setForegroundMode(Pen.MODE_TRANSPARENT);
-        	pen.setThickness(1.0f);        	
+            pen.setOpacity(AppStyle.topologyRemoveColor.getAlpha()/255.0f);
+            pen.setBackgroundMode(Pen.MODE_TRANSPARENT);
+        	pen.setThickness(3.0f);        	
         	        	
             if (pen.isEraser()) {
                 pen.setEraser(false);
-                pen.setBackgroundPaint(new DrawableColorPaint(AppStyle.topologyRemoveColor));
+            }
+            
+            if ( isEraser() ) {
+                pen.setPaint(new DrawableColorPaint(AppStyle.topologyRemoveColor));
             } else {
-            	pen.setBackgroundPaint(new DrawableColorPaint(AppStyle.topologyAddColor));
+            	pen.setPaint(new DrawableColorPaint(AppStyle.topologyAddColor));
             }
 
             paintTransformed(g, renderer, oval, pen);
@@ -155,6 +158,9 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
     }
     
     public void mouseMoved(MouseEvent e) {
+    	
+    	setIsEraser(isEraser(e));
+    	
     	if (oval != null) {
     		ZonePoint sp = getPoint(e);
     		

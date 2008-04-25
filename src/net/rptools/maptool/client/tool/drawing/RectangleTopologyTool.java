@@ -109,11 +109,15 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
         	
         	Pen pen = new Pen();
         	pen.setEraser(getPen().isEraser());
-            pen.setOpacity(AppStyle.topologyRemoveColor.getAlpha());
-            pen.setForegroundMode(Pen.MODE_TRANSPARENT);
+            pen.setOpacity(AppStyle.topologyRemoveColor.getAlpha()/255.0f);
+            pen.setBackgroundMode(Pen.MODE_SOLID);
+            
         	
             if (pen.isEraser()) {
                 pen.setEraser(false);
+            }
+            
+            if ( isEraser()) {
                 pen.setBackgroundPaint(new DrawableColorPaint(AppStyle.topologyRemoveColor));
             } else {
             	pen.setBackgroundPaint(new DrawableColorPaint(AppStyle.topologyAddColor));
@@ -169,6 +173,8 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
     
     public void mouseMoved(MouseEvent e) {
 
+    	setIsEraser(isEraser(e));
+    	
     	ZonePoint p = getPoint(e);
     	if (rectangle != null) {
 	

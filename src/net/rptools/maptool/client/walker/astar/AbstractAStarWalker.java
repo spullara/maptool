@@ -131,6 +131,7 @@ public abstract class AbstractAStarWalker extends AbstractZoneWalker {
 		for (ListIterator<AStarCellPoint> iter = list.listIterator(); iter.hasNext();) {
 			AStarCellPoint listNode = iter.next();
 			if (listNode.cost() > node.cost()) {
+				iter.previous();
 				iter.add(node);
 				return;
 			}

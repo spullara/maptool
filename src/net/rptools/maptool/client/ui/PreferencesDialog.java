@@ -22,6 +22,7 @@ import javax.swing.event.DocumentListener;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.walker.WalkerMetric;
 import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.Token;
 
@@ -45,6 +46,7 @@ public class PreferencesDialog extends JDialog {
 	private JComboBox duplicateTokenCombo;
 	private JComboBox tokenNamingCombo;
 	private JComboBox showNumberingCombo;
+	private JComboBox movementMetricCombo;
     
     private JSpinner haloLineWidthSpinner;
     private JSpinner visionOverlayOpacitySpinner;
@@ -114,6 +116,7 @@ public class PreferencesDialog extends JDialog {
 		playSystemSoundOnlyWhenNotFocusedCheckBox = panel.getCheckBox("soundsOnlyWhenNotFocused");
 		showAvatarInChat = panel.getCheckBox("showChatAvatar");
 		showDialogOnNewToken = panel.getCheckBox("showDialogOnNewToken");
+		movementMetricCombo = panel.getComboBox("movementMetric");
 
 		setInitialState();
 
@@ -335,6 +338,20 @@ public class PreferencesDialog extends JDialog {
 		showNumberingCombo.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				AppPreferences.setTokenNumberDisplay((String) showNumberingCombo.getSelectedItem());
+			}
+		});
+		
+		DefaultComboBoxModel movementMetricModel = new DefaultComboBoxModel();
+		movementMetricModel.addElement(WalkerMetric.ONE_TWO_ONE);
+		movementMetricModel.addElement(WalkerMetric.ONE_ONE_ONE);
+		movementMetricModel.addElement(WalkerMetric.MANHATTAN);
+		movementMetricModel.addElement(WalkerMetric.NO_DIAGONALS);
+		movementMetricModel.setSelectedItem(AppPreferences.getMovementMetric());
+		
+		movementMetricCombo.setModel(movementMetricModel);
+		movementMetricCombo.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				AppPreferences.setMovementMetric((WalkerMetric)movementMetricCombo.getSelectedItem());
 			}
 		});
 		

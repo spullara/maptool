@@ -86,11 +86,14 @@ public class OvalTopologyTool extends AbstractDrawingTool implements MouseMotion
         	
         	Pen pen = getPen();
         	pen.setEraser(getPen().isEraser());
-			pen.setOpacity(AppStyle.topologyRemoveColor.getAlpha());
+			pen.setOpacity(AppStyle.topologyRemoveColor.getAlpha()/255.0f);
 			pen.setForegroundMode(Pen.MODE_TRANSPARENT);
         	
             if (pen.isEraser()) {
                 pen.setEraser(false);
+            }
+            
+            if (isEraser()) {
                 pen.setBackgroundPaint(new DrawableColorPaint(AppStyle.topologyRemoveColor));
             } else {
             	pen.setBackgroundPaint(new DrawableColorPaint(AppStyle.topologyAddColor));
@@ -144,6 +147,7 @@ public class OvalTopologyTool extends AbstractDrawingTool implements MouseMotion
     }
     
     public void mouseMoved(MouseEvent e) {
+    	setIsEraser(isEraser(e));
     	if (oval != null) {
     		ZonePoint sp = getPoint(e);
     		

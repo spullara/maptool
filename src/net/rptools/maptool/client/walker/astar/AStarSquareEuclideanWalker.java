@@ -26,17 +26,47 @@ package net.rptools.maptool.client.walker.astar;
 
 import java.util.List;
 
+import net.rptools.maptool.client.walker.WalkerMetric;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Zone;
 
 public class AStarSquareEuclideanWalker extends AbstractAStarWalker {
-
-	private int[][] neighborMap = new int[][] { { -1, -1, 10 }, { 0, -1, 5 },
-			{ 1, -1, 10 }, { -1, 0, 5 }, { 1, 0, 5 }, { -1, 1, 10 },
-			{ 0, 1, 5 }, { 1, 1, 10 } };
-
-	public AStarSquareEuclideanWalker (Zone zone) {
+	
+	private static final int[] NORTH = {0,-1};
+	private static final int[] WEST = {-1,0};
+	private static final int[] SOUTH = {0,1};
+	private static final int[] EAST = {1,0};
+	private static final int[] NORTH_EAST = {1,-1};
+	private static final int[] SOUTH_EAST = {1,1};
+	private static final int[] NORTH_WEST = {-1,-1};
+	private static final int[] SOUTH_WEST = {-1,1};
+	
+	
+	private final WalkerMetric metric;
+	
+	private final int[][] neighborMap;
+	
+	public AStarSquareEuclideanWalker (Zone zone, WalkerMetric metric) {
 		super(zone);
+		this.metric = metric;
+		
+		switch (metric) {
+			case NO_DIAGONALS:
+				neighborMap = new int[][] {NORTH,EAST,SOUTH,WEST };
+				break;
+
+			case ONE_ONE_ONE:
+			case MANHATTAN:
+				//promote straight directions to avoid 'only-diagonals' effect
+				neighborMap = new int[][] {NORTH,EAST,SOUTH,WEST,NORTH_EAST,SOUTH_EAST,SOUTH_WEST,NORTH_WEST};
+				break;	
+			default:
+				//promote diagonals over straight directions by putting them in front of array
+				neighborMap = new int[][] {NORTH_EAST,SOUTH_EAST,SOUTH_WEST,NORTH_WEST,NORTH,EAST,SOUTH,WEST};
+				break;
+			
+		}
+		
 	}
 
 	@Override
@@ -46,19 +76,36 @@ public class AStarSquareEuclideanWalker extends AbstractAStarWalker {
 	
 	@Override
 	protected double gScore(CellPoint p1, CellPoint p2) {
-		return euclideanDistance(p1, p2);
+		return metricDistance(p1, p2);
 	}
 
 	@Override
 	protected double hScore(CellPoint p1, CellPoint p2) {
-		return euclideanDistance(p1, p2);
+		return metricDistance(p1, p2);
 	}
 
-	private double euclideanDistance(CellPoint p1, CellPoint p2) {
+	private double metricDistance(CellPoint p1, CellPoint p2) {
         int a = p2.x - p1.x;
         int b = p2.y - p1.y;
+        
+        final double distance;
+        
+        switch (metric) {
+        	case ONE_ONE_ONE:
+        		distance = Math.max(Math.abs(a),Math.abs(b));
+        		break;
+        	case MANHATTAN:
+        	case NO_DIAGONALS:
+        		distance = Math.abs(a) + Math.abs(b);
+        		break;
+        	default:
+        	case ONE_TWO_ONE:
+        		distance = Math.sqrt(a * a + b * b);
+        		break;
+        }
+        
+        return distance;
 
-        return Math.sqrt(a * a + b * b);
     }
 
 	@Override
@@ -66,26 +113,8 @@ public class AStarSquareEuclideanWalker extends AbstractAStarWalker {
 		if (path == null || path.size() == 0)
 			return 0;
 
-		int distMethod1;
-
-		// LATER: When we add path barriers we have to remove method 1 completely.
-		// I am leaving it now for double checking since we had such a bad time with
-		// distance measurements.
 		
-		{ // method 1 (used for double check of new algorithm)
-			CellPoint start = path.get(0);
-			CellPoint end = path.get(path.size() - 1);
-
-			int numDiag = Math.min(Math.abs(start.x - end.x), Math.abs(start.y
-					- end.y));
-			int numStrt = Math.max(Math.abs(start.x - end.x), Math.abs(start.y
-					- end.y))
-					- numDiag;
-			distMethod1 = feetPerCell
-					* (numStrt + numDiag + numDiag / 2);
-		}
-
-		int distMethod2;
+		final int feetDistance;
 		
 		{
 			int numDiag = 0;
@@ -111,13 +140,28 @@ public class AStarSquareEuclideanWalker extends AbstractAStarWalker {
 
 				previousPoint = point;
 			}
+			
+			final int cellDistance;
+			switch (metric) {
+				case MANHATTAN:
+				case NO_DIAGONALS:
+					cellDistance = (numStrt + numDiag*2);
+					break;
+				case ONE_ONE_ONE:
+					cellDistance = (numStrt+numDiag);
+					break;
+				default:
+				case ONE_TWO_ONE:
+					cellDistance = (numStrt + numDiag + numDiag / 2);
+					break;
+				
+			}
+			
+			feetDistance = feetPerCell * cellDistance;
 
-			distMethod2 = feetPerCell
-			* (numStrt + numDiag + numDiag / 2);
+			
 		}
 
-    // This assert is broken if you move the cursor to the left or above the second waypoint
-//		assert distMethod1 == distMethod2 : String.format("Inconsistent distances simple=%d, path based=%d", distMethod1, distMethod2);
-		return distMethod2;
+		return feetDistance;
 	}	
 }

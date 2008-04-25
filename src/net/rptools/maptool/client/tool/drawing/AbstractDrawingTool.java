@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.tool.drawing;
 
+import java.awt.AlphaComposite;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -91,6 +92,7 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     
     protected void paintTransformed(Graphics2D g, ZoneRenderer renderer, Drawable drawing, Pen pen) {
 
+    	
     	AffineTransform transform = getPaintTransform(renderer);
     	AffineTransform oldTransform = g.getTransform();
     	g.transform(transform);

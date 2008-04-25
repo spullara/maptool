@@ -62,6 +62,8 @@ public abstract class AbstractDrawing implements Drawable {
         Composite oldComposite = g.getComposite();
         if (pen.isEraser()) {
         	g.setComposite(AlphaComposite.Clear);
+        } else if ( pen.getOpacity() != 1)  {
+        	g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,pen.getOpacity()));
         }
 
         if (pen.getBackgroundMode() == Pen.MODE_SOLID) {

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.prefs.Preferences;
 
+import net.rptools.maptool.client.walker.WalkerMetric;
 import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.Token;
 
@@ -140,6 +141,9 @@ public class AppPreferences {
     
     private static final String KEY_INSERT_SMILIES = "insertSmilies";
     private static final boolean DEFAULT_SHOW_SMILIES = true;
+    
+    private static final String KEY_MOVEMENT_METRIC = "movementMetric";
+    private static final WalkerMetric DEFAULT_MOVEMENT_METRIC = WalkerMetric.ONE_TWO_ONE; 
 
     public static void setShowSmilies(boolean show) {
     	prefs.putBoolean(KEY_INSERT_SMILIES, show);
@@ -405,6 +409,23 @@ public class AppPreferences {
     	prefs.put(KEY_SAVE_DIR, file.toString());
     }
     
+
+    public static void setMovementMetric(WalkerMetric metric) {
+		prefs.put(KEY_MOVEMENT_METRIC,metric.toString());
+	}
+    
+    public static WalkerMetric getMovementMetric() {
+    	WalkerMetric metric;
+    	try {
+    		metric = WalkerMetric.valueOf(prefs.get(KEY_MOVEMENT_METRIC, DEFAULT_MOVEMENT_METRIC.toString()));
+    	} catch (Exception exc) {
+    		metric = DEFAULT_MOVEMENT_METRIC;
+    	}
+    	return metric;
+    }
+    
+    
+    
     public static File getSaveDir() {
     	String filePath = prefs.get(KEY_SAVE_DIR, null);
     	return filePath != null ? new File(filePath) : new File("/");
@@ -513,6 +534,7 @@ public class AppPreferences {
         }
         return savedTextures;
     }
+
     
     
 }
