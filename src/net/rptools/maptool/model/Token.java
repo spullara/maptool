@@ -243,6 +243,7 @@ public class Token extends BaseModel {
         sizeScale = token.sizeScale;
         sightType = token.sightType;
         hasSight = token.hasSight;
+        propertyType = token.propertyType;
         
 	    ownerType = token.ownerType;
 		if (token.ownerList != null) {
