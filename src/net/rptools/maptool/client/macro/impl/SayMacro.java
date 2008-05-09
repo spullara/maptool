@@ -65,7 +65,7 @@ public class SayMacro extends AbstractMacro {
 
         Color color = MapTool.getFrame().getCommandPanel().getTextColorWell().getColor();
         if (color != null) {
-        	sb.append("<span style='color:#").append(Integer.toHexString(color.getRGB()&0xffffff)).append("'>");
+        	sb.append("<span style='color:#").append(String.format("%06X", (color.getRGB() & 0xFFFFFF))).append("'>");
         }
         sb.append(macro);
         if (color != null) {
