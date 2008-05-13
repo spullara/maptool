@@ -77,8 +77,8 @@ import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.assetpanel.Directory;
 import net.rptools.maptool.client.ui.campaignproperties.CampaignPropertiesDialog;
 import net.rptools.maptool.client.ui.token.TransferProgressDialog;
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.PlayerView;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -94,7 +94,6 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
-import net.rptools.maptool.model.LookupTable.LookupEntry;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
@@ -1433,7 +1432,7 @@ public class AppActions {
 			JFileChooser chooser = new CampaignPreviewFileChooser();
 			chooser.setDialogTitle("Load Campaign");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
+			
 			if (chooser.showOpenDialog(MapTool.getFrame()) == JFileChooser.APPROVE_OPTION) {
 				File campaignFile = chooser.getSelectedFile();
 				loadCampaign(campaignFile);
@@ -1443,6 +1442,11 @@ public class AppActions {
 	
 	
 	private static class CampaignPreviewFileChooser extends PreviewPanelFileChooser {
+		
+		CampaignPreviewFileChooser(){
+			super();
+			addChoosableFileFilter(MapTool.getFrame().getCmpgnFileFilter());
+		}
 		
 		@Override
 		protected File getImageFileOfSelectedFile() {
@@ -1563,9 +1567,8 @@ public class AppActions {
 
 			Campaign campaign = MapTool.getCampaign();
 
-			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
-			chooser.setDialogTitle("Save Campaign");
-
+			JFileChooser chooser = MapTool.getFrame().getSaveCmpgnFileChooser();
+			
 			if (chooser.showSaveDialog(MapTool.getFrame()) == JFileChooser.APPROVE_OPTION) {
 
 				try {

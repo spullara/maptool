@@ -73,6 +73,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import javax.xml.parsers.ParserConfigurationException;
@@ -111,7 +112,6 @@ import net.rptools.maptool.client.ui.lookuptable.LookupTablePanel;
 import net.rptools.maptool.client.ui.token.EditTokenDialog;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeCellRenderer;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeModel;
-import net.rptools.maptool.client.ui.zone.NotificationOverlay;
 import net.rptools.maptool.client.ui.zone.PointerOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneMiniMapPanel;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -187,9 +187,15 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private LookupTablePanel lookupTablePanel;
 
 	// Components
+	private JFileChooser loadPropsFileChooser;
 	private JFileChooser loadFileChooser;
 
+	private JFileChooser saveCmpgnFileChooser;
+	private JFileChooser savePropsFileChooser;
 	private JFileChooser saveFileChooser;
+
+	private FileFilter campaignFilter = new MTFileFilter("cmpgn", "MapTool Campaign");
+	private FileFilter propertiesFilter = new MTFileFilter("mtprops", "MapTool Properties");
 
 	private EditTokenDialog tokenPropertiesDialog;
 
@@ -401,12 +407,95 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		}
 	}
 
+	private class MTFileFilter extends FileFilter {
+		private String extension;
+		private String description;
+		
+		MTFileFilter(String exten, String desc){
+			super();
+			extension = exten;
+			description = desc;
+		}
+		
+	    //Accept directories and files matching extension
+	    public boolean accept(File f) {
+	    	
+	        if (f.isDirectory()) {
+	            return true;
+	        }
+
+	        String ext = getExtension(f);
+	        if (ext != null) {
+	            if (ext.equals(extension)){
+	                    return true;
+	            } else {
+	                return false;
+	            }
+	        }
+
+	        return false;
+	    }
+
+	    public String getDescription() {
+	        return description;
+	    }
+	    
+	    public String getExtension(File f) {
+	        String ext = null;
+	        String s = f.getName();
+	        int i = s.lastIndexOf('.');
+
+	        if (i > 0 &&  i < s.length() - 1) {
+	            ext = s.substring(i+1).toLowerCase();
+	        }
+	        return ext;
+	    }
+	}
+	
+	public FileFilter getCmpgnFileFilter() {
+		return campaignFilter;
+	}
+
+	public JFileChooser getLoadPropsFileChooser() {
+		if (loadPropsFileChooser == null) {
+			loadPropsFileChooser = new JFileChooser();
+			loadPropsFileChooser.setCurrentDirectory(AppPreferences.getLoadDir());
+			loadPropsFileChooser.addChoosableFileFilter(propertiesFilter);
+			loadPropsFileChooser.setDialogTitle("Import Properties");
+		}
+		
+		loadPropsFileChooser.setFileFilter(propertiesFilter);
+		return loadPropsFileChooser;
+	}
+
 	public JFileChooser getLoadFileChooser() {
 		if (loadFileChooser == null) {
 			loadFileChooser = new JFileChooser();
 			loadFileChooser.setCurrentDirectory(AppPreferences.getLoadDir());
 		}
 		return loadFileChooser;
+	}
+
+	public JFileChooser getSaveCmpgnFileChooser() {
+		if (saveCmpgnFileChooser == null) {
+			saveCmpgnFileChooser = new JFileChooser();
+			saveCmpgnFileChooser.setCurrentDirectory(AppPreferences.getSaveDir());
+			saveCmpgnFileChooser.addChoosableFileFilter(campaignFilter);
+			saveCmpgnFileChooser.setDialogTitle("Save Campaign");
+		}
+		saveCmpgnFileChooser.setAcceptAllFileFilterUsed(true);
+		return saveCmpgnFileChooser;
+	}
+
+	public JFileChooser getSavePropsFileChooser() {
+		if (savePropsFileChooser == null) {
+			savePropsFileChooser = new JFileChooser();
+			savePropsFileChooser.setCurrentDirectory(AppPreferences.getSaveDir());
+			savePropsFileChooser.addChoosableFileFilter(propertiesFilter);
+			savePropsFileChooser.setDialogTitle("Export Properties");
+		}
+		savePropsFileChooser.setAcceptAllFileFilterUsed(true);
+		return savePropsFileChooser;
 	}
 
 	public JFileChooser getSaveFileChooser() {
