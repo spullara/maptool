@@ -103,6 +103,7 @@ import net.rptools.maptool.client.swing.ProgressStatusBar;
 import net.rptools.maptool.client.swing.ScrollableFlowPanel;
 import net.rptools.maptool.client.swing.SpacerStatusBar;
 import net.rptools.maptool.client.swing.StatusPanel;
+import net.rptools.maptool.client.swing.ZoomStatusBar;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.StampTool;
 import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
@@ -179,6 +180,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private ProgressStatusBar progressBar = new ProgressStatusBar();
 	private ConnectionStatusPanel connectionStatusPanel = new ConnectionStatusPanel();
 	private CoordinateStatusBar coordinateStatusBar;
+	private ZoomStatusBar zoomStatusBar;
 	private JLabel chatActionLabel;
 	private GlassPane glassPane;
 	
@@ -249,6 +251,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		statusPanel = new StatusPanel();
 		statusPanel.addPanel(getCoordinateStatusBar());
+		statusPanel.addPanel(getZoomStatusBar());
 		statusPanel.addPanel(new MemoryStatusBar());
 		// statusPanel.addPanel(progressBar);
 		statusPanel.addPanel(connectionStatusPanel);
@@ -533,6 +536,13 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		visibleControlPanel = layoutPanel;
 	}
 
+	public ZoomStatusBar getZoomStatusBar() {
+		if (zoomStatusBar == null) {
+			zoomStatusBar = new ZoomStatusBar();
+		}
+		return zoomStatusBar;
+	}
+	
 	public CoordinateStatusBar getCoordinateStatusBar() {
 		if (coordinateStatusBar == null) {
 			coordinateStatusBar = new CoordinateStatusBar();
@@ -1007,6 +1017,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		repaint();
 		
 		setTitle("MapTool" + (renderer != null ? " - " + renderer.getZone().getName() : ""));
+		getZoomStatusBar().update();
 	}
 
 	public Toolbox getToolbox() {

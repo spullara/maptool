@@ -53,10 +53,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.QuadCurve2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeEvent;
@@ -99,14 +97,11 @@ import net.rptools.maptool.client.ui.token.TokenTemplate;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
-import net.rptools.maptool.model.AttachedLightSource;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridCapabilities;
-import net.rptools.maptool.model.HexGrid;
 import net.rptools.maptool.model.Label;
-import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Path;
@@ -494,14 +489,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     public void zoomReset() {
         zoneScale.reset();
+		MapTool.getFrame().getZoomStatusBar().update();
     }
 
     public void zoomIn(int x, int y) {
         zoneScale.zoomIn(x, y);
+		MapTool.getFrame().getZoomStatusBar().update();
     }
 
     public void zoomOut(int x, int y) {
         zoneScale.zoomOut(x, y);
+		MapTool.getFrame().getZoomStatusBar().update();
     }
 
     public void setView(int x, int y, int zoomIndex) {
@@ -509,6 +507,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         setViewOffset(x, y);
 
         zoneScale.setIndex(zoomIndex);
+		MapTool.getFrame().getZoomStatusBar().update();
     }
     
 	public BufferedImage getMiniImage(int size) {
