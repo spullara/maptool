@@ -293,7 +293,9 @@ public class MapPropertiesDialog extends JDialog  {
 		getBackgroundButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				Paint paint = paintChooser.choosePaint(MapTool.getFrame(), backgroundPaint != null ? backgroundPaint.getPaint() : null);
+				Paint paint = paintChooser.choosePaint(MapTool.getFrame(), 
+								backgroundPaint != null ? backgroundPaint.getPaint() : null,
+										"Choose Background");
 				if (paint != null) {
 					backgroundPaint = DrawablePaint.convertPaint(paint);
 				}
@@ -324,7 +326,9 @@ public class MapPropertiesDialog extends JDialog  {
 		getFogButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				Paint paint = paintChooser.choosePaint(MapTool.getFrame(), fogPaint != null ? fogPaint.getPaint() : null);
+				Paint paint = paintChooser.choosePaint(MapTool.getFrame(), 
+						fogPaint != null ? fogPaint.getPaint() : null, 
+								"Choose Fog");
 				if (paint != null) {
 					fogPaint = DrawablePaint.convertPaint(paint);
 				}
@@ -438,8 +442,8 @@ public class MapPropertiesDialog extends JDialog  {
 			
 			add(BorderLayout.CENTER, createImageExplorerPanel());
 			add(BorderLayout.SOUTH, createButtonBar());
-			
-			setSize(300, 400);
+			this.setTitle("Select Map Image");
+			setSize(500, 400);
 		}
 
 		@Override
