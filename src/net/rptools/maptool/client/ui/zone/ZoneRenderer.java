@@ -1522,7 +1522,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     Area r1 = currLocation.bounds;
                     
                     // Are we covering anyone ?
-                    if (GraphicsUtil.contains(location.bounds, r1)) {
+                    if (location.boundsCache.contains(currLocation.boundsCache) && GraphicsUtil.contains(location.bounds, r1)) {
     
                         // Are we covering someone that is covering someone ?
                         Area oldRect = null;
