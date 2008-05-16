@@ -465,6 +465,16 @@ public class Token extends BaseModel {
 		}
 	}
 	
+	//My Addition
+	public void clearLightSources() {
+		if (lightSourceList == null) {
+			return;
+		}
+		
+		lightSourceList = null;
+	}
+	//End My Addtion
+	
 	public boolean hasLightSource(LightSource source) {
 		if (lightSourceList == null) {
 			return false;

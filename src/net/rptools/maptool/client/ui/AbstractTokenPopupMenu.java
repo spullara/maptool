@@ -105,6 +105,11 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 	protected JMenu createLightSourceMenu() {
 		JMenu menu = new JMenu("Light Source");
 
+		if (tokenUnderMouse.hasLightSources()) {
+			menu.add(new ClearLightAction());
+			menu.addSeparator();
+		}
+		
 		for (Entry<String, Map<GUID, LightSource>> entry : MapTool.getCampaign().getLightSourcesMap().entrySet()) {
 			JMenu subMenu = new JMenu(entry.getKey());
 			
@@ -518,6 +523,28 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			renderer.repaint();
 		}
 	}
+	
+	public class ClearLightAction extends AbstractAction {
+			
+			public ClearLightAction() {
+				super("Clear All");
+			}
+			
+			public void actionPerformed(ActionEvent e) {
+				
+				ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+				for (GUID tokenGUID : selectedTokenSet) {
+
+					Token token = renderer.getZone().getToken(tokenGUID);
+					token.clearLightSources();
+					renderer.flush(token);
+					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+					renderer.getZone().putToken(token);
+				}
+
+				renderer.repaint();
+			}
+		}
 	
 	public class SnapToGridAction extends AbstractAction {
 

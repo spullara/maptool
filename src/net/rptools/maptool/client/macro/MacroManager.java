@@ -50,6 +50,7 @@ import net.rptools.maptool.client.macro.impl.ImpersonateMacro;
 import net.rptools.maptool.client.macro.impl.LoadAliasesMacro;
 import net.rptools.maptool.client.macro.impl.LoadTokenStatesMacro;
 import net.rptools.maptool.client.macro.impl.LookupTableMacro;
+import net.rptools.maptool.client.macro.impl.OOCMacro;
 import net.rptools.maptool.client.macro.impl.RollAllMacro;
 import net.rptools.maptool.client.macro.impl.RollGMMacro;
 import net.rptools.maptool.client.macro.impl.RollMeMacro;
@@ -107,6 +108,7 @@ public class MacroManager {
 		registerMacro(new RunTokenSpeechMacro());
 		registerMacro(new LookupTableMacro());
 		registerMacro(new ToGMMacro());
+		registerMacro(new OOCMacro());
 
 		registerMacro(UNDEFINED_MACRO);
 	}
