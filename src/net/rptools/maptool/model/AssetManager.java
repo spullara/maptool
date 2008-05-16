@@ -211,7 +211,11 @@ public class AssetManager {
 			
 			Asset asset = new Asset(props.getProperty(NAME), data);
 			
-			assetMap.put(asset.getId(), asset);
+			if ( !asset.getId().equals(id)) {
+				System.err.println("MD5 for asset " + asset.getName() + " corrupted");
+			}
+			
+			assetMap.put(id, asset);
 			
 			return asset;
 		} catch (IOException ioe) {

@@ -141,7 +141,7 @@ public class MapToolUtil {
 			if (random && isToken) {
 				// When 90 or more tokens, move to incremental naming or may never
 				// find a number if they all have this creature's base name
-				if (zone.getAllTokens().size() >= 89) {
+				if (zone.getTokenCount() >= 89) {
 					newNum = 10;
 				} else {
 					newNum = getRandomNumber(10,99);
@@ -154,15 +154,33 @@ public class MapToolUtil {
 			// Find the next available token number, this
 			// has to break at some point.
 			
-			while (zone.getTokenByName(newName + " " + newNum) != null ||
-					// Or, check for repeat in numbering in the GM Name.
-					( zone.getTokenByName(newName)!= null && zone.getTokenByGMName(Integer.toString(newNum)) != null) ) {
-				if (random && zone.getAllTokens().size() < 89)
-					newNum = getRandomNumber(10,99);
-				else
-					newNum++;
+			if ( zone.getTokenCount() >= 89 ) {
+				random = false;
 			}
-
+			
+			
+			if ( random ) {
+			
+				while ( true ) {
+					boolean repeat = false;
+					if ( addNumToName ) {
+						repeat = repeat || (zone.getTokenByName(newName + " " + newNum) != null);
+					}
+					
+					if ( addNumToGM ) {
+						repeat = repeat || (zone.getTokenByGMName(Integer.toString(newNum)) != null);
+					}
+				
+					if ( !repeat ) {
+						break;
+					}
+					
+					newNum = getRandomNumber(10,99);
+				}
+			} else {
+				newNum = zone.findFreeNumber(addNumToName ? newName : null, addNumToGM);
+			}
+			
 			if ( addNumToName ) {
 				newName += " ";
 				newName += newNum;

@@ -298,6 +298,10 @@ public class GraphicsUtil {
      */
     public static boolean contains(Area lhs, Area rhs) {
     	
+    	if (!lhs.getBounds().intersects(rhs.getBounds())) {
+    		return false;
+    	}
+    	
     	Area newArea = new Area(rhs);
     	newArea.subtract(lhs);
     	

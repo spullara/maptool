@@ -66,6 +66,8 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 	
     private JTree tree;
     
+    private volatile boolean updatePending = false;
+    
     public TokenPanelTreeModel(JTree tree) {
     	this.tree = tree;
 		update();
@@ -165,11 +167,20 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 	}
 
 	public void update() {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-		    	updateInternal();
-			}
-		});
+		// better solution would be to use a timeout to invoke the internal update to give more
+		// token events the chance to arrive, but in this case EventQueue overload will 
+		// manage to delay it quite nicely
+		
+		if ( !updatePending ) {
+			updatePending = true;
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					updatePending = false;
+			    	updateInternal();
+				}
+			});
+		}
+		
 	}
 	
 	private void updateInternal() {

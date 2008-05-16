@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppPreferences;
@@ -136,15 +138,8 @@ public class Zone extends BaseModel {
     private int height;
     private int width;
     
-    public static final Comparator<Token> TOKEN_Z_ORDER_COMPARATOR = new Comparator<Token>() {
-    	public int compare(Token o1, Token o2) {
-    		int lval = o1.getZOrder();
-    		int rval = o2.getZOrder();
-    		
-    		return lval < rval ? -1 : lval == rval ? 0 : 1;
-    	}
-    };
-    
+    private transient HashMap<String, Integer> tokenNumberCache;
+        
     public Zone() {
         setGrid(new SquareGrid());
     }
@@ -621,6 +616,10 @@ public class Zone extends BaseModel {
 		return list;
 	}
 	
+	public int getTokenCount() {
+		return tokenOrderedList.size();
+	}
+	
     public List<Token> getAllTokens() {
         return Collections.unmodifiableList(new ArrayList<Token>(tokenOrderedList));
     }
@@ -661,60 +660,122 @@ public class Zone extends BaseModel {
 		
 		return idSet;
     }
+    
+    
+    public List<Token> getTokensFiltered(Filter filter) {
+    	
+    	ArrayList<Token> copy = new ArrayList<Token>(getTokenCount());
+    	
+    	for (Token token : tokenOrderedList) {
+
+    		if (filter.matchToken(token)) {
+    			copy.add(token);
+    		}
+    	}
+    	return Collections.unmodifiableList(copy);
+    	
+    }
 
     /**
      * This is the list of non-stamp tokens, both pc and npc
      */
     public List<Token> getTokens() {
-    	List<Token> copy = new LinkedList<Token>(tokenOrderedList);
-    	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
-    		Token token = iter.next();
-    		if (token.isStamp()) {
-    			iter.remove();
+    	
+    	return getTokensFiltered(new Filter() {
+    		public boolean matchToken(Token t) {
+    			return !t.isStamp();
     		}
-    	}
-        return Collections.unmodifiableList(copy);
+    	});
     }
     
     public List<Token> getStampTokens() {
-    	List<Token> copy = new LinkedList<Token>(tokenOrderedList);
-    	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
-    		Token token = iter.next();
-    		if (!token.isObjectStamp()) {
-    			iter.remove();
+    	return getTokensFiltered(new Filter() {
+    		public boolean matchToken(Token t) {
+    			return t.isObjectStamp();
     		}
-    	}
-        return Collections.unmodifiableList(copy);
+    	});
     }
     public List<Token> getPlayerTokens() {
-    	List<Token> copy = new LinkedList<Token>(tokenOrderedList);
-    	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
-    		Token token = iter.next();
-    		if (token.getType() != Token.Type.PC) {
-    			iter.remove();
+    	return getTokensFiltered(new Filter() {
+    		public boolean matchToken(Token t) {
+    			return t.getType() == Token.Type.PC;
     		}
-    	}
-        return Collections.unmodifiableList(copy);
+    	});
     }
     public List<Token> getBackgroundStamps() {
-    	List<Token> copy = new LinkedList<Token>(tokenOrderedList);
-    	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
-    		Token token = iter.next();
-    		if (!token.isBackgroundStamp()) {
-    			iter.remove();
+    	
+    	return getTokensFiltered(new Filter() {
+    		public boolean matchToken(Token t) {
+    			return t.isBackgroundStamp();
     		}
-    	}
-        return Collections.unmodifiableList(copy);
+    	});
+    	
     }
     public List<Token> getGMStamps() {
-    	List<Token> copy = new LinkedList<Token>(tokenOrderedList);
-    	for (ListIterator<Token> iter = copy.listIterator(); iter.hasNext();) {
-    		Token token = iter.next();
-    		if (!token.isGMStamp()) {
-    			iter.remove();
+    	return getTokensFiltered(new Filter() {
+    		public boolean matchToken(Token t) {
+    			return t.isGMStamp();
     		}
-    	}
-        return Collections.unmodifiableList(copy);
+    	});
     }
     
+    public int findFreeNumber(String tokenBaseName, boolean checkDm) {
+    	if ( tokenNumberCache == null ) {
+    		tokenNumberCache = new HashMap<String, Integer>();
+    	}
+    	
+    	Integer _lastUsed = tokenNumberCache.get(tokenBaseName);
+    	
+    	int lastUsed;
+    	
+    	if ( _lastUsed == null ) {
+    		lastUsed = 0;
+    	} else {
+    		lastUsed = _lastUsed;
+    	}
+    	
+    	boolean repeat = true;
+		
+    	while ( repeat ) {
+    		lastUsed++;
+    		repeat = false;
+    		if ( checkDm ) {
+    			Token token = getTokenByGMName(Integer.toString(lastUsed));
+    			if ( token != null ) {
+    				repeat = true;
+    			}
+    		}
+    		
+    		if ( !repeat && tokenBaseName != null ) {
+    			String name = tokenBaseName + " " + lastUsed;
+    			Token token = getTokenByName(name);
+    			if ( token != null ) {
+    				repeat = true;
+    			}
+    		}
+    	}
+    	
+    	tokenNumberCache.put(tokenBaseName,lastUsed);
+    	return lastUsed;	
+    }
+
+    public static interface Filter {
+    	public boolean matchToken(Token t);
+    }
+
+    public static final Comparator<Token> TOKEN_Z_ORDER_COMPARATOR = new TokenZOrderComparator(); 
+	
+	public static class TokenZOrderComparator implements Comparator<Token> {
+    	public int compare(Token o1, Token o2) {
+    		int lval = o1.getZOrder();
+    		int rval = o2.getZOrder();
+
+    		if ( lval == rval ) {
+    			return o1.getId().compareTo(o2.getId());
+    		} else {
+    			return lval - rval;
+    		}
+    	}
+    };
+
 }

@@ -33,7 +33,7 @@ import com.withay.util.HexCode;
 /**
  * Global unique identificator object.
  */
-public class GUID extends Object implements Serializable {
+public class GUID extends Object implements Serializable, Comparable {
 
     /** Serial version unique identifier. */
     private static final long serialVersionUID = 6361057925697403643L;
@@ -45,10 +45,24 @@ public class GUID extends Object implements Serializable {
     public static final int GUID_BUCKETS = 100; 
     // NOTE: THIS CAN NEVER BE CHANGED, OR IT WILL AFFECT ALL THINGS THAT PREVIOUSLY USED IT
 
+    private static byte[] ip;
+    
     private byte[] baGUID;
     
     // Cache of the hashCode for a GUID
     private transient int hash;
+    
+    
+    static {
+        try {
+            InetAddress id = InetAddress.getLocalHost();
+            ip = id.getAddress(); // 192.168.0.14
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            ip = new byte[4];
+        }
+    }
+    
     
     public GUID() {
         this.baGUID = generateGUID();
@@ -144,14 +158,6 @@ public class GUID extends Object implements Serializable {
     
     public static byte[] generateGUID() throws InvalidGUIDException{
         byte[] guid = new byte[16];
-        byte[] ip;
-        
-        try {
-            InetAddress id = InetAddress.getLocalHost();
-            ip = id.getAddress(); // 192.168.0.14
-        } catch (UnknownHostException e) {
-            throw new InvalidGUIDException(e.toString());
-        }
         
         System.currentTimeMillis();
         
@@ -187,4 +193,13 @@ public class GUID extends Object implements Serializable {
             System.out.println(guid.toString());
         }
     }
+
+	public int compareTo(Object o) {
+		GUID og = (GUID)o;
+		for (int i = 0; i < GUID_LENGTH; i++) {
+            if (this.baGUID[i] != og.baGUID[i])
+            	return this.baGUID[i] - og.baGUID[i];
+        }
+		return 0;
+	}
 }

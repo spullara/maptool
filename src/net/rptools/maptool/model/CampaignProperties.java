@@ -1,6 +1,7 @@
 package net.rptools.maptool.model;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class CampaignProperties {
+public class CampaignProperties implements Serializable {
 
 	public static final String DEFAULT_TOKEN_PROPERTY_TYPE = "Basic";
 
