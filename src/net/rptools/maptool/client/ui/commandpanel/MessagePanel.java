@@ -130,7 +130,6 @@ public class MessagePanel extends JPanel {
 				
 				// Auto inline expansion
 				text = text.replaceAll("(^|\\s)(http://[a-zA-Z0-9_\\.%-/~?]+)", "$1<a href=\"$2\">$2</a>");
-				System.out.println("TEXT {" + text + "}");
 				Element element = document.getElement("body");
 				try {
 					document.insertBeforeEnd(element, text);
