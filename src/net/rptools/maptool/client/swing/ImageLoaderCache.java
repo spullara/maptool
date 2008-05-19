@@ -32,6 +32,10 @@ public class ImageLoaderCache {
 
 		// URLs take a huge amount of time in equals(), so simplify by
 		// converting to a string
+		if (url == null) {
+			return ImageManager.BROKEN_IMAGE;
+		}
+		
 		Image image = imageMap.get(url.toString());
 		if (image == null) {
 
