@@ -276,7 +276,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     		}
     		if (SwingUtilities.isRightMouseButton(event)) {
     			Token token = getTokenAt(event.getX(), event.getY());
-    			if (token == null) {
+    			if (token == null || !AppUtil.playerOwns(token)) {
     				return;
     			}
     			tokenUnderMouse = token;
