@@ -29,14 +29,15 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Scale implements Serializable {
 
     private int              scaleIndex;
-    private static float     startScale = .01f;
-    private static float     endScale = 20;
-    private static float[]   scaleArray;
+    private static double     startScale = .01f;
+    private static double     endScale = 20;
+    private static double[]   scaleArray;
     
     public static int SCALE_1TO1_INDEX; // Automatically scanned for
 
@@ -58,8 +59,8 @@ public class Scale implements Serializable {
     	// LATER: This whole process needs to be rewritten to be more 
     	// configurable
     	boolean lessThanOne = true;
-    	List<Float> scaleList = new ArrayList<Float>();
-    	float scale = startScale;
+    	List<Double> scaleList = new ArrayList<Double>();
+    	double scale = startScale;
     	while (scale <= endScale) {
     		
     		if (scale < .1) {
@@ -69,8 +70,10 @@ public class Scale implements Serializable {
     		} else {
     			scale += .15;
     		}
+    		
+    		scale = Math.round(scale*1000)/1000.0;
 
-    		scaleList.add((float)scale);
+    		scaleList.add(scale);
     		
     		if (scale > 1 && lessThanOne) {
     			SCALE_1TO1_INDEX = scaleList.size()-1; 
@@ -78,7 +81,7 @@ public class Scale implements Serializable {
     		}
     	}
     	
-    	scaleArray = new float[scaleList.size()];
+    	scaleArray = new double[scaleList.size()];
     	for (int i = 0; i < scaleArray.length; i++) {
     		scaleArray[i] = scaleList.get(i);
     	}
@@ -148,8 +151,8 @@ public class Scale implements Serializable {
         getPropertyChangeSupport().firePropertyChange(PROPERTY_SCALE, oldIndex, scaleIndex);
     }
     
-    public float reset() {
-        float oldScale = scaleArray[scaleIndex];
+    public double reset() {
+    	double oldScale = scaleArray[scaleIndex];
         scaleIndex = SCALE_1TO1_INDEX;
 
         getPropertyChangeSupport().firePropertyChange(PROPERTY_SCALE, oldScale, scaleIndex);
@@ -160,18 +163,18 @@ public class Scale implements Serializable {
     	return SCALE_1TO1_INDEX;
     }
     
-    public float getScale() {
+    public double getScale() {
         return scaleArray[scaleIndex];
     }
     
-    public float scaleUp() {
-        float oldScale = getScale();
+    public double scaleUp() {
+    	double oldScale = getScale();
         setIndex(scaleIndex+1);
         return oldScale;
     }
     
-    public float scaleDown() {
-        float oldScale = getScale();
+    public double scaleDown() {
+    	double oldScale = getScale();
         setIndex(scaleIndex - 1);
         return oldScale;
     }
@@ -238,7 +241,7 @@ public class Scale implements Serializable {
     	
     	// Find the scale that makes the size exceed the given dimensions
     	for (int i = 0; i < scaleArray.length; i ++) {
-    		float scale = scaleArray[i];
+    		double scale = scaleArray[i];
     		if (this.width * scale > width || this.height * scale > height) {
     			setIndex(i-1);
     			return;

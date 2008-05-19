@@ -55,6 +55,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.QuadCurve2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeEvent;
@@ -695,7 +696,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
      * @param g Paint on this graphic object.
      */
     private void renderTokenTemplates(Graphics2D g, PlayerView view) {
-        float scale = zoneScale.getScale();
+    	double scale = zoneScale.getScale();
         int scaledGridSize = (int) getScaledGridSize();
 
         // Find tokens with template state
@@ -1025,7 +1026,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     protected void renderMoveSelectionSets(Graphics2D g, PlayerView view) {
     
         Grid grid = zone.getGrid();
-        float scale = zoneScale.getScale();
+        double scale = zoneScale.getScale();
         
         Set<SelectionSet> selections = new HashSet<SelectionSet>();
         selections.addAll(selectionSetMap.values());
@@ -1234,7 +1235,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         Point previousHalfPoint = null;
         
         Grid grid = zone.getGrid();
-        float scale = getScale();
+        double scale = getScale();
 
         Rectangle footprintBounds = footprint.getBounds(grid);
         
@@ -1437,7 +1438,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         Rectangle viewport = new Rectangle(0, 0, getSize().width, getSize().height);
         
         Rectangle clipBounds = g.getClipBounds();
-        float scale = zoneScale.getScale();
+        double scale = zoneScale.getScale();
         for (Token token : tokenList) {
 
             if (token.isStamp() && isTokenMoving(token)) {
@@ -1469,8 +1470,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), this);
             }
 
-            int scaledWidth = (int)(footprintBounds.width*scale);
-            int scaledHeight = (int)(footprintBounds.height*scale);
+            double scaledWidth = (footprintBounds.width*scale);
+            double scaledHeight = (footprintBounds.height*scale);
             
 //            if (!token.isStamp()) {
 //                // Fit inside the grid
@@ -1481,10 +1482,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, footprintBounds.x, footprintBounds.y);
             
             // Tokens are centered on the image center point
-            int x = (int)tokenScreenLocation.x;
-            int y = (int)tokenScreenLocation.y;
-                
-            Rectangle origBounds = new Rectangle(x, y, scaledWidth, scaledHeight);
+            double x = tokenScreenLocation.x;
+            double y = tokenScreenLocation.y;
+            
+            Rectangle2D origBounds = new Rectangle2D.Double(x, y, scaledWidth, scaledHeight);
             Area tokenBounds = new Area(origBounds);
             if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
                 tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth/2 + x - (token.getAnchor().x*scale), scaledHeight/2 + y - (token.getAnchor().y*scale))); // facing defaults to down, or -90 degrees
@@ -1600,7 +1601,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 Stroke oldStroke = g.getStroke();
                 g.setStroke( new BasicStroke(AppPreferences.getHaloLineWidth()));
                 g.setColor(token.getHaloColor());
-                g.drawRect(location.x, location.y, location.scaledWidth, location.scaledHeight);
+                g.draw(new Rectangle2D.Double(location.x, location.y, location.scaledWidth, location.scaledHeight));
                 g.setStroke(oldStroke);
             }
 
@@ -1632,8 +1633,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	            offsety = (int)(imgSize.height < footprintBounds.height ? (footprintBounds.height - imgSize.height)/2 * getScale() : 0);
             }
             
-            int tx = location.x + offsetx;
-            int ty = location.y + offsety;
+            double tx = location.x + offsetx;
+            double ty = location.y + offsety;
+            
+            
             
             AffineTransform at = new AffineTransform();
             at.translate(tx, ty);
@@ -1642,15 +1645,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
             	at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth/2 - (token.getAnchor().x*scale) - offsetx, location.scaledHeight/2 - (token.getAnchor().y*scale) - offsety); // facing defaults to down, or -90 degrees
             }
-
+            
             // Draw the token
             if (token.isSnapToScale()) {
-            	at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
+            	at.scale(((double) imgSize.width) / workImage.getWidth(), ((double) imgSize.height) / workImage.getHeight());
                 at.scale(getScale(), getScale());
             } else {
-            	at.scale((double) scaledWidth / workImage.getWidth(), (double) scaledHeight / workImage.getHeight());
+            	at.scale(((double) scaledWidth) / workImage.getWidth(), ((double) scaledHeight) / workImage.getHeight());
             }
-
+            
+            
+            
             g.drawImage(workImage, at, this);
 
             // Halo (SQUARE)
@@ -1659,7 +1664,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 Stroke oldStroke = g.getStroke();
                 g.setStroke(new BasicStroke(AppPreferences.getHaloLineWidth()));
                 g.setColor (token.getHaloColor());
-                g.drawRect(location.x, location.y, location.scaledWidth, location.scaledHeight);
+                g.draw(new Rectangle2D.Double(location.x, location.y, location.scaledWidth, location.scaledHeight));
                 g.setStroke(oldStroke);
             }
             g.setClip(clip);
@@ -1674,8 +1679,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     
                     Shape arrow = getCircleFacingArrow(token.getFacing(), footprintBounds.width/2);
 
-                    int cx = location.x + location.scaledWidth/2;
-                    int cy = location.y + location.scaledHeight/2;
+                    double cx = location.x + location.scaledWidth/2;
+                    double cy = location.y + location.scaledHeight/2;
                     
                     g.translate(cx, cy);
                     g.setColor(Color.yellow);
@@ -1696,8 +1701,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
                     // Find the edge of the image
                     // TODO: Man, this is horrible, there's gotta be a better way to do this
-                    int xp = location.scaledWidth/2;
-                    int yp = location.scaledHeight/2;
+                    double xp = location.scaledWidth/2;
+                    double yp = location.scaledHeight/2;
                     if (facing >= 45 && facing <= 135 || facing >= 225 && facing <= 315) {
                         xp = (int)(yp / Math.tan(Math.toRadians(facing)));
                         if (facing > 180 ) {
@@ -1737,7 +1742,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
               }
               Graphics2D locg = (Graphics2D)g.create();
               locg.setTransform(transform);
-              Rectangle bounds = new Rectangle(0, 0, location.scaledWidth, location.scaledHeight);
+              Rectangle bounds = new Rectangle(0, 0, (int)Math.ceil(location.scaledWidth), (int)Math.ceil(location.scaledHeight));
               Rectangle overlayClip = g.getClipBounds().intersection(bounds);
               locg.setClip(overlayClip);
               
@@ -1768,7 +1773,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         for (TokenLocation location : getTokenLocations(getActiveLayer())) {
             
             Area bounds = location.bounds;
-            Rectangle origBounds = location.origBounds;
+            Rectangle2D origBounds = location.origBounds;
             
             // TODO: This isn't entirely accurate as it doesn't account for the actual text
             // to be in the clipping bounds, but I'll fix that later
@@ -2060,7 +2065,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         return zone.getGrid().convert(zp);
     }
  
-    public float getScale() {
+    public double getScale() {
         return zoneScale.getScale();
     }
 
@@ -2184,22 +2189,22 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     private class TokenLocation {
         public Area bounds;
-        public Rectangle origBounds;
+        public Rectangle2D origBounds;
         public Token token;
 
         public Rectangle boundsCache;
         
         public int height;
         public int width;
-        public int scaledHeight;
-        public int scaledWidth;
-        public int x;
-        public int y;
+        public double scaledHeight;
+        public double scaledWidth;
+        public double x;
+        public double y;
 
         public int offsetX;
         public int offsetY;
         
-        public TokenLocation(Area bounds, Rectangle origBounds, Token token, int x, int y, int width, int height, int scaledWidth, int scaledHeight) {
+        public TokenLocation(Area bounds, Rectangle2D origBounds, Token token, double x, double y, int width, int height, double scaledWidth, double scaledHeight) {
             this.bounds = bounds;
             this.token = token;
             this.origBounds = origBounds;

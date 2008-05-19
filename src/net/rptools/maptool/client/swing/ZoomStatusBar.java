@@ -69,10 +69,6 @@ public class ZoomStatusBar extends JLabel {
     	if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
     		double scale = MapTool.getFrame().getCurrentZoneRenderer().getZoneScale().getScale();
     		scale *= 100;
-    		// Don't spook people that we aren't exactly at 100%, it's all in the precision.
-    		if (scale > 98 && scale < 102) {
-    			scale = 100;
-    		}
     		zoom = String.format("%d%%", (int)scale);
     	}
     	setText(zoom);
