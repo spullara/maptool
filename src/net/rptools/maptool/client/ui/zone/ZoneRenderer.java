@@ -2403,11 +2403,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         dtde.acceptDrop(dtde.getDropAction());
 
         List<Token> tokens = null;
-        List<Asset> assets = TransferableHelper.getAsset(dtde);
+        List assets = TransferableHelper.getAsset(dtde);
         if (assets != null) {
             tokens = new ArrayList<Token>(assets.size());
-            for (Asset asset : assets) {
-                tokens.add(new Token(asset.getName(), asset.getId()));
+            for (Object working : assets) {
+            	if (working instanceof Asset) {
+            		Asset asset = (Asset)working;
+                    tokens.add(new Token(asset.getName(), asset.getId()));
+            	} else if (working instanceof Token) {
+        			tokens.add(new Token((Token)working));
+            	}
             }
             addTokens(tokens, zp, true);
         } else {

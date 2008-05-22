@@ -49,6 +49,7 @@ import net.rptools.lib.transferable.TokenTransferData;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.util.PersistenceUtil;
 
 /**
  * @author tcroft
@@ -62,10 +63,10 @@ public class TransferableHelper {
 	 * Takes a drop event and returns an asset
 	 * from it.  returns null if an asset could not be obtained
 	 */
-	public static List<Asset> getAsset(DropTargetDropEvent dtde) {
+	public static List getAsset(DropTargetDropEvent dtde) {
 		
         Transferable transferable = dtde.getTransferable();
-      List<Asset> assets = new ArrayList<Asset>();
+        List assets = new ArrayList();
 
         try {
 	        // EXISTING ASSET
@@ -98,12 +99,16 @@ public class TransferableHelper {
             return null;
         }
         
-        for (Asset asset : assets) {
-          if (!AssetManager.hasAsset(asset)) 
-            AssetManager.putAsset(asset);          
-          if (!MapTool.getCampaign().containsAsset(asset)) 
-            MapTool.serverCommand().putAsset(asset);
-        } // endfor
+        Asset asset = null;
+        for (Object working : assets) {
+        	if (working instanceof Asset) {
+        		asset = (Asset)working;
+        		if (!AssetManager.hasAsset(asset)) 
+                    AssetManager.putAsset(asset);          
+                if (!MapTool.getCampaign().containsAsset(asset)) 
+                    MapTool.serverCommand().putAsset(asset);
+        	}
+        } 
         return assets;
 	}
 
@@ -125,11 +130,16 @@ public class TransferableHelper {
         return asset;
     }
     
-	private static List<Asset> handleFileList(DropTargetDropEvent dtde, Transferable transferable) throws Exception {
+	private static List handleFileList(DropTargetDropEvent dtde, Transferable transferable) throws Exception {
     	List<File> list = new FileTransferableHandler().getTransferObject(transferable);
-      List<Asset> assets = new ArrayList<Asset>();
-    	for (File file : list)
-        assets.add(AssetManager.createAsset(file));
+        List assets = new ArrayList();
+    	for (File file : list) {
+    		if (Token.isTokenFile(file.getName())) {
+    			assets.add(PersistenceUtil.loadToken(file));
+    		} else {
+                assets.add(AssetManager.createAsset(file));
+    		}
+    	}
     	return assets;
 	}
 	
