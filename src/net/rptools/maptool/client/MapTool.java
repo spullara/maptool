@@ -47,6 +47,7 @@ import javax.swing.UIManager;
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
+import net.rptools.lib.BackupManager;
 import net.rptools.lib.EventDispatcher;
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.TaskBarFlasher;
@@ -57,9 +58,9 @@ import net.rptools.maptool.client.swing.SplashScreen;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.MapToolFrame;
 import net.rptools.maptool.client.ui.StartServerDialogPreferences;
+import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
-import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
@@ -110,6 +111,8 @@ public class MapTool {
     private static ServerCommand serverCommand;
     private static ServerPolicy serverPolicy;
     
+    private static BackupManager backupManager;
+    
     private static AssetTransferManager assetTransferManager;
 
     private static String version;
@@ -157,6 +160,17 @@ public class MapTool {
 	
     private MapTool() {
         // Not instantiatable
+    }
+    
+    public static BackupManager getBackupManager() {
+    	if (backupManager == null) {
+    		try {
+    			backupManager = new BackupManager(AppUtil.getAppHome("backup"));
+    		} catch (IOException ioe) {
+    			ioe.printStackTrace();
+    		}
+    	}
+    	return backupManager;
     }
     
     public static void showDocument(String url) {

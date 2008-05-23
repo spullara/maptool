@@ -1473,6 +1473,12 @@ public class AppActions {
 						// SWINGWORKER !
 						MapTool.getFrame().showFilledGlassPane(progressDialog);
 
+						// Before we do anything, let's back it up
+						if (MapTool.getBackupManager() != null) {
+							MapTool.getBackupManager().backup(campaignFile);
+						}
+						
+						// Load
 						final PersistedCampaign campaign = PersistenceUtil.loadCampaign(campaignFile);
 						
 						if (campaign != null) {

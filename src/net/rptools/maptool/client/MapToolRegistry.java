@@ -2,17 +2,21 @@ package net.rptools.maptool.client;
 
 import java.net.MalformedURLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import com.caucho.hessian.client.HessianProxy;
 import com.caucho.hessian.client.HessianProxyFactory;
 
 public class MapToolRegistry {
 
-	private static final String SERVICE_URL = "http://rptools.net/services/maptool_registry-1_3.php";
+	private static final String SERVICE_URL = "http://rptools.net/services/maptool_registry-1_3a.php";
 
 	private static MapToolRegistryService service;
 	
 	static {
 		HessianProxyFactory factory = new HessianProxyFactory();
+		factory.setHessian2Request(true);
 		try {
 			service = (MapToolRegistryService) factory.create(MapToolRegistryService.class, SERVICE_URL);
 		} catch (MalformedURLException mue) {
@@ -65,31 +69,33 @@ public class MapToolRegistry {
 		
 		long delay = 0;
 		
-		Thread.sleep(delay);
-		System.out.println ("Register");
-		registerInstance("my test", 4444);
 		
-		Thread.sleep(delay);
-		System.out.println ("Heartbeat");
-
-		heartBeat(4444);
+//		Thread.sleep(delay);
+//		System.out.println ("Register");
+//		registerInstance("my test", 4444);
+//		
+//		Thread.sleep(delay);
+//		System.out.println ("Heartbeat");
+//
+//		heartBeat(4444);
+//		
+//		Thread.sleep(delay);
+//		System.out.println ("Find: " + findInstance("my test"));
+//
+//		Thread.sleep(delay);
+//        System.out.println ("RERegister");
+//        registerInstance("my test", 4444);
+//        
+//        Thread.sleep(delay);
+//        System.out.println ("Find: " + findInstance("my test"));
+//		
+//        Thread.sleep(delay);
+//        System.out.println ("Find: " + findInstance("my test"));
+//
+//        Thread.sleep(delay);
+//		System.out.println ("UnRegister");
+//		unregisterInstance(4444);
 		
-		Thread.sleep(delay);
-		System.out.println ("Find: " + findInstance("my test"));
-
-		Thread.sleep(delay);
-        System.out.println ("RERegister");
-        registerInstance("my test", 4444);
-        
-        Thread.sleep(delay);
-        System.out.println ("Find: " + findInstance("my test"));
-		
-        Thread.sleep(delay);
-        System.out.println ("Find: " + findInstance("my test"));
-
-        Thread.sleep(delay);
-		System.out.println ("UnRegister");
-		
-		unregisterInstance(4444);
+		System.out.println("All instances: " + findAllInstances());
 	}
 }

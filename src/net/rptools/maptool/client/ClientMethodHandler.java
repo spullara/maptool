@@ -395,7 +395,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 
                 case startAssetTransfer:
                 	AssetHeader header = (AssetHeader) parameters[0];
-                	MapTool.getAssetTransferManager().addConsumer(new AssetConsumer(AppUtil.getAppHome("tmp"), header));
+                	MapTool.getAssetTransferManager().addConsumer(new AssetConsumer(AppUtil.getTmpDir(), header));
                 	break;
                 	
                 case updateAssetTransfer:

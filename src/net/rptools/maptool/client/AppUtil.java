@@ -54,6 +54,10 @@ public class AppUtil {
         return home;
     }
     
+    public static File getTmpDir() {
+    	return getAppHome("tmp");
+    }
+    
     public static File getAppHome(String subdir) {
         if (USER_HOME == null) {return null;}
         

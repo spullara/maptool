@@ -222,6 +222,7 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 				}
 			};
 		});
+		getRemoteServerTable().setModel(new RemoteServerTableModel(new ArrayList<String>()));
 	}
 	
 	public JTable getRemoteServerTable() {

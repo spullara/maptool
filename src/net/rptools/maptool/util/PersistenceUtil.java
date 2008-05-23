@@ -44,6 +44,7 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.io.PackedFile;
@@ -78,7 +79,15 @@ public class PersistenceUtil {
 	
 	public static void saveCampaign(Campaign campaign, File campaignFile) throws IOException {
 		
-		PackedFile pakFile = new PackedFile(campaignFile);
+		// Strategy: save the file to a tmp location so that if there's a failure the original file
+		// won't be touched.  Then once we're finished, replace the old with the new
+		File tmpDir = AppUtil.getTmpDir();
+		File tmpFile = new File(tmpDir.getAbsolutePath() + "/" + campaignFile.getName());
+		if (tmpFile.exists()) {
+			tmpFile.delete();
+		}
+		
+		PackedFile pakFile = new PackedFile(tmpFile);
 
 		// Configure the meta file (this is for legacy support)
 		PersistedCampaign persistedCampaign = new PersistedCampaign();
@@ -111,6 +120,17 @@ public class PersistenceUtil {
 		
 		pakFile.save();
 		pakFile.close();
+
+		// Copy to the new location
+		// Not the fastest solution in the world, but worth the safety net it provides
+		File bakFile = new File(tmpDir.getAbsolutePath() + "/" + campaignFile.getName() + ".bak");
+		if (campaignFile.exists()) {
+			FileUtil.copyFile(campaignFile, bakFile);
+			campaignFile.delete();
+		}
+		FileUtil.copyFile(tmpFile, campaignFile);
+		tmpFile.delete();
+		bakFile.delete();
 		
 		// Save the campaign thumbnail
 		saveCampaignThumbnail(campaignFile.getName());        
