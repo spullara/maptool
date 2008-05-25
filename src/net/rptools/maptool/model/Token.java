@@ -199,7 +199,7 @@ public class Token extends BaseModel {
 	}
 
 	public Token(Token token) {
-		id = new GUID();
+		this(token.name, token.getImageAssetId());
 		currentImageAsset = token.currentImageAsset;
 		
 		x = token.x;
@@ -256,7 +256,7 @@ public class Token extends BaseModel {
 		}
 		
 		if (token.state != null) {
-			state = new HashMap<String, Object>(token.state);
+			state.putAll(token.state);
 		}
     
 		if (token.propertyMap != null) {
@@ -272,7 +272,7 @@ public class Token extends BaseModel {
 		}
 		
 		if (token.imageAssetMap != null) {
-			imageAssetMap = new HashMap<String, MD5Key>(token.imageAssetMap);
+			imageAssetMap.putAll(token.imageAssetMap);
 		}
 		
 		if (token.sizeMap != null) {
