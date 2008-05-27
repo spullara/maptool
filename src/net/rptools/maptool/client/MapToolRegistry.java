@@ -10,13 +10,14 @@ import com.caucho.hessian.client.HessianProxyFactory;
 
 public class MapToolRegistry {
 
-	private static final String SERVICE_URL = "http://rptools.net/services/maptool_registry-1_3a.php";
+	private static final String SERVICE_URL = "http://rptools.net/services/maptool_registry-1_3.php";
 
 	private static MapToolRegistryService service;
 	
 	static {
 		HessianProxyFactory factory = new HessianProxyFactory();
 		factory.setHessian2Request(true);
+		factory.setChunkedPost(false);
 		try {
 			service = (MapToolRegistryService) factory.create(MapToolRegistryService.class, SERVICE_URL);
 		} catch (MalformedURLException mue) {
