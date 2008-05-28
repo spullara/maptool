@@ -121,7 +121,9 @@ public class EditTokenDialog extends AbeillePanel {
 	}
 	
 	public void initGMNotesTextArea() {
-		getGMNotesTextArea().addMouseListener(new MouseHandler(getGMNotesTextArea()));
+		getGMNotesTextArea().addMouseListener(new MouseHandler(getGMNotesTextArea()));		
+
+		getComponent("@GMNotes").setEnabled(MapTool.getPlayer().isGM());
 	}
 	
 	public void showDialog(Token token) {

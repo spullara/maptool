@@ -42,6 +42,7 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.PersistenceUtil;
 import net.rptools.maptool.util.TokenUtil;
+import net.rptools.maptool.model.Player;
 
 public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
@@ -477,8 +478,13 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 				}
 			}
 			
-			try {
-				PersistenceUtil.saveToken(tokenUnderMouse, file);
+			Token token = new Token(tokenUnderMouse);
+			if (!MapTool.getPlayer().isGM()){
+				token.setGMNotes("");
+			}								
+			
+			try {				
+				PersistenceUtil.saveToken(token, file);
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 				MapTool.showError("Could not save token: " + ioe);
