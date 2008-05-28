@@ -1263,6 +1263,9 @@ public class AppActions {
 					policy.setUseStrictTokenManagement(serverProps.getUseStrictTokenOwnership());
 					policy.setPlayersCanRevealVision(serverProps.getPlayersCanRevealVision());
 					policy.setUseIndividualViews(serverProps.getUseIndividualViews());
+					
+					//my addition
+					policy.setRestrictedImpersonation(serverProps.getRestrictedImpersonation());
 
 					ServerConfig config = new ServerConfig(serverProps.getGMPassword(), serverProps.getPlayerPassword(),
 							serverProps.getPort(), serverProps.getRPToolsName());

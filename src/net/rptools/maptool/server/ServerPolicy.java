@@ -30,6 +30,7 @@ public class ServerPolicy {
 	private boolean isMovementLocked;
 	private boolean playersCanRevealVision;
 	private boolean useIndividualViews;
+	private boolean restrictedImpersonation;
 	
 	public ServerPolicy() {
 		
@@ -71,6 +72,13 @@ public class ServerPolicy {
 	public void setUseIndividualViews(boolean useIndividualViews) {
 		this.useIndividualViews = useIndividualViews;
 	}
+
+	public boolean isRestrictedImpersonation () {
+		return restrictedImpersonation;
+	}
 	
+	public void setRestrictedImpersonation (boolean restrictimp) {
+		restrictedImpersonation = restrictimp;
+	}
 	
 }

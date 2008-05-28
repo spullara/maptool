@@ -2,6 +2,8 @@ package net.rptools.maptool.client.ui;
 
 import java.util.prefs.Preferences;
 
+import sun.security.action.GetBooleanAction;
+
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.server.ServerConfig;
@@ -22,6 +24,7 @@ public class StartServerDialogPreferences {
     private static final String KEY_PLAYERS_CAN_REVEAL_VISION = "playersCanRevealVisionCheckbox";
     private static final String KEY_USE_INDIVIDUAL_VIEWS = "useIndividualViews";
     private static final String KEY_USE_UPNP = "useUPnP";
+    private static final String KEY_RESTRICTED_IMPERSONATION = "restrictedImpersonation";
     
     public Player.Role getRole () {
     	return Player.Role.valueOf(prefs.get(KEY_ROLE, Player.Role.GM.name()));
@@ -70,7 +73,14 @@ public class StartServerDialogPreferences {
     public void setUseStrictTokenOwnership(boolean use) {
     	prefs.putBoolean(KEY_STRICT_TOKEN_OWNERSHIP, use);
     }
-
+    // my addition
+    public boolean getRestrictedImpersonation() {
+    	return prefs.getBoolean(KEY_RESTRICTED_IMPERSONATION, true);
+    }
+    
+    public void setRestrictedImpersonation (boolean impersonation) {
+    	prefs.putBoolean(KEY_RESTRICTED_IMPERSONATION, impersonation);
+    }
     public boolean registerServer() {
     	return prefs.getBoolean(KEY_REGISTER_SERVER, false);
     }
