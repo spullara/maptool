@@ -454,15 +454,19 @@ public class CommandPanel extends JPanel implements Observer {
 				public void mouseClicked(MouseEvent e) {
 					Color newColor = JColorChooser.showDialog(TextColorWell.this, "Text Color", color);
 					if (newColor != null) {
-						color = newColor;
-						repaint();
-						AppPreferences.setChatColor(color); //Set the Chat Color in AppPreferences
+						setColor(newColor);
 					}
 				}
 			});
 			
 			setToolTipText("Set the color of your speech text");
 		}
+		
+		public void setColor(Color newColor){
+	    	color = newColor;
+			repaint();
+			AppPreferences.setChatColor(color); //Set the Chat Color in AppPreferences
+	    }
 	
 		public Color getColor() {
 			return color;

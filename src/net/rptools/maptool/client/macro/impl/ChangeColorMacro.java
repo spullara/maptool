@@ -28,31 +28,17 @@ import java.awt.Color;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroDefinition;
-import net.rptools.maptool.model.TextMessage;
 
 @MacroDefinition(
-	name = "ooc",
-	aliases = { "ooc" },
-	description = "Out Of Character chat"
+	name = "color",
+	aliases = { "cc" },
+	description = "Change your chat text color via macros.  Color must be in Hexadecimal format.  Example: /cc #ff0099"
 )
-public class OOCMacro extends AbstractMacro {
+public class ChangeColorMacro extends AbstractMacro {
 
 	public void execute(String macro) {
 		macro = processText(macro);
-		StringBuilder sb = new StringBuilder();
-
-		// Prevent spoofing
-		sb.append(MapTool.getFrame().getCommandPanel().getIdentity());
-		sb.append(": ");
-		
-		Color color = MapTool.getFrame().getCommandPanel().getTextColorWell().getColor();
-        if (color != null) {
-        	sb.append("<span style='color:#").append(String.format("%06X", (color.getRGB() & 0xFFFFFF))).append("'>");
-        }
-		sb.append("(( ").append(macro).append(" ))");
-		if (color != null) {
-        	sb.append("</span>");
-        }
-		MapTool.addMessage(TextMessage.say(sb.toString()));
+		Color newColor = Color.decode(macro);
+		MapTool.getFrame().getCommandPanel().getTextColorWell().setColor(newColor);
 	}
 }
