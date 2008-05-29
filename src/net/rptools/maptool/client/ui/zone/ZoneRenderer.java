@@ -861,8 +861,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
             	Area visibleArea = zoneView.getVisibleArea(view);
 	            if (visibleArea != null) {
-	            	buffG.setColor(new Color(0, 0, 0, view.isGMView() ? 80 : 180));
-	            	
+	            	buffG.setColor(new Color(0, 0, 0, 80));
+
 	    	        if (zone.hasFog ()) {
 
 	                    // Fill in the exposed area
