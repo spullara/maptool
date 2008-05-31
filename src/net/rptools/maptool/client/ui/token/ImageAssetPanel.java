@@ -170,7 +170,7 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
         
         List assets = TransferableHelper.getAsset(dtde);
 
-        if (assets == null || assets.size() == 0 || (assets.get(0) instanceof Asset)) {
+        if (assets == null || assets.size() == 0 || !(assets.get(0) instanceof Asset)) {
         	return;
         }
         
