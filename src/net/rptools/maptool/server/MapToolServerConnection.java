@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.rptools.clientserver.hessian.server.ServerConnection;
 import net.rptools.clientserver.simple.server.ServerObserver;
 import net.rptools.maptool.client.ClientCommand;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Player;
 
 /**
@@ -98,7 +99,10 @@ public class MapToolServerConnection extends ServerConnection  implements Server
         }
         
         server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.playerConnected.name(), playerMap.get(conn.getId().toUpperCase()));
-        server.getConnection().callMethod(conn.getId(), ClientCommand.COMMAND.setCampaign.name(), server.getCampaign());
+        if (!MapTool.isHostingServer()) {
+        	// Don't bother sending the campaign file if we're hosting it ourselves
+        	server.getConnection().callMethod(conn.getId(), ClientCommand.COMMAND.setCampaign.name(), server.getCampaign());
+        }
     }
     
     public void connectionRemoved(net.rptools.clientserver.simple.client.ClientConnection conn) {

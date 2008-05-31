@@ -113,8 +113,12 @@ public class AssetManager {
 		}
 		
 		assetMap.put(asset.getId(), asset);
-		
-		putInPersistentCache(asset);
+
+		// Invalid images are represented by empty assets.  
+		// Don't persist those
+		if (asset.getImage().length > 0) {
+			putInPersistentCache(asset);
+		}
 
 		// Clear the waiting status
 		assetLoader.completeRequest(asset.getId());

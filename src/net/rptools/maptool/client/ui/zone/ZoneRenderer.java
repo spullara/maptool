@@ -161,7 +161,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     
     private Timer repaintTimer;
 
-    private int loadingProgress;
+    private String loadingProgress;
     private boolean isLoaded;
 
     private BufferedImage fogBuffer;
@@ -557,7 +557,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             g2d.setColor(Color.black);
             g2d.fillRect(0, 0, size.width , size.height);
             
-            GraphicsUtil.drawBoxedString(g2d, "    Loading ... " + loadingProgress + "%    ", size.width/2, size.height/2);
+            GraphicsUtil.drawBoxedString(g2d, loadingProgress, size.width/2, size.height/2);
             
             return;
         }
@@ -926,7 +926,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         assetSet.remove(null); // remove bad data
         
         // Make sure they are loaded
-        int count = 0;
+        int downloadCount = 0;
+        int cacheCount = 0;
         boolean loaded = true;
         for (MD5Key id : assetSet) {
             
@@ -937,6 +938,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 continue;
             }
             
+            downloadCount ++;
+            
             // Have we loaded the image into memory yet ?
             Image image  = ImageManager.getImage(asset, new ImageObserver[]{});
             if (image == null || image == ImageManager.UNKNOWN_IMAGE ) {
@@ -944,11 +947,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 continue;
             }
 
-            // We made it !  This image is ready
-            count ++;
+            cacheCount ++;
         }
 
-        loadingProgress = (int)((count / (double)assetSet.size()) * 100);
+        loadingProgress = String.format(" Loading Map '%s' - %d/%d Loaded %d/%d Cached", zone.getName(), downloadCount, assetSet.size(), cacheCount, assetSet.size());
 
         isLoaded = loaded;
         

@@ -123,6 +123,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
      * Send the current call to all other clients except for the sender
      */
     private void forwardToClients() {
+    	System.out.println("forward: " + RPCContext.getCurrent().method);
         server.getConnection().broadcastCallMethod(new String[] { RPCContext.getCurrent().id }, RPCContext.getCurrent().method, RPCContext.getCurrent().parameters);
     }
 
@@ -130,14 +131,17 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
      * Send the current call to all clients including the sender
      */
     private void forwardToAllClients() {
+    	System.out.println("forwardAll: " + RPCContext.getCurrent().method);
         server.getConnection().broadcastCallMethod(new String[] {}, RPCContext.getCurrent().method, RPCContext.getCurrent().parameters);
     }
 
     private void broadcastToClients(String exclude, String method, Object... parameters) {
+    	System.out.println("broadcast: " + RPCContext.getCurrent().method);
         server.getConnection().broadcastCallMethod(new String[] { exclude }, method, parameters);
     }
     
     private void broadcastToAllClients(String method, Object... parameters) {
+    	System.out.println("broadcastAll: " + RPCContext.getCurrent().method);
         server.getConnection().broadcastCallMethod(new String[] {}, method, parameters);
     }
     
@@ -218,10 +222,10 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     }
 
     public void getAsset(MD5Key assetID) {
+
     	if (assetID == null || assetID.toString().length() == 0) {
     		return;
     	}
-    	
     	try {
         	AssetProducer producer = new AssetProducer(assetID, AssetManager.getAssetInfo(assetID).getProperty(AssetManager.NAME), AssetManager.getAssetCacheFile(assetID));
 
@@ -233,6 +237,12 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     		
     		// Old fashioned way
             server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putAsset.name(), AssetManager.getAsset(assetID));
+    	} catch (IllegalArgumentException iae) {
+    		// Sending an empty asset will cause a failure of the image to load on the client side, showing a broken
+    		// image instead of blowing up
+    		Asset asset = new Asset("broken", new byte[]{});
+    		asset.setId(assetID);
+            server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putAsset.name(), asset);
     	}
     	
     }

@@ -65,6 +65,7 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignFactory;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.TextMessage;
@@ -465,8 +466,12 @@ public class MapTool {
         	parserRecurseDepth--;
         }
     }
-    
     public static void setCampaign(Campaign campaign) {
+    	Thread.dumpStack();
+    	setCampaign(campaign, null);
+    }
+    
+    public static void setCampaign(Campaign campaign, GUID defaultRendererId) {
     	
     	// Load up the new
     	MapTool.campaign = campaign;
@@ -486,14 +491,14 @@ public class MapTool {
             ZoneRenderer renderer = ZoneRendererFactory.newRenderer(zone);
             clientFrame.addZoneRenderer(renderer);
             
-            if (currRenderer == null && (getPlayer().isGM() || zone.isVisible())){
+            if ((zone.getId().equals(defaultRendererId) || currRenderer == null) && (getPlayer().isGM() || zone.isVisible())){
                 currRenderer = renderer;
             }
             
             eventDispatcher.fireEvent(ZoneEvent.Added, campaign, null, zone);
         }
 
-    	clientFrame.setCurrentZoneRenderer(currRenderer);
+		clientFrame.setCurrentZoneRenderer(currRenderer);
     	
     	AssetManager.updateRepositoryList();
     }
@@ -521,7 +526,6 @@ public class MapTool {
 		server.setCampaign(campaign);
         
 		serverPolicy = server.getPolicy();
-        setCampaign(null);
         
         if (announcer != null) {
         	announcer.stop();

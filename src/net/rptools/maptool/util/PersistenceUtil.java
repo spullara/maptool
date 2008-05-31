@@ -101,18 +101,18 @@ public class PersistenceUtil {
 			persistedCampaign.currentView = currentZoneRenderer.getZoneScale();
 		}
 		
-		// Save all assets in active use
+		// Save all assets in active use (consolidate dups between maps)
+		Set<MD5Key> assetSet = new HashSet<MD5Key>();
 		for (Zone zone : campaign.getZones()) {
-			
-			Set<MD5Key> assetSet = zone.getAllAssetIds();
-			for (MD5Key key : assetSet) {
+			assetSet.addAll(zone.getAllAssetIds());
+		}			
+		for (MD5Key key : assetSet) {
 				
 				// Put in a placeholder 
 				persistedCampaign.assetMap.put(key, null);
 				
 				// And store the asset elsewhere
 				pakFile.putFile("assets/" + key, AssetManager.getAsset(key));
-			}
 		}
 		
 		pakFile.setContent(persistedCampaign);

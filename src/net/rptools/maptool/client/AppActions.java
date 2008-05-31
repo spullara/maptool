@@ -1282,7 +1282,9 @@ public class AppActions {
 						if (serverProps.getUseUPnP()) {
 							UPnPUtil.openPort(serverProps.getPort());
 						}
-						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, campaign);
+						
+						// Make a copy of the campaign since we don't coordinate local changes well ... yet
+						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, new Campaign(campaign));
 
 						// Connect to server
 						MapTool.createConnection("localhost", serverProps.getPort(),
@@ -1309,8 +1311,6 @@ public class AppActions {
 									.showError("Could not restart personal server");
 						}
 					}
-
-					MapTool.serverCommand().setCampaign(campaign);
 				}
 			});
 		}
@@ -1376,6 +1376,9 @@ public class AppActions {
 						} catch (IOException ioe) {
 							MapTool.showError("Could not restart personal server");
 						}
+					} else {
+						MapTool.getFrame().hideGlassPane();
+						MapTool.getFrame().showFilledGlassPane(new StaticMessageDialog("Loading Campaign"));
 					}
 				}
 			});
@@ -1498,7 +1501,12 @@ public class AppActions {
 //							} else {
 								MapTool.serverCommand().setCampaign(campaign.campaign);
 //							}
-							MapTool.setCampaign(campaign.campaign);
+
+							// TODO: This is wrong
+							if (campaign.currentView != null && MapTool.getFrame().getCurrentZoneRenderer() != null) {
+								MapTool.getFrame().getCurrentZoneRenderer().setZoneScale(campaign.currentView);
+							}
+							MapTool.setCampaign(campaign.campaign, campaign.currentZoneId);
 							
 							MapTool.getAutoSaveManager().restart();
 							MapTool.getAutoSaveManager().tidy();
@@ -1508,14 +1516,6 @@ public class AppActions {
 							// don't want the old campaign reloading images while we loaded the new campaign
 							ImageManager.flush();
 
-							if (campaign.currentZoneId != null) {
-								MapTool.getFrame().setCurrentZoneRenderer(MapTool.getFrame().getZoneRenderer(campaign.currentZoneId));
-
-								// TODO: This is wrong
-								if (campaign.currentView != null && MapTool.getFrame().getCurrentZoneRenderer() != null) {
-									MapTool.getFrame().getCurrentZoneRenderer().setZoneScale(campaign.currentView);
-								}
-							}			
 						}
 
 					} finally {
