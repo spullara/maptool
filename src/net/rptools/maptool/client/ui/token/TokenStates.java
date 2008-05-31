@@ -58,6 +58,9 @@ public class TokenStates {
         putOverlay(new OTokenOverlay("Prone", Color.BLUE, 5));
         putOverlay(new OTokenOverlay("Incapacitated", Color.RED, 5));
         putOverlay(new ColorDotTokenOverlay("Other", Color.RED, null));
+        putOverlay(new DiamondTokenOverlay("Other2", Color.RED, 5));
+        putOverlay(new YieldTokenOverlay("Other3", Color.YELLOW, 5));
+        putOverlay(new TriangleTokenOverlay("Other4", Color.MAGENTA, 5));
     }
 
     /**

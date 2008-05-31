@@ -35,11 +35,14 @@ import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.ui.token.ColorDotTokenOverlay;
 import net.rptools.maptool.client.ui.token.CrossTokenOverlay;
+import net.rptools.maptool.client.ui.token.DiamondTokenOverlay;
 import net.rptools.maptool.client.ui.token.OTokenOverlay;
 import net.rptools.maptool.client.ui.token.ShadedTokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenStates;
+import net.rptools.maptool.client.ui.token.TriangleTokenOverlay;
 import net.rptools.maptool.client.ui.token.XTokenOverlay;
+import net.rptools.maptool.client.ui.token.YieldTokenOverlay;
 import net.rptools.maptool.model.drawing.AbstractTemplate.Quadrant;
 
 /**
@@ -124,9 +127,15 @@ public class AddTokenStateMacro implements Macro {
       tokenOverlay = createXOverlay(name, param1, param2);
     } else if (overlay.equals("cross")) {
       tokenOverlay = createCrossOverlay(name, param1, param2);
+    } else if (overlay.equals("diamond")) {
+        tokenOverlay = createDiamondOverlay(name, param1, param2);
+    } else if (overlay.equals("yield")) {
+        tokenOverlay = createYieldOverlay(name, param1, param2);
+    } else if (overlay.equals("triangle")) {
+        tokenOverlay = createTriangleOverlay(name, param1, param2);
     } else {
       MapTool.addLocalMessage("There is no overlay type with the name '" + overlay + "'. Valid types are " +
-          "dot, circle, shade, X, and cross");
+          "dot, circle, shade, X, cross, diamond, yield or triangle");
       throw new IllegalArgumentException("There is no overlay type with the name '" + overlay + "'.");
     } // endif
     TokenStates.putOverlay(tokenOverlay);
@@ -174,7 +183,7 @@ public class AddTokenStateMacro implements Macro {
   }
   
   /**
-   * Create a circle overlay.
+   * Create a cross overlay.
    * 
    * @param name Name of the new overlay.
    * @param color The color paramter value
@@ -182,11 +191,29 @@ public class AddTokenStateMacro implements Macro {
    * @return The new token overlay.
    */
   private TokenOverlay createCrossOverlay(String name, String color, String width) {
-    Color circleColor = findColor(color);
-    int lineWidth = findInteger(width, 5);
-    return new CrossTokenOverlay(name, circleColor, lineWidth);
-  }
+	    Color circleColor = findColor(color);
+	    int lineWidth = findInteger(width, 5);
+	    return new CrossTokenOverlay(name, circleColor, lineWidth);
+	  }
+	  
+	  private TokenOverlay createDiamondOverlay(String name, String color, String width) {
+		Color circleColor = findColor(color);
+		int lineWidth = findInteger(width, 5);
+		return new DiamondTokenOverlay(name, circleColor, lineWidth);
+	  }
   
+	  private TokenOverlay createYieldOverlay(String name, String color, String width) {
+	    Color circleColor = findColor(color);
+	    int lineWidth = findInteger(width, 5);
+	    return new YieldTokenOverlay(name, circleColor, lineWidth);
+	  }
+	  
+	  private TokenOverlay createTriangleOverlay(String name, String color, String width) {
+	    Color circleColor = findColor(color);
+	    int lineWidth = findInteger(width, 5);
+	    return new TriangleTokenOverlay(name, circleColor, lineWidth);
+	  }
+	  
   /**
    * Create a dot overlay.
    * 
