@@ -107,6 +107,10 @@ public class MapToolServer {
     	conn.removeObserver(observer);
     }
     
+    public boolean isHostId(String playerId) {
+    	return config.getHostPlayerId() != null && config.getHostPlayerId().equals(playerId);
+    }
+    
     public MapToolServerConnection getConnection() {
         return conn;
     }

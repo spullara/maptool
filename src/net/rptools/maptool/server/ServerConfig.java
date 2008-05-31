@@ -36,6 +36,7 @@ public class ServerConfig {
     public static final int PORT_RANGE_END = 20000;
 
 	private int port;
+	private String hostPlayerId;
 	private String gmPassword;
 	private String playerPassword;
 	private boolean personalServer;
@@ -45,11 +46,16 @@ public class ServerConfig {
 		/* no op */
 	}
 	
-	public ServerConfig(String gmPassword, String playerPassword, int port, String serverName) {
+	public ServerConfig(String hostPlayerId, String gmPassword, String playerPassword, int port, String serverName) {
+		this.hostPlayerId = hostPlayerId;
 		this.gmPassword = gmPassword;
 		this.playerPassword = playerPassword;
 		this.port = port;
 		this.serverName = serverName;
+	}
+	
+	public String getHostPlayerId() {
+		return hostPlayerId;
 	}
 	
 	public boolean isServerRegistered() {

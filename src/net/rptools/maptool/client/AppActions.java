@@ -1267,7 +1267,7 @@ public class AppActions {
 					//my addition
 					policy.setRestrictedImpersonation(serverProps.getRestrictedImpersonation());
 
-					ServerConfig config = new ServerConfig(serverProps.getGMPassword(), serverProps.getPlayerPassword(),
+					ServerConfig config = new ServerConfig(serverProps.getUsername(), serverProps.getGMPassword(), serverProps.getPlayerPassword(),
 							serverProps.getPort(), serverProps.getRPToolsName());
 
 					// Use the existing campaign
@@ -1361,6 +1361,9 @@ public class AppActions {
 						ConnectToServerDialogPreferences prefs = new ConnectToServerDialogPreferences();
 						MapTool.createConnection(dialog.getServer(), dialog.getPort(), new Player(prefs.getUsername(), prefs.getRole(), prefs.getPassword()));
 
+						MapTool.getFrame().hideGlassPane();
+						MapTool.getFrame().showFilledGlassPane(new StaticMessageDialog("Loading Campaign"));
+
 					} catch (UnknownHostException e1) {
 						MapTool.showError("Unknown host");
 						failed = true;
@@ -1376,10 +1379,8 @@ public class AppActions {
 						} catch (IOException ioe) {
 							MapTool.showError("Could not restart personal server");
 						}
-					} else {
-						MapTool.getFrame().hideGlassPane();
-						MapTool.getFrame().showFilledGlassPane(new StaticMessageDialog("Loading Campaign"));
 					}
+					
 				}
 			});
 
