@@ -16,7 +16,6 @@ public class MapToolRegistry {
 	
 	static {
 		HessianProxyFactory factory = new HessianProxyFactory();
-		factory.setHessian2Request(true);
 		factory.setChunkedPost(false);
 		try {
 			service = (MapToolRegistryService) factory.create(MapToolRegistryService.class, SERVICE_URL);
@@ -97,6 +96,7 @@ public class MapToolRegistry {
 //		System.out.println ("UnRegister");
 //		unregisterInstance(4444);
 		
+		System.out.println("Test: " + testConnection(51234));
 		System.out.println("All instances: " + findAllInstances());
 	}
 }
