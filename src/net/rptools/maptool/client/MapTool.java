@@ -467,7 +467,6 @@ public class MapTool {
         }
     }
     public static void setCampaign(Campaign campaign) {
-    	Thread.dumpStack();
     	setCampaign(campaign, null);
     }
     
