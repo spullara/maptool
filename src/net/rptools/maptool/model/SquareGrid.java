@@ -25,6 +25,8 @@ import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
 
 public class SquareGrid extends Grid {
 
+	private static final String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 	private static final Dimension CELL_OFFSET = new Dimension(0, 0);
 	
 	private static BufferedImage pathHighlight;
@@ -101,7 +103,7 @@ public class SquareGrid extends Grid {
 		nextAvailableSpace = -1;
 		while (y < size.height) {
 			
-			String coord = Integer.toString(topLeft.y);
+			String coord = decimalToAlphaCoord(topLeft.y);
 			
 			int strY = (int)y + fm.getAscent()/2;
 
@@ -246,4 +248,29 @@ public class SquareGrid extends Grid {
 		return zp;
 	}
 
+	public static String decimalToAlphaCoord(int value) {
+		String result = new String();
+		int temp;
+		boolean isNegative = false;
+
+		if (value < 0) {
+			value *= -1;
+			value--; // Shift down so -1 is -A instead of -B
+			isNegative = true;
+		}
+
+		while(value >= 26) {
+			temp = value % 26;
+			value = (value - temp)/26 - 1;
+			result = alpha.charAt(temp) + result;
+		}
+
+		result = alpha.charAt(value) + result;
+
+		if (isNegative) {
+			result = "-" + result;
+		}
+
+		return result;
+	}
 }
