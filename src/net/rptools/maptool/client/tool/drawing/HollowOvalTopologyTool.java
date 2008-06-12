@@ -56,7 +56,7 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
     
 	@Override
     public String getInstructions() {
-    	return "tool.ovaltpology.instructions";
+    	return "tool.ovaltopology.instructions";
     }
     
     @Override

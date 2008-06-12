@@ -96,17 +96,23 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
 
     	if (SwingUtilities.isLeftMouseButton(e)) {
 	    	ZonePoint zp = getPoint(e);
-	        
+	        	
 	        if (oval == null) {
 	        	originPoint = zp;
 	        	oval = createRect(zp, zp);
 	        } else {
 	        	oval = createRect(originPoint, zp);
-	    		oval.x -= oval.width;
-	    		oval.y -= oval.height;
-	    		
-	    		oval.width *= 2;
-	    		oval.height *= 2;
+
+	        	if (! e.isAltDown()) {
+		    		if (zp.x > originPoint.x)
+		    			oval.x -= oval.width;
+		    		
+		    		if (zp.y > originPoint.y)
+		    			oval.y -= oval.height;
+		    		
+		    		oval.width *= 2;
+		    		oval.height *= 2;
+	        	}
 	            
 	            completeDrawable(renderer.getZone().getId(), getPen(), new ShapeDrawable(new Ellipse2D.Float(oval.x, oval.y, oval.width, oval.height), true));
 	            oval = null;
@@ -130,17 +136,22 @@ public class OvalTool extends AbstractDrawingTool implements MouseMotionListener
      * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
      */
     public void mouseMoved(MouseEvent e) {
-    	
     	if (oval != null) {
 
     		ZonePoint sp = getPoint(e);
     		
     		oval = createRect(originPoint, sp);
-    		oval.x -= oval.width;
-    		oval.y -= oval.height;
     		
-    		oval.width *= 2;
-    		oval.height *= 2;
+        	if (! e.isAltDown()) {
+	    		if (sp.x > originPoint.x)
+	    			oval.x -= oval.width;
+	    		
+	    		if (sp.y > originPoint.y)
+	    			oval.y -= oval.height;
+	    		
+	    		oval.width *= 2;
+	    		oval.height *= 2;
+        	}
 	        
 	        renderer.repaint();
     	}

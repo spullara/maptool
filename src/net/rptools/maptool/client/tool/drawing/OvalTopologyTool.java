@@ -56,12 +56,12 @@ public class OvalTopologyTool extends AbstractDrawingTool implements MouseMotion
 
 	@Override
     public String getInstructions() {
-    	return "tool.ovaltpology.instructions";
+    	return "tool.ovaltopology.instructions";
     }
     
     @Override
     public String getTooltip() {
-        return "Draw a oval topology";
+        return "Draw an oval topology";
     }
 
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
