@@ -135,12 +135,12 @@ public class GridTool extends DefaultTool {
         
         zoomSlider = (JSlider) controlPanel.getComponentByName("zoomSlider");
         zoomSlider.setMinimum(0);
-        zoomSlider.setMaximum(Scale.getScaleCount());
+        zoomSlider.setMaximum(500);
         zoomSlider.addChangeListener(new ChangeListener(){
         	public void stateChanged(ChangeEvent e) {
         		ZonePoint zp = new ScreenPoint(renderer.getSize().width/2, renderer.getSize().height/2).convertToZone(renderer);
 
-        		renderer.setScaleIndex(zoomSlider.getValue());
+        		renderer.setScale(zoomSlider.getValue());
         		renderer.centerOn(zp);
         		copyControlPanelToGrid();
         	}
@@ -172,7 +172,7 @@ public class GridTool extends DefaultTool {
 		gridOffsetXTextField.setText(Integer.toString(grid.getOffsetX()));
 		gridOffsetYTextField.setText(Integer.toString(grid.getOffsetY()));
 		colorWell.setColor(new Color(zone.getGridColor()));
-		zoomSlider.setValue(renderer.getScaleIndex());
+		zoomSlider.setValue((int)renderer.getScale());
 
 	}
 	

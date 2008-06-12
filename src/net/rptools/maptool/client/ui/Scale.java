@@ -34,13 +34,10 @@ import java.util.List;
 
 public class Scale implements Serializable {
 
-    private int              scaleIndex;
-    private static double     startScale = .01f;
-    private static double     endScale = 20;
-    private static double[]   scaleArray;
+	private double oneToOneScale = 1; // Let this be configurable at some point
+	private double scale = oneToOneScale;
+	private double scaleIncrement = .075;
     
-    public static int SCALE_1TO1_INDEX; // Automatically scanned for
-
     public static String PROPERTY_SCALE = "scale";
     public static String PROPERTY_OFFSET = "offset";
     
@@ -54,49 +51,14 @@ public class Scale implements Serializable {
     
     private boolean initialized;
     
-    static {
-
-    	// LATER: This whole process needs to be rewritten to be more 
-    	// configurable
-    	boolean lessThanOne = true;
-    	List<Double> scaleList = new ArrayList<Double>();
-    	double scale = startScale;
-    	while (scale <= endScale) {
-    		
-    		if (scale < .1) {
-    			scale += .01;
-    		} else if (scale < 1) {
-    			scale += .05;
-    		} else {
-    			scale += .15;
-    		}
-    		
-    		scale = Math.round(scale*1000)/1000.0;
-
-    		scaleList.add(scale);
-    		
-    		if (scale > 1 && lessThanOne) {
-    			SCALE_1TO1_INDEX = scaleList.size()-1; 
-    			lessThanOne = false;
-    		}
-    	}
-    	
-    	scaleArray = new double[scaleList.size()];
-    	for (int i = 0; i < scaleArray.length; i++) {
-    		scaleArray[i] = scaleList.get(i);
-    	}
-    }
-
-    public static int getScaleCount() {
-    	return scaleArray.length;
-    }
+    // LEGACY for 1.3b31 and earlier
+    private int              scaleIndex;
     
     public Scale() {
     	this(0, 0);
     }
     
     public Scale(int width, int height) {
-        scaleIndex = SCALE_1TO1_INDEX;
         this.width = width;
         this.height = height;
     }
@@ -136,47 +98,34 @@ public class Scale implements Serializable {
     	getPropertyChangeSupport().firePropertyChange(PROPERTY_OFFSET, new Point(oldX, oldY), new Point(offsetX, offsetY));
     }
     
-    public int getIndex() {
-        return scaleIndex;
+    public double getScale() {
+        return scale;
     }
     
-    public void setIndex(int index) {
-        index = Math.max(index, 0);
-        index = Math.min(index, scaleArray.length - 1);
+    public void setScale(double scale) {
+    	double oldScale = this.scale;
+        this.scale = scale;
 
-        int oldIndex = scaleIndex;
-        
-        scaleIndex = index;
-        
-        getPropertyChangeSupport().firePropertyChange(PROPERTY_SCALE, oldIndex, scaleIndex);
+        getPropertyChangeSupport().firePropertyChange(PROPERTY_SCALE, oldScale, scale);
     }
     
     public double reset() {
-    	double oldScale = scaleArray[scaleIndex];
-        scaleIndex = SCALE_1TO1_INDEX;
+    	double oldScale = this.scale;
+        scale = oneToOneScale;
 
-        getPropertyChangeSupport().firePropertyChange(PROPERTY_SCALE, oldScale, scaleIndex);
+        getPropertyChangeSupport().firePropertyChange(PROPERTY_SCALE, oldScale, scale);
         return oldScale;
-    }
-    
-    public int getOneToOneScaleIndex() {
-    	return SCALE_1TO1_INDEX;
-    }
-    
-    public double getScale() {
-        return scaleArray[scaleIndex];
     }
     
     public double scaleUp() {
-    	double oldScale = getScale();
-        setIndex(scaleIndex+1);
-        return oldScale;
+    	
+        setScale(scale * (1+scaleIncrement));
+        return scale;
     }
     
     public double scaleDown() {
-    	double oldScale = getScale();
-        setIndex(scaleIndex - 1);
-        return oldScale;
+        setScale(scale * (1-scaleIncrement));
+        return scale;
     }
     
     public void zoomReset() {
@@ -184,11 +133,15 @@ public class Scale implements Serializable {
     }
 
     public void zoomIn(int x, int y) {
-        zoomTo(x, y, scaleUp());
+    	double oldScale = scale;
+    	scaleUp();
+        zoomTo(x, y, oldScale);
     }
 
     public void zoomOut(int x, int y) {
-        zoomTo(x, y, scaleDown());
+    	double oldScale = scale;
+    	scaleDown();
+        zoomTo(x, y, oldScale);
     }
     
     public boolean isInitialized() {
@@ -215,7 +168,6 @@ public class Scale implements Serializable {
     		return false;
     	}
     	
-    	findScaleToFit(width-20, height-20);
     	centerIn(width, height);
     	
     	initialized = true;
@@ -233,35 +185,14 @@ public class Scale implements Serializable {
     	setOffset(x, y);
     }
     
-    public void findScaleToFit(int width, int height) {
-    	
-    	if (this.width == 0 || this.height == 0) {
-    		return;
-    	}
-    	
-    	// Find the scale that makes the size exceed the given dimensions
-    	for (int i = 0; i < scaleArray.length; i ++) {
-    		double scale = scaleArray[i];
-    		if (this.width * scale > width || this.height * scale > height) {
-    			setIndex(i-1);
-    			return;
-    		}
-    	}
-    	
-    	// No scale was too big
-    	setIndex(scaleArray.length-1);
-    }
-    
     private void zoomTo(int x, int y, double oldScale) {
-
-        double newScale = getScale();
 
         // Keep the current pixel centered
         x -= offsetX;
         y -= offsetY;
 
-        int newX = (int) ((x * newScale) / oldScale);
-        int newY = (int) ((y * newScale) / oldScale);
+        int newX = (int) ((x * scale) / oldScale);
+        int newY = (int) ((y * scale) / oldScale);
 
         offsetX = offsetX-(newX - x);
         offsetY = offsetY-(newY - y);

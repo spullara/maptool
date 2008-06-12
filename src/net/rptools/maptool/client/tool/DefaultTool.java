@@ -104,7 +104,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         if (isDraggingMap && SwingUtilities.isRightMouseButton(e)) {
             if (AppState.isPlayerViewLinked()) {
             	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
-    			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
+    			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
             }           
         }
 
@@ -250,7 +250,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		}
         if (AppState.isPlayerViewLinked()) {
         	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
-			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScaleIndex());
+			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
         }
 		
 	}	

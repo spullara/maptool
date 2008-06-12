@@ -77,7 +77,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         	case bootPlayer:			  bootPlayer(context.getString(0)); break;
             case bringTokensToFront:      bringTokensToFront(context.getGUID(0), (Set<GUID>) context.get(1)); break;
             case draw:                    draw(context.getGUID(0), (Pen) context.get(1), (Drawable) context.get(2)); break;
-            case enforceZoneView:         enforceZoneView(context.getGUID(0), context.getInt(1), context.getInt(2), context.getInt(3)); break;
+            case enforceZoneView:         enforceZoneView(context.getGUID(0), context.getInt(1), context.getInt(2), context.getDouble(3)); break;
             case exposeFoW:               exposeFoW(context.getGUID(0), (Area) context.get(1)); break;
             case getAsset:                getAsset((MD5Key) context.get(0)); break;
             case getZone:                 getZone(context.getGUID(0)); break;
@@ -205,7 +205,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         zone.addDrawable(new DrawnElement(drawable, pen));
     }
     
-    public void enforceZoneView(GUID zoneGUID, int x, int y, int zoomIndex) {
+    public void enforceZoneView(GUID zoneGUID, int x, int y, double scale) {
         forwardToClients();
     }
     
@@ -500,6 +500,10 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         
         public Integer getInt(int index) {
             return (Integer) parameters[index];
+        }
+        
+        public Double getDouble(int index) {
+        	return (Double) parameters[index];
         }
         
         public Object get(int index) {

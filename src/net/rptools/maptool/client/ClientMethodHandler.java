@@ -221,14 +221,14 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                     zoneGUID = (GUID) parameters[0];
                     int x = (Integer)parameters[1];
                     int y = (Integer)parameters[2];
-                    int zoomIndex = (Integer)parameters[3];
+                    double scale = (Double)parameters[3];
                     
                     renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
                     if (renderer == null) {
                         return;
                     }
                     
-                    renderer.setScaleIndex(zoomIndex);
+                    renderer.setScale(scale);
                     renderer.centerOn(new ZonePoint(x, y));
 
                     break;

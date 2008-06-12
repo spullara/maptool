@@ -130,7 +130,7 @@ public class AdjustGridDialog extends JDialog {
         
         zoomSlider = (JSlider) panel.getComponentByName("zoom");
         zoomSlider.setMinimum(0);
-        zoomSlider.setMaximum(Scale.getScaleCount());
+        zoomSlider.setMaximum(500);
         zoomSlider.addChangeListener(new ZoomChangeListener());
         
         FormAccessor accessor = panel.getFormAccessor();

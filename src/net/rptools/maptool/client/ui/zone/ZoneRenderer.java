@@ -174,7 +174,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	private int lastY;
 
     private BufferedImage cellShape;
-    private int lastScale;
+    private double lastScale;
 
     private Area visibleScreenArea;
     
@@ -503,11 +503,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		MapTool.getFrame().getZoomStatusBar().update();
     }
 
-    public void setView(int x, int y, int zoomIndex) {
+    public void setView(int x, int y, double scale) {
         
         setViewOffset(x, y);
 
-        zoneScale.setIndex(zoomIndex);
+        zoneScale.setScale(scale);
 		MapTool.getFrame().getZoomStatusBar().update();
     }
     
@@ -980,7 +980,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		}
 
 		Scale scale = getZoneScale();
-		if (scale.getOffsetX() != lastX || scale.getOffsetY() != lastY || scale.getIndex() != lastScale) {
+		if (scale.getOffsetX() != lastX || scale.getOffsetY() != lastY || scale.getScale() != lastScale) {
 			drawBackground = true;
 		}
 		
@@ -1005,7 +1005,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 		lastX = scale.getOffsetX();
 		lastY = scale.getOffsetY();
-		lastScale = scale.getIndex();
+		lastScale = scale.getScale();
 		
 		g.drawImage(backbuffer, 0, 0, this);
 	}    
@@ -2067,19 +2067,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         return zone.getGrid().convert(zp);
     }
  
+    public void setScale(double scale) {
+    	zoneScale.setScale(scale);
+    }
+    
     public double getScale() {
         return zoneScale.getScale();
     }
 
-    public int getScaleIndex() {
-        // Used when enforcing view
-        return zoneScale.getIndex();
-    }
-    
-    public void setScaleIndex(int index) {
-        zoneScale.setIndex(index);
-    }
-    
     public double getScaledGridSize() {
         // Optimize: only need to calc this when grid size or scale changes
         return getScale() * zone.getGrid().getSize();

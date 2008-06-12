@@ -114,7 +114,7 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
     }
 
     public void setZoomIndex(int index) {
-    	scale.setIndex(index);
+    	scale.setScale(index);
     	repaint();
     }
     
@@ -128,7 +128,7 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
         Dimension size = getSize();
         
         if (scale.initialize(size.width, size.height)) {
-	    	propertyChangeSupport.firePropertyChange(PROPERTY_ZOOM, 0, scale.getIndex());
+	    	propertyChangeSupport.firePropertyChange(PROPERTY_ZOOM, 0, (int)scale.getScale());
         }
 
         // CALCULATIONS
@@ -377,13 +377,13 @@ public class AdjustGridPanel extends JComponent implements MouseListener, MouseM
 
         if (SwingUtil.isControlDown(e)) {
         	
-        	int oldZoom = scale.getIndex();
+        	double oldScale = scale.getScale();
 	    	if (e.getWheelRotation() > 0) {
 	    		scale.zoomOut(e.getX(), e.getY());
 	    	} else {
 	    		scale.zoomIn(e.getX(), e.getY());
 	    	}
-	    	propertyChangeSupport.firePropertyChange(PROPERTY_ZOOM, oldZoom, scale.getIndex());
+	    	propertyChangeSupport.firePropertyChange(PROPERTY_ZOOM, oldScale, scale.getScale());
         } else {
 
             if (e.getWheelRotation() > 0) {

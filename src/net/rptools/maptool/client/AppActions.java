@@ -718,7 +718,7 @@ public class AppActions {
 						renderer.getHeight() / 2).convertToZone(renderer);
 				MapTool.serverCommand().enforceZoneView(
 						renderer.getZone().getId(), zp.x, zp.y,
-						renderer.getScaleIndex());
+						renderer.getScale());
 			}
 		}
 
@@ -845,7 +845,7 @@ public class AppActions {
 			ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2, renderer
 					.getHeight() / 2).convertToZone(renderer);
 			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(),
-					zp.x, zp.y, renderer.getScaleIndex());
+					zp.x, zp.y, renderer.getScale());
 		}
 
 	};
@@ -1128,7 +1128,7 @@ public class AppActions {
 							renderer.getHeight() / 2).convertToZone(renderer);
 					MapTool.serverCommand().enforceZoneView(
 							renderer.getZone().getId(), zp.x, zp.y,
-							renderer.getScaleIndex());
+							renderer.getScale());
 				}
 			}
 		}
@@ -1150,14 +1150,14 @@ public class AppActions {
 						renderer.getHeight() / 2).convertToZone(renderer);
 				MapTool.serverCommand().enforceZoneView(
 						renderer.getZone().getId(), zp.x, zp.y,
-						renderer.getScaleIndex());
+						renderer.getScale());
 			}
 		}
 	};
 
 	public static final Action ZOOM_RESET = new DefaultClientAction() {
 		
-		private Integer lastZoom;
+		private Double lastZoom;
 		
 		{
 			init("action.zoom100");
@@ -1167,18 +1167,18 @@ public class AppActions {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			if (renderer != null) {
 
-				int scale = renderer.getScaleIndex();
+				double scale = renderer.getScale();
 
 				// Revert to last zoom if we have one, but don't if the user has manually 
 				// changed the scale since the last reset zoom (one to one index)
-				if (lastZoom != null && renderer.getZoneScale().getOneToOneScaleIndex() == scale) {
+				if (lastZoom != null && renderer.getScale() == scale) {
 					// Go back to the previous zoom
-					renderer.setScaleIndex(lastZoom);
+					renderer.setScale(lastZoom);
 					
 					// But make sure the next time we'll go back to 1:1
 					lastZoom = null;
 				} else {
-					lastZoom = renderer.getScaleIndex();
+					lastZoom = renderer.getScale();
 					renderer.zoomReset();
 				}
 			}
@@ -1187,7 +1187,7 @@ public class AppActions {
 						renderer.getHeight() / 2).convertToZone(renderer);
 				MapTool.serverCommand().enforceZoneView(
 						renderer.getZone().getId(), zp.x, zp.y,
-						renderer.getScaleIndex());
+						renderer.getScale());
 			}
 		}
 	};

@@ -32,5 +32,6 @@
 <booleanAttribute key="yk-disable-counts" value="false"/>
 <booleanAttribute key="yk-launch-ui" value="true"/>
 <intAttribute key="yk-mem-threshold" value="0"/>
+<stringAttribute key="yk-options" value="&#13;&#10;snapshots-dir=&#13;&#10;startup=0&#13;&#10;"/>
 <booleanAttribute key="yk-startup-with-object-allocations" value="false"/>
 </launchConfiguration>
