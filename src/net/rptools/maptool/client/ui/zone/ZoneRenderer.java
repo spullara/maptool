@@ -124,7 +124,7 @@ import net.rptools.maptool.util.TokenUtil;
 public class ZoneRenderer extends JComponent implements DropTargetListener, Comparable {
     private static final long serialVersionUID = 3832897780066104884L;
 
-    public static final int MIN_GRID_SIZE = 5;
+    public static final int MIN_GRID_SIZE = 10;
     
     protected Zone zone;
 
@@ -228,6 +228,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         } else {
             showPathList.remove(token);
         }
+    }
+    
+    public ZonePoint getCenterPoint() {
+    	return new ScreenPoint(getSize().width/2, getSize().height/2).convertToZone(this);
     }
     
     public boolean isPathShowing(Token token) {
