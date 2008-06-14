@@ -25,12 +25,15 @@
 package net.rptools.maptool.client.tool;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.IOException;
 import java.util.Map;
@@ -71,6 +74,8 @@ import com.jeta.forms.components.panel.FormPanel;
 public class GridTool extends DefaultTool {
     private static final long serialVersionUID = 3760846783148208951L;
 
+    private static final int zoomSliderStopCount = 100;
+
     private static enum Size { Increase, Decrease };
 
     private JSpinner gridSizeSpinner;
@@ -78,6 +83,7 @@ public class GridTool extends DefaultTool {
     private JTextField gridOffsetYTextField;
     private JETAColorWell colorWell;
     private JSlider zoomSlider;
+    private int lastZoomIndex;
     
     private JTextField gridSecondDimension;
     private JETALabel gridSecondDimensionLabel;
@@ -133,17 +139,10 @@ public class GridTool extends DefaultTool {
         
         zoomSlider = (JSlider) controlPanel.getComponentByName("zoomSlider");
         zoomSlider.setMinimum(0);
-        zoomSlider.setMaximum(500);
-        zoomSlider.addChangeListener(new ChangeListener(){
-        	public void stateChanged(ChangeEvent e) {
-        		ZonePoint zp = new ScreenPoint(renderer.getSize().width/2, renderer.getSize().height/2).convertToZone(renderer);
-
-        		renderer.setScale(zoomSlider.getValue());
-        		renderer.centerOn(zp);
-        		copyControlPanelToGrid();
-        	}
-        });
-        
+        zoomSlider.setMaximum(zoomSliderStopCount);
+        ZoomChangeListener zoomListener = new ZoomChangeListener();
+        zoomSlider.addChangeListener(zoomListener);
+        zoomSlider.addMouseListener(zoomListener);
     }
 	
 	@Override
@@ -170,8 +169,8 @@ public class GridTool extends DefaultTool {
 		gridOffsetXTextField.setText(Integer.toString(grid.getOffsetX()));
 		gridOffsetYTextField.setText(Integer.toString(grid.getOffsetY()));
 		colorWell.setColor(new Color(zone.getGridColor()));
-		zoomSlider.setValue((int)renderer.getScale());
 
+        resetZoomSlider();
 	}
 	
 	/**
@@ -352,6 +351,15 @@ public class GridTool extends DefaultTool {
         }
     }
     
+    private void resetZoomSlider() {
+    	EventQueue.invokeLater(new Runnable() {
+    		public void run() {
+    	    	lastZoomIndex = zoomSliderStopCount/2;
+    	    	zoomSlider.setValue(lastZoomIndex);
+    		}
+    	});
+    }
+    
     private void adjustGridSize(ZoneRenderer renderer, Size direction) {
     	
     	CellPoint cell = renderer.getCellAt(new ScreenPoint(mouseX, mouseY));
@@ -423,7 +431,35 @@ public class GridTool extends DefaultTool {
         }
     }
     
-    ////
+	private class ZoomChangeListener extends MouseAdapter implements ChangeListener {
+		public void stateChanged(ChangeEvent e) {
+			
+			int delta = zoomSlider.getValue() - lastZoomIndex;
+			if (delta == 0) {
+				return;
+			}
+			
+			boolean direction = delta > 0;
+			delta = Math.abs(delta);
+			ZonePoint centerPoint = renderer.getCenterPoint();
+			System.out.println("Center: " + centerPoint);
+			for (int i = 0; i < delta; i++) {
+				if (direction) {
+					renderer.getZoneScale().zoomOut(centerPoint.x, centerPoint.y);
+				} else {
+					renderer.getZoneScale().zoomIn(centerPoint.x, centerPoint.y);
+				}
+			}
+			
+			lastZoomIndex = zoomSlider.getValue();
+		}
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			resetZoomSlider();
+		}
+	}
+
+	////
     // ACTIONS
     private class UpdateGridListener implements KeyListener, ChangeListener, FocusListener {
     	public void keyPressed(KeyEvent e) {
