@@ -24,11 +24,9 @@
  */
 package net.rptools.maptool.client.tool.drawing;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.io.IOException;
 
@@ -38,7 +36,6 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -82,17 +79,17 @@ public class HollowRectangleTopologyTool extends AbstractDrawingTool implements 
 
 	@Override
     public String getInstructions() {
-    	return "tool.recttpology.instructions";
+    	return "tool.recttopology.instructions";
     }
     
     @Override
     public String getTooltip() {
-        return "Draw a rectanglar topology";
+        return "tool.recttopologyhollow.tooltip";
     }
 
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
 
-    	Color oldColor = g.getColor();
+    	//Color oldColor = g.getColor();
 
     	if (MapTool.getPlayer().isGM()) {
 	    	Zone zone = renderer.getZone();

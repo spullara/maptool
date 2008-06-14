@@ -42,8 +42,6 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-import com.jeta.forms.components.colors.JETAColorWell;
-
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppStyle;
@@ -52,8 +50,11 @@ import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.ZonePoint;
+
+import com.jeta.forms.components.colors.JETAColorWell;
 
 /**
  */
@@ -90,7 +91,7 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 	
     @Override
     public String getTooltip() {
-        return "Put text onto the zone";
+        return "tool.label.tooltip";
     }
     
     @Override
@@ -226,7 +227,7 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
     	private boolean accepted;
 
     	public EditLabelDialog(Label label) {
-    		super(MapTool.getFrame(), "Edit Label", true);
+    		super(MapTool.getFrame(), I18N.getText("tool.label.dialogtitle"), true);
     		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     		
     		EditLabelPanel panel = new EditLabelPanel(this); 

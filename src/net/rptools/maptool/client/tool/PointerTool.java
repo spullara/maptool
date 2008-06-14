@@ -193,7 +193,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	
     @Override
     public String getTooltip() {
-        return "Pointer tool";
+        return "tool.pointer.tooltip";
     }
 
     public void startTokenDrag(Token keyToken) {

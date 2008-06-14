@@ -67,7 +67,7 @@ public class MeasureTool extends DefaultTool implements ZoneOverlay {
     
     @Override
     public String getTooltip() {
-        return "Measure the distance along a path";
+        return "tool.measure.tooltip";
     }
 
     @Override

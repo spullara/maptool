@@ -36,7 +36,6 @@ import javax.swing.ImageIcon;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
-import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
 
@@ -88,7 +87,7 @@ public class PolyLineTopologyTool extends PolygonTopologyTool implements MouseMo
     
     @Override
     public String getTooltip() {
-        return "Draw poly lines";
+        return "tool.polylinetopo.tooltip";
     }
     
 }

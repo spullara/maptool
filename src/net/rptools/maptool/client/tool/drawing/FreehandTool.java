@@ -32,8 +32,6 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
-import net.rptools.lib.swing.SwingUtil;
-
 /**
  * Tool for drawing freehand lines.
  */
@@ -53,7 +51,7 @@ public class FreehandTool extends AbstractLineTool implements MouseMotionListene
 
     @Override
     public String getTooltip() {
-        return "Draw freehand lines";
+        return "tool.freehand.tooltip";
     }
     
     @Override

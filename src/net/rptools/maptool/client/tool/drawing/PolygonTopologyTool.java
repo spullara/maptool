@@ -153,7 +153,7 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
     
     @Override
     public String getTooltip() {
-        return "Draw closed polygons lines";
+        return "tool.polytopo.tooltip";
     }
     
     @Override

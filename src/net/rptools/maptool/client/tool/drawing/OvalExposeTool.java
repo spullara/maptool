@@ -17,8 +17,9 @@ import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.Pen;
 
 public class OvalExposeTool extends OvalTool {
+	private static final long serialVersionUID = -9023090752132286356L;
 
-    public OvalExposeTool() {
+	public OvalExposeTool() {
         try {
             setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/fog-blue-oval.png"))));
         } catch (IOException ioe) {
@@ -63,7 +64,7 @@ public class OvalExposeTool extends OvalTool {
 	protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
 
 		if (!MapTool.getPlayer().isGM()) {
-			MapTool.showError("Must be a GM to change the fog of war.");
+			MapTool.showError("msg.error.fogexpose");
 			MapTool.getFrame().refresh();
 			return;
 		}
@@ -86,6 +87,6 @@ public class OvalExposeTool extends OvalTool {
     
     @Override
     public String getTooltip() {
-        return "Expose/Hide an oval on the Fog of War";
+        return "tool.ovalexpose.tooltip";
     }
 }

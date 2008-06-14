@@ -1,11 +1,8 @@
 package net.rptools.maptool.client.tool.drawing;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.io.IOException;
 
@@ -15,8 +12,6 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.tool.ToolHelper;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -61,12 +56,12 @@ public class HollowOvalTopologyTool extends AbstractDrawingTool implements Mouse
     
     @Override
     public String getTooltip() {
-        return "Draw a hollow oval topology";
+        return "tool.ovaltopologyhollow.tooltip";
     }
 
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
    	
-    	Color oldColor = g.getColor();
+    	//Color oldColor = g.getColor();
 
     	if (MapTool.getPlayer().isGM()) {
 	    	Zone zone = renderer.getZone();

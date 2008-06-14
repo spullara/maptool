@@ -93,7 +93,7 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
     protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
 
         if (!MapTool.getPlayer().isGM()) {
-            MapTool.showError("Must be a GM to change the fog of war.");
+            MapTool.showError("msg.error.fogexpose");
             MapTool.getFrame().refresh();
             return;
         }
@@ -116,6 +116,6 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
     
     @Override
     public String getTooltip() {
-        return "Expose/Hide a freehand shape on the Fog of War";
+        return "tool.freehandexpose.tooltip";
     }
 }

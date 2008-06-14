@@ -52,7 +52,7 @@ public class LineTool extends AbstractLineTool implements MouseMotionListener {
 
     @Override
     public String getTooltip() {
-        return "Draw straight lines";
+        return "tool.line.tooltip";
     }
     
     @Override

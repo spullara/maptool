@@ -1,9 +1,7 @@
 package net.rptools.maptool.client.ui;
 
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -14,12 +12,10 @@ import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.plaf.basic.BasicToolBarUI;
 
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.tool.FacingTool;
@@ -29,7 +25,6 @@ import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.StampTool;
 import net.rptools.maptool.client.tool.TextTool;
 import net.rptools.maptool.client.tool.drawing.ConeTemplateTool;
-import net.rptools.maptool.client.tool.drawing.FillTopologyTool;
 import net.rptools.maptool.client.tool.drawing.FreehandExposeTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
 import net.rptools.maptool.client.tool.drawing.HollowOvalTopologyTool;
@@ -46,6 +41,7 @@ import net.rptools.maptool.client.tool.drawing.RadiusTemplateTool;
 import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTopologyTool;
+import net.rptools.maptool.language.I18N;
 
 public class ToolbarPanel extends JToolBar {
 
@@ -60,7 +56,7 @@ public class ToolbarPanel extends JToolBar {
 		optionPanel = new JPanel(new CardLayout());
 		
 		final OptionPanel pointerGroupOptionPanel = createPointerPanel();
-		final JToggleButton pointerGroupButton = createButton("net/rptools/maptool/client/image/tool/pointer-blue.png", "net/rptools/maptool/client/image/tool/pointer-blue-off.png", pointerGroupOptionPanel, "Interaction Tools"); 
+		final JToggleButton pointerGroupButton = createButton("net/rptools/maptool/client/image/tool/pointer-blue.png", "net/rptools/maptool/client/image/tool/pointer-blue-off.png", pointerGroupOptionPanel, I18N.getText("tools.interaction.tooltip")); 
 		
 		pointerGroupButton.setSelected(true);
 		pointerGroupOptionPanel.activate();
@@ -74,10 +70,10 @@ public class ToolbarPanel extends JToolBar {
 		horizontalSpacer.setVisible(false);
 		
 		add(pointerGroupButton);
-		add(createButton("net/rptools/maptool/client/image/tool/draw-blue.png", "net/rptools/maptool/client/image/tool/draw-blue-off.png", createDrawPanel(), "Drawing Tools"));
-		add(createButton("net/rptools/maptool/client/image/tool/temp-blue.png", "net/rptools/maptool/client/image/tool/temp-blue-off.png", createTemplatePanel(), "Template Tools"));
-		add(createButton("net/rptools/maptool/client/image/tool/fog-blue.png", "net/rptools/maptool/client/image/tool/fog-blue-off.png", createFogPanel(), "Fog of War tools"));
-		add(createButton("net/rptools/maptool/client/image/tool/eye-blue.png", "net/rptools/maptool/client/image/tool/eye-blue-off.png", createTopologyPanel(), "Topology tools"));
+		add(createButton("net/rptools/maptool/client/image/tool/draw-blue.png", "net/rptools/maptool/client/image/tool/draw-blue-off.png", createDrawPanel(), I18N.getText("tools.drawing.tooltip")));
+		add(createButton("net/rptools/maptool/client/image/tool/temp-blue.png", "net/rptools/maptool/client/image/tool/temp-blue-off.png", createTemplatePanel(), I18N.getText("tools.template.tooltip")));
+		add(createButton("net/rptools/maptool/client/image/tool/fog-blue.png", "net/rptools/maptool/client/image/tool/fog-blue-off.png", createFogPanel(), I18N.getText("tools.fog.tooltip")));
+		add(createButton("net/rptools/maptool/client/image/tool/eye-blue.png", "net/rptools/maptool/client/image/tool/eye-blue-off.png", createTopologyPanel(), I18N.getText("tools.topo.tooltip")));
 		add(vertSplit);
 		add(horizontalSplit);
 		add(vertSpacer);

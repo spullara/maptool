@@ -75,7 +75,7 @@ public class PolygonTool extends LineTool implements MouseMotionListener {
     
     @Override
     public String getTooltip() {
-        return "Draw closed polygons lines";
+        return "tool.poly.tooltip";
     }
     
 }

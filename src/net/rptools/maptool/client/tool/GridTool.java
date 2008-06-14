@@ -55,11 +55,9 @@ import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Grid;
-import net.rptools.maptool.model.HexGrid;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 
@@ -214,12 +212,12 @@ public class GridTool extends DefaultTool {
 
     @Override
     public String getTooltip() {
-        return "Show/Hide the map grid";
+        return "tool.gridtool.tooltip";
     }
     
     @Override
     public String getInstructions() {
-    	return "Left Click: offset grid, Mouse Wheel: scale grid";
+    	return "tool.gridtool.instructions";
     }
 
     private int getInt(JTextComponent component, int defaultValue) {

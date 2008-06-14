@@ -17,7 +17,9 @@ import net.rptools.maptool.model.drawing.Pen;
 
 public class RectangleExposeTool extends RectangleTool {
 
-    public RectangleExposeTool() {
+	private static final long serialVersionUID = 2072551559910263728L;
+
+	public RectangleExposeTool() {
         try {
             setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/fog-blue-rect.png"))));
         } catch (IOException ioe) {
@@ -62,7 +64,7 @@ public class RectangleExposeTool extends RectangleTool {
 	protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
 
 		if (!MapTool.getPlayer().isGM()) {
-			MapTool.showError("Must be a GM to change the fog of war.");
+			MapTool.showError("msg.error.fogexpose");
 			MapTool.getFrame().refresh();
 			return;
 		}
@@ -85,6 +87,6 @@ public class RectangleExposeTool extends RectangleTool {
     
     @Override
     public String getTooltip() {
-        return "Expose/Hide a rectangle on the Fog of War";
+        return "tool.rectexpose.tooltip";
     }
 }

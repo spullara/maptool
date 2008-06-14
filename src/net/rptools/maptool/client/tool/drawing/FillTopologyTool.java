@@ -27,7 +27,6 @@ package net.rptools.maptool.client.tool.drawing;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.io.IOException;
 
@@ -37,12 +36,10 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.tool.DefaultTool;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZonePoint;
 
 
 /**
@@ -50,7 +47,9 @@ import net.rptools.maptool.model.ZonePoint;
  */
 public class FillTopologyTool extends DefaultTool implements ZoneOverlay {
 
-    public FillTopologyTool() {
+	private static final long serialVersionUID = -2125841145363502135L;
+
+	public FillTopologyTool() {
         try {
             setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("net/rptools/maptool/client/image/tool/top-blue-free.png"))));
         } catch (IOException ioe) {
@@ -70,7 +69,7 @@ public class FillTopologyTool extends DefaultTool implements ZoneOverlay {
 			return;
 		}
 		
-		ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
+//		ZonePoint zp = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
 		
 //		Area holeArea = renderer.getTopologyAreaData().getHoleAt(zp.x, zp.y); 
 //		if (holeArea == null) {
@@ -107,7 +106,7 @@ public class FillTopologyTool extends DefaultTool implements ZoneOverlay {
     
     @Override
     public String getTooltip() {
-        return "Fill in closed areas of topology";
+        return "tool.filltopology.tooltip";
     }
     
 }

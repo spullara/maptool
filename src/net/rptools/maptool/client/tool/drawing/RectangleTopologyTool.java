@@ -24,11 +24,9 @@
  */
 package net.rptools.maptool.client.tool.drawing;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.io.IOException;
 
@@ -41,7 +39,6 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
-import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.model.drawing.Rectangle;
@@ -82,12 +79,12 @@ public class RectangleTopologyTool extends AbstractDrawingTool implements MouseM
 
 	@Override
     public String getInstructions() {
-    	return "tool.recttpology.instructions";
+    	return "tool.recttopology.instructions";
     }
     
     @Override
     public String getTooltip() {
-        return "Draw a rectanglar topology";
+        return "tool.recttopology.tooltip";
     }
 
     public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {

@@ -93,7 +93,7 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
     protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
 
         if (!MapTool.getPlayer().isGM()) {
-            MapTool.showError("Must be a GM to change the fog of war.");
+            MapTool.showError("msg.error.fogexpose");
             MapTool.getFrame().refresh();
             return;
         }
@@ -116,6 +116,6 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
     
     @Override
     public String getTooltip() {
-        return "Expose/Hide a polygon on the Fog of War";
+        return "tool.polyexpose.tooltip";
     }
 }

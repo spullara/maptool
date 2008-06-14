@@ -24,10 +24,12 @@
  */
 package net.rptools.maptool.client.tool;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Area;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,6 +39,7 @@ import javax.swing.KeyStroke;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.TokenUtil;
@@ -56,13 +59,13 @@ public class FacingTool extends DefaultTool {
     }
 
 	public void init(Token keyToken, Set<GUID> selectedTokenSet) {
-		tokenUnderMouse = keyToken;
+		tokenUnderMouse = keyToken;    	
 		this.selectedTokenSet = selectedTokenSet;
 	}
 	
     @Override
     public String getTooltip() {
-        return "Set the token facing";
+        return "tool.facing.tooltip";
     }
     
     @Override
@@ -77,7 +80,7 @@ public class FacingTool extends DefaultTool {
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 
-				if (MapTool.confirm("Are you sure you want to delete the facing of the selected tokens ?")) {
+				if (MapTool.confirm(I18N.getText("msg.confirm.removeFacings"))) {
 					for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
 						Token token = renderer.getZone().getToken(tokenGUID);
 						if (token == null) {
@@ -85,6 +88,7 @@ public class FacingTool extends DefaultTool {
 						}
 						
 						token.setFacing(null);
+			    		renderer.flush(token);
 					}
 					
 					// Go back to the pointer tool
@@ -99,12 +103,12 @@ public class FacingTool extends DefaultTool {
     @Override
     public void mouseMoved(MouseEvent e) {
     	super.mouseMoved(e);
-    	
+    	// TODO: getTokenBounds is returning NULL sometimes 
     	Rectangle bounds = renderer.getTokenBounds(tokenUnderMouse).getBounds();
     	
     	int x = bounds.x + bounds.width/2;
     	int y = bounds.y + bounds.height/2;
-    	
+
     	double angle = Math.atan2(y - e.getY(), e.getX() - x);
     	
     	int degrees = (int)Math.toDegrees(angle);
