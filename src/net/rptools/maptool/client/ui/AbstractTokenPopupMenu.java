@@ -450,7 +450,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 	public class SaveAction extends AbstractAction {
 		
 		public SaveAction() {
-			super("Save");
+			super("Save ...");
 			
 			if (selectedTokenSet.size() > 1) {
 				setEnabled(false);
