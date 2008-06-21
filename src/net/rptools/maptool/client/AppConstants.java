@@ -24,7 +24,6 @@
  */
 package net.rptools.maptool.client;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FilenameFilter;
 
@@ -59,6 +58,5 @@ public class AppConstants {
                     name.endsWith(Token.FILE_EXTENSION)
                     ;
         }
-    };
-    
+    };   
 }

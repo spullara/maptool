@@ -1511,7 +1511,8 @@ public class AppActions {
 							
 							MapTool.getAutoSaveManager().restart();
 							MapTool.getAutoSaveManager().tidy();
-									
+							MapTool.getFrame().getMacroTabbedPane().updatePanels();
+							
 							// Flush the images associated with the current campaign
 							// Do this juuuuuust before we get ready to show the new campaign, since we
 							// don't want the old campaign reloading images while we loaded the new campaign
@@ -1594,6 +1595,7 @@ public class AppActions {
 					AppPreferences.setSaveDir(campaignFile.getParentFile());
 					AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
 					MapTool.showInformation("msg.info.campaignSaved");
+					MapTool.getFrame().setTitleViaRenderer(MapTool.getFrame().getCurrentZoneRenderer());
 				} catch (IOException ioe) {
 					ioe.printStackTrace();
 					MapTool.showError("Could not save campaign: " + ioe);

@@ -14,13 +14,14 @@ import javax.swing.JTextField;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
+import net.rptools.maptool.client.ui.macrobutton.AbstractMacroButton;
 
 import com.jeta.forms.components.panel.FormPanel;
 
 public class MacroButtonDialog extends JDialog {
 
 	FormPanel panel;
-	MacroButton button;
+	AbstractMacroButton button;
 	
 	public MacroButtonDialog() {
 		super (MapTool.getFrame(), "", true);
@@ -38,13 +39,13 @@ public class MacroButtonDialog extends JDialog {
 	
 	private void installHotKeyCombo() {
 		String[] hotkeys = MacroButtonHotKeyManager.HOTKEYS;
-		JComboBox combo = (JComboBox)panel.getComboBox("hotKey");
+		JComboBox combo = panel.getComboBox("hotKey");
 		for( int i = 0; i < hotkeys.length; i++ )
 			combo.insertItemAt(hotkeys[i], i);		
 	}
 	
 	private void installColorCombo() { 
-		JComboBox combo = (JComboBox)panel.getComboBox("colorComboBox");
+		JComboBox combo = panel.getComboBox("colorComboBox");
 		combo.setModel(new DefaultComboBoxModel(MapToolUtil.getColorNames().toArray()));
 		combo.insertItemAt("default", 0);
 	}
@@ -76,7 +77,7 @@ public class MacroButtonDialog extends JDialog {
 		super.setVisible(b);
 	}
 	
-	public void show(MacroButton button) {
+	public void show(AbstractMacroButton button) {
 		this.button = button;
 		
 		getColorComboBox().setSelectedItem(button.getColor());

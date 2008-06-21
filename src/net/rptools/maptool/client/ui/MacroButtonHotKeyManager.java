@@ -24,17 +24,17 @@
  */
 package net.rptools.maptool.client.ui;
 
-import java.awt.event.ActionEvent;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.JComponent;
 import javax.swing.KeyStroke;
+
+import net.rptools.maptool.client.ui.macrobutton.AbstractMacroButton;
+import net.rptools.maptool.client.MapTool;
 
 /**
  * @author tylere
  */
-
 public class MacroButtonHotKeyManager {
 
 	
@@ -50,23 +50,17 @@ public class MacroButtonHotKeyManager {
 		"shift F11", "shift F12"};
 	
 	// our own map is required to allow us to search which button has an associated keystroke
-	private static Map<KeyStroke, MacroButton> buttonsByKeyStroke = new HashMap<KeyStroke, MacroButton>();
-	private MacroButton macroButton;
-	
-	public MacroButtonHotKeyManager(MacroButton macroButton) {
+	private static Map<KeyStroke, AbstractMacroButton> buttonsByKeyStroke = new HashMap<KeyStroke, AbstractMacroButton>();
+	private AbstractMacroButton macroButton;
 
+	public MacroButtonHotKeyManager(AbstractMacroButton macroButton) {
 		this.macroButton = macroButton;
-
 	}
-	
 
 	public void assignKeyStroke(String hotKey) {
 		
-		// remove the old keystroke
+		// remove the old keystroke from our map
 		KeyStroke oldKeystroke = KeyStroke.getKeyStroke(macroButton.getHotKey());
-		//...from the keystroke map
-		macroButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).remove(oldKeystroke);
-		//...from our map
 		buttonsByKeyStroke.remove(oldKeystroke);	
 		// assign the new hotKey
 		macroButton.setHotKey(hotKey);
@@ -77,7 +71,7 @@ public class MacroButtonHotKeyManager {
 			KeyStroke keystroke = KeyStroke.getKeyStroke(hotKey);
 			
 			// Check what button the hotkey is already assigned to
-			MacroButton oldButton = buttonsByKeyStroke.get(keystroke);
+			AbstractMacroButton oldButton = buttonsByKeyStroke.get(keystroke);
 			
 			// if it is already assigned, then update the old mapped button
 			if (oldButton != macroButton && oldButton != null) {
@@ -86,30 +80,30 @@ public class MacroButtonHotKeyManager {
 				oldButton.setHotKey(HOTKEYS[0]);
 				// remove the hot key reference from the button's text
 				oldButton.setText(oldButton.getButtonText());	
-				//remove from the keystroke map
-				oldButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).remove(keystroke);
 				//remove from our map
-				buttonsByKeyStroke.remove(keystroke);	
+				buttonsByKeyStroke.remove(keystroke);
+				// need to save settings
+				oldButton.savePreferences();
 			}
 			
 			// Add the new button and keystroke to our map
 			buttonsByKeyStroke.put(keystroke, macroButton);
 			
-			// Map the keystroke to the button
-			macroButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keystroke,"execute");
-
-			// Tell the hotkey how to execute the button.
-			macroButton.getActionMap().put("execute", new AbstractAction() {
-				public void actionPerformed(ActionEvent e) {
-					executeButton(); 
-				}
-			});	
+			// keep macrotabbedpane's keystrokes in sync
+			if (MapTool.getFrame() != null) {
+				MapTool.getFrame().getMacroTabbedPane().updateKeyStrokes();
+			}
 		
 		}
 	}	
 	
-	private void executeButton() {
-		macroButton.executeButton();
+	public static Map<KeyStroke, AbstractMacroButton> getKeyStrokeMap() {
+		return buttonsByKeyStroke;
 	}
 	
+	// when the user loads a campaign the saved macro keystrokes should be restored
+	// and the possible conflicts with the global macro keystrokes should be resolved.
+	public static void clearKeyStrokes() {
+		buttonsByKeyStroke.clear();
+	}
 }

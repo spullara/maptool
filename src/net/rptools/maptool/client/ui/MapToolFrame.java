@@ -28,7 +28,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
-import java.awt.FlowLayout;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GridBagConstraints;
@@ -95,12 +94,12 @@ import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ServerDisconnectHandler;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.swing.CoordinateStatusBar;
 import net.rptools.maptool.client.swing.GlassPane;
 import net.rptools.maptool.client.swing.ImageChooserDialog;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
 import net.rptools.maptool.client.swing.ProgressStatusBar;
-import net.rptools.maptool.client.swing.ScrollableFlowPanel;
 import net.rptools.maptool.client.swing.SpacerStatusBar;
 import net.rptools.maptool.client.swing.StatusPanel;
 import net.rptools.maptool.client.swing.ZoomStatusBar;
@@ -183,6 +182,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private ZoomStatusBar zoomStatusBar;
 	private JLabel chatActionLabel;
 	private GlassPane glassPane;
+	private MacroTabbedPane macroTabbedPane = new MacroTabbedPane();
 	
 	private TextureChooserPanel textureChooserPanel;
 	
@@ -369,7 +369,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		frameMap.put(MTFrame.TOKEN_TREE, createDockingFrame(MTFrame.TOKEN_TREE, new JScrollPane(createTokenTreePanel())));
 		frameMap.put(MTFrame.IMAGE_EXPLORER, createDockingFrame(MTFrame.IMAGE_EXPLORER, assetPanel));
 		frameMap.put(MTFrame.CHAT, createDockingFrame(MTFrame.CHAT, commandPanel));
-		frameMap.put(MTFrame.MACROS, createDockingFrame(MTFrame.MACROS, new JScrollPane(createMacroButtonPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)));
+		frameMap.put(MTFrame.MACROS, createDockingFrame(MTFrame.MACROS, macroTabbedPane));
 		frameMap.put(MTFrame.LOOKUP_TABLES, createDockingFrame(MTFrame.LOOKUP_TABLES, getLookupTablePanel()));
 	}
 	
@@ -385,16 +385,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			lookupTablePanel = new LookupTablePanel();
 		}
 		return lookupTablePanel;
-	}
-	
-	public JPanel createMacroButtonPanel() {
-		JPanel panel = new ScrollableFlowPanel(FlowLayout.LEFT);
-
-		for (int i = 1; i <= 100; i++) {
-			panel.add(new MacroButton(i, null, true, false));
-		}
-		
-		return panel;
 	}
 	
 	public EditTokenDialog getTokenPropertiesDialog() {
@@ -789,7 +779,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		return false;
 	}
 	
-	
 	private ClientConnectionPanel createConnectionPanel() {
 		final ClientConnectionPanel panel = new ClientConnectionPanel();
 
@@ -922,6 +911,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		return assetPanel;
 	}
 
+	public MacroTabbedPane getMacroTabbedPane()	{
+		return macroTabbedPane;
+	}
+	
 	public void addAssetRoot(File rootDir) {
 
 		assetPanel.addAssetRoot(new AssetDirectory(rootDir,
@@ -1015,11 +1008,16 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		AppActions.updateActions();
 		repaint();
-		
-		setTitle("MapTool" + (renderer != null ? " - " + renderer.getZone().getName() : ""));
+
+		setTitleViaRenderer(renderer);
 		getZoomStatusBar().update();
 	}
 
+	public void setTitleViaRenderer(ZoneRenderer renderer) {
+		String campaignName = AppState.getCampaignFile() == null ? " - [Default Campaign] " : " - [" + AppState.getCampaignFile().toString() + "] ";
+		setTitle(AppConstants.APP_NAME + campaignName + (renderer != null ? "- " + renderer.getZone().getName() : ""));
+	}
+	
 	public Toolbox getToolbox() {
 		return toolbox;
 	}

@@ -27,11 +27,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.Zone;
 
 @MacroDefinition(
         name = "impersonate",
@@ -47,7 +43,8 @@ public class ImpersonateMacro implements Macro {
 		// Stop impersonating
 		if (macro == null || macro.length() == 0) {
         	MapTool.getFrame().getCommandPanel().setIdentity(null);
-        	return;
+			MapTool.getFrame().getMacroTabbedPane().clearTokenPanel();
+			return;
 		}
 
 		// Figure out what we want to impersonate
@@ -78,7 +75,14 @@ public class ImpersonateMacro implements Macro {
 			MapTool.getFrame().getCommandPanel().setIdentity(oldIdentity);
 		} else {
 			MapTool.getFrame().getCommandPanel().setIdentity(name);
-        }
+			if (token == null) {
+				// we are impersonating but it's not a token. so clear the token macro buttons panel
+				MapTool.getFrame().getMacroTabbedPane().clearTokenPanel();
+			} else {
+				// we are impersonating another token. we need to display its token macro buttons
+				MapTool.getFrame().getMacroTabbedPane().updateTokenPanel(token);
+			}
+		}
 	}
 
 	private boolean canImpersonate(Token token) {

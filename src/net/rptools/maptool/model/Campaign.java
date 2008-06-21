@@ -24,10 +24,8 @@
  */
 package net.rptools.maptool.model;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,11 +34,10 @@ import java.util.Map.Entry;
 
 import net.rptools.lib.MD5Key;
 
-
 /**
  * This object contains {@link Zone}s and {@link Asset}s that make up a campaign.
  * Roughly this is equivalent to multiple tabs that will appear on the client and
- * all of the images that will appear on it.
+ * all of the images that will appear on it (and also campaign macro buttons)
  */
 public class Campaign {
 	
@@ -51,10 +48,15 @@ public class Campaign {
     private ExportInfo exportInfo;
     
     private CampaignProperties campaignProperties = new CampaignProperties();
-    
     private transient boolean isBeingSerialized;
-
-    // DEPRECATED: As of 1.3b20 these are now in campaignProperties, but are here for backward compatibility
+	
+	// campaign macro buttons. these are saved along with the campaign.
+	private List<MacroButtonProperties> macroButtonProperties = new ArrayList<MacroButtonProperties>();
+	// need to have a counter for additions to macroButtonProperties array
+	// otherwise deletions/insertions from/to that array will go out of sync 
+	private int macroButtonLastIndex = 0;
+	
+	// DEPRECATED: As of 1.3b20 these are now in campaignProperties, but are here for backward compatibility
     private Map<String, List<TokenProperty>> tokenTypeMap;
     private List<String> remoteRepositoryList;
 
@@ -252,4 +254,39 @@ public class Campaign {
     public CampaignProperties getCampaignProperties() {
     	return new CampaignProperties(campaignProperties);
     }
+	
+	//TODO: refactoring is in order
+	public List<MacroButtonProperties> getMacroButtonPropertiesArray() {
+		return macroButtonProperties;
+	}
+
+	public void setMacroButtonProperty(MacroButtonProperties properties) {
+		// find the matching property in the array
+		//TODO: hashmap? or equals()? or what?
+		for (MacroButtonProperties prop : macroButtonProperties) {
+			if (prop.getIndex() == properties.getIndex()) {
+				prop.setColorKey(properties.getColorKey());
+				prop.setAutoExecute(properties.getAutoExecute());
+				prop.setCommand(properties.getCommand());
+				prop.setHotKey(properties.getHotKey());
+				prop.setIncludeLabel(properties.getIncludeLabel());
+				prop.setLabel(properties.getLabel());
+			}
+		}
+	}
+	
+	// TODO: macrobuttonlastindex can be reset after loading a campaign and 
+	// after truncating the macrobuttonproperties list 
+	public void addMacroButtonProperty(MacroButtonProperties property) {
+		macroButtonProperties.add(property);
+		macroButtonLastIndex++;
+	}
+	
+	public int getMacroButtonNextIndex() {
+		return macroButtonLastIndex; 
+	}
+	
+	public void deleteMacroButton(MacroButtonProperties properties)	{
+		macroButtonProperties.remove(properties);
+	}
 }

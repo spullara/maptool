@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,7 +41,6 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.PersistenceUtil;
 import net.rptools.maptool.util.TokenUtil;
-import net.rptools.maptool.model.Player;
 
 public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
@@ -742,6 +740,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 			commandArea.setText("/im " + tokenUnderMouse.getId());
 			MapTool.getFrame().getCommandPanel().commitCommand();
+			MapTool.getFrame().getMacroTabbedPane().updateTokenPanel(tokenUnderMouse);
 			commandArea.requestFocusInWindow();
 		}
 	}
@@ -777,7 +776,12 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 	    	  getRenderer().repaint();
 	    	  MapTool.serverCommand().putToken(getRenderer().getZone().getId(), getTokenUnderMouse());
 	    	  getRenderer().getZone().putToken(getTokenUnderMouse());
-	      }
+			  
+			  // if the tokenundermouse is being impersonated, we have to update its macro buttons
+			  if (MapTool.getFrame().getCommandPanel().getIdentity().equals(tokenUnderMouse.getName())) {
+				  MapTool.getFrame().getMacroTabbedPane().updateTokenPanel(tokenUnderMouse);
+			  }
+		  }
 		}
 	}
 	

@@ -35,7 +35,6 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -419,6 +418,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						renderer.flush(token);
 						MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 						renderer.getZone().putToken(token);
+						
+						// if the token that has been just edited was being impersonated, the token macro button panel
+						// has to be updated in case some macros were added/removed/updated (keeping in sync).
+						if (MapTool.getFrame().getCommandPanel().getIdentity().equals(tokenUnderMouse.getName())) {
+							MapTool.getFrame().getMacroTabbedPane().updateTokenPanel(tokenUnderMouse);
+						}
 					}
 				}
 			}
