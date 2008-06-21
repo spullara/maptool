@@ -285,6 +285,12 @@ public class CampaignPropertiesDialog extends JDialog  {
 		
 		commitLightMap();
 		commitSightMap();
+		
+		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+			MapTool.getFrame().getCurrentZoneRenderer().getZoneView().flush();
+			MapTool.getFrame().getCurrentZoneRenderer().flushFog();
+			MapTool.getFrame().refresh();
+		}
 	}
 	
 	private void commitSightMap() {

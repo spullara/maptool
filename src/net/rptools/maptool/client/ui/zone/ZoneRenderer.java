@@ -478,6 +478,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         isLoaded = false;
     }
+
+    public void flushFog() {
+    	flushFog = true;
+    	repaint();
+    }
     
     public Zone getZone() {
         return zone;
