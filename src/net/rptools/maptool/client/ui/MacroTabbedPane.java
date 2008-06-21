@@ -24,14 +24,7 @@
  */
 package net.rptools.maptool.client.ui;
 
-import javax.swing.AbstractAction;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.KeyStroke;
-
-import java.awt.EventQueue;
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -39,16 +32,25 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import net.rptools.maptool.client.swing.ScrollableFlowPanel;
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.KeyStroke;
+
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.macrobutton.TokenMacroButton;
-import net.rptools.maptool.client.ui.macrobutton.CampaignMacroButton;
+import net.rptools.maptool.client.swing.ScrollableFlowPanel;
 import net.rptools.maptool.client.ui.macrobutton.AbstractMacroButton;
+import net.rptools.maptool.client.ui.macrobutton.CampaignMacroButton;
 import net.rptools.maptool.client.ui.macrobutton.GlobalMacroButton;
 import net.rptools.maptool.client.ui.macrobutton.MacroButtonPrefs;
+import net.rptools.maptool.client.ui.macrobutton.TokenMacroButton;
 import net.rptools.maptool.client.ui.macrobuttonpanel.TabPopupListener;
-import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.MacroButtonProperties;
+import net.rptools.maptool.model.Token;
 
 public class MacroTabbedPane extends JTabbedPane {
 	// Component Hierarchy:
@@ -106,15 +108,29 @@ public class MacroTabbedPane extends JTabbedPane {
 		globalMacroPanel = createGlobalMacroPanel();
 		
 		JScrollPane global = scrollPaneFactory(globalMacroPanel);
-		JScrollPane campaign = scrollPaneFactory(campaignMacroPanel);
 		global.addMouseListener(new TabPopupListener(global, Tab.GLOBAL.index));
+
+		JScrollPane campaign = scrollPaneFactory(campaignMacroPanel);
 		campaign.addMouseListener(new TabPopupListener(campaign, Tab.CAMPAIGN.index));
 
-		setComponentAt(Tab.GLOBAL.index, global);
-		setComponentAt(Tab.CAMPAIGN.index, campaign);
+		setComponentAt(Tab.GLOBAL.index, wrapPanelWithHelp(global, "<html><b>Help:</b> Right click to create a new button or edit an existing button"));
+		setComponentAt(Tab.CAMPAIGN.index, wrapPanelWithHelp(campaign, "<html><b>Help:</b> Right click to create a new button or edit an existing button"));
 
 		// bind the hotkeys
 		updateKeyStrokes();
+	}
+	
+	private JPanel wrapPanelWithHelp(JComponent component, String help) {
+		
+		JLabel helpLabel = new JLabel();
+		helpLabel.setText(help);
+		helpLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+		
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(BorderLayout.CENTER, component);
+		panel.add(BorderLayout.SOUTH, helpLabel);
+		
+		return panel;
 	}
 
 	public void updateKeyStrokes() {
@@ -146,8 +162,8 @@ public class MacroTabbedPane extends JTabbedPane {
 		
 		// using add() or addTab() instead of insertTab() causes brittleness in the code
 		// because the order of addition would be important
-		insertTab(Tab.GLOBAL.title, null, global, null, Tab.GLOBAL.index);
-		insertTab(Tab.CAMPAIGN.title, null, campaign, null, Tab.CAMPAIGN.index);
+		insertTab(Tab.GLOBAL.title, null, wrapPanelWithHelp(global, "<html><b>Help:</b> Right click to create a new button or edit an existing button"), null, Tab.GLOBAL.index);
+		insertTab(Tab.CAMPAIGN.title, null, wrapPanelWithHelp(campaign, "<html><b>Help:</b> Right click to create a new button or edit an existing button"), null, Tab.CAMPAIGN.index);
 		insertTab(Tab.TOKEN.title, null, token, null, Tab.TOKEN.index);
 	}
 	
