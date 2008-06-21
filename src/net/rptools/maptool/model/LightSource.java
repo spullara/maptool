@@ -52,6 +52,10 @@ public class LightSource  {
 		return id.hashCode();
 	}
 	
+	public void setId(GUID id) {
+		this.id = id;
+	}
+	
 	public GUID getId() {
 		return id;
 	}

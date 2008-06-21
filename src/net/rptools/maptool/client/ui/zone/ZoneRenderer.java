@@ -460,6 +460,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         flushFog = true;
     }
     
+    public ZoneView getZoneView() {
+    	return zoneView;
+    }
+    
     /**
      * Clear internal caches and backbuffers
      */

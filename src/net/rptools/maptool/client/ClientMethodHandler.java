@@ -423,6 +423,10 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 	CampaignProperties properties = (CampaignProperties) parameters[0];
                 	
                 	MapTool.getCampaign().replaceCampaignProperties(properties);
+                	if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+                		MapTool.getFrame().getCurrentZoneRenderer().getZoneView().flush();
+                		MapTool.getFrame().getCurrentZoneRenderer().repaint();
+                	}
                 	
                 	AssetManager.updateRepositoryList();
                 	

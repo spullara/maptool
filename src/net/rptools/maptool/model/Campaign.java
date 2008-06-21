@@ -26,6 +26,7 @@ package net.rptools.maptool.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,6 +144,15 @@ public class Campaign {
     	Collections.sort(list);
     	return list;
     }
+
+	public void setSightTypes(List<SightType> typeList) {
+		checkCampaignPropertyConversion();
+		Map<String, SightType> map = new HashMap<String, SightType>();
+		for (SightType sightType : typeList) {
+			map.put(sightType.getName(), sightType);
+		}
+		campaignProperties.setSightTypeMap(map);
+	}
 
     public List<TokenProperty> getTokenPropertyList(String tokenType) {
     	return getTokenTypeMap().get(tokenType);

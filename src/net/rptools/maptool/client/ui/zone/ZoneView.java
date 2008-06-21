@@ -198,6 +198,13 @@ public class ZoneView implements ModelChangeListener {
 		}
 	}
 	
+	public void flush() {
+		tokenVisionCache.clear();
+		lightSourceCache.clear();
+		visibleAreaMap.clear();
+		
+	}
+	
     private void flush(Token token) {
     	boolean hadLightSource = lightSourceCache.get(token) != null;
     	

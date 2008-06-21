@@ -12,7 +12,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -191,8 +194,9 @@ public class CampaignPropertiesDialog extends JDialog  {
 			
 			// Multiplier
 			builder.append(sight.getName()).append(": ");
-			if (sight.getMultiplier() != 1) {
+			if (sight.getMultiplier() != 1 && sight.getMultiplier() != 0) {
 				builder.append("x").append(StringUtil.formatDecimal(sight.getMultiplier()));
+				builder.append(" ");
 			}
 			
 			// Personal light
@@ -201,6 +205,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 				
 				double range = source.getMaxRange();
 				builder.append("r").append(StringUtil.formatDecimal(range));
+				builder.append(" ");
 			}
 			builder.append("\n");
 		}
@@ -282,9 +287,9 @@ public class CampaignPropertiesDialog extends JDialog  {
 		commitSightMap();
 	}
 	
-	private void commitLightMap() {
+	private void commitSightMap() {
 		
-		Map<String, SightType> sightMap = new HashMap<String, SightType>();
+		List<SightType> sightList = new LinkedList<SightType>();
 		BufferedReader reader = new BufferedReader(new StringReader(getSightPanel().getText()));
 		String line = null;
 		try {
@@ -302,15 +307,15 @@ public class CampaignPropertiesDialog extends JDialog  {
 				String label = line.substring(0, split).trim();
 				String value = line.substring(split+1).trim();
 				
-				if (label.length() == 0 || value.length() == 0) {
+				if (label.length() == 0) {
 					continue;
 				}
 				
 				// Parse Details
-				double magnifier = 0;
+				double magnifier = 1;
 				LightSource personalLight = null;
 				
-				for (String arg : value.split("\\W")) {
+				for (String arg : value.split("\\s")) {
 					if (arg.startsWith("x")) {
 						magnifier = Double.parseDouble(arg.substring(1));
 					}
@@ -324,17 +329,101 @@ public class CampaignPropertiesDialog extends JDialog  {
 				SightType sight = new SightType(label, magnifier, personalLight);
 				
 				// Store
-				sightMap.put(label, sight);
+				sightList.add(sight);
 			}
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
 		
-		campaign.getCampaignProperties().setSightTypeMap(sightMap);
+		campaign.setSightTypes(sightList);
 	}
 	
-	private void commitSightMap() {
+	private void commitLightMap() {
 		
+		Map<String, Map<GUID, LightSource>> lightMap = new HashMap<String, Map<GUID, LightSource>>();
+		BufferedReader reader = new BufferedReader(new StringReader(getLightPanel().getText()));
+		String line = null;
+		try {
+			String currentGroupName = null;
+			Map<GUID, LightSource> lightSourceMap = null;
+			
+			while ((line = reader.readLine()) != null) {
+
+				line = line.trim();
+				
+				// Comments
+				if (line.length() > 0 && line.charAt(0) == '-') {
+					continue;
+				}
+				
+				// Blanks
+				if (line.length() == 0) {
+					if (currentGroupName != null) {
+						lightMap.put(currentGroupName, lightSourceMap);
+					}
+					currentGroupName = null;
+					continue;
+				}
+				
+				// New group
+				if (currentGroupName == null) {
+					currentGroupName = line;
+					lightSourceMap = new HashMap<GUID, LightSource>();
+					continue;
+				}
+				
+				// Item
+				int split = line.indexOf(":");
+				if (split < 1) {
+					continue;
+				}
+				
+				String name = line.substring(0, split).trim();
+				LightSource lightSource = new LightSource(name);
+				for (String arg : line.substring(split+1).split("\\s")) {
+
+					arg = arg.trim();
+					if (arg.length() == 0) {
+						continue;
+					}
+					
+					String distance = arg;
+					Color color = null;
+					split = arg.indexOf("#");
+					if (split > 0) {
+						String colorString = arg.substring(split); // Keep the '#'
+						distance = arg.substring(0, split);
+						
+						color = Color.decode(colorString);
+					}
+					
+					lightSource.add(new Light(0, Double.parseDouble(distance), 0, color != null ? new DrawableColorPaint(color): null));
+				}
+				
+				// Keep ID the same if modifying existing light
+				if (campaign.getLightSourcesMap().containsKey(currentGroupName)) {
+					for (LightSource ls : campaign.getLightSourcesMap().get(currentGroupName).values()) {
+						if (ls.getName().equalsIgnoreCase(name)) {
+							lightSource.setId(ls.getId());
+							break;
+						}
+					}
+				}
+				
+				lightSourceMap.put(lightSource.getId(), lightSource);
+			}
+			
+			// Last group
+			if (currentGroupName != null) {
+				lightMap.put(currentGroupName, lightSourceMap);
+			}
+
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		
+		campaign.getLightSourcesMap().clear();
+		campaign.getLightSourcesMap().putAll(lightMap);
 	}
 	
 	public JEditorPane getLightPanel() {
