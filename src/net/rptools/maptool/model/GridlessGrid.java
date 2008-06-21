@@ -2,8 +2,11 @@ package net.rptools.maptool.model;
 
 import java.awt.Rectangle;
 import java.awt.geom.Area;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import net.rptools.maptool.client.MapTool;
 
 public class GridlessGrid extends Grid {
 
@@ -24,11 +27,12 @@ public class GridlessGrid extends Grid {
 	@Override
 	public List<TokenFootprint> getFootprints() {
 		if (footprintList == null) {
-			footprintList = new ArrayList<TokenFootprint>() {
-				{
-					add(new TokenFootprint("Standard"));
-				}
-			};
+			try {
+				footprintList = loadFootprints("net/rptools/maptool/model/gridlessGridFootprints.xml");
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				MapTool.showError("Could not load gridless grid footprints");
+			}
 		}
 		return footprintList;
 	}
