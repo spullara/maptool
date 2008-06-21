@@ -97,6 +97,10 @@ public class CampaignProperties implements Serializable {
     	}
     	return sightTypeMap;
     }
+    
+    public void setSightTypeMap(Map<String, SightType> map) {
+    	sightTypeMap = map;
+    }
 
     // TODO: This is for conversion from 1.3b19-1.3b20
     public void setTokenTypeMap(Map<String, List<TokenProperty>> map) {
@@ -114,7 +118,6 @@ public class CampaignProperties implements Serializable {
     	return remoteRepositoryList;
     }
 
-    // TODO: This is for conversion from 1.3b19-1.3b20
     public void setRemoteRepositoryList(List<String> list) {
     	remoteRepositoryList = list;
     }
@@ -126,7 +129,6 @@ public class CampaignProperties implements Serializable {
     	return lightSourcesMap;
     }
     
-    // TODO: This is for conversion from 1.3b19-1.3b20
     public void setLightSourcesMap(Map<String, Map<GUID, LightSource>> map) {
     	lightSourcesMap = map;
     }

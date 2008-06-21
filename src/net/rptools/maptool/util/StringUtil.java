@@ -28,6 +28,10 @@ package net.rptools.maptool.util;
  * @author Tylere
  */
 public class StringUtil {
+	
+	public static String formatDecimal(double value) {
+		return String.format(value == (int)value ? "%.0f" : "%.2f", value);
+	}
 
 	public static String wrapText(String string, int wrapLength, int startPosition, String wrapChar) {
 

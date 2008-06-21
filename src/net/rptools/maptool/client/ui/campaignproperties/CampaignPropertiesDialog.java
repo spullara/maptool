@@ -1,20 +1,27 @@
 package net.rptools.maptool.client.ui.campaignproperties;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -27,7 +34,13 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
+import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Light;
+import net.rptools.maptool.model.LightSource;
+import net.rptools.maptool.model.SightType;
+import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.util.PersistenceUtil;
+import net.rptools.maptool.util.StringUtil;
 
 import com.jeta.forms.components.panel.FormPanel;
 
@@ -166,7 +179,80 @@ public class CampaignPropertiesDialog extends JDialog  {
 		
 		tokenPropertiesPanel.copyCampaignToUI(campaignProperties);
 		updateRepositoryList(campaignProperties);
+		updateLightPanel(campaignProperties);
+		updateSightPanel(campaignProperties);
 //		updateTableList();
+	}
+	
+	private void updateSightPanel(CampaignProperties properties) {
+		
+		StringBuilder builder = new StringBuilder();
+		for (SightType sight : properties.getSightTypeMap().values()) {
+			
+			// Multiplier
+			builder.append(sight.getName()).append(": ");
+			if (sight.getMultiplier() != 1) {
+				builder.append("x").append(StringUtil.formatDecimal(sight.getMultiplier()));
+			}
+			
+			// Personal light
+			if (sight.getPersonalLightSource() != null) {
+				LightSource source = sight.getPersonalLightSource();
+				
+				double range = source.getMaxRange();
+				builder.append("r").append(StringUtil.formatDecimal(range));
+			}
+			builder.append("\n");
+		}
+		
+		getSightPanel().setText(builder.toString());
+	}
+
+	private void updateLightPanel(CampaignProperties properties) {
+	
+		StringBuilder builder = new StringBuilder();
+		for (Entry<String, Map<GUID, LightSource>> entry : properties.getLightSourcesMap().entrySet()) {
+			builder.append(entry.getKey());
+			builder.append("\n----\n");
+			
+			for (LightSource lightSource : entry.getValue().values()) {
+				builder.append(lightSource.getName()).append(" : ");
+				
+				for (Light light : lightSource.getLightList()) {
+					builder.append(StringUtil.formatDecimal(light.getRadius()));
+					
+					if (light.getPaint() instanceof DrawableColorPaint) {
+						Color color = (Color)light.getPaint().getPaint();
+						builder.append(toHex(color));
+					}
+					
+					builder.append(" ");
+				}
+				
+				builder.append("\n");
+			}
+			
+			builder.append("\n");
+		}
+		
+		getLightPanel().setText(builder.toString());
+	}
+	
+	private String toHex(Color color) {
+		StringBuilder builder = new StringBuilder("#");
+		
+		builder.append(padLeft(Integer.toHexString(color.getRed()), '0', 2));
+		builder.append(padLeft(Integer.toHexString(color.getGreen()), '0', 2));
+		builder.append(padLeft(Integer.toHexString(color.getBlue()), '0', 2));
+		
+		return builder.toString();
+	}
+	
+	private String padLeft(String str, char padChar, int length) {
+		while (str.length() < length) {
+			str = padChar + str;
+		}
+		return str;
 	}
 	
 	private void updateRepositoryList(CampaignProperties properties) {
@@ -191,9 +277,73 @@ public class CampaignPropertiesDialog extends JDialog  {
 			String repo = (String) getRepositoryList().getModel().getElementAt(i);
 			campaign.getRemoteRepositoryList().add(repo);
 		}
+		
+		commitLightMap();
+		commitSightMap();
 	}
 	
+	private void commitLightMap() {
+		
+		Map<String, SightType> sightMap = new HashMap<String, SightType>();
+		BufferedReader reader = new BufferedReader(new StringReader(getSightPanel().getText()));
+		String line = null;
+		try {
+			while ((line = reader.readLine()) != null) {
 
+				line = line.trim();
+				
+				// Blanks
+				if (line.length() == 0 || line.indexOf(":") < 1) {
+					continue;
+				}
+
+				// Parse line
+				int split = line.indexOf(":");
+				String label = line.substring(0, split).trim();
+				String value = line.substring(split+1).trim();
+				
+				if (label.length() == 0 || value.length() == 0) {
+					continue;
+				}
+				
+				// Parse Details
+				double magnifier = 0;
+				LightSource personalLight = null;
+				
+				for (String arg : value.split("\\W")) {
+					if (arg.startsWith("x")) {
+						magnifier = Double.parseDouble(arg.substring(1));
+					}
+					if (arg.startsWith("r")) {
+						personalLight = new LightSource();
+						personalLight.add(new Light(0, Double.parseDouble(arg.substring(1)), 0, null));
+					}
+				}
+				
+				
+				SightType sight = new SightType(label, magnifier, personalLight);
+				
+				// Store
+				sightMap.put(label, sight);
+			}
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		
+		campaign.getCampaignProperties().setSightTypeMap(sightMap);
+	}
+	
+	private void commitSightMap() {
+		
+	}
+	
+	public JEditorPane getLightPanel() {
+		return (JEditorPane) formPanel.getTextComponent("lightPanel");
+	}
+	
+	public JEditorPane getSightPanel() {
+		return (JEditorPane) formPanel.getTextComponent("sightPanel");
+	}
 	
 	public JTextArea getTokenPropertiesTextArea() {
 		return (JTextArea) formPanel.getTextComponent("tokenProperties");

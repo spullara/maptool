@@ -37,6 +37,16 @@ public class LightSource  {
 		return ((LightSource)obj).id.equals(id);
 	}
 	
+	public double getMaxRange() {
+		double range = 0;
+		
+		for (Light light : getLightList()) {
+			range = Math.max(range, light.getRadius());
+		}
+		
+		return range;
+	}
+	
 	@Override
 	public int hashCode() {
 		return id.hashCode();
@@ -62,7 +72,7 @@ public class LightSource  {
 		getLightList().remove(source);
 	}
 	
-	private List<Light> getLightList() {
+	public List<Light> getLightList() {
 		if (lightList == null) {
 			lightList = new LinkedList<Light>();
 		}

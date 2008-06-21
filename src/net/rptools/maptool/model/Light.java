@@ -1,9 +1,12 @@
 package net.rptools.maptool.model;
 
+import java.awt.Color;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 
+import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
+import net.rptools.maptool.util.StringUtil;
 
 public class Light {
 
@@ -52,4 +55,5 @@ public class Light {
 		double size = radius / zone.getUnitsPerCell() * zone.getGrid().getSize();
 		return new Area(new Ellipse2D.Double(-size, -size, size*2, size*2));
 	}
+
 }

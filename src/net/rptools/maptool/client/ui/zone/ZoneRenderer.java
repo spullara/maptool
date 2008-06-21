@@ -1886,6 +1886,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         return true;
     }
     
+    public void deselectToken(GUID tokenGUID) {
+    	selectedTokenSet.remove(tokenGUID);
+    	repaint();
+    }
     public boolean selectToken(GUID tokenGUID) {
         
         if (!isTokenSelectable(tokenGUID)) {
