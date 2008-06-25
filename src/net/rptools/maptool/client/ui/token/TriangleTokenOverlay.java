@@ -45,7 +45,7 @@ public class TriangleTokenOverlay extends XTokenOverlay {
    * Default constructor needed for XML encoding/decoding
    */
   public TriangleTokenOverlay() {
-    this(TokenStates.DEFAULT_STATE_NAME, Color.MAGENTA, 5);
+    this(TokenOverlay.DEFAULT_STATE_NAME, Color.MAGENTA, 5);
   }
   
   /**
@@ -57,6 +57,14 @@ public class TriangleTokenOverlay extends XTokenOverlay {
    */
   public TriangleTokenOverlay(String aName, Color aColor, int aWidth) {
     super(aName, aColor, aWidth);
+  }
+  
+  /**
+   * @see net.rptools.maptool.client.ui.token.TokenOverlay#clone()
+   */
+  @Override
+  public Object clone() {
+      return new TriangleTokenOverlay(getName(), getColor(), getWidth());
   }
   
   /**

@@ -35,7 +35,7 @@ import net.rptools.maptool.model.Token;
  * @author jgorrell
  * @version $Revision$ $Date$ $Author$
  */
-public abstract class TokenOverlay {
+public abstract class TokenOverlay implements Cloneable {
 
   /*---------------------------------------------------------------------------------------------
    * Instance Variables
@@ -45,6 +45,10 @@ public abstract class TokenOverlay {
    * The name of this overlay. Normally this is the name of a state.
    */
   private String name;
+/**
+ * A default state name used in default constructors.
+ */
+public static final String DEFAULT_STATE_NAME = "defaultStateName";
 
   /*---------------------------------------------------------------------------------------------
    * Constructors
@@ -98,4 +102,9 @@ public abstract class TokenOverlay {
    * based on the clip it will be off for partial token painting.
    */
   public abstract void paintOverlay(Graphics2D g, Token token, Rectangle bounds);
+  
+  /**
+   * @see java.lang.Object#clone()
+   */
+  public abstract Object clone();
 }

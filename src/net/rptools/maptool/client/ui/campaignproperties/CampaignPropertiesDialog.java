@@ -55,6 +55,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private TokenPropertiesManagementPanel tokenPropertiesPanel;
+	private TokenStatesController tokenStatesController;
 	
 	private Status status;
 	private FormPanel formPanel;
@@ -91,6 +92,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 		formPanel = new FormPanel("net/rptools/maptool/client/ui/forms/campaignPropertiesDialog.jfrm");
 
 		initTokenPropertiesDialog(formPanel);
+		tokenStatesController = new TokenStatesController(formPanel);
 		
 		initOKButton();
 		initCancelButton();
@@ -184,6 +186,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 		updateRepositoryList(campaignProperties);
 		updateLightPanel(campaignProperties);
 		updateSightPanel(campaignProperties);
+		tokenStatesController.copyCampaignToUI(campaignProperties);
 //		updateTableList();
 	}
 	
@@ -285,6 +288,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 		
 		commitLightMap();
 		commitSightMap();
+		tokenStatesController.copyUIToCampaign(campaign);
 		
 		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
 			MapTool.getFrame().getCurrentZoneRenderer().getZoneView().flush();

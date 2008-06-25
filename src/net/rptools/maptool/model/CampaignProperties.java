@@ -1,5 +1,6 @@
 package net.rptools.maptool.model;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -8,6 +9,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import net.rptools.maptool.client.ui.token.ColorDotTokenOverlay;
+import net.rptools.maptool.client.ui.token.DiamondTokenOverlay;
+import net.rptools.maptool.client.ui.token.OTokenOverlay;
+import net.rptools.maptool.client.ui.token.ShadedTokenOverlay;
+import net.rptools.maptool.client.ui.token.TokenOverlay;
+import net.rptools.maptool.client.ui.token.TriangleTokenOverlay;
+import net.rptools.maptool.client.ui.token.XTokenOverlay;
+import net.rptools.maptool.client.ui.token.YieldTokenOverlay;
 
 public class CampaignProperties implements Serializable {
 
@@ -23,6 +33,8 @@ public class CampaignProperties implements Serializable {
     private Map<String, SightType> sightTypeMap;
     
     private String defaultSightType;
+    
+    private Map<String, TokenOverlay> tokenStates;
     
     public CampaignProperties() {
     	init();
@@ -53,6 +65,12 @@ public class CampaignProperties implements Serializable {
 
 		// TODO: This doesn't feel right, should we deep copy, or does this do that automatically ?
 		lightSourcesMap = new HashMap<String, Map<GUID, LightSource>>(properties.lightSourcesMap);
+		
+		tokenStates = new HashMap<String, TokenOverlay>();
+		for (TokenOverlay overlay : properties.tokenStates.values()) {
+            overlay = (TokenOverlay)overlay.clone();
+            tokenStates.put(overlay.getName(), overlay);
+        } // endfor
     }
     
     public void mergeInto(CampaignProperties properties) {
@@ -81,6 +99,10 @@ public class CampaignProperties implements Serializable {
     	
     	if (sightTypeMap != null) {
     		properties.sightTypeMap.putAll(sightTypeMap);
+    	}
+    	
+    	if (tokenStates != null) {
+    	    properties.tokenStates.putAll(tokenStates);
     	}
     }
     
@@ -145,12 +167,24 @@ public class CampaignProperties implements Serializable {
     	lookupTableMap = map;
     }
     
+    public Map<String, TokenOverlay> getTokenStatesMap() {
+        if (tokenStates == null) {
+            initTokenStatesMap();
+        }
+        return tokenStates;
+    }
+    
+    public void setTokenStatesMap(Map<String, TokenOverlay> map) {
+        tokenStates = map;
+    }
+    
     private void init() {
     	initLookupTableMap();
     	initLightSourcesMap();
     	initRemoteRepositoryList();
     	initTokenTypeMap();
     	initSightTypeMap();
+        initTokenStatesMap();
     }
 
     private void initLookupTableMap() {
@@ -232,5 +266,18 @@ public class CampaignProperties implements Serializable {
     	list.add(new TokenProperty("Description", "Des"));
 
     	tokenTypeMap.put(DEFAULT_TOKEN_PROPERTY_TYPE, list);
+    }
+    
+    private void initTokenStatesMap() {
+        tokenStates = new HashMap<String, TokenOverlay>();
+        tokenStates.put("Dead", (new XTokenOverlay("Dead", Color.RED, 5)));
+        tokenStates.put("Disabled", (new XTokenOverlay("Disabled", Color.GRAY, 5)));
+        tokenStates.put("Hidden", (new ShadedTokenOverlay("Hidden", Color.BLACK)));
+        tokenStates.put("Prone", (new OTokenOverlay("Prone", Color.BLUE, 5)));
+        tokenStates.put("Incapacitated", (new OTokenOverlay("Incapacitated", Color.RED, 5)));
+        tokenStates.put("Other", (new ColorDotTokenOverlay("Other", Color.RED, null)));
+        tokenStates.put("Other2", (new DiamondTokenOverlay("Other2", Color.RED, 5)));
+        tokenStates.put("Other3", (new YieldTokenOverlay("Other3", Color.YELLOW, 5)));
+        tokenStates.put("Other4", (new TriangleTokenOverlay("Other4", Color.MAGENTA, 5)));
     }
 }

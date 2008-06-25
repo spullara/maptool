@@ -51,7 +51,7 @@ public class ColorDotTokenOverlay extends XTokenOverlay {
    * Default constructor needed for XML encoding/decoding
    */
   public ColorDotTokenOverlay() {
-    this(TokenStates.DEFAULT_STATE_NAME, Color.RED, Quadrant.SOUTH_EAST);
+    this(TokenOverlay.DEFAULT_STATE_NAME, Color.RED, Quadrant.SOUTH_EAST);
   }
 
   /**
@@ -67,6 +67,14 @@ public class ColorDotTokenOverlay extends XTokenOverlay {
       corner = aCorner;
   }
 
+  /**
+   * @see net.rptools.maptool.client.ui.token.TokenOverlay#clone()
+   */
+  @Override
+  public Object clone() {
+      return new ColorDotTokenOverlay(getName(), getColor(), getCorner());
+  }
+  
   /**
    * @see net.rptools.maptool.client.ui.token.TokenOverlay#paintOverlay(java.awt.Graphics2D, net.rptools.maptool.model.Token, Rectangle)
    */
@@ -101,5 +109,10 @@ public class ColorDotTokenOverlay extends XTokenOverlay {
       g.setColor(tempColor);
       g.setStroke(tempStroke);
     }
+  }
+
+  /** @return Getter for corner */
+  public Quadrant getCorner() {
+      return corner;
   }
 }

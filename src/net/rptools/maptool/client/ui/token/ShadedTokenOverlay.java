@@ -55,7 +55,7 @@ public class ShadedTokenOverlay extends TokenOverlay {
    * Default constructor needed for XML encoding/decoding
    */
   public ShadedTokenOverlay() {
-    this(TokenStates.DEFAULT_STATE_NAME, Color.RED);
+    this(TokenOverlay.DEFAULT_STATE_NAME, Color.RED);
   }
 
   /**
@@ -88,6 +88,14 @@ public class ShadedTokenOverlay extends TokenOverlay {
     g.setColor(temp);
   }
 
+  /**
+   * @see net.rptools.maptool.client.ui.token.TokenOverlay#clone()
+   */
+  @Override
+  public Object clone() {
+      return new ShadedTokenOverlay(getName(), getColor());
+  }
+  
   /**
    * Get the color for this ShadedTokenOverlay.
    *

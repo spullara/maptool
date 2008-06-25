@@ -45,7 +45,7 @@ public class YieldTokenOverlay extends XTokenOverlay {
    * Default constructor needed for XML encoding/decoding
    */
   public YieldTokenOverlay() {
-    this(TokenStates.DEFAULT_STATE_NAME, Color.YELLOW, 5);
+    this(TokenOverlay.DEFAULT_STATE_NAME, Color.YELLOW, 5);
   }
   
   /**
@@ -57,6 +57,14 @@ public class YieldTokenOverlay extends XTokenOverlay {
    */
   public YieldTokenOverlay(String aName, Color aColor, int aWidth) {
     super(aName, aColor, aWidth);
+  }
+  
+  /**
+   * @see net.rptools.maptool.client.ui.token.TokenOverlay#clone()
+   */
+  @Override
+  public Object clone() {
+      return new YieldTokenOverlay(getName(), getColor(), getWidth());
   }
   
   /**

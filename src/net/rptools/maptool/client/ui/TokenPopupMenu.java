@@ -247,7 +247,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		JMenu stateMenu = I18N.createMenu("defaultTool.stateMenu");
 		stateMenu.add(new ChangeStateAction("clear"));
 		stateMenu.addSeparator();
-		for (String state : TokenStates.getStates()) {
+		for (String state : MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().keySet()) {
 			createStateItem(state, stateMenu, getTokenUnderMouse());
 		}
 

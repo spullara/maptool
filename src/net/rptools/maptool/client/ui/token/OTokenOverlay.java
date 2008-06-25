@@ -45,7 +45,7 @@ public class OTokenOverlay extends XTokenOverlay {
    * Default constructor needed for XML encoding/decoding
    */
   public OTokenOverlay() {
-    this(TokenStates.DEFAULT_STATE_NAME, Color.RED, 5);
+    this(TokenOverlay.DEFAULT_STATE_NAME, Color.RED, 5);
   }
 
   /**
@@ -59,6 +59,14 @@ public class OTokenOverlay extends XTokenOverlay {
     super(aName, aColor, aWidth);
   }
 
+  /**
+   * @see net.rptools.maptool.client.ui.token.TokenOverlay#clone()
+   */
+  @Override
+  public Object clone() {
+      return new OTokenOverlay(getName(), getColor(), getWidth());
+  }
+  
   /**
    * @see net.rptools.maptool.client.ui.token.TokenOverlay#paintOverlay(java.awt.Graphics2D, net.rptools.maptool.model.Token, Rectangle)
    */

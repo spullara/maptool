@@ -45,7 +45,7 @@ public class CrossTokenOverlay extends XTokenOverlay {
    * Default constructor needed for XML encoding/decoding
    */
   public CrossTokenOverlay() {
-    this(TokenStates.DEFAULT_STATE_NAME, Color.RED, 5);
+    this(TokenOverlay.DEFAULT_STATE_NAME, Color.RED, 5);
   }
   
   /**
@@ -57,6 +57,14 @@ public class CrossTokenOverlay extends XTokenOverlay {
    */
   public CrossTokenOverlay(String aName, Color aColor, int aWidth) {
     super(aName, aColor, aWidth);
+  }
+  
+  /**
+   * @see net.rptools.maptool.client.ui.token.TokenOverlay#clone()
+   */
+  @Override
+  public Object clone() {
+      return new CrossTokenOverlay(getName(), getColor(), getWidth());
   }
   
   /**

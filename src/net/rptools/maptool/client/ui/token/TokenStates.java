@@ -44,11 +44,6 @@ public class TokenStates {
     private static Map<String, TokenOverlay> states = new LinkedHashMap<String, TokenOverlay>();
 
     /**
-     * A default state name used in default constructors.
-     */
-    public static final String DEFAULT_STATE_NAME = "defaultStateName";
-    
-    /**
      * Set up the token states
      */
     static {

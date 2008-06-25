@@ -1758,7 +1758,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
               Graphics2D locg = (Graphics2D)g.create();
               locg.setTransform(transform);
               Rectangle bounds = new Rectangle(0, 0, (int)Math.ceil(location.scaledWidth), (int)Math.ceil(location.scaledHeight));
-              Rectangle overlayClip = g.getClipBounds().intersection(bounds);
+              Rectangle overlayClip = locg.getClipBounds().intersection(bounds);
               locg.setClip(overlayClip);
               
               // Check each of the set values
@@ -1767,7 +1767,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 
                 // Check for the on/off states & paint them
                 if (stateValue instanceof Boolean && ((Boolean)stateValue).booleanValue()) {
-                  TokenOverlay overlay =  TokenStates.getOverlay(state);
+                  TokenOverlay overlay =  MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().get(state);
                   if (overlay != null) overlay.paintOverlay(locg, token, bounds);
                 
                 // Check for an overlay state value and paint that

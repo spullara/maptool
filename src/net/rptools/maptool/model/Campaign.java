@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.ui.token.TokenOverlay;
 
 /**
  * This object contains {@link Zone}s and {@link Asset}s that make up a campaign.
@@ -198,6 +199,10 @@ public class Campaign {
     
     public Map<GUID, LightSource> getLightSourceMap(String type) {
     	return getLightSourcesMap().get(type);
+    }
+    
+    public Map<String, TokenOverlay> getTokenStatesMap() {
+        return campaignProperties.getTokenStatesMap();
     }
     
     public void setExportInfo(ExportInfo exportInfo) {
