@@ -28,9 +28,6 @@ import java.awt.Point;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class Scale implements Serializable {
 
@@ -38,6 +35,8 @@ public class Scale implements Serializable {
 	private double scale = oneToOneScale;
 	private double scaleIncrement = .075;
     
+	private int zoomLevel = 0;
+	
     public static String PROPERTY_SCALE = "scale";
     public static String PROPERTY_OFFSET = "offset";
     
@@ -118,13 +117,14 @@ public class Scale implements Serializable {
     }
     
     public double scaleUp() {
-    	
-        setScale(scale * (1+scaleIncrement));
+    	zoomLevel++;
+    	setScale(Math.pow(1+scaleIncrement, zoomLevel));
         return scale;
     }
     
     public double scaleDown() {
-        setScale(scale * (1-scaleIncrement));
+    	zoomLevel--;
+    	setScale(Math.pow(1+scaleIncrement, zoomLevel));
         return scale;
     }
     
