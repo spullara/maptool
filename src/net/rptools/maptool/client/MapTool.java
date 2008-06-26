@@ -27,6 +27,7 @@ package net.rptools.maptool.client;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.Transparency;
@@ -38,11 +39,14 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Locale;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
 
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.common.expression.ExpressionParser;
@@ -754,6 +758,17 @@ public class MapTool {
             System.err.println("Exception during look and feel setup: " + e);
         }
 
+        // This is a tweak that makes the chinese version work better
+        if (Locale.CHINA.equals(Locale.getDefault())) {
+	        Font   f   =   new   Font("����宋体",Font.PLAIN,12);   
+	        FontUIResource fontRes = new FontUIResource(f);
+	        for(Enumeration keys = UIManager.getDefaults().keys(); keys.hasMoreElements();){
+	            Object key = keys.nextElement();
+	            Object value = UIManager.get(key);
+	            if(value instanceof FontUIResource)
+	                UIManager.put(key, fontRes);
+	        }
+        }
         
         // Draw frame contents on resize
         Toolkit.getDefaultToolkit().setDynamicLayout(true);        
