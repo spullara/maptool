@@ -75,8 +75,8 @@ public class ImpersonateMacro implements Macro {
 			MapTool.getFrame().getCommandPanel().setIdentity(oldIdentity);
 		} else {
 			MapTool.getFrame().getCommandPanel().setIdentity(name);
-			if (token == null) {
-				// we are impersonating but it's not a token. so clear the token macro buttons panel
+			if (token == null || !loadTokenMacros(token)) {
+				// we are impersonating but it's not a token or we are not allowed to see it's macros. so clear the token macro buttons panel
 				MapTool.getFrame().getMacroTabbedPane().clearTokenPanel();
 			} else {
 				// we are impersonating another token. we need to display its token macro buttons
@@ -96,9 +96,21 @@ public class ImpersonateMacro implements Macro {
 			return true;
 		}
 		
+		if (MapTool.getPlayer().isGM()) {
+			return true;
+		}
+		
 		if (token == null) {
 			return false;
 		}
+		
+		return token.isOwner(MapTool.getPlayer().getName());
+	}
+	
+	private boolean loadTokenMacros (Token token) {
+		if (MapTool.getPlayer().isGM()) {
+			return true;
+		} 
 		
 		return token.isOwner(MapTool.getPlayer().getName());
 	}
