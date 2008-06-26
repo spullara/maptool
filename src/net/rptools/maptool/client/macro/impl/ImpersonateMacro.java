@@ -92,6 +92,10 @@ public class ImpersonateMacro implements Macro {
 			return true;
 		}
 		
+		if (MapTool.getPlayer().isGM()) {
+			return true;
+		}
+		
 		if (token == null) {
 			return false;
 		}
