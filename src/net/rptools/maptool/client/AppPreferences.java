@@ -119,7 +119,10 @@ public class AppPreferences {
     private static final int DEFAULT_DEFAULT_GRID_COLOR = Color.black.getRGB();
     
     private static final String KEY_DEFAULT_UNITS_PER_CELL = "unitsPerCell";
-    private static final int DEFAULT_DEFAULT_UNITES_PER_CELL = 5;
+    private static final int DEFAULT_DEFAULT_UNITS_PER_CELL = 5;
+    
+    private static final String KEY_DEFAULT_VISION_DISTANCE = "defaultVisionDistance";
+    private static final int DEFAULT_DEFAULT_VISION_DISTANCE = 1000;
     
     private static final String KEY_FONT_SIZE = "fontSize";
     private static final int DEFAULT_FONT_SIZE = 12;
@@ -294,7 +297,15 @@ public class AppPreferences {
     }
     
     public static int getDefaultUnitsPerCell() {
-    	return prefs.getInt(KEY_DEFAULT_UNITS_PER_CELL, DEFAULT_DEFAULT_UNITES_PER_CELL);
+    	return prefs.getInt(KEY_DEFAULT_UNITS_PER_CELL, DEFAULT_DEFAULT_UNITS_PER_CELL);
+    }
+    
+    public static void setDefaultVisionDistance(int dist) {
+    	prefs.putInt(KEY_DEFAULT_VISION_DISTANCE, dist);
+    }
+    
+    public static int getDefaultVisionDistance() {
+    	return prefs.getInt(KEY_DEFAULT_VISION_DISTANCE, DEFAULT_DEFAULT_VISION_DISTANCE);
     }
     
     public static void setUseSoftFogEdges(boolean flag) {

@@ -45,7 +45,8 @@ public class ZoneFactory {
 		zone.setVisible(AppPreferences.getNewMapsVisible());
 		zone.setHasFog(AppPreferences.getNewMapsHaveFOW());
 		zone.setUnitsPerCell(AppPreferences.getDefaultUnitsPerCell());
-
+		zone.setTokenVisionDistance(AppPreferences.getDefaultVisionDistance());
+		
 		zone.setGrid(GridFactory.createGrid(AppPreferences.getDefaultGridType()));
 		zone.setGridColor(AppPreferences.getDefaultGridColor().getRGB());
 		zone.getGrid().setSize(AppPreferences.getDefaultGridSize());

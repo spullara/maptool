@@ -88,9 +88,9 @@ public class Zone extends BaseModel {
 		}
 	}
     
-	public static final int DEFAULT_TOKEN_VISION_DISTANCE = 10000;
-	
-    public static final int DEFAULT_FEET_PER_CELL = 5;
+	public static final int DEFAULT_TOKEN_VISION_DISTANCE = 1000; // In units
+	public static final int DEFAULT_PIXELS_CELL = 50;
+    public static final int DEFAULT_UNITS_PER_CELL = 5;
     
     public static final DrawablePaint DEFAULT_FOG = new DrawableColorPaint(Color.black);
     
@@ -110,8 +110,8 @@ public class Zone extends BaseModel {
     private float imageScaleY = 1;
     
     private int tokenVisionDistance = DEFAULT_TOKEN_VISION_DISTANCE;
-    
-    private int unitsPerCell = DEFAULT_FEET_PER_CELL;
+	    
+    private int unitsPerCell = DEFAULT_UNITS_PER_CELL;
     
     private List<DrawnElement> drawables = new LinkedList<DrawnElement>();
     private List<DrawnElement> gmDrawables = new LinkedList<DrawnElement>();
@@ -151,15 +151,26 @@ public class Zone extends BaseModel {
     public void setMapAsset(MD5Key id) {
     	mapAsset = id;
     }
-    
+
+    public void setTokenVisionDistance(int units) {
+    	tokenVisionDistance = units;
+    }
+
     public int getTokenVisionDistance() {
+    	return tokenVisionDistance;
+    }
+
+    /**
+     * Returns the distance in map pixels at a 1:1 zoom
+     */
+    public int getTokenVisionInPixels() {
     	if (tokenVisionDistance == 0) {
     		// TODO: This is here to provide transition between pre 1.3b19 an 1.3b19.  Remove later
     		tokenVisionDistance = DEFAULT_TOKEN_VISION_DISTANCE;
     	}
-    	return tokenVisionDistance;
+    	return ( tokenVisionDistance * grid.getSize() / unitsPerCell );
     }
-    
+
     public void setFogPaint(DrawablePaint paint) {
     	fogPaint = paint;
     }
@@ -198,6 +209,7 @@ public class Zone extends BaseModel {
 		}
 
         unitsPerCell = zone.unitsPerCell;
+        tokenVisionDistance = zone.tokenVisionDistance;
         
         imageScaleX = zone.imageScaleX;
         imageScaleY = zone.imageScaleY;
@@ -279,6 +291,7 @@ public class Zone extends BaseModel {
 	public void setGrid(Grid grid) {
     	this.grid = grid;
     	grid.setZone(this);
+        // tokenVisionDistance = DEFAULT_TOKEN_VISION_DISTANCE * grid.getSize() / unitsPerCell;
         fireModelChangeEvent(new ModelChangeEvent(this, Event.GRID_CHANGED));
     }
 

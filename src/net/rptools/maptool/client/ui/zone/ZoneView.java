@@ -130,7 +130,7 @@ public class ZoneView implements ModelChangeListener {
 
 		// Visible area without inhibition
         Point p = FogUtil.calculateVisionCenter(token, zone);
-        int visionDistance = zone.getTokenVisionDistance();
+        int visionDistance = zone.getTokenVisionInPixels();
         Area visibleArea = new Area(new Ellipse2D.Double(-visionDistance, -visionDistance, visionDistance*2, visionDistance*2));
         visibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopologyAreaData());
 

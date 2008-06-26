@@ -62,6 +62,7 @@ public class PreferencesDialog extends JDialog {
 	private JComboBox defaultGridTypeCombo;
 	private JTextField defaultGridSizeTextField;
 	private JTextField defaultUnitsPerCellTextField;
+	private JTextField defaultVisionDistanceTextField;
 	
 	private JSpinner autoSaveSpinner;
 	private JCheckBox saveReminderCheckBox;
@@ -106,6 +107,7 @@ public class PreferencesDialog extends JDialog {
 		defaultGridTypeCombo = panel.getComboBox("defaultGridTypeCombo");
 		defaultGridSizeTextField = panel.getTextField("defaultGridSize");
 		defaultUnitsPerCellTextField = panel.getTextField("defaultUnitsPerCell");
+		defaultVisionDistanceTextField = panel.getTextField("defaultVisionDistance");
 		fontSizeTextField = panel.getTextField("fontSize");
 		haloLineWidthSpinner = panel.getSpinner("haloLineWidthSpinner");
 		visionOverlayOpacitySpinner = panel.getSpinner("visionOverlayOpacitySpinner");
@@ -231,6 +233,26 @@ public class PreferencesDialog extends JDialog {
 				try {
 					int value = Integer.parseInt(defaultUnitsPerCellTextField.getText());
 					AppPreferences.setDefaultUnitsPerCell(value);
+				} catch (NumberFormatException nfe) {
+					// Ignore it
+				}
+			}
+		});
+		defaultVisionDistanceTextField.getDocument().addDocumentListener(new DocumentListener() {
+			public void changedUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void insertUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void removeUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			
+			private void updateValue() {
+				try {
+					int value = Integer.parseInt(defaultVisionDistanceTextField.getText());
+					AppPreferences.setDefaultVisionDistance(value);
 				} catch (NumberFormatException nfe) {
 					// Ignore it
 				}
@@ -386,6 +408,7 @@ public class PreferencesDialog extends JDialog {
 		backgroundsStartSnapToGridCheckBox.setSelected(AppPreferences.getBackgroundsStartSnapToGrid());
 		defaultGridSizeTextField.setText(Integer.toString(AppPreferences.getDefaultGridSize()));
 		defaultUnitsPerCellTextField.setText(Integer.toString(AppPreferences.getDefaultUnitsPerCell()));
+		defaultVisionDistanceTextField.setText(Integer.toString(AppPreferences.getDefaultVisionDistance()));
 		fontSizeTextField.setText(Integer.toString(AppPreferences.getFontSize()));
 		haloLineWidthSpinner.setValue(AppPreferences.getHaloLineWidth());
 		visionOverlayOpacitySpinner.setValue(AppPreferences.getVisionOverlayOpacity());

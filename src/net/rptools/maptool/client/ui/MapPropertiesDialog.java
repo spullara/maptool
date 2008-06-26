@@ -119,7 +119,8 @@ public class MapPropertiesDialog extends JDialog  {
 
 		initDistanceTextField();
 		initPixelsPerCellTextField();
-
+		initDefaultVisionTextField();
+		
 		initHexHoriRadio();
 		initHexVertRadio();
 		initSquareRadio();
@@ -199,6 +200,7 @@ public class MapPropertiesDialog extends JDialog  {
 		getNameTextField().setText(zone.getName());
 		getDistanceTextField().setText(Integer.toString(zone.getUnitsPerCell()));
 		getPixelsPerCellTextField().setText(Integer.toString(zone.getGrid().getSize()));
+		getDefaultVisionTextField().setText(Integer.toString(zone.getTokenVisionDistance()));
 		
 		getHexHorizontalRadio().setSelected(zone.getGrid() instanceof HexGridHorizontal);
 		getHexVerticalRadio().setSelected(zone.getGrid() instanceof HexGridVertical);
@@ -214,8 +216,8 @@ public class MapPropertiesDialog extends JDialog  {
 		
 		zone.setName(getNameTextField().getText().trim());
 		zone.setUnitsPerCell(Integer.parseInt(getDistanceTextField().getText()));
-		
 		zone.setGrid(createZoneGrid());
+		zone.setTokenVisionDistance(Integer.parseInt(getDefaultVisionTextField().getText()));
 
 		zone.setFogPaint(fogPaint);
 		zone.setBackgroundPaint(backgroundPaint);
@@ -396,6 +398,14 @@ public class MapPropertiesDialog extends JDialog  {
 	
 	private void initPixelsPerCellTextField() {
 		getPixelsPerCellTextField().setText(Integer.toString(AppPreferences.getDefaultGridSize()));
+	}
+	
+	public JTextField getDefaultVisionTextField() {
+		return formPanel.getTextField("defaultVision");
+	}
+	
+	private void initDefaultVisionTextField() {
+		this.getDefaultVisionTextField().setText(Integer.toString(AppPreferences.getDefaultVisionDistance()));
 	}
 	
 	public String getZoneName() {
