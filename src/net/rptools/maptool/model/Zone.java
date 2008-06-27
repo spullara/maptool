@@ -250,7 +250,8 @@ public class Zone extends BaseModel {
 
         exposedArea = (Area)zone.exposedArea.clone();
         topology = (Area)zone.topology.clone();
-        
+        isVisible = zone.isVisible;
+        hasFog = zone.hasFog;
     }
     
     public GUID getId() {
