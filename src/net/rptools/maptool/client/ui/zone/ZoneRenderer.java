@@ -1048,6 +1048,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
             Token keyToken = zone.getToken(set.getKeyToken());
             ZoneWalker walker = set.getWalker();
+            
+            // Hide the hidden layer
+            if (keyToken.getLayer() == Zone.Layer.GM && !view.isGMView()) {
+            	continue;
+            }
 
             for (GUID tokenGUID : set.getTokens()) {
                 
