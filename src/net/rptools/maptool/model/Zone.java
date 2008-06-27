@@ -251,11 +251,6 @@ public class Zone extends BaseModel {
         exposedArea = (Area)zone.exposedArea.clone();
         topology = (Area)zone.topology.clone();
         
-        // in case the current map is visible but user wants the new map hidden or FOW
-        hasFog = AppPreferences.getNewMapsHaveFOW();
-        setVisible(AppPreferences.getNewMapsVisible());
-        
-            
     }
     
     public GUID getId() {
