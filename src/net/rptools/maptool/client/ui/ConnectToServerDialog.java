@@ -33,6 +33,7 @@ import java.awt.event.MouseEvent;
 import java.net.InetAddress;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
@@ -362,6 +363,9 @@ public class ConnectToServerDialog extends AbeillePanel<ConnectToServerDialogPre
 		
 		public RemoteServerTableModel(List<String> encodedData) {
 
+			// Simple but sufficient
+			Collections.sort(encodedData, String.CASE_INSENSITIVE_ORDER);
+			
 			data = new ArrayList<String[]>(encodedData.size());
 			for (String line : encodedData) {
 				String[] row = line.split(":");
