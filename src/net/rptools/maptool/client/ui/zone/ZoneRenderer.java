@@ -93,7 +93,6 @@ import net.rptools.maptool.client.TransferableToken;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.client.ui.token.NewTokenDialog;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
-import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.token.TokenTemplate;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.model.Asset;

@@ -39,7 +39,6 @@ import net.rptools.maptool.client.ui.token.DiamondTokenOverlay;
 import net.rptools.maptool.client.ui.token.OTokenOverlay;
 import net.rptools.maptool.client.ui.token.ShadedTokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
-import net.rptools.maptool.client.ui.token.TokenStates;
 import net.rptools.maptool.client.ui.token.TriangleTokenOverlay;
 import net.rptools.maptool.client.ui.token.XTokenOverlay;
 import net.rptools.maptool.client.ui.token.YieldTokenOverlay;
@@ -110,7 +109,7 @@ public class AddTokenStateMacro implements Macro {
     String param2 = tokens.length > 3 ? tokens[PARAM_2] : null;
     
     // Check for a duplicate name
-    if (TokenStates.getOverlay(name) != null) {
+    if (MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().get(name) != null) {
       MapTool.addLocalMessage("A token state with the name '" + name + "' already exists.");
       throw new IllegalArgumentException("A token state with the name '" + name + "' already exists.");
     } // endif
@@ -138,7 +137,7 @@ public class AddTokenStateMacro implements Macro {
           "dot, circle, shade, X, cross, diamond, yield or triangle");
       throw new IllegalArgumentException("There is no overlay type with the name '" + overlay + "'.");
     } // endif
-    TokenStates.putOverlay(tokenOverlay);
+    MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().put(tokenOverlay.getName(), tokenOverlay);
     MapTool.addLocalMessage("Token state '" + tokenOverlay.getName() + "' was added");
   }
 
@@ -146,7 +145,7 @@ public class AddTokenStateMacro implements Macro {
    * Create a shaded overlay.
    * 
    * @param name Name of the new overlay.
-   * @param color The color paramter value
+   * @param color The color parameter value
    * @return The new token overlay.
    */
   private TokenOverlay createShadedOverlay(String name, String color) {
@@ -158,7 +157,7 @@ public class AddTokenStateMacro implements Macro {
    * Create a circle overlay.
    * 
    * @param name Name of the new overlay.
-   * @param color The color paramter value
+   * @param color The color parameter value
    * @param width The width parameter value
    * @return The new token overlay.
    */
@@ -172,7 +171,7 @@ public class AddTokenStateMacro implements Macro {
    * Create a circle overlay.
    * 
    * @param name Name of the new overlay.
-   * @param color The color paramter value
+   * @param color The color parameter value
    * @param width The width parameter value
    * @return The new token overlay.
    */
@@ -186,39 +185,63 @@ public class AddTokenStateMacro implements Macro {
    * Create a cross overlay.
    * 
    * @param name Name of the new overlay.
-   * @param color The color paramter value
+   * @param color The color parameter value
    * @param width The width parameter value
    * @return The new token overlay.
    */
   private TokenOverlay createCrossOverlay(String name, String color, String width) {
-	    Color circleColor = findColor(color);
-	    int lineWidth = findInteger(width, 5);
-	    return new CrossTokenOverlay(name, circleColor, lineWidth);
-	  }
-	  
-	  private TokenOverlay createDiamondOverlay(String name, String color, String width) {
-		Color circleColor = findColor(color);
-		int lineWidth = findInteger(width, 5);
-		return new DiamondTokenOverlay(name, circleColor, lineWidth);
-	  }
-  
-	  private TokenOverlay createYieldOverlay(String name, String color, String width) {
-	    Color circleColor = findColor(color);
-	    int lineWidth = findInteger(width, 5);
-	    return new YieldTokenOverlay(name, circleColor, lineWidth);
-	  }
-	  
-	  private TokenOverlay createTriangleOverlay(String name, String color, String width) {
-	    Color circleColor = findColor(color);
-	    int lineWidth = findInteger(width, 5);
-	    return new TriangleTokenOverlay(name, circleColor, lineWidth);
-	  }
+      Color circleColor = findColor(color);
+      int lineWidth = findInteger(width, 5);
+      return new CrossTokenOverlay(name, circleColor, lineWidth);
+  }
+
+  /**
+   * Create a diamond overlay.
+   * 
+   * @param name Name of the new overlay.
+   * @param color The color of the diamond
+   * @param width The width of the diamond
+   * @return The new token overlay.
+   */
+  private TokenOverlay createDiamondOverlay(String name, String color, String width) {
+      Color circleColor = findColor(color);
+      int lineWidth = findInteger(width, 5);
+      return new DiamondTokenOverlay(name, circleColor, lineWidth);
+  }
+
+  /**
+   * Create a yield overlay.
+   * 
+   * @param name Name of the new overlay.
+   * @param color The color of the yield
+   * @param width The width of the yield
+   * @return The new token overlay.
+   */
+  private TokenOverlay createYieldOverlay(String name, String color, String width) {
+      Color circleColor = findColor(color);
+      int lineWidth = findInteger(width, 5);
+      return new YieldTokenOverlay(name, circleColor, lineWidth);
+  }
+
+  /**
+   * Create a triangle overlay.
+   * 
+   * @param name Name of the new overlay.
+   * @param color The color of the triangle
+   * @param width The width of the triangle
+   * @return The new token overlay.
+   */
+  private TokenOverlay createTriangleOverlay(String name, String color, String width) {
+      Color circleColor = findColor(color);
+      int lineWidth = findInteger(width, 5);
+      return new TriangleTokenOverlay(name, circleColor, lineWidth);
+  }
 	  
   /**
    * Create a dot overlay.
    * 
    * @param name Name of the new overlay.
-   * @param color The color paramter value
+   * @param color The color parameter value
    * @param corner The corner parameter value
    * @return The new token overlay.
    */
@@ -241,10 +264,10 @@ public class AddTokenStateMacro implements Macro {
       return Color.decode(name);
     } catch (NumberFormatException e) {
       if (!MapToolUtil.isValidColor(name.toLowerCase())) {
-        MapTool.addLocalMessage("An invalid color '" + name + "' was passed as a paramter. Valid values are " +
+        MapTool.addLocalMessage("An invalid color '" + name + "' was passed as a parameter. Valid values are " +
             "hex or integer numbers or the name of a common color (black, blue, cyan, darkgray, gray, green, " +
             "lightgray, magenta, orange, pink, red, white, yellow");
-        throw new IllegalArgumentException("An invalid color '" + name + "' was passed as a paramter.");
+        throw new IllegalArgumentException("An invalid color '" + name + "' was passed as a parameter.");
       } // endif
       return MapToolUtil.getColor(name);
     } // endtry
@@ -263,8 +286,8 @@ public class AddTokenStateMacro implements Macro {
     try {
       return Integer.parseInt(name);
     } catch (NumberFormatException e) {
-      MapTool.addLocalMessage("An invalid number '" + name + "' was passed as a paramter.");
-      throw new IllegalArgumentException("An invalid number '" + name + "' was passed as a paramter.");
+      MapTool.addLocalMessage("An invalid number '" + name + "' was passed as a parameter.");
+      throw new IllegalArgumentException("An invalid number '" + name + "' was passed as a parameter.");
     } // endtry
   }
   
@@ -281,9 +304,9 @@ public class AddTokenStateMacro implements Macro {
       return Quadrant.valueOf(name.toUpperCase());
     } catch (IllegalArgumentException e) {
       if (!CORNER_MAP.containsKey(name.toLowerCase())) {
-        MapTool.addLocalMessage("An invalid corner name '" + name + "' was passed as a paramter. Valid values are " +
+        MapTool.addLocalMessage("An invalid corner name '" + name + "' was passed as a parameter. Valid values are " +
             "nw, ne, sw, se");
-        throw new IllegalArgumentException("An invalid corner '" + name + "' was passed as a paramter.");
+        throw new IllegalArgumentException("An invalid corner '" + name + "' was passed as a parameter.");
       } // endif
       return CORNER_MAP.get(name);
     } // endtry

@@ -38,7 +38,6 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
-import net.rptools.maptool.client.ui.token.TokenStates;
 
 /**
  * Load the token states from a file.
@@ -87,7 +86,7 @@ public class LoadTokenStatesMacro implements Macro {
       List<TokenOverlay> overlays = (List<TokenOverlay>)decoder.readObject();
       decoder.close();
       for (TokenOverlay overlay : overlays) {
-        TokenStates.putOverlay(overlay);
+          MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().put(overlay.getName(), overlay);
       } // endfor
       MapTool.addLocalMessage("There were " + overlays.size() + " token states loaded.");
     } catch (FileNotFoundException e) {

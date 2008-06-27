@@ -39,7 +39,6 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
-import net.rptools.maptool.client.ui.token.TokenStates;
 
 /**
  * Save the current list of token states for use later.
@@ -82,8 +81,8 @@ public class SaveTokenStatesMacro implements Macro {
     try {
       XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(new FileOutputStream(aliasFile)));
       List<TokenOverlay> overlays = new ArrayList<TokenOverlay>();
-      for (String overlay : TokenStates.getStates()) {
-        overlays.add(TokenStates.getOverlay(overlay));
+      for (String overlay : MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().keySet()) {
+        overlays.add(MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().get(overlay));
       } // endfor
       encoder.writeObject(overlays);
       encoder.close();
