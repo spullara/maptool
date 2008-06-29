@@ -18,7 +18,7 @@ import net.rptools.maptool.model.TokenFootprint.OffsetTranslator;
 
 public class HexGridHorizontal extends HexGrid {
 
-	private static final int[] FACING_ANGLES =  new int[] {-120, -60, 0, 60, 120, 180};
+	private static final int[] FACING_ANGLES =  new int[] {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180};
 	
 	private static final OffsetTranslator OFFSET_TRANSLATOR = new OffsetTranslator() {
 		public void translate(CellPoint originPoint, CellPoint offsetPoint) {
