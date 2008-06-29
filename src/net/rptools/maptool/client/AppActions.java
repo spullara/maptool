@@ -1586,7 +1586,7 @@ public class AppActions {
 					File campaignFile = chooser.getSelectedFile();
 					if (campaignFile.getName().indexOf(".") < 0) {
 						campaignFile = new File(campaignFile.getAbsolutePath()
-								+ ".cmpgn");
+								+ AppConstants.CAMPAIGN_FILE_EXTENSION);
 					}
 
 					PersistenceUtil.saveCampaign(campaign, campaignFile);

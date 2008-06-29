@@ -52,7 +52,8 @@ public class Campaign {
     private CampaignProperties campaignProperties = new CampaignProperties();
     private transient boolean isBeingSerialized;
 	
-	// campaign macro buttons. these are saved along with the campaign.
+	// campaign macro button properties. these are saved along with the campaign.
+	// as of 1.3b32
 	private List<MacroButtonProperties> macroButtonProperties = new ArrayList<MacroButtonProperties>();
 	// need to have a counter for additions to macroButtonProperties array
 	// otherwise deletions/insertions from/to that array will go out of sync 
@@ -270,8 +271,11 @@ public class Campaign {
     	return new CampaignProperties(campaignProperties);
     }
 	
-	//TODO: refactoring is in order
 	public List<MacroButtonProperties> getMacroButtonPropertiesArray() {
+		if (macroButtonProperties == null) {
+			// macroButtonProperties is null if you are loading an old campaign file < 1.3b32
+			macroButtonProperties = new ArrayList<MacroButtonProperties>();
+		}
 		return macroButtonProperties;
 	}
 
@@ -290,8 +294,6 @@ public class Campaign {
 		}
 	}
 	
-	// TODO: macrobuttonlastindex can be reset after loading a campaign and 
-	// after truncating the macrobuttonproperties list 
 	public void addMacroButtonProperty(MacroButtonProperties property) {
 		macroButtonProperties.add(property);
 		macroButtonLastIndex++;

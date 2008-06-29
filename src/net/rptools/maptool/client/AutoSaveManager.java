@@ -49,7 +49,7 @@ import net.rptools.maptool.util.PersistenceUtil;
 public class AutoSaveManager implements ActionListener {
 	
 	private Timer autoSaveTimer;
-	public static final File AUTOSAVE_FILE = new File(AppUtil.getAppHome("autosave"), "AutoSave.cmpgn");
+	public static final File AUTOSAVE_FILE = new File(AppUtil.getAppHome("autosave"), "AutoSave" + AppConstants.CAMPAIGN_FILE_EXTENSION);
 
 	private boolean working;
 	

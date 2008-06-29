@@ -272,6 +272,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					renderer.flush(token);
 					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 					renderer.getZone().putToken(token);
+					updateTokenMacroPanel(false);
 				}
     		}
     		if (SwingUtilities.isRightMouseButton(event)) {
@@ -285,8 +286,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
     			new TokenPopupMenu(selectedSet, event.getX(), event.getY(), renderer, token).showPopup(renderer);
     		}
     	}
-    	
-    	public void handleMouseMotionEvent(MouseEvent event) {
+
+		public void handleMouseMotionEvent(MouseEvent event) {
 
     		Token token = getTokenAt(event.getX(), event.getY());
     		if (token == null) {
@@ -419,12 +420,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						renderer.flush(token);
 						MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 						renderer.getZone().putToken(token);
-						
-						// if the token that has been just edited was being impersonated, the token macro button panel
-						// has to be updated in case some macros were added/removed/updated (keeping in sync).
-						if (MapTool.getFrame().getCommandPanel().getIdentity().equals(tokenUnderMouse.getName())) {
-							MapTool.getFrame().getMacroTabbedPane().updateTokenPanel(tokenUnderMouse);
-						}
+						updateTokenMacroPanel(true);
 					}
 				}
 			}
@@ -493,7 +489,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 		
 		if (SwingUtilities.isLeftMouseButton(e)) {
-	        try {
+			boolean clearSelectionPanel = true;
+			
+			try {
 	
 	        	// MARKER
 				renderer.setCursor(Cursor.getPredefinedCursor(markerUnderMouse != null ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
@@ -537,12 +535,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					if (!renderer.isTokenMoving(token)) {
 			        	renderer.clearSelectedTokens();
 			        	renderer.selectToken(token.getId());
+						MapTool.getFrame().getMacroTabbedPane().updateSelectionPanel(token, true);
+						clearSelectionPanel = false;
 					}
 		        }
 	        } finally {
 	        	isDraggingToken = false;
 	        	isDrawingSelectionBox = false;
-	        }
+				if (clearSelectionPanel) {
+					MapTool.getFrame().getMacroTabbedPane().clearSelectionPanel();
+				}
+			}
 	        
 	        return;
 		}
@@ -1498,5 +1501,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		return notes;
 	}
-	
+
+	private void updateTokenMacroPanel(boolean switchTo) {
+		// if the token that has been just edited was being impersonated, the token macro button panel
+		// has to be updated in case some macros were added/removed/updated (keeping in sync).
+		if (MapTool.getFrame().getCommandPanel().getIdentity().equals(tokenUnderMouse.getName())) {
+			MapTool.getFrame().getMacroTabbedPane().updateTokenPanel(tokenUnderMouse, switchTo);
+		}
+	}
 }

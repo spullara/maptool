@@ -1014,8 +1014,14 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public void setTitleViaRenderer(ZoneRenderer renderer) {
-		String campaignName = AppState.getCampaignFile() == null ? " - [Default Campaign] " : " - [" + AppState.getCampaignFile().toString() + "] ";
-		setTitle(AppConstants.APP_NAME + campaignName + (renderer != null ? "- " + renderer.getZone().getName() : ""));
+		String campaignName = " - [Default] ";
+		if (AppState.getCampaignFile() != null) {
+			String s = AppState.getCampaignFile().getName();
+			// remove the file extension of the campaign file name
+			s = s.substring(0, s.length() - AppConstants.CAMPAIGN_FILE_EXTENSION.length());
+			campaignName = " - [" + s + "]";
+		}
+		setTitle(AppConstants.APP_NAME + campaignName + (renderer != null ? " - " + renderer.getZone().getName() : ""));
 	}
 	
 	public Toolbox getToolbox() {

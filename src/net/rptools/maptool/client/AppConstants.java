@@ -58,5 +58,7 @@ public class AppConstants {
                     name.endsWith(Token.FILE_EXTENSION)
                     ;
         }
-    };   
+    };
+	
+	public static final String CAMPAIGN_FILE_EXTENSION = ".cmpgn";
 }

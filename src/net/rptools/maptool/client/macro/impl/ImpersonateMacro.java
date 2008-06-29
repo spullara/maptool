@@ -80,7 +80,7 @@ public class ImpersonateMacro implements Macro {
 				MapTool.getFrame().getMacroTabbedPane().clearTokenPanel();
 			} else {
 				// we are impersonating another token. we need to display its token macro buttons
-				MapTool.getFrame().getMacroTabbedPane().updateTokenPanel(token);
+				MapTool.getFrame().getMacroTabbedPane().updateTokenPanel(token, true);
 			}
 		}
 	}

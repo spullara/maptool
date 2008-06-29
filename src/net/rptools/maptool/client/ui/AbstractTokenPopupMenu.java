@@ -730,6 +730,17 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 		}
 	}
 
+	public class CreateMacroTabAction extends AbstractAction {
+	
+		public CreateMacroTabAction() {
+			putValue(Action.NAME, "Expand in Macro Panel");
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			MapTool.getFrame().getMacroTabbedPane().addTokenMacroTab(tokenUnderMouse);
+		}
+	}
+	
 	public class ImpersonateAction extends AbstractAction {
 		
 		public ImpersonateAction() {
@@ -740,7 +751,6 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 			commandArea.setText("/im " + tokenUnderMouse.getId());
 			MapTool.getFrame().getCommandPanel().commitCommand();
-			MapTool.getFrame().getMacroTabbedPane().updateTokenPanel(tokenUnderMouse);
 			commandArea.requestFocusInWindow();
 		}
 	}
@@ -779,7 +789,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			  
 			  // if the tokenundermouse is being impersonated, we have to update its macro buttons
 			  if (MapTool.getFrame().getCommandPanel().getIdentity().equals(tokenUnderMouse.getName())) {
-				  MapTool.getFrame().getMacroTabbedPane().updateTokenPanel(tokenUnderMouse);
+				  MapTool.getFrame().getMacroTabbedPane().updateTokenPanel(tokenUnderMouse, false);
 			  }
 		  }
 		}

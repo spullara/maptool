@@ -48,6 +48,8 @@ import net.rptools.maptool.client.ui.macrobutton.CampaignMacroButton;
 import net.rptools.maptool.client.ui.macrobutton.GlobalMacroButton;
 import net.rptools.maptool.client.ui.macrobutton.MacroButtonPrefs;
 import net.rptools.maptool.client.ui.macrobutton.TokenMacroButton;
+import net.rptools.maptool.client.ui.macrobuttonpanel.MacroPanelPopupListener;
+import net.rptools.maptool.client.ui.macrobuttonpanel.Tab;
 import net.rptools.maptool.client.ui.macrobuttonpanel.TabPopupListener;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
@@ -58,27 +60,20 @@ public class MacroTabbedPane extends JTabbedPane {
 	private JPanel globalMacroPanel;
 	private JPanel campaignMacroPanel;
 	private JPanel tokenMacroPanel;
-
-	private enum Tab {
-		GLOBAL(0, "Global"),
-		CAMPAIGN(1, "Campaign"),
-		TOKEN(2, "Token");
-
-		public final int index;
-		public final String title;
-
-		Tab(int index, String title) {
-			this.index = index;
-			this.title = title;
-		}
-	}
-
+	private JPanel selectedMacroPanel;
+	
+	private String tokenTabTitle;
+	private String selectionTabTitle;
+	
 	public MacroTabbedPane() {
 		init();
 		updateKeyStrokes();
 	}
 
-	public void updateTokenPanel(Token token) {
+	// TODO: this class is a fuckin' mess. Gonna refactor mercilessly.
+	public void updateTokenPanel(Token token, boolean switchTo) {
+		clearTokenPanel();
+		
 		tokenMacroPanel = new ScrollableFlowPanel(FlowLayout.LEFT);
 
 		List<String> keyList = new ArrayList<String>(token.getMacroNames());
@@ -87,16 +82,55 @@ public class MacroTabbedPane extends JTabbedPane {
 			tokenMacroPanel.add(new TokenMacroButton(key, token.getMacro(key)));
 		}
 
-		setComponentAt(Tab.TOKEN.index, scrollPaneFactory(tokenMacroPanel));
-		setTitleAt(Tab.TOKEN.index, Tab.TOKEN.title + ": " + token.getName());
+		JScrollPane pane = scrollPaneFactory(tokenMacroPanel);
+		tokenTabTitle = token.getName();
+		insertTab(tokenTabTitle, null, wrapPanelWithHelp(pane, "<html><b>Help:</b> Impersonate a token you own to see its macros"), null, Tab.IMPERSONATED.index);
+		
+		if (switchTo) {
+			setSelectedIndex(indexOfTab(tokenTabTitle));
+		}
 	}
 
 	public void clearTokenPanel() {
-		tokenMacroPanel.removeAll();
-		setTitleAt(Tab.TOKEN.index, Tab.TOKEN.title);
+		int index = indexOfTab(tokenTabTitle);
+		if (index != -1) {
+			removeTabAt(index);
+		}
+		tokenTabTitle = null;
 	}
 	
-	// currently this method is only called when loading a campaign
+	public void clearSelectionPanel() {
+		int index = indexOfTab(selectionTabTitle);
+		if (index != -1) {
+			removeTabAt(index);
+		}
+		selectionTabTitle = null;
+	}
+	
+	public void updateSelectionPanel(Token token, boolean switchTo) {
+		int selectedIndex = getSelectedIndex();
+		clearSelectionPanel();
+		
+		selectedMacroPanel = new ScrollableFlowPanel(FlowLayout.LEFT);
+
+		List<String> keyList = new ArrayList<String>(token.getMacroNames());
+		Collections.sort(keyList);
+		for (String key : keyList) {
+			selectedMacroPanel.add(new TokenMacroButton(key, token.getMacro(key)));
+		}
+
+		JScrollPane pane = scrollPaneFactory(selectedMacroPanel);
+		selectionTabTitle = token.getName();
+		//insertTab(selectionTabTitle, null, wrapPanelWithHelp(pane, "<html><b>Help:</b> Select a token you own to see its macros"), null, Tab.SELECTED.index);
+		addTab(selectionTabTitle, wrapPanelWithHelp(pane, "<html><b>Help:</b> Select a token you own to see its macros"));
+
+		if (switchTo) {
+			setSelectedIndex(indexOfTab(selectionTabTitle));
+		} else {
+			setSelectedIndex(selectedIndex);
+		}
+	}
+	
 	public void updatePanels() {
 		// need to clear macro button keystrokes so we wont have
 		// conflicts in the keystrokemap.
@@ -108,10 +142,10 @@ public class MacroTabbedPane extends JTabbedPane {
 		globalMacroPanel = createGlobalMacroPanel();
 		
 		JScrollPane global = scrollPaneFactory(globalMacroPanel);
-		global.addMouseListener(new TabPopupListener(global, Tab.GLOBAL.index));
+		global.addMouseListener(new MacroPanelPopupListener(global, Tab.GLOBAL.index));
 
 		JScrollPane campaign = scrollPaneFactory(campaignMacroPanel);
-		campaign.addMouseListener(new TabPopupListener(campaign, Tab.CAMPAIGN.index));
+		campaign.addMouseListener(new MacroPanelPopupListener(campaign, Tab.CAMPAIGN.index));
 
 		setComponentAt(Tab.GLOBAL.index, wrapPanelWithHelp(global, "<html><b>Help:</b> Right click to create a new button or edit an existing button"));
 		setComponentAt(Tab.CAMPAIGN.index, wrapPanelWithHelp(campaign, "<html><b>Help:</b> Right click to create a new button or edit an existing button"));
@@ -152,19 +186,20 @@ public class MacroTabbedPane extends JTabbedPane {
 	private void init() {
 		globalMacroPanel = createGlobalMacroPanel();
 		campaignMacroPanel = createCampaignMacroPanel();
-		tokenMacroPanel = createTokenMacroPanel();
+		//tokenMacroPanel = createTokenMacroPanel();
 
 		JScrollPane global = scrollPaneFactory(globalMacroPanel);
 		JScrollPane campaign = scrollPaneFactory(campaignMacroPanel);
-		JScrollPane token = scrollPaneFactory(tokenMacroPanel);
-		global.addMouseListener(new TabPopupListener(global, Tab.GLOBAL.index));
-		campaign.addMouseListener(new TabPopupListener(campaign, Tab.CAMPAIGN.index));
+		//JScrollPane token = scrollPaneFactory(tokenMacroPanel);
+		global.addMouseListener(new MacroPanelPopupListener(global, Tab.GLOBAL.index));
+		campaign.addMouseListener(new MacroPanelPopupListener(campaign, Tab.CAMPAIGN.index));
+		//addMouseListener(new TabPopupListener(this, 0));
 		
 		// using add() or addTab() instead of insertTab() causes brittleness in the code
 		// because the order of addition would be important
 		insertTab(Tab.GLOBAL.title, null, wrapPanelWithHelp(global, "<html><b>Help:</b> Right click to create a new button or edit an existing button"), null, Tab.GLOBAL.index);
 		insertTab(Tab.CAMPAIGN.title, null, wrapPanelWithHelp(campaign, "<html><b>Help:</b> Right click to create a new button or edit an existing button"), null, Tab.CAMPAIGN.index);
-		insertTab(Tab.TOKEN.title, null, token, null, Tab.TOKEN.index);
+		//insertTab(Tab.IMPERSONATED.title, null, wrapPanelWithHelp(token, "<html><b>Help:</b> Select a token you own to see its macros"), null, Tab.IMPERSONATED.index);
 	}
 	
 	private JPanel createGlobalMacroPanel()	{
@@ -198,7 +233,7 @@ public class MacroTabbedPane extends JTabbedPane {
 	}
 	
 	public void addGlobalMacroButton() {
-		//TODO: can move this to globalmacrobutton constructor
+		//TODO: maybe can move this to globalmacrobutton constructor
 		MacroButtonProperties properties = new MacroButtonProperties(MacroButtonPrefs.getNextIndex());
 		globalMacroPanel.add(new GlobalMacroButton(properties));
 		globalMacroPanel.doLayout();
@@ -244,6 +279,20 @@ public class MacroTabbedPane extends JTabbedPane {
 
 	public void deleteCampaignMacroButton(CampaignMacroButton button) {
 		campaignMacroPanel.remove(button);
+	}
+	
+	public void addTokenMacroTab(Token token) {
+		JPanel panel = new ScrollableFlowPanel(FlowLayout.LEFT);
+
+		List<String> keyList = new ArrayList<String>(token.getMacroNames());
+		Collections.sort(keyList);
+		for (String key : keyList) {
+			panel.add(new TokenMacroButton(key, token.getMacro(key)));
+		}
+
+		JScrollPane pane = scrollPaneFactory(panel);
+		
+		addTab(token.getName(), pane);
 	}
 }
 
