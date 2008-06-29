@@ -300,16 +300,10 @@ public class AppActions {
 		}
 	};
 	
-	public static final Action ENFORCE_ZONE = new AdminClientAction() {
+	public static final Action ENFORCE_ZONE = new ZoneAdminClientAction() {
 
 		{
 			init("action.enforceZone");
-		}
-
-		@Override
-		public boolean isAvailable() {
-			return super.isAvailable()
-					&& (MapTool.isPersonalServer() || MapTool.isHostingServer());
 		}
 
 		public void execute(ActionEvent e) {
