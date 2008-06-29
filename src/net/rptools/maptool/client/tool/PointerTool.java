@@ -96,6 +96,7 @@ import net.rptools.maptool.model.Zone.Layer;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
+import net.rptools.maptool.util.TokenUtil;
 
 /**
  */
@@ -975,10 +976,22 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				handleKeyMove(1, 0);
 			}
 		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				handleKeyRotate(-1); // clockwise
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
 				handleKeyMove(-1, 0);
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				handleKeyRotate(1); // counter-clockwise
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new AbstractAction() {
@@ -1064,6 +1077,58 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		renderer.clearSelectedTokens();
 		renderer.selectToken(visibleTokens.get(newSelection).getId());
 		
+	}
+	
+	/**
+	 * Handle token rotations when using the arrow keys.
+	 * 
+	 * @param direction -1 is cw & 1 is ccw
+	 */
+	private void handleKeyRotate(int direction) {
+
+		Set<GUID> tokenGUIDSet = renderer.getSelectedTokenSet();
+		if (tokenGUIDSet.size() == 0) {
+			return;
+		}
+
+		for (GUID tokenGUID : tokenGUIDSet) {
+			Token token = renderer.getZone().getToken(tokenGUID);
+			if (token == null) {
+				continue;
+			}
+			
+			if (!AppUtil.playerOwns(token)) {
+				continue;
+			}
+			
+			Integer facing = token.getFacing();
+			// TODO: this should really be a per grid setting as horiz hex grids don't have a 90
+			if (facing == null) {
+				facing = -90; // natural alignment
+			}
+
+			int[] facingArray = renderer.getZone().getGrid().getFacingAngles();
+			int facingIndex = TokenUtil.getIndexNearestTo(facingArray, facing);
+			
+			facingIndex += direction;
+			
+			if (facingIndex < 0) {
+				facingIndex = facingArray.length - 1;
+			}
+			if (facingIndex == facingArray.length) {
+				facingIndex = 0;
+			}
+				
+			facing = facingArray[facingIndex];
+			
+			token.setFacing(facing);
+			
+			renderer.flush(token);
+			MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+		}
+
+		renderer.repaint();
+
 	}
 	
 	private void handleKeyMove(int dx, int dy) {
