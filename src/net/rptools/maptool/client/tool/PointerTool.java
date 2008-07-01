@@ -982,7 +982,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
-				handleKeyRotate(-1); // clockwise
+				handleKeyRotate(-1, false); // clockwise
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				handleKeyRotate(-1, true); // clockwise
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), new AbstractAction() {
@@ -994,7 +1000,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
-				handleKeyRotate(1); // counter-clockwise
+				handleKeyRotate(1, false); // counter-clockwise
+			}
+		});
+		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				
+				handleKeyRotate(1, true); // counter-clockwise
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), new AbstractAction() {
@@ -1087,7 +1099,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 * 
 	 * @param direction -1 is cw & 1 is ccw
 	 */
-	private void handleKeyRotate(int direction) {
+	private void handleKeyRotate(int direction, boolean freeRotate) {
 
 		Set<GUID> tokenGUIDSet = renderer.getSelectedTokenSet();
 		if (tokenGUIDSet.size() == 0) {
@@ -1105,24 +1117,28 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			}
 			
 			Integer facing = token.getFacing();
-			// TODO: this should really be a per grid setting as horiz hex grids don't have a 90
+			// TODO: this should really be a per grid setting
 			if (facing == null) {
 				facing = -90; // natural alignment
 			}
 
-			int[] facingArray = renderer.getZone().getGrid().getFacingAngles();
-			int facingIndex = TokenUtil.getIndexNearestTo(facingArray, facing);
-			
-			facingIndex += direction;
-			
-			if (facingIndex < 0) {
-				facingIndex = facingArray.length - 1;
-			}
-			if (facingIndex == facingArray.length) {
-				facingIndex = 0;
-			}
+			if (freeRotate) {
+				facing += direction * 5;
+			} else {
+				int[] facingArray = renderer.getZone().getGrid().getFacingAngles();
+				int facingIndex = TokenUtil.getIndexNearestTo(facingArray, facing);
 				
-			facing = facingArray[facingIndex];
+				facingIndex += direction;
+				
+				if (facingIndex < 0) {
+					facingIndex = facingArray.length - 1;
+				}
+				if (facingIndex == facingArray.length) {
+					facingIndex = 0;
+				}
+					
+				facing = facingArray[facingIndex];
+			}
 			
 			token.setFacing(facing);
 			
