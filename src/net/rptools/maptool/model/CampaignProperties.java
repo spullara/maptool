@@ -67,6 +67,12 @@ public class CampaignProperties implements Serializable {
 		lightSourcesMap = new HashMap<String, Map<GUID, LightSource>>(properties.lightSourcesMap);
 		
 		tokenStates = new HashMap<String, TokenOverlay>();
+		
+		// TODO: fix for when old campaigns have been loaded into b33+
+		if (properties.tokenStates == null || properties.tokenStates.isEmpty()) {
+			properties.initTokenStatesMap();
+		}
+		
 		for (TokenOverlay overlay : properties.tokenStates.values()) {
             overlay = (TokenOverlay)overlay.clone();
             tokenStates.put(overlay.getName(), overlay);
