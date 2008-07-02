@@ -389,11 +389,11 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 					isNewTokenSelected = true;
                     renderer.clearSelectedTokens();
 				}
-				if (!renderer.getSelectedTokenSet().contains(token.getId())) {
-					renderer.selectToken(token.getId());
-					
-				} else {
+				
+				if (SwingUtil.isShiftDown(e) && renderer.getSelectedTokenSet().contains(token.getId())) {
 					renderer.deselectToken(token.getId());
+				} else {
+					renderer.selectToken(token.getId());
 				}
         
 		        // Dragging offset for currently selected token
