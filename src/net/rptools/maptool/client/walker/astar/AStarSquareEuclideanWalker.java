@@ -91,15 +91,16 @@ public class AStarSquareEuclideanWalker extends AbstractAStarWalker {
         final double distance;
         
         switch (metric) {
-        	case ONE_ONE_ONE:
-        		distance = Math.max(Math.abs(a),Math.abs(b));
-        		break;
+//        	case ONE_ONE_ONE:
+//        		distance = Math.max(Math.abs(a),Math.abs(b));
+//        		break;
         	case MANHATTAN:
         	case NO_DIAGONALS:
         		distance = Math.abs(a) + Math.abs(b);
         		break;
         	default:
         	case ONE_TWO_ONE:
+        	case ONE_ONE_ONE:
         		distance = Math.sqrt(a * a + b * b);
         		break;
         }
