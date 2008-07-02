@@ -47,7 +47,7 @@ public class BurstTemplate extends RadiusTemplate {
     /**
      * Renderer for the blast. The {@link Shape} is just a rectangle. 
      */
-    private ShapeDrawable renderer = new ShapeDrawable(new GeneralPath());
+    private ShapeDrawable renderer = new ShapeDrawable(new GeneralPath(GeneralPath.WIND_EVEN_ODD));
     
     /*---------------------------------------------------------------------------------------------
      * Instance Methods
@@ -59,13 +59,15 @@ public class BurstTemplate extends RadiusTemplate {
      * is an even number and still stay in the squares, that case isn't allowed. 
      */
     private void adjustShape() {
+        if (getZoneId() == null) return;
         int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
         GeneralPath p = (GeneralPath)renderer.getShape();
         p.reset();
         Rectangle r = new Rectangle(getVertex().x, getVertex().y, gridSize, gridSize);
-        p.append(r, false);
+        p.append(r, false);        
         r.x -= getRadius() * gridSize;
         r.y -= getRadius() * gridSize;
+        p.moveTo(r.x, r.y);
         r.width = r.height = (getRadius() * 2 + 1) * gridSize;
         p.append(r, false);
     }

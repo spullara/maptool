@@ -24,6 +24,7 @@ import net.rptools.maptool.client.tool.MeasureTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.StampTool;
 import net.rptools.maptool.client.tool.TextTool;
+import net.rptools.maptool.client.tool.drawing.BurstTemplateTool;
 import net.rptools.maptool.client.tool.drawing.ConeTemplateTool;
 import net.rptools.maptool.client.tool.drawing.FreehandExposeTool;
 import net.rptools.maptool.client.tool.drawing.FreehandTool;
@@ -140,7 +141,8 @@ public class ToolbarPanel extends JToolBar {
 		
 		panel.add(RadiusTemplateTool.class);
 		panel.add(ConeTemplateTool.class);
-		panel.add(LineTemplateTool.class);
+        panel.add(LineTemplateTool.class);
+        panel.add(BurstTemplateTool.class);
 
 		return panel;
 	}

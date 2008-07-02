@@ -162,7 +162,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     CellPoint cp = renderer.getZone().getGrid().convert(mouse);
     ZonePoint working = renderer.getZone().getGrid().convert(cp);
 
-    // If the mouse is over half way to the next vertext, move it there
+    // If the mouse is over half way to the next vertex, move it there
     // (both X & Y)
     int grid = (int)(renderer.getZone().getGrid().getSize() * renderer.getScale());
     if (mouse.x - working.x >= grid / 2)
@@ -190,7 +190,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
    * Paint a cursor
    * 
    * @param g Where to paint.
-   * @param paint Data to draw the curser
+   * @param paint Data to draw the cursor
    * @param thickness The thickness of the cursor.
    * @param vertex The vertex holding the cursor.
    */
@@ -271,8 +271,12 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
       working.x = working.x - controlOffset.x;
       working.y = working.y - controlOffset.y;
       if (!working.equals(vertex)) {
-        vertex.x = working.x;
-        vertex.y = working.y;
+        if (vertex == template.getVertex()) {
+          template.setVertex(working);
+        } else {
+          vertex.x = working.x;
+          vertex.y = working.y;
+        } // endif
         renderer.repaint();
       } // endif
     } // endif
@@ -288,8 +292,8 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
   }
   
   /**
-   * Handle mouse mevement. Done here so that subclasses can still benefit from the code in
-   * DefaultTool w/o rewritting it.
+   * Handle mouse movement. Done here so that subclasses can still benefit from the code in
+   * DefaultTool w/o rewriting it.
    * 
    * @param e Current mouse location
    */
