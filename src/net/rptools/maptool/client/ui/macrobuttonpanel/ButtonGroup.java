@@ -41,6 +41,7 @@ public class ButtonGroup extends JPanel {
 
 	// constructor for creating common macro buttons between tokens
 	public ButtonGroup(List<Token> tokenList) {
+		setOpaque(false);
 		if (tokenList.size() <= 1) {
 			return;
 		}
