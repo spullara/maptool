@@ -422,6 +422,7 @@ public class EditTokenDialog extends AbeillePanel {
 		
 		// Update UI
 		MapTool.getFrame().updateTokenTree();
+		MapTool.getFrame().getMacroTabbedPane().updateSelectionPanel();
 		
 		return true;
 	}

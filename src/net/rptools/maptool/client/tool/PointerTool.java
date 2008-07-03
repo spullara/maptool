@@ -537,7 +537,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	        } finally {
 	        	isDraggingToken = false;
 	        	isDrawingSelectionBox = false;
-				MapTool.getFrame().getMacroTabbedPane().updateSelectionPanel(renderer);
+				MapTool.getFrame().getMacroTabbedPane().updateSelectionPanel();
 			}
 	        
 	        return;

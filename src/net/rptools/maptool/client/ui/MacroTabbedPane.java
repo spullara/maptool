@@ -106,7 +106,12 @@ public class MacroTabbedPane extends JTabbedPane {
 		selectionTab.clear();
 	}
 	
-	public void updateSelectionPanel(ZoneRenderer renderer) {
+	public void updateSelectionPanel() {
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+		if (renderer == null) {
+			return;
+		}
+		
 		List<Token> tokenList = new ArrayList<Token>();
 		
 		for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
