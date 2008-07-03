@@ -1,15 +1,5 @@
 package net.rptools.maptool.client.ui;
 
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
@@ -20,14 +10,23 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.tool.FacingTool;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.StampTool;
-import net.rptools.maptool.client.ui.token.LightDialog;
 import net.rptools.maptool.client.ui.token.EditTokenDialog;
+import net.rptools.maptool.client.ui.token.LightDialog;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
@@ -727,17 +726,6 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 					renderer.getZone().getId(), selectedTokenSet);
 
 			MapTool.getFrame().refresh();
-		}
-	}
-
-	public class CreateMacroTabAction extends AbstractAction {
-	
-		public CreateMacroTabAction() {
-			putValue(Action.NAME, "Expand in Macro Panel");
-		}
-		
-		public void actionPerformed(ActionEvent e) {
-			MapTool.getFrame().getMacroTabbedPane().addTokenMacroTab(tokenUnderMouse);
 		}
 	}
 	

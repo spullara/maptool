@@ -10,8 +10,8 @@ package net.rptools.maptool.client.ui.macrobuttonpanel;
 public enum Tab {
 	GLOBAL(0, "Global"),
 	CAMPAIGN(1, "Campaign"),
-	IMPERSONATED(2, "Impersonated"),
-	SELECTED(3, "Selection");
+	SELECTED(2, "Selection"),
+	IMPERSONATED(3, "Impersonated");
 
 	public final int index;
 	public final String title;

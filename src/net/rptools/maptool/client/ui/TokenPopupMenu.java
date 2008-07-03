@@ -1,14 +1,5 @@
 package net.rptools.maptool.client.ui;
 
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
@@ -19,12 +10,18 @@ import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
-import javax.crypto.Mac;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.ui.token.LightDialog;
 import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -62,7 +59,6 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new SetFacingAction());
 		add(new ClearFacingAction());
 		add(new StartMoveAction());
-		//add(new CreateMacroTabAction());
 		addOwnedItem(new ImpersonateAction());
 		addOwnedItem(createSizeMenu());
 		addOwnedItem(createMacroMenu());

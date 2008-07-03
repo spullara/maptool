@@ -1,19 +1,19 @@
 package net.rptools.maptool.client.ui.macrobutton;
 
+import javax.swing.JButton;
+import javax.swing.JTextPane;
+import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JButton;
-import javax.swing.JTextPane;
-
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
-import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 import net.rptools.maptool.client.ui.MacroButtonDialog;
-import net.rptools.maptool.util.GraphicsUtil;
+import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 import net.rptools.maptool.model.MacroButtonProperties;
+import net.rptools.maptool.util.GraphicsUtil;
 
 /**
  * Base class of CampaignMacroButton and GlobalMacroButton.
@@ -29,6 +29,8 @@ public abstract class AbstractMacroButton extends JButton implements MouseListen
 	
 	protected final MacroButtonHotKeyManager hotKeyManager;
 	protected static MacroButtonDialog macroButtonDialog = new MacroButtonDialog();
+	
+	private static final Insets buttonInsets = new Insets(2, 2, 2, 2);
 
 
 	public AbstractMacroButton(MacroButtonProperties properties) {
@@ -40,6 +42,7 @@ public abstract class AbstractMacroButton extends JButton implements MouseListen
 		setText(getButtonText());
 		hotKeyManager = new MacroButtonHotKeyManager(this);
 		hotKeyManager.assignKeyStroke(properties.getHotKey());
+		setMargin(buttonInsets);
 	}
 
 	public int getIndex() {

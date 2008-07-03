@@ -24,6 +24,11 @@
  */
 package net.rptools.maptool.client.tool;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -52,14 +57,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
+import java.util.Set;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -80,9 +79,9 @@ import net.rptools.maptool.client.ui.Tool;
 import net.rptools.maptool.client.ui.Toolbox;
 import net.rptools.maptool.client.ui.token.EditTokenDialog;
 import net.rptools.maptool.client.ui.zone.FogUtil;
+import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
@@ -91,8 +90,8 @@ import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.Zone.Layer;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
@@ -489,8 +488,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 		
 		if (SwingUtilities.isLeftMouseButton(e)) {
-			boolean clearSelectionPanel = true;
-			
 			try {
 	
 	        	// MARKER
@@ -535,16 +532,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					if (!renderer.isTokenMoving(token)) {
 			        	renderer.clearSelectedTokens();
 			        	renderer.selectToken(token.getId());
-						MapTool.getFrame().getMacroTabbedPane().updateSelectionPanel(token, true);
-						clearSelectionPanel = false;
 					}
 		        }
 	        } finally {
 	        	isDraggingToken = false;
 	        	isDrawingSelectionBox = false;
-				if (clearSelectionPanel) {
-					MapTool.getFrame().getMacroTabbedPane().clearSelectionPanel();
-				}
+				MapTool.getFrame().getMacroTabbedPane().updateSelectionPanel(renderer);
 			}
 	        
 	        return;
