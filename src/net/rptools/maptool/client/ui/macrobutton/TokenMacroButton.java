@@ -66,6 +66,11 @@ public class TokenMacroButton extends JButton {
 		
 	}
 	
+	@Override
+	public String toString() {
+		return "MacroButton-" + getText();
+	}
+	
 	public TokenMacroButton(List<ButtonGroup.Tuple> tuples, String label) {
 		super(label);
 		this.tuples = tuples;

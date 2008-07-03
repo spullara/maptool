@@ -1,15 +1,19 @@
 package net.rptools.maptool.client.ui.macrobuttonpanel;
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.macrobutton.TokenMacroButton;
@@ -36,7 +40,6 @@ public class ButtonGroup extends JPanel {
 		// we have to create a new border from scratch to reduce padding of the title. 
 		setBorder(BorderFactory.createTitledBorder(getName(token)));
 		setLayout(new FlowLayout(FlowLayout.LEFT));
-		//setMinimumSize();
 	}
 
 	// constructor for creating common macro buttons between tokens
@@ -84,8 +87,43 @@ public class ButtonGroup extends JPanel {
 		}
 		
 		setBorder(BorderFactory.createTitledBorder("Common"));
+		setLayout(new FlowLayout(FlowLayout.LEFT));
 	}
 
+	@Override
+	public Dimension getPreferredSize() {
+		
+		Dimension size = getParent().getSize();
+
+		FlowLayout layout = (FlowLayout) getLayout();
+		Insets insets = getInsets();
+		
+		// This isn't exact, but hopefully it's close enough
+		int x = layout.getHgap() + insets.left;
+		int y = layout.getVgap();
+		int rowHeight = 0;
+		for (Component c : getComponents()) {
+
+			Dimension cSize = c.getPreferredSize();
+			if (x + cSize.width + layout.getHgap() > size.width - insets.right && x > 0) {
+				x = 0;
+				y += rowHeight + layout.getVgap(); 
+				rowHeight = 0;
+			}
+			
+			x += cSize.width + layout.getHgap();
+			rowHeight = Math.max(cSize.height, rowHeight);
+		}
+		
+		y += rowHeight + layout.getVgap();
+
+		y += getInsets().top;
+		y += getInsets().bottom;
+		
+		Dimension prefSize = new Dimension(size.width, y);
+		return prefSize;
+	}
+	
 	public static class Tuple {
 
 		public String tokenName;
