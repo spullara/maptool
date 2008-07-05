@@ -43,6 +43,7 @@ import net.rptools.maptool.client.tool.drawing.RadiusTemplateTool;
 import net.rptools.maptool.client.tool.drawing.RectangleExposeTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTool;
 import net.rptools.maptool.client.tool.drawing.RectangleTopologyTool;
+import net.rptools.maptool.client.tool.drawing.WallTemplateTool;
 import net.rptools.maptool.language.I18N;
 
 public class ToolbarPanel extends JToolBar {
@@ -145,6 +146,7 @@ public class ToolbarPanel extends JToolBar {
         panel.add(LineTemplateTool.class);
         panel.add(BurstTemplateTool.class);
         panel.add(BlastTemplateTool.class);
+        panel.add(WallTemplateTool.class);
 
 		return panel;
 	}

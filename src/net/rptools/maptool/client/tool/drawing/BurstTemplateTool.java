@@ -106,7 +106,7 @@ public class BurstTemplateTool extends RadiusTemplateTool {
      */
     @Override
     protected int getRadiusAtMouse(MouseEvent e) {
-        return super.getRadiusAtMouse(e) - 1;
+        return super.getRadiusAtMouse(e);
     }
     
     /**

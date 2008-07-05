@@ -29,13 +29,13 @@ import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.GeneralPath;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.ZonePoint;
 
 /**
- *
+ * Create and paint a donut burst
+ * 
  * @author Jay
  */
 public class BurstTemplate extends RadiusTemplate {
@@ -47,7 +47,12 @@ public class BurstTemplate extends RadiusTemplate {
     /**
      * Renderer for the blast. The {@link Shape} is just a rectangle. 
      */
-    private ShapeDrawable renderer = new ShapeDrawable(new GeneralPath(GeneralPath.WIND_EVEN_ODD));
+    private ShapeDrawable renderer = new ShapeDrawable(new Rectangle());
+    
+    /**
+     * Renderer for the blast. The {@link Shape} is just a rectangle. 
+     */
+    private ShapeDrawable vertexRenderer = new ShapeDrawable(new Rectangle());
     
     /*---------------------------------------------------------------------------------------------
      * Instance Methods
@@ -61,15 +66,13 @@ public class BurstTemplate extends RadiusTemplate {
     private void adjustShape() {
         if (getZoneId() == null) return;
         int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
-        GeneralPath p = (GeneralPath)renderer.getShape();
-        p.reset();
-        Rectangle r = new Rectangle(getVertex().x, getVertex().y, gridSize, gridSize);
-        p.append(r, false);        
+        Rectangle r = (Rectangle)vertexRenderer.getShape();
+        r.setBounds(getVertex().x, getVertex().y, gridSize, gridSize);
+        r = (Rectangle)renderer.getShape();
+        r.setBounds(getVertex().x, getVertex().y, gridSize, gridSize);
         r.x -= getRadius() * gridSize;
         r.y -= getRadius() * gridSize;
-        p.moveTo(r.x, r.y);
         r.width = r.height = (getRadius() * 2 + 1) * gridSize;
-        p.append(r, false);
     }
 
     /*---------------------------------------------------------------------------------------------
@@ -112,6 +115,7 @@ public class BurstTemplate extends RadiusTemplate {
     @Override
     protected void draw(Graphics2D g) {
       renderer.draw(g);
+      vertexRenderer.draw(g);
     }
 
     /**

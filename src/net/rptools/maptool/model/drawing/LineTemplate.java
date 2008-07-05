@@ -37,6 +37,7 @@ import java.util.ListIterator;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.ZonePoint;
 
 /**
@@ -51,7 +52,7 @@ public class LineTemplate extends AbstractTemplate {
    *-------------------------------------------------------------------------------------------*/
 	
   /**
-   * Are stright lines drawn double width?
+   * Are straight lines drawn double width?
    */
   private boolean doubleWide = AppState.useDoubleWideLine();
 
@@ -63,12 +64,12 @@ public class LineTemplate extends AbstractTemplate {
   /**
    * The calculated path for this line.
    */
-  private ArrayList<ScreenPoint> path;
+  private ArrayList<CellPoint> path;
 
   /**
    * The pool of points.
    */
-  private ArrayList<ScreenPoint> pool;
+  private ArrayList<CellPoint> pool;
 
   /**
    * The line is drawn in this quadrant. A string is used as a hack
@@ -106,11 +107,11 @@ public class LineTemplate extends AbstractTemplate {
     for (int i = pElement - 3; i < pElement + 3; i++) {
       if (i < 0 || i >= path.size() || i == pElement)
         continue;
-      ScreenPoint p = path.get(i);
+      CellPoint p = path.get(i);
 
       // Ignore diagonal cells and cells that are not adjacent
-      int dx = (int)p.x - x;
-      int dy = (int)p.y - y;
+      int dx = p.x - x;
+      int dy = p.y - y;
       if (Math.abs(dx) == Math.abs(dy) || Math.abs(dx) > 1 || Math.abs(dy) > 1)
         continue;
 
@@ -145,19 +146,19 @@ public class LineTemplate extends AbstractTemplate {
 
     // Paint each element in the path
     int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
-    ListIterator<ScreenPoint> i = path.listIterator();
+    ListIterator<CellPoint> i = path.listIterator();
     while (i.hasNext()) {
-      ScreenPoint p = i.next();
-      int xOff = (int)p.x * gridSize;
-      int yOff = (int)p.y * gridSize;
-      int distance = getDistance((int)p.x, (int)p.y);
+      CellPoint p = i.next();
+      int xOff = p.x * gridSize;
+      int yOff = p.y * gridSize;
+      int distance = getDistance(p.x, p.y);
 
       // Paint what is needed.
       if (area) {
-        paintArea(g, (int)p.x, (int)p.y, xOff, yOff, gridSize, distance);
+        paintArea(g, p.x, p.y, xOff, yOff, gridSize, distance);
       } // endif
       if (border) {
-        paintBorder(g, (int)p.x, (int)p.y, xOff, yOff, gridSize, i.previousIndex());
+        paintBorder(g, p.x, p.y, xOff, yOff, gridSize, i.previousIndex());
       } // endif
     } // endfor
   }
@@ -190,7 +191,7 @@ public class LineTemplate extends AbstractTemplate {
    * 
    * @return The new path or <code>null</code> if there is no path.
    */
-  protected List<ScreenPoint> calcPath() {
+  protected List<CellPoint> calcPath() {
     if (getRadius() == 0)
       return null;
     if (pathVertex == null)
@@ -206,7 +207,7 @@ public class LineTemplate extends AbstractTemplate {
 
     // Start the line at 0,0
     clearPath();
-    path = new ArrayList<ScreenPoint>();
+    path = new ArrayList<CellPoint>();
     path.add(getPointFromPool(0, 0));
     MathContext mc = MathContext.DECIMAL128;
     MathContext rmc = new MathContext(MathContext.DECIMAL64.getPrecision(), RoundingMode.DOWN);
@@ -218,10 +219,10 @@ public class LineTemplate extends AbstractTemplate {
       BigDecimal m = BigDecimal.valueOf(dy).divide(BigDecimal.valueOf(dx), mc).abs();
 
       // Find the path
-      ScreenPoint p = path.get(path.size() - 1);
-      while (getDistance((int)p.x, (int)p.y) <= radius) {
-        int x = (int)p.x;
-        int y = (int)p.y;
+      CellPoint p = path.get(path.size() - 1);
+      while (getDistance(p.x, p.y) <= radius) {
+        int x = p.x;
+        int y = p.y;
 
         // Which border does the point exit the cell?
         double xValue = BigDecimal.valueOf(y + 1).divide(m, mc).round(rmc).doubleValue();
@@ -277,19 +278,28 @@ public class LineTemplate extends AbstractTemplate {
    * @param y The y coordinate of the new point.
    * @return The new point.
    */
-  private ScreenPoint getPointFromPool(int x, int y) {
-    ScreenPoint p = null;
+  public CellPoint getPointFromPool(int x, int y) {
+    CellPoint p = null;
     if (pool != null) {
       p = pool.remove(pool.size() - 1);
       if (pool.isEmpty())
         pool = null;
     } // endif
     if (p == null) {
-      p = new ScreenPoint(0, 0);
+      p = new CellPoint(0, 0);
     } // endif
     p.x = x;
     p.y = y;
     return p;
+  }
+
+  /**
+   * Add a point back to the pool.
+   * 
+   * @param p Add this point back
+   */
+  public void addPointToPool(CellPoint p) {
+      if (pool != null) pool.add(p);
   }
 
   /**
@@ -380,6 +390,16 @@ public class LineTemplate extends AbstractTemplate {
     doubleWide = aDoubleWide;
   }
 
+  /** @return Getter for path */
+  public ArrayList<CellPoint> getPath() {
+      return path;
+  }
+
+  /** @param path Setter for the path to set */
+  public void setPath(ArrayList<CellPoint> path) {
+      this.path = path;
+  }
+
   /*---------------------------------------------------------------------------------------------
    * Drawable Interface Methods
    *-------------------------------------------------------------------------------------------*/
@@ -397,7 +417,7 @@ public class LineTemplate extends AbstractTemplate {
     // Find the point that is farthest away in the path, then adjust 
     ScreenPoint pv = new ScreenPoint(-1, -1);
     if (path == null) calcPath();
-    for (ScreenPoint pt : path) {
+    for (CellPoint pt : path) {
       pv.x = Math.max(pt.x, pv.x);
       pv.y = Math.max(pt.y, pv.y);
     } // endfor
@@ -421,7 +441,7 @@ public class LineTemplate extends AbstractTemplate {
     else if (xAxisLine)
       y -= gridSize;
     
-    // Calulate the size
+    // Calculate the size
     int width = (int)(Math.abs(v.x - pv.x) + (gridSize + BOUNDS_PADDING) * 2 + (yAxisLine ? gridSize : 0)); 
     int height = (int)(Math.abs(v.y - pv.y) + (gridSize + BOUNDS_PADDING) * 2 + (xAxisLine ? gridSize : 0));
     return new Rectangle(x, y, width, height);

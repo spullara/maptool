@@ -26,6 +26,7 @@
 package net.rptools.maptool.client.tool.drawing;
 
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
@@ -135,9 +136,10 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
       ZonePoint vertex = template.getVertex();
       ZonePoint pathVertex = ((LineTemplate) template).getPathVertex();
       template.draw(g, pen);
-      paintCursor(g, pen.getPaint().getPaint(), pen.getThickness(), vertex);
+      Paint paint = pen.getPaint() != null ? pen.getPaint().getPaint() : null;
+      paintCursor(g, paint, pen.getThickness(), vertex);
       if (pathVertex != null) {
-        paintCursor(g, pen.getPaint().getPaint(), pen.getThickness(), pathVertex);
+        paintCursor(g, paint, pen.getThickness(), pathVertex);
       }
       g.setTransform(old);
       if (pathVertex != null) {
