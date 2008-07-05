@@ -24,9 +24,6 @@
  */
 package net.rptools.maptool.client.tool.drawing;
 
-import java.awt.BasicStroke;
-import java.awt.Graphics2D;
-import java.awt.Paint;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 
@@ -34,25 +31,18 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.AbstractTemplate;
-import net.rptools.maptool.model.drawing.BurstTemplate;
+import net.rptools.maptool.model.drawing.BlastTemplate;
+import net.rptools.maptool.model.drawing.RadiusTemplate;
+import net.rptools.maptool.model.drawing.AbstractTemplate.Direction;
 
 /**
- * Draw a template for an effect with a burst. Make the template show the
- * squares that are effected, not just draw a circle. Let the player choose the
- * base hex with the mouse and then click again to set the radius. The control key 
- * can be used to move the base hex.
+ * Draws a square blast template next to a base cell.
  * 
- * @author jgorrell
- * @version $Revision: $ $Date: $ $Author: $
+ * @author Jay
  */
-public class BurstTemplateTool extends RadiusTemplateTool {
-
-    /*---------------------------------------------------------------------------------------------
-     * Instance Variables
-     *-------------------------------------------------------------------------------------------*/
+public class BlastTemplateTool extends BurstTemplateTool {
 
     /*---------------------------------------------------------------------------------------------
      * Constructors
@@ -61,10 +51,10 @@ public class BurstTemplateTool extends RadiusTemplateTool {
     /**
      * Set the icon for the base tool.
      */
-    public BurstTemplateTool() {
+    public BlastTemplateTool() {
         try {
             setIcon(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream(
-                "net/rptools/maptool/client/image/tool/temp-blue-burst.png"))));
+                "net/rptools/maptool/client/image/tool/temp-blue-square.png"))));
         } catch (IOException ioe) {
             ioe.printStackTrace();
         } // endtry
@@ -75,46 +65,19 @@ public class BurstTemplateTool extends RadiusTemplateTool {
      *-------------------------------------------------------------------------------------------*/
 
     /**
-     * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#createBaseTemplate()
+     * @see net.rptools.maptool.client.tool.drawing.BurstTemplateTool#createBaseTemplate()
      */
     @Override
     protected AbstractTemplate createBaseTemplate() {
-        return new BurstTemplate();
+        return new BlastTemplate();
     }
 
-    /**
-     * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#getCellAtMouse(java.awt.event.MouseEvent)
-     */
-    protected ZonePoint getCellAtMouse(MouseEvent e) {
-        ZonePoint mouse = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
-        CellPoint cp = renderer.getZone().getGrid().convert(mouse);
-        return renderer.getZone().getGrid().convert(cp);
-    }
-
-    /**
-     * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#paintCursor(java.awt.Graphics2D, java.awt.Paint, float, net.rptools.maptool.model.ZonePoint)
-     */
-    protected void paintCursor(Graphics2D g, Paint paint, float thickness, ZonePoint vertex) {
-      g.setPaint(paint);
-      g.setStroke(new BasicStroke(thickness));
-      int grid = renderer.getZone().getGrid().getSize();
-      g.drawRect(vertex.x, vertex.y, grid, grid);
-    }
-
-    /**
-     * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#getRadiusAtMouse(java.awt.event.MouseEvent)
-     */
-    @Override
-    protected int getRadiusAtMouse(MouseEvent e) {
-        return super.getRadiusAtMouse(e) - 1;
-    }
-    
     /**
      * @see net.rptools.maptool.client.ui.Tool#getTooltip()
      */
     @Override
     public String getTooltip() {
-      return "tool.bursttemplate.tooltip";
+      return "tool.blasttemplate.tooltip";
     }
 
     /**
@@ -122,7 +85,32 @@ public class BurstTemplateTool extends RadiusTemplateTool {
      */
     @Override
     public String getInstructions() {
-      return "tool.bursttemplate.instructions";
+      return "tool.blasttemplate.instructions";
     }
- }
-
+    
+    /**
+     * @see net.rptools.maptool.client.tool.drawing.BurstTemplateTool#getRadiusAtMouse(java.awt.event.MouseEvent)
+     */
+    @Override
+    protected int getRadiusAtMouse(MouseEvent e) {
+        int radius = super.getRadiusAtMouse(e) + 1; 
+        return radius + (radius % 2 == 0 ? + 1 : 0); // Force to be odd.
+    }
+    
+    /**
+     * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#setRadiusFromAnchor(java.awt.event.MouseEvent)
+     */
+    @Override
+    protected void setRadiusFromAnchor(MouseEvent e) {
+        super.setRadiusFromAnchor(e);
+        
+        // Also determine direction
+        ZonePoint vertex = template.getVertex();
+        ZonePoint mouse = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
+        Direction dir = RadiusTemplate.Direction.findDirection(mouse.x, mouse.y, vertex.x, vertex.y);
+//        if (template.getRadius() % 2 == 0 && dir.ordinal() % 2 == 1) {
+//            dir = Direction.values()[dir == Direction.SOUTH_WEST ? 1 : dir.ordinal() + 1];
+//        }
+        ((BlastTemplate)template).setDirection(dir);
+    }
+}

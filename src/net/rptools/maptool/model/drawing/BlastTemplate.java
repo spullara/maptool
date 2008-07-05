@@ -25,6 +25,7 @@
 package net.rptools.maptool.model.drawing;
 
 import java.awt.AlphaComposite;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -36,8 +37,7 @@ import net.rptools.maptool.model.ZonePoint;
  * The blast template draws a square for D&D 4e
  * 
  * @author jgorrell
- * @version $Revision: 3817 $ $Date: 2007-09-29 16:35:16 -0500 (Sat, 29 Sep
- *          2007) $ $Author: coloneldork $
+ * @version $Revision: $ $Date: $ $Author: $
  */
 public class BlastTemplate extends ConeTemplate {
 
@@ -60,6 +60,7 @@ public class BlastTemplate extends ConeTemplate {
      * is an even number and still stay in the squares, that case isn't allowed. 
      */
     private void adjustRectangle() {
+        if (getZoneId() == null) return;
         int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
         int half = (getRadius() / 2) * gridSize;
         int size = getRadius() * gridSize;
@@ -67,30 +68,36 @@ public class BlastTemplate extends ConeTemplate {
         r.setBounds(getVertex().x, getVertex().y, size, size);
         switch (getDirection()) {
         case WEST:
-            r.x -= (size - gridSize);
+            r.x -= size;
             r.y -= half;
             break;
         case NORTH_WEST:
-            r.x -= (size - gridSize);
-            r.y -= (size - gridSize);
+            r.x -= size;
+            r.y -= size;
             break;
         case NORTH:
             r.x -= half;
-            r.y -= (size - gridSize);
+            r.y -= size;
             break;
         case NORTH_EAST:
-            r.y -= (size - gridSize);
+            r.y -= size;
+            r.x += gridSize;
             break;
         case EAST:
             r.y -= half;
+            r.x += gridSize;
             break;
         case SOUTH_EAST:
+            r.x += gridSize;
+            r.y += gridSize;
             break;
         case SOUTH:
             r.x -= half;
+            r.y += gridSize;
             break;
         case SOUTH_WEST:
-            r.x -= (size - gridSize);
+            r.x -= size;
+            r.y += gridSize;
             break;
         } // endswitch
     }
@@ -126,6 +133,14 @@ public class BlastTemplate extends ConeTemplate {
         adjustRectangle();
     }
 
+    /**
+     * @see net.rptools.maptool.model.drawing.AbstractTemplate#getDistance(int, int)
+     */
+    @Override
+    public int getDistance(int x, int y) {
+        return Math.max(x, y);
+    }
+
     /*---------------------------------------------------------------------------------------------
      * Overridden AbstractDrawing Methods
      *-------------------------------------------------------------------------------------------*/
@@ -143,7 +158,9 @@ public class BlastTemplate extends ConeTemplate {
      */
     @Override
     protected void drawBackground(Graphics2D g) {    
-      g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.15f));
+      Composite old = g.getComposite();
+      g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, DEFAULT_BG_ALPHA));
       renderer.drawBackground(g);
+      g.setComposite(old);
     }
 }

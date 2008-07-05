@@ -316,10 +316,6 @@ public abstract class AbstractTemplate extends AbstractDrawing {
         return ((q == Quadrant.NORTH_WEST || q == Quadrant.NORTH_EAST) ? -1 : +1);
     }
 
-    /*---------------------------------------------------------------------------------------------
-     * Class Methods 
-     *-------------------------------------------------------------------------------------------*/
-
     /**
      * Get the distance to a specific coordinate.
      * 
@@ -327,7 +323,7 @@ public abstract class AbstractTemplate extends AbstractDrawing {
      * @param y Y position of the coordinate.
      * @return Number of cell to the passed coordinate.
      */
-    public static int getDistance(int x, int y) {
+    public int getDistance(int x, int y) {
         if (x > y)
             return x + (y / 2) + 1 + (y & 1);
         return y + (x / 2) + 1 + (x & 1);

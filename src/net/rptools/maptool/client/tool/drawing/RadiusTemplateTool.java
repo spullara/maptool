@@ -183,7 +183,7 @@ public class RadiusTemplateTool extends AbstractDrawingTool implements MouseMoti
     CellPoint vertexCell = renderer.getZone().getGrid().convert(template.getVertex());
     int x = Math.abs(workingCell.x - vertexCell.x);
     int y = Math.abs(workingCell.y - vertexCell.y);
-    return AbstractTemplate.getDistance(x, y);
+    return template.getDistance(x, y);
   }
 
   /**
