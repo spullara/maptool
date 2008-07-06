@@ -1771,7 +1771,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 
                 // Check for the on/off states & paint them
                 if (stateValue instanceof Boolean && ((Boolean)stateValue).booleanValue()) {
-                  TokenOverlay overlay =  MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().get(state);
+                  TokenOverlay overlay =  MapTool.getCampaign().getTokenStatesMap().get(state);
                   if (overlay != null) overlay.paintOverlay(locg, token, bounds);
                 
                 // Check for an overlay state value and paint that

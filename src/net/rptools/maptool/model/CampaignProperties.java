@@ -5,13 +5,17 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
+import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.ui.token.ColorDotTokenOverlay;
 import net.rptools.maptool.client.ui.token.DiamondTokenOverlay;
+import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
 import net.rptools.maptool.client.ui.token.OTokenOverlay;
 import net.rptools.maptool.client.ui.token.ShadedTokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
@@ -285,5 +289,14 @@ public class CampaignProperties implements Serializable {
         tokenStates.put("Other2", (new DiamondTokenOverlay("Other2", Color.RED, 5)));
         tokenStates.put("Other3", (new YieldTokenOverlay("Other3", Color.YELLOW, 5)));
         tokenStates.put("Other4", (new TriangleTokenOverlay("Other4", Color.MAGENTA, 5)));
+    }
+    
+    public Set<MD5Key> getAllImageAssets() {
+        Set<MD5Key> set = new HashSet<MD5Key>();
+        for (TokenOverlay overlay : tokenStates.values()) {
+            if (overlay instanceof ImageTokenOverlay)
+                set.add(((ImageTokenOverlay)overlay).getAssetId());
+        } // endfor
+        return set;
     }
 }

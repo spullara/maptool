@@ -86,7 +86,7 @@ public class LoadTokenStatesMacro implements Macro {
       List<TokenOverlay> overlays = (List<TokenOverlay>)decoder.readObject();
       decoder.close();
       for (TokenOverlay overlay : overlays) {
-          MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().put(overlay.getName(), overlay);
+          MapTool.getCampaign().getTokenStatesMap().put(overlay.getName(), overlay);
       } // endfor
       MapTool.addLocalMessage("There were " + overlays.size() + " token states loaded.");
     } catch (FileNotFoundException e) {

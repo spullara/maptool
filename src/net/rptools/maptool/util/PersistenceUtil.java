@@ -37,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -72,7 +73,7 @@ import com.thoughtworks.xstream.XStream;
 public class PersistenceUtil {
 
 	private static final String PROP_VERSION = "version";
-	
+	private static final String ASSET_DIR = "assets/";
 	static {
 		PackedFile.init(AppUtil.getAppHome("tmp"));
 	}
@@ -105,14 +106,14 @@ public class PersistenceUtil {
 		Set<MD5Key> assetSet = new HashSet<MD5Key>();
 		for (Zone zone : campaign.getZones()) {
 			assetSet.addAll(zone.getAllAssetIds());
-		}			
+		}
 		for (MD5Key key : assetSet) {
 				
 				// Put in a placeholder 
 				persistedCampaign.assetMap.put(key, null);
 				
 				// And store the asset elsewhere
-				pakFile.putFile("assets/" + key, AssetManager.getAsset(key));
+				pakFile.putFile(ASSET_DIR + key, AssetManager.getAsset(key));
 		}
 		
 		pakFile.setContent(persistedCampaign);
@@ -192,7 +193,7 @@ public class PersistenceUtil {
 			for (MD5Key key : persistedCampaign.assetMap.keySet()) {
 				
 				if (!AssetManager.hasAsset(key)) {
-					Asset asset = (Asset) pakfile.getFileObject("assets/" + key);
+					Asset asset = (Asset) pakfile.getFileObject(ASSET_DIR + key);
 					AssetManager.putAsset(asset);
 
 					if (!MapTool.isHostingServer() && !MapTool.isPersonalServer()) {
@@ -269,15 +270,7 @@ public class PersistenceUtil {
 	public static void saveToken(Token token, File file) throws IOException {
 		
 		PackedFile pakFile = new PackedFile(file);
-
-		for (MD5Key assetId : token.getAllImageAssets()) {
-			if (assetId == null) {
-				continue;
-			}
-			
-			// And store the asset elsewhere
-			pakFile.putFile("assets/" + assetId, AssetManager.getAsset(assetId));
-		}
+		saveAssets(token.getAllImageAssets(), pakFile);
 		
 		// Thumbnail
 		BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
@@ -307,26 +300,48 @@ public class PersistenceUtil {
 		// TODO: Check version
 		Token token = (Token) pakFile.getContent();
 		
-		for (MD5Key key : token.getAllImageAssets()) {
-			if (key == null) {
-				continue;
-			}
-			
-			if (!AssetManager.hasAsset(key)) {
-				Asset asset = (Asset) pakFile.getFileObject("assets/" + key);
-				AssetManager.putAsset(asset);
-
-				if (!MapTool.isHostingServer() && !MapTool.isPersonalServer()) {
-					// If we are remotely installing this token, we'll need to send the image data to the server
-		            MapTool.serverCommand().putAsset(asset);
-				}
-			}
-		}
+		loadAssets(token.getAllImageAssets(), pakFile);
 
 		return token;
 	}
 	
-	public static CampaignProperties loadCampaignProperties(File file) throws IOException {
+	private static void loadAssets(Collection<MD5Key> assetIds, PackedFile pakFile) throws IOException {
+        for (MD5Key key : assetIds) {
+            if (key == null) {
+                continue;
+            }
+            
+            if (!AssetManager.hasAsset(key)) {
+                Asset asset = (Asset) pakFile.getFileObject(ASSET_DIR + key);
+                AssetManager.putAsset(asset);
+
+                if (!MapTool.isHostingServer() && !MapTool.isPersonalServer()) {
+                    // If we are remotely installing this token, we'll need to send the image data to the server
+                    MapTool.serverCommand().putAsset(asset);
+                }
+            }
+        }
+	}
+	
+	private static void saveAssets(Collection<MD5Key> assetIds, PackedFile pakFile) throws IOException {
+        for (MD5Key assetId : assetIds) {
+            if (assetId == null) {
+                continue;
+            }
+            
+            // And store the asset elsewhere
+            pakFile.putFile(ASSET_DIR + assetId, AssetManager.getAsset(assetId));
+        }
+	}
+	
+	private static void clearAssets(PackedFile pakFile) throws IOException {
+	    for (String path : pakFile.getPaths()) {
+            if (path.startsWith(ASSET_DIR) && !path.equals(ASSET_DIR))
+                pakFile.removeFile(path);
+        } // endfor 
+	}	
+	
+	public static CampaignProperties loadLegacyCampaignProperties(File file) throws IOException {
 		
 		if (!file.exists()) {
 			throw new FileNotFoundException();
@@ -347,17 +362,33 @@ public class PersistenceUtil {
 		return (CampaignProperties) new XStream().fromXML(in);
 	}
 	
+	public static CampaignProperties loadCampaignProperties(File file) throws IOException {
+        try {
+            PackedFile pakFile = new PackedFile(file);
+            String version = (String)pakFile.getProperty(PROP_VERSION); // Sanity check
+            CampaignProperties props = (CampaignProperties)pakFile.getContent();
+            loadAssets(props.getAllImageAssets(), pakFile);
+            return props;
+        } catch (IOException e) {
+            return loadLegacyCampaignProperties(file);
+        }
+	}
+	
 	public static void saveCampaignProperties(Campaign campaign, File file) throws IOException {
 		
-		// Put this in FileUtil
-		if (file.getName().indexOf(".") < 0) {
-			file = new File(file.getAbsolutePath()
-					+ ".mtprops");
-		}
-
-		
-		new XStream().toXML(campaign.getCampaignProperties(), new FileOutputStream(file));
+        // Put this in FileUtil
+        if (file.getName().indexOf(".") < 0) {
+            file = new File(file.getAbsolutePath()
+                    + ".mtprops");
+        }
+        PackedFile pakFile = new PackedFile(file);
+        clearAssets(pakFile);
+        saveAssets(campaign.getCampaignProperties().getAllImageAssets(), pakFile);
+        pakFile.setContent(campaign.getCampaignProperties());
+        pakFile.save();
+        pakFile.close();
 	}
+	
 	
 	public static <T> T hessianClone(T object) throws IOException {
 

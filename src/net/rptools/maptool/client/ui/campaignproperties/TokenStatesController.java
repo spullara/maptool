@@ -31,7 +31,11 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,6 +45,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
@@ -51,22 +56,35 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.text.JTextComponent;
 
+import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.MapPropertiesDialog;
+import net.rptools.maptool.client.ui.PreviewPanelFileChooser;
 import net.rptools.maptool.client.ui.token.ColorDotTokenOverlay;
+import net.rptools.maptool.client.ui.token.CornerImageTokenOverlay;
 import net.rptools.maptool.client.ui.token.CrossTokenOverlay;
 import net.rptools.maptool.client.ui.token.DiamondTokenOverlay;
+import net.rptools.maptool.client.ui.token.FlowColorDotTokenOverlay;
+import net.rptools.maptool.client.ui.token.FlowColorSquareTokenOverlay;
+import net.rptools.maptool.client.ui.token.FlowImageTokenOverlay;
+import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
 import net.rptools.maptool.client.ui.token.OTokenOverlay;
 import net.rptools.maptool.client.ui.token.ShadedTokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.token.TriangleTokenOverlay;
 import net.rptools.maptool.client.ui.token.XTokenOverlay;
 import net.rptools.maptool.client.ui.token.YieldTokenOverlay;
+import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.drawing.AbstractTemplate.Quadrant;
+import net.rptools.maptool.util.ImageManager;
 
 import com.jeta.forms.components.colors.JETAColorWell;
 import com.jeta.forms.components.panel.FormPanel;
@@ -81,6 +99,7 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
 
     private FormPanel formPanel;
     private Set<String> names = new HashSet<String>();
+    private PreviewPanelFileChooser imageFileChooser;
     
     public static String NAME = "tokenStatesName";
     public static String TYPE = "tokenStatesType";
@@ -90,6 +109,9 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
     public static String ADD = "tokenStatesAddState";
     public static String DELETE = "tokenStatesDeleteState";
     public static String STATES = "tokenStatesStates";
+    public static String FLOW_GRID = "tokenStatesFlowGrid";
+    public static String IMAGE = "tokenStatesImageFile";
+    public static String BROWSE = "tokenStatesBrowseImage";
     public static int ICON_SIZE = 50;
     
     public TokenStatesController(FormPanel panel) {
@@ -98,7 +120,9 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
         panel.getButton(ADD).setEnabled(false);
         panel.getButton(DELETE).addActionListener(this);
         panel.getButton(DELETE).setEnabled(false);
+        panel.getButton(BROWSE).addActionListener(this);
         panel.getSpinner(WIDTH).setModel(new SpinnerNumberModel(5, 1, 10, 1));
+        panel.getSpinner(FLOW_GRID).setModel(new SpinnerNumberModel(4, 2, 10, 1));
         panel.getList(STATES).setCellRenderer(new StateListRenderer());
         panel.getList(STATES).addListSelectionListener(this);
         panel.getTextComponent(NAME).getDocument().addDocumentListener(this);
@@ -122,7 +146,33 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
                 names.remove(overlay.getName());
             } // endfor
             changedUpdate(null);
+        } else if (BROWSE.equals(name)) {
+            if (getImageFileChooser().showOpenDialog(formPanel) == JFileChooser.APPROVE_OPTION) {
+                File imageFile = getImageFileChooser().getSelectedFile();
+                if (imageFile == null || imageFile.isDirectory() || !imageFile.exists() || !imageFile.canRead()) return;
+                formPanel.setText(IMAGE, imageFile.getPath());
+            } // endif
         }
+    }
+
+    private PreviewPanelFileChooser getImageFileChooser() {
+        if (imageFileChooser == null) {
+            imageFileChooser = new PreviewPanelFileChooser();
+            imageFileChooser.setFileFilter(new FileFilter() {
+                @Override
+                public boolean accept(File f) {
+                    return f.isDirectory()
+                            || AppConstants.IMAGE_FILE_FILTER.accept(f
+                                    .getAbsoluteFile(), f.getName());
+                }
+
+                @Override
+                public String getDescription() {
+                    return "Images only";
+                }
+            });
+        }
+        return imageFileChooser;
     }
 
     public void changedUpdate(DocumentEvent e) {
@@ -145,7 +195,7 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
     private class StateListRenderer extends DefaultListCellRenderer {
         
         Rectangle bounds = new Rectangle(0, 0, ICON_SIZE, ICON_SIZE);
-        Token token = new Token();
+        Token token = new Token("name", null);
         TokenOverlay overlay;
         Icon icon = new Icon() {
             public int getIconHeight() { return ICON_SIZE + 2; }
@@ -175,8 +225,11 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
 
     public void copyCampaignToUI(CampaignProperties campaign) {
         names.clear();
+        ArrayList<String> states = new ArrayList<String>(campaign.getTokenStatesMap().keySet());
+        Collections.sort(states);
         DefaultListModel model = new DefaultListModel();
-        for (TokenOverlay overlay : campaign.getTokenStatesMap().values()) {
+        for (String state : states) {
+            TokenOverlay overlay = campaign.getTokenStatesMap().get(state);
             model.addElement(overlay);
             names.add(overlay.getName());
         }
@@ -210,19 +263,18 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
             return new ShadedTokenOverlay(name, color);
         } // endif
         
-        // Get the width for the remaining items
-        int width = 0;
-        JSpinner spinner = formPanel.getSpinner(WIDTH);
-        try {
-            spinner.commitEdit();
-            width = ((Integer)spinner.getValue()).intValue();
-        } catch (ParseException e) {
-            JOptionPane.showMessageDialog(spinner, "There is an invalikd width specified: " + ((JTextField)spinner.getEditor()).getText(), 
-                    "Error!", JOptionPane.ERROR_MESSAGE);
-            return null;
-        } // endtry
+        // Get flow information
+        int grid = getSpinner(FLOW_GRID, "grid size");
+        if (overlay.equals("Flow Dot")) {
+            return new FlowColorDotTokenOverlay(name, color, grid);
+        } if (overlay.equals("Flow Square")) {
+            return new FlowColorSquareTokenOverlay(name, color, grid);
+        } // endif
         
-        // Handle all of the overlay's with width
+        // Get the width for the items that need them
+        int width = getSpinner(WIDTH, "width");
+        
+        // Handle all of the overlays with width
         if (overlay.equals("Circle")) {
             return new OTokenOverlay(name, color, width);
         } else if (overlay.equals("X")) {
@@ -236,6 +288,47 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
         } else if (overlay.equals("Triangle")) {
             return new TriangleTokenOverlay(name, color, width);
         } // endif
+        
+        // If we get here it is an image overlay, grab the image as an asset
+        File file = new File(formPanel.getText(IMAGE));
+        if (!file.exists() || !file.canRead() || file.isDirectory()) {
+            JOptionPane.showMessageDialog(formPanel, "The image file was not specified, it doesn't exist, is a directory, or it can't be read: " 
+                    + file.getAbsolutePath(), "Error!", JOptionPane.ERROR_MESSAGE);
+            return null;
+        } // endif
+        Asset asset = null;
+        try {
+            asset = AssetManager.createAsset(file);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(formPanel, "Error reading the image file: " 
+                    + file.getAbsolutePath(), "Error!", JOptionPane.ERROR_MESSAGE);
+            return null;
+        } // endif
+        AssetManager.putAsset(asset);
+        
+        // Create all of the image overlays 
+        if (overlay.equals("Image")) {
+            return new ImageTokenOverlay(name, asset.getId());
+        } else if (overlay.equals("Corner Image")) {
+            String cornerName = formPanel.getSelectedItem(CORNER).toString().toUpperCase().replace(' ', '_');
+            return new CornerImageTokenOverlay(name, asset.getId(), Quadrant.valueOf(cornerName));
+        } else if (overlay.equals("Flow Image")) {
+            return new FlowImageTokenOverlay(name, asset.getId(), grid);
+        } // endif
         return null;
+    }
+    
+    private int getSpinner(String name, String displayName) {
+        int width = 0;
+        JSpinner spinner = formPanel.getSpinner(name);
+        try {
+            spinner.commitEdit();
+            width = ((Integer)spinner.getValue()).intValue();
+        } catch (ParseException e) {
+            JOptionPane.showMessageDialog(spinner, "There is an invalid " + displayName + " specified: " + ((JTextField)spinner.getEditor()).getText(), 
+                    "Error!", JOptionPane.ERROR_MESSAGE);
+            throw new IllegalStateException(e);
+        } // endtry
+        return width;
     }
 }

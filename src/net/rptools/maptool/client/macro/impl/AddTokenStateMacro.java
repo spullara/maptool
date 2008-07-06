@@ -109,7 +109,7 @@ public class AddTokenStateMacro implements Macro {
     String param2 = tokens.length > 3 ? tokens[PARAM_2] : null;
     
     // Check for a duplicate name
-    if (MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().get(name) != null) {
+    if (MapTool.getCampaign().getTokenStatesMap().get(name) != null) {
       MapTool.addLocalMessage("A token state with the name '" + name + "' already exists.");
       throw new IllegalArgumentException("A token state with the name '" + name + "' already exists.");
     } // endif
@@ -137,7 +137,7 @@ public class AddTokenStateMacro implements Macro {
           "dot, circle, shade, X, cross, diamond, yield or triangle");
       throw new IllegalArgumentException("There is no overlay type with the name '" + overlay + "'.");
     } // endif
-    MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().put(tokenOverlay.getName(), tokenOverlay);
+    MapTool.getCampaign().getTokenStatesMap().put(tokenOverlay.getName(), tokenOverlay);
     MapTool.addLocalMessage("Token state '" + tokenOverlay.getName() + "' was added");
   }
 

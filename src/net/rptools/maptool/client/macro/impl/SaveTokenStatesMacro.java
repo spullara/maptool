@@ -81,8 +81,8 @@ public class SaveTokenStatesMacro implements Macro {
     try {
       XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(new FileOutputStream(aliasFile)));
       List<TokenOverlay> overlays = new ArrayList<TokenOverlay>();
-      for (String overlay : MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().keySet()) {
-        overlays.add(MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().get(overlay));
+      for (String overlay : MapTool.getCampaign().getTokenStatesMap().keySet()) {
+        overlays.add(MapTool.getCampaign().getTokenStatesMap().get(overlay));
       } // endfor
       encoder.writeObject(overlays);
       encoder.close();

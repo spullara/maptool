@@ -129,7 +129,7 @@ public class SetTokenStateMacro implements Macro {
 	  }
 	  
 	  // Set the state for all the tokens
-	  if (MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().containsKey(state)) {
+	  if (MapTool.getCampaign().getTokenStatesMap().containsKey(state)) {
 		  for (GUID tokenId : selectedTokenSet) {
 			  Token tok = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId);
 			  handleBooleanValue(tok, state, value);
@@ -187,10 +187,10 @@ public class SetTokenStateMacro implements Macro {
    * no state with the passed name could be found.
    */
 public String getState(String state) {
-	if (MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().get(state) != null || "light".equals(state))
+	if (MapTool.getCampaign().getTokenStatesMap().get(state) != null || "light".equals(state))
 		return state;
 	String newState = null;
-	for (String name : MapTool.getCampaign().getCampaignProperties().getTokenStatesMap().keySet()) {
+	for (String name : MapTool.getCampaign().getTokenStatesMap().keySet()) {
 		if (name.equalsIgnoreCase(state)) {
 			if (newState != null) {
 				MapTool.addLocalMessage("The name '" + state
