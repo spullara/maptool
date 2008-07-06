@@ -140,15 +140,22 @@ public class WallTemplateTool extends BurstTemplateTool {
           
           // Compare to the second to last point, if == delete last point
           List<CellPoint> path = lt.getPath();
-          if (path.size() > 1 && path.get(path.size() - 2).equals(mousePoint)) {
-            lt.addPointToPool(path.remove(path.size() - 1));
-          } else {
-            CellPoint lastPoint = path.get(path.size() - 1);
-            int dx = mousePoint.x - lastPoint.x;
-            int dy = mousePoint.y - lastPoint.y;
-            if (Math.abs(dx) == 1 && dy == 0 || Math.abs(dy) == 1 && dx == 0) {
-              path.add(mousePoint);
-            } // endif
+          CellPoint lastPoint = path.get(path.size() - 1);
+          int dx = mousePoint.x - lastPoint.x;
+          int dy = mousePoint.y - lastPoint.y;
+          if (dx != 0 && dy == 0 || dy != 0 && dx == 0) {
+            int count = Math.max(Math.abs(dy), Math.abs(dx));
+            dx = dx == 0 ? 0 : dx/Math.abs(dx);
+            dy = dy == 0 ? 0 : dy/Math.abs(dy);
+            for (int i = 1; i <= count; i++) {
+              CellPoint current = lt.getPointFromPool(lastPoint.x + dx * i, lastPoint.y + dy * i);
+              if (path.size() > 1 && path.get(path.size() - 2).equals(current)) {
+                lt.addPointToPool(path.remove(path.size() - 1));
+                lt.addPointToPool(current);
+              } else {
+                path.add(current);
+              } // endif
+            } // endfor
           } // endif
           renderer.repaint();
           controlOffset = null;  
