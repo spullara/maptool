@@ -43,7 +43,8 @@ import net.rptools.maptool.client.macro.MacroManager;
 @MacroDefinition(
     name = "alias",
     aliases = { "alias" },
-    description = "Create an alias."
+    description = "Create an alias.",
+    expandRolls = false
 )
 public class AliasMacro implements Macro {
 

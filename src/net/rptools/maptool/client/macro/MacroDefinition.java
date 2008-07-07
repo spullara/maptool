@@ -11,4 +11,5 @@ public @interface MacroDefinition {
 	String[] aliases() default { };
 	String description();
 	boolean hidden() default false;
+	boolean expandRolls() default true;
 }

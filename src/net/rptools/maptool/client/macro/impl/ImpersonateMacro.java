@@ -32,7 +32,8 @@ import net.rptools.maptool.model.Token;
 @MacroDefinition(
         name = "impersonate",
         aliases = { "im" },
-        description = "Speak as if you were something/one else"
+        description = "Speak as if you were something/one else",
+        expandRolls = false
     )
 public class ImpersonateMacro implements Macro {
 	

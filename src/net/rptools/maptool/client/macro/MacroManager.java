@@ -62,6 +62,7 @@ import net.rptools.maptool.client.macro.impl.SaveAliasesMacro;
 import net.rptools.maptool.client.macro.impl.SaveTokenStatesMacro;
 import net.rptools.maptool.client.macro.impl.SayMacro;
 import net.rptools.maptool.client.macro.impl.SetTokenStateMacro;
+import net.rptools.maptool.client.macro.impl.SetTokenPropertyMacro;
 import net.rptools.maptool.client.macro.impl.SelfMacro;
 import net.rptools.maptool.client.macro.impl.ToGMMacro;
 import net.rptools.maptool.client.macro.impl.UndefinedMacro;
@@ -101,6 +102,7 @@ public class MacroManager {
 		registerMacro(new LoadTokenStatesMacro());
 		registerMacro(new SaveTokenStatesMacro());
 		registerMacro(new SetTokenStateMacro());
+		registerMacro(new SetTokenPropertyMacro());
 		registerMacro(new RollSecretMacro());
 		registerMacro(new EmitMacro());
 		registerMacro(new SelfMacro());
@@ -182,12 +184,7 @@ public class MacroManager {
 					command = "s " + command;
 				}
 	
-				// preprocess line
-				if (!command.startsWith("alias") && !command.startsWith("im")) {
-					// TODO: Fix this.  The command framework should know whether expansion should
-					// happen.  Until then we need to avoid expanding values in the alias command
-					command = AbstractRollMacro.inlineRoll(command);
-				}
+
 				
 				// Macro name is the first word
 				Matcher m = MACRO_PAT.matcher(command);
@@ -196,7 +193,14 @@ public class MacroManager {
 					String details = m.group(2);
 	
 					Macro macro = getRegisteredMacro(key);
-	
+					MacroDefinition def = macro.getClass().getAnnotation(
+							MacroDefinition.class);
+
+					// Preprocess line if required.
+					if (def == null || def.expandRolls()) {
+						details = AbstractRollMacro.inlineRoll(details);
+					}
+					
 					if (macro != UNDEFINED_MACRO) {
 						executeMacro(macro, details);
 						return;
