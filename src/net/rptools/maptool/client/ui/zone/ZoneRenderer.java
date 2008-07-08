@@ -76,6 +76,8 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import com.sun.org.apache.bcel.internal.generic.ISUB;
+
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.ImageBorder;
@@ -657,7 +659,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	// Setup
     	Graphics2D newG = (Graphics2D)g.create();
     	Area clip = new Area(g.getClip());
-    	clip.intersect(visibleScreenArea);
+    	if (visibleScreenArea != null) {
+    		clip.intersect(visibleScreenArea);
+    	}
     	newG.setClip(clip);
     	SwingUtil.useAntiAliasing(newG);
 
