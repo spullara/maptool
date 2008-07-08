@@ -671,7 +671,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	newG.setTransform(af);
 
     	newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .25f));
-    	
+
     	// Organize
     	Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
     	for (DrawableLight light : zoneView.getDrawableLights()) {
@@ -695,7 +695,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				a1.add(a2);
 				areaList.add(a1);
 			}
+			
+	    	// Cut out the bright light
+			if (areaList.size() > 0) {
+				Area area = areaList.get(0);
+				
+				for (Area brightArea : zoneView.getBrightLights()) {
+					area.subtract(brightArea);
+				}
+			}
     	}    	
+    	
     	
     	// Draw
     	for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {

@@ -34,6 +34,7 @@ public class ZoneView implements ModelChangeListener {
     private Map<GUID, Map<String, Area>> lightSourceCache = new HashMap<GUID, Map<String, Area>>();
     private Set<GUID> lightSourceSet = new HashSet<GUID>();
     private Map<GUID, Set<DrawableLight>> drawableLightCache = new HashMap<GUID, Set<DrawableLight>>();
+    private Map<GUID, Set<Area>> brightLightCache = new HashMap<GUID, Set<Area>>();
     private Map<PlayerView, VisibleAreaMeta> visibleAreaMap = new HashMap<PlayerView, VisibleAreaMeta>();
     private AreaData topologyAreaData;
     
@@ -114,10 +115,8 @@ public class ZoneView implements ModelChangeListener {
 
         // Keep track of colored light
         Set<DrawableLight> lightSet = new HashSet<DrawableLight>();
+        Set<Area> brightLightSet = new HashSet<Area>();
         for (Light light : lightSource.getLightList()) {
-        	if (light.getPaint() == null) {
-        		continue;
-        	}
         	
         	Area lightArea = lightSource.getArea(lightSourceToken, zone, direction, light);
             if (sight.getMultiplier() != 1) {
@@ -125,10 +124,15 @@ public class ZoneView implements ModelChangeListener {
             }
 
             lightArea.transform(AffineTransform.getTranslateInstance(p.x, p.y));
-            
-            lightSet.add(new DrawableLight(light.getPaint(), lightArea));
+
+            if (light.getPaint() != null) {
+            	lightSet.add(new DrawableLight(light.getPaint(), lightArea));
+            } else {
+            	brightLightSet.add(lightArea);
+            }
         }
         drawableLightCache.put(lightSourceToken.getId(), lightSet);
+        brightLightCache.put(lightSourceToken.getId(), brightLightSet);
         
 		return FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopologyAreaData());
     }
@@ -226,11 +230,22 @@ public class ZoneView implements ModelChangeListener {
 		return lightSet;
 	}
 	
+	public Set<Area> getBrightLights() {
+		Set<Area> lightSet = new HashSet<Area>();
+		
+		for (Set<Area> set : brightLightCache.values()) {
+			lightSet.addAll(set);
+		}
+		
+		return lightSet;
+	}
+	
 	public void flush() {
 		tokenVisionCache.clear();
 		lightSourceCache.clear();
 		visibleAreaMap.clear();
 		drawableLightCache.clear();
+		brightLightCache.clear();
 	}
 	
     private void flush(Token token) {
@@ -239,6 +254,7 @@ public class ZoneView implements ModelChangeListener {
         tokenVisionCache.remove(token.getId());
         lightSourceCache.remove(token.getId());
         drawableLightCache.remove(token.getId());
+        brightLightCache.remove(token.getId());
         visibleAreaMap.clear();
         
         if (hadLightSource || token.hasLightSources()) {
