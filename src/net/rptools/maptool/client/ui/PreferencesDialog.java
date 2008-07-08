@@ -266,6 +266,7 @@ public class PreferencesDialog extends JDialog {
         visionOverlayOpacitySpinner.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent ce) {
                 AppPreferences.setVisionOverlayOpacity((Integer)visionOverlayOpacitySpinner.getValue());
+                MapTool.getFrame().refresh();
             }
         });        
         useHaloColorAsVisionOverlayCheckBox.addActionListener(new ActionListener() {

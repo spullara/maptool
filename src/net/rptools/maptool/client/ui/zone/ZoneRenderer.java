@@ -670,7 +670,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	af.scale(getScale(), getScale());
     	newG.setTransform(af);
 
-    	newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .25f));
+    	newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, AppPreferences.getVisionOverlayOpacity()/255.0f));
 
     	// Organize
     	Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
