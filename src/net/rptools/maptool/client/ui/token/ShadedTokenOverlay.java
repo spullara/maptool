@@ -93,7 +93,9 @@ public class ShadedTokenOverlay extends TokenOverlay {
    */
   @Override
   public Object clone() {
-      return new ShadedTokenOverlay(getName(), getColor());
+      TokenOverlay overlay = new ShadedTokenOverlay(getName(), getColor());
+      overlay.setOrder(getOrder());
+      return overlay;
   }
   
   /**

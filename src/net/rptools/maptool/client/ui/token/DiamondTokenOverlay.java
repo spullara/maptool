@@ -64,7 +64,9 @@ public class DiamondTokenOverlay extends XTokenOverlay {
    */
   @Override
   public Object clone() {
-      return new DiamondTokenOverlay(getName(), getColor(), getWidth());
+      TokenOverlay overlay = new DiamondTokenOverlay(getName(), getColor(), getWidth());
+      overlay.setOrder(getOrder());
+      return overlay;
   }
   
   /**

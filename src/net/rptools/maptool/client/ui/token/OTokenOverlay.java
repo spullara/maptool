@@ -64,7 +64,9 @@ public class OTokenOverlay extends XTokenOverlay {
    */
   @Override
   public Object clone() {
-      return new OTokenOverlay(getName(), getColor(), getWidth());
+      TokenOverlay overlay = new OTokenOverlay(getName(), getColor(), getWidth());
+      overlay.setOrder(getOrder());
+      return overlay;
   }
   
   /**

@@ -534,7 +534,11 @@ public class CampaignPropertiesDialog extends JDialog  {
 				
 				File selectedFile = chooser.getSelectedFile();
 				if (selectedFile.exists()) {
-					if (!MapTool.confirm("Overwrite existing file?")) {
+				    if (selectedFile.getName().endsWith(".rpgame")) {
+				        if (!MapTool.confirm("Import into game settings file?")) {
+				            return;
+				        }
+				    } else if (!MapTool.confirm("Overwrite existing file?")) {
 						return;
 					}
 				}

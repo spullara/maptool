@@ -91,6 +91,13 @@ public class FlowImageTokenOverlay extends ImageTokenOverlay {
      */
     @Override
     public Object clone() {
-        return new FlowImageTokenOverlay(getName(), getAssetId(), grid);
+        TokenOverlay overlay = new FlowImageTokenOverlay(getName(), getAssetId(), grid);
+        overlay.setOrder(getOrder());
+        return overlay;
+    }
+
+    /** @return Getter for grid */
+    public int getGrid() {
+        return grid;
     }
 }

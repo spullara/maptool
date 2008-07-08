@@ -64,7 +64,9 @@ public class YieldTokenOverlay extends XTokenOverlay {
    */
   @Override
   public Object clone() {
-      return new YieldTokenOverlay(getName(), getColor(), getWidth());
+      TokenOverlay overlay = new YieldTokenOverlay(getName(), getColor(), getWidth());
+      overlay.setOrder(getOrder());
+      return overlay;
   }
   
   /**
@@ -73,7 +75,7 @@ public class YieldTokenOverlay extends XTokenOverlay {
   @Override
   public void paintOverlay(Graphics2D g, Token aToken, Rectangle bounds) {
 	  Double hc = (double)bounds.width/2;
-	  Double vc = (double)bounds.height * 0.134;
+	  Double vc = bounds.height * 0.134;
     Color tempColor = g.getColor();
     g.setColor(getColor());
     Stroke tempStroke = g.getStroke();

@@ -25,36 +25,25 @@
 package net.rptools.maptool.client.ui.token;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.Stroke;
-import java.awt.geom.Ellipse2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 
 import net.rptools.maptool.model.Token;
 
 /**
- * Paint a dot so that it doesn't overlay any other states being displayed in the same grid.
+ * Paint a square so that it doesn't overlay any other states being displayed in the same grid.
  * 
  * @author Jay
  */
-public class FlowColorDotTokenOverlay extends XTokenOverlay {
+public class FlowYieldTokenOverlay extends FlowColorDotTokenOverlay {
 
-    /**
-     * Size of the grid used to place a token with this state.
-     */
-    private int grid;
 
-    /**
-     * Flow used to define position of states
-     */
-    private transient TokenOverlayFlow flow;
-    
     /**
      * Default constructor needed for XML encoding/decoding
      */
-    public FlowColorDotTokenOverlay() {
+    public FlowYieldTokenOverlay() {
       this(TokenOverlay.DEFAULT_STATE_NAME, Color.RED, -1);
     }
 
@@ -66,9 +55,8 @@ public class FlowColorDotTokenOverlay extends XTokenOverlay {
      * @param aGrid Size of the overlay grid for this state. All states with the 
      * same grid size share the same overlay.
      */
-    public FlowColorDotTokenOverlay(String aName, Color aColor, int aGrid) {
-      super(aName, aColor, 0);
-      grid = aGrid;
+    public FlowYieldTokenOverlay(String aName, Color aColor, int aGrid) {
+      super(aName, aColor, aGrid);
     }
 
     /**
@@ -76,54 +64,23 @@ public class FlowColorDotTokenOverlay extends XTokenOverlay {
      */
     @Override
     public Object clone() {
-        TokenOverlay overlay = new FlowColorDotTokenOverlay(getName(), getColor(), grid);
+        TokenOverlay overlay = new FlowYieldTokenOverlay(getName(), getColor(), getGrid());
         overlay.setOrder(getOrder());
         return overlay;
     }
     
     /**
-     * Get the flow used to position the states.
-     * 
-     * @return Flow used to position the states
-     */
-    protected TokenOverlayFlow getFlow() {
-        if (flow == null && grid > 0)
-            flow = TokenOverlayFlow.getInstance(grid);
-        return flow;
-    }
- 
-    /**
-     * @see net.rptools.maptool.client.ui.token.TokenOverlay#paintOverlay(java.awt.Graphics2D, net.rptools.maptool.model.Token, Rectangle)
+     * @see net.rptools.maptool.client.ui.token.FlowColorDotTokenOverlay#getShape(java.awt.Rectangle, net.rptools.maptool.model.Token)
      */
     @Override
-    public void paintOverlay(Graphics2D g, Token aToken, Rectangle bounds) {
-        Color tempColor = g.getColor();
-        Stroke tempStroke = g.getStroke();
-        try {
-            g.setColor(getColor());
-            g.setStroke(getStroke());
-            Shape s = getShape(bounds, aToken);
-            g.fill(s);
-        } finally {
-            g.setColor(tempColor);
-            g.setStroke(tempStroke);
-        }
-    }
-    
-    /**
-     * Return an ellipse.
-     * 
-     * @param bounds Bounds of the token
-     * @param token Token being rendered.
-     * @return An ellipse that fits inside of the bounding box returned by the flow.
-     */
     protected Shape getShape(Rectangle bounds, Token token) {
         Rectangle2D r = getFlow().getStateBounds2D(bounds, token, getName());
-        return new Ellipse2D.Double(r.getX(), r.getY(), r.getWidth(), r.getHeight());
-    }
-
-    /** @return Getter for grid */
-    public int getGrid() {
-        return grid;
+        Path2D p = new Path2D.Double();
+        p.moveTo(r.getX(), r.getY());
+        p.lineTo(r.getCenterX(), r.getMaxY());
+        p.lineTo(r.getMaxX(), r.getY());
+        p.lineTo(r.getX(), r.getY());
+        p.closePath();
+        return p;
     }
 }

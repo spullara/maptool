@@ -85,7 +85,9 @@ public class ImageTokenOverlay extends TokenOverlay {
      */
     @Override
     public Object clone() {
-        return new ImageTokenOverlay(getName(), assetId);
+        TokenOverlay overlay = new ImageTokenOverlay(getName(), assetId);
+        overlay.setOrder(getOrder());
+        return overlay;
     }
 
     /**

@@ -385,6 +385,7 @@ public class PersistenceUtil {
         clearAssets(pakFile);
         saveAssets(campaign.getCampaignProperties().getAllImageAssets(), pakFile);
         pakFile.setContent(campaign.getCampaignProperties());
+        pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
         pakFile.save();
         pakFile.close();
 	}

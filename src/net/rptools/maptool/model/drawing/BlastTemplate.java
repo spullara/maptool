@@ -159,7 +159,8 @@ public class BlastTemplate extends ConeTemplate {
     @Override
     protected void drawBackground(Graphics2D g) {    
       Composite old = g.getComposite();
-      g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, DEFAULT_BG_ALPHA));
+      if (old != AlphaComposite.Clear)
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, DEFAULT_BG_ALPHA));
       renderer.drawBackground(g);
       g.setComposite(old);
     }

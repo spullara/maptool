@@ -26,6 +26,7 @@ package net.rptools.maptool.client.ui.token;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.util.Comparator;
 
 import net.rptools.maptool.model.Token;
 
@@ -45,11 +46,28 @@ public abstract class TokenOverlay implements Cloneable {
    * The name of this overlay. Normally this is the name of a state.
    */
   private String name;
-/**
- * A default state name used in default constructors.
- */
-public static final String DEFAULT_STATE_NAME = "defaultStateName";
 
+  /**
+   * Order of the states as displayed on the states menu.
+   */
+  private int order;
+  
+  /*---------------------------------------------------------------------------------------------
+   * Class Variables
+   *-------------------------------------------------------------------------------------------*/
+  
+  /**
+   * A default state name used in default constructors.
+   */
+  public static final String DEFAULT_STATE_NAME = "defaultStateName";
+
+  /**
+   * This comparator is used to order the states.
+   */
+  public static final Comparator<TokenOverlay> COMPARATOR = new Comparator<TokenOverlay>() {
+      public int compare(TokenOverlay o1, TokenOverlay o2) { return o1.getOrder() - o2.getOrder(); }
+  };
+  
   /*---------------------------------------------------------------------------------------------
    * Constructors
    *-------------------------------------------------------------------------------------------*/
@@ -84,6 +102,16 @@ public static final String DEFAULT_STATE_NAME = "defaultStateName";
    */
   public void setName(String aName) {
     name = aName;
+  }
+
+  /** @return Getter for order */
+  public int getOrder() {
+      return order;
+  }
+
+  /** @param order Setter for the order to set */
+  public void setOrder(int order) {
+      this.order = order;
   }
 
   /*---------------------------------------------------------------------------------------------

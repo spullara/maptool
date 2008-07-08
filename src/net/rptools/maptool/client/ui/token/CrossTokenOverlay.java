@@ -64,7 +64,9 @@ public class CrossTokenOverlay extends XTokenOverlay {
    */
   @Override
   public Object clone() {
-      return new CrossTokenOverlay(getName(), getColor(), getWidth());
+      TokenOverlay overlay = new CrossTokenOverlay(getName(), getColor(), getWidth());
+      overlay.setOrder(getOrder());
+      return overlay;
   }
   
   /**

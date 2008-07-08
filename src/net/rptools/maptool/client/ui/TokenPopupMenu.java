@@ -23,6 +23,7 @@ import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.token.LightDialog;
+import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
@@ -245,8 +246,10 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		JMenu stateMenu = I18N.createMenu("defaultTool.stateMenu");
 		stateMenu.add(new ChangeStateAction("clear"));
 		stateMenu.addSeparator();
-		for (String state : MapTool.getCampaign().getTokenStatesMap().keySet()) {
-			createStateItem(state, stateMenu, getTokenUnderMouse());
+        List<TokenOverlay> overlays = new ArrayList<TokenOverlay>(MapTool.getCampaign().getTokenStatesMap().values());
+        Collections.sort(overlays, TokenOverlay.COMPARATOR);
+		for (TokenOverlay overlay : overlays) {
+			createStateItem(overlay.getName(), stateMenu, getTokenUnderMouse());
 		}
 
 		return stateMenu;

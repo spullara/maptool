@@ -16,6 +16,7 @@ import java.awt.geom.Line2D;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 
 /**
@@ -196,11 +197,12 @@ public abstract class AbstractTemplate extends AbstractDrawing {
      * @param area Paint the area?
      */
     protected void paint(Graphics2D g, boolean border, boolean area) {
-        if (radius == 0)
-            return;
+        if (radius == 0) return;
+        Zone zone = MapTool.getCampaign().getZone(zoneId);
+        if (zone == null) return;
 
         // Find the proper distance
-        int gridSize = MapTool.getCampaign().getZone(zoneId).getGrid().getSize();
+        int gridSize = zone.getGrid().getSize();
         for (int y = 0; y < radius; y++) {
             for (int x = 0; x < radius; x++) {
 
@@ -349,7 +351,8 @@ public abstract class AbstractTemplate extends AbstractDrawing {
 
         // Adjust alpha automatically
         Composite old = g.getComposite();
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, DEFAULT_BG_ALPHA));
+        if (old != AlphaComposite.Clear)
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, DEFAULT_BG_ALPHA));
         paint(g, false, true);
         g.setComposite(old);
     }

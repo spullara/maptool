@@ -66,7 +66,9 @@ public class CornerImageTokenOverlay extends ImageTokenOverlay {
      */
     @Override
     public Object clone() {
-        return new CornerImageTokenOverlay(getName(), getAssetId(), corner);
+        TokenOverlay overlay = new CornerImageTokenOverlay(getName(), getAssetId(), corner);
+        overlay.setOrder(getOrder());
+        return overlay;
     }
 
     /**
@@ -90,5 +92,10 @@ public class CornerImageTokenOverlay extends ImageTokenOverlay {
           break;
         } // endswitch
         return new Rectangle(x, y, bounds.width / 2, bounds.height / 2);
+    }
+
+    /** @return Getter for corner */
+    public Quadrant getCorner() {
+        return corner;
     }
 }

@@ -64,7 +64,9 @@ public class TriangleTokenOverlay extends XTokenOverlay {
    */
   @Override
   public Object clone() {
-      return new TriangleTokenOverlay(getName(), getColor(), getWidth());
+      TokenOverlay overlay = new TriangleTokenOverlay(getName(), getColor(), getWidth());
+      overlay.setOrder(getOrder());
+      return overlay;
   }
   
   /**
@@ -73,7 +75,7 @@ public class TriangleTokenOverlay extends XTokenOverlay {
   @Override
   public void paintOverlay(Graphics2D g, Token aToken, Rectangle bounds) {
 	  Double hc = (double)bounds.width/2;
-	  Double vc = (double)bounds.height * 0.866;
+	  Double vc = bounds.height * 0.866;
     Color tempColor = g.getColor();
     g.setColor(getColor());
     Stroke tempStroke = g.getStroke();

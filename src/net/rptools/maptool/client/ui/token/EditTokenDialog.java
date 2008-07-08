@@ -451,10 +451,11 @@ public class EditTokenDialog extends AbeillePanel {
 	public void initStatesPanel() {
 		JPanel panel = getStatesPanel();
 		panel.removeAll();
-		Set<String> states = MapTool.getCampaign().getTokenStatesMap().keySet();
 		panel.setLayout(new GridLayout(0, 4));
-		for (String state : states) {
-			panel.add(new JCheckBox(state));
+        List<TokenOverlay> overlays = new ArrayList<TokenOverlay>(MapTool.getCampaign().getTokenStatesMap().values());
+        Collections.sort(overlays, TokenOverlay.COMPARATOR);
+        for (TokenOverlay state : overlays) {
+			panel.add(new JCheckBox(state.getName()));
 		}		
 	}
 	

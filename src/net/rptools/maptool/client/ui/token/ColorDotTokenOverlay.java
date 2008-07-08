@@ -72,7 +72,9 @@ public class ColorDotTokenOverlay extends XTokenOverlay {
    */
   @Override
   public Object clone() {
-      return new ColorDotTokenOverlay(getName(), getColor(), getCorner());
+      TokenOverlay overlay = new ColorDotTokenOverlay(getName(), getColor(), getCorner());
+      overlay.setOrder(getOrder());
+      return overlay;
   }
   
   /**
