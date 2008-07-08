@@ -606,6 +606,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, zone.getBackgroundDrawnElements());
         renderTokens(g2d, zone.getBackgroundStamps(), view);
         renderDrawableOverlay(g2d, objectDrawableRenderer, view, zone.getObjectDrawnElements());
+        renderLights(g2d, view);
         renderTokenTemplates(g2d, view);
         renderGrid(g2d, view);
         if (view.isGMView()) {
@@ -648,6 +649,29 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         SwingUtil.restoreAntiAliasing(g2d, oldAA);
         
         lastView = view;
+    }
+    
+    private void renderLights(Graphics2D g, PlayerView view) {
+
+    	// Setup
+    	Graphics2D newG = (Graphics2D)g.create();
+    	newG.setClip(visibleScreenArea);
+    	SwingUtil.useAntiAliasing(newG);
+
+		AffineTransform af = g.getTransform();
+    	af.translate(getViewOffsetX(), getViewOffsetY());
+    	af.scale(getScale(), getScale());
+    	newG.setTransform(af);
+
+    	newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .25f));
+    	
+    	// Draw
+    	for (DrawableLight light : zoneView.getDrawableLights()) {
+    		
+    		newG.setPaint(light.getPaint().getPaint());
+    		newG.fill(light.getArea());
+    	}
+
     }
     
     private void renderPlayerVisionOverlay(Graphics2D g, PlayerView view) {
@@ -873,7 +897,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
             	Area visibleArea = zoneView.getVisibleArea(view);
 	            if (visibleArea != null) {
-	            	buffG.setColor(new Color(0, 0, 0, 80));
+	            	buffG.setColor(new Color(0, 0, 0, 100));
 
 	    	        if (zone.hasFog ()) {
 

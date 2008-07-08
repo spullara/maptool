@@ -621,7 +621,7 @@ public class Zone extends BaseModel {
 		list.addAll(getObjectDrawnElements());
 		list.addAll(getBackgroundDrawnElements());
 		list.addAll(getGMDrawnElements());
-		
+
 		return list;
 	}
 	

@@ -82,17 +82,38 @@ public class LightSource  {
 		}
 		return lightList;
 	}
-	
+
+	/**
+	 * Area for a single light, subtracting any previous lights
+	 */
+	public Area getArea(Token token, Zone zone, Direction position, Light light) {
+		Area area = light.getArea(token, zone);
+		// TODO: This seems horribly inefficient
+		// Subtract out the lights that are previously defined
+		for (int i = getLightList().indexOf(light) -1; i >= 0; i--) {
+			Light lessLight = getLightList().get(i);
+			area.subtract(getArea(token, zone, position, lessLight.getArea(token, zone)));
+		}
+		return getArea(token, zone, position, area);
+	}
+
+	/**
+	 * Area for all lights combined
+	 */
 	public Area getArea(Token token, Zone zone, Direction position) {
-
-		Grid grid = zone.getGrid();
-		Rectangle footprintBounds = token.getFootprint(grid).getBounds(grid, grid.convert(new ZonePoint(token.getX(), token.getY())));
-
 		Area area = new Area();
 		for (Light light : getLightList()) {
 			area.add(light.getArea(token, zone));
 		}
 		
+		return getArea(token, zone, position, area);
+	}
+
+	private Area getArea(Token token, Zone zone, Direction position, Area area) {
+
+		Grid grid = zone.getGrid();
+		Rectangle footprintBounds = token.getFootprint(grid).getBounds(grid, grid.convert(new ZonePoint(token.getX(), token.getY())));
+
 		int tx = 0;
 		int ty = 0;
 		switch (position) {

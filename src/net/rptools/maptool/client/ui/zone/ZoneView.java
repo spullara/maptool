@@ -5,7 +5,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -13,12 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.AttachedLightSource;
 import net.rptools.maptool.model.Direction;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Light;
 import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
@@ -34,6 +33,7 @@ public class ZoneView implements ModelChangeListener {
     private Map<GUID, Area> tokenVisionCache = new HashMap<GUID, Area>();
     private Map<GUID, Map<String, Area>> lightSourceCache = new HashMap<GUID, Map<String, Area>>();
     private Set<GUID> lightSourceSet = new HashSet<GUID>();
+    private Map<GUID, Set<DrawableLight>> drawableLightCache = new HashMap<GUID, Set<DrawableLight>>();
     private Map<PlayerView, VisibleAreaMeta> visibleAreaMap = new HashMap<PlayerView, VisibleAreaMeta>();
     private AreaData topologyAreaData;
     
@@ -106,11 +106,29 @@ public class ZoneView implements ModelChangeListener {
         Point p = FogUtil.calculateVisionCenter(lightSourceToken, zone);
         Area lightSourceArea = lightSource.getArea(lightSourceToken, zone, direction);
         
+    	// Calculate exposed area
         // TODO: This won't work with directed light, need to add an anchor or something
         if (sight.getMultiplier() != 1) {
         	lightSourceArea.transform(AffineTransform.getScaleInstance(sight.getMultiplier(), sight.getMultiplier()));
-        	
         }
+
+        // Keep track of colored light
+        Set<DrawableLight> lightSet = new HashSet<DrawableLight>();
+        for (Light light : lightSource.getLightList()) {
+        	if (light.getPaint() == null) {
+        		continue;
+        	}
+        	
+        	Area lightArea = lightSource.getArea(lightSourceToken, zone, direction, light);
+            if (sight.getMultiplier() != 1) {
+            	lightArea.transform(AffineTransform.getScaleInstance(sight.getMultiplier(), sight.getMultiplier()));
+            }
+
+            lightArea.transform(AffineTransform.getTranslateInstance(p.x, p.y));
+            
+            lightSet.add(new DrawableLight(light.getPaint(), lightArea));
+        }
+        drawableLightCache.put(lightSourceToken.getId(), lightSet);
         
 		return FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopologyAreaData());
     }
@@ -198,11 +216,21 @@ public class ZoneView implements ModelChangeListener {
 		}
 	}
 	
+	public Set<DrawableLight> getDrawableLights() {
+		Set<DrawableLight> lightSet = new HashSet<DrawableLight>();
+		
+		for (Set<DrawableLight> set : drawableLightCache.values()) {
+			lightSet.addAll(set);
+		}
+		
+		return lightSet;
+	}
+	
 	public void flush() {
 		tokenVisionCache.clear();
 		lightSourceCache.clear();
 		visibleAreaMap.clear();
-		
+		drawableLightCache.clear();
 	}
 	
     private void flush(Token token) {
@@ -210,6 +238,7 @@ public class ZoneView implements ModelChangeListener {
     	
         tokenVisionCache.remove(token.getId());
         lightSourceCache.remove(token.getId());
+        drawableLightCache.remove(token.getId());
         visibleAreaMap.clear();
         
         if (hadLightSource || token.hasLightSources()) {
