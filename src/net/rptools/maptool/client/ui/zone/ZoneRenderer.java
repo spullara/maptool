@@ -70,6 +70,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -665,11 +666,39 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     	newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .25f));
     	
-    	// Draw
+    	// Organize
+    	Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
     	for (DrawableLight light : zoneView.getDrawableLights()) {
+    		List<Area> areaList = colorMap.get(light.getPaint().getPaint());
+    		if (areaList == null) {
+    			areaList = new ArrayList<Area>();
+    			colorMap.put(light.getPaint().getPaint(), areaList);
+    		}
     		
-    		newG.setPaint(light.getPaint().getPaint());
-    		newG.fill(light.getArea());
+    		areaList.add(new Area(light.getArea()));
+    	}    	
+
+    	// Combine same colors to avoid ugly overlap
+    	for (List<Area> areaList : colorMap.values()) {
+    		
+			while (areaList.size() > 1) {
+				
+				Area a1 = areaList.remove(0);
+				Area a2 = areaList.remove(0);
+				
+				a1.add(a2);
+				areaList.add(a1);
+			}
+    	}    	
+    	
+    	// Draw
+    	for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {
+    		
+    		newG.setPaint(entry.getKey());
+    		
+    		for (Area area : entry.getValue()) {
+    			newG.fill(area);
+    		}
     	}
 
     }
