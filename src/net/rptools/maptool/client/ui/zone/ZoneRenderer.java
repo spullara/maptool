@@ -656,7 +656,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     	// Setup
     	Graphics2D newG = (Graphics2D)g.create();
-    	newG.setClip(visibleScreenArea);
+    	Area clip = new Area(g.getClip());
+    	clip.intersect(visibleScreenArea);
+    	newG.setClip(clip);
     	SwingUtil.useAntiAliasing(newG);
 
 		AffineTransform af = g.getTransform();
