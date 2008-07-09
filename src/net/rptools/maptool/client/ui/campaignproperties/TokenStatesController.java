@@ -63,6 +63,7 @@ import javax.swing.filechooser.FileFilter;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppConstants;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.ui.PreviewPanelFileChooser;
 import net.rptools.maptool.client.ui.token.ColorDotTokenOverlay;
 import net.rptools.maptool.client.ui.token.CornerImageTokenOverlay;
@@ -201,6 +202,7 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
         panel.getList(STATES).setCellRenderer(new StateListRenderer());
         panel.getList(STATES).addListSelectionListener(this);
         panel.getTextComponent(NAME).getDocument().addDocumentListener(this);
+        panel.getTextComponent(IMAGE).getDocument().addDocumentListener(this);
         enableDataComponents();
         changedUpdate(null);
     }
@@ -240,6 +242,7 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
                 File imageFile = getImageFileChooser().getSelectedFile();
                 if (imageFile == null || imageFile.isDirectory() || !imageFile.exists() || !imageFile.canRead()) return;
                 formPanel.setText(IMAGE, imageFile.getPath());
+                AppPreferences.setLoadDir(imageFile.getParentFile());
             } // endif
             
         // Change the enabled data components.

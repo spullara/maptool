@@ -27,7 +27,7 @@ package net.rptools.maptool.client.ui.token;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.Path2D;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 
 import net.rptools.maptool.model.Token;
@@ -75,7 +75,7 @@ public class FlowYieldTokenOverlay extends FlowColorDotTokenOverlay {
     @Override
     protected Shape getShape(Rectangle bounds, Token token) {
         Rectangle2D r = getFlow().getStateBounds2D(bounds, token, getName());
-        Path2D p = new Path2D.Double();
+        GeneralPath p = new GeneralPath();
         p.moveTo(r.getX(), r.getY());
         p.lineTo(r.getCenterX(), r.getMaxY());
         p.lineTo(r.getMaxX(), r.getY());
