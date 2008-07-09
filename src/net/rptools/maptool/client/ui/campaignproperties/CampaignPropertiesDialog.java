@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,6 +39,7 @@ import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Light;
 import net.rptools.maptool.model.LightSource;
+import net.rptools.maptool.model.ShapeType;
 import net.rptools.maptool.model.SightType;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.util.PersistenceUtil;
@@ -227,6 +227,12 @@ public class CampaignPropertiesDialog extends JDialog  {
 				builder.append(lightSource.getName()).append(" : ");
 				
 				for (Light light : lightSource.getLightList()) {
+					
+					if (light.getShape() != null && light.getShape() != ShapeType.CIRCLE) {
+						// TODO: Make this a preference
+						builder.append(light.getShape().toString().toLowerCase()).append(" ");
+					}
+					
 					builder.append(StringUtil.formatDecimal(light.getRadius()));
 					
 					if (light.getPaint() instanceof DrawableColorPaint) {
@@ -331,7 +337,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 					}
 					if (arg.startsWith("r")) {
 						personalLight = new LightSource();
-						personalLight.add(new Light(0, Double.parseDouble(arg.substring(1)), 0, null));
+						personalLight.add(new Light(ShapeType.CIRCLE, 0, Double.parseDouble(arg.substring(1)), 0, null));
 					}
 				}
 				
@@ -390,11 +396,20 @@ public class CampaignPropertiesDialog extends JDialog  {
 				
 				String name = line.substring(0, split).trim();
 				LightSource lightSource = new LightSource(name);
+				ShapeType shape = ShapeType.CIRCLE; // TODO: Make a preference for default shape
 				for (String arg : line.substring(split+1).split("\\s")) {
 
 					arg = arg.trim();
 					if (arg.length() == 0) {
 						continue;
+					}
+
+					// Shape designation ?
+					try {
+						shape = ShapeType.valueOf(arg.toUpperCase());
+						continue;
+					} catch (IllegalArgumentException iae) {
+						// Expected when not defining a shape
 					}
 					
 					String distance = arg;
@@ -407,7 +422,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 						color = Color.decode(colorString);
 					}
 					
-					lightSource.add(new Light(0, Double.parseDouble(distance), 0, color != null ? new DrawableColorPaint(color): null));
+					lightSource.add(new Light(shape, 0, Double.parseDouble(distance), 0, color != null ? new DrawableColorPaint(color): null));
 				}
 				
 				// Keep ID the same if modifying existing light

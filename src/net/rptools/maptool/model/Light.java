@@ -3,6 +3,7 @@ package net.rptools.maptool.model;
 import java.awt.Color;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
@@ -14,13 +15,15 @@ public class Light {
 	private double facingOffset;
 	private double radius;
 	private double arcAngle;
+	private ShapeType shape;
 	
 	public Light() {
 		// For serialization
 	}
 	
-	public Light(double facingOffset, double radius, double arcAngle, DrawablePaint paint) {
+	public Light(ShapeType shape, double facingOffset, double radius, double arcAngle, DrawablePaint paint) {
 		this.facingOffset = facingOffset;
+		this.shape = shape;
 		this.radius = radius;
 		this.arcAngle = arcAngle;
 		this.paint = paint;
@@ -50,10 +53,28 @@ public class Light {
 	public void setArcAngle(double arcAngle) {
 		this.arcAngle = arcAngle;
 	}
-	
+	public ShapeType getShape() {
+		return shape;
+	}
+	public void setShape(ShapeType shape) {
+		this.shape = shape;
+	}
 	public Area getArea(Token token, Zone zone) {
 		double size = radius / zone.getUnitsPerCell() * zone.getGrid().getSize();
-		return new Area(new Ellipse2D.Double(-size, -size, size*2, size*2));
+		
+		if (shape == null) {
+			shape = ShapeType.CIRCLE;
+		}
+		switch (shape) {
+
+		case SQUARE:
+			return new Area(new Rectangle2D.Double(-size, -size, size*2, size*2));
+		
+		default:
+		case CIRCLE:
+			return new Area(new Ellipse2D.Double(-size, -size, size*2, size*2));
+		}
+		
 	}
 
 }
