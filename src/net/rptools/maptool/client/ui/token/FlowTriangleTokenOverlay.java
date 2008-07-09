@@ -76,10 +76,10 @@ public class FlowTriangleTokenOverlay extends FlowColorDotTokenOverlay {
     protected Shape getShape(Rectangle bounds, Token token) {
         Rectangle2D r = getFlow().getStateBounds2D(bounds, token, getName());
         GeneralPath p = new GeneralPath();
-        p.moveTo(r.getCenterX(), r.getY());
-        p.lineTo(r.getX(), r.getMaxY());
-        p.lineTo(r.getMaxX(), r.getMaxY());
-        p.lineTo(r.getCenterX(), r.getY());
+        p.moveTo((float)r.getCenterX(), (float)r.getY());
+        p.lineTo((float)r.getX(), (float)r.getMaxY());
+        p.lineTo((float)r.getMaxX(), (float)r.getMaxY());
+        p.lineTo((float)r.getCenterX(), (float)r.getY());
         p.closePath();
         return p;
     }
