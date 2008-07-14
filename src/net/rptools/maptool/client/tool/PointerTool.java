@@ -271,7 +271,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					renderer.flush(token);
 					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 					renderer.getZone().putToken(token);
-					updateTokenMacroPanel(false);
+					updateImpersonateTab(false);
 				}
     		}
     		if (SwingUtilities.isRightMouseButton(event)) {
@@ -419,7 +419,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						renderer.flush(token);
 						MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 						renderer.getZone().putToken(token);
-						updateTokenMacroPanel(true);
+						updateImpersonateTab(false);
 					}
 				}
 			}
@@ -537,7 +537,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	        } finally {
 	        	isDraggingToken = false;
 	        	isDrawingSelectionBox = false;
-				MapTool.getFrame().getMacroTabbedPane().updateSelectionPanel();
 			}
 	        
 	        return;
@@ -1511,11 +1510,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		return notes;
 	}
 
-	private void updateTokenMacroPanel(boolean switchTo) {
+	private void updateImpersonateTab(boolean switchTo) {
 		// if the token that has been just edited was being impersonated, the token macro button panel
 		// has to be updated in case some macros were added/removed/updated (keeping in sync).
 		if (MapTool.getFrame().getCommandPanel().getIdentity().equals(tokenUnderMouse.getName())) {
-			MapTool.getFrame().getMacroTabbedPane().updateTokenPanel(tokenUnderMouse, switchTo);
+			MapTool.getFrame().getMacroTabbedPane().updateImpersonateTab(tokenUnderMouse, switchTo);
 		}
 	}
 }

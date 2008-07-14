@@ -1,15 +1,13 @@
 package net.rptools.maptool.client.ui.macrobuttonpanel;
 
-import java.awt.Color;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.Scrollable;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.util.List;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.Scrollable;
 
 import net.rptools.maptool.model.Token;
 
@@ -17,7 +15,7 @@ public class SelectionTab extends JPanel implements Scrollable {
 	
 	public SelectionTab() {
 		setLayout(new GridBagLayout());
-		setBackground(Color.white);
+		//setBackground(Color.white);
 	}
 
 	public void update(List<Token> tokenList) {

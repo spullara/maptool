@@ -1,5 +1,23 @@
 package net.rptools.maptool.client.ui.commandpanel;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.ImageIcon;
+import javax.swing.InputMap;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
+import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
+import javax.swing.border.BevelBorder;
+import javax.swing.plaf.basic.BasicToggleButtonUI;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -19,35 +37,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.regex.Pattern;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
-import javax.swing.JToggleButton;
-import javax.swing.KeyStroke;
-import javax.swing.border.BevelBorder;
-import javax.swing.plaf.basic.BasicToggleButtonUI;
 
 import net.rptools.lib.AppEvent;
 import net.rptools.lib.AppEventListener;
@@ -59,7 +53,6 @@ import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.client.ui.chat.ChatProcessor;
-import net.rptools.maptool.client.ui.chat.ChatTranslationRuleGroup;
 import net.rptools.maptool.client.ui.chat.SmileyChatTranslationRuleGroup;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.ObservableList;
@@ -94,6 +87,7 @@ public class CommandPanel extends JPanel implements Observer {
 		add(BorderLayout.CENTER, getMessagePanel());
 		
 		initializeSmilies();
+		addFocusHotKey();
 	}
 	
 	public ChatProcessor getChatProcessor() {
@@ -560,4 +554,14 @@ public class CommandPanel extends JPanel implements Observer {
 	    } 
 	}	
 	
+	private void addFocusHotKey() {
+		KeyStroke ks = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+		Object actionObject = new Object();
+		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ks, actionObject);
+		getActionMap().put(actionObject, new AbstractAction() {
+			public void actionPerformed(ActionEvent event) {
+				requestFocus();
+			}
+		});
+	}
 }

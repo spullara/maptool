@@ -24,6 +24,9 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -69,14 +72,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-
-import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
-
-import com.sun.org.apache.bcel.internal.generic.ISUB;
+import java.util.Set;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -1970,7 +1967,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     
     public void deselectToken(GUID tokenGUID) {
     	selectedTokenSet.remove(tokenGUID);
-    	repaint();
+		MapTool.getFrame().getMacroTabbedPane().updateSelectionTab();
+		repaint();
     }
     public boolean selectToken(GUID tokenGUID) {
         
@@ -1981,7 +1979,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         selectedTokenSet.add(tokenGUID);
         
         repaint();
-        return true;
+		MapTool.getFrame().getMacroTabbedPane().updateSelectionTab();
+		return true;
     }
     
     /**
@@ -1999,7 +1998,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     public void clearSelectedTokens() {
         clearShowPaths();
         selectedTokenSet.clear ();
-        repaint();
+		MapTool.getFrame().getMacroTabbedPane().updateSelectionTab();
+		repaint();
     }
     
     public Area getTokenBounds(Token token) {

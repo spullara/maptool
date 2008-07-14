@@ -24,15 +24,6 @@
  */
 package net.rptools.maptool.client.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -41,15 +32,20 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.swing.ScrollableFlowPanel;
 import net.rptools.maptool.client.ui.macrobutton.AbstractMacroButton;
 import net.rptools.maptool.client.ui.macrobutton.CampaignMacroButton;
 import net.rptools.maptool.client.ui.macrobutton.GlobalMacroButton;
-import net.rptools.maptool.client.ui.macrobutton.MacroButtonPrefs;
-import net.rptools.maptool.client.ui.macrobutton.TokenMacroButton;
+import net.rptools.maptool.client.ui.macrobuttonpanel.CampaignTab;
+import net.rptools.maptool.client.ui.macrobuttonpanel.GlobalTab;
+import net.rptools.maptool.client.ui.macrobuttonpanel.ImpersonateTab;
 import net.rptools.maptool.client.ui.macrobuttonpanel.MacroPanelPopupListener;
 import net.rptools.maptool.client.ui.macrobuttonpanel.SelectionTab;
 import net.rptools.maptool.client.ui.macrobuttonpanel.Tab;
@@ -59,56 +55,35 @@ import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
 
 public class MacroTabbedPane extends JTabbedPane {
-	// Component Hierarchy:
-	// JTabbedPane -> JScrollPanes -> JPanel -> MacroButtons
-	private JPanel globalMacroPanel;
-	private JPanel campaignMacroPanel;
-	private JPanel tokenMacroPanel;
-	private SelectionTab selectionTab;
 	
-	private String tokenTabTitle;
+	private GlobalTab globalTab;
+	private CampaignTab campaignTab;
+	private ImpersonateTab impersonateTab;
+	private SelectionTab selectionTab;
 	
 	public MacroTabbedPane() {
 		init();
-		updateKeyStrokes();
 	}
 
-	// TODO: copy from selectiontab later (after it is finished)
-	public void updateTokenPanel(Token token, boolean switchTo) {
-		// TODO: replace this with removeAll() after introducing TokenTab
-		// or ImpersonateTab would be a better name
-		clearTokenPanel();
-		
-		tokenMacroPanel = new ScrollableFlowPanel(FlowLayout.LEFT);
-
-		List<String> keyList = new ArrayList<String>(token.getMacroNames());
-		Collections.sort(keyList);
-		for (String key : keyList) {
-			tokenMacroPanel.add(new TokenMacroButton(key, token.getMacro(key)));
-		}
-
-		JScrollPane pane = scrollPaneFactory(tokenMacroPanel);
-		tokenTabTitle = token.getName();
-		addTab(tokenTabTitle, wrapPanelWithHelp(pane, "<html><b>Help:</b> Impersonate a token you own to see its macros"));
+	public void updateImpersonateTab(Token token, boolean switchTo) {
+		impersonateTab.update(token);
+		setTitleAt(Tab.IMPERSONATED.index, impersonateTab.getTitle());
 		
 		if (switchTo) {
-			setSelectedIndex(indexOfTab(tokenTabTitle));
+			setSelectedIndex(Tab.IMPERSONATED.index);
 		}
 	}
 
-	public void clearTokenPanel() {
-		int index = indexOfTab(tokenTabTitle);
-		if (index != -1) {
-			removeTabAt(index);
-		}
-		tokenTabTitle = null;
+	public void clearImpersonateTab() {
+		impersonateTab.clear();
+		setTitleAt(Tab.IMPERSONATED.index, Tab.IMPERSONATED.title);
 	}
 	
-	public void clearSelectionPanel() {
+	public void clearSelectionTab() {
 		selectionTab.clear();
 	}
 	
-	public void updateSelectionPanel() {
+	public void updateSelectionTab() {
 		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 		if (renderer == null) {
 			return;
@@ -128,37 +103,15 @@ public class MacroTabbedPane extends JTabbedPane {
 		selectionTab.update(tokenList);
 	}
 	
-	public void updatePanels() {
+	public void resetTabs() {
 		// need to clear macro button keystrokes so we wont have
 		// conflicts in the keystrokemap.
 		MacroButtonHotKeyManager.clearKeyStrokes();
-
-		// the order is important here. the latter one will have a higher priority
-		// therefore global macro button keystrokes overwrite campaign ones.
-		campaignMacroPanel = createCampaignMacroPanel();
-		globalMacroPanel = createGlobalMacroPanel();
-		selectionTab = new SelectionTab();
-		
-		JScrollPane global = scrollPaneFactory(globalMacroPanel);
-		global.addMouseListener(new MacroPanelPopupListener(global, Tab.GLOBAL.index));
-
-		JScrollPane campaign = scrollPaneFactory(campaignMacroPanel);
-		campaign.addMouseListener(new MacroPanelPopupListener(campaign, Tab.CAMPAIGN.index));
-
+		// remove all components
 		removeAll();
-		initTabs(global, campaign);
+		init();
+	}
 		
-		// bind the hotkeys
-		updateKeyStrokes();
-	}
-	
-	private void initTabs(JScrollPane global, JScrollPane campaign) {
-		//TODO: can be replaced with addTab();
-		insertTab(Tab.GLOBAL.title, null, wrapPanelWithHelp(global, "<html><b>Help:</b> Right click to create a new button or edit an existing button"), null, Tab.GLOBAL.index);
-		insertTab(Tab.CAMPAIGN.title, null, wrapPanelWithHelp(campaign, "<html><b>Help:</b> Right click to create a new button or edit an existing button"), null, Tab.CAMPAIGN.index);
-		insertTab(Tab.SELECTED.title, null, scrollPaneFactory(selectionTab), null, Tab.SELECTED.index);
-	}
-	
 	private JPanel wrapPanelWithHelp(JComponent component, String help) {
 		
 		JLabel helpLabel = new JLabel();
@@ -188,97 +141,63 @@ public class MacroTabbedPane extends JTabbedPane {
 	}
 
 	private void init() {
-		//TODO: make the other tabs like selectiontab (move them to their own classes)
-		globalMacroPanel = createGlobalMacroPanel();
-		campaignMacroPanel = createCampaignMacroPanel();
+		// the order is important here. the latter one will have a higher priority
+		// therefore global macro button keystrokes overwrite campaign ones.
+		campaignTab = new CampaignTab();
+		globalTab = new GlobalTab();
 		selectionTab = new SelectionTab();
+		impersonateTab = new ImpersonateTab();
 
-		JScrollPane global = scrollPaneFactory(globalMacroPanel);
-		JScrollPane campaign = scrollPaneFactory(campaignMacroPanel);
-		
+		JScrollPane global = scrollPaneFactory(globalTab);
 		global.addMouseListener(new MacroPanelPopupListener(global, Tab.GLOBAL.index));
+
+		JScrollPane campaign = scrollPaneFactory(campaignTab);
 		campaign.addMouseListener(new MacroPanelPopupListener(campaign, Tab.CAMPAIGN.index));
+
+		JScrollPane selection = scrollPaneFactory(selectionTab);
+		JScrollPane impersonate = scrollPaneFactory(impersonateTab);
+		
+		// these can be replaced with addTab()
+		insertTab(Tab.GLOBAL.title, null, wrapPanelWithHelp(global, "<html><b>Help:</b> Right click to create a new button or edit an existing button"), null, Tab.GLOBAL.index);
+		insertTab(Tab.CAMPAIGN.title, null, wrapPanelWithHelp(campaign, "<html><b>Help:</b> Right click to create a new button or edit an existing button"), null, Tab.CAMPAIGN.index);
+		insertTab(Tab.SELECTED.title, null, wrapPanelWithHelp(selection, "<html><b>Help:</b> Drag and drop buttons to copy macros around. Press right mouse button on buttons or groups."), null, Tab.SELECTED.index);
+		insertTab(Tab.IMPERSONATED.title, null, impersonate, null, Tab.IMPERSONATED.index);
+		
 		//addMouseListener(new TabPopupListener(this, 0));
-		
-		initTabs(global, campaign);
-	}
-	
-	private JPanel createGlobalMacroPanel()	{
-		JPanel panel = new ScrollableFlowPanel(FlowLayout.LEFT);
-		List<MacroButtonProperties> properties = MacroButtonPrefs.getButtonProperties();
 
-		for (MacroButtonProperties prop : properties) {
-			panel.add(new GlobalMacroButton(prop));
-		}
-		
-		return panel;
-	}
-
-	private JPanel createCampaignMacroPanel() {
-		JPanel panel = new ScrollableFlowPanel(FlowLayout.LEFT);
-		List<MacroButtonProperties> properties = MapTool.getCampaign().getMacroButtonPropertiesArray();
-		
-		for (MacroButtonProperties prop : properties) {
-			panel.add(new CampaignMacroButton(prop));
-		}
-		
-		return panel;
+		// bind the hotkeys
+		updateKeyStrokes();
 	}
 
 	private JScrollPane scrollPaneFactory(JPanel panel)	{
 		JScrollPane pane = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		pane.getViewport().setBorder(null);
-		pane.getViewport().setBackground(Color.white);
+		//pane.getViewport().setBackground(Color.white);
 		return pane;
 	}
 	
 	public void addGlobalMacroButton() {
-		//TODO: maybe this can be moved to globalmacrobutton constructor
-		MacroButtonProperties properties = new MacroButtonProperties(MacroButtonPrefs.getNextIndex());
-		globalMacroPanel.add(new GlobalMacroButton(properties));
-		globalMacroPanel.doLayout();
+		globalTab.addButton();
 	}
 
 	public void addGlobalMacroButton(MacroButtonProperties properties) {
-		MacroButtonProperties prop = new MacroButtonProperties(MacroButtonPrefs.getNextIndex(),
-															   properties.getColorKey(),
-															   MacroButtonHotKeyManager.HOTKEYS[0],
-															   properties.getCommand(),
-															   properties.getLabel(),
-															   properties.getAutoExecute(),
-															   properties.getIncludeLabel());		
-		globalMacroPanel.add(new GlobalMacroButton(prop));
+		globalTab.addButton(properties);
 	}
 	
-	// TODO: refactor -> combine into one if possible
 	public void addCampaignMacroButton() {
-		//TODO: refactor -> can be moved to constructor
-		final MacroButtonProperties properties = new MacroButtonProperties(MapTool.getCampaign().getMacroButtonNextIndex());
-		MapTool.getCampaign().addMacroButtonProperty(properties);
-		final CampaignMacroButton button  = new CampaignMacroButton(properties);
-		campaignMacroPanel.add(button);
-		campaignMacroPanel.doLayout();
+		campaignTab.addButton();
 	}
 
 	public void addCampaignMacroButton(MacroButtonProperties properties) {
-		MacroButtonProperties prop = new MacroButtonProperties(MapTool.getCampaign().getMacroButtonNextIndex(),
-															   properties.getColorKey(),
-															   MacroButtonHotKeyManager.HOTKEYS[0],
-															   properties.getCommand(),
-															   properties.getLabel(),
-															   properties.getAutoExecute(),
-															   properties.getIncludeLabel());
-		MapTool.getCampaign().addMacroButtonProperty(properties);
-		campaignMacroPanel.add(new CampaignMacroButton(prop));
+		campaignTab.addButton(properties);
 	}
 	
-	// TODO: refactor -> combine into one method
 	public void deleteGlobalMacroButton(GlobalMacroButton button) {
-		globalMacroPanel.remove(button);
+		globalTab.deleteButton(button);
 	}
 
 	public void deleteCampaignMacroButton(CampaignMacroButton button) {
-		campaignMacroPanel.remove(button);
+		campaignTab.deleteButton(button);
 	}
 }
 

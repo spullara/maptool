@@ -1,28 +1,40 @@
 package net.rptools.maptool.client.ui.macrobuttonpanel;
 
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import java.util.TreeSet;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.macrobutton.TokenMacroButton;
+import net.rptools.maptool.client.ui.macrobutton.TransferData;
+import net.rptools.maptool.client.ui.macrobutton.TransferableMacroButton;
 import net.rptools.maptool.model.Token;
 
-public class ButtonGroup extends JPanel {
+public class ButtonGroup extends JPanel implements DropTargetListener {
 	
-	private String title;
+	//private String title;
 	private Token token;
+	private DropTarget dt;
+	private List<Token> tokenList;
 	// macro buttons that belong to the button group
 	//private List<AbstractMacroButton> buttonList = new ArrayList<AbstractMacroButton>();
 	
@@ -40,6 +52,8 @@ public class ButtonGroup extends JPanel {
 		// we have to create a new border from scratch to reduce padding of the title. 
 		setBorder(BorderFactory.createTitledBorder(getName(token)));
 		setLayout(new FlowLayout(FlowLayout.LEFT));
+		dt = new DropTarget(this, this);
+		addMouseListener(new MouseHandler());
 	}
 
 	// constructor for creating common macro buttons between tokens
@@ -48,35 +62,36 @@ public class ButtonGroup extends JPanel {
 		if (tokenList.size() <= 1) {
 			return;
 		}
-		
-		//TODO: this can be made better using Tokens themselves instead of Tuples
+		this.tokenList = tokenList;
+
 		// get the common macros of the tokens
-		// Macro Name => Token Tuple list
+		// Macro Name => Token list
 		// example:
-		// "Attack" => [["Elf", "1d6"], ["Mystic", "1d8 + Str"]]
+		// "Attack" => [Elf, Mystic] (which are tokens themselves)
 		// meaning "Attack" macro belongs to both "Elf" and "Mystic"
-		// but they have different macro commands (bodies)
-		Map<String, List<Tuple>> encounteredMacros = new HashMap<String, List<Tuple>>();
+		// but the common macros can have different macro commands (bodies)
+		Map<String, List<Token>> encounteredMacros = new HashMap<String, List<Token>>();
 		for (Token token : tokenList) {
 			for (String macro : token.getMacroNames()) {
-				List<Tuple> l = encounteredMacros.get(macro);
+				List<Token> l = encounteredMacros.get(macro);
 				if (l == null) {
-					l = new ArrayList<Tuple>();
+					l = new ArrayList<Token>();
 					encounteredMacros.put(macro, l);
 				}
 				
-				l.add(new Tuple(token.getName(), token.getMacro(macro)));
+				l.add(token);
 			}
 		}
 		
 		// since we are only interested in finding common macros between tokens
 		// we skip the map keys which have only 1 item in the arraylist
 		// so we skip those like "Attack" => ["Elf"]
-		Set<String> keys = encounteredMacros.keySet();
+		TreeSet<String> keys = new TreeSet<String>();
+		// done only to sort the list alphabetically.
+		keys.addAll(encounteredMacros.keySet()); 
 		for (String macro : keys) {
-			List<Tuple> l = encounteredMacros.get(macro);
+			List<Token> l = encounteredMacros.get(macro);
 			if (l.size() > 1) {
-				//TODO: sorting?
 				add(new TokenMacroButton(l, macro));
 			}
 		}
@@ -88,6 +103,8 @@ public class ButtonGroup extends JPanel {
 		
 		setBorder(BorderFactory.createTitledBorder("Common"));
 		setLayout(new FlowLayout(FlowLayout.LEFT));
+		dt = new DropTarget(this, this);
+		addMouseListener(new MouseHandler());
 	}
 
 	@Override
@@ -124,24 +141,11 @@ public class ButtonGroup extends JPanel {
 		return prefSize;
 	}
 	
-	public static class Tuple {
-
-		public String tokenName;
-
-		public String macro;
-
-		private Tuple(String tokenName, String macro) {
-			this.tokenName = tokenName;
-			this.macro = macro;
-		}
-
-	}
-
 	private void addButtons(Token token) {
 		List<String> keyList = new ArrayList<String>(token.getMacroNames());
 		Collections.sort(keyList);
 		for (String key : keyList) {
-			add(new TokenMacroButton(token.getName(), key, token.getMacro(key)));
+			add(new TokenMacroButton(token, token.getName(), key, token.getMacro(key)));
 		}
 	}
 
@@ -157,5 +161,68 @@ public class ButtonGroup extends JPanel {
 		} else {
 			return token.getName();
 		}
+	}
+
+	public void dragEnter(DropTargetDragEvent event) {
+		//System.out.println("BG: drag enter");
+	}
+
+	public void dragOver(DropTargetDragEvent event) {
+		//System.out.println("BG: drag over");
+	}
+
+	public void dropActionChanged(DropTargetDragEvent event) {
+		//System.out.println("BG: drag action changed");
+	}
+
+	public void dragExit(DropTargetEvent event) {
+		//System.out.println("BG: drag exit");
+	}
+
+	public void drop(DropTargetDropEvent event) {
+		//System.out.println("BG: drop!");
+		
+		try {
+			Transferable t = event.getTransferable();
+			TransferData data = (TransferData) t.getTransferData(TransferableMacroButton.tokenMacroButtonFlavor);
+			//System.out.println(data.macro);
+			//System.out.println(data.command);
+
+			if (tokenList != null) {
+				// this is a common group, copy macro to all selected tokens
+				event.acceptDrop(event.getDropAction());
+				for (Token token : tokenList) {
+					token.addMacro(data.macro, data.command);
+				}
+			} else if (token != null) {
+				// this is a token group, copy macro to this.token only
+				event.acceptDrop(event.getDropAction());
+				token.addMacro(data.macro, data.command);
+			} else {
+				// if this happens, it's a bug
+				throw new Exception("Drag & Drop problem");
+			}
+			//System.out.println("drop accepted");
+			event.dropComplete(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			event.dropComplete(false);
+		}
+	}
+	
+	private class MouseHandler extends MouseAdapter {
+		public void mouseClicked(MouseEvent e) {
+			if (SwingUtilities.isRightMouseButton(e)) {
+				new ButtonGroupPopupMenu(ButtonGroup.this).show(ButtonGroup.this, e.getX(), e.getY());
+			}
+		}
+	}
+	
+	public Token getToken() {
+		return token;
+	}
+	
+	public List<Token> getTokenList() {
+		return tokenList;
 	}
 }

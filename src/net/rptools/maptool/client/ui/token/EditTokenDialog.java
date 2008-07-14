@@ -25,6 +25,25 @@
 
 package net.rptools.maptool.client.ui.token;
 
+import javax.swing.AbstractListModel;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
+import javax.swing.table.AbstractTableModel;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -46,39 +65,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.AbstractListModel;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextPane;
-import javax.swing.SwingUtilities;
-import javax.swing.table.AbstractTableModel;
-
-import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.MapToolUtil;
-import net.rptools.maptool.client.swing.AbeillePanel;
-import net.rptools.maptool.client.swing.GenericDialog;
-import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetManager;
-import net.rptools.maptool.model.Association;
-import net.rptools.maptool.model.CampaignProperties;
-import net.rptools.maptool.model.ObservableList;
-import net.rptools.maptool.model.Player;
-import net.rptools.maptool.model.Token;
-import net.rptools.maptool.util.ImageManager;
-
 import com.jidesoft.grid.AbstractPropertyTableModel;
 import com.jidesoft.grid.Property;
 import com.jidesoft.grid.PropertyPane;
@@ -86,6 +72,17 @@ import com.jidesoft.grid.PropertyTable;
 import com.jidesoft.swing.CheckBoxListWithSelectable;
 import com.jidesoft.swing.DefaultSelectable;
 import com.jidesoft.swing.Selectable;
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolUtil;
+import net.rptools.maptool.client.swing.AbeillePanel;
+import net.rptools.maptool.client.swing.GenericDialog;
+import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.Association;
+import net.rptools.maptool.model.ObservableList;
+import net.rptools.maptool.model.Player;
+import net.rptools.maptool.model.Token;
+import net.rptools.maptool.util.ImageManager;
 
 /**
  * This dialog is used to display all of the token states and notes to the user.
@@ -422,7 +419,7 @@ public class EditTokenDialog extends AbeillePanel {
 		
 		// Update UI
 		MapTool.getFrame().updateTokenTree();
-		MapTool.getFrame().getMacroTabbedPane().updateSelectionPanel();
+		MapTool.getFrame().getMacroTabbedPane().updateSelectionTab();
 		
 		return true;
 	}

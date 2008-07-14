@@ -1506,7 +1506,7 @@ public class AppActions {
 							
 							// UI related stuff
 							MapTool.getFrame().getCommandPanel().setIdentity(null);
-							MapTool.getFrame().getMacroTabbedPane().updatePanels();
+							MapTool.getFrame().getMacroTabbedPane().resetTabs();
 							
 							// Flush the images associated with the current campaign
 							// Do this juuuuuust before we get ready to show the new campaign, since we

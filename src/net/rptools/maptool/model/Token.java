@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.model;
 
+import javax.swing.ImageIcon;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -43,8 +44,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-
-import javax.swing.ImageIcon;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -837,6 +836,14 @@ public class Token extends BaseModel {
 	
 	public String getMacro(String key) {
 		return getMacroMap().get(key);
+	}
+	
+	public void addMacro(String key, String value) {
+		getMacroMap().put(key, value);
+	}
+	
+	public void deleteMacro(String key) {
+		getMacroMap().remove(key);
 	}
 	
 	private Map<String, String> getMacroMap() {
