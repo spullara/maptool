@@ -25,9 +25,11 @@ public class SelectionTab extends JPanel implements Scrollable {
 		constraints.gridx = 0;
 		constraints.weightx = 1;
 		
-		
-		add(new ButtonGroup(tokenList), constraints);
-		constraints.gridy++;
+		// draw common group only when there is more than one token selected
+		if (tokenList.size() > 1) {
+			add(new ButtonGroup(tokenList), constraints);
+			constraints.gridy++;
+		}
 		for (Token token : tokenList) {
 			add(new ButtonGroup(token), constraints);
 			constraints.gridy ++;

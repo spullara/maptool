@@ -1,12 +1,18 @@
 package net.rptools.maptool.client.ui.macrobuttonpanel;
 
-import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.border.AbstractBorder;
+import javax.swing.border.Border;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DropTarget;
@@ -27,7 +33,9 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.macrobutton.TokenMacroButton;
 import net.rptools.maptool.client.ui.macrobutton.TransferData;
 import net.rptools.maptool.client.ui.macrobutton.TransferableMacroButton;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.util.ImageManager;
 
 public class ButtonGroup extends JPanel implements DropTargetListener {
 	
@@ -43,14 +51,14 @@ public class ButtonGroup extends JPanel implements DropTargetListener {
 	public ButtonGroup(Token token) {
 		this.token = token;
 		setOpaque(false);
+		
 		if (hasMacros(token)) {
 			addButtons(token);
 		} else {
 			add(new JLabel("None"));
 		}
-		// apparently you cannot change the insets of a titled border.
-		// we have to create a new border from scratch to reduce padding of the title. 
-		setBorder(BorderFactory.createTitledBorder(getName(token)));
+		
+		setBorder(createBorder(getName(token)));
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		dt = new DropTarget(this, this);
 		addMouseListener(new MouseHandler());
@@ -101,7 +109,7 @@ public class ButtonGroup extends JPanel implements DropTargetListener {
 			add(new JLabel("None"));
 		}
 		
-		setBorder(BorderFactory.createTitledBorder("Common"));
+		setBorder(new ThumbnailedBorder(null, "Common"));
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		dt = new DropTarget(this, this);
 		addMouseListener(new MouseHandler());
@@ -140,7 +148,11 @@ public class ButtonGroup extends JPanel implements DropTargetListener {
 		Dimension prefSize = new Dimension(size.width, y);
 		return prefSize;
 	}
-	
+
+	public Insets getInsets() {
+		return new Insets(18,5,5,0);
+	}
+
 	private void addButtons(Token token) {
 		List<String> keyList = new ArrayList<String>(token.getMacroNames());
 		Collections.sort(keyList);
@@ -195,7 +207,7 @@ public class ButtonGroup extends JPanel implements DropTargetListener {
 					token.addMacro(data.macro, data.command);
 				}
 			} else if (token != null) {
-				// this is a token group, copy macro to this.token only
+				// this is a token group, copy macro to this.Token only
 				event.acceptDrop(event.getDropAction());
 				token.addMacro(data.macro, data.command);
 			} else {
@@ -224,5 +236,65 @@ public class ButtonGroup extends JPanel implements DropTargetListener {
 	
 	public List<Token> getTokenList() {
 		return tokenList;
+	}
+	
+	private Border createBorder(String label) {
+		//return BorderFactory.createTitledBorder(label);
+		ImageIcon i = new ImageIcon(ImageManager.getImageAndWait(AssetManager.getAsset(token.getImageAssetId())));
+		Image icon = i.getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT);
+		return new ThumbnailedBorder(icon, label);
+	}
+	
+	private class ThumbnailedBorder extends AbstractBorder {
+		
+		private Image image;
+		private String label;
+		
+		//private final int X_OFFSET = 5;
+		
+		private ThumbnailedBorder(Image image, String label) {
+			this.image = image;
+			this.label = label;
+		}
+
+		public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+			//((Graphics2D) g).setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+			
+			//TODO: change magic numbers to final fields
+			// match line color to default titledborder line color
+			g.setColor(new Color(165, 163, 151));
+			g.drawRoundRect(2, 12, c.getWidth()-5, c.getHeight()-13, 6, 6);
+			
+			// clear the left and right handside of the image to show space between border line and image
+			g.setColor(c.getBackground());
+			g.fillRect(8, 0, 24, 20);
+			g.drawImage(image, 10, 2, null);
+
+			int strx = image != null ? 30 : 5;
+			
+			// clear the left and right of the label
+			FontMetrics metrics = g.getFontMetrics();
+			int stringHeight = metrics.getHeight();
+			int stringWidth = metrics.stringWidth(label);
+			g.fillRect(strx, 0, stringWidth + 5, stringHeight);
+
+			// this workaround is needed for windows platforms, otherwise the fonts will be much larger
+			//int screenRes = Toolkit.getDefaultToolkit().getScreenResolution();
+			//float fontSize = (float) Math.round(12.0 * screenRes / 72.0);
+			//g.setFont(g.getFont().deriveFont(fontSize));
+			
+			g.setColor(Color.BLACK);
+			//TODO: -4 is probably wrong
+			g.drawString(label, strx+3, (20-stringHeight)/2+stringHeight-2);
+			//
+		}
+
+		public Insets getBorderInsets(Component component) {
+			return new Insets(20, 5, 5, 5);
+		}
+
+		public boolean isBorderOpaque() {
+			return true;
+		}
 	}
 }
