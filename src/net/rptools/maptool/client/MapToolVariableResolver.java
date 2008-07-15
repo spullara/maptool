@@ -78,32 +78,32 @@ public class MapToolVariableResolver extends MapVariableResolver {
 	}
 	
 	@Override
-	public void setVariable(String arg0, VariableModifiers arg1, Object arg2) throws ParserException {
+	public void setVariable(String varname, VariableModifiers modifiers, Object value) throws ParserException {
         Token token = getTokenInContext();
         if (token != null) {
-            if (validTokenProperty(arg0, token)) {
-                token.setProperty(arg0, arg2.toString());
+            if (validTokenProperty(varname, token)) {
+                token.setProperty(varname, value.toString());
                 return;
             }
         }
         // Check to see if it is a token state.
-        if (arg0.startsWith(STATE_PREFIX)) {
-            String stateName = arg0.substring(STATE_PREFIX.length());
+        if (varname.startsWith(STATE_PREFIX)) {
+            String stateName = varname.substring(STATE_PREFIX.length());
             if (MapTool.getCampaign().getTokenStatesMap().containsKey(stateName)) {
-                setBooleanTokenState(token, stateName, arg2);
+                setBooleanTokenState(token, stateName, value);
                 // TODO: This works for now but could result in a lot of resending of data
                 MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
     					token);
                 return;
             }
-        } else if (arg0.equals(TOKEN_HALO)) {
-            if (arg2 instanceof Color) {
-                token.setHaloColor((Color) arg2);
+        } else if (varname.equals(TOKEN_HALO)) {
+            if (value instanceof Color) {
+                token.setHaloColor((Color) value);
                 // TODO: This works for now but could result in a lot of resending of data
                 MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
     					token);
             } else {
-                String col = arg2.toString();
+                String col = value.toString();
                 if (col.equals("None")) {
                     token.setHaloColor(null);
                 } else if (col.startsWith("#")) {
@@ -120,7 +120,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
                 } else {
                     // Try to find the halo color in the array
                     for (Object[] colval : COLOR_ARRAY) {
-                        if (arg2.equals(colval[0])) {
+                        if (value.equals(colval[0])) {
                             token.setHaloColor((Color) colval[1]);
                             // TODO: This works for now but could result in a lot of resending of data
                             MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
@@ -137,7 +137,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
                 return;
             }
         }
-		super.setVariable(arg0, arg1, arg2);
+		super.setVariable(varname, modifiers, value);
 	}
 
 	private Token getTokenInContext() {
