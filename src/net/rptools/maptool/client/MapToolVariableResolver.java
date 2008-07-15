@@ -71,7 +71,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 
 		// Prompt
 		if (result == null || mods == VariableModifiers.Prompt) {
-			result = JOptionPane.showInputDialog(MapTool.getFrame(), "Value for: " + name, "Input Value", JOptionPane.QUESTION_MESSAGE, null, null, result != null ? result.toString() : "0");
+			result = JOptionPane.showInputDialog(MapTool.getFrame(), "Value for: " + name, "Input Value for " + token.getName() + "/" + token.getGMName(), JOptionPane.QUESTION_MESSAGE, null, null, result != null ? result.toString() : "0");
 		}
 
 		return MapTool.parse(result.toString()).getValue();
