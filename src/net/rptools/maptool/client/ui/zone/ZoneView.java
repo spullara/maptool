@@ -113,7 +113,9 @@ public class ZoneView implements ModelChangeListener {
         	lightSourceArea.transform(AffineTransform.getScaleInstance(sight.getMultiplier(), sight.getMultiplier()));
         }
 
-        // Keep track of colored light
+		Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopologyAreaData());
+
+		// Keep track of colored light
         Set<DrawableLight> lightSet = new HashSet<DrawableLight>();
         Set<Area> brightLightSet = new HashSet<Area>();
         for (Light light : lightSource.getLightList()) {
@@ -124,6 +126,7 @@ public class ZoneView implements ModelChangeListener {
             }
 
             lightArea.transform(AffineTransform.getTranslateInstance(p.x, p.y));
+            lightArea.intersect(visibleArea);
 
             if (light.getPaint() != null) {
             	lightSet.add(new DrawableLight(light.getPaint(), lightArea));
@@ -134,7 +137,7 @@ public class ZoneView implements ModelChangeListener {
         drawableLightCache.put(lightSourceToken.getId(), lightSet);
         brightLightCache.put(lightSourceToken.getId(), brightLightSet);
         
-		return FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopologyAreaData());
+		return visibleArea;
     }
     
 	public Area getVisibleArea(Token token) {
