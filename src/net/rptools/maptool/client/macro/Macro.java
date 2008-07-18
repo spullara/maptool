@@ -24,6 +24,8 @@
  */
 package net.rptools.maptool.client.macro;
 
+import java.util.List;
+
 /**
  * @author drice
  *
@@ -32,5 +34,5 @@ package net.rptools.maptool.client.macro;
  */
 public interface Macro {
 
-    public void execute(String macro);
+    public void execute(MacroContext context, String macro);
 }

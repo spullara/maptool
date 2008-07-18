@@ -24,19 +24,14 @@
  */
 package net.rptools.maptool.client.macro.impl;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import net.rptools.common.expression.Result;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.parser.ParserException;
 
 public abstract class AbstractRollMacro extends AbstractMacro {
 	
     protected String roll(String roll) {
         
         try {
-        	String text = roll + " => "+ rollInternal(roll);
+        	String text = roll + " => "+ MapTool.getParser().expandRoll(roll);
             
             return text;
         } catch (Exception e) {
@@ -45,42 +40,4 @@ public abstract class AbstractRollMacro extends AbstractMacro {
         }
     }
 
-    private static final Pattern INLINE_ROLL = Pattern.compile("\\[([^\\]]+)\\]");
-    public static String inlineRoll(String line) {
-        Matcher m = INLINE_ROLL.matcher(line);
-        StringBuffer buf = new StringBuffer();
-   		while( m.find()) {
-   			String roll = m.group(1);
-   			
-   			// Preprocessed roll already ?
-   			if (roll.startsWith("roll")) {
-   				continue;
-   			}
-   			
-   			m.appendReplacement(buf, "[roll "+ roll + " &#8658; " + rollInternal(roll)+"]" );
-       	}
-   		m.appendTail(buf);
-
-   		return buf.toString();
-    }
-
-    protected static String rollInternal(String roll) {
-    	
-      	try {
-			Result result = MapTool.parse(roll);
-
-	    	StringBuilder sb = new StringBuilder();
-	    	
-	    	if (result.getDetailExpression().equals(result.getValue().toString())) {
-	    		sb.append(result.getDetailExpression());
-	    	} else {
-	    		sb.append(result.getDetailExpression()).append(" = ").append(result.getValue());
-	    	}
-	
-	        return sb.toString();
-		} catch (ParserException e) {
-			return "Invalid expression: " + roll;
-		}
-    	
-    }
 }

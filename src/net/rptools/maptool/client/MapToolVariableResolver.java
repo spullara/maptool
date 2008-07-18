@@ -48,7 +48,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		Object result = null;
 		Token token = getTokenInContext();
 		if (token != null) {
-
+			
 			if (name.startsWith(STATE_PREFIX)) {
                 String stateName = name.substring(STATE_PREFIX.length());
                 
@@ -74,7 +74,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 			result = JOptionPane.showInputDialog(MapTool.getFrame(), "Value for: " + name, "Input Value for " + token.getName() + "/" + token.getGMName(), JOptionPane.QUESTION_MESSAGE, null, null, result != null ? result.toString() : "0");
 		}
 
-		return MapTool.parse(result.toString()).getValue();
+		return MapTool.getParser().parseExpression(result.toString()).getValue();
 	}
 	
 	@Override
@@ -127,7 +127,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
                 					token);
 
                             return;
-                        }
+	}
                     }
                     throw new ParserException("Invalid Halo Color (" + col + ")");
                 }
@@ -171,8 +171,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
                 return Integer.parseInt(val.toString()) != 0;
             } catch (NumberFormatException e) {
                 return Boolean.parseBoolean(val.toString());
-            }
-
+}
         }
     }
     

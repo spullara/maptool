@@ -25,6 +25,7 @@
 package net.rptools.maptool.client.macro.impl;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
 
@@ -35,12 +36,12 @@ import net.rptools.maptool.model.TextMessage;
     )
 public class RollGMMacro extends AbstractRollMacro {
 
-    public void execute(String macro) {
+    public void execute(MacroContext context, String macro) {
         String result = roll(macro);
         if (result != null) {
         	
-            MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), "* " + MapTool.getPlayer().getName() + " rolls to you: " + result));
-        	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "* You roll to the GM: " + result));
+            MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), "* " + MapTool.getPlayer().getName() + " rolls to you: " + result, context.getTransformationHistory()));
+        	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "* You roll to the GM: " + result, context.getTransformationHistory()));
         }
     }
 }

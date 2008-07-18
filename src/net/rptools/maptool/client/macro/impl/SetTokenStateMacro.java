@@ -29,6 +29,7 @@ import java.util.Set;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
+import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.ui.token.LightDialog;
 import net.rptools.maptool.model.GUID;
@@ -66,7 +67,7 @@ public class SetTokenStateMacro implements Macro {
   /**
    * @see net.rptools.maptool.client.macro.Macro#execute(java.lang.String)
    */
-  public void execute(String aMacro) {
+  public void execute(MacroContext context, String aMacro) {
 	  Set<GUID> selectedTokenSet; // The tokens to set the state of
 	  String stateName;           // The name of the state to set
 	  String value;				  // The value to set

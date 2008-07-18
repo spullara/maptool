@@ -28,16 +28,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.jeta.forms.gui.common.parsers.TokenMgrError;
-
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.macro.impl.AbstractRollMacro;
 import net.rptools.maptool.client.macro.impl.AddTokenStateMacro;
 import net.rptools.maptool.client.macro.impl.AliasMacro;
 import net.rptools.maptool.client.macro.impl.ChangeColorMacro;
@@ -61,9 +59,9 @@ import net.rptools.maptool.client.macro.impl.RunTokenSpeechMacro;
 import net.rptools.maptool.client.macro.impl.SaveAliasesMacro;
 import net.rptools.maptool.client.macro.impl.SaveTokenStatesMacro;
 import net.rptools.maptool.client.macro.impl.SayMacro;
-import net.rptools.maptool.client.macro.impl.SetTokenStateMacro;
-import net.rptools.maptool.client.macro.impl.SetTokenPropertyMacro;
 import net.rptools.maptool.client.macro.impl.SelfMacro;
+import net.rptools.maptool.client.macro.impl.SetTokenPropertyMacro;
+import net.rptools.maptool.client.macro.impl.SetTokenStateMacro;
 import net.rptools.maptool.client.macro.impl.ToGMMacro;
 import net.rptools.maptool.client.macro.impl.UndefinedMacro;
 import net.rptools.maptool.client.macro.impl.WhisperMacro;
@@ -159,13 +157,16 @@ public class MacroManager {
 		}
 	}
 
-	private static final Pattern MACRO_PAT = Pattern
-			.compile("^(\\w+)\\s*(.*)$");
+	private static final Pattern MACRO_PAT = Pattern.compile("^(\\w+)\\s*(.*)$");
 	
 	public static void executeMacro(String command) {
 
+		MacroContext context = new MacroContext();
+		context.addTransform(command);
+		
 		try {
 			command = preprocess(command);
+			context.addTransform(command);
 	
 			int recurseCount = 0;
 			while (recurseCount < MAX_RECURSE_COUNT) {
@@ -198,11 +199,12 @@ public class MacroManager {
 
 					// Preprocess line if required.
 					if (def == null || def.expandRolls()) {
-						details = AbstractRollMacro.inlineRoll(details);
+						details = MapTool.getParser().expandRoll(details);
 					}
 					
+					context.addTransform(key + " " + details);
 					if (macro != UNDEFINED_MACRO) {
-						executeMacro(macro, details);
+						executeMacro(context, macro, details);
 						return;
 					}
 	
@@ -210,16 +212,18 @@ public class MacroManager {
 					String alias = aliasMap.get(key);
 					if (alias == null) {
 	
-						executeMacro(UNDEFINED_MACRO, command);
+						executeMacro(context, UNDEFINED_MACRO, command);
 						return;
 					}
 					
 					command = resolveAlias(alias, details);
+					context.addTransform(command);
+					
 					continue;
 				} else {
 	
 					// Undefined macro shows the bad command
-					executeMacro(UNDEFINED_MACRO, command);
+					executeMacro(context, UNDEFINED_MACRO, command);
 					return;
 				}
 			}
@@ -343,8 +347,8 @@ public class MacroManager {
 		return list;
 	}
 	
-	private static void executeMacro(Macro macro, String parameter) {
-		macro.execute(parameter);
+	private static void executeMacro(MacroContext context, Macro macro, String parameter) {
+		macro.execute(context, parameter);
 	}
 
 }

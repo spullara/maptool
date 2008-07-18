@@ -29,6 +29,7 @@ import java.awt.Color;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
@@ -40,7 +41,7 @@ import net.rptools.maptool.model.Token;
 )
 public class SayMacro extends AbstractMacro {
 
-    public void execute(String macro) {
+    public void execute(MacroContext context, String macro) {
     	macro = processText(macro);
     	
         StringBuilder sb = new StringBuilder();
@@ -75,6 +76,6 @@ public class SayMacro extends AbstractMacro {
         
         sb.append("</tr></table>");
         
-        MapTool.addMessage(TextMessage.say(sb.toString()));
+        MapTool.addMessage(TextMessage.say(context.getTransformationHistory(), sb.toString()));
     }
 }

@@ -25,7 +25,7 @@
 package net.rptools.maptool.client.macro.impl;
 
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.macro.Macro;
+import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
 
@@ -36,10 +36,10 @@ import net.rptools.maptool.model.TextMessage;
     )
 public class SelfMacro extends AbstractMacro {
 	    
-	public void execute(String macro) {
+	public void execute(MacroContext context, String macro) {
 		macro = processText(macro);
         StringBuilder sb = new StringBuilder();
         sb.append("<i>").append(macro).append(":</i>");
-        MapTool.addMessage(TextMessage.me(sb.toString()));
+        MapTool.addMessage(TextMessage.me(context.getTransformationHistory(), sb.toString()));
     }
 }

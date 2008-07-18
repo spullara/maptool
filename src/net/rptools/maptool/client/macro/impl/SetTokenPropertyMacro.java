@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
+import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
@@ -29,12 +30,12 @@ public class SetTokenPropertyMacro implements Macro {
 	/** The pattern used to match the token name and commands. */
 	private static final Pattern COMMAND_PATTERN = Pattern.compile("\"?([ \\w]+)?\"?\\s*\\[([^\\]]+)\\]");
 	
-
+    
 	/** 
 	 * Execute the command.
 	 * @param args The arguments to the command.
 	 */
-	public void execute(String args) {
+	public void execute(MacroContext context, String args) {
 		
 	       		
 		if (args.length() == 0) {
@@ -82,7 +83,7 @@ public class SetTokenPropertyMacro implements Macro {
 
 			for (String command : commands) {
 				try {
-					MapTool.parse(command);
+					MapTool.getParser().parseExpression(command);
 				} catch (ParserException e) {
 					MapTool.addLocalMessage("Error Evaluating Expression: " + e.getMessage());
 					break;
@@ -102,11 +103,11 @@ public class SetTokenPropertyMacro implements Macro {
 			//       about or depend on here but at the moment it can't be helped.
 			/*MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
 					token); // update so others see the changes.
-			*/
-
-		}
-	}
-
+	 */
+        	
+        	}
+        }
+	
 	/**
 	 * Gets the token specified on command line or the selected tokens if no token is specified.
 	 * @param tokenName The name of the token to try retrieve.
@@ -132,11 +133,11 @@ public class SetTokenPropertyMacro implements Macro {
 			// so far ;) )
 			if (!MapTool.getPlayer().isGM()) {
 				if ((!zone.isTokenVisible(token) || token.getLayer() == Zone.Layer.GM)) {
-					token = null;
-				}
-				if (!token.isOwner(MapTool.getPlayer().getName())) {
-					token = null;
-				}
+				token = null;
+			}
+			if (!token.isOwner(MapTool.getPlayer().getName())) {
+				token = null;
+			}
 			}
 			if (token != null) {
 				selectedTokenSet.add(token);

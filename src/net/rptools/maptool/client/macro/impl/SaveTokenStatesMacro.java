@@ -37,6 +37,7 @@ import javax.swing.JFileChooser;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
+import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
 
@@ -56,7 +57,7 @@ public class SaveTokenStatesMacro implements Macro {
   /**
    * @see net.rptools.maptool.client.macro.Macro#execute(java.lang.String)
    */
-  public void execute(String macro) {
+  public void execute(MacroContext context, String macro) {
     
     // Read the file from the command line
     File aliasFile = null;

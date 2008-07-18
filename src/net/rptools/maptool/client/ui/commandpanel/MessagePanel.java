@@ -127,6 +127,7 @@ public class MessagePanel extends JPanel {
 				
 				String text = "<div>"+message.getMessage()+"</div>";
 				text = text.replaceAll("\\[roll\\s*([^\\]]*)]", "&#171;<span class='roll' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
+				text = text.replaceAll("\\{cmd\\s*([^\\}]*)}", "&#171;<span class='cmd' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
 				
 				// Auto inline expansion
 				text = text.replaceAll("(^|\\s)(http://[a-zA-Z0-9_\\.%-/~?]+)", "$1<a href=\"$2\">$2</a>");

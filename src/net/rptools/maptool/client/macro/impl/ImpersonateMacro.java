@@ -25,6 +25,7 @@ package net.rptools.maptool.client.macro.impl;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
+import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.model.Token;
@@ -37,7 +38,7 @@ import net.rptools.maptool.model.Token;
     )
 public class ImpersonateMacro implements Macro {
 	
-	public void execute(String macro) {
+	public void execute(MacroContext context, String macro) {
 
 		macro = macro.trim();
 

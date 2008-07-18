@@ -25,6 +25,7 @@
 package net.rptools.maptool.client.macro.impl;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
 
@@ -35,9 +36,9 @@ import net.rptools.maptool.model.TextMessage;
     )
 public class ToGMMacro extends AbstractRollMacro {
 
-    public void execute(String macro) {
+    public void execute(MacroContext context, String macro) {
 
-        MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), MapTool.getPlayer().getName() + " says to the GM: " + macro));
-    	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "You say to the GM: " + macro));
+        MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), MapTool.getPlayer().getName() + " says to the GM: " + macro, context.getTransformationHistory()));
+    	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "You say to the GM: " + macro, context.getTransformationHistory()));
     }
 }

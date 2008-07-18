@@ -143,9 +143,7 @@ public class MapTool {
     
     private static AppConfiguration configuration;
     
-    private static final int PARSER_MAX_RECURSE = 50;
-    private static int parserRecurseDepth;
-    private static ExpressionParser parser;
+    private static MapToolLineParser parser = new MapToolLineParser();
     
 	public static void showError(String message) {
 		JOptionPane.showMessageDialog(clientFrame, "<html><body>"+I18N.getText(message)+"</body></html>", "Error", JOptionPane.ERROR_MESSAGE);
@@ -437,7 +435,7 @@ public class MapTool {
      * @param message
      */
     public static void addLocalMessage(String message) {
-        addMessage(TextMessage.me(message));
+        addMessage(TextMessage.me(null, message));
     }
     
 
@@ -448,28 +446,10 @@ public class MapTool {
         return campaign;
     }
     
-    public static Result parse(String expression) throws ParserException {
-        if (parser == null) {
-            parser = new ExpressionParser(new MapToolVariableResolver());
-        }
-        
-    	if (parserRecurseDepth > PARSER_MAX_RECURSE) {
-    		throw new ParserException("Max recurse limit reached");
-    	}
-        try {
-        	parserRecurseDepth ++;
-        	return parser.evaluate(expression);
-        } catch (RuntimeException re) {
-        	
-        	if (re.getCause() instanceof ParserException) {
-        		throw (ParserException) re.getCause();
-        	}
-        	
-        	throw re;
-        } finally {
-        	parserRecurseDepth--;
-        }
+    public static MapToolLineParser getParser() {
+    	return parser;
     }
+    
     public static void setCampaign(Campaign campaign) {
     	setCampaign(campaign, null);
     }

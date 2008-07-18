@@ -24,11 +24,6 @@
  */
 package net.rptools.maptool.client.tool;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -57,8 +52,14 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -90,12 +91,13 @@ import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.Zone.Layer;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.Zone.Layer;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.maptool.util.TokenUtil;
+import net.rptools.parser.ParserException;
 
 /**
  */
@@ -1334,7 +1336,18 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 								if (property.getShortName() != null) {
 									propName = property.getShortName();
 								}
-								propertyMap.put(propName, propertyValue.toString());
+								
+								String value = "";
+								try {
+									value = MapTool.getParser().parseLine(propertyValue.toString());
+								} catch (ParserException pe) {
+									pe.printStackTrace();
+									value = "#ERR";
+								}
+								if (value == null) {
+									value = "";
+								}
+								propertyMap.put(propName, value);
 							}
 						}
 					}

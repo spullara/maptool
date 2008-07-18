@@ -308,8 +308,8 @@ public class CommandPanel extends JPanel implements Observer {
 
 		// Detect whether the person is attempting to fake rolls. 
     	if (CHEATER_PATTERN.matcher(text).find()) {
-    		MapTool.addServerMessage(TextMessage.me("Cheater. You have been reported."));
-    		MapTool.serverCommand().message(TextMessage.gm(MapTool.getPlayer().getName() + " was caught <i>cheating</i>: " + text));
+    		MapTool.addServerMessage(TextMessage.me(null, "Cheater. You have been reported."));
+    		MapTool.serverCommand().message(TextMessage.gm(null, MapTool.getPlayer().getName() + " was caught <i>cheating</i>: " + text));
     		commandTextArea.setText("");
     		return;
     	}
@@ -322,7 +322,7 @@ public class CommandPanel extends JPanel implements Observer {
     		closeDivCount ++;
     	}
     	if (closeDivCount > divCount) {
-    		MapTool.addServerMessage(TextMessage.me("You have too many &lt;/div&gt;."));
+    		MapTool.addServerMessage(TextMessage.me(null, "You have too many &lt;/div&gt;."));
     		commandTextArea.setText("");
     		return;
     	}
@@ -473,7 +473,7 @@ public class CommandPanel extends JPanel implements Observer {
 		}
 	}
 	
-	private static class AvatarPanel extends JComponent {
+	private class AvatarPanel extends JComponent {
 
 		private static final int PADDING = 5;
 		
@@ -490,7 +490,7 @@ public class CommandPanel extends JPanel implements Observer {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if (cancelBounds != null && cancelBounds.contains(e.getPoint())) {
-						JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+						JTextPane commandArea = getCommandTextArea();
 
 						commandArea.setText("/im");
 						MapTool.getFrame().getCommandPanel().commitCommand();
@@ -561,7 +561,7 @@ public class CommandPanel extends JPanel implements Observer {
 		getActionMap().put(actionObject, new AbstractAction() {
 			public void actionPerformed(ActionEvent event) {
 				requestFocus();
-			}
+}
 		});
 	}
 }

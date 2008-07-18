@@ -27,6 +27,7 @@ package net.rptools.maptool.client.macro.impl;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.model.LookupTable;
@@ -41,7 +42,7 @@ import net.rptools.parser.ParserException;
 )
 public class LookupTableMacro extends AbstractMacro {
 
-    public void execute(String macro) {
+    public void execute(MacroContext context, String macro) {
     	macro = processText(macro).trim();
         StringBuilder sb = new StringBuilder();
 
@@ -91,7 +92,7 @@ public class LookupTableMacro extends AbstractMacro {
 		        sb.append("</span>");
 	    	}
 
-	    	MapTool.addMessage(TextMessage.say(sb.toString()));
+	    	MapTool.addMessage(TextMessage.say(context.getTransformationHistory(), sb.toString()));
     	} catch (ParserException pe) {
 	        MapTool.addLocalMessage("Could not do table lookup: " + pe.getMessage());
     	}

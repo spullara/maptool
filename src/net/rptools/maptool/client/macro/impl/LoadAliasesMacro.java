@@ -34,6 +34,7 @@ import javax.swing.JFileChooser;
 import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
+import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
 
@@ -44,7 +45,7 @@ import net.rptools.maptool.client.macro.MacroManager;
 )
 public class LoadAliasesMacro implements Macro {
 
-    public void execute(String macro) {
+    public void execute(MacroContext context, String macro) {
 
     	File aliasFile = null;
     	if (macro.length() > 0) {

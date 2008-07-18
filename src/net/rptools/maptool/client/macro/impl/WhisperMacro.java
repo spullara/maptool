@@ -25,7 +25,7 @@
 package net.rptools.maptool.client.macro.impl;
 
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.macro.Macro;
+import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
 
@@ -36,11 +36,11 @@ import net.rptools.maptool.model.TextMessage;
 )
 public class WhisperMacro extends AbstractMacro {
 
-    public void execute(String macro) {
+    public void execute(MacroContext context, String macro) {
         
         int index = macro.indexOf(" ");
         if (index < 0) {
-            MapTool.addMessage(TextMessage.me("<b>Must supply a player name.</b>"));
+            MapTool.addMessage(TextMessage.me(context.getTransformationHistory(), "<b>Must supply a player name.</b>"));
             return;
         }
         
@@ -49,16 +49,16 @@ public class WhisperMacro extends AbstractMacro {
         
         // Validate
         if (!MapTool.isPlayerConnected(playerName)) {
-            MapTool.addMessage(TextMessage.me("'" + playerName + "' is not connected."));
+            MapTool.addMessage(TextMessage.me(context.getTransformationHistory(), "'" + playerName + "' is not connected."));
             return;
         }
         if (MapTool.getPlayer().getName().equalsIgnoreCase(playerName)) {
-            MapTool.addMessage(TextMessage.me("Talking to yourself again?"));
+            MapTool.addMessage(TextMessage.me(context.getTransformationHistory(), "Talking to yourself again?"));
             return;
         }
         
         // Send
-        MapTool.addMessage(TextMessage.whisper(playerName, "<span class='whisper' style='color:blue'>" + MapTool.getFrame().getCommandPanel().getIdentity()+" whispers: "+message+"</span>"));
-        MapTool.addMessage(TextMessage.me("<span class='whisper' style='color:blue'>You whisper to " + playerName + ": "+message));
+        MapTool.addMessage(TextMessage.whisper(context.getTransformationHistory(), playerName, "<span class='whisper' style='color:blue'>" + MapTool.getFrame().getCommandPanel().getIdentity()+" whispers: "+message+"</span>"));
+        MapTool.addMessage(TextMessage.me(context.getTransformationHistory(), "<span class='whisper' style='color:blue'>You whisper to " + playerName + ": "+message));
     }
 }

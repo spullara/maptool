@@ -7,6 +7,7 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
+import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
 
@@ -24,7 +25,7 @@ public class HelpMacro implements Macro {
 		}
 	};
 
-	public void execute(String parameter) {
+	public void execute(MacroContext context, String parameter) {
 		
 		StringBuilder builder = new StringBuilder();
 
