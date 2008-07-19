@@ -78,13 +78,13 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		}
 
 		// Prompt
-//		if (result == null || mods == VariableModifiers.Prompt) {
-//			String requestedValue = tokenInContext != null ? tokenInContext.getName() + " (" + tokenInContext.getGMName() + ")" : name;
-//			result = JOptionPane.showInputDialog(MapTool.getFrame(), "Value for: " + name, "Input Value for " + requestedValue, JOptionPane.QUESTION_MESSAGE, null, null, result != null ? result.toString() : "0");
-//		}
-//		if (result == null) {
-//			throw new ParserException("Unresolved value '" + name + "'");
-//		}
+		if (result == null || mods == VariableModifiers.Prompt) {
+			String requestedValue = tokenInContext != null ? tokenInContext.getName() + " (" + tokenInContext.getGMName() + ")" : name;
+			result = JOptionPane.showInputDialog(MapTool.getFrame(), "Value for: " + name, "Input Value for " + requestedValue, JOptionPane.QUESTION_MESSAGE, null, null, result != null ? result.toString() : "0");
+		}
+		if (result == null) {
+			throw new ParserException("Unresolved value '" + name + "'");
+		}
 
 		return MapTool.getParser().parseExpression(tokenInContext, result.toString()).getValue();
 	}
