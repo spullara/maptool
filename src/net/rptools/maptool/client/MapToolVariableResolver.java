@@ -1,6 +1,7 @@
 package net.rptools.maptool.client;
 
 import java.awt.Color;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -113,7 +114,10 @@ public class MapToolVariableResolver extends MapVariableResolver {
                 // TODO: This works for now but could result in a lot of resending of data
                 MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
                 		tokenInContext);
+            } else if (value instanceof BigDecimal) {
+            	tokenInContext.setHaloColor(new Color(((BigDecimal)value).intValue()));
             } else {
+           
                 String col = value.toString();
                 if (col.equals("None")) {
                 	tokenInContext.setHaloColor(null);
@@ -123,6 +127,17 @@ public class MapToolVariableResolver extends MapVariableResolver {
                     }
                     try {
                         Color color = new Color(Integer.parseInt(col.substring(1, 3), 16), Integer.parseInt(col.substring(3, 5), 16), Integer.parseInt(col.substring(5, 7), 16));
+                        tokenInContext.setHaloColor(color);
+                    } catch (NumberFormatException e) {
+                        throw new ParserException("Invalid Halo Color (" + col + ")");
+                    }
+                } else if (col.startsWith("0x")) {
+                	if (col.length() < 8) {
+                        throw new ParserException("Invalid Halo Color (" + col + ")");
+                    }
+                    try {
+                        Color color = new Color(Integer.parseInt(col.substring(2, 4), 16), Integer.parseInt(col
+                                .substring(4, 6), 16), Integer.parseInt(col.substring(6, 8), 16));
                         tokenInContext.setHaloColor(color);
                     } catch (NumberFormatException e) {
                         throw new ParserException("Invalid Halo Color (" + col + ")");
