@@ -34,7 +34,8 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 		GM("GM", Zone.Layer.GM, false, true),
 		OBJECTS("Objects", Zone.Layer.OBJECT, false, true),
 		BACKGROUND("Background", Zone.Layer.BACKGROUND, false, true),
-		CLIPBOARD("Clipboard", Zone.Layer.TOKEN, false, true);
+		CLIPBOARD("Clipboard", Zone.Layer.TOKEN, false, true),
+		LIGHT_SOURCES("Light Sources", null, false, false);
 
 		String displayName;
 		boolean required;
@@ -79,6 +80,7 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     	filterList.add(new GMFilter());
     	filterList.add(new ObjectFilter());
     	filterList.add(new BackgroundFilter());
+    	filterList.add(new LightSourceFilter());
     }
 	
     private List<TreeModelListener> listenerList = new ArrayList<TreeModelListener>();
@@ -279,7 +281,15 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     	
     	@Override
     	protected boolean accept(Token token) {
-        	return token.getType() == Token.Type.PC;
+    		if (MapTool.getServerPolicy().isUseIndividualViews()) {
+    			if (MapTool.getPlayer().isGM() || token.isOwner(MapTool.getPlayer().getName())) {
+    				return token.getType() == Token.Type.PC;
+    			} else {
+    				return false;
+    			}
+    		} else {
+    			return token.getType() == Token.Type.PC;
+    		}
     	}
     }
     
@@ -319,6 +329,26 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
     	}
     }
     
+    
+    private class LightSourceFilter extends TokenFilter {
+    	public LightSourceFilter() {
+    		super(View.LIGHT_SOURCES);
+    	}
+    	
+    	@Override
+    	protected boolean accept(Token token) {
+    		if (MapTool.getPlayer().isGM()) {
+    			if (token.getLightSources().size() > 0) {
+    				return true;
+    			}
+    		} else if (token.isOwner(MapTool.getPlayer().getName())) {
+    			if (token.getLightSources().size() > 0) {
+    				return true;
+    			}
+    		}
+    		return false;
+    	}
+    }
     private class TokenTokenFilter extends TokenFilter {
     	
     	public TokenTokenFilter() {
@@ -349,7 +379,15 @@ public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 //					return false;
 //				}
 //			}
+
+    		if (token.isOwner(MapTool.getPlayer().getName())) {
+    			return true;
+    		}
     		
+    		if (MapTool.getServerPolicy().useStrictTokenManagement()) {
+    			return false;
+    		}
+    		    		
         	return zone.isTokenVisible(token);
     	}
     }
