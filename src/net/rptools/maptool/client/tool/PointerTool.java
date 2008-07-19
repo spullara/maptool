@@ -1337,17 +1337,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 									propName = property.getShortName();
 								}
 								
-								String value = "";
-								try {
-									value = MapTool.getParser().parseLine(propertyValue.toString());
-								} catch (ParserException pe) {
-									pe.printStackTrace();
-									value = "#ERR";
-								}
-								if (value == null) {
-									value = "";
-								}
-								propertyMap.put(propName, value);
+								Object value = tokenUnderMouse.getEvaluatedProperty(propName);
+
+								propertyMap.put(propName, value != null ? value.toString() : "");
 							}
 						}
 					}

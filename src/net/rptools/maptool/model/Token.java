@@ -48,8 +48,10 @@ import java.util.Set;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.transferable.TokenTransferData;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
+import net.rptools.parser.ParserException;
 
 /**
  * This object represents the placeable objects on a map. For example an icon
@@ -812,6 +814,24 @@ public class Token extends BaseModel {
 	
 	public Object getProperty(String key) {
 		return getPropertyMap().get(key);
+	}
+
+	public Object getEvaluatedProperty(String key) {
+		Object val = getProperty(key);
+		if (val == null) {
+			return null;
+		}
+		
+		try {
+			val = MapTool.getParser().parseLine(this, val.toString());
+		} catch (ParserException pe) {
+			pe.printStackTrace();
+			val = "#ERR";
+		}
+		if (val == null) {
+			val = "";
+		}
+		return val;
 	}
 	
 	public Set<String> getPropertyNames() {

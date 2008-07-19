@@ -1,6 +1,8 @@
 package net.rptools.maptool.client;
 
 import java.awt.Color;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 
@@ -35,6 +37,12 @@ public class MapToolVariableResolver extends MapVariableResolver {
             { "Magenta", Color.magenta, Color.black }, { "Pink", Color.pink, Color.black },
             { "White", Color.white, Color.black }    };
 	
+    private Token tokenInContext;
+
+    public MapToolVariableResolver(Token tokenInContext) {
+    	this.tokenInContext = tokenInContext;
+    }
+    
 	@Override
 	public boolean containsVariable(String name, VariableModifiers mods) {
 
@@ -46,21 +54,20 @@ public class MapToolVariableResolver extends MapVariableResolver {
 	public Object getVariable(String name, VariableModifiers mods) throws ParserException {
 
 		Object result = null;
-		Token token = getTokenInContext();
-		if (token != null) {
+		if (tokenInContext != null) {
 			
 			if (name.startsWith(STATE_PREFIX)) {
                 String stateName = name.substring(STATE_PREFIX.length());
                 
                 if (MapTool.getCampaign().getTokenStatesMap().containsKey(stateName)) {
-                    result =  getBooleanTokenState(token, stateName) ? Integer.valueOf(1) : Integer.valueOf(0);
+                    result =  getBooleanTokenState(tokenInContext, stateName) ? Integer.valueOf(1) : Integer.valueOf(0);
                 }
             }
 	
 			
-			if (token.getPropertyNames().contains(name)) {
+			if (tokenInContext.getPropertyNames().contains(name)) {
 				
-				result = token.getProperty(name);
+				result = tokenInContext.getEvaluatedProperty(name);
 			}
 		}
 		
@@ -70,19 +77,23 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		}
 
 		// Prompt
-		if (result == null || mods == VariableModifiers.Prompt) {
-			result = JOptionPane.showInputDialog(MapTool.getFrame(), "Value for: " + name, "Input Value for " + token.getName() + "/" + token.getGMName(), JOptionPane.QUESTION_MESSAGE, null, null, result != null ? result.toString() : "0");
-		}
+//		if (result == null || mods == VariableModifiers.Prompt) {
+//			String requestedValue = tokenInContext != null ? tokenInContext.getName() + " (" + tokenInContext.getGMName() + ")" : name;
+//			result = JOptionPane.showInputDialog(MapTool.getFrame(), "Value for: " + name, "Input Value for " + requestedValue, JOptionPane.QUESTION_MESSAGE, null, null, result != null ? result.toString() : "0");
+//		}
+//		if (result == null) {
+//			throw new ParserException("Unresolved value '" + name + "'");
+//		}
 
-		return MapTool.getParser().parseExpression(result.toString()).getValue();
+		return MapTool.getParser().parseExpression(tokenInContext, result.toString()).getValue();
 	}
 	
 	@Override
 	public void setVariable(String varname, VariableModifiers modifiers, Object value) throws ParserException {
-        Token token = getTokenInContext();
-        if (token != null) {
-            if (validTokenProperty(varname, token)) {
-                token.setProperty(varname, value.toString());
+
+		if (tokenInContext != null) {
+            if (validTokenProperty(varname, tokenInContext)) {
+            	tokenInContext.setProperty(varname, value.toString());
                 return;
             }
         }
@@ -90,30 +101,29 @@ public class MapToolVariableResolver extends MapVariableResolver {
         if (varname.startsWith(STATE_PREFIX)) {
             String stateName = varname.substring(STATE_PREFIX.length());
             if (MapTool.getCampaign().getTokenStatesMap().containsKey(stateName)) {
-                setBooleanTokenState(token, stateName, value);
+                setBooleanTokenState(tokenInContext, stateName, value);
                 // TODO: This works for now but could result in a lot of resending of data
                 MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-    					token);
+                		tokenInContext);
                 return;
             }
         } else if (varname.equals(TOKEN_HALO)) {
             if (value instanceof Color) {
-                token.setHaloColor((Color) value);
+            	tokenInContext.setHaloColor((Color) value);
                 // TODO: This works for now but could result in a lot of resending of data
                 MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-    					token);
+                		tokenInContext);
             } else {
                 String col = value.toString();
                 if (col.equals("None")) {
-                    token.setHaloColor(null);
+                	tokenInContext.setHaloColor(null);
                 } else if (col.startsWith("#")) {
                     if (col.length() < 7) {
                         throw new ParserException("Invalid Halo Color (" + col + ")");
                     }
                     try {
-                        Color color = new Color(Integer.parseInt(col.substring(1, 3), 16), Integer.parseInt(col
-                                .substring(3, 5), 16), Integer.parseInt(col.substring(5, 7), 16));
-                        token.setHaloColor(color);
+                        Color color = new Color(Integer.parseInt(col.substring(1, 3), 16), Integer.parseInt(col.substring(3, 5), 16), Integer.parseInt(col.substring(5, 7), 16));
+                        tokenInContext.setHaloColor(color);
                     } catch (NumberFormatException e) {
                         throw new ParserException("Invalid Halo Color (" + col + ")");
                     }
@@ -121,10 +131,9 @@ public class MapToolVariableResolver extends MapVariableResolver {
                     // Try to find the halo color in the array
                     for (Object[] colval : COLOR_ARRAY) {
                         if (value.equals(colval[0])) {
-                            token.setHaloColor((Color) colval[1]);
+                        	tokenInContext.setHaloColor((Color) colval[1]);
                             // TODO: This works for now but could result in a lot of resending of data
-                            MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-                					token);
+                            MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
 
                             return;
 	}
@@ -132,25 +141,13 @@ public class MapToolVariableResolver extends MapVariableResolver {
                     throw new ParserException("Invalid Halo Color (" + col + ")");
                 }
                 // TODO: This works for now but could result in a lot of resending of data
-                MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-    					token);
+                MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
                 return;
             }
         }
 		super.setVariable(varname, modifiers, value);
 	}
 
-	private Token getTokenInContext() {
-		
-		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-		if (renderer == null) {
-			return null;
-		}
-		
-		return renderer.getZone().resolveToken(MapTool.getFrame().getCommandPanel().getIdentity());
-	}
-	
-	
     /**
      * Gets the boolean value of the tokens state.
      * 

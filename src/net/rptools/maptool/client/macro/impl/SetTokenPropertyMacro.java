@@ -77,13 +77,9 @@ public class SetTokenPropertyMacro implements Macro {
 		
 		for (Token token : selectedTokenSet) {
 
-			// Impersonate the token so we have access to its properties in the rolls
-			String oldIdentity = MapTool.getFrame().getCommandPanel().getIdentity();
-			MapTool.getFrame().getCommandPanel().setIdentity(token.getName());
-
 			for (String command : commands) {
 				try {
-					MapTool.getParser().parseExpression(command);
+					MapTool.getParser().parseExpression(token, command);
 				} catch (ParserException e) {
 					MapTool.addLocalMessage("Error Evaluating Expression: " + e.getMessage());
 					break;
@@ -97,7 +93,6 @@ public class SetTokenPropertyMacro implements Macro {
 				}
 			}
 		
-			MapTool.getFrame().getCommandPanel().setIdentity(oldIdentity);
 			// TODO: This is currently done as part of the MapToolVariableResolver. I know this is bad
 			//       as it is an implementation issue of MapToolVariableResolver that we should know nothing
 			//       about or depend on here but at the moment it can't be helped.

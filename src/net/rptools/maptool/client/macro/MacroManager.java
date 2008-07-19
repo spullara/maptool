@@ -199,7 +199,7 @@ public class MacroManager {
 
 					// Preprocess line if required.
 					if (def == null || def.expandRolls()) {
-						details = MapTool.getParser().expandRoll(details);
+						details = MapTool.getParser().parseLine(details);
 					}
 					
 					context.addTransform(key + " " + details);

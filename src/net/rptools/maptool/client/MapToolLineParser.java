@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
+import net.rptools.maptool.model.Token;
 import net.rptools.parser.ParserException;
 
 public class MapToolLineParser {
@@ -17,6 +18,9 @@ public class MapToolLineParser {
     private ExpressionParser parser;
     
     public String parseLine(String line) throws ParserException {
+    	return parseLine(null, line);
+    }
+    public String parseLine(Token tokenInContext, String line) throws ParserException {
 
     	// TODO: This isn't right, but is an intermediary step while moving towards a better line parser
         Matcher m = INLINE_ROLL.matcher(line);
@@ -29,11 +33,11 @@ public class MapToolLineParser {
    				continue;
    			}
    			
-   			m.appendReplacement(buf, "[roll "+ roll + " &#8658; " + expandRoll(roll)+"]" );
+   			m.appendReplacement(buf, "[roll "+ roll + " = " + expandRoll(tokenInContext, roll)+"]" );
        	}
    		m.appendTail(buf);
 
-        m = INLINE_COMMAND.matcher(line);
+        m = INLINE_COMMAND.matcher(buf.toString());
         buf = new StringBuffer();
    		while( m.find()) {
    			String roll = m.group(1);
@@ -43,7 +47,8 @@ public class MapToolLineParser {
    				continue;
    			}
    			
-   			m.appendReplacement(buf, "{cmd "+ parseExpression(roll).getValue()+"}" );
+   			Result result = parseExpression(tokenInContext, roll);
+   			m.appendReplacement(buf, result != null ? result.getValue().toString() : "");
        	}
    		m.appendTail(buf);
 
@@ -51,16 +56,17 @@ public class MapToolLineParser {
     }
     
     public Result parseExpression(String expression) throws ParserException {
-        if (parser == null) {
-            parser = new ExpressionParser(new MapToolVariableResolver());
-        }
-        
+    	return parseExpression(null, expression);
+    }
+    
+    public Result parseExpression(Token tokenInContext, String expression) throws ParserException {
+
     	if (parserRecurseDepth > PARSER_MAX_RECURSE) {
     		throw new ParserException("Max recurse limit reached");
     	}
         try {
         	parserRecurseDepth ++;
-        	return parser.evaluate(expression);
+        	return  new ExpressionParser(new MapToolVariableResolver(tokenInContext)).evaluate(expression);
         } catch (RuntimeException re) {
         	
         	if (re.getCause() instanceof ParserException) {
@@ -74,9 +80,13 @@ public class MapToolLineParser {
     }	
     
     public String expandRoll(String roll) {
+    	return expandRoll(null, roll);
+    }
+    
+    public String expandRoll(Token tokenInContext, String roll) {
     	
       	try {
-			Result result = parseExpression(roll);
+			Result result = parseExpression(tokenInContext, roll);
 
 	    	StringBuilder sb = new StringBuilder();
 	    	
