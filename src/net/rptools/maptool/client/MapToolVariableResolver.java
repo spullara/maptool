@@ -18,6 +18,9 @@ public class MapToolVariableResolver extends MapVariableResolver {
 
     /** The prefix for querying and setting state values . */
     public final static String          STATE_PREFIX  = "state.";
+    
+    /** The postfix for setting all states. */
+    public final static String			ALL_STATES = "ALL";
 
     /** The variable name for querying and setting token halos. */
     public final static String          TOKEN_HALO    = "token.halo";
@@ -101,13 +104,18 @@ public class MapToolVariableResolver extends MapVariableResolver {
         // Check to see if it is a token state.
         if (varname.startsWith(STATE_PREFIX)) {
             String stateName = varname.substring(STATE_PREFIX.length());
-            if (MapTool.getCampaign().getTokenStatesMap().containsKey(stateName)) {
+        	if (stateName.equals(ALL_STATES)) {
+       		 setAllBooleanTokenStates(tokenInContext, value);
+       		 // TODO: This works for now but could result in a lot of resending of data
+       		 MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
+       		 tokenInContext);
+        	} else if (MapTool.getCampaign().getTokenStatesMap().containsKey(stateName)) {
                 setBooleanTokenState(tokenInContext, stateName, value);
                 // TODO: This works for now but could result in a lot of resending of data
-                MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-                		tokenInContext);
-                return;
             }
+        	MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
+            		tokenInContext);
+            return;
         } else if (varname.equals(TOKEN_HALO)) {
             if (value instanceof Color) {
             	tokenInContext.setHaloColor((Color) value);
@@ -232,5 +240,15 @@ public class MapToolVariableResolver extends MapVariableResolver {
 
         return false;
     }
-
+    /**
+     * Sets the value of all token states.
+     * @param token The token to set the state of.
+     * @param val set or unset the state.
+     */
+    private void setAllBooleanTokenStates(Token token, Object value) {
+    	for (Object stateName : MapTool.getCampaign().getTokenStatesMap().keySet()) {
+    		setBooleanTokenState(token, stateName.toString(), value);
+    	}
+    }
+    
 }
