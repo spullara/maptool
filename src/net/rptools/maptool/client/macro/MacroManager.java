@@ -199,7 +199,8 @@ public class MacroManager {
 
 					// Preprocess line if required.
 					if (def == null || def.expandRolls()) {
-						details = MapTool.getParser().parseLine(details);
+						// TODO: fix this, wow I really hate this, it's very, very ugly.
+						details = MapTool.getParser().parseLine(MapTool.getFrame().getCurrentZoneRenderer().getZone().resolveToken(MapTool.getFrame().getCommandPanel().getIdentity()), details);
 					}
 					
 					context.addTransform(key + " " + details);
