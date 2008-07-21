@@ -79,9 +79,11 @@ import net.rptools.maptool.client.swing.GenericDialog;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Association;
+import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.util.ImageManager;
 
 /**
@@ -347,10 +349,10 @@ public class EditTokenDialog extends AbeillePanel {
 		}
 		
 		// SIZE
-		if (getSizeCombo().getSelectedIndex() == 0) {
-			token.setSnapToScale(false);
-		} else {
-			token.setSnapToScale(true);
+		token.setSnapToScale(getSizeCombo().getSelectedIndex() != 0);
+		if (getSizeCombo().getSelectedIndex() > 0) {
+			Grid grid = MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid();
+			token.setFootprint(grid, (TokenFootprint) getSizeCombo().getSelectedItem());
 		}
 		
 		// Other
