@@ -83,7 +83,14 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		// Prompt
 		if (result == null || mods == VariableModifiers.Prompt) {
 			String requestedValue = tokenInContext != null ? tokenInContext.getName() + " (" + tokenInContext.getGMName() + ")" : name;
-			result = JOptionPane.showInputDialog(MapTool.getFrame(), "Value for: " + name, "Input Value for " + requestedValue, JOptionPane.QUESTION_MESSAGE, null, null, result != null ? result.toString() : "0");
+			String DialogTitle = "Input Value";
+			if(tokenInContext != null && tokenInContext.getGMName() != null && MapTool.getPlayer().isGM()) {
+				DialogTitle = DialogTitle + " for " + tokenInContext.getGMName();
+			}
+			if(tokenInContext != null && (tokenInContext.getGMName() == null || !MapTool.getPlayer().isGM())) {
+				DialogTitle = DialogTitle + " for " + tokenInContext.getName();
+			}
+			result = JOptionPane.showInputDialog(MapTool.getFrame(), "Value for: " + name, DialogTitle, JOptionPane.QUESTION_MESSAGE, null, null, result != null ? result.toString() : "0");
 		}
 		if (result == null) {
 			throw new ParserException("Unresolved value '" + name + "'");
