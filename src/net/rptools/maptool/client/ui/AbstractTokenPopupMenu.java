@@ -777,7 +777,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			  
 			  // if the tokenundermouse is being impersonated, we have to update its macro buttons
 			  if (MapTool.getFrame().getCommandPanel().getIdentity().equals(tokenUnderMouse.getName())) {
-				  MapTool.getFrame().getMacroTabbedPane().updateImpersonateTab(tokenUnderMouse, false);
+				  MapTool.getFrame().updateImpersonatePanel(tokenUnderMouse);
 			  }
 		  }
 		}

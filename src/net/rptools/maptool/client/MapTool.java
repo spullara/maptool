@@ -24,6 +24,11 @@
  */
 package net.rptools.maptool.client;
 
+import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -42,15 +47,11 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
-import javax.swing.plaf.FontUIResource;
-
+import com.centerkey.utils.BareBonesBrowserLaunch;
+import com.jidesoft.plaf.LookAndFeelFactory;
+import de.muntjak.tinylookandfeel.Theme;
+import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
 import net.rptools.clientserver.hessian.client.ClientConnection;
-import net.rptools.common.expression.ExpressionParser;
-import net.rptools.common.expression.Result;
 import net.rptools.lib.BackupManager;
 import net.rptools.lib.EventDispatcher;
 import net.rptools.lib.FileUtil;
@@ -81,14 +82,7 @@ import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
 import net.rptools.maptool.transfer.AssetTransferManager;
 import net.rptools.maptool.util.UPnPUtil;
-import net.rptools.parser.ParserException;
 import net.tsc.servicediscovery.ServiceAnnouncer;
-
-import com.centerkey.utils.BareBonesBrowserLaunch;
-import com.jidesoft.plaf.LookAndFeelFactory;
-
-import de.muntjak.tinylookandfeel.Theme;
-import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
 
 /**
  */

@@ -1,16 +1,16 @@
-package net.rptools.maptool.client.ui.macrobuttonpanel;
+package net.rptools.maptool.client.ui.macrobuttons.panels;
 
 import java.awt.FlowLayout;
 import java.util.List;
 
 import net.rptools.maptool.client.swing.ScrollableFlowPanel;
 import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
-import net.rptools.maptool.client.ui.macrobutton.GlobalMacroButton;
-import net.rptools.maptool.client.ui.macrobutton.MacroButtonPrefs;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.GlobalMacroButton;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButtonPrefs;
 import net.rptools.maptool.model.MacroButtonProperties;
 
-public class GlobalTab extends ScrollableFlowPanel {
-	public GlobalTab() {
+public class GlobalPanel extends ScrollableFlowPanel {
+	public GlobalPanel() {
 		super(FlowLayout.LEFT);
 		init();
 	}
@@ -20,7 +20,9 @@ public class GlobalTab extends ScrollableFlowPanel {
 		for (MacroButtonProperties prop : properties) {
 			add(new GlobalMacroButton(prop));
 		}
-		doLayout();
+		//doLayout();
+		revalidate();
+		repaint();
 	}
 
 	public void addButton() {
@@ -28,6 +30,8 @@ public class GlobalTab extends ScrollableFlowPanel {
 		final MacroButtonProperties properties = new MacroButtonProperties(MacroButtonPrefs.getNextIndex());
 		add(new GlobalMacroButton(properties));
 		doLayout();
+		revalidate();
+		repaint();
 	}
 
 	public void addButton(MacroButtonProperties properties) {
@@ -40,9 +44,22 @@ public class GlobalTab extends ScrollableFlowPanel {
 															   properties.getIncludeLabel());
 		add(new GlobalMacroButton(prop));
 		doLayout();
+		revalidate();
+		repaint();
 	}
 
 	public void deleteButton(GlobalMacroButton button) {
 		remove(button);
+	}
+	
+	private void clear() {
+		removeAll();
+		revalidate();
+		repaint();
+	}
+	
+	public void reset() {
+		clear();
+		init();
 	}
 }

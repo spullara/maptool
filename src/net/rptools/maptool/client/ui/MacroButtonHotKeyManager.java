@@ -24,13 +24,12 @@
  */
 package net.rptools.maptool.client.ui;
 
+import javax.swing.KeyStroke;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.KeyStroke;
-
-import net.rptools.maptool.client.ui.macrobutton.AbstractMacroButton;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.AbstractMacroButton;
 
 /**
  * @author tylere
@@ -91,7 +90,9 @@ public class MacroButtonHotKeyManager {
 			
 			// keep macrotabbedpane's keystrokes in sync
 			if (MapTool.getFrame() != null) {
-				MapTool.getFrame().getMacroTabbedPane().updateKeyStrokes();
+				//MapTool.getFrame().getMacroTabbedPane().updateKeyStrokes();
+				// TODO: change this later to use the hub
+				MapTool.getFrame().updateKeyStrokes();
 			}
 		
 		}

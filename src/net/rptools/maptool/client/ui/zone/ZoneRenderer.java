@@ -138,7 +138,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     private List<ZoneOverlay> overlayList = new ArrayList<ZoneOverlay>();
     private Map<Zone.Layer , List<TokenLocation>> tokenLocationMap = new HashMap<Zone.Layer, List<TokenLocation>>();
     private Set<GUID> selectedTokenSet = new HashSet<GUID>();
-    private List<LabelLocation> labelLocationList = new LinkedList<LabelLocation>();
+	private List<Set<GUID>> selectedTokenSetHistory = new ArrayList<Set<GUID>>();
+	private List<LabelLocation> labelLocationList = new LinkedList<LabelLocation>();
     private Set<Area> coveredTokenSet = new HashSet<Area>();
 
     private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
@@ -1941,6 +1942,22 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     public Set<GUID> getSelectedTokenSet() {
         return selectedTokenSet;
     }
+
+	/**
+	 * A convienence method to get selected tokens ordered by name
+	 * @return List<Token>
+	 */
+	public List<Token> getSelectedTokensList() {
+		List<Token> tokenList = new ArrayList<Token>();
+
+		for (GUID g : selectedTokenSet) {
+			tokenList.add(zone.getToken(g));
+		}
+
+		Collections.sort(tokenList, Token.NAME_COMPARATOR);
+		
+		return tokenList;
+	}
     
     public boolean isTokenSelectable(GUID tokenGUID) {
         
@@ -1966,8 +1983,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     }
     
     public void deselectToken(GUID tokenGUID) {
-    	selectedTokenSet.remove(tokenGUID);
-		MapTool.getFrame().getMacroTabbedPane().updateSelectionTab();
+		selectedTokenSetHistory.add(0, new HashSet<GUID>(selectedTokenSet));
+		selectedTokenSet.remove(tokenGUID);
+		MapTool.getFrame().updateSelectionPanel();
+		MapTool.getFrame().updateImpersonatePanel(getSelectedTokensList());
 		repaint();
     }
     public boolean selectToken(GUID tokenGUID) {
@@ -1975,11 +1994,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         if (!isTokenSelectable(tokenGUID)) {
             return false;
         }
-        
+		
+		selectedTokenSetHistory.add(0, new HashSet<GUID>(selectedTokenSet));
         selectedTokenSet.add(tokenGUID);
         
         repaint();
-		MapTool.getFrame().getMacroTabbedPane().updateSelectionTab();
+		MapTool.getFrame().updateSelectionPanel();
+		MapTool.getFrame().updateImpersonatePanel(getSelectedTokensList());
 		return true;
     }
     
@@ -1996,13 +2017,45 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     }
     
     public void clearSelectedTokens() {
-        clearShowPaths();
-        selectedTokenSet.clear ();
-		MapTool.getFrame().getMacroTabbedPane().updateSelectionTab();
+		selectedTokenSetHistory.add(0, new HashSet<GUID>(selectedTokenSet));
+		clearShowPaths();
+		selectedTokenSet.clear();
+		MapTool.getFrame().updateSelectionPanel();
+		MapTool.getFrame().updateImpersonatePanel(getSelectedTokensList());
 		repaint();
-    }
+	}
     
-    public Area getTokenBounds(Token token) {
+	public void undoSelectToken() {
+		//System.out.println("num history items: " + selectedTokenSetHistory.size());
+		for (Set<GUID> set : selectedTokenSetHistory) {
+			//System.out.println("history item");
+			for (GUID guid : set) {
+				//System.out.println(zone.getToken(guid).getName());
+			}
+		}
+		if (selectedTokenSetHistory.size() > 0) {
+			selectedTokenSet = selectedTokenSetHistory.remove(0);
+			// user may have deleted some of the tokens that are contained in the selection history
+			// find them and filter them otherwise the selectionSet will have orphaned GUIDs and
+			// they will cause NPE
+			Set<GUID> invalidTokenSet = new HashSet<GUID>();
+			for (GUID guid : selectedTokenSet) {
+				if (zone.getToken(guid) == null) {
+					invalidTokenSet.add(guid);
+				}
+			}
+			selectedTokenSet.removeAll(invalidTokenSet);
+			
+			MapTool.getFrame().updateSelectionPanel();
+			MapTool.getFrame().updateImpersonatePanel(getSelectedTokensList());
+			if (selectedTokenSetHistory.size() > 20) {
+				selectedTokenSetHistory.subList(20, selectedTokenSetHistory.size() - 1).clear();
+			}
+			repaint();
+		}
+	}
+	
+	public Area getTokenBounds(Token token) {
         
     	TokenLocation location = tokenLocationCache.get(token);
     	return location != null ? location.bounds : null;

@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.model;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -73,6 +74,8 @@ public class Token extends BaseModel {
 	public static final String NUM_ON_NAME = "Name";
 	public static final String NUM_ON_GM = "GM Name";
 	public static final String NUM_ON_BOTH = "Both";
+	
+	private boolean beingImpersonated = false;
 
 	public enum TokenShape {
 		TOP_DOWN("Top down"),
@@ -1121,4 +1124,18 @@ public class Token extends BaseModel {
     public static boolean isTokenFile(String filename) {
     	return filename != null && filename.toLowerCase().endsWith(FILE_EXTENSION);
     }
+	
+	public Icon getIcon(int width, int height) {
+		ImageIcon icon = new ImageIcon(ImageManager.getImageAndWait(AssetManager.getAsset(getImageAssetId())));
+		Image image = icon.getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT);
+		return new ImageIcon(image);
+	}
+	
+	public boolean isBeingImpersonated() {
+		return beingImpersonated;
+	}
+	
+	public void setBeingImpersonated(boolean bool) {
+		beingImpersonated = bool;
+	}
 }

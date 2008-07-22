@@ -1,4 +1,4 @@
-package net.rptools.maptool.client.ui.macrobuttonpanel;
+package net.rptools.maptool.client.ui.macrobuttons.panels;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -9,13 +9,25 @@ import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.util.List;
 
+import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroup;
 import net.rptools.maptool.model.Token;
 
-public class SelectionTab extends JPanel implements Scrollable {
+public class SelectionPanel extends JPanel implements Scrollable {
 	
-	public SelectionTab() {
+	public SelectionPanel() {
+		//TODO: refactoring reminder
 		setLayout(new GridBagLayout());
-		//setBackground(Color.white);
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.gridy = 0;
+		constraints.gridx = 0;
+		constraints.weightx = 1;
+
+		add(new MenuButtonsPanel(), constraints);
+		constraints.gridy++;
+
+		// Spacer
+		constraints.weighty = 1;
+		add(new JLabel(), constraints);
 	}
 
 	public void update(List<Token> tokenList) {
@@ -24,6 +36,9 @@ public class SelectionTab extends JPanel implements Scrollable {
 		constraints.gridy = 0;
 		constraints.gridx = 0;
 		constraints.weightx = 1;
+
+		add(new MenuButtonsPanel(), constraints);
+		constraints.gridy++;
 		
 		// draw common group only when there is more than one token selected
 		if (tokenList.size() > 1) {
@@ -31,8 +46,8 @@ public class SelectionTab extends JPanel implements Scrollable {
 			constraints.gridy++;
 		}
 		for (Token token : tokenList) {
-			add(new ButtonGroup(token), constraints);
-			constraints.gridy ++;
+			add(new ButtonGroup(token, this), constraints);
+			constraints.gridy++;
 		}
 
 		// Spacer

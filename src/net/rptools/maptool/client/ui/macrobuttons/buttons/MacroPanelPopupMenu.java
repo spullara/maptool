@@ -1,4 +1,4 @@
-package net.rptools.maptool.client.ui.macrobuttonpanel;
+package net.rptools.maptool.client.ui.macrobuttons.buttons;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -28,9 +28,9 @@ public class MacroPanelPopupMenu extends JPopupMenu{
 		public void actionPerformed(ActionEvent event) {
 			// add a new global macro button
 			if (index == 0) {
-				MapTool.getFrame().getMacroTabbedPane().addGlobalMacroButton();
+				MapTool.getFrame().addGlobalMacroButton();
 			} else if (index == 1) {
-				MapTool.getFrame().getMacroTabbedPane().addCampaignMacroButton();
+				MapTool.getFrame().addCampaignMacroButton();
 			}
 		}
 	}

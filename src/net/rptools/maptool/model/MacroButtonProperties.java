@@ -4,7 +4,7 @@ import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 
 /**
  * This (data)class is used by the MacroButtons that extend the AbstractMacroButton class.
- * @see net.rptools.maptool.client.ui.macrobutton.AbstractMacroButton
+ * @see net.rptools.maptool.client.ui.macrobuttons.buttons.AbstractMacroButton
  * The Campaign class initializes a MacroButtonProperties array with default values.
  * @see net.rptools.maptool.model.Campaign
  * When a campaign is loaded the properties from the saved file will overwrite the defaults

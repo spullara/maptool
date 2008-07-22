@@ -1,10 +1,12 @@
-package net.rptools.maptool.client.ui.macrobutton;
+package net.rptools.maptool.client.ui.macrobuttons.buttons;
 
 import javax.swing.SwingUtilities;
 import java.awt.event.MouseEvent;
 
+import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.MacroButtonProperties;
-import net.rptools.maptool.client.ui.macrobuttonpanel.MacroButtonPopupMenu;
+import net.rptools.maptool.model.Token;
 
 /**
  * Macro buttons that aren't tied to a specific campaign. Hence "global" :)
@@ -20,10 +22,15 @@ public class GlobalMacroButton extends AbstractMacroButton
 	}
 
 	public void mousePressed(MouseEvent e) {
-		if (SwingUtilities.isLeftMouseButton(e)) {
+		if (SwingUtilities.isLeftMouseButton(e) && !SwingUtil.isShiftDown(e)) {
 			executeButton();
-		}
-		if (SwingUtilities.isRightMouseButton(e)) {
+		} else if (SwingUtilities.isLeftMouseButton(e) && SwingUtil.isShiftDown(e)) {
+			for (Token token : MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList()) {
+				MapTool.getFrame().getCommandPanel().quickCommit("/im " + token.getId());
+				executeButton();
+				MapTool.getFrame().getCommandPanel().quickCommit("/im");
+			}
+		}else if (SwingUtilities.isRightMouseButton(e)) {
 			new MacroButtonPopupMenu(this, 0).show(this, e.getX(), e.getY());
 		}
 	}

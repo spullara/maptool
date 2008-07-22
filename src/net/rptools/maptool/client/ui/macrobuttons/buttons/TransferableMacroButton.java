@@ -1,4 +1,4 @@
-package net.rptools.maptool.client.ui.macrobutton;
+package net.rptools.maptool.client.ui.macrobuttons.buttons;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;

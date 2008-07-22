@@ -30,8 +30,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
@@ -71,8 +71,9 @@ public class Campaign {
     private Map<GUID, LightSource> lightSourceMap;
     
     public Campaign() {
-    	// No op
-    }
+    	macroButtonLastIndex = 0;
+		macroButtonProperties = new ArrayList<MacroButtonProperties>();
+	}
 
     private void checkCampaignPropertyConversion() {
     	

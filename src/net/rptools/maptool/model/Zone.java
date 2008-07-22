@@ -39,11 +39,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import net.rptools.lib.MD5Key;
-import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
@@ -785,6 +782,6 @@ public class Zone extends BaseModel {
     			return lval - rval;
     		}
     	}
-    };
+    }
 
 }

@@ -1,13 +1,13 @@
-package net.rptools.maptool.client.ui.macrobutton;
+package net.rptools.maptool.client.ui.macrobuttons.buttons;
 
-import java.util.prefs.Preferences;
-import java.util.prefs.BackingStoreException;
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.beans.PropertyChangeEvent;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
-import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 import net.rptools.maptool.client.AppConstants;
+import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 import net.rptools.maptool.model.MacroButtonProperties;
 
 /**

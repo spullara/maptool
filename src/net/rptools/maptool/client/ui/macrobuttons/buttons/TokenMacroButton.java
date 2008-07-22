@@ -22,11 +22,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.rptools.maptool.client.ui.macrobutton;
+package net.rptools.maptool.client.ui.macrobuttons.buttons;
 
 import javax.swing.JButton;
-import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
+import java.awt.Cursor;
 import java.awt.Insets;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
@@ -42,6 +42,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
 import net.rptools.maptool.model.Token;
 
 /**
@@ -63,15 +64,13 @@ public class TokenMacroButton extends JButton {
 	private DragGestureListener dgListener;
 	private DragSourceListener dsListener;
 	
-	//TODO: adding TokenChangedListener and TokenChangedEvent so forth would make us even more happy.
-	
 	// impersonate tab buttons
 	public TokenMacroButton(Token token, String label, String command) {
 		super(label);
 		addMouseListener(new MouseHandler());
 		this.command = command;
 		setMargin(buttonInsets);
-		makeDraggable();
+		makeDraggable(DragSource.DefaultCopyDrop);
 	}
 	
 	// selection tab token buttons
@@ -83,7 +82,7 @@ public class TokenMacroButton extends JButton {
 		this.token = token;
 		addMouseListener(new MouseHandler());
 		setMargin(buttonInsets);
-		makeDraggable();
+		makeDraggable(DragSource.DefaultCopyDrop);
 	}
 
 	// selection tab common macro buttons
@@ -93,12 +92,12 @@ public class TokenMacroButton extends JButton {
 		this.tokenList = tokenList;
 		addMouseListener(new MouseHandler());
 		setMargin(buttonInsets);
-		//makeDraggable(); -> common macro buttons are not draggable because they don't have macro commands defined
+		makeDraggable(DragSource.DefaultCopyNoDrop);
 	}
 
-	private void makeDraggable() {
+	private void makeDraggable(Cursor cursor) {
 		dragSource = DragSource.getDefaultDragSource();
-		dgListener = new DGListener();
+		dgListener = new DGListener(cursor);
 		dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, dgListener);
 		dsListener = new DSListener();
 	}
@@ -111,35 +110,42 @@ public class TokenMacroButton extends JButton {
 	private class MouseHandler extends MouseAdapter {
 		public void mouseReleased(MouseEvent e) {
 			if (SwingUtilities.isLeftMouseButton(e)) {
-				JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+				CommandPanel commandPanel = MapTool.getFrame().getCommandPanel();
 				
 				if (tokenList != null) {
 					for (Token token : tokenList) {
-						String command = "/im " + token.getName() + ":" + token.getMacro(label);
-						commandArea.setText(command);
-						MapTool.getFrame().getCommandPanel().commitCommand();
+						String command = "/im " + token.getId() + ":" + token.getMacro(label);
+						commandPanel.quickCommit(command);
 					}
 				} else {
 					if (identity != null) {
 						String c = "/im " + identity + ":" + command;
-						commandArea.setText(c);
+						commandPanel.quickCommit(c);
 					} else {
-						commandArea.setText(command);
+						commandPanel.quickCommit(command);
 					}
-					MapTool.getFrame().getCommandPanel().commitCommand();
 				}
 			} else if (SwingUtilities.isRightMouseButton(e)) {
-				new TokenButtonPopupMenu(TokenMacroButton.this).show(TokenMacroButton.this, e.getX(), e.getY());
+				if (tokenList == null) {
+					new TokenButtonPopupMenu(TokenMacroButton.this, 0).show(TokenMacroButton.this, e.getX(), e.getY());
+				} else {
+					new TokenButtonPopupMenu(TokenMacroButton.this, 1).show(TokenMacroButton.this, e.getX(), e.getY());
+				}
 			}
 		}
 	}
 	
 	private class DGListener implements DragGestureListener {
 
+		final Cursor cursor;
+		
+		public DGListener(Cursor cursor) {
+			this.cursor = cursor;
+		}
+
 		public void dragGestureRecognized(DragGestureEvent dge) {
-			//System.out.println("drag start");
 			Transferable t = new TransferableMacroButton(TokenMacroButton.this);
-			dge.startDrag(DragSource.DefaultCopyDrop, t, dsListener);
+			dge.startDrag(cursor, t, dsListener);
 		}
 	}
 
@@ -165,7 +171,7 @@ public class TokenMacroButton extends JButton {
 
 		public void dragDropEnd(DragSourceDropEvent event) {
 			//System.out.println("TMB: drag drop end");
-			MapTool.getFrame().getMacroTabbedPane().updateSelectionTab();
+			MapTool.getFrame().updateSelectionPanel();
 		}
 	}
 	

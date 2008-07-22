@@ -564,4 +564,23 @@ public class CommandPanel extends JPanel implements Observer {
 }
 		});
 	}
+
+	/**
+	 * Convienence method to run a command with ability to preserve the text
+	 * in the commandTextArea. 
+	 * @param command Command string
+	 * @param preserveOldText true for preserving, false to remove the old text 
+	 */
+	public void quickCommit(String command, boolean preserveOldText) {
+		String oldText = commandTextArea.getText();
+		commandTextArea.setText(command);
+		commitCommand();
+		if (preserveOldText) {
+			commandTextArea.setText(oldText);
+		}
+	}
+
+	public void quickCommit(String command) {
+		quickCommit(command, true);
+	}
 }

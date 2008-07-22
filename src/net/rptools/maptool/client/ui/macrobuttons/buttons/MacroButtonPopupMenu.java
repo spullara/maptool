@@ -1,15 +1,15 @@
-package net.rptools.maptool.client.ui.macrobuttonpanel;
+package net.rptools.maptool.client.ui.macrobuttons.buttons;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import java.awt.event.ActionEvent;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.MacroButtonDialog;
 import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
-import net.rptools.maptool.client.ui.macrobutton.AbstractMacroButton;
-import net.rptools.maptool.client.ui.macrobutton.CampaignMacroButton;
-import net.rptools.maptool.client.ui.macrobutton.GlobalMacroButton;
-import net.rptools.maptool.client.ui.macrobutton.MacroButtonPrefs;
+import net.rptools.maptool.model.Token;
 
 public class MacroButtonPopupMenu extends JPopupMenu{
 	
@@ -26,6 +26,8 @@ public class MacroButtonPopupMenu extends JPopupMenu{
 		add(new JSeparator());
 		add(new ResetButtonAction());
 		add(new DeleteButtonAction());
+		add(new JSeparator());
+		add(new RunMacroForEachSelectedTokenAction());
 	}
 
 	private class AddNewButtonAction extends AbstractAction {
@@ -36,9 +38,9 @@ public class MacroButtonPopupMenu extends JPopupMenu{
 		public void actionPerformed(ActionEvent event) {
 			// TODO: refactor to put tab index from Tab enum
 			if (index == 0) {
-				MapTool.getFrame().getMacroTabbedPane().addGlobalMacroButton();
+				MapTool.getFrame().addGlobalMacroButton();
 			} else if (index == 1) {
-				MapTool.getFrame().getMacroTabbedPane().addCampaignMacroButton();
+				MapTool.getFrame().addCampaignMacroButton();
 			}
 		}
 	}
@@ -66,10 +68,10 @@ public class MacroButtonPopupMenu extends JPopupMenu{
 			
 			if (index == 0) {
 				MacroButtonPrefs.delete((GlobalMacroButton) button);
-				MapTool.getFrame().getMacroTabbedPane().deleteGlobalMacroButton((GlobalMacroButton) button);
+				MapTool.getFrame().deleteGlobalMacroButton((GlobalMacroButton) button);
 			} else if (index == 1) {
 				MapTool.getCampaign().deleteMacroButton(button.getProperties());
-				MapTool.getFrame().getMacroTabbedPane().deleteCampaignMacroButton((CampaignMacroButton) button);
+				MapTool.getFrame().deleteCampaignMacroButton((CampaignMacroButton) button);
 			}
 		}
 	}
@@ -81,9 +83,9 @@ public class MacroButtonPopupMenu extends JPopupMenu{
 
 		public void actionPerformed(ActionEvent event) {
 			if (index == 0) {
-				MapTool.getFrame().getMacroTabbedPane().addGlobalMacroButton(button.getProperties());
+				MapTool.getFrame().addGlobalMacroButton(button.getProperties());
 			} else if (index == 1) {
-				MapTool.getFrame().getMacroTabbedPane().addCampaignMacroButton(button.getProperties());
+				MapTool.getFrame().addCampaignMacroButton(button.getProperties());
 			}
 		}
 	}
@@ -96,6 +98,19 @@ public class MacroButtonPopupMenu extends JPopupMenu{
 		public void actionPerformed(ActionEvent event) {
 			button.reset();
 			button.savePreferences();
+		}
+	}
+
+	private class RunMacroForEachSelectedTokenAction extends AbstractAction {
+		public RunMacroForEachSelectedTokenAction() {
+			putValue(Action.NAME, "Run For Each Selected");
+		}
+
+		public void actionPerformed(ActionEvent event) {
+			for (Token t : MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList()) {
+				MapTool.getFrame().getCommandPanel().quickCommit(("/im " + t.getId() + ": " + button.getCommand()), true);
+			}
+			
 		}
 	}
 }

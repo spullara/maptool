@@ -1,4 +1,4 @@
-package net.rptools.maptool.client.ui.macrobutton;
+package net.rptools.maptool.client.ui.macrobuttons.buttons;
 
 import javax.swing.JButton;
 import javax.swing.JTextPane;

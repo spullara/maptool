@@ -1,4 +1,4 @@
-package net.rptools.maptool.client.ui.macrobuttonpanel;
+package net.rptools.maptool.client.ui.macrobuttons.panels;
 
 import java.awt.FlowLayout;
 import java.util.List;
@@ -6,11 +6,11 @@ import java.util.List;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.ScrollableFlowPanel;
 import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
-import net.rptools.maptool.client.ui.macrobutton.CampaignMacroButton;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.CampaignMacroButton;
 import net.rptools.maptool.model.MacroButtonProperties;
 
-public class CampaignTab extends ScrollableFlowPanel{
-	public CampaignTab() {
+public class CampaignPanel extends ScrollableFlowPanel{
+	public CampaignPanel() {
 		super(FlowLayout.LEFT);
 		init();
 	}
@@ -22,6 +22,8 @@ public class CampaignTab extends ScrollableFlowPanel{
 			add(new CampaignMacroButton(prop));
 		}
 		doLayout();
+		revalidate();
+		repaint();
 	}
 	
 	public void addButton() {
@@ -30,6 +32,8 @@ public class CampaignTab extends ScrollableFlowPanel{
 		MapTool.getCampaign().addMacroButtonProperty(properties);
 		add(new CampaignMacroButton(properties));
 		doLayout();
+		revalidate();
+		repaint();
 	}
 	
 	public void addButton(MacroButtonProperties properties) {
@@ -43,9 +47,22 @@ public class CampaignTab extends ScrollableFlowPanel{
 		MapTool.getCampaign().addMacroButtonProperty(properties);
 		add(new CampaignMacroButton(prop));
 		doLayout();
+		revalidate();
+		repaint();
 	}
 
 	public void deleteButton(CampaignMacroButton button) {
 		remove(button);
+	}
+	
+	private void clear() {
+		removeAll();
+		revalidate();
+		repaint();
+	}
+	
+	public void reset() {
+		clear();
+		init();
 	}
 }

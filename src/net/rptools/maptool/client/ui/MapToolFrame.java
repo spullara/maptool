@@ -24,37 +24,10 @@
  */
 package net.rptools.maptool.client.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.EventQueue;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Observer;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
@@ -76,7 +49,37 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import javax.xml.parsers.ParserConfigurationException;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.EventQueue;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Observer;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.jidesoft.docking.DefaultDockableHolder;
+import com.jidesoft.docking.DockableFrame;
 import net.rptools.lib.AppEvent;
 import net.rptools.lib.AppEventListener;
 import net.rptools.lib.FileUtil;
@@ -90,11 +93,11 @@ import net.rptools.lib.swing.preference.FramePreferences;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ServerDisconnectHandler;
-import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.swing.CoordinateStatusBar;
 import net.rptools.maptool.client.swing.GlassPane;
 import net.rptools.maptool.client.swing.ImageChooserDialog;
@@ -109,6 +112,15 @@ import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
 import net.rptools.maptool.client.ui.lookuptable.LookupTablePanel;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.AbstractMacroButton;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.CampaignMacroButton;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.GlobalMacroButton;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroPanelPopupListener;
+import net.rptools.maptool.client.ui.macrobuttons.panels.CampaignPanel;
+import net.rptools.maptool.client.ui.macrobuttons.panels.GlobalPanel;
+import net.rptools.maptool.client.ui.macrobuttons.panels.ImpersonatePanel;
+import net.rptools.maptool.client.ui.macrobuttons.panels.SelectionPanel;
+import net.rptools.maptool.client.ui.macrobuttons.panels.Tab;
 import net.rptools.maptool.client.ui.token.EditTokenDialog;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeCellRenderer;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeModel;
@@ -119,6 +131,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetAvailableListener;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
@@ -130,11 +143,7 @@ import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.util.ImageManager;
-
 import org.xml.sax.SAXException;
-
-import com.jidesoft.docking.DefaultDockableHolder;
-import com.jidesoft.docking.DockableFrame;
 
 /**
  */
@@ -182,7 +191,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private ZoomStatusBar zoomStatusBar;
 	private JLabel chatActionLabel;
 	private GlassPane glassPane;
-	private MacroTabbedPane macroTabbedPane = new MacroTabbedPane();
 	
 	private TextureChooserPanel textureChooserPanel;
 	
@@ -201,6 +209,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	private EditTokenDialog tokenPropertiesDialog;
 
+	private CampaignPanel campaignPanel = new CampaignPanel();
+	private GlobalPanel globalPanel = new GlobalPanel();
+	private SelectionPanel selectionPanel = new SelectionPanel();
+	private ImpersonatePanel impersonatePanel = new ImpersonatePanel();
+	
 	// TODO: Find a better pattern for this
 	private Timer repaintTimer;
 
@@ -291,7 +304,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
 //		setSize(800, 600);
 		restorePreferences();
-
+		updateKeyStrokes();
+		
 		repaintTimer = new Timer(2000, new RepaintTimer());
 		repaintTimer.start();
 	}
@@ -308,8 +322,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		TOKEN_TREE("Map Explorer"),
 		IMAGE_EXPLORER("Library"),
 		CHAT("Chat"),
-		MACROS("Macros"),
-		LOOKUP_TABLES("Tables");
+		LOOKUP_TABLES("Tables"),
+		GLOBAL("Global"),
+		CAMPAIGN("Campaign"),
+		SELECTION("Selected"),
+		IMPERSONATED("Impersonate");
 		
 		private String displayName;
 		
@@ -320,10 +337,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			return displayName;
 		}
 	}
+	
 	private void configureDocking() {
 		
 		initializeFrames();
-		
 
 		getDockingManager().setProfileKey(DOCKING_PROFILE_NAME);
 		getDockingManager().setOutlineMode(com.jidesoft.docking.DockingManager.PARTIAL_OUTLINE_MODE);
@@ -340,8 +357,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		getDockingManager().addFrame(getFrame(MTFrame.TOKEN_TREE));
 		getDockingManager().addFrame(getFrame(MTFrame.IMAGE_EXPLORER));
 		getDockingManager().addFrame(getFrame(MTFrame.CHAT));
-		getDockingManager().addFrame(getFrame(MTFrame.MACROS));
 		getDockingManager().addFrame(getFrame(MTFrame.LOOKUP_TABLES));
+		getDockingManager().addFrame(getFrame(MTFrame.GLOBAL));
+		getDockingManager().addFrame(getFrame(MTFrame.CAMPAIGN));
+		getDockingManager().addFrame(getFrame(MTFrame.SELECTION));
+		getDockingManager().addFrame(getFrame(MTFrame.IMPERSONATED));		
 		
 		try {
 			getDockingManager().loadInitialLayout(MapToolFrame.class.getClassLoader().getResourceAsStream("net/rptools/maptool/client/ui/ilayout.xml"));
@@ -365,16 +385,33 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	
 	private void initializeFrames() {
 		
-		frameMap.put(MTFrame.CONNECTIONS,createDockingFrame(MTFrame.CONNECTIONS, new JScrollPane(connectionPanel)));
-		frameMap.put(MTFrame.TOKEN_TREE, createDockingFrame(MTFrame.TOKEN_TREE, new JScrollPane(createTokenTreePanel())));
-		frameMap.put(MTFrame.IMAGE_EXPLORER, createDockingFrame(MTFrame.IMAGE_EXPLORER, assetPanel));
-		frameMap.put(MTFrame.CHAT, createDockingFrame(MTFrame.CHAT, commandPanel));
-		frameMap.put(MTFrame.MACROS, createDockingFrame(MTFrame.MACROS, macroTabbedPane));
-		frameMap.put(MTFrame.LOOKUP_TABLES, createDockingFrame(MTFrame.LOOKUP_TABLES, getLookupTablePanel()));
+		frameMap.put(MTFrame.CONNECTIONS,createDockingFrame(MTFrame.CONNECTIONS, new JScrollPane(connectionPanel), new ImageIcon(AppStyle.connectionsImage)));
+		frameMap.put(MTFrame.TOKEN_TREE, createDockingFrame(MTFrame.TOKEN_TREE, new JScrollPane(createTokenTreePanel()), new ImageIcon(AppStyle.mapExplorerImage)));
+		frameMap.put(MTFrame.IMAGE_EXPLORER, createDockingFrame(MTFrame.IMAGE_EXPLORER, assetPanel, new ImageIcon(AppStyle.resourceLibraryImage)));
+		frameMap.put(MTFrame.CHAT, createDockingFrame(MTFrame.CHAT, commandPanel, new ImageIcon(AppStyle.chatPanelImage)));
+		frameMap.put(MTFrame.LOOKUP_TABLES, createDockingFrame(MTFrame.LOOKUP_TABLES, getLookupTablePanel(), new ImageIcon(AppStyle.tablesPanelImage)));
+		
+		JScrollPane campaign = scrollPaneFactory(campaignPanel);
+		campaign.addMouseListener(new MacroPanelPopupListener(campaign, Tab.CAMPAIGN.index));
+		JScrollPane global = scrollPaneFactory(globalPanel);
+		global.addMouseListener(new MacroPanelPopupListener(global, Tab.GLOBAL.index));
+		JScrollPane selection = scrollPaneFactory(selectionPanel);
+		JScrollPane impersonate = scrollPaneFactory(impersonatePanel);
+		frameMap.put(MTFrame.GLOBAL, createDockingFrame(MTFrame.GLOBAL, global, new ImageIcon(AppStyle.globalPanelImage)));
+		frameMap.put(MTFrame.CAMPAIGN, createDockingFrame(MTFrame.CAMPAIGN, campaign, new ImageIcon(AppStyle.campaignPanelImage)));
+		frameMap.put(MTFrame.SELECTION, createDockingFrame(MTFrame.SELECTION, selection, new ImageIcon(AppStyle.selectionPanelImage)));
+		frameMap.put(MTFrame.IMPERSONATED, createDockingFrame(MTFrame.IMPERSONATED, impersonate, new ImageIcon(AppStyle.impersonatePanelImage)));
+		
+	}
+
+	private JScrollPane scrollPaneFactory(JPanel panel) {
+		JScrollPane pane = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		pane.getViewport().setBorder(null);
+		return pane;
 	}
 	
-	private static DockableFrame createDockingFrame(MTFrame mtFrame, Component component) {
-		DockableFrame frame = new DockableFrame(mtFrame.name());
+	private static DockableFrame createDockingFrame(MTFrame mtFrame, Component component, Icon icon) {
+		DockableFrame frame = new DockableFrame(mtFrame.name(), icon);
 		frame.add(component);
 		
 		return frame;
@@ -910,10 +947,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	public AssetPanel getAssetPanel() {
 		return assetPanel;
 	}
-
-	public MacroTabbedPane getMacroTabbedPane()	{
-		return macroTabbedPane;
-	}
 	
 	public void addAssetRoot(File rootDir) {
 
@@ -1289,5 +1322,105 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		Object action = imap.get(KeyStroke.getKeyStroke("F10"));
 		ActionMap amap = menuBar.getActionMap();
 		amap.getParent().remove(action);
+	}
+	
+	public void updateKeyStrokes() {
+		updateKeyStrokes(menuBar);
+
+		for (MTFrame frame : frameMap.keySet()) {
+			updateKeyStrokes(frameMap.get(frame));
+		}
+	}
+	
+	private void updateKeyStrokes(JComponent c) {
+		c.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).clear();
+		Map<KeyStroke, AbstractMacroButton> keyStrokeMap = MacroButtonHotKeyManager.getKeyStrokeMap();
+
+		for (KeyStroke keyStroke : keyStrokeMap.keySet()) {
+			final AbstractMacroButton button = keyStrokeMap.get(keyStroke);
+			c.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, button);
+			c.getActionMap().put(button, new AbstractAction() {
+				public void actionPerformed(ActionEvent event) {
+					button.executeButton();
+				}
+			});
+		}
+	}
+
+	public void addGlobalMacroButton() {
+		globalPanel.addButton();
+	}
+
+	public void addGlobalMacroButton(MacroButtonProperties properties) {
+		globalPanel.addButton(properties);
+	}
+
+	public void addCampaignMacroButton() {
+		campaignPanel.addButton();
+	}
+
+	public void addCampaignMacroButton(MacroButtonProperties properties) {
+		campaignPanel.addButton(properties);
+	}
+
+	public void deleteGlobalMacroButton(GlobalMacroButton button) {
+		globalPanel.deleteButton(button);
+	}
+
+	public void deleteCampaignMacroButton(CampaignMacroButton button) {
+		campaignPanel.deleteButton(button);
+	}
+
+	public void updateSelectionPanel() {
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+		if (renderer == null) {
+			return;
+		}
+
+		List<Token> tokenList = new ArrayList<Token>();
+		for (Token token : renderer.getSelectedTokensList()) {
+			// if we don't own the token, we shouldn't see its macros
+			if (AppUtil.playerOwns(token)) {
+				tokenList.add(token);
+			}
+		}
+		
+		selectionPanel.update(tokenList);
+		
+		if (tokenList.size() == 1) {
+			// if only one token selected, show its image as tab icon
+			frameMap.get(MTFrame.SELECTION).setFrameIcon(tokenList.get(0).getIcon(16, 16));
+		} else {
+			// if >1 or no token selected, don't display a tab icon
+			frameMap.get(MTFrame.SELECTION).setFrameIcon(new ImageIcon(AppStyle.selectionPanelImage));
+		}
+	}
+
+	public void updateImpersonatePanel(Token token) {
+		impersonatePanel.update(token);
+		frameMap.get(MTFrame.IMPERSONATED).setFrameIcon(token.getIcon(16, 16));
+		frameMap.get(MTFrame.IMPERSONATED).setTitle(impersonatePanel.getTitle());
+	}
+
+	public void updateImpersonatePanel(List<Token> selectedTokenList) {
+		impersonatePanel.update(selectedTokenList);
+	}
+
+	public void clearImpersonatePanel() {
+		impersonatePanel.clear();
+		frameMap.get(MTFrame.IMPERSONATED).setFrameIcon(new ImageIcon(AppStyle.impersonatePanelImage));
+		frameMap.get(MTFrame.IMPERSONATED).setTitle(Tab.IMPERSONATED.title);
+	}
+	
+	// currently only used after loading a campaign
+	public void resetPanels() {
+		MacroButtonHotKeyManager.clearKeyStrokes();
+		
+		campaignPanel.reset();
+		globalPanel.reset();
+		impersonatePanel.clear();
+		selectionPanel.clear();
+		
+		updateKeyStrokes();
 	}
 }

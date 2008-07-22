@@ -22,14 +22,15 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.rptools.maptool.client.ui.macrobutton;
+package net.rptools.maptool.client.ui.macrobuttons.buttons;
 
 import javax.swing.SwingUtilities;
 import java.awt.event.MouseEvent;
 
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.macrobuttonpanel.MacroButtonPopupMenu;
 import net.rptools.maptool.model.MacroButtonProperties;
+import net.rptools.maptool.model.Token;
 
 /**
  * Campaign macro buttons. They are saved/restored with the campaign.
@@ -42,10 +43,15 @@ public class CampaignMacroButton extends AbstractMacroButton {
 	}
 
 	public void mousePressed(MouseEvent e) {
-		if (SwingUtilities.isLeftMouseButton(e)) {
+		if (SwingUtilities.isLeftMouseButton(e) && !SwingUtil.isShiftDown(e)) {
 			executeButton();
-		}
-		if (SwingUtilities.isRightMouseButton(e)) {
+		} else if (SwingUtilities.isLeftMouseButton(e) && SwingUtil.isShiftDown(e)) {
+			for (Token token : MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList()) {
+				MapTool.getFrame().getCommandPanel().quickCommit("/im " + token.getId());
+				executeButton();
+				MapTool.getFrame().getCommandPanel().quickCommit("/im");
+			}
+		} else if (SwingUtilities.isRightMouseButton(e)) {
 			new MacroButtonPopupMenu(this, 1).show(this, e.getX(), e.getY());
 		}
 	}

@@ -1,8 +1,5 @@
 package net.rptools.maptool.client.ui;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -10,13 +7,14 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import com.jeta.forms.components.panel.FormPanel;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
-import net.rptools.maptool.client.ui.macrobutton.AbstractMacroButton;
-
-import com.jeta.forms.components.panel.FormPanel;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.AbstractMacroButton;
 
 public class MacroButtonDialog extends JDialog {
 

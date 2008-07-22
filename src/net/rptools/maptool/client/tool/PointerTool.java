@@ -24,6 +24,11 @@
  */
 package net.rptools.maptool.client.tool;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -52,14 +57,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
+import java.util.Set;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -91,13 +90,12 @@ import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.Zone.Layer;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.maptool.util.TokenUtil;
-import net.rptools.parser.ParserException;
 
 /**
  */
@@ -1519,7 +1517,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		// if the token that has been just edited was being impersonated, the token macro button panel
 		// has to be updated in case some macros were added/removed/updated (keeping in sync).
 		if (MapTool.getFrame().getCommandPanel().getIdentity().equals(tokenUnderMouse.getName())) {
-			MapTool.getFrame().getMacroTabbedPane().updateImpersonateTab(tokenUnderMouse, switchTo);
+			MapTool.getFrame().updateImpersonatePanel(tokenUnderMouse);
 		}
 	}
 }

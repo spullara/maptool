@@ -1,12 +1,10 @@
-package net.rptools.maptool.client.ui.macrobuttonpanel;
+package net.rptools.maptool.client.ui.macrobuttons.panels;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import java.awt.event.ActionEvent;
-
-import net.rptools.maptool.client.MapTool;
 
 public class TabPopupMenu extends JPopupMenu{
 	
