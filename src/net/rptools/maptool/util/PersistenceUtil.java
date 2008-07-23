@@ -103,11 +103,7 @@ public class PersistenceUtil {
 		}
 		
 		// Save all assets in active use (consolidate dups between maps)
-		Set<MD5Key> assetSet = new HashSet<MD5Key>();
-		for (Zone zone : campaign.getZones()) {
-			assetSet.addAll(zone.getAllAssetIds());
-		}
-		for (MD5Key key : assetSet) {
+		for (MD5Key key : campaign.getAllAssetIds()) {
 				
 				// Put in a placeholder 
 				persistedCampaign.assetMap.put(key, null);

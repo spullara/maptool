@@ -27,13 +27,15 @@ package net.rptools.maptool.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
 
 /**
@@ -307,4 +309,24 @@ public class Campaign {
 	public void deleteMacroButton(MacroButtonProperties properties)	{
 		macroButtonProperties.remove(properties);
 	}
+
+	public Set<MD5Key> getAllAssetIds() {
+		
+		// Maps (tokens are implicit)
+		Set<MD5Key> assetSet = new HashSet<MD5Key>();
+		for (Zone zone : getZones()) {
+			assetSet.addAll(zone.getAllAssetIds());
+		}
+		
+		// States
+		for (TokenOverlay overlay : getCampaignProperties().getTokenStatesMap().values()) {
+			
+			if (overlay instanceof ImageTokenOverlay) {
+				assetSet.add(((ImageTokenOverlay)overlay).getAssetId());
+			}
+		}
+		
+		return assetSet;
+	}
+	
 }
