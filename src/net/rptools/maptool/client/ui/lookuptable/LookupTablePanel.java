@@ -149,7 +149,7 @@ public class LookupTablePanel extends AbeillePanel {
 				}
 				
 				LookupTable lookupTable = new LookupTable(MapTool.getCampaign().getLookupTableMap().get((String)ids.get(0)));
-				lookupTable.setName(lookupTable.getName());
+				lookupTable.setName("Copy of " + lookupTable.getName());
 				
 				editorPanel.attach(lookupTable);
 				
