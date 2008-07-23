@@ -37,6 +37,7 @@ import java.util.Map.Entry;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
+import net.rptools.maptool.model.LookupTable.LookupEntry;
 
 /**
  * This object contains {@link Zone}s and {@link Asset}s that make up a campaign.
@@ -324,6 +325,11 @@ public class Campaign {
 			if (overlay instanceof ImageTokenOverlay) {
 				assetSet.add(((ImageTokenOverlay)overlay).getAssetId());
 			}
+		}
+		
+		// Tables
+		for (LookupTable table : getCampaignProperties().getLookupTableMap().values()) {
+			assetSet.addAll(table.getAllAssetIds());
 		}
 		
 		return assetSet;

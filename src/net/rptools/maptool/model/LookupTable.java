@@ -2,7 +2,9 @@ package net.rptools.maptool.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
@@ -195,16 +197,18 @@ public class LookupTable {
 		
 		
 	}
-	
-//	public static void main(String[] args) {
-//		
-//		LookupTable lt = new LookupTable("Testing");
-//		lt.addEntry(1, 1, "You got 1!");
-//		lt.addEntry(2, 2, "You got 2!");
-//		lt.addEntry(3, 5, "You got something between 3 and 5");
-//
-//		for (int i = 0; i < 5; i++) {
-//			System.out.println(lt.getLookup());
-//		} 
-//	}
+
+	public Set<MD5Key> getAllAssetIds() {
+
+		Set<MD5Key> assetSet = new HashSet<MD5Key>();
+		if (getTableImage() != null) {
+			assetSet.add(getTableImage());
+		}
+		for (LookupEntry entry : getEntryList()) {
+			if (entry.getImageId() != null) {
+				assetSet.add(entry.getImageId());
+			}
+		}
+		return assetSet;
+	}
 }
