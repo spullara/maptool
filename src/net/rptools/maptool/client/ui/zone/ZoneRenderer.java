@@ -2026,7 +2026,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
     
 	public void undoSelectToken() {
-		System.out.println("num history items: " + selectedTokenSetHistory.size());
+//		System.out.println("num history items: " + selectedTokenSetHistory.size());
 		/*
 		for (Set<GUID> set : selectedTokenSetHistory) {
 			System.out.println("history item");
