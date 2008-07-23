@@ -1010,13 +1010,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
-				cycleSelectedToken(1);
+				renderer.cycleSelectedToken(1);
 			}
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				
-				cycleSelectedToken(-1);
+				renderer.cycleSelectedToken(-1);
 			}
 		});
 		
@@ -1041,49 +1041,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				}
 			}			
 		});
-	}
-
-	private void cycleSelectedToken(int direction) {
-		
-		List<Token> visibleTokens = renderer.getTokensOnScreen();
-		Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
-		Integer newSelection = null;
-		
-		if (visibleTokens.size() == 0) {
-			return;
-		}
-		
-		if (selectedTokenSet.size() == 0) {
-			newSelection = 0;
-		} else {
-			
-			// Find the first selected token on the screen
-			for (int i = 0; i < visibleTokens.size(); i++) {
-				Token token = visibleTokens.get(i);
-				if (!renderer.isTokenSelectable(token.getId())) {
-					continue;
-				}
-				if (renderer.getSelectedTokenSet().contains(token.getId())) {
-					newSelection = i;
-					break;
-				}
-			}
-
-			// Pick the next
-			newSelection += direction;
-		}
-		
-		if (newSelection < 0) {
-			newSelection = visibleTokens.size()-1;
-		}
-		if (newSelection >= visibleTokens.size()) {
-			newSelection = 0;
-		}
-		
-		// Make the selection
-		renderer.clearSelectedTokens();
-		renderer.selectToken(visibleTokens.get(newSelection).getId());
-		
 	}
 	
 	/**

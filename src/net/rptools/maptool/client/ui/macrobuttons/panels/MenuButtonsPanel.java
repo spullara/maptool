@@ -21,6 +21,16 @@ public class MenuButtonsPanel extends JPanel {
 		//TODO: refactoring reminder
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		
+		addSelectAllButton();
+		addDeselectAllButton();
+		addSpacer();
+		addSelectPreviousButton();
+		addSelectNextButton();
+		addSpacer();
+		addRevertToPreviousButton();
+	}
+
+	private void addSelectAllButton() {
 		ImageIcon i = new ImageIcon(AppStyle.arrowOut);
 		JButton label = new JButton(i) {
 			public Insets getInsets() {
@@ -36,7 +46,9 @@ public class MenuButtonsPanel extends JPanel {
 		label.setToolTipText("Select all tokens on the map");
 		label.setBackground(null);
 		add(label);
-		
+	}
+	
+	private void addDeselectAllButton() {
 		ImageIcon i3 = new ImageIcon(AppStyle.arrowIn);
 		JButton label3 = new JButton(i3) {
 			public Insets getInsets() {
@@ -52,7 +64,9 @@ public class MenuButtonsPanel extends JPanel {
 		label3.setToolTipText("Deselect all tokens");
 		label3.setBackground(null);
 		add(label3);
-		/*
+	}
+	
+	private void addRevertToPreviousButton() {
 		ImageIcon i1 = new ImageIcon(AppStyle.arrowRotateClockwise);
 		JButton label1 = new JButton(i1) {
 			public Insets getInsets() {
@@ -67,9 +81,54 @@ public class MenuButtonsPanel extends JPanel {
 		label1.setToolTipText("Revert to previous selection");
 		label1.setBackground(null);
 		add(label1);
-		*/
+	}
+	
+	private void addSpacer() {
+		JPanel panel = new JPanel() {
+			public Dimension getPreferredSize() {
+				return new Dimension(10, 10);
+			}
+			
+			public Insets getInsets() {
+				return new Insets(0, 0, 0, 0);
+			}
+		};
+		add(panel);
+	}
+	
+	private void addSelectNextButton() {
+		ImageIcon i1 = new ImageIcon(AppStyle.arrowRight);
+		JButton label1 = new JButton(i1) {
+			public Insets getInsets() {
+				return new Insets(2, 2, 2, 2);
+			}
+		};
+		label1.addMouseListener(new MouseAdapter() {
+			public void mouseReleased(MouseEvent event) {
+				MapTool.getFrame().getCurrentZoneRenderer().cycleSelectedToken(1);
+			}
+		});
+		label1.setToolTipText("Select next token.");
+		label1.setBackground(null);
+		add(label1);
 	}
 
+	private void addSelectPreviousButton() {
+		ImageIcon i1 = new ImageIcon(AppStyle.arrowLeft);
+		JButton label1 = new JButton(i1) {
+			public Insets getInsets() {
+				return new Insets(2, 2, 2, 2);
+			}
+		};
+		label1.addMouseListener(new MouseAdapter() {
+			public void mouseReleased(MouseEvent event) {
+				MapTool.getFrame().getCurrentZoneRenderer().cycleSelectedToken(-1);
+			}
+		});
+		label1.setToolTipText("Select previous token.");
+		label1.setBackground(null);
+		add(label1);
+	}
 	
 	@Override
 	public Dimension getPreferredSize() {

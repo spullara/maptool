@@ -1983,7 +1983,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     }
     
     public void deselectToken(GUID tokenGUID) {
-		selectedTokenSetHistory.add(0, new HashSet<GUID>(selectedTokenSet));
+		addToSelectionHistory(selectedTokenSet);
 		selectedTokenSet.remove(tokenGUID);
 		MapTool.getFrame().updateSelectionPanel();
 		MapTool.getFrame().updateImpersonatePanel(getSelectedTokensList());
@@ -1995,8 +1995,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             return false;
         }
 		
-		selectedTokenSetHistory.add(0, new HashSet<GUID>(selectedTokenSet));
-        selectedTokenSet.add(tokenGUID);
+		addToSelectionHistory(selectedTokenSet);
+		selectedTokenSet.add(tokenGUID);
         
         repaint();
 		MapTool.getFrame().updateSelectionPanel();
@@ -2017,7 +2017,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     }
     
     public void clearSelectedTokens() {
-		selectedTokenSetHistory.add(0, new HashSet<GUID>(selectedTokenSet));
+		addToSelectionHistory(selectedTokenSet);
 		clearShowPaths();
 		selectedTokenSet.clear();
 		MapTool.getFrame().updateSelectionPanel();
@@ -2026,16 +2026,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
     
 	public void undoSelectToken() {
-		//System.out.println("num history items: " + selectedTokenSetHistory.size());
+		System.out.println("num history items: " + selectedTokenSetHistory.size());
+		/*
 		for (Set<GUID> set : selectedTokenSetHistory) {
-			//System.out.println("history item");
+			System.out.println("history item");
 			for (GUID guid : set) {
-				//System.out.println(zone.getToken(guid).getName());
+				System.out.println(zone.getToken(guid).getName());
 			}
-		}
+		}*/
 		if (selectedTokenSetHistory.size() > 0) {
 			selectedTokenSet = selectedTokenSetHistory.remove(0);
-			// user may have deleted some of the tokens that are contained in the selection history
+			// user may have deleted some of the tokens that are contained in the selection history.
 			// find them and filter them otherwise the selectionSet will have orphaned GUIDs and
 			// they will cause NPE
 			Set<GUID> invalidTokenSet = new HashSet<GUID>();
@@ -2046,15 +2047,76 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			}
 			selectedTokenSet.removeAll(invalidTokenSet);
 			
-			MapTool.getFrame().updateSelectionPanel();
-			MapTool.getFrame().updateImpersonatePanel(getSelectedTokensList());
-			if (selectedTokenSetHistory.size() > 20) {
-				selectedTokenSetHistory.subList(20, selectedTokenSetHistory.size() - 1).clear();
+			// if there is no token left in the set, undo again
+			if (selectedTokenSet.size() == 0) {
+				undoSelectToken();
 			}
-			repaint();
 		}
+		//TODO: if selection history is empty, notify the selection panel to disable the undo button.
+		MapTool.getFrame().updateSelectionPanel();
+		MapTool.getFrame().updateImpersonatePanel(getSelectedTokensList());
+		repaint();
 	}
-	
+
+	private void addToSelectionHistory(Set<GUID> selectionSet) {
+		// don't add empty selections to history
+		if (selectionSet.size() == 0) {
+			return;
+		}
+		
+		Set<GUID> history = new HashSet<GUID>(selectionSet);
+		selectedTokenSetHistory.add(0, history);
+		
+		// limit the history to a certain size
+		if (selectedTokenSetHistory.size() > 20) {
+			selectedTokenSetHistory.subList(20, selectedTokenSetHistory.size() - 1).clear();
+		}
+		
+	}
+
+	public void cycleSelectedToken(int direction) {
+
+		List<Token> visibleTokens = getTokensOnScreen();
+		Set<GUID> selectedTokenSet = getSelectedTokenSet();
+		Integer newSelection = null;
+
+		if (visibleTokens.size() == 0) {
+			return;
+		}
+
+		if (selectedTokenSet.size() == 0) {
+			newSelection = 0;
+		} else {
+
+			// Find the first selected token on the screen
+			for (int i = 0; i < visibleTokens.size(); i++) {
+				Token token = visibleTokens.get(i);
+				if (!isTokenSelectable(token.getId())) {
+					continue;
+				}
+				if (getSelectedTokenSet().contains(token.getId())) {
+					newSelection = i;
+					break;
+				}
+			}
+
+			// Pick the next
+			newSelection += direction;
+		}
+
+		if (newSelection < 0) {
+			newSelection = visibleTokens.size() - 1;
+		}
+		if (newSelection >= visibleTokens.size()) {
+			newSelection = 0;
+		}
+
+		// Make the selection
+		clearSelectedTokens();
+		selectToken(visibleTokens.get(newSelection).getId());
+
+	}
+
 	public Area getTokenBounds(Token token) {
         
     	TokenLocation location = tokenLocationCache.get(token);
