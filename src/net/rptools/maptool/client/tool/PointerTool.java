@@ -1335,8 +1335,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 									propName = property.getShortName();
 								}
 								
-								Object value = tokenUnderMouse.getEvaluatedProperty(propName);
-
+								Object value = tokenUnderMouse.getEvaluatedProperty(property.getName());
+								
 								propertyMap.put(propName, value != null ? value.toString() : "");
 							}
 						}

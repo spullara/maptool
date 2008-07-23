@@ -2,12 +2,10 @@ package net.rptools.maptool.client;
 
 import java.awt.Color;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.JOptionPane;
 
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.common.expression.ExpressionParser;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.parser.MapVariableResolver;
@@ -42,9 +40,14 @@ public class MapToolVariableResolver extends MapVariableResolver {
             { "White", Color.white, Color.black }    };
 	
     private Token tokenInContext;
+    private ExpressionParser parser; // The parser that uses this resolver
 
     public MapToolVariableResolver(Token tokenInContext) {
     	this.tokenInContext = tokenInContext;
+    }
+
+    public void setParser(ExpressionParser parser) {
+    	this.parser = parser;
     }
     
 	@Override
@@ -96,7 +99,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 			throw new ParserException("Unresolved value '" + name + "'");
 		}
 
-		return MapTool.getParser().parseExpression(tokenInContext, result.toString()).getValue();
+		return MapTool.getParser().parseExpression(parser, tokenInContext, result.toString()).getValue();
 	}
 	
 	@Override

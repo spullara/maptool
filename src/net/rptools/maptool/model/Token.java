@@ -812,11 +812,27 @@ public class Token extends BaseModel {
 	}
 	
 	public void setProperty(String key, Object value) {
+		if (key != null) {
+			key = key.toUpperCase();
+		}
 		getPropertyMap().put(key, value);
 	}
 	
 	public Object getProperty(String key) {
-		return getPropertyMap().get(key);
+		if (key != null) {
+			key = key.toUpperCase();
+		}
+		Object value = getPropertyMap().get(key);
+		
+//		// Short name ?
+//		if (value == null) {
+//			for (TokenProperty property : MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(getPropertyType())) {
+//				if (property.getShortName().equals(key)) {
+//					value = getPropertyMap().get(property.getShortName().toUpperCase());
+//				}
+//			}
+//		}
+		return value;
 	}
 
 	public Object getEvaluatedProperty(String key) {
