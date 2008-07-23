@@ -812,16 +812,16 @@ public class Token extends BaseModel {
 	}
 	
 	public void setProperty(String key, Object value) {
-		if (key != null) {
-			key = key.toUpperCase();
-		}
+//		if (key != null) {
+//			key = key.toUpperCase();
+//		}
 		getPropertyMap().put(key, value);
 	}
 	
 	public Object getProperty(String key) {
-		if (key != null) {
-			key = key.toUpperCase();
-		}
+//		if (key != null) {
+//			key = key.toUpperCase();
+//		}
 		Object value = getPropertyMap().get(key);
 		
 //		// Short name ?
