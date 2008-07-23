@@ -80,6 +80,9 @@ public class AssetLoader {
 		} catch (IOException e) {
 			System.out.println("Could not retrieve index for '" + repository + "': " + e);
 			repositoryStateMap.put(repository, RepoState.UNAVAILABLE);
+		} catch (Throwable t) {
+			System.out.println("Could not retrieve index for '" + repository + "': " + t);
+			repositoryStateMap.put(repository, RepoState.UNAVAILABLE);
 		}
 
 		return indexMap;
