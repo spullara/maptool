@@ -114,6 +114,9 @@ public class ZoneView implements ModelChangeListener {
         }
 
 		Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopologyAreaData());
+		if (visibleArea == null) {
+			return null;
+		}
 
 		// Keep track of colored light
         Set<DrawableLight> lightSet = new HashSet<DrawableLight>();
