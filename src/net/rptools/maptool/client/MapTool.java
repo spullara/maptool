@@ -752,15 +752,20 @@ public class MapTool {
         	public void run() {
                     initialize();
                 
-                    clientFrame.setVisible(true);
-                    
-                    // Check to see if there is an autosave file from mt crashing
-                    getAutoSaveManager().check();
-                    getAutoSaveManager().restart();
+                    EventQueue.invokeLater(new Runnable() {
+                    	public void run() {
+                            clientFrame.setVisible(true);
+                            
+                            splash.hideSplashScreen();
 
-                    splash.hideSplashScreen();
+                            EventQueue.invokeLater(new Runnable() {
+                            	public void run() {
+                                    postInitialize();
+                            	}
+                            });
+                    	}
+                    });
                     
-                    postInitialize();
         	}
         });
         
@@ -768,6 +773,11 @@ public class MapTool {
 	}
 	
 	private static void postInitialize() {
+
+		// Check to see if there is an autosave file from mt crashing
+        getAutoSaveManager().check();
+        getAutoSaveManager().restart();
+
 		taskbarFlasher = new TaskBarFlasher(clientFrame);
 		
 //		showWarning("WARNING!!! This is an experimental version.<p><p>** Of particular note:<ul><li> New Light implementation <li>Lots of token positioning and sizing bug fixes</ul><p>  Please test them, but don't rely on them yet as they may change over the next couple builds<p><p>Happy Mapping :)<p><p>-Trev");
