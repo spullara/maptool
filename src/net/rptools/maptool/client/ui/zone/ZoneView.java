@@ -220,7 +220,7 @@ public class ZoneView implements ModelChangeListener {
 		lightSourceSet.clear();
 		
 		for (Token token : zone.getAllTokens()) {
-			if (token.hasLightSources()) {
+			if (token.hasLightSources() && token.isVisible()) {
 				lightSourceSet.add(token.getId());
 			}
 		}
@@ -337,7 +337,7 @@ public class ZoneView implements ModelChangeListener {
             }
             if (evt == Zone.Event.TOKEN_ADDED || evt == Zone.Event.TOKEN_CHANGED) {
             	Token token = (Token) event.getArg();
-            	if (token.hasLightSources()) {
+            	if (token.hasLightSources() && token.isVisible()) {
             		lightSourceSet.add(token.getId());
             	} else {
             		lightSourceSet.remove(token.getId());

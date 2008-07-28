@@ -34,6 +34,7 @@ import net.rptools.maptool.model.Direction;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.LightSource;
+import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
@@ -699,8 +700,10 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 				MapTool.getFrame().updateTokenTree();
 				
-				MapTool.serverCommand().putToken(renderer.getZone().getId(),
-						token);
+				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+				
+				// TODO: Need a better way of indicating local changes
+				renderer.getZone().putToken(token);
 			}
 
 			renderer.repaint();
