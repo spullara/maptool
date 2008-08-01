@@ -40,16 +40,11 @@ public class MapToolVariableResolver extends MapVariableResolver {
             { "White", Color.white, Color.black }    };
 	
     private Token tokenInContext;
-    private ExpressionParser parser; // The parser that uses this resolver
 
     public MapToolVariableResolver(Token tokenInContext) {
     	this.tokenInContext = tokenInContext;
     }
 
-    public void setParser(ExpressionParser parser) {
-    	this.parser = parser;
-    }
-    
 	@Override
 	public boolean containsVariable(String name, VariableModifiers mods) {
 
@@ -85,7 +80,6 @@ public class MapToolVariableResolver extends MapVariableResolver {
 
 		// Prompt
 		if (result == null || mods == VariableModifiers.Prompt) {
-			String requestedValue = tokenInContext != null ? tokenInContext.getName() + " (" + tokenInContext.getGMName() + ")" : name;
 			String DialogTitle = "Input Value";
 			if(tokenInContext != null && tokenInContext.getGMName() != null && MapTool.getPlayer().isGM()) {
 				DialogTitle = DialogTitle + " for " + tokenInContext.getGMName();
@@ -99,7 +93,15 @@ public class MapToolVariableResolver extends MapVariableResolver {
 			throw new ParserException("Unresolved value '" + name + "'");
 		}
 
-		return MapTool.getParser().parseExpression(parser, tokenInContext, result.toString()).getValue();
+		Object value = MapTool.getParser().parseLine(tokenInContext, result.toString()); 
+		// Attempt to convert to a number ...
+		try {
+			value = new BigDecimal((String)value);
+		} catch (Exception e) {
+			// Ignore, use previous value of "value"
+		}
+		
+		return value;
 	}
 	
 	@Override

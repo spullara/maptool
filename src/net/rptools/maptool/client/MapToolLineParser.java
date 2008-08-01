@@ -5,6 +5,7 @@ import net.rptools.common.expression.Result;
 import net.rptools.maptool.client.functions.LookupTableFunction;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.ParserException;
+import net.rptools.parser.VariableResolver;
 
 public class MapToolLineParser {
 
@@ -33,8 +34,7 @@ public class MapToolLineParser {
     	}
     	
     	// Keep the same context for this line
-    	ExpressionParser parser = createParser(tokenInContext);
-    	parser.getParser().addFunction(new LookupTableFunction());
+    	MapToolVariableResolver resolver = new MapToolVariableResolver(tokenInContext);
 
     	State state = State.TEXT;
     	StringBuilder builder = new StringBuilder();
@@ -66,7 +66,7 @@ public class MapToolLineParser {
 	    	   				continue;
 	    	   			}
 
-	    	   			builder.append("[roll "+ roll + " = " + expandRoll(parser, tokenInContext, roll)+"]" );
+	    	   			builder.append("[roll "+ roll + " = " + expandRoll(resolver, tokenInContext, roll)+"]" );
 
     				} finally {
         	   			state = State.TEXT;
@@ -86,7 +86,7 @@ public class MapToolLineParser {
 	    	   			if (cmd.startsWith("cmd")) {
 	    	   				continue;
 	    	   			}
-	    	   			Result result = parseExpression(parser, tokenInContext, cmd);
+	    	   			Result result = parseExpression(resolver, tokenInContext, cmd);
 	    	   			builder.append(result != null ? result.getValue().toString() : "");
 
     				} finally {
@@ -104,33 +104,22 @@ public class MapToolLineParser {
    		return builder.toString();
     }
     
-    private ExpressionParser createParser(Token tokenInContext) {
-    	
-    	// We need the resolver to know about the parser so that it can recurse
-    	MapToolVariableResolver resolver = new MapToolVariableResolver(tokenInContext);
-        ExpressionParser parser = new ExpressionParser(resolver);
-        resolver.setParser(parser);
-        
-        return parser;
-    }
-    
     public Result parseExpression(String expression) throws ParserException {
     	return parseExpression(null, expression);
     }
     
     public Result parseExpression(Token tokenInContext, String expression) throws ParserException {
     	
-
-        return parseExpression(createParser(tokenInContext), tokenInContext, expression);
+        return parseExpression(new MapToolVariableResolver(tokenInContext), tokenInContext, expression);
     }
-    public Result parseExpression(ExpressionParser parser, Token tokenInContext, String expression) throws ParserException {
+    public Result parseExpression(VariableResolver resolver, Token tokenInContext, String expression) throws ParserException {
 
     	if (parserRecurseDepth > PARSER_MAX_RECURSE) {
     		throw new ParserException("Max recurse limit reached");
     	}
         try {
         	parserRecurseDepth ++;
-        	return  parser.evaluate(expression);
+        	return  createParser(resolver).evaluate(expression);
         } catch (RuntimeException re) {
         	
         	if (re.getCause() instanceof ParserException) {
@@ -148,13 +137,13 @@ public class MapToolLineParser {
     }
     
     public String expandRoll(Token tokenInContext, String roll) {
-    	return expandRoll(createParser(tokenInContext), tokenInContext, roll);
+    	return expandRoll(new MapToolVariableResolver(tokenInContext), tokenInContext, roll);
     }
     
-    public String expandRoll(ExpressionParser parser, Token tokenInContext, String roll) {
+    public String expandRoll(MapToolVariableResolver resolver, Token tokenInContext, String roll) {
     	
       	try {
-			Result result = parseExpression(parser, tokenInContext, roll);
+			Result result = parseExpression(resolver, tokenInContext, roll);
 
 	    	StringBuilder sb = new StringBuilder();
 	    	
@@ -170,4 +159,10 @@ public class MapToolLineParser {
 		}
     	
     }    
+    
+    private ExpressionParser createParser(VariableResolver resolver) {
+    	ExpressionParser parser = new ExpressionParser(resolver);
+    	parser.getParser().addFunction(new LookupTableFunction());
+    	return parser;
+    }
 }
