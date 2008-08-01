@@ -1,8 +1,5 @@
 package net.rptools.maptool.client;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
 import net.rptools.maptool.model.Token;
@@ -11,8 +8,12 @@ import net.rptools.parser.ParserException;
 public class MapToolLineParser {
 
     private static final int PARSER_MAX_RECURSE = 50;
-    private static final Pattern INLINE_ROLL = Pattern.compile("\\[([^\\]]+)\\]");
-    private static final Pattern INLINE_COMMAND = Pattern.compile("\\{([^\\}]+)\\}");
+
+    private enum State {
+    	TEXT,
+    	ROLL,
+    	COMMAND
+    }
     
     private int parserRecurseDepth;
     
@@ -21,40 +22,85 @@ public class MapToolLineParser {
     }
     public String parseLine(Token tokenInContext, String line) throws ParserException {
 
+    	if (line == null) {
+    		return "";
+    	}
+    	
+    	line = line.trim();
+    	if (line.length() == 0) {
+    		return "";
+    	}
+    	
     	// Keep the same context for this line
     	ExpressionParser parser = createParser(tokenInContext);
-    	
-    	// TODO: This isn't right, but is an intermediary step while moving towards a better line parser
-        Matcher m = INLINE_ROLL.matcher(line);
-        StringBuffer buf = new StringBuffer();
-   		while( m.find()) {
-   			String roll = m.group(1);
-   			
-   			// Preprocessed roll already ?
-   			if (roll.startsWith("roll")) {
-   				continue;
-   			}
-   			
-   			m.appendReplacement(buf, "[roll "+ roll + " = " + expandRoll(parser, tokenInContext, roll)+"]" );
-       	}
-   		m.appendTail(buf);
 
-        m = INLINE_COMMAND.matcher(buf.toString());
-        buf = new StringBuffer();
-   		while( m.find()) {
-   			String roll = m.group(1);
-   			
-   			// Preprocessed roll already ?
-   			if (roll.startsWith("cmd")) {
-   				continue;
-   			}
-   			
-   			Result result = parseExpression(parser, tokenInContext, roll);
-   			m.appendReplacement(buf, result != null ? result.getValue().toString() : "");
-       	}
-   		m.appendTail(buf);
+    	State state = State.TEXT;
+    	StringBuilder builder = new StringBuilder();
+    	StringBuilder expressionBuilder = new StringBuilder();
+    	for (int index = 0; index < line.length(); index++) {
+    		
+    		char ch = line.charAt(index);
+    		switch (state) {
+    		case TEXT:
+    			if (ch == '[') {
+    				state = State.ROLL;
+    				expressionBuilder.setLength(0);
+    				break;
+    			}
+    			if (ch == '{') {
+    				state = State.COMMAND;
+    				expressionBuilder.setLength(0);
+    				break;
+    			}
+    			builder.append(ch);
+    			break;
+    		case ROLL:
+    			if (ch == ']') {
+    				try {
+	    				String roll = expressionBuilder.toString();
+	
+	    				// Preprocessed roll already ?
+	    	   			if (roll.startsWith("roll")) {
+	    	   				continue;
+	    	   			}
+	    	   			System.out.println("Roll '" + roll+ "'");
+	    	   			builder.append("[roll "+ roll + " = " + expandRoll(parser, tokenInContext, roll)+"]" );
 
-   		return buf.toString();
+    				} finally {
+        	   			state = State.TEXT;
+    				}
+
+    				break;
+    			}
+    			
+    			expressionBuilder.append(ch);
+    			break;
+    		case COMMAND: 
+    			if (ch == '}') {
+    				try {
+	    				String cmd = expressionBuilder.toString();
+	    				
+	    	   			// Preprocessed roll already ?
+	    	   			if (cmd.startsWith("cmd")) {
+	    	   				continue;
+	    	   			}
+	    	   			System.out.println("Cmd: '" + cmd + "'");
+	    	   			Result result = parseExpression(parser, tokenInContext, cmd);
+	    	   			builder.append(result != null ? result.getValue().toString() : "");
+
+    				} finally {
+	    	   			state = State.TEXT;
+    				}
+    	   			break;
+    			}
+    			
+    			expressionBuilder.append(ch);
+    			break;
+    		}
+    			
+    	}
+
+   		return builder.toString();
     }
     
     private ExpressionParser createParser(Token tokenInContext) {

@@ -65,6 +65,7 @@ import net.rptools.maptool.client.macro.impl.SetTokenStateMacro;
 import net.rptools.maptool.client.macro.impl.ToGMMacro;
 import net.rptools.maptool.client.macro.impl.UndefinedMacro;
 import net.rptools.maptool.client.macro.impl.WhisperMacro;
+import net.rptools.maptool.util.StringUtil;
 
 /**
  * @author drice
@@ -157,8 +158,6 @@ public class MacroManager {
 		}
 	}
 
-	private static final Pattern MACRO_PAT = Pattern.compile("^(\\w+)\\s*(.*)$");
-	
 	public static void executeMacro(String command) {
 
 		MacroContext context = new MacroContext();
@@ -188,45 +187,40 @@ public class MacroManager {
 
 				
 				// Macro name is the first word
-				Matcher m = MACRO_PAT.matcher(command);
-				if (m.matches()) {
-					String key = m.group(1);
-					String details = m.group(2);
+				List<String> cmd = StringUtil.splitNextWord(command);
+				String key = cmd.get(0);
+				String details = cmd.size() > 1 ? cmd.get(1) : "";
 	
-					Macro macro = getRegisteredMacro(key);
-					MacroDefinition def = macro.getClass().getAnnotation(
-							MacroDefinition.class);
+				Macro macro = getRegisteredMacro(key);
+				MacroDefinition def = macro.getClass().getAnnotation(
+						MacroDefinition.class);
 
-					// Preprocess line if required.
-					if (def == null || def.expandRolls()) {
-						// TODO: fix this, wow I really hate this, it's very, very ugly.
-						details = MapTool.getParser().parseLine(MapTool.getFrame().getCurrentZoneRenderer().getZone().resolveToken(MapTool.getFrame().getCommandPanel().getIdentity()), details);
-					}
-					
-					context.addTransform(key + " " + details);
-					if (macro != UNDEFINED_MACRO) {
-						executeMacro(context, macro, details);
-						return;
-					}
-	
-					// Is it an alias ?
-					String alias = aliasMap.get(key);
-					if (alias == null) {
-	
-						executeMacro(context, UNDEFINED_MACRO, command);
-						return;
-					}
-					
-					command = resolveAlias(alias, details);
-					context.addTransform(command);
-					
-					continue;
-				} else {
-	
-					// Undefined macro shows the bad command
+				// Preprocess line if required.
+				if (def == null || def.expandRolls()) {
+					// TODO: fix this, wow I really hate this, it's very, very ugly.
+					details = MapTool.getParser().parseLine(MapTool.getFrame().getCurrentZoneRenderer().getZone().resolveToken(MapTool.getFrame().getCommandPanel().getIdentity()), details);
+				}
+				context.addTransform(key + " " + details);
+				postprocess(details);
+				
+				context.addTransform(key + " " + details);
+				if (macro != UNDEFINED_MACRO) {
+					executeMacro(context, macro, details);
+					return;
+				}
+
+				// Is it an alias ?
+				String alias = aliasMap.get(key);
+				if (alias == null) {
+
 					executeMacro(context, UNDEFINED_MACRO, command);
 					return;
 				}
+				
+				command = resolveAlias(alias, details);
+				context.addTransform(command);
+				
+				continue;
 			}
 		} catch (Exception e) {
 			MapTool.addLocalMessage("Could not execute the command: " + e.getMessage());
@@ -239,10 +233,14 @@ public class MacroManager {
 		
 	}
 
-	static String preprocess(String command) {
-		
+	static String postprocess(String command) {
 		command = command.replace("\n", "<br>");
 		
+		return command;
+		
+	}
+	
+	static String preprocess(String command) {
 		return command;
 	}
 	

@@ -33,6 +33,7 @@ import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.LookupTable.LookupEntry;
+import net.rptools.maptool.util.StringUtil;
 import net.rptools.parser.ParserException;
 
 @MacroDefinition(
@@ -51,7 +52,7 @@ public class LookupTableMacro extends AbstractMacro {
         	return;
         }
 
-        List<String> words = splitNextWord(macro);
+        List<String> words = StringUtil.splitNextWord(macro);
         String tableName = words.get(0);
         String value = null;
         if (words.size() > 1) {
