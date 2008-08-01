@@ -2,6 +2,7 @@ package net.rptools.maptool.client;
 
 import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
+import net.rptools.maptool.client.functions.LookupTableFunction;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.ParserException;
 
@@ -33,6 +34,7 @@ public class MapToolLineParser {
     	
     	// Keep the same context for this line
     	ExpressionParser parser = createParser(tokenInContext);
+    	parser.getParser().addFunction(new LookupTableFunction());
 
     	State state = State.TEXT;
     	StringBuilder builder = new StringBuilder();
@@ -63,7 +65,7 @@ public class MapToolLineParser {
 	    	   			if (roll.startsWith("roll")) {
 	    	   				continue;
 	    	   			}
-	    	   			System.out.println("Roll '" + roll+ "'");
+
 	    	   			builder.append("[roll "+ roll + " = " + expandRoll(parser, tokenInContext, roll)+"]" );
 
     				} finally {
@@ -84,7 +86,6 @@ public class MapToolLineParser {
 	    	   			if (cmd.startsWith("cmd")) {
 	    	   				continue;
 	    	   			}
-	    	   			System.out.println("Cmd: '" + cmd + "'");
 	    	   			Result result = parseExpression(parser, tokenInContext, cmd);
 	    	   			builder.append(result != null ? result.getValue().toString() : "");
 
