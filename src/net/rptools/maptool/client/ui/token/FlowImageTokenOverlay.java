@@ -93,6 +93,9 @@ public class FlowImageTokenOverlay extends ImageTokenOverlay {
     public Object clone() {
         TokenOverlay overlay = new FlowImageTokenOverlay(getName(), getAssetId(), grid);
         overlay.setOrder(getOrder());
+        overlay.setGroup(getGroup());
+        overlay.setMouseover(isMouseover());
+        overlay.setOpacity(getOpacity());
         return overlay;
     }
 

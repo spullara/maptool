@@ -1833,17 +1833,22 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
               locg.setClip(overlayClip);
               
               // Check each of the set values
-              for (String state : token.getStatePropertyNames()) {
-                Object stateValue = token.getState (state);
+              for (String state : MapTool.getCampaign().getTokenStatesMap().keySet()) {
+                Object stateValue = token.getState(state);
                 
                 // Check for the on/off states & paint them
+                TokenOverlay overlay =  null;
                 if (stateValue instanceof Boolean && ((Boolean)stateValue).booleanValue()) {
-                  TokenOverlay overlay =  MapTool.getCampaign().getTokenStatesMap().get(state);
-                  if (overlay != null) overlay.paintOverlay(locg, token, bounds);
+                  overlay =  MapTool.getCampaign().getTokenStatesMap().get(state);
+                  if (overlay != null && overlay.isMouseover() && token != tokenUnderMouse) overlay = null;
                 
                 // Check for an overlay state value and paint that
                 } else if (stateValue instanceof TokenOverlay) {
-                  ((TokenOverlay)stateValue).paintOverlay(locg, token, bounds);
+                    overlay = (TokenOverlay)stateValue;
+                    if (overlay.isMouseover() && token != tokenUnderMouse) overlay = null;
+                }
+                if (overlay != null) {
+                    overlay.paintOverlay(locg, token, bounds);
                 }
               }
             }

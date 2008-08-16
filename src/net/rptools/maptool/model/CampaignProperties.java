@@ -70,7 +70,7 @@ public class CampaignProperties implements Serializable {
 		// TODO: This doesn't feel right, should we deep copy, or does this do that automatically ?
 		lightSourcesMap = new HashMap<String, Map<GUID, LightSource>>(properties.lightSourcesMap);
 		
-		tokenStates = new HashMap<String, TokenOverlay>();
+		tokenStates = new LinkedHashMap<String, TokenOverlay>();
 		
 		// TODO: fix for when old campaigns have been loaded into b33+
 		if (properties.tokenStates == null || properties.tokenStates.isEmpty()) {
@@ -279,7 +279,7 @@ public class CampaignProperties implements Serializable {
     }
     
     private void initTokenStatesMap() {
-        tokenStates = new HashMap<String, TokenOverlay>();
+        tokenStates = new LinkedHashMap<String, TokenOverlay>();
         tokenStates.put("Dead", (new XTokenOverlay("Dead", Color.RED, 5)));
         tokenStates.put("Disabled", (new XTokenOverlay("Disabled", Color.GRAY, 5)));
         tokenStates.put("Hidden", (new ShadedTokenOverlay("Hidden", Color.BLACK)));

@@ -24,7 +24,9 @@
  */
 package net.rptools.maptool.client.ui.token;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
@@ -68,9 +70,8 @@ public class ShadedTokenOverlay extends TokenOverlay {
   public ShadedTokenOverlay(String aName, Color aColor) {
     super(aName);
     assert aColor != null : "A color is required but null was passed.";
-    if (aColor.getAlpha() == 255)
-      aColor = new Color(aColor.getRed(), aColor.getGreen(), aColor.getBlue(), (int) (255 * 0.25));
     color = aColor;
+    setOpacity(25);
   }
 
   /*---------------------------------------------------------------------------------------------
@@ -84,8 +85,12 @@ public class ShadedTokenOverlay extends TokenOverlay {
   public void paintOverlay(Graphics2D g, Token aToken, Rectangle bounds) {
     Color temp = g.getColor();
     g.setColor(color);
+    Composite tempComposite = g.getComposite();
+    if (getOpacity() != 100)
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)getOpacity()/100));
     g.fill(bounds);
     g.setColor(temp);
+    g.setComposite(tempComposite);
   }
 
   /**
@@ -95,6 +100,9 @@ public class ShadedTokenOverlay extends TokenOverlay {
   public Object clone() {
       TokenOverlay overlay = new ShadedTokenOverlay(getName(), getColor());
       overlay.setOrder(getOrder());
+      overlay.setGroup(getGroup());
+      overlay.setMouseover(isMouseover());
+      overlay.setOpacity(getOpacity());
       return overlay;
   }
   

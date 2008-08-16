@@ -6,8 +6,11 @@ import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -247,15 +250,37 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
     }
     	
 	private JMenu createStateMenu() {
+	    
+	    // Create the base menu
 		JMenu stateMenu = I18N.createMenu("defaultTool.stateMenu");
 		stateMenu.add(new ChangeStateAction("clear"));
 		stateMenu.addSeparator();
         List<TokenOverlay> overlays = new ArrayList<TokenOverlay>(MapTool.getCampaign().getTokenStatesMap().values());
         Collections.sort(overlays, TokenOverlay.COMPARATOR);
+        
+        // Create the group menus first so that they can be placed at the top of the state menu
+        Map<String, JMenu> groups = new TreeMap<String, JMenu>();
+        for (TokenOverlay overlay : overlays) {
+            String group = overlay.getGroup();
+            if (group != null && (group = group.trim()).length() != 0) {
+                JMenu menu = groups.get(group);
+                if (menu == null) {
+                    menu = new JMenu(group);
+                    groups.put(group, menu);                    
+                } // endif
+            } // endif
+        } // endfor
+        
+        // Add the group menus in alphabetical order
+        for (JMenu menu : groups.values()) stateMenu.add(menu);
+        
+        // Give each overlay a button in the proper menu
 		for (TokenOverlay overlay : overlays) {
-			createStateItem(overlay.getName(), stateMenu, getTokenUnderMouse());
-		}
-
+		    String group = overlay.getGroup();
+            JMenu menu = stateMenu;
+            if (group != null && (group = group.trim()).length() != 0) menu = groups.get(group);
+			createStateItem(overlay.getName(), menu, getTokenUnderMouse());
+		} // endfor
 		return stateMenu;
 	}
 	

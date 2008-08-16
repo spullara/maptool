@@ -24,6 +24,8 @@
  */
 package net.rptools.maptool.client.ui.token;
 
+import java.awt.AlphaComposite;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -87,6 +89,9 @@ public class ImageTokenOverlay extends TokenOverlay {
     public Object clone() {
         TokenOverlay overlay = new ImageTokenOverlay(getName(), assetId);
         overlay.setOrder(getOrder());
+        overlay.setGroup(getGroup());
+        overlay.setMouseover(isMouseover());
+        overlay.setOpacity(getOpacity());
         return overlay;
     }
 
@@ -123,7 +128,11 @@ public class ImageTokenOverlay extends TokenOverlay {
         int height = image.getHeight();
         int x = iBounds.x + (d.width - width) / 2;
         int y = iBounds.y + (d.height - height) / 2;
+        Composite tempComposite = g.getComposite();        
+        if (getOpacity() != 100)
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)getOpacity()/100));
         g.drawImage(image, x, y, null);
+        g.setComposite(tempComposite);
     }
 
     /** @return Getter for assetId */

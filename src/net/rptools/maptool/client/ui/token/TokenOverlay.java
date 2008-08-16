@@ -57,6 +57,16 @@ public abstract class TokenOverlay implements Cloneable {
    */
   private String group;
   
+  /**
+   * Flag indicating that this token overlay is only displayed on mouseover
+   */
+  private boolean mouseover;
+  
+  /**
+   * The opacity of the painting. Must be a value between 0 & 100
+   */
+  private int opacity = 100;
+  
   /*---------------------------------------------------------------------------------------------
    * Class Variables
    *-------------------------------------------------------------------------------------------*/
@@ -127,6 +137,26 @@ public abstract class TokenOverlay implements Cloneable {
   /** @param group Setter for group */
   public void setGroup(String group) {
       this.group = group;
+  }
+
+  /** @return Getter for mouseover */
+  public boolean isMouseover() {
+      return mouseover;
+  }
+
+  /** @param mouseover Setter for mouseover */
+  public void setMouseover(boolean mouseover) {
+      this.mouseover = mouseover;
+  }
+
+  /** @return Getter for opacity */
+  public int getOpacity() {
+      return opacity;
+  }
+
+  /** @param opacity Setter for opacity */
+  public void setOpacity(int opacity) {
+      this.opacity = opacity;
   }
 
   /*---------------------------------------------------------------------------------------------

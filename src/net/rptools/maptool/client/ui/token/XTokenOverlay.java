@@ -24,8 +24,10 @@
  */
 package net.rptools.maptool.client.ui.token;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
@@ -84,10 +86,14 @@ public class XTokenOverlay extends TokenOverlay {
     g.setColor(color);
     Stroke tempStroke = g.getStroke();
     g.setStroke(stroke);
+    Composite tempComposite = g.getComposite();
+    if (getOpacity() != 100)
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)getOpacity()/100));
     g.draw(new Line2D.Double(0, 0, bounds.width, bounds.height));
     g.draw(new Line2D.Double(0, bounds.height, bounds.width, 0));
     g.setColor(tempColor);
     g.setStroke(tempStroke);
+    g.setComposite(tempComposite);
   }
 
   /**
@@ -97,6 +103,9 @@ public class XTokenOverlay extends TokenOverlay {
   public Object clone() {
       TokenOverlay overlay = new XTokenOverlay(getName(), getColor(), getWidth());
       overlay.setOrder(getOrder());
+      overlay.setGroup(getGroup());
+      overlay.setMouseover(isMouseover());
+      overlay.setOpacity(getOpacity());
       return overlay;
   }
   

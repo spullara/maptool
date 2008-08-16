@@ -24,7 +24,9 @@
  */
 package net.rptools.maptool.client.ui.token;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -78,6 +80,9 @@ public class FlowColorDotTokenOverlay extends XTokenOverlay {
     public Object clone() {
         TokenOverlay overlay = new FlowColorDotTokenOverlay(getName(), getColor(), grid);
         overlay.setOrder(getOrder());
+        overlay.setGroup(getGroup());
+        overlay.setMouseover(isMouseover());
+        overlay.setOpacity(getOpacity());
         return overlay;
     }
     
@@ -99,14 +104,18 @@ public class FlowColorDotTokenOverlay extends XTokenOverlay {
     public void paintOverlay(Graphics2D g, Token aToken, Rectangle bounds) {
         Color tempColor = g.getColor();
         Stroke tempStroke = g.getStroke();
+        Composite tempComposite = g.getComposite();
         try {
             g.setColor(getColor());
             g.setStroke(getStroke());
+            if (getOpacity() != 100)
+                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)getOpacity()/100));
             Shape s = getShape(bounds, aToken);
             g.fill(s);
         } finally {
             g.setColor(tempColor);
             g.setStroke(tempStroke);
+            g.setComposite(tempComposite);
         }
     }
     

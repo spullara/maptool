@@ -66,6 +66,9 @@ public class FlowDiamondTokenOverlay extends FlowColorDotTokenOverlay {
     public Object clone() {
         TokenOverlay overlay = new FlowDiamondTokenOverlay(getName(), getColor(), getGrid());
         overlay.setOrder(getOrder());
+        overlay.setGroup(getGroup());
+        overlay.setMouseover(isMouseover());
+        overlay.setOpacity(getOpacity());
         return overlay;
     }
     

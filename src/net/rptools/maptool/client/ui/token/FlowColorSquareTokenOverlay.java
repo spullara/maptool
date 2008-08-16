@@ -64,6 +64,9 @@ public class FlowColorSquareTokenOverlay extends FlowColorDotTokenOverlay {
     public Object clone() {
         TokenOverlay overlay = new FlowColorSquareTokenOverlay(getName(), getColor(), getGrid());
         overlay.setOrder(getOrder());
+        overlay.setGroup(getGroup());
+        overlay.setMouseover(isMouseover());
+        overlay.setOpacity(getOpacity());
         return overlay;
     }
     

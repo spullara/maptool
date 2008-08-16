@@ -66,6 +66,9 @@ public class FlowTriangleTokenOverlay extends FlowColorDotTokenOverlay {
     public Object clone() {
         TokenOverlay overlay = new FlowTriangleTokenOverlay(getName(), getColor(), getGrid());
         overlay.setOrder(getOrder());
+        overlay.setGroup(getGroup());
+        overlay.setMouseover(isMouseover());
+        overlay.setOpacity(getOpacity());
         return overlay;
     }
     

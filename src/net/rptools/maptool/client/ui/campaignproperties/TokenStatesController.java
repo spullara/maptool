@@ -36,8 +36,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,11 +112,17 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
     /** Name of the text field containing the name {@link String} value */
     public static String NAME = "tokenStatesName";
     
+    /** Name of the text field containing the group {@link String} value */
+    public static String GROUP = "tokenStatesGroup";
+    
     /** Name of the combo box containing a {@link String} value that maps directly to a {@link TokenOverlay} class */
     public static String TYPE = "tokenStatesType";
     
     /** Name of the color well containing a {@link Color} value for token state types that need colors */
     public static String COLOR = "tokenStatesColor";
+    
+    /** Name of the check box containing the {@link Boolean} mouseover value */
+    public static String MOUSEOVER = "tokenStatesMouseover";
     
     /** Name of the spinner containing an {@link Integer} value that is the width of lines for token state types that need line width */
     public static String WIDTH = "tokenStatesWidth";
@@ -136,6 +142,9 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
     /** Name of the spinner containing a {@link String} value that is converted into the grid size for flow token states */
     public static String FLOW_GRID = "tokenStatesFlowGrid";
 
+    /** Name of the spinner containing an {@link Integer} value that is the opacity used in drawing */
+    public static String OPACITY = "tokenStatesOpacity";
+    
     /** Name of the text field containing a {@link File} name that is the image file used for image token states */
     public static String IMAGE = "tokenStatesImageFile";
 
@@ -199,6 +208,7 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
         panel.getComboBox(TYPE).addActionListener(this);
         panel.getSpinner(WIDTH).setModel(new SpinnerNumberModel(5, 1, 10, 1));
         panel.getSpinner(FLOW_GRID).setModel(new SpinnerListModel(new String[] {"2x2", "3x3", "4x4", "5x5", "8x8"}));
+        panel.getSpinner(OPACITY).setModel(new SpinnerNumberModel(100, 1, 100, 5));
         panel.getList(STATES).setCellRenderer(new StateListRenderer());
         panel.getList(STATES).addListSelectionListener(this);
         panel.getTextComponent(NAME).getDocument().addDocumentListener(this);
@@ -225,6 +235,9 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
                 model.addElement(overlay);
                 names.add(overlay.getName());
                 formPanel.setText(NAME, "");
+                formPanel.setText(GROUP, "");
+                formPanel.setSelected(MOUSEOVER, false);
+                formPanel.getSpinner(OPACITY).setValue(new Integer(100));
             } // endif
             
         // Delete selected state
@@ -356,7 +369,10 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
             // Set name, and always clear image
             TokenOverlay s = (TokenOverlay)formPanel.getList(STATES).getSelectedValue();
             formPanel.setText(NAME, s.getName());
+            formPanel.setText(GROUP, s.getGroup());
             formPanel.setText(IMAGE, "");
+            formPanel.setSelected(MOUSEOVER, s.isMouseover());
+            formPanel.getSpinner(OPACITY).setValue(new Integer(s.getOpacity()));
             
             // Get most of the colors and all of the widths from the XTokenOverlay
             int type = -1;
@@ -487,8 +503,7 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
      */
     public void copyUIToCampaign(Campaign campaign) {
         ListModel model = formPanel.getList(STATES).getModel();
-        Map<String, TokenOverlay> states = new HashMap<String, TokenOverlay>();
-        states.clear();
+        Map<String, TokenOverlay> states = new LinkedHashMap<String, TokenOverlay>();
         for (int i = 0; i < model.getSize(); i++) {
             TokenOverlay overlay = (TokenOverlay)model.getElementAt(i);
             overlay.setOrder(i);
@@ -505,88 +520,106 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
      */
     public TokenOverlay createTokenOverlay(TokenOverlay updatedOverlay) {
         
-        // Need the color and name for everything
+        // Need the color group, and name for everything
         Color color = ((JETAColorWell)formPanel.getComponentByName(COLOR)).getColor();
         String name = formPanel.getText(NAME);
+        String group = formPanel.getText(GROUP);
+        boolean mouseover = formPanel.isSelected(MOUSEOVER);
         String overlay = ((ListItemProperty)formPanel.getSelectedItem(TYPE)).getLabel();
-        
+        int opacity = getSpinner(OPACITY, "opacity");
+
         // Check for overlays that don't use width
+        TokenOverlay to = null;
         if (overlay.equals("Dot")) {
             String cornerName = formPanel.getSelectedItem(CORNER).toString().toUpperCase().replace(' ', '_');
-            return new ColorDotTokenOverlay(name, color, Quadrant.valueOf(cornerName));
+            to = new ColorDotTokenOverlay(name, color, Quadrant.valueOf(cornerName));
         } else if (overlay.equals("Shaded")) {
-            return new ShadedTokenOverlay(name, color);
+            to = new ShadedTokenOverlay(name, color);
         } // endif
-        
+
         // Get flow information
-        String sGrid = (String)formPanel.getSpinner(FLOW_GRID).getValue();
-        int grid = Integer.parseInt(sGrid.substring(0, 1));
-        if (overlay.equals("Grid Dot")) {
-            return new FlowColorDotTokenOverlay(name, color, grid);
-        } if (overlay.equals("Grid Square")) {
-            return new FlowColorSquareTokenOverlay(name, color, grid);
-        } if (overlay.equals("Grid Triangle")) {
-            return new FlowTriangleTokenOverlay(name, color, grid);
-        } if (overlay.equals("Grid Diamond")) {
-            return new FlowDiamondTokenOverlay(name, color, grid);
-        } if (overlay.equals("Grid Yield")) {
-            return new FlowYieldTokenOverlay(name, color, grid);
+        int grid = -1;
+        if (to == null) {
+            String sGrid = (String)formPanel.getSpinner(FLOW_GRID).getValue();
+            grid = Integer.parseInt(sGrid.substring(0, 1));
+            if (overlay.equals("Grid Dot")) {
+                to = new FlowColorDotTokenOverlay(name, color, grid);
+            } if (overlay.equals("Grid Square")) {
+                to = new FlowColorSquareTokenOverlay(name, color, grid);
+            } if (overlay.equals("Grid Triangle")) {
+                to = new FlowTriangleTokenOverlay(name, color, grid);
+            } if (overlay.equals("Grid Diamond")) {
+                to = new FlowDiamondTokenOverlay(name, color, grid);
+            } if (overlay.equals("Grid Yield")) {
+                to = new FlowYieldTokenOverlay(name, color, grid);
+            } // endif
         } // endif
-        
+
         // Handle all of the overlays with width
-        int width = getSpinner(WIDTH, "width");
-        if (overlay.equals("Circle")) {
-            return new OTokenOverlay(name, color, width);
-        } else if (overlay.equals("X")) {
-            return new XTokenOverlay(name, color, width);
-        } else if (overlay.equals("Cross")) {
-            return new CrossTokenOverlay(name, color, width);
-        } else if (overlay.equals("Diamond")) {
-            return new DiamondTokenOverlay(name, color, width);
-        } else if (overlay.equals("Yield")) {
-            return new YieldTokenOverlay(name, color, width);
-        } else if (overlay.equals("Triangle")) {
-            return new TriangleTokenOverlay(name, color, width);
+        if (to == null) {
+            int width = getSpinner(WIDTH, "width");
+            if (overlay.equals("Circle")) {
+                to = new OTokenOverlay(name, color, width);
+            } else if (overlay.equals("X")) {
+                to = new XTokenOverlay(name, color, width);
+            } else if (overlay.equals("Cross")) {
+                to = new CrossTokenOverlay(name, color, width);
+            } else if (overlay.equals("Diamond")) {
+                to = new DiamondTokenOverlay(name, color, width);
+            } else if (overlay.equals("Yield")) {
+                to = new YieldTokenOverlay(name, color, width);
+            } else if (overlay.equals("Triangle")) {
+                to = new TriangleTokenOverlay(name, color, width);
+            } // endif
         } // endif
-        
+
         // If we get here it is an image overlay, grab the image as an asset
-        MD5Key assetId = null;
-        String fName = formPanel.getText(IMAGE).trim();
-        fName = fName.length() == 0 ? null : fName;
-        if (updatedOverlay == null || fName != null) {
-            File file = new File(fName);
-            if (!file.exists() || !file.canRead() || file.isDirectory()) {
-                JOptionPane.showMessageDialog(formPanel, "The image file was not specified, it doesn't exist, is a directory, or it can't be read: " 
-                        + file.getAbsolutePath(), "Error!", JOptionPane.ERROR_MESSAGE);
-                return null;
+        if (to == null) {
+            MD5Key assetId = null;
+            String fName = formPanel.getText(IMAGE).trim();
+            fName = fName.length() == 0 ? null : fName;
+            if (updatedOverlay == null || fName != null) {
+                File file = new File(fName);
+                if (!file.exists() || !file.canRead() || file.isDirectory()) {
+                    JOptionPane.showMessageDialog(formPanel, "The image file was not specified, it doesn't exist, is a directory, or it can't be read: " 
+                            + file.getAbsolutePath(), "Error!", JOptionPane.ERROR_MESSAGE);
+                    return null;
+                } // endif
+                Asset asset = null;
+                try {
+                    asset = AssetManager.createAsset(file);
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(formPanel, "Error reading the image file: " 
+                            + file.getAbsolutePath(), "Error!", JOptionPane.ERROR_MESSAGE);
+                    return null;
+                } // endif
+                AssetManager.putAsset(asset);
+                assetId = asset.getId();
+            } else {
+                if (updatedOverlay instanceof ImageTokenOverlay)
+                    assetId = ((ImageTokenOverlay)updatedOverlay).getAssetId();
             } // endif
-            Asset asset = null;
-            try {
-                asset = AssetManager.createAsset(file);
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(formPanel, "Error reading the image file: " 
-                        + file.getAbsolutePath(), "Error!", JOptionPane.ERROR_MESSAGE);
-                return null;
+
+            // Create all of the image overlays
+            if (assetId != null) {
+                if (overlay.equals("Image")) {
+                    to = new ImageTokenOverlay(name, assetId);
+                } else if (overlay.equals("Corner Image")) {
+                    String cornerName = formPanel.getSelectedItem(CORNER).toString().toUpperCase().replace(' ', '_');
+                    to = new CornerImageTokenOverlay(name, assetId, Quadrant.valueOf(cornerName));
+                } else if (overlay.equals("Grid Image")) {
+                    to = new FlowImageTokenOverlay(name, assetId, grid);
+                } // endif
             } // endif
-            AssetManager.putAsset(asset);
-            assetId = asset.getId();
-        } else {
-            if (updatedOverlay instanceof ImageTokenOverlay)
-              assetId = ((ImageTokenOverlay)updatedOverlay).getAssetId();
         } // endif
         
-        // Create all of the image overlays
-        if (assetId != null) {
-            if (overlay.equals("Image")) {
-                return new ImageTokenOverlay(name, assetId);
-            } else if (overlay.equals("Corner Image")) {
-                String cornerName = formPanel.getSelectedItem(CORNER).toString().toUpperCase().replace(' ', '_');
-                return new CornerImageTokenOverlay(name, assetId, Quadrant.valueOf(cornerName));
-            } else if (overlay.equals("Grid Image")) {
-                return new FlowImageTokenOverlay(name, assetId, grid);
-            } // endif
+        // Set the common token stuff
+        if (to != null) {
+            to.setGroup(group);
+            to.setMouseover(mouseover);
+            to.setOpacity(opacity);
         } // endif
-        return null;
+        return to;
     }
     
     /**

@@ -25,7 +25,9 @@
 
 package net.rptools.maptool.client.ui.token;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
@@ -66,6 +68,9 @@ public class DiamondTokenOverlay extends XTokenOverlay {
   public Object clone() {
       TokenOverlay overlay = new DiamondTokenOverlay(getName(), getColor(), getWidth());
       overlay.setOrder(getOrder());
+      overlay.setGroup(getGroup());
+      overlay.setMouseover(isMouseover());
+      overlay.setOpacity(getOpacity());
       return overlay;
   }
   
@@ -80,11 +85,15 @@ public class DiamondTokenOverlay extends XTokenOverlay {
     g.setColor(getColor());
     Stroke tempStroke = g.getStroke();
     g.setStroke(getStroke());
+    Composite tempComposite = g.getComposite();
+    if (getOpacity() != 100)
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)getOpacity()/100));
     g.draw(new Line2D.Double(0, vc, hc, 0));
     g.draw(new Line2D.Double(hc, 0, bounds.width, vc));
     g.draw(new Line2D.Double( bounds.width, vc, hc, bounds.height));
     g.draw(new Line2D.Double(hc, bounds.height, 0, vc));
     g.setColor(tempColor);
     g.setStroke(tempStroke);
+    g.setComposite(tempComposite);
   }
 }

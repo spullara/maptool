@@ -68,6 +68,9 @@ public class CornerImageTokenOverlay extends ImageTokenOverlay {
     public Object clone() {
         TokenOverlay overlay = new CornerImageTokenOverlay(getName(), getAssetId(), corner);
         overlay.setOrder(getOrder());
+        overlay.setGroup(getGroup());
+        overlay.setMouseover(isMouseover());
+        overlay.setOpacity(getOpacity());
         return overlay;
     }
 
