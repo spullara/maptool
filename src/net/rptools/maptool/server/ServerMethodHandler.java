@@ -34,6 +34,7 @@ import java.util.Set;
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.ClientCommand;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.common.MapToolConstants;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -41,6 +42,7 @@ import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
@@ -113,6 +115,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case heartbeat:				  heartbeat(context.getString(0));break;
             case updateCampaign:		  updateCampaign((CampaignProperties) context.get(0));break;
             case movePointer: 			  movePointer(context.getString(0), context.getInt(1), context.getInt(2));break;
+            case updateInitiative:        updateInitiative((InitiativeList)context.get(0));
             }
         } finally {
             RPCContext.setCurrent(null);
@@ -269,6 +272,13 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     
     public void movePointer(String player, int x, int y) {
     	forwardToAllClients();
+    }
+    
+    public void updateInitiative(InitiativeList list) {
+        if (list.getZone() == null) return;
+        Zone zone = server.getCampaign().getZone(list.getZone().getId());
+        zone.setInitiativeList(list);
+        forwardToAllClients();
     }
     
     public void renameZone(GUID zoneGUID, String name) {

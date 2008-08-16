@@ -52,6 +52,11 @@ public abstract class TokenOverlay implements Cloneable {
    */
   private int order;
   
+  /**
+   * The group that this token overlay belongs to. It may be <code>null</code>.
+   */
+  private String group;
+  
   /*---------------------------------------------------------------------------------------------
    * Class Variables
    *-------------------------------------------------------------------------------------------*/
@@ -112,6 +117,16 @@ public abstract class TokenOverlay implements Cloneable {
   /** @param order Setter for the order to set */
   public void setOrder(int order) {
       this.order = order;
+  }
+
+  /** @return Getter for group */
+  public String getGroup() {
+      return group;
+  }
+
+  /** @param group Setter for group */
+  public void setGroup(String group) {
+      this.group = group;
   }
 
   /*---------------------------------------------------------------------------------------------

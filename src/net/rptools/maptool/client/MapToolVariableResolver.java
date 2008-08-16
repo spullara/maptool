@@ -8,6 +8,8 @@ import javax.swing.JOptionPane;
 import net.rptools.common.expression.ExpressionParser;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
+import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.parser.MapVariableResolver;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.VariableModifiers;
@@ -23,6 +25,9 @@ public class MapToolVariableResolver extends MapVariableResolver {
     /** The variable name for querying and setting token halos. */
     public final static String          TOKEN_HALO    = "token.halo";
 
+    /** The variable name for querying and setting the initiative of the current token. */
+    public final static String          TOKEN_INITIATIVE    = "token.init";
+    
     // TODO: This is a copy of the array in the TokenPopupMenu (which is
     // apparently temporary)
     // There should probably one place for halo colors in the future.
@@ -179,6 +184,16 @@ public class MapToolVariableResolver extends MapVariableResolver {
                 MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
                 return;
             }
+        } else if (varname.equals(TOKEN_INITIATIVE)) {
+            Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+            int index = zone.getInitiativeList().indexOf(tokenInContext);
+            if (index < 0) 
+                throw new ParserException("The token is not in the initiative list so no value can be set");
+            if (value != null && !(value instanceof String)) value = value.toString();
+            zone.getInitiativeList().getTokenInitiative(index).setState((String)value);
+            
+            // TODO: This works for now but could result in a lot of resending of data
+            MapTool.serverCommand().putToken(zone.getId(), tokenInContext);
         }
 		super.setVariable(varname, modifiers, value);
 	}

@@ -34,6 +34,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.Pointer;
@@ -86,7 +87,8 @@ public interface ServerCommand {
         removeTopology,
         renameZone,
         heartbeat,
-        updateCampaign
+        updateCampaign,
+        updateInitiative
     };
 
     public void bootPlayer(String player);
@@ -128,4 +130,5 @@ public interface ServerCommand {
     public void renameZone(GUID zoneGUID, String name);
     public void heartbeat(String data);
     public void updateCampaign(CampaignProperties properties);
+    public void updateInitiative(InitiativeList list);
 }

@@ -81,7 +81,8 @@ public class AppStyle {
 	public static BufferedImage campaignPanelImage;
 	public static BufferedImage selectionPanelImage;
 	public static BufferedImage impersonatePanelImage;
-	public static BufferedImage tablesPanelImage;
+    public static BufferedImage tablesPanelImage;
+    public static BufferedImage initiativePanelImage;
 	public static BufferedImage arrowOut;
 	public static BufferedImage arrowRotateClockwise;
 	public static BufferedImage arrowIn;
@@ -115,7 +116,8 @@ public class AppStyle {
 			campaignPanelImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/campaign_panel.png");
 			selectionPanelImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/cursor.png");
 			impersonatePanelImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/impersonate.png");
-			tablesPanelImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/layers.png");			
+            tablesPanelImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/layers.png");         
+            initiativePanelImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/initiativePanel.png");         
 			arrowOut = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/arrow_out.png");			
 			arrowRotateClockwise = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/arrow_rotate_clockwise.png");
 			arrowIn = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/arrow_in_red.png");

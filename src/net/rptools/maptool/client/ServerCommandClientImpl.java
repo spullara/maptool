@@ -33,6 +33,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
@@ -215,6 +216,10 @@ public class ServerCommandClientImpl implements ServerCommand {
     
     public void setServerPolicy(ServerPolicy policy) {
     	makeServerCall(COMMAND.setServerPolicy, policy);
+    }
+    
+    public void updateInitiative(InitiativeList list) {
+        makeServerCall(COMMAND.updateInitiative, list);
     }
     
 	private static void makeServerCall(ServerCommand.COMMAND command, Object... params) {

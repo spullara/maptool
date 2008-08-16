@@ -627,6 +627,7 @@ public class MapTool {
     	}
         
         clientFrame.getLookupTablePanel().updateView();
+        clientFrame.getInitiativePanel().updateView();
     }
     
     public static void closeConnection() throws IOException {

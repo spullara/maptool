@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
@@ -65,7 +66,8 @@ public class Zone extends BaseModel {
         LABEL_ADDED,
         LABEL_REMOVED,
         LABEL_CHANGED,
-        TOPOLOGY_CHANGED
+        TOPOLOGY_CHANGED,
+        INITIATIVE_LIST_CHANGED
     }
     
 	public enum Layer {
@@ -119,6 +121,8 @@ public class Zone extends BaseModel {
     private Map<GUID, Token> tokenMap = new HashMap<GUID, Token>();
     private List<Token> tokenOrderedList = new LinkedList<Token>();
 
+    private InitiativeList initiativeList = new InitiativeList(this);
+    
     private Area exposedArea = new Area();
     private boolean hasFog;
 
@@ -237,14 +241,35 @@ public class Zone extends BaseModel {
 				this.putLabel( new Label( zone.labels.get(i.next()) ) );
 			}
 		}
-		
+
+		Object[][] saveInitiative = new Object[zone.initiativeList.getSize()][2];
+		initiativeList.setZone(null);
 		if (zone.tokenMap != null) {
 			Iterator i = zone.tokenMap.keySet().iterator();
 			while (i.hasNext()) {
-				this.putToken( new Token( zone.tokenMap.get(i.next()) ) );
+			    Token old = zone.tokenMap.get(i.next());
+			    Token token = new Token(old);
+				this.putToken(token);
+				int index = zone.initiativeList.indexOf(old);
+				if (index >= 0) {
+				    saveInitiative[index][0] = token;
+				    saveInitiative[index][1] = zone.initiativeList.getTokenInitiative(index);
+				}
 			}
 		}
-
+		if (saveInitiative.length > 0) {
+		    for (int i = 0; i < saveInitiative.length; i++) {
+                initiativeList.insertToken(i, (Token)saveInitiative[i][0]);
+                TokenInitiative ti = initiativeList.getTokenInitiative(i);
+                TokenInitiative oldti = (TokenInitiative)saveInitiative[i][1];
+                ti.setHolding(oldti.isHolding());
+                ti.setState(oldti.getState());
+		    }
+        } 
+        initiativeList.setZone(this);
+        initiativeList.setCurrent(zone.initiativeList.getCurrent());
+        initiativeList.setRound(zone.initiativeList.getRound());
+	
         exposedArea = (Area)zone.exposedArea.clone();
         topology = (Area)zone.topology.clone();
         isVisible = zone.isVisible;
@@ -782,6 +807,17 @@ public class Zone extends BaseModel {
     			return lval - rval;
     		}
     	}
+    }
+
+    /** @return Getter for initiativeList */
+    public InitiativeList getInitiativeList() {
+        return initiativeList;
+    }
+
+    /** @param initiativeList Setter for the initiativeList */
+    public void setInitiativeList(InitiativeList initiativeList) {
+        this.initiativeList = initiativeList;
+        fireModelChangeEvent(new ModelChangeEvent(this, Event.INITIATIVE_LIST_CHANGED));
     }
 
 }

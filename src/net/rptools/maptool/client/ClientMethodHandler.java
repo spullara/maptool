@@ -37,6 +37,7 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Pointer;
@@ -442,6 +443,13 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 	
                 	MapTool.getFrame().refresh();
                 	break;
+                	
+                case updateInitiative:
+                    InitiativeList list = (InitiativeList)parameters[0];
+                    zone = list.getZone();
+                    if (zone == null) return;
+                    zone.setInitiativeList(list);
+                    break;
                 }
         	}
         });

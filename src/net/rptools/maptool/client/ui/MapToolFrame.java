@@ -122,6 +122,7 @@ import net.rptools.maptool.client.ui.macrobuttons.panels.ImpersonatePanel;
 import net.rptools.maptool.client.ui.macrobuttons.panels.SelectionPanel;
 import net.rptools.maptool.client.ui.macrobuttons.panels.Tab;
 import net.rptools.maptool.client.ui.token.EditTokenDialog;
+import net.rptools.maptool.client.ui.tokenpanel.InitiativePanel;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeCellRenderer;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeModel;
 import net.rptools.maptool.client.ui.zone.PointerOverlay;
@@ -131,6 +132,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetAvailableListener;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
@@ -171,6 +173,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private ZoneRenderer currentRenderer;
 	private AssetPanel assetPanel;
 	private ClientConnectionPanel connectionPanel;
+    private InitiativePanel initiativePanel;
 	private PointerOverlay pointerOverlay;
 	private CommandPanel commandPanel;
 	private AboutDialog aboutDialog;
@@ -239,6 +242,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		connectionPanel = createConnectionPanel();
 		toolbox = new Toolbox();
 
+		initiativePanel = createInitiativePanel();
+		
 		zoneRendererList = new CopyOnWriteArrayList<ZoneRenderer>();
 		pointerOverlay = new PointerOverlay();
 		
@@ -320,6 +325,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	public enum MTFrame {
 		CONNECTIONS("Connections"),
 		TOKEN_TREE("Map Explorer"),
+		INITIATIVE("Initiative"),
 		IMAGE_EXPLORER("Library"),
 		CHAT("Chat"),
 		LOOKUP_TABLES("Tables"),
@@ -354,7 +360,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		
 		// Docked frames
 		getDockingManager().addFrame(getFrame(MTFrame.CONNECTIONS));
-		getDockingManager().addFrame(getFrame(MTFrame.TOKEN_TREE));
+        getDockingManager().addFrame(getFrame(MTFrame.TOKEN_TREE));
+        getDockingManager().addFrame(getFrame(MTFrame.INITIATIVE));
 		getDockingManager().addFrame(getFrame(MTFrame.IMAGE_EXPLORER));
 		getDockingManager().addFrame(getFrame(MTFrame.CHAT));
 		getDockingManager().addFrame(getFrame(MTFrame.LOOKUP_TABLES));
@@ -390,6 +397,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		frameMap.put(MTFrame.IMAGE_EXPLORER, createDockingFrame(MTFrame.IMAGE_EXPLORER, assetPanel, new ImageIcon(AppStyle.resourceLibraryImage)));
 		frameMap.put(MTFrame.CHAT, createDockingFrame(MTFrame.CHAT, commandPanel, new ImageIcon(AppStyle.chatPanelImage)));
 		frameMap.put(MTFrame.LOOKUP_TABLES, createDockingFrame(MTFrame.LOOKUP_TABLES, getLookupTablePanel(), new ImageIcon(AppStyle.tablesPanelImage)));
+        frameMap.put(MTFrame.INITIATIVE, createDockingFrame(MTFrame.INITIATIVE, initiativePanel, new ImageIcon(AppStyle.initiativePanelImage)));
+		
 		
 		JScrollPane campaign = scrollPaneFactory(campaignPanel);
 		campaign.addMouseListener(new MacroPanelPopupListener(campaign, Tab.CAMPAIGN.index));
@@ -795,12 +804,18 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		if (tokenPanelTreeModel != null) {
 			tokenPanelTreeModel.setZone(null);
 		}
+		if (initiativePanel != null) {
+		    initiativePanel.clearTokens();
+		}
 	}
 
 	public void updateTokenTree() {
 		if (tokenPanelTreeModel != null) {
 			tokenPanelTreeModel.update();
 		}
+        if (initiativePanel != null) {
+            initiativePanel.update();
+        }
 	}
 
 	private boolean isRowSelected(int[] selectedRows, int row) {
@@ -822,6 +837,15 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		return panel;
 	}
 
+	private InitiativePanel createInitiativePanel() {
+        MapTool.getEventDispatcher().addListener(new AppEventListener() {
+            public void handleAppEvent(AppEvent event) {
+                initiativePanel.setZone((Zone)event.getNewValue());
+            }
+        }, MapTool.ZoneEvent.Activated);
+        return new InitiativePanel();
+	}
+	
 	private AssetPanel createAssetPanel() {
 		final AssetPanel panel = new AssetPanel("mainAssetPanel");
 		panel.addImagePanelMouseListener(new MouseAdapter() {
@@ -1031,6 +1055,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		}
 
 		currentRenderer = renderer;
+		initiativePanel.update();
 		toolbox.setTargetRenderer(renderer);
 
 		if (renderer != null) {
@@ -1423,4 +1448,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		
 		updateKeyStrokes();
 	}
+
+    /** @return Getter for initiativePanel */
+    public InitiativePanel getInitiativePanel() {
+        return initiativePanel;
+    }
 }

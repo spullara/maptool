@@ -1,15 +1,5 @@
 package net.rptools.maptool.client.ui;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JColorChooser;
-import javax.swing.JComponent;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JSeparator;
-import javax.swing.JTextPane;
-import javax.swing.KeyStroke;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,6 +8,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JColorChooser;
+import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JSeparator;
+import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppUtil;
@@ -29,6 +31,7 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
@@ -65,6 +68,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		addOwnedItem(createMacroMenu());
 		addOwnedItem(createSpeechMenu());
 		addOwnedItem(createStateMenu());
+        addOwnedItem(createInitiativeMenu());
 		addOwnedItem(createFlipMenu());
 		if (getTokenUnderMouse().getCharsheetImage() != null && AppUtil.playerOwns(getTokenUnderMouse())) {
 			add(new ShowHandoutAction());
@@ -255,6 +259,39 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		return stateMenu;
 	}
 	
+	private JMenu createInitiativeMenu() {
+	    JMenu initiativeMenu = I18N.createMenu("initiative.menu");
+        boolean isGM = MapTool.getPlayer().isGM();
+        if (isGM) {
+            initiativeMenu.add(new ChangeInititiveState("initiative.menu.add"));
+            initiativeMenu.add(new ChangeInititiveState("initiative.menu.remove"));
+            initiativeMenu.addSeparator();
+        } // endif
+        initiativeMenu.add(new JMenuItem(new ChangeInititiveState("initiative.menu.resume")));
+        initiativeMenu.add(new JMenuItem(new ChangeInititiveState("initiative.menu.hold")));
+        initiativeMenu.addSeparator();
+        initiativeMenu.add(new JMenuItem(new ChangeInititiveState("initiative.menu.setState")));
+        initiativeMenu.add(new JMenuItem(new ChangeInititiveState("initiative.menu.clearState")));
+        
+        // Enable by state if only one token selected.
+        if (selectedTokenSet.size() == 1) {
+            int index = MapTool.getFrame().getInitiativePanel().getList().indexOf(getTokenUnderMouse());
+            if (index >= 0) {
+                if (isGM) initiativeMenu.getMenuComponent(0).setEnabled(false);
+                boolean hold = MapTool.getFrame().getInitiativePanel().getList().getTokenInitiative(index).isHolding();
+                if (hold) {
+                    initiativeMenu.getMenuComponent(isGM ? 4 : 1).setEnabled(false);
+                } else {
+                    initiativeMenu.getMenuComponent(isGM ? 3 : 0).setEnabled(false);
+                }
+            } else {
+                if (isGM) initiativeMenu.getMenuComponent(1).setEnabled(false);
+                initiativeMenu.getMenuComponent(isGM ? 4 : 3).setEnabled(false);
+                initiativeMenu.getMenuComponent(isGM ? 3 : 0).setEnabled(false);
+            } // endif
+        } // endif
+	    return initiativeMenu;
+	}
 
 	protected void addOwnedToggledItem(Action action, boolean checked) {
 		if (action == null) {
@@ -500,6 +537,42 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			renderer.repaint();
 		}
 	}
+
+    private class ChangeInititiveState extends AbstractAction {
+        String name;
+        public ChangeInititiveState(String aName) {
+            name = aName;
+            I18N.setAction(aName, this);
+        }
+        public void actionPerformed(ActionEvent e) {
+            Zone zone = getRenderer().getZone();
+            InitiativeList init = MapTool.getFrame().getInitiativePanel().getList();
+            String input = null;
+            if (name.equals("initiative.menu.setState")) {
+                input = JOptionPane.showInputDialog(I18N.getText("initiative.meny.enterState"));
+                if (input == null) return;
+                input = input.trim();
+            } // endif
+            for (GUID id : selectedTokenSet) {
+                Token token = zone.getToken(id);
+                int index = init.indexOf(token);
+                if (name.equals("initiative.menu.add")) {
+                    if (index == -1) init.insertToken(-1, token);
+                } else if (name.equals("initiative.menu.remove")) {
+                    if (index != -1) init.removeToken(index);
+                } else if (name.equals("initiative.menu.hold")) {
+                    if (index != -1) init.getTokenInitiative(index).setHolding(true);
+                } else if (name.equals("initiative.menu.resume")) {
+                    if (index != -1) init.getTokenInitiative(index).setHolding(false);
+                } else if (name.equals("initiative.menu.setState")) {
+                    if (index != -1) init.getTokenInitiative(index).setState(input);
+                } else if (name.equals("initiative.menu.clearState")) {
+                    if (index != -1) init.getTokenInitiative(index).setState(null);
+                } // endif
+            } // endfor
+        }
+    }
+    
 
 	private class AllOwnershipAction extends AbstractAction {
 
