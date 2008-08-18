@@ -9,6 +9,7 @@ public class TokenProperty implements Serializable {
 	private boolean highPriority; // showOnStatSheet; so that 1.3b28 files load in 1.3b29
 	private boolean ownerOnly;
 	private boolean gmOnly;
+	private String defaultValue;
 	
 	public TokenProperty() {
 		// For serialization
@@ -32,7 +33,14 @@ public class TokenProperty implements Serializable {
 		this.ownerOnly = isOwnerOnly;
 		this.gmOnly = isGMOnly;
 	}
-
+	public TokenProperty(String name, String shortName, boolean highPriority, boolean isOwnerOnly, boolean isGMOnly, String defaultValue) {
+		this.name = name;
+		this.shortName = shortName;
+		this.highPriority = highPriority;
+		this.ownerOnly = isOwnerOnly;
+		this.gmOnly = isGMOnly;
+		this.defaultValue= defaultValue;
+	}
 	
 	public boolean isOwnerOnly() {
 		return ownerOnly;
@@ -69,6 +77,16 @@ public class TokenProperty implements Serializable {
 
 	public void setGMOnly(boolean gmOnly) {
 		this.gmOnly = gmOnly;
+	}
+
+	public String getDefaultValue()
+	{
+		return this.defaultValue;
+	}
+
+	public void setDefaultValue(String defaultValue)
+	{
+		this.defaultValue = defaultValue;
 	}
 
 	

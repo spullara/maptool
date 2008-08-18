@@ -180,6 +180,10 @@ public class TokenPropertiesManagementPanel extends AbeillePanel<CampaignPropert
 			if (property.getShortName() != null) {
 				builder.append(" (").append(property.getShortName()).append(")");
 			}
+			if (property.getDefaultValue() !=null)
+			{
+				builder.append(":").append(property.getDefaultValue());
+			}
 			builder.append("\n");
 		}
 		
@@ -191,6 +195,8 @@ public class TokenPropertiesManagementPanel extends AbeillePanel<CampaignPropert
 		List<TokenProperty> propertyList = new ArrayList<TokenProperty>();
 		BufferedReader reader = new BufferedReader(new StringReader(propertyText));
 		String line = null;
+		String defaultValue;
+		
 		try {
 			while ((line = reader.readLine()) != null) {
 				line = line.trim();
@@ -222,6 +228,20 @@ public class TokenPropertiesManagementPanel extends AbeillePanel<CampaignPropert
 					break;
 				}
 				
+				// default value
+				// had to do this here since the short name is not built 
+				// to take advantage of multiple opening/closing parenthesis
+				// in a single property line
+				int indexDefault = line.indexOf(":");
+				if (indexDefault > 0) {
+					String defaultVal = line.substring(indexDefault+1, line.length()).trim();
+					if (defaultVal.length() > 0) {
+						property.setDefaultValue(defaultVal);
+					}
+					
+					//remove the default value from the end of the string...
+					line = line.substring(0, indexDefault);					
+				}		
 				// Suffix
 				int index = line.indexOf("(");
 				if (index > 0) {
@@ -231,7 +251,7 @@ public class TokenPropertiesManagementPanel extends AbeillePanel<CampaignPropert
 					}
 					line = line.substring(0, index).trim();
 				}
-				
+						
 				property.setName(line);
 
 				propertyList.add(property);

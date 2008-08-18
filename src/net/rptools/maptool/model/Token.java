@@ -838,6 +838,18 @@ public class Token extends BaseModel {
 	public Object getEvaluatedProperty(String key) {
 		Object val = getProperty(key);
 		if (val == null) {
+			// Global default ?
+			List<TokenProperty> propertyList = MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(propertyType); 
+			if (propertyList != null) {
+				for (TokenProperty property : propertyList) {
+					if (key.equalsIgnoreCase(property.getName()) || key.equalsIgnoreCase(property.getShortName())) {
+						val = property.getDefaultValue();
+						break;
+					}
+				}
+			}
+		}
+		if (val == null) {
 			return null;
 		}
 		
