@@ -286,17 +286,28 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
      * @param aZone The new zone
      */
     public void setZone(Zone aZone) {
+        
+        // Clean up listeners
         if (aZone == zone) return;
         if (zone != null)
             zone.removeModelChangeListener(this);
         zone = aZone;
         if (zone != null) 
             zone.addModelChangeListener(this);
+        
+        // Older campaigns didn't have a list, make sure this one does
+        InitiativeList list = zone.getInitiativeList();
+        if (list == null) {
+            list = new InitiativeList(zone);
+            zone.setInitiativeList(list);
+        } // endif
+        
+        // Set the list and actions
         setList(zone.getInitiativeList());
         if (!MapTool.getPlayer().isGM()) {
             REMOVE_TOKEN_ACTION.setEnabled(false);
             SORT_LIST_ACTION.setEnabled(false);
-        }
+        } // endif
     }
     
     /*---------------------------------------------------------------------------------------------
