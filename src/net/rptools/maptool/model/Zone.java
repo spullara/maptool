@@ -242,6 +242,7 @@ public class Zone extends BaseModel {
 			}
 		}
 
+        if (zone.initiativeList == null) zone.initiativeList = new InitiativeList(zone);
 		Object[][] saveInitiative = new Object[zone.initiativeList.getSize()][2];
 		initiativeList.setZone(null);
 		if (zone.tokenMap != null) {

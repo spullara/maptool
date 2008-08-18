@@ -72,6 +72,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		addOwnedItem(createSpeechMenu());
 		addOwnedItem(createStateMenu());
         addOwnedItem(createInitiativeMenu());
+        addGMItem(new ChangeInititiveState("initiative.menu.addToInitiative"));
 		addOwnedItem(createFlipMenu());
 		if (getTokenUnderMouse().getCharsheetImage() != null && AppUtil.playerOwns(getTokenUnderMouse())) {
 			add(new ShowHandoutAction());
@@ -581,7 +582,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
             for (GUID id : selectedTokenSet) {
                 Token token = zone.getToken(id);
                 int index = init.indexOf(token);
-                if (name.equals("initiative.menu.add")) {
+                if (name.equals("initiative.menu.add") || name.equals("initiative.menu.addToInitiative")) {
                     if (index == -1) init.insertToken(-1, token);
                 } else if (name.equals("initiative.menu.remove")) {
                     if (index != -1) init.removeToken(index);
