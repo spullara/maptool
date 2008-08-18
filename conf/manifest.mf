@@ -5,9 +5,9 @@ Main-Class: net.rptools.maptool.client.LaunchInstructions
 Class-Path: lib/BareBonesBrowserLaunch.jar lib/abeille-formsrt-2.0.jar
   lib/antlr-2.7.6.jar lib/clientserver-1.0.b14.jar lib/commons-jxpath-
  1.1.jar lib/commons-logging-1.1.jar lib/decktool-1.0.b1.jar lib/dicel
- ib-1.0.b16.jar lib/hessian-3.1.6.jar lib/jide-common-1.9.4_7.jar lib/
+ ib-1.0.b18.jar lib/hessian-3.1.6.jar lib/jide-common-1.9.4_7.jar lib/
  jide-dock-1.9.4_7.jar lib/jide-grids-1.9.4.jar lib/jl1.0.jar lib/js-1
- .6R5.jar lib/maptool.resource-1.0.b16.jar lib/parser-1.0.b15.jar lib/
+ .6R5.jar lib/maptool.resource-1.0.b16.jar lib/parser-1.0.b16.jar lib/
  renderpack-1.2004.jar lib/rplib-1.0.b112.jar lib/sbbi-upnplib-1.0.4.j
  ar lib/servicediscoverylib-1.0.b5.jar lib/swing-worker-0.1.jar lib/ti
  nylaf-1.3.04.jar lib/withay-util.jar lib/xpp3_min-1.1.3.4.O.jar lib/x
