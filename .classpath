@@ -28,7 +28,7 @@
 	<classpathentry kind="lib" path="lib/clientserver-1.0.b14.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/rplib-1.0.b112.jar"/>
-	<classpathentry kind="lib" path="lib/parser-1.0.b16.jar"/>
 	<classpathentry kind="lib" path="lib/dicelib-1.0.b18.jar"/>
+	<classpathentry kind="lib" path="lib/parser-1.0.b17.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
