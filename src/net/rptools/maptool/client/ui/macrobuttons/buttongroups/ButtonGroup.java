@@ -86,7 +86,7 @@ public class ButtonGroup extends AbstractButtonGroup {
 		for (Component c : getComponents()) {
 
 			Dimension cSize = c.getPreferredSize();
-			if (x + cSize.width + layout.getHgap() > size.width - insets.right && x > 0) {
+			if (x + cSize.width + layout.getHgap() + 5 > size.width - insets.right && x > 0) {
 				x = 0;
 				y += rowHeight + layout.getVgap(); 
 				rowHeight = 0;
