@@ -2,10 +2,18 @@ package net.rptools.maptool.client;
 
 import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
+import net.rptools.maptool.client.functions.TokenGMNameFunction;
+import net.rptools.maptool.client.functions.TokenHaloFunction;
+import net.rptools.maptool.client.functions.TokenLabelFunction;
 import net.rptools.maptool.client.functions.LookupTableFunction;
+import net.rptools.maptool.client.functions.TokenNameFunction;
+import net.rptools.maptool.client.functions.StateImageFunction;
+import net.rptools.maptool.client.functions.TokenImage;
+import net.rptools.maptool.client.functions.TokenVisibleFunction;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.VariableResolver;
+import net.rptools.parser.function.Function;
 
 public class MapToolLineParser {
 
@@ -18,6 +26,24 @@ public class MapToolLineParser {
     }
     
     private int parserRecurseDepth;
+    
+    /** MapTool functions to add to the parser.  */
+    private static final Function[] mapToolParserFunctions = {
+    	StateImageFunction.getInstance(),
+    	LookupTableFunction.getInstance(),
+    	TokenImage.getInstance()
+    };
+    
+    /** MapTool functions to add to the parser when a token is in context. */
+    private static final Function[] mapToolContextParserFunctions = {
+    	TokenGMNameFunction.getInstance(),
+    	TokenHaloFunction.getInstance(),
+    	TokenLabelFunction.getInstance(),
+    	TokenNameFunction.getInstance(),
+    	//State.getInstance(),
+    	TokenVisibleFunction.getInstance()
+    };
+
     
     public String parseLine(String line) throws ParserException {
     	return parseLine(null, line);
@@ -119,7 +145,7 @@ public class MapToolLineParser {
     	}
         try {
         	parserRecurseDepth ++;
-        	return  createParser(resolver).evaluate(expression);
+        	return  createParser(resolver, tokenInContext == null ? false : true).evaluate(expression);
         } catch (RuntimeException re) {
         	
         	if (re.getCause() instanceof ParserException) {
@@ -160,9 +186,12 @@ public class MapToolLineParser {
     	
     }    
     
-    private ExpressionParser createParser(VariableResolver resolver) {
+    private ExpressionParser createParser(VariableResolver resolver, boolean hasTokenInContext) {
     	ExpressionParser parser = new ExpressionParser(resolver);
-    	parser.getParser().addFunction(new LookupTableFunction());
+        parser.getParser().addFunctions(mapToolParserFunctions);
+        if (hasTokenInContext) {
+            parser.getParser().addFunctions(mapToolContextParserFunctions);
+        }
     	return parser;
     }
 }

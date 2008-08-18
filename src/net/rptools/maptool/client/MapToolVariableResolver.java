@@ -1,15 +1,18 @@
 package net.rptools.maptool.client;
 
-import java.awt.Color;
 import java.math.BigDecimal;
 
 import javax.swing.JOptionPane;
 
-import net.rptools.common.expression.ExpressionParser;
+import net.rptools.maptool.client.functions.TokenGMNameFunction;
+import net.rptools.maptool.client.functions.TokenHaloFunction;
+import net.rptools.maptool.client.functions.TokenLabelFunction;
+import net.rptools.maptool.client.functions.TokenNameFunction;
+import net.rptools.maptool.client.functions.TokenStateFunction;
+import net.rptools.maptool.client.functions.TokenVisibleFunction;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.parser.MapVariableResolver;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.VariableModifiers;
@@ -19,31 +22,27 @@ public class MapToolVariableResolver extends MapVariableResolver {
     /** The prefix for querying and setting state values . */
     public final static String          STATE_PREFIX  = "state.";
     
-    /** The postfix for setting all states. */
-    public final static String			ALL_STATES = "ALL";
-
     /** The variable name for querying and setting token halos. */
     public final static String          TOKEN_HALO    = "token.halo";
+    
+    /** The variable name for querying and setting token name */
+    private final static String			TOKEN_NAME 	  = "token.name";
+	
+    /** The variable name for querying and setting token the gm name */
+    private final static String			TOKEN_GMNAME  = "token.gm_name";
+
+    /** The variable name for querying and setting token name */
+    private final static String			TOKEN_LABEL   = "token.label";
 
     /** The variable name for querying and setting the initiative of the current token. */
     public final static String          TOKEN_INITIATIVE    = "token.init";
     
-    // TODO: This is a copy of the array in the TokenPopupMenu (which is
-    // apparently temporary)
-    // There should probably one place for halo colors in the future.
-    /** Halo Colors */
-    private static final Object[][]     COLOR_ARRAY   = new Object[][] {
-            { "Black", Color.black, Color.white },
-            { "Green", Color.green, Color.black },
-            { "Yellow", Color.yellow, Color.black },
-            { "Orange", new Color(255, 156, 0), Color.black }, // default
-                                                                // orange is too
-                                                                // light
-            { "Red", Color.red, Color.black }, { "Blue", Color.blue, Color.black },
-            { "Cyan", Color.cyan, Color.black }, { "Dark Gray", Color.darkGray, Color.black },
-            { "Magenta", Color.magenta, Color.black }, { "Pink", Color.pink, Color.black },
-            { "White", Color.white, Color.black }    };
-	
+    /** The variable name for querying and setting token visible state */
+    private final static String			TOKEN_VISIBLE   = "token.visible";
+    
+    
+    
+    
     private Token tokenInContext;
 
     public MapToolVariableResolver(Token tokenInContext) {
@@ -57,6 +56,14 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		return true;
 	}
 
+	/**
+	 * Gets the token in context.
+	 * @return the token in context
+	 */
+	public Token getTokenInContext() {
+		return tokenInContext;
+	}
+	
 	@Override
 	public Object getVariable(String name, VariableModifiers mods) throws ParserException {
 
@@ -65,10 +72,22 @@ public class MapToolVariableResolver extends MapVariableResolver {
 			
 			if (name.startsWith(STATE_PREFIX)) {
                 String stateName = name.substring(STATE_PREFIX.length());
-                
-                if (MapTool.getCampaign().getTokenStatesMap().containsKey(stateName)) {
-                    result =  getBooleanTokenState(tokenInContext, stateName) ? Integer.valueOf(1) : Integer.valueOf(0);
-                }
+                return TokenStateFunction.getInstance().getState(tokenInContext, stateName);
+            } else if (name.equals(TOKEN_HALO)) {
+            	// We don't want this evaluated as the # format is more useful to us then the evaluated format.
+            	return TokenHaloFunction.getInstance().getHalo(tokenInContext).toString();
+            } else if (name.equals(TOKEN_NAME)) {
+            	// Don't evaluate return value.
+            	return TokenNameFunction.getInstance().getName(tokenInContext);
+            } else if (name.equals(TOKEN_GMNAME)) {
+            	// Don't evaluate return value.
+            	return TokenGMNameFunction.getInstance().getGMName(tokenInContext);
+            } else if (name.equals(TOKEN_LABEL)) {
+            	// Don't evaluate return value.
+            	return TokenLabelFunction.getInstance().getLabel(tokenInContext);
+            } else if (name.equals(TOKEN_VISIBLE)) {
+            	// Don't evaluate return value.
+            	return TokenVisibleFunction.getInstance().getVisible(tokenInContext);
             }
 	
 			
@@ -115,75 +134,32 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		if (tokenInContext != null) {
             if (validTokenProperty(varname, tokenInContext)) {
             	tokenInContext.setProperty(varname, value.toString());
+        		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
+                		tokenInContext);
                 return;
             }
         }
+		
         // Check to see if it is a token state.
         if (varname.startsWith(STATE_PREFIX)) {
             String stateName = varname.substring(STATE_PREFIX.length());
-        	if (stateName.equals(ALL_STATES)) {
-       		 setAllBooleanTokenStates(tokenInContext, value);
-       		 // TODO: This works for now but could result in a lot of resending of data
-       		 MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-       		 tokenInContext);
-        	} else if (MapTool.getCampaign().getTokenStatesMap().containsKey(stateName)) {
-                setBooleanTokenState(tokenInContext, stateName, value);
-                // TODO: This works for now but could result in a lot of resending of data
-            }
-        	MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-            		tokenInContext);
+            TokenStateFunction.getInstance().setState(tokenInContext, stateName, value);
             return;
         } else if (varname.equals(TOKEN_HALO)) {
-            if (value instanceof Color) {
-            	tokenInContext.setHaloColor((Color) value);
-                // TODO: This works for now but could result in a lot of resending of data
-                MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-                		tokenInContext);
-            } else if (value instanceof BigDecimal) {
-            	tokenInContext.setHaloColor(new Color(((BigDecimal)value).intValue()));
-            } else {
-           
-                String col = value.toString();
-                if (col.equals("None")) {
-                	tokenInContext.setHaloColor(null);
-                } else if (col.startsWith("#")) {
-                    if (col.length() < 7) {
-                        throw new ParserException("Invalid Halo Color (" + col + ")");
-                    }
-                    try {
-                        Color color = new Color(Integer.parseInt(col.substring(1, 3), 16), Integer.parseInt(col.substring(3, 5), 16), Integer.parseInt(col.substring(5, 7), 16));
-                        tokenInContext.setHaloColor(color);
-                    } catch (NumberFormatException e) {
-                        throw new ParserException("Invalid Halo Color (" + col + ")");
-                    }
-                } else if (col.startsWith("0x")) {
-                	if (col.length() < 8) {
-                        throw new ParserException("Invalid Halo Color (" + col + ")");
-                    }
-                    try {
-                        Color color = new Color(Integer.parseInt(col.substring(2, 4), 16), Integer.parseInt(col
-                                .substring(4, 6), 16), Integer.parseInt(col.substring(6, 8), 16));
-                        tokenInContext.setHaloColor(color);
-                    } catch (NumberFormatException e) {
-                        throw new ParserException("Invalid Halo Color (" + col + ")");
-                    }
-                } else {
-                    // Try to find the halo color in the array
-                    for (Object[] colval : COLOR_ARRAY) {
-                        if (value.equals(colval[0])) {
-                        	tokenInContext.setHaloColor((Color) colval[1]);
-                            // TODO: This works for now but could result in a lot of resending of data
-                            MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
-
-                            return;
-	}
-                    }
-                    throw new ParserException("Invalid Halo Color (" + col + ")");
-                }
-                // TODO: This works for now but could result in a lot of resending of data
-                MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
-                return;
-            }
+        	TokenHaloFunction.getInstance().setHalo(tokenInContext, value);
+        	return;
+        } else if (varname.equals(TOKEN_NAME)) {
+        	TokenNameFunction.getInstance().setName(tokenInContext, value.toString());
+        	return;
+        } else if (varname.equals(TOKEN_GMNAME)) {
+        	TokenGMNameFunction.getInstance().setGMName(tokenInContext, value.toString());
+        	return;
+        } else if (varname.equals(TOKEN_LABEL)) {
+        	TokenLabelFunction.getInstance().setLabel(tokenInContext, value.toString());
+        	return;
+        } else if (varname.endsWith(TOKEN_VISIBLE)) {
+        	TokenVisibleFunction.getInstance().setVisible(tokenInContext, value.toString());
+        	return;
         } else if (varname.equals(TOKEN_INITIATIVE)) {
             Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
             int index = zone.getInitiativeList().indexOf(tokenInContext);
@@ -218,7 +194,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
                 return Integer.parseInt(val.toString()) != 0;
             } catch (NumberFormatException e) {
                 return Boolean.parseBoolean(val.toString());
-}
+            }		
         }
     }
     
