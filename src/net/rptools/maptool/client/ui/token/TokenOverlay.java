@@ -151,6 +151,7 @@ public abstract class TokenOverlay implements Cloneable {
 
   /** @return Getter for opacity */
   public int getOpacity() {
+      if (opacity == 0) opacity = 100;
       return opacity;
   }
 

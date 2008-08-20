@@ -87,6 +87,11 @@ public class InitiativeList implements Serializable {
      */
     private transient int holdUpdate;
     
+    /**
+     * Hide all of the NPC's from the players.
+     */
+    private boolean hideNPC;
+    
     /*---------------------------------------------------------------------------------------------
      * Class Variables
      *-------------------------------------------------------------------------------------------*/
@@ -105,6 +110,11 @@ public class InitiativeList implements Serializable {
      * Name of the current property passed in {@link PropertyChangeEvent}s.
      */
     public static final String CURRENT_PROP = "current";
+    
+    /**
+     * Name of the current property passed in {@link PropertyChangeEvent}s.
+     */
+    public static final String HIDE_NPCS_PROP = "hideNPCs";
     
     /*---------------------------------------------------------------------------------------------
      * Constructor
@@ -185,12 +195,24 @@ public class InitiativeList implements Serializable {
      * Find the index of the passed token.
      * 
      * @param token Search for this token.
-     * @return The token that was found or -1 if the token was not found;
+     * @return A list of the indexes found for the listed token
      */
-    public int indexOf(Token token) {
-        for (int i = 0; i < tokens.size(); i++) {
-            if (tokens.get(i).getToken().equals(token)) return i;
-        } // endfor
+    public List<Integer> indexOf(Token token) {
+        List<Integer> list = new ArrayList<Integer>();
+        for (int i = 0; i < tokens.size(); i++)
+            if (token.equals(tokens.get(i).getToken())) list.add(i);
+        return list;
+    }
+    
+    /**
+     * Find the index of the passed token initiative.
+     * 
+     * @param ti Search for this token initiative instance
+     * @return The index of the token initiative that was found or -1 if the token initiative was not found;
+     */
+    public int indexOf(TokenInitiative ti) {
+        for (int i = 0; i < tokens.size(); i++)
+            if (tokens.get(i).equals(ti)) return i;
         return -1;
     }
     
@@ -325,7 +347,7 @@ public class InitiativeList implements Serializable {
         ListIterator<TokenInitiative> i = tokens.listIterator();
         while (i.hasNext()) {
             TokenInitiative ti = i.next();
-            if (getZone().getToken(ti.getToken().getId()) == null) {
+            if (getZone().getToken(ti.getId()) == null) {
                 int index = tokens.indexOf(ti);
                 if (index <= current) setCurrent(current - 1);
                 i.remove();
@@ -400,13 +422,12 @@ public class InitiativeList implements Serializable {
     /**
      * Move a token from it's current position to the new one.
      * 
-     * @param token Move this token
+     * @param oldIndex Move the token at this index
      * @param index To here.
      */
-    public void moveToken(Token token, int index) {
+    public void moveToken(int oldIndex, int index) {
         
         // Remove the token from its old position
-        int oldIndex = indexOf(token);
         if (oldIndex < 0 || oldIndex == index) return;
         holdUpdate += 1;
         TokenInitiative ti = tokens.remove(oldIndex);
@@ -446,6 +467,20 @@ public class InitiativeList implements Serializable {
         } else {
             zoneId = null;
         } // endif
+    }
+
+    /** @return Getter for hideNPC */
+    public boolean isHideNPC() {
+        return hideNPC;
+    }
+
+    /** @param hide Setter for hideNPC */
+    public void setHideNPC(boolean hide) {
+        if (hide == hideNPC) return;
+        boolean old = hideNPC;
+        hideNPC = hide;
+        getPCS().firePropertyChange(HIDE_NPCS_PROP, old, hide);
+        updateServer();
     }
     
     /*---------------------------------------------------------------------------------------------
@@ -553,5 +588,10 @@ public class InitiativeList implements Serializable {
         public void setDisplayIcon(Icon displayIcon) {
             this.displayIcon = displayIcon;
         }
+    }
+
+    /** @return Getter for tokens */
+    public List<TokenInitiative> getTokens() {
+        return Collections.unmodifiableList(tokens);
     }
 }

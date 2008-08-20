@@ -35,9 +35,7 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.TransferHandler;
 
-import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
-import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 
 /**
@@ -61,14 +59,9 @@ public class InitiativeTransferHandler extends TransferHandler {
      *-------------------------------------------------------------------------------------------*/
     
     /**
-     * Pass GUIDs around when dragging.
-     */
-    public static final DataFlavor GUID_FLAVOR;
-    
-    /**
      * Logger instance for this class.
      */
-    private static final Logger LOGGER = Logger.getLogger(InitiativeTransferHandler.class.getName());
+    static final Logger LOGGER = Logger.getLogger(InitiativeTransferHandler.class.getName());
     
     /*---------------------------------------------------------------------------------------------
      * Constructors
@@ -83,19 +76,6 @@ public class InitiativeTransferHandler extends TransferHandler {
         panel = aPanel;
     }
     
-    /**
-     * Build the flavors and handle exceptions.
-     */
-    static {
-        DataFlavor guid = null;
-        try {
-            guid = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=net.rptools.lib.GUID");
-        } catch (ClassNotFoundException e) {
-            LOGGER.log(Level.WARNING, "Should never happen since the GUID is a valid class when the classpath is correct.");
-        } // endtry
-        GUID_FLAVOR = guid;
-    }
-    
     /*---------------------------------------------------------------------------------------------
      * Overridden TransferHandler methods
      *-------------------------------------------------------------------------------------------*/
@@ -106,7 +86,7 @@ public class InitiativeTransferHandler extends TransferHandler {
     @Override
     public boolean canImport(JComponent comp, DataFlavor[] transferFlavors) {
         for (int i = 0; i < transferFlavors.length; i++)
-           if (GUID_FLAVOR.equals(transferFlavors[i])) return true;
+           if (InitiativeTransferable.INIT_TOKEN_FLAVOR.equals(transferFlavors[i])) return true;
         return false;
     }
     
@@ -116,14 +96,14 @@ public class InitiativeTransferHandler extends TransferHandler {
     @Override
     public boolean importData(JComponent comp, Transferable t) {
         try {
-            if (!t.isDataFlavorSupported(GUID_FLAVOR)) return false;
+            if (!t.isDataFlavorSupported(InitiativeTransferable.INIT_TOKEN_FLAVOR)) return false;
             
             // Get the token and it's current position
             InitiativeList list = panel.getList(); 
-            Token token = list.getZone().getToken((GUID)t.getTransferData(GUID_FLAVOR));
+            InitiativeTransferable data = (InitiativeTransferable)t.getTransferData(InitiativeTransferable.INIT_TOKEN_FLAVOR);
             JList displayList = (JList)comp;
             int newIndex = displayList.getSelectedIndex();
-            list.moveToken(token, newIndex);            
+            list.moveToken(data.getInititiave(), newIndex);            
             return true;
         } catch (UnsupportedFlavorException e) {
             LOGGER.log(Level.WARNING, "Should not happen, I've already checked to make sure it is valid", e);
@@ -149,57 +129,6 @@ public class InitiativeTransferHandler extends TransferHandler {
         JList displayList = (JList)c;
         TokenInitiative ti = (TokenInitiative)displayList.getSelectedValue();
         if (ti == null || ti.getId() == null) return null;
-        return new GUIDTransferable(ti.getId());
-    }
-        
-    /*---------------------------------------------------------------------------------------------
-     * GUIDTransferable Inner Class
-     *-------------------------------------------------------------------------------------------*/
-
-    /**
-     * Transferable for token identifiers.
-     * 
-     * @author Jay
-     */
-    public static class GUIDTransferable implements Transferable {
-
-        /**
-         * Transferred id.
-         */
-        GUID id;
-        
-        /**
-         * Build the transferable.
-         * 
-         * @param anId The id of the token being transferred.
-         */
-        public GUIDTransferable(GUID anId) {
-            id = anId;
-        }
-        
-        /**
-         * @see java.awt.datatransfer.Transferable#getTransferData(java.awt.datatransfer.DataFlavor)
-         */
-        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
-            if (GUID_FLAVOR.equals(flavor)) {
-                return id;
-            }
-            LOGGER.warning("Can't support flavor: " + flavor.getHumanPresentableName());
-            throw new UnsupportedFlavorException(flavor);
-        }
-
-        /**
-         * @see java.awt.datatransfer.Transferable#getTransferDataFlavors()
-         */
-        public DataFlavor[] getTransferDataFlavors() {
-            return new DataFlavor[] {GUID_FLAVOR};
-        }
-
-        /**
-         * @see java.awt.datatransfer.Transferable#isDataFlavorSupported(java.awt.datatransfer.DataFlavor)
-         */
-        public boolean isDataFlavorSupported(DataFlavor flavor) {
-            return GUID_FLAVOR.equals(flavor);
-        }
+        return new InitiativeTransferable(ti.getId(), panel.getList().indexOf(ti));
     }
 }

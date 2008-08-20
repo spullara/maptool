@@ -1124,7 +1124,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					return;
 				}
 			}
-			
+			if (keyToken == null) return;
 			dragStartX = keyToken.getX();
 			dragStartY = keyToken.getY();
 			startTokenDrag(keyToken);

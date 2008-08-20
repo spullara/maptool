@@ -1,6 +1,7 @@
 package net.rptools.maptool.client;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
@@ -88,7 +89,13 @@ public class MapToolVariableResolver extends MapVariableResolver {
             } else if (name.equals(TOKEN_VISIBLE)) {
             	// Don't evaluate return value.
             	return TokenVisibleFunction.getInstance().getVisible(tokenInContext);
-            }
+            } else if (name.equals(TOKEN_INITIATIVE)) {
+                Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+                List<Integer> list = zone.getInitiativeList().indexOf(tokenInContext);
+                if (list.isEmpty()) 
+                    throw new ParserException("The token is not in the initiative list so no value can be set");                
+                return zone.getInitiativeList().getTokenInitiative(list.get(0).intValue()).getState();
+            } // endif
 	
 			
 			if (tokenInContext.getPropertyNames().contains(name)) {
@@ -162,11 +169,13 @@ public class MapToolVariableResolver extends MapVariableResolver {
         	return;
         } else if (varname.equals(TOKEN_INITIATIVE)) {
             Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
-            int index = zone.getInitiativeList().indexOf(tokenInContext);
-            if (index < 0) 
+            List<Integer> list = zone.getInitiativeList().indexOf(tokenInContext);
+            if (list.isEmpty()) 
                 throw new ParserException("The token is not in the initiative list so no value can be set");
             if (value != null && !(value instanceof String)) value = value.toString();
-            zone.getInitiativeList().getTokenInitiative(index).setState((String)value);
+            for (Integer index : list) {
+                zone.getInitiativeList().getTokenInitiative(index).setState((String)value);
+            } // endfor
             
             // TODO: This works for now but could result in a lot of resending of data
             MapTool.serverCommand().putToken(zone.getId(), tokenInContext);

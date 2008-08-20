@@ -125,7 +125,7 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
     /**
      * Border used to show that an item is selected
      */
-    public static final Border NAME_BORDER = BorderFactory.createEmptyBorder(2, 4, 2, 4);
+    public static final Border NAME_BORDER = BorderFactory.createEmptyBorder(2, 4, 3, 4);
     
     /** 
      * The size of the ICON shown in the list renderer 
@@ -160,8 +160,8 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
         name = new NameLabel();
         name.setText("Ty");
         name.setBorder(NAME_BORDER);
-        name.setFont(getFont().deriveFont(Font.BOLD).deriveFont(14.0F));
-        textHeight = name.getPreferredSize().height;
+        name.setFont(getFont().deriveFont(Font.BOLD));
+        textHeight = getFontMetrics(getFont()).getHeight();
         add(name, new CellConstraints(4, 1, CellConstraints.LEFT, CellConstraints.CENTER));
         validate();
     }
@@ -178,26 +178,35 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
         // Set the background by type
         TokenInitiative ti = (TokenInitiative)value;
         Token token = ti.getToken();
+        if (token == null) { // Can happen when deleting a token before all events have propagated
+            currentIndicator.setIcon(null);
+            name.setText(null);
+            name.setIcon(null);
+            setBorder(UNSELECTED_BORDER);
+            return this;
+        } // endif
         backgroundImageLabel = token.isVisible() ? token.getType() == Token.Type.NPC ? GraphicsUtil.BLUE_LABEL : GraphicsUtil.GREY_LABEL : GraphicsUtil.DARK_GREY_LABEL;
         Color foreground = token.isVisible() ? token.getType() == Token.Type.NPC ? Color.white : Color.black : Color.white;
         name.setForeground(foreground);
         
         // Show the indicator?
-        if (index == panel.getModel().getDisplayIndex(panel.getList().getCurrent())) {
+        if (ti == panel.getModel().getCurrentTokenInitiative()) {
             currentIndicator.setIcon(CURRENT_INDICATOR_ICON);
         } else {
             currentIndicator.setIcon(null);
         } // endif
         
         // Get the name string, add the state if displayed, then get the icon if needed
-        String sName = MapTool.getPlayer().isGM() && token.getGMName() != null ? token.getGMName() : token.getName();
+        String sName = ti.getToken().getName();
+        if (MapTool.getPlayer().isGM() && ti.getToken().getGMName() != null)
+            sName += " (" + ti.getToken().getGMName() + ")";
         if (panel.isShowInitState() && ti.getState() != null)
-            sName += " - " + ti.getState();
+            sName += " = " + ti.getState();
         Icon icon = null;
         if (panel.isShowTokens()) {
             icon = ti.getDisplayIcon();
             if (icon == null) {
-                icon = new InitiativeListIcon(token);
+                icon = new InitiativeListIcon(ti);
                 ti.setDisplayIcon(icon);
             } // endif
         } // endif
@@ -241,7 +250,7 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
         @Override
         protected void paintComponent(Graphics g) {
             Dimension s = name.getSize();
-            backgroundImageLabel.renderLabel((Graphics2D)g, 0, (s.height - textHeight) / 2 + NAME_BORDER.getBorderInsets(this).top, s.width, textHeight);
+            backgroundImageLabel.renderLabel((Graphics2D)g, 0, (s.height - textHeight) / 2, s.width, textHeight + 2);
             super.paintComponent(g);
         }
     }
@@ -261,34 +270,56 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
         private Rectangle bounds = new Rectangle(0, 0, ICON_SIZE, ICON_SIZE);
         
         /** The token painted by this icon */
-        private Token token;
+        private TokenInitiative tokenInitiative;
+
+        /** The image that is displayed when states are not being shown. */
+        private Image textTokenImage;
+        
+        /** The image that is displayed when states are being shown. */
+        private Image stateTokenImage;
+        
+        /** Size of the text only token */
+        private int textTokenSize = Math.max(textHeight + 4, 16);
         
         /**
          * Create the image from the token and then build an icon suitable for displaying state.
          * 
-         * @param aToken
+         * @param aTokenInitiative The initiative item being rendered
          */
-        public InitiativeListIcon(Token aToken) {
-            token = aToken;
-            setImage(((ImageIcon)aToken.getIcon(ICON_SIZE, ICON_SIZE)).getImage());
-            Image image = ImageManager.getImageAndWait(AssetManager.getAsset(token.getImageAssetId()));
-            BufferedImage bi = ImageUtil.createCompatibleImage(ICON_SIZE, ICON_SIZE, Transparency.TRANSLUCENT);
+        public InitiativeListIcon(TokenInitiative aTokenInitiative) {
+            tokenInitiative = aTokenInitiative;
+            if (panel.isShowTokenStates()) {
+                stateTokenImage = scaleImage();
+            } else {
+                textTokenImage = scaleImage();
+            } // endif
+        }
+        
+        /**
+         * Scale the token's image to fit in the allotted space for text or state painting.
+         * 
+         * @return The properly scaled image.
+         */
+        public Image scaleImage() {
+            Image image = ImageManager.getImageAndWait(AssetManager.getAsset(tokenInitiative.getToken().getImageAssetId()));
+            BufferedImage bi = ImageUtil.createCompatibleImage(getIconWidth(), getIconHeight(), Transparency.TRANSLUCENT);
             Dimension d = new Dimension(image.getWidth(null), image.getHeight(null));
-            SwingUtil.constrainTo(d, ICON_SIZE, ICON_SIZE);
+            SwingUtil.constrainTo(d, getIconWidth(), getIconHeight());
             Graphics2D g = bi.createGraphics();
-            g.drawImage(image, (ICON_SIZE - d.width) / 2, (ICON_SIZE - d.height) / 2, d.width, d.height, null);
+            g.drawImage(image, (getIconWidth() - d.width) / 2, (getIconHeight() - d.height) / 2, d.width, d.height, null);
             setImage(bi);
+            return bi;
         }
         
         /**
          * @see javax.swing.ImageIcon#getIconHeight()
          */
-        public int getIconHeight() { return ICON_SIZE; }
+        public int getIconHeight() { return panel.isShowTokenStates() ? ICON_SIZE : textTokenSize; }
         
         /**
          * @see javax.swing.ImageIcon#getIconWidth()
          */
-        public int getIconWidth() { return ICON_SIZE; }
+        public int getIconWidth() { return panel.isShowTokenStates() ? ICON_SIZE : textTokenSize; }
         
         /**
          * Paint the icon and then the image.
@@ -298,10 +329,18 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
         public void paintIcon(Component c, java.awt.Graphics g, int x, int y) {
             
             // Paint the icon, is that all that's needed?
+            if (panel.isShowTokenStates() && getImage() != stateTokenImage) {
+                if (stateTokenImage == null) stateTokenImage = scaleImage();
+                setImage(stateTokenImage);
+            } else if (!panel.isShowTokenStates() && getImage() != textTokenImage) {
+                if (textTokenImage == null) textTokenImage = scaleImage();
+                setImage(textTokenImage);
+            } // endif
             super.paintIcon(c, g, x, y);
             if (!panel.isShowTokenStates()) return; 
             
             // Paint all the states
+            Token token = tokenInitiative.getToken();
             g.translate(x, y);
             Shape old = g.getClip();
             g.setClip(bounds.intersection(old.getBounds()));

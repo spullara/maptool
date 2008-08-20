@@ -34,7 +34,9 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -53,9 +55,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.TokenPopupMenu;
 import net.rptools.maptool.client.ui.token.EditTokenDialog;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.InitiativeListModel;
 import net.rptools.maptool.model.ModelChangeEvent;
@@ -127,6 +131,11 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
      * The component that contains the initiative menu.
      */
     private JideSplitButton menuButton;
+
+    /**
+     * The menu item that tells the GM if NPC's are visible.
+     */
+    private JCheckBoxMenuItem hideNPCMenuItem;
     
     /*---------------------------------------------------------------------------------------------
      * Constructor
@@ -139,7 +148,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
         
         // Build the form and add it's component
         setLayout(new BorderLayout());
-        JPanel panel = new JPanel(new FormLayout("8dlu pref 8dlu pref 4dlu fill:30px 0px:grow 8dlu", "4dlu fill:pref 7px fill:0px:grow 4dlu"));
+        JPanel panel = new JPanel(new FormLayout("2px pref 8dlu pref 4dlu fill:30px 0px:grow 2px", "4dlu fill:pref 7px fill:0px:grow 4dlu"));
         add(panel, SwingConstants.CENTER);
         menuButton = new JideSplitButton(I18N.getText("initPanel.menuButton"));
         menuButton.addActionListener(this);
@@ -163,7 +172,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
         displayList.setTransferHandler(new InitiativeTransferHandler(this));
         displayList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         displayList.addListSelectionListener(this);
-        displayList.addMouseListener(new DoubleClickHandler());
+        displayList.addMouseListener(new MouseHandler());
         panel.add(new JScrollPane(displayList), new CellConstraints(2, 4, 6, 1));
         updateView();
     }
@@ -206,6 +215,10 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
         item.setSelected(true);
         menuButton.add(item);
         if (isGM) {
+            I18N.setAction("initPanel.toggleHideNPCs", TOGGLE_HIDE_NPC_ACTION);
+            hideNPCMenuItem = new JCheckBoxMenuItem(TOGGLE_HIDE_NPC_ACTION);
+            hideNPCMenuItem.setSelected(list == null ? false : list.isHideNPC());
+            menuButton.add(hideNPCMenuItem);
             menuButton.addSeparator();
             I18N.setAction("initPanel.addPCs", ADD_PCS_ACTION);
             menuButton.add(new JMenuItem(ADD_PCS_ACTION));
@@ -258,6 +271,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
             round.setText(list.getRound() >= 0 ? Integer.toString(list.getRound()) : "");
         } // endif
         model.setList(list);
+        displayList.setSelectedValue(null, false);
     }
 
     /** @return Getter for showTokens */
@@ -327,9 +341,9 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
         SET_INIT_STATE_VALUE.setEnabled(enabled);
         TOGGLE_HOLD_ACTION.setEnabled(enabled);
         if (MapTool.getPlayer() != null && !MapTool.getPlayer().isGM()) {
-            menuButton.setEnabled(enabled);
+            menuButton.setButtonEnabled(enabled);
         } else {
-            menuButton.setEnabled(true);
+            menuButton.setButtonEnabled(true);
         } // endif
     }
     
@@ -348,11 +362,9 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
             if (list.getCurrent() < 0) return;
             Token t = list.getTokenInitiative(list.getCurrent()).getToken();
             String s = String.format(I18N.getText("initPanel.displayMessage"), t.getName());
-            if (t.isVisible()) {
+            if (t.isVisible() && t.getType() != Type.NPC)
                 MapTool.addMessage(TextMessage.say(null, s));
-            } else {
-                MapTool.addMessage(TextMessage.me(null, s));
-            } // endif
+            displayList.ensureIndexIsVisible(model.getDisplayIndex(list.getCurrent()));
         } // endif
     }
 
@@ -379,9 +391,13 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
      * @see net.rptools.maptool.model.ModelChangeListener#modelChanged(net.rptools.maptool.model.ModelChangeEvent)
      */
     public void modelChanged(ModelChangeEvent event) {
-        if (!event.getEvent().equals(Event.INITIATIVE_LIST_CHANGED)) return;
-        if ((Zone)event.getModel() == zone)
-          setList(((Zone)event.getModel()).getInitiativeList());
+        if (event.getEvent().equals(Event.INITIATIVE_LIST_CHANGED)) {
+          if ((Zone)event.getModel() == zone)
+            setList(((Zone)event.getModel()).getInitiativeList());
+        } else if (event.getEvent().equals(Event.TOKEN_ADDED) || event.getEvent().equals(Event.TOKEN_CHANGED)
+                || event.getEvent().equals(Event.TOKEN_ADDED)) {
+            repaint();
+        }
     }
     
     /*---------------------------------------------------------------------------------------------
@@ -395,7 +411,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
         public void actionPerformed(ActionEvent e) {
             TokenInitiative ti = (TokenInitiative)displayList.getSelectedValue();
             if (ti == null) return;
-            int index = list.indexOf(ti.getToken());
+            int index = list.indexOf(ti);
             list.removeToken(index);
         };
     };
@@ -427,7 +443,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
     public final Action SHOW_TOKEN_STATES_ACTION = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             showTokenStates = ((JCheckBoxMenuItem)e.getSource()).isSelected();
-            displayList.repaint();
+            displayList.setCellRenderer(new InitiativeListCellRenderer(InitiativePanel.this)); // Regenerates the size of each row.
         };
     };
     
@@ -448,8 +464,10 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
         public void actionPerformed(ActionEvent e) {
             TokenInitiative ti = (TokenInitiative)displayList.getSelectedValue();
             if (ti == null) return;
-            String sName = MapTool.getPlayer().isGM() && ti.getToken().getGMName() != null ? ti.getToken().getGMName() : ti.getToken().getName();
-            String input = JOptionPane.showInputDialog(String.format(I18N.getText("initPanel.enterState"), sName));
+            String sName = ti.getToken().getName();
+            if (MapTool.getPlayer().isGM() && ti.getToken().getGMName() != null)
+                sName += " (" + ti.getToken().getGMName() + ")";
+            String input = JOptionPane.showInputDialog(String.format(I18N.getText("initPanel.enterState"), sName), ti.getState());
             if (input == null) return;
             ti.setState(input.trim());
         };
@@ -507,28 +525,41 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
         };
     };
     
+    /**
+     * This action will add all tokens in the zone to this initiative panel.
+     */
+    public final Action TOGGLE_HIDE_NPC_ACTION = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            list.setHideNPC(!list.isHideNPC());
+            if (list.isHideNPC() != hideNPCMenuItem.isSelected()) 
+                hideNPCMenuItem.setSelected(list.isHideNPC());
+        };
+    };
+
     /*---------------------------------------------------------------------------------------------
      * DoubleClickHandler Inner Class
      *-------------------------------------------------------------------------------------------*/
     
     /**
-     * Handle a double click on the list of the table.
+     * Handle a double click and context menu on the list of the table.
      * 
      * @author jgorrell
      * @version $Revision$ $Date$ $Author$
      */
-    private class DoubleClickHandler extends MouseAdapter {
+    private class MouseHandler extends MouseAdapter {
       
       /**
        * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
        */
       public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2) {
+        if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
           SwingUtilities.invokeLater(new Runnable() {
             public void run() { 
                 if (displayList.getSelectedValue() != null) {
+                    Token token = ((TokenInitiative)displayList.getSelectedValue()).getToken();
+                    if (!(MapTool.getPlayer().isGM() || !MapTool.getServerPolicy().useStrictTokenManagement() 
+                            || token.isOwner(MapTool.getPlayer().getName()))) return; 
                     EditTokenDialog tokenPropertiesDialog = MapTool.getFrame().getTokenPropertiesDialog();
-                    Token token = ((TokenInitiative)displayList.getSelectedValue()).getToken(); 
                     tokenPropertiesDialog.showDialog(token);
 
                     if (tokenPropertiesDialog.isTokenSaved()) {
@@ -542,6 +573,11 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
                 } // endif
             }
           });
+        } else if (SwingUtilities.isRightMouseButton(e)) {
+            TokenInitiative ti = (TokenInitiative)displayList.getModel().getElementAt(displayList.locationToIndex(e.getPoint()));
+            if (ti == null) return;
+            Set<GUID> tokens = Collections.singleton(ti.getId());
+            new TokenPopupMenu(tokens, e.getX(), e.getY(), MapTool.getFrame().getCurrentZoneRenderer(), ti.getToken()).showPopup(displayList);
         } // endif
       }
     }

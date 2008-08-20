@@ -301,7 +301,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
         
         // Enable by state if only one token selected.
         if (selectedTokenSet.size() == 1) {
-            int index = MapTool.getFrame().getInitiativePanel().getList().indexOf(getTokenUnderMouse());
+            List<Integer> list = MapTool.getFrame().getInitiativePanel().getList().indexOf(getTokenUnderMouse()); 
+            int index = list.isEmpty() ? -1 : list.get(0);
             if (index >= 0) {
                 if (isGM) initiativeMenu.getMenuComponent(0).setEnabled(false);
                 boolean hold = MapTool.getFrame().getInitiativePanel().getList().getTokenInitiative(index).isHolding();
@@ -581,20 +582,25 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
             } // endif
             for (GUID id : selectedTokenSet) {
                 Token token = zone.getToken(id);
-                int index = init.indexOf(token);
+                Integer[] list = init.indexOf(token).toArray(new Integer[0]);
                 if (name.equals("initiative.menu.add") || name.equals("initiative.menu.addToInitiative")) {
-                    if (index == -1) init.insertToken(-1, token);
-                } else if (name.equals("initiative.menu.remove")) {
-                    if (index != -1) init.removeToken(index);
-                } else if (name.equals("initiative.menu.hold")) {
-                    if (index != -1) init.getTokenInitiative(index).setHolding(true);
-                } else if (name.equals("initiative.menu.resume")) {
-                    if (index != -1) init.getTokenInitiative(index).setHolding(false);
-                } else if (name.equals("initiative.menu.setState")) {
-                    if (index != -1) init.getTokenInitiative(index).setState(input);
-                } else if (name.equals("initiative.menu.clearState")) {
-                    if (index != -1) init.getTokenInitiative(index).setState(null);
-                } // endif
+                    init.insertToken(-1, token);
+                } else {
+                    for (int i = list.length - 1; i >= 0; i--) {
+                        int index = list[i].intValue();
+                        if (name.equals("initiative.menu.remove")) {
+                            if (index != -1) init.removeToken(index);
+                        } else if (name.equals("initiative.menu.hold")) {
+                            if (index != -1) init.getTokenInitiative(index).setHolding(true);
+                        } else if (name.equals("initiative.menu.resume")) {
+                            if (index != -1) init.getTokenInitiative(index).setHolding(false);
+                        } else if (name.equals("initiative.menu.setState")) {
+                            if (index != -1) init.getTokenInitiative(index).setState(input);
+                        } else if (name.equals("initiative.menu.clearState")) {
+                            if (index != -1) init.getTokenInitiative(index).setState(null);
+                        } // endif
+                    } // endif
+                } // endfor
             } // endfor
         }
     }

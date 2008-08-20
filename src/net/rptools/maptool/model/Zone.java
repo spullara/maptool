@@ -242,6 +242,7 @@ public class Zone extends BaseModel {
 			}
 		}
 
+		// Copy the tokens, save a map between old and new for the initiative list.
         if (zone.initiativeList == null) zone.initiativeList = new InitiativeList(zone);
 		Object[][] saveInitiative = new Object[zone.initiativeList.getSize()][2];
 		initiativeList.setZone(null);
@@ -251,13 +252,16 @@ public class Zone extends BaseModel {
 			    Token old = zone.tokenMap.get(i.next());
 			    Token token = new Token(old);
 				this.putToken(token);
-				int index = zone.initiativeList.indexOf(old);
-				if (index >= 0) {
-				    saveInitiative[index][0] = token;
-				    saveInitiative[index][1] = zone.initiativeList.getTokenInitiative(index);
-				}
+				List<Integer> list = zone.initiativeList.indexOf(old); 
+				for (Integer integer : list) {
+				    int index = integer.intValue();
+                    saveInitiative[index][0] = token;
+                    saveInitiative[index][1] = zone.initiativeList.getTokenInitiative(index);
+                }
 			}
 		}
+		
+		// Set the initiative list using the newly create tokens.
 		if (saveInitiative.length > 0) {
 		    for (int i = 0; i < saveInitiative.length; i++) {
                 initiativeList.insertToken(i, (Token)saveInitiative[i][0]);
@@ -270,6 +274,7 @@ public class Zone extends BaseModel {
         initiativeList.setZone(this);
         initiativeList.setCurrent(zone.initiativeList.getCurrent());
         initiativeList.setRound(zone.initiativeList.getRound());
+        initiativeList.setHideNPC(zone.initiativeList.isHideNPC());
 	
         exposedArea = (Area)zone.exposedArea.clone();
         topology = (Area)zone.topology.clone();
