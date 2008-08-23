@@ -24,6 +24,7 @@
  */
 package net.rptools.maptool.client.ui.tokenpanel;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -33,7 +34,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.Transparency;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
@@ -49,6 +52,7 @@ import javax.swing.border.Border;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.ImageLabel;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.model.AssetManager;
@@ -326,7 +330,20 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
          * 
          * @see javax.swing.ImageIcon#paintIcon(java.awt.Component, java.awt.Graphics, int, int)
          */
-        public void paintIcon(Component c, java.awt.Graphics g, int x, int y) {
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+
+            // Paint the halo if needed
+            Token token = tokenInitiative.getToken();
+            if (panel.isShowTokenStates() && token.hasHalo()) {
+                Graphics2D g2d = (Graphics2D)g;
+                Stroke oldStroke = g2d.getStroke();
+                Color oldColor = g.getColor(); 
+                g2d.setStroke( new BasicStroke(AppPreferences.getHaloLineWidth()));
+                g.setColor(token.getHaloColor());
+                g2d.draw(new Rectangle2D.Double(x, y, ICON_SIZE, ICON_SIZE));
+                g2d.setStroke(oldStroke);
+                g.setColor(oldColor);
+            } // endif
             
             // Paint the icon, is that all that's needed?
             if (panel.isShowTokenStates() && getImage() != stateTokenImage) {
@@ -340,7 +357,6 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
             if (!panel.isShowTokenStates()) return; 
             
             // Paint all the states
-            Token token = tokenInitiative.getToken();
             g.translate(x, y);
             Shape old = g.getClip();
             g.setClip(bounds.intersection(old.getBounds()));
@@ -350,7 +366,7 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
                     TokenOverlay overlay =  MapTool.getCampaign().getTokenStatesMap().get(state);
                     if (overlay != null) overlay.paintOverlay((Graphics2D)g, token, bounds);
                 } // endif
-            } // endfor
+            } // endfor            
             g.setClip(old);
             g.translate(-x, -y);
         }

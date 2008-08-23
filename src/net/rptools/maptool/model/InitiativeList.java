@@ -167,8 +167,9 @@ public class InitiativeList implements Serializable {
      * 
      * @param index Insert the token here.
      * @param token Insert this token.
+     * @return The token initiative value that holds the token.
      */
-    public void insertToken(int index, Token token) {
+    public TokenInitiative insertToken(int index, Token token) {
         if (index == -1) index = tokens.size();
         TokenInitiative ti = new TokenInitiative(token);
         tokens.add(index, ti);
@@ -177,6 +178,7 @@ public class InitiativeList implements Serializable {
         getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, null, ti);
         holdUpdate -= 1;
         updateServer();
+        return ti;
     }
     
     /**
@@ -241,6 +243,7 @@ public class InitiativeList implements Serializable {
     /** @param aCurrent Setter for the current to set */
     public void setCurrent(int aCurrent) {
         if (current == aCurrent) return;
+        if (aCurrent < 0 || aCurrent >= tokens.size()) aCurrent = -1; // Don't allow bad values
         int old = current;
         current = aCurrent;
         getPCS().firePropertyChange(CURRENT_PROP, old, current);
@@ -311,6 +314,21 @@ public class InitiativeList implements Serializable {
      */
     public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
         getPCS().removePropertyChangeListener(propertyName, listener);
+    }
+    
+    /**
+     * Start a new unit of work.
+     */
+    public void startUnitOfWork() {
+        holdUpdate += 1;
+    }
+    
+    /**
+     * Finish the current unit of work and update the server.
+     */
+    public void finishUnitOfWork() {
+        holdUpdate -= 1;
+        updateServer();
     }
     
     /**

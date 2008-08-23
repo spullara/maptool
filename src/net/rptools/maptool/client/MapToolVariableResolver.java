@@ -5,8 +5,12 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import net.rptools.maptool.client.functions.CurrentInitiativeFunction;
+import net.rptools.maptool.client.functions.InitiativeRoundFunction;
 import net.rptools.maptool.client.functions.TokenGMNameFunction;
 import net.rptools.maptool.client.functions.TokenHaloFunction;
+import net.rptools.maptool.client.functions.TokenInitFunction;
+import net.rptools.maptool.client.functions.TokenInitHoldFunction;
 import net.rptools.maptool.client.functions.TokenLabelFunction;
 import net.rptools.maptool.client.functions.TokenNameFunction;
 import net.rptools.maptool.client.functions.TokenStateFunction;
@@ -37,6 +41,15 @@ public class MapToolVariableResolver extends MapVariableResolver {
 
     /** The variable name for querying and setting the initiative of the current token. */
     public final static String          TOKEN_INITIATIVE    = "token.init";
+    
+    /** The variable name for querying and setting the initiative of the current token. */
+    public final static String          TOKEN_INITIATIVE_HOLD    = "token.initHold";
+    
+    /** The variable name for querying and setting the current round in initiative. */
+    public final static String          INITIATIVE_ROUND    = "init.round";
+    
+    /** The variable name for querying and setting the current initiative. */
+    public final static String          INITIATIVE_CURRENT    = "init.current";
     
     /** The variable name for querying and setting token visible state */
     private final static String			TOKEN_VISIBLE   = "token.visible";
@@ -90,11 +103,15 @@ public class MapToolVariableResolver extends MapVariableResolver {
             	// Don't evaluate return value.
             	return TokenVisibleFunction.getInstance().getVisible(tokenInContext);
             } else if (name.equals(TOKEN_INITIATIVE)) {
-                Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
-                List<Integer> list = zone.getInitiativeList().indexOf(tokenInContext);
-                if (list.isEmpty()) 
-                    throw new ParserException("The token is not in the initiative list so no value can be set");                
-                return zone.getInitiativeList().getTokenInitiative(list.get(0).intValue()).getState();
+                return TokenInitFunction.getInstance().getTokenValue(tokenInContext);
+            } else if (name.equals(TOKEN_INITIATIVE_HOLD)) {
+                return TokenInitHoldFunction.getInstance().getTokenValue(tokenInContext);
+            } else if (name.equals(INITIATIVE_CURRENT)) {
+                if (MapTool.getPlayer() != null && !MapTool.getPlayer().isGM())
+                    throw new ParserException("Only the gm can get " + INITIATIVE_CURRENT);
+                return CurrentInitiativeFunction.getInstance().getCurrentInitiative();
+            } else if (name.equals(INITIATIVE_ROUND)) {
+                return InitiativeRoundFunction.getInstance().getInitiativeRound();
             } // endif
 	
 			
@@ -168,17 +185,21 @@ public class MapToolVariableResolver extends MapVariableResolver {
         	TokenVisibleFunction.getInstance().setVisible(tokenInContext, value.toString());
         	return;
         } else if (varname.equals(TOKEN_INITIATIVE)) {
-            Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
-            List<Integer> list = zone.getInitiativeList().indexOf(tokenInContext);
-            if (list.isEmpty()) 
-                throw new ParserException("The token is not in the initiative list so no value can be set");
-            if (value != null && !(value instanceof String)) value = value.toString();
-            for (Integer index : list) {
-                zone.getInitiativeList().getTokenInitiative(index).setState((String)value);
-            } // endfor
-            
-            // TODO: This works for now but could result in a lot of resending of data
-            MapTool.serverCommand().putToken(zone.getId(), tokenInContext);
+            TokenInitFunction.getInstance().setTokenValue(tokenInContext, value);
+            return;
+        } else if (varname.equals(TOKEN_INITIATIVE_HOLD)) {
+            TokenInitHoldFunction.getInstance().setTokenValue(tokenInContext, value);
+            return;
+        } else if (varname.equals(INITIATIVE_CURRENT)) {
+            if (MapTool.getPlayer() != null && !MapTool.getPlayer().isGM())
+                throw new ParserException("Only the gm can set " + INITIATIVE_CURRENT);
+            CurrentInitiativeFunction.getInstance().setCurrentInitiative(value);
+            return;
+        } else if (varname.equals(INITIATIVE_ROUND)) {
+            if (MapTool.getPlayer() != null && !MapTool.getPlayer().isGM())
+                throw new ParserException("Only the gm can set " + INITIATIVE_ROUND);
+            InitiativeRoundFunction.getInstance().setInitiativeRound(value);
+            return;
         }
 		super.setVariable(varname, modifiers, value);
 	}

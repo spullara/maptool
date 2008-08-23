@@ -18,7 +18,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 	
 	
 	private TokenVisibleFunction() {
-		super(0, 1, "setVisible", "getVisible");
+		super(0, 2, "setVisible", "getVisible");
 	}
 	
 	

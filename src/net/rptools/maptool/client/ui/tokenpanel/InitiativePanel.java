@@ -40,7 +40,9 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
+import javax.swing.InputMap;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -48,6 +50,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -55,9 +58,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.TokenPopupMenu;
-import net.rptools.maptool.client.ui.token.EditTokenDialog;
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
@@ -67,6 +69,7 @@ import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.maptool.model.Token.Type;
 import net.rptools.maptool.model.Zone.Event;
@@ -174,6 +177,13 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
         displayList.addListSelectionListener(this);
         displayList.addMouseListener(new MouseHandler());
         panel.add(new JScrollPane(displayList), new CellConstraints(2, 4, 6, 1));
+
+        // Set the keyboard mapping
+        InputMap imap = displayList.getInputMap();
+        imap.put(KeyStroke.getKeyStroke("DELETE"), "REMOVE_TOKEN_ACTION");
+
+        ActionMap map = displayList.getActionMap();
+        map.put("REMOVE_TOKEN_ACTION", REMOVE_TOKEN_ACTION);
         updateView();
     }
     
@@ -556,20 +566,13 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
           SwingUtilities.invokeLater(new Runnable() {
             public void run() { 
                 if (displayList.getSelectedValue() != null) {
+                    
+                    // Show the selected token on the map.
                     Token token = ((TokenInitiative)displayList.getSelectedValue()).getToken();
-                    if (!(MapTool.getPlayer().isGM() || !MapTool.getServerPolicy().useStrictTokenManagement() 
-                            || token.isOwner(MapTool.getPlayer().getName()))) return; 
-                    EditTokenDialog tokenPropertiesDialog = MapTool.getFrame().getTokenPropertiesDialog();
-                    tokenPropertiesDialog.showDialog(token);
-
-                    if (tokenPropertiesDialog.isTokenSaved()) {
-                        ZoneRenderer renderer = MapTool.getFrame().getZoneRenderer(zone);
-                        renderer.repaint();
-                        renderer.flush(token);
-                        MapTool.serverCommand().putToken(zone.getId(), token);
-                        renderer.getZone().putToken(token);
-                        MapTool.getFrame().updateImpersonatePanel(token);
-                    } // endif
+                    MapTool.getFrame().getCurrentZoneRenderer().centerOn(new ZonePoint(token.getX(), token.getY()));
+                    MapTool.getFrame().getToolbox().setSelectedTool(PointerTool.class);
+                    MapTool.getFrame().getCurrentZoneRenderer().selectToken(token.getId());
+                    MapTool.getFrame().getCurrentZoneRenderer().requestFocusInWindow();
                 } // endif
             }
           });

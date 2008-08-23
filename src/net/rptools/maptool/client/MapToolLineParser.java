@@ -2,13 +2,22 @@ package net.rptools.maptool.client;
 
 import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
+import net.rptools.maptool.client.functions.AddAllToInitiativeFunction;
+import net.rptools.maptool.client.functions.CurrentInitiativeFunction;
+import net.rptools.maptool.client.functions.InitiativeRoundFunction;
+import net.rptools.maptool.client.functions.MiscInitiativeFunction;
+import net.rptools.maptool.client.functions.RemoveAllFromInitiativeFunction;
+import net.rptools.maptool.client.functions.TokenAddToInitiativeFunction;
 import net.rptools.maptool.client.functions.TokenGMNameFunction;
 import net.rptools.maptool.client.functions.TokenHaloFunction;
+import net.rptools.maptool.client.functions.TokenInitFunction;
+import net.rptools.maptool.client.functions.TokenInitHoldFunction;
 import net.rptools.maptool.client.functions.TokenLabelFunction;
 import net.rptools.maptool.client.functions.LookupTableFunction;
 import net.rptools.maptool.client.functions.TokenNameFunction;
 import net.rptools.maptool.client.functions.StateImageFunction;
 import net.rptools.maptool.client.functions.TokenImage;
+import net.rptools.maptool.client.functions.TokenRemoveFromInitiativeFunction;
 import net.rptools.maptool.client.functions.TokenVisibleFunction;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.ParserException;
@@ -31,7 +40,12 @@ public class MapToolLineParser {
     private static final Function[] mapToolParserFunctions = {
     	StateImageFunction.getInstance(),
     	LookupTableFunction.getInstance(),
-    	TokenImage.getInstance()
+    	TokenImage.getInstance(),
+    	AddAllToInitiativeFunction.getInstance(),
+    	MiscInitiativeFunction.getInstance(),
+    	RemoveAllFromInitiativeFunction.getInstance(),
+    	CurrentInitiativeFunction.getInstance(),
+    	InitiativeRoundFunction.getInstance(),
     };
     
     /** MapTool functions to add to the parser when a token is in context. */
@@ -41,7 +55,11 @@ public class MapToolLineParser {
     	TokenLabelFunction.getInstance(),
     	TokenNameFunction.getInstance(),
     	//State.getInstance(),
-    	TokenVisibleFunction.getInstance()
+    	TokenVisibleFunction.getInstance(),
+    	TokenInitFunction.getInstance(),
+    	TokenInitHoldFunction.getInstance(),
+    	TokenAddToInitiativeFunction.getInstance(),
+    	TokenRemoveFromInitiativeFunction.getInstance(),
     };
 
     
