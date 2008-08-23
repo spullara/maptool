@@ -113,7 +113,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		addOwnedItem(new SaveAction());
 	}
 	
-	private JMenu createMacroMenu() {
+	protected JMenu createMacroMenu() {
 		
 		if (selectedTokenSet.size() != 1 || getTokenUnderMouse().getMacroNames().size() == 0) {
 			return null;
@@ -129,7 +129,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		return menu;
 	}
 	
-	private JMenu createSpeechMenu() {
+	protected JMenu createSpeechMenu() {
 		
 		if (selectedTokenSet.size() != 1 || getTokenUnderMouse().getSpeechNames().size() == 0) {
 			return null;
@@ -197,7 +197,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		
 	}
 
-	private JMenu createHaloMenu() {
+	protected JMenu createHaloMenu() {
         return createColorAreaMenu("token.popup.menu.halo", getTokenUnderMouse().getHaloColor(), SetHaloAction.class, SetColorChooserAction.class);
 	}
     
@@ -250,7 +250,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
         return haloMenu;
     }
     	
-	private JMenu createStateMenu() {
+	protected JMenu createStateMenu() {
 	    
 	    // Create the base menu
 		JMenu stateMenu = I18N.createMenu("defaultTool.stateMenu");

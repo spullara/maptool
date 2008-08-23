@@ -59,7 +59,6 @@ import javax.swing.event.ListSelectionListener;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.tool.PointerTool;
-import net.rptools.maptool.client.ui.TokenPopupMenu;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
@@ -579,8 +578,10 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, A
         } else if (SwingUtilities.isRightMouseButton(e)) {
             TokenInitiative ti = (TokenInitiative)displayList.getModel().getElementAt(displayList.locationToIndex(e.getPoint()));
             if (ti == null) return;
+            displayList.setSelectedIndex(list.indexOf(ti));
             Set<GUID> tokens = Collections.singleton(ti.getId());
-            new TokenPopupMenu(tokens, e.getX(), e.getY(), MapTool.getFrame().getCurrentZoneRenderer(), ti.getToken()).showPopup(displayList);
+            Set<TokenInitiative> tis = Collections.singleton(ti);
+            new InitiativeTokenPopupMenu(tokens, tis, e.getX(), e.getY(), MapTool.getFrame().getCurrentZoneRenderer(), ti.getToken(), ti).showPopup(displayList);
         } // endif
       }
     }
