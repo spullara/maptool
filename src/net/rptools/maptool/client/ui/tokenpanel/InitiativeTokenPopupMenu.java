@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import net.rptools.maptool.client.MapTool;
@@ -75,6 +76,7 @@ public class InitiativeTokenPopupMenu extends TokenPopupMenu {
         tokenInitiativeUnderMouse = tokenInitUnderMouse;
 
         // Build the menu
+        InitiativePanel ip = MapTool.getFrame().getInitiativePanel();
         I18N.setAction("initPanel.toggleHold", TOGGLE_HOLD_ACTION);
         addOwnedItem(TOGGLE_HOLD_ACTION);
         I18N.setAction("initPanel.setInitState", SET_INIT_STATE_VALUE);
@@ -82,8 +84,11 @@ public class InitiativeTokenPopupMenu extends TokenPopupMenu {
         I18N.setAction("initPanel.clearInitState", CLEAR_INIT_STATE_VALUE);
         addOwnedItem(CLEAR_INIT_STATE_VALUE);
         I18N.setAction("initPanel.remove", REMOVE_TOKEN_ACTION);
-        addGMItem(REMOVE_TOKEN_ACTION);
-        if (MapTool.getPlayer().isGM()) addSeparator();
+        if (ip.hasGMPermission() || ip.isOwnerPermissions()) {
+            add(new JMenuItem(REMOVE_TOKEN_ACTION));
+            REMOVE_TOKEN_ACTION.setEnabled(ip.hasOwnerPermission(tokenUnderMouse));
+        } // endif
+        if (ip.hasGMPermission()) addSeparator();
         I18N.setAction("initPanel.moveUp", MOVE_UP_ACTION);
         addGMItem(MOVE_UP_ACTION);
         I18N.setAction("initPanel.moveDown", MOVE_DOWN_ACTION);
@@ -153,10 +158,13 @@ public class InitiativeTokenPopupMenu extends TokenPopupMenu {
     public final Action REMOVE_TOKEN_ACTION = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             InitiativeList list = getRenderer().getZone().getInitiativeList();
+            InitiativePanel ip = MapTool.getFrame().getInitiativePanel();
             for (TokenInitiative ti : selectedTokenInitiatives) {
-              int index = list.indexOf(ti);
-              list.removeToken(index);
-            } // endif
+                if (ip.hasOwnerPermission(ti.getToken())) {
+                  int index = list.indexOf(ti);
+                  list.removeToken(index);
+                } // endif
+            } // endfor
         };
     };
     

@@ -32,7 +32,7 @@ public class CurrentInitiativeFunction extends AbstractFunction {
 	 */
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
-        if (MapTool.getPlayer() != null && !MapTool.getPlayer().isGM())
+        if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
             throw new ParserException("Only the GM can get or set the current initiative.");
 	    if (functionName.equals("getCurrentInitiative")) {
 	        return getCurrentInitiative();

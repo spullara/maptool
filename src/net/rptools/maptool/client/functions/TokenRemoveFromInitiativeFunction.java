@@ -33,12 +33,17 @@ public class TokenRemoveFromInitiativeFunction extends AbstractFunction {
 	 */
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
-        if (MapTool.getPlayer() != null && !MapTool.getPlayer().isGM())
-            throw new ParserException("Only the GM can remove a token.");
 	    InitiativeList list = MapTool.getFrame().getCurrentZoneRenderer().getZone().getInitiativeList();
 	    Token token = AbstractTokenAccessorFunction.getTarget(parser, args, 1);
+        if (!MapTool.getFrame().getInitiativePanel().hasOwnerPermission(token)) {
+            String message = "Only the GM can call removeFromInitiative function.";
+            if (MapTool.getFrame().getInitiativePanel().isOwnerPermissions()) message = "Only the GM or Owner can call removeFromInitiative.";
+            throw new ParserException(message);
+        } // endif
 	    List<Integer> tokens = list.indexOf(token);
+	    list.startUnitOfWork();
 	    for (int i = tokens.size() - 1; i >= 0; i--) list.removeToken(tokens.get(i).intValue());
+	    list.finishUnitOfWork();
 	    return new BigDecimal(tokens.size());
 	}
 }

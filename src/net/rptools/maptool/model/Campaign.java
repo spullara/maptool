@@ -335,4 +335,13 @@ public class Campaign {
 		return assetSet;
 	}
 	
+    /** @return Getter for initiativeOwnerPermissions */
+    public boolean isInitiativeOwnerPermissions() {
+        return campaignProperties.isInitiativeOwnerPermissions();
+    }
+
+    /** @param initiativeOwnerPermissions Setter for initiativeOwnerPermissions */
+    public void setInitiativeOwnerPermissions(boolean initiativeOwnerPermissions) {
+        campaignProperties.setInitiativeOwnerPermissions(initiativeOwnerPermissions);
+    }
 }

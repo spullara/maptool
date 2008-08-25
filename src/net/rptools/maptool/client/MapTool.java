@@ -474,7 +474,7 @@ public class MapTool {
             
             eventDispatcher.fireEvent(ZoneEvent.Added, campaign, null, zone);
         }
-
+        clientFrame.getInitiativePanel().setOwnerPermissions(campaign.isInitiativeOwnerPermissions());
 		clientFrame.setCurrentZoneRenderer(currRenderer);
     	
     	AssetManager.updateRepositoryList();

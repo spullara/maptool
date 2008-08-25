@@ -218,8 +218,8 @@ public class ServerCommandClientImpl implements ServerCommand {
     	makeServerCall(COMMAND.setServerPolicy, policy);
     }
     
-    public void updateInitiative(InitiativeList list) {
-        makeServerCall(COMMAND.updateInitiative, list);
+    public void updateInitiative(InitiativeList list, Boolean ownerPermission) {
+        makeServerCall(COMMAND.updateInitiative, list, ownerPermission);
     }
     
 	private static void makeServerCall(ServerCommand.COMMAND command, Object... params) {

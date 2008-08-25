@@ -37,7 +37,7 @@ public class InitiativeRoundFunction extends AbstractFunction {
 	    } else {
 	        if (args.size() != 1)
 	            throw new ParserException("Must call setInitiativeRound with one parameter");
-	        if (MapTool.getPlayer() == null || MapTool.getPlayer().isGM()) {
+	        if (MapTool.getFrame().getInitiativePanel().hasGMPermission()) {
 	            setInitiativeRound(args.get(0));
 	            return args.get(0);
 	        } else {

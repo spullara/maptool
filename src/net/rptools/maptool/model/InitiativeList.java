@@ -112,9 +112,14 @@ public class InitiativeList implements Serializable {
     public static final String CURRENT_PROP = "current";
     
     /**
-     * Name of the current property passed in {@link PropertyChangeEvent}s.
+     * Name of the hide NPCs property passed in {@link PropertyChangeEvent}s.
      */
     public static final String HIDE_NPCS_PROP = "hideNPCs";
+    
+    /**
+     * Name of the owner permission property passed in {@link PropertyChangeEvent}s.
+     */
+    public static final String OWNER_PERMISSIONS_PROP = "ownerPermissions";
     
     /*---------------------------------------------------------------------------------------------
      * Constructor
@@ -474,7 +479,7 @@ public class InitiativeList implements Serializable {
      */
     public void updateServer() {
         if (holdUpdate > 0 || zoneId == null) return;
-        MapTool.serverCommand().updateInitiative(this);
+        MapTool.serverCommand().updateInitiative(this, null);
     }
 
     /** @param aZone Setter for the zone */
@@ -500,7 +505,12 @@ public class InitiativeList implements Serializable {
         getPCS().firePropertyChange(HIDE_NPCS_PROP, old, hide);
         updateServer();
     }
-    
+
+    /** @return Getter for tokens */
+    public List<TokenInitiative> getTokens() {
+        return Collections.unmodifiableList(tokens);
+    }
+
     /*---------------------------------------------------------------------------------------------
      * TokenInitiative Inner Class
      *-------------------------------------------------------------------------------------------*/
@@ -606,10 +616,5 @@ public class InitiativeList implements Serializable {
         public void setDisplayIcon(Icon displayIcon) {
             this.displayIcon = displayIcon;
         }
-    }
-
-    /** @return Getter for tokens */
-    public List<TokenInitiative> getTokens() {
-        return Collections.unmodifiableList(tokens);
     }
 }

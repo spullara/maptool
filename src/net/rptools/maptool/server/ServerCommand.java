@@ -130,5 +130,5 @@ public interface ServerCommand {
     public void renameZone(GUID zoneGUID, String name);
     public void heartbeat(String data);
     public void updateCampaign(CampaignProperties properties);
-    public void updateInitiative(InitiativeList list);
+    public void updateInitiative(InitiativeList list, Boolean ownerPermission);
 }

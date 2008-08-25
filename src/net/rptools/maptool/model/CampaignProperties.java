@@ -40,6 +40,9 @@ public class CampaignProperties implements Serializable {
     
     private Map<String, TokenOverlay> tokenStates;
     
+    /** Flag indicating that owners have special permissions  */
+    private boolean initiativeOwnerPermissions;
+        
     public CampaignProperties() {
     	init();
     }
@@ -81,6 +84,7 @@ public class CampaignProperties implements Serializable {
             overlay = (TokenOverlay)overlay.clone();
             tokenStates.put(overlay.getName(), overlay);
         } // endfor
+		initiativeOwnerPermissions = properties.initiativeOwnerPermissions;
     }
     
     public void mergeInto(CampaignProperties properties) {
@@ -298,5 +302,15 @@ public class CampaignProperties implements Serializable {
                 set.add(((ImageTokenOverlay)overlay).getAssetId());
         } // endfor
         return set;
+    }
+
+    /** @return Getter for initiativeOwnerPermissions */
+    public boolean isInitiativeOwnerPermissions() {
+        return initiativeOwnerPermissions;
+    }
+
+    /** @param initiativeOwnerPermissions Setter for initiativeOwnerPermissions */
+    public void setInitiativeOwnerPermissions(boolean initiativeOwnerPermissions) {
+        this.initiativeOwnerPermissions = initiativeOwnerPermissions;
     }
 }

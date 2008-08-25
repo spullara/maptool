@@ -72,7 +72,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		addOwnedItem(createSpeechMenu());
 		addOwnedItem(createStateMenu());
         addOwnedItem(createInitiativeMenu());
-        addGMItem(new ChangeInititiveState("initiative.menu.addToInitiative"));
+        if (MapTool.getFrame().getInitiativePanel().hasOwnerPermission(tokenUnderMouse))
+            add(new ChangeInititiveState("initiative.menu.addToInitiative"));
 		addOwnedItem(createFlipMenu());
 		if (getTokenUnderMouse().getCharsheetImage() != null && AppUtil.playerOwns(getTokenUnderMouse())) {
 			add(new ShowHandoutAction());
@@ -287,8 +288,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	
 	private JMenu createInitiativeMenu() {
 	    JMenu initiativeMenu = I18N.createMenu("initiative.menu");
-        boolean isGM = MapTool.getPlayer().isGM();
-        if (isGM) {
+        boolean isOwner = MapTool.getFrame().getInitiativePanel().hasOwnerPermission(getTokenUnderMouse());
+        if (isOwner) {
             initiativeMenu.add(new ChangeInititiveState("initiative.menu.add"));
             initiativeMenu.add(new ChangeInititiveState("initiative.menu.remove"));
             initiativeMenu.addSeparator();
@@ -302,19 +303,19 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
         // Enable by state if only one token selected.
         if (selectedTokenSet.size() == 1) {
             List<Integer> list = MapTool.getFrame().getInitiativePanel().getList().indexOf(getTokenUnderMouse()); 
-            int index = list.isEmpty() ? -1 : list.get(0);
+            int index = list.isEmpty() ? -1 : list.get(0).intValue();
             if (index >= 0) {
-                if (isGM) initiativeMenu.getMenuComponent(0).setEnabled(false);
+                if (isOwner) initiativeMenu.getMenuComponent(0).setEnabled(false);
                 boolean hold = MapTool.getFrame().getInitiativePanel().getList().getTokenInitiative(index).isHolding();
                 if (hold) {
-                    initiativeMenu.getMenuComponent(isGM ? 4 : 1).setEnabled(false);
+                    initiativeMenu.getMenuComponent(isOwner ? 4 : 1).setEnabled(false);
                 } else {
-                    initiativeMenu.getMenuComponent(isGM ? 3 : 0).setEnabled(false);
+                    initiativeMenu.getMenuComponent(isOwner ? 3 : 0).setEnabled(false);
                 }
             } else {
-                if (isGM) initiativeMenu.getMenuComponent(1).setEnabled(false);
-                initiativeMenu.getMenuComponent(isGM ? 4 : 3).setEnabled(false);
-                initiativeMenu.getMenuComponent(isGM ? 3 : 0).setEnabled(false);
+                if (isOwner) initiativeMenu.getMenuComponent(1).setEnabled(false);
+                initiativeMenu.getMenuComponent(isOwner ? 4 : 3).setEnabled(false);
+                initiativeMenu.getMenuComponent(isOwner ? 3 : 0).setEnabled(false);
             } // endif
         } // endif
 	    return initiativeMenu;

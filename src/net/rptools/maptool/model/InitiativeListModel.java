@@ -64,7 +64,7 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
      */
     public TokenInitiative getCurrentTokenInitiative() {
         if (list.getCurrent() < 0) return null;
-        if (MapTool.getPlayer() == null || MapTool.getPlayer().isGM())
+        if (MapTool.getFrame().getInitiativePanel().hasGMPermission())
           return list.getTokenInitiative(list.getCurrent());
         TokenInitiative visible = null;
         for (int i = 0; i <= list.getCurrent(); i++) {
@@ -81,7 +81,7 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
      * @return The index in the display model or -1 if the item is not displayed.
      */
     public int getDisplayIndex(int index) {
-        if (index < 0 || MapTool.getPlayer() == null || MapTool.getPlayer().isGM())
+        if (index < 0 || MapTool.getFrame().getInitiativePanel().hasGMPermission())
             return index;
         if (!isTokenVisible(list.getToken(index), list.isHideNPC())) return -1;
         int found = -1;
@@ -132,7 +132,7 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
      * @return The value <code>true</code> if this token is shown to the user.
      */
     public boolean isTokenVisible(Token token, boolean hideNPC) {
-        if (MapTool.getPlayer() == null || MapTool.getPlayer().isGM()) return true;
+        if (MapTool.getFrame().getInitiativePanel().hasGMPermission()) return true;
         if (!token.isVisible()) return false;
         if (hideNPC && token.getType() == Type.NPC) return false;
         return true;
@@ -160,22 +160,27 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
         } else if (evt.getPropertyName().equals(InitiativeList.TOKENS_PROP)) {
             if (evt instanceof IndexedPropertyChangeEvent) {
                 int index = ((IndexedPropertyChangeEvent)evt).getIndex();
-                int displayIndex = getDisplayIndex(index);
                 if (evt.getOldValue() == null && evt.getNewValue() instanceof TokenInitiative) {
 
                     // Inserted a token
-                    if (isTokenVisible(list.getToken(index), list.isHideNPC()))
+                    if (isTokenVisible(list.getToken(index), list.isHideNPC())) {
+                        int displayIndex = getDisplayIndex(index);
                         fireIntervalAdded(InitiativeListModel.this, displayIndex, displayIndex);
+                    } // endif
                 } else if (evt.getNewValue() == null & evt.getOldValue() instanceof TokenInitiative) {
 
                     // Removed a token
-                    if (isTokenVisible(((TokenInitiative)evt.getOldValue()).getToken(), list.isHideNPC()))
-                        fireIntervalRemoved(InitiativeListModel.this, displayIndex, displayIndex);
+                    if (isTokenVisible(((TokenInitiative)evt.getOldValue()).getToken(), list.isHideNPC())) {
+                        fireIntervalRemoved(InitiativeListModel.this, list.getSize(), list.getSize());
+                        fireContentsChanged(InitiativeListModel.this, 0, list.getSize() - 1);
+                    }
                 } else {
 
                     // Update a token
-                    if (isTokenVisible(list.getToken(index), list.isHideNPC()))
+                    if (isTokenVisible(list.getToken(index), list.isHideNPC())) {
+                        int displayIndex = getDisplayIndex(index);
                         fireContentsChanged(InitiativeListModel.this, displayIndex, displayIndex);
+                    }
                 } // endif
             } else if (evt.getPropertyName().equals(InitiativeList.HIDE_NPCS_PROP)) {
                 
@@ -216,7 +221,7 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
     private int getSize(List<TokenInitiative> tokens, boolean hideNPC) {
         if (tokens == null || tokens.isEmpty()) return 0;
         int size = 0;
-        if (MapTool.getPlayer() == null || MapTool.getPlayer().isGM()) {
+        if (MapTool.getFrame().getInitiativePanel().hasGMPermission()) {
             size = tokens.size();
         } else {
             for (TokenInitiative ti : tokens)
@@ -235,7 +240,7 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
      * @see javax.swing.ListModel#getElementAt(int)
      */
     public Object getElementAt(int index) {
-        if (MapTool.getPlayer() == null || MapTool.getPlayer().isGM())
+        if (MapTool.getFrame().getInitiativePanel().hasGMPermission())
             return list.getTokenInitiative(index);
         int found = index;
         for (int i = 0; i < list.getSize(); i++) {
@@ -254,7 +259,7 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
      * @see javax.swing.ListModel#getSize()
      */
     public int getSize() {
-        if (MapTool.getPlayer() == null || MapTool.getPlayer().isGM())
+        if (MapTool.getFrame() == null || MapTool.getFrame().getInitiativePanel().hasGMPermission())
           return list.getSize();
         int size = 0;
         for (int i = 0; i < list.getSize(); i++) {

@@ -194,7 +194,8 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
         name.setForeground(foreground);
         
         // Show the indicator?
-        if (ti == panel.getModel().getCurrentTokenInitiative()) {
+        int currentIndex = panel.getList().getCurrent();
+        if (currentIndex >= 0 && ti == panel.getList().getTokenInitiative(currentIndex)) {
             currentIndicator.setIcon(CURRENT_INDICATOR_ICON);
         } else {
             currentIndicator.setIcon(null);
@@ -202,8 +203,8 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
         
         // Get the name string, add the state if displayed, then get the icon if needed
         String sName = ti.getToken().getName();
-        if (MapTool.getPlayer().isGM() && ti.getToken().getGMName() != null)
-            sName += " (" + ti.getToken().getGMName() + ")";
+        if (MapTool.getFrame().getInitiativePanel().hasGMPermission() && token.getGMName() != null)
+            sName += " (" + token.getGMName() + ")";
         if (panel.isShowInitState() && ti.getState() != null)
             sName += " = " + ti.getState();
         Icon icon = null;

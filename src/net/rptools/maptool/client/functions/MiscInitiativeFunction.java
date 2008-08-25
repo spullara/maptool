@@ -33,12 +33,18 @@ public class MiscInitiativeFunction extends AbstractFunction {
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
         InitiativeList list = MapTool.getFrame().getCurrentZoneRenderer().getZone().getInitiativeList();
-        if (MapTool.getPlayer() != null && !MapTool.getPlayer().isGM())
-            throw new ParserException("Only the GM can " + functionName + ".");
         if (functionName.equals("nextInitiative")) {
+            if (!MapTool.getFrame().getInitiativePanel().hasOwnerPermission(list.getTokenInitiative(list.getCurrent()).getToken())) {
+                String message = "Only the GM can perform nextInitiative.";
+                if (MapTool.getFrame().getInitiativePanel().isOwnerPermissions()) message = "Only the GM or owner can perform nextInitiative.";
+                throw new ParserException(message);
+            } // endif
             list.nextInitiative();
             return new BigDecimal(list.getCurrent());
-        } else if (functionName.equals("sortInitiative")) {
+        } 
+        if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
+            throw new ParserException("Only the GM can call the " + functionName + " function.");
+        if (functionName.equals("sortInitiative")) {
             list.sort();
             return new BigDecimal(list.getSize());
         } else if (functionName.equals("initiativeSize")) {

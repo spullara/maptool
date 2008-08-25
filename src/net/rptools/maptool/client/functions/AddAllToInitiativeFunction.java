@@ -35,6 +35,8 @@ public class AddAllToInitiativeFunction extends AbstractFunction {
 	 */
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
+	    if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
+	        throw new ParserException("Only the GM has the permission to execute the " + functionName + " function.");
 
 	    // Check for duplicates flag
         InitiativeList list = MapTool.getFrame().getCurrentZoneRenderer().getZone().getInitiativeList();

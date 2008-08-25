@@ -115,7 +115,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case heartbeat:				  heartbeat(context.getString(0));break;
             case updateCampaign:		  updateCampaign((CampaignProperties) context.get(0));break;
             case movePointer: 			  movePointer(context.getString(0), context.getInt(1), context.getInt(2));break;
-            case updateInitiative:        updateInitiative((InitiativeList)context.get(0));
+            case updateInitiative:        updateInitiative((InitiativeList)context.get(0), (Boolean)context.get(1));
             }
         } finally {
             RPCContext.setCurrent(null);
@@ -274,10 +274,14 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     	forwardToAllClients();
     }
     
-    public void updateInitiative(InitiativeList list) {
-        if (list.getZone() == null) return;
-        Zone zone = server.getCampaign().getZone(list.getZone().getId());
-        zone.setInitiativeList(list);
+    public void updateInitiative(InitiativeList list, Boolean ownerPermission) {
+        if (list != null) {
+            if (list.getZone() == null) return;
+            Zone zone = server.getCampaign().getZone(list.getZone().getId());
+            zone.setInitiativeList(list);
+        } else if (ownerPermission != null) {
+            MapTool.getFrame().getInitiativePanel().setOwnerPermissions(ownerPermission.booleanValue());
+        }
         forwardToAllClients();
     }
     

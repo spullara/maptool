@@ -431,6 +431,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 	
                 	AssetManager.updateRepositoryList();
                 	
+                	MapTool.getFrame().getInitiativePanel().setOwnerPermissions(properties.isInitiativeOwnerPermissions());
                 	break;
                 case movePointer:
                 	String player = (String)parameters[0];
@@ -446,9 +447,14 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 	
                 case updateInitiative:
                     InitiativeList list = (InitiativeList)parameters[0];
-                    zone = list.getZone();
-                    if (zone == null) return;
-                    zone.setInitiativeList(list);
+                    Boolean ownerPermission = (Boolean)parameters[1];
+                    if (list != null) {
+                        zone = list.getZone();
+                        if (zone == null) return;
+                        zone.setInitiativeList(list);
+                    } if (ownerPermission != null) {
+                        MapTool.getFrame().getInitiativePanel().setOwnerPermissions(ownerPermission.booleanValue());
+                    }
                     break;
                 }
         	}

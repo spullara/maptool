@@ -106,12 +106,6 @@ public class MapToolVariableResolver extends MapVariableResolver {
                 return TokenInitFunction.getInstance().getTokenValue(tokenInContext);
             } else if (name.equals(TOKEN_INITIATIVE_HOLD)) {
                 return TokenInitHoldFunction.getInstance().getTokenValue(tokenInContext);
-            } else if (name.equals(INITIATIVE_CURRENT)) {
-                if (MapTool.getPlayer() != null && !MapTool.getPlayer().isGM())
-                    throw new ParserException("Only the gm can get " + INITIATIVE_CURRENT);
-                return CurrentInitiativeFunction.getInstance().getCurrentInitiative();
-            } else if (name.equals(INITIATIVE_ROUND)) {
-                return InitiativeRoundFunction.getInstance().getInitiativeRound();
             } // endif
 	
 			
@@ -119,8 +113,16 @@ public class MapToolVariableResolver extends MapVariableResolver {
 				
 				result = tokenInContext.getEvaluatedProperty(name);
 			}
+		} else {
+		    if (name.equals(INITIATIVE_CURRENT)) {
+		        if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
+		            throw new ParserException("Only the gm can get " + INITIATIVE_CURRENT);
+		        return CurrentInitiativeFunction.getInstance().getCurrentInitiative();
+		    } else if (name.equals(INITIATIVE_ROUND)) {
+		        return InitiativeRoundFunction.getInstance().getInitiativeRound();
+		    } // endif
 		}
-		
+		 
 		// Default
 		if (result == null) {
 			result = super.getVariable(name, mods);
@@ -191,12 +193,12 @@ public class MapToolVariableResolver extends MapVariableResolver {
             TokenInitHoldFunction.getInstance().setTokenValue(tokenInContext, value);
             return;
         } else if (varname.equals(INITIATIVE_CURRENT)) {
-            if (MapTool.getPlayer() != null && !MapTool.getPlayer().isGM())
+            if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
                 throw new ParserException("Only the gm can set " + INITIATIVE_CURRENT);
             CurrentInitiativeFunction.getInstance().setCurrentInitiative(value);
             return;
         } else if (varname.equals(INITIATIVE_ROUND)) {
-            if (MapTool.getPlayer() != null && !MapTool.getPlayer().isGM())
+            if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
                 throw new ParserException("Only the gm can set " + INITIATIVE_ROUND);
             InitiativeRoundFunction.getInstance().setInitiativeRound(value);
             return;
