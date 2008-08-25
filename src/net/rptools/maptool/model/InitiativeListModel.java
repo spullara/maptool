@@ -89,12 +89,19 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
             if (isTokenVisible(list.getToken(i), list.isHideNPC())) found += 1;
         return found;
     }
-        
+    
+    /**
+     * Called when the underlying tokens have been changed.
+     */
+    public void updateModel() {
+        fireContentsChanged(this, 0, getSize() - 1);
+    }
+    
     /** @return Getter for list */
     public InitiativeList getList() {
         return list;
     }
-
+    
     /** @param theList Setter for the list to set */
     public void setList(InitiativeList theList) {
         
@@ -154,8 +161,10 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
             int oldIndex = getDisplayIndex(((Integer)evt.getOldValue()).intValue());
             int newIndex = getDisplayIndex(((Integer)evt.getNewValue()).intValue());
             if (oldIndex != newIndex) {
-                fireContentsChanged(InitiativeListModel.this, oldIndex, oldIndex);
-                fireContentsChanged(InitiativeListModel.this, newIndex, newIndex);
+                if (oldIndex != -1)
+                    fireContentsChanged(InitiativeListModel.this, oldIndex, oldIndex);
+                if (newIndex != -1) 
+                    fireContentsChanged(InitiativeListModel.this, newIndex, newIndex);
             } // endif
         } else if (evt.getPropertyName().equals(InitiativeList.TOKENS_PROP)) {
             if (evt instanceof IndexedPropertyChangeEvent) {

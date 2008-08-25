@@ -312,7 +312,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         } // endif
         model.setList(list);
         if (menuButton != null && menuButton.getAction() == NEXT_ACTION)
-            menuButton.setButtonEnabled(list.getCurrent() >= 0 && hasOwnerPermission(list.getToken(list.getCurrent())));
+            menuButton.setButtonEnabled(hasGMPermission() || list.getCurrent() >= 0 && hasOwnerPermission(list.getToken(list.getCurrent())));
         if (list.getCurrent() >= 0) {
             int index = model.getDisplayIndex(list.getCurrent());
             if (index >= 0) 
@@ -481,7 +481,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
           }
         } else if (event.getEvent().equals(Event.TOKEN_ADDED) || event.getEvent().equals(Event.TOKEN_CHANGED)
                 || event.getEvent().equals(Event.TOKEN_REMOVED)) {
-            repaint();
+            model.updateModel();
         }
     }
     
