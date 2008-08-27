@@ -13,6 +13,7 @@ import java.io.IOException;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ToolTipManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.BadLocationException;
@@ -65,6 +66,7 @@ public class MessagePanel extends JPanel {
 				}
 			}
 		});
+		ToolTipManager.sharedInstance().registerComponent(textPane);
 		
 		document = (HTMLDocument) textPane.getDocument();
 		
@@ -126,9 +128,11 @@ public class MessagePanel extends JPanel {
 			public void run() {
 				
 				String text = "<div>"+message.getMessage()+"</div>";
-				text = text.replaceAll("\\[roll\\s*([^\\]]*)]", "&#171;<span class='roll' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
-				text = text.replaceAll("\\{cmd\\s*([^\\}]*)}", "&#171;<span class='cmd' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
-				
+				// We use ASCII control characters to mark off the rolls so that there's no limitation on what (printable) characters the output can include
+				text = text.replaceAll("\036(.*?)\037(.*?)\036", "<span class='roll' title='&#171; $1 &#187;'>$2</span>");
+				text = text.replaceAll("\036(.*?)\036", "&#171;<span class='roll' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
+//				text = text.replaceAll("\\{cmd\\s*([^\\}]*)}", "&#171;<span class='cmd' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
+
 				// Auto inline expansion
 				text = text.replaceAll("(^|\\s)(http://[a-zA-Z0-9_\\.%-/~?]+)", "$1<a href=\"$2\">$2</a>");
 				Element element = document.getElement("body");

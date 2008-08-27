@@ -44,8 +44,12 @@ public class MessagePanelEditorKit extends HTMLEditorKit {
 				HTML.Tag kind = (HTML.Tag) o;
 				if (kind == HTML.Tag.IMG) {
 				    return new MessagePanelImageView(elem, imageCache);
-				}		
+				}
+				if (kind == HTML.Tag.CONTENT) {
+					return new TooltipView(elem);
+				}
 		    }
+
 			return super.create(elem);
 		}
 	}

@@ -1,5 +1,8 @@
 package net.rptools.maptool.client;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
 import net.rptools.maptool.client.functions.AddAllToInitiativeFunction;
@@ -28,10 +31,11 @@ public class MapToolLineParser {
 
     private static final int PARSER_MAX_RECURSE = 50;
 
-    private enum State {
-    	TEXT,
-    	ROLL,
-    	COMMAND
+    private enum Output {
+    	NONE,
+    	PLAIN,
+    	TOOLTIP,
+    	EXPANDED,
     }
     
     private int parserRecurseDepth;
@@ -66,6 +70,10 @@ public class MapToolLineParser {
     public String parseLine(String line) throws ParserException {
     	return parseLine(null, line);
     }
+
+    private static final Pattern roll_pattern = Pattern.compile("\\[\\s*(?:((?:[^\\]:(]|\\((?:[^)\"]|\"[^\"]*\")+\\))*):\\s*)?((?:[^\\]\"]|\"[^\"]*\")*?)\\s*]|\\{\\s*((?:[^}\"]|\"[^\"]*\")*?)\\s*}");
+	private static final Pattern opt_pattern = Pattern.compile("(\\w+(?:\\((?:[^)\"]|\"[^\"]*\")+\\))?)\\s*,\\s*");
+
     public String parseLine(Token tokenInContext, String line) throws ParserException {
 
     	if (line == null) {
@@ -80,71 +88,116 @@ public class MapToolLineParser {
     	// Keep the same context for this line
     	MapToolVariableResolver resolver = new MapToolVariableResolver(tokenInContext);
 
-    	State state = State.TEXT;
     	StringBuilder builder = new StringBuilder();
-    	StringBuilder expressionBuilder = new StringBuilder();
-    	for (int index = 0; index < line.length(); index++) {
+    	Matcher matcher = roll_pattern.matcher(line);
+    	int start;
+    	
+    	for (start = 0; matcher.find(start); start = matcher.end()) {
+    		builder.append(line.substring(start, matcher.start())); // add everything before the roll
+    		Output output = Output.TOOLTIP;
+    		int count = 1; // used for C option
+    		String separator = ", ", text = null; // used for C and T options, respectively
     		
-    		char ch = line.charAt(index);
-    		switch (state) {
-    		case TEXT:
-    			if (ch == '[') {
-    				state = State.ROLL;
-    				expressionBuilder.setLength(0);
-    				break;
-    			}
-    			if (ch == '{') {
-    				state = State.COMMAND;
-    				expressionBuilder.setLength(0);
-    				break;
-    			}
-    			builder.append(ch);
-    			break;
-    		case ROLL:
-    			if (ch == ']') {
-    				try {
-	    				String roll = expressionBuilder.toString();
-	
-	    				// Preprocessed roll already ?
-	    	   			if (roll.startsWith("roll")) {
-	    	   				continue;
-	    	   			}
-
-	    	   			builder.append("[roll "+ roll + " = " + expandRoll(resolver, tokenInContext, roll)+"]" );
-
-    				} finally {
-        	   			state = State.TEXT;
+    		if (matcher.group().startsWith("[")) {
+    			String opts = matcher.group(1);
+    			String roll = matcher.group(2);
+    			if (opts != null) {
+    				Matcher opt_matcher = opt_pattern.matcher(opts + ",");
+    				int region_end = opt_matcher.regionEnd();
+    				for ( ; opt_matcher.lookingAt(); opt_matcher.region(opt_matcher.end(), region_end)) {
+    					String opt = opt_matcher.group(1);
+						if (opt.equalsIgnoreCase("h") || opt.equalsIgnoreCase("hide") || opt.equalsIgnoreCase("hidden"))
+							output = Output.NONE;
+						else if (opt.equalsIgnoreCase("p") || opt.equalsIgnoreCase("plain"))
+							output = Output.PLAIN;
+						else if (opt.equalsIgnoreCase("e") || opt.equalsIgnoreCase("expanded"))
+							output = Output.EXPANDED;
+						else if (opt.startsWith("t") || opt.startsWith("T")) {
+							Matcher m = Pattern.compile("t(?:ooltip)?(?:\\(((?:[^)\"]|\".*?\")+?)\\))?", Pattern.CASE_INSENSITIVE).matcher(opt);
+							if (m.matches()) {
+								output = Output.TOOLTIP;
+								
+								text = m.group(1);
+								if (text != null)
+									text = parseExpression(resolver, tokenInContext, text).getValue().toString();
+							} else {
+								throw new ParserException("Invalid option: " + opt);
+							}
+						} else if (opt.startsWith("c") || opt.startsWith("C")) {
+							Matcher m = Pattern.compile("c(?:ount)?\\(((?:[^)\"]|\"[^\"]*\")+?)\\)", Pattern.CASE_INSENSITIVE).matcher(opt);
+							if (m.matches()) {
+								String args[] = m.group(1).split(",", 2);
+								Result result = parseExpression(resolver, tokenInContext, args[0]);
+								try {
+									count = ((Number)result.getValue()).intValue();
+									if (count < 1)
+										throw new ParserException("Invalid count: " + String.valueOf(count));
+								} catch (ClassCastException e) {
+									throw new ParserException("Invalid count: " + result.getValue().toString());
+								}
+								
+								if (args.length > 1) {
+									result = parseExpression(resolver, tokenInContext, args[1]);
+									separator = result.getValue().toString();
+								}
+							} else {
+								throw new ParserException("Invalid option: " + opt);
+							}
+						} else {
+							throw new ParserException("Invalid option: " + opt);
+						}
+	    			}
+    				
+    				if (!opt_matcher.hitEnd()) {
+    					throw new ParserException("Invalid option: " + opts.substring(opt_matcher.regionStart()));
     				}
-
-    				break;
     			}
-    			
-    			expressionBuilder.append(ch);
-    			break;
-    		case COMMAND: 
-    			if (ch == '}') {
-    				try {
-	    				String cmd = expressionBuilder.toString();
-	    				
-	    	   			// Preprocessed roll already ?
-	    	   			if (cmd.startsWith("cmd")) {
-	    	   				continue;
-	    	   			}
-	    	   			Result result = parseExpression(resolver, tokenInContext, cmd);
-	    	   			builder.append(result != null ? result.getValue().toString() : "");
 
-    				} finally {
-	    	   			state = State.TEXT;
-    				}
-    	   			break;
+    	    	StringBuilder expressionBuilder = new StringBuilder();
+    			for (int i = 0; i < count; i++) {
+    				if (i != 0)
+    					expressionBuilder.append(separator);
+    				
+    				resolver.setVariable("roll.count", i + 1);
+        			Result result;
+	    			switch (output) {
+	    			case NONE:
+	    				parseExpression(resolver, tokenInContext, roll);
+	    				break;
+	    			case PLAIN:
+	        			result = parseExpression(resolver, tokenInContext, roll);
+	        			expressionBuilder.append(result != null ? result.getValue().toString() : "");
+	    				break;
+	    			case TOOLTIP:
+	        			String tooltip = roll + " = ";
+	        			String output_text = null;
+	        			if (text == null) {
+		        			result = parseExpression(resolver, tokenInContext, roll);
+		        			if (result != null) {
+		        				tooltip += result.getDetailExpression();
+		        				output_text = result.getValue().toString();
+		        			}
+	        			} else {
+	        				tooltip += expandRoll(resolver, tokenInContext, roll);
+	        				output_text = text;
+	        			}
+	        			expressionBuilder.append(output_text != null ? "\036" + tooltip + "\037" + output_text + "\036" : "");
+	    				break;
+	    			case EXPANDED:
+	    				expressionBuilder.append("\036" + roll + " = " + expandRoll(resolver, tokenInContext, roll) + "\36" );
+	    				break;
+	    			}
     			}
-    			
-    			expressionBuilder.append(ch);
-    			break;
+    			builder.append(expressionBuilder);
+    		} else if (matcher.group().startsWith("{")) {
+    			String roll = matcher.group(3);
+    			Result result = parseExpression(resolver, tokenInContext, roll);
+    			builder.append(result != null ? result.getValue().toString() : "");
     		}
-    			
     	}
-
+    	
+    	builder.append(line.substring(start));
+    	
    		return builder.toString();
     }
     

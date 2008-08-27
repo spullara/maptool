@@ -288,7 +288,10 @@ public class CommandPanel extends JPanel implements Observer {
 		return commandTextArea;
 	}
 
-    private static final Pattern CHEATER_PATTERN = Pattern.compile("(?:�|�|&#171;|&#187;|&laquo;|&raquo;)|\\[roll");
+	/* FIXME: this is insufficient for stopping faked rolls; the user can still
+	 * do something like &{"laquo;"}.
+	 */
+    private static final Pattern CHEATER_PATTERN = Pattern.compile("«|»|&#171;|&#187;|&laquo;|&raquo;|\036|\037");
 	/**
 	 * Execute the command in the command field.
 	 */
@@ -315,6 +318,7 @@ public class CommandPanel extends JPanel implements Observer {
     	}
 
     	// Make sure they aren't trying to break out of the div
+    	// FIXME: as above, </{"div"}> can be used to get around this
     	int divCount = StringUtil.countOccurances(text, "<div");
     	int closeDivCount = StringUtil.countOccurances(text, "</div>");
     	while (closeDivCount < divCount) {
