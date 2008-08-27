@@ -39,7 +39,7 @@ public class SelfMacro extends AbstractMacro {
 	public void execute(MacroContext context, String macro) {
 		macro = processText(macro);
         StringBuilder sb = new StringBuilder();
-        sb.append("<i>").append(macro).append(":</i>");
+        sb.append("<i>").append(macro).append("</i>");
         MapTool.addMessage(TextMessage.me(context.getTransformationHistory(), sb.toString()));
     }
 }
