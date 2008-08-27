@@ -21,6 +21,7 @@ import net.rptools.maptool.client.functions.TokenNameFunction;
 import net.rptools.maptool.client.functions.StateImageFunction;
 import net.rptools.maptool.client.functions.TokenImage;
 import net.rptools.maptool.client.functions.TokenRemoveFromInitiativeFunction;
+import net.rptools.maptool.client.functions.TokenStateFunction;
 import net.rptools.maptool.client.functions.TokenVisibleFunction;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.ParserException;
@@ -58,7 +59,7 @@ public class MapToolLineParser {
     	TokenHaloFunction.getInstance(),
     	TokenLabelFunction.getInstance(),
     	TokenNameFunction.getInstance(),
-    	//State.getInstance(),
+    	TokenStateFunction.getInstance(),
     	TokenVisibleFunction.getInstance(),
     	TokenInitFunction.getInstance(),
     	TokenInitHoldFunction.getInstance(),
