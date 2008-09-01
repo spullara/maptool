@@ -129,8 +129,8 @@ public class InitiativeTokenPopupMenu extends TokenPopupMenu {
             if (selectedTokenInitiatives.size() == 1) {
                 TokenInitiative ti = selectedTokenInitiatives.iterator().next();
                 String sName = ti.getToken().getName();
-                if (MapTool.getPlayer().isGM() && ti.getToken().getGMName() != null)
-                    sName += " (" + ti.getToken().getGMName() + ")";
+                if (MapTool.getPlayer().isGM() && ti.getToken().getGMName() != null && ti.getToken().getGMName().trim().length() != 0)
+                    sName += " (" + ti.getToken().getGMName().trim() + ")";
                 message = String.format(I18N.getText("initPanel.enterState"), sName);
                 defaultValue = ti.getState();
             } // endif

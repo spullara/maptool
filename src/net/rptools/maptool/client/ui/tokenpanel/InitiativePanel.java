@@ -559,8 +559,8 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
             TokenInitiative ti = (TokenInitiative)displayList.getSelectedValue();
             if (ti == null) return;
             String sName = ti.getToken().getName();
-            if (hasGMPermission())
-                sName += " (" + ti.getToken().getGMName() + ")";
+            if (hasGMPermission() && ti.getToken() != null && ti.getToken().getGMName().trim().length() != 0)
+                sName += " (" + ti.getToken().getGMName().trim() + ")";
             String input = JOptionPane.showInputDialog(String.format(I18N.getText("initPanel.enterState"), sName), ti.getState());
             if (input == null) return;
             ti.setState(input.trim());
@@ -668,6 +668,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
                     Token token = ((TokenInitiative)displayList.getSelectedValue()).getToken();
                     MapTool.getFrame().getCurrentZoneRenderer().centerOn(new ZonePoint(token.getX(), token.getY()));
                     MapTool.getFrame().getToolbox().setSelectedTool(PointerTool.class);
+                    MapTool.getFrame().getCurrentZoneRenderer().clearSelectedTokens();
                     MapTool.getFrame().getCurrentZoneRenderer().selectToken(token.getId());
                     MapTool.getFrame().getCurrentZoneRenderer().requestFocusInWindow();
                 } // endif

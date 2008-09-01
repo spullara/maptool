@@ -190,7 +190,7 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
             return this;
         } // endif
         backgroundImageLabel = token.isVisible() ? token.getType() == Token.Type.NPC ? GraphicsUtil.BLUE_LABEL : GraphicsUtil.GREY_LABEL : GraphicsUtil.DARK_GREY_LABEL;
-        Color foreground = token.isVisible() ? token.getType() == Token.Type.NPC ? Color.white : Color.black : Color.white;
+        Color foreground = token.isVisible() ? token.getType() == Token.Type.NPC ? Color.BLACK : Color.BLACK : Color.WHITE;
         name.setForeground(foreground);
         
         // Show the indicator?
@@ -203,8 +203,8 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
         
         // Get the name string, add the state if displayed, then get the icon if needed
         String sName = ti.getToken().getName();
-        if (MapTool.getFrame().getInitiativePanel().hasGMPermission() && token.getGMName() != null)
-            sName += " (" + token.getGMName() + ")";
+        if (MapTool.getFrame().getInitiativePanel().hasGMPermission() && token.getGMName() != null && token.getGMName().trim().length() != 0)
+            sName += " (" + token.getGMName().trim() + ")";
         if (panel.isShowInitState() && ti.getState() != null)
             sName += " = " + ti.getState();
         Icon icon = null;

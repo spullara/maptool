@@ -98,7 +98,7 @@ public class TokenInitFunction extends AbstractTokenAccessorFunction {
         Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
         List<Integer> list = zone.getInitiativeList().indexOf(token);
         if (list.isEmpty()) 
-            throw new ParserException("The token is not in the initiative list so no value can be set");
+            throw new ParserException("The token is not in the initiative list.");
         List<TokenInitiative> ret = new ArrayList<TokenInitiative>(list.size());
         for (Integer index : list)
             ret.add(zone.getInitiativeList().getTokenInitiative(index.intValue()));

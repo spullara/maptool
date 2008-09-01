@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.tokenpanel.InitiativePanel;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -33,16 +34,17 @@ public class MiscInitiativeFunction extends AbstractFunction {
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
         InitiativeList list = MapTool.getFrame().getCurrentZoneRenderer().getZone().getInitiativeList();
+        InitiativePanel ip = MapTool.getFrame().getInitiativePanel();
         if (functionName.equals("nextInitiative")) {
-            if (!MapTool.getFrame().getInitiativePanel().hasOwnerPermission(list.getTokenInitiative(list.getCurrent()).getToken())) {
+            if (!ip.hasGMPermission() && (list.getCurrent() <= 0 || !ip.hasOwnerPermission(list.getTokenInitiative(list.getCurrent()).getToken()))) {
                 String message = "Only the GM can perform nextInitiative.";
-                if (MapTool.getFrame().getInitiativePanel().isOwnerPermissions()) message = "Only the GM or owner can perform nextInitiative.";
+                if (ip.isOwnerPermissions()) message = "Only the GM or owner can perform nextInitiative.";
                 throw new ParserException(message);
             } // endif
             list.nextInitiative();
             return new BigDecimal(list.getCurrent());
         } 
-        if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
+        if (!ip.hasGMPermission())
             throw new ParserException("Only the GM can call the " + functionName + " function.");
         if (functionName.equals("sortInitiative")) {
             list.sort();
