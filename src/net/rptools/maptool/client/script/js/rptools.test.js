@@ -38,7 +38,26 @@ rptools.test = {
 	
 	parserFunctionFixedArguments: function(a, b) {
 		return a + b;
+	},
+	
+	parserFunctionGetVariable: function(vname) {
+		return rptools.scope.parser.getVariable(vname);
+	},
+	
+	parserFunctionSetVariable: function(vname) {
+		var total = 10;
+		
+		rptools.scope.parser.setVariable(vname, total);
+		
+		return total;
+	},
+	
+	parserEvaluate: function() {
+		var value = rptools.scope.parser.evaluate("10+2");
+		
+		return value;
 	}
+	
 };
 
 })(); // End local scope

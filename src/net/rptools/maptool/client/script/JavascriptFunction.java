@@ -9,6 +9,7 @@ import java.util.Map;
 import org.mozilla.javascript.Context;
 
 import net.rptools.common.expression.RunData;
+import net.rptools.maptool.client.script.api.proxy.ParserProxy;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
@@ -37,10 +38,10 @@ public class JavascriptFunction extends AbstractFunction {
 
         Map<String, Object> globals = new HashMap<String, Object>();
         
-        globals.put("parser", parser);
+        globals.put("parser", new ParserProxy(parser));
         globals.put("functionName", functionName);
-        globals.put("rundata", RunData.getCurrent());
-        globals.put("result", RunData.getCurrent().getResult());
+        globals.put("rundata", null /*RunData.getCurrent() */);
+        globals.put("result", null /*RunData.getCurrent().getResult() */);
         
         StringBuilder sb = new StringBuilder();
         
@@ -68,8 +69,10 @@ public class JavascriptFunction extends AbstractFunction {
         try {
             Object result = ScriptManager.evaluate(globals, sb.toString());
             
-            if (result instanceof Number)
-                return new BigDecimal(((Double) result).doubleValue());
+            if (result instanceof BigDecimal)
+                return result;
+            else if (result instanceof Number)
+                return new BigDecimal(((Number) result).doubleValue());
             
             return result;
         } catch (IOException ex) {

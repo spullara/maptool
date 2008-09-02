@@ -24,7 +24,7 @@ public class SecurityClassShutter implements ClassShutter {
         }
 
         // Maptool JavaScript macro api classes.
-        if (cname.startsWith("net.rptools.maptool.client.macro.api")) {
+        if (cname.startsWith("net.rptools.maptool.client.script.api")) {
             return true;
         }
 

@@ -44,13 +44,14 @@ public class ScriptManager {
         }
 
     }
-    
+
     public static Object evaluate(Map<String, Object> globals, String script) throws IOException {
         init();
 
         try {
             Context jsContext = ContextFactory.getGlobal().enterContext();
-//            jsContext.setClassShutter(new SecurityClassShutter());
+            jsContext.setClassShutter(new SecurityClassShutter());
+            jsContext.setWrapFactory(new PrimitiveWrapFactory());
 
             Scriptable instanceScope = jsContext.newObject(jsScope);
             instanceScope.setPrototype(jsScope);
@@ -71,10 +72,10 @@ public class ScriptManager {
             Context.exit();
         }
     }
-    
-//    public Object evaluate(Script script) throws IOException {
-//        return this.evaluate(Collections.emptyMap(), script);
-//    }
+
+    // public Object evaluate(Script script) throws IOException {
+    // return this.evaluate(Collections.emptyMap(), script);
+    // }
 
     private static class MapToolContextFactory extends ContextFactory {
         @Override
@@ -101,4 +102,19 @@ public class ScriptManager {
         }
 
     }
+
+    private static class PrimitiveWrapFactory extends WrapFactory {
+        
+        @Override
+        public Object wrap(Context cx, Scriptable scope, Object obj, Class staticType) {
+            if (obj instanceof String || obj instanceof Number || obj instanceof Boolean) {
+                return obj;
+            } else if (obj instanceof Character) {
+                char[] a = { ((Character) obj).charValue() };
+                return new String(a);
+            }
+            return super.wrap(cx, scope, obj, staticType);
+        }
+    }
+
 }
