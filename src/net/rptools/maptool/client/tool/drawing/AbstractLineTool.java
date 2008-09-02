@@ -151,7 +151,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
                 ScreenPoint sp = ScreenPoint.fromZonePoint(renderer, start.x, start.y);
                 ScreenPoint ep = ScreenPoint.fromZonePoint(renderer, end.x, end.y);
 
-                ep.y -= 15;
+                //ep.y -= 15;
                 
             	ToolHelper.drawMeasurement(renderer, g, sp, ep);
             }

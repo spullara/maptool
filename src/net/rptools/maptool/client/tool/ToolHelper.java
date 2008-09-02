@@ -76,20 +76,16 @@ public class ToolHelper {
 			ScreenPoint startPoint, ScreenPoint endPoint) {
     if (!MapTool.getFrame().isPaintDrawingMeasurement()) return;
 
-//		int left = Math.min(startPoint.x, endPoint.x);
-//		int top = Math.min(startPoint.y, endPoint.y);
-//		int right = Math.max(startPoint.x, endPoint.x);
-//		int bottom = Math.max(startPoint.y, endPoint.y);
-
-//		int centerX = left + (right - left) / 2;
-//		int centerY = bottom + (top - bottom) / 2;
-
 		boolean dirLeft = startPoint.x > endPoint.x;
+		boolean dirUp = startPoint.y < endPoint.y;
 		
 		String displayString = String.format("%1.1f", euclideanDistance(
 				renderer, startPoint, endPoint));
 
-		GraphicsUtil.drawBoxedString(g, displayString, (int)endPoint.x + (dirLeft ? -10 : 10), (int)endPoint.y, dirLeft ? SwingUtilities.LEFT : SwingUtilities.RIGHT);
+		GraphicsUtil.drawBoxedString(g, displayString, 
+									(int)endPoint.x + (dirLeft ? -15 : 10),
+									(int)endPoint.y + (dirUp ? 15 : -15), 
+									dirLeft ? SwingUtilities.LEFT : SwingUtilities.RIGHT);
 	}
 
   /**
