@@ -81,9 +81,11 @@ public class MacroButtonDialog extends JDialog {
 		getColorComboBox().setSelectedItem(button.getColor());
 		getHotKeyCombo().setSelectedItem(button.getHotKey());
 		getLabelTextField().setText(button.getMacroLabel());
+		getSortbyTextField().setText(button.getSortby());
 		getCommandTextArea().setText(button.getCommand());
 		getAutoExecuteCheckBox().setSelected(button.getAutoExecute());
 		getIncludeLabelCheckBox().setSelected(button.getIncludeLabel());
+		getApplyToTokensCheckBox().setSelected(button.getApplyToTokens());
 		
 		setVisible(true);
 	}
@@ -94,10 +96,12 @@ public class MacroButtonDialog extends JDialog {
 		button.getHotKeyManager().assignKeyStroke(hotKey);
 		button.setColor(getColorComboBox().getSelectedItem().toString());
 		button.setMacroLabel(getLabelTextField().getText());
+		button.setSortby(getSortbyTextField().getText());
 		button.setText(this.button.getButtonText());
 		button.setCommand(getCommandTextArea().getText());
 		button.setAutoExecute(getAutoExecuteCheckBox().isSelected());
 		button.setIncludeLabel(getIncludeLabelCheckBox().isSelected());
+		button.setApplyToTokens(getApplyToTokensCheckBox().isSelected());
 		
 		setVisible(false);
 	}
@@ -114,6 +118,10 @@ public class MacroButtonDialog extends JDialog {
 		return  panel.getCheckBox("includeLabelCheckBox");
 	}
 	
+	private JCheckBox getApplyToTokensCheckBox() {
+		return  panel.getCheckBox("applyToTokensCheckBox");
+	}
+	
 	private JComboBox getHotKeyCombo() {
 		return panel.getComboBox("hotKey");
 	}
@@ -124,6 +132,10 @@ public class MacroButtonDialog extends JDialog {
 	
 	private JTextField getLabelTextField() {
 		return panel.getTextField("label");
+	}
+	
+	private JTextField getSortbyTextField() {
+		return panel.getTextField("sortby");
 	}
 	
 	private JTextArea getCommandTextArea() {

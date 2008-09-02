@@ -82,11 +82,25 @@ public abstract class AbstractMacroButton extends JButton implements MouseListen
 		return properties.getIncludeLabel();
 	}
 
+	public void setApplyToTokens (boolean applyToTokens) {
+		properties.setApplyToTokens(applyToTokens);
+	}
+	public boolean getApplyToTokens() {
+		return properties.getApplyToTokens();
+	}
+
 	public String getMacroLabel() {
 		return properties.getLabel();
 	}
 	public void setMacroLabel(String label) {
 		properties.setLabel(label);
+	}
+
+	public String getSortby() {
+		return properties.getSortby();
+	}
+	public void setSortby(String sortby) {
+		properties.setSortby(sortby);
 	}
 
 	public String getCommand() {
@@ -209,8 +223,10 @@ public abstract class AbstractMacroButton extends JButton implements MouseListen
 		setHotKey(MacroButtonHotKeyManager.HOTKEYS[0]);
 		setCommand("");
 		setMacroLabel(String.valueOf(properties.getIndex()));
+		setSortby("");
 		setAutoExecute(true);
 		setIncludeLabel(false);
+		setApplyToTokens(false);
 		setText(getButtonText());
 	}
 }

@@ -1,6 +1,7 @@
 package net.rptools.maptool.client.ui.macrobuttons.panels;
 
 import java.awt.FlowLayout;
+import java.util.Collections;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
@@ -17,6 +18,7 @@ public class CampaignPanel extends ScrollableFlowPanel{
 
 	private void init() {
 		List<MacroButtonProperties> properties = MapTool.getCampaign().getMacroButtonPropertiesArray();
+		Collections.sort(properties);
 
 		for (MacroButtonProperties prop : properties) {
 			add(new CampaignMacroButton(prop));
@@ -42,9 +44,11 @@ public class CampaignPanel extends ScrollableFlowPanel{
 															   MacroButtonHotKeyManager.HOTKEYS[0],
 															   properties.getCommand(),
 															   properties.getLabel(),
+															   properties.getSortby(),
 															   properties.getAutoExecute(),
-															   properties.getIncludeLabel());
-		MapTool.getCampaign().addMacroButtonProperty(properties);
+															   properties.getIncludeLabel(),
+															   properties.getApplyToTokens());
+		MapTool.getCampaign().addMacroButtonProperty(prop); //fixed bug where duplicated campaign buttons weren't saved properly; it was re-adding the original instead of the new one.
 		add(new CampaignMacroButton(prop));
 		doLayout();
 		revalidate();

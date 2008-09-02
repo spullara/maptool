@@ -25,9 +25,11 @@ public class MacroButtonPrefs {
 
 	private static final String PREF_COLOR_KEY = "color";
 	private static final String PREF_LABEL_KEY = "label";
+	private static final String PREF_SORTBY_KEY = "sortby";
 	private static final String PREF_COMMAND_KEY = "command";
 	private static final String PREF_AUTO_EXECUTE = "autoExecute";
 	private static final String PREF_INCLUDE_LABEL = "includeLabel";
+	private static final String PREF_APPLYTOTOKENS_LABEL = "applyToTokens";
 	private static final String PREF_HOTKEY_KEY = "hotKey";
 
 	private static final String FORMAT_STRING = "%010d";
@@ -64,27 +66,33 @@ public class MacroButtonPrefs {
 
 		String colorKey = prefs.get(PREF_COLOR_KEY, "");
 		String label = prefs.get(PREF_LABEL_KEY, Integer.toString(index));
+		String sortby = prefs.get(PREF_SORTBY_KEY, "");
 		String command = prefs.get(PREF_COMMAND_KEY, "");
 		boolean autoExecute = prefs.getBoolean(PREF_AUTO_EXECUTE, true);
 		boolean includeLabel = prefs.getBoolean(PREF_INCLUDE_LABEL, false);
+		boolean applyToTokens = prefs.getBoolean(PREF_APPLYTOTOKENS_LABEL, false);
 		String hotKey = prefs.get(PREF_HOTKEY_KEY, MacroButtonHotKeyManager.HOTKEYS[0]);
 
 		button.setCommand(command);
 		button.setMacroLabel(label);
 		button.getHotKeyManager().assignKeyStroke(hotKey);
 		button.setColor(colorKey);
+		button.setSortby(sortby);
 		button.setText(button.getButtonText());
 		button.setAutoExecute(autoExecute);
 		button.setIncludeLabel(includeLabel);
+		button.setApplyToTokens(applyToTokens);
 
 	}
 
 	public void savePreferences() {
 		prefs.put(PREF_COLOR_KEY, button.getColor());
 		prefs.put(PREF_LABEL_KEY, button.getMacroLabel());
+		prefs.put(PREF_SORTBY_KEY, button.getSortby());
 		prefs.put(PREF_COMMAND_KEY, button.getCommand());
 		prefs.putBoolean(PREF_AUTO_EXECUTE, button.getAutoExecute());
 		prefs.putBoolean(PREF_INCLUDE_LABEL, button.getIncludeLabel());
+		prefs.putBoolean(PREF_APPLYTOTOKENS_LABEL, button.getApplyToTokens());
 		prefs.put(PREF_HOTKEY_KEY, button.getHotKey());
 	}
 
@@ -124,19 +132,23 @@ public class MacroButtonPrefs {
 
 							newPrefs.put(PREF_COLOR_KEY, buttonPref.get(PREF_COLOR_KEY, ""));
 							newPrefs.put(PREF_LABEL_KEY, buttonPref.get(PREF_LABEL_KEY, Integer.toString(index)));
+							newPrefs.put(PREF_SORTBY_KEY, buttonPref.get(PREF_SORTBY_KEY, ""));
 							newPrefs.put(PREF_COMMAND_KEY, buttonPref.get(PREF_COMMAND_KEY, ""));
 							newPrefs.putBoolean(PREF_AUTO_EXECUTE, buttonPref.getBoolean(PREF_AUTO_EXECUTE, true));
 							newPrefs.putBoolean(PREF_INCLUDE_LABEL, buttonPref.getBoolean(PREF_INCLUDE_LABEL, true));
+							newPrefs.putBoolean(PREF_APPLYTOTOKENS_LABEL, buttonPref.getBoolean(PREF_APPLYTOTOKENS_LABEL, true));
 							newPrefs.put(PREF_HOTKEY_KEY, buttonPref.get(PREF_HOTKEY_KEY, MacroButtonHotKeyManager.HOTKEYS[0]));
 
 							String colorKey = buttonPref.get(PREF_COLOR_KEY, "");
 							String label = buttonPref.get(PREF_LABEL_KEY, Integer.toString(index));
+							String sortby = buttonPref.get(PREF_SORTBY_KEY, "");
 							String command = buttonPref.get(PREF_COMMAND_KEY, "");
 							boolean autoExecute = buttonPref.getBoolean(PREF_AUTO_EXECUTE, true);
 							boolean includeLabel = buttonPref.getBoolean(PREF_INCLUDE_LABEL, false);
+							boolean applyToTokens = buttonPref.getBoolean(PREF_APPLYTOTOKENS_LABEL, false);
 							String hotKey = buttonPref.get(PREF_HOTKEY_KEY, MacroButtonHotKeyManager.HOTKEYS[0]);
 
-							buttonProperties.add(new MacroButtonProperties(index, colorKey, hotKey, command, label, autoExecute, includeLabel));
+							buttonProperties.add(new MacroButtonProperties(index, colorKey, hotKey, command, label, sortby, autoExecute, includeLabel, applyToTokens));
 						}
 					}
 					
@@ -147,12 +159,14 @@ public class MacroButtonPrefs {
 
 				String colorKey = buttonPref.get(PREF_COLOR_KEY, "");
 				String label = buttonPref.get(PREF_LABEL_KEY, Integer.toString(index));
+				String sortby = buttonPref.get(PREF_SORTBY_KEY, "");
 				String command = buttonPref.get(PREF_COMMAND_KEY, "");
 				boolean autoExecute = buttonPref.getBoolean(PREF_AUTO_EXECUTE, true);
 				boolean includeLabel = buttonPref.getBoolean(PREF_INCLUDE_LABEL, false);
+				boolean applyToTokens = buttonPref.getBoolean(PREF_APPLYTOTOKENS_LABEL, false);
 				String hotKey = buttonPref.get(PREF_HOTKEY_KEY, MacroButtonHotKeyManager.HOTKEYS[0]);
 
-				buttonProperties.add(new MacroButtonProperties(index, colorKey, hotKey, command, label, autoExecute, includeLabel));
+				buttonProperties.add(new MacroButtonProperties(index, colorKey, hotKey, command, label, sortby, autoExecute, includeLabel, applyToTokens));
 			}
 		} catch (BackingStoreException e) {
 			// exception due to prefsRoot.childrenNames()

@@ -293,18 +293,19 @@ public class Campaign {
 				prop.setCommand(properties.getCommand());
 				prop.setHotKey(properties.getHotKey());
 				prop.setIncludeLabel(properties.getIncludeLabel());
+				prop.setApplyToTokens(properties.getApplyToTokens());
 				prop.setLabel(properties.getLabel());
+				prop.setSortby(properties.getSortby());
 			}
 		}
 	}
 	
 	public void addMacroButtonProperty(MacroButtonProperties property) {
 		macroButtonProperties.add(property);
-		macroButtonLastIndex++;
 	}
 	
 	public int getMacroButtonNextIndex() {
-		return macroButtonLastIndex; 
+		return ++macroButtonLastIndex;
 	}
 	
 	public void deleteMacroButton(MacroButtonProperties properties)	{

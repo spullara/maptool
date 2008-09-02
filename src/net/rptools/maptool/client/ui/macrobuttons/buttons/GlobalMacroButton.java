@@ -22,9 +22,9 @@ public class GlobalMacroButton extends AbstractMacroButton
 	}
 
 	public void mousePressed(MouseEvent e) {
-		if (SwingUtilities.isLeftMouseButton(e) && !SwingUtil.isShiftDown(e)) {
+		if (SwingUtilities.isLeftMouseButton(e) && !SwingUtil.isShiftDown(e) && !properties.getApplyToTokens()) {
 			executeButton();
-		} else if (SwingUtilities.isLeftMouseButton(e) && SwingUtil.isShiftDown(e)) {
+		} else if ( SwingUtilities.isLeftMouseButton(e) && ( SwingUtil.isShiftDown(e) || properties.getApplyToTokens() ) ) {
 			for (Token token : MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList()) {
 				MapTool.getFrame().getCommandPanel().quickCommit("/im " + token.getId());
 				executeButton();
