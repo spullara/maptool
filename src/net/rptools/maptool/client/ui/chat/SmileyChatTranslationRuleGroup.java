@@ -76,6 +76,12 @@ public class SmileyChatTranslationRuleGroup extends ChatTranslationRuleGroup {
 			String key = (String) e.nextElement();
 			String value = smileyProps.getProperty(key);
 			
+			/* Make sure we're not in roll output. 
+			 * Wouldn't let me do this using lookbehind :-/
+			 */
+			key = "^((?:[^\036]|\036[^\036]*\036)*)" + key;
+			value = "\1" + value;
+			
 			addRule(new RegularExpressionTranslationRule(key, value));
 		}
 	}

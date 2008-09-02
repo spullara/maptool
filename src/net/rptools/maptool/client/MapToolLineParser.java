@@ -72,8 +72,9 @@ public class MapToolLineParser {
     	return parseLine(null, line);
     }
 
-    private static final Pattern roll_pattern = Pattern.compile("\\[\\s*(?:((?:[^\\]:(]|\\((?:[^)\"]|\"[^\"]*\")+\\))*):\\s*)?((?:[^\\]\"]|\"[^\"]*\")*?)\\s*]|\\{\\s*((?:[^}\"]|\"[^\"]*\")*?)\\s*}");
-	private static final Pattern opt_pattern = Pattern.compile("(\\w+(?:\\((?:[^)\"]|\"[^\"]*\")+\\))?)\\s*,\\s*");
+    // This is starting to get ridiculous... I sense an incoming rewrite using ANTLR
+    private static final Pattern roll_pattern = Pattern.compile("\\[\\s*(?:((?:[^\\]:(]|\\((?:[^()\"]|\"[^\"]*\"|\\((?:[^)\"]|\"[^\"]*\")+\\))+\\))*):\\s*)?((?:[^\\]\"]|\"[^\"]*\")*?)\\s*]|\\{\\s*((?:[^}\"]|\"[^\"]*\")*?)\\s*}");
+	private static final Pattern opt_pattern = Pattern.compile("(\\w+(?:\\((?:[^()\"]|\"[^\"]*\"|\\((?:[^()\"]|\"[^\"]*\")+\\))+\\))?)\\s*,\\s*");
 
     public String parseLine(Token tokenInContext, String line) throws ParserException {
 
@@ -114,7 +115,7 @@ public class MapToolLineParser {
 						else if (opt.equalsIgnoreCase("e") || opt.equalsIgnoreCase("expanded"))
 							output = Output.EXPANDED;
 						else if (opt.startsWith("t") || opt.startsWith("T")) {
-							Matcher m = Pattern.compile("t(?:ooltip)?(?:\\(((?:[^)\"]|\".*?\")+?)\\))?", Pattern.CASE_INSENSITIVE).matcher(opt);
+							Matcher m = Pattern.compile("t(?:ooltip)?(?:\\(((?:[^()\"]|\"[^\"]*\"|\\((?:[^()\"]|\"[^\"]*\")*\\))+?)\\))?", Pattern.CASE_INSENSITIVE).matcher(opt);
 							if (m.matches()) {
 								output = Output.TOOLTIP;
 								
@@ -125,7 +126,7 @@ public class MapToolLineParser {
 								throw new ParserException("Invalid option: " + opt);
 							}
 						} else if (opt.startsWith("c") || opt.startsWith("C")) {
-							Matcher m = Pattern.compile("c(?:ount)?\\(((?:[^)\"]|\"[^\"]*\")+?)\\)", Pattern.CASE_INSENSITIVE).matcher(opt);
+							Matcher m = Pattern.compile("c(?:ount)?\\(((?:[^()\"]|\"[^\"]*\"|\\((?:[^()\"]|\"[^\"]*\")*\\))+?)\\)", Pattern.CASE_INSENSITIVE).matcher(opt);
 							if (m.matches()) {
 								String args[] = m.group(1).split(",", 2);
 								Result result = parseExpression(resolver, tokenInContext, args[0]);
@@ -156,7 +157,7 @@ public class MapToolLineParser {
 
     	    	StringBuilder expressionBuilder = new StringBuilder();
     			for (int i = 0; i < count; i++) {
-    				if (i != 0)
+    				if (i != 0 && output != Output.NONE)
     					expressionBuilder.append(separator);
     				
     				resolver.setVariable("roll.count", i + 1);
@@ -182,6 +183,7 @@ public class MapToolLineParser {
 	        				tooltip += expandRoll(resolver, tokenInContext, roll);
 	        				output_text = text;
 	        			}
+	        			tooltip = tooltip.replaceAll("'", "&#39;");
 	        			expressionBuilder.append(output_text != null ? "\036" + tooltip + "\037" + output_text + "\036" : "");
 	    				break;
 	    			case EXPANDED:

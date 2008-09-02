@@ -129,8 +129,8 @@ public class MessagePanel extends JPanel {
 				
 				String text = "<div>"+message.getMessage()+"</div>";
 				// We use ASCII control characters to mark off the rolls so that there's no limitation on what (printable) characters the output can include
-				text = text.replaceAll("\036(.*?)\037(.*?)\036", "<span class='roll' title='&#171; $1 &#187;'>$2</span>");
-				text = text.replaceAll("\036(.*?)\036", "&#171;<span class='roll' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
+				text = text.replaceAll("\036([^\036\037]*)\037([^\036]*)\036", "<span class='roll' title='&#171; $1 &#187;'>$2</span>");
+				text = text.replaceAll("\036([^\036]*)\036", "&#171;<span class='roll' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
 //				text = text.replaceAll("\\{cmd\\s*([^\\}]*)}", "&#171;<span class='cmd' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
 
 				// Auto inline expansion
