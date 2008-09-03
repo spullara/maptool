@@ -103,6 +103,14 @@ public class Directory {
                 newDir.parent = this;
                 subdirs.add(newDir);
             }
+            Collections.sort(subdirs, new Comparator<Directory>() {
+            	public int compare(Directory d1, Directory d2) {
+            		String name1 = d1.getPath().getName();
+            		String name2 = d2.getPath().getName();
+            		
+            		return String.CASE_INSENSITIVE_ORDER.compare(name1, name2);
+            	}
+            });
             subdirs = Collections.unmodifiableList(subdirs);
         }
     }
