@@ -284,8 +284,8 @@ public class ZoneView implements ModelChangeListener {
             visibleAreaMap.clear();
         }
         
-        // TODO: This fixes a bug with changing vision type, I don't like it though, it needs to be optimized back out
-        lightSourceCache.clear();
+//        // TODO: This fixes a bug with changing vision type, I don't like it though, it needs to be optimized back out
+//        lightSourceCache.clear();
     }
 
     private void calculateVisibleArea(PlayerView view) {
