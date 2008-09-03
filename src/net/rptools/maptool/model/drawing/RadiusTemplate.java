@@ -18,6 +18,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 
 /**
@@ -107,7 +108,16 @@ public class RadiusTemplate extends AbstractTemplate {
    * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
    */
   public Rectangle getBounds() {
-    int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
+	  if (getZoneId() == null) {
+		  // This avoids a NPE when loading up a campaign
+		  return new Rectangle();
+	  }
+	  Zone zone = MapTool.getCampaign().getZone(getZoneId());
+	  if (zone == null) {
+		  return new Rectangle();
+	  }
+
+	  int gridSize = zone.getGrid().getSize();
     int quadrantSize = getRadius() * gridSize + BOUNDS_PADDING;
     ZonePoint vertex = getVertex();
     return new Rectangle(vertex.x - quadrantSize, vertex.y - quadrantSize, quadrantSize * 2, quadrantSize * 2);
