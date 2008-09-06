@@ -88,17 +88,19 @@ public class VisibleAreaSegment implements Comparable {
 		List<Point2D> pathPoints = new LinkedList<Point2D>();
 		
 		for (AreaFace face : faceList) {
-			
+
 			// Initial point
 			if (pathPoints.size() == 0) {
 				
 				pathPoints.add(face.getP1());
 				pathPoints.add(0, GraphicsUtil.getProjectedPoint(origin, face.getP1(), Integer.MAX_VALUE/2));
 			}
-			
+
+			// Add to the path
 			pathPoints.add(face.getP2());
 			pathPoints.add(0, GraphicsUtil.getProjectedPoint(origin, face.getP2(), Integer.MAX_VALUE/2));
 		}
+//		System.out.println("Skipped: " + skipCount);
 		
 		GeneralPath path = null;
 		for (Point2D p : pathPoints) {

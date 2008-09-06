@@ -81,8 +81,6 @@ public class AreaTree {
 			
 		}
 		
-		System.out.println("oceans: " + oceanList.size() + " islands: " + islandList.size());
-		
 		// Create the hierarchy
 		// Start by putting each ocean into the containing island
 		// Every ocean should have a containing island.  There is only one ocean that doesn't

@@ -88,9 +88,16 @@ public class AreaMeta {
 	public boolean isHole() {
 		return isHole;
 	}
-	
+
+	private int skippedPoints = 0;
 	public void addPoint(float x, float y) {
 
+		// Cut out redundant points
+		if (lastPointNode != null && GeometryUtil.getDistance(lastPointNode.point, new Point2D.Float(x, y)) < 1.5) {
+			skippedPoints++;
+			return;
+		}
+		
 		PointNode pointNode = new PointNode(new Point2D.Double(x, y));
 		
 
@@ -139,6 +146,8 @@ public class AreaMeta {
 		// Don't need point list anymore
 		pointNodeList = null;
 		path = null;
+		
+		System.out.println("AreaMeta.skippedPoints: " + skippedPoints);
 	}
 
 	private void computeIsHole() {
