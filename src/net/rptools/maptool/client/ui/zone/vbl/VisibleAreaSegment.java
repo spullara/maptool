@@ -65,11 +65,11 @@ public class VisibleAreaSegment implements Comparable {
 				
 				if (path == null) {
 					path = new GeneralPath();
-					path.moveTo(p.getX(), p.getY());
+					path.moveTo((float)p.getX(), (float)p.getY());
 					continue;
 				}
 				
-				path.lineTo(p.getX(), p.getY());
+				path.lineTo((float)p.getX(), (float)p.getY());
 			}		
 			
 			BasicStroke stroke = new BasicStroke(1);
@@ -105,11 +105,11 @@ public class VisibleAreaSegment implements Comparable {
 			
 			if (path == null) {
 				path = new GeneralPath();
-				path.moveTo(p.getX(), p.getY());
+				path.moveTo((float)p.getX(), (float)p.getY());
 				continue;
 			}
 			
-			path.lineTo(p.getX(), p.getY());
+			path.lineTo((float)p.getX(), (float)p.getY());
 		}
 		
 		return new Area(path);
