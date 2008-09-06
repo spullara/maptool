@@ -27,7 +27,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
-import net.rptools.maptool.client.ui.token.TokenOverlay;
+import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 
 /**
  * Load the token states from a file.
@@ -73,9 +73,9 @@ public class LoadTokenStatesMacro implements Macro {
     // Read the serialized set of states
     try {
       XMLDecoder decoder = new XMLDecoder(new BufferedInputStream(new FileInputStream(aliasFile)));
-      List<TokenOverlay> overlays = (List<TokenOverlay>)decoder.readObject();
+      List<BooleanTokenOverlay> overlays = (List<BooleanTokenOverlay>)decoder.readObject();
       decoder.close();
-      for (TokenOverlay overlay : overlays) {
+      for (BooleanTokenOverlay overlay : overlays) {
           MapTool.getCampaign().getTokenStatesMap().put(overlay.getName(), overlay);
       } // endfor
       MapTool.addLocalMessage("There were " + overlays.size() + " token states loaded.");

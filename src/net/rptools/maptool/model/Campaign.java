@@ -14,6 +14,7 @@
 package net.rptools.maptool.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,8 +25,12 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
-import net.rptools.maptool.client.ui.token.TokenOverlay;
+import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
+import net.rptools.maptool.client.ui.token.MultipleImageBarTokenOverlay;
+import net.rptools.maptool.client.ui.token.SingleImageBarTokenOverlay;
+import net.rptools.maptool.client.ui.token.TwoImageBarTokenOverlay;
 import net.rptools.maptool.model.LookupTable.LookupEntry;
 
 /**
@@ -195,8 +200,12 @@ public class Campaign {
     	return getLightSourcesMap().get(type);
     }
     
-    public Map<String, TokenOverlay> getTokenStatesMap() {
+    public Map<String, BooleanTokenOverlay> getTokenStatesMap() {
         return campaignProperties.getTokenStatesMap();
+    }
+    
+    public Map<String, BarTokenOverlay> getTokenBarsMap() {
+        return campaignProperties.getTokenBarsMap();
     }
     
     public void setExportInfo(ExportInfo exportInfo) {
@@ -310,13 +319,24 @@ public class Campaign {
 		}
 		
 		// States
-		for (TokenOverlay overlay : getCampaignProperties().getTokenStatesMap().values()) {
-			
+		for (BooleanTokenOverlay overlay : getCampaignProperties().getTokenStatesMap().values()) {
 			if (overlay instanceof ImageTokenOverlay) {
 				assetSet.add(((ImageTokenOverlay)overlay).getAssetId());
 			}
 		}
-		
+
+		// Bars
+		for (BarTokenOverlay overlay : getCampaignProperties().getTokenBarsMap().values()) {
+		    if (overlay instanceof SingleImageBarTokenOverlay) {
+                assetSet.add(((SingleImageBarTokenOverlay)overlay).getAssetId());
+		    } else if (overlay instanceof TwoImageBarTokenOverlay) {
+                assetSet.add(((TwoImageBarTokenOverlay)overlay).getTopAssetId());
+                assetSet.add(((TwoImageBarTokenOverlay)overlay).getBottomAssetId());
+            } else if (overlay instanceof MultipleImageBarTokenOverlay) {
+                assetSet.addAll(Arrays.asList(((MultipleImageBarTokenOverlay)overlay).getAssetIds()));
+		    } // endif
+		}
+				
 		// Tables
 		for (LookupTable table : getCampaignProperties().getLookupTableMap().values()) {
 			assetSet.addAll(table.getAllAssetIds());

@@ -33,7 +33,7 @@ public class FlowTriangleTokenOverlay extends FlowColorDotTokenOverlay {
      * Default constructor needed for XML encoding/decoding
      */
     public FlowTriangleTokenOverlay() {
-      this(TokenOverlay.DEFAULT_STATE_NAME, Color.RED, -1);
+      this(BooleanTokenOverlay.DEFAULT_STATE_NAME, Color.RED, -1);
     }
 
     /**
@@ -49,15 +49,18 @@ public class FlowTriangleTokenOverlay extends FlowColorDotTokenOverlay {
     }
 
     /**
-     * @see net.rptools.maptool.client.ui.token.TokenOverlay#clone()
+     * @see net.rptools.maptool.client.ui.token.BooleanTokenOverlay#clone()
      */
     @Override
     public Object clone() {
-        TokenOverlay overlay = new FlowTriangleTokenOverlay(getName(), getColor(), getGrid());
+        BooleanTokenOverlay overlay = new FlowTriangleTokenOverlay(getName(), getColor(), getGrid());
         overlay.setOrder(getOrder());
         overlay.setGroup(getGroup());
         overlay.setMouseover(isMouseover());
         overlay.setOpacity(getOpacity());
+        overlay.setShowGM(isShowGM());
+        overlay.setShowOwner(isShowOthers());
+        overlay.setShowOthers(isShowOthers());
         return overlay;
     }
     

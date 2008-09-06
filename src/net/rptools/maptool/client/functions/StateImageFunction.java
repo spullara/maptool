@@ -17,8 +17,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
-import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
@@ -53,7 +53,7 @@ public class StateImageFunction extends AbstractFunction {
 				size = (BigDecimal) args.get(1);
 			}	
 		}
-		TokenOverlay over = MapTool.getCampaign().getTokenStatesMap().get(stateName);
+		BooleanTokenOverlay over = MapTool.getCampaign().getTokenStatesMap().get(stateName);
 		if (over == null) {
 			throw new ParserException("Unknown state (" + stateName + ")" );
 		}

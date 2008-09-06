@@ -311,12 +311,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 	        
 	        zone.putToken(token);
         }
-        
-        if (newToken) {
-        	forwardToAllClients();
-        } else {
-        	forwardToClients();
-        }
+      	forwardToAllClients();
     }
     
     public void putZone(Zone zone) {

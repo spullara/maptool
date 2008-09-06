@@ -68,7 +68,8 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private TokenPropertiesManagementPanel tokenPropertiesPanel;
-	private TokenStatesController tokenStatesController;
+    private TokenStatesController tokenStatesController;
+    private TokenBarController tokenBarController;
 	
 	private Status status;
 	private FormPanel formPanel;
@@ -81,7 +82,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 		
 		initialize();
 		
-		setSize(600, 500);
+		setSize(635, 605);
 	}
 
 	public Status getStatus() {
@@ -106,6 +107,8 @@ public class CampaignPropertiesDialog extends JDialog  {
 
 		initTokenPropertiesDialog(formPanel);
 		tokenStatesController = new TokenStatesController(formPanel);
+        tokenBarController = new TokenBarController(formPanel);
+        tokenBarController.setNames(tokenStatesController.getNames());
 		
 		initOKButton();
 		initCancelButton();
@@ -200,6 +203,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 		updateLightPanel(campaignProperties);
 		updateSightPanel(campaignProperties);
 		tokenStatesController.copyCampaignToUI(campaignProperties);
+		tokenBarController.copyCampaignToUI(campaignProperties);
 //		updateTableList();
 	}
 	
@@ -308,6 +312,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 		commitLightMap();
 		commitSightMap();
 		tokenStatesController.copyUIToCampaign(campaign);
+		tokenBarController.copyUIToCampaign(campaign);
 		
 		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
 			MapTool.getFrame().getCurrentZoneRenderer().getZoneView().flush();

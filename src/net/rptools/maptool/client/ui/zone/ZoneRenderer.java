@@ -13,9 +13,6 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
-import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -61,8 +58,12 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
+
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -80,8 +81,9 @@ import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.TransferableToken;
 import net.rptools.maptool.client.ui.Scale;
+import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
+import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.NewTokenDialog;
-import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.token.TokenTemplate;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.model.Asset;
@@ -549,6 +551,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     }
     
     public void renderZone(Graphics2D g2d, PlayerView view) {
+        
     	g2d.setFont(AppStyle.labelFont);
     	Object oldAA = SwingUtil.useAntiAliasing(g2d);
     	
@@ -583,7 +586,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         // Calculations
         if (zoneView.isUsingVision() && zoneView.getVisibleArea(view) != null && visibleScreenArea == null) {
-
         	AffineTransform af = new AffineTransform();
         	af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
         	af.scale(getScale(), getScale());
@@ -1805,8 +1807,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
             }
             
-            // Check for state
-            if (!token.getStatePropertyNames().isEmpty()) {
               
               // Set up the graphics so that the overlay can just be painted.
               clip = g.getClip();
@@ -1824,23 +1824,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
               // Check each of the set values
               for (String state : MapTool.getCampaign().getTokenStatesMap().keySet()) {
                 Object stateValue = token.getState(state);
-                
-                // Check for the on/off states & paint them
-                TokenOverlay overlay =  null;
-                if (stateValue instanceof Boolean && ((Boolean)stateValue).booleanValue()) {
-                  overlay =  MapTool.getCampaign().getTokenStatesMap().get(state);
-                  if (overlay != null && overlay.isMouseover() && token != tokenUnderMouse) overlay = null;
-                
-                // Check for an overlay state value and paint that
-                } else if (stateValue instanceof TokenOverlay) {
-                    overlay = (TokenOverlay)stateValue;
-                    if (overlay.isMouseover() && token != tokenUnderMouse) overlay = null;
-                }
-                if (overlay != null) {
-                    overlay.paintOverlay(locg, token, bounds);
-                }
+                AbstractTokenOverlay overlay = MapTool.getCampaign().getTokenStatesMap().get(state);
+                if (stateValue instanceof AbstractTokenOverlay) overlay = (AbstractTokenOverlay)stateValue;
+                if (overlay == null || overlay.isMouseover() && token != tokenUnderMouse || !overlay.showPlayer(token, MapTool.getPlayer())) continue;
+                overlay.paintOverlay(locg, token, bounds, stateValue);
               }
-            }
+              for (String bar : MapTool.getCampaign().getTokenBarsMap().keySet()) {
+                  Object barValue = token.getState(bar);
+                  BarTokenOverlay overlay = MapTool.getCampaign().getTokenBarsMap().get(bar);
+                  if (overlay == null || overlay.isMouseover() && token != tokenUnderMouse || !overlay.showPlayer(token, MapTool.getPlayer())) continue;
+                  overlay.paintOverlay(locg, token, bounds, barValue);
+              } // endfor
 
             // DEBUGGING
 //            ScreenPoint tmpsp = ScreenPoint.fromZonePoint(this, new ZonePoint(token.getX(), token.getY()));

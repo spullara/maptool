@@ -27,7 +27,7 @@
 	<classpathentry kind="lib" path="lib/clientserver-1.0.b14.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/rplib-1.0.b112.jar"/>
-	<classpathentry kind="lib" path="lib/dicelib-1.0.b18.jar"/>
+	<classpathentry kind="lib" path="lib/dicelib-1.0.b18.jar" sourcepath="/dicelib"/>
 	<classpathentry kind="lib" path="lib/parser-1.1.b20.jar" sourcepath="/parser/src/main/java"/>
 	<classpathentry kind="lib" path="lib/js-1.7R1.jar">
 		<attributes>

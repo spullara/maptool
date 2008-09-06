@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 
 import net.rptools.maptool.client.functions.CurrentInitiativeFunction;
 import net.rptools.maptool.client.functions.InitiativeRoundFunction;
+import net.rptools.maptool.client.functions.TokenBarFunction;
 import net.rptools.maptool.client.functions.TokenGMNameFunction;
 import net.rptools.maptool.client.functions.TokenHaloFunction;
 import net.rptools.maptool.client.functions.TokenInitFunction;
@@ -39,6 +40,9 @@ public class MapToolVariableResolver extends MapVariableResolver {
 
     /** The prefix for querying and setting state values . */
     public final static String          STATE_PREFIX  = "state.";
+    
+    /** The prefix for querying and setting state values . */
+    public final static String          BAR_PREFIX  = "bar.";
     
     /** The variable name for querying and setting token halos. */
     public final static String          TOKEN_HALO    = "token.halo";
@@ -100,6 +104,9 @@ public class MapToolVariableResolver extends MapVariableResolver {
 			if (name.startsWith(STATE_PREFIX)) {
                 String stateName = name.substring(STATE_PREFIX.length());
                 return TokenStateFunction.getInstance().getState(tokenInContext, stateName);
+            } else if (name.startsWith(BAR_PREFIX)) {
+                String barName = name.substring(BAR_PREFIX.length());
+                return TokenBarFunction.getInstance().getValue(getTokenInContext(), barName);
             } else if (name.equals(TOKEN_HALO)) {
             	// We don't want this evaluated as the # format is more useful to us then the evaluated format.
             	return TokenHaloFunction.getInstance().getHalo(tokenInContext).toString();
@@ -183,6 +190,10 @@ public class MapToolVariableResolver extends MapVariableResolver {
         if (varname.startsWith(STATE_PREFIX)) {
             String stateName = varname.substring(STATE_PREFIX.length());
             TokenStateFunction.getInstance().setState(tokenInContext, stateName, value);
+            return;
+        } else if (varname.startsWith(BAR_PREFIX)) {
+            String barName = varname.substring(BAR_PREFIX.length());
+            TokenBarFunction.getInstance().setValue(tokenInContext, barName, value);
             return;
         } else if (varname.equals(TOKEN_HALO)) {
         	TokenHaloFunction.getInstance().setHalo(tokenInContext, value);

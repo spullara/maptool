@@ -14,26 +14,8 @@
 
 package net.rptools.maptool.client.ui.token;
 
-import javax.swing.AbstractListModel;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextPane;
-import javax.swing.SwingUtilities;
-import javax.swing.table.AbstractTableModel;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
@@ -46,6 +28,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,16 +36,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
-import com.jidesoft.grid.AbstractPropertyTableModel;
-import com.jidesoft.grid.Property;
-import com.jidesoft.grid.PropertyPane;
-import com.jidesoft.grid.PropertyTable;
-import com.jidesoft.swing.CheckBoxListWithSelectable;
-import com.jidesoft.swing.DefaultSelectable;
-import com.jidesoft.swing.Selectable;
+import javax.swing.AbstractListModel;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
+import javax.swing.table.AbstractTableModel;
+
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
+import net.rptools.maptool.client.functions.AbstractTokenAccessorFunction;
+import net.rptools.maptool.client.functions.TokenBarFunction;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
 import net.rptools.maptool.model.Asset;
@@ -74,6 +75,17 @@ import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.util.ImageManager;
+
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.RowSpec;
+import com.jidesoft.grid.AbstractPropertyTableModel;
+import com.jidesoft.grid.Property;
+import com.jidesoft.grid.PropertyPane;
+import com.jidesoft.grid.PropertyTable;
+import com.jidesoft.swing.CheckBoxListWithSelectable;
+import com.jidesoft.swing.DefaultSelectable;
+import com.jidesoft.swing.Selectable;
 
 /**
  * This dialog is used to display all of the token states and notes to the user.
@@ -146,11 +158,27 @@ public class EditTokenDialog extends AbeillePanel {
 		updateSightTypeCombo();
 		
 		// STATES
-		Component[] states = getStatesPanel().getComponents();
-		for (int i = 0; i < states.length; i++) {
-			JCheckBox state = (JCheckBox) states[i];
-			Boolean stateValue = (Boolean) token.getState(state.getText());
-			state.setSelected(stateValue == null ? false : stateValue.booleanValue());
+		Component[] statePanels = getStatesPanel().getComponents();
+		Component barPanel = null;
+		for (int j = 0; j < statePanels.length; j++) {
+		    if ("bar".equals(statePanels[j].getName())) {
+		        barPanel = statePanels[j];
+		        continue;
+		    }
+		    Component[] states = ((Container)statePanels[j]).getComponents(); 
+		    for (int i = 0; i < states.length; i++) {
+		        JCheckBox state = (JCheckBox) states[i];
+		        state.setSelected(AbstractTokenAccessorFunction.getBooleanValue(token.getState(state.getText())));
+		    } 
+		} // endfor
+		
+		// BARS
+		if (barPanel != null) {
+		    Component[] bars = ((Container)barPanel).getComponents(); 
+		    for (int i = 0; i < bars.length; i += 2) {
+		        JSlider bar = (JSlider) bars[i + 1];
+		        bar.setValue((int)(TokenBarFunction.getBigDecimalValue(token.getState(bar.getName())).doubleValue() * 100));
+		    } 
 		}
 		
 		// OWNER LIST
@@ -349,15 +377,32 @@ public class EditTokenDialog extends AbeillePanel {
 		token.setSightType((String)getSightTypeCombo().getSelectedItem());
 
 		// Get the states
-		Component[] components = getStatesPanel().getComponents();
-		for (int i = 0; i < components.length; i++) {
-			JCheckBox cb = (JCheckBox) components[i];
-			String state = cb.getText();
-			token.setState(state, cb.isSelected() ? Boolean.TRUE
-					: Boolean.FALSE);
-		}
+        Component[] stateComponents = getStatesPanel().getComponents();
+        Component barPanel = null;
+        for (int j = 0; j < stateComponents.length; j++) {
+            if ("bar".equals(stateComponents[j].getName())) {
+                barPanel = stateComponents[j];
+                continue;
+            }
+            Component[] components = ((Container)stateComponents[j]).getComponents();
+            for (int i = 0; i < components.length; i++) {
+                JCheckBox cb = (JCheckBox) components[i];
+                String state = cb.getText();
+                token.setState(state, cb.isSelected() ? Boolean.TRUE : Boolean.FALSE);
+            }
+        } // endfor
 
-		// Ownership
+        // BARS
+        if (barPanel != null) {
+            Component[] bars = ((Container)barPanel).getComponents(); 
+            for (int i = 0; i < bars.length; i += 2) {
+                JSlider bar = (JSlider) bars[i + 1];
+                token.setState(bar.getName(), new BigDecimal(bar.getValue() / 100.0));
+                bar.setValue((int)(TokenBarFunction.getBigDecimalValue(token.getState(bar.getName())).doubleValue() * 100));
+            } 
+        }
+
+        // Ownership
 		token.clearAllOwners();
 		
 		for (int i = 0; i < getOwnerList().getModel().getSize(); i++) {
@@ -437,14 +482,71 @@ public class EditTokenDialog extends AbeillePanel {
 	}
 
 	public void initStatesPanel() {
-		JPanel panel = getStatesPanel();
+
+	    // Group the states first into individual panels
+        List<BooleanTokenOverlay> overlays = new ArrayList<BooleanTokenOverlay>(MapTool.getCampaign().getTokenStatesMap().values());
+        Map<String, JPanel> groups = new TreeMap<String, JPanel>();
+        groups.put("", new JPanel(new GridLayout(0, 4)));
+        for (BooleanTokenOverlay overlay : overlays) {
+            String group = overlay.getGroup();
+            if (group != null && (group = group.trim()).length() != 0) {
+                JPanel panel = groups.get(group);
+                if (panel == null) {
+                    panel = new JPanel(new GridLayout(0, 4));
+                    panel.setBorder(BorderFactory.createTitledBorder(group));
+                    groups.put(group, panel);                    
+                } // endif
+            } // endif
+        } // endfor
+        
+        // Add the group panels
+	    JPanel panel = getStatesPanel();
 		panel.removeAll();
-		panel.setLayout(new GridLayout(0, 4));
-        List<TokenOverlay> overlays = new ArrayList<TokenOverlay>(MapTool.getCampaign().getTokenStatesMap().values());
-        Collections.sort(overlays, TokenOverlay.COMPARATOR);
-        for (TokenOverlay state : overlays) {
+		panel.setLayout(new GridLayout(0, 1));
+		for (JPanel gPanel : groups.values()) {
+            panel.add(gPanel);
+        } // endfor
+		
+		// Add the individual check boxes.
+        for (BooleanTokenOverlay state : overlays) {
+            String group = state.getGroup();
+            panel = groups.get("");
+            if (group != null && (group = group.trim()).length() != 0)
+                panel = groups.get(group);
 			panel.add(new JCheckBox(state.getName()));
-		}		
+		}
+        
+        // Add the bar panel
+        if (MapTool.getCampaign().getTokenBarsMap().size() > 0) {
+            FormLayout layout = new FormLayout("right:pref 2px pref 5px right:pref 2px pref");
+            panel = new JPanel(layout);
+            panel.setName("bar");
+            panel.setBorder(BorderFactory.createTitledBorder("Bars"));
+            int count = 0;
+            int row = 0;
+            for (BarTokenOverlay bar : MapTool.getCampaign().getTokenBarsMap().values()) {
+                int working = count % 2; 
+                if (working == 0) { // slider row
+                    layout.appendRow(new RowSpec("pref"));
+                    row += 1;
+                }
+                panel.add(new JLabel(bar.getName() + ":"), new CellConstraints(1 + working * 4, row));
+                JSlider slider = new JSlider(0, 100);
+                slider.setName(bar.getName());
+                slider.setPaintLabels(true);
+                slider.setPaintTicks(true);
+                slider.setMajorTickSpacing(20);
+                slider.createStandardLabels(20);
+                slider.setMajorTickSpacing(10);
+                panel.add(slider, new CellConstraints(3 + working * 4, row));
+                if (working != 0) { // spacer row
+                    layout.appendRow(new RowSpec("2px"));
+                    row += 1;
+                }
+                count += 1;
+            }
+            getStatesPanel().add(panel);
+        } // endif
 	}
 	
 	public JPanel getStatesPanel() {

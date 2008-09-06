@@ -17,6 +17,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -26,13 +27,18 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.ui.token.BarTokenOverlay;
+import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.token.ColorDotTokenOverlay;
 import net.rptools.maptool.client.ui.token.DiamondTokenOverlay;
 import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
+import net.rptools.maptool.client.ui.token.MultipleImageBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.OTokenOverlay;
 import net.rptools.maptool.client.ui.token.ShadedTokenOverlay;
-import net.rptools.maptool.client.ui.token.TokenOverlay;
+import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
+import net.rptools.maptool.client.ui.token.SingleImageBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.TriangleTokenOverlay;
+import net.rptools.maptool.client.ui.token.TwoImageBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.XTokenOverlay;
 import net.rptools.maptool.client.ui.token.YieldTokenOverlay;
 
@@ -51,7 +57,8 @@ public class CampaignProperties implements Serializable {
     
     private String defaultSightType;
     
-    private Map<String, TokenOverlay> tokenStates;
+    private Map<String, BooleanTokenOverlay> tokenStates;
+    private Map<String, BarTokenOverlay> tokenBars;
     
     /** Flag indicating that owners have special permissions  */
     private boolean initiativeOwnerPermissions;
@@ -86,18 +93,25 @@ public class CampaignProperties implements Serializable {
 		// TODO: This doesn't feel right, should we deep copy, or does this do that automatically ?
 		lightSourcesMap = new HashMap<String, Map<GUID, LightSource>>(properties.lightSourcesMap);
 		
-		tokenStates = new LinkedHashMap<String, TokenOverlay>();
 		
 		// TODO: fix for when old campaigns have been loaded into b33+
+        tokenStates = new LinkedHashMap<String, BooleanTokenOverlay>();
 		if (properties.tokenStates == null || properties.tokenStates.isEmpty()) {
 			properties.initTokenStatesMap();
-		}
-		
-		for (TokenOverlay overlay : properties.tokenStates.values()) {
-            overlay = (TokenOverlay)overlay.clone();
+		}		
+		for (BooleanTokenOverlay overlay : properties.tokenStates.values()) {
+            overlay = (BooleanTokenOverlay)overlay.clone();
             tokenStates.put(overlay.getName(), overlay);
         } // endfor
-		initiativeOwnerPermissions = properties.initiativeOwnerPermissions;
+		
+        tokenBars = new LinkedHashMap<String, BarTokenOverlay>();
+        if (properties.tokenBars == null) properties.tokenBars = new LinkedHashMap<String, BarTokenOverlay>();
+        for (BarTokenOverlay overlay : properties.tokenBars.values()) {
+            overlay = (BarTokenOverlay)overlay.clone();
+            tokenBars.put(overlay.getName(), overlay);
+        } // endfor
+
+        initiativeOwnerPermissions = properties.initiativeOwnerPermissions;
     }
     
     public void mergeInto(CampaignProperties properties) {
@@ -131,6 +145,9 @@ public class CampaignProperties implements Serializable {
     	if (tokenStates != null) {
     	    properties.tokenStates.putAll(tokenStates);
     	}
+        if (tokenBars != null) {
+            properties.tokenBars.putAll(tokenBars);
+        }
     }
     
     public Map<String, List<TokenProperty>> getTokenTypeMap() {
@@ -194,15 +211,26 @@ public class CampaignProperties implements Serializable {
     	lookupTableMap = map;
     }
     
-    public Map<String, TokenOverlay> getTokenStatesMap() {
+    public Map<String, BooleanTokenOverlay> getTokenStatesMap() {
         if (tokenStates == null) {
             initTokenStatesMap();
         }
         return tokenStates;
     }
     
-    public void setTokenStatesMap(Map<String, TokenOverlay> map) {
+    public void setTokenStatesMap(Map<String, BooleanTokenOverlay> map) {
         tokenStates = map;
+    }
+    
+    public Map<String, BarTokenOverlay> getTokenBarsMap() {
+        if (tokenBars == null) {
+            tokenBars = new LinkedHashMap<String, BarTokenOverlay>();
+        }
+        return tokenBars;
+    }
+    
+    public void setTokenBarsMap(Map<String, BarTokenOverlay> map) {
+        tokenBars = map;
     }
     
     private void init() {
@@ -296,7 +324,7 @@ public class CampaignProperties implements Serializable {
     }
     
     private void initTokenStatesMap() {
-        tokenStates = new LinkedHashMap<String, TokenOverlay>();
+        tokenStates = new LinkedHashMap<String, BooleanTokenOverlay>();
         tokenStates.put("Dead", (new XTokenOverlay("Dead", Color.RED, 5)));
         tokenStates.put("Disabled", (new XTokenOverlay("Disabled", Color.GRAY, 5)));
         tokenStates.put("Hidden", (new ShadedTokenOverlay("Hidden", Color.BLACK)));
@@ -310,10 +338,21 @@ public class CampaignProperties implements Serializable {
     
     public Set<MD5Key> getAllImageAssets() {
         Set<MD5Key> set = new HashSet<MD5Key>();
-        for (TokenOverlay overlay : tokenStates.values()) {
+        for (AbstractTokenOverlay overlay : tokenStates.values()) {
             if (overlay instanceof ImageTokenOverlay)
                 set.add(((ImageTokenOverlay)overlay).getAssetId());
         } // endfor
+		// Bars
+		for (BarTokenOverlay overlay : getTokenBarsMap().values()) {
+		    if (overlay instanceof SingleImageBarTokenOverlay) {
+                set.add(((SingleImageBarTokenOverlay)overlay).getAssetId());
+		    } else if (overlay instanceof TwoImageBarTokenOverlay) {
+                set.add(((TwoImageBarTokenOverlay)overlay).getTopAssetId());
+                set.add(((TwoImageBarTokenOverlay)overlay).getBottomAssetId());
+            } else if (overlay instanceof MultipleImageBarTokenOverlay) {
+                set.addAll(Arrays.asList(((MultipleImageBarTokenOverlay)overlay).getAssetIds()));
+		    } // endif
+		}
         return set;
     }
 

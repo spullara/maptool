@@ -54,6 +54,8 @@ import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.ui.PreviewPanelFileChooser;
+import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
+import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.token.ColorDotTokenOverlay;
 import net.rptools.maptool.client.ui.token.CornerImageTokenOverlay;
 import net.rptools.maptool.client.ui.token.CrossTokenOverlay;
@@ -67,7 +69,6 @@ import net.rptools.maptool.client.ui.token.FlowYieldTokenOverlay;
 import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
 import net.rptools.maptool.client.ui.token.OTokenOverlay;
 import net.rptools.maptool.client.ui.token.ShadedTokenOverlay;
-import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.token.TriangleTokenOverlay;
 import net.rptools.maptool.client.ui.token.XTokenOverlay;
 import net.rptools.maptool.client.ui.token.YieldTokenOverlay;
@@ -104,7 +105,7 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
     /** Name of the text field containing the group {@link String} value */
     public static String GROUP = "tokenStatesGroup";
     
-    /** Name of the combo box containing a {@link String} value that maps directly to a {@link TokenOverlay} class */
+    /** Name of the combo box containing a {@link String} value that maps directly to a {@link BooleanTokenOverlay} class */
     public static String TYPE = "tokenStatesType";
     
     /** Name of the color well containing a {@link Color} value for token state types that need colors */
@@ -148,6 +149,15 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
     
     /** Name of the button used to move a state down one space */
     public static String MOVE_DOWN = "tokenStatesMoveDown";
+    
+    /** Name of the check box that shows the GM sees the state */
+    public static String SHOW_GM = "tokenStatesGM";
+    
+    /** Name of the check box that shows the GM sees the state */
+    public static String SHOW_OWNER = "tokenStatesOwner";
+    
+    /** Name of the check box that shows the GM sees the state */
+    public static String SHOW_OTHERS = "tokenStatesEverybody";
     
     /** The size of the ICON faked in the list renderer */
     public static int ICON_SIZE = 50;
@@ -219,22 +229,25 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
         
         // Add a new state
         if (ADD.equals(name)) {
-            TokenOverlay overlay = createTokenOverlay(null);
+            BooleanTokenOverlay overlay = createTokenOverlay(null);
             if (overlay != null) {
                 model.addElement(overlay);
-                names.add(overlay.getName());
+                getNames().add(overlay.getName());
                 formPanel.setText(NAME, "");
                 formPanel.setText(GROUP, "");
                 formPanel.setSelected(MOUSEOVER, false);
                 formPanel.getSpinner(OPACITY).setValue(new Integer(100));
+                formPanel.setSelected(SHOW_GM, true);
+                formPanel.setSelected(SHOW_OWNER, true);
+                formPanel.setSelected(SHOW_OTHERS, true);
             } // endif
             
         // Delete selected state
         } else if (DELETE.equals(name)) {
             int[] selectedElements = list.getSelectedIndices();
             for (int j = selectedElements.length - 1; j >= 0; j--) {
-                TokenOverlay overlay = (TokenOverlay)model.remove(selectedElements[j]);
-                names.remove(overlay.getName());
+                BooleanTokenOverlay overlay = (BooleanTokenOverlay)model.remove(selectedElements[j]);
+                getNames().remove(overlay.getName());
             } // endfor
             changedUpdate(null);
             
@@ -253,8 +266,8 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
             
         // Update the selected overlay
         } else if (UPDATE.equals(name)) {
-            TokenOverlay selectedOverlay = (TokenOverlay)formPanel.getSelectedItem(STATES);
-            TokenOverlay overlay = createTokenOverlay(selectedOverlay);
+            BooleanTokenOverlay selectedOverlay = (BooleanTokenOverlay)formPanel.getSelectedItem(STATES);
+            BooleanTokenOverlay overlay = createTokenOverlay(selectedOverlay);
             if (overlay != null)
                  model.set(selected, overlay);
             
@@ -310,8 +323,6 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
         }
         return imageFileChooser;
     }
-
-    
     
     /**
      * Enable/disable the buttons as needed.
@@ -323,8 +334,9 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
         boolean hasImage = !((ListItemProperty)formPanel.getSelectedItem(TYPE)).getLabel().contains("Image") || text != null && (text = text.trim()).length() != 0;
         text = formPanel.getText(NAME);
         boolean hasName = text != null && (text = text.trim()).length() != 0;
-        formPanel.getButton(ADD).setEnabled(hasName && !names.contains(text) && hasImage);
-        formPanel.getButton(UPDATE).setEnabled(hasName && formPanel.getSelectedItem(STATES) != null);
+        boolean hasShow = formPanel.isSelected(SHOW_GM) || formPanel.isSelected(SHOW_OWNER) || formPanel.isSelected(SHOW_OTHERS);
+        formPanel.getButton(ADD).setEnabled(hasName && !getNames().contains(text) && hasImage && hasShow);
+        formPanel.getButton(UPDATE).setEnabled(hasName && formPanel.getSelectedItem(STATES) != null && hasShow);
     }
 
     /**
@@ -356,12 +368,15 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
         if (selected >= 0) {
             
             // Set name, and always clear image
-            TokenOverlay s = (TokenOverlay)formPanel.getList(STATES).getSelectedValue();
+            BooleanTokenOverlay s = (BooleanTokenOverlay)formPanel.getList(STATES).getSelectedValue();
             formPanel.setText(NAME, s.getName());
             formPanel.setText(GROUP, s.getGroup());
             formPanel.setText(IMAGE, "");
             formPanel.setSelected(MOUSEOVER, s.isMouseover());
             formPanel.getSpinner(OPACITY).setValue(new Integer(s.getOpacity()));
+            formPanel.setSelected(SHOW_GM, s.isShowGM());
+            formPanel.setSelected(SHOW_OWNER, s.isShowOwner());
+            formPanel.setSelected(SHOW_OTHERS, s.isShowOthers());
             
             // Get most of the colors and all of the widths from the XTokenOverlay
             int type = -1;
@@ -425,7 +440,7 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
      * 
      * @author Jay
      */
-    private class StateListRenderer extends DefaultListCellRenderer {
+    public static class StateListRenderer extends DefaultListCellRenderer {
        
         /** Bounds sent to the token state */
         Rectangle bounds = new Rectangle(0, 0, ICON_SIZE, ICON_SIZE);
@@ -433,20 +448,23 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
         /** Fake token sent to the token state */
         Token token = new Token("name", null);
         
+        /** Value passed to the overlay painter. */
+        Double value = Double.valueOf(1);
+        
         /** Overlay being painted by the icon */
-        TokenOverlay overlay;
+        AbstractTokenOverlay overlay;
         
         /** Create an icon from the token state. The icon has a black rectangle and the actual state is drawn inside of it. */
         Icon icon = new Icon() {
             public int getIconHeight() { return ICON_SIZE + 2; }
             public int getIconWidth() { return ICON_SIZE + 2; }
             public void paintIcon(Component c, java.awt.Graphics g, int x, int y) {
-                g.drawRect(x, y, ICON_SIZE + 2, ICON_SIZE + 2);
                 g.setColor(Color.BLACK);
+                g.drawRect(x, y, ICON_SIZE + 2, ICON_SIZE + 2);
                 g.translate(x + 1, y + 1);
                 Shape old = g.getClip();
                 g.setClip(bounds.intersection(old.getBounds()));
-                overlay.paintOverlay((Graphics2D)g, token, bounds);
+                overlay.paintOverlay((Graphics2D)g, token, bounds, value);
                 g.setClip(old);
                 g.translate(-(x + 1), -(y + 1));
             }
@@ -458,10 +476,9 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
          * @see javax.swing.DefaultListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
          */
         @Override
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
-                boolean cellHasFocus) {
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            overlay = (TokenOverlay)value;
+            overlay = (AbstractTokenOverlay)value;
             setText(overlay.getName());
             setIcon(icon);
             return this;
@@ -476,11 +493,11 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
     public void copyCampaignToUI(CampaignProperties campaign) {
         names.clear();
         DefaultListModel model = new DefaultListModel();
-        List<TokenOverlay> overlays = new ArrayList<TokenOverlay>(campaign.getTokenStatesMap().values());
-        Collections.sort(overlays, TokenOverlay.COMPARATOR);
-        for (TokenOverlay overlay : overlays) {
+        List<BooleanTokenOverlay> overlays = new ArrayList<BooleanTokenOverlay>(campaign.getTokenStatesMap().values());
+        Collections.sort(overlays, BooleanTokenOverlay.COMPARATOR);
+        for (BooleanTokenOverlay overlay : overlays) {
             model.addElement(overlay);
-            names.add(overlay.getName());
+            getNames().add(overlay.getName());
         }
         formPanel.getList(STATES).setModel(model);
     }
@@ -492,9 +509,9 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
      */
     public void copyUIToCampaign(Campaign campaign) {
         ListModel model = formPanel.getList(STATES).getModel();
-        Map<String, TokenOverlay> states = new LinkedHashMap<String, TokenOverlay>();
+        Map<String, BooleanTokenOverlay> states = new LinkedHashMap<String, BooleanTokenOverlay>();
         for (int i = 0; i < model.getSize(); i++) {
-            TokenOverlay overlay = (TokenOverlay)model.getElementAt(i);
+            BooleanTokenOverlay overlay = (BooleanTokenOverlay)model.getElementAt(i);
             overlay.setOrder(i);
             states.put(overlay.getName(), overlay);
         }
@@ -504,10 +521,11 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
 
     /**
      * Create a token state from the user's input
-     * @param updatedOverlay TODO
+     * 
+     * @param updatedOverlay Overlay being modified.
      * @return The new token state.
      */
-    public TokenOverlay createTokenOverlay(TokenOverlay updatedOverlay) {
+    public BooleanTokenOverlay createTokenOverlay(BooleanTokenOverlay updatedOverlay) {
         
         // Need the color group, and name for everything
         Color color = ((JETAColorWell)formPanel.getComponentByName(COLOR)).getColor();
@@ -515,10 +533,13 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
         String group = formPanel.getText(GROUP);
         boolean mouseover = formPanel.isSelected(MOUSEOVER);
         String overlay = ((ListItemProperty)formPanel.getSelectedItem(TYPE)).getLabel();
-        int opacity = getSpinner(OPACITY, "opacity");
+        int opacity = getSpinner(OPACITY, "opacity", formPanel);
+        boolean showGM = formPanel.isSelected(SHOW_GM);
+        boolean showOwner = formPanel.isSelected(SHOW_OWNER);
+        boolean showOthers = formPanel.isSelected(SHOW_OTHERS);
 
         // Check for overlays that don't use width
-        TokenOverlay to = null;
+        BooleanTokenOverlay to = null;
         if (overlay.equals("Dot")) {
             String cornerName = formPanel.getSelectedItem(CORNER).toString().toUpperCase().replace(' ', '_');
             to = new ColorDotTokenOverlay(name, color, Quadrant.valueOf(cornerName));
@@ -546,7 +567,7 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
 
         // Handle all of the overlays with width
         if (to == null) {
-            int width = getSpinner(WIDTH, "width");
+            int width = getSpinner(WIDTH, "width", formPanel);
             if (overlay.equals("Circle")) {
                 to = new OTokenOverlay(name, color, width);
             } else if (overlay.equals("X")) {
@@ -568,22 +589,7 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
             String fName = formPanel.getText(IMAGE).trim();
             fName = fName.length() == 0 ? null : fName;
             if (updatedOverlay == null || fName != null) {
-                File file = new File(fName);
-                if (!file.exists() || !file.canRead() || file.isDirectory()) {
-                    JOptionPane.showMessageDialog(formPanel, "The image file was not specified, it doesn't exist, is a directory, or it can't be read: " 
-                            + file.getAbsolutePath(), "Error!", JOptionPane.ERROR_MESSAGE);
-                    return null;
-                } // endif
-                Asset asset = null;
-                try {
-                    asset = AssetManager.createAsset(file);
-                } catch (IOException e) {
-                    JOptionPane.showMessageDialog(formPanel, "Error reading the image file: " 
-                            + file.getAbsolutePath(), "Error!", JOptionPane.ERROR_MESSAGE);
-                    return null;
-                } // endif
-                AssetManager.putAsset(asset);
-                assetId = asset.getId();
+                assetId = loadAsssetFile(fName, formPanel);
             } else {
                 if (updatedOverlay instanceof ImageTokenOverlay)
                     assetId = ((ImageTokenOverlay)updatedOverlay).getAssetId();
@@ -607,6 +613,9 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
             to.setGroup(group);
             to.setMouseover(mouseover);
             to.setOpacity(opacity);
+            to.setShowGM(showGM);
+            to.setShowOthers(showOthers);
+            to.setShowOwner(showOwner);
         } // endif
         return to;
     }
@@ -616,9 +625,10 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
      * 
      * @param name Name of the spinner.
      * @param displayName Name used in the message if there is an error.
+     * @param formPanel The form panel containing the component.
      * @return The integer value selected.
      */
-    private int getSpinner(String name, String displayName) {
+    public static int getSpinner(String name, String displayName, FormPanel formPanel) {
         int width = 0;
         JSpinner spinner = formPanel.getSpinner(name);
         try {
@@ -630,5 +640,43 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
             throw new IllegalStateException(e);
         } // endtry
         return width;
+    }
+
+    /** @return Getter for names */
+    public Set<String> getNames() {
+        return names;
+    }
+
+    /** @param names Setter for names */
+    public void setNames(Set<String> names) {
+        this.names = names;
+    }
+
+    /**
+     * Load an asset file to get its key.
+     * 
+     * @param fName Name of the asset file
+     * @param formPanel Panel for displaying error messages
+     * @return The asset id if found or null if it could not be found.
+     */
+    public static MD5Key loadAsssetFile(String fName, FormPanel formPanel) {
+        fName = fName.length() == 0 ? null : fName;
+        if (fName == null) return null;
+        File file = new File(fName);
+        if (!file.exists() || !file.canRead() || file.isDirectory()) {
+            JOptionPane.showMessageDialog(formPanel, "The image file was not specified, it doesn't exist, is a directory, or it can't be read: " 
+                    + file.getAbsolutePath(), "Error!", JOptionPane.ERROR_MESSAGE);
+            return null;
+        } // endif
+        Asset asset = null;
+        try {
+            asset = AssetManager.createAsset(file);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(formPanel, "Error reading the image file: " 
+                    + file.getAbsolutePath(), "Error!", JOptionPane.ERROR_MESSAGE);
+            return null;
+        } // endif
+        AssetManager.putAsset(asset);
+        return asset.getId();
     }
 }

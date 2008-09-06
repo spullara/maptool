@@ -40,7 +40,7 @@ public class FlowImageTokenOverlay extends ImageTokenOverlay {
      * Needed for serialization
      */
     public FlowImageTokenOverlay() {
-        this(TokenOverlay.DEFAULT_STATE_NAME, null, -1);
+        this(BooleanTokenOverlay.DEFAULT_STATE_NAME, null, -1);
     }
     
     /**
@@ -76,15 +76,18 @@ public class FlowImageTokenOverlay extends ImageTokenOverlay {
     }
 
     /**
-     * @see net.rptools.maptool.client.ui.token.TokenOverlay#clone()
+     * @see net.rptools.maptool.client.ui.token.BooleanTokenOverlay#clone()
      */
     @Override
     public Object clone() {
-        TokenOverlay overlay = new FlowImageTokenOverlay(getName(), getAssetId(), grid);
+        BooleanTokenOverlay overlay = new FlowImageTokenOverlay(getName(), getAssetId(), grid);
         overlay.setOrder(getOrder());
         overlay.setGroup(getGroup());
         overlay.setMouseover(isMouseover());
         overlay.setOpacity(getOpacity());
+        overlay.setShowGM(isShowGM());
+        overlay.setShowOwner(isShowOthers());
+        overlay.setShowOthers(isShowOthers());
         return overlay;
     }
 

@@ -14,9 +14,11 @@
 package net.rptools.maptool.client.ui;
 
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,18 +32,24 @@ import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JSlider;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.functions.AbstractTokenAccessorFunction;
+import net.rptools.maptool.client.functions.TokenBarFunction;
+import net.rptools.maptool.client.ui.token.BarTokenOverlay;
+import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.token.LightDialog;
-import net.rptools.maptool.client.ui.token.TokenOverlay;
 import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
@@ -84,6 +92,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		addOwnedItem(createMacroMenu());
 		addOwnedItem(createSpeechMenu());
 		addOwnedItem(createStateMenu());
+		addOwnedItem(createBarMenu());
         addOwnedItem(createInitiativeMenu());
         if (MapTool.getFrame().getInitiativePanel().hasOwnerPermission(tokenUnderMouse))
             add(new ChangeInititiveState("initiative.menu.addToInitiative"));
@@ -264,18 +273,28 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
         return haloMenu;
     }
     	
+    protected JMenu createBarMenu() {
+        List<BarTokenOverlay> overlays = new ArrayList<BarTokenOverlay>(MapTool.getCampaign().getTokenBarsMap().values());
+        if (overlays.isEmpty()) return null;
+        JMenu stateMenu = I18N.createMenu("defaultTool.barMenu");
+        Collections.sort(overlays, BarTokenOverlay.COMPARATOR);
+        for (BarTokenOverlay overlay : overlays) {
+            createBarItem(overlay.getName(), stateMenu, getTokenUnderMouse());
+        } // endfor
+        return stateMenu;
+    }
 	protected JMenu createStateMenu() {
 	    
 	    // Create the base menu
 		JMenu stateMenu = I18N.createMenu("defaultTool.stateMenu");
 		stateMenu.add(new ChangeStateAction("clear"));
 		stateMenu.addSeparator();
-        List<TokenOverlay> overlays = new ArrayList<TokenOverlay>(MapTool.getCampaign().getTokenStatesMap().values());
-        Collections.sort(overlays, TokenOverlay.COMPARATOR);
+        List<BooleanTokenOverlay> overlays = new ArrayList<BooleanTokenOverlay>(MapTool.getCampaign().getTokenStatesMap().values());
+        Collections.sort(overlays, BooleanTokenOverlay.COMPARATOR);
         
         // Create the group menus first so that they can be placed at the top of the state menu
         Map<String, JMenu> groups = new TreeMap<String, JMenu>();
-        for (TokenOverlay overlay : overlays) {
+        for (BooleanTokenOverlay overlay : overlays) {
             String group = overlay.getGroup();
             if (group != null && (group = group.trim()).length() != 0) {
                 JMenu menu = groups.get(group);
@@ -290,8 +309,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
         for (JMenu menu : groups.values()) stateMenu.add(menu);
         
         // Give each overlay a button in the proper menu
-		for (TokenOverlay overlay : overlays) {
-		    String group = overlay.getGroup();
+		for (BooleanTokenOverlay overlay : overlays) {
+ 		    String group = overlay.getGroup();
             JMenu menu = stateMenu;
             if (group != null && (group = group.trim()).length() != 0) menu = groups.get(group);
 			createStateItem(overlay.getName(), menu, getTokenUnderMouse());
@@ -405,11 +424,19 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		JCheckBoxMenuItem item = new JCheckBoxMenuItem(new ChangeStateAction(
 				state));
 		Object value = token.getState(state);
-		if (value != null && value instanceof Boolean
-				&& ((Boolean) value).booleanValue())
+		if (AbstractTokenAccessorFunction.getBooleanValue(value))
 			item.setSelected(true);
 		menu.add(item);
 		return item;
+	}
+	
+	private JMenuItem createBarItem(String bar, JMenu menu, Token token) {
+	    JMenuItem item = new JMenuItem(new ChangeBarAction(bar));
+        Object value = token.getState(bar);
+        int percent = (int)(TokenBarFunction.getBigDecimalValue(value).doubleValue() * 100);
+        item.setText(bar + " (" + Integer.toString(percent) + "%)");
+        menu.add(item);
+        return item;
 	}
 
 	private class SetHaloAction extends AbstractAction {
@@ -508,6 +535,34 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
         }
     }
 
+    private class ChangeBarAction extends AbstractAction {
+        public ChangeBarAction(String bar) {
+            putValue(ACTION_COMMAND_KEY, bar);
+            putValue(NAME, bar);
+        }
+        public void actionPerformed(ActionEvent e) {
+            JSlider slider = new JSlider(0, 100);
+            slider.setPaintLabels(true);
+            slider.setPaintTicks(true);
+            slider.setMajorTickSpacing(20);
+            slider.createStandardLabels(20);
+            slider.setMajorTickSpacing(10);
+            slider.setValue((int)(TokenBarFunction.getBigDecimalValue(getTokenUnderMouse().getState((String)getValue(NAME))).doubleValue() * 100));
+            JPanel panel = new JPanel(new FlowLayout());
+            panel.add(new JLabel((String)getValue(NAME) + ":"));
+            panel.add(slider);
+            if (JOptionPane.showOptionDialog(MapTool.getFrame(), panel, "Set " + (String)getValue(NAME) + " Value", JOptionPane.OK_CANCEL_OPTION, 
+                    JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION) {
+                Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+                for (GUID tokenGUID : selectedTokenSet) {
+                    Token token = zone.getToken(tokenGUID);
+                    token.setState((String)getValue(NAME), new BigDecimal(slider.getValue() / 100.0));
+                    MapTool.serverCommand().putToken(zone.getId(), token);
+                }
+            }
+        }
+    }
+    
 	/**
 	 * Internal class used to handle token state changes.
 	 */
@@ -590,7 +645,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
             InitiativeList init = MapTool.getFrame().getInitiativePanel().getList();
             String input = null;
             if (name.equals("initiative.menu.setState")) {
-                input = JOptionPane.showInputDialog(I18N.getText("initiative.meny.enterState"));
+                input = JOptionPane.showInputDialog(I18N.getText("initiative.menu.enterState"));
                 if (input == null) return;
                 input = input.trim();
             } // endif

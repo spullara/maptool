@@ -30,7 +30,7 @@ import net.rptools.maptool.model.Token;
  * @author jgorrell
  * @version $Revision$ $Date$ $Author$
  */
-public class XTokenOverlay extends TokenOverlay {
+public class XTokenOverlay extends BooleanTokenOverlay {
 
   /**
    * Color for the X
@@ -46,7 +46,7 @@ public class XTokenOverlay extends TokenOverlay {
    * Default constructor needed for XML encoding/decoding
    */
   public XTokenOverlay() {
-    this(TokenOverlay.DEFAULT_STATE_NAME, Color.RED, 5);
+    this(BooleanTokenOverlay.DEFAULT_STATE_NAME, Color.RED, 5);
   }
 
   /**
@@ -67,7 +67,7 @@ public class XTokenOverlay extends TokenOverlay {
   }
 
   /**
-   * @see net.rptools.maptool.client.ui.token.TokenOverlay#paintOverlay(java.awt.Graphics2D, net.rptools.maptool.model.Token, Rectangle)
+   * @see net.rptools.maptool.client.ui.token.BooleanTokenOverlay#paintOverlay(java.awt.Graphics2D, net.rptools.maptool.model.Token, Rectangle)
    */
   @Override
   public void paintOverlay(Graphics2D g, Token aToken, Rectangle bounds) {
@@ -86,15 +86,18 @@ public class XTokenOverlay extends TokenOverlay {
   }
 
   /**
-   * @see net.rptools.maptool.client.ui.token.TokenOverlay#clone()
+   * @see net.rptools.maptool.client.ui.token.BooleanTokenOverlay#clone()
    */
   @Override
   public Object clone() {
-      TokenOverlay overlay = new XTokenOverlay(getName(), getColor(), getWidth());
+      BooleanTokenOverlay overlay = new XTokenOverlay(getName(), getColor(), getWidth());
       overlay.setOrder(getOrder());
       overlay.setGroup(getGroup());
       overlay.setMouseover(isMouseover());
       overlay.setOpacity(getOpacity());
+      overlay.setShowGM(isShowGM());
+      overlay.setShowOwner(isShowOthers());
+      overlay.setShowOthers(isShowOthers());
       return overlay;
   }
   

@@ -36,7 +36,7 @@ import net.rptools.maptool.util.ImageManager;
  * 
  * @author Jay
  */
-public class ImageTokenOverlay extends TokenOverlay {
+public class ImageTokenOverlay extends BooleanTokenOverlay {
 
     /**
      * If of the image displayed in the overlay.
@@ -57,7 +57,7 @@ public class ImageTokenOverlay extends TokenOverlay {
      * Needed for serialization
      */
     public ImageTokenOverlay() {
-        this(TokenOverlay.DEFAULT_STATE_NAME, null);
+        this(BooleanTokenOverlay.DEFAULT_STATE_NAME, null);
     }
     
     /**
@@ -72,20 +72,23 @@ public class ImageTokenOverlay extends TokenOverlay {
     }
     
     /**
-     * @see net.rptools.maptool.client.ui.token.TokenOverlay#clone()
+     * @see net.rptools.maptool.client.ui.token.BooleanTokenOverlay#clone()
      */
     @Override
     public Object clone() {
-        TokenOverlay overlay = new ImageTokenOverlay(getName(), assetId);
+        BooleanTokenOverlay overlay = new ImageTokenOverlay(getName(), assetId);
         overlay.setOrder(getOrder());
         overlay.setGroup(getGroup());
         overlay.setMouseover(isMouseover());
         overlay.setOpacity(getOpacity());
+        overlay.setShowGM(isShowGM());
+        overlay.setShowOwner(isShowOthers());
+        overlay.setShowOthers(isShowOthers());
         return overlay;
     }
 
     /**
-     * @see net.rptools.maptool.client.ui.token.TokenOverlay#paintOverlay(java.awt.Graphics2D, net.rptools.maptool.model.Token, java.awt.Rectangle)
+     * @see net.rptools.maptool.client.ui.token.BooleanTokenOverlay#paintOverlay(java.awt.Graphics2D, net.rptools.maptool.model.Token, java.awt.Rectangle)
      */
     @Override
     public void paintOverlay(Graphics2D g, Token token, Rectangle bounds) {

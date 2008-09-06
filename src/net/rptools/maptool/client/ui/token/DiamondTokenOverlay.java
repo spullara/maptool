@@ -36,7 +36,7 @@ public class DiamondTokenOverlay extends XTokenOverlay {
    * Default constructor needed for XML encoding/decoding
    */
   public DiamondTokenOverlay() {
-    this(TokenOverlay.DEFAULT_STATE_NAME, Color.RED, 5);
+    this(BooleanTokenOverlay.DEFAULT_STATE_NAME, Color.RED, 5);
   }
   
   /**
@@ -51,15 +51,18 @@ public class DiamondTokenOverlay extends XTokenOverlay {
   }
   
   /**
-   * @see net.rptools.maptool.client.ui.token.TokenOverlay#clone()
+   * @see net.rptools.maptool.client.ui.token.BooleanTokenOverlay#clone()
    */
   @Override
   public Object clone() {
-      TokenOverlay overlay = new DiamondTokenOverlay(getName(), getColor(), getWidth());
+      BooleanTokenOverlay overlay = new DiamondTokenOverlay(getName(), getColor(), getWidth());
       overlay.setOrder(getOrder());
       overlay.setGroup(getGroup());
       overlay.setMouseover(isMouseover());
       overlay.setOpacity(getOpacity());
+      overlay.setShowGM(isShowGM());
+      overlay.setShowOwner(isShowOthers());
+      overlay.setShowOthers(isShowOthers());
       return overlay;
   }
   

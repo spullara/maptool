@@ -46,7 +46,7 @@ public class FlowColorDotTokenOverlay extends XTokenOverlay {
      * Default constructor needed for XML encoding/decoding
      */
     public FlowColorDotTokenOverlay() {
-      this(TokenOverlay.DEFAULT_STATE_NAME, Color.RED, -1);
+      this(BooleanTokenOverlay.DEFAULT_STATE_NAME, Color.RED, -1);
     }
 
     /**
@@ -63,15 +63,18 @@ public class FlowColorDotTokenOverlay extends XTokenOverlay {
     }
 
     /**
-     * @see net.rptools.maptool.client.ui.token.TokenOverlay#clone()
+     * @see net.rptools.maptool.client.ui.token.BooleanTokenOverlay#clone()
      */
     @Override
     public Object clone() {
-        TokenOverlay overlay = new FlowColorDotTokenOverlay(getName(), getColor(), grid);
+        BooleanTokenOverlay overlay = new FlowColorDotTokenOverlay(getName(), getColor(), grid);
         overlay.setOrder(getOrder());
         overlay.setGroup(getGroup());
         overlay.setMouseover(isMouseover());
         overlay.setOpacity(getOpacity());
+        overlay.setShowGM(isShowGM());
+        overlay.setShowOwner(isShowOthers());
+        overlay.setShowOthers(isShowOthers());
         return overlay;
     }
     
@@ -87,7 +90,7 @@ public class FlowColorDotTokenOverlay extends XTokenOverlay {
     }
  
     /**
-     * @see net.rptools.maptool.client.ui.token.TokenOverlay#paintOverlay(java.awt.Graphics2D, net.rptools.maptool.model.Token, Rectangle)
+     * @see net.rptools.maptool.client.ui.token.BooleanTokenOverlay#paintOverlay(java.awt.Graphics2D, net.rptools.maptool.model.Token, Rectangle)
      */
     @Override
     public void paintOverlay(Graphics2D g, Token aToken, Rectangle bounds) {

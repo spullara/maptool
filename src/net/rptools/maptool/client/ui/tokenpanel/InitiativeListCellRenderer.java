@@ -43,7 +43,8 @@ import net.rptools.lib.swing.ImageLabel;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.token.TokenOverlay;
+import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
+import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
@@ -350,12 +351,17 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
             g.translate(x, y);
             Shape old = g.getClip();
             g.setClip(bounds.intersection(old.getBounds()));
-            for (String state : token.getStatePropertyNames()) {
+            for (String state : MapTool.getCampaign().getTokenStatesMap().keySet()) {
                 Object stateSet = token.getState(state);
-                if (stateSet instanceof Boolean && ((Boolean)stateSet).booleanValue()) {
-                    TokenOverlay overlay =  MapTool.getCampaign().getTokenStatesMap().get(state);
-                    if (overlay != null) overlay.paintOverlay((Graphics2D)g, token, bounds);
-                } // endif
+                AbstractTokenOverlay overlay =  MapTool.getCampaign().getTokenStatesMap().get(state);
+                if (stateSet instanceof AbstractTokenOverlay || overlay == null || !overlay.showPlayer(token, MapTool.getPlayer())) continue;
+                overlay.paintOverlay((Graphics2D)g, token, bounds, stateSet);
+            } // endfor
+            for (String bar : MapTool.getCampaign().getTokenBarsMap().keySet()) {
+                Object barSet = token.getState(bar);
+                BarTokenOverlay overlay = MapTool.getCampaign().getTokenBarsMap().get(bar);
+                if (overlay == null || !overlay.showPlayer(token, MapTool.getPlayer())) continue;
+                overlay.paintOverlay((Graphics2D)g, token, bounds, barSet);
             } // endfor            
             g.setClip(old);
             g.translate(-x, -y);

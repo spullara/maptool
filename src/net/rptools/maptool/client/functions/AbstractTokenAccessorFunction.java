@@ -125,11 +125,13 @@ public abstract class AbstractTokenAccessorFunction extends AbstractFunction {
      * @return The boo
      */
     public static boolean getBooleanValue(Object value) {
-        boolean set = false;
+        boolean set = false;        
         if (value instanceof Boolean) {
             set = ((Boolean)value).booleanValue();
-        } else if (value instanceof BigDecimal) {
-            set = !((BigDecimal)value).equals(BigDecimal.ZERO);
+        } else if (value instanceof Number) {
+            set = ((Number)value).doubleValue() != 0;
+        } else if (value == null) {
+            set = false;
         } else {
             try {
                 set = !new BigDecimal(value.toString()).equals(BigDecimal.ZERO);

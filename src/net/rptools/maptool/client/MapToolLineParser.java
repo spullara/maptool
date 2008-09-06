@@ -24,6 +24,7 @@ import net.rptools.maptool.client.functions.InitiativeRoundFunction;
 import net.rptools.maptool.client.functions.MiscInitiativeFunction;
 import net.rptools.maptool.client.functions.RemoveAllFromInitiativeFunction;
 import net.rptools.maptool.client.functions.TokenAddToInitiativeFunction;
+import net.rptools.maptool.client.functions.TokenBarFunction;
 import net.rptools.maptool.client.functions.TokenGMNameFunction;
 import net.rptools.maptool.client.functions.TokenHaloFunction;
 import net.rptools.maptool.client.functions.TokenInitFunction;
@@ -78,6 +79,7 @@ public class MapToolLineParser {
     	TokenInitHoldFunction.getInstance(),
     	TokenAddToInitiativeFunction.getInstance(),
     	TokenRemoveFromInitiativeFunction.getInstance(),
+    	TokenBarFunction.getInstance(),
     };
 
     

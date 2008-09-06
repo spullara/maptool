@@ -35,7 +35,7 @@ public class CornerImageTokenOverlay extends ImageTokenOverlay {
      * Needed for serialization
      */
     public CornerImageTokenOverlay() {
-        this(TokenOverlay.DEFAULT_STATE_NAME, null, Quadrant.SOUTH_EAST);
+        this(BooleanTokenOverlay.DEFAULT_STATE_NAME, null, Quadrant.SOUTH_EAST);
     }
     
     /**
@@ -51,15 +51,18 @@ public class CornerImageTokenOverlay extends ImageTokenOverlay {
     }
     
     /**
-     * @see net.rptools.maptool.client.ui.token.TokenOverlay#clone()
+     * @see net.rptools.maptool.client.ui.token.BooleanTokenOverlay#clone()
      */
     @Override
     public Object clone() {
-        TokenOverlay overlay = new CornerImageTokenOverlay(getName(), getAssetId(), corner);
+        BooleanTokenOverlay overlay = new CornerImageTokenOverlay(getName(), getAssetId(), corner);
         overlay.setOrder(getOrder());
         overlay.setGroup(getGroup());
         overlay.setMouseover(isMouseover());
         overlay.setOpacity(getOpacity());
+        overlay.setShowGM(isShowGM());
+        overlay.setShowOwner(isShowOthers());
+        overlay.setShowOthers(isShowOthers());
         return overlay;
     }
 

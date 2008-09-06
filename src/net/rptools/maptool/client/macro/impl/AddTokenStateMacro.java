@@ -28,7 +28,7 @@ import net.rptools.maptool.client.ui.token.CrossTokenOverlay;
 import net.rptools.maptool.client.ui.token.DiamondTokenOverlay;
 import net.rptools.maptool.client.ui.token.OTokenOverlay;
 import net.rptools.maptool.client.ui.token.ShadedTokenOverlay;
-import net.rptools.maptool.client.ui.token.TokenOverlay;
+import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.token.TriangleTokenOverlay;
 import net.rptools.maptool.client.ui.token.XTokenOverlay;
 import net.rptools.maptool.client.ui.token.YieldTokenOverlay;
@@ -105,7 +105,7 @@ public class AddTokenStateMacro implements Macro {
     } // endif
     
     // The second token is the overlay name, the rest of the tokens describe its properties
-    TokenOverlay tokenOverlay = null;
+    BooleanTokenOverlay tokenOverlay = null;
     if (overlay.equals("dot")) {
       tokenOverlay = createDotOverlay(name, param1, param2);
     } else if (overlay.equals("circle")) {
@@ -138,7 +138,7 @@ public class AddTokenStateMacro implements Macro {
    * @param color The color parameter value
    * @return The new token overlay.
    */
-  private TokenOverlay createShadedOverlay(String name, String color) {
+  private BooleanTokenOverlay createShadedOverlay(String name, String color) {
     Color shadeColor = findColor(color);
     return new ShadedTokenOverlay(name, shadeColor);
   }
@@ -151,7 +151,7 @@ public class AddTokenStateMacro implements Macro {
    * @param width The width parameter value
    * @return The new token overlay.
    */
-  private TokenOverlay createCircleOverlay(String name, String color, String width) {
+  private BooleanTokenOverlay createCircleOverlay(String name, String color, String width) {
     Color circleColor = findColor(color);
     int lineWidth = findInteger(width, 5);
     return new OTokenOverlay(name, circleColor, lineWidth);
@@ -165,7 +165,7 @@ public class AddTokenStateMacro implements Macro {
    * @param width The width parameter value
    * @return The new token overlay.
    */
-  private TokenOverlay createXOverlay(String name, String color, String width) {
+  private BooleanTokenOverlay createXOverlay(String name, String color, String width) {
     Color circleColor = findColor(color);
     int lineWidth = findInteger(width, 5);
     return new XTokenOverlay(name, circleColor, lineWidth);
@@ -179,7 +179,7 @@ public class AddTokenStateMacro implements Macro {
    * @param width The width parameter value
    * @return The new token overlay.
    */
-  private TokenOverlay createCrossOverlay(String name, String color, String width) {
+  private BooleanTokenOverlay createCrossOverlay(String name, String color, String width) {
       Color circleColor = findColor(color);
       int lineWidth = findInteger(width, 5);
       return new CrossTokenOverlay(name, circleColor, lineWidth);
@@ -193,7 +193,7 @@ public class AddTokenStateMacro implements Macro {
    * @param width The width of the diamond
    * @return The new token overlay.
    */
-  private TokenOverlay createDiamondOverlay(String name, String color, String width) {
+  private BooleanTokenOverlay createDiamondOverlay(String name, String color, String width) {
       Color circleColor = findColor(color);
       int lineWidth = findInteger(width, 5);
       return new DiamondTokenOverlay(name, circleColor, lineWidth);
@@ -207,7 +207,7 @@ public class AddTokenStateMacro implements Macro {
    * @param width The width of the yield
    * @return The new token overlay.
    */
-  private TokenOverlay createYieldOverlay(String name, String color, String width) {
+  private BooleanTokenOverlay createYieldOverlay(String name, String color, String width) {
       Color circleColor = findColor(color);
       int lineWidth = findInteger(width, 5);
       return new YieldTokenOverlay(name, circleColor, lineWidth);
@@ -221,7 +221,7 @@ public class AddTokenStateMacro implements Macro {
    * @param width The width of the triangle
    * @return The new token overlay.
    */
-  private TokenOverlay createTriangleOverlay(String name, String color, String width) {
+  private BooleanTokenOverlay createTriangleOverlay(String name, String color, String width) {
       Color circleColor = findColor(color);
       int lineWidth = findInteger(width, 5);
       return new TriangleTokenOverlay(name, circleColor, lineWidth);
@@ -235,7 +235,7 @@ public class AddTokenStateMacro implements Macro {
    * @param corner The corner parameter value
    * @return The new token overlay.
    */
-  private TokenOverlay createDotOverlay(String name, String color, String corner) {
+  private BooleanTokenOverlay createDotOverlay(String name, String color, String corner) {
     Color dotColor = findColor(color);
     Quadrant dotCorner = findCorner(corner);
     return new ColorDotTokenOverlay(name, dotColor, dotCorner);
