@@ -13,16 +13,11 @@
  */
 package net.rptools.maptool.client.ui.zone.vbl;
 
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-
-import javax.swing.plaf.metal.OceanTheme;
 
 import net.rptools.maptool.util.GraphicsUtil;
 
@@ -33,6 +28,11 @@ public class AreaTree {
 	public AreaTree(Area area) {
 		
 		digest(area);
+	}
+
+	public AreaOcean getOceanAt(Point2D point) {
+		
+		return theOcean.getDeepestOceanAt(point);
 	}
 	
 	// Package level for testing purposes
@@ -61,9 +61,9 @@ public class AreaTree {
 
 				// Holes are oceans, solids are islands
 				if (areaMeta.isHole()) {
-					oceanList.add(new AreaOcean(areaMeta.getArea()));
+					oceanList.add(new AreaOcean(areaMeta));
 				} else {
-					islandList.add(new AreaIsland(areaMeta.getArea()));
+					islandList.add(new AreaIsland(areaMeta));
 				}
 
 				break;
@@ -80,6 +80,8 @@ public class AreaTree {
 			}
 			
 		}
+		
+		System.out.println("oceans: " + oceanList.size() + " islands: " + islandList.size());
 		
 		// Create the hierarchy
 		// Start by putting each ocean into the containing island

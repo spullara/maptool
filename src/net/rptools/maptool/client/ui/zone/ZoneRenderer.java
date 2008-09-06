@@ -549,7 +549,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     }
     
     public void renderZone(Graphics2D g2d, PlayerView view) {
-        
     	g2d.setFont(AppStyle.labelFont);
     	Object oldAA = SwingUtil.useAntiAliasing(g2d);
     	
@@ -584,6 +583,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         // Calculations
         if (zoneView.isUsingVision() && zoneView.getVisibleArea(view) != null && visibleScreenArea == null) {
+
         	AffineTransform af = new AffineTransform();
         	af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
         	af.scale(getScale(), getScale());

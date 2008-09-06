@@ -27,6 +27,7 @@ import java.util.Set;
 
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.zone.vbl.AreaTree;
 import net.rptools.maptool.model.AttachedLightSource;
 import net.rptools.maptool.model.Direction;
 import net.rptools.maptool.model.GUID;
@@ -43,6 +44,7 @@ public class ZoneView implements ModelChangeListener {
 	private Zone zone;
 
 	// VISION
+	private Map<GUID, Area> tokenVisibleAreaCache = new HashMap<GUID, Area>();
     private Map<GUID, Area> tokenVisionCache = new HashMap<GUID, Area>();
     private Map<GUID, Map<String, Area>> lightSourceCache = new HashMap<GUID, Map<String, Area>>();
     private Set<GUID> lightSourceSet = new HashSet<GUID>();
@@ -50,6 +52,7 @@ public class ZoneView implements ModelChangeListener {
     private Map<GUID, Set<Area>> brightLightCache = new HashMap<GUID, Set<Area>>();
     private Map<PlayerView, VisibleAreaMeta> visibleAreaMap = new HashMap<PlayerView, VisibleAreaMeta>();
     private AreaData topologyAreaData;
+    private AreaTree topology;
     
 	public ZoneView(Zone zone) {
 		
@@ -67,6 +70,13 @@ public class ZoneView implements ModelChangeListener {
 	
 	public boolean isUsingVision() {
 		return lightSourceSet.size() > 0 || (zone.getTopology() != null && !zone.getTopology().isEmpty());
+	}
+	
+	public AreaTree getTopology() {
+		if (topology == null) {
+			topology = new AreaTree(zone.getTopology());
+		}
+		return topology;
 	}
 
     public AreaData getTopologyAreaData() {
@@ -126,7 +136,8 @@ public class ZoneView implements ModelChangeListener {
         	lightSourceArea.transform(AffineTransform.getScaleInstance(sight.getMultiplier(), sight.getMultiplier()));
         }
 
-		Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopologyAreaData());
+		Area visibleArea = FogUtil.calculateVisibility5(p.x, p.y, lightSourceArea, getTopology());
+
 		if (visibleArea == null) {
 			return null;
 		}
@@ -169,63 +180,73 @@ public class ZoneView implements ModelChangeListener {
 			return tokenVisibleArea;
 		}
 
-		// Visible area without inhibition
-        Point p = FogUtil.calculateVisionCenter(token, zone);
-        int visionDistance = zone.getTokenVisionInPixels();
-        Area visibleArea = new Area(new Ellipse2D.Double(-visionDistance, -visionDistance, visionDistance*2, visionDistance*2));
-        visibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopologyAreaData());
+		// Combine the player visible area with the available light sources
+		tokenVisibleArea = tokenVisibleAreaCache.get(token.getId());
+		if (tokenVisibleArea == null) {
+			
+	        Point p = FogUtil.calculateVisionCenter(token, zone);
+	        int visionDistance = zone.getTokenVisionInPixels();
+	        Area visibleArea = new Area(new Ellipse2D.Double(-visionDistance, -visionDistance, visionDistance*2, visionDistance*2));
 
-        // Simple case
-        if (lightSourceSet.size() > 0) {
+//	        System.out.println("---------------------------------------");
+//	        tokenVisibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopologyAreaData());
+//	        tokenVisibleArea = FogUtil.calculateVisibility2(p.x, p.y, visibleArea, getTopology());
+//	        tokenVisibleArea = FogUtil.calculateVisibility3(p.x, p.y, visibleArea, getTopology());
+//	        tokenVisibleArea = FogUtil.calculateVisibility4(p.x, p.y, visibleArea, getTopology());
+	        tokenVisibleArea = FogUtil.calculateVisibility5(p.x, p.y, visibleArea, getTopology());
+			
+			tokenVisibleAreaCache.put(token.getId(), tokenVisibleArea);
+		}
+
+        // Combine in the visible light areas
+        if (lightSourceSet.size() > 0 && tokenVisibleArea != null) {
         
-	        if (visibleArea != null) {
-	        	Rectangle2D origBounds = visibleArea.getBounds();
-	        	
-	    		// Combine all light sources that might intersect our vision
-	        	List<Area> intersects = new LinkedList<Area>();
-	    		for (GUID lightSourceTokenId : lightSourceSet) {
-	    			
-	    			Token lightSourceToken = zone.getToken(lightSourceTokenId);
-	    			if (lightSourceToken == null) {
-	    				continue;
-	    			}
-	    			
-	    			Area lightArea = getLightSourceArea(token, lightSourceToken);
-	
-	    			if (origBounds.intersects(lightArea.getBounds2D())) {
-	            		Area intersection = new Area(visibleArea);
-	            		intersection.intersect(lightArea);
-	                	intersects.add(intersection);
-	            	}
-	    		}
-	        	
-	            // Check for personal vision
-	            SightType sight = MapTool.getCampaign().getSightType(token.getSightType());
-	            if (sight != null && sight.hasPersonalLightSource()) {
-	    			Area lightArea = calculateLightSourceArea(sight.getPersonalLightSource(), token, sight, Direction.CENTER);
-	    			if (lightArea != null) {
-	            		Area intersection = new Area(visibleArea);
-	            		intersection.intersect(lightArea);
-	                	intersects.add(intersection);
-	    			}
-	            }
+        	Rectangle2D origBounds = tokenVisibleArea.getBounds();
+        	
+    		// Combine all light sources that might intersect our vision
+        	List<Area> intersects = new LinkedList<Area>();
+    		for (GUID lightSourceTokenId : lightSourceSet) {
+    			
+    			Token lightSourceToken = zone.getToken(lightSourceTokenId);
+    			if (lightSourceToken == null) {
+    				continue;
+    			}
+    			
+    			Area lightArea = getLightSourceArea(token, lightSourceToken);
 
-				while (intersects.size() > 1) {
-					
-					Area a1 = intersects.remove(0);
-					Area a2 = intersects.remove(0);
-					
-					a1.add(a2);
-					intersects.add(a1);
-				}
-	
-	            visibleArea = intersects.size() > 0 ? intersects.get(0) : new Area();
-	        }
+    			if (origBounds.intersects(lightArea.getBounds2D())) {
+            		Area intersection = new Area(tokenVisibleArea);
+            		intersection.intersect(lightArea);
+                	intersects.add(intersection);
+            	}
+    		}
+        	
+            // Check for personal vision
+            SightType sight = MapTool.getCampaign().getSightType(token.getSightType());
+            if (sight != null && sight.hasPersonalLightSource()) {
+    			Area lightArea = calculateLightSourceArea(sight.getPersonalLightSource(), token, sight, Direction.CENTER);
+    			if (lightArea != null) {
+            		Area intersection = new Area(tokenVisibleArea);
+            		intersection.intersect(lightArea);
+                	intersects.add(intersection);
+    			}
+            }
+
+			while (intersects.size() > 1) {
+				
+				Area a1 = intersects.remove(0);
+				Area a2 = intersects.remove(0);
+				
+				a1.add(a2);
+				intersects.add(a1);
+			}
+
+            tokenVisibleArea = intersects.size() > 0 ? intersects.get(0) : new Area();
         }
         
-        tokenVisionCache.put(token.getId(), visibleArea);
+        tokenVisionCache.put(token.getId(), tokenVisibleArea);
 		
-		return visibleArea;
+		return tokenVisibleArea;
 	}
 
 	private void findLightSources() {
@@ -260,6 +281,7 @@ public class ZoneView implements ModelChangeListener {
 	}
 	
 	public void flush() {
+		tokenVisibleAreaCache.clear();
 		tokenVisionCache.clear();
 		lightSourceCache.clear();
 		visibleAreaMap.clear();
@@ -271,6 +293,7 @@ public class ZoneView implements ModelChangeListener {
     	boolean hadLightSource = lightSourceCache.get(token.getId()) != null;
     	
         tokenVisionCache.remove(token.getId());
+        tokenVisibleAreaCache.remove(token.getId());
         lightSourceCache.remove(token.getId());
         drawableLightCache.remove(token.getId());
         brightLightCache.remove(token.getId());

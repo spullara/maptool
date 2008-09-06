@@ -24,12 +24,16 @@
  */
 package net.rptools.maptool.client.ui.zone.vbl;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Area;
+import java.awt.geom.Point2D;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -45,6 +49,8 @@ public class AreaTreeInspector extends JPanel {
 		Color.orange,
 		Color.cyan
 	};
+
+	private Point2D point;
 	
 	public AreaTreeInspector() {
 
@@ -54,6 +60,7 @@ public class AreaTreeInspector extends JPanel {
 		area.subtract(new Area(new Rectangle(150, 200, 100, 100)));
 		area.subtract(new Area(new Rectangle(300, 200, 75, 100)));
 		area.add(new Area(new Rectangle(175, 225, 50, 50)));
+		area.subtract(new Area(new Rectangle(180, 230, 20, 20)));
 
 		area.add(new Area(new Rectangle(450, 100, 300, 300)));
 		area.subtract(new Area(new Rectangle(500, 200, 100, 100)));
@@ -61,6 +68,18 @@ public class AreaTreeInspector extends JPanel {
 		area.add(new Area(new Rectangle(525, 225, 50, 50)));
 
 		tree = new AreaTree(area);
+		
+		addMouseMotionListener(new MouseMotionAdapter() {
+			
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				
+				point = e.getPoint();
+				repaint();
+			}
+			
+			
+		});
 	}
 	
 	@Override
@@ -72,7 +91,33 @@ public class AreaTreeInspector extends JPanel {
 		
 		AreaOcean ocean = tree.getOcean();
 		
-		paintOcean((Graphics2D)g, ocean, 0);
+//		paintOcean((Graphics2D)g, ocean, 0);
+		
+		if (point != null) {
+			Graphics2D g2d = (Graphics2D)g.create(0, 0, size.width, size.height);
+			
+			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f));
+			g2d.setColor(Color.blue);
+
+			ocean = tree.getOceanAt(point);
+			if (ocean != null && ocean.getBounds() != null) {
+				g2d.fill(ocean.getBounds());
+			} 
+			
+			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .25f));
+			g2d.setColor(Color.red);
+			
+			for (VisibleAreaSegment segment : ocean.getVisibleAreaSegments(point)) {
+				
+				Area area = segment.getArea();
+				if (area != null) {
+					g2d.fill(area);
+				}
+			}
+			
+			g2d.dispose();
+		}
+		
 	}
 	
 	private void paintOcean(Graphics2D g, AreaOcean ocean, int depth) {
@@ -108,7 +153,7 @@ public class AreaTreeInspector extends JPanel {
 		
 		JFrame f = new JFrame();
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setBounds(100,100, 500, 500);
+		f.setBounds(100,100, 800, 500);
 		f.add(new AreaTreeInspector());
 		f.setVisible(true);
 	}

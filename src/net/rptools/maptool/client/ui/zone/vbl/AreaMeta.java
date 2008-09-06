@@ -15,9 +15,10 @@ package net.rptools.maptool.client.ui.zone.vbl;
 
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.rptools.lib.GeometryUtil;
@@ -27,7 +28,7 @@ public class AreaMeta {
 
 	Area area;
 	Point2D centerPoint;
-	Set<AreaFace> faceSet;
+	List<AreaFace> faceList = new ArrayList<AreaFace>();
 	
 	// Only used during construction
 	boolean isHole;
@@ -45,23 +46,41 @@ public class AreaMeta {
 		return centerPoint;
 	}
 	
-	public Set<AreaFace> getFrontFaces(Point2D origin) {
-
-		Set<AreaFace> faces = new HashSet<AreaFace>();
-		for (AreaFace face : faceSet) {
+	public Set<VisibleAreaSegment> getVisibleAreas(Point2D origin) {
+		Set<VisibleAreaSegment> segSet = new HashSet<VisibleAreaSegment>();
+	
+		VisibleAreaSegment segment = null;
+		for (AreaFace face : faceList) {
+			
 			double originAngle = GeometryUtil.getAngle(origin, face.getMidPoint());
 			double delta = GeometryUtil.getAngleDelta(originAngle, face.getFacing()); 
 
-			if (Math.abs(delta) < 90) {
+			if (Math.abs(delta) > 90) {
+
+				if (segment != null) {
+					segSet.add(segment);
+					segment = null;
+				}
+				
 				continue;
 			}
 
-			faces.add(face);
+			// Continuous face
+			if (segment == null) {
+				segment = new VisibleAreaSegment(origin);
+			}
+			segment.addAtEnd(face);
 		}
-
-		return faces;
+		if (segment != null) {
+			// We finished the list while visible, see if we can combine with the first segment
+			// TODO: attempt to combine with the first segment somehow
+			segSet.add(segment);
+		}
+		
+//		System.out.println("Segs: " + segSet.size());
+		return segSet;
 	}
-	
+
 	public Area getArea() {
 		return new Area(area);
 	}
@@ -139,15 +158,13 @@ public class AreaMeta {
 	}
 	
 	private void computeFaces() {
-		faceSet = new HashSet<AreaFace>();
 	
 		PointNode node = pointNodeList;
 		do {
-			faceSet.add(new AreaFace(node.point, node.previous.point));
+			faceList.add(new AreaFace(node.point, node.next.point));
 			
 			node = node.next;
 			
 		} while (!node.point.equals(pointNodeList.point));
-		
 	}
 }
