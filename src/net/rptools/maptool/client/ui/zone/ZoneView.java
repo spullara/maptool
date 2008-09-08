@@ -367,6 +367,8 @@ public class ZoneView implements ModelChangeListener {
                 lightSourceCache.clear();
                 visibleAreaMap.clear();
                 topologyAreaData = null;
+                topology = null;
+                tokenVisibleAreaCache.clear();
             }
             if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
             	flush((Token)event.getArg());
