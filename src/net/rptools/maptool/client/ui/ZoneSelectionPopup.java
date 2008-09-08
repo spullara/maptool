@@ -30,6 +30,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -66,6 +68,16 @@ public class ZoneSelectionPopup extends JPopupMenu {
 			}
 		}
 
+		Collections.sort(rendererList, new Comparator<ZoneRenderer>() {
+			public int compare(ZoneRenderer o1, ZoneRenderer o2) {
+				
+				String name1 = o1.getZone().getName();
+				String name2 = o2.getZone().getName();
+				
+				return String.CASE_INSENSITIVE_ORDER.compare(name1, name2);
+			}
+		});
+		
 		for (ZoneRenderer renderer : rendererList) {
 			
 			add(new SelectZoneButton(renderer));
