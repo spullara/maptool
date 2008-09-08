@@ -431,8 +431,8 @@ public class FogUtil {
 			vision.subtract(clearedAreaList.get(0));
 		}
 			
-		System.out.println("Blocks: " + blockCount + " Skipped: " + skippedAreas + " metaBlocks: " + metaBlockCount );
-		System.out.println(timer);
+//		System.out.println("Blocks: " + blockCount + " Skipped: " + skippedAreas + " metaBlocks: " + metaBlockCount );
+//		System.out.println(timer);
 
 		// For simplicity, this catches some of the edge cases
 

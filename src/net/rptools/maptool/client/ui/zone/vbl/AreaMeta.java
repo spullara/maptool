@@ -147,7 +147,7 @@ public class AreaMeta {
 		pointNodeList = null;
 		path = null;
 		
-		System.out.println("AreaMeta.skippedPoints: " + skippedPoints);
+//		System.out.println("AreaMeta.skippedPoints: " + skippedPoints);
 	}
 
 	private void computeIsHole() {
