@@ -29,6 +29,7 @@ import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
@@ -41,6 +42,11 @@ import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
 
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppUtil;
@@ -541,22 +547,43 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
             putValue(NAME, bar);
         }
         public void actionPerformed(ActionEvent e) {
+            String name = (String)getValue(NAME);
             JSlider slider = new JSlider(0, 100);
+            JPanel labelPanel = new JPanel(new FormLayout("pref", "pref 2px:grow pref"));
+            labelPanel.add(new JLabel(name + ":"), new CellConstraints(1, 1, CellConstraints.RIGHT, CellConstraints.TOP));
+            JCheckBox hide = new JCheckBox("Hide");
+            hide.putClientProperty("JSlider", slider);
+            hide.addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent e) {
+                    JSlider js = (JSlider)((JCheckBox)e.getSource()).getClientProperty("JSlider");
+                    js.setEnabled(!((JCheckBox)e.getSource()).isSelected());
+                }
+            });
+            labelPanel.add(hide, new CellConstraints(1, 3, CellConstraints.RIGHT, CellConstraints.TOP));
             slider.setPaintLabels(true);
             slider.setPaintTicks(true);
             slider.setMajorTickSpacing(20);
             slider.createStandardLabels(20);
             slider.setMajorTickSpacing(10);
-            slider.setValue((int)(TokenBarFunction.getBigDecimalValue(getTokenUnderMouse().getState((String)getValue(NAME))).doubleValue() * 100));
-            JPanel panel = new JPanel(new FlowLayout());
-            panel.add(new JLabel((String)getValue(NAME) + ":"));
-            panel.add(slider);
-            if (JOptionPane.showOptionDialog(MapTool.getFrame(), panel, "Set " + (String)getValue(NAME) + " Value", JOptionPane.OK_CANCEL_OPTION, 
+            if (getTokenUnderMouse().getState(name) == null) {
+                hide.setSelected(true);
+                slider.setEnabled(false);
+                slider.setValue(100);
+            } else {
+                hide.setSelected(false);
+                slider.setEnabled(true);
+                slider.setValue((int)(TokenBarFunction.getBigDecimalValue(getTokenUnderMouse().getState(name)).doubleValue() * 100));
+            }
+            JPanel barPanel = new JPanel(new FormLayout("right:pref 2px pref", "pref"));
+            barPanel.add(labelPanel, new CellConstraints(1, 1));
+            barPanel.add(slider, new CellConstraints(3, 1));
+            if (JOptionPane.showOptionDialog(MapTool.getFrame(), barPanel, "Set " + name + " Value", JOptionPane.OK_CANCEL_OPTION, 
                     JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION) {
                 Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
                 for (GUID tokenGUID : selectedTokenSet) {
                     Token token = zone.getToken(tokenGUID);
-                    token.setState((String)getValue(NAME), new BigDecimal(slider.getValue() / 100.0));
+                    BigDecimal val = hide.isSelected() ? null : new BigDecimal(slider.getValue() / 100.0); 
+                    token.setState(name, val);
                     MapTool.serverCommand().putToken(zone.getId(), token);
                 }
             }

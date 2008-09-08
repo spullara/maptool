@@ -132,14 +132,15 @@ public abstract class BarTokenOverlay extends AbstractTokenOverlay {
      */
     @Override
     public void paintOverlay(Graphics2D g, Token token, Rectangle bounds, Object value) {
-        double val = 0;
+        if (value == null) return;
+        double val = 0; 
         if (value instanceof Number) {
             val = ((Number)value).doubleValue();
-        } else if (value != null) {
+        } else {
             try {
                 val = Double.parseDouble(value.toString());
             } catch (NumberFormatException e) {
-                // Ignore
+               return; // Bad value so don't paint. 
             } // endtry
         } // endif
         if (val < 0) val = 0;
