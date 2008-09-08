@@ -47,9 +47,8 @@ public class AreaOcean implements AreaContainer {
 
 		// If the point is in an island, then let the island figure it out
 		for (AreaIsland island : islandSet) {
-			AreaOcean ocean = island.getDeepestOceanAt(point);
-			if (ocean != null) {
-				return ocean;
+			if (island.getBounds().contains(point)) {
+				return island.getDeepestOceanAt(point);
 			}
 		}
 		
