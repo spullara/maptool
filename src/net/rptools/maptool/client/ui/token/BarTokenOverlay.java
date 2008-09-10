@@ -96,7 +96,7 @@ public abstract class BarTokenOverlay extends AbstractTokenOverlay {
     public int calcBarSize(int size, double value) {
         if (value == 0) return 0;
         if (value == 1) return size;
-        if (increments == 0) return (int)(size * value);
+        if (increments == 0) return (int)Math.ceil(size * value);
         double iSize = 1.0 / (increments - 1);
         return (int)(size * findIncrement(value) * iSize);
     }
@@ -107,10 +107,11 @@ public abstract class BarTokenOverlay extends AbstractTokenOverlay {
      * @param value Find the increment for this value.
      * @return The increment for the value or -1 if no increments defined. 
      */
-    public int findIncrement(double value) {
+    public int findIncrement(double value) {        
         if (increments == 0) return -1;
-        double iSize = 1.0 / (increments - 1);
-        return (int)(value / iSize);
+        if (value == 0) return 0;
+        if (value == 1) return increments - 1;
+        return (int)Math.ceil(value * (increments - 1));
     }
     
     /** @return Getter for side */
