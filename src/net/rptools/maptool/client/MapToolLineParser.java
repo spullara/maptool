@@ -147,7 +147,7 @@ public class MapToolLineParser {
 								Result result = parseExpression(resolver, tokenInContext, args[0]);
 								try {
 									count = ((Number)result.getValue()).intValue();
-									if (count < 1)
+									if (count < 0)
 										throw new ParserException("Invalid count: " + String.valueOf(count));
 								} catch (ClassCastException e) {
 									throw new ParserException("Invalid count: " + result.getValue().toString());
