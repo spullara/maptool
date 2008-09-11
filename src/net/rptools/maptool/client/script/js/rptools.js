@@ -230,4 +230,8 @@ Company.data.CustomStore = function(config) { ... }
 
 rptools.ns = rptools.namespace;
 
+rptools.tokens = rptools_global_tokens;
+
 })(); // End local scope
+
+RP = rptools;

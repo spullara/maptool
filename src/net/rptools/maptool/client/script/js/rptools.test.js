@@ -1,5 +1,10 @@
 (function() { // Create a local scope
 
+	
+///// @register 'rptools.test.echo'
+// @register { name: 'rptools.test.echo', alias: ['echo'] }
+	
+	
 rptools.test = {
 	accessJavaPackage: function() {
 		return new java.util.Date();

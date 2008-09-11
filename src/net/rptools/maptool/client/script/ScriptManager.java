@@ -13,17 +13,28 @@
  */
 package net.rptools.maptool.client.script;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import net.rptools.maptool.client.script.api.TokenApi;
+import net.sf.json.JSONObject;
 
 import org.mozilla.javascript.*;
 
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.RegularExpression;
+
 public class ScriptManager {
 
-    private static final String[]   JAVASCRIPT_FILES = { "net/rptools/maptool/client/script/js/rptools.js",
-            "net/rptools/maptool/client/script/js/rptools.test.js" };
+    private static final String[]   JAVASCRIPT_FILES = { 
+        "net/rptools/maptool/client/script/js/rptools.js",
+        "net/rptools/maptool/client/script/js/rptools.test.js" 
+    };
 
     static boolean                  useDynamicSCope  = false;
 
@@ -43,6 +54,10 @@ public class ScriptManager {
             jsContext.setClassShutter(new SecurityClassShutter());
 
             jsScope = jsContext.initStandardObjects(null, true);
+            
+            Object o = Context.javaToJS(new TokenApi(), jsScope);
+            ScriptableObject.putProperty(jsScope, "rptools_global_tokens", o);
+            
             for (String script : JAVASCRIPT_FILES) {
                 Reader reader = new InputStreamReader(ScriptManager.class.getClassLoader().getResourceAsStream(script));
 
@@ -55,7 +70,6 @@ public class ScriptManager {
         } finally {
             Context.exit();
         }
-
     }
 
     public static Object evaluate(Map<String, Object> globals, String script) throws IOException {
@@ -83,6 +97,21 @@ public class ScriptManager {
 
         } finally {
             Context.exit();
+        }
+    }
+    
+    private static Pattern registerPattern = Pattern.compile("^\\/\\/\\s*@register\\s+(.*)", Pattern.CASE_INSENSITIVE);
+    
+    public static void registerFunctions(Reader reader) throws IOException {
+        BufferedReader r = new BufferedReader(reader);
+        String line;
+        while ((line = r.readLine()) != null) {
+            Matcher m = registerPattern.matcher(line);
+            if (m.matches()) {
+                JSONObject o = JSONObject.fromObject(m.group(1));
+                System.out.println(m.group(1));
+                System.out.println(o);
+            }
         }
     }
 

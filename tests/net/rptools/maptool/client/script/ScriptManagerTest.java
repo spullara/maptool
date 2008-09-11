@@ -14,6 +14,8 @@
 package net.rptools.maptool.client.script;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,4 +36,10 @@ public class ScriptManagerTest extends TestCase {
         System.out.println(ScriptManager.evaluate(globals, "rptools.test.arrayLength(myArray)"));
     }
 
+    public void testRegisterFunctions() throws IOException {
+        Reader reader = new InputStreamReader(ScriptManager.class.getClassLoader().getResourceAsStream("net/rptools/maptool/client/script/js/rptools.test.js"));
+        
+        ScriptManager.registerFunctions(reader);
+        
+    }
 }

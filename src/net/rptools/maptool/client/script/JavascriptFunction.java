@@ -22,6 +22,7 @@ import java.util.Map;
 import org.mozilla.javascript.Context;
 
 import net.rptools.common.expression.RunData;
+import net.rptools.maptool.client.script.api.TokenApi;
 import net.rptools.maptool.client.script.api.proxy.ParserProxy;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -58,9 +59,9 @@ public class JavascriptFunction extends AbstractFunction {
         
         StringBuilder sb = new StringBuilder();
         
-        sb.append("(function() { rptools.scope = { parser: parser, name: functionName, rundata: rundata, result: result }; ");
+        sb.append("(function() { rptools.scope = { parser: parser, function:  { name: functionName, rundata: rundata, result: result } }; ");
         
-        sb.append("var result = ").append(javascriptFunction).append('(');
+        sb.append("var funcresult = ").append(javascriptFunction).append('(');
         
         boolean first = true;
         for (Object o : parameters) {
@@ -75,7 +76,7 @@ public class JavascriptFunction extends AbstractFunction {
             first = false;
         }
         
-        sb.append("); rptools.scope = null; return result; })();");
+        sb.append("); rptools.scope = null; return funcresult; })();");
         
         System.out.println(sb.toString());
 
