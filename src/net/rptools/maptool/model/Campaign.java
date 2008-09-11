@@ -155,7 +155,7 @@ public class Campaign {
 	}
 
     public List<TokenProperty> getTokenPropertyList(String tokenType) {
-    	return getTokenTypeMap().get(tokenType);
+    	return getTokenTypeMap().containsKey(tokenType)? getTokenTypeMap().get(tokenType): new ArrayList<TokenProperty>();
     }
     
     public void putTokenType(String name, List<TokenProperty> propertyList) {
