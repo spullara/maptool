@@ -64,6 +64,7 @@ import net.rptools.maptool.model.Zone.Event;
 import com.jeta.forms.components.line.HorizontalLineComponent;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+import com.jidesoft.swing.JideButton;
 import com.jidesoft.swing.JideSplitButton;
 
 /**
@@ -154,8 +155,9 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         add(panel, SwingConstants.CENTER);
         menuButton = new JideSplitButton(I18N.getText("initPanel.menuButton"));
         panel.add(menuButton, new CellConstraints(2, 2));
-        JLabel label = new JLabel(I18N.getText("initPanel.round"));
-        panel.add(label, new CellConstraints(4, 2));
+        JideButton rButton = new JideButton(RESET_COUNTER_ACTION);
+        rButton.setButtonStyle(JideButton.TOOLBOX_STYLE);
+        panel.add(rButton, new CellConstraints(4, 2));
         round = new JLabel();
         round.setHorizontalAlignment(SwingConstants.CENTER);
         round.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
@@ -198,6 +200,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         I18N.setAction("initPanel.remove", REMOVE_TOKEN_ACTION);
         I18N.setAction("initPanel.menuButton", NEXT_ACTION);
         I18N.setAction("initPanel.toggleOwnerPermissions", TOGGLE_OWNER_PERMISSIONS_ACTION);
+        I18N.setAction("initPanel.round", RESET_COUNTER_ACTION);
         updateView();
     }
     
@@ -629,6 +632,18 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
                 ownerPermissionsMenuItem.setSelected(op);
             MapTool.getCampaign().setInitiativeOwnerPermissions(op);
             MapTool.serverCommand().updateCampaign(MapTool.getCampaign().getCampaignProperties());
+        };
+    };
+
+    /**
+     * This action will add all tokens in the zone to this initiative panel.
+     */
+    public final Action RESET_COUNTER_ACTION = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            list.startUnitOfWork();
+            list.setRound(-1);
+            list.setCurrent(-1);
+            list.finishUnitOfWork();
         };
     };
 
