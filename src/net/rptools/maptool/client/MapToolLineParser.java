@@ -154,8 +154,7 @@ public class MapToolLineParser {
 								}
 								
 								if (args.length > 1) {
-									result = parseExpression(resolver, tokenInContext, args[1]);
-									separator = result.getValue().toString();
+									separator = args[1];
 								}
 							} else {
 								throw new ParserException("Invalid option: " + opt);
@@ -173,7 +172,7 @@ public class MapToolLineParser {
     	    	StringBuilder expressionBuilder = new StringBuilder();
     			for (int i = 0; i < count; i++) {
     				if (i != 0 && output != Output.NONE)
-    					expressionBuilder.append(separator);
+    					expressionBuilder.append(parseExpression(resolver, tokenInContext, separator).getValue());
     				
     				resolver.setVariable("roll.count", i + 1);
         			Result result;
