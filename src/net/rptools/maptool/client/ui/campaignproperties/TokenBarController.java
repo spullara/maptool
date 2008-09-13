@@ -357,6 +357,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
             if (i < DATA_ENTRY_COMPONENT_LABELS.length)
                 formPanel.getComponentByName(DATA_ENTRY_COMPONENT_LABELS[i]).setEnabled(NEEDED_COMPONENTS[selected][i]);
         } // endfor
+        changedUpdate(null);
     }
     
     /**
