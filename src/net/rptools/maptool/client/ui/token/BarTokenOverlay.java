@@ -49,7 +49,7 @@ public abstract class BarTokenOverlay extends AbstractTokenOverlay {
     /**
      * The side of the token where the bar is painted.
      */
-    private Side side;
+    private Side side = Side.TOP;
     
     /*---------------------------------------------------------------------------------------------
      * Class Variables

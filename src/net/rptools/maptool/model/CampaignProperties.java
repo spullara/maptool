@@ -39,6 +39,7 @@ import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
 import net.rptools.maptool.client.ui.token.SingleImageBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.TriangleTokenOverlay;
 import net.rptools.maptool.client.ui.token.TwoImageBarTokenOverlay;
+import net.rptools.maptool.client.ui.token.TwoToneBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.XTokenOverlay;
 import net.rptools.maptool.client.ui.token.YieldTokenOverlay;
 
@@ -105,7 +106,9 @@ public class CampaignProperties implements Serializable {
         } // endfor
 		
         tokenBars = new LinkedHashMap<String, BarTokenOverlay>();
-        if (properties.tokenBars == null) properties.tokenBars = new LinkedHashMap<String, BarTokenOverlay>();
+        if (properties.tokenBars == null || properties.tokenBars.isEmpty()) {
+            properties.initTokenBarsMap();
+        }
         for (BarTokenOverlay overlay : properties.tokenBars.values()) {
             overlay = (BarTokenOverlay)overlay.clone();
             tokenBars.put(overlay.getName(), overlay);
@@ -224,7 +227,7 @@ public class CampaignProperties implements Serializable {
     
     public Map<String, BarTokenOverlay> getTokenBarsMap() {
         if (tokenBars == null) {
-            tokenBars = new LinkedHashMap<String, BarTokenOverlay>();
+            initTokenBarsMap();
         }
         return tokenBars;
     }
@@ -240,6 +243,7 @@ public class CampaignProperties implements Serializable {
     	initTokenTypeMap();
     	initSightTypeMap();
         initTokenStatesMap();
+        initTokenBarsMap();
     }
 
     private void initLookupTableMap() {
@@ -334,6 +338,11 @@ public class CampaignProperties implements Serializable {
         tokenStates.put("Other2", (new DiamondTokenOverlay("Other2", Color.RED, 5)));
         tokenStates.put("Other3", (new YieldTokenOverlay("Other3", Color.YELLOW, 5)));
         tokenStates.put("Other4", (new TriangleTokenOverlay("Other4", Color.MAGENTA, 5)));
+    }
+    
+    private void initTokenBarsMap() {
+        tokenBars = new LinkedHashMap<String, BarTokenOverlay>();
+        tokenBars.put("Health", new TwoToneBarTokenOverlay("Health", Color.RED, Color.BLACK, 6));
     }
     
     public Set<MD5Key> getAllImageAssets() {

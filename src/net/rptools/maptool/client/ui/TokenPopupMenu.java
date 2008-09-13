@@ -101,7 +101,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		addOwnedItem(createBarMenu());
         addOwnedItem(createInitiativeMenu());
         if (MapTool.getFrame().getInitiativePanel().hasOwnerPermission(tokenUnderMouse))
-            add(new ChangeInititiveState("initiative.menu.addToInitiative"));
+            add(new ChangeInitiativeState("initiative.menu.addToInitiative"));
 		addOwnedItem(createFlipMenu());
 		if (getTokenUnderMouse().getCharsheetImage() != null && AppUtil.playerOwns(getTokenUnderMouse())) {
 			add(new ShowHandoutAction());
@@ -328,15 +328,15 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	    JMenu initiativeMenu = I18N.createMenu("initiative.menu");
         boolean isOwner = MapTool.getFrame().getInitiativePanel().hasOwnerPermission(getTokenUnderMouse());
         if (isOwner) {
-            initiativeMenu.add(new ChangeInititiveState("initiative.menu.add"));
-            initiativeMenu.add(new ChangeInititiveState("initiative.menu.remove"));
+            initiativeMenu.add(new ChangeInitiativeState("initiative.menu.add"));
+            initiativeMenu.add(new ChangeInitiativeState("initiative.menu.remove"));
             initiativeMenu.addSeparator();
         } // endif
-        initiativeMenu.add(new JMenuItem(new ChangeInititiveState("initiative.menu.resume")));
-        initiativeMenu.add(new JMenuItem(new ChangeInititiveState("initiative.menu.hold")));
+        initiativeMenu.add(new JMenuItem(new ChangeInitiativeState("initiative.menu.resume")));
+        initiativeMenu.add(new JMenuItem(new ChangeInitiativeState("initiative.menu.hold")));
         initiativeMenu.addSeparator();
-        initiativeMenu.add(new JMenuItem(new ChangeInititiveState("initiative.menu.setState")));
-        initiativeMenu.add(new JMenuItem(new ChangeInititiveState("initiative.menu.clearState")));
+        initiativeMenu.add(new JMenuItem(new ChangeInitiativeState("initiative.menu.setState")));
+        initiativeMenu.add(new JMenuItem(new ChangeInitiativeState("initiative.menu.clearState")));
         
         // Enable by state if only one token selected.
         if (selectedTokenSet.size() == 1) {
@@ -637,33 +637,22 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 				Token token = renderer.getZone().getToken(tokenGUID);
 				if (aE.getActionCommand().equals("clear")) {
-					// Wipe out the entire state HashMap, this is what the
-					// previous
-					// code attempted to do but was failing due to the Set
-					// returned
-					// by getStatePropertyNames being a non-static view into a
-					// set.
-					// Removing items from the map was messing up the iteration.
-					// Here, clear all states, unfortunately, including light.
-					token.getStatePropertyNames().clear();
+				    for (String state : MapTool.getCampaign().getTokenStatesMap().keySet())
+                        token.setState(state, null);
 				} else if (aE.getActionCommand().equals("light")) {
 					LightDialog.show(token, "light");
 				} else {
-					token
-							.setState(aE.getActionCommand(),
-									((JCheckBoxMenuItem) aE.getSource())
-											.isSelected() ? Boolean.TRUE : null);
+					token.setState(aE.getActionCommand(), ((JCheckBoxMenuItem)aE.getSource()).isSelected() ? Boolean.TRUE : null);
 				} // endif
-				MapTool.serverCommand().putToken(renderer.getZone().getId(),
-						token);
+				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			} // endfor
 			renderer.repaint();
 		}
 	}
 
-    private class ChangeInititiveState extends AbstractAction {
+    private class ChangeInitiativeState extends AbstractAction {
         String name;
-        public ChangeInititiveState(String aName) {
+        public ChangeInitiativeState(String aName) {
             name = aName;
             I18N.setAction(aName, this);
         }
