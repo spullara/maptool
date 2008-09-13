@@ -436,10 +436,9 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
             formPanel.getButton(MOVE_DOWN).setEnabled(selected <= formPanel.getList(BARS).getModel().getSize() - 2);
             if (selected >= 0) {
 
-                // Set name, and always clear image
+                // Set common stuff
                 BarTokenOverlay s = (BarTokenOverlay)formPanel.getList(BARS).getSelectedValue();
                 formPanel.setText(NAME, s.getName());
-                formPanel.setText(IMAGES, "");
                 formPanel.setSelected(MOUSEOVER, s.isMouseover());
                 formPanel.getSpinner(OPACITY).setValue(new Integer(s.getOpacity()));
                 formPanel.setSelected(SHOW_GM, s.isShowGM());
@@ -456,7 +455,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
                     type = 3;
                 } // endif
                 if (s instanceof TwoToneBarTokenOverlay) {
-                    ((JETAColorWell)formPanel.getComponentByName(COLOR)).setColor(((TwoToneBarTokenOverlay)s).getBgColor());
+                    ((JETAColorWell)formPanel.getComponentByName(BG_COLOR)).setColor(((TwoToneBarTokenOverlay)s).getBgColor());
                     type = 4;
                 } // endif
 
