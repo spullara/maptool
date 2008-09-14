@@ -901,7 +901,11 @@ public class EditTokenDialog extends AbeillePanel {
 				
 				List<net.rptools.maptool.model.TokenProperty> propertyList = getPropertyList();
 				for (net.rptools.maptool.model.TokenProperty property : propertyList) {
-					propertyMap.put(property.getName(), (String) token.getProperty(property.getName()));
+					String value = (String) token.getProperty(property.getName());
+					if (value == null) {
+						value = property.getDefaultValue();
+					}
+					propertyMap.put(property.getName(), value);
 				}
 			}
 			return propertyMap;
@@ -917,7 +921,13 @@ public class EditTokenDialog extends AbeillePanel {
 		public void applyTo(Token token) {
 			
 			for (net.rptools.maptool.model.TokenProperty property : getPropertyList()) {
-				token.setProperty(property.getName(), getPropertyMap().get(property.getName()));
+				String value = getPropertyMap().get(property.getName());
+				if (property.getDefaultValue() != null && property.getDefaultValue().equals(value)) {
+					token.setProperty(property.getName(), null); // Clear original value
+					continue;
+				}
+				
+				token.setProperty(property.getName(), value);
 			}
 		}
 		
