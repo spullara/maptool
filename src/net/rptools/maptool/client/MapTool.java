@@ -128,6 +128,8 @@ public class MapTool {
     
     private static MapToolLineParser parser = new MapToolLineParser();
     
+    private static String lastWhisperer;
+    
 	public static void showError(String message) {
 		JOptionPane.showMessageDialog(clientFrame, "<html><body>"+I18N.getText(message)+"</body></html>", "Error", JOptionPane.ERROR_MESSAGE);
 	}
@@ -394,7 +396,10 @@ public class MapTool {
         if (!isInFocus()) {
         	taskbarFlasher.flash();
         }
-        
+        if (message.isWhisper())
+        {
+        	setLastWhisperer(message.getSource());    	
+        }
         messageList.add(message);
     }
 
@@ -773,6 +778,19 @@ public class MapTool {
 //		showWarning("WARNING!!! This is an experimental version.<p><p>** Of particular note:<ul><li> New Light implementation <li>Lots of token positioning and sizing bug fixes</ul><p>  Please test them, but don't rely on them yet as they may change over the next couple builds<p><p>Happy Mapping :)<p><p>-Trev");
 	}
 	
+	public static void setLastWhisperer(String lastWhisperer)
+	{
+		if(lastWhisperer != null) 
+		{
+			MapTool.lastWhisperer = lastWhisperer;
+		}	
+	}
+
+	public static String getLastWhisperer()
+	{
+		return lastWhisperer;
+	}
+
 	private static class ServerHeartBeatThread extends Thread {
 		@Override
 		public void run() {

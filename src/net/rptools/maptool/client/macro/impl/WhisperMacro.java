@@ -13,10 +13,18 @@
  */
 package net.rptools.maptool.client.macro.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
+import net.rptools.maptool.model.ObservableList;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.TextMessage;
+import net.rptools.maptool.util.StringUtil;
 
 @MacroDefinition(
 	name = "whisper",
@@ -27,14 +35,25 @@ public class WhisperMacro extends AbstractMacro {
 
     public void execute(MacroContext context, String macro) {
         
-        int index = macro.indexOf(" ");
-        if (index < 0) {
+        String playerName = StringUtil.getFirstWord(macro);
+           
+        if (playerName == null) {
             MapTool.addMessage(TextMessage.me(context.getTransformationHistory(), "<b>Must supply a player name.</b>"));
             return;
         }
+        int indexSpace = (macro.startsWith("\"")) ? macro.indexOf(" ", playerName.length()+2):  macro.indexOf(" ");
         
-        String playerName = macro.substring(0, index);
-        String message = processText(macro.substring(index+1));
+        String message = processText(macro.substring(indexSpace+1));
+        ObservableList<Player> playerList = MapTool.getPlayerList();
+        List<String> players = new ArrayList<String>();
+        for(int count = 0; count < playerList.size(); count++) 
+        {
+        	Player p = playerList.get(count);
+        	String thePlayer = p.getName();
+        	players.add(thePlayer);
+        }
+        String playerNameMatch = StringUtil.findMatch(playerName, players); 
+        playerName = (!playerNameMatch.equals(""))? playerNameMatch: playerName;
         
         // Validate
         if (!MapTool.isPlayerConnected(playerName)) {

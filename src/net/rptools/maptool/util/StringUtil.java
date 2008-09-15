@@ -120,6 +120,18 @@ public class StringUtil {
 		return split != null ? split.get(0) : null;
 	}
 	
+	public static  String findMatch(String pattern, List<String> stringList) {
+		for(String listValue: stringList)
+		{
+			String upperValue = listValue.toUpperCase();
+			if(upperValue.startsWith(pattern.toUpperCase()))
+			{
+				return listValue;
+			}
+		}
+		return ""; 
+	}
+	
 	public static  List<String> splitNextWord(String line) {
 		
 		line = line.trim();
