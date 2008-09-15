@@ -48,8 +48,8 @@ public class ZoneView implements ModelChangeListener {
     private Map<GUID, Area> tokenVisionCache = new HashMap<GUID, Area>();
     private Map<GUID, Map<String, Area>> lightSourceCache = new HashMap<GUID, Map<String, Area>>();
     private Set<GUID> lightSourceSet = new HashSet<GUID>();
-    private Map<GUID, Set<DrawableLight>> drawableLightCache = new HashMap<GUID, Set<DrawableLight>>();
-    private Map<GUID, Set<Area>> brightLightCache = new HashMap<GUID, Set<Area>>();
+    private Map<GUID, Map<String,Set<DrawableLight>>> drawableLightCache = new HashMap<GUID, Map<String, Set<DrawableLight>>>();
+    private Map<GUID, Map<String, Set<Area>>> brightLightCache = new HashMap<GUID, Map<String, Set<Area>>>();
     private Map<PlayerView, VisibleAreaMeta> visibleAreaMap = new HashMap<PlayerView, VisibleAreaMeta>();
     private AreaData topologyAreaData;
     private AreaTree topology;
@@ -161,8 +161,20 @@ public class ZoneView implements ModelChangeListener {
             	brightLightSet.add(lightArea);
             }
         }
-        drawableLightCache.put(lightSourceToken.getId(), lightSet);
-        brightLightCache.put(lightSourceToken.getId(), brightLightSet);
+
+        Map<String, Set<DrawableLight>> lightMap = drawableLightCache.get(lightSourceToken.getId());
+        if (lightMap == null) {
+        	lightMap = new HashMap<String, Set<DrawableLight>>();
+        	drawableLightCache.put(lightSourceToken.getId(), lightMap);
+        }
+        lightMap.put(sight.getName(), lightSet);
+        
+        Map<String, Set<Area>> brightLightMap = brightLightCache.get(lightSourceToken.getId());
+        if (brightLightMap == null) {
+        	brightLightMap = new HashMap<String, Set<Area>>();
+        	brightLightCache.put(lightSourceToken.getId(), brightLightMap);
+        }
+        brightLightMap.put(sight.getName(), brightLightSet);
         
 		return visibleArea;
     }
@@ -262,9 +274,11 @@ public class ZoneView implements ModelChangeListener {
 	
 	public Set<DrawableLight> getDrawableLights() {
 		Set<DrawableLight> lightSet = new HashSet<DrawableLight>();
-		
-		for (Set<DrawableLight> set : drawableLightCache.values()) {
-			lightSet.addAll(set);
+
+		for (Map<String, Set<DrawableLight>> map : drawableLightCache.values()) {
+			for (Set<DrawableLight> set : map.values()) {
+				lightSet.addAll(set);
+			}
 		}
 		
 		return lightSet;
@@ -272,9 +286,11 @@ public class ZoneView implements ModelChangeListener {
 	
 	public Set<Area> getBrightLights() {
 		Set<Area> lightSet = new HashSet<Area>();
-		
-		for (Set<Area> set : brightLightCache.values()) {
-			lightSet.addAll(set);
+
+		for (Map<String, Set<Area>> map : brightLightCache.values()) {
+			for (Set<Area> set : map.values()) {
+				lightSet.addAll(set);
+			}
 		}
 		
 		return lightSet;
@@ -316,7 +332,9 @@ public class ZoneView implements ModelChangeListener {
     	if (visibleAreaMap.get(view) != null) {
     		return;
     	}
-
+    	if (!MapTool.getPlayer().isGM()) {
+    		System.out.println("whatever2");
+    	}
     	// Cache it
     	VisibleAreaMeta meta = new VisibleAreaMeta();
     	meta.visibleArea = new Area();

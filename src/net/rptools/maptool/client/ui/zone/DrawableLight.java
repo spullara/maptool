@@ -34,6 +34,10 @@ public class DrawableLight {
 	public Area getArea() {
 		return area;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "DrawableLight[" + area.getBounds() + ", " + paint.getClass().getName() + "]";
+	}
 	
 }
