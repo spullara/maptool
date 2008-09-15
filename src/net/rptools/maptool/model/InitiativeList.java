@@ -222,8 +222,10 @@ public class InitiativeList implements Serializable {
         TokenInitiative ti = tokens.remove(index);
         holdUpdate += 1;
         Token old = ti.getToken();        
+        if (index <= current) current -= 1;
+        if (tokens.size() <= current) current = -1;
+        setCurrent(current);
         getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, ti, null);
-        if (index <= current) setCurrent(current - 1);
         holdUpdate -= 1;
         updateServer();
         return old; 

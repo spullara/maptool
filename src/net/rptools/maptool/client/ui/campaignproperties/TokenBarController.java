@@ -223,6 +223,8 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
         panel.getList(IMAGES).addListSelectionListener(this);
         panel.getTextComponent(NAME).getDocument().addDocumentListener(this);
         panel.getCheckBox(SHOW_GM).addItemListener(this);
+        panel.getCheckBox(SHOW_OTHERS).addItemListener(this);
+        panel.getCheckBox(SHOW_OWNER).addItemListener(this);
         ((JSlider)panel.getComponentByName(TESTER)).addChangeListener(this);
         ((JSlider)panel.getComponentByName(TESTER)).setValue(100);
         enableDataComponents();

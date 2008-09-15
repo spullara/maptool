@@ -20,6 +20,8 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -88,7 +90,7 @@ import com.jeta.forms.store.properties.ListItemProperty;
  * 
  * @author Jay
  */
-public class TokenStatesController implements ActionListener, DocumentListener, ListSelectionListener {
+public class TokenStatesController implements ActionListener, DocumentListener, ListSelectionListener, ItemListener {
 
     /** Panel containing the campaign properties form panel */
     private FormPanel formPanel;
@@ -212,10 +214,20 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
         panel.getList(STATES).addListSelectionListener(this);
         panel.getTextComponent(NAME).getDocument().addDocumentListener(this);
         panel.getTextComponent(IMAGE).getDocument().addDocumentListener(this);
+        panel.getCheckBox(SHOW_GM).addItemListener(this);
+        panel.getCheckBox(SHOW_OTHERS).addItemListener(this);
+        panel.getCheckBox(SHOW_OWNER).addItemListener(this);
         enableDataComponents();
         changedUpdate(null);
     }
 
+    /**
+     * @see java.awt.event.ItemListener#itemStateChanged(java.awt.event.ItemEvent)
+     */
+    public void itemStateChanged(ItemEvent e) {
+        changedUpdate(null);
+    }
+    
     /**
      * Handle all of the buttons & state combo box
      * 
