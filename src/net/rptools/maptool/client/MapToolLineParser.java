@@ -18,11 +18,15 @@ import java.util.regex.Pattern;
 
 import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
+import net.rptools.maptool.client.functions.AbortFunction;
 import net.rptools.maptool.client.functions.AddAllToInitiativeFunction;
 import net.rptools.maptool.client.functions.CurrentInitiativeFunction;
 import net.rptools.maptool.client.functions.InitiativeRoundFunction;
+import net.rptools.maptool.client.functions.InputFunction;
 import net.rptools.maptool.client.functions.MiscInitiativeFunction;
 import net.rptools.maptool.client.functions.RemoveAllFromInitiativeFunction;
+import net.rptools.maptool.client.functions.StrListFunctions;
+import net.rptools.maptool.client.functions.StrPropFunctions;
 import net.rptools.maptool.client.functions.TokenAddToInitiativeFunction;
 import net.rptools.maptool.client.functions.TokenBarFunction;
 import net.rptools.maptool.client.functions.TokenGMNameFunction;
@@ -65,6 +69,10 @@ public class MapToolLineParser {
     	RemoveAllFromInitiativeFunction.getInstance(),
     	CurrentInitiativeFunction.getInstance(),
     	InitiativeRoundFunction.getInstance(),
+    	InputFunction.getInstance(),
+    	StrPropFunctions.getInstance(),
+    	StrListFunctions.getInstance(),
+    	AbortFunction.getInstance(),
     };
     
     /** MapTool functions to add to the parser when a token is in context. */

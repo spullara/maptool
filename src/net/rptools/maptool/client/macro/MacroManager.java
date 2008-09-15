@@ -25,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.functions.AbortFunction;
 import net.rptools.maptool.client.macro.impl.AddTokenStateMacro;
 import net.rptools.maptool.client.macro.impl.AliasMacro;
 import net.rptools.maptool.client.macro.impl.ChangeColorMacro;
@@ -213,6 +214,9 @@ public class MacroManager {
 				
 				continue;
 			}
+		} catch (AbortFunction.AbortFunctionException pae) {
+			// Do nothing, just silently exit
+			return;
 		} catch (Exception e) {
 			MapTool.addLocalMessage("Could not execute the command: " + e.getMessage());
 			return;
