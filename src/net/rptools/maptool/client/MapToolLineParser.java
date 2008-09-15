@@ -179,8 +179,10 @@ public class MapToolLineParser {
 
     	    	StringBuilder expressionBuilder = new StringBuilder();
     			for (int i = 0; i < count; i++) {
-    				if (i != 0 && output != Output.NONE)
-    					expressionBuilder.append(parseExpression(resolver, tokenInContext, separator).getValue());
+    				if (i != 0 && output != Output.NONE) {
+//    					expressionBuilder.append(parseExpression(resolver, tokenInContext, separator).getValue());
+    					expressionBuilder.append(separator);
+    				}
     				
     				resolver.setVariable("roll.count", i + 1);
         			Result result;
