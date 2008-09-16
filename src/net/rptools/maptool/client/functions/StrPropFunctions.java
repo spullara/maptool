@@ -115,7 +115,13 @@ public class StrPropFunctions extends AbstractFunction {
     throws ParserException {
     	Object retval = "";
     	String userKey;
-		checkVaryingParameters("getStrProp()", 2, parameters, new Class[] {String.class, String.class});
+    	if (parameters.size()==3) {
+    		// Don't check parameter 3, so we accept either String or BigDecimal
+    		checkVaryingParameters("getStrProp()", 3, parameters, new Class[] {String.class, String.class});
+    		retval = parameters.get(2);	// the third parameter is returned if the key is not found
+    	} else {
+    		checkVaryingParameters("getStrProp()", 2, parameters, new Class[] {String.class, String.class});
+    	}
     	userKey = parameters.get(1).toString();		// the key being passed in
 		String value = map.get(userKey.toUpperCase());
 		if (value != null) {
@@ -125,8 +131,6 @@ public class StrPropFunctions extends AbstractFunction {
 			} catch (Exception e) {
 				retval = value;
 			}
-		} else {
-			retval = "";
 		}
 		return retval;
     }
