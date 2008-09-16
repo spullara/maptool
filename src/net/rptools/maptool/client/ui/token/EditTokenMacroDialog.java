@@ -137,14 +137,20 @@ public class EditTokenMacroDialog extends AbeillePanel {
 	public void updateMacro() {
 		String newMacroName = getMacroNameTextField().getText();
 
+		Token token = button.getToken();
+		
 		// if we have changed the name of the macro, delete the old macro from token
 		// otherwise the edited macro will be added as a new one.
 		if (!newMacroName.equals(oldMacroName)) {
-			button.getToken().deleteMacro(oldMacroName);
+			token.deleteMacro(oldMacroName);
 		}
 
-		button.getToken().addMacro(newMacroName, getMacroCommandTextArea().getText());
+		token.addMacro(newMacroName, getMacroCommandTextArea().getText());
 		MapTool.getFrame().updateSelectionPanel();
+
+		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+			MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+		}
 	}
 	
 	public void addMacro() {
@@ -154,11 +160,18 @@ public class EditTokenMacroDialog extends AbeillePanel {
 			// we are impersonating this token, we have to update the impersonate tab
 			MapTool.getFrame().updateImpersonatePanel(token);
 		}
+		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+			MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+		}
 	}
 	
 	public void addMacroToAll() {
 		for (Token token : tokenList) {
 			token.addMacro(getMacroNameTextField().getText(), getMacroCommandTextArea().getText());
+			
+			if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+				MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+			}
 		}
 		MapTool.getFrame().updateSelectionPanel();
 		//TODO: here is a bug: if a token in the group is impersonated the impersonate panel doesn't get updated.
