@@ -43,9 +43,6 @@ import com.jeta.forms.components.panel.FormPanel;
 
 public class PreferencesDialog extends JDialog {
 
-	// Performance
-    private JCheckBox useSoftFogEdgesCheckBox;
-
 	// Interactions
 	private JCheckBox newMapsHaveFOWCheckBox;
 	private JCheckBox tokensStartSnapToGridCheckBox;
@@ -76,6 +73,7 @@ public class PreferencesDialog extends JDialog {
 	private JTextField defaultGridSizeTextField;
 	private JTextField defaultUnitsPerCellTextField;
 	private JTextField defaultVisionDistanceTextField;
+	private JTextField statsheetPortraitSize;
 	
 	private JSpinner autoSaveSpinner;
 	private JCheckBox saveReminderCheckBox;
@@ -107,7 +105,6 @@ public class PreferencesDialog extends JDialog {
 		autoSaveSpinner = panel.getSpinner("autoSaveSpinner");
 		duplicateTokenCombo = panel.getComboBox("duplicateTokenCombo");
 		tokenNamingCombo = panel.getComboBox("tokenNamingCombo");
-		useSoftFogEdgesCheckBox = panel.getCheckBox("useSoftFogEdgesCheckBox");
 		newMapsHaveFOWCheckBox = panel.getCheckBox("newMapsHaveFOWCheckBox");
 		tokensStartSnapToGridCheckBox = panel.getCheckBox("tokensStartSnapToGridCheckBox");
 		newMapsVisibleCheckBox = panel.getCheckBox("newMapsVisibleCheckBox");
@@ -121,6 +118,7 @@ public class PreferencesDialog extends JDialog {
 		defaultGridSizeTextField = panel.getTextField("defaultGridSize");
 		defaultUnitsPerCellTextField = panel.getTextField("defaultUnitsPerCell");
 		defaultVisionDistanceTextField = panel.getTextField("defaultVisionDistance");
+		statsheetPortraitSize = panel.getTextField("statsheetPortraitSize");
 		fontSizeTextField = panel.getTextField("fontSize");
 		haloLineWidthSpinner = panel.getSpinner("haloLineWidthSpinner");
 		visionOverlayOpacitySpinner = panel.getSpinner("visionOverlayOpacitySpinner");
@@ -156,13 +154,6 @@ public class PreferencesDialog extends JDialog {
 				int newInterval = (Integer)autoSaveSpinner.getValue();
 				AppPreferences.setAutoSaveIncrement(newInterval);
 				MapTool.getAutoSaveManager().restart();
-			}
-		});
-		useSoftFogEdgesCheckBox.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				AppPreferences.setUseSoftFogEdges(useSoftFogEdgesCheckBox.isSelected());
-				
-				MapTool.getFrame().refresh();
 			}
 		});
 		newMapsHaveFOWCheckBox.addActionListener(new ActionListener() {
@@ -266,6 +257,26 @@ public class PreferencesDialog extends JDialog {
 				try {
 					int value = Integer.parseInt(defaultVisionDistanceTextField.getText());
 					AppPreferences.setDefaultVisionDistance(value);
+				} catch (NumberFormatException nfe) {
+					// Ignore it
+				}
+			}
+		});
+		statsheetPortraitSize.getDocument().addDocumentListener(new DocumentListener() {
+			public void changedUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void insertUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void removeUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			
+			private void updateValue() {
+				try {
+					int value = Integer.parseInt(statsheetPortraitSize.getText());
+					AppPreferences.setPortraitSize(value);
 				} catch (NumberFormatException nfe) {
 					// Ignore it
 				}
@@ -410,7 +421,6 @@ public class PreferencesDialog extends JDialog {
 		showDialogOnNewToken.setSelected(AppPreferences.getShowDialogOnNewToken());
 		saveReminderCheckBox.setSelected(AppPreferences.getSaveReminder());
 		autoSaveSpinner.setValue(AppPreferences.getAutoSaveIncrement());
-		useSoftFogEdgesCheckBox.setSelected(AppPreferences.getUseSoftFogEdges());
 		newMapsHaveFOWCheckBox.setSelected(AppPreferences.getNewMapsHaveFOW());
 		tokensStartSnapToGridCheckBox.setSelected(AppPreferences.getTokensStartSnapToGrid());
 		newMapsVisibleCheckBox.setSelected(AppPreferences.getNewMapsVisible());
@@ -423,6 +433,7 @@ public class PreferencesDialog extends JDialog {
 		defaultGridSizeTextField.setText(Integer.toString(AppPreferences.getDefaultGridSize()));
 		defaultUnitsPerCellTextField.setText(Integer.toString(AppPreferences.getDefaultUnitsPerCell()));
 		defaultVisionDistanceTextField.setText(Integer.toString(AppPreferences.getDefaultVisionDistance()));
+		statsheetPortraitSize.setText(Integer.toString(AppPreferences.getPortraitSize()));
 		fontSizeTextField.setText(Integer.toString(AppPreferences.getFontSize()));
 		haloLineWidthSpinner.setValue(AppPreferences.getHaloLineWidth());
 		visionOverlayOpacitySpinner.setValue(AppPreferences.getVisionOverlayOpacity());

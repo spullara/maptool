@@ -137,6 +137,17 @@ public class AppPreferences {
     private static final String KEY_MOVEMENT_METRIC = "movementMetric";
     private static final WalkerMetric DEFAULT_MOVEMENT_METRIC = WalkerMetric.ONE_TWO_ONE; 
 
+    private static final String KEY_PORTRAIT_SIZE = "portraitSize";
+    private static final int DEFAULT_PORTRAIT_SIZE = 175;
+    
+    public static void setPortraitSize(int size) {
+    	prefs.putInt(KEY_PORTRAIT_SIZE, size);
+    }
+    
+    public static int getPortraitSize() {
+    	return prefs.getInt(KEY_PORTRAIT_SIZE, DEFAULT_PORTRAIT_SIZE);
+    }
+    
     public static void setShowSmilies(boolean show) {
     	prefs.putBoolean(KEY_INSERT_SMILIES, show);
     }

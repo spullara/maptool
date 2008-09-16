@@ -31,7 +31,6 @@ public class AppConstants {
 	public static final ImageBorder GRAY_BORDER = new ImageBorder("net/rptools/maptool/client/image/border/gray");
 	public static final ImageBorder SHADOW_BORDER = new ImageBorder("net/rptools/maptool/client/image/border/shadow");
 
-	public static final int PORTRAIT_SIZE = 100;
 	public static final int NOTE_PORTRAIT_SIZE = 200;
 	
 	public static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {
