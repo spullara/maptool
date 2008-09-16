@@ -121,7 +121,7 @@ public class MapToolLineParser {
     		builder.append(line.substring(start, matcher.start())); // add everything before the roll
     		Output output = Output.TOOLTIP;
     		int count = 1; // used for C option
-    		String separator = ", ", text = null; // used for C and T options, respectively
+    		String separator = "\", \"", text = null; // used for C and T options, respectively
     		
     		if (matcher.group().startsWith("[")) {
     			String opts = matcher.group(1);
@@ -180,8 +180,7 @@ public class MapToolLineParser {
     	    	StringBuilder expressionBuilder = new StringBuilder();
     			for (int i = 0; i < count; i++) {
     				if (i != 0 && output != Output.NONE) {
-//    					expressionBuilder.append(parseExpression(resolver, tokenInContext, separator).getValue());
-    					expressionBuilder.append(separator);
+    					expressionBuilder.append(parseExpression(resolver, tokenInContext, separator).getValue());
     				}
     				
     				resolver.setVariable("roll.count", i + 1);
