@@ -342,7 +342,7 @@ public class CampaignProperties implements Serializable {
     
     private void initTokenBarsMap() {
         tokenBars = new LinkedHashMap<String, BarTokenOverlay>();
-        tokenBars.put("Health", new TwoToneBarTokenOverlay("Health", Color.RED, Color.BLACK, 6));
+        tokenBars.put("Health", new TwoToneBarTokenOverlay("Health", new Color(0x20b420), Color.BLACK, 6));
     }
     
     public Set<MD5Key> getAllImageAssets() {

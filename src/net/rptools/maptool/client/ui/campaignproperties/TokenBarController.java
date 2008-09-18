@@ -214,7 +214,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
         panel.getButton(IMAGE_MOVE_DOWN).addActionListener(this);
         panel.getComboBox(TYPE).addActionListener(this);
         panel.getSpinner(THICKNESS).setModel(new SpinnerNumberModel(5, 2, 10, 1));        
-        panel.getSpinner(INCREMENTS).setModel(new SpinnerNumberModel(0, 0, 30, 1));
+        panel.getSpinner(INCREMENTS).setModel(new SpinnerNumberModel(0, 0, 100, 1));
         panel.getSpinner(INCREMENTS).addChangeListener(this);
         panel.getSpinner(OPACITY).setModel(new SpinnerNumberModel(100, 1, 100, 5));
         panel.getList(BARS).setCellRenderer(renderer);
