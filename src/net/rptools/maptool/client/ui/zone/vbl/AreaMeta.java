@@ -93,10 +93,13 @@ public class AreaMeta {
 	public void addPoint(float x, float y) {
 
 		// Cut out redundant points
-		if (lastPointNode != null && GeometryUtil.getDistance(lastPointNode.point, new Point2D.Float(x, y)) < 1.5) {
-			skippedPoints++;
-			return;
-		}
+		// TODO: This works ... in concept, but in practice it can create holes that pop outside of their parent bounds
+		// for really thin diagonal lines.  At some point this could be moved to a post processing step, after the 
+		// islands have been placed into their oceans.  But that's an optimization for another day
+//		if (lastPointNode != null && GeometryUtil.getDistance(lastPointNode.point, new Point2D.Float(x, y)) < 1.5) {
+//			skippedPoints++;
+//			return;
+//		}
 		
 		PointNode pointNode = new PointNode(new Point2D.Double(x, y));
 		
@@ -147,7 +150,7 @@ public class AreaMeta {
 		pointNodeList = null;
 		path = null;
 		
-//		System.out.println("AreaMeta.skippedPoints: " + skippedPoints);
+//		System.out.println("AreaMeta.skippedPoints: " + skippedPoints + " h:" + isHole + " f:" + faceList.size());
 	}
 
 	private void computeIsHole() {
