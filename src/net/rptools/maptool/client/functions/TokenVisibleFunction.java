@@ -43,6 +43,14 @@ public class TokenVisibleFunction extends AbstractFunction {
 		return instance;
 	}
 	
+	public boolean getBooleanVisible(Token token) throws ParserException {
+	    if (!MapTool.getPlayer().isGM()) {
+            throw new ParserException("You must be the GM to use test the visibility of tokens");
+        }
+	    
+	    return token.isVisible();
+	}
+	
 	/**
 	 * Gets if the token is visible.
 	 * @param token The token to check.
@@ -50,10 +58,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 	 * @throws ParserException if the player does not have permissions to check.
 	 */
 	public Object getVisible(Token token) throws ParserException {
-		if (!MapTool.getPlayer().isGM()) {
-			throw new ParserException("You must be the GM to use test the visibility of tokens");
-		}
-		return token.isVisible() ? BigDecimal.valueOf(1) :  BigDecimal.valueOf(0);
+		return getBooleanVisible(token) ? BigDecimal.valueOf(1) :  BigDecimal.valueOf(0);
 	}
 	
 	

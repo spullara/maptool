@@ -179,7 +179,7 @@ public class TokenStateFunction extends AbstractFunction {
 	 * @return the value of the state.
 	 * @throws ParserException if an error occurs.
 	 */
-	private boolean getBooleanTokenState(Token token, String stateName) throws ParserException {
+	public boolean getBooleanTokenState(Token token, String stateName) throws ParserException {
 		if (!MapTool.getCampaign().getTokenStatesMap().containsKey(stateName)) {
 			throw new ParserException("Unknown token name " + stateName);
 		}

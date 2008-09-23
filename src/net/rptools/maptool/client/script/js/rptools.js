@@ -1,3 +1,13 @@
+/*
+ * This file is based on a heavily modified version of Ext.js version 2.2 which is licensed under
+ * GPL v3.
+ * 
+ * Ext JS Library 2.2 (highly modified to make sense in our environment)
+ * Copyright(c) 2006-2008, Ext JS, LLC.
+ * licensing@extjs.com
+ * 
+ * http://extjs.com/license
+ */
 rptools = { version: 1.0 };
 
 /**
