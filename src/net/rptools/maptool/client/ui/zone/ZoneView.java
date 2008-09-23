@@ -332,9 +332,9 @@ public class ZoneView implements ModelChangeListener {
     	if (visibleAreaMap.get(view) != null) {
     		return;
     	}
-    	if (!MapTool.getPlayer().isGM()) {
-    		System.out.println("whatever2");
-    	}
+//    	if (!MapTool.getPlayer().isGM()) {
+//    		System.out.println("whatever2");
+//    	}
     	// Cache it
     	VisibleAreaMeta meta = new VisibleAreaMeta();
     	meta.visibleArea = new Area();
