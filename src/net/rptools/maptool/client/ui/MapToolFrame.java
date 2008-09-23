@@ -1394,22 +1394,61 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		List<Token> tokenList = new ArrayList<Token>();
 		for (Token token : renderer.getSelectedTokensList()) {
 			// if we don't own the token, we shouldn't see its macros
-			if (AppUtil.playerOwns(token)) {
+			// Also if the token is not in the zone it may have been deleted so dont add it.
+			if (AppUtil.playerOwns(token) && 
+					MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokens().contains(token)) {
 				tokenList.add(token);
 			}
 		}
 		
-		selectionPanel.update(tokenList);
-		
-		if (tokenList.size() == 1) {
-			// if only one token selected, show its image as tab icon
-			frameMap.get(MTFrame.SELECTION).setFrameIcon(tokenList.get(0).getIcon(16, 16));
+		if (tokenList.size() == 0) {
+			selectionPanel.clear();
 		} else {
-			// if >1 or no token selected, don't display a tab icon
-			frameMap.get(MTFrame.SELECTION).setFrameIcon(new ImageIcon(AppStyle.selectionPanelImage));
+			selectionPanel.update(tokenList);
+		
+			if (tokenList.size() == 1) {
+				// if only one token selected, show its image as tab icon
+				frameMap.get(MTFrame.SELECTION).setFrameIcon(tokenList.get(0).getIcon(16, 16));
+			} else {
+				// if >1 or no token selected, don't display a tab icon
+				frameMap.get(MTFrame.SELECTION).setFrameIcon(new ImageIcon(AppStyle.selectionPanelImage));
+			}
 		}
 	}
 
+	public void updateImpersonatePanel() { 
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+		if (renderer == null) {
+			return;
+		}
+
+		List<Token> tokenList = new ArrayList<Token>();
+		for (Token token : renderer .getSelectedTokensList()) {
+			// if we don't own the token, we shouldn't see its macros
+			// Also if the token is not in the zone it may have been deleted so dont add it.
+			if (AppUtil.playerOwns(token) && 
+					MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokens().contains(token)) {
+				tokenList.add(token);
+			}
+		}
+			
+		String identity = MapTool.getFrame().getCommandPanel().getIdentity(); 
+		Token token = null;
+		if (identity != null) {
+			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().resolveToken(identity);
+		}
+		if (token != null) {
+			impersonatePanel.update(token);
+			frameMap.get(MTFrame.IMPERSONATED).setFrameIcon(token.getIcon(16, 16));
+			frameMap.get(MTFrame.IMPERSONATED).setTitle(impersonatePanel.getTitle());
+		} else if (tokenList.size() == 0) {
+			clearImpersonatePanel();
+		} else {
+			impersonatePanel.update(tokenList);
+		}
+	}
+	
+	
 	public void updateImpersonatePanel(Token token) {
 		impersonatePanel.update(token);
 		frameMap.get(MTFrame.IMPERSONATED).setFrameIcon(token.getIcon(16, 16));

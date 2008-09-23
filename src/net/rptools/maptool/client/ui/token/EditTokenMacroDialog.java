@@ -155,11 +155,11 @@ public class EditTokenMacroDialog extends AbeillePanel {
 	
 	public void addMacro() {
 		token.addMacro(getMacroNameTextField().getText(), getMacroCommandTextArea().getText());
-		MapTool.getFrame().updateSelectionPanel();
+		/* TODO Remove MapTool.getFrame().updateSelectionPanel();
 		if (MapTool.getFrame().getCommandPanel().getIdentity().equals(token.getName())) {
 			// we are impersonating this token, we have to update the impersonate tab
 			MapTool.getFrame().updateImpersonatePanel(token);
-		}
+		}*/
 		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
 			MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
 		}
@@ -173,7 +173,7 @@ public class EditTokenMacroDialog extends AbeillePanel {
 				MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
 			}
 		}
-		MapTool.getFrame().updateSelectionPanel();
+		// TODO Remove MapTool.getFrame().updateSelectionPanel();
 		//TODO: here is a bug: if a token in the group is impersonated the impersonate panel doesn't get updated.
 		// add listeners to solve this.
 	}

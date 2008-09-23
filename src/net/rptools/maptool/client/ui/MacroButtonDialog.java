@@ -33,6 +33,7 @@ public class MacroButtonDialog extends JDialog {
 
 	FormPanel panel;
 	AbstractMacroButton button;
+	private boolean updated = false;
 	
 	public MacroButtonDialog() {
 		super (MapTool.getFrame(), "", true);
@@ -115,7 +116,7 @@ public class MacroButtonDialog extends JDialog {
 		button.setAutoExecute(getAutoExecuteCheckBox().isSelected());
 		button.setIncludeLabel(getIncludeLabelCheckBox().isSelected());
 		button.setApplyToTokens(getApplyToTokensCheckBox().isSelected());
-		
+		updated = true;
 		setVisible(false);
 	}
 	
@@ -153,5 +154,9 @@ public class MacroButtonDialog extends JDialog {
 	
 	private JTextArea getCommandTextArea() {
 		return (JTextArea) panel.getTextComponent("command");
+	}
+	
+	public boolean wasUpdated() { 
+		return updated;
 	}
 }

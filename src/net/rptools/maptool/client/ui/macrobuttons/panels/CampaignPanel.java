@@ -19,7 +19,9 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.ScrollableFlowPanel;
+import net.rptools.maptool.client.ui.MacroButtonDialog;
 import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.AbstractMacroButton;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.CampaignMacroButton;
 import net.rptools.maptool.model.MacroButtonProperties;
 
@@ -42,13 +44,17 @@ public class CampaignPanel extends ScrollableFlowPanel{
 	}
 	
 	public void addButton() {
-		//TODO: can be moved to constructor
-		final MacroButtonProperties properties = new MacroButtonProperties(MapTool.getCampaign().getMacroButtonNextIndex());
-		MapTool.getCampaign().addMacroButtonProperty(properties);
-		add(new CampaignMacroButton(properties));
-		doLayout();
-		revalidate();
-		repaint();
+		AbstractMacroButton button = new CampaignMacroButton();
+		MacroButtonDialog dialog = new MacroButtonDialog();
+		dialog.show(button);
+		if (dialog.wasUpdated()) { 
+			button.savePreferences();
+			MapTool.getCampaign().addMacroButtonProperty(button.getProperties());
+			add(button);
+			doLayout();
+			revalidate();
+			repaint();
+		}
 	}
 	
 	public void addButton(MacroButtonProperties properties) {

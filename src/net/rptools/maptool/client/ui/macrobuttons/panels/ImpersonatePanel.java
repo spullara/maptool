@@ -24,18 +24,24 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import net.rptools.lib.AppEvent;
+import net.rptools.lib.AppEventListener;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroup;
+import net.rptools.maptool.model.ModelChangeEvent;
+import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.Zone.Event;
 
-public class ImpersonatePanel extends JPanel implements Scrollable {
+public class ImpersonatePanel extends JPanel implements Scrollable, ModelChangeListener, AppEventListener {
 
 	private Token token;
 	private boolean currentlyImpersonating = false;
 	
 	public ImpersonatePanel() {
-		// no op
+		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
 	}
 	
 	private void addButtons(Token token) {
@@ -129,7 +135,7 @@ public class ImpersonatePanel extends JPanel implements Scrollable {
 		removeAll();
 		addButtons(token);
 		currentlyImpersonating = true;
-		MapTool.getFrame().updateSelectionPanel();
+		// TODO Remove MapTool.getFrame().updateSelectionPanel();
 	}
 
 	public void update(List<Token> selectedTokenList) {
@@ -159,4 +165,24 @@ public class ImpersonatePanel extends JPanel implements Scrollable {
 										  int orientation, int direction) {
 		return 25;
 	}
+	
+	public void modelChanged(ModelChangeEvent event) {
+		if (event.eventType == Event.TOKEN_CHANGED || 
+                event.eventType == Event.TOKEN_REMOVED) {
+			MapTool.getFrame().updateImpersonatePanel();
+		}
+	}
+
+	public void handleAppEvent(AppEvent event) {
+		Zone oldZone = (Zone)event.getOldValue();
+		Zone newZone = (Zone)event.getNewValue();
+		
+		if (oldZone != null) {
+			oldZone.removeModelChangeListener(this);
+		}
+
+		newZone.addModelChangeListener(this);
+		MapTool.getFrame().updateImpersonatePanel();
+	}
+
 }

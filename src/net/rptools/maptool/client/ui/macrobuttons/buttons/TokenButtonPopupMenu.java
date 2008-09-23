@@ -48,17 +48,23 @@ public class TokenButtonPopupMenu extends JPopupMenu {
 				Token token = button.getToken();
 				// this button belongs to a token
 				token.deleteMacro(button.getMacro());
-				if (MapTool.getFrame().getCommandPanel().getIdentity().equals(token.getName())) {
+	    		MapTool.serverCommand().putToken(
+	    				MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), button.getToken());
+
+				/* TODO Remove if (MapTool.getFrame().getCommandPanel().getIdentity().equals(token.getName())) {
 					// we are impersonating this token, we have to update the impersonate tab
 					MapTool.getFrame().updateImpersonatePanel(token);
-				}
+				}*/
 			} else {
 				// this button is a common macro button
 				for (Token token : button.getTokenList()) {
 					token.deleteMacro(button.getMacro());
+		    		MapTool.serverCommand().putToken(
+		    				MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), button.getToken());
+
 				}
 			}
-			MapTool.getFrame().updateSelectionPanel();
+			// TODO Remove MapTool.getFrame().updateSelectionPanel();
 		}
 	}
 
@@ -79,7 +85,9 @@ public class TokenButtonPopupMenu extends JPopupMenu {
 
 		public void actionPerformed(ActionEvent event) {
 			button.getToken().addMacro("(Copy) " + button.getMacro(), button.getCommand());
-			MapTool.getFrame().updateSelectionPanel();
+			// TODO Remove MapTool.getFrame().updateSelectionPanel();
+    		MapTool.serverCommand().putToken(
+    				MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), button.getToken());
 		}
 	}
 }

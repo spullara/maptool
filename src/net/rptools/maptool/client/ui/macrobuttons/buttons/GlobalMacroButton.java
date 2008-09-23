@@ -28,6 +28,10 @@ public class GlobalMacroButton extends AbstractMacroButton
 {
 	private final MacroButtonPrefs prefs;
 
+	public GlobalMacroButton() {
+		this(new MacroButtonProperties(MacroButtonPrefs.getNextIndex()));
+	}
+	
 	public GlobalMacroButton(MacroButtonProperties properties) {
 		super(properties);
 		addMouseListener(this);

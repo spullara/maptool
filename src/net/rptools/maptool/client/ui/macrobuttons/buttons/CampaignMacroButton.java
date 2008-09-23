@@ -26,6 +26,10 @@ import net.rptools.maptool.model.Token;
  */
 public class CampaignMacroButton extends AbstractMacroButton {
 
+	public CampaignMacroButton() { 
+		this(new MacroButtonProperties(MapTool.getCampaign().getMacroButtonNextIndex()));
+	}
+
 	public CampaignMacroButton(MacroButtonProperties properties) {
 		super(properties);
 		addMouseListener(this);

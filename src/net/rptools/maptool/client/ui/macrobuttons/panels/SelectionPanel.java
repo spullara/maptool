@@ -13,19 +13,39 @@
  */
 package net.rptools.maptool.client.ui.macrobuttons.panels;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.Scrollable;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Rectangle;
+
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.Scrollable;
+
+import net.rptools.lib.AppEvent;
+import net.rptools.lib.AppEventListener;
+
+import net.rptools.maptool.client.AppStyle;
+import net.rptools.maptool.client.AppUtil;
+import net.rptools.maptool.client.MapTool;
+
 import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroup;
+
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+
+import net.rptools.maptool.model.ModelChangeEvent;
+import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Token;
 
-public class SelectionPanel extends JPanel implements Scrollable {
+import net.rptools.maptool.model.Zone.Event;
+
+import net.rptools.maptool.model.Zone;
+
+public class SelectionPanel extends JPanel implements Scrollable, ModelChangeListener, AppEventListener {
 	
 	public SelectionPanel() {
 		//TODO: refactoring reminder
@@ -41,6 +61,8 @@ public class SelectionPanel extends JPanel implements Scrollable {
 		// Spacer
 		constraints.weighty = 1;
 		add(new JLabel(), constraints);
+
+		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
 	}
 
 	public void update(List<Token> tokenList) {
@@ -95,5 +117,24 @@ public class SelectionPanel extends JPanel implements Scrollable {
 	public int getScrollableUnitIncrement(Rectangle visibleRect,
 			int orientation, int direction) {
 		return 25;
+	}
+
+	public void modelChanged(ModelChangeEvent event) {
+		if (event.eventType == Event.TOKEN_CHANGED || 
+                event.eventType == Event.TOKEN_REMOVED) {
+			MapTool.getFrame().updateSelectionPanel();
+		}
+	}
+
+	public void handleAppEvent(AppEvent event) {
+		Zone oldZone = (Zone)event.getOldValue();
+		Zone newZone = (Zone)event.getNewValue();
+		
+		if (oldZone != null) {
+			oldZone.removeModelChangeListener(this);
+		}
+
+		newZone.addModelChangeListener(this);
+		MapTool.getFrame().updateSelectionPanel();
 	}
 }
