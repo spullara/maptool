@@ -1936,7 +1936,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		List<Token> tokenList = new ArrayList<Token>();
 
 		for (GUID g : selectedTokenSet) {
-			tokenList.add(zone.getToken(g));
+			if (zone.getToken(g) != null) {
+				tokenList.add(zone.getToken(g));
+			}
 		}
 
 		Collections.sort(tokenList, Token.NAME_COMPARATOR);
