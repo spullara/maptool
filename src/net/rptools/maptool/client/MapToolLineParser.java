@@ -52,9 +52,10 @@ public class MapToolLineParser {
 
     private enum Output {
     	NONE,
-    	PLAIN,
+    	RESULT,
     	TOOLTIP,
     	EXPANDED,
+    	UNFORMATTED,
     }
     
     private int parserRecurseDepth;
@@ -96,7 +97,7 @@ public class MapToolLineParser {
     }
 
     // This is starting to get ridiculous... I sense an incoming rewrite using ANTLR
-    private static final Pattern roll_pattern = Pattern.compile("\\[\\s*(?:((?:[^\\]:(]|\\((?:[^()\"]|\"[^\"]*\"|\\((?:[^)\"]|\"[^\"]*\")+\\))+\\))*):\\s*)?((?:[^\\]\"]|\"[^\"]*\")*?)\\s*]|\\{\\s*((?:[^}\"]|\"[^\"]*\")*?)\\s*}");
+    private static final Pattern roll_pattern = Pattern.compile("\\[\\s*(?:((?:[^\\]:(]|\\((?:[^()\"]|\"[^\"]*\"|\\((?:[^)\"]|\"[^\"]*\")*\\))*\\))*):\\s*)?((?:[^\\]\"]|\"[^\"]*\")*?)\\s*]|\\{\\s*((?:[^}\"]|\"[^\"]*\")*?)\\s*}");
 	private static final Pattern opt_pattern = Pattern.compile("(\\w+(?:\\((?:[^()\"]|\"[^\"]*\"|\\((?:[^()\"]|\"[^\"]*\")+\\))+\\))?)\\s*,\\s*");
 
     public String parseLine(Token tokenInContext, String line) throws ParserException {
@@ -133,18 +134,18 @@ public class MapToolLineParser {
     					String opt = opt_matcher.group(1);
 						if (opt.equalsIgnoreCase("h") || opt.equalsIgnoreCase("hide") || opt.equalsIgnoreCase("hidden"))
 							output = Output.NONE;
-						else if (opt.equalsIgnoreCase("p") || opt.equalsIgnoreCase("plain"))
-							output = Output.PLAIN;
+						else if (opt.equalsIgnoreCase("r") || opt.equalsIgnoreCase("result"))
+							output = Output.RESULT;
 						else if (opt.equalsIgnoreCase("e") || opt.equalsIgnoreCase("expanded"))
 							output = Output.EXPANDED;
+						else if (opt.equalsIgnoreCase("u") || opt.equalsIgnoreCase("unformatted"))
+							output = Output.UNFORMATTED;
 						else if (opt.startsWith("t") || opt.startsWith("T")) {
 							Matcher m = Pattern.compile("t(?:ooltip)?(?:\\(((?:[^()\"]|\"[^\"]*\"|\\((?:[^()\"]|\"[^\"]*\")*\\))+?)\\))?", Pattern.CASE_INSENSITIVE).matcher(opt);
 							if (m.matches()) {
 								output = Output.TOOLTIP;
 								
 								text = m.group(1);
-								if (text != null)
-									text = parseExpression(resolver, tokenInContext, text).getValue().toString();
 							} else {
 								throw new ParserException("Invalid option: " + opt);
 							}
@@ -183,35 +184,45 @@ public class MapToolLineParser {
     					expressionBuilder.append(parseExpression(resolver, tokenInContext, separator).getValue());
     				}
     				
-    				resolver.setVariable("roll.count", i + 1);
+    				resolver.setVariable("roll.count", i);
         			Result result;
+        			String output_text;
 	    			switch (output) {
 	    			case NONE:
 	    				parseExpression(resolver, tokenInContext, roll);
 	    				break;
-	    			case PLAIN:
+	    			case RESULT:
 	        			result = parseExpression(resolver, tokenInContext, roll);
 	        			expressionBuilder.append(result != null ? result.getValue().toString() : "");
 	    				break;
 	    			case TOOLTIP:
 	        			String tooltip = roll + " = ";
-	        			String output_text = null;
+	        			output_text = null;
+	        			result = parseExpression(resolver, tokenInContext, roll);
+        				tooltip += result.getDetailExpression();
 	        			if (text == null) {
-		        			result = parseExpression(resolver, tokenInContext, roll);
-		        			if (result != null) {
-		        				tooltip += result.getDetailExpression();
-		        				output_text = result.getValue().toString();
-		        			}
+		        			output_text = result.getValue().toString();
 	        			} else {
-	        				tooltip += expandRoll(resolver, tokenInContext, roll);
-	        				output_text = text;
+	        		    	if (!result.getDetailExpression().equals(result.getValue().toString())) {
+	        		    		tooltip += " = " + result.getValue();
+	        		    	}
+	        				resolver.setVariable("roll.result", result.getValue());
+	        				output_text = parseExpression(resolver, tokenInContext, text).getValue().toString();
 	        			}
 	        			tooltip = tooltip.replaceAll("'", "&#39;");
 	        			expressionBuilder.append(output_text != null ? "\036" + tooltip + "\037" + output_text + "\036" : "");
 	    				break;
 	    			case EXPANDED:
-	    				expressionBuilder.append("\036" + roll + " = " + expandRoll(resolver, tokenInContext, roll) + "\36" );
+	    				expressionBuilder.append("\036" + roll + " = " + expandRoll(resolver, tokenInContext, roll) + "\036");
 	    				break;
+	    			case UNFORMATTED:
+	    				output_text = roll + " = " + expandRoll(resolver, tokenInContext, roll);
+	    				
+	    				// Escape quotes so that the result can be used in a title attribute
+	    				output_text = output_text.replaceAll("'", "&#39;");
+	    				output_text = output_text.replaceAll("\"", "&#34;");
+	    				
+	    				expressionBuilder.append("\036\01u\02" + output_text + "\036");
 	    			}
     			}
     			builder.append(expressionBuilder);
