@@ -15,17 +15,21 @@ package net.rptools.maptool.client.ui.macrobuttons.buttons;
 
 import javax.swing.JButton;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
+
 import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ui.MacroButtonDialog;
 import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 import net.rptools.maptool.model.MacroButtonProperties;
+import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.GraphicsUtil;
 
 /**
@@ -184,7 +188,27 @@ public abstract class AbstractMacroButton extends JButton implements MouseListen
 	public void mouseExited(MouseEvent event) {
 	}
 
+	public void executeButton(Boolean isShiftDown) {
+		if ( isShiftDown || properties.getApplyToTokens() ) {
+			String oldIdentity = MapTool.getFrame().getCommandPanel().getIdentity();
+			for (Token token : MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList()) {
+				MapTool.getFrame().getCommandPanel().quickCommit("/im " + token.getId());
+				executeButtonCommand();
+				MapTool.getFrame().getCommandPanel().quickCommit("/im");
+			}
+			if (oldIdentity != MapTool.getFrame().getCommandPanel().getIdentity()){
+				MapTool.getFrame().getCommandPanel().quickCommit("/im " + oldIdentity);
+			}
+		} else {
+			executeButtonCommand();
+		}
+	}
+	
 	public void executeButton() {
+		executeButton(false);
+	}
+
+	public void executeButtonCommand() {
 
 		if (properties.getCommand() != null) {
 
@@ -213,7 +237,6 @@ public abstract class AbstractMacroButton extends JButton implements MouseListen
 
 		}
 	}
-
 
 	private String[] parseMultiLineCommand(String multiLineCommand) {
 

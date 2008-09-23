@@ -32,14 +32,8 @@ public class CampaignMacroButton extends AbstractMacroButton {
 	}
 
 	public void mousePressed(MouseEvent e) {
-		if (SwingUtilities.isLeftMouseButton(e) && !SwingUtil.isShiftDown(e) && !properties.getApplyToTokens() ) {
-			executeButton();
-		} else if (SwingUtilities.isLeftMouseButton(e) && ( SwingUtil.isShiftDown(e) || properties.getApplyToTokens() ) ) {
-			for (Token token : MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList()) {
-				MapTool.getFrame().getCommandPanel().quickCommit("/im " + token.getId());
-				executeButton();
-				MapTool.getFrame().getCommandPanel().quickCommit("/im");
-			}
+		if (SwingUtilities.isLeftMouseButton(e)) {
+			executeButton(SwingUtil.isShiftDown(e));
 		} else if (SwingUtilities.isRightMouseButton(e)) {
 			new MacroButtonPopupMenu(this, 1).show(this, e.getX(), e.getY());
 		}
