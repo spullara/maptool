@@ -61,6 +61,8 @@ public class CampaignProperties implements Serializable {
     private Map<String, BooleanTokenOverlay> tokenStates;
     private Map<String, BarTokenOverlay> tokenBars;
     
+    private Map<String, String> characterSheets;
+    
     /** Flag indicating that owners have special permissions  */
     private boolean initiativeOwnerPermissions;
         
@@ -115,6 +117,14 @@ public class CampaignProperties implements Serializable {
         } // endfor
 
         initiativeOwnerPermissions = properties.initiativeOwnerPermissions;
+        
+        characterSheets = new HashMap<String, String>();
+        if (properties.characterSheets == null || properties.characterSheets.isEmpty()) {
+            properties.initCharacterSheetsMap();
+        }
+        for (String type : properties.characterSheets.keySet()) {
+            characterSheets.put(type, properties.characterSheets.get(type));
+        }
     }
     
     public void mergeInto(CampaignProperties properties) {
@@ -244,6 +254,7 @@ public class CampaignProperties implements Serializable {
     	initSightTypeMap();
         initTokenStatesMap();
         initTokenBarsMap();
+        initCharacterSheetsMap();
     }
 
     private void initLookupTableMap() {
@@ -345,6 +356,11 @@ public class CampaignProperties implements Serializable {
         tokenBars.put("Health", new TwoToneBarTokenOverlay("Health", new Color(0x20b420), Color.BLACK, 6));
     }
     
+    private void initCharacterSheetsMap() {
+        characterSheets = new HashMap<String, String>();
+        characterSheets.put("Basic", "net/rptools/maptool/client/ui/forms/BasicCharacterSheet.jfrm");
+    }
+    
     public Set<MD5Key> getAllImageAssets() {
         Set<MD5Key> set = new HashSet<MD5Key>();
         for (AbstractTokenOverlay overlay : tokenStates.values()) {
@@ -373,5 +389,17 @@ public class CampaignProperties implements Serializable {
     /** @param initiativeOwnerPermissions Setter for initiativeOwnerPermissions */
     public void setInitiativeOwnerPermissions(boolean initiativeOwnerPermissions) {
         this.initiativeOwnerPermissions = initiativeOwnerPermissions;
+    }
+
+    /** @return Getter for characterSheets */
+    public Map<String, String> getCharacterSheets() {
+        if (characterSheets == null) 
+            initCharacterSheetsMap();
+        return characterSheets;
+    }
+
+    /** @param characterSheets Setter for characterSheets */
+    public void setCharacterSheets(Map<String, String> characterSheets) {
+        this.characterSheets = characterSheets;
     }
 }

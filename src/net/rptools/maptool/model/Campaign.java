@@ -354,4 +354,9 @@ public class Campaign {
     public void setInitiativeOwnerPermissions(boolean initiativeOwnerPermissions) {
         campaignProperties.setInitiativeOwnerPermissions(initiativeOwnerPermissions);
     }
+
+    /** @return Getter for characterSheets */
+    public Map<String, String> getCharacterSheets() {
+        return getCampaignProperties().getCharacterSheets();
+    }
 }

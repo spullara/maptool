@@ -18,7 +18,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.FlowLayout;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Transparency;
@@ -30,6 +29,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -63,6 +63,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
 
+// import net.rptools.chartool.ui.charsheet.CharSheetController;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.functions.AbstractTokenAccessorFunction;
@@ -101,6 +102,7 @@ public class EditTokenDialog extends AbeillePanel {
 	private GenericDialog dialog;
 	
 	private ImageAssetPanel imagePanel;
+//	private CharSheetController controller;
 
 	/**
 	 * The size used to constrain the icon.
@@ -128,7 +130,7 @@ public class EditTokenDialog extends AbeillePanel {
 
 		getComponent("@GMNotes").setEnabled(MapTool.getPlayer().isGM());
 	}
-	
+		
 	public void showDialog(Token token) {
 		this.token = token;
 		
@@ -232,7 +234,21 @@ public class EditTokenDialog extends AbeillePanel {
 		getCharSheetPanel().setImageId(token.getCharsheetImage());
 		getPortraitPanel().setImageId(token.getPortraitImage());
 		getTokenLayoutPanel().setToken(token);
-		
+
+		// Character Sheets
+//        controller = null;
+//        String form = MapTool.getCampaign().getCharacterSheets().get(token.getPropertyType());
+//        if (form == null) return;
+//        URL formUrl = getClass().getClassLoader().getResource(form);
+//        if (formUrl == null) return;
+//        controller = new CharSheetController(formUrl, null);
+//        HashMap<String, Object> properties = new HashMap<String, Object>();
+//        for (String prop : token.getPropertyNames())
+//            properties.put(prop, token.getProperty(prop));
+//        controller.setData(properties);
+//        controller.getPanel().setName("characterSheet");
+//        replaceComponent("sheetPanel", "characterSheet", controller.getPanel());
+        
 		super.bind(model);
 	}
 	
@@ -468,6 +484,11 @@ public class EditTokenDialog extends AbeillePanel {
 		// OTHER
 		tokenSaved = true;
 		
+//		// Character Sheet
+//		Map<String, Object> properties = controller.getData();
+//        for (String prop : token.getPropertyNames())
+//            token.setProperty(prop, properties.get(prop));
+
 		// Update UI
 		MapTool.getFrame().updateTokenTree();
 		MapTool.getFrame().updateSelectionPanel();
@@ -516,7 +537,7 @@ public class EditTokenDialog extends AbeillePanel {
         
         // Add the group panels and bar panel to the states panel
 	    JPanel panel = getStatesPanel();
-		panel.removeAll();
+	    panel.removeAll();
 		FormLayout layout = new FormLayout("0px:grow");
 		panel.setLayout(layout);
 		int row = 1;
