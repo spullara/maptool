@@ -31,7 +31,7 @@ public class TokenBarFunction extends AbstractFunction {
 
     /** Support get and set bar on tokens */
     private TokenBarFunction() {
-        super(1, 3, "getBar", "setBar");
+        super(1, 3, "getBar", "setBar", "isBarVisible", "setBarVisible");
     }
     
     /** singleton instance of this function */
@@ -47,9 +47,17 @@ public class TokenBarFunction extends AbstractFunction {
     public Object childEvaluate(Parser parser, String functionName, List<Object> parameters) throws ParserException {
         Token token = AbstractTokenAccessorFunction.getTarget(parser, parameters, -1);
         String bar = (String)parameters.get(0);
-        if (functionName.equals("getBar"))
+        if (functionName.equals("getBar")) {
             return getValue(token, bar);
-        return setValue(token, bar, parameters.get(1));
+        } else if (functionName.equals("setBar")) {
+            return setValue(token, bar, parameters.get(1)); 
+        } else if (functionName.equals("isBarVisible")) {
+            return token.getState(bar) == null ? BigDecimal.ZERO : BigDecimal.ONE;
+        } else {
+            boolean show = AbstractTokenAccessorFunction.getBooleanValue(parameters.get(1));
+            token.setState(bar, show ? BigDecimal.ZERO : null);  
+            return show ? BigDecimal.ONE : BigDecimal.ZERO;
+        } 
     }
     
     /**

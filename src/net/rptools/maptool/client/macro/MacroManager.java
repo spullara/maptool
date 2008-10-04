@@ -219,6 +219,8 @@ public class MacroManager {
 			return;
 		} catch (Exception e) {
 			MapTool.addLocalMessage("Could not execute the command: " + e.getMessage());
+			System.err.println("Exception executing command: " + command);
+			e.printStackTrace();
 			return;
 		}
 		

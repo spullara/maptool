@@ -427,7 +427,7 @@ public class EditTokenDialog extends AbeillePanel {
             for (int i = 0; i < bars.length; i += 2) {
                 JCheckBox cb = (JCheckBox)((Container)bars[i]).getComponent(1);
                 JSlider bar = (JSlider) bars[i + 1];
-                BigDecimal value = cb.isSelected() ? null : new BigDecimal(bar.getValue() / 100.0);
+                BigDecimal value = cb.isSelected() ? null : new BigDecimal(bar.getValue()).divide(new BigDecimal(100));
                 token.setState(bar.getName(), value);
                 bar.setValue((int)(TokenBarFunction.getBigDecimalValue(token.getState(bar.getName())).doubleValue() * 100));
             } 
