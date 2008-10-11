@@ -267,6 +267,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
                 formPanel.setSelected(SHOW_OWNER, true);
                 formPanel.setSelected(SHOW_OTHERS, true);
                 formPanel.getList(IMAGES).setModel(new DefaultListModel());
+                formPanel.getList(BARS).clearSelection();
             } // endif
             
         // Delete selected bar
