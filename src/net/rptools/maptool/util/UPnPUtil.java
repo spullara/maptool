@@ -37,7 +37,7 @@ public class UPnPUtil {
 		}
 		
 		if (IGDs != null) {
-			System.out.println("Found device: "	+ IGDs[0].getIGDRootDevice().getModelName());
+			System.out.println("UPnP:  Found device: "	+ IGDs[0].getIGDRootDevice().getModelName());
 			return true;
 		} else {
 			return false;
@@ -57,7 +57,7 @@ public class UPnPUtil {
 			// use the first device found
 			ourIGD = IGDs[0];
 		} else {
-			MapTool.showError("No Internet Gateway Devices found.");
+			MapTool.showError("UPnP Error - No Internet Gateway Devices found.<br><br>UPnP port mapping will not be available.");
 			return false;
 		}
 		
@@ -77,10 +77,10 @@ public class UPnPUtil {
 		}
 		
 		if (mapped) {
-			System.out.println("Port " + port + " mapped");
+			System.out.println("UPnP: Port " + port + " mapped");
 			return true;
 		} else {
-			MapTool.showError("UPnP Port Mapping Failed");
+			MapTool.showError("UPnP: Port Mapping Failed");
 			return false;
 		}
 	}
@@ -100,9 +100,9 @@ public class UPnPUtil {
 					// One of these days should figure out the  action response to verify it
 					boolean unmapped = testIGD.deletePortMapping(null, port, "TCP");
 					if (unmapped) {
-						System.out.println("Port unmapped");
+						System.out.println("UPnP: Port unmapped");
 					} else {
-						System.out.println("Failed to unmap port.");
+						System.out.println("UPnP: Failed to unmap port.");
 					}
 				}
 			}
