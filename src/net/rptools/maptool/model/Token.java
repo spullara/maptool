@@ -35,6 +35,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.transferable.TokenTransferData;
@@ -181,6 +182,8 @@ public class Token extends BaseModel {
 	private Map<String, Object> propertyMap;
 
 	private Map<String, String> macroMap;
+	private Map<Integer, Object> macroPropertiesMap;
+
 	private Map<String, String> speechMap;
 
 	// Deprecated, here to allow deserialization
@@ -256,8 +259,14 @@ public class Token extends BaseModel {
 			propertyMap = new HashMap<String, Object>(token.propertyMap);
 		}
 
+		if (token.macroPropertiesMap != null) {
+			macroPropertiesMap = new HashMap<Integer, Object>(token.macroPropertiesMap);
+		}
+
+		// convert old-style macros
 		if (token.macroMap != null) {
 			macroMap = new HashMap<String, String>(token.macroMap);
+			loadOldMacros();
 		}
 
 		if (token.speechMap != null) {
@@ -289,6 +298,11 @@ public class Token extends BaseModel {
 
 		// NULL key is the default
 		imageAssetMap.put(null, assetId);
+		
+		// convert old-style macros
+		if (macroMap != null) {
+			loadOldMacros();
+		}
 	}
 
 	public void setHasSight(boolean hasSight) {
@@ -865,34 +879,115 @@ public class Token extends BaseModel {
 		return propertyMap;
 	}
 
-	public void setMacroMap(Map<String, String> map) {
-		getMacroMap().clear();
-		getMacroMap().putAll(map);
-	}
-	
-	public Set<String> getMacroNames() {
-		return getMacroMap().keySet();
-	}
-	
-	public String getMacro(String key) {
-		return getMacroMap().get(key);
-	}
-	
-	public void addMacro(String key, String value) {
-		getMacroMap().put(key, value);
-	}
-	
-	public void deleteMacro(String key) {
-		getMacroMap().remove(key);
-	}
-	
-	private Map<String, String> getMacroMap() {
+	private void loadOldMacros() {
 		if (macroMap == null) {
-			macroMap = new HashMap<String, String>();
+			return;
 		}
-		return macroMap;
+		MacroButtonProperties prop;
+		Set<String> oldMacros = macroMap.keySet();
+		for (String macro : oldMacros) {
+			prop=new MacroButtonProperties(getMacroNextIndex());
+			prop.setLabel(macro);
+			prop.setCommand(macroMap.get(macro));
+			prop.setApplyToTokens(true);
+			macroPropertiesMap.put(prop.getIndex(),prop);
+		}
+		macroMap = null;
+//		System.out.println("Token.loadOldMacros() set up "+macroPropertiesMap.size()+ " new macros.");
 	}
 	
+	public int getMacroNextIndex(){
+		if (macroPropertiesMap == null){
+			macroPropertiesMap = new HashMap<Integer, Object>();
+		}
+		Set<Integer> indexSet = macroPropertiesMap.keySet();
+		int maxIndex = 0;
+		for (int index : indexSet){
+			if (index>maxIndex)
+				maxIndex = index;
+		}
+		return maxIndex+1;
+	}
+	
+	public Map<Integer,Object> getMacroPropertiesMap(boolean secure){
+		if (macroPropertiesMap == null){
+			macroPropertiesMap = new HashMap<Integer, Object>();
+		}
+		if (macroMap != null) {
+			loadOldMacros();
+		}
+		if (secure && !AppUtil.playerOwns(this)){
+			return new HashMap<Integer, Object>();
+		} else {
+			return macroPropertiesMap;
+		}
+	}
+
+	public MacroButtonProperties getMacro(int index, boolean secure){
+		return (MacroButtonProperties)getMacroPropertiesMap(secure).get(index);
+	}
+	
+	// avoid this; it loads the first macro with this label, but there could be more than one macro with that label
+	public MacroButtonProperties getMacro(String label, boolean secure) {
+		Set<Integer> keys = getMacroPropertiesMap(secure).keySet();
+		for (int key : keys) {
+			MacroButtonProperties prop = (MacroButtonProperties)macroPropertiesMap.get(key);
+			if (prop.getLabel().equals(label)){
+				return prop;
+			}
+		}
+		return null;
+	}
+	
+	public List<MacroButtonProperties> getMacroList(boolean secure){
+		Set<Integer> keys = getMacroPropertiesMap(secure).keySet();
+		List<MacroButtonProperties> list = new ArrayList<MacroButtonProperties>();
+		for (int key : keys) {
+			list.add((MacroButtonProperties)macroPropertiesMap.get(key));
+		}
+		return list;
+	}
+	
+	public void replaceMacroList(List<MacroButtonProperties> newMacroList){
+		// used by the token edit dialog, which will handle resetting panels and putting token to zone
+		macroPropertiesMap.clear();
+		for (MacroButtonProperties macro : newMacroList){
+			if (macro.getLabel() == null || macro.getLabel().trim().length() == 0 || macro.getCommand().trim().length() == 0) {
+				continue;
+			}
+			macroPropertiesMap.put(macro.getIndex(), macro);
+		}
+	}
+	
+	public List<String> getMacroNames(boolean secure) {
+		Set<Integer> keys = getMacroPropertiesMap(secure).keySet();
+		List<String> list = new ArrayList<String>();
+		for (int key : keys) {
+			MacroButtonProperties prop = (MacroButtonProperties)macroPropertiesMap.get(key);
+			list.add(prop.getLabel());
+		}
+		return list;
+	}
+
+	public boolean hasMacros(boolean secure) {
+		if ( getMacroPropertiesMap(secure).size() > 0){
+			return true;
+		}
+		return false;
+	}
+	
+	public void saveMacroButtonProperty(MacroButtonProperties prop){
+		getMacroPropertiesMap(false).put(prop.getIndex(),prop);
+		MapTool.getFrame().resetTokenPanels();
+		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), this);
+	}
+
+	public void deleteMacroButtonProperty(MacroButtonProperties prop){
+		getMacroPropertiesMap(false).remove(prop.getIndex());
+		MapTool.getFrame().resetTokenPanels();
+		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), this);
+	}
+
 	public void setSpeechMap(Map<String, String> map) {
 		getSpeechMap().clear();
 		getSpeechMap().putAll(map);

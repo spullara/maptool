@@ -20,6 +20,7 @@ import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
 
 /**
@@ -51,13 +52,11 @@ public class RunTokenMacroMacro implements Macro {
 			  continue;
 		  }
 		  
-		  String tmacro = token.getMacro(macro);
-		  if (tmacro == null) {
+		  MacroButtonProperties prop = token.getMacro(macro,true);
+		  if (prop == null) {
 			  continue;
 		  }
-		  
-		  MapTool.getFrame().getCommandPanel().getCommandTextArea().setText("/im " + token.getId() + ": " + tmacro);
-		  MapTool.getFrame().getCommandPanel().commitCommand();
+		  prop.executeMacro(true);
 	  }
   }
 }

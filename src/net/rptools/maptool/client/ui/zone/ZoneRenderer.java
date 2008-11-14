@@ -1972,8 +1972,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     public void deselectToken(GUID tokenGUID) {
 		addToSelectionHistory(selectedTokenSet);
 		selectedTokenSet.remove(tokenGUID);
-		MapTool.getFrame().updateSelectionPanel();
-		MapTool.getFrame().updateImpersonatePanel(getSelectedTokensList());
+		MapTool.getFrame().resetTokenPanels();
 		repaint();
     }
     public boolean selectToken(GUID tokenGUID) {
@@ -1986,8 +1985,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		selectedTokenSet.add(tokenGUID);
         
         repaint();
-		MapTool.getFrame().updateSelectionPanel();
-		MapTool.getFrame().updateImpersonatePanel(getSelectedTokensList());
+        MapTool.getFrame().resetTokenPanels();
 		return true;
     }
     
@@ -2007,8 +2005,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		addToSelectionHistory(selectedTokenSet);
 		clearShowPaths();
 		selectedTokenSet.clear();
-		MapTool.getFrame().updateSelectionPanel();
-		MapTool.getFrame().updateImpersonatePanel(getSelectedTokensList());
+		MapTool.getFrame().resetTokenPanels();
 		repaint();
 	}
     
@@ -2040,8 +2037,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			}
 		}
 		//TODO: if selection history is empty, notify the selection panel to disable the undo button.
-		MapTool.getFrame().updateSelectionPanel();
-		MapTool.getFrame().updateImpersonatePanel(getSelectedTokensList());
+		MapTool.getFrame().resetTokenPanels();
 		repaint();
 	}
 

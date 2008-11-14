@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,6 +50,7 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 
@@ -395,4 +397,100 @@ public class PersistenceUtil {
 		public Scale currentView;
 		public String mapToolVersion;
 	}
+	
+	// Macro import/export support
+	public static MacroButtonProperties loadLegacyMacro(File file) throws IOException {
+		
+		if (!file.exists()) {
+			throw new FileNotFoundException();
+		}
+		
+		FileInputStream in = new FileInputStream(file);
+		try {
+			return loadMacro(in);
+		} finally {
+			if (in != null) {
+				in.close();
+			}
+		}
+	}
+	
+	public static MacroButtonProperties loadMacro(InputStream in) throws IOException {
+		
+		return (MacroButtonProperties) new XStream().fromXML(in);
+	}
+	
+	public static MacroButtonProperties loadMacro(File file) throws IOException {
+        try {
+            PackedFile pakFile = new PackedFile(file);
+            String version = (String)pakFile.getProperty(PROP_VERSION); // Sanity check
+            MacroButtonProperties macroButton = (MacroButtonProperties)pakFile.getContent();
+            return macroButton;
+        } catch (IOException e) {
+            return loadLegacyMacro(file);
+        }
+	}
+	
+	public static void saveMacro(MacroButtonProperties macroButton, File file) throws IOException {
+		
+        // Put this in FileUtil
+        if (file.getName().indexOf(".") < 0) {
+            file = new File(file.getAbsolutePath()
+                    + ".mtmacro");
+        }
+        PackedFile pakFile = new PackedFile(file);
+        pakFile.setContent(macroButton);
+        pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+        pakFile.save();
+        pakFile.close();
+	}
+	
+	public static List<MacroButtonProperties> loadLegacyMacroSet(File file) throws IOException {
+		
+		if (!file.exists()) {
+			throw new FileNotFoundException();
+		}
+		
+		FileInputStream in = new FileInputStream(file);
+		try {
+			return loadMacroSet(in);
+		} finally {
+			if (in != null) {
+				in.close();
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<MacroButtonProperties> loadMacroSet(InputStream in) throws IOException {
+		
+		return (List<MacroButtonProperties>) new XStream().fromXML(in);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<MacroButtonProperties> loadMacroSet(File file) throws IOException {
+        try {
+            PackedFile pakFile = new PackedFile(file);
+            String version = (String)pakFile.getProperty(PROP_VERSION); // Sanity check
+            List<MacroButtonProperties> macroButtonSet = (List<MacroButtonProperties>)pakFile.getContent();
+            return macroButtonSet;
+        } catch (IOException e) {
+            return loadLegacyMacroSet(file);
+        }
+	}
+	
+	public static void saveMacroSet(List<MacroButtonProperties> macroButtonSet, File file) throws IOException {
+		
+        // Put this in FileUtil
+        if (file.getName().indexOf(".") < 0) {
+            file = new File(file.getAbsolutePath()
+                    + ".mtmacset");
+        }
+        PackedFile pakFile = new PackedFile(file);
+        pakFile.setContent(macroButtonSet);
+        pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+        pakFile.save();
+        pakFile.close();
+	}
+	// end of Macro import/export support
 }

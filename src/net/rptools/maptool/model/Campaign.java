@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
 import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
@@ -32,6 +34,7 @@ import net.rptools.maptool.client.ui.token.MultipleImageBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.SingleImageBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.TwoImageBarTokenOverlay;
 import net.rptools.maptool.model.LookupTable.LookupEntry;
+import net.rptools.parser.ParserException;
 
 /**
  * This object contains {@link Zone}s and {@link Asset}s that make up a campaign.
@@ -109,6 +112,7 @@ public class Campaign {
     		zones.put(copy.getId(), copy);
     	}
     	campaignProperties = new CampaignProperties(campaign.campaignProperties);
+    	macroButtonProperties = new ArrayList<MacroButtonProperties>(campaign.getMacroButtonPropertiesArray());
     }
     
     public GUID getId() {
@@ -281,9 +285,14 @@ public class Campaign {
 		return macroButtonProperties;
 	}
 
-	public void setMacroButtonProperty(MacroButtonProperties properties) {
+	public void saveMacroButtonProperty(MacroButtonProperties properties) {
 		// find the matching property in the array
 		//TODO: hashmap? or equals()? or what?
+		if (!MapTool.getPlayer().isGM()) {
+			MapTool.showError("Only the GM is allowed to make changes to the Campaign Panel.");
+			return;
+		}
+		MapTool.showInformation("Changes to the Campaign Panel will not be sent to other clients until you save and reload this campiagn.");
 		for (MacroButtonProperties prop : macroButtonProperties) {
 			if (prop.getIndex() == properties.getIndex()) {
 				prop.setColorKey(properties.getColorKey());
@@ -293,13 +302,18 @@ public class Campaign {
 				prop.setIncludeLabel(properties.getIncludeLabel());
 				prop.setApplyToTokens(properties.getApplyToTokens());
 				prop.setLabel(properties.getLabel());
+				prop.setGroup(properties.getGroup());
 				prop.setSortby(properties.getSortby());
+				prop.setFontColorKey(properties.getFontColorKey());
+				prop.setFontSize(properties.getFontSize());
+				prop.setMinWidth(properties.getMinWidth());
+				prop.setMinWidth(properties.getMaxWidth());
+				MapTool.getFrame().getCampaignPanel().reset();
+				return;
 			}
 		}
-	}
-	
-	public void addMacroButtonProperty(MacroButtonProperties property) {
-		macroButtonProperties.add(property);
+		macroButtonProperties.add(properties);
+		MapTool.getFrame().getCampaignPanel().reset();
 	}
 	
 	public int getMacroButtonNextIndex() {
@@ -307,7 +321,13 @@ public class Campaign {
 	}
 	
 	public void deleteMacroButton(MacroButtonProperties properties)	{
+		if (!MapTool.getPlayer().isGM()) {
+			MapTool.showError("Only the GM is allowed to make changes to the Campaign Panel.");
+			return;
+		}
+		MapTool.showInformation("Changes to the Campaign Panel will not be sent to other clients until you save and reload this campiagn.");
 		macroButtonProperties.remove(properties);
+		MapTool.getFrame().getCampaignPanel().reset();
 	}
 
 	public Set<MD5Key> getAllAssetIds() {

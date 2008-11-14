@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.macrobuttons.buttons.AbstractMacroButton;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton;
 
 /**
  * @author tylere
@@ -38,20 +38,20 @@ public class MacroButtonHotKeyManager {
 		"shift F11", "shift F12"};
 	
 	// our own map is required to allow us to search which button has an associated keystroke
-	private static Map<KeyStroke, AbstractMacroButton> buttonsByKeyStroke = new HashMap<KeyStroke, AbstractMacroButton>();
-	private AbstractMacroButton macroButton;
+	private static Map<KeyStroke, MacroButton> buttonsByKeyStroke = new HashMap<KeyStroke, MacroButton>();
+	private MacroButton macroButton;
 
-	public MacroButtonHotKeyManager(AbstractMacroButton macroButton) {
+	public MacroButtonHotKeyManager(MacroButton macroButton) {
 		this.macroButton = macroButton;
 	}
 
 	public void assignKeyStroke(String hotKey) {
 		
 		// remove the old keystroke from our map
-		KeyStroke oldKeystroke = KeyStroke.getKeyStroke(macroButton.getHotKey());
+		KeyStroke oldKeystroke = KeyStroke.getKeyStroke(macroButton.getProperties().getHotKey());
 		buttonsByKeyStroke.remove(oldKeystroke);	
 		// assign the new hotKey
-		macroButton.setHotKey(hotKey);
+		macroButton.getProperties().setHotKey(hotKey);
 		
 		// HOTKEYS[0] is no hotkey.
 		if( !hotKey.equals(HOTKEYS[0])) {
@@ -59,19 +59,19 @@ public class MacroButtonHotKeyManager {
 			KeyStroke keystroke = KeyStroke.getKeyStroke(hotKey);
 			
 			// Check what button the hotkey is already assigned to
-			AbstractMacroButton oldButton = buttonsByKeyStroke.get(keystroke);
+			MacroButton oldButton = buttonsByKeyStroke.get(keystroke);
 			
 			// if it is already assigned, then update the old mapped button
 			if (oldButton != macroButton && oldButton != null) {
 				
-				// tell the old button it no longer has a hotkey
-				oldButton.setHotKey(HOTKEYS[0]);
+				// tell the old button properties it no longer has a hotkey
+				oldButton.getProperties().setHotKey(HOTKEYS[0]);
 				// remove the hot key reference from the button's text
 				oldButton.setText(oldButton.getButtonText());	
 				//remove from our map
 				buttonsByKeyStroke.remove(keystroke);
 				// need to save settings
-				oldButton.savePreferences();
+				oldButton.getProperties().save();
 			}
 			
 			// Add the new button and keystroke to our map
@@ -87,7 +87,7 @@ public class MacroButtonHotKeyManager {
 		}
 	}	
 	
-	public static Map<KeyStroke, AbstractMacroButton> getKeyStrokeMap() {
+	public static Map<KeyStroke, MacroButton> getKeyStrokeMap() {
 		return buttonsByKeyStroke;
 	}
 	

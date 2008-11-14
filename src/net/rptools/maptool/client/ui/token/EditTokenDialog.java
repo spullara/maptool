@@ -74,6 +74,7 @@ import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Association;
 import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
@@ -447,7 +448,7 @@ public class EditTokenDialog extends AbeillePanel {
 		token.setShape((Token.TokenShape)getShapeCombo().getSelectedItem());
 		
 		// Macros
-		token.setMacroMap(((KeyValueTableModel)getMacroTable().getModel()).getMap());
+		token.replaceMacroList(((MacroTableModel)getMacroTable().getModel()).getMacroList());
 		token.setSpeechMap(((KeyValueTableModel)getSpeechTable().getModel()).getMap());
 		
 		// Properties
@@ -491,7 +492,7 @@ public class EditTokenDialog extends AbeillePanel {
 
 		// Update UI
 		MapTool.getFrame().updateTokenTree();
-		MapTool.getFrame().updateSelectionPanel();
+		MapTool.getFrame().resetTokenPanels();
 		
 		return true;
 	}
@@ -653,7 +654,7 @@ public class EditTokenDialog extends AbeillePanel {
 				
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
-						getMacroTable().setModel(new MacroTableModel());
+						getMacroTable().setModel(new MacroTableModel(token,true));
 					}
 				});
 			}
@@ -1024,33 +1025,80 @@ public class EditTokenDialog extends AbeillePanel {
 		}
 	}
 	
-	private static class MacroTableModel extends KeyValueTableModel {
+	private static class MacroTableModel extends AbstractTableModel {
 		
+		private Association<String, String> newRow = new Association<String, String>("", "");
+		private List<MacroButtonProperties> macroList;
+		private Token token;
+
 		public MacroTableModel(Token token) {
-			List<Association<String, String>> rowList = new ArrayList<Association<String, String>>();
-			for (String macroName : token.getMacroNames()) {
-				rowList.add(new Association<String, String>(macroName, token.getMacro(macroName)));
+			this(token, false);
+		}
+		public MacroTableModel(Token token, boolean clearList) {
+			this.token = token;
+			if (clearList){
+				macroList = new ArrayList<MacroButtonProperties>();
+			} else {
+				this.macroList = token.getMacroList(true);
+			}
+			Collections.sort(this.macroList);
+		}
+		public int getColumnCount() {
+			return 2;
+		}
+		public int getRowCount() {
+			return macroList.size() + 1;
+		}
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			if (rowIndex == getRowCount() - 1) {
+				switch(columnIndex) {
+				case 0: return newRow.getLeft();
+				case 1: return newRow.getRight();
+				}
+				return "";
 			}
 			
-			Collections.sort(rowList, new Comparator<Association<String, String>>() {
-				public int compare(Association<String, String> o1, Association<String, String> o2) {
-
-					return o1.getLeft().compareToIgnoreCase(o2.getLeft());
+			switch (columnIndex) {
+			case 0: return macroList.get(rowIndex).getLabel();
+			case 1: return macroList.get(rowIndex).getCommand();
+			}
+			return "";
+		}
+		@Override
+		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+			if (rowIndex == getRowCount() - 1) {
+				switch(columnIndex) {
+				case 0: newRow.setLeft((String)aValue); break;
+				case 1: newRow.setRight((String)aValue); break;
 				}
-			});
-			init(rowList);
+				MacroButtonProperties newMacro = new MacroButtonProperties(token.getMacroNextIndex());
+				newMacro.setLabel(newRow.getLeft());
+				newMacro.setCommand(newRow.getRight());
+				newMacro.setApplyToTokens(true);
+				macroList.add(newMacro);
+				newRow = new Association<String, String>("", "");
+				return;
+			}
+			
+			switch(columnIndex) {
+			case 0: macroList.get(rowIndex).setLabel((String)aValue); break;
+			case 1: macroList.get(rowIndex).setCommand((String)aValue); break;
+			}
 		}
-		public MacroTableModel() {
-			init(new ArrayList<Association<String, String>>());
-		}
-		
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
-			case 0: return "ID";
-			case 1: return "Action";
+			case 0: return "Label";
+			case 1: return "Command";
 			}
 			return "";
+		}
+		@Override
+		public boolean isCellEditable(int rowIndex, int columnIndex) {
+			return true;
+		}
+		public List<MacroButtonProperties> getMacroList() {
+			return macroList;
 		}
 	}
 

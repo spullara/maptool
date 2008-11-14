@@ -15,45 +15,75 @@ package net.rptools.maptool.client.ui.macrobuttons.panels;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.Scrollable;
-import java.awt.Dimension;
+
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
-import net.rptools.lib.AppEvent;
-import net.rptools.lib.AppEventListener;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroup;
-import net.rptools.maptool.model.ModelChangeEvent;
-import net.rptools.maptool.model.ModelChangeListener;
+import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.Zone.Event;
 
-public class ImpersonatePanel extends JPanel implements Scrollable, ModelChangeListener, AppEventListener {
+public class ImpersonatePanel extends AbstractMacroPanel {
 
-	private Token token;
 	private boolean currentlyImpersonating = false;
 	
 	public ImpersonatePanel() {
+		setPanelClass("ImpersonatePanel");
 		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
 	}
 	
-	private void addButtons(Token token) {
-		this.token = token;
-		//addCancelButton();
-		add(new ButtonGroup(token, this));
-		doLayout();
-		revalidate();
-		repaint();
+	public void init(){
+		List<Token> selectedTokenList = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList();
+		if (currentlyImpersonating && getToken() != null) {
+			Token token = getToken();
+			MapTool.getFrame().getFrame(MTFrame.IMPERSONATED).setFrameIcon(token.getIcon(16, 16));
+			MapTool.getFrame().getFrame(MTFrame.IMPERSONATED).setTitle(getTitle(token));
+			addArea(getTokenId());
+		} else if (selectedTokenList.size() != 1) {
+			return;
+		} else {
+			// add the "Impersonate Selected" button
+			final Token t = selectedTokenList.get(0);
+			
+			JButton button = new JButton("Impersonate Selected", t.getIcon(16, 16)) {
+				public Insets getInsets() {
+					return new Insets(2, 2, 2, 2);
+				}
+			};
+			button.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent event) {
+					MapTool.getFrame().getCommandPanel().quickCommit("/im " + t.getId(), false);
+				}
+			});
+			button.setBackground(null);
+			add(button);
+		}
+
 	}
 
-	public String getTitle() {
+	public void startImpersonating(Token token){
+		stopImpersonating();
+		setTokenId(token);
+		currentlyImpersonating = true;
+		token.setBeingImpersonated(true);
+		reset();
+	}
+
+	public void stopImpersonating(){
+		Token token = getToken();
+		if (token!=null){
+			token.setBeingImpersonated(false);
+		}
+		setTokenId((GUID)null);
+		currentlyImpersonating = false;		
+		clear();
+	}
+
+	public String getTitle(Token token) {
 		if (token.getGMName() != null && token.getGMName().trim().length() > 0) {
 			return token.getName() + " (" + token.getGMName() + ")";
 		} else {
@@ -61,6 +91,24 @@ public class ImpersonatePanel extends JPanel implements Scrollable, ModelChangeL
 		}
 	}
 
+	public void clear() {
+		removeAll();
+		MapTool.getFrame().getFrame(MTFrame.IMPERSONATED).setFrameIcon(new ImageIcon(AppStyle.impersonatePanelImage));
+		MapTool.getFrame().getFrame(MTFrame.IMPERSONATED).setTitle(Tab.IMPERSONATED.title);
+		if (getTokenId() == null) {
+			currentlyImpersonating = false;
+		}
+		doLayout();
+		revalidate();
+		repaint();
+	}
+	
+	public void reset() {
+		clear();
+		init();
+	}
+	
+/*
 	public void addCancelButton() {
 		ImageIcon i = new ImageIcon(AppStyle.cancelButton);
 		JButton button = new JButton("Cancel Impersonation", i) {
@@ -76,113 +124,6 @@ public class ImpersonatePanel extends JPanel implements Scrollable, ModelChangeL
 		button.setBackground(null);
 		add(button);
 	}
+*/
 	
-	public void addImpersonateButton(List<Token> selectedTokenList) {
-		if (currentlyImpersonating) {
-			return;
-		}
-
-		removeAll();
-		revalidate();
-		repaint();
-
-		if (selectedTokenList.size() != 1) {
-			return;
-		}
-		
-		// find our selected token
-		final Token t = selectedTokenList.get(0);
-		
-		JButton button = new JButton("Impersonate Selected", t.getIcon(16, 16)) {
-			public Insets getInsets() {
-				return new Insets(2, 2, 2, 2);
-			}
-		};
-		button.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent event) {
-				MapTool.getFrame().getCommandPanel().quickCommit("/im " + t.getId(), false);
-			}
-		});
-		button.setBackground(null);
-		add(button);
-		
-		revalidate();
-		repaint();
-	}
-	
-	public void clear() {
-		removeAll();
-		
-		if (token != null) {
-			token.setBeingImpersonated(false);
-			token = null;
-			MapTool.getFrame().updateSelectionPanel();
-		}
-		
-		currentlyImpersonating = false;
-		addImpersonateButton(MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList());
-		
-		revalidate();
-		repaint();
-	}
-	
-	public void update(Token token) {
-		if (this.token != null) {
-			this.token.setBeingImpersonated(false);
-		}
-		this.token = token;
-		token.setBeingImpersonated(true);
-		removeAll();
-		addButtons(token);
-		currentlyImpersonating = true;
-		// TODO Remove MapTool.getFrame().updateSelectionPanel();
-	}
-
-	public void update(List<Token> selectedTokenList) {
-		addImpersonateButton(selectedTokenList);
-	}
-
-	////
-	// SCROLLABLE
-	public Dimension getPreferredScrollableViewportSize() {
-		return getPreferredSize();
-	}
-
-	public int getScrollableBlockIncrement(Rectangle visibleRect,
-										   int orientation, int direction) {
-		return 75;
-	}
-
-	public boolean getScrollableTracksViewportHeight() {
-		return getPreferredSize().height < getParent().getSize().height;
-	}
-
-	public boolean getScrollableTracksViewportWidth() {
-		return true;
-	}
-
-	public int getScrollableUnitIncrement(Rectangle visibleRect,
-										  int orientation, int direction) {
-		return 25;
-	}
-	
-	public void modelChanged(ModelChangeEvent event) {
-		if (event.eventType == Event.TOKEN_CHANGED || 
-                event.eventType == Event.TOKEN_REMOVED) {
-			MapTool.getFrame().updateImpersonatePanel();
-		}
-	}
-
-	public void handleAppEvent(AppEvent event) {
-		Zone oldZone = (Zone)event.getOldValue();
-		Zone newZone = (Zone)event.getNewValue();
-		
-		if (oldZone != null) {
-			oldZone.removeModelChangeListener(this);
-		}
-
-		newZone.addModelChangeListener(this);
-		MapTool.getFrame().updateImpersonatePanel();
-	}
-
 }

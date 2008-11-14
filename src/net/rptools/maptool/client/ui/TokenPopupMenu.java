@@ -62,6 +62,7 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
+import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Path;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
@@ -143,19 +144,29 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	}
 	
 	protected JMenu createMacroMenu() {
-		
-		if (selectedTokenSet.size() != 1 || getTokenUnderMouse().getMacroNames().size() == 0) {
+		if (selectedTokenSet.size() != 1 || getTokenUnderMouse().getMacroNames(true).size() == 0) {
 			return null;
 		}
 		
-		JMenu menu = new JMenu("Macros");
-		List<String> keyList = new ArrayList<String>(getTokenUnderMouse().getMacroNames());
-		Collections.sort(keyList);
-		for (String key : keyList) {
-			menu.add(new RunMacroAction(key, getTokenUnderMouse().getMacro(key)));
+		JMenu macroMenu = new JMenu("Macros");
+		List<MacroButtonProperties> macroList = getTokenUnderMouse().getMacroList(true);
+		String group = "";
+		Collections.sort(macroList);
+		Map<String, JMenu> groups = new TreeMap<String, JMenu>();
+		for (MacroButtonProperties macro : macroList) {
+			group = macro.getGroup();
+			group = (group.equals("") || group==null ? " General" : group); //leading space makes it come first
+			JMenu submenu = groups.get(group);
+            if (submenu == null) {
+                submenu = new JMenu(group);
+                groups.put(group, submenu);                    
+            }            
+			submenu.add(new RunMacroAction(macro.getLabel(), macro));
 		}
+        // Add the group menus in alphabetical order
+        for (JMenu submenu : groups.values()) macroMenu.add(submenu);
 		
-		return menu;
+		return macroMenu;
 	}
 	
 	protected JMenu createSpeechMenu() {
@@ -804,19 +815,15 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	
 	public class RunMacroAction extends AbstractAction {
 
-		private String macro;
+		private MacroButtonProperties macro;
 		
-		public RunMacroAction(String key, String macro) {
+		public RunMacroAction(String key, MacroButtonProperties macro) {
 			putValue(Action.NAME, key);
 			this.macro = macro;
 		}
 		
 		public void actionPerformed(ActionEvent e) {
-			String identity = getTokenUnderMouse().getName();
-			String command = "/im " + identity + ":" + macro;
-			JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
-			commandArea.setText(command);
-			MapTool.getFrame().getCommandPanel().commitCommand();
+			macro.executeMacro(true); // run on selected
 		}
 	}
 

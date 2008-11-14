@@ -13,128 +13,96 @@
  */
 package net.rptools.maptool.client.ui.macrobuttons.panels;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Rectangle;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.Scrollable;
-
-import net.rptools.lib.AppEvent;
-import net.rptools.lib.AppEventListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 import net.rptools.maptool.client.AppStyle;
-import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
-
+import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroup;
-
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-
-import net.rptools.maptool.model.ModelChangeEvent;
-import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.MacroButtonProperties;
 
-import net.rptools.maptool.model.Zone.Event;
-
-import net.rptools.maptool.model.Zone;
-
-public class SelectionPanel extends JPanel implements Scrollable, ModelChangeListener, AppEventListener {
+public class SelectionPanel extends AbstractMacroPanel {
+	
+	private List<Token> tokenList = null;
 	
 	public SelectionPanel() {
 		//TODO: refactoring reminder
-		setLayout(new GridBagLayout());
-		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.gridy = 0;
-		constraints.gridx = 0;
-		constraints.weightx = 1;
+		setPanelClass("SelectionPanel");
+		init(new ArrayList<Token>());  // when initially loading MT, the CurrentZoneRenderer isn't ready yet; just send an empty list
+	}
+	
+	public void init(){
+		init(MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList());
+	}
 
-		add(new MenuButtonsPanel(), constraints);
-		constraints.gridy++;
+	public void init(List<Token> selectedTokenList) {
+		// add the selection panel controls first
+		add(new MenuButtonsPanel());
 
-		// Spacer
-		constraints.weighty = 1;
-		add(new JLabel(), constraints);
+		// draw common group only when there is more than one token selected
+		if (selectedTokenList.size() > 1) {
+			add(new ButtonGroup(selectedTokenList, getCommonButtons(selectedTokenList), this));
+		}
+		for (Token token : selectedTokenList) {
+			addArea(token.getId());
+		}
 
+		if (selectedTokenList.size() == 1) {
+			// if only one token selected, show its image as tab icon
+			MapTool.getFrame().getFrame(MTFrame.SELECTION).setFrameIcon(selectedTokenList.get(0).getIcon(16, 16));
+		}
 		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
 	}
 
-	public void update(List<Token> tokenList) {
-		clear();
-		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.gridy = 0;
-		constraints.gridx = 0;
-		constraints.weightx = 1;
-
-		add(new MenuButtonsPanel(), constraints);
-		constraints.gridy++;
-		
-		// draw common group only when there is more than one token selected
-		if (tokenList.size() > 1) {
-			add(new ButtonGroup(tokenList), constraints);
-			constraints.gridy++;
-		}
+	private List<MacroButtonProperties> getCommonButtons(List<Token> tokenList) {
+		// get the common macros of the tokens based on the macros' hash code (excluding the index)
+		// hashcode => MacroButtonProperties list
+		Map<Integer, List<MacroButtonProperties>> encounteredMacros = new HashMap<Integer, List<MacroButtonProperties>>();
 		for (Token token : tokenList) {
-			add(new ButtonGroup(token, this), constraints);
-			constraints.gridy++;
+			for (MacroButtonProperties macro : token.getMacroList(true)) {
+				int hash = macro.hashCodeForComparison();
+				List<MacroButtonProperties> l = encounteredMacros.get(hash);
+				if (l == null) {
+					l = new ArrayList<MacroButtonProperties>();
+					encounteredMacros.put(hash, l);
+				}
+				l.add(macro);
+			}
 		}
-
-		// Spacer
-		constraints.weighty = 1;
-		add(new JLabel(), constraints);
-		
-		revalidate();
-		repaint();
+		TreeSet<Integer> hashcodes = new TreeSet<Integer>();
+		hashcodes.addAll(encounteredMacros.keySet());
+		// create the list to hold one of each common macros
+		// since we are only interested in finding common macros between tokens
+		// we skip the map keys which have only 1 item in the arraylist
+		// so we skip those like "Attack" => ["Elf"]
+		List<MacroButtonProperties> commonMacros = new ArrayList<MacroButtonProperties>();
+		for (int hash : hashcodes) {
+			List<MacroButtonProperties> l = encounteredMacros.get(hash);
+			if (l.size() > 1) {
+				commonMacros.add(l.get(0));
+			}
+		}
+		Collections.sort(commonMacros);  // sort by the properties' compare functionality, so they are grouped appropriately
+		return commonMacros;
 	}
-	
-	public void clear() {
+
+	protected void clear() {
+		// reset the tab icon
+		MapTool.getFrame().getFrame(MTFrame.SELECTION).setFrameIcon(new ImageIcon(AppStyle.selectionPanelImage));
 		removeAll();
 		revalidate();
 		repaint();
 	}
-
-	////
-	// SCROLLABLE
-	public Dimension getPreferredScrollableViewportSize() {
-		return getPreferredSize();
-	}
-	public int getScrollableBlockIncrement(Rectangle visibleRect,
-			int orientation, int direction) {
-		return 75;
-	}
-	public boolean getScrollableTracksViewportHeight() {
-		return getPreferredSize().height < getParent().getSize().height;
-	}
-	public boolean getScrollableTracksViewportWidth() {
-		return true;
-	}
-	public int getScrollableUnitIncrement(Rectangle visibleRect,
-			int orientation, int direction) {
-		return 25;
-	}
-
-	public void modelChanged(ModelChangeEvent event) {
-		if (event.eventType == Event.TOKEN_CHANGED || 
-                event.eventType == Event.TOKEN_REMOVED) {
-			MapTool.getFrame().updateSelectionPanel();
-		}
-	}
-
-	public void handleAppEvent(AppEvent event) {
-		Zone oldZone = (Zone)event.getOldValue();
-		Zone newZone = (Zone)event.getNewValue();
-		
-		if (oldZone != null) {
-			oldZone.removeModelChangeListener(this);
-		}
-
-		newZone.addModelChangeListener(this);
-		MapTool.getFrame().updateSelectionPanel();
+	
+	public void reset() {
+		clear();
+		init();
 	}
 }

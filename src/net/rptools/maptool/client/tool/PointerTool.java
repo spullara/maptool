@@ -260,7 +260,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					renderer.flush(token);
 					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 					renderer.getZone().putToken(token);
-					updateImpersonateTab(false);
+					MapTool.getFrame().resetTokenPanels();
 				}
     		}
     		if (SwingUtilities.isRightMouseButton(event)) {
@@ -408,7 +408,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 						renderer.flush(token);
 						MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 						renderer.getZone().putToken(token);
-						updateImpersonateTab(false);
+						MapTool.getFrame().resetTokenPanels();
 					}
 				}
 			}
@@ -1459,11 +1459,4 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		return notes;
 	}
 
-	private void updateImpersonateTab(boolean switchTo) {
-		// if the token that has been just edited was being impersonated, the token macro button panel
-		// has to be updated in case some macros were added/removed/updated (keeping in sync).
-		if (MapTool.getFrame().getCommandPanel().getIdentity().equals(tokenUnderMouse.getName())) {
-			MapTool.getFrame().updateImpersonatePanel(tokenUnderMouse);
-		}
-	}
 }

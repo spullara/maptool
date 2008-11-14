@@ -101,10 +101,7 @@ import net.rptools.maptool.client.ui.assetpanel.AssetDirectory;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.commandpanel.CommandPanel;
 import net.rptools.maptool.client.ui.lookuptable.LookupTablePanel;
-import net.rptools.maptool.client.ui.macrobuttons.buttons.AbstractMacroButton;
-import net.rptools.maptool.client.ui.macrobuttons.buttons.CampaignMacroButton;
-import net.rptools.maptool.client.ui.macrobuttons.buttons.GlobalMacroButton;
-import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroPanelPopupListener;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton;
 import net.rptools.maptool.client.ui.macrobuttons.panels.CampaignPanel;
 import net.rptools.maptool.client.ui.macrobuttons.panels.GlobalPanel;
 import net.rptools.maptool.client.ui.macrobuttons.panels.ImpersonatePanel;
@@ -122,7 +119,6 @@ import net.rptools.maptool.model.AssetAvailableListener;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
-import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
@@ -390,9 +386,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		
 		
 		JScrollPane campaign = scrollPaneFactory(campaignPanel);
-		campaign.addMouseListener(new MacroPanelPopupListener(campaign, Tab.CAMPAIGN.index));
 		JScrollPane global = scrollPaneFactory(globalPanel);
-		global.addMouseListener(new MacroPanelPopupListener(global, Tab.GLOBAL.index));
 		JScrollPane selection = scrollPaneFactory(selectionPanel);
 		JScrollPane impersonate = scrollPaneFactory(impersonatePanel);
 		frameMap.put(MTFrame.GLOBAL, createDockingFrame(MTFrame.GLOBAL, global, new ImageIcon(AppStyle.globalPanelImage)));
@@ -1348,131 +1342,48 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	
 	private void updateKeyStrokes(JComponent c) {
 		c.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).clear();
-		Map<KeyStroke, AbstractMacroButton> keyStrokeMap = MacroButtonHotKeyManager.getKeyStrokeMap();
+		Map<KeyStroke, MacroButton> keyStrokeMap = MacroButtonHotKeyManager.getKeyStrokeMap();
 
 		for (KeyStroke keyStroke : keyStrokeMap.keySet()) {
-			final AbstractMacroButton button = keyStrokeMap.get(keyStroke);
+			final MacroButton button = keyStrokeMap.get(keyStroke);
 			c.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, button);
 			c.getActionMap().put(button, new AbstractAction() {
 				public void actionPerformed(ActionEvent event) {
-					button.executeButton();
+					button.getProperties().executeMacro();
 				}
 			});
 		}
 	}
 
-	public void addGlobalMacroButton() {
-		globalPanel.addButton();
+    public CampaignPanel getCampaignPanel() {
+        return campaignPanel;
+    }
+
+    public GlobalPanel getGlobalPanel() {
+        return globalPanel;
+    }
+    
+    public ImpersonatePanel getImpersonatePanel() {
+        return impersonatePanel;
+    }
+    
+    public SelectionPanel getSelectionPanel() {
+        return selectionPanel;
+    }
+    
+	public void resetTokenPanels(){
+		impersonatePanel.reset();
+		selectionPanel.reset();
 	}
 
-	public void addGlobalMacroButton(MacroButtonProperties properties) {
-		globalPanel.addButton(properties);
-	}
-
-	public void addCampaignMacroButton() {
-		campaignPanel.addButton();
-	}
-
-	public void addCampaignMacroButton(MacroButtonProperties properties) {
-		campaignPanel.addButton(properties);
-	}
-
-	public void deleteGlobalMacroButton(GlobalMacroButton button) {
-		globalPanel.deleteButton(button);
-	}
-
-	public void deleteCampaignMacroButton(CampaignMacroButton button) {
-		campaignPanel.deleteButton(button);
-	}
-
-	public void updateSelectionPanel() {
-		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-		if (renderer == null) {
-			return;
-		}
-
-		List<Token> tokenList = new ArrayList<Token>();
-		for (Token token : renderer.getSelectedTokensList()) {
-			// if we don't own the token, we shouldn't see its macros
-			// Also if the token is not in the zone it may have been deleted so dont add it.
-			if (AppUtil.playerOwns(token) && 
-					MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokens().contains(token)) {
-				tokenList.add(token);
-			}
-		}
-		
-		if (tokenList.size() == 0) {
-			selectionPanel.clear();
-		} else {
-			selectionPanel.update(tokenList);
-		
-			if (tokenList.size() == 1) {
-				// if only one token selected, show its image as tab icon
-				frameMap.get(MTFrame.SELECTION).setFrameIcon(tokenList.get(0).getIcon(16, 16));
-			} else {
-				// if >1 or no token selected, don't display a tab icon
-				frameMap.get(MTFrame.SELECTION).setFrameIcon(new ImageIcon(AppStyle.selectionPanelImage));
-			}
-		}
-	}
-
-	public void updateImpersonatePanel() { 
-		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-		if (renderer == null) {
-			return;
-		}
-
-		List<Token> tokenList = new ArrayList<Token>();
-		for (Token token : renderer .getSelectedTokensList()) {
-			// if we don't own the token, we shouldn't see its macros
-			// Also if the token is not in the zone it may have been deleted so dont add it.
-			if (AppUtil.playerOwns(token) && 
-					MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokens().contains(token)) {
-				tokenList.add(token);
-			}
-		}
-			
-		String identity = MapTool.getFrame().getCommandPanel().getIdentity(); 
-		Token token = null;
-		if (identity != null) {
-			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().resolveToken(identity);
-		}
-		if (token != null) {
-			impersonatePanel.update(token);
-			frameMap.get(MTFrame.IMPERSONATED).setFrameIcon(token.getIcon(16, 16));
-			frameMap.get(MTFrame.IMPERSONATED).setTitle(impersonatePanel.getTitle());
-		} else if (tokenList.size() == 0) {
-			clearImpersonatePanel();
-		} else {
-			impersonatePanel.update(tokenList);
-		}
-	}
-	
-	
-	public void updateImpersonatePanel(Token token) {
-		impersonatePanel.update(token);
-		frameMap.get(MTFrame.IMPERSONATED).setFrameIcon(token.getIcon(16, 16));
-		frameMap.get(MTFrame.IMPERSONATED).setTitle(impersonatePanel.getTitle());
-	}
-
-	public void updateImpersonatePanel(List<Token> selectedTokenList) {
-		impersonatePanel.update(selectedTokenList);
-	}
-
-	public void clearImpersonatePanel() {
-		impersonatePanel.clear();
-		frameMap.get(MTFrame.IMPERSONATED).setFrameIcon(new ImageIcon(AppStyle.impersonatePanelImage));
-		frameMap.get(MTFrame.IMPERSONATED).setTitle(Tab.IMPERSONATED.title);
-	}
-	
 	// currently only used after loading a campaign
 	public void resetPanels() {
 		MacroButtonHotKeyManager.clearKeyStrokes();
 		
 		campaignPanel.reset();
 		globalPanel.reset();
-		impersonatePanel.clear();
-		selectionPanel.clear();
+		impersonatePanel.reset();
+		selectionPanel.reset();
 		
 		updateKeyStrokes();
 	}
@@ -1481,4 +1392,60 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
     public InitiativePanel getInitiativePanel() {
         return initiativePanel;
     }
+    
+	// Macro import/export support
+	private FileFilter macroFilter = new MTFileFilter("mtmacro", "MapTool Macro");
+	private FileFilter macroSetFilter = new MTFileFilter("mtmacset", "MapTool Macro Set");
+	
+	private JFileChooser saveMacroFileChooser;
+	private JFileChooser saveMacroSetFileChooser;
+	
+	public JFileChooser getSaveMacroFileChooser() {
+		if (saveMacroFileChooser == null) {
+			saveMacroFileChooser = new JFileChooser();
+			saveMacroFileChooser.setCurrentDirectory(AppPreferences.getSaveDir());
+			saveMacroFileChooser.addChoosableFileFilter(macroFilter);
+			saveMacroFileChooser.setDialogTitle("Export Macro");
+		}
+		saveMacroFileChooser.setAcceptAllFileFilterUsed(true);
+		return saveMacroFileChooser;
+	}
+
+	public JFileChooser getSaveMacroSetFileChooser() {
+		if (saveMacroSetFileChooser == null) {
+			saveMacroSetFileChooser = new JFileChooser();
+			saveMacroSetFileChooser.setCurrentDirectory(AppPreferences.getSaveDir());
+			saveMacroSetFileChooser.addChoosableFileFilter(macroSetFilter);
+			saveMacroSetFileChooser.setDialogTitle("Export Macro Set");
+		}
+		saveMacroSetFileChooser.setAcceptAllFileFilterUsed(true);
+		return saveMacroSetFileChooser;
+	}
+
+	private JFileChooser loadMacroFileChooser;
+	private JFileChooser loadMacroSetFileChooser;
+	public JFileChooser getLoadMacroFileChooser() {
+		if (loadMacroFileChooser == null) {
+			loadMacroFileChooser = new JFileChooser();
+			loadMacroFileChooser.setCurrentDirectory(AppPreferences.getLoadDir());
+			loadMacroFileChooser.addChoosableFileFilter(macroFilter);
+			loadMacroFileChooser.setDialogTitle("Import Macro");
+		}
+		
+		loadMacroFileChooser.setFileFilter(macroFilter);
+		return loadMacroFileChooser;
+	}
+
+	public JFileChooser getLoadMacroSetFileChooser() {
+		if (loadMacroSetFileChooser == null) {
+			loadMacroSetFileChooser = new JFileChooser();
+			loadMacroSetFileChooser.setCurrentDirectory(AppPreferences.getLoadDir());
+			loadMacroSetFileChooser.addChoosableFileFilter(macroSetFilter);
+			loadMacroSetFileChooser.setDialogTitle("Import Macro Set");
+		}
+		
+		loadMacroSetFileChooser.setFileFilter(macroSetFilter);
+		return loadMacroSetFileChooser;
+	}
+	// end of Macro import/export support
 }

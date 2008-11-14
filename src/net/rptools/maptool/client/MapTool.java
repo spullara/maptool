@@ -472,6 +472,7 @@ public class MapTool {
 		clientFrame.setCurrentZoneRenderer(currRenderer);
     	
     	AssetManager.updateRepositoryList();
+    	MapTool.getFrame().getCampaignPanel().reset();
     }
     
     public static void setServerPolicy(ServerPolicy policy) {
