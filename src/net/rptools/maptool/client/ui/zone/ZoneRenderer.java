@@ -103,6 +103,7 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
+import net.rptools.maptool.util.CodeTimer;
 import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
@@ -550,8 +551,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         }
     }
     
+	CodeTimer timer;
     public void renderZone(Graphics2D g2d, PlayerView view) {
-        
+		timer = new CodeTimer("zonerenderer");
+
+		timer.start("setup");
     	g2d.setFont(AppStyle.labelFont);
     	Object oldAA = SwingUtil.useAntiAliasing(g2d);
     	
@@ -584,43 +588,94 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         coveredTokenSet.clear();
         markerLocationList.clear();
 
+        timer.stop("setup");
+
         // Calculations
+        timer.start("calcs");
         if (zoneView.isUsingVision() && zoneView.getVisibleArea(view) != null && visibleScreenArea == null) {
         	AffineTransform af = new AffineTransform();
         	af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
         	af.scale(getScale(), getScale());
 
-        	visibleScreenArea = zoneView.getVisibleArea(view).createTransformedArea(af);
+        	visibleScreenArea = new Area(zoneView.getVisibleArea(view).createTransformedArea(af));
         }
+        timer.stop("calcs");
         
         // Rendering pipeline
+        timer.start("board");
         renderBoard(g2d, view);
+        timer.stop("board");
+        
+        timer.start("drawableOverlay");
         renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, zone.getBackgroundDrawnElements());
+        timer.stop("drawableOverlay");
+        
+        timer.start("tokensBackground");
         renderTokens(g2d, zone.getBackgroundStamps(), view);
+        timer.stop("tokensBackground");
+        
+        timer.start("drawableOverlay2");
         renderDrawableOverlay(g2d, objectDrawableRenderer, view, zone.getObjectDrawnElements());
+        timer.stop("drawableOverlay2");
+        
+        timer.start("lights");
         renderLights(g2d, view);
+        timer.stop("lights");
+        
+        timer.start("templates");
         renderTokenTemplates(g2d, view);
+        timer.stop("templates");
+        
+        timer.start("grid");
         renderGrid(g2d, view);
+        timer.stop("grid");
+        
+        timer.start("drawableOverlay3");
         if (view.isGMView()) {
         	renderTokens(g2d, zone.getGMStamps(), view);
             renderDrawableOverlay(g2d, gmDrawableRenderer, view, zone.getGMDrawnElements());
         }
+        timer.stop("drawableOverlay3");
+        
+        timer.start("tokensStamp");
         renderTokens(g2d, zone.getStampTokens(), view);
+        timer.stop("tokensStamp");
+        
+        timer.start("drawableOverlay4");
         renderDrawableOverlay(g2d, tokenDrawableRenderer, view, zone.getDrawnElements());
+        timer.stop("drawableOverlay4");
+        
+        timer.start("visionOverlay");
         renderPlayerVisionOverlay(g2d, view);
+        timer.stop("visionOverlay");
+        
+        timer.start("tokens");
         renderTokens(g2d, zone.getTokens(), view);
+        timer.stop("tokens");
+        
+        timer.start("movement");
         renderMoveSelectionSets(g2d, view);
+        timer.stop("movement");
+        
+        timer.start("labels");
         renderLabels(g2d, view);
+        timer.stop("labels");
         
+        timer.start("fog");
         renderFog(g2d, view);
-
-        renderGMVisionOverlay(g2d, view);
+        timer.stop("fog");
         
+        timer.start("visionOverlayGM");
+        renderGMVisionOverlay(g2d, view);
+        timer.stop("visionOverlayGM");
+        
+        timer.start("overlays");
         for (int i = 0; i < overlayList.size(); i++) {
             ZoneOverlay overlay = overlayList.get(i);
             overlay.paintOverlay(this, g2d);
         }
-
+        timer.stop("overlays");
+        
         renderCoordinates(g2d, view);
         
 //        if (lightSourceArea != null) {
@@ -640,6 +695,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         SwingUtil.restoreAntiAliasing(g2d, oldAA);
         
+//        System.out.println(timer);
         lastView = view;
     }
     
@@ -1512,6 +1568,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     
     protected void renderTokens(Graphics2D g, List<Token> tokenList, PlayerView view) {
 
+    	Graphics2D clippedG = g;
+    	
+    	timer.start("createClip");
+        if (!view.isGMView() && visibleScreenArea != null && tokenList.size() > 0 && tokenList.get(0).isToken()) {
+
+        	clippedG = (Graphics2D)g.create();
+        	
+        	Area visibleArea = new Area(g.getClipBounds());
+        	visibleArea.intersect(visibleScreenArea);
+        	clippedG.setClip(new GeneralPath(visibleArea));
+        }
+        timer.stop("createClip");
+        
         Rectangle viewport = new Rectangle(0, 0, getSize().width, getSize().height);
         
         Rectangle clipBounds = g.getClipBounds();
@@ -1578,7 +1647,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
             // Vision visibility
             if (!view.isGMView() && token.isToken() && zoneView.isUsingVision()) {
-                if (!GraphicsUtil.intersects(visibleScreenArea, location.bounds)) {
+                if (!visibleScreenArea.getBounds().intersects(location.boundsCache)) {
                     continue;
                 }
             }
@@ -1665,21 +1734,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 renderPath(g, token.getLastPath(), token.getFootprint(zone.getGrid()));
             }
             
-            Shape clip = g.getClipBounds();
-            if (token.isToken() && !view.isGMView() && !token.isOwner(MapTool.getPlayer().getName()) && visibleScreenArea != null) {
-            	Area clipArea = new Area(clip);
-            	
-            	clipArea.intersect(visibleScreenArea);
-                g.setClip(clipArea);
-            }
-
             // Halo (TOPDOWN, CIRCLE)
             if (token.hasHalo() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.getShape() == Token.TokenShape.CIRCLE)) {
-                Stroke oldStroke = g.getStroke();
-                g.setStroke( new BasicStroke(AppPreferences.getHaloLineWidth()));
-                g.setColor(token.getHaloColor());
-                g.draw(new Rectangle2D.Double(location.x, location.y, location.scaledWidth, location.scaledHeight));
-                g.setStroke(oldStroke);
+                Stroke oldStroke = clippedG.getStroke();
+                clippedG.setStroke( new BasicStroke(AppPreferences.getHaloLineWidth()));
+                clippedG.setColor(token.getHaloColor());
+                clippedG.draw(new Rectangle2D.Double(location.x, location.y, location.scaledWidth, location.scaledHeight));
+                clippedG.setStroke(oldStroke);
             }
 
             // handle flipping
@@ -1733,18 +1794,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
             
             
-            g.drawImage(workImage, at, this);
+            clippedG.drawImage(workImage, at, this);
 
             // Halo (SQUARE)
             if (token.hasHalo() && token.getShape() == Token.TokenShape.SQUARE) {
                 
                 Stroke oldStroke = g.getStroke();
-                g.setStroke(new BasicStroke(AppPreferences.getHaloLineWidth()));
-                g.setColor (token.getHaloColor());
-                g.draw(new Rectangle2D.Double(location.x, location.y, location.scaledWidth, location.scaledHeight));
-                g.setStroke(oldStroke);
+                clippedG.setStroke(new BasicStroke(AppPreferences.getHaloLineWidth()));
+                clippedG.setColor (token.getHaloColor());
+                clippedG.draw(new Rectangle2D.Double(location.x, location.y, location.scaledWidth, location.scaledHeight));
+                clippedG.setStroke(oldStroke);
             }
-            g.setClip(clip);
             
             // Facing ?
             // TODO: Optimize this by doing it once per token per facing
@@ -1809,14 +1869,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
               
               // Set up the graphics so that the overlay can just be painted.
-              clip = g.getClip();
               AffineTransform transform = new AffineTransform();
               transform.translate(location.x+g.getTransform().getTranslateX(), location.y+g.getTransform().getTranslateY());
               Graphics2D locg = (Graphics2D)g.create();
               locg.setTransform(transform);
               Rectangle bounds = new Rectangle(0, 0, (int)Math.ceil(location.scaledWidth), (int)Math.ceil(location.scaledHeight));
               Rectangle overlayClip = locg.getClipBounds().intersection(bounds);
+              timer.start("setClip3");
               locg.setClip(overlayClip);
+              timer.stop("setClip3");
               
               // Check each of the set values
               for (String state : MapTool.getCampaign().getTokenStatesMap().keySet()) {
@@ -1898,16 +1959,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         }
         
         // Stacks
-        Shape clip = g.getClipBounds();
-        if (!view.isGMView() && visibleScreenArea != null) {
-        	Area clipArea = new Area(clip);
-        	clipArea.intersect(visibleScreenArea);
-            g.setClip(clipArea);
-        }
         for (Area rect : coveredTokenSet) {
             
             BufferedImage stackImage = AppStyle.stackImage ;
-            g.drawImage(stackImage, rect.getBounds().x + rect.getBounds().width - stackImage.getWidth() + 2, rect.getBounds().y - 2, null);
+            clippedG.drawImage(stackImage, rect.getBounds().x + rect.getBounds().width - stackImage.getWidth() + 2, rect.getBounds().y - 2, null);
         }
 
 //        // Markers
@@ -1916,8 +1971,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //            g.drawImage(stackImage, location.bounds.getBounds().x, location.bounds.getBounds().y, null);
 //        }
         
-        g.setClip(clip);
-        
+        if (clippedG != g) {
+        	clippedG.dispose();
+        }
     }
     
     private boolean canSeeMarker(Token token) {
