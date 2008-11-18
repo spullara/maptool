@@ -2,10 +2,11 @@ package net.rptools.maptool.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class CodeTimer {
 
-	private Map<String, Timer> timeMap = new HashMap<String, Timer>();
+	private Map<String, Timer> timeMap = new TreeMap<String, Timer>();
 	private String name;
 	private long created = System.currentTimeMillis();
 	
