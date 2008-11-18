@@ -1869,13 +1869,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
               
               // Set up the graphics so that the overlay can just be painted.
-              AffineTransform transform = new AffineTransform();
-              transform.translate(location.x+g.getTransform().getTranslateX(), location.y+g.getTransform().getTranslateY());
-              Graphics2D locg = (Graphics2D)clippedG.create();
-              locg.setTransform(transform);
+              Graphics2D locg = (Graphics2D)clippedG.create((int)location.x, (int)location.y, (int)Math.ceil(location.scaledWidth), (int)Math.ceil(location.scaledHeight));
               Rectangle bounds = new Rectangle(0, 0, (int)Math.ceil(location.scaledWidth), (int)Math.ceil(location.scaledHeight));
-              Rectangle overlayClip = locg.getClipBounds().intersection(bounds);
-              locg.setClip(overlayClip);
               
               // Check each of the set values
               for (String state : MapTool.getCampaign().getTokenStatesMap().keySet()) {
