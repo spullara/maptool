@@ -32,6 +32,7 @@ import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.PersistenceUtil;
 
+@SuppressWarnings("serial")
 public class ButtonGroupPopupMenu extends JPopupMenu {
 	
 	private String macroGroup;
@@ -71,7 +72,6 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	private class ImportMacroAction extends AbstractAction {
 			public ImportMacroAction() {
 				putValue(Action.NAME, "Import Macro");
@@ -107,7 +107,6 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 			}
 		}
 	
-	@SuppressWarnings("serial")
 	private class ImportMacroSetAction extends AbstractAction {
 		public ImportMacroSetAction() {
 			putValue(Action.NAME, "Import Macro Set");
@@ -145,7 +144,6 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	private class ExportMacroSetAction extends AbstractAction {
 		public ExportMacroSetAction() {
 			putValue(Action.NAME, "Export Macro Set");
@@ -155,11 +153,22 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 			
 			JFileChooser chooser = MapTool.getFrame().getSaveMacroSetFileChooser();
 
-			if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
+			if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 				return;
 			}
 
 			final File selectedFile = chooser.getSelectedFile();
+			
+			if (selectedFile.exists()) {
+			    if (selectedFile.getName().endsWith(".mtmacset")) {
+			        if (!MapTool.confirm("Export into macro set file?")) {
+			            return;
+			        }
+			    } else if (!MapTool.confirm("Overwrite existing file?")) {
+					return;
+				}
+			}
+			
 			EventQueue.invokeLater(new Runnable() {
 				public void run() {
 					try {

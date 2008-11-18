@@ -435,8 +435,7 @@ public class PersistenceUtil {
 		
         // Put this in FileUtil
         if (file.getName().indexOf(".") < 0) {
-            file = new File(file.getAbsolutePath()
-                    + ".mtmacro");
+            file = new File(file.getAbsolutePath() + ".mtmacro");
         }
         PackedFile pakFile = new PackedFile(file);
         pakFile.setContent(macroButton);
@@ -483,8 +482,7 @@ public class PersistenceUtil {
 		
         // Put this in FileUtil
         if (file.getName().indexOf(".") < 0) {
-            file = new File(file.getAbsolutePath()
-                    + ".mtmacset");
+            file = new File(file.getAbsolutePath() + ".mtmacset");
         }
         PackedFile pakFile = new PackedFile(file);
         pakFile.setContent(macroButtonSet);

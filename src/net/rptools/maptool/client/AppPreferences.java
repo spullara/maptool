@@ -140,6 +140,17 @@ public class AppPreferences {
     private static final String KEY_PORTRAIT_SIZE = "portraitSize";
     private static final int DEFAULT_PORTRAIT_SIZE = 175;
     
+    private static final String KEY_SHOW_MACRO_UPDATE_WARNING = "showMacroUpdateWarning";
+    private static final boolean DEFAULT_SHOW_MACRO_UPDATE_WARNING = true;
+    
+    public static void setShowMacroUpdateWarning(boolean show) {
+    	prefs.putBoolean(KEY_SHOW_MACRO_UPDATE_WARNING, show);
+    }
+    
+    public static boolean getShowMacroUpdateWarning() {
+    	return prefs.getBoolean(KEY_SHOW_MACRO_UPDATE_WARNING, DEFAULT_SHOW_MACRO_UPDATE_WARNING);
+    }
+    
     public static void setPortraitSize(int size) {
     	prefs.putInt(KEY_PORTRAIT_SIZE, size);
     }

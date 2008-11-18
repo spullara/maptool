@@ -1424,6 +1424,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	private JFileChooser loadMacroFileChooser;
 	private JFileChooser loadMacroSetFileChooser;
+	
 	public JFileChooser getLoadMacroFileChooser() {
 		if (loadMacroFileChooser == null) {
 			loadMacroFileChooser = new JFileChooser();

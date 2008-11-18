@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
@@ -292,7 +293,14 @@ public class Campaign {
 			MapTool.showError("Only the GM is allowed to make changes to the Campaign Panel.");
 			return;
 		}
-		MapTool.showInformation("Changes to the Campaign Panel will not be sent to other clients until you save and reload this campiagn.");
+		if(MapTool.isHostingServer() && AppPreferences.getShowMacroUpdateWarning()) {
+			Boolean hideMacroUpdateWarning = MapTool.confirm("Changes to the Campaign Panel will not be sent to other clients until you save and reload this campiagn.\n\n If you would like to hide this message from now on, please select 'Yes', otherwise, please select 'No'.");
+			if(hideMacroUpdateWarning) {
+				AppPreferences.setShowMacroUpdateWarning(false);
+			} else {
+				AppPreferences.setShowMacroUpdateWarning(true);
+			}
+		}
 		for (MacroButtonProperties prop : macroButtonProperties) {
 			if (prop.getIndex() == properties.getIndex()) {
 				prop.setColorKey(properties.getColorKey());

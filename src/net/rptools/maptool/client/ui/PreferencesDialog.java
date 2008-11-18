@@ -68,6 +68,8 @@ public class PreferencesDialog extends JDialog {
 
     private JCheckBox showAvatarInChat;
     
+    private JCheckBox showMacroUpdateWarning;
+    
 	// Defaults
 	private JComboBox defaultGridTypeCombo;
 	private JTextField defaultGridSizeTextField;
@@ -130,10 +132,18 @@ public class PreferencesDialog extends JDialog {
 		showAvatarInChat = panel.getCheckBox("showChatAvatar");
 		showDialogOnNewToken = panel.getCheckBox("showDialogOnNewToken");
 		movementMetricCombo = panel.getComboBox("movementMetric");
+		showMacroUpdateWarning = panel.getCheckBox("showMacroUpdateWarning");
 
 		setInitialState();
 
 		// And keep it updated
+		
+		showMacroUpdateWarning.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setShowMacroUpdateWarning(showMacroUpdateWarning.isSelected());
+			}
+		});
+		
 		showAvatarInChat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setShowAvatarInChat(showAvatarInChat.isSelected());
@@ -443,5 +453,6 @@ public class PreferencesDialog extends JDialog {
 		playSystemSoundCheckBox.setSelected(AppPreferences.getPlaySystemSounds());
 		playSystemSoundOnlyWhenNotFocusedCheckBox.setSelected(AppPreferences.getPlaySystemSoundsOnlyWhenNotFocused());
 		showAvatarInChat.setSelected(AppPreferences.getShowAvatarInChat());
+		showMacroUpdateWarning.setSelected(AppPreferences.getShowMacroUpdateWarning());
 	}
 }
