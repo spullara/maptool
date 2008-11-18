@@ -1244,6 +1244,7 @@ public class AppActions {
 					policy.setUseStrictTokenManagement(serverProps.getUseStrictTokenOwnership());
 					policy.setPlayersCanRevealVision(serverProps.getPlayersCanRevealVision());
 					policy.setUseIndividualViews(serverProps.getUseIndividualViews());
+					policy.setPlayersReceiveCampaignMacros(serverProps.getPlayersReceiveCampaignMacros());
 					
 					//my addition
 					policy.setRestrictedImpersonation(serverProps.getRestrictedImpersonation());

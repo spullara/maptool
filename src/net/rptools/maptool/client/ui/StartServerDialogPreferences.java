@@ -38,6 +38,7 @@ public class StartServerDialogPreferences {
     private static final String KEY_USE_INDIVIDUAL_VIEWS = "useIndividualViews";
     private static final String KEY_USE_UPNP = "useUPnP";
     private static final String KEY_RESTRICTED_IMPERSONATION = "restrictedImpersonation";
+    private static final String KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS = "playersReceiveCampaignMacros";
     
     public Player.Role getRole () {
     	return Player.Role.valueOf(prefs.get(KEY_ROLE, Player.Role.GM.name()));
@@ -141,4 +142,12 @@ public class StartServerDialogPreferences {
     public boolean getUseUPnP() {
     	return prefs.getBoolean(KEY_USE_UPNP, false);
     }
+
+    public void setPlayersReceiveCampaignMacros(boolean flag) {
+    	prefs.putBoolean(KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS, flag);
+    }
+    
+	public boolean getPlayersReceiveCampaignMacros() {
+    	return prefs.getBoolean(KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS, false);
+	}
 }

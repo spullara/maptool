@@ -20,6 +20,7 @@ public class ServerPolicy {
 	private boolean playersCanRevealVision;
 	private boolean useIndividualViews;
 	private boolean restrictedImpersonation;
+	private boolean playersReceiveCampaignMacros;
 	
 	public ServerPolicy() {
 		
@@ -70,4 +71,11 @@ public class ServerPolicy {
 		restrictedImpersonation = restrictimp;
 	}
 	
+	public boolean playersReceiveCampaignMacros () {
+		return playersReceiveCampaignMacros;
+	}
+	
+	public void setPlayersReceiveCampaignMacros (boolean flag) {
+		playersReceiveCampaignMacros = flag;
+	}
 }
