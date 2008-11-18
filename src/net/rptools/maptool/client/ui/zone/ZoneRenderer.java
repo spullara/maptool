@@ -1819,12 +1819,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     double cx = location.x + location.scaledWidth/2;
                     double cy = location.y + location.scaledHeight/2;
                     
-                    g.translate(cx, cy);
-                    g.setColor(Color.yellow);
-                    g.fill(arrow);
-                    g.setColor(Color.darkGray);
-                     g.draw(arrow);
-                    g.translate(-cx, -cy);
+                    clippedG.translate(cx, cy);
+                    clippedG.setColor(Color.yellow);
+                    clippedG.fill(arrow);
+                    clippedG.setColor(Color.darkGray);
+                    clippedG.draw(arrow);
+                    clippedG.translate(-cx, -cy);
                     break;
                 case SQUARE:
                     
@@ -1857,12 +1857,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     cx += xp;
                     cy -= yp;
                     
-                    g.translate (cx, cy);
-                    g.setColor(Color.yellow);
-                    g.fill(arrow);
-                    g.setColor(Color.darkGray);
-                    g.draw(arrow);
-                    g.translate(-cx, -cy);
+                    clippedG.translate (cx, cy);
+                    clippedG.setColor(Color.yellow);
+                    clippedG.fill(arrow);
+                    clippedG.setColor(Color.darkGray);
+                    clippedG.draw(arrow);
+                    clippedG.translate(-cx, -cy);
                     break;
                 }
             }
@@ -1891,6 +1891,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                   if (overlay == null || overlay.isMouseover() && token != tokenUnderMouse || !overlay.showPlayer(token, MapTool.getPlayer())) continue;
                   overlay.paintOverlay(locg, token, bounds, barValue);
               } // endfor
+              locg.dispose();
 
             // DEBUGGING
 //            ScreenPoint tmpsp = ScreenPoint.fromZonePoint(this, new ZonePoint(token.getX(), token.getY()));
