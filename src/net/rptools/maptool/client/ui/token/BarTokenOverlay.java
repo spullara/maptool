@@ -190,27 +190,27 @@ public abstract class BarTokenOverlay extends AbstractTokenOverlay {
         RIGHT;
     }
 
-    /*---------------------------------------------------------------------------------------------
-     * Class Methods
-     *-------------------------------------------------------------------------------------------*/
-
-    /**
-     * Scale an asset.
-     * 
-     * @param assetId Scale this asset
-     * @param d To fit here.
-     * @return The scaled asset.
-     */
-    public static BufferedImage getScaledImage(MD5Key assetId, Dimension d) {
-        Asset asset = AssetManager.getAsset(assetId);
-        if (asset == null) {
-            LOGGER.warning("Unable to locate and asset with ID: " + assetId);
-            return null;
-        } // endif
-        BufferedImage image = ImageManager.getImageAndWait(asset);
-        Dimension size = new Dimension(image.getWidth(), image.getHeight());
-        SwingUtil.constrainTo(size, d.width, d.height);
-        image = ImageUtil.createCompatibleImage(image, size.width, size.height, null);
-        return image;
-    }
+//    /*---------------------------------------------------------------------------------------------
+//     * Class Methods
+//     *-------------------------------------------------------------------------------------------*/
+//
+//    /**
+//     * Scale an asset.
+//     * 
+//     * @param assetId Scale this asset
+//     * @param d To fit here.
+//     * @return The scaled asset.
+//     */
+//    public static BufferedImage getScaledImage(MD5Key assetId, Dimension d) {
+//        Asset asset = AssetManager.getAsset(assetId);
+//        if (asset == null) {
+//            LOGGER.warning("Unable to locate and asset with ID: " + assetId);
+//            return null;
+//        } // endif
+//        BufferedImage image = ImageManager.getImageAndWait(asset);
+//        Dimension size = new Dimension(image.getWidth(), image.getHeight());
+//        SwingUtil.constrainTo(size, d.width, d.height);
+//        image = ImageUtil.createCompatibleImage(image, size.width, size.height, null);
+//        return image;
+//    }
 }

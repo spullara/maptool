@@ -23,7 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.util.ImageManager;
 
 /**
  * Token overlay for bar meters.
@@ -37,11 +40,6 @@ public class SingleImageBarTokenOverlay extends BarTokenOverlay {
      */
     private MD5Key assetId;
     
-    /**
-     * Cached image for specific token sizes
-     */
-    private transient Map<Dimension, BufferedImage> imageCache;
-
     /**
      * Needed for serialization
      */
@@ -85,33 +83,28 @@ public class SingleImageBarTokenOverlay extends BarTokenOverlay {
     public void paintOverlay(Graphics2D g, Token token, Rectangle bounds, double value) {
 
         // Get the images
+        BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(assetId));
+
         Dimension d = bounds.getSize();
-        BufferedImage image = null;
-        if (imageCache != null)
-          image = imageCache.get(d);
-        if (image == null) {
-            
-            // Not in the cache, create it.
-            image = getScaledImage(assetId, d);
-            if (imageCache == null) imageCache = new HashMap<Dimension, BufferedImage>();
-            imageCache.put(d, image);
-        } // endif
+        Dimension size = new Dimension(image.getWidth(), image.getHeight());
+        SwingUtil.constrainTo(size, d.width, d.height);
         
         // Find the position of the images according to the size and side where they are placed
         int x = 0;
         int y = 0;
         switch (getSide()) {
         case RIGHT:
-            x = d.width - image.getWidth();
+            x = d.width - size.width;
             break;
         case BOTTOM:
-            y = d.height - image.getHeight();
-        } // endswitch
+            y = d.height - size.height;
+        } 
+        
         Composite tempComposite = g.getComposite();        
         if (getOpacity() != 100)
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)getOpacity()/100));
-        int width = (getSide() == Side.TOP || getSide() == Side.BOTTOM) ? calcBarSize(image.getWidth(), value) : image.getWidth();
-        int height = (getSide() == Side.LEFT || getSide() == Side.RIGHT) ? calcBarSize(image.getHeight(), value) : image.getHeight();
+        int width = (getSide() == Side.TOP || getSide() == Side.BOTTOM) ? calcBarSize(size.width, value) : size.width;
+        int height = (getSide() == Side.LEFT || getSide() == Side.RIGHT) ? calcBarSize(size.height, value) : size.height;
         g.drawImage(image, x, y, x + width, y + height, 0, 0, width, height, null);
         g.setComposite(tempComposite);
     }

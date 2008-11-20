@@ -23,7 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.util.ImageManager;
 
 /**
  * Token overlay for bar meters.
@@ -42,11 +45,6 @@ public class TwoImageBarTokenOverlay extends BarTokenOverlay {
      */
     private MD5Key topAssetId;
     
-    /**
-     * Cached image for specific token sizes
-     */
-    private transient Map<Dimension, BufferedImage[]> imageCache;
-
     /**
      * Needed for serialization
      */
@@ -92,20 +90,15 @@ public class TwoImageBarTokenOverlay extends BarTokenOverlay {
     public void paintOverlay(Graphics2D g, Token token, Rectangle bounds, double value) {
 
         // Get the images
+        BufferedImage[] images = {
+        		ImageManager.getImageAndWait(AssetManager.getAsset(topAssetId)),
+        		ImageManager.getImageAndWait(AssetManager.getAsset(bottomAssetId)),
+        };
+
         Dimension d = bounds.getSize();
-        BufferedImage[] images = null;
-        if (imageCache != null)
-          images = imageCache.get(d);
-        if (images == null) {
-            
-            // Not in the cache, create it.
-            images = new BufferedImage[2];
-            images[0] = getScaledImage(topAssetId, d);
-            images[1] = getScaledImage(bottomAssetId, d);
-            if (imageCache == null) imageCache = new HashMap<Dimension, BufferedImage[]>();
-            imageCache.put(d, images);
-        } // endif
-        
+        Dimension size = new Dimension(images[0].getWidth(), images[0].getHeight());
+        SwingUtil.constrainTo(size, d.width, d.height);
+
         // Find the position of the images according to the size and side where they are placed
         int x = 0;
         int y = 0;
