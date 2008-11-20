@@ -1644,6 +1644,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             if (!view.isGMView() && !token.isVisible()) {
                 continue;
             }
+
+            // Too small ?
+            if (location.scaledHeight < 1 || location.scaledWidth < 1) {
+            	continue;
+            }
             
             // Vision visibility
             if (!view.isGMView() && token.isToken() && zoneView.isUsingVision()) {
