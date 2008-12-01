@@ -1640,11 +1640,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             location = new TokenLocation(tokenBounds, origBounds, token, x, y, footprintBounds.width, footprintBounds.height, scaledWidth, scaledHeight);
             tokenLocationCache.put(token, location);
             
-            // General visibility
-            if (!view.isGMView() && !token.isVisible()) {
-                continue;
-            }
-
             // Too small ?
             if (location.scaledHeight < 1 || location.scaledWidth < 1) {
             	continue;
@@ -1652,7 +1647,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
             // Vision visibility
             if (!view.isGMView() && token.isToken() && zoneView.isUsingVision()) {
-                if (!visibleScreenArea.getBounds().intersects(location.boundsCache)) {
+                if (!GraphicsUtil.intersects(visibleScreenArea, location.bounds)) {
                     continue;
                 }
             }
