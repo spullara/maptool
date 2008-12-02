@@ -15,6 +15,8 @@ package net.rptools.maptool.client.ui.macrobuttons.panels;
 
 import java.util.List;
 
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.macrobuttons.buttongroups.AbstractButtonGroup;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButtonPrefs;
 import net.rptools.maptool.model.MacroButtonProperties;
 
@@ -36,4 +38,19 @@ public class GlobalPanel extends AbstractMacroPanel {
 		init();
 	}
 	
+	public static void deleteButtonGroup(String macroGroup) {
+		AbstractButtonGroup.clearHotkeys(MapTool.getFrame().getGlobalPanel(), macroGroup);
+		for(MacroButtonProperties nextProp : MacroButtonPrefs.getButtonProperties()) {
+			if(macroGroup.equals(nextProp.getGroup())) {
+				MacroButtonPrefs.delete(nextProp);
+			}
+		}
+	}
+	
+	public static void clearPanel() {
+		AbstractMacroPanel.clearHotkeys(MapTool.getFrame().getGlobalPanel());
+		for(MacroButtonProperties nextProp : MacroButtonPrefs.getButtonProperties()) {
+			MacroButtonPrefs.delete(nextProp);
+		}
+	}
 }

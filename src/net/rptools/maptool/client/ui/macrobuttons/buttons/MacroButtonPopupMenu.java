@@ -18,16 +18,18 @@ import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.MacroButtonDialog;
-import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.util.PersistenceUtil;
 
+@SuppressWarnings("serial")
 public class MacroButtonPopupMenu extends JPopupMenu{
 	
 	private final MacroButton button;
@@ -88,7 +90,7 @@ public class MacroButtonPopupMenu extends JPopupMenu{
 		public void actionPerformed(ActionEvent event) {
 			// remove the hot key or the hot key will remain and you'll get an exception later
 			// when you want to assign that hotkey to another button.
-			button.getHotKeyManager().assignKeyStroke(MacroButtonHotKeyManager.HOTKEYS[0]);
+			button.clearHotkey();
 			
 			if (panelClass.equals("GlobalPanel")) {
 				MacroButtonPrefs.delete(button.getProperties());
@@ -137,7 +139,6 @@ public class MacroButtonPopupMenu extends JPopupMenu{
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	private class ExportMacroAction extends AbstractAction {
 			private ExportMacroAction() {
 				putValue(Action.NAME, "Export Macro");
@@ -150,24 +151,28 @@ public class MacroButtonPopupMenu extends JPopupMenu{
 					return;
 				}
 				
-				File selectedFile = chooser.getSelectedFile();
-				if (selectedFile.exists()) {
-				    if (selectedFile.getName().endsWith(".mtmacro")) {
-				        if (!MapTool.confirm("Export into macro file?")) {
-				            return;
-				        }
-				    } else if (!MapTool.confirm("Overwrite existing file?")) {
-						return;
+				final File selectedFile = chooser.getSelectedFile();
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						if (selectedFile.exists()) {
+						    if (selectedFile.getName().endsWith(".mtmacro")) {
+						        if (!MapTool.confirm("Export into macro file?")) {
+						            return;
+						        }
+						    } else if (!MapTool.confirm("Overwrite existing file?")) {
+								return;
+							}
+						}
+						
+						try {
+							PersistenceUtil.saveMacro(button.getProperties(), selectedFile);				
+							MapTool.showInformation("Macro Saved.");
+						} catch (IOException ioe) {
+							ioe.printStackTrace();
+							MapTool.showError("Could not save macro: " + ioe);
+						}
 					}
-				}
-				
-				try {
-					PersistenceUtil.saveMacro(button.getProperties(), chooser.getSelectedFile());				
-					MapTool.showInformation("Macro Saved.");
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-					MapTool.showError("Could not save macro: " + ioe);
-				}	
+				});				
 			}
-		}
+	}
 }

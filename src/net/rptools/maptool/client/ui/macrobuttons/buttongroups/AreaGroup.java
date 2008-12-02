@@ -18,13 +18,18 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.dnd.DropTargetDropEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 
+import javax.swing.SwingUtilities;
+
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.macrobuttons.panels.AbstractMacroPanel;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.MacroButtonProperties;
+import net.rptools.maptool.model.Token;
 
 public class AreaGroup extends AbstractButtonGroup {
 
@@ -135,4 +140,23 @@ public class AreaGroup extends AbstractButtonGroup {
 		return prefSize;
 	}
 
+	@Override
+	public void mouseReleased(MouseEvent event)	{
+		Token token = getToken();
+		if (SwingUtilities.isRightMouseButton(event)) {
+			if (getPanelClass()=="CampaignPanel" && !MapTool.getPlayer().isGM()) {
+				return;
+			}
+			// open button group menu
+			new ButtonGroupPopupMenu(getPanelClass(), getMacroGroup() ,token).show(this, event.getX(), event.getY());
+		}
+	}
+	
+	public List<ButtonGroup> getButtonGroups() {
+		List<ButtonGroup> myButtonGroups = new ArrayList<ButtonGroup>();
+		for(int buttonGroupCount = 0; buttonGroupCount < this.getComponentCount(); buttonGroupCount++) {
+			myButtonGroups.add((ButtonGroup) this.getComponent(buttonGroupCount));
+		}
+		return myButtonGroups;
+	}
 }

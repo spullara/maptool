@@ -1250,4 +1250,18 @@ public class Token extends BaseModel {
 	public void setBeingImpersonated(boolean bool) {
 		beingImpersonated = bool;
 	}
+	
+	public void deleteMacroGroup(String macroGroup) {
+		for(MacroButtonProperties nextProp : getMacroList(true)) {
+			if(macroGroup.equals(nextProp.getGroup())) {
+				deleteMacroButtonProperty(nextProp);
+			}
+		}
+	}
+	
+	public void deleteAllMacros() {
+		for(MacroButtonProperties nextProp : getMacroList(true)) {
+			deleteMacroButtonProperty(nextProp);
+		}
+	}
 }

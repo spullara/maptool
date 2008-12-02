@@ -39,7 +39,9 @@ import java.util.Set;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 import net.rptools.maptool.client.ui.TokenPopupMenu;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton;
 import net.rptools.maptool.client.ui.macrobuttons.panels.AbstractMacroPanel;
 import net.rptools.maptool.client.ui.token.EditTokenDialog;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -304,5 +306,17 @@ public abstract class AbstractButtonGroup extends JPanel implements DropTargetLi
 			return new MouseHandler();
 		}
 	}
-
+	
+	public static void clearHotkeys(AbstractMacroPanel panel, String macroGroup) {
+		for(int areaGroupCount = 0; areaGroupCount < panel.getComponentCount(); areaGroupCount++) {
+			AreaGroup area = (AreaGroup) panel.getComponent(areaGroupCount);
+			for(ButtonGroup group : area.getButtonGroups()) {
+				if(macroGroup.equals(group.getMacroGroup())) {
+					for(MacroButton nextButton : group.getButtons()) {
+						nextButton.clearHotkey();
+					}
+				}
+			}
+		}
+	}
 }

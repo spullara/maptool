@@ -29,8 +29,11 @@ import javax.swing.SwingUtilities;
 import net.rptools.lib.AppEvent;
 import net.rptools.lib.AppEventListener;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 import net.rptools.maptool.client.ui.macrobuttons.buttongroups.AreaGroup;
+import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroup;
 import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroupPopupMenu;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.ModelChangeEvent;
@@ -189,4 +192,14 @@ public abstract class AbstractMacroPanel extends JPanel implements Scrollable, M
 		reset();
 	}
 
+	public static void clearHotkeys(AbstractMacroPanel panel) {
+		for(int areaGroupCount = 0; areaGroupCount < panel.getComponentCount(); areaGroupCount++) {
+			AreaGroup area = (AreaGroup) panel.getComponent(areaGroupCount);
+			for(ButtonGroup group : area.getButtonGroups()) {
+				for(MacroButton nextButton : group.getButtons()) {
+					nextButton.clearHotkey();
+				}
+			}
+		}
+	}
 }

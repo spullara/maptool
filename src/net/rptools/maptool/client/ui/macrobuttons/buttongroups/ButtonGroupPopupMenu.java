@@ -27,6 +27,8 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButtonPrefs;
+import net.rptools.maptool.client.ui.macrobuttons.panels.CampaignPanel;
+import net.rptools.maptool.client.ui.macrobuttons.panels.GlobalPanel;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
@@ -47,12 +49,20 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 		} else {
 			this.tokenId = token.getId();
 		}
+		addActions();
+	}
+	
+	private void addActions() {
 		add(new AddMacroAction());
 		add(new JSeparator());
 		add(new ImportMacroAction());
 		add(new JSeparator());
 		add(new ImportMacroSetAction());
 		add(new ExportMacroSetAction());
+		add(new JSeparator());
+		add(new ClearGroupAction());
+		add(new JSeparator());
+		add(new ClearPanelAction());
 	}
 
 	private class AddMacroAction extends AbstractAction {
@@ -186,6 +196,38 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 					}
 				}
 			});
+		}
+	}
+	
+	private class ClearGroupAction extends AbstractAction {
+		public ClearGroupAction() {
+			putValue(Action.NAME, "Clear Group");
+		}
+		
+		public void actionPerformed(ActionEvent event) {			
+			if (panelClass.equals("GlobalPanel")) {
+				GlobalPanel.deleteButtonGroup(macroGroup);
+			} else if (panelClass.equals("CampaignPanel")) {
+				CampaignPanel.deleteButtonGroup(macroGroup);
+			} else if (tokenId != null){
+				MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId).deleteMacroGroup(macroGroup);				
+			}
+		}
+	}
+	
+	private class ClearPanelAction extends AbstractAction {
+		public ClearPanelAction() {
+			putValue(Action.NAME, "Clear Panel");
+		}
+		
+		public void actionPerformed(ActionEvent event) {
+			if (panelClass.equals("GlobalPanel")) {
+				GlobalPanel.clearPanel();
+			} else if (panelClass.equals("CampaignPanel")) {
+				CampaignPanel.clearPanel();
+			} else if (tokenId != null) {
+				MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId).deleteAllMacros();
+			}
 		}
 	}
 }

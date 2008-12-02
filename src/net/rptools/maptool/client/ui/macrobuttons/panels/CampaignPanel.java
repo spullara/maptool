@@ -14,6 +14,8 @@
 package net.rptools.maptool.client.ui.macrobuttons.panels;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.macrobuttons.buttongroups.AbstractButtonGroup;
+import net.rptools.maptool.model.MacroButtonProperties;
 
 public class CampaignPanel extends AbstractMacroPanel {
 	
@@ -34,5 +36,20 @@ public class CampaignPanel extends AbstractMacroPanel {
 		init();
 	}
 
+	public static void deleteButtonGroup(String macroGroup) {
+		AbstractButtonGroup.clearHotkeys(MapTool.getFrame().getCampaignPanel(), macroGroup);
+		for(MacroButtonProperties nextProp : MapTool.getCampaign().getMacroButtonPropertiesArray()) {
+			if(macroGroup.equals(nextProp.getGroup())) {
+				MapTool.getCampaign().deleteMacroButton(nextProp);
+			}
+		}
+	}
+	
+	public static void clearPanel() {
+		AbstractMacroPanel.clearHotkeys(MapTool.getFrame().getCampaignPanel());
+		for(MacroButtonProperties nextProp: MapTool.getCampaign().getMacroButtonPropertiesArray()) {
+			MapTool.getCampaign().deleteMacroButton(nextProp);
+		}
+	}
 }
 

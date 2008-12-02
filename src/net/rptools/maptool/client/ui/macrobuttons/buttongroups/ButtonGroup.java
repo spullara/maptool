@@ -22,6 +22,7 @@ import java.awt.Insets;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -222,4 +223,11 @@ public class ButtonGroup extends AbstractButtonGroup {
 	}
 */
 	
+	public List<MacroButton> getButtons() {
+		List<MacroButton> myButtons = new ArrayList<MacroButton>();
+		for(int buttonCount = 0; buttonCount < this.getComponentCount(); buttonCount++) {
+			myButtons.add((MacroButton) this.getComponent(buttonCount));
+		}
+		return myButtons;
+	}
 }

@@ -243,5 +243,7 @@ public class MacroButton extends JButton implements MouseListener
 		}
 	}
 	
-
+	public void clearHotkey() {
+		getHotKeyManager().assignKeyStroke(MacroButtonHotKeyManager.HOTKEYS[0]);
+	}
 }
