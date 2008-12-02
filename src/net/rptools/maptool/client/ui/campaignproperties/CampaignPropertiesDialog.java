@@ -24,6 +24,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -440,7 +442,12 @@ public class CampaignPropertiesDialog extends JDialog  {
 						color = Color.decode(colorString);
 					}
 					
-					lightSource.add(new Light(shape, 0, Double.parseDouble(distance), 0, color != null ? new DrawableColorPaint(color): null));
+					try {
+						lightSource.add(new Light(shape, 0, NumberFormat.getNumberInstance().parse(distance).doubleValue(), 0, color != null ? new DrawableColorPaint(color): null));
+					} catch (ParseException pe) {
+						MapTool.showError("I don't understand light distance '" + distance + "'");
+						throw new IllegalArgumentException();
+					}
 				}
 				
 				// Keep ID the same if modifying existing light
@@ -589,3 +596,5 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 	
 }
+
+	
