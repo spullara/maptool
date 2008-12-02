@@ -47,7 +47,7 @@ public class MacroFunctions extends AbstractFunction {
  			}
  			MacroButtonProperties mbp = new MacroButtonProperties(token.getMacroNextIndex());
  			mbp.setCommand(parameters.get(1).toString());
- 			String delim = parameters.size() > 3 ? parameters.get(3).toString() : ",";
+ 			String delim = parameters.size() > 3 ? parameters.get(3).toString() : ";";
  			setMacroProps(mbp, parameters.get(2).toString(), delim);
  			mbp.setLabel(parameters.get(0).toString());
  			mbp.setSaveLocation("Token");
