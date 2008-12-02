@@ -124,6 +124,8 @@ public class Zone extends BaseModel {
     private String name;
     private boolean isVisible;
     
+    private boolean useVision;
+    
     // These are transitionary properties, very soon the width and height won't matter
     private int height;
     private int width;
@@ -149,8 +151,16 @@ public class Zone extends BaseModel {
     public int getTokenVisionDistance() {
     	return tokenVisionDistance;
     }
+    
+    public boolean useVision() {
+		return useVision;
+	}
 
-    /**
+	public void setUseVision(boolean useVisibility) {
+		this.useVision = useVisibility;
+	}
+
+	/**
      * Returns the distance in map pixels at a 1:1 zoom
      */
     public int getTokenVisionInPixels() {

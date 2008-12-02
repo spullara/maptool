@@ -77,7 +77,8 @@ public interface ServerCommand {
         renameZone,
         heartbeat,
         updateCampaign,
-        updateInitiative
+        updateInitiative,
+        setUseVision
     };
 
     public void bootPlayer(String player);
@@ -120,4 +121,5 @@ public interface ServerCommand {
     public void heartbeat(String data);
     public void updateCampaign(CampaignProperties properties);
     public void updateInitiative(InitiativeList list, Boolean ownerPermission);
+    public void setUseVision(GUID zoneGUID, Boolean useVision);
 }

@@ -64,6 +64,10 @@ public class ServerCommandClientImpl implements ServerCommand {
 	        campaign.setBeingSerialized(false);
     	}
     }
+    
+    public void setUseVision(GUID zoneGUID, Boolean useVision) {
+    	makeServerCall(COMMAND.setUseVision, zoneGUID, useVision);
+    }
 
     public void updateCampaign(CampaignProperties properties) {
     	makeServerCall(COMMAND.updateCampaign, properties);

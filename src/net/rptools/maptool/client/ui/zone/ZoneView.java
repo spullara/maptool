@@ -69,7 +69,7 @@ public class ZoneView implements ModelChangeListener {
 	}
 	
 	public boolean isUsingVision() {
-		return lightSourceSet.size() > 0 || (zone.getTopology() != null && !zone.getTopology().isEmpty());
+		return zone.useVision();
 	}
 	
 	public AreaTree getTopology() {

@@ -55,6 +55,7 @@ public class ClientCommand {
         removeTopology,
         renameZone,
         updateCampaign,
-        updateInitiative
+        updateInitiative,
+        setUseVision
     };
 }

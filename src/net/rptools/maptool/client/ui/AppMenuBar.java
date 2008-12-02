@@ -108,6 +108,7 @@ public class AppMenuBar extends JMenuBar {
         // MAP TOGGLES
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_FOG));
+        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_VISION));
 
         menu.addSeparator();
         

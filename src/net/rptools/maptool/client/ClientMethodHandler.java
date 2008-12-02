@@ -445,6 +445,20 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                         MapTool.getFrame().getInitiativePanel().setOwnerPermissions(ownerPermission.booleanValue());
                     }
                     break;
+                    
+                case setUseVision:
+                	zoneGUID = (GUID) parameters[0];
+                	Boolean useVision = (Boolean) parameters[1];
+                	
+                	zone = MapTool.getCampaign().getZone(zoneGUID);
+                	if (zone != null) {
+                		zone.setUseVision(useVision);
+                		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+                			MapTool.getFrame().getCurrentZoneRenderer().flushFog();
+                			MapTool.getFrame().getCurrentZoneRenderer().getZoneView().flush();
+                		}
+                		MapTool.getFrame().refresh();
+                	}
                 }
         	}
         });

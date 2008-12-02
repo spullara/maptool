@@ -1014,6 +1014,38 @@ public class AppActions {
 		}
 	};
 
+	public static final Action TOGGLE_VISION = new ZoneAdminClientAction() {
+		{
+			init("action.enableVision");
+		}
+
+		@Override
+		public boolean isSelected() {
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			if (renderer == null) {
+				return false;
+			}
+
+			return renderer.getZone().useVision();
+		}
+
+		public void execute(ActionEvent e) {
+
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			if (renderer == null) {
+				return;
+			}
+
+			Zone zone = renderer.getZone();
+			zone.setUseVision(!zone.useVision());
+
+			MapTool.serverCommand().setUseVision(zone.getId(), zone.useVision());
+
+			renderer.flushFog();
+			renderer.repaint();
+		}
+	};
+
 	public static final Action TOGGLE_SHOW_TOKEN_NAMES = new DefaultClientAction() {
 		{
 			init("action.showNames");
