@@ -48,8 +48,8 @@ public class TokenGMNameFunction extends AbstractFunction {
 	 * @throws ParserException if the user does not have the permission.
 	 */
 	public String getGMName(Token token) throws ParserException {
-		if (!MapTool.getPlayer().isGM()) {
-			throw new ParserException("Must be GM to query GMName.");
+		if (!MapTool.getParser().isMacroTrusted()) {
+			throw new ParserException("You do not have permission to query GMName.");
 		}
 		return token.getGMName() != null ? token.getGMName() : "";
 	}
@@ -62,6 +62,9 @@ public class TokenGMNameFunction extends AbstractFunction {
 	 * @throws ParserException if the user does not have the permission.
 	 */
 	public void setGMName(Token token, String name) throws ParserException {
+		if (!MapTool.getParser().isMacroTrusted()) {
+			throw new ParserException("You do not have permission to set GMName.");
+		}
 		token.setGMName(name);
 	}
 	

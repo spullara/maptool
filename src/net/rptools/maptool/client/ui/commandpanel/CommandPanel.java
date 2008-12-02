@@ -67,6 +67,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.client.ui.chat.ChatProcessor;
 import net.rptools.maptool.client.ui.chat.SmileyChatTranslationRuleGroup;
+import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
@@ -138,6 +139,7 @@ public class CommandPanel extends JPanel implements Observer {
     			}
     		}
     	}
+		HTMLFrameFactory.impersonateToken();
     }
     
     public JButton getEmotePopupButton() {

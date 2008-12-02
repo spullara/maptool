@@ -29,6 +29,7 @@ import net.rptools.maptool.client.functions.TokenLabelFunction;
 import net.rptools.maptool.client.functions.TokenNameFunction;
 import net.rptools.maptool.client.functions.TokenStateFunction;
 import net.rptools.maptool.client.functions.TokenVisibleFunction;
+import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
@@ -309,5 +310,14 @@ public class MapToolVariableResolver extends MapVariableResolver {
     		setBooleanTokenState(token, stateName.toString(), value);
     	}
     }
+
+    /**
+     * Sets the token that is in context for this variable resolver. You will only ever need to 
+     * call this method if you want to change the in context token mid macro.
+     * @param token The new token in context.
+     */
+	public void setTokenIncontext(Token token) {
+		tokenInContext = token;
+	}
     
 }

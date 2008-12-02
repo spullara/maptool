@@ -18,6 +18,7 @@ import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
+import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
 import net.rptools.maptool.model.Token;
 
 @MacroDefinition(
@@ -42,12 +43,18 @@ public class ImpersonateMacro implements Macro {
 		// Figure out what we want to impersonate
 		String oldIdentity = MapTool.getFrame().getCommandPanel().getIdentity();
 
-		String name = macro;
+		String name = macro;		
 		int index = macro.indexOf(":");
+		if (index > 0) {
+			if (macro.substring(0, index).equalsIgnoreCase("lib")) {
+				index = macro.indexOf(":", index+1);
+			}
+		}
 		if (index > 0) {
 			name = macro.substring(0, index).trim();
 			macro = macro.substring(index+1);
 		}
+		
 		
 		Token token = MapTool.getFrame().getCurrentZoneRenderer().getZone().resolveToken(name);
 		if (token != null) {

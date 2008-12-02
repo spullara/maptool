@@ -1001,6 +1001,10 @@ public class Token extends BaseModel {
 		return getSpeechMap().get(key);
 	}
 	
+	public void setSpeech(String key, String value) {
+		getSpeechMap().put(key, value);
+	}
+	
 	private Map<String, String> getSpeechMap() {
 		if (speechMap == null) {
 			speechMap = new HashMap<String, String>();

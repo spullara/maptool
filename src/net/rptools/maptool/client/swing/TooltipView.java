@@ -17,6 +17,8 @@ import java.awt.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
+import net.rptools.maptool.client.functions.MacroLinkFunction;
+
 public class TooltipView extends InlineView {
 
     /**
@@ -33,8 +35,14 @@ public class TooltipView extends InlineView {
     	AttributeSet att;
 	    	
 	    att = (AttributeSet)getElement().getAttributes().getAttribute(HTML.Tag.A);
-    	if (att != null)
-	    	return (String)att.getAttribute(HTML.Attribute.HREF);
+    	if (att != null) {
+    		String href = att.getAttribute(HTML.Attribute.HREF).toString();
+    		if (href.startsWith("macro:")) {
+    			return MacroLinkFunction.getInstance().macroLinkToolTip(href);
+    		} else  {
+    			return href;
+    		}
+    	}
     	
     	att = (AttributeSet)getElement().getAttributes().getAttribute(HTML.Tag.SPAN);
     	if (att != null)

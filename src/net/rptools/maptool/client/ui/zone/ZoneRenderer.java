@@ -81,6 +81,7 @@ import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.TransferableToken;
 import net.rptools.maptool.client.ui.Scale;
+import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
 import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.NewTokenDialog;
@@ -2023,8 +2024,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		addToSelectionHistory(selectedTokenSet);
 		selectedTokenSet.remove(tokenGUID);
 		MapTool.getFrame().resetTokenPanels();
+		HTMLFrameFactory.selectedListChanged();
 		repaint();
     }
+
     public boolean selectToken(GUID tokenGUID) {
         
         if (!isTokenSelectable(tokenGUID)) {
@@ -2036,6 +2039,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         repaint();
         MapTool.getFrame().resetTokenPanels();
+		HTMLFrameFactory.selectedListChanged();
 		return true;
     }
     
@@ -2056,6 +2060,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		clearShowPaths();
 		selectedTokenSet.clear();
 		MapTool.getFrame().resetTokenPanels();
+		HTMLFrameFactory.selectedListChanged();
 		repaint();
 	}
     
@@ -2088,6 +2093,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		}
 		//TODO: if selection history is empty, notify the selection panel to disable the undo button.
 		MapTool.getFrame().resetTokenPanels();
+		HTMLFrameFactory.selectedListChanged();
 		repaint();
 	}
 
@@ -2483,6 +2489,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             this.label = label;
         }
     }
+    
+  
     
     ////
     // DROP TARGET LISTENER

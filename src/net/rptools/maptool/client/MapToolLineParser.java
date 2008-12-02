@@ -15,7 +15,10 @@ package net.rptools.maptool.client;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,12 +27,20 @@ import net.rptools.common.expression.Result;
 import net.rptools.maptool.client.functions.AbortFunction;
 import net.rptools.maptool.client.functions.AddAllToInitiativeFunction;
 import net.rptools.maptool.client.functions.CurrentInitiativeFunction;
+import net.rptools.maptool.client.functions.FindTokenFunctions;
+import net.rptools.maptool.client.functions.HasImpersonated;
 import net.rptools.maptool.client.functions.InitiativeRoundFunction;
 import net.rptools.maptool.client.functions.InputFunction;
+import net.rptools.maptool.client.functions.IsTrustedFunction;
+import net.rptools.maptool.client.functions.MacroFunctions;
+import net.rptools.maptool.client.functions.MacroLinkFunction;
 import net.rptools.maptool.client.functions.MiscInitiativeFunction;
+import net.rptools.maptool.client.functions.PlayerFunctions;
 import net.rptools.maptool.client.functions.RemoveAllFromInitiativeFunction;
 import net.rptools.maptool.client.functions.StrListFunctions;
 import net.rptools.maptool.client.functions.StrPropFunctions;
+import net.rptools.maptool.client.functions.StringFunctions;
+import net.rptools.maptool.client.functions.SwitchTokenFunction;
 import net.rptools.maptool.client.functions.TokenAddToInitiativeFunction;
 import net.rptools.maptool.client.functions.TokenBarFunction;
 import net.rptools.maptool.client.functions.TokenGMNameFunction;
@@ -38,14 +49,21 @@ import net.rptools.maptool.client.functions.TokenInitFunction;
 import net.rptools.maptool.client.functions.TokenInitHoldFunction;
 import net.rptools.maptool.client.functions.TokenLabelFunction;
 import net.rptools.maptool.client.functions.LookupTableFunction;
+import net.rptools.maptool.client.functions.TokenLightFunctions;
 import net.rptools.maptool.client.functions.TokenNameFunction;
 import net.rptools.maptool.client.functions.StateImageFunction;
 import net.rptools.maptool.client.functions.TokenImage;
+import net.rptools.maptool.client.functions.TokenNoteFunctions;
+import net.rptools.maptool.client.functions.TokenPropertyFunctions;
 import net.rptools.maptool.client.functions.TokenRemoveFromInitiativeFunction;
+import net.rptools.maptool.client.functions.TokenSightFunctions;
+import net.rptools.maptool.client.functions.TokenSpeechFunctions;
 import net.rptools.maptool.client.functions.TokenStateFunction;
 import net.rptools.maptool.client.functions.TokenVisibleFunction;
+import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.MacroButtonProperties;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.parser.ParserException;
@@ -56,35 +74,52 @@ public class MapToolLineParser {
 
 	/** MapTool functions to add to the parser.  */
 	private static final Function[] mapToolParserFunctions = {
-		StateImageFunction.getInstance(),
-		LookupTableFunction.getInstance(),
-		TokenImage.getInstance(),
+		AbortFunction.getInstance(),
 		AddAllToInitiativeFunction.getInstance(),
-		MiscInitiativeFunction.getInstance(),
-		RemoveAllFromInitiativeFunction.getInstance(),
 		CurrentInitiativeFunction.getInstance(),
+		FindTokenFunctions.getInstance(),
+		HasImpersonated.getInstance(),
 		InitiativeRoundFunction.getInstance(),
 		InputFunction.getInstance(),
-		StrPropFunctions.getInstance(),
+		IsTrustedFunction.getInstance(),
+		LookupTableFunction.getInstance(),
+		MacroFunctions.getInstance(), 
+		MacroLinkFunction.getInstance(),
+		MiscInitiativeFunction.getInstance(),
+		PlayerFunctions.getInstance(),
+		RemoveAllFromInitiativeFunction.getInstance(),
+		StateImageFunction.getInstance(),
+		StringFunctions.getInstance(),
 		StrListFunctions.getInstance(),
-		AbortFunction.getInstance(),
-	};
-
-	/** MapTool functions to add to the parser when a token is in context. */
-	private static final Function[] mapToolContextParserFunctions = {
+		StrPropFunctions.getInstance(),
+		SwitchTokenFunction.getInstance(),
+		TokenAddToInitiativeFunction.getInstance(),
+		TokenBarFunction.getInstance(),
 		TokenGMNameFunction.getInstance(),
 		TokenHaloFunction.getInstance(),
-		TokenLabelFunction.getInstance(),
-		TokenNameFunction.getInstance(),
-		TokenStateFunction.getInstance(),
-		TokenVisibleFunction.getInstance(),
+		TokenImage.getInstance(),
 		TokenInitFunction.getInstance(),
 		TokenInitHoldFunction.getInstance(),
-		TokenAddToInitiativeFunction.getInstance(),
+		TokenLabelFunction.getInstance(),
+		TokenLightFunctions.getInstance(),
+		TokenNameFunction.getInstance(),
+		TokenNoteFunctions.getInstance(),
+		TokenPropertyFunctions.getInstance(),
 		TokenRemoveFromInitiativeFunction.getInstance(),
-		TokenBarFunction.getInstance(),
+		TokenSightFunctions.getInstance(),
+		TokenSpeechFunctions.getInstance(),		
+		TokenStateFunction.getInstance(),
+		TokenVisibleFunction.getInstance(),
 	};
 
+	/** Name and Source or macros that come from chat. */
+	public static String CHAT_INPUT = "chat";
+	
+	
+	/** Stack that holds our contexts. */
+	private final Stack<MapToolMacroContext> contextStack = new Stack<MapToolMacroContext>();
+
+	
 	private static final int PARSER_MAX_RECURSE = 50;
 	private int parserRecurseDepth;
 
@@ -119,6 +154,12 @@ public class MapToolLineParser {
 		NO_CODE,
 		MACRO,
 		CODEBLOCK,
+	}
+	
+	private enum OutputLoc { 	// Mutually exclusive output location
+		CHAT,
+		DIALOG,
+		FRAME
 	}
 
 
@@ -159,7 +200,13 @@ public class MapToolLineParser {
 		SWITCH      ("switch",        1, 1),
 		// code
 		CODE        ("code",          0, 0),
-		MACRO       ("macro",         1, 1);
+		MACRO       ("macro",         1, 1),
+		// HTML Dockable Frame
+		FRAME		("frame",         1, 2, "\"\""),
+		// HTML Dialog
+		DIALOG      ("dialog",        1, 2, "\"\""),
+		// Run for another token
+		TOKEN       ("token",         1, 1);
 
 		protected final String nameRegex;
 		protected final int minParams, maxParams;
@@ -467,10 +514,20 @@ public class MapToolLineParser {
 	}
 
 	public String parseLine(Token tokenInContext, String line) throws ParserException {
-		return parseLine(null, tokenInContext, line);
+		return parseLine(tokenInContext, line, null);
+	}
+
+	
+	public String parseLine(Token tokenInContext, String line, MapToolMacroContext context) throws ParserException {
+		return parseLine(null, tokenInContext, line, context);
 	}
 
 	public String parseLine(MapToolVariableResolver res, Token tokenInContext, String line) throws ParserException {
+		return  parseLine(res, tokenInContext, line, null);
+	}
+	
+	public String parseLine(MapToolVariableResolver res, Token tokenInContext, String line,
+			MapToolMacroContext context) throws ParserException {
 
 		if (line == null) {
 			return "";
@@ -480,517 +537,569 @@ public class MapToolLineParser {
 		if (line.length() == 0) {
 			return "";
 		}
+		
+		Stack<Token> contextTokenStack = new Stack<Token>();
+		enterContext(context);
+ 		try {
+			// Keep the same variable context for this line
+			MapToolVariableResolver resolver = (res==null) ? new MapToolVariableResolver(tokenInContext) : res;
 
-		// Keep the same context for this line
-		MapToolVariableResolver resolver = (res==null) ? new MapToolVariableResolver(tokenInContext) : res;
+			StringBuilder builder = new StringBuilder();
+			Matcher matcher = roll_pattern.matcher(line);
+			int start;
 
-		StringBuilder builder = new StringBuilder();
-		Matcher matcher = roll_pattern.matcher(line);
-		int start;
+			for (start = 0; matcher.find(start); start = matcher.end()) {
+				builder.append(line.substring(start, matcher.start())); // add everything before the roll
 
-		for (start = 0; matcher.find(start); start = matcher.end()) {
-			builder.append(line.substring(start, matcher.start())); // add everything before the roll
+				// These variables will hold data extracted from the roll options.
+				Output output = Output.TOOLTIP;
+				String text = null;	// used by the T option
 
-			// These variables will hold data extracted from the roll options.
-			Output output = Output.TOOLTIP;
-			String text = null;	// used by the T option
+				OutputLoc outputTo = OutputLoc.CHAT;
 
-			LoopType loopType = LoopType.NO_LOOP;
-			int loopStart = 0, loopEnd = 0, loopStep = 1;
-			int loopCount = 0;
-			String loopSep = null;
-			String loopVar = null, loopCondition = null;
-			List<String> foreachList = new ArrayList<String>();
+				LoopType loopType = LoopType.NO_LOOP;
+				int loopStart = 0, loopEnd = 0, loopStep = 1;
+				int loopCount = 0;
+				String loopSep = null;
+				String loopVar = null, loopCondition = null;
+				List<String> foreachList = new ArrayList<String>();
 
-			BranchType branchType = BranchType.NO_BRANCH;
-			Object branchCondition = null;
+				BranchType branchType = BranchType.NO_BRANCH;
+				Object branchCondition = null;
 
-			CodeType codeType = CodeType.NO_CODE;
-			String macroName = null;
+				CodeType codeType = CodeType.NO_CODE;
+				String macroName = null;
 
+				String frameName = null;
+				String frameOpts = null;
 
-			if (matcher.group().startsWith("[")) {
-				String opts = matcher.group(1);
-				String roll = matcher.group(2);
-				if (opts != null) {
-					// Turn the opts string into a list of OptionInfo objects.
-					List<OptionInfo> optionList = null;
-					try {
-						optionList = getRollOptionList(opts);
-					} catch (RollOptionException roe) {
-						doError(roe.msg, opts, roll);
-					}
-
-					// Scan the roll options and prepare variables for later use
-					for (OptionInfo option : optionList) {
-						String error = null;
-						/*
-						 * TODO: If you're adding a new option, add a new case here to collect info from the parameters.
-						 *       If your option uses parameters, use the option.getXxxParam() methods to get
-						 *       the text or parsed values of the parameters.
-						 */
-						switch (option.optionType) {
-
-						///////////////////////////////////////////////////
-						// OUTPUT FORMAT OPTIONS
-						///////////////////////////////////////////////////
-						case HIDDEN:
-							output = Output.NONE;
-							break;
-						case RESULT:
-							output = Output.RESULT;
-							break;
-						case EXPANDED:
-							output = Output.EXPANDED;
-							break;
-						case UNFORMATTED:
-							output = Output.UNFORMATTED;
-							break;
-						case TOOLTIP:
-							// T(display_text)
-							output = Output.TOOLTIP;
-							text = option.getStringParam(0);
-							break;
-// old code kept for reference:
-//							Matcher m = Pattern.compile("t(?:ooltip)?(?:\\(((?:[^()\"]|\"[^\"]*\"|\\((?:[^()\"]|\"[^\"]*\")*\\))+?)\\))?", Pattern.CASE_INSENSITIVE).matcher(opt);
-//							if (m.matches()) {
-//								output = Output.TOOLTIP;
-//
-//								text = m.group(1);
-//							} else {
-//								throw new ParserException(errorString("Invalid option: " + opt, opts, roll));
-//							}
-//							break;
-
-						///////////////////////////////////////////////////
-						// LOOP OPTIONS
-						///////////////////////////////////////////////////
-						case COUNT:
-							// COUNT(num [, sep])
-							loopType = LoopType.COUNT;
-							error = null;
-							try {
-								loopCount = option.getParsedIntParam(0, resolver, tokenInContext);
-								if (loopCount < 0)
-									error = String.format("COUNT option requires a non-negative number (got %d)", loopCount);
-							} catch (ParserException pe) {
-								error = String.format("Error processing COUNT option: %s", pe.getMessage());
-							}
-							loopSep = option.getStringParam(1);
-
-							if (error != null) doError(error, opts, roll);
-							break;
-// old code kept for reference:
-//							Matcher m = Pattern.compile("(?:for|c(?:ount)?)\\(((?:[^()\"]|\"[^\"]*\"|\\((?:[^()\"]|\"[^\"]*\")*\\))+?)\\)", Pattern.CASE_INSENSITIVE).matcher(opt);
-//							loopType = LoopType.FOR;
-//							if (m.matches()) {
-//								String args[] = m.group(1).split(",", 2);
-//								Result result = parseExpression(resolver, tokenInContext, args[0]);
-//								try {
-//									count = ((Number)result.getValue()).intValue();
-//									if (count < 0)
-//										throw new ParserException(errorString("Invalid count: " + String.valueOf(count), opts, roll));
-//								} catch (ClassCastException e) {
-//									throw new ParserException(errorString("Invalid count: " + result.getValue().toString(), opts, roll));
-//								}
-//
-//								if (args.length > 1) {
-//									separator = args[1];
-//								}
-//							} else {
-//								throw new ParserException(errorString("Invalid option: " + opt, opts, roll));
-//							}
-//							break;
-
-						case FOR:
-							// FOR(var, start, end [, step [, sep]])
-							loopType = LoopType.FOR;
-							error = null;
-							try {
-								loopVar = option.getIdentifierParam(0);
-								loopStart = option.getParsedIntParam(1, resolver, tokenInContext);
-								loopEnd = option.getParsedIntParam(2, resolver, tokenInContext);
-								try {
-									loopStep = option.getParsedIntParam(3, resolver, tokenInContext);
-								} catch (ParserException pe) {
-									// Build a more informative error message for this common mistake
-									String msg = pe.getMessage();
-									msg = msg + " To specify a non-default loop separator, " +
-											"you must use the format FOR(var,start,end,step,separator)";
-									throw new ParserException(msg);
-								}
-								loopSep = option.getStringParam(4);
-								if (loopStep != 0)
-									loopCount = (int)Math.floor(Math.abs( (loopEnd - loopStart)/loopStep + 1 ));
-
-								if (loopVar.equalsIgnoreCase(""))
-									error = "FOR variable name missing";
-								if (loopStep == 0)
-									error = "FOR loop step can't be zero";
-								if ((loopEnd < loopStart && loopStep > 0) || (loopEnd > loopStart && loopStep < 0))
-									error = String.format("FOR loop step size is in the wrong direction (start=%d, end=%d, step=%d)", 
-											loopStart, loopEnd, loopStep);
-							} catch (ParserException pe) {
-								error = String.format("Error processing FOR option: %s", pe.getMessage());
-							}
-							
-							if (error != null) doError(error, opts, roll);
-							break;
-
-						case FOREACH:
-							// FOREACH(var, list [, outputDelim [, inputDelim]])
-							loopType = LoopType.FOREACH;
-							error = null;
-							try {
-								loopVar = option.getIdentifierParam(0);
-								String listString = option.getParsedParam(1, resolver, tokenInContext).toString();
-								loopSep = option.getStringParam(2);
-								String listDelim = option.getStringParam(3);
-
-								foreachList = new ArrayList<String>();
-								StrListFunctions.parse(listString, foreachList, listDelim);
-								loopCount = foreachList.size();
-
-								if (loopVar.equalsIgnoreCase(""))
-									error = "FOREACH variable name missing";
-							} catch (ParserException pe) {
-								error = String.format("Error processing FOREACH option: %s", pe.getMessage());
-							}
-
-							if (error != null) doError(error, opts, roll);
-							break;
-
-						case WHILE:
-							// WHILE(cond [, sep])
-							loopType = LoopType.WHILE;
-							loopCondition = option.getStringParam(0);
-							loopSep = option.getStringParam(1);
-							break;
-
-						///////////////////////////////////////////////////
-						// BRANCH OPTIONS
-						///////////////////////////////////////////////////
-						case IF:
-							// IF(condition)
-							branchType = BranchType.IF;
-							branchCondition = option.getStringParam(0);
-							break;
-						case SWITCH:
-							// SWITCH(condition)
-							branchType = BranchType.SWITCH;
-							branchCondition = option.getObjectParam(0);
-							break;
-
-						///////////////////////////////////////////////////
-						// CODE OPTIONS
-						///////////////////////////////////////////////////
-						case MACRO:
-							// MACRO("macroName@location")
-							codeType = CodeType.MACRO;
-							macroName = option.getStringParam(0);
-							break;
-						case CODE:
-							codeType = CodeType.CODEBLOCK;
-							break;
-
-						default:
-							// should never happen
-							doError("Bad option found", opts, roll);
-						}
-					}
-				}
-
-				// Now that the options have been dealt with, process the body of the roll.
-				// We deal with looping first, then branching, then deliver the output.
-				StringBuilder expressionBuilder = new StringBuilder();
-				int iteration = 0;
-				boolean doLoop = true;
-				while (doLoop) {
-					int loopConditionValue;
-					Integer branchConditionValue = null;
-					Object branchConditionParsed = null;
-
-					// Process loop settings
-					if (iteration > MAX_LOOPS) {
-						doError("Too many loop iterations (possible infinite loop?)", opts, roll);
-					}
-					
-					if (loopType != LoopType.NO_LOOP) {
-						// We only update roll.count in a loop statement.  This allows simple nested 
-						// statements to inherit roll.count from the outer statement.
-						resolver.setVariable("roll.count", iteration);
-					}
-
-					switch (loopType) {
-					/*
-					 * TODO: If you're adding a new looping option, add a new case to handle the iteration
-					 */
-					case NO_LOOP:
-						if (iteration > 0) {		// stop after first iteration
-							doLoop = false;
-						}
-						break;
-					case COUNT:
-						if (iteration == loopCount) {
-							doLoop = false;
-						}
-						break;
-					case FOR:
-						if (iteration != loopCount) {
-							resolver.setVariable(loopVar, new BigDecimal(loopStart + loopStep * iteration));
-						} else {
-							doLoop = false;
-							resolver.setVariable(loopVar, null);
-						}
-						break;
-					case FOREACH:
-						if (iteration != loopCount) {
-							String item = foreachList.get(iteration);
-							resolver.setVariable(loopVar, item);
-						} else {
-							doLoop = false;
-							resolver.setVariable(loopVar, null);
-						}
-						break;
-					case WHILE:
-						// This is a hack to get around a bug with the parser's comparison operators.
-						// The InlineTreeFormatter class in the parser chokes on comparison operators, because they're
-						// not listed in the operator precedence table.
-						//
-						// The workaround is that "non-deterministic" functions fully evaluate their arguments,
-						// so the comparison operators are reduced to a number by the time the buggy code is reached.
-						// The if() function defined in dicelib is such a function, so we use it here to eat
-						// any comparison operators.
-						String hackCondition = (loopCondition == null) ? null : String.format("if(%s, 1, 0)", loopCondition);
-						// Stop loop if the while condition is false
+				if (matcher.group().startsWith("[")) {
+					String opts = matcher.group(1);
+					String roll = matcher.group(2);
+					if (opts != null) {
+						// Turn the opts string into a list of OptionInfo objects.
+						List<OptionInfo> optionList = null;
 						try {
-							Result result = parseExpression(resolver, tokenInContext, hackCondition);
-							loopConditionValue = ((Number)result.getValue()).intValue();
-							if (loopConditionValue == 0) {
+							optionList = getRollOptionList(opts);
+						} catch (RollOptionException roe) {
+							doError(roe.msg, opts, roll);
+						}
+
+						// Scan the roll options and prepare variables for later use
+						for (OptionInfo option : optionList) {
+							String error = null;
+							/*
+							 * TODO: If you're adding a new option, add a new case here to collect info from the parameters.
+							 *       If your option uses parameters, use the option.getXxxParam() methods to get
+							 *       the text or parsed values of the parameters.
+							 */
+							switch (option.optionType) {
+
+							///////////////////////////////////////////////////
+							// OUTPUT FORMAT OPTIONS
+							///////////////////////////////////////////////////
+							case HIDDEN:
+								output = Output.NONE;
+								break;
+							case RESULT:
+								output = Output.RESULT;
+								break;
+							case EXPANDED:
+								output = Output.EXPANDED;
+								break;
+							case UNFORMATTED:
+								output = Output.UNFORMATTED;
+								break;
+							case TOOLTIP:
+								// T(display_text)
+								output = Output.TOOLTIP;
+								text = option.getStringParam(0);
+								break;
+								// old code kept for reference:
+								//							Matcher m = Pattern.compile("t(?:ooltip)?(?:\\(((?:[^()\"]|\"[^\"]*\"|\\((?:[^()\"]|\"[^\"]*\")*\\))+?)\\))?", Pattern.CASE_INSENSITIVE).matcher(opt);
+								//							if (m.matches()) {
+								//								output = Output.TOOLTIP;
+								//
+								//								text = m.group(1);
+								//							} else {
+								//								throw new ParserException(errorString("Invalid option: " + opt, opts, roll));
+								//							}
+								//							break;
+
+								///////////////////////////////////////////////////
+								// LOOP OPTIONS
+								///////////////////////////////////////////////////
+							case COUNT:
+								// COUNT(num [, sep])
+								loopType = LoopType.COUNT;
+								error = null;
+								try {
+									loopCount = option.getParsedIntParam(0, resolver, tokenInContext);
+									if (loopCount < 0)
+										error = String.format("COUNT option requires a non-negative number (got %d)", loopCount);
+								} catch (ParserException pe) {
+									error = String.format("Error processing COUNT option: %s", pe.getMessage());
+								}
+								loopSep = option.getStringParam(1);
+
+								if (error != null) doError(error, opts, roll);
+								break;
+								// old code kept for reference:
+								//							Matcher m = Pattern.compile("(?:for|c(?:ount)?)\\(((?:[^()\"]|\"[^\"]*\"|\\((?:[^()\"]|\"[^\"]*\")*\\))+?)\\)", Pattern.CASE_INSENSITIVE).matcher(opt);
+								//							loopType = LoopType.FOR;
+								//							if (m.matches()) {
+								//								String args[] = m.group(1).split(",", 2);
+								//								Result result = parseExpression(resolver, tokenInContext, args[0]);
+								//								try {
+								//									count = ((Number)result.getValue()).intValue();
+								//									if (count < 0)
+								//										throw new ParserException(errorString("Invalid count: " + String.valueOf(count), opts, roll));
+								//								} catch (ClassCastException e) {
+								//									throw new ParserException(errorString("Invalid count: " + result.getValue().toString(), opts, roll));
+								//								}
+								//
+								//								if (args.length > 1) {
+								//									separator = args[1];
+								//								}
+								//							} else {
+								//								throw new ParserException(errorString("Invalid option: " + opt, opts, roll));
+								//							}
+								//							break;
+
+							case FOR:
+								// FOR(var, start, end [, step [, sep]])
+								loopType = LoopType.FOR;
+								error = null;
+								try {
+									loopVar = option.getIdentifierParam(0);
+									loopStart = option.getParsedIntParam(1, resolver, tokenInContext);
+									loopEnd = option.getParsedIntParam(2, resolver, tokenInContext);
+									try {
+										loopStep = option.getParsedIntParam(3, resolver, tokenInContext);
+									} catch (ParserException pe) {
+										// Build a more informative error message for this common mistake
+										String msg = pe.getMessage();
+										msg = msg + " To specify a non-default loop separator, " +
+										"you must use the format FOR(var,start,end,step,separator)";
+										throw new ParserException(msg);
+									}
+									loopSep = option.getStringParam(4);
+									if (loopStep != 0)
+										loopCount = (int)Math.floor(Math.abs( (loopEnd - loopStart)/loopStep + 1 ));
+
+									if (loopVar.equalsIgnoreCase(""))
+										error = "FOR variable name missing";
+									if (loopStep == 0)
+										error = "FOR loop step can't be zero";
+									if ((loopEnd < loopStart && loopStep > 0) || (loopEnd > loopStart && loopStep < 0))
+										error = String.format("FOR loop step size is in the wrong direction (start=%d, end=%d, step=%d)", 
+												loopStart, loopEnd, loopStep);
+								} catch (ParserException pe) {
+									error = String.format("Error processing FOR option: %s", pe.getMessage());
+								}
+
+								if (error != null) doError(error, opts, roll);
+								break;
+
+							case FOREACH:
+								// FOREACH(var, list [, outputDelim [, inputDelim]])
+								loopType = LoopType.FOREACH;
+								error = null;
+								try {
+									loopVar = option.getIdentifierParam(0);
+									String listString = option.getParsedParam(1, resolver, tokenInContext).toString();
+									loopSep = option.getStringParam(2);
+									String listDelim = option.getStringParam(3);
+
+									foreachList = new ArrayList<String>();
+									StrListFunctions.parse(listString, foreachList, listDelim);
+									loopCount = foreachList.size();
+
+									if (loopVar.equalsIgnoreCase(""))
+										error = "FOREACH variable name missing";
+								} catch (ParserException pe) {
+									error = String.format("Error processing FOREACH option: %s", pe.getMessage());
+								}
+
+								if (error != null) doError(error, opts, roll);
+								break;
+
+							case WHILE:
+								// WHILE(cond [, sep])
+								loopType = LoopType.WHILE;
+								loopCondition = option.getStringParam(0);
+								loopSep = option.getStringParam(1);
+								break;
+
+								///////////////////////////////////////////////////
+								// BRANCH OPTIONS
+								///////////////////////////////////////////////////
+							case IF:
+								// IF(condition)
+								branchType = BranchType.IF;
+								branchCondition = option.getStringParam(0);
+								break;
+							case SWITCH:
+								// SWITCH(condition)
+								branchType = BranchType.SWITCH;
+								branchCondition = option.getObjectParam(0);
+								break;
+
+								///////////////////////////////////////////////////
+								// DIALOG AND FRAME OPTIONS
+								///////////////////////////////////////////////////
+							case FRAME:
+								codeType = CodeType.CODEBLOCK;
+								frameName = option.getParsedParam(0, resolver, tokenInContext).toString();
+								frameOpts = option.getParsedParam(1, resolver, tokenInContext).toString();
+								outputTo = OutputLoc.FRAME;
+								break;
+							case DIALOG:
+								codeType = CodeType.CODEBLOCK;
+								frameName = option.getParsedParam(0, resolver, tokenInContext).toString();
+								frameOpts = option.getParsedParam(1, resolver, tokenInContext).toString();
+								outputTo = OutputLoc.DIALOG;
+								break;
+								///////////////////////////////////////////////////
+								// CODE OPTIONS
+								///////////////////////////////////////////////////
+							case MACRO:
+								// MACRO("macroName@location")
+								codeType = CodeType.MACRO;
+								macroName = option.getStringParam(0);
+								break;
+							case CODE:
+								codeType = CodeType.CODEBLOCK;
+								break;
+								///////////////////////////////////////////////////
+								// MISC OPTIONS
+								///////////////////////////////////////////////////
+							case TOKEN:
+								if (!isMacroTrusted()) {
+									throw new ParserException("You do not have permission to use [token(): ]");
+								}
+								Token newToken = MapTool.getFrame().getCurrentZoneRenderer().getZone().resolveToken(
+										option.getParsedParam(0, resolver, tokenInContext).toString());
+								if (newToken != null) {
+									contextTokenStack.push(resolver.getTokenInContext());
+									resolver.setTokenIncontext(newToken);
+								}
+								break;							
+							default:
+								// should never happen
+								doError("Bad option found", opts, roll);
+							}
+						}
+					}
+
+					// Now that the options have been dealt with, process the body of the roll.
+					// We deal with looping first, then branching, then deliver the output.
+					StringBuilder expressionBuilder = new StringBuilder();
+					int iteration = 0;
+					boolean doLoop = true;
+					while (doLoop) {
+						int loopConditionValue;
+						Integer branchConditionValue = null;
+						Object branchConditionParsed = null;
+
+						// Process loop settings
+						if (iteration > MAX_LOOPS) {
+							doError("Too many loop iterations (possible infinite loop?)", opts, roll);
+						}
+
+						if (loopType != LoopType.NO_LOOP) {
+							// We only update roll.count in a loop statement.  This allows simple nested 
+							// statements to inherit roll.count from the outer statement.
+							resolver.setVariable("roll.count", iteration);
+						}
+
+						switch (loopType) {
+						/*
+						 * TODO: If you're adding a new looping option, add a new case to handle the iteration
+						 */
+						case NO_LOOP:
+							if (iteration > 0) {		// stop after first iteration
 								doLoop = false;
 							}
-						} catch (Exception e) {
-							doError(String.format("Invalid condition in WHILE(%s) roll option", loopCondition), opts, roll);
-						}
-						break;
-					}
-
-					// Output the loop separator
-					if (doLoop && iteration != 0 && output != Output.NONE) {
-						expressionBuilder.append(parseExpression(resolver, tokenInContext, loopSep).getValue());
-					}
-
-					if (!doLoop) {
-						break;
-					}
-
-					iteration++;
-
-					// Extract the appropriate branch to evaluate.
-
-					// Evaluate the branch condition/expression
-					if (branchCondition != null) {
-						// This is a similar hack to the one used for the loopCondition above.
-						String hackCondition = (branchCondition == null) ? null : branchCondition.toString();
-						if (branchType == BranchType.IF) {
-							hackCondition = (hackCondition == null) ? null : String.format("if(%s, 1, 0)", hackCondition);
-						}
-						Result result = null;
-						try {
-							result = parseExpression(resolver, tokenInContext, hackCondition);
-						} catch (Exception e) {
-							doError(String.format("Invalid condition in %s(%s) roll option", branchType.toString(), 
-									branchCondition.toString()), opts, roll);
-						}
-						branchConditionParsed = result.getValue();
-						if (branchConditionParsed instanceof Number) {
-							branchConditionValue = ((Number)branchConditionParsed).intValue();
-						}
-					}
-
-					// Set up regexes for scanning through the branches.
-					// branchRegex then defines one matcher group for the parseable content of the branch.
-					String rollBranch = roll;
-					String branchRegex, branchSepRegex, branchLastSepRegex;
-					if (codeType != CodeType.CODEBLOCK) {
-						// matches any text not containing a ";" (skipping over strings) 
-						String noCodeRegex = "((?:[^\";]|\"[^\"]*\"|'[^']*')*)";
-						branchRegex = noCodeRegex;
-						branchSepRegex = ";";
-						branchLastSepRegex = ";?";	// The last clause doesn't have to end with a separator
-					} else {
-						// matches text inside braces "{...}", skipping over strings (one level of {} nesting allowed)
-						String codeRegex = "\\{((?:[^{}\"]|\"[^\"]*\"|'[^']*'|\\{(?:[^}\"]|\"[^\"]*\"|'[^']*')*})*)}";
-						branchRegex = codeRegex;
-						branchSepRegex = ";";
-						branchLastSepRegex = ";?";	// The last clause doesn't have to end with a separator
-					}
-
-					// Extract the branch to use
-					switch (branchType) {
-					/*
-					 * TODO: If you're adding a new branching option, add a new case to extract the branch text
-					 */
-					case NO_BRANCH:
-					{
-						// There's only one branch, so our regex is very simple
-						String testRegex = String.format("^\\s*%s\\s*$", branchRegex);
-						Matcher testMatcher = Pattern.compile(testRegex).matcher(roll);
-						if (testMatcher.find()) {
-							rollBranch = testMatcher.group(1);
-						} else {
-							doError("Error in body of roll.", opts, roll);
-						}
-						break;	
-					}
-					case IF:
-					{
-						// IF can have one or two branches.
-						// When there's only one branch and the condition is false, there's no output.
-						if (branchConditionValue == null) {
-							doError("Invalid IF condition: " + branchCondition 
-									+ ", evaluates to: " + branchConditionParsed.toString(), opts, roll);
-						}
-						int whichBranch = (branchConditionValue != 0) ? 0 : 1;
-						String testRegex = String.format("^\\s*%s\\s*(?:%s\\s*%s\\s*%s)?\\s*$", 
-								branchRegex, branchSepRegex, branchRegex, branchLastSepRegex);
-						Matcher testMatcher = Pattern.compile(testRegex).matcher(roll);
-						if (testMatcher.find()) {	// verifies that roll body is well-formed
-							rollBranch = testMatcher.group(1+whichBranch);
-							if (rollBranch == null) rollBranch = "''";	// quick-and-dirty way to get no output
-							rollBranch = rollBranch.trim();
-						} else {
-							doError("Error in roll for IF option", opts, roll);
-						}
-						break;
-					}
-					case SWITCH:
-					{
-						// We augment the branch regex to detect the "case xxx:" or "default:" prefixes,
-						// and search for a match.  An error is thrown if no case match is found.
-						
-						// Regex matches 'default', 'case 123:', 'case "123":', 'case "abc":', but not 'case abc:'
-						branchRegex = "(?:case\\s*\"?((?<!\")(?:\\+|-)?[\\d]+(?!\")|(?<=\")[^\"]*(?=\"))\"?|(default))\\s*:\\s*" + branchRegex;
-						String caseTarget = branchConditionParsed.toString();
-						String testRegex = String.format("^(?:\\s*%s\\s*%s\\s*)*\\s*%s\\s*%s\\s*$", 
-								branchRegex, branchSepRegex, branchRegex, branchLastSepRegex);
-						Matcher testMatcher = Pattern.compile(testRegex).matcher(roll);
-						if (testMatcher.find()) {	// verifies that roll body is well-formed
-							String scanRegex = String.format("\\s*%s\\s*(?:%s)?", branchRegex, branchSepRegex);
-							Matcher scanMatcher = Pattern.compile(scanRegex).matcher(roll);
-							boolean foundMatch = false;
-							while (!foundMatch && scanMatcher.find()) {
-								String caseLabel = scanMatcher.group(1);	// "case (xxx):"
-								String def = scanMatcher.group(2);		// "(default):"
-								String branch = scanMatcher.group(3);
-								if (def != null) {
-									rollBranch = branch.trim();
-									foundMatch = true;;
-								}
-								if (caseLabel != null && caseLabel.matches(caseTarget)) {
-									rollBranch = branch.trim();
-									foundMatch = true;
-								}
-							}
-							if (!foundMatch) {
-								doError("SWITCH option found no match for " + caseTarget, opts, roll);
-							}
-						} else {
-							doError("Error in roll for SWITCH option", opts, roll);
-						}
-
-						break;
-					}
-					} // end of switch(branchType) statement
-
-					// Construct the output.  
-					// If a MACRO or CODE block is being used, we default to bare output as in the RESULT style.
-					// The output style NONE is also allowed in these cases.
-					Result result;
-					String output_text;
-					switch(codeType) {
-					case NO_CODE:
-						// If none of the code options are active, any of the formatting options can be used.
-						switch (output) {
-						/*
-						 * TODO: If you're adding a new formatting option, add a new case to build the output
-						 */
-						case NONE:
-							parseExpression(resolver, tokenInContext, rollBranch);
 							break;
-						case RESULT:
-							result = parseExpression(resolver, tokenInContext, rollBranch);
-							expressionBuilder.append(result != null ? result.getValue().toString() : "");
+						case COUNT:
+							if (iteration == loopCount) {
+								doLoop = false;
+							}
 							break;
-						case TOOLTIP:
-							String tooltip = rollBranch + " = ";
-							output_text = null;
-							result = parseExpression(resolver, tokenInContext, rollBranch);
-							tooltip += result.getDetailExpression();
-							if (text == null) {
-								output_text = result.getValue().toString();
+						case FOR:
+							if (iteration != loopCount) {
+								resolver.setVariable(loopVar, new BigDecimal(loopStart + loopStep * iteration));
 							} else {
-								if (!result.getDetailExpression().equals(result.getValue().toString())) {
-									tooltip += " = " + result.getValue();
-								}
-								resolver.setVariable("roll.result", result.getValue());
-								output_text = parseExpression(resolver, tokenInContext, text).getValue().toString();
+								doLoop = false;
+								resolver.setVariable(loopVar, null);
 							}
-							tooltip = tooltip.replaceAll("'", "&#39;");
-							expressionBuilder.append(output_text != null ? "\036" + tooltip + "\037" + output_text + "\036" : "");
 							break;
-						case EXPANDED:
-							expressionBuilder.append("\036" + rollBranch + " = " + expandRoll(resolver, tokenInContext, rollBranch) + "\036");
+						case FOREACH:
+							if (iteration != loopCount) {
+								String item = foreachList.get(iteration);
+								resolver.setVariable(loopVar, item);
+							} else {
+								doLoop = false;
+								resolver.setVariable(loopVar, null);
+							}
 							break;
-						case UNFORMATTED:
-							output_text = rollBranch + " = " + expandRoll(resolver, tokenInContext, rollBranch);
-
-							// Escape quotes so that the result can be used in a title attribute
-							output_text = output_text.replaceAll("'", "&#39;");
-							output_text = output_text.replaceAll("\"", "&#34;");
-
-							expressionBuilder.append("\036\01u\02" + output_text + "\036");
-						}	// end of switch(output) statement
-						break;	// end of case NO_CODE in switch(codeType) statement
-					/*
-					 * TODO: If you're adding a new code option, add a new case to execute the code
-					 */
-					case MACRO:
-						// [MACRO("macroName@location"): args]
-						result = parseExpression(resolver, tokenInContext, macroName);
-						String callName = result.getValue().toString();
-						result = parseExpression(resolver, tokenInContext, rollBranch);
-						String macroArgs = result.getValue().toString();
-						output_text = runMacro(resolver, tokenInContext, callName, macroArgs);
-						if (output != Output.NONE) {
-							expressionBuilder.append(output_text);
+						case WHILE:
+							// This is a hack to get around a bug with the parser's comparison operators.
+							// The InlineTreeFormatter class in the parser chokes on comparison operators, because they're
+							// not listed in the operator precedence table.
+							//
+							// The workaround is that "non-deterministic" functions fully evaluate their arguments,
+							// so the comparison operators are reduced to a number by the time the buggy code is reached.
+							// The if() function defined in dicelib is such a function, so we use it here to eat
+							// any comparison operators.
+							String hackCondition = (loopCondition == null) ? null : String.format("if(%s, 1, 0)", loopCondition);
+							// Stop loop if the while condition is false
+							try {
+								Result result = parseExpression(resolver, tokenInContext, hackCondition);
+								loopConditionValue = ((Number)result.getValue()).intValue();
+								if (loopConditionValue == 0) {
+									doLoop = false;
+								}
+							} catch (Exception e) {
+								doError(String.format("Invalid condition in WHILE(%s) roll option", loopCondition), opts, roll);
+							}
+							break;
 						}
-						resolver.setVariable("roll.count", iteration);	// reset this because called code might change it
+
+						// Output the loop separator
+						if (doLoop && iteration != 0 && output != Output.NONE) {
+							expressionBuilder.append(parseExpression(resolver, tokenInContext, loopSep).getValue());
+						}
+
+						if (!doLoop) {
+							break;
+						}
+
+						iteration++;
+
+						// Extract the appropriate branch to evaluate.
+
+						// Evaluate the branch condition/expression
+						if (branchCondition != null) {
+							// This is a similar hack to the one used for the loopCondition above.
+							String hackCondition = (branchCondition == null) ? null : branchCondition.toString();
+							if (branchType == BranchType.IF) {
+								hackCondition = (hackCondition == null) ? null : String.format("if(%s, 1, 0)", hackCondition);
+							}
+							Result result = null;
+							try {
+								result = parseExpression(resolver, tokenInContext, hackCondition);
+							} catch (Exception e) {
+								doError(String.format("Invalid condition in %s(%s) roll option", branchType.toString(), 
+										branchCondition.toString()), opts, roll);
+							}
+							branchConditionParsed = result.getValue();
+							if (branchConditionParsed instanceof Number) {
+								branchConditionValue = ((Number)branchConditionParsed).intValue();
+							}
+						}
+
+						// Set up regexes for scanning through the branches.
+						// branchRegex then defines one matcher group for the parseable content of the branch.
+						String rollBranch = roll;
+						String branchRegex, branchSepRegex, branchLastSepRegex;
+						if (codeType != CodeType.CODEBLOCK) {
+							// matches any text not containing a ";" (skipping over strings) 
+							String noCodeRegex = "((?:[^\";]|\"[^\"]*\"|'[^']*')*)";
+							branchRegex = noCodeRegex;
+							branchSepRegex = ";";
+							branchLastSepRegex = ";?";	// The last clause doesn't have to end with a separator
+						} else {
+							// matches text inside braces "{...}", skipping over strings (one level of {} nesting allowed)
+							String codeRegex = "\\{((?:[^{}\"]|\"[^\"]*\"|'[^']*'|\\{(?:[^}\"]|\"[^\"]*\"|'[^']*')*})*)}";
+							branchRegex = codeRegex;
+							branchSepRegex = ";";
+							branchLastSepRegex = ";?";	// The last clause doesn't have to end with a separator
+						}
+
+						// Extract the branch to use
+						switch (branchType) {
+						/*
+						 * TODO: If you're adding a new branching option, add a new case to extract the branch text
+						 */
+						case NO_BRANCH:
+						{
+							// There's only one branch, so our regex is very simple
+							String testRegex = String.format("^\\s*%s\\s*$", branchRegex);
+							Matcher testMatcher = Pattern.compile(testRegex).matcher(roll);
+							if (testMatcher.find()) {
+								rollBranch = testMatcher.group(1);
+							} else {
+								doError("Error in body of roll.", opts, roll);
+							}
+							break;	
+						}
+						case IF:
+						{
+							// IF can have one or two branches.
+							// When there's only one branch and the condition is false, there's no output.
+							if (branchConditionValue == null) {
+								doError("Invalid IF condition: " + branchCondition 
+										+ ", evaluates to: " + branchConditionParsed.toString(), opts, roll);
+							}
+							int whichBranch = (branchConditionValue != 0) ? 0 : 1;
+							String testRegex = String.format("^\\s*%s\\s*(?:%s\\s*%s\\s*%s)?\\s*$", 
+									branchRegex, branchSepRegex, branchRegex, branchLastSepRegex);
+							Matcher testMatcher = Pattern.compile(testRegex).matcher(roll);
+							if (testMatcher.find()) {	// verifies that roll body is well-formed
+								rollBranch = testMatcher.group(1+whichBranch);
+								if (rollBranch == null) rollBranch = "''";	// quick-and-dirty way to get no output
+								rollBranch = rollBranch.trim();
+							} else {
+								doError("Error in roll for IF option", opts, roll);
+							}
+							break;
+						}
+						case SWITCH:
+						{
+							// We augment the branch regex to detect the "case xxx:" or "default:" prefixes,
+							// and search for a match.  An error is thrown if no case match is found.
+
+							// Regex matches 'default', 'case 123:', 'case "123":', 'case "abc":', but not 'case abc:'
+							branchRegex = "(?:case\\s*\"?((?<!\")(?:\\+|-)?[\\d]+(?!\")|(?<=\")[^\"]*(?=\"))\"?|(default))\\s*:\\s*" + branchRegex;
+							String caseTarget = branchConditionParsed.toString();
+							String testRegex = String.format("^(?:\\s*%s\\s*%s\\s*)*\\s*%s\\s*%s\\s*$", 
+									branchRegex, branchSepRegex, branchRegex, branchLastSepRegex);
+							Matcher testMatcher = Pattern.compile(testRegex).matcher(roll);
+							if (testMatcher.find()) {	// verifies that roll body is well-formed
+								String scanRegex = String.format("\\s*%s\\s*(?:%s)?", branchRegex, branchSepRegex);
+								Matcher scanMatcher = Pattern.compile(scanRegex).matcher(roll);
+								boolean foundMatch = false;
+								while (!foundMatch && scanMatcher.find()) {
+									String caseLabel = scanMatcher.group(1);	// "case (xxx):"
+									String def = scanMatcher.group(2);		// "(default):"
+									String branch = scanMatcher.group(3);
+									if (def != null) {
+										rollBranch = branch.trim();
+										foundMatch = true;;
+									}
+									if (caseLabel != null && caseLabel.matches(caseTarget)) {
+										rollBranch = branch.trim();
+										foundMatch = true;
+									}
+								}
+								if (!foundMatch) {
+									doError("SWITCH option found no match for " + caseTarget, opts, roll);
+								}
+							} else {
+								doError("Error in roll for SWITCH option", opts, roll);
+							}
+
+							break;
+						}
+						} // end of switch(branchType) statement
+
+						// Construct the output.  
+						// If a MACRO or CODE block is being used, we default to bare output as in the RESULT style.
+						// The output style NONE is also allowed in these cases.
+						Result result;
+						String output_text;
+						switch(codeType) {
+						case NO_CODE:
+							// If none of the code options are active, any of the formatting options can be used.
+							switch (output) {
+							/*
+							 * TODO: If you're adding a new formatting option, add a new case to build the output
+							 */
+							case NONE:
+								parseExpression(resolver, tokenInContext, rollBranch);
+								break;
+							case RESULT:
+								result = parseExpression(resolver, tokenInContext, rollBranch);
+								expressionBuilder.append(result != null ? result.getValue().toString() : "");
+								break;
+							case TOOLTIP:
+								String tooltip = rollBranch + " = ";
+								output_text = null;
+								result = parseExpression(resolver, tokenInContext, rollBranch);
+								tooltip += result.getDetailExpression();
+								if (text == null) {
+									output_text = result.getValue().toString();
+								} else {
+									if (!result.getDetailExpression().equals(result.getValue().toString())) {
+										tooltip += " = " + result.getValue();
+									}
+									resolver.setVariable("roll.result", result.getValue());
+									output_text = parseExpression(resolver, tokenInContext, text).getValue().toString();
+								}
+								tooltip = tooltip.replaceAll("'", "&#39;");
+								expressionBuilder.append(output_text != null ? "\036" + tooltip + "\037" + output_text + "\036" : "");
+								break;
+							case EXPANDED:
+								expressionBuilder.append("\036" + rollBranch + " = " + expandRoll(resolver, tokenInContext, rollBranch) + "\036");
+								break;
+							case UNFORMATTED:
+								output_text = rollBranch + " = " + expandRoll(resolver, tokenInContext, rollBranch);
+
+								// Escape quotes so that the result can be used in a title attribute
+								output_text = output_text.replaceAll("'", "&#39;");
+								output_text = output_text.replaceAll("\"", "&#34;");
+
+								expressionBuilder.append("\036\01u\02" + output_text + "\036");
+							}	// end of switch(output) statement
+							break;	// end of case NO_CODE in switch(codeType) statement
+							/*
+							 * TODO: If you're adding a new code option, add a new case to execute the code
+							 */
+						case MACRO:
+							// [MACRO("macroName@location"): args]
+							result = parseExpression(resolver, tokenInContext, macroName);
+							String callName = result.getValue().toString();
+							result = parseExpression(resolver, tokenInContext, rollBranch);
+							String macroArgs = result.getValue().toString();
+							output_text = runMacro(resolver, tokenInContext, callName, macroArgs);
+							if (output != Output.NONE) {
+								expressionBuilder.append(output_text);
+							}
+							resolver.setVariable("roll.count", iteration);	// reset this because called code might change it
+							break;
+
+						case CODEBLOCK:
+							output_text = runMacroBlock(resolver, tokenInContext, rollBranch);
+							resolver.setVariable("roll.count", iteration);	// reset this because called code might change it
+							if (output != Output.NONE) {
+								expressionBuilder.append(output_text);
+							}
+							break;
+						}
+					}
+					switch (outputTo) {
+					case FRAME:
+						HTMLFrameFactory.show(frameName, true, frameOpts, expressionBuilder.toString());
 						break;
-
-					case CODEBLOCK:
-						output_text = runMacroBlock(resolver, tokenInContext, rollBranch);
-						resolver.setVariable("roll.count", iteration);	// reset this because called code might change it
-						if (output != Output.NONE) {
-							expressionBuilder.append(output_text);
-						}
+					case DIALOG:
+						HTMLFrameFactory.show(frameName, false, frameOpts, expressionBuilder.toString());
+						break;
+					case CHAT:
+						builder.append(expressionBuilder);
 						break;
 					}
+
+					// Revert to our previous token if [token(): ] was used
+					if (contextTokenStack.size() > 0) {
+						resolver.setTokenIncontext(contextTokenStack.pop());
+					}
+				} else if (matcher.group().startsWith("{")) {
+					String roll = matcher.group(3);
+					Result result = parseExpression(resolver, tokenInContext, roll);
+					builder.append(result != null ? result.getValue().toString() : "");
 				}
-				builder.append(expressionBuilder);
-			} else if (matcher.group().startsWith("{")) {
-				String roll = matcher.group(3);
-				Result result = parseExpression(resolver, tokenInContext, roll);
-				builder.append(result != null ? result.getValue().toString() : "");
 			}
+
+			builder.append(line.substring(start));
+
+			return builder.toString();
+		} finally {
+			exitContext();
 		}
 
-		builder.append(line.substring(start));
-
-		return builder.toString();
 	}
-
-	
 	
 	
 	public Result parseExpression(String expression) throws ParserException {
@@ -1052,6 +1161,9 @@ public class MapToolLineParser {
 	/** Runs a macro from a specified location. */
 	public String runMacro(MapToolVariableResolver resolver, Token tokenInContext, String qMacroName, String args) 
 	throws ParserException {
+		
+		MapToolMacroContext macroContext;
+		
 		String macroBody = null;
 
 		String[] macroParts = qMacroName.split("@",2);
@@ -1067,14 +1179,24 @@ public class MapToolLineParser {
 		// For convenience to macro authors, no error on a blank macro name
 		if (macroName.equalsIgnoreCase(""))
 			return "";
-
-		if (macroLocation == null) {
+		
+		// IF the macro is a  @this, then we get the location of the current macro and use that.
+		if (macroLocation.equalsIgnoreCase("this")) {
+			macroLocation = getMacroSource();
+			if (macroLocation.equals(CHAT_INPUT)) {
+				macroLocation = "TOKEN";
+			}
+		}
+		
+		
+		if (macroLocation == null || macroLocation.length() == 0 || macroLocation.equals(CHAT_INPUT)) {
 			// Unqualified names are not allowed.
 			throw new ParserException(String.format("Must specify a location for the macro \"%s\" to be run.",macroName));
 		} else if (macroLocation.equalsIgnoreCase("TOKEN")) {
+			macroContext = new MapToolMacroContext(macroName, "token", MapTool.getPlayer().isGM());
 			// Search token for the macro
 			if (tokenInContext != null) {
-				MacroButtonProperties buttonProps = tokenInContext.getMacro(macroName, true);
+				MacroButtonProperties buttonProps = tokenInContext.getMacro(macroName, false);
 				
 				macroBody = buttonProps.getCommand(); 
 			}
@@ -1083,6 +1205,7 @@ public class MapToolLineParser {
 // a rewrite of how we access campaign and global macros.
 //
 		} else if (macroLocation.equalsIgnoreCase("CAMPAIGN")) {
+			macroContext = new MapToolMacroContext(macroName, "campaign", MapTool.getPlayer().isGM());
 			throw new ParserException("Calling campaign macros is not currently supported.");
 //			CampaignPanel cp = MapTool.getFrame().getCampaignPanel();
 //			Component[] comps = cp.getComponents();
@@ -1097,6 +1220,7 @@ public class MapToolLineParser {
 //				}
 //			}			
 		} else if (macroLocation.equalsIgnoreCase("GLOBAL")) {
+			macroContext = new MapToolMacroContext(macroName, "global", MapTool.getPlayer().isGM());
 			throw new ParserException("Calling global macros is not currently supported.");
 //			GlobalPanel gp = MapTool.getFrame().getGlobalPanel();
 //			Component[] comps = gp.getComponents();
@@ -1112,6 +1236,33 @@ public class MapToolLineParser {
 //			}
 		} else { // Search for a token called macroLocation (must start with "Lib:")
 			macroBody = getTokenLibMacro(macroName, macroLocation);
+			Token token = getTokenMacroLib(macroLocation);
+			boolean secure = true;
+
+			// If the token is not owned by everyone and all owners are GMs then we are in
+			// a secure context as players can not modify the macro so GM can sepcify what
+			// ever they want.
+			if (token != null) {
+				if (token.isOwnedByAll()) {
+					secure = false;
+				} else {
+					Set<String> gmPlayers = new HashSet<String>(); 
+					for (Object o : MapTool.getPlayerList()) {
+						Player p = (Player)o;
+						if (p.isGM()) {
+							gmPlayers.add(p.getName());
+						}
+					}
+					for (String owner : token.getOwners())  {
+						if (!gmPlayers.contains(owner)) {
+							secure = false;
+							break;
+						}
+					}
+				}
+			}
+			macroContext = new MapToolMacroContext(macroName, macroLocation, secure);
+	
 		}
 
 		// Error if macro not found
@@ -1129,11 +1280,12 @@ public class MapToolLineParser {
 			throw new ParserException("Max macro recurse depth reached");
 		}
 		try {
-			String macroOutput = runMacroBlock(macroResolver, tokenInContext, macroBody);
+			String macroOutput = runMacroBlock(macroResolver, tokenInContext, macroBody, macroContext);
 			// Copy the return value of the macro into our current variable scope.
 			resolver.setVariable("macro.return", macroResolver.getVariable("macro.return"));
 			return macroOutput;
 		} finally {
+//			exitContext();
 			macroRecurseDepth--;
 		}
 	}
@@ -1141,9 +1293,15 @@ public class MapToolLineParser {
 
 	/** Executes a string as a block of macro code. */
 	String runMacroBlock(MapToolVariableResolver resolver, Token tokenInContext, String macroBody) throws ParserException {
-		String macroOutput = parseLine(resolver, tokenInContext, macroBody);
+		return runMacroBlock(resolver, tokenInContext, macroBody, null);
+	}
+
+	/** Executes a string as a block of macro code. */
+	String runMacroBlock(MapToolVariableResolver resolver, Token tokenInContext, String macroBody, MapToolMacroContext context) throws ParserException {
+		String macroOutput = parseLine(resolver, tokenInContext, macroBody, context);
 		return macroOutput;
 	}
+	
 
 	
 	/** Searches all maps for a token and returns the body of the requested macro.
@@ -1155,13 +1313,28 @@ public class MapToolLineParser {
 	 * or if the caller doesn't have access to the token.
 	 */
 	public String getTokenLibMacro(String macro, String location) throws ParserException {
+		Token token = getTokenMacroLib(location);
+		if (token == null) {
+			return null;
+		}
+		MacroButtonProperties buttonProps = token.getMacro(macro, false);
+		return buttonProps.getCommand();
+	}
+	
+	/** 
+	 * Searches all maps for a token and returns the the requested lib: macro.
+	 * 
+	 * @param macro The name of the macro to fetch.
+	 * @return The token which holds the library.
+	 * @throws ParserException if the token name is illegal, the token appears multiple times,
+	 * or if the caller doesn't have access to the token.
+	 */
+	public Token getTokenMacroLib(String location) throws ParserException {		
 		if (!location.matches("(?i)^lib:.*")) {
 			throw new ParserException("Macros from other tokens are only available if the token name starts with \"Lib:\"");
 		}
-		//final String libTokenName = "Lib:" + location;
 		final String libTokenName = location;
 		Token libToken = null;
-		String macroBody = null;
 		if (libTokenName != null && libTokenName.length() > 0) {
 			List<ZoneRenderer> zrenderers = MapTool.getFrame().getZoneRenderers();
 			for (ZoneRenderer zr : zrenderers) {
@@ -1172,7 +1345,7 @@ public class MapToolLineParser {
 
 				for (Token token : tokenList) {
 					// If we are not the GM and the token is not visible to players then we don't
-					// let them get functions from it.
+					// let them get functions from it.	
 					if (!MapTool.getPlayer().isGM() && !token.isVisible()) {
 						throw new ParserException("Unable to execute macro from  " + libTokenName);
 					}
@@ -1181,15 +1354,53 @@ public class MapToolLineParser {
 					}
 
 					libToken = token;
-					MacroButtonProperties buttonProps = token.getMacro(macro, true);
-					macroBody = buttonProps.getCommand();
 				}
 			}
-			return macroBody;
+			return libToken;
 		} 
 		return null;
 	}
 
+	/**
+	 * Searches all maps for a token and returns the zone that the lib: macro is in.
+	 * 
+	 * @param macro The name of the macro to fetch.
+	 * @return The zone which holds the library.
+	 * @throws ParserException if the token name is illegal, the token appears multiple times,
+	 * or if the caller doesn't have access to the token.
+	 */
+	public Zone getTokenMacroLibZone(String location) throws ParserException {
+		if (!location.matches("(?i)^lib:.*")) {
+			throw new ParserException("Macros from other tokens are only available if the token name starts with \"Lib:\"");
+		}
+		final String libTokenName = location;
+		Zone libTokenZone = null;
+		if (libTokenName != null && libTokenName.length() > 0) {
+			List<ZoneRenderer> zrenderers = MapTool.getFrame().getZoneRenderers();
+			for (ZoneRenderer zr : zrenderers) {
+				List<Token> tokenList = zr.getZone().getTokensFiltered(new Zone.Filter() {
+					public boolean matchToken(Token t) {
+						return t.getName().equalsIgnoreCase(libTokenName);
+					}});
+
+				for (Token token : tokenList) {
+					// If we are not the GM and the token is not visible to players then we don't
+					// let them get functions from it.	
+					if (!MapTool.getPlayer().isGM() && !token.isVisible()) {
+						throw new ParserException("Unable to execute macro from  " + libTokenName);
+					}
+					if (libTokenZone != null) {
+						throw new ParserException("Duplicate " + libTokenName + " tokens");
+					}
+
+					libTokenZone = zr.getZone();
+				}
+			}
+			return libTokenZone;
+		} 
+		return null;
+	}
+	
 	/** Throws a helpful ParserException that shows the roll options and body.
 	 * @param msg The message
 	 * @param opts The roll options
@@ -1213,9 +1424,97 @@ public class MapToolLineParser {
 	private ExpressionParser createParser(VariableResolver resolver, boolean hasTokenInContext) {
 		ExpressionParser parser = new ExpressionParser(resolver);
 		parser.getParser().addFunctions(mapToolParserFunctions);
-		if (hasTokenInContext) {
-			parser.getParser().addFunctions(mapToolContextParserFunctions);
-		}
 		return parser;
 	}
+	
+	
+	/** 
+	 * Enters a new context for the macro. 
+	 * @param context The context for the macro.
+	 * If context is null and there is a current context it is reentered. If context is null
+	 * and there is no current context then a new top level context is created.
+	 */
+	public void enterContext(MapToolMacroContext context) {
+		if (context == null) {
+			if (contextStack.size() == 0) {
+				context = new MapToolMacroContext(MapToolLineParser.CHAT_INPUT, MapToolLineParser.CHAT_INPUT, 
+						MapTool.getPlayer().isGM());
+			} else {
+				context = contextStack.peek();
+			}
+		}
+		contextStack.push(context);
+	}
+	
+	/** 
+	 * Leaves the current context reverting to the previous context.
+	 * @return The context that you leave.
+	 */
+	public MapToolMacroContext exitContext() {
+		return contextStack.pop();
+	}
+	
+	/**
+	 * Convenience method to enter a new trusted context.
+	 * @param name The name of the macro.
+	 * @param source Where the macro comes from.
+	 */
+	public void enterTrustedContext(String name, String source) {
+		enterContext(new MapToolMacroContext(name, source, true));
+	}
+	
+	/**
+	 * Gets the current context for the execution. It is save to enter a context
+	 * a second time.
+	 * @return the current context.
+	 */
+	public MapToolMacroContext getContext() {
+		return contextStack.peek();
+	}
+	
+	/**
+	 * Convenience method to enter a new insecure context.
+	 * @param name The name of the macro.
+	 * @param source Where the macro comes from.
+	 */	
+	public void enterUntrustedContext(String name, String source) {
+		enterContext(new MapToolMacroContext(name, source, false));
+	}
+
+	/**
+	 * Convenience method to enter a new context.
+	 * @param name The name of the macro.
+	 * @param source Where the macro comes from.
+	 * @param secure Is the context secure or not.
+	 */
+	public void enterContext(String name, String source, boolean secure) {
+		enterContext(new MapToolMacroContext(name, source, secure));
+	}
+
+	/**
+	 * Gets the macro name for the current context.
+	 * @return The macro name for the current context.
+	 */
+	public String getMacroName() {
+		return contextStack.peek().getName();
+	}
+	
+	/**
+	 * Gets the name of the source for where the macro resides.
+	 * @return The name of the source for where the macro resides.
+	 */
+	public String getMacroSource() {
+		return contextStack.peek().getSouce();
+	}
+	
+	/**
+	 * Gets if the macro context is trusted or not.
+	 * @return if the macro context is trusted or not.
+	 */
+	public boolean isMacroTrusted() {
+		
+		return contextStack.peek().isTrusted();
+	}
+
+
 }

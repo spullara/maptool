@@ -44,8 +44,8 @@ public class TokenVisibleFunction extends AbstractFunction {
 	}
 	
 	public boolean getBooleanVisible(Token token) throws ParserException {
-	    if (!MapTool.getPlayer().isGM()) {
-            throw new ParserException("You must be the GM to use test the visibility of tokens");
+	    if (!MapTool.getParser().isMacroTrusted()) {
+            throw new ParserException("You do not have permission to test the visibility of tokens");
         }
 	    
 	    return token.isVisible();
@@ -66,8 +66,13 @@ public class TokenVisibleFunction extends AbstractFunction {
 	 * Sets if the token is visible or not.
 	 * @param token the token to set.
 	 * @param val the value to set the visible flag to.
+	 * @throws ParserException 
 	 */
-	public void setVisible(Token token, Object val) {
+	public void setVisible(Token token, Object val) throws ParserException {
+	    if (!MapTool.getParser().isMacroTrusted()) {
+            throw new ParserException("You do not have permission to set the visibility of tokens");
+        }
+
 		boolean set;
         if (val instanceof Integer) {
             set = ((Integer) val).intValue() != 0;

@@ -22,6 +22,8 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
@@ -37,6 +39,7 @@ import javax.swing.text.html.StyleSheet;
 
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.functions.MacroLinkFunction;
 import net.rptools.maptool.client.swing.HTMLPanelImageCache;
 import net.rptools.maptool.client.swing.MessagePanelEditorKit;
 import net.rptools.maptool.model.TextMessage;
@@ -75,7 +78,16 @@ public class MessagePanel extends JPanel {
 		textPane.addHyperlinkListener(new HyperlinkListener() {
 			public void hyperlinkUpdate(HyperlinkEvent e) {
 				if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-					MapTool.showDocument(e.getURL().toString());
+					if (e.getURL() != null) {
+						MapTool.showDocument(e.getURL().toString());
+					} else {
+						Matcher m = Pattern.compile("([^:]*)://([^/]*)/([^?]*)(?:\\?(.*))?").matcher(e.getDescription());
+						if (m.matches()) {
+							if (m.group(1).equalsIgnoreCase("macro")) {
+								MacroLinkFunction.getInstance().runMacroLink(e.getDescription());
+							}
+						}
+					}				
 				}
 			}
 		});

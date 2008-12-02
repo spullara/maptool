@@ -84,7 +84,7 @@ public class TokenProxy {
     public boolean getVisible() throws ParserException {
         return TokenVisibleFunction.getInstance().getBooleanVisible(token);
     }
-    public void setVisible(Object value) {
+    public void setVisible(Object value) throws ParserException{
         TokenVisibleFunction.getInstance().setVisible(token, value.toString());
     }
     
