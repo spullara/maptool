@@ -325,6 +325,11 @@ public class Campaign {
 	}
 	
 	public int getMacroButtonNextIndex() {
+		for (MacroButtonProperties prop : macroButtonProperties) {
+			if (prop.getIndex() > macroButtonLastIndex) {
+				macroButtonLastIndex = prop.getIndex();
+			}
+		}
 		return ++macroButtonLastIndex;
 	}
 	
