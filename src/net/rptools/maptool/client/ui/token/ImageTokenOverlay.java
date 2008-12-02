@@ -44,11 +44,6 @@ public class ImageTokenOverlay extends BooleanTokenOverlay {
     private MD5Key assetId;
     
     /**
-     * Cached image for specific token sizes
-     */
-    private transient Map<Dimension, BufferedImage> imageCache;
-
-    /**
      * Logger instance for this class.
      */
     private static final Logger LOGGER = Logger.getLogger(ImageTokenOverlay.class.getName());
@@ -96,24 +91,17 @@ public class ImageTokenOverlay extends BooleanTokenOverlay {
         // Get the image
         Rectangle iBounds = getImageBounds(bounds, token);
         Dimension d = iBounds.getSize();
-        BufferedImage image = null;
-        if (imageCache != null)
-          image = imageCache.get(d);
-        if (image == null) {
             
-            // Not in the cache, create it.
-            Asset asset = AssetManager.getAsset(assetId);
-            if (asset == null) {
-                LOGGER.warning("Unable to locate and asset with ID: " + assetId);
-                return;
-            } // endif
-            image = ImageManager.getImageAndWait(asset);
-            Dimension size = new Dimension(image.getWidth(), image.getHeight());
-            SwingUtil.constrainTo(size, d.width, d.height);
-            image = ImageUtil.createCompatibleImage(image, size.width, size.height, null);
-            if (imageCache == null) imageCache = new HashMap<Dimension, BufferedImage>();
-            imageCache.put(d, image);
+        // Not in the cache, create it.
+        Asset asset = AssetManager.getAsset(assetId);
+        if (asset == null) {
+            LOGGER.warning("Unable to locate and asset with ID: " + assetId);
+            return;
         } // endif
+        BufferedImage image = ImageManager.getImageAndWait(asset);
+        Dimension size = new Dimension(image.getWidth(), image.getHeight());
+        SwingUtil.constrainTo(size, d.width, d.height);
+        image = ImageUtil.createCompatibleImage(image, size.width, size.height, null);
         
         // Paint it at the right location
         int width = image.getWidth();
