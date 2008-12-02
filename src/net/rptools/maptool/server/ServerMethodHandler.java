@@ -104,8 +104,8 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case heartbeat:				  heartbeat(context.getString(0));break;
             case updateCampaign:		  updateCampaign((CampaignProperties) context.get(0));break;
             case movePointer: 			  movePointer(context.getString(0), context.getInt(1), context.getInt(2));break;
-            case updateInitiative:        updateInitiative((InitiativeList)context.get(0), (Boolean)context.get(1));
-            case setUseVision:            setUseVision(context.getGUID(0), context.getBool(1));
+            case updateInitiative:        updateInitiative((InitiativeList)context.get(0), (Boolean)context.get(1));break;
+            case setUseVision:            setUseVision(context.getGUID(0), context.getBool(1));break;
             }
         } finally {
             RPCContext.setCurrent(null);
