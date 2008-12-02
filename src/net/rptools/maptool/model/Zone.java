@@ -831,4 +831,20 @@ public class Zone extends BaseModel {
         fireModelChangeEvent(new ModelChangeEvent(this, Event.INITIATIVE_LIST_CHANGED));
     }
 
+    ////
+    // Backward compatibility
+	protected Object readResolve() {
+		super.readResolve();
+		
+		// 1.3b47 -> 1.3b48
+		if (visionType == null) {
+			if (topology != null && !topology.isEmpty()) {
+				visionType = VisionType.NIGHT;
+			} else {
+				visionType = VisionType.OFF;
+			}
+		} 
+		
+		return this;
+	}
 }

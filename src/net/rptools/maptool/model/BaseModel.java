@@ -37,7 +37,7 @@ public class BaseModel {
 		}
 	}
 	
-	private Object readResolve() {
+	protected Object readResolve() {
 		listenerList = new CopyOnWriteArrayList<ModelChangeListener>();
 		return this;
 	}
