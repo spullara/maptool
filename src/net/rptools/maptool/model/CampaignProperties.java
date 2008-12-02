@@ -138,7 +138,7 @@ public class CampaignProperties implements Serializable {
     		// Need to cull out dups
     		for (String repo : properties.remoteRepositoryList) {
     			if (!remoteRepositoryList.contains(repo)) {
-    				properties.remoteRepositoryList.add(repo);
+    				remoteRepositoryList.add(repo);
     			}
     		}
     	}
