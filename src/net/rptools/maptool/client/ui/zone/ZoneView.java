@@ -69,7 +69,7 @@ public class ZoneView implements ModelChangeListener {
 	}
 	
 	public boolean isUsingVision() {
-		return zone.useVision();
+		return zone.getVisionType() != Zone.VisionType.OFF;
 	}
 	
 	public AreaTree getTopology() {
@@ -211,7 +211,7 @@ public class ZoneView implements ModelChangeListener {
 		}
 
         // Combine in the visible light areas
-        if (lightSourceSet.size() > 0 && tokenVisibleArea != null) {
+        if (tokenVisibleArea != null && zone.getVisionType() == Zone.VisionType.NIGHT) {
         
         	Rectangle2D origBounds = tokenVisibleArea.getBounds();
         	

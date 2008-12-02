@@ -29,6 +29,7 @@ import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.Zone.VisionType;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.server.ServerCommand;
@@ -65,8 +66,8 @@ public class ServerCommandClientImpl implements ServerCommand {
     	}
     }
     
-    public void setUseVision(GUID zoneGUID, Boolean useVision) {
-    	makeServerCall(COMMAND.setUseVision, zoneGUID, useVision);
+    public void setVisionType(GUID zoneGUID, VisionType visionType) {
+    	makeServerCall(COMMAND.setVisionType, zoneGUID, visionType);
     }
 
     public void updateCampaign(CampaignProperties properties) {

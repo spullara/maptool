@@ -38,6 +38,7 @@ import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.Zone.VisionType;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
@@ -105,7 +106,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case updateCampaign:		  updateCampaign((CampaignProperties) context.get(0));break;
             case movePointer: 			  movePointer(context.getString(0), context.getInt(1), context.getInt(2));break;
             case updateInitiative:        updateInitiative((InitiativeList)context.get(0), (Boolean)context.get(1));break;
-            case setUseVision:            setUseVision(context.getGUID(0), context.getBool(1));break;
+            case setVisionType:            setVisionType(context.getGUID(0), (VisionType)context.get(1));break;
             }
         } finally {
             RPCContext.setCurrent(null);
@@ -136,9 +137,9 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     
     ////
     // SERVER COMMAND
-    public void setUseVision(GUID zoneGUID, Boolean useVision) {
+    public void setVisionType(GUID zoneGUID, VisionType visionType) {
         Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.setUseVision(useVision);
+        zone.setVisionType(visionType);
 
         server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setUseVision.name(), RPCContext.getCurrent().parameters);
     }

@@ -32,6 +32,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.Zone.VisionType;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.Pen;
 
@@ -78,7 +79,7 @@ public interface ServerCommand {
         heartbeat,
         updateCampaign,
         updateInitiative,
-        setUseVision
+        setVisionType
     };
 
     public void bootPlayer(String player);
@@ -121,5 +122,5 @@ public interface ServerCommand {
     public void heartbeat(String data);
     public void updateCampaign(CampaignProperties properties);
     public void updateInitiative(InitiativeList list, Boolean ownerPermission);
-    public void setUseVision(GUID zoneGUID, Boolean useVision);
+    public void setVisionType(GUID zoneGUID, VisionType visionType);
 }

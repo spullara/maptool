@@ -44,6 +44,12 @@ import net.rptools.maptool.util.StringUtil;
  */
 public class Zone extends BaseModel {
     
+	public enum VisionType {
+		OFF,
+		DAY,
+		NIGHT
+	}
+	
     public enum Event {
         TOKEN_ADDED,
         TOKEN_REMOVED,
@@ -124,7 +130,7 @@ public class Zone extends BaseModel {
     private String name;
     private boolean isVisible;
     
-    private boolean useVision;
+    private VisionType visionType = VisionType.OFF;
     
     // These are transitionary properties, very soon the width and height won't matter
     private int height;
@@ -152,12 +158,12 @@ public class Zone extends BaseModel {
     	return tokenVisionDistance;
     }
     
-    public boolean useVision() {
-		return useVision;
+    public VisionType getVisionType() {
+		return visionType;
 	}
 
-	public void setUseVision(boolean useVisibility) {
-		this.useVision = useVisibility;
+	public void setVisionType(VisionType visionType) {
+		this.visionType = visionType;
 	}
 
 	/**

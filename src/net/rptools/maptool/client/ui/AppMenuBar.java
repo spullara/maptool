@@ -36,6 +36,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.tool.drawing.DrawableUndoManager;
 import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.Zone;
 
 public class AppMenuBar extends JMenuBar {
 	
@@ -108,7 +109,7 @@ public class AppMenuBar extends JMenuBar {
         // MAP TOGGLES
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
         menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_FOG));
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_VISION));
+        menu.add(createVisionTypeMenu());
 
         menu.addSeparator();
         
@@ -118,6 +119,16 @@ public class AppMenuBar extends JMenuBar {
         menu.add(new JMenuItem(AppActions.REMOVE_ZONE));
 
         return menu;
+    }
+    
+    protected JMenu createVisionTypeMenu() {
+    	JMenu menu = I18N.createMenu("menu.vision");
+    	
+    	menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.OFF)));
+    	menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.DAY)));
+    	menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.NIGHT)));
+    	
+    	return menu;
     }
     
     protected JMenu createEditMenu() {

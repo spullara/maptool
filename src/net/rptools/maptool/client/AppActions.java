@@ -83,6 +83,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZoneFactory;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.Zone.VisionType;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.server.ServerConfig;
 import net.rptools.maptool.server.ServerPolicy;
@@ -1014,9 +1015,12 @@ public class AppActions {
 		}
 	};
 
-	public static final Action TOGGLE_VISION = new ZoneAdminClientAction() {
-		{
-			init("action.enableVision");
+	public static class SetVisionType extends ZoneAdminClientAction {
+		private VisionType visionType;
+		
+		public SetVisionType(VisionType visionType) {
+			this.visionType = visionType;
+			init("visionType."+visionType.name());
 		}
 
 		@Override
@@ -1026,7 +1030,7 @@ public class AppActions {
 				return false;
 			}
 
-			return renderer.getZone().useVision();
+			return renderer.getZone().getVisionType() == visionType;
 		}
 
 		public void execute(ActionEvent e) {
@@ -1037,12 +1041,16 @@ public class AppActions {
 			}
 
 			Zone zone = renderer.getZone();
-			zone.setUseVision(!zone.useVision());
+			
+			if (zone.getVisionType() != visionType) {
+				
+				zone.setVisionType(visionType);
 
-			MapTool.serverCommand().setUseVision(zone.getId(), zone.useVision());
+				MapTool.serverCommand().setVisionType(zone.getId(), visionType);
 
-			renderer.flushFog();
-			renderer.repaint();
+				renderer.flushFog();
+				renderer.repaint();
+			}
 		}
 	};
 

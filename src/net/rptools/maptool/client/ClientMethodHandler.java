@@ -34,6 +34,7 @@ import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.Zone.VisionType;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.Pen;
@@ -448,17 +449,18 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                     
                 case setUseVision:
                 	zoneGUID = (GUID) parameters[0];
-                	Boolean useVision = (Boolean) parameters[1];
+                	VisionType visionType = (VisionType) parameters[1];
                 	
                 	zone = MapTool.getCampaign().getZone(zoneGUID);
                 	if (zone != null) {
-                		zone.setUseVision(useVision);
+                		zone.setVisionType(visionType);
                 		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
                 			MapTool.getFrame().getCurrentZoneRenderer().flushFog();
                 			MapTool.getFrame().getCurrentZoneRenderer().getZoneView().flush();
                 		}
                 		MapTool.getFrame().refresh();
                 	}
+                	break;
                 }
         	}
         });
