@@ -474,6 +474,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     public void flushFog() {
     	flushFog = true;
+    	visibleScreenArea = null;
     	repaint();
     }
     
