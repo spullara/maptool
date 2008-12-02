@@ -61,8 +61,8 @@ public class StrPropFunctions extends AbstractFunction {
      * @param oldKeys holds the un-normalized keys, in their original order.
      */
     public static void parse(String props, Map<String,String> map, List<String> oldKeys) {
-    	Pattern entryParser = Pattern.compile("\\w+\\s*=\\s*[^;=]*");
-    	Pattern keyValueParser = Pattern.compile("(\\w+)\\s*=\\s*([^;=]*)");
+    	Pattern entryParser = Pattern.compile("\\w+\\s*=\\s*[^;]*");
+    	Pattern keyValueParser = Pattern.compile("(\\w+)\\s*=\\s*([^;]*)");
     	Matcher entryMatcher = entryParser.matcher(props);
     	// Extract the keys and values already in the props string.
     	// Save the old keys so we can rebuild the props string in the same order.
