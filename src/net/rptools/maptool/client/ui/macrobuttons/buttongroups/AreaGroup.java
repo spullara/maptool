@@ -108,7 +108,7 @@ public class AreaGroup extends AbstractButtonGroup {
 	}
 
 	public Insets getInsets() {
-		return new Insets(0,1,3,3);
+		return new Insets(0,1,3,0);
 	}
 
 	@Override

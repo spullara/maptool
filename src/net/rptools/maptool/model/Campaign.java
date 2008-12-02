@@ -315,7 +315,7 @@ public class Campaign {
 				prop.setFontColorKey(properties.getFontColorKey());
 				prop.setFontSize(properties.getFontSize());
 				prop.setMinWidth(properties.getMinWidth());
-				prop.setMinWidth(properties.getMaxWidth());
+				prop.setMaxWidth(properties.getMaxWidth());
 				MapTool.getFrame().getCampaignPanel().reset();
 				return;
 			}

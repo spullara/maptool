@@ -155,9 +155,9 @@ public class ButtonGroup extends AbstractButtonGroup {
 	
 	public Insets getInsets() {
 		if (getGroupLabel().equals("")){
-			return new Insets(3,3,3,3);
+			return new Insets(3,3,3,0);
 		} else {
-			return new Insets(16,3,3,3);
+			return new Insets(16,3,3,0);
 		}
 	}
 
