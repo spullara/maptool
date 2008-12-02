@@ -204,6 +204,7 @@ public class Zone extends BaseModel {
     public Zone(Zone zone) {
     	backgroundPaint = zone.backgroundPaint;
     	mapAsset = zone.mapAsset;
+    	visionType = zone.visionType;
     	
     	setName(zone.getName());
 
