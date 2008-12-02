@@ -858,10 +858,4 @@ public class Zone extends BaseModel {
 		
 		return this;
 	}
-	private static class TokenLightFilter implements Filter {
-		@Override
-		public boolean matchToken(Token token) {
-			return token.hasLightSources();
-		}
-	}
 }
