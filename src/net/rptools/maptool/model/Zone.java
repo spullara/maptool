@@ -839,7 +839,11 @@ public class Zone extends BaseModel {
 		// 1.3b47 -> 1.3b48
 		if (visionType == null) {
 			System.out.println("Map " + getName());
-			if (getTokensFiltered(new TokenLightFilter()).size() > 0) {
+			if (getTokensFiltered(new Filter() {
+				public boolean matchToken(Token token) {
+					return token.hasLightSources();
+				}
+			}).size() > 0) {
 				System.out.println("\tFound light, using DAY");
 				visionType = VisionType.NIGHT;
 			} else  if (topology != null && !topology.isEmpty()) {
