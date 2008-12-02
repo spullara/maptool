@@ -173,6 +173,8 @@ public class MacroFunctions extends AbstractFunction {
  		String[]  props = propString.split(delim);
 		for (String s : props) {
  			String[] vals = s.split("=");
+ 	 		vals[0] = vals[0].trim();
+ 			vals[1] = vals[1].trim();
  			if ("autoexecute".equalsIgnoreCase(vals[0])) {
  				mbp.setAutoExecute(boolVal(vals[1]));
  			} else if ("color".equalsIgnoreCase(vals[0])) {
