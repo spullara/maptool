@@ -853,6 +853,25 @@ public class Zone extends BaseModel {
 			}
 		} 
 		
+		// Look for the bizarre z-ordering disappearing trick
+		boolean foundZero = false;
+		boolean fixZOrder = false;
+		for (Token token : tokenOrderedList) {
+			if (token.getZOrder() == 0) {
+				if (foundZero) {
+					fixZOrder = true;
+					break;
+				}
+				foundZero = true;
+			}
+		}
+		if (fixZOrder) {
+			int z = 0;
+			for (Token token : tokenOrderedList) {
+				token.setZOrder(z++);
+			}
+		}
+		
 		return this;
 	}
 }
