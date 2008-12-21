@@ -78,6 +78,8 @@ public class AppStyle {
 	public static BufferedImage arrowRight;
 	public static BufferedImage arrowLeft;
 	
+	public static BufferedImage lightSourceIcon;
+	
 	static {
 		
 		try {
@@ -113,6 +115,7 @@ public class AppStyle {
 			arrowRight = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/arrow_right.png");
 			arrowLeft = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/arrow_left.png");
 			
+			lightSourceIcon = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/lightbulb.png");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}

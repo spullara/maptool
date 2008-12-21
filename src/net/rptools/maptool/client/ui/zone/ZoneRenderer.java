@@ -118,6 +118,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     public static final int MIN_GRID_SIZE = 10;
     
+    private static LightSourceIconOverlay lightSourceIconOverlay = new LightSourceIconOverlay();
+    
     protected Zone zone;
 
     private ZoneView zoneView;
@@ -679,6 +681,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         timer.stop("overlays");
         
         renderCoordinates(g2d, view);
+
+        if (view.isGMView() && AppState.isShowLightSources()) {
+        	lightSourceIconOverlay.paintOverlay(this, g2d);
+        }
         
 //        if (lightSourceArea != null) {
 //	        g2d.setColor(Color.yellow);

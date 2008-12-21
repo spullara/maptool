@@ -724,6 +724,24 @@ public class AppActions {
 
 	};
 
+	public static final Action TOGGLE_SHOW_LIGHT_SOURCES = new AdminClientAction() {
+		{
+			init("action.showLightSources");
+		}
+
+		@Override
+		public boolean isSelected() {
+			return AppState.isShowLightSources();
+		}
+
+		public void execute(ActionEvent e) {
+
+			AppState.setShowLightSources(!AppState.isShowLightSources());
+			MapTool.getFrame().refresh();
+		}
+
+	};
+
 	public static final Action TOGGLE_SHOW_MOVEMENT_MEASUREMENTS = new DefaultClientAction() {
 		{
 			init("action.showMovementMeasures");
