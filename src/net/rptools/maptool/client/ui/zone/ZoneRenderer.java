@@ -1154,10 +1154,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     }
     
     protected void renderMoveSelectionSets(Graphics2D g, PlayerView view) {
-    
-        Grid grid = zone.getGrid();
+
+        if (selectionSetMap.size() == 0) {
+        	return;
+        }
+        	
         double scale = zoneScale.getScale();
-        
+
+        boolean clipInstalled = false;
         Set<SelectionSet> selections = new HashSet<SelectionSet>();
         selections.addAll(selectionSetMap.values());
         for (SelectionSet set : selections) {
@@ -1206,12 +1210,18 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 
                 // Vision visibility
                 Rectangle clip = g.getClipBounds();
-                if (!view.isGMView() && !isOwner && zoneView.isUsingVision() && visibleScreenArea != null) {
+                if (!view.isGMView() && visibleScreenArea != null) {
 
-                    // Only show the part of the path that is visible
-                	Area clipArea = new Area(clip);
-                	clipArea.intersect(visibleScreenArea);
-                    g.setClip(clipArea);
+                	if (!clipInstalled) {
+                    	// Only show the part of the path that is visible
+                    	Area visibleArea = new Area(g.getClipBounds());
+                    	visibleArea.intersect(visibleScreenArea);
+
+                    	g = (Graphics2D)g.create();
+                    	g.setClip(new GeneralPath(visibleArea));
+                    	
+                    	clipInstalled = true;
+                	}
                 }
                 
                 // Show path only on the key token
@@ -1356,8 +1366,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                    }
                     }
                 }
-                g.setClip(clip);
-                
             }
 
         }
