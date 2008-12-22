@@ -332,8 +332,15 @@ public class MacroButtonProperties implements Comparable<Object> {
 					}
 					if(saveLocation.equals("Campaign") || !allowPlayerEdits) {
 						trusted = true;
+					} 
+					
+					String loc = "token";				
+					if  (saveLocation.equals("Global")) {
+						loc = "global";
+					} else if (saveLocation.equals("Campaign")) {
+						loc = "Campaign";
 					}
-					MapToolMacroContext newMacroContext = new MapToolMacroContext(label, contextToken.getName(), trusted, index);
+					MapToolMacroContext newMacroContext = new MapToolMacroContext(label, loc, trusted, index);
 					MapTool.getFrame().getCommandPanel().commitCommand(newMacroContext);
 				}
 			}

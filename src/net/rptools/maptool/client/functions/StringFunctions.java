@@ -28,7 +28,7 @@ public class StringFunctions extends AbstractFunction {
 				"length", "upper", "lower", "indexOf", "lastIndexOf",
 				"trim", "strformat", "matches", "string", "number", "isNumber",
 				"strfind", "getFindCount", "getGroup", "getGroupStart", "getGroupEnd", "getGroupCount",
-				"encode", "decode");
+				"encode", "decode", "startsWith", "endsWith");
 	}
 
 
@@ -290,6 +290,22 @@ public class StringFunctions extends AbstractFunction {
 			
 			return decoded;
 			
+		}
+
+		if (functionName.equals("startsWith")) {
+			if (parameters.size() < 2) {
+				throw new ParserException("Not enough arguments for startsWith(string, substring)");
+			}		
+			return parameters.get(0).toString().startsWith(parameters.get(1).toString()) ?
+					BigDecimal.ONE : BigDecimal.ZERO;
+		}
+		
+		if (functionName.equals("endsWith")) {
+			if (parameters.size() < 2) {
+				throw new ParserException("Not enough arguments for endsWith(string, substring)");
+			}		
+			return parameters.get(0).toString().endsWith(parameters.get(1).toString()) ?
+					BigDecimal.ONE : BigDecimal.ZERO;
 		}
 
 

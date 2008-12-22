@@ -123,6 +123,9 @@ public class MapToolLineParser {
 	/** Name and Source or macros that come from chat. */
 	public static String CHAT_INPUT = "chat";
 	
+	/** Name of macro to divert calls to unknown macros on a lib macro to. */
+	public static String UNKNOWN_LIB_MACRO = "!!unknown-macro!!";
+
 	
 	/** Stack that holds our contexts. */
 	private final Stack<MapToolMacroContext> contextStack = new Stack<MapToolMacroContext>();
@@ -1423,12 +1426,17 @@ public class MapToolLineParser {
 	public String getTokenLibMacro(String macro, String location) throws ParserException {
 		Token token = getTokenMacroLib(location);
 		if (token == null) {
-			return null;
+			throw new ParserException("Unknown Library token (" + location + ")");
 		}
 		MacroButtonProperties buttonProps = token.getMacro(macro, false);
 		if (buttonProps == null) {
-			throw new ParserException("Uknown macro " + macro + "@" + location);
+			// Try the "unknown macro"
+			buttonProps = token.getMacro(UNKNOWN_LIB_MACRO, false);
+			if (buttonProps == null) {
+				throw new ParserException("Unknown macro " + macro + "@" + location);
+			}
 		}
+
 		return buttonProps.getCommand();
 	}
 	
