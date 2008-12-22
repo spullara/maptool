@@ -25,10 +25,12 @@ import java.awt.event.ActionListener;
 
 import com.jeta.forms.components.panel.FormPanel;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton;
 import net.rptools.maptool.model.MacroButtonProperties;
+import net.rptools.maptool.model.Token;
 
 public class MacroButtonDialog extends JDialog {
 
@@ -36,11 +38,18 @@ public class MacroButtonDialog extends JDialog {
 	MacroButton button;
 	MacroButtonProperties properties;
 	boolean isTokenMacro = false;
+	int oldHashCode = 0;
+	Boolean startingCompareGroup;
+	Boolean startingCompareSortPrefix;
+	Boolean startingCompareCommand;
+	Boolean startingCompareIncludeLabel;
+	Boolean startingCompareAutoExecute;
+	Boolean startingCompareApplyToSelectedTokens;
+	Boolean startingAllowPlayerEdits;
 	
-	public MacroButtonDialog(boolean isTokenMacro) {
-		super (MapTool.getFrame(), "", true);
+	public MacroButtonDialog() {
 		
-		this.isTokenMacro = isTokenMacro;
+		super (MapTool.getFrame(), "", true);
 		panel = new FormPanel("net/rptools/maptool/client/ui/forms/macroButtonDialog.jfrm");
 		setContentPane(panel);
 
@@ -54,6 +63,7 @@ public class MacroButtonDialog extends JDialog {
 		panel.getCheckBox("applyToTokensCheckBox").setEnabled(!isTokenMacro);
 		panel.getComboBox("hotKey").setEnabled(!isTokenMacro);
 		panel.getTextField("maxWidth").setEnabled(false); // can't get max-width to work, so temporarily disabling it.
+		panel.getCheckBox("allowPlayerEditsCheckBox").setEnabled(MapTool.getPlayer().isGM());
 		
 		pack();
 	}
@@ -112,23 +122,68 @@ public class MacroButtonDialog extends JDialog {
 	
 	public void show(MacroButton button) {
 		this.button = button;
+		this.isTokenMacro = button.getToken() == null ? false : true;
 		this.properties = button.getProperties();
-		
-		getColorComboBox().setSelectedItem(properties.getColorKey());
-		getHotKeyCombo().setSelectedItem(properties.getHotKey());
-		getLabelTextField().setText(properties.getLabel());
-		getGroupTextField().setText(properties.getGroup());
-		getSortbyTextField().setText(properties.getSortby());
-		getCommandTextArea().setText(properties.getCommand());
-		getAutoExecuteCheckBox().setSelected(properties.getAutoExecute());
-		getIncludeLabelCheckBox().setSelected(properties.getIncludeLabel());
-		getApplyToTokensCheckBox().setSelected(properties.getApplyToTokens());
-		getFontColorComboBox().setSelectedItem(properties.getFontColorKey());
-		getFontSizeComboBox().setSelectedItem(properties.getFontSize());
-		getMinWidthTextField().setText(properties.getMinWidth());
-		getMaxWidthTextField().setText(properties.getMaxWidth());
-		
-		setVisible(true);
+		oldHashCode = properties.hashCodeForComparison();
+		if(properties != null) {
+			Boolean playerCanEdit = !MapTool.getPlayer().isGM() && properties.getAllowPlayerEdits();
+			Boolean onGlobalPanel = properties.getSaveLocation().equals("Global");
+			Boolean allowEdits = onGlobalPanel || MapTool.getPlayer().isGM() || playerCanEdit;
+			Boolean isCommonMacro = button.getPanelClass().equals("SelectionPanel") && MapTool.getFrame().getSelectionPanel().getCommonMacros().contains(properties);
+			if(allowEdits) {
+				this.setTitle("Macro ID: " + Integer.toString(this.properties.hashCodeForComparison()));
+				
+				getColorComboBox().setSelectedItem(properties.getColorKey());
+				getHotKeyCombo().setSelectedItem(properties.getHotKey());
+				getLabelTextField().setText(properties.getLabel());
+				getGroupTextField().setText(properties.getGroup());
+				getSortbyTextField().setText(properties.getSortby());
+				getCommandTextArea().setText(properties.getCommand());
+				getAutoExecuteCheckBox().setSelected(properties.getAutoExecute());
+				getIncludeLabelCheckBox().setSelected(properties.getIncludeLabel());
+				getApplyToTokensCheckBox().setSelected(properties.getApplyToTokens());
+				getFontColorComboBox().setSelectedItem(properties.getFontColorKey());
+				getFontSizeComboBox().setSelectedItem(properties.getFontSize());
+				getMinWidthTextField().setText(properties.getMinWidth());
+				getMaxWidthTextField().setText(properties.getMaxWidth());
+				getCompareGroupCheckBox().setSelected(properties.getCompareGroup());
+				getCompareSortPrefixCheckBox().setSelected(properties.getCompareSortPrefix());
+				getCompareCommandCheckBox().setSelected(properties.getCompareCommand());
+				getCompareIncludeLabelCheckBox().setSelected(properties.getCompareIncludeLabel());
+				getCompareAutoExecuteCheckBox().setSelected(properties.getCompareAutoExecute());
+				getCompareApplyToSelectedTokensCheckBox().setSelected(properties.getCompareApplyToSelectedTokens());
+				getAllowPlayerEditsCheckBox().setSelected(properties.getAllowPlayerEdits());
+				
+				if(isCommonMacro) {
+					getColorComboBox().setEnabled(false);
+					getHotKeyCombo().setEnabled(false);
+					getGroupTextField().setEnabled(properties.getCompareGroup());
+					getSortbyTextField().setEnabled(properties.getCompareSortPrefix());
+					getCommandTextArea().setEnabled(properties.getCompareCommand());
+					getAutoExecuteCheckBox().setEnabled(properties.getCompareAutoExecute());
+					getIncludeLabelCheckBox().setEnabled(properties.getCompareIncludeLabel());
+					getApplyToTokensCheckBox().setEnabled(properties.getCompareApplyToSelectedTokens());
+					getFontColorComboBox().setEnabled(false);
+					getFontSizeComboBox().setEnabled(false);
+					getMinWidthTextField().setEnabled(false);
+					getMaxWidthTextField().setEnabled(false);
+				}
+				
+				startingCompareGroup = properties.getCompareGroup();
+				startingCompareSortPrefix = properties.getCompareSortPrefix();
+				startingCompareCommand = properties.getCompareCommand();
+				startingCompareAutoExecute = properties.getCompareAutoExecute();
+				startingCompareIncludeLabel = properties.getCompareIncludeLabel();
+				startingCompareApplyToSelectedTokens = properties.getCompareApplyToSelectedTokens();
+				startingAllowPlayerEdits = properties.getAllowPlayerEdits();
+				
+				setVisible(true);
+			} else {
+				MapTool.showWarning("The GM has not allowed players to change this macro!");
+			}
+		} else {
+			MapTool.showError("Button properties are null.");
+		}
 	}
 	
 	private void save() {
@@ -150,8 +205,94 @@ public class MacroButtonDialog extends JDialog {
 		properties.setFontSize(getFontSizeComboBox().getSelectedItem().toString());
 		properties.setMinWidth(getMinWidthTextField().getText());
 		properties.setMaxWidth(getMaxWidthTextField().getText());
+		properties.setCompareGroup(getCompareGroupCheckBox().isSelected());
+		properties.setCompareSortPrefix(getCompareSortPrefixCheckBox().isSelected());
+		properties.setCompareCommand(getCompareCommandCheckBox().isSelected());
+		properties.setCompareIncludeLabel(getCompareIncludeLabelCheckBox().isSelected());
+		properties.setCompareAutoExecute(getCompareAutoExecuteCheckBox().isSelected());
+		properties.setCompareApplyToSelectedTokens(getCompareApplyToSelectedTokensCheckBox().isSelected());
+		properties.setAllowPlayerEdits(getAllowPlayerEditsCheckBox().isSelected());
 		properties.save();
+		
+		if(button.getPanelClass().equals("SelectionPanel")) {
+			if(MapTool.getFrame().getSelectionPanel().getCommonMacros().contains(button.getProperties())) {
+				Boolean changeAllowPlayerEdits = false;
+				Boolean endingAllowPlayerEdits = false;
+				if(startingAllowPlayerEdits) {
+					if(!properties.getAllowPlayerEdits()) {
+						Boolean confirmDisallowPlayerEdits = MapTool.confirm("<html><body>Are you " +
+								"sure you wish to prevent players from editing any macro common to " +
+								"this one?<br><br>Select \"Yes\" to continue with the change.  " +
+								"Select \"No\" to revert.</body></html>");
+						if(confirmDisallowPlayerEdits) {
+							changeAllowPlayerEdits = true;
+							endingAllowPlayerEdits = false;
+						} else {
+							properties.setAllowPlayerEdits(true);
+						}
+					}
+				} else {
+					if(properties.getAllowPlayerEdits()) {
+						Boolean confirmAllowPlayerEdits = MapTool.confirm("<html><body>Are you sure " +
+								"you wish to allow players from editing any macro common to this one?" +
+								"<br><br>Select \"Yes\" to continue with the change.  Select \"No\" " +
+								"to revert.</body></html>");
+						if(confirmAllowPlayerEdits) {
+							changeAllowPlayerEdits = true;
+							endingAllowPlayerEdits = true;
+						} else {
+							properties.setAllowPlayerEdits(false);
+						}
+					}
+				}
+				Boolean trusted = true;
+				for(Token nextToken : MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList()) {
+					if(AppUtil.playerOwns(nextToken)) {
+						trusted = true;
+					} else {
+						trusted = false;
+					}
+					for(MacroButtonProperties nextMacro : nextToken.getMacroList(trusted)) {
+						if(MapTool.getPlayer().isGM() || (!MapTool.getPlayer().isGM() && nextMacro.getApplyToTokens())) {
+							if(nextMacro.hashCodeForComparison() == oldHashCode) {
+								nextMacro.setLabel(properties.getLabel());
+								if(properties.getCompareGroup() && startingCompareGroup) {
+									nextMacro.setGroup(properties.getGroup());
+								}
+								if(properties.getCompareSortPrefix() && startingCompareSortPrefix) {
+									nextMacro.setSortby(properties.getSortby());
+								}
+								if(properties.getCompareCommand() && startingCompareCommand) {
+									nextMacro.setCommand(properties.getCommand());
+								}
+								if(properties.getCompareAutoExecute() && startingCompareAutoExecute) {
+									nextMacro.setAutoExecute(properties.getAutoExecute());
+								}
+								if(properties.getCompareIncludeLabel() && startingCompareIncludeLabel) {
+									nextMacro.setIncludeLabel(properties.getIncludeLabel());
+								}
+								if(properties.getCompareApplyToSelectedTokens() && startingCompareApplyToSelectedTokens) {
+									nextMacro.setApplyToTokens(properties.getApplyToTokens());
+								}
+								if(changeAllowPlayerEdits) {
+									nextMacro.setAllowPlayerEdits(endingAllowPlayerEdits);
+								}
+								nextMacro.setCompareGroup(properties.getCompareGroup());
+								nextMacro.setCompareSortPrefix(properties.getCompareSortPrefix());
+								nextMacro.setCompareCommand(properties.getCompareCommand());
+								nextMacro.setCompareAutoExecute(properties.getCompareAutoExecute());
+								nextMacro.setCompareIncludeLabel(properties.getCompareIncludeLabel());
+								nextMacro.setCompareApplyToSelectedTokens(properties.getCompareApplyToSelectedTokens());
+								nextMacro.save();
+							}
+						}
+					}				
+				}
+			}
+		}
+		
 		setVisible(false);
+		MapTool.getFrame().getSelectionPanel().reset();
 	}
 	
 	private void cancel() {
@@ -210,4 +351,30 @@ public class MacroButtonDialog extends JDialog {
 		return panel.getTextField("maxWidth");
 	}
 	
+	private JCheckBox getAllowPlayerEditsCheckBox() {
+		return panel.getCheckBox("allowPlayerEditsCheckBox");
+	}
+	
+	// Begin comparison customization
+	
+	private JCheckBox getCompareIncludeLabelCheckBox() {
+		return  panel.getCheckBox("commonUseIncludeLabel");
+	}
+	private JCheckBox getCompareAutoExecuteCheckBox() {
+		return  panel.getCheckBox("commonUseAutoExecute");
+	}
+	private JCheckBox getCompareApplyToSelectedTokensCheckBox() {
+		return  panel.getCheckBox("commonUseApplyToSelectedTokens");
+	}
+	private JCheckBox getCompareGroupCheckBox() {
+		return  panel.getCheckBox("commonUseGroup");
+	}
+	private JCheckBox getCompareSortPrefixCheckBox() {
+		return  panel.getCheckBox("commonUseSortPrefix");
+	}
+	private JCheckBox getCompareCommandCheckBox() {
+		return  panel.getCheckBox("commonUseCommand");
+	}
+	
+	// End comparison customization
 }

@@ -31,6 +31,7 @@ public class AppStyle {
 	public static ImageBorder selectedStampBorder = ImageBorder.BLUE;
 	public static ImageBorder miniMapBorder = AppConstants.GRAY_BORDER;
 	public static ImageBorder shadowBorder = AppConstants.SHADOW_BORDER;
+	public static ImageBorder commonMacroBorder = AppConstants.HIGHLIGHT_BORDER;
 
 	public static Font labelFont = Font.decode("serif-NORMAL-12");
 	

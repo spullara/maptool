@@ -67,7 +67,7 @@ public class AreaGroup extends AbstractButtonGroup {
 	}
 	
 	public void drawArea(){
-		if (getToken() == null || getGroupLabel().equals("")){
+		if (getToken() == null && getGroupLabel().equals("")){
 			// don't put an extra border around the campaign/global panels, or if there is no label
 		} else {
 			ThumbnailedBorder border = createBorder(getGroupLabel());
@@ -83,20 +83,20 @@ public class AreaGroup extends AbstractButtonGroup {
 		Collections.sort(propertiesList);
 
 		if (propertiesList.isEmpty()){
-			add(new ButtonGroup(propertiesList, "", getPanel(), getTokenId()));
+			add(new ButtonGroup(propertiesList, "", getPanel(), getTokenId(), this));
 		} else {
 			// build separate button groups for each user-defined group
 			for (MacroButtonProperties prop : propertiesList) {
 				currentGroup = prop.getGroup();
 				if ( !groupList.isEmpty() && !lastGroup.equalsIgnoreCase(currentGroup)){
-					add(new ButtonGroup(groupList, lastGroup, getPanel(), getTokenId()));
+					add(new ButtonGroup(groupList, lastGroup, getPanel(), getTokenId(), this));
 					groupList.clear();
 				}
 				lastGroup = currentGroup;
 				groupList.add(prop);
 			}
 			if (!groupList.isEmpty()){
-				add(new ButtonGroup(groupList, lastGroup, getPanel(), getTokenId()));
+				add(new ButtonGroup(groupList, lastGroup, getPanel(), getTokenId(), this));
 				groupList.clear();
 			}
 		}
@@ -148,7 +148,7 @@ public class AreaGroup extends AbstractButtonGroup {
 				return;
 			}
 			// open button group menu
-			new ButtonGroupPopupMenu(getPanelClass(), getMacroGroup() ,token).show(this, event.getX(), event.getY());
+			new ButtonGroupPopupMenu(getPanelClass(), this, getMacroGroup() ,token).show(this, event.getX(), event.getY());
 		}
 	}
 	

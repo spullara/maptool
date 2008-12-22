@@ -1940,6 +1940,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 double height = footprintBounds.height * getScale();
 
                 ImageBorder selectedBorder = token.isStamp() ? AppStyle.selectedStampBorder : AppStyle.selectedBorder;
+                if(highlightCommonMacros.contains(token)) {
+                	selectedBorder = AppStyle.commonMacroBorder;
+                }
                 // Border
                 if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp ())) {
                     AffineTransform oldTransform = g.getTransform();
@@ -2748,5 +2751,20 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         return zone.getCreationTime() < ((ZoneRenderer)o).zone.getCreationTime() ? -1 : 1;
     }
+    
+    // Begin token common macro identification
+        
+    private List<Token> highlightCommonMacros = new ArrayList<Token>();
+    
+    public List<Token> getHighlightCommonMacros() {
+    	return highlightCommonMacros;
+    }
+    
+    public void setHighlightCommonMacros(List<Token> affectedTokens) {
+    	highlightCommonMacros = affectedTokens;
+    	repaint();
+    }
+    
+    // End token common macro identification
 }
 

@@ -29,6 +29,8 @@ import java.awt.dnd.DragSourceEvent;
 import java.awt.dnd.DragSourceListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -182,18 +184,69 @@ public class MacroButton extends JButton implements MouseListener
 	public void mouseReleased(MouseEvent event)	{
 		if (SwingUtilities.isLeftMouseButton(event)) {
 			properties.executeMacro(SwingUtil.isShiftDown(event));
-		} else if (SwingUtilities.isRightMouseButton(event) && !buttonGroup.getGroupLabel().equalsIgnoreCase("Common Macros")) {
-			if (getPanelClass()=="CampaignPanel" && !MapTool.getPlayer().isGM()) {
-				return;
+		} else if (SwingUtilities.isRightMouseButton(event)) {
+			if(getPanelClass().equals("GlobalPanel")) {
+				new MacroButtonPopupMenu(this, panelClass, false).show(this, event.getX(), event.getY());
+			} else if(getPanelClass().equals("CampaignPanel")) {
+				if(MapTool.getPlayer().isGM()) {
+					new MacroButtonPopupMenu(this, panelClass, false).show(this, event.getX(), event.getY());
+				} else {
+					if(properties.getAllowPlayerEdits()) {
+						new MacroButtonPopupMenu(this, panelClass, false).show(this, event.getX(), event.getY());
+					}
+				}
+			} else if(getPanelClass().equals("SelectionPanel") || getPanelClass().equals("ImpersonatePanel")){
+				if(MapTool.getFrame().getSelectionPanel().getCommonMacros().contains(properties)) {
+					if(MapTool.getPlayer().isGM()) {
+						new MacroButtonPopupMenu(this, panelClass, true).show(this, event.getX(), event.getY());
+					} else {
+						if(properties.getAllowPlayerEdits()) {
+							new MacroButtonPopupMenu(this, panelClass, true).show(this, event.getX(), event.getY());
+						}
+					}
+				} else {
+					if(MapTool.getPlayer().isGM()) {
+						new MacroButtonPopupMenu(this, panelClass, false).show(this, event.getX(), event.getY());
+					} else {
+						if(properties.getAllowPlayerEdits()) {
+							new MacroButtonPopupMenu(this, panelClass, false).show(this, event.getX(), event.getY());
+						}
+					}
+				}
 			}
-			new MacroButtonPopupMenu(this, panelClass).show(this, event.getX(), event.getY());
 		}
 	}
 	
 	public void mouseEntered(MouseEvent event) {
+		List<Token> selectedTokens = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList();
+		if(SwingUtil.isShiftDown(event) || getProperties().getApplyToTokens()) {
+			MapTool.getFrame().getCurrentZoneRenderer().setHighlightCommonMacros(selectedTokens);			
+		} else {
+			if(getPanelClass() == "SelectionPanel") {
+				List<Token> affectedTokens = new ArrayList<Token>();
+				if(getProperties().getCommonMacro()) {
+					for(Token nextSelected : selectedTokens) {
+						Boolean isCommonToToken = false;
+						for(MacroButtonProperties nextMacro : nextSelected.getMacroList(true)) {
+							if(nextMacro.hashCodeForComparison() == getProperties().hashCodeForComparison()) {
+								isCommonToToken = true;
+							}
+						}
+						if(isCommonToToken) {
+							affectedTokens.add(nextSelected);
+						}
+					}
+				} else if (getProperties().getToken() != null){
+					affectedTokens.add(getProperties().getToken());
+				}
+				MapTool.getFrame().getCurrentZoneRenderer().setHighlightCommonMacros(affectedTokens);
+			}
+		}
 	}
 
 	public void mouseExited(MouseEvent event) {
+		List<Token> affectedTokens = new ArrayList<Token>();
+		MapTool.getFrame().getCurrentZoneRenderer().setHighlightCommonMacros(affectedTokens);
 	}
 
 	private void makeDraggable(Cursor cursor) {

@@ -29,7 +29,6 @@ import javax.swing.SwingUtilities;
 import net.rptools.lib.AppEvent;
 import net.rptools.lib.AppEventListener;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 import net.rptools.maptool.client.ui.macrobuttons.buttongroups.AreaGroup;
 import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroup;
 import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroupPopupMenu;
@@ -42,6 +41,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.Zone.Event;
 
+@SuppressWarnings("serial")
 public abstract class AbstractMacroPanel extends JPanel implements Scrollable, MouseListener, ModelChangeListener, AppEventListener {
 	
 	private String panelClass="";
@@ -162,7 +162,7 @@ public abstract class AbstractMacroPanel extends JPanel implements Scrollable, M
 				return;
 			}
 			// open button group menu
-			new ButtonGroupPopupMenu(getPanelClass(),"",getToken()).show(this, event.getX(), event.getY());
+			new ButtonGroupPopupMenu(getPanelClass(),null,"",getToken()).show(this, event.getX(), event.getY());
 		}
 	}
 	

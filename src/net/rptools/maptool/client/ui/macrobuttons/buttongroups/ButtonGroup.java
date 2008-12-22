@@ -37,10 +37,12 @@ import net.rptools.maptool.model.Token;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButtonPrefs;
 import net.rptools.maptool.model.MacroButtonProperties;
 
+@SuppressWarnings("serial")
 public class ButtonGroup extends AbstractButtonGroup {
 
 	// constructor for creating a normal button group
-	public ButtonGroup(List<MacroButtonProperties> propertiesList, String group, AbstractMacroPanel panel, GUID tokenId) {
+	public ButtonGroup(List<MacroButtonProperties> propertiesList, String group, AbstractMacroPanel panel, GUID tokenId, AreaGroup area) {
+		setArea(area);
 		setPropertiesList(propertiesList);
 		setPanel(panel);
 		setPanelClass(panel.getPanelClass());
@@ -52,21 +54,9 @@ public class ButtonGroup extends AbstractButtonGroup {
 		drawButtons();
 	}
 
-	// constructor for creating the common macros group in the selection panel
-	public ButtonGroup(List<Token> tokenList, List<MacroButtonProperties> propertiesList, AbstractMacroPanel panel) {
-		setPropertiesList(propertiesList);
-		setPanel(panel);
-		setPanelClass(panel.getPanelClass());
-		setGroupClass("ButtonGroup");
-		setGroupLabel("Common Macros");
-		setTokenList(tokenList);
-		drawButtons();
-	}
-
 	protected void drawButtons(){
 		List<MacroButtonProperties> propertiesList = getPropertiesList();
 		String panelClass = getPanelClass();
-		Token token = getToken();
 		setOpaque(false);
 		if (getGroupLabel().equals("")){ 
 			setBorder(new ThumbnailedBorder(null, null));  // no label or icon, just solid border
@@ -118,21 +108,37 @@ public class ButtonGroup extends AbstractButtonGroup {
 				data.minWidth,
 				data.maxWidth);
 
-			if (getTokenList() != null) {
-				// this is a common group, copy macro to all selected tokens
-				event.acceptDrop(event.getDropAction());
-				for (Token token : getTokenList()) {
-					if (!tempProperties.isDuplicateMacro("Token", token)) {
-						new MacroButtonProperties(token, token.getMacroNextIndex(), tempProperties);
-					}
-				}
-			} else if (panelClass.equals("GlobalPanel") || panelClass.equals("CampaignPanel")) {
+			if (panelClass.equals("GlobalPanel")) {
 				event.acceptDrop(event.getDropAction());
 				tempProperties.setGroup(getMacroGroup());  // assign the group you are dropping it into, rather than the original
-				if (panelClass.equals("GlobalPanel") && !tempProperties.isDuplicateMacro("GlobalPanel", null)){
+				if (!tempProperties.isDuplicateMacro("GlobalPanel", null)){
 					new MacroButtonProperties(panelClass, MacroButtonPrefs.getNextIndex(), tempProperties);
-				} else if (panelClass.equals("CampaignPanel") && !tempProperties.isDuplicateMacro("CampaignPanel", null)){
+				}
+			} else if(panelClass.equals("CampaignPanel")) {
+				event.acceptDrop(event.getDropAction());
+				tempProperties.setGroup(getMacroGroup());  // assign the group you are dropping it into, rather than the original
+				if (!tempProperties.isDuplicateMacro("CampaignPanel", null)){
 					new MacroButtonProperties(panelClass, MapTool.getCampaign().getMacroButtonNextIndex(), tempProperties);
+				}
+			} else if(panelClass.equals("SelectionPanel")) {
+				if(getArea() != null) {
+					if(getArea().getGroupLabel().equals("Common Macros")) {
+						event.acceptDrop(event.getDropAction());
+						tempProperties.setGroup(getMacroGroup());  // assign the group you are dropping it into, rather than the original
+						for(Token nextToken : MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList()) {
+							if(!tempProperties.isDuplicateMacro("Token", nextToken)) {
+								new MacroButtonProperties(nextToken, nextToken.getMacroNextIndex(), tempProperties);
+							}
+						}
+					} else if (getToken() != null){
+						// this is a token group, copy macro to token
+						event.acceptDrop(event.getDropAction());
+						tempProperties.setGroup(getMacroGroup());  // assign the group you are dropping it into, rather than the original
+						Token token = getToken();
+						if (!tempProperties.isDuplicateMacro("Token", token)) {
+							new MacroButtonProperties(token, token.getMacroNextIndex(), tempProperties);
+						}
+					}
 				}
 			} else if (getToken() != null) {
 				// this is a token group, copy macro to token

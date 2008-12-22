@@ -62,6 +62,7 @@ public abstract class AbstractButtonGroup extends JPanel implements DropTargetLi
 	private String groupClass = "";
 	private String macroGroup = "";
 	private int spacerHeight=0;
+	private AreaGroup area;
 	
 	public void dragEnter(DropTargetDragEvent event) {
 		//System.out.println("BG: drag enter");
@@ -152,6 +153,7 @@ public abstract class AbstractButtonGroup extends JPanel implements DropTargetLi
 	}
 	
 	public void setPropertiesList(List<MacroButtonProperties> propertiesList){
+		MacroButtonProperties.fixOldMacroSetCompare(propertiesList);
 		this.propertiesList = propertiesList;
 	}
 
@@ -165,6 +167,14 @@ public abstract class AbstractButtonGroup extends JPanel implements DropTargetLi
 	
 	public void setSpacerHeight (int height){
 		this.spacerHeight = height;
+	}
+	
+	public AreaGroup getArea() {
+		return area;
+	}
+	
+	public void setArea(AreaGroup newArea) {
+		area = newArea;
 	}
 	
 	protected String getTokenName(Token token) {
@@ -190,7 +200,7 @@ public abstract class AbstractButtonGroup extends JPanel implements DropTargetLi
 				return;
 			}
 			// open button group menu
-			new ButtonGroupPopupMenu(getPanelClass(),getMacroGroup(),token).show(this, event.getX(), event.getY());
+			new ButtonGroupPopupMenu(getPanelClass(),area,getMacroGroup(),token).show(this, event.getX(), event.getY());
 		}
 	}
 	
@@ -201,9 +211,13 @@ public abstract class AbstractButtonGroup extends JPanel implements DropTargetLi
 	}
 
 	protected ThumbnailedBorder createBorder(String label) {
-		ImageIcon i = new ImageIcon(ImageManager.getImageAndWait(AssetManager.getAsset(getToken().getImageAssetId())));
-		Image icon = i.getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT);
-		return new ThumbnailedBorder(icon, label);
+		if(getToken() != null) {
+			ImageIcon i = new ImageIcon(ImageManager.getImageAndWait(AssetManager.getAsset(getToken().getImageAssetId())));
+			Image icon = i.getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT);
+			return new ThumbnailedBorder(icon, label);
+		} else {
+			return new ThumbnailedBorder(null, label);
+		}
 	}
 
 	protected class ThumbnailedBorder extends AbstractBorder {
