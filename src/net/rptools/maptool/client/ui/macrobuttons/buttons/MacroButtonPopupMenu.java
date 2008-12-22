@@ -43,7 +43,7 @@ public class MacroButtonPopupMenu extends JPopupMenu{
 		this.button = parent;
 		this.panelClass = panelClass;
 		if(panelClass.equals("SelectionPanel")) {
-			if(MapTool.getFrame().getSelectionPanel().getCommonMacros().contains(button.getProperties())) {
+			if(button.getProperties().getCommonMacro()) {
 				addCommonActions();
 			} else {
 				addActions();
