@@ -340,8 +340,17 @@ public class MacroButtonProperties implements Comparable<Object> {
 					} else if (saveLocation.equals("Campaign")) {
 						loc = "Campaign";
 					}
-					MapToolMacroContext newMacroContext = new MapToolMacroContext(label, loc, trusted, index);
-					MapTool.getFrame().getCommandPanel().commitCommand(newMacroContext);
+					
+					if(contextToken != null) {
+						
+						MapToolMacroContext newMacroContext = new MapToolMacroContext(label, loc, trusted, index);
+						MapTool.getFrame().getCommandPanel().commitCommand(newMacroContext);
+
+					} else {
+						
+						MapToolMacroContext newMacroContext = new MapToolMacroContext(label, MapTool.getFrame().getCommandPanel().getIdentity(), trusted, index);
+						MapTool.getFrame().getCommandPanel().commitCommand(newMacroContext);
+					}
 				}
 			}
 
