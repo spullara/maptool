@@ -1618,17 +1618,22 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         Rectangle clipBounds = g.getClipBounds();
         double scale = zoneScale.getScale();
         Set<GUID> tempVisTokens = new HashSet<GUID>();
+
         for (Token token : tokenList) {
 
         	timer.start("tokenlist-1");
             if (token.isStamp() && isTokenMoving(token)) {
                 continue;
             }
+        	timer.stop("tokenlist-1");
+        	timer.start("tokenlist-1.1");
             
             TokenLocation location = tokenLocationCache.get(token);
             if (location != null && !location.maybeOnscreen(viewport)) {
             	continue;
             }
+        	timer.stop("tokenlist-1.1");
+        	timer.start("tokenlist-1a");
 
             // Don't bother if it's not visible
             // NOTE: Not going to use zone.isTokenVisible as it is very slow.  In fact, it's faster
@@ -1638,6 +1643,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
             
             Rectangle footprintBounds = token.getBounds(zone);
+        	timer.stop("tokenlist-1a");
+        	timer.start("tokenlist-1b");
             
             BufferedImage image = null;
             Asset asset = AssetManager.getAsset(token.getImageAssetId ());
@@ -1649,6 +1656,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
                 image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), this);
             }
+        	timer.stop("tokenlist-1b");
+        	timer.start("tokenlist-1c");
 
             double scaledWidth = (footprintBounds.width*scale);
             double scaledHeight = (footprintBounds.height*scale);
@@ -1660,6 +1669,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //            }
 
             ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint (this, footprintBounds.x, footprintBounds.y);
+        	timer.stop("tokenlist-1c");
+        	timer.start("tokenlist-1d");
             
             // Tokens are centered on the image center point
             double x = tokenScreenLocation.x;
@@ -1670,6 +1681,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
                 tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth/2 + x - (token.getAnchor().x*scale), scaledHeight/2 + y - (token.getAnchor().y*scale))); // facing defaults to down, or -90 degrees
             }
+        	timer.stop("tokenlist-1d");
+        	timer.start("tokenlist-1e");
             
             location = new TokenLocation(tokenBounds, origBounds, token, x, y, footprintBounds.width, footprintBounds.height, scaledWidth, scaledHeight);
             tokenLocationCache.put(token, location);
@@ -1685,6 +1698,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     continue;
                 }
             }
+        	timer.stop("tokenlist-1e");
+        	timer.start("tokenlist-1f");
 
             // Markers
             if (token.isMarker() && canSeeMarker(token)) {
@@ -1698,7 +1713,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             // Add the token to our visible set.
             tempVisTokens.add(token.getId());
-        	timer.stop("tokenlist-1");
+        	timer.stop("tokenlist-1f");
         	timer.start("tokenlist-2");
             
             // Stacking check
@@ -2544,9 +2559,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     		offsetX = getViewOffsetX();
     		offsetY = getViewOffsetY();
 
+    		timer.start("maybeOnsceen");
     		if (!boundsCache.intersects(viewport)) {
+        		timer.stop("maybeOnsceen");
         		return false;
         	}
+    		timer.stop("maybeOnsceen");
             return true;
         }
 
