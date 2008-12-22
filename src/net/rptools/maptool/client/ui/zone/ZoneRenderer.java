@@ -716,6 +716,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     private void renderLights(Graphics2D g, PlayerView view) {
 
     	// Setup
+        timer.start("lights-1");
     	Graphics2D newG = (Graphics2D)g.create();
     	Area clip = new Area(g.getClip());
     	if (visibleScreenArea != null) {
@@ -723,6 +724,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	}
     	newG.setClip(clip);
     	SwingUtil.useAntiAliasing(newG);
+        timer.stop("lights-1");
+        timer.start("lights-2");
 
 		AffineTransform af = g.getTransform();
     	af.translate(getViewOffsetX(), getViewOffsetY());
@@ -730,6 +733,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	newG.setTransform(af);
 
     	newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, AppPreferences.getVisionOverlayOpacity()/255.0f));
+        timer.stop("lights-2");
+        timer.start("lights-3");
 
     	// Organize
     	Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
@@ -742,6 +747,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     		
     		areaList.add(new Area(light.getArea()));
     	}    	
+        timer.stop("lights-3");
+        timer.start("lights-4");
 
     	// Combine same colors to avoid ugly overlap
     	for (List<Area> areaList : colorMap.values()) {
@@ -765,6 +772,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			}
     	}    	
     	
+        timer.stop("lights-4");
+        timer.start("lights-5");
     	
     	// Draw
     	for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {
@@ -775,6 +784,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     			newG.fill(area);
     		}
     	}
+        timer.stop("lights-5");
 
     }
     
