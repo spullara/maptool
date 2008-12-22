@@ -25,9 +25,18 @@ import net.rptools.maptool.model.TextMessage;
     )
 public class ToGMMacro extends AbstractRollMacro {
 
-    public void execute(MacroContext context, String macro) {
+    public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
 
-        MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), MapTool.getPlayer().getName() + " says to the GM: " + macro, context.getTransformationHistory()));
-    	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "You say to the GM: " + macro, context.getTransformationHistory()));
+    	StringBuilder sb = new StringBuilder();
+
+    	if (trusted && !MapTool.getPlayer().isGM()) {
+        	sb.append("<span style='background-color: #C9F7AD' ").append("title='").append(macroName).append("'>");
+        	sb.append(MapTool.getPlayer().getName()).append("</span>").append(" says to the GM: ");
+        	sb.append(macro);
+    	} else {
+        	sb.append(MapTool.getPlayer().getName()).append(" says to the GM: ").append(macro);
+    	}
+        MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(),  sb.toString(), context.getTransformationHistory()));
+		MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "You say to the GM: " + macro, context.getTransformationHistory()));
     }
 }

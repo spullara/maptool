@@ -44,7 +44,7 @@ public class HTMLFrameFactory {
 		int width = -1;
 		int height = -1;
 		String title = name;
-		boolean undecorated = false;
+		boolean hasFrame = true;
 
 		if (properties != null && properties.length() > 0) {
 			String[] opts = properties.split(";");
@@ -62,7 +62,7 @@ public class HTMLFrameFactory {
 					} catch (NumberFormatException e) {
 						// Do nothing
 					}
-				} else if (key.equals("temporary")) {
+				} else if (key.equals("temporary") || key.equals("undecorated")) {
 					try {
 						int v = Integer.parseInt(value);
 						if (v != 0) {
@@ -85,11 +85,11 @@ public class HTMLFrameFactory {
 					}					
 				} else if (key.equalsIgnoreCase("title")) {
 					title = value;
-				} else if (key.equalsIgnoreCase("undecorated")) {
+				} else if (key.equalsIgnoreCase("noframe")) {
 					try {
 						int v = Integer.parseInt(value);
 						if (v != 0) {
-							undecorated = true;
+							hasFrame = false;
 						}
 					} catch (NumberFormatException e) {
 						// Do nothing
@@ -101,7 +101,7 @@ public class HTMLFrameFactory {
 		if (isFrame) {
 			HTMLFrame.showFrame(name, title, width, height, html);
 		} else {
-			HTMLDialog.showDialog(name, title, width, height, input, undecorated, temporary, html);
+			HTMLDialog.showDialog(name, title, width, height, input, hasFrame, temporary, html);
 		}
 	}
 	
@@ -165,4 +165,20 @@ public class HTMLFrameFactory {
 		}		
 	}
 
+	
+	public static boolean isVisible(boolean isFrame, String name) {
+		if (isFrame) {
+			return HTMLFrame.isVisible(name);
+		} else {
+			return HTMLDialog.isVisible(name);
+		}
+	}
+	
+	public static void close(boolean isFrame, String name) {
+		if (isFrame) {
+			HTMLFrame.close(name);
+		} else {
+			HTMLDialog.close(name);
+		}
+	}
 }

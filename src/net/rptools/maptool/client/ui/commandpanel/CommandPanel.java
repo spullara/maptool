@@ -64,6 +64,7 @@ import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.client.ui.chat.ChatProcessor;
 import net.rptools.maptool.client.ui.chat.SmileyChatTranslationRuleGroup;
@@ -307,10 +308,19 @@ public class CommandPanel extends JPanel implements Observer {
 	 * do something like &{"laquo;"}.
 	 */
     private static final Pattern CHEATER_PATTERN = Pattern.compile("«|»|&#171;|&#187;|&laquo;|&raquo;|\036|\037");
-	/**
+
+    /**
 	 * Execute the command in the command field.
 	 */
 	public void commitCommand() {
+		commitCommand(null);
+	}
+	
+	/**
+	 * Execute the command in the command field.
+	 * @param macroContext The context we are calling the macro in.
+	 */
+    public void commitCommand(MapToolMacroContext macroContext) {
 		String text = commandTextArea.getText().trim();
 		if (text.length() == 0) {
 			return;

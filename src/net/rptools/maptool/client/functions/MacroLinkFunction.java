@@ -3,12 +3,17 @@ package net.rptools.maptool.client.functions;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.functions.AbortFunction.AbortFunctionException;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.MacroButtonProperties;
+import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -195,7 +200,11 @@ public class MacroLinkFunction extends AbstractFunction {
 			if (m.group(1).equalsIgnoreCase("macro")) {
 			
 				tip.append("<html>");
-				tip.append("<tr><th><u>&laquo;Macro Link&raquo;</b></u></th></tr>");
+				if (isAutoExecLink(link)) {
+					tip.append("<tr><th style='color: red'><u>&laquo;Auto Execute Macro Link&raquo;</b></u></th></tr>");
+				} else {
+					tip.append("<tr><th><u>&laquo;Macro Link&raquo;</b></u></th></tr>");					
+				}
 				tip.append("<table>");
 				tip.append("<tr><th>Output to</th><td>").append(m.group(3)).append("</td></td>");
 				tip.append("<tr><th>Command</th><td>").append(m.group(2)).append("</td></td>");
@@ -322,6 +331,8 @@ public class MacroLinkFunction extends AbstractFunction {
 							}
 						}
 					}
+				} catch (AbortFunctionException e) {
+					// Do nothing
 				} catch (ParserException e) {
 					MapTool.addLocalMessage(e.getMessage());
 				}
@@ -343,4 +354,69 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	}
 
+	/** 
+	 * Runs the macro specified by the link if it is auto executable otherwise does nothing..
+	 * @param link the link to the macro.
+	 */
+	public void processMacroLink(String link) {
+		if (isAutoExecLink(link)) {
+			runMacroLink(link);
+		}
+	}
+	
+	/** 
+	 * Runs the macro specified by the link if it is auto executable otherwise does nothing..
+	 * @param link the link to the macro.
+	 */	
+	private boolean isAutoExecLink(String link) {
+		Matcher m = Pattern.compile("([^:]*)://([^/]*)/([^/]*)/([^?]*)(?:\\?(.*))?").matcher(link);
+		
+		
+		if (m.matches()) {
+			if (m.group(1).equalsIgnoreCase("macro")) {
+				String command = m.group(2);
+				try {
+					String[] parts = command.split("@");
+					if (parts.length > 1) {
+						Token token = MapTool.getParser().getTokenMacroLib(parts[1]);
+						MacroButtonProperties mbp = token.getMacro(parts[0], false);
+						if (mbp == null) {
+							return false;
+						}
+						if (mbp.getAutoExecute()) {
+							// Next make sure that it is trusted
+							boolean trusted = true;
+
+							// If the token is not owned by everyone and all owners are GMs then we are in
+							// a secure context as players can not modify the macro so GM can sepcify what
+							// ever they want.
+							if (token != null) {
+								if (token.isOwnedByAll()) {
+									trusted = false;
+								} else {
+									Set<String> gmPlayers = new HashSet<String>(); 
+									for (Object o : MapTool.getPlayerList()) {
+										Player p = (Player)o;
+										if (p.isGM()) {
+											gmPlayers.add(p.getName());
+										}
+									}
+									for (String owner : token.getOwners())  {
+										if (!gmPlayers.contains(owner)) {
+											trusted = false;
+											break;
+										}
+									}
+								}
+							}
+							return trusted;
+						}
+					}
+				} catch (ParserException e) {
+					// TODO Should log this...
+				}
+			}
+		}
+		return false;
+	}
 }

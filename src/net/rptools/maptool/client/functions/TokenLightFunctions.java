@@ -16,6 +16,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
+import net.sf.json.JSONArray;
 
 public class TokenLightFunctions extends AbstractFunction {
 
@@ -96,8 +97,11 @@ public class TokenLightFunctions extends AbstractFunction {
 			}
 		}	
 		
-		return StringFunctions.getInstance().join(lightList, delim);
-		
+		if ("json".equals(delim)) {
+			return JSONArray.fromObject(lightList).toString();
+		} else {
+			return StringFunctions.getInstance().join(lightList, delim);
+		}
 	}
 
 

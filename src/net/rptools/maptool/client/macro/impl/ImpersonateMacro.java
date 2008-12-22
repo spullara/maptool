@@ -29,7 +29,7 @@ import net.rptools.maptool.model.Token;
     )
 public class ImpersonateMacro implements Macro {
 	
-	public void execute(MacroContext context, String macro) {
+	public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
 
 		macro = macro.trim();
 

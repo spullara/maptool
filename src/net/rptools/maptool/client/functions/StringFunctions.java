@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.VariableResolver;
@@ -338,6 +339,9 @@ public class StringFunctions extends AbstractFunction {
 	}
 
 
+	public String sanitize(String input) {
+		return input.replaceAll("«|»|&#171;|&#187;|&laquo;|&raquo;|\036|\037", "");
+	}
 	/**
 	 * Splits up a string based on a pattern and returns s string delimited list.
 	 * @param string The string to split up.
@@ -438,7 +442,6 @@ public class StringFunctions extends AbstractFunction {
 	public String replace(String string, String pattern, String replacement) {
 		return string.replaceAll(pattern, replacement);
 	}
-
 
 	/**
 	 * Matches the pattern against the input string and set variables in the resolver 

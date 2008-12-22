@@ -13,6 +13,9 @@ public class MapToolMacroContext {
 	/** Is the macro trusted or not. */
 	private final boolean trusted;
 	
+	/** The index of the button that was clicked on to fire of this macro*/
+	private int macroButtonIndex;
+	
 	
 	/** 
 	 * Creates a new Macro Context.
@@ -21,11 +24,24 @@ public class MapToolMacroContext {
 	 * @param trusted Is the macro trusted or not.
 	 */
 	public MapToolMacroContext(String name, String source, boolean trusted) {
+		this(name, source, trusted, -1);
+	}
+	
+	/** 
+	 * Creates a new Macro Context.
+	 * @param name The name of the macro.
+	 * @param source The source location of the macro.
+	 * @param trusted Is the macro trusted or not.
+	 * @param macroButtonIndex The index of the button that ran this command.
+	 */
+	public MapToolMacroContext(String name, String source, boolean trusted, int macroButtonIndex) {
 		this.name = name;
 		this.source = source;
 		this.trusted = trusted;
+		this.macroButtonIndex = macroButtonIndex;
 	}
 
+	
 	
 	/**
 	 * Gets the name of the macro context.
@@ -49,5 +65,14 @@ public class MapToolMacroContext {
 	 */
 	public boolean isTrusted() {
 		return trusted;
+	}
+	
+	
+	/**
+	 * Gets the index of the macro button that this macro is in
+	 * @return the index of the macro button.
+	 */
+	public int getMacroButtonIndex() {
+		return macroButtonIndex;
 	}
 }

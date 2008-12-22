@@ -162,6 +162,16 @@ public class MessagePanel extends JPanel {
 				// Auto inline expansion
 				text = text.replaceAll("(^|\\s)(http://[a-zA-Z0-9_\\.%-/~?]+)", "$1<a href=\"$2\">$2</a>");
 				Element element = document.getElement("body");
+				
+				
+				if (!message.getSource().equals(MapTool.getPlayer().getName())) {
+					Matcher m = Pattern.compile("href=[\"']?\\s*(([^:]*)://(?:[^/]*)/(?:[^?]*)(?:\\?(?:.*))?)[\"']\\s*").matcher(message.getMessage());
+					while (m.find()) {
+						if (m.group(2).equalsIgnoreCase("macro")) {
+							MacroLinkFunction.getInstance().processMacroLink(m.group(1));
+						}
+					}
+				}
 				try {
 					document.insertBeforeEnd(element, text);
 				} catch (IOException ioe) {

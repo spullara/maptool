@@ -7,6 +7,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
+import net.sf.json.JSONArray;
 
 public class TokenSpeechFunctions extends AbstractFunction {
 	
@@ -47,8 +48,12 @@ public class TokenSpeechFunctions extends AbstractFunction {
 		
 		if (functionName.equals("getSpeechNames")) {
 			String[] speech = new String[token.getSpeechNames().size()];
-			String delim = parameters.size() > 1 ? parameters.get(1).toString() : ",";
-			return StringFunctions.getInstance().join(token.getSpeechNames().toArray(speech), delim);
+			String delim = parameters.size() > 0 ? parameters.get(0).toString() : ",";
+			if ("json".equals(delim)) {
+				return JSONArray.fromObject(token.getSpeechNames()).toString();
+			} else {
+				return StringFunctions.getInstance().join(token.getSpeechNames().toArray(speech), delim);
+			}
 		}
 		return null;
 	}

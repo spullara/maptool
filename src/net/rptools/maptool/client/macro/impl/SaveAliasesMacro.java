@@ -39,7 +39,7 @@ import net.rptools.maptool.client.macro.MacroManager;
 )
 public class SaveAliasesMacro implements Macro {
 
-    public void execute(MacroContext context, String macro) {
+    public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
     	
     	File aliasFile = null;
     	if (macro.length() > 0) {

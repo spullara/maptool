@@ -9,6 +9,7 @@ import net.rptools.maptool.model.Player;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
+import net.sf.json.JSONArray;
 
 public class PlayerFunctions extends AbstractFunction {
 	
@@ -43,8 +44,11 @@ public class PlayerFunctions extends AbstractFunction {
 			}
 			
 			String delim = parameters.size() > 0 ? parameters.get(0).toString() : ",";
-			
-			return StringFunctions.getInstance().join(playerArray, delim);
+			if ("json".equals(delim)) {
+				return JSONArray.fromObject(playerArray).toString();
+			} else {
+				return StringFunctions.getInstance().join(playerArray, delim);
+			}
 		}
 	}
 

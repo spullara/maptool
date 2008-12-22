@@ -33,7 +33,7 @@ import net.rptools.maptool.model.ZonePoint;
 public class GotoMacro implements Macro {
 	private static Pattern COORD_PAT = Pattern.compile("(-?\\d+)\\s*,?\\s*(-?\\d+)");
 
-    public void execute(MacroContext context, String parameter) {
+    public void execute(MacroContext context, String parameter, boolean trusted, String macroName) {
     	Matcher m = COORD_PAT.matcher(parameter.trim());
 
     	if (m.matches()) {

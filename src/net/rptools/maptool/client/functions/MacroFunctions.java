@@ -1,8 +1,11 @@
 package net.rptools.maptool.client.functions;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
@@ -11,6 +14,8 @@ import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 public class MacroFunctions extends AbstractFunction {
 
@@ -18,7 +23,7 @@ public class MacroFunctions extends AbstractFunction {
 
 	private MacroFunctions() {
 		super(0, 4, "hasMacro", "createMacro", "setMacroProps", "getMacros", "getMacroProps", "getMacroIndexes",
-				     "getMacroName", "getMacroLocation", "setMacroCommand", "getMacroCommand");
+				     "getMacroName", "getMacroLocation", "setMacroCommand", "getMacroCommand", "getMacroButtonIndex");
 	}
 	
 	
@@ -60,7 +65,11 @@ public class MacroFunctions extends AbstractFunction {
  		} else if (functionName.equals("getMacros")) {
  			String[] names = new String[token.getMacroNames(false).size()];
  			String delim = parameters.size() > 0 ? parameters.get(0).toString() : ",";
- 			return StringFunctions.getInstance().join(token.getMacroNames(false).toArray(names), delim);
+ 			if ("json".equals(delim)) {
+ 				return JSONArray.fromObject(token.getMacroNames(false).toArray(names)).toString();
+ 			} else {
+ 				return StringFunctions.getInstance().join(token.getMacroNames(false).toArray(names), delim);
+ 			}
  		} else if (functionName.equals("getMacroProps")) {
  			if (parameters.size() < 1) {
  				throw new ParserException("Not enough arguments to getMacroProp(index)");
@@ -101,18 +110,19 @@ public class MacroFunctions extends AbstractFunction {
  				throw new ParserException("Not enough arguments to getMacroIndexes(name)");
  			} 
  			String label = parameters.get(0).toString();
- 			StringBuilder sb = new StringBuilder();
  			String delim = parameters.size() > 1 ? parameters.get(1).toString() : ",";
 
+ 			List<String> indexes = new ArrayList<String>();
  			for (MacroButtonProperties mbp : token.getMacroList(false)) {
  				if (mbp.getLabel().equals(label)) {
- 					if (sb.length() != 0) {
- 						sb.append(delim);
- 					} 
- 					sb.append(mbp.getIndex());
+ 					indexes.add(Integer.toString(mbp.getIndex()));
  				}
  			}
- 			return sb.toString();
+ 			if ("json".equals(delim)) {
+ 				return JSONArray.fromObject(indexes).toString();
+ 			} else {
+ 				return StringFunctions.getInstance().join(indexes, delim);
+ 			}
  		} else if (functionName.equals("getMacroName")) {
  			return MapTool.getParser().getMacroName();
  		} else if (functionName.equals("getMacroLocation")) {
@@ -121,6 +131,10 @@ public class MacroFunctions extends AbstractFunction {
 			if (parameters.size() < 2) {
  				throw new ParserException("Not enough arguments to setMacroCommand(index, command)");
  			} 
+			
+			if (!MapTool.getParser().isMacroTrusted()) {
+				throw new ParserException("You do not have permission to call the setMacroCommand() function");
+			}
  
  			if (!(parameters.get(0) instanceof BigDecimal)) {
  				throw new ParserException("Argument to setMacroCommand(index, command) must be a number");
@@ -144,6 +158,8 @@ public class MacroFunctions extends AbstractFunction {
  			MacroButtonProperties mbp = token.getMacro(((BigDecimal)parameters.get(0)).intValue(), false);
  			String cmd = mbp.getCommand();
  			return cmd != null ? cmd : "";
+		} else if (functionName.equals("getMacroButtonIndex")) {
+			return BigInteger.valueOf(MapTool.getParser().getMacroButtonIndex());
 		} else {
  		 return token.getMacro(parameters.get(0).toString(), false).getCommand();
  		}
@@ -155,48 +171,70 @@ public class MacroFunctions extends AbstractFunction {
  			throw new ParserException("No macro at index "+ index);
  		}
  		
- 		StringBuilder sb = new StringBuilder();
- 		sb.append("autoExecute=").append(mbp.getAutoExecute()).append(delim);
- 		sb.append("color=").append(mbp.getColorKey()).append(delim);
- 		sb.append("fontColor=").append(mbp.getFontColorKey()).append(delim);
- 		sb.append("group=").append(mbp.getGroup()).append(delim);
- 		sb.append("includeLabel=").append(mbp.getIncludeLabel()).append(delim);
- 		sb.append("sortBy=").append(mbp.getSortby()).append(delim);
- 		sb.append("index=").append(mbp.getIndex()).append(delim);
- 		sb.append("label=").append(mbp.getLabel()).append(delim);
- 		sb.append("fontSize=").append(mbp.getFontSize()).append(delim);
- 		sb.append("minWidth=").append(mbp.getMinWidth()).append(delim);
-		return sb.toString();
+ 		if ("json".equals(delim)) {
+ 			Map<String, Object> props = new HashMap<String, Object>();
+ 			props.put("autoExecute", mbp.getAutoExecute());
+ 			props.put("color", mbp.getColorKey());
+ 			props.put("fontColor", mbp.getFontColorKey());
+ 			props.put("group", mbp.getGroup());
+ 			props.put("includeLabel", mbp.getIncludeLabel());
+ 			props.put("sortBy", mbp.getSortby());
+ 			props.put("index", mbp.getIndex());
+ 			props.put("label", mbp.getLabel());
+ 			props.put("fontSize", mbp.getFontSize());
+ 			props.put("minWidth", mbp.getMinWidth());
+ 			return JSONObject.fromObject(props).toString();
+ 		} else {
+ 			StringBuilder sb = new StringBuilder();
+ 			sb.append("autoExecute=").append(mbp.getAutoExecute()).append(delim);
+ 			sb.append("color=").append(mbp.getColorKey()).append(delim);
+ 			sb.append("fontColor=").append(mbp.getFontColorKey()).append(delim);
+ 			sb.append("group=").append(mbp.getGroup()).append(delim);
+ 			sb.append("includeLabel=").append(mbp.getIncludeLabel()).append(delim);
+ 			sb.append("sortBy=").append(mbp.getSortby()).append(delim);
+ 			sb.append("index=").append(mbp.getIndex()).append(delim);
+ 			sb.append("label=").append(mbp.getLabel()).append(delim);
+ 			sb.append("fontSize=").append(mbp.getFontSize()).append(delim);
+ 			sb.append("minWidth=").append(mbp.getMinWidth()).append(delim);
+ 			return sb.toString();
+ 		}
 	}
 	
 	public void setMacroProps(MacroButtonProperties mbp, String propString, String delim) {
- 		String[]  props = propString.split(delim);
-		for (String s : props) {
- 			String[] vals = s.split("=");
- 	 		vals[0] = vals[0].trim();
- 			vals[1] = vals[1].trim();
- 			if ("autoexecute".equalsIgnoreCase(vals[0])) {
- 				mbp.setAutoExecute(boolVal(vals[1]));
- 			} else if ("color".equalsIgnoreCase(vals[0])) {
-				mbp.setColorKey(vals[1]);
- 			} else if ("fontColor".equalsIgnoreCase(vals[0])) {
- 				mbp.setFontColorKey(vals[1]);
- 			} else if ("fontSize".equalsIgnoreCase(vals[0])) {
- 				mbp.setFontSize(vals[1]);
- 			} else if ("group".equalsIgnoreCase(vals[0])) {
- 				mbp.setGroup(vals[1]);
- 			} else if ("includeLabel".equalsIgnoreCase(vals[0])) {
- 				mbp.setIncludeLabel(boolVal(vals[1]));
- 			} else if ("sortBy".equalsIgnoreCase(vals[0])) {
- 				mbp.setSortby(vals[1]);
- 			} else if ("index".equalsIgnoreCase(vals[0])) {
- 				mbp.setIndex(Integer.parseInt(vals[1]));
- 			} else if ("label".equalsIgnoreCase(vals[0])) {
- 				mbp.setLabel(vals[1]);
- 			} else if ("fontSize".equalsIgnoreCase(vals[0])) {
- 				mbp.setFontSize(vals[1]);
- 			} else if ("minWidth=".equalsIgnoreCase(vals[0])) {
- 				mbp.setMinWidth(vals[1]);
+		JSONObject jobj;
+		if (propString.trim().startsWith("{")) {
+			// We are either a JSON string or an illegal string.
+			jobj = JSONObject.fromObject(propString);
+		} else {
+			jobj = JSONMacroFunctions.getInstance().fromStrProp(propString, delim);
+		}
+		
+		for (Object o : jobj.keySet()) {
+			String key = o.toString();
+			String value = jobj.getString(key); 
+			
+ 			if ("autoexecute".equalsIgnoreCase(key)) {
+ 				mbp.setAutoExecute(boolVal(value));
+ 			} else if ("color".equalsIgnoreCase(key)) {
+				mbp.setColorKey(value);
+ 			} else if ("fontColor".equalsIgnoreCase(key)) {
+ 				mbp.setFontColorKey(value);
+ 			} else if ("fontSize".equalsIgnoreCase(key)) {
+ 				mbp.setFontSize(value);
+ 			} else if ("group".equalsIgnoreCase(key)) {
+ 				mbp.setGroup(value);
+ 			} else if ("includeLabel".equalsIgnoreCase(key)) {
+ 				mbp.setIncludeLabel(boolVal(value));
+ 			} else if ("sortBy".equalsIgnoreCase(key)) {
+ 				mbp.setSortby(value);
+ 			} else if ("index".equalsIgnoreCase(key)) {
+ 				mbp.setIndex(Integer.parseInt(value));
+ 			} else if ("label".equalsIgnoreCase(key)) {
+ 				mbp.setLabel(value);
+ 			} else if ("fontSize".equalsIgnoreCase(key)) {
+ 				mbp.setFontSize(value);
+ 			} else if ("minWidth".equalsIgnoreCase(key)) {
+ 				mbp.setMinWidth(value);
  			}
 		}
 	}

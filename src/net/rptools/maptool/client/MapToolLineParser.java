@@ -27,11 +27,14 @@ import net.rptools.common.expression.Result;
 import net.rptools.maptool.client.functions.AbortFunction;
 import net.rptools.maptool.client.functions.AddAllToInitiativeFunction;
 import net.rptools.maptool.client.functions.CurrentInitiativeFunction;
+import net.rptools.maptool.client.functions.EvalMacroFunctions;
 import net.rptools.maptool.client.functions.FindTokenFunctions;
 import net.rptools.maptool.client.functions.HasImpersonated;
 import net.rptools.maptool.client.functions.InitiativeRoundFunction;
 import net.rptools.maptool.client.functions.InputFunction;
 import net.rptools.maptool.client.functions.IsTrustedFunction;
+import net.rptools.maptool.client.functions.JSONMacroFunctions;
+import net.rptools.maptool.client.functions.MacroDialogFunctions;
 import net.rptools.maptool.client.functions.MacroFunctions;
 import net.rptools.maptool.client.functions.MacroLinkFunction;
 import net.rptools.maptool.client.functions.MiscInitiativeFunction;
@@ -69,6 +72,8 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.VariableResolver;
 import net.rptools.parser.function.Function;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 public class MapToolLineParser {
 
@@ -77,12 +82,15 @@ public class MapToolLineParser {
 		AbortFunction.getInstance(),
 		AddAllToInitiativeFunction.getInstance(),
 		CurrentInitiativeFunction.getInstance(),
+		EvalMacroFunctions.getInstance(),
 		FindTokenFunctions.getInstance(),
 		HasImpersonated.getInstance(),
 		InitiativeRoundFunction.getInstance(),
 		InputFunction.getInstance(),
 		IsTrustedFunction.getInstance(),
+		JSONMacroFunctions.getInstance(),
 		LookupTableFunction.getInstance(),
+		MacroDialogFunctions.getInstance(),
 		MacroFunctions.getInstance(), 
 		MacroLinkFunction.getInstance(),
 		MiscInitiativeFunction.getInstance(),
@@ -119,6 +127,11 @@ public class MapToolLineParser {
 	/** Stack that holds our contexts. */
 	private final Stack<MapToolMacroContext> contextStack = new Stack<MapToolMacroContext>();
 
+	/** Was every context we entered during the macro trusted. */
+	private volatile boolean macroPathTrusted = false;
+	
+	/** The macro button index of the button on the impersonated token that called us. */
+	private volatile int macroButtonIndex = -1;
 	
 	private static final int PARSER_MAX_RECURSE = 50;
 	private int parserRecurseDepth;
@@ -162,6 +175,67 @@ public class MapToolLineParser {
 		FRAME
 	}
 
+	
+	private enum ScanState {
+		SEARCHING_FOR_ROLL,
+		SEARCHING_FOR_QUOTE,
+		SEARCHING_FOR_CLOSE_BRACKET,
+		SKIP_NEXT_CHAR
+	}
+	
+	// Class to hold the inline rolls and where they start and end.
+	private static class InlineRollMatch {
+		final int start;
+		final int end;
+		final String match;
+		final int optEnd;
+		
+		InlineRollMatch(int start, int end, String match) {
+			this.start = start;
+			this.end = end;
+			this.match = match;
+			this.optEnd = -1;
+		}
+
+		InlineRollMatch(int start, int end, String match, int optEnd) {
+			this.start = start;
+			this.end = end;
+			this.match = match;
+			this.optEnd = optEnd;
+		}
+		
+		public int getStart() {
+			return start;
+		}
+		
+		public int getEnd() {
+			return end;
+		}
+		
+		public String getMatch() {
+			return match;
+		}
+		
+		public int getOptEnd() {
+			return optEnd;
+		}
+		
+		public String getOpt() {
+			if (optEnd > 0) {
+				return match.substring(1,optEnd-start);
+			} else {
+				return "";
+			}
+		}
+		
+		public String getRoll() {
+			if (optEnd > 0) {
+				return match.substring(optEnd+1-start, end-start);
+			} else {
+					return match.substring(1, end-start);
+			}
+		}
+	}
 
 	/*****************************************************************************
 	 * OptionType - defines roll options, including values for default parameters.
@@ -502,12 +576,6 @@ public class MapToolLineParser {
 		return list;
 	}
 
-	// This is starting to get ridiculous... I sense an incoming rewrite using ANTLR
-	private static final Pattern roll_pattern = Pattern.compile(
-			"\\[\\s*(?:((?:[^\\]:(]|\\((?:[^()\"]|\"[^\"]*\"|\\((?:[^)\"]|\"[^\"]*\")*\\))*\\))*):\\s*)?((?:\\{(?:[^{}\"]|\"[^\"]*\"|\\{(?:[^}\"]|\"[^\"]*\")*})*}|[^\\]{\"]|\"[^\"]*\")*?)\\s*]|\\{\\s*((?:[^}\"]|\"[^\"]*\")*?)\\s*}"
-			);
-	//	private static final Pattern opt_pattern = Pattern.compile("(\\w+(?:\\((?:[^()\"]|\"[^\"]*\"|\\((?:[^()\"]|\"[^\"]*\")+\\))+\\))?)\\s*,\\s*");
-
 
 	public String parseLine(String line) throws ParserException {
 		return parseLine(null, line);
@@ -545,12 +613,15 @@ public class MapToolLineParser {
 			MapToolVariableResolver resolver = (res==null) ? new MapToolVariableResolver(tokenInContext) : res;
 
 			StringBuilder builder = new StringBuilder();
-			Matcher matcher = roll_pattern.matcher(line);
-			int start;
+			
+			int start = 0;
+			
+			List<InlineRollMatch> matches = this.locateInlineRolls(line);
+			
+			for (InlineRollMatch match : matches) {
+				builder.append(line.substring(start, match.getStart())); // add everything before the roll
 
-			for (start = 0; matcher.find(start); start = matcher.end()) {
-				builder.append(line.substring(start, matcher.start())); // add everything before the roll
-
+				start = match.getEnd() + 1;
 				// These variables will hold data extracted from the roll options.
 				Output output = Output.TOOLTIP;
 				String text = null;	// used by the T option
@@ -573,9 +644,11 @@ public class MapToolLineParser {
 				String frameName = null;
 				String frameOpts = null;
 
-				if (matcher.group().startsWith("[")) {
-					String opts = matcher.group(1);
-					String roll = matcher.group(2);
+				if (match.getMatch().startsWith("[")) {
+				
+					
+					String opts = match.getOpt();
+					String roll = match.getRoll();
 					if (opts != null) {
 						// Turn the opts string into a list of OptionInfo objects.
 						List<OptionInfo> optionList = null;
@@ -712,7 +785,25 @@ public class MapToolLineParser {
 									String listDelim = option.getStringParam(3);
 
 									foreachList = new ArrayList<String>();
-									StrListFunctions.parse(listString, foreachList, listDelim);
+									if (listString.trim().startsWith("{") || listString.trim().startsWith("[")) {
+										// if String starts with [ or { it is either JSON try treat it as a JSON String
+										Object obj = JSONMacroFunctions.getInstance().convertToJSON(listString);
+										if (obj != null) {
+											if (obj instanceof JSONArray) {
+												for (Object o : ((JSONArray)obj).toArray()) {
+													foreachList.add(o.toString());
+												}
+											} else {
+												Set keySet = ((JSONObject)obj).keySet();
+												foreachList.addAll(keySet);
+											}
+										}
+									}
+									
+									// If we still dont have a list treat it list a string list
+									if (foreachList.size() == 0) {
+										StrListFunctions.parse(listString, foreachList, listDelim);
+									}
 									loopCount = foreachList.size();
 
 									if (loopVar.equalsIgnoreCase(""))
@@ -1012,7 +1103,11 @@ public class MapToolLineParser {
 								break;
 							case RESULT:
 								result = parseExpression(resolver, tokenInContext, rollBranch);
-								expressionBuilder.append(result != null ? result.getValue().toString() : "");
+								if (this.isMacroTrusted()) { 	
+									expressionBuilder.append(result != null ? result.getValue().toString() : "");
+								} else {
+									expressionBuilder.append(result != null ? result.getValue().toString().replaceAll("«|»|&#171;|&#187;|&laquo;|&raquo;|\036|\037", "") : "");
+								}
 								break;
 							case TOOLTIP:
 								String tooltip = rollBranch + " = ";
@@ -1085,10 +1180,14 @@ public class MapToolLineParser {
 					if (contextTokenStack.size() > 0) {
 						resolver.setTokenIncontext(contextTokenStack.pop());
 					}
-				} else if (matcher.group().startsWith("{")) {
-					String roll = matcher.group(3);
+				} else if (match.getMatch().startsWith("{")) {
+					String roll = match.getRoll();
 					Result result = parseExpression(resolver, tokenInContext, roll);
-					builder.append(result != null ? result.getValue().toString() : "");
+					if (isMacroTrusted()) {
+						builder.append(result != null ? result.getValue().toString() : "");
+					} else {
+						builder.append(result != null ? result.getValue().toString().replaceAll("«|»|&#171;|&#187;|&laquo;|&raquo;|\036|\037", "") : "");
+					}
 				}
 			}
 
@@ -1097,6 +1196,11 @@ public class MapToolLineParser {
 			return builder.toString();
 		} finally {
 			exitContext();
+			// If we have exited the last context let the html frame we have (potentially)
+			// updated a token.
+			if (contextStackEmpty()) {
+				HTMLFrameFactory.tokenChanged(tokenInContext);
+			}
 		}
 
 	}
@@ -1198,6 +1302,10 @@ public class MapToolLineParser {
 			if (tokenInContext != null) {
 				MacroButtonProperties buttonProps = tokenInContext.getMacro(macroName, false);
 				
+				if (buttonProps == null) {
+					throw new ParserException("Macro not found (" + macroName + "@token)");
+				}
+ 				
 				macroBody = buttonProps.getCommand(); 
 			}
 
@@ -1318,6 +1426,9 @@ public class MapToolLineParser {
 			return null;
 		}
 		MacroButtonProperties buttonProps = token.getMacro(macro, false);
+		if (buttonProps == null) {
+			throw new ParserException("Uknown macro " + macro + "@" + location);
+		}
 		return buttonProps.getCommand();
 	}
 	
@@ -1360,6 +1471,7 @@ public class MapToolLineParser {
 		} 
 		return null;
 	}
+	
 
 	/**
 	 * Searches all maps for a token and returns the zone that the lib: macro is in.
@@ -1435,6 +1547,19 @@ public class MapToolLineParser {
 	 * and there is no current context then a new top level context is created.
 	 */
 	public void enterContext(MapToolMacroContext context) {
+		// First time through set our trusted path to same as first context.
+		// Any subsequent trips through we only change trusted path if conext
+		// is not trusted (if context == null on subsequent calls we dont change
+		// anything as trusted context will remain the same as it was before the call).
+		if (contextStack.size() == 0) {
+			macroPathTrusted = context == null ? false : context.isTrusted();
+			macroButtonIndex = context == null ? -1 : context.getMacroButtonIndex();
+		} else if (context != null){
+			if (!context.isTrusted()) {
+				macroPathTrusted = false;
+			}
+		}
+			
 		if (context == null) {
 			if (contextStack.size() == 0) {
 				context = new MapToolMacroContext(MapToolLineParser.CHAT_INPUT, MapToolLineParser.CHAT_INPUT, 
@@ -1492,6 +1617,14 @@ public class MapToolLineParser {
 	}
 
 	/**
+	 * Returns if the context stack is empty.
+	 * @return true if the context stack is empty.
+	 */
+	private boolean contextStackEmpty() {
+		return contextStack.size() == 0;
+	}
+	
+	/**
 	 * Gets the macro name for the current context.
 	 * @return The macro name for the current context.
 	 */
@@ -1517,4 +1650,96 @@ public class MapToolLineParser {
 	}
 
 
+	/**
+	 * Locate the inline rolls within the input line.
+	 * @param line The line to search for the rolls in.
+	 * @return A list of the rolls.
+	 */
+	private List<InlineRollMatch> locateInlineRolls(String line) {
+
+		List<InlineRollMatch> matches = new ArrayList<InlineRollMatch>();
+		ScanState scanState = ScanState.SEARCHING_FOR_ROLL;
+		int startMatch = 0;
+		int quoteLevel = 0;
+		int bracketLevel = 0;
+		char quoteChar = ' ';
+		char bracketChar = ' ';
+		ScanState savedState = null;
+		int optEnd = -1;
+		
+		for (int i = 0, strMax = line.length(); i < strMax; i++) {
+			char c = line.charAt(i);
+			switch (scanState) {
+			case SEARCHING_FOR_ROLL:
+					if (c == '{' || c == '[') {
+						startMatch = i;
+						scanState = ScanState.SEARCHING_FOR_CLOSE_BRACKET;
+						bracketChar = c;
+						bracketLevel++;
+						optEnd = -1;
+					}
+					break;
+					
+				case SEARCHING_FOR_CLOSE_BRACKET:
+					if (c == bracketChar) {
+						bracketLevel++;
+					} else if (bracketChar == '[' && c == ']') {
+						bracketLevel--;
+						if (bracketLevel == 0) {
+							matches.add(new InlineRollMatch(startMatch, i, line.substring(startMatch, i+1), optEnd));
+							scanState = ScanState.SEARCHING_FOR_ROLL;
+						}
+					} else if (bracketChar == '{' && c == '}') {
+						bracketLevel--;
+						if (bracketLevel == 0) {
+							matches.add(new InlineRollMatch(startMatch, i, line.substring(startMatch, i+1), optEnd));
+							scanState = ScanState.SEARCHING_FOR_ROLL;
+						}						
+					} else if (c == '"' || c == '\'') {
+						quoteChar = c;
+						quoteLevel++;
+						scanState = ScanState.SEARCHING_FOR_QUOTE;
+					} else if (c == '\\') {
+						savedState = scanState;
+						scanState = ScanState.SKIP_NEXT_CHAR;
+					} else if (bracketChar == '[' && optEnd == -1 && c == ':') {
+						optEnd = i;
+					}
+					break;
+					
+				case SEARCHING_FOR_QUOTE:
+					if (c == quoteChar) {
+						scanState = ScanState.SEARCHING_FOR_CLOSE_BRACKET;
+					} else if (c == '\\') {
+						savedState = scanState;
+						scanState = ScanState.SKIP_NEXT_CHAR;
+					}
+					break;
+					
+				case SKIP_NEXT_CHAR:
+					scanState = savedState;
+					break;
+			}
+		}
+					
+		return matches;
+	
+	}
+	
+	/**
+	 * Gets if the whole of the macro path up to this point has been running in a
+	 * trusted context.
+	 * @return true if the whole of the macro path is running in trusted context.
+	 */
+	public boolean isMacroPathTrusted() {
+		return macroPathTrusted;
+	}
+	
+	/**
+	 * Gets the index of the macro button on the index token.
+	 * @return the index of the macro button.
+	 */
+	public int getMacroButtonIndex() {
+		return macroButtonIndex;
+	}
 }

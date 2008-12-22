@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 
 import net.rptools.maptool.client.functions.CurrentInitiativeFunction;
 import net.rptools.maptool.client.functions.InitiativeRoundFunction;
+import net.rptools.maptool.client.functions.JSONMacroFunctions;
 import net.rptools.maptool.client.functions.TokenBarFunction;
 import net.rptools.maptool.client.functions.TokenGMNameFunction;
 import net.rptools.maptool.client.functions.TokenHaloFunction;
@@ -164,7 +165,14 @@ public class MapToolVariableResolver extends MapVariableResolver {
 			throw new ParserException("Unresolved value '" + name + "'");
 		}
 
-		Object value = MapTool.getParser().parseLine(tokenInContext, result.toString()); 
+		// Try parse the value if we can not parse it then just return it as a string.
+		Object value;
+		try {
+			value = MapTool.getParser().parseLine(tokenInContext, result.toString()); 
+		} catch (Exception e) { 
+			value = result.toString();
+		}
+		
 		// Attempt to convert to a number ...
 		try {
 			value = new BigDecimal((String)value);

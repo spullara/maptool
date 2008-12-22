@@ -25,7 +25,7 @@ import net.rptools.maptool.model.TextMessage;
 )
 public class EmoteMacro extends AbstractMacro {
 
-    public void execute(MacroContext context, String macro) {
+    public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
     	macro = processText(macro);
         StringBuilder sb = new StringBuilder();
         

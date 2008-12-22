@@ -25,7 +25,7 @@ import net.rptools.maptool.model.TextMessage;
     )
 public class SelfMacro extends AbstractMacro {
 	    
-	public void execute(MacroContext context, String macro) {
+	public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
 		macro = processText(macro);
         StringBuilder sb = new StringBuilder();
         sb.append("<i>").append(macro).append("</i>");

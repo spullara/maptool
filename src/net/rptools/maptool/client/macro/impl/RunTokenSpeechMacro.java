@@ -36,7 +36,7 @@ public class RunTokenSpeechMacro implements Macro {
   /**
    * @see net.rptools.maptool.client.macro.Macro#execute(java.lang.String)
    */
-  public void execute(MacroContext context, String macro) {
+  public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
 	  
 	  Set<GUID> selectedTokenSet = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokenSet();
 	  if (selectedTokenSet.size() == 0) {

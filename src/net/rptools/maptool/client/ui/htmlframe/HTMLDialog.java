@@ -32,6 +32,29 @@ public class HTMLDialog extends JDialog implements HTMLPanelContainer {
 	
 	
 	/**
+	 * Returns if the frame is visible or not.
+	 * @param name The name of the frame.
+	 * @return true if the frame is visible.
+	 */
+	static boolean isVisible(String name) {
+		if (dialogs.containsKey(name)) {
+			return dialogs.get(name).isVisible();
+		}
+		return false;
+	}
+	
+	/**
+	 * Requests that the frame close.
+	 * @param name The name of the frame.
+	 */
+	static void close(String name) {
+		if (dialogs.containsKey(name)) {
+			dialogs.get(name).closeRequest();
+		}
+	}
+
+	
+	/**
 	 * Creates a HTMLDialog 
 	 * @param parent The parent frame.
 	 * @param name The name of the dialog.
@@ -71,13 +94,13 @@ public class HTMLDialog extends JDialog implements HTMLPanelContainer {
 	 * @param title The title for the dialog window .
 	 * @param width The width in pixels of the dialog.
 	 * @param height The height in pixels of the dialog.
-	 * @param undecorated If the dialog is decorated or not.
+	 * @param frame If the dialog is decorated with frame or not.
 	 * @param input Is the dialog an input only dialog.
 	 * @param temp Is the dialog temporary.
 	 * @param html The HTML to display in the dialog. 
 	 * @return The dialog.
 	 */
-	static HTMLDialog showDialog(String name, String title, int width, int height, boolean undecorated, 
+	static HTMLDialog showDialog(String name, String title, int width, int height, boolean frame, 
 				boolean input, boolean temp, String html) {
 		HTMLDialog dialog;
 		if (dialogs.containsKey(name)) {
@@ -85,12 +108,14 @@ public class HTMLDialog extends JDialog implements HTMLPanelContainer {
 			dialog.updateContents(html, temp, input);
 
 		} else {
-			dialog = new HTMLDialog(MapTool.getFrame(), name, title, undecorated, width, height);
+			dialog = new HTMLDialog(MapTool.getFrame(), name, title, frame, width, height);
 			dialogs.put(name, dialog);
 			dialog.updateContents(html, temp, input);
 		}
 //		dialog.canResize = false;
-		dialog.setVisible(true);
+		if (!dialog.isVisible()) {
+			dialog.setVisible(true);
+		}
 		return dialog;
 	}
 

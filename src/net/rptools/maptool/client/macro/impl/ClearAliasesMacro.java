@@ -26,7 +26,7 @@ import net.rptools.maptool.client.macro.MacroManager;
 )
 public class ClearAliasesMacro implements Macro {
 
-    public void execute(MacroContext context, String macro) {
+    public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
 
     	if (MapTool.confirm("Clear all aliases?")) {
     		MacroManager.removeAllAliases();

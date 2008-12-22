@@ -177,6 +177,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     // needs to be flushed in the case of switching views
     private PlayerView lastView;
 
+    private Set<GUID> visibleTokenSet;
+    
+    
     public ZoneRenderer(Zone zone) {
         if (zone == null) { throw new IllegalArgumentException("Zone cannot be null"); }
 
@@ -1601,6 +1604,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         Rectangle clipBounds = g.getClipBounds();
         double scale = zoneScale.getScale();
+        Set<GUID> tempVisTokens = new HashSet<GUID>();
         for (Token token : tokenList) {
 
             if (token.isStamp() && isTokenMoving(token)) {
@@ -1678,6 +1682,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 continue;
             }
 
+            // Add the token to our visible set.
+            tempVisTokens.add(token.getId());
+            
             // Stacking check
             if (!token.isStamp()) {
                 for (TokenLocation currLocation : getTokenLocations(Zone.Layer.TOKEN)) {
@@ -1984,6 +1991,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         if (clippedG != g) {
         	clippedG.dispose();
         }
+        
+        visibleTokenSet =  Collections.unmodifiableSet(tempVisTokens);
     }
     
     private boolean canSeeMarker(Token token) {
@@ -2694,6 +2703,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         dtde.dropComplete(tokens != null);
     }
 
+    
+    public Set<GUID> getVisibleTokenSet() {
+    	return visibleTokenSet;
+    }
+    
     /* (non-Javadoc)
      * @see java.awt.dnd.DropTargetListener#dropActionChanged (java.awt.dnd.DropTargetDragEvent)
      */

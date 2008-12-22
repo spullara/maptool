@@ -30,7 +30,7 @@ import net.rptools.maptool.model.Token;
 )
 public class SayMacro extends AbstractMacro {
 
-    public void execute(MacroContext context, String macro) {
+    public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
     	macro = processText(macro);
     	
         StringBuilder sb = new StringBuilder();
@@ -50,7 +50,14 @@ public class SayMacro extends AbstractMacro {
         }
         
         sb.append("<td valign=top style=\"margin-right: 5px\">");
+        if (trusted && !MapTool.getPlayer().isGM()) {
+        	sb.append("<span style='background-color: #C9F7AD' ").append("title='").append(macroName).append("'>");
+        }
         sb.append(identity).append(": ");
+        if (trusted && !MapTool.getPlayer().isGM()) {
+        	sb.append("</span>");
+        }
+
         sb.append("</td><td valign=top>");
 
         Color color = MapTool.getFrame().getCommandPanel().getTextColorWell().getColor();

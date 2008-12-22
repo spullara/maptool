@@ -24,6 +24,7 @@ import net.rptools.maptool.util.TokenUtil;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
+import net.sf.json.JSONArray;
 
 public class TokenPropertyFunctions extends AbstractFunction {
 	
@@ -160,7 +161,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 				throw new ParserException("Not enough parameters for setProperty(name, val)");
 			}		
 			Token token = resolver.getTokenInContext();
-			token.setProperty(parameters.get(0).toString(), parameters.get(1));
+			token.setProperty(parameters.get(0).toString(), parameters.get(1).toString());
 			return "";
 		}
 
@@ -234,10 +235,6 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		
 		
 		if (functionName.equals("getLibProperty")) {
-			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for getLibProperty(name)");
-			}			
-
 			String location;
 			if (parameters.size() > 1) {
 				location = parameters.get(1).toString();
@@ -247,12 +244,20 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			Token token = MapTool.getParser().getTokenMacroLib(location);
 			
 			Object val = token.getProperty(parameters.get(0).toString());			
+			
+			// Try concert it to a number
+			// Attempt to convert to a number ...
+			try {
+				val = new BigDecimal(val.toString());
+			} catch (Exception e) {
+				// Ignore, use previous value of "val"
+			}
 			return val == null ? "" : val;
 		}
 		
 		
 		if (functionName.equals("setLibProperty")) {
-			if (parameters.size() < 3) {
+			if (parameters.size() < 2) {
 				throw new ParserException("Not enough parameters for setLibProperty(name, value)");
 			}			
 
@@ -263,7 +268,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 				location = MapTool.getParser().getMacroSource();
 			}
 			Token token = MapTool.getParser().getTokenMacroLib(location);
-			token.setProperty(parameters.get(0).toString(), parameters.get(1));		
+			token.setProperty(parameters.get(0).toString(), parameters.get(1).toString());		
 			Zone zone = MapTool.getParser().getTokenMacroLibZone(location);
 			MapTool.serverCommand().putToken(zone.getId(), token);
 
@@ -411,7 +416,11 @@ public class TokenPropertyFunctions extends AbstractFunction {
 					namesList.add(tp.getName());
 				}
 			}
-			return StringFunctions.getInstance().join(namesList, delim);
+			if ("json".equals(delim)) {
+				return JSONArray.fromObject(namesList).toString();
+			} else {
+				return StringFunctions.getInstance().join(namesList, delim);
+			}
 		} else {
 			List<TokenProperty> props = MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(type);
 			if (props == null) {
@@ -421,7 +430,11 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			for (TokenProperty tp : props) {
 				namesList.add(tp.getName());
 			}
-			return StringFunctions.getInstance().join(namesList);
+			if ("json".equals(delim)) {
+				return JSONArray.fromObject(namesList).toString();
+			} else {
+				return StringFunctions.getInstance().join(namesList);
+			}
 		}
 	}
 
@@ -435,7 +448,11 @@ public class TokenPropertyFunctions extends AbstractFunction {
 	private String getPropertyNames(Token token, String delim) {
 		String[] names = new String[token.getPropertyNames().size()]; 
 		token.getPropertyNames().toArray(names);
-		return StringFunctions.getInstance().join(names, delim);
+		if ("json".equals(delim)) {
+			return JSONArray.fromObject(names).toString();
+		} else {
+			return StringFunctions.getInstance().join(names, delim);
+		} 
 	}
 
 	/**
@@ -447,7 +464,11 @@ public class TokenPropertyFunctions extends AbstractFunction {
 	public String getOwners(Token token, String delim) {
 		String[] owners = new String[token.getOwners().size()];
 		token.getOwners().toArray(owners);		
-		return StringFunctions.getInstance().join(owners, delim);
+		if ("json".endsWith(delim)) {
+			return JSONArray.fromObject(owners).toString();
+		} else {
+			return StringFunctions.getInstance().join(owners, delim);
+		}
 	}
 	
 	

@@ -38,7 +38,7 @@ public class HelpMacro implements Macro {
 		}
 	};
 
-	public void execute(MacroContext context, String parameter) {
+	public void execute(MacroContext context, String parameter, boolean trusted, String macroName) {
 		
 		StringBuilder builder = new StringBuilder();
 

@@ -56,7 +56,7 @@ public class SetTokenStateMacro implements Macro {
   /**
    * @see net.rptools.maptool.client.macro.Macro#execute(java.lang.String)
    */
-  public void execute(MacroContext context, String aMacro) {
+  public void execute(MacroContext context, String aMacro, boolean trusted, String macroName) {
 	  Set<GUID> selectedTokenSet; // The tokens to set the state of
 	  String stateName;           // The name of the state to set
 	  String value;				  // The value to set

@@ -33,7 +33,7 @@ import net.rptools.maptool.util.StringUtil;
 )
 public class WhisperReplyMacro extends AbstractMacro {
 
-    public void execute(MacroContext context, String message) {
+    public void execute(MacroContext context, String message, boolean trusted, String macroName) {
         
         
         String playerName = MapTool.getLastWhisperer();

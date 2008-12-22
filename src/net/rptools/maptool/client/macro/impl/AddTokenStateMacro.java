@@ -85,7 +85,7 @@ public class AddTokenStateMacro implements Macro {
   /**
    * @see net.rptools.maptool.client.macro.Macro#execute(java.lang.String)
    */
-  public void execute(MacroContext context, String aMacro) {
+  public void execute(MacroContext context, String aMacro, boolean trusted, String macroName) {
     
     // Split the command line into an array and get the tokens
     String[] tokens = aMacro.split("\\s");

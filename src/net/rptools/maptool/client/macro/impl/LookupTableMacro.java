@@ -32,7 +32,7 @@ import net.rptools.parser.ParserException;
 )
 public class LookupTableMacro extends AbstractMacro {
 
-    public void execute(MacroContext context, String macro) {
+    public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
     	macro = processText(macro).trim();
         StringBuilder sb = new StringBuilder();
 

@@ -38,7 +38,7 @@ import net.rptools.maptool.client.macro.MacroManager;
 )
 public class AliasMacro implements Macro {
 
-	public void execute(MacroContext context, String macro) {
+	public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
 		
 		macro = macro.trim();
 		

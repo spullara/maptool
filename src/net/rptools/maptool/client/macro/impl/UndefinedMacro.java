@@ -25,7 +25,7 @@ import net.rptools.maptool.client.macro.MacroDefinition;
 )
 public class UndefinedMacro implements Macro {
 
-	public void execute(MacroContext context, String macro) {
+	public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
 		MapTool.addLocalMessage("'" + macro
 				+ "': Unknown command.  Try /help for a list of commands.");
 	}

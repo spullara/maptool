@@ -23,5 +23,5 @@ import java.util.List;
  */
 public interface Macro {
 
-    public void execute(MacroContext context, String macro);
+    public void execute(MacroContext context, String macro, boolean trusted, String macroName);
 }

@@ -48,7 +48,7 @@ public class SetTokenPropertyMacro implements Macro {
 	 * Execute the command.
 	 * @param args The arguments to the command.
 	 */
-	public void execute(MacroContext context, String args) {
+	public void execute(MacroContext context, String args, boolean trusted, String macroName) {
 		
 	       		
 		if (args.length() == 0) {

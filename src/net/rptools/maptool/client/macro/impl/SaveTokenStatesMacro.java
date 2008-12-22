@@ -46,7 +46,7 @@ public class SaveTokenStatesMacro implements Macro {
   /**
    * @see net.rptools.maptool.client.macro.Macro#execute(java.lang.String)
    */
-  public void execute(MacroContext context, String macro) {
+  public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
     
     // Read the file from the command line
     File aliasFile = null;

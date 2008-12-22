@@ -1,23 +1,20 @@
 package net.rptools.maptool.client.functions;
 
-import java.awt.Graphics2D;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
-import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.model.Player;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.util.GraphicsUtil;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
+import net.sf.json.JSONArray;
 
 public class FindTokenFunctions extends AbstractFunction {
 
@@ -30,7 +27,8 @@ public class FindTokenFunctions extends AbstractFunction {
 		CURRENT,
 		EXPOSED,
 		STATE, 
-		OWNED
+		OWNED,
+		VISIBLE
 	}
 	
 	private static final FindTokenFunctions instance = new FindTokenFunctions();
@@ -131,10 +129,11 @@ public class FindTokenFunctions extends AbstractFunction {
 	
 	private FindTokenFunctions() {
 		super(0,2, "findToken", "currentToken", "getTokenName", "getTokenNames", 
-				   "getSelectNames", "getTokens", "getSelected", "getImpersonated",
+				   "getSelectedNames", "getTokens", "getSelected", "getImpersonated",
 				   "getImpersonatedName", "getExposedTokens", "getExposedTokenNames",
 				   "getPC", "getNPC", "getPCNames", "getNPCNames", "getWithState",
-				   "getWithStateNames", "getOwned", "getOwnedNames");
+				   "getWithStateNames", "getOwned", "getOwnedNames", "getVisibleTokens",
+				   "getVisibleTokenNames");
 	}
 	
 	
@@ -192,11 +191,14 @@ public class FindTokenFunctions extends AbstractFunction {
 			delim = parameters.size() > 1 ? parameters.get(1).toString() : delim;
 		} else if (functionName.startsWith("getOwned")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough arguments for getOwned(state)");
+				throw new ParserException("Not enough arguments for getOwned(name)");
 			}
 			findType = FindType.OWNED;
 			findArgs = parameters.get(0).toString();
 			delim = parameters.size() > 1 ? parameters.get(1).toString() : delim;
+		} else if (functionName.startsWith("getVisibleToken")) {
+			findType = FindType.VISIBLE;
+			delim = parameters.size() > 0 ? parameters.get(0).toString() : delim;		
 		} else {
 			return null;
 		}
@@ -214,14 +216,14 @@ public class FindTokenFunctions extends AbstractFunction {
 	 * @param parser The parser that called the function.
 	 * @param findType The type of tokens to find.
 	 * @param nameOnly If a list of names is wanted.
-	 * @param delim The delimiter to use for lists.
+	 * @param delim The delimiter to use for lists, or "json" for a json array.
 	 * @param findArgs Any arguments for the find function
 	 * @return a string list that contains the ids or names of the tokens.
 	 */
 	private String getTokens(Parser parser, FindType findType, boolean nameOnly, String delim, String findArgs) {
-		Zone.Filter filter;
 		List<Token> tokenList = new LinkedList<Token>();
-		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+		ZoneRenderer zoneRenderer = MapTool.getFrame().getCurrentZoneRenderer();
+		Zone zone = zoneRenderer.getZone();
 		
 		switch (findType) {
 			case ALL:
@@ -252,7 +254,10 @@ public class FindTokenFunctions extends AbstractFunction {
 			case OWNED:
 				tokenList = zone.getTokensFiltered(new OwnedFilter(findArgs));
 				break;
-
+			case VISIBLE:
+				for (GUID id : zoneRenderer.getVisibleTokenSet())  {
+					tokenList.add(zone.getToken(id));
+				}
 		}
 		
 		ArrayList<String> values = new ArrayList<String>();
@@ -264,7 +269,11 @@ public class FindTokenFunctions extends AbstractFunction {
 			}
 		}
 		
-		return StringFunctions.getInstance().join(values, delim);
+		if ("json".equals(delim)) {
+			return JSONArray.fromObject(values).toString();
+		} else {
+			return StringFunctions.getInstance().join(values, delim);
+		}
 	}
 
 

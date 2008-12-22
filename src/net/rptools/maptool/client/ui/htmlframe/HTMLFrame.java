@@ -26,6 +26,27 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 
 	private HTMLPanel panel;
 
+	/**
+	 * Returns if the frame is visible or not.
+	 * @param name The name of the frame.
+	 * @return true if the frame is visible.
+	 */
+	static boolean isVisible(String name) {
+		if (frames.containsKey(name)) {
+			return frames.get(name).isVisible();
+		}
+		return false;
+	}
+	
+	/**
+	 * Requests that the frame close.
+	 * @param name The name of the frame.
+	 */
+	static void close(String name) {
+		if (frames.containsKey(name)) {
+			frames.get(name).closeRequest();
+		}
+	}
 	
 	/**
 	 * Creates a new HTMLFrame and displays it or displays an existing frame.
@@ -44,8 +65,10 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 		if (frames.containsKey(title)) {
 			frame = frames.get(name);
 			frame.updateContents(html);
-			frame.setVisible(true);
-			frame.getDockingManager().showFrame(title);
+			if (!frame.isVisible()) {
+				frame.setVisible(true);
+				frame.getDockingManager().showFrame(title);
+			}
 		} else {
 			frame = new HTMLFrame(MapTool.getFrame(), name, title, width, height);
 			frames.put(name, frame);

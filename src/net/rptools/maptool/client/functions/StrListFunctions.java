@@ -102,7 +102,7 @@ public class StrListFunctions extends AbstractFunction {
     		retval = listInsert(parameters, listStr, lastParam, list);
     	else if ("listReplace".equalsIgnoreCase(functionName))
     		retval = listReplace(parameters, listStr, lastParam, list);
-    	
+    		
     	return retval;
     }
 

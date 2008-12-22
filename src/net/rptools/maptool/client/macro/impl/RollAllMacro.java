@@ -25,7 +25,7 @@ import net.rptools.maptool.model.TextMessage;
     )
 public class RollAllMacro extends AbstractRollMacro {
 
-    public void execute(MacroContext context, String macro) {
+    public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
         String result = roll(macro);
         if (result != null) {
         	

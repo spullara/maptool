@@ -25,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.functions.AbortFunction;
 import net.rptools.maptool.client.macro.impl.AddTokenStateMacro;
 import net.rptools.maptool.client.macro.impl.AliasMacro;
@@ -56,6 +57,8 @@ import net.rptools.maptool.client.macro.impl.ToGMMacro;
 import net.rptools.maptool.client.macro.impl.UndefinedMacro;
 import net.rptools.maptool.client.macro.impl.WhisperMacro;
 import net.rptools.maptool.client.macro.impl.WhisperReplyMacro;
+import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.StringUtil;
 
 /**
@@ -151,6 +154,10 @@ public class MacroManager {
 	}
 
 	public static void executeMacro(String command) {
+		executeMacro(command, null);
+	}
+	
+	public static void executeMacro(String command, MapToolMacroContext macroExecutionContext) {
 
 		MacroContext context = new MacroContext();
 		context.addTransform(command);
@@ -187,17 +194,26 @@ public class MacroManager {
 				MacroDefinition def = macro.getClass().getAnnotation(
 						MacroDefinition.class);
 
+				boolean trustedPath = macroExecutionContext == null ? false : macroExecutionContext.isTrusted();
+				String macroButtonName = macroExecutionContext == null ? "<chat>" : 
+						macroExecutionContext.getName() + "@" + macroExecutionContext.getSouce();
+				
 				// Preprocess line if required.
 				if (def == null || def.expandRolls()) {
 					// TODO: fix this, wow I really hate this, it's very, very ugly.
-					details = MapTool.getParser().parseLine(MapTool.getFrame().getCurrentZoneRenderer().getZone().resolveToken(MapTool.getFrame().getCommandPanel().getIdentity()), details);
+					Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+					Token tokenInContext = zone.resolveToken(MapTool.getFrame().getCommandPanel().getIdentity());
+					
+					details = MapTool.getParser().parseLine(tokenInContext, details, macroExecutionContext);
+					trustedPath = MapTool.getParser().isMacroPathTrusted();
+					
 				}
 				context.addTransform(key + " " + details);
 				postprocess(details);
 				
 				context.addTransform(key + " " + details);
 				if (macro != UNDEFINED_MACRO) {
-					executeMacro(context, macro, details);
+					executeMacro(context, macro, details, trustedPath, macroButtonName);
 					return;
 				}
 
@@ -205,7 +221,7 @@ public class MacroManager {
 				String alias = aliasMap.get(key);
 				if (alias == null) {
 
-					executeMacro(context, UNDEFINED_MACRO, command);
+					executeMacro(context, UNDEFINED_MACRO, command, trustedPath, macroButtonName);
 					return;
 				}
 				
@@ -343,8 +359,8 @@ public class MacroManager {
 		return list;
 	}
 	
-	private static void executeMacro(MacroContext context, Macro macro, String parameter) {
-		macro.execute(context, parameter);
+	private static void executeMacro(MacroContext context, Macro macro, String parameter, boolean trusted, String macroName) {
+		macro.execute(context, parameter, trusted, macroName);
 	}
 
 }
