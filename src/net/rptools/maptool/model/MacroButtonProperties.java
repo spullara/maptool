@@ -703,13 +703,13 @@ public class MacroButtonProperties implements Comparable<Object> {
 	
 	// Begin comparison customization
 	
-	private Boolean commonMacro = new Boolean(false);
-	private Boolean compareGroup = new Boolean(true);	
-	private Boolean compareSortPrefix = new Boolean(true);
-	private Boolean compareCommand = new Boolean(true);
-	private Boolean compareIncludeLabel = new Boolean(true);
-	private Boolean compareAutoExecute = new Boolean(true);
-	private Boolean compareApplyToSelectedTokens = new Boolean(true);
+	private Boolean commonMacro = false;
+	private Boolean compareGroup = true;	
+	private Boolean compareSortPrefix = true;
+	private Boolean compareCommand = true;
+	private Boolean compareIncludeLabel = true;
+	private Boolean compareAutoExecute = true;
+	private Boolean compareApplyToSelectedTokens = true;
 	
 	public Boolean getCommonMacro() {
 		return commonMacro;
@@ -786,6 +786,17 @@ public class MacroButtonProperties implements Comparable<Object> {
 			fixOldMacroCompare(nextMacro);
 		}
 	}
-	
-	// End comparison customization
+
+	public Object readResolve() {
+
+		if (commonMacro == null) commonMacro = false;
+		if (compareGroup == null) compareGroup = true;	
+		if (compareSortPrefix == null) compareSortPrefix = true;
+		if (compareCommand == null) compareCommand = true;
+		if (compareIncludeLabel == null) compareIncludeLabel = true;
+		if (compareAutoExecute == null) compareAutoExecute = true;
+		if (compareApplyToSelectedTokens == null) compareApplyToSelectedTokens = true;
+
+		return this;
+	}
 }
