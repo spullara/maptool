@@ -108,14 +108,17 @@ public class TwoImageBarTokenOverlay extends BarTokenOverlay {
             break;
         case BOTTOM:
             y = d.height - images[0].getHeight();
-        } // endswitch
+        } 
+
         Composite tempComposite = g.getComposite();        
         if (getOpacity() != 100)
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)getOpacity()/100));
-        g.drawImage(images[1], x, y, null);
+        
         int width = (getSide() == Side.TOP || getSide() == Side.BOTTOM) ? calcBarSize(images[0].getWidth(), value) : images[0].getWidth();
         int height = (getSide() == Side.LEFT || getSide() == Side.RIGHT) ? calcBarSize(images[0].getHeight(), value) : images[0].getHeight();
-        g.drawImage(images[0], x, y, x + width, y + height, 0, 0, width, height, null);
+
+        g.drawImage(images[1], x, y, size.width, size.height, null);
+        g.drawImage(images[0], x, y, x+size.width, y+size.height, 0, 0, width, height, null);
         g.setComposite(tempComposite);
     }
 
