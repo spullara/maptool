@@ -49,7 +49,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 	private String fontSize;
 	private String minWidth;
 	private String maxWidth;
-	private Boolean allowPlayerEdits = new Boolean(true);
+	private Boolean allowPlayerEdits = true;
 
 	// constructor that creates a new instance, doesn't auto-save
 	public MacroButtonProperties(int index, String colorKey, String hotKey, String command, 
@@ -796,7 +796,8 @@ public class MacroButtonProperties implements Comparable<Object> {
 		if (compareIncludeLabel == null) compareIncludeLabel = true;
 		if (compareAutoExecute == null) compareAutoExecute = true;
 		if (compareApplyToSelectedTokens == null) compareApplyToSelectedTokens = true;
-
+		if (allowPlayerEdits == null) allowPlayerEdits = true;
+		
 		return this;
 	}
 }
