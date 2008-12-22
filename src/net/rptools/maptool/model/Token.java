@@ -138,6 +138,7 @@ public class Token extends BaseModel {
 	private String tokenShape;
 	private String tokenType;
 	private String layer;
+	private transient Zone.Layer actualLayer;
 	
 	private String propertyType = Campaign.DEFAULT_TOKEN_PROPERTY_TYPE;
 
@@ -160,7 +161,7 @@ public class Token extends BaseModel {
 	private boolean hasSight;
 	
 	private String label;
-	
+
   /**
    * The notes that are displayed for this token.
    */
@@ -425,7 +426,10 @@ public class Token extends BaseModel {
 	
 	public Zone.Layer getLayer() {
 		try {
-			return layer != null ? Zone.Layer.valueOf(layer) : Zone.Layer.TOKEN;
+			if (actualLayer == null) {
+				actualLayer = layer != null ? Zone.Layer.valueOf(layer) : Zone.Layer.TOKEN;
+			}
+			return actualLayer;
 		} catch (IllegalArgumentException iae) {
 			return Zone.Layer.TOKEN;
 		}
@@ -433,6 +437,7 @@ public class Token extends BaseModel {
 	
 	public void setLayer(Zone.Layer layer) {
 		this.layer = layer.name();
+		actualLayer = layer;
 	}
 	
 	public boolean hasFacing() {

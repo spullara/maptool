@@ -28,6 +28,8 @@ public class Player {
 	private String role;
 	private String password;
 	
+	private transient Role actualRole; 
+	
 	public Player() {
 		// For serialization
 	}
@@ -36,6 +38,8 @@ public class Player {
 		this.name = name;
 		this.role = role.name();
 		this.password = password;
+		
+		actualRole = role;
 	}
 	
 	public boolean equals(Object obj) {
@@ -81,7 +85,10 @@ public class Player {
 	 * @return Returns the role.
 	 */
 	public Role getRole() {
-		return Role.valueOf(role);
+		if (actualRole == null) {
+			actualRole = Role.valueOf(role);
+		}
+		return actualRole;
 	}
 	
 	public String toString() {
