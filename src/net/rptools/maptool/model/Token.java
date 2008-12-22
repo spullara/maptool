@@ -1255,17 +1255,23 @@ public class Token extends BaseModel {
 		beingImpersonated = bool;
 	}
 	
-	public void deleteMacroGroup(String macroGroup) {
-		for(MacroButtonProperties nextProp : getMacroList(true)) {
+	public void deleteMacroGroup(String macroGroup, Boolean secure) {
+		List<MacroButtonProperties> tempMacros = new ArrayList<MacroButtonProperties>(getMacroList(true));
+		for(MacroButtonProperties nextProp : tempMacros) {
 			if(macroGroup.equals(nextProp.getGroup())) {
-				deleteMacroButtonProperty(nextProp);
+				getMacroPropertiesMap(secure).remove(nextProp.getIndex());
 			}
 		}
+		MapTool.getFrame().resetTokenPanels();
+		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), this);
 	}
 	
-	public void deleteAllMacros() {
-		for(MacroButtonProperties nextProp : getMacroList(true)) {
-			deleteMacroButtonProperty(nextProp);
+	public void deleteAllMacros(Boolean secure) {
+		List<MacroButtonProperties> tempMacros = new ArrayList<MacroButtonProperties>(getMacroList(true));
+		for(MacroButtonProperties nextProp : tempMacros) {
+			getMacroPropertiesMap(secure).remove(nextProp.getIndex());
 		}
+		MapTool.getFrame().resetTokenPanels();
+		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), this);
 	}
 }

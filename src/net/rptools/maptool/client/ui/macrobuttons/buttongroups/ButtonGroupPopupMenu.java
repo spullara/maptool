@@ -61,8 +61,10 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 		add(new ExportMacroSetAction());
 		add(new JSeparator());
 		add(new ClearGroupAction());
-		add(new JSeparator());
-		add(new ClearPanelAction());
+		if(!this.panelClass.equals("SelectionPanel")) {
+			add(new JSeparator());
+			add(new ClearPanelAction());
+		}
 	}
 
 	private class AddMacroAction extends AbstractAction {
@@ -210,7 +212,8 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 			} else if (panelClass.equals("CampaignPanel")) {
 				CampaignPanel.deleteButtonGroup(macroGroup);
 			} else if (tokenId != null){
-				MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId).deleteMacroGroup(macroGroup);				
+				MapTool.showInformation("Macro group to be cleared: " + macroGroup);
+				MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId).deleteMacroGroup(macroGroup, true);				
 			}
 		}
 	}
@@ -226,7 +229,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 			} else if (panelClass.equals("CampaignPanel")) {
 				CampaignPanel.clearPanel();
 			} else if (tokenId != null) {
-				MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId).deleteAllMacros();
+				MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId).deleteAllMacros(true);
 			}
 		}
 	}
