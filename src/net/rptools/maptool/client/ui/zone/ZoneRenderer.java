@@ -147,6 +147,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     
     // Optimizations
     private Map<Token, BufferedImage> replacementImageMap = new HashMap<Token, BufferedImage>();
+    private Map<Token, BufferedImage> flipImageMap = new HashMap<Token, BufferedImage>();
 
     private Token tokenUnderMouse;
 
@@ -451,6 +452,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     public void flush(Token token) {
         tokenLocationCache.remove(token);
+        flipImageMap.remove(token);
         
         // This should be smarter, but whatever
         visibleScreenArea = null;
@@ -472,6 +474,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         ImageManager.flushImage(zone.getMapAssetId());
         flushDrawableRenderer();
         replacementImageMap.clear();
+        flipImageMap.clear();
         fogBuffer = null;
         
         isLoaded = false;
@@ -1607,6 +1610,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         Set<GUID> tempVisTokens = new HashSet<GUID>();
         for (Token token : tokenList) {
 
+        	timer.start("tokenlist-1");
             if (token.isStamp() && isTokenMoving(token)) {
                 continue;
             }
@@ -1684,6 +1688,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             // Add the token to our visible set.
             tempVisTokens.add(token.getId());
+        	timer.stop("tokenlist-1");
+        	timer.start("tokenlist-2");
             
             // Stacking check
             if (!token.isStamp()) {
@@ -1710,6 +1716,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     }
                 }
             }
+        	timer.stop("tokenlist-2");
+        	timer.start("tokenlist-3");
             
             // Keep track of the location on the screen
             // Note the order where the top most token is at the end of the list
@@ -1756,6 +1764,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             if (showPathList.contains(token) && token.getLastPath() != null) {
                 renderPath(g, token.getLastPath(), token.getFootprint(zone.getGrid()));
             }
+        	timer.stop("tokenlist-3");
+        	timer.start("tokenlist-4");
             
             // Halo (TOPDOWN, CIRCLE)
             if (token.hasHalo() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.getShape() == Token.TokenShape.CIRCLE)) {
@@ -1765,22 +1775,31 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 clippedG.draw(new Rectangle2D.Double(location.x, location.y, location.scaledWidth, location.scaledHeight));
                 clippedG.setStroke(oldStroke);
             }
+        	timer.stop("tokenlist-4");
+        	timer.start("tokenlist-5");
 
             // handle flipping
             BufferedImage workImage = image;
             if (token.isFlippedX() || token.isFlippedY()) {
-                workImage = new BufferedImage( image.getWidth(), image.getHeight(), image.getTransparency());
-                
-                int workW = image.getWidth() * (token.isFlippedX() ? -1 : 1);
-                int workH = image.getHeight() * (token.isFlippedY () ? -1 : 1);
-                int workX = token.isFlippedX() ? image.getWidth() : 0;
-                int workY = token.isFlippedY() ? image.getHeight() : 0;
-                
-                Graphics2D wig = workImage.createGraphics ();
-                wig.drawImage(image, workX, workY, workW, workH, null);
-                wig.dispose();
+            	workImage = flipImageMap.get(token);
+            	if (workImage == null) {
+	                workImage = new BufferedImage( image.getWidth(), image.getHeight(), image.getTransparency());
+	                
+	                int workW = image.getWidth() * (token.isFlippedX() ? -1 : 1);
+	                int workH = image.getHeight() * (token.isFlippedY () ? -1 : 1);
+	                int workX = token.isFlippedX() ? image.getWidth() : 0;
+	                int workY = token.isFlippedY() ? image.getHeight() : 0;
+	                
+	                Graphics2D wig = workImage.createGraphics ();
+	                wig.drawImage(image, workX, workY, workW, workH, null);
+	                wig.dispose();
+	                
+	                flipImageMap.put(token, workImage);
+            	}
             }
-            
+
+        	timer.stop("tokenlist-5");
+        	timer.start("tokenlist-6");
 
             // Position
             Dimension imgSize = new Dimension(workImage.getWidth(), workImage.getHeight());
@@ -1816,8 +1835,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
             
             
+        	timer.stop("tokenlist-6");
+        	timer.start("tokenlist-7");
             
             clippedG.drawImage(workImage, at, this);
+        	timer.stop("tokenlist-7");
+        	timer.start("tokenlist-8");
 
             // Halo (SQUARE)
             if (token.hasHalo() && token.getShape() == Token.TokenShape.SQUARE) {
@@ -1890,6 +1913,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
             }
             
+        	timer.stop("tokenlist-8");
+        	timer.start("tokenlist-9");
               
               // Set up the graphics so that the overlay can just be painted.
               Graphics2D locg = (Graphics2D)clippedG.create((int)location.x, (int)location.y, (int)Math.ceil(location.scaledWidth), (int)Math.ceil(location.scaledHeight));
@@ -1903,6 +1928,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 if (overlay == null || overlay.isMouseover() && token != tokenUnderMouse || !overlay.showPlayer(token, MapTool.getPlayer())) continue;
                 overlay.paintOverlay(locg, token, bounds, stateValue);
               }
+          	timer.stop("tokenlist-9");
+        	timer.start("tokenlist-10");
               for (String bar : MapTool.getCampaign().getTokenBarsMap().keySet()) {
                   Object barValue = token.getState(bar);
                   BarTokenOverlay overlay = MapTool.getCampaign().getTokenBarsMap().get(bar);
@@ -1910,6 +1937,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                   overlay.paintOverlay(locg, token, bounds, barValue);
               } // endfor
               locg.dispose();
+          	timer.stop("tokenlist-10");
 
             // DEBUGGING
 //            ScreenPoint tmpsp = ScreenPoint.fromZonePoint(this, new ZonePoint(token.getX(), token.getY()));
@@ -1917,6 +1945,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //            g.drawLine(tmpsp.x, 0, tmpsp.x, getSize().height);
 //            g.drawLine(0, tmpsp.y, getSize().width, tmpsp.y);
         }
+    	timer.start("tokenlist-12");
         
         // Selection and labels
         for (TokenLocation location : getTokenLocations(getActiveLayer())) {
@@ -1977,6 +2006,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
             }
         }
+    	timer.stop("tokenlist-12");
+    	timer.start("tokenlist-13");
         
         // Stacks
         for (Area rect : coveredTokenSet) {
@@ -1994,6 +2025,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         if (clippedG != g) {
         	clippedG.dispose();
         }
+    	timer.stop("tokenlist-13");
         
         visibleTokenSet =  Collections.unmodifiableSet(tempVisTokens);
     }
