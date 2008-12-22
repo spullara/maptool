@@ -14,7 +14,10 @@ public class LightSourceIconOverlay implements ZoneOverlay {
 
 			if (token.hasLightSources()) {
 				Area area = renderer.getTokenBounds(token);
-				
+				if (area == null) {
+					continue;
+				}
+
 				int x = area.getBounds().x + (area.getBounds().width - AppStyle.lightSourceIcon.getWidth())/2;
 				int y = area.getBounds().y + (area.getBounds().height - AppStyle.lightSourceIcon.getHeight())/2;
 				g.drawImage(AppStyle.lightSourceIcon, x, y, null);

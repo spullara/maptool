@@ -2186,6 +2186,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	public Area getTokenBounds(Token token) {
         
     	TokenLocation location = tokenLocationCache.get(token);
+    	if (!location.maybeOnscreen(new Rectangle(0, 0, getSize().width, getSize().height))) {
+    		location = null;
+    	}
     	return location != null ? location.bounds : null;
     }
 
