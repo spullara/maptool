@@ -51,6 +51,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -2127,16 +2128,36 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		return true;
     }
     
+    public void selectTokens(Collection<GUID> tokens) {
+
+    	for (GUID tokenGUID : tokens) {
+	        if (!isTokenSelectable(tokenGUID)) {
+	            continue;
+	        }
+			
+			selectedTokenSet.add(tokenGUID);
+    	}
+
+    	addToSelectionHistory(selectedTokenSet);
+    	
+        repaint();
+        MapTool.getFrame().resetTokenPanels();
+		HTMLFrameFactory.selectedListChanged();
+    }
+    
     /**
      * Screen space rectangle
      */
     public void selectTokens(Rectangle rect) {
 
+    	List<GUID> selectedList = new LinkedList<GUID>();
         for (TokenLocation location : getTokenLocations(getActiveLayer())) {
             if (rect.intersects (location.bounds.getBounds())) {
-                selectToken(location.token.getId());
+                selectedList.add(location.token.getId());
             }
         }
+
+        selectTokens(selectedList);
     }
     
     public void clearSelectedTokens() {
