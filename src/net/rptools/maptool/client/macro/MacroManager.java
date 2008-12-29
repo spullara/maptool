@@ -202,8 +202,10 @@ public class MacroManager {
 				// Preprocess line if required.
 				if (def == null || def.expandRolls()) {
 					// TODO: fix this, wow I really hate this, it's very, very ugly.
-					Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
-					Token tokenInContext = zone.resolveToken(MapTool.getFrame().getCommandPanel().getIdentity());
+					Token tokenInContext = null;
+					if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+						tokenInContext = MapTool.getFrame().getCurrentZoneRenderer().getZone().resolveToken(MapTool.getFrame().getCommandPanel().getIdentity());
+					}
 					
 					details = MapTool.getParser().parseLine(tokenInContext, details, macroExecutionContext);
 					trustedPath = MapTool.getParser().isMacroPathTrusted();
