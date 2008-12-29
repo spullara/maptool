@@ -154,7 +154,6 @@ public class EditTokenDialog extends AbeillePanel {
 	public void bind(Object model) {
 		
 		// ICON
-		System.out.println(getTokenIconPanel());
 		getTokenIconPanel().setImageId(token.getImageAssetId());
 
 		// PROPERTIES
