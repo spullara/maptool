@@ -26,6 +26,7 @@ import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
 import net.rptools.maptool.client.functions.AbortFunction;
 import net.rptools.maptool.client.functions.AddAllToInitiativeFunction;
+import net.rptools.maptool.client.functions.AssertFunction;
 import net.rptools.maptool.client.functions.CurrentInitiativeFunction;
 import net.rptools.maptool.client.functions.EvalMacroFunctions;
 import net.rptools.maptool.client.functions.FindTokenFunctions;
@@ -80,6 +81,7 @@ public class MapToolLineParser {
 	/** MapTool functions to add to the parser.  */
 	private static final Function[] mapToolParserFunctions = {
 		AbortFunction.getInstance(),
+		AssertFunction.getInstance(),
 		AddAllToInitiativeFunction.getInstance(),
 		CurrentInitiativeFunction.getInstance(),
 		EvalMacroFunctions.getInstance(),
@@ -691,20 +693,10 @@ public class MapToolLineParser {
 								output = Output.TOOLTIP;
 								text = option.getStringParam(0);
 								break;
-								// old code kept for reference:
-								//							Matcher m = Pattern.compile("t(?:ooltip)?(?:\\(((?:[^()\"]|\"[^\"]*\"|\\((?:[^()\"]|\"[^\"]*\")*\\))+?)\\))?", Pattern.CASE_INSENSITIVE).matcher(opt);
-								//							if (m.matches()) {
-								//								output = Output.TOOLTIP;
-								//
-								//								text = m.group(1);
-								//							} else {
-								//								throw new ParserException(errorString("Invalid option: " + opt, opts, roll));
-								//							}
-								//							break;
 
-								///////////////////////////////////////////////////
-								// LOOP OPTIONS
-								///////////////////////////////////////////////////
+							///////////////////////////////////////////////////
+							// LOOP OPTIONS
+							///////////////////////////////////////////////////
 							case COUNT:
 								// COUNT(num [, sep])
 								loopType = LoopType.COUNT;
@@ -720,27 +712,6 @@ public class MapToolLineParser {
 
 								if (error != null) doError(error, opts, roll);
 								break;
-								// old code kept for reference:
-								//							Matcher m = Pattern.compile("(?:for|c(?:ount)?)\\(((?:[^()\"]|\"[^\"]*\"|\\((?:[^()\"]|\"[^\"]*\")*\\))+?)\\)", Pattern.CASE_INSENSITIVE).matcher(opt);
-								//							loopType = LoopType.FOR;
-								//							if (m.matches()) {
-								//								String args[] = m.group(1).split(",", 2);
-								//								Result result = parseExpression(resolver, tokenInContext, args[0]);
-								//								try {
-								//									count = ((Number)result.getValue()).intValue();
-								//									if (count < 0)
-								//										throw new ParserException(errorString("Invalid count: " + String.valueOf(count), opts, roll));
-								//								} catch (ClassCastException e) {
-								//									throw new ParserException(errorString("Invalid count: " + result.getValue().toString(), opts, roll));
-								//								}
-								//
-								//								if (args.length > 1) {
-								//									separator = args[1];
-								//								}
-								//							} else {
-								//								throw new ParserException(errorString("Invalid option: " + opt, opts, roll));
-								//							}
-								//							break;
 
 							case FOR:
 								// FOR(var, start, end [, step [, sep]])
@@ -825,9 +796,9 @@ public class MapToolLineParser {
 								loopSep = option.getStringParam(1);
 								break;
 
-								///////////////////////////////////////////////////
-								// BRANCH OPTIONS
-								///////////////////////////////////////////////////
+							///////////////////////////////////////////////////
+							// BRANCH OPTIONS
+							///////////////////////////////////////////////////
 							case IF:
 								// IF(condition)
 								branchType = BranchType.IF;
@@ -839,9 +810,9 @@ public class MapToolLineParser {
 								branchCondition = option.getObjectParam(0);
 								break;
 
-								///////////////////////////////////////////////////
-								// DIALOG AND FRAME OPTIONS
-								///////////////////////////////////////////////////
+							///////////////////////////////////////////////////
+							// DIALOG AND FRAME OPTIONS
+							///////////////////////////////////////////////////
 							case FRAME:
 								codeType = CodeType.CODEBLOCK;
 								frameName = option.getParsedParam(0, resolver, tokenInContext).toString();
@@ -854,9 +825,9 @@ public class MapToolLineParser {
 								frameOpts = option.getParsedParam(1, resolver, tokenInContext).toString();
 								outputTo = OutputLoc.DIALOG;
 								break;
-								///////////////////////////////////////////////////
-								// CODE OPTIONS
-								///////////////////////////////////////////////////
+							///////////////////////////////////////////////////
+							// CODE OPTIONS
+							///////////////////////////////////////////////////
 							case MACRO:
 								// MACRO("macroName@location")
 								codeType = CodeType.MACRO;
@@ -865,9 +836,9 @@ public class MapToolLineParser {
 							case CODE:
 								codeType = CodeType.CODEBLOCK;
 								break;
-								///////////////////////////////////////////////////
-								// MISC OPTIONS
-								///////////////////////////////////////////////////
+							///////////////////////////////////////////////////
+							// MISC OPTIONS
+							///////////////////////////////////////////////////
 							case TOKEN:
 								if (!isMacroTrusted()) {
 									throw new ParserException("You do not have permission to use [token(): ]");
