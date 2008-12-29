@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-Ant-Version: Apache Ant 1.7.0
-Created-By: 1.5.0_16-132 ("Apple Computer, Inc.")
+Ant-Version: Apache Ant 1.6.5
+Created-By: 1.5.0-rc-b63 (Sun Microsystems Inc.)
 Main-Class: net.rptools.maptool.client.LaunchInstructions
 Class-Path: lib/BareBonesBrowserLaunch.jar lib/abeille-formsrt-2.0.jar
   lib/antlr-2.7.6.jar lib/clientserver-1.0.b14.jar lib/commons-beanuti
