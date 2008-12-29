@@ -459,6 +459,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         visibleScreenArea = null;
         
         flushFog = true;
+        
+        zoneView.flush(token);
     }
     
     public ZoneView getZoneView() {
