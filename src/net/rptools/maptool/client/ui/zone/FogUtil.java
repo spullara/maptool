@@ -61,303 +61,8 @@ import net.rptools.maptool.util.GraphicsUtil;
 
 public class FogUtil {
 
-	public static Area calculateVisibility(int x, int y, Area vision, AreaData topology) {
-		CodeTimer timer = new CodeTimer("1");
-		
-		vision = new Area(vision);
-		vision.transform(AffineTransform.getTranslateInstance(x, y));
-		
-		// sanity check
-		if (topology.contains(x, y)) {
-			return null;
-		}
-		
-		Point origin = new Point(x, y);
-		
-		Area clearedArea = new Area();
-		
-		int blockCount = 0;
-		int quickSkippedAreas = 0;
-		int skippedAreas = 0;
-		int skippedAdds = 0;
-		int metaCount = 0;
-		for (AreaMeta areaMeta : topology.getAreaList(origin)) {
-			metaCount++;
-//			int pointCount = 0;
-//			int origSize = 0;
-//			int afterSize = 0;
 
-			// Quick check
-			if (clearedArea.contains(areaMeta.area.getBounds())) {
-				quickSkippedAreas++;
-				continue;
-			}
-			// Slower, but more accurate, should be faster than doing all the adds() below
-//			if (GraphicsUtil.contains(clearedArea, areaMeta.area)) {
-////				skippedAdds += areaMeta.getFrontFaces(new Point(x, y)).size();
-//				skippedAreas++;
-//				continue;
-//			}
-			
-			List<RelativeLine> relativeLineList = new LinkedList<RelativeLine>();
-			for (AreaFace face : areaMeta.getFrontFaces(new Point(x, y))) {
-				Line2D line = new Line2D.Double(face.getP1(), face.getP2());
-				relativeLineList.add(new RelativeLine(line, GeometryUtil.getDistance(origin, GeometryUtil.getCloserPoint(origin, line))));
-			}
-			
-			Collections.sort(relativeLineList, new Comparator<RelativeLine>() {
-				public int compare(RelativeLine o1, RelativeLine o2) {
-					
-					return o1.distance < o2.distance ? -1 : o2.distance < o1.distance ? 1 : 0;
-				}
-			});
-			
-			List<Area> blockList = new LinkedList<Area>();
-			for (RelativeLine rline : relativeLineList) {
-				
-				Line2D line = rline.line;
-				
-				double rx = Math.min(line.getP1().getX(), line.getP2().getX())-1;
-				double ry = Math.min(line.getP1().getY(), line.getP2().getY())-1;
-				double width = Math.max(line.getP1().getX(), line.getP2().getX()) - rx+2;
-				double height = Math.max(line.getP1().getY(), line.getP2().getY()) - ry+2;
-	
-				if (clearedArea.contains(new Rectangle2D.Double(rx, ry, width, height))) {
-					continue;
-				}
-
-				blockList.add(createBlockArea(origin, line));
-				
-				blockCount++;
-			}
-			
-			while (blockList.size() > 1) {
-				
-				Area a1 = blockList.remove(0);
-				Area a2 = blockList.remove(0);
-				
-				a1.add(a2);
-				blockList.add(a1);
-			}
-			
-			if (blockList.size() > 0) {
-				clearedArea.add(blockList.remove(0));
-			}
-			
-		}
-		
-		// For simplicity, this catches some of the edge cases
-		vision.subtract(clearedArea);
-
-		System.out.println("Blocks: " + blockCount + " Quick: " + quickSkippedAreas + " Skipped: " + skippedAreas + " AddsSkipped: " + skippedAdds + " meta: " + metaCount);
-		System.out.println(timer);
-		
-		return vision;
-	}	
-
-	public static Area calculateVisibility2(int x, int y, Area vision, AreaTree topology) {
-		CodeTimer timer = new CodeTimer("2");
-		
-		vision = new Area(vision);
-		vision.transform(AffineTransform.getTranslateInstance(x, y));
-		
-		// sanity check
-//		if (topology.contains(x, y)) {
-//			return null;
-//		}
-
-		Point origin = new Point(x, y);
-		
-		AreaOcean ocean = topology.getOceanAt(origin);
-		if (ocean == null) {
-			return null;
-		}
-		
-		Area clearedArea = new Area();
-		
-		int blockCount = 0;
-		int quickSkippedAreas = 0;
-		int skippedAreas = 0;
-		int skippedAdds = 0;
-
-		List<Area> blockList = new LinkedList<Area>();
-		for (VisibleAreaSegment segment : ocean.getVisibleAreaSegments(origin)) {
-			blockList.add(segment.getArea());
-		}
-		blockCount = blockList.size();
-
-		while (blockList.size() > 1) {
-			
-			Area a1 = blockList.remove(0);
-			Area a2 = blockList.remove(0);
-			
-			a1.add(a2);
-			blockList.add(a1);
-		}
-		
-		if (blockList.size() > 0) {
-			clearedArea.add(blockList.remove(0));
-		}
-			
-		System.out.println("Blocks: " + blockCount + " islands: " + ocean.getIslands().size());
-		System.out.println(timer);
-
-		// For simplicity, this catches some of the edge cases
-		vision.subtract(clearedArea);
-
-		
-		return vision;
-	}	
-
-	public static Area calculateVisibility3(int x, int y, Area vision, AreaTree topology) {
-		CodeTimer timer = new CodeTimer("3");
-		
-		vision = new Area(vision);
-		vision.transform(AffineTransform.getTranslateInstance(x, y));
-		
-		// sanity check
-//		if (topology.contains(x, y)) {
-//			return null;
-//		}
-
-		Point origin = new Point(x, y);
-		
-		AreaOcean ocean = topology.getOceanAt(origin);
-		if (ocean == null) {
-			return null;
-		}
-		
-		Area clearedArea = new Area();
-		
-		int blockCount = 0;
-		int quickSkippedAreas = 0;
-		int skippedAreas = 0;
-		int skippedAdds = 0;
-		
-		List<VisibleAreaSegment> segmentList = new ArrayList<VisibleAreaSegment>(ocean.getVisibleAreaSegments(origin));
-		Collections.sort(segmentList);
-
-		List<Area> clearedAreaList = new ArrayList<Area>();
-		for (VisibleAreaSegment segment : segmentList) {
-
-			if (clearedArea.contains(segment.getPath().getBounds())) {
-				skippedAreas ++;
-				continue;
-			}
-
-			Area area = segment.getArea();
-
-			clearedArea.add(area);
-		}
-
-		blockCount = segmentList.size();
-
-//		while (blockList.size() > 1) {
-//			
-//			Area a1 = blockList.remove(0);
-//			Area a2 = blockList.remove(0);
-//
-//			a1.add(a2);
-//			blockList.add(a1);
-//		}
-//		
-//		if (blockList.size() > 0) {
-//			clearedArea.add(blockList.remove(0));
-//		}
-			
-		System.out.println("Blocks: " + blockCount + " Skipped: " + skippedAreas );
-		System.out.println(timer);
-
-		// For simplicity, this catches some of the edge cases
-		vision.subtract(clearedArea);
-
-		
-		return vision;
-	}	
-	
-	public static Area calculateVisibility4(int x, int y, Area vision, AreaTree topology) {
-		CodeTimer timer = new CodeTimer("4");
-		
-		vision = new Area(vision);
-		vision.transform(AffineTransform.getTranslateInstance(x, y));
-		
-		// sanity check
-//		if (topology.contains(x, y)) {
-//			return null;
-//		}
-
-		Point origin = new Point(x, y);
-		
-		AreaOcean ocean = topology.getOceanAt(origin);
-		if (ocean == null) {
-			return null;
-		}
-		
-		int blockCount = 0;
-		int skippedAreas = 0;
-		
-		List<VisibleAreaSegment> segmentList = new ArrayList<VisibleAreaSegment>(ocean.getVisibleAreaSegments(origin));
-		Collections.sort(segmentList);
-
-		List<Area> clearedAreaList = new ArrayList<Area>();
-		for (VisibleAreaSegment segment : segmentList) {
-
-			boolean found = false;
-			for (Area clearedArea : clearedAreaList) {
-				if (clearedArea.contains(segment.getPath().getBounds())) {
-					skippedAreas ++;
-					found = true;
-					break;
-				}
-			}
-			if (found) {
-				continue;
-			}
-			
-			Area area = segment.getArea();
-
-			timer.start("combine");
-			found = false;
-			for (Area clearedArea : clearedAreaList) {
-				if (clearedArea.intersects(segment.getPath().getBounds())) {
-					clearedArea.add(area);
-					found = true;
-					break;
-				}
-			}
-			timer.stop("combine");
-
-			if (!found) {
-				clearedAreaList.add(area);
-			}
-		}
-
-		blockCount = segmentList.size();
-		int metaBlockCount = clearedAreaList.size();
-
-		while (clearedAreaList.size() > 1) {
-			
-			Area a1 = clearedAreaList.remove(0);
-			Area a2 = clearedAreaList.remove(0);
-
-			a1.add(a2);
-			clearedAreaList.add(a1);
-		}
-		
-		if (clearedAreaList.size() > 0) {
-			vision.subtract(clearedAreaList.get(0));
-		}
-			
-		System.out.println("Blocks: " + blockCount + " Skipped: " + skippedAreas + " metaBlocks: " + metaBlockCount );
-		System.out.println(timer);
-
-		// For simplicity, this catches some of the edge cases
-
-		
-		return vision;
-	}	
-	
-	public static Area calculateVisibility5(int x, int y, Area vision, AreaTree topology) {
+	public static Area calculateVisibility(int x, int y, Area vision, AreaTree topology) {
 		CodeTimer timer = new CodeTimer("5");
 		
 		vision = new Area(vision);
@@ -525,22 +230,24 @@ public class FogUtil {
 			Grid grid = zone.getGrid();
 			Area visionArea = new Area();
 
-//			for (CellPoint cell : lastPath.getCellPath()) {
-//				
-//				ZonePoint zp = grid.convert(cell); 
-//				int x = zp.x;
-//				int y = zp.y;
-//				
-//				Point p = calculateVisionCenter(token, zone);
-//    			
-//				Area currVisionArea = FogUtil.calculateVisibility(p.x, p.y, vision.getArea(zone, token), renderer.getTopologyAreaData());
-//				if (currVisionArea != null) {
-//					visionArea.add(currVisionArea);
-//				}
-//			}
-//
-//			zone.exposeArea(visionArea);
-//			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea);
+			Token tokenClone = new Token(token);
+			for (CellPoint cell : lastPath.getCellPath()) {
+				
+				ZonePoint zp = grid.convert(cell); 
+
+				tokenClone.setX(zp.x);
+				tokenClone.setY(zp.y);
+
+				Area currVisionArea = renderer.getZoneView().getVisibleArea(tokenClone);
+				System.out.println("Area:" + currVisionArea.getBounds());
+				if (currVisionArea != null) {
+					visionArea.add(currVisionArea);
+				}
+				renderer.getZoneView().flush(tokenClone);
+			}
+
+			zone.exposeArea(visionArea);
+			MapTool.serverCommand().exposeFoW(zone.getId(), visionArea);
 		}
 		
 	}
@@ -600,14 +307,14 @@ public class FogUtil {
 		final AreaTree tree = new AreaTree(topology);
 		
 		// Make sure all classes are loaded
-		calculateVisibility2(topSize/2, topSize/2, vision, tree);
+		calculateVisibility(topSize/2, topSize/2, vision, tree);
 
 		
 		Area area1 = new Area();
 //		JOptionPane.showMessageDialog(new JFrame(), "Hello");
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 1; i++) {
-			area1 = calculateVisibility2(topSize/2, topSize/2, vision, tree);
+			area1 = calculateVisibility(topSize/2, topSize/2, vision, tree);
 		}
 
 		final Area a1 = area1;
@@ -628,7 +335,7 @@ public class FogUtil {
 						int y = (int)(e.getY() / (size.height/2.0/topSize)/2);
 						
 						long start = System.currentTimeMillis();
-						theArea = calculateVisibility(x, y, vision, data);
+//						theArea = calculateVisibility5(x, y, vision, data);
 						System.out.println("Calc: " + (System.currentTimeMillis() - start));
 						repaint();
 					}
@@ -642,7 +349,7 @@ public class FogUtil {
 						int y = (int)(e.getY() / (size.height/2.0/topSize)/2);
 						
 						long start = System.currentTimeMillis();
-						theArea = calculateVisibility(x, y, vision, data);
+//						theArea = calculateVisibility5(x, y, vision, data);
 						System.out.println("Calc: " + (System.currentTimeMillis() - start));
 						repaint();
 					}

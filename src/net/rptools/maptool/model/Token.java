@@ -284,6 +284,7 @@ public class Token extends BaseModel {
 	}
 
 	public Token() {
+		imageAssetMap = new HashMap<String, MD5Key>();
 
 	}
 

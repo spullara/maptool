@@ -18,6 +18,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -136,7 +137,7 @@ public class ZoneView implements ModelChangeListener {
         	lightSourceArea.transform(AffineTransform.getScaleInstance(sight.getMultiplier(), sight.getMultiplier()));
         }
 
-		Area visibleArea = FogUtil.calculateVisibility5(p.x, p.y, lightSourceArea, getTopology());
+		Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopology());
 
 		if (visibleArea == null) {
 			return null;
@@ -205,7 +206,7 @@ public class ZoneView implements ModelChangeListener {
 //	        tokenVisibleArea = FogUtil.calculateVisibility2(p.x, p.y, visibleArea, getTopology());
 //	        tokenVisibleArea = FogUtil.calculateVisibility3(p.x, p.y, visibleArea, getTopology());
 //	        tokenVisibleArea = FogUtil.calculateVisibility4(p.x, p.y, visibleArea, getTopology());
-	        tokenVisibleArea = FogUtil.calculateVisibility5(p.x, p.y, visibleArea, getTopology());
+	        tokenVisibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopology());
 			
 			tokenVisibleAreaCache.put(token.getId(), tokenVisibleArea);
 		}
@@ -217,12 +218,19 @@ public class ZoneView implements ModelChangeListener {
         	
     		// Combine all light sources that might intersect our vision
         	List<Area> intersects = new LinkedList<Area>();
+        	List<Token> lightSourceTokens = new ArrayList<Token>(lightSourceSet.size()+1);
     		for (GUID lightSourceTokenId : lightSourceSet) {
     			
     			Token lightSourceToken = zone.getToken(lightSourceTokenId);
-    			if (lightSourceToken == null) {
-    				continue;
+    			if (lightSourceToken != null) {
+    				lightSourceTokens.add(lightSourceToken);
     			}
+    		}
+        	if (token.hasLightSources() && !lightSourceTokens.contains(token)) {
+        		// This accounts for temporary tokens (such as during an Expose Last Path)
+        		lightSourceTokens.add(token);
+        	}
+    		for (Token lightSourceToken : lightSourceTokens) {
     			
     			Area lightArea = getLightSourceArea(token, lightSourceToken);
 
@@ -305,7 +313,7 @@ public class ZoneView implements ModelChangeListener {
 		brightLightCache.clear();
 	}
 	
-    private void flush(Token token) {
+    public void flush(Token token) {
     	boolean hadLightSource = lightSourceCache.get(token.getId()) != null;
     	
         tokenVisionCache.remove(token.getId());
