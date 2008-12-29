@@ -239,7 +239,6 @@ public class FogUtil {
 				tokenClone.setY(zp.y);
 
 				Area currVisionArea = renderer.getZoneView().getVisibleArea(tokenClone);
-				System.out.println("Area:" + currVisionArea.getBounds());
 				if (currVisionArea != null) {
 					visionArea.add(currVisionArea);
 				}
