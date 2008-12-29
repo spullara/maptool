@@ -22,7 +22,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 							new JSONMacroFunctions();
 	
 	private JSONMacroFunctions() {
-		super(1, 3, "json.get", "json.type", "json.fields", 
+		super(1, UNLIMITED_PARAMETERS, "json.get", "json.type", "json.fields", 
 				    "json.length", "json.fromList", "json.set", 
 				    "json.fromStrProp", "json.toStrProp", "json.toList",
 				    "json.append", "json.remove", "json.indent", "json.contains");
@@ -64,8 +64,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 			if (parameters.size() < 3) {
 				throw new ParserException("Not enough parameters for json.set(obj, key, value)");
 			}
-			return JSONSet(parameters.get(0).toString(), parameters.get(1).toString(),
-						   parameters.get(2));
+			return JSONSet(parameters.get(0).toString(), parameters);
 			
 		}
 		
@@ -115,7 +114,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 			if (parameters.size() < 2) {
 				throw new ParserException("Not enough parameters for json.append(obj, value)");
 			}
-			return JSONAppend(parameters.get(0).toString(), parameters.get(1));
+			return JSONAppend(parameters.get(0).toString(), parameters);
 		}
 		
 		if (functionName.equals("json.remove")) {
@@ -177,15 +176,23 @@ public class JSONMacroFunctions extends AbstractFunction {
 	/**
 	 * Append a value to a JSON array.
 	 * @param obj The JSON object.
-	 * @param value The value to append to the array.
+	 * @param values The values to append to the array.
 	 * @return the JSON array.
 	 * @throws ParserException
 	 */
-	private String JSONAppend(String obj, Object value) throws ParserException {
-		Object o = convertToJSON(obj);
+	private String JSONAppend(String obj, List<Object> values) throws ParserException {
+		Object o;
+		if (obj == null || obj.length() == 0) {
+			o = new JSONArray();
+		} else {
+			o = convertToJSON(obj);
+		}		
+
 		if (o != null && o instanceof JSONArray) {
 			JSONArray jarr = (JSONArray) o;
-			jarr.add(value);
+			for (Object val : values.subList(1, values.size())) {
+				jarr.add(val);
+			}
 			return jarr.toString();
 		} else {
 			throw new ParserException("You can only append to JSON arrays.");
@@ -210,8 +217,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 			val = jobj.get(key).toString();
 		} else {
 			JSONArray jarr = (JSONArray) o;
-			jarr.get(Integer.parseInt(key)).toString();
-			val = jarr.toString();
+			val =  jarr.get(Integer.parseInt(key)).toString();
 		}
 		
 		// Attempt to convert to a number ...
@@ -358,24 +364,38 @@ public class JSONMacroFunctions extends AbstractFunction {
 	/**
 	 * Sets the value of an element in a JSON Array or a Field in a JSON Object.
 	 * @param obj The JSON object.
-	 * @param key The key or index to set.
-	 * @param value The value to set.
+	 * @param param The key/value pairs to set.
 	 * @return new JSON object.
 	 * @throws ParserException if the obj is not a JSON object.
 	 */
-	private String JSONSet(String obj, String key, Object value) throws ParserException {
-		Object o = convertToJSON(obj);
+	private String JSONSet(String obj, List<Object> param) throws ParserException {
+		
+		Object o;
+		if (obj == null || obj.length() == 0) {
+			o = new JSONObject();
+		} else {
+			o = convertToJSON(obj);
+		}
+		
 		if (o == null) {
 			throw new ParserException("Unknown JSON Object type");			
 		}
 		
+		if (param.size() % 2 != 1) {
+			throw new ParserException("No matching value for key in json.set()");
+		}
+		
 		if (o instanceof JSONObject) {
 			JSONObject jobj = (JSONObject) o;
-			jobj.put(key, value);
+			for (int i = 1; i < param.size(); i += 2) {
+				jobj.put(param.get(i).toString(), param.get(i+1));
+			}
 			return jobj.toString();
 		} else {
 			JSONArray jarr = (JSONArray) o;
-			jarr.set(Integer.parseInt(key), value);
+			for (int i = 1; i < param.size(); i += 2) {
+				jarr.set(Integer.parseInt(param.get(i).toString()), param.get(i+1));
+			}
 			return jarr.toString();
 		} 
 	}
