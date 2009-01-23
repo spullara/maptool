@@ -740,9 +740,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     	newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, AppPreferences.getVisionOverlayOpacity()/255.0f));
         timer.stop("lights-2");
-        timer.start("lights-3");
 
         if (renderedLightMap == null) {
+            timer.start("lights-3");
 	    	// Organize
 	    	Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
 	    	for (DrawableLight light : zoneView.getDrawableLights()) {
