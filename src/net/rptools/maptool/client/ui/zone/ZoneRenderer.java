@@ -56,6 +56,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -459,6 +460,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         visibleScreenArea = null;
         
         flushFog = true;
+        renderedLightMap = null;
         
         zoneView.flush(token);
     }
@@ -479,6 +481,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         replacementImageMap.clear();
         flipImageMap.clear();
         fogBuffer = null;
+        renderedLightMap = null;
         
         isLoaded = false;
     }
@@ -716,16 +719,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         lastView = view;
     }
     
+    private Map<Paint, Area> renderedLightMap;
     private void renderLights(Graphics2D g, PlayerView view) {
 
-    	// Setup
+		// Setup
         timer.start("lights-1");
     	Graphics2D newG = (Graphics2D)g.create();
     	Area clip = new Area(g.getClip());
     	if (visibleScreenArea != null) {
     		clip.intersect(visibleScreenArea);
     	}
-    	newG.setClip(clip);
     	SwingUtil.useAntiAliasing(newG);
         timer.stop("lights-1");
         timer.start("lights-2");
@@ -735,60 +738,63 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	af.scale(getScale(), getScale());
     	newG.setTransform(af);
 
-    	newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, AppPreferences.getVisionOverlayOpacity()/255.0f));
+    	newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, AppPreferences.getVisionOverlayOpacity()/255.0f));
         timer.stop("lights-2");
         timer.start("lights-3");
 
-    	// Organize
-    	Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
-    	for (DrawableLight light : zoneView.getDrawableLights()) {
-    		List<Area> areaList = colorMap.get(light.getPaint().getPaint());
-    		if (areaList == null) {
-    			areaList = new ArrayList<Area>();
-    			colorMap.put(light.getPaint().getPaint(), areaList);
-    		}
-    		
-    		areaList.add(new Area(light.getArea()));
-    	}    	
-        timer.stop("lights-3");
-        timer.start("lights-4");
-
-    	// Combine same colors to avoid ugly overlap
-    	for (List<Area> areaList : colorMap.values()) {
-    		
-			while (areaList.size() > 1) {
-				
-				Area a1 = areaList.remove(0);
-				Area a2 = areaList.remove(0);
-				
-				a1.add(a2);
-				areaList.add(a1);
-			}
-			
-	    	// Cut out the bright light
-			if (areaList.size() > 0) {
-				Area area = areaList.get(0);
-				
-				for (Area brightArea : zoneView.getBrightLights()) {
-					area.subtract(brightArea);
+        if (renderedLightMap == null) {
+	    	// Organize
+	    	Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
+	    	for (DrawableLight light : zoneView.getDrawableLights()) {
+	    		List<Area> areaList = colorMap.get(light.getPaint().getPaint());
+	    		if (areaList == null) {
+	    			areaList = new ArrayList<Area>();
+	    			colorMap.put(light.getPaint().getPaint(), areaList);
+	    		}
+	    		
+	    		areaList.add(new Area(light.getArea()));
+	    	}    	
+	        timer.stop("lights-3");
+	        timer.start("lights-4");
+	
+	    	// Combine same colors to avoid ugly overlap
+	    	for (List<Area> areaList : colorMap.values()) {
+	    		
+				while (areaList.size() > 1) {
+					
+					Area a1 = areaList.remove(0);
+					Area a2 = areaList.remove(0);
+					
+					a1.add(a2);
+					areaList.add(a1);
 				}
-			}
-    	}    	
-    	
-        timer.stop("lights-4");
-        timer.start("lights-5");
+				
+		    	// Cut out the bright light
+				if (areaList.size() > 0) {
+					Area area = areaList.get(0);
+					
+					for (Area brightArea : zoneView.getBrightLights()) {
+						area.subtract(brightArea);
+					}
+				}
+	    	}    	
+	        renderedLightMap = new LinkedHashMap<Paint, Area>();
+	        for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {
+	        	renderedLightMap.put(entry.getKey(), entry.getValue().get(0));
+	        }
+	        timer.stop("lights-4");
+        }
     	
     	// Draw
-    	for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {
+        timer.start("lights-5");
+    	for (Entry<Paint, Area> entry : renderedLightMap.entrySet()) {
     		
     		newG.setPaint(entry.getKey());
-    		
-    		for (Area area : entry.getValue()) {
-    			newG.fill(area);
-    		}
+			newG.fill(entry.getValue());
     	}
-        timer.stop("lights-5");
-
+    	timer.stop("lights-5");
+        
+        newG.dispose();
     }
     
     private void renderPlayerVisionOverlay(Graphics2D g, PlayerView view) {
