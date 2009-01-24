@@ -157,8 +157,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     
     private Zone.Layer activeLayer;
     
-    private Timer repaintTimer;
-
     private String loadingProgress;
     private boolean isLoaded;
 
@@ -219,10 +217,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 //        fps.start();
     }
     
-    public void setRepaintTimer(Timer timer) {
-        repaintTimer = timer;
-    }
-
     public void showPath(Token token, boolean show) {
         if (show) {
             showPathList.add(token);
@@ -545,10 +539,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	}
     
 	public void paintComponent(Graphics g) {
-
-        if (repaintTimer != null) {
-            repaintTimer.restart();
-        }
 
         Graphics2D g2d = (Graphics2D) g;
         
