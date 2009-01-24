@@ -202,13 +202,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private SelectionPanel selectionPanel = new SelectionPanel();
 	private ImpersonatePanel impersonatePanel = new ImpersonatePanel();
 	
-	// TODO: Find a better pattern for this
-	private Timer repaintTimer;
-
 	public MapToolFrame() {
-
 		// Set up the frame
 		super(AppConstants.APP_NAME);
+
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		addWindowListener(this);
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -280,7 +277,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		// Put it all together
 		menuBar = new AppMenuBar();
 		setJMenuBar(menuBar);
-		setLayout(new BorderLayout());
 		add(BorderLayout.NORTH, new ToolbarPanel(toolbox));
 		add(BorderLayout.SOUTH, statusPanel);
 
@@ -292,12 +288,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
 
 		new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
-//		setSize(800, 600);
+
 		restorePreferences();
 		updateKeyStrokes();
 		
-		repaintTimer = new Timer(2000, new RepaintTimer());
-		repaintTimer.start();
 	}
 	
 	public ImageChooserDialog getImageChooserDialog() {
@@ -336,7 +330,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		getDockingManager().setProfileKey(DOCKING_PROFILE_NAME);
 		getDockingManager().setOutlineMode(com.jidesoft.docking.DockingManager.PARTIAL_OUTLINE_MODE);
 		getDockingManager().setUsePref(false);
-		getDockingManager().setLayoutDirectory(AppUtil.getAppHome("config").getAbsolutePath());
 
 		getDockingManager().getWorkspace().setAcceptDockableFrame(false);
 
@@ -367,7 +360,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			MapTool.showError("Could not load the layout file");
 			e.printStackTrace();
 		}
-        getDockingManager().loadLayoutData();
+        getDockingManager().loadLayoutDataFromFile(AppUtil.getAppHome("config").getAbsolutePath()+"/layout.dat");
 		
 	}
 	
@@ -1029,7 +1022,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		if (currentRenderer != null) {
 			currentRenderer.flush();
 			zoneRendererPanel.remove(currentRenderer);
-			currentRenderer.setRepaintTimer(null);
 		}
 
 		if (renderer != null) {
@@ -1044,7 +1036,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		if (renderer != null) {
 			MapTool.getEventDispatcher().fireEvent(MapTool.ZoneEvent.Activated, this, null, renderer.getZone());
 			renderer.requestFocusInWindow();
-			renderer.setRepaintTimer(repaintTimer);
 		}
 
 		AppActions.updateActions();
@@ -1286,7 +1277,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		ServerDisconnectHandler.disconnectExpected = true;
 		MapTool.disconnect();
 
-		getDockingManager().saveLayoutData();
+		getDockingManager().saveLayoutDataToFile(AppUtil.getAppHome("config").getAbsolutePath()+"/layout.dat");
 		
 		// If closing cleanly, then remove the autosave file
 		MapTool.getAutoSaveManager().purge();
@@ -1311,18 +1302,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	public void windowDeactivated(WindowEvent e) {
 	}
 
-	// //
-	// REPAINT TIMER
-	private class RepaintTimer implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			ZoneRenderer renderer = getCurrentZoneRenderer();
-			if (renderer != null) {
-				renderer.repaint();
-			}
-		}
-	}
-	
 	//Windows OS defaults F10 to the menubar, noooooo!! We want for macro buttons
 	private void removeWindowsF10() {
 		
