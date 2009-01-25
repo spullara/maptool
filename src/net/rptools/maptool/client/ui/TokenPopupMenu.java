@@ -14,14 +14,12 @@
 package net.rptools.maptool.client.ui;
 
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,13 +38,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
-import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
+import javax.swing.text.JTextComponent;
 
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppUtil;
@@ -68,6 +63,9 @@ import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
 
 
 public class TokenPopupMenu extends AbstractTokenPopupMenu {
@@ -839,7 +837,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		public void actionPerformed(ActionEvent e) {
 			String identity = getTokenUnderMouse().getName();
 			String command = "/im " + identity + ":" + speech;
-			JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+			JTextComponent commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
 			commandArea.setText(command);
 			MapTool.getFrame().getCommandPanel().commitCommand();
 		}

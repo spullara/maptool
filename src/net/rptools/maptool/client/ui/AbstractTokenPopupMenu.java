@@ -13,6 +13,16 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
@@ -21,17 +31,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import javax.swing.text.JTextComponent;
 
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
@@ -47,7 +48,6 @@ import net.rptools.maptool.model.Direction;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.LightSource;
-import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
 import net.rptools.maptool.model.Zone;
@@ -751,7 +751,7 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			putValue(Action.NAME, "Impersonate");
 		}
 		public void actionPerformed(ActionEvent e) {
-			JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+			JTextComponent commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
 
 			commandArea.setText("/im " + tokenUnderMouse.getId());
 			MapTool.getFrame().getCommandPanel().commitCommand();

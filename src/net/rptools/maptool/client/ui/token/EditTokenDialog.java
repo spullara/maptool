@@ -29,7 +29,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -57,13 +56,12 @@ import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.text.JTextComponent;
 
-// import net.rptools.chartool.ui.charsheet.CharSheetController;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.functions.AbstractTokenAccessorFunction;
@@ -876,7 +874,7 @@ public class EditTokenDialog extends AbeillePanel {
 						}
 
 						// TODO: COmbine this with the code int MacroButton
-						JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+						JTextComponent commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
 
 						commandArea.setText(commandArea.getText() + selectedText);
 						commandArea.requestFocusInWindow();
@@ -895,7 +893,7 @@ public class EditTokenDialog extends AbeillePanel {
 						}
 
 						// TODO: COmbine this with the code int MacroButton
-						JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+						JTextComponent commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
 
 						commandArea.setText("/emit " + selectedText);
 						commandArea.requestFocusInWindow();

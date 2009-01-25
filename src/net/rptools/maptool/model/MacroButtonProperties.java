@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JTextPane;
+import javax.swing.text.JTextComponent;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolMacroContext;
@@ -309,7 +309,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 				impersonatePrefix = "/im "+tokenId+":";
 			}
 
-			JTextPane commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
+			JTextComponent commandArea = MapTool.getFrame().getCommandPanel().getCommandTextArea();
 			String oldText = commandArea.getText();
 
 			if (getIncludeLabel()) {
