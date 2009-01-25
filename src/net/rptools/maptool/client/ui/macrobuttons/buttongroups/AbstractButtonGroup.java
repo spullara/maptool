@@ -88,7 +88,7 @@ public abstract class AbstractButtonGroup extends JPanel implements DropTargetLi
 		if (tokenId == null){
 			return null;
 		} else {
-			return MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId);
+			return MapTool.getFrame().getCurrentZoneRenderer() != null ? MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId) : null;
 		}
 	}
 
