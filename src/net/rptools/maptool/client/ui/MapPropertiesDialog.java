@@ -438,13 +438,13 @@ public class MapPropertiesDialog extends JDialog  {
 		
 		Grid grid = null;
 		if (getHexHorizontalRadio().isSelected()) {
-			grid = GridFactory.createGrid(GridFactory.HEX_HORI);
+			grid = GridFactory.createGrid(GridFactory.HEX_HORI,AppPreferences.getFaceEdge(), AppPreferences.getFaceVertex());
 		}
 		if (getHexVerticalRadio().isSelected()) {
-			grid = GridFactory.createGrid(GridFactory.HEX_VERT);
+			grid = GridFactory.createGrid(GridFactory.HEX_VERT,AppPreferences.getFaceEdge(), AppPreferences.getFaceVertex());
 		}
 		if (getSquareRadio().isSelected()) {
-			grid = GridFactory.createGrid(GridFactory.SQUARE);
+			grid = GridFactory.createGrid(GridFactory.SQUARE,AppPreferences.getFaceEdge(), AppPreferences.getFaceVertex());
 		}
 		if (getNoGridRadio().isSelected()) {
 			grid = GridFactory.createGrid(GridFactory.NONE);

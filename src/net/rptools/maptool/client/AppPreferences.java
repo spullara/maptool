@@ -101,6 +101,12 @@ public class AppPreferences {
     private static final String KEY_DEFAULT_GRID_TYPE = "defaultGridType";
     private static final String DEFAULT_DEFAULT_GRID_TYPE = GridFactory.SQUARE;
     
+    private static final String KEY_FACE_VERTEX = "faceVertex";
+    private static final boolean DEFAULT_FACE_VERTEX = false;
+    
+    private static final String KEY_FACE_EDGE = "faceEdge";
+    private static final boolean DEFAULT_FACE_EDGE = true;
+    
     private static final String KEY_DEFAULT_GRID_SIZE = "defaultGridSize";
     private static final int DEFAULT_DEFAULT_GRID_SIZE = 50;
     
@@ -421,6 +427,22 @@ public class AppPreferences {
     
     public static void setDefaultGridType(String type) {
     	prefs.put(KEY_DEFAULT_GRID_TYPE, type);
+    }
+
+    public static boolean getFaceVertex() {
+    	return prefs.getBoolean(KEY_FACE_VERTEX, DEFAULT_FACE_VERTEX);
+    }
+
+    public static void setFaceVertex(boolean yesNo) {
+    	prefs.putBoolean(KEY_FACE_VERTEX, yesNo);
+    }
+
+    public static boolean getFaceEdge() {
+    	return prefs.getBoolean(KEY_FACE_EDGE, DEFAULT_FACE_EDGE);
+    }
+
+    public static void setFaceEdge(boolean yesNo) {
+    	prefs.putBoolean(KEY_FACE_EDGE, yesNo);
     }
 
     public static void clearAssetRoots() {

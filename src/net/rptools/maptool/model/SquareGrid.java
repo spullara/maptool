@@ -63,15 +63,27 @@ public class SquareGrid extends Grid {
 		public boolean isCoordinatesSupported() {return true;}
 	};
 
-	private static final int[] FACING_ANGLES = new int[] {
+	private static final int[] ALL_ANGLES = new int[] {
 		-135, -90, -45, 0, 45, 90, 135, 180
 	};
+	private static int[] FACING_ANGLES;
 	
 	public SquareGrid() {
 		super();
-		
 	}
 
+	public SquareGrid(boolean faceEdges, boolean faceVertices) {
+		if (faceEdges && faceVertices) {
+			FACING_ANGLES = ALL_ANGLES;
+		} else if (!faceEdges && faceVertices) {
+			FACING_ANGLES = new int[] {-135, -45, 45, 135};
+		} else if (faceEdges && !faceVertices) {
+			FACING_ANGLES = new int[]{-90, 0, 90, 180};
+		} else {
+			FACING_ANGLES = new int[] {90};
+		}
+	}
+	
 	@Override
 	public void drawCoordinatesOverlay(Graphics2D g, ZoneRenderer renderer) {
 

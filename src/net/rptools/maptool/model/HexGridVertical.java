@@ -15,12 +15,8 @@ package net.rptools.maptool.model;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.List;
 
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarVertHexEuclideanWalker;
@@ -28,7 +24,8 @@ import net.rptools.maptool.model.TokenFootprint.OffsetTranslator;
 
 public class HexGridVertical extends HexGrid {
 	
-	private static final int[] FACING_ANGLES = new int[] {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180};
+	private static final int[] ALL_ANGLES = new int[] {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180};
+	private static int[] FACING_ANGLES; // = new int[] {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180};
 	
 	private static final OffsetTranslator OFFSET_TRANSLATOR = new OffsetTranslator() {
 		public void translate(CellPoint originPoint, CellPoint offsetPoint) {
@@ -40,6 +37,19 @@ public class HexGridVertical extends HexGrid {
 	
 	public HexGridVertical() {
 		super();
+	}
+
+	public HexGridVertical(boolean faceEdges, boolean faceVertices) {
+		super();
+		if (faceEdges && faceVertices) {
+			FACING_ANGLES = ALL_ANGLES;
+		} else if (!faceEdges && faceVertices) {
+			FACING_ANGLES = new int[]{-120, -60, 0, 60, 120, 180};
+		} else if (faceEdges && !faceVertices) {
+			FACING_ANGLES = new int[] {-150, -90, -30, 30, 90, 150};
+		} else {
+			FACING_ANGLES = new int[] {90};			
+		}
 	}
 
 	@Override

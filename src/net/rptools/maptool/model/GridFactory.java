@@ -20,19 +20,22 @@ public class GridFactory {
 	public static final String HEX_HORI = "Horizontal Hex";
 	public static final String SQUARE = "Square";
 	public static final String NONE = "None";
-	
+
 	public static Grid createGrid(String type) {
+		return createGrid(type,true,false);
+	}
+	public static Grid createGrid(String type, boolean faceEdges, boolean faceVertices) {
 	
 		if (isHexVertical(type)) {
-			return new HexGridVertical();
+			return new HexGridVertical(faceEdges, faceVertices);
 		}
 		
 		if (isHexHorizontal(type)) {
-			return new HexGridHorizontal();
+			return new HexGridHorizontal(faceEdges, faceVertices);
 		}
 		
 		if (isSquare(type)) {
-			return new SquareGrid();
+			return new SquareGrid(faceEdges, faceVertices);
 		}
 		
 		if (isNone(type)) {

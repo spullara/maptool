@@ -720,7 +720,7 @@ public class MapTool {
     			}
     		});
     		LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
-        	
+    		
         	// Make the toggle button pressed state look more distinct
         	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
 

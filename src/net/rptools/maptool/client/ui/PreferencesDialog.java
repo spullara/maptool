@@ -66,6 +66,9 @@ public class PreferencesDialog extends JDialog {
     private JCheckBox playSystemSoundCheckBox;
     private JCheckBox playSystemSoundOnlyWhenNotFocusedCheckBox;
 
+    private JCheckBox facingFaceEdges;
+    private JCheckBox facingFaceVertices;
+    
     private JCheckBox showAvatarInChat;
     
     private JCheckBox showMacroUpdateWarning;
@@ -133,11 +136,23 @@ public class PreferencesDialog extends JDialog {
 		showDialogOnNewToken = panel.getCheckBox("showDialogOnNewToken");
 		movementMetricCombo = panel.getComboBox("movementMetric");
 		showMacroUpdateWarning = panel.getCheckBox("showMacroUpdateWarning");
-
+		facingFaceEdges = panel.getCheckBox("facingFaceEdges");
+		facingFaceVertices = panel.getCheckBox("facingFaceVertices");
+		
 		setInitialState();
 
 		// And keep it updated
-		
+
+		facingFaceEdges.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setFaceEdge(facingFaceEdges.isSelected());
+			}
+		});
+		facingFaceVertices.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setFaceVertex(facingFaceVertices.isSelected());
+			}
+		});
 		showMacroUpdateWarning.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setShowMacroUpdateWarning(showMacroUpdateWarning.isSelected());
@@ -454,5 +469,7 @@ public class PreferencesDialog extends JDialog {
 		playSystemSoundOnlyWhenNotFocusedCheckBox.setSelected(AppPreferences.getPlaySystemSoundsOnlyWhenNotFocused());
 		showAvatarInChat.setSelected(AppPreferences.getShowAvatarInChat());
 		showMacroUpdateWarning.setSelected(AppPreferences.getShowMacroUpdateWarning());
+		facingFaceEdges.setSelected(AppPreferences.getFaceEdge());
+		facingFaceVertices.setSelected(AppPreferences.getFaceVertex());
 	}
 }
