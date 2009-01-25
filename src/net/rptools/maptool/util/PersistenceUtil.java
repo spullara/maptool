@@ -50,6 +50,7 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -491,4 +492,54 @@ public class PersistenceUtil {
         pakFile.close();
 	}
 	// end of Macro import/export support
+	
+	// Table import/export support
+	public static LookupTable loadLegacyTable(File file) throws IOException {
+		
+		if (!file.exists()) {
+			throw new FileNotFoundException();
+		}
+		
+		FileInputStream in = new FileInputStream(file);
+		try {
+			return loadTable(in);
+		} finally {
+			if (in != null) {
+				in.close();
+			}
+		}
+	}
+	
+	public static LookupTable loadTable(InputStream in) throws IOException {
+		
+		return (LookupTable) new XStream().fromXML(in);
+	}
+	
+	public static LookupTable loadTable(File file) throws IOException {
+        try {
+            PackedFile pakFile = new PackedFile(file);
+            String version = (String)pakFile.getProperty(PROP_VERSION); // Sanity check
+            LookupTable lookupTable = (LookupTable)pakFile.getContent();
+            loadAssets(lookupTable.getAllAssetIds(), pakFile);
+            return lookupTable;
+        } catch (IOException e) {
+            return loadLegacyTable(file);
+        }
+	}
+	
+	public static void saveTable(LookupTable lookupTable, File file) throws IOException {
+		
+        // Put this in FileUtil
+        if (file.getName().indexOf(".") < 0) {
+            file = new File(file.getAbsolutePath() + ".mttable");
+        }
+        PackedFile pakFile = new PackedFile(file);
+        pakFile.setContent(lookupTable);
+        saveAssets(lookupTable.getAllAssetIds(), pakFile);
+        pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+        pakFile.save();
+        pakFile.close();
+	}
+	
+	// end of Table import/export support
 }

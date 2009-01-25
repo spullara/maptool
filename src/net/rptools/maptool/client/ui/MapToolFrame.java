@@ -1428,4 +1428,35 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		return loadMacroSetFileChooser;
 	}
 	// end of Macro import/export support
+	
+	// Table import/export support
+	private FileFilter tableFilter = new MTFileFilter("mttable", "MapTool Table");
+	
+	private JFileChooser saveTableFileChooser;
+	
+	public JFileChooser getSaveTableFileChooser() {
+		if (saveTableFileChooser == null) {
+			saveTableFileChooser = new JFileChooser();
+			saveTableFileChooser.setCurrentDirectory(AppPreferences.getSaveDir());
+			saveTableFileChooser.addChoosableFileFilter(tableFilter);
+			saveTableFileChooser.setDialogTitle("Export Table");
+		}
+		saveTableFileChooser.setAcceptAllFileFilterUsed(true);
+		return saveTableFileChooser;
+	}
+
+	private JFileChooser loadTableFileChooser;
+	
+	public JFileChooser getLoadTableFileChooser() {
+		if (loadTableFileChooser == null) {
+			loadTableFileChooser = new JFileChooser();
+			loadTableFileChooser.setCurrentDirectory(AppPreferences.getLoadDir());
+			loadTableFileChooser.addChoosableFileFilter(tableFilter);
+			loadTableFileChooser.setDialogTitle("Import Table");
+		}
+		
+		loadTableFileChooser.setFileFilter(tableFilter);
+		return loadTableFileChooser;
+	}
+	// end of Table import/export support
 }

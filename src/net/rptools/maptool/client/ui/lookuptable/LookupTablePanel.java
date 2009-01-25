@@ -14,15 +14,20 @@
 package net.rptools.maptool.client.ui.lookuptable;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -31,6 +36,8 @@ import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.model.LookupTable;
+import net.rptools.maptool.model.MacroButtonProperties;
+import net.rptools.maptool.util.PersistenceUtil;
 
 public class LookupTablePanel extends AbeillePanel {
 
@@ -127,6 +134,14 @@ public class LookupTablePanel extends AbeillePanel {
 		return imagePanel;
 	}
 	
+	public JButton getImportButton() {
+		return (JButton) getComponent("importButton");
+	}
+	
+	public JButton getExportButton() {
+		return (JButton) getComponent("exportButton");
+	}
+	
 	public void initDuplicateButton() {
 		getDuplicateButton().setMargin(new Insets(0, 0, 0, 0));
 		getDuplicateButton().addActionListener(new ActionListener() {
@@ -212,5 +227,82 @@ public class LookupTablePanel extends AbeillePanel {
 		});
 	}
 
+	public void initImportButton() {
+		getImportButton().setMargin(new Insets(0,0,0,0));
+		getImportButton().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = MapTool.getFrame().getLoadTableFileChooser();
+				
+				if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
+					return;
+				}
 
+				final File selectedFile = chooser.getSelectedFile();
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						try {
+							Map<String, LookupTable> lookupTables = MapTool.getCampaign().getLookupTableMap();
+							LookupTable newTable = PersistenceUtil.loadTable(selectedFile);
+							Boolean alreadyExists = lookupTables.keySet().contains(newTable.getName());
+							if(alreadyExists) {
+								if(MapTool.confirm("<html><body>A table with the name " + newTable.getName() +
+									" already exists within the campaign.  Would you like to replace it " +
+									"with the import?<br><br>Select \"Yes\" to replace the existing table." +
+									"<br><br>Select \"No\" to keep the existing table.</body></html>")) {
+									lookupTables.remove(newTable.getName());
+								} else {
+									return;
+								}								
+							}
+							lookupTables.put(newTable.getName(), newTable);
+						} catch (IOException ioe) {
+							ioe.printStackTrace();
+							MapTool.showError("Could not load table: " + ioe.getLocalizedMessage());
+						}
+					}
+				});
+			}			
+		});
+	}
+	
+	public void initExportButton() {
+		getExportButton().setMargin(new Insets(0,0,0,0));
+		getExportButton().addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = MapTool.getFrame().getSaveTableFileChooser();
+				
+				if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
+					return;
+				}
+				
+				final File selectedFile = chooser.getSelectedFile();
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						if (selectedFile.exists()) {
+						    if (selectedFile.getName().endsWith(".mttable")) {
+						        if (!MapTool.confirm("Export into table file?")) {
+						            return;
+						        }
+						    } else if (!MapTool.confirm("Overwrite existing file?")) {
+								return;
+							}
+						}
+						try {
+							List<Object> ids = getImagePanel().getSelectedIds();
+							if (ids == null || ids.size() == 0) {
+								return;
+							}
+							LookupTable lookupTable = MapTool.getCampaign().getLookupTableMap().get((String)ids.get(0));
+							PersistenceUtil.saveTable(lookupTable, selectedFile);				
+							MapTool.showInformation("Table Saved.");
+						} catch (IOException ioe) {
+							ioe.printStackTrace();
+							MapTool.showError("Could not save table: " + ioe);
+						}
+					}
+				});
+				
+			}
+		});
+	}
 }
