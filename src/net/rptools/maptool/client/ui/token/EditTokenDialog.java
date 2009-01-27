@@ -467,13 +467,13 @@ public class EditTokenDialog extends AbeillePanel {
 		}
 		
 		// PORTRAIT
-		token.setPortraitImage(getPortraitPanel().getImageId());
-		if (token.getPortraitImage() != null) {
+		if (getPortraitPanel().getImageId() != null) {
 			// Make sure the server has the image
 			if (!MapTool.getCampaign().containsAsset(token.getPortraitImage())) {
 				MapTool.serverCommand().putAsset(AssetManager.getAsset(token.getPortraitImage()));
 			}
 		}
+		token.setPortraitImage(getPortraitPanel().getImageId());
 
 		// LAYOUT
 		token.setSizeScale(getTokenLayoutPanel().getSizeScale());
