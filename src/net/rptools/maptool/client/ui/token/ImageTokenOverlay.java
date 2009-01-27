@@ -99,20 +99,18 @@ public class ImageTokenOverlay extends BooleanTokenOverlay {
             return;
         } // endif
         BufferedImage image = ImageManager.getImageAndWait(asset);
-        Dimension size = new Dimension(image.getWidth(), image.getHeight());
-        SwingUtil.constrainTo(size, d.width, d.height);
-        image = ImageUtil.createCompatibleImage(image, size.width, size.height, null);
         
         // Paint it at the right location
-        int width = image.getWidth();
-        int height = image.getHeight();
+        int width = d.width;
+        int height = d.height;
         int x = iBounds.x + (d.width - width) / 2;
         int y = iBounds.y + (d.height - height) / 2;
         Composite tempComposite = g.getComposite();        
         if (getOpacity() != 100)
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)getOpacity()/100));
-        g.drawImage(image, x, y, null);
+        g.drawImage(image, x, y, d.width, d.height, null);
         g.setComposite(tempComposite);
+        
     }
 
     /** @return Getter for assetId */
