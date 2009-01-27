@@ -462,8 +462,8 @@ public class EditTokenDialog extends AbeillePanel {
 		
 		// IMAGE
 		if (!token.getImageAssetId().equals(getTokenIconPanel().getImageId())) {
-			token.setImageAsset(null, getTokenIconPanel().getImageId()); // Default image for now
 			MapToolUtil.uploadAsset(AssetManager.getAsset(getTokenIconPanel().getImageId()));
+			token.setImageAsset(null, getTokenIconPanel().getImageId()); // Default image for now
 		}
 		
 		// PORTRAIT
