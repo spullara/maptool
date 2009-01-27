@@ -283,7 +283,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		setGlassPane(glassPane);
 
 		removeWindowsF10();
-		configureDocking();
 		
 		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
 
@@ -291,9 +290,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		restorePreferences();
 		updateKeyStrokes();
-		
+
+		// This will cause the frame to be set to visible (BAD jide, BAD! No cookie for you!)
+		configureDocking();
 	}
-	
+
 	public ImageChooserDialog getImageChooserDialog() {
 		if (imageChooserDialog == null) {
 			imageChooserDialog = new ImageChooserDialog(this);
