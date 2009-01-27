@@ -1090,7 +1090,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             downloadCount ++;
             
             // Have we loaded the image into memory yet ?
-            Image image  = ImageManager.getImage(asset, new ImageObserver[]{});
+            Image image  = ImageManager.getImage(asset, this);
             if (image == null || image == ImageManager.UNKNOWN_IMAGE ) {
                 loaded = false;
                 continue;
