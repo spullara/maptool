@@ -13,11 +13,6 @@
  */
 package net.rptools.maptool.client;
 
-import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
-import javax.swing.plaf.FontUIResource;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -25,6 +20,8 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.Transparency;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -36,10 +33,13 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import com.centerkey.utils.BareBonesBrowserLaunch;
-import com.jidesoft.plaf.LookAndFeelFactory;
-import de.muntjak.tinylookandfeel.Theme;
-import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
+
 import net.rptools.clientserver.hessian.client.ClientConnection;
 import net.rptools.lib.BackupManager;
 import net.rptools.lib.EventDispatcher;
@@ -48,6 +48,8 @@ import net.rptools.lib.TaskBarFlasher;
 import net.rptools.lib.image.ThumbnailManager;
 import net.rptools.lib.net.RPTURLStreamHandlerFactory;
 import net.rptools.lib.sound.SoundManager;
+import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.swing.NoteFrame;
 import net.rptools.maptool.client.swing.SplashScreen;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.MapToolFrame;
@@ -73,6 +75,12 @@ import net.rptools.maptool.transfer.AssetTransferManager;
 import net.rptools.maptool.util.UPnPUtil;
 import net.tsc.servicediscovery.ServiceAnnouncer;
 
+import com.centerkey.utils.BareBonesBrowserLaunch;
+import com.jidesoft.plaf.LookAndFeelFactory;
+
+import de.muntjak.tinylookandfeel.Theme;
+import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
+
 /**
  */
 public class MapTool {
@@ -95,6 +103,7 @@ public class MapTool {
     private static ThumbnailManager thumbnailManager; 
 
     private static MapToolFrame clientFrame;
+    private static NoteFrame profilingNoteFrame;
     private static MapToolServer server;
     private static ServerCommand serverCommand;
     private static ServerPolicy serverPolicy;
@@ -297,6 +306,22 @@ public class MapTool {
         
         // TODO: make this more formal when we switch to mina
         new ServerHeartBeatThread().start();
+	}
+	
+	public static NoteFrame getProfilingNoteFrame() {
+		if (profilingNoteFrame == null) {
+	        profilingNoteFrame = new NoteFrame();
+	        profilingNoteFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+	        profilingNoteFrame.addWindowListener(new WindowAdapter() {
+	        	public void windowClosing(WindowEvent e) {
+	        		AppState.setCollectProfilingData(false);
+	        		profilingNoteFrame.setVisible(false);
+	        	}
+	        });
+	        profilingNoteFrame.setSize(profilingNoteFrame.getPreferredSize());
+	        SwingUtil.centerOver(profilingNoteFrame, clientFrame);
+		}
+		return profilingNoteFrame;
 	}
 	
 	public static String getVersion() {

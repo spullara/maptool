@@ -705,7 +705,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         SwingUtil.restoreAntiAliasing(g2d, oldAA);
         
-//        System.out.println(timer);
+        if (AppState.isCollectProfilingData()) {
+        	MapTool.getProfilingNoteFrame().addText(timer.toString());
+        }
         lastView = view;
     }
     

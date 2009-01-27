@@ -742,6 +742,25 @@ public class AppActions {
 
 	};
 
+	public static final Action TOGGLE_COLLECT_PROFILING_DATA = new AdminClientAction() {
+		{
+			init("Collect Profiling Data");
+		}
+
+		@Override
+		public boolean isSelected() {
+			return AppState.isCollectProfilingData();
+		}
+
+		public void execute(ActionEvent e) {
+
+			AppState.setCollectProfilingData(!AppState.isCollectProfilingData());
+			
+			MapTool.getProfilingNoteFrame().setVisible(AppState.isCollectProfilingData());
+		}
+
+	};
+
 	public static final Action TOGGLE_SHOW_MOVEMENT_MEASUREMENTS = new DefaultClientAction() {
 		{
 			init("action.showMovementMeasures");

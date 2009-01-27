@@ -59,6 +59,9 @@ public class CodeTimer {
 		builder.append("Timer ").append(name).append(": ");
 		builder.append(System.currentTimeMillis() - created).append("\n");
 		for (Map.Entry<String, Timer> entry : timeMap.entrySet()) {
+			if (entry.getValue().getElapsed() < 1) {
+				continue;
+			}
 			builder.append("\t").append(entry.getKey()).append(": ").append(entry.getValue().getElapsed()).append("\n");
 		}
 		

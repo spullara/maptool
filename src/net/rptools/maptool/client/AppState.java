@@ -32,6 +32,8 @@ public class AppState {
     private static int gridSize = 1;
     private static boolean showAsPlayer = false;
     private static boolean showLightSources = false;
+
+    private static boolean collectProfilingData = false;
     
     private static PropertyChangeSupport changeSupport = new PropertyChangeSupport(AppState.class);
     
@@ -43,6 +45,14 @@ public class AppState {
       changeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
+    public static boolean isCollectProfilingData() {
+    	return collectProfilingData;
+    }
+    
+    public static void setCollectProfilingData(boolean flag) {
+    	collectProfilingData = flag;
+    }
+    
     public static boolean isShowLightRadius() {
     	return showLightRadius;
     }
