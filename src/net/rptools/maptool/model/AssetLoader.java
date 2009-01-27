@@ -229,7 +229,7 @@ public class AssetLoader {
 					return;
 				} catch (IOException ioe) {
 					// Well, try a different repo
-					ioe.printStackTrace();
+//					ioe.printStackTrace();
 					continue;
 				} catch (Throwable t) {
 					t.printStackTrace();
