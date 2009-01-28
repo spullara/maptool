@@ -744,7 +744,7 @@ public class AppActions {
 
 	public static final Action TOGGLE_COLLECT_PROFILING_DATA = new DefaultClientAction() {
 		{
-			init("Collect Profiling Data");
+			init("Collect Performance Data");
 		}
 
 		@Override
