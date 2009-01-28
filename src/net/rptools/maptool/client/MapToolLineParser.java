@@ -757,7 +757,10 @@ public class MapToolLineParser {
 									String listString = option.getParsedParam(1, resolver, tokenInContext).toString();
 									loopSep = option.getStringParam(2);
 									String listDelim = option.getStringParam(3);
-
+									if (listDelim.trim().startsWith("\"")) {
+										listDelim = parseExpression(resolver, tokenInContext, listDelim).getValue().toString();
+									}
+									
 									foreachList = new ArrayList<String>();
 									if (listString.trim().startsWith("{") || listString.trim().startsWith("[")) {
 										// if String starts with [ or { it is either JSON try treat it as a JSON String
