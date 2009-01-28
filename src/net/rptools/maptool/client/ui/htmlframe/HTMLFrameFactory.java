@@ -62,7 +62,7 @@ public class HTMLFrameFactory {
 					} catch (NumberFormatException e) {
 						// Do nothing
 					}
-				} else if (key.equals("temporary") || key.equals("undecorated")) {
+				} else if (key.equals("temporary") || key.equals("undecorated")|| key.equals("temp")) {
 					try {
 						int v = Integer.parseInt(value);
 						if (v != 0) {
@@ -101,7 +101,7 @@ public class HTMLFrameFactory {
 		if (isFrame) {
 			HTMLFrame.showFrame(name, title, width, height, html);
 		} else {
-			HTMLDialog.showDialog(name, title, width, height, input, hasFrame, temporary, html);
+			HTMLDialog.showDialog(name, title, width, height, hasFrame, input, temporary, html);
 		}
 	}
 	

@@ -293,10 +293,12 @@ public class MacroButtonDialog extends JDialog {
 		
 		setVisible(false);
 		MapTool.getFrame().getSelectionPanel().reset();
+		dispose();
 	}
 	
 	private void cancel() {
 		setVisible(false);
+		dispose();
 	}
 
 	private JCheckBox getAutoExecuteCheckBox() {

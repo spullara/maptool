@@ -75,7 +75,7 @@ public class HTMLDialog extends JDialog implements HTMLPanelContainer {
 		setUndecorated(undecorated);
 		
 		width = width < 100 ? 400: width;
-		height = height < 50 ? 200 : width;
+		height = height < 50 ? 200 : height;
 		setPreferredSize(new Dimension(width, height));
 
 		panel = new HTMLPanel(this, !input, !undecorated);
@@ -108,7 +108,7 @@ public class HTMLDialog extends JDialog implements HTMLPanelContainer {
 			dialog.updateContents(html, temp, input);
 
 		} else {
-			dialog = new HTMLDialog(MapTool.getFrame(), name, title, frame, width, height);
+			dialog = new HTMLDialog(MapTool.getFrame(), name, title, !frame, width, height);
 			dialogs.put(name, dialog);
 			dialog.updateContents(html, temp, input);
 		}
@@ -228,6 +228,7 @@ public class HTMLDialog extends JDialog implements HTMLPanelContainer {
 			if (mtae.getName().equalsIgnoreCase("input")) {
 				Boolean val = Boolean.valueOf(mtae.getContent());
 				panel.updateContents(val);
+				input = val;
 			} else if (mtae.getName().equalsIgnoreCase("onChangeToken")  ||
 					   mtae.getName().equalsIgnoreCase("onChangeSelection") ||
 					   mtae.getName().equalsIgnoreCase("onChangeImpersonated")) {
