@@ -1045,12 +1045,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		        GraphicsUtil.renderSoftClipping(buffG, zone.getExposedArea(), (int)(zone.getGrid().getSize() * getScale()*.25), view.isGMView() ? .6 : 1);
 	        } else {
 
-	        	buffG.setTransform(new AffineTransform());
-	        	buffG.setComposite(AlphaComposite.Src);
-		        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		        buffG.setStroke(new BasicStroke(1));
-		        buffG.setColor(Color.black);
-		        buffG.draw(visibleScreenArea);
+	        	if (visibleScreenArea != null) {
+		        	buffG.setTransform(new AffineTransform());
+		        	buffG.setComposite(AlphaComposite.Src);
+			        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			        buffG.setStroke(new BasicStroke(1));
+			        buffG.setColor(Color.black);
+			        buffG.draw(visibleScreenArea);
+	        	}
 	        }
 
 	        
