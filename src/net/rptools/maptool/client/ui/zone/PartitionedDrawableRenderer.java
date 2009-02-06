@@ -14,6 +14,7 @@
 package net.rptools.maptool.client.ui.zone;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -41,7 +42,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 
 	private static final BufferedImage NO_IMAGE = new BufferedImage(1, 1, Transparency.OPAQUE);
 	private static final int CHUNK_SIZE = 512;
-	private static final int EXPENSIVE_THRESHOLD = 100; // Any chunk that takes this long will be cached, cost is in milliseconds
+	private static final int EXPENSIVE_THRESHOLD = 10; // Any chunk that takes this long will be cached, cost is in milliseconds
 	private static final int MAX_EXPENSIVE_CHUNK_COUNT = (int)((15*1024*1024.0) / (CHUNK_SIZE * CHUNK_SIZE * 8)); // 15 megs 
 	
 	private Map<String, BufferedImage> chunkMap = new HashMap<String, BufferedImage>();
@@ -105,6 +106,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 						long start = System.currentTimeMillis();
 						chunk = createChunk(drawableList, cellX, cellY, scale);
 						long duration = System.currentTimeMillis() - start;
+						System.out.println(cellX + ", " + cellY + ": " + duration);
 
 						// Hold on to chunks that are expensive to render.  We'll use a little cache space to improve overall feel
 						if (duration > EXPENSIVE_THRESHOLD) {
