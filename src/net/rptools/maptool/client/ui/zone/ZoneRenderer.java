@@ -1050,7 +1050,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		        buffG.setStroke(new BasicStroke(1));
 		        buffG.setColor(Color.black);
-		        buffG.draw(zone.getExposedArea().createTransformedArea(af));
+		        buffG.draw(visibleScreenArea);
 	        }
 
 	        
