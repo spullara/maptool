@@ -41,8 +41,8 @@ import net.rptools.maptool.model.drawing.Pen;
 public class PartitionedDrawableRenderer implements DrawableRenderer {
 
 	private static final BufferedImage NO_IMAGE = new BufferedImage(1, 1, Transparency.OPAQUE);
-	private static final int CHUNK_SIZE = 512;
-	private static final int EXPENSIVE_THRESHOLD = 10; // Any chunk that takes this long will be cached, cost is in milliseconds
+	private static final int CHUNK_SIZE = 256;
+	private static final int EXPENSIVE_THRESHOLD = 0; // Any chunk that takes this long will be cached, cost is in milliseconds
 	private static final int MAX_EXPENSIVE_CHUNK_COUNT = (int)((15*1024*1024.0) / (CHUNK_SIZE * CHUNK_SIZE * 8)); // 15 megs 
 	
 	private Map<String, BufferedImage> chunkMap = new HashMap<String, BufferedImage>();
