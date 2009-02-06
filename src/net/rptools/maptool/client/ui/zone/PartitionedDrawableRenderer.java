@@ -106,7 +106,6 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 						long start = System.currentTimeMillis();
 						chunk = createChunk(drawableList, cellX, cellY, scale);
 						long duration = System.currentTimeMillis() - start;
-						System.out.println(cellX + ", " + cellY + ": " + duration);
 
 						// Hold on to chunks that are expensive to render.  We'll use a little cache space to improve overall feel
 						if (duration > EXPENSIVE_THRESHOLD) {
