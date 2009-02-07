@@ -180,6 +180,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     private Set<GUID> visibleTokenSet;
     
+	private CodeTimer timer;
     
     public ZoneRenderer(Zone zone) {
         if (zone == null) { throw new IllegalArgumentException("Zone cannot be null"); }
@@ -557,9 +558,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         }
     }
     
-	CodeTimer timer;
     public void renderZone(Graphics2D g2d, PlayerView view) {
 		timer = new CodeTimer("zonerenderer");
+		timer.setEnabled(AppState.isCollectProfilingData());
+		timer.setThreshold(10);
 
 		timer.start("setup");
     	g2d.setFont(AppStyle.labelFont);
@@ -612,17 +614,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         renderBoard(g2d, view);
         timer.stop("board");
         
-        timer.start("drawableOverlay");
+        timer.start("drawableBackground");
         renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, zone.getBackgroundDrawnElements());
-        timer.stop("drawableOverlay");
+        timer.stop("drawableBackground");
         
         timer.start("tokensBackground");
         renderTokens(g2d, zone.getBackgroundStamps(), view);
         timer.stop("tokensBackground");
         
-        timer.start("drawableOverlay2");
+        timer.start("drawableObjects");
         renderDrawableOverlay(g2d, objectDrawableRenderer, view, zone.getObjectDrawnElements());
-        timer.stop("drawableOverlay2");
+        timer.stop("drawableObjects");
         
         timer.start("lights");
         renderLights(g2d, view);
@@ -636,20 +638,20 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         renderGrid(g2d, view);
         timer.stop("grid");
         
-        timer.start("drawableOverlay3");
+        timer.start("drawableGM");
         if (view.isGMView()) {
         	renderTokens(g2d, zone.getGMStamps(), view);
             renderDrawableOverlay(g2d, gmDrawableRenderer, view, zone.getGMDrawnElements());
         }
-        timer.stop("drawableOverlay3");
+        timer.stop("drawableGM");
         
         timer.start("tokensStamp");
         renderTokens(g2d, zone.getStampTokens(), view);
         timer.stop("tokensStamp");
         
-        timer.start("drawableOverlay4");
+        timer.start("drawableTokens");
         renderDrawableOverlay(g2d, tokenDrawableRenderer, view, zone.getDrawnElements());
-        timer.stop("drawableOverlay4");
+        timer.stop("drawableTokens");
         
         timer.start("visionOverlay");
         renderPlayerVisionOverlay(g2d, view);

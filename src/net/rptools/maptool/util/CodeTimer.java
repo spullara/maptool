@@ -1,14 +1,18 @@
 package net.rptools.maptool.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class CodeTimer {
 
-	private Map<String, Timer> timeMap = new TreeMap<String, Timer>();
+	private Map<String, Timer> timeMap = new HashMap<String, Timer>();
 	private String name;
 	private long created = System.currentTimeMillis();
+	private boolean enabled;
+	private int threshold = 1;
 	
 	public CodeTimer() {
 		this("");
@@ -16,9 +20,21 @@ public class CodeTimer {
 	
 	public CodeTimer(String name) {
 		this.name = name;
+		enabled = true;
+	}
+
+	public void setThreshold(int threshold) {
+		this.threshold = threshold;
+	}
+	
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 	
 	public void start(String id) {
+		if (!enabled) {
+			return;
+		}
 		
 		Timer timer = timeMap.get(id);
 		if (timer == null) {
@@ -30,6 +46,9 @@ public class CodeTimer {
 	}
 	
 	public void stop(String id) {
+		if (!enabled) {
+			return;
+		}
 		
 		if (!timeMap.containsKey(id)) {
 			throw new IllegalArgumentException("Could not find timer id: " + id);
@@ -39,6 +58,9 @@ public class CodeTimer {
 	}
 	
 	public long getElapsed(String id) {
+		if (!enabled) {
+			return 0;
+		}
 
 		if (!timeMap.containsKey(id)) {
 			throw new IllegalArgumentException("Could not find timer id: " + id);
@@ -58,11 +80,15 @@ public class CodeTimer {
 		
 		builder.append("Timer ").append(name).append(": ");
 		builder.append(System.currentTimeMillis() - created).append("\n");
-		for (Map.Entry<String, Timer> entry : timeMap.entrySet()) {
-			if (entry.getValue().getElapsed() < 1) {
+		
+		List<String> keySet = new ArrayList<String>(timeMap.keySet());
+		Collections.sort(keySet);
+		for (String key : keySet) {
+			Timer timer = timeMap.get(key);
+			if (timer.getElapsed() < threshold) {
 				continue;
 			}
-			builder.append("\t").append(entry.getKey()).append(": ").append(entry.getValue().getElapsed()).append("\n");
+			builder.append("\t").append(key).append(": ").append(timer.getElapsed()).append("\n");
 		}
 		
 		return builder.toString();
