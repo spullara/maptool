@@ -70,9 +70,19 @@ public class SquareGrid extends Grid {
 	
 	public SquareGrid() {
 		super();
+		if (FACING_ANGLES == null) {
+			boolean faceEdges = AppPreferences.getFaceEdge();
+			boolean faceVertices = AppPreferences.getFaceVertex();
+			setFacings(faceEdges, faceVertices);
+		}
 	}
 
 	public SquareGrid(boolean faceEdges, boolean faceVertices) {
+		setFacings(faceEdges, faceVertices);
+	}
+	
+	private void setFacings(boolean faceEdges, boolean faceVertices) {
+		
 		if (faceEdges && faceVertices) {
 			FACING_ANGLES = ALL_ANGLES;
 		} else if (!faceEdges && faceVertices) {
@@ -82,6 +92,7 @@ public class SquareGrid extends Grid {
 		} else {
 			FACING_ANGLES = new int[] {90};
 		}
+		
 	}
 	
 	@Override

@@ -139,7 +139,8 @@ public class Zone extends BaseModel {
     private transient HashMap<String, Integer> tokenNumberCache;
         
     public Zone() {
-        setGrid(new SquareGrid());
+    	// TODO: Was this needed?
+        //setGrid(new SquareGrid());
     }
 
     public void setBackgroundPaint(DrawablePaint paint) {

@@ -20,6 +20,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarHorizHexEuclideanWalker;
@@ -27,6 +28,16 @@ import net.rptools.maptool.model.TokenFootprint.OffsetTranslator;
 
 public class HexGridHorizontal extends HexGrid {
 
+	/*
+	 * Facings are set when a new map is created with a particular grid 
+	 * and these facings affect all maps with the same grid.  Other maps 
+	 * with different grids will remain the same.
+	 * 
+	 * Facings are set when maps are loaded to the current preferences.
+	 * 
+	 * TODO:  Should changing the preferences force a change for all the 
+	 * already created maps?
+	 */
 	private static int[] FACING_ANGLES; // =  new int[] {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180};
 	private static final int[] ALL_ANGLES = new int[] {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180};
 
@@ -40,10 +51,25 @@ public class HexGridHorizontal extends HexGrid {
 	
 	public HexGridHorizontal() {
 		super();
+		if (FACING_ANGLES == null) {
+			boolean faceEdges = AppPreferences.getFaceEdge();
+			boolean faceVertices = AppPreferences.getFaceVertex();
+			setFacings(faceEdges, faceVertices);
+		}
 	}
 	
 	public HexGridHorizontal(boolean faceEdges, boolean faceVertices) {
 		super();
+		setFacings(faceEdges, faceVertices);
+	}
+
+	/**
+	 * Set available facings based on the passed parameters.
+	 * 
+	 * @param faceEdges - Tokens can face cell faces if true.
+	 * @param faceVertices - Tokens can face cell vertices if true.
+	 */
+	private void setFacings(boolean faceEdges, boolean faceVertices) {
 		if (faceEdges && faceVertices) {
 			FACING_ANGLES = ALL_ANGLES;
 		} else if (!faceEdges && faceVertices) {
@@ -54,7 +80,7 @@ public class HexGridHorizontal extends HexGrid {
 			FACING_ANGLES = new int[] {90};
 		}
 	}
-
+	
 	@Override
 	public int[] getFacingAngles() {
 		return FACING_ANGLES;

@@ -17,6 +17,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarVertHexEuclideanWalker;
@@ -37,10 +38,19 @@ public class HexGridVertical extends HexGrid {
 	
 	public HexGridVertical() {
 		super();
+		if (FACING_ANGLES == null) {
+			boolean faceEdges = AppPreferences.getFaceEdge();
+			boolean faceVertices = AppPreferences.getFaceVertex();
+			setFacings(faceEdges, faceVertices);
+		}
 	}
 
 	public HexGridVertical(boolean faceEdges, boolean faceVertices) {
 		super();
+		setFacings(faceEdges, faceVertices);
+	}
+	
+	private void setFacings(boolean faceEdges, boolean faceVertices) {
 		if (faceEdges && faceVertices) {
 			FACING_ANGLES = ALL_ANGLES;
 		} else if (!faceEdges && faceVertices) {
@@ -49,7 +59,7 @@ public class HexGridVertical extends HexGrid {
 			FACING_ANGLES = new int[] {-150, -90, -30, 30, 90, 150};
 		} else {
 			FACING_ANGLES = new int[] {90};			
-		}
+		}		
 	}
 
 	@Override
