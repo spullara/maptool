@@ -125,7 +125,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 				g.drawImage(chunk.image, x, y, null);
 				
 				// DEBUG: Partition boundaries
-				if (true) { // Show partition boundaries
+				if (false) { // Show partition boundaries
 					if (col%2 == 0) {
 						if (row%2 == 0) {
 							g.setColor(Color.white);
