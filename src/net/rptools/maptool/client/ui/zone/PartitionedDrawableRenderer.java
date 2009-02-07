@@ -24,27 +24,28 @@ import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.ListIterator;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
 
+import org.apache.commons.collections.map.LRUMap;
+
 /**
  */
 public class PartitionedDrawableRenderer implements DrawableRenderer {
 
-	private static final BufferedImage NO_IMAGE = new BufferedImage(1, 1, Transparency.OPAQUE);
 	private static final int CHUNK_SIZE = 256;
-	private static final int MAX_EXPENSIVE_CHUNK_COUNT = (int)((10*1024*1024.0) / (CHUNK_SIZE * CHUNK_SIZE * 8)); // 10 megs 
-	
-	private Map<String, LRUEntry<BufferedImage>> chunkMap = new HashMap<String, LRUEntry<BufferedImage>>();
+
+	private Set<String> noImageSet = new HashSet<String>();
+	private List<Tuple> chunkList = new LinkedList<Tuple>();
+	private int maxChunks;
 	
 	private double lastDrawableCount;
 	private double lastScale;
@@ -54,7 +55,8 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	private int verticalChunkCount;
 	
 	public void flush() {
-		chunkMap.clear();
+		chunkList.clear();
+		noImageSet.clear();
 	}
 	
 	public void renderDrawables(Graphics g, List<DrawnElement> drawableList, Rectangle viewport, double scale) {
@@ -73,6 +75,8 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		if (lastViewport == null || viewport.width != lastViewport.width || viewport.height != lastViewport.height) {
 			horizontalChunkCount = (int)Math.ceil(viewport.width/(double)CHUNK_SIZE) + 1;
 			verticalChunkCount = (int)Math.ceil(viewport.height/(double)CHUNK_SIZE) + 1;
+
+			maxChunks = (horizontalChunkCount * verticalChunkCount * 2);
 		}
 
 		// Compute grid
@@ -85,8 +89,6 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		gridx += (viewport.x > CHUNK_SIZE && (viewport.x%CHUNK_SIZE == 0) ? -1 : 0);
 		gridy += (viewport.y > CHUNK_SIZE && (viewport.y%CHUNK_SIZE == 0) ? -1 : 0);
 		
-		Set<String> chunkCache = new HashSet<String>();
-		chunkCache.addAll(chunkMap.keySet());
 		for (int row = 0; row < verticalChunkCount; row++) {
 			
 			for (int col = 0; col < horizontalChunkCount; col++) {
@@ -95,56 +97,51 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 				int cellY = gridy + row;
 
 				String key = getKey(cellX, cellY);
-				LRUEntry<BufferedImage> chunk = chunkMap.get(key);
+				if (noImageSet.contains(key)) {
+					continue;
+				}
+				
+				Tuple chunk = findChunk(chunkList, key);
 				if (chunk == null) {
-					long start = System.currentTimeMillis();
-					chunk = new LRUEntry<BufferedImage>(createChunk(drawableList, cellX, cellY, scale));
-					long duration = System.currentTimeMillis() - start;
 
-					if (chunkMap.size() >= MAX_EXPENSIVE_CHUNK_COUNT) {
-						String oldestKey = null;
-						LRUEntry<BufferedImage> oldest = null;
-						for (Entry<String, LRUEntry<BufferedImage>> entry : chunkMap.entrySet()) {
-							if (entry.getValue().getObject() != NO_IMAGE) {
-								// Never take out a no-image section
-								continue;
-							}
-							
-							if (oldest == null || entry.getValue().getLastAccess() < oldest.getLastAccess()) {
-								oldest = entry.getValue();
-								oldestKey = entry.getKey();
-							}
+					chunk = new Tuple(key, createChunk(drawableList, cellX, cellY, scale));
+					
+					if (chunk.image == null) {
+						noImageSet.add(key);
+						continue;
+					}
+				}
+				
+				// Most recently used is at the front
+				chunkList.add(0, chunk);
+
+				// Trim to the right size
+				while (chunkList.size() > maxChunks) {
+					Tuple removedTuple = chunkList.remove(chunkList.size()-1);
+				}
+				
+				int x = col * CHUNK_SIZE - ((CHUNK_SIZE - viewport.x))%CHUNK_SIZE - (gridx < -1 ? CHUNK_SIZE : 0);
+				int y = row * CHUNK_SIZE - ((CHUNK_SIZE - viewport.y))%CHUNK_SIZE - (gridy < -1 ? CHUNK_SIZE : 0);
+				g.drawImage(chunk.image, x, y, null);
+				
+				// DEBUG: Partition boundaries
+				if (true) { // Show partition boundaries
+					if (col%2 == 0) {
+						if (row%2 == 0) {
+							g.setColor(Color.white);
+						} else {
+							g.setColor(Color.green);
 						}
-						if (oldestKey != null) {
-							chunkMap.remove(key);
+					} else {
+						if (row%2 == 0) {
+							g.setColor(Color.green);
+						} else {
+							g.setColor(Color.white);
 						}
 					}
-					chunkMap.put(key, chunk);
+					g.drawRect(x, y, CHUNK_SIZE-1, CHUNK_SIZE-1);
+					g.drawString(key, x + CHUNK_SIZE/2, y + CHUNK_SIZE/2);
 				}
-
-				if (chunk != null && chunk.getObject() != NO_IMAGE) {
-					int x = col * CHUNK_SIZE - ((CHUNK_SIZE - viewport.x))%CHUNK_SIZE - (gridx < -1 ? CHUNK_SIZE : 0);
-					int y = row * CHUNK_SIZE - ((CHUNK_SIZE - viewport.y))%CHUNK_SIZE - (gridy < -1 ? CHUNK_SIZE : 0);
-					g.drawImage(chunk.getObject(), x, y, null);
-				}
-				chunkCache.remove(key);
-
-				// Partition boundaries
-//				if (col%2 == 0) {
-//					if (row%2 == 0) {
-//						g.setColor(Color.white);
-//					} else {
-//						g.setColor(Color.green);
-//					}
-//				} else {
-//					if (row%2 == 0) {
-//						g.setColor(Color.green);
-//					} else {
-//						g.setColor(Color.white);
-//					}
-//				}
-//				g.drawRect(x, y, CHUNK_SIZE-1, CHUNK_SIZE-1);
-//				g.drawString(key, x + CHUNK_SIZE/2, y + CHUNK_SIZE/2);
 			}
 		}
 		
@@ -152,6 +149,20 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		lastViewport = viewport;
 		lastDrawableCount = drawableList.size();
 		lastScale = scale;
+	}
+	
+	private Tuple findChunk(List<Tuple> list, String key) {
+
+		ListIterator<Tuple> iter = list.listIterator();
+		while (iter.hasNext()) {
+			Tuple tuple = iter.next();
+			if (tuple.equals(key)) {
+				iter.remove();
+				return tuple;
+			}
+		}
+		
+		return null;
 	}
 
 	private BufferedImage createChunk(List<DrawnElement> drawableList, int gridx, int gridy, double scale) {
@@ -222,10 +233,6 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 			g.dispose();
 		}
 
-		if (image == null) {
-			image = NO_IMAGE;
-		}
-		
 		return image;
 	}
 	
@@ -238,25 +245,22 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	private String getKey(int col, int row) {
 		return col + "." + row;
 	}
-
-	// TODO: Put this somewhere accessible to all, or use a preexisting version
-	private static class LRUEntry<E> {
+	
+	private static class Tuple {
+		String key;
+		BufferedImage image;
 		
-		private long lastAccess;
-		private E object;
-		
-		public LRUEntry(E object) {
-			lastAccess = System.currentTimeMillis();
-			this.object = object;
+		public Tuple(String key, BufferedImage image) {
+			this.key = key;
+			this.image = image;
 		}
 		
-		public long getLastAccess() {
-			return lastAccess;
-		}
-		
-		public E getObject() {
-			lastAccess = System.currentTimeMillis();
-			return object;
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof String) {
+				return key.equals(obj.toString());
+			}
+			return super.equals(obj);
 		}
 	}
 }
