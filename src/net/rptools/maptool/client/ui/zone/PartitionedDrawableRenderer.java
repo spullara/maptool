@@ -42,11 +42,9 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 
 	private static final BufferedImage NO_IMAGE = new BufferedImage(1, 1, Transparency.OPAQUE);
 	private static final int CHUNK_SIZE = 256;
-	private static final int EXPENSIVE_THRESHOLD = 0; // Any chunk that takes this long will be cached, cost is in milliseconds
-	private static final int MAX_EXPENSIVE_CHUNK_COUNT = (int)((15*1024*1024.0) / (CHUNK_SIZE * CHUNK_SIZE * 8)); // 15 megs 
+	private static final int MAX_EXPENSIVE_CHUNK_COUNT = (int)((10*1024*1024.0) / (CHUNK_SIZE * CHUNK_SIZE * 8)); // 10 megs 
 	
-	private Map<String, BufferedImage> chunkMap = new HashMap<String, BufferedImage>();
-	private Map<String, LRUEntry<BufferedImage>> expensiveChunkMap = new HashMap<String, LRUEntry<BufferedImage>>();
+	private Map<String, LRUEntry<BufferedImage>> chunkMap = new HashMap<String, LRUEntry<BufferedImage>>();
 	
 	private double lastDrawableCount;
 	private double lastScale;
@@ -57,7 +55,6 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	
 	public void flush() {
 		chunkMap.clear();
-		expensiveChunkMap.clear();
 	}
 	
 	public void renderDrawables(Graphics g, List<DrawnElement> drawableList, Rectangle viewport, double scale) {
@@ -98,41 +95,37 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 				int cellY = gridy + row;
 
 				String key = getKey(cellX, cellY);
-				BufferedImage chunk = chunkMap.get(key);
+				LRUEntry<BufferedImage> chunk = chunkMap.get(key);
 				if (chunk == null) {
-					if (expensiveChunkMap.containsKey(key)) {
-						chunk = expensiveChunkMap.get(key).getObject();
-					} else {
-						long start = System.currentTimeMillis();
-						chunk = createChunk(drawableList, cellX, cellY, scale);
-						long duration = System.currentTimeMillis() - start;
+					long start = System.currentTimeMillis();
+					chunk = new LRUEntry<BufferedImage>(createChunk(drawableList, cellX, cellY, scale));
+					long duration = System.currentTimeMillis() - start;
 
-						// Hold on to chunks that are expensive to render.  We'll use a little cache space to improve overall feel
-						if (duration > EXPENSIVE_THRESHOLD) {
-							if (expensiveChunkMap.size() >= MAX_EXPENSIVE_CHUNK_COUNT) {
-								String oldestKey = null;
-								LRUEntry<BufferedImage> oldest = null;
-								for (Entry<String, LRUEntry<BufferedImage>> entry : expensiveChunkMap.entrySet()) {
-									if (oldest == null || entry.getValue().getLastAccess() < oldest.getLastAccess()) {
-										oldest = entry.getValue();
-										oldestKey = entry.getKey();
-									}
-								}
-								if (oldestKey != null) {
-									expensiveChunkMap.remove(key);
-								}
+					if (chunkMap.size() >= MAX_EXPENSIVE_CHUNK_COUNT) {
+						String oldestKey = null;
+						LRUEntry<BufferedImage> oldest = null;
+						for (Entry<String, LRUEntry<BufferedImage>> entry : chunkMap.entrySet()) {
+							if (entry.getValue().getObject() != NO_IMAGE) {
+								// Never take out a no-image section
+								continue;
 							}
-							expensiveChunkMap.put(key, new LRUEntry<BufferedImage>(chunk));
-//							System.out.println("Expensive map size: " + expensiveChunkMap.size() + " - " + System.currentTimeMillis());
+							
+							if (oldest == null || entry.getValue().getLastAccess() < oldest.getLastAccess()) {
+								oldest = entry.getValue();
+								oldestKey = entry.getKey();
+							}
 						}
-						
-						chunkMap.put(key, chunk);
+						if (oldestKey != null) {
+							chunkMap.remove(key);
+						}
 					}
+					chunkMap.put(key, chunk);
 				}
-				if (chunk != null && chunk != NO_IMAGE) {
+
+				if (chunk != null && chunk.getObject() != NO_IMAGE) {
 					int x = col * CHUNK_SIZE - ((CHUNK_SIZE - viewport.x))%CHUNK_SIZE - (gridx < -1 ? CHUNK_SIZE : 0);
 					int y = row * CHUNK_SIZE - ((CHUNK_SIZE - viewport.y))%CHUNK_SIZE - (gridy < -1 ? CHUNK_SIZE : 0);
-					g.drawImage(chunk, x, y, null);
+					g.drawImage(chunk.getObject(), x, y, null);
 				}
 				chunkCache.remove(key);
 
@@ -152,15 +145,6 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 //				}
 //				g.drawRect(x, y, CHUNK_SIZE-1, CHUNK_SIZE-1);
 //				g.drawString(key, x + CHUNK_SIZE/2, y + CHUNK_SIZE/2);
-			}
-		}
-		
-		// Free up chunks that have gone offscreen
-		for (String key : chunkCache) {
-			// Never clear out the no images because they don't take any space and 
-			// prevent us from having to recalculate them
-			if (chunkMap.get(key) != NO_IMAGE) {
-				releaseChunk(chunkMap.remove(key));
 			}
 		}
 		
@@ -243,9 +227,6 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		}
 		
 		return image;
-	}
-	
-	private void releaseChunk(BufferedImage image) {
 	}
 	
 	private BufferedImage getNewChunk() {
