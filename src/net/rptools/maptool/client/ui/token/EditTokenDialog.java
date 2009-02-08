@@ -93,7 +93,7 @@ import com.jidesoft.swing.Selectable;
 /**
  * This dialog is used to display all of the token states and notes to the user.
  */
-public class EditTokenDialog extends AbeillePanel {
+public class EditTokenDialog extends AbeillePanel<Token> {
 
 	private Token token;
 	private boolean tokenSaved;
@@ -149,7 +149,7 @@ public class EditTokenDialog extends AbeillePanel {
 	}
 
 	@Override
-	public void bind(Object model) {
+	public void bind(Token model) {
 		
 		// ICON
 		getTokenIconPanel().setImageId(token.getImageAssetId());
@@ -162,6 +162,7 @@ public class EditTokenDialog extends AbeillePanel {
 		updateSightTypeCombo();
 		
 		// STATES
+		updateStatesPanel();
 		Component[] statePanels = getStatesPanel().getComponents();
 		Component barPanel = null;
 		for (int j = 0; j < statePanels.length; j++) {
@@ -515,7 +516,7 @@ public class EditTokenDialog extends AbeillePanel {
 		return (PropertyTable) getComponent("propertiesTable");
 	}
 
-	public void initStatesPanel() {
+	public void updateStatesPanel() {
 
 	    // Group the states first into individual panels
         List<BooleanTokenOverlay> overlays = new ArrayList<BooleanTokenOverlay>(MapTool.getCampaign().getTokenStatesMap().values());
