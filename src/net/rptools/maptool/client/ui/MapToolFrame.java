@@ -706,15 +706,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 									new ZonePoint(token.getX(), token.getY()));
 
 							// Pick an appropriate tool
-							if (token.isToken()) {
-								getToolbox().setSelectedTool(PointerTool.class);
-							} else {
-								getCurrentZoneRenderer().setActiveLayer(
-										token.isObjectStamp() ? Zone.Layer.OBJECT
-												: Zone.Layer.BACKGROUND);
-								getToolbox().setSelectedTool(StampTool.class);
-							}
+							getToolbox().setSelectedTool(token.isToken() ? PointerTool.class : StampTool.class);
 
+							getCurrentZoneRenderer().setActiveLayer(token.getLayer());
 							getCurrentZoneRenderer().selectToken(token.getId());
 							getCurrentZoneRenderer().requestFocusInWindow();
 						}
