@@ -638,17 +638,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         renderGrid(g2d, view);
         timer.stop("grid");
         
+        timer.start("tokensStamp");
+        renderTokens(g2d, zone.getStampTokens(), view);
+        timer.stop("tokensStamp");
+        
         timer.start("drawableGM");
         if (view.isGMView()) {
         	renderTokens(g2d, zone.getGMStamps(), view);
             renderDrawableOverlay(g2d, gmDrawableRenderer, view, zone.getGMDrawnElements());
         }
         timer.stop("drawableGM");
-        
-        timer.start("tokensStamp");
-        renderTokens(g2d, zone.getStampTokens(), view);
-        timer.stop("tokensStamp");
-        
+
         timer.start("drawableTokens");
         renderDrawableOverlay(g2d, tokenDrawableRenderer, view, zone.getDrawnElements());
         timer.stop("drawableTokens");
