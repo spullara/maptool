@@ -423,6 +423,10 @@ public class Token extends BaseModel {
 	
 	public void setType(Type type) {
 		this.tokenType = type.name();
+		
+		if (type == Type.PC) {
+			hasSight = true;
+		}
 	}
 	
 	public Zone.Layer getLayer() {
