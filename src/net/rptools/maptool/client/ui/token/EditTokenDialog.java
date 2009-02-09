@@ -14,20 +14,18 @@
 
 package net.rptools.maptool.client.ui.token;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,8 +39,6 @@ import java.util.TreeMap;
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -68,7 +64,7 @@ import net.rptools.maptool.client.functions.AbstractTokenAccessorFunction;
 import net.rptools.maptool.client.functions.TokenBarFunction;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
-import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.client.swing.ScrollablePanel;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Association;
 import net.rptools.maptool.model.Grid;
@@ -77,7 +73,6 @@ import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
-import net.rptools.maptool.util.ImageManager;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -95,7 +90,6 @@ import com.jidesoft.swing.Selectable;
  */
 public class EditTokenDialog extends AbeillePanel<Token> {
 
-	private Token token;
 	private boolean tokenSaved;
 	
 	private GenericDialog dialog;
@@ -131,7 +125,6 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	}
 		
 	public void showDialog(Token token) {
-		this.token = token;
 		
 		dialog = new GenericDialog("Edit Token", MapTool.getFrame(), this) {
 			@Override
@@ -149,8 +142,8 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	}
 
 	@Override
-	public void bind(Token model) {
-		
+	public void bind(final Token token) {
+
 		// ICON
 		getTokenIconPanel().setImageId(token.getImageAssetId());
 
@@ -162,9 +155,9 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		updateSightTypeCombo();
 		
 		// STATES
+		Component barPanel = null;
 		updateStatesPanel();
 		Component[] statePanels = getStatesPanel().getComponents();
-		Component barPanel = null;
 		for (int j = 0; j < statePanels.length; j++) {
 		    if ("bar".equals(statePanels[j].getName())) {
 		        barPanel = statePanels[j];
@@ -175,7 +168,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		        JCheckBox state = (JCheckBox) states[i];
 		        state.setSelected(AbstractTokenAccessorFunction.getBooleanValue(token.getState(state.getText())));
 		    } 
-		} // endfor
+		} 
 		
 		// BARS
 		if (barPanel != null) {
@@ -191,9 +184,9 @@ public class EditTokenDialog extends AbeillePanel<Token> {
                     cb.setSelected(false);
                     bar.setEnabled(true);
 		            bar.setValue((int)(TokenBarFunction.getBigDecimalValue(token.getState(bar.getName())).doubleValue() * 100));
-		        } // endif
-		    }  // endfor
-		} // endif
+		        } 
+		    }  
+		} 
 		
 		// OWNER LIST
 		EventQueue.invokeLater(new Runnable() {
@@ -248,7 +241,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 //        controller.getPanel().setName("characterSheet");
 //        replaceComponent("sheetPanel", "characterSheet", controller.getPanel());
         
-		super.bind(model);
+		super.bind(token);
 	}
 	
 	public JTabbedPane getTabbedPane() {
@@ -374,7 +367,8 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	
 	@Override
 	public boolean commit() {
-
+		Token token = getModel();
+		
 		// Commit any in-process edits
 		if (getMacroTable().isEditing()) {
 			getMacroTable().getCellEditor().stopCellEditing();
@@ -516,7 +510,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		return (PropertyTable) getComponent("propertiesTable");
 	}
 
-	public void updateStatesPanel() {
+	private void updateStatesPanel() {
 
 	    // Group the states first into individual panels
         List<BooleanTokenOverlay> overlays = new ArrayList<BooleanTokenOverlay>(MapTool.getCampaign().getTokenStatesMap().values());
@@ -530,9 +524,9 @@ public class EditTokenDialog extends AbeillePanel<Token> {
                     panel = new JPanel(new FormLayout("0px:grow 2px 0px:grow 2px 0px:grow 2px 0px:grow"));
                     panel.setBorder(BorderFactory.createTitledBorder(group));
                     groups.put(group, panel);                    
-                } // endif
-            } // endif
-        } // endfor
+                } 
+            } 
+        } 
         
         // Add the group panels and bar panel to the states panel
 	    JPanel panel = getStatesPanel();
@@ -545,7 +539,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
             layout.appendRow(new RowSpec("2px"));
             panel.add(gPanel, new CellConstraints(1, row));
             row += 2;
-        } // endfor
+        } 
         layout.appendRow(new RowSpec("pref"));
         layout.appendRow(new RowSpec("2px"));
         JPanel barPanel = new JPanel(new FormLayout("right:pref 2px pref 5px right:pref 2px pref"));
@@ -563,9 +557,9 @@ public class EditTokenDialog extends AbeillePanel<Token> {
                 layout = (FormLayout)panel.getLayout();
                 if (y != 0) layout.appendRow(new RowSpec("2px"));
                 layout.appendRow(new RowSpec("pref"));
-            } // endif
+            } 
 			panel.add(new JCheckBox(state.getName()), new CellConstraints(x * 2 + 1, y * 2 + 1));
-		} // endif
+		} 
         
         // Add sliders to the bar panel
         if (MapTool.getCampaign().getTokenBarsMap().size() > 0) {
@@ -606,7 +600,8 @@ public class EditTokenDialog extends AbeillePanel<Token> {
                 }
                 count += 1;
             }
-        } // endif
+        } 
+    
 	}
 	
 	public JPanel getStatesPanel() {
@@ -652,7 +647,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 				
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
-						getMacroTable().setModel(new MacroTableModel(token,true));
+						getMacroTable().setModel(new MacroTableModel(getModel(),true));
 					}
 				});
 			}
@@ -809,42 +804,6 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 //		
 //	}
 
-	/**
-	 * Get and icon from the asset manager and scale it properly.
-	 * 
-	 * @return An icon scaled to fit within a cell.
-	 */
-	private Icon getTokenIcon() {
-
-		// Get the base image && find the new size for the icon
-		BufferedImage assetImage = null;
-		Asset asset = AssetManager.getAsset(token.getImageAssetId());
-		if (asset == null) {
-			assetImage = ImageManager.UNKNOWN_IMAGE;
-		} else {
-			assetImage = ImageManager.getImage(asset, this);
-		}
-
-		// Need to resize?
-		if (assetImage.getWidth() > SIZE || assetImage.getHeight() > SIZE) {
-			Dimension dim = new Dimension(assetImage.getWidth(), assetImage
-					.getWidth());
-			if (dim.height < dim.width) {
-				dim.height = (int) ((dim.height / (double) dim.width) * SIZE);
-				dim.width = SIZE;
-			} else {
-				dim.width = (int) ((dim.width / (double) dim.height) * SIZE);
-				dim.height = SIZE;
-			}
-			BufferedImage image = new BufferedImage(dim.width, dim.height,
-					Transparency.BITMASK);
-			Graphics2D g = image.createGraphics();
-			g.drawImage(assetImage, 0, 0, dim.width, dim.height, null);
-			assetImage = image;
-		}
-		return new ImageIcon(assetImage);
-	}
-
 	/** @return Getter for tokenSaved */
 	public boolean isTokenSaved() {
 		return tokenSaved;
@@ -917,6 +876,8 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		private List<net.rptools.maptool.model.TokenProperty> propertyList; 
 
 		private Map<String, String> getPropertyMap() {
+			Token token = getModel();
+			
 			if (propertyMap == null) {
 				propertyMap = new HashMap<String, String>();
 				
@@ -994,7 +955,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		
 		public OwnerListModel() {
 			List<String> list = new ArrayList<String>();
-			Set<String> ownerSet = token.getOwners();
+			Set<String> ownerSet = getModel().getOwners();
 			list.addAll(ownerSet);
 			
 			ObservableList<Player> playerList = MapTool.getPlayerList(); 
