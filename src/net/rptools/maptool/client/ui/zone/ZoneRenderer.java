@@ -546,12 +546,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         Graphics2D g2d = (Graphics2D) g;
         
-        Player.Role role = MapTool.getPlayer().getRole();
-        if (role == Player.Role.GM && AppState.isShowAsPlayer()) {
-            role = Player.Role.PLAYER;
-        }
         
-        renderZone(g2d, new PlayerView(role));
+        renderZone(g2d, getPlayerView());
         
         if (!zone.isVisible()) {
             GraphicsUtil.drawBoxedString(g2d, "Map not visible to players", getSize().width/2, 20);
@@ -560,7 +556,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             GraphicsUtil.drawBoxedString(g2d, "Player View", getSize().width/2, 20);
         }
     }
-    
+
+	public PlayerView getPlayerView() {
+		
+        Player.Role role = MapTool.getPlayer().getRole();
+        if (role == Player.Role.GM && AppState.isShowAsPlayer()) {
+            role = Player.Role.PLAYER;
+        }
+        
+        return new PlayerView(role);
+	}
+	
     public void renderZone(Graphics2D g2d, PlayerView view) {
 		timer = new CodeTimer("zonerenderer");
 		timer.setEnabled(AppState.isCollectProfilingData());

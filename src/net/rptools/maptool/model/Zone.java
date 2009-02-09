@@ -383,8 +383,11 @@ public class Zone extends BaseModel {
     }
     
     public boolean isTokenVisible(Token token) {
+    	if (token == null) {
+    		return false;
+    	}
 
-        // Base case, nothing is visible
+    	// Base case, nothing is visible
         if (!token.isVisible()) {
             return false;
         }

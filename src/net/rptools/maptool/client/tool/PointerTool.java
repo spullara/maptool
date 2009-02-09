@@ -620,7 +620,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 
 		Token marker = renderer.getMarkerAt(mouseX, mouseY);
-		if (marker != markerUnderMouse) {
+		if (marker != markerUnderMouse && marker != null && AppUtil.tokenIsVisible(renderer.getZone(), marker, renderer.getPlayerView())) {
 			markerUnderMouse = marker;
 			
 			renderer.setCursor(Cursor.getPredefinedCursor(markerUnderMouse != null ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
