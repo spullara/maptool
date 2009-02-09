@@ -85,7 +85,7 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
     	Area area = null;
     	if (drawable instanceof LineSegment) {
 //    		area = new Area(getPolygon((LineSegment) drawable));
-    		area = createLineArea((LineSegment) drawable);
+    		area = ((LineSegment)drawable).createLineArea();
     	} else {
     		area = new Area(((ShapeDrawable)drawable).getShape());
     	}
@@ -100,25 +100,6 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
         renderer.repaint();
     }
     
-    private Area createLineArea(LineSegment line) {
-    	
-    	GeneralPath gp = null;
-    	for (Point point : line.getPoints()) {
-
-    		if (gp == null) {
-    			gp = new GeneralPath();
-    			gp.moveTo(point.x, point.y);
-    			continue;
-    		}
-    		
-    		gp.lineTo(point.x, point.y);
-    	}
-
-    	BasicStroke stroke = new BasicStroke(2);
-    	
-    	return new Area(stroke.createStrokedShape(gp));
-    }
-
     protected Pen getPen() {
     	
     	Pen pen = new Pen(MapTool.getFrame().getPen());

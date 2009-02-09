@@ -23,6 +23,10 @@ public class CodeTimer {
 		enabled = true;
 	}
 
+	public boolean isEnabled() {
+		return enabled;
+	}
+	
 	public void setThreshold(int threshold) {
 		this.threshold = threshold;
 	}

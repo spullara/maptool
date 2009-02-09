@@ -721,6 +721,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         lastView = view;
     }
     
+    public CodeTimer getCodeTimer() {
+    	return timer;
+    }
+    
     private Map<Paint, Area> renderedLightMap;
     private void renderLights(Graphics2D g, PlayerView view) {
 
@@ -1718,21 +1722,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
             }
         	timer.stop("tokenlist-1e");
-        	timer.start("tokenlist-1f");
 
             // Markers
+        	timer.start("renderTokens:Markers");
             if (token.isMarker() && canSeeMarker(token)) {
             	markerLocationList.add(location);
             }
-            
-            if (!location.bounds.intersects(clipBounds)) {
-                // Not on the screen, don't have to worry about it
-                continue;
-            }
-
-            // Add the token to our visible set.
-            tempVisTokens.add(token.getId());
-        	timer.stop("tokenlist-1f");
+        	timer.stop("renderTokens:Markers");
             
             // Stacking check
             if (calculateStacks) {
@@ -1764,10 +1760,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        	timer.stop("tokenStack");
         	}
 
-            timer.start("tokenlist-3");
             
             // Keep track of the location on the screen
             // Note the order where the top most token is at the end of the list
+            timer.start("renderTokens:Locations");
             List<TokenLocation> locationList = null;
             if (!token.isStamp()) {
                 locationList = getTokenLocations(Zone.Layer.TOKEN);
@@ -1785,16 +1781,25 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             if (locationList != null) {
                  locationList.add(location);
             }
+            timer.stop("renderTokens:Locations");
 
+
+            // Add the token to our visible set.
+            tempVisTokens.add(token.getId());
+            
             // Only draw if we're visible
             // NOTE: this takes place AFTER resizing the image, that's so that the user
             // sufferes a pause only once while scaling, and not as new tokens are
             // scrolled onto the screen
+        	timer.start("renderTokens:OnscreenCheck");
             if (!location.bounds.intersects(clipBounds)) {
+            	timer.stop("renderTokens:OnscreenCheck");
                 continue;
             }
-
+        	timer.stop("renderTokens:OnscreenCheck");
+        	
             // Moving ?
+        	timer.start("renderTokens:ShowMovement");
             if (isTokenMoving(token)) {
                 BufferedImage replacementImage = replacementImageMap.get(token);
                 if (replacementImage == null) {
@@ -1806,12 +1811,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 
                 image = replacementImage;
             }
+        	timer.stop("renderTokens:ShowMovement");
 
             // Previous path
+        	timer.start("renderTokens:ShowPath");
             if (showPathList.contains(token) && token.getLastPath() != null) {
                 renderPath(g, token.getLastPath(), token.getFootprint(zone.getGrid()));
             }
-        	timer.stop("tokenlist-3");
+        	timer.stop("renderTokens:ShowPath");
+
         	timer.start("tokenlist-4");
             
             // Halo (TOPDOWN, CIRCLE)

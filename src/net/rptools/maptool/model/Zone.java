@@ -35,6 +35,8 @@ import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
+import net.rptools.maptool.model.drawing.LineSegment;
+import net.rptools.maptool.model.drawing.ShapeDrawable;
 import net.rptools.maptool.util.StringUtil;
 
 /**
@@ -857,6 +859,13 @@ public class Zone extends BaseModel {
 			}
 		} 
 		
+		// Optimize old style drawables
+	    drawables = cleanupDrawables(drawables);
+	    gmDrawables = cleanupDrawables(gmDrawables);
+	    objectDrawables = cleanupDrawables(objectDrawables);
+	    backgroundDrawables = cleanupDrawables(backgroundDrawables);
+		
+		
 		// Look for the bizarre z-ordering disappearing trick
 		boolean foundZero = false;
 		boolean fixZOrder = false;
@@ -877,5 +886,17 @@ public class Zone extends BaseModel {
 		}
 		
 		return this;
+	}
+	
+	private static List<DrawnElement> cleanupDrawables(List<DrawnElement> list) {
+		List<DrawnElement> newList = new LinkedList<DrawnElement>();
+		for (DrawnElement element : list) {
+			if (element.getDrawable() instanceof LineSegment) {
+				newList.add(new DrawnElement(new ShapeDrawable(((LineSegment)element.getDrawable()).createLineArea()), element.getPen()));
+			} else {
+				newList.add(element);
+			}
+		}
+		return newList;
 	}
 }

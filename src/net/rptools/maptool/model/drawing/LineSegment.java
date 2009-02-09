@@ -13,9 +13,12 @@
  */
 package net.rptools.maptool.model.drawing;
 
+import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +37,25 @@ public class LineSegment extends AbstractDrawing {
      */
     public List<Point> getPoints() {
         return points;
+    }
+
+    public Area createLineArea() {
+    	
+    	GeneralPath gp = null;
+    	for (Point point : points) {
+
+    		if (gp == null) {
+    			gp = new GeneralPath();
+    			gp.moveTo(point.x, point.y);
+    			continue;
+    		}
+    		
+    		gp.lineTo(point.x, point.y);
+    	}
+
+    	BasicStroke stroke = new BasicStroke(2);
+    	
+    	return new Area(stroke.createStrokedShape(gp));
     }
 
     @Override

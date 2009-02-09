@@ -30,17 +30,19 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
-import net.rptools.maptool.model.drawing.LineSegment;
-import net.rptools.maptool.model.drawing.LineTemplate;
 import net.rptools.maptool.model.drawing.Pen;
+import net.rptools.maptool.util.CodeTimer;
+import net.rptools.maptool.util.GraphicsUtil;
 
 /**
  */
 public class PartitionedDrawableRenderer implements DrawableRenderer {
 
 	private static final int CHUNK_SIZE = 256;
+	private static List<BufferedImage> unusedChunkList = new LinkedList<BufferedImage>(); 
 
 	private Set<String> noImageSet = new HashSet<String>();
 	private List<Tuple> chunkList = new LinkedList<Tuple>();
@@ -52,14 +54,26 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	 
 	private int horizontalChunkCount;
 	private int verticalChunkCount;
+
+	private CodeTimer timer;
 	
 	public void flush() {
+		
+		for (Tuple tuple : chunkList) {
+			// Reuse the images
+			if (unusedChunkList.size() < maxChunks) {
+				unusedChunkList.add(tuple.image);
+			}
+		}
 		chunkList.clear();
 		noImageSet.clear();
 	}
 	
 	public void renderDrawables(Graphics g, List<DrawnElement> drawableList, Rectangle viewport, double scale) {
 
+		timer = new CodeTimer("Renderer");
+		timer.setThreshold(10);
+		timer.setEnabled(false);
 		
 		// NOTHING TO DO
 		if (drawableList == null || drawableList.size() == 0) {
@@ -88,9 +102,8 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		// note that it only happens in the negative space.  Weird.
 		gridx += (viewport.x > CHUNK_SIZE && (viewport.x%CHUNK_SIZE == 0) ? -1 : 0);
 		gridy += (viewport.y > CHUNK_SIZE && (viewport.y%CHUNK_SIZE == 0) ? -1 : 0);
-		
+
 		for (int row = 0; row < verticalChunkCount; row++) {
-			
 			for (int col = 0; col < horizontalChunkCount; col++) {
 
 				int cellX = gridx + col;
@@ -122,7 +135,10 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 				
 				int x = col * CHUNK_SIZE - ((CHUNK_SIZE - viewport.x))%CHUNK_SIZE - (gridx < -1 ? CHUNK_SIZE : 0);
 				int y = row * CHUNK_SIZE - ((CHUNK_SIZE - viewport.y))%CHUNK_SIZE - (gridy < -1 ? CHUNK_SIZE : 0);
+				
+				timer.start("render:DrawImage");
 				g.drawImage(chunk.image, x, y, null);
+				timer.stop("render:DrawImage");
 				
 				// DEBUG: Partition boundaries
 				if (false) { // Show partition boundaries
@@ -149,6 +165,10 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		lastViewport = viewport;
 		lastDrawableCount = drawableList.size();
 		lastScale = scale;
+		
+		if (timer.isEnabled()) {
+			System.out.println(timer);
+		}
 	}
 	
 	private Tuple findChunk(List<Tuple> list, String key) {
@@ -175,7 +195,8 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		Graphics2D g = null;
 
 		for (DrawnElement element : drawableList) {
-			
+
+			timer.start("createChunk:calculate");
 			Drawable drawable = element.getDrawable();
 			
 			Rectangle2D drawnBounds = new Rectangle(drawable.getBounds());
@@ -185,11 +206,16 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 			Pen pen = element.getPen();
 			int penSize = (int)(pen.getThickness()/2 + 1);
 			drawnBounds.setRect(drawnBounds.getX() - penSize, drawnBounds.getY() - penSize, drawnBounds.getWidth() + pen.getThickness(), drawnBounds.getHeight() + pen.getThickness());
+			timer.stop("createChunk:calculate");
 			
+			timer.start("createChunk:BoundsCheck");
 			if (!drawnBounds.intersects(chunkBounds)) {
+				timer.stop("createChunk:BoundsCheck");
 				continue;
 			}
+			timer.stop("createChunk:BoundsCheck");
 			
+			timer.start("createChunk:CreateChunk");
 			if (image == null) {
 				image = getNewChunk();
 				g = image.createGraphics();
@@ -203,7 +229,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 				af.scale(scale, scale);
 				g.setTransform(af);
 			}
-
+			timer.stop("createChunk:CreateChunk");
 
 			if (pen.getOpacity() != 1 && pen.getOpacity() != 0 /* handle legacy pens, besides, it doesn't make sense to have a non visible pen*/) {
 				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, pen.getOpacity()));
@@ -212,8 +238,10 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 //			g.setColor(Color.red);
 //			g.draw(drawnBounds);
 
+			timer.start("createChunk:Draw");
 			drawable.draw(g, pen);
 			g.setComposite(oldComposite);
+			timer.stop("createChunk:Draw");
 		}
 		
 		if (g != null) {
@@ -224,7 +252,14 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	}
 	
 	private BufferedImage getNewChunk() {
-		BufferedImage image = new BufferedImage(CHUNK_SIZE, CHUNK_SIZE, Transparency.BITMASK);
+		
+		BufferedImage image = null;
+		if (unusedChunkList.size() > 0) {
+			image = unusedChunkList.remove(0);
+			ImageUtil.clearImage(image);
+		} else {
+			image = new BufferedImage(CHUNK_SIZE, CHUNK_SIZE, Transparency.BITMASK);
+		}
 		image.setAccelerationPriority(1);
 		return image;
 	}
