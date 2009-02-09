@@ -454,7 +454,7 @@ public class Token extends BaseModel {
 	}
 
 	public boolean getHasSight() {
-		return getType() == Type.PC || hasSight;
+		return hasSight;
 	}
 
 	public void addLightSource(LightSource source, Direction direction) {
