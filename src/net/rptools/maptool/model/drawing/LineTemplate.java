@@ -26,6 +26,7 @@ import java.util.ListIterator;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.ZonePoint;
 
@@ -399,40 +400,46 @@ public class LineTemplate extends AbstractTemplate {
   public Rectangle getBounds() {
     
     // Get all of the numbers needed for the calculation
-    ZonePoint v = getVertex();
-    Quadrant quadrant = getQuadrant();
     int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
+    ZonePoint vertex = getVertex();
     
     // Find the point that is farthest away in the path, then adjust 
-    ScreenPoint pv = new ScreenPoint(-1, -1);
+    ZonePoint minp = null;
+    ZonePoint maxp = null;
     if (path == null) calcPath();
     for (CellPoint pt : path) {
-      pv.x = Math.max(pt.x, pv.x);
-      pv.y = Math.max(pt.y, pv.y);
-    } // endfor
-    pv.x = v.x + (quadrant == Quadrant.NORTH_WEST || quadrant == Quadrant.SOUTH_WEST ? -pv.x : pv.x) * gridSize;
-    pv.y = v.y + (quadrant == Quadrant.NORTH_WEST || quadrant == Quadrant.NORTH_EAST ? -pv.y : pv.y) * gridSize;
-    ZonePoint zPoint = pv.convertToZone(MapTool.getFrame().getZoneRenderer(getZoneId()));
-    pv.x = zPoint.x;
-    pv.y = zPoint.y;
+    	ZonePoint p =  MapTool.getCampaign().getZone(getZoneId()).getGrid().convert(pt);
+    	p = new ZonePoint(vertex.x + p.x, vertex.y + p.y);
+    	
+    	if (minp == null){
+    		minp = new ZonePoint(p.x, p.y);
+    		maxp = new ZonePoint(p.x, p.y);
+    	}
 
-    // Adjust for straight lines and left most & upper points when in the West or North quadrants
-    boolean yAxisLine = v.x == pv.x && doubleWide;
-    boolean xAxisLine = v.y == pv.y && doubleWide;
-    int x = (int)(Math.min(v.x, pv.x) - BOUNDS_PADDING);
-    if (quadrant == Quadrant.NORTH_WEST || quadrant == Quadrant.SOUTH_WEST)
-      x -= gridSize * 2;
-    else if (yAxisLine)
-      x -= gridSize;
-    int y = (int)(Math.min(v.y, pv.y) - BOUNDS_PADDING); 
-    if (quadrant == Quadrant.NORTH_WEST || quadrant == Quadrant.NORTH_EAST)
-      y -= gridSize * 2;
-    else if (xAxisLine)
-      y -= gridSize;
+    	minp.x = Math.min(minp.x, p.x);
+    	minp.y = Math.min(minp.y, p.y);
+    	
+    	maxp.x = Math.max(maxp.x, p.x);
+    	maxp.y = Math.max(maxp.y, p.y);
+    } 
     
-    // Calculate the size
-    int width = (int)(Math.abs(v.x - pv.x) + (gridSize + BOUNDS_PADDING) * 2 + (yAxisLine ? gridSize : 0)); 
-    int height = (int)(Math.abs(v.y - pv.y) + (gridSize + BOUNDS_PADDING) * 2 + (xAxisLine ? gridSize : 0));
-    return new Rectangle(x, y, width, height);
+    maxp.x += gridSize;
+    maxp.y += gridSize;
+
+    int width = (int)(maxp.x - minp.x);
+    int height = (int)(maxp.y - minp.y);
+    if (getQuadrant() == Quadrant.NORTH_EAST || getQuadrant() == Quadrant.NORTH_WEST) {
+    	minp.y -= height;
+    }
+    
+    // Account for pen size
+    // We don't really know what the pen size will be, so give a very rough overestimate
+    // We'll have to figure this out someday
+    minp.x -= 10;
+    minp.y -= 10;
+    width += 20;
+    height += 20;
+    
+    return new Rectangle((int)minp.x, (int)minp.y, width, height);
   }
 }

@@ -33,9 +33,8 @@ import java.util.Set;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
 import net.rptools.maptool.model.drawing.LineSegment;
+import net.rptools.maptool.model.drawing.LineTemplate;
 import net.rptools.maptool.model.drawing.Pen;
-
-import org.apache.commons.collections.map.LRUMap;
 
 /**
  */
@@ -61,6 +60,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 	
 	public void renderDrawables(Graphics g, List<DrawnElement> drawableList, Rectangle viewport, double scale) {
 
+		
 		// NOTHING TO DO
 		if (drawableList == null || drawableList.size() == 0) {
 			flush();
@@ -174,7 +174,6 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		Composite oldComposite = null;
 		Graphics2D g = null;
 
-		int count = 0;
 		for (DrawnElement element : drawableList) {
 			
 			Drawable drawable = element.getDrawable();
@@ -191,10 +190,6 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 				continue;
 			}
 			
-			if (drawable instanceof LineSegment) {
-				count ++;
-			}
-
 			if (image == null) {
 				image = getNewChunk();
 				g = image.createGraphics();
@@ -214,19 +209,11 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, pen.getOpacity()));
 			}
 
-			drawable.draw(g, pen);
-			if (drawable instanceof LineSegment) {
-				Pen newPen = new Pen(pen);
-				newPen.setThickness(1);
+//			g.setColor(Color.red);
+//			g.draw(drawnBounds);
 
-				// Show where the line segments are
-//				newPen.setPaint(new DrawableColorPaint(Color.blue));
-//				drawable.draw(g, newPen);
-			}
+			drawable.draw(g, pen);
 			g.setComposite(oldComposite);
-		}
-		if (count > 0) {
-//			System.out.println("Line segments " + gridx + "." + gridy + ": " + count + " - " + System.currentTimeMillis());
 		}
 		
 		if (g != null) {
