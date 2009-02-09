@@ -1280,4 +1280,14 @@ public class Token extends BaseModel {
 		MapTool.getFrame().resetTokenPanels();
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), this);
 	}
+	
+	public static final Comparator<Token> COMPARE_BY_NAME = new Comparator<Token>() {
+		public int compare(Token o1, Token o2) {
+			if (o1 == null || o2 == null) {
+				return 0;
+			}
+			
+			return o1.getName().compareTo(o2.getName());
+		}
+	};
 }

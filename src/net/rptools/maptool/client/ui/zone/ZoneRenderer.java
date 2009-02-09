@@ -137,7 +137,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     private Set<GUID> selectedTokenSet = new HashSet<GUID>();
 	private List<Set<GUID>> selectedTokenSetHistory = new ArrayList<Set<GUID>>();
 	private List<LabelLocation> labelLocationList = new LinkedList<LabelLocation>();
-    private Set<Area> coveredTokenSet = new HashSet<Area>();
+	private Map<Token, Set<Token>> tokenStackMap;
 
     private Map<GUID, SelectionSet> selectionSetMap = new HashMap<GUID, SelectionSet>();
     private Map<Token, TokenLocation> tokenLocationCache = new HashMap<Token, TokenLocation>();
@@ -453,6 +453,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         // This should be smarter, but whatever
         visibleScreenArea = null;
+
+        // This could also be smarter
+        tokenStackMap = null;
         
         flushFog = true;
         renderedLightMap = null;
@@ -593,7 +596,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         // Clear internal state
         tokenLocationMap.clear();
-        coveredTokenSet.clear();
         markerLocationList.clear();
 
         timer.stop("setup");
@@ -1624,6 +1626,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         double scale = zoneScale.getScale();
         Set<GUID> tempVisTokens = new HashSet<GUID>();
 
+        // calculations
+        boolean calculateStacks = tokenList.size() > 0 && !tokenList.get(0).isStamp() && tokenStackMap == null;
+        if (calculateStacks) {
+        	tokenStackMap = new HashMap<Token, Set<Token>>();
+        }
+        
         for (Token token : tokenList) {
 
         	timer.start("tokenlist-1");
@@ -1719,35 +1727,38 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // Add the token to our visible set.
             tempVisTokens.add(token.getId());
         	timer.stop("tokenlist-1f");
-        	timer.start("tokenlist-2");
             
             // Stacking check
-            if (!token.isStamp()) {
+            if (calculateStacks) {
+            	timer.start("tokenStack");
+
+//            	System.out.println(token.getName() + " - " + location.boundsCache);
+
+            	Set<Token> tokenStackSet = null;
                 for (TokenLocation currLocation : getTokenLocations(Zone.Layer.TOKEN)) {
     
-                    Area r1 = currLocation.bounds;
-                    
                     // Are we covering anyone ?
-                    if (location.boundsCache.contains(currLocation.boundsCache) && GraphicsUtil.contains(location.bounds, r1)) {
-    
-                        // Are we covering someone that is covering someone ?
-                        Area oldRect = null;
-                        for (Area r2 : coveredTokenSet) {
-                            
-                            if (location.bounds.getBounds().contains(r2.getBounds ())) {
-                                oldRect = r2;
-                                break;
-                            }
-                        }
-                        if (oldRect != null) {
-                             coveredTokenSet.remove(oldRect);
-                        }
-                        coveredTokenSet.add(location.bounds);
+//                	System.out.println("\t" + currLocation.token.getName() + " - " + location.boundsCache.contains(currLocation.boundsCache));
+                    if (location.boundsCache.contains(currLocation.boundsCache)) {
+                    	if (tokenStackSet == null) {
+                    		tokenStackSet = new HashSet<Token>();
+                    		tokenStackMap.put(token, tokenStackSet);
+                    		
+                    		tokenStackSet.add(token);
+                    	}
+                    	
+                    	tokenStackSet.add(currLocation.token);
+                    	
+                    	if (tokenStackMap.get(currLocation.token) != null) {
+                    		tokenStackSet.addAll(tokenStackMap.get(currLocation.token));
+                    		tokenStackMap.remove(currLocation.token);
+                    	}
                     }
                 }
-            }
-        	timer.stop("tokenlist-2");
-        	timer.start("tokenlist-3");
+	        	timer.stop("tokenStack");
+        	}
+
+            timer.start("tokenlist-3");
             
             // Keep track of the location on the screen
             // Note the order where the top most token is at the end of the list
@@ -2040,11 +2051,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	timer.start("tokenlist-13");
         
         // Stacks
-        for (Area rect : coveredTokenSet) {
-            
-            BufferedImage stackImage = AppStyle.stackImage ;
-            clippedG.drawImage(stackImage, rect.getBounds().x + rect.getBounds().width - stackImage.getWidth() + 2, rect.getBounds().y - 2, null);
-        }
+    	if (tokenList.size() > 0 && !tokenList.get(0).isStamp()) { // TODO: find a cleaner way to indicate token layer
+	        for (Token token : tokenStackMap.keySet()) {
+	
+	        	Area bounds = getTokenBounds(token);
+	        	
+	            BufferedImage stackImage = AppStyle.stackImage ;
+	            clippedG.drawImage(stackImage, bounds.getBounds().x + bounds.getBounds().width - stackImage.getWidth() + 2, bounds.getBounds().y - 2, null);
+	        }
+    	}
 
 //        // Markers
 //        for (TokenLocation location : getMarkerLocations() ) {
@@ -2332,24 +2347,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     }
     
     public List<Token> getTokenStackAt (int x, int y) {
-        
-        List<Area> stackList = new ArrayList<Area>();
-        stackList.addAll(coveredTokenSet);
-        for (Area bounds : stackList) {
-            if (bounds.contains(x, y)) {
-
-                List<Token> tokenList = new ArrayList<Token>();
-                for (TokenLocation location : getTokenLocations(getActiveLayer())) {
-                    if (location.bounds.getBounds().intersects(bounds.getBounds())) {
-                        tokenList.add(location.token);
-                    }
-                }
-                
-                return tokenList;
-            }
-        }
-        
-        return null;
+    	Token token = getTokenAt(x, y);
+    	if (token == null || tokenStackMap == null || !tokenStackMap.containsKey(token)) {
+    		return null;
+    	}
+    	
+    	List<Token> tokenList = new ArrayList<Token>(tokenStackMap.get(token));
+    	Collections.sort(tokenList, Token.COMPARE_BY_NAME);
+    	return tokenList;
     }
 
     /**
