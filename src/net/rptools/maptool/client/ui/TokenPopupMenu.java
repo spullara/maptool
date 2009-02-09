@@ -48,6 +48,7 @@ import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.functions.AbstractTokenAccessorFunction;
 import net.rptools.maptool.client.functions.TokenBarFunction;
+import net.rptools.maptool.client.ui.AbstractTokenPopupMenu.SnapToGridAction;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.token.LightDialog;
@@ -126,6 +127,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(new JSeparator());
 
 		addToggledItem(new ShowPathsAction(), renderer.isPathShowing(tokenUnderMouse));
+		addToggledItem(new SnapToGridAction(tokenUnderMouse.isSnapToGrid(), renderer), tokenUnderMouse.isSnapToGrid());
 		addToggledGMItem(new VisibilityAction(), tokenUnderMouse.isVisible());
 		
 		add(new JSeparator());
