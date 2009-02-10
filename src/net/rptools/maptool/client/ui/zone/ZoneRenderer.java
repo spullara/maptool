@@ -2069,6 +2069,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        for (Token token : tokenStackMap.keySet()) {
 	
 	        	Area bounds = getTokenBounds(token);
+	        	if (bounds == null) {
+	        		// token is offscreen
+	        		continue;
+	        	}
 	        	
 	            BufferedImage stackImage = AppStyle.stackImage ;
 	            clippedG.drawImage(stackImage, bounds.getBounds().x + bounds.getBounds().width - stackImage.getWidth() + 2, bounds.getBounds().y - 2, null);
