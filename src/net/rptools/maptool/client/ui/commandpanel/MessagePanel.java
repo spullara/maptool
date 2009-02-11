@@ -125,10 +125,19 @@ public class MessagePanel extends JPanel {
 		style.addRule("body { font-family: sans-serif; font-size: " + AppPreferences.getFontSize() + "pt}");
 		style.addRule("div {margin-bottom: 5px}");
 		style.addRule("span.roll {background:#efefef}");
-
+		setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
 		repaint();
 	}
 
+	public void setTrustedMacroPrefixColors(Color foreground, Color background) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("span.trustedPrefix {background: #").append(String.format("%06X", (background.getRGB() & 0xFFFFFF)));
+		sb.append("; color: #").append(String.format("%06X", (foreground.getRGB() & 0xFFFFFF))).append("}");
+		StyleSheet style = document.getStyleSheet();
+		style.addRule(sb.toString());
+		repaint();
+	}
+	
 	public String getMessagesText() {
 		
 		return textPane.getText();

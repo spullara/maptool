@@ -87,6 +87,10 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 	public JCheckBox getUseUPnPCheckbox() {
 		return (JCheckBox) getComponent("@useUPnP");
 	}
+
+	public JCheckBox getUseTooltipForRolls() {
+		return (JCheckBox) getComponent("@useToolTipsForUnformattedRolls");
+	}
 	
 	@Override
 	protected void preModelBind() {

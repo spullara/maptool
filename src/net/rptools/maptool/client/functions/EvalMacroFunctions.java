@@ -1,5 +1,6 @@
 package net.rptools.maptool.client.functions;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
@@ -40,16 +41,47 @@ public class EvalMacroFunctions extends AbstractFunction {
 			throw new ParserException("You do not have permission's to execute this macro");
 		}
 		
-		MapToolMacroContext context = new MapToolMacroContext("<dynamic>", "<dynamic>", true);		
 		MapToolVariableResolver resolver = (MapToolVariableResolver) parser.getVariableResolver();
 		Token tokenInContext = resolver.getTokenInContext();
 		
 		// execMacro has new variable scope where as evalMacro does not.
 		if (functionName.equals("execMacro")) {
-			resolver = new MapToolVariableResolver(tokenInContext);
+			return execMacro(tokenInContext, parameters.get(0).toString());
+		} else {
+			return evalMacro(resolver, tokenInContext, parameters.get(0).toString());
 		}
 		
-		return lineParser.parseLine(resolver, tokenInContext, parameters.get(0).toString(), context);
 	}
 
+	
+	/**
+	 * Executes the macro with a new variable scope.
+	 * @param tokenInContext The token in context.
+	 * @param line the macro to execute.
+	 * @return the result of the execution.
+	 * @throws ParserException if an error occurs.
+	 */
+	public static Object execMacro(Token tokenInContext, String line) throws ParserException {
+		return evalMacro(null, tokenInContext, line);
+	}
+	
+	/**
+	 * Executes the macro with the specified variable scope.
+	 * @param tokenInContext The token in context.
+	 * @param line the macro to execute.
+	 * @return the result of the execution.
+	 * @throws ParserException if an error occurs.
+	 */	
+	public static Object evalMacro(MapToolVariableResolver res, Token tokenInContext, String line) throws ParserException {
+		res = res == null ? new MapToolVariableResolver(tokenInContext) : res;
+		MapToolMacroContext context = new MapToolMacroContext("<dynamic>", "<dynamic>", true);		
+		String  ret = MapTool.getParser().parseLine(res, tokenInContext, line, context);	
+		
+		// Try to convert to a number
+		try {
+			return new BigDecimal(ret);
+		} catch (Exception e) {
+			return ret;
+		}
+	}
 }

@@ -1,10 +1,15 @@
 package net.rptools.maptool.client.ui.htmlframe;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Element;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.html.FormView;
 import javax.swing.text.html.HTML;
+
+import net.sf.json.JSONObject;
 
 public class HTMLPaneFormView extends FormView {
 	private HTMLPane htmlPane;
@@ -42,6 +47,26 @@ public class HTMLPaneFormView extends FormView {
 			}
 			action = action == null ? "" : action;
 			method = method == null ? "" : method.toLowerCase();
+			if (method.equals("json")) {
+				JSONObject jobj = new JSONObject();
+				String[] values = data.split("&");
+				for (String v : values) {
+					String[] dataStr = v.split("=");
+					if (dataStr.length == 1) {
+						jobj.put(dataStr[0], "");												
+					} else if (dataStr.length > 2) {
+						jobj.put(dataStr[0], dataStr[1]);												
+					} else {
+						try {
+							jobj.put(dataStr[0], URLDecoder.decode(dataStr[1], "utf8"));
+						} catch (UnsupportedEncodingException e) {
+							// Use the raw data.
+						jobj.put(dataStr[0], dataStr[1]);						
+						}
+					}
+				}
+				data = jobj.toString();
+			}
 			htmlPane.doSubmit(method, action, data);
 		}
 		

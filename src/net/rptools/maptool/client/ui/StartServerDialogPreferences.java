@@ -18,6 +18,7 @@ import java.util.prefs.Preferences;
 import sun.security.action.GetBooleanAction;
 
 import net.rptools.maptool.client.AppConstants;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.server.ServerConfig;
 
@@ -39,6 +40,8 @@ public class StartServerDialogPreferences {
     private static final String KEY_USE_UPNP = "useUPnP";
     private static final String KEY_RESTRICTED_IMPERSONATION = "restrictedImpersonation";
     private static final String KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS = "playersReceiveCampaignMacros";
+    
+    private static Boolean useToolTipsForUnformattedRolls = null;
     
     public Player.Role getRole () {
     	return Player.Role.valueOf(prefs.get(KEY_ROLE, Player.Role.GM.name()));
@@ -150,4 +153,20 @@ public class StartServerDialogPreferences {
 	public boolean getPlayersReceiveCampaignMacros() {
     	return prefs.getBoolean(KEY_PLAYERS_RECEIVE_CAMPAIGN_MACROS, false);
 	}
+	
+	
+	public boolean getUseToolTipsForUnformattedRolls() {
+		// Tool tips works slightly differently as its a setting that has to be available
+		// to the user to configure before the start server dialog. So if it has not been
+		// specified we default to the users preferences.
+		if (useToolTipsForUnformattedRolls == null) {
+			return AppPreferences.getUseToolTipForInlineRoll();
+		} 
+		return useToolTipsForUnformattedRolls;
+	}
+	
+	public void setUseToolTipsForUnformattedRolls(boolean flag)  {
+		useToolTipsForUnformattedRolls = true;
+	}
+	
 }

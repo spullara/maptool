@@ -17,6 +17,7 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
@@ -80,14 +81,21 @@ public class TokenNameFunction extends AbstractFunction {
 	private Object getName(Parser parser, List<Object> args) throws ParserException {
 		Token token;
 		
-		if (args.size() > 0 && args.get(0) instanceof GUID) {
-			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken((GUID)args.get(0));
-		} else if (args.size() > 0) {
-			throw new ParserException("Usage: getName() or getName(target)");
-		} else {
+		if (args.size() == 1) {
+			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
+			if (token == null) {
+				throw new ParserException("getName(): can not find token or ID " + args.get(0));
+			}
+		} else if (args.size() == 0) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
+			if (token == null) {
+				throw new ParserException("getName(): No impersonated token");
+			}
+		} else {
+			throw new ParserException("getName(): Incorrect number of parameters.");
 		}
+
 		
 		return token.getName();
 	}
@@ -100,11 +108,27 @@ public class TokenNameFunction extends AbstractFunction {
 	 * @throws ParserException when an error occurs.
 	 */
 	private Object setName(Parser parser, List<Object> args) throws ParserException {
-		MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
+        Token token;
 		
-		res.getTokenInContext().setName(args.get(0).toString());
+		if (args.size() == 2) {
+			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
+			if (token == null) {
+				throw new ParserException("seName(): can not find token or ID " + args.get(1));
+			}
+		} else if (args.size() == 1) {
+			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
+			token = res.getTokenInContext();
+			if (token == null) {
+				throw new ParserException("getVisible(): No impersonated token");
+			}
+		} else {
+			throw new ParserException("getVisible(): Incorrect number of parameters.");
+		}
+		
+		token.setName(args.get(0).toString());
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer(); 
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-        		res.getTokenInContext());
+        		token);
 		return args.get(0);
 	}
 

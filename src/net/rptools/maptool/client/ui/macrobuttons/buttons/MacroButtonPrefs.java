@@ -45,6 +45,7 @@ public class MacroButtonPrefs {
 	private static final String PREF_FONT_SIZE = "fontSize";
 	private static final String PREF_MIN_WIDTH = "minWidth";
 	private static final String PREF_MAX_WIDTH = "maxWidth";	
+	private static final String PREF_TOOLTIP = "toolTip";
 
 	private static final String FORMAT_STRING = "%010d";
 
@@ -79,6 +80,7 @@ public class MacroButtonPrefs {
 			prefs.put(PREF_FONT_SIZE, properties.getFontSize());
 			prefs.put(PREF_MIN_WIDTH, properties.getMinWidth());
 			prefs.put(PREF_MAX_WIDTH, properties.getMaxWidth());
+			prefs.put(PREF_TOOLTIP, properties.getToolTip());
 			MapTool.getFrame().getGlobalPanel().reset();
 		} catch (BackingStoreException e) {
 			e.printStackTrace();
@@ -140,8 +142,9 @@ public class MacroButtonPrefs {
 							String fontSize = buttonPref.get(PREF_FONT_SIZE, "");
 							String minWidth = buttonPref.get(PREF_MIN_WIDTH, "");
 							String maxWidth = buttonPref.get(PREF_MAX_WIDTH, "");
+							String toolTip = buttonPref.get(PREF_TOOLTIP, "");
 
-							buttonProperties.add(new MacroButtonProperties(index, colorKey, hotKey, command, label, group, sortby, autoExecute, includeLabel, applyToTokens, fontColorKey, fontSize, minWidth, maxWidth));
+							buttonProperties.add(new MacroButtonProperties(index, colorKey, hotKey, command, label, group, sortby, autoExecute, includeLabel, applyToTokens, fontColorKey, fontSize, minWidth, maxWidth, toolTip));
 						}
 					}
 					
@@ -163,8 +166,9 @@ public class MacroButtonPrefs {
 				String minWidth = buttonPref.get(PREF_MIN_WIDTH, "");
 				String maxWidth = buttonPref.get(PREF_MAX_WIDTH, "");
 				String hotKey = buttonPref.get(PREF_HOTKEY_KEY, MacroButtonHotKeyManager.HOTKEYS[0]);
+				String toolTip = buttonPref.get(PREF_TOOLTIP, "");
 
-				buttonProperties.add(new MacroButtonProperties(index, colorKey, hotKey, command, label, group, sortby, autoExecute, includeLabel, applyToTokens, fontColorKey, fontSize, minWidth, maxWidth));
+				buttonProperties.add(new MacroButtonProperties(index, colorKey, hotKey, command, label, group, sortby, autoExecute, includeLabel, applyToTokens, fontColorKey, fontSize, minWidth, maxWidth, toolTip));
 			}
 		} catch (BackingStoreException e) {
 			// exception due to prefsRoot.childrenNames()

@@ -25,18 +25,18 @@ public class HTMLPanel extends JPanel {
 	/**
 	 * Creates a new HTMLPanel.
 	 * @param container The container that will hold the HTML panel.
-	 * @param input If the panel is in input mode.
-	 * @param scrollBar Should panel have scrollbars or not.
+	 * @param closeButton If the panel has a close button.
+	 * @param scrollBar Should panel have scroll bars or not.
 	 */
-	HTMLPanel(final HTMLPanelContainer container, boolean input, boolean scrollBar) {
+	HTMLPanel(final HTMLPanelContainer container, boolean closeButton, boolean scrollBar) {
 		setLayout(new BorderLayout());
 		
-		JButton closeButton = new JButton("Close");
-		closeButton.setActionCommand("Close");
-		closeButton.addActionListener(container);
+		JButton jcloseButton = new JButton("Close");
+		jcloseButton.setActionCommand("Close");
+		jcloseButton.addActionListener(container);
 		closePanel.setLayout(new BoxLayout(closePanel, BoxLayout.LINE_AXIS));
 		closePanel.add(Box.createHorizontalGlue());
-		closePanel.add(closeButton);
+		closePanel.add(jcloseButton);
 		closePanel.add(Box.createHorizontalGlue());
 		
 		if (scrollBar) {
@@ -44,7 +44,7 @@ public class HTMLPanel extends JPanel {
 		} else {
 			add(pane, BorderLayout.CENTER);
 		}
-		updateContents("", input);
+		updateContents("", closeButton);
 		
 		// ESCAPE closes the window
 		pane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
@@ -61,18 +61,19 @@ public class HTMLPanel extends JPanel {
 	/**
 	 * Update the contents of the panel.
 	 * @param html The HTML to display.
-	 * @param input If the panel is in input mode.
+	 * @param closeButton If the panel has a close button.
 	 */
-	public void updateContents(final String html, boolean input) {
-		if (input) {
-			remove(closePanel); 
-		} else {
+	public void updateContents(final String html, boolean closeButton) {
+		if (closeButton) {
 			add(closePanel, BorderLayout.SOUTH);
+		} else {
+			remove(closePanel); 
 		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				((MessagePanelEditorKit)pane.getEditorKit()).flush();
 				pane.setText(html);
+				pane.setCaretPosition(0);
 			}
 		});
 	}
@@ -81,7 +82,7 @@ public class HTMLPanel extends JPanel {
 	 * Flushes any caching for the panel.
 	 */
 	public void flush() {
-		EventQueue.invokeLater(new Runnable() {
+		EventQueue.invokeLater(new Runnable() { 
 			public void run() {
 				((MessagePanelEditorKit)pane.getEditorKit()).flush();
 			}
@@ -90,13 +91,13 @@ public class HTMLPanel extends JPanel {
 	
 	/**
 	 * Updates if this panel is an input panel or not.
-	 * @param input is this panel an input panel or not.
+	 * @param input is this panel has a close button or not.
 	 */
-	void updateContents(boolean input) {
-		if (input) {
-			remove(closePanel); 
-		} else {
+	void updateContents(boolean closeButton) {
+		if (closeButton) {
 			add(closePanel, BorderLayout.SOUTH);
+		} else {
+			remove(closePanel); 
 		}
 		revalidate();
 	}

@@ -14,6 +14,7 @@
 package net.rptools.maptool.client.macro.impl;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
@@ -25,12 +26,13 @@ import net.rptools.maptool.model.TextMessage;
     )
 public class ToGMMacro extends AbstractRollMacro {
 
-    public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
+    public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
 
     	StringBuilder sb = new StringBuilder();
 
-    	if (trusted && !MapTool.getPlayer().isGM()) {
-        	sb.append("<span style='background-color: #C9F7AD' ").append("title='").append(macroName).append("'>");
+    	if (executionContext != null && executionContext.isTrusted() && !MapTool.getPlayer().isGM()) {
+        	sb.append("<span style='background-color: #C9F7AD' ").append("title='").append(executionContext.getName());
+        	sb.append("@").append(executionContext.getSouce()).append("'>");
         	sb.append(MapTool.getPlayer().getName()).append("</span>").append(" says to the GM: ");
         	sb.append(macro);
     	} else {

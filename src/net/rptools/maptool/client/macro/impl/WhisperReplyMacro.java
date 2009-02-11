@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.ObservableList;
@@ -33,7 +34,7 @@ import net.rptools.maptool.util.StringUtil;
 )
 public class WhisperReplyMacro extends AbstractMacro {
 
-    public void execute(MacroContext context, String message, boolean trusted, String macroName) {
+    public void execute(MacroContext context, String message, MapToolMacroContext executionContext) {
         
         
         String playerName = MapTool.getLastWhisperer();

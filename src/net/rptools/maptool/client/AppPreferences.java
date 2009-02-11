@@ -149,6 +149,87 @@ public class AppPreferences {
     private static final String KEY_SHOW_MACRO_UPDATE_WARNING = "showMacroUpdateWarning";
     private static final boolean DEFAULT_SHOW_MACRO_UPDATE_WARNING = true;
     
+    private static final String KEY_TOOLTIP_INITIAL_DELAY = "toolTipInitialDelay";
+    private static final int DEFAULT_TOOLTIP_INITIAL_DELAY = 250;
+
+    private static final String KEY_TOOLTIP_DISMISS_DELAY = "toolTipDismissDelay";
+    private static final int DEFAULT_TOOLTIP_DISMISS_DELAY = 30000;
+
+    private static final String KEY_TOOLTIP_FOR_INLINE_ROLLS = "toolTipInlineRolls";
+    private static final boolean DEFAULT_TOOLTIP_FOR_INLINE_ROLLS = false;
+    
+    
+    private static final String KEY_TRUSTED_PREFIX_BG_RED = "trustedPrefixBGRed";
+    private static final int DEFAULT_TRUSTED_PREFIX_BG_RED = 0xD8;
+    
+    private static final String KEY_TRUSTED_PREFIX_BG_GREEN = "trustedPrefixBGGreen";
+    private static final int DEFAULT_TRUSTED_PREFIX_BG_GREEN = 0xE9; 
+   
+    private static final String KEY_TRUSTED_PREFIX_BG_BLUE = "trustedPrefixBBlue";
+    private static final int DEFAULT_TRUSTED_PREFIX_BG_BLUE = 0xF6;
+    
+    private static final String KEY_TRUSTED_PREFIX_FG_RED = "trustedPrefixFGRed";
+    private static final int DEFAULT_TRUSTED_PREFIX_FG_RED = 0x00;
+
+    private static final String KEY_TRUSTED_PREFIX_FG_GREEN = "trustedPrefixFGGreen";
+    private static final int DEFAULT_TRUSTED_PREFIX_FG_GREEN = 0x00;
+    
+    private static final String KEY_TRUSTED_PREFIX_FG_BLUE = "trustedPrefixFBlue";
+    private static final int DEFAULT_TRUSTED_PREFIX_FG_BLUE = 0x00;
+    
+    
+    public static final void setUseToolTipForInlineRoll(boolean tooltip) {
+    	prefs.putBoolean(KEY_TOOLTIP_FOR_INLINE_ROLLS, tooltip);
+    }
+    
+    public static final boolean getUseToolTipForInlineRoll() {
+    	return prefs.getBoolean(KEY_TOOLTIP_FOR_INLINE_ROLLS, DEFAULT_TOOLTIP_FOR_INLINE_ROLLS);
+    }
+        
+    public static void setTrustedPrefixBG(Color color) {
+    	prefs.putInt(KEY_TRUSTED_PREFIX_BG_RED, color.getRed());
+    	prefs.putInt(KEY_TRUSTED_PREFIX_BG_RED, color.getRed());
+    	prefs.putInt(KEY_TRUSTED_PREFIX_BG_RED, color.getRed());
+    }
+
+    
+    public static Color getTrustedPrefixBG() {
+    	return new Color(prefs.getInt(KEY_TRUSTED_PREFIX_BG_RED, DEFAULT_TRUSTED_PREFIX_BG_RED),
+    					 prefs.getInt(KEY_TRUSTED_PREFIX_BG_GREEN, DEFAULT_TRUSTED_PREFIX_BG_GREEN),
+    					 prefs.getInt(KEY_TRUSTED_PREFIX_BG_BLUE, DEFAULT_TRUSTED_PREFIX_BG_BLUE));
+    							
+    }
+
+    public static void setTrustedPrefixFG(Color color) {
+    	prefs.putInt(KEY_TRUSTED_PREFIX_FG_RED, color.getRed());
+    	prefs.putInt(KEY_TRUSTED_PREFIX_FG_RED, color.getRed());
+    	prefs.putInt(KEY_TRUSTED_PREFIX_FG_RED, color.getRed());
+    }
+    
+    public static Color getTrustedPrefixFG() {
+    	return new Color(prefs.getInt(KEY_TRUSTED_PREFIX_FG_RED, DEFAULT_TRUSTED_PREFIX_FG_RED),
+    					 prefs.getInt(KEY_TRUSTED_PREFIX_FG_GREEN, DEFAULT_TRUSTED_PREFIX_FG_GREEN),
+    					 prefs.getInt(KEY_TRUSTED_PREFIX_FG_BLUE, DEFAULT_TRUSTED_PREFIX_FG_BLUE));
+    							
+    }
+    
+    
+    public static void setToolTipInitialDelay(int ms) {
+    	prefs.putInt(KEY_TOOLTIP_INITIAL_DELAY, ms); 
+    }
+
+    public static int getToolTipInitialDelay() {
+    	return prefs.getInt(KEY_TOOLTIP_INITIAL_DELAY, DEFAULT_TOOLTIP_INITIAL_DELAY);
+    }
+    
+    public static void setToolTipDismissDelay(int ms) {
+    	prefs.putInt(KEY_TOOLTIP_DISMISS_DELAY, ms);
+    }
+    
+    public static int getToolTipDismissDelay() {
+    	return prefs.getInt(KEY_TOOLTIP_DISMISS_DELAY, DEFAULT_TOOLTIP_DISMISS_DELAY);
+    }
+    
     public static void setShowMacroUpdateWarning(boolean show) {
     	prefs.putBoolean(KEY_SHOW_MACRO_UPDATE_WARNING, show);
     }

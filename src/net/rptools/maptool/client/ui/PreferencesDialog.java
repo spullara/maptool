@@ -27,6 +27,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -39,6 +40,7 @@ import net.rptools.maptool.client.walker.WalkerMetric;
 import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.Token;
 
+import com.jeta.forms.components.colors.JETAColorWell;
 import com.jeta.forms.components.panel.FormPanel;
 
 public class PreferencesDialog extends JDialog {
@@ -73,6 +75,11 @@ public class PreferencesDialog extends JDialog {
     
     private JCheckBox showMacroUpdateWarning;
     
+    private JCheckBox toolTipInlineRolls;
+    private JETAColorWell trustedOuputForeground;
+    private JETAColorWell trustedOuputBackground;
+    
+    
 	// Defaults
 	private JComboBox defaultGridTypeCombo;
 	private JTextField defaultGridSizeTextField;
@@ -87,7 +94,10 @@ public class PreferencesDialog extends JDialog {
 
 	// Accessibility
 	private JTextField fontSizeTextField;
+	private JTextField toolTipInitialDelay;
+	private JTextField toolTipDismissDelay;
 
+	
 	public PreferencesDialog() {
 		super (MapTool.getFrame(), "Preferences", true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -136,9 +146,13 @@ public class PreferencesDialog extends JDialog {
 		showDialogOnNewToken = panel.getCheckBox("showDialogOnNewToken");
 		movementMetricCombo = panel.getComboBox("movementMetric");
 		showMacroUpdateWarning = panel.getCheckBox("showMacroUpdateWarning");
+		toolTipInlineRolls = panel.getCheckBox("toolTipInlineRolls");		
+		trustedOuputForeground = (JETAColorWell) panel.getComponentByName("trustedOuputForeground");
+		trustedOuputBackground = (JETAColorWell) panel.getComponentByName("trustedOuputBackground");
+		toolTipInitialDelay = panel.getTextField("toolTipInitialDelay");
+		toolTipDismissDelay = panel.getTextField("toolTipDismissDelay");
 		facingFaceEdges = panel.getCheckBox("facingFaceEdges");
 		facingFaceVertices = panel.getCheckBox("facingFaceVertices");
-		
 		setInitialState();
 
 		// And keep it updated
@@ -153,6 +167,72 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setFaceVertex(facingFaceVertices.isSelected());
 			}
 		});
+		toolTipInlineRolls.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setUseToolTipForInlineRoll(toolTipInlineRolls.isSelected());
+			}			
+		});
+		
+		toolTipInitialDelay.getDocument().addDocumentListener(new DocumentListener() {
+			public void changedUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void insertUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void removeUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			
+			private void updateValue() {
+				try {
+					int value = Integer.parseInt(toolTipInitialDelay.getText());
+					AppPreferences.setToolTipInitialDelay(value);
+					ToolTipManager.sharedInstance().setInitialDelay(value);
+				} catch (NumberFormatException nfe) {
+					// Ignore it
+				}
+			}
+		});
+
+		
+		toolTipDismissDelay.getDocument().addDocumentListener(new DocumentListener() {
+			public void changedUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void insertUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void removeUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			
+			private void updateValue() {
+				try {
+					int value = Integer.parseInt(toolTipDismissDelay.getText());
+					AppPreferences.setToolTipDismissDelay(value);
+					ToolTipManager.sharedInstance().setDismissDelay(value);
+				} catch (NumberFormatException nfe) {
+					// Ignore it
+				}
+			}
+		});
+
+		trustedOuputForeground.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setTrustedPrefixFG(trustedOuputForeground.getColor());
+				MapTool.getFrame().getCommandPanel().setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
+			}			
+		});
+
+		trustedOuputBackground.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setTrustedPrefixBG(trustedOuputBackground.getColor());
+				MapTool.getFrame().getCommandPanel().setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
+			}			
+		});
+		
+		
 		showMacroUpdateWarning.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setShowMacroUpdateWarning(showMacroUpdateWarning.isSelected());
@@ -469,6 +549,11 @@ public class PreferencesDialog extends JDialog {
 		playSystemSoundOnlyWhenNotFocusedCheckBox.setSelected(AppPreferences.getPlaySystemSoundsOnlyWhenNotFocused());
 		showAvatarInChat.setSelected(AppPreferences.getShowAvatarInChat());
 		showMacroUpdateWarning.setSelected(AppPreferences.getShowMacroUpdateWarning());
+		toolTipInlineRolls.setSelected(AppPreferences.getUseToolTipForInlineRoll());
+		trustedOuputForeground.setColor(AppPreferences.getTrustedPrefixFG());
+		trustedOuputBackground.setColor(AppPreferences.getTrustedPrefixBG());
+		toolTipInitialDelay.setText(Integer.toString(AppPreferences.getToolTipInitialDelay()));
+		toolTipDismissDelay.setText(Integer.toString(AppPreferences.getToolTipDismissDelay()));
 		facingFaceEdges.setSelected(AppPreferences.getFaceEdge());
 		facingFaceVertices.setSelected(AppPreferences.getFaceVertex());
 	}

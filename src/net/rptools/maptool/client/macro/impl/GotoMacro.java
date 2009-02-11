@@ -17,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
@@ -33,7 +34,7 @@ import net.rptools.maptool.model.ZonePoint;
 public class GotoMacro implements Macro {
 	private static Pattern COORD_PAT = Pattern.compile("(-?\\d+)\\s*,?\\s*(-?\\d+)");
 
-    public void execute(MacroContext context, String parameter, boolean trusted, String macroName) {
+    public void execute(MacroContext context, String parameter, MapToolMacroContext executionContext) {
     	Matcher m = COORD_PAT.matcher(parameter.trim());
 
     	if (m.matches()) {

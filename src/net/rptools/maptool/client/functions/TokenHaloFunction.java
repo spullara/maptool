@@ -50,7 +50,7 @@ public class TokenHaloFunction extends AbstractFunction {
     
     
 	private TokenHaloFunction() {
-		super(0, 2, "getHalo", "setHalo");
+		super(0, 3, "getHalo", "setHalo");
 	}
 	
 	/**
@@ -157,7 +157,8 @@ public class TokenHaloFunction extends AbstractFunction {
             }
         }
         // TODO: This works for now but could result in a lot of resending of data
-        MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);		
+        MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);	
+ 		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
 	}
 	
 	/**
@@ -170,13 +171,22 @@ public class TokenHaloFunction extends AbstractFunction {
 	private Object getHalo(Parser parser, List<Object> args) throws ParserException {
 		Token token;
 		
-		if (args.size() > 0 && args.get(0) instanceof GUID) {
-			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken((GUID)args.get(0));
-		} else if (args.size() > 0) {
-			throw new ParserException("Usage: getHalo() or getHalo(target)");
-		} else {
+		if (args.size() == 1) {
+			if (!MapTool.getParser().isMacroTrusted()) {
+				throw new ParserException("getHalo(): You do not have permissions to refer to another token.");
+			}
+			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
+			if (token == null) {
+				throw new ParserException("getHalo(): Unknown token or ID " + args.get(0).toString());
+			}
+		} else if (args.size() == 0) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
+			if (token == null) {
+				throw new ParserException("getHalo(): No Impersonated Token");
+			}
+		} else {
+			throw new ParserException("getHalo(): Incorrect number of parameters.");
 		}
 		
 		return getHalo(token);
@@ -193,17 +203,24 @@ public class TokenHaloFunction extends AbstractFunction {
 	private Object setHalo(Parser parser, List<Object> args) throws ParserException {
 	
 		Token token;
-		Object value;
+		Object value = args.get(0);
 		
-		if (args.size() > 1 && args.get(0) instanceof GUID) {
-			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken((GUID)args.get(0));
-			value = args.get(1);
-		} else if (args.size() > 1) {
-			throw new ParserException("Usage: setHalo(color) or setHalo(target, color)");
-		} else {
+		if (args.size() == 2) {
+			if (!MapTool.getParser().isMacroTrusted()) {
+				throw new ParserException("getHalo(): You do not have permissions to refer to another token.");
+			}
+			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
+			if (token == null) {
+				throw new ParserException("setHalo(): Unknown token or ID " + args.get(1).toString());
+			}
+		} else if (args.size() == 1){
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
-			value = args.get(0);
+			if (token == null) {
+				throw new ParserException("setHalo(): No Impersonated Token");
+			}
+		} else {
+			throw new ParserException("setHalo(): Incorrect number of parameters.");
 		}
 		setHalo(token, value);
         return value;

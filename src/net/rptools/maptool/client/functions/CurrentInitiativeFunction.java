@@ -31,7 +31,7 @@ public class CurrentInitiativeFunction extends AbstractFunction {
 
     /** Handle adding one, all, all PCs or all NPC tokens. */
 	private CurrentInitiativeFunction() {
-		super(0, 1, "getCurrentInitiative", "setCurrentInitiative");
+		super(0, 1, "getCurrentInitiative", "setCurrentInitiative", "getInitiativeToken");
 	}
 	
     /** singleton instance of this function */
@@ -45,18 +45,34 @@ public class CurrentInitiativeFunction extends AbstractFunction {
 	 */
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
-        if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
-            throw new ParserException("Only the GM can get or set the current initiative.");
-	    if (functionName.equals("getCurrentInitiative")) {
+        if (!MapTool.getParser().isMacroTrusted()) {
+        	if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
+        		throw new ParserException("Only the GM can get or set the current initiative.");
+        }
+        
+        if (functionName.equals("getCurrentInitiative")) {
 	        return getCurrentInitiative();
-	    } else {
+	    } else if (functionName.equals("setCurrentInitiative")) {
 	        if (args.size() != 1)
-	            throw new ParserException("Must call setInitiativeRound with one parameter");
+	            throw new ParserException("Must call setCurrentInitiative with one parameter");
             setCurrentInitiative(args.get(0));
 	        return args.get(0);
+	    } else {
+	    	return getInitiativeToken();
         } // endif
 	}
 	
+	/**
+	 * Get the token that has the current initiative;
+	 * 
+	 * @return The current initiative
+	 */
+	public Object getInitiativeToken() {
+        InitiativeList list = MapTool.getFrame().getCurrentZoneRenderer().getZone().getInitiativeList();
+        int index = list.getCurrent();
+        return index != -1 ? list.getToken(index).getId().toString() : "";
+	}
+
 	/**
 	 * Get the current initiative;
 	 * 
@@ -66,9 +82,9 @@ public class CurrentInitiativeFunction extends AbstractFunction {
         InitiativeList list = MapTool.getFrame().getCurrentZoneRenderer().getZone().getInitiativeList();
         return new BigDecimal(list.getCurrent());
 	}
-	
+
 	/**
-	 * Set the initiative round.
+	 * Set the current initiative.
 	 * 
 	 * @param value New value for the round.
 	 */

@@ -30,7 +30,10 @@ public class TokenSightFunctions extends AbstractFunction {
 			List<Object> parameters) throws ParserException {
 		
 		Token tokenInContext = ((MapToolVariableResolver)parser.getVariableResolver()).getTokenInContext();
-
+		if (tokenInContext == null) {
+			throw new ParserException(functionName + "(): No Impersonated token.");
+		}
+		
 		if (functionName.equals("hasSight")) {
 			return tokenInContext.getHasSight() ? BigDecimal.ONE : BigDecimal.ZERO;
 		}
@@ -43,10 +46,8 @@ public class TokenSightFunctions extends AbstractFunction {
 			if (parameters.size() < 1) {
 				throw new ParserException("Not enough parameters for function setHasSight(sight)");
 			}
-			if (tokenInContext.getType() == Token.Type.PC) {
-				tokenInContext.setHasSight(!parameters.get(0).equals(BigDecimal.ZERO));
-		 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
-			}
+			tokenInContext.setHasSight(!parameters.get(0).equals(BigDecimal.ZERO));
+	 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
 			return "";
 		}
 		
@@ -57,7 +58,8 @@ public class TokenSightFunctions extends AbstractFunction {
 			}
 			tokenInContext.setSightType(parameters.get(0).toString());
 	 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
-			return "";
+
+	 		return "";
 		}
 		
 		return null;

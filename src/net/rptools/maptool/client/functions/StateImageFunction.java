@@ -55,7 +55,7 @@ public class StateImageFunction extends AbstractFunction {
 		}
 		BooleanTokenOverlay over = MapTool.getCampaign().getTokenStatesMap().get(stateName);
 		if (over == null) {
-			throw new ParserException("Unknown state (" + stateName + ")" );
+			throw new ParserException("getStateImage(): Unknown state (" + stateName + ")" );
 		}
 		if (over instanceof ImageTokenOverlay) {
 			StringBuilder assetId = new StringBuilder("asset://");
@@ -68,7 +68,7 @@ public class StateImageFunction extends AbstractFunction {
 			}
 			return assetId.toString();
 		} else {
-			throw new ParserException("State " + stateName + " is not an image state.");
+			throw new ParserException("getStateImage(): State " + stateName + " is not an image state.");
 		}
 	}
 

@@ -14,6 +14,7 @@
 package net.rptools.maptool.client.macro.impl;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
@@ -29,7 +30,7 @@ import net.rptools.maptool.model.Token;
     )
 public class ImpersonateMacro implements Macro {
 	
-	public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
+	public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
 
 		macro = macro.trim();
 
@@ -70,7 +71,7 @@ public class ImpersonateMacro implements Macro {
 		// Impersonate
 		if ( index > 0 ) {
 			MapTool.getFrame().getCommandPanel().setIdentity(name);
-			MacroManager.executeMacro(macro);
+			MacroManager.executeMacro(macro, executionContext);
 			MapTool.getFrame().getCommandPanel().setIdentity(oldIdentity);
 		} else {
 			MapTool.getFrame().getCommandPanel().setIdentity(name);

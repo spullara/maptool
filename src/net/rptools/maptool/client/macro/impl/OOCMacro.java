@@ -16,6 +16,7 @@ package net.rptools.maptool.client.macro.impl;
 import java.awt.Color;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
@@ -27,7 +28,7 @@ import net.rptools.maptool.model.TextMessage;
 )
 public class OOCMacro extends AbstractMacro {
 
-	public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
+	public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
 		macro = processText(macro);
 		StringBuilder sb = new StringBuilder();
 

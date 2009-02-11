@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
@@ -38,7 +39,7 @@ public class HelpMacro implements Macro {
 		}
 	};
 
-	public void execute(MacroContext context, String parameter, boolean trusted, String macroName) {
+	public void execute(MacroContext context, String parameter, MapToolMacroContext executionContext) {
 		
 		StringBuilder builder = new StringBuilder();
 

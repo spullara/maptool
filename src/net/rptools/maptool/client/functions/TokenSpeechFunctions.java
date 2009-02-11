@@ -28,6 +28,9 @@ public class TokenSpeechFunctions extends AbstractFunction {
 	public Object childEvaluate(Parser parser, String functionName,
 			List<Object> parameters) throws ParserException {
 		final Token token = ((MapToolVariableResolver)parser.getVariableResolver()).getTokenInContext();
+		if (token == null) {
+			throw new ParserException(functionName + "(): No impersonated token.");
+		}
 		
 		if (functionName.equals("getSpeech")) {
 			if (parameters.size() < 1) {

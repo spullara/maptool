@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.functions.AbortFunction.AbortFunctionException;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.model.GUID;
@@ -24,6 +25,8 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 public class MacroLinkFunction extends AbstractFunction {
 
@@ -63,7 +66,7 @@ public class MacroLinkFunction extends AbstractFunction {
 			formatted = true;
 			linkText = args.get(0).toString();
 			if (args.size() < 2) {
-				throw new ParserException("Missing macro name");
+				throw new ParserException("macroLink(): Missing macro name");
 			}
 			macroName = args.get(1).toString();
 
@@ -124,11 +127,39 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	public String createMacroText(String macroName, String who, String target,
 			String args) throws ParserException {
+		if (macroName.toLowerCase().endsWith("@this")) {
+			macroName = macroName.substring(0, macroName.length() - 4) + MapTool.getParser().getMacroSource();
+		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("macro://").append(macroName).append("/").append(who);
 		sb.append("/").append(target).append("?");
-		sb.append(strPropListToArgs(args));
+		sb.append(encode(args));
 		return sb.toString();
+	}
+	
+	
+	private String encode(String str) throws ParserException {
+		try {
+			JSONObject.fromObject(str);
+			try {
+				return URLEncoder.encode(str, "utf-8");
+			} catch (UnsupportedEncodingException e) {
+				throw new ParserException(e);
+			}
+		} catch (JSONException e) {
+			return strPropListToArgs(str); 
+		}
+	}
+	
+	private String decode(String str) throws ParserException {
+		try {
+			return 	JSONObject.fromObject(URLDecoder.decode(str, "utf-8")).toString();
+		} catch (UnsupportedEncodingException e) {
+			throw new ParserException(e);
+		} catch (JSONException e) {
+			return argsToStrPropList(str); 
+		}
+		
 	}
 
 	/**
@@ -295,8 +326,11 @@ public class MacroLinkFunction extends AbstractFunction {
 				"([^:]*)://([^/]*)/([^/]*)/([^?]*)(?:\\?(.*))?").matcher(link);
 
 		if (m.matches()) {
-			OutputTo outputTo;
-			StringBuilder command = new StringBuilder();
+			OutputTo outputTo;		
+			String macroName = "";
+			String args = "";
+			
+			
 			if (m.group(1).equalsIgnoreCase("macro")) {
 
 				String who = m.group(3);
@@ -312,10 +346,9 @@ public class MacroLinkFunction extends AbstractFunction {
 				} else {
 					outputTo = OutputTo.NONE;
 				}
-
-				command.append("[MACRO('");
-				command.append(m.group(2));
-				command.append("'): ");
+				macroName = m.group(2);
+				
+				
 				String val = m.group(5);
 				if (val != null) {
 					try {
@@ -325,14 +358,12 @@ public class MacroLinkFunction extends AbstractFunction {
 						try {
 							val = "\"" + argsToStrPropList(val) + "\"";
 						} catch (ParserException e1) {
-							MapTool
-									.addLocalMessage("Error running macro link: "
+							MapTool.addLocalMessage("Error running macro link: "
 											+ e1.getMessage());
 						}
 					}
-					command.append(val);
+					args=val;
 				}
-				command.append("]");
 
 				String[] targets = m.group(4).split(",");
 				Zone zone = MapTool.getFrame().getCurrentZoneRenderer()
@@ -344,23 +375,23 @@ public class MacroLinkFunction extends AbstractFunction {
 							String identity = MapTool.getFrame()
 									.getCommandPanel().getIdentity();
 							Token token = zone.resolveToken(identity);
-							doOutput(token, outputTo, MapTool.getParser()
-									.parseLine(token, command.toString()));
+							MapToolVariableResolver resolver = new MapToolVariableResolver(token);
+							String output = MapTool.getParser().runMacro(resolver, token, macroName, args);
+							doOutput(token, outputTo, output);
 						} else if (t.equalsIgnoreCase("selected")) {
 							for (GUID id : MapTool.getFrame()
 									.getCurrentZoneRenderer()
 									.getSelectedTokenSet()) {
 								Token token = zone.getToken(id);
-								doOutput(token, outputTo, MapTool.getParser()
-										.parseLine(token, command.toString()));
+								MapToolVariableResolver resolver = new MapToolVariableResolver(token);
+								String output = MapTool.getParser().runMacro(resolver, token, macroName, args);
+								doOutput(token, outputTo, output);
 							}
 						} else {
 							Token token = zone.resolveToken(t);
-							if (token == null) {
-							} else {
-								doOutput(token, outputTo, MapTool.getParser()
-										.parseLine(token, command.toString()));
-							}
+							MapToolVariableResolver resolver = new MapToolVariableResolver(token);
+							String output = MapTool.getParser().runMacro(resolver, token, macroName, args);
+							doOutput(token, outputTo, output);
 						}
 					}
 				} catch (AbortFunctionException e) {

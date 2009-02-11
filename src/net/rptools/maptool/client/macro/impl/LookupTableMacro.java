@@ -16,6 +16,7 @@ package net.rptools.maptool.client.macro.impl;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
@@ -32,7 +33,7 @@ import net.rptools.parser.ParserException;
 )
 public class LookupTableMacro extends AbstractMacro {
 
-    public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
+    public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
     	macro = processText(macro).trim();
         StringBuilder sb = new StringBuilder();
 

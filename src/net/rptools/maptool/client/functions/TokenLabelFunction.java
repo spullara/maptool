@@ -17,6 +17,7 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
@@ -38,7 +39,7 @@ public class TokenLabelFunction extends AbstractFunction {
 	}
 	
 	private TokenLabelFunction() {
-		super(0,1, "getLabel", "setLabel");
+		super(0,2, "getLabel", "setLabel");
 	}
 
 	/**
@@ -82,14 +83,21 @@ public class TokenLabelFunction extends AbstractFunction {
 	private Object getLabel(Parser parser, List<Object> args) throws ParserException {
 		Token token;
 		
-		if (args.size() > 0 && args.get(0) instanceof GUID) {
-			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken((GUID)args.get(0));
-		} else if (args.size() > 0) {
-			throw new ParserException("Usage: getLabel() or getLabel(target)");
-		} else {
+		if (args.size() == 1) {
+			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
+			if (token == null) {
+				throw new ParserException("getLabel(): can not find token or ID " + args.get(0));
+			}
+		} else if (args.size() == 0) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
+			if (token == null) {
+				throw new ParserException("getLabel(): No impersonated token");
+			}
+		} else {
+			throw new ParserException("getLabel(): Incorrect number of parameters.");
 		}
+
 		return getLabel(token);
 	}
 
@@ -101,9 +109,28 @@ public class TokenLabelFunction extends AbstractFunction {
 	 * @throws ParserException when an error occurs.
 	 */
 	private Object setLabel(Parser parser, List<Object> args) throws ParserException {
-		MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
+		Token token;
 		
-		setLabel(res.getTokenInContext(), args.get(0).toString());
+		if (args.size() == 2) {
+			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
+			if (token == null) {
+				throw new ParserException("setLabel(): can not find token or ID " + args.get(1));
+			}
+		} else if (args.size() == 1) {
+			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
+			token = res.getTokenInContext();
+			if (token == null) {
+				throw new ParserException("setLabel(): No impersonated token");
+			}
+		} else {
+			throw new ParserException("setLabel(): Incorrect number of parameters.");
+		}		
+		setLabel(token, args.get(0).toString());
+		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
+        		token);
+ 		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
+
+
 		return args.get(0);
 	}
 

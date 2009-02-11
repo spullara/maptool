@@ -8,6 +8,7 @@ import java.util.Map;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.AttachedLightSource;
 import net.rptools.maptool.model.Direction;
 import net.rptools.maptool.model.GUID;
@@ -37,7 +38,10 @@ public class TokenLightFunctions extends AbstractFunction {
 			List<Object> parameters) throws ParserException {
 
 		final Token tokenInContext = ((MapToolVariableResolver)parser.getVariableResolver()).getTokenInContext();
-
+		if (tokenInContext == null) {
+			throw new ParserException(functionName + "(): No Impersonated token.");
+		}
+		
 		if (functionName.equals("hasLightSource")) {
 			return hasLightSource(tokenInContext, parameters) ? BigDecimal.ONE : BigDecimal.ZERO;
 		}

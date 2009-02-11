@@ -54,7 +54,7 @@ public class LookupTableFunction extends AbstractFunction {
 		
 		LookupTable lookupTable = MapTool.getCampaign().getLookupTableMap().get(name);
 		if (lookupTable == null) {
-			return "No such table: " + name;
+			throw new ParserException(function + "(): Unknown table " + name);
 		}
 		
     	LookupEntry result = lookupTable.getLookup(roll);
@@ -70,7 +70,7 @@ public class LookupTableFunction extends AbstractFunction {
     	} else { // We want the image URI
     		
     		if (result.getImageId() == null) {
-    			throw new ParserException("No image available.");
+    			throw new ParserException(function + "(): No image available.");
     		}
     		
     		BigDecimal size = null;
@@ -78,14 +78,14 @@ public class LookupTableFunction extends AbstractFunction {
     			if (params.get(2) instanceof BigDecimal) {
     				size = (BigDecimal) params.get(2);
     			} else {
-    				throw new ParserException("Invalid size.");
+    				throw new ParserException(function +"(): Invalid image size.");
     			}
     		}
     		
     		StringBuilder assetId = new StringBuilder("asset://");
     		assetId.append(result.getImageId().toString());
     		if (size != null) {
-    			int i = Math.min(Math.max(size.intValue(), 1), 500); // Constrain to between 1 and 500
+    			int i = Math.max(size.intValue(), 1); // Constrain to a minimum of 1
     			assetId.append("-");
     			assetId.append(i);
     		}

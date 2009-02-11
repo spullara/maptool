@@ -36,6 +36,7 @@ import java.util.Locale;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.ToolTipManager;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
@@ -49,6 +50,7 @@ import net.rptools.lib.image.ThumbnailManager;
 import net.rptools.lib.net.RPTURLStreamHandlerFactory;
 import net.rptools.lib.sound.SoundManager;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.functions.UserDefinedMacroFunctions;
 import net.rptools.maptool.client.swing.NoteFrame;
 import net.rptools.maptool.client.swing.SplashScreen;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
@@ -304,6 +306,9 @@ public class MapTool {
         }
         AppActions.updateActions();
         
+        ToolTipManager.sharedInstance().setInitialDelay(AppPreferences.getToolTipInitialDelay());
+        ToolTipManager.sharedInstance().setDismissDelay(AppPreferences.getToolTipDismissDelay());
+        
         // TODO: make this more formal when we switch to mina
         new ServerHeartBeatThread().start();
 	}
@@ -498,6 +503,7 @@ public class MapTool {
     	
     	AssetManager.updateRepositoryList();
     	MapTool.getFrame().getCampaignPanel().reset();
+    	UserDefinedMacroFunctions.getInstance().loadCampaignLibFunctions();
     }
     
     public static void setServerPolicy(ServerPolicy policy) {
@@ -815,6 +821,15 @@ public class MapTool {
 	public static String getLastWhisperer()
 	{
 		return lastWhisperer;
+	}
+	
+	
+	public static boolean useToolTipsForUnformatedRolls() {
+		if (isPersonalServer()) {
+			return AppPreferences.getUseToolTipForInlineRoll();
+		} else {
+			return getServerPolicy().getUseToolTipsForDefaultRollFormat();
+		}
 	}
 
 	private static class ServerHeartBeatThread extends Thread {

@@ -49,15 +49,17 @@ public class MiscInitiativeFunction extends AbstractFunction {
         InitiativeList list = MapTool.getFrame().getCurrentZoneRenderer().getZone().getInitiativeList();
         InitiativePanel ip = MapTool.getFrame().getInitiativePanel();
         if (functionName.equals("nextInitiative")) {
-            if (!ip.hasGMPermission() && (list.getCurrent() <= 0 || !ip.hasOwnerPermission(list.getTokenInitiative(list.getCurrent()).getToken()))) {
-                String message = "Only the GM can perform nextInitiative.";
-                if (ip.isOwnerPermissions()) message = "Only the GM or owner can perform nextInitiative.";
-                throw new ParserException(message);
-            } // endif
+        	if (!MapTool.getParser().isMacroTrusted()) {
+        		if (!ip.hasGMPermission() && (list.getCurrent() <= 0 || !ip.hasOwnerPermission(list.getTokenInitiative(list.getCurrent()).getToken()))) {
+        			String message = "Only the GM can perform nextInitiative.";
+        			if (ip.isOwnerPermissions()) message = "Only the GM or owner can perform nextInitiative.";
+        			throw new ParserException(message);
+        		} // endif
+        	}
             list.nextInitiative();
             return new BigDecimal(list.getCurrent());
         } 
-        if (!ip.hasGMPermission())
+        if (!MapTool.getParser().isMacroTrusted() && !ip.hasGMPermission())
             throw new ParserException("Only the GM can call the " + functionName + " function.");
         if (functionName.equals("sortInitiative")) {
             list.sort();

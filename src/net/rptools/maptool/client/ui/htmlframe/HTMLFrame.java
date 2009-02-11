@@ -109,7 +109,7 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 	 */
 	public void updateContents(String html) {
 		macroCallbacks.clear();
-		panel.updateContents(html, true); // input is true so we dont get close button		
+		panel.updateContents(html, false); 
 	}
 
 	

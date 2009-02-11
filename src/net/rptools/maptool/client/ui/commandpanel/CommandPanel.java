@@ -31,6 +31,8 @@ import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
 import javax.swing.plaf.basic.BasicToggleButtonUI;
+import javax.swing.text.html.StyleSheet;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -360,7 +362,7 @@ public class CommandPanel extends JPanel implements Observer {
 			// Assume a "SAY"
 			text = "/s " + text;
 		}
-		MacroManager.executeMacro(text);
+		MacroManager.executeMacro(text, macroContext);
 		commandTextArea.setText("");
 	}
 	
@@ -459,6 +461,11 @@ public class CommandPanel extends JPanel implements Observer {
 
 	public void addMessage(TextMessage message) {
 		messagePanel.addMessage(message);
+	}
+	
+	
+	public void setTrustedMacroPrefixColors(Color foreground, Color background) {
+		getMessagePanel().setTrustedMacroPrefixColors(foreground, background);
 	}
 	
 

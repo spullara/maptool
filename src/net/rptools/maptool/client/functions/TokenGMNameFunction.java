@@ -17,6 +17,7 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
@@ -26,7 +27,7 @@ import net.rptools.parser.function.AbstractFunction;
 public class TokenGMNameFunction extends AbstractFunction {
 	
 	private TokenGMNameFunction() {
-		super(0,1, "getGMName", "setGMName");
+		super(0,2, "getGMName", "setGMName");
 	}
 
 	
@@ -93,13 +94,19 @@ public class TokenGMNameFunction extends AbstractFunction {
 	private Object getGMName(Parser parser, List<Object> args) throws ParserException {
 		Token token;
 		
-		if (args.size() > 0 && args.get(0) instanceof GUID) {
-			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken((GUID)args.get(0));
-		} else if (args.size() > 0) {
-			throw new ParserException("Usage: getGMame() or getGMName(target)");
-		} else {
+		if (args.size() == 1) {
+			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
+			if (token == null) {
+				throw new ParserException("getGMName(): Unknown token or ID " + args.get(0));
+			}
+		} else if (args.size() == 0) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
+			if (token == null) {
+				throw new ParserException("getGMName(): No impersonated token.");
+			}
+		} else {
+			throw new ParserException("getGMName(): Incorrect number of arguments.");
 		}
 		return getGMName(token);
 	}
@@ -112,11 +119,28 @@ public class TokenGMNameFunction extends AbstractFunction {
 	 * @throws ParserException when an error occurs.
 	 */
 	private Object setGMName(Parser parser, List<Object> args) throws ParserException {
-		MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
+		Token token;
+		if (args.size() == 2) {
+			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
+			if (token == null) {
+				throw new ParserException("setGMName(): Unknown token or ID " + args.get(1));
+			}
+		} else if (args.size() == 1) {
+			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
+			token = res.getTokenInContext();
+			if (token == null) {
+				throw new ParserException("setGMName(): No impersonated token.");
+			}
+		} else {
+			throw new ParserException("setGMName(): Incorrect number of arguments.");
+		}
 		
-		res.getTokenInContext().setGMName(args.get(0).toString());
+		token.setGMName(args.get(0).toString());
+		
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-        		res.getTokenInContext());
+        		token);
+ 		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
+
 		return args.get(0);
 	}
 

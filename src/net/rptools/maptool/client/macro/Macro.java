@@ -15,6 +15,8 @@ package net.rptools.maptool.client.macro;
 
 import java.util.List;
 
+import net.rptools.maptool.client.MapToolMacroContext;
+
 /**
  * @author drice
  *
@@ -23,5 +25,5 @@ import java.util.List;
  */
 public interface Macro {
 
-    public void execute(MacroContext context, String macro, boolean trusted, String macroName);
+    public void execute(MacroContext context, String macro, MapToolMacroContext executionContext);
 }

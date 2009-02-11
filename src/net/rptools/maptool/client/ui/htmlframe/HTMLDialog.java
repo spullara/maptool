@@ -29,7 +29,7 @@ public class HTMLDialog extends JDialog implements HTMLPanelContainer {
 	private String name;
 	private boolean canResize = true;
 	private final Frame parent;
-	
+	private boolean closeButton;
 	
 	/**
 	 * Returns if the frame is visible or not.
@@ -62,8 +62,9 @@ public class HTMLDialog extends JDialog implements HTMLPanelContainer {
 	 * @param undecorated If the dialog is decorated or not.
 	 * @param width The width of the dialog.
 	 * @param height The height of the dialog.
+	 * @param closeButton if the close button should be displayed or not.
 	 */
-	private HTMLDialog(Frame parent, String name, String title, boolean undecorated, int width, int height) {
+	private HTMLDialog(Frame parent, String name, String title, boolean undecorated, boolean closeButton, int width, int height) {
 		super(parent, title, false);
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -78,7 +79,7 @@ public class HTMLDialog extends JDialog implements HTMLPanelContainer {
 		height = height < 50 ? 200 : height;
 		setPreferredSize(new Dimension(width, height));
 
-		panel = new HTMLPanel(this, !input, !undecorated);
+		panel = new HTMLPanel(this, closeButton, !undecorated);
 		add(panel);
 		pack();
 		this.parent = parent;
@@ -97,20 +98,21 @@ public class HTMLDialog extends JDialog implements HTMLPanelContainer {
 	 * @param frame If the dialog is decorated with frame or not.
 	 * @param input Is the dialog an input only dialog.
 	 * @param temp Is the dialog temporary.
-	 * @param html The HTML to display in the dialog. 
+	 * @param closeButton should the close button be displayed or not.
+	 * @param html The HTML to display in the dialog.
 	 * @return The dialog.
 	 */
 	static HTMLDialog showDialog(String name, String title, int width, int height, boolean frame, 
-				boolean input, boolean temp, String html) {
+				boolean input, boolean temp, boolean closeButton, String html) {
 		HTMLDialog dialog;
 		if (dialogs.containsKey(name)) {
 			dialog = dialogs.get(name);
-			dialog.updateContents(html, temp, input);
+			dialog.updateContents(html, temp, closeButton, input);
 
 		} else {
-			dialog = new HTMLDialog(MapTool.getFrame(), name, title, !frame, width, height);
+			dialog = new HTMLDialog(MapTool.getFrame(), name, title, !frame, closeButton, width, height);
 			dialogs.put(name, dialog);
-			dialog.updateContents(html, temp, input);
+			dialog.updateContents(html, temp, closeButton, input);
 		}
 //		dialog.canResize = false;
 		if (!dialog.isVisible()) {
@@ -195,23 +197,24 @@ public class HTMLDialog extends JDialog implements HTMLPanelContainer {
 	 * Updates the contents of the dialog.
 	 * @param html The html contents of the dialog. 
 	 * @param temp Is the dialog temporary or not.
-	 * @param input Is it an input only dialog.
+	 * @param closeButton does the dialog have a close button.
 	 */
-	private void updateContents(String html, boolean temp, boolean input) {
+	private void updateContents(String html, boolean temp, boolean closeButton, boolean input) {
 		this.input = input;
+		this.closeButton = closeButton;
 		this.temporary = temp;
 		macroCallbacks.clear();
-		panel.updateContents(html, input);
+		panel.updateContents(html, closeButton);
 	}
 
 
 	public void actionPerformed(ActionEvent e) {
 		if (e instanceof HTMLPane.FormActionEvent) {
-			HTMLPane.FormActionEvent fae = (HTMLPane.FormActionEvent) e;
-			MacroLinkFunction.getInstance().runMacroLink(fae.getAction() + fae.getData());
 			if (input) {
 				closeRequest();
 			}
+			HTMLPane.FormActionEvent fae = (HTMLPane.FormActionEvent) e;
+			MacroLinkFunction.getInstance().runMacroLink(fae.getAction() + fae.getData());
 		}
 
 		if (e instanceof HTMLPane.ChangeTitleActionEvent) {
@@ -227,8 +230,12 @@ public class HTMLDialog extends JDialog implements HTMLPanelContainer {
 			HTMLPane.MetaTagActionEvent mtae = (HTMLPane.MetaTagActionEvent) e;
 			if (mtae.getName().equalsIgnoreCase("input")) {
 				Boolean val = Boolean.valueOf(mtae.getContent());
-				panel.updateContents(val);
 				input = val;
+				closeButton = !input;
+			} else if (mtae.getName().equalsIgnoreCase("closebutton")) {
+				Boolean val = Boolean.valueOf(mtae.getContent());
+				closeButton = val;
+				panel.updateContents(closeButton);
 			} else if (mtae.getName().equalsIgnoreCase("onChangeToken")  ||
 					   mtae.getName().equalsIgnoreCase("onChangeSelection") ||
 					   mtae.getName().equalsIgnoreCase("onChangeImpersonated")) {

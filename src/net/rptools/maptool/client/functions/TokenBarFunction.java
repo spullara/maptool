@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -55,7 +56,7 @@ public class TokenBarFunction extends AbstractFunction {
             return token.getState(bar) == null ? BigDecimal.ZERO : BigDecimal.ONE;
         } else {
             boolean show = AbstractTokenAccessorFunction.getBooleanValue(parameters.get(1));
-            token.setState(bar, show ? BigDecimal.ZERO : null);  
+            token.setState(bar, show ? BigDecimal.ZERO : null); 
             return show ? BigDecimal.ONE : BigDecimal.ZERO;
         } 
     }

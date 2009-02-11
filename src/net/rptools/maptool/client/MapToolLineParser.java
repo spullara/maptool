@@ -28,6 +28,7 @@ import net.rptools.maptool.client.functions.AbortFunction;
 import net.rptools.maptool.client.functions.AddAllToInitiativeFunction;
 import net.rptools.maptool.client.functions.AssertFunction;
 import net.rptools.maptool.client.functions.CurrentInitiativeFunction;
+import net.rptools.maptool.client.functions.DefineMacroFunction;
 import net.rptools.maptool.client.functions.EvalMacroFunctions;
 import net.rptools.maptool.client.functions.FindTokenFunctions;
 import net.rptools.maptool.client.functions.HasImpersonated;
@@ -35,12 +36,15 @@ import net.rptools.maptool.client.functions.InitiativeRoundFunction;
 import net.rptools.maptool.client.functions.InputFunction;
 import net.rptools.maptool.client.functions.IsTrustedFunction;
 import net.rptools.maptool.client.functions.JSONMacroFunctions;
+import net.rptools.maptool.client.functions.LookupTableFunction;
+import net.rptools.maptool.client.functions.MacroArgsFunctions;
 import net.rptools.maptool.client.functions.MacroDialogFunctions;
 import net.rptools.maptool.client.functions.MacroFunctions;
 import net.rptools.maptool.client.functions.MacroLinkFunction;
 import net.rptools.maptool.client.functions.MiscInitiativeFunction;
 import net.rptools.maptool.client.functions.PlayerFunctions;
 import net.rptools.maptool.client.functions.RemoveAllFromInitiativeFunction;
+import net.rptools.maptool.client.functions.StateImageFunction;
 import net.rptools.maptool.client.functions.StrListFunctions;
 import net.rptools.maptool.client.functions.StrPropFunctions;
 import net.rptools.maptool.client.functions.StringFunctions;
@@ -49,14 +53,13 @@ import net.rptools.maptool.client.functions.TokenAddToInitiativeFunction;
 import net.rptools.maptool.client.functions.TokenBarFunction;
 import net.rptools.maptool.client.functions.TokenGMNameFunction;
 import net.rptools.maptool.client.functions.TokenHaloFunction;
+import net.rptools.maptool.client.functions.TokenImage;
 import net.rptools.maptool.client.functions.TokenInitFunction;
 import net.rptools.maptool.client.functions.TokenInitHoldFunction;
 import net.rptools.maptool.client.functions.TokenLabelFunction;
-import net.rptools.maptool.client.functions.LookupTableFunction;
 import net.rptools.maptool.client.functions.TokenLightFunctions;
+import net.rptools.maptool.client.functions.TokenLocationFunctions;
 import net.rptools.maptool.client.functions.TokenNameFunction;
-import net.rptools.maptool.client.functions.StateImageFunction;
-import net.rptools.maptool.client.functions.TokenImage;
 import net.rptools.maptool.client.functions.TokenNoteFunctions;
 import net.rptools.maptool.client.functions.TokenPropertyFunctions;
 import net.rptools.maptool.client.functions.TokenRemoveFromInitiativeFunction;
@@ -64,7 +67,9 @@ import net.rptools.maptool.client.functions.TokenSightFunctions;
 import net.rptools.maptool.client.functions.TokenSpeechFunctions;
 import net.rptools.maptool.client.functions.TokenStateFunction;
 import net.rptools.maptool.client.functions.TokenVisibleFunction;
+import net.rptools.maptool.client.functions.UserDefinedMacroFunctions;
 import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
+import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButtonPrefs;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Player;
@@ -84,6 +89,7 @@ public class MapToolLineParser {
 		AssertFunction.getInstance(),
 		AddAllToInitiativeFunction.getInstance(),
 		CurrentInitiativeFunction.getInstance(),
+		DefineMacroFunction.getInstance(),
 		EvalMacroFunctions.getInstance(),
 		FindTokenFunctions.getInstance(),
 		HasImpersonated.getInstance(),
@@ -92,6 +98,7 @@ public class MapToolLineParser {
 		IsTrustedFunction.getInstance(),
 		JSONMacroFunctions.getInstance(),
 		LookupTableFunction.getInstance(),
+		MacroArgsFunctions.getInstance(),
 		MacroDialogFunctions.getInstance(),
 		MacroFunctions.getInstance(), 
 		MacroLinkFunction.getInstance(),
@@ -112,6 +119,7 @@ public class MapToolLineParser {
 		TokenInitHoldFunction.getInstance(),
 		TokenLabelFunction.getInstance(),
 		TokenLightFunctions.getInstance(),
+		TokenLocationFunctions.getInstance(),
 		TokenNameFunction.getInstance(),
 		TokenNoteFunctions.getInstance(),
 		TokenPropertyFunctions.getInstance(),
@@ -120,6 +128,7 @@ public class MapToolLineParser {
 		TokenSpeechFunctions.getInstance(),		
 		TokenStateFunction.getInstance(),
 		TokenVisibleFunction.getInstance(),
+		UserDefinedMacroFunctions.getInstance(),
 	};
 
 	/** Name and Source or macros that come from chat. */
@@ -628,7 +637,13 @@ public class MapToolLineParser {
 
 				start = match.getEnd() + 1;
 				// These variables will hold data extracted from the roll options.
-				Output output = Output.TOOLTIP;
+				Output output;
+				if (MapTool.useToolTipsForUnformatedRolls()) {
+					output = Output.TOOLTIP;
+				} else {
+					output = Output.EXPANDED;
+				}
+				
 				String text = null;	// used by the T option
 
 				OutputLoc outputTo = OutputLoc.CHAT;
@@ -1178,6 +1193,7 @@ public class MapToolLineParser {
 			if (contextStackEmpty()) {
 				HTMLFrameFactory.tokenChanged(tokenInContext);
 			}
+			MapTool.getFrame().refresh(); // Repaint incase macros changed anything. 
 		}
 
 	}
@@ -1199,14 +1215,14 @@ public class MapToolLineParser {
 		try {
 			parserRecurseDepth ++;
 			return  createParser(resolver, tokenInContext == null ? false : true).evaluate(expression);
-		} catch (RuntimeException re) {
+		} catch (Exception e) {
 
-			if (re.getCause() instanceof ParserException) {
-				throw (ParserException) re.getCause();
+			if (e.getCause() instanceof ParserException) {
+				throw (ParserException) e.getCause();
 			}
-
-			throw re;
-		} finally {
+			throw new ParserException(e.getLocalizedMessage() + " error executing expression: " +  expression);
+		}
+		finally {
 			parserRecurseDepth--;
 		}
 	}	
@@ -1264,7 +1280,7 @@ public class MapToolLineParser {
 		// IF the macro is a  @this, then we get the location of the current macro and use that.
 		if (macroLocation.equalsIgnoreCase("this")) {
 			macroLocation = getMacroSource();
-			if (macroLocation.equals(CHAT_INPUT)) {
+			if (macroLocation.equals(CHAT_INPUT) || macroLocation.toLowerCase().startsWith("token:")) {
 				macroLocation = "TOKEN";
 			}
 		}
@@ -1286,66 +1302,43 @@ public class MapToolLineParser {
 				macroBody = buttonProps.getCommand(); 
 			}
 
-// These choices are disabled because Lindharin's upcoming macro panel revamp will require
-// a rewrite of how we access campaign and global macros.
-//
 		} else if (macroLocation.equalsIgnoreCase("CAMPAIGN")) {
-			macroContext = new MapToolMacroContext(macroName, "campaign", MapTool.getPlayer().isGM());
-			throw new ParserException("Calling campaign macros is not currently supported.");
-//			CampaignPanel cp = MapTool.getFrame().getCampaignPanel();
-//			Component[] comps = cp.getComponents();
-//			for (Component comp : comps) {
-//				if (comp instanceof CampaignMacroButton) {
-//					CampaignMacroButton cmb = (CampaignMacroButton)comp;
-//					String lbl = cmb.getMacroLabel();
-//					if (lbl.equalsIgnoreCase(macroName)) {
-//						macroBody = cmb.getCommand();
-//						break;
-//					}
-//				}
-//			}			
+			MacroButtonProperties mbp = null;
+			for (MacroButtonProperties m : MapTool.getCampaign().getMacroButtonPropertiesArray()) {
+				if (m.getLabel().equals(macroName)) {
+					mbp = m;
+					break;
+				}
+			}
+			if (mbp == null) { 
+				throw new ParserException("Unknown campaign macro " + macroName);
+			}
+			macroBody = mbp.getCommand();			
+			macroContext = new MapToolMacroContext(macroName, "campaign", !mbp.getAllowPlayerEdits());
+
 		} else if (macroLocation.equalsIgnoreCase("GLOBAL")) {
 			macroContext = new MapToolMacroContext(macroName, "global", MapTool.getPlayer().isGM());
-			throw new ParserException("Calling global macros is not currently supported.");
-//			GlobalPanel gp = MapTool.getFrame().getGlobalPanel();
-//			Component[] comps = gp.getComponents();
-//			for (Component comp : comps) {
-//				if (comp instanceof GlobalMacroButton) {
-//					GlobalMacroButton gmb = (GlobalMacroButton)comp;
-//					String lbl = gmb.getMacroLabel();
-//					if (lbl.equalsIgnoreCase(macroName)) {
-//						macroBody = gmb.getCommand();
-//						break;
-//					}
-//				}
-//			}
+			MacroButtonProperties mbp = null;
+			for (MacroButtonProperties m : MacroButtonPrefs.getButtonProperties()) {
+				if (m.getLabel().equals(macroName)) {
+					mbp = m;
+					break;
+				}
+			}
+			if (mbp == null) { 
+				throw new ParserException("Unknown global macro " + macroName);
+			}
+			macroBody = mbp.getCommand();			
 		} else { // Search for a token called macroLocation (must start with "Lib:")
 			macroBody = getTokenLibMacro(macroName, macroLocation);
 			Token token = getTokenMacroLib(macroLocation);
-			boolean secure = true;
-
-			// If the token is not owned by everyone and all owners are GMs then we are in
-			// a secure context as players can not modify the macro so GM can sepcify what
-			// ever they want.
-			if (token != null) {
-				if (token.isOwnedByAll()) {
-					secure = false;
-				} else {
-					Set<String> gmPlayers = new HashSet<String>(); 
-					for (Object o : MapTool.getPlayerList()) {
-						Player p = (Player)o;
-						if (p.isGM()) {
-							gmPlayers.add(p.getName());
-						}
-					}
-					for (String owner : token.getOwners())  {
-						if (!gmPlayers.contains(owner)) {
-							secure = false;
-							break;
-						}
-					}
-				}
+			
+			if (macroBody == null || token == null) {
+				throw new ParserException("Unknown macro " + qMacroName);
 			}
+			
+			boolean secure = isSecure(macroName, token);
+
 			macroContext = new MapToolMacroContext(macroName, macroLocation, secure);
 	
 		}
@@ -1357,6 +1350,16 @@ public class MapToolLineParser {
 
 		MapToolVariableResolver macroResolver = new MapToolVariableResolver(tokenInContext);
 		macroResolver.setVariable("macro.args", args);
+		Object obj = JSONMacroFunctions.convertToJSON(args);
+		if (obj instanceof JSONArray) {
+			JSONArray jarr = (JSONArray)obj;
+			macroResolver.setVariable("macro.args.num", BigDecimal.valueOf(jarr.size()));
+			for (int i = 0; i < jarr.size(); i++) {
+				macroResolver.setVariable("macro.args." + i, jarr.get(i));
+			}
+		} else {
+			macroResolver.setVariable("macro.args.num", BigDecimal.ZERO);			
+		}
 		macroResolver.setVariable("macro.return", "");
 
 		// Call the macro
@@ -1373,6 +1376,48 @@ public class MapToolLineParser {
 //			exitContext();
 			macroRecurseDepth--;
 		}
+	}
+	
+	/**
+	 * Returns if the specified macro on the token is secure, that is player would not be able to
+	 * edit it.
+	 * @param macroName The name of the macro.
+	 * @param token the token.
+	 * @return true if it is secure.
+	 */
+	private boolean isSecure(String macroName, Token token) {
+		
+		MacroButtonProperties mbp = token.getMacro(macroName, false);
+		
+		if (!mbp.getAllowPlayerEdits()) {
+			return true;
+		}
+		
+		// If the token is not owned by everyone and all owners are GMs then we are in
+		// a secure context as players can not modify the macro so GM can sepcify what
+		// ever they want.
+		if (token != null) {
+			if (token.isOwnedByAll()) {
+				return false;
+			} else {
+				Set<String> gmPlayers = new HashSet<String>(); 
+				for (Object o : MapTool.getPlayerList()) {
+					Player p = (Player)o;
+					if (p.isGM()) {
+						gmPlayers.add(p.getName());
+					}
+				}
+				for (String owner : token.getOwners())  {
+					if (!gmPlayers.contains(owner)) {
+						return false;
+					}
+				}
+			}
+		} else {
+			return false;
+		}
+		
+		return true;
 	}
 
 

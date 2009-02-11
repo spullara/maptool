@@ -29,14 +29,6 @@ public class HTMLFrameFactory {
 		
 		if (listener == null) {
 			listener = new HTMLFrameFactory.Listener();
-			/*EventQueue.invokeLater(
-					new Runnable() {
-						public void run() {
-							// TODO Auto-generated method stub
-							MapTool.getFrame().getCurrentZoneRenderer().getZone().addModelChangeListener(listener);
-						}
-				}
-			);*/
 		}
 		
 		boolean input = false;
@@ -45,6 +37,7 @@ public class HTMLFrameFactory {
 		int height = -1;
 		String title = name;
 		boolean hasFrame = true;
+		boolean closeButton = true;
 
 		if (properties != null && properties.length() > 0) {
 			String[] opts = properties.split(";");
@@ -58,6 +51,7 @@ public class HTMLFrameFactory {
 						int v = Integer.parseInt(value);
 						if (v != 0) {
 							input = true;
+							closeButton = !input;
 						}
 					} catch (NumberFormatException e) {
 						// Do nothing
@@ -94,14 +88,24 @@ public class HTMLFrameFactory {
 					} catch (NumberFormatException e) {
 						// Do nothing
 					}										
+				} else if (key.equalsIgnoreCase("closebutton")) {
+					try {
+						int v = Integer.parseInt(value);
+						if (v == 0) {
+							closeButton = false;
+						}
+					} catch (NumberFormatException e) {
+						// Do nothing
+					}										
 				} 
+
 			}
 		}
 		
 		if (isFrame) {
 			HTMLFrame.showFrame(name, title, width, height, html);
 		} else {
-			HTMLDialog.showDialog(name, title, width, height, hasFrame, input, temporary, html);
+			HTMLDialog.showDialog(name, title, width, height, hasFrame, input, temporary, closeButton, html);
 		}
 	}
 	

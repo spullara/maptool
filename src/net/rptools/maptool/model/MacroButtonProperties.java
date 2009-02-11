@@ -21,10 +21,12 @@ import java.util.regex.Pattern;
 import javax.swing.text.JTextComponent;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolLineParser;
 import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButtonPrefs;
+import net.rptools.parser.ParserException;
 
 /**
  * This (data)class is used by all Macro Buttons, including campaign, global and token macro buttons.
@@ -50,11 +52,12 @@ public class MacroButtonProperties implements Comparable<Object> {
 	private String minWidth;
 	private String maxWidth;
 	private Boolean allowPlayerEdits = true;
+	private String toolTip;
 
 	// constructor that creates a new instance, doesn't auto-save
 	public MacroButtonProperties(int index, String colorKey, String hotKey, String command, 
 			String label, String group, String sortby, boolean autoExecute, boolean includeLabel, 
-			boolean applyToTokens, String fontColorKey, String fontSize, String minWidth, String maxWidth) {
+			boolean applyToTokens, String fontColorKey, String fontSize, String minWidth, String maxWidth, String toolTip) {
 		setIndex(index);
 		setColorKey(colorKey);
 		setHotKey(hotKey);
@@ -79,6 +82,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		setCompareIncludeLabel(true);
 		setCompareAutoExecute(true);
 		setCompareApplyToSelectedTokens(true);
+		setToolTip(toolTip);
 	}
 
 	// constructor that creates a new instance, doesn't auto save
@@ -107,6 +111,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		setCompareIncludeLabel(true);
 		setCompareAutoExecute(true);
 		setCompareApplyToSelectedTokens(true);
+		setToolTip("");
 	}
 
 	// constructor for creating a new button in a specific button group, auto-saves
@@ -192,6 +197,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		setCompareGroup(properties.getCompareGroup());
 		setCompareSortPrefix(properties.getCompareSortPrefix());
 		setCompareCommand(properties.getCompareCommand());
+		setToolTip(properties.getToolTip());
 		save();
 	}
 	
@@ -219,6 +225,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		setCompareGroup(properties.getCompareGroup());
 		setCompareSortPrefix(properties.getCompareSortPrefix());
 		setCompareCommand(properties.getCompareCommand());
+		setToolTip(properties.getToolTip());
 		commonMacro = true;
 	}
 
@@ -330,27 +337,27 @@ public class MacroButtonProperties implements Comparable<Object> {
 					if(allowPlayerEdits == null) {
 						allowPlayerEdits = false;
 					}
-					if(saveLocation.equals("Campaign") || !allowPlayerEdits) {
+					if(saveLocation.equals("CampaignPanel") || !allowPlayerEdits) {
 						trusted = true;
 					} 
 					
-					String loc = "token";				
-					if  (saveLocation.equals("Global")) {
+					String loc;				
+					if  (saveLocation.equals("GlobalPanel")) {
 						loc = "global";
-					} else if (saveLocation.equals("Campaign")) {
-						loc = "Campaign";
-					}
-					
-					if(contextToken != null) {
-						
-						MapToolMacroContext newMacroContext = new MapToolMacroContext(label, loc, trusted, index);
-						MapTool.getFrame().getCommandPanel().commitCommand(newMacroContext);
-
+					} else if (saveLocation.equals("CampaignPanel")) {
+						loc = "campaign";
+					} else if (contextToken != null) {
+						if (contextToken.getName().toLowerCase().startsWith("lib:")) {
+							loc = contextToken.getName();
+						} else {
+							loc = "Token:" + contextToken.getName();
+						}
 					} else {
-						
-						MapToolMacroContext newMacroContext = new MapToolMacroContext(label, MapTool.getFrame().getCommandPanel().getIdentity(), trusted, index);
-						MapTool.getFrame().getCommandPanel().commitCommand(newMacroContext);
+						loc = MapToolLineParser.CHAT_INPUT;
 					}
+					 
+					MapToolMacroContext newMacroContext = new MapToolMacroContext(label, loc, trusted, index);
+					MapTool.getFrame().getCommandPanel().commitCommand(newMacroContext);
 				}
 			}
 
@@ -534,7 +541,37 @@ public class MacroButtonProperties implements Comparable<Object> {
 	public String getSaveLocation() {
 		return saveLocation;
 	}
+	
+	public void setToolTip(String tt) {
+		toolTip = tt;
+	}
+	
+	public String getToolTip() {
+		return toolTip;
+	}
 
+	public String getEvaluatedToolTip() {
+		
+		if (toolTip == null) {
+			return "";
+		}
+		
+		if (!toolTip.trim().startsWith("{")) {
+			return toolTip;
+		}
+		
+		Token token = null;
+		if (tokenId != null) {
+			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId);
+		}
+		try {
+			MapToolMacroContext context = new MapToolMacroContext("ToolTip", token.getName(), false, index );
+			return MapTool.getParser().parseLine(token, toolTip, context);
+		} catch (ParserException pe) {
+			return toolTip;
+		}	
+	}
+	
 	public boolean isDuplicateMacro(String source, Token token) {
 		int macroHashCode = hashCodeForComparison();
 		List<MacroButtonProperties> existingMacroList = null;
@@ -569,6 +606,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		fontSize = "";
 		minWidth = "";
 		maxWidth = "";
+		toolTip = "";
 	}
 
 	//TODO: may have to rewrite hashcode and equals to only take index into account

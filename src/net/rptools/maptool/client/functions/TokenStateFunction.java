@@ -15,6 +15,7 @@ package net.rptools.maptool.client.functions;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
@@ -23,6 +24,7 @@ import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
+import net.sf.json.JSONArray;
 
 public class TokenStateFunction extends AbstractFunction {
 
@@ -44,7 +46,7 @@ public class TokenStateFunction extends AbstractFunction {
 
 	
 	private TokenStateFunction() {
-		super(1, 3, "getState", "setState", "setAllStates");
+		super(0, 3, "getState", "setState", "setAllStates", "getTokenStates");
 	}
 
 	@Override
@@ -55,8 +57,12 @@ public class TokenStateFunction extends AbstractFunction {
 			return setAllStates(parser, args);
 		} else if (functionName.equals("getState")) {
 			return getState(parser, args);
-		} else {
+		} else if (functionName.equals("setState")){
 			return setState(parser, args);
+		} else if (functionName.equals("getTokenStates")) {
+			return getTokenStates(parser, args);
+		} else {
+			throw new ParserException(functionName + "(): Unknown function.");
 		}
 		
 	}
@@ -104,16 +110,27 @@ public class TokenStateFunction extends AbstractFunction {
 		Token token;
 		String stateName;
 		
-		if (args.size() > 1 && args.get(0) instanceof GUID) {
-			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken((GUID)args.get(0));
-			stateName = args.get(1).toString();
-		} else if (args.size() > 1) {
-			throw new ParserException("Usage: getState(state) or getState(target, state)");
-		} else {
+		if (args.size() == 1) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
-			stateName = args.get(0).toString();
+			if (token == null) {
+				throw new ParserException("getState(): No impersonated token");
+			}			
+		} else if (args.size() == 2) {
+			if (!MapTool.getParser().isMacroTrusted()) {
+				throw new ParserException("setState(): You do not have permission to refefer to other tokens.");
+			}
+			
+			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
+			if (token == null) {
+				throw new ParserException("getState(): can not find token or ID " + args.get(1));
+			}
+
+
+		} else {
+			throw new ParserException("getState(): Incorrect number of parameters");
 		}
+		stateName = args.get(0).toString();
 		
 		return getState(token, stateName);
 	}
@@ -130,22 +147,30 @@ public class TokenStateFunction extends AbstractFunction {
 		String stateName;
 		Object val;
 		
-		if (args.size() > 2 && args.get(0) instanceof GUID) {
-			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken((GUID)args.get(0));
-			stateName = args.get(1).toString();
-			val = args.get(2);
-		} else if (args.size() > 2) {
-			throw new ParserException("Usage: setState(state, val) or setState(target, state, val)");
-		} else {
+		if (args.size() == 3) {
+			
+			if (!MapTool.getParser().isMacroTrusted()) {
+				throw new ParserException("setState(): You do not have permission to refefer to other tokens.");
+			}
+			token = FindTokenFunctions.findToken(args.get(2).toString(), null);
+			if (token == null) {
+				throw new ParserException("setState(): can not find token or ID " + args.get(1));
+			} 
+		} else if (args.size() == 2) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
-			stateName = args.get(0).toString();
-			val = args.get(1);
+			if (token == null) {
+				throw new ParserException("setState(): No impersonated token");
+			}
+		} else {
+			throw new ParserException("setState(): Incorrect number of parameters.");
 		}
+		stateName = args.get(0).toString();
+		val = args.get(1);
 		
 		setBooleanTokenState(token, stateName, val);
  		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
-		return val;
+ 		return val;
 	}
 	
 	/**
@@ -156,16 +181,35 @@ public class TokenStateFunction extends AbstractFunction {
 	 * @throws ParserException if an error occurs.
 	 */
 	private Object setAllStates(Parser parser, List<Object> args) throws ParserException {
+	
+		Token token;
+		if (args.size() == 1) {
+			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
+			token = res.getTokenInContext();
+			if (token == null) {
+				throw new ParserException("setAllStates(): No impersonated token");
+			}
+		} else if (args.size() == 2) {
+			if (!MapTool.getParser().isMacroTrusted()) {
+				throw new ParserException("setAllStates(): You do not have permission to refefer to other tokens.");
+			}
+
+			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
+			if (token == null) {
+				throw new ParserException("setAllStates(): can not find token or ID " + args.get(1));
+			}
+		} else { 
+			throw new ParserException("setAllStates(): Incorrect number of parameters.");
+		}
 		
-		MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
-		Token token = res.getTokenInContext();
 		Object val = args.get(0);
 		
 		for (Object stateName : MapTool.getCampaign().getTokenStatesMap().keySet()) {
 			setBooleanTokenState(token, stateName.toString(), val);
 		}
   		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
-		return val;
+
+  		return val;
 	}
 	
 
@@ -181,7 +225,7 @@ public class TokenStateFunction extends AbstractFunction {
 	 */
 	public boolean getBooleanTokenState(Token token, String stateName) throws ParserException {
 		if (!MapTool.getCampaign().getTokenStatesMap().containsKey(stateName)) {
-			throw new ParserException("Unknown token name " + stateName);
+			throw new ParserException("Unknown token state name " + stateName);
 		}
 
 		Object val = token.getState(stateName);
@@ -229,4 +273,30 @@ public class TokenStateFunction extends AbstractFunction {
 		}
 	}
 
+	/**
+	 * Gets a list of the valid token states.
+	 * @param parser The parser.
+	 * @param args The arguments.
+	 * @return A string with the states.
+	 */
+	private String getTokenStates(Parser parser, List<Object> args) {
+		String delim = args.size() > 0 ? args.get(0).toString() : ",";
+
+		Set<String> stateNames = MapTool.getCampaign().getTokenStatesMap().keySet();
+		
+		if ("json".equals(delim)) {
+			return JSONArray.fromObject(stateNames).toString();
+		} 
+		
+		StringBuilder sb = new StringBuilder();
+		for (String s : stateNames) {
+			if (sb.length() != 0) {
+				sb.append(delim);
+			} 
+			sb.append(s);
+		}
+		
+		return sb.toString();
+		
+	}
 }

@@ -25,13 +25,13 @@ import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
 
 /**
- * Add a set of tokens to initiative
+ * Remove a set of tokens to initiative
  * 
  * @author Jay
  */
 public class RemoveAllFromInitiativeFunction extends AbstractFunction {
 
-    /** Handle adding one, all, all PCs or all NPC tokens. */
+    /** Handle removing, all, all PCs or all NPC tokens. */
 	private RemoveAllFromInitiativeFunction() {
 		super(0, 0, "removeAllFromInitiative", "removeAllPCsFromInitiative", "removeAllNPCsFromInitiative");
 	}
@@ -49,6 +49,10 @@ public class RemoveAllFromInitiativeFunction extends AbstractFunction {
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
         InitiativeList list = MapTool.getFrame().getCurrentZoneRenderer().getZone().getInitiativeList();
         int count = 0;
+        
+        if (!MapTool.getParser().isMacroTrusted()) {
+        	throw new ParserException(functionName +"(): You do not have permission to call this function.");
+        }
         if (functionName.equals("removeAllFromInitiative")) {
             count = list.getSize();
             list.clearModel();

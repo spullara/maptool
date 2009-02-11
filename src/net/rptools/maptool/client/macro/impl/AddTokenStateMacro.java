@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
@@ -85,7 +86,7 @@ public class AddTokenStateMacro implements Macro {
   /**
    * @see net.rptools.maptool.client.macro.Macro#execute(java.lang.String)
    */
-  public void execute(MacroContext context, String aMacro, boolean trusted, String macroName) {
+  public void execute(MacroContext context, String aMacro, MapToolMacroContext executionContext) {
     
     // Split the command line into an array and get the tokens
     String[] tokens = aMacro.split("\\s");

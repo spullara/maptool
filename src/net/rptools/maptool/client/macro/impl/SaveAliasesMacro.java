@@ -27,6 +27,7 @@ import javax.swing.JFileChooser;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
@@ -39,7 +40,7 @@ import net.rptools.maptool.client.macro.MacroManager;
 )
 public class SaveAliasesMacro implements Macro {
 
-    public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
+    public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
     	
     	File aliasFile = null;
     	if (macro.length() > 0) {

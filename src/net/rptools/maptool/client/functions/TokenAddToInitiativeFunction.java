@@ -49,11 +49,13 @@ public class TokenAddToInitiativeFunction extends AbstractFunction {
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
 	    InitiativeList list = MapTool.getFrame().getCurrentZoneRenderer().getZone().getInitiativeList();
 	    Token token = AbstractTokenAccessorFunction.getTarget(parser, args, -1);
-        if (!MapTool.getFrame().getInitiativePanel().hasOwnerPermission(token)) {
-            String message = "Only the GM can perform addToInitiative.";
-            if (MapTool.getFrame().getInitiativePanel().isOwnerPermissions()) message = "Only the GM or owner can perform addToInitiative.";
-            throw new ParserException(message);
-        } // endif
+        if (!MapTool.getParser().isMacroTrusted()) {
+        	if (!MapTool.getFrame().getInitiativePanel().hasOwnerPermission(token)) {
+        		String message = "Only the GM can perform addToInitiative.";
+        		if (MapTool.getFrame().getInitiativePanel().isOwnerPermissions()) message = "Only the GM or owner can perform addToInitiative.";
+        		throw new ParserException(message);
+        	} // endif
+        }
 	    boolean allowDuplicates = false;
 	    if (!args.isEmpty()) { 
 	        allowDuplicates = TokenInitFunction.getBooleanValue(args.get(0));

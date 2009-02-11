@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
@@ -97,6 +98,7 @@ public class MacroButton extends JButton implements MouseListener
 		setMargin(buttonInsets);
 		makeDraggable(DragSource.DefaultCopyDrop);
 		addMouseListener(this);
+		ToolTipManager.sharedInstance().registerComponent(this);
 	}
 
 	public MacroButtonProperties getProperties() {
@@ -299,4 +301,11 @@ public class MacroButton extends JButton implements MouseListener
 	public void clearHotkey() {
 		getHotKeyManager().assignKeyStroke(MacroButtonHotKeyManager.HOTKEYS[0]);
 	}
+	
+	@Override
+	public String getToolTipText(MouseEvent e) {
+		String tt = properties.getEvaluatedToolTip();
+		return tt.length() == 0  ? null : tt;
+	}
+
 }

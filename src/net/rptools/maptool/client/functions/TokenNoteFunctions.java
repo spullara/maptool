@@ -27,9 +27,14 @@ public class TokenNoteFunctions extends AbstractFunction {
 	public Object childEvaluate(Parser parser, String functionName,
 			List<Object> parameters) throws ParserException {
 		
-		Token tokenInContext = ((MapToolVariableResolver)parser.getVariableResolver()).getTokenInContext();
+		final Token tokenInContext = ((MapToolVariableResolver)parser.getVariableResolver()).getTokenInContext();
+		if (tokenInContext == null) {
+			throw new ParserException(functionName + "(): No Impersonated token.");
+		}
+
 		if (functionName.equals("getNotes")) {
-			return tokenInContext.getNotes();
+			String notes = tokenInContext.getNotes();
+			return notes == null ? "" : notes;
 		}
 		
 		if (functionName.equals("setNotes")) {
@@ -45,7 +50,8 @@ public class TokenNoteFunctions extends AbstractFunction {
 			if (!MapTool.getParser().isMacroTrusted()) {
 				throw new ParserException("You do not have permissions to call getGMNotes() function.");
 			}
-			return tokenInContext.getGMNotes();
+			String notes = tokenInContext.getGMNotes();
+			return notes == null ? "" : notes;
 		}
 		
 		if (functionName.equals("setGMNotes"))  {

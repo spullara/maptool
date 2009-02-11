@@ -40,6 +40,7 @@ import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.transferable.TokenTransferData;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.functions.JSONMacroFunctions;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.parser.ParserException;
@@ -863,14 +864,22 @@ public class Token extends BaseModel {
 			}
 		}
 		if (val == null) {
-			return null;
+			return "";
+		}
+		
+		// First we try convert it to a JSON object.
+		if (val.toString().trim().startsWith("[") || val.toString().trim().startsWith("{")) {
+			Object obj  = JSONMacroFunctions.convertToJSON(val.toString());
+			if (obj != null) {
+				return obj;
+			}
 		}
 		
 		try {
 			val = MapTool.getParser().parseLine(this, val.toString());
 		} catch (ParserException pe) {
-			pe.printStackTrace();
-			val = "#ERR";
+			//pe.printStackTrace();
+			val = val.toString();
 		}
 		if (val == null) {
 			val = "";

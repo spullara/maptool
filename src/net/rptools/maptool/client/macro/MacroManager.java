@@ -62,6 +62,7 @@ import net.rptools.maptool.client.macro.impl.WhisperReplyMacro;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.StringUtil;
+import net.rptools.parser.ParserException;
 
 /**
  * @author drice
@@ -218,7 +219,7 @@ public class MacroManager {
 				
 				context.addTransform(key + " " + details);
 				if (macro != UNDEFINED_MACRO) {
-					executeMacro(context, macro, details, trustedPath, macroButtonName);
+					executeMacro(context, macro, details, macroExecutionContext);
 					return;
 				}
 
@@ -226,7 +227,7 @@ public class MacroManager {
 				String alias = aliasMap.get(key);
 				if (alias == null) {
 
-					executeMacro(context, UNDEFINED_MACRO, command, trustedPath, macroButtonName);
+					executeMacro(context, UNDEFINED_MACRO, command, macroExecutionContext);
 					return;
 				}
 				
@@ -241,6 +242,11 @@ public class MacroManager {
 		} catch (AssertFunction.AssertFunctionException afe) {
 			MapTool.addLocalMessage("Macro-defined error: " + afe.getMessage());
 			return;
+		} catch (ParserException e) {
+			MapTool.addLocalMessage(e.getMessage());
+			System.err.println("Exception executing command: " + command);
+			e.printStackTrace();
+			return;			
 		} catch (Exception e) {
 			MapTool.addLocalMessage("Could not execute the command: " + e.getMessage());
 			System.err.println("Exception executing command: " + command);
@@ -367,8 +373,8 @@ public class MacroManager {
 		return list;
 	}
 	
-	private static void executeMacro(MacroContext context, Macro macro, String parameter, boolean trusted, String macroName) {
-		macro.execute(context, parameter, trusted, macroName);
+	private static void executeMacro(MacroContext context, Macro macro, String parameter, MapToolMacroContext executionContext) {
+		macro.execute(context, parameter, executionContext);
 	}
 
 }

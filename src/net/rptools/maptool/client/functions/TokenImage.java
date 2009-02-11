@@ -61,6 +61,9 @@ public class TokenImage extends AbstractFunction {
 			}
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
+			if (token == null) {
+				throw new ParserException(functionName + "(): No Impersonated token.");
+			}
 			setImage(token, args.get(0).toString());
 			return "";
 		}
@@ -88,6 +91,9 @@ public class TokenImage extends AbstractFunction {
 		} else {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
+			if (token == null) {
+				throw new ParserException(functionName + "(): No Impersonated token.");
+			}
 		}
 		
 		
@@ -103,8 +109,8 @@ public class TokenImage extends AbstractFunction {
 		}
 		if (size != null) {
 			assetId.append("-");
-			// Constrain it slightly, so its between 1 and 500 :)
-			int i = Math.max(Math.min(size.intValue(), 500),1);
+			// Constrain it slightly, so its greater than 1 
+			int i = Math.max(size.intValue(),1);
 			assetId.append(i);
 		}
 		return assetId.toString();
@@ -126,7 +132,6 @@ public class TokenImage extends AbstractFunction {
 				
 		token.setImageAsset(null, new MD5Key(assetId));
  		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
-
 	}
 	
 	

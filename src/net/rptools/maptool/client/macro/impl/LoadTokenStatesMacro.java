@@ -24,6 +24,7 @@ import java.util.List;
 import javax.swing.JFileChooser;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
@@ -46,7 +47,7 @@ public class LoadTokenStatesMacro implements Macro {
    * @see net.rptools.maptool.client.macro.Macro#execute(java.lang.String)
    */
   @SuppressWarnings("unchecked")
-  public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
+  public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
     
     // Was the token states file passed?
     File aliasFile = null;

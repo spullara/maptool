@@ -153,6 +153,7 @@ public class MacroButtonDialog extends JDialog {
 				getCompareAutoExecuteCheckBox().setSelected(properties.getCompareAutoExecute());
 				getCompareApplyToSelectedTokensCheckBox().setSelected(properties.getCompareApplyToSelectedTokens());
 				getAllowPlayerEditsCheckBox().setSelected(properties.getAllowPlayerEdits());
+				getToolTipTextField().setText(properties.getToolTip());
 				
 				if(isCommonMacro) {
 					getColorComboBox().setEnabled(false);
@@ -212,6 +213,8 @@ public class MacroButtonDialog extends JDialog {
 		properties.setCompareAutoExecute(getCompareAutoExecuteCheckBox().isSelected());
 		properties.setCompareApplyToSelectedTokens(getCompareApplyToSelectedTokensCheckBox().isSelected());
 		properties.setAllowPlayerEdits(getAllowPlayerEditsCheckBox().isSelected());
+		properties.setToolTip(getToolTipTextField().getText());
+
 		properties.save();
 		
 		if(button.getPanelClass().equals("SelectionPanel")) {
@@ -355,6 +358,10 @@ public class MacroButtonDialog extends JDialog {
 	
 	private JCheckBox getAllowPlayerEditsCheckBox() {
 		return panel.getCheckBox("allowPlayerEditsCheckBox");
+	}
+	
+	private JTextField getToolTipTextField() {
+		return panel.getTextField("toolTip");
 	}
 	
 	// Begin comparison customization

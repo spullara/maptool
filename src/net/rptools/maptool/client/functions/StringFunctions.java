@@ -105,7 +105,7 @@ public class StringFunctions extends AbstractFunction {
 						len = Math.min(len, str.length());
 						return str.substring(0, len).toUpperCase() + str.substring(len);
 					} catch (NumberFormatException nfe) {
-						throw new ParserException("Second argument to upper() must be an integer");
+						throw new ParserException("Second parameter to upper() must be an integer");
 					}
 				} else {
 					return parameters.get(0).toString().toUpperCase();
@@ -120,7 +120,7 @@ public class StringFunctions extends AbstractFunction {
 						len = Math.min(len, str.length());
 						return str.substring(0, len).toLowerCase() + str.substring(len);
 					} catch (NumberFormatException nfe) {
-						throw new ParserException("Second argument to lower() must be an integer");
+						throw new ParserException("Second parameter to lower() must be an integer");
 					}
 				} else {
 					return parameters.get(0).toString().toLowerCase();
@@ -135,7 +135,7 @@ public class StringFunctions extends AbstractFunction {
 				int from = 0;
 				if (parameters.size() > 2) {
 					if (!(parameters.get(2) instanceof BigDecimal)) {
-						throw new ParserException("Third argument to indexOf() must be a number.");					
+						throw new ParserException("Third parameter to indexOf() must be a number.");					
 					}
 					from = ((BigDecimal) parameters.get(2)).intValue();
 				} else {
@@ -197,7 +197,7 @@ public class StringFunctions extends AbstractFunction {
 			try {
 				return BigDecimal.valueOf(Double.parseDouble(parameters.get(0).toString()));
 			} catch (NumberFormatException e) {
-				throw new ParserException("Invalid number format");
+				throw new ParserException("number(): Invalid number format " + parameters.get(0).toString());
 			}
 		}
 		
@@ -219,14 +219,14 @@ public class StringFunctions extends AbstractFunction {
 		
 		if (functionName.equals("strfind")) {
 			if (parameters.size() < 2) {
-				throw new ParserException("Not enough arguments for strFind(string, pattern");
+				throw new ParserException("Not enough parameters for strfind(string, pattern");
 			}
 			return stringFind(parser.getVariableResolver(), parameters.get(0).toString(), parameters.get(1).toString());
 		}
 
 		if (functionName.equals("getGroupCount")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough arguments for getGroupCount(matchId)");
+				throw new ParserException("Not enough parameters for getGroupCount(matchId)");
 			}
 			VariableResolver resolver = parser.getVariableResolver();
 			StringBuilder sb = new StringBuilder();
@@ -236,7 +236,7 @@ public class StringFunctions extends AbstractFunction {
 
 		if (functionName.startsWith("getGroup")) {
 			if (parameters.size() < 3) {
-				throw new ParserException("Not enough arguments for getGroup(matchId, matchNumber, groupNumber)");
+				throw new ParserException("Not enough parameters for getGroup(matchId, matchNumber, groupNumber)");
 			}
 			VariableResolver resolver = parser.getVariableResolver();
 			StringBuilder sb = new StringBuilder();
@@ -253,7 +253,7 @@ public class StringFunctions extends AbstractFunction {
 
 		if (functionName.equals("getFindCount")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough arguments for getFindCount(matchId)");
+				throw new ParserException("Not enough parameters for getFindCount(matchId)");
 			}			
 			VariableResolver resolver = parser.getVariableResolver();
 			StringBuilder sb = new StringBuilder();
@@ -263,7 +263,7 @@ public class StringFunctions extends AbstractFunction {
 		
 		if (functionName.equals("encode")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough arguments for encode(string)");
+				throw new ParserException("Not enough parameters for encode(string)");
 			}		
 			String encoded;
 			try {
@@ -278,7 +278,7 @@ public class StringFunctions extends AbstractFunction {
 		
 		if (functionName.equals("decode")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough arguments for decode(string)");
+				throw new ParserException("Not enough parameters for decode(string)");
 			}		
 			String decoded;
 			try {
@@ -294,7 +294,7 @@ public class StringFunctions extends AbstractFunction {
 
 		if (functionName.equals("startsWith")) {
 			if (parameters.size() < 2) {
-				throw new ParserException("Not enough arguments for startsWith(string, substring)");
+				throw new ParserException("Not enough parameters for startsWith(string, substring)");
 			}		
 			return parameters.get(0).toString().startsWith(parameters.get(1).toString()) ?
 					BigDecimal.ONE : BigDecimal.ZERO;
@@ -302,14 +302,15 @@ public class StringFunctions extends AbstractFunction {
 		
 		if (functionName.equals("endsWith")) {
 			if (parameters.size() < 2) {
-				throw new ParserException("Not enough arguments for endsWith(string, substring)");
+				throw new ParserException("Not enough parameters for endsWith(string, substring)");
 			}		
 			return parameters.get(0).toString().endsWith(parameters.get(1).toString()) ?
 					BigDecimal.ONE : BigDecimal.ZERO;
 		}
 
 
-		return null;
+		// should never happen
+		throw new ParserException(functionName + "(): Unknown function.");
 	}
 
 	/**

@@ -18,6 +18,7 @@ import java.awt.Color;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
@@ -30,7 +31,7 @@ import net.rptools.maptool.model.Token;
 )
 public class SayMacro extends AbstractMacro {
 
-    public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
+    public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
     	macro = processText(macro);
     	
         StringBuilder sb = new StringBuilder();
@@ -50,11 +51,12 @@ public class SayMacro extends AbstractMacro {
         }
         
         sb.append("<td valign=top style=\"margin-right: 5px\">");
-        if (trusted && !MapTool.getPlayer().isGM()) {
-        	sb.append("<span style='background-color: #C9F7AD' ").append("title='").append(macroName).append("'>");
+        if (executionContext != null && executionContext.isTrusted() && !MapTool.getPlayer().isGM()) {
+        	sb.append("<span class='trustedPrefix' ").append("title='").append(executionContext.getName());
+        	sb.append("@").append(executionContext.getSouce()).append("'>");
         }
         sb.append(identity).append(": ");
-        if (trusted && !MapTool.getPlayer().isGM()) {
+        if (executionContext != null && executionContext.isTrusted() && !MapTool.getPlayer().isGM()) {
         	sb.append("</span>");
         }
 

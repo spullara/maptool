@@ -14,6 +14,7 @@
 package net.rptools.maptool.client.macro.impl;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.model.TextMessage;
@@ -25,7 +26,7 @@ import net.rptools.maptool.model.TextMessage;
 )
 public class EmitMacro extends AbstractMacro {
 
-    public void execute(MacroContext context, String macro, boolean trusted, String macroName) {
+    public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
     	macro = processText(macro);
     	if (!MapTool.getPlayer().isGM()) {
     		MapTool.addMessage(TextMessage.me(context.getTransformationHistory(), "<b>You must be a GM to do that</b>"));

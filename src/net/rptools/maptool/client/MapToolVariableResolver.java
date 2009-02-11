@@ -37,6 +37,8 @@ import net.rptools.maptool.model.Zone;
 import net.rptools.parser.MapVariableResolver;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.VariableModifiers;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 public class MapToolVariableResolver extends MapVariableResolver {
 
@@ -80,6 +82,13 @@ public class MapToolVariableResolver extends MapVariableResolver {
 
     public MapToolVariableResolver(Token tokenInContext) {
     	this.tokenInContext = tokenInContext;
+    	// Set the default macro.args to ""  so that it is always present.
+    	try {
+			this.setVariable("macro.args", "");
+			this.setVariable("macro.args.num", BigDecimal.ZERO);
+		} catch (ParserException e) {
+			MapTool.addLocalMessage("Error: Unable to set macro.args to default value");
+		}
     }
 
 	@Override
@@ -99,6 +108,8 @@ public class MapToolVariableResolver extends MapVariableResolver {
 	
 	@Override
 	public Object getVariable(String name, VariableModifiers mods) throws ParserException {
+		
+		boolean evaluate = false; // Should we try to evaluate the value.
 
 		Object result = null;
 		if (tokenInContext != null) {
@@ -132,8 +143,19 @@ public class MapToolVariableResolver extends MapVariableResolver {
 	
 			
 			if (tokenInContext.getPropertyNames().contains(name)) {
-				
 				result = tokenInContext.getEvaluatedProperty(name);
+			} else {
+				// If the token has no property of that name check to see if there s a defaulted
+				// value for the property for the token type.
+				List<TokenProperty> propertyList = MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(tokenInContext.getPropertyType()); 
+				if (propertyList != null) {
+					for (TokenProperty property : propertyList) {
+						if (name.equalsIgnoreCase(property.getName()) || name.equalsIgnoreCase(property.getShortName())) {
+							result = property.getDefaultValue();
+							break;
+						}
+					}
+				}
 			}
 		} else {
 		    if (name.equals(INITIATIVE_CURRENT)) {
@@ -160,26 +182,49 @@ public class MapToolVariableResolver extends MapVariableResolver {
 				DialogTitle = DialogTitle + " for " + tokenInContext.getName();
 			}
 			result = JOptionPane.showInputDialog(MapTool.getFrame(), "Value for: " + name, DialogTitle, JOptionPane.QUESTION_MESSAGE, null, null, result != null ? result.toString() : "0");
+			evaluate = true;
 		}
 		if (result == null) {
 			throw new ParserException("Unresolved value '" + name + "'");
 		}
 
-		// Try parse the value if we can not parse it then just return it as a string.
 		Object value;
-		try {
-			value = MapTool.getParser().parseLine(tokenInContext, result.toString()); 
-		} catch (Exception e) { 
-			value = result.toString();
+
+		if (result instanceof JSONArray) {
+			value = result;
+		} else if (result instanceof JSONObject) {
+			value = result;
+		} else if (result instanceof BigDecimal) {
+			value = result;
+		} else {
+			
+			// First we try convert it to a JSON object.
+			if (result.toString().trim().startsWith("[") || result.toString().trim().startsWith("{")) {
+				Object obj  = JSONMacroFunctions.convertToJSON(result.toString());
+				if (obj != null) {
+					return obj;
+				}
+			}
+
+
+			if (evaluate) {
+				// Try parse the value if we can not parse it then just return it as a string.
+				try {
+					value = MapTool.getParser().parseLine(tokenInContext, result.toString()); 
+				} catch (Exception e) { 
+					value = result.toString();
+				}
+			} else {
+				value = result.toString();
+			}
+			
+			// Attempt to convert to a number ...
+			try {
+				value = new BigDecimal((String)value);
+			} catch (Exception e) {
+				// Ignore, use previous value of "value"
+			}
 		}
-		
-		// Attempt to convert to a number ...
-		try {
-			value = new BigDecimal((String)value);
-		} catch (Exception e) {
-			// Ignore, use previous value of "value"
-		}
-		
 		return value;
 	}
 	
