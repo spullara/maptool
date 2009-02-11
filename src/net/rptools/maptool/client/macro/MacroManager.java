@@ -35,6 +35,7 @@ import net.rptools.maptool.client.macro.impl.ClearAliasesMacro;
 import net.rptools.maptool.client.macro.impl.ClearMacro;
 import net.rptools.maptool.client.macro.impl.EmitMacro;
 import net.rptools.maptool.client.macro.impl.EmoteMacro;
+import net.rptools.maptool.client.macro.impl.EmotePluralMacro;
 import net.rptools.maptool.client.macro.impl.GotoMacro;
 import net.rptools.maptool.client.macro.impl.HelpMacro;
 import net.rptools.maptool.client.macro.impl.ImpersonateMacro;
@@ -108,6 +109,7 @@ public class MacroManager {
 		registerMacro(new OOCMacro());
 		registerMacro(new ChangeColorMacro());
 		registerMacro(new WhisperReplyMacro());
+		registerMacro(new EmotePluralMacro());
 
 		registerMacro(UNDEFINED_MACRO);
 	}
