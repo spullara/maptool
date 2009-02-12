@@ -334,16 +334,17 @@ public class MacroButtonProperties implements Comparable<Object> {
 				if (getAutoExecute()) {
 					Token contextToken = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId);
 					boolean trusted = false;
-					if(allowPlayerEdits == null) {
+					if (allowPlayerEdits == null) {
 						allowPlayerEdits = false;
 					}
-					if(saveLocation.equals("CampaignPanel") || !allowPlayerEdits) {
+					if (saveLocation.equals("CampaignPanel") || !allowPlayerEdits) {
 						trusted = true;
 					} 
 					
 					String loc;				
 					if  (saveLocation.equals("GlobalPanel")) {
 						loc = "global";
+						trusted = MapTool.getPlayer().isGM();
 					} else if (saveLocation.equals("CampaignPanel")) {
 						loc = "campaign";
 					} else if (contextToken != null) {

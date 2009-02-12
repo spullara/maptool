@@ -2,12 +2,15 @@ package net.rptools.maptool.client.functions;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -258,6 +261,7 @@ public class FindTokenFunctions extends AbstractFunction {
 		List<Token> tokenList = new ArrayList<Token>();
 		tokenList.addAll(allTokens);
 		JSONObject range = null;
+		JSONObject area = null;
 		
 		// Now loop through conditions that are true and only retain tokens returned.
 		for (Object  key : jobj.keySet()) {
@@ -269,8 +273,11 @@ public class FindTokenFunctions extends AbstractFunction {
 					tokenList.retainAll(lst);
 				}
 			} else if ("range".equalsIgnoreCase(searchType)) {
-				// We will do this as the last step as its most expensive so we want to do it on as few tokens as possible
+				// We will do this as one of the last steps as its most expensive so we want to do it on as few tokens as possible
 				range = jobj.getJSONObject(searchType);
+			} else if ("area".equalsIgnoreCase(searchType)) {
+				// We will do this as one of the last step as its most expensive so we want to do it on as few tokens as possible
+				area = jobj.getJSONObject(searchType);
 			} else if ("unsetStates".equalsIgnoreCase(searchType)) {
 				// ignore
 			} else {
@@ -289,7 +296,7 @@ public class FindTokenFunctions extends AbstractFunction {
 					} else if ("current".equalsIgnoreCase(searchType)) {
 						lst = getTokenList(parser, FindType.CURRENT, "");
 					} else if ("owned".equalsIgnoreCase(searchType)) {
-						lst = getTokenList(parser, FindType.OWNED, "");
+						lst = getTokenList(parser, FindType.OWNED, MapTool.getPlayer().getName());
 					} else if ("visible".equalsIgnoreCase(searchType)) {
 						lst = getTokenList(parser, FindType.VISIBLE, "");
 					}
@@ -320,6 +327,8 @@ public class FindTokenFunctions extends AbstractFunction {
 				// ignore
 			} else if ("range".equalsIgnoreCase(searchType)) {
 				// ignore
+			} else if ("area".equalsIgnoreCase(searchType)) {
+				// ignore
 			} else {
 				if (!jobj.getBoolean(searchType)) {
 					inverseList.clear();
@@ -337,7 +346,7 @@ public class FindTokenFunctions extends AbstractFunction {
 					} else if ("current".equalsIgnoreCase(searchType)) {
 						inverseList.removeAll(getTokenList(parser, FindType.CURRENT, ""));
 					} else if ("owned".equalsIgnoreCase(searchType)) {
-						inverseList.removeAll(getTokenList(parser, FindType.OWNED, ""));
+						inverseList.removeAll(getTokenList(parser, FindType.OWNED, MapTool.getPlayer().getName()));
 					} else if ("visible".equalsIgnoreCase(searchType)) {
 						inverseList.removeAll(getTokenList(parser, FindType.VISIBLE, ""));
 					}
@@ -347,7 +356,7 @@ public class FindTokenFunctions extends AbstractFunction {
 		}
 		
 		
-		// Finally loop through and compare ranges if we have them
+		// Loop through and compare ranges if we have them
 		if (range != null) {
 			Token token;
 			if (range.containsKey("token")) {
@@ -387,6 +396,56 @@ public class FindTokenFunctions extends AbstractFunction {
 			tokenList.retainAll(inrange);
 			
 		}
+		
+		// Loop through and compare the area if we have it
+		if (area != null) {
+			Token token;
+			if (area.containsKey("token")) {
+				token = findToken(area.getString("token"), null);
+				if (token == null) {
+					throw new ParserException("getTokens(): Unknown token " + area.getString("Token"));
+				}
+			} else {
+				token = findToken(MapTool.getFrame().getCommandPanel().getIdentity(), null);
+				if (token == null) {
+					throw new ParserException("getTokens(): no impersonated token");
+				}
+			}
+
+			JSONArray offsets = area.getJSONArray("offsets");
+			if (offsets == null) {
+				throw new ParserException("getTokens(): An Offset Array must be specified for Area.");
+			}
+			
+			
+			CellPoint cp = TokenLocationFunctions.getInstance().getTokenCell(token);
+			
+			Set<Token> matching = new HashSet<Token>();
+			for (Object o : offsets) {
+				if (!(o instanceof JSONObject)) {
+					throw new ParserException("getTokens(): Offset array for Area must contain json object with x,y co-ordinates");
+				}
+				JSONObject joff = (JSONObject)o;
+				if (!joff.containsKey("x") || !joff.containsKey("y")) {
+					throw new ParserException("getTokens(): Offset array for Area must contain json object with x,y co-ordinates");					
+				}
+				int x = joff.getInt("x");
+				int y = joff.getInt("y");
+				for (Token targetToken : tokenList) {
+					if (!matching.contains(targetToken)) {
+						Double distance = TokenLocationFunctions.getInstance().getDistance(targetToken, cp.x + x, cp.y + y, false);
+						if (distance >= 0 && distance < 1) {
+							matching.add(targetToken);
+						}
+					}
+				}
+				
+			}
+			
+			tokenList.retainAll(matching);
+			
+		}
+		
 		
 		ArrayList<String> values = new ArrayList<String>();
 		for (Token token : tokenList) {

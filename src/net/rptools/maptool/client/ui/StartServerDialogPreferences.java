@@ -166,7 +166,7 @@ public class StartServerDialogPreferences {
 	}
 	
 	public void setUseToolTipsForUnformattedRolls(boolean flag)  {
-		useToolTipsForUnformattedRolls = true;
+		useToolTipsForUnformattedRolls = flag;
 	}
 	
 }

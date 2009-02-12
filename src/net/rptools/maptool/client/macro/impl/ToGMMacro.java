@@ -30,8 +30,9 @@ public class ToGMMacro extends AbstractRollMacro {
 
     	StringBuilder sb = new StringBuilder();
 
-    	if (executionContext != null && executionContext.isTrusted() && !MapTool.getPlayer().isGM()) {
-        	sb.append("<span style='background-color: #C9F7AD' ").append("title='").append(executionContext.getName());
+        if (executionContext != null && MapTool.getParser().isMacroPathTrusted() && !MapTool.getPlayer().isGM()) {
+
+        	sb.append("<span class='trustedPrefix' ").append("title='").append(executionContext.getName());
         	sb.append("@").append(executionContext.getSouce()).append("'>");
         	sb.append(MapTool.getPlayer().getName()).append("</span>").append(" says to the GM: ");
         	sb.append(macro);

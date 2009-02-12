@@ -51,13 +51,13 @@ public class SayMacro extends AbstractMacro {
         }
         
         sb.append("<td valign=top style=\"margin-right: 5px\">");
-        if (executionContext != null && executionContext.isTrusted() && !MapTool.getPlayer().isGM()) {
+        if (executionContext != null && MapTool.getParser().isMacroPathTrusted() && !MapTool.getPlayer().isGM()) {
         	sb.append("<span class='trustedPrefix' ").append("title='").append(executionContext.getName());
         	sb.append("@").append(executionContext.getSouce()).append("'>");
         }
         sb.append(identity).append(": ");
-        if (executionContext != null && executionContext.isTrusted() && !MapTool.getPlayer().isGM()) {
-        	sb.append("</span>");
+        if (executionContext != null && MapTool.getParser().isMacroPathTrusted() && !MapTool.getPlayer().isGM()) {
+       	sb.append("</span>");
         }
 
         sb.append("</td><td valign=top>");

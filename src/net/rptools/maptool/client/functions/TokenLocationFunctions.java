@@ -441,7 +441,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 	 * @param token
 	 * @return
 	 */
-	private CellPoint getTokenCell(Token token) {
+	public CellPoint getTokenCell(Token token) {
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 		return zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
 	}
