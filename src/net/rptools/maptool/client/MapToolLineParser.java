@@ -68,6 +68,7 @@ import net.rptools.maptool.client.functions.TokenSpeechFunctions;
 import net.rptools.maptool.client.functions.TokenStateFunction;
 import net.rptools.maptool.client.functions.TokenVisibleFunction;
 import net.rptools.maptool.client.functions.UserDefinedMacroFunctions;
+import net.rptools.maptool.client.functions.AbortFunction.AbortFunctionException;
 import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButtonPrefs;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -1215,6 +1216,8 @@ public class MapToolLineParser {
 		try {
 			parserRecurseDepth ++;
 			return  createParser(resolver, tokenInContext == null ? false : true).evaluate(expression);
+		} catch (AbortFunctionException e) {
+			throw e;
 		} catch (Exception e) {
 
 			if (e.getCause() instanceof ParserException) {
