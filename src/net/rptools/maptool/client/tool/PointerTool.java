@@ -1246,7 +1246,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		// Statsheet
 		if (tokenUnderMouse != null && !isDraggingToken && AppUtil.tokenIsVisible(renderer.getZone(), tokenUnderMouse, new PlayerView(MapTool.getPlayer().getRole()))) {
 			
-			if (tokenOnStatSheet == null || !tokenOnStatSheet.equals(tokenUnderMouse) || statSheet == null) {
+			if (AppPreferences.getPortraitSize() > 0 && (tokenOnStatSheet == null || !tokenOnStatSheet.equals(tokenUnderMouse) || statSheet == null)) {
 				tokenOnStatSheet = tokenUnderMouse;
 				
 				// Portrait
