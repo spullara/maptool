@@ -121,13 +121,23 @@ public class CommandPanel extends JPanel implements Observer {
 		
 	}
 	
+	/**
+	 * Whether the player is currently impersonating a token
+	 */
+	public boolean isImpersonating() {
+		return identity != null;
+	}
+
+	/**
+	 * The identity currently in use, if the player is not impersonating a token, this will return the player's name
+	 */
     public String getIdentity() {
     	return ( identity == null ? MapTool.getPlayer().getName() : identity );
     }
     
     public void setIdentity( String identity ) {
     	this.identity = identity;
-    	if (identity == null || identity.equals(MapTool.getPlayer().getName())) {
+    	if (identity == null) {
     		setCharacterLabel("");
     		avatarPanel.setImage(null);
     	} else {

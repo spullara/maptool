@@ -39,7 +39,7 @@ public class SayMacro extends AbstractMacro {
         String identity = MapTool.getFrame().getCommandPanel().getIdentity();
         sb.append("<table cellpadding=0><tr>");
         
-        if (!identity.equals(MapTool.getPlayer().getName()) && AppPreferences.getShowAvatarInChat()) {
+        if (MapTool.getFrame().getCommandPanel().isImpersonating() && AppPreferences.getShowAvatarInChat()) {
         	Token token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokenByName(identity);
         	if (token != null) {
         		MD5Key imageId = token.getPortraitImage();
