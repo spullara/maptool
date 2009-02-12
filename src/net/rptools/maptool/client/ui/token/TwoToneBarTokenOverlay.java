@@ -111,7 +111,7 @@ public class TwoToneBarTokenOverlay extends DrawnBarTokenOverlay {
         overlay.setIncrements(getIncrements());
         overlay.setSide(getSide());
         overlay.setShowGM(isShowGM());
-        overlay.setShowOwner(isShowOthers());
+        overlay.setShowOwner(isShowOwner());
         overlay.setShowOthers(isShowOthers());
         return overlay;
     }

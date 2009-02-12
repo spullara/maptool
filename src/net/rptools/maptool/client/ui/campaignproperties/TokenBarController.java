@@ -452,7 +452,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
                 formPanel.setSelected(SHOW_OTHERS, bar.isShowOthers());
                 formPanel.getSpinner(INCREMENTS).setValue(Integer.valueOf(bar.getIncrements()));
                 formPanel.getComboBox(SIDE).setSelectedIndex(bar.getSide().ordinal());
-
+System.out.println(bar.isShowOwner());
                 // Handle the drawn overlays
                 int type = -1;
                 if (bar instanceof DrawnBarTokenOverlay) {

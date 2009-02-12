@@ -99,7 +99,7 @@ public class DrawnBarTokenOverlay extends BarTokenOverlay {
         overlay.setIncrements(getIncrements());
         overlay.setSide(getSide());
         overlay.setShowGM(isShowGM());
-        overlay.setShowOwner(isShowOthers());
+        overlay.setShowOwner(isShowOwner());
         overlay.setShowOthers(isShowOthers());
         return overlay;
     }

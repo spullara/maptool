@@ -61,7 +61,7 @@ public class OTokenOverlay extends XTokenOverlay {
       overlay.setMouseover(isMouseover());
       overlay.setOpacity(getOpacity());
       overlay.setShowGM(isShowGM());
-      overlay.setShowOwner(isShowOthers());
+      overlay.setShowOwner(isShowOwner());
       overlay.setShowOthers(isShowOthers());
       return overlay;
   }
