@@ -24,6 +24,7 @@ import java.util.Map;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.ui.token.BarTokenOverlay.Side;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
@@ -104,10 +105,10 @@ public class TwoImageBarTokenOverlay extends BarTokenOverlay {
         int y = 0;
         switch (getSide()) {
         case RIGHT:
-            x = d.width - images[0].getWidth();
+            x = d.width - size.width;
             break;
         case BOTTOM:
-            y = d.height - images[0].getHeight();
+            y = d.height - size.height;
         } 
 
         Composite tempComposite = g.getComposite();        
@@ -117,8 +118,11 @@ public class TwoImageBarTokenOverlay extends BarTokenOverlay {
         int width = (getSide() == Side.TOP || getSide() == Side.BOTTOM) ? calcBarSize(images[0].getWidth(), value) : images[0].getWidth();
         int height = (getSide() == Side.LEFT || getSide() == Side.RIGHT) ? calcBarSize(images[0].getHeight(), value) : images[0].getHeight();
 
+        int screenWidth = (getSide() == Side.TOP || getSide() == Side.BOTTOM) ? calcBarSize(size.width, value) : size.width;
+        int screenHeight = (getSide() == Side.LEFT || getSide() == Side.RIGHT) ? calcBarSize(size.height, value) : size.height;
+
         g.drawImage(images[1], x, y, size.width, size.height, null);
-        g.drawImage(images[0], x, y, x+size.width, y+size.height, 0, 0, width, height, null);
+        g.drawImage(images[0], x, y, x+screenWidth, y+screenHeight, 0, 0, width, height, null);
         g.setComposite(tempComposite);
     }
 

@@ -101,11 +101,16 @@ public class SingleImageBarTokenOverlay extends BarTokenOverlay {
         } 
         
         Composite tempComposite = g.getComposite();        
-        if (getOpacity() != 100)
+        if (getOpacity() != 100) {
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)getOpacity()/100));
-        int width = (getSide() == Side.TOP || getSide() == Side.BOTTOM) ? calcBarSize(size.width, value) : size.width;
-        int height = (getSide() == Side.LEFT || getSide() == Side.RIGHT) ? calcBarSize(size.height, value) : size.height;
-        g.drawImage(image, x, y, x + width, y + height, 0, 0, width, height, null);
+        }
+        int width = (getSide() == Side.TOP || getSide() == Side.BOTTOM) ? calcBarSize(image.getWidth(), value) : image.getWidth();
+        int height = (getSide() == Side.LEFT || getSide() == Side.RIGHT) ? calcBarSize(image.getHeight(), value) : image.getHeight();
+
+        int screenWidth = (getSide() == Side.TOP || getSide() == Side.BOTTOM) ? calcBarSize(size.width, value) : size.width;
+        int screenHeight = (getSide() == Side.LEFT || getSide() == Side.RIGHT) ? calcBarSize(size.height, value) : size.height;
+        
+        g.drawImage(image, x + size.width - screenWidth, y + size.height - screenHeight, x+size.width, y+size.height, image.getWidth() - width, image.getHeight() - height, image.getWidth(), image.getHeight(), null);
         g.setComposite(tempComposite);
     }
 

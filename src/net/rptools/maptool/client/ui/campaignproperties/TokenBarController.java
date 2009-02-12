@@ -443,38 +443,38 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
             if (selected >= 0) {
 
                 // Set common stuff
-                BarTokenOverlay s = (BarTokenOverlay)formPanel.getList(BARS).getSelectedValue();
-                formPanel.setText(NAME, s.getName());
-                formPanel.setSelected(MOUSEOVER, s.isMouseover());
-                formPanel.getSpinner(OPACITY).setValue(new Integer(s.getOpacity()));
-                formPanel.setSelected(SHOW_GM, s.isShowGM());
-                formPanel.setSelected(SHOW_OWNER, s.isShowOwner());
-                formPanel.setSelected(SHOW_OTHERS, s.isShowOthers());
-                formPanel.getSpinner(INCREMENTS).setValue(Integer.valueOf(s.getIncrements()));
-                formPanel.getComboBox(SIDE).setSelectedIndex(s.getSide().ordinal());
+                BarTokenOverlay bar = (BarTokenOverlay)formPanel.getList(BARS).getSelectedValue();
+                formPanel.setText(NAME, bar.getName());
+                formPanel.setSelected(MOUSEOVER, bar.isMouseover());
+                formPanel.getSpinner(OPACITY).setValue(new Integer(bar.getOpacity()));
+                formPanel.setSelected(SHOW_GM, bar.isShowGM());
+                formPanel.setSelected(SHOW_OWNER, bar.isShowOwner());
+                formPanel.setSelected(SHOW_OTHERS, bar.isShowOthers());
+                formPanel.getSpinner(INCREMENTS).setValue(Integer.valueOf(bar.getIncrements()));
+                formPanel.getComboBox(SIDE).setSelectedIndex(bar.getSide().ordinal());
 
                 // Handle the drawn overlays
                 int type = -1;
-                if (s instanceof DrawnBarTokenOverlay) {
-                    formPanel.getSpinner(THICKNESS).setValue(Integer.valueOf(((DrawnBarTokenOverlay)s).getThickness()));
-                    ((JETAColorWell)formPanel.getComponentByName(COLOR)).setColor(((DrawnBarTokenOverlay)s).getBarColor());
+                if (bar instanceof DrawnBarTokenOverlay) {
+                    formPanel.getSpinner(THICKNESS).setValue(Integer.valueOf(((DrawnBarTokenOverlay)bar).getThickness()));
+                    ((JETAColorWell)formPanel.getComponentByName(COLOR)).setColor(((DrawnBarTokenOverlay)bar).getBarColor());
                     type = 3;
                 } // endif
-                if (s instanceof TwoToneBarTokenOverlay) {
-                    ((JETAColorWell)formPanel.getComponentByName(BG_COLOR)).setColor(((TwoToneBarTokenOverlay)s).getBgColor());
+                if (bar instanceof TwoToneBarTokenOverlay) {
+                    ((JETAColorWell)formPanel.getComponentByName(BG_COLOR)).setColor(((TwoToneBarTokenOverlay)bar).getBgColor());
                     type = 4;
                 } // endif
 
                 // Handle images
                 MD5Key[] assetIds = null;
-                if (s instanceof TwoImageBarTokenOverlay) {
-                    assetIds = new MD5Key[] {((TwoImageBarTokenOverlay)s).getBottomAssetId(), ((TwoImageBarTokenOverlay)s).getTopAssetId()};
+                if (bar instanceof TwoImageBarTokenOverlay) {
+                    assetIds = new MD5Key[] {((TwoImageBarTokenOverlay)bar).getBottomAssetId(), ((TwoImageBarTokenOverlay)bar).getTopAssetId()};
                     type = 0;
-                } else if (s instanceof SingleImageBarTokenOverlay) {
-                    assetIds = new MD5Key[] {((SingleImageBarTokenOverlay)s).getAssetId()};
+                } else if (bar instanceof SingleImageBarTokenOverlay) {
+                    assetIds = new MD5Key[] {((SingleImageBarTokenOverlay)bar).getAssetId()};
                     type = 1;
-                } else if (s instanceof MultipleImageBarTokenOverlay) {
-                    assetIds = ((MultipleImageBarTokenOverlay)s).getAssetIds();
+                } else if (bar instanceof MultipleImageBarTokenOverlay) {
+                    assetIds = ((MultipleImageBarTokenOverlay)bar).getAssetIds();
                     type = 2;
                 }
                 DefaultListModel model = new DefaultListModel();
