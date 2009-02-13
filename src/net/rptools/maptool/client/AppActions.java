@@ -1086,6 +1086,7 @@ public class AppActions {
 				MapTool.serverCommand().setVisionType(zone.getId(), visionType);
 
 				renderer.flushFog();
+				renderer.flushLight();
 				renderer.repaint();
 			}
 		}

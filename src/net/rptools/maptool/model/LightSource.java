@@ -28,9 +28,15 @@ import com.thoughtworks.xstream.XStream;
 
 public class LightSource  {
 
+	public enum Type {
+		NORMAL,
+		AURA
+	}
+	
 	private List<Light> lightList;
 	private String name;
 	private GUID id;
+	private Type type;
 	
 	public LightSource() {
 		// for serialization
@@ -94,6 +100,14 @@ public class LightSource  {
 			lightList = new LinkedList<Light>();
 		}
 		return lightList;
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
 	}
 
 	/**
@@ -179,5 +193,10 @@ public class LightSource  {
 		return name;
 	}
 
-	
+	private Object readResolve() {
+		if (type == null) {
+			type = Type.NORMAL;
+		}
+		return this;
+	}
 }

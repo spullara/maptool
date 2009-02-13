@@ -96,6 +96,7 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridCapabilities;
 import net.rptools.maptool.model.Label;
+import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Path;
@@ -484,6 +485,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         isLoaded = false;
     }
 
+    public void flushLight() {
+    	renderedLightMap = null;
+    	zoneView.flush();
+    	repaint();
+    }
+    
     public void flushFog() {
     	flushFog = true;
     	visibleScreenArea = null;
@@ -751,14 +758,22 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             timer.start("lights-3");
 	    	// Organize
 	    	Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
+	    	List<DrawableLight> otherLightList = new LinkedList<DrawableLight>();
 	    	for (DrawableLight light : zoneView.getDrawableLights()) {
-	    		List<Area> areaList = colorMap.get(light.getPaint().getPaint());
-	    		if (areaList == null) {
-	    			areaList = new ArrayList<Area>();
-	    			colorMap.put(light.getPaint().getPaint(), areaList);
+	    		if (light.getType() == LightSource.Type.NORMAL) {
+	    			if (zone.getVisionType() == Zone.VisionType.NIGHT) {
+			    		List<Area> areaList = colorMap.get(light.getPaint().getPaint());
+			    		if (areaList == null) {
+			    			areaList = new ArrayList<Area>();
+			    			colorMap.put(light.getPaint().getPaint(), areaList);
+			    		}
+			    		
+			    		areaList.add(new Area(light.getArea()));
+	    			}
+	    		} else {
+	    			// I'm not a huge fan of this hard wiring, but I haven't thought of a better way yet, so this'll work fine for now
+	    			otherLightList.add(light);
 	    		}
-	    		
-	    		areaList.add(new Area(light.getArea()));
 	    	}    	
 	        timer.stop("lights-3");
 	        timer.start("lights-4");
@@ -784,6 +799,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					}
 				}
 	    	}    	
+	        for (DrawableLight light : otherLightList) {
+	        	List<Area> list = colorMap.get(light.getPaint().getPaint());
+	        	if (list == null) {
+	        		list = new LinkedList<Area>();
+	        		list.add(light.getArea());
+	        		colorMap.put(light.getPaint().getPaint(), list);
+	        	} else {
+	        		list.get(0).add(new Area(light.getArea()));
+	        	}
+	        }
+	    	
 	        renderedLightMap = new LinkedHashMap<Paint, Area>();
 	        for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {
 	        	renderedLightMap.put(entry.getKey(), entry.getValue().get(0));

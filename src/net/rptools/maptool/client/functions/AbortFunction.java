@@ -33,7 +33,7 @@ public class AbortFunction extends AbstractNumberFunction {
         if (value.intValue() == 0) 
         	throw new AbortFunctionException("Abort() function called.");
         else
-        	return new BigDecimal(0);
+        	return new BigDecimal(value.intValue());
 	}
 
 	/** Exception type thrown by abort() function. Semantics are to silently halt the current execution. */

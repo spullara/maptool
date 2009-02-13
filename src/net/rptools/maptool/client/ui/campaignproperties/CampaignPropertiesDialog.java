@@ -245,6 +245,10 @@ public class CampaignPropertiesDialog extends JDialog  {
 			for (LightSource lightSource : entry.getValue().values()) {
 				builder.append(lightSource.getName()).append(" : ");
 				
+				if (lightSource.getType() != null && lightSource.getType() != LightSource.Type.NORMAL) {
+					builder.append(lightSource.getType().name().toLowerCase()).append(" ");
+				}
+				
 				for (Light light : lightSource.getLightList()) {
 					
 					if (light.getShape() != null && light.getShape() != ShapeType.CIRCLE) {
@@ -427,6 +431,15 @@ public class CampaignPropertiesDialog extends JDialog  {
 					// Shape designation ?
 					try {
 						shape = ShapeType.valueOf(arg.toUpperCase());
+						continue;
+					} catch (IllegalArgumentException iae) {
+						// Expected when not defining a shape
+					}
+					
+					// Type designation ?
+					try {
+						LightSource.Type type = LightSource.Type.valueOf(arg.toUpperCase());
+						lightSource.setType(type);
 						continue;
 					} catch (IllegalArgumentException iae) {
 						// Expected when not defining a shape
