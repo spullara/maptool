@@ -112,14 +112,12 @@ public class ZoneView implements ModelChangeListener {
 				continue;
 			}
 
-//			if (lightSource.getType() == LightSource.Type.AURA) {
-//				continue;
-//			}
-			
 	        SightType sight = MapTool.getCampaign().getSightType(token.getSightType());
 			Area visibleArea = calculateLightSourceArea(lightSource, lightSourceToken, sight, attachedLightSource.getDirection());
 
-			if (visibleArea != null) {
+			// I don't like the NORMAL check here, it doesn't feel right, the API needs to change to support
+			// getting arbitrary light source types, but that's not a simple change
+			if (visibleArea != null && lightSource.getType() == LightSource.Type.NORMAL) {
 				area.add(visibleArea);
 			}
 		}
