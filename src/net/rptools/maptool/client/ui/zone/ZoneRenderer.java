@@ -803,7 +803,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        	List<Area> list = colorMap.get(light.getPaint().getPaint());
 	        	if (list == null) {
 	        		list = new LinkedList<Area>();
-	        		list.add(light.getArea());
+	        		list.add(new Area(light.getArea()));
 	        		colorMap.put(light.getPaint().getPaint(), list);
 	        	} else {
 	        		list.get(0).add(new Area(light.getArea()));
