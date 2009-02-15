@@ -245,6 +245,15 @@ public class ZoneView implements ModelChangeListener {
     		// Combine all light sources that might intersect our vision
         	List<Area> intersects = new LinkedList<Area>();
         	List<Token> lightSourceTokens = new ArrayList<Token>(lightSourceSet.size()+1);
+        	
+        	// This is a hack.  The only way light sources are calculated is if we run through the following code
+        	// but we don't actually care about the results for daytime.  This is specifically to allow
+        	// aura lights to still be seen (calculated).
+        	// TODO: This needs to change so that the API calculates the non normal light sources independent of this method
+        	if (zone.getVisionType() != Zone.VisionType.NIGHT) {
+        		intersects.add(tokenVisibleArea);
+        	}
+        	
     		for (GUID lightSourceTokenId : lightSourceSet) {
     			
     			Token lightSourceToken = zone.getToken(lightSourceTokenId);
