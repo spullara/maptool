@@ -620,11 +620,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 
 		Token marker = renderer.getMarkerAt(mouseX, mouseY);
-		if (marker != markerUnderMouse && marker != null && AppUtil.tokenIsVisible(renderer.getZone(), marker, renderer.getPlayerView())) {
+		if (!AppUtil.tokenIsVisible(renderer.getZone(), marker, renderer.getPlayerView())) {
+			marker = null;
+		}
+		if (marker != markerUnderMouse && marker != null) {
 			markerUnderMouse = marker;
-			
-			renderer.setCursor(Cursor.getPredefinedCursor(markerUnderMouse != null ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
-			MapTool.getFrame().setStatusMessage(markerUnderMouse != null ? markerUnderMouse.getName() : "");
+			renderer.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			MapTool.getFrame().setStatusMessage(markerUnderMouse.getName());
+		} else if (marker == null && markerUnderMouse != null) {
+			markerUnderMouse = null;
+			renderer.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			MapTool.getFrame().setStatusMessage("");
 		}
 	}
 	
