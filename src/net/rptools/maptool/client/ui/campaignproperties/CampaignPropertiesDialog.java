@@ -421,6 +421,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 				String name = line.substring(0, split).trim();
 				LightSource lightSource = new LightSource(name);
 				ShapeType shape = ShapeType.CIRCLE; // TODO: Make a preference for default shape
+				double arc = 0;
 				for (String arg : line.substring(split+1).split("\\s")) {
 
 					arg = arg.trim();
@@ -444,6 +445,24 @@ public class CampaignPropertiesDialog extends JDialog  {
 					} catch (IllegalArgumentException iae) {
 						// Expected when not defining a shape
 					}
+
+					// Parameters
+					split = arg.indexOf("=");
+					if (split > 0) {
+						String key = arg.substring(0, split);
+						String value = arg.substring(split+1);
+						
+						// TODO: Make this a generic map to pass instead of 'arc'
+						if ("arc".equals(key)) {
+							try {
+								arc = NumberFormat.getNumberInstance().parse(value).doubleValue();
+							} catch (ParseException pe) {
+								MapTool.showError("I don't understand arc parameter '" + value + "'");
+								throw new IllegalArgumentException();
+							}
+						}
+						continue;
+					}
 					
 					String distance = arg;
 					Color color = null;
@@ -456,7 +475,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 					}
 					
 					try {
-						lightSource.add(new Light(shape, 0, NumberFormat.getNumberInstance().parse(distance).doubleValue(), 0, color != null ? new DrawableColorPaint(color): null));
+						lightSource.add(new Light(shape, 0, NumberFormat.getNumberInstance().parse(distance).doubleValue(), arc, color != null ? new DrawableColorPaint(color): null));
 					} catch (ParseException pe) {
 						MapTool.showError("I don't understand light distance '" + distance + "'");
 						throw new IllegalArgumentException();

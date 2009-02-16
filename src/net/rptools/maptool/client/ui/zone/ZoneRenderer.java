@@ -845,6 +845,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         if (currentTokenVisionArea == null) {
             return;
         }
+    	System.out.println(currentTokenVisionArea.getBounds());
         
     	AffineTransform af = new AffineTransform();
     	af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
@@ -2864,8 +2865,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             Object evt = event.getEvent();
             
             if (evt == Zone.Event.TOPOLOGY_CHANGED) {
-                flushFog = true; 
-                visibleScreenArea = null;
+            	flushFog();
+            	flushLight();
             }
             if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
             	flush((Token)event.getArg());

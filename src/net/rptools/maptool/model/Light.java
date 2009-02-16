@@ -14,6 +14,8 @@
 package net.rptools.maptool.model;
 
 import java.awt.Color;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
@@ -40,6 +42,11 @@ public class Light {
 		this.radius = radius;
 		this.arcAngle = arcAngle;
 		this.paint = paint;
+		
+		if (arcAngle == 0) {
+			arcAngle = 90;
+		}
+		
 	}
 	
 	public DrawablePaint getPaint() {
@@ -83,6 +90,19 @@ public class Light {
 		case SQUARE:
 			return new Area(new Rectangle2D.Double(-size, -size, size*2, size*2));
 		
+		case CONE:
+        	// Be sure we can always at least see our feet
+        	Area footprint = new Area(token.getFootprint(zone.getGrid()).getBounds(zone.getGrid()));
+        	footprint.transform(AffineTransform.getTranslateInstance(-footprint.getBounds().getWidth()/2.0, -footprint.getBounds().getHeight()/2.0));
+        	
+			Area area = new Area(new Arc2D.Double(-size, -size, size*2, size*2, 360.0 - (arcAngle/2.0), arcAngle, Arc2D.PIE));
+			area.add(footprint);
+
+			if (token.getFacing() != null) {
+				area = area.createTransformedArea(AffineTransform.getRotateInstance(-Math.toRadians(token.getFacing())));
+			}
+			
+			return area;
 		default:
 		case CIRCLE:
 			return new Area(new Ellipse2D.Double(-size, -size, size*2, size*2));

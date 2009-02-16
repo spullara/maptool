@@ -103,7 +103,7 @@ public class LightSource  {
 	}
 
 	public Type getType() {
-		return type;
+		return type != null ? type : Type.NORMAL;
 	}
 
 	public void setType(Type type) {
