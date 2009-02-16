@@ -328,8 +328,10 @@ public class CampaignPropertiesDialog extends JDialog  {
 		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
 			MapTool.getFrame().getCurrentZoneRenderer().getZoneView().flush();
 			MapTool.getFrame().getCurrentZoneRenderer().flushFog();
+			MapTool.getFrame().getCurrentZoneRenderer().flushLight();
 			MapTool.getFrame().refresh();
 		}
+		
 	}
 	
 	private void commitSightMap() {
