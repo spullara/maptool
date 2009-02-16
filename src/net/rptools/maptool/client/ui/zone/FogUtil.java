@@ -211,6 +211,10 @@ public class FogUtil {
 	
 	public static void exposeLastPath(ZoneRenderer renderer, Set<GUID> tokenSet) {
 
+		if (!renderer.getZone().getGrid().getCapabilities().isPathingSupported() || !renderer.getZone().getGrid().getCapabilities().isSnapToGridSupported()) {
+			return;
+		}
+
 		Zone zone = renderer.getZone();
 		for (GUID tokenGUID : tokenSet) {
 			Token token = zone.getToken(tokenGUID);
@@ -219,6 +223,11 @@ public class FogUtil {
 			}
 			
 			if (!token.getHasSight()) {
+				continue;
+			}
+			
+			if (!token.isSnapToGrid()) {
+				// We don't support this currently
 				continue;
 			}
 			
