@@ -2,11 +2,56 @@
   <a class="net.rptools.maptool.model.TokenFootprint-array">
     <net.rptools.maptool.model.TokenFootprint>
       <cellSet/>
+      <name>1/6</name>
+      <id>
+        <baGUID>wKgPDgy5+1YBAAAAQKgJDA==</baGUID>
+      </id>
+      <isDefault>false</isDefault>
+      <scale>0.408</scale>
+    </net.rptools.maptool.model.TokenFootprint>
+    <net.rptools.maptool.model.TokenFootprint>
+      <cellSet/>
+      <name>1/4</name>
+      <id>
+        <baGUID>wKgPDgy5+1YCAAAAQKgJDA==</baGUID>
+      </id>
+      <isDefault>false</isDefault>
+      <scale>0.500</scale>
+    </net.rptools.maptool.model.TokenFootprint>
+    <net.rptools.maptool.model.TokenFootprint>
+      <cellSet/>
+      <name>1/3</name>
+      <id>
+        <baGUID>wKgPDgy5+1YDAAAAQKgJDA==</baGUID>
+      </id>
+      <isDefault>false</isDefault>
+      <scale>0.577</scale>
+    </net.rptools.maptool.model.TokenFootprint>
+    <net.rptools.maptool.model.TokenFootprint>
+      <cellSet/>
+      <name>1/2</name>
+      <id>
+        <baGUID>wKgPDgy5+1YEAAAAQKgJDA==</baGUID>
+      </id>
+      <isDefault>false</isDefault>
+      <scale>0.707</scale>
+    </net.rptools.maptool.model.TokenFootprint>
+    <net.rptools.maptool.model.TokenFootprint>
+      <cellSet/>
+      <name>2/3</name>
+      <id>
+        <baGUID>wKgPDgy5+1YFAAAAQKgJDA==</baGUID>
+      </id>
+      <isDefault>false</isDefault>
+      <scale>0.816</scale>
+    </net.rptools.maptool.model.TokenFootprint>
+    <net.rptools.maptool.model.TokenFootprint>
+      <cellSet/>
       <name>Medium</name>
       <id>
         <baGUID>fwABAQllXDgBAAAAOAABAQ==</baGUID>
       </id>
-      <scale>1</scale>
+      <scale>1.0</scale>
       <isDefault>true</isDefault>
     </net.rptools.maptool.model.TokenFootprint>
     <net.rptools.maptool.model.TokenFootprint>
@@ -24,7 +69,7 @@
       <id>
         <baGUID>fwABAQllXDgCAAAAOAABAQ==</baGUID>
       </id>
-      <scale>1</scale>
+      <scale>0.9</scale>
       <isDefault>false</isDefault>
     </net.rptools.maptool.model.TokenFootprint>
     <net.rptools.maptool.model.TokenFootprint>
