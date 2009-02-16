@@ -845,7 +845,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         if (currentTokenVisionArea == null) {
             return;
         }
-    	System.out.println(currentTokenVisionArea.getBounds());
         
     	AffineTransform af = new AffineTransform();
     	af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
@@ -864,22 +863,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             g.setColor(new Color(visionColor.getRed(), visionColor.getGreen(), visionColor.getBlue(), AppPreferences.getVisionOverlayOpacity()));
             g.fill(area);
         }
-    }
-    
-    private void renderPlayerVision(Graphics2D g, PlayerView view) {
-
-//        Object oldAntiAlias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING );
-//        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//        
-//
-//        
-//         if (currentTokenVisionArea != null && !view.isGMView()) {
-//            // Draw the outline under the fog
-//            g.setColor(new Color(200, 200, 200));
-//            g.draw(currentTokenVisionArea);
-//        }
-//        
-//        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING , oldAntiAlias);
     }
     
     /**

@@ -44,7 +44,7 @@ public class Light {
 		this.paint = paint;
 		
 		if (arcAngle == 0) {
-			arcAngle = 90;
+			this.arcAngle = 90;
 		}
 		
 	}
@@ -96,11 +96,12 @@ public class Light {
         	footprint.transform(AffineTransform.getTranslateInstance(-footprint.getBounds().getWidth()/2.0, -footprint.getBounds().getHeight()/2.0));
         	
 			Area area = new Area(new Arc2D.Double(-size, -size, size*2, size*2, 360.0 - (arcAngle/2.0), arcAngle, Arc2D.PIE));
-			area.add(footprint);
 
 			if (token.getFacing() != null) {
 				area = area.createTransformedArea(AffineTransform.getRotateInstance(-Math.toRadians(token.getFacing())));
 			}
+
+			area.add(footprint);
 			
 			return area;
 		default:

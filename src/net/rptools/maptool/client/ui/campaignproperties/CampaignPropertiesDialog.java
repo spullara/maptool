@@ -255,6 +255,11 @@ public class CampaignPropertiesDialog extends JDialog  {
 						// TODO: Make this a preference
 						builder.append(light.getShape().toString().toLowerCase()).append(" ");
 					}
+
+					if (light.getShape() != null && light.getShape() == ShapeType.CONE && light.getArcAngle() != 0 && light.getArcAngle() != 90) {
+						// TODO: This HAS to change, the lights need to be auto describing, this hard wiring sucks
+						builder.append("arc=").append(StringUtil.formatDecimal(light.getArcAngle())).append(" ");
+					}
 					
 					builder.append(StringUtil.formatDecimal(light.getRadius()));
 					

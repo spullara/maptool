@@ -227,11 +227,6 @@ public class ZoneView implements ModelChangeListener {
 	        int visionDistance = zone.getTokenVisionInPixels();
 	        Area visibleArea = new Area(new Ellipse2D.Double(-visionDistance, -visionDistance, visionDistance*2, visionDistance*2));
 
-//	        System.out.println("---------------------------------------");
-//	        tokenVisibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopologyAreaData());
-//	        tokenVisibleArea = FogUtil.calculateVisibility2(p.x, p.y, visibleArea, getTopology());
-//	        tokenVisibleArea = FogUtil.calculateVisibility3(p.x, p.y, visibleArea, getTopology());
-//	        tokenVisibleArea = FogUtil.calculateVisibility4(p.x, p.y, visibleArea, getTopology());
 	        tokenVisibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopology());
 			
 			tokenVisibleAreaCache.put(token.getId(), tokenVisibleArea);
@@ -377,9 +372,7 @@ public class ZoneView implements ModelChangeListener {
     	if (visibleAreaMap.get(view) != null) {
     		return;
     	}
-//    	if (!MapTool.getPlayer().isGM()) {
-//    		System.out.println("whatever2");
-//    	}
+
     	// Cache it
     	VisibleAreaMeta meta = new VisibleAreaMeta();
     	meta.visibleArea = new Area();
