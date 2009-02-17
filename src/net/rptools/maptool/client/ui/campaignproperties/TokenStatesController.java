@@ -102,79 +102,79 @@ public class TokenStatesController implements ActionListener, DocumentListener, 
     private PreviewPanelFileChooser imageFileChooser;
     
     /** Name of the text field containing the name {@link String} value */
-    public static String NAME = "tokenStatesName";
+    public static final String NAME = "tokenStatesName";
     
     /** Name of the text field containing the group {@link String} value */
-    public static String GROUP = "tokenStatesGroup";
+    public static final String GROUP = "tokenStatesGroup";
     
     /** Name of the combo box containing a {@link String} value that maps directly to a {@link BooleanTokenOverlay} class */
-    public static String TYPE = "tokenStatesType";
+    public static final String TYPE = "tokenStatesType";
     
     /** Name of the color well containing a {@link Color} value for token state types that need colors */
-    public static String COLOR = "tokenStatesColor";
+    public static final String COLOR = "tokenStatesColor";
     
     /** Name of the check box containing the {@link Boolean} mouseover value */
-    public static String MOUSEOVER = "tokenStatesMouseover";
+    public static final String MOUSEOVER = "tokenStatesMouseover";
     
     /** Name of the spinner containing an {@link Integer} value that is the width of lines for token state types that need line width */
-    public static String WIDTH = "tokenStatesWidth";
+    public static final String WIDTH = "tokenStatesWidth";
     
     /** Name of the combo box containing a {@link String} value that one of the four corners of the token and is used in the {@link ColorDotTokenOverlay} & {@link CornerImageTokenOverlay} */
-    public static String CORNER = "tokenStatesCorner";
+    public static final String CORNER = "tokenStatesCorner";
     
     /** Name of the button used to add a new token state */
-    public static String ADD = "tokenStatesAddState";
+    public static final String ADD = "tokenStatesAddState";
 
     /** Name of the button used to delete selected token states */
-    public static String DELETE = "tokenStatesDeleteState";
+    public static final String DELETE = "tokenStatesDeleteState";
 
     /** Name of the list containing all of the currently defined token states */
-    public static String STATES = "tokenStatesStates";
+    public static final String STATES = "tokenStatesStates";
 
     /** Name of the spinner containing a {@link String} value that is converted into the grid size for flow token states */
-    public static String FLOW_GRID = "tokenStatesFlowGrid";
+    public static final String FLOW_GRID = "tokenStatesFlowGrid";
 
     /** Name of the spinner containing an {@link Integer} value that is the opacity used in drawing */
-    public static String OPACITY = "tokenStatesOpacity";
+    public static final String OPACITY = "tokenStatesOpacity";
     
     /** Name of the text field containing a {@link File} name that is the image file used for image token states */
-    public static String IMAGE = "tokenStatesImageFile";
+    public static final String IMAGE = "tokenStatesImageFile";
 
     /** Name of the button used to browse for an image icon */
-    public static String BROWSE = "tokenStatesBrowseImage";
+    public static final String BROWSE = "tokenStatesBrowseImage";
     
     /** Name of the button used to edit an existing token state. */
-    public static String UPDATE = "tokenStatesUpdateState";
+    public static final String UPDATE = "tokenStatesUpdateState";
     
     /** Name of the button used to move a state up one space */
-    public static String MOVE_UP = "tokenStatesMoveUp";
+    public static final String MOVE_UP = "tokenStatesMoveUp";
     
     /** Name of the button used to move a state down one space */
-    public static String MOVE_DOWN = "tokenStatesMoveDown";
+    public static final String MOVE_DOWN = "tokenStatesMoveDown";
     
     /** Name of the check box that shows the GM sees the state */
-    public static String SHOW_GM = "tokenStatesGM";
+    public static final String SHOW_GM = "tokenStatesGM";
     
     /** Name of the check box that shows the GM sees the state */
-    public static String SHOW_OWNER = "tokenStatesOwner";
+    public static final String SHOW_OWNER = "tokenStatesOwner";
     
     /** Name of the check box that shows the GM sees the state */
-    public static String SHOW_OTHERS = "tokenStatesEverybody";
+    public static final String SHOW_OTHERS = "tokenStatesEverybody";
     
     /** The size of the ICON faked in the list renderer */
-    public static int ICON_SIZE = 50;
+    public static final int ICON_SIZE = 50;
     
     /** Each of the data entry components that can be enabled/disabled by type of state */
-    public static String[] DATA_ENTRY_COMPONENTS = { COLOR, WIDTH, CORNER, FLOW_GRID, IMAGE, BROWSE };
+    public static final String[] DATA_ENTRY_COMPONENTS = { COLOR, WIDTH, CORNER, FLOW_GRID, IMAGE, BROWSE };
     
     /** Each of the data entry components that can be enabled/disabled by type of state */
-    public static String[] DATA_ENTRY_COMPONENT_LABELS = { COLOR + "Label", WIDTH + "Label", CORNER + "Label", FLOW_GRID + "Label", IMAGE + "Label"};
+    public static final String[] DATA_ENTRY_COMPONENT_LABELS = { COLOR + "Label", WIDTH + "Label", CORNER + "Label", FLOW_GRID + "Label", IMAGE + "Label"};
 
     /**
      * Flags for each of the data entry components needed by each of the types. The order of the types is the'
      * same as the list in the combo box. The order of the flags is the same as that in {@link #DATA_ENTRY_COMPONENTS}.
      */
-    public static boolean[][] NEEDED_COMPONENTS = {
+    public static final boolean[][] NEEDED_COMPONENTS = {
         {false, false, false, false, true,  true }, // Image 
         {false, false, true , false, true,  true }, // Corner Image 
         {false, false, false, true,  true,  true }, // Flow Image 

@@ -279,10 +279,7 @@ public class PartitionedDrawableRenderer implements DrawableRenderer {
 		
 		@Override
 		public boolean equals(Object obj) {
-			if (obj instanceof String) {
-				return key.equals(obj.toString());
-			}
-			return super.equals(obj);
+			return key.equals(obj.toString());
 		}
 	}
 }

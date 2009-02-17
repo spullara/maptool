@@ -381,7 +381,7 @@ public class Zone extends BaseModel {
 			(objectDrawables == null || drawables.size() == 0) && 
 			(backgroundDrawables == null || drawables.size() == 0) && 
     		(tokenOrderedList == null || tokenOrderedList.size() == 0) && 
-    		(labels != null || labels.size() == 0);
+    		(labels != null && labels.size() == 0);
     }
     
     public boolean isTokenVisible(Token token) {

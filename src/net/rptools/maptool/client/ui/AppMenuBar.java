@@ -294,7 +294,7 @@ public class AppMenuBar extends JMenuBar {
     
     protected JMenu createRecentCampaignMenu() {
     	mruManager = new MRUCampaignManager(new JMenu(AppActions.MRU_LIST));
-    	return mruManager.GetMRUMenu();
+    	return mruManager.getMRUMenu();
     }
     
     public static MRUCampaignManager getMruManager() {

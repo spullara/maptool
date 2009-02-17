@@ -17,7 +17,7 @@ import java.io.Serializable;
 
 /**
  */
-public class DrawnElement implements Serializable {
+public class DrawnElement {
 
 	private Drawable drawable;
 	private Pen pen;

@@ -20,10 +20,10 @@ import java.awt.Color;
  * by drawing {@link Drawable}s with a Pen whose {@link #setEraser}is true.
  */
 public class Pen {
-    public static int MODE_SOLID       = 0;
-    public static int MODE_TRANSPARENT = 1;
+    public static final int MODE_SOLID       = 0;
+    public static final int MODE_TRANSPARENT = 1;
 
-    public static Pen DEFAULT = new Pen(new DrawableColorPaint(Color.black), 3.0f);
+    public static final Pen DEFAULT = new Pen(new DrawableColorPaint(Color.black), 3.0f);
 
     private int foregroundMode = MODE_SOLID;
     private DrawablePaint paint;

@@ -19,14 +19,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.rptools.lib.FileUtil;
@@ -228,7 +227,9 @@ public class AssetManager {
 		try {
 
 			Properties props = new Properties();
-			props.load(new FileInputStream(infoFile));
+			InputStream is = new FileInputStream(infoFile); 
+			props.load(is);
+			is.close();
 			return props;
 			
 		} catch (Exception e) {

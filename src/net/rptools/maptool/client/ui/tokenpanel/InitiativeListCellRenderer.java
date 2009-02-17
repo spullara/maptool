@@ -124,7 +124,7 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
     /** 
      * The size of the ICON shown in the list renderer 
      */
-    public static int ICON_SIZE = 50;
+    public static final int ICON_SIZE = 50;
     
     /*---------------------------------------------------------------------------------------------
      * Constructor

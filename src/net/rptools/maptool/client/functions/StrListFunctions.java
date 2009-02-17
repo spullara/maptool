@@ -456,7 +456,7 @@ public class StrListFunctions extends AbstractFunction {
 	public static class strComp implements Comparator<String> {
 		public sortType st;		// The type of sort to use
 		public int so;			// The order of the sort (1 ascending, -1 descending)
-		public static Pattern pattern = Pattern.compile("^([^0-9]*)([0-9]+)(.*)");
+		public static final Pattern pattern = Pattern.compile("^([^0-9]*)([0-9]+)(.*)");
 
 		enum sortType {
 			ALPHA, NUMERIC;

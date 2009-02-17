@@ -133,10 +133,10 @@ public class MapToolLineParser {
 	};
 
 	/** Name and Source or macros that come from chat. */
-	public static String CHAT_INPUT = "chat";
+	public static final String CHAT_INPUT = "chat";
 	
 	/** Name of macro to divert calls to unknown macros on a lib macro to. */
-	public static String UNKNOWN_LIB_MACRO = "!!unknown-macro!!";
+	public static final String UNKNOWN_LIB_MACRO = "!!unknown-macro!!";
 
 	
 	/** Stack that holds our contexts. */

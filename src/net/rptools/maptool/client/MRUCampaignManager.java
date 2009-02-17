@@ -42,7 +42,7 @@ public class MRUCampaignManager {
 	/**
 	 * Returns the MRU Campaigns menu item and sub-menu
 	 */	
-	public JMenu GetMRUMenu() {
+	public JMenu getMRUMenu() {
 		return mruMenu;
 	}
 	

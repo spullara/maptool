@@ -26,8 +26,8 @@ public class Scale implements Serializable {
     
 	private int zoomLevel = 0;
 	
-    public static String PROPERTY_SCALE = "scale";
-    public static String PROPERTY_OFFSET = "offset";
+    public static final String PROPERTY_SCALE = "scale";
+    public static final String PROPERTY_OFFSET = "offset";
     
     private transient PropertyChangeSupport propertyChangeSupport;
     

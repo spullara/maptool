@@ -91,94 +91,94 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
     private StateListRenderer renderer = new StateListRenderer();
     
     /** Name of the text field containing the name {@link String} value */
-    public static String NAME = "tokenBarName";
+    public static final String NAME = "tokenBarName";
     
     /** Name of the combo box containing a {@link String} value that maps directly to a {@link BarTokenOverlay} class */
-    public static String TYPE = "tokenBarType";
+    public static final String TYPE = "tokenBarType";
     
     /** Name of the color well containing a {@link Color} value for token bar types that need colors */
-    public static String COLOR = "tokenBarColor";
+    public static final String COLOR = "tokenBarColor";
     
     /** Name of the color well containing a {@link Color} value for token bar types that need background colors */
-    public static String BG_COLOR = "tokenBarBgColor";
+    public static final String BG_COLOR = "tokenBarBgColor";
     
     /** Name of the check box containing the {@link Boolean} mouseover value */
-    public static String MOUSEOVER = "tokenBarMouseover";
+    public static final String MOUSEOVER = "tokenBarMouseover";
     
     /** Name of the spinner containing an {@link Integer} value that is the thickness of bar types that need bar width */
-    public static String THICKNESS = "tokenBarThickness";
+    public static final String THICKNESS = "tokenBarThickness";
     
     /** Name of the spinner containing an {@link Integer} value that is the thickness of bar types that need bar width */
-    public static String INCREMENTS = "tokenBarIncrements";
+    public static final String INCREMENTS = "tokenBarIncrements";
     
     /** Name of the combo box containing a {@link String} value for one of the four sides of the token */
-    public static String SIDE = "tokenBarSide";
+    public static final String SIDE = "tokenBarSide";
     
     /** Name of the button used to add a new token bar */
-    public static String ADD = "tokenBarAddBar";
+    public static final String ADD = "tokenBarAddBar";
 
     /** Name of the button used to delete selected token bars */
-    public static String DELETE = "tokenBarDeleteBar";
+    public static final String DELETE = "tokenBarDeleteBar";
 
     /** Name of the button used to edit an existing token bar. */
-    public static String UPDATE = "tokenBarUpdateBar";
+    public static final String UPDATE = "tokenBarUpdateBar";
     
     /** Name of the button used to move a bar up one space */
-    public static String MOVE_UP = "tokenBarMoveUp";
+    public static final String MOVE_UP = "tokenBarMoveUp";
     
     /** Name of the button used to move a bar down one space */
-    public static String MOVE_DOWN = "tokenBarMoveDown";
+    public static final String MOVE_DOWN = "tokenBarMoveDown";
     
     /** Name of the list containing all of the currently defined token bars */
-    public static String BARS = "tokenBarBars";
+    public static final String BARS = "tokenBarBars";
 
     /** Name of the spinner containing an {@link Integer} value that is the opacity used in drawing */
-    public static String OPACITY = "tokenBarOpacity";
+    public static final String OPACITY = "tokenBarOpacity";
     
     /** Name of the list field containing {@link File} names that is the image file used for image token bars */
-    public static String IMAGES = "tokenBarImages";
+    public static final String IMAGES = "tokenBarImages";
 
     /** Name of the button used to add a new token bar image */
-    public static String IMAGE_ADD = "tokenBarAddImage";
+    public static final String IMAGE_ADD = "tokenBarAddImage";
 
     /** Name of the button used to delete selected token bar images */
-    public static String IMAGE_DELETE = "tokenBarDeleteImage";
+    public static final String IMAGE_DELETE = "tokenBarDeleteImage";
 
     /** Name of the button used to edit an existing token bar image. */
-    public static String IMAGE_UPDATE = "tokenBarUpdateImage";
+    public static final String IMAGE_UPDATE = "tokenBarUpdateImage";
     
     /** Name of the button used to move a bar image up one space */
-    public static String IMAGE_MOVE_UP = "tokenBarMoveUpImage";
+    public static final String IMAGE_MOVE_UP = "tokenBarMoveUpImage";
     
     /** Name of the button used to move a bar image down one space */
-    public static String IMAGE_MOVE_DOWN = "tokenBarMoveDownImage";
+    public static final String IMAGE_MOVE_DOWN = "tokenBarMoveDownImage";
     
     /** Name of the check box that shows the GM sees the bar */
-    public static String SHOW_GM = "tokenBarGM";
+    public static final String SHOW_GM = "tokenBarGM";
     
     /** Name of the check box that shows the GM sees the bar */
-    public static String SHOW_OWNER = "tokenBarOwner";
+    public static final String SHOW_OWNER = "tokenBarOwner";
     
     /** Name of the check box that shows the GM sees the bar */
-    public static String SHOW_OTHERS = "tokenBarEverybody";
+    public static final String SHOW_OTHERS = "tokenBarEverybody";
     
     /** Name of the slider used to test the bars */
-    public static String TESTER = "tokenBarTest";
+    public static final String TESTER = "tokenBarTest";
     
     /** The size of the ICON faked in the list renderer */
-    public static int ICON_SIZE = 50;
+    public static final int ICON_SIZE = 50;
     
     /** Each of the data entry components that can be enabled/disabled by type of bar */
-    public static String[] DATA_ENTRY_COMPONENTS = { COLOR, BG_COLOR, THICKNESS, IMAGES, IMAGE_ADD, IMAGE_DELETE, IMAGE_MOVE_DOWN, IMAGE_MOVE_UP, IMAGE_UPDATE };
+    public static final String[] DATA_ENTRY_COMPONENTS = { COLOR, BG_COLOR, THICKNESS, IMAGES, IMAGE_ADD, IMAGE_DELETE, IMAGE_MOVE_DOWN, IMAGE_MOVE_UP, IMAGE_UPDATE };
     
     /** Each of the data entry components that can be enabled/disabled by type of bar */
-    public static String[] DATA_ENTRY_COMPONENT_LABELS = { COLOR + "Label", BG_COLOR + "Label", THICKNESS + "Label", IMAGES + "Label"};
+    public static final String[] DATA_ENTRY_COMPONENT_LABELS = { COLOR + "Label", BG_COLOR + "Label", THICKNESS + "Label", IMAGES + "Label"};
 
     /**
      * Flags for each of the data entry components needed by each of the types. The order of the types is the'
      * same as the list in the combo box. The order of the flags is the same as that in {@link #DATA_ENTRY_COMPONENTS}.
      */
-    public static boolean[][] NEEDED_COMPONENTS = {
+    public static final boolean[][] NEEDED_COMPONENTS = {
         {false, false, false, true,  true,  true,  true,   true,  true }, // Two Image 
         {false, false, false, true,  true,  true,  true,   true,  true }, // One Image 
         {false, false, false, true,  true,  true,  true,   true,  true }, // Multiple Image 
@@ -189,7 +189,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
     /**
      * The number of images needed by each type of bar. The increments are added to this  
      */
-    public static String[][] NEEDED_IMAGES = {
+    public static final String[][] NEEDED_IMAGES = {
         {"Base", "Bar"},
         {"Bar"},
         null,  // Multiple images

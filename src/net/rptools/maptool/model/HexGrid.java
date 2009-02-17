@@ -43,7 +43,7 @@ public abstract class HexGrid extends Grid {
 	
 	// A regular hexagon is one where all angles are 60 degrees.
 	// the ratio = minor_radius / edge_length
-	public static double REGULAR_HEX_RATIO = Math.sqrt(3)/2;
+	public static final double REGULAR_HEX_RATIO = Math.sqrt(3)/2;
 
 	protected static BufferedImage pathHighlight;
 

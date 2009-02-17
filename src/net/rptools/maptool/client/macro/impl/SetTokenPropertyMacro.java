@@ -143,10 +143,10 @@ public class SetTokenPropertyMacro implements Macro {
 			if (!MapTool.getPlayer().isGM()) {
 				if ((!zone.isTokenVisible(token) || token.getLayer() == Zone.Layer.GM)) {
 				token = null;
-			}
-			if (!token.isOwner(MapTool.getPlayer().getName())) {
-				token = null;
-			}
+				}
+				if (!token.isOwner(MapTool.getPlayer().getName())) {
+					token = null;
+				}
 			}
 			if (token != null) {
 				selectedTokenSet.add(token);
