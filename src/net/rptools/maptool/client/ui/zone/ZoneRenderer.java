@@ -738,9 +738,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		// Setup
         timer.start("lights-1");
     	Graphics2D newG = (Graphics2D)g.create();
-    	Area clip = new Area(g.getClip());
     	if (visibleScreenArea != null) {
+        	Area clip = new Area(g.getClip());
     		clip.intersect(visibleScreenArea);
+    		newG.setClip(clip);
     	}
     	SwingUtil.useAntiAliasing(newG);
         timer.stop("lights-1");
@@ -1070,12 +1071,17 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        } else {
 
 	        	if (visibleScreenArea != null) {
-		        	buffG.setTransform(new AffineTransform());
+                    Shape oldClip = buffG.getClip();
+                    buffG.setClip(zone.getExposedArea());
+
+                    buffG.setTransform(new AffineTransform());
 		        	buffG.setComposite(AlphaComposite.Src);
 			        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			        buffG.setStroke(new BasicStroke(1));
 			        buffG.setColor(Color.black);
 			        buffG.draw(visibleScreenArea);
+			        
+                    buffG.setClip(oldClip);
 	        	}
 	        }
 
