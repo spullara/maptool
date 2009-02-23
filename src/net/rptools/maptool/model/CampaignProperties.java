@@ -291,7 +291,7 @@ public class CampaignProperties implements Serializable {
     		return;
     	}
 		remoteRepositoryList = new ArrayList<String>();
-		remoteRepositoryList.add("http://rptools.net/image-indexes/gallery.rpax.gz");
+		remoteRepositoryList.add("http://www.rptools.net/image-indexes/gallery.rpax.gz");
     }
     
     public String getDefaultSightType() {

@@ -22,8 +22,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,22 +31,27 @@ import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.ImageManager;
 
+import org.apache.log4j.Logger;
+
 public class ImageLoaderCache {
 
-	private Map<String, Image> imageMap = new HashMap<String, Image>();
+	private static final Logger log = Logger.getLogger(ImageLoaderCache.class);
 	
+	private Map<String, Image> imageMap = new HashMap<String, Image>();
+
 	public void flush() {
 		imageMap.clear();
 	}
-	
+
 	public Image get(URL url, ImageObserver... observers) {
 
 		// URLs take a huge amount of time in equals(), so simplify by
 		// converting to a string
 		if (url == null) {
+			log.debug("ImageLoaderCache.get(null), using BROKEN_IMAGE");
 			return ImageManager.BROKEN_IMAGE;
 		}
-		
+
 		Image image = imageMap.get(url.toString());
 		if (image == null) {
 
@@ -68,37 +71,41 @@ public class ImageLoaderCache {
 				int index = path.indexOf("-");
 				int size = -1;
 				if (index >= 0) {
-					String szStr = path.substring(index+1);
+					String szStr = path.substring(index + 1);
 					path = path.substring(0, index);
 					size = Integer.parseInt(szStr);
 				}
-				
-				image = ImageManager.getImage(AssetManager.getAsset(new MD5Key(path)), observers);
+
+				image = ImageManager.getImage(AssetManager.getAsset(new MD5Key(
+						path)), observers);
 				boolean imageLoaded = image != ImageManager.UNKNOWN_IMAGE;
 				if (!imageLoaded) {
 					size = 38;
 				}
 
 				if (size > 0) {
-					Dimension sz = new Dimension(image.getWidth(null), image.getHeight(null));
+					Dimension sz = new Dimension(image.getWidth(null), image
+							.getHeight(null));
 					SwingUtil.constrainTo(sz, size);
-					
-					BufferedImage img = new BufferedImage(sz.width, sz.height, ImageUtil.pickBestTransparency(image));
+
+					BufferedImage img = new BufferedImage(sz.width, sz.height,
+							ImageUtil.pickBestTransparency(image));
 					Graphics2D g = img.createGraphics();
-					g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+					g.setRenderingHint(RenderingHints.KEY_RENDERING,
+							RenderingHints.VALUE_RENDER_QUALITY);
 					g.drawImage(image, 0, 0, sz.width, sz.height, null);
 					g.dispose();
-					
+
 					image = img;
 				}
-				
+
 				if (imageLoaded) {
 					// Don't have to load it again
 					imageMap.put(url.toString(), image);
 				}
-				
+
 				return image;
-				
+
 			} else {
 
 				// Normal method

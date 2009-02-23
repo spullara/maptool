@@ -15,21 +15,23 @@ package net.rptools.maptool.server;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.rptools.clientserver.hessian.server.ServerConnection;
 import net.rptools.clientserver.simple.server.ServerObserver;
 import net.rptools.maptool.client.ClientCommand;
-import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.Player;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author trevor
  */
 public class MapToolServerConnection extends ServerConnection  implements ServerObserver {
 
+	private static final Logger log = Logger.getLogger(MapToolServerConnection.class);
+	
 	private Map<String, Player> playerMap = new ConcurrentHashMap<String, Player>();
 	
 	private MapToolServer server;
@@ -55,7 +57,7 @@ public class MapToolServerConnection extends ServerConnection  implements Server
 				return true;
 			}
 		} catch (IOException ioe) {
-			// LATER: perhaps log this, or at least keep track for accounting purposes
+			log.error("Handshake failure: " + ioe, ioe);
 		}
 		return false;
 	}

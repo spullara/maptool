@@ -22,10 +22,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.rptools.lib.FileUtil;
@@ -404,4 +406,82 @@ public class AssetManager {
 		}
 	}
 
+	/**
+	 * <p>
+	 * This method accepts the name of a repository (as it appears in the
+	 * CampaignProperties) and updates it by adding the additional mappings that are in
+	 * <code>add</code>.
+	 * </p>
+	 * <p>
+	 * This method first retrieves the mapping from the AssetLoader.  It then adds in the
+	 * new assets.  Last, it has to create the new index file.  The index file should be stored
+	 * in the local repository cache.  Note that this function <b>does not</b> update
+	 * the original (network storage) repository location. 
+	 * </p>
+	 * <p>
+	 * If the calling function does not update the network storage for <b>index.gz</b>,
+	 * a restart of MapTool will lose the information when the index is downloaded.
+	 * </p>
+	 * @param repo name of the repository to update
+	 * @param add entries to add to the repository
+	 * @return the contents of the new repository in uploadable format
+	 */
+	public static byte[] updateRepositoryMap(String repo, Map<String, String> add) {
+		Map<String, String> repoMap = assetLoader.getRepositoryMap(repo);
+		repoMap.putAll(add);
+		byte[] index = assetLoader.createIndexFile(repo);
+		try {
+			assetLoader.storeIndexFile(repo, index);
+		} catch (IOException e) {
+			System.err.println("Couldn't save updated index to local repository cache: " + e);
+			e.printStackTrace();
+		}
+		return index;
+	}
+
+	/**
+	 * <p>
+	 * Constructs a set of all assets in the given list of repositories, then builds a map of
+	 * <code>MD5Key</code> and <code>Asset</code> for all assets that do not
+	 * appear in that set.
+	 * </p>
+	 * <p>
+	 * This provides the calling function with a list of all assets currently in use by the
+	 * campaign that do not appear in one of the listed assets.  It's entirely possible that
+	 * the asset is in a different repository or in none at all.
+	 * </p>
+	 * @param repos list of repositories to exclude
+	 * @return Map of all assets NOT in the specified repositories
+	 */
+	public static Map<MD5Key, Asset> findAllAssetsNotInRepositories(List<String> repos) {
+		// For performance reasons, we calculate the size of the Set in advance...
+		int size = 0;
+		for (String repo : repos) {
+			size += assetLoader.getRepositoryMap(repo).size();
+		}
+
+		// Now create the aggregate of all repositories.
+		Set<String> aggregate = new HashSet<String>(size);
+		for (String repo : repos) {
+			aggregate.addAll(assetLoader.getRepositoryMap(repo).keySet());
+		}
+
+		/*
+		 * The 'aggregate' now holds the sum total of all asset keys that are in repositories.
+		 * Now we go through the 'assetMap' and copy over <K,V> pairs that are NOT in
+		 * 'aggregate' to our 'missing' Map.
+		 * 
+		 * Unfortunately, the repository is a Map<String, String> while the return value is
+		 * going to be a Map<MD5Key, Asset>, which means each individual entry needs to
+		 * be checked and references copied.  If both were the same data type, converting
+		 * both to Set<String> would allow for an addAll() and removeAll() and be done with
+		 * it!
+		 */
+		Map<MD5Key, Asset> missing = new HashMap<MD5Key, Asset>(Math.min(assetMap.size(), aggregate.size()));
+		for (MD5Key key : assetMap.keySet()) {
+			if (aggregate.contains(key) == false)	// Not in any repository so add it.
+				missing.put(key, assetMap.get(key));
+		}
+		return missing;
+	}
 }

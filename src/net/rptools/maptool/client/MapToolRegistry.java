@@ -15,15 +15,12 @@ package net.rptools.maptool.client;
 
 import java.net.MalformedURLException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import com.caucho.hessian.client.HessianProxy;
 import com.caucho.hessian.client.HessianProxyFactory;
 
 public class MapToolRegistry {
 
-	private static final String SERVICE_URL = "http://rptools.net/services/maptool_registry-1_3.php";
+	private static final String SERVICE_URL = "http://services.rptools.net/maptool_registry-1_3.php";
 
 	private static MapToolRegistryService service;
 	
@@ -36,7 +33,7 @@ public class MapToolRegistry {
 			mue.printStackTrace();
 		}
 	}
-	
+
     public static String findInstance(String id) {
         checkService();
         return service.findInstance(id);

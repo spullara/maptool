@@ -38,12 +38,21 @@ import net.rptools.maptool.model.LookupTable.LookupEntry;
 import net.rptools.parser.ParserException;
 
 /**
- * This object contains {@link Zone}s and {@link Asset}s that make up a campaign.
+ * <p>
+ * This object contains {@link Zone}s and {@link Asset}s that make up a campaign as well
+ * as links to a variety of other campaign characteristics (campaign macros, properties,
+ * lookup tables, and so on).
+ * </p>
+ * <p>
  * Roughly this is equivalent to multiple tabs that will appear on the client and
- * all of the images that will appear on it (and also campaign macro buttons)
+ * all of the images that will appear on it (and also campaign macro buttons).
+ * </p>
  */
 public class Campaign {
 	
+	/**
+	 * The only built-in property type is "Basic".  Any others are user-defined.
+	 */
 	public static final String DEFAULT_TOKEN_PROPERTY_TYPE = "Basic";
 	
     private GUID id = new GUID();
@@ -166,26 +175,53 @@ public class Campaign {
     public void putTokenType(String name, List<TokenProperty> propertyList) {
     	getTokenTypeMap().put(name, propertyList);
     }
-    
+
+    /**
+     * Stub that calls <code>campaignProperties.getTokenTypeMap()</code>.
+     * 
+     * @return
+     */
     public Map<String, List<TokenProperty>> getTokenTypeMap() {
     	checkCampaignPropertyConversion(); // TODO: Remove, for compatibility 1.3b19-1.3b20
     	return campaignProperties.getTokenTypeMap();
     }
 
+    /**
+     * Convenience method that calls {@link #getSightTypeMap()} and returns the value for
+     * the key <code>type</code>.
+     * 
+     * @return
+     */
     public SightType getSightType(String type) {
     	return getSightTypeMap().get(type != null ? type : campaignProperties.getDefaultSightType());
     }
     
+    /**
+     * Stub that calls <code>campaignProperties.getSightTypeMap()</code>.
+     * 
+     * @return
+     */
     public Map<String, SightType> getSightTypeMap() {
     	checkCampaignPropertyConversion();
     	return campaignProperties.getSightTypeMap();
     }
     
+    /**
+     * Stub that calls <code>campaignProperties.getLookupTableMap()</code>.
+     * 
+     * @return
+     */
     public Map<String, LookupTable> getLookupTableMap() {
     	checkCampaignPropertyConversion(); // TODO: Remove, for compatibility 1.3b19-1.3b20
     	return campaignProperties.getLookupTableMap();
     }
     
+    /**
+     * Convenience method that iterates through {@link #getLightSourcesMap()} and
+     * returns the value for the key <code>lightSourceId</code>.
+     * 
+     * @return
+     */
     public LightSource getLightSource(GUID lightSourceId) {
 
     	for (Map<GUID, LightSource> map : getLightSourcesMap().values()) {
@@ -196,19 +232,40 @@ public class Campaign {
     	return null;
     }
 
+    /**
+     * Stub that calls <code>campaignProperties.getLightSourcesMap()</code>.
+     * 
+     * @return
+     */
     public Map<String, Map<GUID, LightSource>> getLightSourcesMap() {
     	checkCampaignPropertyConversion(); // TODO: Remove, for compatibility 1.3b19-1.3b20
     	return campaignProperties.getLightSourcesMap();
     }
     
+    /**
+     * Convenience method that calls {@link #getLightSourcesMap()} and
+     * returns the value for the key <code>type</code>.
+     * 
+     * @return
+     */
     public Map<GUID, LightSource> getLightSourceMap(String type) {
     	return getLightSourcesMap().get(type);
     }
     
+    /**
+     * Stub that calls <code>campaignProperties.getTokenStatesMap()</code>.
+     * 
+     * @return
+     */
     public Map<String, BooleanTokenOverlay> getTokenStatesMap() {
         return campaignProperties.getTokenStatesMap();
     }
     
+    /**
+     * Stub that calls <code>campaignProperties.getTokenBarsMap()</code>.
+     * 
+     * @return
+     */
     public Map<String, BarTokenOverlay> getTokenBarsMap() {
         return campaignProperties.getTokenBarsMap();
     }
@@ -225,14 +282,31 @@ public class Campaign {
         this.id = id;
     }
 
+    /**
+     * Returns an <code>ArrayList</code> of all available <code>Zone</code>s from the
+     * <code>zones</code> <code>LinkedHashMap</code>.
+     * @return
+     */
     public List<Zone> getZones() {
         return new ArrayList<Zone>(zones.values());
     }
 
+    /**
+     * Return the <code>Zone</code> with the given GUID.
+     * 
+     * @param id
+     * @return
+     */
     public Zone getZone(GUID id) {
         return zones.get(id);
     }
 
+    /**
+     * Create an entry for the given <code>Zone</code> in the map, using <code>zone</code>'s
+     * {@link Zone#getId()} method.
+     * 
+     * @param zone
+     */
     public void putZone(Zone zone) {
         zones.put(zone.getId(), zone);
     }
@@ -294,7 +368,7 @@ public class Campaign {
 			return;
 		}
 		if(MapTool.isHostingServer() && AppPreferences.getShowMacroUpdateWarning()) {
-			Boolean hideMacroUpdateWarning = MapTool.confirm("Changes to the Campaign Panel will not be sent to other clients until you save and reload this campiagn.\n\n If you would like to hide this message from now on, please select 'Yes', otherwise, please select 'No'.");
+			Boolean hideMacroUpdateWarning = MapTool.confirm("Changes to the Campaign Panel will not be sent to other clients until you save and reload this campiagn.\n\nIf you would like to hide this message from now on, please select 'Yes'; otherwise, please select 'No'.");
 			if(hideMacroUpdateWarning) {
 				AppPreferences.setShowMacroUpdateWarning(false);
 			} else {
@@ -338,11 +412,18 @@ public class Campaign {
 			MapTool.showError("Only the GM is allowed to make changes to the Campaign Panel.");
 			return;
 		}
-		MapTool.showInformation("Changes to the Campaign Panel will not be sent to other clients until you save and reload this campiagn.");
+		MapTool.showInformation("Changes to the Campaign Panel will not be sent to other clients until you save and reload this campaign.");
 		macroButtonProperties.remove(properties);
 		MapTool.getFrame().getCampaignPanel().reset();
 	}
 
+	/**
+	 * <p>
+	 * This method iterates through all Zones, TokenStates, TokenBars, and LookupTables
+	 * and writes the keys into a new, empty set.  That set is the return value.
+	 * 
+	 * @return
+	 */
 	public Set<MD5Key> getAllAssetIds() {
 		
 		// Maps (tokens are implicit)

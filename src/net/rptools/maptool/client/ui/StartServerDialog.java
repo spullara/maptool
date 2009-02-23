@@ -140,8 +140,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 			public void actionPerformed(ActionEvent e) {
 				new Thread(new Runnable() {
 					public void run() {
-						
-						
+
 						EchoServer server = null;
 						try {
 							int port = Integer.parseInt(getPortTextField().getText());

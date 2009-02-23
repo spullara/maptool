@@ -22,12 +22,12 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolRegistry;
+import net.rptools.maptool.client.ui.io.ResolveLocalHostname;
 import net.rptools.maptool.server.MapToolServer;
 
 import com.jeta.forms.components.panel.FormPanel;
@@ -58,10 +58,12 @@ public class ServerInfoDialog extends JDialog {
 		
 		String localAddress = "Unknown";
 		try {
-			InetAddress localAddy = InetAddress.getLocalHost();
+			InetAddress rptools = InetAddress.getByName("www.rptools.net");
+			InetAddress localAddy = ResolveLocalHostname.getLocalHost(rptools);
 			localAddress = localAddy.getHostAddress();
 		} catch (Exception e) {
-			// none
+			System.err.println("Can't resolve 'www.rptools.net' or our own IP address!");
+			e.printStackTrace();
 		}
 		
 		String externalAddress = "Discovering ...";

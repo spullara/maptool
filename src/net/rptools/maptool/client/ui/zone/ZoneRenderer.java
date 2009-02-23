@@ -46,7 +46,6 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -65,7 +64,6 @@ import java.util.Map.Entry;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -113,12 +111,16 @@ import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.maptool.util.TokenUtil;
 
+import org.apache.log4j.Logger;
+
 
 /**
  */
 public class ZoneRenderer extends JComponent implements DropTargetListener, Comparable {
     private static final long serialVersionUID = 3832897780066104884L;
 
+    private static final Logger log = Logger.getLogger(ZoneRenderer.class);
+    
     public static final int MIN_GRID_SIZE = 10;
     
     private static LightSourceIconOverlay lightSourceIconOverlay = new LightSourceIconOverlay();
@@ -2662,10 +2664,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
      * @see java.awt.dnd.DropTargetListener#dragOver (java.awt.dnd.DropTargetDragEvent)
      */
     public void dragOver(DropTargetDragEvent dtde) {
-
+    	dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
     }
 
-    private void addTokens(List<Token> tokens, ZonePoint zp, boolean configureToken) {
+    private void addTokens(List<Token> tokens, ZonePoint zp, boolean configureToken, boolean showDialog) {
         GridCapabilities gridCaps = zone.getGrid().getCapabilities();
         boolean isGM = MapTool.getPlayer().isGM();
 
@@ -2695,7 +2697,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             token.setLayer(getActiveLayer());
             
             // He who drops, owns, if there are not players already set
-            if (!token.hasOwners() && !isGM) {
+            // and if there are already players set, add the current one to the list.
+            if (!isGM && (!token.hasOwners() || !token.isOwner(MapTool.getPlayer().getName()))) {
                 token.addOwner(MapTool.getPlayer().getName());
             }
 
@@ -2750,7 +2753,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             if (isGM) {
         		token.setType(Token.Type.NPC);
             	if (getActiveLayer() == Zone.Layer.TOKEN) {
-            		if (AppPreferences.getShowDialogOnNewToken()) {
+            		if (AppPreferences.getShowDialogOnNewToken() || showDialog) {
 		            	NewTokenDialog dialog = new NewTokenDialog(token, dropPoint.x, dropPoint.y);
 		            	dialog.showDialog();
 		            	if (!dialog.isSuccess()) {
@@ -2798,6 +2801,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             return;
         }
         dtde.acceptDrop(dtde.getDropAction());
+        
+        //Copy is a CTRL-Drag, Move is a regular drag
+        boolean isCtrlDrag = (dtde.getDropAction() & DnDConstants.ACTION_COPY) != 0;
 
         List<Token> tokens = null;
         List assets = TransferableHelper.getAsset(dtde);
@@ -2811,13 +2817,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         			tokens.add(new Token((Token)working));
             	}
             }
-            addTokens(tokens, zp, true);
+            addTokens(tokens, zp, true, isCtrlDrag);
         } else {
         	if (t.isDataFlavorSupported(TransferableToken.dataFlavor)) {
         		try {
         			// Make a copy so that it gets a new unique GUID
         			tokens = Collections.singletonList(new Token((Token)t.getTransferData(TransferableToken.dataFlavor)));
-        			addTokens(tokens, zp, false);
+        			addTokens(tokens, zp, false, isCtrlDrag);
         		} catch (UnsupportedFlavorException ufe) {
         			ufe.printStackTrace();
         		} catch (IOException ioe) {
@@ -2826,7 +2832,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         	} else {
         	
 	            tokens = TransferableHelper.getTokens(dtde.getTransferable ());
-                addTokens(tokens, zp, true);
+                addTokens(tokens, zp, true, isCtrlDrag);
         	}
 
         }
@@ -2842,8 +2848,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
      * @see java.awt.dnd.DropTargetListener#dropActionChanged (java.awt.dnd.DropTargetDragEvent)
      */
     public void dropActionChanged(DropTargetDragEvent dtde) {
-        // TODO Auto-generated method stub
-
+    	log.debug("ZoneRenderer.dropActionChanged(): " + dtde.getDropAction()+","+dtde.getSourceActions());
+    	dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
     }
 
     ////

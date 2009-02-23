@@ -34,270 +34,280 @@ import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MRUCampaignManager;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.tool.drawing.DrawableUndoManager;
 import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Zone;
 
 public class AppMenuBar extends JMenuBar {
-	
+
 	private static MRUCampaignManager mruManager;
 
-    public AppMenuBar() {
-        add(createFileMenu());
-        add(createEditMenu());
-        add(createMapMenu());
-        add(createViewMenu());
-        add(createToolsMenu());
-        add(createWindowMenu());
-        add(createHelpMenu());
-    }
-    
-    // This is a hack to allow the menubar shortcut keys to still work even
-    // when it isn't showin (fullscreen mode)
-    @Override
-    public boolean isShowing() {
-    	return MapTool.getFrame() != null && MapTool.getFrame().isFullScreen() ? true : super.isShowing();
-    }
+	public AppMenuBar() {
+		add(createFileMenu());
+		add(createEditMenu());
+		add(createMapMenu());
+		add(createViewMenu());
+		add(createToolsMenu());
+		add(createWindowMenu());
+		add(createHelpMenu());
+	}
 
-    protected JMenu createFileMenu() {
-        JMenu fileMenu = I18N.createMenu("menu.file");
-        
-        // MAP CREATION
-    	fileMenu.add(new JMenuItem(AppActions.NEW_CAMPAIGN));
-    	fileMenu.add(new JMenuItem(AppActions.LOAD_CAMPAIGN));
-        fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN));
-        fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN_AS));
-        fileMenu.add(new JMenuItem(AppActions.SAVE_MESSAGE_HISTORY));
-        fileMenu.addSeparator();
-        fileMenu.add(createExportMenu());
-        fileMenu.addSeparator();
-        fileMenu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
-        fileMenu.addSeparator();
-        fileMenu.add(new JMenuItem(AppActions.START_SERVER));
-        fileMenu.add(new JMenuItem(AppActions.CONNECT_TO_SERVER));
-        fileMenu.add(new JMenuItem(AppActions.DISCONNECT_FROM_SERVER));
-        fileMenu.add(new JMenuItem(AppActions.SHOW_SERVER_INFO));
-        fileMenu.addSeparator();
-        fileMenu.add(createRecentCampaignMenu());
-        fileMenu.addSeparator();
-        fileMenu.add(new JMenuItem(AppActions.EXIT));
-                
-        return fileMenu;
-    }
-    
-    protected JMenu createExportMenu() {
-    	JMenu menu = new JMenu("Export");
+	// This is a hack to allow the menubar shortcut keys to still work even
+	// when it isn't showin (fullscreen mode)
+	@Override
+	public boolean isShowing() {
+		return MapTool.getFrame() != null && MapTool.getFrame().isFullScreen() ? true : super.isShowing();
+	}
 
-    	menu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT_LAST_LOCATION));
-        menu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT));
+	protected JMenu createFileMenu() {
+		JMenu fileMenu = I18N.createMenu("menu.file");
 
-        menu.addSeparator();
-        
-        menu.add(new JMenuItem(AppActions.EXPORT_CAMPAIGN_REPO));
-        
-        return menu;
-    }
-    
-    protected JMenu createMapMenu() {
-    	JMenu menu = I18N.createMenu("menu.map");
-    	
-        menu.add(new JMenuItem(AppActions.NEW_MAP));
-        menu.add(createQuickMapMenu());
-    	
-        menu.addSeparator();
-        
-        // MAP TOGGLES
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_FOG));
-        menu.add(createVisionTypeMenu());
+		// MAP CREATION
+		fileMenu.add(new JMenuItem(AppActions.NEW_CAMPAIGN));
+		fileMenu.add(new JMenuItem(AppActions.LOAD_CAMPAIGN));
+		fileMenu.add(new JMenuItem(AppActions.LOAD_SAVE));
+		fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN));
+		fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN_AS));
+		fileMenu.add(new JMenuItem(AppActions.LOAD_MAP));
+		fileMenu.add(new JMenuItem(AppActions.SAVE_MAP_AS));
+		
+		fileMenu.add(new JMenuItem(AppActions.SAVE_MESSAGE_HISTORY));
+		fileMenu.addSeparator();
+		fileMenu.add(createExportMenu());
+		fileMenu.addSeparator();
+		fileMenu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
+		fileMenu.addSeparator();
+		fileMenu.add(new JMenuItem(AppActions.START_SERVER));
+		fileMenu.add(new JMenuItem(AppActions.CONNECT_TO_SERVER));
+		fileMenu.add(new JMenuItem(AppActions.DISCONNECT_FROM_SERVER));
+		fileMenu.add(new JMenuItem(AppActions.SHOW_SERVER_INFO));
+		fileMenu.addSeparator();
+		fileMenu.add(createRecentCampaignMenu());
+		fileMenu.addSeparator();
+		fileMenu.add(new JMenuItem(AppActions.EXIT));
 
-        menu.addSeparator();
-        
-        menu.add(new JMenuItem(AppActions.ADJUST_GRID));
-        menu.add(new JMenuItem(AppActions.RENAME_ZONE));
-        menu.add(new JMenuItem(AppActions.COPY_ZONE));
-        menu.add(new JMenuItem(AppActions.REMOVE_ZONE));
+		return fileMenu;
+	}
 
-        return menu;
-    }
-    
-    protected JMenu createVisionTypeMenu() {
-    	JMenu menu = I18N.createMenu("menu.vision");
-    	
-    	menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.OFF)));
-    	menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.DAY)));
-    	menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.NIGHT)));
-    	
-    	return menu;
-    }
-    
-    protected JMenu createEditMenu() {
-        JMenu menu = I18N.createMenu("menu.edit");
-        
-        menu.add(new JMenuItem(DrawableUndoManager.getInstance().getUndoCommand()));
-        menu.add(new JMenuItem(DrawableUndoManager.getInstance().getRedoCommand()));
-        menu.add(new JMenuItem(DrawableUndoManager.getInstance().getClearCommand()));
+	protected JMenu createExportMenu() {
+		JMenu menu = new JMenu(I18N.getText("menu.export"));
 
-        
-        menu.addSeparator();
-        
-        menu.add(new JMenuItem(AppActions.CAMPAIGN_PROPERTIES));
-        menu.add(new JMenuItem(AppActions.SHOW_PREFERENCES));
+		menu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT_LAST_LOCATION));
+		menu.add(new JMenuItem(AppActions.EXPORT_SCREENSHOT));
 
-        return menu;
-    }    
+		menu.addSeparator();
 
-    protected JMenu createViewMenu() {
-        JMenu menu = I18N.createMenu("menu.view");
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_PLAYER_VIEW));
+		menu.add(new JMenuItem(AppActions.EXPORT_CAMPAIGN_REPO));
+		menu.add(new JMenuItem(AppActions.UPDATE_CAMPAIGN_REPO));
 
-        menu.addSeparator();
+		return menu;
+	}
 
-        menu.add(createZoomMenu());
-        menu.add(new JMenuItem(AppActions.TOGGLE_SHOW_TOKEN_NAMES));
+	protected JMenu createMapMenu() {
+		JMenu menu = I18N.createMenu("menu.map");
 
-        JCheckBoxMenuItem item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_MOVEMENT_MEASUREMENTS);
-        item.setSelected(AppState.getShowMovementMeasurements());
-        menu.add(item);
+		menu.add(new JMenuItem(AppActions.NEW_MAP));
+		menu.add(createQuickMapMenu());
 
-        item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_LIGHT_RADIUS);
-        item.setSelected(AppState.isShowLightRadius());
-        menu.add(item);
+		menu.addSeparator();
 
-        item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_LIGHT_SOURCES);
-        item.setSelected(AppState.isShowLightSources());
-        menu.add(item);
-        
-//        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_GRID));
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_COORDINATES));
-        // LATER: This needs to be genericized, but it seems to constant, and so short, that I 
-        // didn't feel compelled to do that in this impl
-        JMenu gridSizeMenu = I18N.createMenu("action.gridSize");
-        JCheckBoxMenuItem gridSize1 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(1));
-        JCheckBoxMenuItem gridSize2 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(2));
-        JCheckBoxMenuItem gridSize3 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(3));
-        JCheckBoxMenuItem gridSize5 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(5));
+		// MAP TOGGLES
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_FOG));
+		menu.add(createVisionTypeMenu());
 
-        ButtonGroup sizeGroup = new ButtonGroup();
-        sizeGroup.add(gridSize1);
-        sizeGroup.add(gridSize2);
-        sizeGroup.add(gridSize3);
-        sizeGroup.add(gridSize5);
+		menu.addSeparator();
 
-        gridSizeMenu.add(gridSize1);
-        gridSizeMenu.add(gridSize2);
-        gridSizeMenu.add(gridSize3);
-        gridSizeMenu.add(gridSize5);
-        menu.add(gridSizeMenu);
-        
-        menu.addSeparator();
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DRAW_MEASUREMENTS));
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DOUBLE_WIDE));
+		menu.add(new JMenuItem(AppActions.ADJUST_GRID));
+		menu.add(new JMenuItem(AppActions.RENAME_ZONE));
+		menu.add(new JMenuItem(AppActions.COPY_ZONE));
+		menu.add(new JMenuItem(AppActions.REMOVE_ZONE));
 
-        menu.addSeparator();
-        menu.add(new JMenuItem(AppActions.SHOW_FULLSCREEN));
+		return menu;
+	}
 
+	protected JMenu createVisionTypeMenu() {
+		JMenu menu = I18N.createMenu("menu.vision");
 
-        return menu;
-    }
+		menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.OFF)));
+		menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.DAY)));
+		menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.NIGHT)));
 
-    protected JMenu createQuickMapMenu() {
-    	JMenu menu = I18N.createMenu("menu.QuickMap");
-    	
-    	File textureDir = AppUtil.getAppHome("resource/Default/Textures");
-    	
-    	// Make sure the images exist
-    	if (textureDir.listFiles().length == 0) {
-    		try {
-    			AppSetup.installDefaultTokens();
-    		} catch (IOException ioe) {
-    			ioe.printStackTrace();
-    			menu.add(new JMenuItem("Error loading quickmaps"));
-    			return menu;
-    		}
-    	}
-    	
-    	for (File file : textureDir.listFiles(AppConstants.IMAGE_FILE_FILTER)) {
-    		
-            menu.add(new JMenuItem(new AppActions.QuickMapAction(FileUtil.getNameWithoutExtension(file), file)));
-    	}
-    	
-//    	basicQuickMap.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl shift N"));
+		return menu;
+	}
 
-    	return menu;
-    }
+	protected JMenu createToolsMenu() {
+		JMenu menu = I18N.createMenu("menu.tools");
+		menu.add(new JMenuItem(AppActions.CHAT_COMMAND));
+		menu.add(new JMenuItem(AppActions.ENTER_COMMAND));
+		menu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
+		menu.add(new JMenuItem(AppActions.ENFORCE_ZONE));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_MOVEMENT_LOCK));
 
-    protected JMenu createToolsMenu() {
-        JMenu menu = I18N.createMenu("menu.tools");
-        menu.add(new JMenuItem(AppActions.CHAT_COMMAND));
-        menu.add(new JMenuItem(AppActions.ENTER_COMMAND));
-        menu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
-        menu.add(new JMenuItem(AppActions.ENFORCE_ZONE));
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_MOVEMENT_LOCK));
-        
-        menu.add(new JSeparator());
-        
-        menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_COLLECT_PROFILING_DATA));
-        
-        return menu;
-    }
+		menu.add(new JSeparator());
 
-    protected JMenu createHelpMenu() {
-        JMenu menu = I18N.createMenu("menu.help");
-        menu.add(new JMenuItem(AppActions.ADD_DEFAULT_TABLES));
-        menu.add(new JMenuItem(AppActions.RESTORE_DEFAULT_IMAGES));
-        menu.add(new JMenuItem(AppActions.SHOW_DOCUMENTATION));
-        menu.add(new JMenuItem(AppActions.SHOW_TUTORIALS));
-        menu.add(new JMenuItem(AppActions.SHOW_FORUMS));
-        menu.addSeparator();
-        menu.add(new JMenuItem(AppActions.SHOW_ABOUT));
-        return menu;
-    }
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_COLLECT_PROFILING_DATA));
 
-    protected JMenu createZoomMenu() {
-        JMenu menu = I18N.createMenu("menu.zoom");
-        menu.add(new JMenuItem(AppActions.ZOOM_IN));
-        menu.add(new JMenuItem(AppActions.ZOOM_OUT));
-        menu.add(new JMenuItem(AppActions.ZOOM_RESET));
+		return menu;
+	}
 
-        return menu;
-    }
-    
-    protected JMenu createWindowMenu() {
-    	JMenu menu = I18N.createMenu("menu.window");
-    	
-        menu.add(new AbstractAction() {
-        	{
-        		putValue(Action.NAME, "Restore layout");
-        	}
-        	public void actionPerformed(ActionEvent e) {
-        		MapTool.getFrame().getDockingManager().resetToDefault();
-        		
-        	}
-        });
+	protected JMenu createEditMenu() {
+		JMenu menu = I18N.createMenu("menu.edit");
+		menu.add(new JMenuItem(AppActions.UNDO_DRAWING));
+		menu.add(new JMenuItem(AppActions.REDO_DRAWING));
+		menu.add(new JMenuItem(AppActions.CLEAR_DRAWING));
 
-    	menu.addSeparator();
+		menu.addSeparator();
 
-    	for(MTFrame frame : MapToolFrame.MTFrame.values()) {
-    		JMenuItem menuItem = new RPCheckBoxMenuItem(new AppActions.ToggleWindowAction(frame));
-    		menu.add(menuItem);
-    	}
+		menu.add(new JMenuItem(AppActions.COPY_TOKENS));
+		menu.add(new JMenuItem(AppActions.CUT_TOKENS));
+		menu.add(new JMenuItem(AppActions.PASTE_TOKENS));
 
-        menu.addSeparator();
-        menu.add(new JMenuItem(AppActions.SHOW_TRANSFER_WINDOW));
+		menu.addSeparator();
 
-        return menu;
-    }
-    
-    protected JMenu createRecentCampaignMenu() {
-    	mruManager = new MRUCampaignManager(new JMenu(AppActions.MRU_LIST));
-    	return mruManager.getMRUMenu();
-    }
-    
-    public static MRUCampaignManager getMruManager() {
-    	return mruManager;
-    }
+		menu.add(new JMenuItem(AppActions.CAMPAIGN_PROPERTIES));
+		menu.add(new JMenuItem(AppActions.SHOW_PREFERENCES));
+
+		return menu;
+	}
+
+	protected JMenu createViewMenu() {
+		JMenu menu = I18N.createMenu("menu.view");
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_PLAYER_VIEW));
+
+		menu.addSeparator();
+
+		menu.add(createZoomMenu());
+		menu.add(new JMenuItem(AppActions.TOGGLE_SHOW_TOKEN_NAMES));
+
+		JCheckBoxMenuItem item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_MOVEMENT_MEASUREMENTS);
+		item.setSelected(AppState.getShowMovementMeasurements());
+		menu.add(item);
+
+		item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_LIGHT_RADIUS);
+		item.setSelected(AppState.isShowLightRadius());
+		menu.add(item);
+
+		item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_LIGHT_SOURCES);
+		item.setSelected(AppState.isShowLightSources());
+		menu.add(item);
+
+		// menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_GRID));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_COORDINATES));
+		// LATER: This needs to be genericized, but it seems to constant, and so
+		// short, that I
+		// didn't feel compelled to do that in this impl
+		JMenu gridSizeMenu = I18N.createMenu("action.gridSize");
+		JCheckBoxMenuItem gridSize1 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(1));
+		JCheckBoxMenuItem gridSize2 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(2));
+		JCheckBoxMenuItem gridSize3 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(3));
+		JCheckBoxMenuItem gridSize5 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(5));
+
+		ButtonGroup sizeGroup = new ButtonGroup();
+		sizeGroup.add(gridSize1);
+		sizeGroup.add(gridSize2);
+		sizeGroup.add(gridSize3);
+		sizeGroup.add(gridSize5);
+
+		gridSizeMenu.add(gridSize1);
+		gridSizeMenu.add(gridSize2);
+		gridSizeMenu.add(gridSize3);
+		gridSizeMenu.add(gridSize5);
+		menu.add(gridSizeMenu);
+
+		menu.addSeparator();
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DRAW_MEASUREMENTS));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DOUBLE_WIDE));
+
+		menu.addSeparator();
+		menu.add(new JMenuItem(AppActions.SHOW_FULLSCREEN));
+
+		return menu;
+	}
+
+	protected JMenu createQuickMapMenu() {
+		JMenu menu = I18N.createMenu("menu.QuickMap");
+
+		File textureDir = AppUtil.getAppHome("resource/Default/Textures");
+
+		// Make sure the images exist
+		if (textureDir.listFiles().length == 0) {
+			try {
+				AppSetup.installDefaultTokens();
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				menu.add(new JMenuItem(I18N.getText("msg.error.loadingQuickMaps")));
+				return menu;
+			}
+		}
+
+		for (File file : textureDir.listFiles(AppConstants.IMAGE_FILE_FILTER)) {
+
+			menu.add(new JMenuItem(new AppActions.QuickMapAction(FileUtil.getNameWithoutExtension(file), file)));
+		}
+
+		// basicQuickMap.putValue(Action.ACCELERATOR_KEY,
+		// KeyStroke.getKeyStroke("ctrl shift N"));
+
+		return menu;
+	}
+
+	protected JMenu createHelpMenu() {
+		JMenu menu = I18N.createMenu("menu.help");
+		menu.add(new JMenuItem(AppActions.ADD_DEFAULT_TABLES));
+		menu.add(new JMenuItem(AppActions.RESTORE_DEFAULT_IMAGES));
+		menu.add(new JMenuItem(AppActions.SHOW_DOCUMENTATION));
+		menu.add(new JMenuItem(AppActions.SHOW_TUTORIALS));
+		menu.add(new JMenuItem(AppActions.SHOW_FORUMS));
+		menu.addSeparator();
+		menu.add(new JMenuItem(AppActions.SHOW_ABOUT));
+		return menu;
+	}
+
+	protected JMenu createZoomMenu() {
+		JMenu menu = I18N.createMenu("menu.zoom");
+		menu.add(new JMenuItem(AppActions.ZOOM_IN));
+		menu.add(new JMenuItem(AppActions.ZOOM_OUT));
+		menu.add(new JMenuItem(AppActions.ZOOM_RESET));
+
+		return menu;
+	}
+
+	protected JMenu createWindowMenu() {
+		JMenu menu = I18N.createMenu("menu.window");
+
+		menu.add(new AbstractAction() {
+			{
+				putValue(Action.NAME, I18N.getText("msg.info.restoreLayout"));
+			}
+
+			public void actionPerformed(ActionEvent e) {
+				MapTool.getFrame().getDockingManager().resetToDefault();
+
+			}
+		});
+
+		menu.addSeparator();
+
+		for (MTFrame frame : MapToolFrame.MTFrame.values()) {
+			JMenuItem menuItem = new RPCheckBoxMenuItem(new AppActions.ToggleWindowAction(frame));
+			menu.add(menuItem);
+		}
+
+		menu.addSeparator();
+		menu.add(new JMenuItem(AppActions.SHOW_TRANSFER_WINDOW));
+
+		return menu;
+	}
+
+	protected JMenu createRecentCampaignMenu() {
+		mruManager = new MRUCampaignManager(new JMenu(AppActions.MRU_LIST));
+		return mruManager.getMRUMenu();
+	}
+
+	public static MRUCampaignManager getMruManager() {
+		return mruManager;
+	}
 }

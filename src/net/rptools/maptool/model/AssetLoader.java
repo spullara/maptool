@@ -15,12 +15,15 @@ package net.rptools.maptool.model;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -53,10 +56,8 @@ public class AssetLoader {
 	private Map<String, RepoState> repositoryStateMap = new HashMap<String, RepoState>();
 	
 	public synchronized void addRepository(String repository) {
-		
 		// Assume active, unless we find otherwise during setup
 		repositoryStateMap.put(repository, RepoState.ACTIVE);
-		
 		repositoryMap.put(repository, getIndexMap(repository));
 	}
 
@@ -73,8 +74,41 @@ public class AssetLoader {
 	public synchronized boolean isIdRequested(MD5Key id) {
 		return requestedIdSet.contains(id);
 	}
-	
+
+	/**
+	 * <p>
+	 * This method returns the mapping from MD5Key to asset name on the server for
+	 * the given repository.
+	 * </p>
+	 * <p>
+	 * The return value is an immutable mapping so as
+	 * to prevent any chance of the mapping being corrupted by the caller.
+	 * </p>
+	 * @param repo the name of the repository, probably from the campaign properties
+	 * @return an immutable <code>Map&lt;String, String></code>
+	 */
+	public Map<String, String> getRepositoryMap(String repo) {
+		return repositoryMap.get(repo);
+	}
+
+	/**
+	 * <p>
+	 * This method extracts an asset map from the given repository.
+	 * </p>
+	 * <p>
+	 * It starts by checking to see if the repository index is already in the cache.  If not, it
+	 * makes a network connection and grabs it, calling
+	 * {@link #storeIndexFile(String, byte[])} to store it into the cache.
+	 * </p>
+	 * <p>
+	 * Once the index file has been located, {@link #parseIndex(List)} is called to convert
+	 * the text file into a <code>Map&lt;String, Sting></code> for the return value.
+	 * </p>
+	 * @param repository
+	 * @return
+	 */
 	protected Map<String, String> getIndexMap(String repository) {
+		RepoState status = RepoState.ACTIVE;
 		Map<String, String> indexMap = new HashMap<String, String>();
 		try {
 			byte[] index = null;
@@ -85,24 +119,23 @@ public class AssetLoader {
 			} else {
 				index = FileUtil.loadFile(getRepoIndexFile(repository));
 			}
-			
 			indexMap = parseIndex(decode(index));
 		} catch (MalformedURLException e) {
-			System.out.println("Invalid repository: " + repository);
-			repositoryStateMap.put(repository, RepoState.BAD_URL);
+			System.out.println("Invalid repository URL: " + repository);
+			status = RepoState.BAD_URL;
 		} catch (IOException e) {
-			System.out.println("Could not retrieve index for '" + repository + "': " + e);
-			repositoryStateMap.put(repository, RepoState.UNAVAILABLE);
+			System.out.println("I/O error retrieving/saving index for '" + repository + "': " + e);
+			status = RepoState.UNAVAILABLE;
 		} catch (Throwable t) {
 			System.out.println("Could not retrieve index for '" + repository + "': " + t);
-			repositoryStateMap.put(repository, RepoState.UNAVAILABLE);
+			t.printStackTrace();
+			status = RepoState.UNAVAILABLE;
 		}
-
+		repositoryStateMap.put(repository, status);
 		return indexMap;
 	}
 	
 	protected List<String> decode(byte[] indexData) throws IOException {
-		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new ByteArrayInputStream(indexData))));
 
 		List<String> list = new ArrayList<String>();
@@ -111,27 +144,41 @@ public class AssetLoader {
 		while ((line = reader.readLine()) != null) {
 			list.add(line);
 		}
-		
 		return list;
 	}
 
 	protected Map<String, String> parseIndex(List<String> index) {
-		
 		Map<String, String> idxMap = new HashMap<String, String>();
 		
 		for (String line : index) {
-			
 			String id = line.substring(0, 32);
 			String ref = line.substring(33).trim();
 			
 			idxMap.put(id, ref);
 		}
-		
 		return idxMap;
+	}
+
+	/**
+	 * <p>
+	 * Converts the specified repository of assets into an index file that can be uploaded
+	 * and used as the <b>index.gz</b> (after being compressed, of course).
+	 * </p>
+	 * @param repository
+	 * @return
+	 */
+	protected byte[] createIndexFile(String repository) {
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		PrintWriter pw = new PrintWriter(bout);
+		Map<String, String> assets = repositoryMap.get(repository);
+		for (String asset : assets.keySet()) {
+			pw.println(asset + " " + assets.get(asset));
+		}
+		pw.close();
+		return bout.toByteArray();
 	}
 	
 	protected void storeIndexFile(String repository, byte[] data) throws IOException {
-		
 		File file = getRepoIndexFile(repository);
 		FileUtil.writeBytes(file, data);
 	}
@@ -142,7 +189,7 @@ public class AssetLoader {
 	}
 	
 	protected File getRepoIndexFile(String repository) {
-		return new File(REPO_CACHE_DIR.getAbsolutePath() + "/" +  new MD5Key(repository.getBytes()));
+		return new File(REPO_CACHE_DIR.getAbsolutePath() + "/" + new MD5Key(repository.getBytes()));
 	}
 	
 	public synchronized void requestAsset(MD5Key id) {
@@ -155,17 +202,14 @@ public class AssetLoader {
 	}
 	
 	protected List<String> createRequestQueue(MD5Key id) {
-		
 		List<String> requestList = new LinkedList<String>();
 		for (java.util.Map.Entry<String, Map<String, String>> entry : repositoryMap.entrySet()) {
 			
 			String repo = entry.getKey();
 			if (repositoryStateMap.get(repo) == RepoState.ACTIVE && entry.getValue().containsKey(id.toString())) {
-				
 				requestList.add(repo);
 			}
 		}
-		
 		return requestList;
 	}
 
@@ -179,7 +223,6 @@ public class AssetLoader {
 		}
 		
 		public void run() {
-			
 			while (repositoryQueue.size() > 0) {
 				
 				String repo = repositoryQueue.remove(0);
@@ -210,7 +253,9 @@ public class AssetLoader {
 					MD5Key sum = new MD5Key(data);
 					if (!sum.equals(id)) {
 						// Bad file
-						System.err.println("Downloaded invalid file from: " + repo);
+						// TODO: Does this mean it's time to update our cache of the index.gz?
+						// (See hasCurrentIndexFile() for the comment there.)
+						System.err.println("Downloaded invalid file from: " + path);
 						
 						// Try a different repo
 						continue;
@@ -244,12 +289,4 @@ public class AssetLoader {
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
-		
-		AssetLoader al = new AssetLoader();
-		
-		al.addRepository("http://rptools.net/image-indexes/gallery.rpax.gz");
-		al.requestAsset(new MD5Key("45b26ca00bccee6156c436bbd4c865df"));
-		
-	}
 }

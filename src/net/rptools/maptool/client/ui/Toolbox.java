@@ -20,13 +20,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.ButtonGroup;
-import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
-
 
 /**
  */
@@ -35,17 +33,17 @@ public class Toolbox {
 	private ZoneRenderer currentRenderer;
 
 	private Tool currentTool;
-	
+
 	private Map<Class, Tool> toolMap = new HashMap<Class, Tool>();
-	
+
 	private ButtonGroup buttonGroup = new ButtonGroup();
-	
+
 	public void updateTools() {
 		for (Tool tool : toolMap.values()) {
 			tool.setEnabled(tool.isAvailable());
 		}
 	}
-	
+
 	public void setSelectedTool(Class toolClass) {
 		Tool tool = toolMap.get(toolClass);
 		if (tool != null && tool.isAvailable()) {
@@ -53,55 +51,56 @@ public class Toolbox {
 			setSelectedTool(tool);
 		}
 	}
-	
+
 	public Tool getSelectedTool() {
 		return currentTool;
 	}
-	
+
 	public Tool getTool(Class toolClass) {
 		return toolMap.get(toolClass);
 	}
-	
+
 	public Tool createTool(Class toolClass) {
-		
+
 		Tool tool;
 		try {
-			Constructor constructor = toolClass.getDeclaredConstructor(new Class[]{});
-			tool = (Tool) constructor.newInstance(new Object[]{});
-			
+			Constructor constructor = toolClass.getDeclaredConstructor(new Class[] {});
+			tool = (Tool) constructor.newInstance(new Object[] {});
+
 			buttonGroup.add(tool);
 			toolMap.put(toolClass, tool);
 			tool.setToolbox(this);
 		} catch (InstantiationException e) {
 			e.printStackTrace();
-			MapTool.showError("Could not instantiate tool class: " + toolClass);
+			MapTool.showError(I18N.getText("msg.error.toolCannotInstantiate", toolClass.getName()));
 			return null;
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
-			MapTool.showError("Constructor must be public for tool: " + toolClass);
+			MapTool.showError(I18N.getText("msg.error.toolNeedPublicConstructor", toolClass.getName()));
 			return null;
 		} catch (NoSuchMethodException nsme) {
 			nsme.printStackTrace();
-			MapTool.showError("Constructor must have a public constructor with a Toolbox argument for tool: " + toolClass);
+			MapTool.showError(I18N.getText("msg.error.toolNeedValidConstructor", toolClass.getName()));
 			return null;
 		} catch (InvocationTargetException ite) {
 			ite.printStackTrace();
-			MapTool.showError("Failed in constructor of tool: " + toolClass + " - " + ite);
+			MapTool.showError(I18N.getText("msg.error.toolConstructorFailed", toolClass.getName()));
 			return null;
 		}
-		
+
 		return tool;
 	}
-	
+
 	public void setTargetRenderer(final ZoneRenderer renderer) {
 
-		// Need to be synchronous with the timing of the invokes within this method
+		// Need to be synchronous with the timing of the invokes within this
+		// method
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				final Tool oldTool = currentTool;
-				
+
 				// Disconnect the current tool from the current renderer
-				setSelectedTool((Tool)null);
+				setSelectedTool((Tool) null);
 
 				// Update the renderer
 				EventQueue.invokeLater(new Runnable() {
@@ -109,15 +108,15 @@ public class Toolbox {
 						currentRenderer = renderer;
 					}
 				});
-				
+
 				// Attach the old tool to the new renderer
 				setSelectedTool(oldTool);
 			}
 		});
 	}
-	
+
 	public void setSelectedTool(final Tool tool) {
-		
+
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				if (tool == currentTool) {
@@ -125,32 +124,32 @@ public class Toolbox {
 				}
 
 				if (currentTool != null) {
-                    if (currentRenderer != null) {
-    					currentTool.removeListeners(currentRenderer);
-    					currentTool.detachFrom(currentRenderer);
-                        
-            			if (currentTool instanceof ZoneOverlay) {
-            				currentRenderer.removeOverlay((ZoneOverlay)currentTool);
-            			}
-                    }
+					if (currentRenderer != null) {
+						currentTool.removeListeners(currentRenderer);
+						currentTool.detachFrom(currentRenderer);
+
+						if (currentTool instanceof ZoneOverlay) {
+							currentRenderer.removeOverlay((ZoneOverlay) currentTool);
+						}
+					}
 				}
 
 				// Update
 				currentTool = tool;
-				
+
 				if (currentTool != null) {
-                    if (currentRenderer != null) {
-    					currentTool.addListeners(currentRenderer);
-    					currentTool.attachTo(currentRenderer);
-    					
-            			if (currentTool instanceof ZoneOverlay) {
-            				currentRenderer.addOverlay((ZoneOverlay) currentTool);
-            			}
-                    }
-                    
-                    if (MapTool.getFrame() != null) {
-                    	MapTool.getFrame().setStatusMessage(I18N.getText(currentTool.getInstructions()));
-                    }
+					if (currentRenderer != null) {
+						currentTool.addListeners(currentRenderer);
+						currentTool.attachTo(currentRenderer);
+
+						if (currentTool instanceof ZoneOverlay) {
+							currentRenderer.addOverlay((ZoneOverlay) currentTool);
+						}
+					}
+
+					if (MapTool.getFrame() != null) {
+						MapTool.getFrame().setStatusMessage(currentTool.getInstructions());
+					}
 				}
 			}
 		});

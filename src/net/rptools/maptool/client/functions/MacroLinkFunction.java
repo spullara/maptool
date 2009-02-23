@@ -125,6 +125,24 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	}
 
+	/**
+	 * <p>
+	 * This method generates a string in the form of a macro invocation.</p>
+	 * <p>
+	 * The resulting output is of the form
+	 * <code>macro://</code><i>macroName</i><code>/</code><i>who</i>
+	 * <code>/</code><i>target</i><code>?</code><i>args</i>
+	 * </p>
+	 * <p>The <code>args</code> parameter is a String which is converted
+	 * to a property list and then back to a String.</p>
+	 * 
+	 * @param macroName such as <code>MacroName@Lib:Core</code>
+	 * @param who where output should go
+	 * @param target the string <code>impersonated</code>, <code>all</code>
+	 * @param args
+	 * @return
+	 * @throws ParserException
+	 */
 	public String createMacroText(String macroName, String who, String target,
 			String args) throws ParserException {
 		if (macroName.toLowerCase().endsWith("@this")) {

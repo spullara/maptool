@@ -31,14 +31,14 @@ public class AppConfiguration {
 	}
 	
 	public String getHelpURL() {
-		return props.getProperty("helpURL", "http://rptools.net");
+		return props.getProperty("helpURL", "http://www.rptools.net/");
 	}
 	
 	public String getTutorialsURL() {
-		return props.getProperty("tutorialsURL", "http://rptools.net");
+		return props.getProperty("tutorialsURL", "http://www.rptools.net/");
 	}
 	
 	public String getForumURL() {
-		return props.getProperty("forumsURL", "http://forums.rptools.net");
+		return props.getProperty("forumsURL", "http://forums.rptools.net/");
 	}
 }

@@ -22,56 +22,55 @@ import java.util.List;
 public class AnimationManager {
 
 	private static List<Animatable> animatableList = new ArrayList<Animatable>();
-	
+
 	private static List<Animatable> removeList = new ArrayList<Animatable>();
 	private static List<Animatable> addList = new ArrayList<Animatable>();
-	
+
 	private static int delay = 200;
-	
+
 	static {
 		new AnimThread().start();
 	}
-	
+
 	public static void addAnimatable(Animatable animatable) {
 
-		synchronized(animatableList) {
+		synchronized (animatableList) {
 			if (!animatableList.contains(animatable)) {
 				addList.add(animatable);
 			}
 		}
 	}
-	
+
 	public static void removeAnimatable(Animatable animatable) {
-		
-		synchronized(animatableList) {
+
+		synchronized (animatableList) {
 			removeList.remove(animatable);
 		}
 	}
-	
+
 	private static class AnimThread extends Thread {
-		
+
 		public void run() {
-			
+
 			while (true) {
-				
+
 				if (animatableList.size() > 0) {
-					
+
 				}
-				
+
 				synchronized (animatableList) {
-					
+
 					animatableList.addAll(addList);
 					addList.clear();
 
 					for (Animatable animatable : animatableList) {
-						
 						animatable.animate();
 					}
-					
+
 					animatableList.removeAll(removeList);
 					removeList.clear();
 				}
-				
+
 				try {
 					Thread.sleep(delay);
 				} catch (InterruptedException ie) {

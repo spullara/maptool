@@ -28,10 +28,14 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.util.ImageManager;
 
+import org.apache.log4j.Logger;
+
 public class LookupTableImagePanelModel implements ImagePanelModel {
+
+	private static final Logger log = Logger.getLogger(LookupTableImagePanelModel.class);
 	
 	private ImageObserver[] imageObservers;
-	
+
 	public LookupTableImagePanelModel(ImageObserver... observers) {
 		imageObservers = observers;
 	}
@@ -48,7 +52,7 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 		if (index < 0) {
 			return null;
 		}
-		
+
 		return getLookupTableIDList().get(index);
 	}
 
@@ -56,14 +60,15 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 
 		LookupTable table = MapTool.getCampaign().getLookupTableMap().get(id);
 		if (table == null) {
+			log.debug("LookupTableImagePanelModel.getImage(" + id + ":  not resolved");
 			return ImageManager.BROKEN_IMAGE;
 		}
-		
+
 		Image image = AppStyle.lookupTableDefaultImage;
 		if (table.getTableImage() != null) {
 			image = ImageManager.getImage(AssetManager.getAsset(table.getTableImage()), imageObservers);
 		}
-		
+
 		return image;
 	}
 
@@ -77,7 +82,7 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 		}
 
 		LookupTable table = MapTool.getCampaign().getLookupTableMap().get(getID(index));
-		
+
 		return table.getName();
 	}
 
@@ -88,7 +93,7 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 	public Image[] getDecorations(int arg0) {
 		return null;
 	}
-	
+
 	private List<String> getLookupTableIDList() {
 		List<String> idList = new ArrayList<String>(MapTool.getCampaign().getLookupTableMap().keySet());
 		Collections.sort(idList);

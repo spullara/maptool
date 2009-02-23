@@ -13,18 +13,12 @@
  */
 package net.rptools.maptool.client.tool.drawing;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.KeyStroke;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.Pen;
@@ -41,22 +35,7 @@ public class DrawableUndoManager {
    * Swing's undo/redo support
    */
   private UndoManager manager = new UndoManager();
-  
-  /**
-   * The command used to undo on menus, etc.
-   */
-  private UndoCommand undoCommand;
-
-  /**
-   * The command used to redo on menus, etc.
-   */
-  private RedoCommand redoCommand;
-  
-  /**
-   * The command used to clear all drawings on the menus.
-   */
-  private ClearCommand clearCommand;
-  
+    
   /**
    * The one and only undo manager
    */
@@ -71,8 +50,8 @@ public class DrawableUndoManager {
    */
   public void addDrawable(GUID zoneId, Pen pen, Drawable drawable) {
     manager.addEdit(new DrawableUndoableEdit(zoneId, pen, drawable));
-    undoCommand.updateState();
-    redoCommand.updateState();
+    net.rptools.maptool.client.AppActions.UNDO_DRAWING.isAvailable();
+    net.rptools.maptool.client.AppActions.REDO_DRAWING.isAvailable();
   }
   
   /**
@@ -90,37 +69,9 @@ public class DrawableUndoManager {
     if (!manager.canRedo()) return;
     manager.redo();
   }
-  
-  /**
-   * Lazy creation of undo command.
-   * 
-   * @return The one and only undo command
-   */
-  public UndoCommand getUndoCommand() {
-    if (undoCommand == null) {
-      undoCommand = new UndoCommand();
-    }
-    return undoCommand;
-  }
-
-  /**
-   * Lazy creation of redo command.
-   * 
-   * @return The one and only redo command
-   */
-  public RedoCommand getRedoCommand() {
-    if (redoCommand == null) {
-      redoCommand = new RedoCommand();
-    }
-    return redoCommand;
-  }
-  
-  public ClearCommand getClearCommand() {
-	  if (clearCommand == null) {
-		  clearCommand = new ClearCommand();
-	  }
-	  
-	  return clearCommand;
+    
+  public UndoManager getUndoManager() {
+	  return manager;
   }
 
   /**
@@ -182,98 +133,6 @@ public class DrawableUndoManager {
       // Render the drawable again, but don't add it to the undo manager.
       MapTool.serverCommand().draw(zoneId, pen, drawable);
     }
-  }
-
-  /**
-   * Command to use when creating an undo draw menu item or button.
-   */
-  private class UndoCommand extends AbstractAction {
-    
-    /**
-     * Set the common properties
-     */
-    public UndoCommand() {
-      putValue(NAME, "Undo Drawing");
-      putValue(MNEMONIC_KEY, new Integer(KeyEvent.VK_U));
-      putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke("ctrl Z"));
-      updateState();
-    }
-    
-    /**
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e) {
-      singletonInstance.undo();
-      updateState();
-	  redoCommand.updateState();
-    }
-    
-    /**
-     * Change the enabled state to match the undo manager.
-     */
-    public void updateState() {
-      setEnabled(singletonInstance.manager.canUndo());
-    }
-  }
-
-  
-  /**
-   * Command to use when creating an redo draw menu item or button.
-   * 
-   * @author jgorrell
-   * @version $Revision$ $Date$ $Author$
-   */
-  private class RedoCommand extends AbstractAction {
-    
-    /**
-     * Set the common properties
-     */
-    public RedoCommand() {
-      putValue(NAME, "Redo Drawing");
-      putValue(MNEMONIC_KEY, new Integer(KeyEvent.VK_R));
-      putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke("ctrl Y"));
-      updateState();
-    }
-
-    /**
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e) {
-      singletonInstance.redo();
-      updateState();
-	  undoCommand.updateState();
-    }
-
-    /**
-     * Change the enabled state to match the undo manager.
-     */
-    public void updateState() {
-      setEnabled(singletonInstance.manager.canRedo());
-    }
-  }
-  
-  private class ClearCommand extends AbstractAction {
-	  public ClearCommand() {
-		  putValue(NAME, "Clear All Drawings");
-		  putValue(MNEMONIC_KEY, KeyEvent.VK_C);
-		  putValue(ACCELERATOR_KEY, KeyStroke.getAWTKeyStroke("ctrl shift D"));
-	  }
-
-	public void actionPerformed(ActionEvent arg0) {
-		
-		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-		if (renderer == null) {
-			return;
-		}
-		
-		if (!MapTool.confirm("msg.confirm.clearAllDrawings")) {
-			return;
-		}
-		
-		// LATER: Integrate this with the undo stuff
-		MapTool.serverCommand().clearAllDrawings(renderer.getZone().getId());
-	}
-	
   }
   
   /**

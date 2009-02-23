@@ -22,10 +22,10 @@ import net.tsc.servicediscovery.ServiceGroup;
 
 public class AppConstants {
 
-    public static final String APP_NAME = "MapTool";
+	public static final String APP_NAME = "MapTool";
 
-    public static final File UNZIP_DIR = AppUtil.getAppHome("resource");
- 
+	public static final File UNZIP_DIR = AppUtil.getAppHome("resource");
+
 	public static final ServiceGroup SERVICE_GROUP = new ServiceGroup("maptool");
 
 	public static final ImageBorder GRAY_BORDER = new ImageBorder("net/rptools/maptool/client/image/border/gray");
@@ -33,21 +33,23 @@ public class AppConstants {
 	public static final ImageBorder HIGHLIGHT_BORDER = new ImageBorder("net/rptools/maptool/client/image/border/highlight");
 
 	public static final int NOTE_PORTRAIT_SIZE = 200;
-	
+
 	public static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {
-        public boolean accept(File dir,String name) {
-            name = name.toLowerCase();
-            return name.endsWith(".bmp") ||
-                    name.endsWith(".png") ||
-                    name.endsWith(".jpg") ||
-                    name.endsWith(".jpeg") ||
-                    name.endsWith(".gif") ||
-                    
-                    // RPTools Token format
-                    name.endsWith(Token.FILE_EXTENSION)
-                    ;
-        }
-    };
-	
+		public boolean accept(File dir, String name) {
+			name = name.toLowerCase();
+			return name.endsWith(".bmp") || 
+					name.endsWith(".png") || 
+					name.endsWith(".jpg") || 
+					name.endsWith(".jpeg") || 
+					name.endsWith(".gif") ||
+
+					// RPTools Token format
+					name.endsWith(Token.FILE_EXTENSION);
+		}
+	};
+
 	public static final String CAMPAIGN_FILE_EXTENSION = ".cmpgn";
+	public static final String MAP_FILE_EXTENSION = ".rpmap";
+	public static final String MACRO_FILE_EXTENSION = ".mtmacro";
+	public static final String MACROSET_FILE_EXTENSION = ".mtmacset";
 }
