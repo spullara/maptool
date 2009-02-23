@@ -238,7 +238,7 @@ public class FindTokenFunctions extends AbstractFunction {
 			findType = FindType.VISIBLE;
 			delim = parameters.size() > 0 ? parameters.get(0).toString() : delim;		
 		} else {
-			return null;
+			throw new ParserException("Unknown function");
 		}
 		 
 		if (functionName.endsWith("Name") ||  functionName.endsWith("Names")) {
@@ -483,7 +483,9 @@ public class FindTokenFunctions extends AbstractFunction {
 				tokenList = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList();
 				break;
 			case CURRENT:
-				tokenList.add(((MapToolVariableResolver) parser.getVariableResolver()).getTokenInContext());
+				if (((MapToolVariableResolver) parser.getVariableResolver()).getTokenInContext() != null) {
+					tokenList.add(((MapToolVariableResolver) parser.getVariableResolver()).getTokenInContext());
+				}
 				break;
 			case IMPERSONATED:
 				String identity = MapTool.getFrame().getCommandPanel().getIdentity();

@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Enumeration;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -121,13 +122,17 @@ public class HTMLPane extends JEditorPane {
 		HTMLDocument document = (HTMLDocument)getDocument();
 		
 		StyleSheet style = document.getStyleSheet();
-		style.addRule("body { font-family: sans-serif; font-size: " + AppPreferences.getFontSize() + "pt; background: #ECE9D8}");
-		style.addRule("div {margin-bottom: 5px}");
-		style.addRule("span.roll {background:#efefef}");
 
 	    HTMLEditorKit.Parser parse = editorKit.getParser();
 	    try {
 	    	super.setText("");
+			Enumeration snames = style.getStyleNames();
+			while (snames.hasMoreElements()) {
+				style.removeStyle(snames.nextElement().toString());
+			}
+			style.addRule("body { font-family: sans-serif; font-size: " + AppPreferences.getFontSize() + "pt; background: #ECE9D8}");
+			style.addRule("div {margin-bottom: 5px}");
+			style.addRule("span.roll {background:#efefef}");
 			parse.parse(new StringReader(text), new ParserCallBack(), true);
 		} catch (IOException e) {
 			// Do nothing, we should not get an io exception on string
@@ -163,7 +168,11 @@ public class HTMLPane extends JEditorPane {
 			
 			this.method = method;
 			this.action = action;
-			this.data  = data;
+			if (method.equals("json")) {
+				this.data = data;
+			} else {
+				this.data = data.replace("%0A", "%20"); // String properties can not handle \n in strings.
+			}
 		}
 		
 		

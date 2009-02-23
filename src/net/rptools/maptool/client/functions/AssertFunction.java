@@ -20,7 +20,7 @@ public class AssertFunction extends AbstractFunction {
 		// Defining ourselves to be "non-deterministic" is a small hack that allows
 		// comparison operations to be passed in as arguments, due to an error (?)
 		// in InlineTreeFormatter.java.
-		super(2, 2, false, "assert");
+		super(2, 3, false, "assert");
 	}
 
 	/** The singleton instance. */
@@ -34,7 +34,11 @@ public class AssertFunction extends AbstractFunction {
 	@Override
 	public Object childEvaluate(Parser parser, String functionName,	List<Object> parameters) throws ParserException {
 		if (BigDecimal.ZERO.equals((BigDecimal) parameters.get(0))) {
-			throw new AssertFunctionException(parameters.get(1).toString());
+			if (parameters.size() > 2 && parameters.get(2).equals(BigDecimal.ZERO)) {
+				throw new AssertFunctionException(parameters.get(1).toString());				
+			} else {
+				throw new AssertFunctionException("Macro-defined error: " + parameters.get(1).toString());
+			}
 		}
 		return new BigDecimal(1);
 	}

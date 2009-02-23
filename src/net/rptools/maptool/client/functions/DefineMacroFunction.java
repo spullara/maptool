@@ -15,7 +15,7 @@ public class DefineMacroFunction extends AbstractFunction {
 	private static final DefineMacroFunction instance = new DefineMacroFunction();
 
 	private DefineMacroFunction() {
-		super(0, 2, "defineFunction", "isFunctionDefined");
+		super(0, 2, "defineFunction", "isFunctionDefined", "oldFunction");
 	}
 	
 	
@@ -28,6 +28,10 @@ public class DefineMacroFunction extends AbstractFunction {
 	public Object childEvaluate(Parser parser, String functionName,
 			List<Object> parameters) throws ParserException {
 		if (functionName.equals("defineFunction")) {
+			if (!MapTool.getParser().isMacroTrusted()) {
+				throw new ParserException("You do not have permission to call defineFunction()");
+			}
+
 			if (parameters.size() < 2) {
 				throw new ParserException("Not enough parameters for define function.");
 			}
@@ -37,11 +41,21 @@ public class DefineMacroFunction extends AbstractFunction {
 				macro = macro.substring(0, macro.length() - 4) + MapTool.getParser().getMacroSource();
 			}
 			
-			UserDefinedMacroFunctions.getInstance().defineFunction(parameters.get(0).toString(), macro);
+			UserDefinedMacroFunctions.getInstance().defineFunction(parser, parameters.get(0).toString(), macro);
 			return parameters.get(0) + "() function defined";
+		} else if (functionName.equals("oldFunction")) {
+			return UserDefinedMacroFunctions.getInstance().executeOldFunction(parser, parameters);
 		} else { // isFunctionDefined
-			return UserDefinedMacroFunctions.getInstance().isFunctionDefined(parameters.get(0).toString()) ? 
-					BigDecimal.ONE : BigDecimal.ZERO;
+			
+			if (UserDefinedMacroFunctions.getInstance().isFunctionDefined(parameters.get(0).toString())) {
+				return BigDecimal.ONE;
+			} 
+			
+			if (parser.getFunction(parameters.get(0).toString()) != null) {
+				return BigDecimal.valueOf(2);
+			}
+			
+			return BigDecimal.ZERO;
 		}
 		
 	}

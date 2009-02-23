@@ -557,7 +557,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 			return "";
 		}
 		
-		if (!toolTip.trim().startsWith("{")) {
+		if (!toolTip.trim().startsWith("{") && !toolTip.trim().startsWith("[")) {
 			return toolTip;
 		}
 		

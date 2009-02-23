@@ -51,6 +51,7 @@ import net.rptools.maptool.client.functions.StringFunctions;
 import net.rptools.maptool.client.functions.SwitchTokenFunction;
 import net.rptools.maptool.client.functions.TokenAddToInitiativeFunction;
 import net.rptools.maptool.client.functions.TokenBarFunction;
+import net.rptools.maptool.client.functions.TokenCopyDeleteFunctions;
 import net.rptools.maptool.client.functions.TokenGMNameFunction;
 import net.rptools.maptool.client.functions.TokenHaloFunction;
 import net.rptools.maptool.client.functions.TokenImage;
@@ -69,6 +70,7 @@ import net.rptools.maptool.client.functions.TokenStateFunction;
 import net.rptools.maptool.client.functions.TokenVisibleFunction;
 import net.rptools.maptool.client.functions.UserDefinedMacroFunctions;
 import net.rptools.maptool.client.functions.AbortFunction.AbortFunctionException;
+import net.rptools.maptool.client.functions.AssertFunction.AssertFunctionException;
 import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButtonPrefs;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -113,6 +115,7 @@ public class MapToolLineParser {
 		SwitchTokenFunction.getInstance(),
 		TokenAddToInitiativeFunction.getInstance(),
 		TokenBarFunction.getInstance(),
+		TokenCopyDeleteFunctions.getInstance(),
 		TokenGMNameFunction.getInstance(),
 		TokenHaloFunction.getInstance(),
 		TokenImage.getInstance(),
@@ -1218,12 +1221,14 @@ public class MapToolLineParser {
 			return  createParser(resolver, tokenInContext == null ? false : true).evaluate(expression);
 		} catch (AbortFunctionException e) {
 			throw e;
+		} catch (AssertFunctionException afe) {
+			throw afe;
 		} catch (Exception e) {
 
 			if (e.getCause() instanceof ParserException) {
 				throw (ParserException) e.getCause();
 			}
-			throw new ParserException(e.getLocalizedMessage() + " error executing expression: " +  expression);
+			throw new ParserException(e.toString() + " error executing expression: " +  expression);
 		}
 		finally {
 			parserRecurseDepth--;

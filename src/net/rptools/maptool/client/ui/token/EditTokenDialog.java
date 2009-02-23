@@ -435,6 +435,12 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 				token.addOwner((String) selectable.getObject());
 			}
 		}
+		
+		// If we are not a GM and the only owner make sure we can't take our selves off of the owners list
+		if (!MapTool.getPlayer().isGM()) {
+			if (token.getOwners() == null || token.getOwners().size() == 0)
+			token.addOwner(MapTool.getPlayer().getName());
+		}
 
 		// SHAPE
 		token.setShape((Token.TokenShape)getShapeCombo().getSelectedItem());

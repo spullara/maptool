@@ -48,7 +48,7 @@ public class MacroArgsFunctions extends AbstractFunction {
 		}
 
 		if (argNo < 0 || argNo >= argCount) {
-			throw new ParserException("args(): Argument index out of range " + argNo + " (max = " + argCount+ ")");
+			throw new ParserException("arg(): Argument index out of range " + argNo + " (max = " + (argCount-1)+ ")");
 		}
 		
 		return parser.getVariable("macro.args." + argNo);

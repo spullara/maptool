@@ -81,7 +81,7 @@ public class MacroFunctions extends AbstractFunction {
 	 * @return the properties.
 	 * @throws ParserException if an error occurs.
 	 */
-	public String getMacroButtonProps(Token token, int index, String delim) throws ParserException {
+	public Object getMacroButtonProps(Token token, int index, String delim) throws ParserException {
  		MacroButtonProperties mbp = token.getMacro(index, !MapTool.getParser().isMacroTrusted());
  		if (mbp == null) {
  			throw new ParserException("No macro at index "+ index);
@@ -101,7 +101,38 @@ public class MacroFunctions extends AbstractFunction {
  			props.put("minWidth", mbp.getMinWidth());
  			props.put("playerEditable", mbp.getAllowPlayerEdits());
  			props.put("command", mbp.getCommand());
- 			return JSONObject.fromObject(props).toString();
+ 			props.put("maxWith", mbp.getMaxWidth());
+ 			if (mbp.getToolTip() != null) {
+ 				props.put("tooltip", mbp.getToolTip());
+ 			} else {
+ 				props.put("tooltip", "");
+ 			}
+ 			props.put("applyToSelected", mbp.getApplyToTokens());
+ 			
+ 			JSONArray compare = new JSONArray();
+ 			
+			if (mbp.getCompareGroup()) {
+				compare.add("group");
+			}
+			if (mbp.getCompareSortPrefix()) {
+				compare.add("sortPrefix");
+			}
+			if (mbp.getCompareCommand()) {
+				compare.add("command");
+			}
+			if (mbp.getCompareIncludeLabel()) {
+				compare.add("includeLabel");
+			}
+			if (mbp.getCompareAutoExecute()) {
+				compare.add("autoExecute");
+			}
+			if (mbp.getCompareApplyToSelectedTokens()) {
+				compare.add("applyToSelected");
+			}
+ 			
+			props.put("compare", compare);
+			
+ 			return JSONObject.fromObject(props);
  		} else {
  			StringBuilder sb = new StringBuilder();
  			sb.append("autoExecute=").append(mbp.getAutoExecute()).append(delim);
@@ -115,6 +146,13 @@ public class MacroFunctions extends AbstractFunction {
  			sb.append("fontSize=").append(mbp.getFontSize()).append(delim);
  			sb.append("minWidth=").append(mbp.getMinWidth()).append(delim);
  			sb.append("playerEditable=").append(mbp.getAllowPlayerEdits()).append(delim);
+ 			sb.append("maxWidth=").append(mbp.getMaxWidth()).append(delim);
+ 			if (mbp.getToolTip() != null) {
+ 				sb.append("tooltip=").append(mbp.getToolTip()).append(delim);
+ 			} else {
+ 				sb.append("tooltip=").append("").append(delim);
+ 			}
+ 			sb.append("applyToSelected=").append(mbp.getApplyToTokens()).append(delim);
  			return sb.toString();
  		}
 	}
@@ -128,6 +166,10 @@ public class MacroFunctions extends AbstractFunction {
 	 */
 	public void setMacroProps(MacroButtonProperties mbp, String propString, String delim) throws ParserException {
 		JSONObject jobj;
+		
+		// This should default to false for token buttons.
+		mbp.setApplyToTokens(false);
+		
 		if (propString.trim().startsWith("{")) {
 			// We are either a JSON string or an illegal string.
 			jobj = JSONObject.fromObject(propString);
@@ -170,10 +212,49 @@ public class MacroFunctions extends AbstractFunction {
  				mbp.setFontSize(value);
  			} else if ("minWidth".equalsIgnoreCase(key)) {
  				mbp.setMinWidth(value);
+ 			} else if ("maxWidth".equalsIgnoreCase(key)) {
+ 				mbp.setMaxWidth(value);
  			} else if ("playerEditable".equalsIgnoreCase(key)) {
+ 				if (!MapTool.getParser().isMacroTrusted()) {
+ 					throw new ParserException("setMacroProps(): You do not have permission to change player editable status");
+ 				}
  				mbp.setAllowPlayerEdits(boolVal(value));
  			} else if ("command".equals(key)) {
  				mbp.setCommand(value);
+ 			} else if ("tooltip".equalsIgnoreCase(key)) {
+ 				if (value.trim().length() == 0) {
+ 					mbp.setToolTip(null);
+ 				} else {
+ 					mbp.setToolTip(value);
+ 				}
+ 			} else if ("applyToSelected".equalsIgnoreCase(key)) {
+ 				mbp.setApplyToTokens(boolVal(value));
+ 			} else if ("compare".equalsIgnoreCase(key)) {
+ 				JSONArray compareArray = jobj.getJSONArray("compare");
+ 				// First set everything to false as script will specify what is compared
+				mbp.setCompareGroup(false);
+				mbp.setCompareSortPrefix(false);
+				mbp.setCompareCommand(false);
+				mbp.setCompareIncludeLabel(false);
+				mbp.setCompareAutoExecute(false);
+				mbp.setCompareApplyToSelectedTokens(false);
+
+ 				for (Object co : compareArray) {
+ 					String comp = co.toString();
+ 					if (comp.equalsIgnoreCase("group")) {
+ 						mbp.setCompareGroup(true);
+ 					} else if (comp.equalsIgnoreCase("sortPrefix")) {
+ 						mbp.setCompareSortPrefix(true); 						
+ 					} else if (comp.equalsIgnoreCase("command")) {
+ 						mbp.setCompareCommand(true);
+ 					} else if (comp.equalsIgnoreCase("includeLabel")) {
+ 						mbp.setCompareIncludeLabel(true);
+ 					} else if (comp.equalsIgnoreCase("autoExecute")) {
+ 						mbp.setCompareAutoExecute(true);
+ 					} else if (comp.equalsIgnoreCase("applyToSelected")) {
+ 						mbp.setCompareApplyToSelectedTokens(true); 						
+ 					}
+ 				}
  			}
 		}
 	}
@@ -189,7 +270,7 @@ public class MacroFunctions extends AbstractFunction {
 		} 
 		
 		if ("false".equalsIgnoreCase(val)) {
-			return true;
+			return false;
 		}
 
 		try {
@@ -294,7 +375,7 @@ public class MacroFunctions extends AbstractFunction {
 	 * @return The properties for the button.
 	 * @throws ParserException if an error occurs.
 	 */
-	private String getMacroProps(MapToolVariableResolver resolver, List<Object> param) throws ParserException {
+	private Object getMacroProps(MapToolVariableResolver resolver, List<Object> param) throws ParserException {
 		Token token;
 		String delim;
 				

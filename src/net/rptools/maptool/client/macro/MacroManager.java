@@ -240,7 +240,7 @@ public class MacroManager {
 			// Do nothing, just silently exit
 			return;
 		} catch (AssertFunction.AssertFunctionException afe) {
-			MapTool.addLocalMessage("Macro-defined error: " + afe.getMessage());
+			MapTool.addLocalMessage(afe.getMessage());
 			return;
 		} catch (ParserException e) {
 			MapTool.addLocalMessage(e.getMessage());

@@ -1335,14 +1335,18 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		c.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).clear();
 		Map<KeyStroke, MacroButton> keyStrokeMap = MacroButtonHotKeyManager.getKeyStrokeMap();
 
+		if (c.getActionMap().keys() != null) {
+			for (Object o : c.getActionMap().keys()) {
+				if (o instanceof MacroButton) {
+					c.getActionMap().remove(o);
+				}
+			}
+		}
+		
 		for (KeyStroke keyStroke : keyStrokeMap.keySet()) {
 			final MacroButton button = keyStrokeMap.get(keyStroke);
 			c.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, button);
-			c.getActionMap().put(button, new AbstractAction() {
-				public void actionPerformed(ActionEvent event) {
-					button.getProperties().executeMacro();
-				}
-			});
+			c.getActionMap().put(button, new MTButtonHotKeyAction(button));
 		}
 	}
 
@@ -1467,4 +1471,20 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		return loadTableFileChooser;
 	}
 	// end of Table import/export support
+
+	@SuppressWarnings("serial")
+	private static class MTButtonHotKeyAction extends AbstractAction {
+
+		private final MacroButton macroButton;
+	
+		public MTButtonHotKeyAction(MacroButton button) {
+			macroButton = button;
+		}
+		 
+		public void actionPerformed(ActionEvent e) {
+			macroButton.getProperties().executeMacro();
+		}
+		
+	}
 }
+

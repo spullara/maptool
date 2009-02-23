@@ -193,7 +193,20 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			}			
 			Token token = getTokenFromParam(resolver, "getRawProperty", parameters, 1);
 			Object val = token.getProperty(parameters.get(0).toString());			
-			return val == null ? "" : val;
+			if (val == null) {
+				return "";
+			}
+			
+			if (val instanceof String) {
+				// try to convert to a number
+				try {
+					return new BigDecimal(val.toString());
+				} catch (Exception e) {
+					return val;
+				}
+			} else {
+				return val;
+			}
 		}
 		
 
@@ -202,7 +215,20 @@ public class TokenPropertyFunctions extends AbstractFunction {
 				throw new ParserException("Not enough parameters for getProperty(name)");
 			}			
 			Token token = getTokenFromParam(resolver, "getProperty", parameters, 1);
-			return token.getEvaluatedProperty(parameters.get(0).toString());
+			Object val =  token.getEvaluatedProperty(parameters.get(0).toString());
+			
+			
+			if (val instanceof String) {
+				// try to convert to a number
+				try {
+					return new BigDecimal(val.toString());
+				} catch (Exception e) {
+					return val;
+				}
+			} else {
+				return val;
+			}
+			
 		}
 		
 		
@@ -223,17 +249,32 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			Token token = resolver.getTokenInContext();
 			String name = parameters.get(0).toString();
 			
+			Object val = null;
+			
 			List<TokenProperty> propertyList = MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(token.getPropertyType()); 
 			if (propertyList != null) {
 				for (TokenProperty property : propertyList) {
 					if (name.equalsIgnoreCase(property.getName()) || name.equalsIgnoreCase(property.getShortName())) {
-						Object val = property.getDefaultValue();
-						return val == null ? "" : val;
+						val = property.getDefaultValue();
+						break;
 					}
 				}
 			}
 
-			return "";
+			if (val == null) {
+				return "";
+			}
+			
+			if (val instanceof String) {
+				// try to convert to a number
+				try {
+					return new BigDecimal(val.toString());
+				} catch (Exception e) {
+					return val;
+				}
+			} else {
+				return val;
+			}
 		}
 		
 		

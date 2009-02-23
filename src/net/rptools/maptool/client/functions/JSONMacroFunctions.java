@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -165,6 +166,9 @@ public class JSONMacroFunctions extends AbstractFunction {
 		}
 		
 		if (functionName.equals("json.evaluate")) {
+			if (!MapTool.getParser().isMacroTrusted()) {
+				throw new ParserException("You do not have permission to execute json.evaluate()");
+			}
 			Object j = asJSON(parameters.get(0));
 			if (!(j instanceof JSONObject) && !(j instanceof JSONArray)) {
 				throw new ParserException("json.evaluate() can only be called on json objects or arrays");				
@@ -494,6 +498,8 @@ public class JSONMacroFunctions extends AbstractFunction {
 				sb.append(i).append("=").append(jarr.get(i));					
 			}
 			return sb.toString();
+		} else if (obj instanceof String && ((String)obj).trim().length() == 0) {
+			return obj.toString();
 		} else {
 			throw new ParserException("Unknown JSON Object type");			
 		}
@@ -527,6 +533,8 @@ public class JSONMacroFunctions extends AbstractFunction {
 				sb.append(jarr.get(i));					
 			}
 			return sb.toString();
+		} else if (obj instanceof String && ((String)obj).trim().length() == 0) {
+			return obj.toString();
 		} else {
 			throw new ParserException("Unknown JSON Object type");			
 		}
@@ -661,11 +669,15 @@ public class JSONMacroFunctions extends AbstractFunction {
 		HashMap<String, Object> obmap = new HashMap<String, Object>();
 		for (String s : props) {
 			String[] vals = s.split("=");
-			// Try to convert it to a number and if that works we store it that way
-			try {
-				obmap.put(vals[0].trim(), new BigDecimal(vals[1].trim()));				
-			} catch (Exception e) {
-				obmap.put(vals[0].trim(), vals[1].trim());
+			if (vals.length > 1) {
+				// Try to convert it to a number and if that works we store it that way
+				try {
+					obmap.put(vals[0].trim(), new BigDecimal(vals[1].trim()));				
+				} catch (Exception e) {
+					obmap.put(vals[0].trim(), vals[1].trim());
+				}
+			} else {
+				obmap.put(vals[0].trim(), "");
 			}
 		}
 		return JSONObject.fromObject(obmap);
@@ -887,7 +899,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 * @param o The parameter to convert.
 	 * @return The JSONObject or JSONArray.
 	 */
-	private static Object asJSON(Object o) {
+	public static Object asJSON(Object o) {
 		if (o instanceof JSONArray) {
 			return o;
 		} else if (o instanceof JSONObject) {

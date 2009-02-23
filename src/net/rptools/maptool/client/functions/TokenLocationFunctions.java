@@ -2,6 +2,7 @@ package net.rptools.maptool.client.functions;
 
 import java.awt.Dimension;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -31,8 +32,8 @@ public class TokenLocationFunctions extends AbstractFunction {
 		new TokenLocationFunctions();
 
 	private TokenLocationFunctions() {
-		super(0, 4, "getTokenX", "getTokenY", "getTokenZ", "getDistance", "moveToken", 
-				    "goto", "getDistanceToXY");
+		super(0, 4, "getTokenX", "getTokenY", "getTokenDrawOrder", "getDistance", "moveToken", 
+				    "goto", "getDistanceToXY", "setTokenDrawOrder");
 	}
 
 
@@ -62,8 +63,24 @@ public class TokenLocationFunctions extends AbstractFunction {
 			return getTokenLocation(res, parameters).y;
 		}
 		
-		if (functionName.equals("getTokenZ")) {
-			return getTokenLocation(res, parameters).z;
+		if (functionName.equals("getTokenDrawOrder")) {
+			Token token = getTokenFromParam(res, functionName, parameters, 0);
+			return BigDecimal.valueOf(token.getZOrder());
+		}
+		
+		
+		if (functionName.equals("setTokenDrawOrder")) {
+			Token token = getTokenFromParam(res, functionName, parameters, 1);
+			if (parameters.size() < 0) {
+				throw new ParserException("setTokenDrawOrder(): First parameter must be a number");
+			}
+			if (!(parameters.get(0) instanceof BigDecimal)) {
+				throw new ParserException("setTokenDrawOrder(): First parameter must be a number");
+			}
+			token.setZOrder(((BigDecimal)parameters.get(0)).intValue());
+			MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
+	 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+	 		return BigDecimal.valueOf(token.getZOrder());			
 		}
 		
 		if (functionName.equals("getDistance")) {
@@ -318,7 +335,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 	 * @param z the z order of the destination.
 	 * @param units use map units or not.
 	 */
-	private void moveToken(Token token, int x, int y, int z, boolean units) {
+	private void moveToken(Token token, int x, int y, boolean units) {
 		Grid grid = MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid();
 		Dimension dim = grid.getCellOffset();
 
@@ -332,10 +349,6 @@ public class TokenLocationFunctions extends AbstractFunction {
 		token.setX(x);
 		token.setY(y);
 		
-		if (z >= 0) {
-			token.setZOrder(z);
-		}
-		
  		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
 
 		
@@ -347,7 +360,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 	 * @param args the arguments to the function.
 	 */
 	private String moveToken(MapToolVariableResolver res, List<Object> args) throws ParserException {
-		Token token = getTokenFromParam(res, "moveToken", args, 4);
+		Token token = getTokenFromParam(res, "moveToken", args, 3);
 		boolean useDistance = true;
 		
 		if (args.size() < 2) {
@@ -366,24 +379,16 @@ public class TokenLocationFunctions extends AbstractFunction {
 		x = ((BigDecimal)args.get(0)).intValue(); 
 		y = ((BigDecimal)args.get(1)).intValue(); 
 		
+		
 		if (args.size() > 2) {
 			if (!(args.get(2) instanceof BigDecimal)) {
 				throw new ParserException("moveToken(): Third Parameter must be a number");
 			}
-			z = ((BigDecimal)args.get(2)).intValue(); 
-		} else {
-			z = token.getZOrder();
-		}
-		
-		if (args.size() > 3) {
-			if (!(args.get(3) instanceof BigDecimal)) {
-				throw new ParserException("moveToken(): Fourth Parameter must be a number");
-			}
-			BigDecimal val = (BigDecimal)args.get(3);
+			BigDecimal val = (BigDecimal)args.get(2);
 			useDistance = val.equals(BigDecimal.ZERO) ? false : true;			
 		}
 		
-		moveToken(token, x, y, z, useDistance);
+		moveToken(token, x, y, useDistance);
 	
 		return "";
 	}

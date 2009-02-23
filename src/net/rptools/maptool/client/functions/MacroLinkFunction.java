@@ -341,7 +341,7 @@ public class MacroLinkFunction extends AbstractFunction {
 		}
 
 		Matcher m = Pattern.compile(
-				"([^:]*)://([^/]*)/([^/]*)/([^?]*)(?:\\?(.*))?").matcher(link);
+				"(?s)([^:]*)://([^/]*)/([^/]*)/([^?]*)(?:\\?(.*))?").matcher(link);
 
 		if (m.matches()) {
 			OutputTo outputTo;		
@@ -373,8 +373,9 @@ public class MacroLinkFunction extends AbstractFunction {
 						Double.parseDouble(val);
 						// Do nothing as its a number
 					} catch (NumberFormatException e) {
+							
 						try {
-							val = "\"" + argsToStrPropList(val) + "\"";
+							val = argsToStrPropList(val);
 						} catch (ParserException e1) {
 							MapTool.addLocalMessage("Error running macro link: "
 											+ e1.getMessage());

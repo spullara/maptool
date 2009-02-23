@@ -99,12 +99,24 @@ public class TokenImage extends AbstractFunction {
 		
 		StringBuilder assetId = new StringBuilder("asset://");
 		if (functionName.equals("getTokenImage")) {
+			if (token.getImageAssetId() == null) {
+				return "";
+			}
 			assetId.append(token.getImageAssetId().toString());
 		} else if (functionName.equals("getTokenPortrait")) {
+			if (token.getPortraitImage() == null) {
+				return "";
+			}
 			assetId.append(token.getPortraitImage().toString());
 		} else if (functionName.equals("getImage")) {
+			if (token.getImageAssetId() == null) {
+				return "";
+			}
 			assetId.append(token.getImageAssetId().toString());
 		} else {
+			if (token.getCharsheetImage() == null) {
+				return "";
+			}
 			assetId.append(token.getCharsheetImage().toString());
 		}
 		if (size != null) {

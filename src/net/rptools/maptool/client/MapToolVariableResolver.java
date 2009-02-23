@@ -152,6 +152,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 					for (TokenProperty property : propertyList) {
 						if (name.equalsIgnoreCase(property.getName()) || name.equalsIgnoreCase(property.getShortName())) {
 							result = property.getDefaultValue();
+							evaluate = true;
 							break;
 						}
 					}
