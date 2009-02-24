@@ -4,6 +4,9 @@ import java.awt.Graphics2D;
 import java.awt.geom.Area;
 
 import net.rptools.maptool.client.AppStyle;
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.model.AttachedLightSource;
+import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.Token;
 
 public class LightSourceIconOverlay implements ZoneOverlay {
@@ -13,6 +16,18 @@ public class LightSourceIconOverlay implements ZoneOverlay {
 		for (Token token : renderer.getZone().getAllTokens()) {
 
 			if (token.hasLightSources()) {
+				boolean foundNormalLight = false;
+				for (AttachedLightSource attachedLightSource : token.getLightSources()) {
+					LightSource lightSource = MapTool.getCampaign().getLightSource(attachedLightSource.getLightSourceId());
+					if (lightSource.getType() == LightSource.Type.NORMAL) {
+						foundNormalLight = true;
+						break;
+					}
+				}
+				if (!foundNormalLight) {
+					continue;
+				}
+				
 				Area area = renderer.getTokenBounds(token);
 				if (area == null) {
 					continue;
