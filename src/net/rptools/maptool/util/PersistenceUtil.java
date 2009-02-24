@@ -168,14 +168,14 @@ public class PersistenceUtil {
 		}
 
 		// Save all assets in active use (consolidate dups between maps)
-		for (MD5Key key : campaign.getAllAssetIds()) {
+		Set<MD5Key> allAssetIds = campaign.getAllAssetIds();
+		for (MD5Key key : allAssetIds) {
 
 			// Put in a placeholder
 			persistedCampaign.assetMap.put(key, null);
-
-			// And store the asset elsewhere
-			pakFile.putFile(ASSET_DIR + key, AssetManager.getAsset(key));
 		}
+		// And store the asset elsewhere
+		saveAssets(allAssetIds, pakFile);
 
 		pakFile.setContent(persistedCampaign);
 		pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
@@ -256,19 +256,8 @@ public class PersistenceUtil {
 
 			// Now load up any images that we need
 			// Note that the values are all placeholders
-			for (MD5Key key : persistedCampaign.assetMap.keySet()) {
-
-				if (!AssetManager.hasAsset(key)) {
-					Asset asset = (Asset) pakfile.getFileObject(ASSET_DIR + key);
-					AssetManager.putAsset(asset);
-
-					if (!MapTool.isHostingServer() && !MapTool.isPersonalServer()) {
-						// If we are remotely installing this campaign, we'll
-						// need to send the image data to the server
-						MapTool.serverCommand().putAsset(asset);
-					}
-				}
-			}
+			Set<MD5Key> allAssetIds = persistedCampaign.assetMap.keySet();
+			loadAssets(allAssetIds, pakfile);
 
 			return persistedCampaign;
 		} catch (IOException ioe) {
@@ -381,6 +370,12 @@ public class PersistenceUtil {
 
 			if (!AssetManager.hasAsset(key)) {
 				Asset asset = (Asset) pakFile.getFileObject(ASSET_DIR + key);
+				
+				// pre 1.3b51 campaign files stored the image data directly in the asset serialization
+				if (asset.getImage() == null) {
+					byte[] imageData = pakFile.getFileData(ASSET_DIR + key + ".dat");
+					asset.setImage(imageData);
+				}
 				AssetManager.putAsset(asset);
 
 				if (!MapTool.isHostingServer() && !MapTool.isPersonalServer()) {
@@ -393,13 +388,16 @@ public class PersistenceUtil {
 	}
 
 	private static void saveAssets(Collection<MD5Key> assetIds, PackedFile pakFile) throws IOException {
+		pakFile.getXStream().omitField(Asset.class, "image");
 		for (MD5Key assetId : assetIds) {
 			if (assetId == null) {
 				continue;
 			}
 
 			// And store the asset elsewhere
-			pakFile.putFile(ASSET_DIR + assetId, AssetManager.getAsset(assetId));
+			Asset asset = AssetManager.getAsset(assetId);
+			pakFile.putFile(ASSET_DIR + assetId, asset);
+			pakFile.putFile(ASSET_DIR + assetId + ".dat", asset.getImage());
 		}
 	}
 

@@ -461,7 +461,7 @@ public class Campaign {
 	
     /** @return Getter for initiativeOwnerPermissions */
     public boolean isInitiativeOwnerPermissions() {
-        return campaignProperties.isInitiativeOwnerPermissions();
+        return campaignProperties != null ? campaignProperties.isInitiativeOwnerPermissions() : false;
     }
 
     /** @param initiativeOwnerPermissions Setter for initiativeOwnerPermissions */
