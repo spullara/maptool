@@ -332,16 +332,16 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		 * case, there's no reason to use an enum either ... may as well use a
 		 * class with static final objects in it. Sigh.
 		 */
-		CONNECTIONS("Connections"), //
-		TOKEN_TREE("MapExplorer"), // These comments prevent
-		INITIATIVE("Initiative"), // the source reformatter from
-		IMAGE_EXPLORER("Library"), // rearranging the structure
-		CHAT("Chat"), // of these lines, keeping each
-		LOOKUP_TABLES("Tables"), // one on its own line. :)
-		GLOBAL("Global"), //
-		CAMPAIGN("Campaign"), //
-		SELECTION("Selected"), //
-		IMPERSONATED("Impersonate"); //
+		CONNECTIONS("Connections"),	//
+		TOKEN_TREE("MapExplorer"),		// These comments prevent
+		INITIATIVE(	"Initiative"),				// the source reformatter from
+		IMAGE_EXPLORER("Library"),		// rearranging the structure
+		CHAT("Chat"),							// of these lines, keeping each
+		LOOKUP_TABLES("Tables"),			// one on its own line. :)
+		GLOBAL("Global"),						//
+		CAMPAIGN("Campaign"),				//
+		SELECTION("Selected"),				//
+		IMPERSONATED("Impersonate");	//
 
 		private String displayName;
 
@@ -395,7 +395,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			MapTool.showError("msg.error.layoutParse");
 			e.printStackTrace();
 		}
-		getDockingManager().loadLayoutDataFromFile(AppUtil.getAppHome("config").getAbsolutePath() + File.separator + "layout.dat");
+		getDockingManager().loadLayoutDataFromFile(AppUtil.getAppHome("config").getAbsolutePath() + "/layout.dat");
 	}
 
 	public DockableFrame getFrame(MTFrame frame) {
@@ -403,7 +403,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	private void initializeFrames() {
-
 		frameMap.put(MTFrame.CONNECTIONS, createDockingFrame(MTFrame.CONNECTIONS, new JScrollPane(connectionPanel), new ImageIcon(AppStyle.connectionsImage)));
 		frameMap.put(MTFrame.TOKEN_TREE, createDockingFrame(MTFrame.TOKEN_TREE, new JScrollPane(createTokenTreePanel()), new ImageIcon(AppStyle.mapExplorerImage)));
 		frameMap.put(MTFrame.IMAGE_EXPLORER, createDockingFrame(MTFrame.IMAGE_EXPLORER, assetPanel, new ImageIcon(AppStyle.resourceLibraryImage)));
@@ -715,8 +714,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			// TODO: Make this a handler class, not an aic
 			@Override
 			public void mousePressed(MouseEvent e) {
-				// tree.setSelectionPath(tree.getPathForLocation(e.getX(),
-				// e.getY()));
+				// tree.setSelectionPath(tree.getPathForLocation(e.getX(), e.getY()));
 				TreePath path = tree.getPathForLocation(e.getX(), e.getY());
 				if (path == null) {
 					return;
@@ -847,7 +845,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		panel.addImagePanelMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
-
 				if (false) {
 					// TODO use for real popup logic
 					if (SwingUtilities.isLeftMouseButton(e)) {
@@ -865,7 +862,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				}
 
 				if (SwingUtilities.isRightMouseButton(e) && MapTool.getPlayer().isGM()) {
-
 					List<Object> idList = panel.getSelectedIds();
 					if (idList == null || idList.size() == 0) {
 						return;
@@ -1191,8 +1187,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 				if (!AssetManager.isAssetRequested(key)) {
 					AssetManager.addAssetListener(key, listener);
-					// This will force a server request if we don't already have
-					// it
+					// This will force a server request if we don't already have it
 					AssetManager.getAsset(key);
 				}
 			}
@@ -1208,8 +1203,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 				if (!AssetManager.isAssetRequested(key)) {
 					AssetManager.addAssetListener(key, listener);
-					// This will force a server request if we don't already have
-					// it
+					// This will force a server request if we don't already have it
 					AssetManager.getAsset(key);
 				}
 			}
@@ -1225,8 +1219,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 				if (!AssetManager.isAssetRequested(key)) {
 					AssetManager.addAssetListener(key, listener);
-					// This will force a server request if we don't already have
-					// it
+					// This will force a server request if we don't already have it
 					AssetManager.getAsset(key);
 				}
 			}
@@ -1266,14 +1259,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 				if (result == JOptionPane.YES_OPTION) {
 					AppActions.SAVE_CAMPAIGN.actionPerformed(null);
-					// TODO This is an ugly way to determine whether the
-					// campaign was
-					// saved. :( But actionPerformed() is void, so what else is
-					// there?
-					// We get here if the user says "Yes" to
-					// "Would you like to save your campaign?"
-					// But what if they then cancel the JFileChooser? Quitting
-					// the app is WRONG!
+					// TODO This is an ugly way to determine whether the campaign was
+					// saved. :(  But actionPerformed() is void, so what else is there?
+					// We get here if the user says "Yes" to "Would you like to save your campaign?"
+					// But what if they then cancel the JFileChooser?  Quitting the app is WRONG!
 					if (AppActions.saveStatus != JFileChooser.APPROVE_OPTION)
 						return;
 				}
@@ -1287,7 +1276,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		ServerDisconnectHandler.disconnectExpected = true;
 		MapTool.disconnect();
 
-		getDockingManager().saveLayoutDataToFile(AppUtil.getAppHome("config").getAbsolutePath() + File.separator + "layout.dat");
+		getDockingManager().saveLayoutDataToFile(AppUtil.getAppHome("config").getAbsolutePath() + "/layout.dat");
 
 		// If closing cleanly, remove the autosave file
 		MapTool.getAutoSaveManager().purge();

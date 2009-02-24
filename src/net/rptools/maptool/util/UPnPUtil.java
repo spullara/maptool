@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.io.ResolveLocalHostname;
 import net.sbbi.upnp.impls.InternetGatewayDevice;
 import net.sbbi.upnp.messages.ActionResponse;
 import net.sbbi.upnp.messages.UPNPResponseException;
@@ -54,7 +55,7 @@ public class UPnPUtil {
 		}
 		
 		if (IGDs != null) {
-			// use the first device found
+			// TODO Allow the option of selecting one IGD from a list
 			ourIGD = IGDs[0];
 		} else {
 			MapTool.showError("UPnP Error - No Internet Gateway Devices found.<br><br>UPnP port mapping will not be available.");
@@ -62,8 +63,9 @@ public class UPnPUtil {
 		}
 		
 		try {
-			// Get our local address
-			localHostIP = InetAddress.getLocalHost().getHostAddress();
+			InetAddress rptools = InetAddress.getByName("www.rptools.net");
+			InetAddress localAddy = ResolveLocalHostname.getLocalHost(rptools);
+			localHostIP = localAddy.getHostAddress();
 		
 			mapped = ourIGD.addPortMapping(
 						"MapTool", null,
@@ -89,6 +91,9 @@ public class UPnPUtil {
 		try{
 	
 			if (IGDs != null) {
+				// TODO If openPort() is modified to allow selection of one IGD from a list,
+				// this code will need to be updated as well.
+
 				// using the first device found
 				InternetGatewayDevice testIGD = IGDs[0];
 				

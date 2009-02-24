@@ -70,12 +70,19 @@ import com.jgoodies.forms.layout.FormLayout;
 public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 	// TODO: This is temporary
-	private static final Object[][] COLOR_ARRAY = new Object[][] { { "Black", Color.black, Color.white }, { "Green", Color.green, Color.black },
-			{ "Yellow", Color.yellow, Color.black },
-			{ "Orange", new Color(255, 156, 0), Color.black }, // default orange
-			// is too light
-			{ "Red", Color.red, Color.black }, { "Blue", Color.blue, Color.black }, { "Cyan", Color.cyan, Color.black }, { "Dark Gray", Color.darkGray, Color.black },
-			{ "Magenta", Color.magenta, Color.black }, { "Pink", Color.pink, Color.black }, { "White", Color.white, Color.black } };
+	private static final Object[][] COLOR_ARRAY = new Object[][] {
+		{ "Black", Color.black, Color.white },
+		{ "Green", Color.green, Color.black },
+		{ "Yellow", Color.yellow, Color.black },
+		{ "Orange", new Color(255, 156, 0), Color.black }, // default orange is too light
+		{ "Red", Color.red, Color.black },
+		{ "Blue", Color.blue, Color.black },
+		{ "Cyan", Color.cyan, Color.black },
+		{ "Dark Gray", Color.darkGray, Color.black },
+		{ "Magenta", Color.magenta, Color.black },
+		{ "Pink", Color.pink, Color.black },
+		{ "White", Color.white, Color.black }
+	};
 
 	public TokenPopupMenu(Set<GUID> selectedTokenSet, int x, int y, ZoneRenderer renderer, Token tokenUnderMouse) {
 		super(selectedTokenSet, x, y, renderer, tokenUnderMouse);
@@ -145,12 +152,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		Map<String, JMenu> groups = new TreeMap<String, JMenu>();
 		for (MacroButtonProperties macro : macroList) {
 			group = macro.getGroup();
-			group = (group.equals("") || group == null ? " General" : group); // leading
-			// space
-			// makes
-			// it
-			// come
-			// first
+			group = (group.equals("") || group == null ? " General" : group); // leading space makes it come first
 			JMenu submenu = groups.get(group);
 			if (submenu == null) {
 				submenu = new JMenu(group);

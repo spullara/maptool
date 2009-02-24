@@ -36,11 +36,11 @@ import org.apache.log4j.Logger;
  */
 public class ImageManager {
 
-	private static final Logger log = Logger.getLogger(ImageManager.class);
-	
 	private static final String BROKEN_IMAGE_PNG = "net/rptools/maptool/client/image/broken.png";
 	private static final String UNKNOWN_IMAGE_PNG = "net/rptools/maptool/client/image/unknown.png";
 
+	private static final Logger log = Logger.getLogger(ImageManager.class);
+	
 	private static Map<MD5Key, BufferedImage> imageMap = new HashMap<MD5Key, BufferedImage>();
 
 	public static BufferedImage UNKNOWN_IMAGE;
@@ -110,7 +110,6 @@ public class ImageManager {
 
 		return image;
 	}
-
 	public static BufferedImage getImage(Asset asset, ImageObserver... observers) {
 		return getImage(asset, null, observers);
 	}
@@ -210,5 +209,4 @@ public class ImageManager {
 			}
 		}
 	}
-
 }

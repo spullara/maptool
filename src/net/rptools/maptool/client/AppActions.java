@@ -14,6 +14,7 @@
 package net.rptools.maptool.client;
 
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -133,7 +134,29 @@ import com.jidesoft.docking.DockableFrame;
 public class AppActions {
 
 	private static Set<Token> tokenCopySet = null;
-	public static final int menuShortcut = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+	public static final int menuShortcut = getMenuShortcutKeyMask();
+
+	private static int getMenuShortcutKeyMask() {
+		int key = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+		String prop = System.getProperty("os.name", "unknown");
+		if ("Darwin".equals(prop)) {
+			// TODO Should we install our own AWTKeyStroke class?  Only if menu shortcut is CTRL...
+			if (key == Event.CTRL_MASK)
+				key = Event.META_MASK;
+			/*
+			 * In order for SoyLatte/OpenJDK to work on Mac OS X, the user must have the X11
+			 * package installed.  If they're running headless, they don't need it.  Otherwise,
+			 * they must already have it or we wouldn't have gotten this far. :)  However, in
+			 * order for the Command key to work, the X11 Preferences must be set to
+			 * "Enabled the Meta Key" in X11 applications.  Essentially, if this checkbox is
+			 * turned on, the Command key (called Meta in X11) will be intercepted by the
+			 * X1 package and not sent on to the application.  Our next step will be better
+			 * integration with the Mac desktop to eliminate the X11 menu altogether.  It
+			 * might be nice to give them a one-time warning about this...
+			 */
+		}
+		return key;
+	}
 
 	public static final Action MRU_LIST = new DefaultClientAction() {
 		{
@@ -280,7 +303,6 @@ public class AppActions {
 
 					// Index it
 					builder.append(asset.getId()).append(" assets/").append(asset.getId()).append("\n");
-
 					// Save it
 					ZipEntry entry = new ZipEntry("assets/" + asset.getId().toString());
 					out.putNextEntry(entry);
@@ -2352,37 +2374,7 @@ public class AppActions {
 		}
 
 		public void init(String key, boolean addMenuShortcut) {
-			String name = I18N.getText(key);
-			putValue(NAME, name);
-			int mnemonic = I18N.getMnemonic(key);
-			if (mnemonic != -1) {
-				putValue(MNEMONIC_KEY, mnemonic);
-			}
-
-			String accel = I18N.getAccelerator(key);
-			if (accel != null) {
-				// FJE Added the menuShortcut as a modifier for all menu
-				// selections based on the addMenuShortcut parameter. See the
-				// I18N class for more details.
-				KeyStroke k = KeyStroke.getKeyStroke(accel);
-				if (k == null) {
-					System.out.println("Bad accelerator '" + accel + "' for " + key);
-				} else {
-					if (addMenuShortcut) {
-						int modifiers = k.getModifiers() | menuShortcut;
-						if (k.getKeyCode() != 0)
-							k = KeyStroke.getKeyStroke(k.getKeyCode(), modifiers);
-						else
-							k = KeyStroke.getKeyStroke(k.getKeyChar(), modifiers);
-					}
-					putValue(ACCELERATOR_KEY, k);
-				}
-			}
-			String description = I18N.getDescription(key);
-			if (description != null) {
-				putValue(SHORT_DESCRIPTION, description);
-			}
-
+			I18N.setAction(key, this, addMenuShortcut);
 			getActionList().add(this);
 		}
 

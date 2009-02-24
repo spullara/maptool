@@ -2848,7 +2848,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
      * @see java.awt.dnd.DropTargetListener#dropActionChanged (java.awt.dnd.DropTargetDragEvent)
      */
     public void dropActionChanged(DropTargetDragEvent dtde) {
-    	log.debug("ZoneRenderer.dropActionChanged(): " + dtde.getDropAction()+","+dtde.getSourceActions());
     	dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
     }
 

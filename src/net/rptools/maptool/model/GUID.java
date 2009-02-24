@@ -13,9 +13,11 @@
  */
 package net.rptools.maptool.model;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+
+import net.rptools.maptool.client.ui.io.ResolveLocalHostname;
 
 import com.withay.util.HexCode;
 
@@ -44,9 +46,10 @@ public class GUID extends Object implements Serializable, Comparable {
     
     static {
         try {
-            InetAddress id = InetAddress.getLocalHost();
-            ip = id.getAddress(); // 192.168.0.14
-        } catch (UnknownHostException e) {
+			InetAddress rptools = InetAddress.getByName("www.rptools.net");
+			InetAddress localAddy = ResolveLocalHostname.getLocalHost(rptools);
+			ip = localAddy.getAddress();
+        } catch (IOException e) {		// Could be UnknownHostException or SocketException
             e.printStackTrace();
             ip = new byte[4];
         }

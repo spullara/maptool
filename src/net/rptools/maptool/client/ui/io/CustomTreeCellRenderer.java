@@ -4,8 +4,6 @@
 package net.rptools.maptool.client.ui.io;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JTree;

@@ -42,6 +42,7 @@ import org.apache.log4j.Logger;
  * 
  * @author tcroft
  */
+
 public class I18N {
 	private static ResourceBundle BUNDLE = ResourceBundle.getBundle("net.rptools.maptool.language.i18n");
 
@@ -192,8 +193,13 @@ public class I18N {
 	}
 
 	/**
+	 * <p>
 	 * Set all of the I18N values on an Action by retrieving said values from
 	 * the properties file.
+	 * </p>
+	 * <p>
+	 * This is a compatibility function that calls {@link #setAction(String, Action, boolean)}.
+	 * </p>
 	 * 
 	 * @param key
 	 *            Key used to look up values
@@ -201,6 +207,41 @@ public class I18N {
 	 *            Action being modified
 	 */
 	public static void setAction(String key, Action action) {
+		setAction(key, action, true);
+	}
+
+	/**
+	 * <p>
+	 * Set all of the I18N values on an Action by retrieving said values from
+	 * the properties file.
+	 * </p>
+	 * <p>
+	 * Uses the <code>key</code> as the index for the properties file to set
+	 * the <code>Action.NAME</code> field of <b>action</b>.
+	 * </p>
+	 * <p>
+	 * The string
+	 * used for the <code>NAME</code> is searched for an ampersand ("&amp;")
+	 * to determine the mnemonic used by any menu item (no mnemonic is set
+	 * if there is no ampersand).
+	 * </p>
+	 * <p>
+	 * The <code>key</code> string has "<code>.accel</code>"
+	 * appended to it and the properties file is searched again, this time to obtain a
+	 * string representing the shortcut key.
+	 * </p>
+	 * <p>
+	 * If <b>addMenuShortcut</b> is
+	 * <code>true</code> then the proper shortcut key for the platform is added
+	 * to the modifiers for the keystroke ({@link AppActions#menuShortcut} and
+	 * any menu items that do not require modifiers, such as {@link AppActions#ZOOM_IN}).
+	 * </p>
+	 * @param key String to use as an index into the <b>i18n.properties</b> file
+	 * @param action Action used to store the retrieved settings
+	 * @param addMenuShortcut whether to add the platform's menu shortcut key mask
+	 * (usually <code>true</code>)
+	 */
+	public static void setAction(String key, Action action, boolean addMenuShortcut) {
 		action.putValue(Action.NAME, getText(key));
 		int mnemonic = getMnemonic(key);
 		if (mnemonic != -1)
@@ -208,16 +249,20 @@ public class I18N {
 		String accel = getAccelerator(key);
 		if (accel != null) {
 			KeyStroke k = KeyStroke.getKeyStroke(accel);
-			int modifiers = k.getModifiers();
-			// FJE: Better if we didn't have to refer to AppActions on the next
-			// line. :(
-			AWTKeyStroke awtk = KeyStroke.getAWTKeyStroke(k.getKeyCode(),
-					modifiers | AppActions.menuShortcut);
-			action.putValue(Action.ACCELERATOR_KEY, awtk);
+			if (k == null) {
+				System.out.println("Bad accelerator '" + accel + "' for " + key);
+			} else if (addMenuShortcut) {
+				int modifiers = k.getModifiers() | AppActions.menuShortcut;
+				if (k.getKeyCode() != 0)
+					k = KeyStroke.getKeyStroke(k.getKeyCode(), modifiers);
+				else
+					k = KeyStroke.getKeyStroke(k.getKeyChar(), modifiers);
+			}
+			action.putValue(Action.ACCELERATOR_KEY, k);
+//			System.err.println("I18N.setAction(\"" + key + "\") = " + k);
 		}
 		String description = getDescription(key);
 		if (description != null)
 			action.putValue(Action.SHORT_DESCRIPTION, description);
 	}
-
 }
