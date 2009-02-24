@@ -439,6 +439,9 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         } else if (evt.getPropertyName().equals(InitiativeList.CURRENT_PROP)) {
             if (list.getCurrent() < 0) return;
             Token t = list.getTokenInitiative(list.getCurrent()).getToken();
+            if (t == null) {
+            	return;
+            }
             String s = String.format(I18N.getText("initPanel.displayMessage"), t.getName());
             if (t.isVisible() && t.getType() != Type.NPC)
                 MapTool.addMessage(TextMessage.say(null, s));
