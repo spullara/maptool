@@ -50,7 +50,7 @@ public class HexGridVertical extends HexGrid {
 		setFacings(faceEdges, faceVertices);
 	}
 	
-	private void setFacings(boolean faceEdges, boolean faceVertices) {
+	public void setFacings(boolean faceEdges, boolean faceVertices) {
 		if (faceEdges && faceVertices) {
 			FACING_ANGLES = ALL_ANGLES;
 		} else if (!faceEdges && faceVertices) {

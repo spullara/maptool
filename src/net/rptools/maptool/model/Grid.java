@@ -15,12 +15,10 @@ package net.rptools.maptool.model;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import net.rptools.lib.FileUtil;
@@ -42,7 +40,7 @@ public abstract class Grid implements Cloneable{
     public static final int MAX_GRID_SIZE = 350;
 
     private static final Dimension NO_DIM = new Dimension();
-    private static final Point NO_POINT = new Point();
+    // private static final Point NO_POINT = new Point();
     
 	private int offsetX = 0;
 	private int offsetY = 0;
@@ -63,6 +61,20 @@ public abstract class Grid implements Cloneable{
 	
 	public void drawCoordinatesOverlay(Graphics2D g, ZoneRenderer renderer) {
 		// Do nothing my default
+	}
+	
+	/**
+	 * Set the facing options for tokens/objects on a grid. Each grid type 
+	 * can providing facings to the edges, the vertices, both or neither.
+	 * 
+	 * If both are false, tokens on that grid will not be able to rotate 
+	 * with the mouse and keyboard controls for setting facing.
+	 * 
+	 * @param faceEdges - Tokens can face edges.
+	 * @param faceVertices - Tokens can face verticies.
+	 */
+	public void setFacings(boolean faceEdges, boolean faceVertices) {
+		// Handle it in the individual grid types
 	}
 	
 	protected List<TokenFootprint> loadFootprints(String path, OffsetTranslator... translators) throws IOException {

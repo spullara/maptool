@@ -34,9 +34,6 @@ public class HexGridHorizontal extends HexGrid {
 	 * with different grids will remain the same.
 	 * 
 	 * Facings are set when maps are loaded to the current preferences.
-	 * 
-	 * TODO:  Should changing the preferences force a change for all the 
-	 * already created maps?
 	 */
 	private static int[] FACING_ANGLES; // =  new int[] {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180};
 	private static final int[] ALL_ANGLES = new int[] {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180};
@@ -69,7 +66,7 @@ public class HexGridHorizontal extends HexGrid {
 	 * @param faceEdges - Tokens can face cell faces if true.
 	 * @param faceVertices - Tokens can face cell vertices if true.
 	 */
-	private void setFacings(boolean faceEdges, boolean faceVertices) {
+	public void setFacings(boolean faceEdges, boolean faceVertices) {
 		if (faceEdges && faceVertices) {
 			FACING_ANGLES = ALL_ANGLES;
 		} else if (!faceEdges && faceVertices) {

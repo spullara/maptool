@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -37,8 +38,10 @@ import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.walker.WalkerMetric;
+import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Zone;
 
 import com.jeta.forms.components.colors.JETAColorWell;
 import com.jeta.forms.components.panel.FormPanel;
@@ -160,13 +163,16 @@ public class PreferencesDialog extends JDialog {
 		facingFaceEdges.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setFaceEdge(facingFaceEdges.isSelected());
+				updateFacings();
 			}
 		});
 		facingFaceVertices.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setFaceVertex(facingFaceVertices.isSelected());
+				updateFacings();
 			}
 		});
+		
 		toolTipInlineRolls.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setUseToolTipForInlineRoll(toolTipInlineRolls.isSelected());
@@ -521,6 +527,22 @@ public class PreferencesDialog extends JDialog {
 		super.setVisible(b);
 	}
 
+	/**
+	 * Used by the ActionListeners of the facing checkboxes to update 
+	 * the facings for all of the current zones.   Redundant to go 
+	 * through all zones because all zones using the same grid type 
+	 * share facings but it doesn't hurt anything and avoids having to 
+	 * track what grid types are being used.
+	 */
+	private void updateFacings() {
+		List <Zone> zlist = MapTool.getServer().getCampaign().getZones();
+		boolean faceEdges = AppPreferences.getFaceEdge();
+		boolean faceVertices = AppPreferences.getFaceVertex();
+		for (Zone z : zlist) {
+			Grid g = z.getGrid();
+			g.setFacings(faceEdges, faceVertices);
+		}
+	}
 	private void setInitialState() {
 		
 		showDialogOnNewToken.setSelected(AppPreferences.getShowDialogOnNewToken());
