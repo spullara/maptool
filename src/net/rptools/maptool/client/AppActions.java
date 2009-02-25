@@ -1933,6 +1933,11 @@ public class AppActions {
 			if (saveStatus == JFileChooser.APPROVE_OPTION) {
 
 				File campaignFile = chooser.getSelectedFile();
+				
+				if (campaignFile.exists() && !MapTool.confirm("msg.confirm.overwriteExistingCampaign")) {
+					return;
+				}
+				
 				if (campaignFile.getName().indexOf(".") < 0) {
 					campaignFile = new File(campaignFile.getAbsolutePath() + AppConstants.CAMPAIGN_FILE_EXTENSION);
 				}
