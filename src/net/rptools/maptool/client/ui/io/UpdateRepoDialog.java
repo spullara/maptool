@@ -107,13 +107,6 @@ public class UpdateRepoDialog extends JDialog {
 			directory.setText(location.getPath());
 			username.setText(location.getUsername());
 			password.setText(location.getPassword());
-		} else {
-			// We'll assign a default for hostname when the user selects a repository.
-			if (MapTool.isDevelopment()) {
-				hostname.setText("www.eec.com");
-				username.setText("u35755092-maptool");
-				password.setText("lootpam");
-			}
 		}
 	}
 
