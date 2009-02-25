@@ -678,9 +678,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         renderTokens(g2d, zone.getTokens(), view);
         timer.stop("tokens");
         
-        timer.start("movement");
-        renderMoveSelectionSets(g2d, view);
-        timer.stop("movement");
+        timer.start("unowned movement");
+        renderMoveSelectionSets(g2d, view, getUnOwnedMovementSet(view));
+        timer.stop("unowned movement");
         
         timer.start("labels");
         renderLabels(g2d, view);
@@ -706,6 +706,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         if (view.isGMView() && AppState.isShowLightSources()) {
         	lightSourceIconOverlay.paintOverlay(this, g2d);
         }
+        
+        timer.start("owned movement");
+        renderMoveSelectionSets(g2d, view, getOwnedMovementSet(view));
+        timer.stop("owned movement");
         
 //        if (lightSourceArea != null) {
 //	        g2d.setColor(Color.yellow);
@@ -1210,7 +1214,31 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	}
     }
     
-    protected void renderMoveSelectionSets(Graphics2D g, PlayerView view) {
+    private Set<SelectionSet> getOwnedMovementSet(PlayerView view) {
+    	return filterOwnedMovementSet(view, true);
+    }
+    
+    private Set<SelectionSet> getUnOwnedMovementSet(PlayerView view) {
+    	return filterOwnedMovementSet(view, false);
+    }
+    
+    private Set<SelectionSet> filterOwnedMovementSet(PlayerView view, boolean owned) {
+        Set<SelectionSet> movementSet = new HashSet<SelectionSet>();
+        for (SelectionSet selection : selectionSetMap.values()) {
+            Token keyToken = zone.getToken(selection.getKeyToken());
+            boolean isOwner = view.isGMView() || keyToken.isOwner(MapTool.getPlayer().getName());
+        	if (owned && isOwner) {
+        		movementSet.add(selection);
+        	}
+        	if (!owned && !isOwner) {
+        		movementSet.add(selection);
+        	}
+        }
+
+        return movementSet;
+    }
+    
+    protected void renderMoveSelectionSets(Graphics2D g, PlayerView view, Set<SelectionSet> movementSet) {
 
         if (selectionSetMap.size() == 0) {
         	return;
@@ -1219,11 +1247,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         double scale = zoneScale.getScale();
 
         boolean clipInstalled = false;
-        Set<SelectionSet> selections = new HashSet<SelectionSet>();
-        selections.addAll(selectionSetMap.values());
-        for (SelectionSet set : selections) {
+        for (SelectionSet set : movementSet) {
             
             Token keyToken = zone.getToken(set.getKeyToken());
+            
             ZoneWalker walker = set.getWalker();
             
             // Hide the hidden layer
@@ -1234,8 +1261,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             for (GUID tokenGUID : set.getTokens()) {
                 
                 Token token = zone.getToken(tokenGUID);
-                
-                boolean isOwner = token.isOwner(MapTool.getPlayer().getName());
                 
                 // Perhaps deleted ?
                 if (token == null) {
@@ -1266,8 +1291,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 int y = (int)(newScreenPoint.y);
                 
                 // Vision visibility
-                Rectangle clip = g.getClipBounds();
-                if (!view.isGMView() && visibleScreenArea != null) {
+                boolean isOwner = view.isGMView() || keyToken.isOwner(MapTool.getPlayer().getName());
+                if (!view.isGMView() && visibleScreenArea != null && !isOwner) {
 
                 	if (!clipInstalled) {
                     	// Only show the part of the path that is visible
