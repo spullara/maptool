@@ -230,7 +230,9 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		}
 		
 		// ZOOM
-		if (e.getWheelRotation() > 0) {
+		boolean direction = e.getWheelRotation() > 0; 
+		direction = SwingUtil.isControlDown(e) ? !direction : direction;
+		if (direction) {
 			
 			renderer.zoomOut(e.getX(), e.getY());
 		} else {
