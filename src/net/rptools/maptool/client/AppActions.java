@@ -108,6 +108,8 @@ import net.rptools.maptool.util.UPnPUtil;
 import net.rptools.maptool.util.PersistenceUtil.PersistedCampaign;
 import net.rptools.maptool.util.PersistenceUtil.PersistedMap;
 
+import org.jdesktop.swingworker.SwingWorker;
+
 import com.jidesoft.docking.DockableFrame;
 
 /**
@@ -1876,20 +1878,41 @@ public class AppActions {
 				return;
 			}
 
-			// save to same place
-			Campaign campaign = MapTool.getCampaign();
-
-			try {
-				PersistenceUtil.saveCampaign(campaign, AppState.getCampaignFile());
-				AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
-				MapTool.showInformation("msg.info.campaignSaved");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				MapTool.showError("msg.error.failedSaveCampaign");
-			}
+			saveCampaign(MapTool.getCampaign(), AppState.getCampaignFile());
 		}
 	};
 
+	private static void saveCampaign(Campaign campaign, File file) {
+		MapTool.getFrame().showFilledGlassPane(new StaticMessageDialog(I18N.getText("msg.info.campaignSaving")));
+		new SwingWorker<Object, Object>() {
+			@Override
+			protected Object doInBackground() throws Exception {
+				try {
+					long start = System.currentTimeMillis();
+					PersistenceUtil.saveCampaign(MapTool.getCampaign(), AppState.getCampaignFile());
+					AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
+					MapTool.getFrame().setStatusMessage(I18N.getString("msg.info.campaignSaved"));
+					
+					// Min display time so people can see the message
+					try {
+						Thread.sleep(Math.max(0, 250 - (System.currentTimeMillis() - start)));
+					} catch (InterruptedException e) {
+						// Nothing to do
+					}
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+					MapTool.showError("msg.error.failedSaveCampaign");
+				} 
+				
+				return null;
+			}
+			@Override
+			protected void done() {
+				MapTool.getFrame().hideGlassPane();
+			}
+		}.execute();
+	}
+	
 	public static final Action SAVE_CAMPAIGN_AS = new DefaultClientAction() {
 		{
 			init("action.saveCampaignAs");
@@ -1909,23 +1932,17 @@ public class AppActions {
 			saveStatus = chooser.showSaveDialog(MapTool.getFrame());
 			if (saveStatus == JFileChooser.APPROVE_OPTION) {
 
-				try {
-					File campaignFile = chooser.getSelectedFile();
-					if (campaignFile.getName().indexOf(".") < 0) {
-						campaignFile = new File(campaignFile.getAbsolutePath() + AppConstants.CAMPAIGN_FILE_EXTENSION);
-					}
-
-					PersistenceUtil.saveCampaign(campaign, campaignFile);
-
-					AppState.setCampaignFile(campaignFile);
-					AppPreferences.setSaveDir(campaignFile.getParentFile());
-					AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
-					MapTool.showInformation("msg.info.campaignSaved");
-					MapTool.getFrame().setTitleViaRenderer(MapTool.getFrame().getCurrentZoneRenderer());
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-					MapTool.showError("msg.error.failedSaveCampaign");
+				File campaignFile = chooser.getSelectedFile();
+				if (campaignFile.getName().indexOf(".") < 0) {
+					campaignFile = new File(campaignFile.getAbsolutePath() + AppConstants.CAMPAIGN_FILE_EXTENSION);
 				}
+
+				saveCampaign(campaign, campaignFile);
+
+				AppState.setCampaignFile(campaignFile);
+				AppPreferences.setSaveDir(campaignFile.getParentFile());
+				AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
+				MapTool.getFrame().setTitleViaRenderer(MapTool.getFrame().getCurrentZoneRenderer());
 			}
 		}
 	};

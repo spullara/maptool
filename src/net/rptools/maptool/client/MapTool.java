@@ -37,8 +37,11 @@ import java.util.Enumeration;
 import java.util.Locale;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
@@ -54,6 +57,7 @@ import net.rptools.lib.net.RPTURLStreamHandlerFactory;
 import net.rptools.lib.sound.SoundManager;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.functions.UserDefinedMacroFunctions;
+import net.rptools.maptool.client.swing.MapToolEventQueue;
 import net.rptools.maptool.client.swing.NoteFrame;
 import net.rptools.maptool.client.swing.SplashScreen;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
@@ -85,7 +89,10 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
 import com.centerkey.utils.BareBonesBrowserLaunch;
+import com.jidesoft.icons.JideIconsFactory;
 import com.jidesoft.plaf.LookAndFeelFactory;
+import com.jidesoft.plaf.UIDefaultsLookup;
+import com.jidesoft.plaf.basic.ThemePainter;
 
 import de.muntjak.tinylookandfeel.Theme;
 import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
@@ -804,21 +811,38 @@ public class MapTool {
         new DOMConfigurator().doConfigure(new ByteArrayInputStream(logging.getBytes()), LogManager.getLoggerRepository());
 	}
 
-    private static String slashify(String path, boolean isDirectory) {
-    	String p = path;
-    	if (File.separatorChar != '/')
-    	    p = p.replace(File.separatorChar, '/');
-    	if (!p.startsWith("/"))
-    	    p = "/" + p;
-    	if (!p.endsWith("/") && isDirectory)
-    	    p = p + "/";
-    	return p;
-        }
+	private static final void configureJide() {
+        LookAndFeelFactory.UIDefaultsCustomizer uiDefaultsCustomizer = new LookAndFeelFactory.UIDefaultsCustomizer() {
+            public void customize(UIDefaults defaults) {
+                ThemePainter painter = (ThemePainter) UIDefaultsLookup.get("Theme.painter");
+                defaults.put("OptionPaneUI", "com.jidesoft.plaf.basic.BasicJideOptionPaneUI");
+
+                defaults.put("OptionPane.showBanner", Boolean.TRUE); // show banner or not. default is true
+                defaults.put("OptionPane.bannerIcon", new ImageIcon(MapTool.class.getClassLoader().getResource("net/rptools/maptool/client/image/maptool_icon.png")));
+                defaults.put("OptionPane.bannerFontSize", 13);
+                defaults.put("OptionPane.bannerFontStyle", Font.BOLD);
+                defaults.put("OptionPane.bannerMaxCharsPerLine", 60);
+                defaults.put("OptionPane.bannerForeground", painter != null ? painter.getOptionPaneBannerForeground() : null);  // you should adjust this if banner background is not the default gradient paint
+                defaults.put("OptionPane.bannerBorder", null); // use default border
+
+                // set both bannerBackgroundDk and // set both bannerBackgroundLt to null if you don't want gradient
+                defaults.put("OptionPane.bannerBackgroundDk", painter != null ? painter.getOptionPaneBannerDk() : null);
+                defaults.put("OptionPane.bannerBackgroundLt", painter != null ? painter.getOptionPaneBannerLt() : null);
+                defaults.put("OptionPane.bannerBackgroundDirection", Boolean.TRUE); // default is true
+
+                // optionally, you can set a Paint object for BannerPanel. If so, the three UIDefaults related to banner background above will be ignored.
+                defaults.put("OptionPane.bannerBackgroundPaint", null);
+
+                defaults.put("OptionPane.buttonAreaBorder", BorderFactory.createEmptyBorder(6, 6, 6, 6));
+                defaults.put("OptionPane.buttonOrientation", SwingConstants.RIGHT);
+            }
+        };
+        uiDefaultsCustomizer.customize(UIManager.getDefaults());
+	}
 	
 	public static void main(String[] args) {
 
 		configureLogging();
-		log.debug("testing");
 		
 		// System properties
 		System.setProperty("swing.aatext", "true");
@@ -831,6 +855,8 @@ public class MapTool {
 		RPTURLStreamHandlerFactory factory = new RPTURLStreamHandlerFactory();
 		factory.registerProtocol("asset", new EmptyURLStreamHandler());
 		URL.setURLStreamHandlerFactory(factory);
+
+        Toolkit.getDefaultToolkit().getSystemEventQueue().push(new MapToolEventQueue());
 
         // LAF
         try {
@@ -847,6 +873,8 @@ public class MapTool {
     		
         	// Make the toggle button pressed state look more distinct
         	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
+        	
+        	configureJide();
 		} catch (Exception e) {
 			System.err.println(I18N.getText("msg.error.lafSetup"));
 			e.printStackTrace();

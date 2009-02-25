@@ -126,6 +126,7 @@ import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.util.ImageManager;
 
+import org.jdesktop.swingworker.SwingWorker;
 import org.xml.sax.SAXException;
 
 import com.jidesoft.docking.DefaultDockableHolder;

@@ -34,6 +34,7 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import net.rptools.lib.CodeTimer;
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -141,8 +142,11 @@ public class PersistenceUtil {
 		}
 	}
 
+	private static CodeTimer saveTimer;
 	public static void saveCampaign(Campaign campaign, File campaignFile) throws IOException {
-
+		saveTimer = new CodeTimer("Save");
+		saveTimer.setThreshold(5);
+		
 		// Strategy: save the file to a tmp location so that if there's a
 		// failure the original file
 		// won't be touched. Then once we're finished, replace the old with the
@@ -168,24 +172,36 @@ public class PersistenceUtil {
 		}
 
 		// Save all assets in active use (consolidate dups between maps)
+		saveTimer.start("Collect all assets");
 		Set<MD5Key> allAssetIds = campaign.getAllAssetIds();
 		for (MD5Key key : allAssetIds) {
-
 			// Put in a placeholder
 			persistedCampaign.assetMap.put(key, null);
 		}
-		// And store the asset elsewhere
-		saveAssets(allAssetIds, pakFile);
+		saveTimer.stop("Collect all assets");
 
+		// And store the asset elsewhere
+		saveTimer.start("Save assets");
+		saveAssets(allAssetIds, pakFile);
+		saveTimer.stop("Save assets");
+
+		saveTimer.start("Set content");
 		pakFile.setContent(persistedCampaign);
 		pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+		saveTimer.stop("Set content");
 
+		saveTimer.start("Save");
 		pakFile.save();
+		saveTimer.stop("Save");
+
+		saveTimer.start("Close");
 		pakFile.close();
+		saveTimer.stop("Close");
 
 		// Copy to the new location
 		// Not the fastest solution in the world, but worth the safety net it
 		// provides
+		saveTimer.start("backup");
 		File bakFile = new File(tmpDir.getAbsolutePath() + "/" + campaignFile.getName() + ".bak");
 		if (campaignFile.exists()) {
 			FileUtil.copyFile(campaignFile, bakFile);
@@ -194,10 +210,16 @@ public class PersistenceUtil {
 		FileUtil.copyFile(tmpFile, campaignFile);
 		tmpFile.delete();
 		bakFile.delete();
+		saveTimer.stop("backup");
 
 		// Save the campaign thumbnail
+		saveTimer.start("thumbnail");
 		saveCampaignThumbnail(campaignFile.getName());
+		saveTimer.stop("thumbnail");
 
+		if (log.isDebugEnabled()) {
+			log.debug(saveTimer);
+		}
 	}
 
 	/*
