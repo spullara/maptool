@@ -1227,7 +1227,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         for (SelectionSet selection : selectionSetMap.values()) {
             Token keyToken = zone.getToken(selection.getKeyToken());
             boolean isOwner = view.isGMView() || keyToken.isOwner(MapTool.getPlayer().getName());
-        	if (owned && isOwner) {
+        	if (owned && isOwner && selection.getPlayerId().equals(MapTool.getPlayer().getName())) {
         		movementSet.add(selection);
         	}
         	if (!owned && !isOwner) {
