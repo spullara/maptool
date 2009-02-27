@@ -426,7 +426,7 @@ public class PersistenceUtil {
 	}
 
 	private static void saveAssets(Collection<MD5Key> assetIds, PackedFile pakFile) throws IOException {
-		pakFile.getXStream().omitField(Asset.class, "image");
+//		pakFile.getXStream().omitField(Asset.class, "image");
 		for (MD5Key assetId : assetIds) {
 			if (assetId == null) {
 				continue;
@@ -435,7 +435,7 @@ public class PersistenceUtil {
 			// And store the asset elsewhere
 			Asset asset = AssetManager.getAsset(assetId);
 			pakFile.putFile(ASSET_DIR + assetId, asset);
-			pakFile.putFile(ASSET_DIR + assetId + ".dat", asset.getImage());
+//			pakFile.putFile(ASSET_DIR + assetId + ".dat", asset.getImage());
 		}
 	}
 
