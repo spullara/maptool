@@ -179,7 +179,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	public void mouseWheelMoved(MouseWheelEvent e) {
 
 		// QUICK ROTATE
-		if (SwingUtil.isShiftDown(e)) {
+		if (SwingUtil.isShiftDown(e) && !SwingUtil.isControlDown(e)) {
 
 			Set<GUID> tokenGUIDSet = renderer.getSelectedTokenSet();
 			if (tokenGUIDSet.size() == 0) {
@@ -231,7 +231,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		
 		// ZOOM
 		boolean direction = e.getWheelRotation() > 0; 
-		direction = SwingUtil.isControlDown(e) ? !direction : direction;
+		direction = (SwingUtil.isShiftDown(e) && SwingUtil.isControlDown(e)) ? !direction : direction;
 		if (direction) {
 			
 			renderer.zoomOut(e.getX(), e.getY());
@@ -243,7 +243,6 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
         	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
 			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
         }
-		
 	}	
 
 
