@@ -95,6 +95,17 @@ public class BlastTemplate extends ConeTemplate {
      * Overridden *Template Methods
      *-------------------------------------------------------------------------------------------*/
     
+    @Override
+    public Rectangle getBounds() {
+    	Rectangle r = new Rectangle(renderer.getShape().getBounds());
+    	// We don't know pen width, so add some padding to account for it
+    	r.x -= 5;
+    	r.y -= 5;
+    	r.width += 10;
+    	r.height += 10;
+    	return r;
+    }
+    
     /**
      * @see net.rptools.maptool.model.drawing.ConeTemplate#setDirection(net.rptools.maptool.model.drawing.AbstractTemplate.Direction)
      */

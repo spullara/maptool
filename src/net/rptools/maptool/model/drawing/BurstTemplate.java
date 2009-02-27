@@ -94,6 +94,18 @@ public class BurstTemplate extends RadiusTemplate {
         return Math.max(x, y);
     }
     
+    @Override
+    public Rectangle getBounds() {
+    	Rectangle r = new Rectangle(renderer.getShape().getBounds());
+    	// We don't know pen width, so add some padding to account for it
+    	r.x -= 5;
+    	r.y -= 5;
+    	r.width += 10;
+    	r.height += 10;
+    	
+    	return r;
+    }
+
     /*---------------------------------------------------------------------------------------------
      * Overridden AbstractDrawing Methods
      *-------------------------------------------------------------------------------------------*/
