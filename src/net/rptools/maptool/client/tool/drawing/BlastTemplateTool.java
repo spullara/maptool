@@ -83,7 +83,7 @@ public class BlastTemplateTool extends BurstTemplateTool {
     @Override
     protected int getRadiusAtMouse(MouseEvent e) {
         int radius = super.getRadiusAtMouse(e) + 1; 
-        return radius + (radius % 2 == 0 ? + 1 : 0); // Force to be odd.
+        return radius;
     }
     
     /**
