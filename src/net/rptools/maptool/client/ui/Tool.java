@@ -194,14 +194,11 @@ public abstract class Tool extends JToggleButton implements ActionListener, KeyL
     
     ////
     // KEY LISTENER
-    @Override
     public void keyPressed(KeyEvent e) {
     	keyDownSet.add(e.getKeyChar());
     }
-    @Override
     public void keyReleased(KeyEvent e) {
     	keyDownSet.remove(e.getKeyChar());
     }
-    @Override
     public void keyTyped(KeyEvent e) {}
 }
