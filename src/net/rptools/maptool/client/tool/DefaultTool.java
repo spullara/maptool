@@ -18,6 +18,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.SwingUtilities;
@@ -54,7 +55,6 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
     private static final int REDRAW_DELAY = 25; // millis
 
     protected ZoneRenderer renderer;
-    
     
     @Override
     protected void attachTo(ZoneRenderer renderer) {
@@ -231,7 +231,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		
 		// ZOOM
 		boolean direction = e.getWheelRotation() > 0; 
-		direction = (SwingUtil.isShiftDown(e) && SwingUtil.isControlDown(e)) ? !direction : direction;
+		direction =  isKeyDown('z') ? !direction : direction;
 		if (direction) {
 			
 			renderer.zoomOut(e.getX(), e.getY());

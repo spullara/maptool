@@ -15,11 +15,15 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -39,12 +43,13 @@ import net.rptools.maptool.language.I18N;
 
 /**
  */
-public abstract class Tool extends JToggleButton implements ActionListener {
+public abstract class Tool extends JToggleButton implements ActionListener, KeyListener {
 
 	private Toolbox toolbox;
     
     protected Map<KeyStroke, Action> keyActionMap = new HashMap<KeyStroke, Action>();
-  
+    private Set<Character> keyDownSet = new HashSet<Character>();
+
     public Tool () {
       
         // Map the escape key reset this tool.
@@ -57,6 +62,10 @@ public abstract class Tool extends JToggleButton implements ActionListener {
         setFocusPainted(false);
     }
 
+    protected boolean isKeyDown(char key) {
+    	return keyDownSet.contains(key);
+    }
+    
     public boolean isAvailable() {
     	return true;
     }
@@ -89,6 +98,7 @@ public abstract class Tool extends JToggleButton implements ActionListener {
 		}
 		
 		// Keystrokes
+		comp.addKeyListener(this);
 		comp.setActionMap(createActionMap(keyActionMap));
 		comp.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, createInputMap(keyActionMap));
 	}
@@ -98,6 +108,8 @@ public abstract class Tool extends JToggleButton implements ActionListener {
 		if (comp == null) {
 			return;
 		}
+		
+		comp.removeKeyListener(this);
 		
 		if (this instanceof MouseListener) {
 			comp.removeMouseListener((MouseListener)this);
@@ -179,4 +191,17 @@ public abstract class Tool extends JToggleButton implements ActionListener {
             toolbox.setSelectedTool(Tool.this);
         }
     }
+    
+    ////
+    // KEY LISTENER
+    @Override
+    public void keyPressed(KeyEvent e) {
+    	keyDownSet.add(e.getKeyChar());
+    }
+    @Override
+    public void keyReleased(KeyEvent e) {
+    	keyDownSet.remove(e.getKeyChar());
+    }
+    @Override
+    public void keyTyped(KeyEvent e) {}
 }
