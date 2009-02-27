@@ -75,16 +75,18 @@ public class PersistenceUtil {
 	private static final String PROP_CAMPAIGN_VERSION = "campaignVersion";
 	private static final String ASSET_DIR = "assets/";
 
-	private static final String CAMPAIGN_VERSION = "1";
+	private static final String CAMPAIGN_VERSION = "1.3.51";
 
 	private static final ModelVersionManager campaignVersionManager = new ModelVersionManager();
 	
 	static {
 		PackedFile.init(AppUtil.getAppHome("tmp"));
 
-		// Whenever a new transformation needs to be added, bump up the CAMPAIGN_VERSION number by 1
-		// and put that number as the key to the register call
-		campaignVersionManager.registerTransformation("1", new PCVisionTransform());
+		// Whenever a new transformation needs to be added, put the version of MT into the CAMPAIGN_VERSION
+		// variable, and use that as the key to the following register call
+		// This gives us a rough estimate how far backwards compatible the model is
+		// If you need sub-minor version level granularity, simply add another dot value at the end (e.g. 1.3.51.1)
+		campaignVersionManager.registerTransformation("1.3.51", new PCVisionTransform());
 	}
 
 	public static class PersistedMap {
