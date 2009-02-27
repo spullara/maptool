@@ -37,6 +37,7 @@ import javax.imageio.ImageIO;
 import net.rptools.lib.CodeTimer;
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
+import net.rptools.lib.ModelVersionManager;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.io.PackedFile;
 import net.rptools.lib.swing.SwingUtil;
@@ -55,6 +56,7 @@ import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.transform.campaign.PCVisionTransform;
 
 import org.apache.log4j.Logger;
 
@@ -70,9 +72,19 @@ public class PersistenceUtil {
 	private static final Logger log = Logger.getLogger(PersistenceUtil.class);
 	
 	private static final String PROP_VERSION = "version";
+	private static final String PROP_CAMPAIGN_VERSION = "campaignVersion";
 	private static final String ASSET_DIR = "assets/";
+
+	private static final String CAMPAIGN_VERSION = "1";
+
+	private static final ModelVersionManager campaignVersionManager = new ModelVersionManager();
+	
 	static {
 		PackedFile.init(AppUtil.getAppHome("tmp"));
+
+		// Whenever a new transformation needs to be added, bump up the CAMPAIGN_VERSION number by 1
+		// and put that number as the key to the register call
+		campaignVersionManager.registerTransformation("1", new PCVisionTransform());
 	}
 
 	public static class PersistedMap {
@@ -144,6 +156,7 @@ public class PersistenceUtil {
 
 	private static CodeTimer saveTimer;
 	public static void saveCampaign(Campaign campaign, File campaignFile) throws IOException {
+		
 		saveTimer = new CodeTimer("Save");
 		saveTimer.setThreshold(5);
 		
@@ -188,6 +201,7 @@ public class PersistenceUtil {
 		saveTimer.start("Set content");
 		pakFile.setContent(persistedCampaign);
 		pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
+		pakFile.setProperty(PROP_CAMPAIGN_VERSION, CAMPAIGN_VERSION);
 		saveTimer.stop("Set content");
 
 		saveTimer.start("Save");
@@ -269,12 +283,12 @@ public class PersistenceUtil {
 
 		// Try the new way first
 		PackedFile pakfile = new PackedFile(campaignFile);
+		pakfile.setModelVersionManager(campaignVersionManager);
+		
 		try {
 
 			// Sanity check
-			String version = (String) pakfile.getProperty(PROP_VERSION);
-
-			PersistedCampaign persistedCampaign = (PersistedCampaign) pakfile.getContent();
+			PersistedCampaign persistedCampaign = (PersistedCampaign) pakfile.getContent((String)pakfile.getProperty(PROP_CAMPAIGN_VERSION));
 
 			// Now load up any images that we need
 			// Note that the values are all placeholders
