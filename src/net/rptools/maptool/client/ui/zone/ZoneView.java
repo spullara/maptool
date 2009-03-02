@@ -48,7 +48,7 @@ public class ZoneView implements ModelChangeListener {
 	private Map<GUID, Area> tokenVisibleAreaCache = new HashMap<GUID, Area>();
     private Map<GUID, Area> tokenVisionCache = new HashMap<GUID, Area>();
     private Map<GUID, Map<String, Area>> lightSourceCache = new HashMap<GUID, Map<String, Area>>();
-    private Set<GUID> lightSourceSet = new HashSet<GUID>();
+    private Map<LightSource.Type, Set<GUID>> lightSourceMap = new HashMap<LightSource.Type, Set<GUID>>();
     private Map<GUID, Map<String,Set<DrawableLight>>> drawableLightCache = new HashMap<GUID, Map<String, Set<DrawableLight>>>();
     private Map<GUID, Map<String, Set<Area>>> brightLightCache = new HashMap<GUID, Map<String, Set<Area>>>();
     private Map<PlayerView, VisibleAreaMeta> visibleAreaMap = new HashMap<PlayerView, VisibleAreaMeta>();
@@ -181,31 +181,6 @@ public class ZoneView implements ModelChangeListener {
 		return visibleArea;
     }
     
-//    public List<DrawableLight> getLights(LightSource.Type type) {
-//    	List<DrawableLight> list = new LinkedList<DrawableLight>();
-//    	
-//    	for (GUID sourceTokenGUID : lightSourceSet) {
-//    		Token token = zone.getToken(sourceTokenGUID);
-//    		if (token == null) {
-//    			continue;
-//    		}
-//    		
-//    		for (AttachedLightSource attachedLightSource : token.getLightSources()) {
-//
-//    			LightSource lightSource = MapTool.getCampaign().getLightSource(attachedLightSource.getLightSourceId());
-//    			if (lightSource == null) {
-//    				continue;
-//    			}
-//    			
-//    			if (lightSource.getType() == type) {
-//    				list.add()
-//    			}
-//    		}
-//    	}
-//    	
-//    	return list;
-//    }
-    
 	public Area getVisibleArea(Token token) {
 
 		// Sanity
@@ -239,23 +214,17 @@ public class ZoneView implements ModelChangeListener {
         	
     		// Combine all light sources that might intersect our vision
         	List<Area> intersects = new LinkedList<Area>();
-        	List<Token> lightSourceTokens = new ArrayList<Token>(lightSourceSet.size()+1);
+        	List<Token> lightSourceTokens = new ArrayList<Token>();
         	
-        	// This is a hack.  The only way light sources are calculated is if we run through the following code
-        	// but we don't actually care about the results for daytime.  This is specifically to allow
-        	// aura lights to still be seen (calculated).
-        	// TODO: This needs to change so that the API calculates the non normal light sources independent of this method
-        	if (zone.getVisionType() != Zone.VisionType.NIGHT) {
-        		intersects.add(tokenVisibleArea);
+        	if (lightSourceMap.get(LightSource.Type.NORMAL) != null) {
+	    		for (GUID lightSourceTokenId : lightSourceMap.get(LightSource.Type.NORMAL)) {
+	    			
+	    			Token lightSourceToken = zone.getToken(lightSourceTokenId);
+	    			if (lightSourceToken != null) {
+	    				lightSourceTokens.add(lightSourceToken);
+	    			}
+	    		}
         	}
-        	
-    		for (GUID lightSourceTokenId : lightSourceSet) {
-    			
-    			Token lightSourceToken = zone.getToken(lightSourceTokenId);
-    			if (lightSourceToken != null) {
-    				lightSourceTokens.add(lightSourceToken);
-    			}
-    		}
         	if (token.hasLightSources() && !lightSourceTokens.contains(token)) {
         		// This accounts for temporary tokens (such as during an Expose Last Path)
         		lightSourceTokens.add(token);
@@ -301,13 +270,61 @@ public class ZoneView implements ModelChangeListener {
 		return tokenVisibleArea;
 	}
 
+	public List<DrawableLight> getLights(LightSource.Type type) {
+		
+		List<DrawableLight> lightList = new LinkedList<DrawableLight>();
+		if (lightSourceMap.get(type) != null) {
+
+			for (GUID lightSourceToken : lightSourceMap.get(type)) {
+				Token token = zone.getToken(lightSourceToken);
+				if (token == null) {
+					continue;
+				}
+				
+		        Point p = FogUtil.calculateVisionCenter(token, zone);
+
+		        for (AttachedLightSource als : token.getLightSources()) {
+					LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+					if (lightSource == null) {
+						continue;
+					}
+
+					if (lightSource.getType() == type) {
+						// This needs to be cached somehow
+				        Area lightSourceArea = lightSource.getArea(token, zone, Direction.CENTER);
+						Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopology());
+
+						for (Light light : lightSource.getLightList()) {
+							lightList.add(new DrawableLight(type, light.getPaint(), visibleArea));
+						}
+					}
+				}
+			}
+		}
+		
+		return lightList;
+	}
+	
 	private void findLightSources() {
 		
-		lightSourceSet.clear();
+		lightSourceMap.clear();
 		
 		for (Token token : zone.getAllTokens()) {
 			if (token.hasLightSources() && token.isVisible()) {
-				lightSourceSet.add(token.getId());
+				for (AttachedLightSource als : token.getLightSources()) {
+					
+					LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+					if (lightSource == null) {
+						continue;
+					}
+					
+					Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
+					if (lightSet == null) {
+						lightSet = new HashSet<GUID>();
+						lightSourceMap.put(lightSource.getType(), lightSet);
+					}
+					lightSet.add(token.getId());
+				}
 			}
 		}
 	}
@@ -432,9 +449,29 @@ public class ZoneView implements ModelChangeListener {
             if (evt == Zone.Event.TOKEN_ADDED || evt == Zone.Event.TOKEN_CHANGED) {
             	Token token = (Token) event.getArg();
             	if (token.hasLightSources() && token.isVisible()) {
-            		lightSourceSet.add(token.getId());
+            		for(AttachedLightSource als : token.getLightSources()) {
+            			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+            			if (lightSource == null) {
+            				continue;
+            			}
+            			Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
+            			if (lightSet == null) {
+            				lightSet = new HashSet<GUID>();
+            				lightSourceMap.put(lightSource.getType(), lightSet);
+            			}
+            			lightSet.add(token.getId());
+            		}
             	} else {
-            		lightSourceSet.remove(token.getId());
+            		for(AttachedLightSource als : token.getLightSources()) {
+            			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+            			if (lightSource == null) {
+            				continue;
+            			}
+            			Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
+            			if (lightSet != null) {
+            				lightSet.remove(token.getId());
+            			}
+            		}
             	}
             	
             	if (token.getHasSight()) {
@@ -443,7 +480,16 @@ public class ZoneView implements ModelChangeListener {
             }
             if (evt == Zone.Event.TOKEN_REMOVED) {
             	Token token = (Token) event.getArg();
-        		lightSourceSet.remove(token.getId());
+        		for(AttachedLightSource als : token.getLightSources()) {
+        			LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
+        			if (lightSource == null) {
+        				continue;
+        			}
+        			Set<GUID> lightSet = lightSourceMap.get(lightSource.getType());
+        			if (lightSet != null) {
+        				lightSet.remove(token.getId());
+        			}
+        		}
             }
             
 		}

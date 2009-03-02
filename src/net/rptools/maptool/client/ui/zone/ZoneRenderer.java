@@ -462,6 +462,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         flushFog = true;
         renderedLightMap = null;
+        renderedAuraMap = null;
         
         zoneView.flush(token);
     }
@@ -483,12 +484,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         flipImageMap.clear();
         fogBuffer = null;
         renderedLightMap = null;
+        renderedAuraMap = null;
         
         isLoaded = false;
     }
 
     public void flushLight() {
     	renderedLightMap = null;
+        renderedAuraMap = null;
     	zoneView.flush();
     	repaint();
     }
@@ -659,6 +662,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         renderLights(g2d, view);
         timer.stop("lights");
 
+        timer.start("auras");
+        renderAuras(g2d, view);
+        timer.stop("auras");
+
         timer.start("drawableGM");
         if (view.isGMView()) {
         	renderTokens(g2d, zone.getGMStamps(), view);
@@ -806,7 +813,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					}
 				}
 	    	}    	
-	        for (DrawableLight light : otherLightList) {
+	        for (DrawableLight light : zoneView.getLights(LightSource.Type.AURA)) {
 	        	List<Area> list = colorMap.get(light.getPaint().getPaint());
 	        	if (list == null) {
 	        		list = new LinkedList<Area>();
@@ -836,6 +843,60 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         newG.dispose();
     }
     
+    private Map<Paint, Area> renderedAuraMap;
+    private void renderAuras(Graphics2D g, PlayerView view) {
+
+		// Setup
+        timer.start("auras-1");
+    	Graphics2D newG = (Graphics2D)g.create();
+    	SwingUtil.useAntiAliasing(newG);
+        timer.stop("auras-1");
+        timer.start("auras-2");
+
+		AffineTransform af = g.getTransform();
+    	af.translate(getViewOffsetX(), getViewOffsetY());
+    	af.scale(getScale(), getScale());
+    	newG.setTransform(af);
+
+    	newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, AppPreferences.getVisionOverlayOpacity()/255.0f));
+        timer.stop("auras-2");
+
+        if (renderedAuraMap == null) {
+
+	    	// Organize
+	    	Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
+
+	        timer.start("auras-4");
+	
+	        for (DrawableLight light : zoneView.getLights(LightSource.Type.AURA)) {
+	        	List<Area> list = colorMap.get(light.getPaint().getPaint());
+	        	if (list == null) {
+	        		list = new LinkedList<Area>();
+	        		list.add(new Area(light.getArea()));
+	        		colorMap.put(light.getPaint().getPaint(), list);
+	        	} else {
+	        		list.get(0).add(new Area(light.getArea()));
+	        	}
+	        }
+	    	
+	        renderedAuraMap = new LinkedHashMap<Paint, Area>();
+	        for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {
+	        	renderedAuraMap.put(entry.getKey(), entry.getValue().get(0));
+	        }
+	        timer.stop("auras-4");
+        }
+    	
+    	// Draw
+        timer.start("auras-5");
+    	for (Entry<Paint, Area> entry : renderedAuraMap.entrySet()) {
+    		
+    		newG.setPaint(entry.getKey());
+			newG.fill(entry.getValue());
+    	}
+    	timer.stop("auras-5");
+        
+        newG.dispose();
+    }    
     private void renderPlayerVisionOverlay(Graphics2D g, PlayerView view) {
     	if (!view.isGMView()) {
     		renderVisionOverlay(g, view);
