@@ -187,7 +187,6 @@ public class ZoneView implements ModelChangeListener {
 		if (token == null || !token.getHasSight()) {
 			return null;
 		}
-		
 		// Cache ?
 		Area tokenVisibleArea = tokenVisionCache.get(token.getId());
 		if (tokenVisibleArea != null) {
@@ -208,7 +207,7 @@ public class ZoneView implements ModelChangeListener {
 		}
 
         // Combine in the visible light areas
-        if (tokenVisibleArea != null) {
+        if (tokenVisibleArea != null && zone.getVisionType() == Zone.VisionType.NIGHT) {
         
         	Rectangle2D origBounds = tokenVisibleArea.getBounds();
         	
@@ -233,20 +232,18 @@ public class ZoneView implements ModelChangeListener {
     			
     			Area lightArea = getLightSourceArea(token, lightSourceToken);
 
-    			if (zone.getVisionType() == Zone.VisionType.NIGHT) {
-	    			if (origBounds.intersects(lightArea.getBounds2D())) {
-	            		Area intersection = new Area(tokenVisibleArea);
-	            		intersection.intersect(lightArea);
-	                	intersects.add(intersection);
-	            	}
-    			}
+    			if (origBounds.intersects(lightArea.getBounds2D())) {
+            		Area intersection = new Area(tokenVisibleArea);
+            		intersection.intersect(lightArea);
+                	intersects.add(intersection);
+            	}
     		}
         	
             // Check for personal vision
             SightType sight = MapTool.getCampaign().getSightType(token.getSightType());
             if (sight != null && sight.hasPersonalLightSource()) {
     			Area lightArea = calculateLightSourceArea(sight.getPersonalLightSource(), token, sight, Direction.CENTER);
-    			if (lightArea != null && zone.getVisionType() == Zone.VisionType.NIGHT) {
+    			if (lightArea != null) {
             		Area intersection = new Area(tokenVisibleArea);
             		intersection.intersect(lightArea);
                 	intersects.add(intersection);
