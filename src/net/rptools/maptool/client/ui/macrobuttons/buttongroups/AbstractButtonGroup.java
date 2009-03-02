@@ -263,7 +263,7 @@ public abstract class AbstractButtonGroup extends JPanel implements DropTargetLi
 				if (image != null) {
 					imageBounds = new Rectangle(10, 2, image.getWidth(null) + stringWidth, image.getHeight(null));
 					// display impersonated image if impersonated
-					if (tokenId != null && getToken().isBeingImpersonated()) {
+					if (getToken() != null && getToken().isBeingImpersonated()) {
 						g.drawImage(AppStyle.impersonatePanelImage, (int) imageBounds.getMaxX() + 5, 4, null);
 					}
 				}
