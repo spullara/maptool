@@ -33,9 +33,13 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.apache.log4j.Logger;
+
 import net.rptools.maptool.client.ui.io.FTPTransferObject.Direction;
 
 public class FTPClient {
+	private static final Logger log = Logger.getLogger(FTPClient.class);
+
 	protected FTPClientConn cconn;
 
 	protected List<Object> fifoQueue;
@@ -247,11 +251,10 @@ public class FTPClient {
 					data.setMaximum((int) ((file.length()+BLOCKSIZE-1) / BLOCKSIZE));
 					fireStateChanged(data);
 				} catch (FileNotFoundException e) {
-					System.out.println("Can't find local file " + file);
-					e.printStackTrace();
+					log.error("Can't find local asset " + file, e);
 				}
 			} else {
-				System.out.println("Illegal input object class: " + data.local.getClass());
+				log.error("Illegal input object class: " + data.local.getClass());
 			}
 			if (is instanceof ByteArrayInputStream) {
 				data.setMaximum( (((ByteArrayInputStream)is).available()+BLOCKSIZE-1) / BLOCKSIZE );
@@ -262,33 +265,32 @@ public class FTPClient {
 			 * In this situation, "data.remote" is the InputStream.
 			 */
 			try {
-				is = cconn.openDownloadStream(data.remoteDir, data.remote);
+				is = cconn.openDownloadStream(data.remoteDir.getPath(), data.remote);
 			} catch (IOException e) {
 				File file = new File(data.remoteDir, data.remote);
-				System.out.println("Attempting to open remote file " + file.getAbsolutePath());
-				e.printStackTrace();
+				log.error("Attempting to open remote file " + file.getPath(), e);
 			}
 		}
 		return is;
 	}
 
-	protected OutputStream prepareOutputStream(FTPTransferObject data) {
+	protected OutputStream prepareOutputStream(FTPTransferObject data) throws IOException {
 		OutputStream os = null;
 		if (data.getput == Direction.FTP_PUT) {
 			/*
 			 * In this situation, "data.remote" is the OutputStream.
 			 */
-			try {
+//			try {
 				if (data.remoteDir != null) {
-					cconn.mkdir(data.remoteDir);
-					os = cconn.openUploadStream(data.remoteDir, data.remote);
+					cconn.mkdir(data.remoteDir.getPath());
+					os = cconn.openUploadStream(data.remoteDir.getPath(), data.remote);
 				} else
 					os = cconn.openUploadStream(data.remote);
-			} catch (IOException e) {
-				File file = new File(data.remoteDir, data.remote);
-				System.out.println("Attempting to open local file " + file.getAbsolutePath());
-				e.printStackTrace();
-			}
+//			} catch (IOException e) {
+//				File file = new File(data.remoteDir, data.remote);
+//				log.error("Attempting to FTP_PUT local asset " + file.getPath());
+//				e.printStackTrace();
+//			}
 		} else {
 			/*
 			 * In this situation, "data.local" is the OutputStream.
@@ -298,13 +300,12 @@ public class FTPClient {
 				try {
 					os = new FileOutputStream(file);
 				} catch (FileNotFoundException e) {
-					System.out.println("Can't write local file " + file);
-					e.printStackTrace();
+					log.error("Can't write local file " + file, e);
 				}
 			} else if (data.local instanceof OutputStream) {
 				os = (OutputStream) data.local;
 			} else {
-				System.out.println("Illegal output object class: " + data.local.getClass());
+				log.error("Illegal output object class: " + data.local.getClass());
 				throw new IllegalArgumentException("Cannot determine output type for " + data.local);
 			}
 		}
@@ -318,7 +319,7 @@ public class FTPClient {
 			is = prepareInputStream(data);
 			os = prepareOutputStream(data);
 			if (is == null || os == null) {
-				System.err.println("Can't build connection");
+				log.error("Can't build connection");
 				return;
 			}
 			byte[] buf = new byte[BLOCKSIZE];
@@ -331,9 +332,18 @@ public class FTPClient {
 				fireStateChanged(data);
 			}
 			data.incrCurrentPosition();
+		} catch (IOException e) {
+			/*
+			 * For an IOException, it doesn't matter if it's a networking problem or just that
+			 * the FTP server doesn't like the commands we're sending.  Either way, we can
+			 * mark this connection as dead and skip any remaining transfers.  Since we
+			 * might be multithreaded though, we just flag this client as "not usable" and
+			 * let the queue drain normally.
+			 */
+			log.error(e.getMessage(), e);
+			setEnabled(false);
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} finally {
 			if (is != null) {
 				try {
@@ -371,8 +381,9 @@ public class FTPClient {
 		};
 		FTPClient ftp = new FTPClient("www.eeconsulting.net", "username", "password");
 //		ftp.setNumberOfThreads(3);
+		File dir = new File("testdir");
 		for (int i = 0; i < uploadList.length; i++) {
-			FTPTransferObject fto = new FTPTransferObject(FTPTransferObject.Direction.FTP_PUT, uploadList[i], "testdir/", uploadList[i]);
+			FTPTransferObject fto = new FTPTransferObject(FTPTransferObject.Direction.FTP_PUT, uploadList[i], dir, uploadList[i]);
 			ftp.addToQueue(fto);
 		}
 		// Need to listen for all progress bars to finish and count down using 'progress'.

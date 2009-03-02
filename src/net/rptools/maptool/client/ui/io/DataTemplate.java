@@ -86,9 +86,7 @@ abstract public class DataTemplate {
 		return "Misconfigured subsystem: getTreePath()";
 	}
 	
-	public String getSubsystemName() {
-		return "Misconfigured subsystem: getSubsystemName()";
-	}
+	abstract public String getSubsystemName();
 
 	private UIBuilder.TreeModel model;
 
@@ -100,7 +98,7 @@ abstract public class DataTemplate {
 	 * </p>
 	 * @param m the data model to use to store information into the tree
 	 */
-	public void populateModel(UIBuilder.TreeModel m) {
+	void populateModel(UIBuilder.TreeModel m) {
 		model = m;
 		log.debug("DataTemplate:  processing " + this.getSubsystemName());
 		prepareForDisplay();
@@ -116,7 +114,8 @@ abstract public class DataTemplate {
 	 * 
 	 * <p>
 	 * This sample code would be used when there are multiple different path strings
-	 * needed by the subsystem.
+	 * needed by the subsystem.  Ordinarily all of a subsystem's data would be under a
+	 * single TreePath location in the model.
 	 * <pre>
 	public void prepareForDisplay() {
 		addDataObjects("Campaign/Properties/Token Properties",	 cmpgn.getTokenTypeMap());
@@ -144,7 +143,21 @@ abstract public class DataTemplate {
 	 */
 	abstract public void prepareForDisplay();
 
-	public final void addDataObjects(String path, Map<String, ? extends Object> data) {
+	/**
+	 * <p>
+	 * When the subsystem's data is stored in a <code>Map</code>, use this method
+	 * or the similar one that doesn't take a <code>String</code>.
+	 * </p>
+	 * <p>
+	 * This method iterates through all elements in the map and adds a
+	 * <code>MaptoolNode</code> for
+	 * each one to the model.  The keys are sorted alphabetically before being added to
+	 * the list.
+	 * </p>
+	 * @param path the <code>String</code> representation of the TreePath
+	 * @param data the <code>Map</code> to add to the UI
+	 */
+	protected final void addDataObjects(String path, Map<String, ? extends Object> data) {
 		String[] sorted = new String[data.size()];
 		data.keySet().toArray(sorted);
 		Arrays.sort(sorted);
@@ -155,11 +168,31 @@ abstract public class DataTemplate {
 		}
 	}
 
-	public final void addDataObjects(Map<String, ? extends Object> data) {
+	/**
+	 * Calls {@link #addDataObjects(String, Map)} and passes <code>getTreePath()</code>
+	 * as the first parameter.
+	 * 
+	 * @param data the <code>Map</code> to add to the UI
+	 */
+	protected final void addDataObjects(Map<String, ? extends Object> data) {
 		addDataObjects(getTreePath(), data);
 	}
 
-	public final void addDataObjects(String path, Collection<? extends Object> data) {
+	/**
+	 * <p>
+	 * When the subsystem's data is stored in something other than a <code>Map</code>,
+	 * use this method or the similar one that doesn't take a <code>String</code>.
+	 * </p>
+	 * <p>
+	 * This method iterates through all elements in the collection (usually a
+	 * <code>List</code>) and adds a <code>MaptoolNode</code> for
+	 * each one to the model.  The keys are sorted alphabetically before being added to
+	 * the list.
+	 * </p>
+	 * @param path the <code>String</code> representation of the TreePath
+	 * @param data the <code>Collection</code> to add to the UI (usually a <code>List</code>)
+	 */
+	protected final void addDataObjects(String path, Collection<? extends Object> data) {
 		Map<String, Object> mymapping = new HashMap<String, Object>(data.size());
 		Iterator<? extends Object> iter = data.iterator();
 		while (iter.hasNext()) {
@@ -169,7 +202,13 @@ abstract public class DataTemplate {
 		addDataObjects(path, mymapping);
 	}
 
-	public final void addDataObjects(Collection<? extends Object> data) {
+	/**
+	 * Calls {@link #addDataObjects(String, Map)} and passes <code>getTreePath()</code>
+	 * as the first parameter.
+	 * 
+	 * @param data the <code>Collection</code> to add to the UI (usually a <code>List</code>)
+	 */
+	protected final void addDataObjects(Collection<? extends Object> data) {
 		addDataObjects(getTreePath(), data);
 	}
 }

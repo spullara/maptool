@@ -8,12 +8,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -26,6 +28,8 @@ import net.rptools.lib.net.Location;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 
+import org.apache.log4j.Logger;
+
 import com.jeta.forms.components.panel.FormPanel;
 import com.jidesoft.swing.CheckBoxListWithSelectable;
 
@@ -35,8 +39,10 @@ import com.jidesoft.swing.CheckBoxListWithSelectable;
  */
 @SuppressWarnings("serial")
 public class UpdateRepoDialog extends JDialog {
-	private final String UPDATE_REPO_DIALOG = "net/rptools/maptool/client/ui/forms/updateRepoDialog.jfrm";
-	private final FormPanel form = new FormPanel(UPDATE_REPO_DIALOG);
+	private static final Logger log = Logger.getLogger(FTPClient.class);
+	private static final String UPDATE_REPO_DIALOG = "net/rptools/maptool/client/ui/forms/updateRepoDialog.jfrm";
+	private static final FormPanel form = new FormPanel(UPDATE_REPO_DIALOG);
+
 	private int status = -1;
 	private CheckBoxListWithSelectable list;
 	private FTPLocation location;
@@ -45,10 +51,11 @@ public class UpdateRepoDialog extends JDialog {
 	private JTextField hostname;
 	private JTextField directory;
 	private JTextField username;
+	private JCheckBox subdir;
 	private JPasswordField password;
 
 	public UpdateRepoDialog(JFrame frame, List<String> repos, Location loc) {
-		super(frame, "Update Repository Dialog Test", true);
+		super(frame, "Update Repository Dialog", true);
 		add(form);
 		initFields();
 		initFTPLocation(loc);
@@ -74,14 +81,14 @@ public class UpdateRepoDialog extends JDialog {
 		};
 		list.addMouseListener(mouseListener);
 
-		AbstractButton btn = form.getButton("ok");
+		AbstractButton btn = form.getButton("@okButton");
 		btn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setStatus(JOptionPane.OK_OPTION);
 				UpdateRepoDialog.this.setVisible(false);
 			}
 		});
-		btn = form.getButton("cancel");
+		btn = form.getButton("@cancelButton");
 		btn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setStatus(JOptionPane.CANCEL_OPTION);
@@ -91,12 +98,17 @@ public class UpdateRepoDialog extends JDialog {
 	}
 
 	protected void initFields() {
-		list = (CheckBoxListWithSelectable) form.getComponentByName("checkboxList");
-		saveTo = form.getTextField("saveTo");
-		hostname = form.getTextField("hostname");
-		directory = form.getTextField("directory");
-		username = form.getTextField("username");
-		password = (JPasswordField) form.getComponentByName("password");
+		list = (CheckBoxListWithSelectable) form.getComponentByName("checkBoxList");
+		saveTo = form.getTextField("@saveTo");
+		hostname = form.getTextField("@hostname");
+		directory = form.getTextField("@directory");
+		username = form.getTextField("@username");
+		subdir = form.getCheckBox("@subdir");
+		password = (JPasswordField) form.getComponentByName("@password");
+		// If any of the above are null, there's a mismatch with the form.
+		if (list == null || saveTo == null || hostname == null || directory == null ||
+				username == null || subdir == null || password == null)
+			log.error("Form does not match code: " + UPDATE_REPO_DIALOG);
 	}
 
 	protected void initFTPLocation(Location loc) {
@@ -116,7 +128,7 @@ public class UpdateRepoDialog extends JDialog {
 
 	public FTPLocation getFTPLocation() {
 		if (location == null) {
-			location = new FTPLocation(getUsername(), getPassword(), getHostname(), getDirectory());
+			location = new FTPLocation(getUsername(), getPassword(), getHostname(), getDirectory().getPath());
 		}
 		return location;
 	}
@@ -129,11 +141,10 @@ public class UpdateRepoDialog extends JDialog {
 		return hostname.getText();
 	}
 
-	public String getDirectory() {
+	public File getDirectory() {
 		String s = directory.getText();
-		if (s == null || s.length() == 0)
-			s = "/";
-		return s;
+		File f = new File(s == null ? "/" : s);
+		return f;
 	}
 
 	public String getUsername() {
@@ -142,6 +153,10 @@ public class UpdateRepoDialog extends JDialog {
 
 	public String getPassword() {
 		return new String(password.getPassword());
+	}
+
+	public boolean isCreateSubdir() {
+		return subdir.isEnabled();
 	}
 
 	public List<String> getSelectedRepositories() {

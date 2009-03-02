@@ -20,6 +20,8 @@ import javax.swing.JProgressBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.apache.log4j.Logger;
+
 import net.rptools.lib.swing.SwingUtil;
 
 /**
@@ -35,18 +37,19 @@ import net.rptools.lib.swing.SwingUtil;
  */
 @SuppressWarnings("serial")
 public class ProgressBarList extends JDialog implements ChangeListener {
+	private static final Logger log = Logger.getLogger(ProgressBarList.class);
 	/*
 	 * The general layout approach for this class is to put a BorderLayout on the
 	 * main window.  GridLayout is added to a panel that becomes the CENTER
 	 * and the SOUTH is used for a Hide and Cancel button.
 	 */
-	FTPClient ftp;
-	JPanel progressBars;
-	JCheckBox autohide;
-	JButton hide, cancel;
-	JLabel countDown;
-	GridLayout grid;
-	Map<FTPTransferObject, JProgressBar> bars;
+	private FTPClient ftp;
+	private JPanel progressBars;
+	private JCheckBox autohide;
+	private JButton hideButton, cancelButton;
+	private JLabel countDown;
+	private GridLayout grid;
+	private Map<FTPTransferObject, JProgressBar> bars;
 	private boolean cancelling;
 	private int numFiles;
 
@@ -69,14 +72,14 @@ public class ProgressBarList extends JDialog implements ChangeListener {
 		// the event will fire.
 		ftp.addChangeListener(this);
 
-		hide = new JButton("Hide");
-		hide.addActionListener(new ActionListener() {
+		hideButton = new JButton("Hide");
+		hideButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ProgressBarList.this.setVisible(false);
 			}
 		});
-		cancel = new JButton("Cancel");
-		cancel.addActionListener(new ActionListener() {
+		cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				cancelling = true;
 				JButton btn = (JButton) e.getSource();
@@ -89,8 +92,8 @@ public class ProgressBarList extends JDialog implements ChangeListener {
 		countDown = new JLabel(numFiles + " file(s) remaining");
 		JPanel buttons = new JPanel();
 		buttons.add(autohide);
-		buttons.add(hide);
-		buttons.add(cancel);
+		buttons.add(hideButton);
+		buttons.add(cancelButton);
 		buttons.add(countDown);
 		add(buttons, BorderLayout.SOUTH);
 		pack();
@@ -105,10 +108,10 @@ public class ProgressBarList extends JDialog implements ChangeListener {
 		if (e.getSource() == ftp) {
 			// This event is sent when the FTPClient has no more data in the 'todo' queue
 			// and there are no additional operations pending.  We use our checkbox to
-			// determine if we should auto-hide.
+			// determine if we should auto-hideButton.
 			progressBars.removeAll();
-			cancel.setEnabled(false);
-			hide.setText("Close");
+			cancelButton.setEnabled(false);
+			hideButton.setText("Close");
 			if (autohide.isSelected())
 				setVisible(false);
 		} else {
@@ -123,9 +126,9 @@ public class ProgressBarList extends JDialog implements ChangeListener {
 					progressBars.remove(bar);
 				}
 				if (cancelling) {
-					// If it's a cancel request, delete the completely transferred file.
-					System.err.println("Canceled, so removed " + fto.remoteDir + fto.remote);
-					ftp.remove(fto.remoteDir + fto.remote);
+					// If it's a cancelButton request, delete the completely transferred file.
+					log.error("Canceled; removing " + fto.remoteDir + fto.remote);
+					ftp.remove(fto.remoteDir + "/" + fto.remote);
 				}
 			} else if (bars.containsKey(fto)) {
 				bar = bars.get(fto);
@@ -138,6 +141,7 @@ public class ProgressBarList extends JDialog implements ChangeListener {
 				bar.setMaximum(fto.maximumPosition);
 				bars.put(fto, bar);
 				progressBars.add(bar);
+				pack();
 			}
 		}
 	}

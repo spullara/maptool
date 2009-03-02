@@ -13,6 +13,7 @@ import javax.swing.AbstractButton;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
@@ -20,6 +21,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 
 import org.apache.log4j.Logger;
@@ -29,8 +31,11 @@ import com.jidesoft.swing.CheckBoxTree;
 import com.jidesoft.swing.CheckBoxTreeSelectionModel;
 
 /**
- * @author crash
+ * Some keywords that make looking at the Java source code easier. :)
  * 
+ * BasicTreeUI
+ * 
+ * @author crash
  */
 @SuppressWarnings("serial")
 public class UIBuilder extends JDialog {
@@ -159,7 +164,7 @@ public class UIBuilder extends JDialog {
 			 */
 			if (node.getObject() != null) {
 				insertNodeInto(new DefaultMutableTreeNode(node), start, start.getChildCount());
-				System.out.println("      Inserted '" + node + "' under '" + ((DefaultMutableTreeNode) start).getUserObject() + "'.");
+				log.debug("      Inserted '" + node + "' under '" + ((DefaultMutableTreeNode) start).getUserObject() + "'.");
 			}
 			if (firstChangedNode != null)
 				nodeStructureChanged(firstChangedNode);
@@ -172,19 +177,19 @@ public class UIBuilder extends JDialog {
 		private void _Searching(MutableTreeNode node) {
 			DefaultMutableTreeNode dmtn = (DefaultMutableTreeNode) node;
 			MaptoolNode mtnode = (MaptoolNode) dmtn.getUserObject();
-			System.out.println("Searching '" + mtnode + "'...");
+			log.debug("Searching '" + mtnode + "'...");
 		}
 
 		private void _Checking(MutableTreeNode node) {
 			DefaultMutableTreeNode dmtn = (DefaultMutableTreeNode) node;
 			MaptoolNode mtnode = (MaptoolNode) dmtn.getUserObject();
-			System.out.println("  checking '" + mtnode + "'...");
+			log.debug("  checking '" + mtnode + "'...");
 		}
 
 		private void _Found(MutableTreeNode node) {
 			DefaultMutableTreeNode dmtn = (DefaultMutableTreeNode) node;
 			MaptoolNode mtnode = (MaptoolNode) dmtn.getUserObject();
-			System.out.println("    Found '" + mtnode + "'.");
+			log.debug("    Found '" + mtnode + "'.");
 		}
 
 		private DefaultMutableTreeNode last_search;
@@ -226,7 +231,7 @@ public class UIBuilder extends JDialog {
 		}
 	}
 
-	private static final String LOAD_SAVE_DIALOG = "net/rptools/maptool/client/ui/forms/loadSaveDialog.jfrm";
+	private static final String LOAD_SAVE_DIALOG = "net/rptools/maptool/client/ui/forms/campaignItemList.jfrm";
 	private static final FormPanel form = new FormPanel(LOAD_SAVE_DIALOG);
 
 	private CheckBoxTree tree;
@@ -234,12 +239,12 @@ public class UIBuilder extends JDialog {
 	private int status = -1;
 
 	public UIBuilder(Frame frame) {
-		super(frame, "Load/Save Dialog Test", true);
+		super(frame, "Load/Save Dialog", true);
 		add(form);
 		tree = (CheckBoxTree) form.getTree("mainTree");
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new MaptoolNode("Root"));
 		dtm = new TreeModel(root);
-		buildTree();
+//		buildTree();
 
 		tree.setModel(dtm);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -247,10 +252,18 @@ public class UIBuilder extends JDialog {
 
 		// This is how to turn ON the checkbox for a particular node
 		tree.getCheckBoxTreeSelectionModel().addSelectionPath(new TreePath(root.getPath()));
+
 		// This is how to turn OFF the checkbox for a particular node
 //		tree.getCheckBoxTreeSelectionModel().removeSelectionPath(new TreePath(root.getPath()));
+
+		Dimension size;
 		JScrollPane jsp = (JScrollPane) tree.getParent().getParent();
-		jsp.getViewport().setPreferredSize(new Dimension(350, 300));
+		JViewport jv = jsp.getViewport();
+		size = tree.getPreferredScrollableViewportSize();
+		size = jv.getViewSize();
+		jsp.setPreferredSize(new Dimension(550, 300));
+		size = tree.getPreferredScrollableViewportSize();
+		size = jv.getViewSize();
 
 		final JDialog dialog = this;
 		AbstractButton btn = form.getButton("ok");
@@ -267,6 +280,7 @@ public class UIBuilder extends JDialog {
 				dialog.setVisible(false);
 			}
 		});
+		SwingUtil.centerOver(this, frame);
 	}
 
 	public CheckBoxTree getTree() {

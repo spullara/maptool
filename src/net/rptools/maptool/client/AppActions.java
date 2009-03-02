@@ -443,21 +443,19 @@ public class AppActions {
 			 * window.
 			 */
 			try {
-				// Ugh. :(  'topdir', 'dir', and 'assetDir' should probably be using File objects...
-				String topdir = urd.getDirectory();
-				if (! topdir.endsWith("/"))
-					topdir = topdir + "/";
-				String dir = getFormattedDate(null) + "/";
-				String assetDir = (topdir.startsWith("/") ? topdir.substring(1) : topdir) + dir;
+				File topdir = urd.getDirectory();
+				File dir = new File(urd.isCreateSubdir() ? getFormattedDate(null) : null);
 
 				Map<String, String> repoEntries = new HashMap<String, String>(missing.size());
 				FTPClient ftp = new FTPClient(urd.getHostname(), urd.getUsername(), urd.getPassword());
+
+				// Enabling this means the upload begins immediately upon the first queued entry
 				ftp.setEnabled(true);
-				ProgressBarList pgl = new ProgressBarList(MapTool.getFrame(), ftp, missing.size()+1);
+				ProgressBarList pbl = new ProgressBarList(MapTool.getFrame(), ftp, missing.size()+1);
 
 				for (Map.Entry<MD5Key, Asset> entry : missing.entrySet()) {
 					String remote = entry.getKey().toString();
-					repoEntries.put(remote, assetDir + remote);
+					repoEntries.put(remote, dir == null ? remote : new File(dir, remote).getPath());
 					ftp.addToQueue(new FTPTransferObject(Direction.FTP_PUT, entry.getValue().getImage(), dir, remote));
 				}
 				// We're done with "missing", so empty it now.
@@ -465,14 +463,18 @@ public class AppActions {
 
 				// Handle the index
 				ByteArrayOutputStream bout = new ByteArrayOutputStream();
-				{
-					String saveTo = urd.getSaveToRepository();
-					byte[] index = AssetManager.updateRepositoryMap(saveTo, repoEntries);
-					repoEntries.clear();
-					GZIPOutputStream gzout = new GZIPOutputStream(bout);
-					gzout.write(index);
-					gzout.close();
-				}
+				String saveTo = urd.getSaveToRepository();
+				// When this runs our local 'repoindx' is updated.  If the FTP upload later fails,
+				// it doesn't really matter much because the assets are already there.  However,
+				// if our local cache is ever downloaded again, we'll "forget" that the assets are
+				// on the server.  It sounds like it might be nice to have some way to resync
+				// the local system with the FTP server.  But it's probably better to let the user
+				// do it manually.
+				byte[] index = AssetManager.updateRepositoryMap(saveTo, repoEntries);
+				repoEntries.clear();
+				GZIPOutputStream gzout = new GZIPOutputStream(bout);
+				gzout.write(index);
+				gzout.close();
 				ftp.addToQueue(new FTPTransferObject(Direction.FTP_PUT, bout.toByteArray(), topdir, "index.gz"));
 			} catch (IOException ioe) {
 				ioe.printStackTrace();

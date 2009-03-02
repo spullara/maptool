@@ -3,6 +3,7 @@
  */
 package net.rptools.maptool.client.ui.io;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,7 +38,7 @@ import java.io.OutputStream;
 
 public class FTPTransferObject {
 	public Object local;
-	public String remoteDir;
+	public File remoteDir;
 	public String remote;
 	public Direction getput;
 	public boolean complete;
@@ -65,7 +66,7 @@ public class FTPTransferObject {
 	 * @param l
 	 * @param r
 	 */
-	public FTPTransferObject(Direction updown, Object l, String d, String r) {
+	public FTPTransferObject(Direction updown, Object l, File d, String r) {
 		local = l;
 		remoteDir = d;
 		remote = r;

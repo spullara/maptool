@@ -184,6 +184,10 @@ public class Zone extends BaseModel {
     	fogPaint = paint;
     }
 
+    public String toString() {
+    	return name;
+    }
+
     public String getName() {
 		return name;
 	}
@@ -772,7 +776,7 @@ public class Zone extends BaseModel {
     	if ( tokenNumberCache == null ) {
     		tokenNumberCache = new HashMap<String, Integer>();
     	}
-    	
+
     	Integer _lastUsed = tokenNumberCache.get(tokenBaseName);
     	
     	int lastUsed;

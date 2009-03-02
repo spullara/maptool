@@ -420,7 +420,7 @@ public class AssetManager {
 	 * </p>
 	 * <p>
 	 * If the calling function does not update the network storage for <b>index.gz</b>,
-	 * a restart of MapTool will lose the information when the index is downloaded.
+	 * a restart of MapTool will lose the information when the index is downloaded again.
 	 * </p>
 	 * @param repo name of the repository to update
 	 * @param add entries to add to the repository
@@ -447,11 +447,11 @@ public class AssetManager {
 	 * </p>
 	 * <p>
 	 * This provides the calling function with a list of all assets currently in use by the
-	 * campaign that do not appear in one of the listed assets.  It's entirely possible that
+	 * campaign that do not appear in one of the listed repositories.  It's entirely possible that
 	 * the asset is in a different repository or in none at all.
 	 * </p>
 	 * @param repos list of repositories to exclude
-	 * @return Map of all assets NOT in the specified repositories
+	 * @return Map of all known assets that are NOT in the specified repositories
 	 */
 	public static Map<MD5Key, Asset> findAllAssetsNotInRepositories(List<String> repos) {
 		// For performance reasons, we calculate the size of the Set in advance...

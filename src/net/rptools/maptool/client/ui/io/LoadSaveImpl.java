@@ -9,26 +9,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 
 import javax.swing.JOptionPane;
 
+import org.apache.log4j.Logger;
+
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.token.BarTokenOverlay;
-import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
+import net.rptools.maptool.client.ui.zone.ZoneMiniMapPanel;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.Campaign;
-import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.LightSource;
-import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.MacroButtonProperties;
-import net.rptools.maptool.model.SightType;
-import net.rptools.maptool.model.TokenProperty;
+import net.rptools.maptool.model.Zone;
 
 /**
  * @author crash
  *
  */
 public class LoadSaveImpl {
+	private static final Logger log = Logger.getLogger(LoadSaveImpl.class);
+
 	private Campaign cmpgn;
 	private UIBuilder.TreeModel model;
 	private static Map<String, DataTemplate> registry;
@@ -40,12 +39,12 @@ public class LoadSaveImpl {
 	/**
 	 * <p>
 	 * This method is used by other subsystems to register with us so we know they exist!
-	 * This allows us to call them when the user wants to load/save data.
+	 * This allows us to call them when the user wants to load/save their data.
 	 * </p>
 	 * 
-	 * @param dt the {@code DataTemplate} child class that represents the subsystem
+	 * @param dt the {@code DataTemplate} object that represents the subsystem
 	 */
-	public void addToRegistry(DataTemplate dt) {
+	public static void addToRegistry(DataTemplate dt) {
 		registry.put(dt.getSubsystemName(), dt);
 	}
 
@@ -58,7 +57,7 @@ public class LoadSaveImpl {
 		// When they're done, write the selected components out.
 		UIBuilder form = new UIBuilder(MapTool.getFrame());
 		model = form.getTreeModel();
-		new DataTemplate() {
+		addToRegistry(new DataTemplate() {
 			public String getSubsystemName() { return "built-in"; }
 			public void prepareForDisplay() {
 				addDataObjects("Campaign/Properties/Token Properties",	 cmpgn.getTokenTypeMap());
@@ -69,110 +68,19 @@ public class LoadSaveImpl {
 				addDataObjects("Campaign/Properties/Bars", cmpgn.getTokenBarsMap());
 				addDataObjects("Campaign/Properties/Tables", cmpgn.getLookupTableMap());
 				addDataObjects("Campaign/CampaignMacros", cmpgn.getMacroButtonPropertiesArray());
+				addDataObjects("Campaign/Maps", cmpgn.getZones());
 			}
-		}.populateModel(model);
+		});
 		for (Iterator<String> iter = registry.keySet().iterator(); iter.hasNext();) {
 			String name = (String) iter.next();
 			DataTemplate dt = (DataTemplate) registry.get(name);
 			dt.populateModel(model);
 		}
-
-		if (false) {
-			addTokenProperties(model);
-			addRepositories(model);
-			addSights(model);
-			addLights(model);
-			addStates(model);
-			addBars(model);
-			addLookupTables(model);
-			addMacros(model);
-		}
 		form.expandAndSelectAll(true);
+		form.pack();
 		form.setVisible(true);
 		if (form.getStatus() == JOptionPane.OK_OPTION) {
 			// Clicked OK to perform a load/save operation.
-		}
-	}
-	private void addTokenProperties(UIBuilder.TreeModel model) {
-		Map<String, List<TokenProperty>> types = cmpgn.getTokenTypeMap();
-		Set<String> names = types.keySet();
-		String[] typeNames = new String[names.size()];
-		names.toArray(typeNames);
-		Arrays.sort(typeNames);
-
-		for (int index = 0; index < typeNames.length; index++) {
-			List<TokenProperty> oneSet = types.get(typeNames[index]);
-			model.addNode("Campaign/Properties/Token Properties", new MaptoolNode(typeNames[index], oneSet));
-		}
-	}
-	private void addRepositories(UIBuilder.TreeModel model) {
-		List<String> repos = cmpgn.getRemoteRepositoryList();
-		String[] repoNames = new String[repos.size()];
-		repos.toArray(repoNames);
-		Arrays.sort(repoNames);
-		
-		for (int index = 0; index < repoNames.length; index++) {
-			model.addNode("Campaign/Properties/Repositories", new MaptoolNode(repoNames[index], repoNames[index]));
-		}
-	}
-	private void addSights(UIBuilder.TreeModel model) {
-		Map<String, SightType> sights = cmpgn.getSightTypeMap();
-		Set<String> names = sights.keySet();
-		String[] sightNames = new String[names.size()];
-		names.toArray(sightNames);
-		Arrays.sort(sightNames);
-		
-		for (int index = 0; index < sightNames.length; index++) {
-			SightType sight = sights.get(sightNames[index]);
-			model.addNode("Campaign/Properties/Sights", new MaptoolNode(sightNames[index], sight));
-		}
-	}
-	private void addLights(UIBuilder.TreeModel model) {
-		Map<String, Map<GUID, LightSource>> lights = cmpgn.getLightSourcesMap();
-		Set<String> names = lights.keySet();
-		String[] lightNames = new String[names.size()];
-		names.toArray(lightNames);
-		Arrays.sort(lightNames);
-		
-		for (int index = 0; index < lightNames.length; index++) {
-			Map<GUID, LightSource> light = lights.get(lightNames[index]);
-			model.addNode("Campaign/Properties/Lights", new MaptoolNode(lightNames[index], light));
-		}
-	}
-	private void addStates(UIBuilder.TreeModel model) {
-		Map<String, BooleanTokenOverlay> states = cmpgn.getTokenStatesMap();
-		Set<String> names = states.keySet();
-		String[] stateNames = new String[names.size()];
-		names.toArray(stateNames);
-		Arrays.sort(stateNames);
-
-		for (int index = 0; index < stateNames.length; index++) {
-			BooleanTokenOverlay state = states.get(stateNames[index]);
-			model.addNode("Campaign/Properties/States", new MaptoolNode(stateNames[index], state));
-		}
-	}
-	private void addBars(UIBuilder.TreeModel model) {
-		Map<String, BarTokenOverlay> bars = cmpgn.getTokenBarsMap();
-		Set<String> names = bars.keySet();
-		String[] barNames = new String[names.size()];
-		names.toArray(barNames);
-		Arrays.sort(barNames);
-		
-		for (int index = 0; index < barNames.length; index++) {
-			BarTokenOverlay bar = bars.get(barNames[index]);
-			model.addNode("Campaign/Properties/Bars", new MaptoolNode(barNames[index], bar));
-		}
-	}
-	private void addLookupTables(UIBuilder.TreeModel model) {
-		Map<String, LookupTable> tables = cmpgn.getLookupTableMap();
-		Set<String> names = tables.keySet();
-		String[] tableNames = new String[names.size()];
-		names.toArray(tableNames);
-		Arrays.sort(tableNames);
-
-		for (int index = 0; index < tableNames.length; index++) {
-			LookupTable lookup = tables.get(tableNames[index]);
-			model.addNode("Campaign/Properties/Tables", new MaptoolNode(tableNames[index], lookup));
 		}
 	}
 	private void addMacros(UIBuilder.TreeModel model) {
@@ -188,7 +96,7 @@ public class LoadSaveImpl {
 			else if (loc.equals("CampaignPanel"))
 				campaign.put(macro.getLabel(), macro);
 			else {
-				System.out.println("Ignoring " + loc + " macro button property");
+				log.debug("Ignoring " + loc + " macro button property");
 				other.put(loc, macro);
 			}
 		}

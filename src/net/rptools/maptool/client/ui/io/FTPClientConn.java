@@ -35,9 +35,13 @@ class FTPClientConn {
 		if (user == null)
 			proto_user_pswd_host = PROTOCOL + host + "/";
 		else if (password == null)
-			proto_user_pswd_host = PROTOCOL + user + "@" + host + "/";
+			proto_user_pswd_host = PROTOCOL + encodeUser(user) + "@" + host + "/";
 		else
-			proto_user_pswd_host = PROTOCOL + user + ":" + password + "@" + host + "/";
+			proto_user_pswd_host = PROTOCOL + encodeUser(user) + ":" + password + "@" + host + "/";
+	}
+
+	private static String encodeUser(String u) {
+		return u.replace("@", "%40");
 	}
 
 	/**
