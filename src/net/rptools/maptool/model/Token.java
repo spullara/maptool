@@ -1303,4 +1303,13 @@ public class Token extends BaseModel {
 			return o1.getName().compareTo(o2.getName());
 		}
 	};
+	public static final Comparator<Token> COMPARE_BY_ZORDER = new Comparator<Token>() {
+		public int compare(Token o1, Token o2) {
+			if (o1 == null || o2 == null) {
+				return 0;
+			}
+			
+			return o1.z < o2.z ? -1 : o1.z == o2.z ? 0 : 1;
+		}
+	};
 }
