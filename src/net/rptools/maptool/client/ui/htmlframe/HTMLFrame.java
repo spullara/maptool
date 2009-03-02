@@ -3,6 +3,7 @@ package net.rptools.maptool.client.ui.htmlframe;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Frame;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.Map;
@@ -102,6 +103,25 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 	}
 
 
+	static public void center(String name) {
+		
+		if (!frames.containsKey(name)) {
+			return ;
+		}
+		
+		HTMLFrame frame = frames.get(name);
+		
+    	Dimension outterSize = MapTool.getFrame().getSize();
+    	
+    	int x = MapTool.getFrame().getLocation().x + (outterSize.width - 400) / 2;
+    	int y = MapTool.getFrame().getLocation().y + (outterSize.height - 400) / 2;
+    	
+    	Rectangle rect = new Rectangle(x, y, 400, 400);
+
+    	MapTool.getFrame().getDockingManager().floatFrame(frame.getKey(), rect, true);
+    	
+ 
+	}
 
 	/**
 	 * Updates the html contents of the frame.
