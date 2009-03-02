@@ -33,6 +33,7 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -858,7 +859,9 @@ public class AppActions {
 				zonePoint = renderer.getZone().getGrid().convert(cellPoint);
 			}
 
-			for (Token origToken : tokenCopySet) {
+			List<Token> tokenList = new ArrayList<Token>(tokenCopySet);
+			Collections.sort(tokenList, Token.COMPARE_BY_ZORDER);
+			for (Token origToken : tokenList) {
 
 				Token token = new Token(origToken);
 
