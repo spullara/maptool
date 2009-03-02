@@ -65,11 +65,11 @@ public class AppMenuBar extends JMenuBar {
 		// MAP CREATION
 		fileMenu.add(new JMenuItem(AppActions.NEW_CAMPAIGN));
 		fileMenu.add(new JMenuItem(AppActions.LOAD_CAMPAIGN));
-		fileMenu.add(new JMenuItem(AppActions.LOAD_SAVE));
+//		fileMenu.add(new JMenuItem(AppActions.LOAD_SAVE));
 		fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN));
 		fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN_AS));
-		fileMenu.add(new JMenuItem(AppActions.LOAD_MAP));
-		fileMenu.add(new JMenuItem(AppActions.SAVE_MAP_AS));
+//		fileMenu.add(new JMenuItem(AppActions.LOAD_MAP));
+//		fileMenu.add(new JMenuItem(AppActions.SAVE_MAP_AS));
 		
 		fileMenu.add(new JMenuItem(AppActions.SAVE_MESSAGE_HISTORY));
 		fileMenu.addSeparator();
@@ -98,7 +98,7 @@ public class AppMenuBar extends JMenuBar {
 		menu.addSeparator();
 
 		menu.add(new JMenuItem(AppActions.EXPORT_CAMPAIGN_REPO));
-		menu.add(new JMenuItem(AppActions.UPDATE_CAMPAIGN_REPO));
+//		menu.add(new JMenuItem(AppActions.UPDATE_CAMPAIGN_REPO));
 
 		return menu;
 	}
