@@ -1601,8 +1601,7 @@ public class AppActions {
 
 						// connecting
 						MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
-						MapTool.addLocalMessage("<span style='color:blue'><i>"
-								+ I18N.getText("msg.info.startServer") + "</i></span>");
+						MapTool.addLocalMessage("<span style='color:blue'><i>" + I18N.getText("msg.info.startServer") + "</i></span>");
 					} catch (UnknownHostException uh) {
 						MapTool.showError("msg.error.invalidLocalhost");
 						failed = true;
