@@ -348,7 +348,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action UPDATE_CAMPAIGN_REPO = new AdminClientAction() {
+	public static final Action UPDATE_CAMPAIGN_REPO = new DeveloperClientAction() {
 		{
 			init("admin.updateCampaignRepo");
 		}
