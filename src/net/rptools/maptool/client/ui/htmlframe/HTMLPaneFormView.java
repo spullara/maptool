@@ -2,6 +2,7 @@ package net.rptools.maptool.client.ui.htmlframe;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Element;
@@ -65,7 +66,12 @@ public class HTMLPaneFormView extends FormView {
 						}
 					}
 				}
-				data = jobj.toString();
+				try {
+					data = URLEncoder.encode(jobj.toString(), "utf8");
+				} catch (UnsupportedEncodingException e) {
+					// Use the raw data.
+					data = jobj.toString();
+				}
 			}
 			htmlPane.doSubmit(method, action, data);
 		}
