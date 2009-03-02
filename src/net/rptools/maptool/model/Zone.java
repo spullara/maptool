@@ -132,7 +132,7 @@ public class Zone extends BaseModel {
     private String name;
     private boolean isVisible;
     
-    private VisionType visionType = VisionType.OFF;
+    private VisionType visionType = VisionType.NIGHT;
     
     // These are transitionary properties, very soon the width and height won't matter
     private int height;
