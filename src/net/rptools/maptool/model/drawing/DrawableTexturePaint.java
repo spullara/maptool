@@ -46,7 +46,7 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable,
 		this.scale = scale;
 	}
 	public DrawableTexturePaint(Asset asset) {
-		this(asset.getId());
+		this(asset != null ? asset.getId() : null);
 		this.asset = asset;
 	}
 	public DrawableTexturePaint(Asset asset, double scale) {
@@ -75,7 +75,7 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable,
 	}
 
 	public Asset getAsset() {
-		if (asset == null) {
+		if (asset == null && assetId != null) {
 			asset = AssetManager.getAsset(assetId);
 		}
 		
