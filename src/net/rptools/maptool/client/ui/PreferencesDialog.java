@@ -92,6 +92,7 @@ public class PreferencesDialog extends JDialog {
 	
 	private JSpinner autoSaveSpinner;
 	private JCheckBox saveReminderCheckBox;
+	private JCheckBox legacySaveCheckBox;
 	
 	private JCheckBox showDialogOnNewToken;
 
@@ -120,6 +121,7 @@ public class PreferencesDialog extends JDialog {
 		
 		showNumberingCombo = panel.getComboBox("showNumberingCombo");
 		saveReminderCheckBox = panel.getCheckBox("saveReminderCheckBox");
+		legacySaveCheckBox = panel.getCheckBox("legacySaveCheckBox");
 		autoSaveSpinner = panel.getSpinner("autoSaveSpinner");
 		duplicateTokenCombo = panel.getComboBox("duplicateTokenCombo");
 		tokenNamingCombo = panel.getComboBox("tokenNamingCombo");
@@ -253,6 +255,11 @@ public class PreferencesDialog extends JDialog {
 		saveReminderCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setSaveReminder(saveReminderCheckBox.isSelected());
+			}
+		});
+		legacySaveCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setLegacySaveFormat(legacySaveCheckBox.isSelected());
 			}
 		});
 		showDialogOnNewToken.addActionListener(new ActionListener() {
@@ -547,6 +554,7 @@ public class PreferencesDialog extends JDialog {
 		
 		showDialogOnNewToken.setSelected(AppPreferences.getShowDialogOnNewToken());
 		saveReminderCheckBox.setSelected(AppPreferences.getSaveReminder());
+		legacySaveCheckBox.setSelected(AppPreferences.getLegacySaveFormat());
 		autoSaveSpinner.setValue(AppPreferences.getAutoSaveIncrement());
 		newMapsHaveFOWCheckBox.setSelected(AppPreferences.getNewMapsHaveFOW());
 		tokensStartSnapToGridCheckBox.setSelected(AppPreferences.getTokensStartSnapToGrid());

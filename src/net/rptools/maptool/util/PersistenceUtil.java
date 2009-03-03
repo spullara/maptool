@@ -42,6 +42,7 @@ import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.io.PackedFile;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppConstants;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.Scale;
@@ -52,6 +53,7 @@ import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
@@ -159,6 +161,12 @@ public class PersistenceUtil {
 	private static CodeTimer saveTimer;
 	public static void saveCampaign(Campaign campaign, File campaignFile) throws IOException {
 		
+		if (AppPreferences.getLegacySaveFormat()) {
+			if (!MapTool.confirm("msg.confirm.legacySave")) {
+				return;
+			}
+		}
+
 		saveTimer = new CodeTimer("Save");
 		saveTimer.setThreshold(5);
 		
@@ -173,6 +181,9 @@ public class PersistenceUtil {
 		}
 
 		PackedFile pakFile = new PackedFile(tmpFile);
+		if (AppPreferences.getLegacySaveFormat()) {
+			pakFile.getXStream().omitField(LightSource.class, "type");
+		}
 
 		// Configure the meta file (this is for legacy support)
 		PersistedCampaign persistedCampaign = new PersistedCampaign();
