@@ -202,6 +202,7 @@ public class Token extends BaseModel {
 		
 		x = token.x;
 		y = token.y;
+		z = token.z;
 
 		// These properties shouldn't be transferred, they are more transient and relate to token history, not to new tokens
 		//		lastX = token.lastX;
