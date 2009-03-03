@@ -895,7 +895,7 @@ public class Zone extends BaseModel {
 	private static List<DrawnElement> cleanupDrawables(List<DrawnElement> list) {
 		List<DrawnElement> newList = new LinkedList<DrawnElement>();
 		for (DrawnElement element : list) {
-			if (element.getDrawable() instanceof LineSegment) {
+			if (element.getDrawable() instanceof LineSegment && ((LineSegment)element.getDrawable()).getPoints().size() > 0) {
 				newList.add(new DrawnElement(new ShapeDrawable(((LineSegment)element.getDrawable()).createLineArea()), element.getPen()));
 			} else {
 				newList.add(element);
