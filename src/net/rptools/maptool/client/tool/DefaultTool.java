@@ -18,7 +18,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.SwingUtilities;
@@ -179,7 +178,7 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 	public void mouseWheelMoved(MouseWheelEvent e) {
 
 		// QUICK ROTATE
-		if (SwingUtil.isShiftDown(e) && !SwingUtil.isControlDown(e)) {
+		if (SwingUtil.isShiftDown(e)) {
 
 			Set<GUID> tokenGUIDSet = renderer.getSelectedTokenSet();
 			if (tokenGUIDSet.size() == 0) {
