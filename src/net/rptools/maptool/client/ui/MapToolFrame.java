@@ -126,7 +126,6 @@ import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.util.ImageManager;
 
-import org.jdesktop.swingworker.SwingWorker;
 import org.xml.sax.SAXException;
 
 import com.jidesoft.docking.DefaultDockableHolder;
@@ -1283,7 +1282,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		MapTool.getAutoSaveManager().purge();
 
 		setVisible(false);
-		dispose();
+
+		// Not necessary since we'll release all resources when we close
+		// That and it seems to sometimes throw an NPE, go figure.
+		// dispose();
 	}
 
 	public void windowClosed(WindowEvent e) {
