@@ -130,6 +130,10 @@ public class ZoneView implements ModelChangeListener {
 	
     private Area calculateLightSourceArea(LightSource lightSource, Token lightSourceToken, SightType sight, Direction direction) {
     	
+    	if (sight == null) {
+    		return null;
+    	}
+    	
         Point p = FogUtil.calculateVisionCenter(lightSourceToken, zone);
         Area lightSourceArea = lightSource.getArea(lightSourceToken, zone, direction);
         
