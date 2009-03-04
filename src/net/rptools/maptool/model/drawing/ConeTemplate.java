@@ -226,27 +226,48 @@ public class ConeTemplate extends RadiusTemplate {
    * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
    */
   public Rectangle getBounds() {
-    int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
-    int quadrantSize = getRadius() * gridSize + BOUNDS_PADDING;
-    
-    // Find the x,y loc
-    ZonePoint vertex = getVertex();
-    int x = vertex.x;
-    if (getDirection() == Direction.NORTH_WEST || getDirection() == Direction.WEST || getDirection() == Direction.SOUTH_WEST
-        || getDirection() == Direction.NORTH || getDirection() == Direction.SOUTH)
-      x -= quadrantSize;
-    int y = vertex.y;
-    if (getDirection() == Direction.NORTH_WEST || getDirection() == Direction.NORTH || getDirection() == Direction.NORTH_EAST
-        || getDirection() == Direction.EAST || getDirection() == Direction.WEST)
-      y -= quadrantSize;
-    
-    // Find the width,height
-    int width = quadrantSize + BOUNDS_PADDING;
-    if (getDirection() == Direction.NORTH || getDirection() == Direction.SOUTH)
-      width += quadrantSize;
-    int height = quadrantSize + BOUNDS_PADDING;
-    if (getDirection() == Direction.EAST || getDirection() == Direction.WEST)
-      height += quadrantSize;
-    return new Rectangle(x, y, width, height);
-  }
+	  
+		if (MapTool.getCampaign().getZone(getZoneId()) == null) {
+			// How does this happen ?!  Anyway, try to use the current zone (since that's what we're drawing anyway, seems reasonable
+			if (MapTool.getFrame().getCurrentZoneRenderer() == null) {
+				// Wha?!
+				return new Rectangle();
+			}
+			setZoneId(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId());
+		}
+
+		int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
+		int quadrantSize = getRadius() * gridSize + BOUNDS_PADDING;
+
+		// Find the x,y loc
+		ZonePoint vertex = getVertex();
+		int x = vertex.x;
+		if (getDirection() == Direction.NORTH_WEST || 
+				getDirection() == Direction.WEST || 
+				getDirection() == Direction.SOUTH_WEST || 
+				getDirection() == Direction.NORTH || 
+				getDirection() == Direction.SOUTH) {
+
+			x -= quadrantSize;
+		}
+		
+		int y = vertex.y;
+		if (getDirection() == Direction.NORTH_WEST || 
+				getDirection() == Direction.NORTH || 
+				getDirection() == Direction.NORTH_EAST || 
+				getDirection() == Direction.EAST || 
+				getDirection() == Direction.WEST) {
+			
+			y -= quadrantSize;
+		}
+
+		// Find the width,height
+		int width = quadrantSize + BOUNDS_PADDING;
+		if (getDirection() == Direction.NORTH || getDirection() == Direction.SOUTH)
+			width += quadrantSize;
+		int height = quadrantSize + BOUNDS_PADDING;
+		if (getDirection() == Direction.EAST || getDirection() == Direction.WEST)
+			height += quadrantSize;
+		return new Rectangle(x, y, width, height);
+	}
 }
