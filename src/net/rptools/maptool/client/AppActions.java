@@ -1882,24 +1882,24 @@ public class AppActions {
 				return;
 			}
 
-			saveCampaign(MapTool.getCampaign(), AppState.getCampaignFile());
+			saveCampaign(MapTool.getCampaign(), AppState.getCampaignFile(), ae.getActionCommand());
 		}
 	};
 
-	private static void saveCampaign(Campaign campaign, File file) {
+	private static void saveCampaign(final Campaign campaign, final File file, final String command) {
 		MapTool.getFrame().showFilledGlassPane(new StaticMessageDialog(I18N.getText("msg.info.campaignSaving")));
 		new SwingWorker<Object, Object>() {
 			@Override
 			protected Object doInBackground() throws Exception {
 				try {
 					long start = System.currentTimeMillis();
-					PersistenceUtil.saveCampaign(MapTool.getCampaign(), AppState.getCampaignFile());
+					PersistenceUtil.saveCampaign(campaign, file);
 					AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
 					MapTool.getFrame().setStatusMessage(I18N.getString("msg.info.campaignSaved"));
 					
 					// Min display time so people can see the message
 					try {
-						Thread.sleep(Math.max(0, 250 - (System.currentTimeMillis() - start)));
+						Thread.sleep(Math.max(0, 500 - (System.currentTimeMillis() - start)));
 					} catch (InterruptedException e) {
 						// Nothing to do
 					}
@@ -1913,6 +1913,15 @@ public class AppActions {
 			@Override
 			protected void done() {
 				MapTool.getFrame().hideGlassPane();
+				
+				if (command != null) {
+					// TODO: make this prettier.  I need to be able to tell the save command to exit the program
+					// on completion, so I'm hijacking the command value of the action.  Very.  Ugly.  Presumably it
+					// would be better passing some sort of Runnable to execute on completion.  But this will work for now
+					if ("close".equals(command)) {
+						MapTool.getFrame().close();
+					}
+				}
 			}
 		}.execute();
 	}
@@ -1946,7 +1955,7 @@ public class AppActions {
 					campaignFile = new File(campaignFile.getAbsolutePath() + AppConstants.CAMPAIGN_FILE_EXTENSION);
 				}
 
-				saveCampaign(campaign, campaignFile);
+				saveCampaign(campaign, campaignFile, ae.getActionCommand());
 
 				AppState.setCampaignFile(campaignFile);
 				AppPreferences.setSaveDir(campaignFile.getParentFile());

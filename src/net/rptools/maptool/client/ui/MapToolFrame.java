@@ -1253,18 +1253,13 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			if (MapTool.getPlayer().isGM()) {
 				int result = JOptionPane.showConfirmDialog(MapTool.getFrame(), I18N.getText("msg.confirm.saveCampaign"), I18N.getText("msg.title.saveCampaign"), JOptionPane.YES_NO_CANCEL_OPTION);
 
-				if (result == JOptionPane.CANCEL_OPTION) {
+				if (result == JOptionPane.CANCEL_OPTION || result == JOptionPane.CLOSED_OPTION) {
 					return;
 				}
 
 				if (result == JOptionPane.YES_OPTION) {
-					AppActions.SAVE_CAMPAIGN.actionPerformed(null);
-					// TODO This is an ugly way to determine whether the campaign was
-					// saved. :(  But actionPerformed() is void, so what else is there?
-					// We get here if the user says "Yes" to "Would you like to save your campaign?"
-					// But what if they then cancel the JFileChooser?  Quitting the app is WRONG!
-					if (AppActions.saveStatus != JFileChooser.APPROVE_OPTION)
-						return;
+					AppActions.SAVE_CAMPAIGN.actionPerformed(new ActionEvent(this, 0, "close"));
+					return;
 				}
 			} else {
 				if (!MapTool.confirm(I18N.getText("msg.confirm.disconnecting"))) {
@@ -1272,6 +1267,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				}
 			}
 		}
+		
+		close();
+	}
+	
+	public void close() {
 
 		ServerDisconnectHandler.disconnectExpected = true;
 		MapTool.disconnect();
