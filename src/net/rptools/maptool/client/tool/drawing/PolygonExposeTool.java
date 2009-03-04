@@ -79,6 +79,18 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
     }
 
     @Override
+    protected void stopLine(MouseEvent e) {
+    	LineSegment line = getLine();
+    	
+        if (line == null) return; // Escape has been pressed
+        addPoint(e);
+        
+        completeDrawable(renderer.getZone().getId(), getPen(), line);
+        
+        resetTool();
+    }
+
+    @Override
     protected void completeDrawable(GUID zoneId, Pen pen, Drawable drawable) {
 
         if (!MapTool.getPlayer().isGM()) {
