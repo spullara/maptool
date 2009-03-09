@@ -1283,13 +1283,14 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		setVisible(false);
 
+		System.exit(0);
+
 		// Not necessary since we'll release all resources when we close
 		// That and it seems to sometimes throw an NPE, go figure.
 		// dispose();
 	}
 
 	public void windowClosed(WindowEvent e) {
-		System.exit(0);
 	}
 
 	public void windowIconified(WindowEvent e) {
