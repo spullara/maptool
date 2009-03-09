@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
@@ -36,7 +38,9 @@ public class JSONMacroFunctions extends AbstractFunction {
 				    "json.fromStrProp", "json.toStrProp", "json.toList",
 				    "json.append", "json.remove", "json.indent", "json.contains",
 				    "json.sort", "json.shuffle", "json.reverse", "json.evaluate", 
-				    "json.isEmpty", "json.equals");
+				    "json.isEmpty", "json.equals", "json.count", "json.indexOf",
+				    "json.merge", "json.unique", "json.removeAll", "json.union",
+				    "json.intersection", "json.difference", "json.isSubset");
 	}
 	
 	public static JSONMacroFunctions getInstance() {
@@ -250,9 +254,408 @@ public class JSONMacroFunctions extends AbstractFunction {
 			return BigDecimal.ZERO;
 		}
 		
+		if (functionName.equals("json.count")) {
+			if (parameters.size() < 2) {
+				throw new ParserException("json.count(): Not enough parameters.");
+			}
+			int start = 0;
+			if (parameters.size() > 2) {
+				if (!(parameters.get(2) instanceof BigDecimal)) {
+					throw new ParserException("json.count(): Third argument must be a number");
+				}
+				start = ((BigDecimal)parameters.get(2)).intValue();
+			}
+			return JSONCount(asJSON(parameters.get(0).toString()), parameters.get(1), start);
+		}
+		
+		if (functionName.equals("json.indexOf")) {
+			if (parameters.size() < 2) {
+				throw new ParserException("json.indexOf(): Not enough parameters.");
+			}
+			int start = 0;
+			if (parameters.size() > 2) {
+				if (!(parameters.get(2) instanceof BigDecimal)) {
+					throw new ParserException("json.indexOf(): Third argument must be a number");
+				}
+				start = ((BigDecimal)parameters.get(2)).intValue();
+			}
+			return JSONIndexOf(asJSON(parameters.get(0).toString()), parameters.get(1), start);
+		}
+
+		if (functionName.equals("json.merge")) {
+			return JSONMerge(parameters);
+		}
+		
+		if (functionName.equals("json.unique")) {
+			return JSONUnique(asJSON(parameters.get(0).toString()));
+		}
+		
+		if (functionName.equals("json.removeAll")) {
+			return JSONRemoveAll(parameters);
+		}
+		
+		if (functionName.equals("json.union")) {
+			if (parameters.size() < 2) {
+				throw new ParserException("json.union(): not enough parameters.");
+			}
+			return JSONUnion(parameters);
+		}
+
+		if (functionName.equals("json.difference")) {
+			if (parameters.size() != 2) {
+				throw new ParserException("json.difference(): incorrect number of parameters.");
+			}
+			return JSONDifference(parameters);
+		}
+		
+		if (functionName.equals("json.intersection")) {
+			if (parameters.size() < 2) {
+				throw new ParserException("json.intersection(): not enough parameters.");
+			}
+			return JSONIntersection(parameters);			
+		}
+
+		if (functionName.equals("json.isSubset")) {
+			if (parameters.size() < 2) {
+				throw new ParserException("json.isSubset(): incorrect number of parameters.");
+			}
+			return JSONIsSubset(parameters);
+		}
+
+
 		throw new ParserException(functionName + "(): Unknown function");
 	}
+
+
+	/**
+	 * Determines if JSON arrays are a subset of another array.
+	 * @param parameters The arguments to the function.
+	 * @return 1 if all the sets are a subset of the first set, otherwise 0.
+	 * @throws ParserException If an error occurs.
+	 */
+	private BigDecimal JSONIsSubset(List<Object> parameters) throws ParserException {
+		Set<Object> set = new HashSet<Object>();
+		Set<Object> subset = new HashSet<Object>();
+		
+		Object o1 = asJSON(parameters.get(0));
+		if (o1 instanceof JSONArray) {
+			set.addAll((JSONArray)o1);
+		} else if (o1 instanceof JSONObject) {
+			set.addAll(((JSONObject)o1).keySet());
+		} else {
+			throw new ParserException("json.isSubset(): All acrguments must be JSON arrays or objects.");
+		}
+		
+		for (int i = 1; i < parameters.size(); i++) {
+			Object o2 = asJSON(parameters.get(i));
+			if (o2 instanceof JSONArray) {
+				subset.addAll((JSONArray)o2);
+			} else if (o2 instanceof JSONObject) {
+				subset.addAll(((JSONObject)o2).keySet());
+			} else {
+				throw new ParserException("json.isSubset(): All acrguments must be JSON arrays or objects.");
+			}	
+			
+			if (!set.containsAll(subset)) {
+				return BigDecimal.ZERO;
+			}
+		}
 	
+		return BigDecimal.ONE;
+	}
+
+	/**
+	 * Perform a difference of all of the JSON objects or arrays.
+	 * @param parameters The arguments to the function.
+	 * @return a JSON array containing the difference of all the arguments.
+	 * @throws ParserException
+	 */
+	private Object JSONDifference(List<Object> parameters) throws ParserException {
+		Set<Object> s = new HashSet<Object>();
+		
+		Object o = asJSON(parameters.get(0).toString());
+		if (o instanceof JSONArray) {
+			s.addAll((JSONArray)o);
+		} else if (o instanceof JSONObject) {
+			s.addAll(((JSONObject)o).keySet());
+		} else {
+			throw new ParserException("json.difference(): All arguments must be JSON arrays or objects.");
+		}
+		
+		for (int i = 1; i < parameters.size(); i++) {
+			o = asJSON(parameters.get(i).toString());
+			if (o instanceof JSONArray) {
+				s.removeAll((JSONArray)o);
+			} else if (o instanceof JSONObject) {
+				s.removeAll(((JSONObject)o).keySet());
+			} else {
+				throw new ParserException("json.difference(): All arguments must be JSON arrays or objects.");
+			}
+		}
+		
+		return JSONArray.fromObject(s);
+	}
+
+	
+	/**
+	 * Perform a union of all of the JSON objects or arrays.
+	 * @param parameters The arguments to the function.
+	 * @return a JSON array containing the union of all the arguments.
+	 * @throws ParserException
+	 */
+	private Object JSONUnion(List<Object> parameters) throws ParserException {
+		Set<Object> s = new HashSet<Object>();
+		
+		Object o = asJSON(parameters.get(0).toString());
+		if (o instanceof JSONArray) {
+			s.addAll((JSONArray)o);
+		} else if (o instanceof JSONObject) {
+			s.addAll(((JSONObject)o).keySet());
+		} else {
+			throw new ParserException("json.union(): All arguments must be JSON arrays or objects.");
+		}
+		
+		for (int i = 1; i < parameters.size(); i++) {
+			o = asJSON(parameters.get(i).toString());
+			if (o instanceof JSONArray) {
+				s.addAll((JSONArray)o);
+			} else if (o instanceof JSONObject) {
+				s.addAll(((JSONObject)o).keySet());
+			} else {
+				throw new ParserException("json.union(): All arguments must be JSON arrays or objects.");
+			}
+		}
+		
+		return JSONArray.fromObject(s);
+	}
+
+	/**
+	 * Perform a intersection of all of the JSON objects or arrays.
+	 * @param parameters The arguments to the function.
+	 * @return a JSON array containing the intersection of all the arguments.
+	 * @throws ParserException
+	 */
+	private Object JSONIntersection(List<Object> parameters) throws ParserException {
+		Set<Object> s = new HashSet<Object>();
+		
+		Object o = asJSON(parameters.get(0).toString());
+		if (o instanceof JSONArray) {
+			s.addAll((JSONArray)o);
+		} else if (o instanceof JSONObject) {
+			s.addAll(((JSONObject)o).keySet());
+		} else {
+			throw new ParserException("json.intersection(): All arguments must be JSON arrays or objects.");
+		}
+		
+		for (int i = 1; i < parameters.size(); i++) {
+			o = asJSON(parameters.get(i).toString());
+			if (o instanceof JSONArray) {
+				s.retainAll((JSONArray)o);
+			} else if (o instanceof JSONObject) {
+				s.retainAll(((JSONObject)o).keySet());
+			} else {
+				throw new ParserException("json.intersection(): All arguments must be JSON arrays or objects.");
+			}
+		}
+		
+		return JSONArray.fromObject(s);
+	}
+	
+	/**
+	 * Removes all the values in the second and any subsequent objects/arrays from the first JSON object or array.
+	 * @param parameters The parameters to the function.
+	 * @return the new object or array.
+	 * @throws ParserException if an error occurs.
+	 */
+	private Object JSONRemoveAll(List<Object> parameters) throws ParserException {
+		Object json	= asJSON(parameters.get(0).toString());
+		
+		if (json instanceof JSONArray) {
+			// Create a new JSON Array to preserve immutability for the macro script.
+			JSONArray jarr = JSONArray.fromObject(json);
+			
+			for (int i = 1; i < parameters.size(); i++) {
+				Object o2 = asJSON(parameters.get(i).toString());
+				if (o2 instanceof JSONArray) {
+					jarr.removeAll((JSONArray)o2);
+				} else if (o2 instanceof JSONObject) {
+					jarr.removeAll(((JSONObject)o2).keySet());
+				} else {
+					throw new ParserException("json.removeAll(): all arguments must be JSON objects or arrays.");
+				}
+			}
+			return jarr;
+		} else if (json instanceof JSONObject) {
+			// Create a new JSON Array to preserve immutability for the macro script.
+			JSONObject jobj = JSONObject.fromObject(json);
+			
+			for (int i = 1; i < parameters.size(); i++) {
+				Object o2 = asJSON(parameters.get(i).toString());
+				if (o2 instanceof JSONArray) {
+					for (Object o3 : (JSONArray)o2) {
+						jobj.remove(o3);
+					}
+				} else if (o2 instanceof JSONObject) {
+					for (Object o3 : ((JSONObject)o2).keySet()) {
+						jobj.remove(o3);
+					}
+				} else {
+					throw new ParserException("json.removeAll(): all arguments must be JSON objects or arrays.");
+				}
+			}
+			return jobj;	
+		} else {
+			throw new ParserException("json.removeAll(): Can only be used on JSON objects or arrays");
+		}
+	}
+
+	/**
+	 * Returns a JSON array with no duplicates. There is order of elements may not be preserved.
+	 * @param obj The JSON array to remove the duplicates from.
+	 * @return a JSON array.
+	 * @throws ParserException if an exception occurs.
+ 	 */
+	private JSONArray JSONUnique(Object obj) throws ParserException {
+		if (!(obj instanceof JSONArray)) {
+			throw new ParserException("json.unique() can only be used on JSON arrays");
+		}
+		JSONArray jarr = (JSONArray) obj;
+		Set s = new HashSet();
+		s.addAll(jarr);
+		return JSONArray.fromObject(s);
+	}
+
+	/**
+	 * Merges multiple JSON objects or arrays.
+	 * @param parameters The parameters to the function.
+	 * @return the merged object or array.
+	 * @throws ParserException if an error occurs.
+	 */
+	private Object JSONMerge(List<Object> parameters) throws ParserException {
+		Object json	= asJSON(parameters.get(0).toString());
+		
+		if (json instanceof JSONArray) {
+			// Create a new JSON Array to preserve immutability for the macro script.
+			JSONArray jarr = JSONArray.fromObject(json);
+			
+			for (int i = 1; i < parameters.size(); i++) {
+				Object o2 = asJSON(parameters.get(i).toString());
+				if (!(o2 instanceof JSONArray)) {
+					throw new ParserException("json.merge(): JSON type of all arguments must be the same.");
+				}
+				jarr.addAll((JSONArray)o2);
+			}
+			return jarr;
+		} else if (json instanceof JSONObject) {
+			// Create a new JSON Array to preserve immutability for the macro script.
+			JSONObject jobj = JSONObject.fromObject(json);
+			
+			for (int i = 1; i < parameters.size(); i++) {
+				Object o2 = asJSON(parameters.get(i).toString());
+				if (!(o2 instanceof JSONArray)) {
+					throw new ParserException("json.merge(): JSON type of all arguments must be the same.");
+				}
+				jobj.putAll((JSONObject)o2);
+			}
+			return jobj;	
+		} else {
+			throw new ParserException("json.merge(): Can only be used on JSON objects or arrays");
+		}
+	}
+		
+	
+	/**
+	 * Gets the number of times a value appears in the array. 
+	 * @param json The JSON array to check.
+	 * @param searchFor the value to search for. 
+	 * @param start the index to start searching at.
+	 * @return the number of times the value occurs.
+	 * @throws ParserException
+	 */
+	private BigDecimal JSONCount(Object json, Object searchFor, int start) throws ParserException {
+		if (!(json instanceof JSONArray)) {
+			throw new ParserException("json.count() can only be used with JSON Arrays");
+		}
+		JSONArray jarr = (JSONArray)json;
+		
+		if (searchFor instanceof String && convertToJSON((String)searchFor) != null) {
+			searchFor = convertToJSON((String)searchFor);
+		}
+		
+		int count = 0;
+		for (int i = start, max = jarr.size(); i < max; i++) {
+			Object ob = jarr.get(i);
+			if (ob instanceof Float) {
+				if (searchFor.equals(BigDecimal.valueOf((Float)ob))) {
+					count++;
+				}
+			} else if (ob instanceof Integer) {
+				if (searchFor.equals(BigDecimal.valueOf((Integer)ob))) {
+					count++;
+				}
+			} else if (ob instanceof Double) {
+				if (searchFor.equals(BigDecimal.valueOf((Double)ob))) {
+					count++;
+				}
+			} else if (ob instanceof Long) {
+				if (searchFor.equals(BigDecimal.valueOf((Long)ob))) {
+					count++;
+				}
+			} else {
+				if (searchFor.equals(ob)) {
+					count++;
+				}
+			}
+		}
+		
+		return BigDecimal.valueOf(count);
+	}
+	
+	/**
+	 * Gets the index of a value in a JSON array.
+	 * @param json The JSON array to check.
+	 * @param searchFor The value to search for.
+	 * @param start The index to start from.
+	 * @return The index of the first occurance of the value in the array or -1 if it does not occur.
+	 * @throws ParserException
+	 */
+	private BigDecimal JSONIndexOf(Object json, Object searchFor, int start) throws ParserException {
+		if (!(json instanceof JSONArray)) {
+			throw new ParserException("json.indexOf() can only be used with JSON Arrays");
+		}
+		JSONArray jarr = (JSONArray)json;
+		
+		if (searchFor instanceof String && convertToJSON((String)searchFor) != null) {
+			searchFor = convertToJSON((String)searchFor);
+		}
+		
+		for (int i = start, max = jarr.size(); i < max; i++) {
+			Object ob = jarr.get(i);
+			if (ob instanceof Float) {
+				if (searchFor.equals(BigDecimal.valueOf((Float)ob))) {
+					return BigDecimal.valueOf(i);
+				}
+			} else if (ob instanceof Integer) {
+				if (searchFor.equals(BigDecimal.valueOf((Integer)ob))) {
+					return BigDecimal.valueOf(i);
+				}
+			} else if (ob instanceof Double) {
+				if (searchFor.equals(BigDecimal.valueOf((Double)ob))) {
+					return BigDecimal.valueOf(i);
+				}
+			} else if (ob instanceof Long) {
+				if (searchFor.equals(BigDecimal.valueOf((Long)ob))) {
+					return BigDecimal.valueOf(i);
+				}
+			} else {
+				if (searchFor.equals(ob)) {
+					return BigDecimal.valueOf(i);
+				}
+			}
+		}
+		
+		return BigDecimal.valueOf(-1);
+	}
 	
 
 	/**

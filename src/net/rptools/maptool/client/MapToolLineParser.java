@@ -1379,7 +1379,7 @@ public class MapToolLineParser {
 			String macroOutput = runMacroBlock(macroResolver, tokenInContext, macroBody, macroContext);
 			// Copy the return value of the macro into our current variable scope.
 			resolver.setVariable("macro.return", macroResolver.getVariable("macro.return"));
-			return macroOutput;
+			return macroOutput != null ? macroOutput.trim() : null;
 		} finally {
 //			exitContext();
 			macroRecurseDepth--;

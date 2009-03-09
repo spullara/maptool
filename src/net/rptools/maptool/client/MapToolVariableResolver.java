@@ -141,8 +141,8 @@ public class MapToolVariableResolver extends MapVariableResolver {
                 return TokenInitHoldFunction.getInstance().getTokenValue(tokenInContext);
             } // endif
 	
-			
-			if (tokenInContext.getPropertyNames().contains(name)) {
+		
+			if (this.validTokenProperty(name, tokenInContext)) {
 				result = tokenInContext.getEvaluatedProperty(name);
 			} else {
 				// If the token has no property of that name check to see if there s a defaulted

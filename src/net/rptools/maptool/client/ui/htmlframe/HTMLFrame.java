@@ -63,17 +63,18 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 	static HTMLFrame showFrame(String name, String title, int width, int height, String html) {
 		HTMLFrame frame;
 
-		if (frames.containsKey(title)) {
+		if (frames.containsKey(name)) {
 			frame = frames.get(name);
 			frame.updateContents(html);
 			if (!frame.isVisible()) {
 				frame.setVisible(true);
-				frame.getDockingManager().showFrame(title);
+				frame.getDockingManager().showFrame(name);
 			}
 		} else {
 			frame = new HTMLFrame(MapTool.getFrame(), name, title, width, height);
 			frames.put(name, frame);
 			frame.updateContents(html);
+			frame.getDockingManager().showFrame(name);
 		}
 		return frame;
 	}

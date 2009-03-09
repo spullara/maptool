@@ -476,6 +476,9 @@ public class MacroLinkFunction extends AbstractFunction {
 					if (parts.length > 1) {
 						Token token = MapTool.getParser().getTokenMacroLib(
 								parts[1]);
+						if (token == null) {
+							return false;
+						}
 						MacroButtonProperties mbp = token.getMacro(parts[0],
 								false);
 						if (mbp == null) {

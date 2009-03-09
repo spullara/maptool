@@ -566,7 +566,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId);
 		}
 		try {
-			MapToolMacroContext context = new MapToolMacroContext("ToolTip", token.getName(), false, index );
+			MapToolMacroContext context = new MapToolMacroContext("ToolTip", token != null ? token.getName() : "", false, index );
 			return MapTool.getParser().parseLine(token, toolTip, context);
 		} catch (ParserException pe) {
 			return toolTip;
