@@ -16,7 +16,9 @@ package net.rptools.maptool.client.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GridBagConstraints;
@@ -50,6 +52,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -84,6 +87,7 @@ import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ServerDisconnectHandler;
 import net.rptools.maptool.client.swing.CoordinateStatusBar;
+import net.rptools.maptool.client.swing.DragImageGlassPane;
 import net.rptools.maptool.client.swing.GlassPane;
 import net.rptools.maptool.client.swing.ImageChooserDialog;
 import net.rptools.maptool.client.swing.MemoryStatusBar;
@@ -215,6 +219,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private SelectionPanel selectionPanel = new SelectionPanel();
 	private ImpersonatePanel impersonatePanel = new ImpersonatePanel();
 
+	private DragImageGlassPane dragImageGlassPane = new DragImageGlassPane();
+	
 	public MapToolFrame() {
 		// Set up the frame
 		super(AppConstants.APP_NAME);
@@ -293,7 +299,21 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		add(BorderLayout.NORTH, new ToolbarPanel(toolbox));
 		add(BorderLayout.SOUTH, statusPanel);
 
-		setGlassPane(glassPane);
+		JLayeredPane glassPaneComposite = new JLayeredPane();
+		glassPaneComposite.setLayout(new GridBagLayout());
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.gridx = 1;
+		constraints.gridy = 1;
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.weightx = 1;
+		constraints.weighty = 1;
+		
+		glassPaneComposite.add(glassPane, constraints);
+		glassPaneComposite.add(dragImageGlassPane, constraints);
+		
+		setGlassPane(glassPaneComposite);
+		
+		glassPaneComposite.setVisible(true);
 
 		removeWindowsF10();
 
@@ -306,6 +326,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		// This will cause the frame to be set to visible (BAD jide, BAD! No
 		// cookie for you!)
 		configureDocking();
+	}
+	
+	public DragImageGlassPane getDragImageGlassPane() {
+		return dragImageGlassPane;
 	}
 
 	public ImageChooserDialog getImageChooserDialog() {
@@ -1283,11 +1307,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		setVisible(false);
 
-		System.exit(0);
-
 		// Not necessary since we'll release all resources when we close
 		// That and it seems to sometimes throw an NPE, go figure.
 		// dispose();
+		System.exit(0);
 	}
 
 	public void windowClosed(WindowEvent e) {
@@ -1307,7 +1330,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	// Windows OS defaults F10 to the menu bar, noooooo!! We want for macro
 	// buttons.
-	// XXX Doesn't work for Mac OSX. But do we really care? Shouldn't this
+	// XXX Doesn't work for Mac OSX. Shouldn't this
 	// keystroke be configurable via the properties file?
 	private void removeWindowsF10() {
 		InputMap imap = menuBar.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);

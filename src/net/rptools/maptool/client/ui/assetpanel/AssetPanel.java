@@ -14,11 +14,20 @@
 package net.rptools.maptool.client.ui.assetpanel;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.Transparency;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DragGestureEvent;
+import java.awt.dnd.DragSourceDragEvent;
+import java.awt.dnd.DragSourceDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -30,17 +39,22 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.ImagePanel;
 import net.rptools.lib.swing.SelectionListener;
 import net.rptools.lib.swing.ImagePanel.SelectionMode;
 import net.rptools.lib.swing.preference.SplitPanePreferences;
 import net.rptools.lib.swing.preference.TreePreferences;
 import net.rptools.maptool.client.AppConstants;
+import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.TransferableAsset;
 import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.util.ImageManager;
 
 public class AssetPanel extends JComponent {
 
@@ -49,6 +63,7 @@ public class AssetPanel extends JComponent {
 	private AssetTree assetTree;
 	private ImagePanel imagePanel;
 	private JTextField filterTextField;
+	private Asset assetBeingTransferred;
     
     private AssetPanelModel assetPanelModel;
 
@@ -66,11 +81,8 @@ public class AssetPanel extends JComponent {
         model.addImageUpdateObserver(this);
 
         assetTree = new AssetTree(this);
-		imagePanel = new ImagePanel();
-		
-		imagePanel.setShowCaptions(true);
-		imagePanel.setSelectionMode(SelectionMode.SINGLE);
-		imagePanel.setFont(new Font("Helvetica", 0, 10));
+
+        createImagePanel();
         
 		JSplitPane splitPane = new JSplitPane(splitPaneDirection);
         splitPane.setContinuousLayout(true);
@@ -86,6 +98,40 @@ public class AssetPanel extends JComponent {
 		add(splitPane);
 	}
 
+    private void createImagePanel() {
+		imagePanel = new ImagePanel() {
+			@Override
+			public void dragGestureRecognized(DragGestureEvent dge) {
+				super.dragGestureRecognized(dge);
+
+				MapTool.getFrame().getDragImageGlassPane().setImage(ImageManager.getImageAndWait(assetBeingTransferred));
+			}
+			@Override
+			public void dragMouseMoved(DragSourceDragEvent dsde) {
+				super.dragMouseMoved(dsde);
+
+				Point p = new Point(dsde.getLocation());
+				SwingUtilities.convertPointFromScreen(p, MapTool.getFrame().getDragImageGlassPane());
+
+				MapTool.getFrame().getDragImageGlassPane().setImagePosition(p);
+			}
+			@Override
+			public void dragDropEnd(DragSourceDropEvent dsde) {
+				super.dragDropEnd(dsde);
+
+				MapTool.getFrame().getDragImageGlassPane().setImage(null);
+			}
+			@Override
+			protected Cursor getDragCursor() {
+				return Toolkit.getDefaultToolkit().createCustomCursor(new BufferedImage(1, 1, Transparency.BITMASK), new Point (0,0), "");
+			}
+		};
+		
+		imagePanel.setShowCaptions(true);
+		imagePanel.setSelectionMode(SelectionMode.SINGLE);
+		imagePanel.setFont(new Font("Helvetica", 0, 10));
+    }
+    
     public void setThumbSize(int size) {
     	imagePanel.setGridSize(size);
     }
@@ -206,11 +252,20 @@ public class AssetPanel extends JComponent {
 	}
 	
 	public void setDirectory(Directory dir) {
-		imagePanel.setModel(new ImageFileImagePanelModel(dir));
+		imagePanel.setModel(new ImageFileImagePanelModel(dir) {
+			@Override
+			public Transferable getTransferable(int index) {
+				TransferableAsset t = (TransferableAsset) super.getTransferable(index);
+				assetBeingTransferred = t.getAsset();
+				return t;
+			}
+		});
 		updateFilter();
 	}
   
     public AssetTree getAssetTree() {
       return assetTree;
     }
+    
+    
 }

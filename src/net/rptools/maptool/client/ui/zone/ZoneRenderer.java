@@ -614,6 +614,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         if (zone == null) { return; }
 
         
+        if (lastView == null || view.isGMView() != lastView.isGMView()) {
+        	flushFog =  true;
+            renderedLightMap = null;
+            renderedAuraMap = null;
+            visibleScreenArea = null;
+        }
+
         // Clear internal state
         tokenLocationMap.clear();
         markerLocationList.clear();
@@ -831,16 +838,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 					}
 				}
 	    	}    	
-	        for (DrawableLight light : zoneView.getLights(LightSource.Type.AURA)) {
-	        	List<Area> list = colorMap.get(light.getPaint().getPaint());
-	        	if (list == null) {
-	        		list = new LinkedList<Area>();
-	        		list.add(new Area(light.getArea()));
-	        		colorMap.put(light.getPaint().getPaint(), list);
-	        	} else {
-	        		list.get(0).add(new Area(light.getArea()));
-	        	}
-	        }
 	    	
 	        renderedLightMap = new LinkedHashMap<Paint, Area>();
 	        for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {
@@ -867,6 +864,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		// Setup
         timer.start("auras-1");
     	Graphics2D newG = (Graphics2D)g.create();
+    	if (visibleScreenArea != null) {
+        	Area clip = new Area(g.getClip());
+    		clip.intersect(visibleScreenArea);
+    		newG.setClip(clip);
+    	}
     	SwingUtil.useAntiAliasing(newG);
         timer.stop("auras-1");
         timer.start("auras-2");
@@ -1040,9 +1042,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         if (!zone.hasFog()) {
             return;
-        }
-        if (lastView == null || view.isGMView() != lastView.isGMView()) {
-        	flushFog =  true;
         }
         
         Dimension size = getSize();

@@ -34,6 +34,10 @@ public class TransferableAsset implements Transferable {
         this.asset = asset;
     }
     
+    public Asset getAsset() {
+    	return asset;
+    }
+    
     public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
         return asset;
     }
