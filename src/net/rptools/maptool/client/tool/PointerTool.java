@@ -447,8 +447,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				// Dragging offset for currently selected token
 				ZonePoint pos = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
 				Rectangle tokenBounds = token.getBounds(renderer.getZone());
-				dragOffsetX = pos.x - tokenBounds.x;
-				dragOffsetY = pos.y - tokenBounds.y;
+				
+				if (token.isSnapToGrid()) {
+					dragOffsetX = (pos.x - tokenBounds.x) - (tokenBounds.width/2);
+					dragOffsetY = (pos.y - tokenBounds.y) - (tokenBounds.height/2);
+				} else {
+					dragOffsetX = pos.x - tokenBounds.x;
+					dragOffsetY = pos.y - tokenBounds.y;
+				}
 			}
 		} else {
 
@@ -753,6 +759,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			// cellUnderMouse actually token position if token being dragged
 			// with keys.
 			CellPoint cellUnderMouse = renderer.getZone().getGrid().convert(zonePoint);
+			System.out.println(cellUnderMouse);
 			zonePoint = renderer.getZone().getGrid().convert(cellUnderMouse);
 
 			MapTool.getFrame().getCoordinateStatusBar().update(cellUnderMouse.x, cellUnderMouse.y);
