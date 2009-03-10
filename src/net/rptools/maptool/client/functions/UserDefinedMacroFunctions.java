@@ -83,8 +83,9 @@ public class UserDefinedMacroFunctions implements Function {
 		String stripOutput = output.replaceAll("(?s)<!--.*?-->", ""); // Strip comments
 		if (stripOutput.trim().length() == 0) {
 			output = resolver.getVariable("macro.return").toString();
+			stripOutput=output;
 		}
-		Object out = JSONMacroFunctions.convertToJSON(output);
+		Object out = JSONMacroFunctions.convertToJSON(stripOutput);
 		if (out != null) {
 			return out;
 		}
