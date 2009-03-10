@@ -181,6 +181,7 @@ public class ZoneView implements ModelChangeListener {
         	brightLightMap = new HashMap<String, Set<Area>>();
         	brightLightCache.put(lightSourceToken.getId(), brightLightMap);
         }
+        brightLightMap.put(sight.getName(), brightLightSet);
         
 		return visibleArea;
     }
