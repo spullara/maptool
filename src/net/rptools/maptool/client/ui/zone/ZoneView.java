@@ -149,6 +149,10 @@ public class ZoneView implements ModelChangeListener {
 			return null;
 		}
 
+		if (lightSource.getType() != LightSource.Type.NORMAL) {
+			return visibleArea;
+		}
+		
 		// Keep track of colored light
         Set<DrawableLight> lightSet = new HashSet<DrawableLight>();
         Set<Area> brightLightSet = new HashSet<Area>();
