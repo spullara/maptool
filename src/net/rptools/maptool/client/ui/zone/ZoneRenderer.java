@@ -889,11 +889,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        timer.start("auras-4");
 	
 	        for (DrawableLight light : zoneView.getLights(LightSource.Type.AURA)) {
-	        	List<Area> list = colorMap.get(light.getPaint().getPaint());
+	        	Paint paint = light.getPaint() != null ? light.getPaint().getPaint() : new Color(255, 255, 255, 150);
+	        	List<Area> list = colorMap.get(paint);
 	        	if (list == null) {
 	        		list = new LinkedList<Area>();
 	        		list.add(new Area(light.getArea()));
-	        		colorMap.put(light.getPaint().getPaint(), list);
+	        		colorMap.put(paint, list);
 	        	} else {
 	        		list.get(0).add(new Area(light.getArea()));
 	        	}
