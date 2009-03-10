@@ -311,7 +311,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		glassPaneComposite.add(glassPane, constraints);
 		glassPaneComposite.add(dragImageGlassPane, constraints);
 		
-		setGlassPane(glassPaneComposite);
+		setGlassPane(glassPane);
+//		setGlassPane(glassPaneComposite);
 		
 		glassPaneComposite.setVisible(true);
 
