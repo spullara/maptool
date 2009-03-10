@@ -99,7 +99,7 @@ public class AssetPanel extends JComponent {
 	}
 
     private void createImagePanel() {
-		imagePanel = new ImagePanel() {
+		imagePanel = new ImagePanel();/* {
 			@Override
 			public void dragGestureRecognized(DragGestureEvent dge) {
 				super.dragGestureRecognized(dge);
@@ -125,7 +125,7 @@ public class AssetPanel extends JComponent {
 			protected Cursor getDragCursor() {
 				return Toolkit.getDefaultToolkit().createCustomCursor(new BufferedImage(1, 1, Transparency.BITMASK), new Point (0,0), "");
 			}
-		};
+		};*/
 		
 		imagePanel.setShowCaptions(true);
 		imagePanel.setSelectionMode(SelectionMode.SINGLE);
@@ -255,9 +255,10 @@ public class AssetPanel extends JComponent {
 		imagePanel.setModel(new ImageFileImagePanelModel(dir) {
 			@Override
 			public Transferable getTransferable(int index) {
-				TransferableAsset t = (TransferableAsset) super.getTransferable(index);
-				assetBeingTransferred = t.getAsset();
-				return t;
+//				TransferableAsset t = (TransferableAsset) super.getTransferable(index);
+//				assetBeingTransferred = t.getAsset();
+//				return t;
+				return super.getTransferable(index);
 			}
 		});
 		updateFilter();
