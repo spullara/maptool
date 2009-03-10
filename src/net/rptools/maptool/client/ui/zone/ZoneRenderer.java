@@ -864,7 +864,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		// Setup
         timer.start("auras-1");
     	Graphics2D newG = (Graphics2D)g.create();
-    	if (visibleScreenArea != null) {
+    	if (!view.isGMView() && visibleScreenArea != null) {
         	Area clip = new Area(g.getClip());
     		clip.intersect(visibleScreenArea);
     		newG.setClip(clip);
