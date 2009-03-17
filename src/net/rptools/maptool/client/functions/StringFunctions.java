@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.VariableResolver;
@@ -44,13 +45,13 @@ public class StringFunctions extends AbstractFunction {
 		try {
 			if (functionName.equals("replace")) {
 				if (parameters.size() < 3) {
-					throw new ParserException("Not enough parameters for replace(string, pattern, replacement [, times]).");
+					throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 				}
 
 
 				if (parameters.size() > 3) {
 					if (!(parameters.get(3) instanceof BigDecimal)) {
-						throw new ParserException("Fourth argument to substring() must be a number.");
+						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 4));
 					}
 					return replace(parameters.get(0).toString(), parameters.get(1).toString(), 
 							parameters.get(2).toString(), ((BigDecimal)parameters.get(3)).intValue());				
@@ -61,7 +62,7 @@ public class StringFunctions extends AbstractFunction {
 
 			if (functionName.equals("stringToList")) {
 				if (parameters.size() < 2) {
-					throw new ParserException("Not enough parameters for stringToList(string, pattern [, delim])");
+					throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 				}
 				String delim;
 				if (parameters.size() > 2) {
@@ -74,16 +75,16 @@ public class StringFunctions extends AbstractFunction {
 
 			if (functionName.equals("substring")) {
 				if (parameters.size() < 2) {
-					throw new ParserException("Not enough parameters for substring(string, start [, end])");
+					throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 				}
 				if (!(parameters.get(1) instanceof BigDecimal)) {
-					throw new ParserException("Second argument to substring() must be a number.");
+					throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2));
 				}
 
 				int end;
 				if (parameters.size() > 2) {
 					if (!(parameters.get(2) instanceof BigDecimal)) {
-						throw new ParserException("Third argument to substring() must be a number.");					
+						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3));
 					}
 					end = ((BigDecimal)parameters.get(2)).intValue();
 				} else {
@@ -105,7 +106,7 @@ public class StringFunctions extends AbstractFunction {
 						len = Math.min(len, str.length());
 						return str.substring(0, len).toUpperCase() + str.substring(len);
 					} catch (NumberFormatException nfe) {
-						throw new ParserException("Second parameter to upper() must be an integer");
+						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2));
 					}
 				} else {
 					return parameters.get(0).toString().toUpperCase();
@@ -120,7 +121,7 @@ public class StringFunctions extends AbstractFunction {
 						len = Math.min(len, str.length());
 						return str.substring(0, len).toLowerCase() + str.substring(len);
 					} catch (NumberFormatException nfe) {
-						throw new ParserException("Second parameter to lower() must be an integer");
+						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2));
 					}
 				} else {
 					return parameters.get(0).toString().toLowerCase();
@@ -129,13 +130,13 @@ public class StringFunctions extends AbstractFunction {
 
 			if (functionName.equals("indexOf")) {
 				if (parameters.size() < 2) {
-					throw new ParserException("Not enough parameters for indexOf(string, find [, from])");				
+					throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 				}
 
 				int from = 0;
 				if (parameters.size() > 2) {
 					if (!(parameters.get(2) instanceof BigDecimal)) {
-						throw new ParserException("Third parameter to indexOf() must be a number.");					
+						throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3));
 					}
 					from = ((BigDecimal) parameters.get(2)).intValue();
 				} else {
@@ -148,7 +149,7 @@ public class StringFunctions extends AbstractFunction {
 
 			if (functionName.equals("lastIndexOf")) {
 				if (parameters.size() < 2) {
-					throw new ParserException("Not enough parameters for lastIndexOf(string, find");				
+					throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 				}			
 				return BigDecimal.valueOf(parameters.get(0).toString().lastIndexOf(
 						parameters.get(1).toString()));
@@ -170,7 +171,7 @@ public class StringFunctions extends AbstractFunction {
 
 			if (functionName.equals("matches")) {
 				if (parameters.size() < 2) {
-					throw new ParserException("Not enough parameters for matches(string, pattern)");
+					throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 				}
 				if (parameters.get(0).toString().matches(parameters.get(1).toString())) {
 					return BigDecimal.valueOf(1);
@@ -197,7 +198,7 @@ public class StringFunctions extends AbstractFunction {
 			try {
 				return BigDecimal.valueOf(Double.parseDouble(parameters.get(0).toString()));
 			} catch (NumberFormatException e) {
-				throw new ParserException("number(): Invalid number format " + parameters.get(0).toString());
+				throw new ParserException(I18N.getText("macro.function.general.macro.function.number.invalid", functionName, parameters.get(0).toString()));
 			}
 		}
 		
@@ -219,14 +220,14 @@ public class StringFunctions extends AbstractFunction {
 		
 		if (functionName.equals("strfind")) {
 			if (parameters.size() < 2) {
-				throw new ParserException("Not enough parameters for strfind(string, pattern");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			return stringFind(parser.getVariableResolver(), parameters.get(0).toString(), parameters.get(1).toString());
 		}
 
 		if (functionName.equals("getGroupCount")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for getGroupCount(matchId)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			VariableResolver resolver = parser.getVariableResolver();
 			StringBuilder sb = new StringBuilder();
@@ -236,7 +237,7 @@ public class StringFunctions extends AbstractFunction {
 
 		if (functionName.startsWith("getGroup")) {
 			if (parameters.size() < 3) {
-				throw new ParserException("Not enough parameters for getGroup(matchId, matchNumber, groupNumber)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			VariableResolver resolver = parser.getVariableResolver();
 			StringBuilder sb = new StringBuilder();
@@ -253,7 +254,7 @@ public class StringFunctions extends AbstractFunction {
 
 		if (functionName.equals("getFindCount")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for getFindCount(matchId)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}			
 			VariableResolver resolver = parser.getVariableResolver();
 			StringBuilder sb = new StringBuilder();
@@ -263,7 +264,7 @@ public class StringFunctions extends AbstractFunction {
 		
 		if (functionName.equals("encode")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for encode(string)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}		
 			String encoded;
 			try {
@@ -278,7 +279,7 @@ public class StringFunctions extends AbstractFunction {
 		
 		if (functionName.equals("decode")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for decode(string)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}		
 			String decoded;
 			try {
@@ -294,7 +295,7 @@ public class StringFunctions extends AbstractFunction {
 
 		if (functionName.equals("startsWith")) {
 			if (parameters.size() < 2) {
-				throw new ParserException("Not enough parameters for startsWith(string, substring)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}		
 			return parameters.get(0).toString().startsWith(parameters.get(1).toString()) ?
 					BigDecimal.ONE : BigDecimal.ZERO;
@@ -302,7 +303,7 @@ public class StringFunctions extends AbstractFunction {
 		
 		if (functionName.equals("endsWith")) {
 			if (parameters.size() < 2) {
-				throw new ParserException("Not enough parameters for endsWith(string, substring)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}		
 			return parameters.get(0).toString().endsWith(parameters.get(1).toString()) ?
 					BigDecimal.ONE : BigDecimal.ZERO;

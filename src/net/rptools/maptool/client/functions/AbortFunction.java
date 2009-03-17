@@ -4,6 +4,7 @@ package net.rptools.maptool.client.functions;
 import java.math.BigDecimal;
 import java.util.List;
 
+import net.rptools.maptool.language.I18N;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractNumberFunction;
@@ -31,7 +32,7 @@ public class AbortFunction extends AbstractNumberFunction {
 	public Object childEvaluate(Parser parser, String functionName,	List<Object> parameters) throws ParserException {
         BigDecimal value = (BigDecimal) parameters.get(0);
         if (value.intValue() == 0) 
-        	throw new AbortFunctionException("Abort() function called.");
+        	throw new AbortFunctionException(I18N.getText("macro.function.abortFunction.message", "Abort()"));
         else
         	return new BigDecimal(value.intValue());
 	}

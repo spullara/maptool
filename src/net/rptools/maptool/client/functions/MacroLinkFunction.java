@@ -16,6 +16,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.functions.AbortFunction.AbortFunctionException;
 import net.rptools.maptool.client.macro.MacroContext;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Player;
@@ -66,7 +67,7 @@ public class MacroLinkFunction extends AbstractFunction {
 			formatted = true;
 			linkText = args.get(0).toString();
 			if (args.size() < 2) {
-				throw new ParserException("macroLink(): Missing macro name");
+				throw new ParserException(I18N.getText("macro.function.macroLink.missingName", "macroLink"));
 			}
 			macroName = args.get(1).toString();
 
@@ -259,7 +260,8 @@ public class MacroLinkFunction extends AbstractFunction {
 				tip.append("<html>");
 				if (isAutoExecLink(link)) {
 					tip
-							.append("<tr><th style='color: red'><u>&laquo;Auto Execute Macro Link&raquo;</b></u></th></tr>");
+							.append("<tr><th style='color: red'><u>&laquo;").append(
+									I18N.getText("macro.function.macroLink.autoExecToolTip")).append("&raquo;</b></u></th></tr>");
 				} else {
 					tip
 							.append("<tr><th><u>&laquo;Macro Link&raquo;</b></u></th></tr>");
@@ -278,29 +280,27 @@ public class MacroLinkFunction extends AbstractFunction {
 						try {
 							val = "\"" + argsToStrPropList(val) + "\"";
 						} catch (ParserException e1) {
-							MapTool
-									.addLocalMessage("Error running macro link: "
-											+ e1.getMessage());
+							MapTool.addLocalMessage(I18N.getText("macro.function.macroLink.errorRunning", e1.getLocalizedMessage()));
 						}
 					}
-					tip.append("<tr><th>Arguments</th><td>").append(val)
+					tip.append("<tr><th>").append(I18N.getText("macro.function.macroLink.arguments")).append(val)
 							.append("</td></tr>");
 				}
 				String[] targets = m.group(4).split(",");
 				tip.append("</table>");
-				tip.append("<b>Run On</b><ul>");
+				tip.append("<b>").append(I18N.getText("macro.function.macroLink.executeOn")).append("</b><ul>");
 				Zone zone = MapTool.getFrame().getCurrentZoneRenderer()
 						.getZone();
 				for (String t : targets) {
 					String name;
 					if (t.equalsIgnoreCase("impersonated")) {
-						name = "Impersonated Token";
+						name = I18N.getText("macro.function.macroLink.impersonated");
 					} else if (t.equalsIgnoreCase("selected")) {
-						name = "Selected Tokens";
+						name = I18N.getText("macro.function.macroLink.selected");
 					} else {
 						Token token = zone.resolveToken(t);
 						if (token == null) {
-							name = "Unknown";
+							name = I18N.getText("macro.function.macroLink.unknown");
 						} else {
 							name = token.getName();
 						}

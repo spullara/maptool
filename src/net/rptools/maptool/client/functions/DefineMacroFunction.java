@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
@@ -29,11 +30,11 @@ public class DefineMacroFunction extends AbstractFunction {
 			List<Object> parameters) throws ParserException {
 		if (functionName.equals("defineFunction")) {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException("You do not have permission to call defineFunction()");
+				throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
 			}
 
 			if (parameters.size() < 2) {
-				throw new ParserException("Not enough parameters for define function.");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam",functionName));
 			}
 		
 			String macro = parameters.get(1).toString();
@@ -42,7 +43,7 @@ public class DefineMacroFunction extends AbstractFunction {
 			}
 			
 			UserDefinedMacroFunctions.getInstance().defineFunction(parser, parameters.get(0).toString(), macro);
-			return parameters.get(0) + "() function defined";
+			return I18N.getText("macro.function.defineFunction.functionDefined", parameters.get(0).toString());
 		} else if (functionName.equals("oldFunction")) {
 			return UserDefinedMacroFunctions.getInstance().executeOldFunction(parser, parameters);
 		} else { // isFunctionDefined

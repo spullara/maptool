@@ -19,6 +19,7 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
@@ -117,7 +118,7 @@ public class TokenHaloFunction extends AbstractFunction {
                         						Integer.parseInt(hex.substring(2, 3), 16) * 15);
                         token.setHaloColor(color);
                     } catch (NumberFormatException e) {
-                        throw new ParserException("Invalid Color (" + col + ")");
+            			throw new ParserException(I18N.getText("macro.function.haloFunctions.invalidColor", col));
                     }            		
             	} else if (hex.length() == 6) {
                     try {
@@ -126,7 +127,7 @@ public class TokenHaloFunction extends AbstractFunction {
                         						Integer.parseInt(hex.substring(4, 6), 16));
                         token.setHaloColor(color);
                     } catch (NumberFormatException e) {
-                        throw new ParserException("Invalid Color (" + col + ")");
+            			throw new ParserException(I18N.getText("macro.function.haloFunctions.invalidColor", col));
                     }            		
             	} else if (hex.length() == 8) {
             		try {
@@ -135,10 +136,10 @@ public class TokenHaloFunction extends AbstractFunction {
                         						Integer.parseInt(hex.substring(6, 8), 16));
                         token.setHaloColor(color);
                     } catch (NumberFormatException e) {
-                        throw new ParserException("Invalid Color (" + col + ")");
+            			throw new ParserException(I18N.getText("macro.function.haloFunctions.invalidColor", col));
                     }
             	} else {
-            		throw new ParserException("Invalid Color (" + col + ")");
+        			throw new ParserException(I18N.getText("macro.function.haloFunctions.invalidColor", col));
             	}
             } else {
                 // Try to find the halo color in the array
@@ -152,7 +153,7 @@ public class TokenHaloFunction extends AbstractFunction {
                     }
                 }
                 if (!found) {
-            		throw new ParserException("Invalid Color (" + col + ")");
+        			throw new ParserException(I18N.getText("macro.function.haloFunctions.invalidColor", col));
                 }
             }
         }
@@ -173,20 +174,20 @@ public class TokenHaloFunction extends AbstractFunction {
 		
 		if (args.size() == 1) {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException("getHalo(): You do not have permissions to refer to another token.");
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "getHalo"));
 			}
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
 			if (token == null) {
-				throw new ParserException("getHalo(): Unknown token or ID " + args.get(0).toString());
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getHalo", args.get(1)));
 			}
 		} else if (args.size() == 0) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException("getHalo(): No Impersonated Token");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getHalo"));
 			}
 		} else {
-			throw new ParserException("getHalo(): Incorrect number of parameters.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getHalo"));
 		}
 		
 		return getHalo(token);
@@ -207,20 +208,20 @@ public class TokenHaloFunction extends AbstractFunction {
 		
 		if (args.size() == 2) {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException("getHalo(): You do not have permissions to refer to another token.");
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "setHalo"));
 			}
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				throw new ParserException("setHalo(): Unknown token or ID " + args.get(1).toString());
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setHalo", args.get(1)));
 			}
 		} else if (args.size() == 1){
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException("setHalo(): No Impersonated Token");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setHalo"));
 			}
 		} else {
-			throw new ParserException("setHalo(): Incorrect number of parameters.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setHalo"));
 		}
 		setHalo(token, value);
         return value;

@@ -22,6 +22,7 @@ import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -57,12 +58,12 @@ public class TokenImage extends AbstractFunction {
 
 		if (functionName.equals("setTokenImage")) {
 			if (args.size() < 1) {
-				throw new ParserException("Not enough arguments for setImage(asset)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setTokenImage"));
 			}
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException(functionName + "(): No Impersonated token.");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setTokenImage"));
 			}
 			setImage(token, args.get(0).toString());
 			return "";
@@ -71,11 +72,11 @@ public class TokenImage extends AbstractFunction {
 		
 		if (functionName.equals("getImage")) {
 			if (args.size() < 1) {
-				throw new ParserException("Not enough arguments for getImage(imageName)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getImage"));
 			}
 			token = findImageToken(args.get(0).toString());				
 			if (token == null) {
-				throw new ParserException("Can not find image token " + args.get(0));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setImage", args.get(0)));
 			}
 			if (args.size() > 1) {
 				size = (BigDecimal) args.get(1);				
@@ -87,12 +88,12 @@ public class TokenImage extends AbstractFunction {
 			token = res.getTokenInContext();
 			size = (BigDecimal) args.get(0);
 		} else if (args.size() > 0) {
-			throw new ParserException("getTokenImage() unknown argumets.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getImage"));
 		} else {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException(functionName + "(): No Impersonated token.");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getImage"));
 			}
 		}
 		

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
@@ -72,7 +73,7 @@ public class TokenInitFunction extends AbstractTokenAccessorFunction {
         Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
         List<Integer> list = zone.getInitiativeList().indexOf(token);
         if (list.isEmpty()) 
-            throw new ParserException("The token is not in the initiative list so no value can be set");
+            throw new ParserException(I18N.getText("macro.function.TokenInit.notOnListSet"));
         return zone.getInitiativeList().getTokenInitiative(list.get(0).intValue()); 
     }
     
@@ -87,7 +88,7 @@ public class TokenInitFunction extends AbstractTokenAccessorFunction {
         Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
         List<Integer> list = zone.getInitiativeList().indexOf(token);
         if (list.isEmpty()) 
-            throw new ParserException("The token is not in the initiative list.");
+            throw new ParserException(I18N.getText("macro.function.TokenInit.notOnList"));
         List<TokenInitiative> ret = new ArrayList<TokenInitiative>(list.size());
         for (Integer index : list)
             ret.add(zone.getInitiativeList().getTokenInitiative(index.intValue()));

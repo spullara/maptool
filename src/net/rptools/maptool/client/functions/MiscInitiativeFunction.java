@@ -18,6 +18,7 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.tokenpanel.InitiativePanel;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -51,8 +52,8 @@ public class MiscInitiativeFunction extends AbstractFunction {
         if (functionName.equals("nextInitiative")) {
         	if (!MapTool.getParser().isMacroTrusted()) {
         		if (!ip.hasGMPermission() && (list.getCurrent() <= 0 || !ip.hasOwnerPermission(list.getTokenInitiative(list.getCurrent()).getToken()))) {
-        			String message = "Only the GM can perform nextInitiative.";
-        			if (ip.isOwnerPermissions()) message = "Only the GM or owner can perform nextInitiative.";
+        			String message = I18N.getText("macro.function.nextInitiative.gmOnly");
+        			if (ip.isOwnerPermissions()) message = I18N.getText("macro.function.nextIntiative.gmOrOwner");
         			throw new ParserException(message);
         		} // endif
         	}
@@ -60,13 +61,13 @@ public class MiscInitiativeFunction extends AbstractFunction {
             return new BigDecimal(list.getCurrent());
         } 
         if (!MapTool.getParser().isMacroTrusted() && !ip.hasGMPermission())
-            throw new ParserException("Only the GM can call the " + functionName + " function.");
+            throw new ParserException(I18N.getText("macro.function.general.onlyGM", functionName));
         if (functionName.equals("sortInitiative")) {
             list.sort();
             return new BigDecimal(list.getSize());
         } else if (functionName.equals("initiativeSize")) {
             return new BigDecimal(list.getSize());
         } // endif
-        throw new ParserException("Unexpected function: " + functionName);
+        throw new ParserException(I18N.getText("macro.function.general.unknownFunction",functionName));
 	}
 }

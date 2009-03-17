@@ -18,6 +18,7 @@ import java.util.List;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
@@ -84,18 +85,22 @@ public class TokenLabelFunction extends AbstractFunction {
 		Token token;
 		
 		if (args.size() == 1) {
+			if (!MapTool.getParser().isMacroTrusted()) {
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "getLabel"));				
+			}
+
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
 			if (token == null) {
-				throw new ParserException("getLabel(): can not find token or ID " + args.get(0));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getLabel", args.get(0)));
 			}
 		} else if (args.size() == 0) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException("getLabel(): No impersonated token");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getLabel"));
 			}
 		} else {
-			throw new ParserException("getLabel(): Incorrect number of parameters.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getLabel"));
 		}
 
 		return getLabel(token);
@@ -112,18 +117,22 @@ public class TokenLabelFunction extends AbstractFunction {
 		Token token;
 		
 		if (args.size() == 2) {
+			if (!MapTool.getParser().isMacroTrusted()) {
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "setLabel"));				
+			}
+
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				throw new ParserException("setLabel(): can not find token or ID " + args.get(1));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setLabel", args.get(1)));
 			}
 		} else if (args.size() == 1) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException("setLabel(): No impersonated token");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setLabel"));
 			}
 		} else {
-			throw new ParserException("setLabel(): Incorrect number of parameters.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setLabel"));
 		}		
 		setLabel(token, args.get(0).toString());
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),

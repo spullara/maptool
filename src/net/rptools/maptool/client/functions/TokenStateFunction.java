@@ -19,6 +19,7 @@ import java.util.Set;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
@@ -62,7 +63,7 @@ public class TokenStateFunction extends AbstractFunction {
 		} else if (functionName.equals("getTokenStates")) {
 			return getTokenStates(parser, args);
 		} else {
-			throw new ParserException(functionName + "(): Unknown function.");
+			throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
 		}
 		
 	}
@@ -114,21 +115,19 @@ public class TokenStateFunction extends AbstractFunction {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException("getState(): No impersonated token");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getState"));
 			}			
 		} else if (args.size() == 2) {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException("setState(): You do not have permission to refefer to other tokens.");
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "getState"));
 			}
 			
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				throw new ParserException("getState(): can not find token or ID " + args.get(1));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getState", args.get(1)));
 			}
-
-
 		} else {
-			throw new ParserException("getState(): Incorrect number of parameters");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getState"));
 		}
 		stateName = args.get(0).toString();
 		
@@ -150,20 +149,20 @@ public class TokenStateFunction extends AbstractFunction {
 		if (args.size() == 3) {
 			
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException("setState(): You do not have permission to refefer to other tokens.");
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "setState"));
 			}
 			token = FindTokenFunctions.findToken(args.get(2).toString(), null);
 			if (token == null) {
-				throw new ParserException("setState(): can not find token or ID " + args.get(1));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setState", args.get(1)));
 			} 
 		} else if (args.size() == 2) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException("setState(): No impersonated token");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setState"));
 			}
 		} else {
-			throw new ParserException("setState(): Incorrect number of parameters.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setState"));
 		}
 		stateName = args.get(0).toString();
 		val = args.get(1);
@@ -187,19 +186,19 @@ public class TokenStateFunction extends AbstractFunction {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException("setAllStates(): No impersonated token");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setAllStates"));
 			}
 		} else if (args.size() == 2) {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException("setAllStates(): You do not have permission to refefer to other tokens.");
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "setAllStates"));
 			}
 
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				throw new ParserException("setAllStates(): can not find token or ID " + args.get(1));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setAllStates", args.get(1)));
 			}
 		} else { 
-			throw new ParserException("setAllStates(): Incorrect number of parameters.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setAllStates"));
 		}
 		
 		Object val = args.get(0);
@@ -225,7 +224,7 @@ public class TokenStateFunction extends AbstractFunction {
 	 */
 	public boolean getBooleanTokenState(Token token, String stateName) throws ParserException {
 		if (!MapTool.getCampaign().getTokenStatesMap().containsKey(stateName)) {
-			throw new ParserException("Unknown token state name " + stateName);
+			throw new ParserException(I18N.getText("macro.function.tokenStateFunctions.unknownState", stateName));
 		}
 
 		Object val = token.getState(stateName);
@@ -255,7 +254,7 @@ public class TokenStateFunction extends AbstractFunction {
 	 */
 	private void setBooleanTokenState(Token token, String stateName, Object val) throws ParserException {
 		if (!MapTool.getCampaign().getTokenStatesMap().containsKey(stateName)) {
-			throw new ParserException("Unknown token state name " + stateName);
+			throw new ParserException(I18N.getText("macro.function.tokenStateFunctions.unknownState", stateName));
 		}
 		
 		boolean set;

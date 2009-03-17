@@ -10,6 +10,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Token;
@@ -49,7 +50,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 			List<Object> parameters) throws ParserException {
 		
 		if (!MapTool.getParser().isMacroTrusted()) {
-			throw new ParserException(functionName + "(): you do not have permisison");
+			throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
 		}
 		
 		MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
@@ -72,14 +73,15 @@ public class TokenLocationFunctions extends AbstractFunction {
 		if (functionName.equals("setTokenDrawOrder")) {
 			Token token = getTokenFromParam(res, functionName, parameters, 1);
 			if (parameters.size() < 0) {
-				throw new ParserException("setTokenDrawOrder(): First parameter must be a number");
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 1));
 			}
 			if (!(parameters.get(0) instanceof BigDecimal)) {
-				throw new ParserException("setTokenDrawOrder(): First parameter must be a number");
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 1));
 			}
 			token.setZOrder(((BigDecimal)parameters.get(0)).intValue());
 			MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
 	 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+	    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
 	 		return BigDecimal.valueOf(token.getZOrder());			
 		}
 		
@@ -100,7 +102,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 		}
 		
 		
-		throw new ParserException("Unknown function " + functionName);
+		throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
 	}
 	
 
@@ -118,7 +120,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 		
 		if (args.size() > 0) {
 			if (!(args.get(0) instanceof BigDecimal)) {
-				throw new ParserException("getTokenLocation(): First parameter must be a number");
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getTokenLocation", 1));
 			} 
 			BigDecimal val = (BigDecimal)args.get(0);
 			useDistancePerCell = val.equals(BigDecimal.ZERO) ? false : true;
@@ -258,7 +260,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 	 */
 	private BigDecimal getDistance(MapToolVariableResolver res, List<Object> args) throws ParserException {
 		if (args.size() < 1) {
-			throw new ParserException("getDistance(): Not enough parameters");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getDistance"));
 		}
 
 		Token target = getTokenFromParam(res, "getDistance", args, 0);
@@ -267,7 +269,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 		boolean useDistancePerCell = true;
 		if (args.size() > 1) {
 			if (!(args.get(1) instanceof BigDecimal)) {
-				throw new ParserException("getDistance(): Second parameter must be a number");
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getDistance", 2));
 			} 
 			BigDecimal val = (BigDecimal)args.get(1);
 			useDistancePerCell = val.equals(BigDecimal.ZERO) ? false : true;
@@ -292,17 +294,17 @@ public class TokenLocationFunctions extends AbstractFunction {
 	 */
 	private BigDecimal getDistanceToXY(MapToolVariableResolver res, List<Object> args) throws ParserException {
 		if (args.size() < 2) {
-			throw new ParserException("getDistanceToXY(): Not enough parameters");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getDistance"));
 		}
 
 		Token source = getTokenFromParam(res, "getDistanceToXY", args, 3);
 		
 
 		if (!(args.get(0) instanceof BigDecimal)) {
-			throw new ParserException("getDistanceToXY(): First parameter must be a number");
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getDistanceToXY", 1));
 		} 
 		if (!(args.get(1) instanceof BigDecimal)) {
-			throw new ParserException("getDistanceToXY(): Second parameter must be a number");
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getDistanceToXY", 2));
 		} 
 		
 		int x = ((BigDecimal)args.get(0)).intValue();
@@ -311,7 +313,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 		boolean useDistancePerCell = true;
 		if (args.size() > 2) {
 			if (!(args.get(2) instanceof BigDecimal)) {
-				throw new ParserException("getDistanceToXY(): Third parameter must be a number");
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "getDistanceXY", 3));
 			} 
 			BigDecimal val = (BigDecimal)args.get(2);
 			useDistancePerCell = val.equals(BigDecimal.ZERO) ? false : true;
@@ -335,7 +337,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 	 * @param z the z order of the destination.
 	 * @param units use map units or not.
 	 */
-	private void moveToken(Token token, int x, int y, boolean units) {
+	public void moveToken(Token token, int x, int y, boolean units) {
 		Grid grid = MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid();
 		Dimension dim = grid.getCellOffset();
 
@@ -349,8 +351,6 @@ public class TokenLocationFunctions extends AbstractFunction {
 		token.setX(x);
 		token.setY(y);
 		
- 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
-
 		
 	}
 
@@ -364,16 +364,16 @@ public class TokenLocationFunctions extends AbstractFunction {
 		boolean useDistance = true;
 		
 		if (args.size() < 2) {
-			throw new ParserException("moveToken(): Not enough parameters");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "moveToken"));
 		}
 	
 		int x,y,z;
 		
 		if (!(args.get(0) instanceof BigDecimal)) {
-			throw new ParserException("moveToken(): First Parameter must be a number");
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 1));
 		} 
 		if (!(args.get(1) instanceof BigDecimal)) {
-			throw new ParserException("moveToken(): Second Parameter must be a number");
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 2));
 		} 
 		
 		x = ((BigDecimal)args.get(0)).intValue(); 
@@ -382,13 +382,16 @@ public class TokenLocationFunctions extends AbstractFunction {
 		
 		if (args.size() > 2) {
 			if (!(args.get(2) instanceof BigDecimal)) {
-				throw new ParserException("moveToken(): Third Parameter must be a number");
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 3));
 			}
 			BigDecimal val = (BigDecimal)args.get(2);
 			useDistance = val.equals(BigDecimal.ZERO) ? false : true;			
 		}
 		
 		moveToken(token, x, y, useDistance);
+		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
+ 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
 	
 		return "";
 	}
@@ -406,7 +409,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 		int y;
 		
 		if (!MapTool.getParser().isMacroTrusted()) {
-			throw new ParserException("goto(): You do not have permission to call this function");
+			throw new ParserException(I18N.getText("macro.function.general.noPerm", "goto"));
 		}
 		
 		if (args.size() < 2) {
@@ -417,11 +420,11 @@ public class TokenLocationFunctions extends AbstractFunction {
 		} else {
 			
 			if (!(args.get(0) instanceof BigDecimal)) {
-				throw new ParserException("goto(x,y,...): First parameter must be a number");
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 1));
 			} 
 
 			if (!(args.get(1) instanceof BigDecimal)) {
-				throw new ParserException("goto(x,y,...): Second parameter must be a number");
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", "moveToken", 2));
 			} 
 			
 			x = ((BigDecimal)args.get(0)).intValue();
@@ -470,17 +473,17 @@ public class TokenLocationFunctions extends AbstractFunction {
 		Token token;
 		if (param.size() > index) {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException(functionName + "(): You do not have permission to refer to another token");
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", functionName));
 			}
 			
 			token = FindTokenFunctions.findToken(param.get(index).toString(), null);
 			if (token == null) {
-				throw new ParserException(functionName + "(): Unknown token or id" + param.get(index));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", functionName, param.get(index)));
 			}
 		} else {
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException(functionName + "(): No impersonated token");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", functionName));
 			}
 		}
 		return token;

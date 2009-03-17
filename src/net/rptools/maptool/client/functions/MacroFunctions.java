@@ -1,7 +1,6 @@
 package net.rptools.maptool.client.functions;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -61,7 +60,7 @@ public class MacroFunctions extends AbstractFunction {
  		} else if (functionName.equals("getMacroCommand")) {
  			return getMacroCommand(resolver, parameters);
 		} else if (functionName.equals("getMacroButtonIndex")) {
-			return BigInteger.valueOf(MapTool.getParser().getMacroButtonIndex());
+			return BigDecimal.valueOf(MapTool.getParser().getMacroButtonIndex());
 		} else if (functionName.equals("removeMacro")) {
 			return removeMacro(resolver, parameters);
 		} else if (functionName.equals("getMacroGroup")) {

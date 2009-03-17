@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
@@ -51,8 +52,9 @@ public class TokenAddToInitiativeFunction extends AbstractFunction {
 	    Token token = AbstractTokenAccessorFunction.getTarget(parser, args, -1);
         if (!MapTool.getParser().isMacroTrusted()) {
         	if (!MapTool.getFrame().getInitiativePanel().hasOwnerPermission(token)) {
-        		String message = "Only the GM can perform addToInitiative.";
-        		if (MapTool.getFrame().getInitiativePanel().isOwnerPermissions()) message = "Only the GM or owner can perform addToInitiative.";
+        		String message = I18N.getText("macro.function.addToInitiative.gmOnly");
+        		if (MapTool.getFrame().getInitiativePanel().isOwnerPermissions()) message = 
+        			I18N.getText("macro.function.addToInitiative.gmOrOwner");
         		throw new ParserException(message);
         	} // endif
         }

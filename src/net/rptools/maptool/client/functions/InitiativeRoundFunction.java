@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -49,12 +50,12 @@ public class InitiativeRoundFunction extends AbstractFunction {
 	        return getInitiativeRound();
 	    } else {
 	        if (args.size() != 1)
-	            throw new ParserException("Must call setInitiativeRound with one parameter");
+	            throw new ParserException(I18N.getText("macro.function.setinitiativeRound.oneParam"));
 	        if (MapTool.getParser().isMacroTrusted() || MapTool.getFrame().getInitiativePanel().hasGMPermission()) {
 	            setInitiativeRound(args.get(0));
 	            return args.get(0);
 	        } else {
-	            throw new ParserException("Only the GM can set the round.");
+	            throw new ParserException(I18N.getText("macro.function.getInitiativeRound.mustBeGM"));
 	        } // endif
         } // endif
 	}

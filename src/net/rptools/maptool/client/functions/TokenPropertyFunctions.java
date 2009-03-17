@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
@@ -61,7 +62,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		
 		if (functionName.equals("setPropertyType")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for setPropertyType(name)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 
 			Token token = getTokenFromParam(resolver, "setPropertyType", parameters, 1);
@@ -86,7 +87,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		
 		if (functionName.equals("hasProperty")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for hasProperty(name)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			Token token = getTokenFromParam(resolver, "hasProperty", parameters, 1);
 			return hasProperty(token, parameters.get(0).toString()) ? BigDecimal.ONE : BigDecimal.ZERO;
@@ -107,6 +108,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			Token token = getTokenFromParam(resolver, "setPC", parameters, 0);
 			token.setType(Token.Type.PC);
 	 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+	    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
 	 		MapTool.getFrame().updateTokenTree();
 
 			return "";
@@ -116,6 +118,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			Token token = getTokenFromParam(resolver, "setNPC", parameters, 0);
 			token.setType(Token.Type.NPC);
 	 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+	    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
 	 		MapTool.getFrame().updateTokenTree();
 
 	 		return "";
@@ -129,9 +132,15 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		if (functionName.equals("setLayer")) {
 			Token token = getTokenFromParam(resolver, "setLayer", parameters, 1);
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for setLayer(layerName)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}			
-			return setLayer(token, parameters.get(0).toString());
+			String layer = setLayer(token, parameters.get(0).toString());
+	 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+	 		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
+	 		MapTool.getFrame().updateTokenTree();
+	    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+
+			return layer;
 		}
 		
 		if (functionName.equalsIgnoreCase("getSize")) {
@@ -141,7 +150,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 
 		if (functionName.equalsIgnoreCase("setSize")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for setSize(size)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}			
 			Token token = getTokenFromParam(resolver, "setSize", parameters, 1);
 			return setSize(token, parameters.get(0).toString());
@@ -167,7 +176,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		
 		if (functionName.equals("resetProperty")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for clearProperty(name)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}			
 			Token token = getTokenFromParam(resolver, "resetProperty", parameters, 1);
 			token.setProperty(parameters.get(0).toString(), null);
@@ -178,7 +187,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		
 		if (functionName.equals("setProperty")) {
 			if (parameters.size() < 2) {
-				throw new ParserException("Not enough parameters for setProperty(name, val)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}		
 			Token token = getTokenFromParam(resolver, "setProperty", parameters, 2);
 			token.setProperty(parameters.get(0).toString(), parameters.get(1).toString());
@@ -189,7 +198,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 
 		if (functionName.equals("getRawProperty")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for getRawProperty(name)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}			
 			Token token = getTokenFromParam(resolver, "getRawProperty", parameters, 1);
 			Object val = token.getProperty(parameters.get(0).toString());			
@@ -212,7 +221,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 
 		if (functionName.equals("getProperty")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for getProperty(name)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}			
 			Token token = getTokenFromParam(resolver, "getProperty", parameters, 1);
 			Object val =  token.getEvaluatedProperty(parameters.get(0).toString());
@@ -234,7 +243,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		
 		if (functionName.equals("isPropertyEmpty")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for isPropertyEmpty(name)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}			
 			Token token = getTokenFromParam(resolver, "isPropertyEmpty", parameters, 1);
 			return token.getProperty(parameters.get(0).toString()) == null ? BigDecimal.ONE : BigDecimal.ZERO;			
@@ -243,7 +252,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		
 		if (functionName.equals("getPropertyDefault")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for getPropertyDefault(name)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}			
 			
 			Token token = resolver.getTokenInContext();
@@ -328,7 +337,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		
 		if (functionName.equals("setLibProperty")) {
 			if (parameters.size() < 2) {
-				throw new ParserException("Not enough parameters for setLibProperty(name, value)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}			
 
 			String location;
@@ -372,14 +381,16 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		
 		if (functionName.equals("setTokenFacing")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough arguments for setTokenFacing()");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
+			
 			if (!(parameters.get(0) instanceof BigDecimal)) { 
-				throw new ParserException("First argument to setTokenFacing() must be a number");
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName,1));
 			}
 			
 			Token token = getTokenFromParam(resolver, "setTokenFacing", parameters, 1);
 			token.setFacing(((BigDecimal)parameters.get(0)).intValue());
+	    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
 			return "";
 		}
 		
@@ -389,7 +400,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			return "";
 		}
 		
-		throw new ParserException("Unknown function " + functionName);
+		throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
 	}
 
 	/**
@@ -430,7 +441,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 				return getSize(token);
 			}	
 		} 
-		throw new ParserException("Invalid token size (" + size + ")");
+		throw new ParserException(I18N.getText("macro.function.tokenProperty.invalidSize", "setSize", size));
 	}
 
 	/**
@@ -440,7 +451,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 	 * @return the name of the layer the token was moved to.
 	 * @throws ParserException if the layer name is invalid.
 	 */
-	private String setLayer(Token token, String layerName) throws ParserException {
+	public String setLayer(Token token, String layerName) throws ParserException {
 		
 		Zone.Layer layer;
 		
@@ -453,7 +464,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		} else if (layerName.equalsIgnoreCase("object")) {
 			layer = Zone.Layer.OBJECT;
 		} else {
-			throw new ParserException("Unknown Layer (" + layerName + ")");
+			throw new ParserException(I18N.getText("macro.function.tokenProperty.unknownLayer", "setLayer", layerName));
 		}
 		
 		token.setLayer(layer);
@@ -473,9 +484,6 @@ public class TokenPropertyFunctions extends AbstractFunction {
 				break;
 		}	
 			
- 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
- 		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
- 		MapTool.getFrame().updateTokenTree();
 		return layerName;
 	}
 
@@ -525,7 +533,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		} else {
 			List<TokenProperty> props = MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(type);
 			if (props == null) {
-				throw new ParserException("Unknown property type "+ type);
+				throw new ParserException(I18N.getText("macro.function.tokenProperty.unknownPropType", "getAllPropertyNames", type));
 			}
 			ArrayList<String> namesList = new ArrayList<String>();
 			for (TokenProperty tp : props) {
@@ -591,17 +599,17 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		Token token;
 		if (param.size() > index) {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException(functionName + "(): You do not have permission to refer to another token");
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", functionName));
 			}
 			
 			token = FindTokenFunctions.findToken(param.get(index).toString(), null);
 			if (token == null) {
-				throw new ParserException(functionName + "(): Unknown token or id" + param.get(index));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", functionName, param.get(index)));
 			}
 		} else {
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException(functionName + "(): No impersonated token");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", functionName));
 			}
 		}
 		return token;

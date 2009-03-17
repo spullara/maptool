@@ -19,6 +19,7 @@ import java.util.List;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
+import net.rptools.maptool.language.I18N;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
@@ -55,7 +56,7 @@ public class StateImageFunction extends AbstractFunction {
 		}
 		BooleanTokenOverlay over = MapTool.getCampaign().getTokenStatesMap().get(stateName);
 		if (over == null) {
-			throw new ParserException("getStateImage(): Unknown state (" + stateName + ")" );
+			throw new ParserException(I18N.getText("macro.function.stateImage.unknownState", "getStateImage()", stateName ));
 		}
 		if (over instanceof ImageTokenOverlay) {
 			StringBuilder assetId = new StringBuilder("asset://");
@@ -68,7 +69,7 @@ public class StateImageFunction extends AbstractFunction {
 			}
 			return assetId.toString();
 		} else {
-			throw new ParserException("getStateImage(): State " + stateName + " is not an image state.");
+			throw new ParserException(I18N.getText("macro.function.stateImage.notImage", functionName, stateName));
 		}
 	}
 

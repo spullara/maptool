@@ -7,6 +7,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolLineParser;
 import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -38,7 +39,7 @@ public class EvalMacroFunctions extends AbstractFunction {
 		
 		
 		if (!lineParser.isMacroTrusted()) {
-			throw new ParserException("You do not have permission's to execute this macro");
+			throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
 		}
 		
 		MapToolVariableResolver resolver = (MapToolVariableResolver) parser.getVariableResolver();

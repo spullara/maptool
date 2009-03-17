@@ -10,6 +10,7 @@ import java.util.Set;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
@@ -186,13 +187,13 @@ public class FindTokenFunctions extends AbstractFunction {
 		if (!functionName.equals("currentToken") && !functionName.startsWith("getImpersonated") && 
 			!functionName.startsWith("getVisible") && !functionName.startsWith("getSelected")) {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException("You do not have permissions to call the " + functionName + "() function");
+				throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
 			}
 		}
 		
 		if (functionName.equals("findToken")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for findToken(identifier)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			String mapName = parameters.size() > 1 ? parameters.get(1).toString() : null;
 			return findTokenId(parameters.get(0).toString(), mapName);
@@ -222,14 +223,14 @@ public class FindTokenFunctions extends AbstractFunction {
 			delim = parameters.size() > 0 ? parameters.get(0).toString() : delim;
 		} else if (functionName.startsWith("getWithState")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough arguments for getWithState(state)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			findType = FindType.STATE;
 			findArgs = parameters.get(0).toString();
 			delim = parameters.size() > 1 ? parameters.get(1).toString() : delim;
 		} else if (functionName.startsWith("getOwned")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough arguments for getOwned(name)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			findType = FindType.OWNED;
 			findArgs = parameters.get(0).toString();
@@ -238,7 +239,7 @@ public class FindTokenFunctions extends AbstractFunction {
 			findType = FindType.VISIBLE;
 			delim = parameters.size() > 0 ? parameters.get(0).toString() : delim;		
 		} else {
-			throw new ParserException("Unknown function");
+			throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
 		}
 		 
 		if (functionName.endsWith("Name") ||  functionName.endsWith("Names")) {
@@ -362,12 +363,12 @@ public class FindTokenFunctions extends AbstractFunction {
 			if (range.containsKey("token")) {
 				token = findToken(range.getString("token"), null);
 				if (token == null) {
-					throw new ParserException("getTokens(): Unknown token " + range.getString("Token"));
+					throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getTokens", range.getString("token")));
 				}
 			} else {
 				token = findToken(MapTool.getFrame().getCommandPanel().getIdentity(), null);
 				if (token == null) {
-					throw new ParserException("getTokens(): no impersonated token");
+					throw new ParserException(I18N.getText("macro.function.general.noImpersonated","getTokens"));
 				}
 			}
 			
@@ -403,12 +404,12 @@ public class FindTokenFunctions extends AbstractFunction {
 			if (area.containsKey("token")) {
 				token = findToken(area.getString("token"), null);
 				if (token == null) {
-					throw new ParserException("getTokens(): Unknown token " + area.getString("Token"));
+					throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getTokens", area.getString("token")));
 				}
 			} else {
 				token = findToken(MapTool.getFrame().getCommandPanel().getIdentity(), null);
 				if (token == null) {
-					throw new ParserException("getTokens(): no impersonated token");
+					throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getTokens"));
 				}
 			}
 
@@ -423,11 +424,11 @@ public class FindTokenFunctions extends AbstractFunction {
 			Set<Token> matching = new HashSet<Token>();
 			for (Object o : offsets) {
 				if (!(o instanceof JSONObject)) {
-					throw new ParserException("getTokens(): Offset array for Area must contain json object with x,y co-ordinates");
+					throw new ParserException(I18N.getText("macro.function.findTokenFunctions.offsetArray", "getTokens"));
 				}
 				JSONObject joff = (JSONObject)o;
 				if (!joff.containsKey("x") || !joff.containsKey("y")) {
-					throw new ParserException("getTokens(): Offset array for Area must contain json object with x,y co-ordinates");					
+					throw new ParserException(I18N.getText("macro.function.findTokenFunctions.offsetArray", "getTokens"));
 				}
 				int x = joff.getInt("x");
 				int y = joff.getInt("y");
@@ -553,7 +554,7 @@ public class FindTokenFunctions extends AbstractFunction {
 	 * @return the token.
 	 */
 	public static Token findToken(String identifier, String zoneName) {
-		if (zoneName == null ){
+		if (zoneName == null || zoneName.length() == 0){
 			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 			Token token = zone.resolveToken(identifier);
 			return token;

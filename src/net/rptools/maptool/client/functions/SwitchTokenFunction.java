@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.parser.Parser;
@@ -28,17 +29,17 @@ public class SwitchTokenFunction extends AbstractFunction {
 			List<Object> parameters) throws ParserException {
 		
 		if (!MapTool.getParser().isMacroTrusted()) {
-			throw new ParserException("You do not have permissions to call switchToken()");
+			throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
 		}
 		
 		if (parameters.size() < 1) {
-			throw new ParserException("Not enough parameters for switchToken(identifier)");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 		}
 		
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 		Token token = zone.resolveToken(parameters.get(0).toString());
 		if (token == null) {
-			throw new ParserException("switchToken(): " + parameters.get(0).toString() + " not found");			
+			throw new ParserException(I18N.getText("macro.function.general.unknownToken",functionName ,parameters.get(0).toString()));			
 		}
 		
 		((MapToolVariableResolver)parser.getVariableResolver()).setTokenIncontext(token);

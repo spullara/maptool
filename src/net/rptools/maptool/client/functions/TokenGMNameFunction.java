@@ -18,6 +18,7 @@ import java.util.List;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
@@ -50,7 +51,7 @@ public class TokenGMNameFunction extends AbstractFunction {
 	 */
 	public String getGMName(Token token) throws ParserException {
 		if (!MapTool.getParser().isMacroTrusted()) {
-			throw new ParserException("You do not have permission to query GMName.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getGMName"));
 		}
 		return token.getGMName() != null ? token.getGMName() : "";
 	}
@@ -64,7 +65,7 @@ public class TokenGMNameFunction extends AbstractFunction {
 	 */
 	public void setGMName(Token token, String name) throws ParserException {
 		if (!MapTool.getParser().isMacroTrusted()) {
-			throw new ParserException("You do not have permission to set GMName.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setGMName"));
 		}
 		token.setGMName(name);
 	}
@@ -97,16 +98,16 @@ public class TokenGMNameFunction extends AbstractFunction {
 		if (args.size() == 1) {
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
 			if (token == null) {
-				throw new ParserException("getGMName(): Unknown token or ID " + args.get(0));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getGMName", args.get(0)));
 			}
 		} else if (args.size() == 0) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException("getGMName(): No impersonated token.");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getGMName"));
 			}
 		} else {
-			throw new ParserException("getGMName(): Incorrect number of arguments.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getGMName"));
 		}
 		return getGMName(token);
 	}
@@ -123,16 +124,16 @@ public class TokenGMNameFunction extends AbstractFunction {
 		if (args.size() == 2) {
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				throw new ParserException("setGMName(): Unknown token or ID " + args.get(1));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setGMName", args.get(0)));
 			}
 		} else if (args.size() == 1) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException("setGMName(): No impersonated token.");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setGMName"));
 			}
 		} else {
-			throw new ParserException("setGMName(): Incorrect number of arguments.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setGMName"));
 		}
 		
 		token.setGMName(args.get(0).toString());

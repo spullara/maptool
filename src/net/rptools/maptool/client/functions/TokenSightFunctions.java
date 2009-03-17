@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -31,7 +32,7 @@ public class TokenSightFunctions extends AbstractFunction {
 		
 		Token tokenInContext = ((MapToolVariableResolver)parser.getVariableResolver()).getTokenInContext();
 		if (tokenInContext == null) {
-			throw new ParserException(functionName + "(): No Impersonated token.");
+			throw new ParserException(I18N.getText("macro.function.general.noImpersonated", functionName));
 		}
 		
 		if (functionName.equals("hasSight")) {
@@ -44,21 +45,24 @@ public class TokenSightFunctions extends AbstractFunction {
 		
 		if (functionName.equals("setHasSight")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for function setHasSight(sight)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			tokenInContext.setHasSight(!parameters.get(0).equals(BigDecimal.ZERO));
+			MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(tokenInContext);
 	 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
+	    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
 			return "";
 		}
 		
 		
 		if (functionName.equals("setSightType")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for function setHasSight(sight)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			tokenInContext.setSightType(parameters.get(0).toString());
+			MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(tokenInContext);
 	 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
-
+	    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
 	 		return "";
 		}
 		

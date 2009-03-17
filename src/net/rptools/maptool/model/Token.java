@@ -35,6 +35,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import net.rptools.CaseInsensitiveHashMap;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -894,7 +895,7 @@ public class Token extends BaseModel {
 	
 	private Map<String, Object> getPropertyMap() {
 		if (propertyMap == null) {
-			propertyMap = new HashMap<String, Object>();
+			propertyMap = new CaseInsensitiveHashMap<Object>();
 		}
 		return propertyMap;
 	}

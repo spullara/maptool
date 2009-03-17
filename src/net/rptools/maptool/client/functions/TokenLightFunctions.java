@@ -9,6 +9,7 @@ import java.util.Map;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AttachedLightSource;
 import net.rptools.maptool.model.Direction;
 import net.rptools.maptool.model.GUID;
@@ -39,7 +40,7 @@ public class TokenLightFunctions extends AbstractFunction {
 
 		final Token tokenInContext = ((MapToolVariableResolver)parser.getVariableResolver()).getTokenInContext();
 		if (tokenInContext == null) {
-			throw new ParserException(functionName + "(): No Impersonated token.");
+			throw new ParserException(I18N.getText("macro.function.general.noImpersonated", functionName));
 		}
 		
 		if (functionName.equals("hasLightSource")) {
@@ -55,11 +56,11 @@ public class TokenLightFunctions extends AbstractFunction {
 		
 		if (functionName.equals("setLight")) {
 			if (parameters.size() < 3) {
-				throw new ParserException("Not enough parameters to function setLight(category, name, value)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			
 			if (!(parameters.get(2) instanceof BigDecimal)) {
-				throw new ParserException("Third paramater to function setLight() must be a number or true/false");			
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3));
 			}
 
 			return setLight(tokenInContext, parameters.get(0).toString(), parameters.get(1).toString(), 
@@ -132,8 +133,11 @@ public class TokenLightFunctions extends AbstractFunction {
 				}
 			}
 		}	
+		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
  		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
         MapTool.getFrame().updateTokenTree();
+    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+
 
 		return found ? BigDecimal.ONE : BigDecimal.ZERO;
 		

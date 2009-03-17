@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -29,7 +30,7 @@ public class TokenNoteFunctions extends AbstractFunction {
 		
 		final Token tokenInContext = ((MapToolVariableResolver)parser.getVariableResolver()).getTokenInContext();
 		if (tokenInContext == null) {
-			throw new ParserException(functionName + "(): No Impersonated token.");
+			throw new ParserException(I18N.getText("macro.function.general.noImpersonated", functionName));
 		}
 
 		if (functionName.equals("getNotes")) {
@@ -39,7 +40,7 @@ public class TokenNoteFunctions extends AbstractFunction {
 		
 		if (functionName.equals("setNotes")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough parameters for setNotes(note)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			tokenInContext.setNotes(parameters.get(0).toString());
 	 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
@@ -48,7 +49,7 @@ public class TokenNoteFunctions extends AbstractFunction {
 		
 		if (functionName.equals("getGMNotes")) {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException("You do not have permissions to call getGMNotes() function.");
+				throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
 			}
 			String notes = tokenInContext.getGMNotes();
 			return notes == null ? "" : notes;
@@ -56,7 +57,10 @@ public class TokenNoteFunctions extends AbstractFunction {
 		
 		if (functionName.equals("setGMNotes"))  {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException("You do not have permissions to call getGMNotes() function.");
+				throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
+			}
+			if (parameters.size() < 1) {
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			tokenInContext.setGMNotes(parameters.get(0).toString());
 	 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);

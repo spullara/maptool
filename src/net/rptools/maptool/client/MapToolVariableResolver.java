@@ -347,7 +347,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
      */
     private boolean validTokenProperty(String prop, Token token) {
         for (TokenProperty tp : MapTool.getCampaign().getTokenPropertyList(token.getPropertyType())) {
-            if (tp.getName().equals(prop)) {
+            if (tp.getName().equalsIgnoreCase(prop)) {
                 return true;
             }
         }

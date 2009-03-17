@@ -94,7 +94,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 		}
 		
 		if (functionName.equals("json.type")) {
-			return getJSONObjectType(asJSON(parameters.get(0))).toString();
+			return getJSONObjectType(parameters.get(0)).toString();
 		}
 		
 		if (functionName.equals("json.toList")) {
@@ -665,7 +665,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 * @return the json object with the strings evaluated.
 	 * @throws ParserException if there is an error.
 	 */
-	private Object JSONEvaluate(MapToolVariableResolver res, Object json) throws ParserException {
+	public Object JSONEvaluate(MapToolVariableResolver res, Object json) throws ParserException {
 		if (json instanceof JSONObject) {
 			JSONObject jobj = (JSONObject) json;
 			for (Object key : jobj.keySet()) {
@@ -771,6 +771,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 	
 		return null;
 	}
+	
 	
 	/**
 	 * Append a value to a JSON array.
@@ -1096,7 +1097,11 @@ public class JSONMacroFunctions extends AbstractFunction {
 			return JSONObjectType.OBJECT;
 		} else if (obj instanceof JSONArray) {
 			return JSONObjectType.ARRAY;
-		} else { 
+		} else {
+			String str = obj.toString().trim();
+			if (str.startsWith("{") || str.startsWith("[")) {
+				return getJSONObjectType(asJSON(str));
+			}
 			return JSONObjectType.UNKNOWN;	
 		}
 	}

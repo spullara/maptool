@@ -4,6 +4,7 @@ package net.rptools.maptool.client.functions;
 import java.math.BigDecimal;
 import java.util.List;
 
+import net.rptools.maptool.language.I18N;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
@@ -37,7 +38,8 @@ public class AssertFunction extends AbstractFunction {
 			if (parameters.size() > 2 && parameters.get(2).equals(BigDecimal.ZERO)) {
 				throw new AssertFunctionException(parameters.get(1).toString());				
 			} else {
-				throw new AssertFunctionException("Macro-defined error: " + parameters.get(1).toString());
+				throw new AssertFunctionException(
+						I18N.getText("macro.function.assert.message", parameters.get(1).toString()));
 			}
 		}
 		return new BigDecimal(1);
@@ -47,9 +49,8 @@ public class AssertFunction extends AbstractFunction {
 	public void checkParameters(List<Object> parameters) throws ParameterException {
 		super.checkParameters(parameters);
 		if (! (parameters.get(1) instanceof String)) {
-			throw new ParameterException(String.format(
-					"assert(): Second argument \"%s\" must be of type String", 
-					parameters.get(1).toString()));
+			throw new ParameterException(I18N.getText("macro.function.assert.message",
+					"macro.function.assert.mustBeString", "assert()", parameters.get(1).toString()));
 		}
 	}
 

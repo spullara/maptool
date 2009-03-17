@@ -3,6 +3,7 @@ package net.rptools.maptool.client.functions;
 import java.util.List;
 
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -29,12 +30,12 @@ public class TokenSpeechFunctions extends AbstractFunction {
 			List<Object> parameters) throws ParserException {
 		final Token token = ((MapToolVariableResolver)parser.getVariableResolver()).getTokenInContext();
 		if (token == null) {
-			throw new ParserException(functionName + "(): No impersonated token.");
+			throw new ParserException(I18N.getText("macro.function.general.noImpersonated", functionName));
 		}
 		
 		if (functionName.equals("getSpeech")) {
 			if (parameters.size() < 1) {
-				throw new ParserException("Not enough arguments for getSpeech(name)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			String speech = token.getSpeech(parameters.get(0).toString());
 			return speech == null ? "" : speech;
@@ -42,7 +43,7 @@ public class TokenSpeechFunctions extends AbstractFunction {
 		
 		if (functionName.equals("setSpeech")) {
 			if (parameters.size() < 2) {
-				throw new ParserException("Not enough arguments for setSpeech(name, value)");
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			token.setSpeech(parameters.get(0).toString(), parameters.get(1).toString());
 			return "";

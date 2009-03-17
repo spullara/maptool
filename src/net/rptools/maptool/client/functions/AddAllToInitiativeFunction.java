@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Token.Type;
@@ -50,7 +51,7 @@ public class AddAllToInitiativeFunction extends AbstractFunction {
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
 	    if (!MapTool.getParser().isMacroTrusted()) {
 	    	if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
-	    		throw new ParserException("Only the GM has the permission to execute the " + functionName + " function.");
+	    		throw new ParserException(I18N.getText("macro.function.addAllToInitiativeFunction.mustBeGM", functionName));
 	    }
 	    // Check for duplicates flag
         InitiativeList list = MapTool.getFrame().getCurrentZoneRenderer().getZone().getInitiativeList();

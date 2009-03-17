@@ -18,6 +18,7 @@ import java.util.List;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
@@ -30,7 +31,7 @@ public class TokenNameFunction extends AbstractFunction {
 	private final static TokenNameFunction instance = new TokenNameFunction();
 
 	private TokenNameFunction() {
-		super(0,1, "getName", "setName");
+		super(0,2, "getName", "setName");
 	}
 
 	/**
@@ -82,18 +83,21 @@ public class TokenNameFunction extends AbstractFunction {
 		Token token;
 		
 		if (args.size() == 1) {
+			if (!MapTool.getParser().isMacroTrusted()) {
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "getName"));				
+			}
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
 			if (token == null) {
-				throw new ParserException("getName(): can not find token or ID " + args.get(0));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "getName", args.get(0)));
 			}
 		} else if (args.size() == 0) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException("getName(): No impersonated token");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getName"));
 			}
 		} else {
-			throw new ParserException("getName(): Incorrect number of parameters.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getName"));
 		}
 
 		
@@ -111,18 +115,21 @@ public class TokenNameFunction extends AbstractFunction {
         Token token;
 		
 		if (args.size() == 2) {
+			if (!MapTool.getParser().isMacroTrusted()) {
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "setName"));				
+			}
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
-				throw new ParserException("seName(): can not find token or ID " + args.get(1));
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setName", args.get(1)));
 			}
 		} else if (args.size() == 1) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
-				throw new ParserException("getVisible(): No impersonated token");
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setName"));
 			}
 		} else {
-			throw new ParserException("getVisible(): Incorrect number of parameters.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setName"));
 		}
 		
 		token.setName(args.get(0).toString());

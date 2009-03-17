@@ -18,6 +18,7 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.macro.MacroManager;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.LookupTable.LookupEntry;
 import net.rptools.parser.Parser;
@@ -54,7 +55,7 @@ public class LookupTableFunction extends AbstractFunction {
 		
 		LookupTable lookupTable = MapTool.getCampaign().getLookupTableMap().get(name);
 		if (lookupTable == null) {
-			throw new ParserException(function + "(): Unknown table " + name);
+			throw new ParserException(I18N.getText("macro.function.LookupTableFunctions.unknownTable", function, name));
 		}
 		
     	LookupEntry result = lookupTable.getLookup(roll);
@@ -70,7 +71,7 @@ public class LookupTableFunction extends AbstractFunction {
     	} else { // We want the image URI
     		
     		if (result.getImageId() == null) {
-    			throw new ParserException(function + "(): No image available.");
+    			throw new ParserException(I18N.getText("macro.function.LookupTableFunctions.noImage", function, name));
     		}
     		
     		BigDecimal size = null;
@@ -78,7 +79,7 @@ public class LookupTableFunction extends AbstractFunction {
     			if (params.get(2) instanceof BigDecimal) {
     				size = (BigDecimal) params.get(2);
     			} else {
-    				throw new ParserException(function +"(): Invalid image size.");
+    				throw new ParserException(I18N.getText("macro.function.LookupTableFunctions.invalidSize", function));
     			}
     		}
     		

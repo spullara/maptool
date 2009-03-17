@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Token.Type;
@@ -51,7 +52,7 @@ public class RemoveAllFromInitiativeFunction extends AbstractFunction {
         int count = 0;
         
         if (!MapTool.getParser().isMacroTrusted()) {
-        	throw new ParserException(functionName +"(): You do not have permission to call this function.");
+        	throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
         }
         if (functionName.equals("removeAllFromInitiative")) {
             count = list.getSize();

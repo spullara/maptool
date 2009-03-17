@@ -151,13 +151,13 @@ public class MapToolLineParser {
 	/** The macro button index of the button on the impersonated token that called us. */
 	private volatile int macroButtonIndex = -1;
 	
-	private static final int PARSER_MAX_RECURSE = 50;
+	private static final int PARSER_MAX_RECURSE = 100;
 	private int parserRecurseDepth;
 
-	private static final int MACRO_MAX_RECURSE = 50;	// Max number of recursive macro calls
+	private static final int MACRO_MAX_RECURSE = 100;	// Max number of recursive macro calls
 	private int macroRecurseDepth = 0;
 
-	private static final int MAX_LOOPS = 500;			// Max number of loop iterations
+	private static final int MAX_LOOPS = 1000;			// Max number of loop iterations
 
 	private enum Output {		// Mutually exclusive output formats
 		NONE,
@@ -1227,6 +1227,10 @@ public class MapToolLineParser {
 
 			if (e.getCause() instanceof ParserException) {
 				throw (ParserException) e.getCause();
+			} 
+			
+			if (e instanceof ParserException) {
+				throw (ParserException)e;
 			}
 			throw new ParserException(e.toString() + " error executing expression: " +  expression);
 		}
@@ -1379,7 +1383,14 @@ public class MapToolLineParser {
 			String macroOutput = runMacroBlock(macroResolver, tokenInContext, macroBody, macroContext);
 			// Copy the return value of the macro into our current variable scope.
 			resolver.setVariable("macro.return", macroResolver.getVariable("macro.return"));
-			return macroOutput != null ? macroOutput.trim() : null;
+			if (macroOutput != null) {
+				// Note! Its important that trim is not used to replace the following two lines.
+				// If you use String.trim() you may inadvertnatly remove the special characters
+				// used to mark rolls.
+				macroOutput = macroOutput.replace("^\\s+", "");
+				macroOutput = macroOutput.replace("\\s+$", "");
+			}
+			return macroOutput;
 		} finally {
 //			exitContext();
 			macroRecurseDepth--;
@@ -1397,7 +1408,8 @@ public class MapToolLineParser {
 		
 		MacroButtonProperties mbp = token.getMacro(macroName, false);
 		
-		if (!mbp.getAllowPlayerEdits()) {
+		// Macro button may be null as we could be running the unknown macro
+		if (mbp != null && !mbp.getAllowPlayerEdits()) {
 			return true;
 		}
 		

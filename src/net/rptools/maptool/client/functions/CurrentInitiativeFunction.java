@@ -47,14 +47,14 @@ public class CurrentInitiativeFunction extends AbstractFunction {
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
         if (!MapTool.getParser().isMacroTrusted()) {
         	if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
-        		throw new ParserException("Only the GM can get or set the current initiative.");
+        		throw new ParserException("macro.function.currentInitiativeFunction.mustBeGM");
         }
         
         if (functionName.equals("getCurrentInitiative")) {
 	        return getCurrentInitiative();
 	    } else if (functionName.equals("setCurrentInitiative")) {
 	        if (args.size() != 1)
-	            throw new ParserException("Must call setCurrentInitiative with one parameter");
+	            throw new ParserException("macro.function.currentInitiativeFunction.oneParam");
             setCurrentInitiative(args.get(0));
 	        return args.get(0);
 	    } else {
