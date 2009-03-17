@@ -28,6 +28,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -42,6 +43,7 @@ import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.ImageChooserDialog;
 import net.rptools.maptool.client.ui.token.ImageAssetPanel;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.LookupTable.LookupEntry;
@@ -143,6 +145,8 @@ public class EditLookupTablePanel extends AbeillePanel {
 		getTableNameTextField().setText(this.lookupTable.getName());
 		getTableRollTextField().setText(this.lookupTable.getRoll());
 		tableImageAssetPanel.setImageId(this.lookupTable.getTableImage());
+		getVisibleCheckbox().setSelected(this.lookupTable.getVisible());
+		getAllowLookupCheckbox().setSelected(this.lookupTable.getAllowLookup());
 
 		getTableNameTextField().requestFocusInWindow();
 		
@@ -172,6 +176,14 @@ public class EditLookupTablePanel extends AbeillePanel {
 
 	public JList getTableList() {
 		return (JList) getComponent("tableList");
+	}
+	
+	public JCheckBox getVisibleCheckbox() {
+		return (JCheckBox) getComponent("visibleCheckbox");
+	}
+	
+	public JCheckBox getAllowLookupCheckbox() {
+		return (JCheckBox) getComponent("allowLookupCheckbox");
 	}
 	
 	public void initCancelButton() {
@@ -220,6 +232,8 @@ public class EditLookupTablePanel extends AbeillePanel {
 				lookupTable.setName(name);
 				lookupTable.setRoll(getTableRollTextField().getText());
 				lookupTable.setTableImage(tableImageAssetPanel.getImageId());
+				lookupTable.setVisible(getVisibleCheckbox().isSelected());
+				lookupTable.setAllowLookup(getAllowLookupCheckbox().isSelected());
 
 				MapToolUtil.uploadAsset(AssetManager.getAsset(tableImageAssetPanel.getImageId()));
 
@@ -385,5 +399,10 @@ public class EditLookupTablePanel extends AbeillePanel {
 			return columnIndex != 2;
 		}
 
+	}
+	
+	public void initToolTips() {
+		getVisibleCheckbox().setToolTipText(I18N.getString("editLookupTable.tooltip.visible"));
+		getAllowLookupCheckbox().setToolTipText(I18N.getString("editLookupTable.tooltip.allowLookup"));
 	}
 }

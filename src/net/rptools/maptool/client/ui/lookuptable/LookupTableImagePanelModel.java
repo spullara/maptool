@@ -19,7 +19,9 @@ import java.awt.datatransfer.Transferable;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.rptools.lib.swing.ImagePanelModel;
 import net.rptools.maptool.client.AppStyle;
@@ -41,7 +43,7 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 	}
 
 	public int getImageCount() {
-		return MapTool.getCampaign().getLookupTableMap().size();
+		return getFilteredLookupTable().size();
 	}
 
 	public Transferable getTransferable(int arg0) {
@@ -58,7 +60,7 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 
 	public Image getImage(Object id) {
 
-		LookupTable table = MapTool.getCampaign().getLookupTableMap().get(id);
+		LookupTable table = getFilteredLookupTable().get(id);
 		if (table == null) {
 			log.debug("LookupTableImagePanelModel.getImage(" + id + ":  not resolved");
 			return ImageManager.BROKEN_IMAGE;
@@ -81,7 +83,7 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 			return "";
 		}
 
-		LookupTable table = MapTool.getCampaign().getLookupTableMap().get(getID(index));
+		LookupTable table = getFilteredLookupTable().get(getID(index));
 
 		return table.getName();
 	}
@@ -95,9 +97,27 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 	}
 
 	private List<String> getLookupTableIDList() {
-		List<String> idList = new ArrayList<String>(MapTool.getCampaign().getLookupTableMap().keySet());
+		
+		List<String> idList = new ArrayList<String>(getFilteredLookupTable().keySet());
 		Collections.sort(idList);
 		return idList;
 	}
 
+	/**Retrieves a Map containing tables and their names from campaign
+	 * properties.
+	 * @return Map&ltString, LookupTable&gt -- If the client belongs to a GM, all tables will
+	 * be returned.  If the client belongs to a player, only non-
+	 * hidden tables will be returned.
+	 */
+	private Map<String, LookupTable> getFilteredLookupTable() {
+		Map<String, LookupTable> lookupTables = new HashMap<String, LookupTable>(MapTool.getCampaign().getLookupTableMap());
+		if(!MapTool.getPlayer().isGM()) {
+			for(String nextKey : MapTool.getCampaign().getLookupTableMap().keySet()) {
+				if(lookupTables.get(nextKey).getVisible()) {
+					lookupTables.remove(nextKey);
+				}
+			}
+		}
+		return lookupTables;
+	}
 }

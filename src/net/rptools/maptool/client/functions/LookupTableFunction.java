@@ -17,14 +17,12 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.LookupTable.LookupEntry;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
-import net.rptools.parser.function.ParameterException;
 
 public class LookupTableFunction extends AbstractFunction {
 
@@ -54,6 +52,13 @@ public class LookupTableFunction extends AbstractFunction {
 		} 		
 		
 		LookupTable lookupTable = MapTool.getCampaign().getLookupTableMap().get(name);
+		if (!MapTool.getPlayer().isGM() && !lookupTable.getAllowLookup()) {
+			if (lookupTable.getVisible()) {
+				throw new ParserException(function + "(): " + I18N.getText("msg.error.tableUnknown") + name);
+			} else {
+				throw new ParserException(function + "(): " + I18N.getText("msg.error.tableAccessProhibited") + ": " + name);
+			}
+    	}
 		if (lookupTable == null) {
 			throw new ParserException(I18N.getText("macro.function.LookupTableFunctions.unknownTable", function, name));
 		}

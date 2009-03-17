@@ -422,6 +422,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 	AssetManager.updateRepositoryList();
                 	
                 	MapTool.getFrame().getInitiativePanel().setOwnerPermissions(properties.isInitiativeOwnerPermissions());
+                	MapTool.getFrame().getLookupTablePanel().updateView();
                 	break;
                 case movePointer:
                 	String player = (String)parameters[0];

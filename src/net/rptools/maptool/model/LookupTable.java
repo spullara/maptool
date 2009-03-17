@@ -32,7 +32,8 @@ public class LookupTable {
 	private String name;
 	private String defaultRoll;
 	private MD5Key tableImage;
-
+	private Boolean visible;
+	private Boolean allowLookup;
 	
 	public LookupTable() {
 	}
@@ -223,5 +224,50 @@ public class LookupTable {
 			}
 		}
 		return assetSet;
+	}
+	
+	
+	/**Retrieves the visible flag for the LookupTable.
+	 * @return Boolean -- True indicates that the table will be
+	 * visible to players.  False indicates that the table will
+	 * be hidden from players.
+	 */
+	public Boolean getVisible() {
+		if(visible == null) {
+			visible = new Boolean(true);
+		}
+		return visible;
+	}
+	
+	/**Sets the visible flag for the LookupTable.
+	 * @param value(Boolean) -- True specifies that the table will
+	 * be visible to players.  False indicates that the table will
+	 * be hidden from players.
+	 */
+	public void setVisible(Boolean value) {
+			visible = value;
+	}
+	
+	/**Retrieves the allowLookup flag for the LookupTable.
+	 * @return Boolean -- True indicates that players can call
+	 * for values from this table.  False indicates that players
+	 * will be prevented from calling values from this table.
+	 * GM's can ALWAYS perform lookups against a table.
+	 */
+	public Boolean getAllowLookup() {
+		if(allowLookup == null) {
+			allowLookup = true;
+		}
+		return allowLookup;
+	}
+	
+	/**Sets the allowLookup flag for the LookupTable.
+	 * @param value(Boolean) -- True indicates that players can call
+	 * for values from this table.  False indicates that players
+	 * will be prevented from calling values from this table.
+	 * GM's can ALWAYS perform lookups against a table.
+	 */
+	public void setAllowLookup(Boolean value) {
+		allowLookup = value;
 	}
 }

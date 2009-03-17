@@ -20,6 +20,7 @@ import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.LookupTable.LookupEntry;
@@ -53,10 +54,17 @@ public class LookupTableMacro extends AbstractMacro {
         	}
         }
         
-        
     	LookupTable lookupTable = MapTool.getCampaign().getLookupTableMap().get(tableName);
+    	if(!MapTool.getPlayer().isGM() && !lookupTable.getAllowLookup()) {
+    		if(lookupTable.getVisible()) {
+    			MapTool.addLocalMessage(I18N.getText("msg.error.tableDoesNotExist") + " '" + tableName + "'");
+    		} else {
+    			MapTool.showError(I18N.getText("msg.error.tableAccessProhibited") + ": " + tableName);
+    		}
+    		return;
+    	}
     	if (lookupTable == null) {
-    		MapTool.addLocalMessage("No such table '" + tableName + "'");
+    		MapTool.addLocalMessage(I18N.getText("msg.error.tableDoesNotExist") + " '" + tableName + "'");
     		return;
     	}
 

@@ -255,6 +255,9 @@ public class LookupTablePanel extends AbeillePanel {
 								}								
 							}
 							lookupTables.put(newTable.getName(), newTable);
+							imagePanel.clearSelection();
+							imagePanel.repaint();
+							MapTool.serverCommand().updateCampaign(MapTool.getCampaign().getCampaignProperties());
 						} catch (IOException ioe) {
 							ioe.printStackTrace();
 							MapTool.showError("Could not load table: " + ioe.getLocalizedMessage());
