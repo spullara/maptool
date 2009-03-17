@@ -177,7 +177,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 	@Override
 	public String getInstructions() {
-		return I18N.getText("tool.pointer.instructions");
+		return "tool.pointer.instructions";
 	}
 
 	@Override

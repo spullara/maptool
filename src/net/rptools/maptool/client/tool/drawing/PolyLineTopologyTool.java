@@ -24,6 +24,7 @@ import javax.swing.ImageIcon;
 
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.LineSegment;
 import net.rptools.maptool.model.drawing.Pen;
@@ -42,7 +43,12 @@ public class PolyLineTopologyTool extends PolygonTopologyTool implements MouseMo
             ioe.printStackTrace();
         }
     }
-    
+
+    @Override
+    public String getTooltip() {
+        return "tool.polylinetopo.tooltip";
+    }
+
 	@Override
     public String getInstructions() {
     	return "tool.poly.instructions";
@@ -73,10 +79,4 @@ public class PolyLineTopologyTool extends PolygonTopologyTool implements MouseMo
         
         return polygon;
     }
-    
-    @Override
-    public String getTooltip() {
-        return "tool.polylinetopo.tooltip";
-    }
-    
 }

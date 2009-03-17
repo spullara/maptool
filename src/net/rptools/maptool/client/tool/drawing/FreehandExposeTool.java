@@ -23,6 +23,7 @@ import javax.swing.ImageIcon;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -43,6 +44,11 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+    }
+
+    @Override
+    public String getTooltip() {
+        return "tool.freehandexpose.tooltip";
     }
 
     @Override
@@ -118,10 +124,5 @@ public class FreehandExposeTool extends FreehandTool implements MouseMotionListe
         
         
         MapTool.getFrame().refresh();
-    }
-    
-    @Override
-    public String getTooltip() {
-        return "tool.freehandexpose.tooltip";
     }
 }

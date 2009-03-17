@@ -37,6 +37,7 @@ import javax.swing.text.StyleConstants;
 
 import net.rptools.maptool.client.swing.TwoToneTextPane;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.drawing.DrawnLabel;
 import net.rptools.maptool.model.drawing.Pen;
 

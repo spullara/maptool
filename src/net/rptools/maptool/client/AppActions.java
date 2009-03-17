@@ -572,7 +572,7 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 
 			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
-			String msg = MessageFormat.format(I18N.getText("msg.confirm.renameMap"), zone.getName() != null ? zone.getName() : "");
+			String msg = I18N.getText("msg.confirm.renameMap", zone.getName() != null ? zone.getName() : "");
 			String name = JOptionPane.showInputDialog(MapTool.getFrame(), msg);
 			if (name != null) {
 				zone.setName(name);
@@ -656,6 +656,37 @@ public class AppActions {
 			}
 
 			try {
+				FileUtil.writeBytes(saveFile, messageHistory.getBytes());
+			} catch (IOException ioe) {
+				MapTool.showError("msg.error.failedSavingMessageHistory");
+			}
+		}
+	};
+
+	public static final Action AUTOSAVE_MESSAGE_HISTORY = new DefaultClientAction() {
+		{
+			init("action.autosaveMessageHistory");
+		}
+
+		public void execute(ActionEvent e) {
+			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
+			chooser.setDialogTitle(I18N.getText("msg.title.saveMessageHistory"));
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+			if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
+				return;
+			}
+
+			File saveFile = chooser.getSelectedFile();
+			if (saveFile.getName().indexOf(".") < 0) {
+				saveFile = new File(saveFile.getAbsolutePath() + ".html");
+			}
+			if (saveFile.exists() && !MapTool.confirm("msg.confirm.fileExists")) {
+				return;
+			}
+
+			try {
+				String messageHistory = MapTool.getFrame().getCommandPanel().getMessageHistory();
 				FileUtil.writeBytes(saveFile, messageHistory.getBytes());
 			} catch (IOException ioe) {
 				MapTool.showError("msg.error.failedSavingMessageHistory");
@@ -1978,6 +2009,7 @@ public class AppActions {
 		public void execute(ActionEvent ae) {
 			ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
 			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
+			chooser.setFileFilter(MapTool.getFrame().getMapFileFilter());
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			chooser.setSelectedFile(new File(zr.getZone().getName()));
 			if (chooser.showSaveDialog(MapTool.getFrame()) == JFileChooser.APPROVE_OPTION) {

@@ -29,6 +29,7 @@ import javax.swing.ImageIcon;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -70,6 +71,11 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
 	protected boolean drawMeasurement() {
 		return false;
 	}
+
+    @Override
+    public String getTooltip() {
+        return "tool.polytopo.tooltip";
+    }
 
 	@Override
     public String getInstructions() {
@@ -119,11 +125,6 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
         }
         
         return polygon;
-    }
-    
-    @Override
-    public String getTooltip() {
-        return "tool.polytopo.tooltip";
     }
     
     @Override

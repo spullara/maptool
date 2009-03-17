@@ -81,6 +81,8 @@ public class PreferencesDialog extends JDialog {
     private JCheckBox toolTipInlineRolls;
     private JETAColorWell trustedOuputForeground;
     private JETAColorWell trustedOuputBackground;
+    private JTextField chatAutosaveTime;
+    private JTextField chatFilenameFormat;
     
     
 	// Defaults
@@ -158,6 +160,8 @@ public class PreferencesDialog extends JDialog {
 		toolTipDismissDelay = panel.getTextField("toolTipDismissDelay");
 		facingFaceEdges = panel.getCheckBox("facingFaceEdges");
 		facingFaceVertices = panel.getCheckBox("facingFaceVertices");
+		chatAutosaveTime = panel.getTextField("chatAutosaveTime");
+		chatFilenameFormat = panel.getTextField("chatFilenameFormat");
 		setInitialState();
 
 		// And keep it updated
@@ -232,14 +236,31 @@ public class PreferencesDialog extends JDialog {
 				MapTool.getFrame().getCommandPanel().setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
 			}			
 		});
-
 		trustedOuputBackground.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setTrustedPrefixBG(trustedOuputBackground.getColor());
 				MapTool.getFrame().getCommandPanel().setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
 			}			
 		});
-		
+		chatAutosaveTime.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int value = Integer.parseInt(chatAutosaveTime.getText());
+					AppPreferences.setChatAutosaveTime(value);
+					// TODO FJE Change the timer.  Check campaign auto-save for details.
+//					MapTool.getFrame().getCommandPanel().setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
+				} catch (NumberFormatException nfe) {
+					// Ignore it
+				}
+			}			
+		});
+		chatFilenameFormat.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setChatFilenameFormat(chatFilenameFormat.getText());
+				// TODO FJE Change the filename format.  Might need synchronization?
+//				MapTool.getFrame().getCommandPanel().setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
+			}			
+		});
 		
 		showMacroUpdateWarning.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

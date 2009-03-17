@@ -24,6 +24,7 @@ import javax.swing.ImageIcon;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -69,6 +70,11 @@ public class OvalExposeTool extends OvalTool {
     }
 
     @Override
+    public String getTooltip() {
+        return "tool.ovalexpose.tooltip";
+    }
+
+    @Override
     public String getInstructions() {
     	return "tool.ovalexpose.instructions";
     }
@@ -97,9 +103,4 @@ public class OvalExposeTool extends OvalTool {
 		
 		MapTool.getFrame().refresh();
 	}
-    
-    @Override
-    public String getTooltip() {
-        return "tool.ovalexpose.tooltip";
-    }
 }

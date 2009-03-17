@@ -24,6 +24,7 @@ import javax.swing.ImageIcon;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -49,6 +50,11 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
 	public boolean isAvailable() {
 		return MapTool.getPlayer().isGM();
 	}
+
+    @Override
+    public String getTooltip() {
+        return "tool.polyexpose.tooltip";
+    }
 
     @Override
     public String getInstructions() {
@@ -113,10 +119,5 @@ public class PolygonExposeTool extends PolygonTool implements MouseMotionListene
         
         
         MapTool.getFrame().refresh();
-    }
-    
-    @Override
-    public String getTooltip() {
-        return "tool.polyexpose.tooltip";
     }
 }

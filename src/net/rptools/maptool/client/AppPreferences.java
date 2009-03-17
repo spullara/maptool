@@ -46,6 +46,12 @@ public class AppPreferences {
 	private static final String KEY_AUTO_SAVE_INCREMENT = "autoSaveIncrement";
 	private static final int DEFAULT_AUTO_SAVE_INCREMENT = 5; // Minutes
 
+	private static final String KEY_CHAT_AUTOSAVE_TIME = "autoSaveIncrement";
+	private static final int DEFAULT_CHAT_AUTOSAVE_TIME = 0; // Seconds; zero=same as Campaign Auto Save Increment
+
+	private static final String KEY_CHAT_FILENAME_FORMAT = "autoSaveIncrement";
+	private static final String DEFAULT_CHAT_FILENAME_FORMAT = "x"; // see strformat() for details
+
 	private static final String KEY_DUPLICATE_TOKEN_NUMBER = "duplicateTokenNumber";
 	private static final String DEFAULT_DUPLICATE_TOKEN_NUMBER = Token.NUM_INCREMENT;
 
@@ -141,8 +147,23 @@ public class AppPreferences {
 	}
 
 	public static int getAutoSaveIncrement() {
-		return prefs.getInt(KEY_AUTO_SAVE_INCREMENT,
-				DEFAULT_AUTO_SAVE_INCREMENT);
+		return prefs.getInt(KEY_AUTO_SAVE_INCREMENT, DEFAULT_AUTO_SAVE_INCREMENT);
+	}
+
+	public static void setChatAutosaveTime(int seconds) {
+		prefs.putInt(KEY_CHAT_AUTOSAVE_TIME, seconds);
+	}
+
+	public static int getChatAutosaveTime() {
+		return prefs.getInt(KEY_CHAT_AUTOSAVE_TIME, DEFAULT_CHAT_AUTOSAVE_TIME);
+	}
+
+	public static void setChatFilenameFormat(String pattern) {
+		prefs.put(KEY_CHAT_FILENAME_FORMAT, pattern);
+	}
+
+	public static String getChatFilenameFormat() {
+		return prefs.get(KEY_CHAT_FILENAME_FORMAT, DEFAULT_CHAT_FILENAME_FORMAT);
 	}
 
 	public static void setTokenNumberDisplay(String display) {

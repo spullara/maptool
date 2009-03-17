@@ -228,7 +228,7 @@ public class TextTool extends DefaultTool implements ZoneOverlay {
 
     		pack();
     	}
-    	
+
     	public boolean isAccepted() {
     		return accepted;
     	}

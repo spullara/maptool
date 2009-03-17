@@ -28,6 +28,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.tool.DefaultTool;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Zone;
 
 
@@ -46,6 +47,11 @@ public class FillTopologyTool extends DefaultTool implements ZoneOverlay {
         }
     }
     
+    @Override
+    public String getTooltip() {
+        return "tool.filltopology.tooltip";
+    }
+
 	@Override
     public String getInstructions() {
     	return "tool.filltopology.instructions";
@@ -91,11 +97,6 @@ public class FillTopologyTool extends DefaultTool implements ZoneOverlay {
 	
 	    	g.setColor(oldColor);
     	}
-    }
-    
-    @Override
-    public String getTooltip() {
-        return "tool.filltopology.tooltip";
     }
     
 }

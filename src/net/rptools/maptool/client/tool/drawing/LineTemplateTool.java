@@ -29,6 +29,7 @@ import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.AbstractTemplate;
 import net.rptools.maptool.model.drawing.LineTemplate;
@@ -75,6 +76,14 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
    *-------------------------------------------------------------------------------------------*/
 
   /**
+   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#getTooltip()
+   */
+  @Override
+  public String getTooltip() {
+    return "tool.linetemplate.tooltip";
+  }
+
+  /**
    * @see net.rptools.maptool.client.ui.Tool#getInstructions()
    */
   @Override
@@ -98,14 +107,6 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
     super.resetTool(aVertex);
     pathAnchorSet = false;
     ((LineTemplate) template).setDoubleWide(AppState.useDoubleWideLine());
-  }
-  
-  /**
-   * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#getTooltip()
-   */
-  @Override
-  public String getTooltip() {
-    return "tool.linetemplate.tooltip";
   }
   
   /*---------------------------------------------------------------------------------------------

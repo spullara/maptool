@@ -158,9 +158,9 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 								UPnPUtil.openPort(port);
 							}
 							if (MapToolRegistry.testConnection(port)) {
-								MapTool.showInformation("Success! I could successfully connect to your computer from the internet.");
+								MapTool.showInformation("Success!  I successfully connected to your computer from the Internet.");
 							} else {
-								MapTool.showError("Could not see your computer from the internet.<br><br>It could be a port forwarding issue, see http://portforward.com for instructions on how to set up port forwarding");
+								MapTool.showError("Could not see your computer from the Internet.<br><br>It could be a port forwarding issue.  Visit the RPTools forum (<b>Tools -> MapTool -> HOWTO</b>) to find the Networking FAQ.");
 							}
 							if (getUseUPnPCheckbox().isSelected()) {
 								UPnPUtil.closePort(port);
@@ -170,7 +170,7 @@ public class StartServerDialog extends AbeillePanel<StartServerDialogPreferences
 							return;
 						} catch (Exception e) {
 							e.printStackTrace();
-							MapTool.showError("Unable to see your computer from the internet.  <br><br>It could be a port forwarding issue, see http://portforward.com for instructions on how to set up port forwarding.");
+							MapTool.showError("Unable to see your computer from the Internet.<br><br>It could be a port forwarding issue.  Visit the RPTools forum (<b>Tools -> MapTool -> HOWTO</b>) to find the Networking FAQ.");
 						} finally {
 							// Need to make sure it dies so that it doesn't keep the port open ...
 							// we're going to need it very soon !

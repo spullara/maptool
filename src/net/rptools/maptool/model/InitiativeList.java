@@ -28,8 +28,9 @@ import javax.swing.Icon;
 import net.rptools.maptool.client.MapTool;
 
 /**
- * All of the tokens currently being shown in the initiative list. It includes a reference to all the tokens in order, a reference to the current
- * token, a displayable initiative value and a hold state for each token.
+ * All of the tokens currently being shown in the initiative list. It includes a reference to all
+ * the tokens in order, a reference to the current token, a displayable initiative value and a
+ * hold state for each token.
  * 
  * @author Jay
  */
@@ -164,11 +165,13 @@ public class InitiativeList implements Serializable {
      * @return The token initiative value that holds the token.
      */
     public TokenInitiative insertToken(int index, Token token) {
-        if (index == -1) index = tokens.size();
+        if (index == -1)
+        	index = tokens.size();
         TokenInitiative ti = new TokenInitiative(token);
         tokens.add(index, ti);
         holdUpdate += 1;
-        if (index < current) setCurrent(current + 1);
+        if (index < current)
+        	setCurrent(current + 1);
         getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, null, ti);
         holdUpdate -= 1;
         updateServer();
@@ -182,7 +185,8 @@ public class InitiativeList implements Serializable {
      */
     public void insertTokens(List<Token>  tokens) {
         holdUpdate += 1;
-        for (Token token : tokens) insertToken(-1, token);
+        for (Token token : tokens)
+        	insertToken(-1, token);
         holdUpdate -= 1;
         updateServer();
     }
@@ -196,7 +200,8 @@ public class InitiativeList implements Serializable {
     public List<Integer> indexOf(Token token) {
         List<Integer> list = new ArrayList<Integer>();
         for (int i = 0; i < tokens.size(); i++)
-            if (token.equals(tokens.get(i).getToken())) list.add(i);
+            if (token.equals(tokens.get(i).getToken()))
+            	list.add(i);
         return list;
     }
     
@@ -208,7 +213,8 @@ public class InitiativeList implements Serializable {
      */
     public int indexOf(TokenInitiative ti) {
         for (int i = 0; i < tokens.size(); i++)
-            if (tokens.get(i).equals(ti)) return i;
+            if (tokens.get(i).equals(ti))
+            	return i;
         return -1;
     }
     
@@ -222,8 +228,10 @@ public class InitiativeList implements Serializable {
         TokenInitiative ti = tokens.remove(index);
         holdUpdate += 1;
         Token old = ti.getToken();        
-        if (index <= current) current -= 1;
-        if (tokens.size() <= current) current = -1;
+        if (index <= current)
+        	current -= 1;
+        if (tokens.size() <= current)
+        	current = -1;
         setCurrent(current);
         getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, ti, null);
         holdUpdate -= 1;
@@ -238,8 +246,10 @@ public class InitiativeList implements Serializable {
     
     /** @param aCurrent Setter for the current to set */
     public void setCurrent(int aCurrent) {
-        if (current == aCurrent) return;
-        if (aCurrent < 0 || aCurrent >= tokens.size()) aCurrent = -1; // Don't allow bad values
+        if (current == aCurrent)
+        	return;
+        if (aCurrent < 0 || aCurrent >= tokens.size())
+        	aCurrent = -1; // Don't allow bad values
         int old = current;
         current = aCurrent;
         getPCS().firePropertyChange(CURRENT_PROP, old, current);
@@ -250,7 +260,8 @@ public class InitiativeList implements Serializable {
      * Go to the next token in initiative order.
      */
     public void nextInitiative() {
-        if (tokens.isEmpty()) return;
+        if (tokens.isEmpty())
+        	return;
         holdUpdate += 1;
         int newRound = (round < 0) ? 1 : (current + 1 >= tokens.size()) ? round + 1 : round;
         int newCurrent = (current < 0 || current + 1 >= tokens.size()) ? 0 : current + 1;
@@ -267,7 +278,8 @@ public class InitiativeList implements Serializable {
 
     /** @param aRound Setter for the round to set */
     public void setRound(int aRound) {
-        if (round == aRound) return;
+        if (round == aRound)
+        	return;
         int old = round;
         round = aRound;
         getPCS().firePropertyChange(ROUND_PROP, old, aRound);
@@ -324,6 +336,7 @@ public class InitiativeList implements Serializable {
      */
     public void finishUnitOfWork() {
         holdUpdate -= 1;
+        // XXX Shouldn't this next line be prefixed with if(holdUpdate < 1)?
         updateServer();
     }
     
@@ -331,7 +344,8 @@ public class InitiativeList implements Serializable {
      * Remove all of the tokens from the model and clear round and current 
      */
     public void clearModel() {
-        if (current == -1 && round == -1 && tokens.isEmpty()) return;
+        if (current == -1 && round == -1 && tokens.isEmpty())
+        	return;
         holdUpdate += 1;
         setCurrent(-1);
         setRound(-1);
@@ -363,14 +377,16 @@ public class InitiativeList implements Serializable {
             TokenInitiative ti = i.next();
             if (getZone().getToken(ti.getId()) == null) {
                 int index = tokens.indexOf(ti);
-                if (index <= current) setCurrent(current - 1);
+                if (index <= current)
+                	setCurrent(current - 1);
                 i.remove();
                 updateNeeded = true;
                 getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, ti, null);
             } // endif
         } // endwhile
         holdUpdate -= 1;
-        if (updateNeeded) updateServer();
+        if (updateNeeded)
+        	updateServer();
     }
     
     /**
@@ -406,12 +422,18 @@ public class InitiativeList implements Serializable {
                 } // endif
                 
                 // Do the comparison
-                if (one == two || (one != null && one.equals(two))) return 0;
-                if (one == null) return 1; // Null is always the smallest value
-                if (two == null) return -1;
-                if (one instanceof Double & two instanceof Double) return ((Double)two).compareTo((Double)one);
-                if (one instanceof String & two instanceof String) return ((String)two).compareTo((String)one);
-                if (one instanceof Double) return -1; // Integers are bigger than strings
+                if (one == two || (one != null && one.equals(two)))
+                	return 0;
+                if (one == null)
+                	return 1; // Null is always the smallest value
+                if (two == null)
+                	return -1;
+                if (one instanceof Double & two instanceof Double)
+                	return ((Double)two).compareTo((Double)one);
+                if (one instanceof String & two instanceof String)
+                	return ((String)two).compareTo((String)one);
+                if (one instanceof Double)
+                	return -1; // Integers are bigger than strings
                 return 1;
             }            
         });
@@ -429,7 +451,8 @@ public class InitiativeList implements Serializable {
 
     /** @return Getter for pcs */
     private PropertyChangeSupport getPCS() {
-        if (pcs == null) pcs = new PropertyChangeSupport(this);
+        if (pcs == null)
+        	pcs = new PropertyChangeSupport(this);
         return pcs;
     }
     
@@ -442,7 +465,8 @@ public class InitiativeList implements Serializable {
     public void moveToken(int oldIndex, int index) {
         
         // Remove the token from its old position
-        if (oldIndex < 0 || oldIndex == index) return;
+        if (oldIndex < 0 || oldIndex == index)
+        	return;
         int oldCurrent = current;
         current = -1;
         holdUpdate += 1;
@@ -466,7 +490,8 @@ public class InitiativeList implements Serializable {
      * Update the server with the new list
      */
     public void updateServer() {
-        if (holdUpdate > 0 || zoneId == null) return;
+        if (holdUpdate > 0 || zoneId == null)
+        	return;
         MapTool.serverCommand().updateInitiative(this, null);
     }
 
@@ -487,7 +512,8 @@ public class InitiativeList implements Serializable {
 
     /** @param hide Setter for hideNPC */
     public void setHideNPC(boolean hide) {
-        if (hide == hideNPC) return;
+        if (hide == hideNPC)
+        	return;
         boolean old = hideNPC;
         hideNPC = hide;
         getPCS().firePropertyChange(HIDE_NPCS_PROP, old, hide);
@@ -544,7 +570,8 @@ public class InitiativeList implements Serializable {
          * @param aToken Add this token to the initiative.
          */
         public TokenInitiative(Token aToken) {
-            if (aToken != null) id = aToken.getId();
+            if (aToken != null) 
+            	id = aToken.getId();
         }
         
         /*---------------------------------------------------------------------------------------------
@@ -574,7 +601,8 @@ public class InitiativeList implements Serializable {
 
         /** @param isHolding Setter for the holding to set */
         public void setHolding(boolean isHolding) {
-            if (holding == isHolding) return;
+            if (holding == isHolding)
+            	return;
             boolean old = holding;
             holding = isHolding;
             getPCS().fireIndexedPropertyChange(TOKENS_PROP, tokens.indexOf(this), old, isHolding);
@@ -588,7 +616,8 @@ public class InitiativeList implements Serializable {
 
         /** @param aState Setter for the state to set */
         public void setState(String aState) {
-            if (state == aState || (state != null && state.equals(aState))) return;
+            if (state == aState || (state != null && state.equals(aState)))
+            	return;
             String old = state;
             state = aState;
             getPCS().fireIndexedPropertyChange(TOKENS_PROP, tokens.indexOf(this), old, aState);

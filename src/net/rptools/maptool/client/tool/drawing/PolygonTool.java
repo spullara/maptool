@@ -21,6 +21,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.LineSegment;
@@ -41,7 +42,12 @@ public class PolygonTool extends LineTool implements MouseMotionListener {
             ioe.printStackTrace();
         }
     }
-    
+
+    @Override
+    public String getTooltip() {
+        return "tool.poly.tooltip";
+    }
+
     @Override
     public String getInstructions() {
     	return "tool.poly.instructions";
@@ -61,10 +67,4 @@ public class PolygonTool extends LineTool implements MouseMotionListener {
         
         return polygon;
     }
-    
-    @Override
-    public String getTooltip() {
-        return "tool.poly.tooltip";
-    }
-    
 }

@@ -853,7 +853,7 @@ public class MapTool {
 
 		// Protocol handlers
 		RPTURLStreamHandlerFactory factory = new RPTURLStreamHandlerFactory();
-		factory.registerProtocol("asset", new EmptyURLStreamHandler());
+		factory.registerProtocol("asset", new AssetURLStreamHandler());
 		URL.setURLStreamHandlerFactory(factory);
 
         Toolkit.getDefaultToolkit().getSystemEventQueue().push(new MapToolEventQueue());

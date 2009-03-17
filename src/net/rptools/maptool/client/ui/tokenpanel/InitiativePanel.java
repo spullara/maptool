@@ -46,7 +46,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.tool.PointerTool;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
@@ -165,13 +167,17 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         panel.add(round, new CellConstraints(6, 2));
         panel.add(new HorizontalLineComponent(), new CellConstraints(2, 3, 6, 1));
 
+        ownerPermissions = MapTool.getCampaign().isInitiativeOwnerPermissions();
+
         // Set up the list with an empty model
         displayList = new JList();
         model = new InitiativeListModel();
         displayList.setModel(model);
         setList(new InitiativeList(null));
         displayList.setCellRenderer(new InitiativeListCellRenderer(this));
-        displayList.setDragEnabled(true);
+
+        // Dragging is only for GM
+        displayList.setDragEnabled(hasGMPermission());
         displayList.setTransferHandler(new InitiativeTransferHandler(this));
         displayList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         displayList.addListSelectionListener(this);
@@ -213,7 +219,6 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
      * GM's and Player's properly
      */
     public void updateView() {
-        
         // Set up the button
         if (ownerPermissions || hasGMPermission()) {
             NEXT_ACTION.setEnabled(true);
@@ -229,7 +234,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
             menuButton.add(new JMenuItem(SORT_LIST_ACTION));
             menuButton.addSeparator();
         } // endif
-        if (hasGMPermission() || ownerPermissions) {
+        if (ownerPermissions || hasGMPermission()) {
             menuButton.add(new JMenuItem(TOGGLE_HOLD_ACTION));
         } // endif
         menuButton.add(new JMenuItem(SET_INIT_STATE_VALUE));
@@ -249,7 +254,6 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
             hideNPCMenuItem.setSelected(list == null ? false : list.isHideNPC());
             menuButton.add(hideNPCMenuItem);
             ownerPermissionsMenuItem = new JCheckBoxMenuItem(TOGGLE_OWNER_PERMISSIONS_ACTION);
-            ownerPermissions = MapTool.getCampaign().isInitiativeOwnerPermissions();
             ownerPermissionsMenuItem.setSelected(list == null ? false : ownerPermissions);
             menuButton.add(ownerPermissionsMenuItem);
             menuButton.addSeparator();
@@ -259,14 +263,10 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
             menuButton.add(new JMenuItem(REMOVE_TOKEN_ACTION));
             menuButton.add(new JMenuItem(REMOVE_ALL_ACTION));
             menuButton.setText(I18N.getText("initPanel.menuButton"));
-            displayList.setDragEnabled(true);
         } else if (ownerPermissions) {
             menuButton.addSeparator();
             menuButton.add(new JMenuItem(REMOVE_TOKEN_ACTION));
         } // endif
-        
-        // Dragging is only for GM
-        displayList.setDragEnabled(hasGMPermission());
         valueChanged(null);
     }
     
@@ -353,9 +353,9 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
             list = new InitiativeList(zone);
             zone.setInitiativeList(list);
         } // endif
-        
+
         // Set the list and actions
-        setList(zone.getInitiativeList());
+        setList(list);
         displayList.getSelectionModel().clearSelection();
         updateView();
     }
@@ -367,9 +367,11 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
      * @return The value <code>true</code> if this player has permission for restricted actions.
      */
     public boolean hasOwnerPermission(Token token) {
-        if (MapTool.getPlayer() == null || MapTool.getPlayer().isGM()) return true;
+    	if (hasGMPermission())
+    		return true;
         if (ownerPermissions && (!MapTool.getServerPolicy().useStrictTokenManagement() 
-                || token.isOwner(MapTool.getPlayer().getName()))) return true;
+                || token.isOwner(MapTool.getPlayer().getName())))
+        	return true;
         return false;
     }
     
@@ -378,8 +380,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
      * @return The value <code>true</code> if this player has permission for all actions.
      */
     public boolean hasGMPermission() {
-        if (MapTool.getPlayer() == null || MapTool.getPlayer().isGM()) return true;
-        return false;
+    	return (MapTool.getPlayer() == null || MapTool.getPlayer().isGM());
     }
 
     /** @return Getter for ownerPermissions */
@@ -401,9 +402,10 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
      * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
      */
     public void valueChanged(ListSelectionEvent e) {
-        if (e != null && e.getValueIsAdjusting()) return;
+        if (e != null && e.getValueIsAdjusting())
+        	return;
         TokenInitiative ti =  (TokenInitiative)displayList.getSelectedValue();
-        boolean enabled = (ti != null && (hasGMPermission() || ti.getToken().isOwner(MapTool.getPlayer().getName()))) ? true : false;
+        boolean enabled = (ti != null && hasOwnerPermission(ti.getToken())) ? true : false;
         CLEAR_INIT_STATE_VALUE.setEnabled(enabled);
         SET_INIT_STATE_VALUE.setEnabled(enabled);
         if (menuButton.getAction() == TOGGLE_HOLD_ACTION) {
@@ -411,13 +413,10 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         } else {
             TOGGLE_HOLD_ACTION.setEnabled(enabled);
         } // endif
-        if (ti != null && hasOwnerPermission(ti.getToken())) {            
-            REMOVE_TOKEN_ACTION.setEnabled(enabled);
-        } else {
-            REMOVE_TOKEN_ACTION.setEnabled(false);
-        } // endif
-        ti = list.getCurrent() >= 0 ? list.getTokenInitiative(list.getCurrent()) : null;
-        if (hasGMPermission() || ti != null && hasOwnerPermission(ti.getToken())) {
+
+        REMOVE_TOKEN_ACTION.setEnabled(enabled);
+        ti = (list.getCurrent() >= 0) ? list.getTokenInitiative(list.getCurrent()) : null;
+        if (hasGMPermission() || (ti != null && hasOwnerPermission(ti.getToken()))) {
             menuButton.setButtonEnabled(true);
         } else {
             if (menuButton.getAction() == NEXT_ACTION)
@@ -437,12 +436,12 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
             String text = list.getRound() < 0 ? "" : Integer.toString(list.getRound());
             round.setText(text);
         } else if (evt.getPropertyName().equals(InitiativeList.CURRENT_PROP)) {
-            if (list.getCurrent() < 0) return;
-            Token t = list.getTokenInitiative(list.getCurrent()).getToken();
-            if (t == null) {
+            if (list.getCurrent() < 0)
             	return;
-            }
-            String s = String.format(I18N.getText("initPanel.displayMessage"), t.getName());
+            Token t = list.getTokenInitiative(list.getCurrent()).getToken();
+            if (t == null)
+            	return;
+            String s = I18N.getText("initPanel.displayMessage", t.getName());
             if (t.isVisible() && t.getType() != Type.NPC)
                 MapTool.addMessage(TextMessage.say(null, s));
             displayList.ensureIndexIsVisible(model.getDisplayIndex(list.getCurrent()));
@@ -485,7 +484,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
      *-------------------------------------------------------------------------------------------*/
     
     /**
-     * This action will remove the selected token from the list.
+     * This action will advance initiative to the next token in the list.
      */
     public final Action NEXT_ACTION = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
@@ -499,7 +498,8 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     public final Action REMOVE_TOKEN_ACTION = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             TokenInitiative ti = (TokenInitiative)displayList.getSelectedValue();
-            if (ti == null) return;
+            if (ti == null)
+            	return;
             int index = list.indexOf(ti);
             list.removeToken(index);
         };
@@ -511,7 +511,8 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     public final Action TOGGLE_HOLD_ACTION = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             TokenInitiative ti = (TokenInitiative)displayList.getSelectedValue();
-            if (ti == null) return;
+            if (ti == null)
+            	return;
             ti.setHolding(!ti.isHolding());
         };
     };
@@ -545,25 +546,9 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
             displayList.repaint();
         };
     };
-    
-    /**
-     * This action will set the initiative state of the currently selected token.
-     */
-    public final Action SET_INIT_STATE_VALUE = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
-            TokenInitiative ti = (TokenInitiative)displayList.getSelectedValue();
-            if (ti == null) return;
-            String sName = ti.getToken().getName();
-            if (hasGMPermission() && ti.getToken() != null && ti.getToken().getGMName().trim().length() != 0)
-                sName += " (" + ti.getToken().getGMName().trim() + ")";
-            String input = JOptionPane.showInputDialog(String.format(I18N.getText("initPanel.enterState"), sName), ti.getState());
-            if (input == null) return;
-            ti.setState(input.trim());
-        };
-    };
 
     /**
-     * This action toggles the display of token images.
+     * This action sorts the tokens in the list.
      */
     public final Action SORT_LIST_ACTION = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
@@ -574,10 +559,31 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     /**
      * This action will set the initiative state of the currently selected token.
      */
+    public final Action SET_INIT_STATE_VALUE = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            TokenInitiative ti = (TokenInitiative)displayList.getSelectedValue();
+            if (ti == null)
+            	return;
+            Token token = ti.getToken();
+            String sName = (token == null) ? "" : token.getName();
+            if (hasGMPermission() && token != null && token.getGMName().trim().length() != 0)
+                sName += " (" + token.getGMName().trim() + ")";
+            String s = I18N.getText("initPanel.enterState", sName);
+            String input = JOptionPane.showInputDialog(s, ti.getState());
+            if (input == null)
+            	return;
+            ti.setState(input.trim());
+        };
+    };
+
+    /**
+     * This action will clear the initiative state of the currently selected token.
+     */
     public final Action CLEAR_INIT_STATE_VALUE = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             TokenInitiative ti = (TokenInitiative)displayList.getSelectedValue();
-            if (ti == null) return;
+            if (ti == null)
+            	return;
             ti.setState(null);
         };
     };
@@ -626,7 +632,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     };
 
     /**
-     * This action will toggle the flag that allows players to modify the init for token they own.
+     * This action will toggle the flag that allows players to modify the init for tokens they own.
      */
     public final Action TOGGLE_OWNER_PERMISSIONS_ACTION = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
@@ -639,7 +645,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     };
 
     /**
-     * This action will add all tokens in the zone to this initiative panel.
+     * This action will reset the round counter for the initiative panel.
      */
     public final Action RESET_COUNTER_ACTION = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
@@ -673,19 +679,29 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
                     
                     // Show the selected token on the map.
                     Token token = ((TokenInitiative)displayList.getSelectedValue()).getToken();
-                    MapTool.getFrame().getCurrentZoneRenderer().centerOn(new ZonePoint(token.getX(), token.getY()));
-                    MapTool.getFrame().getToolbox().setSelectedTool(PointerTool.class);
-                    MapTool.getFrame().getCurrentZoneRenderer().clearSelectedTokens();
-                    MapTool.getFrame().getCurrentZoneRenderer().selectToken(token.getId());
-                    MapTool.getFrame().getCurrentZoneRenderer().requestFocusInWindow();
+        			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+        			if (renderer == null) {
+        				return;
+        			}
+	    			ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2, renderer.getHeight() / 2).convertToZone(renderer);
+	                renderer.centerOn(zp);
+	    			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
+//					XXX Why was this code selecting the PointerTool automatically?
+//	                MapTool.getFrame().getToolbox().setSelectedTool(PointerTool.class);
+	                MapTool.getFrame().getCurrentZoneRenderer().clearSelectedTokens();
+	                MapTool.getFrame().getCurrentZoneRenderer().selectToken(token.getId());
+	                MapTool.getFrame().getCurrentZoneRenderer().requestFocusInWindow();
                 } // endif
             }
           });
         } else if (SwingUtilities.isRightMouseButton(e)) {
             TokenInitiative ti = (TokenInitiative)displayList.getModel().getElementAt(displayList.locationToIndex(e.getPoint()));
-            if (ti == null) return;
+            if (ti == null)
+            	return;
             displayList.setSelectedIndex(model.getDisplayIndex(list.indexOf(ti)));
-            if (!hasGMPermission() && !ti.getToken().isOwner(MapTool.getPlayer().getName())) return;
+            // TODO Can I use hasOwnerPermission(ti.getToken()) here instead?
+            if (!hasGMPermission() && ti.getToken() != null && !ti.getToken().isOwner(MapTool.getPlayer().getName()))
+            	return;
             Set<GUID> tokens = Collections.singleton(ti.getId());
             Set<TokenInitiative> tis = Collections.singleton(ti);
             new InitiativeTokenPopupMenu(tokens, tis, e.getX(), e.getY(), MapTool.getFrame().getCurrentZoneRenderer(), ti.getToken(), ti).showPopup(displayList);

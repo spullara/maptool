@@ -14,27 +14,39 @@
 package net.rptools.maptool.client.swing;
 
 import java.awt.Dimension;
-import java.awt.event.MouseAdapter;
-import java.text.DecimalFormat;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
+import javax.swing.JTextField;
 
 import net.rptools.maptool.client.MapTool;
 
 /**
  */
-public class ZoomStatusBar extends JLabel {
+public class ZoomStatusBar extends JTextField {
 
-    private static final Dimension minSize = new Dimension(40, 10);
+    private static final Dimension minSize = new Dimension(50, 10);
     
     public ZoomStatusBar() {
     	super("", RIGHT);
     	setToolTipText("Zoom Level");
+    	addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JTextField target = (JTextField) e.getSource();
+		    	if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+					double zoom;
+					try {
+						zoom = Double.parseDouble(target.getText());
+			    		MapTool.getFrame().getCurrentZoneRenderer().getZoneScale().setScale(zoom/100);
+					} catch (NumberFormatException e1) {
+						// If the number is invalid, ignore it.
+					}
+					update();
+		    	}
+			}
+    	});
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.JComponent#getMinimumSize()
      */

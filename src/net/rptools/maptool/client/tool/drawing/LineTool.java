@@ -22,6 +22,8 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
+import net.rptools.maptool.language.I18N;
+
 
 /**
  * Tool for drawing freehand lines.

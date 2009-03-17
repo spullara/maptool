@@ -148,7 +148,7 @@ public class Toolbox {
 					}
 
 					if (MapTool.getFrame() != null) {
-						MapTool.getFrame().setStatusMessage(currentTool.getInstructions());
+						MapTool.getFrame().setStatusMessage(I18N.getText(currentTool.getInstructions()));
 					}
 				}
 			}

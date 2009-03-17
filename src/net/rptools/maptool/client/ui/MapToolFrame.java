@@ -189,6 +189,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private JLabel chatActionLabel;
 	private GlassPane glassPane;
 
+	private TokenPanelTreeModel tokenPanelTreeModel;
+
 	private TextureChooserPanel textureChooserPanel;
 
 	private LookupTablePanel lookupTablePanel;
@@ -726,8 +728,6 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			addAssetRoot(file);
 		}
 	}
-
-	private TokenPanelTreeModel tokenPanelTreeModel;
 
 	private JComponent createTokenTreePanel() {
 		final JTree tree = new JTree();
