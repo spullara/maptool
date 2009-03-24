@@ -644,6 +644,12 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	
 	public void initMacroPanel() {
 		
+		JTabbedPane tabs = (JTabbedPane) getComponent("tabs");
+		for(int index = 0; index < tabs.getTabCount(); index++) {
+			if(tabs.getTitleAt(index).equals("Macros")) {
+				tabs.setEnabledAt(index, false);
+			}
+		}
 		getMacroClearAllButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
