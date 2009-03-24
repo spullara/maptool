@@ -431,7 +431,7 @@ public class GridTool extends DefaultTool {
 			boolean direction = delta > 0;
 			delta = Math.abs(delta);
 			ZonePoint centerPoint = renderer.getCenterPoint();
-			System.out.println("Center: " + centerPoint);
+
 			for (int i = 0; i < delta; i++) {
 				if (direction) {
 					renderer.getZoneScale().zoomOut(centerPoint.x, centerPoint.y);

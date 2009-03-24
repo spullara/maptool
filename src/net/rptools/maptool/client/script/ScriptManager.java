@@ -17,7 +17,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,9 +24,12 @@ import java.util.regex.Pattern;
 import net.rptools.maptool.client.script.api.TokenApi;
 import net.sf.json.JSONObject;
 
-import org.mozilla.javascript.*;
-
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.RegularExpression;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.WrapFactory;
 
 public class ScriptManager {
 
@@ -109,8 +111,8 @@ public class ScriptManager {
             Matcher m = registerPattern.matcher(line);
             if (m.matches()) {
                 JSONObject o = JSONObject.fromObject(m.group(1));
-                System.out.println(m.group(1));
-                System.out.println(o);
+//                System.out.println(m.group(1));
+//                System.out.println(o);
             }
         }
     }

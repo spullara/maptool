@@ -240,6 +240,10 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                   zoneGUID = (GUID) parameters[0];
                   GUID drawableId = (GUID)parameters[1];
                   zone = MapTool.getCampaign().getZone(zoneGUID);
+                  if (zone == null) {
+                	  return;
+                  }
+                  
                   zone.removeDrawable(drawableId);
 
         		  if (MapTool.getFrame().getCurrentZoneRenderer().getZone().getId().equals(zoneGUID) && zoneGUID != null) {

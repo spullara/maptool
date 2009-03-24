@@ -220,6 +220,10 @@ public class MacroButton extends JButton implements MouseListener
 	}
 	
 	public void mouseEntered(MouseEvent event) {
+		if (MapTool.getFrame().getCurrentZoneRenderer() == null) {
+			return;
+		}
+		
 		List<Token> selectedTokens = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList();
 		if(SwingUtil.isShiftDown(event) || getProperties().getApplyToTokens()) {
 			MapTool.getFrame().getCurrentZoneRenderer().setHighlightCommonMacros(selectedTokens);			

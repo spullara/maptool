@@ -68,6 +68,6 @@
 	<classpathentry kind="lib" path="lib/jide-oss-2.4.8.jar"/>
 	<classpathentry kind="lib" path="lib/jide-properties-2.4.8.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
-	<classpathentry kind="lib" path="lib/rplib-1.0.b116.jar"/>
+	<classpathentry kind="lib" path="lib/rplib-1.0.b117.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

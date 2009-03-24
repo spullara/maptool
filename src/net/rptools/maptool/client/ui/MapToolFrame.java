@@ -16,9 +16,7 @@ package net.rptools.maptool.client.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GridBagConstraints;
@@ -77,7 +75,7 @@ import net.rptools.lib.swing.AboutDialog;
 import net.rptools.lib.swing.ColorPicker;
 import net.rptools.lib.swing.PositionalLayout;
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.lib.swing.preference.FramePreferences;
+import net.rptools.lib.swing.preference.WindowPreferences;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppPreferences;
@@ -322,13 +320,14 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
 
-		new FramePreferences(AppConstants.APP_NAME, "mainFrame", this);
 		restorePreferences();
 		updateKeyStrokes();
 
 		// This will cause the frame to be set to visible (BAD jide, BAD! No
 		// cookie for you!)
 		configureDocking();
+
+		new WindowPreferences(AppConstants.APP_NAME, "mainFrame", this);
 	}
 	
 	public DragImageGlassPane getDragImageGlassPane() {
@@ -1308,13 +1307,15 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		setVisible(false);
 
-		// Not necessary since we'll release all resources when we close
-		// That and it seems to sometimes throw an NPE, go figure.
-		// dispose();
-		System.exit(0);
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				 dispose();
+			}
+		});
 	}
 
 	public void windowClosed(WindowEvent e) {
+		System.exit(0);
 	}
 
 	public void windowIconified(WindowEvent e) {

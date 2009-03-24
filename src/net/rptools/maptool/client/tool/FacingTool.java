@@ -92,7 +92,11 @@ public class FacingTool extends DefaultTool {
     @Override
     public void mouseMoved(MouseEvent e) {
     	super.mouseMoved(e);
-    	// TODO: getTokenBounds is returning NULL sometimes 
+    	
+    	if (tokenUnderMouse == null || renderer.getTokenBounds(tokenUnderMouse) == null) {
+    		return;
+    	}
+    	
     	Rectangle bounds = renderer.getTokenBounds(tokenUnderMouse).getBounds();
     	
     	int x = bounds.x + bounds.width/2;

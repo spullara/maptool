@@ -428,6 +428,9 @@ public class PreferencesDialog extends JDialog {
         });        
         visionOverlayOpacitySpinner.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent ce) {
+            	if (((Integer)visionOverlayOpacitySpinner.getValue()) < 1) {
+            		visionOverlayOpacitySpinner.setValue(0);
+            	}
                 AppPreferences.setVisionOverlayOpacity((Integer)visionOverlayOpacitySpinner.getValue());
                 MapTool.getFrame().refresh();
             }

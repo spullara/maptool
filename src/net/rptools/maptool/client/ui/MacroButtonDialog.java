@@ -13,6 +13,9 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -20,17 +23,18 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import com.jeta.forms.components.panel.FormPanel;
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.lib.swing.preference.WindowPreferences;
+import net.rptools.maptool.client.AppConstants;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
+
+import com.jeta.forms.components.panel.FormPanel;
 
 public class MacroButtonDialog extends JDialog {
 
@@ -52,6 +56,8 @@ public class MacroButtonDialog extends JDialog {
 		super (MapTool.getFrame(), "", true);
 		panel = new FormPanel("net/rptools/maptool/client/ui/forms/macroButtonDialog.jfrm");
 		setContentPane(panel);
+		setSize(700, 400);
+		SwingUtil.centerOver(this, MapTool.getFrame());
 
 		installOKButton();
 		installCancelButton();
@@ -65,7 +71,7 @@ public class MacroButtonDialog extends JDialog {
 		panel.getTextField("maxWidth").setEnabled(false); // can't get max-width to work, so temporarily disabling it.
 		panel.getCheckBox("allowPlayerEditsCheckBox").setEnabled(MapTool.getPlayer().isGM());
 		
-		pack();
+		new WindowPreferences(AppConstants.APP_NAME, "editMacroDialog", this);
 	}
 	
 	private void installHotKeyCombo() {
@@ -110,14 +116,6 @@ public class MacroButtonDialog extends JDialog {
 				cancel();
 			}
 		});
-	}
-	
-	@Override
-	public void setVisible(boolean b) {
-		if (b) {
-			SwingUtil.centerOver(this, MapTool.getFrame());
-		}
-		super.setVisible(b);
 	}
 	
 	public void show(MacroButton button) {
