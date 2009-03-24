@@ -113,7 +113,7 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 		Map<String, LookupTable> lookupTables = new HashMap<String, LookupTable>(MapTool.getCampaign().getLookupTableMap());
 		if(!MapTool.getPlayer().isGM()) {
 			for(String nextKey : MapTool.getCampaign().getLookupTableMap().keySet()) {
-				if(lookupTables.get(nextKey).getVisible()) {
+				if(!lookupTables.get(nextKey).getVisible()) {
 					lookupTables.remove(nextKey);
 				}
 			}

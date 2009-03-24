@@ -290,10 +290,15 @@ public class MacroButtonDialog extends JDialog {
 					}				
 				}
 			}
+			MapTool.getFrame().getSelectionPanel().reset();
+		}
+		
+		if(button.getPanelClass().equals("CampaignPanel")) {
+			MapTool.serverCommand().updateCampaignMacros(MapTool.getCampaign().getMacroButtonPropertiesArray());
+			MapTool.getFrame().getCampaignPanel().reset();
 		}
 		
 		setVisible(false);
-		MapTool.getFrame().getSelectionPanel().reset();
 		dispose();
 	}
 	

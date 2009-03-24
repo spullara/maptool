@@ -33,6 +33,7 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Label;
+import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
@@ -107,6 +108,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case movePointer: 			  movePointer(context.getString(0), context.getInt(1), context.getInt(2));break;
             case updateInitiative:        updateInitiative((InitiativeList)context.get(0), (Boolean)context.get(1));break;
             case setVisionType:            setVisionType(context.getGUID(0), (VisionType)context.get(1));break;
+            case updateCampaignMacros:	  updateCampaignMacros((List<MacroButtonProperties>) context.get(0));break;
             }
         } finally {
             RPCContext.setCurrent(null);
@@ -474,6 +476,12 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         zone.removeTopology(area);
 
         forwardToClients();
+    }
+    
+    public void updateCampaignMacros(List<MacroButtonProperties> properties) {
+    	MapTool.getCampaign().setMacroButtonPropertiesArray(new ArrayList<MacroButtonProperties>(properties));
+    	
+    	forwardToClients();
     }
     
     ////

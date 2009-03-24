@@ -14,6 +14,7 @@
 package net.rptools.maptool.client;
 
 import java.awt.geom.Area;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -24,6 +25,7 @@ import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Label;
+import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
@@ -214,6 +216,10 @@ public class ServerCommandClientImpl implements ServerCommand {
     
     public void updateInitiative(InitiativeList list, Boolean ownerPermission) {
         makeServerCall(COMMAND.updateInitiative, list, ownerPermission);
+    }
+    
+    public void updateCampaignMacros(List<MacroButtonProperties> properties) {
+    	makeServerCall(COMMAND.updateCampaignMacros, properties);
     }
     
 	private static void makeServerCall(ServerCommand.COMMAND command, Object... params) {

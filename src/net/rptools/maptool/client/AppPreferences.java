@@ -260,8 +260,8 @@ public class AppPreferences {
     private static final String KEY_PORTRAIT_SIZE = "portraitSize";
     private static final int DEFAULT_PORTRAIT_SIZE = 175;
     
-    private static final String KEY_SHOW_MACRO_UPDATE_WARNING = "showMacroUpdateWarning";
-    private static final boolean DEFAULT_SHOW_MACRO_UPDATE_WARNING = true;
+    private static final String KEY_ALLOW_PLAYER_MACRO_EDITS_DEFAULT = "allowPlayerMacroEditsDefault";
+    private static final boolean DEFAULT_ALLOW_PLAYER_MACRO_EDITS_DEFAULT = true;
     
     private static final String KEY_TOOLTIP_INITIAL_DELAY = "toolTipInitialDelay";
     private static final int DEFAULT_TOOLTIP_INITIAL_DELAY = 250;
@@ -344,12 +344,12 @@ public class AppPreferences {
     	return prefs.getInt(KEY_TOOLTIP_DISMISS_DELAY, DEFAULT_TOOLTIP_DISMISS_DELAY);
     }
     
-    public static void setShowMacroUpdateWarning(boolean show) {
-    	prefs.putBoolean(KEY_SHOW_MACRO_UPDATE_WARNING, show);
+    public static void setAllowPlayerMacroEditsDefault(boolean show) {
+    	prefs.putBoolean(KEY_ALLOW_PLAYER_MACRO_EDITS_DEFAULT, show);
     }
     
-    public static boolean getShowMacroUpdateWarning() {
-    	return prefs.getBoolean(KEY_SHOW_MACRO_UPDATE_WARNING, DEFAULT_SHOW_MACRO_UPDATE_WARNING);
+    public static boolean getAllowPlayerMacroEditsDefault() {
+    	return prefs.getBoolean(KEY_ALLOW_PLAYER_MACRO_EDITS_DEFAULT, DEFAULT_ALLOW_PLAYER_MACRO_EDITS_DEFAULT);
     }
     
     public static void setPortraitSize(int size) {

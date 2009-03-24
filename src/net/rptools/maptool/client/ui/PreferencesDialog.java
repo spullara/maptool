@@ -76,7 +76,7 @@ public class PreferencesDialog extends JDialog {
     
     private JCheckBox showAvatarInChat;
     
-    private JCheckBox showMacroUpdateWarning;
+    private JCheckBox allowPlayerMacroEditsDefault;
     
     private JCheckBox toolTipInlineRolls;
     private JETAColorWell trustedOuputForeground;
@@ -152,7 +152,7 @@ public class PreferencesDialog extends JDialog {
 		showAvatarInChat = panel.getCheckBox("showChatAvatar");
 		showDialogOnNewToken = panel.getCheckBox("showDialogOnNewToken");
 		movementMetricCombo = panel.getComboBox("movementMetric");
-		showMacroUpdateWarning = panel.getCheckBox("showMacroUpdateWarning");
+		allowPlayerMacroEditsDefault = panel.getCheckBox("allowPlayerMacroEditsDefault");
 		toolTipInlineRolls = panel.getCheckBox("toolTipInlineRolls");		
 		trustedOuputForeground = (JETAColorWell) panel.getComponentByName("trustedOuputForeground");
 		trustedOuputBackground = (JETAColorWell) panel.getComponentByName("trustedOuputBackground");
@@ -262,9 +262,9 @@ public class PreferencesDialog extends JDialog {
 			}			
 		});
 		
-		showMacroUpdateWarning.addActionListener(new ActionListener() {
+		allowPlayerMacroEditsDefault.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				AppPreferences.setShowMacroUpdateWarning(showMacroUpdateWarning.isSelected());
+				AppPreferences.setAllowPlayerMacroEditsDefault(allowPlayerMacroEditsDefault.isSelected());
 			}
 		});
 		
@@ -602,7 +602,7 @@ public class PreferencesDialog extends JDialog {
 		playSystemSoundCheckBox.setSelected(AppPreferences.getPlaySystemSounds());
 		playSystemSoundOnlyWhenNotFocusedCheckBox.setSelected(AppPreferences.getPlaySystemSoundsOnlyWhenNotFocused());
 		showAvatarInChat.setSelected(AppPreferences.getShowAvatarInChat());
-		showMacroUpdateWarning.setSelected(AppPreferences.getShowMacroUpdateWarning());
+		allowPlayerMacroEditsDefault.setSelected(AppPreferences.getAllowPlayerMacroEditsDefault());
 		toolTipInlineRolls.setSelected(AppPreferences.getUseToolTipForInlineRoll());
 		trustedOuputForeground.setColor(AppPreferences.getTrustedPrefixFG());
 		trustedOuputBackground.setColor(AppPreferences.getTrustedPrefixBG());

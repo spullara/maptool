@@ -48,13 +48,15 @@ public class MacroButtonPopupMenu extends JPopupMenu{
 			} else {
 				addActions();
 			}
+		} else if(panelClass.equals("CampaignPanel")) {
+			addCampaignActions();
 		} else {
 			addActions();
 		}
 	}
 	
 	private void addActions() {
-		if(MapTool.getPlayer().isGM() || (!MapTool.getPlayer().isGM() && button.getProperties().getAllowPlayerEdits())) {
+		if(MapTool.getPlayer().isGM() || button.getProperties().getAllowPlayerEdits()) {
 			add(new EditButtonAction());
 			add(new JSeparator());
 			add(new AddNewButtonAction());
@@ -75,7 +77,7 @@ public class MacroButtonPopupMenu extends JPopupMenu{
 	}
 	
 	private void addCommonActions() {
-		if(MapTool.getPlayer().isGM() || (!MapTool.getPlayer().isGM() && button.getProperties().getAllowPlayerEdits())) {
+		if(MapTool.getPlayer().isGM() || button.getProperties().getAllowPlayerEdits()) {
 			add(new EditButtonAction());
 			add(new AddNewButtonAction("Add New to Selected"));
 			add(new DuplicateButtonAction("Duplicate Macro on Selected"));
@@ -90,6 +92,24 @@ public class MacroButtonPopupMenu extends JPopupMenu{
 			add(new JSeparator());
 			add(new RunMacroForEachSelectedTokenAction());
 		}		
+	}
+	
+	private void addCampaignActions() {
+		if(MapTool.getPlayer().isGM()) {
+			add(new EditButtonAction());
+			add(new JSeparator());
+			add(new AddNewButtonAction());
+			add(new DuplicateButtonAction());
+			add(new JSeparator());
+			add(new ResetButtonAction());
+			add(new DeleteButtonAction());
+			add(new JSeparator());
+			add(new ExportMacroAction());
+			add(new JSeparator());
+			add(new RunMacroForEachSelectedTokenAction());
+		} else {
+			add(new RunMacroForEachSelectedTokenAction());			
+		}
 	}
 
 	private class AddNewButtonAction extends AbstractAction {

@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.text.JTextComponent;
 
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolLineParser;
 import net.rptools.maptool.client.MapToolMacroContext;
@@ -75,7 +76,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		setButton(null);
 		setTokenId((GUID)null);
 		setSaveLocation("");
-		setAllowPlayerEdits(true);
+		setAllowPlayerEdits(AppPreferences.getAllowPlayerMacroEditsDefault());
 		setCompareGroup(true);
 		setCompareSortPrefix(true);
 		setCompareCommand(true);
@@ -104,7 +105,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		setButton(null);
 		setTokenId((GUID)null);
 		setSaveLocation("");
-		setAllowPlayerEdits(true);
+		setAllowPlayerEdits(AppPreferences.getAllowPlayerMacroEditsDefault());
 		setCompareGroup(true);
 		setCompareSortPrefix(true);
 		setCompareCommand(true);
@@ -119,7 +120,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		this(index);
 		setSaveLocation(panelClass);
 		setGroup(group);
-		setAllowPlayerEdits(true);
+		setAllowPlayerEdits(AppPreferences.getAllowPlayerMacroEditsDefault());
 		setCompareGroup(true);
 		setCompareSortPrefix(true);
 		setCompareCommand(true);
@@ -135,7 +136,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		setSaveLocation("Token");
 		setTokenId(token);
 		setGroup(group);
-		setAllowPlayerEdits(true);
+		setAllowPlayerEdits(AppPreferences.getAllowPlayerMacroEditsDefault());
 		setCompareGroup(true);
 		setCompareSortPrefix(true);
 		setCompareCommand(true);

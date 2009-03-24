@@ -16,7 +16,10 @@ package net.rptools.maptool.client;
 import java.awt.EventQueue;
 import java.awt.geom.Area;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Set;
+
+import antlr.collections.List;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
@@ -28,6 +31,7 @@ import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Label;
+import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
@@ -466,6 +470,12 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 		MapTool.getFrame().refresh();
                 	}
                 	break;
+                
+                case updateCampaignMacros:
+                	MapTool.getCampaign().setMacroButtonPropertiesArray(new ArrayList<MacroButtonProperties>((ArrayList<MacroButtonProperties>) parameters[0]));
+                	MapTool.getFrame().getCampaignPanel().reset();
+                	break;
+                	
                 }
         	}
         });

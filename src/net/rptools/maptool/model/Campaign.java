@@ -359,22 +359,14 @@ public class Campaign {
 		}
 		return macroButtonProperties;
 	}
+	
+	public void setMacroButtonPropertiesArray(List<MacroButtonProperties> properties) {
+		macroButtonProperties = properties;
+	}
 
 	public void saveMacroButtonProperty(MacroButtonProperties properties) {
 		// find the matching property in the array
 		//TODO: hashmap? or equals()? or what?
-		if (!MapTool.getPlayer().isGM()) {
-			MapTool.showError("Only the GM is allowed to make changes to the Campaign Panel.");
-			return;
-		}
-		if(MapTool.isHostingServer() && AppPreferences.getShowMacroUpdateWarning()) {
-			Boolean hideMacroUpdateWarning = MapTool.confirm("Changes to the Campaign Panel will not be sent to other clients until you save and reload this campiagn.\n\nIf you would like to hide this message from now on, please select 'Yes'; otherwise, please select 'No'.");
-			if(hideMacroUpdateWarning) {
-				AppPreferences.setShowMacroUpdateWarning(false);
-			} else {
-				AppPreferences.setShowMacroUpdateWarning(true);
-			}
-		}
 		for (MacroButtonProperties prop : macroButtonProperties) {
 			if (prop.getIndex() == properties.getIndex()) {
 				prop.setColorKey(properties.getColorKey());
@@ -408,11 +400,6 @@ public class Campaign {
 	}
 	
 	public void deleteMacroButton(MacroButtonProperties properties)	{
-		if (!MapTool.getPlayer().isGM()) {
-			MapTool.showError("Only the GM is allowed to make changes to the Campaign Panel.");
-			return;
-		}
-		MapTool.showInformation("Changes to the Campaign Panel will not be sent to other clients until you save and reload this campaign.");
 		macroButtonProperties.remove(properties);
 		MapTool.getFrame().getCampaignPanel().reset();
 	}

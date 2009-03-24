@@ -61,6 +61,8 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 					addActions();
 				}
 			}
+		} else if(panelClass.equals("CampaignPanel")) {
+			addCampaignActions();
 		} else {
 			addActions();
 		}
@@ -88,6 +90,21 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 		add(new JSeparator());
 		add(new ImportMacroSetAction("Import Macro Set to Selected"));
 		add(new ExportMacroSetAction("Export Common Macro Set"));
+	}
+	
+	private void addCampaignActions() {
+		if(MapTool.getPlayer().isGM()) {
+			add(new AddMacroAction());
+			add(new JSeparator());
+			add(new ImportMacroAction());
+			add(new JSeparator());
+			add(new ImportMacroSetAction());
+			add(new ExportMacroSetAction());
+			add(new JSeparator());
+			add(new ClearGroupAction());
+			add(new JSeparator());
+			add(new ClearPanelAction());
+		}
 	}
 
 	private class AddMacroAction extends AbstractAction {

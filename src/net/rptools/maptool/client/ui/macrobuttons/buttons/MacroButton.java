@@ -199,21 +199,9 @@ public class MacroButton extends JButton implements MouseListener
 				}
 			} else if(getPanelClass().equals("SelectionPanel") || getPanelClass().equals("ImpersonatePanel")){
 				if(MapTool.getFrame().getSelectionPanel().getCommonMacros().contains(properties)) {
-					if(MapTool.getPlayer().isGM()) {
-						new MacroButtonPopupMenu(this, panelClass, true).show(this, event.getX(), event.getY());
-					} else {
-						if(properties.getAllowPlayerEdits()) {
-							new MacroButtonPopupMenu(this, panelClass, true).show(this, event.getX(), event.getY());
-						}
-					}
+					new MacroButtonPopupMenu(this, panelClass, true).show(this, event.getX(), event.getY());
 				} else {
-					if(MapTool.getPlayer().isGM()) {
-						new MacroButtonPopupMenu(this, panelClass, false).show(this, event.getX(), event.getY());
-					} else {
-						if(properties.getAllowPlayerEdits()) {
-							new MacroButtonPopupMenu(this, panelClass, false).show(this, event.getX(), event.getY());
-						}
-					}
+					new MacroButtonPopupMenu(this, panelClass, false).show(this, event.getX(), event.getY());
 				}
 			}
 		}
@@ -299,6 +287,8 @@ public class MacroButton extends JButton implements MouseListener
 		public void dragDropEnd(DragSourceDropEvent event) {
 			//System.out.println("TMB: drag drop end");
 			// js commented out for testing - MapTool.getFrame().updateSelectionPanel();
+			List<Token> affectedTokens = new ArrayList<Token>();
+			MapTool.getFrame().getCurrentZoneRenderer().setHighlightCommonMacros(affectedTokens);
 		}
 	}
 	

@@ -26,6 +26,7 @@ import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Label;
 import net.rptools.maptool.model.LookupTable;
+import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
@@ -79,7 +80,8 @@ public interface ServerCommand {
         heartbeat,
         updateCampaign,
         updateInitiative,
-        setVisionType
+        setVisionType,
+        updateCampaignMacros
     };
 
     public void bootPlayer(String player);
@@ -123,4 +125,5 @@ public interface ServerCommand {
     public void updateCampaign(CampaignProperties properties);
     public void updateInitiative(InitiativeList list, Boolean ownerPermission);
     public void setVisionType(GUID zoneGUID, VisionType visionType);
+    public void updateCampaignMacros(List<MacroButtonProperties> properties);
 }
