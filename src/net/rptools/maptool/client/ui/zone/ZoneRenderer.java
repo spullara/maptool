@@ -2915,6 +2915,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 token.setType(Token.Type.PC);
             }
             
+            // Make sure all the assets are transfered
+            for (MD5Key id : token.getAllImageAssets()) {
+            	Asset asset = AssetManager.getAsset(id);
+            	if (asset == null) {
+            		log.error("Could not find image for asset: " + id);
+            		continue;
+            	}
+                MapToolUtil.uploadAsset(asset);
+            }
+            
             // Save the token and tell everybody about it
             zone.putToken(token);
             MapTool.serverCommand().putToken(zone.getId(), token);
