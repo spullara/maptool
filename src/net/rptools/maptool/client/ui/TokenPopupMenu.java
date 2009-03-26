@@ -43,7 +43,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
-import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.functions.AbstractTokenAccessorFunction;
@@ -129,8 +128,8 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 		add(new JSeparator());
 
-		add(AppActions.CUT_TOKENS);
-		add(AppActions.COPY_TOKENS);
+		add(new JMenuItem(new CutAction()));
+		add(new JMenuItem(new CopyAction()));
 		add(new JMenuItem(new DeleteAction()));
 
 		add(new JSeparator());

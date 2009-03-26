@@ -774,22 +774,7 @@ public class AppActions {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			Set<GUID> selectedSet = renderer.getSelectedTokenSet();
 
-			copyTokens(selectedSet);
-
-			// delete tokens
-			Zone zone = renderer.getZone();
-
-			for (GUID tokenGUID : selectedSet) {
-
-				Token token = zone.getToken(tokenGUID);
-
-				if (AppUtil.playerOwns(token)) {
-					renderer.getZone().removeToken(tokenGUID);
-					MapTool.serverCommand().removeToken(renderer.getZone().getId(), tokenGUID);
-				}
-			}
-
-			renderer.clearSelectedTokens();
+			cutTokens(renderer.getZone(), selectedSet);
 		}
 	};
 
@@ -810,6 +795,24 @@ public class AppActions {
 
 	};
 
+	public static final void cutTokens(Zone zone, Set<GUID> tokenSet) {
+		
+		copyTokens(tokenSet);
+
+		// delete tokens
+		for (GUID tokenGUID : tokenSet) {
+
+			Token token = zone.getToken(tokenGUID);
+
+			if (AppUtil.playerOwns(token)) {
+				zone.removeToken(tokenGUID);
+				MapTool.serverCommand().removeToken(zone.getId(), tokenGUID);
+			}
+		}
+
+		MapTool.getFrame().getCurrentZoneRenderer().clearSelectedTokens();		
+	}
+	
 	public static final void copyTokens(Set<GUID> tokenSet) {
 
 		List<Token> tokenList = new ArrayList<Token>();

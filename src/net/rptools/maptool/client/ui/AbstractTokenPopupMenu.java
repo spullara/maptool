@@ -34,6 +34,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.text.JTextComponent;
 
+import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.tool.FacingTool;
@@ -419,6 +420,30 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			}
 			
 			renderer.repaint();
+		}
+	}
+	
+	public class CopyAction extends AbstractAction {
+		
+		public CopyAction() {
+			putValue(Action.NAME, I18N.getText("action.copyTokens"));
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+
+			AppActions.copyTokens(selectedTokenSet);
+		}
+	}
+	
+	public class CutAction extends AbstractAction {
+		
+		public CutAction() {
+			putValue(Action.NAME, I18N.getText("action.cutTokens"));
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+
+			AppActions.cutTokens(renderer.getZone(), selectedTokenSet);
 		}
 	}
 	

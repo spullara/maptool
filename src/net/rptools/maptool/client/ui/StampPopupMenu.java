@@ -18,10 +18,7 @@ import java.util.Set;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 
-import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppUtil;
-import net.rptools.maptool.client.ui.AbstractTokenPopupMenu.SaveAction;
-import net.rptools.maptool.client.ui.AbstractTokenPopupMenu.ShowHandoutAction;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
@@ -54,8 +51,8 @@ public class StampPopupMenu extends AbstractTokenPopupMenu {
 		
 		add(new JSeparator());
 
-		add(AppActions.CUT_TOKENS);
-		add(AppActions.COPY_TOKENS);
+		add(new JMenuItem(new CutAction()));
+		add(new JMenuItem(new CopyAction()));
 		add(new JMenuItem(new DeleteAction()));
 
 		add(new JSeparator());
