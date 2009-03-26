@@ -866,7 +866,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	// Draw
         timer.start("lights-5");
     	for (Entry<Paint, List<Area>> entry : renderedLightMap.entrySet()) {
-    		System.out.println("Paint " + entry.getKey() + ": " + entry.getValue().size());
     		newG.setPaint(entry.getKey());
     		for (Area area : entry.getValue()) {
     			newG.fill(area);

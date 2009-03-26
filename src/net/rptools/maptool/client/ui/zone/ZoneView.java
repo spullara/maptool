@@ -178,14 +178,22 @@ public class ZoneView implements ModelChangeListener {
         	lightMap = new HashMap<String, Set<DrawableLight>>();
         	drawableLightCache.put(lightSourceToken.getId(), lightMap);
         }
-        lightMap.put(sight.getName(), lightSet);
+        if (lightMap.get(sight.getName()) != null) {
+        	lightMap.get(sight.getName()).addAll(lightSet);
+        } else {
+            lightMap.put(sight.getName(), lightSet);
+        }
 	        
         Map<String, Set<Area>> brightLightMap = brightLightCache.get(lightSourceToken.getId());
         if (brightLightMap == null) {
         	brightLightMap = new HashMap<String, Set<Area>>();
         	brightLightCache.put(lightSourceToken.getId(), brightLightMap);
         }
-        brightLightMap.put(sight.getName(), brightLightSet);
+        if (brightLightMap.get(sight.getName()) != null) {
+        	brightLightMap.get(sight.getName()).addAll(brightLightSet);
+        } else {
+        	brightLightMap.put(sight.getName(), brightLightSet);
+        }
         
 		return visibleArea;
     }
