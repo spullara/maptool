@@ -23,7 +23,6 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -151,6 +150,14 @@ public class AssetLoader {
 		Map<String, String> idxMap = new HashMap<String, String>();
 		
 		for (String line : index) {
+			if (line == null) {
+				continue;
+			}
+			line = line.trim();
+			if (line.length() == 0) {
+				continue;
+			}
+			
 			String id = line.substring(0, 32);
 			String ref = line.substring(33).trim();
 			
