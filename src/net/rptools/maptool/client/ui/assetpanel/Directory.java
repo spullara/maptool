@@ -94,7 +94,11 @@ public class Directory {
     
     private void load() {
         if (files == null && subdirs == null) {
-
+        	if (!directory.exists()) {
+        		files = new ArrayList<File>();
+        		subdirs = new ArrayList<Directory>();
+        		return;
+        	}
             files = Collections.unmodifiableList(Arrays.asList(directory.listFiles(fileFilter)));
             File [] subdirList = directory.listFiles(DIRECTORY_FILTER);
             subdirs = new ArrayList<Directory>();
