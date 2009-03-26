@@ -58,6 +58,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -770,7 +771,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	return timer;
     }
     
-    private Map<Paint, Area> renderedLightMap;
+    private Map<Paint, List<Area>> renderedLightMap;
     private void renderLights(Graphics2D g, PlayerView view) {
 
 		// Setup
@@ -818,15 +819,31 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        timer.start("lights-4");
 	
 	    	// Combine same colors to avoid ugly overlap
+	        // Avoid combining _all_ of the lights as the area adds are very expensive, just combine those that overlap
 	    	for (List<Area> areaList : colorMap.values()) {
+
+	    		List<Area> sourceList = new LinkedList<Area>(areaList);
+	    		areaList.clear();
 	    		
-				while (areaList.size() > 1) {
+	    		outter:
+				while (sourceList.size() > 0) {
+					Area area = sourceList.remove(0);
+
+					for (ListIterator<Area> iter = sourceList.listIterator(); iter.hasNext();) {
+						Area currArea = iter.next(); 
+						
+						if (currArea.getBounds().intersects(area.getBounds())) {
+							iter.remove();
+							
+							area.add(currArea);
+							sourceList.add(area);
+						
+							continue outter;
+						}
+					}
 					
-					Area a1 = areaList.remove(0);
-					Area a2 = areaList.remove(0);
-					
-					a1.add(a2);
-					areaList.add(a1);
+					// If we are here, we didn't find any other area to merge with
+					areaList.add(area);
 				}
 				
 		    	// Cut out the bright light
@@ -839,19 +856,21 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 	    	}    	
 	    	
-	        renderedLightMap = new LinkedHashMap<Paint, Area>();
+	        renderedLightMap = new LinkedHashMap<Paint, List<Area>>();
 	        for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {
-	        	renderedLightMap.put(entry.getKey(), entry.getValue().get(0));
+	        	renderedLightMap.put(entry.getKey(), entry.getValue());
 	        }
 	        timer.stop("lights-4");
         }
     	
     	// Draw
         timer.start("lights-5");
-    	for (Entry<Paint, Area> entry : renderedLightMap.entrySet()) {
-    		
+    	for (Entry<Paint, List<Area>> entry : renderedLightMap.entrySet()) {
+    		System.out.println("Paint " + entry.getKey() + ": " + entry.getValue().size());
     		newG.setPaint(entry.getKey());
-			newG.fill(entry.getValue());
+    		for (Area area : entry.getValue()) {
+    			newG.fill(area);
+    		}
     	}
     	timer.stop("lights-5");
         
