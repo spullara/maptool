@@ -2190,20 +2190,22 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // Name
             if (AppState.isShowTokenNames() || isSelected || token == tokenUnderMouse) {
 
-                String name = token.getName();
-                if (view.isGMView () && token.getGMName() != null && token.getGMName().length() > 0) {
-                    name += " (" + token.getGMName() + ")";
-                }
-                
-                ImageLabel background = token.isVisible() ? token.getType() == Token.Type.NPC ? GraphicsUtil.BLUE_LABEL : GraphicsUtil.GREY_LABEL : GraphicsUtil.DARK_GREY_LABEL;
-                Color foreground = token.isVisible() ? token.getType() == Token.Type.NPC ? Color.white : Color.black : Color.white;
-                int offset = 10 + (isSelected ? 3 : 0);
-                delayRendering(new LabelRenderer(name, bounds.getBounds().x + bounds.getBounds ().width/2, bounds.getBounds().y + bounds.getBounds().height + offset, SwingUtilities.CENTER, background, foreground));
-                
-                if (token.getLabel() != null && token.getLabel().trim().length() > 0) {
-	                offset += 16 + (isSelected ? 3 : 0);
-	                delayRendering(new LabelRenderer(token.getLabel(), bounds.getBounds().x + bounds.getBounds ().width/2, bounds.getBounds().y + bounds.getBounds().height + offset, SwingUtilities.CENTER, background, foreground));
-                }
+            	if (AppUtil.tokenIsVisible(zone, token, view) && (visibleScreenArea == null || GraphicsUtil.intersects(visibleScreenArea, bounds))) {
+	                String name = token.getName();
+	                if (view.isGMView () && token.getGMName() != null && token.getGMName().length() > 0) {
+	                    name += " (" + token.getGMName() + ")";
+	                }
+	                
+	                ImageLabel background = token.isVisible() ? token.getType() == Token.Type.NPC ? GraphicsUtil.BLUE_LABEL : GraphicsUtil.GREY_LABEL : GraphicsUtil.DARK_GREY_LABEL;
+	                Color foreground = token.isVisible() ? token.getType() == Token.Type.NPC ? Color.white : Color.black : Color.white;
+	                int offset = 10 + (isSelected ? 3 : 0);
+	                delayRendering(new LabelRenderer(name, bounds.getBounds().x + bounds.getBounds ().width/2, bounds.getBounds().y + bounds.getBounds().height + offset, SwingUtilities.CENTER, background, foreground));
+	                
+	                if (token.getLabel() != null && token.getLabel().trim().length() > 0) {
+		                offset += 16 + (isSelected ? 3 : 0);
+		                delayRendering(new LabelRenderer(token.getLabel(), bounds.getBounds().x + bounds.getBounds ().width/2, bounds.getBounds().y + bounds.getBounds().height + offset, SwingUtilities.CENTER, background, foreground));
+	                }
+            	}
             }
         }
     	timer.stop("tokenlist-12");
