@@ -751,15 +751,14 @@ public class MapToolLineParser {
 									}
 									loopSep = option.getStringParam(4);
 									if (loopStep != 0)
-										loopCount = (int)Math.floor(Math.abs( (loopEnd - loopStart)/loopStep + 1 ));
+										loopCount = Math.max(1,(int)Math.floor(Math.abs((loopEnd - loopStart)/loopStep + 0 )));
 
 									if (loopVar.equalsIgnoreCase(""))
 										error = "FOR variable name missing";
 									if (loopStep == 0)
 										error = "FOR loop step can't be zero";
-									if ((loopEnd < loopStart && loopStep > 0) || (loopEnd > loopStart && loopStep < 0))
-										error = String.format("FOR loop step size is in the wrong direction (start=%d, end=%d, step=%d)", 
-												loopStart, loopEnd, loopStep);
+									if ((loopEnd <= loopStart && loopStep > 0) || (loopEnd >= loopStart && loopStep < 0))
+										loopCount = 0;
 								} catch (ParserException pe) {
 									error = String.format("Error processing FOR option: %s", pe.getMessage());
 								}
@@ -780,11 +779,12 @@ public class MapToolLineParser {
 										listDelim = parseExpression(resolver, tokenInContext, listDelim).getValue().toString();
 									}
 									
-									foreachList = new ArrayList<String>();
+									foreachList = null;
 									if (listString.trim().startsWith("{") || listString.trim().startsWith("[")) {
 										// if String starts with [ or { it is either JSON try treat it as a JSON String
 										Object obj = JSONMacroFunctions.getInstance().convertToJSON(listString);
 										if (obj != null) {
+											 foreachList = new ArrayList<String>();
 											if (obj instanceof JSONArray) {
 												for (Object o : ((JSONArray)obj).toArray()) {
 													foreachList.add(o.toString());
@@ -797,7 +797,8 @@ public class MapToolLineParser {
 									}
 									
 									// If we still dont have a list treat it list a string list
-									if (foreachList.size() == 0) {
+									if (foreachList == null) {
+										 foreachList = new ArrayList<String>();
 										StrListFunctions.parse(listString, foreachList, listDelim);
 									}
 									loopCount = foreachList.size();
@@ -1239,15 +1240,15 @@ public class MapToolLineParser {
 		}
 	}	
 
-	public String expandRoll(String roll) {
+	public String expandRoll(String roll) throws ParserException {
 		return expandRoll(null, roll);
 	}
 
-	public String expandRoll(Token tokenInContext, String roll) {
+	public String expandRoll(Token tokenInContext, String roll) throws ParserException {
 		return expandRoll(new MapToolVariableResolver(tokenInContext), tokenInContext, roll);
 	}
 
-	public String expandRoll(MapToolVariableResolver resolver, Token tokenInContext, String roll) {
+	public String expandRoll(MapToolVariableResolver resolver, Token tokenInContext, String roll) throws ParserException {
 
 		try {
 			Result result = parseExpression(resolver, tokenInContext, roll);
@@ -1261,6 +1262,10 @@ public class MapToolLineParser {
 			}
 
 			return sb.toString();
+		} catch (AbortFunctionException ae) {
+			throw ae;
+		} catch (AssertFunctionException afe) {
+			throw afe;
 		} catch (ParserException e) {
 			return "Invalid expression: " + roll;
 		}
