@@ -11,6 +11,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Token;
@@ -40,7 +41,7 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 	public Object childEvaluate(Parser parser, String functionName,
 			List<Object> parameters) throws ParserException {
 		if (!MapTool.getParser().isMacroTrusted()) {
-			throw new ParserException("You do not have permission to call the " + functionName + "() function.");
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 		}
 		
 		MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();
@@ -52,8 +53,7 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 			return deleteToken(res, parameters);
 		}
 		
-		
-		throw new ParserException("Unknown function "+ functionName + "()");
+		throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
 	}
 	
 	
@@ -72,7 +72,7 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 
 	private Object copyTokens(MapToolVariableResolver res, List<Object> param) throws ParserException {
 		if (param.size() < 1) {
-			throw new ParserException("copyTokens(): First argument must be a token.");
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeT", "copyToken", 1));
 		}
 
 		String zoneName = null;
@@ -84,12 +84,12 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 		
 		
 		if (token == null) {
-			throw new ParserException("copyToken(): Token not found.");
+			throw new ParserException(I18N.getText("macro.function.general.unknownToken", "copyToken", param.get(0)));
 		}
 		int numberCopies = 1;
 		if (param.size() > 1) {
 			if (!(param.get(1) instanceof BigDecimal)) {
-				throw new ParserException("copyTokens(): Second parameter must be numbers");
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeI", "copyToken", 2));
 			}		
 			numberCopies = ((BigDecimal)param.get(1)).intValue();
 			
@@ -99,7 +99,7 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 		if (param.size() > 3) {
 			Object o = JSONMacroFunctions.asJSON(param.get(3));
 			if (!(o instanceof JSONObject)) {
-				throw new ParserException("copyTokens(): Thirs parameter must be a JSON object");
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeO", "copyToken", 3));
 			}
 			newVals = (JSONObject) o;
 		}

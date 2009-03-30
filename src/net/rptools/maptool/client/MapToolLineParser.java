@@ -22,6 +22,8 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+
 import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
 import net.rptools.maptool.client.functions.AbortFunction;
@@ -74,6 +76,7 @@ import net.rptools.maptool.client.functions.AssertFunction.AssertFunctionExcepti
 import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButtonPrefs;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
@@ -85,6 +88,10 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class MapToolLineParser {
+
+	// Logger for this class.
+	private static final Logger LOGGER = Logger.getLogger(MapToolLineParser.class);
+
 
 	/** MapTool functions to add to the parser.  */
 	private static final Function[] mapToolParserFunctions = {
@@ -319,7 +326,7 @@ public class MapToolLineParser {
 				this.defaultParams = defaultParams;
 			}
 			if (this.defaultParams.length != (maxParams - minParams)) {
-				System.out.println(String.format("Internal error: roll option %s specifies wrong number of default parameters", name()));
+				LOGGER.error(String.format("Internal error: roll option %s specifies wrong number of default parameters", name()));
 			}
 		}
 
@@ -401,7 +408,7 @@ public class MapToolLineParser {
 			Matcher matcher = pattern.matcher(optionString);
 			matcher.region(start, endOfString);
 			if (! matcher.find()) {
-				throw new RollOptionException("Bad roll option");
+				throw new RollOptionException(I18N.getText("lineParser.badRollOpt", optionString));
 			}
 			paramsFound = (matcher.group(1) != null);
 			String name = paramsFound ? matcher.group(1).trim() : matcher.group(2).trim();
@@ -411,7 +418,7 @@ public class MapToolLineParser {
 			// Get the option type and default params from the name
 			optionType = OptionType.optionTypeFromName(name);
 			if (optionType == null) {
-				throw new RollOptionException(String.format("Unknown option name \"%s\"", name));
+				throw new RollOptionException(I18N.getText("lineParser.unknownOptionName", name));				
 			}
 			optionName = name;
 			params = optionType.getDefaultParams();	// begin with default values for optional params
@@ -422,8 +429,7 @@ public class MapToolLineParser {
 					optionEnd = start;
 					return;
 				} else {
-					throw new RollOptionException(String.format("Roll option \"%s\" requires a list of parameters in parentheses", 
-							optionName, optionType.getMinParams()));
+					throw new RollOptionException(I18N.getText("lineParser.optRequiresParam", optionName, optionType.getMaxParams()));				
 				}
 			}
 
@@ -442,7 +448,7 @@ public class MapToolLineParser {
 					start = matcher.end();
 					matcher.region(start, endOfString);
 				} else {
-					throw new RollOptionException(String.format("Roll option %s: bad option parameters %s", optionName, srcString));
+					throw new RollOptionException(I18N.getText("lineParser.optBadParam", optionName, optionType.getMaxParams()));				
 				}
 			}
 
@@ -450,8 +456,7 @@ public class MapToolLineParser {
 			int min = optionType.getMinParams(), max = optionType.getMaxParams();
 			int numParamsFound = paramList.size();
 			if (numParamsFound < min || numParamsFound > max) {
-				throw new RollOptionException(String.format("Roll option %s must have %d to %d parameters; found %d: %s", 
-						optionName, min, max, numParamsFound, srcString));
+				throw new RollOptionException(I18N.getText("lineParser.optWrongParam", optionName, min, max, numParamsFound, srcString));				
 			}
 
 			// Fill in the found parameters, converting to BigDecimal if possible.
@@ -491,8 +496,8 @@ public class MapToolLineParser {
 		 * @throws ParserException if the parameter text is not a valid identifier.*/
 		public String getIdentifierParam(int index) throws ParserException {
 			String s = params[index].toString();
-			if (!s.matches("[a-zA-Z]\\w*")) {	// MapTool doesn't allow variable names to start with '_'
-				throw new ParserException(String.format("\"%s\" is not a valid variable name", s));
+			if (!s.matches("[a-zA-Z]\\w*")) {	// MapTool doesn't allow variable names to start with '_'				
+				throw new ParserException(I18N.getText("lineParser.notValidVariableName", s));
 			}
 			return s;
 		}
@@ -522,7 +527,7 @@ public class MapToolLineParser {
 		throws ParserException {
 			Object retval = getParsedParam(index, res, tokenInContext);
 			if (! (retval instanceof BigDecimal))
-				throw new ParserException(String.format("\"%s\" is not a number.", retval.toString()));
+				throw new ParserException(I18N.getText("lineParser.notValidNumber", retval.toString()));
 			return ((BigDecimal)retval).intValue();
 		}
 
@@ -574,7 +579,7 @@ public class MapToolLineParser {
 			OptionInfo roi;
 			if (atEnd) {
 				// If last param didn't end with ",", there shouldn't have been another option
-				throw new RollOptionException("Roll option list can't end with a comma");
+				throw new RollOptionException(I18N.getText("lineParser.rollOptionComma"));
 			}
 			// Eat the next option from string, and add parsed option to list
 			roi = new OptionInfo(optionString, start);
@@ -723,9 +728,9 @@ public class MapToolLineParser {
 								try {
 									loopCount = option.getParsedIntParam(0, resolver, tokenInContext);
 									if (loopCount < 0)
-										error = String.format("COUNT option requires a non-negative number (got %d)", loopCount);
+										error = I18N.getText("lineParser.countNonNeg", loopCount);
 								} catch (ParserException pe) {
-									error = String.format("Error processing COUNT option: %s", pe.getMessage());
+									error = I18N.getText("lineParser.errorProcessingOpt", "COUNT", pe.getMessage());
 								}
 								loopSep = option.getStringParam(1);
 
@@ -745,8 +750,7 @@ public class MapToolLineParser {
 									} catch (ParserException pe) {
 										// Build a more informative error message for this common mistake
 										String msg = pe.getMessage();
-										msg = msg + " To specify a non-default loop separator, " +
-										"you must use the format FOR(var,start,end,step,separator)";
+										msg = msg + " " + I18N.getText("lineParser.nonDefLoopSep");
 										throw new ParserException(msg);
 									}
 									loopSep = option.getStringParam(4);
@@ -754,13 +758,13 @@ public class MapToolLineParser {
 										loopCount = Math.max(1,(int)Math.floor(Math.abs((loopEnd - loopStart)/loopStep + 0 )));
 
 									if (loopVar.equalsIgnoreCase(""))
-										error = "FOR variable name missing";
+										error = I18N.getText("forVarMissing");
 									if (loopStep == 0)
-										error = "FOR loop step can't be zero";
+										error = I18N.getText("forNoZeroStep");
 									if ((loopEnd <= loopStart && loopStep > 0) || (loopEnd >= loopStart && loopStep < 0))
 										loopCount = 0;
 								} catch (ParserException pe) {
-									error = String.format("Error processing FOR option: %s", pe.getMessage());
+									error = I18N.getText("lineParser.errorProcessingOpt", "FOR", pe.getMessage());
 								}
 
 								if (error != null) doError(error, opts, roll);
@@ -804,9 +808,9 @@ public class MapToolLineParser {
 									loopCount = foreachList.size();
 
 									if (loopVar.equalsIgnoreCase(""))
-										error = "FOREACH variable name missing";
+										error = I18N.getText("foreachVarMissing");
 								} catch (ParserException pe) {
-									error = String.format("Error processing FOREACH option: %s", pe.getMessage());
+									error = I18N.getText("lineParser.errorProcessingOpt", "FOREACH", pe.getMessage());
 								}
 
 								if (error != null) doError(error, opts, roll);
@@ -864,7 +868,7 @@ public class MapToolLineParser {
 							///////////////////////////////////////////////////
 							case TOKEN:
 								if (!isMacroTrusted()) {
-									throw new ParserException("You do not have permission to use [token(): ]");
+									throw new ParserException(I18N.getText("macro.function.roll.noPerm"));
 								}
 								Token newToken = MapTool.getFrame().getCurrentZoneRenderer().getZone().resolveToken(
 										option.getParsedParam(0, resolver, tokenInContext).toString());
@@ -875,7 +879,8 @@ public class MapToolLineParser {
 								break;							
 							default:
 								// should never happen
-								doError("Bad option found", opts, roll);
+								LOGGER.error(I18N.getText("lineParser.badOptionFound", opts, roll));
+								doError("lineParser.badOptionFound", opts, roll);
 							}
 						}
 					}
@@ -892,7 +897,7 @@ public class MapToolLineParser {
 
 						// Process loop settings
 						if (iteration > MAX_LOOPS) {
-							doError("Too many loop iterations (possible infinite loop?)", opts, roll);
+							doError("lineParser.tooManyLoops", opts, roll);
 						}
 
 						if (loopType != LoopType.NO_LOOP) {
@@ -950,7 +955,7 @@ public class MapToolLineParser {
 									doLoop = false;
 								}
 							} catch (Exception e) {
-								doError(String.format("Invalid condition in WHILE(%s) roll option", loopCondition), opts, roll);
+								doError(I18N.getText("lineParser.invalidWhile", loopCondition), opts, roll);
 							}
 							break;
 						}
@@ -979,8 +984,7 @@ public class MapToolLineParser {
 							try {
 								result = parseExpression(resolver, tokenInContext, hackCondition);
 							} catch (Exception e) {
-								doError(String.format("Invalid condition in %s(%s) roll option", branchType.toString(), 
-										branchCondition.toString()), opts, roll);
+								doError(I18N.getText("lineParser.invalidCondition", branchType.toString(),branchCondition.toString()), opts, roll);
 							}
 							branchConditionParsed = result.getValue();
 							if (branchConditionParsed instanceof Number) {
@@ -1019,7 +1023,7 @@ public class MapToolLineParser {
 							if (testMatcher.find()) {
 								rollBranch = testMatcher.group(1);
 							} else {
-								doError("Error in body of roll.", opts, roll);
+								doError("lineParser.errorBodyRoll", opts, roll);
 							}
 							break;	
 						}
@@ -1028,8 +1032,7 @@ public class MapToolLineParser {
 							// IF can have one or two branches.
 							// When there's only one branch and the condition is false, there's no output.
 							if (branchConditionValue == null) {
-								doError("Invalid IF condition: " + branchCondition 
-										+ ", evaluates to: " + branchConditionParsed.toString(), opts, roll);
+								doError(I18N.getText("lineParser.invalidIfCond", branchCondition, branchConditionParsed.toString()), opts, roll);
 							}
 							int whichBranch = (branchConditionValue != 0) ? 0 : 1;
 							String testRegex = String.format("^\\s*%s\\s*(?:%s\\s*%s\\s*%s)?\\s*$", 
@@ -1040,7 +1043,7 @@ public class MapToolLineParser {
 								if (rollBranch == null) rollBranch = "''";	// quick-and-dirty way to get no output
 								rollBranch = rollBranch.trim();
 							} else {
-								doError("Error in roll for IF option", opts, roll);
+								doError("lineParser.ifError", opts, roll);
 							}
 							break;
 						}
@@ -1073,10 +1076,10 @@ public class MapToolLineParser {
 									}
 								}
 								if (!foundMatch) {
-									doError("SWITCH option found no match for " + caseTarget, opts, roll);
+									doError(I18N.getText("lineParser.switchNoMatch",caseTarget), opts, roll);
 								}
 							} else {
-								doError("Error in roll for SWITCH option", opts, roll);
+								doError("lineParser.switchError", opts, roll);
 							}
 
 							break;
@@ -1215,7 +1218,7 @@ public class MapToolLineParser {
 	public Result parseExpression(VariableResolver resolver, Token tokenInContext, String expression) throws ParserException {
 
 		if (parserRecurseDepth > PARSER_MAX_RECURSE) {
-			throw new ParserException("Max recurse limit reached");
+			throw new ParserException(I18N.getText("lineParser.maxRecursion"));
 		}
 		try {
 			parserRecurseDepth ++;
@@ -1233,7 +1236,7 @@ public class MapToolLineParser {
 			if (e instanceof ParserException) {
 				throw (ParserException)e;
 			}
-			throw new ParserException(e.toString() + " error executing expression: " +  expression);
+			throw new ParserException(I18N.getText("lineParser.errorExecutingExpression", e.toString(), expression));
 		}
 		finally {
 			parserRecurseDepth--;
@@ -1267,7 +1270,7 @@ public class MapToolLineParser {
 		} catch (AssertFunctionException afe) {
 			throw afe;
 		} catch (ParserException e) {
-			return "Invalid expression: " + roll;
+			return I18N.getText("lineParser.invalidExpr", roll);
 		}
 
 	}    
@@ -1305,7 +1308,7 @@ public class MapToolLineParser {
 		
 		if (macroLocation == null || macroLocation.length() == 0 || macroLocation.equals(CHAT_INPUT)) {
 			// Unqualified names are not allowed.
-			throw new ParserException(String.format("Must specify a location for the macro \"%s\" to be run.",macroName));
+			throw new ParserException(I18N.getText("lineParser.invalidMacroLoc",macroName));
 		} else if (macroLocation.equalsIgnoreCase("TOKEN")) {
 			macroContext = new MapToolMacroContext(macroName, "token", MapTool.getPlayer().isGM());
 			// Search token for the macro
@@ -1313,7 +1316,7 @@ public class MapToolLineParser {
 				MacroButtonProperties buttonProps = tokenInContext.getMacro(macroName, false);
 				
 				if (buttonProps == null) {
-					throw new ParserException("Macro not found (" + macroName + "@token)");
+					throw new ParserException(I18N.getText("lineParser.atTokenNotFound", macroName));
 				}
  				
 				macroBody = buttonProps.getCommand(); 
@@ -1328,7 +1331,7 @@ public class MapToolLineParser {
 				}
 			}
 			if (mbp == null) { 
-				throw new ParserException("Unknown campaign macro " + macroName);
+				throw new ParserException(I18N.getText("lineParser.unknownCampaignMacro", macroName));
 			}
 			macroBody = mbp.getCommand();			
 			macroContext = new MapToolMacroContext(macroName, "campaign", !mbp.getAllowPlayerEdits());
@@ -1343,7 +1346,7 @@ public class MapToolLineParser {
 				}
 			}
 			if (mbp == null) { 
-				throw new ParserException("Unknown global macro " + macroName);
+				throw new ParserException(I18N.getText("lineParser.unknownGlobalMacro", macroName));
 			}
 			macroBody = mbp.getCommand();			
 		} else { // Search for a token called macroLocation (must start with "Lib:")
@@ -1351,7 +1354,7 @@ public class MapToolLineParser {
 			Token token = getTokenMacroLib(macroLocation);
 			
 			if (macroBody == null || token == null) {
-				throw new ParserException("Unknown macro " + qMacroName);
+				throw new ParserException(I18N.getText("lineParser.unknownMacro", macroName));
 			}
 			
 			boolean secure = isSecure(macroName, token);
@@ -1362,7 +1365,7 @@ public class MapToolLineParser {
 
 		// Error if macro not found
 		if (macroBody == null) {
-			throw new ParserException(String.format("Unknown macro \"%s\"", macroName));
+			throw new ParserException(I18N.getText("lineParser.unknownMacro", macroName));
 		}
 
 		MapToolVariableResolver macroResolver = new MapToolVariableResolver(tokenInContext);
@@ -1382,7 +1385,7 @@ public class MapToolLineParser {
 		// Call the macro
 		macroRecurseDepth++;
 		if (macroRecurseDepth > MACRO_MAX_RECURSE) {
-			throw new ParserException("Max macro recurse depth reached");
+			throw new ParserException(I18N.getText("lineParser.maxRecursion"));
 		}
 		try {
 			String macroOutput = runMacroBlock(macroResolver, tokenInContext, macroBody, macroContext);
@@ -1470,14 +1473,14 @@ public class MapToolLineParser {
 	public String getTokenLibMacro(String macro, String location) throws ParserException {
 		Token token = getTokenMacroLib(location);
 		if (token == null) {
-			throw new ParserException("Unknown Library token (" + location + ")");
+			throw new ParserException(I18N.getText("lineParser.unknownLibToken", location));
 		}
 		MacroButtonProperties buttonProps = token.getMacro(macro, false);
 		if (buttonProps == null) {
 			// Try the "unknown macro"
 			buttonProps = token.getMacro(UNKNOWN_LIB_MACRO, false);
 			if (buttonProps == null) {
-				throw new ParserException("Unknown macro " + macro + "@" + location);
+				throw new ParserException(I18N.getText("lineParser.unknownMacro", macro + "@" + location));
 			}
 		}
 
@@ -1494,7 +1497,7 @@ public class MapToolLineParser {
 	 */
 	public Token getTokenMacroLib(String location) throws ParserException {		
 		if (!location.matches("(?i)^lib:.*")) {
-			throw new ParserException("Macros from other tokens are only available if the token name starts with \"Lib:\"");
+			throw new ParserException(I18N.getText("lineParser.notALibToken"));
 		}
 		final String libTokenName = location;
 		Token libToken = null;
@@ -1510,10 +1513,10 @@ public class MapToolLineParser {
 					// If we are not the GM and the token is not visible to players then we don't
 					// let them get functions from it.	
 					if (!MapTool.getPlayer().isGM() && !token.isVisible()) {
-						throw new ParserException("Unable to execute macro from  " + libTokenName);
+						throw new ParserException(I18N.getText("lineParser.libUnableToExec", libTokenName));
 					}
 					if (libToken != null) {
-						throw new ParserException("Duplicate " + libTokenName + " tokens");
+						throw new ParserException(I18N.getText("lineParser.duplicateLibTokens", libTokenName));
 					}
 
 					libToken = token;
@@ -1535,7 +1538,7 @@ public class MapToolLineParser {
 	 */
 	public Zone getTokenMacroLibZone(String location) throws ParserException {
 		if (!location.matches("(?i)^lib:.*")) {
-			throw new ParserException("Macros from other tokens are only available if the token name starts with \"Lib:\"");
+			throw new ParserException(I18N.getText("lineParser.notALibToken"));
 		}
 		final String libTokenName = location;
 		Zone libTokenZone = null;
@@ -1551,10 +1554,11 @@ public class MapToolLineParser {
 					// If we are not the GM and the token is not visible to players then we don't
 					// let them get functions from it.	
 					if (!MapTool.getPlayer().isGM() && !token.isVisible()) {
-						throw new ParserException("Unable to execute macro from  " + libTokenName);
+						throw new ParserException(I18N.getText("lineParser.libUnableToExec", libTokenName));
 					}
+					
 					if (libTokenZone != null) {
-						throw new ParserException("Duplicate " + libTokenName + " tokens");
+						throw new ParserException(I18N.getText("lineParser.duplicateLibTokens", libTokenName));
 					}
 
 					libTokenZone = zr.getZone();
@@ -1575,12 +1579,12 @@ public class MapToolLineParser {
 
 	/** Builds a formatted string showing the roll options and roll body. */
 	String errorString(String msg, String opts, String roll) {
-		String retval = "<br>&nbsp;&nbsp;&nbsp;" + msg;
-		retval += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<u>Statement options (if any)</u>: " + opts;
+		String retval = "<br>&nbsp;&nbsp;&nbsp;" + I18N.getText(msg);
+		retval += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<u>" + I18N.getText("lineParser.errorStmtOpts") + "</u>: " + opts;
 		if (roll.length() <= 200) {
-			retval += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<u>Statement body</u>: " + roll;
+			retval += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<u>" + I18N.getText("lineParser.errorStmtBody") + "</u>: " + roll;
 		} else {
-			retval += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<u>Statement body (first 200 characters)</u>: " + roll.substring(0,199);
+			retval += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<u>" + I18N.getText("lineParser.errorStmtBodyFirst200") + "</u>: " + roll.substring(0,199);
 		}
 		return retval;
 	}

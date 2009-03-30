@@ -18,6 +18,8 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.apache.log4j.Logger;
+
 import net.rptools.maptool.client.functions.CurrentInitiativeFunction;
 import net.rptools.maptool.client.functions.InitiativeRoundFunction;
 import net.rptools.maptool.client.functions.JSONMacroFunctions;
@@ -31,6 +33,7 @@ import net.rptools.maptool.client.functions.TokenNameFunction;
 import net.rptools.maptool.client.functions.TokenStateFunction;
 import net.rptools.maptool.client.functions.TokenVisibleFunction;
 import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
@@ -41,6 +44,10 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class MapToolVariableResolver extends MapVariableResolver {
+	
+	// Logger for this class.
+	private static final Logger LOGGER = Logger.getLogger(MapToolVariableResolver.class);
+
 
     /** The prefix for querying and setting state values . */
     public final static String          STATE_PREFIX  = "state.";
@@ -87,7 +94,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 			this.setVariable("macro.args", "");
 			this.setVariable("macro.args.num", BigDecimal.ZERO);
 		} catch (ParserException e) {
-			MapTool.addLocalMessage("Error: Unable to set macro.args to default value");
+			LOGGER.error("Error: Unable to set macro.args to default value <br>" + e.getMessage());
 		}
     }
 
@@ -161,7 +168,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		} else {
 		    if (name.equals(INITIATIVE_CURRENT)) {
 		        if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
-		            throw new ParserException("Only the gm can get " + INITIATIVE_CURRENT);
+		        	throw new ParserException(I18N.getText("lineParser.onlyGMCanGet", INITIATIVE_CURRENT));
 		        return CurrentInitiativeFunction.getInstance().getCurrentInitiative();
 		    } else if (name.equals(INITIATIVE_ROUND)) {
 		        return InitiativeRoundFunction.getInstance().getInitiativeRound();
@@ -175,18 +182,18 @@ public class MapToolVariableResolver extends MapVariableResolver {
 
 		// Prompt
 		if (result == null || mods == VariableModifiers.Prompt) {
-			String DialogTitle = "Input Value";
+			String DialogTitle = I18N.getText("lineParser.dialogTitleNoToken");
 			if(tokenInContext != null && tokenInContext.getGMName() != null && MapTool.getPlayer().isGM()) {
-				DialogTitle = DialogTitle + " for " + tokenInContext.getGMName();
+				DialogTitle = I18N.getText("lineParser.dialogTitle", tokenInContext.getGMName());
 			}
 			if(tokenInContext != null && (tokenInContext.getGMName() == null || !MapTool.getPlayer().isGM())) {
-				DialogTitle = DialogTitle + " for " + tokenInContext.getName();
+				DialogTitle = I18N.getText("lineParser.dialogTitle", tokenInContext.getName());
 			}
-			result = JOptionPane.showInputDialog(MapTool.getFrame(), "Value for: " + name, DialogTitle, JOptionPane.QUESTION_MESSAGE, null, null, result != null ? result.toString() : "0");
+			result = JOptionPane.showInputDialog(MapTool.getFrame(), I18N.getText("lineParser.dialogValueFor") + " " + name, DialogTitle, JOptionPane.QUESTION_MESSAGE, null, null, result != null ? result.toString() : "0");
 			evaluate = true;
 		}
 		if (result == null) {
-			throw new ParserException("Unresolved value '" + name + "'");
+			throw new ParserException(I18N.getText("lineParser.unresolvedValue", name ));
 		}
 
 		Object value;
@@ -273,12 +280,12 @@ public class MapToolVariableResolver extends MapVariableResolver {
             return;
         } else if (varname.equals(INITIATIVE_CURRENT)) {
             if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
-                throw new ParserException("Only the gm can set " + INITIATIVE_CURRENT);
+	        	throw new ParserException(I18N.getText("lineParser.onlyGMCanSet", INITIATIVE_CURRENT));
             CurrentInitiativeFunction.getInstance().setCurrentInitiative(value);
             return;
         } else if (varname.equals(INITIATIVE_ROUND)) {
             if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
-                throw new ParserException("Only the gm can set " + INITIATIVE_ROUND);
+	        	throw new ParserException(I18N.getText("lineParser.onlyGMCanSet", INITIATIVE_ROUND));
             InitiativeRoundFunction.getInstance().setInitiativeRound(value);
             return;
         }
@@ -357,7 +364,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
     /**
      * Sets the value of all token states.
      * @param token The token to set the state of.
-     * @param val set or unset the state.
+     * @param val set or unset the state. 
      */
     private void setAllBooleanTokenStates(Token token, Object value) {
     	for (Object stateName : MapTool.getCampaign().getTokenStatesMap().keySet()) {

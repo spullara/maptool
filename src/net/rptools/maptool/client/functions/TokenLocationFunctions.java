@@ -19,6 +19,8 @@ import net.rptools.maptool.model.ZonePoint;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 public class TokenLocationFunctions extends AbstractFunction {
 	
@@ -34,7 +36,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 
 	private TokenLocationFunctions() {
 		super(0, 4, "getTokenX", "getTokenY", "getTokenDrawOrder", "getDistance", "moveToken", 
-				    "goto", "getDistanceToXY", "setTokenDrawOrder");
+				    "goto", "getDistanceToXY", "setTokenDrawOrder", "moveTokenToMap", "moveTokenFromMap");
 	}
 
 
@@ -101,10 +103,119 @@ public class TokenLocationFunctions extends AbstractFunction {
 			return moveToken(res, parameters);
 		}
 		
+		if (functionName.equals("moveTokenToMap")) {
+			return tokenMoveMap(true, parameters);
+		}
+
+		if (functionName.equals("moveTokenFromMap")) {
+			return tokenMoveMap(false, parameters);
+		}
+		
 		
 		throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
 	}
 	
+
+
+	/**
+	 * Moves tokens between maps.
+	 * @param fromCurrentMap true if it is begin moved from the named map to this one.
+	 * @param args The parameters for the function.
+	 * @return a message detailing the number of tokens moved.
+	 * @throws ParserException 
+	 */
+	private String tokenMoveMap(boolean fromCurrentMap, List<Object> args) throws ParserException {
+		String functionName = fromCurrentMap ? "moveTokenToMap" : "moveTokenFromMap";
+		if (args.size() < 2) {
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+		}
+		
+		Object tokenString = args.get(0);
+		String map = (String)args.get(1);
+		
+		
+		List<String> tokens = new ArrayList<String>();
+		
+		Object json = JSONMacroFunctions.asJSON(tokenString);
+		if (json instanceof JSONArray) {
+			tokens.addAll((JSONArray)json);
+		} else {
+			tokens.add((String)tokenString);
+		}
+		
+		Zone zone = null;
+		List<ZoneRenderer> zrenderers = MapTool.getFrame().getZoneRenderers();
+		for (ZoneRenderer zr : zrenderers) {
+			Zone z = zr.getZone();
+			if (z.getName().equalsIgnoreCase(map)) {
+				zone = z;
+				break;
+			}
+		}
+		
+		if (zone == null) {
+			throw new ParserException(I18N.getText("macro.function.moveTokenMap.unknownMap", functionName, map));
+		}
+		
+		Zone toZone;
+		Zone fromZone;
+		
+		if (fromCurrentMap) {
+			fromZone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+			toZone = zone;
+		} else {
+			toZone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+			fromZone = zone;			
+		}
+
+		
+		int x = 0;
+		int y = 0;
+		int z = zone.getLargestZOrder() + 1;
+		
+		if (args.size() > 2) {
+			if (!(args.get(2) instanceof BigDecimal)) {
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 2));			
+			} else {
+				x = ((BigDecimal)args.get(2)).intValue();
+			}
+		}	
+		
+		if (args.size() > 3) {
+			if (!(args.get(3) instanceof BigDecimal)) {
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3));			
+			} else {
+				y = ((BigDecimal)args.get(3)).intValue();
+			}
+		}
+		
+		if (args.size() > 4) {
+			if (!(args.get(4) instanceof BigDecimal)) {
+				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 4));			
+			} else {
+				z = ((BigDecimal)args.get(4)).intValue();
+			}
+		}
+		
+		StringBuilder sb = new StringBuilder();
+		for (String id : tokens) {
+			Token token = fromZone.resolveToken(id);
+			if (token == null) {
+				sb.append(I18N.getText("macro.function.moveTokenMap.unknownToken", functionName, id)).append("<br>");
+			} else {
+				moveToken(token, x, y, false);
+				token.setZOrder(z);
+		 		toZone.putToken(token);
+		 		MapTool.serverCommand().putToken(toZone.getId(), token);
+				MapTool.serverCommand().removeToken(fromZone.getId(), token.getId());
+				sb.append(I18N.getText("macro.function.moveTokenMap.movedToken", token.getName(), map)).append("<br>");
+			}
+		}
+    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+    	MapTool.getFrame().refresh();
+		
+		return sb.toString();
+	}
 
 
 	/**

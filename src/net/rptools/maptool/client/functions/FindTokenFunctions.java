@@ -415,7 +415,7 @@ public class FindTokenFunctions extends AbstractFunction {
 
 			JSONArray offsets = area.getJSONArray("offsets");
 			if (offsets == null) {
-				throw new ParserException("getTokens(): An Offset Array must be specified for Area.");
+				throw new ParserException(I18N.getText("macro.function.findTokenFunctions.offsetArray", "getTokens"));
 			}
 			
 			

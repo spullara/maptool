@@ -18,6 +18,7 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
@@ -81,11 +82,11 @@ public abstract class AbstractTokenAccessorFunction extends AbstractFunction {
 	        args.remove(0);
 	        token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(guid);
 	        if (token == null)
-	            throw new ParserException("Unknown token id '" + guid + "' in zone " + MapTool.getFrame().getCurrentZoneRenderer().getZone().getName());
+				throw new ParserException(I18N.getText("macro.function.initiative.unknownToken", guid,  MapTool.getFrame().getCurrentZoneRenderer().getZone().getName()));
 	    } else {
 	        token = ((MapToolVariableResolver)parser.getVariableResolver()).getTokenInContext();
 	        if (token == null) 
-	            throw new ParserException("There currently isn't a token in context. You should impersonate one first.");
+				throw new ParserException(I18N.getText("macro.function.initiative.noImpersonated"));
 	    } // endif
 	    return token;
 	}

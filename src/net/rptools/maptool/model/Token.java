@@ -13,8 +13,6 @@
  */
 package net.rptools.maptool.model;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -35,16 +33,20 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+
 import net.rptools.CaseInsensitiveHashMap;
-import net.rptools.maptool.client.AppUtil;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.transferable.TokenTransferData;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.functions.JSONMacroFunctions;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.parser.ParserException;
+
 
 /**
  * This object represents the placeable objects on a map. For example an icon
@@ -183,6 +185,7 @@ public class Token extends BaseModel {
 	 * Properties
 	 */
 	private Map<String, Object> propertyMap;
+	
 
 	private Map<String, String> macroMap;
 	private Map<Integer, Object> macroPropertiesMap;
@@ -260,7 +263,8 @@ public class Token extends BaseModel {
 		}
     
 		if (token.propertyMap != null) {
-			propertyMap = new HashMap<String, Object>(token.propertyMap);
+			getPropertyMap().clear();
+			getPropertyMap().putAll(token.propertyMap);
 		}
 
 		if (token.macroPropertiesMap != null) {
@@ -1314,4 +1318,16 @@ public class Token extends BaseModel {
 			return o1.z < o2.z ? -1 : o1.z == o2.z ? 0 : 1;
 		}
 	};
+	
+	
+	protected Object readResolve() {
+		super.readResolve();
+		if (propertyMap != null && !(propertyMap instanceof CaseInsensitiveHashMap)) {
+			Map<String, Object> oldMap = propertyMap;
+			propertyMap = new CaseInsensitiveHashMap<Object>();
+			propertyMap.putAll(oldMap);
+		}
+		return this;
+	}
 }
+

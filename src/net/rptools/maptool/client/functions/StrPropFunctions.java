@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.rptools.maptool.language.I18N;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
@@ -287,8 +288,7 @@ public class StrPropFunctions extends AbstractFunction {
 					option = 2;
 					delim = setVars;
 				} else {
-					throw new ParameterException(
-							String.format("varsFromStrProp() called with 3 arguments, but second argument '%s' was not one of NONE, SUFFIXED, or UNSUFFIXED.", setVars));
+					throw new ParameterException(I18N.getText("macro.function.varsFromstrProp.wrongArgs", setVars));
 				}
 			}
 		}
@@ -339,7 +339,7 @@ public class StrPropFunctions extends AbstractFunction {
 		} else if (varStyleString.equalsIgnoreCase("UNSUFFIXED")) {
 			varStyle = 1;
 		} else {
-			throw new ParameterException(String.format("strPropFromVars() second parameter \"%s\"invalid", varStyleString));
+			throw new ParameterException(I18N.getText("macro.function.strPropFromVar.wrongArgs", varStyleString));
 		}
 		List<String> varList = new ArrayList<String>();
 		StrListFunctions.parse(parameters.get(0).toString(), varList, ",");
@@ -509,11 +509,10 @@ public class StrPropFunctions extends AbstractFunction {
 		if (parameters.size() < minParams || parameters.size() > maxParams) {
 			String msg;
 			if (minParams == maxParams) {
-				msg = String.format("%s requires exactly %d parameters", funcName, minParams);
+				throw new ParameterException(I18N.getText("macro.function.strLst.incorrectParamExact", funcName, minParams));
 			} else {
-				msg = String.format("%s requires %d - %d parameters", funcName, minParams, maxParams);
+				throw new ParameterException(I18N.getText("macro.function.strLst.incorrectParamExact", funcName, minParams, maxParams));
 			}
-			throw new ParameterException(msg);
 		}
 
 		int numToCheck = expected.length;
@@ -521,8 +520,8 @@ public class StrPropFunctions extends AbstractFunction {
 
 		for (int i=0; i<numToCheck; i++) {
 			if (expected[i]!=null && !(expected[i].isInstance(parameters.get(i))))
-				throw new ParameterException(String.format("%s argument %d must be type %s, but was passed '%s' of type %s.",
-						funcName, i+1, expected[i].getSimpleName(), parameters.get(i), parameters.get(i).getClass().getSimpleName()));
+				throw new ParameterException(I18N.getText("macro.function.strLst.incorrectParamExact", funcName, i+1, expected[i].getSimpleName(),
+						parameters.get(i), parameters.get(i).getClass().getSimpleName()));
 		}
 	}
 }

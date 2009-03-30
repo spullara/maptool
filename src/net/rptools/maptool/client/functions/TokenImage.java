@@ -74,7 +74,7 @@ public class TokenImage extends AbstractFunction {
 			if (args.size() < 1) {
 				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getImage"));
 			}
-			token = findImageToken(args.get(0).toString());				
+			token = findImageToken(args.get(0).toString(), "getImage");				
 			if (token == null) {
 				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setImage", args.get(0)));
 			}
@@ -138,9 +138,9 @@ public class TokenImage extends AbstractFunction {
 		if (m.matches()) {
 			assetId = m.group(1);
 		} else if (assetName.toLowerCase().startsWith("image:")) {
-			assetId = findImageToken(assetName).getImageAssetId().toString();
+			assetId = findImageToken(assetName, "setImage").getImageAssetId().toString();
 		} else {
-			throw new ParserException("Invalid argument for setImage()");
+			throw new ParserException(I18N.getText("macro.function.general.argumentTypeInvalid", "setImage", 1));
 		}
 				
 		token.setImageAsset(null, new MD5Key(assetId));
@@ -148,7 +148,7 @@ public class TokenImage extends AbstractFunction {
 	}
 	
 	
-	private  Token findImageToken(final String name) throws ParserException {
+	private  Token findImageToken(final String name, String functionName) throws ParserException {
 		Token imageToken = null;
 		if (name != null && name.length() > 0) {
 			List<ZoneRenderer> zrenderers = MapTool.getFrame().getZoneRenderers();
@@ -162,7 +162,7 @@ public class TokenImage extends AbstractFunction {
 					// If we are not the GM and the token is not visible to players then we don't
 					// let them get functions from it.	
 					if (!MapTool.getPlayer().isGM() && !token.isVisible()) {
-						throw new ParserException("Unable to find image token  " + name);
+						throw new ParserException(I18N.getText("macro.function.general.unknownToken", functionName, name));
 					}
 					if (imageToken != null) {
 						throw new ParserException("Duplicate " + name + " tokens");
@@ -173,6 +173,6 @@ public class TokenImage extends AbstractFunction {
 			}
 			return imageToken;
 		}
-		throw new ParserException("Unable to find image token  " + name);		
+		throw new ParserException(I18N.getText("macro.function.general.unknownToken", functionName, name));
 	}
 }

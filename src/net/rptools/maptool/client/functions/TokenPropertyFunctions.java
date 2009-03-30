@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
@@ -40,7 +42,8 @@ public class TokenPropertyFunctions extends AbstractFunction {
 					"getPropertyDefault", "sendToBack", "bringToFront",
 					"getLibProperty", "setLibProperty", "getLibPropertyNames",
 					"setPropertyType", "getPropertyType",
-					"getRawProperty", "getTokenFacing", "setTokenFacing", "removeTokenFacing");
+					"getRawProperty", "getTokenFacing", "setTokenFacing", "removeTokenFacing",
+					"getMatchingProperties", "getMatchingLibProperties");
 	}
 	
 	
@@ -74,8 +77,21 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		
 		if (functionName.equals("getPropertyNames")) {
 			Token token = getTokenFromParam(resolver, "getPropertyNames", parameters, 1);
-			return getPropertyNames(token, parameters.size() > 0 ? parameters.get(0).toString() : ",");
+			String delim = parameters.size() > 0 ? parameters.get(0).toString() : ",";
+			String pattern = ".*";
+			return getPropertyNames(token, delim, pattern);
 		} 
+		
+		if (functionName.equals("getMatchingProperties")) {
+			Token token = getTokenFromParam(resolver, "getMatchingProperties", parameters, 2);
+			if (parameters.size() < 1) {
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+			}
+			String pattern = parameters.get(0).toString();
+			String delim = parameters.size() > 1 ? parameters.get(1).toString() : ",";
+			return getPropertyNames(token, delim, pattern);
+		} 
+		
 		
 		if (functionName.equals("getAllPropertyNames")) {
 			if (parameters.size() < 1) {
@@ -358,18 +374,45 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			String location;
 			if (parameters.size() > 0) {
 				location = parameters.get(0).toString();
-				if (location.equals("*")) {
+				if (location.equals("*")  || location.equalsIgnoreCase("this")) {
 					location = MapTool.getParser().getMacroSource();
 				}
   			} else {
 				location = MapTool.getParser().getMacroSource();
 			}
 			Token token = MapTool.getParser().getTokenMacroLib(location);
+			if (token == null) {
+				throw new ParserException(I18N.getText("macro.function.tokenProperty.unknownLibToken", functionName, location));
+			}
 			String delim = parameters.size() > 1 ? parameters.get(1).toString() : ",";
 			
-			return getPropertyNames(token, delim);
+			return getPropertyNames(token, delim, ".*");
 		}
-		
+
+		if (functionName.equals("getMatchingLibProperties")) {
+			String location;
+			if (parameters.size() < 1) {
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+			}
+
+			String pattern = parameters.get(0).toString();
+			if (parameters.size() > 1) {
+				location = parameters.get(1).toString();
+				if (location.equals("*") || location.equalsIgnoreCase("this")) {
+					location = MapTool.getParser().getMacroSource();
+				}
+  			} else {
+				location = MapTool.getParser().getMacroSource();
+			}
+			Token token = MapTool.getParser().getTokenMacroLib(location);
+			if (token == null) {
+				throw new ParserException(I18N.getText("macro.function.tokenProperty.unknownLibToken", functionName, location));
+			}
+			String delim = parameters.size() > 2 ? parameters.get(2).toString() : ",";
+			
+			
+			return getPropertyNames(token, delim, pattern);
+		}
 		
 		if (functionName.equals("getTokenFacing")) {
 			Token token = getTokenFromParam(resolver, "getTokenFacing", parameters, 0);
@@ -552,11 +595,22 @@ public class TokenPropertyFunctions extends AbstractFunction {
 	 * properties for a given token.
 	 * @param token The token to get the property names for.
 	 * @param delim The delimiter for the list.
+	 * @param pattern The regexp pattern to match.
 	 * @return the string list of property names.
 	 */
-	private String getPropertyNames(Token token, String delim) {
-		String[] names = new String[token.getPropertyNames().size()]; 
-		token.getPropertyNames().toArray(names);
+	private String getPropertyNames(Token token, String delim, String pattern) {
+		List<String> namesList = new ArrayList<String>();
+		Pattern pat = Pattern.compile(pattern);
+		
+		for (String name : token.getPropertyNames()) {
+			Matcher m = pat.matcher(name);
+			if (m.matches()) {
+				namesList.add(name);
+			}
+		}
+		
+		String[] names = new String[namesList.size()]; 
+		namesList.toArray(names);
 		if ("json".equals(delim)) {
 			return JSONArray.fromObject(names).toString();
 		} else {

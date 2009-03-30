@@ -59,6 +59,7 @@ import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.functions.InputFunction.InputType.OptionException;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
@@ -301,8 +302,8 @@ public class InputFunction extends AbstractFunction {
 
 			name = (numparts>0) ? parts[0].trim() : "";
 			if (StringUtils.isEmpty(name)) 
-				throw new SpecifierException(String.format(
-						"Empty variable name in the specifier string '%s'", specifier));
+				throw new SpecifierException(I18N.getText("macro.function.input.invalidSpecifier", specifier));
+
 
 			value = (numparts>1) ? parts[1].trim() : "";
 			if (StringUtils.isEmpty(value)) value = "0";	// Avoids having a default value of ""
@@ -316,8 +317,7 @@ public class InputFunction extends AbstractFunction {
 				if (StringUtils.isEmpty(inputTypeStr)) {
 					inputType = InputType.TEXT;	// default
 				} else {
-					throw new SpecifierException(String.format(
-							"Invalid input type '%s' in the specifier string '%s'", inputTypeStr, specifier));
+					throw new SpecifierException(I18N.getText("macro.function.input.invalidType", inputTypeStr, specifier));
 				}
 			}
 
@@ -838,7 +838,7 @@ public class InputFunction extends AbstractFunction {
 						}
 						nextTabIndex++;
 					} else {
-						throw new ParameterException("To use inputType of TAB in input(), the first entry must have the TAB type.");
+						throw new ParameterException(I18N.getText("macro.function.input.invalidTAB"));
 					}
 				} else {
 					// Not a TAB variable, so just add to the current ColumnPanel
@@ -925,11 +925,7 @@ public class InputFunction extends AbstractFunction {
 			} catch (VarSpec.SpecifierException se) {
 				throw new ParameterException(se.msg);
 			} catch (InputType.OptionException oe) {
-				String msg;
-				msg = String.format(
-						"The option '%s=%s' is invalid for input type '%s' in specifier '%s'.", 
-						oe.key, oe.value, oe.type, specifier);
-				throw new ParameterException(msg);
+				throw new ParameterException(I18N.getText("macro.function.input.invalidOptionType", oe.key, oe.value, oe.type, specifier));
 			}
 			varSpecs.add(vs);
 		}
@@ -1095,9 +1091,8 @@ public class InputFunction extends AbstractFunction {
 		super.checkParameters(parameters);
 
 		for (Object param : parameters) {
-			if (!(param instanceof String)) throw new ParameterException(String.format(
-					"Illegal argument type %s, expecting %s", param.getClass().getName(), String.class.getName()));
-
+			if (!(param instanceof String)) 
+				throw new ParameterException(I18N.getText("macro.function.input.illegalArgumentType", param.getClass().getName(), String.class.getName()));
 		}
 	}
 
