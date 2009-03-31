@@ -524,7 +524,7 @@ public class JSONMacroFunctions extends AbstractFunction {
  	 */
 	private JSONArray JSONUnique(Object obj) throws ParserException {
 		if (!(obj instanceof JSONArray)) {
-			throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.unique"));
+			throw new ParserException(I18N.getText("macro.function.json.onlyArray", "json.unique"));
 		}
 		JSONArray jarr = (JSONArray) obj;
 		Set s = new HashSet();
