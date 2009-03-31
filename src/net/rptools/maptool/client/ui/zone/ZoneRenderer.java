@@ -1347,6 +1347,11 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         for (SelectionSet set : movementSet) {
             
             Token keyToken = zone.getToken(set.getKeyToken());
+            if (keyToken == null) {
+            	// It was removed ?
+            	selectionSetMap.remove(set.getKeyToken());
+            	continue;
+            }
             
             ZoneWalker walker = set.getWalker();
             
