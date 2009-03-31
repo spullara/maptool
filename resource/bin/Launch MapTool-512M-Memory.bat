@@ -1,1 +1,1 @@
-javaw -Xmx512M -jar maptool-*.jar run
+javaw -Xmx512M -Xss512K -jar maptool-*.jar run

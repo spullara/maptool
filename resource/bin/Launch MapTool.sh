@@ -1,1 +1,1 @@
-java -Xmx256M -jar maptool-*.jar run
+java -Xmx256M -Xss512K -jar maptool-*.jar run
