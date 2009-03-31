@@ -72,7 +72,6 @@ import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
@@ -209,7 +208,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		dragOffsetY = 0;
 
 		if (AppPreferences.getAutoRevealVisionOnGMMovement() && (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision())) {
-			FogUtil.exposeLastPath(renderer, renderer.getSelectedTokenSet());
+			Set<GUID> exposeSet = new HashSet<GUID>();
+			for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
+				Token token = renderer.getZone().getToken(tokenGUID);
+				if (token == null) {
+					continue;
+				}
+				if (token.getType() == Token.Type.PC) {
+					exposeSet.add(tokenGUID);
+				}
+			}
+			FogUtil.exposeLastPath(renderer, exposeSet);
 		}
 	}
 
