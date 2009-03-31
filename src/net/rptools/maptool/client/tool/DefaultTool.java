@@ -229,19 +229,21 @@ public abstract class DefaultTool extends Tool implements MouseListener, MouseMo
 		}
 		
 		// ZOOM
-		boolean direction = e.getWheelRotation() > 0; 
-		direction =  isKeyDown('z') ? !direction : direction;
-		if (direction) {
-			
-			renderer.zoomOut(e.getX(), e.getY());
-		} else {
-			
-			renderer.zoomIn(e.getX(), e.getY());
+		if (!AppState.isZoomLocked()) {
+			boolean direction = e.getWheelRotation() > 0; 
+			direction =  isKeyDown('z') ? !direction : direction;
+			if (direction) {
+				
+				renderer.zoomOut(e.getX(), e.getY());
+			} else {
+				
+				renderer.zoomIn(e.getX(), e.getY());
+			}
+	        if (AppState.isPlayerViewLinked()) {
+	        	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
+				MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
+	        }
 		}
-        if (AppState.isPlayerViewLinked()) {
-        	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
-			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
-        }
 	}	
 
 

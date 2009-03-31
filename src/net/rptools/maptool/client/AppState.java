@@ -32,6 +32,7 @@ public class AppState {
     private static int gridSize = 1;
     private static boolean showAsPlayer = false;
     private static boolean showLightSources = false;
+    private static boolean zoomLocked = false;
 
     private static boolean collectProfilingData = false;
     
@@ -91,7 +92,17 @@ public class AppState {
     	return showCoordinates;
     }
     
-    public static void setShowCoordinates(boolean flag) {
+    public static boolean isZoomLocked() {
+		return zoomLocked;
+	}
+
+	public static void setZoomLocked(boolean zoomLock) {
+		boolean oldVal = AppState.zoomLocked;
+		AppState.zoomLocked = zoomLock;
+		changeSupport.firePropertyChange("zoomLock", oldVal, zoomLock);
+	}
+
+	public static void setShowCoordinates(boolean flag) {
     	showCoordinates = flag;
     }
 

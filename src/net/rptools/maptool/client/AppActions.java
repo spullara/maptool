@@ -1316,6 +1316,28 @@ public class AppActions {
 		}
 	};
 
+	public static final Action TOGGLE_ZOOM_LOCK = new DefaultClientAction() {
+		{
+			init("action.zoomLock");
+			putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
+		}
+
+		@Override
+		public boolean isAvailable() {
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			return renderer != null;
+		}
+
+		public boolean isSelected() {
+			return AppState.isZoomLocked();
+		}
+
+		public void execute(ActionEvent e) {
+
+			AppState.setZoomLocked(!AppState.isZoomLocked());
+		}
+	};
+
 	public static final Action TOGGLE_FOG = new ZoneAdminClientAction() {
 		{
 			init("action.enableFogOfWar");
