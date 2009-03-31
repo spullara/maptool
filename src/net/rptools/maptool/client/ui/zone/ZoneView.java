@@ -307,6 +307,9 @@ public class ZoneView implements ModelChangeListener {
 						// This needs to be cached somehow
 				        Area lightSourceArea = lightSource.getArea(token, zone, Direction.CENTER);
 						Area visibleArea = FogUtil.calculateVisibility(p.x, p.y, lightSourceArea, getTopology());
+						if (visibleArea == null) {
+							continue;
+						}
 
 						for (Light light : lightSource.getLightList()) {
 							lightList.add(new DrawableLight(type, light.getPaint(), visibleArea));
