@@ -184,12 +184,17 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 	
 	private void accept() {
-		copyUIToCampaign();
-
-		AssetManager.updateRepositoryList();
 		
-		status = Status.OK;
-		setVisible(false);
+		try {
+			copyUIToCampaign();
+	
+			AssetManager.updateRepositoryList();
+			
+			status = Status.OK;
+			setVisible(false);
+		} catch (IllegalArgumentException iae) {
+			MapTool.showError(iae.getMessage());
+		}
 	}
 	
 	public void setCampaign(Campaign campaign) {
@@ -311,7 +316,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 	
 	private void copyUIToCampaign() {
-		
+
 		tokenPropertiesPanel.copyUIToCampaign(campaign);
 		
 		campaign.getRemoteRepositoryList().clear();
@@ -331,7 +336,6 @@ public class CampaignPropertiesDialog extends JDialog  {
 			MapTool.getFrame().getCurrentZoneRenderer().flushLight();
 			MapTool.getFrame().refresh();
 		}
-		
 	}
 	
 	private void commitSightMap() {
@@ -484,8 +488,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 					try {
 						lightSource.add(new Light(shape, 0, NumberFormat.getNumberInstance().parse(distance).doubleValue(), arc, color != null ? new DrawableColorPaint(color): null));
 					} catch (ParseException pe) {
-						MapTool.showError("I don't understand light distance '" + distance + "'");
-						throw new IllegalArgumentException();
+						throw new IllegalArgumentException("I don't understand light distance '" + distance + "'");
 					}
 				}
 				
