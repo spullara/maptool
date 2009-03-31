@@ -65,6 +65,8 @@ public class MacroButtonDialog extends JDialog {
 		installColorCombo();
 		installFontColorCombo();
 		installFontSizeCombo();
+
+		initCommandTextArea();
 		
 		panel.getCheckBox("applyToTokensCheckBox").setEnabled(!isTokenMacro);
 		panel.getComboBox("hotKey").setEnabled(!isTokenMacro);
@@ -183,6 +185,11 @@ public class MacroButtonDialog extends JDialog {
 		} else {
 			MapTool.showError("Button properties are null.");
 		}
+	}
+	
+	private void initCommandTextArea() {
+		// Need to get rid of the tooltip, but abeille can't set it back to null, so we'll do it manually
+		getCommandTextArea().setToolTipText(null);
 	}
 	
 	private void save() {
