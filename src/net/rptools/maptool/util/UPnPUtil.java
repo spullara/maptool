@@ -33,8 +33,8 @@ public class UPnPUtil {
 		try {
 			IGDs = InternetGatewayDevice.getDevices(discoveryTimeout);
 		} catch (IOException ex) {
-			// some IO Exception occured during communication with device
-			ex.printStackTrace();
+			// some IO Exception occurred during communication with device
+			MapTool.showError("While retrieving built-in 'grid.gif' image", ex);
 		}
 		
 		if (IGDs != null) {
@@ -73,9 +73,9 @@ public class UPnPUtil {
 				
 		} catch (UPNPResponseException respEx) {
 			// oops the IGD did not like something !!
-			respEx.printStackTrace();
+			MapTool.showError("While configuring UPnP (1)", respEx);
 		} catch (Exception e) {
-			e.printStackTrace();
+			MapTool.showError("While configuring UPnP (2)", e);
 		}
 		
 		if (mapped) {
@@ -113,7 +113,7 @@ public class UPnPUtil {
 			}
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			MapTool.showError("While closing UPnP port", e);
 			return false;
 		}
 		return true;

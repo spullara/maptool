@@ -179,29 +179,66 @@ public class MapTool {
 
 	private static String lastWhisperer;
 
-	public static void showError(String message) {
-		String msg = I18N.getText(message);
-		String title = I18N.getText("msg.title.messageDialogError");
-		JOptionPane.showMessageDialog(clientFrame, "<html><body>" + msg
-				+ "</body></html>", title, JOptionPane.ERROR_MESSAGE);
+	/**
+	 * This method looks up the message key in the properties file and returns the resultant
+	 * text with the detail message from the <code>Throwable</code> appended to the end.
+	 * @param msgKey the string to use when calling {@link I18N#getText(String)}
+	 * @param t the exception currently being processed
+	 * @return the <code>String</code> result
+	 */
+	public static String generateMessage(String msgKey, Throwable t) {
+		String msg;
+		if (t == null) {
+			msg = I18N.getText(msgKey);
+		} else {
+			msg = I18N.getText(msgKey) + "<br>" + t.toString();
+		}
+		return msg;
 	}
 
-	public static void showWarning(String message) {
-		String msg = I18N.getText(message);
-		String title = I18N.getText("msg.title.messageDialogWarning");
-		JOptionPane.showMessageDialog(clientFrame, "<html><body>" + msg
-				+ "</body></html>", title, JOptionPane.WARNING_MESSAGE);
+	/**
+	 * This method is the base method for putting a dialog box up on the screen that might
+	 * be an error, a warning, or just an information message.  Do not use this method if
+	 * the desired result is a simple confirmation box (use {@link #confirm(String)} instead).
+	 * @param msgKey the string to put in the body of the dialog
+	 * @param titleKey the string to use when retrieving the title of the dialog window
+	 * @param messageType JOptionPane.{ERROR|WARNING|INFORMATION}_MESSAGE
+	 */
+	public static void showMessage(String message, String titleKey, int messageType) {
+		String title = I18N.getText(titleKey);
+		JOptionPane.showMessageDialog(clientFrame, "<html>" + message, title, messageType);
 	}
 
-	public static void showInformation(String message) {
-		String msg = I18N.getText(message);
-		String title = I18N.getText("msg.title.messageDialogInfo");
-		JOptionPane.showMessageDialog(clientFrame, msg, title,
-				JOptionPane.INFORMATION_MESSAGE);
+	public static void showError(String msgKey) {
+		showError(msgKey, null);
+	}
+	public static void showError(String msgKey, Throwable t) {
+		String msg = generateMessage(msgKey, t);
+		log.error(msg, t);
+		showMessage(msg, "msg.title.messageDialogError", JOptionPane.ERROR_MESSAGE);
+	}
+
+	public static void showWarning(String msgKey) {
+		showWarning(msgKey, null);
+	}
+	public static void showWarning(String msgKey, Throwable t) {
+		String msg = generateMessage(msgKey, t);
+		log.warn(msg, t);
+		showMessage(msg, "msg.title.messageDialogWarning", JOptionPane.WARNING_MESSAGE);
+	}
+
+	public static void showInformation(String msgKey) {
+		showInformation(msgKey, null);
+	}
+	public static void showInformation(String msgKey, Throwable t) {
+		String msg = generateMessage(msgKey, t);
+		log.info(msg, t);
+		showMessage(msg, "msg.title.messageDialogInfo", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	public static boolean confirm(String message) {
 		String msg = I18N.getText(message);
+		log.debug(msg);
 		String title = I18N.getText("msg.title.messageDialogConfirm");
 		return JOptionPane.showConfirmDialog(clientFrame, msg, title,
 				JOptionPane.OK_OPTION) == JOptionPane.OK_OPTION;
@@ -276,9 +313,9 @@ public class MapTool {
 					}
 				});
 			} catch (InterruptedException ie) {
-				ie.printStackTrace();
+				MapTool.showError("While creating snapshot", ie);
 			} catch (InvocationTargetException ite) {
-				ite.printStackTrace();
+				MapTool.showError("While creating snapshot", ite);
 			}
 		} else {
 			renderer.renderZone(g, view);
@@ -320,7 +357,7 @@ public class MapTool {
 		try {
 			FileUtil.delete(AppUtil.getAppHome("tmp"), 2);
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			MapTool.showError("While initializing (cleaning tmpdir)", ioe);
 		}
 
 		// We'll manage our own images
@@ -333,7 +370,7 @@ public class MapTool {
 		try {
 			soundManager.configure(SOUND_PROPERTIES);
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			MapTool.showError("While initializing (configuring sound)", ioe);
 		}
 
 		assetTransferManager = new AssetTransferManager();
@@ -353,7 +390,7 @@ public class MapTool {
         try {
         	startPersonalServer(CampaignFactory.createBasicCampaign());
         } catch (Exception e) {
-        	e.printStackTrace();
+			MapTool.showError("While starting personal server", e);
         }
         AppActions.updateActions();
         
@@ -388,8 +425,7 @@ public class MapTool {
 					version = new String(FileUtil.loadResource(VERSION_TXT));
 				}
 			} catch (IOException ioe) {
-				String msg = MessageFormat.format(I18N
-						.getText("msg.info.versionFile"), VERSION_TXT);
+				String msg = I18N.getText("msg.info.versionFile", VERSION_TXT);
 				version = msg;
 				MapTool.showError("msg.error.versionFileMissing");
 			}
@@ -604,8 +640,7 @@ public class MapTool {
 				}
 				// TODO: I don't like this
 			} catch (Exception e) {
-				e.printStackTrace();
-				MapTool.showError("msg.error.failedCannotRegisterServer");
+				MapTool.showError("msg.error.failedCannotRegisterServer", e);
 			}
 		}
 	}
@@ -756,7 +791,7 @@ public class MapTool {
 			try {
 				MapToolRegistry.unregisterInstance(server.getConfig().getPort());
 			} catch (Throwable t) {
-				t.printStackTrace();
+				MapTool.showError("While unregistering server instance", t);
 			}
 		}
 
@@ -767,7 +802,7 @@ public class MapTool {
 
 		} catch (IOException ioe) {
 			// This isn't critical, we're closing it anyway
-			ioe.printStackTrace();
+			log.debug("While closing connection", ioe);
 		}
 
 		MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.disconnected);
@@ -801,8 +836,6 @@ public class MapTool {
 				e.printStackTrace();
 			}
         }
-        
-        
 
 		logging = logging.replace("INSERT_LOCAL_CONFIG_HERE", localConfig);
         logging = logging.replace("${appHome}", AppUtil.getAppHome().getAbsolutePath().replace('\\', '/'));
@@ -876,8 +909,7 @@ public class MapTool {
         	
         	configureJide();
 		} catch (Exception e) {
-			System.err.println(I18N.getText("msg.error.lafSetup"));
-			e.printStackTrace();
+			MapTool.showError("msg.error.lafSetup", e);
 		}
 
 		// This is a tweak that makes the Chinese version work better

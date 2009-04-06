@@ -389,6 +389,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         // TODO: Quick hack to handle updating server state
         SelectionSet set = selectionSetMap.get(keyTokenId);
+        if (set == null) {
+        	return;
+        }
 
         removeMoveSelectionSet(keyTokenId);
         MapTool.serverCommand().stopTokenMove(getZone().getId(), keyTokenId);

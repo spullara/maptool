@@ -45,6 +45,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.tool.PointerTool;
@@ -676,21 +677,21 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
           SwingUtilities.invokeLater(new Runnable() {
             public void run() { 
                 if (displayList.getSelectedValue() != null) {
-                    
                     // Show the selected token on the map.
                     Token token = ((TokenInitiative)displayList.getSelectedValue()).getToken();
         			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
         			if (renderer == null) {
         				return;
         			}
-	    			ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2, renderer.getHeight() / 2).convertToZone(renderer);
-	                renderer.centerOn(zp);
-	    			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
+        			if (AppState.isPlayerViewLinked()) {
+		    			ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2, renderer.getHeight() / 2).convertToZone(renderer);
+		    			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
+        			}
 //					XXX Why was this code selecting the PointerTool automatically?
 //	                MapTool.getFrame().getToolbox().setSelectedTool(PointerTool.class);
-	                MapTool.getFrame().getCurrentZoneRenderer().clearSelectedTokens();
-	                MapTool.getFrame().getCurrentZoneRenderer().selectToken(token.getId());
-	                MapTool.getFrame().getCurrentZoneRenderer().requestFocusInWindow();
+        			renderer.clearSelectedTokens();
+        			renderer.selectToken(token.getId());
+        			renderer.requestFocusInWindow();
                 } // endif
             }
           });
