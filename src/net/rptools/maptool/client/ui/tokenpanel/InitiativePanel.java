@@ -178,7 +178,6 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         displayList.setCellRenderer(new InitiativeListCellRenderer(this));
 
         // Dragging is only for GM
-        displayList.setDragEnabled(hasGMPermission());
         displayList.setTransferHandler(new InitiativeTransferHandler(this));
         displayList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         displayList.addListSelectionListener(this);
@@ -220,6 +219,8 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
      * GM's and Player's properly
      */
     public void updateView() {
+        displayList.setDragEnabled(hasGMPermission());
+
         // Set up the button
         if (ownerPermissions || hasGMPermission()) {
             NEXT_ACTION.setEnabled(true);
