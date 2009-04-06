@@ -685,7 +685,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         			}
 
         			MapTool.getFrame().getCurrentZoneRenderer().centerOn(token);
-                    if (AppState.isPlayerViewLinked()) {
+                    if (MapTool.getPlayer().isGM() && AppState.isPlayerViewLinked()) {
                     	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
             			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
                     }           
