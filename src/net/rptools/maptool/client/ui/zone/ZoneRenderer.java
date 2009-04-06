@@ -82,6 +82,8 @@ import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.TransferableToken;
+import net.rptools.maptool.client.tool.PointerTool;
+import net.rptools.maptool.client.tool.StampTool;
 import net.rptools.maptool.client.ui.Scale;
 import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
 import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
@@ -230,6 +232,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         } else {
             showPathList.remove(token);
         }
+    }
+    
+    public void centerOn(Token token) {
+    	if (token == null) {
+    		return;
+    	}
+    	
+		centerOn(new ZonePoint(token.getX(), token.getY()));
+
+		MapTool.getFrame().getToolbox().setSelectedTool(token.isToken() ? PointerTool.class : StampTool.class);
+		setActiveLayer(token.getLayer());
+		selectToken(token.getId());
+		requestFocusInWindow();
     }
     
     public ZonePoint getCenterPoint() {

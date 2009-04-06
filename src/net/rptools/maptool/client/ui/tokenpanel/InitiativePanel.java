@@ -683,16 +683,9 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         			if (renderer == null) {
         				return;
         			}
-        			if (AppState.isPlayerViewLinked()) {
-		    			ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2, renderer.getHeight() / 2).convertToZone(renderer);
-		    			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
-        			}
-//					XXX Why was this code selecting the PointerTool automatically?
-//	                MapTool.getFrame().getToolbox().setSelectedTool(PointerTool.class);
-        			renderer.clearSelectedTokens();
-        			renderer.selectToken(token.getId());
-        			renderer.requestFocusInWindow();
-                } // endif
+
+        			MapTool.getFrame().getCurrentZoneRenderer().centerOn(token);
+                } 
             }
           });
         } else if (SwingUtilities.isRightMouseButton(e)) {
