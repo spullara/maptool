@@ -17,12 +17,13 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.TextMessage;
 
 @MacroDefinition(
         name = "rollgm",
         aliases = { "rgm" },
-        description = "Roll and broadcast the result to only the gm."
+        description = "rollgm.desc"
     )
 public class RollGMMacro extends AbstractRollMacro {
 
@@ -30,8 +31,10 @@ public class RollGMMacro extends AbstractRollMacro {
         String result = roll(macro);
         if (result != null) {
         	
-            MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), "* " + MapTool.getPlayer().getName() + " rolls to you: " + result, context.getTransformationHistory()));
-        	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "* You roll to the GM: " + result, context.getTransformationHistory()));
+            MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), "* "  + 
+            		I18N.getText("rollgm.gm.string", MapTool.getPlayer().getName(), result), context.getTransformationHistory()));
+        	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "* " +
+        			I18N.getText("rollgm.self.string", result), context.getTransformationHistory()));
         }
     }
 }

@@ -22,7 +22,7 @@ import net.rptools.maptool.model.TextMessage;
 @MacroDefinition(
 	name = "emotes",
 	aliases = { "mes" },
-	description = "Broadcast plural emote to all connected players."
+	description = "emoteplural.desc"
 )
 public class EmotePluralMacro extends AbstractMacro {
 

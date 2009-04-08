@@ -51,7 +51,7 @@ public class TokenGMNameFunction extends AbstractFunction {
 	 */
 	public String getGMName(Token token) throws ParserException {
 		if (!MapTool.getParser().isMacroTrusted()) {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getGMName"));
+			throw new ParserException(I18N.getText("macro.function.general.noPerm", "getGMName"));
 		}
 		return token.getGMName() != null ? token.getGMName() : "";
 	}
@@ -65,7 +65,7 @@ public class TokenGMNameFunction extends AbstractFunction {
 	 */
 	public void setGMName(Token token, String name) throws ParserException {
 		if (!MapTool.getParser().isMacroTrusted()) {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setGMName"));
+			throw new ParserException(I18N.getText("macro.function.general.noPerm", "setGMName"));
 		}
 		token.setGMName(name);
 	}

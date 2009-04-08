@@ -22,7 +22,7 @@ import net.rptools.maptool.model.TextMessage;
 @MacroDefinition(
         name = "self",
         aliases = { "self" },
-        description = "Send a message only to yourself."
+        description = "self.desc"
     )
 public class SelfMacro extends AbstractMacro {
 	    

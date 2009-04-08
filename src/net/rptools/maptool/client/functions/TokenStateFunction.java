@@ -14,11 +14,14 @@
 package net.rptools.maptool.client.functions;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
@@ -280,22 +283,33 @@ public class TokenStateFunction extends AbstractFunction {
 	 */
 	private String getTokenStates(Parser parser, List<Object> args) {
 		String delim = args.size() > 0 ? args.get(0).toString() : ",";
+		Set<String> stateNames;
 
-		Set<String> stateNames = MapTool.getCampaign().getTokenStatesMap().keySet();
+		if (args.size() > 1) {
+			String group = (String) args.get(1);
+			Map<String, BooleanTokenOverlay> states = MapTool.getCampaign().getTokenStatesMap();
+			stateNames = new HashSet<String>();
+			for (BooleanTokenOverlay bto : states.values()) { 
+				if (group.equals(bto.getGroup())) {
+					stateNames.add(bto.getName());
+				}
+			}
+		} else {
+			stateNames = MapTool.getCampaign().getTokenStatesMap().keySet();
+		}
+
 		
+		StringBuilder sb = new StringBuilder();		
 		if ("json".equals(delim)) {
 			return JSONArray.fromObject(stateNames).toString();
-		} 
-		
-		StringBuilder sb = new StringBuilder();
-		for (String s : stateNames) {
-			if (sb.length() != 0) {
-				sb.append(delim);
-			} 
-			sb.append(s);
-		}
-		
-		return sb.toString();
-		
+		} else {
+			for (String s : stateNames) {
+				if (sb.length() > 0) {
+					sb.append(delim);
+				} 
+				sb.append(s);
+			}	
+			return sb.toString();
+		}	
 	}
 }

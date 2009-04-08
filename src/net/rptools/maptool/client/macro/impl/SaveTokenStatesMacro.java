@@ -30,6 +30,7 @@ import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
+import net.rptools.maptool.language.I18N;
 
 /**
  * Save the current list of token states for use later.
@@ -40,7 +41,7 @@ import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 @MacroDefinition(
     name = "savetokenstates",
     aliases = { "tss" },
-    description = "Save the current set of token states to a file."
+    description = "savetokenstates.desc"
 )
 public class SaveTokenStatesMacro implements Macro {
 
@@ -57,7 +58,7 @@ public class SaveTokenStatesMacro implements Macro {
       
       // Not on the command line, ask the user for a file.
       JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
-      chooser.setDialogTitle("Save Token States");
+      chooser.setDialogTitle(I18N.getText("savetokenstates.dialogTitle"));
       chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
       if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) return;
       aliasFile = chooser.getSelectedFile();
@@ -66,7 +67,7 @@ public class SaveTokenStatesMacro implements Macro {
     // Make it an XML file if type isn't set, check for overwrite
     if (aliasFile.getName().indexOf(".") < 0)
       aliasFile = new File(aliasFile.getAbsolutePath() + "-tokenStates.xml");
-    if (aliasFile.exists() && !MapTool.confirm("Overwrite existing file?")) return;
+    if (aliasFile.exists() && !MapTool.confirm(I18N.getText("msg.confirm.fileExists"))) return;
     
     // Save the file using a decoder
     try {
@@ -77,9 +78,9 @@ public class SaveTokenStatesMacro implements Macro {
       } // endfor
       encoder.writeObject(overlays);
       encoder.close();
-      MapTool.addLocalMessage("There were " + overlays.size() + " token states saved.");
+      MapTool.addLocalMessage(I18N.getText("savetokenstates.saved", overlays.size()));
     } catch (FileNotFoundException fnfe) {
-      MapTool.addLocalMessage("Could not save the token states file: File not found");
+      MapTool.addLocalMessage(I18N.getText("savetokenstates.couldNotSave", I18N.getText("msg.error.fileNotFound")));
     } // endif
   }
 }

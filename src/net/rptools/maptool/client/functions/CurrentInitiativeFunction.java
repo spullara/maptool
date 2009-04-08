@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -47,14 +48,14 @@ public class CurrentInitiativeFunction extends AbstractFunction {
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
         if (!MapTool.getParser().isMacroTrusted()) {
         	if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
-        		throw new ParserException("macro.function.currentInitiativeFunction.mustBeGM");
+        		throw new ParserException(I18N.getText("macro.function.initiative.mustBeGM", functionName));
         }
         
         if (functionName.equals("getCurrentInitiative")) {
 	        return getCurrentInitiative();
 	    } else if (functionName.equals("setCurrentInitiative")) {
 	        if (args.size() != 1)
-	            throw new ParserException("macro.function.currentInitiativeFunction.oneParam");
+	            throw new ParserException(I18N.getText("macro.function.initiative.oneParam", functionName));
             setCurrentInitiative(args.get(0));
 	        return args.get(0);
 	    } else {

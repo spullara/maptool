@@ -14,6 +14,7 @@
 package net.rptools.maptool.client.macro.impl;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.language.I18N;
 
 public abstract class AbstractRollMacro extends AbstractMacro {
 	
@@ -24,7 +25,7 @@ public abstract class AbstractRollMacro extends AbstractMacro {
             
             return text;
         } catch (Exception e) {
-            MapTool.addLocalMessage("<b>Unknown roll '" + roll + "', use #d#+#</b>");
+            MapTool.addLocalMessage("<b>" + I18N.getText("roll.general.unknown", roll) + "</b>");
             return null;
         }
     }

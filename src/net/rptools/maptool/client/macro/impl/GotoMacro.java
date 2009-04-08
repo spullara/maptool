@@ -29,7 +29,7 @@ import net.rptools.maptool.model.ZonePoint;
 @MacroDefinition(
 	name = "goto",
 	aliases = { "g" },
-	description = "Goto location or token. /goto X,Y or /goto <tokenname>"
+	description = "goto.desc"
 )
 public class GotoMacro implements Macro {
 	private static Pattern COORD_PAT = Pattern.compile("(-?\\d+)\\s*,?\\s*(-?\\d+)");

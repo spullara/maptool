@@ -23,7 +23,7 @@ import net.rptools.maptool.client.macro.MacroDefinition;
 @MacroDefinition(
 	name = "color",
 	aliases = { "cc" },
-	description = "Change your chat text color via macros.  Color must be in Hexadecimal format.  Example: /cc #ff0099"
+	description = "changecolor.desc"
 )
 public class ChangeColorMacro extends AbstractMacro {
 

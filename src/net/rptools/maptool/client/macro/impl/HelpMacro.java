@@ -24,8 +24,9 @@ import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
+import net.rptools.maptool.language.I18N;
 
-@MacroDefinition(name = "help", aliases = { "h" }, description = "Display list of available commands.")
+@MacroDefinition(name = "help", aliases = { "h" }, description = "help.desc")
 public class HelpMacro implements Macro {
 
 	private static Comparator<Macro> MACRO_NAME_COMPARATOR = new Comparator<Macro>() {
@@ -47,7 +48,8 @@ public class HelpMacro implements Macro {
 		Collections.sort(macros, MACRO_NAME_COMPARATOR);
 
 		builder.append("<table border='1'>");
-		builder.append("<tr><td><b>Command</b></td><td><b>Aliases</b></td><td><b>Description</b></td></tr>");
+		builder.append("<tr><td><b>").append(I18N.getText("help.header.command")).append("</b></td><td><b>").append(I18N.getText("help.header.aliases"));
+		builder.append("</b></td><td><b>").append(I18N.getText("help.header.description")).append("</b></td></tr>");
 		for (Macro macro : macros) {
 			MacroDefinition def = macro.getClass().getAnnotation(
 					MacroDefinition.class);
@@ -70,7 +72,7 @@ public class HelpMacro implements Macro {
 				builder.append("</td>");
 
 				// Escape HTML from the desciption
-				String description = def.description().replace("<", "&lt;").replace(">", "&gt;");
+				String description = I18N.getText(def.description()).replace("<", "&lt;").replace(">", "&gt;");
 				
 				builder.append("<TD>").append(description).append("</td>");
 				

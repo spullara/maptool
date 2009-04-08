@@ -1,10 +1,14 @@
 package net.rptools.maptool.client.functions;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -19,10 +23,12 @@ import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.MacroButtonProperties;
+import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.util.StringUtil;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
@@ -32,7 +38,7 @@ import net.sf.json.JSONObject;
 public class MacroLinkFunction extends AbstractFunction {
 
 	private enum OutputTo {
-		SELF, NONE, GM, ALL
+		SELF, NONE, GM, ALL, SELF_AND_GM, LIST
 	}
 
 	/** Singleton instance of the MacroLinkFunction class. */
@@ -48,7 +54,7 @@ public class MacroLinkFunction extends AbstractFunction {
 	}
 
 	private MacroLinkFunction() {
-		super(1, 5, "macroLink", "macroLinkText");
+		super(1, 5, "macroLink", "macroLinkText", "execLink");
 	}
 
 	@Override
@@ -89,7 +95,7 @@ public class MacroLinkFunction extends AbstractFunction {
 				linkTarget = "Impersonated";
 			}
 
-		} else {
+		} else if ("macroLinkText".equalsIgnoreCase(functionName)) {
 			formatted = false;
 			linkText = "";
 			macroName = args.get(0).toString();
@@ -111,6 +117,19 @@ public class MacroLinkFunction extends AbstractFunction {
 			} else {
 				linkTarget = "Impersonated";
 			}
+		} else { // execLink
+		    if (!MapTool.getParser().isMacroTrusted()) {
+				throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
+	        }
+
+			boolean defer = false;
+			if (args.size() > 1) {
+				if (args.get(1) instanceof BigDecimal) {
+					defer = BigDecimal.ZERO.equals(args.get(1)) ? false : true;
+				}
+			}
+			execLink((String)args.get(0), defer);
+			return "";
 		}
 
 		StringBuilder sb = new StringBuilder();
@@ -124,6 +143,18 @@ public class MacroLinkFunction extends AbstractFunction {
 		}
 		return sb.toString();
 
+	}
+
+	private void execLink(final String link, boolean defer) {
+		if (defer) {
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					runMacroLink(link);
+				}
+			});
+		} else {
+			this.runMacroLink(link);
+		}
 	}
 
 	/**
@@ -347,8 +378,8 @@ public class MacroLinkFunction extends AbstractFunction {
 			OutputTo outputTo;		
 			String macroName = "";
 			String args = "";
-			
-			
+			Set<String> outputToPlayers = new HashSet<String>();
+ 			
 			if (m.group(1).equalsIgnoreCase("macro")) {
 
 				String who = m.group(3);
@@ -361,6 +392,11 @@ public class MacroLinkFunction extends AbstractFunction {
 				} else if (who.equalsIgnoreCase("all")
 						|| who.equalsIgnoreCase("say")) {
 					outputTo = OutputTo.ALL;
+				} else if (who.equalsIgnoreCase("gm-self")
+						|| who.equalsIgnoreCase("gmself")) {
+					outputTo = OutputTo.SELF_AND_GM;
+				} else if (who.equalsIgnoreCase("list")) {
+					outputTo = OutputTo.LIST;
 				} else {
 					outputTo = OutputTo.NONE;
 				}
@@ -382,6 +418,16 @@ public class MacroLinkFunction extends AbstractFunction {
 						}
 					}
 					args=val;
+					try {
+						JSONObject jobj =JSONObject.fromObject(args);
+						if (jobj.containsKey("mlOutputList")) {
+							outputToPlayers.addAll(jobj.getJSONArray("mlOutputList"));
+						}
+					} catch (Exception e) {
+						// Do nothing as we just dont populate the list.
+					}
+
+					
 				}
 
 				String[] targets = m.group(4).split(",");
@@ -396,7 +442,7 @@ public class MacroLinkFunction extends AbstractFunction {
 							Token token = zone.resolveToken(identity);
 							MapToolVariableResolver resolver = new MapToolVariableResolver(token);
 							String output = MapTool.getParser().runMacro(resolver, token, macroName, args);
-							doOutput(token, outputTo, output);
+							doOutput(token, outputTo, output, outputToPlayers); // TODO
 						} else if (t.equalsIgnoreCase("selected")) {
 							for (GUID id : MapTool.getFrame()
 									.getCurrentZoneRenderer()
@@ -404,13 +450,13 @@ public class MacroLinkFunction extends AbstractFunction {
 								Token token = zone.getToken(id);
 								MapToolVariableResolver resolver = new MapToolVariableResolver(token);
 								String output = MapTool.getParser().runMacro(resolver, token, macroName, args);
-								doOutput(token, outputTo, output);
+								doOutput(token, outputTo, output, outputToPlayers);
 							}
 						} else {
 							Token token = zone.resolveToken(t);
 							MapToolVariableResolver resolver = new MapToolVariableResolver(token);
 							String output = MapTool.getParser().runMacro(resolver, token, macroName, args);
-							doOutput(token, outputTo, output);
+							doOutput(token, outputTo, output, outputToPlayers);
 						}
 					}
 				} catch (AbortFunctionException e) {
@@ -424,19 +470,89 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	}
 
-	private void doOutput(Token token, OutputTo outputTo, String line) {
+	private void doOutput(Token token, OutputTo outputTo, String line, Set<String> playerList) {
+		
+		/*
+		 * First we check our player list to make sure we are not sending things out multiple times or the wrong way
+		 * This looks looks a little ugly, but all it is doing is searching for the strings say, gm, or gmself, and
+		 * if it contains no other strings changes it to a more appropriate for such as /togm, /self, etc. If it
+		 * contains other names then gm, self etc will be replaced with player names. 
+		 */
+		if (outputTo == OutputTo.LIST) {
+			if (playerList == null) {
+				outputTo = OutputTo.NONE;
+			} else if (playerList.contains("all") || playerList.contains("say")) {
+				outputTo = OutputTo.ALL;
+			} else if (playerList.contains("gmself")) {
+				playerList.remove("gmself");
+				if (playerList.size() == 0) { // if that was only thing in the list then dont use whispers
+					outputTo = OutputTo.SELF_AND_GM;									
+				} else {
+					playerList.addAll(getGMs());
+					playerList.add(getSelf());
+				}
+			} else if (playerList.contains("gm-self")) {
+				playerList.remove("gm-self");
+				if (playerList.size() == 0) { // if that was only thing in the list then dont use whispers
+					outputTo = OutputTo.SELF_AND_GM;									
+				} else {
+					playerList.addAll(getGMs());
+					playerList.add(getSelf());
+				}
+			} else if (playerList.contains("gm") && playerList.contains("self")) {
+				playerList.remove("gm");
+				playerList.remove("self");
+				if (playerList.size() == 0) { // if that was only thing in the list then dont use whispers
+					outputTo = OutputTo.SELF_AND_GM;									
+				} else {
+					playerList.addAll(getGMs());
+					playerList.add(getSelf());			
+				} 
+			} else if (playerList.contains("gm")) {
+					playerList.remove("gm");
+					if (playerList.size() == 0) { // if that was only thing in the list then dont use whispers
+						outputTo = OutputTo.GM;									
+					} else {
+						playerList.addAll(getGMs());
+						playerList.add(getSelf());			
+				}
+			} else if (playerList.contains("self")) {
+				playerList.remove("self");
+				if (playerList.size() == 0) { // if that was only thing in the list then dont use whispers
+					outputTo = OutputTo.SELF;									
+				} else {
+					playerList.add(getSelf());			
+				}
+			}
+		}
+		
 		switch (outputTo) {
 		case SELF:
 			MapTool.addLocalMessage(line);
 			break;
+		case SELF_AND_GM: 
+			MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), I18N.getText("togm.self", line), null));
+			// Intentionally falls through
 		case GM:
 			MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null,
-					MapTool.getPlayer().getName(), MapTool.getPlayer()
-							.getName()
-							+ " says to the GM: " + line, null));
+					MapTool.getPlayer().getName(), I18N.getText("togm.saysToGM", MapTool.getPlayer().getName()) + " " + line, null));
 			break;
 		case ALL:
 			doSay(line, token, false, "");
+			break;
+		case LIST:
+			StringBuilder sb = new StringBuilder();
+			for(String name : playerList) {
+				doWhisper(line, token, name);
+				if (sb.length() > 0) {
+					sb.append(", ");
+				}
+				sb.append(name);
+			}
+	        MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "<span class='whisper' style='color:blue'>" + 
+	        		I18N.getText("whisper.you.string", sb.toString(), line) + "</span>", null));
+
+			break;
 		case NONE:
 			// Do nothing with the output.
 			break;
@@ -444,6 +560,53 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	}
 
+	private void doWhisper(String message, Token token, String playerName) {
+
+			ObservableList<Player> playerList = MapTool.getPlayerList();
+	        List<String> players = new ArrayList<String>();
+	        for(int count = 0; count < playerList.size(); count++) 
+	        {
+	        	Player p = playerList.get(count);
+	        	String thePlayer = p.getName();
+	        	players.add(thePlayer);
+	        }
+	        String playerNameMatch = StringUtil.findMatch(playerName, players); 
+	        playerName = (!playerNameMatch.equals(""))? playerNameMatch: playerName;
+	        
+	        // Validate
+	        if (!MapTool.isPlayerConnected(playerName)) {
+	            MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), I18N.getText("msg.error.playerNotConnected", playerName), null));
+	        }
+	        if (MapTool.getPlayer().getName().equalsIgnoreCase(playerName)) {
+	            return;
+	        }
+	        
+	        // Send
+	        MapTool.addMessage(new TextMessage(TextMessage.Channel.WHISPER, playerName, MapTool.getPlayer().getName(), 
+	        		"<span class='whisper' style='color:blue'>" + "<span class='whisper' style='color:blue'>" 
+	        		+ I18N.getText("whisper.string",  MapTool.getFrame().getCommandPanel().getIdentity(), message)+"</span>", null));
+	        		
+	}
+	
+	
+	private List<String> getGMs() {
+		List<String> gms = new ArrayList<String>();
+		
+		
+		Iterator<Player> pliter = MapTool.getPlayerList().iterator();
+		while (pliter.hasNext()) {
+			Player plr = pliter.next();
+			if (plr.isGM()) {
+				gms.add(plr.getName());
+			}
+		}
+		return gms;
+	}
+	
+	private String getSelf() {
+		return MapTool.getPlayer().getName();
+	}
+	
 	/**
 	 * Runs the macro specified by the link if it is auto executable otherwise
 	 * does nothing..
@@ -491,7 +654,7 @@ public class MacroLinkFunction extends AbstractFunction {
 							// If the token is not owned by everyone and all
 							// owners are GMs then we are in
 							// a secure context as players can not modify the
-							// macro so GM can sepcify what
+							// macro so GM can specify what
 							// ever they want.
 							if (token != null) {
 								if (token.isOwnedByAll()) {
@@ -522,6 +685,8 @@ public class MacroLinkFunction extends AbstractFunction {
 		}
 		return false;
 	}
+	
+	
 
 	private void doSay(String msg, Token token, boolean trusted,
 			String macroName) {

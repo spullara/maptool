@@ -51,7 +51,7 @@ public class AddAllToInitiativeFunction extends AbstractFunction {
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args) throws ParserException {
 	    if (!MapTool.getParser().isMacroTrusted()) {
 	    	if (!MapTool.getFrame().getInitiativePanel().hasGMPermission())
-	    		throw new ParserException(I18N.getText("macro.function.addAllToInitiativeFunction.mustBeGM", functionName));
+	    		throw new ParserException(I18N.getText("macro.function.initiative.mustBeGM", functionName));
 	    }
 	    // Check for duplicates flag
         InitiativeList list = MapTool.getFrame().getCurrentZoneRenderer().getZone().getInitiativeList();

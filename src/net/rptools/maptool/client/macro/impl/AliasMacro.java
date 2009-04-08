@@ -24,6 +24,7 @@ import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
+import net.rptools.maptool.language.I18N;
 
 /**
  * Macro to clear the message panel
@@ -34,7 +35,7 @@ import net.rptools.maptool.client.macro.MacroManager;
 @MacroDefinition(
     name = "alias",
     aliases = { "alias" },
-    description = "Create an alias.",
+    description = "alias.desc",
     expandRolls = false
 )
 public class AliasMacro implements Macro {
@@ -60,9 +61,9 @@ public class AliasMacro implements Macro {
 		
 		MacroManager.setAlias(name, value);
 		if (value != null) {
-			MapTool.addLocalMessage("Alias '" + name + "' added");
+			MapTool.addLocalMessage(I18N.getText("alias.added", name));
 		} else {
-			MapTool.addLocalMessage("Alias '" + name + "' removed");
+			MapTool.addLocalMessage(I18N.getText("alias.removed", name));
 		}
 	}
 	
@@ -70,7 +71,7 @@ public class AliasMacro implements Macro {
 		StringBuilder builder = new StringBuilder();
 		builder.append("<table border='1'>");
 		
-		builder.append("<tr><td><b>Alias</b></td><td><b>Command</b></td></tr>");
+		builder.append("<tr><td><b>").append(I18N.getText("alias.header")).append("</b></td><td><b>").append(I18N.getText("alias.commandHeader")).append("</b></td></tr>");
 		
 		Map<String, String> aliasMap = MacroManager.getAliasMap();
 		List<String> nameList = new ArrayList<String>();

@@ -24,7 +24,7 @@ import net.rptools.maptool.model.TextMessage;
 @MacroDefinition(
 	name = "ooc",
 	aliases = { "ooc" },
-	description = "Out Of Character chat"
+	description = "ooc.desc"
 )
 public class OOCMacro extends AbstractMacro {
 

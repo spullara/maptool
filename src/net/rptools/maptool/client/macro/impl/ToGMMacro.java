@@ -17,12 +17,13 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.TextMessage;
 
 @MacroDefinition(
         name = "gm",
         aliases = { "togm" },
-        description = "Send to GMs exclusively"
+        description = "togm.desc"
     )
 public class ToGMMacro extends AbstractRollMacro {
 
@@ -34,12 +35,11 @@ public class ToGMMacro extends AbstractRollMacro {
 
         	sb.append("<span class='trustedPrefix' ").append("title='").append(executionContext.getName());
         	sb.append("@").append(executionContext.getSouce()).append("'>");
-        	sb.append(MapTool.getPlayer().getName()).append("</span>").append(" says to the GM: ");
-        	sb.append(macro);
+        	sb.append(I18N.getText("togm.saysToGM", MapTool.getPlayer().getName())).append("</span> ").append("macro");
     	} else {
-        	sb.append(MapTool.getPlayer().getName()).append(" says to the GM: ").append(macro);
+        	sb.append(I18N.getText("togm.saysToGM", MapTool.getPlayer().getName())).append(" ").append("macro");
     	}
         MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(),  sb.toString(), context.getTransformationHistory()));
-		MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "You say to the GM: " + macro, context.getTransformationHistory()));
+		MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), I18N.getText("togm.self", macro), context.getTransformationHistory()));
     }
 }

@@ -27,7 +27,7 @@ import net.rptools.maptool.model.Token;
 @MacroDefinition(
 	name = "say",
 	aliases = { "s" },
-	description = "Broadcast a message to all connected players."
+	description = "say.desc"
 )
 public class SayMacro extends AbstractMacro {
 

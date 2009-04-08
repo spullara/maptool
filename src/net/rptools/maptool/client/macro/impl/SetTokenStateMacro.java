@@ -22,6 +22,7 @@ import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.ui.token.LightDialog;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -35,7 +36,7 @@ import net.rptools.maptool.model.Zone;
 @MacroDefinition(
     name = "settokenstate",
     aliases = { "sts" },
-    description = "Set a state value on a token."
+    description = "settokenstate.desc"
 )
 public class SetTokenStateMacro implements Macro {
 
@@ -64,7 +65,7 @@ public class SetTokenStateMacro implements Macro {
 
 	  // Get the strings	  
 	  if (aMacro.length() == 0) {
-	      MapTool.addLocalMessage("A token state name and token name, or a selected token and state name are required.");
+	      MapTool.addLocalMessage(I18N.getText("settokenstate.param"));
 	      return;
 	  }
 	  String[] args = aMacro.trim().split("\\s");
@@ -73,7 +74,7 @@ public class SetTokenStateMacro implements Macro {
 	  if (args.length < 2) {
 		  selectedTokenSet = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokenSet();
 		  if (selectedTokenSet.size() == 0) {
-		      MapTool.addLocalMessage("A token state name and token name, or a selected token and state name are required.");
+		      MapTool.addLocalMessage(I18N.getText("settokenstate.param"));
 		      return;
 		  }
 		  stateName = args[0];
@@ -92,7 +93,7 @@ public class SetTokenStateMacro implements Macro {
 		  if (token == null) { // Doesn't match a token? No problem lets grab selected tokens and see if it matches a state.
 			  selectedTokenSet = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokenSet();
 			  if (selectedTokenSet.size() == 0) {
-			      MapTool.addLocalMessage("A token state name and token name, or a selected token and state name are required.");
+			      MapTool.addLocalMessage(I18N.getText("settokenstate.param"));
 			      return;
 			  }  else {
 				  stateName = args[0];
@@ -115,7 +116,7 @@ public class SetTokenStateMacro implements Macro {
 	  // Ok now that we have figured out the target of our manipulations its time to figure out exactly what we are trying to do to it
 	  String state = getState(stateName);
 	  if (state == null) {
-	      MapTool.addLocalMessage("Uknown token state => '" + stateName + "'.");
+	      MapTool.addLocalMessage(I18N.getText("settokenstate.unknownState", stateName));
 	      return;
 	  }
 	  
@@ -162,11 +163,12 @@ public class SetTokenStateMacro implements Macro {
 	  }
 	  
 	  token.setState(state, newValue);
-	  MapTool.addLocalMessage("Token '" + token.getName() + "' is " + (newValue.booleanValue() ? "now" : "no longer")
-			  + " marked '" + state + "'.");
-	  MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-				token);
-	  
+	  if (newValue.booleanValue()) {
+		  MapTool.addLocalMessage(I18N.getText("settokenstate.marked", token.getName(), state));
+	  } else {
+		  MapTool.addLocalMessage(I18N.getText("settokenstate.marked", token.getName(), state));		  
+	  }
+	  	  
   }
   
   

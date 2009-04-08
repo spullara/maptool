@@ -55,7 +55,7 @@ public class InitiativeRoundFunction extends AbstractFunction {
 	            setInitiativeRound(args.get(0));
 	            return args.get(0);
 	        } else {
-	            throw new ParserException(I18N.getText("macro.function.getInitiativeRound.mustBeGM"));
+	            throw new ParserException(I18N.getText("macro.function.initiative.mustBeGM", functionName));
 	        } // endif
         } // endif
 	}

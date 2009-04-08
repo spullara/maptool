@@ -20,6 +20,7 @@ import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
@@ -31,7 +32,7 @@ import net.rptools.maptool.model.Token;
 @MacroDefinition(
     name = "tmacro",
     aliases = { "tm" },
-    description = "Run the given macro on the currently selected tokens"
+    description = "tmacro.desc"
 )
 public class RunTokenMacroMacro implements Macro {
   
@@ -42,7 +43,7 @@ public class RunTokenMacroMacro implements Macro {
 	  
 	  Set<GUID> selectedTokenSet = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokenSet();
 	  if (selectedTokenSet.size() == 0) {
-		  MapTool.addLocalMessage("No tokens selected");
+		  MapTool.addLocalMessage(I18N.getText("msg.error.noTokensSelected"));
 		  return;
 	  }
 	  

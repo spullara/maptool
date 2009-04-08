@@ -18,6 +18,7 @@ import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
+import net.rptools.maptool.language.I18N;
 
 @MacroDefinition(
 	name = "undefined", 
@@ -27,8 +28,7 @@ import net.rptools.maptool.client.macro.MacroDefinition;
 public class UndefinedMacro implements Macro {
 
 	public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
-		MapTool.addLocalMessage("'" + macro
-				+ "': Unknown command.  Try /help for a list of commands.");
+		MapTool.addLocalMessage(I18N.getText("undefinedmacro.unknownCommand", macro));
 	}
 
 }

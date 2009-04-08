@@ -33,6 +33,7 @@ import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.token.TriangleTokenOverlay;
 import net.rptools.maptool.client.ui.token.XTokenOverlay;
 import net.rptools.maptool.client.ui.token.YieldTokenOverlay;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.drawing.AbstractTemplate.Quadrant;
 
 /**
@@ -44,7 +45,7 @@ import net.rptools.maptool.model.drawing.AbstractTemplate.Quadrant;
 @MacroDefinition(
     name = "addtokenstate",
     aliases = { "tsa" },
-    description = "Add a new token state that can be set on tokens."
+    description = "addtokenstate.desc"
 )
 public class AddTokenStateMacro implements Macro {
 
@@ -91,8 +92,8 @@ public class AddTokenStateMacro implements Macro {
     // Split the command line into an array and get the tokens
     String[] tokens = aMacro.split("\\s");
     if (tokens.length < 2) {
-      MapTool.addLocalMessage("A token state name and overlay name are required.");
-      throw new IllegalArgumentException("A token state name and overlay name are required.");
+      MapTool.addLocalMessage(I18N.getText("addtokenstate.param"));
+      return;
     } // endif
     String name = tokens[NAME];
     String overlay = tokens[OVERLAY].toLowerCase();
@@ -101,35 +102,39 @@ public class AddTokenStateMacro implements Macro {
     
     // Check for a duplicate name
     if (MapTool.getCampaign().getTokenStatesMap().get(name) != null) {
-      MapTool.addLocalMessage("A token state with the name '" + name + "' already exists.");
-      throw new IllegalArgumentException("A token state with the name '" + name + "' already exists.");
+      MapTool.addLocalMessage(I18N.getText("addtokenstate.exists"));
+      return;
     } // endif
     
-    // The second token is the overlay name, the rest of the tokens describe its properties
-    BooleanTokenOverlay tokenOverlay = null;
-    if (overlay.equals("dot")) {
-      tokenOverlay = createDotOverlay(name, param1, param2);
-    } else if (overlay.equals("circle")) {
-      tokenOverlay = createCircleOverlay(name, param1, param2);
-    } else if (overlay.equals("shade")) {
-      tokenOverlay = createShadedOverlay(name, param1);
-    } else if (overlay.equals("x")) {
-      tokenOverlay = createXOverlay(name, param1, param2);
-    } else if (overlay.equals("cross")) {
-      tokenOverlay = createCrossOverlay(name, param1, param2);
-    } else if (overlay.equals("diamond")) {
-        tokenOverlay = createDiamondOverlay(name, param1, param2);
-    } else if (overlay.equals("yield")) {
-        tokenOverlay = createYieldOverlay(name, param1, param2);
-    } else if (overlay.equals("triangle")) {
-        tokenOverlay = createTriangleOverlay(name, param1, param2);
-    } else {
-      MapTool.addLocalMessage("There is no overlay type with the name '" + overlay + "'. Valid types are " +
-          "dot, circle, shade, X, cross, diamond, yield or triangle");
-      throw new IllegalArgumentException("There is no overlay type with the name '" + overlay + "'.");
-    } // endif
+	BooleanTokenOverlay tokenOverlay = null;
+    try {
+    	// The second token is the overlay name, the rest of the tokens describe its properties
+    	if (overlay.equals("dot")) {
+    		tokenOverlay = createDotOverlay(name, param1, param2);
+    	} else if (overlay.equals("circle")) {
+    		tokenOverlay = createCircleOverlay(name, param1, param2);
+    	} else if (overlay.equals("shade")) {
+    		tokenOverlay = createShadedOverlay(name, param1);
+    	} else if (overlay.equals("x")) {
+    		tokenOverlay = createXOverlay(name, param1, param2);
+    	} else if (overlay.equals("cross")) {
+    		tokenOverlay = createCrossOverlay(name, param1, param2);
+    	} else if (overlay.equals("diamond")) {
+    		tokenOverlay = createDiamondOverlay(name, param1, param2);
+    	} else if (overlay.equals("yield")) {
+    		tokenOverlay = createYieldOverlay(name, param1, param2);
+    	} else if (overlay.equals("triangle")) {
+    		tokenOverlay = createTriangleOverlay(name, param1, param2);
+    	} else {
+    		MapTool.addLocalMessage(I18N.getText("addtokenstate.noOverlyType", overlay));
+    		return;
+    	} // endif
+    } catch (IllegalArgumentException e) {
+		MapTool.addLocalMessage(e.getMessage());
+		return;
+    }
     MapTool.getCampaign().getTokenStatesMap().put(tokenOverlay.getName(), tokenOverlay);
-    MapTool.addLocalMessage("Token state '" + tokenOverlay.getName() + "' was added");
+    MapTool.addLocalMessage(I18N.getText("addtokenstate.added", tokenOverlay.getName()));
   }
 
   /**
@@ -255,10 +260,7 @@ public class AddTokenStateMacro implements Macro {
       return Color.decode(name);
     } catch (NumberFormatException e) {
       if (!MapToolUtil.isValidColor(name.toLowerCase())) {
-        MapTool.addLocalMessage("An invalid color '" + name + "' was passed as a parameter. Valid values are " +
-            "hex or integer numbers or the name of a common color (black, blue, cyan, darkgray, gray, green, " +
-            "lightgray, magenta, orange, pink, red, white, yellow");
-        throw new IllegalArgumentException("An invalid color '" + name + "' was passed as a parameter.");
+        throw new IllegalArgumentException(I18N.getText("addtokenstate.invalidColor", name));
       } // endif
       return MapToolUtil.getColor(name);
     } // endtry
@@ -277,8 +279,7 @@ public class AddTokenStateMacro implements Macro {
     try {
       return Integer.parseInt(name);
     } catch (NumberFormatException e) {
-      MapTool.addLocalMessage("An invalid number '" + name + "' was passed as a parameter.");
-      throw new IllegalArgumentException("An invalid number '" + name + "' was passed as a parameter.");
+      throw new IllegalArgumentException(I18N.getText("addtokenstate.invalidNumber", name));
     } // endtry
   }
   
@@ -295,9 +296,7 @@ public class AddTokenStateMacro implements Macro {
       return Quadrant.valueOf(name.toUpperCase());
     } catch (IllegalArgumentException e) {
       if (!CORNER_MAP.containsKey(name.toLowerCase())) {
-        MapTool.addLocalMessage("An invalid corner name '" + name + "' was passed as a parameter. Valid values are " +
-            "nw, ne, sw, se");
-        throw new IllegalArgumentException("An invalid corner '" + name + "' was passed as a parameter.");
+        throw new IllegalArgumentException(I18N.getText("addtokenstate.invalidCorner", name));
       } // endif
       return CORNER_MAP.get(name);
     } // endtry

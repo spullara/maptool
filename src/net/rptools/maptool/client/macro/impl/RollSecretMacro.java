@@ -17,12 +17,13 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.TextMessage;
 
 @MacroDefinition(
         name = "rollsecret",
         aliases = { "rsec" },
-        description = "Roll and broadcast the result to only the gm and hide the result even from yourself."
+        description = "rollsecret.desc"
     )
 public class RollSecretMacro extends AbstractRollMacro {
 
@@ -31,10 +32,13 @@ public class RollSecretMacro extends AbstractRollMacro {
         if (result != null) {
         	
             if (!MapTool.getPlayer().isGM()) {
-            	MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), "* " + MapTool.getPlayer().getName() + " rolls secretly to you: " + result, context.getTransformationHistory()));
-            	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "You roll secretly to the GM", context.getTransformationHistory()));
+            	MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), "* " + 
+            			I18N.getText("rollsecret.gm.string", MapTool.getPlayer().getName(), result), context.getTransformationHistory()));
+            	MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), 
+            			I18N.getText("rollsecret.self.string"), context.getTransformationHistory()));
             } else {
-            	MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), "* " + " You roll secretly: " + result, context.getTransformationHistory()));
+            	MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(), "* " + 
+            			I18N.getText("rollsecret.gmself.string", result), context.getTransformationHistory()));
             }
         }
     }

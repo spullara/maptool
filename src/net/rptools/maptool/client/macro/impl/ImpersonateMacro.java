@@ -19,13 +19,13 @@ import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
-import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 
 @MacroDefinition(
         name = "impersonate",
         aliases = { "im" },
-        description = "Speak as if you were something/one else",
+        description = "impersonate.desc",
         expandRolls = false
     )
 public class ImpersonateMacro implements Macro {
@@ -64,7 +64,7 @@ public class ImpersonateMacro implements Macro {
 
 		// Permission
 		if (!canImpersonate(token)) {
-			MapTool.addLocalMessage("You can only impersonate tokens that you own");
+			MapTool.addLocalMessage(I18N.getText("impersonate.mustOwn"));
 			return;
 		}
 		

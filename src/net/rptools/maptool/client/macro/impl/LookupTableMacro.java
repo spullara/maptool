@@ -30,7 +30,7 @@ import net.rptools.parser.ParserException;
 @MacroDefinition(
 	name = "table",
 	aliases = { "tbl" },
-	description = "Run a table lookup. Usage: /tbl &lt;table name*gt; [value to lookup, can be a dice roll]"
+	description = "lookuptable.desc"
 )
 public class LookupTableMacro extends AbstractMacro {
 
@@ -39,7 +39,7 @@ public class LookupTableMacro extends AbstractMacro {
         StringBuilder sb = new StringBuilder();
 
         if (macro.trim().length() == 0) {
-        	MapTool.addLocalMessage("Must specify a table");
+        	MapTool.addLocalMessage("lookuptable.specifyTable");
         	return;
         }
 
@@ -93,7 +93,7 @@ public class LookupTableMacro extends AbstractMacro {
 
 	    	MapTool.addMessage(TextMessage.say(context.getTransformationHistory(), sb.toString()));
     	} catch (ParserException pe) {
-	        MapTool.addLocalMessage("Could not do table lookup: " + pe.getMessage());
+	        MapTool.addLocalMessage("lookuptable.couldNotPerform" + pe.getMessage());
     	}
     }
 }

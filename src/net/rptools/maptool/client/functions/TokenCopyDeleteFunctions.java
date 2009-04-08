@@ -41,7 +41,7 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 	public Object childEvaluate(Parser parser, String functionName,
 			List<Object> parameters) throws ParserException {
 		if (!MapTool.getParser().isMacroTrusted()) {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+			throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
 		}
 		
 		MapToolVariableResolver res = (MapToolVariableResolver) parser.getVariableResolver();

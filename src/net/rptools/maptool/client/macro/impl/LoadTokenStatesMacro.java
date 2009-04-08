@@ -29,6 +29,7 @@ import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
+import net.rptools.maptool.language.I18N;
 
 /**
  * Load the token states from a file.
@@ -39,7 +40,7 @@ import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 @MacroDefinition(
     name = "loadtokenstates",
     aliases = { "tsl" },
-    description = "Load all of the token states from a file."
+    description = "loadtokenstates.desc"
 )
 public class LoadTokenStatesMacro implements Macro {
 
@@ -57,7 +58,7 @@ public class LoadTokenStatesMacro implements Macro {
       
       // Ask the user for the token states file
       JFileChooser chooser = MapTool.getFrame().getLoadFileChooser();
-      chooser.setDialogTitle("Load Token States");
+      chooser.setDialogTitle(I18N.getText("loadtokenstates.dialogTitle"));
       chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
       if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) return;
       aliasFile = chooser.getSelectedFile();
@@ -67,7 +68,7 @@ public class LoadTokenStatesMacro implements Macro {
     if (aliasFile.getName().indexOf(".") < 0)
       aliasFile = new File(aliasFile.getAbsolutePath() + "-tokenStates.xml");
     if (!aliasFile.exists()) {
-      MapTool.addLocalMessage("Could not find token states file: " + aliasFile);
+      MapTool.addLocalMessage(I18N.getText("loadtokenstates.cantFindFile", aliasFile));
       return;
     } // endif
     
@@ -79,9 +80,9 @@ public class LoadTokenStatesMacro implements Macro {
       for (BooleanTokenOverlay overlay : overlays) {
           MapTool.getCampaign().getTokenStatesMap().put(overlay.getName(), overlay);
       } // endfor
-      MapTool.addLocalMessage("There were " + overlays.size() + " token states loaded.");
+      MapTool.addLocalMessage(I18N.getText("loadtokenstates.loaded", overlays.size()));
     } catch (FileNotFoundException e) {
-      MapTool.addLocalMessage("Could not load the token states file: File not found");
+      MapTool.addLocalMessage(I18N.getText("loadtokenstates.cantFindFile", I18N.getText("msg.error.fileNotFound")));
     } // endtry
   }
 

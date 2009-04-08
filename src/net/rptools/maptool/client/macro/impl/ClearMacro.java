@@ -28,7 +28,7 @@ import net.rptools.maptool.client.macro.MacroDefinition;
 @MacroDefinition(
     name = "clear",
     aliases = { "clr","cls" },
-    description = "Clear the message panel."
+    description = "clear.desc"
 )
 public class ClearMacro implements Macro {
   

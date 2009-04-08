@@ -157,6 +157,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 			throw new ParserException(I18N.getText("macro.function.moveTokenMap.unknownMap", functionName, map));
 		}
 		
+		
 		Zone toZone;
 		Zone fromZone;
 		
@@ -168,6 +169,10 @@ public class TokenLocationFunctions extends AbstractFunction {
 			fromZone = zone;			
 		}
 
+
+		if (fromZone.equals(toZone)) {
+			throw new ParserException(I18N.getText("macro.function.moveTokenMap.alreadyThere", functionName));
+		}
 		
 		int x = 0;
 		int y = 0;

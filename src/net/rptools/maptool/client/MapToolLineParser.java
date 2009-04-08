@@ -43,6 +43,7 @@ import net.rptools.maptool.client.functions.MacroArgsFunctions;
 import net.rptools.maptool.client.functions.MacroDialogFunctions;
 import net.rptools.maptool.client.functions.MacroFunctions;
 import net.rptools.maptool.client.functions.MacroLinkFunction;
+import net.rptools.maptool.client.functions.MapFunctions;
 import net.rptools.maptool.client.functions.MiscInitiativeFunction;
 import net.rptools.maptool.client.functions.PlayerFunctions;
 import net.rptools.maptool.client.functions.RemoveAllFromInitiativeFunction;
@@ -112,6 +113,7 @@ public class MapToolLineParser {
 		MacroDialogFunctions.getInstance(),
 		MacroFunctions.getInstance(), 
 		MacroLinkFunction.getInstance(),
+		MapFunctions.getInstance(),
 		MiscInitiativeFunction.getInstance(),
 		PlayerFunctions.getInstance(),
 		RemoveAllFromInitiativeFunction.getInstance(),
@@ -755,7 +757,7 @@ public class MapToolLineParser {
 									}
 									loopSep = option.getStringParam(4);
 									if (loopStep != 0)
-										loopCount = Math.max(1,(int)Math.floor(Math.abs((loopEnd - loopStart)/loopStep + 0 )));
+										loopCount = Math.max(1,(int)Math.ceil(Math.abs((double)(loopEnd - loopStart)/(double)loopStep)));
 
 									if (loopVar.equalsIgnoreCase(""))
 										error = I18N.getText("forVarMissing");
@@ -1395,8 +1397,8 @@ public class MapToolLineParser {
 				// Note! Its important that trim is not used to replace the following two lines.
 				// If you use String.trim() you may inadvertnatly remove the special characters
 				// used to mark rolls.
-				macroOutput = macroOutput.replace("^\\s+", "");
-				macroOutput = macroOutput.replace("\\s+$", "");
+				macroOutput = macroOutput.replaceAll("^\\s+", "");
+				macroOutput = macroOutput.replaceAll("\\s+$", "");
 			}
 			return macroOutput;
 		} finally {

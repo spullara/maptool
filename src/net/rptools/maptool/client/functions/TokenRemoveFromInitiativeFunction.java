@@ -51,8 +51,8 @@ public class TokenRemoveFromInitiativeFunction extends AbstractFunction {
 	    Token token = AbstractTokenAccessorFunction.getTarget(parser, args, 1);
 	    if (!MapTool.getParser().isMacroTrusted()) {
 	    	if (!MapTool.getFrame().getInitiativePanel().hasOwnerPermission(token)) {
-	    		String message = I18N.getText("macro.function.removeFromInit.gmOnly");
-	    		if (MapTool.getFrame().getInitiativePanel().isOwnerPermissions()) message = I18N.getText("macro.function.removeFromInit.gmOrOwner");
+	    		String message = I18N.getText("macro.function.initiative.gmOnly", functionName);
+	    		if (MapTool.getFrame().getInitiativePanel().isOwnerPermissions()) message = I18N.getText("macro.function.initiative.gmOrOwner", functionName);
 	    		throw new ParserException(message);
 	    	} // endif
 	    }

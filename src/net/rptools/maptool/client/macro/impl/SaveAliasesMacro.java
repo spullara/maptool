@@ -32,11 +32,12 @@ import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
 import net.rptools.maptool.client.macro.MacroManager;
+import net.rptools.maptool.language.I18N;
 
 @MacroDefinition(
 	name = "savealiases",
 	aliases = { },
-	description = "Save all current aliases to a file.  See loadaliases to load them back in."
+	description = "savealiases.desc"
 )
 public class SaveAliasesMacro implements Macro {
 
@@ -48,7 +49,7 @@ public class SaveAliasesMacro implements Macro {
     	} else {
     	
 	    	JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
-			chooser.setDialogTitle("Save Aliases");
+			chooser.setDialogTitle("savealiases.dialogTitle");
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	
 			if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
@@ -61,14 +62,14 @@ public class SaveAliasesMacro implements Macro {
     	if (aliasFile.getName().indexOf(".") < 0) {
 			aliasFile = new File(aliasFile.getAbsolutePath()+".alias");
 		}
-		if (aliasFile.exists() && !MapTool.confirm("Overwrite existing file?")) {
+		if (aliasFile.exists() && !MapTool.confirm(I18N.getText("msg.confirm.fileExists"))) {
 			return;
 		}
 
 		try {
 			
 			StringBuilder builder = new StringBuilder();
-			builder.append("# MapTool Aliases - created ").append(new SimpleDateFormat().format(new Date())).append("\n\n");
+			builder.append("# ").append(I18N.getText("savealiases.created")).append(" ").append(new SimpleDateFormat().format(new Date())).append("\n\n");
 
 			Map<String, String> aliasMap = MacroManager.getAliasMap();
 			List<String> aliasList = new ArrayList<String>();
@@ -82,11 +83,11 @@ public class SaveAliasesMacro implements Macro {
 			
 			FileUtil.writeBytes(aliasFile, builder.toString().getBytes());
 
-			MapTool.addLocalMessage("Aliases saved.");
+			MapTool.addLocalMessage(I18N.getText("aliases.saved"));
 		} catch (FileNotFoundException fnfe) {
-			MapTool.addLocalMessage("Could not load alias file: File not found");
+			MapTool.addLocalMessage(I18N.getText("savealiases.couldNotSave", I18N.getText("msg.error.fileNotFound")));
 		} catch (IOException ioe) {
-			MapTool.addLocalMessage("Could not load alias file: " + ioe);
+			MapTool.addLocalMessage(I18N.getText("savealiases.couldNotSave", ioe));
 		}
     }
 }

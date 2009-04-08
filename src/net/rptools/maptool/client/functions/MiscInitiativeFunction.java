@@ -52,8 +52,8 @@ public class MiscInitiativeFunction extends AbstractFunction {
         if (functionName.equals("nextInitiative")) {
         	if (!MapTool.getParser().isMacroTrusted()) {
         		if (!ip.hasGMPermission() && (list.getCurrent() <= 0 || !ip.hasOwnerPermission(list.getTokenInitiative(list.getCurrent()).getToken()))) {
-        			String message = I18N.getText("macro.function.nextInitiative.gmOnly");
-        			if (ip.isOwnerPermissions()) message = I18N.getText("macro.function.nextIntiative.gmOrOwner");
+        			String message = I18N.getText("macro.function.initiative.gmOnly", functionName);
+        			if (ip.isOwnerPermissions()) message = I18N.getText("macro.function.initiative.gmOrOwner", functionName);
         			throw new ParserException(message);
         		} // endif
         	}

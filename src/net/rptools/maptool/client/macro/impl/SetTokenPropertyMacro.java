@@ -25,6 +25,7 @@ import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.macro.Macro;
 import net.rptools.maptool.client.macro.MacroContext;
 import net.rptools.maptool.client.macro.MacroDefinition;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -32,7 +33,7 @@ import net.rptools.parser.ParserException;
 
 @MacroDefinition(name = "settokenproperty", 
         aliases = { "stp" }, 
-        description = "Set the property of a token",
+        description = "settokenproperty.desc",
         expandRolls = false
 )
 
@@ -53,7 +54,6 @@ public class SetTokenPropertyMacro implements Macro {
 		
 	       		
 		if (args.length() == 0) {
-			MapTool.addLocalMessage("You must specify a token name and an expression, or select token(s) and supply an expression.");
 			return;
 		}
 
@@ -75,16 +75,16 @@ public class SetTokenPropertyMacro implements Macro {
 		
 		// Make sure there is at least something to do
 		if (commands.isEmpty()) {
-			MapTool.addLocalMessage("You must specify a token name and an expression, or select token(s) and supply an expression.");
+			MapTool.addLocalMessage(I18N.getText("settokenproperty.param"));
 			return;
 		}
 
 		
 		Set<Token> selectedTokenSet = getTokens(tokenName);
 
-		assert selectedTokenSet != null : "Unable to locate tokens to change";
+		assert selectedTokenSet != null : I18N.getText("settokenproperty.unknownTokens");
 		if (selectedTokenSet.isEmpty()) {
-			MapTool.addLocalMessage("Unable to determine which tokens to set the property of.");
+			MapTool.addLocalMessage(I18N.getText("settokenproperty.unknownTokens"));
 			return;
 		}
 	
@@ -95,13 +95,13 @@ public class SetTokenPropertyMacro implements Macro {
 				try {
 					MapTool.getParser().parseExpression(token, command);
 				} catch (ParserException e) {
-					MapTool.addLocalMessage("Error Evaluating Expression: " + e.getMessage());
+					MapTool.addLocalMessage(I18N.getText("msg.error.evaluatingExpr", e.getMessage()));
 					break;
 				} catch (RuntimeException re) {
 					if (re.getCause() instanceof ParserException) {
-						MapTool.addLocalMessage("Error Evaluating Expression: " + re.getCause().getMessage());						
+						MapTool.addLocalMessage(I18N.getText("msg.error.evaluatingExpr", re.getCause().getMessage()));						
 					} else {
-						MapTool.addLocalMessage("Error Evaluating Expression: " + re.getMessage());
+						MapTool.addLocalMessage(I18N.getText("msg.error.evaluatingExpr", re.getMessage()));
 					}
 					break;
 				}

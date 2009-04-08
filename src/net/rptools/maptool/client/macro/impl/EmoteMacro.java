@@ -22,7 +22,7 @@ import net.rptools.maptool.model.TextMessage;
 @MacroDefinition(
 	name = "emote",
 	aliases = { "me" },
-	description = "Broadcast an emote to all connected players."
+	description = "emote.desc"
 )
 public class EmoteMacro extends AbstractMacro {
 

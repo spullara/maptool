@@ -24,6 +24,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.functions.AbortFunction;
@@ -59,6 +61,7 @@ import net.rptools.maptool.client.macro.impl.ToGMMacro;
 import net.rptools.maptool.client.macro.impl.UndefinedMacro;
 import net.rptools.maptool.client.macro.impl.WhisperMacro;
 import net.rptools.maptool.client.macro.impl.WhisperReplyMacro;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.StringUtil;
@@ -71,6 +74,8 @@ import net.rptools.parser.ParserException;
  * Preferences - Java - Code Style - Code Templates
  */
 public class MacroManager {
+
+	private static final Logger LOGGER = Logger.getLogger(MacroManager.class);
 
 	private static final int MAX_RECURSE_COUNT = 10;
 
@@ -244,19 +249,17 @@ public class MacroManager {
 			return;
 		} catch (ParserException e) {
 			MapTool.addLocalMessage(e.getMessage());
-			System.err.println("Exception executing command: " + command);
-			e.printStackTrace();
+			// These are not errors to worry about as they are usually user input errors so no need to log them.
 			return;			
 		} catch (Exception e) {
-			MapTool.addLocalMessage("Could not execute the command: " + e.getMessage());
-			System.err.println("Exception executing command: " + command);
-			e.printStackTrace();
+			MapTool.addLocalMessage(I18N.getText("macromanager.couldNotExecute", command, e.getMessage()));
+			LOGGER.warn("Exception executing command: " + command);
+			LOGGER.warn(e.getStackTrace());
 			return;
 		}
 		
 		// We'll only get here if the recurseCount is exceeded
-		MapTool.addLocalMessage("'" + command
-				+ "': Too many resolves, perhaps an infinite loop?");
+		MapTool.addLocalMessage(I18N.getText("macromanager.tooManyResolves", command));
 		
 	}
 
@@ -306,7 +309,7 @@ public class MacroManager {
 					// Try an alias lookup
 					replacement = aliasMap.get(replIndexStr);
 					if (replacement == null) {
-						replacement = "(error: " + replIndexStr + " is not found)";
+						replacement = I18N.getText("macromanager.alias.indexNotFound", replIndexStr);
 					}
 				}
 			}
