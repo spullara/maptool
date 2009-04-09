@@ -109,6 +109,7 @@ import net.rptools.maptool.util.UPnPUtil;
 import net.rptools.maptool.util.PersistenceUtil.PersistedCampaign;
 import net.rptools.maptool.util.PersistenceUtil.PersistedMap;
 
+import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorker;
 
 import com.jidesoft.docking.DockableFrame;
@@ -136,6 +137,8 @@ import com.jidesoft.docking.DockableFrame;
  */
 public class AppActions {
 
+	private static final Logger log = Logger.getLogger(AppActions.class);
+	
 	private static Set<Token> tokenCopySet = null;
 	public static final int menuShortcut = getMenuShortcutKeyMask();
 
@@ -1960,9 +1963,12 @@ public class AppActions {
 						// Nothing to do
 					}
 				} catch (IOException ioe) {
-					ioe.printStackTrace();
+					log.error("Failure to save: " + ioe, ioe);
 					MapTool.showError("msg.error.failedSaveCampaign");
-				} 
+				} catch (Throwable t) {
+					log.error("Failure to save: " + t, t);
+					MapTool.showError("msg.error.failedSaveCampaign");
+				}
 				
 				return null;
 			}
