@@ -13,22 +13,18 @@
  */
 package net.rptools.maptool.client;
 
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
-import com.caucho.hessian.io.HessianOutput;
-
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.util.PersistenceUtil;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author tylere
@@ -36,6 +32,8 @@ import net.rptools.maptool.util.PersistenceUtil;
  * Attempts to recover campaigns when the application crashes.
  */
 public class AutoSaveManager implements ActionListener {
+	
+	private static final Logger log = Logger.getLogger(AutoSaveManager.class);
 	
 	private Timer autoSaveTimer;
 	public static final File AUTOSAVE_FILE = new File(AppUtil.getAppHome("autosave"), "AutoSave" + AppConstants.CAMPAIGN_FILE_EXTENSION);
@@ -104,7 +102,11 @@ public class AutoSaveManager implements ActionListener {
 					PersistenceUtil.saveCampaign(campaign, AUTOSAVE_FILE);
 					MapTool.getFrame().setStatusMessage("Autosave complete");
 				} catch (IOException ioe) {
+					log.error("Autosave Failed: " + ioe, ioe);
 					MapTool.showError("Autosave failed: " + ioe);
+				} catch (Throwable t) {
+					log.error("Autosave Failed: " + t, t);
+					MapTool.showError("Autosave failed: " + t);
 				}
 				
 				working = false;
