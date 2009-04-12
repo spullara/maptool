@@ -17,6 +17,7 @@ package net.rptools.maptool.model.drawing;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.geom.Area;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.MapTool;
@@ -79,6 +80,10 @@ public class AssetDrawable extends AbstractDrawing {
 	 */
 	public Rectangle getBounds() {
 		return bounds;
+	}
+	
+	public Area getArea() {
+		return null;
 	}
 
 }

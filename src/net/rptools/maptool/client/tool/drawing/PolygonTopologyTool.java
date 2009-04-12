@@ -13,14 +13,12 @@
  */
 package net.rptools.maptool.client.tool.drawing;
 
-import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Area;
-import java.awt.geom.GeneralPath;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -29,7 +27,6 @@ import javax.swing.ImageIcon;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.drawing.Drawable;
@@ -91,7 +88,7 @@ public class PolygonTopologyTool extends LineTool implements MouseMotionListener
     	Area area = null;
     	if (drawable instanceof LineSegment) {
 //    		area = new Area(getPolygon((LineSegment) drawable));
-    		area = ((LineSegment)drawable).createLineArea();
+    		area = ((LineSegment)drawable).getArea();
     	} else {
     		area = new Area(((ShapeDrawable)drawable).getShape());
     	}

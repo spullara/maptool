@@ -17,12 +17,12 @@ package net.rptools.maptool.model.drawing;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.Area;
 
 import javax.swing.CellRendererPane;
 
 import net.rptools.maptool.client.swing.TwoToneTextPane;
 import net.rptools.maptool.client.tool.drawing.DrawnTextTool;
-import net.rptools.maptool.model.GUID;
 
 /**
  * @author jgorrell
@@ -90,5 +90,10 @@ public class DrawnLabel extends AbstractDrawing {
 	 */
 	public Rectangle getBounds() {
 		return bounds;
+	}
+	
+	public Area getArea() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

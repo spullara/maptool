@@ -16,6 +16,7 @@ package net.rptools.maptool.model.drawing;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.Area;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -474,5 +475,10 @@ public class LineTemplate extends AbstractTemplate {
 		height += 20;
 
 		return new Rectangle((int) minp.x, (int) minp.y, width, height);
+	}
+	
+	public Area getArea() {
+		// I don't feel like figuring out the exact shape of this right now
+		return null;
 	}
 }

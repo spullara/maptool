@@ -59,7 +59,7 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
     }
 
     protected void startLine(MouseEvent e) {
-        line = new LineSegment();
+        line = new LineSegment(getPen().getThickness());
         addPoint(e);
     }
 
@@ -100,8 +100,6 @@ public abstract class AbstractLineTool extends AbstractDrawingTool implements Mo
         Drawable drawable = line;
         if (isBackgroundFill(e) && line.getPoints().size() > 3) { // TODO: There's a bug where the last point is duplicated, hence 3 points
         	drawable = new ShapeDrawable(getPolygon(line));
-        } else {
-        	drawable = new ShapeDrawable(line.createLineArea());
         }
 
         completeDrawable(renderer.getZone().getId(), getPen(), drawable);

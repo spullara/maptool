@@ -30,14 +30,15 @@ import java.util.Map;
 import java.util.Set;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
-import net.rptools.maptool.model.drawing.LineSegment;
-import net.rptools.maptool.model.drawing.ShapeDrawable;
 import net.rptools.maptool.util.StringUtil;
+
+import org.apache.log4j.Logger;
 
 /**
  * This object represents the maps that will appear for placement of {@link Token}s.  This
@@ -45,7 +46,9 @@ import net.rptools.maptool.util.StringUtil;
  * is exactly the definition of a Token.
  */
 public class Zone extends BaseModel {
-    
+
+	private static final Logger log = Logger.getLogger(Zone.class);
+	
 	public enum VisionType {
 		OFF,
 		DAY,
@@ -842,6 +845,88 @@ public class Zone extends BaseModel {
         fireModelChangeEvent(new ModelChangeEvent(this, Event.INITIATIVE_LIST_CHANGED));
     }
 
+    public void optimize() {
+    	log.debug("Optimizing Map " + getName());
+    	MapTool.getFrame().setStatusMessage("Optimizing map " + getName());
+    	collapseDrawables();
+    }
+    
+    /**
+     * Clear out any drawables that are hidden/erased.  This is an optimization step that should
+     * only happen when you can't undo your changes and reexpose a drawable, typically at load.
+     */
+    private void collapseDrawables() {
+
+    	collapseDrawableLayer(drawables);
+    	collapseDrawableLayer(gmDrawables);
+    	collapseDrawableLayer(objectDrawables);
+    	collapseDrawableLayer(backgroundDrawables);
+    }
+    
+    private void collapseDrawableLayer(List<DrawnElement> layer) {
+
+    	if (layer.size() == 0) {
+    		return;
+    	}
+    	
+    	Area area = new Area();
+    	List<DrawnElement> list = new ArrayList<DrawnElement>(layer);
+    	Collections.reverse(list);
+    	int count = 0;
+    	for (ListIterator<DrawnElement> drawnIter = list.listIterator(); drawnIter.hasNext();) {
+
+    		if (count++ > 25) {
+//    			System.out.println("");
+    			count = 0;
+    		}
+
+    		char statusChar = '.';
+    		DrawnElement drawn = drawnIter.next();
+    		try {
+	    		
+	    		// Are we covered ourselves ?
+	    		Area drawnArea = drawn.getDrawable().getArea();
+	    		if (drawnArea == null) {
+	    			statusChar = '?';
+	    			continue;
+	    		}
+	    		
+	//    		if (GraphicsUtil.contains(area, drawnArea)) {  // Too expensive
+	    		if (area.contains(drawnArea.getBounds())) { // Not as accurate, but faster
+	    			statusChar = '-';
+	    			drawnIter.remove();
+	    			continue;
+	    		}
+	
+	    		// Are we possibly covering something up?
+	    		if (drawn.getPen().isEraser()) {
+	    			statusChar = '/';
+	    			area.add(drawnArea);
+	    			continue;
+	    		}
+	    		
+	    		// Should we check if we're covering anyone under us?
+//	    		if (drawn.getPen().getOpacity() == 1 && drawn.getPen().getForegroundMode() == Pen.MODE_SOLID) {
+//	    			statusChar = '+';
+//	    			area.add(drawnArea);
+//	    			continue;
+//	    		}
+    		} finally {
+//        		System.out.print(statusChar);
+
+    			//    			System.out.println(statusChar + " " + drawn.getDrawable().getClass().getName());
+//        		System.out.flush();
+    			
+    		}
+    	}
+    	
+    	// Now use the new list
+//    	System.out.println("\nBefore: " + layer.size() + " After: " + list.size());
+    	layer.clear();
+    	layer.addAll(list);
+    	Collections.reverse(layer);
+    }
+    
     ////
     // Backward compatibility
 	protected Object readResolve() {
@@ -862,13 +947,6 @@ public class Zone extends BaseModel {
 				visionType = VisionType.OFF;
 			}
 		} 
-		
-		// Optimize old style drawables
-	    drawables = cleanupDrawables(drawables);
-	    gmDrawables = cleanupDrawables(gmDrawables);
-	    objectDrawables = cleanupDrawables(objectDrawables);
-	    backgroundDrawables = cleanupDrawables(backgroundDrawables);
-		
 		
 		// Look for the bizarre z-ordering disappearing trick
 		boolean foundZero = false;
@@ -892,15 +970,4 @@ public class Zone extends BaseModel {
 		return this;
 	}
 	
-	private static List<DrawnElement> cleanupDrawables(List<DrawnElement> list) {
-		List<DrawnElement> newList = new LinkedList<DrawnElement>();
-		for (DrawnElement element : list) {
-			if (element.getDrawable() instanceof LineSegment && ((LineSegment)element.getDrawable()).getPoints().size() > 0) {
-				newList.add(new DrawnElement(new ShapeDrawable(((LineSegment)element.getDrawable()).createLineArea()), element.getPen()));
-			} else {
-				newList.add(element);
-			}
-		}
-		return newList;
-	}
 }

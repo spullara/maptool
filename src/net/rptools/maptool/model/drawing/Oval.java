@@ -14,6 +14,8 @@
 package net.rptools.maptool.model.drawing;
 
 import java.awt.Graphics2D;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 
 /**
  * An oval.
@@ -49,5 +51,11 @@ public class Oval extends Rectangle {
         int height = Math.abs(startPoint.y - endPoint.y);
         
         g.fillOval(minX, minY, width-1, height-1);
+    }
+    
+    @Override
+    public Area getArea() {
+    	java.awt.Rectangle r = getBounds();
+    	return new Area(new Ellipse2D.Double(r.x, r.y, r.width, r.height));
     }
 }

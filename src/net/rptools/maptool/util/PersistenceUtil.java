@@ -308,6 +308,10 @@ public class PersistenceUtil {
 			Set<MD5Key> allAssetIds = persistedCampaign.assetMap.keySet();
 			loadAssets(allAssetIds, pakfile);
 
+			for (Zone zone : persistedCampaign.campaign.getZones()) {
+				zone.optimize();
+			}
+			
 			return persistedCampaign;
 		} catch (IOException ioe) {
 			log.error("Could not load campaign in the current format, trying old");

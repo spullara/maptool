@@ -16,6 +16,7 @@ package net.rptools.maptool.model.drawing;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.geom.Area;
 
 /**
  * An rectangle
@@ -31,6 +32,10 @@ public class Rectangle extends AbstractDrawing {
         endPoint = new Point(endX, endY);
     }
     
+    public Area getArea() {
+    	return new Area(getBounds());
+    }
+
     /* (non-Javadoc)
 	 * @see net.rptools.maptool.model.drawing.Drawable#getBounds()
 	 */

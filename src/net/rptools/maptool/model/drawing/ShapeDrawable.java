@@ -16,6 +16,7 @@ package net.rptools.maptool.model.drawing;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.geom.Area;
 
 /**
  * An rectangle
@@ -41,6 +42,10 @@ public class ShapeDrawable extends AbstractDrawing {
         return shape.getBounds();
 	}
     
+	public Area getArea() {
+		return new Area(shape);
+	}
+	
     protected void draw(Graphics2D g) {
 
     	Object oldAA = applyAA(g);
