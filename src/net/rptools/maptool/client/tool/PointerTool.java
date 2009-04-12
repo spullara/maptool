@@ -412,7 +412,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					}
 
 					EditTokenDialog tokenPropertiesDialog = MapTool.getFrame().getTokenPropertiesDialog();
-					tokenPropertiesDialog.showDialog(tokenUnderMouse);
+					tokenPropertiesDialog.showDialog(token);
 
 					if (tokenPropertiesDialog.isTokenSaved()) {
 						renderer.repaint();
