@@ -20,6 +20,7 @@ import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -829,7 +830,11 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			macro.executeMacro(true); // run on selected
+			Set<Token> guidSet = new HashSet<Token>();
+			for (GUID tokenID : selectedTokenSet) {
+				guidSet.add(getRenderer().getZone().getToken(tokenID));
+			}
+			macro.executeMacro(guidSet); 
 		}
 	}
 

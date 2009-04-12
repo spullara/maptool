@@ -243,7 +243,7 @@ public class MacroButtonPopupMenu extends JPopupMenu{
 		}
 
 		public void actionPerformed(ActionEvent event) {
-			button.getProperties().executeMacro(true);
+			button.getProperties().executeMacro(MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList());
 		}
 	}
 	

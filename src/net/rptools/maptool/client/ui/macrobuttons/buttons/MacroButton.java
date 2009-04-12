@@ -185,7 +185,13 @@ public class MacroButton extends JButton implements MouseListener
 
 	public void mouseReleased(MouseEvent event)	{
 		if (SwingUtilities.isLeftMouseButton(event)) {
-			properties.executeMacro(SwingUtil.isShiftDown(event));
+			// If any of the following 3 conditions are correct we want to run it against all selected tokens,
+			// Shift is held down while clicking the button, the button has apply to selected tokens set, or its a common macro button
+			if (SwingUtil.isShiftDown(event) || properties.getApplyToTokens() || properties.getCommonMacro()) {
+				properties.executeMacro(MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList());
+			} else {
+				properties.executeMacro();
+			}
 		} else if (SwingUtilities.isRightMouseButton(event)) {
 			if(getPanelClass().equals("GlobalPanel")) {
 				new MacroButtonPopupMenu(this, panelClass, false).show(this, event.getX(), event.getY());

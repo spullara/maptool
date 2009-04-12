@@ -58,7 +58,7 @@ public class RunTokenMacroMacro implements Macro {
 		  if (prop == null) {
 			  continue;
 		  }
-		  prop.executeMacro(true);
+		  prop.executeMacro();
 	  }
   }
 }

@@ -208,7 +208,14 @@ public class TokenLocationFunctions extends AbstractFunction {
 			if (token == null) {
 				sb.append(I18N.getText("macro.function.moveTokenMap.unknownToken", functionName, id)).append("<br>");
 			} else {
-				moveToken(token, x, y, false);
+				Grid grid = toZone.getGrid();
+				Dimension dim = grid.getCellOffset();
+
+				x = x * grid.getSize() + dim.width + grid.getOffsetX();
+				y = y * grid.getSize() - dim.height + grid.getOffsetY();
+						 
+				token.setX(x);
+				token.setY(y);
 				token.setZOrder(z);
 		 		toZone.putToken(token);
 		 		MapTool.serverCommand().putToken(toZone.getId(), token);
@@ -241,15 +248,23 @@ public class TokenLocationFunctions extends AbstractFunction {
 			BigDecimal val = (BigDecimal)args.get(0);
 			useDistancePerCell = val.equals(BigDecimal.ZERO) ? false : true;
 		}
-	
-		CellPoint cellPoint = getTokenCell(token);
-		int x = useDistancePerCell ? cellPoint.x * getDistancePerCell() : cellPoint.x;
-		int y = useDistancePerCell ? cellPoint.y * getDistancePerCell() : cellPoint.y;
-		
+
 		TokenLocation loc = new TokenLocation();
-		loc.x = x;
-		loc.y = y;
-		loc.z = token.getZOrder();
+	
+		if (useDistancePerCell) {
+			loc.x = token.getX();
+			loc.y = token.getY();
+			loc.z = token.getZOrder();
+			
+		} else {
+			CellPoint cellPoint = getTokenCell(token);
+			int x = cellPoint.x;
+			int y = cellPoint.y;
+		
+			loc.x = x;
+			loc.y = y;
+			loc.z = token.getZOrder();
+		}
 		return loc;
 	}	
 	
@@ -457,8 +472,11 @@ public class TokenLocationFunctions extends AbstractFunction {
 		Grid grid = MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid();
 		Dimension dim = grid.getCellOffset();
 
-		x = units ? x / getDistancePerCell() : x;
-		y = units ? y / getDistancePerCell() : y;
+		if (units) {
+			token.setX(x);
+			token.setY(y);
+			return;
+		}
 
 		x = x * grid.getSize() + dim.width + grid.getOffsetX();
 		y = y * grid.getSize() - dim.height + grid.getOffsetY();

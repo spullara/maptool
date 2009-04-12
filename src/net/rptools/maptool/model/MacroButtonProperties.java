@@ -14,6 +14,7 @@
 package net.rptools.maptool.model;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -241,69 +242,58 @@ public class MacroButtonProperties implements Comparable<Object> {
 	}
 
  	public void executeMacro() {
-		executeMacro(false);
+ 		executeCommand(tokenId);
 	}
-		 
-	public void executeMacro(Boolean runOnSelected) {
-		List<Token> selectedTokens = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList();
-		if(button != null) {
-			if(button.getPanelClass().equals("ImpersonatePanel")){
-				if(runOnSelected || applyToTokens) {
-					for(Token nextToken : selectedTokens) {
-						executeCommand(nextToken.getId());
-					}
-				} else {
-					executeCommand(null);
-				}
-			} else if(button.getPanelClass().equals("SelectionPanel")) {
-				if(MapTool.getFrame().getSelectionPanel().getCommonMacros().contains(this)) {
-					if(runOnSelected || applyToTokens) {
-						if(compareCommand) {
-							for(Token nextToken : selectedTokens) {
-								executeCommand(nextToken.getId());
-							}
-						} else {
-							MapTool.showError("Commonality of this macro is not based on the command field.  The macro cannot be applied to the entire selection set.");
-						}
-					} else {
-						for(Token nextToken : selectedTokens) {
-							for(MacroButtonProperties nextMacro : nextToken.getMacroList(true)) {
-								if(nextMacro.hashCodeForComparison() == hashCodeForComparison()) {
-									nextMacro.executeMacro(nextToken.getId());
-								}
-							}
-						}
-					}
-				} else {
-					if(runOnSelected || applyToTokens) {
-						for(Token nextToken : selectedTokens) {
-							executeCommand(nextToken.getId());
-						}
-					} else {
-						executeCommand(tokenId);
-					}
-				}
-			} else if(button.getPanelClass().equals("CampaignPanel")) {
-				if(runOnSelected || applyToTokens) {
-					for(Token nextToken : selectedTokens) {
-						executeCommand(nextToken.getId());
-					}
-				} else {
-					executeCommand(null);
-				}
-			} else if(button.getPanelClass().equals("GlobalPanel")) {
-				if(runOnSelected || applyToTokens) {
-					for(Token nextToken : selectedTokens) {
-						executeCommand(nextToken.getId());
-					}
-				} else {
-					executeCommand(null);
-				}
-			} else {
-				executeCommand(null);
+ 	
+ 	
+ 	
+ 	
+ 	public void executeMacro(Collection<Token> tokenList) {
+
+ 		if (tokenList == null || tokenList.size() == 0) {
+ 			executeCommand(null);
+ 		} else if (commonMacro) { 
+ 			executeCommonMacro(tokenList);
+ 		} else {	
+ 			if (tokenList.size() > 0) {
+ 				for (Token token : tokenList) {
+ 					executeCommand(token.getId());
+ 				}
+ 			}
+ 		}
+ 	}
+ 				
+ 	
+ 	private void executeCommonMacro(Collection<Token> tokenList) {
+		/*
+		 * This is actually one of the "common macro" buttons that are on the selection panel
+		 * so we need to handle this case a little differently. If apply to all tokens is 
+		 * checked by the user then we need to check that the command is part of the the common
+		 * values otherwise it would cause unexpected things to occur. 
+		 */ 
+ 		if (applyToTokens) {
+ 			if (!compareCommand) {
+				MapTool.showError("msg.error.cantApplyMacroToSelected");
+				return;					
+ 			}
+ 		}
+ 	
+ 		if (compareCommand) {
+			for (Token token : tokenList) {
+				executeCommand(token.getId());
 			}
-		}
-	}
+ 		} else {
+ 			// We need to find the "matching" button for each token and ensure to run that one.
+			for(Token nextToken : tokenList) {
+				for(MacroButtonProperties nextMacro : nextToken.getMacroList(true)) {
+					if(nextMacro.hashCodeForComparison() == hashCodeForComparison()) {
+						nextMacro.executeCommand(nextToken.getId());
+					}
+				}
+			}
+ 		}
+ 	}
+ 	
 	
 	public void executeMacro(GUID tokenId) {
 		executeCommand(tokenId);
