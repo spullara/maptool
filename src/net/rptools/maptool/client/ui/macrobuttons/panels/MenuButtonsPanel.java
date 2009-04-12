@@ -27,6 +27,7 @@ import java.awt.event.MouseEvent;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 
 public class MenuButtonsPanel extends JPanel {
 
@@ -56,7 +57,7 @@ public class MenuButtonsPanel extends JPanel {
 				renderer.selectTokens(new Rectangle(renderer.getX(), renderer.getY(), renderer.getWidth(), renderer.getHeight()));
 			}
 		});
-		label.setToolTipText("Select all tokens on the map");
+		label.setToolTipText(I18N.getText("panel.Selected.tooltip.selectAll"));
 		label.setBackground(null);
 		add(label);
 	}
@@ -74,7 +75,7 @@ public class MenuButtonsPanel extends JPanel {
 				renderer.clearSelectedTokens();
 			}
 		});
-		label3.setToolTipText("Deselect all tokens");
+		label3.setToolTipText(I18N.getText("panel.Selected.tooltip.deslectAll"));
 		label3.setBackground(null);
 		add(label3);
 	}
@@ -91,7 +92,7 @@ public class MenuButtonsPanel extends JPanel {
 				MapTool.getFrame().getCurrentZoneRenderer().undoSelectToken();
 			}
 		});
-		label1.setToolTipText("Revert to previous selection");
+		label1.setToolTipText(I18N.getText("panel.Selected.tooltip.revertToPrevious"));
 		label1.setBackground(null);
 		add(label1);
 	}
@@ -121,7 +122,7 @@ public class MenuButtonsPanel extends JPanel {
 				MapTool.getFrame().getCurrentZoneRenderer().cycleSelectedToken(1);
 			}
 		});
-		label1.setToolTipText("Select next token.");
+		label1.setToolTipText(I18N.getText("panel.Selected.tooltip.next"));
 		label1.setBackground(null);
 		add(label1);
 	}
@@ -138,7 +139,7 @@ public class MenuButtonsPanel extends JPanel {
 				MapTool.getFrame().getCurrentZoneRenderer().cycleSelectedToken(-1);
 			}
 		});
-		label1.setToolTipText("Select previous token.");
+		label1.setToolTipText(I18N.getText("panel.Selected.tooltip.previous"));
 		label1.setBackground(null);
 		add(label1);
 	}

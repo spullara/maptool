@@ -24,6 +24,7 @@ import java.util.List;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 
@@ -49,7 +50,7 @@ public class ImpersonatePanel extends AbstractMacroPanel {
 			// add the "Impersonate Selected" button
 			final Token t = selectedTokenList.get(0);
 			
-			JButton button = new JButton("Impersonate Selected", t.getIcon(16, 16)) {
+			JButton button = new JButton(I18N.getText("panel.Impersonate.button.impersonateSelected"), t.getIcon(16, 16)) {
 				public Insets getInsets() {
 					return new Insets(2, 2, 2, 2);
 				}

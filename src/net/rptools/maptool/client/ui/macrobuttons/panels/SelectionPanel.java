@@ -25,6 +25,7 @@ import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroup;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.MacroButtonProperties;
 
@@ -57,7 +58,7 @@ public class SelectionPanel extends AbstractMacroPanel {
 		// draw common group only when there is more than one token selected
 		if (selectedTokenList.size() > 1) {
 			populateCommonButtons(selectedTokenList);
-			addArea(commonMacros, "Common Macros");
+			addArea(commonMacros, I18N.getText("component.areaGroup.macro.commonMacros"));
 			//add(new ButtonGroup(selectedTokenList, commonMacros, this));
 		}
 		for (Token token : selectedTokenList) {

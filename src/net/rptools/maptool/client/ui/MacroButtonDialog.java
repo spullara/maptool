@@ -23,6 +23,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.lib.swing.preference.WindowPreferences;
@@ -31,10 +32,12 @@ import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
 
 import com.jeta.forms.components.panel.FormPanel;
+import com.jeta.forms.gui.form.GridView;
 
 public class MacroButtonDialog extends JDialog {
 
@@ -121,6 +124,7 @@ public class MacroButtonDialog extends JDialog {
 	}
 	
 	public void show(MacroButton button) {
+		initI18NSupport();
 		this.button = button;
 		this.isTokenMacro = button.getToken() == null ? false : true;
 		this.properties = button.getProperties();
@@ -131,7 +135,7 @@ public class MacroButtonDialog extends JDialog {
 			Boolean allowEdits = onGlobalPanel || MapTool.getPlayer().isGM() || playerCanEdit;
 			Boolean isCommonMacro = button.getPanelClass().equals("SelectionPanel") && MapTool.getFrame().getSelectionPanel().getCommonMacros().contains(properties);
 			if(allowEdits) {
-				this.setTitle("Macro ID: " + Integer.toString(this.properties.hashCodeForComparison()));
+				this.setTitle(I18N.getText("component.dialogTitle.macro.macroID") + ": " + Integer.toString(this.properties.hashCodeForComparison()));
 				
 				getColorComboBox().setSelectedItem(properties.getColorKey());
 				getHotKeyCombo().setSelectedItem(properties.getHotKey());
@@ -180,10 +184,10 @@ public class MacroButtonDialog extends JDialog {
 				
 				setVisible(true);
 			} else {
-				MapTool.showWarning("The GM has not allowed players to change this macro!");
+				MapTool.showWarning(I18N.getText("msg.warning.macro.playerChangesNotAllowed"));
 			}
 		} else {
-			MapTool.showError("Button properties are null.");
+			MapTool.showError(I18N.getText("msg.error.macro.buttonPropsAreNull"));
 		}
 	}
 	
@@ -228,10 +232,7 @@ public class MacroButtonDialog extends JDialog {
 				Boolean endingAllowPlayerEdits = false;
 				if(startingAllowPlayerEdits) {
 					if(!properties.getAllowPlayerEdits()) {
-						Boolean confirmDisallowPlayerEdits = MapTool.confirm("<html><body>Are you " +
-								"sure you wish to prevent players from editing any macro common to " +
-								"this one?<br><br>Select \"Yes\" to continue with the change.  " +
-								"Select \"No\" to revert.</body></html>");
+						Boolean confirmDisallowPlayerEdits = MapTool.confirm(I18N.getText("confirm.macro.disallowPlayerEdits"));
 						if(confirmDisallowPlayerEdits) {
 							changeAllowPlayerEdits = true;
 							endingAllowPlayerEdits = false;
@@ -241,10 +242,7 @@ public class MacroButtonDialog extends JDialog {
 					}
 				} else {
 					if(properties.getAllowPlayerEdits()) {
-						Boolean confirmAllowPlayerEdits = MapTool.confirm("<html><body>Are you sure " +
-								"you wish to allow players from editing any macro common to this one?" +
-								"<br><br>Select \"Yes\" to continue with the change.  Select \"No\" " +
-								"to revert.</body></html>");
+						Boolean confirmAllowPlayerEdits = MapTool.confirm(I18N.getText("confirm.macro.allowPlayerEdits"));
 						if(confirmAllowPlayerEdits) {
 							changeAllowPlayerEdits = true;
 							endingAllowPlayerEdits = true;
@@ -396,4 +394,51 @@ public class MacroButtonDialog extends JDialog {
 	}
 	
 	// End comparison customization
+	
+	private void initI18NSupport() {
+		panel.getTabbedPane("macroTabs").setTitleAt(0, I18N.getText("component.tab.macro.details"));
+		panel.getTabbedPane("macroTabs").setTitleAt(1, I18N.getText("component.tab.macro.options"));
+		panel.getLabel("macroLabelLabel").setText(I18N.getText("component.label.macro.label") + ":");
+		getLabelTextField().setToolTipText(I18N.getText("component.tooltip.macro.label"));
+		panel.getLabel("macroGroupLabel").setText(I18N.getText("component.label.macro.group") + ":");
+		getGroupTextField().setToolTipText(I18N.getText("component.tooltip.macro.group"));
+		panel.getLabel("macroSortPrefixLabel").setText(I18N.getText("component.label.macro.sortPrefix") + ":");
+		getSortbyTextField().setToolTipText(I18N.getText("component.tooltip.macro.sortPrefix"));
+		panel.getLabel("macroHotKeyLabel").setText(I18N.getText("component.label.macro.hotKey") + ":");
+		getHotKeyCombo().setToolTipText(I18N.getText("component.tooltip.macro.hotKey"));
+		panel.getLabel("macroCommandLabel").setText(I18N.getText("component.label.macro.command"));
+		panel.getLabel("macroButtonColorLabel").setText(I18N.getText("component.label.macro.buttonColor") + ":");
+		getColorComboBox().setToolTipText(I18N.getText("component.tooltip.macro.buttonColor"));
+		panel.getLabel("macroFontColorLabel").setText(I18N.getText("component.label.macro.fontColor") + ":");
+		getFontColorComboBox().setToolTipText(I18N.getText("component.tooltip.macro.fontColor"));
+		panel.getLabel("macroFontSizeLabel").setText(I18N.getText("component.label.macro.fontSize") + ":");
+		getFontSizeComboBox().setToolTipText(I18N.getText("component.tooltip.macro.fontSize"));
+		panel.getLabel("macroMinWidthLabel").setText(I18N.getText("component.label.macro.minWidth") + ":");
+		getMinWidthTextField().setToolTipText(I18N.getText("component.tooltip.macro.minWidth"));
+		panel.getLabel("macroMaxWidthLabel").setText(I18N.getText("component.label.macro.maxWidth") + ":");
+		getMaxWidthTextField().setToolTipText(I18N.getText("component.tooltip.macro.maxWidth"));
+		panel.getLabel("macroToolTipLabel").setText(I18N.getText("component.label.macro.toolTip") + ":");
+		getToolTipTextField().setToolTipText(I18N.getText("component.tooltip.macro.tooltip"));
+		getIncludeLabelCheckBox().setText(I18N.getText("component.label.macro.includeLabel"));
+		getIncludeLabelCheckBox().setToolTipText(I18N.getText("component.tooltip.macro.includeLabel"));
+		getAutoExecuteCheckBox().setText(I18N.getText("component.label.macro.autoExecute"));
+		getAutoExecuteCheckBox().setToolTipText(I18N.getText("component.tooltip.macro.autoExecute"));
+		getApplyToTokensCheckBox().setText(I18N.getText("component.label.macro.applyToSelected"));
+		getApplyToTokensCheckBox().setToolTipText(I18N.getText("component.tooltip.macro.applyToSelected"));
+		getAllowPlayerEditsCheckBox().setText(I18N.getText("component.label.macro.allowPlayerEdits"));
+		getAllowPlayerEditsCheckBox().setToolTipText(I18N.getText("component.tooltip.macro.allowPlayerEdits"));
+		((TitledBorder) ((GridView) panel.getComponentByName("macroComparisonGridView")).getBorder()).setTitle(I18N.getText("component.label.macro.macroCommonality"));
+		getCompareIncludeLabelCheckBox().setText(I18N.getText("component.label.macro.compareUseIncludeLabel"));
+		getCompareIncludeLabelCheckBox().setToolTipText(I18N.getText("component.tooltip.macro.compareUseIncludeLabel"));
+		getCompareAutoExecuteCheckBox().setText(I18N.getText("component.label.macro.compareUseAutoExecute"));
+		getCompareAutoExecuteCheckBox().setToolTipText(I18N.getText("component.tooltip.macro.compareUseAutoExecute"));
+		getCompareApplyToSelectedTokensCheckBox().setText(I18N.getText("component.label.macro.compareApplyToSelected"));
+		getCompareApplyToSelectedTokensCheckBox().setToolTipText(I18N.getText("component.tooltip.macro.compareUseApplyToSelected"));
+		getCompareGroupCheckBox().setText(I18N.getText("component.label.macro.compareUseGroup"));
+		getCompareGroupCheckBox().setToolTipText(I18N.getText("component.tooltip.macro.compareUseGroup"));
+		getCompareSortPrefixCheckBox().setText(I18N.getText("component.label.macro.compareUseSortPrefix"));
+		getCompareSortPrefixCheckBox().setToolTipText(I18N.getText("component.tooltip.macro.compareUseSortPrefix"));
+		getCompareCommandCheckBox().setText(I18N.getText("component.label.macro.compareUseCommand"));
+		getCompareCommandCheckBox().setToolTipText(I18N.getText("component.tooltip.macro.compareUseCommand"));
+	}
 }

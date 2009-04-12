@@ -32,6 +32,7 @@ import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.TransferData;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.TransferableMacroButton;
 import net.rptools.maptool.client.ui.macrobuttons.panels.AbstractMacroPanel;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButtonPrefs;
@@ -64,7 +65,7 @@ public class ButtonGroup extends AbstractButtonGroup {
 			setBorder(new ThumbnailedBorder(null, getGroupLabel()));
 		}
 		if (propertiesList.isEmpty()){
-			add(new JLabel("No Macros"));			
+			add(new JLabel(I18N.getText("component.areaGroup.macro.noMacros")));			
 		} else {
 			Collections.sort(propertiesList);
 			for (MacroButtonProperties prop : propertiesList) {
@@ -123,7 +124,7 @@ public class ButtonGroup extends AbstractButtonGroup {
 				}
 			} else if(panelClass.equals("SelectionPanel")) {
 				if(getArea() != null) {
-					if(getArea().getGroupLabel().equals("Common Macros")) {
+					if(getArea().getGroupLabel().equals(I18N.getText("component.areaGroup.macro.commonMacros"))) {
 						event.acceptDrop(event.getDropAction());
 						tempProperties.setGroup(getMacroGroup());  // assign the group you are dropping it into, rather than the original
 						for(Token nextToken : MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList()) {
@@ -151,7 +152,7 @@ public class ButtonGroup extends AbstractButtonGroup {
 				}
 			} else {
 				// if this happens, it's a bug
-				throw new Exception("Drag & Drop problem");
+				throw new Exception(I18N.getText("msg.error.macro.buttonGroupDnDFail"));
 			}
 			//System.out.println("drop accepted");
 			event.dropComplete(true);

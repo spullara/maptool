@@ -31,6 +31,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButtonPrefs;
 import net.rptools.maptool.client.ui.macrobuttons.panels.CampaignPanel;
 import net.rptools.maptool.client.ui.macrobuttons.panels.GlobalPanel;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
@@ -55,7 +56,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 		}
 		if(panelClass.equals("SelectionPanel")) {
 			if(areaGroup != null) {
-				if(areaGroup.getGroupLabel().equals("Common Macros")) {
+				if(areaGroup.getGroupLabel().equals(I18N.getText("component.areaGroup.macro.commonMacros"))) {
 					addCommonActions();
 				} else {
 					addActions();
@@ -84,12 +85,12 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 	}
 
 	private void addCommonActions() {
-		add(new AddMacroAction("Add New Macro to Selected"));
+		add(new AddMacroAction(I18N.getText("action.macro.addNewToSelected")));
 		add(new JSeparator());
-		add(new ImportMacroAction("Import Macro to Selected"));
+		add(new ImportMacroAction(I18N.getText("action.macro.importToSelected")));
 		add(new JSeparator());
-		add(new ImportMacroSetAction("Import Macro Set to Selected"));
-		add(new ExportMacroSetAction("Export Common Macro Set"));
+		add(new ImportMacroSetAction(I18N.getText("action.macro.importSetToSelected")));
+		add(new ExportMacroSetAction(I18N.getText("action.macro.exportCommonSet")));
 	}
 	
 	private void addCampaignActions() {
@@ -109,7 +110,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 
 	private class AddMacroAction extends AbstractAction {
 		public AddMacroAction() {
-			putValue(Action.NAME, "Add New Macro");
+			putValue(Action.NAME, I18N.getText("action.macro.new"));
 		}
 
 		public AddMacroAction(String name) {
@@ -123,7 +124,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 				new MacroButtonProperties(panelClass, MapTool.getCampaign().getMacroButtonNextIndex(), macroGroup);
 			} else if(panelClass.equals("SelectionPanel")) {
 				if(areaGroup != null) {
-					if(areaGroup.getGroupLabel().equals("Common Macros")) {
+					if(areaGroup.getGroupLabel().equals(I18N.getText("component.areaGroup.macro.commonMacros"))) {
 						for(Token nextToken : MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList()) {
 							new MacroButtonProperties(nextToken, nextToken.getMacroNextIndex(), macroGroup);
 						}
@@ -141,7 +142,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 	
 	private class ImportMacroAction extends AbstractAction {
 			public ImportMacroAction() {
-				putValue(Action.NAME, "Import Macro");
+				putValue(Action.NAME, I18N.getText("action.macro.import"));
 			}
 			
 			public ImportMacroAction(String name) {
@@ -169,7 +170,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 									}
 								}
 								if(alreadyExists) {
-									alreadyExists = confirmImport(newButtonProps, "within the Global panel");
+									alreadyExists = confirmImport(newButtonProps, I18N.getText("confirm.macro.panelLocation", I18N.getText("panel.Global")));
 								}
 								if(!alreadyExists) {
 								new MacroButtonProperties(panelClass, MacroButtonPrefs.getNextIndex(), newButtonProps);
@@ -181,14 +182,14 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 									}
 								}
 								if(alreadyExists) {
-									alreadyExists = confirmImport(newButtonProps, "within the Campaign panel");
+									alreadyExists = confirmImport(newButtonProps, I18N.getText("confirm.macro.panelLocation", I18N.getText("panel.Campaign")));
 								}
 								if(!alreadyExists) {
 								new MacroButtonProperties(panelClass, MapTool.getCampaign().getMacroButtonNextIndex(), newButtonProps);
 								}
 							} else if(panelClass.equals("SelectionPanel")) {
 								if(areaGroup != null) {
-									if(areaGroup.getGroupLabel().equals("Common Macros")) {
+									if(areaGroup.getGroupLabel().equals(I18N.getText("component.areaGroup.macro.commonMacros"))) {
 										for(Token nextToken : MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList()) {
 											alreadyExists = false;
 											for(MacroButtonProperties nextMacro : nextToken.getMacroList(true)) {
@@ -197,7 +198,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 												}
 											}
 											if(alreadyExists) {
-												alreadyExists = confirmImport(newButtonProps, "within the common selection macros");
+												alreadyExists = confirmImport(newButtonProps, I18N.getText("confirm.macro.commonSelectionLocation"));
 											}
 											if(!alreadyExists) {
 												new MacroButtonProperties(nextToken, nextToken.getMacroNextIndex(), newButtonProps);
@@ -219,7 +220,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 													}
 												}
 											}
-											alreadyExists = confirmImport(newButtonProps, "on " + tokenName);
+											alreadyExists = confirmImport(newButtonProps, I18N.getText("confirm.macro.tokenLocation", tokenName));
 										}
 										if(!alreadyExists) {
 								new MacroButtonProperties(token, token.getMacroNextIndex(), newButtonProps);
@@ -242,7 +243,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 											}
 										}
 									}
-									alreadyExists = confirmImport(newButtonProps, "on " + tokenName);
+									alreadyExists = confirmImport(newButtonProps, I18N.getText("confirm.macro.tokenLocation", tokenName));
 								}
 								if(!alreadyExists) {
 									new MacroButtonProperties(token, token.getMacroNextIndex(), newButtonProps);
@@ -250,7 +251,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 							}
 						} catch (IOException ioe) {
 							ioe.printStackTrace();
-							MapTool.showError("Could not load macro: " + ioe);
+							MapTool.showError(I18N.getText("msg.error.macro.exportSetFail", ioe));
 						}
 					}
 				});
@@ -259,7 +260,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 	
 	private class ImportMacroSetAction extends AbstractAction {
 		public ImportMacroSetAction() {
-			putValue(Action.NAME, "Import Macro Set");
+			putValue(Action.NAME, I18N.getText("action.macro.importSet"));
 		}
 		
 		public ImportMacroSetAction(String name) {
@@ -289,7 +290,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 									}
 								}
 								if(alreadyExists) {
-									alreadyExists = confirmImport(nextProps, "within the Global panel");
+									alreadyExists = confirmImport(nextProps, I18N.getText("confirm.macro.panelLocation", I18N.getText("panel.Global")));
 								}
 								if(!alreadyExists) {
 								new MacroButtonProperties(panelClass, MacroButtonPrefs.getNextIndex(), nextProps);
@@ -301,14 +302,14 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 									}
 								}
 								if(alreadyExists) {
-									alreadyExists = confirmImport(nextProps, "within the Campaign panel");
+									alreadyExists = confirmImport(nextProps, I18N.getText("confirm.macro.panelLocation", I18N.getText("panel.Campaign")));
 								}
 								if(!alreadyExists) {
 								new MacroButtonProperties(panelClass, MapTool.getCampaign().getMacroButtonNextIndex(), nextProps);
 								}
 							} else if(panelClass.equals("SelectionPanel")) {
 								if(areaGroup != null) {
-									if(areaGroup.getGroupLabel().equals("Common Macros")) {
+									if(areaGroup.getGroupLabel().equals(I18N.getText("component.areaGroup.macro.commonMacros"))) {
 										for(Token nextToken : MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList()) {
 											alreadyExists = false;
 											for(MacroButtonProperties nextMacro : nextToken.getMacroList(true)) {
@@ -317,7 +318,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 												}
 											}
 											if(alreadyExists) {
-												alreadyExists = confirmImport(nextProps, "within the common selection macros");
+												alreadyExists = confirmImport(nextProps, I18N.getText("confirm.macro.commonSelectionLocation"));
 											}
 											if(!alreadyExists) {
 												new MacroButtonProperties(nextToken, nextToken.getMacroNextIndex(), nextProps);
@@ -339,7 +340,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 													}
 												}
 											}
-											alreadyExists = confirmImport(nextProps, "on " + tokenName);
+											alreadyExists = confirmImport(nextProps, I18N.getText("confirm.macro.tokenLocation", tokenName));
 										}
 										if(!alreadyExists) {
 											new MacroButtonProperties(token, token.getMacroNextIndex(), nextProps);
@@ -362,7 +363,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 											}
 										}
 									}
-									alreadyExists = confirmImport(nextProps, "on " + tokenName);
+									alreadyExists = confirmImport(nextProps, I18N.getText("confirm.macro.tokenLocation", tokenName));
 								}
 								if(!alreadyExists) {
 								new MacroButtonProperties(token, token.getMacroNextIndex(), nextProps);
@@ -371,7 +372,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 						}
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
-						MapTool.showError("Could not load macro set: " + ioe);
+						MapTool.showError(I18N.getText("msg.error.macro.importSetFail", ioe));
 					}
 				}
 			});
@@ -380,7 +381,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 	
 	private class ExportMacroSetAction extends AbstractAction {
 		public ExportMacroSetAction() {
-			putValue(Action.NAME, "Export Macro Set");
+			putValue(Action.NAME, I18N.getText("action.macro.exportSet"));
 		}
 		
 		public ExportMacroSetAction(String name) {
@@ -399,10 +400,10 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 			
 			if (selectedFile.exists()) {
 			    if (selectedFile.getName().endsWith(".mtmacset")) {
-			        if (!MapTool.confirm("Export into macro set file?")) {
+			        if (!MapTool.confirm(I18N.getText("confirm.macro.exportSetInto"))) {
 			            return;
 			        }
-			    } else if (!MapTool.confirm("Overwrite existing file?")) {
+			    } else if (!MapTool.confirm(I18N.getText("confirm.macro.exportSetOverwrite"))) {
 					return;
 				}
 			}
@@ -416,15 +417,8 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 							PersistenceUtil.saveMacroSet(MapTool.getCampaign().getMacroButtonPropertiesArray(), selectedFile);
 						} else if(panelClass.equals("SelectionPanel")) {
 							if(areaGroup != null) {
-								if(areaGroup.getGroupLabel().equals("Common Macros")) {
-									Boolean checkComparisons = MapTool.confirm("<html><body>Do you want to " +
-											"check comparison criteria for each common macro before adding it " +
-											"to the export list?<br><br>If you select \"No\", MapTool will not " +
-											"prompt you if any of a particular macro's commonality criteria " +
-											"are deselected.  A macro with deselected macro criteria may be " +
-											"exported with missing information.  For example, if a macro with " +
-											"\"Command\" comparison deselected is added to the export list, " +
-											"that macro will be exported without a command.</body></html>");
+								if(areaGroup.getGroupLabel().equals(I18N.getText("component.areaGroup.macro.commonMacros"))) {
+									Boolean checkComparisons = MapTool.confirm("confirm.macro.checkComparisons");
 									List<MacroButtonProperties> commonMacros = MapTool.getFrame().getSelectionPanel().getCommonMacros();
 									List<MacroButtonProperties> exportList = new ArrayList<MacroButtonProperties>();
 									Boolean trusted = true;
@@ -452,9 +446,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 												if(trusted && allowExport) {
 													exportList.add(nextMacro);
 												} else {
-													MapTool.showWarning("The macro \"" + nextMacro.getLabel() + "\" will not be exported.  " +
-															"Either it has been flagged by the GM as not player editable or you do " +
-															"not have ownership privileges over the source.");
+													MapTool.showWarning(I18N.getText("msg.warning.macro.willNotExport", nextMacro.getLabel()));
 												}
 											} else {
 												return;
@@ -463,9 +455,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 											if(trusted && allowExport) {
 												exportList.add(nextMacro);
 											} else {
-												MapTool.showWarning("The macro \"" + nextMacro.getLabel() + "\" will not be exported.  " +
-														"Either it has been flagged by the GM as not player editable or you do " +
-														"not have ownership privileges over the source.");
+												MapTool.showWarning(I18N.getText("msg.warning.macro.willNotExport", nextMacro.getLabel()));
 											}
 										}
 									}
@@ -478,9 +468,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 										if(MapTool.getPlayer().isGM() || (!MapTool.getPlayer().isGM() && nextMacro.getAllowPlayerEdits())) {
 											exportList.add(nextMacro);
 										} else {
-											MapTool.showWarning("The macro \"" + nextMacro.getLabel() + "\" will not be exported.  " +
-													"Either it has been flagged by the GM as not player editable or you do " +
-													"not have ownership privileges over the source.");
+											MapTool.showWarning(I18N.getText("msg.warning.macro.willNotExport", nextMacro.getLabel()));
 										}
 									}
 									PersistenceUtil.saveMacroSet(exportList, selectedFile);
@@ -492,7 +480,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 						}						
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
-						MapTool.showError("Could not save macro set: " + ioe);
+						MapTool.showError(I18N.getText("msg.error.macro.exportSetFail", ioe));
 					}
 				}
 			});
@@ -501,33 +489,42 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 	
 	private class ClearGroupAction extends AbstractAction {
 		public ClearGroupAction() {
-			putValue(Action.NAME, "Clear Group");
+			putValue(Action.NAME, I18N.getText("action.macro.clearGroup"));
 		}
 		
-		public void actionPerformed(ActionEvent event) {			
-			if (panelClass.equals("GlobalPanel")) {
-				GlobalPanel.deleteButtonGroup(macroGroup);
-			} else if (panelClass.equals("CampaignPanel")) {
-				CampaignPanel.deleteButtonGroup(macroGroup);
-			} else if (tokenId != null){
-				MapTool.showInformation("Macro group to be cleared: " + macroGroup);
-				MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId).deleteMacroGroup(macroGroup, true);				
+		public void actionPerformed(ActionEvent event) {
+			if(MapTool.confirm(I18N.getText("confirm.macro.clearGroup", macroGroup))) {
+				if (panelClass.equals("GlobalPanel")) {
+					GlobalPanel.deleteButtonGroup(macroGroup);
+				} else if (panelClass.equals("CampaignPanel")) {
+					CampaignPanel.deleteButtonGroup(macroGroup);
+				} else if (tokenId != null){
+					MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId).deleteMacroGroup(macroGroup, true);				
+				}
 			}
 		}
 	}
 	
 	private class ClearPanelAction extends AbstractAction {
 		public ClearPanelAction() {
-			putValue(Action.NAME, "Clear Panel");
+			putValue(Action.NAME, I18N.getText("action.macro.clearPanel"));
 		}
 		
 		public void actionPerformed(ActionEvent event) {
 			if (panelClass.equals("GlobalPanel")) {
-				GlobalPanel.clearPanel();
+				if(MapTool.confirm(I18N.getText("confirm.macro.clearPanel", I18N.getText("panel.Global")))) {
+					GlobalPanel.clearPanel();
+				}
 			} else if (panelClass.equals("CampaignPanel")) {
-				CampaignPanel.clearPanel();
+				if(MapTool.confirm(I18N.getText("confirm.macro.clearPanel", I18N.getText("panel.Global")))) {
+					CampaignPanel.clearPanel();
+				}
 			} else if (tokenId != null) {
-				MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId).deleteAllMacros(true);
+				if(panelClass.equals("ImpersonatePanel")) {
+					if(MapTool.confirm(I18N.getText("confirm.macro.clearPanel", I18N.getText("panel.Impersonate")))) {
+						MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId).deleteAllMacros(true);
+					}
+				}
 			}
 		}
 	}
@@ -537,45 +534,35 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 		String comparisonResults = "";
 		if(!buttonMacro.getCompareGroup()) {
 			failComparison = true;
-			comparisonResults = comparisonResults + "<li>Group</li>";
+			comparisonResults = comparisonResults + "<li>" + I18N.getText("component.label.macro.group") + "</li>";
 		}
 		if(!buttonMacro.getCompareSortPrefix()) {
 			failComparison = true;
-			comparisonResults = comparisonResults + "<li>Sort Prefix</li>";
+			comparisonResults = comparisonResults + "<li>" + I18N.getText("component.label.macro.sortPrefix") + "</li>";
 		}
 		if(!buttonMacro.getCompareCommand()) {
 			failComparison = true;
-			comparisonResults = comparisonResults + "<li>Command</li>";
+			comparisonResults = comparisonResults + "<li>" + I18N.getText("component.label.macro.command") + "</li>";
 		}
 		if(!buttonMacro.getCompareIncludeLabel()) {
 			failComparison = true;
-			comparisonResults = comparisonResults + "<li>Include Label</li>";
+			comparisonResults = comparisonResults + "<li>" + I18N.getText("component.label.macro.includeLabel") + "</li>";
 		}
 		if(!buttonMacro.getCompareAutoExecute()) {
 			failComparison = true;
-			comparisonResults = comparisonResults + "<li>Auto Execute</li>";
+			comparisonResults = comparisonResults + "<li>" + I18N.getText("component.label.macro.autoExecute") + "</li>";
 		}
 		if(!buttonMacro.getApplyToTokens()) {
 			failComparison = true;
-			comparisonResults = comparisonResults + "<li>Apply to Selected Tokens</li>";
+			comparisonResults = comparisonResults + "<li>" + I18N.getText("component.label.macro.applyToSelected") + "</li>";
 		}
 		if(failComparison) {
-		failComparison = MapTool.confirm("<html><body>Macro \"" + buttonMacro.getLabel() + 
-				"\" has the following comparison criteria deselected: <br><ul>" + 
-				comparisonResults + "</ul><br>Do you wish to add this macro to the export " +
-				"list?<br><br>Selecting \"Yes\" will result in the macro being exported " +
-				"without the information listed.</body></html>");
+		failComparison = MapTool.confirm(I18N.getText("confirm.macro.failComparison", buttonMacro.getLabel(), comparisonResults));
 		}
 		return failComparison;
 	}
 	
 	private Boolean confirmImport(MacroButtonProperties importMacro, String location) {
-		return !MapTool.confirm("<html><body>The import macro \"" + importMacro.getLabel() + 
-				"\" appears to match a macro that already exists " + location + ".  Do you " +
-				"wish to import the macro again?<br><br>Select \"Yes\" to import the macro " +
-				"anyway.  Select \"No\" to cancel import of the macro.<br><br>If you believe " +
-				"the macros are not the same, select \"No\" and verify the commonality " +
-				"criteria of the existing macro on the \"Options\" tab of its edit dialog." +
-				"</body></html>");
+		return !MapTool.confirm(I18N.getText("confirm.macro.import", importMacro.getLabel(), location));
 	}
 }
