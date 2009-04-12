@@ -26,6 +26,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 
+import com.jidesoft.docking.DockableFrame;
+
 import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.AppActions;
 import net.rptools.maptool.client.AppConstants;
@@ -83,9 +85,11 @@ public class AppMenuBar extends JMenuBar {
 		fileMenu.add(new JMenuItem(AppActions.SHOW_SERVER_INFO));
 		fileMenu.addSeparator();
 		fileMenu.add(createRecentCampaignMenu());
-		fileMenu.addSeparator();
-		fileMenu.add(new JMenuItem(AppActions.EXIT));
-
+		if (!MapTool.MAC_OS_X) {
+			fileMenu.addSeparator();
+			fileMenu.add(new JMenuItem(AppActions.EXIT));
+		}
+		
 		return fileMenu;
 	}
 
@@ -112,8 +116,8 @@ public class AppMenuBar extends JMenuBar {
 		menu.addSeparator();
 
 		// MAP TOGGLES
-		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY));
-		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_FOG));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_CURRENT_ZONE_VISIBILITY, menu));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_FOG, menu));
 		menu.add(createVisionTypeMenu());
 
 		menu.addSeparator();
@@ -129,9 +133,9 @@ public class AppMenuBar extends JMenuBar {
 	protected JMenu createVisionTypeMenu() {
 		JMenu menu = I18N.createMenu("menu.vision");
 
-		menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.OFF)));
-		menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.DAY)));
-		menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.NIGHT)));
+		menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.OFF), menu));
+		menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.DAY), menu));
+		menu.add(new RPCheckBoxMenuItem(new AppActions.SetVisionType(Zone.VisionType.NIGHT), menu));
 
 		return menu;
 	}
@@ -142,13 +146,13 @@ public class AppMenuBar extends JMenuBar {
 		menu.add(new JMenuItem(AppActions.ENTER_COMMAND));
 		menu.add(new JMenuItem(AppActions.ENFORCE_ZONE_VIEW));
 		menu.add(new JMenuItem(AppActions.ENFORCE_ZONE));
-		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW));
-		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_MOVEMENT_LOCK));
-		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_ZOOM_LOCK));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_LINK_PLAYER_VIEW, menu));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_MOVEMENT_LOCK, menu));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_ZOOM_LOCK, menu));
 
 		menu.add(new JSeparator());
 
-		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_COLLECT_PROFILING_DATA));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_COLLECT_PROFILING_DATA, menu));
 
 		return menu;
 	}
@@ -168,43 +172,44 @@ public class AppMenuBar extends JMenuBar {
 		menu.addSeparator();
 
 		menu.add(new JMenuItem(AppActions.CAMPAIGN_PROPERTIES));
-		menu.add(new JMenuItem(AppActions.SHOW_PREFERENCES));
+		if (!MapTool.MAC_OS_X)
+			menu.add(new JMenuItem(AppActions.SHOW_PREFERENCES));
 
 		return menu;
 	}
 
 	protected JMenu createViewMenu() {
 		JMenu menu = I18N.createMenu("menu.view");
-		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_PLAYER_VIEW));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_PLAYER_VIEW, menu));
 
 		menu.addSeparator();
 
 		menu.add(createZoomMenu());
 		menu.add(new JMenuItem(AppActions.TOGGLE_SHOW_TOKEN_NAMES));
 
-		JCheckBoxMenuItem item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_MOVEMENT_MEASUREMENTS);
+		JCheckBoxMenuItem item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_MOVEMENT_MEASUREMENTS, menu);
 		item.setSelected(AppState.getShowMovementMeasurements());
 		menu.add(item);
 
-		item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_LIGHT_RADIUS);
+		item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_LIGHT_RADIUS, menu);
 		item.setSelected(AppState.isShowLightRadius());
 		menu.add(item);
 
-		item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_LIGHT_SOURCES);
+		item = new RPCheckBoxMenuItem(AppActions.TOGGLE_SHOW_LIGHT_SOURCES, menu);
 		item.setSelected(AppState.isShowLightSources());
 		menu.add(item);
 
 		// menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_ZONE_SELECTOR));
-		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_GRID));
-		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_COORDINATES));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_GRID, menu));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_COORDINATES, menu));
 		// LATER: This needs to be genericized, but it seems to constant, and so
 		// short, that I
 		// didn't feel compelled to do that in this impl
 		JMenu gridSizeMenu = I18N.createMenu("action.gridSize");
-		JCheckBoxMenuItem gridSize1 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(1));
-		JCheckBoxMenuItem gridSize2 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(2));
-		JCheckBoxMenuItem gridSize3 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(3));
-		JCheckBoxMenuItem gridSize5 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(5));
+		JCheckBoxMenuItem gridSize1 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(1), menu);
+		JCheckBoxMenuItem gridSize2 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(2), menu);
+		JCheckBoxMenuItem gridSize3 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(3), menu);
+		JCheckBoxMenuItem gridSize5 = new RPCheckBoxMenuItem(new AppActions.GridSizeAction(5), menu);
 
 		ButtonGroup sizeGroup = new ButtonGroup();
 		sizeGroup.add(gridSize1);
@@ -219,8 +224,8 @@ public class AppMenuBar extends JMenuBar {
 		menu.add(gridSizeMenu);
 
 		menu.addSeparator();
-		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DRAW_MEASUREMENTS));
-		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DOUBLE_WIDE));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DRAW_MEASUREMENTS, menu));
+		menu.add(new RPCheckBoxMenuItem(AppActions.TOGGLE_DOUBLE_WIDE, menu));
 
 		menu.addSeparator();
 		menu.add(new JMenuItem(AppActions.SHOW_FULLSCREEN));
@@ -262,8 +267,10 @@ public class AppMenuBar extends JMenuBar {
 		menu.add(new JMenuItem(AppActions.SHOW_DOCUMENTATION));
 		menu.add(new JMenuItem(AppActions.SHOW_TUTORIALS));
 		menu.add(new JMenuItem(AppActions.SHOW_FORUMS));
-		menu.addSeparator();
-		menu.add(new JMenuItem(AppActions.SHOW_ABOUT));
+		if (!MapTool.MAC_OS_X) {
+			menu.addSeparator();
+			menu.add(new JMenuItem(AppActions.SHOW_ABOUT));
+		}
 		return menu;
 	}
 
@@ -293,7 +300,7 @@ public class AppMenuBar extends JMenuBar {
 		menu.addSeparator();
 
 		for (MTFrame frame : MapToolFrame.MTFrame.values()) {
-			JMenuItem menuItem = new RPCheckBoxMenuItem(new AppActions.ToggleWindowAction(frame));
+			JCheckBoxMenuItem menuItem = new RPCheckBoxMenuItem(new AppActions.ToggleWindowAction(frame), menu);
 			menu.add(menuItem);
 		}
 

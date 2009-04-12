@@ -84,6 +84,7 @@ import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ServerDisconnectHandler;
+import net.rptools.maptool.client.AppActions.ClientAction;
 import net.rptools.maptool.client.swing.CoordinateStatusBar;
 import net.rptools.maptool.client.swing.DragImageGlassPane;
 import net.rptools.maptool.client.swing.GlassPane;
@@ -221,10 +222,12 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	private DragImageGlassPane dragImageGlassPane = new DragImageGlassPane();
 	
-	public MapToolFrame() {
+	public MapToolFrame(JMenuBar menuBar) {
 		// Set up the frame
 		super(AppConstants.APP_NAME);
 
+		this.menuBar = menuBar;
+		
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		addWindowListener(this);
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -294,11 +297,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		rendererBorderPanel.add(zoneRendererPanel);
 
 		// Put it all together
-		menuBar = new AppMenuBar();
 		setJMenuBar(menuBar);
 		add(BorderLayout.NORTH, new ToolbarPanel(toolbox));
 		add(BorderLayout.SOUTH, statusPanel);
-
+		
 		JLayeredPane glassPaneComposite = new JLayeredPane();
 		glassPaneComposite.setLayout(new GridBagLayout());
 		GridBagConstraints constraints = new GridBagConstraints();
@@ -316,7 +318,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		
 		glassPaneComposite.setVisible(true);
 
-		removeWindowsF10();
+		if (!MapTool.MAC_OS_X)
+			removeWindowsF10();
+
+		registerForMacOSXEvents();
 
 		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
 
@@ -330,7 +335,32 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		new WindowPreferences(AppConstants.APP_NAME, "mainFrame", this);
 	}
 	
-	public DragImageGlassPane getDragImageGlassPane() {
+    public void registerForMacOSXEvents() {
+        if (MapTool.MAC_OS_X) {
+            try {
+                OSXAdapter.setQuitHandler(this, getClass().getDeclaredMethod("macOSXExit", (Class[])null));
+                OSXAdapter.setAboutHandler(this, getClass().getDeclaredMethod("macOSXAbout", (Class[])null));
+                OSXAdapter.setPreferencesHandler(this, getClass().getDeclaredMethod("macOSXPreferences", (Class[])null));
+            } catch (Exception e) {
+                System.err.println("Error while loading the OSXAdapter:");
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    public void macOSXAbout() {
+    	((ClientAction)AppActions.SHOW_ABOUT).execute(null);
+    }
+    
+    public void macOSXExit() {
+    	((ClientAction)AppActions.EXIT).execute(null);
+    }
+    
+    public void macOSXPreferences() {
+    	((ClientAction)AppActions.SHOW_PREFERENCES).execute(null);
+    }
+
+    public DragImageGlassPane getDragImageGlassPane() {
 		return dragImageGlassPane;
 	}
 
@@ -1148,10 +1178,19 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		fullScreenFrame = new FullScreenFrame();
 		fullScreenFrame.add(zoneRendererPanel);
 
-		fullScreenFrame.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+		// Under mac os x this does not properly hide the menu bar so adjust top and height
+		// so menu bar does not overlay screen.
+		if (MapTool.MAC_OS_X) {
+			fullScreenFrame.setBounds(bounds.x, bounds.y+21, bounds.width, bounds.height-21);			
+		}
+		else {
+			fullScreenFrame.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+		}
 
 		fullScreenFrame.setJMenuBar(menuBar);
-		menuBar.setVisible(false);
+		// Menu bar is visible anyways on MAC so leave menu items on it
+		if (!MapTool.MAC_OS_X)
+			menuBar.setVisible(false);
 
 		fullScreenFrame.setVisible(true);
 

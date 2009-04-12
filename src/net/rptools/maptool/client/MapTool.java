@@ -40,6 +40,7 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
@@ -60,6 +61,7 @@ import net.rptools.maptool.client.functions.UserDefinedMacroFunctions;
 import net.rptools.maptool.client.swing.MapToolEventQueue;
 import net.rptools.maptool.client.swing.NoteFrame;
 import net.rptools.maptool.client.swing.SplashScreen;
+import net.rptools.maptool.client.ui.AppMenuBar;
 import net.rptools.maptool.client.ui.ConnectionStatusPanel;
 import net.rptools.maptool.client.ui.MapToolFrame;
 import net.rptools.maptool.client.ui.StartServerDialogPreferences;
@@ -125,6 +127,11 @@ public class MapTool {
 	 * sounds currently: <b>Dink</b> and <b>Clink</b>.
 	 */
 	private static final String SOUND_PROPERTIES = "net/rptools/maptool/client/sounds.properties";
+	
+	/**
+	 * Returns true if currently running on a Mac OS X based operating system.
+	 */
+	public static boolean MAC_OS_X = (System.getProperty("os.name").toLowerCase().startsWith("mac os x"));	
 
 	public static enum ZoneEvent {
 
@@ -154,6 +161,7 @@ public class MapTool {
 
 	private static ClientConnection conn;
 	private static ClientMethodHandler handler;
+	private static JMenuBar menuBar;
     private static MapToolFrame clientFrame;
     private static NoteFrame profilingNoteFrame;
     private static MapToolServer server;
@@ -381,7 +389,7 @@ public class MapTool {
         
         handler = new ClientMethodHandler();
         
-        clientFrame = new MapToolFrame();
+        clientFrame = new MapToolFrame(menuBar);
         
         serverCommand = new ServerCommandClientImpl();
         
@@ -893,9 +901,24 @@ public class MapTool {
 
         // LAF
         try {
-        	UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
+        	
+        	
+        	// If we are running under Mac OS X then save native menu bar look & feel components
+        	// Note the order of creation for the AppMenuBar, this specific chronology
+        	// allows the system to set up system defaults before we go and modify things.
+        	// That is, please don't move these lines around unless you test the result on windows and mac
+        	if (MAC_OS_X) {
+        		System.setProperty("apple.laf.useScreenMenuBar", "true");
+        		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        		menuBar = new AppMenuBar();
+        		UIManager.setLookAndFeel("net.rptools.maptool.client.TinyLookAndFeelMac");
+        	}
+        	else {
+        		UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
+       			menuBar = new AppMenuBar();
+        	}
+        	
     		com.jidesoft.utils.Lm.verifyLicense("Trevor Croft", "rptools", "5MfIVe:WXJBDrToeLWPhMv3kI2s3VFo");
-//            UIManager.setLookAndFeel(LookAndFeelFactory.WINDOWS_LNF);
     		LookAndFeelFactory.addUIDefaultsCustomizer(new LookAndFeelFactory.UIDefaultsCustomizer(){
     			public void customize(UIDefaults defaults) {
     				// Remove red border around menus
@@ -903,7 +926,7 @@ public class MapTool {
     			}
     		});
     		LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
-    		
+        	    		
         	// Make the toggle button pressed state look more distinct
         	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
         	

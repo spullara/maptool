@@ -17,27 +17,35 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 
 import net.rptools.maptool.client.AppActions.ClientAction;
 
 /** 
  * This little baby will keep the menu items selected state intact.  Not the most elegant, but works
  */
-public class RPCheckBoxMenuItem extends JCheckBoxMenuItem{
+public class RPCheckBoxMenuItem extends JCheckBoxMenuItem implements MenuListener {
 
-	public RPCheckBoxMenuItem(Action action) {
+	public RPCheckBoxMenuItem(Action action, JMenu parentMenu) {
 		super(action);
 		
-		addPropertyChangeListener("ancestor", new PropertyChangeListener() {
-			public void propertyChange(java.beans.PropertyChangeEvent evt) {
-
-				Action action = getAction();
-				if (action instanceof ClientAction) {
-					setSelected(((ClientAction)action).isSelected());
-				}
-			}
-		});
+		parentMenu.addMenuListener(this);
 	}
 	
+	public void menuSelected(MenuEvent e) {
+		Action action = getAction();
+		if (action instanceof ClientAction) {
+			setSelected(((ClientAction)action).isSelected());
+		}		
+	}
+
+	public void menuCanceled(MenuEvent e) {
+	}
+
+	public void menuDeselected(MenuEvent e) {
+	}
 	
 }
