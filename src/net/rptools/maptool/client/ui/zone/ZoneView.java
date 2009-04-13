@@ -14,7 +14,9 @@
 package net.rptools.maptool.client.ui.zone;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
@@ -36,6 +38,7 @@ import net.rptools.maptool.model.Light;
 import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
+import net.rptools.maptool.model.ShapeType;
 import net.rptools.maptool.model.SightType;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -210,15 +213,45 @@ public class ZoneView implements ModelChangeListener {
 			return tokenVisibleArea;
 		}
 
+		SightType sight = MapTool.getCampaign().getSightType(token.getSightType());
 		// Combine the player visible area with the available light sources
 		tokenVisibleArea = tokenVisibleAreaCache.get(token.getId());
 		if (tokenVisibleArea == null) {
 			
 	        Point p = FogUtil.calculateVisionCenter(token, zone);
 	        int visionDistance = zone.getTokenVisionInPixels();
-	        Area visibleArea = new Area(new Ellipse2D.Double(-visionDistance, -visionDistance, visionDistance*2, visionDistance*2));
 
-	        tokenVisibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopology());
+	        if (sight.getShape()== ShapeType.SQUARE)
+	        {
+	        	Area visibleArea = new Area(new Rectangle2D.Double(-visionDistance, -visionDistance, visionDistance*2, visionDistance*2));
+	        	tokenVisibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopology());
+	        }
+	        else if(sight.getShape() == ShapeType.CONE)
+	        {
+	        	if (token.getFacing() == null) {
+	    			token.setFacing(0);
+	    		}
+	        	int arcAngle = sight.getArc()	;
+	    		Area visibleArea = new Area(new Arc2D.Double(-visionDistance, -visionDistance, visionDistance*2, visionDistance*2
+	    				, 360.0 - (arcAngle/2.0), arcAngle, Arc2D.PIE));
+	        	// Rotate
+				if (token.getFacing() != null) {
+					visibleArea = visibleArea.createTransformedArea(AffineTransform.getRotateInstance(-Math.toRadians(token.getFacing())));
+				}	
+				Area footprint = new Area(token.getFootprint(zone.getGrid()).getBounds(zone.getGrid()));
+				footprint = footprint.createTransformedArea(AffineTransform.getTranslateInstance(-footprint.getBounds().getWidth()/2, -footprint.getBounds().getHeight()/2));
+	    		Area tokenFootPrint = new Area(footprint); 
+	    		tokenFootPrint.add(visibleArea);
+				
+	    		tokenVisibleArea = FogUtil.calculateVisibility(p.x, p.y, tokenFootPrint, getTopology());
+	        }
+	        else 
+	        {
+	        	Area visibleArea = new Area(new Ellipse2D.Double(-visionDistance, -visionDistance, visionDistance*2, visionDistance*2));
+	        	tokenVisibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopology());
+	        }
+
+	        
 			
 			tokenVisibleAreaCache.put(token.getId(), tokenVisibleArea);
 		}
@@ -257,7 +290,7 @@ public class ZoneView implements ModelChangeListener {
     		}
         	
             // Check for personal vision
-            SightType sight = MapTool.getCampaign().getSightType(token.getSightType());
+            
             if (sight != null && sight.hasPersonalLightSource()) {
     			Area lightArea = calculateLightSourceArea(sight.getPersonalLightSource(), token, sight, Direction.CENTER);
     			if (lightArea != null) {

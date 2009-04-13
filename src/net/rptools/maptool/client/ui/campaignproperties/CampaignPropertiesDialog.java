@@ -219,9 +219,36 @@ public class CampaignPropertiesDialog extends JDialog  {
 		StringBuilder builder = new StringBuilder();
 		for (SightType sight : properties.getSightTypeMap().values()) {
 			
-			// Multiplier
 			builder.append(sight.getName()).append(": ");
-			if (sight.getMultiplier() != 1 && sight.getMultiplier() != 0) {
+
+			if (sight.getShape() == ShapeType.SQUARE)
+			{
+				builder.append("square ");
+			}
+			else if (sight.getShape() == ShapeType.CIRCLE)
+			{
+				builder.append("circle ");
+			}
+			else if (sight.getShape() == ShapeType.CONE)
+			{
+				// NLS for later on once we figure out a suitable error message
+				//String msg = MessageFormat.format(I18N.getText("msg.confirm.bootPlayer"), sight.getShape());
+				//String msg = "Invalid Vision shape!";
+				//MapTool.showError(msg);
+				
+				// This is here for when we evenutually get conic vision, perhaps in a version or two 
+				// or early in 1.4
+				builder.append("cone ");
+				builder.append("arc=").append(sight.getArc());
+				builder.append(" ");
+			}
+			
+			
+			
+			// Multiplier
+			
+			if (sight.getMultiplier() != 1 && sight.getMultiplier() != 0) 
+			{
 				builder.append("x").append(StringUtil.formatDecimal(sight.getMultiplier()));
 				builder.append(" ");
 			}
@@ -361,23 +388,54 @@ public class CampaignPropertiesDialog extends JDialog  {
 				if (label.length() == 0) {
 					continue;
 				}
-				
+
 				// Parse Details
 				double magnifier = 1;
 				LightSource personalLight = null;
 				
-				for (String arg : value.split("\\s")) {
+				String[] args = value.split("\\s");
+				ShapeType shape = ShapeType.CIRCLE;
+				int arc = 90;
+				
+				
+				for (String arg : args) 
+				{
+					if (arg.length()<1)
+					{
+						continue;
+					}
+					try
+					{
+						shape = ShapeType.valueOf(arg.toUpperCase());
+						continue;
+					}
+					catch (IllegalArgumentException iae)
+					{
+						// Expected when not defining a shape
+					}
+					
 					if (arg.startsWith("x")) {
 						magnifier = Double.parseDouble(arg.substring(1));
-					}
-					if (arg.startsWith("r")) {
+					} 
+					else if (arg.startsWith("r")) 		
+					{
 						personalLight = new LightSource();
-						personalLight.add(new Light(ShapeType.CIRCLE, 0, Double.parseDouble(arg.substring(1)), 0, null));
+						personalLight.add(new Light(shape, 0, Double.parseDouble(arg.substring(1)), 0, null));
+					}
+					else if (arg.startsWith("arc=") && arg.length() > 4) 		
+					{
+						arc = Integer.parseInt(arg.substring(4));						
+					}
+					else 
+					{
+						//String msg = MessageFormat.format(I18N.getText("msg.confirm.bootPlayer"), sight.getShape());
+						String msg = "Invalid value for vision!";
+						MapTool.showError(msg);
 					}
 				}
 				
+				SightType sight = new SightType(label, magnifier, personalLight,shape, arc);
 				
-				SightType sight = new SightType(label, magnifier, personalLight);
 				
 				// Store
 				sightList.add(sight);

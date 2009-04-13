@@ -18,15 +18,38 @@ public class SightType {
 	private String name;
 	private double multiplier;
 	private LightSource personalLightSource;
+	private ShapeType shape; 
+	private int arc = 0;
 	
+	public ShapeType getShape() {
+		return shape;
+	}
+
+	public void setShape(ShapeType shape) {
+		this.shape = shape;
+	}
+
 	public SightType() {
 		// For serialization
 	}
 	
-	public SightType(String name, double multiplier, LightSource personalLightSource) {
+	public SightType(String name, double multiplier, LightSource personalLightSource) 
+	{
+		this(name, multiplier, personalLightSource, ShapeType.CIRCLE);
+	}
+	
+	public SightType(String name, double multiplier, LightSource personalLightSource, ShapeType shape) {
 		this.name = name;
 		this.multiplier = multiplier;
 		this.personalLightSource = personalLightSource;
+		this.shape = shape;
+	}
+	public SightType(String name, double multiplier, LightSource personalLightSource, ShapeType shape, int arc) {
+		this.name = name;
+		this.multiplier = multiplier;
+		this.personalLightSource = personalLightSource;
+		this.shape = shape;
+		this.arc = arc;
 	}
 	
 	public String getName() {
@@ -53,6 +76,15 @@ public class SightType {
 	public void setPersonalLightSource(LightSource personalLightSource) {
 		this.personalLightSource = personalLightSource;
 	}
-	
+
+	public void setArc(int arc)
+	{
+		this.arc = arc;
+	}
+
+	public int getArc()
+	{
+		return arc;
+	}
 	
 }

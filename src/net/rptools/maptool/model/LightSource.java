@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.rptools.lib.FileUtil;
+import net.rptools.maptool.model.ShapeType;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -37,6 +38,7 @@ public class LightSource  {
 	private String name;
 	private GUID id;
 	private Type type;
+	private ShapeType shapeType;
 	
 	public LightSource() {
 		// for serialization
@@ -109,7 +111,16 @@ public class LightSource  {
 	public void setType(Type type) {
 		this.type = type;
 	}
-
+	
+	public void setShapeType (ShapeType type)
+	{
+		this.shapeType = type;		
+	}
+	
+	public ShapeType getShapeType() {
+		return shapeType != null ? shapeType : ShapeType.CIRCLE;
+	}	
+	
 	/**
 	 * Area for a single light, subtracting any previous lights
 	 */
