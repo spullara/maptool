@@ -1658,8 +1658,14 @@ public class AppActions {
 						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, new Campaign(campaign));
 						
 						// Connect to server
+                        String playerType = dialog.getRoleCombo().getSelectedItem().toString();
+                        if(playerType.equals("GM")){
 						MapTool.createConnection("localhost", serverProps.getPort(), new Player(dialog.getUsernameTextField().getText(), serverProps.getRole(),
 								serverProps.getGMPassword()));
+                        }else{
+                            MapTool.createConnection("localhost",serverProps.getPort(), new Player(dialog.getUsernameTextField().getText(), serverProps.getRole(),
+                                serverProps.getPlayerPassword()));
+                        }
 
 						// connecting
 						MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
