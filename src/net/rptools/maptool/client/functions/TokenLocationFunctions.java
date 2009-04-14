@@ -6,13 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.client.walker.WalkerMetric;
 import net.rptools.maptool.client.walker.ZoneWalker;
+import net.rptools.maptool.client.walker.astar.AStarSquareEuclideanWalker;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.SquareGrid;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -29,6 +33,10 @@ public class TokenLocationFunctions extends AbstractFunction {
 		int y;
 		int z;
 	}
+	
+	/** Ignore grid for movement metric in distance methods. */
+	private static final String NO_GRID = "NO_GRID";
+	
 	
 	/** Singleton for class/ */
 	private static final TokenLocationFunctions instance = 
@@ -274,12 +282,13 @@ public class TokenLocationFunctions extends AbstractFunction {
 	 * @param target
 	 * @param gridUnits
 	 * @return
+	 * @throws ParserException 
 	 */
-	public double getDistance(Token source, Token target, boolean units) {
+	public double getDistance(Token source, Token target, boolean units, String metric) throws ParserException {
 		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 		Grid grid = renderer.getZone().getGrid();
 		
-		if (grid.getCapabilities().isPathingSupported()) {
+		if (grid.getCapabilities().isPathingSupported() && !NO_GRID.equals(metric)) {
 			
 			// Get the center of our tokens so we can get which cells it occupies.
 			Dimension dim = grid.getCellOffset();
@@ -294,7 +303,19 @@ public class TokenLocationFunctions extends AbstractFunction {
 			Set<CellPoint> sourceCells = source.getFootprint(grid).getOccupiedCells(grid.convert(new ZonePoint((int)sourceCenterX, (int)sourceCenterY)));
 			Set<CellPoint> targetCells = target.getFootprint(grid).getOccupiedCells(grid.convert(new ZonePoint((int)targetCenterX, (int)targetCenterY)));
 
-			ZoneWalker walker = grid.createZoneWalker();
+			ZoneWalker walker;
+			if (metric != null && grid instanceof SquareGrid) {
+				try {
+					WalkerMetric wmetric = WalkerMetric.valueOf(metric);
+					walker =  new AStarSquareEuclideanWalker(renderer.getZone(), wmetric);
+
+				} catch (IllegalArgumentException e) {
+					throw new ParserException(I18N.getText("macro.function.getDistance.invalidMetric", metric));
+				}
+			} else {
+				walker = grid.createZoneWalker();
+			}
+
 			// Get the distances from each source to target cell and keep the minimum one
 			int distance = Integer.MAX_VALUE;
 			for (CellPoint scell : sourceCells) {
@@ -335,13 +356,16 @@ public class TokenLocationFunctions extends AbstractFunction {
 	 * @param x the x co-ordinate to get the distance to.
 	 * @param y the y co-ordinate to get the distance to.
 	 * @param units get the distance in the units specified for the map.
+	 * @param metric The metric used.
 	 * @return
+	 * @throws ParserException when an error occurs
 	 */
-	public double getDistance(Token source, int x, int y, boolean units) {
+	public double getDistance(Token source, int x, int y, boolean units, String metric) throws ParserException {
 		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 		Grid grid = renderer.getZone().getGrid();
 		
-		if (grid.getCapabilities().isPathingSupported()) {
+		
+		if (grid.getCapabilities().isPathingSupported() && !NO_GRID.equals(metric)) {
 			
 			// Get the center of our tokens so we can get which cells it occupies.
 			Dimension dim = grid.getCellOffset();
@@ -352,7 +376,19 @@ public class TokenLocationFunctions extends AbstractFunction {
 			// Get which cells our tokens occupy
 			Set<CellPoint> sourceCells = source.getFootprint(grid).getOccupiedCells(grid.convert(new ZonePoint((int)sourceCenterX, (int)sourceCenterY)));
 
-			ZoneWalker walker = grid.createZoneWalker();
+			ZoneWalker walker;
+			if (metric != null && grid instanceof SquareGrid) {
+				try {
+					WalkerMetric wmetric = WalkerMetric.valueOf(metric);
+					walker =  new AStarSquareEuclideanWalker(renderer.getZone(), wmetric);
+
+				} catch (IllegalArgumentException e) {
+					throw new ParserException(I18N.getText("macro.function.getDistance.invalidMetric", metric));
+				}
+			} else {
+				walker = grid.createZoneWalker();
+			}
+			
 			// Get the distances from each source to target cell and keep the minimum one
 			int distance = Integer.MAX_VALUE;
 			CellPoint targetCell = new CellPoint(x,y);
@@ -406,7 +442,12 @@ public class TokenLocationFunctions extends AbstractFunction {
 			useDistancePerCell = val.equals(BigDecimal.ZERO) ? false : true;
 		}
 		
-		double dist = getDistance(source, target, useDistancePerCell);
+		String metric = null;
+		if (args.size() > 3) {
+			metric = (String)args.get(3);
+		}
+		
+		double dist = getDistance(source, target, useDistancePerCell, metric);
 		
 		if (dist == Math.floor(dist)) {
 			return BigDecimal.valueOf((int)dist);
@@ -450,7 +491,12 @@ public class TokenLocationFunctions extends AbstractFunction {
 			useDistancePerCell = val.equals(BigDecimal.ZERO) ? false : true;
 		}
 		
-		double dist = getDistance(source, x, y, useDistancePerCell);
+		String metric = null;
+		if (args.size() > 3) {
+			metric = (String)args.get(3);
+		}
+
+		double dist = getDistance(source, x, y, useDistancePerCell, metric);
 		
 		if (dist == Math.floor(dist)) {
 			return BigDecimal.valueOf((int)dist);

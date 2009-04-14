@@ -10,6 +10,7 @@ import java.util.Set;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.client.walker.WalkerMetric;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
@@ -386,9 +387,14 @@ public class FindTokenFunctions extends AbstractFunction {
 			if (range.containsKey("distancePerCell")) {
 				useDistancePerCell = range.getBoolean("distancePerCell");
 			}
+			
+			String metric = null;
+			if (range.containsKey("metric")) {
+				metric = range.getString("metric");
+			}
 			List<Token> inrange = new LinkedList<Token>();
 			for (Token targetToken : tokenList) {
-				Double distance = TokenLocationFunctions.getInstance().getDistance(token, targetToken, useDistancePerCell);
+				Double distance = TokenLocationFunctions.getInstance().getDistance(token, targetToken, useDistancePerCell, metric);
 				if (distance <= upto && distance >= from && token != targetToken) {
 					inrange.add(targetToken);
 				}
@@ -418,6 +424,11 @@ public class FindTokenFunctions extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.findTokenFunctions.offsetArray", "getTokens"));
 			}
 			
+			String metric = null;
+			if (area.containsKey("metric")) {
+				metric = area.getString("metric");
+			}
+
 			
 			CellPoint cp = TokenLocationFunctions.getInstance().getTokenCell(token);
 			
@@ -434,7 +445,7 @@ public class FindTokenFunctions extends AbstractFunction {
 				int y = joff.getInt("y");
 				for (Token targetToken : tokenList) {
 					if (!matching.contains(targetToken)) {
-						Double distance = TokenLocationFunctions.getInstance().getDistance(targetToken, cp.x + x, cp.y + y, false);
+						Double distance = TokenLocationFunctions.getInstance().getDistance(targetToken, cp.x + x, cp.y + y, false, metric);
 						if (distance >= 0 && distance < 1) {
 							matching.add(targetToken);
 						}
