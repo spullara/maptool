@@ -51,8 +51,8 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
  */
 public class GraphicsUtil {
 
-	private static final int BOX_PADDINGX = 10;
-	private static final int BOX_PADDINGY = 2;
+	public static final int BOX_PADDINGX = 10;
+	public static final int BOX_PADDINGY = 2;
 	
 	// TODO: Make this configurable
 	public static final ImageLabel GREY_LABEL = new ImageLabel("net/rptools/maptool/client/image/grayLabelbox.png", 4, 4);
