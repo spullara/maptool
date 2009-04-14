@@ -35,9 +35,9 @@ public class ToGMMacro extends AbstractRollMacro {
 
         	sb.append("<span class='trustedPrefix' ").append("title='").append(executionContext.getName());
         	sb.append("@").append(executionContext.getSouce()).append("'>");
-        	sb.append(I18N.getText("togm.saysToGM", MapTool.getPlayer().getName())).append("</span> ").append("macro");
+        	sb.append(I18N.getText("togm.saysToGM", MapTool.getPlayer().getName())).append("</span> ").append(macro);
     	} else {
-        	sb.append(I18N.getText("togm.saysToGM", MapTool.getPlayer().getName())).append(" ").append("macro");
+        	sb.append(I18N.getText("togm.saysToGM", MapTool.getPlayer().getName())).append(" ").append(macro);
     	}
         MapTool.addMessage(new TextMessage(TextMessage.Channel.GM, null, MapTool.getPlayer().getName(),  sb.toString(), context.getTransformationHistory()));
 		MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), I18N.getText("togm.self", macro), context.getTransformationHistory()));
