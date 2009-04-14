@@ -20,7 +20,29 @@ public class SightType {
 	private LightSource personalLightSource;
 	private ShapeType shape; 
 	private int arc = 0;
+	private float distance = 0;
+	private int offset = 0;
 	
+	public int getOffset()
+	{
+		return this.offset;
+	}
+
+	public void setOffset(int offset2)
+	{
+		this.offset = offset2;
+	}
+
+	public float getDistance()
+	{
+		return this.distance;
+	}
+
+	public void setDistance(float range)
+	{
+		this.distance = range;
+	}
+
 	public ShapeType getShape() {
 		return shape;
 	}

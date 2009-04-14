@@ -306,6 +306,20 @@ public class CampaignProperties implements Serializable {
     	sightTypeMap.put("Normal", new SightType("Normal", 1, null));
     	sightTypeMap.put("Lowlight", new SightType("Lowlight", 2, null));
     	
+    	SightType square = new SightType("Square Vision", 1, null);
+    		square.setShape(ShapeType.SQUARE);
+    	sightTypeMap.put("Square Vision", square);
+    	
+    	SightType circle = new SightType("Normal Vision - Short Range", 1, null);
+    	circle.setShape(ShapeType.CIRCLE);
+    	circle.setDistance(10);
+		sightTypeMap.put("Normal Vision - Short Range", circle);
+    
+    	SightType cone = new SightType("Conic Vision", 1, null);
+    		cone.setShape(ShapeType.CONE);
+    		cone.setArc(120);
+		sightTypeMap.put("Conic Vision", cone);
+		   	
     	try {
     		sightTypeMap.put("Darkvision", new SightType("Darkvision", 1, LightSource.getDefaultLightSources().get("Generic").get(5)));
 //    		sightTypeMap.put("Darkvision & Lowlight", new SightType("Darkvision", 2, LightSource.getDefaultLightSources().get("Generic").get(4)));

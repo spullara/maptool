@@ -224,23 +224,35 @@ public class CampaignPropertiesDialog extends JDialog  {
 			if (sight.getShape() == ShapeType.SQUARE)
 			{
 				builder.append("square ");
+				if(sight.getDistance() != 0)
+				{
+					builder.append("distance=").append(sight.getDistance()).append(" ");
+				}
 			}
 			else if (sight.getShape() == ShapeType.CIRCLE)
 			{
 				builder.append("circle ");
+				if(sight.getDistance() != 0)
+				{
+					builder.append("distance=").append(sight.getDistance()).append(" ");
+				}
 			}
 			else if (sight.getShape() == ShapeType.CONE)
 			{
-				// NLS for later on once we figure out a suitable error message
-				//String msg = MessageFormat.format(I18N.getText("msg.confirm.bootPlayer"), sight.getShape());
-				//String msg = "Invalid Vision shape!";
-				//MapTool.showError(msg);
-				
-				// This is here for when we evenutually get conic vision, perhaps in a version or two 
-				// or early in 1.4
 				builder.append("cone ");
-				builder.append("arc=").append(sight.getArc());
-				builder.append(" ");
+				if(sight.getArc()!= 0) 
+				{
+					builder.append("arc=").append(sight.getArc());
+					builder.append(" ");
+				}
+				if(sight.getOffset() != 0)
+				{
+					builder.append("offset=").append(sight.getOffset()).append(" ");
+				}				
+				if(sight.getDistance() != 0)
+				{
+					builder.append("distance=").append(sight.getDistance()).append(" ");
+				}
 			}
 			
 			
@@ -396,8 +408,11 @@ public class CampaignPropertiesDialog extends JDialog  {
 				String[] args = value.split("\\s");
 				ShapeType shape = ShapeType.CIRCLE;
 				int arc = 90;
+				float range = 0;
+				int offset = 0;
+				double pLightRange = 0;
 				
-				
+							
 				for (String arg : args) 
 				{
 					if (arg.length()<1)
@@ -419,13 +434,20 @@ public class CampaignPropertiesDialog extends JDialog  {
 					} 
 					else if (arg.startsWith("r")) 		
 					{
-						personalLight = new LightSource();
-						personalLight.add(new Light(shape, 0, Double.parseDouble(arg.substring(1)), 0, null));
+						pLightRange = Double.parseDouble(arg.substring(1));
 					}
 					else if (arg.startsWith("arc=") && arg.length() > 4) 		
 					{
 						arc = Integer.parseInt(arg.substring(4));						
 					}
+					else if (arg.startsWith("distance=") && arg.length() > 9) 		
+					{
+						range = Float.parseFloat(arg.substring(9));						
+					}
+					else if (arg.startsWith("offset=") && arg.length() > 7) 		
+					{
+						offset = Integer.parseInt(arg.substring(7));						
+					}					
 					else 
 					{
 						//String msg = MessageFormat.format(I18N.getText("msg.confirm.bootPlayer"), sight.getShape());
@@ -433,8 +455,14 @@ public class CampaignPropertiesDialog extends JDialog  {
 						MapTool.showError(msg);
 					}
 				}
-				
-				SightType sight = new SightType(label, magnifier, personalLight,shape, arc);
+				if(pLightRange > 0)
+				{
+					personalLight = new LightSource();
+					personalLight.add(new Light(shape,0,pLightRange, arc,null));
+				}
+				SightType sight = new SightType(label, magnifier, personalLight, shape, arc);
+				sight.setDistance(range);
+				sight.setOffset(offset);
 				
 				
 				// Store
