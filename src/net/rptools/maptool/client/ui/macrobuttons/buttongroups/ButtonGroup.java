@@ -234,7 +234,9 @@ public class ButtonGroup extends AbstractButtonGroup {
 	public List<MacroButton> getButtons() {
 		List<MacroButton> myButtons = new ArrayList<MacroButton>();
 		for(int buttonCount = 0; buttonCount < this.getComponentCount(); buttonCount++) {
-			myButtons.add((MacroButton) this.getComponent(buttonCount));
+			if(this.getComponent(buttonCount).getClass() == MacroButton.class) {
+				myButtons.add((MacroButton) this.getComponent(buttonCount));
+			}
 		}
 		return myButtons;
 	}

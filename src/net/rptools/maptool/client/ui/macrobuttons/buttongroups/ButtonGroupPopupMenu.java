@@ -516,7 +516,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 					GlobalPanel.clearPanel();
 				}
 			} else if (panelClass.equals("CampaignPanel")) {
-				if(MapTool.confirm(I18N.getText("confirm.macro.clearPanel", I18N.getText("panel.Global")))) {
+				if(MapTool.confirm(I18N.getText("confirm.macro.clearPanel", I18N.getText("panel.Campaign")))) {
 					CampaignPanel.clearPanel();
 				}
 			} else if (tokenId != null) {
