@@ -58,7 +58,8 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
         TokenInitiative visible = null;
         for (int i = 0; i <= list.getCurrent(); i++) {
             TokenInitiative ti = list.getTokenInitiative(i);
-            if (isTokenVisible(ti.getToken(), list.isHideNPC())) visible = ti;
+            Token token = ti.getToken();
+            if (token != null && isTokenVisible(ti.getToken(), list.isHideNPC())) visible = ti;
         } // endfor
         return visible;
     }    
