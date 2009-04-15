@@ -50,7 +50,7 @@ public class SightType {
 	}
 
 	public ShapeType getShape() {
-		return shape;
+		return shape != null ? shape : ShapeType.CIRCLE;
 	}
 
 	public void setShape(ShapeType shape) {

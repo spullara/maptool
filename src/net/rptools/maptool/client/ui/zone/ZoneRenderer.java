@@ -789,7 +789,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		// Setup
         timer.start("lights-1");
         Graphics2D newG = (Graphics2D) g.create();
-    	if (visibleScreenArea != null) {
+    	if (!view.isGMView() && visibleScreenArea != null) {
         	Area clip = new Area(g.getClip());
     		clip.intersect(visibleScreenArea);
     		newG.setClip(clip);
@@ -860,10 +860,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				
 		    	// Cut out the bright light
 				if (areaList.size() > 0) {
-					Area area = areaList.get(0);
-					
-					for (Area brightArea : zoneView.getBrightLights()) {
-						area.subtract(brightArea);
+					for (Area area : areaList) {
+						for (Area brightArea : zoneView.getBrightLights()) {
+							area.subtract(brightArea);
+						}
 					}
 				}
 	    	}    	
