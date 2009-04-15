@@ -166,8 +166,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	// I don't like this, at all, but it'll work for now, basically keep track of when the fog cache
     // needs to be flushed in the case of switching views
     private PlayerView lastView;
-    private ZoneViewType currView;
-    private ZoneViewType prevView;
     private Set<GUID> visibleTokenSet;
 	private CodeTimer timer;
     
@@ -586,8 +584,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         if (role == Player.Role.GM && AppState.isShowAsPlayer()) {
             role = Player.Role.PLAYER;
         }
+
+        List<Token> selectedTokens = null;
+        if (getSelectedTokenSet() != null && getSelectedTokenSet().size() > 0) {
+        	selectedTokens = getSelectedTokensList();
+        	for (ListIterator<Token> iter = selectedTokens.listIterator() ; iter.hasNext();) {
+        		Token token = iter.next();
+        		if (!token.getHasSight()) {
+        			iter.remove();
+        		}
+        	}
+        }
         
-        return new PlayerView(role);
+        return new PlayerView(role, selectedTokens);
 	}
 	
     public void renderZone(Graphics2D g2d, PlayerView view) {
@@ -624,14 +633,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             return;
         }
 
-        currView = view.isGMView() ? ZoneViewType.GM : ZoneViewType.PLAYER;
-        
-        if (prevView == null || currView != prevView) {
+        if (lastView != null && !lastView.equals(view)) {
             flushFog = true;
             renderedLightMap = null;
             renderedAuraMap = null;
             visibleScreenArea = null;
+            
+            zoneView.flush();
         }
+        lastView = view;
 
         // Clear internal state
         tokenLocationMap.clear();
@@ -764,8 +774,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         if (AppState.isCollectProfilingData()) {
         	MapTool.getProfilingNoteFrame().addText(timer.toString());
         }
-        //lastView = view;
-        prevView = currView;
     }
 
     private void delayRendering(ItemRenderer renderer) {
@@ -2252,7 +2260,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                
                 // If no image found, or view has changed,
                 // create an image and add it to the cache.
-                if (((prevView != null) && (currView != prevView)) || !labelRenderingCache.containsKey(tokId)) {
+                if (((lastView != null && !lastView.equals(view))) || !labelRenderingCache.containsKey(tokId)) {
                     boolean hasLabel = false;
 
                     // Calculate image dimensions
@@ -2946,12 +2954,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             this.bounds = bounds;
             this.label = label;
         }
-    }
-    
-    private static enum ZoneViewType {
-  
-        PLAYER,
-        GM
     }
     
     ////

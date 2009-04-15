@@ -14,11 +14,8 @@
 package net.rptools.maptool.client.ui.zone;
 
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +35,6 @@ import net.rptools.maptool.model.Light;
 import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
-import net.rptools.maptool.model.ShapeType;
 import net.rptools.maptool.model.SightType;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -380,7 +376,7 @@ public class ZoneView implements ModelChangeListener {
 		drawableLightCache.clear();
 		brightLightCache.clear();
 	}
-	
+
     public void flush(Token token) {
     	boolean hadLightSource = lightSourceCache.get(token.getId()) != null;
     	
@@ -416,7 +412,8 @@ public class ZoneView implements ModelChangeListener {
     	visibleAreaMap.put(view, meta);
     	
     	// Calculate it
-        for (Token token : zone.getAllTokens()) {
+    	List<Token> tokenList = view.isUsingTokenView() ? view.getTokens() : zone.getAllTokens();
+        for (Token token : tokenList) {
 
             if (!token.getHasSight ()) {
             	continue;

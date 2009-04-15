@@ -13,14 +13,27 @@
  */
 package net.rptools.maptool.client.ui.zone;
 
+import java.util.List;
+
 import net.rptools.maptool.model.Player;
+import net.rptools.maptool.model.Token;
 
 public class PlayerView {
 
 	private Player.Role role;
+	private List<Token> tokens; // Optional
+
+	// Optimization
+	private String hash;
 	
 	public PlayerView(Player.Role role) {
+		this(role, null);
+	}
+	public PlayerView(Player.Role role, List<Token> tokens) {
 		this.role = role;
+		this.tokens = tokens != null && tokens.size() > 0 ? tokens : null;
+		
+		hash = calculateHashcode();
 	}
 	
 	public Player.Role getRole() {
@@ -30,10 +43,18 @@ public class PlayerView {
 	public boolean isGMView() {
 		return role == Player.Role.GM;
 	}
+	
+	public List<Token> getTokens() {
+		return tokens;
+	}
 
+	public boolean isUsingTokenView() {
+		return tokens != null;
+	}
+	
 	@Override
 	public int hashCode() {
-		return role.hashCode();
+		return hash.hashCode();
 	}
 	
 	@Override
@@ -43,6 +64,19 @@ public class PlayerView {
 		}
 		
 		PlayerView other = (PlayerView)obj;
-		return role == other.role;
+		return hash.equals(other.hash);
+	}
+
+	private String calculateHashcode() {
+		
+		StringBuilder builder = new StringBuilder();
+		builder.append(role);
+		if (tokens != null) {
+			for (Token token : tokens) {
+				builder.append(token.getId());
+			}
+		}
+		
+		return builder.toString();
 	}
 }
