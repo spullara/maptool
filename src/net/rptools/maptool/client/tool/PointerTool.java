@@ -47,8 +47,11 @@ import java.util.Map.Entry;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+
+import com.jidesoft.dialog.JideOptionPane;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -878,8 +881,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 				ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 
-				Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
-
+				// Check to see if this is the required action
+				if (!MapTool
+						.confirmTokenDelete()) {
+					return;
+				}				
+				
+				Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();				
+				
 				for (GUID tokenGUID : selectedTokenSet) {
 
 					Token token = renderer.getZone().getToken(tokenGUID);

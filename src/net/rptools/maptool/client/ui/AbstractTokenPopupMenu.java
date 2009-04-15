@@ -828,8 +828,9 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 		public void actionPerformed(ActionEvent e) {
 
+			// check to see if this is the required action
 			if (!MapTool
-					.confirm("Are you sure you want to delete the selected tokens ?")) {
+					.confirmTokenDelete()) {
 				return;
 			}
 

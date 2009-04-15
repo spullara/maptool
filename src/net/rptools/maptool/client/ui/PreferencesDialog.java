@@ -50,6 +50,7 @@ public class PreferencesDialog extends JDialog {
 
 	// Interactions
 	private JCheckBox newMapsHaveFOWCheckBox;
+	private JCheckBox tokensPopupWarningWhenDeletedCheckBox;
 	private JCheckBox tokensStartSnapToGridCheckBox;
 	private JCheckBox newMapsVisibleCheckBox;
 	private JCheckBox newTokensVisibleCheckBox;
@@ -128,6 +129,7 @@ public class PreferencesDialog extends JDialog {
 		duplicateTokenCombo = panel.getComboBox("duplicateTokenCombo");
 		tokenNamingCombo = panel.getComboBox("tokenNamingCombo");
 		newMapsHaveFOWCheckBox = panel.getCheckBox("newMapsHaveFOWCheckBox");
+		tokensPopupWarningWhenDeletedCheckBox = panel.getCheckBox("tokensPopupWarningWhenDeletedCheckBox");//new JCheckBox();//panel.getCheckBox("testCheckBox");
 		tokensStartSnapToGridCheckBox = panel.getCheckBox("tokensStartSnapToGridCheckBox");
 		newMapsVisibleCheckBox = panel.getCheckBox("newMapsVisibleCheckBox");
 		newTokensVisibleCheckBox = panel.getCheckBox("newTokensVisibleCheckBox");
@@ -298,6 +300,11 @@ public class PreferencesDialog extends JDialog {
 		newMapsHaveFOWCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setNewMapsHaveFOW(newMapsHaveFOWCheckBox.isSelected());
+			}
+		});
+		tokensPopupWarningWhenDeletedCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setTokensWarnWhenDeleted(tokensPopupWarningWhenDeletedCheckBox.isSelected());
 			}
 		});
 		tokensStartSnapToGridCheckBox.addActionListener(new ActionListener() {
@@ -574,6 +581,7 @@ public class PreferencesDialog extends JDialog {
 			g.setFacings(faceEdges, faceVertices);
 		}
 	}
+	
 	private void setInitialState() {
 		
 		showDialogOnNewToken.setSelected(AppPreferences.getShowDialogOnNewToken());
@@ -581,6 +589,7 @@ public class PreferencesDialog extends JDialog {
 		legacySaveCheckBox.setSelected(AppPreferences.getLegacySaveFormat());
 		autoSaveSpinner.setValue(AppPreferences.getAutoSaveIncrement());
 		newMapsHaveFOWCheckBox.setSelected(AppPreferences.getNewMapsHaveFOW());
+		tokensPopupWarningWhenDeletedCheckBox.setSelected(AppPreferences.getTokensWarnWhenDeleted());
 		tokensStartSnapToGridCheckBox.setSelected(AppPreferences.getTokensStartSnapToGrid());
 		newMapsVisibleCheckBox.setSelected(AppPreferences.getNewMapsVisible());
 		newTokensVisibleCheckBox.setSelected(AppPreferences.getNewTokensVisible());

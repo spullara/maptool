@@ -91,7 +91,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 
 import com.centerkey.utils.BareBonesBrowserLaunch;
-import com.jidesoft.icons.JideIconsFactory;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
@@ -252,6 +251,41 @@ public class MapTool {
 				JOptionPane.OK_OPTION) == JOptionPane.OK_OPTION;
 	}
 
+	/**
+	 * This method is specific to deleting a token,  but it can be used as a basis
+	 * for any other method which wants to be turned off via a property
+	 * @return true if the token should be deleted.
+	 */
+	public static boolean confirmTokenDelete() {
+		if(!AppPreferences.getTokensWarnWhenDeleted()) {
+			return true;
+		}
+		
+		String msg = I18N.getText("msg.confirm.deleteToken");
+		log.debug(msg);
+		Object[] options = { I18N.getText("msg.title.messageDialog.yes"),
+				I18N.getText("msg.title.messageDialog.cancel"),
+				I18N.getText("msg.title.messageDialog.dontAskAgain") };
+		String title = I18N.getText("msg.title.messageDialogConfirm");
+		int val = JOptionPane.showOptionDialog(clientFrame, msg, title,
+	            JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
+	            null, options, options[0]);
+		
+		// Cancel Button 
+		if(val == 1) {
+			return false;
+		}
+		
+		// Don't show again Button
+		if(val == 2) {
+			showInformation("msg.confirm.deleteToken.removed");
+			AppPreferences.setTokensWarnWhenDeleted(false);
+		}
+		
+		// Assumed 'Yes' response
+		return true;
+	}
+	
 	private MapTool() {
 		// Not instantiatable
 	}
