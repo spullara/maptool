@@ -219,47 +219,8 @@ public class ZoneView implements ModelChangeListener {
 		if (tokenVisibleArea == null) {
 			
 	        Point p = FogUtil.calculateVisionCenter(token, zone);
-	        int visionDistance = zone.getTokenVisionInPixels();
-	        float visionRange = sight.getDistance();
-	        
-	        visionRange = (visionRange == 0 ) ? visionDistance: visionRange * zone.getGrid().getSize() / zone.getUnitsPerCell() ;
-
-	        if (sight.getShape()== ShapeType.SQUARE)
-	        {
-	        	Area visibleArea = new Area(new Rectangle2D.Double(-visionRange, -visionRange, visionRange*2, visionRange*2));
-	        	tokenVisibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopology());
-	        }
-	        else if(sight.getShape() == ShapeType.CONE)
-	        {
-	        	if (token.getFacing() == null) {
-	    			token.setFacing(0);
-	    		}
-	        	int offsetAngle = sight.getOffset();
-	        	
-	        	int arcAngle = sight.getArc()	;
-	        	//TODO: confirm if we want the offset to be positive-counter-clockwise, negative-clockwise or vice versa
-	       	   	//simply a matter of changing the sign on offsetAngle
-	    		
-	    		Area visibleArea = new Area(new Arc2D.Double(-visionRange, -visionRange, visionRange*2, visionRange*2
-	    				, 360.0 - (arcAngle/2.0) + (offsetAngle*1.0), arcAngle, Arc2D.PIE));
-	        	// Rotate
-				if (token.getFacing() != null) {
-					visibleArea = visibleArea.createTransformedArea(AffineTransform.getRotateInstance(-Math.toRadians(token.getFacing())));
-				}	
-				Area footprint = new Area(token.getFootprint(zone.getGrid()).getBounds(zone.getGrid()));
-				footprint = footprint.createTransformedArea(AffineTransform.getTranslateInstance(-footprint.getBounds().getWidth()/2, -footprint.getBounds().getHeight()/2));
-	    		Area tokenFootPrint = new Area(footprint); 
-	    		tokenFootPrint.add(visibleArea);
-				
-	    		tokenVisibleArea = FogUtil.calculateVisibility(p.x, p.y, tokenFootPrint, getTopology());
-	        }
-	        else 
-	        {
-	        	Area visibleArea = new Area(new Ellipse2D.Double(-visionRange, -visionRange, visionRange*2, visionRange*2));
-	        	tokenVisibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopology());
-	        }
-
-	        
+	        Area visibleArea = sight.getVisionShape(token, zone);
+	        tokenVisibleArea = FogUtil.calculateVisibility(p.x, p.y, visibleArea, getTopology());	       
 			
 			tokenVisibleAreaCache.put(token.getId(), tokenVisibleArea);
 		}

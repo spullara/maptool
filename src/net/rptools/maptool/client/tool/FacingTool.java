@@ -13,7 +13,6 @@
  */
 package net.rptools.maptool.client.tool;
 
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -27,6 +26,7 @@ import javax.swing.Action;
 import javax.swing.KeyStroke;
 
 import net.rptools.lib.swing.SwingUtil;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
@@ -110,7 +110,7 @@ public class FacingTool extends DefaultTool {
 	    	int[] facingAngles = renderer.getZone().getGrid().getFacingAngles();
 	    	degrees = facingAngles[TokenUtil.getIndexNearestTo(facingAngles, degrees)];
     	}
-    	
+    	Area visibleArea =new Area();
     	for (GUID tokenGUID : selectedTokenSet) {
     		Token token = renderer.getZone().getToken(tokenGUID);
     		if (token == null) {
@@ -118,8 +118,13 @@ public class FacingTool extends DefaultTool {
     		}
     		
     		token.setFacing(degrees);
+    		if (AppPreferences.getAutoRevealVisionOnGMMovement() && (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision())) {
+	            visibleArea = MapTool.getFrame().getCurrentZoneRenderer().getZoneView().getVisibleArea(token);
+	            MapTool.getFrame().getCurrentZoneRenderer().getZone().exposeArea(visibleArea);
+    		}
     		renderer.flush(token);
     	}
+    	MapTool.serverCommand().exposeFoW(renderer.getZone().getId(), visibleArea);
 
     	renderer.repaint(); // TODO: shrink this
     }
