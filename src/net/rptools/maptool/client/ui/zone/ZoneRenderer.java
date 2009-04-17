@@ -2249,14 +2249,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 foreground = Color.WHITE;
             }
 
-	                String name = token.getName();
-            if (view.isGMView() && token.getGMName() != null && token.getGMName().length() > 0) {
-	                    name += " (" + token.getGMName() + ")";
-	                }
+            String name = token.getName();
+			if (view.isGMView() && token.getGMName() != null && token.getGMName().length() > 0) {
+				name += " (" + token.getGMName() + ")";
+			}
 	                
             // Check to see if we should use cached image
             // Check for: view change, and display if necessary.
-            if (AppState.isShowTokenNames() || isSelected) {
+            if (AppState.isShowTokenNames()) {
 	                
                 // If no image found, or view has changed,
                 // create an image and add it to the cache.
@@ -2289,7 +2289,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                     // Draw name and label to image
                     if (hasLabel) {
                         GraphicsUtil.drawBoxedString(gLabelRender, token.getLabel(), width / 2, height - (labelHeight / 2), SwingUtilities.CENTER, background, foreground);
-            	}
+                    }
+
                     GraphicsUtil.drawBoxedString(gLabelRender, name, width / 2, labelHeight / 2, SwingUtilities.CENTER, background, foreground);
 
                     // Add image to cache
