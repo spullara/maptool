@@ -2231,35 +2231,30 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
 
             // Token names and labels
-            GUID tokId = token.getId();
-            int offset = 3; // Keep it from tramping on the token border.
-            ImageLabel background;
-            Color foreground;
-
-            if (token.isVisible()) {
-                if (token.getType() == Token.Type.NPC) {
-                    background = GraphicsUtil.BLUE_LABEL;
-                    foreground = Color.WHITE;
-                } else {
-                    background = GraphicsUtil.GREY_LABEL;
-                    foreground = Color.BLACK;
-                }
-            } else {
-                background = GraphicsUtil.DARK_GREY_LABEL;
-                foreground = Color.WHITE;
-            }
-
-            String name = token.getName();
-			if (view.isGMView() && token.getGMName() != null && token.getGMName().length() > 0) {
-				name += " (" + token.getGMName() + ")";
-			}
+            if (AppState.isShowTokenNames() || token == tokenUnderMouse) {
+	            GUID tokId = token.getId();
+	            int offset = 3; // Keep it from tramping on the token border.
+	            ImageLabel background;
+	            Color foreground;
+	
+	            if (token.isVisible()) {
+	                if (token.getType() == Token.Type.NPC) {
+	                    background = GraphicsUtil.BLUE_LABEL;
+	                    foreground = Color.WHITE;
+	                } else {
+	                    background = GraphicsUtil.GREY_LABEL;
+	                    foreground = Color.BLACK;
+	                }
+	            } else {
+	                background = GraphicsUtil.DARK_GREY_LABEL;
+	                foreground = Color.WHITE;
+	            }
+	
+	            String name = token.getName();
+				if (view.isGMView() && token.getGMName() != null && token.getGMName().length() > 0) {
+					name += " (" + token.getGMName() + ")";
+				}
 	                
-            // Check to see if we should use cached image
-            // Check for: view change, and display if necessary.
-            if (AppState.isShowTokenNames()) {
-	                
-                // If no image found, or view has changed,
-                // create an image and add it to the cache.
                 if (((lastView != null && !lastView.equals(view))) || !labelRenderingCache.containsKey(tokId)) {
                     boolean hasLabel = false;
 
@@ -2295,23 +2290,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
                     // Add image to cache
                     labelRenderingCache.put(tokId, labelRender);
-            }
-                // Create LabelRenderer using cached label.
-                delayRendering(new LabelRenderer(name,
-                        bounds.getBounds().x + bounds.getBounds().width / 2,
-                        bounds.getBounds().y + bounds.getBounds().height + offset,
-                        SwingUtilities.CENTER, background, foreground, tokId));
-
-            } else if (token == tokenUnderMouse) {
-                offset += 9;
-
-                delayRendering(new LabelRenderer(name, bounds.getBounds().x + bounds.getBounds().width / 2, bounds.getBounds().y + bounds.getBounds().height + offset, SwingUtilities.CENTER, background, foreground));
-                if (token.getLabel() != null && token.getLabel().trim().length() > 0) {
-                    FontMetrics fm = g.getFontMetrics();
-                    offset += fm.getHeight() + GraphicsUtil.BOX_PADDINGY * 2;
-
-                    delayRendering(new LabelRenderer(token.getLabel(), bounds.getBounds().x + bounds.getBounds().width / 2, bounds.getBounds().y + bounds.getBounds().height + offset, SwingUtilities.CENTER, background, foreground));
-        }
+	            }
+	
+	            // Create LabelRenderer using cached label.
+	            delayRendering(new LabelRenderer(name,
+	                        bounds.getBounds().x + bounds.getBounds().width / 2,
+	                        bounds.getBounds().y + bounds.getBounds().height + offset,
+	                        SwingUtilities.CENTER, background, foreground, tokId));
+	
             }
         }
     	timer.stop("tokenlist-12");
