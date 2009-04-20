@@ -709,10 +709,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         renderDrawableOverlay(g2d, tokenDrawableRenderer, view, zone.getDrawnElements());
         timer.stop("drawableTokens");
         
-        timer.start("visionOverlay");
-        renderPlayerVisionOverlay(g2d, view);
-        timer.stop("visionOverlay");
-        
         timer.start("tokens");
         renderTokens(g2d, zone.getTokens(), view);
         timer.stop("tokens");
@@ -729,6 +725,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         renderFog(g2d, view);
         timer.stop("fog");
         
+        timer.start("visionOverlay");
+        renderPlayerVisionOverlay(g2d, view);
+        timer.stop("visionOverlay");
+
         timer.start("visionOverlayGM");
         renderGMVisionOverlay(g2d, view);
         timer.stop("visionOverlayGM");
@@ -959,7 +959,19 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     private void renderPlayerVisionOverlay(Graphics2D g, PlayerView view) {
     	if (!view.isGMView()) {
-    		renderVisionOverlay(g, view);
+    		Graphics2D g2 = (Graphics2D)g.create();
+    		Area clip = new Area(new Rectangle(getSize().width, getSize().height));
+    		
+        	AffineTransform af = new AffineTransform();
+        	af.translate(getViewOffsetX(), getViewOffsetY());
+        	af.scale(getScale(), getScale());
+
+        	Area fog = new Area(zone.getExposedArea());
+        	fog.transform(af);
+    		clip.intersect(fog);
+    		
+    		g2.setClip(clip);
+    		renderVisionOverlay(g2, view);
     	}
     }
 
@@ -982,9 +994,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     	Area area = currentTokenVisionArea.createTransformedArea(af);
     	
+    	Stroke oldStroke = g.getStroke();
+    	g.setStroke(new BasicStroke(2));
         SwingUtil.useAntiAliasing(g);
         g.setColor(new Color(200, 200, 200));        
         g.draw(area);  
+        g.setStroke(oldStroke);
         
         boolean useHaloColor = tokenUnderMouse.getHaloColor() != null && AppPreferences.getUseHaloColorOnVisionOverlay();
         
