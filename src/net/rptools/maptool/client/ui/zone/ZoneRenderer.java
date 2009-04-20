@@ -2246,8 +2246,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
 
             // Token names and labels
-            if ((AppState.isShowTokenNames() || token == tokenUnderMouse) && (AppUtil.tokenIsVisible(zone, token, view) && (visibleScreenArea == null || GraphicsUtil.intersects(visibleScreenArea, bounds)))) {
-            	
+            System.out.println("Visible: " + AppUtil.tokenIsVisible(zone, token, view));
+            if ((AppState.isShowTokenNames() || token == tokenUnderMouse) && (view.isGMView() || (AppUtil.tokenIsVisible(zone, token, view) && (visibleScreenArea == null || GraphicsUtil.intersects(visibleScreenArea, bounds))))) {
 	            GUID tokId = token.getId();
 	            int offset = 3; // Keep it from tramping on the token border.
 	            ImageLabel background;
