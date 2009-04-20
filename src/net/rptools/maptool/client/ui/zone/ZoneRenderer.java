@@ -154,6 +154,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     private boolean isLoaded;
     private BufferedImage fogBuffer;
     private boolean flushFog = true;
+    private Area exposedFogArea; // In screen space
 	private BufferedImage miniImage;
 	private BufferedImage backbuffer;
 	private boolean drawBackground = true;
@@ -659,6 +660,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         	visibleScreenArea = new Area(zoneView.getVisibleArea(view).createTransformedArea(af));
         }
+        exposedFogArea = new Area(zone.getExposedArea());
+        if (exposedFogArea != null) {
+        	AffineTransform af = new AffineTransform();
+        	af.translate(getViewOffsetX(), getViewOffsetY());
+        	af.scale(getScale(), getScale());
+        	exposedFogArea.transform(af);
+        } else {
+        	exposedFogArea = new Area(new Rectangle(0, 0, getSize().width, getSize().height)); // fully exposed
+        }
+        
         timer.stop("calcs");
         
         // Rendering pipeline
@@ -962,13 +973,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     		Graphics2D g2 = (Graphics2D)g.create();
     		Area clip = new Area(new Rectangle(getSize().width, getSize().height));
     		
-        	AffineTransform af = new AffineTransform();
-        	af.translate(getViewOffsetX(), getViewOffsetY());
-        	af.scale(getScale(), getScale());
-
-        	Area fog = new Area(zone.getExposedArea());
-        	fog.transform(af);
-    		clip.intersect(fog);
+    		clip.intersect(exposedFogArea);
     		
     		g2.setClip(clip);
     		renderVisionOverlay(g2, view);
@@ -1544,8 +1549,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 	Rectangle bounds = new Rectangle(tx, ty, imgSize.width, imgSize.height);
                     bounds.width *= getScale();
                 	bounds.height *= getScale();
-                	
-                	if (view.isGMView() || visibleScreenArea == null || visibleScreenArea.intersects(bounds) || set.getPlayerId().equals(MapTool.getPlayer().getName())) {
+
+                	boolean showLabels = view.isGMView() || set.getPlayerId().equals(MapTool.getPlayer().getName());
+                	showLabels = showLabels || (!zone.hasFog() && visibleScreenArea == null); // no fog, no vision
+                	showLabels = showLabels || (visibleScreenArea != null && visibleScreenArea.intersects(bounds) && (!zone.hasFog() || exposedFogArea.intersects(bounds))); // vision
+                	showLabels = showLabels || (visibleScreenArea == null && zone.hasFog() && exposedFogArea.intersects(bounds)); // fog
+                	if (showLabels) {
 	                	// if the token is visible on the screen it will be in the location cache
 	                    if (tokenLocationCache.containsKey(token)) {
                             y += 10 + scaledHeight;
@@ -2246,7 +2255,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             }
 
             // Token names and labels
-            System.out.println("Visible: " + AppUtil.tokenIsVisible(zone, token, view));
             if ((AppState.isShowTokenNames() || token == tokenUnderMouse) && (view.isGMView() || (AppUtil.tokenIsVisible(zone, token, view) && (visibleScreenArea == null || GraphicsUtil.intersects(visibleScreenArea, bounds))))) {
 	            GUID tokId = token.getId();
 	            int offset = 3; // Keep it from tramping on the token border.
