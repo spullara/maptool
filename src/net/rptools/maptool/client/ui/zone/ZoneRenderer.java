@@ -971,12 +971,15 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     private void renderPlayerVisionOverlay(Graphics2D g, PlayerView view) {
     	if (!view.isGMView()) {
     		Graphics2D g2 = (Graphics2D)g.create();
-    		Area clip = new Area(new Rectangle(getSize().width, getSize().height));
-    		
-    		clip.intersect(exposedFogArea);
-    		
-    		g2.setClip(clip);
+    		if (zone.hasFog()) {
+	    		Area clip = new Area(new Rectangle(getSize().width, getSize().height));
+	    		
+	    		clip.intersect(exposedFogArea);
+	    		
+	    		g2.setClip(clip);
+    		}
     		renderVisionOverlay(g2, view);
+    		g2.dispose();
     	}
     }
 
@@ -999,12 +1002,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     	Area area = currentTokenVisionArea.createTransformedArea(af);
     	
-    	Stroke oldStroke = g.getStroke();
-    	g.setStroke(new BasicStroke(2));
         SwingUtil.useAntiAliasing(g);
         g.setColor(new Color(200, 200, 200));        
         g.draw(area);  
-        g.setStroke(oldStroke);
         
         boolean useHaloColor = tokenUnderMouse.getHaloColor() != null && AppPreferences.getUseHaloColorOnVisionOverlay();
         
