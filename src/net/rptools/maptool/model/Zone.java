@@ -180,7 +180,7 @@ public class Zone extends BaseModel {
     		// TODO: This is here to provide transition between pre 1.3b19 an 1.3b19.  Remove later
     		tokenVisionDistance = DEFAULT_TOKEN_VISION_DISTANCE;
     	}
-    	return ( tokenVisionDistance * grid.getSize() / unitsPerCell );
+    	return ( tokenVisionDistance * grid.getSize() / getUnitsPerCell() );
     }
 
     public void setFogPaint(DrawablePaint paint) {
@@ -478,7 +478,7 @@ public class Zone extends BaseModel {
     }
     
     public int getUnitsPerCell() {
-    	return unitsPerCell;
+    	return Math.max(unitsPerCell, 1);
     }
     
     public void setUnitsPerCell(int unitsPerCell) {
