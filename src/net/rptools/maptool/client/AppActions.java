@@ -252,11 +252,9 @@ public class AppActions {
 			MapTool.getFrame().setStatusMessage(I18N.getText("msg.info.screenshotSaved"));
 
 		} catch (IOException ioe) {
-			MapTool.showError("msg.error.failedExportingImage");
-			ioe.printStackTrace();
+			MapTool.showError("msg.error.failedExportingImage", ioe);
 		} catch (Exception e) {
-			MapTool.showError("msg.error.failedExportingImage");
-			e.printStackTrace();
+			MapTool.showError("msg.error.failedExportingImage", e);
 		}
 	}
 
@@ -343,8 +341,7 @@ public class AppActions {
 				}
 
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				MapTool.showError("msg.error.failedExportingCampaignRepo");
+				MapTool.showError("msg.error.failedExportingCampaignRepo" ,ioe);
 				return;
 			}
 
@@ -481,8 +478,7 @@ public class AppActions {
 				gzout.close();
 				ftp.addToQueue(new FTPTransferObject(Direction.FTP_PUT, bout.toByteArray(), topdir, "index.gz"));
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				MapTool.showError("msg.error.failedUpdatingCampaignRepo");
+				MapTool.showError("msg.error.failedUpdatingCampaignRepo", ioe);
 				return;
 			}
 		}
@@ -497,6 +493,9 @@ public class AppActions {
 		}
 	};
 
+	/**
+	 * This is the menu option that forces clients to display the GM's current map.
+	 */
 	public static final Action ENFORCE_ZONE = new ZoneAdminClientAction() {
 
 		{
@@ -529,7 +528,7 @@ public class AppActions {
 				AssetManager.searchForImageReferences(unzipDir, AppConstants.IMAGE_FILE_FILTER);
 
 			} catch (IOException ioe) {
-				MapTool.showError("msg.error.failedAddingDefaultImages");
+				MapTool.showError("msg.error.failedAddingDefaultImages", ioe);
 			}
 		}
 	};
@@ -559,8 +558,7 @@ public class AppActions {
 				MapTool.getFrame().repaint();
 
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				MapTool.showError("msg.error.failedAddingDefaultTables");
+				MapTool.showError("msg.error.failedAddingDefaultTables" ,ioe);
 			}
 		}
 	};
@@ -661,7 +659,7 @@ public class AppActions {
 			try {
 				FileUtil.writeBytes(saveFile, messageHistory.getBytes());
 			} catch (IOException ioe) {
-				MapTool.showError("msg.error.failedSavingMessageHistory");
+				MapTool.showError("msg.error.failedSavingMessageHistory", ioe);
 			}
 		}
 	};
@@ -692,7 +690,7 @@ public class AppActions {
 				String messageHistory = MapTool.getFrame().getCommandPanel().getMessageHistory();
 				FileUtil.writeBytes(saveFile, messageHistory.getBytes());
 			} catch (IOException ioe) {
-				MapTool.showError("msg.error.failedSavingMessageHistory");
+				MapTool.showError("msg.error.failedSavingMessageHistory", ioe);
 			}
 		}
 	};
@@ -707,9 +705,7 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 			DrawableUndoManager.getInstance().undo();
 			isAvailable();
-			REDO_DRAWING.isAvailable(); // XXX FJE Calling these forces the
-										// update, but won't the framework call
-										// them?
+			REDO_DRAWING.isAvailable(); // XXX FJE Calling these forces the update, but won't the framework call them?
 		}
 
 		@Override
@@ -972,10 +968,10 @@ public class AppActions {
 			}
 
 			if (MapTool.isPlayerConnected(selectedPlayer.getName())) {
-				String msg = MessageFormat.format(I18N.getText("msg.confirm.bootPlayer"), selectedPlayer.getName());
+				String msg = I18N.getText("msg.confirm.bootPlayer", selectedPlayer.getName());
 				if (MapTool.confirm(msg)) {
 					MapTool.serverCommand().bootPlayer(selectedPlayer.getName());
-					msg = MessageFormat.format(I18N.getText("msg.info.playerBooted"), selectedPlayer.getName());
+					msg = I18N.getText("msg.info.playerBooted", selectedPlayer.getName());
 					MapTool.showInformation(msg);
 					return;
 				}
@@ -986,6 +982,9 @@ public class AppActions {
 		}
 	};
 
+	/**
+	 * This is the menu option that forces the player view to continuously track the GM view.
+	 */
 	public static final Action TOGGLE_LINK_PLAYER_VIEW = new AdminClientAction() {
 		{
 			init("action.linkPlayerView");
@@ -1150,6 +1149,9 @@ public class AppActions {
 
 	};
 
+	/**
+	 * This is the menu option that warps all clients views to the current GM's view.
+	 */
 	public static final Action ENFORCE_ZONE_VIEW = new ZoneAdminClientAction() {
 		{
 			init("action.enforceView");
@@ -1277,7 +1279,7 @@ public class AppActions {
 			try {
 				putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/grid.gif")));
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
+				MapTool.showError("While retrieving built-in 'grid.gif' image", ioe);
 			}
 		}
 
@@ -1419,7 +1421,7 @@ public class AppActions {
 			try {
 				putValue(Action.SMALL_ICON, new ImageIcon(ImageUtil.getImage("net/rptools/maptool/client/image/names.png")));
 			} catch (IOException ioe) {
-				ioe.printStackTrace();
+				MapTool.showError("While retrieving built-in 'names.png' image", ioe);
 			}
 		}
 
@@ -1671,10 +1673,10 @@ public class AppActions {
 						MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
 						MapTool.addLocalMessage("<span style='color:blue'><i>" + I18N.getText("msg.info.startServer") + "</i></span>");
 					} catch (UnknownHostException uh) {
-						MapTool.showError("msg.error.invalidLocalhost");
+						MapTool.showError("msg.error.invalidLocalhost", uh);
 						failed = true;
 					} catch (IOException ioe) {
-						MapTool.showError("msg.error.failedConnect");
+						MapTool.showError("msg.error.failedConnect", ioe);
 						failed = true;
 					}
 
@@ -1682,7 +1684,7 @@ public class AppActions {
 						try {
 							MapTool.startPersonalServer(campaign);
 						} catch (IOException ioe) {
-							MapTool.showError("msg.error.failedStartPersonalServer");
+							MapTool.showError("msg.error.failedStartPersonalServer", ioe);
 						}
 					}
 				}
@@ -1740,11 +1742,10 @@ public class AppActions {
 						MapTool.getFrame().showFilledGlassPane(new StaticMessageDialog(I18N.getText("msg.info.campaignLoading")));
 
 					} catch (UnknownHostException e1) {
-						MapTool.showError("msg.error.unknownHost");
+						MapTool.showError("msg.error.unknownHost", e1);
 						failed = true;
 					} catch (IOException e1) {
-						e1.printStackTrace();
-						MapTool.showError("msg.error.failedLoadCampaign");
+						MapTool.showError("msg.error.failedLoadCampaign", e1);
 						failed = true;
 					}
 
@@ -1753,7 +1754,7 @@ public class AppActions {
 						try {
 							MapTool.startPersonalServer(oldCampaign);
 						} catch (IOException ioe) {
-							MapTool.showError("msg.error.failedStartPersonalServer");
+							MapTool.showError("msg.error.failedStartPersonalServer", ioe);
 						}
 					}
 
@@ -1795,7 +1796,7 @@ public class AppActions {
 		try {
 			MapTool.startPersonalServer(campaign);
 		} catch (IOException ioe) {
-			MapTool.showError("msg.error.failedStartPersonalServer");
+			MapTool.showError("msg.error.failedStartPersonalServer", ioe);
 		}
 	}
 
@@ -1910,8 +1911,7 @@ public class AppActions {
 					}
 
 				} catch (IOException ioe) {
-					ioe.printStackTrace();
-					MapTool.showError("msg.error.failedLoadCampaign");
+					MapTool.showError("msg.error.failedLoadCampaign", ioe);
 				}
 			}
 		}.start();
@@ -2561,14 +2561,17 @@ public class AppActions {
 	/**
 	 * This class simply provides an implementation for
 	 * <code>isAvailable()</code> that returns <code>true</code> if the system
-	 * property MAPTOOL_DEV is set to "true".
+	 * property MAPTOOL_DEV is not set to "false".  This allows it to contain the version
+	 * number of the compatible build for debugging purposes.  For example, if I'm working
+	 * on a patch to 1.3.b54, I can set MAPTOOL_DEV to 1.3.b54 in order to test it against
+	 * a 1.3.b54 client.
 	 */
 	@SuppressWarnings("serial")
 	public static abstract class DeveloperClientAction extends ClientAction {
 
 		@Override
 		public boolean isAvailable() {
-			return System.getProperty("MAPTOOL_DEV") != null && "true".equals(System.getProperty("MAPTOOL_DEV"));
+			return System.getProperty("MAPTOOL_DEV") != null && ! "false".equals(System.getProperty("MAPTOOL_DEV"));
 		}
 	}
 
