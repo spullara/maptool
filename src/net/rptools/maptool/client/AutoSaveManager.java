@@ -73,7 +73,7 @@ public class AutoSaveManager implements ActionListener {
 
 	public void actionPerformed(ActionEvent e)
 	{
-		if (working) {
+		if (working || AppState.isSaving()) {
 			return;
 		}
 		

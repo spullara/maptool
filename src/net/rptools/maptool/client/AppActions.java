@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1957,6 +1956,8 @@ public class AppActions {
 			@Override
 			protected Object doInBackground() throws Exception {
 				try {
+					AppState.setIsSaving(true);
+					
 					long start = System.currentTimeMillis();
 					PersistenceUtil.saveCampaign(campaign, file);
 					AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
@@ -1974,6 +1975,8 @@ public class AppActions {
 				} catch (Throwable t) {
 					log.error("Failure to save: " + t, t);
 					MapTool.showError("msg.error.failedSaveCampaign");
+				} finally {
+					AppState.setIsSaving(false);
 				}
 				
 				return null;

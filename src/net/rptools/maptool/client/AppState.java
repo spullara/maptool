@@ -35,6 +35,7 @@ public class AppState {
     private static boolean zoomLocked = false;
 
     private static boolean collectProfilingData = false;
+    private static boolean isSaving = false;
     
     private static PropertyChangeSupport changeSupport = new PropertyChangeSupport(AppState.class);
     
@@ -153,5 +154,12 @@ public class AppState {
 	public static void setShowLightSources(boolean show) {
 		showLightSources = show;
 	}
+
+	public synchronized static void setIsSaving(boolean saving) {
+		isSaving = saving;
+	}
 	
+	public synchronized static boolean isSaving() {
+		return isSaving;
+	}
 }
