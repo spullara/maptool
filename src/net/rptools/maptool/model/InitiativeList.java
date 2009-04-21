@@ -135,7 +135,7 @@ public class InitiativeList implements Serializable {
      * @return The token initiative data for the passed index.
      */
     public TokenInitiative getTokenInitiative(int index) {
-        return tokens.get(index);
+        return index >= 0 ? tokens.get(index) : null;
     }
 
     /**
