@@ -283,7 +283,7 @@ public class FindTokenFunctions extends AbstractFunction {
 			} else if ("unsetStates".equalsIgnoreCase(searchType)) {
 				// ignore
 			} else {
-				if (jobj.getBoolean(searchType)) {
+				if (booleanCheck(jobj, searchType)) {
 					List<Token> lst = null;
 					if ("npc".equalsIgnoreCase(searchType)) {
 						lst = getTokenList(parser, FindType.NPC, "");
@@ -332,7 +332,7 @@ public class FindTokenFunctions extends AbstractFunction {
 			} else if ("area".equalsIgnoreCase(searchType)) {
 				// ignore
 			} else {
-				if (!jobj.getBoolean(searchType)) {
+				if (!booleanCheck(jobj, searchType)) {
 					inverseList.clear();
 					inverseList.addAll(allTokens);
 					if ("npc".equalsIgnoreCase(searchType)) {
@@ -385,7 +385,7 @@ public class FindTokenFunctions extends AbstractFunction {
 			}
 			boolean useDistancePerCell = true;
 			if (range.containsKey("distancePerCell")) {
-				useDistancePerCell = range.getBoolean("distancePerCell");
+				useDistancePerCell = booleanCheck(range, "distancePerCell");
 			}
 			
 			String metric = null;
@@ -474,6 +474,26 @@ public class FindTokenFunctions extends AbstractFunction {
 			return StringFunctions.getInstance().join(values, delim);
 		}
 
+	}
+
+
+	private boolean booleanCheck(JSONObject jobj, String searchType) {
+		Object val = jobj.get(searchType);
+		if (val instanceof Boolean) {
+			if (Boolean.TRUE.equals(val)) {
+				return true;
+			} else {
+				return false;
+			}
+		} else if (val instanceof Integer) {
+			if (Integer.valueOf(0).equals(val)) {
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+			return val == null ? true : false;
+		}
 	}
 
 

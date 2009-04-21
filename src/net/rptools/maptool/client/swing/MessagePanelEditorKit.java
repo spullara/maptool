@@ -32,8 +32,14 @@ public class MessagePanelEditorKit extends HTMLEditorKit {
 
 	private ImageLoaderCache imageCache = new ImageLoaderCache();
 
+	private boolean macroLinkTTips = true;
+	
 	public MessagePanelEditorKit() {
 		viewFactory = new MessagePanelViewFactory();
+	}
+
+	public void setUseMacroLinkToolTips(boolean show) {
+		macroLinkTTips = show;
 	}
 	
 	@Override
@@ -59,7 +65,7 @@ public class MessagePanelEditorKit extends HTMLEditorKit {
 				    return new MessagePanelImageView(elem, imageCache);
 				}
 				if (kind == HTML.Tag.CONTENT) {
-					return new TooltipView(elem);
+					return new TooltipView(elem, macroLinkTTips);
 				}
 		    }
 

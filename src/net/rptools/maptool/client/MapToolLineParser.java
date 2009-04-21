@@ -1276,9 +1276,15 @@ public class MapToolLineParser {
 		}
 
 	}    
+	
+	public String runMacro(MapToolVariableResolver resolver, Token tokenInContext, String qMacroName, String args) 
+	throws ParserException {
+		return runMacro(resolver, tokenInContext, qMacroName, args, true);
+	}
+	
 
 	/** Runs a macro from a specified location. */
-	public String runMacro(MapToolVariableResolver resolver, Token tokenInContext, String qMacroName, String args) 
+	public String runMacro(MapToolVariableResolver resolver, Token tokenInContext, String qMacroName, String args, boolean createNewVariableContext) 
 	throws ParserException {
 		
 		MapToolMacroContext macroContext;
@@ -1370,7 +1376,13 @@ public class MapToolLineParser {
 			throw new ParserException(I18N.getText("lineParser.unknownMacro", macroName));
 		}
 
-		MapToolVariableResolver macroResolver = new MapToolVariableResolver(tokenInContext);
+		
+		MapToolVariableResolver macroResolver;
+		if (createNewVariableContext) {
+			macroResolver = new MapToolVariableResolver(tokenInContext);
+		} else {
+			macroResolver = resolver;
+		}
 		macroResolver.setVariable("macro.args", args);
 		Object obj = JSONMacroFunctions.convertToJSON(args);
 		if (obj instanceof JSONArray) {

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -427,21 +428,36 @@ public class EditTokenDialog extends AbeillePanel<Token> {
         }
 
         // Ownership
-		token.clearAllOwners();
-		
-		for (int i = 0; i < getOwnerList().getModel().getSize(); i++) {
-			DefaultSelectable selectable = (DefaultSelectable) getOwnerList().getModel().getElementAt(i);
-			if (selectable.isSelected()) {
-				token.addOwner((String) selectable.getObject());
-			}
-		}
-		
-		// If we are not a GM and the only owner make sure we can't take our selves off of the owners list
-		if (!MapTool.getPlayer().isGM()) {
-			if (token.getOwners() == null || token.getOwners().size() == 0)
-			token.addOwner(MapTool.getPlayer().getName());
-		}
+        // If the token is owned by all and we are a player don't alter the ownership list.
+        if (MapTool.getPlayer().isGM() || !token.isOwnedByAll()) {
 
+        	token.clearAllOwners();
+
+        	for (int i = 0; i < getOwnerList().getModel().getSize(); i++) {
+        		DefaultSelectable selectable = (DefaultSelectable) getOwnerList().getModel().getElementAt(i);
+        		if (selectable.isSelected()) {
+        			token.addOwner((String) selectable.getObject());
+        		}
+        	}
+
+        	// If we are not a GM and the only non GM owner make sure we can't take our selves off of the owners list
+        	if (!MapTool.getPlayer().isGM()) {
+        		boolean hasPlayer = false;
+        		Set<String> owners = token.getOwners();
+        		if (owners != null) {
+        			Iterator<Player> playerIter = MapTool.getPlayerList().iterator();
+        			while (playerIter.hasNext()) {
+        				Player pl = playerIter.next();
+        				if (!pl.isGM() && owners.contains(pl.getName())) {
+        					hasPlayer = true;
+        				}
+        			}
+        		}
+        		if (!hasPlayer) {
+        			token.addOwner(MapTool.getPlayer().getName());
+        		}
+        	}
+        }
 		// SHAPE
 		token.setShape((Token.TokenShape)getShapeCombo().getSelectedItem());
 		

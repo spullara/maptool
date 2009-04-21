@@ -24,7 +24,7 @@ import net.sf.json.JSONArray;
 
 public class UserDefinedMacroFunctions implements Function {
 
-	private Map<String, String> userDefinedFunctions = new HashMap<String, String>();
+	private Map<String, FunctionDefinition> userDefinedFunctions = new HashMap<String, FunctionDefinition>();
 	private Map<String, FunctionRedefinition> redefinedFunctions = new HashMap<String, FunctionRedefinition>();
 	private Stack<String> currentFunction = new Stack<String>();
 	
@@ -40,6 +40,20 @@ public class UserDefinedMacroFunctions implements Function {
 	
 	private static int getNameCounter() {
 		return nameCounter++;
+	}
+	
+	
+	private static class FunctionDefinition {
+		
+		public FunctionDefinition(String macroName, boolean ignoreOutput, boolean newVariableContext) {
+			this.macroName = macroName;
+			this.ignoreOutput = ignoreOutput;
+			this.newVariableContext = newVariableContext;
+		}
+		
+		String macroName;
+		boolean ignoreOutput;
+		boolean newVariableContext;
 	}
 	
 	private static class FunctionRedefinition { 
@@ -63,23 +77,36 @@ public class UserDefinedMacroFunctions implements Function {
 			List<Object> parameters) throws ParserException {
 		MapToolVariableResolver resolver = (MapToolVariableResolver) parser
 				.getVariableResolver();
-		MapToolVariableResolver newResolver = new MapToolVariableResolver(
-				resolver.getTokenInContext());
+		MapToolVariableResolver newResolver;
 		JSONArray jarr = new JSONArray();
 
 		jarr.addAll(parameters);
 		String macroArgs = jarr.size() > 0 ? jarr.toString() : "";
 		String output;
+		FunctionDefinition funcDef = userDefinedFunctions.get(functionName);
+		
+		if (funcDef.newVariableContext) {
+			 newResolver = new MapToolVariableResolver(
+						resolver.getTokenInContext());
+		} else {
+			newResolver = resolver;
+		}
+		
 		try {
 			currentFunction.push(functionName);
-			output = MapTool.getParser().runMacro(newResolver,
+			output = MapTool.getParser().runMacro(resolver,
 					newResolver.getTokenInContext(),
-					userDefinedFunctions.get(functionName), macroArgs);
+					funcDef.macroName, macroArgs, funcDef.newVariableContext);
 		} finally {
 			currentFunction.pop();
 		}
-		resolver.setVariable("macro.return", newResolver
-				.getVariable("macro.return"));
+		//resolver.setVariable("macro.return", newResolver
+		//		.getVariable("macro.return"));
+		
+		if (funcDef.ignoreOutput) {
+			return resolver.getVariable("macro.return");
+		}
+		
 		String stripOutput = output.replaceAll("(?s)<!--.*?-->", ""); // Strip comments
 		if (stripOutput.trim().length() == 0) {
 			output = resolver.getVariable("macro.return").toString();
@@ -121,7 +148,7 @@ public class UserDefinedMacroFunctions implements Function {
 		return true;
 	}
 
-	public void defineFunction(Parser parser, String name, String macro)
+	public void defineFunction(Parser parser, String name, String macro, boolean ignoreOutput, boolean newVariableContext)
 			throws ParserException {
 		if (parser.getFunction(name) != null) {
 			FunctionRedefinition fr = new FunctionRedefinition();
@@ -142,7 +169,8 @@ public class UserDefinedMacroFunctions implements Function {
 			}	
 			redefinedFunctions.put(name, fr);
 		}
-		userDefinedFunctions.put(name, macro);
+		
+		userDefinedFunctions.put(name, new FunctionDefinition(macro, ignoreOutput, newVariableContext));
 	}
 
 	

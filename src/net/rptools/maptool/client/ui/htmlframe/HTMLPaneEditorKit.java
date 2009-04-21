@@ -10,6 +10,7 @@ class HTMLPaneEditorKit extends MessagePanelEditorKit {
 	private final HTMLPaneViewFactory viewFactory;
 	
 	HTMLPaneEditorKit(HTMLPane htmlPane) {
+		setUseMacroLinkToolTips(false);
 		viewFactory = new HTMLPaneViewFactory(super.getViewFactory(), htmlPane);
 	}
 
@@ -23,4 +24,4 @@ class HTMLPaneEditorKit extends MessagePanelEditorKit {
 	}
 
 
-}
+}	

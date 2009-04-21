@@ -21,13 +21,15 @@ import net.rptools.maptool.client.functions.MacroLinkFunction;
 
 public class TooltipView extends InlineView {
 
+	private boolean mlToolTips;
     /**
      * Constructs a new view wrapped on an element.
      *
      * @param elem the element
      */
-    public TooltipView(Element elem) {
+    public TooltipView(Element elem, boolean macroLinkToolTips) {
     	super(elem);
+    	mlToolTips = macroLinkToolTips;
     }
     
     @Override
@@ -38,7 +40,10 @@ public class TooltipView extends InlineView {
     	if (att != null) {
     		String href = att.getAttribute(HTML.Attribute.HREF).toString();
     		if (href.startsWith("macro:")) {
-    			return MacroLinkFunction.getInstance().macroLinkToolTip(href);
+    			if (mlToolTips) {
+    				return MacroLinkFunction.getInstance().macroLinkToolTip(href);
+    			} 
+    			// if we are not displaying macro link tooltips let if fall through so that any span tooltips will be displayed
     		} else  {
     			return href;
     		}

@@ -16,7 +16,7 @@ public class DefineMacroFunction extends AbstractFunction {
 	private static final DefineMacroFunction instance = new DefineMacroFunction();
 
 	private DefineMacroFunction() {
-		super(0, 2, "defineFunction", "isFunctionDefined", "oldFunction");
+		super(0, UNLIMITED_PARAMETERS, "defineFunction", "isFunctionDefined", "oldFunction");
 	}
 	
 	
@@ -42,7 +42,23 @@ public class DefineMacroFunction extends AbstractFunction {
 				macro = macro.substring(0, macro.length() - 4) + MapTool.getParser().getMacroSource();
 			}
 			
-			UserDefinedMacroFunctions.getInstance().defineFunction(parser, parameters.get(0).toString(), macro);
+			boolean ignoreOutput = false;
+			if (parameters.size() > 2) {
+				if (!(parameters.get(2) instanceof BigDecimal)) {
+					throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3));
+				}
+				ignoreOutput = !BigDecimal.ZERO.equals(parameters.get(2));
+			}
+			boolean newVariableContext = true;
+			if (parameters.size() > 3) {
+				if (!(parameters.get(3) instanceof BigDecimal)) {
+					throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 4));
+				}
+				newVariableContext = !BigDecimal.ZERO.equals(parameters.get(3));
+			}
+			
+			
+			UserDefinedMacroFunctions.getInstance().defineFunction(parser, parameters.get(0).toString(), macro, ignoreOutput, newVariableContext);
 			return I18N.getText("macro.function.defineFunction.functionDefined", parameters.get(0).toString());
 		} else if (functionName.equals("oldFunction")) {
 			return UserDefinedMacroFunctions.getInstance().executeOldFunction(parser, parameters);

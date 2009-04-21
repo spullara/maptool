@@ -9,6 +9,7 @@ import java.util.Set;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.WalkerMetric;
 import net.rptools.maptool.client.walker.ZoneWalker;
@@ -217,10 +218,10 @@ public class TokenLocationFunctions extends AbstractFunction {
 				sb.append(I18N.getText("macro.function.moveTokenMap.unknownToken", functionName, id)).append("<br>");
 			} else {
 				Grid grid = toZone.getGrid();
-				Dimension dim = grid.getCellOffset();
-
-				x = x * grid.getSize() + dim.width + grid.getOffsetX();
-				y = y * grid.getSize() - dim.height + grid.getOffsetY();
+				
+				ZonePoint zp = grid.convert(new CellPoint(x,y));
+				x = zp.x;
+				y = zp.y;
 						 
 				token.setX(x);
 				token.setY(y);
@@ -290,19 +291,10 @@ public class TokenLocationFunctions extends AbstractFunction {
 		
 		if (grid.getCapabilities().isPathingSupported() && !NO_GRID.equals(metric)) {
 			
-			// Get the center of our tokens so we can get which cells it occupies.
-			Dimension dim = grid.getCellOffset();
-			double d = source.getFootprint(grid).getScale();
-			double sourceCenterX = source.getX() + dim.getWidth() + (d * grid.getSize())/2;
-			double sourceCenterY = source.getY() + dim.getHeight() + (d *  grid.getSize())/2;
-			d = target.getFootprint(grid).getScale();
-			double targetCenterX = target.getX() - grid.getOffsetX() + (d * grid.getSize())/2;
-			double targetCenterY = target.getY() - grid.getOffsetY() + (d * grid.getSize())/2;
-			
 			// Get which cells our tokens occupy
-			Set<CellPoint> sourceCells = source.getFootprint(grid).getOccupiedCells(grid.convert(new ZonePoint((int)sourceCenterX, (int)sourceCenterY)));
-			Set<CellPoint> targetCells = target.getFootprint(grid).getOccupiedCells(grid.convert(new ZonePoint((int)targetCenterX, (int)targetCenterY)));
-
+			Set<CellPoint> sourceCells = source.getFootprint(grid).getOccupiedCells(grid.convert(new ZonePoint(source.getX(), source.getY())));
+			Set<CellPoint> targetCells = target.getFootprint(grid).getOccupiedCells(grid.convert(new ZonePoint(target.getX(), target.getY())));
+			
 			ZoneWalker walker;
 			if (metric != null && grid instanceof SquareGrid) {
 				try {
@@ -367,14 +359,9 @@ public class TokenLocationFunctions extends AbstractFunction {
 		
 		if (grid.getCapabilities().isPathingSupported() && !NO_GRID.equals(metric)) {
 			
-			// Get the center of our tokens so we can get which cells it occupies.
-			Dimension dim = grid.getCellOffset();
-			double d = source.getFootprint(grid).getScale();
-			double sourceCenterX = source.getX() + dim.getWidth() + (d * grid.getSize())/2;
-			double sourceCenterY = source.getY() + dim.getHeight() + (d * grid.getSize())/2;
 			
 			// Get which cells our tokens occupy
-			Set<CellPoint> sourceCells = source.getFootprint(grid).getOccupiedCells(grid.convert(new ZonePoint((int)sourceCenterX, (int)sourceCenterY)));
+			Set<CellPoint> sourceCells = source.getFootprint(grid).getOccupiedCells(grid.convert(new ZonePoint(source.getX(), source.getY())));
 
 			ZoneWalker walker;
 			if (metric != null && grid instanceof SquareGrid) {
@@ -515,23 +502,19 @@ public class TokenLocationFunctions extends AbstractFunction {
 	 * @param units use map units or not.
 	 */
 	public void moveToken(Token token, int x, int y, boolean units) {
+		
 		Grid grid = MapTool.getFrame().getCurrentZoneRenderer().getZone().getGrid();
-		Dimension dim = grid.getCellOffset();
-
+		
 		if (units) {
-			token.setX(x);
-			token.setY(y);
-			return;
+			ZonePoint zp = new ZonePoint(x,y);
+			token.setX(zp.x);
+			token.setY(zp.y);
+		} else {
+			CellPoint cp = new CellPoint(x,y);
+			ZonePoint zp = grid.convert(cp);
+			token.setX(zp.x);
+			token.setY(zp.y);
 		}
-
-		x = x * grid.getSize() + dim.width + grid.getOffsetX();
-		y = y * grid.getSize() - dim.height + grid.getOffsetY();
-		
- 
-		token.setX(x);
-		token.setY(y);
-		
-		
 	}
 
 	/**
