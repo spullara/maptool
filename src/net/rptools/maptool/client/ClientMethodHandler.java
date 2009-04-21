@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
-import antlr.collections.List;
-
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
@@ -438,6 +436,9 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 	y = (Integer)parameters[2];
                 	
                 	Pointer pointer = MapTool.getFrame().getPointerOverlay().getPointer(player);
+                	if (pointer == null) {
+                		return;
+                	}
                 	pointer.setX(x);
                 	pointer.setY(y);
                 	
