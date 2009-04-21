@@ -439,6 +439,10 @@ public class Zone extends BaseModel {
     }
     
     public void exposeArea(Area area) {
+    	if (area == null) {
+    		return;
+    	}
+    	
     	exposedArea.add(area);
         fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
     }
@@ -449,6 +453,9 @@ public class Zone extends BaseModel {
     }
     
     public void hideArea(Area area) {
+    	if (area == null) {
+    		return;
+    	}
     	exposedArea.subtract(area);
         fireModelChangeEvent(new ModelChangeEvent(this, Event.FOG_CHANGED));
     }
