@@ -124,6 +124,9 @@ public class AppPreferences {
 	private static final String KEY_MOVEMENT_METRIC = "movementMetric";
 	private static final WalkerMetric DEFAULT_MOVEMENT_METRIC = WalkerMetric.ONE_TWO_ONE;
 
+	private static final String KEY_SHOW_STAT_SHEET = "showStatSheet";
+	private static final boolean DEFAULT_SHOW_STAT_SHEET = true;
+	
 	public static Color getChatColor() {
 		return new Color(prefs.getInt(KEY_CHAT_COLOR, DEFAULT_CHAT_COLOR
 				.getRGB()));
@@ -596,6 +599,14 @@ public class AppPreferences {
 
 	public static void setDefaultGridType(String type) {
 		prefs.put(KEY_DEFAULT_GRID_TYPE, type);
+	}
+
+	public static boolean getShowStatSheet() {
+		return prefs.getBoolean(KEY_SHOW_STAT_SHEET, DEFAULT_SHOW_STAT_SHEET);
+	}
+
+	public static void setShowStatSheet(boolean show) {
+		prefs.putBoolean(KEY_SHOW_STAT_SHEET, show);
 	}
 
 	public static void setMovementMetric(WalkerMetric metric) {

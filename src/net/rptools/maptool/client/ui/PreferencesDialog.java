@@ -63,6 +63,7 @@ public class PreferencesDialog extends JDialog {
 	private JComboBox tokenNamingCombo;
 	private JComboBox showNumberingCombo;
 	private JComboBox movementMetricCombo;
+	private JCheckBox showStatSheetCheckBox;
     
     private JSpinner haloLineWidthSpinner;
     private JSpinner visionOverlayOpacitySpinner;
@@ -122,6 +123,7 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		
+		showStatSheetCheckBox = panel.getCheckBox("showStatSheet");
 		showNumberingCombo = panel.getComboBox("showNumberingCombo");
 		saveReminderCheckBox = panel.getCheckBox("saveReminderCheckBox");
 		legacySaveCheckBox = panel.getCheckBox("legacySaveCheckBox");
@@ -335,6 +337,11 @@ public class PreferencesDialog extends JDialog {
 		stampsStartSnapToGridCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setObjectsStartSnapToGrid(stampsStartSnapToGridCheckBox.isSelected());
+			}
+		});
+		showStatSheetCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setShowStatSheet(showStatSheetCheckBox.isSelected());
 			}
 		});
 		backgroundsStartFreeSizeCheckBox.addActionListener(new ActionListener() {
@@ -597,6 +604,7 @@ public class PreferencesDialog extends JDialog {
 		tokensStartFreeSizeCheckBox.setSelected(AppPreferences.getTokensStartFreesize());
 		stampsStartSnapToGridCheckBox.setSelected(AppPreferences.getObjectsStartSnapToGrid());
 		backgroundsStartFreeSizeCheckBox.setSelected(AppPreferences.getBackgroundsStartFreesize());
+		showStatSheetCheckBox.setSelected(AppPreferences.getShowStatSheet());
 		backgroundsStartSnapToGridCheckBox.setSelected(AppPreferences.getBackgroundsStartSnapToGrid());
 		defaultGridSizeTextField.setText(Integer.toString(AppPreferences.getDefaultGridSize()));
 		defaultUnitsPerCellTextField.setText(Integer.toString(AppPreferences.getDefaultUnitsPerCell()));

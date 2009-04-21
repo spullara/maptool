@@ -47,11 +47,8 @@ import java.util.Map.Entry;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-
-import com.jidesoft.dialog.JideOptionPane;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -1287,6 +1284,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (tokenUnderMouse != null && !isDraggingToken && AppUtil.tokenIsVisible(renderer.getZone(), tokenUnderMouse, new PlayerView(MapTool.getPlayer().getRole()))) {
 
 			if (AppPreferences.getPortraitSize() > 0 && (tokenOnStatSheet == null || !tokenOnStatSheet.equals(tokenUnderMouse) || statSheet == null)) {
+
 				tokenOnStatSheet = tokenUnderMouse;
 
 				// Portrait
@@ -1301,34 +1299,36 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				// Stats
 				Dimension statSize = null;
 				Map<String, String> propertyMap = new LinkedHashMap<String, String>();
-				for (TokenProperty property : MapTool.getCampaign().getTokenPropertyList(tokenUnderMouse.getPropertyType())) {
-
-					if (property.isShowOnStateSheet()) {
-
-						if (property.isGMOnly() && !MapTool.getPlayer().isGM()) {
-							continue;
-						}
-
-						if (property.isOwnerOnly() && !AppUtil.playerOwns(tokenUnderMouse)) {
-							continue;
-						}
-
-						Object propertyValue = tokenUnderMouse.getEvaluatedProperty(property.getName());
-						if (propertyValue != null) {
-							if (propertyValue.toString().length() > 0) {
-								String propName = property.getName();
-								if (property.getShortName() != null) {
-									propName = property.getShortName();
+				if (AppPreferences.getShowStatSheet()) {
+					for (TokenProperty property : MapTool.getCampaign().getTokenPropertyList(tokenUnderMouse.getPropertyType())) {
+	
+						if (property.isShowOnStateSheet()) {
+	
+							if (property.isGMOnly() && !MapTool.getPlayer().isGM()) {
+								continue;
+							}
+	
+							if (property.isOwnerOnly() && !AppUtil.playerOwns(tokenUnderMouse)) {
+								continue;
+							}
+	
+							Object propertyValue = tokenUnderMouse.getEvaluatedProperty(property.getName());
+							if (propertyValue != null) {
+								if (propertyValue.toString().length() > 0) {
+									String propName = property.getName();
+									if (property.getShortName() != null) {
+										propName = property.getShortName();
+									}
+	
+									Object value = tokenUnderMouse.getEvaluatedProperty(property.getName());
+	
+									propertyMap.put(propName, value != null ? value.toString() : "");
 								}
-
-								Object value = tokenUnderMouse.getEvaluatedProperty(property.getName());
-
-								propertyMap.put(propName, value != null ? value.toString() : "");
 							}
 						}
 					}
 				}
-
+				
 				if (tokenUnderMouse.getPortraitImage() != null || propertyMap.size() > 0) {
 					Font font = AppStyle.labelFont;
 					FontMetrics valueFM = g.getFontMetrics(font);
