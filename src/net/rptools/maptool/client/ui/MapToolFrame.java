@@ -352,8 +352,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
     	((ClientAction)AppActions.SHOW_ABOUT).execute(null);
     }
     
-    public void macOSXExit() {
+    public boolean macOSXExit() {
     	((ClientAction)AppActions.EXIT).execute(null);
+    	// Always return false to abort exit from os.  Above call will close app normally if user accepts
+    	return false;
     }
     
     public void macOSXPreferences() {
