@@ -832,7 +832,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	    	List<DrawableLight> otherLightList = new LinkedList<DrawableLight>();
 	    	for (DrawableLight light : zoneView.getDrawableLights()) {
 	    		if (light.getType() == LightSource.Type.NORMAL) {
-	    			if (zone.getVisionType() == Zone.VisionType.NIGHT) {
+	    			if (zone.getVisionType() == Zone.VisionType.NIGHT && light.getPaint() != null) {
 			    		List<Area> areaList = colorMap.get(light.getPaint().getPaint());
 			    		if (areaList == null) {
 			    			areaList = new ArrayList<Area>();

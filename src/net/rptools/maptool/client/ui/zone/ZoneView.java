@@ -127,7 +127,13 @@ public class ZoneView implements ModelChangeListener {
 		return area;
     }
 	
+    private Area calculatePersonalLightSourceArea(LightSource lightSource, Token lightSourceToken, SightType sight, Direction direction) {
+    	return calculateLightSourceArea(lightSource, lightSourceToken, sight, direction, true);
+    }
     private Area calculateLightSourceArea(LightSource lightSource, Token lightSourceToken, SightType sight, Direction direction) {
+    	return calculateLightSourceArea(lightSource, lightSourceToken, sight, direction, false);
+    }
+    private Area calculateLightSourceArea(LightSource lightSource, Token lightSourceToken, SightType sight, Direction direction, boolean isPersonalLight) {
     	
     	if (sight == null) {
     		return null;
@@ -165,7 +171,7 @@ public class ZoneView implements ModelChangeListener {
             lightArea.transform(AffineTransform.getTranslateInstance(p.x, p.y));
             lightArea.intersect(visibleArea);
 
-            if (light.getPaint() != null) {
+            if (light.getPaint() != null || isPersonalLight) {
             	lightSet.add(new DrawableLight(lightSource.getType(), light.getPaint(), lightArea));
             } else {
             	brightLightSet.add(lightArea);
@@ -257,7 +263,7 @@ public class ZoneView implements ModelChangeListener {
             // Check for personal vision
             
             if (sight != null && sight.hasPersonalLightSource()) {
-    			Area lightArea = calculateLightSourceArea(sight.getPersonalLightSource(), token, sight, Direction.CENTER);
+    			Area lightArea = calculatePersonalLightSourceArea(sight.getPersonalLightSource(), token, sight, Direction.CENTER);
     			if (lightArea != null) {
             		Area intersection = new Area(tokenVisibleArea);
             		intersection.intersect(lightArea);
