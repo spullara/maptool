@@ -11,7 +11,7 @@ Class-Path: lib/BareBonesBrowserLaunch.jar lib/abeille-formsrt-2.0.jar
   lib/jide-dialogs-2.4.8.jar lib/jide-dock-2.4.8.jar lib/jide-editor-2
  .4.8.jar lib/jide-grids-2.4.8.jar lib/jide-oss-2.4.8.jar lib/jide-pro
  perties-2.4.8.jar lib/jl1.0.jar lib/js-1.7R1.jar lib/json-lib-2.2.2-j
- dk15.jar lib/log4j-1.2.15.jar lib/maptool.resource-1.0.b16.jar lib/pa
+ dk15.jar lib/log4j-1.2.15.jar lib/maptool.resource-1.0.b17.jar lib/pa
  rser-1.1.b20.jar lib/renderpack-1.2004.jar lib/rplib-1.0.b117.jar lib
  /sbbi-upnplib-1.0.4.jar lib/servicediscoverylib-1.0.b5.jar lib/swing-
  worker-0.1.jar lib/tinylaf-1.3.04.jar lib/withay-util.jar lib/xpp3_mi
