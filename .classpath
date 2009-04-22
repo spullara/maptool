@@ -18,7 +18,6 @@
 	<classpathentry kind="lib" path="lib/commons-jxpath-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/sbbi-upnplib-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/decktool-1.0.b1.jar"/>
-	<classpathentry kind="lib" path="lib/maptool.resource-1.0.b16.jar"/>
 	<classpathentry kind="lib" path="lib/hessian-3.1.6.jar"/>
 	<classpathentry kind="lib" path="lib/clientserver-1.0.b14.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
@@ -69,5 +68,6 @@
 	<classpathentry kind="lib" path="lib/jide-properties-2.4.8.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/rplib-1.0.b117.jar"/>
+	<classpathentry kind="lib" path="lib/maptool.resource-1.0.b17.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
