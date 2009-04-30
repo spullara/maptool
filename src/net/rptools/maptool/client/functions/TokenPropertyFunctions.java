@@ -187,7 +187,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			if (parameters.size() > 0) {
 				return token.isOwner(parameters.get(0).toString());
 			} 
-			return token.isOwner(MapTool.getPlayer().getName()); 
+			return token.isOwner(MapTool.getPlayer().getName()) ? BigDecimal.ONE : BigDecimal.ZERO	; 
 		}
 		
 		if (functionName.equals("resetProperty")) {

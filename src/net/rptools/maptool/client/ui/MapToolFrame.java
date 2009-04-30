@@ -1542,7 +1542,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		 
 		public void actionPerformed(ActionEvent e) {
 			if (macroButton.getProperties().getApplyToTokens()) {
-				macroButton.getProperties().executeMacro(MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList());
+				if (MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList().size() > 0) {
+					macroButton.getProperties().executeMacro(MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList());
+				}
 			} else {
 				macroButton.getProperties().executeMacro();
 			}

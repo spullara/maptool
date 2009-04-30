@@ -188,7 +188,9 @@ public class MacroButton extends JButton implements MouseListener
 			// If any of the following 3 conditions are correct we want to run it against all selected tokens,
 			// Shift is held down while clicking the button, the button has apply to selected tokens set, or its a common macro button
 			if (SwingUtil.isShiftDown(event) || properties.getApplyToTokens() || properties.getCommonMacro()) {
-				properties.executeMacro(MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList());
+				if (MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList().size() > 0) {
+					properties.executeMacro(MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList());
+				}
 			} else {
 				properties.executeMacro();
 			}

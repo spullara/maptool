@@ -44,7 +44,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 		new TokenLocationFunctions();
 
 	private TokenLocationFunctions() {
-		super(0, 4, "getTokenX", "getTokenY", "getTokenDrawOrder", "getDistance", "moveToken", 
+		super(0, 5, "getTokenX", "getTokenY", "getTokenDrawOrder", "getDistance", "moveToken", 
 				    "goto", "getDistanceToXY", "setTokenDrawOrder", "moveTokenToMap", "moveTokenFromMap");
 	}
 
@@ -479,8 +479,8 @@ public class TokenLocationFunctions extends AbstractFunction {
 		}
 		
 		String metric = null;
-		if (args.size() > 3) {
-			metric = (String)args.get(3);
+		if (args.size() > 4) {
+			metric = (String)args.get(4);
 		}
 
 		double dist = getDistance(source, x, y, useDistancePerCell, metric);
