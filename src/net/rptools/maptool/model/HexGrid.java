@@ -47,8 +47,6 @@ public abstract class HexGrid extends Grid {
 
 	protected static BufferedImage pathHighlight;
 
-	private static List<TokenFootprint> footprintList;
-
 	static {
 		try {
 			pathHighlight = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/hexBorder.png");
@@ -419,18 +417,6 @@ public abstract class HexGrid extends Grid {
 		return getURadius()*2;
 	}
 
-	@Override
-	public List<TokenFootprint> getFootprints() {
-		if (footprintList == null) {
-			try {
-				footprintList = loadFootprints("net/rptools/maptool/model/hexGridFootprints.xml", getOffsetTranslator());
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				MapTool.showError("Could not load Hex Grid footprints");
-			}
-		}
-		return footprintList;
-	}
 	
 	protected abstract OffsetTranslator getOffsetTranslator();
 }

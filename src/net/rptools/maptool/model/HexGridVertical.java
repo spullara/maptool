@@ -16,8 +16,11 @@ package net.rptools.maptool.model;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.List;
 
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.walker.ZoneWalker;
 import net.rptools.maptool.client.walker.astar.AStarVertHexEuclideanWalker;
@@ -27,10 +30,11 @@ public class HexGridVertical extends HexGrid {
 	
 	private static final int[] ALL_ANGLES = new int[] {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180};
 	private static int[] FACING_ANGLES; // = new int[] {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180};
+	private static List<TokenFootprint> footprintList;
 	
 	private static final OffsetTranslator OFFSET_TRANSLATOR = new OffsetTranslator() {
 		public void translate(CellPoint originPoint, CellPoint offsetPoint) {
-			if (originPoint.x%2==1 && offsetPoint.x%2==0) {
+			if (Math.abs(originPoint.x)%2==1 && Math.abs(offsetPoint.x)%2==0) {
 				offsetPoint.y++;
 			}
 		}
@@ -60,6 +64,19 @@ public class HexGridVertical extends HexGrid {
 		} else {
 			FACING_ANGLES = new int[] {90};			
 		}		
+	}
+
+	@Override
+	public List<TokenFootprint> getFootprints() {
+		if (footprintList == null) {
+			try {
+				footprintList = loadFootprints("net/rptools/maptool/model/hexGridVertFootprints.xml", getOffsetTranslator());
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+				MapTool.showError("Could not load Hex Grid footprints");
+			}
+		}
+		return footprintList;
 	}
 
 	@Override
