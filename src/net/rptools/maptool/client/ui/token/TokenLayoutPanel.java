@@ -86,9 +86,11 @@ public class TokenLayoutPanel extends JPanel {
 				Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 				
 				int halfGridSize = zone.getGrid().getSize() / 2;
+				int maxXoff = Math.max(halfGridSize, token.getBounds(zone).width - zone.getGrid().getSize());
+				int maxYoff = Math.max(halfGridSize, token.getBounds(zone).height - zone.getGrid().getSize());
 
-				int offX = Math.min(halfGridSize, Math.max(token.getAnchor().x + dx, -halfGridSize));
-				int offY = Math.min(halfGridSize, Math.max(token.getAnchor().y + dy, -halfGridSize));
+				int offX = Math.min(maxXoff, Math.max(token.getAnchor().x + dx, -maxXoff));
+				int offY = Math.min(maxYoff, Math.max(token.getAnchor().y + dy, -maxYoff));
 				
 				token.setAnchor(offX, offY);
 				
