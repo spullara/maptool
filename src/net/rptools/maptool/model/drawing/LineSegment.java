@@ -67,7 +67,7 @@ public class LineSegment extends AbstractDrawing {
     		gp.lineTo(point.x, point.y);
     	}
 
-    	BasicStroke stroke = new BasicStroke(width != null ? width : 2);
+    	BasicStroke stroke = new BasicStroke(width != null ? width : 2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
     	
     	return new Area(stroke.createStrokedShape(gp));
     }
