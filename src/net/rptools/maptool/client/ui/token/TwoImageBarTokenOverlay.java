@@ -122,7 +122,11 @@ public class TwoImageBarTokenOverlay extends BarTokenOverlay {
         int screenHeight = (getSide() == Side.LEFT || getSide() == Side.RIGHT) ? calcBarSize(size.height, value) : size.height;
 
         g.drawImage(images[1], x, y, size.width, size.height, null);
-        g.drawImage(images[0], x, y, x+screenWidth, y+screenHeight, 0, 0, width, height, null);
+        if (getSide() == Side.LEFT || getSide() == Side.RIGHT) {
+           g.drawImage(images[0], x, size.height-screenHeight, x+screenWidth, size.height, 0, images[0].getHeight()-height, width, images[0].getHeight(), null);
+        } else {
+           g.drawImage(images[0], x, y, x+screenWidth, y+screenHeight, 0, 0, width, height, null);
+        }
         g.setComposite(tempComposite);
     }
 
