@@ -80,6 +80,7 @@ public interface ServerCommand {
         heartbeat,
         updateCampaign,
         updateInitiative,
+        updateTokenInitiative,
         setVisionType,
         updateCampaignMacros
     };
@@ -124,6 +125,7 @@ public interface ServerCommand {
     public void heartbeat(String data);
     public void updateCampaign(CampaignProperties properties);
     public void updateInitiative(InitiativeList list, Boolean ownerPermission);
+    public void updateTokenInitiative(GUID zone, GUID token, Boolean hold, String state, Integer index);
     public void setVisionType(GUID zoneGUID, VisionType visionType);
     public void updateCampaignMacros(List<MacroButtonProperties> properties);
 }

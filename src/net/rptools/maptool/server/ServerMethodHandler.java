@@ -24,6 +24,7 @@ import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.ClientCommand;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.MapToolFrame;
 import net.rptools.maptool.common.MapToolConstants;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -39,6 +40,7 @@ import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.maptool.model.Zone.VisionType;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
@@ -107,7 +109,8 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case updateCampaign:		  updateCampaign((CampaignProperties) context.get(0));break;
             case movePointer: 			  movePointer(context.getString(0), context.getInt(1), context.getInt(2));break;
             case updateInitiative:        updateInitiative((InitiativeList)context.get(0), (Boolean)context.get(1));break;
-            case setVisionType:            setVisionType(context.getGUID(0), (VisionType)context.get(1));break;
+            case updateTokenInitiative:   updateTokenInitiative(context.getGUID(0), context.getGUID(1), context.getBool(2), context.getString(3), context.getInt(4));break;
+            case setVisionType:           setVisionType(context.getGUID(0), (VisionType)context.get(1));break;
             case updateCampaignMacros:	  updateCampaignMacros((List<MacroButtonProperties>) context.get(0));break;
             }
         } finally {
@@ -285,6 +288,24 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         forwardToAllClients();
     }
     
+    public void updateTokenInitiative(GUID zoneId, GUID tokenId, Boolean hold, String state, Integer index) {
+        Zone zone = server.getCampaign().getZone(zoneId);
+        InitiativeList list = zone.getInitiativeList();
+        TokenInitiative ti = list.getTokenInitiative(index);
+        if (!ti.getId().equals(tokenId)) {
+            
+            // Index doesn't point to same token, try to find it
+            Token token = zone.getToken(tokenId);
+            List<Integer> tokenIndex = list.indexOf(token);
+            
+            // If token in list more than one time, punt
+            if (tokenIndex.size() != 1) return;
+            ti = list.getTokenInitiative(tokenIndex.get(0));
+        } // endif
+        ti.update(hold, state);
+        forwardToAllClients();
+    }
+
     public void renameZone(GUID zoneGUID, String name) {
     	Zone zone = server.getCampaign().getZone(zoneGUID);
     	if (zone != null) {

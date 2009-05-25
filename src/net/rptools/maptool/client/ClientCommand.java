@@ -56,6 +56,7 @@ public class ClientCommand {
         renameZone,
         updateCampaign,
         updateInitiative,
+        updateTokenInitiative,
         setUseVision,
         updateCampaignMacros
     };

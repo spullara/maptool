@@ -48,7 +48,6 @@ import javax.swing.event.ListSelectionListener;
 import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ScreenPoint;
-import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
@@ -293,8 +292,9 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
 
     /** @param theList Setter for the list to set */
     public void setList(InitiativeList theList) {
-        
+                
         // Remove the old list
+        if (list == theList) return;
         if (list != null)
             list.removePropertyChangeListener(this);
         
@@ -568,7 +568,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
             	return;
             Token token = ti.getToken();
             String sName = (token == null) ? "" : token.getName();
-            if (hasGMPermission() && token != null && token.getGMName().trim().length() != 0)
+            if (hasGMPermission() && token != null && token.getGMName() != null && token.getGMName().trim().length() != 0)
                 sName += " (" + token.getGMName().trim() + ")";
             String s = I18N.getText("initPanel.enterState", sName);
             String input = JOptionPane.showInputDialog(s, ti.getState());

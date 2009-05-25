@@ -17,9 +17,11 @@ import java.awt.EventQueue;
 import java.awt.geom.Area;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import net.rptools.clientserver.hessian.AbstractMethodHandler;
+import net.rptools.maptool.client.ui.MapToolFrame;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.client.ui.zone.ZoneRendererFactory;
 import net.rptools.maptool.model.Asset;
@@ -36,6 +38,7 @@ import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
+import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.maptool.model.Zone.VisionType;
 import net.rptools.maptool.model.drawing.Drawable;
 import net.rptools.maptool.model.drawing.DrawnElement;
@@ -455,6 +458,25 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                     } if (ownerPermission != null) {
                         MapTool.getFrame().getInitiativePanel().setOwnerPermissions(ownerPermission.booleanValue());
                     }
+                    break;
+                    
+                case updateTokenInitiative:
+                    zoneGUID = (GUID)parameters[0];
+                    tokenGUID = (GUID)parameters[1];
+                    zone = MapTool.getCampaign().getZone(zoneGUID);
+                    list = zone.getInitiativeList();
+                    TokenInitiative ti = list.getTokenInitiative((Integer)parameters[4]);
+                    if (!ti.getId().equals(tokenGUID)) {
+                        
+                        // Index doesn't point to same token, try to find it
+                        token = zone.getToken(tokenGUID);
+                        List<Integer> tokenIndex = list.indexOf(token);
+                        
+                        // If token in list more than one time, punt
+                        if (tokenIndex.size() != 1) break;
+                        ti = list.getTokenInitiative(tokenIndex.get(0));
+                    } // endif
+                    ti.update((Boolean)parameters[2], (String)parameters[3]);
                     break;
                     
                 case setUseVision:

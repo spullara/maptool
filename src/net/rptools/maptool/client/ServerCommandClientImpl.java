@@ -109,6 +109,12 @@ public class ServerCommandClientImpl implements ServerCommand {
     }
 
     public void putToken(GUID zoneGUID, Token token) {
+        
+        // Hack to generate zone event. All functions that update tokens call this method 
+        // After changing the token. But they don't tell the zone about it so classes
+        // waiting for the zone change event don't get it. 
+        MapTool.getCampaign().getZone(zoneGUID).putToken(token);
+
         makeServerCall(COMMAND.putToken, zoneGUID, token);
     }
 
@@ -216,6 +222,10 @@ public class ServerCommandClientImpl implements ServerCommand {
     
     public void updateInitiative(InitiativeList list, Boolean ownerPermission) {
         makeServerCall(COMMAND.updateInitiative, list, ownerPermission);
+    }
+    
+    public void updateTokenInitiative(GUID zone, GUID token, Boolean holding, String state, Integer index) {
+        makeServerCall(COMMAND.updateTokenInitiative, zone, token, holding, state, index);
     }
     
     public void updateCampaignMacros(List<MacroButtonProperties> properties) {

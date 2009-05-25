@@ -495,6 +495,17 @@ public class InitiativeList implements Serializable {
         MapTool.serverCommand().updateInitiative(this, null);
     }
 
+    /**
+     * Update the server with the new Token Initiative
+     * 
+     * @param ti Item to update
+     */
+    public void updateServer(TokenInitiative ti) {
+        if (holdUpdate > 0 || zoneId == null)
+            return;
+        MapTool.serverCommand().updateTokenInitiative(zoneId, ti.getId(), ti.isHolding(), ti.getState(), indexOf(ti));
+    }
+
     /** @param aZone Setter for the zone */
     public void setZone(Zone aZone) {
         zone = aZone;
@@ -632,6 +643,22 @@ public class InitiativeList implements Serializable {
         /** @param displayIcon Setter for the displayIcon to set */
         public void setDisplayIcon(Icon displayIcon) {
             this.displayIcon = displayIcon;
+        }
+        
+        /**
+         * Update the internal state w/o firing events. Needed for single token 
+         * init updates. 
+         * 
+         * @param isHolding New holding state
+         * @param aState New state
+         */
+        public void update(boolean isHolding, String aState) {
+            boolean old = holding;
+            holding = isHolding;
+            String oldState = state;
+            state = aState;
+            getPCS().fireIndexedPropertyChange(TOKENS_PROP, tokens.indexOf(this), old, isHolding);
+            getPCS().fireIndexedPropertyChange(TOKENS_PROP, tokens.indexOf(this), oldState, aState);
         }
     }
 }
