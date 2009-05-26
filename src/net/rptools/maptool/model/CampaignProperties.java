@@ -66,6 +66,9 @@ public class CampaignProperties implements Serializable {
     /** Flag indicating that owners have special permissions  */
     private boolean initiativeOwnerPermissions;
         
+    /** Flag indicating that owners can only move tokens when they have initiative  */
+    private boolean initiativeMovementLock;
+        
     public CampaignProperties() {
     	init();
     }
@@ -117,6 +120,7 @@ public class CampaignProperties implements Serializable {
         } // endfor
 
         initiativeOwnerPermissions = properties.initiativeOwnerPermissions;
+        initiativeMovementLock = properties.initiativeMovementLock;
         
         characterSheets = new HashMap<String, String>();
         if (properties.characterSheets == null || properties.characterSheets.isEmpty()) {
@@ -403,6 +407,16 @@ public class CampaignProperties implements Serializable {
     /** @param initiativeOwnerPermissions Setter for initiativeOwnerPermissions */
     public void setInitiativeOwnerPermissions(boolean initiativeOwnerPermissions) {
         this.initiativeOwnerPermissions = initiativeOwnerPermissions;
+    }
+
+    /** @return Getter for initiativeMovementLock */
+    public boolean isInitiativeMovementLock() {
+        return initiativeMovementLock;
+    }
+
+    /** @param initiativeOwnerPermissions Setter for initiativeMovementLock */
+    public void setInitiativeMovementLock(boolean initiativeMovementLock) {
+        this.initiativeMovementLock = initiativeMovementLock;
     }
 
     /** @return Getter for characterSheets */

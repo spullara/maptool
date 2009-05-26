@@ -187,7 +187,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	public void startTokenDrag(Token keyToken) {
 		tokenBeingDragged = keyToken;
 
-		if (!MapTool.getPlayer().isGM() && MapTool.getServerPolicy().isMovementLocked()) {
+		if (!MapTool.getPlayer().isGM() && (MapTool.getServerPolicy().isMovementLocked()
+		        || MapTool.getFrame().getInitiativePanel().isMovementLocked(keyToken))) {
 			// Not allowed
 			return;
 		}

@@ -137,10 +137,21 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     private JCheckBoxMenuItem ownerPermissionsMenuItem;
 
     /**
+     * The menu item that tells the GM if players can only move their tokens when
+     * it is their turn.
+     */
+    private JCheckBoxMenuItem movementLockMenuItem;
+
+    /**
      * Flag indicating that the owners of tokens have been granted permission to restricted
      * actions when they own the token.
      */
     private boolean ownerPermissions;
+    
+    /**
+     * Flag indicating that the owners of tokens can only move their tokens when it is their turn.
+     */
+    private boolean movementLock;
     
     /*---------------------------------------------------------------------------------------------
      * Constructor
@@ -168,6 +179,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         panel.add(new HorizontalLineComponent(), new CellConstraints(2, 3, 6, 1));
 
         ownerPermissions = MapTool.getCampaign().isInitiativeOwnerPermissions();
+        movementLock = MapTool.getCampaign().isInitiativeMovementLock();
 
         // Set up the list with an empty model
         displayList = new JList();
@@ -205,6 +217,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         I18N.setAction("initPanel.remove", REMOVE_TOKEN_ACTION);
         I18N.setAction("initPanel.menuButton", NEXT_ACTION);
         I18N.setAction("initPanel.toggleOwnerPermissions", TOGGLE_OWNER_PERMISSIONS_ACTION);
+        I18N.setAction("initPanel.toggleMovementLock", TOGGLE_MOVEMENT_LOCK_ACTION);
         I18N.setAction("initPanel.round", RESET_COUNTER_ACTION);
         updateView();
     }
@@ -257,6 +270,9 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
             ownerPermissionsMenuItem = new JCheckBoxMenuItem(TOGGLE_OWNER_PERMISSIONS_ACTION);
             ownerPermissionsMenuItem.setSelected(list == null ? false : ownerPermissions);
             menuButton.add(ownerPermissionsMenuItem);
+            movementLockMenuItem = new JCheckBoxMenuItem(TOGGLE_MOVEMENT_LOCK_ACTION);
+            movementLockMenuItem.setSelected(list == null ? false : movementLock);
+            menuButton.add(movementLockMenuItem);
             menuButton.addSeparator();
             menuButton.add(new JMenuItem(ADD_PCS_ACTION));
             menuButton.add(new JMenuItem(ADD_ALL_ACTION));
@@ -394,6 +410,30 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     public void setOwnerPermissions(boolean anOwnerPermissions) {
         ownerPermissions = anOwnerPermissions;
         updateView();
+    }
+    
+    /** @return Getter for MovementLock */
+    public boolean isMovementLock() {
+        return movementLock;
+    }
+
+    /** @param anMovementLock Setter for MovementLock */
+    public void setMovementLock(boolean anMovementLock) {
+        movementLock = anMovementLock;
+    }
+    
+    /**
+     * Returns true if the passed token can not be moved because it is not the
+     * current token.
+     * 
+     * @param token The token being checked.
+     * @return <code>true</code> if token movement is locked.
+     */
+    public boolean isMovementLocked(Token token) {
+        if (!movementLock) return false;
+        if (model.getCurrentTokenInitiative() == null) return true;
+        if (model.getCurrentTokenInitiative().getToken() == token) return false;
+        return true;
     }
     
     /*---------------------------------------------------------------------------------------------
@@ -642,6 +682,19 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
             if (ownerPermissionsMenuItem != null) 
                 ownerPermissionsMenuItem.setSelected(op);
             MapTool.getCampaign().setInitiativeOwnerPermissions(op);
+            MapTool.serverCommand().updateCampaign(MapTool.getCampaign().getCampaignProperties());
+        };
+    };
+
+    /**
+     * This action will toggle the flag that allows players to only move tokens when it is their turn.
+     */
+    public final Action TOGGLE_MOVEMENT_LOCK_ACTION = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            boolean op = !MapTool.getCampaign().isInitiativeMovementLock();
+            if (ownerPermissionsMenuItem != null) 
+                ownerPermissionsMenuItem.setSelected(op);
+            MapTool.getCampaign().setInitiativeMovementLock(op);
             MapTool.serverCommand().updateCampaign(MapTool.getCampaign().getCampaignProperties());
         };
     };

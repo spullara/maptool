@@ -456,6 +456,16 @@ public class Campaign {
         campaignProperties.setInitiativeOwnerPermissions(initiativeOwnerPermissions);
     }
 
+    /** @return Getter for initiativeMovementLock */
+    public boolean isInitiativeMovementLock() {
+        return campaignProperties != null ? campaignProperties.isInitiativeMovementLock() : false;
+    }
+
+    /** @param initiativeMovementLock Setter for initiativeMovementLock */
+    public void setInitiativeMovementLock(boolean initiativeMovementLock) {
+        campaignProperties.setInitiativeMovementLock(initiativeMovementLock);
+    }
+
     /** @return Getter for characterSheets */
     public Map<String, String> getCharacterSheets() {
         return getCampaignProperties().getCharacterSheets();

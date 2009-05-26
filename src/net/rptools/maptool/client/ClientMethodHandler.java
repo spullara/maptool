@@ -430,7 +430,8 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                 	
                 	AssetManager.updateRepositoryList();
                 	
-                	MapTool.getFrame().getInitiativePanel().setOwnerPermissions(properties.isInitiativeOwnerPermissions());
+                    MapTool.getFrame().getInitiativePanel().setOwnerPermissions(properties.isInitiativeOwnerPermissions());
+                    MapTool.getFrame().getInitiativePanel().setMovementLock(properties.isInitiativeMovementLock());
                 	MapTool.getFrame().getLookupTablePanel().updateView();
                 	break;
                 case movePointer:

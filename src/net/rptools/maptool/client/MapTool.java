@@ -630,7 +630,8 @@ public class MapTool {
 
 			eventDispatcher.fireEvent(ZoneEvent.Added, campaign, null, zone);
 		}
-		clientFrame.getInitiativePanel().setOwnerPermissions(campaign.isInitiativeOwnerPermissions());
+        clientFrame.getInitiativePanel().setOwnerPermissions(campaign.isInitiativeOwnerPermissions());
+        clientFrame.getInitiativePanel().setMovementLock(campaign.isInitiativeMovementLock());
 		clientFrame.setCurrentZoneRenderer(currRenderer);
     	
     	AssetManager.updateRepositoryList();
