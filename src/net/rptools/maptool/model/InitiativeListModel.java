@@ -128,9 +128,9 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
      * @param hideNPC Flag indicating that NPC's are hidden.
      * @return The value <code>true</code> if this token is shown to the user.
      */
-    public boolean isTokenVisible(Token token, boolean hideNPC) {
+    public static boolean isTokenVisible(Token token, boolean hideNPC) {
         if (MapTool.getFrame().getInitiativePanel().hasGMPermission()) return true;
-        if (!token.isVisible()) return false;
+        if (!token.isVisible() || token.getLayer() == Zone.Layer.GM) return false;
         if (hideNPC && token.getType() == Type.NPC) return false;
         return true;
     }

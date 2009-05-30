@@ -46,6 +46,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.model.AssetManager;
+import net.rptools.maptool.model.InitiativeListModel;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.maptool.util.GraphicsUtil;
@@ -179,8 +180,8 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
             setBorder(UNSELECTED_BORDER);
             return this;
         } // endif
-        backgroundImageLabel = token.isVisible() ? token.getType() == Token.Type.NPC ? GraphicsUtil.BLUE_LABEL : GraphicsUtil.GREY_LABEL : GraphicsUtil.DARK_GREY_LABEL;
-        Color foreground = token.isVisible() ? token.getType() == Token.Type.NPC ? Color.BLACK : Color.BLACK : Color.WHITE;
+        backgroundImageLabel = InitiativeListModel.isTokenVisible(token, panel.getList().isHideNPC()) ? token.getType() == Token.Type.NPC ? GraphicsUtil.BLUE_LABEL : GraphicsUtil.GREY_LABEL : GraphicsUtil.DARK_GREY_LABEL;
+        Color foreground = InitiativeListModel.isTokenVisible(token, panel.getList().isHideNPC()) ? token.getType() == Token.Type.NPC ? Color.BLACK : Color.BLACK : Color.WHITE;
         name.setForeground(foreground);
         
         // Show the indicator?
@@ -217,7 +218,6 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
         } else {
             name.setHorizontalTextPosition(SwingConstants.RIGHT);
         } // endif 
-        
         
         // Selected?
         if (isSelected) {
