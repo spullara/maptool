@@ -165,14 +165,14 @@ public class InitiativeList implements Serializable {
      * @return The token initiative value that holds the token.
      */
     public TokenInitiative insertToken(int index, Token token) {
+        TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); // Save the currently selected initiative
         if (index == -1)
         	index = tokens.size();
         TokenInitiative ti = new TokenInitiative(token);
         tokens.add(index, ti);
         holdUpdate += 1;
-        if (index < current)
-        	setCurrent(current + 1);
         getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, null, ti);
+        setCurrent(indexOf(currentInitiative)); // Restore current initiative
         holdUpdate -= 1;
         updateServer();
         return ti;
@@ -225,15 +225,12 @@ public class InitiativeList implements Serializable {
      * @return The token that was removed.
      */
     public Token removeToken(int index) {
+        TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); // Save the currently selected initiative
         TokenInitiative ti = tokens.remove(index);
         holdUpdate += 1;
         Token old = ti.getToken();        
-        if (index <= current)
-        	current -= 1;
-        if (tokens.size() <= current)
-        	current = -1;
-        setCurrent(current);
         getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, ti, null);
+        setCurrent(indexOf(currentInitiative)); // Restore current initiative
         holdUpdate -= 1;
         updateServer();
         return old; 
@@ -396,6 +393,7 @@ public class InitiativeList implements Serializable {
      */
     public void sort() {
         holdUpdate += 1;
+        TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); // Save the currently selected initiative
         Collections.sort(tokens, new Comparator<TokenInitiative>() {
             public int compare(TokenInitiative o1, TokenInitiative o2) {
                 
@@ -438,6 +436,7 @@ public class InitiativeList implements Serializable {
             }            
         });
         getPCS().firePropertyChange(TOKENS_PROP, null, tokens);
+        setCurrent(indexOf(currentInitiative)); // Restore current initiative
         holdUpdate -= 1;
         updateServer();
     }
@@ -465,6 +464,7 @@ public class InitiativeList implements Serializable {
     public void moveToken(int oldIndex, int index) {
         
         // Remove the token from its old position
+        TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); // Save the current initiative
         if (oldIndex < 0 || oldIndex == index)
         	return;
         int oldCurrent = current;
@@ -478,10 +478,7 @@ public class InitiativeList implements Serializable {
         tokens.add(index, ti);
         getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, null, ti);
         current = oldCurrent;
-        
-        // Adjust the current index
-        if (current >= 0 && current > oldIndex && current <= index)
-            setCurrent(current - 1);
+        setCurrent(indexOf(currentInitiative)); // Restore current initiative
         holdUpdate -= 1;
         updateServer();
     }
