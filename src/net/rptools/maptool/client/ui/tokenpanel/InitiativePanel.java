@@ -116,6 +116,12 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     private boolean showInitState = true;
     
     /**
+     * Flag indicating that two lines are used for initiative stated. It is only
+     * valid if {@link #showInitState} is <code>true</code>.
+     */
+    private boolean initStateSecondLine;
+    
+    /**
      * The zone data being displayed.
      */
     private Zone zone;
@@ -204,11 +210,13 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         // Set action text
         I18N.setAction("initPanel.sort", SORT_LIST_ACTION);        
         I18N.setAction("initPanel.toggleHold", TOGGLE_HOLD_ACTION);
+        I18N.setAction("initPanel.makeCurrent", MAKE_CURRENT_ACTION);
         I18N.setAction("initPanel.setInitState", SET_INIT_STATE_VALUE);        
         I18N.setAction("initPanel.clearInitState", CLEAR_INIT_STATE_VALUE);        
         I18N.setAction("initPanel.showTokens", SHOW_TOKENS_ACTION);
         I18N.setAction("initPanel.showTokenStates", SHOW_TOKEN_STATES_ACTION);
         I18N.setAction("initPanel.showInitStates", SHOW_INIT_STATE);
+        I18N.setAction("initPanel.initStateSecondLine", INIT_STATE_SECOND_LINE);
         I18N.setAction("initPanel.toggleHideNPCs", TOGGLE_HIDE_NPC_ACTION);
         I18N.setAction("initPanel.addPCs", ADD_PCS_ACTION);
         I18N.setAction("initPanel.addAll", ADD_ALL_ACTION);
@@ -247,6 +255,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         if (hasGMPermission()) {
             menuButton.add(new JMenuItem(SORT_LIST_ACTION));
             menuButton.addSeparator();
+            menuButton.add(new JMenuItem(MAKE_CURRENT_ACTION));
         } // endif
         if (ownerPermissions || hasGMPermission()) {
             menuButton.add(new JMenuItem(TOGGLE_HOLD_ACTION));
@@ -262,6 +271,9 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         menuButton.add(item);
         item = new JCheckBoxMenuItem(SHOW_INIT_STATE);
         item.setSelected(showInitState);
+        menuButton.add(item);
+        item = new JCheckBoxMenuItem(INIT_STATE_SECOND_LINE);
+        item.setSelected(initStateSecondLine);
         menuButton.add(item);
         if (hasGMPermission()) {
             hideNPCMenuItem = new JCheckBoxMenuItem(TOGGLE_HIDE_NPC_ACTION);
@@ -435,6 +447,16 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         if (model.getCurrentTokenInitiative().getToken() == token) return false;
         return true;
     }
+
+    /** @return Getter for initStateSecondLine */
+    public boolean isInitStateSecondLine() {
+        return initStateSecondLine;
+    }
+
+    /** @param initStateSecondLine Setter for initStateSecondLine */
+    public void setInitStateSecondLine(boolean initStateSecondLine) {
+        this.initStateSecondLine = initStateSecondLine;
+    }
     
     /*---------------------------------------------------------------------------------------------
      * ListSelectionListener Interface Methods
@@ -455,6 +477,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         } else {
             TOGGLE_HOLD_ACTION.setEnabled(enabled);
         } // endif
+        MAKE_CURRENT_ACTION.setEnabled(enabled && ti != list.getTokenInitiative(list.getCurrent()));
 
         REMOVE_TOKEN_ACTION.setEnabled(enabled);
         ti = (list.getCurrent() >= 0) ? list.getTokenInitiative(list.getCurrent()) : null;
@@ -560,6 +583,18 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     };
     
     /**
+     * This action will make the selected token the current token.
+     */
+    public final Action MAKE_CURRENT_ACTION = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            TokenInitiative ti = (TokenInitiative)displayList.getSelectedValue();
+            if (ti == null)
+                return;
+            list.setCurrent(list.indexOf(ti));
+        };
+    };
+    
+    /**
      * This action toggles the display of token images.
      */
     public final Action SHOW_TOKENS_ACTION = new AbstractAction() {
@@ -585,6 +620,16 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     public final Action SHOW_INIT_STATE = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             showInitState = ((JCheckBoxMenuItem)e.getSource()).isSelected();
+            displayList.repaint();
+        };
+    };
+
+    /**
+     * This action toggles the display of token images.
+     */
+    public final Action INIT_STATE_SECOND_LINE = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            initStateSecondLine = ((JCheckBoxMenuItem)e.getSource()).isSelected();
             displayList.repaint();
         };
     };

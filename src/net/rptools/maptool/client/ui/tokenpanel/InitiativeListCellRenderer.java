@@ -193,11 +193,13 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
         } // endif
         
         // Get the name string, add the state if displayed, then get the icon if needed
-        String sName = ti.getToken().getName();
+        String sName = (panel.isInitStateSecondLine() ? "<html>" : "") + ti.getToken().getName();
         if (MapTool.getFrame().getInitiativePanel().hasGMPermission() && token.getGMName() != null && token.getGMName().trim().length() != 0)
             sName += " (" + token.getGMName().trim() + ")";
         if (panel.isShowInitState() && ti.getState() != null)
-            sName += " = " + ti.getState();
+            sName += (panel.isInitStateSecondLine() ? "<br/>" : " = ") + ti.getState();
+        if (panel.isInitStateSecondLine())
+            sName += "</html>";
         Icon icon = null;
         if (panel.isShowTokens()) {
             icon = ti.getDisplayIcon();
@@ -245,7 +247,8 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
         @Override
         protected void paintComponent(Graphics g) {
             Dimension s = name.getSize();
-            backgroundImageLabel.renderLabel((Graphics2D)g, 0, (s.height - textHeight) / 2, s.width, textHeight + 2);
+            int th = (textHeight + 2) * (panel.isInitStateSecondLine() ? 2 : 1);
+            backgroundImageLabel.renderLabel((Graphics2D)g, 0, (s.height - th) / 2, s.width, th);
             super.paintComponent(g);
         }
     }

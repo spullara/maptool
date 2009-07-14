@@ -66,6 +66,8 @@ public class InitiativeTokenPopupMenu extends TokenPopupMenu {
 
         // Build the menu
         InitiativePanel ip = MapTool.getFrame().getInitiativePanel();
+        I18N.setAction("initPanel.makeCurrent", MAKE_CURRENT_ACTION);
+        addGMItem(MAKE_CURRENT_ACTION);
         I18N.setAction("initPanel.toggleHold", TOGGLE_HOLD_ACTION);
         addOwnedItem(TOGGLE_HOLD_ACTION);
         I18N.setAction("initPanel.setInitState", SET_INIT_STATE_VALUE);
@@ -96,6 +98,8 @@ public class InitiativeTokenPopupMenu extends TokenPopupMenu {
         int index = list.indexOf(tokenInitUnderMouse);
         if (index == 0) MOVE_UP_ACTION.setEnabled(false);
         if (index == list.getSize() - 1) MOVE_DOWN_ACTION.setEnabled(false);
+        if (tokenInitUnderMouse == list.getTokenInitiative(list.getCurrent()))
+            MAKE_CURRENT_ACTION.setEnabled(false);
     }
     
     /**
@@ -105,6 +109,16 @@ public class InitiativeTokenPopupMenu extends TokenPopupMenu {
         public void actionPerformed(ActionEvent e) {
             for (TokenInitiative ti : selectedTokenInitiatives)
                 ti.setHolding(!ti.isHolding());
+        };
+    };
+
+    /**
+     * This action will make the token under the mouse the current token.
+     */
+    public final Action MAKE_CURRENT_ACTION = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            InitiativeList list = getRenderer().getZone().getInitiativeList();
+            list.setCurrent(list.indexOf(tokenInitiativeUnderMouse));
         };
     };
 
