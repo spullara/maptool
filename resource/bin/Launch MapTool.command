@@ -2,6 +2,9 @@
 # non-Bash systems.
 #!/bin/bash
 
+# This script was last modified for 1.3.b57.
+# This script is provided under the Apache License v2.0 or later.
+
 # All configurable options go here (no spaces inside the quotes)
 MAXMEMSZ="768m"	# The 'm' suffix means megabytes.
 MINMEMSZ="32m"	# If your Java crashes, try making this the same value.
@@ -21,16 +24,16 @@ STACKSZ="2m"	# Larger and more complicated macros require larger stack size.
 #########################################
 
 # There are some constructs in here that you might consider weird.
-# They're likely because OSX 10.4 uses Bash 2.05 while 10.5 uses
-# Bash 3.0 -- I'm trying to be portable between both versions of
-# the shell.
+# They're likely because OSX 10.4 uses Bash 2.05 while 10.5 and most
+# Linux systems use Bash 3.x -- I'm trying to be portable between
+# both versions of the shell.
 
 if [ "X$RANDOM" = "X$RANDOM" ]; then
-    echo 1>&2 "Error: this script requires the Korn or Bash shell."
+    echo 1>&2 "Error: this script requires a Korn or Bash shell."
     exit 1
 fi
 
-java=$(whence -p java)
+java=$(type -p java)
 if [[ ! -x "$java" ]]; then
     echo 1>&2 "${0##*/}: Error: Can't find Java executable."
     exit 2
@@ -55,7 +58,7 @@ case "$JAVA_HOME" in
 	;;
     *)	case $(uname -s) in
 	Darwin)
-	    # These variables are only for OSX...
+	    # These variables are only for OSX when using the Apple JVM
 	    APPDOCKNAME="-Xdock:name=MapTool"
 	    APPDOCKICON="-Xdock:icon=http://www.rptools.net/images/logo/RPTools_Map_Logo.png"
 	    ;;
