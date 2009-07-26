@@ -749,6 +749,10 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
      */
     public final Action RESET_COUNTER_ACTION = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
+        	if (!MapTool.getPlayer().isGM()) {
+        		return;
+        	}
+        	
             list.startUnitOfWork();
             list.setRound(-1);
             list.setCurrent(-1);
@@ -772,6 +776,11 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
        * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
        */
       public void mouseClicked(MouseEvent e) {
+
+		if (model.getSize() == 0) {
+			return;
+		}
+		
         if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
           SwingUtilities.invokeLater(new Runnable() {
             public void run() { 
@@ -779,7 +788,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
                     // Show the selected token on the map.
                     Token token = ((TokenInitiative)displayList.getSelectedValue()).getToken();
         			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-        			if (renderer == null) {
+        			if (renderer == null || token == null) {
         				return;
         			}
 
@@ -788,6 +797,21 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
                     	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
             			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
                     }           
+                    
+                    if (MapTool.getPlayer().isGM()) {
+						// If the user is a GM, recenter on the token.
+						renderer.centerOn(token);
+
+						// Update player view if necessary
+						if (AppState.isPlayerViewLinked() && token.isToken() && token.isVisible()) {
+							ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2, renderer.getHeight() / 2).convertToZone(renderer);
+							MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
+						}
+					} else if (renderer.getZone().isTokenVisible(token)) {
+						// Not the GM, but the token is visible to the
+						// ... what?
+						renderer.centerOn(token);
+					}
                 } 
             }
           });
