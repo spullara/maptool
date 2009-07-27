@@ -32,6 +32,7 @@ import javax.swing.tree.TreePath;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.ModelChangeEvent;
 import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.Token;
@@ -41,14 +42,14 @@ import net.rptools.maptool.util.GraphicsUtil;
 public class TokenPanelTreeModel implements TreeModel, ModelChangeListener {
 
     public enum View {
-		TOKENS("Tokens", Zone.Layer.TOKEN, false, false),
-    	PLAYERS("Players", Zone.Layer.TOKEN, false, false),
-		GROUPS("Groups", Zone.Layer.TOKEN, false, false),
-		GM("GM", Zone.Layer.GM, false, true),
-		OBJECTS("Objects", Zone.Layer.OBJECT, false, true),
-		BACKGROUND("Background", Zone.Layer.BACKGROUND, false, true),
-		CLIPBOARD("Clipboard", Zone.Layer.TOKEN, false, true),
-		LIGHT_SOURCES("Light Sources", null, false, false);
+		TOKENS(I18N.getText("panel.MapExplorer.View.TOKENS"), Zone.Layer.TOKEN, false, false),
+    	PLAYERS(I18N.getText("panel.MapExplorer.View.PLAYERS"), Zone.Layer.TOKEN, false, false),
+		GROUPS(I18N.getText("panel.MapExplorer.View.GROUPS"), Zone.Layer.TOKEN, false, false),
+		GM(I18N.getText("panel.MapExplorer.View.GM"), Zone.Layer.GM, false, true),
+		OBJECTS(I18N.getText("panel.MapExplorer.View.OBJECTS"), Zone.Layer.OBJECT, false, true),
+		BACKGROUND(I18N.getText("panel.MapExplorer.View.BACKGROUND"), Zone.Layer.BACKGROUND, false, true),
+		CLIPBOARD(I18N.getText("panel.MapExplorer.View.CLIPBOARD"), Zone.Layer.TOKEN, false, true),
+		LIGHT_SOURCES(I18N.getText("panel.MapExplorer.View.LIGHT_SOURCES"), null, false, false);
 
 		String displayName;
 		boolean required;
