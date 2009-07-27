@@ -601,6 +601,22 @@ public class Token extends BaseModel {
 	}
 
 	public void setName(String name) {
+
+		//Let's see if there is another Token with that name (only if Player is not GM)
+		if (!MapTool.getPlayer().isGM()) {
+			Zone curZone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+			List<Token> tokensList = curZone.getTokens();
+			
+			for (int i = 0; i < tokensList.size(); i++) {
+				String curTokenName = tokensList.get(i).getName();
+				
+				if (curTokenName.equalsIgnoreCase(name)) {
+					MapTool.showError("Can not rename Token to " + name + " as there is already another token with this name on the Map.\nOnly the GM can create multiple Tokens with the same name!");
+					return;
+				}
+			}
+		}
+		
 		this.name = name;
 		fireModelChangeEvent(new ModelChangeEvent(this, ChangeEvent.name, name));
 	}
