@@ -299,8 +299,8 @@ public class GraphicsUtil {
     
     public static Area createLineSegmentEllipse(int x1, int y1, int x2, int y2, int steps) {
 
-    	int x = Math.min(x1, x2);
-    	int y = Math.min(y1, y2);
+    	double x = Math.min(x1, x2);
+    	double y = Math.min(y1, y2);
     	
     	int w = Math.abs(x1 - x2);
     	int h = Math.abs(y1 - y2);
@@ -319,8 +319,8 @@ public class GraphicsUtil {
         boolean firstMove = true;
         for (double t = -Math.PI; t <= Math.PI; t+= (2*Math.PI/steps)) {
         	
-        	int px = (int)(x + a * Math.cos(t));
-        	int py = (int)(y + b * Math.sin(t));
+        	int px = (int) Math.round(x + a * Math.cos(t)); 
+        	int py = (int) Math.round(y + b * Math.sin(t));
 
         	if (firstMove) {
         		path.moveTo(px, py);

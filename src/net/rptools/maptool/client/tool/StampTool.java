@@ -29,7 +29,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.Dimension2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -62,9 +66,11 @@ import net.rptools.maptool.client.ui.token.EditTokenDialog;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
+import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -83,14 +89,20 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	private boolean isDrawingSelectionBox;
 	private boolean isMovingWithKeys;
 	private boolean isResizingToken;
+	private boolean isResizingRotatedToken;
 	private Rectangle selectionBoundBox;
+	
+	// The position with greater than integer accuracy of a rotated stamp that is being resized.
+	private Point2D.Double preciseStampZonePoint; 
+	private ZonePoint lastResizeZonePoint;
 
 	private Token tokenBeingDragged;
 	private Token tokenUnderMouse;
+	private Token tokenBeingResized;
 
 	private TokenStackPanel tokenStackPanel = new TokenStackPanel();
 
-	private Map<Shape, Token> rotateBoundsMap = new HashMap<Shape, Token>();
+	//private Map<Shape, Token> rotateBoundsMap = new HashMap<Shape, Token>();
 	private Map<Shape, Token> resizeBoundsMap = new HashMap<Shape, Token>();
 
 	private LayerSelectionDialog layerSelectionDialog;
@@ -342,6 +354,10 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 						- e.getY();
 
 				isResizingToken = true;
+				// The token being resized does not necessarily = tokenUnderMouse.  If there is more then one 
+				// token under the mouse, the top token will be the tokenUnderMouse, but it is the selected 
+				// that is intended to be resized.
+				tokenBeingResized = entry.getValue();
 				return;
 			}
 		}
@@ -449,6 +465,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			MapTool.serverCommand().putToken(renderer.getZone().getId(),
 					tokenUnderMouse);
 			isResizingToken = false;
+			isResizingRotatedToken = false;
 			return;
 		}
 
@@ -611,18 +628,18 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		}
 
 		if (isResizingToken) {
-
+			
 			ScreenPoint sp = new ScreenPoint(mouseX + dragOffsetX, mouseY
 					+ dragOffsetY);
 			BufferedImage image = ImageManager.getImage(AssetManager
-					.getAsset(tokenUnderMouse.getImageAssetId()));
+					.getAsset(tokenBeingResized.getImageAssetId()));
 
-			if (SwingUtil.isControlDown(e)) {
+			if (SwingUtil.isControlDown(e)) { // snap size to grid
 				sp = getNearestVertex(sp);
 			}
-			if (SwingUtil.isShiftDown(e)) {
+			if (SwingUtil.isShiftDown(e)) { // lock aspect ratio
 				ScreenPoint tokenPoint = ScreenPoint.fromZonePoint(renderer,
-						tokenUnderMouse.getX(), tokenUnderMouse.getY());
+						tokenBeingResized.getX(), tokenBeingResized.getY());
 
 				double ratio = image.getWidth() / (double) image.getHeight();
 
@@ -634,23 +651,96 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			ZonePoint zp = sp.convertToZone(renderer);
 			p = ScreenPoint.fromZonePoint(renderer, zp);
 
-			int newWidth = Math.max(1, (zp.x - tokenUnderMouse.getX())
-					* (tokenUnderMouse.isSnapToGrid()
-							&& !tokenUnderMouse.isBackgroundStamp() ? 2 : 1));
-			int newHeight = Math.max(1, (zp.y - tokenUnderMouse.getY())
-					* (tokenUnderMouse.isSnapToGrid()
-							&& !tokenUnderMouse.isBackgroundStamp() ? 2 : 1));
+			int newWidth = Math.max(1, (zp.x - tokenBeingResized.getX())
+					* (tokenBeingResized.isSnapToGrid()
+							&& !tokenBeingResized.isBackgroundStamp() ? 2 : 1));
+			int newHeight = Math.max(1, (zp.y - tokenBeingResized.getY())
+					* (tokenBeingResized.isSnapToGrid()
+							&& !tokenBeingResized.isBackgroundStamp() ? 2 : 1));
 
-			if (SwingUtil.isControlDown(e) && tokenUnderMouse.isSnapToGrid()
-					&& tokenUnderMouse.isObjectStamp()) {
+			if (SwingUtil.isControlDown(e) && tokenBeingResized.isSnapToGrid()
+					&& tokenBeingResized.isObjectStamp()) {
 				// Account for the 1/2 cell on each side of the stamp (since
 				// it's anchored in the center)
 				newWidth += renderer.getZone().getGrid().getSize();
 				newHeight += renderer.getZone().getGrid().getSize();
 			}
+			
+			// take into account rotated stamps
+			if( tokenBeingResized.hasFacing() && tokenBeingResized.getShape() == Token.TokenShape.TOP_DOWN
+					&& tokenBeingResized.getFacing() != -90){
+				
+				// if we are beginning a new resize, reset the resizing variables.
+				if (!isResizingRotatedToken) {
+					isResizingRotatedToken = true;
+					preciseStampZonePoint = new Point2D.Double(tokenBeingResized.getX(), tokenBeingResized.getY());
+					lastResizeZonePoint = new ZonePoint(zp.x, zp.y);
+				}
 
-			tokenUnderMouse.setScaleX(newWidth / (double) image.getWidth());
-			tokenUnderMouse.setScaleY(newHeight / (double) image.getHeight());
+				// theta is the rotation angle clockwise from the positive x-axis to compensate for the +ve y-axis
+				// pointing downwards in zone space and an unrotated token has facing of -90.
+				int theta = -tokenBeingResized.getFacing() - 90; 
+				
+				// can't handle snap to grid with rotated token when resizing because they have to be able to nudge.
+				if(tokenBeingResized.isSnapToGrid()) {
+					tokenBeingResized.setSnapToGrid(false);
+				}
+				
+				Rectangle footprintBounds = tokenBeingResized.getBounds(renderer.getZone());
+						
+				int changeX = (zp.x - lastResizeZonePoint.x) // zp = mouse location
+						* (tokenBeingResized.isSnapToGrid() && !tokenBeingResized.isBackgroundStamp() ? 2 : 1);
+				int changeY = (zp.y - lastResizeZonePoint.y)
+						* (tokenBeingResized.isSnapToGrid() && !tokenBeingResized.isBackgroundStamp() ? 2 : 1);
+				
+				double sinTheta = Math.sin(Math.toRadians(theta));
+				double cosTheta = Math.cos(Math.toRadians(theta));
+				
+				// Calculate change in the stamp's height and width.
+				// Sine terms are *-1 from the standard rotation transform because the direction of theta 
+				// is reversed (theta rotates clockwise)
+				double dw = changeX*cosTheta + changeY*sinTheta;
+				double dh = - changeX*sinTheta + changeY*cosTheta;
+						
+				newWidth = (int)Math.max(1, footprintBounds.width + dw);
+				newHeight = (int)Math.max(1 , footprintBounds.height + dh);
+		
+				// Move the stamp to compensate for a change in the stamp's rotation anchor
+				// so that the stamp stays fixed in place while being resized			
+				
+				// change in stamp's rotation anchor due to resize
+				double dx = dw/2; 
+				double dy = dh/2;
+				
+				//change in rotated stamp's anchor due to resize. currently only works perfectly for clockwise 0-90
+				// needs fine tuning for the three other quadrants to prevent the stamp from creeping
+				double dxRot = dx*cosTheta - dy*sinTheta;
+				double dyRot = dx*sinTheta + dy*cosTheta;
+				
+				// Resizing a stamp automatically adjusts its rotation anchor point, so only consider the 
+				// adjustment required due to the rotation.
+				double stampAdjustX = dxRot - dx;
+				double stampAdjustY = dyRot - dy;
+						
+				// prevent the stamp from moving around if a limit has been reached.
+				if (newWidth == 1 || newHeight == 1) {
+					newWidth = newWidth == 1 ? 1 : footprintBounds.width;
+					newHeight = newHeight == 1 ? 1 : footprintBounds.height;
+				} 
+				else {
+					// remembering the precise location prevents the stamp from drifting due to rounding to int				
+					preciseStampZonePoint.x += stampAdjustX;
+					preciseStampZonePoint.y += stampAdjustY;
+
+					lastResizeZonePoint = (ZonePoint) zp.clone();
+				}
+	
+				tokenBeingResized.setX((int)(preciseStampZonePoint.x));
+				tokenBeingResized.setY((int)(preciseStampZonePoint.y));
+			} 
+
+			tokenBeingResized.setScaleX(newWidth / (double) image.getWidth());
+			tokenBeingResized.setScaleY(newHeight / (double) image.getHeight());
 
 			renderer.repaint();
 			return;
@@ -1187,7 +1277,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		} else {
 
 			resizeBoundsMap.clear();
-			rotateBoundsMap.clear();
+			//rotateBoundsMap.clear();
 			for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
 				Token token = renderer.getZone().getToken(tokenGUID);
 				if (token == null) {
@@ -1206,23 +1296,40 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 				// Resize
 				if (!token.isSnapToScale()) {
-					int x = bounds.getBounds().x + bounds.getBounds().width
-							- resizeImage.getWidth();
-					int y = bounds.getBounds().y + bounds.getBounds().height
-							- resizeImage.getHeight();
-					Rectangle resizeBounds = new Rectangle(x, y, resizeImage
-							.getWidth(), resizeImage.getHeight());
-
-					resizeBoundsMap.put(resizeBounds, token);
-
-					g.setColor(Color.black);
-					g.fillRect(resizeBounds.x - 2, resizeBounds.y - 2,
-							resizeBounds.width + 4, resizeBounds.height + 4);
-					g.drawImage(resizeImage, x, y, renderer);
-
-					g.setColor(Color.lightGray);
-					g.drawRect(resizeBounds.x - 2, resizeBounds.y - 2,
-							resizeBounds.width + 4, resizeBounds.height + 4);
+					
+					Double scale = renderer.getScale();
+					Rectangle footprintBounds = token.getBounds(renderer.getZone());
+					
+			        double scaledWidth = (footprintBounds.width * scale);
+			        double scaledHeight = (footprintBounds.height * scale);
+			        
+		            ScreenPoint stampLocation = ScreenPoint.fromZonePoint(renderer, footprintBounds.x, footprintBounds.y);
+		    
+		            // distance to place the resize image in the lower left corner of an unrotated stamp
+		            double tx = stampLocation.x + scaledWidth - resizeImage.getWidth();
+					double ty = stampLocation.y + scaledHeight - resizeImage.getHeight();
+					
+					Rectangle resizeBounds = new Rectangle(0,0, resizeImage.getHeight(), resizeImage.getWidth());
+					Area resizeBoundsArea = new Area(resizeBounds);
+					
+		            AffineTransform at = new AffineTransform();
+		            at.translate(tx, ty);
+		       
+	         		// Rotated
+		            if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
+			            // untested when anchor != (0,0)
+		            	//rotate the resize image with the stamp.
+		            	double theta = Math.toRadians(-token.getFacing() - 90);
+		            	double anchorX = -scaledWidth/2 + resizeImage.getWidth() - (token.getAnchor().x * scale);
+  		                double anchorY = -scaledHeight/2 + resizeImage.getHeight() - (token.getAnchor().y * scale);
+		            	at.rotate(theta, anchorX, anchorY);
+		            }
+		            
+		            //place the map over the image.
+		            resizeBoundsArea.transform(at);	
+					resizeBoundsMap.put(resizeBoundsArea, token);					
+					
+					g.drawImage(resizeImage, at, renderer);			
 				}
 
 				// g.setColor(Color.red);

@@ -168,7 +168,7 @@ public abstract class AbstractDrawingTool extends DefaultTool implements MouseLi
     protected ZonePoint getPoint(MouseEvent e) {
     	
     	ScreenPoint sp = new ScreenPoint(e.getX(), e.getY());
-    	ZonePoint zp = sp.convertToZone(renderer);
+    	ZonePoint zp = sp.convertToZoneRnd(renderer);
     	if (isSnapToGrid(e)) {
 	    	zp = renderer.getZone().getNearestVertex(zp);
 	    	sp = ScreenPoint.fromZonePoint(renderer, zp);

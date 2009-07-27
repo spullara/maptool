@@ -29,8 +29,8 @@ public class ScreenPoint extends Point2D.Double {
     /**
      * Translate the point from screen x,y to zone x,y
      */
-    public ZonePoint convertToZone(ZoneRenderer renderer) {
-
+    public static ZonePoint convertToZone(ZoneRenderer renderer, double x, double y) {
+        
         double scale = renderer.getScale();
 
         double zX = x;
@@ -48,6 +48,27 @@ public class ScreenPoint extends Point2D.Double {
 
         return new ZonePoint((int)zX, (int)zY);
     }
+    
+    /**
+     * Translate the point from screen x,y to zone x,y
+     */
+    public ZonePoint convertToZone(ZoneRenderer renderer) {
+    	
+        return convertToZone(renderer, this.x, this.y);
+    }
+    
+    /**
+     * Translate the point from screen x,y to the nearest top left corner of a zone x,y
+     * for when the zone point required is on the "zone point grid" as opposed to the area
+     * of zone space designated by the zone point.  
+     */
+	public ZonePoint convertToZoneRnd(ZoneRenderer renderer) {
+	       
+		double scale = renderer.getScale();		
+        double rndAdj = 0.5*scale;
+	        
+        return convertToZone(renderer, this.x + rndAdj, this.y + rndAdj);
+	}
     
     public static ScreenPoint fromZonePoint(ZoneRenderer renderer, ZonePoint zp) {
     	return fromZonePoint(renderer, zp.x, zp.y);
