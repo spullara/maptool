@@ -227,6 +227,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         I18N.setAction("initPanel.toggleOwnerPermissions", TOGGLE_OWNER_PERMISSIONS_ACTION);
         I18N.setAction("initPanel.toggleMovementLock", TOGGLE_MOVEMENT_LOCK_ACTION);
         I18N.setAction("initPanel.round", RESET_COUNTER_ACTION);
+        I18N.setAction("initPanel.prev", PREV_ACTION);
         updateView();
     }
     
@@ -253,7 +254,8 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         // Set up the menu
         menuButton.removeAll();
         if (hasGMPermission()) {
-            menuButton.add(new JMenuItem(SORT_LIST_ACTION));
+        	menuButton.add(new JMenuItem(PREV_ACTION));
+        	menuButton.add(new JMenuItem(SORT_LIST_ACTION));
             menuButton.addSeparator();
             menuButton.add(new JMenuItem(MAKE_CURRENT_ACTION));
         } // endif
@@ -557,6 +559,15 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         };
     };
     
+    /**
+     * This action will reverse initiative to the previous token in the list.
+     */
+    public final Action PREV_ACTION = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            list.prevInitiative();
+        };
+    };
+
     /**
      * This action will remove the selected token from the list.
      */

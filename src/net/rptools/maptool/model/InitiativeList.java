@@ -268,6 +268,21 @@ public class InitiativeList implements Serializable {
         updateServer();
     }
 
+    /**
+     * Go to the next token in initiative order.
+     */
+    public void prevInitiative() {
+        if (tokens.isEmpty())
+            return;
+        holdUpdate += 1;
+        int newRound = (round < 2) ? 1 : (current - 1 < 0) ? round - 1 : round;
+        int newCurrent = (current < 1) ? (round < 2 ? 0 : tokens.size() - 1): current - 1;
+        setCurrent(newCurrent);
+        setRound(newRound);
+        holdUpdate -= 1;
+        updateServer();
+    }
+
     /** @return Getter for round */
     public int getRound() {
         return round;
