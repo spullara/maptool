@@ -1472,6 +1472,8 @@ public class AppActions {
 
 		public void execute(ActionEvent e) {
 
+			MapTool.confirm("msg.confirm.saveCampaign");
+			
 			if (!MapTool.confirm("msg.confirm.newCampaign")) {
 
 				return;
@@ -1703,6 +1705,8 @@ public class AppActions {
 		}
 
 		public void execute(ActionEvent e) {
+			
+			MapTool.confirm("msg.confirm.saveCampaign");
 
 			final ConnectToServerDialog dialog = new ConnectToServerDialog();
 
@@ -1810,6 +1814,8 @@ public class AppActions {
 		}
 
 		public void execute(ActionEvent ae) {
+			
+			MapTool.confirm("msg.confirm.saveCampaign");
 
 			JFileChooser chooser = new CampaignPreviewFileChooser();
 			chooser.setDialogTitle(I18N.getText("msg.title.loadCampaign"));
