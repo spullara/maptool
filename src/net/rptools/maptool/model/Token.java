@@ -457,6 +457,11 @@ public class Token extends BaseModel {
 	}
 	
 	public void setFacing(Integer facing) {
+		// Make sure facing ranges from 180 through -179
+		while (facing > 180 || facing < -179) {
+			facing += facing > 180 ? -360 : 0;
+			facing += facing < -179 ? 360 : 0;
+		}
 		this.facing = facing;
 	}
 	
