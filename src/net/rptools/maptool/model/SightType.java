@@ -149,6 +149,7 @@ public class SightType {
 	    		visibleArea.add(tempvisibleArea);
 				break;
 			default:
+				visibleArea = new Area(new Ellipse2D.Double(-visionRange, -visionRange, visionRange*2, visionRange*2));
 				break;
 		}
 		return visibleArea;
