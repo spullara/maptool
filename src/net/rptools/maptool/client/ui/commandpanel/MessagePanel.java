@@ -34,13 +34,11 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.functions.MacroLinkFunction;
-import net.rptools.maptool.client.swing.HTMLPanelImageCache;
 import net.rptools.maptool.client.swing.MessagePanelEditorKit;
 import net.rptools.maptool.model.TextMessage;
 
@@ -169,7 +167,7 @@ public class MessagePanel extends JPanel {
 //				text = text.replaceAll("\\{cmd\\s*([^\\}]*)}", "&#171;<span class='cmd' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
 
 				// Auto inline expansion
-				text = text.replaceAll("(^|\\s)(http://[a-zA-Z0-9_\\.%-/~?]+)", "$1<a href=\"$2\">$2</a>");
+				text = text.replaceAll("(^|\\s|>)(http://[a-zA-Z0-9_\\.%-/~?]+)", "$1<a href=\"$2\">$2</a>");
 				Element element = document.getElement("body");
 				
 				
