@@ -247,9 +247,9 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
             if (isTokenVisible(ti.getToken(), list.isHideNPC())) {
                 found -= 1;
                 if (found == -1) return ti;
-            } // endif
-        } // endfor
-        throw new IndexOutOfBoundsException("Bad visible token index: " + index);
+            }
+        } 
+        return null;
     }
     
     /**

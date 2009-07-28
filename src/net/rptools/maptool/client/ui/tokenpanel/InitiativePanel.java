@@ -828,8 +828,9 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
           });
         } else if (SwingUtilities.isRightMouseButton(e)) {
             TokenInitiative ti = (TokenInitiative)displayList.getModel().getElementAt(displayList.locationToIndex(e.getPoint()));
-            if (ti == null)
+            if (ti == null) {
             	return;
+            }
             displayList.setSelectedIndex(model.getDisplayIndex(list.indexOf(ti)));
             // TODO Can I use hasOwnerPermission(ti.getToken()) here instead?
             if (!hasGMPermission() && ti.getToken() != null && !ti.getToken().isOwner(MapTool.getPlayer().getName()))
