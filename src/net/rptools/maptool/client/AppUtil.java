@@ -61,6 +61,10 @@ public class AppUtil {
     	if (!StringUtils.isEmpty(subdir)) {
     		path = new File(path.getAbsolutePath() + "/" + subdir);
     	}
+
+    	if (!path.mkdirs()) {
+    		MapTool.showError("msg.error.unableToCreateDataDir");
+    	}
     	
         return path;
     }
