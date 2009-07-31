@@ -28,7 +28,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class AppUtil {
 
-	private static final String DEFAULT_DATADIR_NAME = ".maptool";
+	public static final String DEFAULT_DATADIR_NAME = ".maptool";
 	public static final String DATADIR_PROPERTY_NAME = "MAPTOOL_DATADIR";
 	
 	private static File dataDirPath;
@@ -66,8 +66,8 @@ public class AppUtil {
     	path.mkdirs();
     	
     	// Now check our work
-    	if (!path.exists()) {
-    		throw new RuntimeException(I18N.getText("msg.error.unableToCreateDataDir"));
+    	if (!path.exists() || !path.canWrite()) {
+    		throw new RuntimeException(I18N.getText("msg.error.unableToCreateDataDir", path.getAbsolutePath()));
     	}
     	
         return path;

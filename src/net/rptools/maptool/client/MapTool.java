@@ -918,6 +918,21 @@ public class MapTool {
 	
 	public static void main(String[] args) {
 
+		// Before anything else, create a place to store all the data
+		try {
+			AppUtil.getAppHome();
+		} catch (Throwable t) {
+			t.printStackTrace();
+
+			// Create an empty frame so there's something to click on if the dialog goes in the background
+			JFrame frame = new JFrame();
+			SwingUtil.centerOnScreen(frame);
+			frame.setVisible(true);
+			
+			JOptionPane.showMessageDialog(frame, t.getMessage(), "Error creating data dir", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
+		}
+		
 		configureLogging();
 		
 		// System properties
