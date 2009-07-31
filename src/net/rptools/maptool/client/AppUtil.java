@@ -16,6 +16,7 @@ package net.rptools.maptool.client;
 import java.io.File;
 
 import net.rptools.maptool.client.ui.zone.PlayerView;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Player;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
@@ -62,8 +63,11 @@ public class AppUtil {
     		path = new File(path.getAbsolutePath() + "/" + subdir);
     	}
 
-    	if (!path.mkdirs()) {
-    		MapTool.showError("msg.error.unableToCreateDataDir");
+    	path.mkdirs();
+    	
+    	// Now check our work
+    	if (!path.exists()) {
+    		throw new RuntimeException(I18N.getText("msg.error.unableToCreateDataDir"));
     	}
     	
         return path;
