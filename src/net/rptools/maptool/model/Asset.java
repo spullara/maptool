@@ -57,6 +57,10 @@ public class Asset {
     	return name;
     }
     
+    public boolean isTransfering() {
+    	return AssetManager.isAssetRequested(id);
+    }
+    
     @Override
     public int hashCode() {
     	return getId().hashCode();

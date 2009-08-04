@@ -19,12 +19,9 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
 
@@ -83,7 +80,7 @@ public class SingleImageBarTokenOverlay extends BarTokenOverlay {
     public void paintOverlay(Graphics2D g, Token token, Rectangle bounds, double value) {
 
         // Get the images
-        BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(assetId));
+        BufferedImage image = ImageManager.getImageAndWait(assetId);
 
         Dimension d = bounds.getSize();
         Dimension size = new Dimension(image.getWidth(), image.getHeight());

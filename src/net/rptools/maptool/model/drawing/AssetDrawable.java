@@ -22,7 +22,6 @@ import java.awt.geom.Area;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.util.ImageManager;
 
@@ -71,7 +70,7 @@ public class AssetDrawable extends AbstractDrawing {
 	@Override
 	protected void drawBackground(Graphics2D g) {
 		ZoneRenderer renderer = MapTool.getFrame().getZoneRenderer(zoneId);
-		Image image = ImageManager.getImage(AssetManager.getAsset(assetId), renderer);
+		Image image = ImageManager.getImage(assetId, renderer);
 		g.drawImage(image, bounds.x, bounds.y, renderer);
 	}
 

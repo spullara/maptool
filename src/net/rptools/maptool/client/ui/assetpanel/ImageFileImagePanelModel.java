@@ -85,7 +85,7 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
 			image = ((AssetDirectory) dir).getImageFor(fileList.get(index));
 		}
 
-		return image != null ?  image : ImageManager.UNKNOWN_IMAGE;
+		return image != null ?  image : ImageManager.TRANSFERING_IMAGE;
 	}
 
 	public Transferable getTransferable(int index) {
@@ -143,6 +143,12 @@ public class ImageFileImagePanelModel implements ImagePanelModel {
     	
         try {
             Asset asset = AssetManager.createAsset(fileList.get(index));
+            
+            // I don't like having to do this, but the ImageManager api only allows assets that
+            // the assetmanager knows about (by design).  So there isn't an "immediate" mode 
+            // for assets anymore.  
+            AssetManager.putAsset(asset);
+            
     		return asset;
         } catch (IOException ioe) {
             return null;

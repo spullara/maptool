@@ -315,11 +315,11 @@ public class EditLookupTablePanel extends AbeillePanel {
 		return new LookupTableTableModel(rows, "Range", "Value", "Image");
 	}
 	
-	private static class ImageCellRenderer extends ImageAssetPanel implements TableCellRenderer {
+	private class ImageCellRenderer extends ImageAssetPanel implements TableCellRenderer {
 
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
-			setImageId(value != null && ((String) value).length() > 0 ? new MD5Key((String)value) : null);
+			setImageId(value != null && ((String) value).length() > 0 ? new MD5Key((String)value) : null, EditLookupTablePanel.this);
 			
 			return this;
 		}

@@ -62,7 +62,6 @@ import net.rptools.maptool.client.ui.token.SingleImageBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.TwoImageBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.TwoToneBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay.Side;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.util.ImageManager;
@@ -520,7 +519,7 @@ public class TokenBarController implements ActionListener, DocumentListener, Lis
             public void paintIcon(Component c, java.awt.Graphics g, int x, int y) {
                 Shape old = g.getClip();
                 g.setClip(bounds.intersection(old.getBounds()));
-                BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(key));
+                BufferedImage image = ImageManager.getImageAndWait(key);
                 g.drawImage(image, x, y, bounds.width, bounds.height, null);
                 g.setClip(old);
             }

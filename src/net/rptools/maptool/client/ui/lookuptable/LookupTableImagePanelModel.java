@@ -26,7 +26,6 @@ import java.util.Map;
 import net.rptools.lib.swing.ImagePanelModel;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.util.ImageManager;
 
@@ -68,7 +67,7 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 
 		Image image = AppStyle.lookupTableDefaultImage;
 		if (table.getTableImage() != null) {
-			image = ImageManager.getImage(AssetManager.getAsset(table.getTableImage()), imageObservers);
+			image = ImageManager.getImage(table.getTableImage(), imageObservers);
 		}
 
 		return image;

@@ -39,7 +39,7 @@ public class ZoneFactory {
     			defaultImageId = asset.getId();
     			
 				// Make sure the image is loaded to avoid a flash screen when it becomes visible
-				ImageManager.getImageAndWait(asset);
+				ImageManager.getImageAndWait(asset.getId());
     		} catch (IOException ioe) {
     			ioe.printStackTrace();
     		}

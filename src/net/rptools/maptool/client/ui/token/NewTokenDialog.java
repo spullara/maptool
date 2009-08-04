@@ -26,8 +26,6 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppPreferences;
@@ -37,7 +35,6 @@ import net.rptools.maptool.client.swing.GenericDialog;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
 
 import com.jeta.forms.components.image.ImageComponent;
@@ -219,9 +216,9 @@ public class NewTokenDialog extends AbeillePanel<Token> {
 		BufferedImage assetImage = null;
 		Asset asset = AssetManager.getAsset(token.getImageAssetId());
 		if (asset == null) {
-			assetImage = ImageManager.UNKNOWN_IMAGE;
+			assetImage = ImageManager.TRANSFERING_IMAGE;
 		} else {
-			assetImage = ImageManager.getImageAndWait(asset);
+			assetImage = ImageManager.getImageAndWait(asset.getId());
 		}
 
 		// Need to resize?

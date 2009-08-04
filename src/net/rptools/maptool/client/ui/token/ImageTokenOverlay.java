@@ -19,12 +19,9 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import net.rptools.lib.MD5Key;
-import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -99,7 +96,7 @@ public class ImageTokenOverlay extends BooleanTokenOverlay {
             return;
         } // endif
 
-        BufferedImage image = ImageManager.getImageAndWait(asset);
+        BufferedImage image = ImageManager.getImageAndWait(asset.getId());
         Dimension size = new Dimension(image.getWidth(), image.getHeight());
         SwingUtil.constrainTo(size, d.width, d.height);
         

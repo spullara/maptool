@@ -22,7 +22,6 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
 
@@ -37,7 +36,7 @@ public class TokenListCellRenderer extends DefaultListCellRenderer {
         super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         if (value instanceof Token) {
             Token token = (Token) value;
-            image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), this);
+            image = ImageManager.getImage(token.getImageAssetId(), this);
             name = token.getName();
             
             setText(" "); // hack to keep the row height the right size

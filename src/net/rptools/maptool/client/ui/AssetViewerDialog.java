@@ -26,23 +26,17 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import net.rptools.lib.MD5Key;
-import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.ImageManager;
 
 public class AssetViewerDialog extends JDialog {
@@ -124,7 +118,7 @@ public class AssetViewerDialog extends JDialog {
 						size.width += dx;
 						size.height += dy;
 						
-						BufferedImage image = ImageManager.getImage(AssetManager.getAsset(assetId), AssetViewerDialog.this);
+						BufferedImage image = ImageManager.getImage(assetId, AssetViewerDialog.this);
 						double ratio = image.getWidth()/(double)image.getHeight();
 						size.height = (int)(size.width / ratio);
 
@@ -152,10 +146,10 @@ public class AssetViewerDialog extends JDialog {
 			
 			Dimension size = getSize();
 			
-			BufferedImage image = ImageManager.getImage(AssetManager.getAsset(assetId), this);
+			BufferedImage image = ImageManager.getImage(assetId, this);
 			if (!sized) {
 				updateSize(image);
-				if (image != ImageManager.UNKNOWN_IMAGE) {
+				if (image != ImageManager.TRANSFERING_IMAGE) {
 					sized = true;
 				}
 			}

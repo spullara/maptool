@@ -75,8 +75,8 @@ public class ZoneMiniMapPanel extends JPanel implements ModelChangeListener  {
         	
         	// TODO: This is a naive solution.  In the future, actually render the zone
 	        BufferedImage img = renderer.getMiniImage(SIZE_WIDTH);
-	        if (img == null || img == ImageManager.UNKNOWN_IMAGE) {
-	            img = ImageManager.UNKNOWN_IMAGE;
+	        if (img == null || img == ImageManager.TRANSFERING_IMAGE) {
+	            img = ImageManager.TRANSFERING_IMAGE;
 	            
 	            // Let's wake up when the image arrives
 //	            ImageManager.addObservers(renderer.getZone().getBackgroundAssetId(), this);
@@ -117,8 +117,8 @@ public class ZoneMiniMapPanel extends JPanel implements ModelChangeListener  {
     		return new Dimension(0, 0);
     	}
         BufferedImage img = renderer.getMiniImage(SIZE_WIDTH);
-        if (img == null || img == ImageManager.UNKNOWN_IMAGE) {
-            img = ImageManager.UNKNOWN_IMAGE;
+        if (img == null || img == ImageManager.TRANSFERING_IMAGE) {
+            img = ImageManager.TRANSFERING_IMAGE;
             
             // Let's wake up when the image arrives
 //            ImageManager.addObservers(renderer.getZone().getBackgroundAssetId(), this);

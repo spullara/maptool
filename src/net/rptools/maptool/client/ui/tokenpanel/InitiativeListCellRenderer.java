@@ -45,7 +45,6 @@ import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.InitiativeListModel;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
@@ -299,7 +298,7 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
          * @return The properly scaled image.
          */
         public Image scaleImage() {
-            Image image = ImageManager.getImageAndWait(AssetManager.getAsset(tokenInitiative.getToken().getImageAssetId()));
+            Image image = ImageManager.getImageAndWait(tokenInitiative.getToken().getImageAssetId());
             BufferedImage bi = ImageUtil.createCompatibleImage(getIconWidth(), getIconHeight(), Transparency.TRANSLUCENT);
             Dimension d = new Dimension(image.getWidth(null), image.getHeight(null));
             SwingUtil.constrainTo(d, getIconWidth(), getIconHeight());

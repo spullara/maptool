@@ -383,7 +383,7 @@ public class PersistenceUtil {
 		saveAssets(token.getAllImageAssets(), pakFile);
 
 		// Thumbnail
-		BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
+		BufferedImage image = ImageManager.getImage(token.getImageAssetId());
 		Dimension sz = new Dimension(image.getWidth(), image.getHeight());
 		SwingUtil.constrainTo(sz, 50);
 		BufferedImage thumb = new BufferedImage(sz.width, sz.height, BufferedImage.TRANSLUCENT);

@@ -24,7 +24,7 @@ public class AssetPaint extends TexturePaint {
 	private Asset asset;
 	
 	public AssetPaint(Asset asset) {
-		super(ImageManager.getImageAndWait(asset), new Rectangle2D.Float(0, 0, ImageManager.getImageAndWait(asset).getWidth(), ImageManager.getImageAndWait(asset).getHeight()));
+		super(ImageManager.getImageAndWait(asset.getId()), new Rectangle2D.Float(0, 0, ImageManager.getImageAndWait(asset.getId()).getWidth(), ImageManager.getImageAndWait(asset.getId()).getHeight()));
 		this.asset = asset;
 	}
 	

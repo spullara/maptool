@@ -19,13 +19,9 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.maptool.client.ui.token.BarTokenOverlay.Side;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
 
@@ -92,8 +88,8 @@ public class TwoImageBarTokenOverlay extends BarTokenOverlay {
 
         // Get the images
         BufferedImage[] images = {
-        		ImageManager.getImageAndWait(AssetManager.getAsset(topAssetId)),
-        		ImageManager.getImageAndWait(AssetManager.getAsset(bottomAssetId)),
+        		ImageManager.getImageAndWait(topAssetId),
+        		ImageManager.getImageAndWait(bottomAssetId),
         };
 
         Dimension d = bounds.getSize();

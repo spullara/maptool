@@ -608,7 +608,7 @@ public class MapPropertiesDialog extends JDialog  {
 			
 			// Map
 			if (mapAsset != null) {
-				BufferedImage image = ImageManager.getImageAndWait(mapAsset);
+				BufferedImage image = ImageManager.getImageAndWait(mapAsset.getId());
 				Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
 				SwingUtil.constrainTo(imgSize, size.width-10*4, size.height-10*4);
 				

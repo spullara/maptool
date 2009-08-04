@@ -15,7 +15,6 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Token;
@@ -518,8 +517,8 @@ public class TokenPropertyFunctions extends AbstractFunction {
 				break;
 			case GM:
 			case TOKEN:
-				Image image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
-				if (image == null || image == ImageManager.UNKNOWN_IMAGE) {
+				Image image = ImageManager.getImage(token.getImageAssetId());
+				if (image == null || image == ImageManager.TRANSFERING_IMAGE) {
 					token.setShape(Token.TokenShape.TOP_DOWN);
 				} else {
 					token.setShape(TokenUtil.guessTokenType(image));

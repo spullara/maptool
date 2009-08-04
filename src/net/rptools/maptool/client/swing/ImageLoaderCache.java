@@ -28,7 +28,6 @@ import java.util.Map;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.ImageManager;
 
 import org.apache.log4j.Logger;
@@ -76,9 +75,8 @@ public class ImageLoaderCache {
 					size = Integer.parseInt(szStr);
 				}
 
-				image = ImageManager.getImage(AssetManager.getAsset(new MD5Key(
-						path)), observers);
-				boolean imageLoaded = image != ImageManager.UNKNOWN_IMAGE;
+				image = ImageManager.getImage(new MD5Key(path), observers);
+				boolean imageLoaded = image != ImageManager.TRANSFERING_IMAGE;
 				if (!imageLoaded) {
 					size = 38;
 				}

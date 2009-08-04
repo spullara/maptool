@@ -29,7 +29,6 @@ import java.util.Map;
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.ImageManager;
 
 public class HTMLPanelImageCache extends Dictionary<URL, Image> {
@@ -76,7 +75,7 @@ public class HTMLPanelImageCache extends Dictionary<URL, Image> {
 					size = Integer.parseInt(szStr);
 				}
 				
-				image = ImageManager.getImageAndWait(AssetManager.getAsset(new MD5Key(path)));
+				image = ImageManager.getImageAndWait(new MD5Key(path));
 
 				if (size > 0) {
 					Dimension sz = new Dimension(image.getWidth(null), image.getHeight(null));

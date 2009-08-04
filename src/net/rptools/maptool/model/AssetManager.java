@@ -36,29 +36,52 @@ import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 
 /**
+ * This class handles the caching, loading,
+ * and downloading of assets. All assets are
+ * loaded through this class.
+ * 
+ * @author RPTools Team
+ *
  */
 public class AssetManager {
 
-	private static Map<MD5Key, Asset> assetMap = new HashMap<MD5Key, Asset>();
+	/** Assets are associated with the MD5 sum of their raw data */
+	private static Map<MD5Key, Asset> assetMap = new ConcurrentHashMap<MD5Key, Asset>();
+
+	/** Location of the cache on the filesystem */
 	private static File cacheDir;
+
+	/** True if a persistent cache should be used */
 	private static boolean usePersistentCache;
-	
+
+	/** Contains the most recently requested asset */
     private static Asset lastRetrievedAsset;
 
+    /**
+     * A list of listeners which should be notified
+     * when the asset associated with a given MD5
+     * sum has finished downloading. 
+     */
     private static Map<MD5Key, List<AssetAvailableListener>> assetListenerListMap  = new ConcurrentHashMap<MD5Key, List<AssetAvailableListener>>();
     
+    /** Property string associated with asset name */
     public static final String NAME = "name";
     
+    /** Used to load assets from storage */
     private static AssetLoader assetLoader = new AssetLoader();
     
-	static {
-		
+	static {		
 		cacheDir = AppUtil.getAppHome("assetcache");
 		if (cacheDir != null) {
 			usePersistentCache = true;
 		}
 	}
 	
+	/**
+	 * Remove all existing repositories and
+	 * load all the repositories from the currently
+	 * loaded campaign.
+	 */
 	public static void updateRepositoryList() {
 		assetLoader.removeAllRepositories();
 		for (String repo : MapTool.getCampaign().getRemoteRepositoryList()) {
@@ -66,38 +89,111 @@ public class AssetManager {
 		}
 	}
 	
+	/**
+	 * Determine if the asset is currently being
+	 * requested. While an asset is being loaded
+	 * it will be marked as requested and this function
+	 * will return true. Once the asset is done loading
+	 * this function will return false and the asset will
+	 * be available from the cache.
+	 * @param key MD5Key of asset being requested
+	 * @return True if asset is currently being requested, false otherwise
+	 */
 	public static boolean isAssetRequested(MD5Key key) {
 		return assetLoader.isIdRequested(key);
 	}
 	
-	public static void addAssetListener(MD5Key key, AssetAvailableListener listener) {
+	/**
+	 * Register a listener with the asset manager. The
+	 * listener will be notified when the asset is done
+	 * loading.
+	 * @param key MD5Key of the asset
+	 * @param listener Listener to notify when the asset is done loading
+	 */
+	public static void addAssetListener(MD5Key key, AssetAvailableListener... listeners) {
 
+		if (listeners == null || listeners.length == 0) {
+			return;
+		}
+		
 		List<AssetAvailableListener> listenerList = assetListenerListMap.get(key);
 		if (listenerList == null) {
 			listenerList = new LinkedList<AssetAvailableListener>();
 			assetListenerListMap.put(key, listenerList);
 		}
-		
-		listenerList.add(listener);
+
+		for (AssetAvailableListener listener : listeners) {
+			if (!listenerList.contains(listener)) {
+				listenerList.add(listener);
+			}
+		}
 	}
 	
+	public static void removeAssetListener(MD5Key key, AssetAvailableListener... listeners) {
+		
+		if (listeners == null || listeners.length == 0) {
+			return;
+		}
+		
+		List<AssetAvailableListener> listenerList = assetListenerListMap.get(key);
+		if (listenerList == null) {
+			// Nothing to do
+			return;
+		}
+
+		for (AssetAvailableListener listener : listeners) {
+			listenerList.remove(listener);
+		}
+	}
+	
+	/**
+	 * Load the last retrieved asset. This asset
+	 * may be empty if the asset is currently being
+	 * downloaded, the id will be valid but nothing else.
+	 * @return The last retrieved asset.
+	 */
     public static Asset getLastRetrievedAsset() {
         return lastRetrievedAsset;
     }
     
+    /**
+     * Determine if the asset manager has the asset.
+     * This does not tell you if the asset is done
+     * downloading.
+     * @param asset Asset to look for
+     * @return True if the asset exists, false otherwise
+     */
 	public static boolean hasAsset(Asset asset) {
 		return hasAsset(asset.getId());
 	}
 	
+	/**
+	 * Determine if the asset manager has the asset.
+	 * This does not tell you if the asset is done
+	 * downloading.
+	 * @param key
+	 * @return
+	 */
 	public static boolean hasAsset(MD5Key key) {
 		return assetMap.containsKey(key) || assetIsInPersistentCache(key) || assetHasLocalReference(key);
 	}
 
+	/**
+	 * Determines if the asset data is in memory.
+	 * @param key MD5 sum associated with asset
+	 * @return True if hte asset is loaded, false otherwise
+	 */
     public static boolean hasAssetInMemory(MD5Key key) {
         return assetMap.containsKey(key);
     }
     
+    /**
+     * Add the asset to the asset cache.
+     * Listeners for this asset are notified.
+     * @param asset Asset to add to cache
+     */
 	public static void putAsset(Asset asset) {
+		
 		if (asset == null) {
 			return;
 		}
@@ -124,7 +220,19 @@ public class AssetManager {
 		}
 	}
 	
-	public static Asset getAsset(MD5Key id) {
+	/**
+	 * Get the asset from the cache. If the asset
+	 * is currently being downloaded then this function
+	 * returns an asset with only the id set, otherwise
+	 * the asset points to an asset that is in the cache.
+	 * Assets which are still downloading may be safely
+	 * used with the ImageManager, since it coordinates
+	 * with the asset manager.
+	 * @param id MD5 of the asset requested
+	 * @return Asset object for the MD5 sum
+	 */
+	public static Asset getAsset(MD5Key id, AssetAvailableListener... listeners) {
+		
 		if (id == null) {
 			return null;
 		}
@@ -132,9 +240,10 @@ public class AssetManager {
 		Asset asset = assetMap.get(id);
 		
 		if (asset == null && usePersistentCache && assetIsInPersistentCache(id)) {
-			
+			// Guaranteed that asset is in the cache.
 			asset = getFromPersistentCache(id);
 		}
+		
 		if (asset == null && assetHasLocalReference(id)) {
 			
 			File imageFile = getLocalReference(id);
@@ -160,7 +269,12 @@ public class AssetManager {
 				}
 			}
 		}
-		if (asset == null && !isAssetRequested(id )) {
+		
+		// As a last resort we request the asset from the server
+		if (asset == null && !isAssetRequested(id)) {
+			asset = new Asset(id);			
+
+			addAssetListener(id, listeners);
 			requestAssetFromServer(id);
 		}
 		
@@ -168,10 +282,18 @@ public class AssetManager {
 		return asset;
 	}
 
+	/**
+	 * Remove the asset from the asset cache.
+	 * @param id MD5 of the asset to remove
+	 */
 	public static void removeAsset(MD5Key id) {
 		assetMap.remove(id);
 	}
 
+	/**
+	 * Enable the use of the persistent asset cache.
+	 * @param enable True to enable the cache, false to disable
+	 */
 	public static void setUsePersistentCache(boolean enable) {
 		if (enable && cacheDir == null) {
 			throw new IllegalArgumentException ("Could not enable persistent cache: no such directory");
@@ -180,6 +302,10 @@ public class AssetManager {
 		usePersistentCache = enable;
 	}
 
+	/**
+	 * Request that the asset be loaded from the server
+	 * @param id MD5 of the asset to load from the server
+	 */
 	private static void requestAssetFromServer(MD5Key id) {
 		
 		if (id != null) {
@@ -187,6 +313,14 @@ public class AssetManager {
 		}
 	}
 	
+	/**
+	 * Retrieve the asset from the persistent cache.
+	 * If the asset is not in the cache, or loading
+	 * from the cache failed then this function
+	 * returns null.
+	 * @param id MD5 of the requested asset
+	 * @return Asset from the cache
+	 */
 	private static Asset getFromPersistentCache(MD5Key id) {
 		
 		if (id == null || id.toString().length() == 0) {
@@ -219,10 +353,21 @@ public class AssetManager {
 		
 	}
 	
+	/**
+	 * Create an asset from a file.
+	 * @param file File to use for asset
+	 * @return Asset associated with the file
+	 * @throws IOException
+	 */
 	public static Asset createAsset(File file) throws IOException {
 		return  new Asset(FileUtil.getNameWithoutExtension(file), FileUtil.loadFile(file));
     }
 	    
+	/**
+	 * Return a set of properties associated with the asset.
+	 * @param id MD5 of the asset
+	 * @return Properties object containing asset properties.
+	 */
 	public static Properties getAssetInfo(MD5Key id) {
 		
 		File infoFile = getAssetInfoFile(id);
@@ -239,6 +384,10 @@ public class AssetManager {
 		}
 	}
 	
+	/**
+	 * Serialize the asset into the persistent cache.
+	 * @param asset Asset to serialize
+	 */
 	private static void putInPersistentCache(final Asset asset) {
 		
 		if (!usePersistentCache) {
@@ -287,6 +436,11 @@ public class AssetManager {
 		}
 	}
 	
+	/**
+	 * Return the file associated with the asset, if any.
+	 * @param id MD5 of the asset
+	 * @return The file associated with the asset, null if none.
+	 */
 	private static File getLocalReference(MD5Key id) {
 
 		File lnkFile = getAssetLinkFile(id);
@@ -304,7 +458,7 @@ public class AssetManager {
 			}
 			
 		} catch (IOException ioe) {
-			// Just so we know, but fall through to return false
+			// Just so we know, but fall through to return null
 			ioe.printStackTrace();
 		}
 		
@@ -313,7 +467,8 @@ public class AssetManager {
 	}
 	
 	/**
-	 * Store a pointer to where we've seen this asset before.
+	 * Store an absolute path to where this asset exists.
+	 * @param image 
 	 */
 	public static void rememberLocalImageReference(File image) throws IOException {
 		
@@ -341,44 +496,99 @@ public class AssetManager {
 		out.close();
 	}
 
+	/**
+	 * Determine if the asset has a local reference
+	 * @param id MD5 sum of the asset
+	 * @return True if there is a local reference, false otherwise
+	 */
 	private static boolean assetHasLocalReference(MD5Key id) {
 		
 		return getLocalReference(id) != null;
 	}
 	
+	/**
+	 * Determine if the asset is in the persistent cache.
+	 * @param asset Asset to search for
+	 * @return True if asset is in the persistent cache, false otherwise
+	 */
 	private static boolean assetIsInPersistentCache(Asset asset) {
 		return assetIsInPersistentCache(asset.getId());
 	}
 	
+	/**
+	 * The assets information is in the persistent cache.
+	 * @param asset Asset to search for
+	 * @return True if the assets information exists in the persistent cache
+	 */
 	private static boolean assetInfoIsInPersistentCache(Asset asset) {
 		return getAssetInfoFile(asset.getId()).exists();
 	}
 	
+	/**
+	 * Determine if the asset is in the persistent cache.
+	 * @param id MD5 sum of the asset
+	 * @return True if asset is in the persistent cache, false otherwise
+	 * @see assetIsInPersistentCache(Asset asset)
+	 */
 	private static boolean assetIsInPersistentCache(MD5Key id) {
 
 		return getAssetCacheFile(id).exists() && getAssetCacheFile(id).length() > 0;
 	}
 	
+	/**
+	 * Return the assets cache file, if any
+	 * @param asset Asset to search for
+	 * @return The assets cache file, or null if it doesn't have one
+	 */
 	public static File getAssetCacheFile(Asset asset) {
 		return getAssetCacheFile(asset.getId());
 	}
 
+	/**
+	 * Return the assets cache file, if any
+	 * @param is MD5 sum of the asset
+	 * @return The assets cache file, or null if it doesn't have one
+	 * @see getAssetCacheFile(Asset asset)
+	 */
 	public static File getAssetCacheFile(MD5Key id) {
 		return new File (cacheDir.getAbsolutePath() + File.separator + id);
 	}
 	
+	/**
+	 * Return the asset info file, if any
+	 * @param asset Asset to search for
+	 * @return The assets info file, or null if it doesn't have one
+	 */
 	private static File getAssetInfoFile(Asset asset) {
 		return getAssetInfoFile(asset.getId());
 	}
 
+	/**
+	 * Return the asset info file, if any
+	 * @param id MD5 sum of the asset
+	 * @return File - The assets info file, or null if it doesn't have one
+	 * @see getAssetInfoFile(Asset asset)
+	 */
 	private static File getAssetInfoFile(MD5Key id) {
 		return new File (cacheDir.getAbsolutePath() + File.separator + id + ".info");
 	}
 
+	/**
+	 * Return the asset link file, if any
+	 * @param id MD5 sum of the asset
+	 * @return File The asset link file
+	 */
 	private static File getAssetLinkFile(MD5Key id) {
 		return new File (cacheDir.getAbsolutePath() + File.separator + id + ".lnk");
 	}
 
+	/**
+	 * Recursively search from the rootDir, filtering files
+	 * based on fileFilter, and store a reference to every
+	 * file seen.
+	 * @param rootDir Starting directory to recurse from
+	 * @param fileFilter Only add references to image files that are allowed by the filter
+	 */
 	public static void searchForImageReferences(File rootDir, FilenameFilter fileFilter) {
 
 		for (File file : rootDir.listFiles()) {

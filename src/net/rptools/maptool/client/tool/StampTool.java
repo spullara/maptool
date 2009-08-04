@@ -15,7 +15,6 @@ package net.rptools.maptool.client.tool;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -31,9 +30,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
-import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,12 +62,8 @@ import net.rptools.maptool.client.ui.Toolbox;
 import net.rptools.maptool.client.ui.token.EditTokenDialog;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
-import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
@@ -293,8 +286,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 				Token token = tokenList.get(i);
 
-				BufferedImage image = ImageManager.getImage(AssetManager
-						.getAsset(token.getImageAssetId()), renderer);
+				BufferedImage image = ImageManager.getImage(token.getImageAssetId(), renderer);
 
 				Dimension imgSize = new Dimension(image.getWidth(), image
 						.getHeight());
@@ -631,8 +623,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			
 			ScreenPoint sp = new ScreenPoint(mouseX + dragOffsetX, mouseY
 					+ dragOffsetY);
-			BufferedImage image = ImageManager.getImage(AssetManager
-					.getAsset(tokenBeingResized.getImageAssetId()));
+			BufferedImage image = ImageManager.getImage(tokenBeingResized.getImageAssetId());
 
 			if (SwingUtil.isControlDown(e)) { // snap size to grid
 				sp = getNearestVertex(sp);

@@ -945,7 +945,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 				Zone zone = ZoneFactory.createZone();
 				zone.setName(asset.getName());
-				BufferedImage image = ImageManager.getImageAndWait(asset);
+				BufferedImage image = ImageManager.getImageAndWait(asset.getId());
 				if (image.getWidth() < 200 || image.getHeight() < 200) {
 					zone.setBackgroundPaint(new DrawableTexturePaint(asset));
 				} else {
@@ -1237,7 +1237,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			public void assetAvailable(net.rptools.lib.MD5Key key) {
 				ZoneRenderer renderer = getCurrentZoneRenderer();
 				if (renderer.getZone() == zone) {
-					ImageManager.getImage(AssetManager.getAsset(key), renderer);
+					ImageManager.getImage(key, renderer);
 				}
 			}
 		};
@@ -1247,7 +1247,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			MD5Key key = token.getImageAssetId();
 
 			if (AssetManager.hasAsset(key)) {
-				ImageManager.getImage(AssetManager.getAsset(key));
+				ImageManager.getImage(key);
 			} else {
 
 				if (!AssetManager.isAssetRequested(key)) {
@@ -1263,7 +1263,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			MD5Key key = token.getImageAssetId();
 
 			if (AssetManager.hasAsset(key)) {
-				ImageManager.getImage(AssetManager.getAsset(key));
+				ImageManager.getImage(key);
 			} else {
 
 				if (!AssetManager.isAssetRequested(key)) {
@@ -1279,7 +1279,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			MD5Key key = token.getImageAssetId();
 
 			if (AssetManager.hasAsset(key)) {
-				ImageManager.getImage(AssetManager.getAsset(key));
+				ImageManager.getImage(key);
 			} else {
 
 				if (!AssetManager.isAssetRequested(key)) {

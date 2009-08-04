@@ -14,7 +14,6 @@
 package net.rptools.maptool.client.ui.token;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -32,6 +31,7 @@ import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -45,7 +45,6 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.swing.ImageChooserDialog;
 import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.ImageManager;
 
 public class ImageAssetPanel extends JPanel implements DropTargetListener {
@@ -54,6 +53,8 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
 
 	private JButton cancelButton;
 	private JButton addButton;
+	
+	private ImageObserver[] observers;
 	
 	private boolean allowEmpty = true;
 	
@@ -133,8 +134,9 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
 		allowEmpty = allow;
 	}
 	
-	public void setImageId(MD5Key sheetAssetId) {
+	public void setImageId(MD5Key sheetAssetId, ImageObserver... observers) {
 		this.imageId = sheetAssetId;
+		this.observers = observers != null && observers.length > 0 ? observers : new ImageObserver[]{this};
 
 		getCancelButton().setVisible(allowEmpty && sheetAssetId != null);
 		
@@ -152,8 +154,8 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
 		if (imageId == null) {
 			return;
 		}
-		
-		BufferedImage image = ImageManager.getImage(AssetManager.getAsset(imageId), this);
+
+		BufferedImage image = ImageManager.getImage(imageId, observers);
 		
 		Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
 		SwingUtil.constrainTo(imgSize, size.width-8, size.height-8);

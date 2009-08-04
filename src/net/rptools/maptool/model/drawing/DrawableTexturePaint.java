@@ -60,8 +60,8 @@ public class DrawableTexturePaint extends DrawablePaint implements Serializable,
 		if (image != null) {
 			texture = image;
 		} else {
-			texture = ImageManager.getImage(getAsset(), this);
-			if (texture != ImageManager.UNKNOWN_IMAGE) {
+			texture = ImageManager.getImage(getAsset().getId(), this);
+			if (texture != ImageManager.TRANSFERING_IMAGE) {
 				image = texture;
 			}
 		}

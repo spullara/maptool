@@ -24,6 +24,7 @@ import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -35,6 +36,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -72,7 +74,6 @@ import net.rptools.maptool.client.ui.zone.FogUtil;
 import net.rptools.maptool.client.ui.zone.PlayerView;
 import net.rptools.maptool.client.ui.zone.ZoneOverlay;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Pointer;
@@ -332,7 +333,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 				Token token = tokenList.get(i);
 
-				BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), renderer);
+				BufferedImage image = ImageManager.getImage(token.getImageAssetId(), renderer);
 
 				Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
 				SwingUtil.constrainTo(imgSize, gridSize);
@@ -1254,7 +1255,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	 * net.rptools.maptool.client.ZoneOverlay#paintOverlay(net.rptools.maptool
 	 * .client.ZoneRenderer, java.awt.Graphics2D)
 	 */
-	public void paintOverlay(ZoneRenderer renderer, Graphics2D g) {
+	public void paintOverlay(final ZoneRenderer renderer, Graphics2D g) {
 
 		Dimension viewSize = renderer.getSize();
 
@@ -1290,7 +1291,14 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 				// Portrait
 				MD5Key portraitId = tokenUnderMouse.getPortraitImage() != null ? tokenUnderMouse.getPortraitImage() : tokenUnderMouse.getImageAssetId();
-				BufferedImage image = ImageManager.getImage(AssetManager.getAsset(portraitId));
+				BufferedImage image = ImageManager.getImage(portraitId, new ImageObserver() {
+					public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
+						// The image was loading, so now rebuild the portrait panel with the real image
+						statSheet = null;
+						renderer.repaint();
+						return true;
+					}
+				});
 
 				Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
 
@@ -1490,7 +1498,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		if (marker.getPortraitImage() != null) {
 
-			BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(marker.getPortraitImage()));
+			BufferedImage image = ImageManager.getImageAndWait(marker.getPortraitImage());
 			Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());
 			if (imgSize.width > AppConstants.NOTE_PORTRAIT_SIZE || imgSize.height > AppConstants.NOTE_PORTRAIT_SIZE) {
 				SwingUtil.constrainTo(imgSize, AppConstants.NOTE_PORTRAIT_SIZE);

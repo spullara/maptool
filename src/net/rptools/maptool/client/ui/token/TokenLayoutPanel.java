@@ -17,7 +17,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.TexturePaint;
@@ -34,7 +33,6 @@ import javax.swing.JPanel;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.ImageManager;
@@ -125,7 +123,7 @@ public class TokenLayoutPanel extends JPanel {
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 
 		// Gather info
-		BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
+		BufferedImage image = ImageManager.getImage(token.getImageAssetId());
 
 		Rectangle tokenSize = token.getBounds(zone);
 		Dimension imgSize = new Dimension(image.getWidth(), image.getHeight());

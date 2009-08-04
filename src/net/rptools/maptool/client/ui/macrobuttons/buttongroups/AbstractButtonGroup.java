@@ -13,10 +13,6 @@
  */
 package net.rptools.maptool.client.ui.macrobuttons.buttongroups;
 
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.border.AbstractBorder;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FontMetrics;
@@ -36,16 +32,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.border.AbstractBorder;
+
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 import net.rptools.maptool.client.ui.TokenPopupMenu;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton;
 import net.rptools.maptool.client.ui.macrobuttons.panels.AbstractMacroPanel;
 import net.rptools.maptool.client.ui.token.EditTokenDialog;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
@@ -212,7 +211,7 @@ public abstract class AbstractButtonGroup extends JPanel implements DropTargetLi
 
 	protected ThumbnailedBorder createBorder(String label) {
 		if(getToken() != null) {
-			ImageIcon i = new ImageIcon(ImageManager.getImageAndWait(AssetManager.getAsset(getToken().getImageAssetId())));
+			ImageIcon i = new ImageIcon(ImageManager.getImageAndWait(getToken().getImageAssetId()));
 			Image icon = i.getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT);
 			return new ThumbnailedBorder(icon, label);
 		} else {

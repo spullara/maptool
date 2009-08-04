@@ -11,22 +11,19 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Transparency;
-
-import java.math.BigDecimal;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -53,15 +50,11 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.functions.InputFunction.InputType.OptionException;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.parser.Parser;
@@ -70,6 +63,8 @@ import net.rptools.parser.VariableResolver;
 import net.rptools.parser.function.AbstractFunction;
 import net.rptools.parser.function.EvaluationException;
 import net.rptools.parser.function.ParameterException;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * <pre><span style="font-family:sans-serif;">The input() function prompts the user to input several variable values at once.
@@ -1106,14 +1101,8 @@ public class InputFunction extends AbstractFunction {
 		MD5Key assetID = new MD5Key(id);
 
 		// Get the base image && find the new size for the icon
-		BufferedImage assetImage = null;
-		Asset asset = AssetManager.getAsset(assetID);
-		if (asset == null) {
-			assetImage = ImageManager.UNKNOWN_IMAGE;
-		} else {
-			assetImage = ImageManager.getImage(asset, io);
-		}
-
+		BufferedImage assetImage = ImageManager.getImage(assetID, io);
+		
 		// Resize
 		if (assetImage.getWidth() > size || assetImage.getHeight() > size) {
 			Dimension dim = new Dimension(assetImage.getWidth(), assetImage.getWidth());

@@ -1176,8 +1176,7 @@ public class Token extends BaseModel {
         td.putAll(state);
 
         // Create the image from the asset and add it to the map
-        Asset asset = AssetManager.getAsset(imageAssetMap.get(null));
-        Image image = ImageManager.getImageAndWait(asset);
+        Image image = ImageManager.getImageAndWait(imageAssetMap.get(null));
         if (image != null)
             td.setToken(new ImageIcon(image)); // Image icon makes it serializable.
         return td;
@@ -1289,7 +1288,7 @@ public class Token extends BaseModel {
     }
 	
 	public Icon getIcon(int width, int height) {
-		ImageIcon icon = new ImageIcon(ImageManager.getImageAndWait(AssetManager.getAsset(getImageAssetId())));
+		ImageIcon icon = new ImageIcon(ImageManager.getImageAndWait(getImageAssetId()));
 		Image image = icon.getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT);
 		return new ImageIcon(image);
 	}

@@ -1271,8 +1271,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             downloadCount++;
             
             // Have we loaded the image into memory yet ?
-            Image image = ImageManager.getImage(asset, this);
-            if (image == null || image == ImageManager.UNKNOWN_IMAGE) {
+            Image image = ImageManager.getImage(asset.getId(), this);
+            if (image == null || image == ImageManager.TRANSFERING_IMAGE) {
                 loaded = false;
                 continue;
             }
@@ -1324,7 +1324,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			
 			// Map
 			if (zone.getMapAssetId() != null) {
-				BufferedImage mapImage = ImageManager.getImage(AssetManager.getAsset(zone.getMapAssetId()), this);
+				BufferedImage mapImage = ImageManager.getImage(zone.getMapAssetId(), this);
                 bbg.drawImage(mapImage, getViewOffsetX(), getViewOffsetY(), (int) (mapImage.getWidth() * getScale()), (int) (mapImage.getHeight() * getScale()), null);
 			}
 
@@ -1427,7 +1427,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 Rectangle footprintBounds = token.getBounds(zone);
                 ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, footprintBounds.x + set.getOffsetX(), footprintBounds.y + set.getOffsetY());
                 
-                BufferedImage image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()));
+                BufferedImage image = ImageManager.getImage(token.getImageAssetId());
 
                 int scaledWidth = (int) (footprintBounds.width * scale);
                 int scaledHeight = (int) (footprintBounds.height * scale);
@@ -1870,16 +1870,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         	timer.stop("tokenlist-1a");
         	timer.start("tokenlist-1b");
             
-            BufferedImage image = null;
-            Asset asset = AssetManager.getAsset(token.getImageAssetId());
-            if (asset == null) {
+            BufferedImage image = ImageManager.getImage(token.getImageAssetId(), this);
 
-                // In the mean time, show a placeholder
-                image = ImageManager.UNKNOWN_IMAGE;
-            } else {
-            
-                image = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), this);
-            }
         	timer.stop("tokenlist-1b");
         	timer.start("tokenlist-1c");
 
@@ -3007,7 +2999,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             
             // Set the image properties
             if (configureToken) {
-	            BufferedImage image = ImageManager.getImageAndWait(AssetManager.getAsset(token.getImageAssetId()));
+	            BufferedImage image = ImageManager.getImageAndWait(token.getImageAssetId());
                 token.setShape(TokenUtil.guessTokenType((BufferedImage) image));
 	            token.setWidth(image.getWidth(null));
 	            token.setHeight(image.getHeight(null));

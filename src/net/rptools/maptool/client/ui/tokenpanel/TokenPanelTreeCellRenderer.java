@@ -29,7 +29,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
 
@@ -64,7 +63,7 @@ public class TokenPanelTreeCellRenderer extends DefaultTreeCellRenderer {
             
             // Make a thumbnail of the image
             // TODO: This could be cached somehow, right now it's quick enough though
-            BufferedImage tokenImage = ImageManager.getImage(AssetManager.getAsset(token.getImageAssetId()), this);
+            BufferedImage tokenImage = ImageManager.getImage(token.getImageAssetId(), this);
             Dimension dim = new Dimension(tokenImage.getWidth(), tokenImage.getHeight());
             SwingUtil.constrainTo(dim, height);
             

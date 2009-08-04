@@ -13,26 +13,6 @@
  */
 package net.rptools.maptool.client.ui.commandpanel;
 
-import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
-import javax.swing.JToggleButton;
-import javax.swing.KeyStroke;
-import javax.swing.border.BevelBorder;
-import javax.swing.plaf.basic.BasicToggleButtonUI;
-import javax.swing.text.html.StyleSheet;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -58,6 +38,25 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.regex.Pattern;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.ImageIcon;
+import javax.swing.InputMap;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
+import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
+import javax.swing.border.BevelBorder;
+import javax.swing.plaf.basic.BasicToggleButtonUI;
+
 import net.rptools.lib.AppEvent;
 import net.rptools.lib.AppEventListener;
 import net.rptools.lib.image.ImageUtil;
@@ -71,7 +70,6 @@ import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.client.ui.chat.ChatProcessor;
 import net.rptools.maptool.client.ui.chat.SmileyChatTranslationRuleGroup;
 import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
@@ -146,7 +144,7 @@ public class CommandPanel extends JPanel implements Observer {
     		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
     			Token token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokenByName(identity);
     			if (token != null) {
-    				avatarPanel.setImage(ImageManager.getImageAndWait(AssetManager.getAsset(token.getImageAssetId())));
+    				avatarPanel.setImage(ImageManager.getImageAndWait(token.getImageAssetId()));
     			} else {
     				avatarPanel.setImage(null);
     			}
