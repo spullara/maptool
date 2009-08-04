@@ -641,6 +641,7 @@ public class Token extends BaseModel {
 		Set<MD5Key> assetSet = new HashSet<MD5Key>(imageAssetMap.values()); 
 		assetSet.add(charsheetImage);
 		assetSet.add(portraitImage);
+		assetSet.remove(null); // Clean up from any null values from above
 		return assetSet;
 	}
 	
