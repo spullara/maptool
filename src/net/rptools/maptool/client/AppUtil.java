@@ -66,7 +66,7 @@ public class AppUtil {
     	path.mkdirs();
     	
     	// Now check our work
-    	if (!path.exists() || !path.canWrite()) {
+    	if (!path.exists()) {
     		throw new RuntimeException(I18N.getText("msg.error.unableToCreateDataDir", path.getAbsolutePath()));
     	}
     	
