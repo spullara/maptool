@@ -272,10 +272,11 @@ public class AssetManager {
 		
 		// As a last resort we request the asset from the server
 		if (asset == null && !isAssetRequested(id)) {
-			asset = new Asset(id);			
-
 			addAssetListener(id, listeners);
 			requestAssetFromServer(id);
+		}
+		if (asset == null) {
+			asset = new Asset(id);			
 		}
 		
         lastRetrievedAsset = asset;
