@@ -69,7 +69,7 @@ public class MiscInitiativeFunction extends AbstractFunction {
             // Save round and zone name
             JSONObject out = new JSONObject();            
             out.element("round", list.getRound());
-            out.element("zoneName", list.getZone().getName());
+            out.element("map", list.getZone().getName());
             
             // Get the visible tokens only
             List<JSONObject> tokens = new ArrayList<JSONObject>(list.getTokens().size());
