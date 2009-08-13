@@ -46,8 +46,11 @@ public class TokenInitFunction extends AbstractTokenAccessorFunction {
      */
     @Override
     protected Object getValue(Token token) throws ParserException {
-        String ret = getTokenInitiative(token).getState();
-        if (ret == null) ret = "";
+        String ret = "";
+        for (TokenInitiative ti : getTokenInitiatives(token)) {
+            if (ret.length() > 0) ret += ", ";
+            ret += ti.getState();
+        } // endif
         return ret;
     }
 
