@@ -62,6 +62,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TooManyListenersException;
 import java.util.Map.Entry;
 
 import javax.swing.JComponent;
@@ -183,7 +184,12 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         zoneView = new ZoneView(zone);
         
         // DnD
-        new DropTarget(this, this);
+        setTransferHandler(new TransferableHelper());
+        try {
+            getDropTarget().addDropTargetListener(this);
+        } catch (TooManyListenersException e1) {
+            // Should never happen because the transfer handler fixes this problem.
+        }
 
         // Focus
         addMouseListener(new MouseAdapter() {
@@ -2977,7 +2983,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
      * @see java.awt.dnd.DropTargetListener#dragOver (java.awt.dnd.DropTargetDragEvent)
      */
     public void dragOver(DropTargetDragEvent dtde) {
-    	dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
     }
 
     private void addTokens(List<Token> tokens, ZonePoint zp, boolean configureToken, boolean showDialog) {
@@ -3113,51 +3118,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
      * @see java.awt.dnd.DropTargetListener#drop (java.awt.dnd.DropTargetDropEvent)
      */
     public void drop(DropTargetDropEvent dtde) {
-        final ZonePoint zp = new ScreenPoint((int) dtde.getLocation().getX(),
-                (int) dtde.getLocation().getY()).convertToZone(this);
-
-        Transferable t = dtde.getTransferable();
-        if (!(TransferableHelper.isSupportedAssetFlavor(t) || TransferableHelper.isSupportedTokenFlavor(t)) || (dtde.getDropAction() & DnDConstants.ACTION_COPY_OR_MOVE) == 0) {
-            dtde.rejectDrop(); // Not a supported flavor or not a copy/move
-            return;
-        }
-        dtde.acceptDrop(dtde.getDropAction());
-        
-        //Copy is a CTRL-Drag, Move is a regular drag
-        boolean isCtrlDrag = (dtde.getDropAction() & DnDConstants.ACTION_COPY) != 0;
-
-        List<Token> tokens = null;
-        List assets = TransferableHelper.getAsset(dtde);
-        if (assets != null) {
-            tokens = new ArrayList<Token>(assets.size());
-            for (Object working : assets) {
-            	if (working instanceof Asset) {
-                    Asset asset = (Asset) working;
-                    tokens.add(new Token(asset.getName(), asset.getId()));
-            	} else if (working instanceof Token) {
-                    tokens.add(new Token((Token) working));
-            	}
-            }
-            addTokens(tokens, zp, true, isCtrlDrag);
-        } else {
-        	if (t.isDataFlavorSupported(TransferableToken.dataFlavor)) {
-        		try {
-        			// Make a copy so that it gets a new unique GUID
-                    tokens = Collections.singletonList(new Token((Token) t.getTransferData(TransferableToken.dataFlavor)));
-        			addTokens(tokens, zp, false, isCtrlDrag);
-        		} catch (UnsupportedFlavorException ufe) {
-        			ufe.printStackTrace();
-        		} catch (IOException ioe) {
-        			ioe.printStackTrace();
-        		}
-        	} else {
-        	
-                tokens = TransferableHelper.getTokens(dtde.getTransferable());
-                addTokens(tokens, zp, true, isCtrlDrag);
-        	}
-
-        }
-        dtde.dropComplete(tokens != null);
+        ZonePoint zp = new ScreenPoint((int) dtde.getLocation().getX(), (int) dtde.getLocation().getY()).convertToZone(this);
+        List<Token> tokens = ((TransferableHelper)getTransferHandler()).getTokens();
+        if (tokens != null && !tokens.isEmpty())
+          addTokens(tokens, zp, true, false);
     }
 
     public Set<GUID> getVisibleTokenSet() {
@@ -3168,7 +3132,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
      * @see java.awt.dnd.DropTargetListener#dropActionChanged (java.awt.dnd.DropTargetDragEvent)
      */
     public void dropActionChanged(DropTargetDragEvent dtde) {
-    	dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
     }
 
     ////

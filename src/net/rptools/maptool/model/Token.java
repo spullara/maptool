@@ -1159,7 +1159,6 @@ public class Token extends BaseModel {
         td.put(TokenTransferData.SNAP_TO_SCALE, snapToScale);
         td.put(TokenTransferData.WIDTH, scaleX);
         td.put(TokenTransferData.HEIGHT, scaleY);
-//        td.put(TokenTransferData.SIZE, size);
         td.put(TokenTransferData.SNAP_TO_GRID, snapToGrid);
         td.put(TokenTransferData.OWNER_TYPE, ownerType);
         td.put(TokenTransferData.TOKEN_TYPE, tokenShape);
@@ -1191,6 +1190,8 @@ public class Token extends BaseModel {
      *            Read the values from this transfer object.
      */
     public Token(TokenTransferData td) {
+        imageAssetMap = new HashMap<String, MD5Key>();
+        state = new HashMap<String, Object>();
         if (td.getLocation() != null) {
             x = td.getLocation().x;
             y = td.getLocation().y;
@@ -1198,7 +1199,6 @@ public class Token extends BaseModel {
         snapToScale = getBoolean(td, TokenTransferData.SNAP_TO_SCALE, true);
         scaleX = getInt(td, TokenTransferData.WIDTH, 1);
         scaleY = getInt(td, TokenTransferData.HEIGHT, 1);
-//        size = getInt(td, TokenTransferData.SIZE, TokenSize.Size.Medium.value());
         snapToGrid = getBoolean(td, TokenTransferData.SNAP_TO_GRID, true);
         isVisible = td.isVisible();
         name = td.getName();
@@ -1211,40 +1211,50 @@ public class Token extends BaseModel {
         gmNotes = (String) td.get(TokenTransferData.GM_NOTES);
         gmName = (String) td.get(TokenTransferData.GM_NAME);
 
-        // Get the image for the token
-        ImageIcon icon = td.getToken();
-        if (icon != null) {
+        // Get the image and portrait for the token
+        Asset asset = createAssetFromIcon(td.getToken());
+        if (asset != null) 
+            imageAssetMap.put(null, asset.getId());
+        asset = createAssetFromIcon((ImageIcon)td.get(TokenTransferData.PORTRAIT));
+        if (asset != null)
+            portraitImage = asset.getId();
 
-            // Make sure there is a buffered image for it
-            Image image = icon.getImage();
-            if (!(image instanceof BufferedImage)) {
-                image = new BufferedImage(icon.getIconWidth(), icon
-                        .getIconHeight(), Transparency.TRANSLUCENT);
-                Graphics2D g = ((BufferedImage) image).createGraphics();
-                icon.paintIcon(null, g, 0, 0);
-            } 
-
-            // Create the asset
-            try {
-                Asset asset = new Asset(name, ImageUtil
-                        .imageToBytes((BufferedImage) image));
-                if (!AssetManager.hasAsset(asset))
-                    AssetManager.putAsset(asset);
-                imageAssetMap.put(null, asset.getId());
-            } catch (IOException e) {
-                e.printStackTrace();
-            } 
-        } 
-
-        // Get all of the non maptool state
-        state = new HashMap<String, Object>();
+        // Get the macros 
+        macroMap = (Map<String, String>)td.get(TokenTransferData.MACROS);
+        loadOldMacros();
+        
+        // Get all of the non maptool specific state
         for (String key : td.keySet()) {
             if (key.startsWith(TokenTransferData.MAPTOOL))
                 continue;
-            setState(key, td.get(key));
+            setProperty(key, td.get(key));
         } // endfor
     }
 
+    private Asset createAssetFromIcon(ImageIcon icon) {
+        if (icon == null) return null;
+        
+        // Make sure there is a buffered image for it
+        Image image = icon.getImage();
+        if (!(image instanceof BufferedImage)) {
+            image = new BufferedImage(icon.getIconWidth(), icon
+                    .getIconHeight(), Transparency.TRANSLUCENT);
+            Graphics2D g = ((BufferedImage) image).createGraphics();
+            icon.paintIcon(null, g, 0, 0);
+        } 
+
+        // Create the asset
+        Asset asset = null;
+        try {
+            asset = new Asset(name, ImageUtil.imageToBytes((BufferedImage) image));
+            if (!AssetManager.hasAsset(asset))
+                AssetManager.putAsset(asset);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } 
+        return asset;
+    }
+    
     /**
      * Get an integer value from the map or return the default value
      * 

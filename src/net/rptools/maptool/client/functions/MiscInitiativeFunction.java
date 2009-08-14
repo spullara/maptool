@@ -26,7 +26,6 @@ import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 /**

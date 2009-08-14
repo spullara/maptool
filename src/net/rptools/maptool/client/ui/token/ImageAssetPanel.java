@@ -14,6 +14,7 @@
 package net.rptools.maptool.client.ui.token;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -45,6 +46,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.TransferableHelper;
 import net.rptools.maptool.client.swing.ImageChooserDialog;
 import net.rptools.maptool.model.Asset;
+import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.util.ImageManager;
 
 public class ImageAssetPanel extends JPanel implements DropTargetListener {
@@ -183,7 +185,7 @@ public class ImageAssetPanel extends JPanel implements DropTargetListener {
         }
         dtde.acceptDrop(dtde.getDropAction());
         
-        List assets = TransferableHelper.getAsset(dtde);
+        List assets = TransferableHelper.getAsset(dtde.getTransferable());
 
         if (assets == null || assets.size() == 0 || !(assets.get(0) instanceof Asset)) {
         	return;

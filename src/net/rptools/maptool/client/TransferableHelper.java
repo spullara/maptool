@@ -16,17 +16,18 @@ package net.rptools.maptool.client;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTargetDropEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
@@ -34,6 +35,7 @@ import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.transferable.FileTransferableHandler;
 import net.rptools.lib.transferable.GroupTokenTransferData;
 import net.rptools.lib.transferable.ImageTransferableHandler;
+import net.rptools.lib.transferable.MapToolTokenTransferData;
 import net.rptools.lib.transferable.TokenTransferData;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -43,8 +45,8 @@ import net.rptools.maptool.util.PersistenceUtil;
 /**
  * @author tcroft
  */
-public class TransferableHelper {
-
+public class TransferableHelper extends TransferHandler {
+    
     // TODO: USE ImageTransferable in rplib
     private static final DataFlavor IMAGE_FLAVOR = new DataFlavor("image/x-java-image; class=java.awt.Image", "Image");
     
@@ -52,9 +54,8 @@ public class TransferableHelper {
 	 * Takes a drop event and returns an asset
 	 * from it.  returns null if an asset could not be obtained
 	 */
-	public static List getAsset(DropTargetDropEvent dtde) {
+	public static List getAsset(Transferable transferable) {
 		
-        Transferable transferable = dtde.getTransferable();
         List assets = new ArrayList();
 
         try {
@@ -71,11 +72,11 @@ public class TransferableHelper {
 	        
           // LOCAL FILESYSTEM
           else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-              assets = handleFileList(dtde, transferable);
+              assets = handleFileList(transferable);
               
           // DIRECT/BROWSER
           } else if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
-            assets.add(handleImage(dtde, transferable));
+            assets.add(handleImage(transferable));
           }
             
         } catch (Exception e) {
@@ -101,8 +102,7 @@ public class TransferableHelper {
         return assets;
 	}
 
-	private static final DataFlavor URL_FLAVOR = new DataFlavor("text/plain; class=java.lang.String", "Image");
-	private static Asset handleImage (DropTargetDropEvent dtde, Transferable transferable) throws IOException, UnsupportedFlavorException {
+	private static Asset handleImage (Transferable transferable) throws IOException, UnsupportedFlavorException {
         
         BufferedImage image = (BufferedImage) new ImageTransferableHandler().getTransferObject(transferable);      
         
@@ -119,7 +119,7 @@ public class TransferableHelper {
         return asset;
     }
     
-	private static List handleFileList(DropTargetDropEvent dtde, Transferable transferable) throws Exception {
+	private static List handleFileList(Transferable transferable) throws Exception {
     	List<File> list = new FileTransferableHandler().getTransferObject(transferable);
         List assets = new ArrayList();
     	for (File file : list) {
@@ -189,5 +189,87 @@ public class TransferableHelper {
     public static boolean isSupportedTokenFlavor(Transferable transferable) {
         return transferable.isDataFlavorSupported(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR) || 
         	transferable.isDataFlavorSupported(TransferableToken.dataFlavor);
+    }
+    
+    /** URL to an image */
+    private static final DataFlavor URL_FLAVOR = new DataFlavor("text/plain; class=java.lang.String", "Image");
+    
+    /**
+     * Data flavors that this handler will support.
+     */
+    public static final DataFlavor[] SUPPORTED_FLAVORS = {
+      DataFlavor.javaFileListFlavor, MapToolTokenTransferData.MAP_TOOL_TOKEN_LIST_FLAVOR, GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR,
+      TransferableAsset.dataFlavor, TransferableAssetReference.dataFlavor, URL_FLAVOR, TransferableToken.dataFlavor
+    };
+
+    /**
+     * @see javax.swing.TransferHandler#canImport(javax.swing.JComponent, java.awt.datatransfer.DataFlavor[])
+     */
+    @Override
+    public boolean canImport(JComponent comp, DataFlavor[] transferFlavors) {
+        for (int j = 0; j < SUPPORTED_FLAVORS.length; j++) {
+            for (int i = 0; i < transferFlavors.length; i++) {
+                if (SUPPORTED_FLAVORS[j].equals(transferFlavors[i])) 
+                    return true;
+            } // endfor
+        } // endfor
+        return false;
+    }
+    
+    /** The tokens to be loaded onto the renderer when we get a point */
+    List<Token> tokens;
+
+    /**
+     * @see javax.swing.TransferHandler#importData(javax.swing.JComponent, java.awt.datatransfer.Transferable)
+     */
+    @Override
+    public boolean importData(JComponent comp, Transferable t) {
+        tokens = null;
+        List assets = getAsset(t);
+        if (assets != null) {
+            tokens = new ArrayList<Token>(assets.size());
+            for (Object working : assets) {
+                if (working instanceof Asset) {
+                    Asset asset = (Asset) working;
+                    tokens.add(new Token(asset.getName(), asset.getId()));
+                } else if (working instanceof Token) {
+                    tokens.add(new Token((Token) working));
+                }
+            }
+        } else {
+            if (t.isDataFlavorSupported(TransferableToken.dataFlavor)) {
+                try {
+                    // Make a copy so that it gets a new unique GUID
+                    tokens = Collections.singletonList(new Token((Token) t.getTransferData(TransferableToken.dataFlavor)));
+                } catch (UnsupportedFlavorException ufe) {
+                    ufe.printStackTrace();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            } else {
+            
+                tokens = getTokens(t);
+            }
+
+        }
+        return tokens != null;
+    }
+    
+    /**
+     * @see javax.swing.TransferHandler#getSourceActions(javax.swing.JComponent)
+     */
+    @Override
+    public int getSourceActions(JComponent c) {
+        return NONE;
+    }
+
+    /** @return Getter for tokens */
+    public List<Token> getTokens() {
+        return tokens;
+    }
+
+    /** @param tokens Setter for tokens */
+    public void setTokens(List<Token> tokens) {
+        this.tokens = tokens;
     }
 }
