@@ -25,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -55,7 +57,6 @@ public class ImageManager {
 	
 	/** Cache of images loaded for assets. */
 	private static Map<MD5Key, BufferedImage> imageMap = new HashMap<MD5Key, BufferedImage>();
-	private static Map<MD5Key, Object> mutexMap = new HashMap<MD5Key, Object>();
 
 	/**
 	 * The unknown image, a "?" is used for all situations where
@@ -76,8 +77,10 @@ public class ImageManager {
 	 * Small and large thread pools for background processing
 	 * of asset raw image data.
 	 */
-	private static ExecutorService smallImageLoader = Executors.newFixedThreadPool(2);
+	private static ExecutorService smallImageLoader = Executors.newFixedThreadPool(1);
 	private static ExecutorService largeImageLoader = Executors.newFixedThreadPool(1);
+	
+	private static ReadWriteLock observerLock = new ReentrantReadWriteLock();
 	
 	/**
 	 * A Map containing sets of observers for each asset id.
@@ -103,15 +106,6 @@ public class ImageManager {
 
 	}
 
-	private static synchronized Object getMutex(MD5Key id) {
-		Object mutex = mutexMap.get(id);
-		if (mutex == null) {
-			mutex = new Object();
-			mutexMap.put(id, mutex);
-		}
-		return mutex;
-	}
-	
 	/**
 	 * Remove all images from the image cache.
 	 * The observers and image load hints are not flushed.
@@ -153,7 +147,7 @@ public class ImageManager {
 			public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
 				// If we're here then the image has just finished loading
 				// release the blocked thread
-				System.out.println("Countdown: " + assetId);
+				log.debug("Countdown: " + assetId);
 				loadLatch.countDown();
 				return false;
 			}
@@ -162,7 +156,7 @@ public class ImageManager {
 		if (image == TRANSFERING_IMAGE) {
 			try {
 				synchronized (loadLatch) {
-					System.out.println("Wait:      " + assetId);
+					log.debug("Wait for:  " + assetId);
 					loadLatch.await();
 				}
 
@@ -187,17 +181,12 @@ public class ImageManager {
 			return BROKEN_IMAGE;
 		}
 		
-		// Map lookups are faster than synchronized blocks, so do a fast check first
-		BufferedImage image = imageMap.get(assetId);
-		if (image != null) {
-			return image;
-		}
-		
-		synchronized (getMutex(assetId)) {
+		try {
+			observerLock.readLock().lock();
 
 			// We apparently need to load the image, but let's make sure it didn't arrive since checked above
 			// The synchronised block ensures that it won't arrive while we're thinking, so this check is safe
-			image = imageMap.get(assetId);
+			BufferedImage image = imageMap.get(assetId);
 			if (image != null) {
 				return image;
 			}
@@ -210,17 +199,11 @@ public class ImageManager {
 			
 			// Force a load of the asset, this will trigger a transfer if the 
 			// asset is not available locally
-			Asset asset = AssetManager.getAsset(assetId, new AssetListener(assetId, hints));
-			
-			if (!asset.isTransfering()) {
-				// Have to ask for the asset again since it's possible that the asset arrived
-				// since we last asked, and the original asset doesn't have the actual image data
-				log.debug("Loading asset from AssetManager: " + assetId);
-				asset = AssetManager.getAsset(assetId);
-				backgroundLoadImage(asset, hints);
-			}
+			AssetManager.getAssetAsynchronously(assetId, new AssetListener(assetId, hints));
 			
 			return TRANSFERING_IMAGE;
+		} finally {
+			observerLock.readLock().unlock();
 		}
 		
 	}
@@ -299,26 +282,31 @@ public class ImageManager {
 		public void run() {
 
 			log.debug("Loading asset: " + asset.getId());
-			synchronized (getMutex(asset.getId())) {
-				BufferedImage image = imageMap.get(asset.getId());
 
-				if (image != TRANSFERING_IMAGE) {
-					// We've somehow already loaded this image
-					return;
-				}
+			BufferedImage image = imageMap.get(asset.getId());
+
+			if (image != TRANSFERING_IMAGE) {
+				// We've somehow already loaded this image
+				return;
+			}
+			
+			try {
+				image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()), hints);
+
+			} catch (Throwable t) {
+				log.error("BackgroundImageLoader.run(" + asset.getName() + "," + asset.getId() + "): not resolved; IOException", t); 
+				image = BROKEN_IMAGE;
+			}
+
+			try {
+				observerLock.writeLock().lock();
 				
-				try {
-					image = ImageUtil.createCompatibleImage(ImageUtil.bytesToImage(asset.getImage()), hints);
-	
-				} catch (Throwable t) {
-					log.error("BackgroundImageLoader.run(" + asset.getName() + "," + asset.getId() + "): not resolved; IOException", t); 
-					image = BROKEN_IMAGE;
-				}
-	
 				// Replace placeholder with actual image
 				imageMap.put(asset.getId(), image);
 	
 				notifyObservers(asset, image);
+			} finally {
+				observerLock.writeLock().unlock();
 			}
 		}
 	}

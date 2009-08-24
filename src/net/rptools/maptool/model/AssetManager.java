@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.MD5Key;
@@ -54,9 +56,6 @@ public class AssetManager {
 	/** True if a persistent cache should be used */
 	private static boolean usePersistentCache;
 
-	/** Contains the most recently requested asset */
-    private static Asset lastRetrievedAsset;
-
     /**
      * A list of listeners which should be notified
      * when the asset associated with a given MD5
@@ -69,6 +68,8 @@ public class AssetManager {
     
     /** Used to load assets from storage */
     private static AssetLoader assetLoader = new AssetLoader();
+
+    private static ExecutorService assetLoaderThreadPool = Executors.newFixedThreadPool(1);
     
 	static {		
 		cacheDir = AppUtil.getAppHome("assetcache");
@@ -146,16 +147,6 @@ public class AssetManager {
 		}
 	}
 	
-	/**
-	 * Load the last retrieved asset. This asset
-	 * may be empty if the asset is currently being
-	 * downloaded, the id will be valid but nothing else.
-	 * @return The last retrieved asset.
-	 */
-    public static Asset getLastRetrievedAsset() {
-        return lastRetrievedAsset;
-    }
-    
     /**
      * Determine if the asset manager has the asset.
      * This does not tell you if the asset is done
@@ -221,17 +212,42 @@ public class AssetManager {
 	}
 	
 	/**
+	 * Similar to getAsset(), but does not block.  It will always use the listeners to pass the data
+	 */
+	public static void getAssetAsynchronously(final MD5Key id, final AssetAvailableListener... listeners) {
+		
+		assetLoaderThreadPool.submit(new Runnable() {
+			public void run() {
+				
+				Asset asset = getAsset(id);
+
+				// Simplest case, we already have it
+				if (asset != null) {
+					for (AssetAvailableListener listener : listeners) {
+						listener.assetAvailable(id);
+					}
+					
+					return;
+				}
+				
+				// Let's get it from the server
+				// As a last resort we request the asset from the server
+				if (asset == null && !isAssetRequested(id)) {
+					requestAssetFromServer(id, listeners);
+				}
+			}
+		});
+	}
+	
+	/**
 	 * Get the asset from the cache. If the asset
-	 * is currently being downloaded then this function
-	 * returns an asset with only the id set, otherwise
-	 * the asset points to an asset that is in the cache.
-	 * Assets which are still downloading may be safely
-	 * used with the ImageManager, since it coordinates
-	 * with the asset manager.
+	 * is not currently available, will return null.  
+	 * Does not request the asset from the server
+	 * 
 	 * @param id MD5 of the asset requested
 	 * @return Asset object for the MD5 sum
 	 */
-	public static Asset getAsset(MD5Key id, AssetAvailableListener... listeners) {
+	public static Asset getAsset(MD5Key id) {
 		
 		if (id == null) {
 			return null;
@@ -270,16 +286,6 @@ public class AssetManager {
 			}
 		}
 		
-		// As a last resort we request the asset from the server
-		if (asset == null && !isAssetRequested(id)) {
-			addAssetListener(id, listeners);
-			requestAssetFromServer(id);
-		}
-		if (asset == null) {
-			asset = new Asset(id);			
-		}
-		
-        lastRetrievedAsset = asset;
 		return asset;
 	}
 
@@ -307,9 +313,10 @@ public class AssetManager {
 	 * Request that the asset be loaded from the server
 	 * @param id MD5 of the asset to load from the server
 	 */
-	private static void requestAssetFromServer(MD5Key id) {
+	private static void requestAssetFromServer(MD5Key id, AssetAvailableListener... listeners) {
 		
 		if (id != null) {
+			addAssetListener(id, listeners);
 			assetLoader.requestAsset(id);
 		}
 	}
