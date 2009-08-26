@@ -1270,6 +1270,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // Have we gotten the actual data yet ?
             Asset asset = AssetManager.getAsset(id);
             if (asset == null) {
+            	AssetManager.getAssetAsynchronously(id);
                 loaded = false;
                 continue;
             }

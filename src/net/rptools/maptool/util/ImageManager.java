@@ -80,7 +80,7 @@ public class ImageManager {
 	private static ExecutorService smallImageLoader = Executors.newFixedThreadPool(1);
 	private static ExecutorService largeImageLoader = Executors.newFixedThreadPool(1);
 	
-	private static ReadWriteLock observerLock = new ReentrantReadWriteLock();
+	private static Object imageLoaderMutex = new Object();
 	
 	/**
 	 * A Map containing sets of observers for each asset id.
@@ -143,6 +143,7 @@ public class ImageManager {
 
 		BufferedImage image = null;
 		final CountDownLatch loadLatch = new CountDownLatch(1);
+		System.out.println("a");
 		image = getImage(assetId, new ImageObserver() {
 			public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
 				// If we're here then the image has just finished loading
@@ -152,8 +153,10 @@ public class ImageManager {
 				return false;
 			}
 		});
+		System.out.println("b: " + image);
 
 		if (image == TRANSFERING_IMAGE) {
+			System.out.println("c");
 			try {
 				synchronized (loadLatch) {
 					log.debug("Wait for:  " + assetId);
@@ -167,7 +170,7 @@ public class ImageManager {
 				image = BROKEN_IMAGE;
 			}
 		}
-
+		System.out.println("d");
 		return image;
 	}
 	
@@ -181,31 +184,31 @@ public class ImageManager {
 			return BROKEN_IMAGE;
 		}
 		
-		try {
-			observerLock.readLock().lock();
+		synchronized (imageLoaderMutex) {
 
-			// We apparently need to load the image, but let's make sure it didn't arrive since checked above
-			// The synchronised block ensures that it won't arrive while we're thinking, so this check is safe
+			System.out.println("1");
 			BufferedImage image = imageMap.get(assetId);
-			if (image != null) {
+			if (image != null && image != TRANSFERING_IMAGE) {
 				return image;
 			}
 
 			// Make note that we're currently processing it
+			System.out.println("2");
 			imageMap.put(assetId, TRANSFERING_IMAGE);
 			
 			// Make sure we are informed when it's done loading
 			addObservers(assetId, observers);
 			
+			System.out.println("3");
 			// Force a load of the asset, this will trigger a transfer if the 
 			// asset is not available locally
-			AssetManager.getAssetAsynchronously(assetId, new AssetListener(assetId, hints));
+			if (image == null) {
+				AssetManager.getAssetAsynchronously(assetId, new AssetListener(assetId, hints));
+			}
+			System.out.println("4");
 			
 			return TRANSFERING_IMAGE;
-		} finally {
-			observerLock.readLock().unlock();
 		}
-		
 	}
 	
 	/**
@@ -237,6 +240,7 @@ public class ImageManager {
 	 */
 	public static void addObservers(MD5Key assetId, ImageObserver... observers) {
 
+		System.out.println("Adding observers: " + observers);
 		if (observers == null || observers.length == 0) {
 			return;
 		}
@@ -298,15 +302,12 @@ public class ImageManager {
 				image = BROKEN_IMAGE;
 			}
 
-			try {
-				observerLock.writeLock().lock();
+			synchronized (imageLoaderMutex) {
 				
 				// Replace placeholder with actual image
 				imageMap.put(asset.getId(), image);
 	
 				notifyObservers(asset, image);
-			} finally {
-				observerLock.writeLock().unlock();
 			}
 		}
 	}
