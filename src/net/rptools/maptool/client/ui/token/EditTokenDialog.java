@@ -14,7 +14,6 @@
 
 package net.rptools.maptool.client.ui.token;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -65,7 +64,6 @@ import net.rptools.maptool.client.functions.AbstractTokenAccessorFunction;
 import net.rptools.maptool.client.functions.TokenBarFunction;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
-import net.rptools.maptool.client.swing.ScrollablePanel;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Association;
 import net.rptools.maptool.model.Grid;
@@ -469,13 +467,10 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		((TokenPropertyTableModel)getPropertyTable().getModel()).applyTo(token);
 	
 		// Charsheet
-		token.setCharsheetImage(getCharSheetPanel().getImageId());
-		if (token.getCharsheetImage() != null) {
-			// Make sure the server has the image
-			if (!MapTool.getCampaign().containsAsset(token.getCharsheetImage())) {
-				MapTool.serverCommand().putAsset(AssetManager.getAsset(token.getCharsheetImage()));
-			}
+		if (getCharSheetPanel().getImageId() != null) {
+			MapToolUtil.uploadAsset(AssetManager.getAsset(getCharSheetPanel().getImageId()));
 		}
+		token.setCharsheetImage(getCharSheetPanel().getImageId());
 		
 		// IMAGE
 		if (!token.getImageAssetId().equals(getTokenIconPanel().getImageId())) {
