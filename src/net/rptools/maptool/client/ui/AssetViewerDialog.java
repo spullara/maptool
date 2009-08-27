@@ -15,6 +15,7 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -199,11 +200,15 @@ public class AssetViewerDialog extends JDialog {
 		}
 		
 		@Override
-		public boolean imageUpdate(Image img, int infoflags, int x, int y, int w,
+		public boolean imageUpdate(final Image img, int infoflags, int x, int y, int w,
 				int h) {
 
 			if (infoflags == ALLBITS) {
-				updateSize(img);
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+							updateSize(img);
+					}
+				});
 			}
 			
 			return super.imageUpdate(img, infoflags, x, y, w, h);
