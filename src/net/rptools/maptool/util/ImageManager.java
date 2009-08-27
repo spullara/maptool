@@ -143,7 +143,6 @@ public class ImageManager {
 
 		BufferedImage image = null;
 		final CountDownLatch loadLatch = new CountDownLatch(1);
-		System.out.println("a");
 		image = getImage(assetId, new ImageObserver() {
 			public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
 				// If we're here then the image has just finished loading
@@ -153,10 +152,8 @@ public class ImageManager {
 				return false;
 			}
 		});
-		System.out.println("b: " + image);
 
 		if (image == TRANSFERING_IMAGE) {
-			System.out.println("c");
 			try {
 				synchronized (loadLatch) {
 					log.debug("Wait for:  " + assetId);
@@ -170,7 +167,6 @@ public class ImageManager {
 				image = BROKEN_IMAGE;
 			}
 		}
-		System.out.println("d");
 		return image;
 	}
 	
@@ -186,26 +182,22 @@ public class ImageManager {
 		
 		synchronized (imageLoaderMutex) {
 
-			System.out.println("1");
 			BufferedImage image = imageMap.get(assetId);
 			if (image != null && image != TRANSFERING_IMAGE) {
 				return image;
 			}
 
 			// Make note that we're currently processing it
-			System.out.println("2");
 			imageMap.put(assetId, TRANSFERING_IMAGE);
 			
 			// Make sure we are informed when it's done loading
 			addObservers(assetId, observers);
 			
-			System.out.println("3");
 			// Force a load of the asset, this will trigger a transfer if the 
 			// asset is not available locally
 			if (image == null) {
 				AssetManager.getAssetAsynchronously(assetId, new AssetListener(assetId, hints));
 			}
-			System.out.println("4");
 			
 			return TRANSFERING_IMAGE;
 		}
@@ -240,7 +232,6 @@ public class ImageManager {
 	 */
 	public static void addObservers(MD5Key assetId, ImageObserver... observers) {
 
-		System.out.println("Adding observers: " + observers);
 		if (observers == null || observers.length == 0) {
 			return;
 		}

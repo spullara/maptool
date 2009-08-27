@@ -89,14 +89,7 @@ public class ImageTokenOverlay extends BooleanTokenOverlay {
         Rectangle iBounds = getImageBounds(bounds, token);
         Dimension d = iBounds.getSize();
             
-        // Not in the cache, create it.
-        Asset asset = AssetManager.getAsset(assetId);
-        if (asset == null) {
-            LOGGER.warning("Unable to locate and asset with ID: " + assetId);
-            return;
-        } // endif
-
-        BufferedImage image = ImageManager.getImageAndWait(asset.getId());
+        BufferedImage image = ImageManager.getImageAndWait(assetId);
         Dimension size = new Dimension(image.getWidth(), image.getHeight());
         SwingUtil.constrainTo(size, d.width, d.height);
         
