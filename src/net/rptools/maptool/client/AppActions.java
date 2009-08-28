@@ -1705,8 +1705,20 @@ public class AppActions {
 		}
 
 		public void execute(ActionEvent e) {
+			boolean promptSave = false;
 			
-			MapTool.confirm("msg.confirm.saveCampaign");
+			if (MapTool.getCampaign().getZones().size() == 1) {
+				Zone singleZone = MapTool.getCampaign().getZones().get(0);
+				if (ZoneFactory.DEFAULT_MAP_NAME.equals(singleZone.getName())&& !singleZone.isEmpty()) {
+					promptSave = true;
+				}
+			} else {
+				promptSave = true;
+			}
+
+			if (promptSave) {
+				MapTool.confirm("msg.confirm.saveCampaign");
+			}
 
 			final ConnectToServerDialog dialog = new ConnectToServerDialog();
 
