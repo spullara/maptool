@@ -439,16 +439,25 @@ public class PreferencesDialog extends JDialog {
             public void stateChanged(ChangeEvent ce) {
                 AppPreferences.setHaloLineWidth((Integer)haloLineWidthSpinner.getValue());
             }
-        });        
-        visionOverlayOpacitySpinner.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent ce) {
-            	if (((Integer)visionOverlayOpacitySpinner.getValue()) < 1) {
-            		visionOverlayOpacitySpinner.setValue(0);
-            	}
-                AppPreferences.setVisionOverlayOpacity((Integer)visionOverlayOpacitySpinner.getValue());
-                MapTool.getFrame().refresh();
-            }
-        });        
+        }); 
+	
+        // Vision overlay opacity option in preferences-application, with
+		// error checking to ensure values are within the acceptable range
+		// of 0 and 255.
+		 
+		visionOverlayOpacitySpinner.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent ce) {
+				if (((Integer) visionOverlayOpacitySpinner.getValue()) < 1) {
+					visionOverlayOpacitySpinner.setValue(0);
+				}
+				if (((Integer) visionOverlayOpacitySpinner.getValue()) > 255) {
+					visionOverlayOpacitySpinner.setValue(255);
+				}
+
+				AppPreferences.setVisionOverlayOpacity((Integer) visionOverlayOpacitySpinner.getValue());
+				MapTool.getFrame().refresh();
+			}
+		});        
         useHaloColorAsVisionOverlayCheckBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 AppPreferences.setUseHaloColorOnVisionOverlay(useHaloColorAsVisionOverlayCheckBox.isSelected());
