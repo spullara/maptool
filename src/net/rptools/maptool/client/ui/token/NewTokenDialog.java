@@ -32,8 +32,6 @@ import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
-import net.rptools.maptool.model.Asset;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
 
@@ -213,13 +211,7 @@ public class NewTokenDialog extends AbeillePanel<Token> {
 	private Icon getTokenIcon() {
 
 		// Get the base image && find the new size for the icon
-		BufferedImage assetImage = null;
-		Asset asset = AssetManager.getAsset(token.getImageAssetId());
-		if (asset == null) {
-			assetImage = ImageManager.TRANSFERING_IMAGE;
-		} else {
-			assetImage = ImageManager.getImageAndWait(asset.getId());
-		}
+		BufferedImage assetImage = ImageManager.getImageAndWait(token.getImageAssetId());
 
 		// Need to resize?
 		Dimension imgSize = new Dimension(assetImage.getWidth(), assetImage.getHeight());

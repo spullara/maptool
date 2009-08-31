@@ -115,7 +115,6 @@ import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetAvailableListener;
-import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.ObservableList;
 import net.rptools.maptool.model.TextMessage;
@@ -1246,48 +1245,21 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		for (Token token : zone.getBackgroundStamps()) {
 			MD5Key key = token.getImageAssetId();
 
-			if (AssetManager.hasAsset(key)) {
-				ImageManager.getImage(key);
-			} else {
-
-				if (!AssetManager.isAssetRequested(key)) {
-					AssetManager.addAssetListener(key, listener);
-					// This will force a server request if we don't already have it
-					AssetManager.getAsset(key);
-				}
-			}
+			ImageManager.getImage(key);
 		}
 
 		// Now the stamps
 		for (Token token : zone.getStampTokens()) {
 			MD5Key key = token.getImageAssetId();
 
-			if (AssetManager.hasAsset(key)) {
-				ImageManager.getImage(key);
-			} else {
-
-				if (!AssetManager.isAssetRequested(key)) {
-					AssetManager.addAssetListener(key, listener);
-					// This will force a server request if we don't already have it
-					AssetManager.getAsset(key);
-				}
-			}
+			ImageManager.getImage(key);
 		}
 
 		// Now add the rest
 		for (Token token : zone.getAllTokens()) {
 			MD5Key key = token.getImageAssetId();
 
-			if (AssetManager.hasAsset(key)) {
-				ImageManager.getImage(key);
-			} else {
-
-				if (!AssetManager.isAssetRequested(key)) {
-					AssetManager.addAssetListener(key, listener);
-					// This will force a server request if we don't already have it
-					AssetManager.getAsset(key);
-				}
-			}
+			ImageManager.getImage(key);
 		}
 	}
 
