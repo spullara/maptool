@@ -15,6 +15,7 @@ package net.rptools.maptool.model.drawing;
 
 import java.awt.Color;
 import java.awt.Paint;
+import java.awt.image.ImageObserver;
 import java.io.Serializable;
 
 public class DrawableColorPaint extends DrawablePaint implements Serializable {
@@ -31,7 +32,7 @@ public class DrawableColorPaint extends DrawablePaint implements Serializable {
 	}
 	
 	@Override
-	public Paint getPaint() {
+	public Paint getPaint(ImageObserver... observers) {
 		if (colorCache == null) {
 			colorCache = new Color(color);
 		}
@@ -39,7 +40,7 @@ public class DrawableColorPaint extends DrawablePaint implements Serializable {
 	}
 
 	@Override
-	public Paint getPaint(int offsetX, int offsetY, double scale) {
+	public Paint getPaint(int offsetX, int offsetY, double scale, ImageObserver... observer) {
 		return getPaint();
 	}
 	

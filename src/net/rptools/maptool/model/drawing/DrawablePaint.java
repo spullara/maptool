@@ -15,6 +15,7 @@ package net.rptools.maptool.model.drawing;
 
 import java.awt.Color;
 import java.awt.Paint;
+import java.awt.image.ImageObserver;
 import java.io.Serializable;
 
 import net.rptools.maptool.client.ui.AssetPaint;
@@ -22,8 +23,8 @@ import net.rptools.maptool.model.Asset;
 
 public abstract class DrawablePaint implements Serializable {
 
-	public abstract Paint getPaint();
-	public abstract Paint getPaint(int offsetX, int offsetY, double scale);
+	public abstract Paint getPaint(ImageObserver... observers);
+	public abstract Paint getPaint(int offsetX, int offsetY, double scale, ImageObserver... observers);
 	
 	public static DrawablePaint convertPaint(Paint paint) {
 		if (paint == null) {

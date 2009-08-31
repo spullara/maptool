@@ -30,10 +30,6 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.Transparency;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
@@ -47,9 +43,9 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -83,7 +79,6 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.TransferableHelper;
-import net.rptools.maptool.client.TransferableToken;
 import net.rptools.maptool.client.tool.PointerTool;
 import net.rptools.maptool.client.tool.StampTool;
 import net.rptools.maptool.client.ui.Scale;
@@ -1325,7 +1320,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			Graphics2D bbg = backbuffer.createGraphics();
 			
 			// Background texture
-			Paint paint = zone.getBackgroundPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale());
+			Paint paint = zone.getBackgroundPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale(), drawableObserver);
 			bbg.setPaint(paint);
 			bbg.fillRect(0, 0, size.width, size.height);
 			
@@ -3180,5 +3175,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	repaint();
     }
     // End token common macro identification
+    
+    ////
+    // IMAGE OBSERVER
+    private ImageObserver drawableObserver = new ImageObserver (){
+
+    	public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
+			ZoneRenderer.this.flushDrawableRenderer();
+			MapTool.getFrame().refresh();
+			return true;
+    	}
+    };
 }
 

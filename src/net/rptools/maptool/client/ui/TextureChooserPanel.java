@@ -25,6 +25,7 @@ import net.rptools.lib.swing.PaintChooser;
 import net.rptools.lib.swing.SelectionListener;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanel;
 import net.rptools.maptool.client.ui.assetpanel.AssetPanelModel;
+import net.rptools.maptool.model.Asset;
 
 public class TextureChooserPanel extends AbstractPaintChooserPanel {
 
@@ -53,8 +54,12 @@ public class TextureChooserPanel extends AbstractPaintChooserPanel {
 				}
 
 				Integer imageIndex = (Integer) selectedList.get(0);
+				Asset asset = assetPanel.getAsset(imageIndex);
+				if (asset == null) {
+					return;
+				}
 
-				paintChooser.setPaint(new AssetPaint(assetPanel.getAsset(imageIndex)));
+				paintChooser.setPaint(new AssetPaint(asset));
 			}
 		});
 		assetPanel.setThumbSize(100);
