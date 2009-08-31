@@ -1320,7 +1320,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			Graphics2D bbg = backbuffer.createGraphics();
 			
 			// Background texture
-			Paint paint = zone.getBackgroundPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale(), drawableObserver);
+			Paint paint = zone.getBackgroundPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale(), this);
 			bbg.setPaint(paint);
 			bbg.fillRect(0, 0, size.width, size.height);
 			
