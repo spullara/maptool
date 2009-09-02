@@ -1032,7 +1032,7 @@ public class MapTool {
 
 		taskbarFlasher = new TaskBarFlasher(clientFrame);
 
-		// showWarning("WARNING!!! This is an experimental version.<p><p>** Of particular note:<ul><li> New Light implementation <li>Lots of token positioning and sizing bug fixes</ul><p>  Please test them, but don't rely on them yet as they may change over the next couple builds<p><p>Happy Mapping :)<p><p>-Trev");
+		showWarning("WARNING!!! This is an experimental version. <p><p>It's possible that this version will hit a fringe case that will cause MT to lockup, without the ability to save.<p><p>Please test this build, but don't rely on it yet while we work out the kinks over the next build or two.<p><p><b>Please report any problems to the forums, or email to submit@rptools.net with the subject 'b57 Bug'</b>.<p><p>Happy Mapping :)<p><p>-Trev");
 	}
 
 	/**
