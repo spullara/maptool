@@ -1472,8 +1472,6 @@ public class AppActions {
 
 		public void execute(ActionEvent e) {
 
-			MapTool.confirm("msg.confirm.saveCampaign");
-			
 			if (!MapTool.confirm("msg.confirm.newCampaign")) {
 
 				return;
@@ -1705,19 +1703,9 @@ public class AppActions {
 		}
 
 		public void execute(ActionEvent e) {
-			boolean promptSave = false;
 			
-			if (MapTool.getCampaign().getZones().size() == 1) {
-				Zone singleZone = MapTool.getCampaign().getZones().get(0);
-				if (ZoneFactory.DEFAULT_MAP_NAME.equals(singleZone.getName())&& !singleZone.isEmpty()) {
-					promptSave = true;
-				}
-			} else {
-				promptSave = true;
-			}
-
-			if (promptSave) {
-				MapTool.confirm("msg.confirm.saveCampaign");
+			if (MapTool.isCampaignDirty() && !MapTool.confirm("msg.confirm.loseChanges")) {
+				return;
 			}
 
 			final ConnectToServerDialog dialog = new ConnectToServerDialog();
@@ -1827,7 +1815,9 @@ public class AppActions {
 
 		public void execute(ActionEvent ae) {
 			
-			MapTool.confirm("msg.confirm.saveCampaign");
+			if (MapTool.isCampaignDirty() && !MapTool.confirm("msg.confirm.loseChanges")) {
+				return;
+			}
 
 			JFileChooser chooser = new CampaignPreviewFileChooser();
 			chooser.setDialogTitle(I18N.getText("msg.title.loadCampaign"));
@@ -2601,6 +2591,7 @@ public class AppActions {
 		private File campaignFile;
 
 		public OpenMRUCampaign(File file, int position) {
+
 			campaignFile = file;
 			String label = position + " " + campaignFile.getName();
 			putValue(Action.NAME, label);
@@ -2630,6 +2621,10 @@ public class AppActions {
 		}
 
 		public void actionPerformed(ActionEvent ae) {
+			if (MapTool.isCampaignDirty() && !MapTool.confirm("msg.confirm.loseChanges")) {
+				return;
+			}
+			
 			AppActions.loadCampaign(campaignFile);
 		}
 	}

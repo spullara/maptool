@@ -1035,6 +1035,22 @@ public class MapTool {
 		// showWarning("WARNING!!! This is an experimental version.<p><p>** Of particular note:<ul><li> New Light implementation <li>Lots of token positioning and sizing bug fixes</ul><p>  Please test them, but don't rely on them yet as they may change over the next couple builds<p><p>Happy Mapping :)<p><p>-Trev");
 	}
 
+	/**
+	 * Return whether the campaign file has changed
+	 */
+	public static boolean isCampaignDirty() {
+
+		// TODO: This is a very naive check, but it's better than nothing
+		if (getCampaign().getZones().size() == 1) {
+			Zone singleZone = MapTool.getCampaign().getZones().get(0);
+			if (ZoneFactory.DEFAULT_MAP_NAME.equals(singleZone.getName()) && singleZone.isEmpty()) {
+				return false;
+			}
+		} 
+		
+		return true;
+	}
+	
 	public static void setLastWhisperer(String lastWhisperer) {
 		if (lastWhisperer != null) {
 			MapTool.lastWhisperer = lastWhisperer;
