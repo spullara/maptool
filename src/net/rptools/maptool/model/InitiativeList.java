@@ -135,7 +135,7 @@ public class InitiativeList implements Serializable {
      * @return The token initiative data for the passed index.
      */
     public TokenInitiative getTokenInitiative(int index) {
-        return index >= 0 ? tokens.get(index) : null;
+        return index < tokens.size() && index >= 0 ? tokens.get(index) : null;
     }
 
     /**
@@ -166,8 +166,9 @@ public class InitiativeList implements Serializable {
      */
     public TokenInitiative insertToken(int index, Token token) {
         TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); // Save the currently selected initiative
-        if (index == -1)
+        if (index == -1) {
         	index = tokens.size();
+        }
         TokenInitiative ti = new TokenInitiative(token);
         tokens.add(index, ti);
         holdUpdate += 1;
