@@ -21,6 +21,7 @@ import javax.swing.ImageIcon;
 
 import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.CellPoint;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.drawing.AbstractTemplate;
 import net.rptools.maptool.model.drawing.BlastTemplate;
@@ -79,28 +80,13 @@ public class BlastTemplateTool extends BurstTemplateTool {
     }
     
     /**
-     * @see net.rptools.maptool.client.tool.drawing.BurstTemplateTool#getRadiusAtMouse(java.awt.event.MouseEvent)
-     */
-    @Override
-    protected int getRadiusAtMouse(MouseEvent e) {
-        int radius = super.getRadiusAtMouse(e) + 1; 
-        return radius;
-    }
-    
-    /**
      * @see net.rptools.maptool.client.tool.drawing.RadiusTemplateTool#setRadiusFromAnchor(java.awt.event.MouseEvent)
      */
     @Override
     protected void setRadiusFromAnchor(MouseEvent e) {
-        super.setRadiusFromAnchor(e);
-        
-        // Also determine direction
-        ZonePoint vertex = template.getVertex();
-        ZonePoint mouse = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
-        Direction dir = RadiusTemplate.Direction.findDirection(mouse.x, mouse.y, vertex.x, vertex.y);
-//        if (template.getRadius() % 2 == 0 && dir.ordinal() % 2 == 1) {
-//            dir = Direction.values()[dir == Direction.SOUTH_WEST ? 1 : dir.ordinal() + 1];
-//        }
-        ((BlastTemplate)template).setDirection(dir);
+    	// Determine mouse cell position relative to base cell and then pass to blast template
+        CellPoint workingCell = renderer.getZone().getGrid().convert(getCellAtMouse(e));
+        CellPoint vertexCell = renderer.getZone().getGrid().convert(template.getVertex());
+        ((BlastTemplate)template).setControlCellRelative(workingCell.x - vertexCell.x, workingCell.y - vertexCell.y);
     }
 }

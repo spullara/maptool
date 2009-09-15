@@ -803,20 +803,16 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         				return;
         			}
 
-        			MapTool.getFrame().getCurrentZoneRenderer().centerOn(token);
-                    if (MapTool.getPlayer().isGM() && AppState.isPlayerViewLinked()) {
-                    	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
-            			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
-                    }           
+        			renderer.centerOn(token);
+        			renderer.maybeForcePlayersView();
                     
                     if (MapTool.getPlayer().isGM()) {
 						// If the user is a GM, recenter on the token.
 						renderer.centerOn(token);
 
 						// Update player view if necessary
-						if (AppState.isPlayerViewLinked() && token.isToken() && token.isVisible()) {
-							ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2, renderer.getHeight() / 2).convertToZone(renderer);
-							MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
+						if (token.isToken() && token.isVisible()) {
+							renderer.maybeForcePlayersView();
 						}
 					} else if (renderer.getZone().isTokenVisible(token)) {
 						// Not the GM, but the token is visible to the

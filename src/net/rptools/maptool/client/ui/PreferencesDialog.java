@@ -104,6 +104,9 @@ public class PreferencesDialog extends JDialog {
 	private JTextField fontSizeTextField;
 	private JTextField toolTipInitialDelay;
 	private JTextField toolTipDismissDelay;
+	
+	//Application
+	private JCheckBox fitGMView;
 
 	
 	public PreferencesDialog() {
@@ -166,6 +169,7 @@ public class PreferencesDialog extends JDialog {
 		facingFaceVertices = panel.getCheckBox("facingFaceVertices");
 		chatAutosaveTime = panel.getTextField("chatAutosaveTime");
 		chatFilenameFormat = panel.getTextField("chatFilenameFormat");
+		fitGMView = panel.getCheckBox("fitGMView");
 		setInitialState();
 
 		// And keep it updated
@@ -506,6 +510,12 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 		
+		fitGMView.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setFitGMView(fitGMView.isSelected());
+			}
+		});
+		
 
 		DefaultComboBoxModel gridTypeModel = new DefaultComboBoxModel();
 		gridTypeModel.addElement(GridFactory.SQUARE);
@@ -636,5 +646,6 @@ public class PreferencesDialog extends JDialog {
 		toolTipDismissDelay.setText(Integer.toString(AppPreferences.getToolTipDismissDelay()));
 		facingFaceEdges.setSelected(AppPreferences.getFaceEdge());
 		facingFaceVertices.setSelected(AppPreferences.getFaceVertex());
+		fitGMView.setSelected(AppPreferences.getFitGMView());
 	}
 }

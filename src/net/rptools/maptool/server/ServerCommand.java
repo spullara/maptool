@@ -92,7 +92,7 @@ public interface ServerCommand {
     public void setFoW(GUID zoneGUID, Area area);
     public void addTopology(GUID zoneGUID, Area area);
     public void removeTopology(GUID zoneGUID, Area area);
-    public void enforceZoneView(GUID zoneGUID, int x, int y, double scale);
+    public void enforceZoneView(GUID zoneGUID, int x, int y, double scale, int width, int height);
     public void setCampaign(Campaign campaign);
     public void getZone(GUID zoneGUID);
     public void putZone(Zone zone);

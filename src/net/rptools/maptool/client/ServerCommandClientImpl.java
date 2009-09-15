@@ -104,8 +104,8 @@ public class ServerCommandClientImpl implements ServerCommand {
         makeServerCall(COMMAND.removeAsset, assetID);
     }
     
-    public void enforceZoneView(GUID zoneGUID, int x, int y, double scale) {
-    	makeServerCall(COMMAND.enforceZoneView, zoneGUID, x, y, scale);
+    public void enforceZoneView(GUID zoneGUID, int x, int y, double scale, int width, int height) {
+    	makeServerCall(COMMAND.enforceZoneView, zoneGUID, x, y, scale, width, height);
     }
 
     public void putToken(GUID zoneGUID, Token token) {

@@ -297,6 +297,9 @@ public class AppPreferences {
     private static final String KEY_TRUSTED_PREFIX_FG_BLUE = "trustedPrefixFBlue";
     private static final int DEFAULT_TRUSTED_PREFIX_FG_BLUE = 0x00;
     
+    private static final String KEY_FIT_GM_VIEW = "fitGMView";
+    private static final boolean DEFAULT_FIT_GM_VIEW = true;
+    
     
     public static final void setUseToolTipForInlineRoll(boolean tooltip) {
     	prefs.putBoolean(KEY_TOOLTIP_FOR_INLINE_ROLLS, tooltip);
@@ -607,6 +610,14 @@ public class AppPreferences {
 
 	public static void setShowStatSheet(boolean show) {
 		prefs.putBoolean(KEY_SHOW_STAT_SHEET, show);
+	}
+	
+	public static boolean getFitGMView() {
+		return prefs.getBoolean(KEY_FIT_GM_VIEW, DEFAULT_FIT_GM_VIEW);
+	}
+	
+	public static void setFitGMView(boolean fit) {
+		prefs.putBoolean(KEY_FIT_GM_VIEW, fit);
 	}
 
 	public static void setMovementMetric(WalkerMetric metric) {

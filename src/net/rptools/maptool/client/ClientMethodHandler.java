@@ -239,14 +239,20 @@ public class ClientMethodHandler extends AbstractMethodHandler {
                     int x = (Integer)parameters[1];
                     int y = (Integer)parameters[2];
                     double scale = (Double)parameters[3];
+                    int gmWidth = (Integer)parameters[4];
+                    int gmHeight = (Integer)parameters[5];
                     
                     renderer = MapTool.getFrame().getZoneRenderer(zoneGUID);
                     if (renderer == null) {
                         return;
                     }
                     
-                    renderer.setScale(scale);
-                    renderer.centerOn(new ZonePoint(x, y));
+                    if (AppPreferences.getFitGMView()) {
+                    	renderer.enforceView(x, y, scale, gmWidth, gmHeight);
+                    } else {
+                    	renderer.setScale(scale);
+                    	renderer.centerOn(new ZonePoint(x, y));
+                    }
 
                     return;
                 case draw:

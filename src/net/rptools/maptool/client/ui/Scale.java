@@ -91,15 +91,31 @@ public class Scale implements Serializable {
     }
     
     public void setScale(double scale) {
-    	double oldScale = this.scale;
+    	if (scale <= 0.0) {
+    		return;
+    	}
+
+    	// Determine zoomLevel appropriate for given scale
+        zoomLevel = (int)Math.round(Math.log(scale/oneToOneScale)/Math.log(1+scaleIncrement));
+
+        setScaleNoZoomLevel(scale);
+    }
+    
+    private void setScaleNoZoomLevel(double scale) {
+        double oldScale = this.scale;
         this.scale = scale;
 
         getPropertyChangeSupport().firePropertyChange(PROPERTY_SCALE, oldScale, scale);
+    }
+
+    public double getOneToOneScale() {
+    	return oneToOneScale;
     }
     
     public double reset() {
     	double oldScale = this.scale;
         scale = oneToOneScale;
+        zoomLevel = 0;
 
         getPropertyChangeSupport().firePropertyChange(PROPERTY_SCALE, oldScale, scale);
         return oldScale;
@@ -107,18 +123,18 @@ public class Scale implements Serializable {
     
     public double scaleUp() {
     	zoomLevel++;
-    	setScale(Math.pow(1+scaleIncrement, zoomLevel));
+    	setScaleNoZoomLevel(oneToOneScale * Math.pow(1+scaleIncrement, zoomLevel));
         return scale;
     }
     
     public double scaleDown() {
     	zoomLevel--;
-    	setScale(Math.pow(1+scaleIncrement, zoomLevel));
+    	setScaleNoZoomLevel(oneToOneScale * Math.pow(1+scaleIncrement, zoomLevel));
         return scale;
     }
     
-    public void zoomReset() {
-    	zoomTo(width/2, height/2, reset());
+    public void zoomReset(int x, int y) {
+    	zoomTo(x, y, reset());
     }
 
     public void zoomIn(int x, int y) {
@@ -131,6 +147,12 @@ public class Scale implements Serializable {
     	double oldScale = scale;
     	scaleDown();
         zoomTo(x, y, oldScale);
+    }
+
+    public void zoomScale(int x, int y, double scale) {
+    	double oldScale = this.scale;
+    	setScale(scale);
+    	zoomTo(x, y, oldScale);
     }
     
     public boolean isInitialized() {
@@ -180,8 +202,9 @@ public class Scale implements Serializable {
         x -= offsetX;
         y -= offsetY;
 
-        int newX = (int) ((x * scale) / oldScale);
-        int newY = (int) ((y * scale) / oldScale);
+        // Rounding reduces drift in offset from repeated zooming
+        int newX = (int) Math.round((x * scale) / oldScale);
+        int newY = (int) Math.round((y * scale) / oldScale);
 
         offsetX = offsetX-(newX - x);
         offsetY = offsetY-(newY - y);

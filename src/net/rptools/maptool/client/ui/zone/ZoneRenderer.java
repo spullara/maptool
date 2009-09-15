@@ -530,8 +530,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         setViewOffset(getViewOffsetX() + dx, getViewOffsetY() + dy);
     }
 
-    public void zoomReset() {
-        zoneScale.reset();
+    public void zoomReset(int x, int y) {
+        zoneScale.zoomReset(x, y);
 		MapTool.getFrame().getZoomStatusBar().update();
     }
 
@@ -551,6 +551,34 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         zoneScale.setScale(scale);
 		MapTool.getFrame().getZoomStatusBar().update();
+    }
+    
+    public void enforceView(int x, int y, double scale, int gmWidth, int gmHeight) {
+    	int width = getWidth();
+    	int height = getHeight();
+
+    	//if (((double) width / height) < ((double) gmWidth / gmHeight))
+    	if ((width * gmHeight) < (height * gmWidth)) {
+    		// Our aspect ratio is narrower than server's, so fit to width
+    		scale = scale * width / gmWidth;
+    	} else {
+    		// Our aspect ratio is shorter than server's, so fit to height
+    		scale = scale * height / gmHeight;
+    	}
+    	
+    	setScale(scale);
+    	centerOn(new ZonePoint(x, y));
+    }
+    
+    public void forcePlayersView() {
+    	ZonePoint zp = new ScreenPoint(getWidth() / 2, getHeight() / 2).convertToZone(this);
+		MapTool.serverCommand().enforceZoneView(getZone().getId(), zp.x, zp.y, getScale(), getWidth(), getHeight());
+    }
+    
+    public void maybeForcePlayersView() {
+    	if (AppState.isPlayerViewLinked() && MapTool.getPlayer().isGM()) {
+    		forcePlayersView();
+    	}
     }
     
 	public BufferedImage getMiniImage(int size) {
@@ -2703,7 +2731,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     }
  
     public void setScale(double scale) {
-    	zoneScale.setScale(scale);
+    	zoneScale.zoomScale(getWidth() / 2, getHeight() / 2, scale);
+    	MapTool.getFrame().getZoomStatusBar().update();
     }
     
     public double getScale() {

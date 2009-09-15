@@ -113,10 +113,9 @@ public class ZoneSelectionPopup extends JPopupMenu {
         		MapTool.getFrame().setCurrentZoneRenderer(renderer);
         		MapTool.getFrame().refresh();
         		
-        		if (AppState.isPlayerViewLinked()) {
-                	ZonePoint zp = new ScreenPoint(renderer.getWidth()/2, renderer.getHeight()/2).convertToZone(renderer);
+        		if (AppState.isPlayerViewLinked() && MapTool.getPlayer().isGM()) {
         			MapTool.serverCommand().enforceZone(renderer.getZone().getId());
-        			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
+        			renderer.forcePlayersView();
         		}
     		}
     		

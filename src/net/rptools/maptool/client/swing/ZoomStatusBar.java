@@ -20,6 +20,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JTextField;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 
 /**
  */
@@ -35,9 +36,12 @@ public class ZoomStatusBar extends JTextField {
 				JTextField target = (JTextField) e.getSource();
 		    	if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
 					double zoom;
+					ZoneRenderer renderer;
 					try {
-						zoom = Double.parseDouble(target.getText());
-			    		MapTool.getFrame().getCurrentZoneRenderer().getZoneScale().setScale(zoom/100);
+						zoom = Double.parseDouble(target.getText().replace('%', ' '));
+			    		renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			    		renderer.setScale(zoom/100);
+			    		renderer.maybeForcePlayersView();
 					} catch (NumberFormatException e1) {
 						// If the number is invalid, ignore it.
 					}

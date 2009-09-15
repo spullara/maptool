@@ -39,56 +39,26 @@ public class BlastTemplate extends ConeTemplate {
      */
     private ShapeDrawable renderer = new ShapeDrawable(new Rectangle());
     
+    private int offsetX;
+    private int offsetY;
+    
     /*---------------------------------------------------------------------------------------------
      * Instance Methods
      *-------------------------------------------------------------------------------------------*/
 
     /**
-     * This methods adjusts the rectangle in the renderer to match the new radius, vertex, or direction.
-     * Due to the fact that it is impossible to draw to the cardinal directions evenly when the radius
-     * is an even number and still stay in the squares, that case isn't allowed. 
+     * This methods adjusts the rectangle in the renderer to match the new radius, vertex, or location.
      */
     private void adjustRectangle() {
         if (getZoneId() == null) return;
         int gridSize = MapTool.getCampaign().getZone(getZoneId()).getGrid().getSize();
-        int half = (getRadius() / 2) * gridSize;
         int size = getRadius() * gridSize;
+
         Rectangle r = (Rectangle)renderer.getShape();
         r.setBounds(getVertex().x, getVertex().y, size, size);
-        switch (getDirection()) {
-        case WEST:
-            r.x -= size;
-            r.y -= half;
-            break;
-        case NORTH_WEST:
-            r.x -= size;
-            r.y -= size;
-            break;
-        case NORTH:
-            r.x -= half;
-            r.y -= size;
-            break;
-        case NORTH_EAST:
-            r.y -= size;
-            r.x += gridSize;
-            break;
-        case EAST:
-            r.y -= half;
-            r.x += gridSize;
-            break;
-        case SOUTH_EAST:
-            r.x += gridSize;
-            r.y += gridSize;
-            break;
-        case SOUTH:
-            r.x -= half;
-            r.y += gridSize;
-            break;
-        case SOUTH_WEST:
-            r.x -= size;
-            r.y += gridSize;
-            break;
-        } // endswitch
+
+        r.x += offsetX * gridSize;
+        r.y += offsetY * gridSize;
     }
 
     /*---------------------------------------------------------------------------------------------
@@ -105,22 +75,43 @@ public class BlastTemplate extends ConeTemplate {
     	r.height += 10;
     	return r;
     }
-    
-    /**
-     * @see net.rptools.maptool.model.drawing.ConeTemplate#setDirection(net.rptools.maptool.model.drawing.AbstractTemplate.Direction)
-     */
-    @Override
-    public void setDirection(Direction direction) {
-        super.setDirection(direction);
-        adjustRectangle();
-    }
 
     /**
-     * @see net.rptools.maptool.model.drawing.AbstractTemplate#setRadius(int)
+     * Defines the blast based on the specified square
+     * 
+     * @param relX The X coordinate of the control square relative to the origin square
+     * @param relY The Y coordinate of the control square relative to the origin square
      */
-    @Override
-    public void setRadius(int squares) {
-        super.setRadius(squares);
+    public void setControlCellRelative(int relX, int relY) {
+
+    	relX = Math.max(Math.min(relX, MAX_RADIUS), -MAX_RADIUS);
+    	relY = Math.max(Math.min(relY, MAX_RADIUS), -MAX_RADIUS);
+    	
+    	int radius = Math.max(Math.abs(relX), Math.abs(relY));
+    	// Number of cells along axis of smaller offset we need to shift the square in order to "center" the blast
+        int centerOffset = -(radius / 2);
+        // Smallest delta we can apply to centerOffset and still have valid placement
+        int lowerBound = -((radius + 1) / 2);
+        // Largest delta we can apply to centerOffset and still have valid placement
+        int upperBound = (radius / 2) + 1;
+
+        setRadius(radius);
+        // The larger magnitude offset determines size and gross positioning, the smaller determines fine positioning
+        if (Math.abs(relX) > Math.abs(relY)) {
+        	if (relX > 0) {
+        		offsetX = 1;
+        	} else {
+        		offsetX = -radius;
+        	}
+        	offsetY = centerOffset + Math.min(Math.max(lowerBound, relY), upperBound);
+        } else {
+        	if (relY > 0) {
+        		offsetY = 1;
+        	} else {
+        		offsetY = -radius;
+        	}
+        	offsetX = centerOffset + Math.min(Math.max(lowerBound, relX), upperBound);
+        }
         adjustRectangle();
     }
 

@@ -997,11 +997,7 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 
 			AppState.setPlayerViewLinked(!AppState.isPlayerViewLinked());
-			if (AppState.isPlayerViewLinked()) {
-				ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-				ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2, renderer.getHeight() / 2).convertToZone(renderer);
-				MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
-			}
+			MapTool.getFrame().getCurrentZoneRenderer().maybeForcePlayersView();
 		}
 
 	};
@@ -1163,8 +1159,7 @@ public class AppActions {
 				return;
 			}
 
-			ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2, renderer.getHeight() / 2).convertToZone(renderer);
-			MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
+			renderer.forcePlayersView();
 		}
 
 	};
@@ -1497,11 +1492,7 @@ public class AppActions {
 			if (renderer != null) {
 				Dimension size = renderer.getSize();
 				renderer.zoomIn(size.width / 2, size.height / 2);
-
-				if (AppState.isPlayerViewLinked()) {
-					ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2, renderer.getHeight() / 2).convertToZone(renderer);
-					MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
-				}
+				renderer.maybeForcePlayersView();
 			}
 		}
 	};
@@ -1516,10 +1507,7 @@ public class AppActions {
 			if (renderer != null) {
 				Dimension size = renderer.getSize();
 				renderer.zoomOut(size.width / 2, size.height / 2);
-			}
-			if (AppState.isPlayerViewLinked()) {
-				ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2, renderer.getHeight() / 2).convertToZone(renderer);
-				MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
+				renderer.maybeForcePlayersView();
 			}
 		}
 	};
@@ -1536,12 +1524,9 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			if (renderer != null) {
-
-				double scale = renderer.getScale();
-
 				// Revert to last zoom if we have one, but don't if the user has manually
 				// changed the scale since the last reset zoom (one to one index)
-				if (lastZoom != null && renderer.getScale() == scale) {
+				if (lastZoom != null && renderer.getScale() == renderer.getZoneScale().getOneToOneScale()) {
 					// Go back to the previous zoom
 					renderer.setScale(lastZoom);
 
@@ -1549,12 +1534,9 @@ public class AppActions {
 					lastZoom = null;
 				} else {
 					lastZoom = renderer.getScale();
-					renderer.zoomReset();
+					renderer.zoomReset(renderer.getWidth() / 2, renderer.getHeight() / 2);
 				}
-			}
-			if (AppState.isPlayerViewLinked()) {
-				ZonePoint zp = new ScreenPoint(renderer.getWidth() / 2, renderer.getHeight() / 2).convertToZone(renderer);
-				MapTool.serverCommand().enforceZoneView(renderer.getZone().getId(), zp.x, zp.y, renderer.getScale());
+				renderer.maybeForcePlayersView();
 			}
 		}
 	};
