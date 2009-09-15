@@ -488,9 +488,12 @@ public class InitiativeList implements Serializable {
         
         // Remove the token from its old position
         TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); // Save the current initiative
+        if (oldIndex == current) {
+        	currentInitiative = getTokenInitiative(oldIndex != 0 ? oldIndex -1 : 1);
+        }
         if (oldIndex < 0 || oldIndex == index)
         	return;
-        int oldCurrent = current;
+
         current = -1;
         holdUpdate += 1;
         TokenInitiative ti = tokens.remove(oldIndex);
@@ -500,7 +503,7 @@ public class InitiativeList implements Serializable {
         index -= index > oldIndex ? 1 : 0;
         tokens.add(index, ti);
         getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, null, ti);
-        current = oldCurrent;
+
         setCurrent(indexOf(currentInitiative)); // Restore current initiative
         holdUpdate -= 1;
         updateServer();
