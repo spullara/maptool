@@ -22,6 +22,8 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +43,7 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.functions.MacroLinkFunction;
 import net.rptools.maptool.client.swing.MessagePanelEditorKit;
 import net.rptools.maptool.model.TextMessage;
+import net.rptools.maptool.model.Player.Role;
 
 public class MessagePanel extends JPanel {
 
@@ -150,41 +153,90 @@ public class MessagePanel extends JPanel {
 		});
 	}
 	
+	/* We use ASCII control characters to mark off the rolls so that there's no limitation on what (printable) characters the output can include
+	 * Rolls look like "\036roll output\036" or
+	 *                 "\036tooltip\037roll output\036" or
+	 *                 "\036\001format info\002roll output\036" or
+	 *                 "\036\001format info\002tooltip\037roll output\036"
+	 */
+	private static Pattern roll_pattern = Pattern.compile("\036(?:\001([^\002]*)\002)?([^\036\037]*)(?:\037([^\036]*))?\036");
+	
 	public void addMessage(final TextMessage message) {
-		
-		if (!message.getSource().equals(MapTool.getPlayer().getName())) {
-			MapTool.playSound(SND_MESSAGE_RECEIVED);
-		}
-		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
+				String output;
 				
-				String text = "<div>"+message.getMessage()+"</div>";
-				// We use ASCII control characters to mark off the rolls so that there's no limitation on what (printable) characters the output can include
-				text = text.replaceAll("\036([^\036\037]*)\037([^\036]*)\036", "<span class='roll' title='&#171; $1 &#187;'>$2</span>");
-				text = text.replaceAll("\036\01u\02([^\036]*)\036", "&#171; $1 &#187;");
-				text = text.replaceAll("\036([^\036]*)\036", "&#171;<span class='roll' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
-//				text = text.replaceAll("\\{cmd\\s*([^\\}]*)}", "&#171;<span class='cmd' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
+				{
+					StringBuffer text = new StringBuffer();
+					Matcher m = roll_pattern.matcher(message.getMessage());
+					while (m.find()) {
+						HashSet<String> options = new HashSet<String>();
+						if (m.group(1) != null) {
+							options.addAll(Arrays.asList(m.group(1).split(",")));
+							
+							if (!options.contains("w") && !options.contains("g") && !options.contains("s"))
+								; // visible for everyone
+							else if (options.contains("w:" + MapTool.getPlayer().getName().toLowerCase()))
+								; // visible for this player
+							else if (options.contains("g") && MapTool.getPlayer().getRole() == Role.GM)
+								; // visible for GMs
+							else if (options.contains("s") && message.getSource().equals(MapTool.getPlayer().getName()))
+								; // visible to the player who sent it
+							else {
+								m.appendReplacement(text, ""); // not visible for this player
+								continue;
+							}
+						}
+
+						String replacement = null;
+						if (m.group(3) != null) {
+							if (!options.contains("st") && !options.contains("gt") ||
+								options.contains("st") && message.getSource().equals(MapTool.getPlayer().getName()) ||
+								options.contains("gt") && MapTool.getPlayer().getRole() == Role.GM)
+								replacement = "<span class='roll' title='&#171; $2 &#187;'>$3</span>";
+							else
+								replacement = "$3";
+						} else if (options.contains("u"))
+							replacement = "&#171; $2 &#187;";
+						else if (options.contains("r"))
+							replacement = "$2";
+						else
+							replacement = "&#171;<span class='roll' style='color:blue'>&nbsp;$2&nbsp;</span>&#187;";
+						m.appendReplacement(text, replacement);
+					}
+					m.appendTail(text);
+					output = text.toString();
+				}
 
 				// Auto inline expansion
-				text = text.replaceAll("(^|\\s|>)(http://[a-zA-Z0-9_\\.%-/~?]+)", "$1<a href=\"$2\">$2</a>");
-				Element element = document.getElement("body");
+				output = output.replaceAll("(^|\\s|>|\002)(http://[a-zA-Z0-9_\\.%-/~?]+)", "$1<a href=\"$2\">$2</a>");
 				
 				
 				if (!message.getSource().equals(MapTool.getPlayer().getName())) {
-					Matcher m = Pattern.compile("href=[\"']?\\s*(([^:]*)://(?:[^/]*)/(?:[^?]*)(?:\\?(?:.*))?)[\"']\\s*").matcher(message.getMessage());
+					Matcher m = Pattern.compile("href=([\"'])\\s*(([^:]*)://(?:[^/]*)/(?:[^?]*)(?:\\?(?:.*?))?)\\1\\s*").matcher(output);
 					while (m.find()) {
-						if (m.group(2).equalsIgnoreCase("macro")) {
-							MacroLinkFunction.getInstance().processMacroLink(m.group(1));
+						if (m.group(3).equalsIgnoreCase("macro")) {
+							MacroLinkFunction.getInstance().processMacroLink(m.group(2));
 						}
 					}
 				}
-				try {
-					document.insertBeforeEnd(element, text);
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				} catch (BadLocationException ble) {
-					ble.printStackTrace();
+
+				// if rolls not being visible to this user result in an empty message, display nothing
+				if (!output.matches(".*\002\\s*\003.*")) {
+					output = output.replaceAll("\002|\003", "");
+
+					try {
+						Element element = document.getElement("body");
+						document.insertBeforeEnd(element, "<div>" + output + "</div>");
+
+						if (!message.getSource().equals(MapTool.getPlayer().getName())) {
+							MapTool.playSound(SND_MESSAGE_RECEIVED);
+						}
+					} catch (IOException ioe) {
+						ioe.printStackTrace();
+					} catch (BadLocationException ble) {
+						ble.printStackTrace();
+					}
 				}
 			}
 		});

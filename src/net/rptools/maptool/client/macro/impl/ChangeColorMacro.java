@@ -28,7 +28,6 @@ import net.rptools.maptool.client.macro.MacroDefinition;
 public class ChangeColorMacro extends AbstractMacro {
 
 	public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
-		macro = processText(macro);
 		Color newColor = Color.decode(macro);
 		MapTool.getFrame().getCommandPanel().getTextColorWell().setColor(newColor);
 	}

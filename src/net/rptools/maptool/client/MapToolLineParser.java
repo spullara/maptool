@@ -15,6 +15,8 @@ package net.rptools.maptool.client;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +25,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+
+import org.apache.commons.lang.StringUtils;
 
 import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
@@ -284,6 +288,8 @@ public class MapToolLineParser {
 		//   NAME   (nameRegex, minParams, maxParams, defaultValues...)
 		//
 		// You must provide (maxParams - minParams) default values (BigDecimal or String types).
+		//
+		// If maxParams is -1, unlimited params may be passed in.
 		NO_OPTION   ("",              0, 0),
 		// output formats
 		EXPANDED    ("e|expanded",    0, 0),
@@ -291,6 +297,14 @@ public class MapToolLineParser {
 		RESULT      ("r|result",      0, 0),
 		UNFORMATTED ("u|unformatted", 0, 0),
 		TOOLTIP     ("t|tooltip",     0, 1, nullParam),
+		// visibility
+		GM          ("g|gm",          0, 0),
+		SELF        ("s|self",        0, 0),
+		WHISPER     ("w|whisper",     1, -1),
+		// tooltip visibility
+		GMTT        ("gt|gmtt",       0, 0),
+		SELFTT      ("st|selftt",     0, 0),
+//		WHISPER     ("wt|whispertt",  1, -1),
 		// loops
 		COUNT       ("c|count",       1, 2, defaultLoopSep),
 		FOR         ("for",           3, 5, BigDecimal.ONE, defaultLoopSep),
@@ -327,7 +341,7 @@ public class MapToolLineParser {
 			} else {
 				this.defaultParams = defaultParams;
 			}
-			if (this.defaultParams.length != (maxParams - minParams)) {
+			if (maxParams != -1 && this.defaultParams.length != (maxParams - minParams)) {
 				LOGGER.error(String.format("Internal error: roll option %s specifies wrong number of default parameters", name()));
 			}
 		}
@@ -349,6 +363,9 @@ public class MapToolLineParser {
 		
 		/** Returns a copy of the default params array for this option type. */
 		public Object[] getDefaultParams() {
+			if (maxParams == -1)
+				return null;
+			
 			Object[] retval = new Object[maxParams];
 			for (int i=minParams; i<maxParams; i++) {
 				retval[i] = defaultParams[i-minParams];
@@ -436,7 +453,7 @@ public class MapToolLineParser {
 			}
 
 			// Otherwise, match the individual parameters one at a time
-			pattern = Pattern.compile( "^(?:((?:[^()\",]|\"[^\"]*\"|\\((?:[^()\"]|\"[^\"]*\")*\\))+)(,|\\))){1}?" );
+			pattern = Pattern.compile( "^(?:((?:[^()\"',]|\"[^\"]*\"|'[^']*'|\\((?:[^()\"']|\"[^\"]*\"|'[^']*')*\\))+)(,|\\))){1}?" );
 			matcher = pattern.matcher(optionString);
 			matcher.region(start, endOfString);
 			List<String> paramList = new ArrayList<String>();
@@ -457,11 +474,13 @@ public class MapToolLineParser {
 			// Error checking
 			int min = optionType.getMinParams(), max = optionType.getMaxParams();
 			int numParamsFound = paramList.size();
-			if (numParamsFound < min || numParamsFound > max) {
+			if (numParamsFound < min || (max != -1 && numParamsFound > max)) {
 				throw new RollOptionException(I18N.getText("lineParser.optWrongParam", optionName, min, max, numParamsFound, srcString));				
 			}
 
 			// Fill in the found parameters, converting to BigDecimal if possible.
+			if (params == null)
+				params = new Object[numParamsFound];
 			for (int i=0; i<numParamsFound; i++) {
 				params[i] = toNumIfPossible(paramList.get(i));
 			}
@@ -484,6 +503,11 @@ public class MapToolLineParser {
 		public String getName() { return optionName; }
 		public int getStart() { return optionStart; }
 		public int getEnd() { return optionEnd; }
+		
+		/** Returns the number of options passed in */
+		public int getParamCount() {
+			return params.length;
+		}
 
 		/** Gets a parameter (Object type). */
 		public Object getObjectParam(int index) {
@@ -657,6 +681,8 @@ public class MapToolLineParser {
 				
 				String text = null;	// used by the T option
 
+				HashSet<String> outputOpts = new HashSet<String>();
+
 				OutputLoc outputTo = OutputLoc.CHAT;
 
 				LoopType loopType = LoopType.NO_LOOP;
@@ -713,11 +739,47 @@ public class MapToolLineParser {
 								break;
 							case UNFORMATTED:
 								output = Output.UNFORMATTED;
+								outputOpts.add("u");
 								break;
 							case TOOLTIP:
 								// T(display_text)
 								output = Output.TOOLTIP;
 								text = option.getStringParam(0);
+								break;
+
+							///////////////////////////////////////////////////
+							// VISIBILITY OPTIONS
+							///////////////////////////////////////////////////
+							case GM:
+								outputOpts.add("g");
+								break;
+							case SELF:
+								outputOpts.add("s");
+								break;
+							case WHISPER:
+								outputOpts.add("w");
+								for (int i = 0; i < option.getParamCount(); i++) {
+									String arg = parseExpression(resolver, tokenInContext, option.getStringParam(i)).getValue().toString();
+									if (arg.trim().startsWith("[")) {
+										Object json = JSONMacroFunctions.convertToJSON(arg); 
+										if (json instanceof JSONArray) {
+											for (Object name: (JSONArray)json) {
+												outputOpts.add("w:" + name.toString().toLowerCase());
+											}
+										}
+									} else
+										outputOpts.add("w:" + arg.toLowerCase());
+								}
+								break;
+
+							///////////////////////////////////////////////////
+							// TOOLTIP VISIBILITY OPTIONS
+							///////////////////////////////////////////////////
+							case GMTT:
+								outputOpts.add("gt");
+								break;
+							case SELFTT:
+								outputOpts.add("st");
 								break;
 
 							///////////////////////////////////////////////////
@@ -788,7 +850,7 @@ public class MapToolLineParser {
 									foreachList = null;
 									if (listString.trim().startsWith("{") || listString.trim().startsWith("[")) {
 										// if String starts with [ or { it is either JSON try treat it as a JSON String
-										Object obj = JSONMacroFunctions.getInstance().convertToJSON(listString);
+										Object obj = JSONMacroFunctions.convertToJSON(listString);
 										if (obj != null) {
 											 foreachList = new ArrayList<String>();
 											if (obj instanceof JSONArray) {
@@ -1105,11 +1167,17 @@ public class MapToolLineParser {
 								break;
 							case RESULT:
 								result = parseExpression(resolver, tokenInContext, rollBranch);
-								if (this.isMacroTrusted()) { 	
-									expressionBuilder.append(result != null ? result.getValue().toString() : "");
-								} else {
-									expressionBuilder.append(result != null ? result.getValue().toString().replaceAll("«|»|&#171;|&#187;|&laquo;|&raquo;|\036|\037", "") : "");
+								output_text = result != null ? result.getValue().toString() : "";
+								if (!this.isMacroTrusted()) { 	
+									output_text = output_text.replaceAll("«|»|&#171;|&#187;|&laquo;|&raquo;|\036|\037", "");
 								}
+								if (outputOpts.isEmpty()) {
+									expressionBuilder.append(output_text);	
+								} else {
+									outputOpts.add("r");
+									expressionBuilder.append(rollString(outputOpts, output_text));
+								}
+
 								break;
 							case TOOLTIP:
 								String tooltip = rollBranch + " = ";
@@ -1126,10 +1194,10 @@ public class MapToolLineParser {
 									output_text = parseExpression(resolver, tokenInContext, text).getValue().toString();
 								}
 								tooltip = tooltip.replaceAll("'", "&#39;");
-								expressionBuilder.append(output_text != null ? "\036" + tooltip + "\037" + output_text + "\036" : "");
+								expressionBuilder.append(output_text != null ? rollString(outputOpts, tooltip, output_text) : "");
 								break;
 							case EXPANDED:
-								expressionBuilder.append("\036" + rollBranch + " = " + expandRoll(resolver, tokenInContext, rollBranch) + "\036");
+								expressionBuilder.append(rollString(outputOpts, rollBranch + " = " + expandRoll(resolver, tokenInContext, rollBranch)));
 								break;
 							case UNFORMATTED:
 								output_text = rollBranch + " = " + expandRoll(resolver, tokenInContext, rollBranch);
@@ -1138,7 +1206,7 @@ public class MapToolLineParser {
 								output_text = output_text.replaceAll("'", "&#39;");
 								output_text = output_text.replaceAll("\"", "&#34;");
 
-								expressionBuilder.append("\036\01u\02" + output_text + "\036");
+								expressionBuilder.append(rollString(outputOpts, output_text));
 							}	// end of switch(output) statement
 							break;	// end of case NO_CODE in switch(codeType) statement
 							/*
@@ -1306,7 +1374,7 @@ public class MapToolLineParser {
 			return "";
 		
 		// IF the macro is a  @this, then we get the location of the current macro and use that.
-		if (macroLocation.equalsIgnoreCase("this")) {
+		if (macroLocation != null && macroLocation.equalsIgnoreCase("this")) {
 			macroLocation = getMacroSource();
 			if (macroLocation.equals(CHAT_INPUT) || macroLocation.toLowerCase().startsWith("token:")) {
 				macroLocation = "TOKEN";
@@ -1609,7 +1677,22 @@ public class MapToolLineParser {
 		return parser;
 	}
 	
-	
+	private String rollString(Collection options, String text) {
+		return rollString(options, null, text);
+	}
+
+	private String rollString(Collection options, String tooltip, String text) {
+		StringBuilder s = new StringBuilder("\036");
+		if (options != null)
+			s.append("\001" + StringUtils.join(options, ",") + "\002");
+		if (tooltip != null) {
+			tooltip = tooltip.replaceAll("'", "&#39;");
+			s.append(tooltip + "\037");
+		}
+		s.append(text + "\036");
+		return s.toString();
+	}
+
 	/** 
 	 * Enters a new context for the macro. 
 	 * @param context The context for the macro.

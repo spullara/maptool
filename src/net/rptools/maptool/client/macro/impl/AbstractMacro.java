@@ -24,7 +24,7 @@ public abstract class AbstractMacro implements Macro {
 
 
 	protected String processText(String incoming) {
-		return MapTool.getFrame().getCommandPanel().getChatProcessor().process(incoming);
+		return "\002" + MapTool.getFrame().getCommandPanel().getChatProcessor().process(incoming) + "\003";
 	}
 	
 

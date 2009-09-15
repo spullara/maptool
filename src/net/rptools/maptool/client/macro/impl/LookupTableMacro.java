@@ -35,7 +35,6 @@ import net.rptools.parser.ParserException;
 public class LookupTableMacro extends AbstractMacro {
 
     public void execute(MacroContext context, String macro, MapToolMacroContext executionContext) {
-    	macro = processText(macro).trim();
         StringBuilder sb = new StringBuilder();
 
         if (macro.trim().length() == 0) {
