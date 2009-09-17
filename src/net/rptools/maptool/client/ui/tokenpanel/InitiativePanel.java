@@ -15,6 +15,7 @@ package net.rptools.maptool.client.ui.tokenpanel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -333,15 +334,20 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         if (list != null) {
             list.addPropertyChangeListener(this);
             round.setText(list.getRound() >= 0 ? Integer.toString(list.getRound()) : "");
-        } // endif
-        model.setList(list);
-        if (menuButton != null && menuButton.getAction() == NEXT_ACTION)
-            menuButton.setButtonEnabled(hasGMPermission() || list.getCurrent() >= 0 && hasOwnerPermission(list.getToken(list.getCurrent())));
-        if (list.getCurrent() >= 0) {
-            int index = model.getDisplayIndex(list.getCurrent());
-            if (index >= 0) 
-                displayList.ensureIndexIsVisible(index);
-        } // endif
+        } 
+        
+        EventQueue.invokeLater(new Runnable() {
+        	public void run() {
+                model.setList(list);
+                if (menuButton != null && menuButton.getAction() == NEXT_ACTION)
+                    menuButton.setButtonEnabled(hasGMPermission() || list.getCurrent() >= 0 && hasOwnerPermission(list.getToken(list.getCurrent())));
+                if (list.getCurrent() >= 0) {
+                    int index = model.getDisplayIndex(list.getCurrent());
+                    if (index >= 0) 
+                        displayList.ensureIndexIsVisible(index);
+                } 
+        	}
+        });
     }
 
     /** @return Getter for showTokens */
