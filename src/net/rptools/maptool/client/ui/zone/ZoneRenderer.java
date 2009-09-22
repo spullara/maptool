@@ -1487,58 +1487,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
                     if (!token.isStamp()) {
                         
-                        if (!token.isObjectStamp() && zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
-                            renderPath(g, walker.getPath(), token.getFootprint(zone.getGrid()));
-                        } else {
-
-                        	// Line
-                        	Color highlight = new Color(255, 255, 255, 80);
-                        	Stroke highlightStroke = new BasicStroke(9);
-                        	Stroke oldStroke = g.getStroke();
-                        	Object oldAA = SwingUtil.useAntiAliasing(g);
-                            ScreenPoint lastPoint = ScreenPoint.fromZonePointRnd(this, token.getX() + footprintBounds.width / 2, token.getY() + footprintBounds.height / 2);
-                            boolean originPoint = true; 
-                            for (ZonePoint zp : set.gridlessPath.getCellPath()) {
-                            	// Skip the first point (it's the path origin)
-                            	if (originPoint) {
-                            		originPoint = false;
-                            		continue;
-                            	}
-                            	
-	                            ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x, zp.y);
-	                            
-	                            g.setColor(highlight);
-	                            g.setStroke(highlightStroke);
-                                g.drawLine((int) lastPoint.x, (int) lastPoint.y, (int) nextPoint.x, (int) nextPoint.y);
-	                            
-	                            g.setStroke(oldStroke);
-	                            g.setColor(Color.blue);
-                                g.drawLine((int) lastPoint.x, (int) lastPoint.y, (int) nextPoint.x, (int) nextPoint.y);
-	                            lastPoint = nextPoint;
-                            }
-                            
-                            g.setColor(highlight);
-                            g.setStroke(highlightStroke);
-                            g.drawLine((int) lastPoint.x, (int) lastPoint.y, x + scaledWidth / 2, y + scaledHeight / 2);
-                            
-                            g.setStroke(oldStroke);
-                            g.setColor(Color.blue);
-                            g.drawLine((int) lastPoint.x, (int) lastPoint.y, x + scaledWidth / 2, y + scaledHeight / 2);
-
-                            SwingUtil.restoreAntiAliasing(g, oldAA);
-                            
-                            // Waypoints
-                            originPoint = true;
-                            for (ZonePoint p : set.gridlessPath.getCellPath()) {
-                            	// Skip the first point (it's the path origin)
-                            	if (originPoint) {
-                            		originPoint = false;
-                            		continue;
-                            	}
-
-                            	p = new ZonePoint(p.x, p.y);
-                                highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
-                            }
+                        if (!token.isObjectStamp()) {
+                            renderPath(g, walker != null ? walker.getPath() : set.gridlessPath, token.getFootprint(zone.getGrid()));
                         }
                     }
                 }
@@ -1654,95 +1604,154 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     public void renderPath(Graphics2D g, Path path, TokenFootprint footprint) {
         Object oldRendering = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        CellPoint previousPoint = null;
-        Point previousHalfPoint = null;
+        
+        if (path.getCellPath().size() == 0) {
+        	return;
+        }
         
         Grid grid = zone.getGrid();
         double scale = getScale();
 
         Rectangle footprintBounds = footprint.getBounds(grid);
         
-        List<CellPoint> cellPath = path.getCellPath();
-
-        Set<CellPoint> pathSet = new HashSet<CellPoint>();
-        List<ZonePoint> waypointList = new LinkedList<ZonePoint>();
-        for (CellPoint p : cellPath) {
-            pathSet.addAll(footprint.getOccupiedCells(p));
-
-            if (path.isWaypoint(p) && previousPoint != null) {
-            	ZonePoint zp = grid.convert(p);
-                zp.x += footprintBounds.width / 2;
-                zp.y += footprintBounds.height / 2;
-                waypointList.add(zp);
-            }
-            previousPoint = p;
-        }
+        if (path.getCellPath().get(0) instanceof CellPoint) {
         
-        // Don't show the final path point as a waypoint, it's redundant, and ugly
-        if (waypointList.size() > 0) {
-            waypointList.remove(waypointList.size() - 1);
-        }
+	        CellPoint previousPoint = null;
+	        Point previousHalfPoint = null;
+	        
+	        List<CellPoint> cellPath = path.getCellPath();
+	
+	        Set<CellPoint> pathSet = new HashSet<CellPoint>();
+	        List<ZonePoint> waypointList = new LinkedList<ZonePoint>();
+	        for (CellPoint p : cellPath) {
+	            pathSet.addAll(footprint.getOccupiedCells(p));
+	
+	            if (path.isWaypoint(p) && previousPoint != null) {
+	            	ZonePoint zp = grid.convert(p);
+	                zp.x += footprintBounds.width / 2;
+	                zp.y += footprintBounds.height / 2;
+	                waypointList.add(zp);
+	            }
+	            previousPoint = p;
+	        }
+	        
+	        // Don't show the final path point as a waypoint, it's redundant, and ugly
+	        if (waypointList.size() > 0) {
+	            waypointList.remove(waypointList.size() - 1);
+	        }
+	
+	        Dimension cellOffset = zone.getGrid().getCellOffset();
+	        for (CellPoint p : pathSet) {
+	        	ZonePoint zp = grid.convert(p);
+	            zp.x += grid.getCellWidth() / 2 + cellOffset.width;
+	            zp.y += grid.getCellHeight() / 2 + cellOffset.height;
+	            highlightCell(g, zp, grid.getCellHighlight(), 1.0f);
+	        }
+	        for (ZonePoint p : waypointList) {
+	        	ZonePoint zp = new ZonePoint(p.x + cellOffset.width, p.y + cellOffset.height);
+	            highlightCell(g, zp, AppStyle.cellWaypointImage, .333f);
+	        }
+	
+	        // Line path
+	        if (grid.getCapabilities().isPathLineSupported()) {
+	
+	            ZonePoint lineOffset = new ZonePoint(footprintBounds.x + footprintBounds.width / 2 - grid.getOffsetX(), footprintBounds.y + footprintBounds.height / 2 - grid.getOffsetY());
+	
+	            int xOffset = (int) (lineOffset.x * scale);
+	            int yOffset = (int) (lineOffset.y * scale);
+	
+	            g.setColor(Color.blue);
+	
+	            previousPoint = null;
+	            for (CellPoint p : cellPath) {
+	
+	                if (previousPoint != null) {
+	                    
+	                    ZonePoint ozp = grid.convert(previousPoint);
+	                    int ox = ozp.x;
+	                    int oy = ozp.y;
+	                    
+	                    ZonePoint dzp = grid.convert(p);
+	                    int dx = dzp.x;
+	                    int dy = dzp.y;
+	                    
+	                    ScreenPoint origin = ScreenPoint.fromZonePoint(this, ox, oy);
+	                    ScreenPoint destination = ScreenPoint.fromZonePoint(this, dx, dy);
+	                    
+	                    int halfx = (int) ((origin.x + destination.x) / 2);
+	                    int halfy = (int) ((origin.y + destination.y) / 2);
+	                    Point halfPoint = new Point(halfx, halfy);
+	                    
+	                    if (previousHalfPoint != null) {
+	                        
+	                        int x1 = previousHalfPoint.x + xOffset;
+	                        int y1 = previousHalfPoint.y + yOffset;
+	                        
+	                        int x2 = (int) origin.x + xOffset;
+	                        int y2 = (int) origin.y + yOffset;
+	                        
+	                        int xh = halfPoint.x + xOffset;
+	                        int yh = halfPoint.y + yOffset;
+	                        
+	                        QuadCurve2D curve = new QuadCurve2D.Float(x1, y1, x2, y2, xh, yh);
+	                        g.draw(curve);
+	                    }    
+	
+	                    previousHalfPoint = halfPoint;
+	                }
+	                previousPoint = p;
+	            }
+	        }
+        } else {
+        	// Zone point/gridless path
+            int scaledWidth = (int) (footprintBounds.width * scale);
+            int scaledHeight = (int) (footprintBounds.height * scale);
 
-        Dimension cellOffset = zone.getGrid().getCellOffset();
-        for (CellPoint p : pathSet) {
-        	ZonePoint zp = grid.convert(p);
-            zp.x += grid.getCellWidth() / 2 + cellOffset.width;
-            zp.y += grid.getCellHeight() / 2 + cellOffset.height;
-            highlightCell(g, zp, grid.getCellHighlight(), 1.0f);
-        }
-        for (ZonePoint p : waypointList) {
-        	ZonePoint zp = new ZonePoint(p.x + cellOffset.width, p.y + cellOffset.height);
-            highlightCell(g, zp, AppStyle.cellWaypointImage, .333f);
-        }
+        	// Line
+        	Color highlight = new Color(255, 255, 255, 80);
+        	Stroke highlightStroke = new BasicStroke(9);
+        	Stroke oldStroke = g.getStroke();
+        	Object oldAA = SwingUtil.useAntiAliasing(g);
+            ScreenPoint lastPoint = null;
 
-        // Line path
-        if (grid.getCapabilities().isPathLineSupported()) {
+            List<ZonePoint> pathList = (List<ZonePoint>)path.getCellPath();
+            for (ZonePoint zp : pathList) {
 
-            ZonePoint lineOffset = new ZonePoint(footprintBounds.x + footprintBounds.width / 2 - grid.getOffsetX(), footprintBounds.y + footprintBounds.height / 2 - grid.getOffsetY());
+            	if (lastPoint == null) {
+            		lastPoint = ScreenPoint.fromZonePointRnd(this, zp.x + footprintBounds.width / 2, zp.y + footprintBounds.height / 2);            		
+            		continue;
+            	}
+            	
+                ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x + footprintBounds.width/2, zp.y + footprintBounds.height/2);
 
-            int xOffset = (int) (lineOffset.x * scale);
-            int yOffset = (int) (lineOffset.y * scale);
+                g.setColor(highlight);
+                g.setStroke(highlightStroke);
+                g.drawLine((int) lastPoint.x, (int) lastPoint.y, (int) nextPoint.x, (int) nextPoint.y);
+                
+                g.setStroke(oldStroke);
+                g.setColor(Color.blue);
+                g.drawLine((int) lastPoint.x, (int) lastPoint.y, (int) nextPoint.x, (int) nextPoint.y);
+                lastPoint = nextPoint;
+            }
+            
+            SwingUtil.restoreAntiAliasing(g, oldAA);
+            
+            // Waypoints
+            boolean originPoint = true;
+            for (ZonePoint p : pathList) {
+            	// Skip the first point (it's the path origin)
+            	if (originPoint) {
+            		originPoint = false;
+            		continue;
+            	}
 
-            g.setColor(Color.blue);
-
-            previousPoint = null;
-            for (CellPoint p : cellPath) {
-
-                if (previousPoint != null) {
-                    
-                    ZonePoint ozp = grid.convert(previousPoint);
-                    int ox = ozp.x;
-                    int oy = ozp.y;
-                    
-                    ZonePoint dzp = grid.convert(p);
-                    int dx = dzp.x;
-                    int dy = dzp.y;
-                    
-                    ScreenPoint origin = ScreenPoint.fromZonePoint(this, ox, oy);
-                    ScreenPoint destination = ScreenPoint.fromZonePoint(this, dx, dy);
-                    
-                    int halfx = (int) ((origin.x + destination.x) / 2);
-                    int halfy = (int) ((origin.y + destination.y) / 2);
-                    Point halfPoint = new Point(halfx, halfy);
-                    
-                    if (previousHalfPoint != null) {
-                        
-                        int x1 = previousHalfPoint.x + xOffset;
-                        int y1 = previousHalfPoint.y + yOffset;
-                        
-                        int x2 = (int) origin.x + xOffset;
-                        int y2 = (int) origin.y + yOffset;
-                        
-                        int xh = halfPoint.x + xOffset;
-                        int yh = halfPoint.y + yOffset;
-                        
-                        QuadCurve2D curve = new QuadCurve2D.Float(x1, y1, x2, y2, xh, yh);
-                        g.draw(curve);
-                    }    
-
-                    previousHalfPoint = halfPoint;
-                }
-                previousPoint = p;
+            	// Skip the final point
+            	if (p == pathList.get(pathList.size()-1)) {
+            		continue;
+            	}
+            	
+            	p = new ZonePoint(p.x + footprintBounds.width/2, p.y + footprintBounds.height/2);
+                highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
             }
         }
 
@@ -2904,11 +2913,18 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             offsetX = x;
             offsetY = y;
             
+            ZonePoint zp = new ZonePoint(token.getX() + x, token.getY() + y);
             if (ZoneRenderer.this.zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
-                CellPoint point = zone.getGrid().convert(new ZonePoint(token.getX() + x, token.getY() + y));
+                CellPoint point = zone.getGrid().convert(zp);
     
                 walker.replaceLastWaypoint(point);
-            }            
+            } else {
+            	if (gridlessPath.getCellPath().size() > 1) {
+            		gridlessPath.replaceLastPoint(zp);
+            	} else {
+            		gridlessPath.addPathCell(zp);
+            	}
+            }
         }
 
     /**

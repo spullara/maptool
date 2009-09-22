@@ -1185,13 +1185,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		ZonePoint p = new ZonePoint(dragStartX, dragStartY);
 
-		if (!tokenBeingDragged.isSnapToGrid()) {
-			// Center on the token
-			Rectangle footprintBounds = tokenBeingDragged.getBounds(renderer.getZone());
-
-			p.translate(footprintBounds.width / 2, footprintBounds.height / 2);
-		}
-
 		renderer.toggleMoveSelectionSetWaypoint(tokenBeingDragged.getId(), p);
 
 		MapTool.serverCommand().toggleTokenMoveWaypoint(renderer.getZone().getId(), tokenBeingDragged.getId(), p);
