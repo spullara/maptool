@@ -127,6 +127,17 @@ public class AppPreferences {
 	private static final String KEY_SHOW_STAT_SHEET = "showStatSheet";
 	private static final boolean DEFAULT_SHOW_STAT_SHEET = true;
 	
+	private static final String KEY_FILL_SELECTION_BOX = "fillSelectionBox";
+	private static final boolean DEFAULT_FILL_SELECTION_BOX = true;
+	
+	public static void setFillSelectionBox(boolean fill) {
+		prefs.putBoolean(KEY_FILL_SELECTION_BOX, fill);
+	}
+
+	public static boolean getFillSelectionBox() {
+		return prefs.getBoolean(KEY_FILL_SELECTION_BOX, DEFAULT_FILL_SELECTION_BOX);
+	}
+
 	public static Color getChatColor() {
 		return new Color(prefs.getInt(KEY_CHAT_COLOR, DEFAULT_CHAT_COLOR
 				.getRGB()));

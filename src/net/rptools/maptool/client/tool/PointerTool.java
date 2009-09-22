@@ -1265,11 +1265,13 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			Stroke stroke = g.getStroke();
 			g.setStroke(new BasicStroke(2));
 
-			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .25f));
-			g.setPaint(AppStyle.selectionBoxFill);
-			g.fillRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height, 10, 10);
-			g.setComposite(composite);
-
+			if (AppPreferences.getFillSelectionBox()) {
+				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, .25f));
+				g.setPaint(AppStyle.selectionBoxFill);
+				g.fillRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height, 10, 10);
+				g.setComposite(composite);
+			}
+			
 			g.setColor(AppStyle.selectionBoxOutline);
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g.drawRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height, 10, 10);
