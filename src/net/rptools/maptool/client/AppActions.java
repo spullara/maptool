@@ -1841,6 +1841,8 @@ public class AppActions {
 						// writing code like this.
 						// CLEAN ME CLEAN ME CLEAN ME ! I NEED A
 						// SWINGWORKER !
+						MapTool.getFrame().setCurrentZoneRenderer(null);
+						ImageManager.flush(); // Clear out the old campaign's images
 						MapTool.getFrame().showFilledGlassPane(progressDialog);
 
 						// Before we do anything, let's back it up
@@ -1884,14 +1886,6 @@ public class AppActions {
 							// UI related stuff
 							MapTool.getFrame().getCommandPanel().setIdentity(null);
 							MapTool.getFrame().resetPanels();
-
-							// Flush the images associated with the current
-							// campaign
-							// Do this juuuuuust before we get ready to show the
-							// new campaign, since we
-							// don't want the old campaign reloading images
-							// while we loaded the new campaign
-							ImageManager.flush();
 
 						}
 

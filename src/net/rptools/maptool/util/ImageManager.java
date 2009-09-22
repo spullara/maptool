@@ -56,7 +56,7 @@ public class ImageManager {
 	private static final Logger log = Logger.getLogger(ImageManager.class);
 	
 	/** Cache of images loaded for assets. */
-	private static Map<MD5Key, BufferedImage> imageMap = new HashMap<MD5Key, BufferedImage>();
+	private static final Map<MD5Key, BufferedImage> imageMap = new HashMap<MD5Key, BufferedImage>();
 
 	/**
 	 * The unknown image, a "?" is used for all situations where
@@ -280,8 +280,9 @@ public class ImageManager {
 
 			BufferedImage image = imageMap.get(asset.getId());
 
-			if (image != TRANSFERING_IMAGE) {
+			if (image != null && image != TRANSFERING_IMAGE) {
 				// We've somehow already loaded this image
+				log.debug("Image wasn't in transit: " + asset.getId());
 				return;
 			}
 			
