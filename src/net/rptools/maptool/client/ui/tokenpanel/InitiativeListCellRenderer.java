@@ -196,7 +196,7 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
         if (MapTool.getFrame().getInitiativePanel().hasGMPermission() && token.getGMName() != null && token.getGMName().trim().length() != 0)
             sName += " (" + token.getGMName().trim() + ")";
         if (panel.isShowInitState() && ti.getState() != null)
-            sName += (panel.isInitStateSecondLine() ? "<br/>" : " = ") + ti.getState();
+            sName += (panel.isInitStateSecondLine() ? "<br>" : " = ") + ti.getState();
         if (panel.isInitStateSecondLine())
             sName += "</html>";
         Icon icon = null;
