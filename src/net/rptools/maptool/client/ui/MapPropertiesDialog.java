@@ -510,6 +510,10 @@ public class MapPropertiesDialog extends JDialog  {
 						lastFilePath = new File(imageFile.getParentFile() + "/.");
 						try {
 							selectedAsset = AssetManager.createAsset(imageFile);
+
+							// Store for later use
+							AssetManager.putAsset(selectedAsset);
+							
 							updatePreview();
 //							setBackgroundAsset(asset, getImageFileChooser().getSelectedThumbnailImage());
 						} catch (IOException ioe) {
@@ -575,6 +579,11 @@ public class MapPropertiesDialog extends JDialog  {
 //						ImageManager.flushImage(getBackgroundAsset());
 //					}
 					selectedAsset = assetPanel.getAsset(imageIndex);
+					
+					// Store for later use
+					if (selectedAsset != null) {
+						AssetManager.putAsset(selectedAsset);
+					}
 				}
 			});
 	
