@@ -13,10 +13,7 @@
  */
 package net.rptools.maptool.client.ui.macrobuttons.buttons;
 
-import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
@@ -34,7 +31,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -42,15 +38,13 @@ import javax.swing.ToolTipManager;
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolUtil;
-import net.rptools.maptool.client.ui.MacroButtonDialog;
 import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
+import net.rptools.maptool.client.ui.macrobuttons.buttongroups.AbstractButtonGroup;
+import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroup;
 import net.rptools.maptool.client.ui.macrobuttons.panels.AbstractMacroPanel;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.util.GraphicsUtil;
-import net.rptools.maptool.client.ui.macrobuttons.buttongroups.AbstractButtonGroup;
-import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroup;
 
 /**
  * Base class of CampaignMacroButton and GlobalMacroButton.
@@ -248,7 +242,9 @@ public class MacroButton extends JButton implements MouseListener
 
 	public void mouseExited(MouseEvent event) {
 		List<Token> affectedTokens = new ArrayList<Token>();
-		MapTool.getFrame().getCurrentZoneRenderer().setHighlightCommonMacros(affectedTokens);
+		if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
+			MapTool.getFrame().getCurrentZoneRenderer().setHighlightCommonMacros(affectedTokens);
+		}
 	}
 
 	private void makeDraggable(Cursor cursor) {
