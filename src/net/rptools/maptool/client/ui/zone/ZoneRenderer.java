@@ -401,7 +401,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
         Token keyToken = zone.getToken(keyTokenId);
         CellPoint originPoint = zone.getGrid().convert(new ZonePoint(keyToken.getX(), keyToken.getY()));
-        Path path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath != null ? set.gridlessPath : null;
+        Path path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
         
         for (GUID tokenGUID : set.getTokens()) {
             
@@ -1497,7 +1497,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                         	Stroke oldStroke = g.getStroke();
                         	Object oldAA = SwingUtil.useAntiAliasing(g);
                             ScreenPoint lastPoint = ScreenPoint.fromZonePointRnd(this, token.getX() + footprintBounds.width / 2, token.getY() + footprintBounds.height / 2);
+                            boolean originPoint = true; 
                             for (ZonePoint zp : set.gridlessPath.getCellPath()) {
+                            	// Skip the first point (it's the path origin)
+                            	if (originPoint) {
+                            		originPoint = false;
+                            		continue;
+                            	}
+                            	
 	                            ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x, zp.y);
 	                            
 	                            g.setColor(highlight);
@@ -1521,7 +1528,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                             SwingUtil.restoreAntiAliasing(g, oldAA);
                             
                             // Waypoints
+                            originPoint = true;
                             for (ZonePoint p : set.gridlessPath.getCellPath()) {
+                            	// Skip the first point (it's the path origin)
+                            	if (originPoint) {
+                            		originPoint = false;
+                            		continue;
+                            	}
 
                             	p = new ZonePoint(p.x, p.y);
                                 highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
@@ -2866,6 +2879,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 }
             } else {
             	gridlessPath = new Path<ZonePoint>();
+            	gridlessPath.addPathCell(new ZonePoint(token.getX(), token.getY()));
             }
         }
         
