@@ -193,4 +193,12 @@ public class MacroButtonPrefs {
 		}
 		MapTool.getFrame().getGlobalPanel().reset();
 	}
+	public static void deletePanel() {
+		Preferences prefs = Preferences.userRoot().node(AppConstants.APP_NAME + "/macros");
+		try {
+			prefs.removeNode();
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -41,22 +41,17 @@ public class GlobalPanel extends AbstractMacroPanel {
 	
 	public static void deleteButtonGroup(String macroGroup) {
 		AbstractButtonGroup.clearHotkeys(MapTool.getFrame().getGlobalPanel(), macroGroup);
-		List<MacroButtonProperties> finalProps = new ArrayList<MacroButtonProperties>();
-		for(MacroButtonProperties nextProp : MacroButtonPrefs.getButtonProperties()) {
-			if(!macroGroup.equals(nextProp.getGroup())) {
-				finalProps.add(nextProp);
+		for (MacroButtonProperties nextProp : MacroButtonPrefs.getButtonProperties()) {
+			if (macroGroup.equals(nextProp.getGroup())) {
+				MacroButtonPrefs.delete(nextProp);
 			}
-		}
-		MacroButtonPrefs.getButtonProperties().clear();
-		for(MacroButtonProperties nextProp : finalProps) {
-			MacroButtonPrefs.savePreferences(nextProp);
 		}
 		MapTool.getFrame().getGlobalPanel().reset();
 	}
-	
+
 	public static void clearPanel() {
+		MacroButtonPrefs.deletePanel();
 		AbstractMacroPanel.clearHotkeys(MapTool.getFrame().getGlobalPanel());
-		MacroButtonPrefs.getButtonProperties().clear();
 		MapTool.getFrame().getGlobalPanel().reset();
 	}
 }
