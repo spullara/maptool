@@ -109,6 +109,10 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 	 * hidden tables will be returned.
 	 */
 	private Map<String, LookupTable> getFilteredLookupTable() {
+		if (MapTool.getPlayer() == null) {
+			return new HashMap<String, LookupTable>();
+		}
+		
 		Map<String, LookupTable> lookupTables = new HashMap<String, LookupTable>(MapTool.getCampaign().getLookupTableMap());
 		if(!MapTool.getPlayer().isGM()) {
 			for(String nextKey : MapTool.getCampaign().getLookupTableMap().keySet()) {
