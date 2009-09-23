@@ -57,17 +57,17 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/maptool/lib/javadoc/ezmorph-1.0.5-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/jide-common-2.4.8.jar"/>
-	<classpathentry kind="lib" path="lib/jide-components-2.4.8.jar"/>
-	<classpathentry kind="lib" path="lib/jide-dialogs-2.4.8.jar"/>
-	<classpathentry kind="lib" path="lib/jide-dock-2.4.8.jar"/>
-	<classpathentry kind="lib" path="lib/jide-editor-2.4.8.jar"/>
-	<classpathentry kind="lib" path="lib/jide-grids-2.4.8.jar"/>
-	<classpathentry kind="lib" path="lib/jide-oss-2.4.8.jar"/>
-	<classpathentry kind="lib" path="lib/jide-properties-2.4.8.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/rplib-1.0.b118.jar"/>
 	<classpathentry kind="lib" path="lib/maptool.resource-1.0.b18.jar"/>
+	<classpathentry kind="lib" path="lib/jide-common-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jide-components-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jide-dialogs-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jide-dock-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jide-editor-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jide-grids-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jide-oss-2.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/jide-properties-2.7.3.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
