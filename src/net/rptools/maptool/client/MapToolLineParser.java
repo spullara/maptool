@@ -97,6 +97,8 @@ public class MapToolLineParser {
 	// Logger for this class.
 	private static final Logger LOGGER = Logger.getLogger(MapToolLineParser.class);
 
+	// Trace facility
+	public static final boolean TRACE = Boolean.getBoolean("MAP_TOOL_TRACE");
 
 	/** MapTool functions to add to the parser.  */
 	private static final Function[] mapToolParserFunctions = {
@@ -1292,20 +1294,32 @@ public class MapToolLineParser {
 		}
 		try {
 			parserRecurseDepth ++;
+			if (TRACE) {
+			  StringBuilder b = new StringBuilder("LINE: ");
+			  for (int i = 1; i < parserRecurseDepth; i++)
+          b.append(' ');
+			  b.append(expression);
+			  System.out.println(b.toString());
+			}
 			return  createParser(resolver, tokenInContext == null ? false : true).evaluate(expression);
 		} catch (AbortFunctionException e) {
+		  if (TRACE) e.printStackTrace();
 			throw e;
 		} catch (AssertFunctionException afe) {
+      if (TRACE) afe.printStackTrace();
 			throw afe;
 		} catch (Exception e) {
 
 			if (e.getCause() instanceof ParserException) {
+	      if (TRACE) e.getCause().printStackTrace();
 				throw (ParserException) e.getCause();
 			} 
 			
 			if (e instanceof ParserException) {
+        if (TRACE) e.printStackTrace();
 				throw (ParserException)e;
 			}
+      if (TRACE) e.printStackTrace();
 			throw new ParserException(I18N.getText("lineParser.errorExecutingExpression", e.toString(), expression));
 		}
 		finally {

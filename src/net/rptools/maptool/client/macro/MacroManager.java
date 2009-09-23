@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolLineParser;
 import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.functions.AbortFunction;
 import net.rptools.maptool.client.functions.AssertFunction;
@@ -377,6 +378,9 @@ public class MacroManager {
 	}
 	
 	private static void executeMacro(MacroContext context, Macro macro, String parameter, MapToolMacroContext executionContext) {
+	  if (MapToolLineParser.TRACE) {
+        System.out.println("Starting macro: " + macro.getClass().getSimpleName() + "----------------------------------------------------------------------------------");
+	  }
 		macro.execute(context, parameter, executionContext);
 	}
 

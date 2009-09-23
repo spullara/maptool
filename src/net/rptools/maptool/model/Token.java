@@ -42,6 +42,7 @@ import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.transferable.TokenTransferData;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.MapToolLineParser;
 import net.rptools.maptool.client.functions.JSONMacroFunctions;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
@@ -903,6 +904,9 @@ public class Token extends BaseModel {
 		}
 		
 		try {
+		  if (MapToolLineParser.TRACE) {
+        System.out.println("Evaluating property: '" + key + "' for token " + getName() + "(" + getId() + ")----------------------------------------------------------------------------------");		    
+		  }
 			val = MapTool.getParser().parseLine(this, val.toString());
 		} catch (ParserException pe) {
 			//pe.printStackTrace();
