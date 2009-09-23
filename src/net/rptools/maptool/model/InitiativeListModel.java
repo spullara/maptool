@@ -258,6 +258,10 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
      * @see javax.swing.ListModel#getSize()
      */
     public int getSize() {
+    	if (list == null) {
+    		return 0;
+    	}
+    	
         if (MapTool.getFrame() == null || MapTool.getFrame().getInitiativePanel().hasGMPermission())
           return list.getSize();
         int size = 0;
