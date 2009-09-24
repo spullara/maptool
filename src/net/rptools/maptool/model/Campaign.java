@@ -25,17 +25,13 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import net.rptools.lib.MD5Key;
-import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.macro.MacroManager;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
-import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
 import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
+import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
 import net.rptools.maptool.client.ui.token.MultipleImageBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.SingleImageBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.TwoImageBarTokenOverlay;
-import net.rptools.maptool.model.LookupTable.LookupEntry;
-import net.rptools.parser.ParserException;
 
 /**
  * <p>
@@ -382,6 +378,7 @@ public class Campaign {
 				prop.setFontSize(properties.getFontSize());
 				prop.setMinWidth(properties.getMinWidth());
 				prop.setMaxWidth(properties.getMaxWidth());
+				prop.setToolTip(properties.getToolTip());
 				MapTool.getFrame().getCampaignPanel().reset();
 				return;
 			}
