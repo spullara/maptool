@@ -212,10 +212,18 @@ public class GridTool extends DefaultTool {
     	return getInt(component.getText(), defaultValue);
     }
     private int getInt(String value, int defaultValue) {
-    	return value.length() > 0 ? Integer.parseInt(value.trim()) : defaultValue;
+    	try {
+    		return value.length() > 0 ? Integer.parseInt(value.trim()) : defaultValue;
+    	} catch (NumberFormatException e) {
+    		return 0;
+    	}
     }
     private double getDouble(String value, double defaultValue) {
-    	return value.length() > 0 ? Double.parseDouble(value.trim()) : defaultValue;
+    	try {
+    		return value.length() > 0 ? Double.parseDouble(value.trim()) : defaultValue;
+    	} catch (NumberFormatException e) {
+    		return 0;
+    	}
     }
     
     /* (non-Javadoc)
