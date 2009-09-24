@@ -7,10 +7,10 @@ Class-Path: lib/BareBonesBrowserLaunch.jar lib/abeille-formsrt-2.0.jar
  ls-1.8.0.jar lib/commons-collections-3.2.1.jar lib/commons-jxpath-1.1
  .jar lib/commons-lang-2.4.jar lib/commons-logging-1.1.1.jar lib/deckt
  ool-1.0.b1.jar lib/dicelib-1.0.b18.jar lib/ezmorph-1.0.5.jar lib/hess
- ian-3.1.6.jar lib/jide-common-2.4.8.jar lib/jide-components-2.4.8.jar
-  lib/jide-dialogs-2.4.8.jar lib/jide-dock-2.4.8.jar lib/jide-editor-2
- .4.8.jar lib/jide-grids-2.4.8.jar lib/jide-oss-2.4.8.jar lib/jide-pro
- perties-2.4.8.jar lib/jl1.0.jar lib/js-1.7R1.jar lib/json-lib-2.2.2-j
+ ian-3.1.6.jar lib/jide-common-2.7.3.jar lib/jide-components-2.7.3.jar
+  lib/jide-dialogs-2.7.3.jar lib/jide-dock-2.7.3.jar lib/jide-editor-2
+ .7.3.jar lib/jide-grids-2.7.3.jar lib/jide-oss-2.7.3.jar lib/jide-pro
+ perties-2.7.3.jar lib/jl1.0.jar lib/js-1.7R1.jar lib/json-lib-2.2.2-j
  dk15.jar lib/log4j-1.2.15.jar lib/maptool.resource-1.0.b18.jar lib/pa
  rser-1.1.b20.jar lib/renderpack-1.2004.jar lib/rplib-1.0.b118.jar lib
  /sbbi-upnplib-1.0.4.jar lib/servicediscoverylib-1.0.b5.jar lib/swing-
