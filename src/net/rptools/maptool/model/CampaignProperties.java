@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.token.ColorDotTokenOverlay;
@@ -35,7 +36,6 @@ import net.rptools.maptool.client.ui.token.ImageTokenOverlay;
 import net.rptools.maptool.client.ui.token.MultipleImageBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.OTokenOverlay;
 import net.rptools.maptool.client.ui.token.ShadedTokenOverlay;
-import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
 import net.rptools.maptool.client.ui.token.SingleImageBarTokenOverlay;
 import net.rptools.maptool.client.ui.token.TriangleTokenOverlay;
 import net.rptools.maptool.client.ui.token.TwoImageBarTokenOverlay;
@@ -295,7 +295,6 @@ public class CampaignProperties implements Serializable {
     		return;
     	}
 		remoteRepositoryList = new ArrayList<String>();
-		remoteRepositoryList.add("http://www.rptools.net/image-indexes/gallery.rpax.gz");
     }
     
     public String getDefaultSightType() {
