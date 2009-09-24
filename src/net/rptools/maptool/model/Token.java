@@ -68,7 +68,7 @@ public class Token extends BaseModel {
 	public static final String NAME_USE_CREATURE = "Use \"Creature\"";
 	
 	public static final String NUM_INCREMENT = "Increment";
-	public static final String NUM_RANDOM = "Random 2-digit";
+	public static final String NUM_RANDOM = "Random";
 	
 	public static final String NUM_ON_NAME = "Name";
 	public static final String NUM_ON_GM = "GM Name";

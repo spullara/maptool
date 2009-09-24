@@ -22,9 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.Timer;
-
-import net.rptools.lib.MD5Key;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Token;
@@ -125,29 +122,19 @@ public class MapToolUtil {
     	boolean addNumToGM = !AppPreferences.getTokenNumberDisplay().equals(Token.NUM_ON_NAME);
     	boolean addNumToName = !AppPreferences.getTokenNumberDisplay().equals(Token.NUM_ON_GM);
     	
-		if (newNum != null || random || zone.getTokenByName(newName) != null)
-		{		
+		if (newNum != null || random || zone.getTokenByName(newName) != null) {		
+			int maxNum = 99;
 			if (random && isToken) {
-				// When 90 or more tokens, move to incremental naming or may never
-				// find a number if they all have this creature's base name
 				if (zone.getTokenCount() >= 89) {
-					newNum = 10;
-				} else {
-					newNum = getRandomNumber(10,99);
+					maxNum = 999;
+				} 
+				if (zone.getTokenCount() >= 900) {
+					maxNum = 9999;
 				}
-			} 
-			if (newNum == null) {
-				newNum = 2;
-			}
 
-			// Find the next available token number, this
-			// has to break at some point.
-			
-			if ( zone.getTokenCount() >= 89 ) {
-				random = false;
-			}
-			
-			
+				newNum = getRandomNumber(10,maxNum);
+			} 
+
 			if ( random ) {
 			
 				while ( true ) {
@@ -164,7 +151,7 @@ public class MapToolUtil {
 						break;
 					}
 					
-					newNum = getRandomNumber(10,99);
+					newNum = getRandomNumber(10,maxNum);
 				}
 			} else {
 				newNum = zone.findFreeNumber(addNumToName ? newName : null, addNumToGM);
