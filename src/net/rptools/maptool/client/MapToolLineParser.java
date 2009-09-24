@@ -15,7 +15,6 @@ package net.rptools.maptool.client;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -23,10 +22,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.log4j.Logger;
-
-import org.apache.commons.lang.StringUtils;
 
 import net.rptools.common.expression.ExpressionParser;
 import net.rptools.common.expression.Result;
@@ -92,13 +87,13 @@ import net.rptools.parser.function.Function;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
 public class MapToolLineParser {
 
 	// Logger for this class.
-	private static final Logger LOGGER = Logger.getLogger(MapToolLineParser.class);
-
-	// Trace facility
-	public static final boolean TRACE = Boolean.getBoolean("MAP_TOOL_TRACE");
+	private static final Logger log = Logger.getLogger(MapToolLineParser.class);
 
 	/** MapTool functions to add to the parser.  */
 	private static final Function[] mapToolParserFunctions = {
@@ -344,7 +339,7 @@ public class MapToolLineParser {
 				this.defaultParams = defaultParams;
 			}
 			if (maxParams != -1 && this.defaultParams.length != (maxParams - minParams)) {
-				LOGGER.error(String.format("Internal error: roll option %s specifies wrong number of default parameters", name()));
+				log.error(String.format("Internal error: roll option %s specifies wrong number of default parameters", name()));
 			}
 		}
 
@@ -945,7 +940,7 @@ public class MapToolLineParser {
 								break;							
 							default:
 								// should never happen
-								LOGGER.error(I18N.getText("lineParser.badOptionFound", opts, roll));
+								log.error(I18N.getText("lineParser.badOptionFound", opts, roll));
 								doError("lineParser.badOptionFound", opts, roll);
 							}
 						}
@@ -1294,35 +1289,35 @@ public class MapToolLineParser {
 		}
 		try {
 			parserRecurseDepth ++;
-			if (TRACE) {
+			if (log.isDebugEnabled()) {
 			  StringBuilder b = new StringBuilder("LINE: ");
-			  for (int i = 1; i < parserRecurseDepth; i++)
-          b.append(' ');
+			  for (int i = 1; i < parserRecurseDepth; i++) {
+				  b.append(' ');
+			  }
 			  b.append(expression);
-			  System.out.println(b.toString());
+			  log.debug(b.toString());
 			}
-			return  createParser(resolver, tokenInContext == null ? false : true).evaluate(expression);
+			return createParser(resolver, tokenInContext == null ? false : true).evaluate(expression);
 		} catch (AbortFunctionException e) {
-		  if (TRACE) e.printStackTrace();
+			log.debug(e);
 			throw e;
 		} catch (AssertFunctionException afe) {
-      if (TRACE) afe.printStackTrace();
+			log.debug(afe);
 			throw afe;
 		} catch (Exception e) {
 
 			if (e.getCause() instanceof ParserException) {
-	      if (TRACE) e.getCause().printStackTrace();
+				log.debug(e.getCause());
 				throw (ParserException) e.getCause();
-			} 
-			
-			if (e instanceof ParserException) {
-        if (TRACE) e.printStackTrace();
-				throw (ParserException)e;
 			}
-      if (TRACE) e.printStackTrace();
+
+			if (e instanceof ParserException) {
+				log.debug(e);
+				throw (ParserException) e;
+			}
+			log.debug(e);
 			throw new ParserException(I18N.getText("lineParser.errorExecutingExpression", e.toString(), expression));
-		}
-		finally {
+		} finally {
 			parserRecurseDepth--;
 		}
 	}	

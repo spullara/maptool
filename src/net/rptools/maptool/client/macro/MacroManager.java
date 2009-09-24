@@ -17,17 +17,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
-
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.MapToolLineParser;
 import net.rptools.maptool.client.MapToolMacroContext;
 import net.rptools.maptool.client.functions.AbortFunction;
 import net.rptools.maptool.client.functions.AssertFunction;
@@ -64,9 +60,10 @@ import net.rptools.maptool.client.macro.impl.WhisperMacro;
 import net.rptools.maptool.client.macro.impl.WhisperReplyMacro;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.parser.ParserException;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author drice
@@ -76,7 +73,7 @@ import net.rptools.parser.ParserException;
  */
 public class MacroManager {
 
-	private static final Logger LOGGER = Logger.getLogger(MacroManager.class);
+	private static final Logger log = Logger.getLogger(MacroManager.class);
 
 	private static final int MAX_RECURSE_COUNT = 10;
 
@@ -254,8 +251,8 @@ public class MacroManager {
 			return;			
 		} catch (Exception e) {
 			MapTool.addLocalMessage(I18N.getText("macromanager.couldNotExecute", command, e.getMessage()));
-			LOGGER.warn("Exception executing command: " + command);
-			LOGGER.warn(e.getStackTrace());
+			log.warn("Exception executing command: " + command);
+			log.warn(e.getStackTrace());
 			return;
 		}
 		
@@ -378,9 +375,9 @@ public class MacroManager {
 	}
 	
 	private static void executeMacro(MacroContext context, Macro macro, String parameter, MapToolMacroContext executionContext) {
-	  if (MapToolLineParser.TRACE) {
-        System.out.println("Starting macro: " + macro.getClass().getSimpleName() + "----------------------------------------------------------------------------------");
-	  }
+		if (log.isDebugEnabled()) {
+			log.debug("Starting macro: " + macro.getClass().getSimpleName() + "----------------------------------------------------------------------------------");
+		}
 		macro.execute(context, parameter, executionContext);
 	}
 

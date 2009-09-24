@@ -30,11 +30,16 @@ import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButtonPrefs;
 import net.rptools.parser.ParserException;
 
+import org.apache.log4j.Logger;
+
 /**
  * This (data)class is used by all Macro Buttons, including campaign, global and token macro buttons.
  * @see net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton
  */
 public class MacroButtonProperties implements Comparable<Object> {
+	
+	private static final Logger log = Logger.getLogger(MacroButtonProperties.class);
+	
 	private transient static final List<String> HTMLColors = Arrays.asList("aqua", "black", "blue", "fuchsia", "gray", "green", "lime", "maroon", "navy", "olive", "purple", "red", "silver", "teal", "white", "yellow");
 	private transient MacroButton button;
 	private transient GUID tokenId;
@@ -557,10 +562,11 @@ public class MacroButtonProperties implements Comparable<Object> {
 			token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId);
 		}
 		try {
-			MapToolMacroContext context = new MapToolMacroContext("ToolTip", token != null ? token.getName() : "", false, index );
-      if (MapToolLineParser.TRACE) {
-        System.out.print("Evaluating toolTip: " + (token != null ? "for token " + token.getName() + "(" + token.getId() + ")" : "") + "----------------------------------------------------------------------------------");        
-      }
+			MapToolMacroContext context = new MapToolMacroContext("ToolTip", token != null ? token.getName() : "", false, index);
+			if (log.isDebugEnabled()) {
+				System.out.print("Evaluating toolTip: " + (token != null ? "for token " + token.getName() + "(" + token.getId() + ")" : "")
+						+ "----------------------------------------------------------------------------------");
+			}
 			return MapTool.getParser().parseLine(token, toolTip, context);
 		} catch (ParserException pe) {
 			return toolTip;

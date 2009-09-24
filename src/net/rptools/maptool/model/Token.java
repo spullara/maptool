@@ -42,11 +42,12 @@ import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.transferable.TokenTransferData;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.MapToolLineParser;
 import net.rptools.maptool.client.functions.JSONMacroFunctions;
 import net.rptools.maptool.util.ImageManager;
 import net.rptools.maptool.util.StringUtil;
 import net.rptools.parser.ParserException;
+
+import org.apache.log4j.Logger;
 
 
 /**
@@ -55,6 +56,9 @@ import net.rptools.parser.ParserException;
  * itself) and a location and scale.
  */
 public class Token extends BaseModel {
+	
+	private static final Logger log = Logger.getLogger(Token.class);
+	
 	private GUID id = new GUID();
 	
 	public static final String FILE_EXTENSION = "rptok";
@@ -904,12 +908,12 @@ public class Token extends BaseModel {
 		}
 		
 		try {
-		  if (MapToolLineParser.TRACE) {
-        System.out.println("Evaluating property: '" + key + "' for token " + getName() + "(" + getId() + ")----------------------------------------------------------------------------------");		    
-		  }
+			if (log.isDebugEnabled()) {
+				log.debug("Evaluating property: '" + key + "' for token " + getName() + "(" + getId() + ")----------------------------------------------------------------------------------");
+			}
 			val = MapTool.getParser().parseLine(this, val.toString());
 		} catch (ParserException pe) {
-			//pe.printStackTrace();
+			// pe.printStackTrace();
 			val = val.toString();
 		}
 		if (val == null) {
