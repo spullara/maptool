@@ -870,11 +870,17 @@ public class AppActions {
 		public void execute(ActionEvent e) {
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			if (renderer == null) {
+				return;
+			}
+
 			Zone zone = renderer.getZone();
 
 			ScreenPoint screenPoint = renderer.getPointUnderMouse();
 			if (screenPoint == null) {
-				return;
+				
+				// Pick the middle of the map
+				screenPoint = ScreenPoint.fromZonePoint(renderer, renderer.getCenterPoint());
 			}
 
 			boolean snapToGrid = false;
