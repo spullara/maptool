@@ -46,9 +46,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
@@ -59,7 +57,6 @@ import net.rptools.maptool.model.ModelChangeListener;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
-import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.maptool.model.Token.Type;
 import net.rptools.maptool.model.Zone.Event;
@@ -805,7 +802,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
                     // Show the selected token on the map.
                     Token token = ((TokenInitiative)displayList.getSelectedValue()).getToken();
         			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-        			if (renderer == null || token == null) {
+        			if (renderer == null || token == null || (!token.isToken() && !MapTool.getPlayer().isGM())) {
         				return;
         			}
 
