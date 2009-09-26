@@ -37,9 +37,6 @@ public class AppPreferences {
 	private static final String KEY_SAVE_REMINDER = "autoSaveIncrement";
 	private static final boolean DEFAULT_SAVE_REMINDER = true;
 
-	private static final String KEY_SAVE_LEGACY_FORMAT = "saveLegacyFormat";
-	private static final boolean DEFAULT_SAVE_LEGACY_FORMAT = false;
-
 	private static final String KEY_TOKEN_NUMBER_DISPLAY = "tokenNumberDisplayg";
 	private static final String DEFAULT_TOKEN_NUMBER_DISPLAY = Token.NUM_ON_NAME;
 
@@ -149,14 +146,6 @@ public class AppPreferences {
 
 	public static boolean getSaveReminder() {
 		return prefs.getBoolean(KEY_SAVE_REMINDER, DEFAULT_SAVE_REMINDER);
-	}
-
-	public static void setLegacySaveFormat(boolean reminder) {
-		prefs.putBoolean(KEY_SAVE_LEGACY_FORMAT, reminder);
-	}
-
-	public static boolean getLegacySaveFormat() {
-		return prefs.getBoolean(KEY_SAVE_LEGACY_FORMAT, DEFAULT_SAVE_LEGACY_FORMAT);
 	}
 
 	public static void setAutoSaveIncrement(int increment) {
