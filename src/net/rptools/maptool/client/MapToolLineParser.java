@@ -1290,7 +1290,7 @@ public class MapToolLineParser {
 		try {
 			parserRecurseDepth ++;
 			if (log.isDebugEnabled()) {
-			  StringBuilder b = new StringBuilder("LINE: ");
+			  StringBuilder b = new StringBuilder();
 			  for (int i = 1; i < parserRecurseDepth; i++) {
 				  b.append(' ');
 			  }

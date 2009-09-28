@@ -398,10 +398,12 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     /**
      * See if the current player has permission to execute owner restricted actions.
      *  
-     * @param token Check this token's ownership
+     * @param token Check this token's ownership. If this value is <code>null</code> then <code>false</code>
+     * is returned.
      * @return The value <code>true</code> if this player has permission for restricted actions.
      */
     public boolean hasOwnerPermission(Token token) {
+      if (token == null) return false;
     	if (hasGMPermission())
     		return true;
         if (ownerPermissions && (!MapTool.getServerPolicy().useStrictTokenManagement() 
