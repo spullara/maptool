@@ -129,6 +129,7 @@ public class InitiativeListModel extends AbstractListModel implements PropertyCh
      * @return The value <code>true</code> if this token is shown to the user.
      */
     public static boolean isTokenVisible(Token token, boolean hideNPC) {
+        if (token == null) return false;
         if (MapTool.getFrame().getInitiativePanel().hasGMPermission()) return true;
         if (!token.isVisible() || token.getLayer() == Zone.Layer.GM) return false;
         if (hideNPC && token.getType() == Type.NPC) return false;
