@@ -49,6 +49,8 @@ import net.rptools.parser.ParserException;
 
 import org.apache.log4j.Logger;
 
+import com.caucho.hessian.io.MapSerializer;
+
 
 /**
  * This object represents the placeable objects on a map. For example an icon
@@ -1226,8 +1228,18 @@ public class Token extends BaseModel {
         if (asset != null)
             portraitImage = asset.getId();
 
-        // Get the macros 
-        macroMap = (Map<String, String>)td.get(TokenTransferData.MACROS);
+        // Get the macros
+        Map<String, Object> macros = (Map<String, Object>)td.get(TokenTransferData.MACROS);
+        macroMap = new HashMap<String, String>();
+        for (String macroName : macros.keySet()) {
+            Object macro = macros.get(macroName);
+            if (macro instanceof String) {
+                macroMap.put(macroName, (String)macro);
+            } else if (macro instanceof Map) {
+                MacroButtonProperties mbp = new MacroButtonProperties(this, (Map<String, String>)macro);
+                getMacroPropertiesMap(false).put(mbp.getIndex(), mbp);
+            } // endif
+        } // endfor
         loadOldMacros();
         
         // Get all of the non maptool specific state

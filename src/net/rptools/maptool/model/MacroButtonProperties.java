@@ -16,6 +16,7 @@ package net.rptools.maptool.model;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -236,7 +237,58 @@ public class MacroButtonProperties implements Comparable<Object> {
 		commonMacro = true;
 	}
 
-	public void save (){
+    public MacroButtonProperties(Token token, Map<String, String> props) {
+        this(props.containsKey("index") ? Integer.parseInt(props.get("index")) : token.getMacroNextIndex());
+        setTokenId(token);
+        if (props.containsKey("saveLocation"))
+            setSaveLocation(props.get("saveLocation"));
+        if (props.containsKey("colorKey"))
+            setColorKey(props.get("colorKey"));
+        if (props.containsKey("hotKey"))
+            setHotKey(props.get("hotKey"));
+        if (props.containsKey("command"))
+            setCommand(props.get("command"));
+        if (props.containsKey("label"))
+            setLabel(props.get("label"));
+        if (props.containsKey("group"))
+            setGroup(props.get("group"));
+        if (props.containsKey("sortby"))
+            setSortby(props.get("sortby"));
+        if (props.containsKey("autoExecute"))
+            setAutoExecute(Boolean.parseBoolean(props.get("autoExecute")));
+        if (props.containsKey("includeLabel"))
+            setIncludeLabel(Boolean.parseBoolean(props.get("includeLabel")));
+        if (props.containsKey("applyToTokens"))
+            setApplyToTokens(Boolean.parseBoolean(props.get("applyToTokens")));
+        if (props.containsKey("fontColorKey"))
+            setFontColorKey(props.get("fontColorKey"));
+        if (props.containsKey("fontSize"))
+            setFontSize(props.get("fontSize"));
+        if (props.containsKey("minWidth"))
+            setMinWidth(props.get("minWidth"));
+        if (props.containsKey("maxWidth"))
+            setMaxWidth(props.get("maxWidth"));
+        if (props.containsKey("allowPlayerEdits"))
+            setAllowPlayerEdits(Boolean.valueOf(props.get("allowPlayerEdits")));
+        if (props.containsKey("toolTip"))
+            setToolTip(props.get("toolTip"));
+        if (props.containsKey("commonMacro"))
+            setCommonMacro(Boolean.valueOf(props.get("commonMacro")));
+        if (props.containsKey("compareGroup"))
+            setCompareGroup(Boolean.valueOf(props.get("compareGroup")));
+        if (props.containsKey("compareSortPrefix"))
+            setCompareSortPrefix(Boolean.valueOf(props.get("compareSortPrefix")));
+        if (props.containsKey("compareCommand"))
+            setCompareCommand(Boolean.valueOf(props.get("compareCommand")));
+        if (props.containsKey("compareIncludeLabel"))
+            setCompareIncludeLabel(Boolean.valueOf(props.get("compareIncludeLabel")));
+        if (props.containsKey("compareAutoExecute"))
+            setCompareAutoExecute(Boolean.valueOf(props.get("compareAutoExecute")));
+        if (props.containsKey("compareApplyToSelectedTokens"))
+            setCompareApplyToSelectedTokens(Boolean.valueOf(props.get("compareApplyToSelectedTokens")));
+    }
+
+            public void save (){
 		if (saveLocation.equals("Token") && tokenId != null) {
 			getToken().saveMacroButtonProperty(this);
 		} else if (saveLocation.equals("GlobalPanel")) {
