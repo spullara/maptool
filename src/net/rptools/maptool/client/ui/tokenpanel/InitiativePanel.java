@@ -46,6 +46,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
@@ -101,23 +102,23 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     /**
      * Flag indicating that token images are shown in the list.
      */
-    private boolean showTokens = true;
+    private boolean showTokens = AppPreferences.getInitShowTokens();
     
     /**
      * Flag indicating that token states are shown in the list. Only valid if {@link #showTokens} is <code>true</code>.
      */
-    private boolean showTokenStates = true;
+    private boolean showTokenStates = AppPreferences.getInitShowTokenStates();
     
     /**
      * Flag indicating that initiative state is shown in the list.
      */
-    private boolean showInitState = true;
+    private boolean showInitState = AppPreferences.getInitShowInitiative();
     
     /**
      * Flag indicating that two lines are used for initiative stated. It is only
      * valid if {@link #showInitState} is <code>true</code>.
      */
-    private boolean initStateSecondLine;
+    private boolean initStateSecondLine = AppPreferences.getInitShow2ndLine();
     
     /**
      * The zone data being displayed.
@@ -617,6 +618,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         public void actionPerformed(ActionEvent e) {
             showTokens = ((JCheckBoxMenuItem)e.getSource()).isSelected();
             displayList.setCellRenderer(new InitiativeListCellRenderer(InitiativePanel.this)); // Regenerates the size of each row.
+            AppPreferences.setInitShowTokens(showTokens);
         };
     };
     
@@ -627,6 +629,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         public void actionPerformed(ActionEvent e) {
             showTokenStates = ((JCheckBoxMenuItem)e.getSource()).isSelected();
             displayList.setCellRenderer(new InitiativeListCellRenderer(InitiativePanel.this)); // Regenerates the size of each row.
+            AppPreferences.setInitShowTokenStates(showTokenStates);
         };
     };
     
@@ -637,6 +640,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         public void actionPerformed(ActionEvent e) {
             showInitState = ((JCheckBoxMenuItem)e.getSource()).isSelected();
             displayList.repaint();
+            AppPreferences.setInitShowInitiative(showInitState);
         };
     };
 
@@ -647,6 +651,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
         public void actionPerformed(ActionEvent e) {
             initStateSecondLine = ((JCheckBoxMenuItem)e.getSource()).isSelected();
             displayList.repaint();
+            AppPreferences.setInitShow2ndLine(initStateSecondLine);
         };
     };
 

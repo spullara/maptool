@@ -124,10 +124,10 @@ public class AppPreferences {
 	private static final String KEY_SHOW_STAT_SHEET = "showStatSheet";
 	private static final boolean DEFAULT_SHOW_STAT_SHEET = true;
 	
-	private static final String KEY_FILL_SELECTION_BOX = "fillSelectionBox";
-	private static final boolean DEFAULT_FILL_SELECTION_BOX = true;
-	
-	public static void setFillSelectionBox(boolean fill) {
+    private static final String KEY_FILL_SELECTION_BOX = "fillSelectionBox";
+    private static final boolean DEFAULT_FILL_SELECTION_BOX = true;
+    
+    public static void setFillSelectionBox(boolean fill) {
 		prefs.putBoolean(KEY_FILL_SELECTION_BOX, fill);
 	}
 
@@ -255,6 +255,7 @@ public class AppPreferences {
     private static final String KEY_PLAY_SYSTEM_SOUNDS = "playSystemSounds";
     private static final boolean DEFAULT_PLAY_SYSTEM_SOUNDS = true;
 
+    
 	public static void setHaloLineWidth(int size) {
 		prefs.putInt(KEY_HALO_LINE_WIDTH, size);
 	}
@@ -742,4 +743,80 @@ public class AppPreferences {
 		return savedTextures;
 	}
 
+    private static final String INIT_SHOW_TOKENS = "initShowTokens";
+    private static final boolean DEFAULT_INIT_SHOW_TOKENS = true;
+    
+    private static final String INIT_SHOW_TOKEN_STATES = "initShowTokenStates";
+    private static final boolean DEFAULT_INIT_SHOW_TOKEN_STATES = true;
+    
+    private static final String INIT_SHOW_INITIATIVE = "initShowInitiative";
+    private static final boolean DEFAULT_INIT_SHOW_INITIATIVE = true;
+    
+    private static final String INIT_SHOW_2ND_LINE = "initShow2ndLine";
+    private static final boolean DEFAULT_INIT_SHOW_2ND_LINE = false;
+    
+    private static final String INIT_HIDE_NPCS = "initHideNpcs";
+    private static final boolean DEFAULT_INIT_HIDE_NPCS = false;
+    
+    private static final String INIT_OWNER_PERMISSIONS = "initOwnerPermissions";
+    private static final boolean DEFAULT_INIT_OWNER_PERMISSIONS = false;
+    
+    private static final String INIT_LOCK_MOVEMENT = "initLockMovement";
+    private static final boolean DEFAULT_INIT_LOCK_MOVEMENT = false;
+
+    public static boolean getInitShowTokens() {
+        return prefs.getBoolean(INIT_SHOW_TOKENS, DEFAULT_INIT_SHOW_TOKENS);
+    }
+    
+    public static void setInitShowTokens(boolean showTokens) {
+        prefs.putBoolean(INIT_SHOW_TOKENS, showTokens);
+    }
+
+    public static boolean getInitShowTokenStates() {
+        return prefs.getBoolean(INIT_SHOW_TOKEN_STATES, DEFAULT_INIT_SHOW_TOKEN_STATES);
+    }
+    
+    public static void setInitShowTokenStates(boolean showTokenStates) {
+        prefs.putBoolean(INIT_SHOW_TOKEN_STATES, showTokenStates);
+    }
+
+    public static boolean getInitShowInitiative() {
+        return prefs.getBoolean(INIT_SHOW_INITIATIVE, DEFAULT_INIT_SHOW_INITIATIVE);
+    }
+    
+    public static void setInitShowInitiative(boolean showInitiative) {
+        prefs.putBoolean(INIT_SHOW_INITIATIVE, showInitiative);
+    }
+
+    public static boolean getInitShow2ndLine() {
+        return prefs.getBoolean(INIT_SHOW_2ND_LINE, DEFAULT_INIT_SHOW_2ND_LINE);
+    }
+    
+    public static void setInitShow2ndLine(boolean secondLine) {
+        prefs.putBoolean(INIT_SHOW_2ND_LINE, secondLine);
+    }
+
+    public static boolean getInitHideNpcs() {
+        return prefs.getBoolean(INIT_HIDE_NPCS, DEFAULT_INIT_HIDE_NPCS);
+    }
+    
+    public static void setInitHideNpcs(boolean hideNpcs) {
+        prefs.putBoolean(INIT_HIDE_NPCS, hideNpcs);
+    }
+
+    public static boolean getInitOwnerPermissions() {
+        return prefs.getBoolean(INIT_OWNER_PERMISSIONS, DEFAULT_INIT_OWNER_PERMISSIONS);
+    }
+    
+    public static void setInitOwnerPermissions(boolean ownerPermissions) {
+        prefs.putBoolean(INIT_OWNER_PERMISSIONS, ownerPermissions);
+    }
+
+    public static boolean getInitLockMovement() {
+        return prefs.getBoolean(INIT_LOCK_MOVEMENT, DEFAULT_INIT_LOCK_MOVEMENT);
+    }
+    
+    public static void setInitLockMovement(boolean lockMovement) {
+        prefs.putBoolean(INIT_LOCK_MOVEMENT, lockMovement);
+    }
 }

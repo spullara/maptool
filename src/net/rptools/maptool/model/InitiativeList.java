@@ -25,6 +25,7 @@ import java.util.ListIterator;
 
 import javax.swing.Icon;
 
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 
 /**
@@ -80,7 +81,7 @@ public class InitiativeList implements Serializable {
     /**
      * Hide all of the NPC's from the players.
      */
-    private boolean hideNPC;
+    private boolean hideNPC = AppPreferences.getInitHideNpcs();
     
     /*---------------------------------------------------------------------------------------------
      * Class Variables

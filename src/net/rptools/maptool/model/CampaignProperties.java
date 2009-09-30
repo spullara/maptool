@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.ui.token.AbstractTokenOverlay;
 import net.rptools.maptool.client.ui.token.BarTokenOverlay;
 import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
@@ -64,10 +65,10 @@ public class CampaignProperties implements Serializable {
     private Map<String, String> characterSheets;
     
     /** Flag indicating that owners have special permissions  */
-    private boolean initiativeOwnerPermissions;
+    private boolean initiativeOwnerPermissions = AppPreferences.getInitOwnerPermissions();
         
     /** Flag indicating that owners can only move tokens when they have initiative  */
-    private boolean initiativeMovementLock;
+    private boolean initiativeMovementLock = AppPreferences.getInitLockMovement();
         
     public CampaignProperties() {
     	init();

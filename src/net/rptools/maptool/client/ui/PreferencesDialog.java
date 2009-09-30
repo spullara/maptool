@@ -107,6 +107,9 @@ public class PreferencesDialog extends JDialog {
 	//Application
 	private JCheckBox fitGMView;
 	private JCheckBox fillSelectionCheckBox;
+    private JCheckBox hideNPCs;
+    private JCheckBox ownerPermissions;
+    private JCheckBox lockMovement;
 
 	
 	public PreferencesDialog() {
@@ -170,6 +173,9 @@ public class PreferencesDialog extends JDialog {
 		chatAutosaveTime = panel.getTextField("chatAutosaveTime");
 		chatFilenameFormat = panel.getTextField("chatFilenameFormat");
 		fitGMView = panel.getCheckBox("fitGMView");
+        hideNPCs = panel.getCheckBox("hideNPCs");
+        ownerPermissions = panel.getCheckBox("ownerPermission");
+        lockMovement = panel.getCheckBox("lockMovement");
 		setInitialState();
 
 		// And keep it updated
@@ -515,6 +521,21 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setFitGMView(fitGMView.isSelected());
 			}
 		});
+        hideNPCs.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                AppPreferences.setInitHideNpcs(hideNPCs.isSelected());
+            }
+        });
+        ownerPermissions.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                AppPreferences.setInitOwnerPermissions(ownerPermissions.isSelected());
+            }
+        });
+        lockMovement.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                AppPreferences.setInitLockMovement(lockMovement.isSelected());
+            }
+        });
 		
 
 		DefaultComboBoxModel gridTypeModel = new DefaultComboBoxModel();
@@ -647,5 +668,8 @@ public class PreferencesDialog extends JDialog {
 		facingFaceEdges.setSelected(AppPreferences.getFaceEdge());
 		facingFaceVertices.setSelected(AppPreferences.getFaceVertex());
 		fitGMView.setSelected(AppPreferences.getFitGMView());
+		hideNPCs.setSelected(AppPreferences.getInitHideNpcs());
+        ownerPermissions.setSelected(AppPreferences.getInitOwnerPermissions());
+        lockMovement.setSelected(AppPreferences.getInitLockMovement());
 	}
 }
