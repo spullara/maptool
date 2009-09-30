@@ -639,7 +639,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     public final Action SHOW_INIT_STATE = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             showInitState = ((JCheckBoxMenuItem)e.getSource()).isSelected();
-            displayList.repaint();
+            displayList.setCellRenderer(new InitiativeListCellRenderer(InitiativePanel.this)); // Regenerates the size of each row.
             AppPreferences.setInitShowInitiative(showInitState);
         };
     };
@@ -650,7 +650,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
     public final Action INIT_STATE_SECOND_LINE = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             initStateSecondLine = ((JCheckBoxMenuItem)e.getSource()).isSelected();
-            displayList.repaint();
+            displayList.setCellRenderer(new InitiativeListCellRenderer(InitiativePanel.this)); // Regenerates the size of each row.
             AppPreferences.setInitShow2ndLine(initStateSecondLine);
         };
     };

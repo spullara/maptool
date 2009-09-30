@@ -21,6 +21,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
@@ -192,12 +193,13 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
         } // endif
         
         // Get the name string, add the state if displayed, then get the icon if needed
-        String sName = (panel.isInitStateSecondLine() ? "<html>" : "") + ti.getToken().getName();
+        boolean initStateSecondLine = panel.isInitStateSecondLine() && panel.isShowInitState();
+        String sName = (initStateSecondLine ? "<html>" : "") + ti.getToken().getName();
         if (MapTool.getFrame().getInitiativePanel().hasGMPermission() && token.getGMName() != null && token.getGMName().trim().length() != 0)
             sName += " (" + token.getGMName().trim() + ")";
         if (panel.isShowInitState() && ti.getState() != null)
-            sName += (panel.isInitStateSecondLine() ? "<br>" : " = ") + ti.getState();
-        if (panel.isInitStateSecondLine())
+            sName += (initStateSecondLine ? "<br>" : " = ") + ti.getState();
+        if (initStateSecondLine)
             sName += "</html>";
         Icon icon = null;
         if (panel.isShowTokens()) {
@@ -245,10 +247,26 @@ public class InitiativeListCellRenderer extends JPanel implements ListCellRender
          */
         @Override
         protected void paintComponent(Graphics g) {
+            boolean initStateSecondLine = panel.isInitStateSecondLine() && panel.isShowInitState();
             Dimension s = name.getSize();
-            int th = (textHeight + 2) * (panel.isInitStateSecondLine() ? 2 : 1);
+            int th = (textHeight + 2) * (initStateSecondLine ? 2 : 1);
             backgroundImageLabel.renderLabel((Graphics2D)g, 0, (s.height - th) / 2, s.width, th);
             super.paintComponent(g);
+        }
+        
+        /**
+         * @see javax.swing.JComponent#getPreferredSize()
+         */
+        @Override
+        public Dimension getPreferredSize() {            
+            boolean initStateSecondLine = panel.isInitStateSecondLine() && panel.isShowInitState();
+            Dimension s = super.getPreferredSize();
+            int th = textHeight * (initStateSecondLine ? 2 : 1);
+            Insets insets = getInsets();
+            if (getIcon() != null)
+                th = Math.max(th, getIcon().getIconHeight());
+            s.height = th + insets.top + insets.bottom - 4;
+            return s;
         }
     }
     
