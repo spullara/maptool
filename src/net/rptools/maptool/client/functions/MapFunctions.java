@@ -16,7 +16,7 @@ public class MapFunctions extends AbstractFunction {
 	private static final MapFunctions instance = new MapFunctions();
 
 	private MapFunctions() {
-		super(0, 1, "getAllMapNames", "getCurrentMapName", "getVisibleMapNames");
+		super(0, 1, "getAllMapNames", "getCurrentMapName", "getVisibleMapNames", "setCurrentMap");
 	}
 	
 	
@@ -32,7 +32,18 @@ public class MapFunctions extends AbstractFunction {
  		
 		if (functionName.equals("getCurrentMapName")) {
 			return MapTool.getFrame().getCurrentZoneRenderer().getZone().getName();
-		} else {
+		} else if (functionName.equals("setCurrentMap")) {
+		    if (parameters.isEmpty())
+	            throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+		    String mapName = parameters.get(0).toString();
+            for (ZoneRenderer zr : MapTool.getFrame().getZoneRenderers()) {
+                if (mapName.equals(zr.getName())) {
+                    MapTool.getFrame().setCurrentZoneRenderer(zr);
+                    return mapName;
+                } // endif
+            } // endfor
+            throw new ParserException(I18N.getText("macro.function.moveTokenMap.unknownMap", functionName, mapName));
+        } else { 
 			boolean allMaps = functionName.equals("getAllMapNames");
 
 		    if (allMaps && !MapTool.getParser().isMacroTrusted()) {

@@ -25,6 +25,8 @@ import java.util.ListIterator;
 
 import javax.swing.Icon;
 
+import org.apache.log4j.Logger;
+
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 
@@ -77,6 +79,11 @@ public class InitiativeList implements Serializable {
      * methods that update the server. This keeps it from happening multiple times.
      */
     private transient int holdUpdate;
+
+    /**
+     * Flag indicating that a full update is needed.
+     */
+    private boolean fullUpdate;
     
     /**
      * Hide all of the NPC's from the players.
@@ -112,6 +119,11 @@ public class InitiativeList implements Serializable {
      */
     public static final String OWNER_PERMISSIONS_PROP = "ownerPermissions";
     
+    /**
+     * Logger for this class
+     */
+    private static final Logger LOGGER = Logger.getLogger(InitiativeList.class);
+
     /*---------------------------------------------------------------------------------------------
      * Constructor
      *-------------------------------------------------------------------------------------------*/
@@ -166,17 +178,16 @@ public class InitiativeList implements Serializable {
      * @return The token initiative value that holds the token.
      */
     public TokenInitiative insertToken(int index, Token token) {
+        startUnitOfWork();
         TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); // Save the currently selected initiative
         if (index == -1) {
         	index = tokens.size();
         }
         TokenInitiative ti = new TokenInitiative(token);
         tokens.add(index, ti);
-        holdUpdate += 1;
         getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, null, ti);
         setCurrent(indexOf(currentInitiative)); // Restore current initiative
-        holdUpdate -= 1;
-        updateServer();
+        finishUnitOfWork();
         return ti;
     }
     
@@ -186,11 +197,10 @@ public class InitiativeList implements Serializable {
      * @param tokens Insert these tokens.
      */
     public void insertTokens(List<Token>  tokens) {
-        holdUpdate += 1;
+        startUnitOfWork();
         for (Token token : tokens)
         	insertToken(-1, token);
-        holdUpdate -= 1;
-        updateServer();
+        finishUnitOfWork();
     }
     
     /**
@@ -228,24 +238,25 @@ public class InitiativeList implements Serializable {
      */
     public Token removeToken(int index) {
 
-        // If we are deleting the token with initiative, drop back to the previous token, if we're at the begining, clear current
+        // If we are deleting the token with initiative, drop back to the previous token, if we're at the beginning, clear current
+        startUnitOfWork();
         TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); // Save the currently selected initiative
         int currentInitIndex = indexOf(currentInitiative);
         if (currentInitIndex == index) {
-            if (index == 0) {
+            if (tokens.size() == 1) {
                 currentInitiative = null;
+            } if (index == 0) {
+                currentInitiative = getTokenInitiative(1);
             } else {
                 currentInitiative = getTokenInitiative(currentInitIndex - 1);
             } // endif
         } // endif
 
         TokenInitiative ti = tokens.remove(index);
-        holdUpdate += 1;
         Token old = ti.getToken();        
         getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, ti, null);
         setCurrent(indexOf(currentInitiative)); // Restore current initiative
-        holdUpdate -= 1;
-        updateServer();
+        finishUnitOfWork();
         return old; 
     }
     
@@ -258,12 +269,13 @@ public class InitiativeList implements Serializable {
     public void setCurrent(int aCurrent) {
         if (current == aCurrent)
         	return;
+        startUnitOfWork();
         if (aCurrent < 0 || aCurrent >= tokens.size())
         	aCurrent = -1; // Don't allow bad values
         int old = current;
         current = aCurrent;
         getPCS().firePropertyChange(CURRENT_PROP, old, current);
-        updateServer();
+        finishUnitOfWork();
     }
     
     /**
@@ -272,28 +284,26 @@ public class InitiativeList implements Serializable {
     public void nextInitiative() {
         if (tokens.isEmpty())
         	return;
-        holdUpdate += 1;
+        startUnitOfWork();
         int newRound = (round < 0) ? 1 : (current + 1 >= tokens.size()) ? round + 1 : round;
         int newCurrent = (current < 0 || current + 1 >= tokens.size()) ? 0 : current + 1;
         setCurrent(newCurrent);
         setRound(newRound);
-        holdUpdate -= 1;
-        updateServer();
+        finishUnitOfWork();
     }
 
     /**
-     * Go to the next token in initiative order.
+     * Go to the previous token in initiative order.
      */
     public void prevInitiative() {
         if (tokens.isEmpty())
             return;
-        holdUpdate += 1;
+        startUnitOfWork();
         int newRound = (round < 2) ? 1 : (current - 1 < 0) ? round - 1 : round;
         int newCurrent = (current < 1) ? (round < 2 ? 0 : tokens.size() - 1): current - 1;
         setCurrent(newCurrent);
         setRound(newRound);
-        holdUpdate -= 1;
-        updateServer();
+        finishUnitOfWork();
     }
 
     /** @return Getter for round */
@@ -305,10 +315,11 @@ public class InitiativeList implements Serializable {
     public void setRound(int aRound) {
         if (round == aRound)
         	return;
+        startUnitOfWork();
         int old = round;
         round = aRound;
         getPCS().firePropertyChange(ROUND_PROP, old, aRound);
-        updateServer();
+        finishUnitOfWork();
     }
     
     /**
@@ -354,15 +365,35 @@ public class InitiativeList implements Serializable {
      */
     public void startUnitOfWork() {
         holdUpdate += 1;
+        if (holdUpdate == 1) 
+            fullUpdate = false;
+        LOGGER.debug("startUnitOfWork(): " + holdUpdate + " full: " + fullUpdate);
     }
     
     /**
      * Finish the current unit of work and update the server.
      */
     public void finishUnitOfWork() {
+        fullUpdate = true;
+        finishUnitOfWork(null);
+    }
+    
+    /**
+     * Finish the current unit of work on a single initiative item and update the server.
+     * 
+     * @param ti Only need to update this token initiative.
+     */
+    public void finishUnitOfWork(TokenInitiative ti) {
+        assert holdUpdate > 0 : "Trying to close unit of work when one is not open.";
         holdUpdate -= 1;
-        // XXX Shouldn't this next line be prefixed with if(holdUpdate < 1)?
-        updateServer();
+        LOGGER.debug("finishUnitOfWork(" + (ti == null ? "" : ti.getId().toString()) + "): = " + holdUpdate + " full: " + fullUpdate);
+        if (holdUpdate == 0) {
+            if (fullUpdate || ti == null) {
+                updateServer();
+            } else {
+                updateServer(ti);
+            } // endif
+        } // endif
     }
     
     /**
@@ -371,7 +402,7 @@ public class InitiativeList implements Serializable {
     public void clearModel() {
         if (current == -1 && round == -1 && tokens.isEmpty())
         	return;
-        holdUpdate += 1;
+        startUnitOfWork();
         setCurrent(-1);
         setRound(-1);
         if (!tokens.isEmpty()) {
@@ -379,8 +410,7 @@ public class InitiativeList implements Serializable {
             tokens = new ArrayList<TokenInitiative>();
             getPCS().firePropertyChange(TOKENS_PROP, old, tokens);
         } // endif
-        holdUpdate -= 1;
-        updateServer();
+        finishUnitOfWork();
     }
 
     /**
@@ -395,7 +425,7 @@ public class InitiativeList implements Serializable {
         } // endif
         
         // Remove deleted tokens
-        holdUpdate += 1;
+        startUnitOfWork();
         boolean updateNeeded = false;
         ListIterator<TokenInitiative> i = tokens.listIterator();
         while (i.hasNext()) {
@@ -409,9 +439,12 @@ public class InitiativeList implements Serializable {
                 getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, ti, null);
             } // endif
         } // endwhile
-        holdUpdate -= 1;
-        if (updateNeeded)
-        	updateServer();
+        if (updateNeeded) {
+            finishUnitOfWork();
+        } else if (holdUpdate == 1) {
+            holdUpdate -= 1; // Do no updates.
+            LOGGER.debug("finishUnitOfWork() - no update");
+        } // endif
     }
     
     /**
@@ -420,7 +453,7 @@ public class InitiativeList implements Serializable {
      * values. The {@link String} values are considered bigger than any <code>null</code> values.
      */
     public void sort() {
-        holdUpdate += 1;
+        startUnitOfWork();
         TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); // Save the currently selected initiative
         Collections.sort(tokens, new Comparator<TokenInitiative>() {
             public int compare(TokenInitiative o1, TokenInitiative o2) {
@@ -465,8 +498,7 @@ public class InitiativeList implements Serializable {
         });
         getPCS().firePropertyChange(TOKENS_PROP, null, tokens);
         setCurrent(indexOf(currentInitiative)); // Restore current initiative
-        holdUpdate -= 1;
-        updateServer();
+        finishUnitOfWork();
     }
     
     /** @return Getter for zone */
@@ -491,16 +523,18 @@ public class InitiativeList implements Serializable {
      */
     public void moveToken(int oldIndex, int index) {
         
-        // Remove the token from its old position
-        TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); // Save the current initiative
+        // Bad index, same index, or moving the last token to the end of the list do nothing.
+        if (oldIndex < 0 || oldIndex == index || (oldIndex == tokens.size() - 1 && index == tokens.size()))
+            return;
+        
+        // Save the current position, the token moves but the initiative does not.
+        TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); 
         if (oldIndex == current) {
-        	currentInitiative = getTokenInitiative(oldIndex != 0 ? oldIndex -1 : 1);
+        	currentInitiative = getTokenInitiative(oldIndex != 0 ? oldIndex - 1 : 1);
         }
-        if (oldIndex < 0 || oldIndex == index)
-        	return;
 
+        startUnitOfWork();
         current = -1;
-        holdUpdate += 1;
         TokenInitiative ti = tokens.remove(oldIndex);
         getPCS().fireIndexedPropertyChange(TOKENS_PROP, oldIndex, ti, null);
         
@@ -510,16 +544,16 @@ public class InitiativeList implements Serializable {
         getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, null, ti);
 
         setCurrent(indexOf(currentInitiative)); // Restore current initiative
-        holdUpdate -= 1;
-        updateServer();
+        finishUnitOfWork();
     }
     
     /**
      * Update the server with the new list
      */
     public void updateServer() {
-        if (holdUpdate > 0 || zoneId == null)
+        if (zoneId == null)
         	return;
+        LOGGER.debug("Full update");
         MapTool.serverCommand().updateInitiative(this, null);
     }
 
@@ -529,8 +563,9 @@ public class InitiativeList implements Serializable {
      * @param ti Item to update
      */
     public void updateServer(TokenInitiative ti) {
-        if (holdUpdate > 0 || zoneId == null)
+        if (zoneId == null)
             return;
+        LOGGER.debug("Token Init update: " + ti.getId());
         MapTool.serverCommand().updateTokenInitiative(zoneId, ti.getId(), ti.isHolding(), ti.getState(), indexOf(ti));
     }
 
@@ -553,10 +588,11 @@ public class InitiativeList implements Serializable {
     public void setHideNPC(boolean hide) {
         if (hide == hideNPC)
         	return;
+        startUnitOfWork();
         boolean old = hideNPC;
         hideNPC = hide;
         getPCS().firePropertyChange(HIDE_NPCS_PROP, old, hide);
-        updateServer();
+        finishUnitOfWork();
     }
 
     /** @return Getter for tokens */
@@ -642,10 +678,11 @@ public class InitiativeList implements Serializable {
         public void setHolding(boolean isHolding) {
             if (holding == isHolding)
             	return;
+            startUnitOfWork();
             boolean old = holding;
             holding = isHolding;
             getPCS().fireIndexedPropertyChange(TOKENS_PROP, tokens.indexOf(this), old, isHolding);
-            updateServer();
+            finishUnitOfWork(this);
         }
 
         /** @return Getter for state */
@@ -657,10 +694,11 @@ public class InitiativeList implements Serializable {
         public void setState(String aState) {
             if (state == aState || (state != null && state.equals(aState)))
             	return;
+            startUnitOfWork();
             String old = state;
             state = aState;
             getPCS().fireIndexedPropertyChange(TOKENS_PROP, tokens.indexOf(this), old, aState);
-            updateServer();
+            finishUnitOfWork(this);
         }
 
         /** @return Getter for displayIcon */
