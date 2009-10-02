@@ -37,7 +37,7 @@ public class MapFunctions extends AbstractFunction {
 	            throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 		    String mapName = parameters.get(0).toString();
             for (ZoneRenderer zr : MapTool.getFrame().getZoneRenderers()) {
-                if (mapName.equals(zr.getName())) {
+                if (mapName.equals(zr.getZone().getName())) {
                     MapTool.getFrame().setCurrentZoneRenderer(zr);
                     return mapName;
                 } // endif
