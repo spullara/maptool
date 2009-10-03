@@ -450,7 +450,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
      * @return <code>true</code> if token movement is locked.
      */
     public boolean isMovementLocked(Token token) {
-        if (!movementLock) return false;
+        if (!movementLock || list == null || list.getSize() == 0) return false;
         if (model.getCurrentTokenInitiative() == null) return true;
         if (model.getCurrentTokenInitiative().getToken() == token) return false;
         return true;
