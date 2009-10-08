@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -60,24 +61,20 @@ public class TransferableHelper extends TransferHandler {
 
         try {
 	        // EXISTING ASSET
-	        if (transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)) {
-	
-	        	assets.add(handleTransferableAsset(transferable));
-	        } 
-	        
-	        else if (transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)) {
-	        	
-            assets.add(handleTransferableAssetReference(transferable));
-	        }
-	        
-          // LOCAL FILESYSTEM
-          else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-              assets = handleFileList(transferable);
-              
-          // DIRECT/BROWSER
-          } else if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
-            assets.add(handleImage(transferable));
-          }
+            if (transferable.isDataFlavorSupported(TransferableAsset.dataFlavor)) {
+
+                assets.add(handleTransferableAsset(transferable));
+            } else if (transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)) {
+                assets.add(handleTransferableAssetReference(transferable));
+
+            // DIRECT/BROWSER
+            } else if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
+                assets.add(handleImage(transferable));
+
+            // LOCAL FILESYSTEM
+            } else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                assets = handleFileList(transferable);
+            }
             
         } catch (Exception e) {
         	System.err.println ("Could not retrieve asset: " + e);
@@ -103,15 +100,22 @@ public class TransferableHelper extends TransferHandler {
 	}
 
 	private static Asset handleImage (Transferable transferable) throws IOException, UnsupportedFlavorException {
-        
-        BufferedImage image = (BufferedImage) new ImageTransferableHandler().getTransferObject(transferable);      
+
         
         String name = null;
+        BufferedImage image = null;
         if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
         	try {
         		URL url = new URL((String)transferable.getTransferData(URL_FLAVOR));
-        		name = FileUtil.getNameWithoutExtension(url);
-        	} catch (Exception e) {e.printStackTrace();}
+                name = FileUtil.getNameWithoutExtension(url);
+                image = ImageIO.read(url);
+        	} catch (Exception e) {
+        	    e.printStackTrace();
+        	}
+        }
+        
+        if (image == null) {
+            image = (BufferedImage) new ImageTransferableHandler().getTransferObject(transferable);      
         }
         
         Asset asset = new Asset(name, ImageUtil.imageToBytes(image));
