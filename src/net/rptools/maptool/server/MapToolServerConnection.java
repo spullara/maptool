@@ -74,6 +74,16 @@ public class MapToolServerConnection extends ServerConnection  implements Server
 		return null;
 	}
 	
+	public String getConnectionId(String playerId) {
+
+		for (Map.Entry<String, Player> entry : playerMap.entrySet()) {
+			if (entry.getValue().getName().equalsIgnoreCase(playerId)) {
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
+	
     ////
     // SERVER OBSERVER
     
@@ -82,7 +92,7 @@ public class MapToolServerConnection extends ServerConnection  implements Server
      */
     public void connectionAdded(net.rptools.clientserver.simple.client.ClientConnection conn) {
 
-    	server.configureConnection(conn.getId());
+    	server.configureClientConnection(conn);
 
     	Player player = playerMap.get(conn.getId().toUpperCase());
         for (String id : playerMap.keySet()) {
@@ -99,7 +109,7 @@ public class MapToolServerConnection extends ServerConnection  implements Server
     
     public void connectionRemoved(net.rptools.clientserver.simple.client.ClientConnection conn) {
 
-    	server.releaseConnection(conn.getId());
+    	server.releaseClientConnection(conn.getId());
     	
         server.getConnection().broadcastCallMethod(new String[]{conn.getId()}, ClientCommand.COMMAND.playerDisconnected.name(), playerMap.get(conn.getId().toUpperCase()));
         playerMap.remove(conn.getId().toUpperCase());

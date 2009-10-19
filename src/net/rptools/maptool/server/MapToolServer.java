@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Map.Entry;
 
-import net.rptools.clientserver.hessian.server.ServerConnection;
+import net.rptools.clientserver.simple.client.ClientConnection;
 import net.rptools.clientserver.simple.server.ServerObserver;
 import net.rptools.maptool.client.ClientCommand;
 import net.rptools.maptool.client.MapToolRegistry;
@@ -30,11 +30,15 @@ import net.rptools.maptool.transfer.AssetChunk;
 import net.rptools.maptool.transfer.AssetProducer;
 import net.rptools.maptool.transfer.AssetTransferManager;
 
+import org.apache.log4j.Logger;
+
 
 /**
  * @author drice
  */
 public class MapToolServer {
+	
+	private static final Logger log = Logger.getLogger(MapToolServer.class);
 	
 	private static final int ASSET_CHUNK_SIZE = 5 * 1024;
 
@@ -48,6 +52,7 @@ public class MapToolServer {
 	private HeartbeatThread heartbeatThread;
 	
 	private Map<String, AssetTransferManager> assetManagerMap = Collections.synchronizedMap(new HashMap<String, AssetTransferManager>());
+	private Map<String, ClientConnection> connectionMap = Collections.synchronizedMap(new HashMap<String, ClientConnection>());
 	
 	private AssetProducerThread assetProducerThread;
 
@@ -72,12 +77,37 @@ public class MapToolServer {
 		}
     }
     
-    public void configureConnection(String id) {
+    public void configureClientConnection(ClientConnection connection) {
+    	String id = connection.getId();
     	assetManagerMap.put(id, new AssetTransferManager());
+    	connectionMap.put(id, connection);
     }
     
-    public void releaseConnection(String id) {
+    public ClientConnection getClientConnection(String id) {
+    	return connectionMap.get(id);
+    }
+    
+    public String getConnectionId(String playerId) {
+    	return conn.getConnectionId(playerId);
+    }
+    
+    /**
+     * Forceably disconnects a client and cleans up references to it
+     * @param id the connection ID
+     */
+    public void releaseClientConnection(String id) {
+    	
+    	ClientConnection connection = getClientConnection(id);
+    	if (connection != null) {
+    		try {
+    			connection.close();
+    		} catch (IOException e) {
+    			log.error("Could not release connection: " + id, e);
+    		}
+    	}
+    	
     	assetManagerMap.remove(id);
+    	connectionMap.remove(id);
     }
     
     public void addAssetProducer(String connectionId, AssetProducer producer) {

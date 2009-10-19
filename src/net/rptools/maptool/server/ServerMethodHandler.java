@@ -24,7 +24,6 @@ import net.rptools.clientserver.hessian.AbstractMethodHandler;
 import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.ClientCommand;
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.ui.MapToolFrame;
 import net.rptools.maptool.common.MapToolConstants;
 import net.rptools.maptool.model.Asset;
 import net.rptools.maptool.model.AssetManager;
@@ -453,7 +452,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
     	forwardToClients();
     	
     	// And just to be sure, remove them from the server
-    	server.releaseConnection(player);
+    	server.releaseClientConnection(server.getConnectionId(player));
     }
 
     public void startTokenMove(String playerId, GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList) {
