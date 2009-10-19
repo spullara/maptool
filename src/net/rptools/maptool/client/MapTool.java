@@ -339,6 +339,9 @@ public class MapTool {
 		}
 
 		Dimension size = renderer.getSize();
+		if (size.width == 0 || size.height == 0) {
+			return null;
+		}
 
 		BufferedImage image = new BufferedImage(size.width, size.height, Transparency.OPAQUE);
 		final Graphics2D g = image.createGraphics();
