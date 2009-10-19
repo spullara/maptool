@@ -127,10 +127,13 @@ public class TransferableHelper extends TransferHandler {
     	List<File> list = new FileTransferableHandler().getTransferObject(transferable);
         List assets = new ArrayList();
     	for (File file : list) {
-    		if (Token.isTokenFile(file.getName())) {
-    			assets.add(PersistenceUtil.loadToken(file));
-    		} else {
-                assets.add(AssetManager.createAsset(file));
+    		// A JFileChooser (at least under Linux) sends a couple empty filenames that need to be ignored.
+    		if (!file.getPath().equals("")) {
+    			if (Token.isTokenFile(file.getName())) {
+    				assets.add(PersistenceUtil.loadToken(file));
+    			} else {
+    				assets.add(AssetManager.createAsset(file));
+    			}
     		}
     	}
     	return assets;
@@ -222,6 +225,8 @@ public class TransferableHelper extends TransferHandler {
     
     /** The tokens to be loaded onto the renderer when we get a point */
     List<Token> tokens;
+    /** Whether or not each token needs additional configuration (set footprint, guess shape). */
+    List<Boolean> configureTokens;
 
     /**
      * @see javax.swing.TransferHandler#importData(javax.swing.JComponent, java.awt.datatransfer.Transferable)
@@ -229,15 +234,21 @@ public class TransferableHelper extends TransferHandler {
     @Override
     public boolean importData(JComponent comp, Transferable t) {
         tokens = null;
+        configureTokens = null;
         List assets = getAsset(t);
         if (assets != null) {
             tokens = new ArrayList<Token>(assets.size());
+            configureTokens = new ArrayList<Boolean>(assets.size());
             for (Object working : assets) {
                 if (working instanceof Asset) {
                     Asset asset = (Asset) working;
                     tokens.add(new Token(asset.getName(), asset.getId()));
+                    // A token from an image asset needs additional configuration.
+                    configureTokens.add(true);
                 } else if (working instanceof Token) {
                     tokens.add(new Token((Token) working));
+                    // A token from an .rptok file is already fully configured.
+                    configureTokens.add(false);
                 }
             }
         } else {
@@ -245,6 +256,8 @@ public class TransferableHelper extends TransferHandler {
                 try {
                     // Make a copy so that it gets a new unique GUID
                     tokens = Collections.singletonList(new Token((Token) t.getTransferData(TransferableToken.dataFlavor)));
+                    // A token from the Resource Library is already fully configured.
+                    configureTokens = Collections.singletonList(new Boolean(false));
                 } catch (UnsupportedFlavorException ufe) {
                     ufe.printStackTrace();
                 } catch (IOException ioe) {
@@ -253,6 +266,11 @@ public class TransferableHelper extends TransferHandler {
             } else {
             
                 tokens = getTokens(t);
+                // Tokens from Init Tool all need to be configured.
+                configureTokens = new ArrayList<Boolean>(tokens.size());
+                for (int i = 0; i < tokens.size(); i++) {
+                	configureTokens.add(true);
+                }
             }
 
         }
@@ -275,5 +293,15 @@ public class TransferableHelper extends TransferHandler {
     /** @param tokens Setter for tokens */
     public void setTokens(List<Token> tokens) {
         this.tokens = tokens;
+    }
+
+    /** @return Getter for configureTokens */
+    public List<Boolean> getConfigureTokens() {
+        return configureTokens;
+    }
+
+    /** @param configureTokens Setter for configureTokens */
+    public void setConfigureTokens(List<Boolean> configureTokens) {
+        this.configureTokens = configureTokens;
     }
 }

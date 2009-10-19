@@ -3040,14 +3040,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     public void dragOver(DropTargetDragEvent dtde) {
     }
 
-    private void addTokens(List<Token> tokens, ZonePoint zp, boolean configureToken, boolean showDialog) {
+    private void addTokens(List<Token> tokens, ZonePoint zp, List<Boolean> configureTokens, boolean showDialog) {
         GridCapabilities gridCaps = zone.getGrid().getCapabilities();
         boolean isGM = MapTool.getPlayer().isGM();
 
         ScreenPoint sp = ScreenPoint.fromZonePoint(this, zp);
         Point dropPoint = new Point((int) sp.x, (int) sp.y);
         SwingUtilities.convertPointToScreen(dropPoint, this);
+        int tokenIndex = 0;
         for (Token token : tokens) {
+        	boolean configureToken = configureTokens.get(tokenIndex++);
             
             // Get the snap to grid value for the current prefs and abilities
             token.setSnapToGrid(gridCaps.isSnapToGridSupported() && AppPreferences.getTokensStartSnapToGrid());
@@ -3174,9 +3176,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
      */
     public void drop(DropTargetDropEvent dtde) {
         ZonePoint zp = new ScreenPoint((int) dtde.getLocation().getX(), (int) dtde.getLocation().getY()).convertToZone(this);
-        List<Token> tokens = ((TransferableHelper)getTransferHandler()).getTokens();
+        TransferableHelper th = (TransferableHelper) getTransferHandler();
+        List<Token> tokens = th.getTokens();
         if (tokens != null && !tokens.isEmpty())
-          addTokens(tokens, zp, true, false);
+            addTokens(tokens, zp, th.getConfigureTokens(), false);
     }
 
     public Set<GUID> getVisibleTokenSet() {
