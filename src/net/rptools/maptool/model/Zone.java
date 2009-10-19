@@ -36,6 +36,7 @@ import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
 import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.DrawnElement;
+import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.util.StringUtil;
 
 import org.apache.log4j.Logger;
@@ -897,6 +898,13 @@ public class Zone extends BaseModel {
 	    			statusChar = '?';
 	    			continue;
 	    		}
+
+	    		// Does drawable cover area?  If not, get rid of it.
+	    		if (drawnArea.isEmpty()) {
+	    			statusChar = 'e';
+	    			drawnIter.remove();
+	    			continue;
+	    		}
 	    		
 	//    		if (GraphicsUtil.contains(area, drawnArea)) {  // Too expensive
 	    		if (area.contains(drawnArea.getBounds())) { // Not as accurate, but faster
@@ -906,7 +914,7 @@ public class Zone extends BaseModel {
 	    		}
 	
 	    		// Are we possibly covering something up?
-	    		if (drawn.getPen().isEraser()) {
+	    		if (drawn.getPen().isEraser() && (drawn.getPen().getBackgroundMode() == Pen.MODE_SOLID)) {
 	    			statusChar = '/';
 	    			area.add(drawnArea);
 	    			continue;

@@ -28,6 +28,7 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 import net.rptools.maptool.client.AppState;
+import net.rptools.maptool.client.ScreenPoint;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.ZonePoint;
@@ -164,7 +165,13 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
             return;
         } // endif
         if (!pathAnchorSet) {
-            pathAnchorSet = true;
+        	LineTemplate lt = (LineTemplate) template;
+            ZonePoint pathVertex = lt.getPathVertex();
+            ZonePoint vertex = lt.getVertex();
+            // If the anchor vertex and path anchor vertex are the same, the line is invalid, so do not allow.
+            if ((vertex != null) && !vertex.equals(pathVertex)) {
+            	pathAnchorSet = true;
+            }
             return;
         } // endif
     } // endif
@@ -240,8 +247,9 @@ public class LineTemplateTool extends RadiusTemplateTool implements PropertyChan
       
       // Quadrant change?
       if (pathVertex != null) {
-        int dx = e.getX() - vertex.x;
-        int dy = e.getY() - vertex.y;
+    	ZonePoint mouse = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
+        int dx = mouse.x - vertex.x;
+        int dy = mouse.y - vertex.y;
         AbstractTemplate.Quadrant quadrant = (dx < 0) ? (dy < 0 ? Quadrant.NORTH_WEST : Quadrant.SOUTH_WEST)
             : (dy < 0 ? Quadrant.NORTH_EAST : Quadrant.SOUTH_EAST);
         if (quadrant != lt.getQuadrant()) {

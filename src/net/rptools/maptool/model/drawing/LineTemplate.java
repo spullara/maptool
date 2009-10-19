@@ -438,8 +438,13 @@ public class LineTemplate extends AbstractTemplate {
 		// Find the point that is farthest away in the path, then adjust
 		ZonePoint minp = null;
 		ZonePoint maxp = null;
-		if (path == null)
+		if (path == null) {
 			calcPath();
+			if (path == null) {
+				// If the calculated path is still null, then the line is invalid.
+				return new Rectangle();
+			}
+		}
 		for (CellPoint pt : path) {
 			ZonePoint p = MapTool.getCampaign().getZone(getZoneId()).getGrid().convert(pt);
 			p = new ZonePoint(vertex.x + p.x, vertex.y + p.y);
@@ -459,11 +464,23 @@ public class LineTemplate extends AbstractTemplate {
 		maxp.x += gridSize;
 		maxp.y += gridSize;
 
+		// The path is only calculated for the south-east quadrant, so
+		// appropriately reflect the bounding box around the starting vertex.
+		if (getXMult(getQuadrant()) < 0) {
+			int tmp;
+			tmp = vertex.x - (maxp.x - vertex.x);
+			maxp.x = vertex.x - (minp.x - vertex.x);
+			minp.x = tmp;
+		}
+		if (getYMult(getQuadrant()) < 0) {
+			int tmp;
+			tmp = vertex.y - (maxp.y - vertex.y);
+			maxp.y = vertex.y - (minp.y - vertex.y);
+			minp.y = tmp;
+		}
+
 		int width = (int) (maxp.x - minp.x);
 		int height = (int) (maxp.y - minp.y);
-		if (getQuadrant() == Quadrant.NORTH_EAST || getQuadrant() == Quadrant.NORTH_WEST) {
-			minp.y -= height;
-		}
 
 		// Account for pen size
 		// We don't really know what the pen size will be, so give a very rough
@@ -478,6 +495,14 @@ public class LineTemplate extends AbstractTemplate {
 	}
 	
 	public Area getArea() {
+		if (path == null) {
+			calcPath();
+			if (path == null) {
+				// If the calculated path is still null, then the line is invalid and should be deleted.
+				return new Area();
+			}
+		}
+
 		// I don't feel like figuring out the exact shape of this right now
 		return null;
 	}
