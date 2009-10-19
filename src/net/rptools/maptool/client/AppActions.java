@@ -794,66 +794,73 @@ public class AppActions {
 	};
 
 	public static final void cutTokens(Zone zone, Set<GUID> tokenSet) {
-		
-		copyTokens(tokenSet);
-
-		// delete tokens
-		for (GUID tokenGUID : tokenSet) {
-
-			Token token = zone.getToken(tokenGUID);
-
-			if (AppUtil.playerOwns(token)) {
-				zone.removeToken(tokenGUID);
-				MapTool.serverCommand().removeToken(zone.getId(), tokenGUID);
+		// Only cut if some tokens are selected.  Don't want to accidentally 
+		// lose what might already be in the clipboard.
+		if (tokenSet.size() > 0) {
+			
+			copyTokens(tokenSet);
+	
+			// delete tokens
+			for (GUID tokenGUID : tokenSet) {
+	
+				Token token = zone.getToken(tokenGUID);
+	
+				if (AppUtil.playerOwns(token)) {
+					zone.removeToken(tokenGUID);
+					MapTool.serverCommand().removeToken(zone.getId(), tokenGUID);
+				}
 			}
+	
+			MapTool.getFrame().getCurrentZoneRenderer().clearSelectedTokens();
 		}
-
-		MapTool.getFrame().getCurrentZoneRenderer().clearSelectedTokens();		
 	}
 	
 	public static final void copyTokens(Set<GUID> tokenSet) {
-
-		List<Token> tokenList = new ArrayList<Token>();
-
-		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-		Zone zone = renderer.getZone();
-
-		Integer top = null;
-		Integer left = null;
-		tokenCopySet = new HashSet<Token>();
-		for (GUID guid : tokenSet) {
-			Token token = zone.getToken(guid);
-			if (token != null) {
-				tokenList.add(token);
+		// Only cut if some tokens are selected.  Don't want to accidentally 
+		// lose what might already be in the clipboard.
+		if (tokenSet.size() > 0) {
+			List<Token> tokenList = new ArrayList<Token>();
+	
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			Zone zone = renderer.getZone();
+	
+			tokenCopySet = new HashSet<Token>();
+			
+			for (GUID guid : tokenSet) {
+				Token token = zone.getToken(guid);
+				if (token != null) {
+					tokenList.add(token);
+				}
 			}
+	
+			copyTokens(tokenList);
 		}
-
-		copyTokens(tokenList);
 	}
 
 	public static final void copyTokens(List<Token> tokenList) {
-
-		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-
-		Integer top = null;
-		Integer left = null;
-		tokenCopySet = new HashSet<Token>();
-		for (Token token : tokenList) {
-
-			if (top == null || token.getY() < top) {
-				top = token.getY();
+		// Only cut if some tokens are selected.  Don't want to accidentally 
+		// lose what might already be in the clipboard.
+		if (tokenList.size() > 0 ) {
+			Integer top = null;
+			Integer left = null;
+			tokenCopySet = new HashSet<Token>();
+			for (Token token : tokenList) {
+	
+				if (top == null || token.getY() < top) {
+					top = token.getY();
+				}
+				if (left == null || token.getX() < left) {
+					left = token.getX();
+				}
+	
+				tokenCopySet.add(new Token(token));
 			}
-			if (left == null || token.getX() < left) {
-				left = token.getX();
+	
+			// Normalize
+			for (Token token : tokenCopySet) {
+				token.setX(token.getX() - left);
+				token.setY(token.getY() - top);
 			}
-
-			tokenCopySet.add(new Token(token));
-		}
-
-		// Normalize
-		for (Token token : tokenCopySet) {
-			token.setX(token.getX() - left);
-			token.setY(token.getY() - top);
 		}
 	}
 
