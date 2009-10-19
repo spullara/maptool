@@ -189,7 +189,7 @@ public class Campaign {
      * @return
      */
     public SightType getSightType(String type) {
-    	return getSightTypeMap().get(type != null ? type : campaignProperties.getDefaultSightType());
+    	return getSightTypeMap().get((type != null && getSightTypeMap().containsKey(type))? type : campaignProperties.getDefaultSightType());
     }
     
     /**
