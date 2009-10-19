@@ -124,10 +124,10 @@ public class AppPreferences {
 	private static final String KEY_SHOW_STAT_SHEET = "showStatSheet";
 	private static final boolean DEFAULT_SHOW_STAT_SHEET = true;
 	
-    private static final String KEY_FILL_SELECTION_BOX = "fillSelectionBox";
-    private static final boolean DEFAULT_FILL_SELECTION_BOX = true;
-    
-    public static void setFillSelectionBox(boolean fill) {
+	private static final String KEY_FILL_SELECTION_BOX = "fillSelectionBox";
+	private static final boolean DEFAULT_FILL_SELECTION_BOX = true;
+	
+	public static void setFillSelectionBox(boolean fill) {
 		prefs.putBoolean(KEY_FILL_SELECTION_BOX, fill);
 	}
 
@@ -221,8 +221,10 @@ public class AppPreferences {
 	}
 
 	public static int getVisionOverlayOpacity() {
-		return prefs.getInt(KEY_VISION_OVERLAY_OPACITY,
-				DEFAULT_VISION_OVERLAY_OPACITY);
+		int value = prefs.getInt(KEY_VISION_OVERLAY_OPACITY, DEFAULT_VISION_OVERLAY_OPACITY); 
+		if (value < 0) {value = 0;}
+		if (value > 255) {value = 255;}
+		return value;
 	}
 
     private static final String KEY_DEFAULT_GRID_TYPE = "defaultGridType";
@@ -255,7 +257,6 @@ public class AppPreferences {
     private static final String KEY_PLAY_SYSTEM_SOUNDS = "playSystemSounds";
     private static final boolean DEFAULT_PLAY_SYSTEM_SOUNDS = true;
 
-    
 	public static void setHaloLineWidth(int size) {
 		prefs.putInt(KEY_HALO_LINE_WIDTH, size);
 	}
