@@ -213,7 +213,7 @@ public class MapTool {
 	 */
 	public static void showMessage(String message, String titleKey, int messageType, Object... params) {
 		String title = I18N.getText(titleKey, params);
-		JOptionPane.showMessageDialog(clientFrame, "<html>" + message, title, messageType);
+		JOptionPane.showMessageDialog(clientFrame, "<html>" + I18N.getText(message, params), title, messageType);
 	}
 
 	public static void showError(String msgKey) {

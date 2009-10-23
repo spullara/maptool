@@ -77,7 +77,7 @@ public class RemoteFileDownloader {
             	out.write(buf, 0, nRead);
                 
                 monitor.setProgress(bytesRead);
-                monitor.setNote("Elapsed: " + ((System.currentTimeMillis() - start) / 1000));
+//                monitor.setNote("Elapsed: " + ((System.currentTimeMillis() - start) / 1000) + " seconds");
             }
     		
     	} finally {

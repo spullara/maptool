@@ -23,6 +23,8 @@ import javax.swing.JTextPane;
 import net.rptools.lib.FileUtil;
 import net.rptools.maptool.model.AssetManager;
 
+import org.jdesktop.swingworker.SwingWorker;
+
 /**
  * Executes only the first time the application is run.
  */
@@ -52,24 +54,40 @@ public class AppSetup {
     }
 
     public static void installLibrary(String libraryName, URL resourceFile) throws IOException {
-    	
         File unzipDir = new File(AppConstants.UNZIP_DIR.getAbsolutePath() + File.separator + libraryName);
 
         FileUtil.unzip(resourceFile, unzipDir);
         
+        installLibrary(libraryName, unzipDir);
+    }
+
+    public static void installLibrary(String libraryName, final File root) throws IOException {
+    	
+        
         // Add as a resource root
-		AppPreferences.addAssetRoot(unzipDir);
-    	AssetManager.searchForImageReferences(unzipDir, AppConstants.IMAGE_FILE_FILTER);
+		AppPreferences.addAssetRoot(root);
     	if (MapTool.getFrame() != null) {
-    		MapTool.getFrame().addAssetRoot(unzipDir);
+    		MapTool.getFrame().addAssetRoot(root);
     		
         	// License
-        	File licenseFile = new File(unzipDir.getAbsolutePath() + "/License.txt");
-        	
-        	JTextPane pane = new JTextPane();
-        	pane.setPage(licenseFile.toURL());
-        	JOptionPane.showMessageDialog(MapTool.getFrame(), pane, "License for " + libraryName, JOptionPane.INFORMATION_MESSAGE);
+        	File licenseFile = new File(root.getAbsolutePath() + "/License.txt");
+        	if (!licenseFile.exists()) {
+        		licenseFile = new File(root.getAbsolutePath() + "/license.txt");
+        	}
+        	if (licenseFile.exists()) {
+	        	JTextPane pane = new JTextPane();
+	        	pane.setPage(licenseFile.toURL());
+	        	JOptionPane.showMessageDialog(MapTool.getFrame(), pane, "License for " + libraryName, JOptionPane.INFORMATION_MESSAGE);
+        	}
     	}
+    	
+    	new SwingWorker<Object, Object>() {
+    		@Override
+    		protected Object doInBackground() throws Exception {
+    	    	AssetManager.searchForImageReferences(root, AppConstants.IMAGE_FILE_FILTER);
+    			return null;
+    		}
+    	}.execute();
     	
     }
 }

@@ -11,6 +11,8 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultListModel;
@@ -24,7 +26,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.rptools.maptool.client.AppConstants;
+import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.AppSetup;
 import net.rptools.maptool.client.MapTool;
@@ -33,7 +35,6 @@ import net.rptools.maptool.client.WebDownloader;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.AssetManager;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -102,7 +103,7 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 	
 	public void initLibraryList() {
 		JList list = getLibraryList();
-		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		
 		list.setModel(new MessageListModel(I18N.getText("dialog.addresource.downloading")));
 	}
@@ -189,11 +190,25 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 
 				DefaultListModel listModel = new DefaultListModel();
 
+				// Create a list to compare against for dups
+				List<String> libraryNameList = new ArrayList<String>();
+				for (File file : AppPreferences.getAssetRoots()) {
+					libraryNameList.add(file.getName());
+				}
+
+				// Generate the list
 				try {
 					BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(result.getBytes())));
 					String line = null;
 					while ((line = reader.readLine()) != null) {
-						listModel.addElement(new LibraryRow(line));
+						LibraryRow row = new LibraryRow(line);
+						
+						// Don't include if we've already got it
+						if (libraryNameList.contains(row.name)) {
+							continue;
+						}
+						
+						listModel.addElement(row);
 					}
 					
 					model = listModel;
@@ -217,8 +232,8 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 		}
 		
 		// Add the resource
-		URL url = null;
-		String name = "";
+		final List<LibraryRow> rowList = new ArrayList<LibraryRow>();
+
 		switch (model.getTab()) {
 		case LOCAL:
 			if (StringUtils.isEmpty(model.getLocalDirectory())) {
@@ -235,55 +250,81 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 				return false;
 			}
 
-			MapTool.getFrame().addAssetRoot(root);
-			AssetManager.searchForImageReferences(root, AppConstants.IMAGE_FILE_FILTER);
-			AppPreferences.addAssetRoot(root);
+			try {
+				AppSetup.installLibrary(FileUtil.getNameWithoutExtension(root), root);
+			} catch (MalformedURLException e) {
+				log.error("Bad path url: " + root.getPath(), e);
+				MapTool.showMessage("dialog.addresource.warn.badpath", "Error", JOptionPane.ERROR_MESSAGE, model.getLocalDirectory());
+				return false;
+			} catch (IOException e) {
+				log.error("IOException adding local root: " + root.getPath(), e);
+				MapTool.showMessage("dialog.addresource.warn.badpath", "Error", JOptionPane.ERROR_MESSAGE, model.getLocalDirectory());
+				return false;
+			}
 			
 			return true;
 		case WEB:
-			try {
-				url = new URL(model.getUrl());
-			} catch (MalformedURLException e) {
-				MapTool.showMessage("dialog.addresource.warn.invalidurl", "Error", JOptionPane.ERROR_MESSAGE);
+			if (StringUtils.isEmpty(model.getUrlName())) {
+				MapTool.showMessage("dialog.addresource.warn.musthavename", "Error", JOptionPane.ERROR_MESSAGE, model.getLocalDirectory());
 				return false;
 			}
+
+			// validate the url format so that we don't hit it later
+			try {
+				new URL(model.getUrl());
+			} catch (MalformedURLException e) {
+				MapTool.showMessage("dialog.addresource.warn.invalidurl", "Error", JOptionPane.ERROR_MESSAGE, model.getUrl());
+				return false;
+			}
+
+			rowList.add(new LibraryRow(model.getUrlName(), model.getUrl(), -1));
 			
 			break;
 		case RPTOOLS:
 			
-			try {
-				LibraryRow row = (LibraryRow) getLibraryList().getSelectedValue();
-				
-				url = new URL(LIBRARY_URL + "/" + row.path);
-				name = row.name;
-			} catch (MalformedURLException e) {
-				MapTool.showMessage("dialog.addresource.warn.invalidurl", "Error", JOptionPane.ERROR_MESSAGE);
+			Object[] selectedRows = (Object[]) getLibraryList().getSelectedValues();
+			if (selectedRows == null || selectedRows.length == 0) {
+				MapTool.showMessage("dialog.addresource.warn.mustselectone", "Error", JOptionPane.ERROR_MESSAGE);
 				return false;
+			}
+
+			for (Object obj : selectedRows) {
+				LibraryRow row = (LibraryRow) obj;
+				
+				//validate the url format
+				row.path = LIBRARY_URL + "/" + row.path;
+				try {
+					new URL(row.path);
+				} catch (MalformedURLException e) {
+					MapTool.showMessage("dialog.addresource.warn.invalidurl", "Error", JOptionPane.ERROR_MESSAGE, row.path);
+					return false;
+				}
+
+				rowList.add(row);
 			}
 
 			break;
 		}
-		
-		final URL libraryUrl = url;
-		final String libraryName = name;
+
 		new SwingWorker<Object, Object>() {
 			
 			@Override
 			protected Object doInBackground() throws Exception {
 
-				RemoteFileDownloader downloader = new RemoteFileDownloader(libraryUrl);
-				
-				try {
-					File tmpFile = downloader.read();
+				for (LibraryRow row : rowList) {
 					
-					System.out.println(tmpFile.getName() + " - " + tmpFile.length());
-	
-					AppSetup.installLibrary(libraryName, tmpFile.toURL());
-					
-					tmpFile.delete();
-				} catch (IOException e) {
-					log.error("Error downloading library: " + e, e);
-					MapTool.showInformation("dialog.addresource.warn.couldnotload");
+					try {
+						RemoteFileDownloader downloader = new RemoteFileDownloader(new URL(row.path));
+
+						File tmpFile = downloader.read();
+						
+						AppSetup.installLibrary(row.name, tmpFile.toURL());
+						
+						tmpFile.delete();
+					} catch (IOException e) {
+						log.error("Error downloading library: " + e, e);
+						MapTool.showInformation("dialog.addresource.warn.couldnotload");
+					}
 				}
 				return null;
 			}
@@ -302,6 +343,12 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 		private String name;
 		private String path;
 		private int size;
+
+		public LibraryRow(String name, String path, int size) {
+			this.name = name;
+			this.path = path;
+			this.size = size;
+		}
 		
 		public LibraryRow(String row) {
 			String[] data = row.split("\\|");
@@ -334,7 +381,10 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 	public static class Model {
 		
 		private String localDirectory;
+		
+		private String urlName;
 		private String url;
+		
 		private Tab tab = Tab.LOCAL;
 		
 		public String getLocalDirectory() {
@@ -354,6 +404,12 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 		}
 		public void setTab(Tab tab) {
 			this.tab = tab;
+		}
+		public String getUrlName() {
+			return urlName;
+		}
+		public void setUrlName(String urlName) {
+			this.urlName = urlName;
 		}
 		
 	}
