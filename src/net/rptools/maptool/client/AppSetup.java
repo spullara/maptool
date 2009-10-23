@@ -80,7 +80,7 @@ public class AppSetup {
         		licenseFile = new File(root.getAbsolutePath() + "/license.txt");
         	}
         	if (licenseFile.exists()) {
-        		System.out.println("EDT: " + EventQueue.isDispatchThread());
+
         		final File licenseFileFinal = licenseFile;
         		EventQueue.invokeLater(new Runnable() {
         			public void run() {
