@@ -331,7 +331,7 @@ public class AddResourceDialog extends AbeillePanel<AddResourceDialog.Model> {
 		}
 	}
 	
-	private static class Model {
+	public static class Model {
 		
 		private String localDirectory;
 		private String url;
