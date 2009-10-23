@@ -523,14 +523,16 @@ public class InitiativeList implements Serializable {
      */
     public void moveToken(int oldIndex, int index) {
         
-        // Bad index, same index, or moving the last token to the end of the list do nothing.
-        if (oldIndex < 0 || oldIndex == index || (oldIndex == tokens.size() - 1 && index == tokens.size()))
+        // Bad index, same index, oldIndex->oldindex+1, or moving the last token to the end of the list do nothing.
+        if (oldIndex < 0 || oldIndex == index || (oldIndex == tokens.size() - 1 && index == tokens.size()) || oldIndex == (index-1))
             return;
         
         // Save the current position, the token moves but the initiative does not.
-        TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); 
+    	TokenInitiative newInitiative = null;
+        TokenInitiative currentInitiative = getTokenInitiative(getCurrent()); // Save the current initiative
         if (oldIndex == current) {
-        	currentInitiative = getTokenInitiative(oldIndex != 0 ? oldIndex - 1 : 1);
+        	newInitiative = getTokenInitiative(oldIndex != 0 ? oldIndex -1 : 1);
+        	current = (oldIndex != 0 ? oldIndex -1 : 1);
         }
 
         startUnitOfWork();
@@ -543,7 +545,11 @@ public class InitiativeList implements Serializable {
         tokens.add(index, ti);
         getPCS().fireIndexedPropertyChange(TOKENS_PROP, index, null, ti);
 
-        setCurrent(indexOf(currentInitiative)); // Restore current initiative
+        // Set/restore proper initiative
+        if (newInitiative == null)
+        	current = indexOf(currentInitiative);
+        else 
+        	setCurrent(indexOf(newInitiative)); 
         finishUnitOfWork();
     }
     
