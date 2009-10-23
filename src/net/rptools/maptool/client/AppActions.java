@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -57,6 +58,7 @@ import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
 import net.rptools.maptool.client.tool.GridTool;
 import net.rptools.maptool.client.tool.drawing.DrawableUndoManager;
+import net.rptools.maptool.client.ui.AddResourceDialog;
 import net.rptools.maptool.client.ui.AppMenuBar;
 import net.rptools.maptool.client.ui.ClientConnectionPanel;
 import net.rptools.maptool.client.ui.ConnectToServerDialog;
@@ -2210,6 +2212,60 @@ public class AppActions {
 		}
 	}
 
+	public static final Action DOWNLOAD_OTHER_LIBRARY = new DefaultClientAction() {
+		{
+			init("action.downloadOtherLibrary");
+		}
+
+		public void execute(ActionEvent ae) {
+			System.out.println("HIT");
+		}		
+	};
+	
+	public static class DownloadRemoteLibraryAction extends DefaultClientAction {
+		
+		private URL url;
+		
+		public DownloadRemoteLibraryAction(URL url) {
+			this.url = url;
+		}
+		
+		@Override
+		public void execute(ActionEvent arg0) {
+			
+			if (!MapTool.confirm("confirm.downloadRemoteLibrary", url)) {
+				return;
+			}
+			
+			final RemoteFileDownloader downloader = new RemoteFileDownloader(url, MapTool.getFrame());
+			new SwingWorker<Object, Object>() {
+
+				protected Object doInBackground() throws Exception {
+					
+					try {
+						File dataFile = downloader.read();
+						if (dataFile == null) {
+							// Canceled
+							return null;
+						}
+						
+						// Success
+						String libraryName = FileUtil.getNameWithoutExtension(url);
+						AppSetup.installLibrary(libraryName, dataFile.toURL());
+						
+					} catch (IOException e) {
+						log.error("Could not download remote library: " + e, e);
+					}
+					
+					return null;
+				}
+				@Override
+				protected void done() {
+				}
+			}.execute();
+		}
+	}
+	
 	private static final int QUICK_MAP_ICON_SIZE = 25;
 
 	public static class QuickMapAction extends AdminClientAction {
@@ -2338,7 +2394,7 @@ public class AppActions {
 		}
 	};
 
-	public static final Action ADD_ASSET_PANEL = new DefaultClientAction() {
+	public static final Action ADD_RESOURCE_TO_LIBRARY = new DefaultClientAction() {
 		{
 			init("action.addIconSelector");
 		}
@@ -2349,19 +2405,9 @@ public class AppActions {
 
 				public void run() {
 
-					JFileChooser chooser = MapTool.getFrame().getLoadFileChooser();
-					chooser.setDialogTitle(I18N.getText("msg.title.loadAssetTree"));
-					chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-					if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
-						return;
-					}
-
-					File root = chooser.getSelectedFile();
-					MapTool.getFrame().addAssetRoot(root);
-					AssetManager.searchForImageReferences(root, AppConstants.IMAGE_FILE_FILTER);
-
-					AppPreferences.addAssetRoot(root);
+					AddResourceDialog dialog = new AddResourceDialog();
+					dialog.showDialog();
+					
 				}
 
 			});

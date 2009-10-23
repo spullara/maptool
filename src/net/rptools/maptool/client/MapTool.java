@@ -211,8 +211,8 @@ public class MapTool {
 	 * @param titleKey the string to use when retrieving the title of the dialog window
 	 * @param messageType JOptionPane.{ERROR|WARNING|INFORMATION}_MESSAGE
 	 */
-	public static void showMessage(String message, String titleKey, int messageType) {
-		String title = I18N.getText(titleKey);
+	public static void showMessage(String message, String titleKey, int messageType, Object... params) {
+		String title = I18N.getText(titleKey, params);
 		JOptionPane.showMessageDialog(clientFrame, "<html>" + message, title, messageType);
 	}
 
@@ -243,8 +243,8 @@ public class MapTool {
 		showMessage(msg, "msg.title.messageDialogInfo", JOptionPane.INFORMATION_MESSAGE);
 	}
 
-	public static boolean confirm(String message) {
-		String msg = I18N.getText(message);
+	public static boolean confirm(String message, Object... params) {
+		String msg = I18N.getText(message, params);
 		log.debug(msg);
 		String title = I18N.getText("msg.title.messageDialogConfirm");
 		return JOptionPane.showConfirmDialog(clientFrame, msg, title,

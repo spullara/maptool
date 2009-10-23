@@ -16,7 +16,9 @@ package net.rptools.maptool.client;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLDecoder;
+
+import javax.swing.JOptionPane;
+import javax.swing.JTextPane;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.maptool.model.AssetManager;
@@ -46,15 +48,28 @@ public class AppSetup {
     
     public static void installDefaultTokens() throws IOException {
 
-    	
-        // Create the directory
-        File unzipDir = new File(AppConstants.UNZIP_DIR.getAbsolutePath() + File.separator + "Default");
+    	installLibrary("Default", AppSetup.class.getClassLoader().getResource("default_images.zip"));
+    }
 
-        FileUtil.unzip("default_images.zip", unzipDir);
+    public static void installLibrary(String libraryName, URL resourceFile) throws IOException {
+    	
+        File unzipDir = new File(AppConstants.UNZIP_DIR.getAbsolutePath() + File.separator + libraryName);
+
+        FileUtil.unzip(resourceFile, unzipDir);
         
         // Add as a resource root
 		AppPreferences.addAssetRoot(unzipDir);
     	AssetManager.searchForImageReferences(unzipDir, AppConstants.IMAGE_FILE_FILTER);
-
+    	if (MapTool.getFrame() != null) {
+    		MapTool.getFrame().addAssetRoot(unzipDir);
+    		
+        	// License
+        	File licenseFile = new File(unzipDir.getAbsolutePath() + "/License.txt");
+        	
+        	JTextPane pane = new JTextPane();
+        	pane.setPage(licenseFile.toURL());
+        	JOptionPane.showMessageDialog(MapTool.getFrame(), pane, "License for " + libraryName, JOptionPane.INFORMATION_MESSAGE);
+    	}
+    	
     }
 }

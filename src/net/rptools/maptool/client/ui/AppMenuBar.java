@@ -13,6 +13,8 @@
  */
 package net.rptools.maptool.client.ui;
 
+import java.awt.EventQueue;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -25,8 +27,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
-
-import com.jidesoft.docking.DockableFrame;
+import javax.swing.SwingUtilities;
 
 import net.rptools.lib.FileUtil;
 import net.rptools.maptool.client.AppActions;
@@ -39,6 +40,8 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Zone;
+
+import org.jdesktop.swingworker.SwingWorker;
 
 public class AppMenuBar extends JMenuBar {
 
@@ -77,7 +80,7 @@ public class AppMenuBar extends JMenuBar {
 		fileMenu.addSeparator();
 		fileMenu.add(createExportMenu());
 		fileMenu.addSeparator();
-		fileMenu.add(new JMenuItem(AppActions.ADD_ASSET_PANEL));
+		fileMenu.add(new JMenuItem(AppActions.ADD_RESOURCE_TO_LIBRARY));
 		fileMenu.addSeparator();
 		fileMenu.add(new JMenuItem(AppActions.START_SERVER));
 		fileMenu.add(new JMenuItem(AppActions.CONNECT_TO_SERVER));
@@ -260,10 +263,65 @@ public class AppMenuBar extends JMenuBar {
 		return menu;
 	}
 
+	private JMenuItem downloadListItem = new JMenuItem(I18N.getText("action.downloadingLibraryList")) {
+		boolean isDownloading = false;
+
+		@Override
+		public void addNotify() {
+			if (!isDownloading) {
+				isDownloading = true;
+				new SwingWorker<Object, Object>() {
+					@Override
+					protected Object doInBackground() throws Exception {
+
+						synchronized(this) {
+							Thread.sleep(1000);
+							
+						}
+
+						return null;
+					}
+					
+					@Override
+					protected void done() {
+						remoteLibraryListMenu.remove(downloadListItem);
+						remoteLibraryListMenu.add(new JMenuItem("1"));
+						remoteLibraryListMenu.add(new JMenuItem("2"));
+
+						EventQueue.invokeLater(new Runnable() {
+							public void run() {
+//								Component c = remoteLibraryListMenu;
+//								while (c != null) {
+//									System.out.println(c.getClass().getName());
+//									c = c.getParent();
+//								}
+								remoteLibraryListMenu.getPopupMenu().setSize(300, 300);
+								((Window)SwingUtilities.getAncestorOfClass(Window.class, remoteLibraryListMenu.getPopupMenu())).repaint();
+							}
+						});
+					}
+				}.execute();
+			}
+			super.addNotify();
+		}
+	};
+		
+	private JMenu remoteLibraryListMenu = new JMenu(I18N.getText("action.downloadExternalLibrary")) {
+
+		{
+			add(AppActions.DOWNLOAD_OTHER_LIBRARY);
+			add(new JSeparator());
+			add(downloadListItem);
+			
+			getPopupMenu().setLightWeightPopupEnabled(false);
+		}
+	};
+	
 	protected JMenu createHelpMenu() {
 		JMenu menu = I18N.createMenu("menu.help");
 		menu.add(new JMenuItem(AppActions.ADD_DEFAULT_TABLES));
 		menu.add(new JMenuItem(AppActions.RESTORE_DEFAULT_IMAGES));
+		menu.add(remoteLibraryListMenu);
 		menu.add(new JMenuItem(AppActions.SHOW_DOCUMENTATION));
 		menu.add(new JMenuItem(AppActions.SHOW_TUTORIALS));
 		menu.add(new JMenuItem(AppActions.SHOW_FORUMS));
