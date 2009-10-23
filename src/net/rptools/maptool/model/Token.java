@@ -483,7 +483,8 @@ public class Token extends BaseModel {
 		if (lightSourceList == null) {
 			lightSourceList = new ArrayList<AttachedLightSource>();
 		}
-		lightSourceList.add(new AttachedLightSource(source, direction));
+		if (!lightSourceList.contains(source));
+			lightSourceList.add(new AttachedLightSource(source, direction));
 	}
 	
 	public void removeLightSource(LightSource source) {
@@ -495,7 +496,6 @@ public class Token extends BaseModel {
 			AttachedLightSource als = i.next();
 			if (als.getLightSourceId().equals(source.getId())) {
 				i.remove();
-				break;
 			}
 		}
 	}
