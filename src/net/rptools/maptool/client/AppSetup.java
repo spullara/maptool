@@ -13,8 +13,10 @@
  */
 package net.rptools.maptool.client;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.swing.JOptionPane;
@@ -23,6 +25,7 @@ import javax.swing.JTextPane;
 import net.rptools.lib.FileUtil;
 import net.rptools.maptool.model.AssetManager;
 
+import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorker;
 
 /**
@@ -30,6 +33,8 @@ import org.jdesktop.swingworker.SwingWorker;
  */
 public class AppSetup {
 
+	private static final Logger log = Logger.getLogger(AppSetup.class);
+	
     public static void install() {
         
         File appDir = AppUtil.getAppHome();
@@ -61,7 +66,7 @@ public class AppSetup {
         installLibrary(libraryName, unzipDir);
     }
 
-    public static void installLibrary(String libraryName, final File root) throws IOException {
+    public static void installLibrary(final String libraryName, final File root) throws IOException {
     	
         
         // Add as a resource root
@@ -75,9 +80,21 @@ public class AppSetup {
         		licenseFile = new File(root.getAbsolutePath() + "/license.txt");
         	}
         	if (licenseFile.exists()) {
-	        	JTextPane pane = new JTextPane();
-	        	pane.setPage(licenseFile.toURL());
-	        	JOptionPane.showMessageDialog(MapTool.getFrame(), pane, "License for " + libraryName, JOptionPane.INFORMATION_MESSAGE);
+        		System.out.println("EDT: " + EventQueue.isDispatchThread());
+        		final File licenseFileFinal = licenseFile;
+        		EventQueue.invokeLater(new Runnable() {
+        			public void run() {
+        				try {
+	        	        	JTextPane pane = new JTextPane();
+	        	        	pane.setPage(licenseFileFinal.toURL());
+	        	        	JOptionPane.showMessageDialog(MapTool.getFrame(), pane, "License for " + libraryName, JOptionPane.INFORMATION_MESSAGE);
+        				} catch (MalformedURLException e) {
+        					log.error("Could not load license file: " + licenseFileFinal, e);
+        				} catch (IOException e) {
+        					log.error("Could not load license file: " + licenseFileFinal, e);
+        				}
+        			}
+        		});
         	}
     	}
     	
