@@ -14,7 +14,9 @@
 package net.rptools.maptool.client.functions;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.InitiativeList.TokenInitiative;
 import net.rptools.parser.ParserException;
@@ -42,7 +44,10 @@ public class TokenInitHoldFunction extends AbstractTokenAccessorFunction {
      */
     @Override
     protected Object getValue(Token token) throws ParserException {
-        return TokenInitFunction.getTokenInitiative(token).isHolding() ? BigDecimal.ONE : BigDecimal.ZERO; 
+        TokenInitiative ti = TokenInitFunction.getTokenInitiative(token);
+        if (ti == null)
+            return I18N.getText("macro.function.TokenInit.notOnList");
+        return ti.isHolding() ? BigDecimal.ONE : BigDecimal.ZERO; 
     }
 
     /**
@@ -51,7 +56,10 @@ public class TokenInitHoldFunction extends AbstractTokenAccessorFunction {
     @Override
     protected Object setValue(Token token, Object value) throws ParserException {
         boolean set = getBooleanValue(value);
-        for (TokenInitiative ti : TokenInitFunction.getTokenInitiatives(token)) ti.setHolding(set);
+        List<TokenInitiative> tis = TokenInitFunction.getTokenInitiatives(token);
+        if (tis.isEmpty())
+            return I18N.getText("macro.function.TokenInit.notOnListSet");
+        for (TokenInitiative ti : tis) ti.setHolding(set);
         return set ? BigDecimal.ONE : BigDecimal.ZERO;
     }
 }

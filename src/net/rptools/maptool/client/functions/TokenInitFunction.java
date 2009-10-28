@@ -14,6 +14,7 @@
 package net.rptools.maptool.client.functions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
@@ -47,7 +48,10 @@ public class TokenInitFunction extends AbstractTokenAccessorFunction {
     @Override
     protected Object getValue(Token token) throws ParserException {
         String ret = "";
-        for (TokenInitiative ti : getTokenInitiatives(token)) {
+        List<TokenInitiative> tis = getTokenInitiatives(token);
+        if (tis.isEmpty())
+            return I18N.getText("macro.function.TokenInit.notOnList");
+        for (TokenInitiative ti : tis) {
             if (ret.length() > 0) ret += ", ";
             ret += ti.getState();
         } // endif
@@ -61,7 +65,10 @@ public class TokenInitFunction extends AbstractTokenAccessorFunction {
     protected Object setValue(Token token, Object value) throws ParserException {
         String sValue = null;
         if (value != null) sValue = value.toString();
-        for (TokenInitiative ti : getTokenInitiatives(token)) ti.setState(sValue);
+        List<TokenInitiative> tis = getTokenInitiatives(token);
+        if (tis.isEmpty())
+            return I18N.getText("macro.function.TokenInit.notOnListSet");
+        for (TokenInitiative ti : tis) ti.setState(sValue);
         return value;
     }
     
@@ -75,8 +82,7 @@ public class TokenInitFunction extends AbstractTokenAccessorFunction {
     public static TokenInitiative getTokenInitiative(Token token) throws ParserException {
         Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
         List<Integer> list = zone.getInitiativeList().indexOf(token);
-        if (list.isEmpty()) 
-            throw new ParserException(I18N.getText("macro.function.TokenInit.notOnListSet"));
+        if (list.isEmpty()) return null; 
         return zone.getInitiativeList().getTokenInitiative(list.get(0).intValue()); 
     }
     
@@ -90,8 +96,7 @@ public class TokenInitFunction extends AbstractTokenAccessorFunction {
     public static List<TokenInitiative> getTokenInitiatives(Token token) throws ParserException {
         Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
         List<Integer> list = zone.getInitiativeList().indexOf(token);
-        if (list.isEmpty()) 
-            throw new ParserException(I18N.getText("macro.function.TokenInit.notOnList"));
+        if (list.isEmpty()) return Collections.EMPTY_LIST;
         List<TokenInitiative> ret = new ArrayList<TokenInitiative>(list.size());
         for (Integer index : list)
             ret.add(zone.getInitiativeList().getTokenInitiative(index.intValue()));
