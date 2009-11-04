@@ -1563,9 +1563,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		                        	} else {
 		                        		
 		                        		double c = 0;
-                                        ZonePoint lastPoint = new ZonePoint(token.getX() + footprintBounds.width / 2, token.getY() + footprintBounds.height / 2);
+                                        ZonePoint lastPoint = null;
 		                                for (ZonePoint zp : set.gridlessPath.getCellPath()) {
-	
+
+		                                	if (lastPoint == null) {
+		                                		lastPoint = zp;
+		                                		continue;
+		                                	}
 		                                	int a = lastPoint.x - zp.x;
 		                                	int b = lastPoint.y - zp.y;
 		                                	
@@ -1574,11 +1578,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 		                                	lastPoint = zp;
 		                                }
 		                                
-                                        ZonePoint finalPoint = new ZonePoint((set.offsetX + token.getX()) + footprintBounds.width / 2, (set.offsetY + token.getY()) + footprintBounds.height / 2);
-		                        		int a = lastPoint.x - finalPoint.x;
-		                        		int b = lastPoint.y - finalPoint.y;
-		
-                                        c += Math.hypot(a, b);
 		                                c /= zone.getGrid().getSize(); // Number of "cells"
 		                                c *= zone.getUnitsPerCell(); // "actual" distance traveled
 		                                
@@ -1706,6 +1705,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         	// Zone point/gridless path
             int scaledWidth = (int) (footprintBounds.width * scale);
             int scaledHeight = (int) (footprintBounds.height * scale);
+            
 
         	// Line
         	Color highlight = new Color(255, 255, 255, 80);
@@ -1716,13 +1716,13 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
             List<ZonePoint> pathList = (List<ZonePoint>)path.getCellPath();
             for (ZonePoint zp : pathList) {
-
+            	            	
             	if (lastPoint == null) {
-            		lastPoint = ScreenPoint.fromZonePointRnd(this, zp.x + footprintBounds.width / 2, zp.y + footprintBounds.height / 2);            		
+            		lastPoint = ScreenPoint.fromZonePointRnd(this, zp.x + (footprintBounds.width / 2) * footprint.getScale(), zp.y + (footprintBounds.height / 2)*footprint.getScale());            		
             		continue;
             	}
             	
-                ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x + footprintBounds.width/2, zp.y + footprintBounds.height/2);
+                ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x + (footprintBounds.width / 2) * footprint.getScale() , zp.y+ (footprintBounds.height / 2)*footprint.getScale());
 
                 g.setColor(highlight);
                 g.setStroke(highlightStroke);
@@ -1733,7 +1733,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 g.drawLine((int) lastPoint.x, (int) lastPoint.y, (int) nextPoint.x, (int) nextPoint.y);
                 lastPoint = nextPoint;
             }
-            
+           
             SwingUtil.restoreAntiAliasing(g, oldAA);
             
             // Waypoints
@@ -1750,8 +1750,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             		continue;
             	}
             	
-            	p = new ZonePoint(p.x + footprintBounds.width/2, p.y + footprintBounds.height/2);
-                highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
+            	p = new ZonePoint((int)(p.x+(footprintBounds.width/2)*footprint.getScale()), (int)(p.y+(footprintBounds.height/2)*footprint.getScale()));
+            	highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
             }
         }
 
@@ -1771,7 +1771,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         
         g.drawImage(image, (int) (sp.x - iwidth / 2), (int) (sp.y - iheight / 2), (int) iwidth, (int) iheight, this);
     }
-
+    
     /**
      * Get a list of tokens currently visible on the screen.  The list is ordered by location starting
      * in the top left and going to the bottom right
