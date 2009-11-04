@@ -82,7 +82,8 @@ public interface ServerCommand {
         updateInitiative,
         updateTokenInitiative,
         setVisionType,
-        updateCampaignMacros
+        updateCampaignMacros,
+        setTokenLocation // NOTE: This is to support third party token placement and shouldn't be depended on for general purpose token movement
     };
 
     public void bootPlayer(String player);

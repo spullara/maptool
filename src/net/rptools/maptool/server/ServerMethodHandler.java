@@ -111,6 +111,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case updateTokenInitiative:   updateTokenInitiative(context.getGUID(0), context.getGUID(1), context.getBool(2), context.getString(3), context.getInt(4));break;
             case setVisionType:           setVisionType(context.getGUID(0), (VisionType)context.get(1));break;
             case updateCampaignMacros:	  updateCampaignMacros((List<MacroButtonProperties>) context.get(0));break;
+            case setTokenLocation:		  setTokenLocation(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3));break;
             }
         } finally {
             RPCContext.setCurrent(null);
@@ -476,6 +477,10 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 
     public void updateTokenMove(GUID zoneGUID, GUID tokenGUID, int x, int y) {
         forwardToClients();
+    }
+    
+    public void setTokenLocation(GUID zoneGUID, GUID tokenGUID, int x, int y) {
+    	forwardToClients();
     }
     
     public void setServerPolicy(ServerPolicy policy) {
