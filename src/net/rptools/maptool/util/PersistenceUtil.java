@@ -488,7 +488,7 @@ public class PersistenceUtil {
 
 		// Put this in FileUtil
 		if (file.getName().indexOf(".") < 0) {
-			file = new File(file.getAbsolutePath() + AppConstants.MACRO_FILE_EXTENSION);
+			file = new File(file.getAbsolutePath() + AppConstants.CAMPAIGN_PROPERTIES_FILE_EXTENSION);
 		}
 		PackedFile pakFile = new PackedFile(file);
 		clearAssets(pakFile);
