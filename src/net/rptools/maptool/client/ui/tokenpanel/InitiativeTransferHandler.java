@@ -92,7 +92,9 @@ public class InitiativeTransferHandler extends TransferHandler {
             InitiativeTransferable data = (InitiativeTransferable)t.getTransferData(InitiativeTransferable.INIT_TOKEN_FLAVOR);
             JList displayList = (JList)comp;
             int newIndex = displayList.getSelectedIndex();
-            if (newIndex == -1) newIndex = list.getSize();            
+            if (newIndex == -1) newIndex = list.getSize();
+            // fix drag/drop behavior
+            if (newIndex > data.getInititiave()) newIndex++;
             list.moveToken(data.getInititiave(), newIndex);            
             return true;
         } catch (UnsupportedFlavorException e) {
