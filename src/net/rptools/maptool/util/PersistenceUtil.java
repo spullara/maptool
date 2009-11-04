@@ -413,6 +413,9 @@ public class PersistenceUtil {
 			if (!AssetManager.hasAsset(key)) {
 				Asset asset = (Asset) pakFile.getFileObject(ASSET_DIR + key);
 				
+				if (asset == null)
+					continue;
+				
 				// pre 1.3b51 campaign files stored the image data directly in the asset serialization
 				if (asset.getImage() == null) {
 					byte[] imageData = pakFile.getFileData(ASSET_DIR + key + ".dat");
