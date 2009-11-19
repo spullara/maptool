@@ -67,7 +67,7 @@
 	<classpathentry kind="lib" path="lib/jide-grids-2.7.3.jar"/>
 	<classpathentry kind="lib" path="lib/jide-oss-2.7.3.jar"/>
 	<classpathentry kind="lib" path="lib/jide-properties-2.7.3.jar"/>
-	<classpathentry kind="lib" path="lib/clientserver-1.0.b15.jar"/>
 	<classpathentry kind="lib" path="lib/rplib-1.0.b119.jar"/>
+	<classpathentry kind="lib" path="lib/clientserver-1.0.b16.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
