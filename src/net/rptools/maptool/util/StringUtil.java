@@ -13,6 +13,9 @@
  */
 package net.rptools.maptool.util;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,9 +24,26 @@ import java.util.List;
  * @author Tylere
  */
 public class StringUtil {
-	
+	private static NumberFormat nf = NumberFormat.getNumberInstance();
+
 	public static String formatDecimal(double value) {
-		return String.format(value == (int)value ? "%.0f" : "%.2f", value);
+		String result1;
+		result1 = nf.format(value);		// On a separate line to allow for breakpoints
+		return result1;
+	}
+
+	public static Double parseDecimal(String text) throws ParseException {
+		double newValue = 0.0;
+		newValue = nf.parse(text).doubleValue();
+//		System.out.println("Decimal:  Input string is >>"+text+"<< and parsing produces "+newValue);
+		return newValue;
+	}
+
+	public static Integer parseInteger(String text) throws ParseException {
+		int newValue = 0;
+		newValue = nf.parse(text).intValue();
+//		System.out.println("Integer:  Input string is >>"+text+"<< and parsing produces "+newValue);
+		return newValue;
 	}
 
 	public static String wrapText(String string, int wrapLength, int startPosition, String wrapChar) {

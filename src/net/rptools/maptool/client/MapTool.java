@@ -40,6 +40,7 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
@@ -214,6 +215,15 @@ public class MapTool {
 	public static void showMessage(String message, String titleKey, int messageType, Object... params) {
 		String title = I18N.getText(titleKey, params);
 		JOptionPane.showMessageDialog(clientFrame, "<html>" + I18N.getText(message, params), title, messageType);
+	}
+	public static void showMessage(Object[] messages, String titleKey, int messageType, Object... params) {
+		String title = I18N.getText(titleKey, params);
+		JList list = new JList(messages);
+		JOptionPane.showMessageDialog(clientFrame, list, title, messageType);
+	}
+
+	public static void showFeedback(Object[] msgs) {
+		showMessage(msgs, "msg.title.messageDialogFeedback", JOptionPane.ERROR_MESSAGE);
 	}
 
 	public static void showError(String msgKey) {
@@ -1032,6 +1042,10 @@ public class MapTool {
 		// Check to see if there is an autosave file from mt crashing
 		getAutoSaveManager().check();
 		getAutoSaveManager().restart();
+
+		// FJE This is where an autosave of the chat log would go.  Trevor has said he wants
+		// a generalized timer for use throughout MapTool but that's not practical if this is
+		// going to make it into 1.3 (which seems unlikely now).
 
 		taskbarFlasher = new TaskBarFlasher(clientFrame);
 
