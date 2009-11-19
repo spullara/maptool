@@ -309,17 +309,17 @@ public class JSONMacroFunctions extends AbstractFunction {
 		}
 
 		if (functionName.equals("json.difference")) {
-			if (parameters.size() != 2) {
+			if (parameters.size() < 2) {
 				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
 			return JSONDifference(parameters);
 		}
-		
+
 		if (functionName.equals("json.intersection")) {
 			if (parameters.size() < 2) {
 				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
 			}
-			return JSONIntersection(parameters);			
+			return JSONIntersection(parameters);
 		}
 
 		if (functionName.equals("json.isSubset")) {
