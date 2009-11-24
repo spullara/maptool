@@ -1080,6 +1080,14 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public void setCurrentZoneRenderer(ZoneRenderer renderer) {
+		
+		// Flush first so that the new zone renderer can inject the newly needed images
+		if (renderer != null) {
+			ImageManager.flush(renderer.getZone().getAllAssetIds());
+		} else {
+			ImageManager.flush();
+		}
+		
 		// Handle new renderers
 		// TODO: should this be here ?
 		if (renderer != null && !zoneRendererList.contains(renderer)) {

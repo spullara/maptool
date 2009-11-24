@@ -25,8 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.rptools.lib.MD5Key;
 import net.rptools.lib.image.ImageUtil;
@@ -127,6 +125,22 @@ public class ImageManager {
 		return getImageAndWait(assetId, null);
 	}
 
+	/**
+	 * Flush all images that are _not_ in the provided set.  This 
+	 * presumes that the images in the exception set will still be in use after the flush
+	 */
+	public static void flush(Set<MD5Key> exceptionSet) {
+		
+		synchronized (imageLoaderMutex) {
+			
+			for (MD5Key id : new HashSet<MD5Key>(imageMap.keySet())) {
+				if (!exceptionSet.contains(id)) {
+					imageMap.remove(id);
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Loads the asset's raw image data into a 
 	 * buffered image, and waits for the image to load.

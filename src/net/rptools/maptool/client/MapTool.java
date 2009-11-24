@@ -198,6 +198,8 @@ public class MapTool {
 		String msg;
 		if (t == null) {
 			msg = I18N.getText(msgKey);
+		} else if (msgKey == null) {
+			msg = t.toString();
 		} else {
 			msg = I18N.getText(msgKey) + "<br>" + t.toString();
 		}

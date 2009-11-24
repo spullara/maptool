@@ -551,13 +551,10 @@ public class CampaignPropertiesDialog extends JDialog  {
 				double arc = 0;
 				for (String arg : line.substring(split+1).split("\\s+")) {
 
-					/*
-					 * Not needed when the split() parameter is "one or more spaces"...
 					arg = arg.trim();
 					if (arg.length() == 0) {
 						continue;
 					}
-					*/
 
 					// Shape designation ?
 					try {

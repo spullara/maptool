@@ -17,9 +17,7 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
-import net.rptools.parser.function.ParameterException;
 import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 public class JSONMacroFunctions extends AbstractFunction {
@@ -1134,7 +1132,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 		String[] props = prop.split(delim);
 		HashMap<String, Object> obmap = new HashMap<String, Object>();
 		for (String s : props) {
-			String[] vals = s.split("=");
+			String[] vals = s.split("=", 2);
 			if (vals.length > 1) {
 				// Try to convert it to a number and if that works we store it that way
 				try {
