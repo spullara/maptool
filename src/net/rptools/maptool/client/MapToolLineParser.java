@@ -1270,11 +1270,6 @@ public class MapToolLineParser {
 				HTMLFrameFactory.tokenChanged(tokenInContext);
 			}
 			MapTool.getFrame().refresh(); // Repaint incase macros changed anything. 
-			
-			if (res == null) {
-				// indicating that we created the variable resolver, and it will be released when returning from this call
-				resolver.flush();
-			}
 		}
 
 	}
@@ -1325,6 +1320,11 @@ public class MapToolLineParser {
 			throw new ParserException(I18N.getText("lineParser.errorExecutingExpression", e.toString(), expression));
 		} finally {
 			parserRecurseDepth--;
+			
+			if (parserRecurseDepth == 0) {
+				// We have completed the expression
+				((MapToolVariableResolver)resolver).flush();
+			}
 		}
 	}	
 
