@@ -14,11 +14,10 @@
 package net.rptools.maptool.client;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
-
-import org.apache.log4j.Logger;
 
 import net.rptools.maptool.client.functions.CurrentInitiativeFunction;
 import net.rptools.maptool.client.functions.InitiativeRoundFunction;
@@ -32,16 +31,17 @@ import net.rptools.maptool.client.functions.TokenLabelFunction;
 import net.rptools.maptool.client.functions.TokenNameFunction;
 import net.rptools.maptool.client.functions.TokenStateFunction;
 import net.rptools.maptool.client.functions.TokenVisibleFunction;
-import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenProperty;
-import net.rptools.maptool.model.Zone;
 import net.rptools.parser.MapVariableResolver;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.VariableModifiers;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
+import org.apache.log4j.Logger;
 
 public class MapToolVariableResolver extends MapVariableResolver {
 	
@@ -83,7 +83,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
     private final static String			TOKEN_VISIBLE   = "token.visible";
     
     
-    
+    private List<Runnable> delayedActionList = new ArrayList<Runnable>();
     
     private Token tokenInContext;
 
@@ -98,6 +98,24 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		}
     }
 
+    /**
+     * Add an action to be performed after the full expression has been evaluated.
+     */
+    public void addDelayedAction(Runnable runnable) {
+    	if (!delayedActionList.contains(runnable)) {
+    		delayedActionList.add(runnable);
+    	}
+    }
+
+    /**
+     * Perform any delayed actions.  This should called by the command framework only.
+     */
+    public void flush() {
+    	for (Runnable r : delayedActionList) {
+    		r.run();
+    	}
+    }
+    
 	@Override
 	public boolean containsVariable(String name, VariableModifiers mods) {
 
@@ -242,8 +260,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		if (tokenInContext != null) {
             if (validTokenProperty(varname, tokenInContext)) {
             	tokenInContext.setProperty(varname, value.toString());
-        		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-                		tokenInContext);
+            	addDelayedAction(new PutTokenAction(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext));
                 return;
             }
         }
@@ -252,6 +269,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
         if (varname.startsWith(STATE_PREFIX)) {
             String stateName = varname.substring(STATE_PREFIX.length());
             TokenStateFunction.getInstance().setState(tokenInContext, stateName, value);
+        	addDelayedAction(new PutTokenAction(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext));
             return;
         } else if (varname.startsWith(BAR_PREFIX)) {
             String barName = varname.substring(BAR_PREFIX.length());
@@ -381,4 +399,29 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		tokenInContext = token;
 	}
     
+	public static class PutTokenAction implements Runnable {
+		private GUID zoneId;
+		private Token token;
+		
+		public PutTokenAction(GUID zoneId, Token token) {
+			this.zoneId = zoneId;
+			this.token = token;
+		}
+
+		public void run() {
+	 		MapTool.serverCommand().putToken(zoneId, token);
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof PutTokenAction)) {
+				return false;
+			}
+			
+			PutTokenAction other = (PutTokenAction)obj;
+			
+			return zoneId.equals(other.zoneId) && token.equals(other.token);
+		}
+	}
+	
 }

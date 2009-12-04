@@ -654,9 +654,10 @@ public class MapToolLineParser {
 		
 		Stack<Token> contextTokenStack = new Stack<Token>();
 		enterContext(context);
- 		try {
+		MapToolVariableResolver resolver = null;
+		try {
 			// Keep the same variable context for this line
-			MapToolVariableResolver resolver = (res==null) ? new MapToolVariableResolver(tokenInContext) : res;
+			resolver = (res==null) ? new MapToolVariableResolver(tokenInContext) : res;
 
 			StringBuilder builder = new StringBuilder();
 			
@@ -1269,6 +1270,11 @@ public class MapToolLineParser {
 				HTMLFrameFactory.tokenChanged(tokenInContext);
 			}
 			MapTool.getFrame().refresh(); // Repaint incase macros changed anything. 
+			
+			if (res == null) {
+				// indicating that we created the variable resolver, and it will be released when returning from this call
+				resolver.flush();
+			}
 		}
 
 	}

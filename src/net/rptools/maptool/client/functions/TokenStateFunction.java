@@ -96,7 +96,6 @@ public class TokenStateFunction extends AbstractFunction {
 			}
 		} else {
 			setBooleanTokenState(token, stateName, value);
-	 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
 		}
 	}
 	
@@ -170,8 +169,9 @@ public class TokenStateFunction extends AbstractFunction {
 		val = args.get(1);
 		
 		setBooleanTokenState(token, stateName, val);
- 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
- 		return val;
+		((MapToolVariableResolver)parser.getVariableResolver()).addDelayedAction(new MapToolVariableResolver.PutTokenAction(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token));
+
+		return val;
 	}
 	
 	/**
@@ -311,4 +311,5 @@ public class TokenStateFunction extends AbstractFunction {
 			return sb.toString();
 		}	
 	}
+	
 }
