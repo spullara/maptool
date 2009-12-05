@@ -655,9 +655,12 @@ public class MapToolLineParser {
 		Stack<Token> contextTokenStack = new Stack<Token>();
 		enterContext(context);
 		MapToolVariableResolver resolver = null;
+		boolean resolverInitialized = false;
 		try {
 			// Keep the same variable context for this line
 			resolver = (res==null) ? new MapToolVariableResolver(tokenInContext) : res;
+			
+			resolverInitialized = resolver.initialize();
 
 			StringBuilder builder = new StringBuilder();
 			
@@ -1264,6 +1267,12 @@ public class MapToolLineParser {
 			return builder.toString();
 		} finally {
 			exitContext();
+			
+			if (resolverInitialized) {
+				// This is the top level call, time to clean up
+				resolver.flush();
+			}
+			
 			// If we have exited the last context let the html frame we have (potentially)
 			// updated a token.
 			if (contextStackEmpty()) {
@@ -1320,11 +1329,6 @@ public class MapToolLineParser {
 			throw new ParserException(I18N.getText("lineParser.errorExecutingExpression", e.toString(), expression));
 		} finally {
 			parserRecurseDepth--;
-			
-			if (parserRecurseDepth == 0) {
-				// We have completed the expression
-				((MapToolVariableResolver)resolver).flush();
-			}
 		}
 	}	
 

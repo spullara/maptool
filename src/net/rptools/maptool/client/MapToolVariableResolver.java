@@ -83,7 +83,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
     private final static String			TOKEN_VISIBLE   = "token.visible";
     
     
-    private List<Runnable> delayedActionList = new ArrayList<Runnable>();
+    private List<Runnable> delayedActionList;
     
     private Token tokenInContext;
 
@@ -98,6 +98,18 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		}
     }
 
+    /** 
+     * Initialize this resolver
+     * @return true if initialization actually happened, false if it's already been initialized
+     */
+    public boolean initialize() {
+    	if (delayedActionList == null) {
+    		delayedActionList = new ArrayList<Runnable>();
+    		return true;
+    	}
+    	return false;
+    }
+    
     /**
      * Add an action to be performed after the full expression has been evaluated.
      */
