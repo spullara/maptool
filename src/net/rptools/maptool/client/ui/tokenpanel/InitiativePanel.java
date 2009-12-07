@@ -47,6 +47,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.rptools.maptool.client.AppPreferences;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
@@ -809,7 +810,7 @@ public class InitiativePanel extends JPanel implements PropertyChangeListener, M
                     // Show the selected token on the map.
                     Token token = ((TokenInitiative)displayList.getSelectedValue()).getToken();
         			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-        			if (renderer == null || token == null || (!token.isToken() && !MapTool.getPlayer().isGM())) {
+        			if (renderer == null || token == null || (!token.isToken() && !MapTool.getPlayer().isGM()) || !AppUtil.playerOwns(token)) {
         				return;
         			}
 
