@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.util;
 
@@ -28,15 +28,15 @@ import net.sbbi.upnp.messages.UPNPResponseException;
 public class UPnPUtil {
 	private static int discoveryTimeout = 5000; // Should be made a preference setting
 	private static InternetGatewayDevice[] IGDs;
-	
+
 	public static boolean findIGDs() {
 		try {
 			IGDs = InternetGatewayDevice.getDevices(discoveryTimeout);
 		} catch (IOException ex) {
 			// some IO Exception occurred during communication with device
-			MapTool.showError("While retrieving built-in 'grid.gif' image", ex);
+			MapTool.showError("While searching for gateway devices", ex);
 		}
-		
+
 		if (IGDs != null) {
 			System.out.println("UPnP:  Found device: "	+ IGDs[0].getIGDRootDevice().getModelName());
 			return true;
