@@ -31,7 +31,7 @@ public class HTMLPane extends JEditorPane {
 	private ActionListener actionListeners;
 	private HTMLPaneEditorKit editorKit;
 	
-	HTMLPane() {
+	public HTMLPane() {
 		registerEditorKitForContentType("text/html", "net.rptools.maptool.client.ui.htmlframe.HTMLPaneEditorKit");
 		editorKit = new HTMLPaneEditorKit(this);
 		setEditorKit(editorKit);

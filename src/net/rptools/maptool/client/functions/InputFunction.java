@@ -1,5 +1,6 @@
 package net.rptools.maptool.client.functions;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -15,6 +16,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.math.BigDecimal;
@@ -51,9 +54,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.rptools.lib.MD5Key;
+import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.functions.InputFunction.InputType.OptionException;
+import net.rptools.maptool.client.ui.htmlframe.HTMLPane;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
@@ -367,7 +372,7 @@ public class InputFunction extends AbstractFunction {
 	final class ColumnPanel extends JPanel {
 		public VarSpec          tabVarSpec;		// VarSpec for this subpanel's tab, if any
 		public List<VarSpec>	varSpecs;
-		public List<JLabel>		labels;			// the labels in the left column
+		public List<JComponent>	labels;			// the labels in the left column
 		public List<JComponent>	inputFields;	// the input controls (some may be panels for composite inputs)
 		public JComponent       lastFocus;		// last input field with the focus
 		public JComponent       onShowFocus;	// field to gain focus when shown
@@ -378,7 +383,7 @@ public class InputFunction extends AbstractFunction {
 		public ColumnPanel() {
 			tabVarSpec = null;
 			varSpecs = new ArrayList<VarSpec>();
-			labels = new ArrayList<JLabel>();
+			labels = new ArrayList<JComponent>();
 			inputFields = new ArrayList<JComponent>();
 			lastFocus = null;
 			onShowFocus = null;
@@ -418,8 +423,21 @@ public class InputFunction extends AbstractFunction {
 
 			// add the label
 			gbc.gridx = 0;
-			JLabel l = new JLabel(vs.prompt + ":");
+			
+			JComponent l;
+			Matcher m = Pattern.compile("^ *<html>(.*)<\\/html> *$").matcher(vs.prompt);
+			
+			if (m.find()) {
+				// For HTML values we use a HTMLPane.
+				HTMLPane htmlp = new HTMLPane();
+				htmlp.setText("<html>" + m.group(1) + ":" + "</html>");
+				htmlp.setBackground(Color.decode("0xECE9D8"));
+				l = htmlp;
+			} else {
+				l = new JLabel(vs.prompt + ":");
+			}
 			labels.add(l);
+
 			if (! vs.optionValues.optionEquals("SPAN", "TRUE")) {
 				// if the control is not set to span, we include the prompt label
 				add(l, gbc);
@@ -652,9 +670,19 @@ public class InputFunction extends AbstractFunction {
 
 		/** Creates a label control, with optional icon. */
 		public JComponent createLabelControl(VarSpec vs) {
-			UpdatingLabel label = new UpdatingLabel();
 			boolean hasText = vs.optionValues.optionEquals("TEXT", "TRUE");
 			boolean hasIcon = vs.optionValues.optionEquals("ICON", "TRUE");
+
+			if (hasText && vs.value.matches("<html>.*<\\/html>")) {
+				// For HTML values we use a HTMLPane.
+				HTMLPane htmlp = new HTMLPane();
+				htmlp.setText(vs.value);
+				htmlp.setBackground(Color.decode("0xECE9D8"));
+				return htmlp;
+			}
+
+			UpdatingLabel label = new UpdatingLabel();
+			
 			int iconSize = vs.optionValues.getNumeric("ICONSIZE", 0);
 			if (iconSize <= 0) hasIcon = false;
 			String valueText = "", assetID = "";
@@ -675,7 +703,7 @@ public class InputFunction extends AbstractFunction {
 				icon = getIcon(assetID, iconSize, label);
 				if (icon == null) hasIcon = false;
 			}
-
+			
 			// Assemble the label
 			if (hasText) label.setText(valueText);
 			if (hasIcon) label.setIcon(icon);
@@ -1125,6 +1153,8 @@ public class InputFunction extends AbstractFunction {
 	
 	/** JLabel variant that listens for new image data, and redraws its icon. */
 	public class UpdatingLabel extends JLabel {
+		private String macroLink;
+		
 		@Override
 		public boolean imageUpdate(Image img, int infoflags, int x, int y, int w, int h) {
 			Icon curIcon = getIcon();
@@ -1145,6 +1175,18 @@ public class InputFunction extends AbstractFunction {
 			// Update our Icon
 			setIcon(new ImageIcon(sizedImage));
 			return false;
+		}
+		
+		
+		public void setMacroLink(String link) {
+			macroLink = link;
+			this.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					System.out.println(macroLink);
+				}
+				
+			});
 		}
 	}
 
