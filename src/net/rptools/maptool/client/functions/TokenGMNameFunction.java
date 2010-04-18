@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.functions;
 
@@ -17,24 +17,22 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
 
 public class TokenGMNameFunction extends AbstractFunction {
-	
+
 	private TokenGMNameFunction() {
 		super(0,2, "getGMName", "setGMName");
 	}
 
-	
+
 	/** Singleton instance of GMName.*/
 	private final static TokenGMNameFunction instance = new TokenGMNameFunction();
-	
+
 	/**
 	 * Gets the singleton instance of GMName.
 	 * @return the instance.
@@ -42,7 +40,7 @@ public class TokenGMNameFunction extends AbstractFunction {
 	public final static TokenGMNameFunction getInstance() {
 		return instance;
 	}
-	
+
 	/**
 	 * Gets the GMName of the specified token.
 	 * @param token the token to get theGMName of.
@@ -55,8 +53,8 @@ public class TokenGMNameFunction extends AbstractFunction {
 		}
 		return token.getGMName() != null ? token.getGMName() : "";
 	}
-	
-	
+
+
 	/**
 	 * Sets the GMName of the token.
 	 * @param token the token to set the GMName of.
@@ -69,8 +67,8 @@ public class TokenGMNameFunction extends AbstractFunction {
 		}
 		token.setGMName(name);
 	}
-	
-	
+
+
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args)
 			throws ParserException {
@@ -81,10 +79,10 @@ public class TokenGMNameFunction extends AbstractFunction {
 			return setGMName(parser, args);
 		}
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * Gets the GM name of the token
 	 * @param parser The parser that called the Object.
@@ -94,7 +92,7 @@ public class TokenGMNameFunction extends AbstractFunction {
 	 */
 	private Object getGMName(Parser parser, List<Object> args) throws ParserException {
 		Token token;
-		
+
 		if (args.size() == 1) {
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
 			if (token == null) {
@@ -107,7 +105,7 @@ public class TokenGMNameFunction extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getGMName"));
 			}
 		} else {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getGMName"));
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "getGMName", 1, args.size()));
 		}
 		return getGMName(token);
 	}
@@ -132,12 +130,14 @@ public class TokenGMNameFunction extends AbstractFunction {
 			if (token == null) {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setGMName"));
 			}
+		} else if (args.size() == 0) {
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setGMName", 1, args.size()));
 		} else {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setGMName"));
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "setGMName", 2, args.size()));
 		}
-		
+
 		token.setGMName(args.get(0).toString());
-		
+
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
         		token);
  		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);

@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -104,7 +104,7 @@ import de.muntjak.tinylookandfeel.controlpanel.ColorReference;
 public class MapTool {
 
 	private static final Logger log = Logger.getLogger(MapTool.class);
-	
+
 	/**
 	 * URLs for the Help menu. Currently consists of: <b>helpURL</b>,
 	 * <b>tutorialsURL</b>, and <b>forumsURL</b>.
@@ -127,17 +127,17 @@ public class MapTool {
 	 * sounds currently: <b>Dink</b> and <b>Clink</b>.
 	 */
 	private static final String SOUND_PROPERTIES = "net/rptools/maptool/client/sounds.properties";
-	
+
 	/**
 	 * Returns true if currently running on a Mac OS X based operating system.
 	 */
-	public static boolean MAC_OS_X = (System.getProperty("os.name").toLowerCase().startsWith("mac os x"));	
+	public static boolean MAC_OS_X = (System.getProperty("os.name").toLowerCase().startsWith("mac os x"));
 
 	public static enum ZoneEvent {
 
-		Added, 
-		Removed, 
-		Activated, 
+		Added,
+		Removed,
+		Activated,
 		Deactivated
 
 	}
@@ -167,9 +167,9 @@ public class MapTool {
     private static MapToolServer server;
     private static ServerCommand serverCommand;
     private static ServerPolicy serverPolicy;
-    
+
     private static BackupManager backupManager;
-    
+
     private static AssetTransferManager assetTransferManager;
 
 	private static ServiceAnnouncer announcer;
@@ -272,7 +272,7 @@ public class MapTool {
 		if(!AppPreferences.getTokensWarnWhenDeleted()) {
 			return true;
 		}
-		
+
 		String msg = I18N.getText("msg.confirm.deleteToken");
 		log.debug(msg);
 		Object[] options = { I18N.getText("msg.title.messageDialog.yes"),
@@ -282,22 +282,22 @@ public class MapTool {
 		int val = JOptionPane.showOptionDialog(clientFrame, msg, title,
 	            JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
 	            null, options, options[0]);
-		
-		// Cancel Button 
+
+		// Cancel Button
 		if(val == 1) {
 			return false;
 		}
-		
+
 		// Don't show again Button
 		if(val == 2) {
 			showInformation("msg.confirm.deleteToken.removed");
 			AppPreferences.setTokensWarnWhenDeleted(false);
 		}
-		
+
 		// Assumed 'Yes' response
 		return true;
 	}
-	
+
 	private MapTool() {
 		// Not instantiatable
 	}
@@ -432,28 +432,28 @@ public class MapTool {
 
 		assetTransferManager = new AssetTransferManager();
 		assetTransferManager.addConsumerListener(new AssetTransferHandler());
-		
+
         playerList = new ObservableList<Player>();
         messageList = new ObservableList<TextMessage>(Collections.synchronizedList(new ArrayList<TextMessage>()));
-        
+
         handler = new ClientMethodHandler();
-        
+
         clientFrame = new MapToolFrame(menuBar);
-        
+
         serverCommand = new ServerCommandClientImpl();
-        
+
         player = new Player("", Player.Role.GM, "");
-        
+
         try {
         	startPersonalServer(CampaignFactory.createBasicCampaign());
         } catch (Exception e) {
 			MapTool.showError("While starting personal server", e);
         }
         AppActions.updateActions();
-        
+
         ToolTipManager.sharedInstance().setInitialDelay(AppPreferences.getToolTipInitialDelay());
         ToolTipManager.sharedInstance().setDismissDelay(AppPreferences.getToolTipDismissDelay());
-        
+
         // TODO: make this more formal when we switch to mina
         new ServerHeartBeatThread().start();
 	}
@@ -463,7 +463,8 @@ public class MapTool {
 	        profilingNoteFrame = new NoteFrame();
 	        profilingNoteFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 	        profilingNoteFrame.addWindowListener(new WindowAdapter() {
-	        	public void windowClosing(WindowEvent e) {
+	        	@Override
+				public void windowClosing(WindowEvent e) {
 	        		AppState.setCollectProfilingData(false);
 	        		profilingNoteFrame.setVisible(false);
 	        	}
@@ -473,7 +474,7 @@ public class MapTool {
 		}
 		return profilingNoteFrame;
 	}
-	
+
 	public static String getVersion() {
 		if (version == null) {
 			version = "DEVELOPMENT";
@@ -596,7 +597,7 @@ public class MapTool {
 	/**
 	 * Add a message only this client can see. This is a shortcut for
 	 * addMessage(ME, ...)
-	 * 
+	 *
 	 * @param message
 	 */
 	public static void addLocalMessage(String message) {
@@ -648,20 +649,20 @@ public class MapTool {
         clientFrame.getInitiativePanel().setOwnerPermissions(campaign.isInitiativeOwnerPermissions());
         clientFrame.getInitiativePanel().setMovementLock(campaign.isInitiativeMovementLock());
 		clientFrame.setCurrentZoneRenderer(currRenderer);
-    	
+
     	AssetManager.updateRepositoryList();
     	MapTool.getFrame().getCampaignPanel().reset();
     	UserDefinedMacroFunctions.getInstance().loadCampaignLibFunctions();
     }
-    
+
     public static void setServerPolicy(ServerPolicy policy) {
     	serverPolicy = policy;
     }
-    
+
     public static AssetTransferManager getAssetTransferManager() {
     	return assetTransferManager;
     }
-    
+
 	public static void startServer(String id, ServerConfig config, ServerPolicy policy, Campaign campaign) throws IOException {
 		if (server != null) {
 			Thread.dumpStack();
@@ -876,7 +877,7 @@ public class MapTool {
 	}
 
 	private static void configureLogging() {
-		
+
     	String logging = null;
     	try {
     		logging = new String(FileUtil.getBytes(MapTool.class.getClassLoader().getResourceAsStream("net/rptools/maptool/client/logging.xml")));
@@ -897,7 +898,7 @@ public class MapTool {
 
 		logging = logging.replace("INSERT_LOCAL_CONFIG_HERE", localConfig);
         logging = logging.replace("${appHome}", AppUtil.getAppHome().getAbsolutePath().replace('\\', '/'));
-        
+
         // Configure
         new DOMConfigurator().doConfigure(new ByteArrayInputStream(logging.getBytes()), LogManager.getLoggerRepository());
 	}
@@ -930,7 +931,7 @@ public class MapTool {
         };
         uiDefaultsCustomizer.customize(UIManager.getDefaults());
 	}
-	
+
 	public static void main(String[] args) {
 
 		// Before anything else, create a place to store all the data
@@ -943,13 +944,13 @@ public class MapTool {
 			JFrame frame = new JFrame();
 			SwingUtil.centerOnScreen(frame);
 			frame.setVisible(true);
-			
+
 			JOptionPane.showMessageDialog(frame, t.getMessage(), "Error creating data dir", JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
-		
+
 		configureLogging();
-		
+
 		// System properties
 		System.setProperty("swing.aatext", "true");
 		// System.setProperty("sun.java2d.opengl", "true");
@@ -966,8 +967,8 @@ public class MapTool {
 
         // LAF
         try {
-        	
-        	
+
+
         	// If we are running under Mac OS X then save native menu bar look & feel components
         	// Note the order of creation for the AppMenuBar, this specific chronology
         	// allows the system to set up system defaults before we go and modify things.
@@ -982,7 +983,7 @@ public class MapTool {
         		UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
        			menuBar = new AppMenuBar();
         	}
-        	
+
     		com.jidesoft.utils.Lm.verifyLicense("Trevor Croft", "rptools", "5MfIVe:WXJBDrToeLWPhMv3kI2s3VFo");
     		LookAndFeelFactory.addUIDefaultsCustomizer(new LookAndFeelFactory.UIDefaultsCustomizer(){
     			public void customize(UIDefaults defaults) {
@@ -991,13 +992,14 @@ public class MapTool {
     			}
     		});
     		LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
-        	    		
+
         	// Make the toggle button pressed state look more distinct
         	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
-        	
+
         	configureJide();
 		} catch (Exception e) {
 			MapTool.showError("msg.error.lafSetup", e);
+			System.exit(1);
 		}
 
 		// This is a tweak that makes the Chinese version work better
@@ -1065,11 +1067,11 @@ public class MapTool {
 			if (ZoneFactory.DEFAULT_MAP_NAME.equals(singleZone.getName()) && singleZone.isEmpty()) {
 				return false;
 			}
-		} 
-		
+		}
+
 		return true;
 	}
-	
+
 	public static void setLastWhisperer(String lastWhisperer) {
 		if (lastWhisperer != null) {
 			MapTool.lastWhisperer = lastWhisperer;
@@ -1079,8 +1081,8 @@ public class MapTool {
 	public static String getLastWhisperer() {
 		return lastWhisperer;
 	}
-	
-	
+
+
 	public static boolean useToolTipsForUnformatedRolls() {
 		if (isPersonalServer()) {
 			return AppPreferences.getUseToolTipForInlineRoll();

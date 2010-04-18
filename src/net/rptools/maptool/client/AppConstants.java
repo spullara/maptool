@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -37,14 +34,13 @@ public class AppConstants {
 	public static final FilenameFilter IMAGE_FILE_FILTER = new FilenameFilter() {
 		public boolean accept(File dir, String name) {
 			name = name.toLowerCase();
-			return name.endsWith(".bmp") || 
-					name.endsWith(".png") || 
-					name.endsWith(".jpg") || 
-					name.endsWith(".jpeg") || 
-					name.endsWith(".gif") ||
-
-					// RPTools Token format
-					name.endsWith(Token.FILE_EXTENSION);
+			// I can drop TIFF files into TokenTool and it works. Should that extension be
+			// added here? The question is really whether the Java2D libraries can read TIFF
+			// or my desktop GUI is converting the image during the drop operation... FJE
+			return name.endsWith(".bmp") ||
+						name.endsWith(".png") || name.endsWith(".gif") ||
+						name.endsWith(".jpg") || name.endsWith(".jpeg") ||
+						name.endsWith(Token.FILE_EXTENSION);			// RPTools Token format
 		}
 	};
 

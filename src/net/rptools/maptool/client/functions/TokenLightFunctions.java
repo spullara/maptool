@@ -1,18 +1,13 @@
 package net.rptools.maptool.client.functions;
 
-import java.awt.EventQueue;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.AttachedLightSource;
 import net.rptools.maptool.model.Direction;
-import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
@@ -22,18 +17,18 @@ import net.sf.json.JSONArray;
 
 public class TokenLightFunctions extends AbstractFunction {
 
-	
+
 	private final static TokenLightFunctions instance = new TokenLightFunctions();
-	
+
 	private TokenLightFunctions() {
 		super(0,3, "hasLightSource", "clearLights", "setLight", "getLights");
 	}
-	
-	
+
+
 	public static TokenLightFunctions getInstance() {
 		return instance;
 	}
-	
+
 	@Override
 	public Object childEvaluate(Parser parser, String functionName,
 			List<Object> parameters) throws ParserException {
@@ -42,31 +37,31 @@ public class TokenLightFunctions extends AbstractFunction {
 		if (tokenInContext == null) {
 			throw new ParserException(I18N.getText("macro.function.general.noImpersonated", functionName));
 		}
-		
+
 		if (functionName.equals("hasLightSource")) {
 			return hasLightSource(tokenInContext, parameters) ? BigDecimal.ONE : BigDecimal.ZERO;
 		}
-		
+
 		if (functionName.equals("clearLights")) {
 			tokenInContext.clearLightSources();
             MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), tokenInContext);
             MapTool.getFrame().updateTokenTree();
 			return "";
 		}
-		
+
 		if (functionName.equals("setLight")) {
 			if (parameters.size() < 3) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 3, parameters.size()));
 			}
-			
+
 			if (!(parameters.get(2) instanceof BigDecimal)) {
 				throw new ParserException(I18N.getText("macro.function.general.argumentTypeN", functionName, 3));
 			}
 
-			return setLight(tokenInContext, parameters.get(0).toString(), parameters.get(1).toString(), 
+			return setLight(tokenInContext, parameters.get(0).toString(), parameters.get(1).toString(),
 							(BigDecimal)parameters.get(2));
 		}
-		
+
 		if (functionName.equals("getLights")) {
 			String delim = parameters.size() > 1 ? parameters.get(1).toString() : ",";
 			return getLights(tokenInContext, parameters.size() > 0 ? parameters.get(0).toString() : null, delim);
@@ -76,32 +71,32 @@ public class TokenLightFunctions extends AbstractFunction {
 
 
 	/**
-	 * Gets the names of the light sources that are on. 
+	 * Gets the names of the light sources that are on.
 	 * @param token The token to get the light sources for.
 	 * @param category The category to get the light sources for, if null then
-	 * the light sources for all categories will be returned.  
+	 * the light sources for all categories will be returned.
 	 * @param delim the delimiter for the list.
 	 * @return a string list containing the lights that are on.
 	 */
 	private String getLights(Token token, String category, String delim) {
 		ArrayList<String> lightList = new ArrayList<String>();
-		
+
 		if (category == null || category.equals("*")) {
 			for (String catName : MapTool.getCampaign().getLightSourcesMap().keySet()) {
 				for (LightSource ls : MapTool.getCampaign().getLightSourcesMap().get(catName).values()) {
 					if (token.hasLightSource(ls)) {
 						lightList.add(ls.getName());
 					}
-				}			
+				}
 			}
 		} else {
 			for (LightSource ls : MapTool.getCampaign().getLightSourcesMap().get(category).values()) {
 				if (token.hasLightSource(ls)) {
 					lightList.add(ls.getName());
-				}				
+				}
 			}
-		}	
-		
+		}
+
 		if ("json".equals(delim)) {
 			return JSONArray.fromObject(lightList).toString();
 		} else {
@@ -115,14 +110,14 @@ public class TokenLightFunctions extends AbstractFunction {
 	 * @param token The token to set the light for.
 	 * @param category the category of the light source.
 	 * @param name The name of the light source.
-	 * @param val The value to set for the light source, 0 for off non 0 for on. 
+	 * @param val The value to set for the light source, 0 for off non 0 for on.
 	 * @return 0 If the light was not found, otherwise 1;
 	 * @throws ParserException
 	 */
 	private BigDecimal setLight(Token token, String category, String name, BigDecimal val) throws ParserException {
-		
+
 		boolean found = false;
-				
+
 		for (LightSource ls : MapTool.getCampaign().getLightSourcesMap().get(category).values()) {
 			if (ls.getName().equals(name)) {
 				found = true;
@@ -132,7 +127,7 @@ public class TokenLightFunctions extends AbstractFunction {
 					token.addLightSource(ls, Direction.CENTER);
 				}
 			}
-		}	
+		}
 		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
  		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
         MapTool.getFrame().updateTokenTree();
@@ -140,7 +135,7 @@ public class TokenLightFunctions extends AbstractFunction {
 
 
 		return found ? BigDecimal.ONE : BigDecimal.ZERO;
-		
+
 	}
 
 
@@ -159,9 +154,9 @@ public class TokenLightFunctions extends AbstractFunction {
 		if (parameters.size() < 1) {
 			return token.hasLightSources();
 		}
-		
+
 		String category = parameters.get(0).toString();
-		
+
 		if (parameters.size() < 2) {
 			for (LightSource ls : MapTool.getCampaign().getLightSourcesMap().get(category).values()) {
 				if (token.hasLightSource(ls)) {
@@ -170,19 +165,19 @@ public class TokenLightFunctions extends AbstractFunction {
 			}
 			return false;
 		}
-		
+
 		String name = parameters.get(1).toString();
-		
+
 		for (LightSource ls : MapTool.getCampaign().getLightSourcesMap().get(category).values()) {
 			if (ls.getName().equals(name)) {
 				if (token.hasLightSource(ls)) {
 					return true;
 				}
 			}
-		}		
+		}
 		return false;
 	}
-	
-	
+
+
 
 }

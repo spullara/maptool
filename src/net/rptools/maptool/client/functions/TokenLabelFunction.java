@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.functions;
 
@@ -17,9 +17,7 @@ import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
-import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -29,16 +27,16 @@ public class TokenLabelFunction extends AbstractFunction {
 
 	/** The singleton instance. */
 	private final static TokenLabelFunction instance = new TokenLabelFunction();
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public static TokenLabelFunction getInstance() {
 		return instance;
 	}
-	
+
 	private TokenLabelFunction() {
 		super(0,2, "getLabel", "setLabel");
 	}
@@ -61,8 +59,8 @@ public class TokenLabelFunction extends AbstractFunction {
 		token.setLabel(label);
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
 	}
-	
-	
+
+
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args)
 			throws ParserException {
@@ -72,8 +70,8 @@ public class TokenLabelFunction extends AbstractFunction {
 			return setLabel(parser, args);
 		}
 	}
-	
-	
+
+
 	/**
 	 * Gets the label of the token
 	 * @param parser The parser that called the Object.
@@ -83,10 +81,10 @@ public class TokenLabelFunction extends AbstractFunction {
 	 */
 	private Object getLabel(Parser parser, List<Object> args) throws ParserException {
 		Token token;
-		
+
 		if (args.size() == 1) {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "getLabel"));				
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "getLabel"));
 			}
 
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
@@ -100,7 +98,7 @@ public class TokenLabelFunction extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getLabel"));
 			}
 		} else {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getLabel"));
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "getLabel", 1, args.size()));
 		}
 
 		return getLabel(token);
@@ -115,10 +113,10 @@ public class TokenLabelFunction extends AbstractFunction {
 	 */
 	private Object setLabel(Parser parser, List<Object> args) throws ParserException {
 		Token token;
-		
+
 		if (args.size() == 2) {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "setLabel"));				
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "setLabel"));
 			}
 
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
@@ -131,9 +129,11 @@ public class TokenLabelFunction extends AbstractFunction {
 			if (token == null) {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setLabel"));
 			}
+		} else if (args.size() == 0) {
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setLabel", 1, args.size()));
 		} else {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setLabel"));
-		}		
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "setLabel", 2, args.size()));
+		}
 		setLabel(token, args.get(0).toString());
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
         		token);

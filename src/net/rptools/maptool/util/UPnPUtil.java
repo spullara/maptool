@@ -15,6 +15,7 @@ package net.rptools.maptool.util;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.io.ResolveLocalHostname;
@@ -26,6 +27,7 @@ import net.sbbi.upnp.messages.UPNPResponseException;
  * @author Phil Wright
  */
 public class UPnPUtil {
+	private static NetworkInterface ni;
 	private static int discoveryTimeout = 5000; // Should be made a preference setting
 	private static InternetGatewayDevice[] IGDs;
 
@@ -44,16 +46,16 @@ public class UPnPUtil {
 			return false;
 		}
 	}
-	
+
 	public static boolean openPort(int port) {
 		boolean mapped = false;
-		String localHostIP; 
+		String localHostIP;
 		InternetGatewayDevice ourIGD;
-		
+
 		if (IGDs == null) {
 			findIGDs();
 		}
-		
+
 		if (IGDs != null) {
 			// TODO Allow the option of selecting one IGD from a list
 			ourIGD = IGDs[0];
@@ -61,23 +63,23 @@ public class UPnPUtil {
 			MapTool.showError("UPnP Error - No Internet Gateway Devices found.<br><br>UPnP port mapping will not be available.");
 			return false;
 		}
-		
+
 		try {
 			InetAddress rptools = InetAddress.getByName("www.rptools.net");
 			InetAddress localAddy = ResolveLocalHostname.getLocalHost(rptools);
 			localHostIP = localAddy.getHostAddress();
-		
+
 			mapped = ourIGD.addPortMapping(
 						"MapTool", null,
 						port, port, localHostIP, 0, "TCP");
-				
+
 		} catch (UPNPResponseException respEx) {
 			// oops the IGD did not like something !!
 			MapTool.showError("While configuring UPnP (1)", respEx);
 		} catch (Exception e) {
 			MapTool.showError("While configuring UPnP (2)", e);
 		}
-		
+
 		if (mapped) {
 			System.out.println("UPnP: Port " + port + " mapped");
 			return true;
@@ -86,22 +88,22 @@ public class UPnPUtil {
 			return false;
 		}
 	}
-	
+
 	public static boolean closePort(int port) {
 		try{
-	
+
 			if (IGDs != null) {
 				// TODO If openPort() is modified to allow selection of one IGD from a list,
 				// this code will need to be updated as well.
 
 				// using the first device found
 				InternetGatewayDevice testIGD = IGDs[0];
-				
+
 				// See if there is a mapping before we try to get rid of it
 				ActionResponse actResp = testIGD.getSpecificPortMappingEntry(null, port, "TCP");
-				
+
 				if (actResp != null) {
-					// Gonna just assume the mapping belongs to us. as I can't make 
+					// Gonna just assume the mapping belongs to us. as I can't make
 					// One of these days should figure out the  action response to verify it
 					boolean unmapped = testIGD.deletePortMapping(null, port, "TCP");
 					if (unmapped) {
@@ -111,7 +113,7 @@ public class UPnPUtil {
 					}
 				}
 			}
-			
+
 		} catch (Exception e) {
 			MapTool.showError("While closing UPnP port", e);
 			return false;

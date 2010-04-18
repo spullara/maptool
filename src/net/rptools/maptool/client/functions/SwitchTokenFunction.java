@@ -19,7 +19,7 @@ public class SwitchTokenFunction extends AbstractFunction {
 		super(1, 1, "switchToken");
 	}
 
-	
+
 	public static SwitchTokenFunction getInstance() {
 		return instance;
 	}
@@ -27,24 +27,24 @@ public class SwitchTokenFunction extends AbstractFunction {
 	@Override
 	public Object childEvaluate(Parser parser, String functionName,
 			List<Object> parameters) throws ParserException {
-		
+
 		if (!MapTool.getParser().isMacroTrusted()) {
 			throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
 		}
-		
+
 		if (parameters.size() < 1) {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 1, parameters.size()));
 		}
-		
+
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 		Token token = zone.resolveToken(parameters.get(0).toString());
 		if (token == null) {
-			throw new ParserException(I18N.getText("macro.function.general.unknownToken",functionName ,parameters.get(0).toString()));			
+			throw new ParserException(I18N.getText("macro.function.general.unknownToken",functionName ,parameters.get(0).toString()));
 		}
-		
+
 		((MapToolVariableResolver)parser.getVariableResolver()).setTokenIncontext(token);
 		return "";
-		
+
 	}
 
 }

@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.functions;
 
@@ -19,14 +19,13 @@ import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
 import net.rptools.parser.function.AbstractFunction;
 
 public class TokenNameFunction extends AbstractFunction {
-	
+
 	/** Singleton instance. */
 	private final static TokenNameFunction instance = new TokenNameFunction();
 
@@ -60,18 +59,18 @@ public class TokenNameFunction extends AbstractFunction {
 	public String getName(Token token) {
 		return token.getName();
 	}
-	
-	
+
+
 	/**
-	 * Sets the name of the token. 
+	 * Sets the name of the token.
 	 * @param token The token to set the name of.
 	 * @param name the name of the token.
 	 */
 	public void setName(Token token, String name) {
 		token.setName(name);
 	}
-	
-	
+
+
 	/**
 	 * Gets the name of the token
 	 * @param parser The parser that called the Object.
@@ -81,10 +80,10 @@ public class TokenNameFunction extends AbstractFunction {
 	 */
 	private Object getName(Parser parser, List<Object> args) throws ParserException {
 		Token token;
-		
+
 		if (args.size() == 1) {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "getName"));				
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "getName"));
 			}
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
 			if (token == null) {
@@ -97,10 +96,10 @@ public class TokenNameFunction extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getName"));
 			}
 		} else {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getName"));
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "getName", 1, args.size()));
 		}
 
-		
+
 		return token.getName();
 	}
 
@@ -113,10 +112,10 @@ public class TokenNameFunction extends AbstractFunction {
 	 */
 	private Object setName(Parser parser, List<Object> args) throws ParserException {
         Token token;
-		
+
 		if (args.size() == 2) {
 			if (!MapTool.getParser().isMacroTrusted()) {
-				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "setName"));				
+				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "setName"));
 			}
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
@@ -128,14 +127,15 @@ public class TokenNameFunction extends AbstractFunction {
 			if (token == null) {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setName"));
 			}
+		} else if (args.size() == 0) {
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setName", 1, args.size()));
 		} else {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setName"));
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "setName", 2, args.size()));
 		}
-		
+
 		token.setName(args.get(0).toString());
-		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer(); 
-		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-        		token);
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+		MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 		return args.get(0);
 	}
 

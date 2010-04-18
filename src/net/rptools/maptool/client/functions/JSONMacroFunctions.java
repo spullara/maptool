@@ -28,34 +28,34 @@ public class JSONMacroFunctions extends AbstractFunction {
 		UNKNOWN
 	}
 
-	
-	private static final JSONMacroFunctions instance = 
+
+	private static final JSONMacroFunctions instance =
 							new JSONMacroFunctions();
-	
+
 	private JSONMacroFunctions() {
-		super(1, UNLIMITED_PARAMETERS, "json.get", "json.type", "json.fields", 
-				    "json.length", "json.fromList", "json.set", 
+		super(1, UNLIMITED_PARAMETERS, "json.get", "json.type", "json.fields",
+				    "json.length", "json.fromList", "json.set",
 				    "json.fromStrProp", "json.toStrProp", "json.toList",
 				    "json.append", "json.remove", "json.indent", "json.contains",
-				    "json.sort", "json.shuffle", "json.reverse", "json.evaluate", 
+				    "json.sort", "json.shuffle", "json.reverse", "json.evaluate",
 				    "json.isEmpty", "json.equals", "json.count", "json.indexOf",
 				    "json.merge", "json.unique", "json.removeAll", "json.union",
 				    "json.intersection", "json.difference", "json.isSubset");
 	}
-	
+
 	public static JSONMacroFunctions getInstance() {
 		return instance;
 	}
-	
+
 
 
 	@Override
 	public Object childEvaluate(Parser parser, String functionName,
 			List<Object> parameters) throws ParserException {
-		
-		
 
-	
+
+
+
 		if (functionName.equals("json.fromList")) {
 			String delim = ",";
 			if (parameters.size() > 1) {
@@ -71,20 +71,20 @@ public class JSONMacroFunctions extends AbstractFunction {
 			}
 			return fromStrProp(parameters.get(0).toString(), delim);
 		}
-		
-		
+
+
 		if (functionName.equals("json.set")) {
 			if (parameters.size() < 3) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 3, parameters.size()));
 			}
 			return JSONSet(asJSON(parameters.get(0)), parameters);
-			
+
 		}
-		
+
 		if (functionName.equals("json.length")) {
 			return JSONLength(asJSON(parameters.get(0)));
 		}
-		
+
 		if (functionName.equals("json.fields")) {
 			String delim = ",";
 			if (parameters.size() > 1) {
@@ -92,11 +92,11 @@ public class JSONMacroFunctions extends AbstractFunction {
 			}
 			return JSONFields(asJSON(parameters.get(0)), delim);
 		}
-		
+
 		if (functionName.equals("json.type")) {
 			return getJSONObjectType(parameters.get(0)).toString();
 		}
-		
+
 		if (functionName.equals("json.toList")) {
 			String delim = ",";
 			if (parameters.size() > 1) {
@@ -104,7 +104,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 			}
 			return JSONToList(asJSON(parameters.get(0)), delim);
 		}
-		
+
 		if (functionName.equals("json.toStrProp")) {
 			String delim = ";";
 			if (parameters.size() > 1) {
@@ -112,51 +112,51 @@ public class JSONMacroFunctions extends AbstractFunction {
 			}
 			return JSONToStrProp(asJSON(parameters.get(0)), delim);
 		}
-		
-		
-		
+
+
+
 		if (functionName.equals("json.get")) {
 			if (parameters.size() < 2) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
 			return JSONGet(asJSON(parameters.get(0)), parameters.subList(1, parameters.size()));
 		}
-		
-		
+
+
 		if (functionName.equals("json.append")) {
 			if (parameters.size() < 2) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
 			return JSONAppend(asJSON(parameters.get(0)), parameters);
 		}
-		
+
 		if (functionName.equals("json.remove")) {
 			if (parameters.size() < 2) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
 			return JSONDelete(asJSON(parameters.get(0)), parameters.get(1).toString());
 		}
-		
+
 		if (functionName.equals("json.indent")) {
 			int indent = 4;
 			if (parameters.size() > 1) {
 				try {
-					indent = Integer.parseInt(parameters.get(1).toString()); 
+					indent = Integer.parseInt(parameters.get(1).toString());
 				} catch (Exception e) {
 					// Do nothing as we will just use the default.
-				}		
+				}
 			}
 			return JSONIndent(asJSON(parameters.get(0)), indent);
 
 		}
-		
+
 		if (functionName.equals("json.contains")) {
 			if (parameters.size() < 2) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
 			return JSONContains(asJSON(parameters.get(0)), parameters.get(1).toString()) ? BigDecimal.ONE : BigDecimal.ZERO;
 		}
-		
+
 		if (functionName.equals("json.sort")) {
 			if (parameters.size() > 2) {
 				return JSONSort(asJSON(parameters.get(0)), parameters.size() > 1 ? parameters.get(1).toString() : "ascending", parameters.subList(2, parameters.size()));
@@ -165,22 +165,22 @@ public class JSONMacroFunctions extends AbstractFunction {
 				return JSONSort(asJSON(parameters.get(0)), parameters.size() > 1 ? parameters.get(1).toString() : "ascending", null);
 			}
 		}
-		
+
 		if (functionName.equals("json.shuffle")) {
 			return JSONShuffle(asJSON(parameters.get(0)));
 		}
-		
+
 		if (functionName.equals("json.reverse")) {
 			return JSONReverse(asJSON(parameters.get(0)));
 		}
-		
+
 		if (functionName.equals("json.evaluate")) {
 			if (!MapTool.getParser().isMacroTrusted()) {
 				throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
 			}
 			Object j = asJSON(parameters.get(0));
 			if (!(j instanceof JSONObject) && !(j instanceof JSONArray)) {
-				throw new ParserException(I18N.getText("macro.function.json.unknownType", "json.evaluate"));
+				throw new ParserException(I18N.getText("macro.function.json.unknownType", j==null ? "NULL" : j.toString(), "json.evaluate"));
 			}
 			// Create a new object or array so that we preserve immutability for macros.
 			Object json;
@@ -191,7 +191,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 			}
 			return JSONEvaluate((MapToolVariableResolver)parser.getVariableResolver(), json);
 		}
-		
+
 		if (functionName.equals("json.isEmpty")) {
 			Object j = asJSON(parameters.get(0));
 			if (j instanceof JSONObject) {
@@ -205,14 +205,14 @@ public class JSONMacroFunctions extends AbstractFunction {
 			}
 			return BigDecimal.ZERO;
 		}
-		
+
 		if (functionName.equals("json.equals")) {
 			if (parameters.size() < 2) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
 			Object left = asJSON(parameters.get(0));
 			Object right = asJSON(parameters.get(1));
-			
+
 			if (left instanceof JSONArray) {
 				if (right instanceof JSONArray) {
 					JSONArray la = (JSONArray)left;
@@ -229,16 +229,16 @@ public class JSONMacroFunctions extends AbstractFunction {
 				}
 				return BigDecimal.ZERO;
 			}
-			
+
 			if (left instanceof JSONObject) {
 				if (right instanceof JSONObject) {
 					JSONObject lo = (JSONObject) left;
 					JSONObject ro = (JSONObject) right;
-					
+
 					if (lo.size() != ro.size()) {
 						return BigDecimal.ZERO;
 					}
-					
+
 					for (Object key : lo.keySet()) {
 						if (!lo.get(key).equals(ro.get(key))) {
 							return BigDecimal.ZERO;
@@ -247,7 +247,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 					return BigDecimal.ONE;
 				}
 			}
-			
+
 			if (left instanceof String) {
 				if (right instanceof String) {
 					if (left.toString().length() == 0 || right.toString().length() == 0) {
@@ -258,10 +258,10 @@ public class JSONMacroFunctions extends AbstractFunction {
 			}
 			return BigDecimal.ZERO;
 		}
-		
+
 		if (functionName.equals("json.count")) {
 			if (parameters.size() < 2) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
 			int start = 0;
 			if (parameters.size() > 2) {
@@ -272,10 +272,10 @@ public class JSONMacroFunctions extends AbstractFunction {
 			}
 			return JSONCount(asJSON(parameters.get(0).toString()), parameters.get(1), start);
 		}
-		
+
 		if (functionName.equals("json.indexOf")) {
 			if (parameters.size() < 2) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
 			int start = 0;
 			if (parameters.size() > 2) {
@@ -290,39 +290,39 @@ public class JSONMacroFunctions extends AbstractFunction {
 		if (functionName.equals("json.merge")) {
 			return JSONMerge(parameters);
 		}
-		
+
 		if (functionName.equals("json.unique")) {
 			return JSONUnique(asJSON(parameters.get(0).toString()));
 		}
-		
+
 		if (functionName.equals("json.removeAll")) {
 			return JSONRemoveAll(parameters);
 		}
-		
+
 		if (functionName.equals("json.union")) {
 			if (parameters.size() < 2) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
 			return JSONUnion(parameters);
 		}
 
 		if (functionName.equals("json.difference")) {
 			if (parameters.size() < 2) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
 			return JSONDifference(parameters);
 		}
 
 		if (functionName.equals("json.intersection")) {
 			if (parameters.size() < 2) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
 			return JSONIntersection(parameters);
 		}
 
 		if (functionName.equals("json.isSubset")) {
 			if (parameters.size() < 2) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
 			return JSONIsSubset(parameters);
 		}
@@ -341,16 +341,16 @@ public class JSONMacroFunctions extends AbstractFunction {
 	private BigDecimal JSONIsSubset(List<Object> parameters) throws ParserException {
 		Set<Object> set = new HashSet<Object>();
 		Set<Object> subset = new HashSet<Object>();
-		
+
 		Object o1 = asJSON(parameters.get(0));
 		if (o1 instanceof JSONArray) {
 			set.addAll((JSONArray)o1);
 		} else if (o1 instanceof JSONObject) {
 			set.addAll(((JSONObject)o1).keySet());
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.isSubset"));
+			throw new ParserException(I18N.getText("macro.function.json.onlyJSON", o1==null ? "NULL" : o1.toString(), "json.isSubset"));
 		}
-		
+
 		for (int i = 1; i < parameters.size(); i++) {
 			Object o2 = asJSON(parameters.get(i));
 			if (o2 instanceof JSONArray) {
@@ -358,14 +358,14 @@ public class JSONMacroFunctions extends AbstractFunction {
 			} else if (o2 instanceof JSONObject) {
 				subset.addAll(((JSONObject)o2).keySet());
 			} else {
-				throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.isSubset"));
-			}	
-			
+				throw new ParserException(I18N.getText("macro.function.json.onlyJSON", o1==null ? "NULL" : o1.toString(), "json.isSubset"));
+			}
+
 			if (!set.containsAll(subset)) {
 				return BigDecimal.ZERO;
 			}
 		}
-	
+
 		return BigDecimal.ONE;
 	}
 
@@ -377,16 +377,16 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 */
 	private Object JSONDifference(List<Object> parameters) throws ParserException {
 		Set<Object> s = new HashSet<Object>();
-		
+
 		Object o = asJSON(parameters.get(0).toString());
 		if (o instanceof JSONArray) {
 			s.addAll((JSONArray)o);
 		} else if (o instanceof JSONObject) {
 			s.addAll(((JSONObject)o).keySet());
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.difference"));
+			throw new ParserException(I18N.getText("macro.function.json.onlyJSON", o==null ? "NULL" : o.toString(), "json.difference"));
 		}
-		
+
 		for (int i = 1; i < parameters.size(); i++) {
 			o = asJSON(parameters.get(i).toString());
 			if (o instanceof JSONArray) {
@@ -394,14 +394,14 @@ public class JSONMacroFunctions extends AbstractFunction {
 			} else if (o instanceof JSONObject) {
 				s.removeAll(((JSONObject)o).keySet());
 			} else {
-				throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.difference"));
+				throw new ParserException(I18N.getText("macro.function.json.onlyJSON", o==null ? "NULL" : o.toString(), "json.difference"));
 			}
 		}
-		
+
 		return JSONArray.fromObject(s);
 	}
 
-	
+
 	/**
 	 * Perform a union of all of the JSON objects or arrays.
 	 * @param parameters The arguments to the function.
@@ -410,16 +410,16 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 */
 	private Object JSONUnion(List<Object> parameters) throws ParserException {
 		Set<Object> s = new HashSet<Object>();
-		
+
 		Object o = asJSON(parameters.get(0).toString());
 		if (o instanceof JSONArray) {
 			s.addAll((JSONArray)o);
 		} else if (o instanceof JSONObject) {
 			s.addAll(((JSONObject)o).keySet());
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.union"));
+			throw new ParserException(I18N.getText("macro.function.json.onlyJSON", o==null ? "NULL" : o.toString(), "json.union"));
 		}
-		
+
 		for (int i = 1; i < parameters.size(); i++) {
 			o = asJSON(parameters.get(i).toString());
 			if (o instanceof JSONArray) {
@@ -427,10 +427,10 @@ public class JSONMacroFunctions extends AbstractFunction {
 			} else if (o instanceof JSONObject) {
 				s.addAll(((JSONObject)o).keySet());
 			} else {
-				throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.union"));
+				throw new ParserException(I18N.getText("macro.function.json.onlyJSON", o==null ? "NULL" : o.toString(), "json.union"));
 			}
 		}
-		
+
 		return JSONArray.fromObject(s);
 	}
 
@@ -442,16 +442,16 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 */
 	private Object JSONIntersection(List<Object> parameters) throws ParserException {
 		Set<Object> s = new HashSet<Object>();
-		
+
 		Object o = asJSON(parameters.get(0).toString());
 		if (o instanceof JSONArray) {
 			s.addAll((JSONArray)o);
 		} else if (o instanceof JSONObject) {
 			s.addAll(((JSONObject)o).keySet());
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.intersection"));
+			throw new ParserException(I18N.getText("macro.function.json.onlyJSON", o==null ? "NULL" : o.toString(), "json.intersection"));
 		}
-		
+
 		for (int i = 1; i < parameters.size(); i++) {
 			o = asJSON(parameters.get(i).toString());
 			if (o instanceof JSONArray) {
@@ -459,13 +459,13 @@ public class JSONMacroFunctions extends AbstractFunction {
 			} else if (o instanceof JSONObject) {
 				s.retainAll(((JSONObject)o).keySet());
 			} else {
-				throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.intersection"));
+				throw new ParserException(I18N.getText("macro.function.json.onlyJSON", o==null ? "NULL" : o.toString(), "json.intersection"));
 			}
 		}
-		
+
 		return JSONArray.fromObject(s);
 	}
-	
+
 	/**
 	 * Removes all the values in the second and any subsequent objects/arrays from the first JSON object or array.
 	 * @param parameters The parameters to the function.
@@ -474,11 +474,11 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 */
 	private Object JSONRemoveAll(List<Object> parameters) throws ParserException {
 		Object json	= asJSON(parameters.get(0).toString());
-		
+
 		if (json instanceof JSONArray) {
 			// Create a new JSON Array to preserve immutability for the macro script.
 			JSONArray jarr = JSONArray.fromObject(json);
-			
+
 			for (int i = 1; i < parameters.size(); i++) {
 				Object o2 = asJSON(parameters.get(i).toString());
 				if (o2 instanceof JSONArray) {
@@ -486,14 +486,14 @@ public class JSONMacroFunctions extends AbstractFunction {
 				} else if (o2 instanceof JSONObject) {
 					jarr.removeAll(((JSONObject)o2).keySet());
 				} else {
-					throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.removeAll"));
+					throw new ParserException(I18N.getText("macro.function.json.onlyJSON", o2==null ? "NULL" : o2.toString(), "json.removeAll"));
 				}
 			}
 			return jarr;
 		} else if (json instanceof JSONObject) {
 			// Create a new JSON Array to preserve immutability for the macro script.
 			JSONObject jobj = JSONObject.fromObject(json);
-			
+
 			for (int i = 1; i < parameters.size(); i++) {
 				Object o2 = asJSON(parameters.get(i).toString());
 				if (o2 instanceof JSONArray) {
@@ -505,12 +505,12 @@ public class JSONMacroFunctions extends AbstractFunction {
 						jobj.remove(o3);
 					}
 				} else {
-					throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.removeAll"));
+					throw new ParserException(I18N.getText("macro.function.json.onlyJSON", o2==null ? "NULL" : o2.toString(), "json.removeAll"));
 				}
 			}
-			return jobj;	
+			return jobj;
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.removeAll"));
+			throw new ParserException(I18N.getText("macro.function.json.onlyJSON", json==null ? "NULL" : json.toString(), "json.removeAll"));
 		}
 	}
 
@@ -522,7 +522,7 @@ public class JSONMacroFunctions extends AbstractFunction {
  	 */
 	private JSONArray JSONUnique(Object obj) throws ParserException {
 		if (!(obj instanceof JSONArray)) {
-			throw new ParserException(I18N.getText("macro.function.json.onlyArray", "json.unique"));
+			throw new ParserException(I18N.getText("macro.function.json.onlyArray", obj==null ? "NULL" : obj.toString(), "json.unique"));
 		}
 		JSONArray jarr = (JSONArray) obj;
 		Set s = new HashSet();
@@ -538,15 +538,15 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 */
 	private Object JSONMerge(List<Object> parameters) throws ParserException {
 		Object json	= asJSON(parameters.get(0).toString());
-		
+
 		if (json instanceof JSONArray) {
 			// Create a new JSON Array to preserve immutability for the macro script.
 			JSONArray jarr = JSONArray.fromObject(json);
-			
+
 			for (int i = 1; i < parameters.size(); i++) {
 				Object o2 = asJSON(parameters.get(i).toString());
 				if (!(o2 instanceof JSONArray)) {
-					throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.merge"));
+					throw new ParserException(I18N.getText("macro.function.json.onlyJSON", o2==null ? "NULL" : o2.toString(), "json.merge"));
 				}
 				jarr.addAll((JSONArray)o2);
 			}
@@ -554,39 +554,39 @@ public class JSONMacroFunctions extends AbstractFunction {
 		} else if (json instanceof JSONObject) {
 			// Create a new JSON Array to preserve immutability for the macro script.
 			JSONObject jobj = JSONObject.fromObject(json);
-			
+
 			for (int i = 1; i < parameters.size(); i++) {
 				Object o2 = asJSON(parameters.get(i).toString());
 				if (!(o2 instanceof JSONObject)) {
-					throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.merge"));
+					throw new ParserException(I18N.getText("macro.function.json.onlyJSON", o2==null ? "NULL" : o2.toString(), "json.merge"));
 				}
 				jobj.putAll((JSONObject)o2);
 			}
-			return jobj;	
+			return jobj;
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.onlyJSON", "json.merge"));
+			throw new ParserException(I18N.getText("macro.function.json.onlyJSON", json==null ? "NULL" : json.toString(), "json.merge"));
 		}
 	}
-		
-	
+
+
 	/**
-	 * Gets the number of times a value appears in the array. 
+	 * Gets the number of times a value appears in the array.
 	 * @param json The JSON array to check.
-	 * @param searchFor the value to search for. 
+	 * @param searchFor the value to search for.
 	 * @param start the index to start searching at.
 	 * @return the number of times the value occurs.
 	 * @throws ParserException
 	 */
 	private BigDecimal JSONCount(Object json, Object searchFor, int start) throws ParserException {
 		if (!(json instanceof JSONArray)) {
-			throw new ParserException(I18N.getText("macro.function.json.onlyArray", "json.count"));
+			throw new ParserException(I18N.getText("macro.function.json.onlyArray", json==null ? "NULL" : json.toString(), "json.count"));
 		}
 		JSONArray jarr = (JSONArray)json;
-		
+
 		if (searchFor instanceof String && convertToJSON((String)searchFor) != null) {
 			searchFor = convertToJSON((String)searchFor);
 		}
-		
+
 		int count = 0;
 		for (int i = start, max = jarr.size(); i < max; i++) {
 			Object ob = jarr.get(i);
@@ -612,10 +612,10 @@ public class JSONMacroFunctions extends AbstractFunction {
 				}
 			}
 		}
-		
+
 		return BigDecimal.valueOf(count);
 	}
-	
+
 	/**
 	 * Gets the index of a value in a JSON array.
 	 * @param json The JSON array to check.
@@ -626,14 +626,14 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 */
 	private BigDecimal JSONIndexOf(Object json, Object searchFor, int start) throws ParserException {
 		if (!(json instanceof JSONArray)) {
-			throw new ParserException(I18N.getText("macro.function.json.onlyArray", "json.indexOf"));
+			throw new ParserException(I18N.getText("macro.function.json.onlyArray", json==null ? "NULL" : json.toString(), "json.indexOf"));
 		}
 		JSONArray jarr = (JSONArray)json;
-		
+
 		if (searchFor instanceof String && convertToJSON((String)searchFor) != null) {
 			searchFor = convertToJSON((String)searchFor);
 		}
-		
+
 		for (int i = start, max = jarr.size(); i < max; i++) {
 			Object ob = jarr.get(i);
 			if (ob instanceof Float) {
@@ -658,10 +658,10 @@ public class JSONMacroFunctions extends AbstractFunction {
 				}
 			}
 		}
-		
+
 		return BigDecimal.valueOf(-1);
 	}
-	
+
 
 	/**
 	 * Evaluates each of the strings in the JSON object or array.
@@ -690,10 +690,10 @@ public class JSONMacroFunctions extends AbstractFunction {
 				} else if (o instanceof String) {
 					// For arrays we may have an extra "" so it can be stored in the array
 					String line = o.toString();
-					line = line.replaceFirst("^\"", "").replaceFirst("\"$", "");	
+					line = line.replaceFirst("^\"", "").replaceFirst("\"$", "");
 					jarr.set(i,EvalMacroFunctions.evalMacro(res, res.getTokenInContext(), line));
 				}
-			}	
+			}
 		}
 		return json;
 	}
@@ -702,11 +702,11 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 * Shuffles the values in a json array.
 	 * @param jsonArray the array to shuffle.
 	 * @return the shuffled array.
-	 * @throws ParserException if the object is not a JSON Array. 
+	 * @throws ParserException if the object is not a JSON Array.
 	 */
 	private JSONArray JSONShuffle(Object jsonArray) throws ParserException {
 		if (!(jsonArray instanceof JSONArray)) {
-			throw new ParserException(I18N.getText("macro.function.json.onlyArray", "json.shuffle"));
+			throw new ParserException(I18N.getText("macro.function.json.onlyArray", jsonArray==null ? "NULL" : jsonArray.toString(), "json.shuffle"));
 		}
 		// Create a new JSON Array to support immutable types in macros.
 		JSONArray jarr = JSONArray.fromObject(jsonArray);
@@ -715,7 +715,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 	}
 
 	/**
-	 * Sorts a json array. If all values in the array are number then the values are 
+	 * Sorts a json array. If all values in the array are number then the values are
 	 * sorted in numeric order, otherwise values are sorted in string order.
 	 * @param jsonArray The json array to sort.
 	 * @param direction The direction "ascending" or "descending" to sort the array.
@@ -726,24 +726,24 @@ public class JSONMacroFunctions extends AbstractFunction {
 	private JSONArray JSONSort(Object jsonArray, String direction, List<Object> fields) throws ParserException {
 
 		if (!(jsonArray instanceof JSONArray)) {
-			throw new ParserException(I18N.getText("macro.function.json.onlyArray", "json.sort"));
+			throw new ParserException(I18N.getText("macro.function.json.onlyArray", jsonArray==null ? "NULL" : jsonArray.toString(), "json.sort"));
 		}
 
-		
+
 		// Create a new JSON Array to support immutable types in macros.
 		JSONArray jarr = JSONArray.fromObject(jsonArray);
 		if (fields != null) {
 			return JSONSortObjects(jarr, direction, fields);
 		}
-	
-		//Check to see if we are all numbers 
+
+		//Check to see if we are all numbers
 		boolean sortAsNumber = true;
 		for (Object o : jarr) {
 			if (!(o instanceof Double) &&! (o instanceof Integer)) {
 				sortAsNumber = false;
 			}
 		}
-		
+
 		boolean ascending = true;
 		if (direction.toLowerCase().startsWith("d")) {
 			ascending = false;
@@ -762,33 +762,33 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 * @param jsonArray the array to sort.
 	 * @param direction the direction, ascending or descending to sort the array.
 	 * @param fields the fields to base the sort on.
-	 * @return The sorted array. 
+	 * @return The sorted array.
 	 * @throws ParserException when an error occurs.
 	 */
 	private  JSONArray JSONSortObjects(JSONArray jsonArray, String direction,
 			List<Object> fields) throws ParserException {
 		for (Object o : jsonArray) {
 			if (!(o instanceof JSONObject)) {
-				throw new ParserException(I18N.getText("macro.function.json.arrayMustContainObjects"));
+				throw new ParserException(I18N.getText("macro.function.json.arrayMustContainObjects", jsonArray.toString()));
 			}
 		}
 		boolean ascending = true;
 		if (direction.toLowerCase().startsWith("d")) {
 			ascending = false;
 		}
-		
+
 		JSONNumberComparator numberCompare = new JSONNumberComparator(ascending);
 		JSONStringComparator stringCompare = new JSONStringComparator(ascending);
 
 		List<Comparator> comparatorList = new ArrayList<Comparator>();
-		// Generate the comaprator we will use for each f
+		// Generate the comparator we will use for each f
 		//Check to see if we are all numbers for each field
 		for (Object fld : fields) {
 			boolean sortAsNumber = true;
 			for (Object jo : jsonArray) {
 				Object o = ((JSONObject)jo).get(fld.toString());
 				if (o == null) {
-					throw new ParserException(I18N.getText("macro.function.json.notAllContainKey"));
+					throw new ParserException(I18N.getText("macro.function.json.notAllContainKey" ,fld.toString()));
 				}
 				if (!(o instanceof Double) &&! (o instanceof Integer)) {
 					sortAsNumber = false;
@@ -797,13 +797,13 @@ public class JSONMacroFunctions extends AbstractFunction {
 			if (sortAsNumber) {
 				comparatorList.add(numberCompare);
 			} else {
-				comparatorList.add(stringCompare);					
-			}			
+				comparatorList.add(stringCompare);
+			}
 		}
 
-		
+
 		Collections.sort(jsonArray, new JSONObjectComparator(ascending, fields, comparatorList));
-		
+
 		return jsonArray;
 	}
 
@@ -820,19 +820,19 @@ public class JSONMacroFunctions extends AbstractFunction {
 				return null;
 			}
 		}
-		
+
 		if (obj.trim().startsWith("{")) {
 			try {
 				return JSONObject.fromObject(obj);
 			} catch (Exception e) {
 				return null;
-			}	
+			}
 		}
-	
+
 		return null;
 	}
-	
-	
+
+
 	/**
 	 * Append a value to a JSON array.
 	 * @param obj The JSON object.
@@ -843,9 +843,9 @@ public class JSONMacroFunctions extends AbstractFunction {
 	private JSONArray JSONAppend(Object obj, List<Object> values) throws ParserException {
 		if (obj == null || obj.toString().length() == 0) {
 			obj = new JSONArray();
-		} 
-		
-		if (obj != null && obj instanceof JSONArray) {
+		}
+
+		if (obj instanceof JSONArray) {
 			// Create a new JSON Array to support immutable types in macros.
 			JSONArray jarr = JSONArray.fromObject(obj);
 			for (Object val : values.subList(1, values.size())) {
@@ -853,7 +853,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 			}
 			return jarr;
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.append.onlyArray"));
+			throw new ParserException(I18N.getText("macro.function.json.append.onlyArray", obj==null ? "NULL" : obj.toString(), "json.append"));
 		}
 	}
 
@@ -865,9 +865,6 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 * @throws ParserException
 	 */
 	private Object JSONGet(Object obj, List<Object> keys) throws ParserException {
-		if (obj == null) {
-			throw new ParserException(I18N.getText("macro.function.json.unknownType", "json.get"));
-		}
 		Object val = null;
 		if (obj instanceof JSONObject) {
 			JSONObject jobj = (JSONObject) obj;
@@ -906,7 +903,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 				if (end >= jarr.size() || end < 0) {
 					throw new ParserException(I18N.getText("macro.function.json.getInvalidEndIndex", "json.end", start, jarr.size()));
 				}
-				
+
 				List<Object> values = new ArrayList<Object>();
 				if (start > end) {
 					for (int i = start; i >= end; i--) {
@@ -915,14 +912,14 @@ public class JSONMacroFunctions extends AbstractFunction {
 				} else {
 					for (int i = start; i <= end; i++) {
 						values.add(jarr.get(i));
-					}					
+					}
 				}
 				val = JSONArray.fromObject(values);
 			}
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.unknownType", "json.get"));
+			throw new ParserException(I18N.getText("macro.function.json.unknownType", obj==null ? "NULL" : obj.toString(), "json.get"));
 		}
-		 
+
 		if (keys.size() == 1) {
 			// Attempt to convert to a number ...
 			try {
@@ -959,13 +956,13 @@ public class JSONMacroFunctions extends AbstractFunction {
 				if (sb.length() > 0) {
 					sb.append(delim);
 				}
-				sb.append(i).append("=").append(jarr.get(i));					
+				sb.append(i).append("=").append(jarr.get(i));
 			}
 			return sb.toString();
 		} else if (obj instanceof String && ((String)obj).trim().length() == 0) {
 			return obj.toString();
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.unknownType", "json.toStrProp"));
+			throw new ParserException(I18N.getText("macro.function.json.unknownType", obj==null ? "NULL" : obj.toString(), "json.toStrProp"));
 		}
 	}
 
@@ -977,7 +974,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 * @throws ParserException If the object is not a JSON object.
 	 */
 	private Object JSONToList(Object obj, String delim) throws ParserException {
-	
+
 		StringBuilder sb = new StringBuilder();
 		if (obj instanceof JSONObject) {
 			JSONObject jobj = (JSONObject) obj;
@@ -994,13 +991,13 @@ public class JSONMacroFunctions extends AbstractFunction {
 				if (sb.length() > 0) {
 					sb.append(delim);
 				}
-				sb.append(jarr.get(i));					
+				sb.append(jarr.get(i));
 			}
 			return sb.toString();
 		} else if (obj instanceof String && ((String)obj).trim().length() == 0) {
 			return obj.toString();
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.unknownType", "json.toStrList"));
+			throw new ParserException(I18N.getText("macro.function.json.unknownType", obj==null ? "NULL" : obj.toString(), "json.toStrList"));
 		}
 	}
 
@@ -1033,24 +1030,24 @@ public class JSONMacroFunctions extends AbstractFunction {
 				if (sb.length() > 0) {
 					sb.append(delim);
 				}
-				sb.append(i);					
+				sb.append(i);
 			}
 			return sb.toString();
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.unknownType", "json.fields"));
+			throw new ParserException(I18N.getText("macro.function.json.unknownType", obj==null ? "NULL" : obj.toString(), "json.fields"));
 		}
 	}
 
 	/**
 	 * Gets the length of a JSON object. If the object is an array then the number
-	 * of elements is returned, if it is an object then the number of fields is 
+	 * of elements is returned, if it is an object then the number of fields is
 	 * returned.
 	 * @param obj The JSON object.
 	 * @return the number of elements or fields.
 	 * @throws ParserException if obj is not a JSON object.
 	 */
 	private BigDecimal JSONLength(Object obj) throws ParserException {
-		
+
 		if (obj instanceof JSONObject) {
 			JSONObject jobj = (JSONObject) obj;
 			return BigDecimal.valueOf(jobj.keySet().size());
@@ -1058,7 +1055,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 			JSONArray jarr = (JSONArray) obj;
 			return BigDecimal.valueOf(jarr.size());
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.unknownType", "json.length"));
+			throw new ParserException(I18N.getText("macro.function.json.unknownType", obj==null ? "NULL" : obj.toString(), "json.length"));
 		}
 	}
 
@@ -1070,16 +1067,16 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 * @throws ParserException if the obj is not a JSON object.
 	 */
 	private Object JSONSet(Object obj, List<Object> param) throws ParserException {
-		
+
 		if (obj == null || obj.toString().length() == 0) {
 			obj = new JSONObject();
-		} 
-		
-		
+		}
+
+
 		if (param.size() % 2 != 1) {
 			throw new ParserException(I18N.getText("macro.function.json.setNoMatchingValue", "json.set"));
 		}
-		
+
 		if (obj instanceof JSONObject) {
 			// Create a new JSON object to preserve macro object immutable types.
 			JSONObject jobj = JSONObject.fromObject(obj);
@@ -1095,7 +1092,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 			}
 			return jarr;
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.unknownType", "json.set"));
+			throw new ParserException(I18N.getText("macro.function.json.unknownType", obj==null ? "NULL" : obj.toString(), "json.set"));
 		}
 	}
 
@@ -1120,7 +1117,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 		}
 		return JSONArray.fromObject(array);
 	}
-	
+
 	/**
 	 * Creates a JSON object from a String property list.
 	 * @param prop The String Property list.
@@ -1136,7 +1133,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 			if (vals.length > 1) {
 				// Try to convert it to a number and if that works we store it that way
 				try {
-					obmap.put(vals[0].trim(), new BigDecimal(vals[1].trim()));				
+					obmap.put(vals[0].trim(), new BigDecimal(vals[1].trim()));
 				} catch (Exception e) {
 					obmap.put(vals[0].trim(), vals[1].trim());
 				}
@@ -1146,7 +1143,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 		}
 		return JSONObject.fromObject(obmap);
 	}
-	
+
 	/**
 	 * Gets the type of the JSON object.
 	 * @param obj The json object.
@@ -1162,11 +1159,11 @@ public class JSONMacroFunctions extends AbstractFunction {
 			if (str.startsWith("{") || str.startsWith("[")) {
 				return getJSONObjectType(asJSON(str));
 			}
-			return JSONObjectType.UNKNOWN;	
+			return JSONObjectType.UNKNOWN;
 		}
 	}
-	
-	
+
+
 	/**
 	 * Deletes a field from a JSON object or element from a JSON array.
 	 * @param obj The JSON object.
@@ -1175,7 +1172,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 * @throws ParserException if obj can not be converted to a JSON object.
 	 */
 	private Object JSONDelete(Object obj, String key) throws ParserException {
-	
+
 		if (obj instanceof JSONObject) {
 			// Create a new JSON object so that old one remains immutable to macro
 			JSONObject jobj = JSONObject.fromObject(obj);
@@ -1187,10 +1184,10 @@ public class JSONMacroFunctions extends AbstractFunction {
 			jarr.remove(Integer.parseInt(key));
 			return jarr;
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.unknownType", "json.delete"));
+			throw new ParserException(I18N.getText("macro.function.json.unknownType", obj==null ? "NULL" : obj.toString(), "json.delete"));
 		}
  	}
-	
+
 	/**
 	 * Returns and indented version of a JSON string.
 	 * @param obj The JSON string to ident.
@@ -1204,11 +1201,11 @@ public class JSONMacroFunctions extends AbstractFunction {
 		} else if (obj instanceof JSONArray){
 			return ((JSONArray)obj).toString(indent);
 		} else {
-			throw new ParserException(I18N.getText("macro.function.json.unknownType", "json.indent"));
+			throw new ParserException(I18N.getText("macro.function.json.unknownType", obj==null ? "NULL" : obj.toString(), "json.indent"));
 		}
-		
+
 	}
-	
+
 	/**
 	 * Checks to see if a JSON object contains the specified key.
 	 * @param obj The JSON Object.
@@ -1217,18 +1214,18 @@ public class JSONMacroFunctions extends AbstractFunction {
 	 * @throws ParserException
 	 */
 	private boolean JSONContains(Object obj, String key) throws ParserException {
-		
+
 		if (obj != null && obj instanceof JSONObject) {
 			return ((JSONObject)obj).containsKey(key);
-		} 
-		
-		if (obj != null && obj instanceof JSONArray) {
+		}
+
+		if (obj instanceof JSONArray) {
 			try {
 				return ((JSONArray)obj).contains(Integer.parseInt(key));
 			} catch (Exception e) {
 				// Do nothing as we will try another conversion
 			}
-			
+
 			try {
 				return ((JSONArray)obj).contains(Double.parseDouble(key));
 			} catch (Exception e) {
@@ -1236,11 +1233,11 @@ public class JSONMacroFunctions extends AbstractFunction {
 			}
 			return ((JSONArray)obj).contains(key);
 		}
-		
-		throw new ParserException(I18N.getText("macro.function.json.unknownType", "json.contains"));
+
+		throw new ParserException(I18N.getText("macro.function.json.unknownType", obj==null ? "NULL" : obj.toString(), "json.contains"));
 	}
-	
-	
+
+
 	/**
 	 * Reverses a json array.
 	 * @param jsonArray The json array to reverse.
@@ -1251,17 +1248,17 @@ public class JSONMacroFunctions extends AbstractFunction {
 		if (!(jsonArray instanceof JSONArray)) {
 			throw new ParserException(I18N.getText("macro.function.json.onlyArray", "json.reverse"));
 		}
-		
+
 		// Create a new JSON Array to preserve immutable state for macros.
 		JSONArray jarr = JSONArray.fromObject(jsonArray);
 		List<Object> arr = new LinkedList<Object>();
 		for (int i = jarr.size() - 1; i >= 0; i--) {
 			arr.add(jarr.get(i));
 		}
-		
-		return JSONArray.fromObject(jsonArray);
+
+		return JSONArray.fromObject(arr);
 	}
-	
+
 	/**
 	 * Compares two numbers from a json array.
 	 */
@@ -1269,58 +1266,58 @@ public class JSONMacroFunctions extends AbstractFunction {
 	private static class JSONNumberComparator implements Comparator {
 
 		private final boolean ascending;
-		
+
 		public JSONNumberComparator(boolean ascending) {
 			this.ascending = ascending;
 		}
-		
+
 		public int compare(Object o1, Object o2) {
 			BigDecimal v1;
 			BigDecimal v2;
-			
+
 			if (o1 instanceof Integer) {
 				v1 = BigDecimal.valueOf((Integer)o1);
 			} else {
 				v1 = BigDecimal.valueOf((Double)o1);
 			}
-			
+
 			if (o2 instanceof Integer) {
 				v2 = BigDecimal.valueOf((Integer)o2);
 			} else {
 				v2 = BigDecimal.valueOf((Double)o2);
 			}
-			
+
 			return ascending ? v1.compareTo(v2) : v2.compareTo(v1);
 		}
-		
+
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * Compares two strings from a json array.
-	 * 
+	 *
 	 */
 	@SuppressWarnings("unchecked")
 	private static class JSONStringComparator implements Comparator {
 
 		private final boolean ascending;
-		
+
 		public JSONStringComparator(boolean ascending) {
 			this.ascending = ascending;
 		}
-		
+
 		public int compare(Object o1, Object o2) {
 			String s1 = o1.toString();
 			String s2 = o2.toString();
 			return ascending ? s1.compareTo(s2) : s2.compareTo(s1);
 		}
-		
+
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * Compares two objects from a json array.
-	 * 
+	 *
 	 */
 	@SuppressWarnings("unchecked")
 	private static class JSONObjectComparator implements Comparator {
@@ -1328,17 +1325,17 @@ public class JSONMacroFunctions extends AbstractFunction {
 		private final boolean ascending;
 		private final List<Object> fields;
 		private final List<Comparator> comparators;
-		
+
 		public JSONObjectComparator(boolean ascending, List<Object> fields, List<Comparator> comparators) {
 			this.ascending = ascending;
 			this.fields = fields;
 			this.comparators = comparators;
 		}
-		
+
 		public int compare(Object o1, Object o2) {
 			JSONObject jo1 = (JSONObject)o1;
 			JSONObject jo2 = (JSONObject)o2;
-			
+
 			for (int i = 0; i < fields.size(); i++) {
 				Object f = fields.get(i);
 				int c = comparators.get(i).compare(jo1.get(f), jo2.get(f));
@@ -1347,11 +1344,11 @@ public class JSONMacroFunctions extends AbstractFunction {
 				}
 			}
 			return 0;
-			
+
 		}
-		
+
 	}
-	
+
 	/**
 	 * Returns a JSON object from the parameter.
 	 * @param o The parameter.
@@ -1362,10 +1359,10 @@ public class JSONMacroFunctions extends AbstractFunction {
 		if (o instanceof JSONObject) {
 			return (JSONObject) o;
 		}
-		
+
 		return JSONObject.fromObject(o.toString());
 	}
-	
+
 	/**
 	 * Returns a JSON Array from the parameter.
 	 * @param o The parameter.
@@ -1375,7 +1372,7 @@ public class JSONMacroFunctions extends AbstractFunction {
 	private static JSONArray asJSONArray(Object o) {
 		if (o instanceof JSONArray) {
 			return (JSONArray) o;
-		} 
+		}
 		// Special cases we have to deal with cases where the parser
 		// has already had a go at single index arrays.
 		if (o instanceof BigDecimal) {
@@ -1392,10 +1389,10 @@ public class JSONMacroFunctions extends AbstractFunction {
 				return jarr;
 			}
 		}
-		
+
 		return JSONArray.fromObject(o.toString());
 	}
-	
+
 	/**
 	 * Returns a JSONObject or JSONArray from the parameter.
 	 * @param o The parameter to convert.

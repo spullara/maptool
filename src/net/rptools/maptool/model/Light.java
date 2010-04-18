@@ -9,20 +9,17 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.model;
 
-import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 
-import net.rptools.maptool.model.drawing.DrawableColorPaint;
 import net.rptools.maptool.model.drawing.DrawablePaint;
-import net.rptools.maptool.util.StringUtil;
 
 public class Light {
 
@@ -31,24 +28,37 @@ public class Light {
 	private double radius;
 	private double arcAngle;
 	private ShapeType shape;
-	
+	private boolean isGM;
+
 	public Light() {
 		// For serialization
 	}
-	
 	public Light(ShapeType shape, double facingOffset, double radius, double arcAngle, DrawablePaint paint) {
 		this.facingOffset = facingOffset;
 		this.shape = shape;
 		this.radius = radius;
 		this.arcAngle = arcAngle;
 		this.paint = paint;
-		
+		this.isGM = false;
+
 		if (arcAngle == 0) {
 			this.arcAngle = 90;
 		}
-		
+
 	}
-	
+	public Light(ShapeType shape, double facingOffset, double radius, double arcAngle, DrawablePaint paint, boolean isGM) {
+		this.facingOffset = facingOffset;
+		this.shape = shape;
+		this.radius = radius;
+		this.arcAngle = arcAngle;
+		this.paint = paint;
+		this.isGM = isGM;
+		if (arcAngle == 0) {
+			this.arcAngle = 90;
+		}
+
+	}
+
 	public DrawablePaint getPaint() {
 		return paint;
 	}
@@ -81,7 +91,7 @@ public class Light {
 	}
 	public Area getArea(Token token, Zone zone) {
 		double size = radius / zone.getUnitsPerCell() * zone.getGrid().getSize();
-		
+
 		if (shape == null) {
 			shape = ShapeType.CIRCLE;
 		}
@@ -89,12 +99,12 @@ public class Light {
 
 		case SQUARE:
 			return new Area(new Rectangle2D.Double(-size, -size, size*2, size*2));
-		
+
 		case CONE:
         	// Be sure we can always at least see our feet
         	Area footprint = new Area(token.getFootprint(zone.getGrid()).getBounds(zone.getGrid()));
         	footprint.transform(AffineTransform.getTranslateInstance(-footprint.getBounds().getWidth()/2.0, -footprint.getBounds().getHeight()/2.0));
-        	
+
 			Area area = new Area(new Arc2D.Double(-size, -size, size*2, size*2, 360.0 - (arcAngle/2.0), arcAngle, Arc2D.PIE));
 
 			if (token.getFacing() != null) {
@@ -102,13 +112,19 @@ public class Light {
 			}
 
 			area.add(footprint);
-			
+
 			return area;
 		default:
 		case CIRCLE:
 			return new Area(new Ellipse2D.Double(-size, -size, size*2, size*2));
 		}
-		
+
+	}
+	public void setGM(boolean b) {
+		isGM = b;
+	}
+	public boolean isGM() {
+		return isGM;
 	}
 
 }

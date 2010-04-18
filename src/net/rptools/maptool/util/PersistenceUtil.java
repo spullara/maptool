@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.util;
 
@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,7 +71,7 @@ import com.thoughtworks.xstream.XStream;
 public class PersistenceUtil {
 
 	private static final Logger log = Logger.getLogger(PersistenceUtil.class);
-	
+
 	private static final String PROP_VERSION = "version";
 	private static final String PROP_CAMPAIGN_VERSION = "campaignVersion";
 	private static final String ASSET_DIR = "assets/";
@@ -78,7 +79,7 @@ public class PersistenceUtil {
 	private static final String CAMPAIGN_VERSION = "1.3.51";
 
 	private static final ModelVersionManager campaignVersionManager = new ModelVersionManager();
-	
+
 	static {
 		PackedFile.init(AppUtil.getAppHome("tmp"));
 
@@ -149,19 +150,27 @@ public class PersistenceUtil {
 					}
 				}
 			}
+			// FJE We only want the token's graphical data, so loop through all tokens and
+			// destroy all properties and macros.  Keep some fields, though.  Since that type
+			// of object editing doesn't belong here, we just call Token.imported() and let
+			// that method Do The Right Thing.
+			for (Iterator<Token> iter = persistedMap.zone.getAllTokens().iterator(); iter.hasNext();) {
+				Token token = iter.next();
+				token.imported();
+			}
 			return persistedMap;
 		} catch (IOException ioe) {
-			log.error("IOException while reading map data from file", ioe);
+			MapTool.showError("while reading map data from file", ioe);
 			throw ioe;
 		}
 	}
 
 	private static CodeTimer saveTimer;
 	public static void saveCampaign(Campaign campaign, File campaignFile) throws IOException {
-		
+
 		saveTimer = new CodeTimer("Save");
 		saveTimer.setThreshold(5);
-		
+
 		// Strategy: save the file to a tmp location so that if there's a
 		// failure the original file
 		// won't be touched. Then once we're finished, replace the old with the
@@ -273,7 +282,7 @@ public class PersistenceUtil {
 
 	/**
 	 * Gets a file pointing to where the campaign's thumbnail image should be.
-	 * 
+	 *
 	 * @param fileName
 	 *            The campaign's file name.
 	 */
@@ -286,7 +295,7 @@ public class PersistenceUtil {
 		// Try the new way first
 		PackedFile pakfile = new PackedFile(campaignFile);
 		pakfile.setModelVersionManager(campaignVersionManager);
-		
+
 		try {
 
 			// Sanity check
@@ -300,7 +309,7 @@ public class PersistenceUtil {
 			for (Zone zone : persistedCampaign.campaign.getZones()) {
 				zone.optimize();
 			}
-			
+
 			return persistedCampaign;
 		} catch (IOException ioe) {
 			log.error("Could not load campaign in the current format, trying old");
@@ -412,10 +421,10 @@ public class PersistenceUtil {
 
 			if (!AssetManager.hasAsset(key)) {
 				Asset asset = (Asset) pakFile.getFileObject(ASSET_DIR + key);
-				
+
 				if (asset == null)
 					continue;
-				
+
 				// pre 1.3b51 campaign files stored the image data directly in the asset serialization
 				if (asset.getImage() == null) {
 					byte[] imageData = pakFile.getFileData(ASSET_DIR + key + ".dat");
@@ -441,7 +450,7 @@ public class PersistenceUtil {
 
 			// And store the asset elsewhere
 			Asset asset = AssetManager.getAsset(assetId);
-			pakFile.putFile(ASSET_DIR + assetId, asset);
+			pakFile.putFile(ASSET_DIR + assetId, asset.getImage());
 //			pakFile.putFile(ASSET_DIR + assetId + ".dat", asset.getImage());
 		}
 	}

@@ -239,7 +239,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 				builder.append("square ");
 				if(sight.getDistance() != 0)
 				{
-					builder.append("distance=").append(sight.getDistance()).append(" ");
+					builder.append("distance=").append(StringUtil.formatDecimal(sight.getDistance())).append(" ");
 				}
 			}
 			else if (sight.getShape() == ShapeType.CIRCLE)
@@ -247,7 +247,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 				builder.append("circle ");
 				if(sight.getDistance() != 0)
 				{
-					builder.append("distance=").append(sight.getDistance()).append(" ");
+					builder.append("distance=").append(StringUtil.formatDecimal(sight.getDistance())).append(" ");
 				}
 			}
 			else if (sight.getShape() == ShapeType.CONE)
@@ -255,16 +255,16 @@ public class CampaignPropertiesDialog extends JDialog  {
 				builder.append("cone ");
 				if(sight.getArc()!= 0)
 				{
-					builder.append("arc=").append(sight.getArc());
+					builder.append("arc=").append(StringUtil.formatDecimal(sight.getArc()));
 					builder.append(" ");
 				}
 				if(sight.getOffset() != 0)
 				{
-					builder.append("offset=").append(sight.getOffset()).append(" ");
+					builder.append("offset=").append(StringUtil.formatDecimal(sight.getOffset())).append(" ");
 				}
 				if(sight.getDistance() != 0)
 				{
-					builder.append("distance=").append(sight.getDistance()).append(" ");
+					builder.append("distance=").append(StringUtil.formatDecimal(sight.getDistance())).append(" ");
 				}
 			}
 
@@ -302,7 +302,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 			for (LightSource lightSource : entry.getValue().values()) {
 				builder.append(lightSource.getName()).append(" : ");
 
-				if (lightSource.getType() != null && lightSource.getType() != LightSource.Type.NORMAL) {
+				if (lightSource.getType() != LightSource.Type.NORMAL) {
 					builder.append(lightSource.getType().name().toLowerCase()).append(" ");
 				}
 
@@ -316,6 +316,10 @@ public class CampaignPropertiesDialog extends JDialog  {
 					if (light.getShape() != null && light.getShape() == ShapeType.CONE && light.getArcAngle() != 0 && light.getArcAngle() != 90) {
 						// TODO: This HAS to change, the lights need to be auto describing, this hard wiring sucks
 						builder.append("arc=").append(StringUtil.formatDecimal(light.getArcAngle())).append(" ");
+					}
+					if (light.isGM() && lightSource.getType() == LightSource.Type.AURA)
+					{
+						builder.append("GM").append(" ");
 					}
 
 					builder.append(StringUtil.formatDecimal(light.getRadius()));
@@ -549,10 +553,17 @@ public class CampaignPropertiesDialog extends JDialog  {
 				LightSource lightSource = new LightSource(name);
 				ShapeType shape = ShapeType.CIRCLE; // TODO: Make a preference for default shape
 				double arc = 0;
+				boolean gmOnly = false;
 				for (String arg : line.substring(split+1).split("\\s+")) {
 
 					arg = arg.trim();
 					if (arg.length() == 0) {
+						continue;
+					}
+
+					if (arg.equalsIgnoreCase("GM"))
+					{
+						gmOnly = true;
 						continue;
 					}
 
@@ -601,7 +612,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 					}
 
 					try {
-						lightSource.add(new Light(shape, 0, StringUtil.parseDecimal(distance), arc, color != null ? new DrawableColorPaint(color): null));
+						lightSource.add(new Light(shape, 0, StringUtil.parseDecimal(distance), arc, color != null ? new DrawableColorPaint(color): null, lightSource.getType() != LightSource.Type.AURA? false: gmOnly));
 					} catch (ParseException pe) {
 						errlog.add( I18N.getText("msg.error.mtprops.light.distance", reader.getLineNumber(), distance) );
 					}

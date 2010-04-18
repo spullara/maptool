@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -120,18 +120,18 @@ import com.jidesoft.docking.DockableFrame;
  * used throughout the application. Most of these are added to the main frame
  * menu, but some are added dynamically as needed, sometimes to the frame menu
  * but also to the context menu (the "right-click menu").
- * 
+ *
  * Each object instantiated from {@link DefaultClientAction} should have an
  * initializer that calls {@link ClientAction#init(String)} and passes the base
  * message key from the properties file. This base message key will be used to
  * locate the text that should appear on the menu item as well as the
  * accelerator, mnemonic, and short description strings. (See the {@link I18N}
  * class for more details on how the key is used.
- * 
+ *
  * In addition, each object should override {@link ClientAction#isAvailable()}
  * and return true if the application is in a state where the Action should be
  * enabled. (The default is <code>true</code>.)
- * 
+ *
  * Last is the {@link ClientAction#execute(ActionEvent)} method. It is passed
  * the {@link ActionEvent} object that triggered this Action as a parameter. It
  * should perform the necessary work to accomplish the effect of the Action.
@@ -139,7 +139,7 @@ import com.jidesoft.docking.DockableFrame;
 public class AppActions {
 
 	private static final Logger log = Logger.getLogger(AppActions.class);
-	
+
 	private static Set<Token> tokenCopySet = null;
 	public static final int menuShortcut = getMenuShortcutKeyMask();
 
@@ -175,6 +175,7 @@ public class AppActions {
 			return MapTool.isHostingServer() || MapTool.isPersonalServer();
 		}
 
+		@Override
 		public void execute(ActionEvent ae) {
 			// Do nothing
 		}
@@ -185,6 +186,7 @@ public class AppActions {
 			init("action.exportScreenShotAs");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			ExportInfo exportInfo = MapTool.getCampaign().getExportInfo();
@@ -209,6 +211,7 @@ public class AppActions {
 			init("action.exportScreenShot");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			ExportInfo exportInfo = MapTool.getCampaign().getExportInfo();
@@ -503,6 +506,7 @@ public class AppActions {
 			init("action.enforceZone");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			if (renderer == null) {
@@ -519,6 +523,7 @@ public class AppActions {
 			init("action.restoreDefaultImages");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			try {
 				AppSetup.installDefaultTokens();
@@ -540,6 +545,7 @@ public class AppActions {
 			init("action.addDefaultTables");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			try {
 				// Load the defaults
@@ -589,6 +595,7 @@ public class AppActions {
 			init("action.fullscreen");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			if (MapTool.getFrame().isFullScreen()) {
@@ -609,6 +616,7 @@ public class AppActions {
 			return super.isAvailable() && (MapTool.isPersonalServer() || MapTool.isHostingServer());
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			if (MapTool.getServer() == null) {
@@ -625,6 +633,7 @@ public class AppActions {
 			init("action.preferences");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			// Probably don't have to create a new one each time
@@ -638,6 +647,7 @@ public class AppActions {
 			init("action.saveMessageHistory");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			String messageHistory = MapTool.getFrame().getCommandPanel().getMessageHistory();
 
@@ -670,6 +680,7 @@ public class AppActions {
 			init("action.autosaveMessageHistory");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
 			chooser.setDialogTitle(I18N.getText("msg.title.saveMessageHistory"));
@@ -770,6 +781,7 @@ public class AppActions {
 			return super.isAvailable() && MapTool.getFrame().getCurrentZoneRenderer() != null;
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			Set<GUID> selectedSet = renderer.getSelectedTokenSet();
@@ -788,6 +800,7 @@ public class AppActions {
 			return super.isAvailable() && MapTool.getFrame().getCurrentZoneRenderer() != null;
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			copyTokens(renderer.getSelectedTokenSet());
@@ -796,68 +809,68 @@ public class AppActions {
 	};
 
 	public static final void cutTokens(Zone zone, Set<GUID> tokenSet) {
-		// Only cut if some tokens are selected.  Don't want to accidentally 
+		// Only cut if some tokens are selected.  Don't want to accidentally
 		// lose what might already be in the clipboard.
 		if (tokenSet.size() > 0) {
-			
+
 			copyTokens(tokenSet);
-	
+
 			// delete tokens
 			for (GUID tokenGUID : tokenSet) {
-	
+
 				Token token = zone.getToken(tokenGUID);
-	
+
 				if (AppUtil.playerOwns(token)) {
 					zone.removeToken(tokenGUID);
 					MapTool.serverCommand().removeToken(zone.getId(), tokenGUID);
 				}
 			}
-	
+
 			MapTool.getFrame().getCurrentZoneRenderer().clearSelectedTokens();
 		}
 	}
-	
+
 	public static final void copyTokens(Set<GUID> tokenSet) {
-		// Only cut if some tokens are selected.  Don't want to accidentally 
+		// Only cut if some tokens are selected.  Don't want to accidentally
 		// lose what might already be in the clipboard.
 		if (tokenSet.size() > 0) {
 			List<Token> tokenList = new ArrayList<Token>();
-	
+
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			Zone zone = renderer.getZone();
-	
+
 			tokenCopySet = new HashSet<Token>();
-			
+
 			for (GUID guid : tokenSet) {
 				Token token = zone.getToken(guid);
 				if (token != null) {
 					tokenList.add(token);
 				}
 			}
-	
+
 			copyTokens(tokenList);
 		}
 	}
 
 	public static final void copyTokens(List<Token> tokenList) {
-		// Only cut if some tokens are selected.  Don't want to accidentally 
+		// Only cut if some tokens are selected.  Don't want to accidentally
 		// lose what might already be in the clipboard.
 		if (tokenList.size() > 0 ) {
 			Integer top = null;
 			Integer left = null;
 			tokenCopySet = new HashSet<Token>();
 			for (Token token : tokenList) {
-	
+
 				if (top == null || token.getY() < top) {
 					top = token.getY();
 				}
 				if (left == null || token.getX() < left) {
 					left = token.getX();
 				}
-	
+
 				tokenCopySet.add(new Token(token));
 			}
-	
+
 			// Normalize
 			for (Token token : tokenCopySet) {
 				token.setX(token.getX() - left);
@@ -876,6 +889,7 @@ public class AppActions {
 			return super.isAvailable() && tokenCopySet != null;
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
@@ -887,7 +901,7 @@ public class AppActions {
 
 			ScreenPoint screenPoint = renderer.getPointUnderMouse();
 			if (screenPoint == null) {
-				
+
 				// Pick the middle of the map
 				screenPoint = ScreenPoint.fromZonePoint(renderer, renderer.getCenterPoint());
 			}
@@ -936,6 +950,7 @@ public class AppActions {
 			init("action.removeAssetRoot");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			AssetPanel assetPanel = MapTool.getFrame().getAssetPanel();
@@ -967,6 +982,7 @@ public class AppActions {
 			return MapTool.isHostingServer() || MapTool.getPlayer().isGM();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			ClientConnectionPanel panel = MapTool.getFrame().getConnectionPanel();
 			Player selectedPlayer = (Player) panel.getSelectedValue();
@@ -1009,6 +1025,7 @@ public class AppActions {
 			return AppState.isPlayerViewLinked();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			AppState.setPlayerViewLinked(!AppState.isPlayerViewLinked());
@@ -1027,6 +1044,7 @@ public class AppActions {
 			return AppState.isShowAsPlayer();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			AppState.setShowAsPlayer(!AppState.isShowAsPlayer());
@@ -1045,6 +1063,7 @@ public class AppActions {
 			return AppState.isShowLightSources();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			AppState.setShowLightSources(!AppState.isShowLightSources());
@@ -1063,10 +1082,11 @@ public class AppActions {
 			return AppState.isCollectProfilingData();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			AppState.setCollectProfilingData(!AppState.isCollectProfilingData());
-			
+
 			MapTool.getProfilingNoteFrame().setVisible(AppState.isCollectProfilingData());
 		}
 
@@ -1082,6 +1102,7 @@ public class AppActions {
 			return AppState.getShowMovementMeasurements();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			AppState.setShowMovementMeasurements(!AppState.getShowMovementMeasurements());
@@ -1102,6 +1123,7 @@ public class AppActions {
 			return AppState.isShowLightRadius();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			AppState.setShowLightRadius(!AppState.isShowLightRadius());
@@ -1117,6 +1139,7 @@ public class AppActions {
 			init("action.copyZone");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
@@ -1135,6 +1158,7 @@ public class AppActions {
 			init("action.removeZone");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			if (!MapTool.confirm("msg.confirm.removeZone")) {
@@ -1152,6 +1176,7 @@ public class AppActions {
 			init("action.showAboutDialog");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			MapTool.getFrame().showAboutDialog();
@@ -1167,6 +1192,7 @@ public class AppActions {
 			init("action.enforceView");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
@@ -1189,6 +1215,7 @@ public class AppActions {
 			init(CHAT_COMMAND_ID);
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			if (!MapTool.getFrame().isCommandPanelVisible()) {
 				MapTool.getFrame().showCommandPanel();
@@ -1213,6 +1240,7 @@ public class AppActions {
 			init(ENTER_COMMAND_ID, false);
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			MapTool.getFrame().getCommandPanel().startMacro();
 		}
@@ -1228,6 +1256,7 @@ public class AppActions {
 			init(COMMIT_COMMAND_ID);
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			MapTool.getFrame().getCommandPanel().commitCommand();
 		}
@@ -1243,6 +1272,7 @@ public class AppActions {
 			init(CANCEL_COMMAND_ID);
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			MapTool.getFrame().getCommandPanel().cancelCommand();
 		}
@@ -1253,6 +1283,7 @@ public class AppActions {
 			init("action.adjustGrid");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			MapTool.getFrame().getToolbox().setSelectedTool(GridTool.class);
@@ -1266,6 +1297,7 @@ public class AppActions {
 			init("msg.info.showTransferWindow");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			if (transferProgressDialog == null) {
@@ -1292,10 +1324,12 @@ public class AppActions {
 			}
 		}
 
+		@Override
 		public boolean isSelected() {
 			return AppState.isShowGrid();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			AppState.setShowGrid(!AppState.isShowGrid());
@@ -1318,10 +1352,12 @@ public class AppActions {
 			return renderer != null && renderer.getZone().getGrid().getCapabilities().isCoordinatesSupported();
 		}
 
+		@Override
 		public boolean isSelected() {
 			return AppState.isShowCoordinates();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			AppState.setShowCoordinates(!AppState.isShowCoordinates());
@@ -1342,10 +1378,12 @@ public class AppActions {
 			return renderer != null;
 		}
 
+		@Override
 		public boolean isSelected() {
 			return AppState.isZoomLocked();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			AppState.setZoomLocked(!AppState.isZoomLocked());
@@ -1367,6 +1405,7 @@ public class AppActions {
 			return renderer.getZone().hasFog();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
@@ -1384,7 +1423,7 @@ public class AppActions {
 	};
 
 	public static class SetVisionType extends ZoneAdminClientAction {
-		private VisionType visionType;
+		private final VisionType visionType;
 
 		public SetVisionType(VisionType visionType) {
 			this.visionType = visionType;
@@ -1401,6 +1440,7 @@ public class AppActions {
 			return renderer.getZone().getVisionType() == visionType;
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
@@ -1434,6 +1474,7 @@ public class AppActions {
 			}
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			AppState.setShowTokenNames(!AppState.isShowTokenNames());
@@ -1458,6 +1499,7 @@ public class AppActions {
 			return renderer.getZone().isVisible();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
@@ -1480,6 +1522,7 @@ public class AppActions {
 			init("action.newCampaign");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			if (!MapTool.confirm("msg.confirm.newCampaign")) {
@@ -1502,6 +1545,7 @@ public class AppActions {
 			init("action.zoomIn", false);
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			if (renderer != null) {
@@ -1517,6 +1561,7 @@ public class AppActions {
 			init("action.zoomOut", false);
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			if (renderer != null) {
@@ -1536,6 +1581,7 @@ public class AppActions {
 			init("action.zoom100", false);
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			if (renderer != null) {
@@ -1566,6 +1612,7 @@ public class AppActions {
 			return MapTool.getFrame().getZoneMiniMapPanel().isVisible();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			JComponent panel = MapTool.getFrame().getZoneMiniMapPanel();
@@ -1584,6 +1631,7 @@ public class AppActions {
 			return MapTool.getServerPolicy().isMovementLocked();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			ServerPolicy policy = MapTool.getServerPolicy();
@@ -1603,6 +1651,7 @@ public class AppActions {
 			return MapTool.isPersonalServer();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			runBackground(new Runnable() {
@@ -1628,10 +1677,10 @@ public class AppActions {
 					policy.setPlayersCanRevealVision(serverProps.getPlayersCanRevealVision());
 					policy.setUseIndividualViews(serverProps.getUseIndividualViews());
 					policy.setPlayersReceiveCampaignMacros(serverProps.getPlayersReceiveCampaignMacros());
-					
+
 					// Tool Tips for unformatted inline rolls.
 					policy.setUseToolTipsForDefaultRollFormat(serverProps.getUseToolTipsForUnformattedRolls());
-					
+
 					//my addition
 					policy.setRestrictedImpersonation(serverProps.getRestrictedImpersonation());
 
@@ -1654,7 +1703,7 @@ public class AppActions {
 						// Make a copy of the campaign since we don't coordinate
 						// local changes well ... yet
 						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, new Campaign(campaign));
-						
+
 						// Connect to server
                         String playerType = dialog.getRoleCombo().getSelectedItem().toString();
                         if(playerType.equals("GM")){
@@ -1699,8 +1748,9 @@ public class AppActions {
 			return MapTool.isPersonalServer();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
-			
+
 			if (MapTool.isCampaignDirty() && !MapTool.confirm("msg.confirm.loseChanges")) {
 				return;
 			}
@@ -1776,6 +1826,7 @@ public class AppActions {
 			return !MapTool.isPersonalServer();
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			if (MapTool.isHostingServer() && !MapTool.confirm("msg.confirm.hostingDisconnect")) {
@@ -1810,8 +1861,9 @@ public class AppActions {
 			return MapTool.isHostingServer() || MapTool.isPersonalServer();
 		}
 
+		@Override
 		public void execute(ActionEvent ae) {
-			
+
 			if (MapTool.isCampaignDirty() && !MapTool.confirm("msg.confirm.loseChanges")) {
 				return;
 			}
@@ -1846,6 +1898,7 @@ public class AppActions {
 	public static void loadCampaign(final File campaignFile) {
 
 		new Thread() {
+			@Override
 			public void run() {
 
 				try {
@@ -1920,6 +1973,7 @@ public class AppActions {
 			init("action.loadSaveDialog");
 		}
 
+		@Override
 		public void execute(ActionEvent ae) {
 			LoadSaveImpl impl = new LoadSaveImpl();
 			impl.saveApplication(); // All the work is done here
@@ -1938,6 +1992,7 @@ public class AppActions {
 			return (MapTool.isHostingServer() || MapTool.getPlayer().isGM());
 		}
 
+		@Override
 		public void execute(ActionEvent ae) {
 
 			if (AppState.getCampaignFile() == null) {
@@ -1956,12 +2011,12 @@ public class AppActions {
 			protected Object doInBackground() throws Exception {
 				try {
 					AppState.setIsSaving(true);
-					
+
 					long start = System.currentTimeMillis();
 					PersistenceUtil.saveCampaign(campaign, file);
 					AppMenuBar.getMruManager().addMRUCampaign(AppState.getCampaignFile());
 					MapTool.getFrame().setStatusMessage(I18N.getString("msg.info.campaignSaved"));
-					
+
 					// Min display time so people can see the message
 					try {
 						Thread.sleep(Math.max(0, 500 - (System.currentTimeMillis() - start)));
@@ -1977,13 +2032,13 @@ public class AppActions {
 				} finally {
 					AppState.setIsSaving(false);
 				}
-				
+
 				return null;
 			}
 			@Override
 			protected void done() {
 				MapTool.getFrame().hideGlassPane();
-				
+
 				if (command != null) {
 					// TODO: make this prettier.  I need to be able to tell the save command to exit the program
 					// on completion, so I'm hijacking the command value of the action.  Very.  Ugly.  Presumably it
@@ -1995,7 +2050,7 @@ public class AppActions {
 			}
 		}.execute();
 	}
-	
+
 	public static final Action SAVE_CAMPAIGN_AS = new DefaultClientAction() {
 		{
 			init("action.saveCampaignAs");
@@ -2006,6 +2061,7 @@ public class AppActions {
 			return MapTool.isHostingServer() || MapTool.getPlayer().isGM();
 		}
 
+		@Override
 		public void execute(ActionEvent ae) {
 
 			Campaign campaign = MapTool.getCampaign();
@@ -2016,11 +2072,11 @@ public class AppActions {
 			if (saveStatus == JFileChooser.APPROVE_OPTION) {
 
 				File campaignFile = chooser.getSelectedFile();
-				
+
 				if (campaignFile.exists() && !MapTool.confirm("msg.confirm.overwriteExistingCampaign")) {
 					return;
 				}
-				
+
 				if (campaignFile.getName().indexOf(".") < 0) {
 					campaignFile = new File(campaignFile.getAbsolutePath() + AppConstants.CAMPAIGN_FILE_EXTENSION);
 				}
@@ -2035,16 +2091,17 @@ public class AppActions {
 		}
 	};
 
-	public static final Action SAVE_MAP_AS = new DefaultClientAction() {
+	public static final DeveloperClientAction SAVE_MAP_AS = new DeveloperClientAction() {
 		{
 			init("action.saveMapAs");
 		}
-
+/*
 		@Override
 		public boolean isAvailable() {
-			return MapTool.isHostingServer() || MapTool.getPlayer().isGM();
+			return MapTool.isHostingServer() || (MapTool.getPlayer() != null && MapTool.getPlayer().isGM());
 		}
-
+*/
+		@Override
 		public void execute(ActionEvent ae) {
 			ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
 			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
@@ -2061,8 +2118,7 @@ public class AppActions {
 					AppPreferences.setSaveDir(mapFile.getParentFile());
 					MapTool.showInformation("msg.info.mapSaved");
 				} catch (IOException ioe) {
-					ioe.printStackTrace();
-					MapTool.showError("msg.error.failedSaveMap");
+					MapTool.showError("msg.error.failedSaveMap", ioe);
 				}
 			}
 		}
@@ -2073,22 +2129,23 @@ public class AppActions {
 	 * stored map into the current campaign. This Action is only available when
 	 * the current application is either hosting a server or is not connected to
 	 * a server.
-	 * 
+	 *
 	 * Property used from <b>i18n.properties</b> is <code>action.loadMap</code>
-	 * 
+	 *
 	 * @author FJE
 	 */
-	public static final Action LOAD_MAP = new DefaultClientAction() {
+	public static final DeveloperClientAction LOAD_MAP = new DeveloperClientAction() {
 		{
 			init("action.loadMap");
 		}
-
+/*
 		@Override
 		public boolean isAvailable() {
 			return MapTool.isHostingServer() || MapTool.isPersonalServer();
 		}
-
-		public void execute(ActionEvent ae) {       
+*/
+		@Override
+		public void execute(ActionEvent ae) {
 			JFileChooser chooser = new MapPreviewFileChooser();
 			chooser.setDialogTitle(I18N.getText("msg.title.loadMap"));
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -2118,6 +2175,7 @@ public class AppActions {
 
 	public static void loadMap(final File mapFile) {
 		new Thread() {
+			@Override
 			public void run() {
 				try {
 					StaticMessageDialog progressDialog = new StaticMessageDialog(I18N.getText("msg.info.mapLoading"));
@@ -2153,8 +2211,7 @@ public class AppActions {
 						MapTool.getFrame().hideGlassPane();
 					}
 				} catch (IOException ioe) {
-					ioe.printStackTrace();
-					MapTool.showError("msg.error.failedLoadMap");
+					MapTool.showError("msg.error.failedLoadMap", ioe);
 				}
 			}
 		}.start();
@@ -2170,6 +2227,7 @@ public class AppActions {
 			return MapTool.getPlayer().isGM();
 		}
 
+		@Override
 		public void execute(ActionEvent ae) {
 
 			Campaign campaign = MapTool.getCampaign();
@@ -2193,7 +2251,7 @@ public class AppActions {
 
 	public static class GridSizeAction extends DefaultClientAction {
 
-		private int size;
+		private final int size;
 
 		public GridSizeAction(int size) {
 			putValue(Action.NAME, Integer.toString(size));
@@ -2217,46 +2275,48 @@ public class AppActions {
 			init("action.downloadOtherLibrary");
 		}
 
+		@Override
 		public void execute(ActionEvent ae) {
 			System.out.println("HIT");
-		}		
+		}
 	};
-	
+
 	public static class DownloadRemoteLibraryAction extends DefaultClientAction {
-		
-		private URL url;
-		
+
+		private final URL url;
+
 		public DownloadRemoteLibraryAction(URL url) {
 			this.url = url;
 		}
-		
+
 		@Override
 		public void execute(ActionEvent arg0) {
-			
+
 			if (!MapTool.confirm("confirm.downloadRemoteLibrary", url)) {
 				return;
 			}
-			
+
 			final RemoteFileDownloader downloader = new RemoteFileDownloader(url, MapTool.getFrame());
 			new SwingWorker<Object, Object>() {
 
+				@Override
 				protected Object doInBackground() throws Exception {
-					
+
 					try {
 						File dataFile = downloader.read();
 						if (dataFile == null) {
 							// Canceled
 							return null;
 						}
-						
+
 						// Success
 						String libraryName = FileUtil.getNameWithoutExtension(url);
 						AppSetup.installLibrary(libraryName, dataFile.toURL());
-						
+
 					} catch (IOException e) {
 						log.error("Could not download remote library: " + e, e);
 					}
-					
+
 					return null;
 				}
 				@Override
@@ -2265,7 +2325,7 @@ public class AppActions {
 			}.execute();
 		}
 	}
-	
+
 	private static final int QUICK_MAP_ICON_SIZE = 25;
 
 	public static class QuickMapAction extends AdminClientAction {
@@ -2300,6 +2360,7 @@ public class AppActions {
 			getActionList().add(this);
 		}
 
+		@Override
 		public void execute(java.awt.event.ActionEvent e) {
 
 			runBackground(new Runnable() {
@@ -2323,6 +2384,7 @@ public class AppActions {
 			init("action.newMap");
 		}
 
+		@Override
 		public void execute(java.awt.event.ActionEvent e) {
 
 			runBackground(new Runnable() {
@@ -2348,6 +2410,7 @@ public class AppActions {
 			init("action.showDocumentation");
 		}
 
+		@Override
 		public void execute(java.awt.event.ActionEvent e) {
 
 			runBackground(new Runnable() {
@@ -2365,6 +2428,7 @@ public class AppActions {
 			init("action.showTutorials");
 		}
 
+		@Override
 		public void execute(java.awt.event.ActionEvent e) {
 
 			runBackground(new Runnable() {
@@ -2382,6 +2446,7 @@ public class AppActions {
 			init("action.showForums");
 		}
 
+		@Override
 		public void execute(java.awt.event.ActionEvent e) {
 
 			runBackground(new Runnable() {
@@ -2399,6 +2464,7 @@ public class AppActions {
 			init("action.addIconSelector");
 		}
 
+		@Override
 		public void execute(ActionEvent e) {
 
 			runBackground(new Runnable() {
@@ -2407,7 +2473,7 @@ public class AppActions {
 
 					AddResourceDialog dialog = new AddResourceDialog();
 					dialog.showDialog();
-					
+
 				}
 
 			});
@@ -2419,6 +2485,7 @@ public class AppActions {
 			init("action.exit");
 		}
 
+		@Override
 		public void execute(ActionEvent ae) {
 
 			if (!MapTool.getFrame().confirmClose()) {
@@ -2442,6 +2509,7 @@ public class AppActions {
 			return MapTool.getFrame().isPaintDrawingMeasurement();
 		}
 
+		@Override
 		public void execute(ActionEvent ae) {
 			MapTool.getFrame().setPaintDrawingMeasurement(!MapTool.getFrame().isPaintDrawingMeasurement());
 		}
@@ -2460,6 +2528,7 @@ public class AppActions {
 			return AppState.useDoubleWideLine();
 		}
 
+		@Override
 		public void execute(ActionEvent ae) {
 
 			AppState.setUseDoubleWideLine(!AppState.useDoubleWideLine());
@@ -2470,7 +2539,7 @@ public class AppActions {
 
 	public static class ToggleWindowAction extends ClientAction {
 
-		private MTFrame mtFrame;
+		private final MTFrame mtFrame;
 
 		public ToggleWindowAction(MTFrame mtFrame) {
 			this.mtFrame = mtFrame;
@@ -2534,7 +2603,7 @@ public class AppActions {
 		 * <code>null</code> because not all Actions have an associated
 		 * accelerator key defined, but it is currently only called by methods
 		 * that reference the {CUT,COPY,PASTE}_TOKEN Actions.
-		 * 
+		 *
 		 * @return KeyStroke associated with the Action or <code>null</code>
 		 */
 		public final KeyStroke getKeyStroke() {
@@ -2557,6 +2626,7 @@ public class AppActions {
 
 		public void runBackground(final Runnable r) {
 			new Thread() {
+				@Override
 				public void run() {
 					r.run();
 
@@ -2623,7 +2693,7 @@ public class AppActions {
 
 	public static class OpenMRUCampaign extends AbstractAction {
 
-		private File campaignFile;
+		private final File campaignFile;
 
 		public OpenMRUCampaign(File file, int position) {
 
@@ -2659,7 +2729,7 @@ public class AppActions {
 			if (MapTool.isCampaignDirty() && !MapTool.confirm("msg.confirm.loseChanges")) {
 				return;
 			}
-			
+
 			AppActions.loadCampaign(campaignFile);
 		}
 	}

@@ -47,6 +47,7 @@ import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Direction;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
+import net.rptools.maptool.model.Light;
 import net.rptools.maptool.model.LightSource;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.TokenFootprint;
@@ -126,15 +127,22 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			JMenu subMenu = new JMenu(entry.getKey());
 			
 			List<LightSource> lightSourceList = new ArrayList<LightSource>(entry.getValue().values());
-			for (LightSource lightSource : lightSourceList) {
-				
+LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
+					for (Light light : lightSource.getLightList()) {
+						if (light.isGM() && !MapTool.getPlayer().isGM())
+						{
+							continue LIGHTSOURCES;
+						}
+				}
 				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(new ToggleLightSourceAction(lightSource));
 				menuItem.setSelected(tokenUnderMouse.hasLightSource(lightSource));
 
 				subMenu.add(menuItem);
 			}
-			
-			menu.add(subMenu);
+			if (subMenu.getItemCount() != 0)
+			{
+				menu.add(subMenu);
+			}
 			
 		}
 		

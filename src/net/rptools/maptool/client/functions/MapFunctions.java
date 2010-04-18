@@ -12,14 +12,14 @@ import net.rptools.parser.function.AbstractFunction;
 import net.sf.json.JSONArray;
 
 public class MapFunctions extends AbstractFunction {
-	
+
 	private static final MapFunctions instance = new MapFunctions();
 
 	private MapFunctions() {
 		super(0, 1, "getAllMapNames", "getCurrentMapName", "getVisibleMapNames", "setCurrentMap");
 	}
-	
-	
+
+
 	public static MapFunctions getInstance() {
 		return instance;
 	}
@@ -28,13 +28,13 @@ public class MapFunctions extends AbstractFunction {
 	@Override
 	public Object childEvaluate(Parser parser, String functionName,
 			List<Object> parameters) throws ParserException {
-		
- 		
+
+
 		if (functionName.equals("getCurrentMapName")) {
 			return MapTool.getFrame().getCurrentZoneRenderer().getZone().getName();
 		} else if (functionName.equals("setCurrentMap")) {
 		    if (parameters.isEmpty())
-	            throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+	            throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 1, parameters.size()));
 		    String mapName = parameters.get(0).toString();
             for (ZoneRenderer zr : MapTool.getFrame().getZoneRenderers()) {
                 if (mapName.equals(zr.getZone().getName())) {
@@ -43,7 +43,7 @@ public class MapFunctions extends AbstractFunction {
                 } // endif
             } // endfor
             throw new ParserException(I18N.getText("macro.function.moveTokenMap.unknownMap", functionName, mapName));
-        } else { 
+        } else {
 			boolean allMaps = functionName.equals("getAllMapNames");
 
 		    if (allMaps && !MapTool.getParser().isMacroTrusted()) {
@@ -56,7 +56,7 @@ public class MapFunctions extends AbstractFunction {
 					mapNames.add(zr.getZone().getName());
 				}
 			}
-			
+
 			String delim = parameters.size() > 0 ? parameters.get(0).toString() : ",";
 			if ("json".equals(delim)) {
 				return JSONArray.fromObject(mapNames);

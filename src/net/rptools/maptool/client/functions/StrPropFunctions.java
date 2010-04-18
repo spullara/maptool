@@ -42,20 +42,21 @@ public class StrPropFunctions extends AbstractFunction {
 	 * @param oldKeys holds the un-normalized keys, in their original order.
 	 * @param delim is the setting delimiter to use
 	 */
-	public static void parse(String props, Map<String,String> map, 
+	public static void parse(String props, Map<String,String> map,
 			List<String> oldKeys, List<String> oldKeysNormalized, String delim) {
 		String delimPatt;
 		if (delim.equalsIgnoreCase("")) {
 			delimPatt = ";";
 		} else {
-			delimPatt = fullyQuoteString(delim);
+			delimPatt = fullyQuoteString(delim);		// XXX Why are we not using \\Q...\\E instead?
 		}
 
-		String entryPatt = "(\\w+\\s*=.*?)" + delimPatt + "|(\\w+\\s*=.*)";
+		// Added "." to allowed key names since variables name scan contain dots.
+		String entryPatt = "([\\w.]+\\s*=.*?)" + delimPatt + "|([\\w.]+\\s*=.*)";
 		Pattern entryParser = Pattern.compile(entryPatt);
-		String keyValuePatt = "(\\w+)\\s*=\\s*(.*)";
+		String keyValuePatt = "([\\w.]+)\\s*=\\s*(.*)";
 		Pattern keyValueParser = Pattern.compile(keyValuePatt);
-		
+
 		// Extract the keys and values already in the props string.
 		// Save the old keys so we can rebuild the props string in the same order.
 		boolean lastEntry = false;
@@ -84,7 +85,7 @@ public class StrPropFunctions extends AbstractFunction {
 		for (String key : oldKeys)
 			oldKeysNormalized.add(key.toUpperCase());
 	}
-	
+
 	/** Prepares a string for use in regex operations. */
 	public static String fullyQuoteString(String s) {
 		// We escape each non-alphanumeric character in the delimiter string
@@ -110,7 +111,7 @@ public class StrPropFunctions extends AbstractFunction {
 		ArrayList<String> oldKeys = new ArrayList<String>();
 		ArrayList<String> oldKeysNormalized = new ArrayList<String>();
 
-		if ("getStrProp".equalsIgnoreCase(functionName)) 
+		if ("getStrProp".equalsIgnoreCase(functionName))
 			retval = getStrProp(parameters, lastParam, props, map, oldKeys, oldKeysNormalized);
 		else if ("setStrProp".equalsIgnoreCase(functionName))
 			retval = setStrProp(parameters, lastParam, props, map, oldKeys, oldKeysNormalized);
@@ -132,19 +133,19 @@ public class StrPropFunctions extends AbstractFunction {
 		return retval;
 	}
 
-	/** MapTool code: <code>getStrProp(properties, key [, defaultValue])</code> 
+	/** MapTool code: <code>getStrProp(properties, key [, defaultValue])</code>
 	 * @param key A string to look up
 	 * @param defaultValue An optional default returned when <code>key</code> is not found (default is <code>""</code>
 	 * @return The matching value for <code>key</code>, or <code>""</code> if not found.
 	 * The value is converted to a number if possible.
 	 */
 	public Object getStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map,
-			List<String> oldKeys, List<String> oldKeysNormalized) 
+			List<String> oldKeys, List<String> oldKeysNormalized)
 	throws ParserException {
 		Object retval = "";
 		String delim = ";";
 		String userKey;
-		
+
 		int minParams = 2;
 		int maxParams = minParams + 2;	// both defaultValue and delim are optional parameters
 		checkVaryingParameters("getStrProp()", minParams, maxParams, parameters, new Class[] {String.class, String.class, null, String.class});
@@ -154,7 +155,7 @@ public class StrPropFunctions extends AbstractFunction {
 		if (parameters.size()==maxParams)
 			delim = lastParam;
 		parse(props, map, oldKeys, oldKeysNormalized, delim);
-		
+
 		userKey = parameters.get(1).toString();		// the key being passed in
 		String value = map.get(userKey.toUpperCase());
 		if (value != null) {
@@ -164,14 +165,14 @@ public class StrPropFunctions extends AbstractFunction {
 		return retval;
 	}
 
-	/** MapTool code: <code>setStrProp(properties, key, value)</code> - 
+	/** MapTool code: <code>setStrProp(properties, key, value)</code> -
 	 * adds or replaces a key's value, respecting the order and case of existing keys.
 	 * @param key A string to look up
 	 * @param value A string or number to assign to <code>key</code>
 	 * @return The new property string.
 	 */
-	public Object setStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map, 
-			List<String> oldKeys, List<String> oldKeysNormalized) 
+	public Object setStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map,
+			List<String> oldKeys, List<String> oldKeysNormalized)
 	throws ParserException {
 		Object retval = "";
 		String delim = ";";
@@ -183,7 +184,7 @@ public class StrPropFunctions extends AbstractFunction {
 		if (parameters.size() == maxParams)
 			delim = lastParam;
 		parse(props, map, oldKeys, oldKeysNormalized, delim);
-		
+
 		userKey = parameters.get(1).toString();		// the key being passed in
 		userValue = parameters.get(2).toString();
 		map.put(userKey.toUpperCase(), userValue);
@@ -208,8 +209,8 @@ public class StrPropFunctions extends AbstractFunction {
 	 * @param key A string to look up.
 	 * @return The new property string. (If <code>key</code> is not found, no changes are made.)
 	 */
-	public Object deleteStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map, 
-			List<String> oldKeys, List<String> oldKeysNormalized) 
+	public Object deleteStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map,
+			List<String> oldKeys, List<String> oldKeysNormalized)
 	throws ParserException {
 		Object retval = "";
 		String delim = ";";
@@ -221,7 +222,7 @@ public class StrPropFunctions extends AbstractFunction {
 		if (parameters.size() == maxParams)
 			delim = lastParam;
 		parse(props, map, oldKeys, oldKeysNormalized, delim);
-		
+
 		userKey = parameters.get(1).toString();		// the key being passed in
 		// reconstruct the property string, without the specified key
 		StringBuilder sb = new StringBuilder();
@@ -244,18 +245,18 @@ public class StrPropFunctions extends AbstractFunction {
 	 * <br>"SUFFIXED" - assignments are made to variable names with "_" appended
 	 * <br>"UNSUFFIXED" - assignments are made to unmodified variable names
 	 * @return The number of assignments made.
-	 * 
+	 *
 	 * For backwards compatibility with an earlier version, this function accepts the following argument patterns:
 	 *   - properties
 	 *   - properties, setVars
 	 *   - properties, delim
 	 *   - properties, setVars, delim
-	 * 
+	 *
 	 * The 2-parameter options are distinguished based on the actual string contents.
 	 * (So, you can't use "NONE", "SUFFIXED", or "UNSUFFIXED" as non-default delimiters ;) )
 	 */
-	public Object varsFromStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map, 
-			List<String> oldKeys, List<String> oldKeysNormalized, Parser parser) 
+	public Object varsFromStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map,
+			List<String> oldKeys, List<String> oldKeysNormalized, Parser parser)
 	throws ParserException {
 		Object retval = "";
 		String delim = ";";
@@ -266,7 +267,7 @@ public class StrPropFunctions extends AbstractFunction {
 		checkVaryingParameters("varsFromStrProp()", minParams, maxParams, parameters, new Class[] {String.class, String.class});
 		if (parameters.size() == maxParams)
 			delim = lastParam;
-		
+
 		if (parameters.size() == 1) {
 			option = 2;	// default to unsuffixed to match old behavior pre 1.3b48
 		} else {
@@ -280,7 +281,7 @@ public class StrPropFunctions extends AbstractFunction {
 			} else if (setVars.equalsIgnoreCase("UNSUFFIXED")) {
 				option = 2;
 			}
-			
+
 			if (option == -1) {
 				// The second parameter was not a setVars option, so it must have been a non-default delimiter.
 				// This is only legal if only 2 arguments were given.
@@ -292,9 +293,9 @@ public class StrPropFunctions extends AbstractFunction {
 				}
 			}
 		}
-		
+
 		parse(props, map, oldKeys, oldKeysNormalized, delim);
-		
+
 		for (String k : oldKeys) {
 			String v = map.get(k.toUpperCase());
 			if (v != null) {
@@ -317,11 +318,11 @@ public class StrPropFunctions extends AbstractFunction {
 
 	/** MapTool code: <code>strPropFromVars(varList, varStyle)</code>.
 	 * @param varList A comma-separated list of variable names.
-	 * @param varStyle Either "SUFFIXED" or "UNSUFFIXED", indicating how to decorate the variable names when fetching values. 
+	 * @param varStyle Either "SUFFIXED" or "UNSUFFIXED", indicating how to decorate the variable names when fetching values.
 	 * @return A property string containing the settings of all the variables.
 	 */
-	public Object strPropFromVars(List<Object> parameters, String lastParam, String props, Map<String,String> map, 
-			List<String> oldKeys, List<String> oldKeysNormalized, Parser parser) 
+	public Object strPropFromVars(List<Object> parameters, String lastParam, String props, Map<String,String> map,
+			List<String> oldKeys, List<String> oldKeysNormalized, Parser parser)
 	throws ParserException {
 		Object retval = null;
 		String delim = ";";
@@ -355,12 +356,12 @@ public class StrPropFunctions extends AbstractFunction {
 		retval = sb.toString();
 		return retval;
 	}
-	
-	/** MapTool code: <code>countStrProp(properties)</code> 
+
+	/** MapTool code: <code>countStrProp(properties)</code>
 	 * @return The number of property entries in the string.
 	 */
-	public Object countStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map, 
-			List<String> oldKeys, List<String> oldKeysNormalized) 
+	public Object countStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map,
+			List<String> oldKeys, List<String> oldKeysNormalized)
 	throws ParserException {
 		Object retval = "";
 		String delim = ";";
@@ -371,17 +372,17 @@ public class StrPropFunctions extends AbstractFunction {
 		if (parameters.size() == maxParams)
 			delim = lastParam;
 		parse(props, map, oldKeys, oldKeysNormalized, delim);
-		
+
 		retval = new BigDecimal(oldKeys.size());
 		return retval;
 	}
 
-	/** MapTool code: <code>indexKeyStrProp(properties, index)</code> - returns the key at the position given by <code>index</code>. 
+	/** MapTool code: <code>indexKeyStrProp(properties, index)</code> - returns the key at the position given by <code>index</code>.
 	 * @param index A number from 0 to (length-1). Ignored if out of range.
 	 * @return The key for the setting at position <code>index</code>
 	 */
-	public Object indexKeyStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map, 
-			List<String> oldKeys, List<String> oldKeysNormalized) 
+	public Object indexKeyStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map,
+			List<String> oldKeys, List<String> oldKeysNormalized)
 	throws ParserException {
 		Object retval = "";
 		String delim = ";";
@@ -392,7 +393,7 @@ public class StrPropFunctions extends AbstractFunction {
 		if (parameters.size() == maxParams)
 			delim = lastParam;
 		parse(props, map, oldKeys, oldKeysNormalized, delim);
-		
+
 		int index = ((BigDecimal)parameters.get(1)).intValue();
 		if (index < 0 || index >= oldKeys.size()) {
 			retval = "";
@@ -402,12 +403,12 @@ public class StrPropFunctions extends AbstractFunction {
 		return retval;
 	}
 
-	/** MapTool code: <code>indexValueStrProp(properties, index)</code> - returns the value at the position given by <code>index</code>. 
+	/** MapTool code: <code>indexValueStrProp(properties, index)</code> - returns the value at the position given by <code>index</code>.
 	 * @param index A number from 0 to (length-1). Ignored if out of range.
 	 * @return The value (converted to a number if possible) for the setting at position <code>index</code>
 	 */
-	public Object indexValueStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map, 
-			List<String> oldKeys, List<String> oldKeysNormalized) 
+	public Object indexValueStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map,
+			List<String> oldKeys, List<String> oldKeysNormalized)
 	throws ParserException {
 		String value = "";
 		Object retval = null;
@@ -419,7 +420,7 @@ public class StrPropFunctions extends AbstractFunction {
 		if (parameters.size() == maxParams)
 			delim = lastParam;
 		parse(props, map, oldKeys, oldKeysNormalized, delim);
-		
+
 		int index = ((BigDecimal)parameters.get(1)).intValue();
 		if (index < 0 || index >= oldKeys.size()) {
 			value = "";
@@ -439,21 +440,21 @@ public class StrPropFunctions extends AbstractFunction {
 		return retval;
 	}
 
-	/** MapTool code: <code>formatStrProp(properties, listFormat, entryFormat, separator [, delim])</code> -  
+	/** MapTool code: <code>formatStrProp(properties, listFormat, entryFormat, separator [, delim])</code> -
 	 * @param listFormat Controls overall format of the output, with "%list" where the list goes.
 	 * @param itemFormat Controls appearance of each entry, with "%key" and "%value" where the keys and values go.
 	 * @param separator Placed between each output item.
 	 * @return A string containing the formatted property string.
 	 */
-	public Object formatStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map, 
-			List<String> oldKeys, List<String> oldKeysNormalized) 
+	public Object formatStrProp(List<Object> parameters, String lastParam, String props, Map<String,String> map,
+			List<String> oldKeys, List<String> oldKeysNormalized)
 	throws ParserException {
 		Object retval = null;
 		String delim = ";";
 
 		int minParams = 4;
 		int maxParams = minParams + 1;
-		checkVaryingParameters("formatStrProp()", minParams, maxParams, parameters, 
+		checkVaryingParameters("formatStrProp()", minParams, maxParams, parameters,
 				new Class[] {String.class, String.class, String.class, String.class, String.class});
 		if (parameters.size() == maxParams)
 			delim = lastParam;
@@ -462,7 +463,7 @@ public class StrPropFunctions extends AbstractFunction {
 		String listFormat  = parameters.get(1).toString();
 		String entryFormat = parameters.get(2).toString();
 		String separator   = parameters.get(3).toString();
-		
+
 		StringBuilder sb = new StringBuilder();
 		boolean firstEntry = true;
 		for (String key : oldKeys) {
@@ -478,13 +479,13 @@ public class StrPropFunctions extends AbstractFunction {
 			entry = entry.replaceAll("\\%value", value);
 			sb.append(entry);
 		}
-		
+
 		retval = listFormat.replaceFirst("\\%list", sb.toString());
 		return retval;
 	}
-	
-	
-	
+
+
+
 	/** Tries to convert a string to a number, returning <code>null</code> on failure. */
 	public Integer strToInt(String s) {
 		Integer intval = null;
@@ -504,7 +505,7 @@ public class StrPropFunctions extends AbstractFunction {
 
 	/** Checks number and types of parameters (pass null type to suppress typechecking for that slot). */
 	public void checkVaryingParameters(
-			String funcName, int minParams, int maxParams, List<Object> parameters, Class[] expected) 
+			String funcName, int minParams, int maxParams, List<Object> parameters, Class[] expected)
 	throws ParameterException {
 		if (parameters.size() < minParams || parameters.size() > maxParams) {
 			String msg;
@@ -694,10 +695,8 @@ public class StrPropFunctions extends AbstractFunction {
 <br>The key of entry {n} is [indexKeyStrProp(prop, n)]
 <br>The value of entry {n} is [indexValueStrProp(prop, 2)]
 <br>Reading in variables yields [varsFromStrProp(prop,"suffixed")] variables to use: a_+1={a_+1}, b_={b_}, c_={c_}, D_-9={d_-9}
-<br>There are [cnt = countStrProp(prop)] settings. 
+<br>There are [cnt = countStrProp(prop)] settings.
 They are [c(cnt, ", "): indexKeyStrProp(prop, roll.count-1) +" is "+ indexValueStrProp(prop, roll.count-1)]
 <br>Eliminating {k} from [prop] yields [deleteStrProp(prop, k)]
 
  */
-
-

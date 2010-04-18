@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -70,7 +70,7 @@ public class AppMenuBar extends JMenuBar {
 		fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN_AS));
 //		fileMenu.add(new JMenuItem(AppActions.LOAD_MAP));
 //		fileMenu.add(new JMenuItem(AppActions.SAVE_MAP_AS));
-		
+
 		fileMenu.add(new JMenuItem(AppActions.SAVE_MESSAGE_HISTORY));
 		fileMenu.addSeparator();
 		fileMenu.add(createExportMenu());
@@ -87,7 +87,7 @@ public class AppMenuBar extends JMenuBar {
 			fileMenu.addSeparator();
 			fileMenu.add(new JMenuItem(AppActions.EXIT));
 		}
-		
+
 		return fileMenu;
 	}
 
@@ -110,7 +110,10 @@ public class AppMenuBar extends JMenuBar {
 
 		menu.add(new JMenuItem(AppActions.NEW_MAP));
 		menu.add(createQuickMapMenu());
-
+		if (AppActions.LOAD_MAP.isAvailable())
+			menu.add(new JMenuItem(AppActions.LOAD_MAP));
+		if (AppActions.SAVE_MAP_AS.isAvailable())
+			menu.add(new JMenuItem(AppActions.SAVE_MAP_AS));
 		menu.addSeparator();
 
 		// MAP TOGGLES

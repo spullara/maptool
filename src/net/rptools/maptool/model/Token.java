@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.model;
 
@@ -49,8 +49,6 @@ import net.rptools.parser.ParserException;
 
 import org.apache.log4j.Logger;
 
-import com.caucho.hessian.io.MapSerializer;
-
 
 /**
  * This object represents the placeable objects on a map. For example an icon
@@ -58,42 +56,43 @@ import com.caucho.hessian.io.MapSerializer;
  * itself) and a location and scale.
  */
 public class Token extends BaseModel {
-	
+
 	private static final Logger log = Logger.getLogger(Token.class);
-	
+
 	private GUID id = new GUID();
-	
+
 	public static final String FILE_EXTENSION = "rptok";
 	public static final String FILE_THUMBNAIL = "thumbnail";
-	
+
 	public static final String NAME_USE_FILENAME = "Use Filename";
 	public static final String NAME_USE_CREATURE = "Use \"Creature\"";
-	
+
 	public static final String NUM_INCREMENT = "Increment";
 	public static final String NUM_RANDOM = "Random";
-	
+
 	public static final String NUM_ON_NAME = "Name";
 	public static final String NUM_ON_GM = "GM Name";
 	public static final String NUM_ON_BOTH = "Both";
-	
+
 	private boolean beingImpersonated = false;
 
 	public enum TokenShape {
 		TOP_DOWN("Top down"),
 		CIRCLE("Circle"),
 		SQUARE("Square");
-		
+
 		private String displayName;
-		
+
 		private TokenShape(String displayName) {
 			this.displayName = displayName;
 		}
-		
+
+		@Override
 		public String toString() {
 			return displayName;
 		}
 	}
-	
+
 	public enum Type {
 		PC,
 		NPC
@@ -105,29 +104,29 @@ public class Token extends BaseModel {
 		}
 	};
 
-	private Map<String, MD5Key> imageAssetMap;
+	private final Map<String, MD5Key> imageAssetMap;
 	private String currentImageAsset;
 
 	private int x;
 	private int y;
 	private int z;
-	
+
 	private int anchorX;
 	private int anchorY;
-	
+
 	private double sizeScale = 1;
 
 	private int lastX;
 	private int lastY;
 	private Path<? extends AbstractPoint> lastPath;
-	
+
 	private boolean snapToScale = true; // Whether the scaleX and scaleY
 										// represent snap-to-grid measurements
 
 	// These are the original image width and height
 	private int width;
 	private int height;
-	
+
 	private double scaleX = 1;
 	private double scaleY = 1;
 
@@ -145,54 +144,54 @@ public class Token extends BaseModel {
 
 	private static final int OWNER_TYPE_ALL = 1;
 	private static final int OWNER_TYPE_LIST = 0;
-	
+
 	private String tokenShape;
 	private String tokenType;
 	private String layer;
 	private transient Zone.Layer actualLayer;
-	
+
 	private String propertyType = Campaign.DEFAULT_TOKEN_PROPERTY_TYPE;
 
 	private Integer facing = null;
-	
+
 	private Integer haloColorValue;
 	private transient Color haloColor;
-    
+
     private Integer visionOverlayColorValue;
     private transient Color visionOverlayColor;
-	
+
 	private boolean isFlippedX;
 	private boolean isFlippedY;
-	
+
 	private MD5Key charsheetImage;
 	private MD5Key portraitImage;
-	
+
 	private List<AttachedLightSource> lightSourceList;
 	private String sightType;
 	private boolean hasSight;
-	
+
 	private String label;
 
   /**
    * The notes that are displayed for this token.
    */
 	private String notes;
-  
+
 	private String gmNotes;
-	
+
 	private String gmName;
-	
+
 	/**
 	 * A state properties for this token. This allows state to be added that can
 	 * change appearance of the token.
 	 */
 	private Map<String, Object> state;
-	
+
 	/**
 	 * Properties
 	 */
-	private Map<String, Object> propertyMap;
-	
+	private CaseInsensitiveHashMap<Object> propertyMap;
+
 
 	private Map<String, String> macroMap;
 	private Map<Integer, Object> macroPropertiesMap;
@@ -202,7 +201,7 @@ public class Token extends BaseModel {
 	// Deprecated, here to allow deserialization
 	private transient int size; // 1.3b16
 	private transient List<Vision> visionList; // 1.3b18
-	
+
 	public enum ChangeEvent {
 		name
 	}
@@ -210,7 +209,7 @@ public class Token extends BaseModel {
 	public Token(Token token) {
 		this(token.name, token.getImageAssetId());
 		currentImageAsset = token.currentImageAsset;
-		
+
 		x = token.x;
 		y = token.y;
 		z = token.z;
@@ -219,7 +218,7 @@ public class Token extends BaseModel {
 		//		lastX = token.lastX;
 		//		lastY = token.lastY;
 		//		lastPath = token.lastPath;
-		
+
 
 		snapToScale = token.snapToScale;
 		width = token.width;
@@ -241,11 +240,11 @@ public class Token extends BaseModel {
 
 	    isFlippedX = token.isFlippedX;
 	    isFlippedY = token.isFlippedY;
-	    
+
 	    layer = token.layer;
-        
+
         visionOverlayColor = token.visionOverlayColor;
-	    
+
         charsheetImage = token.charsheetImage;
         portraitImage = token.portraitImage;
         anchorX = token.anchorX;
@@ -254,7 +253,7 @@ public class Token extends BaseModel {
         sightType = token.sightType;
         hasSight = token.hasSight;
         propertyType = token.propertyType;
-        
+
 	    ownerType = token.ownerType;
 		if (token.ownerList != null) {
 			ownerList = new HashSet<String>();
@@ -264,11 +263,11 @@ public class Token extends BaseModel {
 		if (token.lightSourceList != null) {
 			lightSourceList = new ArrayList<AttachedLightSource>(token.lightSourceList);
 		}
-		
+
 		if (token.state != null) {
 			state.putAll(token.state);
 		}
-    
+
 		if (token.propertyMap != null) {
 			getPropertyMap().clear();
 			getPropertyMap().putAll(token.propertyMap);
@@ -287,11 +286,11 @@ public class Token extends BaseModel {
 		if (token.speechMap != null) {
 			speechMap = new HashMap<String, String>(token.speechMap);
 		}
-		
+
 		if (token.imageAssetMap != null) {
 			imageAssetMap.putAll(token.imageAssetMap);
 		}
-		
+
 		if (token.sizeMap != null) {
 			sizeMap = new HashMap<Class<? extends Grid>, GUID>(token.sizeMap);
 		}
@@ -314,11 +313,37 @@ public class Token extends BaseModel {
 
 		// NULL key is the default
 		imageAssetMap.put(null, assetId);
-		
+
 		// convert old-style macros
 		if (macroMap != null) {
 			loadOldMacros();
 		}
+	}
+
+	/**
+	 * This token object has just been imported and needs to have most of its internal data
+	 * wiped clean.  This prevents a token from being imported that makes use of the wrong
+	 * property types, vision types, ownership, macros, and so on.  The only data retained is
+	 * Notes, GM Notes, token type (TOP_DOWN|CIRCLE|SQUARE), Visible To Players, Snap-
+	 * to-grid, x/y coordinates, token size, layer, facing, and halo.  Basically anything related
+	 * to the presentation of the token on-screen + the two notes fields.
+	 */
+	public void imported() {
+		// anchorX, anchorY?
+		beingImpersonated = false;
+		// hasSight?
+		// height?
+		lastPath = null;
+		lastX = lastY = 0;
+		// lightSourceList?
+		macroMap = null;
+//		macroPropertiesMap = null;
+		ownerList = null;
+		// propertyMap = null;
+		// propertyType = "Basic";
+		sightType = "Normal";
+//		state = null;
+		visionList = null;
 	}
 
 	public void setHasSight(boolean hasSight) {
@@ -328,15 +353,15 @@ public class Token extends BaseModel {
 	public void setWidth(int width) {
 		this.width = width;
 	}
-	
+
 	public void setHeight(int height) {
 		this.height = height;
 	}
-	
+
 	public boolean isMarker() {
 		return isStamp() && (!StringUtil.isEmpty(notes) || !StringUtil.isEmpty(gmNotes) || portraitImage != null);
 	}
-	
+
 	public String getPropertyType() {
 		return propertyType;
 	}
@@ -348,23 +373,23 @@ public class Token extends BaseModel {
 	public String getGMNotes() {
 		return gmNotes;
 	}
-	
+
 	public void setGMNotes(String notes) {
 		gmNotes = notes;
 	}
-	
+
 	public String getGMName() {
 		return gmName;
 	}
-	
+
 	public void setGMName(String name) {
 		gmName = name;
 	}
-	
+
 	public boolean hasHalo() {
 		return haloColorValue != null;
 	}
-	
+
 	public String getLabel() {
 		return label;
 	}
@@ -381,27 +406,27 @@ public class Token extends BaseModel {
 		}
 		haloColor = color;
 	}
-	
+
 	public Color getHaloColor() {
 		if (haloColor == null && haloColorValue != null) {
 			haloColor = new Color(haloColorValue);
 		}
-		
+
 		return haloColor;
 	}
-	
+
 	public boolean isObjectStamp() {
 		return getLayer() == Zone.Layer.OBJECT;
 	}
-	
+
 	public boolean isGMStamp() {
 		return getLayer() == Zone.Layer.GM;
 	}
-	
+
 	public boolean isBackgroundStamp() {
 		return getLayer() == Zone.Layer.BACKGROUND;
 	}
-	
+
 	public boolean isStamp() {
 		switch(getLayer()) {
 		case BACKGROUND:
@@ -410,11 +435,11 @@ public class Token extends BaseModel {
 			return true;
 		}
 		return false;	}
-	
+
 	public boolean isToken() {
 		return getLayer() == Zone.Layer.TOKEN;
 	}
-	
+
 	public TokenShape getShape() {
 		try {
 			return tokenShape != null ? TokenShape.valueOf(tokenShape) : TokenShape.SQUARE;  // TODO: make this a psf
@@ -422,11 +447,11 @@ public class Token extends BaseModel {
 			return TokenShape.SQUARE;
 		}
 	}
-	
+
 	public void setShape(TokenShape type) {
 		this.tokenShape = type.name();
 	}
-	
+
 	public Type getType() {
 		try {
 			return tokenType != null ? Type.valueOf(tokenType) : Type.NPC;  // TODO: make this a psf
@@ -434,15 +459,15 @@ public class Token extends BaseModel {
 			return Type.NPC;
 		}
 	}
-	
+
 	public void setType(Type type) {
 		this.tokenType = type.name();
-		
+
 		if (type == Type.PC) {
 			hasSight = true;
 		}
 	}
-	
+
 	public Zone.Layer getLayer() {
 		try {
 			if (actualLayer == null) {
@@ -453,16 +478,16 @@ public class Token extends BaseModel {
 			return Zone.Layer.TOKEN;
 		}
 	}
-	
+
 	public void setLayer(Zone.Layer layer) {
 		this.layer = layer.name();
 		actualLayer = layer;
 	}
-	
+
 	public boolean hasFacing() {
 		return facing != null;
 	}
-	
+
 	public void setFacing(Integer facing) {
 		while (facing != null && (facing > 180 || facing < -179)) {
 			facing += facing > 180 ? -360 : 0;
@@ -470,7 +495,7 @@ public class Token extends BaseModel {
 		}
 		this.facing = facing;
 	}
-	
+
 	public Integer getFacing() {
 		return facing;
 	}
@@ -486,12 +511,12 @@ public class Token extends BaseModel {
 		if (!lightSourceList.contains(source));
 			lightSourceList.add(new AttachedLightSource(source, direction));
 	}
-	
+
 	public void removeLightSource(LightSource source) {
 		if (lightSourceList == null) {
 			return;
 		}
-		
+
 		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
 			AttachedLightSource als = i.next();
 			if (als.getLightSourceId().equals(source.getId())) {
@@ -499,22 +524,22 @@ public class Token extends BaseModel {
 			}
 		}
 	}
-	
+
 	//My Addition
 	public void clearLightSources() {
 		if (lightSourceList == null) {
 			return;
 		}
-		
+
 		lightSourceList = null;
 	}
 	//End My Addtion
-	
+
 	public boolean hasLightSource(LightSource source) {
 		if (lightSourceList == null) {
 			return false;
 		}
-		
+
 		for (ListIterator<AttachedLightSource> i = lightSourceList.listIterator(); i.hasNext();) {
 			AttachedLightSource als = i.next();
 			if (als.getLightSourceId().equals(source.getId())) {
@@ -525,13 +550,13 @@ public class Token extends BaseModel {
 	}
 
 	public boolean hasLightSources() {
-		return lightSourceList != null && lightSourceList.size() > 0;
+		return lightSourceList != null && !lightSourceList.isEmpty();
 	}
-	
+
 	public List<AttachedLightSource> getLightSources() {
 		return lightSourceList != null ? Collections.unmodifiableList(lightSourceList) : new LinkedList<AttachedLightSource>();
 	}
-	
+
 	public synchronized void addOwner(String playerId) {
 		ownerType = OWNER_TYPE_LIST;
 		if (ownerList == null) {
@@ -544,7 +569,7 @@ public class Token extends BaseModel {
   public synchronized boolean hasOwners() {
     return ownerType == OWNER_TYPE_ALL || (ownerList != null && !ownerList.isEmpty());
   }
-  
+
 	public synchronized void removeOwner(String playerId) {
 		ownerType = OWNER_TYPE_LIST;
 		if (ownerList == null) {
@@ -568,10 +593,10 @@ public class Token extends BaseModel {
 	}
 
 	public Set<String> getOwners() {
-		
+
 		return ownerList != null ? Collections.unmodifiableSet(ownerList) : new HashSet<String>();
 	}
-	
+
 	public boolean isOwnedByAll() {
 		return ownerType == OWNER_TYPE_ALL;
 	}
@@ -589,7 +614,8 @@ public class Token extends BaseModel {
 	public int hashCode() {
 		return id.hashCode();
 	}
-	
+
+	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof Token)) {
 			return false;
@@ -612,17 +638,17 @@ public class Token extends BaseModel {
 		if (!MapTool.getPlayer().isGM()) {
 			Zone curZone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
 			List<Token> tokensList = curZone.getTokens();
-			
+
 			for (int i = 0; i < tokensList.size(); i++) {
 				String curTokenName = tokensList.get(i).getName();
-				
+
 				if (curTokenName.equalsIgnoreCase(name)) {
 					MapTool.showError("Can not rename Token to " + name + " as there is already another token with this name on the Map.\nOnly the GM can create multiple Tokens with the same name!");
 					return;
 				}
 			}
 		}
-		
+
 		this.name = name;
 		fireModelChangeEvent(new ModelChangeEvent(this, ChangeEvent.name, name));
 	}
@@ -638,35 +664,35 @@ public class Token extends BaseModel {
 	public void setImageAsset(String name, MD5Key assetId) {
 		imageAssetMap.put(name, assetId);
 	}
-	
+
 	public void setImageAsset(String name) {
 		currentImageAsset = name;
 	}
 
 	public Set<MD5Key> getAllImageAssets() {
-		Set<MD5Key> assetSet = new HashSet<MD5Key>(imageAssetMap.values()); 
+		Set<MD5Key> assetSet = new HashSet<MD5Key>(imageAssetMap.values());
 		assetSet.add(charsheetImage);
 		assetSet.add(portraitImage);
 		assetSet.remove(null); // Clean up from any null values from above
 		return assetSet;
 	}
-	
+
 	public MD5Key getPortraitImage() {
 		return portraitImage;
 	}
-	
+
 	public void setPortraitImage(MD5Key image) {
 		portraitImage = image;
 	}
-	
+
 	public MD5Key getCharsheetImage() {
 		return charsheetImage;
 	}
-	
+
 	public void setCharsheetImage(MD5Key charsheetImage) {
 		this.charsheetImage = charsheetImage;
 	}
-	
+
 	public GUID getId() {
 		return id;
 	}
@@ -678,7 +704,7 @@ public class Token extends BaseModel {
 	public int getX() {
 		return x;
 	}
-	
+
 	public int getY() {
 		return y;
 	}
@@ -687,7 +713,7 @@ public class Token extends BaseModel {
 		lastX = this.x;
 		this.x = x;
 	}
-	
+
 	public void setY(int y) {
 		lastY = this.y;
 		this.y = y;
@@ -702,15 +728,15 @@ public class Token extends BaseModel {
 	public void setLastPath(Path<? extends AbstractPoint> path) {
 		lastPath = path;
 	}
-	
+
 	public int getLastY() {
 		return lastY;
 	}
-	
+
 	public int getLastX() {
 		return lastX;
 	}
-	
+
 	public Path<? extends AbstractPoint> getLastPath() {
 		return lastPath;
 	}
@@ -718,11 +744,11 @@ public class Token extends BaseModel {
 	public double getScaleX() {
 		return scaleX;
 	}
-	
+
 	public double getScaleY() {
 		return scaleY;
 	}
-	
+
 	public void setScaleX(double scaleX) {
 		this.scaleX = scaleX;
 	}
@@ -764,7 +790,7 @@ public class Token extends BaseModel {
 
         double width = footprintBounds.width;
         double height = footprintBounds.height;
-        
+
         // Sizing
         if (!isSnapToScale()) {
         	width = this.width * getScaleX();
@@ -788,17 +814,17 @@ public class Token extends BaseModel {
 //	        	footprintBounds.y -= zone.getGrid().getSize()/2;
         	}
         }
-        
+
         footprintBounds.width = (int)width; // perhaps make this a double
         footprintBounds.height = (int)height;
-        
+
         // Offset
         footprintBounds.x += anchorX;
         footprintBounds.y += anchorY;
 
 		return footprintBounds;
 	}
-	
+
 	public String getSightType() {
 		return sightType;
 	}
@@ -813,7 +839,7 @@ public class Token extends BaseModel {
 	public TokenFootprint getFootprint(Grid grid) {
 		return grid.getFootprint(getSizeMap().get(grid.getClass()));
 	}
-	
+
 	public TokenFootprint setFootprint(Grid grid, TokenFootprint footprint) {
 		return grid.getFootprint(getSizeMap().put(grid.getClass(), footprint.getId()));
 	}
@@ -824,7 +850,7 @@ public class Token extends BaseModel {
 		}
 		return sizeMap;
 	}
-	
+
 	public boolean isSnapToGrid() {
 		return snapToGrid;
 	}
@@ -835,7 +861,7 @@ public class Token extends BaseModel {
 
 	/**
 	 * Get a particular state property for this Token.
-	 * 
+	 *
 	 * @param property
 	 *            The name of the property being read.
 	 * @return Returns the current value of property.
@@ -846,7 +872,7 @@ public class Token extends BaseModel {
 
 	/**
 	 * Set the value of state for this Token.
-	 * 
+	 *
 	 * @param aState
 	 *            The property to set.
 	 * @param aValue
@@ -858,20 +884,20 @@ public class Token extends BaseModel {
 			return state.remove(aState);
 		return state.put(aState, aValue);
 	}
-	
+
 	public void setProperty(String key, Object value) {
 //		if (key != null) {
 //			key = key.toUpperCase();
 //		}
 		getPropertyMap().put(key, value);
 	}
-	
+
 	public Object getProperty(String key) {
 //		if (key != null) {
 //			key = key.toUpperCase();
 //		}
 		Object value = getPropertyMap().get(key);
-		
+
 //		// Short name ?
 //		if (value == null) {
 //			for (TokenProperty property : MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(getPropertyType())) {
@@ -887,7 +913,7 @@ public class Token extends BaseModel {
 		Object val = getProperty(key);
 		if (val == null) {
 			// Global default ?
-			List<TokenProperty> propertyList = MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(propertyType); 
+			List<TokenProperty> propertyList = MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(propertyType);
 			if (propertyList != null) {
 				for (TokenProperty property : propertyList) {
 					if (key.equalsIgnoreCase(property.getName()) || key.equalsIgnoreCase(property.getShortName())) {
@@ -900,7 +926,7 @@ public class Token extends BaseModel {
 		if (val == null) {
 			return "";
 		}
-		
+
 		// First we try convert it to a JSON object.
 		if (val.toString().trim().startsWith("[") || val.toString().trim().startsWith("{")) {
 			Object obj  = JSONMacroFunctions.convertToJSON(val.toString());
@@ -908,7 +934,7 @@ public class Token extends BaseModel {
 				return obj;
 			}
 		}
-		
+
 		try {
 			if (log.isDebugEnabled()) {
 				log.debug("Evaluating property: '" + key + "' for token " + getName() + "(" + getId() + ")----------------------------------------------------------------------------------");
@@ -923,12 +949,24 @@ public class Token extends BaseModel {
 		}
 		return val;
 	}
-	
+
+	/**
+	 * Returns all property names, all in lowercase.
+	 * @return
+	 */
 	public Set<String> getPropertyNames() {
 		return getPropertyMap().keySet();
 	}
-	
-	private Map<String, Object> getPropertyMap() {
+
+	/**
+	 * Returns all property names, preserving their case.
+	 * @return
+	 */
+	public Set<String> getPropertyNamesRaw() {
+		return getPropertyMap().keySetRaw();
+	}
+
+	private CaseInsensitiveHashMap<Object> getPropertyMap() {
 		if (propertyMap == null) {
 			propertyMap = new CaseInsensitiveHashMap<Object>();
 		}
@@ -951,7 +989,7 @@ public class Token extends BaseModel {
 		macroMap = null;
 //		System.out.println("Token.loadOldMacros() set up "+macroPropertiesMap.size()+ " new macros.");
 	}
-	
+
 	public int getMacroNextIndex(){
 		if (macroPropertiesMap == null){
 			macroPropertiesMap = new HashMap<Integer, Object>();
@@ -964,7 +1002,7 @@ public class Token extends BaseModel {
 		}
 		return maxIndex+1;
 	}
-	
+
 	public Map<Integer,Object> getMacroPropertiesMap(boolean secure){
 		if (macroPropertiesMap == null){
 			macroPropertiesMap = new HashMap<Integer, Object>();
@@ -982,7 +1020,7 @@ public class Token extends BaseModel {
 	public MacroButtonProperties getMacro(int index, boolean secure){
 		return (MacroButtonProperties)getMacroPropertiesMap(secure).get(index);
 	}
-	
+
 	// avoid this; it loads the first macro with this label, but there could be more than one macro with that label
 	public MacroButtonProperties getMacro(String label, boolean secure) {
 		Set<Integer> keys = getMacroPropertiesMap(secure).keySet();
@@ -994,7 +1032,7 @@ public class Token extends BaseModel {
 		}
 		return null;
 	}
-	
+
 	public List<MacroButtonProperties> getMacroList(boolean secure){
 		Set<Integer> keys = getMacroPropertiesMap(secure).keySet();
 		List<MacroButtonProperties> list = new ArrayList<MacroButtonProperties>();
@@ -1003,7 +1041,7 @@ public class Token extends BaseModel {
 		}
 		return list;
 	}
-	
+
 	public void replaceMacroList(List<MacroButtonProperties> newMacroList){
 		// used by the token edit dialog, which will handle resetting panels and putting token to zone
 		macroPropertiesMap.clear();
@@ -1014,7 +1052,7 @@ public class Token extends BaseModel {
 			macroPropertiesMap.put(macro.getIndex(), macro);
 		}
 	}
-	
+
 	public List<String> getMacroNames(boolean secure) {
 		Set<Integer> keys = getMacroPropertiesMap(secure).keySet();
 		List<String> list = new ArrayList<String>();
@@ -1031,7 +1069,7 @@ public class Token extends BaseModel {
 		}
 		return false;
 	}
-	
+
 	public void saveMacroButtonProperty(MacroButtonProperties prop){
 		getMacroPropertiesMap(false).put(prop.getIndex(),prop);
 		MapTool.getFrame().resetTokenPanels();
@@ -1048,29 +1086,29 @@ public class Token extends BaseModel {
 		getSpeechMap().clear();
 		getSpeechMap().putAll(map);
 	}
-	
+
 	public Set<String> getSpeechNames() {
 		return getSpeechMap().keySet();
 	}
-	
+
 	public String getSpeech(String key) {
 		return getSpeechMap().get(key);
 	}
-	
+
 	public void setSpeech(String key, String value) {
 		getSpeechMap().put(key, value);
 	}
-	
+
 	private Map<String, String> getSpeechMap() {
 		if (speechMap == null) {
 			speechMap = new HashMap<String, String>();
 		}
 		return speechMap;
 	}
-	
+
 	/**
 	 * Get a set containing the names of all set properties on this token.
-	 * 
+	 *
 	 * @return The set of state property names that have a value associated with
 	 *         them.
 	 */
@@ -1090,7 +1128,7 @@ public class Token extends BaseModel {
     public void setNotes(String aNotes) {
         notes = aNotes;
     }
-    
+
     public boolean isFlippedY() {
 		return isFlippedY;
 	}
@@ -1106,12 +1144,12 @@ public class Token extends BaseModel {
 	public void setFlippedX(boolean isFlippedX) {
 		this.isFlippedX = isFlippedX;
 	}
-    
+
     public Color getVisionOverlayColor() {
 		if (visionOverlayColor == null && visionOverlayColorValue != null) {
 			visionOverlayColor = new Color(visionOverlayColorValue);
 		}
-		
+
         return visionOverlayColor;
     }
 
@@ -1122,13 +1160,13 @@ public class Token extends BaseModel {
 			visionOverlayColorValue = null;
 		}
 		visionOverlayColor = color;
-    }    
-    
+    }
+
     @Override
     public String toString() {
     	return "Token: " + id;
     }
-    
+
     public void setAnchor(int x, int y) {
     	anchorX = x;
     	anchorY = y;
@@ -1137,20 +1175,20 @@ public class Token extends BaseModel {
     public Point getAnchor() {
     	return new Point(anchorX, anchorY);
     }
-    
+
     public double getSizeScale() {
     	return sizeScale;
     }
-    
+
     public void setSizeScale(double scale) {
     	sizeScale = scale;
     }
-    
+
 	/**
      * Convert the token into a hash map. This is used to ship all of the
      * properties for the token to other apps that do need access to the
      * <code>Token</code> class.
-     * 
+     *
      * @return A map containing the properties of the token.
      */
     public TokenTransferData toTransferData() {
@@ -1180,7 +1218,7 @@ public class Token extends BaseModel {
             Object value = getState(key);
             if (value instanceof Serializable)
                 td.put(key, value);
-        } 
+        }
         td.putAll(state);
 
         // Create the image from the asset and add it to the map
@@ -1194,7 +1232,7 @@ public class Token extends BaseModel {
      * Constructor to create a new token from a transfer object containing its property
      * values. This is used to read in a new token from other apps that don't
      * have access to the <code>Token</code> class.
-     * 
+     *
      * @param td
      *            Read the values from this transfer object.
      */
@@ -1204,7 +1242,7 @@ public class Token extends BaseModel {
         if (td.getLocation() != null) {
             x = td.getLocation().x;
             y = td.getLocation().y;
-        } 
+        }
         snapToScale = getBoolean(td, TokenTransferData.SNAP_TO_SCALE, true);
         scaleX = getInt(td, TokenTransferData.WIDTH, 1);
         scaleY = getInt(td, TokenTransferData.HEIGHT, 1);
@@ -1222,7 +1260,7 @@ public class Token extends BaseModel {
 
         // Get the image and portrait for the token
         Asset asset = createAssetFromIcon(td.getToken());
-        if (asset != null) 
+        if (asset != null)
             imageAssetMap.put(null, asset.getId());
         asset = createAssetFromIcon((ImageIcon)td.get(TokenTransferData.PORTRAIT));
         if (asset != null)
@@ -1241,7 +1279,7 @@ public class Token extends BaseModel {
             } // endif
         } // endfor
         loadOldMacros();
-        
+
         // Get all of the non maptool specific state
         for (String key : td.keySet()) {
             if (key.startsWith(TokenTransferData.MAPTOOL))
@@ -1252,7 +1290,7 @@ public class Token extends BaseModel {
 
     private Asset createAssetFromIcon(ImageIcon icon) {
         if (icon == null) return null;
-        
+
         // Make sure there is a buffered image for it
         Image image = icon.getImage();
         if (!(image instanceof BufferedImage)) {
@@ -1260,7 +1298,7 @@ public class Token extends BaseModel {
                     .getIconHeight(), Transparency.TRANSLUCENT);
             Graphics2D g = ((BufferedImage) image).createGraphics();
             icon.paintIcon(null, g, 0, 0);
-        } 
+        }
 
         // Create the asset
         Asset asset = null;
@@ -1270,13 +1308,13 @@ public class Token extends BaseModel {
                 AssetManager.putAsset(asset);
         } catch (IOException e) {
             e.printStackTrace();
-        } 
+        }
         return asset;
     }
-    
+
     /**
      * Get an integer value from the map or return the default value
-     * 
+     *
      * @param map
      *            Get the value from this map
      * @param propName
@@ -1295,7 +1333,7 @@ public class Token extends BaseModel {
 
     /**
      * Get a boolean value from the map or return the default value
-     * 
+     *
      * @param map
      *            Get the value from this map
      * @param propName
@@ -1311,25 +1349,25 @@ public class Token extends BaseModel {
             return defaultValue;
         return bool.booleanValue();
     }
-    
+
     public static boolean isTokenFile(String filename) {
     	return filename != null && filename.toLowerCase().endsWith(FILE_EXTENSION);
     }
-	
+
 	public Icon getIcon(int width, int height) {
 		ImageIcon icon = new ImageIcon(ImageManager.getImageAndWait(getImageAssetId()));
 		Image image = icon.getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT);
 		return new ImageIcon(image);
 	}
-	
+
 	public boolean isBeingImpersonated() {
 		return beingImpersonated;
 	}
-	
+
 	public void setBeingImpersonated(boolean bool) {
 		beingImpersonated = bool;
 	}
-	
+
 	public void deleteMacroGroup(String macroGroup, Boolean secure) {
 		List<MacroButtonProperties> tempMacros = new ArrayList<MacroButtonProperties>(getMacroList(true));
 		for(MacroButtonProperties nextProp : tempMacros) {
@@ -1340,7 +1378,7 @@ public class Token extends BaseModel {
 		MapTool.getFrame().resetTokenPanels();
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), this);
 	}
-	
+
 	public void deleteAllMacros(Boolean secure) {
 		List<MacroButtonProperties> tempMacros = new ArrayList<MacroButtonProperties>(getMacroList(true));
 		for(MacroButtonProperties nextProp : tempMacros) {
@@ -1349,13 +1387,13 @@ public class Token extends BaseModel {
 		MapTool.getFrame().resetTokenPanels();
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), this);
 	}
-	
+
 	public static final Comparator<Token> COMPARE_BY_NAME = new Comparator<Token>() {
 		public int compare(Token o1, Token o2) {
 			if (o1 == null || o2 == null) {
 				return 0;
 			}
-			
+
 			return o1.getName().compareTo(o2.getName());
 		}
 	};
@@ -1364,12 +1402,13 @@ public class Token extends BaseModel {
 			if (o1 == null || o2 == null) {
 				return 0;
 			}
-			
+
 			return o1.z < o2.z ? -1 : o1.z == o2.z ? 0 : 1;
 		}
 	};
-	
-	
+
+
+	@Override
 	protected Object readResolve() {
 		super.readResolve();
 		if (propertyMap != null && !(propertyMap instanceof CaseInsensitiveHashMap)) {

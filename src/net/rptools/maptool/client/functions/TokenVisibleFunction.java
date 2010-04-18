@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.functions;
 
@@ -19,7 +19,6 @@ import java.util.List;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -29,13 +28,13 @@ public class TokenVisibleFunction extends AbstractFunction {
 
 	/** The singleton instance. */
 	private static final TokenVisibleFunction instance = new TokenVisibleFunction();
-	
-	
+
+
 	private TokenVisibleFunction() {
 		super(0, 2, "setVisible", "getVisible");
 	}
-	
-	
+
+
 	/**
 	 * Gets the instance of Visible.
 	 * @return the instance.
@@ -43,15 +42,15 @@ public class TokenVisibleFunction extends AbstractFunction {
 	public static TokenVisibleFunction getInstance() {
 		return instance;
 	}
-	
+
 	public boolean getBooleanVisible(Token token) throws ParserException {
 	    if (!MapTool.getParser().isMacroTrusted()) {
 			throw new ParserException(I18N.getText("macro.function.general.noPerm", "getVisible"));
         }
-	    
+
 	    return token.isVisible();
 	}
-	
+
 	/**
 	 * Gets if the token is visible.
 	 * @param token The token to check.
@@ -61,13 +60,13 @@ public class TokenVisibleFunction extends AbstractFunction {
 	public Object getVisible(Token token) throws ParserException {
 		return getBooleanVisible(token) ? BigDecimal.valueOf(1) :  BigDecimal.valueOf(0);
 	}
-	
-	
+
+
 	/**
 	 * Sets if the token is visible or not.
 	 * @param token the token to set.
 	 * @param val the value to set the visible flag to.
-	 * @throws ParserException 
+	 * @throws ParserException
 	 */
 	public void setVisible(Token token, Object val) throws ParserException {
 	    if (!MapTool.getParser().isMacroTrusted()) {
@@ -89,9 +88,9 @@ public class TokenVisibleFunction extends AbstractFunction {
         token.setVisible(set);
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),token);
 	}
-	
-	
-	
+
+
+
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> param)
 			throws ParserException {
@@ -101,7 +100,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 			return setVisible(parser, param);
 		}
 	}
-	
+
 	/**
 	 * Gets if the token is visible
 	 * @param parser The parser that called the object.
@@ -111,7 +110,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 	 */
 	private Object getVisible(Parser parser, List<Object> args) throws ParserException {
 		Token token;
-		
+
 		if (args.size() == 1) {
 			token = FindTokenFunctions.findToken(args.get(0).toString(), null);
 			if (token == null) {
@@ -124,12 +123,12 @@ public class TokenVisibleFunction extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getVisible"));
 			}
 		} else {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getVisible"));
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "getVisible", 1, args.size()));
 		}
-		
+
 		return getVisible(token);
 	}
-	
+
 	/**
 	 * Sets if the token is visible
 	 * @param parser The parser that called the object.
@@ -141,7 +140,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 
 		Object val;
         Token token;
-		
+
 		if (args.size() == 2) {
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
 			if (token == null) {
@@ -153,8 +152,10 @@ public class TokenVisibleFunction extends AbstractFunction {
 			if (token == null) {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setVisible"));
 			}
+		} else if (args.size() == 0) {
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getVisible", 1, args.size()));
 		} else {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getVisible"));
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "getVisible", 2, args.size()));
 		}
 		val = args.get(0);
 		setVisible(token, val);

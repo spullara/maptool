@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui.commandpanel;
 
@@ -47,17 +47,17 @@ import net.rptools.maptool.model.Player.Role;
 
 public class MessagePanel extends JPanel {
 
-	private JScrollPane scrollPane;
-	private HTMLDocument document;
-	private JEditorPane textPane;
+	private final JScrollPane scrollPane;
+	private final HTMLDocument document;
+	private final JEditorPane textPane;
 
 	private static final String SND_MESSAGE_RECEIVED = "messageReceived";
-	
+
 	/**
 	 * From ImageView
 	 */
     private static final String IMAGE_CACHE_PROPERTY = "imageCache";
-	
+
 	public MessagePanel() {
 		setLayout(new GridLayout());
 
@@ -88,17 +88,17 @@ public class MessagePanel extends JPanel {
 								MacroLinkFunction.getInstance().runMacroLink(e.getDescription());
 							}
 						}
-					}				
+					}
 				}
 			}
 		});
 		ToolTipManager.sharedInstance().registerComponent(textPane);
-		
+
 		document = (HTMLDocument) textPane.getDocument();
-		
+
 		// Initialize and prepare for usage
 		refreshRenderer();
-		
+
 		scrollPane = new JScrollPane(textPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setBorder(null);
 		scrollPane.getViewport().setBorder(null);
@@ -106,20 +106,20 @@ public class MessagePanel extends JPanel {
 		scrollPane.getVerticalScrollBar().addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				
+
 				boolean lock = (scrollPane.getSize().height + scrollPane.getVerticalScrollBar().getValue()) < scrollPane.getVerticalScrollBar().getMaximum();
 
 				// The user has manually scrolled the scrollbar, Scroll lock time baby !
 				MapTool.getFrame().getCommandPanel().getScrollLockButton().setSelected(lock);
 			}
 		});
-		
+
 		add(scrollPane);
 		clearMessages();
 
 		MapTool.getSoundManager().registerSoundEvent(SND_MESSAGE_RECEIVED, MapTool.getSoundManager().getRegisteredSound("Clink"));
 	}
-	
+
 	public void refreshRenderer() {
 		// Create the style
 		StyleSheet style = document.getStyleSheet();
@@ -138,12 +138,12 @@ public class MessagePanel extends JPanel {
 		style.addRule(sb.toString());
 		repaint();
 	}
-	
+
 	public String getMessagesText() {
-		
+
 		return textPane.getText();
 	}
-	
+
 	public void clearMessages() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -152,7 +152,7 @@ public class MessagePanel extends JPanel {
 			}
 		});
 	}
-	
+
 	/* We use ASCII control characters to mark off the rolls so that there's no limitation on what (printable) characters the output can include
 	 * Rolls look like "\036roll output\036" or
 	 *                 "\036tooltip\037roll output\036" or
@@ -160,12 +160,12 @@ public class MessagePanel extends JPanel {
 	 *                 "\036\001format info\002tooltip\037roll output\036"
 	 */
 	private static Pattern roll_pattern = Pattern.compile("\036(?:\001([^\002]*)\002)?([^\036\037]*)(?:\037([^\036]*))?\036");
-	
+
 	public void addMessage(final TextMessage message) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				String output;
-				
+
 				{
 					StringBuffer text = new StringBuffer();
 					Matcher m = roll_pattern.matcher(message.getMessage());
@@ -173,7 +173,7 @@ public class MessagePanel extends JPanel {
 						HashSet<String> options = new HashSet<String>();
 						if (m.group(1) != null) {
 							options.addAll(Arrays.asList(m.group(1).split(",")));
-							
+
 							if (!options.contains("w") && !options.contains("g") && !options.contains("s"))
 								; // visible for everyone
 							else if (options.contains("w:" + MapTool.getPlayer().getName().toLowerCase()))
@@ -208,10 +208,10 @@ public class MessagePanel extends JPanel {
 					output = text.toString();
 				}
 
-				// Auto inline expansion
-				output = output.replaceAll("(^|\\s|>|\002)(http://[a-zA-Z0-9_\\.%-/~?]+)", "$1<a href=\"$2\">$2</a>");
-				
-				
+				// Auto inline expansion for {HTTP|HTTPS} URLs
+				output = output.replaceAll("(^|\\s|>|\002)(https?://[\\w.%-/~?&+#]+)", "$1<a href=\"$2\">$2</a>");
+
+
 				if (!message.getSource().equals(MapTool.getPlayer().getName())) {
 					Matcher m = Pattern.compile("href=([\"'])\\s*(([^:]*)://(?:[^/]*)/(?:[^?]*)(?:\\?(?:.*?))?)\\1\\s*").matcher(output);
 					while (m.find()) {

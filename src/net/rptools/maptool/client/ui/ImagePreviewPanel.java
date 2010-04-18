@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -22,6 +22,7 @@ import javax.swing.JComponent;
 
 import net.rptools.lib.swing.SwingUtil;
 
+@SuppressWarnings("serial")
 public class ImagePreviewPanel extends JComponent {
 
 	private Image img;
@@ -36,7 +37,7 @@ public class ImagePreviewPanel extends JComponent {
 		this.img = image;
 		repaint();
 	}
-	
+
 	public Image getImage() {
 		return img;
 	}

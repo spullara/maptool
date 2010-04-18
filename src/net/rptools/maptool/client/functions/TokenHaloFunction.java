@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.functions;
 
@@ -20,7 +20,6 @@ import java.util.List;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Token;
 import net.rptools.parser.Parser;
 import net.rptools.parser.ParserException;
@@ -28,8 +27,8 @@ import net.rptools.parser.function.AbstractFunction;
 
 public class TokenHaloFunction extends AbstractFunction {
 
-	
-	
+
+
 	// TODO: This is a copy of the array in the TokenPopupMenu (which is
     // apparently temporary)
     // There should probably one place for halo colors in the future.
@@ -44,16 +43,16 @@ public class TokenHaloFunction extends AbstractFunction {
             { "Red", Color.red, Color.black }, { "Blue", Color.blue, Color.black },
             { "Cyan", Color.cyan, Color.black }, { "Dark Gray", Color.darkGray, Color.black },
             { "Magenta", Color.magenta, Color.black }, { "Pink", Color.pink, Color.black },
-            { "White", Color.white, Color.black }    
+            { "White", Color.white, Color.black }
     };
 
     private final static TokenHaloFunction instance = new TokenHaloFunction();
-    
-    
+
+
 	private TokenHaloFunction() {
 		super(0, 3, "getHalo", "setHalo");
 	}
-	
+
 	/**
 	 * Gets the singleton Halo instance.
 	 * @return the Halo instance.
@@ -61,11 +60,11 @@ public class TokenHaloFunction extends AbstractFunction {
 	public static TokenHaloFunction getInstance() {
 		return instance;
 	}
-	
+
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> args)
 			throws ParserException {
-		
+
 		if (functionName.equals("getHalo")) {
 			return getHalo(parser, args);
 		} else {
@@ -86,7 +85,7 @@ public class TokenHaloFunction extends AbstractFunction {
 			return "None";
 		}
 	}
-	
+
 	/**
 	 * Sets the halo color of the token.
 	 * @param token the token to set halo of.
@@ -94,13 +93,13 @@ public class TokenHaloFunction extends AbstractFunction {
 	 * @throws ParserException if there is an error determining color.
 	 */
 	public void setHalo(Token token, Object value) throws ParserException {
-		
+
 		if (value instanceof Color) {
         	token.setHaloColor((Color) value);
         } else if (value instanceof BigDecimal) {
         	token.setHaloColor(new Color(((BigDecimal)value).intValue()));
         } else {
-       
+
             String col = value.toString();
             if (col.equals("None")) {
             	token.setHaloColor(null);
@@ -113,26 +112,26 @@ public class TokenHaloFunction extends AbstractFunction {
             	}
             	if (hex.length() == 3) {
                     try {
-                        Color color = new Color(Integer.parseInt(hex.substring(0, 1), 16) * 15, 
-                        						Integer.parseInt(hex.substring(1, 2), 16) * 15, 
+                        Color color = new Color(Integer.parseInt(hex.substring(0, 1), 16) * 15,
+                        						Integer.parseInt(hex.substring(1, 2), 16) * 15,
                         						Integer.parseInt(hex.substring(2, 3), 16) * 15);
                         token.setHaloColor(color);
                     } catch (NumberFormatException e) {
             			throw new ParserException(I18N.getText("macro.function.haloFunctions.invalidColor", col));
-                    }            		
+                    }
             	} else if (hex.length() == 6) {
                     try {
-                        Color color = new Color(Integer.parseInt(hex.substring(0, 2), 16), 
-                        						Integer.parseInt(hex.substring(2, 4), 16), 
+                        Color color = new Color(Integer.parseInt(hex.substring(0, 2), 16),
+                        						Integer.parseInt(hex.substring(2, 4), 16),
                         						Integer.parseInt(hex.substring(4, 6), 16));
                         token.setHaloColor(color);
                     } catch (NumberFormatException e) {
             			throw new ParserException(I18N.getText("macro.function.haloFunctions.invalidColor", col));
-                    }            		
+                    }
             	} else if (hex.length() == 8) {
             		try {
-                        Color color = new Color(Integer.parseInt(hex.substring(2, 4), 16), 
-                        						Integer.parseInt(hex.substring(4, 6), 16), 
+                        Color color = new Color(Integer.parseInt(hex.substring(2, 4), 16),
+                        						Integer.parseInt(hex.substring(4, 6), 16),
                         						Integer.parseInt(hex.substring(6, 8), 16));
                         token.setHaloColor(color);
                     } catch (NumberFormatException e) {
@@ -158,10 +157,10 @@ public class TokenHaloFunction extends AbstractFunction {
             }
         }
         // TODO: This works for now but could result in a lot of resending of data
-        MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);	
+        MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
  		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
 	}
-	
+
 	/**
 	 * Gets the halo of the token.
 	 * @param parser The parser that called the object.
@@ -171,7 +170,7 @@ public class TokenHaloFunction extends AbstractFunction {
 	 */
 	private Object getHalo(Parser parser, List<Object> args) throws ParserException {
 		Token token;
-		
+
 		if (args.size() == 1) {
 			if (!MapTool.getParser().isMacroTrusted()) {
 				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "getHalo"));
@@ -187,26 +186,38 @@ public class TokenHaloFunction extends AbstractFunction {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "getHalo"));
 			}
 		} else {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "getHalo"));
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "getHalo", 1, args.size()));
 		}
-		
+
 		return getHalo(token);
 
 	}
-	
+
 	/**
 	 * Sets the halo of the token.
 	 * @param parser The parser that called the object.
 	 * @param args The arguments.
 	 * @return the halo color.
 	 * @throws ParserException if an error occurs.
-	 */	
+	 */
 	private Object setHalo(Parser parser, List<Object> args) throws ParserException {
-	
+
 		Token token;
 		Object value = args.get(0);
-		
-		if (args.size() == 2) {
+
+		switch (args.size()) {
+		case 0 :
+			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setHalo", 1, args.size()));
+		default :
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "setHalo", 2, args.size()));
+		case 1 :
+			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
+			token = res.getTokenInContext();
+			if (token == null) {
+				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setHalo"));
+			}
+			break;
+		case 2 :
 			if (!MapTool.getParser().isMacroTrusted()) {
 				throw new ParserException(I18N.getText("macro.function.general.noPermOther", "setHalo"));
 			}
@@ -214,18 +225,8 @@ public class TokenHaloFunction extends AbstractFunction {
 			if (token == null) {
 				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setHalo", args.get(1)));
 			}
-		} else if (args.size() == 1){
-			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
-			token = res.getTokenInContext();
-			if (token == null) {
-				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setHalo"));
-			}
-		} else {
-			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setHalo"));
 		}
 		setHalo(token, value);
         return value;
-
-
 	}
 }

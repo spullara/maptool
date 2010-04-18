@@ -46,7 +46,7 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	/**
 	 * Gets and instance of the MacroLinkFunction class.
-	 * 
+	 *
 	 * @return an instance of MacroLinkFunction.
 	 */
 	public static MacroLinkFunction getInstance() {
@@ -167,7 +167,7 @@ public class MacroLinkFunction extends AbstractFunction {
 	 * </p>
 	 * <p>The <code>args</code> parameter is a String which is converted
 	 * to a property list and then back to a String.</p>
-	 * 
+	 *
 	 * @param macroName such as <code>MacroName@Lib:Core</code>
 	 * @param who where output should go
 	 * @param target the string <code>impersonated</code>, <code>all</code>
@@ -186,8 +186,8 @@ public class MacroLinkFunction extends AbstractFunction {
 		sb.append(encode(args));
 		return sb.toString();
 	}
-	
-	
+
+
 	private String encode(String str) throws ParserException {
 		try {
 			JSONObject.fromObject(str);
@@ -197,24 +197,24 @@ public class MacroLinkFunction extends AbstractFunction {
 				throw new ParserException(e);
 			}
 		} catch (JSONException e) {
-			return strPropListToArgs(str); 
+			return strPropListToArgs(str);
 		}
 	}
-	
+
 	private String decode(String str) throws ParserException {
 		try {
 			return 	JSONObject.fromObject(URLDecoder.decode(str, "utf-8")).toString();
 		} catch (UnsupportedEncodingException e) {
 			throw new ParserException(e);
 		} catch (JSONException e) {
-			return argsToStrPropList(str); 
+			return argsToStrPropList(str);
 		}
-		
+
 	}
 
 	/**
 	 * Converts a URL argument string into a property list.
-	 * 
+	 *
 	 * @param args
 	 *            the URL argument string.
 	 * @return a property list representation of the arguments.
@@ -244,7 +244,7 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	/**
 	 * Takes a Property list and creates a URL Ready argument list.
-	 * 
+	 *
 	 * @param props
 	 *            The property list to convert.
 	 * @return a string that can be used as an argument to a url.
@@ -274,14 +274,13 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	/**
 	 * Gets a string that describes the macro link.
-	 * 
+	 *
 	 * @param link
 	 *            the link to get the tool tip of.
 	 * @return a string containing the tool tip.
 	 */
 	public String macroLinkToolTip(String link) {
-		Matcher m = Pattern.compile(
-				"([^:]*)://([^/]*)/([^/]*)/([^?]*)(?:\\?(.*))?").matcher(link);
+		Matcher m = Pattern.compile("([^:]*)://([^/]*)/([^/]*)/([^?]*)(?:\\?(.*))?").matcher(link);
 		StringBuilder tip = new StringBuilder();
 
 		if (m.matches()) {
@@ -349,7 +348,7 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	/**
 	 * Runs the macro specified by the link.
-	 * 
+	 *
 	 * @param link
 	 *            the link to the macro.
 	 */
@@ -359,7 +358,7 @@ public class MacroLinkFunction extends AbstractFunction {
 
 	/**
 	 * Runs the macro specified by the link.
-	 * 
+	 *
 	 * @param link
 	 *            the link to the macro.
 	 * @param setVars
@@ -371,15 +370,14 @@ public class MacroLinkFunction extends AbstractFunction {
 			return;
 		}
 
-		Matcher m = Pattern.compile(
-				"(?s)([^:]*)://([^/]*)/([^/]*)/([^?]*)(?:\\?(.*))?").matcher(link);
+		Matcher m = Pattern.compile("(?s)([^:]*)://([^/]*)/([^/]*)/([^?]*)(?:\\?(.*))?").matcher(link);
 
 		if (m.matches()) {
-			OutputTo outputTo;		
+			OutputTo outputTo;
 			String macroName = "";
 			String args = "";
 			Set<String> outputToPlayers = new HashSet<String>();
- 			
+
 			if (m.group(1).equalsIgnoreCase("macro")) {
 
 				String who = m.group(3);
@@ -401,15 +399,15 @@ public class MacroLinkFunction extends AbstractFunction {
 					outputTo = OutputTo.NONE;
 				}
 				macroName = m.group(2);
-				
-				
+
+
 				String val = m.group(5);
 				if (val != null) {
 					try {
 						Double.parseDouble(val);
 						// Do nothing as its a number
 					} catch (NumberFormatException e) {
-							
+
 						try {
 							val = argsToStrPropList(val);
 						} catch (ParserException e1) {
@@ -427,7 +425,7 @@ public class MacroLinkFunction extends AbstractFunction {
 						// Do nothing as we just dont populate the list.
 					}
 
-					
+
 				}
 
 				String[] targets = m.group(4).split(",");
@@ -471,12 +469,12 @@ public class MacroLinkFunction extends AbstractFunction {
 	}
 
 	private void doOutput(Token token, OutputTo outputTo, String line, Set<String> playerList) {
-		
+
 		/*
 		 * First we check our player list to make sure we are not sending things out multiple times or the wrong way
 		 * This looks looks a little ugly, but all it is doing is searching for the strings say, gm, or gmself, and
 		 * if it contains no other strings changes it to a more appropriate for such as /togm, /self, etc. If it
-		 * contains other names then gm, self etc will be replaced with player names. 
+		 * contains other names then gm, self etc will be replaced with player names.
 		 */
 		if (outputTo == OutputTo.LIST) {
 			if (playerList == null) {
@@ -486,7 +484,7 @@ public class MacroLinkFunction extends AbstractFunction {
 			} else if (playerList.contains("gmself")) {
 				playerList.remove("gmself");
 				if (playerList.size() == 0) { // if that was only thing in the list then dont use whispers
-					outputTo = OutputTo.SELF_AND_GM;									
+					outputTo = OutputTo.SELF_AND_GM;
 				} else {
 					playerList.addAll(getGMs());
 					playerList.add(getSelf());
@@ -494,7 +492,7 @@ public class MacroLinkFunction extends AbstractFunction {
 			} else if (playerList.contains("gm-self")) {
 				playerList.remove("gm-self");
 				if (playerList.size() == 0) { // if that was only thing in the list then dont use whispers
-					outputTo = OutputTo.SELF_AND_GM;									
+					outputTo = OutputTo.SELF_AND_GM;
 				} else {
 					playerList.addAll(getGMs());
 					playerList.add(getSelf());
@@ -503,34 +501,34 @@ public class MacroLinkFunction extends AbstractFunction {
 				playerList.remove("gm");
 				playerList.remove("self");
 				if (playerList.size() == 0) { // if that was only thing in the list then dont use whispers
-					outputTo = OutputTo.SELF_AND_GM;									
+					outputTo = OutputTo.SELF_AND_GM;
 				} else {
 					playerList.addAll(getGMs());
-					playerList.add(getSelf());			
-				} 
+					playerList.add(getSelf());
+				}
 			} else if (playerList.contains("gm")) {
 					playerList.remove("gm");
 					if (playerList.size() == 0) { // if that was only thing in the list then dont use whispers
-						outputTo = OutputTo.GM;									
+						outputTo = OutputTo.GM;
 					} else {
 						playerList.addAll(getGMs());
-						playerList.add(getSelf());			
+						playerList.add(getSelf());
 				}
 			} else if (playerList.contains("self")) {
 				playerList.remove("self");
 				if (playerList.size() == 0) { // if that was only thing in the list then dont use whispers
-					outputTo = OutputTo.SELF;									
+					outputTo = OutputTo.SELF;
 				} else {
-					playerList.add(getSelf());			
+					playerList.add(getSelf());
 				}
 			}
 		}
-		
+
 		switch (outputTo) {
 		case SELF:
 			MapTool.addLocalMessage(line);
 			break;
-		case SELF_AND_GM: 
+		case SELF_AND_GM:
 			MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), I18N.getText("togm.self", line), null));
 			// Intentionally falls through
 		case GM:
@@ -549,7 +547,7 @@ public class MacroLinkFunction extends AbstractFunction {
 				}
 				sb.append(name);
 			}
-	        MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "<span class='whisper' style='color:blue'>" + 
+	        MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), "<span class='whisper' style='color:blue'>" +
 	        		I18N.getText("whisper.you.string", sb.toString(), line) + "</span>", null));
 
 			break;
@@ -564,15 +562,15 @@ public class MacroLinkFunction extends AbstractFunction {
 
 			ObservableList<Player> playerList = MapTool.getPlayerList();
 	        List<String> players = new ArrayList<String>();
-	        for(int count = 0; count < playerList.size(); count++) 
+	        for(int count = 0; count < playerList.size(); count++)
 	        {
 	        	Player p = playerList.get(count);
 	        	String thePlayer = p.getName();
 	        	players.add(thePlayer);
 	        }
-	        String playerNameMatch = StringUtil.findMatch(playerName, players); 
+	        String playerNameMatch = StringUtil.findMatch(playerName, players);
 	        playerName = (!playerNameMatch.equals(""))? playerNameMatch: playerName;
-	        
+
 	        // Validate
 	        if (!MapTool.isPlayerConnected(playerName)) {
 	            MapTool.addMessage(new TextMessage(TextMessage.Channel.ME, null, MapTool.getPlayer().getName(), I18N.getText("msg.error.playerNotConnected", playerName), null));
@@ -580,19 +578,19 @@ public class MacroLinkFunction extends AbstractFunction {
 	        if (MapTool.getPlayer().getName().equalsIgnoreCase(playerName)) {
 	            return;
 	        }
-	        
+
 	        // Send
-	        MapTool.addMessage(new TextMessage(TextMessage.Channel.WHISPER, playerName, MapTool.getPlayer().getName(), 
-	        		"<span class='whisper' style='color:blue'>" + "<span class='whisper' style='color:blue'>" 
+	        MapTool.addMessage(new TextMessage(TextMessage.Channel.WHISPER, playerName, MapTool.getPlayer().getName(),
+	        		"<span class='whisper' style='color:blue'>" + "<span class='whisper' style='color:blue'>"
 	        		+ I18N.getText("whisper.string",  MapTool.getFrame().getCommandPanel().getIdentity(), message)+"</span>", null));
-	        		
+
 	}
-	
-	
+
+
 	private List<String> getGMs() {
 		List<String> gms = new ArrayList<String>();
-		
-		
+
+
 		Iterator<Player> pliter = MapTool.getPlayerList().iterator();
 		while (pliter.hasNext()) {
 			Player plr = pliter.next();
@@ -602,15 +600,15 @@ public class MacroLinkFunction extends AbstractFunction {
 		}
 		return gms;
 	}
-	
+
 	private String getSelf() {
 		return MapTool.getPlayer().getName();
 	}
-	
+
 	/**
 	 * Runs the macro specified by the link if it is auto executable otherwise
 	 * does nothing..
-	 * 
+	 *
 	 * @param link
 	 *            the link to the macro.
 	 */
@@ -623,13 +621,12 @@ public class MacroLinkFunction extends AbstractFunction {
 	/**
 	 * Runs the macro specified by the link if it is auto executable otherwise
 	 * does nothing..
-	 * 
+	 *
 	 * @param link
 	 *            the link to the macro.
 	 */
 	private boolean isAutoExecLink(String link) {
-		Matcher m = Pattern.compile(
-				"([^:]*)://([^/]*)/([^/]*)/([^?]*)(?:\\?(.*))?").matcher(link);
+		Matcher m = Pattern.compile("([^:]*)://([^/]*)/([^/]*)/([^?]*)(?:\\?(.*))?").matcher(link);
 
 		if (m.matches()) {
 			if (m.group(1).equalsIgnoreCase("macro")) {
@@ -685,8 +682,8 @@ public class MacroLinkFunction extends AbstractFunction {
 		}
 		return false;
 	}
-	
-	
+
+
 
 	private void doSay(String msg, Token token, boolean trusted,
 			String macroName) {

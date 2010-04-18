@@ -11,7 +11,7 @@ import net.rptools.parser.function.AbstractFunction;
 import net.sf.json.JSONArray;
 
 public class TokenSpeechFunctions extends AbstractFunction {
-	
+
 
 	private static final TokenSpeechFunctions instance = new TokenSpeechFunctions();
 
@@ -19,7 +19,7 @@ public class TokenSpeechFunctions extends AbstractFunction {
 		super(0, 2, "getSpeech", "setSpeech", "getSpeechNames");
 	}
 
-	
+
 	public static TokenSpeechFunctions getInstance() {
 		return instance;
 	}
@@ -32,24 +32,24 @@ public class TokenSpeechFunctions extends AbstractFunction {
 		if (token == null) {
 			throw new ParserException(I18N.getText("macro.function.general.noImpersonated", functionName));
 		}
-		
+
 		if (functionName.equals("getSpeech")) {
 			if (parameters.size() < 1) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 1, parameters.size()));
 			}
 			String speech = token.getSpeech(parameters.get(0).toString());
 			return speech == null ? "" : speech;
 		}
-		
+
 		if (functionName.equals("setSpeech")) {
 			if (parameters.size() < 2) {
-				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName));
+				throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", functionName, 2, parameters.size()));
 			}
 			token.setSpeech(parameters.get(0).toString(), parameters.get(1).toString());
 			return "";
 		}
-		
-		
+
+
 		if (functionName.equals("getSpeechNames")) {
 			String[] speech = new String[token.getSpeechNames().size()];
 			String delim = parameters.size() > 0 ? parameters.get(0).toString() : ",";

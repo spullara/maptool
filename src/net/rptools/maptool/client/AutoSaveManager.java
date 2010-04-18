@@ -102,11 +102,9 @@ public class AutoSaveManager implements ActionListener {
 					PersistenceUtil.saveCampaign(campaign, AUTOSAVE_FILE);
 					MapTool.getFrame().setStatusMessage("Autosave complete");
 				} catch (IOException ioe) {
-					log.error("Autosave Failed: " + ioe, ioe);
-					MapTool.showError("Autosave failed: " + ioe);
+					MapTool.showError("Autosave failed: ", ioe);
 				} catch (Throwable t) {
-					log.error("Autosave Failed: " + t, t);
-					MapTool.showError("Autosave failed: " + t);
+					MapTool.showError("Autosave failed: ", t);
 				}
 				
 				working = false;

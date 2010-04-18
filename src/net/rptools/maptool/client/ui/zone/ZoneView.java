@@ -316,6 +316,10 @@ public class ZoneView implements ModelChangeListener {
 						}
 
 						for (Light light : lightSource.getLightList()) {
+							if (light.isGM() && !MapTool.getPlayer().isGM())
+							{
+								continue;
+							}
 							lightList.add(new DrawableLight(type, light.getPaint(), visibleArea));
 						}
 					}

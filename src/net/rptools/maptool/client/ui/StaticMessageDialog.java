@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -17,7 +17,7 @@ package net.rptools.maptool.client.ui;
 public class StaticMessageDialog extends MessageDialog {
 
 	private String status;
-	
+
 	public StaticMessageDialog(String status) {
 		this.status = status;
 	}
@@ -26,5 +26,17 @@ public class StaticMessageDialog extends MessageDialog {
 	protected String getStatus() {
 		return status;
 	}
-	
+
+	/**
+	 * Doesn't work right as it forces a repaint of the GlassPane object which takes a snapshot
+	 * of the RootPane and then adds the 'status' message as an overlay.  The problem is
+	 * that the RootPane snapshot includes the previous image that might have been
+	 * displayed previously.
+	 * @param s
+	 */
+	public void setStatus(String s) {
+		this.status = s;
+		revalidate();
+		repaint();
+	}
 }

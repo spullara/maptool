@@ -54,7 +54,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.rptools.lib.MD5Key;
-import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.functions.InputFunction.InputType.OptionException;
@@ -73,19 +72,19 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * <pre><span style="font-family:sans-serif;">The input() function prompts the user to input several variable values at once.
- * 
+ *
  * Each of the string parameters has the following format:
  *     "varname|value|prompt|inputType|options"
- *     
+ *
  * Only the first section is required.
  *     varname   - the variable name to be assigned
  *     value     - sets the initial contents of the input field
  *     prompt    - UI text shown for the variable
  *     inputType - specifies the type of input field
  *     options   - a string of the form "opt1=val1; opt2=val2; ..."
- *     
+ *
  * The inputType field can be any of the following (defaults to TEXT):
- *     TEXT  - A text field.  
+ *     TEXT  - A text field.
  *             "value" sets the initial contents.
  *             The return value is the string in the text field.
  *             Option: WIDTH=nnn sets the width of the text field (default 16).
@@ -105,7 +104,7 @@ import org.apache.commons.lang.StringUtils;
  *             "value" is a list "name1, name2, name3, ..." which sets the labels of the buttons.
  *             The return value is the index of the selected item.
  *             Option: SELECT=nnn sets the initial selection (default 0).
- *             Option: ORIENT=H causes the radio buttons to be laid out on one line (default V). 
+ *             Option: ORIENT=H causes the radio buttons to be laid out on one line (default V).
  *             Option: VALUE=STRING causes the return value to be the string of the selected item (default NUMBER).
  *     LABEL - A label.
  *             The "varname" is ignored and no value is assigned to it.
@@ -117,11 +116,11 @@ import org.apache.commons.lang.StringUtils;
  *             Option: SETVARS=UNSUFFIXED causes variable assignment to each key name.
  *     TAB   - A tabbed dialog tab is created.  Subsequent variables are contained in the tab.
  *             Option: SELECT=TRUE causes this tab to be shown at start (default SELECT=FALSE).
- * 
+ *
  *  All inputTypes except TAB accept the option SPAN=TRUE, which causes the prompt to be hidden and the input
  *  control to span both columns of the dialog layout (default FALSE).
  * </span></pre>
- * 
+ *
  * @author knizia.fan
  */
 
@@ -141,7 +140,7 @@ public class InputFunction extends AbstractFunction {
 
 
 	/********************************************************************
-	 * Enum of input types; also stores their default option values. 
+	 * Enum of input types; also stores their default option values.
 	 ********************************************************************/
 	public enum InputType {
 		// The regexp for the option strings is strict: no spaces, and trailing semicolon required.
@@ -213,22 +212,24 @@ public class InputFunction extends AbstractFunction {
 		}
 
 		/*********************************************************
-		 * Stores option settings as case-insensitive strings. 
+		 * Stores option settings as case-insensitive strings.
 		 *********************************************************/
 		@SuppressWarnings("serial")
 		public final class OptionMap extends HashMap<String,String>{
 			/** Case-insensitive put. */
+			@Override
 			public String put(String key, String value) {
 				return super.put(key.toUpperCase(), value.toUpperCase());
 			}
 
 			/** Case-insensitive string get. */
+			@Override
 			public String get(Object key) {
 				return super.get(key.toString().toUpperCase());
 			}
 
 			/** Case-insensitive numeric get.
-			 *  <br>Returns <code>defaultValue</code> if the option's value is non-numeric. 
+			 *  <br>Returns <code>defaultValue</code> if the option's value is non-numeric.
 			 *  <br>Use when caller wants to override erroneous option settings. */
 			public int getNumeric(String key, int defaultValue) {
 				int ret;
@@ -241,7 +242,7 @@ public class InputFunction extends AbstractFunction {
 			}
 
 			/** Case-insensitive numeric get.
-			 *  <br>Returns the default value for the input type if option's value is non-numeric. 
+			 *  <br>Returns the default value for the input type if option's value is non-numeric.
 			 *  <br>Use when caller wants to ignore erroneous option settings. */
 			public int getNumeric(String key) {
 				String defstr = getDefault(key);
@@ -279,7 +280,7 @@ public class InputFunction extends AbstractFunction {
 
 
 	/**********************************************************************************
-	 * Variable Specifier structure - holds extracted bits of info for a variable. 
+	 * Variable Specifier structure - holds extracted bits of info for a variable.
 	 **********************************************************************************/
 	final class VarSpec {
 		public String name, value, prompt;
@@ -287,7 +288,7 @@ public class InputFunction extends AbstractFunction {
 		public InputType.OptionMap optionValues;
 		public List<String> valueList;				// used for types with composite "value" properties
 
-		public VarSpec(String name, String value, String prompt, InputType inputType, String options) 
+		public VarSpec(String name, String value, String prompt, InputType inputType, String options)
 		throws InputType.OptionException {
 			initialize(name, value, prompt, inputType, options);
 		}
@@ -301,7 +302,7 @@ public class InputFunction extends AbstractFunction {
 			InputType inputType;
 
 			name = (numparts>0) ? parts[0].trim() : "";
-			if (StringUtils.isEmpty(name)) 
+			if (StringUtils.isEmpty(name))
 				throw new SpecifierException(I18N.getText("macro.function.input.invalidSpecifier", specifier));
 
 
@@ -326,7 +327,7 @@ public class InputFunction extends AbstractFunction {
 			initialize(name, value, prompt, inputType, options);
 		}
 
-		public void initialize(String name, String value, String prompt, InputType inputType, String options) 
+		public void initialize(String name, String value, String prompt, InputType inputType, String options)
 		throws InputType.OptionException {
 			this.name = name;
 			this.value = value;
@@ -339,7 +340,7 @@ public class InputFunction extends AbstractFunction {
 		}
 
 
-		/** Parses a string into a list of values, for composite types. 
+		/** Parses a string into a list of values, for composite types.
 		 *  <br>Before calling, the <code>inputType</code> and <code>value</code> must be set.
 		 *  <br>After calling, the <code>listIndex</code> member is adjusted if necessary. */
 		public List<String> parseStringList(String valueString) {
@@ -393,10 +394,10 @@ public class InputFunction extends AbstractFunction {
 			gbc = new GridBagConstraints();
 			gbc.anchor = GridBagConstraints.NORTHWEST;
 			gbc.insets = new Insets(2,2,2,2);
-			
+
 			componentCount = 0;
 		}
-		
+
 		public ColumnPanel(List<VarSpec> lvs) {
 			this();		// Initialize various member variables
 			varSpecs = lvs;
@@ -411,26 +412,26 @@ public class InputFunction extends AbstractFunction {
 		public void addVariable(VarSpec vs) {
 			addVariable(vs, true);
 		}
-		
-		/** Adds a row to the ColumnPanel with a label and input field. 
+
+		/** Adds a row to the ColumnPanel with a label and input field.
 		 * <code>addToVarList</code> controls whether the VarSpec is added to the local listing. */
 		protected void addVariable(VarSpec vs, boolean addToVarList) {
 			if (addToVarList)
 				varSpecs.add(vs);
-			
+
 			gbc.gridy = componentCount;
 			gbc.gridwidth = 1;
 
 			// add the label
 			gbc.gridx = 0;
-			
+
 			JComponent l;
-			Matcher m = Pattern.compile("^ *<html>(.*)<\\/html> *$").matcher(vs.prompt);
-			
+			Matcher m = Pattern.compile("^\\s*<html>(.*)<\\/html>\\s*$").matcher(vs.prompt);
+
 			if (m.find()) {
 				// For HTML values we use a HTMLPane.
 				HTMLPane htmlp = new HTMLPane();
-				htmlp.setText("<html>" + m.group(1) + ":" + "</html>");
+				htmlp.setText("<html>" + m.group(1) + ":</html>");
 				htmlp.setBackground(Color.decode("0xECE9D8"));
 				l = htmlp;
 			} else {
@@ -481,39 +482,39 @@ public class InputFunction extends AbstractFunction {
 //				" (" + ((JTextField)onShowFocus).getText() + ")" : "";
 //			String c = (onShowFocus == null) ? "null" : onShowFocus.getClass().getName();
 //			System.out.println("  Shown: onShowFocus is " + c + s);
-			
+
 			if (onShowFocus != null) {
 				onShowFocus.requestFocusInWindow();
 			} else {
 				JComponent first = findFirstFocusable();
-				if (first != null) 
+				if (first != null)
 					first.requestFocusInWindow();
 			}
 		}
-		
+
 		/** Adjusts the runtime behavior of controls. Called when displayed. */
 		public void runtimeFixup() {
 			// When first displayed, the focus will go to the first field.
 			lastFocus = findFirstFocusable();
-			
+
 			// When a field gains the focus, save it in lastFocus.
-			FocusListener listener = 
+			FocusListener listener =
 				new FocusListener() {
 					public void focusGained(FocusEvent fe) {
 						JComponent src = (JComponent) fe.getSource();
 						lastFocus = src;
 //						// debugging
-//						String s = (src instanceof JTextField) ? 
+//						String s = (src instanceof JTextField) ?
 //							" (" + ((JTextField)src).getText() + ")" : "";
 //						System.out.println("  Got focus " + src.getClass().getName() + s);
 					}
 					public void focusLost(FocusEvent arg0) { }
 				};
-			
+
 			for (JComponent c : inputFields) {
 				// Each control saves itself to lastFocus when it gains focus.
 				c.addFocusListener(listener);
-				
+
 				// Implement control-specific adjustments
 				if (c instanceof JComboBox) {
 					// HACK: to fix a Swing issue.
@@ -553,8 +554,8 @@ public class InputFunction extends AbstractFunction {
 		/** Creates the appropriate type of input control. */
 		public JComponent createInputControl(VarSpec vs) {
 			switch (vs.inputType) {
-			case TEXT:  return createTextControl(vs); 
-			case LIST:  return createListControl(vs); 
+			case TEXT:  return createTextControl(vs);
+			case LIST:  return createListControl(vs);
 			case CHECK: return createCheckControl(vs);
 			case RADIO: return createRadioControl(vs);
 			case LABEL: return createLabelControl(vs);
@@ -584,7 +585,7 @@ public class InputFunction extends AbstractFunction {
 			for (int j = 0; j<vs.valueList.size(); j++) {
 				if (StringUtils.isEmpty(vs.valueList.get(j))) {
 					// Using a non-empty string prevents the list entry from having zero height.
-					vs.valueList.set(j, " ");	
+					vs.valueList.set(j, " ");
 				}
 			}
 			if (!showIcons) {
@@ -601,7 +602,7 @@ public class InputFunction extends AbstractFunction {
 			} else {
 				combo = new JComboBox();
 				combo.setRenderer(new ComboBoxRenderer());
-				Pattern pattern = Pattern.compile("^(.*)asset\\:\\/\\/(\\w+)");
+				Pattern pattern = Pattern.compile("^(.*)asset://(\\w+)");
 
 				for (String value : vs.valueList) {
 					Matcher matcher = pattern.matcher(value);
@@ -682,14 +683,14 @@ public class InputFunction extends AbstractFunction {
 			}
 
 			UpdatingLabel label = new UpdatingLabel();
-			
+
 			int iconSize = vs.optionValues.getNumeric("ICONSIZE", 0);
 			if (iconSize <= 0) hasIcon = false;
 			String valueText = "", assetID = "";
 			Icon icon = null;
 
 			// See if the string has an image URL inside it
-			Matcher matcher = Pattern.compile("^(.*)asset\\:\\/\\/(\\w+)").matcher(vs.value);
+			Matcher matcher = Pattern.compile("^(.*)asset://(\\w+)").matcher(vs.value);
 			if (matcher.find()) {
 				valueText = matcher.group(1);
 				assetID = matcher.group(2);
@@ -703,7 +704,7 @@ public class InputFunction extends AbstractFunction {
 				icon = getIcon(assetID, iconSize, label);
 				if (icon == null) hasIcon = false;
 			}
-			
+
 			// Assemble the label
 			if (hasText) label.setText(valueText);
 			if (hasIcon) label.setIcon(icon);
@@ -750,7 +751,7 @@ public class InputFunction extends AbstractFunction {
 		}
 	} ///////////// end of ColumnPanel class
 
-	/** Wrapper panel provides alignment and scrolling to a ColumnPanel. 
+	/** Wrapper panel provides alignment and scrolling to a ColumnPanel.
 	 *  ColumnPanel uses GridBagLayout, which ignores size requests.
 	 *  Thus, the ColumnPanel is always the size of its container, and is always centered.
 	 *  We wrap the ColumnPanel in a ScrollingPanel to set the alignment and desired maximum size.
@@ -761,24 +762,25 @@ public class InputFunction extends AbstractFunction {
 		ColumnPanelHost(ColumnPanel cp) {
 			// get the width of the vertical scrollbar
 			JScrollBar vscroll = getVerticalScrollBar();
-			int scrollBarWidth = 20;	// default value if we can't find the scrollbar 
+			int scrollBarWidth = 20;	// default value if we can't find the scrollbar
 			if (vscroll != null) {
 				Dimension d = vscroll.getMaximumSize();
 				scrollBarWidth = (d==null) ? 20 : d.width;
 			}
-			
+
 			// Cap the height of the contents at 3/4 of the screen height
 			int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-			
+
 			panel = new ScrollingPanel(cp, scrollBarWidth, screenHeight*3/4);
 			setViewportView(panel);
 			columnPanel = cp;
-			
+
 			panel.setLayout(new FlowLayout(FlowLayout.LEFT));
 			panel.add(columnPanel);
 
 			// Restores focus to the appropriate input field in the nested ColumnPanel.
 			ComponentAdapter onPanelShow = new ComponentAdapter() {
+				@Override
 				public void componentShown(ComponentEvent ce) {
 					columnPanel.restoreFocus();
 				}
@@ -787,13 +789,13 @@ public class InputFunction extends AbstractFunction {
 			setBorder(null);
 			addComponentListener(onPanelShow);
 		}
-		
+
 		final class ScrollingPanel extends JPanel implements Scrollable {
 			ColumnPanel cp;
 			int scrollBarWidth;
 			int maxHeight;
-			
-			ScrollingPanel(ColumnPanel cp, int scrollBarWidth, int maxHeight) { 
+
+			ScrollingPanel(ColumnPanel cp, int scrollBarWidth, int maxHeight) {
 				this.cp = cp;
 				this.scrollBarWidth = scrollBarWidth;
 				this.maxHeight = maxHeight;
@@ -845,7 +847,7 @@ public class InputFunction extends AbstractFunction {
 				ColumnPanelHost cph = new ColumnPanelHost(curcp);
 				add(cph);
 			}
-			
+
 			for (VarSpec vs : varSpecs) {
 				if (vs.inputType == InputType.TAB) {
 					if (useTabs) {
@@ -854,7 +856,7 @@ public class InputFunction extends AbstractFunction {
 						curcp.setBorder(new EmptyBorder(5,5,5,5));
 						columnPanels.add(curcp);
 						ColumnPanelHost cph = new ColumnPanelHost(curcp);
-						
+
 						tabPane.addTab(vs.value, null, cph, vs.prompt);
 						if (vs.optionValues.optionEquals("SELECT", "TRUE")) {
 							initialTab = nextTabIndex;
@@ -882,17 +884,17 @@ public class InputFunction extends AbstractFunction {
 			for (ColumnPanel cp : columnPanels) {
 				cp.runtimeFixup();
 			}
-			
+
 			// Select the initial tab, if any
 			if (tabPane != null) {
 				tabPane.setSelectedIndex(initialTab);
 			}
-			
+
 			// Start the focus in the first input field, so the user can type immediately
 			JComponent compFirst = findFirstFocusable();
-			if (compFirst != null) 
+			if (compFirst != null)
 				compFirst.requestFocusInWindow();
-			
+
 			// When tab changes, save the last field that had the focus.
 			// (The first field in the panel will gain focus before the panel is shown,
 			//  so we have to save cp.lastFocus before it's overwritten.)
@@ -902,10 +904,10 @@ public class InputFunction extends AbstractFunction {
 						int newTabIndex = tabPane.getSelectedIndex();
 						ColumnPanel cp = columnPanels.get(newTabIndex);
 						cp.onShowFocus = cp.lastFocus;
-						
+
 //						// debugging
 //						JComponent foc = cp.onShowFocus;
-//						String s = (foc instanceof JTextField) ? 
+//						String s = (foc instanceof JTextField) ?
 //							" (" + ((JTextField)foc).getText() + ")" : "";
 //						String c = (foc!=null) ? foc.getClass().getName() : "";
 //						System.out.println("tabpane foc = " + c + s);
@@ -969,9 +971,9 @@ public class InputFunction extends AbstractFunction {
 			boolean isGM = MapTool.getPlayer().isGM();
 			String extra = "";
 
-			if (isGM && gm_name != null  && gm_name.compareTo("")!=0) 
+			if (isGM && gm_name != null  && gm_name.compareTo("")!=0)
 				extra = " for " + gm_name;
-			else if (name != null && name.compareTo("")!=0) 
+			else if (name != null && name.compareTo("")!=0)
 				extra = " for " + name;
 
 			dialogTitle = dialogTitle + extra;
@@ -1000,7 +1002,7 @@ public class InputFunction extends AbstractFunction {
 			List<JComponent> panelControls = cp.inputFields;
 			int numPanelVars = panelVars.size();
 			StringBuilder allAssignments = new StringBuilder();	// holds all values assigned in this tab
-			
+
 			for (int varCount=0; varCount<numPanelVars; varCount++) {
 				VarSpec vs = panelVars.get(varCount);
 				JComponent comp = panelControls.get(varCount);
@@ -1054,7 +1056,7 @@ public class InputFunction extends AbstractFunction {
 					// The variable name is ignored and not set.
 					break;
 				}
-				case PROPS: 
+				case PROPS:
 				{
 					// Read out and assign all the subvariables.
 					// The overall return value is a property string (as in StrPropFunctions.java) with all the new settings.
@@ -1114,12 +1116,12 @@ public class InputFunction extends AbstractFunction {
 		super.checkParameters(parameters);
 
 		for (Object param : parameters) {
-			if (!(param instanceof String)) 
+			if (!(param instanceof String))
 				throw new ParameterException(I18N.getText("macro.function.input.illegalArgumentType", param.getClass().getName(), String.class.getName()));
 		}
 	}
 
-	
+
 	/** Gets icon from the asset manager.
 	 *  Code copied and modified from EditTokenDialog.java  */
 	private ImageIcon getIcon(String id, int size, ImageObserver io) {
@@ -1130,7 +1132,7 @@ public class InputFunction extends AbstractFunction {
 
 		// Get the base image && find the new size for the icon
 		BufferedImage assetImage = ImageManager.getImage(assetID, io);
-		
+
 		// Resize
 		if (assetImage.getWidth() > size || assetImage.getHeight() > size) {
 			Dimension dim = new Dimension(assetImage.getWidth(), assetImage.getWidth());
@@ -1150,11 +1152,11 @@ public class InputFunction extends AbstractFunction {
 		return new ImageIcon(assetImage);
 	}
 
-	
+
 	/** JLabel variant that listens for new image data, and redraws its icon. */
 	public class UpdatingLabel extends JLabel {
 		private String macroLink;
-		
+
 		@Override
 		public boolean imageUpdate(Image img, int infoflags, int x, int y, int w, int h) {
 			Icon curIcon = getIcon();
@@ -1176,8 +1178,8 @@ public class InputFunction extends AbstractFunction {
 			setIcon(new ImageIcon(sizedImage));
 			return false;
 		}
-		
-		
+
+
 		public void setMacroLink(String link) {
 			macroLink = link;
 			this.addMouseListener(new MouseAdapter() {
@@ -1185,12 +1187,12 @@ public class InputFunction extends AbstractFunction {
 				public void mouseClicked(MouseEvent e) {
 					System.out.println(macroLink);
 				}
-				
+
 			});
 		}
 	}
 
-	
+
 	/** Custom renderer to display icons and text inside a combo box */
 	private class ComboBoxRenderer implements ListCellRenderer {
 		public Component getListCellRendererComponent(
@@ -1210,12 +1212,12 @@ public class InputFunction extends AbstractFunction {
 					label.setBackground(list.getBackground());
 					label.setForeground(list.getForeground());
 				}
-			} 
+			}
 			return label;
 		}
 	}
 
-	
+
 	/** Adjusts the runtime behavior of components */
 	public class FixupComponentAdapter extends ComponentAdapter {
 		final InputPanel ip;
@@ -1225,20 +1227,22 @@ public class InputFunction extends AbstractFunction {
 			this.ip = ip;
 		}
 
+		@Override
 		public void componentShown(ComponentEvent ce) {
 			ip.runtimeFixup();
 		}
 	}
 
 
-	
+
 	/** Class found on web to work around a STUPID SWING BUG with JComboBox */
 	public class NoEqualString
 	{
-		private String text;
+		private final String text;
 		public NoEqualString(String txt) {
 			text = txt;
 		}
+		@Override
 		public String toString() {
 			return text;
 		}
@@ -1306,17 +1310,17 @@ tab0 is set to [tab0]
 /*
 [h: props = "a=3;b=bob;c=cow;d=40;e=55;f=33;g=big time;h=hello;i=interesting;j=jack;k=kow;l=leap;m=moon;"]
 [h: status = input(
-  "tab0 | Settings | Settings tooltip | TAB", 
-  "foo|||CHECK ## bar|bar", 
-  "tab1 | Options | Options tooltip | TAB | select=true", 
+  "tab0 | Settings | Settings tooltip | TAB",
+  "foo|||CHECK ## bar|bar",
+  "tab1 | Options | Options tooltip | TAB | select=true",
   "num|a,b,c,d|Pick one|list ## zot|zot ## zam|zam",
-  "tab2 | Options2 | Options2 tooltip | TAB | ", 
+  "tab2 | Options2 | Options2 tooltip | TAB | ",
   "p | " + props + " | Sample props | PROPS ## p2 | " + props + " | More props | PROPS ## p3 | " + props + " | Even more props | PROPS ## p4 | " + props + " | Still more props | PROPS",
   "num2|a,b,c,d|Pick one|list ",
   "num3|after all it's only a listbox here now isn't it dear?,b,c,d|Pick one|list|span=true ## ee|ee ## ff|ff ## gg|gg ## hh|hh ## ii|ii ## jj|jj ## kk|kk",
   "tab3 | Empty | nothin' | TAB"
-)] 
-[h: abort(status)] 
+)]
+[h: abort(status)]
 tab0 is [tab0]<br>
 foo is [foo]<br>
 tab1 is [tab1]<br>
@@ -1332,9 +1336,9 @@ tab3 is [tab3]<br>
 
 Original props = [props = "Name=Longsword +1; Damage=1d8+1; Crit=1d6; Keyword=fire;"]
 [H: input(
-"foo", 
-"YourName|George Washington|Your name|TEXT", 
-"Weapon|Axe,Sword,Mace|Choose weapon|LIST", 
+"foo",
+"YourName|George Washington|Your name|TEXT",
+"Weapon|Axe,Sword,Mace|Choose weapon|LIST",
 "WarCry|Attack!,No surrender!,I give up!|Pick a war cry|LIST|VALUE=STRING select=1",
 "CA || Combat advantage|     CHECK|",
 "props |"+props+"|Weapon properties|PROPS|setvars=true",
@@ -1367,9 +1371,9 @@ Original props = [props = "Name=Longsword +1; Damage=1d8+1; Crit=1d6; Keyword=fi
 Original props = [props = "Name=Longsword +1; Damage=1d8+1; Crit=1d6; Keyword=fire;"]
 [h: setPropVars = 1]
 [H: input(
-"foo", 
-"YourName|George Washington|Your name|TEXT", 
-"Weapon|Axe,Sword,Mace|Choose weapon|LIST", 
+"foo",
+"YourName|George Washington|Your name|TEXT",
+"Weapon|Axe,Sword,Mace|Choose weapon|LIST",
 "WarCry|Attack!,No surrender!,I give up!|Pick a war cry|LIST|VALUE=STRING select=1",
 "CA || Combat advantage|     CHECK|",
 "props |"+props+"|Weapon properties|PROPS|setvars=true",
@@ -1391,7 +1395,7 @@ Original props = [props = "Name=Longsword +1; Damage=1d8+1; Crit=1d6; Keyword=fi
 <tr><td>Ambition&nbsp;&nbsp;&nbsp;</td><td>{Ambition}&nbsp;&nbsp;&nbsp;</td></tr>
 <tr><td>&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;</td></tr>
 <tr><td>&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;</td></tr>
-{if (setPropVars, 
+{if (setPropVars,
   "<tr><td>Name&nbsp;&nbsp;&nbsp;</td><td>"+Name+"&nbsp;&nbsp;&nbsp;</td></tr>
   <tr><td>Damage&nbsp;&nbsp;&nbsp;</td><td>"+Damage+"&nbsp;&nbsp;&nbsp;</td></tr>
   <tr><td>Crit&nbsp;&nbsp;&nbsp;</td><td>"+Crit+"&nbsp;&nbsp;&nbsp;</td></tr>

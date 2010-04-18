@@ -371,8 +371,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 						}
 						}
 					} catch (IOException ioe) {
-						ioe.printStackTrace();
-						MapTool.showError(I18N.getText("msg.error.macro.importSetFail", ioe));
+						MapTool.showError("msg.error.macro.importSetFail", ioe);
 					}
 				}
 			});

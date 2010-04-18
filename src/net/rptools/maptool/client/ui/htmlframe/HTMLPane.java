@@ -27,17 +27,17 @@ import net.rptools.parser.ParserException;
 
 @SuppressWarnings("serial")
 public class HTMLPane extends JEditorPane {
-	
+
 	private ActionListener actionListeners;
-	private HTMLPaneEditorKit editorKit;
-	
+	private final HTMLPaneEditorKit editorKit;
+
 	public HTMLPane() {
 		registerEditorKitForContentType("text/html", "net.rptools.maptool.client.ui.htmlframe.HTMLPaneEditorKit");
 		editorKit = new HTMLPaneEditorKit(this);
 		setEditorKit(editorKit);
 		setContentType("text/html");
 		setEditable(false);
-		
+
 		addHyperlinkListener(new HyperlinkListener() {
 			public void hyperlinkUpdate(HyperlinkEvent e) {
 				if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
@@ -50,25 +50,25 @@ public class HTMLPane extends JEditorPane {
 								MacroLinkFunction.getInstance().runMacroLink(e.getDescription());
 							}
 						}
-					}				
+					}
 				}
-			} 
+			}
 		});
-		
+
 		ToolTipManager.sharedInstance().registerComponent(this);
-				
+
 	}
-	
-	
+
+
 	public void addActionListener(ActionListener listener) {
 		actionListeners = AWTEventMulticaster.add(actionListeners, listener);
 	}
-	
+
 	public void removeActionListener(ActionListener listener) {
 		actionListeners = AWTEventMulticaster.remove(actionListeners, listener);
 	}
-	
-	
+
+
 	/**
 	 * Handle a submit.
 	 * @param method The method of the submit.
@@ -80,7 +80,7 @@ public class HTMLPane extends JEditorPane {
 			actionListeners.actionPerformed(new FormActionEvent(method, action, data));
 		}
 	}
-	
+
 	/**
 	 * Handle a change in title.
 	 * @param title The title to change to.
@@ -101,8 +101,8 @@ public class HTMLPane extends JEditorPane {
 			actionListeners.actionPerformed(new RegisterMacroActionEvent(type, link));
 		}
 	}
-	
-	
+
+
 	/**
 	 * Handle any meta tag information in the html.
 	 * @param name the name of the meta tag.
@@ -118,9 +118,9 @@ public class HTMLPane extends JEditorPane {
 	@Override
 	public void setText(String text) {
 		// Set up the default style sheet
-		
+
 		HTMLDocument document = (HTMLDocument)getDocument();
-		
+
 		StyleSheet style = document.getStyleSheet();
 
 	    HTMLEditorKit.Parser parse = editorKit.getParser();
@@ -138,8 +138,8 @@ public class HTMLPane extends JEditorPane {
 			// Do nothing, we should not get an io exception on string
 		}
 
-		
-		
+
+
 		// We use ASCII control characters to mark off the rolls so that there's no limitation on what (printable) characters the output can include
 		text = text.replaceAll("\036([^\036\037]*)\037([^\036]*)\036", "<span class='roll' title='&#171; $1 &#187;'>$2</span>");
 		text = text.replaceAll("\036\01u\02([^\036]*)\036", "&#171; $1 &#187;");
@@ -148,60 +148,61 @@ public class HTMLPane extends JEditorPane {
 		// Auto inline expansion
 		text = text.replaceAll("(^|\\s)(http://[a-zA-Z0-9_\\.%-/~?]+)", "$1<a href=\"$2\">$2</a>");
 		super.setText(text);
-		
-		
-	    
+
+
+
 
 	}
-	
+
 	/**
-	 * Class that listens for form events. 
+	 * Class that listens for form events.
 	 *
 	 */
 	public class FormActionEvent extends ActionEvent {
 		private final String method;
 		private final String action;
 		private final String data;
-		
+
 		private FormActionEvent(String method, String action, String data) {
 			super(HTMLPane.this, 0, "submit");
-			
+
 			this.method = method;
 			this.action = action;
 			if (method.equals("json")) {
 				this.data = data;
 			} else {
 				this.data = data.replace("%0A", "%20"); // String properties can not handle \n in strings.
+				// XXX Shouldn't we warn the MTscript programmer somehow?
 			}
 		}
-		
-		
+
+
 		public String getMethod() {
 			return method;
 		}
-		
+
 		public String getAction() {
 			return action;
 		}
-		
+
 		public String getData() {
 			return data;
 		}
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Action event for changing title of the container.
 	 */
 	public class ChangeTitleActionEvent extends ActionEvent {
 		private final String newTitle;
-		
+
 		public ChangeTitleActionEvent(String title) {
 			super(HTMLPane.this, 0, "changeTitle");
 			newTitle = title;
 		}
-		
+
 		/**
 		 * Gets the new title.
 		 * @return
@@ -210,18 +211,18 @@ public class HTMLPane extends JEditorPane {
 			return newTitle;
 		}
 	}
-	
-	
+
+
 	public class MetaTagActionEvent extends ActionEvent {
 		private final String name;
 		private final String content;
-		
+
 		public MetaTagActionEvent(String name, String content) {
 			super(HTMLPane.this, 0, "metaTag");
 			this.name = name;
 			this.content = content;
 		}
-		
+
 		/**
 		 * Gets the name of the meta tag.
 		 * @return the name of the meta tag.
@@ -229,7 +230,7 @@ public class HTMLPane extends JEditorPane {
 		public String getName() {
 			return name;
 		}
-		
+
 		/**
 		 * Gets the content for the meta tag.
 		 * @return the content of the meta tag.
@@ -237,24 +238,24 @@ public class HTMLPane extends JEditorPane {
 		public String getContent() {
 			return content;
 		}
-		
-		
+
+
 	}
 
-	
+
 	/**
 	 * Action event for registering a macro
 	 */
 	public class RegisterMacroActionEvent extends ActionEvent {
 		private final String type;
 		private final String macro;
-		
+
 		RegisterMacroActionEvent(String type, String macro) {
 			super(HTMLPane.this, 0, "registerMacro");
 			this.type = type;
 			this.macro = macro;
 		}
-		
+
 		/**
 		 * Gets the type of macro to register.
 		 * @return the type of macro.
@@ -262,7 +263,7 @@ public class HTMLPane extends JEditorPane {
 		public String getType() {
 			return type;
 		}
-		
+
 		/**
 		 * Gets the link to the macro.
 		 * @return the link to the macro.
@@ -270,38 +271,42 @@ public class HTMLPane extends JEditorPane {
 		public String getMacro() {
 			return macro;
 		}
-		
-		
+
+
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Class that deals with html parser callbacks.
 	 */
 	class ParserCallBack extends HTMLEditorKit.ParserCallback {
-		private Stack<HTML.Tag> tagStack = new Stack<HTML.Tag>();
-		
-		
+		private final Stack<HTML.Tag> tagStack = new Stack<HTML.Tag>();
+
+
+		@Override
 		public void handleStartTag(HTML.Tag tag, MutableAttributeSet attributes, int position) {
 			tagStack.push(tag);
 			if (tag == HTML.Tag.LINK) {
 				handleLinkTag(attributes);
 			} else if (tag == HTML.Tag.META) {
 				handleMetaTag(attributes);
-			}			
+			}
 		}
-		
+
+		@Override
 		public void handleEndTag(HTML.Tag tag, int position) {
-			tagStack.pop();			
+			tagStack.pop();
 		}
-		
+
+		@Override
 		public void handleText(char[] text, int position) {
 			if (tagStack.peek() == HTML.Tag.TITLE) {
 				doChangeTitle(String.valueOf(text));
-			}		
+			}
 		}
-		
+
+		@Override
 		public void handleSimpleTag(HTML.Tag tag, MutableAttributeSet attributes, int pos) {
 			if (tag == HTML.Tag.LINK) {
 				handleLinkTag(attributes);
@@ -309,11 +314,12 @@ public class HTMLPane extends JEditorPane {
 				handleMetaTag(attributes);
 			}
 		}
-		
+
+		@Override
 		public void handleError(String errorMsg, int pos){
 		}
 
-				
+
 		/**
 		 * Handles meta tags.
 		 * @param attributes the attributes for the tag.
@@ -321,12 +327,12 @@ public class HTMLPane extends JEditorPane {
 		void handleMetaTag(MutableAttributeSet attributes) {
 			Object name = attributes.getAttribute(HTML.Attribute.NAME);
 			Object content = attributes.getAttribute(HTML.Attribute.CONTENT);
-			
+
 			if (name != null && content != null) {
 				HTMLPane.this.handleMetaTag(name.toString(), content.toString());
 			}
 		}
-		
+
 
 		/**
 		 * Handles all the actions for a HTML Link tag.
@@ -347,7 +353,7 @@ public class HTMLPane extends JEditorPane {
 						String cssText = MapTool.getParser().getTokenLibMacro(vals[0], vals[1]);
 						HTMLDocument document = (HTMLDocument)getDocument();
 						StyleSheet style = document.getStyleSheet();
-						style.loadRules(new StringReader(cssText), null);						
+						style.loadRules(new StringReader(cssText), null);
 					} catch (ParserException e) {
 						// Do nothing
 					} catch (IOException e) {
@@ -357,7 +363,7 @@ public class HTMLPane extends JEditorPane {
 					if (rel.toString().equalsIgnoreCase("onChangeImpersonated")) {
 						doRegisterMacro("onChangeImpersonated", href.toString());
 					} else if (rel.toString().equalsIgnoreCase("onChangeSelection")) {
-						doRegisterMacro("onChangeSelection", href.toString());					
+						doRegisterMacro("onChangeSelection", href.toString());
 					} else if (rel.toString().equalsIgnoreCase("onChangeToken")) {
 						doRegisterMacro("onChangeToken", href.toString());
 					}
@@ -365,7 +371,7 @@ public class HTMLPane extends JEditorPane {
 			}
 		}
 	}
-	
-	
+
+
 
 }

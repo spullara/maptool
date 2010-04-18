@@ -17,7 +17,6 @@ import java.io.IOException;
 
 import net.rptools.clientserver.simple.AbstractConnection;
 import net.rptools.clientserver.simple.DisconnectHandler;
-import net.rptools.maptool.model.Campaign;
 import net.rptools.maptool.model.CampaignFactory;
 
 /**
@@ -36,11 +35,19 @@ public class ServerDisconnectHandler implements DisconnectHandler {
     	if (!disconnectExpected) {
     		MapTool.showError("Server has disconnected.");
 
+    		// hide map so player doesn't get a brief GM view
+    		MapTool.getFrame().setCurrentZoneRenderer(null);
+
     		try {
     			MapTool.startPersonalServer(CampaignFactory.createBasicCampaign());
     		} catch (IOException ioe) {
     			MapTool.showError("Could not restart personal server");
     		}
+    	} else if (!MapTool.isPersonalServer() && !MapTool.isHostingServer()) {
+    		// expected disconnect from someone else's server
+    		
+    		// hide map so player doesn't get a brief GM view
+    		MapTool.getFrame().setCurrentZoneRenderer(null);
     	}
         
     	disconnectExpected = false;

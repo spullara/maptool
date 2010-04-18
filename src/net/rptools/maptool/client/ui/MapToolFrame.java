@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -150,46 +150,46 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	private static final String DOCKING_PROFILE_NAME = "maptoolDocking";
 
-	private Pen pen = new Pen(Pen.DEFAULT);
+	private final Pen pen = new Pen(Pen.DEFAULT);
 
 	/**
 	 * Are the drawing measurements being painted?
 	 */
 	private boolean paintDrawingMeasurement = true;
 
-	private Map<MTFrame, DockableFrame> frameMap = new HashMap<MTFrame, DockableFrame>();
+	private final Map<MTFrame, DockableFrame> frameMap = new HashMap<MTFrame, DockableFrame>();
 
 	private ImageChooserDialog imageChooserDialog;
 
 	// Components
 	private ZoneRenderer currentRenderer;
-	private AssetPanel assetPanel;
-	private ClientConnectionPanel connectionPanel;
-	private InitiativePanel initiativePanel;
-	private PointerOverlay pointerOverlay;
-	private CommandPanel commandPanel;
-	private AboutDialog aboutDialog;
-	private ColorPicker colorPicker;
-	private Toolbox toolbox;
-	private ZoneMiniMapPanel zoneMiniMapPanel;
-	private JPanel zoneRendererPanel;
+	private final AssetPanel assetPanel;
+	private final ClientConnectionPanel connectionPanel;
+	private final InitiativePanel initiativePanel;
+	private final PointerOverlay pointerOverlay;
+	private final CommandPanel commandPanel;
+	private final AboutDialog aboutDialog;
+	private final ColorPicker colorPicker;
+	private final Toolbox toolbox;
+	private final ZoneMiniMapPanel zoneMiniMapPanel;
+	private final JPanel zoneRendererPanel;
 	private JPanel visibleControlPanel;
 	private FullScreenFrame fullScreenFrame;
-	private JPanel rendererBorderPanel;
-	private List<ZoneRenderer> zoneRendererList;
-	private JMenuBar menuBar;
-	private StatusPanel statusPanel;
-	private ActivityMonitorPanel activityMonitor = new ActivityMonitorPanel();
-	private ProgressStatusBar progressBar = new ProgressStatusBar();
-	private ConnectionStatusPanel connectionStatusPanel = new ConnectionStatusPanel();
+	private final JPanel rendererBorderPanel;
+	private final List<ZoneRenderer> zoneRendererList;
+	private final JMenuBar menuBar;
+	private final StatusPanel statusPanel;
+	private final ActivityMonitorPanel activityMonitor = new ActivityMonitorPanel();
+	private final ProgressStatusBar progressBar = new ProgressStatusBar();
+	private final ConnectionStatusPanel connectionStatusPanel = new ConnectionStatusPanel();
 	private CoordinateStatusBar coordinateStatusBar;
 	private ZoomStatusBar zoomStatusBar;
 	private JLabel chatActionLabel;
-	private GlassPane glassPane;
+	private final GlassPane glassPane;
 
 	private TokenPanelTreeModel tokenPanelTreeModel;
 
-	private TextureChooserPanel textureChooserPanel;
+	private final TextureChooserPanel textureChooserPanel;
 
 	private LookupTablePanel lookupTablePanel;
 
@@ -201,32 +201,32 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private JFileChooser savePropsFileChooser;
 	private JFileChooser saveFileChooser;
 
-	private FileFilter campaignFilter = new MTFileFilter("cmpgn", I18N.getText("file.ext.cmpgn"));
-	private FileFilter mapFilter = new MTFileFilter("rpmap", I18N.getText("file.ext.rpmap"));
-	private FileFilter propertiesFilter = new MTFileFilter("mtprops", I18N.getText("file.ext.mtprops"));
+	private final FileFilter campaignFilter = new MTFileFilter("cmpgn", I18N.getText("file.ext.cmpgn"));
+	private final FileFilter mapFilter = new MTFileFilter("rpmap", I18N.getText("file.ext.rpmap"));
+	private final FileFilter propertiesFilter = new MTFileFilter("mtprops", I18N.getText("file.ext.mtprops"));
 
 	// Macro import/export support
-	private FileFilter macroFilter = new MTFileFilter("mtmacro", I18N.getText("file.ext.mtmacro"));
-	private FileFilter macroSetFilter = new MTFileFilter("mtmacset", I18N.getText("file.ext.mtmacset"));
+	private final FileFilter macroFilter = new MTFileFilter("mtmacro", I18N.getText("file.ext.mtmacro"));
+	private final FileFilter macroSetFilter = new MTFileFilter("mtmacset", I18N.getText("file.ext.mtmacset"));
 
 	// Table import/export support
-	private FileFilter tableFilter = new MTFileFilter("mttable", "MapTool Table");
+	private final FileFilter tableFilter = new MTFileFilter("mttable", "MapTool Table");
 
 	private EditTokenDialog tokenPropertiesDialog;
 
-	private CampaignPanel campaignPanel = new CampaignPanel();
-	private GlobalPanel globalPanel = new GlobalPanel();
-	private SelectionPanel selectionPanel = new SelectionPanel();
-	private ImpersonatePanel impersonatePanel = new ImpersonatePanel();
+	private final CampaignPanel campaignPanel = new CampaignPanel();
+	private final GlobalPanel globalPanel = new GlobalPanel();
+	private final SelectionPanel selectionPanel = new SelectionPanel();
+	private final ImpersonatePanel impersonatePanel = new ImpersonatePanel();
 
-	private DragImageGlassPane dragImageGlassPane = new DragImageGlassPane();
-	
+	private final DragImageGlassPane dragImageGlassPane = new DragImageGlassPane();
+
 	public MapToolFrame(JMenuBar menuBar) {
 		// Set up the frame
 		super(AppConstants.APP_NAME);
 
 		this.menuBar = menuBar;
-		
+
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		addWindowListener(this);
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -299,7 +299,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		setJMenuBar(menuBar);
 		add(BorderLayout.NORTH, new ToolbarPanel(toolbox));
 		add(BorderLayout.SOUTH, statusPanel);
-		
+
 		JLayeredPane glassPaneComposite = new JLayeredPane();
 		glassPaneComposite.setLayout(new GridBagLayout());
 		GridBagConstraints constraints = new GridBagConstraints();
@@ -308,13 +308,13 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.weightx = 1;
 		constraints.weighty = 1;
-		
+
 		glassPaneComposite.add(glassPane, constraints);
 		glassPaneComposite.add(dragImageGlassPane, constraints);
-		
+
 		setGlassPane(glassPane);
 //		setGlassPane(glassPaneComposite);
-		
+
 		glassPaneComposite.setVisible(true);
 
 		if (!MapTool.MAC_OS_X)
@@ -333,7 +333,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		new WindowPreferences(AppConstants.APP_NAME, "mainFrame", this);
 	}
-	
+
     public void registerForMacOSXEvents() {
         if (MapTool.MAC_OS_X) {
             try {
@@ -346,17 +346,17 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
             }
         }
     }
-    
+
     public void macOSXAbout() {
     	((ClientAction)AppActions.SHOW_ABOUT).execute(null);
     }
-    
+
     public boolean macOSXExit() {
     	((ClientAction)AppActions.EXIT).execute(null);
     	// Always return false to abort exit from os.  Above call will close app normally if user accepts
     	return false;
     }
-    
+
     public void macOSXPreferences() {
     	((ClientAction)AppActions.SHOW_PREFERENCES).execute(null);
     }
@@ -382,7 +382,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		 * means that any code using MTFrame enums that are converted to Strings
 		 * need to be checked so that when the return value is used as the NAME
 		 * of an Action, the property name is retrieved instead. Ugh. :(
-		 * 
+		 *
 		 * We'll need two additional methods: getPropName() and
 		 * getDisplayName(). Perhaps toString() could call getDisplayName(), but
 		 * it might be much simpler to debug if toString() weren't used. In that
@@ -406,6 +406,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			displayName = dispName;
 		}
 
+		@Override
 		public String toString() {
 			return displayName;
 		}
@@ -512,8 +513,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	private class MTFileFilter extends FileFilter {
-		private String extension;
-		private String description;
+		private final String extension;
+		private final String description;
 
 		MTFileFilter(String exten, String desc) {
 			super();
@@ -522,6 +523,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		}
 
 		// Accept directories and files matching extension
+		@Override
 		public boolean accept(File f) {
 
 			if (f.isDirectory()) {
@@ -540,6 +542,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 			return false;
 		}
 
+		@Override
 		public String getDescription() {
 			return description;
 		}
@@ -719,7 +722,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 				// if (rightSplitPane.isBottomHidden() && event ==
 				// ObservableList.Event.append) {
-				//					
+				//
 				// getChatActionLabel().setVisible(true);
 				// }
 			}
@@ -1080,14 +1083,14 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public void setCurrentZoneRenderer(ZoneRenderer renderer) {
-		
+
 		// Flush first so that the new zone renderer can inject the newly needed images
 		if (renderer != null) {
 			ImageManager.flush(renderer.getZone().getAllAssetIds());
 		} else {
 			ImageManager.flush();
 		}
-		
+
 		// Handle new renderers
 		// TODO: should this be here ?
 		if (renderer != null && !zoneRendererList.contains(renderer)) {
@@ -1161,7 +1164,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	/**
 	 * Get the paintDrawingMeasurements for this MapToolClient.
-	 * 
+	 *
 	 * @return Returns the current value of paintDrawingMeasurements.
 	 */
 	public boolean isPaintDrawingMeasurement() {
@@ -1170,7 +1173,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	/**
 	 * Set the value of paintDrawingMeasurements for this MapToolClient.
-	 * 
+	 *
 	 * @param aPaintDrawingMeasurements
 	 *            The paintDrawingMeasurements to set.
 	 */
@@ -1190,7 +1193,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		// Under mac os x this does not properly hide the menu bar so adjust top and height
 		// so menu bar does not overlay screen.
 		if (MapTool.MAC_OS_X) {
-			fullScreenFrame.setBounds(bounds.x, bounds.y+21, bounds.width, bounds.height-21);			
+			fullScreenFrame.setBounds(bounds.x, bounds.y+21, bounds.width, bounds.height-21);
 		}
 		else {
 			fullScreenFrame.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
@@ -1312,10 +1315,10 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				}
 			}
 		}
-		
+
 		close();
 	}
-	
+
 	public void close() {
 
 		ServerDisconnectHandler.disconnectExpected = true;
@@ -1381,7 +1384,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				}
 			}
 		}
-		
+
 		for (KeyStroke keyStroke : keyStrokeMap.keySet()) {
 			final MacroButton button = keyStrokeMap.get(keyStroke);
 			c.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, button);
@@ -1515,11 +1518,11 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private static class MTButtonHotKeyAction extends AbstractAction {
 
 		private final MacroButton macroButton;
-	
+
 		public MTButtonHotKeyAction(MacroButton button) {
 			macroButton = button;
 		}
-		 
+
 		public void actionPerformed(ActionEvent e) {
 			if (macroButton.getProperties().getApplyToTokens()) {
 				if (MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList().size() > 0) {
@@ -1529,7 +1532,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 				macroButton.getProperties().executeMacro();
 			}
 		}
-		
+
 	}
 }
 
