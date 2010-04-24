@@ -1,7 +1,7 @@
 <!-- 
     Rename this file to 'logging.xml' and put it in your .maptool directory
     This will turn on additional logging during macro execution. Output goes 
-    to the console 
+    to the Java console.
 -->
 
 <!-- Turn on debugging in classes related to macro handling -->
@@ -21,7 +21,3 @@
     <level value="DEBUG" />
     <appender-ref ref="console"/>
 </logger>
-
-
-
-

@@ -1,6 +1,31 @@
-~~~~~ ReadMe for RPTools.net family of RPG tools ~~~~
+~~~~~~~~~~~~ ReadMe for RPTools.net family of RPG tools ~~~~~~~~~~~~
 
-RPTools provides the following programs to enhance your gaming experience.
+This document contains the following sections:
+
+ * List of tools in the RPTools series
+ * Requirements for running the tools
+ * Executing the tools
+ * Troubleshooting common problems
+
+Documentation for the various tools can be found here at the link below.
+However, as the tools develop and change rapidly it's likely that the
+forum users will have the scoop on the most current tweaks and features.
+   http://www.rptools.net/?page=faq
+
+Also be sure to watch the screencasts that demonstrate the various
+features of MapTool.  One of our forum users put together little
+snippets of video that describe various things that new users will need
+to know.  They are broken up into topics and organized by GM and Player,
+so you only need to view the ones that apply to you.  Visit our main
+site and click on the "Tutorials" link in the toolbar.
+
+Welcome to RPTools!
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+RPTools provides the following programs to enhance your gaming
+experience.  All of these are written in Java and are therefore
+portable, running on Windows, OS X, and Unix/Linux.
 
  * DiceTool - Feature-rich dice-rolling application.
  * MapTool - Virtual tabletop application.
@@ -8,16 +33,16 @@ RPTools provides the following programs to enhance your gaming experience.
  * TokenTool - Gaming token creation tool.
  * CharTool - Character tracking tool.
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 			    <<< Requirements >>>
 
 All of the RPTools.net applications are programmed in Java and can be
-used on any platform supporting Java 5+.  (DiceTool and CharTool require
-Java 6.)
+used on any platform supporting Java 5+.  (CharTool, DiceTool, and
+MapTool require Java 6+.)  Specifics of where to find Java for your
+platform are provided on the main web site at http://www.rptools.net/
 
-The Java Runtime Environment is required and can be downloaded from
-the Sun website:
-
-   http://java.sun.com/j2se/1.5.0/download.jsp
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 			<<< Starting & Using the Tools >>>
 
@@ -26,83 +51,98 @@ from the links on the RPTools downloads page at:
    http://www.rptools.net/?page=launch
 
 The WebStart technique is completely self-contained.  Full instructions
-are given on the page linked to above.
+are given on the page linked above.
 
-Alternatively you can download the Zip Archive from here:
+Alternatively you can download the zip archive (Windows, OS X, Unix/Linux)
+and DMG file (OS X only) from here:
    http://www.rptools.net/?page=download
 
-Extract the Zip Archive to a folder of your choosing.  In the folder
-where you extract the archive will be a system-specific start program:
+Visit the above link for details on executing the tools; a summary
+is provided here.
+
+			<<< ZIP Archive >>>
+
+Extract the zip archive to a folder of your choosing.  In the folder
+where you extract the archive will be a system-specific start
+program:
 
     Windows:	MapToolLauncher.exe
     OS X:	Launch MapTool.command
     Linux/Unix:	Launch MapTool.sh
 
 On all Unix-based systems (OS X, Linux, Unix) you will need to add
-execute permission to the file listed above for your system.  Use
-your operating system tools to make this change (Google for "change
-permissions" if you need help).
+execute permission to the file listed above if your zip utility did
+not already include it.  Use your operating system tools to make
+this change (Google for "change permissions" if you need help).
+
+			<<< DMG Disk Image >>>
+
+This file is a disk image that can be installed easily on OS X.  Mac
+users may download the file and double-click to being installation.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 			<<< Troubleshooting >>>
 		<<< Troubleshooting Download Version >>>
 
-Program fails to start -- If your system-specific file (above) fails
+PROGRAM FAILS TO START:  If your system-specific file (above) fails
 to start the application, verify that you have a Java Runtime
 Environment installed.  From a command prompt, type "java -version"
-and hit <Enter>. The Java version should be printed to the command
-prompt.  If you receive an error message, download and install the
-appropriate Java package for your operatin system at the URL noted
-above.
+(without the quotes) and press <Enter>. The Java version should be
+printed to the command prompt.  If you receive an error message,
+download and install the appropriate Java package for your operating
+system as described at the above URLs.
 
-Map takes forever to load (or never loads) [MapTool only] -- Some larger
-maps may require more memory to initially load than the default
-Java Runtime Environment allocates.  Check the folder where you
-extracted the zip archive.  As described above, each operating system
-has its own start file.  For Windows, the EXE will ask for memory size
-parameters -- try increasing the maximum memory and running MapTool
-again.  For OSX and Linux/Unix users, edit the corresponding script and
-modify the memory settings at the top of the file.
+MAP DOESN'T LOAD [MapTool only]:  Some larger maps may require more
+memory to initially load than the default Java Runtime Environment
+allocates.  Check the folder where you extracted the zip archive.
+As described above, each operating system has its own start file.
+For Windows, the EXE will ask for memory size parameters -- try
+increasing the maximum memory and running MapTool again.  For OS X
+and Linux/Unix users, edit the corresponding script and modify the
+memory settings at the top of the file.
+
+Mac Users:  If you installed from the DMG file, look inside the
+resulting app package for a file named "Info.plist" and edit it with a
+text editor.  It contains the memory settings.
 
 			<<< Troubleshooting >>>
 		<<< Troubleshooting WebStart Version >>>
 
 The WebStart feature will download the appropriate files from the
-RPTools web site and save them on your computer before executing the
-program.  You will be prompted to allow this to happen.  Once complete,
-the program will begin execution (you may be prompted for this to be
-allowed as well).  If you right-click on the WebStart link and save the
-downloaded WebStart file on your desktop, you can double-click it at any
-time in the future to execute the program from the copy saved on your
-system -- you won't need an Internet connection in the future.  (In
-fact, you can send the JNLP file to other players and they can
-double-click it as well!  Just remember that the very first time you run
-a particular version, you need an Internet connection in order to
-download the files.)
+RPTools web site and save them on your computer before executing
+the program.  You will be prompted to allow this to happen.  Once
+complete, the program will begin execution (you may be prompted for
+this to be allowed as well).  If you right-click on the WebStart
+link and save the downloaded WebStart file on your desktop, you can
+double-click it at any time in the future to execute the program
+from the copy saved on your system -- you won't need an Internet
+connection in the future.  (In fact, you can send the JNLP file to
+other players and they can double-click it as well!  Just remember
+that the very first time you run a particular version, you need an
+Internet connection in order to download the files for that version.)
 
 			<<< Troubleshooting >>>
 		<<< Troubleshooting Other Problems >>>
 
-MapTool fails to connect to a server, or others cannot connect to your
-server -- Networking is a big topic, so please visit our forums (link
-below) and check out the Networking FAQ in the MapTool -> HOWTO
-subforum.  There you will find a document that describes what MapTool
-needs in order to work properly along with a step-by-step approach for
-diagnosing your networking problems with solutions for common ones.
+MAPTOOL NETWORKING PROBLEM:  Networking is a big topic, so please
+visit our forum (link below) and check out the Networking FAQ in
+the MapTool -> HowTo subforum.  There you will find a document that
+describes what MapTool needs in order to work properly along with
+a step-by-step approach for diagnosing your networking problems.
+Solutions for common problems is included in the NFAQ.
 
-MapTool creates a log of errors in the ".maptool" folder under your home
-directory.  Also in there will be a bunch of subfolders that are used by
-MapTool internally to keep track of maps and other images.  If your
-problem is repeatable, i.e. can be reproduced over and over again,
-please remove the existing log file and then reproduce the error.  Then
-ZIP the log file and attach it to a post on the forums (link below).
+MapTool creates a log of errors in the ".maptool" folder under your
+home directory.  Also in there will be a bunch of subfolders that
+are used by MapTool internally to keep track of maps and other
+images.  If your problem is repeatable, i.e. can be reproduced over
+and over again, please remove the existing log file and then reproduce
+the error.  Then zip up the log file and attach it to a post un the
+MapTool forum.
 
 For any other issues, please come to http://forums.RPTools.net/ and
 post a message there describing the difficulties you are having.
 Most problems can be addressed quickly by one of the many helpful
 forum members or one of our team members.
 
-Documentation for the various tools can be found here:
-
-   http://www.rptools.net/?page=faq
-
-~~~~~ ReadMe for RPTools.net family of RPG tools ~~~~
+~~~~~~~~~~~~ ReadMe for RPTools.net family of RPG tools ~~~~~~~~~~~~
