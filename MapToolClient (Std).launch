@@ -24,7 +24,6 @@
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_SET" value="org.eclipse.hyades.defaultProfilingSets.memory"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.rptools.maptool.client.MapTool"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="maptool"/>
-<booleanAttribute key="org.eclipse.jdt.launching.STOP_IN_MAIN" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -DMAPTOOL_DEV=true -Xmx768M -Xss3M"/>
 <booleanAttribute key="yk-capture-cpu-on-exit" value="false"/>
 <booleanAttribute key="yk-capture-memory-on-exit" value="true"/>

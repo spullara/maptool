@@ -63,8 +63,8 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		 * String type = getPropertyType()
 		 */
 		if (functionName.equals("getPropertyType")) {
-			if (parameters.size() != 0) {
-				throw new ParserException(I18N.getText("macro.function.general.wrongNumParam", functionName, 0, parameters.size()));
+			if (parameters.size() > 1) {
+				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 1, parameters.size()));
 			}
 			Token token = getTokenFromParam(resolver, "getPropertyType", parameters, 0);
 			return token.getPropertyType();

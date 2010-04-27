@@ -107,7 +107,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	 *            The token being displayed.
 	 */
 	public EditTokenDialog() {
-		super("net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.jfrm");
+		super("net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.xml");
 
 		panelInit();
 	}

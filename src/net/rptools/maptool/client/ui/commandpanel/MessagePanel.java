@@ -209,7 +209,7 @@ public class MessagePanel extends JPanel {
 				}
 
 				// Auto inline expansion for {HTTP|HTTPS} URLs
-				output = output.replaceAll("(^|\\s|>|\002)(https?://[\\w.%-/~?&+#]+)", "$1<a href=\"$2\">$2</a>");
+				output = output.replaceAll("(^|\\s|>|\002)(https?://[\\w.%-/~?&+#=]+)", "$1<a href='$2'>$2</a>");
 
 
 				if (!message.getSource().equals(MapTool.getPlayer().getName())) {

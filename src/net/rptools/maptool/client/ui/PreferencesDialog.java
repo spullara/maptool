@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.text.ParseException;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -42,6 +43,7 @@ import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.util.StringUtil;
 
 import com.jeta.forms.components.colors.JETAColorWell;
 import com.jeta.forms.components.panel.FormPanel;
@@ -49,74 +51,74 @@ import com.jeta.forms.components.panel.FormPanel;
 public class PreferencesDialog extends JDialog {
 
 	// Interactions
-	private JCheckBox newMapsHaveFOWCheckBox;
-	private JCheckBox tokensPopupWarningWhenDeletedCheckBox;
-	private JCheckBox tokensStartSnapToGridCheckBox;
-	private JCheckBox newMapsVisibleCheckBox;
-	private JCheckBox newTokensVisibleCheckBox;
-	private JCheckBox tokensStartFreeSizeCheckBox;
-	private JCheckBox stampsStartSnapToGridCheckBox;
-	private JCheckBox stampsStartFreeSizeCheckBox;
-	private JCheckBox backgroundsStartSnapToGridCheckBox;
-	private JCheckBox backgroundsStartFreeSizeCheckBox;
-	private JComboBox duplicateTokenCombo;
-	private JComboBox tokenNamingCombo;
-	private JComboBox showNumberingCombo;
-	private JComboBox movementMetricCombo;
-	private JCheckBox showStatSheetCheckBox;
-    
-    private JSpinner haloLineWidthSpinner;
-    private JSpinner visionOverlayOpacitySpinner;
-    private JCheckBox useHaloColorAsVisionOverlayCheckBox;
-    private JCheckBox autoRevealVisionOnGMMoveCheckBox;
-    private JCheckBox showSmiliesCheckBox;
-    private JCheckBox playSystemSoundCheckBox;
-    private JCheckBox playSystemSoundOnlyWhenNotFocusedCheckBox;
+	private final JCheckBox newMapsHaveFOWCheckBox;
+	private final JCheckBox tokensPopupWarningWhenDeletedCheckBox;
+	private final JCheckBox tokensStartSnapToGridCheckBox;
+	private final JCheckBox newMapsVisibleCheckBox;
+	private final JCheckBox newTokensVisibleCheckBox;
+	private final JCheckBox tokensStartFreeSizeCheckBox;
+	private final JCheckBox stampsStartSnapToGridCheckBox;
+	private final JCheckBox stampsStartFreeSizeCheckBox;
+	private final JCheckBox backgroundsStartSnapToGridCheckBox;
+	private final JCheckBox backgroundsStartFreeSizeCheckBox;
+	private final JComboBox duplicateTokenCombo;
+	private final JComboBox tokenNamingCombo;
+	private final JComboBox showNumberingCombo;
+	private final JComboBox movementMetricCombo;
+	private final JCheckBox showStatSheetCheckBox;
 
-    private JCheckBox facingFaceEdges;
-    private JCheckBox facingFaceVertices;
-    
-    private JCheckBox showAvatarInChat;
-    
-    private JCheckBox allowPlayerMacroEditsDefault;
-    
-    private JCheckBox toolTipInlineRolls;
-    private JETAColorWell trustedOuputForeground;
-    private JETAColorWell trustedOuputBackground;
-    private JTextField chatAutosaveTime;
-    private JTextField chatFilenameFormat;
-    
-    
+    private final JSpinner haloLineWidthSpinner;
+    private final JSpinner visionOverlayOpacitySpinner;
+    private final JCheckBox useHaloColorAsVisionOverlayCheckBox;
+    private final JCheckBox autoRevealVisionOnGMMoveCheckBox;
+    private final JCheckBox showSmiliesCheckBox;
+    private final JCheckBox playSystemSoundCheckBox;
+    private final JCheckBox playSystemSoundOnlyWhenNotFocusedCheckBox;
+
+    private final JCheckBox facingFaceEdges;
+    private final JCheckBox facingFaceVertices;
+
+    private final JCheckBox showAvatarInChat;
+
+    private final JCheckBox allowPlayerMacroEditsDefault;
+
+    private final JCheckBox toolTipInlineRolls;
+    private final JETAColorWell trustedOuputForeground;
+    private final JETAColorWell trustedOuputBackground;
+    private final JTextField chatAutosaveTime;
+    private final JTextField chatFilenameFormat;
+
+
 	// Defaults
-	private JComboBox defaultGridTypeCombo;
-	private JTextField defaultGridSizeTextField;
-	private JTextField defaultUnitsPerCellTextField;
-	private JTextField defaultVisionDistanceTextField;
-	private JTextField statsheetPortraitSize;
-	
-	private JSpinner autoSaveSpinner;
-	private JCheckBox saveReminderCheckBox;
-	
-	private JCheckBox showDialogOnNewToken;
+	private final JComboBox defaultGridTypeCombo;
+	private final JTextField defaultGridSizeTextField;
+	private final JTextField defaultUnitsPerCellTextField;
+	private final JTextField defaultVisionDistanceTextField;
+	private final JTextField statsheetPortraitSize;
+
+	private final JSpinner autoSaveSpinner;
+	private final JCheckBox saveReminderCheckBox;
+
+	private final JCheckBox showDialogOnNewToken;
 
 	// Accessibility
-	private JTextField fontSizeTextField;
-	private JTextField toolTipInitialDelay;
-	private JTextField toolTipDismissDelay;
-	
-	//Application
-	private JCheckBox fitGMView;
-	private JCheckBox fillSelectionCheckBox;
-    private JCheckBox hideNPCs;
-    private JCheckBox ownerPermissions;
-    private JCheckBox lockMovement;
+	private final JTextField fontSizeTextField;
+	private final JTextField toolTipInitialDelay;
+	private final JTextField toolTipDismissDelay;
 
-	
+	//Application
+	private final JCheckBox fitGMView;
+	private final JCheckBox fillSelectionCheckBox;
+    private final JCheckBox hideNPCs;
+    private final JCheckBox ownerPermissions;
+    private final JCheckBox lockMovement;
+
+
 	public PreferencesDialog() {
 		super (MapTool.getFrame(), "Preferences", true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		((JPanel)getContentPane()).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		
+
 		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/preferencesDialog.jfrm");
 
 		JButton okButton = (JButton)panel.getButton("okButton");
@@ -128,7 +130,7 @@ public class PreferencesDialog extends JDialog {
 				MapTool.getEventDispatcher().fireEvent(MapTool.PreferencesEvent.Changed);
 			}
 		});
-		
+
 		showStatSheetCheckBox = panel.getCheckBox("showStatSheet");
 		showNumberingCombo = panel.getComboBox("showNumberingCombo");
 		saveReminderCheckBox = panel.getCheckBox("saveReminderCheckBox");
@@ -163,7 +165,7 @@ public class PreferencesDialog extends JDialog {
 		showDialogOnNewToken = panel.getCheckBox("showDialogOnNewToken");
 		movementMetricCombo = panel.getComboBox("movementMetric");
 		allowPlayerMacroEditsDefault = panel.getCheckBox("allowPlayerMacroEditsDefault");
-		toolTipInlineRolls = panel.getCheckBox("toolTipInlineRolls");		
+		toolTipInlineRolls = panel.getCheckBox("toolTipInlineRolls");
 		trustedOuputForeground = (JETAColorWell) panel.getComponentByName("trustedOuputForeground");
 		trustedOuputBackground = (JETAColorWell) panel.getComponentByName("trustedOuputBackground");
 		toolTipInitialDelay = panel.getTextField("toolTipInitialDelay");
@@ -192,13 +194,13 @@ public class PreferencesDialog extends JDialog {
 				updateFacings();
 			}
 		});
-		
+
 		toolTipInlineRolls.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setUseToolTipForInlineRoll(toolTipInlineRolls.isSelected());
-			}			
+			}
 		});
-		
+
 		toolTipInitialDelay.getDocument().addDocumentListener(new DocumentListener() {
 			public void changedUpdate(DocumentEvent e) {
 				updateValue();
@@ -209,19 +211,19 @@ public class PreferencesDialog extends JDialog {
 			public void removeUpdate(DocumentEvent e) {
 				updateValue();
 			}
-			
+
 			private void updateValue() {
 				try {
-					int value = Integer.parseInt(toolTipInitialDelay.getText());
+					int value = StringUtil.parseInteger(toolTipInitialDelay.getText());
 					AppPreferences.setToolTipInitialDelay(value);
 					ToolTipManager.sharedInstance().setInitialDelay(value);
-				} catch (NumberFormatException nfe) {
+				} catch (ParseException nfe) {
 					// Ignore it
 				}
 			}
 		});
 
-		
+
 		toolTipDismissDelay.getDocument().addDocumentListener(new DocumentListener() {
 			public void changedUpdate(DocumentEvent e) {
 				updateValue();
@@ -232,13 +234,13 @@ public class PreferencesDialog extends JDialog {
 			public void removeUpdate(DocumentEvent e) {
 				updateValue();
 			}
-			
+
 			private void updateValue() {
 				try {
-					int value = Integer.parseInt(toolTipDismissDelay.getText());
+					int value = StringUtil.parseInteger(toolTipDismissDelay.getText());
 					AppPreferences.setToolTipDismissDelay(value);
 					ToolTipManager.sharedInstance().setDismissDelay(value);
-				} catch (NumberFormatException nfe) {
+				} catch (ParseException nfe) {
 					// Ignore it
 				}
 			}
@@ -248,40 +250,40 @@ public class PreferencesDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setTrustedPrefixFG(trustedOuputForeground.getColor());
 				MapTool.getFrame().getCommandPanel().setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
-			}			
+			}
 		});
 		trustedOuputBackground.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setTrustedPrefixBG(trustedOuputBackground.getColor());
 				MapTool.getFrame().getCommandPanel().setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
-			}			
+			}
 		});
 		chatAutosaveTime.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					int value = Integer.parseInt(chatAutosaveTime.getText());
+					int value = StringUtil.parseInteger(chatAutosaveTime.getText());
 					AppPreferences.setChatAutosaveTime(value);
 					// TODO FJE Change the timer.  Check campaign auto-save for details.
 //					MapTool.getFrame().getCommandPanel().setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
-				} catch (NumberFormatException nfe) {
+				} catch (ParseException nfe) {
 					// Ignore it
 				}
-			}			
+			}
 		});
 		chatFilenameFormat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setChatFilenameFormat(chatFilenameFormat.getText());
 				// TODO FJE Change the filename format.  Might need synchronization?
 //				MapTool.getFrame().getCommandPanel().setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
-			}			
+			}
 		});
-		
+
 		allowPlayerMacroEditsDefault.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setAllowPlayerMacroEditsDefault(allowPlayerMacroEditsDefault.isSelected());
 			}
 		});
-		
+
 		showAvatarInChat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setShowAvatarInChat(showAvatarInChat.isSelected());
@@ -374,17 +376,17 @@ public class PreferencesDialog extends JDialog {
 			public void removeUpdate(DocumentEvent e) {
 				updateValue();
 			}
-			
+
 			private void updateValue() {
 				try {
-					int value = Integer.parseInt(defaultGridSizeTextField.getText());
+					int value = StringUtil.parseInteger(defaultGridSizeTextField.getText());
 					AppPreferences.setDefaultGridSize(value);
-				} catch (NumberFormatException nfe) {
+				} catch (ParseException nfe) {
 					// Ignore it
 				}
 			}
 		});
-		
+
 		defaultUnitsPerCellTextField.getDocument().addDocumentListener(new DocumentListener() {
 			public void changedUpdate(DocumentEvent e) {
 				updateValue();
@@ -395,12 +397,12 @@ public class PreferencesDialog extends JDialog {
 			public void removeUpdate(DocumentEvent e) {
 				updateValue();
 			}
-			
+
 			private void updateValue() {
 				try {
-					int value = Integer.parseInt(defaultUnitsPerCellTextField.getText());
+					int value = StringUtil.parseInteger(defaultUnitsPerCellTextField.getText());
 					AppPreferences.setDefaultUnitsPerCell(value);
-				} catch (NumberFormatException nfe) {
+				} catch (ParseException nfe) {
 					// Ignore it
 				}
 			}
@@ -415,12 +417,12 @@ public class PreferencesDialog extends JDialog {
 			public void removeUpdate(DocumentEvent e) {
 				updateValue();
 			}
-			
+
 			private void updateValue() {
 				try {
-					int value = Integer.parseInt(defaultVisionDistanceTextField.getText());
+					int value = StringUtil.parseInteger(defaultVisionDistanceTextField.getText());
 					AppPreferences.setDefaultVisionDistance(value);
-				} catch (NumberFormatException nfe) {
+				} catch (ParseException nfe) {
 					// Ignore it
 				}
 			}
@@ -435,12 +437,12 @@ public class PreferencesDialog extends JDialog {
 			public void removeUpdate(DocumentEvent e) {
 				updateValue();
 			}
-			
+
 			private void updateValue() {
 				try {
-					int value = Integer.parseInt(statsheetPortraitSize.getText());
+					int value = StringUtil.parseInteger(statsheetPortraitSize.getText());
 					AppPreferences.setPortraitSize(value);
-				} catch (NumberFormatException nfe) {
+				} catch (ParseException nfe) {
 					// Ignore it
 				}
 			}
@@ -449,12 +451,12 @@ public class PreferencesDialog extends JDialog {
             public void stateChanged(ChangeEvent ce) {
                 AppPreferences.setHaloLineWidth((Integer)haloLineWidthSpinner.getValue());
             }
-        }); 
-	
+        });
+
         // Vision overlay opacity option in preferences-application, with
 		// error checking to ensure values are within the acceptable range
 		// of 0 and 255.
-		 
+
 		visionOverlayOpacitySpinner.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent ce) {
 				if (((Integer) visionOverlayOpacitySpinner.getValue()) < 1) {
@@ -467,12 +469,12 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setVisionOverlayOpacity((Integer) visionOverlayOpacitySpinner.getValue());
 				MapTool.getFrame().refresh();
 			}
-		});        
+		});
         useHaloColorAsVisionOverlayCheckBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 AppPreferences.setUseHaloColorOnVisionOverlay(useHaloColorAsVisionOverlayCheckBox.isSelected());
             }
-        });        
+        });
         autoRevealVisionOnGMMoveCheckBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 AppPreferences.setAutoRevealVisionOnGMMovement(autoRevealVisionOnGMMoveCheckBox.isSelected());
@@ -488,13 +490,13 @@ public class PreferencesDialog extends JDialog {
         		AppPreferences.setPlaySystemSounds(playSystemSoundCheckBox.isSelected());
         	}
         });
-		
+
         playSystemSoundOnlyWhenNotFocusedCheckBox.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		AppPreferences.setPlaySystemSoundsOnlyWhenNotFocused(playSystemSoundOnlyWhenNotFocusedCheckBox.isSelected());
         	}
         });
-		
+
 		fontSizeTextField.getDocument().addDocumentListener(new DocumentListener() {
 			public void changedUpdate(DocumentEvent e) {
 				updateValue();
@@ -505,17 +507,17 @@ public class PreferencesDialog extends JDialog {
 			public void removeUpdate(DocumentEvent e) {
 				updateValue();
 			}
-			
+
 			private void updateValue() {
 				try {
-					int value = Integer.parseInt(fontSizeTextField.getText());
+					int value = StringUtil.parseInteger(fontSizeTextField.getText());
 					AppPreferences.setFontSize(value);
-				} catch (NumberFormatException nfe) {
+				} catch (ParseException nfe) {
 					// Ignore it
 				}
 			}
 		});
-		
+
 		fitGMView.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setFitGMView(fitGMView.isSelected());
@@ -536,7 +538,7 @@ public class PreferencesDialog extends JDialog {
                 AppPreferences.setInitLockMovement(lockMovement.isSelected());
             }
         });
-		
+
 
 		DefaultComboBoxModel gridTypeModel = new DefaultComboBoxModel();
 		gridTypeModel.addElement(GridFactory.SQUARE);
@@ -549,7 +551,7 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setDefaultGridType((String) defaultGridTypeCombo.getSelectedItem());
 			}
 		});
-		
+
 		DefaultComboBoxModel tokenNumModel = new DefaultComboBoxModel();
 		tokenNumModel.addElement(Token.NUM_INCREMENT);
 		tokenNumModel.addElement(Token.NUM_RANDOM);
@@ -560,7 +562,7 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setDuplicateTokenNumber((String) duplicateTokenCombo.getSelectedItem());
 			}
 		});
-		
+
 		DefaultComboBoxModel tokenNameModel = new DefaultComboBoxModel();
 		tokenNameModel.addElement(Token.NAME_USE_FILENAME);
 		tokenNameModel.addElement(Token.NAME_USE_CREATURE);
@@ -571,7 +573,7 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setNewTokenNaming((String) tokenNamingCombo.getSelectedItem());
 			}
 		});
-		
+
 		DefaultComboBoxModel showNumModel = new DefaultComboBoxModel();
 		showNumModel.addElement(Token.NUM_ON_NAME);
 		showNumModel.addElement(Token.NUM_ON_GM);
@@ -583,26 +585,26 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setTokenNumberDisplay((String) showNumberingCombo.getSelectedItem());
 			}
 		});
-		
+
 		DefaultComboBoxModel movementMetricModel = new DefaultComboBoxModel();
 		movementMetricModel.addElement(WalkerMetric.ONE_TWO_ONE);
 		movementMetricModel.addElement(WalkerMetric.ONE_ONE_ONE);
 		movementMetricModel.addElement(WalkerMetric.MANHATTAN);
 		movementMetricModel.addElement(WalkerMetric.NO_DIAGONALS);
 		movementMetricModel.setSelectedItem(AppPreferences.getMovementMetric());
-		
+
 		movementMetricCombo.setModel(movementMetricModel);
 		movementMetricCombo.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				AppPreferences.setMovementMetric((WalkerMetric)movementMetricCombo.getSelectedItem());
 			}
 		});
-		
+
 		add(panel);
-		
+
 		pack();
 	}
-	
+
 	@Override
 	public void setVisible(boolean b) {
 
@@ -613,10 +615,10 @@ public class PreferencesDialog extends JDialog {
 	}
 
 	/**
-	 * Used by the ActionListeners of the facing checkboxes to update 
-	 * the facings for all of the current zones.   Redundant to go 
-	 * through all zones because all zones using the same grid type 
-	 * share facings but it doesn't hurt anything and avoids having to 
+	 * Used by the ActionListeners of the facing checkboxes to update
+	 * the facings for all of the current zones.   Redundant to go
+	 * through all zones because all zones using the same grid type
+	 * share facings but it doesn't hurt anything and avoids having to
 	 * track what grid types are being used.
 	 */
 	private void updateFacings() {
@@ -628,9 +630,9 @@ public class PreferencesDialog extends JDialog {
 			g.setFacings(faceEdges, faceVertices);
 		}
 	}
-	
+
 	private void setInitialState() {
-		
+
 		showDialogOnNewToken.setSelected(AppPreferences.getShowDialogOnNewToken());
 		saveReminderCheckBox.setSelected(AppPreferences.getSaveReminder());
 		fillSelectionCheckBox.setSelected(AppPreferences.getFillSelectionBox());

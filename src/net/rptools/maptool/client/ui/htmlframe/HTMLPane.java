@@ -146,7 +146,7 @@ public class HTMLPane extends JEditorPane {
 		text = text.replaceAll("\036([^\036]*)\036", "&#171;<span class='roll' style='color:blue'>&nbsp;$1&nbsp;</span>&#187;");
 
 		// Auto inline expansion
-		text = text.replaceAll("(^|\\s)(http://[a-zA-Z0-9_\\.%-/~?]+)", "$1<a href=\"$2\">$2</a>");
+		text = text.replaceAll("(^|\\s)(https?://[\\w.%-/~?&+#=]+)", "$1<a href='$2'>$2</a>");
 		super.setText(text);
 
 
