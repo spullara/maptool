@@ -408,7 +408,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			List<TokenProperty> propertyList = MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(propType);
 			if (propertyList != null) {
 				for (TokenProperty property : propertyList) {
-					if (name.equalsIgnoreCase(property.getName()) || name.equalsIgnoreCase(property.getShortName())) {
+					if (name.equalsIgnoreCase(property.getName())) {
 						val = property.getDefaultValue();
 						break;
 					}

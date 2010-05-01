@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -44,23 +44,23 @@ import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 
 public class MapToolVariableResolver extends MapVariableResolver {
-	
+
 	// Logger for this class.
 	private static final Logger LOGGER = Logger.getLogger(MapToolVariableResolver.class);
 
 
     /** The prefix for querying and setting state values . */
     public final static String          STATE_PREFIX  = "state.";
-    
+
     /** The prefix for querying and setting state values . */
     public final static String          BAR_PREFIX  = "bar.";
-    
+
     /** The variable name for querying and setting token halos. */
     public final static String          TOKEN_HALO    = "token.halo";
-    
+
     /** The variable name for querying and setting token name */
     private final static String			TOKEN_NAME 	  = "token.name";
-	
+
     /** The variable name for querying and setting token the gm name */
     private final static String			TOKEN_GMNAME  = "token.gm_name";
 
@@ -69,22 +69,22 @@ public class MapToolVariableResolver extends MapVariableResolver {
 
     /** The variable name for querying and setting the initiative of the current token. */
     public final static String          TOKEN_INITIATIVE    = "token.init";
-    
+
     /** The variable name for querying and setting the initiative of the current token. */
     public final static String          TOKEN_INITIATIVE_HOLD    = "token.initHold";
-    
+
     /** The variable name for querying and setting the current round in initiative. */
     public final static String          INITIATIVE_ROUND    = "init.round";
-    
+
     /** The variable name for querying and setting the current initiative. */
     public final static String          INITIATIVE_CURRENT    = "init.current";
-    
+
     /** The variable name for querying and setting token visible state */
     private final static String			TOKEN_VISIBLE   = "token.visible";
-    
-    
+
+
     private List<Runnable> delayedActionList;
-    
+
     private Token tokenInContext;
 
     public MapToolVariableResolver(Token tokenInContext) {
@@ -98,7 +98,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		}
     }
 
-    /** 
+    /**
      * Initialize this resolver
      * @return true if initialization actually happened, false if it's already been initialized
      */
@@ -109,7 +109,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
     	}
     	return false;
     }
-    
+
     /**
      * Add an action to be performed after the full expression has been evaluated.
      */
@@ -127,7 +127,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
     		r.run();
     	}
     }
-    
+
 	@Override
 	public boolean containsVariable(String name, VariableModifiers mods) {
 
@@ -142,15 +142,15 @@ public class MapToolVariableResolver extends MapVariableResolver {
 	public Token getTokenInContext() {
 		return tokenInContext;
 	}
-	
+
 	@Override
 	public Object getVariable(String name, VariableModifiers mods) throws ParserException {
-		
+
 		boolean evaluate = false; // Should we try to evaluate the value.
 
 		Object result = null;
 		if (tokenInContext != null) {
-			
+
 			if (name.startsWith(STATE_PREFIX)) {
                 String stateName = name.substring(STATE_PREFIX.length());
                 return TokenStateFunction.getInstance().getState(tokenInContext, stateName);
@@ -177,17 +177,17 @@ public class MapToolVariableResolver extends MapVariableResolver {
             } else if (name.equals(TOKEN_INITIATIVE_HOLD)) {
                 return TokenInitHoldFunction.getInstance().getTokenValue(tokenInContext);
             } // endif
-	
-		
+
+
 			if (this.validTokenProperty(name, tokenInContext)) {
 				result = tokenInContext.getEvaluatedProperty(name);
 			} else {
 				// If the token has no property of that name check to see if there s a defaulted
 				// value for the property for the token type.
-				List<TokenProperty> propertyList = MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(tokenInContext.getPropertyType()); 
+				List<TokenProperty> propertyList = MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(tokenInContext.getPropertyType());
 				if (propertyList != null) {
 					for (TokenProperty property : propertyList) {
-						if (name.equalsIgnoreCase(property.getName()) || name.equalsIgnoreCase(property.getShortName())) {
+						if (name.equalsIgnoreCase(property.getName())) {
 							result = property.getDefaultValue();
 							evaluate = true;
 							break;
@@ -204,7 +204,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		        return InitiativeRoundFunction.getInstance().getInitiativeRound();
 		    } // endif
 		}
-		 
+
 		// Default
 		if (result == null) {
 			result = super.getVariable(name, mods);
@@ -235,7 +235,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		} else if (result instanceof BigDecimal) {
 			value = result;
 		} else {
-			
+
 			// First we try convert it to a JSON object.
 			if (result.toString().trim().startsWith("[") || result.toString().trim().startsWith("{")) {
 				Object obj  = JSONMacroFunctions.convertToJSON(result.toString());
@@ -248,14 +248,14 @@ public class MapToolVariableResolver extends MapVariableResolver {
 			if (evaluate) {
 				// Try parse the value if we can not parse it then just return it as a string.
 				try {
-					value = MapTool.getParser().parseLine(tokenInContext, result.toString()); 
-				} catch (Exception e) { 
+					value = MapTool.getParser().parseLine(tokenInContext, result.toString());
+				} catch (Exception e) {
 					value = result.toString();
 				}
 			} else {
 				value = result.toString();
 			}
-			
+
 			// Attempt to convert to a number ...
 			try {
 				value = new BigDecimal((String)value);
@@ -265,7 +265,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		}
 		return value;
 	}
-	
+
 	@Override
 	public void setVariable(String varname, VariableModifiers modifiers, Object value) throws ParserException {
 
@@ -276,7 +276,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
                 return;
             }
         }
-		
+
         // Check to see if it is a token state.
         if (varname.startsWith(STATE_PREFIX)) {
             String stateName = varname.substring(STATE_PREFIX.length());
@@ -324,7 +324,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
 
     /**
      * Gets the boolean value of the tokens state.
-     * 
+     *
      * @param token
      *            The token to get the state of.
      * @param stateName
@@ -342,14 +342,14 @@ public class MapToolVariableResolver extends MapVariableResolver {
                 return Integer.parseInt(val.toString()) != 0;
             } catch (NumberFormatException e) {
                 return Boolean.parseBoolean(val.toString());
-            }		
+            }
         }
     }
-    
-    
+
+
     /**
      * Sets the boolean state of a token.
-     * 
+     *
      * @param token
      *            The token to set the state of.
      * @param stateName
@@ -372,10 +372,10 @@ public class MapToolVariableResolver extends MapVariableResolver {
             token.setState(stateName, set);
         }
     }
-    
+
     /**
      * Checks to see if the specified property is valid for the token.
-     * 
+     *
      * @param prop
      *            The name of the property to check.
      * @param token
@@ -394,7 +394,7 @@ public class MapToolVariableResolver extends MapVariableResolver {
     /**
      * Sets the value of all token states.
      * @param token The token to set the state of.
-     * @param val set or unset the state. 
+     * @param val set or unset the state.
      */
     private void setAllBooleanTokenStates(Token token, Object value) {
     	for (Object stateName : MapTool.getCampaign().getTokenStatesMap().keySet()) {
@@ -403,18 +403,18 @@ public class MapToolVariableResolver extends MapVariableResolver {
     }
 
     /**
-     * Sets the token that is in context for this variable resolver. You will only ever need to 
+     * Sets the token that is in context for this variable resolver. You will only ever need to
      * call this method if you want to change the in context token mid macro.
      * @param token The new token in context.
      */
 	public void setTokenIncontext(Token token) {
 		tokenInContext = token;
 	}
-    
+
 	public static class PutTokenAction implements Runnable {
-		private GUID zoneId;
-		private Token token;
-		
+		private final GUID zoneId;
+		private final Token token;
+
 		public PutTokenAction(GUID zoneId, Token token) {
 			this.zoneId = zoneId;
 			this.token = token;
@@ -423,17 +423,17 @@ public class MapToolVariableResolver extends MapVariableResolver {
 		public void run() {
 	 		MapTool.serverCommand().putToken(zoneId, token);
 		}
-		
+
 		@Override
 		public boolean equals(Object obj) {
 			if (!(obj instanceof PutTokenAction)) {
 				return false;
 			}
-			
+
 			PutTokenAction other = (PutTokenAction)obj;
-			
+
 			return zoneId.equals(other.zoneId) && token.equals(other.token);
 		}
 	}
-	
+
 }

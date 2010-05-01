@@ -916,7 +916,7 @@ public class Token extends BaseModel {
 			List<TokenProperty> propertyList = MapTool.getCampaign().getCampaignProperties().getTokenPropertyList(propertyType);
 			if (propertyList != null) {
 				for (TokenProperty property : propertyList) {
-					if (key.equalsIgnoreCase(property.getName()) || key.equalsIgnoreCase(property.getShortName())) {
+					if (key.equalsIgnoreCase(property.getName())) {
 						val = property.getDefaultValue();
 						break;
 					}

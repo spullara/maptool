@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package net.rptools.maptool.client.ui.token;
@@ -93,7 +90,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	private GenericDialog dialog;
 
 	private ImageAssetPanel imagePanel;
-//	private CharSheetController controller;
+	// private CharSheetController controller;
 
 	/**
 	 * The size used to constrain the icon.
@@ -107,7 +104,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	 *            The token being displayed.
 	 */
 	public EditTokenDialog() {
-		super("net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.xml");
+		super("net/rptools/maptool/client/ui/forms/tokenPropertiesDialog.jfrm");
 
 		panelInit();
 	}
@@ -127,7 +124,8 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		dialog = new GenericDialog("Edit Token", MapTool.getFrame(), this) {
 			@Override
 			public void closeDialog() {
-				// TODO: I don't like this.  There should really be a AbeilleDialog class that does this
+				// TODO: I don't like this. There should really be a
+				// AbeilleDialog class that does this
 				unbind();
 				super.closeDialog();
 			}
@@ -157,33 +155,33 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		updateStatesPanel();
 		Component[] statePanels = getStatesPanel().getComponents();
 		for (int j = 0; j < statePanels.length; j++) {
-		    if ("bar".equals(statePanels[j].getName())) {
-		        barPanel = statePanels[j];
-		        continue;
-		    }
-		    Component[] states = ((Container)statePanels[j]).getComponents();
-		    for (int i = 0; i < states.length; i++) {
-		        JCheckBox state = (JCheckBox) states[i];
-		        state.setSelected(AbstractTokenAccessorFunction.getBooleanValue(token.getState(state.getText())));
-		    }
+			if ("bar".equals(statePanels[j].getName())) {
+				barPanel = statePanels[j];
+				continue;
+			}
+			Component[] states = ((Container) statePanels[j]).getComponents();
+			for (int i = 0; i < states.length; i++) {
+				JCheckBox state = (JCheckBox) states[i];
+				state.setSelected(AbstractTokenAccessorFunction.getBooleanValue(token.getState(state.getText())));
+			}
 		}
 
 		// BARS
 		if (barPanel != null) {
-		    Component[] bars = ((Container)barPanel).getComponents();
-		    for (int i = 0; i < bars.length; i += 2) {
-                JCheckBox cb = (JCheckBox)((Container)bars[i]).getComponent(1);
-		        JSlider bar = (JSlider) bars[i + 1];
-		        if (token.getState(bar.getName()) == null) {
-		            cb.setSelected(true);
-		            bar.setEnabled(false);
-		            bar.setValue(100);
-		        } else {
-                    cb.setSelected(false);
-                    bar.setEnabled(true);
-		            bar.setValue((int)(TokenBarFunction.getBigDecimalValue(token.getState(bar.getName())).doubleValue() * 100));
-		        }
-		    }
+			Component[] bars = ((Container) barPanel).getComponents();
+			for (int i = 0; i < bars.length; i += 2) {
+				JCheckBox cb = (JCheckBox) ((Container) bars[i]).getComponent(1);
+				JSlider bar = (JSlider) bars[i + 1];
+				if (token.getState(bar.getName()) == null) {
+					cb.setSelected(true);
+					bar.setEnabled(false);
+					bar.setValue(100);
+				} else {
+					cb.setSelected(false);
+					bar.setEnabled(true);
+					bar.setValue((int) (TokenBarFunction.getBigDecimalValue(token.getState(bar.getName())).doubleValue() * 100));
+				}
+			}
 		}
 
 		// OWNER LIST
@@ -200,10 +198,11 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 			}
 		});
 
-//		Player player = MapTool.getPlayer();
-//				boolean editable = player.isGM()
-//						|| !MapTool.getServerPolicy().useStrictTokenManagement() || token.isOwner(player.getName());
-//		getAllPlayersCheckBox().setSelected(token.isOwnedByAll());
+		// Player player = MapTool.getPlayer();
+		// boolean editable = player.isGM()
+		// || !MapTool.getServerPolicy().useStrictTokenManagement() ||
+		// token.isOwner(player.getName());
+		// getAllPlayersCheckBox().setSelected(token.isOwnedByAll());
 
 		// OTHER
 		getShapeCombo().setSelectedItem(token.getShape());
@@ -219,24 +218,27 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		getTokenLayoutPanel().setToken(token);
 
 		// Character Sheets
-//        controller = null;
-//        String form = MapTool.getCampaign().getCharacterSheets().get(token.getPropertyType());
-//        if (form == null) return;
-//        URL formUrl = getClass().getClassLoader().getResource(form);
-//        if (formUrl == null) return;
-//        controller = new CharSheetController(formUrl, null);
-//        HashMap<String, Object> properties = new HashMap<String, Object>();
-//        for (String prop : token.getPropertyNames())
-//            properties.put(prop, token.getProperty(prop));
-//        controller.setData(properties);
-//        controller.getPanel().setName("characterSheet");
-//        replaceComponent("sheetPanel", "characterSheet", controller.getPanel());
-
+/*
+ 		controller = null;
+		String form = MapTool.getCampaign().getCharacterSheets().get(token.getPropertyType());
+		if (form == null)
+			return;
+		URL formUrl = getClass().getClassLoader().getResource(form);
+		if (formUrl == null)
+			return;
+		controller = new CharSheetController(formUrl, null);
+		HashMap<String, Object> properties = new HashMap<String, Object>();
+		for (String prop : token.getPropertyNames())
+			properties.put(prop, token.getProperty(prop));
+		controller.setData(properties);
+		controller.getPanel().setName("characterSheet");
+		replaceComponent("sheetPanel", "characterSheet", controller.getPanel());
+*/
 		super.bind(token);
 	}
 
 	public JTabbedPane getTabbedPane() {
-		return (JTabbedPane)getComponent("tabs");
+		return (JTabbedPane) getComponent("tabs");
 	}
 
 	public JTextArea getNotesTextArea() {
@@ -247,23 +249,23 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		return (JTextArea) getComponent("@GMNotes");
 	}
 
-//	private JLabel getGMNameLabel() {
-//		return (JLabel) getComponent("tokenGMNameLabel");
-//	}
-//
-//	public JTextField getNameTextField() {
-//		return (JTextField) getComponent("tokenName");
-//	}
-//
-//	public JTextField getGMNameTextField() {
-//		return (JTextField) getComponent("tokenGMName");
-//	}
+	// private JLabel getGMNameLabel() {
+	// return (JLabel) getComponent("tokenGMNameLabel");
+	// }
+	//
+	// public JTextField getNameTextField() {
+	// return (JTextField) getComponent("tokenName");
+	// }
+	//
+	// public JTextField getGMNameTextField() {
+	// return (JTextField) getComponent("tokenGMName");
+	// }
 
 	public void initTypeCombo() {
 		DefaultComboBoxModel model = new DefaultComboBoxModel();
 		model.addElement(Token.Type.NPC);
 		model.addElement(Token.Type.PC);
-//		getTypeCombo().setModel(model);
+		// getTypeCombo().setModel(model);
 	}
 
 	public JComboBox getTypeCombo() {
@@ -311,7 +313,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		getPropertyTypeCombo().setModel(model);
 		getPropertyTypeCombo().addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
-				updatePropertiesTable((String)getPropertyTypeCombo().getSelectedItem());
+				updatePropertiesTable((String) getPropertyTypeCombo().getSelectedItem());
 			}
 		});
 	}
@@ -381,76 +383,78 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		}
 
 		// Other
-		token.setPropertyType((String)getPropertyTypeCombo().getSelectedItem());
-		token.setSightType((String)getSightTypeCombo().getSelectedItem());
+		token.setPropertyType((String) getPropertyTypeCombo().getSelectedItem());
+		token.setSightType((String) getSightTypeCombo().getSelectedItem());
 
 		// Get the states
-        Component[] stateComponents = getStatesPanel().getComponents();
-        Component barPanel = null;
-        for (int j = 0; j < stateComponents.length; j++) {
-            if ("bar".equals(stateComponents[j].getName())) {
-                barPanel = stateComponents[j];
-                continue;
-            }
-            Component[] components = ((Container)stateComponents[j]).getComponents();
-            for (int i = 0; i < components.length; i++) {
-                JCheckBox cb = (JCheckBox) components[i];
-                String state = cb.getText();
-                token.setState(state, cb.isSelected() ? Boolean.TRUE : Boolean.FALSE);
-            }
-        } // endfor
+		Component[] stateComponents = getStatesPanel().getComponents();
+		Component barPanel = null;
+		for (int j = 0; j < stateComponents.length; j++) {
+			if ("bar".equals(stateComponents[j].getName())) {
+				barPanel = stateComponents[j];
+				continue;
+			}
+			Component[] components = ((Container) stateComponents[j]).getComponents();
+			for (int i = 0; i < components.length; i++) {
+				JCheckBox cb = (JCheckBox) components[i];
+				String state = cb.getText();
+				token.setState(state, cb.isSelected() ? Boolean.TRUE : Boolean.FALSE);
+			}
+		} // endfor
 
-        // BARS
-        if (barPanel != null) {
-            Component[] bars = ((Container)barPanel).getComponents();
-            for (int i = 0; i < bars.length; i += 2) {
-                JCheckBox cb = (JCheckBox)((Container)bars[i]).getComponent(1);
-                JSlider bar = (JSlider) bars[i + 1];
-                BigDecimal value = cb.isSelected() ? null : new BigDecimal(bar.getValue()).divide(new BigDecimal(100));
-                token.setState(bar.getName(), value);
-                bar.setValue((int)(TokenBarFunction.getBigDecimalValue(token.getState(bar.getName())).doubleValue() * 100));
-            }
-        }
+		// BARS
+		if (barPanel != null) {
+			Component[] bars = ((Container) barPanel).getComponents();
+			for (int i = 0; i < bars.length; i += 2) {
+				JCheckBox cb = (JCheckBox) ((Container) bars[i]).getComponent(1);
+				JSlider bar = (JSlider) bars[i + 1];
+				BigDecimal value = cb.isSelected() ? null : new BigDecimal(bar.getValue()).divide(new BigDecimal(100));
+				token.setState(bar.getName(), value);
+				bar.setValue((int) (TokenBarFunction.getBigDecimalValue(token.getState(bar.getName())).doubleValue() * 100));
+			}
+		}
 
-        // Ownership
-        // If the token is owned by all and we are a player don't alter the ownership list.
-        if (MapTool.getPlayer().isGM() || !token.isOwnedByAll()) {
+		// Ownership
+		// If the token is owned by all and we are a player don't alter the
+		// ownership list.
+		if (MapTool.getPlayer().isGM() || !token.isOwnedByAll()) {
 
-        	token.clearAllOwners();
+			token.clearAllOwners();
 
-        	for (int i = 0; i < getOwnerList().getModel().getSize(); i++) {
-        		DefaultSelectable selectable = (DefaultSelectable) getOwnerList().getModel().getElementAt(i);
-        		if (selectable.isSelected()) {
-        			token.addOwner((String) selectable.getObject());
-        		}
-        	}
+			for (int i = 0; i < getOwnerList().getModel().getSize(); i++) {
+				DefaultSelectable selectable = (DefaultSelectable) getOwnerList().getModel().getElementAt(i);
+				if (selectable.isSelected()) {
+					token.addOwner((String) selectable.getObject());
+				}
+			}
 
-        	// If we are not a GM and the only non GM owner make sure we can't take our selves off of the owners list
-        	if (!MapTool.getPlayer().isGM()) {
-        		boolean hasPlayer = false;
-        		Set<String> owners = token.getOwners();
-        		if (owners != null) {
-        			Iterator<Player> playerIter = MapTool.getPlayerList().iterator();
-        			while (playerIter.hasNext()) {
-        				Player pl = playerIter.next();
-        				if (!pl.isGM() && owners.contains(pl.getName())) {
-        					hasPlayer = true;
-        				}
-        			}
-        		}
-        		if (!hasPlayer) {
-        			token.addOwner(MapTool.getPlayer().getName());
-        		}
-        	}
-        }
+			// If we are not a GM and the only non GM owner make sure we can't
+			// take our selves off of the owners list
+			if (!MapTool.getPlayer().isGM()) {
+				boolean hasPlayer = false;
+				Set<String> owners = token.getOwners();
+				if (owners != null) {
+					Iterator<Player> playerIter = MapTool.getPlayerList().iterator();
+					while (playerIter.hasNext()) {
+						Player pl = playerIter.next();
+						if (!pl.isGM() && owners.contains(pl.getName())) {
+							hasPlayer = true;
+						}
+					}
+				}
+				if (!hasPlayer) {
+					token.addOwner(MapTool.getPlayer().getName());
+				}
+			}
+		}
 		// SHAPE
-		token.setShape((Token.TokenShape)getShapeCombo().getSelectedItem());
+		token.setShape((Token.TokenShape) getShapeCombo().getSelectedItem());
 
 		// Macros
-		token.setSpeechMap(((KeyValueTableModel)getSpeechTable().getModel()).getMap());
+		token.setSpeechMap(((KeyValueTableModel) getSpeechTable().getModel()).getMap());
 
 		// Properties
-		((TokenPropertyTableModel)getPropertyTable().getModel()).applyTo(token);
+		((TokenPropertyTableModel) getPropertyTable().getModel()).applyTo(token);
 
 		// Charsheet
 		if (getCharSheetPanel().getImageId() != null) {
@@ -461,7 +465,10 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		// IMAGE
 		if (!token.getImageAssetId().equals(getTokenIconPanel().getImageId())) {
 			MapToolUtil.uploadAsset(AssetManager.getAsset(getTokenIconPanel().getImageId()));
-			token.setImageAsset(null, getTokenIconPanel().getImageId()); // Default image for now
+			token.setImageAsset(null, getTokenIconPanel().getImageId()); // Default
+			// image
+			// for
+			// now
 		}
 
 		// PORTRAIT
@@ -480,10 +487,10 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		// OTHER
 		tokenSaved = true;
 
-//		// Character Sheet
-//		Map<String, Object> properties = controller.getData();
-//        for (String prop : token.getPropertyNames())
-//            token.setProperty(prop, properties.get(prop));
+		// // Character Sheet
+		// Map<String, Object> properties = controller.getData();
+		// for (String prop : token.getPropertyNames())
+		// token.setProperty(prop, properties.get(prop));
 
 		// Update UI
 		MapTool.getFrame().updateTokenTree();
@@ -515,95 +522,96 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 	private void updateStatesPanel() {
 
-	    // Group the states first into individual panels
-        List<BooleanTokenOverlay> overlays = new ArrayList<BooleanTokenOverlay>(MapTool.getCampaign().getTokenStatesMap().values());
-        Map<String, JPanel> groups = new TreeMap<String, JPanel>();
-        groups.put("", new JPanel(new FormLayout("0px:grow 2px 0px:grow 2px 0px:grow 2px 0px:grow")));
-        for (BooleanTokenOverlay overlay : overlays) {
-            String group = overlay.getGroup();
-            if (group != null && (group = group.trim()).length() != 0) {
-                JPanel panel = groups.get(group);
-                if (panel == null) {
-                    panel = new JPanel(new FormLayout("0px:grow 2px 0px:grow 2px 0px:grow 2px 0px:grow"));
-                    panel.setBorder(BorderFactory.createTitledBorder(group));
-                    groups.put(group, panel);
-                }
-            }
-        }
+		// Group the states first into individual panels
+		List<BooleanTokenOverlay> overlays = new ArrayList<BooleanTokenOverlay>(MapTool.getCampaign().getTokenStatesMap().values());
+		Map<String, JPanel> groups = new TreeMap<String, JPanel>();
+		groups.put("", new JPanel(new FormLayout("0px:grow 2px 0px:grow 2px 0px:grow 2px 0px:grow")));
+		for (BooleanTokenOverlay overlay : overlays) {
+			String group = overlay.getGroup();
+			if (group != null && (group = group.trim()).length() != 0) {
+				JPanel panel = groups.get(group);
+				if (panel == null) {
+					panel = new JPanel(new FormLayout("0px:grow 2px 0px:grow 2px 0px:grow 2px 0px:grow"));
+					panel.setBorder(BorderFactory.createTitledBorder(group));
+					groups.put(group, panel);
+				}
+			}
+		}
 
-        // Add the group panels and bar panel to the states panel
-	    JPanel panel = getStatesPanel();
-	    panel.removeAll();
+		// Add the group panels and bar panel to the states panel
+		JPanel panel = getStatesPanel();
+		panel.removeAll();
 		FormLayout layout = new FormLayout("0px:grow");
 		panel.setLayout(layout);
 		int row = 1;
 		for (JPanel gPanel : groups.values()) {
-            layout.appendRow(new RowSpec("pref"));
-            layout.appendRow(new RowSpec("2px"));
-            panel.add(gPanel, new CellConstraints(1, row));
-            row += 2;
-        }
-        layout.appendRow(new RowSpec("pref"));
-        layout.appendRow(new RowSpec("2px"));
-        JPanel barPanel = new JPanel(new FormLayout("right:pref 2px pref 5px right:pref 2px pref"));
-        panel.add(barPanel, new CellConstraints(1, row));
+			layout.appendRow(new RowSpec("pref"));
+			layout.appendRow(new RowSpec("2px"));
+			panel.add(gPanel, new CellConstraints(1, row));
+			row += 2;
+		}
+		layout.appendRow(new RowSpec("pref"));
+		layout.appendRow(new RowSpec("2px"));
+		JPanel barPanel = new JPanel(new FormLayout("right:pref 2px pref 5px right:pref 2px pref"));
+		panel.add(barPanel, new CellConstraints(1, row));
 
 		// Add the individual check boxes.
-        for (BooleanTokenOverlay state : overlays) {
-            String group = state.getGroup();
-            panel = groups.get("");
-            if (group != null && (group = group.trim()).length() != 0)
-                panel = groups.get(group);
-            int x = panel.getComponentCount() % 4;
-            int y = panel.getComponentCount() / 4;
-            if (x == 0) {
-                layout = (FormLayout)panel.getLayout();
-                if (y != 0) layout.appendRow(new RowSpec("2px"));
-                layout.appendRow(new RowSpec("pref"));
-            }
+		for (BooleanTokenOverlay state : overlays) {
+			String group = state.getGroup();
+			panel = groups.get("");
+			if (group != null && (group = group.trim()).length() != 0)
+				panel = groups.get(group);
+			int x = panel.getComponentCount() % 4;
+			int y = panel.getComponentCount() / 4;
+			if (x == 0) {
+				layout = (FormLayout) panel.getLayout();
+				if (y != 0)
+					layout.appendRow(new RowSpec("2px"));
+				layout.appendRow(new RowSpec("pref"));
+			}
 			panel.add(new JCheckBox(state.getName()), new CellConstraints(x * 2 + 1, y * 2 + 1));
 		}
 
-        // Add sliders to the bar panel
-        if (MapTool.getCampaign().getTokenBarsMap().size() > 0) {
-            layout = (FormLayout)barPanel.getLayout();
-            barPanel.setName("bar");
-            barPanel.setBorder(BorderFactory.createTitledBorder("Bars"));
-            int count = 0;
-            row = 0;
-            for (BarTokenOverlay bar : MapTool.getCampaign().getTokenBarsMap().values()) {
-                int working = count % 2;
-                if (working == 0) { // slider row
-                    layout.appendRow(new RowSpec("pref"));
-                    row += 1;
-                }
-                JPanel labelPanel = new JPanel(new FormLayout("pref", "pref 2px:grow pref"));
-                barPanel.add(labelPanel, new CellConstraints(1 + working * 4, row));
-                labelPanel.add(new JLabel(bar.getName() + ":"), new CellConstraints(1, 1, CellConstraints.RIGHT, CellConstraints.TOP));
-                JSlider slider = new JSlider(0, 100);
-                JCheckBox hide = new JCheckBox("Hide");
-                hide.putClientProperty("JSlider", slider);
-                hide.addChangeListener(new ChangeListener() {
-                    public void stateChanged(ChangeEvent e) {
-                        JSlider js = (JSlider)((JCheckBox)e.getSource()).getClientProperty("JSlider");
-                        js.setEnabled(!((JCheckBox)e.getSource()).isSelected());
-                    }
-                });
-                labelPanel.add(hide, new CellConstraints(1, 3, CellConstraints.RIGHT, CellConstraints.TOP));
-                slider.setName(bar.getName());
-                slider.setPaintLabels(true);
-                slider.setPaintTicks(true);
-                slider.setMajorTickSpacing(20);
-                slider.createStandardLabels(20);
-                slider.setMajorTickSpacing(10);
-                barPanel.add(slider, new CellConstraints(3 + working * 4, row));
-                if (working != 0) { // spacer row
-                    layout.appendRow(new RowSpec("2px"));
-                    row += 1;
-                }
-                count += 1;
-            }
-        }
+		// Add sliders to the bar panel
+		if (MapTool.getCampaign().getTokenBarsMap().size() > 0) {
+			layout = (FormLayout) barPanel.getLayout();
+			barPanel.setName("bar");
+			barPanel.setBorder(BorderFactory.createTitledBorder("Bars"));
+			int count = 0;
+			row = 0;
+			for (BarTokenOverlay bar : MapTool.getCampaign().getTokenBarsMap().values()) {
+				int working = count % 2;
+				if (working == 0) { // slider row
+					layout.appendRow(new RowSpec("pref"));
+					row += 1;
+				}
+				JPanel labelPanel = new JPanel(new FormLayout("pref", "pref 2px:grow pref"));
+				barPanel.add(labelPanel, new CellConstraints(1 + working * 4, row));
+				labelPanel.add(new JLabel(bar.getName() + ":"), new CellConstraints(1, 1, CellConstraints.RIGHT, CellConstraints.TOP));
+				JSlider slider = new JSlider(0, 100);
+				JCheckBox hide = new JCheckBox("Hide");
+				hide.putClientProperty("JSlider", slider);
+				hide.addChangeListener(new ChangeListener() {
+					public void stateChanged(ChangeEvent e) {
+						JSlider js = (JSlider) ((JCheckBox) e.getSource()).getClientProperty("JSlider");
+						js.setEnabled(!((JCheckBox) e.getSource()).isSelected());
+					}
+				});
+				labelPanel.add(hide, new CellConstraints(1, 3, CellConstraints.RIGHT, CellConstraints.TOP));
+				slider.setName(bar.getName());
+				slider.setPaintLabels(true);
+				slider.setPaintTicks(true);
+				slider.setMajorTickSpacing(20);
+				slider.createStandardLabels(20);
+				slider.setMajorTickSpacing(10);
+				barPanel.add(slider, new CellConstraints(3 + working * 4, row));
+				if (working != 0) { // spacer row
+					layout.appendRow(new RowSpec("2px"));
+					row += 1;
+				}
+				count += 1;
+			}
+		}
 
 	}
 
@@ -657,13 +665,15 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 	}
 
-//	public void initNotesPanel() {
-//		getNotesTextArea().addMouseListener(new MouseHandler(getNotesTextArea()));
-//		getGMNotesTextArea().addMouseListener(new MouseHandler(getGMNotesTextArea()));
-//	}
+	// public void initNotesPanel() {
+	// getNotesTextArea().addMouseListener(new
+	// MouseHandler(getNotesTextArea()));
+	// getGMNotesTextArea().addMouseListener(new
+	// MouseHandler(getGMNotesTextArea()));
+	// }
 
 	public void initTokenDetails() {
-//		tokenGMNameLabel = panel.getLabel("tokenGMNameLabel");
+		// tokenGMNameLabel = panel.getLabel("tokenGMNameLabel");
 	}
 
 	public void initTokenLayoutPanel() {
@@ -715,78 +725,80 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		replaceComponent("propertiesPanel", "propertiesTable", pane);
 	}
 
+	// /**
+	// * Set the currently displayed token.
+	// *
+	// * @param aToken
+	// * The token to be displayed
+	// */
+	// public void setToken(Token aToken) {
+	//
+	// if (aToken == token)
+	// return;
+	// if (token != null) {
+	// token.removeModelChangeListener(this);
+	// }
+	//
+	// token = aToken;
+	//
+	// if (token != null) {
+	// token.addModelChangeListener(this);
+	//
+	// List<String> typeList = new ArrayList<String>();
+	// typeList.addAll(MapTool.getCampaign().getTokenTypes());
+	// Collections.sort(typeList);
+	// getPropertyTypeCombo().setModel(new
+	// DefaultComboBoxModel(typeList.toArray()));
+	//
+	// setFields();
+	// updateView();
+	// }
+	//
+	// getTabbedPane().setSelectedIndex(0);
+	// }
 
-//	/**
-//	 * Set the currently displayed token.
-//	 *
-//	 * @param aToken
-//	 *            The token to be displayed
-//	 */
-//	public void setToken(Token aToken) {
-//
-//		if (aToken == token)
-//			return;
-//		if (token != null) {
-//			token.removeModelChangeListener(this);
-//		}
-//
-//		token = aToken;
-//
-//		if (token != null) {
-//			token.addModelChangeListener(this);
-//
-//			List<String> typeList = new ArrayList<String>();
-//			typeList.addAll(MapTool.getCampaign().getTokenTypes());
-//			Collections.sort(typeList);
-//			getPropertyTypeCombo().setModel(new DefaultComboBoxModel(typeList.toArray()));
-//
-//			setFields();
-//			updateView();
-//		}
-//
-//		getTabbedPane().setSelectedIndex(0);
-//	}
-
-//	private void updateView() {
-//
-//		Player player = MapTool.getPlayer();
-//
-//		boolean isEnabled = player.isGM() || token.isOwner(player.getName());
-//
-//		getTabbedPane().setEnabledAt(INDX_PROPERTIES, isEnabled);
-//		getTabbedPane().setEnabledAt(INDX_STATE, isEnabled);
-//		getTabbedPane().setEnabledAt(INDX_MACROS, isEnabled);
-//		getTabbedPane().setEnabledAt(INDX_SPEECH, isEnabled);
-//		getTabbedPane().setEnabledAt(INDX_OWNERSHIP, isEnabled);
-//		getTabbedPane().setEnabledAt(INDX_CONFIG, isEnabled);
-//
-//		// Set the editable & enabled state
-//		boolean editable = player.isGM() || !MapTool.getServerPolicy().useStrictTokenManagement() || token.isOwner(player.getName());
-//		getOKButton().setEnabled(editable);
-//
-//		getNotesTextArea().setEditable(editable);
-//		getNameTextField().setEditable(editable);
-//		getShapeCombo().setEnabled(editable);
-//		getSizeCombo().setEnabled(editable);
-//		getSnapToGridCheckBox().setEnabled(editable);
-//		getVisibleCheckBox().setEnabled(editable);
-//		getTypeCombo().setSelectedItem(token.getType());
-//
-//		getGMNotesPanel().setVisible(player.isGM());
-//		getGMNameTextField().setVisible(player.isGM());
-//		getGMNameLabel().setVisible(player.isGM());
-//		getTypeCombo().setEnabled(player.isGM());
-//		getVisibleCheckBox().setVisible(player.isGM());
-//		getVisibleLabel().setVisible(player.isGM());
-//
-//	}
+	// private void updateView() {
+	//
+	// Player player = MapTool.getPlayer();
+	//
+	// boolean isEnabled = player.isGM() || token.isOwner(player.getName());
+	//
+	// getTabbedPane().setEnabledAt(INDX_PROPERTIES, isEnabled);
+	// getTabbedPane().setEnabledAt(INDX_STATE, isEnabled);
+	// getTabbedPane().setEnabledAt(INDX_MACROS, isEnabled);
+	// getTabbedPane().setEnabledAt(INDX_SPEECH, isEnabled);
+	// getTabbedPane().setEnabledAt(INDX_OWNERSHIP, isEnabled);
+	// getTabbedPane().setEnabledAt(INDX_CONFIG, isEnabled);
+	//
+	// // Set the editable & enabled state
+	// boolean editable = player.isGM() ||
+	// !MapTool.getServerPolicy().useStrictTokenManagement() ||
+	// token.isOwner(player.getName());
+	// getOKButton().setEnabled(editable);
+	//
+	// getNotesTextArea().setEditable(editable);
+	// getNameTextField().setEditable(editable);
+	// getShapeCombo().setEnabled(editable);
+	// getSizeCombo().setEnabled(editable);
+	// getSnapToGridCheckBox().setEnabled(editable);
+	// getVisibleCheckBox().setEnabled(editable);
+	// getTypeCombo().setSelectedItem(token.getType());
+	//
+	// getGMNotesPanel().setVisible(player.isGM());
+	// getGMNameTextField().setVisible(player.isGM());
+	// getGMNameLabel().setVisible(player.isGM());
+	// getTypeCombo().setEnabled(player.isGM());
+	// getVisibleCheckBox().setVisible(player.isGM());
+	// getVisibleLabel().setVisible(player.isGM());
+	//
+	// }
 
 	/** @return Getter for tokenSaved */
 	public boolean isTokenSaved() {
 		return tokenSaved;
 	}
 
-	////
+	// //
 	// HANDLER
 	public class MouseHandler extends MouseAdapter {
 
@@ -840,12 +852,12 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 				menu.add(sendAsEmoteItem);
 
-				menu.show((JComponent)e.getSource(), e.getX(), e.getY());
+				menu.show((JComponent) e.getSource(), e.getX(), e.getY());
 			}
 		}
 	}
 
-	////
+	// //
 	// MODELS
 	private class TokenPropertyTableModel extends AbstractPropertyTableModel {
 
@@ -872,7 +884,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 		private List<net.rptools.maptool.model.TokenProperty> getPropertyList() {
 			if (propertyList == null) {
-				propertyList = MapTool.getCampaign().getTokenPropertyList((String)getPropertyTypeCombo().getSelectedItem());
+				propertyList = MapTool.getCampaign().getTokenPropertyList((String) getPropertyTypeCombo().getSelectedItem());
 			}
 			return propertyList;
 		}
@@ -882,7 +894,9 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 			for (net.rptools.maptool.model.TokenProperty property : getPropertyList()) {
 				String value = getPropertyMap().get(property.getName());
 				if (property.getDefaultValue() != null && property.getDefaultValue().equals(value)) {
-					token.setProperty(property.getName(), null); // Clear original value
+					token.setProperty(property.getName(), null); // Clear
+					// original
+					// value
 					continue;
 				}
 
@@ -905,7 +919,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 			private final String key;
 
 			public TokenProperty(String key) {
-				super(key, key, String.class, (String)getPropertyTypeCombo().getSelectedItem());
+				super(key, key, String.class, (String) getPropertyTypeCombo().getSelectedItem());
 				this.key = key;
 			}
 
@@ -916,7 +930,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 			@Override
 			public void setValue(Object value) {
-				getPropertyMap().put(key, (String)value);
+				getPropertyMap().put(key, (String) value);
 			}
 
 			@Override
@@ -956,6 +970,7 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		public Object getElementAt(int index) {
 			return ownerList.get(index);
 		}
+
 		public int getSize() {
 			return ownerList.size();
 		}
@@ -977,14 +992,18 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 			});
 			init(rowList);
 		}
+
 		public SpeechTableModel() {
 			init(new ArrayList<Association<String, String>>());
 		}
+
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
-			case 0: return "ID";
-			case 1: return "Speech Text";
+			case 0:
+				return "ID";
+			case 1:
+				return "Speech Text";
 			}
 			return "";
 		}
@@ -1002,30 +1021,41 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 		public int getColumnCount() {
 			return 2;
 		}
+
 		public int getRowCount() {
 			return rowList.size() + 1;
 		}
+
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			if (rowIndex == getRowCount() - 1) {
-				switch(columnIndex) {
-				case 0: return newRow.getLeft();
-				case 1: return newRow.getRight();
+				switch (columnIndex) {
+				case 0:
+					return newRow.getLeft();
+				case 1:
+					return newRow.getRight();
 				}
 				return "";
 			}
 
 			switch (columnIndex) {
-			case 0: return rowList.get(rowIndex).getLeft();
-			case 1: return rowList.get(rowIndex).getRight();
+			case 0:
+				return rowList.get(rowIndex).getLeft();
+			case 1:
+				return rowList.get(rowIndex).getRight();
 			}
 			return "";
 		}
+
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 			if (rowIndex == getRowCount() - 1) {
-				switch(columnIndex) {
-				case 0: newRow.setLeft((String)aValue); break;
-				case 1: newRow.setRight((String)aValue); break;
+				switch (columnIndex) {
+				case 0:
+					newRow.setLeft((String) aValue);
+					break;
+				case 1:
+					newRow.setRight((String) aValue);
+					break;
 				}
 
 				rowList.add(newRow);
@@ -1033,19 +1063,27 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 				return;
 			}
 
-			switch(columnIndex) {
-			case 0: rowList.get(rowIndex).setLeft((String)aValue); break;
-			case 1: rowList.get(rowIndex).setRight((String)aValue); break;
+			switch (columnIndex) {
+			case 0:
+				rowList.get(rowIndex).setLeft((String) aValue);
+				break;
+			case 1:
+				rowList.get(rowIndex).setRight((String) aValue);
+				break;
 			}
 		}
+
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
-			case 0: return "Key";
-			case 1: return "Value";
+			case 0:
+				return "Key";
+			case 1:
+				return "Value";
 			}
 			return "";
 		}
+
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
 			return true;
