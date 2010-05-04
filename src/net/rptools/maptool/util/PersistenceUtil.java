@@ -25,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,6 +58,7 @@ import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
+import net.rptools.maptool.model.transform.campaign.AssetNameTransform;
 import net.rptools.maptool.model.transform.campaign.PCVisionTransform;
 
 import org.apache.log4j.Logger;
@@ -76,9 +78,10 @@ public class PersistenceUtil {
 	private static final String PROP_CAMPAIGN_VERSION = "campaignVersion";
 	private static final String ASSET_DIR = "assets/";
 
-	private static final String CAMPAIGN_VERSION = "1.3.51";
+	private static final String CAMPAIGN_VERSION = "1.3.64";
 
 	private static final ModelVersionManager campaignVersionManager = new ModelVersionManager();
+	private static final ModelVersionManager assetnameVersionManager = new ModelVersionManager();
 
 	static {
 		PackedFile.init(AppUtil.getAppHome("tmp"));
@@ -88,6 +91,13 @@ public class PersistenceUtil {
 		// This gives us a rough estimate how far backwards compatible the model is
 		// If you need sub-minor version level granularity, simply add another dot value at the end (e.g. 1.3.51.1)
 		campaignVersionManager.registerTransformation("1.3.51", new PCVisionTransform());
+
+		// For a short time, assets were stored separately in files ending with ".dat".  As of 1.3.64, they are
+		// stored in separate files using the correct filename extension for the image type.  This transform
+		// is used to convert asset filenames and not XML.  Old assets with the image embedded as Base64
+		// text are still supported for reading by using an XStream custom Converter.  See the Asset
+		// class for the annotation used to reference the converter.
+		assetnameVersionManager.registerTransformation("1.3.51", new AssetNameTransform("^(.*)\\.(dat)?$", "$1"));
 	}
 
 	public static class PersistedMap {
@@ -112,14 +122,7 @@ public class PersistenceUtil {
 		pMap.zone = z;
 
 		// Save all assets in active use (consolidate dups)
-		for (MD5Key key : z.getAllAssetIds()) {
-
-			// Put in a placeholder
-			pMap.assetMap.put(key, null);
-
-			// And store the asset elsewhere
-			pakFile.putFile(ASSET_DIR + key, AssetManager.getAsset(key));
-		}
+		saveAssets(z.getAllAssetIds(), pakFile);
 
 		pakFile.setContent(pMap);
 		pakFile.setProperty(PROP_VERSION, MapTool.getVersion());
@@ -134,22 +137,11 @@ public class PersistenceUtil {
 		try {
 			// Sanity check
 			String version = (String) pakfile.getProperty(PROP_VERSION);
-			PersistedMap persistedMap = (PersistedMap) pakfile.getContent();
+			PersistedMap persistedMap = (PersistedMap) pakfile.getContent(version);
 
 			// Now load up any images that we need
-			// Note that the values are all placeholders
-			for (MD5Key key : persistedMap.assetMap.keySet()) {
-				if (!AssetManager.hasAsset(key)) {
-					Asset asset = (Asset) pakfile.getFileObject(ASSET_DIR + key);
-					AssetManager.putAsset(asset);
+			loadAssets(persistedMap.assetMap.keySet(), pakfile);
 
-					if (!MapTool.isHostingServer() && !MapTool.isPersonalServer()) {
-						// If we are remotely installing this campaign, we'll
-						// need to send the image data to the server
-						MapTool.serverCommand().putAsset(asset);
-					}
-				}
-			}
 			// FJE We only want the token's graphical data, so loop through all tokens and
 			// destroy all properties and macros.  Keep some fields, though.  Since that type
 			// of object editing doesn't belong here, we just call Token.imported() and let
@@ -158,6 +150,18 @@ public class PersistenceUtil {
 				Token token = iter.next();
 				token.imported();
 			}
+			Zone z = persistedMap.zone;
+			String n = z.getName();
+			String count = n.replaceFirst("Import (\\d+) of.*", "$1");
+			Integer next = 1;
+			try {
+				next = StringUtil.parseInteger(count) + 1;
+			} catch (ParseException e) {
+			}
+			n = n.replaceFirst("Import \\d+ of ", "Import " + next + " of ");
+			z.setName(n);
+			z.imported();	// Resets creation timestamp; not needed when loading a campaign
+			z.optimize();
 			return persistedMap;
 		} catch (IOException ioe) {
 			MapTool.showError("while reading map data from file", ioe);
@@ -299,22 +303,32 @@ public class PersistenceUtil {
 		try {
 
 			// Sanity check
-			PersistedCampaign persistedCampaign = (PersistedCampaign) pakfile.getContent((String)pakfile.getProperty(PROP_CAMPAIGN_VERSION));
+			String version = (String)pakfile.getProperty(PROP_CAMPAIGN_VERSION);
+			version = version == null ? "1.3.50" : version;	// This is where the campaignVersion was added
+			PersistedCampaign persistedCampaign = (PersistedCampaign) pakfile.getContent(version);
+			if (persistedCampaign != null) {
+				// Now load up any images that we need
+				// Note that the values are all placeholders
+				Set<MD5Key> allAssetIds = persistedCampaign.assetMap.keySet();
+				loadAssets(allAssetIds, pakfile);
 
-			// Now load up any images that we need
-			// Note that the values are all placeholders
-			Set<MD5Key> allAssetIds = persistedCampaign.assetMap.keySet();
-			loadAssets(allAssetIds, pakfile);
+				for (Zone zone : persistedCampaign.campaign.getZones()) {
+					zone.optimize();
+				}
 
-			for (Zone zone : persistedCampaign.campaign.getZones()) {
-				zone.optimize();
+				return persistedCampaign;
 			}
-
-			return persistedCampaign;
-		} catch (IOException ioe) {
-			log.error("Could not load campaign in the current format, trying old");
-			// Well, try the old way
+		} catch (RuntimeException rte) {
+			MapTool.showError("Error while reading campaign file", rte);
+		} catch (java.lang.Error e) {
+			// Probably an issue with XStream not being able to instantiate a given class
+			// Even the old legacy technique probably won't work, but we should at least try...
+		}
+		log.error("Could not load campaign in the current format, trying old format");
+		try {
 			return loadLegacyCampaign(campaignFile);
+		} catch (Exception e) {
+			return null;
 		}
 	}
 
@@ -414,20 +428,26 @@ public class PersistenceUtil {
 	}
 
 	private static void loadAssets(Collection<MD5Key> assetIds, PackedFile pakFile) throws IOException {
+		String propVersion = (String)pakFile.getProperty("campaignVersion");
 		for (MD5Key key : assetIds) {
 			if (key == null) {
 				continue;
 			}
 
 			if (!AssetManager.hasAsset(key)) {
-				Asset asset = (Asset) pakFile.getFileObject(ASSET_DIR + key);
+				String pathname = ASSET_DIR + key;
+				Asset asset = (Asset) pakFile.getFileObject(pathname);			// XML deserialization
 
-				if (asset == null)
+				if (asset == null) {	// Referenced asset not included in PackedFile??
+					log.error("Referenced asset '" + pathname + "' not found?!");
 					continue;
-
+				}
 				// pre 1.3b51 campaign files stored the image data directly in the asset serialization
 				if (asset.getImage() == null) {
-					byte[] imageData = pakFile.getFileData(ASSET_DIR + key + ".dat");
+					String ext = asset.getImageExtension();
+					pathname = pathname + "." + (ext.isEmpty() ? "dat" : ext);
+					pathname = assetnameVersionManager.transform(pathname, propVersion);
+					byte[] imageData = pakFile.getFileData(pathname);
 					asset.setImage(imageData);
 				}
 				AssetManager.putAsset(asset);
@@ -449,8 +469,11 @@ public class PersistenceUtil {
 			}
 
 			// And store the asset elsewhere
+			// As of 1.3.b64, assets are written in binary to allow them to be readable
+			// when a campaign file is unpacked.
 			Asset asset = AssetManager.getAsset(assetId);
-			pakFile.putFile(ASSET_DIR + assetId, asset.getImage());
+			pakFile.putFile(ASSET_DIR + assetId + "." + asset.getImageExtension(), asset.getImage());
+			pakFile.putFile(ASSET_DIR + assetId, asset);		// Does not write the image
 //			pakFile.putFile(ASSET_DIR + assetId + ".dat", asset.getImage());
 		}
 	}

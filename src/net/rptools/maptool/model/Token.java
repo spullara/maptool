@@ -341,7 +341,8 @@ public class Token extends BaseModel {
 		ownerList = null;
 		// propertyMap = null;
 		// propertyType = "Basic";
-		sightType = "Normal";
+//		sightType = "Normal";
+		sightType = MapTool.getCampaign().getCampaignProperties().getDefaultSightType();
 //		state = null;
 		visionList = null;
 	}

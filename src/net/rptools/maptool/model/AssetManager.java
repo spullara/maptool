@@ -37,6 +37,8 @@ import net.rptools.lib.MD5Key;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 
+import org.apache.log4j.Logger;
+
 /**
  * This class handles the caching, loading,
  * and downloading of assets. All assets are
@@ -46,6 +48,7 @@ import net.rptools.maptool.client.MapTool;
  *
  */
 public class AssetManager {
+	private static final Logger log = Logger.getLogger(AssetManager.class);
 
 	/** Assets are associated with the MD5 sum of their raw data */
 	private static Map<MD5Key, Asset> assetMap = new ConcurrentHashMap<MD5Key, Asset>();
@@ -348,14 +351,14 @@ public class AssetManager {
 			Asset asset = new Asset(props.getProperty(NAME), data);
 
 			if ( !asset.getId().equals(id)) {
-				System.err.println("MD5 for asset " + asset.getName() + " corrupted");
+				log.error("MD5 for asset " + asset.getName() + " corrupted");
 			}
 
 			assetMap.put(id, asset);
 
 			return asset;
 		} catch (IOException ioe) {
-			System.err.println("Could not load asset from persistent cache: " + ioe);
+			log.error("Could not load asset from persistent cache", ioe);
 			return null;
 		}
 
@@ -418,7 +421,7 @@ public class AssetManager {
                                         out.close();
 
                                 } catch (IOException ioe) {
-                                        System.err.println("Could not persist asset: " + ioe);
+                                			log.error("Could not persist asset while writing image data", ioe);
                                         return;
                                 }
                             }
@@ -438,7 +441,7 @@ public class AssetManager {
 				out.close();
 
 			} catch (IOException ioe) {
-				System.err.println("Could not persist asset: " + ioe);
+				log.error("Could not persist asset while writing image properties", ioe);
 				return;
 			}
 
@@ -656,7 +659,7 @@ public class AssetManager {
 		try {
 			assetLoader.storeIndexFile(repo, index);
 		} catch (IOException e) {
-			System.err.println("Couldn't save updated index to local repository cache: " + e);
+			log.error("Couldn't save updated index to local repository cache", e);
 			e.printStackTrace();
 		}
 		return index;

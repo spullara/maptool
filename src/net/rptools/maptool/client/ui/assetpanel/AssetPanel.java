@@ -189,6 +189,13 @@ public class AssetPanel extends JComponent {
 		return filterTextField;
 	}
 
+	/**
+	 * Returns a checkbox that indicates whether the filter field applies to <i>all</i>
+	 * images in all libraries or just the currently selected image directory.  Currently not
+	 * implemented.
+	 *
+	 * @return the checkbox component
+	 */
 	public JCheckBox getGlobalSearchField() {
 		if (globalSearchField == null) {
 			globalSearchField = new JCheckBox("Search across all directories?", false);

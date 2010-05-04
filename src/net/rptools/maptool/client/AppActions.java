@@ -1955,6 +1955,8 @@ public class AppActions {
 							MapTool.getFrame().getCommandPanel().setIdentity(null);
 							MapTool.getFrame().resetPanels();
 
+						} else {
+							MapTool.showWarning("Cannot determine campaign file format; not loaded");
 						}
 
 					} finally {
@@ -1968,6 +1970,12 @@ public class AppActions {
 		}.start();
 	}
 
+	/**
+	 * This is the integrated load/save interface that allows individual components of the
+	 * application's dataet to be saved to an external file.  The goal is to allow specific
+	 * maps and tokens, campaign properties (sight, light, token props), and layers + their
+	 * contents to be saved through a single unified interface.
+	 */
 	public static final Action LOAD_SAVE = new DeveloperClientAction() {
 		{
 			init("action.loadSaveDialog");

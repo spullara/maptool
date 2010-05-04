@@ -68,8 +68,6 @@ public class AppMenuBar extends JMenuBar {
 //		fileMenu.add(new JMenuItem(AppActions.LOAD_SAVE));
 		fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN));
 		fileMenu.add(new JMenuItem(AppActions.SAVE_CAMPAIGN_AS));
-//		fileMenu.add(new JMenuItem(AppActions.LOAD_MAP));
-//		fileMenu.add(new JMenuItem(AppActions.SAVE_MAP_AS));
 
 		fileMenu.add(new JMenuItem(AppActions.SAVE_MESSAGE_HISTORY));
 		fileMenu.addSeparator();
