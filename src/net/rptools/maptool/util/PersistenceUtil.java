@@ -78,7 +78,7 @@ public class PersistenceUtil {
 	private static final String PROP_CAMPAIGN_VERSION = "campaignVersion";
 	private static final String ASSET_DIR = "assets/";
 
-	private static final String CAMPAIGN_VERSION = "1.3.64";
+	private static final String CAMPAIGN_VERSION = "1.3.65";
 
 	private static final ModelVersionManager campaignVersionManager = new ModelVersionManager();
 	private static final ModelVersionManager assetnameVersionManager = new ModelVersionManager();
@@ -122,6 +122,11 @@ public class PersistenceUtil {
 		pMap.zone = z;
 
 		// Save all assets in active use (consolidate dups)
+		Set<MD5Key> allAssetIds = z.getAllAssetIds();
+		for (MD5Key key : allAssetIds) {
+			// Put in a placeholder
+			pMap.assetMap.put(key, null);
+		}
 		saveAssets(z.getAllAssetIds(), pakFile);
 
 		pakFile.setContent(pMap);
@@ -420,6 +425,7 @@ public class PersistenceUtil {
 		PackedFile pakFile = new PackedFile(file);
 
 		// TODO: Check version
+//		String mtVersion = (String)pakFile.getProperty(PROP_VERSION);
 		Token token = (Token) pakFile.getContent();
 
 		loadAssets(token.getAllImageAssets(), pakFile);
@@ -428,7 +434,9 @@ public class PersistenceUtil {
 	}
 
 	private static void loadAssets(Collection<MD5Key> assetIds, PackedFile pakFile) throws IOException {
-		String propVersion = (String)pakFile.getProperty("campaignVersion");
+		pakFile.getXStream().processAnnotations(Asset.class);
+		String campVersion = (String)pakFile.getProperty(PROP_CAMPAIGN_VERSION);
+		String mtVersion = (String)pakFile.getProperty(PROP_VERSION);
 		for (MD5Key key : assetIds) {
 			if (key == null) {
 				continue;
@@ -436,17 +444,24 @@ public class PersistenceUtil {
 
 			if (!AssetManager.hasAsset(key)) {
 				String pathname = ASSET_DIR + key;
-				Asset asset = (Asset) pakFile.getFileObject(pathname);			// XML deserialization
+				Asset asset;
+				if (mtVersion.equals("1.3.b64")) {
+					asset = new Asset(key.toString(), pakFile.getFileData(pathname));	// Ugly bug fix :(
+				} else {
+					asset = (Asset) pakFile.getFileObject(pathname);			// XML deserialization
+				}
 
 				if (asset == null) {	// Referenced asset not included in PackedFile??
 					log.error("Referenced asset '" + pathname + "' not found?!");
 					continue;
 				}
 				// pre 1.3b51 campaign files stored the image data directly in the asset serialization
-				if (asset.getImage() == null) {
+				if (asset.getImage() == null
+						|| asset.getImage().length < 4	// New XStreamConverter creates empty byte[] for image
+						) {
 					String ext = asset.getImageExtension();
 					pathname = pathname + "." + (ext.isEmpty() ? "dat" : ext);
-					pathname = assetnameVersionManager.transform(pathname, propVersion);
+					pathname = assetnameVersionManager.transform(pathname, campVersion);
 					byte[] imageData = pakFile.getFileData(pathname);
 					asset.setImage(imageData);
 				}
@@ -462,7 +477,7 @@ public class PersistenceUtil {
 	}
 
 	private static void saveAssets(Collection<MD5Key> assetIds, PackedFile pakFile) throws IOException {
-//		pakFile.getXStream().omitField(Asset.class, "image");
+		pakFile.getXStream().processAnnotations(Asset.class);
 		for (MD5Key assetId : assetIds) {
 			if (assetId == null) {
 				continue;
