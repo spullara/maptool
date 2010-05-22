@@ -119,7 +119,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		setCompareIncludeLabel(true);
 		setCompareAutoExecute(true);
 		setCompareApplyToSelectedTokens(true);
-		setToolTip("");
+		setToolTip(null);
 	}
 
 	// constructor for creating a new button in a specific button group, auto-saves
@@ -134,7 +134,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		setCompareIncludeLabel(true);
 		setCompareAutoExecute(true);
 		setCompareApplyToSelectedTokens(true);
-		setToolTip("");
+		setToolTip(null);
 		save();
 	}
 
@@ -151,7 +151,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		setCompareIncludeLabel(true);
 		setCompareAutoExecute(true);
 		setCompareApplyToSelectedTokens(true);
-		setToolTip("");
+		setToolTip(null);
 		save();
 	}
 
@@ -179,7 +179,8 @@ public class MacroButtonProperties implements Comparable<Object> {
 		setCompareGroup(properties.getCompareGroup());
 		setCompareSortPrefix(properties.getCompareSortPrefix());
 		setCompareCommand(properties.getCompareCommand());
-		setToolTip(properties.getToolTip());
+		String tt = properties.getToolTip();
+		setToolTip(tt);
 		save();
 	}
 
@@ -208,7 +209,8 @@ public class MacroButtonProperties implements Comparable<Object> {
 		setCompareGroup(properties.getCompareGroup());
 		setCompareSortPrefix(properties.getCompareSortPrefix());
 		setCompareCommand(properties.getCompareCommand());
-		setToolTip(properties.getToolTip());
+		String tt = properties.getToolTip();
+		setToolTip(tt);
 		save();
 	}
 
@@ -291,7 +293,7 @@ public class MacroButtonProperties implements Comparable<Object> {
             setCompareApplyToSelectedTokens(Boolean.valueOf(props.get("compareApplyToSelectedTokens")));
     }
 
-            public void save (){
+	public void save() {
 		if (saveLocation.equals("Token") && tokenId != null) {
 			getToken().saveMacroButtonProperty(this);
 		} else if (saveLocation.equals("GlobalPanel")) {
@@ -328,7 +330,7 @@ public class MacroButtonProperties implements Comparable<Object> {
 		/*
 		 * This is actually one of the "common macro" buttons that are on the selection panel
 		 * so we need to handle this case a little differently. If apply to all tokens is
-		 * checked by the user then we need to check that the command is part of the the common
+		 * checked by the user then we need to check that the command is part of the common
 		 * values otherwise it would cause unexpected things to occur.
 		 */
  		if (applyToTokens) {
@@ -399,6 +401,10 @@ public class MacroButtonProperties implements Comparable<Object> {
 					} else if (saveLocation.equals("CampaignPanel")) {
 						loc = "campaign";
 					} else if (contextToken != null) {
+						// Should this IF stmt really be:
+						//		contextToken.matches("^[^:\\s]+:")
+						// That would match any token with a string of text followed by a colon
+						// with no spaces in front of the colon.
 						if (contextToken.getName().toLowerCase().startsWith("lib:")) {
 							loc = contextToken.getName();
 						} else {
@@ -595,10 +601,12 @@ public class MacroButtonProperties implements Comparable<Object> {
 	}
 
 	public void setToolTip(String tt) {
-		toolTip = tt;
+		toolTip = (tt == null ? "" : tt);
 	}
 
 	public String getToolTip() {
+		if (toolTip == null)
+			toolTip = "";
 		return toolTip;
 	}
 

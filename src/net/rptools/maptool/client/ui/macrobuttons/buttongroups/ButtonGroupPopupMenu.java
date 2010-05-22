@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui.macrobuttons.buttongroups;
 
@@ -39,12 +39,12 @@ import net.rptools.maptool.util.PersistenceUtil;
 
 @SuppressWarnings("serial")
 public class ButtonGroupPopupMenu extends JPopupMenu {
-	
-	private AreaGroup areaGroup;
-	private String macroGroup;
-	private String panelClass;
+
+	private final AreaGroup areaGroup;
+	private final String macroGroup;
+	private final String panelClass;
 	private GUID tokenId;
-	
+
 	public ButtonGroupPopupMenu(String panelClass, AreaGroup areaGroup, String macroGroup, Token token) {
 		this.areaGroup = areaGroup;
 		this.macroGroup = macroGroup;
@@ -68,7 +68,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 			addActions();
 		}
 	}
-	
+
 	private void addActions() {
 		add(new AddMacroAction());
 		add(new JSeparator());
@@ -92,7 +92,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 		add(new ImportMacroSetAction(I18N.getText("action.macro.importSetToSelected")));
 		add(new ExportMacroSetAction(I18N.getText("action.macro.exportCommonSet")));
 	}
-	
+
 	private void addCampaignActions() {
 		if(MapTool.getPlayer().isGM()) {
 			add(new AddMacroAction());
@@ -139,24 +139,24 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 			}
 		}
 	}
-	
+
 	private class ImportMacroAction extends AbstractAction {
 			public ImportMacroAction() {
 				putValue(Action.NAME, I18N.getText("action.macro.import"));
 			}
-			
+
 			public ImportMacroAction(String name) {
 				putValue(Action.NAME, name);
 			}
-			
+
 			public void actionPerformed(ActionEvent event) {
-				
+
 				JFileChooser chooser = MapTool.getFrame().getLoadMacroFileChooser();
-	
+
 				if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 					return;
 				}
-	
+
 				final File selectedFile = chooser.getSelectedFile();
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
@@ -257,18 +257,18 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 				});
 			}
 		}
-	
+
 	private class ImportMacroSetAction extends AbstractAction {
 		public ImportMacroSetAction() {
 			putValue(Action.NAME, I18N.getText("action.macro.importSet"));
 		}
-		
+
 		public ImportMacroSetAction(String name) {
 			putValue(Action.NAME, name);
 		}
-		
+
 		public void actionPerformed(ActionEvent event) {
-			
+
 			JFileChooser chooser = MapTool.getFrame().getLoadMacroSetFileChooser();
 
 			if (chooser.showOpenDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
@@ -293,7 +293,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 									alreadyExists = confirmImport(nextProps, I18N.getText("confirm.macro.panelLocation", I18N.getText("panel.Global")));
 								}
 								if(!alreadyExists) {
-								new MacroButtonProperties(panelClass, MacroButtonPrefs.getNextIndex(), nextProps);
+									new MacroButtonProperties(panelClass, MacroButtonPrefs.getNextIndex(), nextProps);
 								}
 							} else if (panelClass.equals("CampaignPanel")) {
 								for(MacroButtonProperties nextMacro : MapTool.getCampaign().getMacroButtonPropertiesArray()) {
@@ -344,7 +344,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 										}
 										if(!alreadyExists) {
 											new MacroButtonProperties(token, token.getMacroNextIndex(), nextProps);
-										}									
+										}
 									}
 								}
 							} else if (tokenId != null){
@@ -377,18 +377,18 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 			});
 		}
 	}
-	
+
 	private class ExportMacroSetAction extends AbstractAction {
 		public ExportMacroSetAction() {
 			putValue(Action.NAME, I18N.getText("action.macro.exportSet"));
 		}
-		
+
 		public ExportMacroSetAction(String name) {
 			putValue(Action.NAME, name);
 		}
-		
+
 		public void actionPerformed(ActionEvent event) {
-			
+
 			JFileChooser chooser = MapTool.getFrame().getSaveMacroSetFileChooser();
 
 			if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
@@ -396,7 +396,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 			}
 
 			final File selectedFile = chooser.getSelectedFile();
-			
+
 			if (selectedFile.exists()) {
 			    if (selectedFile.getName().endsWith(".mtmacset")) {
 			        if (!MapTool.confirm(I18N.getText("confirm.macro.exportSetInto"))) {
@@ -406,7 +406,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 					return;
 				}
 			}
-			
+
 			EventQueue.invokeLater(new Runnable() {
 				public void run() {
 					try {
@@ -431,7 +431,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 											}
 											if(nextToken.getMacroList(trusted).size() > 0) {
 												for(MacroButtonProperties nextCompMacro : nextToken.getMacroList(trusted)) {
-													if(nextCompMacro.hashCodeForComparison() == nextMacro.hashCodeForComparison() 
+													if(nextCompMacro.hashCodeForComparison() == nextMacro.hashCodeForComparison()
 															&& (!MapTool.getPlayer().isGM() || (!MapTool.getPlayer().isGM() && !nextCompMacro.getAllowPlayerEdits()))) {
 														allowExport = false;
 													}
@@ -476,7 +476,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 						} else if (tokenId != null){
 							Token token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId);
 							PersistenceUtil.saveMacroSet(token.getMacroList(true), selectedFile);
-						}						
+						}
 					} catch (IOException ioe) {
 						ioe.printStackTrace();
 						MapTool.showError(I18N.getText("msg.error.macro.exportSetFail", ioe));
@@ -485,12 +485,12 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 			});
 		}
 	}
-	
+
 	private class ClearGroupAction extends AbstractAction {
 		public ClearGroupAction() {
 			putValue(Action.NAME, I18N.getText("action.macro.clearGroup"));
 		}
-		
+
 		public void actionPerformed(ActionEvent event) {
 			if(MapTool.confirm(I18N.getText("confirm.macro.clearGroup", macroGroup))) {
 				if (panelClass.equals("GlobalPanel")) {
@@ -498,17 +498,17 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 				} else if (panelClass.equals("CampaignPanel")) {
 					CampaignPanel.deleteButtonGroup(macroGroup);
 				} else if (tokenId != null){
-					MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId).deleteMacroGroup(macroGroup, true);				
+					MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId).deleteMacroGroup(macroGroup, true);
 				}
 			}
 		}
 	}
-	
+
 	private class ClearPanelAction extends AbstractAction {
 		public ClearPanelAction() {
 			putValue(Action.NAME, I18N.getText("action.macro.clearPanel"));
 		}
-		
+
 		public void actionPerformed(ActionEvent event) {
 			if (panelClass.equals("GlobalPanel")) {
 				if(MapTool.confirm(I18N.getText("confirm.macro.clearPanel", I18N.getText("panel.Global")))) {
@@ -527,7 +527,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 			}
 		}
 	}
-	
+
 	private Boolean confirmCommonExport(MacroButtonProperties buttonMacro) {
 		Boolean failComparison = false;
 		String comparisonResults = "";
@@ -560,7 +560,7 @@ public class ButtonGroupPopupMenu extends JPopupMenu {
 		}
 		return failComparison;
 	}
-	
+
 	private Boolean confirmImport(MacroButtonProperties importMacro, String location) {
 		return !MapTool.confirm(I18N.getText("confirm.macro.import", importMacro.getLabel(), location));
 	}

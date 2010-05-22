@@ -174,11 +174,14 @@ public class PersistenceUtil {
 		}
 	}
 
-	private static CodeTimer saveTimer;
 	public static void saveCampaign(Campaign campaign, File campaignFile) throws IOException {
-
+		CodeTimer saveTimer;		// FJE Previously this was 'private static' -- why?
 		saveTimer = new CodeTimer("Save");
 		saveTimer.setThreshold(5);
+
+		if (!log.isDebugEnabled()) {
+			saveTimer.setEnabled(false);		// Don't bother keeping track if it won't be displayed...
+		}
 
 		// Strategy: save the file to a tmp location so that if there's a
 		// failure the original file
