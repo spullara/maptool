@@ -291,6 +291,9 @@ public class MapToolVariableResolver extends MapVariableResolver {
         	TokenHaloFunction.getInstance().setHalo(tokenInContext, value);
         	return;
         } else if (varname.equals(TOKEN_NAME)) {
+        	if (value.toString().equals("")){
+        		throw new ParserException(I18N.getText("lineParser.emptyTokenName"));
+        	}
         	TokenNameFunction.getInstance().setName(tokenInContext, value.toString());
         	return;
         } else if (varname.equals(TOKEN_GMNAME)) {

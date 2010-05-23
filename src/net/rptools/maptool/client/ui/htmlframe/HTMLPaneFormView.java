@@ -6,7 +6,10 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.awt.*;
 import javax.swing.ComboBoxModel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
@@ -35,6 +38,30 @@ public class HTMLPaneFormView extends FormView {
 	public HTMLPaneFormView(Element elem, HTMLPane pane) {
 		super(elem);
 		htmlPane = pane;
+	}
+
+	@Override
+	protected Component createComponent() {
+		Component c = null;
+
+		AttributeSet attr = getElement().getAttributes();
+		HTML.Tag t = (HTML.Tag) 
+		    attr.getAttribute(StyleConstants.NameAttribute);
+		
+		if (t == HTML.Tag.TEXTAREA) {
+			JScrollPane sp = (JScrollPane)super.createComponent();
+			JTextArea area = (JTextArea)sp.getViewport().getView();
+			area.setLineWrap(true);
+			area.setWrapStyleWord(true);
+			c = new JScrollPane( area, 
+					JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+					JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
+		}
+		else {
+			c = super.createComponent();
+		}
+
+		return c;
 	}
 
 	

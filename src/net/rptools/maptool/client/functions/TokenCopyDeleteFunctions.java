@@ -133,6 +133,9 @@ public class TokenCopyDeleteFunctions extends AbstractFunction {
 		
 		// Update the Token Name.
 		if (newVals.containsKey("name")) {
+			if(newVals.getString("name").equals("")){
+				throw new ParserException(I18N.getText("macro.function.tokenName.emptyTokenNameForbidden", "copyToken"));
+			}
 			token.setName(newVals.getString("name"));
 		} else {
 			// check the token's name, don't change PC token names ... ever

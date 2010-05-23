@@ -9,15 +9,17 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client;
 
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 import java.util.prefs.Preferences;
 
 import net.rptools.maptool.client.walker.WalkerMetric;
@@ -90,7 +92,7 @@ public class AppPreferences {
 
 	private static final String KEY_TOKENS_WARN_WHEN_DELETED = "tokensWarnWhenDeleted";
 	private static final boolean DEFAULT_TOKENS_WARN_WHEN_DELETED = true;
-	
+
 	private static final String KEY_TOKENS_START_SNAP_TO_GRID = "newTokensStartSnapToGrid";
 	private static final boolean DEFAULT_TOKENS_START_SNAP_TO_GRID = true;
 
@@ -123,10 +125,10 @@ public class AppPreferences {
 
 	private static final String KEY_SHOW_STAT_SHEET = "showStatSheet";
 	private static final boolean DEFAULT_SHOW_STAT_SHEET = true;
-	
+
 	private static final String KEY_FILL_SELECTION_BOX = "fillSelectionBox";
 	private static final boolean DEFAULT_FILL_SELECTION_BOX = true;
-	
+
 	public static void setFillSelectionBox(boolean fill) {
 		prefs.putBoolean(KEY_FILL_SELECTION_BOX, fill);
 	}
@@ -178,7 +180,7 @@ public class AppPreferences {
 
 	public static String getTokenNumberDisplay() {
 		return prefs
-				.get(KEY_TOKEN_NUMBER_DISPLAY, DEFAULT_TOKEN_NUMBER_DISPLAY);
+		.get(KEY_TOKEN_NUMBER_DISPLAY, DEFAULT_TOKEN_NUMBER_DISPLAY);
 	}
 
 	public static void setDuplicateTokenNumber(String numbering) {
@@ -221,41 +223,41 @@ public class AppPreferences {
 	}
 
 	public static int getVisionOverlayOpacity() {
-		int value = prefs.getInt(KEY_VISION_OVERLAY_OPACITY, DEFAULT_VISION_OVERLAY_OPACITY); 
+		int value = prefs.getInt(KEY_VISION_OVERLAY_OPACITY, DEFAULT_VISION_OVERLAY_OPACITY);
 		if (value < 0) {value = 0;}
 		if (value > 255) {value = 255;}
 		return value;
 	}
 
-    private static final String KEY_DEFAULT_GRID_TYPE = "defaultGridType";
-    private static final String DEFAULT_DEFAULT_GRID_TYPE = GridFactory.SQUARE;
-    
-    private static final String KEY_FACE_VERTEX = "faceVertex";
-    private static final boolean DEFAULT_FACE_VERTEX = false;
-    
-    private static final String KEY_FACE_EDGE = "faceEdge";
-    private static final boolean DEFAULT_FACE_EDGE = true;
-    
-    private static final String KEY_DEFAULT_GRID_SIZE = "defaultGridSize";
-    private static final int DEFAULT_DEFAULT_GRID_SIZE = 50;
-    
-    private static final String KEY_DEFAULT_GRID_COLOR = "defaultGridColor";
-    private static final int DEFAULT_DEFAULT_GRID_COLOR = Color.black.getRGB();
-    
-    private static final String KEY_DEFAULT_UNITS_PER_CELL = "unitsPerCell";
-    private static final int DEFAULT_DEFAULT_UNITS_PER_CELL = 5;
-    
-    private static final String KEY_DEFAULT_VISION_DISTANCE = "defaultVisionDistance";
-    private static final int DEFAULT_DEFAULT_VISION_DISTANCE = 1000;
-    
-    private static final String KEY_FONT_SIZE = "fontSize";
-    private static final int DEFAULT_FONT_SIZE = 12;
-    
-    private static final String KEY_CHAT_COLOR = "chatColor";
-    private static final Color DEFAULT_CHAT_COLOR = Color.black;
-    
-    private static final String KEY_PLAY_SYSTEM_SOUNDS = "playSystemSounds";
-    private static final boolean DEFAULT_PLAY_SYSTEM_SOUNDS = true;
+	private static final String KEY_DEFAULT_GRID_TYPE = "defaultGridType";
+	private static final String DEFAULT_DEFAULT_GRID_TYPE = GridFactory.SQUARE;
+
+	private static final String KEY_FACE_VERTEX = "faceVertex";
+	private static final boolean DEFAULT_FACE_VERTEX = false;
+
+	private static final String KEY_FACE_EDGE = "faceEdge";
+	private static final boolean DEFAULT_FACE_EDGE = true;
+
+	private static final String KEY_DEFAULT_GRID_SIZE = "defaultGridSize";
+	private static final int DEFAULT_DEFAULT_GRID_SIZE = 50;
+
+	private static final String KEY_DEFAULT_GRID_COLOR = "defaultGridColor";
+	private static final int DEFAULT_DEFAULT_GRID_COLOR = Color.black.getRGB();
+
+	private static final String KEY_DEFAULT_UNITS_PER_CELL = "unitsPerCell";
+	private static final int DEFAULT_DEFAULT_UNITS_PER_CELL = 5;
+
+	private static final String KEY_DEFAULT_VISION_DISTANCE = "defaultVisionDistance";
+	private static final int DEFAULT_DEFAULT_VISION_DISTANCE = 1000;
+
+	private static final String KEY_FONT_SIZE = "fontSize";
+	private static final int DEFAULT_FONT_SIZE = 12;
+
+	private static final String KEY_CHAT_COLOR = "chatColor";
+	private static final Color DEFAULT_CHAT_COLOR = Color.black;
+
+	private static final String KEY_PLAY_SYSTEM_SOUNDS = "playSystemSounds";
+	private static final boolean DEFAULT_PLAY_SYSTEM_SOUNDS = true;
 
 	public static void setHaloLineWidth(int size) {
 		prefs.putInt(KEY_HALO_LINE_WIDTH, size);
@@ -265,159 +267,159 @@ public class AppPreferences {
 		return prefs.getInt(KEY_HALO_LINE_WIDTH, DEFAULT_HALO_LINE_WIDTH);
 	}
 
-    private static final String KEY_PORTRAIT_SIZE = "portraitSize";
-    private static final int DEFAULT_PORTRAIT_SIZE = 175;
-    
-    private static final String KEY_ALLOW_PLAYER_MACRO_EDITS_DEFAULT = "allowPlayerMacroEditsDefault";
-    private static final boolean DEFAULT_ALLOW_PLAYER_MACRO_EDITS_DEFAULT = true;
-    
-    private static final String KEY_TOOLTIP_INITIAL_DELAY = "toolTipInitialDelay";
-    private static final int DEFAULT_TOOLTIP_INITIAL_DELAY = 250;
+	private static final String KEY_PORTRAIT_SIZE = "portraitSize";
+	private static final int DEFAULT_PORTRAIT_SIZE = 175;
 
-    private static final String KEY_TOOLTIP_DISMISS_DELAY = "toolTipDismissDelay";
-    private static final int DEFAULT_TOOLTIP_DISMISS_DELAY = 30000;
+	private static final String KEY_ALLOW_PLAYER_MACRO_EDITS_DEFAULT = "allowPlayerMacroEditsDefault";
+	private static final boolean DEFAULT_ALLOW_PLAYER_MACRO_EDITS_DEFAULT = true;
 
-    private static final String KEY_TOOLTIP_FOR_INLINE_ROLLS = "toolTipInlineRolls";
-    private static final boolean DEFAULT_TOOLTIP_FOR_INLINE_ROLLS = false;
-    
-    
-    private static final String KEY_TRUSTED_PREFIX_BG_RED = "trustedPrefixBGRed";
-    private static final int DEFAULT_TRUSTED_PREFIX_BG_RED = 0xD8;
-    
-    private static final String KEY_TRUSTED_PREFIX_BG_GREEN = "trustedPrefixBGGreen";
-    private static final int DEFAULT_TRUSTED_PREFIX_BG_GREEN = 0xE9; 
-   
-    private static final String KEY_TRUSTED_PREFIX_BG_BLUE = "trustedPrefixBBlue";
-    private static final int DEFAULT_TRUSTED_PREFIX_BG_BLUE = 0xF6;
-    
-    private static final String KEY_TRUSTED_PREFIX_FG_RED = "trustedPrefixFGRed";
-    private static final int DEFAULT_TRUSTED_PREFIX_FG_RED = 0x00;
+	private static final String KEY_TOOLTIP_INITIAL_DELAY = "toolTipInitialDelay";
+	private static final int DEFAULT_TOOLTIP_INITIAL_DELAY = 250;
 
-    private static final String KEY_TRUSTED_PREFIX_FG_GREEN = "trustedPrefixFGGreen";
-    private static final int DEFAULT_TRUSTED_PREFIX_FG_GREEN = 0x00;
-    
-    private static final String KEY_TRUSTED_PREFIX_FG_BLUE = "trustedPrefixFBlue";
-    private static final int DEFAULT_TRUSTED_PREFIX_FG_BLUE = 0x00;
-    
-    private static final String KEY_FIT_GM_VIEW = "fitGMView";
-    private static final boolean DEFAULT_FIT_GM_VIEW = true;
-    
-    
-    public static final void setUseToolTipForInlineRoll(boolean tooltip) {
-    	prefs.putBoolean(KEY_TOOLTIP_FOR_INLINE_ROLLS, tooltip);
-    }
-    
-    public static final boolean getUseToolTipForInlineRoll() {
-    	return prefs.getBoolean(KEY_TOOLTIP_FOR_INLINE_ROLLS, DEFAULT_TOOLTIP_FOR_INLINE_ROLLS);
-    }
-        
-    public static void setTrustedPrefixBG(Color color) {
-    	prefs.putInt(KEY_TRUSTED_PREFIX_BG_RED, color.getRed());
-    	prefs.putInt(KEY_TRUSTED_PREFIX_BG_RED, color.getRed());
-    	prefs.putInt(KEY_TRUSTED_PREFIX_BG_RED, color.getRed());
-    }
+	private static final String KEY_TOOLTIP_DISMISS_DELAY = "toolTipDismissDelay";
+	private static final int DEFAULT_TOOLTIP_DISMISS_DELAY = 30000;
 
-    
-    public static Color getTrustedPrefixBG() {
-    	return new Color(prefs.getInt(KEY_TRUSTED_PREFIX_BG_RED, DEFAULT_TRUSTED_PREFIX_BG_RED),
-    					 prefs.getInt(KEY_TRUSTED_PREFIX_BG_GREEN, DEFAULT_TRUSTED_PREFIX_BG_GREEN),
-    					 prefs.getInt(KEY_TRUSTED_PREFIX_BG_BLUE, DEFAULT_TRUSTED_PREFIX_BG_BLUE));
-    							
-    }
+	private static final String KEY_TOOLTIP_FOR_INLINE_ROLLS = "toolTipInlineRolls";
+	private static final boolean DEFAULT_TOOLTIP_FOR_INLINE_ROLLS = false;
 
-    public static void setTrustedPrefixFG(Color color) {
-    	prefs.putInt(KEY_TRUSTED_PREFIX_FG_RED, color.getRed());
-    	prefs.putInt(KEY_TRUSTED_PREFIX_FG_RED, color.getRed());
-    	prefs.putInt(KEY_TRUSTED_PREFIX_FG_RED, color.getRed());
-    }
-    
-    public static Color getTrustedPrefixFG() {
-    	return new Color(prefs.getInt(KEY_TRUSTED_PREFIX_FG_RED, DEFAULT_TRUSTED_PREFIX_FG_RED),
-    					 prefs.getInt(KEY_TRUSTED_PREFIX_FG_GREEN, DEFAULT_TRUSTED_PREFIX_FG_GREEN),
-    					 prefs.getInt(KEY_TRUSTED_PREFIX_FG_BLUE, DEFAULT_TRUSTED_PREFIX_FG_BLUE));
-    							
-    }
-    
-    
-    public static void setToolTipInitialDelay(int ms) {
-    	prefs.putInt(KEY_TOOLTIP_INITIAL_DELAY, ms); 
-    }
 
-    public static int getToolTipInitialDelay() {
-    	return prefs.getInt(KEY_TOOLTIP_INITIAL_DELAY, DEFAULT_TOOLTIP_INITIAL_DELAY);
-    }
-    
-    public static void setToolTipDismissDelay(int ms) {
-    	prefs.putInt(KEY_TOOLTIP_DISMISS_DELAY, ms);
-    }
-    
-    public static int getToolTipDismissDelay() {
-    	return prefs.getInt(KEY_TOOLTIP_DISMISS_DELAY, DEFAULT_TOOLTIP_DISMISS_DELAY);
-    }
-    
-    public static void setAllowPlayerMacroEditsDefault(boolean show) {
-    	prefs.putBoolean(KEY_ALLOW_PLAYER_MACRO_EDITS_DEFAULT, show);
-    }
-    
-    public static boolean getAllowPlayerMacroEditsDefault() {
-    	return prefs.getBoolean(KEY_ALLOW_PLAYER_MACRO_EDITS_DEFAULT, DEFAULT_ALLOW_PLAYER_MACRO_EDITS_DEFAULT);
-    }
-    
-    public static void setPortraitSize(int size) {
-    	prefs.putInt(KEY_PORTRAIT_SIZE, size);
-    }
-    
-    public static int getPortraitSize() {
-    	return prefs.getInt(KEY_PORTRAIT_SIZE, DEFAULT_PORTRAIT_SIZE);
-    }
-    
-    public static void setShowSmilies(boolean show) {
-    	prefs.putBoolean(KEY_INSERT_SMILIES, show);
-    }
-    
-    public static boolean getShowSmilies() {
-    	return prefs.getBoolean(KEY_INSERT_SMILIES, DEFAULT_SHOW_SMILIES);
-    }
-    
-    public static void setShowDialogOnNewToken(boolean show) {
-    	prefs.putBoolean(KEY_SHOW_DIALOG_ON_NEW_TOKEN, show);
-    }
-    
-    public static boolean getShowDialogOnNewToken() {
-    	return prefs.getBoolean(KEY_SHOW_DIALOG_ON_NEW_TOKEN, DEFAULT_SHOW_DIALOG_ON_NEW_TOKEN);
-    }
-    
-    public static void setShowAvatarInChat(boolean show) {
-    	prefs.putBoolean(KEY_SHOW_AVATAR_IN_CHAT, show);
-    }
-    
-    public static boolean getShowAvatarInChat() {
-    	return prefs.getBoolean(KEY_SHOW_AVATAR_IN_CHAT, DEFAULT_SHOW_AVATAR_IN_CHAT);
-    }
-    
-    public static void setPlaySystemSounds(boolean play) {
-    	prefs.putBoolean(KEY_PLAY_SYSTEM_SOUNDS, play);
-    }
-    
-    public static boolean getPlaySystemSounds() {
-    	return prefs.getBoolean(KEY_PLAY_SYSTEM_SOUNDS, DEFAULT_PLAY_SYSTEM_SOUNDS);
-    }
-    
-    public static void setPlaySystemSoundsOnlyWhenNotFocused(boolean play) {
-    	prefs.putBoolean(KEY_SOUNDS_ONLY_WHEN_NOT_FOCUSED, play);
-    }
-    
-    public static boolean getPlaySystemSoundsOnlyWhenNotFocused() {
-    	return prefs.getBoolean(KEY_SOUNDS_ONLY_WHEN_NOT_FOCUSED, DEFAULT_SOUNDS_ONLY_WHEN_NOT_FOCUSED);
-    }
-    
-    public static void setChatColor(Color color){
-    	prefs.putInt(KEY_CHAT_COLOR, color.getRGB());
-    }
+	private static final String KEY_TRUSTED_PREFIX_BG_RED = "trustedPrefixBGRed";
+	private static final int DEFAULT_TRUSTED_PREFIX_BG_RED = 0xD8;
 
-    public static void setFontSize(int size) {
-    	prefs.putInt(KEY_FONT_SIZE, size);
-    }
+	private static final String KEY_TRUSTED_PREFIX_BG_GREEN = "trustedPrefixBGGreen";
+	private static final int DEFAULT_TRUSTED_PREFIX_BG_GREEN = 0xE9;
+
+	private static final String KEY_TRUSTED_PREFIX_BG_BLUE = "trustedPrefixBBlue";
+	private static final int DEFAULT_TRUSTED_PREFIX_BG_BLUE = 0xF6;
+
+	private static final String KEY_TRUSTED_PREFIX_FG_RED = "trustedPrefixFGRed";
+	private static final int DEFAULT_TRUSTED_PREFIX_FG_RED = 0x00;
+
+	private static final String KEY_TRUSTED_PREFIX_FG_GREEN = "trustedPrefixFGGreen";
+	private static final int DEFAULT_TRUSTED_PREFIX_FG_GREEN = 0x00;
+
+	private static final String KEY_TRUSTED_PREFIX_FG_BLUE = "trustedPrefixFBlue";
+	private static final int DEFAULT_TRUSTED_PREFIX_FG_BLUE = 0x00;
+
+	private static final String KEY_FIT_GM_VIEW = "fitGMView";
+	private static final boolean DEFAULT_FIT_GM_VIEW = true;
+
+
+	public static final void setUseToolTipForInlineRoll(boolean tooltip) {
+		prefs.putBoolean(KEY_TOOLTIP_FOR_INLINE_ROLLS, tooltip);
+	}
+
+	public static final boolean getUseToolTipForInlineRoll() {
+		return prefs.getBoolean(KEY_TOOLTIP_FOR_INLINE_ROLLS, DEFAULT_TOOLTIP_FOR_INLINE_ROLLS);
+	}
+
+	public static void setTrustedPrefixBG(Color color) {
+		prefs.putInt(KEY_TRUSTED_PREFIX_BG_RED, color.getRed());
+		prefs.putInt(KEY_TRUSTED_PREFIX_BG_RED, color.getRed());
+		prefs.putInt(KEY_TRUSTED_PREFIX_BG_RED, color.getRed());
+	}
+
+
+	public static Color getTrustedPrefixBG() {
+		return new Color(prefs.getInt(KEY_TRUSTED_PREFIX_BG_RED, DEFAULT_TRUSTED_PREFIX_BG_RED),
+				prefs.getInt(KEY_TRUSTED_PREFIX_BG_GREEN, DEFAULT_TRUSTED_PREFIX_BG_GREEN),
+				prefs.getInt(KEY_TRUSTED_PREFIX_BG_BLUE, DEFAULT_TRUSTED_PREFIX_BG_BLUE));
+
+	}
+
+	public static void setTrustedPrefixFG(Color color) {
+		prefs.putInt(KEY_TRUSTED_PREFIX_FG_RED, color.getRed());
+		prefs.putInt(KEY_TRUSTED_PREFIX_FG_RED, color.getRed());
+		prefs.putInt(KEY_TRUSTED_PREFIX_FG_RED, color.getRed());
+	}
+
+	public static Color getTrustedPrefixFG() {
+		return new Color(prefs.getInt(KEY_TRUSTED_PREFIX_FG_RED, DEFAULT_TRUSTED_PREFIX_FG_RED),
+				prefs.getInt(KEY_TRUSTED_PREFIX_FG_GREEN, DEFAULT_TRUSTED_PREFIX_FG_GREEN),
+				prefs.getInt(KEY_TRUSTED_PREFIX_FG_BLUE, DEFAULT_TRUSTED_PREFIX_FG_BLUE));
+
+	}
+
+
+	public static void setToolTipInitialDelay(int ms) {
+		prefs.putInt(KEY_TOOLTIP_INITIAL_DELAY, ms);
+	}
+
+	public static int getToolTipInitialDelay() {
+		return prefs.getInt(KEY_TOOLTIP_INITIAL_DELAY, DEFAULT_TOOLTIP_INITIAL_DELAY);
+	}
+
+	public static void setToolTipDismissDelay(int ms) {
+		prefs.putInt(KEY_TOOLTIP_DISMISS_DELAY, ms);
+	}
+
+	public static int getToolTipDismissDelay() {
+		return prefs.getInt(KEY_TOOLTIP_DISMISS_DELAY, DEFAULT_TOOLTIP_DISMISS_DELAY);
+	}
+
+	public static void setAllowPlayerMacroEditsDefault(boolean show) {
+		prefs.putBoolean(KEY_ALLOW_PLAYER_MACRO_EDITS_DEFAULT, show);
+	}
+
+	public static boolean getAllowPlayerMacroEditsDefault() {
+		return prefs.getBoolean(KEY_ALLOW_PLAYER_MACRO_EDITS_DEFAULT, DEFAULT_ALLOW_PLAYER_MACRO_EDITS_DEFAULT);
+	}
+
+	public static void setPortraitSize(int size) {
+		prefs.putInt(KEY_PORTRAIT_SIZE, size);
+	}
+
+	public static int getPortraitSize() {
+		return prefs.getInt(KEY_PORTRAIT_SIZE, DEFAULT_PORTRAIT_SIZE);
+	}
+
+	public static void setShowSmilies(boolean show) {
+		prefs.putBoolean(KEY_INSERT_SMILIES, show);
+	}
+
+	public static boolean getShowSmilies() {
+		return prefs.getBoolean(KEY_INSERT_SMILIES, DEFAULT_SHOW_SMILIES);
+	}
+
+	public static void setShowDialogOnNewToken(boolean show) {
+		prefs.putBoolean(KEY_SHOW_DIALOG_ON_NEW_TOKEN, show);
+	}
+
+	public static boolean getShowDialogOnNewToken() {
+		return prefs.getBoolean(KEY_SHOW_DIALOG_ON_NEW_TOKEN, DEFAULT_SHOW_DIALOG_ON_NEW_TOKEN);
+	}
+
+	public static void setShowAvatarInChat(boolean show) {
+		prefs.putBoolean(KEY_SHOW_AVATAR_IN_CHAT, show);
+	}
+
+	public static boolean getShowAvatarInChat() {
+		return prefs.getBoolean(KEY_SHOW_AVATAR_IN_CHAT, DEFAULT_SHOW_AVATAR_IN_CHAT);
+	}
+
+	public static void setPlaySystemSounds(boolean play) {
+		prefs.putBoolean(KEY_PLAY_SYSTEM_SOUNDS, play);
+	}
+
+	public static boolean getPlaySystemSounds() {
+		return prefs.getBoolean(KEY_PLAY_SYSTEM_SOUNDS, DEFAULT_PLAY_SYSTEM_SOUNDS);
+	}
+
+	public static void setPlaySystemSoundsOnlyWhenNotFocused(boolean play) {
+		prefs.putBoolean(KEY_SOUNDS_ONLY_WHEN_NOT_FOCUSED, play);
+	}
+
+	public static boolean getPlaySystemSoundsOnlyWhenNotFocused() {
+		return prefs.getBoolean(KEY_SOUNDS_ONLY_WHEN_NOT_FOCUSED, DEFAULT_SOUNDS_ONLY_WHEN_NOT_FOCUSED);
+	}
+
+	public static void setChatColor(Color color){
+		prefs.putInt(KEY_CHAT_COLOR, color.getRGB());
+	}
+
+	public static void setFontSize(int size) {
+		prefs.putInt(KEY_FONT_SIZE, size);
+	}
 
 	public static int getFontSize() {
 		return prefs.getInt(KEY_FONT_SIZE, DEFAULT_FONT_SIZE);
@@ -432,29 +434,29 @@ public class AppPreferences {
 				DEFAULT_DEFAULT_GRID_COLOR));
 	}
 
-    public static boolean getFaceVertex() {
-    	return prefs.getBoolean(KEY_FACE_VERTEX, DEFAULT_FACE_VERTEX);
-    }
+	public static boolean getFaceVertex() {
+		return prefs.getBoolean(KEY_FACE_VERTEX, DEFAULT_FACE_VERTEX);
+	}
 
-    public static void setFaceVertex(boolean yesNo) {
-    	prefs.putBoolean(KEY_FACE_VERTEX, yesNo);
-    }
+	public static void setFaceVertex(boolean yesNo) {
+		prefs.putBoolean(KEY_FACE_VERTEX, yesNo);
+	}
 
-    public static boolean getFaceEdge() {
-    	return prefs.getBoolean(KEY_FACE_EDGE, DEFAULT_FACE_EDGE);
-    }
+	public static boolean getFaceEdge() {
+		return prefs.getBoolean(KEY_FACE_EDGE, DEFAULT_FACE_EDGE);
+	}
 
-    public static void setFaceEdge(boolean yesNo) {
-    	prefs.putBoolean(KEY_FACE_EDGE, yesNo);
-    }
+	public static void setFaceEdge(boolean yesNo) {
+		prefs.putBoolean(KEY_FACE_EDGE, yesNo);
+	}
 
-    public static void clearAssetRoots() {
-        prefs.put(KEY_ASSET_ROOTS, "");
-    }
-    
-    public static void setSaveDir(File file) {
-    	prefs.put(KEY_SAVE_DIR, file.toString());
-    }
+	public static void clearAssetRoots() {
+		prefs.put(KEY_ASSET_ROOTS, "");
+	}
+
+	public static void setSaveDir(File file) {
+		prefs.put(KEY_SAVE_DIR, file.toString());
+	}
 
 	public static void setDefaultGridSize(int size) {
 		prefs.putInt(KEY_DEFAULT_GRID_SIZE, size);
@@ -542,8 +544,8 @@ public class AppPreferences {
 	public static boolean getTokensWarnWhenDeleted() {
 		return prefs.getBoolean(KEY_TOKENS_WARN_WHEN_DELETED,
 				DEFAULT_TOKENS_WARN_WHEN_DELETED);
-	}	
-	
+	}
+
 	public static void setTokensStartSnapToGrid(boolean flag) {
 		prefs.putBoolean(KEY_TOKENS_START_SNAP_TO_GRID, flag);
 	}
@@ -613,11 +615,11 @@ public class AppPreferences {
 	public static void setShowStatSheet(boolean show) {
 		prefs.putBoolean(KEY_SHOW_STAT_SHEET, show);
 	}
-	
+
 	public static boolean getFitGMView() {
 		return prefs.getBoolean(KEY_FIT_GM_VIEW, DEFAULT_FIT_GM_VIEW);
 	}
-	
+
 	public static void setFitGMView(boolean fit) {
 		prefs.putBoolean(KEY_FIT_GM_VIEW, fit);
 	}
@@ -662,13 +664,12 @@ public class AppPreferences {
 		prefs.put(KEY_ASSET_ROOTS, list);
 	}
 
-	public static List<File> getAssetRoots() {
+	public static Set<File> getAssetRoots() {
 
 		String list = prefs.get(KEY_ASSET_ROOTS, "");
 		String[] roots = list.split(";");	// FJE Probably should be File.path_separator ...
 
-		// TODO: This should really be a set to remove dups
-		List<File> rootList = new ArrayList<File>();
+		Set<File> rootList = new HashSet<File>();
 		for (String root : roots) {
 			File file = new File(root);
 
@@ -676,19 +677,16 @@ public class AppPreferences {
 			if (!file.exists()) {
 				continue;
 			}
-
 			if (!rootList.contains(file)) {
-
 				rootList.add(file);
 			}
 		}
-
 		return rootList;
 	}
 
 	public static void removeAssetRoot(File root) {
 
-		List<File> rootList = getAssetRoots();
+		Set<File> rootList = getAssetRoots();
 		rootList.remove(root);
 
 		clearAssetRoots();
@@ -702,7 +700,7 @@ public class AppPreferences {
 
 		StringBuilder combined = new StringBuilder("");
 		for (ListIterator<File> iter = mruCampaigns.listIterator(); iter
-				.hasNext();) {
+		.hasNext();) {
 			combined.append(iter.next().getPath());
 			combined.append(File.pathSeparator);
 		}
@@ -725,7 +723,7 @@ public class AppPreferences {
 
 		StringBuilder combined = new StringBuilder("");
 		for (ListIterator<File> iter = savedTextures.listIterator(); iter
-				.hasNext();) {
+		.hasNext();) {
 			combined.append(iter.next().getPath());
 			combined.append(File.pathSeparator);
 		}
@@ -744,80 +742,80 @@ public class AppPreferences {
 		return savedTextures;
 	}
 
-    private static final String INIT_SHOW_TOKENS = "initShowTokens";
-    private static final boolean DEFAULT_INIT_SHOW_TOKENS = true;
-    
-    private static final String INIT_SHOW_TOKEN_STATES = "initShowTokenStates";
-    private static final boolean DEFAULT_INIT_SHOW_TOKEN_STATES = true;
-    
-    private static final String INIT_SHOW_INITIATIVE = "initShowInitiative";
-    private static final boolean DEFAULT_INIT_SHOW_INITIATIVE = true;
-    
-    private static final String INIT_SHOW_2ND_LINE = "initShow2ndLine";
-    private static final boolean DEFAULT_INIT_SHOW_2ND_LINE = false;
-    
-    private static final String INIT_HIDE_NPCS = "initHideNpcs";
-    private static final boolean DEFAULT_INIT_HIDE_NPCS = false;
-    
-    private static final String INIT_OWNER_PERMISSIONS = "initOwnerPermissions";
-    private static final boolean DEFAULT_INIT_OWNER_PERMISSIONS = false;
-    
-    private static final String INIT_LOCK_MOVEMENT = "initLockMovement";
-    private static final boolean DEFAULT_INIT_LOCK_MOVEMENT = false;
+	private static final String INIT_SHOW_TOKENS = "initShowTokens";
+	private static final boolean DEFAULT_INIT_SHOW_TOKENS = true;
 
-    public static boolean getInitShowTokens() {
-        return prefs.getBoolean(INIT_SHOW_TOKENS, DEFAULT_INIT_SHOW_TOKENS);
-    }
-    
-    public static void setInitShowTokens(boolean showTokens) {
-        prefs.putBoolean(INIT_SHOW_TOKENS, showTokens);
-    }
+	private static final String INIT_SHOW_TOKEN_STATES = "initShowTokenStates";
+	private static final boolean DEFAULT_INIT_SHOW_TOKEN_STATES = true;
 
-    public static boolean getInitShowTokenStates() {
-        return prefs.getBoolean(INIT_SHOW_TOKEN_STATES, DEFAULT_INIT_SHOW_TOKEN_STATES);
-    }
-    
-    public static void setInitShowTokenStates(boolean showTokenStates) {
-        prefs.putBoolean(INIT_SHOW_TOKEN_STATES, showTokenStates);
-    }
+	private static final String INIT_SHOW_INITIATIVE = "initShowInitiative";
+	private static final boolean DEFAULT_INIT_SHOW_INITIATIVE = true;
 
-    public static boolean getInitShowInitiative() {
-        return prefs.getBoolean(INIT_SHOW_INITIATIVE, DEFAULT_INIT_SHOW_INITIATIVE);
-    }
-    
-    public static void setInitShowInitiative(boolean showInitiative) {
-        prefs.putBoolean(INIT_SHOW_INITIATIVE, showInitiative);
-    }
+	private static final String INIT_SHOW_2ND_LINE = "initShow2ndLine";
+	private static final boolean DEFAULT_INIT_SHOW_2ND_LINE = false;
 
-    public static boolean getInitShow2ndLine() {
-        return prefs.getBoolean(INIT_SHOW_2ND_LINE, DEFAULT_INIT_SHOW_2ND_LINE);
-    }
-    
-    public static void setInitShow2ndLine(boolean secondLine) {
-        prefs.putBoolean(INIT_SHOW_2ND_LINE, secondLine);
-    }
+	private static final String INIT_HIDE_NPCS = "initHideNpcs";
+	private static final boolean DEFAULT_INIT_HIDE_NPCS = false;
 
-    public static boolean getInitHideNpcs() {
-        return prefs.getBoolean(INIT_HIDE_NPCS, DEFAULT_INIT_HIDE_NPCS);
-    }
-    
-    public static void setInitHideNpcs(boolean hideNpcs) {
-        prefs.putBoolean(INIT_HIDE_NPCS, hideNpcs);
-    }
+	private static final String INIT_OWNER_PERMISSIONS = "initOwnerPermissions";
+	private static final boolean DEFAULT_INIT_OWNER_PERMISSIONS = false;
 
-    public static boolean getInitOwnerPermissions() {
-        return prefs.getBoolean(INIT_OWNER_PERMISSIONS, DEFAULT_INIT_OWNER_PERMISSIONS);
-    }
-    
-    public static void setInitOwnerPermissions(boolean ownerPermissions) {
-        prefs.putBoolean(INIT_OWNER_PERMISSIONS, ownerPermissions);
-    }
+	private static final String INIT_LOCK_MOVEMENT = "initLockMovement";
+	private static final boolean DEFAULT_INIT_LOCK_MOVEMENT = false;
 
-    public static boolean getInitLockMovement() {
-        return prefs.getBoolean(INIT_LOCK_MOVEMENT, DEFAULT_INIT_LOCK_MOVEMENT);
-    }
-    
-    public static void setInitLockMovement(boolean lockMovement) {
-        prefs.putBoolean(INIT_LOCK_MOVEMENT, lockMovement);
-    }
+	public static boolean getInitShowTokens() {
+		return prefs.getBoolean(INIT_SHOW_TOKENS, DEFAULT_INIT_SHOW_TOKENS);
+	}
+
+	public static void setInitShowTokens(boolean showTokens) {
+		prefs.putBoolean(INIT_SHOW_TOKENS, showTokens);
+	}
+
+	public static boolean getInitShowTokenStates() {
+		return prefs.getBoolean(INIT_SHOW_TOKEN_STATES, DEFAULT_INIT_SHOW_TOKEN_STATES);
+	}
+
+	public static void setInitShowTokenStates(boolean showTokenStates) {
+		prefs.putBoolean(INIT_SHOW_TOKEN_STATES, showTokenStates);
+	}
+
+	public static boolean getInitShowInitiative() {
+		return prefs.getBoolean(INIT_SHOW_INITIATIVE, DEFAULT_INIT_SHOW_INITIATIVE);
+	}
+
+	public static void setInitShowInitiative(boolean showInitiative) {
+		prefs.putBoolean(INIT_SHOW_INITIATIVE, showInitiative);
+	}
+
+	public static boolean getInitShow2ndLine() {
+		return prefs.getBoolean(INIT_SHOW_2ND_LINE, DEFAULT_INIT_SHOW_2ND_LINE);
+	}
+
+	public static void setInitShow2ndLine(boolean secondLine) {
+		prefs.putBoolean(INIT_SHOW_2ND_LINE, secondLine);
+	}
+
+	public static boolean getInitHideNpcs() {
+		return prefs.getBoolean(INIT_HIDE_NPCS, DEFAULT_INIT_HIDE_NPCS);
+	}
+
+	public static void setInitHideNpcs(boolean hideNpcs) {
+		prefs.putBoolean(INIT_HIDE_NPCS, hideNpcs);
+	}
+
+	public static boolean getInitOwnerPermissions() {
+		return prefs.getBoolean(INIT_OWNER_PERMISSIONS, DEFAULT_INIT_OWNER_PERMISSIONS);
+	}
+
+	public static void setInitOwnerPermissions(boolean ownerPermissions) {
+		prefs.putBoolean(INIT_OWNER_PERMISSIONS, ownerPermissions);
+	}
+
+	public static boolean getInitLockMovement() {
+		return prefs.getBoolean(INIT_LOCK_MOVEMENT, DEFAULT_INIT_LOCK_MOVEMENT);
+	}
+
+	public static void setInitLockMovement(boolean lockMovement) {
+		prefs.putBoolean(INIT_LOCK_MOVEMENT, lockMovement);
+	}
 }

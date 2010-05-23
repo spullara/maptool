@@ -334,34 +334,34 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		new WindowPreferences(AppConstants.APP_NAME, "mainFrame", this);
 	}
 
-    public void registerForMacOSXEvents() {
-        if (MapTool.MAC_OS_X) {
-            try {
-                OSXAdapter.setQuitHandler(this, getClass().getDeclaredMethod("macOSXExit", (Class[])null));
-                OSXAdapter.setAboutHandler(this, getClass().getDeclaredMethod("macOSXAbout", (Class[])null));
-                OSXAdapter.setPreferencesHandler(this, getClass().getDeclaredMethod("macOSXPreferences", (Class[])null));
-            } catch (Exception e) {
-                System.err.println("Error while loading the OSXAdapter:");
-                e.printStackTrace();
-            }
-        }
-    }
+	public void registerForMacOSXEvents() {
+		if (MapTool.MAC_OS_X) {
+			try {
+				OSXAdapter.setQuitHandler(this, getClass().getDeclaredMethod("macOSXExit", (Class[])null));
+				OSXAdapter.setAboutHandler(this, getClass().getDeclaredMethod("macOSXAbout", (Class[])null));
+				OSXAdapter.setPreferencesHandler(this, getClass().getDeclaredMethod("macOSXPreferences", (Class[])null));
+			} catch (Exception e) {
+				System.err.println("Error while loading the OSXAdapter:");
+				e.printStackTrace();
+			}
+		}
+	}
 
-    public void macOSXAbout() {
-    	((ClientAction)AppActions.SHOW_ABOUT).execute(null);
-    }
+	public void macOSXAbout() {
+		((ClientAction)AppActions.SHOW_ABOUT).execute(null);
+	}
 
-    public boolean macOSXExit() {
-    	((ClientAction)AppActions.EXIT).execute(null);
-    	// Always return false to abort exit from os.  Above call will close app normally if user accepts
-    	return false;
-    }
+	public boolean macOSXExit() {
+		((ClientAction)AppActions.EXIT).execute(null);
+		// Always return false to abort exit from os.  Above call will close app normally if user accepts
+		return false;
+	}
 
-    public void macOSXPreferences() {
-    	((ClientAction)AppActions.SHOW_PREFERENCES).execute(null);
-    }
+	public void macOSXPreferences() {
+		((ClientAction)AppActions.SHOW_PREFERENCES).execute(null);
+	}
 
-    public DragImageGlassPane getDragImageGlassPane() {
+	public DragImageGlassPane getDragImageGlassPane() {
 		return dragImageGlassPane;
 	}
 
@@ -756,7 +756,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	private void restorePreferences() {
-		List<File> assetRootList = AppPreferences.getAssetRoots();
+		Set<File> assetRootList = AppPreferences.getAssetRoots();
 		for (File file : assetRootList) {
 			addAssetRoot(file);
 		}
@@ -1333,7 +1333,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				 dispose();
+				dispose();
 			}
 		});
 	}

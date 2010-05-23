@@ -461,7 +461,7 @@ public class PersistenceUtil {
 				// pre 1.3b51 campaign files stored the image data directly in the asset serialization
 				if (asset.getImage() == null
 						|| asset.getImage().length < 4	// New XStreamConverter creates empty byte[] for image
-						) {
+				) {
 					String ext = asset.getImageExtension();
 					pathname = pathname + "." + (ext.isEmpty() ? "dat" : ext);
 					pathname = assetnameVersionManager.transform(pathname, campVersion);
@@ -588,8 +588,7 @@ public class PersistenceUtil {
 	public static MacroButtonProperties loadMacro(File file) throws IOException {
 		try {
 			PackedFile pakFile = new PackedFile(file);
-			String version = (String) pakFile.getProperty(PROP_VERSION); // Sanity
-			// check
+			String version = (String) pakFile.getProperty(PROP_VERSION); // Sanity check
 			MacroButtonProperties macroButton = (MacroButtonProperties) pakFile.getContent();
 			return macroButton;
 		} catch (IOException e) {

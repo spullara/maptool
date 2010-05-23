@@ -66,10 +66,9 @@ public class TokenNameFunction extends AbstractFunction {
 	 * @param token The token to set the name of.
 	 * @param name the name of the token.
 	 */
-	public void setName(Token token, String name) {
-		token.setName(name);
+	public void setName(Token token, String name){			
+			token.setName(name);
 	}
-
 
 	/**
 	 * Gets the name of the token
@@ -121,11 +120,17 @@ public class TokenNameFunction extends AbstractFunction {
 			if (token == null) {
 				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "setName", args.get(1)));
 			}
+			if (args.get(0).toString().equals("")){
+				throw new ParserException(I18N.getText("macro.function.tokenName.emptyTokenNameForbidden", "setName"));
+			}
 		} else if (args.size() == 1) {
 			MapToolVariableResolver res = (MapToolVariableResolver)parser.getVariableResolver();
 			token = res.getTokenInContext();
 			if (token == null) {
 				throw new ParserException(I18N.getText("macro.function.general.noImpersonated", "setName"));
+			}
+			if (args.get(0).toString().equals("")){
+				throw new ParserException(I18N.getText("macro.function.tokenName.emptyTokenNameForbidden", "setName"));
 			}
 		} else if (args.size() == 0) {
 			throw new ParserException(I18N.getText("macro.function.general.notEnoughParam", "setName", 1, args.size()));

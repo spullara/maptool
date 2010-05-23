@@ -26,12 +26,14 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JTextField;
 
 import net.rptools.lib.swing.SwingUtil;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.util.ImageManager;
 
@@ -100,9 +102,9 @@ public class NewTokenDialog extends AbeillePanel<Token> {
 		return (ImageComponent) getComponent("tokenIcon");
 	}
 
-//	public JTextField getNameTextField() {
-//		return (JTextField) getComponent("name");
-//	}
+    public JTextField getNameTextField() {
+       return (JTextField) getComponent("@name");
+ 	}
 //	
 //	public JTextField getGMNameTextField() {
 //		return (JTextField) getComponent("gmName");
@@ -161,7 +163,10 @@ public class NewTokenDialog extends AbeillePanel<Token> {
 				if (!getShowDialogCheckbox().isSelected()) {
 					AppPreferences.setShowDialogOnNewToken(false);
 				}
-				
+				if (getNameTextField().getText().equals("")){
+					MapTool.showError(I18N.getText("msg.error.emptyTokenName"));
+					return;
+				}
 				if (commit()) {
 					dialog.closeDialog();
 				}

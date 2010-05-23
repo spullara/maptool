@@ -49,6 +49,7 @@ import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -61,6 +62,7 @@ import net.rptools.maptool.client.functions.AbstractTokenAccessorFunction;
 import net.rptools.maptool.client.functions.TokenBarFunction;
 import net.rptools.maptool.client.swing.AbeillePanel;
 import net.rptools.maptool.client.swing.GenericDialog;
+import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.AssetManager;
 import net.rptools.maptool.model.Association;
 import net.rptools.maptool.model.Grid;
@@ -361,6 +363,12 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 	@Override
 	public boolean commit() {
 		Token token = getModel();
+		
+		
+		if (getNameField().getText().equals("")){
+			MapTool.showError(I18N.getText("msg.error.emptyTokenName"));
+			return false;
+		}
 
 		if (getSpeechTable().isEditing()) {
 			getSpeechTable().getCellEditor().stopCellEditing();
@@ -633,6 +641,10 @@ public class EditTokenDialog extends AbeillePanel<Token> {
 
 	private JPanel getGMNotesPanel() {
 		return (JPanel) getComponent("gmNotesPanel");
+	}
+	
+	private JTextField getNameField() {
+		return (JTextField) getComponent("@name");
 	}
 
 	public CheckBoxListWithSelectable getOwnerList() {
