@@ -41,7 +41,7 @@ public class TokenLocationFunctions extends AbstractFunction {
 
 	private TokenLocationFunctions() {
 		super(0, 5, "getTokenX", "getTokenY", "getTokenDrawOrder", "getDistance", "moveToken",
-				    "goto", "getDistanceToXY", "setTokenDrawOrder", "moveTokenToMap", "moveTokenFromMap");
+				"goto", "getDistanceToXY", "setTokenDrawOrder", "moveTokenToMap", "moveTokenFromMap");
 	}
 
 
@@ -64,11 +64,11 @@ public class TokenLocationFunctions extends AbstractFunction {
 
 
 		if (functionName.equals("getTokenX")) {
-			return getTokenLocation(res, parameters).x;
+			return BigDecimal.valueOf(getTokenLocation(res, parameters).x);
 		}
 
 		if (functionName.equals("getTokenY")) {
-			return getTokenLocation(res, parameters).y;
+			return BigDecimal.valueOf(getTokenLocation(res, parameters).y);
 		}
 
 		if (functionName.equals("getTokenDrawOrder")) {
@@ -87,9 +87,9 @@ public class TokenLocationFunctions extends AbstractFunction {
 			}
 			token.setZOrder(((BigDecimal)parameters.get(0)).intValue());
 			MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
-	 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
-	    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
-	 		return BigDecimal.valueOf(token.getZOrder());
+			MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+			MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+			return BigDecimal.valueOf(token.getZOrder());
 		}
 
 		if (functionName.equals("getDistance")) {
@@ -222,14 +222,14 @@ public class TokenLocationFunctions extends AbstractFunction {
 				token.setX(x);
 				token.setY(y);
 				token.setZOrder(z);
-		 		toZone.putToken(token);
-		 		MapTool.serverCommand().putToken(toZone.getId(), token);
+				toZone.putToken(token);
+				MapTool.serverCommand().putToken(toZone.getId(), token);
 				MapTool.serverCommand().removeToken(fromZone.getId(), token.getId());
 				sb.append(I18N.getText("macro.function.moveTokenMap.movedToken", token.getName(), map)).append("<br>");
 			}
 		}
-    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
-    	MapTool.getFrame().refresh();
+		MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+		MapTool.getFrame().refresh();
 
 		return sb.toString();
 	}
@@ -308,16 +308,16 @@ public class TokenLocationFunctions extends AbstractFunction {
 			int distance = Integer.MAX_VALUE;
 			for (CellPoint scell : sourceCells) {
 				for (CellPoint tcell : targetCells) {
-		            walker.setWaypoints(scell, tcell);
-		            distance = Math.min(distance, walker.getDistance());
+					walker.setWaypoints(scell, tcell);
+					distance = Math.min(distance, walker.getDistance());
 				}
 			}
 
-            if (units) {
-            	return distance;
-            } else {
-            	return distance / getDistancePerCell();
-            }
+			if (units) {
+				return distance;
+			} else {
+				return distance / getDistancePerCell();
+			}
 		} else {
 
 			double d = source.getFootprint(grid).getScale();
@@ -329,11 +329,11 @@ public class TokenLocationFunctions extends AbstractFunction {
 			double a = sourceCenterX - targetCenterX;
 			double b = sourceCenterY - targetCenterY;
 			double h = Math.sqrt(a*a + b*b);
-            h /= renderer.getZone().getGrid().getSize();
-            if (units) {
-            	h *= renderer.getZone().getUnitsPerCell();
-            }
-            return h;
+			h /= renderer.getZone().getGrid().getSize();
+			if (units) {
+				h *= renderer.getZone().getUnitsPerCell();
+			}
+			return h;
 		}
 	}
 
@@ -376,15 +376,15 @@ public class TokenLocationFunctions extends AbstractFunction {
 			int distance = Integer.MAX_VALUE;
 			CellPoint targetCell = new CellPoint(x,y);
 			for (CellPoint scell : sourceCells) {
-	            walker.setWaypoints(scell, targetCell);
-	            distance = Math.min(distance, walker.getDistance());
+				walker.setWaypoints(scell, targetCell);
+				distance = Math.min(distance, walker.getDistance());
 			}
 
-            if (units) {
-            	return distance;
-            } else {
-            	return distance / getDistancePerCell();
-            }
+			if (units) {
+				return distance;
+			} else {
+				return distance / getDistancePerCell();
+			}
 		} else {
 
 			double d = source.getFootprint(grid).getScale();
@@ -393,11 +393,11 @@ public class TokenLocationFunctions extends AbstractFunction {
 			double a = sourceCenterX - x;
 			double b = sourceCenterY - y;
 			double h = Math.sqrt(a*a + b*b);
-            h /= renderer.getZone().getGrid().getSize();
-            if (units) {
-            	h *= renderer.getZone().getUnitsPerCell();
-            }
-            return h;
+			h /= renderer.getZone().getGrid().getSize();
+			if (units) {
+				h *= renderer.getZone().getUnitsPerCell();
+			}
+			return h;
 		}
 	}
 
@@ -549,8 +549,8 @@ public class TokenLocationFunctions extends AbstractFunction {
 
 		moveToken(token, x, y, useDistance);
 		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
- 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
-    	MapTool.getFrame().getCurrentZoneRenderer().flushLight();
+		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+		MapTool.getFrame().getCurrentZoneRenderer().flushLight();
 
 		return "";
 	}
