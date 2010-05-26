@@ -458,6 +458,12 @@ public class PersistenceUtil {
 					log.error("Referenced asset '" + pathname + "' not found?!");
 					continue;
 				}
+				// If the asset was marked as "broken" then ignore it completely.  The end
+				// result is that MT will attempt to load it from a repository again, as normal.
+				if ("broken".equals(asset.getName())) {
+					log.warn("Reference to 'broken' asset '" + pathname + "' not restored.");
+					continue;
+				}
 				// pre 1.3b51 campaign files stored the image data directly in the asset serialization
 				if (asset.getImage() == null
 						|| asset.getImage().length < 4	// New XStreamConverter creates empty byte[] for image

@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui.lookuptable;
 
@@ -34,8 +34,8 @@ import org.apache.log4j.Logger;
 public class LookupTableImagePanelModel implements ImagePanelModel {
 
 	private static final Logger log = Logger.getLogger(LookupTableImagePanelModel.class);
-	
-	private ImageObserver[] imageObservers;
+
+	private final ImageObserver[] imageObservers;
 
 	public LookupTableImagePanelModel(ImageObserver... observers) {
 		imageObservers = observers;
@@ -61,7 +61,7 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 
 		LookupTable table = getFilteredLookupTable().get(id);
 		if (table == null) {
-			log.debug("LookupTableImagePanelModel.getImage(" + id + ":  not resolved");
+			log.debug("LookupTableImagePanelModel.getImage(" + id + "):  not resolved");
 			return ImageManager.BROKEN_IMAGE;
 		}
 
@@ -96,7 +96,7 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 	}
 
 	private List<String> getLookupTableIDList() {
-		
+
 		List<String> idList = new ArrayList<String>(getFilteredLookupTable().keySet());
 		Collections.sort(idList);
 		return idList;
@@ -112,7 +112,7 @@ public class LookupTableImagePanelModel implements ImagePanelModel {
 		if (MapTool.getPlayer() == null) {
 			return new HashMap<String, LookupTable>();
 		}
-		
+
 		Map<String, LookupTable> lookupTables = new HashMap<String, LookupTable>(MapTool.getCampaign().getLookupTableMap());
 		if(!MapTool.getPlayer().isGM()) {
 			for(String nextKey : MapTool.getCampaign().getLookupTableMap().keySet()) {
