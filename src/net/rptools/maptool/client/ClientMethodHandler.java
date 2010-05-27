@@ -93,9 +93,19 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 				ioe.printStackTrace();
 			}
 			return;
-
+		
+		case setLiveTypingLabel:
+			MapTool.getFrame().getCommandPanel().setLiveTypingLabel(parameters[0].toString());
+			return;
+			
+		case enforceNotification:
+			Boolean enforce = (Boolean) parameters[0];
+			
+			MapTool.getFrame().getCommandPanel().disableNotifyButton(enforce);
+			return;		
+		
 		}
-
+		
 		// Model events need to update on the EDT
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -530,7 +540,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					} // endif
 					ti.update((Boolean) parameters[2], (String) parameters[3]);
 					return;
-
+					
 				case setUseVision:
 					zoneGUID = (GUID) parameters[0];
 					VisionType visionType = (VisionType) parameters[1];
@@ -550,6 +560,7 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 					MapTool.getCampaign().setMacroButtonPropertiesArray(new ArrayList<MacroButtonProperties>((ArrayList<MacroButtonProperties>) parameters[0]));
 					MapTool.getFrame().getCampaignPanel().reset();
 					return;
+				
 
 				}
 			}

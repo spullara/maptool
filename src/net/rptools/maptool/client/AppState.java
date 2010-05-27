@@ -27,6 +27,7 @@ public class AppState {
     private static boolean linkPlayerViews = false;
     private static boolean useDoubleWideLine = true;
     private static boolean showMovementMeasurements = true;
+    private static boolean enforceNotification = false;
     private static boolean showLightRadius = true;
     private static File campaignFile;
     private static int gridSize = 1;
@@ -162,4 +163,13 @@ public class AppState {
 	public synchronized static boolean isSaving() {
 		return isSaving;
 	}
+	
+	public static boolean isNotificationEnforced(){
+		return enforceNotification;
+	}
+	
+	public static void setNotificationEnforced(boolean enforce){
+		enforceNotification = enforce;
+	}
+	
 }

@@ -1013,6 +1013,29 @@ public class AppActions {
 	};
 
 	/**
+	 * This is the menu item that lets the GM override the typing notification toggle on the clients
+	 */
+	
+	public static final Action TOGGLE_ENFORCE_NOTIFICATION = new AdminClientAction() {
+		{
+			init("action.enforceNotification");
+		}
+		
+		@Override
+		public boolean isSelected(){
+			return AppState.isNotificationEnforced();
+		}
+		
+		@Override
+		public void execute(ActionEvent e){
+			AppState.setNotificationEnforced(!AppState.isNotificationEnforced());
+			MapTool.serverCommand().enforceNotification(AppState.isNotificationEnforced());
+		}
+		
+	};
+	
+	
+	/**
 	 * This is the menu option that forces the player view to continuously track the GM view.
 	 */
 	public static final Action TOGGLE_LINK_PLAYER_VIEW = new AdminClientAction() {

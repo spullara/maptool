@@ -15,7 +15,6 @@ package net.rptools.maptool.server;
 
 import java.awt.geom.Area;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import net.rptools.lib.MD5Key;
@@ -25,12 +24,10 @@ import net.rptools.maptool.model.CampaignProperties;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.InitiativeList;
 import net.rptools.maptool.model.Label;
-import net.rptools.maptool.model.LookupTable;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Pointer;
 import net.rptools.maptool.model.TextMessage;
 import net.rptools.maptool.model.Token;
-import net.rptools.maptool.model.TokenProperty;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.model.ZonePoint;
 import net.rptools.maptool.model.Zone.VisionType;
@@ -83,7 +80,10 @@ public interface ServerCommand {
         updateTokenInitiative,
         setVisionType,
         updateCampaignMacros,
-        setTokenLocation // NOTE: This is to support third party token placement and shouldn't be depended on for general purpose token movement
+        setTokenLocation,// NOTE: This is to support third party token placement and shouldn't be depended on for general purpose token movement
+        setLiveTypingLabel, // Experimental
+        enforceNotification // Override toggle button to show typing notifications
+               
     };
 
     public void bootPlayer(String player);
@@ -129,4 +129,6 @@ public interface ServerCommand {
     public void updateTokenInitiative(GUID zone, GUID token, Boolean hold, String state, Integer index);
     public void setVisionType(GUID zoneGUID, VisionType visionType);
     public void updateCampaignMacros(List<MacroButtonProperties> properties);
+    public void setLiveTypingLabel(String label);
+    public void enforceNotification(Boolean enforce);
 }

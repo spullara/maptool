@@ -59,6 +59,8 @@ public class ClientCommand {
         updateTokenInitiative,
         setUseVision,
         updateCampaignMacros,
-        setTokenLocation // NOTE: This is to support third party token placement and shouldn't be depended on for general purpose token movement
+        setTokenLocation, // NOTE: This is to support third party token placement and shouldn't be depended on for general purpose token movement
+        setLiveTypingLabel, // Experimental chat notification
+        enforceNotification // enforces notification of typing in the chat window
     };
 }

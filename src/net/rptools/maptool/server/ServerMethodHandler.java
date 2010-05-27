@@ -78,6 +78,8 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
             case hideFoW:                 hideFoW(context.getGUID(0), (Area) context.get(1)); break;
             case setFoW:                  setFoW(context.getGUID(0), (Area) context.get(1)); break;
             case hidePointer:             hidePointer(context.getString(0)); break;
+            case setLiveTypingLabel:	  setLiveTypingLabel(context.getString(0)); break;
+            case enforceNotification:	  enforceNotification(context.getBool(0)); break;
             case message:                 message((TextMessage)context.get(0)); break;
             case putAsset:                putAsset((Asset) context.get(0)); break;
             case putLabel:                putLabel(context.getGUID(0), (Label) context.get(1)); break;
@@ -305,7 +307,7 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
         ti.update(hold, state);
         forwardToAllClients();
     }
-
+   
     public void renameZone(GUID zoneGUID, String name) {
     	Zone zone = server.getCampaign().getZone(zoneGUID);
     	if (zone != null) {
@@ -447,6 +449,14 @@ public class ServerMethodHandler extends AbstractMethodHandler implements Server
 
     public void showPointer(String player, Pointer pointer) {
         server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.showPointer.name(), RPCContext.getCurrent().parameters);
+    }
+    
+    public void setLiveTypingLabel(String label){
+    	forwardToClients();
+    }
+    
+    public void enforceNotification(Boolean enforce){
+    	forwardToClients();
     }
     
     public void bootPlayer(String player) {

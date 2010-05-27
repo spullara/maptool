@@ -161,6 +161,15 @@ public class ServerCommandClientImpl implements ServerCommand {
 	public void hidePointer(String player) {
 		makeServerCall(COMMAND.hidePointer, player);
 	}
+	
+	public void setLiveTypingLabel(String label){
+		makeServerCall(COMMAND.setLiveTypingLabel, label);
+	}
+	
+	public void enforceNotification(Boolean enforce){
+		// MapTool.showInformation(enforce.toString());
+		makeServerCall(COMMAND.enforceNotification, enforce);
+	}
 
 	public void startTokenMove(String playerId, GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList) {
 		makeServerCall(COMMAND.startTokenMove, playerId, zoneGUID, tokenGUID, tokenList);
@@ -227,7 +236,7 @@ public class ServerCommandClientImpl implements ServerCommand {
     public void updateTokenInitiative(GUID zone, GUID token, Boolean holding, String state, Integer index) {
         makeServerCall(COMMAND.updateTokenInitiative, zone, token, holding, state, index);
     }
-    
+        
     public void updateCampaignMacros(List<MacroButtonProperties> properties) {
     	makeServerCall(COMMAND.updateCampaignMacros, properties);
     }

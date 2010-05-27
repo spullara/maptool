@@ -50,6 +50,9 @@ public class AppStyle {
     public static BufferedImage chatScrollImage;
     public static BufferedImage chatScrollLockImage;
     
+    public static BufferedImage showTypingNotification;
+    public static BufferedImage hideTypingNotification;
+    
     public static Color topologyColor = new Color(0, 0, 255, 128);
     public static Color topologyAddColor = new Color(255, 0, 0, 128);
     public static Color topologyRemoveColor = new Color(255, 255, 255, 128);
@@ -92,6 +95,11 @@ public class AppStyle {
             chatImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chat-blue.png");
             chatScrollImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments.png"); 
             chatScrollLockImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments_delete.png"); 
+            
+            // Typing notification icons added by Rumble
+            showTypingNotification = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chatNotifyOn.png");
+            hideTypingNotification = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chatNotifyOff.png");
+            
             boundedBackgroundTile = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/Black.png");
             panelTexture = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/panelTexture.jpg");
             
