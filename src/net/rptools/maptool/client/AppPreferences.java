@@ -25,6 +25,7 @@ import java.util.prefs.Preferences;
 import net.rptools.maptool.client.walker.WalkerMetric;
 import net.rptools.maptool.model.GridFactory;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Zone;
 
 public class AppPreferences {
 
@@ -60,8 +61,17 @@ public class AppPreferences {
 	private static final String KEY_USE_HALO_COLOR_ON_VISION_OVERLAY = "useHaloColorForVisionOverlay";
 	private static final boolean DEFAULT_USE_HALO_COLOR_ON_VISION_OVERLAY = false;
 
-	private static final String KEY_VISION_OVERLAY_OPACITY = "visionOverlayOpacity";
-	private static final int DEFAULT_VISION_OVERLAY_OPACITY = 60;
+	private static final String KEY_HALO_OVERLAY_OPACITY = "haloOverlayOpacity";
+	private static final int DEFAULT_HALO_OVERLAY_OPACITY = 60;
+
+	private static final String KEY_AURA_OVERLAY_OPACITY = "auraOverlayOpacity";
+	private static final int DEFAULT_AURA_OVERLAY_OPACITY = 60;
+
+	private static final String KEY_LIGHT_OVERLAY_OPACITY = "lightOverlayOpacity";
+	private static final int DEFAULT_LIGHT_OVERLAY_OPACITY = 60;
+
+	private static final String KEY_FOG_OVERLAY_OPACITY = "fogOverlayOpacity";
+	private static final int DEFAULT_FOG_OVERLAY_OPACITY = 100;
 
 	private static final String KEY_HALO_LINE_WIDTH = "haloLineWidth";
 	private static final int DEFAULT_HALO_LINE_WIDTH = 2;
@@ -218,15 +228,44 @@ public class AppPreferences {
 				DEFAULT_AUTO_REVEAL_VISION_ON_GM_MOVEMENT);
 	}
 
-	public static void setVisionOverlayOpacity(int size) {
-		prefs.putInt(KEY_VISION_OVERLAY_OPACITY, size);
+	private static int range0to255(int value) {
+		return value < 1 ? 0 : value > 255 ? 255 : value;
 	}
 
-	public static int getVisionOverlayOpacity() {
-		int value = prefs.getInt(KEY_VISION_OVERLAY_OPACITY, DEFAULT_VISION_OVERLAY_OPACITY);
-		if (value < 0) {value = 0;}
-		if (value > 255) {value = 255;}
-		return value;
+	public static void setHaloOverlayOpacity(int size) {
+		prefs.putInt(KEY_HALO_OVERLAY_OPACITY, range0to255(size));
+	}
+	public static int getHaloOverlayOpacity() {
+		int value = prefs.getInt(KEY_HALO_OVERLAY_OPACITY, DEFAULT_HALO_OVERLAY_OPACITY);
+		return range0to255(value);
+	}
+
+	public static void setAuraOverlayOpacity(int size) {
+		prefs.putInt(KEY_AURA_OVERLAY_OPACITY, range0to255(size));
+	}
+	public static int getAuraOverlayOpacity() {
+		int value = prefs.getInt(KEY_AURA_OVERLAY_OPACITY, DEFAULT_AURA_OVERLAY_OPACITY);
+		return range0to255(value);
+	}
+
+	public static void setLightOverlayOpacity(int size) {
+		prefs.putInt(KEY_LIGHT_OVERLAY_OPACITY, range0to255(size));
+	}
+	public static int getLightOverlayOpacity() {
+		int value = prefs.getInt(KEY_LIGHT_OVERLAY_OPACITY, DEFAULT_LIGHT_OVERLAY_OPACITY);
+		return range0to255(value);
+	}
+
+	public static void setFogOverlayOpacity(int size) {
+		prefs.putInt(KEY_FOG_OVERLAY_OPACITY, range0to255(size));
+
+		// FIXME Force ModelChange event to flush fog from zone :(
+		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+		zone.setHasFog( zone.hasFog() );
+	}
+	public static int getFogOverlayOpacity() {
+		int value = prefs.getInt(KEY_FOG_OVERLAY_OPACITY, DEFAULT_FOG_OVERLAY_OPACITY);
+		return range0to255(value);
 	}
 
 	private static final String KEY_DEFAULT_GRID_TYPE = "defaultGridType";
@@ -304,6 +343,17 @@ public class AppPreferences {
 	private static final String KEY_FIT_GM_VIEW = "fitGMView";
 	private static final boolean DEFAULT_FIT_GM_VIEW = true;
 
+	private static final String KEY_TYPING_NOTIFICATION_DURATION = "typingNotificationDuration";
+	private static final int DEFAULT_TYPING_NOTIFICATION_DURATION = 5;
+
+	public static void setTypingNotificationDuration(int size) {
+		prefs.putInt(KEY_TYPING_NOTIFICATION_DURATION, range0to255(size));
+	}
+
+	public static int getTypingNotificationDuration() {
+		int value = prefs.getInt(KEY_TYPING_NOTIFICATION_DURATION, DEFAULT_TYPING_NOTIFICATION_DURATION);
+		return range0to255(value);
+	}
 
 	public static final void setUseToolTipForInlineRoll(boolean tooltip) {
 		prefs.putBoolean(KEY_TOOLTIP_FOR_INLINE_ROLLS, tooltip);

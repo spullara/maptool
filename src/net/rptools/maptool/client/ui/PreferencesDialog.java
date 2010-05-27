@@ -29,6 +29,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -50,6 +51,19 @@ import com.jeta.forms.components.panel.FormPanel;
 
 public class PreferencesDialog extends JDialog {
 
+	/**
+	 * @author frank
+	 */
+	private abstract class OpacityProxy implements ChangeListener {
+		public void stateChanged(ChangeEvent ce) {
+			JSpinner sp = (JSpinner) ce.getSource();
+			int value = (Integer) sp.getValue();
+			storeSpinnerValue( value );
+			MapTool.getFrame().refresh();
+		}
+		protected abstract void storeSpinnerValue(int value);
+	}
+
 	// Interactions
 	private final JCheckBox newMapsHaveFOWCheckBox;
 	private final JCheckBox tokensPopupWarningWhenDeletedCheckBox;
@@ -67,26 +81,30 @@ public class PreferencesDialog extends JDialog {
 	private final JComboBox movementMetricCombo;
 	private final JCheckBox showStatSheetCheckBox;
 
-    private final JSpinner haloLineWidthSpinner;
-    private final JSpinner visionOverlayOpacitySpinner;
-    private final JCheckBox useHaloColorAsVisionOverlayCheckBox;
-    private final JCheckBox autoRevealVisionOnGMMoveCheckBox;
-    private final JCheckBox showSmiliesCheckBox;
-    private final JCheckBox playSystemSoundCheckBox;
-    private final JCheckBox playSystemSoundOnlyWhenNotFocusedCheckBox;
+	private final JSpinner haloLineWidthSpinner;
+	private final JSpinner haloOverlayOpacitySpinner;
+	private final JSpinner auraOverlayOpacitySpinner;
+	private final JSpinner lightOverlayOpacitySpinner;
+	private final JSpinner fogOverlayOpacitySpinner;
+	private final JCheckBox useHaloColorAsVisionOverlayCheckBox;
+	private final JCheckBox autoRevealVisionOnGMMoveCheckBox;
+	private final JCheckBox showSmiliesCheckBox;
+	private final JCheckBox playSystemSoundCheckBox;
+	private final JCheckBox playSystemSoundOnlyWhenNotFocusedCheckBox;
 
-    private final JCheckBox facingFaceEdges;
-    private final JCheckBox facingFaceVertices;
+	private final JCheckBox facingFaceEdges;
+	private final JCheckBox facingFaceVertices;
 
-    private final JCheckBox showAvatarInChat;
+	private final JCheckBox showAvatarInChat;
 
-    private final JCheckBox allowPlayerMacroEditsDefault;
+	private final JCheckBox allowPlayerMacroEditsDefault;
 
-    private final JCheckBox toolTipInlineRolls;
-    private final JETAColorWell trustedOuputForeground;
-    private final JETAColorWell trustedOuputBackground;
-    private final JTextField chatAutosaveTime;
-    private final JTextField chatFilenameFormat;
+	private final JCheckBox toolTipInlineRolls;
+	private final JETAColorWell trustedOuputForeground;
+	private final JETAColorWell trustedOuputBackground;
+	private final JTextField chatAutosaveTime;
+	private final JTextField chatFilenameFormat;
+	private final JTextField typingNotificationDuration;
 
 
 	// Defaults
@@ -109,9 +127,9 @@ public class PreferencesDialog extends JDialog {
 	//Application
 	private final JCheckBox fitGMView;
 	private final JCheckBox fillSelectionCheckBox;
-    private final JCheckBox hideNPCs;
-    private final JCheckBox ownerPermissions;
-    private final JCheckBox lockMovement;
+	private final JCheckBox hideNPCs;
+	private final JCheckBox ownerPermissions;
+	private final JCheckBox lockMovement;
 
 
 	public PreferencesDialog() {
@@ -154,8 +172,13 @@ public class PreferencesDialog extends JDialog {
 		defaultVisionDistanceTextField = panel.getTextField("defaultVisionDistance");
 		statsheetPortraitSize = panel.getTextField("statsheetPortraitSize");
 		fontSizeTextField = panel.getTextField("fontSize");
+
 		haloLineWidthSpinner = panel.getSpinner("haloLineWidthSpinner");
-		visionOverlayOpacitySpinner = panel.getSpinner("visionOverlayOpacitySpinner");
+		haloOverlayOpacitySpinner = panel.getSpinner("haloOverlayOpacitySpinner");
+		auraOverlayOpacitySpinner = panel.getSpinner("auraOverlayOpacitySpinner");
+		lightOverlayOpacitySpinner = panel.getSpinner("lightOverlayOpacitySpinner");
+		fogOverlayOpacitySpinner = panel.getSpinner("fogOverlayOpacitySpinner");
+
 		useHaloColorAsVisionOverlayCheckBox = panel.getCheckBox("useHaloColorAsVisionOverlayCheckBox");
 		autoRevealVisionOnGMMoveCheckBox = panel.getCheckBox("autoRevealVisionOnGMMoveCheckBox");
 		showSmiliesCheckBox = panel.getCheckBox("showSmiliesCheckBox");
@@ -175,9 +198,10 @@ public class PreferencesDialog extends JDialog {
 		chatAutosaveTime = panel.getTextField("chatAutosaveTime");
 		chatFilenameFormat = panel.getTextField("chatFilenameFormat");
 		fitGMView = panel.getCheckBox("fitGMView");
-        hideNPCs = panel.getCheckBox("hideNPCs");
-        ownerPermissions = panel.getCheckBox("ownerPermission");
-        lockMovement = panel.getCheckBox("lockMovement");
+		hideNPCs = panel.getCheckBox("hideNPCs");
+		ownerPermissions = panel.getCheckBox("ownerPermission");
+		lockMovement = panel.getCheckBox("lockMovement");
+		typingNotificationDuration = panel.getTextField("typingNotificationDuration");
 		setInitialState();
 
 		// And keep it updated
@@ -221,6 +245,32 @@ public class PreferencesDialog extends JDialog {
 					// Ignore it
 				}
 			}
+		});
+
+
+		typingNotificationDuration.getDocument().addDocumentListener(new DocumentListener() {
+
+			public void changedUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void insertUpdate(DocumentEvent e) {
+				updateValue();
+			}
+			public void removeUpdate(DocumentEvent e) {
+				updateValue();
+			}
+
+			private void updateValue() {
+				try {
+					int value = StringUtil.parseInteger(typingNotificationDuration.getText());
+					AppPreferences.setTypingNotificationDuration(value);
+				} catch (ParseException nfe){
+					// ignore it
+				}
+
+			}
+
+
 		});
 
 
@@ -304,7 +354,7 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setShowDialogOnNewToken(showDialogOnNewToken.isSelected());
 			}
 		});
-        autoSaveSpinner.addChangeListener(new ChangeListener() {
+		autoSaveSpinner.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent ce) {
 				int newInterval = (Integer)autoSaveSpinner.getValue();
 				AppPreferences.setAutoSaveIncrement(newInterval);
@@ -447,55 +497,65 @@ public class PreferencesDialog extends JDialog {
 				}
 			}
 		});
-        haloLineWidthSpinner.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent ce) {
-                AppPreferences.setHaloLineWidth((Integer)haloLineWidthSpinner.getValue());
-            }
-        });
-
-        // Vision overlay opacity option in preferences-application, with
-		// error checking to ensure values are within the acceptable range
-		// of 0 and 255.
-
-		visionOverlayOpacitySpinner.addChangeListener(new ChangeListener() {
+		haloLineWidthSpinner.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent ce) {
-				if (((Integer) visionOverlayOpacitySpinner.getValue()) < 1) {
-					visionOverlayOpacitySpinner.setValue(0);
-				}
-				if (((Integer) visionOverlayOpacitySpinner.getValue()) > 255) {
-					visionOverlayOpacitySpinner.setValue(255);
-				}
-
-				AppPreferences.setVisionOverlayOpacity((Integer) visionOverlayOpacitySpinner.getValue());
-				MapTool.getFrame().refresh();
+				AppPreferences.setHaloLineWidth((Integer)haloLineWidthSpinner.getValue());
 			}
 		});
-        useHaloColorAsVisionOverlayCheckBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                AppPreferences.setUseHaloColorOnVisionOverlay(useHaloColorAsVisionOverlayCheckBox.isSelected());
-            }
-        });
-        autoRevealVisionOnGMMoveCheckBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                AppPreferences.setAutoRevealVisionOnGMMovement(autoRevealVisionOnGMMoveCheckBox.isSelected());
-            }
-        });
-        showSmiliesCheckBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                AppPreferences.setShowSmilies(showSmiliesCheckBox.isSelected());
-            }
-        });
-        playSystemSoundCheckBox.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		AppPreferences.setPlaySystemSounds(playSystemSoundCheckBox.isSelected());
-        	}
-        });
 
-        playSystemSoundOnlyWhenNotFocusedCheckBox.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		AppPreferences.setPlaySystemSoundsOnlyWhenNotFocused(playSystemSoundOnlyWhenNotFocusedCheckBox.isSelected());
-        	}
-        });
+		// Overlay opacity options in AppPreferences, with
+		// error checking to ensure values are within the acceptable range
+		// of 0 and 255.
+		haloOverlayOpacitySpinner.addChangeListener(new OpacityProxy() {
+			@Override
+			protected void storeSpinnerValue(int value) {
+				AppPreferences.setHaloOverlayOpacity(value);
+			}
+		});
+		auraOverlayOpacitySpinner.addChangeListener(new OpacityProxy() {
+			@Override
+			protected void storeSpinnerValue(int value) {
+				AppPreferences.setAuraOverlayOpacity(value);
+			}
+		});
+		lightOverlayOpacitySpinner.addChangeListener(new OpacityProxy() {
+			@Override
+			protected void storeSpinnerValue(int value) {
+				AppPreferences.setLightOverlayOpacity(value);
+			}
+		});
+		fogOverlayOpacitySpinner.addChangeListener(new OpacityProxy() {
+			@Override
+			protected void storeSpinnerValue(int value) {
+				AppPreferences.setFogOverlayOpacity(value);
+			}
+		});
+		useHaloColorAsVisionOverlayCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setUseHaloColorOnVisionOverlay(useHaloColorAsVisionOverlayCheckBox.isSelected());
+			}
+		});
+		autoRevealVisionOnGMMoveCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setAutoRevealVisionOnGMMovement(autoRevealVisionOnGMMoveCheckBox.isSelected());
+			}
+		});
+		showSmiliesCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setShowSmilies(showSmiliesCheckBox.isSelected());
+			}
+		});
+		playSystemSoundCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setPlaySystemSounds(playSystemSoundCheckBox.isSelected());
+			}
+		});
+
+		playSystemSoundOnlyWhenNotFocusedCheckBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setPlaySystemSoundsOnlyWhenNotFocused(playSystemSoundOnlyWhenNotFocusedCheckBox.isSelected());
+			}
+		});
 
 		fontSizeTextField.getDocument().addDocumentListener(new DocumentListener() {
 			public void changedUpdate(DocumentEvent e) {
@@ -523,21 +583,21 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setFitGMView(fitGMView.isSelected());
 			}
 		});
-        hideNPCs.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                AppPreferences.setInitHideNpcs(hideNPCs.isSelected());
-            }
-        });
-        ownerPermissions.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                AppPreferences.setInitOwnerPermissions(ownerPermissions.isSelected());
-            }
-        });
-        lockMovement.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                AppPreferences.setInitLockMovement(lockMovement.isSelected());
-            }
-        });
+		hideNPCs.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setInitHideNpcs(hideNPCs.isSelected());
+			}
+		});
+		ownerPermissions.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setInitOwnerPermissions(ownerPermissions.isSelected());
+			}
+		});
+		lockMovement.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setInitLockMovement(lockMovement.isSelected());
+			}
+		});
 
 
 		DefaultComboBoxModel gridTypeModel = new DefaultComboBoxModel();
@@ -654,7 +714,12 @@ public class PreferencesDialog extends JDialog {
 		statsheetPortraitSize.setText(Integer.toString(AppPreferences.getPortraitSize()));
 		fontSizeTextField.setText(Integer.toString(AppPreferences.getFontSize()));
 		haloLineWidthSpinner.setValue(AppPreferences.getHaloLineWidth());
-		visionOverlayOpacitySpinner.setValue(AppPreferences.getVisionOverlayOpacity());
+
+		haloOverlayOpacitySpinner.setModel(new SpinnerNumberModel(AppPreferences.getHaloOverlayOpacity(), 0, 255, 1));
+		auraOverlayOpacitySpinner.setModel(new SpinnerNumberModel(AppPreferences.getAuraOverlayOpacity(), 0, 255, 1));
+		lightOverlayOpacitySpinner.setModel(new SpinnerNumberModel(AppPreferences.getLightOverlayOpacity(), 0, 255, 1));
+		fogOverlayOpacitySpinner.setModel(new SpinnerNumberModel(AppPreferences.getFogOverlayOpacity(), 0, 255, 1));
+
 		useHaloColorAsVisionOverlayCheckBox.setSelected(AppPreferences.getUseHaloColorOnVisionOverlay());
 		autoRevealVisionOnGMMoveCheckBox.setSelected(AppPreferences.getAutoRevealVisionOnGMMovement());
 		showSmiliesCheckBox.setSelected(AppPreferences.getShowSmilies());
@@ -671,7 +736,8 @@ public class PreferencesDialog extends JDialog {
 		facingFaceVertices.setSelected(AppPreferences.getFaceVertex());
 		fitGMView.setSelected(AppPreferences.getFitGMView());
 		hideNPCs.setSelected(AppPreferences.getInitHideNpcs());
-        ownerPermissions.setSelected(AppPreferences.getInitOwnerPermissions());
-        lockMovement.setSelected(AppPreferences.getInitLockMovement());
+		ownerPermissions.setSelected(AppPreferences.getInitOwnerPermissions());
+		lockMovement.setSelected(AppPreferences.getInitLockMovement());
+		typingNotificationDuration.setText(Integer.toString(AppPreferences.getTypingNotificationDuration()));
 	}
 }

@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui.zone;
 
@@ -44,167 +44,169 @@ public class ZoneMiniMapPanel extends JPanel implements ModelChangeListener  {
 
 	private static final int SIZE_WIDTH = 125;
 	private static final int SIZE_HEIGHT = 100;
-	
-    private Rectangle bounds;
-    private BufferedImage backBuffer;
-    
-    private Zone zone;
-    
-    public ZoneMiniMapPanel() {
-     
-        addMouseListener(new MouseHandler());
-    }
-    
-    /* (non-Javadoc)
-     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-     */
-    protected void paintComponent(Graphics g) {
-        
-        Dimension mySize = getSize();
-        g.setColor(Color.black);
-        g.fillRect(0, 0, mySize.width, mySize.height);
 
-        ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-        if (renderer == null) {
-        	return;
-        }
+	private Rectangle bounds;
+	private BufferedImage backBuffer;
 
-        if (backBuffer == null || backBuffer.getWidth() != mySize.width || backBuffer.getHeight() != mySize.height) {
+	private Zone zone;
 
-        	backBuffer = new BufferedImage(mySize.width, mySize.height, Transparency.OPAQUE);
-        	
-        	// TODO: This is a naive solution.  In the future, actually render the zone
-	        BufferedImage img = renderer.getMiniImage(SIZE_WIDTH);
-	        if (img == null || img == ImageManager.TRANSFERING_IMAGE) {
-	            img = ImageManager.TRANSFERING_IMAGE;
-	            
-	            // Let's wake up when the image arrives
+	public ZoneMiniMapPanel() {
+
+		addMouseListener(new MouseHandler());
+	}
+
+	/* (non-Javadoc)
+	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+	 */
+	@Override
+	protected void paintComponent(Graphics g) {
+
+		Dimension mySize = getSize();
+		g.setColor(Color.black);
+		g.fillRect(0, 0, mySize.width, mySize.height);
+
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+		if (renderer == null) {
+			return;
+		}
+
+		if (backBuffer == null || backBuffer.getWidth() != mySize.width || backBuffer.getHeight() != mySize.height) {
+
+			backBuffer = new BufferedImage(mySize.width, mySize.height, Transparency.OPAQUE);
+
+			// TODO: This is a naive solution.  In the future, actually render the zone
+			BufferedImage img = renderer.getMiniImage(SIZE_WIDTH);
+			if (img == null || img == ImageManager.TRANSFERING_IMAGE) {
+				img = ImageManager.TRANSFERING_IMAGE;
+
+				// Let's wake up when the image arrives
 //	            ImageManager.addObservers(renderer.getZone().getBackgroundAssetId(), this);
-	        }
-	            
-	        ImageBorder border = AppStyle.miniMapBorder;
-	        
-	        Dimension size = new Dimension(img.getWidth(), img.getHeight());
-	        SwingUtil.constrainTo(size, mySize.width-border.getLeftMargin()-border.getRightMargin(), mySize.height-border.getTopMargin()-border.getBottomMargin());
+			}
 
-	        int x = border.getLeftMargin() + (mySize.width-size.width-border.getLeftMargin()-border.getRightMargin())/2;
-	        int y = border.getTopMargin() + (mySize.height-size.height-border.getTopMargin()-border.getBottomMargin())/2;
-	        int w = size.width;
-	        int h = size.height;
+			ImageBorder border = AppStyle.miniMapBorder;
 
-	        Graphics2D g2d = backBuffer.createGraphics();
-	        g2d.setClip(0, 0, backBuffer.getWidth(), backBuffer.getHeight());
-	        
-	        bounds = new Rectangle(x, y, w, h);
+			Dimension size = new Dimension(img.getWidth(), img.getHeight());
+			SwingUtil.constrainTo(size, mySize.width-border.getLeftMargin()-border.getRightMargin(), mySize.height-border.getTopMargin()-border.getBottomMargin());
 
-	        g2d.drawImage(img, x, y, w, h, this);
-	        
-	    	border.paintWithin(g2d, 0, 0, mySize.width, mySize.height);
-	    	
-	    	g2d.dispose();
-        }
-        
-        g.drawImage(backBuffer, 0, 0, this);
-    }
+			int x = border.getLeftMargin() + (mySize.width-size.width-border.getLeftMargin()-border.getRightMargin())/2;
+			int y = border.getTopMargin() + (mySize.height-size.height-border.getTopMargin()-border.getBottomMargin())/2;
+			int w = size.width;
+			int h = size.height;
 
-    public Dimension getPreferredSize() {
-    	if (MapTool.getFrame() == null) {
-    		return new Dimension(0, 0);
-    	}
-    	
-    	ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-    	if (renderer == null) {
-    		return new Dimension(0, 0);
-    	}
-        BufferedImage img = renderer.getMiniImage(SIZE_WIDTH);
-        if (img == null || img == ImageManager.TRANSFERING_IMAGE) {
-            img = ImageManager.TRANSFERING_IMAGE;
-            
-            // Let's wake up when the image arrives
+			Graphics2D g2d = backBuffer.createGraphics();
+			g2d.setClip(0, 0, backBuffer.getWidth(), backBuffer.getHeight());
+
+			bounds = new Rectangle(x, y, w, h);
+
+			g2d.drawImage(img, x, y, w, h, this);
+
+			border.paintWithin(g2d, 0, 0, mySize.width, mySize.height);
+
+			g2d.dispose();
+		}
+
+		g.drawImage(backBuffer, 0, 0, this);
+	}
+
+	@Override
+	public Dimension getPreferredSize() {
+		if (MapTool.getFrame() == null) {
+			return new Dimension(0, 0);
+		}
+
+		ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+		if (renderer == null) {
+			return new Dimension(0, 0);
+		}
+		BufferedImage img = renderer.getMiniImage(SIZE_WIDTH);
+		if (img == null || img == ImageManager.TRANSFERING_IMAGE) {
+			img = ImageManager.TRANSFERING_IMAGE;
+
+			// Let's wake up when the image arrives
 //            ImageManager.addObservers(renderer.getZone().getBackgroundAssetId(), this);
-        }
-        
-        ImageBorder border = AppStyle.miniMapBorder;
-        
-        Dimension size = new Dimension(img.getWidth(), img.getHeight());
-        SwingUtil.constrainTo(size, SIZE_WIDTH, SIZE_HEIGHT);
-        size.width += border.getLeftMargin() + border.getRightMargin();
-        size.height += border.getTopMargin() + border.getBottomMargin();
-        
-        return size;
-    }
+		}
 
-    public void flush() {
-    	backBuffer = null;
-    }
-    
-    public void resize() {
-    	
-    	setSize(getPreferredSize());
-    }
-    
-    ////
-    // Zone Listener
-    // TODO: Add this as an AppEventListener
-    public void zoneAdded(Zone zone) {
-    }
+		ImageBorder border = AppStyle.miniMapBorder;
 
-    public void zoneActivated(Zone zone) {
-    	
-    	if (this.zone != null) {
-    		this.zone.removeModelChangeListener(this);
-    	}
+		Dimension size = new Dimension(img.getWidth(), img.getHeight());
+		SwingUtil.constrainTo(size, SIZE_WIDTH, SIZE_HEIGHT);
+		size.width += border.getLeftMargin() + border.getRightMargin();
+		size.height += border.getTopMargin() + border.getBottomMargin();
 
-    	this.zone = zone;
-    	this.zone.addModelChangeListener(this);
-    	
-    	flush();
-    	resize();
-    	
+		return size;
+	}
+
+	public void flush() {
+		backBuffer = null;
+	}
+
+	public void resize() {
+
+		setSize(getPreferredSize());
+	}
+
+	////
+	// Zone Listener
+	// TODO: Add this as an AppEventListener
+	public void zoneAdded(Zone zone) {
+	}
+
+	public void zoneActivated(Zone zone) {
+
+		if (this.zone != null) {
+			this.zone.removeModelChangeListener(this);
+		}
+
+		this.zone = zone;
+		this.zone.addModelChangeListener(this);
+
+		flush();
+		resize();
+
 //    	getParent().doLayout();
-    	repaint();
-    }
-    
-    ////
-    // ModelChangeListener
-    public void modelChanged(ModelChangeEvent event) {
-    	
-    	if (event.getEvent() == Zone.Event.FOG_CHANGED) {
-	    	flush();
-	    	repaint();
-    	}
-    }
-    
-    ////
-    // IMAGE OBSERVER
-    @Override
-    public boolean imageUpdate(Image img, int infoflags, int x, int y, int w, int h) {
-    	if (infoflags == ImageObserver.ALLBITS) {
-    		flush();
-    		resize();
-    		getParent().doLayout();
-    		repaint();
-    	}
-    	return super.imageUpdate(img, infoflags, x, y, w, h);
-    }
-    
-    ////
-    // MOUSE HANDLER
-    private class MouseHandler extends MouseAdapter {
-        public void mouseClicked(MouseEvent e) {
-            
-	    	if (SwingUtilities.isLeftMouseButton(e)) {
-	    		
-    			// Minimap interaction
-	    		// TODO: Make this work for unbounded
+		repaint();
+	}
+
+	////
+	// ModelChangeListener
+	public void modelChanged(ModelChangeEvent event) {
+		if (event.getEvent() == Zone.Event.FOG_CHANGED) {
+			flush();
+			repaint();
+		}
+	}
+
+	////
+	// IMAGE OBSERVER
+	@Override
+	public boolean imageUpdate(Image img, int infoflags, int x, int y, int w, int h) {
+		if (infoflags == ImageObserver.ALLBITS) {
+			flush();
+			resize();
+			getParent().doLayout();
+			repaint();
+		}
+		return super.imageUpdate(img, infoflags, x, y, w, h);
+	}
+
+	////
+	// MOUSE HANDLER
+	private class MouseHandler extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+
+			if (SwingUtilities.isLeftMouseButton(e)) {
+
+				// Minimap interaction
+				// TODO: Make this work for unbounded
 //    			int miniX = e.getX() - bounds.x;
 //    			int miniY = e.getY() - bounds.y;
-//    			
+//
 //    			int mapX = (int)(renderer.getZone().getWidth() * (miniX / (double)bounds.width));
 //    			int mapY = (int)(renderer.getZone().getHeight() * (miniY / (double)bounds.height));
-//    			
+//
 //    			renderer.centerOn(new ZonePoint(mapX, mapY));
-    		}
-        }    	
-    }
+			}
+		}
+	}
 }

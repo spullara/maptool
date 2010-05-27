@@ -873,7 +873,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	af.scale(getScale(), getScale());
     	newG.setTransform(af);
 
-        newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, AppPreferences.getVisionOverlayOpacity() / 255.0f));
+		newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, AppPreferences.getLightOverlayOpacity() / 255.0f));
         timer.stop("lights-2");
 
         if (renderedLightMap == null) {
@@ -978,7 +978,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	af.scale(getScale(), getScale());
     	newG.setTransform(af);
 
-        newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, AppPreferences.getVisionOverlayOpacity() / 255.0f));
+		newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, AppPreferences.getAuraOverlayOpacity() / 255.0f));
         timer.stop("auras-2");
 
         if (renderedAuraMap == null) {
@@ -987,9 +987,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	    	Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
 
 	        timer.start("auras-4");
-
+			Color paintColor = new Color(255, 255, 255, 150);
 	        for (DrawableLight light : zoneView.getLights(LightSource.Type.AURA)) {
-	        	Paint paint = light.getPaint() != null ? light.getPaint().getPaint() : new Color(255, 255, 255, 150);
+				Paint paint = light.getPaint() != null ? light.getPaint().getPaint() : paintColor;
 	        	List<Area> list = colorMap.get(paint);
 	        	if (list == null) {
 	        		list = new LinkedList<Area>();
@@ -1054,14 +1054,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	Area area = currentTokenVisionArea.createTransformedArea(af);
 
         SwingUtil.useAntiAliasing(g);
-        g.setColor(new Color(200, 200, 200));
+		g.setColor(new Color(200, 200, 200));	// outline around visible area
         g.draw(area);
 
         boolean useHaloColor = tokenUnderMouse.getHaloColor() != null && AppPreferences.getUseHaloColorOnVisionOverlay();
 
         if (tokenUnderMouse.getVisionOverlayColor() != null || useHaloColor) {
             Color visionColor = useHaloColor ? tokenUnderMouse.getHaloColor() : tokenUnderMouse.getVisionOverlayColor();
-            g.setColor(new Color(visionColor.getRed(), visionColor.getGreen(), visionColor.getBlue(), AppPreferences.getVisionOverlayOpacity()));
+			g.setColor(new Color(visionColor.getRed(), visionColor.getGreen(), visionColor.getBlue(), AppPreferences.getHaloOverlayOpacity()));
             g.fill(area);
         }
     }
@@ -1196,6 +1196,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         if (flushFog || fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
             fogX = getViewOffsetX();
             fogY = getViewOffsetY();
+			float alpha = view.isGMView() ? AppPreferences.getFogOverlayOpacity() / 255.0f : 1f;
 
             boolean newImage = false;
 	        if (fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
@@ -1218,7 +1219,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 	        // Fill
 	        buffG.setPaint(zone.getFogPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale()));
-        	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, view.isGMView() ? .6f : 1f));
+			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, alpha));
 	        buffG.fillRect(0, 0, size.width, size.height);
 
 	        // Cut out the exposed area
@@ -1235,10 +1236,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
             	Area visibleArea = zoneView.getVisibleArea(view);
 	            if (visibleArea != null) {
-	            	buffG.setColor(new Color(0, 0, 0, 100));
+					buffG.setColor(new Color(0, 0, 0, AppPreferences.getFogOverlayOpacity()));
 
                     if (zone.hasFog()) {
-
 	                    // Fill in the exposed area
 	                    buffG.fill(zone.getExposedArea());
 
@@ -1250,8 +1250,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 	                    buffG.setClip(oldClip);
 	                } else {
-
-	                    buffG.setColor(new Color(255, 255, 255, 40));
+						buffG.setColor(new Color(255, 255, 255, 40));	// was 255,255,255,40
 	                    buffG.fill(visibleArea);
 	                }
 	            } else {
@@ -1265,7 +1264,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 	        // Outline
 	        if (false && AppPreferences.getUseSoftFogEdges()) {
-                GraphicsUtil.renderSoftClipping(buffG, zone.getExposedArea(), (int) (zone.getGrid().getSize() * getScale() * .25), view.isGMView() ? .6 : 1);
+				GraphicsUtil.renderSoftClipping(buffG, zone.getExposedArea(), (int) (zone.getGrid().getSize() * getScale() * .25), alpha);
 	        } else {
 
 	        	if (visibleScreenArea != null) {
@@ -1433,7 +1432,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     protected void renderMoveSelectionSets(Graphics2D g, PlayerView view, Set<SelectionSet> movementSet) {
 
-        if (selectionSetMap.size() == 0) {
+		if (selectionSetMap.isEmpty()) {
         	return;
         }
 
@@ -1635,7 +1634,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
         Rectangle footprintBounds = footprint.getBounds(grid);
 
         if (path.getCellPath().get(0) instanceof CellPoint) {
-
+			timer.start("renderPath-1");
 	        CellPoint previousPoint = null;
 	        Point previousHalfPoint = null;
 
@@ -1659,7 +1658,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	        if (waypointList.size() > 0) {
 	            waypointList.remove(waypointList.size() - 1);
 	        }
+			timer.stop("renderPath-1");
 
+			timer.start("renderPath-2");
 	        Dimension cellOffset = zone.getGrid().getCellOffset();
 	        for (CellPoint p : pathSet) {
 	        	ZonePoint zp = grid.convert(p);
@@ -1722,7 +1723,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	                previousPoint = p;
 	            }
 	        }
+			timer.stop("renderPath-2");
         } else {
+			timer.start("renderPath-3");
         	// Zone point/gridless path
             int scaledWidth = (int) (footprintBounds.width * scale);
             int scaledHeight = (int) (footprintBounds.height * scale);
@@ -1774,6 +1777,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             	p = new ZonePoint((int)(p.x+(footprintBounds.width/2)*footprint.getScale()), (int)(p.y+(footprintBounds.height/2)*footprint.getScale()));
             	highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
             }
+			timer.stop("renderPath-3");
         }
 
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldRendering);
@@ -1795,7 +1799,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
     /**
      * Get a list of tokens currently visible on the screen.  The list is ordered by location starting
-     * in the top left and going to the bottom right
+	 * in the top left and going to the bottom right.
      * @return
      */
     public List<Token> getTokensOnScreen() {
@@ -1894,8 +1898,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	Graphics2D clippedG = g;
 
     	timer.start("createClip");
-        if (!view.isGMView() && visibleScreenArea != null && tokenList.size() > 0 && tokenList.get(0).isToken()) {
-
+		if (!view.isGMView() && visibleScreenArea != null && !tokenList.isEmpty() && tokenList.get(0).isToken()) {
             clippedG = (Graphics2D) g.create();
 
         	Area visibleArea = new Area(g.getClipBounds());
@@ -2031,6 +2034,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
             // Note the order where the top most token is at the end of the list
             timer.start("renderTokens:Locations");
             List<TokenLocation> locationList = null;
+			// TODO: Why not just call token.getLayer() ???
             if (!token.isStamp()) {
                 locationList = getTokenLocations(Zone.Layer.TOKEN);
             } else {
@@ -2302,6 +2306,10 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
                 	selectedBorder = AppStyle.commonMacroBorder;
                 }
                 // Border
+				// FIXME Should this block be using 'clippedG' instead of 'g'?
+				if (clippedG == g) {
+					log.warn("DEVELOPMENT: Clipping rectangle is the same as the base rectangle");
+				}
                 if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp())) {
                     AffineTransform oldTransform = g.getTransform();
 
@@ -2340,7 +2348,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 	            }
 
 	            String name = token.getName();
-				if (view.isGMView() && token.getGMName() != null && token.getGMName().length() > 0) {
+				if (view.isGMView() && token.getGMName() != null && !token.getGMName().isEmpty()) {
 					name += " (" + token.getGMName() + ")";
 				}
 
@@ -2392,7 +2400,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
     	timer.start("tokenlist-13");
 
         // Stacks
-    	if (tokenList.size() > 0 && !tokenList.get(0).isStamp()) { // TODO: find a cleaner way to indicate token layer
+		if (!tokenList.isEmpty() && !tokenList.get(0).isStamp()) { // TODO: find a cleaner way to indicate token layer
         for (Token token : tokenStackMap.keySet()) {
 	        	Area bounds = getTokenBounds(token);
 	        	if (bounds == null) {
