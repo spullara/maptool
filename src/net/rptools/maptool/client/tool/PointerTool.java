@@ -188,8 +188,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	public void startTokenDrag(Token keyToken) {
 		tokenBeingDragged = keyToken;
 
-		if (!MapTool.getPlayer().isGM() && (MapTool.getServerPolicy().isMovementLocked()
-		        || MapTool.getFrame().getInitiativePanel().isMovementLocked(keyToken))) {
+		if (!MapTool.getPlayer().isGM() && (MapTool.getServerPolicy().isMovementLocked() || MapTool.getFrame().getInitiativePanel().isMovementLocked(keyToken))) {
 			// Not allowed
 			return;
 		}
@@ -202,7 +201,11 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	}
 
 	public void stopTokenDrag() {
-		renderer.commitMoveSelectionSet(tokenBeingDragged.getId()); // TODO: figure out a better way
+		renderer.commitMoveSelectionSet(tokenBeingDragged.getId()); // TODO:
+		// figure
+		// out a
+		// better
+		// way
 		isDraggingToken = false;
 		isMovingWithKeys = false;
 
@@ -263,7 +266,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				if (token == null || !AppUtil.playerOwns(token)) {
 					return;
 				}
-
+				tokenUnderMouse = token;
 				// TODO: Combine this with the code just like it below
 				EditTokenDialog tokenPropertiesDialog = MapTool.getFrame().getTokenPropertiesDialog();
 				tokenPropertiesDialog.showDialog(tokenUnderMouse);
@@ -284,7 +287,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				tokenUnderMouse = token;
 				Set<GUID> selectedSet = new HashSet<GUID>();
 				selectedSet.add(token.getId());
-				new TokenPopupMenu(selectedSet, event.getX(), event.getY(), renderer, token).showPopup(renderer);
+				new TokenPopupMenu(selectedSet, event.getX(), event.getY(), renderer, tokenUnderMouse).showPopup(renderer);
 			}
 		}
 
@@ -433,14 +436,6 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		Token token = renderer.getTokenAt(e.getX(), e.getY());
 		if (token != null && !isDraggingToken && SwingUtilities.isLeftMouseButton(e)) {
 
-			// Permission
-			if (!AppUtil.playerOwns(token)) {
-				if (!SwingUtil.isShiftDown(e)) {
-					renderer.clearSelectedTokens();
-				}
-				return;
-			}
-
 			// Don't select if it's already being moved by someone
 			isNewTokenSelected = false;
 			if (!renderer.isTokenMoving(token)) {
@@ -453,15 +448,16 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					renderer.deselectToken(token.getId());
 				} else {
 					renderer.selectToken(token.getId());
+
 				}
 
 				// Dragging offset for currently selected token
 				ZonePoint pos = new ScreenPoint(e.getX(), e.getY()).convertToZone(renderer);
 				Rectangle tokenBounds = token.getBounds(renderer.getZone());
-				
+
 				if (token.isSnapToGrid()) {
-					dragOffsetX = (pos.x - tokenBounds.x) - (tokenBounds.width/2);
-					dragOffsetY = (pos.y - tokenBounds.y) - (tokenBounds.height/2);
+					dragOffsetX = (pos.x - tokenBounds.x) - (tokenBounds.width / 2);
+					dragOffsetY = (pos.y - tokenBounds.y) - (tokenBounds.height / 2);
 				} else {
 					dragOffsetX = pos.x - tokenBounds.x;
 					dragOffsetY = pos.y - tokenBounds.y;
@@ -569,7 +565,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 				if (tokenUnderMouse.isStamp()) {
 					new StampPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
-				} else {
+				} else if (AppUtil.playerOwns(tokenUnderMouse)) {
 					new TokenPopupMenu(renderer.getSelectedTokenSet(), e.getX(), e.getY(), renderer, tokenUnderMouse).showPopup(renderer);
 				}
 
@@ -731,6 +727,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				// Make sure we can do this
 				// LATER: This might be able to be removed since you can't
 				// select an unowned token, check later
+
+				// Possibly let unowned tokens be moved?
 				if (!MapTool.getPlayer().isGM() && MapTool.getServerPolicy().useStrictTokenManagement()) {
 					for (GUID tokenGUID : selectedTokenSet) {
 						Token token = renderer.getZone().getToken(tokenGUID);
@@ -881,13 +879,12 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 
 				// Check to see if this is the required action
-				if (!MapTool
-						.confirmTokenDelete()) {
+				if (!MapTool.confirmTokenDelete()) {
 					return;
-				}				
-				
-				Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();				
-				
+				}
+
+				Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
+
 				for (GUID tokenGUID : selectedTokenSet) {
 
 					Token token = renderer.getZone().getToken(tokenGUID);
@@ -1264,7 +1261,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				g.fillRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height, 10, 10);
 				g.setComposite(composite);
 			}
-			
+
 			g.setColor(AppStyle.selectionBoxOutline);
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g.drawRoundRect(selectionBoundBox.x, selectionBoundBox.y, selectionBoundBox.width, selectionBoundBox.height, 10, 10);
@@ -1288,7 +1285,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				MD5Key portraitId = tokenUnderMouse.getPortraitImage() != null ? tokenUnderMouse.getPortraitImage() : tokenUnderMouse.getImageAssetId();
 				BufferedImage image = ImageManager.getImage(portraitId, new ImageObserver() {
 					public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-						// The image was loading, so now rebuild the portrait panel with the real image
+						// The image was loading, so now rebuild the portrait
+						// panel with the real image
 						statSheet = null;
 						renderer.repaint();
 						return true;
@@ -1305,17 +1303,17 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 				Map<String, String> propertyMap = new LinkedHashMap<String, String>();
 				if (AppPreferences.getShowStatSheet()) {
 					for (TokenProperty property : MapTool.getCampaign().getTokenPropertyList(tokenUnderMouse.getPropertyType())) {
-	
+
 						if (property.isShowOnStateSheet()) {
-	
+
 							if (property.isGMOnly() && !MapTool.getPlayer().isGM()) {
 								continue;
 							}
-	
+
 							if (property.isOwnerOnly() && !AppUtil.playerOwns(tokenUnderMouse)) {
 								continue;
 							}
-	
+
 							Object propertyValue = tokenUnderMouse.getEvaluatedProperty(property.getName());
 							if (propertyValue != null) {
 								if (propertyValue.toString().length() > 0) {
@@ -1323,16 +1321,16 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 									if (property.getShortName() != null) {
 										propName = property.getShortName();
 									}
-	
+
 									Object value = tokenUnderMouse.getEvaluatedProperty(property.getName());
-	
+
 									propertyMap.put(propName, value != null ? value.toString() : "");
 								}
 							}
 						}
 					}
 				}
-				
+
 				if (tokenUnderMouse.getPortraitImage() != null || propertyMap.size() > 0) {
 					Font font = AppStyle.labelFont;
 					FontMetrics valueFM = g.getFontMetrics(font);

@@ -66,6 +66,7 @@ import net.rptools.maptool.client.functions.TokenNameFunction;
 import net.rptools.maptool.client.functions.TokenNoteFunctions;
 import net.rptools.maptool.client.functions.TokenPropertyFunctions;
 import net.rptools.maptool.client.functions.TokenRemoveFromInitiativeFunction;
+import net.rptools.maptool.client.functions.TokenSelectionFunctions;
 import net.rptools.maptool.client.functions.TokenSightFunctions;
 import net.rptools.maptool.client.functions.TokenSpeechFunctions;
 import net.rptools.maptool.client.functions.TokenStateFunction;
@@ -138,6 +139,7 @@ public class MapToolLineParser {
 		TokenNoteFunctions.getInstance(),
 		TokenPropertyFunctions.getInstance(),
 		TokenRemoveFromInitiativeFunction.getInstance(),
+		TokenSelectionFunctions.getInstance(),
 		TokenSightFunctions.getInstance(),
 		TokenSpeechFunctions.getInstance(),		
 		TokenStateFunction.getInstance(),

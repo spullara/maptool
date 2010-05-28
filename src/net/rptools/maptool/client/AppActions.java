@@ -813,6 +813,7 @@ public class AppActions {
 		// lose what might already be in the clipboard.
 		if (tokenSet.size() > 0) {
 
+			
 			copyTokens(tokenSet);
 
 			// delete tokens
@@ -844,6 +845,9 @@ public class AppActions {
 			for (GUID guid : tokenSet) {
 				Token token = zone.getToken(guid);
 				if (token != null) {
+					if(!AppUtil.playerOwns(token)){
+						continue;
+					}
 					tokenList.add(token);
 				}
 			}

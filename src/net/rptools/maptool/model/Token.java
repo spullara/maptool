@@ -121,7 +121,7 @@ public class Token extends BaseModel {
 	private Path<? extends AbstractPoint> lastPath;
 
 	private boolean snapToScale = true; // Whether the scaleX and scaleY
-										// represent snap-to-grid measurements
+	// represent snap-to-grid measurements
 
 	// These are the original image width and height
 	private int width;
@@ -133,7 +133,7 @@ public class Token extends BaseModel {
 	private Map<Class<? extends Grid>, GUID> sizeMap;
 
 	private boolean snapToGrid = true; // Whether the token snaps to the
-										// current grid or is free floating
+	// current grid or is free floating
 
 	private boolean isVisible = true;
 
@@ -157,8 +157,8 @@ public class Token extends BaseModel {
 	private Integer haloColorValue;
 	private transient Color haloColor;
 
-    private Integer visionOverlayColorValue;
-    private transient Color visionOverlayColor;
+	private Integer visionOverlayColorValue;
+	private transient Color visionOverlayColor;
 
 	private boolean isFlippedX;
 	private boolean isFlippedY;
@@ -172,9 +172,9 @@ public class Token extends BaseModel {
 
 	private String label;
 
-  /**
-   * The notes that are displayed for this token.
-   */
+	/**
+	 * The notes that are displayed for this token.
+	 */
 	private String notes;
 
 	private String gmNotes;
@@ -233,28 +233,28 @@ public class Token extends BaseModel {
 		snapToGrid = token.snapToGrid;
 		isVisible = token.isVisible;
 		name = token.name;
-	    notes = token.notes;
-	    gmName = token.gmName;
-	    gmNotes = token.gmNotes;
-	    label = token.label;
+		notes = token.notes;
+		gmName = token.gmName;
+		gmNotes = token.gmNotes;
+		label = token.label;
 
-	    isFlippedX = token.isFlippedX;
-	    isFlippedY = token.isFlippedY;
+		isFlippedX = token.isFlippedX;
+		isFlippedY = token.isFlippedY;
 
-	    layer = token.layer;
+		layer = token.layer;
 
-        visionOverlayColor = token.visionOverlayColor;
+		visionOverlayColor = token.visionOverlayColor;
 
-        charsheetImage = token.charsheetImage;
-        portraitImage = token.portraitImage;
-        anchorX = token.anchorX;
-        anchorY = token.anchorY;
-        sizeScale = token.sizeScale;
-        sightType = token.sightType;
-        hasSight = token.hasSight;
-        propertyType = token.propertyType;
+		charsheetImage = token.charsheetImage;
+		portraitImage = token.portraitImage;
+		anchorX = token.anchorX;
+		anchorY = token.anchorY;
+		sizeScale = token.sizeScale;
+		sightType = token.sightType;
+		hasSight = token.hasSight;
+		propertyType = token.propertyType;
 
-	    ownerType = token.ownerType;
+		ownerType = token.ownerType;
 		if (token.ownerList != null) {
 			ownerList = new HashSet<String>();
 			ownerList.addAll(token.ownerList);
@@ -510,7 +510,7 @@ public class Token extends BaseModel {
 			lightSourceList = new ArrayList<AttachedLightSource>();
 		}
 		if (!lightSourceList.contains(source));
-			lightSourceList.add(new AttachedLightSource(source, direction));
+		lightSourceList.add(new AttachedLightSource(source, direction));
 	}
 
 	public void removeLightSource(LightSource source) {
@@ -567,9 +567,9 @@ public class Token extends BaseModel {
 		ownerList.add(playerId);
 	}
 
-  public synchronized boolean hasOwners() {
-    return ownerType == OWNER_TYPE_ALL || (ownerList != null && !ownerList.isEmpty());
-  }
+	public synchronized boolean hasOwners() {
+		return ownerType == OWNER_TYPE_ALL || (ownerList != null && !ownerList.isEmpty());
+	}
 
 	public synchronized void removeOwner(String playerId) {
 		ownerType = OWNER_TYPE_LIST;
@@ -787,41 +787,41 @@ public class Token extends BaseModel {
 
 	public Rectangle getBounds(Zone zone) {
 		TokenFootprint footprint = getFootprint(zone.getGrid());
-        Rectangle footprintBounds = footprint.getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(getX(), getY())));
+		Rectangle footprintBounds = footprint.getBounds(zone.getGrid(), zone.getGrid().convert(new ZonePoint(getX(), getY())));
 
-        double width = footprintBounds.width;
-        double height = footprintBounds.height;
+		double width = footprintBounds.width;
+		double height = footprintBounds.height;
 
-        // Sizing
-        if (!isSnapToScale()) {
-        	width = this.width * getScaleX();
-        	height = this.height * getScaleY();
-        } else {
-        	width = footprintBounds.width * footprint.getScale() * sizeScale;
-        	height = footprintBounds.height * footprint.getScale() * sizeScale;
-        }
+		// Sizing
+		if (!isSnapToScale()) {
+			width = this.width * getScaleX();
+			height = this.height * getScaleY();
+		} else {
+			width = footprintBounds.width * footprint.getScale() * sizeScale;
+			height = footprintBounds.height * footprint.getScale() * sizeScale;
+		}
 
-        // Positioning
-        if (!isSnapToGrid()) {
-            footprintBounds.x = getX();
-            footprintBounds.y = getY();
-        } else {
-        	if (!isBackgroundStamp()) {
-	        	// Center it on the footprint
-	        	footprintBounds.x -= (width - footprintBounds.width)/2;
-	        	footprintBounds.y -= (height - footprintBounds.height)/2;
-        	} else {
+		// Positioning
+		if (!isSnapToGrid()) {
+			footprintBounds.x = getX();
+			footprintBounds.y = getY();
+		} else {
+			if (!isBackgroundStamp()) {
+				// Center it on the footprint
+				footprintBounds.x -= (width - footprintBounds.width)/2;
+				footprintBounds.y -= (height - footprintBounds.height)/2;
+			} else {
 //	        	footprintBounds.x -= zone.getGrid().getSize()/2;
 //	        	footprintBounds.y -= zone.getGrid().getSize()/2;
-        	}
-        }
+			}
+		}
 
-        footprintBounds.width = (int)width; // perhaps make this a double
-        footprintBounds.height = (int)height;
+		footprintBounds.width = (int)width; // perhaps make this a double
+		footprintBounds.height = (int)height;
 
-        // Offset
-        footprintBounds.x += anchorX;
-        footprintBounds.y += anchorY;
+		// Offset
+		footprintBounds.x += anchorX;
+		footprintBounds.y += anchorY;
 
 		return footprintBounds;
 	}
@@ -886,17 +886,15 @@ public class Token extends BaseModel {
 		return state.put(aState, aValue);
 	}
 
+	public void resetProperty(String key) {
+		getPropertyMap().remove(key);
+	}
+
 	public void setProperty(String key, Object value) {
-//		if (key != null) {
-//			key = key.toUpperCase();
-//		}
 		getPropertyMap().put(key, value);
 	}
 
 	public Object getProperty(String key) {
-//		if (key != null) {
-//			key = key.toUpperCase();
-//		}
 		Object value = getPropertyMap().get(key);
 
 //		// Short name ?
@@ -1117,20 +1115,20 @@ public class Token extends BaseModel {
 		return state.keySet();
 	}
 
-  /** @return Getter for notes */
-    public String getNotes() {
-        return notes;
-    }
+	/** @return Getter for notes */
+	public String getNotes() {
+		return notes;
+	}
 
-    /**
-     * @param aNotes
-     *            Setter for notes
-     */
-    public void setNotes(String aNotes) {
-        notes = aNotes;
-    }
+	/**
+	 * @param aNotes
+	 *            Setter for notes
+	 */
+	public void setNotes(String aNotes) {
+		notes = aNotes;
+	}
 
-    public boolean isFlippedY() {
+	public boolean isFlippedY() {
 		return isFlippedY;
 	}
 
@@ -1146,214 +1144,214 @@ public class Token extends BaseModel {
 		this.isFlippedX = isFlippedX;
 	}
 
-    public Color getVisionOverlayColor() {
+	public Color getVisionOverlayColor() {
 		if (visionOverlayColor == null && visionOverlayColorValue != null) {
 			visionOverlayColor = new Color(visionOverlayColorValue);
 		}
 
-        return visionOverlayColor;
-    }
+		return visionOverlayColor;
+	}
 
-    public void setVisionOverlayColor(Color color) {
+	public void setVisionOverlayColor(Color color) {
 		if (color != null) {
 			visionOverlayColorValue = color.getRGB();
 		} else {
 			visionOverlayColorValue = null;
 		}
 		visionOverlayColor = color;
-    }
+	}
 
-    @Override
-    public String toString() {
-    	return "Token: " + id;
-    }
+	@Override
+	public String toString() {
+		return "Token: " + id;
+	}
 
-    public void setAnchor(int x, int y) {
-    	anchorX = x;
-    	anchorY = y;
-    }
+	public void setAnchor(int x, int y) {
+		anchorX = x;
+		anchorY = y;
+	}
 
-    public Point getAnchor() {
-    	return new Point(anchorX, anchorY);
-    }
+	public Point getAnchor() {
+		return new Point(anchorX, anchorY);
+	}
 
-    public double getSizeScale() {
-    	return sizeScale;
-    }
+	public double getSizeScale() {
+		return sizeScale;
+	}
 
-    public void setSizeScale(double scale) {
-    	sizeScale = scale;
-    }
+	public void setSizeScale(double scale) {
+		sizeScale = scale;
+	}
 
 	/**
-     * Convert the token into a hash map. This is used to ship all of the
-     * properties for the token to other apps that do need access to the
-     * <code>Token</code> class.
-     *
-     * @return A map containing the properties of the token.
-     */
-    public TokenTransferData toTransferData() {
-        TokenTransferData td = new TokenTransferData();
-        td.setName(name);
-        td.setPlayers(ownerList);
-        td.setVisible(isVisible);
-        td.setLocation(new Point(x, y));
-        td.setFacing(facing);
+	 * Convert the token into a hash map. This is used to ship all of the
+	 * properties for the token to other apps that do need access to the
+	 * <code>Token</code> class.
+	 *
+	 * @return A map containing the properties of the token.
+	 */
+	public TokenTransferData toTransferData() {
+		TokenTransferData td = new TokenTransferData();
+		td.setName(name);
+		td.setPlayers(ownerList);
+		td.setVisible(isVisible);
+		td.setLocation(new Point(x, y));
+		td.setFacing(facing);
 
-        // Set the properties
-        td.put(TokenTransferData.ID, id.toString());
-        td.put(TokenTransferData.ASSET_ID, imageAssetMap.get(null));
-        td.put(TokenTransferData.Z, z);
-        td.put(TokenTransferData.SNAP_TO_SCALE, snapToScale);
-        td.put(TokenTransferData.WIDTH, scaleX);
-        td.put(TokenTransferData.HEIGHT, scaleY);
-        td.put(TokenTransferData.SNAP_TO_GRID, snapToGrid);
-        td.put(TokenTransferData.OWNER_TYPE, ownerType);
-        td.put(TokenTransferData.TOKEN_TYPE, tokenShape);
-        td.put(TokenTransferData.NOTES, notes);
-        td.put(TokenTransferData.GM_NOTES, gmNotes);
-        td.put(TokenTransferData.GM_NAME, gmName);
+		// Set the properties
+		td.put(TokenTransferData.ID, id.toString());
+		td.put(TokenTransferData.ASSET_ID, imageAssetMap.get(null));
+		td.put(TokenTransferData.Z, z);
+		td.put(TokenTransferData.SNAP_TO_SCALE, snapToScale);
+		td.put(TokenTransferData.WIDTH, scaleX);
+		td.put(TokenTransferData.HEIGHT, scaleY);
+		td.put(TokenTransferData.SNAP_TO_GRID, snapToGrid);
+		td.put(TokenTransferData.OWNER_TYPE, ownerType);
+		td.put(TokenTransferData.TOKEN_TYPE, tokenShape);
+		td.put(TokenTransferData.NOTES, notes);
+		td.put(TokenTransferData.GM_NOTES, gmNotes);
+		td.put(TokenTransferData.GM_NAME, gmName);
 
-        // Put all of the serializable state into the map
-        for (String key : getStatePropertyNames()) {
-            Object value = getState(key);
-            if (value instanceof Serializable)
-                td.put(key, value);
-        }
-        td.putAll(state);
+		// Put all of the serializable state into the map
+		for (String key : getStatePropertyNames()) {
+			Object value = getState(key);
+			if (value instanceof Serializable)
+				td.put(key, value);
+		}
+		td.putAll(state);
 
-        // Create the image from the asset and add it to the map
-        Image image = ImageManager.getImageAndWait(imageAssetMap.get(null));
-        if (image != null)
-            td.setToken(new ImageIcon(image)); // Image icon makes it serializable.
-        return td;
-    }
+		// Create the image from the asset and add it to the map
+		Image image = ImageManager.getImageAndWait(imageAssetMap.get(null));
+		if (image != null)
+			td.setToken(new ImageIcon(image)); // Image icon makes it serializable.
+		return td;
+	}
 
-    /**
-     * Constructor to create a new token from a transfer object containing its property
-     * values. This is used to read in a new token from other apps that don't
-     * have access to the <code>Token</code> class.
-     *
-     * @param td
-     *            Read the values from this transfer object.
-     */
-    public Token(TokenTransferData td) {
-        imageAssetMap = new HashMap<String, MD5Key>();
-        state = new HashMap<String, Object>();
-        if (td.getLocation() != null) {
-            x = td.getLocation().x;
-            y = td.getLocation().y;
-        }
-        snapToScale = getBoolean(td, TokenTransferData.SNAP_TO_SCALE, true);
-        scaleX = getInt(td, TokenTransferData.WIDTH, 1);
-        scaleY = getInt(td, TokenTransferData.HEIGHT, 1);
-        snapToGrid = getBoolean(td, TokenTransferData.SNAP_TO_GRID, true);
-        isVisible = td.isVisible();
-        name = td.getName();
-        ownerList = td.getPlayers();
-        ownerType = getInt(td, TokenTransferData.OWNER_TYPE,
-                ownerList == null ? OWNER_TYPE_ALL : OWNER_TYPE_LIST);
-        tokenShape = (String) td.get(TokenTransferData.TOKEN_TYPE);
-        facing = td.getFacing();
-        notes = (String) td.get(TokenTransferData.NOTES);
-        gmNotes = (String) td.get(TokenTransferData.GM_NOTES);
-        gmName = (String) td.get(TokenTransferData.GM_NAME);
+	/**
+	 * Constructor to create a new token from a transfer object containing its property
+	 * values. This is used to read in a new token from other apps that don't
+	 * have access to the <code>Token</code> class.
+	 *
+	 * @param td
+	 *            Read the values from this transfer object.
+	 */
+	public Token(TokenTransferData td) {
+		imageAssetMap = new HashMap<String, MD5Key>();
+		state = new HashMap<String, Object>();
+		if (td.getLocation() != null) {
+			x = td.getLocation().x;
+			y = td.getLocation().y;
+		}
+		snapToScale = getBoolean(td, TokenTransferData.SNAP_TO_SCALE, true);
+		scaleX = getInt(td, TokenTransferData.WIDTH, 1);
+		scaleY = getInt(td, TokenTransferData.HEIGHT, 1);
+		snapToGrid = getBoolean(td, TokenTransferData.SNAP_TO_GRID, true);
+		isVisible = td.isVisible();
+		name = td.getName();
+		ownerList = td.getPlayers();
+		ownerType = getInt(td, TokenTransferData.OWNER_TYPE,
+				ownerList == null ? OWNER_TYPE_ALL : OWNER_TYPE_LIST);
+		tokenShape = (String) td.get(TokenTransferData.TOKEN_TYPE);
+		facing = td.getFacing();
+		notes = (String) td.get(TokenTransferData.NOTES);
+		gmNotes = (String) td.get(TokenTransferData.GM_NOTES);
+		gmName = (String) td.get(TokenTransferData.GM_NAME);
 
-        // Get the image and portrait for the token
-        Asset asset = createAssetFromIcon(td.getToken());
-        if (asset != null)
-            imageAssetMap.put(null, asset.getId());
-        asset = createAssetFromIcon((ImageIcon)td.get(TokenTransferData.PORTRAIT));
-        if (asset != null)
-            portraitImage = asset.getId();
+		// Get the image and portrait for the token
+		Asset asset = createAssetFromIcon(td.getToken());
+		if (asset != null)
+			imageAssetMap.put(null, asset.getId());
+		asset = createAssetFromIcon((ImageIcon)td.get(TokenTransferData.PORTRAIT));
+		if (asset != null)
+			portraitImage = asset.getId();
 
-        // Get the macros
-        Map<String, Object> macros = (Map<String, Object>)td.get(TokenTransferData.MACROS);
-        macroMap = new HashMap<String, String>();
-        for (String macroName : macros.keySet()) {
-            Object macro = macros.get(macroName);
-            if (macro instanceof String) {
-                macroMap.put(macroName, (String)macro);
-            } else if (macro instanceof Map) {
-                MacroButtonProperties mbp = new MacroButtonProperties(this, (Map<String, String>)macro);
-                getMacroPropertiesMap(false).put(mbp.getIndex(), mbp);
-            } // endif
-        } // endfor
-        loadOldMacros();
+		// Get the macros
+		Map<String, Object> macros = (Map<String, Object>)td.get(TokenTransferData.MACROS);
+		macroMap = new HashMap<String, String>();
+		for (String macroName : macros.keySet()) {
+			Object macro = macros.get(macroName);
+			if (macro instanceof String) {
+				macroMap.put(macroName, (String)macro);
+			} else if (macro instanceof Map) {
+				MacroButtonProperties mbp = new MacroButtonProperties(this, (Map<String, String>)macro);
+				getMacroPropertiesMap(false).put(mbp.getIndex(), mbp);
+			} // endif
+		} // endfor
+		loadOldMacros();
 
-        // Get all of the non maptool specific state
-        for (String key : td.keySet()) {
-            if (key.startsWith(TokenTransferData.MAPTOOL))
-                continue;
-            setProperty(key, td.get(key));
-        } // endfor
-    }
+		// Get all of the non maptool specific state
+		for (String key : td.keySet()) {
+			if (key.startsWith(TokenTransferData.MAPTOOL))
+				continue;
+			setProperty(key, td.get(key));
+		} // endfor
+	}
 
-    private Asset createAssetFromIcon(ImageIcon icon) {
-        if (icon == null) return null;
+	private Asset createAssetFromIcon(ImageIcon icon) {
+		if (icon == null) return null;
 
-        // Make sure there is a buffered image for it
-        Image image = icon.getImage();
-        if (!(image instanceof BufferedImage)) {
-            image = new BufferedImage(icon.getIconWidth(), icon
-                    .getIconHeight(), Transparency.TRANSLUCENT);
-            Graphics2D g = ((BufferedImage) image).createGraphics();
-            icon.paintIcon(null, g, 0, 0);
-        }
+		// Make sure there is a buffered image for it
+		Image image = icon.getImage();
+		if (!(image instanceof BufferedImage)) {
+			image = new BufferedImage(icon.getIconWidth(), icon
+					.getIconHeight(), Transparency.TRANSLUCENT);
+			Graphics2D g = ((BufferedImage) image).createGraphics();
+			icon.paintIcon(null, g, 0, 0);
+		}
 
-        // Create the asset
-        Asset asset = null;
-        try {
-            asset = new Asset(name, ImageUtil.imageToBytes((BufferedImage) image));
-            if (!AssetManager.hasAsset(asset))
-                AssetManager.putAsset(asset);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return asset;
-    }
+		// Create the asset
+		Asset asset = null;
+		try {
+			asset = new Asset(name, ImageUtil.imageToBytes((BufferedImage) image));
+			if (!AssetManager.hasAsset(asset))
+				AssetManager.putAsset(asset);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return asset;
+	}
 
-    /**
-     * Get an integer value from the map or return the default value
-     *
-     * @param map
-     *            Get the value from this map
-     * @param propName
-     *            The name of the property being read.
-     * @param defaultValue
-     *            The value for the property if it is not set in the map.
-     * @return The value for the passed property
-     */
-    private static int getInt(Map<String, Object> map, String propName,
-            int defaultValue) {
-        Integer integer = (Integer) map.get(propName);
-        if (integer == null)
-            return defaultValue;
-        return integer.intValue();
-    }
+	/**
+	 * Get an integer value from the map or return the default value
+	 *
+	 * @param map
+	 *            Get the value from this map
+	 * @param propName
+	 *            The name of the property being read.
+	 * @param defaultValue
+	 *            The value for the property if it is not set in the map.
+	 * @return The value for the passed property
+	 */
+	private static int getInt(Map<String, Object> map, String propName,
+			int defaultValue) {
+		Integer integer = (Integer) map.get(propName);
+		if (integer == null)
+			return defaultValue;
+		return integer.intValue();
+	}
 
-    /**
-     * Get a boolean value from the map or return the default value
-     *
-     * @param map
-     *            Get the value from this map
-     * @param propName
-     *            The name of the property being read.
-     * @param defaultValue
-     *            The value for the property if it is not set in the map.
-     * @return The value for the passed property
-     */
-    private static boolean getBoolean(Map<String, Object> map, String propName,
-            boolean defaultValue) {
-        Boolean bool = (Boolean) map.get(propName);
-        if (bool == null)
-            return defaultValue;
-        return bool.booleanValue();
-    }
+	/**
+	 * Get a boolean value from the map or return the default value
+	 *
+	 * @param map
+	 *            Get the value from this map
+	 * @param propName
+	 *            The name of the property being read.
+	 * @param defaultValue
+	 *            The value for the property if it is not set in the map.
+	 * @return The value for the passed property
+	 */
+	private static boolean getBoolean(Map<String, Object> map, String propName,
+			boolean defaultValue) {
+		Boolean bool = (Boolean) map.get(propName);
+		if (bool == null)
+			return defaultValue;
+		return bool.booleanValue();
+	}
 
-    public static boolean isTokenFile(String filename) {
-    	return filename != null && filename.toLowerCase().endsWith(FILE_EXTENSION);
-    }
+	public static boolean isTokenFile(String filename) {
+		return filename != null && filename.toLowerCase().endsWith(FILE_EXTENSION);
+	}
 
 	public Icon getIcon(int width, int height) {
 		ImageIcon icon = new ImageIcon(ImageManager.getImageAndWait(getImageAssetId()));

@@ -13,15 +13,16 @@
  */
 package net.rptools.maptool.client.ui.macrobuttons.panels;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+
 import net.rptools.maptool.client.AppStyle;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
 import net.rptools.maptool.language.I18N;
@@ -31,14 +32,15 @@ import net.rptools.maptool.model.Token;
 public class ImpersonatePanel extends AbstractMacroPanel {
 
 	private boolean currentlyImpersonating = false;
-	
+
 	public ImpersonatePanel() {
 		setPanelClass("ImpersonatePanel");
 		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
 	}
-	
-	public void init(){
+
+	public void init() {
 		List<Token> selectedTokenList = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList();
+
 		if (currentlyImpersonating && getToken() != null) {
 			Token token = getToken();
 			MapTool.getFrame().getFrame(MTFrame.IMPERSONATED).setFrameIcon(token.getIcon(16, 16));
@@ -49,24 +51,26 @@ public class ImpersonatePanel extends AbstractMacroPanel {
 		} else {
 			// add the "Impersonate Selected" button
 			final Token t = selectedTokenList.get(0);
-			
-			JButton button = new JButton(I18N.getText("panel.Impersonate.button.impersonateSelected"), t.getIcon(16, 16)) {
-				public Insets getInsets() {
-					return new Insets(2, 2, 2, 2);
-				}
-			};
-			button.addMouseListener(new MouseAdapter() {
-				public void mouseClicked(MouseEvent event) {
-					MapTool.getFrame().getCommandPanel().quickCommit("/im " + t.getId(), false);
-				}
-			});
-			button.setBackground(null);
-			add(button);
+
+			if(AppUtil.playerOwns(t)){
+				JButton button = new JButton(I18N.getText("panel.Impersonate.button.impersonateSelected"), t.getIcon(16, 16)) {
+					public Insets getInsets() {
+						return new Insets(2, 2, 2, 2);
+					}
+				};
+				button.addMouseListener(new MouseAdapter() {
+					public void mouseClicked(MouseEvent event) {
+						MapTool.getFrame().getCommandPanel().quickCommit("/im " + t.getId(), false);
+					}
+				});
+				button.setBackground(null);
+				add(button);
+			}
 		}
 
 	}
 
-	public void startImpersonating(Token token){
+	public void startImpersonating(Token token) {
 		stopImpersonating();
 		setTokenId(token);
 		currentlyImpersonating = true;
@@ -74,13 +78,13 @@ public class ImpersonatePanel extends AbstractMacroPanel {
 		reset();
 	}
 
-	public void stopImpersonating(){
+	public void stopImpersonating() {
 		Token token = getToken();
-		if (token!=null){
+		if (token != null) {
 			token.setBeingImpersonated(false);
 		}
-		setTokenId((GUID)null);
-		currentlyImpersonating = false;		
+		setTokenId((GUID) null);
+		currentlyImpersonating = false;
 		clear();
 	}
 
@@ -103,28 +107,20 @@ public class ImpersonatePanel extends AbstractMacroPanel {
 		revalidate();
 		repaint();
 	}
-	
+
 	public void reset() {
 		clear();
 		init();
 	}
-	
-/*
-	public void addCancelButton() {
-		ImageIcon i = new ImageIcon(AppStyle.cancelButton);
-		JButton button = new JButton("Cancel Impersonation", i) {
-			public Insets getInsets() {
-				return new Insets(3, 3, 3, 3);
-			}
-		};
-		button.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent event) {
-				MapTool.getFrame().getCommandPanel().quickCommit("/im");
-			}
-		});
-		button.setBackground(null);
-		add(button);
-	}
-*/
-	
+
+	/*
+	 * public void addCancelButton() { ImageIcon i = new
+	 * ImageIcon(AppStyle.cancelButton); JButton button = new
+	 * JButton("Cancel Impersonation", i) { public Insets getInsets() { return
+	 * new Insets(3, 3, 3, 3); } }; button.addMouseListener(new MouseAdapter() {
+	 * public void mouseClicked(MouseEvent event) {
+	 * MapTool.getFrame().getCommandPanel().quickCommit("/im"); } });
+	 * button.setBackground(null); add(button); }
+	 */
+
 }

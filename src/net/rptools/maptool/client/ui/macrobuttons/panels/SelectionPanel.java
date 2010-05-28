@@ -13,59 +13,69 @@
  */
 package net.rptools.maptool.client.ui.macrobuttons.panels;
 
-import javax.swing.ImageIcon;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
+
+import javax.swing.ImageIcon;
 
 import net.rptools.maptool.client.AppStyle;
+import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
-import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroup;
 import net.rptools.maptool.language.I18N;
-import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.MacroButtonProperties;
+import net.rptools.maptool.model.Token;
 
 public class SelectionPanel extends AbstractMacroPanel {
-	
+
 	private List<Token> tokenList = null;
 	private List<MacroButtonProperties> commonMacros = new ArrayList<MacroButtonProperties>();
-	
+
 	public SelectionPanel() {
-		//TODO: refactoring reminder
+		// TODO: refactoring reminder
 		setPanelClass("SelectionPanel");
-		init(new ArrayList<Token>());  // when initially loading MT, the CurrentZoneRenderer isn't ready yet; just send an empty list
+		init(new ArrayList<Token>()); // when initially loading MT, the
+										// CurrentZoneRenderer isn't ready yet;
+										// just send an empty list
 	}
-	
+
 	public List<MacroButtonProperties> getCommonMacros() {
 		return commonMacros;
 	}
+
 	public void setCommonMacros(List<MacroButtonProperties> newCommonMacros) {
 		commonMacros = newCommonMacros;
 	}
-	
-	public void init(){
+
+	public void init() {
 		init(MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList());
 	}
 
 	public void init(List<Token> selectedTokenList) {
+
 		// add the selection panel controls first
 		add(new MenuButtonsPanel());
 
+		
 		// draw common group only when there is more than one token selected
 		if (selectedTokenList.size() > 1) {
 			populateCommonButtons(selectedTokenList);
-			addArea(commonMacros, I18N.getText("component.areaGroup.macro.commonMacros"));
-			//add(new ButtonGroup(selectedTokenList, commonMacros, this));
+			if(!commonMacros.isEmpty()){
+				addArea(commonMacros, I18N.getText("component.areaGroup.macro.commonMacros"));
+			}
+			// add(new ButtonGroup(selectedTokenList, commonMacros, this));
 		}
 		for (Token token : selectedTokenList) {
-			addArea(token.getId());
+			if(!AppUtil.playerOwns(token)){
+				continue;
+			}
+				addArea(token.getId());
 		}
-
-		if (selectedTokenList.size() == 1) {
+		
+		if (selectedTokenList.size() == 1 && AppUtil.playerOwns(selectedTokenList.get(0))) {
 			// if only one token selected, show its image as tab icon
 			MapTool.getFrame().getFrame(MTFrame.SELECTION).setFrameIcon(selectedTokenList.get(0).getIcon(16, 16));
 		}
@@ -73,16 +83,19 @@ public class SelectionPanel extends AbstractMacroPanel {
 	}
 
 	private void populateCommonButtons(List<Token> tokenList) {
-		
+
 		Map<Integer, MacroButtonProperties> uniqueMacros = new HashMap<Integer, MacroButtonProperties>();
 		Map<Integer, MacroButtonProperties> commonMacros = new HashMap<Integer, MacroButtonProperties>();
-		for(Token nextToken : tokenList) {
-			for(MacroButtonProperties nextMacro : nextToken.getMacroList(true)) {
+		for (Token nextToken : tokenList) {
+			if(!AppUtil.playerOwns(nextToken)){
+				continue;
+			}
+			for (MacroButtonProperties nextMacro : nextToken.getMacroList(true)) {
 				MacroButtonProperties copiedMacro = new MacroButtonProperties(nextMacro.getIndex(), nextMacro);
 				int macroKey = copiedMacro.hashCodeForComparison();
 				Boolean macroIsInUnique = uniqueMacros.containsKey(copiedMacro.hashCodeForComparison());
 				Boolean macroIsInCommon = commonMacros.containsKey(copiedMacro.hashCodeForComparison());
-				if(!macroIsInUnique && !macroIsInCommon) {
+				if (!macroIsInUnique && !macroIsInCommon) {
 					uniqueMacros.put(macroKey, copiedMacro);
 				} else if (macroIsInUnique && !macroIsInCommon) {
 					uniqueMacros.remove(macroKey);
@@ -92,38 +105,41 @@ public class SelectionPanel extends AbstractMacroPanel {
 				}
 			}
 		}
-		for(MacroButtonProperties nextMacro : commonMacros.values()) {
+		for (MacroButtonProperties nextMacro : commonMacros.values()) {
 			nextMacro.setAllowPlayerEdits(true);
-			for(Token nextToken : tokenList) {
-				for(MacroButtonProperties nextTokenMacro : nextToken.getMacroList(true)) {
-					if(!nextTokenMacro.getAllowPlayerEdits()) {
+			for (Token nextToken : tokenList) {
+				if(!AppUtil.playerOwns(nextToken)){
+					continue;
+				}
+				for (MacroButtonProperties nextTokenMacro : nextToken.getMacroList(true)) {
+					if (!nextTokenMacro.getAllowPlayerEdits()) {
 						nextMacro.setAllowPlayerEdits(false);
 					}
 				}
 			}
-			if(!nextMacro.getCompareApplyToSelectedTokens()) {
+			if (!nextMacro.getCompareApplyToSelectedTokens()) {
 				nextMacro.setCompareApplyToSelectedTokens(false);
 			}
-			if(!nextMacro.getCompareAutoExecute()) {
+			if (!nextMacro.getCompareAutoExecute()) {
 				nextMacro.setCompareAutoExecute(false);
 			}
-			if(!nextMacro.getCompareCommand()) {
+			if (!nextMacro.getCompareCommand()) {
 				nextMacro.setCommand("");
 			}
-			if(!nextMacro.getCompareGroup()) {
+			if (!nextMacro.getCompareGroup()) {
 				nextMacro.setGroup("");
 			}
-			if(!nextMacro.getCompareIncludeLabel()) {
+			if (!nextMacro.getCompareIncludeLabel()) {
 				nextMacro.setIncludeLabel(false);
 			}
-			if(!nextMacro.getCompareSortPrefix()) {
+			if (!nextMacro.getCompareSortPrefix()) {
 				nextMacro.setSortby("");
 			}
 		}
-		
+
 		this.commonMacros = new ArrayList<MacroButtonProperties>(commonMacros.values());
 		int indexCount = 0;
-		for(MacroButtonProperties nextMacro : this.commonMacros) {
+		for (MacroButtonProperties nextMacro : this.commonMacros) {
 			nextMacro.setIndex(indexCount);
 			indexCount++;
 		}
@@ -137,7 +153,7 @@ public class SelectionPanel extends AbstractMacroPanel {
 		revalidate();
 		repaint();
 	}
-	
+
 	public void reset() {
 		clear();
 		init();
