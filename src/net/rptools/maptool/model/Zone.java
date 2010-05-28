@@ -477,7 +477,7 @@ public class Zone extends BaseModel {
 		int gridy = (int)Math.round((point.y - grid.getOffsetY()) / grid.getCellHeight());
 
 //    	System.out.println("gx:" + gridx + " zx:" + (gridx * grid.getCellWidth() + grid.getOffsetX()));
-return new ZonePoint((int)(gridx * grid.getCellWidth() + grid.getOffsetX()), (int)(gridy * grid.getCellHeight() + grid.getOffsetY()));
+		return new ZonePoint((int)(gridx * grid.getCellWidth() + grid.getOffsetX()), (int)(gridy * grid.getCellHeight() + grid.getOffsetY()));
 	}
 
 	public Area getExposedArea() {
@@ -606,7 +606,6 @@ return new ZonePoint((int)(gridx * grid.getCellWidth() + grid.getOffsetX()), (in
 		Collections.sort(tokenOrderedList, TOKEN_Z_ORDER_COMPARATOR);
 
 		if (newToken) {
-
 			fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_ADDED, token));
 		} else {
 			fireModelChangeEvent(new ModelChangeEvent(this, Event.TOKEN_CHANGED, token));

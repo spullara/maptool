@@ -2357,6 +2357,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
                 if (highlightCommonMacros.contains(token)) {
                 	selectedBorder = AppStyle.commonMacroBorder;
                 }
+                if (!AppUtil.playerOwns(token)){
+                	selectedBorder = AppStyle.selectedUnownedBorder;
+                }
                 // Border
 				// FIXME Should this block be using 'clippedG' instead of 'g'?
 				if (clippedG == g) {

@@ -54,9 +54,7 @@ public class TokenBarFunction extends AbstractFunction {
 		} else if (functionName.equals("isBarVisible")) {
 			return isVisible(token, bar);
 		} else {
-			setVisible(token, bar, AbstractTokenAccessorFunction.getBooleanValue(parameters.get(1)));
-			token.setState(bar, show ? BigDecimal.ZERO : null);
-			return show ? BigDecimal.ONE : BigDecimal.ZERO;
+			return setVisible(token, bar, AbstractTokenAccessorFunction.getBooleanValue(parameters.get(1)));
 		}
 	}
 

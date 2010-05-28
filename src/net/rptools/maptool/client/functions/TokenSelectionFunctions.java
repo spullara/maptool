@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.List;
 
 import net.rptools.maptool.client.MapTool;
-import net.rptools.maptool.client.MapToolVariableResolver;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.GUID;
@@ -22,7 +21,7 @@ public class TokenSelectionFunctions extends AbstractFunction {
 	private static final TokenSelectionFunctions instance = new TokenSelectionFunctions();
 
 	private TokenSelectionFunctions() {
-		super(0, 2, "selectTokens", "deselectTokens");
+		super(0, 3, "selectTokens", "deselectTokens");
 	}
 
 	public static TokenSelectionFunctions getInstance() {
@@ -32,6 +31,9 @@ public class TokenSelectionFunctions extends AbstractFunction {
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> parameters) throws ParserException {
 
+		if (!MapTool.getParser().isMacroTrusted()) {
+			throw new ParserException(I18N.getText("macro.function.general.noPerm", functionName));
+		}
 		if (functionName.equals("selectTokens")) {
 			selectTokens(parameters);
 		} else if (functionName.equals("deselectTokens")) {
@@ -47,31 +49,32 @@ public class TokenSelectionFunctions extends AbstractFunction {
 		ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
 		Zone zone = zr.getZone();
 
-		if (parameters == null || parameters.size() < 1) {
+		// If no tokens are selected, don't bother with the rest
+		if(zr.getSelectedTokenSet() == null || zr.getSelectedTokenSet().isEmpty()){
+			return;
+		}
+		Collection<GUID> deselectGUIDs = new ArrayList<GUID>();
 
-			// Select all tokens
-			List<Token> allTokens = zone.getTokens();
+		if (parameters == null || parameters.isEmpty()) {
 
-			if (allTokens != null) {
-				for (Token t : allTokens) {
-					GUID tid = t.getId();
-					zr.deselectToken(tid);
-				}
-			}
-
+			// Deselect all currently selected tokens
+			deselectGUIDs.addAll(zr.getSelectedTokenSet());
 		} else if (parameters.size() == 1) {
+
+			// If no tokens are selected, don't do anything
 			String paramStr = parameters.get(0).toString();
 			Token t = zone.resolveToken(paramStr.trim());
+
 			if (t != null) {
-				zr.deselectToken(t.getId());
+				deselectGUIDs.add(t.getId());
 			} else {
 				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "deselectTokens", paramStr.trim()));
 			}
 		} else if (parameters.size() == 2) {
 			// Either a JSON Array or a String List
 
-			String delim = parameters.get(0).toString();
-			String paramStr = parameters.get(1).toString();
+			String paramStr = parameters.get(0).toString();
+			String delim = parameters.get(1).toString();
 
 			if (delim.equalsIgnoreCase("json")) {
 				// A JSON Array was supplied
@@ -82,7 +85,7 @@ public class TokenSelectionFunctions extends AbstractFunction {
 						String identifier = (String) o;
 						Token t = zone.resolveToken(identifier.trim());
 						if (t != null) {
-							zr.deselectToken(t.getId());
+							deselectGUIDs.add(t.getId());
 						} else {
 							throw new ParserException(I18N.getText("macro.function.general.unknownToken", "deselectTokens", identifier));
 						}
@@ -95,23 +98,28 @@ public class TokenSelectionFunctions extends AbstractFunction {
 				for (String s : strList) {
 					Token t = zone.resolveToken(s.trim());
 					if (t != null) {
-						zr.deselectToken(t.getId());
+						deselectGUIDs.add(t.getId());
 					} else {
 						throw new ParserException(I18N.getText("macro.function.general.unknownToken", "deselectTokens", s));
 					}
 				}
 			}
-
+		} else if (parameters.size() > 2) {
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "deselectTokens", 2, parameters.size()));
+		}
+		// Finally, loop through the deselect guids and deselect each token in turn
+		for (GUID deselectGUID : deselectGUIDs){
+			zr.deselectToken(deselectGUID);
 		}
 	}
 
 	private void selectTokens(List<Object> parameters) throws ParserException {
 
-		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
+		ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
+		Zone zone = zr.getZone();
 		Collection<GUID> allGUIDs = new ArrayList<GUID>();
 
-		if (parameters == null || parameters.size() < 1) {
-
+		if (parameters == null || parameters.isEmpty()) {
 			// Select all tokens
 			List<Token> allTokens = zone.getTokens();
 
@@ -121,20 +129,46 @@ public class TokenSelectionFunctions extends AbstractFunction {
 					allGUIDs.add(tid);
 				}
 			}
-
 		} else if (parameters.size() == 1) {
 			String paramStr = parameters.get(0).toString();
-			Token t = zone.resolveToken(parameters.get(0).toString());
-			if (t != null) {
+			zr.clearSelectedTokens();
+			Token t = zone.resolveToken(paramStr);
+			if (t != null){
 				allGUIDs.add(t.getId());
 			} else {
 				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "selectTokens", paramStr));
 			}
 		} else if (parameters.size() == 2) {
-			// Either a JSON Array or a String List
-			String delim = parameters.get(0).toString();
-			String paramStr = parameters.get(1).toString();
 
+			String paramStr = parameters.get(0).toString();
+			String addOrReplace = parameters.get(1).toString();
+			boolean add = AbstractTokenAccessorFunction.getBooleanValue(addOrReplace);
+
+			if (add) {
+				allGUIDs = zr.getSelectedTokenSet();
+			} else {
+				zr.clearSelectedTokens();
+			}
+			Token t = zone.resolveToken(paramStr);
+
+			if (t != null) {
+				allGUIDs.add(t.getId());
+			} else {
+				throw new ParserException(I18N.getText("macro.function.general.unknownToken", "selectTokens", paramStr));
+			}
+
+		} else if (parameters.size() == 3) {
+			// Either a JSON Array or a String List
+			String paramStr = parameters.get(0).toString();
+			String addOrReplace = parameters.get(1).toString();
+			String delim = parameters.get(2).toString();
+			boolean add = AbstractTokenAccessorFunction.getBooleanValue(addOrReplace);
+
+			if (add) {
+				allGUIDs = zr.getSelectedTokenSet();
+			} else {
+				zr.clearSelectedTokens();
+			}
 			if (delim.equalsIgnoreCase("json")) {
 				// A JSON Array was supplied
 
@@ -163,11 +197,9 @@ public class TokenSelectionFunctions extends AbstractFunction {
 					}
 				}
 			}
-
+		} else if (parameters.size() > 3) {
+			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "selectTokens", 3, parameters.size()));
 		}
-
-		MapTool.getFrame().getCurrentZoneRenderer().selectTokens(allGUIDs);
-
+		zr.selectTokens(allGUIDs);
 	}
-
 }
