@@ -344,15 +344,16 @@ public class AppPreferences {
 	private static final boolean DEFAULT_FIT_GM_VIEW = true;
 
 	private static final String KEY_TYPING_NOTIFICATION_DURATION = "typingNotificationDuration";
-	private static final int DEFAULT_TYPING_NOTIFICATION_DURATION = 5;
+	private static final int DEFAULT_TYPING_NOTIFICATION_DURATION = 5000;
 
-	public static void setTypingNotificationDuration(int size) {
-		prefs.putInt(KEY_TYPING_NOTIFICATION_DURATION, range0to255(size));
+	public static void setTypingNotificationDuration(int ms) {
+		prefs.putInt(KEY_TYPING_NOTIFICATION_DURATION, ms);
+		MapTool.getFrame().getCommandPanel().setChatNotifyDuration(ms);
 	}
 
 	public static int getTypingNotificationDuration() {
 		int value = prefs.getInt(KEY_TYPING_NOTIFICATION_DURATION, DEFAULT_TYPING_NOTIFICATION_DURATION);
-		return range0to255(value);
+		return value;
 	}
 
 	public static final void setUseToolTipForInlineRoll(boolean tooltip) {

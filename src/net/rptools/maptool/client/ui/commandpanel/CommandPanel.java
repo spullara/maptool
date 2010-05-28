@@ -27,6 +27,8 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -95,8 +97,8 @@ public class CommandPanel extends JPanel implements Observer {
 	private String typedCommandBuffer;
 
 	// Chat timers
+	private long chatNotifyDuration; // Initialize it on first loadup
 	private Timer chatTimer;
-	private final long maxTime = AppPreferences.getTypingNotificationDuration() * 1000;
 
 	private ChatProcessor chatProcessor;
 
@@ -108,10 +110,12 @@ public class CommandPanel extends JPanel implements Observer {
 
 		add(BorderLayout.SOUTH, createSouthPanel());
 		add(BorderLayout.CENTER, getMessagePanel());
-
+		initializeNotifyDuration();
 		initializeSmilies();
 		addFocusHotKey();
 	}
+
+
 
 	public ChatProcessor getChatProcessor() {
 		return chatProcessor;
@@ -216,6 +220,16 @@ public class CommandPanel extends JPanel implements Observer {
 			chatNotifyButton.setBorderPainted(false);
 			chatNotifyButton.setFocusPainted(false);
 			chatNotifyButton.setPreferredSize(new Dimension(16,16));
+			chatNotifyButton.addItemListener(new ItemListener(){
+				public void itemStateChanged(ItemEvent e) {
+					if (e.getStateChange() == ItemEvent.SELECTED) {
+						commandTextArea.removeKeyListener(commandTextArea.getKeyListeners()[0]);
+					} else if (e.getStateChange() == ItemEvent.DESELECTED){
+						commandTextArea.addKeyListener(new ChatTypingListener());
+					}
+				}
+
+			});
 		}
 
 		return chatNotifyButton;
@@ -405,7 +419,7 @@ public class CommandPanel extends JPanel implements Observer {
 						public void actionPerformed(ActionEvent ae){
 							long idleTime = System.currentTimeMillis() - mark;
 
-							if(idleTime > maxTime){
+							if(idleTime > chatNotifyDuration){
 								MapTool.serverCommand().setLiveTypingLabel("");
 								chatTimer.stop();
 								chatTimer = null;
@@ -447,7 +461,11 @@ public class CommandPanel extends JPanel implements Observer {
 		if(!MapTool.getPlayer().isGM()){
 			chatNotifyButton.setSelected(false);
 			chatNotifyButton.setEnabled(!disable);
+			maybeAddTypingListener();
 		}
+
+
+
 	}
 
 	/**
@@ -753,4 +771,39 @@ public class CommandPanel extends JPanel implements Observer {
 	public void quickCommit(String command) {
 		quickCommit(command, true);
 	}
+
+	/**
+	 * Sets the chat notification duration. Invoked when that value is changed in
+	 * AppPreferences. Done to reduce overhead for the ChatTypingListener (so we're not invoking
+	 * a call to AppPreferences for every key pressed)
+	 * @param duration time in milliseconds before the chat typing notification disappears
+	 */
+	public void setChatNotifyDuration(int duration) {
+		chatNotifyDuration = duration;
+
+	}
+
+	/*
+	  Gets the chat notification duration. Method is unused at this time.
+	  @return time in milliseconds before chat notifications disappear
+
+	public long getChatNotifyDuration(){
+		return chatNotifyDuration;
+	} */
+
+	/**
+	 * If the GM enforces typing notification and no listener is present (because the
+	 * client had notification off), a new listener is added to the command text area
+	 */
+	private void maybeAddTypingListener(){
+		if(commandTextArea.getListeners(ChatTypingListener.class).length == 0){
+			commandTextArea.addKeyListener(new ChatTypingListener());
+		}
+	}
+
+	private void initializeNotifyDuration() {
+		chatNotifyDuration = AppPreferences.getTypingNotificationDuration();
+
+	}
+
 }
