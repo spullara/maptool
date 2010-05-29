@@ -108,10 +108,8 @@ public class AppMenuBar extends JMenuBar {
 
 		menu.add(new JMenuItem(AppActions.NEW_MAP));
 		menu.add(createQuickMapMenu());
-		if (AppActions.LOAD_MAP.isAvailable())
-			menu.add(new JMenuItem(AppActions.LOAD_MAP));
-		if (AppActions.SAVE_MAP_AS.isAvailable())
-			menu.add(new JMenuItem(AppActions.SAVE_MAP_AS));
+		menu.add(new JMenuItem(AppActions.LOAD_MAP));
+		menu.add(new JMenuItem(AppActions.SAVE_MAP_AS));
 		menu.addSeparator();
 
 		// MAP TOGGLES

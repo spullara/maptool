@@ -813,7 +813,7 @@ public class AppActions {
 		// lose what might already be in the clipboard.
 		if (tokenSet.size() > 0) {
 
-			
+
 			copyTokens(tokenSet);
 
 			// delete tokens
@@ -1019,26 +1019,26 @@ public class AppActions {
 	/**
 	 * This is the menu item that lets the GM override the typing notification toggle on the clients
 	 */
-	
+
 	public static final Action TOGGLE_ENFORCE_NOTIFICATION = new AdminClientAction() {
 		{
 			init("action.enforceNotification");
 		}
-		
+
 		@Override
 		public boolean isSelected(){
 			return AppState.isNotificationEnforced();
 		}
-		
+
 		@Override
 		public void execute(ActionEvent e){
 			AppState.setNotificationEnforced(!AppState.isNotificationEnforced());
 			MapTool.serverCommand().enforceNotification(AppState.isNotificationEnforced());
 		}
-		
+
 	};
-	
-	
+
+
 	/**
 	 * This is the menu option that forces the player view to continuously track the GM view.
 	 */
@@ -1732,14 +1732,14 @@ public class AppActions {
 						MapTool.startServer(dialog.getUsernameTextField().getText(), config, policy, new Campaign(campaign));
 
 						// Connect to server
-                        String playerType = dialog.getRoleCombo().getSelectedItem().toString();
-                        if(playerType.equals("GM")){
-						MapTool.createConnection("localhost", serverProps.getPort(), new Player(dialog.getUsernameTextField().getText(), serverProps.getRole(),
-								serverProps.getGMPassword()));
-                        }else{
-                            MapTool.createConnection("localhost",serverProps.getPort(), new Player(dialog.getUsernameTextField().getText(), serverProps.getRole(),
-                                serverProps.getPlayerPassword()));
-                        }
+						String playerType = dialog.getRoleCombo().getSelectedItem().toString();
+						if(playerType.equals("GM")){
+							MapTool.createConnection("localhost", serverProps.getPort(), new Player(dialog.getUsernameTextField().getText(), serverProps.getRole(),
+									serverProps.getGMPassword()));
+						}else{
+							MapTool.createConnection("localhost",serverProps.getPort(), new Player(dialog.getUsernameTextField().getText(), serverProps.getRole(),
+									serverProps.getPlayerPassword()));
+						}
 
 						// connecting
 						MapTool.getFrame().getConnectionStatusPanel().setStatus(ConnectionStatusPanel.Status.server);
@@ -2130,12 +2130,15 @@ public class AppActions {
 		{
 			init("action.saveMapAs");
 		}
-/*
+
 		@Override
 		public boolean isAvailable() {
-			return MapTool.isHostingServer() || (MapTool.getPlayer() != null && MapTool.getPlayer().isGM());
+			if (AppPreferences.isEnabledMapExportImport()) {
+				return MapTool.isHostingServer() || (MapTool.getPlayer() != null && MapTool.getPlayer().isGM());
+			}
+			return false;
 		}
-*/
+
 		@Override
 		public void execute(ActionEvent ae) {
 			ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
@@ -2173,12 +2176,15 @@ public class AppActions {
 		{
 			init("action.loadMap");
 		}
-/*
+
 		@Override
 		public boolean isAvailable() {
-			return MapTool.isHostingServer() || MapTool.isPersonalServer();
+			if (AppPreferences.isEnabledMapExportImport()) {
+				return MapTool.isHostingServer() || (MapTool.getPlayer() != null && MapTool.getPlayer().isGM());
+			}
+			return false;
 		}
-*/
+
 		@Override
 		public void execute(ActionEvent ae) {
 			JFileChooser chooser = new MapPreviewFileChooser();

@@ -116,6 +116,7 @@ public class PreferencesDialog extends JDialog {
 
 	private final JSpinner autoSaveSpinner;
 	private final JCheckBox saveReminderCheckBox;
+	private final JCheckBox enableMapExportImportCheckBox;
 
 	private final JCheckBox showDialogOnNewToken;
 
@@ -137,7 +138,8 @@ public class PreferencesDialog extends JDialog {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		((JPanel)getContentPane()).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/preferencesDialog.jfrm");
+		// XXX Testing the use of XML instead of the previous 'jfrm' binary technique
+		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/preferencesDialog.xml");
 
 		JButton okButton = (JButton)panel.getButton("okButton");
 		getRootPane().setDefaultButton(okButton);
@@ -152,6 +154,7 @@ public class PreferencesDialog extends JDialog {
 		showStatSheetCheckBox = panel.getCheckBox("showStatSheet");
 		showNumberingCombo = panel.getComboBox("showNumberingCombo");
 		saveReminderCheckBox = panel.getCheckBox("saveReminderCheckBox");
+		enableMapExportImportCheckBox = panel.getCheckBox("enableMapExportImportCheckBox");
 		fillSelectionCheckBox = panel.getCheckBox("fillSelectionCheckBox");
 		autoSaveSpinner = panel.getSpinner("autoSaveSpinner");
 		duplicateTokenCombo = panel.getComboBox("duplicateTokenCombo");
@@ -206,6 +209,18 @@ public class PreferencesDialog extends JDialog {
 
 		// And keep it updated
 
+		enableMapExportImportCheckBox.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				int selected = e.getStateChange();
+//				if (selected == ItemEvent.SELECTED) {
+//					MapTool.showInformation("This feature is highly <b>EXPERIMENTAL</b>!<p><p>You have been warned!");
+//					// FIXME Why does the above line cause this checkbox GUI to not update??
+//				}
+				AppPreferences.setEnabledMapExportImport(selected == ItemEvent.SELECTED);
+//				JCheckBox cb = (JCheckBox) e.getSource();
+//				cb.setSelected(selected == ItemEvent.SELECTED);	// FJE If I include this, the event fires twice!
+			}
+		});
 		facingFaceEdges.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setFaceEdge(facingFaceEdges.isSelected());
@@ -695,6 +710,7 @@ public class PreferencesDialog extends JDialog {
 
 		showDialogOnNewToken.setSelected(AppPreferences.getShowDialogOnNewToken());
 		saveReminderCheckBox.setSelected(AppPreferences.getSaveReminder());
+		enableMapExportImportCheckBox.setSelected(AppPreferences.isEnabledMapExportImport());
 		fillSelectionCheckBox.setSelected(AppPreferences.getFillSelectionBox());
 		autoSaveSpinner.setValue(AppPreferences.getAutoSaveIncrement());
 		newMapsHaveFOWCheckBox.setSelected(AppPreferences.getNewMapsHaveFOW());
