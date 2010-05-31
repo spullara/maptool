@@ -181,7 +181,10 @@ public class AppPreferences {
 	}
 
 	public static void setChatAutosaveTime(int seconds) {
-		prefs.putInt(KEY_CHAT_AUTOSAVE_TIME, seconds);
+		if (seconds >= 0) {
+			prefs.putInt(KEY_CHAT_AUTOSAVE_TIME, seconds);
+			ChatAutoSave.changeTimeout(seconds);
+		}
 	}
 
 	public static int getChatAutosaveTime() {

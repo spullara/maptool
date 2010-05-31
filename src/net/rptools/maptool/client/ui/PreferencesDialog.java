@@ -55,10 +55,10 @@ public class PreferencesDialog extends JDialog {
 	 * @author frank
 	 *
 	 */
-	private abstract class DocumentProxy implements DocumentListener {
+	private abstract class DocumentListenerProxy implements DocumentListener {
 		JTextField comp;
 
-		public DocumentProxy(JTextField tf) {
+		public DocumentListenerProxy(JTextField tf) {
 			comp = tf;
 		}
 		public void changedUpdate(DocumentEvent e) {
@@ -272,14 +272,14 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setUseToolTipForInlineRoll(toolTipInlineRolls.isSelected());
 			}
 		});
-		toolTipInitialDelay.getDocument().addDocumentListener(new DocumentProxy(toolTipInitialDelay) {
+		toolTipInitialDelay.getDocument().addDocumentListener(new DocumentListenerProxy(toolTipInitialDelay) {
 			@Override
 			protected void storeNumericValue(int value) {
 				AppPreferences.setToolTipInitialDelay(value);
 				ToolTipManager.sharedInstance().setInitialDelay(value);
 			}
 		});
-		toolTipDismissDelay.getDocument().addDocumentListener(new DocumentProxy(toolTipDismissDelay) {
+		toolTipDismissDelay.getDocument().addDocumentListener(new DocumentListenerProxy(toolTipDismissDelay) {
 			@Override
 			protected void storeNumericValue(int value) {
 				AppPreferences.setToolTipDismissDelay(value);
@@ -287,7 +287,7 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 
-		typingNotificationDuration.getDocument().addDocumentListener(new DocumentProxy(typingNotificationDuration) {
+		typingNotificationDuration.getDocument().addDocumentListener(new DocumentListenerProxy(typingNotificationDuration) {
 			@Override
 			protected void storeNumericValue(int value) {
 				AppPreferences.setTypingNotificationDuration(value);
@@ -307,13 +307,13 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 
-		chatAutosaveTime.getDocument().addDocumentListener(new DocumentProxy(chatAutosaveTime) {
+		chatAutosaveTime.getDocument().addDocumentListener(new DocumentListenerProxy(chatAutosaveTime) {
 			@Override
 			protected void storeNumericValue(int value) {
 				AppPreferences.setChatAutosaveTime(value);
 			}
 		});
-		chatFilenameFormat.getDocument().addDocumentListener(new DocumentProxy(chatFilenameFormat) {
+		chatFilenameFormat.getDocument().addDocumentListener(new DocumentListenerProxy(chatFilenameFormat) {
 			@Override
 			protected void updateValue() {
 				AppPreferences.setChatFilenameFormat(comp.getText());
@@ -411,26 +411,26 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setBackgroundsStartSnapToGrid(backgroundsStartSnapToGridCheckBox.isSelected());
 			}
 		});
-		defaultGridSizeTextField.getDocument().addDocumentListener(new DocumentProxy(defaultGridSizeTextField) {
+		defaultGridSizeTextField.getDocument().addDocumentListener(new DocumentListenerProxy(defaultGridSizeTextField) {
 			@Override
 			protected void storeNumericValue(int value) {
 				AppPreferences.setDefaultGridSize(value);
 			}
 		});
 
-		defaultUnitsPerCellTextField.getDocument().addDocumentListener(new DocumentProxy(defaultUnitsPerCellTextField) {
+		defaultUnitsPerCellTextField.getDocument().addDocumentListener(new DocumentListenerProxy(defaultUnitsPerCellTextField) {
 			@Override
 			protected void storeNumericValue(int value) {
 				AppPreferences.setDefaultUnitsPerCell(value);
 			}
 		});
-		defaultVisionDistanceTextField.getDocument().addDocumentListener(new DocumentProxy(defaultVisionDistanceTextField) {
+		defaultVisionDistanceTextField.getDocument().addDocumentListener(new DocumentListenerProxy(defaultVisionDistanceTextField) {
 			@Override
 			protected void storeNumericValue(int value) {
 				AppPreferences.setDefaultVisionDistance(value);
 			}
 		});
-		statsheetPortraitSize.getDocument().addDocumentListener(new DocumentProxy(statsheetPortraitSize) {
+		statsheetPortraitSize.getDocument().addDocumentListener(new DocumentListenerProxy(statsheetPortraitSize) {
 			@Override
 			protected void storeNumericValue(int value) {
 				AppPreferences.setPortraitSize(value);
@@ -496,7 +496,7 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 
-		fontSizeTextField.getDocument().addDocumentListener(new DocumentProxy(fontSizeTextField) {
+		fontSizeTextField.getDocument().addDocumentListener(new DocumentListenerProxy(fontSizeTextField) {
 			@Override
 			protected void storeNumericValue(int value) {
 				AppPreferences.setFontSize(value);

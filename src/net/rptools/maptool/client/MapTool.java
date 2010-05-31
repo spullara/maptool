@@ -410,7 +410,7 @@ public class MapTool {
 
 		configuration = new AppConfiguration(CONFIGURATION_PROPERTIES);
 
-		// First timer
+		// First time
 		AppSetup.install();
 
 		// Clean up after ourselves
@@ -456,6 +456,7 @@ public class MapTool {
 
 		ToolTipManager.sharedInstance().setInitialDelay(AppPreferences.getToolTipInitialDelay());
 		ToolTipManager.sharedInstance().setDismissDelay(AppPreferences.getToolTipDismissDelay());
+		ChatAutoSave.changeTimeout(AppPreferences.getChatAutosaveTime());
 
 		// TODO: make this more formal when we switch to mina
 		new ServerHeartBeatThread().start();
