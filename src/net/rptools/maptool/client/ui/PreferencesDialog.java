@@ -53,6 +53,38 @@ public class PreferencesDialog extends JDialog {
 
 	/**
 	 * @author frank
+	 *
+	 */
+	private abstract class DocumentProxy implements DocumentListener {
+		JTextField comp;
+
+		public DocumentProxy(JTextField tf) {
+			comp = tf;
+		}
+		public void changedUpdate(DocumentEvent e) {
+			updateValue();
+		}
+		public void insertUpdate(DocumentEvent e) {
+			updateValue();
+		}
+		public void removeUpdate(DocumentEvent e) {
+			updateValue();
+		}
+
+		protected void updateValue() {
+			try {
+				int value = StringUtil.parseInteger(comp.getText());	// Localized
+				storeNumericValue(value);
+			} catch (ParseException nfe) {
+				// Ignore it
+			}
+		}
+
+		protected abstract void storeNumericValue(int value);
+	}
+
+	/**
+	 * @author frank
 	 */
 	private abstract class OpacityProxy implements ChangeListener {
 		public void stateChanged(ChangeEvent ce) {
@@ -132,7 +164,6 @@ public class PreferencesDialog extends JDialog {
 	private final JCheckBox ownerPermissions;
 	private final JCheckBox lockMovement;
 
-
 	public PreferencesDialog() {
 		super (MapTool.getFrame(), "Preferences", true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -198,8 +229,10 @@ public class PreferencesDialog extends JDialog {
 		toolTipDismissDelay = panel.getTextField("toolTipDismissDelay");
 		facingFaceEdges = panel.getCheckBox("facingFaceEdges");
 		facingFaceVertices = panel.getCheckBox("facingFaceVertices");
+
 		chatAutosaveTime = panel.getTextField("chatAutosaveTime");
 		chatFilenameFormat = panel.getTextField("chatFilenameFormat");
+
 		fitGMView = panel.getCheckBox("fitGMView");
 		hideNPCs = panel.getCheckBox("hideNPCs");
 		ownerPermissions = panel.getCheckBox("ownerPermission");
@@ -214,7 +247,7 @@ public class PreferencesDialog extends JDialog {
 				int selected = e.getStateChange();
 //				if (selected == ItemEvent.SELECTED) {
 //					MapTool.showInformation("This feature is highly <b>EXPERIMENTAL</b>!<p><p>You have been warned!");
-//					// FIXME Why does the above line cause this checkbox GUI to not update??
+//					// FIXME Why does the above line cause this checkbox GUI to not update??  Perhaps use ActionListener instead?
 //				}
 				AppPreferences.setEnabledMapExportImport(selected == ItemEvent.SELECTED);
 //				JCheckBox cb = (JCheckBox) e.getSource();
@@ -239,75 +272,25 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setUseToolTipForInlineRoll(toolTipInlineRolls.isSelected());
 			}
 		});
-
-		toolTipInitialDelay.getDocument().addDocumentListener(new DocumentListener() {
-			public void changedUpdate(DocumentEvent e) {
-				updateValue();
+		toolTipInitialDelay.getDocument().addDocumentListener(new DocumentProxy(toolTipInitialDelay) {
+			@Override
+			protected void storeNumericValue(int value) {
+				AppPreferences.setToolTipInitialDelay(value);
+				ToolTipManager.sharedInstance().setInitialDelay(value);
 			}
-			public void insertUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void removeUpdate(DocumentEvent e) {
-				updateValue();
-			}
-
-			private void updateValue() {
-				try {
-					int value = StringUtil.parseInteger(toolTipInitialDelay.getText());
-					AppPreferences.setToolTipInitialDelay(value);
-					ToolTipManager.sharedInstance().setInitialDelay(value);
-				} catch (ParseException nfe) {
-					// Ignore it
-				}
+		});
+		toolTipDismissDelay.getDocument().addDocumentListener(new DocumentProxy(toolTipDismissDelay) {
+			@Override
+			protected void storeNumericValue(int value) {
+				AppPreferences.setToolTipDismissDelay(value);
+				ToolTipManager.sharedInstance().setDismissDelay(value);
 			}
 		});
 
-
-		typingNotificationDuration.getDocument().addDocumentListener(new DocumentListener() {
-
-			public void changedUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void insertUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void removeUpdate(DocumentEvent e) {
-				updateValue();
-			}
-
-			private void updateValue() {
-				try {
-					int value = StringUtil.parseInteger(typingNotificationDuration.getText());
-					AppPreferences.setTypingNotificationDuration(value);
-				} catch (ParseException nfe){
-					// ignore it
-				}
-
-			}
-
-
-		});
-
-
-		toolTipDismissDelay.getDocument().addDocumentListener(new DocumentListener() {
-			public void changedUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void insertUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void removeUpdate(DocumentEvent e) {
-				updateValue();
-			}
-
-			private void updateValue() {
-				try {
-					int value = StringUtil.parseInteger(toolTipDismissDelay.getText());
-					AppPreferences.setToolTipDismissDelay(value);
-					ToolTipManager.sharedInstance().setDismissDelay(value);
-				} catch (ParseException nfe) {
-					// Ignore it
-				}
+		typingNotificationDuration.getDocument().addDocumentListener(new DocumentProxy(typingNotificationDuration) {
+			@Override
+			protected void storeNumericValue(int value) {
+				AppPreferences.setTypingNotificationDuration(value);
 			}
 		});
 
@@ -323,23 +306,20 @@ public class PreferencesDialog extends JDialog {
 				MapTool.getFrame().getCommandPanel().setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
 			}
 		});
-		chatAutosaveTime.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					int value = StringUtil.parseInteger(chatAutosaveTime.getText());
-					AppPreferences.setChatAutosaveTime(value);
-					// TODO FJE Change the timer.  Check campaign auto-save for details.
-//					MapTool.getFrame().getCommandPanel().setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
-				} catch (ParseException nfe) {
-					// Ignore it
-				}
+
+		chatAutosaveTime.getDocument().addDocumentListener(new DocumentProxy(chatAutosaveTime) {
+			@Override
+			protected void storeNumericValue(int value) {
+				AppPreferences.setChatAutosaveTime(value);
 			}
 		});
-		chatFilenameFormat.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				AppPreferences.setChatFilenameFormat(chatFilenameFormat.getText());
-				// TODO FJE Change the filename format.  Might need synchronization?
-//				MapTool.getFrame().getCommandPanel().setTrustedMacroPrefixColors(AppPreferences.getTrustedPrefixFG(), AppPreferences.getTrustedPrefixBG());
+		chatFilenameFormat.getDocument().addDocumentListener(new DocumentProxy(chatFilenameFormat) {
+			@Override
+			protected void updateValue() {
+				AppPreferences.setChatFilenameFormat(comp.getText());
+			}
+			@Override
+			protected void storeNumericValue(int value) {
 			}
 		});
 
@@ -431,85 +411,29 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setBackgroundsStartSnapToGrid(backgroundsStartSnapToGridCheckBox.isSelected());
 			}
 		});
-		defaultGridSizeTextField.getDocument().addDocumentListener(new DocumentListener() {
-			public void changedUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void insertUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void removeUpdate(DocumentEvent e) {
-				updateValue();
-			}
-
-			private void updateValue() {
-				try {
-					int value = StringUtil.parseInteger(defaultGridSizeTextField.getText());
-					AppPreferences.setDefaultGridSize(value);
-				} catch (ParseException nfe) {
-					// Ignore it
-				}
+		defaultGridSizeTextField.getDocument().addDocumentListener(new DocumentProxy(defaultGridSizeTextField) {
+			@Override
+			protected void storeNumericValue(int value) {
+				AppPreferences.setDefaultGridSize(value);
 			}
 		});
 
-		defaultUnitsPerCellTextField.getDocument().addDocumentListener(new DocumentListener() {
-			public void changedUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void insertUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void removeUpdate(DocumentEvent e) {
-				updateValue();
-			}
-
-			private void updateValue() {
-				try {
-					int value = StringUtil.parseInteger(defaultUnitsPerCellTextField.getText());
-					AppPreferences.setDefaultUnitsPerCell(value);
-				} catch (ParseException nfe) {
-					// Ignore it
-				}
+		defaultUnitsPerCellTextField.getDocument().addDocumentListener(new DocumentProxy(defaultUnitsPerCellTextField) {
+			@Override
+			protected void storeNumericValue(int value) {
+				AppPreferences.setDefaultUnitsPerCell(value);
 			}
 		});
-		defaultVisionDistanceTextField.getDocument().addDocumentListener(new DocumentListener() {
-			public void changedUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void insertUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void removeUpdate(DocumentEvent e) {
-				updateValue();
-			}
-
-			private void updateValue() {
-				try {
-					int value = StringUtil.parseInteger(defaultVisionDistanceTextField.getText());
-					AppPreferences.setDefaultVisionDistance(value);
-				} catch (ParseException nfe) {
-					// Ignore it
-				}
+		defaultVisionDistanceTextField.getDocument().addDocumentListener(new DocumentProxy(defaultVisionDistanceTextField) {
+			@Override
+			protected void storeNumericValue(int value) {
+				AppPreferences.setDefaultVisionDistance(value);
 			}
 		});
-		statsheetPortraitSize.getDocument().addDocumentListener(new DocumentListener() {
-			public void changedUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void insertUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void removeUpdate(DocumentEvent e) {
-				updateValue();
-			}
-
-			private void updateValue() {
-				try {
-					int value = StringUtil.parseInteger(statsheetPortraitSize.getText());
-					AppPreferences.setPortraitSize(value);
-				} catch (ParseException nfe) {
-					// Ignore it
-				}
+		statsheetPortraitSize.getDocument().addDocumentListener(new DocumentProxy(statsheetPortraitSize) {
+			@Override
+			protected void storeNumericValue(int value) {
+				AppPreferences.setPortraitSize(value);
 			}
 		});
 		haloLineWidthSpinner.addChangeListener(new ChangeListener() {
@@ -572,24 +496,10 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 
-		fontSizeTextField.getDocument().addDocumentListener(new DocumentListener() {
-			public void changedUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void insertUpdate(DocumentEvent e) {
-				updateValue();
-			}
-			public void removeUpdate(DocumentEvent e) {
-				updateValue();
-			}
-
-			private void updateValue() {
-				try {
-					int value = StringUtil.parseInteger(fontSizeTextField.getText());
-					AppPreferences.setFontSize(value);
-				} catch (ParseException nfe) {
-					// Ignore it
-				}
+		fontSizeTextField.getDocument().addDocumentListener(new DocumentProxy(fontSizeTextField) {
+			@Override
+			protected void storeNumericValue(int value) {
+				AppPreferences.setFontSize(value);
 			}
 		});
 
@@ -613,7 +523,6 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setInitLockMovement(lockMovement.isSelected());
 			}
 		});
-
 
 		DefaultComboBoxModel gridTypeModel = new DefaultComboBoxModel();
 		gridTypeModel.addElement(GridFactory.SQUARE);
@@ -674,15 +583,12 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setMovementMetric((WalkerMetric)movementMetricCombo.getSelectedItem());
 			}
 		});
-
 		add(panel);
-
 		pack();
 	}
 
 	@Override
 	public void setVisible(boolean b) {
-
 		if (b) {
 			SwingUtil.centerOver(this, MapTool.getFrame());
 		}
@@ -707,7 +613,6 @@ public class PreferencesDialog extends JDialog {
 	}
 
 	private void setInitialState() {
-
 		showDialogOnNewToken.setSelected(AppPreferences.getShowDialogOnNewToken());
 		saveReminderCheckBox.setSelected(AppPreferences.getSaveReminder());
 		enableMapExportImportCheckBox.setSelected(AppPreferences.isEnabledMapExportImport());
@@ -750,6 +655,10 @@ public class PreferencesDialog extends JDialog {
 		toolTipDismissDelay.setText(Integer.toString(AppPreferences.getToolTipDismissDelay()));
 		facingFaceEdges.setSelected(AppPreferences.getFaceEdge());
 		facingFaceVertices.setSelected(AppPreferences.getFaceVertex());
+
+		chatAutosaveTime.setText(Integer.toString(AppPreferences.getChatAutosaveTime()));
+		chatFilenameFormat.setText(AppPreferences.getChatFilenameFormat());
+
 		fitGMView.setSelected(AppPreferences.getFitGMView());
 		hideNPCs.setSelected(AppPreferences.getInitHideNpcs());
 		ownerPermissions.setSelected(AppPreferences.getInitOwnerPermissions());

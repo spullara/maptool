@@ -62,23 +62,25 @@ is provided here.
 
 			<<< ZIP Archive >>>
 
-Extract the zip archive to a folder of your choosing.  In the folder
-where you extract the archive will be a system-specific start
-program:
+Extract the zip archive to a folder of your choosing.  Be sure to
+extract the directories as well, since MapTool expects to find some of
+its code in the "lib" subdirectory.  In the folder where you extract
+the archive will be a system-specific start program:
 
     Windows:	MapToolLauncher.exe
     OS X:	Launch MapTool.command
     Linux/Unix:	Launch MapTool.sh
 
-On all Unix-based systems (OS X, Linux, Unix) you will need to add
+On all Unix-based systems (OS X, Linux, Unix) you may need to add
 execute permission to the file listed above if your zip utility did
-not already include it.  Use your operating system tools to make
-this change (Google for "change permissions" if you need help).
+not already set that permission for you.  Use your operating system
+tools to make this change (Google for "change permissions" if you
+need help).
 
 			<<< DMG Disk Image >>>
 
 This file is a disk image that can be installed easily on OS X.  Mac
-users may download the file and double-click to being installation.
+users may download the file and double-click to begin installation.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

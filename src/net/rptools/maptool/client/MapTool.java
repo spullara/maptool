@@ -18,6 +18,7 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.event.WindowAdapter;
@@ -27,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.MessageFormat;
@@ -54,6 +56,7 @@ import net.rptools.lib.BackupManager;
 import net.rptools.lib.EventDispatcher;
 import net.rptools.lib.FileUtil;
 import net.rptools.lib.TaskBarFlasher;
+import net.rptools.lib.image.ImageUtil;
 import net.rptools.lib.image.ThumbnailManager;
 import net.rptools.lib.net.RPTURLStreamHandlerFactory;
 import net.rptools.lib.sound.SoundManager;
@@ -162,15 +165,15 @@ public class MapTool {
 	private static ClientConnection conn;
 	private static ClientMethodHandler handler;
 	private static JMenuBar menuBar;
-    private static MapToolFrame clientFrame;
-    private static NoteFrame profilingNoteFrame;
-    private static MapToolServer server;
-    private static ServerCommand serverCommand;
-    private static ServerPolicy serverPolicy;
+	private static MapToolFrame clientFrame;
+	private static NoteFrame profilingNoteFrame;
+	private static MapToolServer server;
+	private static ServerCommand serverCommand;
+	private static ServerPolicy serverPolicy;
 
-    private static BackupManager backupManager;
+	private static BackupManager backupManager;
 
-    private static AssetTransferManager assetTransferManager;
+	private static AssetTransferManager assetTransferManager;
 
 	private static ServiceAnnouncer announcer;
 
@@ -280,8 +283,8 @@ public class MapTool {
 				I18N.getText("msg.title.messageDialog.dontAskAgain") };
 		String title = I18N.getText("msg.title.messageDialogConfirm");
 		int val = JOptionPane.showOptionDialog(clientFrame, msg, title,
-	            JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
-	            null, options, options[0]);
+				JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
+				null, options, options[0]);
 
 		// Cancel Button
 		if(val == 1) {
@@ -433,44 +436,44 @@ public class MapTool {
 		assetTransferManager = new AssetTransferManager();
 		assetTransferManager.addConsumerListener(new AssetTransferHandler());
 
-        playerList = new ObservableList<Player>();
-        messageList = new ObservableList<TextMessage>(Collections.synchronizedList(new ArrayList<TextMessage>()));
+		playerList = new ObservableList<Player>();
+		messageList = new ObservableList<TextMessage>(Collections.synchronizedList(new ArrayList<TextMessage>()));
 
-        handler = new ClientMethodHandler();
+		handler = new ClientMethodHandler();
 
-        clientFrame = new MapToolFrame(menuBar);
+		clientFrame = new MapToolFrame(menuBar);
 
-        serverCommand = new ServerCommandClientImpl();
+		serverCommand = new ServerCommandClientImpl();
 
-        player = new Player("", Player.Role.GM, "");
+		player = new Player("", Player.Role.GM, "");
 
-        try {
-        	startPersonalServer(CampaignFactory.createBasicCampaign());
-        } catch (Exception e) {
+		try {
+			startPersonalServer(CampaignFactory.createBasicCampaign());
+		} catch (Exception e) {
 			MapTool.showError("While starting personal server", e);
-        }
-        AppActions.updateActions();
+		}
+		AppActions.updateActions();
 
-        ToolTipManager.sharedInstance().setInitialDelay(AppPreferences.getToolTipInitialDelay());
-        ToolTipManager.sharedInstance().setDismissDelay(AppPreferences.getToolTipDismissDelay());
+		ToolTipManager.sharedInstance().setInitialDelay(AppPreferences.getToolTipInitialDelay());
+		ToolTipManager.sharedInstance().setDismissDelay(AppPreferences.getToolTipDismissDelay());
 
-        // TODO: make this more formal when we switch to mina
-        new ServerHeartBeatThread().start();
+		// TODO: make this more formal when we switch to mina
+		new ServerHeartBeatThread().start();
 	}
 
 	public static NoteFrame getProfilingNoteFrame() {
 		if (profilingNoteFrame == null) {
-	        profilingNoteFrame = new NoteFrame();
-	        profilingNoteFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-	        profilingNoteFrame.addWindowListener(new WindowAdapter() {
-	        	@Override
+			profilingNoteFrame = new NoteFrame();
+			profilingNoteFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+			profilingNoteFrame.addWindowListener(new WindowAdapter() {
+				@Override
 				public void windowClosing(WindowEvent e) {
-	        		AppState.setCollectProfilingData(false);
-	        		profilingNoteFrame.setVisible(false);
-	        	}
-	        });
-	        profilingNoteFrame.setSize(profilingNoteFrame.getPreferredSize());
-	        SwingUtil.centerOver(profilingNoteFrame, clientFrame);
+					AppState.setCollectProfilingData(false);
+					profilingNoteFrame.setVisible(false);
+				}
+			});
+			profilingNoteFrame.setSize(profilingNoteFrame.getPreferredSize());
+			SwingUtil.centerOver(profilingNoteFrame, clientFrame);
 		}
 		return profilingNoteFrame;
 	}
@@ -646,22 +649,22 @@ public class MapTool {
 
 			eventDispatcher.fireEvent(ZoneEvent.Added, campaign, null, zone);
 		}
-        clientFrame.getInitiativePanel().setOwnerPermissions(campaign.isInitiativeOwnerPermissions());
-        clientFrame.getInitiativePanel().setMovementLock(campaign.isInitiativeMovementLock());
+		clientFrame.getInitiativePanel().setOwnerPermissions(campaign.isInitiativeOwnerPermissions());
+		clientFrame.getInitiativePanel().setMovementLock(campaign.isInitiativeMovementLock());
 		clientFrame.setCurrentZoneRenderer(currRenderer);
 
-    	AssetManager.updateRepositoryList();
-    	MapTool.getFrame().getCampaignPanel().reset();
-    	UserDefinedMacroFunctions.getInstance().loadCampaignLibFunctions();
-    }
+		AssetManager.updateRepositoryList();
+		MapTool.getFrame().getCampaignPanel().reset();
+		UserDefinedMacroFunctions.getInstance().loadCampaignLibFunctions();
+	}
 
-    public static void setServerPolicy(ServerPolicy policy) {
-    	serverPolicy = policy;
-    }
+	public static void setServerPolicy(ServerPolicy policy) {
+		serverPolicy = policy;
+	}
 
-    public static AssetTransferManager getAssetTransferManager() {
-    	return assetTransferManager;
-    }
+	public static AssetTransferManager getAssetTransferManager() {
+		return assetTransferManager;
+	}
 
 	public static void startServer(String id, ServerConfig config, ServerPolicy policy, Campaign campaign) throws IOException {
 		if (server != null) {
@@ -878,58 +881,58 @@ public class MapTool {
 
 	private static void configureLogging() {
 
-    	String logging = null;
-    	try {
-    		logging = new String(FileUtil.getBytes(MapTool.class.getClassLoader().getResourceAsStream("net/rptools/maptool/client/logging.xml")));
-    	} catch (IOException e) {
-    		System.err.println("Could not load logging file: " + e);
-    		return;
-    	}
+		String logging = null;
+		try {
+			logging = new String(FileUtil.getBytes(MapTool.class.getClassLoader().getResourceAsStream("net/rptools/maptool/client/logging.xml")));
+		} catch (IOException e) {
+			System.err.println("Could not load logging file: " + e);
+			return;
+		}
 
-        File localLoggingConfigFile = new File(AppUtil.getAppHome() + "/logging.xml");
-        String localConfig = "";
-        if (localLoggingConfigFile.exists()) {
-        	try {
+		File localLoggingConfigFile = new File(AppUtil.getAppHome() + "/logging.xml");
+		String localConfig = "";
+		if (localLoggingConfigFile.exists()) {
+			try {
 				localConfig = new String(FileUtil.getBytes(localLoggingConfigFile));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-        }
+		}
 
 		logging = logging.replace("INSERT_LOCAL_CONFIG_HERE", localConfig);
-        logging = logging.replace("${appHome}", AppUtil.getAppHome().getAbsolutePath().replace('\\', '/'));
+		logging = logging.replace("${appHome}", AppUtil.getAppHome().getAbsolutePath().replace('\\', '/'));
 
-        // Configure
-        new DOMConfigurator().doConfigure(new ByteArrayInputStream(logging.getBytes()), LogManager.getLoggerRepository());
+		// Configure
+		new DOMConfigurator().doConfigure(new ByteArrayInputStream(logging.getBytes()), LogManager.getLoggerRepository());
 	}
 
 	private static final void configureJide() {
-        LookAndFeelFactory.UIDefaultsCustomizer uiDefaultsCustomizer = new LookAndFeelFactory.UIDefaultsCustomizer() {
-            public void customize(UIDefaults defaults) {
-                ThemePainter painter = (ThemePainter) UIDefaultsLookup.get("Theme.painter");
-                defaults.put("OptionPaneUI", "com.jidesoft.plaf.basic.BasicJideOptionPaneUI");
+		LookAndFeelFactory.UIDefaultsCustomizer uiDefaultsCustomizer = new LookAndFeelFactory.UIDefaultsCustomizer() {
+			public void customize(UIDefaults defaults) {
+				ThemePainter painter = (ThemePainter) UIDefaultsLookup.get("Theme.painter");
+				defaults.put("OptionPaneUI", "com.jidesoft.plaf.basic.BasicJideOptionPaneUI");
 
-                defaults.put("OptionPane.showBanner", Boolean.TRUE); // show banner or not. default is true
-                defaults.put("OptionPane.bannerIcon", new ImageIcon(MapTool.class.getClassLoader().getResource("net/rptools/maptool/client/image/maptool_icon.png")));
-                defaults.put("OptionPane.bannerFontSize", 13);
-                defaults.put("OptionPane.bannerFontStyle", Font.BOLD);
-                defaults.put("OptionPane.bannerMaxCharsPerLine", 60);
-                defaults.put("OptionPane.bannerForeground", painter != null ? painter.getOptionPaneBannerForeground() : null);  // you should adjust this if banner background is not the default gradient paint
-                defaults.put("OptionPane.bannerBorder", null); // use default border
+				defaults.put("OptionPane.showBanner", Boolean.TRUE); // show banner or not. default is true
+				defaults.put("OptionPane.bannerIcon", new ImageIcon(MapTool.class.getClassLoader().getResource("net/rptools/maptool/client/image/maptool_icon.png")));
+				defaults.put("OptionPane.bannerFontSize", 13);
+				defaults.put("OptionPane.bannerFontStyle", Font.BOLD);
+				defaults.put("OptionPane.bannerMaxCharsPerLine", 60);
+				defaults.put("OptionPane.bannerForeground", painter != null ? painter.getOptionPaneBannerForeground() : null);  // you should adjust this if banner background is not the default gradient paint
+				defaults.put("OptionPane.bannerBorder", null); // use default border
 
-                // set both bannerBackgroundDk and // set both bannerBackgroundLt to null if you don't want gradient
-                defaults.put("OptionPane.bannerBackgroundDk", painter != null ? painter.getOptionPaneBannerDk() : null);
-                defaults.put("OptionPane.bannerBackgroundLt", painter != null ? painter.getOptionPaneBannerLt() : null);
-                defaults.put("OptionPane.bannerBackgroundDirection", Boolean.TRUE); // default is true
+				// set both bannerBackgroundDk and // set both bannerBackgroundLt to null if you don't want gradient
+				defaults.put("OptionPane.bannerBackgroundDk", painter != null ? painter.getOptionPaneBannerDk() : null);
+				defaults.put("OptionPane.bannerBackgroundLt", painter != null ? painter.getOptionPaneBannerLt() : null);
+				defaults.put("OptionPane.bannerBackgroundDirection", Boolean.TRUE); // default is true
 
-                // optionally, you can set a Paint object for BannerPanel. If so, the three UIDefaults related to banner background above will be ignored.
-                defaults.put("OptionPane.bannerBackgroundPaint", null);
+				// optionally, you can set a Paint object for BannerPanel. If so, the three UIDefaults related to banner background above will be ignored.
+				defaults.put("OptionPane.bannerBackgroundPaint", null);
 
-                defaults.put("OptionPane.buttonAreaBorder", BorderFactory.createEmptyBorder(6, 6, 6, 6));
-                defaults.put("OptionPane.buttonOrientation", SwingConstants.RIGHT);
-            }
-        };
-        uiDefaultsCustomizer.customize(UIManager.getDefaults());
+				defaults.put("OptionPane.buttonAreaBorder", BorderFactory.createEmptyBorder(6, 6, 6, 6));
+				defaults.put("OptionPane.buttonOrientation", SwingConstants.RIGHT);
+			}
+		};
+		uiDefaultsCustomizer.customize(UIManager.getDefaults());
 	}
 
 	public static void main(String[] args) {
@@ -963,40 +966,40 @@ public class MapTool {
 		factory.registerProtocol("asset", new AssetURLStreamHandler());
 		URL.setURLStreamHandlerFactory(factory);
 
-        Toolkit.getDefaultToolkit().getSystemEventQueue().push(new MapToolEventQueue());
+		Toolkit.getDefaultToolkit().getSystemEventQueue().push(new MapToolEventQueue());
 
-        // LAF
-        try {
+		// LAF
+		try {
+			// If we are running under Mac OS X then save native menu bar look & feel components
+			// Note the order of creation for the AppMenuBar, this specific chronology
+			// allows the system to set up system defaults before we go and modify things.
+			// That is, please don't move these lines around unless you test the result on windows and mac
+			if (MAC_OS_X) {
+				System.setProperty("apple.laf.useScreenMenuBar", "true");
+//				System.setProperty("apple.awt.brushMetalLook", "true");
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				menuBar = new AppMenuBar();
+				UIManager.setLookAndFeel("net.rptools.maptool.client.TinyLookAndFeelMac");
+				macOSXicon();
+			}
+			else {
+				UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
+				menuBar = new AppMenuBar();
+			}
 
+			com.jidesoft.utils.Lm.verifyLicense("Trevor Croft", "rptools", "5MfIVe:WXJBDrToeLWPhMv3kI2s3VFo");
+			LookAndFeelFactory.addUIDefaultsCustomizer(new LookAndFeelFactory.UIDefaultsCustomizer(){
+				public void customize(UIDefaults defaults) {
+					// Remove red border around menus
+					defaults.put("PopupMenu.foreground", Color.lightGray);
+				}
+			});
+			LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
 
-        	// If we are running under Mac OS X then save native menu bar look & feel components
-        	// Note the order of creation for the AppMenuBar, this specific chronology
-        	// allows the system to set up system defaults before we go and modify things.
-        	// That is, please don't move these lines around unless you test the result on windows and mac
-        	if (MAC_OS_X) {
-        		System.setProperty("apple.laf.useScreenMenuBar", "true");
-        		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        		menuBar = new AppMenuBar();
-        		UIManager.setLookAndFeel("net.rptools.maptool.client.TinyLookAndFeelMac");
-        	}
-        	else {
-        		UIManager.setLookAndFeel("de.muntjak.tinylookandfeel.TinyLookAndFeel");
-       			menuBar = new AppMenuBar();
-        	}
+			// Make the toggle button pressed state look more distinct
+			Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
 
-    		com.jidesoft.utils.Lm.verifyLicense("Trevor Croft", "rptools", "5MfIVe:WXJBDrToeLWPhMv3kI2s3VFo");
-    		LookAndFeelFactory.addUIDefaultsCustomizer(new LookAndFeelFactory.UIDefaultsCustomizer(){
-    			public void customize(UIDefaults defaults) {
-    				// Remove red border around menus
-    				defaults.put("PopupMenu.foreground", Color.lightGray);
-    			}
-    		});
-    		LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE);
-
-        	// Make the toggle button pressed state look more distinct
-        	Theme.buttonPressedColor[Theme.style] = new ColorReference(Color.gray);
-
-        	configureJide();
+			configureJide();
 		} catch (Exception e) {
 			MapTool.showError("msg.error.lafSetup", e);
 			System.exit(1);
@@ -1020,7 +1023,6 @@ public class MapTool {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				initialize();
-
 				EventQueue.invokeLater(new Runnable() {
 					public void run() {
 						clientFrame.setVisible(true);
@@ -1039,6 +1041,49 @@ public class MapTool {
 		});
 
 		// new Thread(new HeapSpy()).start();
+	}
+
+	/**
+	 * If we're running on OSX we should call this method to download and install the
+	 * MapTool logo from the main web site.  We cache this image so that it appears
+	 * correctly if the application is later executed in "offline" mode, so to speak.
+	 */
+	private static void macOSXicon() {
+		// If we're running on OSX, add the dock icon image
+		// -- and change our application name to just "MapTool" (not currently)
+		// We wait until after we call initialize() so that the asset and image managers
+		// are configured.
+		Image img = null;
+		File logoFile = new File(AppUtil.getAppHome("config") + "/maptool-dock-icon.png");
+		URL logoURL = null;
+		try {
+			logoURL = new URL("http://www.rptools.net/images/logo/RPTools_Map_Logo.png");
+		} catch (MalformedURLException e) {
+			showError("Attemping to form URL -- shouldn't happen as URL is hard-coded", e);
+		}
+		try {
+			img = ImageUtil.bytesToImage(FileUtil.getBytes(logoFile));
+		} catch (IOException e) {
+			log.debug("Attemping to read cached icon: " + logoFile, e);
+			try {
+				img = ImageUtil.bytesToImage(FileUtil.getBytes(logoURL));
+				// If we did download the logo, save it to the 'config' dir for later use.
+				BufferedImage bimg = ImageUtil.createCompatibleImage(img, img.getWidth(null), img.getHeight(null), null);
+				FileUtil.writeBytes(logoFile, ImageUtil.imageToBytes(bimg, "png"));
+				img = bimg;
+			} catch (IOException e1) {
+				log.warn("Cannot read '" + logoURL + "' or  cached '" + logoFile + "'; no dock icon", e1);
+			}
+		}
+		com.apple.eawt.Application appl = com.apple.eawt.Application.getApplication();
+		String vers = getVersion();
+		vers = vers.substring(vers.length() - 2);
+		appl.setDockIconBadge("NT".equals(vers) ? "00" : vers);
+
+		// If we couldn't grab the image for some reason, don't set the dock bar icon!  Duh!
+		if (img != null) {
+			appl.setDockIconImage(img);
+		}
 	}
 
 	private static void postInitialize() {

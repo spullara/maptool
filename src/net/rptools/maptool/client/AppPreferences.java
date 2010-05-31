@@ -37,7 +37,7 @@ public class AppPreferences {
 	private static final String KEY_MRU_CAMPAIGNS = "mruCampaigns";
 	private static final String KEY_SAVED_PAINT_TEXTURES = "savedTextures";
 
-	private static final String KEY_SAVE_REMINDER = "autoSaveIncrement";
+	private static final String KEY_SAVE_REMINDER = "autoSaveReminder";
 	private static final boolean DEFAULT_SAVE_REMINDER = true;
 
 	private static final String KEY_TOKEN_NUMBER_DISPLAY = "tokenNumberDisplayg";
@@ -49,10 +49,10 @@ public class AppPreferences {
 	private static final String KEY_ENABLE_MAP_EXPORT_IMPORT = "enableMapExportImport";
 	private static final boolean DEFAULT_ENABLE_MAP_EXPORT_IMPORT = false;
 
-	private static final String KEY_CHAT_AUTOSAVE_TIME = "autoSaveChatIncrement";
+	private static final String KEY_CHAT_AUTOSAVE_TIME = "chatAutosaveTime";
 	private static final int DEFAULT_CHAT_AUTOSAVE_TIME = 0; // Seconds; zero=same as Campaign Auto Save Increment
 
-	private static final String KEY_CHAT_FILENAME_FORMAT = "autoSaveChatIncrement";
+	private static final String KEY_CHAT_FILENAME_FORMAT = "chatFilenameFormat";
 	private static final String DEFAULT_CHAT_FILENAME_FORMAT = "x"; // see strformat() for details
 
 	private static final String KEY_DUPLICATE_TOKEN_NUMBER = "duplicateTokenNumber";
