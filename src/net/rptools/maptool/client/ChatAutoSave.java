@@ -47,6 +47,7 @@ public class ChatAutoSave {
 				}
 				log.info("Saving log to '" + chatlog.toString() + "'...");
 				CommandPanel chat = MapTool.getFrame().getCommandPanel();
+				MapTool.getFrame().setStatusMessage("Autosaving chat log...");
 				FileWriter writer = null;
 				try {
 					writer = new FileWriter(chatlog);		// FIXME Literal filename right now
@@ -60,12 +61,14 @@ public class ChatAutoSave {
 					// message box that pops up...
 					MapTool.showWarning("msg.warn.failedAutoSavingMessageHistory", e);
 				} finally {
-					if (writer != null)
+					if (writer != null) {
 						try {
 							writer.close();
 						} catch (IOException e) {
 							log.warn("Couldn't close chat log autosave?!");
 						}
+					}
+					MapTool.getFrame().setStatusMessage("");
 				}
 			}
 		};
