@@ -210,7 +210,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private final FileFilter macroSetFilter = new MTFileFilter("mtmacset", I18N.getText("file.ext.mtmacset"));
 
 	// Table import/export support
-	private final FileFilter tableFilter = new MTFileFilter("mttable", "MapTool Table");
+	private final FileFilter tableFilter = new MTFileFilter("mttable", "file.ext.mttable");
 
 	private EditTokenDialog tokenPropertiesDialog;
 
@@ -319,8 +319,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 		if (!MapTool.MAC_OS_X)
 			removeWindowsF10();
-
-		registerForMacOSXEvents();
+		else
+			registerForMacOSXEvents();
 
 		MapTool.getEventDispatcher().addListener(this, MapTool.ZoneEvent.Activated);
 
@@ -335,15 +335,13 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public void registerForMacOSXEvents() {
-		if (MapTool.MAC_OS_X) {
-			try {
-				OSXAdapter.setQuitHandler(this, getClass().getDeclaredMethod("macOSXExit", (Class[])null));
-				OSXAdapter.setAboutHandler(this, getClass().getDeclaredMethod("macOSXAbout", (Class[])null));
-				OSXAdapter.setPreferencesHandler(this, getClass().getDeclaredMethod("macOSXPreferences", (Class[])null));
-			} catch (Exception e) {
-				System.err.println("Error while loading the OSXAdapter:");
-				e.printStackTrace();
-			}
+		try {
+			OSXAdapter.setQuitHandler(this, getClass().getDeclaredMethod("macOSXExit", (Class[])null));
+			OSXAdapter.setAboutHandler(this, getClass().getDeclaredMethod("macOSXAbout", (Class[])null));
+			OSXAdapter.setPreferencesHandler(this, getClass().getDeclaredMethod("macOSXPreferences", (Class[])null));
+		} catch (Exception e) {
+			System.err.println("Error while loading the OSXAdapter:");
+			e.printStackTrace();
 		}
 	}
 

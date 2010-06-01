@@ -234,7 +234,7 @@ public class AppActions {
 		case ExportInfo.Type.CURRENT_VIEW:
 			screenCap = MapTool.takeMapScreenShot(new PlayerView(role));
 			if (screenCap == null) {
-				MapTool.getFrame().setStatusMessage("msg.error.failedScreenCapture");
+				MapTool.getFrame().setStatusMessage(I18N.getString("msg.error.failedScreenCapture"));
 				return;
 			}
 			break;
@@ -242,7 +242,7 @@ public class AppActions {
 			break;
 		}
 
-		MapTool.getFrame().setStatusMessage("msg.info.screenshotSaving");
+		MapTool.getFrame().setStatusMessage(I18N.getString("msg.info.screenshotSaving"));
 
 		try {
 
@@ -253,7 +253,7 @@ public class AppActions {
 
 			exportInfo.getLocation().putContent(new BufferedInputStream(new ByteArrayInputStream(imageOut.toByteArray())));
 
-			MapTool.getFrame().setStatusMessage(I18N.getText("msg.info.screenshotSaved"));
+			MapTool.getFrame().setStatusMessage(I18N.getString("msg.info.screenshotSaved"));
 
 		} catch (IOException ioe) {
 			MapTool.showError("msg.error.failedExportingImage", ioe);
@@ -649,8 +649,6 @@ public class AppActions {
 
 		@Override
 		public void execute(ActionEvent e) {
-			String messageHistory = MapTool.getFrame().getCommandPanel().getMessageHistory();
-
 			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
 			chooser.setDialogTitle(I18N.getText("msg.title.saveMessageHistory"));
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -658,38 +656,6 @@ public class AppActions {
 			if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 				return;
 			}
-
-			File saveFile = chooser.getSelectedFile();
-			if (saveFile.getName().indexOf(".") < 0) {
-				saveFile = new File(saveFile.getAbsolutePath() + ".html");
-			}
-			if (saveFile.exists() && !MapTool.confirm("msg.confirm.fileExists")) {
-				return;
-			}
-
-			try {
-				FileUtil.writeBytes(saveFile, messageHistory.getBytes());
-			} catch (IOException ioe) {
-				MapTool.showError("msg.error.failedSavingMessageHistory", ioe);
-			}
-		}
-	};
-
-	public static final Action AUTOSAVE_MESSAGE_HISTORY = new DefaultClientAction() {
-		{
-			init("action.autosaveMessageHistory");
-		}
-
-		@Override
-		public void execute(ActionEvent e) {
-			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
-			chooser.setDialogTitle(I18N.getText("msg.title.saveMessageHistory"));
-			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
-			if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
-				return;
-			}
-
 			File saveFile = chooser.getSelectedFile();
 			if (saveFile.getName().indexOf(".") < 0) {
 				saveFile = new File(saveFile.getAbsolutePath() + ".html");
@@ -2059,11 +2025,9 @@ public class AppActions {
 						// Nothing to do
 					}
 				} catch (IOException ioe) {
-					log.error("Failure to save: " + ioe, ioe);
-					MapTool.showError("msg.error.failedSaveCampaign");
+					MapTool.showError("msg.error.failedSaveCampaign", ioe);
 				} catch (Throwable t) {
-					log.error("Failure to save: " + t, t);
-					MapTool.showError("msg.error.failedSaveCampaign");
+					MapTool.showError("msg.error.failedSaveCampaign", t);
 				} finally {
 					AppState.setIsSaving(false);
 				}

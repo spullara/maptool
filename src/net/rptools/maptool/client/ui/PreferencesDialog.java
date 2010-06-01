@@ -15,6 +15,8 @@ package net.rptools.maptool.client.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.text.ParseException;
@@ -86,12 +88,11 @@ public class PreferencesDialog extends JDialog {
 	/**
 	 * @author frank
 	 */
-	private abstract class OpacityProxy implements ChangeListener {
+	private abstract class ChangeListenerProxy implements ChangeListener {
 		public void stateChanged(ChangeEvent ce) {
 			JSpinner sp = (JSpinner) ce.getSource();
 			int value = (Integer) sp.getValue();
 			storeSpinnerValue( value );
-			MapTool.getFrame().refresh();
 		}
 		protected abstract void storeSpinnerValue(int value);
 	}
@@ -134,7 +135,7 @@ public class PreferencesDialog extends JDialog {
 	private final JCheckBox toolTipInlineRolls;
 	private final JETAColorWell trustedOuputForeground;
 	private final JETAColorWell trustedOuputBackground;
-	private final JTextField chatAutosaveTime;
+	private final JSpinner chatAutosaveTime;
 	private final JTextField chatFilenameFormat;
 	private final JTextField typingNotificationDuration;
 
@@ -230,7 +231,7 @@ public class PreferencesDialog extends JDialog {
 		facingFaceEdges = panel.getCheckBox("facingFaceEdges");
 		facingFaceVertices = panel.getCheckBox("facingFaceVertices");
 
-		chatAutosaveTime = panel.getTextField("chatAutosaveTime");
+		chatAutosaveTime = panel.getSpinner("chatAutosaveTime");
 		chatFilenameFormat = panel.getTextField("chatFilenameFormat");
 
 		fitGMView = panel.getCheckBox("fitGMView");
@@ -307,19 +308,22 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 
-		chatAutosaveTime.getDocument().addDocumentListener(new DocumentListenerProxy(chatAutosaveTime) {
+		chatAutosaveTime.addChangeListener(new ChangeListenerProxy() {
 			@Override
-			protected void storeNumericValue(int value) {
+			protected void storeSpinnerValue(int value) {
 				AppPreferences.setChatAutosaveTime(value);
 			}
 		});
-		chatFilenameFormat.getDocument().addDocumentListener(new DocumentListenerProxy(chatFilenameFormat) {
+		chatFilenameFormat.addFocusListener(new FocusAdapter() {
 			@Override
-			protected void updateValue() {
-				AppPreferences.setChatFilenameFormat(comp.getText());
-			}
-			@Override
-			protected void storeNumericValue(int value) {
+			public void focusLost(FocusEvent e) {
+				if (!e.isTemporary()) {
+					StringBuffer saveFile = new StringBuffer(chatFilenameFormat.getText());
+					if (saveFile.indexOf(".") < 0) {
+						saveFile.append(".html");
+					}
+					AppPreferences.setChatFilenameFormat(saveFile.toString());
+				}
 			}
 		});
 
@@ -445,28 +449,32 @@ public class PreferencesDialog extends JDialog {
 		// Overlay opacity options in AppPreferences, with
 		// error checking to ensure values are within the acceptable range
 		// of 0 and 255.
-		haloOverlayOpacitySpinner.addChangeListener(new OpacityProxy() {
+		haloOverlayOpacitySpinner.addChangeListener(new ChangeListenerProxy() {
 			@Override
 			protected void storeSpinnerValue(int value) {
 				AppPreferences.setHaloOverlayOpacity(value);
+				MapTool.getFrame().refresh();
 			}
 		});
-		auraOverlayOpacitySpinner.addChangeListener(new OpacityProxy() {
+		auraOverlayOpacitySpinner.addChangeListener(new ChangeListenerProxy() {
 			@Override
 			protected void storeSpinnerValue(int value) {
 				AppPreferences.setAuraOverlayOpacity(value);
+				MapTool.getFrame().refresh();
 			}
 		});
-		lightOverlayOpacitySpinner.addChangeListener(new OpacityProxy() {
+		lightOverlayOpacitySpinner.addChangeListener(new ChangeListenerProxy() {
 			@Override
 			protected void storeSpinnerValue(int value) {
 				AppPreferences.setLightOverlayOpacity(value);
+				MapTool.getFrame().refresh();
 			}
 		});
-		fogOverlayOpacitySpinner.addChangeListener(new OpacityProxy() {
+		fogOverlayOpacitySpinner.addChangeListener(new ChangeListenerProxy() {
 			@Override
 			protected void storeSpinnerValue(int value) {
 				AppPreferences.setFogOverlayOpacity(value);
+				MapTool.getFrame().refresh();
 			}
 		});
 		useHaloColorAsVisionOverlayCheckBox.addActionListener(new ActionListener() {
@@ -656,7 +664,7 @@ public class PreferencesDialog extends JDialog {
 		facingFaceEdges.setSelected(AppPreferences.getFaceEdge());
 		facingFaceVertices.setSelected(AppPreferences.getFaceVertex());
 
-		chatAutosaveTime.setText(Integer.toString(AppPreferences.getChatAutosaveTime()));
+		chatAutosaveTime.setModel(new SpinnerNumberModel(AppPreferences.getChatAutosaveTime(), 0, 24*60, 1));
 		chatFilenameFormat.setText(AppPreferences.getChatFilenameFormat());
 
 		fitGMView.setSelected(AppPreferences.getFitGMView());

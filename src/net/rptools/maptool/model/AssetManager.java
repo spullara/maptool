@@ -59,20 +59,20 @@ public class AssetManager {
 	/** True if a persistent cache should be used */
 	private static boolean usePersistentCache;
 
-    /**
-     * A list of listeners which should be notified
-     * when the asset associated with a given MD5
-     * sum has finished downloading.
-     */
-    private static Map<MD5Key, List<AssetAvailableListener>> assetListenerListMap  = new ConcurrentHashMap<MD5Key, List<AssetAvailableListener>>();
+	/**
+	 * A list of listeners which should be notified
+	 * when the asset associated with a given MD5
+	 * sum has finished downloading.
+	 */
+	private static Map<MD5Key, List<AssetAvailableListener>> assetListenerListMap  = new ConcurrentHashMap<MD5Key, List<AssetAvailableListener>>();
 
-    /** Property string associated with asset name */
-    public static final String NAME = "name";
+	/** Property string associated with asset name */
+	public static final String NAME = "name";
 
-    /** Used to load assets from storage */
-    private static AssetLoader assetLoader = new AssetLoader();
+	/** Used to load assets from storage */
+	private static AssetLoader assetLoader = new AssetLoader();
 
-    private static ExecutorService assetLoaderThreadPool = Executors.newFixedThreadPool(1);
+	private static ExecutorService assetLoaderThreadPool = Executors.newFixedThreadPool(1);
 
 	static {
 		cacheDir = AppUtil.getAppHome("assetcache");
@@ -150,13 +150,13 @@ public class AssetManager {
 		}
 	}
 
-    /**
-     * Determine if the asset manager has the asset.
-     * This does not tell you if the asset is done
-     * downloading.
-     * @param asset Asset to look for
-     * @return True if the asset exists, false otherwise
-     */
+	/**
+	 * Determine if the asset manager has the asset.
+	 * This does not tell you if the asset is done
+	 * downloading.
+	 * @param asset Asset to look for
+	 * @return True if the asset exists, false otherwise
+	 */
 	public static boolean hasAsset(Asset asset) {
 		return hasAsset(asset.getId());
 	}
@@ -177,15 +177,15 @@ public class AssetManager {
 	 * @param key MD5 sum associated with asset
 	 * @return True if hte asset is loaded, false otherwise
 	 */
-    public static boolean hasAssetInMemory(MD5Key key) {
-        return assetMap.containsKey(key);
-    }
+	public static boolean hasAssetInMemory(MD5Key key) {
+		return assetMap.containsKey(key);
+	}
 
-    /**
-     * Add the asset to the asset cache.
-     * Listeners for this asset are notified.
-     * @param asset Asset to add to cache
-     */
+	/**
+	 * Add the asset to the asset cache.
+	 * Listeners for this asset are notified.
+	 * @param asset Asset to add to cache
+	 */
 	public static void putAsset(Asset asset) {
 
 		if (asset == null) {
@@ -372,7 +372,7 @@ public class AssetManager {
 	 */
 	public static Asset createAsset(File file) throws IOException {
 		return  new Asset(FileUtil.getNameWithoutExtension(file), FileUtil.loadFile(file));
-    }
+	}
 
 	/**
 	 * Return a set of properties associated with the asset.
@@ -409,23 +409,23 @@ public class AssetManager {
 
 			final File assetFile = getAssetCacheFile(asset);
 
-                        new Thread() {
-                            @Override
-							public void run() {
+			new Thread() {
+				@Override
+				public void run() {
 
-                                try {
-                                        assetFile.getParentFile().mkdirs();
-                                        // Image
-                                        OutputStream out = new FileOutputStream(assetFile);
-                                        out.write(asset.getImage());
-                                        out.close();
+					try {
+						assetFile.getParentFile().mkdirs();
+						// Image
+						OutputStream out = new FileOutputStream(assetFile);
+						out.write(asset.getImage());
+						out.close();
 
-                                } catch (IOException ioe) {
-                                			log.error("Could not persist asset while writing image data", ioe);
-                                        return;
-                                }
-                            }
-                        }.start();
+					} catch (IOException ioe) {
+						log.error("Could not persist asset while writing image data", ioe);
+						return;
+					}
+				}
+			}.start();
 
 		}
 		if (!assetInfoIsInPersistentCache(asset)) {
@@ -617,7 +617,7 @@ public class AssetManager {
 			try {
 				if (fileFilter.accept(rootDir, file.getName())) {
 					if (MapTool.getFrame() != null) {
-						MapTool.getFrame().setStatusMessage("Storing local image reference: " + file.getName());
+						MapTool.getFrame().setStatusMessage("Caching image reference: " + file.getName());
 					}
 					rememberLocalImageReference(file);
 				}

@@ -18,21 +18,24 @@ import org.apache.log4j.Logger;
  */
 public class ChatAutoSave {
 	private static Logger log = Logger.getLogger(ChatAutoSave.class);
-
 	private static final ChatAutoSave self = new ChatAutoSave();
+
 	private final Timer countdown;
-	private final TimerTask task;
-	private int delay;
+	private TimerTask task;
+	private long delay;
 
 	private ChatAutoSave() {
 		log.debug("Creating chat log autosave timer");
-		delay = AppPreferences.getChatAutosaveTime();
-		countdown = new Timer();		// !daemon Timer; runs forever and prevents application shutdown
-		task = new TimerTask() {
+		// Only way to set the delay is to call changeTimeout()
+		delay = 0;
+		countdown = new Timer();
+	}
+
+	private static TimerTask createTimer(final long timeout) {
+		TimerTask t = new TimerTask() {
 			@Override
 			public void run() {
-				log.debug("Chat log autosave countdown complete");
-				countdown.schedule(this, delay);
+				log.debug("Chat log autosave countdown complete from " + timeout);
 				String filename = AppPreferences.getChatFilenameFormat();
 				File chatlog;
 				if (filename.indexOf(File.separator) == -1) {
@@ -66,6 +69,7 @@ public class ChatAutoSave {
 				}
 			}
 		};
+		return t;
 	}
 
 	private static ChatAutoSave getInstance() {
@@ -73,17 +77,22 @@ public class ChatAutoSave {
 	}
 
 	public static void changeTimeout(int timeout) {
-		getInstance().stop();
-		getInstance().delay = timeout;
-//		getInstance().start();
+		getInstance().delay = timeout * 1000 * 60;
+		getInstance().start();
 	}
 
 	private void stop() {
-		countdown.cancel();
+		if (task != null) {
+			task.cancel();
+			task = null;
+		}
 	}
 
 	private void start() {
-		if (delay > 0)
-			countdown.schedule(task, delay);
+		if (delay > 0) {
+			stop();
+			task = createTimer(delay);
+			countdown.schedule(task, 5000, delay);	// Wait 5s, then save the log every 'delay' ms
+		}
 	}
 }

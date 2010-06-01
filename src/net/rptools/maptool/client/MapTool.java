@@ -1077,14 +1077,15 @@ public class MapTool {
 			}
 		}
 		com.apple.eawt.Application appl = com.apple.eawt.Application.getApplication();
-		String vers = getVersion();
-		vers = vers.substring(vers.length() - 2);
-		appl.setDockIconBadge("NT".equals(vers) ? "00" : vers);
 
 		// If we couldn't grab the image for some reason, don't set the dock bar icon!  Duh!
 		if (img != null) {
 			appl.setDockIconImage(img);
 		}
+		String vers = getVersion();
+		vers = vers.substring(vers.length() - 2);
+		vers = vers.replaceAll("[^0-9]", "0");		// Convert all non-digits to zeroes
+		appl.setDockIconBadge(vers);
 	}
 
 	private static void postInitialize() {

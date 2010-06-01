@@ -50,10 +50,10 @@ public class AppPreferences {
 	private static final boolean DEFAULT_ENABLE_MAP_EXPORT_IMPORT = false;
 
 	private static final String KEY_CHAT_AUTOSAVE_TIME = "chatAutosaveTime";
-	private static final int DEFAULT_CHAT_AUTOSAVE_TIME = 0; // Seconds; zero=same as Campaign Auto Save Increment
+	private static final int DEFAULT_CHAT_AUTOSAVE_TIME = 0; // Minutes; zero=disabled
 
 	private static final String KEY_CHAT_FILENAME_FORMAT = "chatFilenameFormat";
-	private static final String DEFAULT_CHAT_FILENAME_FORMAT = "x"; // see strformat() for details
+	private static final String DEFAULT_CHAT_FILENAME_FORMAT = "chatlog.html"; // see strformat() for details
 
 	private static final String KEY_DUPLICATE_TOKEN_NUMBER = "duplicateTokenNumber";
 	private static final String DEFAULT_DUPLICATE_TOKEN_NUMBER = Token.NUM_INCREMENT;
@@ -180,10 +180,10 @@ public class AppPreferences {
 		return prefs.getInt(KEY_AUTO_SAVE_INCREMENT, DEFAULT_AUTO_SAVE_INCREMENT);
 	}
 
-	public static void setChatAutosaveTime(int seconds) {
-		if (seconds >= 0) {
-			prefs.putInt(KEY_CHAT_AUTOSAVE_TIME, seconds);
-			ChatAutoSave.changeTimeout(seconds);
+	public static void setChatAutosaveTime(int minutes) {
+		if (minutes >= 0) {
+			prefs.putInt(KEY_CHAT_AUTOSAVE_TIME, minutes);
+			ChatAutoSave.changeTimeout(minutes);
 		}
 	}
 
