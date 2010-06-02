@@ -19,6 +19,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,12 +109,20 @@ public class TransferableHelper extends TransferHandler {
 		BufferedImage image = null;
 		log.info("Transferable " + transferable.getTransferData(URL_FLAVOR));
 		if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
+			String fname = (String) transferable.getTransferData(URL_FLAVOR);
+			name = FileUtil.getNameWithoutExtension(fname);
 			try {
-				URL url = new URL((String)transferable.getTransferData(URL_FLAVOR));
-				name = FileUtil.getNameWithoutExtension(url);
-				image = ImageIO.read(url);
+				File file = new File(new URI(fname));		// URI->File verifies and removes "file://"
+				if (file.exists()) {
+					log.info("Reading file:// URL ...");
+					image = ImageIO.read(file);
+				} else {
+					log.info("Reading remote URL ...");
+					URL url = new URL(fname);
+					image = ImageIO.read(url);
+				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				MapTool.showError("Cannot read from URL:  " + fname, e);
 			}
 		}
 		if (image == null) {

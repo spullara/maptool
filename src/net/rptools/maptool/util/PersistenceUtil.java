@@ -455,7 +455,7 @@ public class PersistenceUtil {
 				}
 
 				if (asset == null) {	// Referenced asset not included in PackedFile??
-					log.error("Referenced asset '" + pathname + "' not found?!");
+					log.error("Referenced asset '" + pathname + "' not found while loading?!");
 					continue;
 				}
 				// If the asset was marked as "broken" then ignore it completely.  The end
@@ -496,6 +496,10 @@ public class PersistenceUtil {
 			// As of 1.3.b64, assets are written in binary to allow them to be readable
 			// when a campaign file is unpacked.
 			Asset asset = AssetManager.getAsset(assetId);
+			if (asset == null) {
+				log.error("AssetId " + assetId + " not found while saving?!");
+				continue;
+			}
 			pakFile.putFile(ASSET_DIR + assetId + "." + asset.getImageExtension(), asset.getImage());
 			pakFile.putFile(ASSET_DIR + assetId, asset);		// Does not write the image
 //			pakFile.putFile(ASSET_DIR + assetId + ".dat", asset.getImage());

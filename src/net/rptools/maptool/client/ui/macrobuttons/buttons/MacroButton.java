@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui.macrobuttons.buttons;
 
@@ -42,9 +42,11 @@ import net.rptools.maptool.client.ui.MacroButtonHotKeyManager;
 import net.rptools.maptool.client.ui.macrobuttons.buttongroups.AbstractButtonGroup;
 import net.rptools.maptool.client.ui.macrobuttons.buttongroups.ButtonGroup;
 import net.rptools.maptool.client.ui.macrobuttons.panels.AbstractMacroPanel;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
+import net.rptools.maptool.model.Zone;
 
 /**
  * Base class of CampaignMacroButton and GlobalMacroButton.
@@ -70,7 +72,7 @@ public class MacroButton extends JButton implements MouseListener
 	public MacroButton(MacroButtonProperties properties, ButtonGroup buttonGroup){
 		this(properties, buttonGroup, null);
 	}
-	
+
 	public MacroButton(MacroButtonProperties properties, ButtonGroup buttonGroup, Token token) {
 		this.properties = properties;
 		this.buttonGroup = buttonGroup;
@@ -106,7 +108,9 @@ public class MacroButton extends JButton implements MouseListener
 		return tokenId;
 	}
 	public Token getToken() {
-		return MapTool.getFrame().getCurrentZoneRenderer().getZone().getToken(tokenId);
+		ZoneRenderer zr = MapTool.getFrame().getCurrentZoneRenderer();
+		Zone z = (zr == null ? null : zr.getZone());
+		return z == null ? null : z.getToken(tokenId);
 	}
 	public AbstractButtonGroup getButtonGroup() {
 		return buttonGroup;
@@ -148,9 +152,9 @@ public class MacroButton extends JButton implements MouseListener
 		else
 			return "<html>"+formatButtonLabel+"<font style='font-size:0.8em'> (" + hotKey + ")</font></div></html>";
 	}
-	
+
 	public String getMinWidth(){
-		// the min-width style doesn't appear to work in the current java, so I'm 
+		// the min-width style doesn't appear to work in the current java, so I'm
 		// using width instead.
 		String newMinWidth = properties.getMinWidth();
 		if (newMinWidth != null && !newMinWidth.equals("")) {
@@ -161,11 +165,11 @@ public class MacroButton extends JButton implements MouseListener
 	}
 
 	public String getMaxWidth(){
-		// doesn't appear to work in current java, leaving it in just in case 
+		// doesn't appear to work in current java, leaving it in just in case
 		// it is supported in the future
 		String newMaxWidth = properties.getMaxWidth();
 		if (newMaxWidth != null && !newMaxWidth.equals("")) {
-			return " max-width:"+newMaxWidth+";"; 
+			return " max-width:"+newMaxWidth+";";
 		}
 		return "";
 	}
@@ -208,15 +212,15 @@ public class MacroButton extends JButton implements MouseListener
 			}
 		}
 	}
-	
+
 	public void mouseEntered(MouseEvent event) {
 		if (MapTool.getFrame().getCurrentZoneRenderer() == null) {
 			return;
 		}
-		
+
 		List<Token> selectedTokens = MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList();
 		if(SwingUtil.isShiftDown(event) || getProperties().getApplyToTokens()) {
-			MapTool.getFrame().getCurrentZoneRenderer().setHighlightCommonMacros(selectedTokens);			
+			MapTool.getFrame().getCurrentZoneRenderer().setHighlightCommonMacros(selectedTokens);
 		} else {
 			if(getPanelClass() == "SelectionPanel") {
 				List<Token> affectedTokens = new ArrayList<Token>();
@@ -253,11 +257,11 @@ public class MacroButton extends JButton implements MouseListener
 		dragSource.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, dgListener);
 		dsListener = new DSListener();
 	}
-	
+
 	private class DGListener implements DragGestureListener {
 
 		final Cursor cursor;
-		
+
 		public DGListener(Cursor cursor) {
 			this.cursor = cursor;
 		}
@@ -269,7 +273,7 @@ public class MacroButton extends JButton implements MouseListener
 	}
 
 	private class DSListener implements DragSourceListener {
-		
+
 		public void dragEnter(DragSourceDragEvent event) {
 			//System.out.println("TMB: drag enter");
 			//DragSourceContext context = event.getDragSourceContext();
@@ -295,11 +299,11 @@ public class MacroButton extends JButton implements MouseListener
 			MapTool.getFrame().getCurrentZoneRenderer().setHighlightCommonMacros(affectedTokens);
 		}
 	}
-	
+
 	public void clearHotkey() {
 		getHotKeyManager().assignKeyStroke(MacroButtonHotKeyManager.HOTKEYS[0]);
 	}
-	
+
 	@Override
 	public String getToolTipText(MouseEvent e) {
 		String tt = properties.getEvaluatedToolTip();
