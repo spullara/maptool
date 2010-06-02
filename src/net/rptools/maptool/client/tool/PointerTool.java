@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.tool;
 
@@ -109,16 +109,16 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	private Token tokenUnderMouse;
 	private Token markerUnderMouse;
 
-	private TokenStackPanel tokenStackPanel = new TokenStackPanel();
+	private final TokenStackPanel tokenStackPanel = new TokenStackPanel();
 
-	private HTMLPanelRenderer htmlRenderer = new HTMLPanelRenderer();
+	private final HTMLPanelRenderer htmlRenderer = new HTMLPanelRenderer();
 
 	private BufferedImage statSheet;
 	private Token tokenOnStatSheet;
 
 	private static int PADDING = 7;
 
-	private Font boldFont = AppStyle.labelFont.deriveFont(Font.BOLD);
+	private final Font boldFont = AppStyle.labelFont.deriveFont(Font.BOLD);
 
 	// Offset from token's X,Y when dragging. Values are in cell coordinates.
 	private int dragOffsetX;
@@ -126,7 +126,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	private int dragStartX;
 	private int dragStartY;
 
-	private LayerSelectionDialog layerSelectionDialog;
+	private final LayerSelectionDialog layerSelectionDialog;
 
 	public PointerTool() {
 		try {
@@ -239,7 +239,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		private static final int PADDING = 4;
 
 		private List<Token> tokenList;
-		private List<TokenLocation> tokenLocationList = new ArrayList<TokenLocation>();
+		private final List<TokenLocation> tokenLocationList = new ArrayList<TokenLocation>();
 
 		private int x;
 		private int y;
@@ -366,6 +366,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 	// //
 	// Mouse
+	@Override
 	public void mousePressed(MouseEvent e) {
 		super.mousePressed(e);
 
@@ -444,6 +445,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 					renderer.clearSelectedTokens();
 				}
 
+				// XXX Isn't Windows standard to use Ctrl-click to add one element and Shift-click to extend?
+				// XXX Similarly, OSX uses Cmd-click to add one element and Shift-click to extend...
 				if (SwingUtil.isShiftDown(e) && renderer.getSelectedTokenSet().contains(token.getId())) {
 					renderer.deselectToken(token.getId());
 				} else {
@@ -478,6 +481,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 	}
 
+	@Override
 	public void mouseReleased(MouseEvent e) {
 
 		if (isShowingTokenStackPopup) {
@@ -578,6 +582,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 	// //
 	// MouseMotion
+	@Override
 	public void mouseMoved(MouseEvent e) {
 		if (renderer == null) {
 			return;
@@ -645,6 +650,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		}
 	}
 
+	@Override
 	public void mouseDragged(MouseEvent e) {
 
 		mouseX = e.getX();
@@ -801,8 +807,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		if (zone.hasFog()) {
 
-			// Check that the new position for each token is within the exposed
-			// area
+			// Check that the new position for each token is within the exposed area
 			Area fow = zone.getExposedArea();
 			if (fow == null) {
 				return true;
@@ -848,6 +853,38 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		return true;
 	}
 
+	/**
+	 * These keystrokes are currently hard-coded and should be exported to the i18n.properties file
+	 * in a perfect universe. :)
+	 * <p>
+	 * <table>
+	 * <tr><td>Meta R<td>Select the FacingTool (to allow rotating with the left/right arrows)
+	 * <tr><td>DELETE<td>Allow deletion of owned tokens
+	 * <tr><td>Space<td>Show arrow pointer on map
+	 * <tr><td>Ctrl Space<td>Show speech bubble on map
+	 * <tr><td>Shift Space<td>Show thought bubble on map
+	 * <tr><td>D<td>Stop dragging token
+	 * <tr><td>T<td>Cycle forward through tokens
+	 * <tr><td>Shift T<td>Cycle backward through tokens
+	 * <tr><td>Ctrl I<td>Expose fog from visible area
+	 * <tr><td>Ctrl P<td>Expose fog from last path
+	 * <tr><td>Ctrl Shift O<td>Expose only PC area (reinsert other fog)
+	 * <tr><td>NumPad digits<td>Move token:<br>
+	 * 		<table>
+	 * 		<tr><td>7 (up/left)<td>8 (up)<td>9 (up/right)
+	 * 		<tr><td>4 (left)<td>5 (stop)<td>6(right)
+	 * 		<tr><td>1 (down/left)<td>2 (down)<td>3 (down/right)
+	 * 		</table>
+	 * <tr><td>Down<td>Move token down
+	 * <tr><td>Up<td>Move token up
+	 * <tr><td>Right<td>Move token right
+	 * <tr><td>Shift Right<td>Rotate token right by facing amount (depends on grid)
+	 * <tr><td>Ctrl Shift Right<td>Rotate token right by 5-deg increments
+	 * <tr><td>Left<td>Move token left
+	 * <tr><td>Shift Left<td>Rotate token left by facing amount (depends on grid)
+	 * <tr><td>Ctrl Shift Left<td>Rotate token left by 5-deg increments
+	 * </table>
+	 */
 	@Override
 	protected void installKeystrokes(Map<KeyStroke, Action> actionMap) {
 		super.installKeystrokes(actionMap);
@@ -1354,9 +1391,9 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 					// Create the space for the image
 					int width = imgSize.width + (statSize != null ? statSize.width + AppStyle.miniMapBorder.getRightMargin() : 0) + AppStyle.miniMapBorder.getLeftMargin()
-							+ AppStyle.miniMapBorder.getRightMargin();
+					+ AppStyle.miniMapBorder.getRightMargin();
 					int height = Math.max(imgSize.height, (statSize != null ? statSize.height + AppStyle.miniMapBorder.getRightMargin() : 0)) + AppStyle.miniMapBorder.getTopMargin()
-							+ AppStyle.miniMapBorder.getBottomMargin();
+					+ AppStyle.miniMapBorder.getBottomMargin();
 					statSheet = new BufferedImage(width, height, BufferedImage.BITMASK);
 					Graphics2D statsG = statSheet.createGraphics();
 					statsG.setClip(new Rectangle(0, 0, width, height));

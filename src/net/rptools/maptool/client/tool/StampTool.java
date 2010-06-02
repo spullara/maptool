@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.tool;
 
@@ -84,21 +84,21 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	private boolean isResizingToken;
 	private boolean isResizingRotatedToken;
 	private Rectangle selectionBoundBox;
-	
+
 	// The position with greater than integer accuracy of a rotated stamp that is being resized.
-	private Point2D.Double preciseStampZonePoint; 
+	private Point2D.Double preciseStampZonePoint;
 	private ZonePoint lastResizeZonePoint;
 
 	private Token tokenBeingDragged;
 	private Token tokenUnderMouse;
 	private Token tokenBeingResized;
 
-	private TokenStackPanel tokenStackPanel = new TokenStackPanel();
+	private final TokenStackPanel tokenStackPanel = new TokenStackPanel();
 
 	//private Map<Shape, Token> rotateBoundsMap = new HashMap<Shape, Token>();
-	private Map<Shape, Token> resizeBoundsMap = new HashMap<Shape, Token>();
+	private final Map<Shape, Token> resizeBoundsMap = new HashMap<Shape, Token>();
 
-	private LayerSelectionDialog layerSelectionDialog;
+	private final LayerSelectionDialog layerSelectionDialog;
 
 	// Offset from token's X,Y when dragging. Values are in cell coordinates.
 	private int dragOffsetX;
@@ -109,7 +109,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	static {
 		try {
 			resizeImage = ImageUtil
-					.getCompatibleImage("net/rptools/maptool/client/image/arrow_out.png");
+			.getCompatibleImage("net/rptools/maptool/client/image/arrow_out.png");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -134,7 +134,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		try {
 			setIcon(new ImageIcon(
 					ImageUtil
-							.getImage("net/rptools/maptool/client/image/tool/stamper.png")));
+					.getImage("net/rptools/maptool/client/image/tool/stamper.png")));
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
@@ -193,10 +193,10 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 	public void stopTokenDrag() {
 		renderer.commitMoveSelectionSet(tokenBeingDragged.getId()); // TODO:
-																	// figure
-																	// out a
-																	// better
-																	// way
+		// figure
+		// out a
+		// better
+		// way
 		isDraggingToken = false;
 		isMovingWithKeys = false;
 
@@ -216,7 +216,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		private static final int PADDING = 4;
 
 		private List<Token> tokenList;
-		private List<TokenLocation> tokenLocationList = new ArrayList<TokenLocation>();
+		private final List<TokenLocation> tokenLocationList = new ArrayList<TokenLocation>();
 
 		private int x;
 		private int y;
@@ -253,7 +253,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 					if (selected) {
 						Tool tool = MapTool.getFrame().getToolbox()
-								.getSelectedTool();
+						.getSelectedTool();
 						if (!(tool instanceof StampTool)) {
 							return;
 						}
@@ -310,6 +310,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 	// //
 	// Mouse
+	@Override
 	public void mousePressed(MouseEvent e) {
 		super.mousePressed(e);
 
@@ -341,13 +342,13 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			Shape bounds = entry.getKey();
 			if (bounds.contains(dragStartX, dragStartY)) {
 				dragOffsetX = bounds.getBounds().x + bounds.getBounds().width
-						- e.getX();
+				- e.getX();
 				dragOffsetY = bounds.getBounds().y + bounds.getBounds().height
-						- e.getY();
+				- e.getY();
 
 				isResizingToken = true;
-				// The token being resized does not necessarily = tokenUnderMouse.  If there is more then one 
-				// token under the mouse, the top token will be the tokenUnderMouse, but it is the selected 
+				// The token being resized does not necessarily = tokenUnderMouse.  If there is more then one
+				// token under the mouse, the top token will be the tokenUnderMouse, but it is the selected
 				// that is intended to be resized.
 				tokenBeingResized = entry.getValue();
 				return;
@@ -421,7 +422,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 				// Dragging offset for currently selected token
 				ZonePoint pos = new ScreenPoint(e.getX(), e.getY())
-						.convertToZone(renderer);
+				.convertToZone(renderer);
 				dragOffsetX = pos.x - token.getX();
 				dragOffsetY = pos.y - token.getY();
 			}
@@ -440,6 +441,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 	}
 
+	@Override
 	public void mouseReleased(MouseEvent e) {
 
 		if (isShowingTokenStackPopup) {
@@ -454,8 +456,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 		if (isResizingToken) {
 			renderer.flush(tokenUnderMouse);
-			MapTool.serverCommand().putToken(renderer.getZone().getId(),
-					tokenUnderMouse);
+			MapTool.serverCommand().putToken(renderer.getZone().getId(), tokenUnderMouse);
 			isResizingToken = false;
 			isResizingRotatedToken = false;
 			return;
@@ -524,11 +525,11 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				if (tokenUnderMouse.isStamp()) {
 					new StampPopupMenu(renderer.getSelectedTokenSet(),
 							e.getX(), e.getY(), renderer, tokenUnderMouse)
-							.showPopup(renderer);
+					.showPopup(renderer);
 				} else {
 					new TokenPopupMenu(renderer.getSelectedTokenSet(),
 							e.getX(), e.getY(), renderer, tokenUnderMouse)
-							.showPopup(renderer);
+					.showPopup(renderer);
 				}
 
 				return;
@@ -546,6 +547,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 	 * @see
 	 * java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
 	 */
+	@Override
 	public void mouseMoved(MouseEvent e) {
 		if (renderer == null) {
 			return;
@@ -572,7 +574,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 			}
 
 			ZonePoint zonePoint = new ScreenPoint(mouseX, mouseY)
-					.convertToZone(renderer);
+			.convertToZone(renderer);
 			handleDragToken(zonePoint);
 			return;
 		}
@@ -604,6 +606,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 	ScreenPoint p = new ScreenPoint(0, 0);
 
+	@Override
 	public void mouseDragged(MouseEvent e) {
 
 		mouseX = e.getX();
@@ -620,7 +623,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		}
 
 		if (isResizingToken) {
-			
+
 			ScreenPoint sp = new ScreenPoint(mouseX + dragOffsetX, mouseY
 					+ dragOffsetY);
 			BufferedImage image = ImageManager.getImage(tokenBeingResized.getImageAssetId());
@@ -656,11 +659,11 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				newWidth += renderer.getZone().getGrid().getSize();
 				newHeight += renderer.getZone().getGrid().getSize();
 			}
-			
+
 			// take into account rotated stamps
 			if( tokenBeingResized.hasFacing() && tokenBeingResized.getShape() == Token.TokenShape.TOP_DOWN
 					&& tokenBeingResized.getFacing() != -90){
-				
+
 				// if we are beginning a new resize, reset the resizing variables.
 				if (!isResizingRotatedToken) {
 					isResizingRotatedToken = true;
@@ -670,65 +673,65 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 				// theta is the rotation angle clockwise from the positive x-axis to compensate for the +ve y-axis
 				// pointing downwards in zone space and an unrotated token has facing of -90.
-				int theta = -tokenBeingResized.getFacing() - 90; 
-				
+				int theta = -tokenBeingResized.getFacing() - 90;
+
 				// can't handle snap to grid with rotated token when resizing because they have to be able to nudge.
 				if(tokenBeingResized.isSnapToGrid()) {
 					tokenBeingResized.setSnapToGrid(false);
 				}
-				
+
 				Rectangle footprintBounds = tokenBeingResized.getBounds(renderer.getZone());
-						
+
 				int changeX = (zp.x - lastResizeZonePoint.x) // zp = mouse location
-						* (tokenBeingResized.isSnapToGrid() && !tokenBeingResized.isBackgroundStamp() ? 2 : 1);
+				* (tokenBeingResized.isSnapToGrid() && !tokenBeingResized.isBackgroundStamp() ? 2 : 1);
 				int changeY = (zp.y - lastResizeZonePoint.y)
-						* (tokenBeingResized.isSnapToGrid() && !tokenBeingResized.isBackgroundStamp() ? 2 : 1);
-				
+				* (tokenBeingResized.isSnapToGrid() && !tokenBeingResized.isBackgroundStamp() ? 2 : 1);
+
 				double sinTheta = Math.sin(Math.toRadians(theta));
 				double cosTheta = Math.cos(Math.toRadians(theta));
-				
+
 				// Calculate change in the stamp's height and width.
-				// Sine terms are *-1 from the standard rotation transform because the direction of theta 
+				// Sine terms are *-1 from the standard rotation transform because the direction of theta
 				// is reversed (theta rotates clockwise)
 				double dw = changeX*cosTheta + changeY*sinTheta;
 				double dh = - changeX*sinTheta + changeY*cosTheta;
-						
+
 				newWidth = (int)Math.max(1, footprintBounds.width + dw);
 				newHeight = (int)Math.max(1 , footprintBounds.height + dh);
-		
+
 				// Move the stamp to compensate for a change in the stamp's rotation anchor
-				// so that the stamp stays fixed in place while being resized			
-				
+				// so that the stamp stays fixed in place while being resized
+
 				// change in stamp's rotation anchor due to resize
-				double dx = dw/2; 
+				double dx = dw/2;
 				double dy = dh/2;
-				
+
 				//change in rotated stamp's anchor due to resize. currently only works perfectly for clockwise 0-90
 				// needs fine tuning for the three other quadrants to prevent the stamp from creeping
 				double dxRot = dx*cosTheta - dy*sinTheta;
 				double dyRot = dx*sinTheta + dy*cosTheta;
-				
-				// Resizing a stamp automatically adjusts its rotation anchor point, so only consider the 
+
+				// Resizing a stamp automatically adjusts its rotation anchor point, so only consider the
 				// adjustment required due to the rotation.
 				double stampAdjustX = dxRot - dx;
 				double stampAdjustY = dyRot - dy;
-						
+
 				// prevent the stamp from moving around if a limit has been reached.
 				if (newWidth == 1 || newHeight == 1) {
 					newWidth = newWidth == 1 ? 1 : footprintBounds.width;
 					newHeight = newHeight == 1 ? 1 : footprintBounds.height;
-				} 
+				}
 				else {
-					// remembering the precise location prevents the stamp from drifting due to rounding to int				
+					// remembering the precise location prevents the stamp from drifting due to rounding to int
 					preciseStampZonePoint.x += stampAdjustX;
 					preciseStampZonePoint.y += stampAdjustY;
 
 					lastResizeZonePoint = (ZonePoint) zp.clone();
 				}
-	
+
 				tokenBeingResized.setX((int)(preciseStampZonePoint.x));
 				tokenBeingResized.setY((int)(preciseStampZonePoint.y));
-			} 
+			}
 
 			tokenBeingResized.setScaleX(newWidth / (double) image.getWidth());
 			tokenBeingResized.setScaleY(newHeight / (double) image.getHeight());
@@ -769,7 +772,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 					return;
 				}
 				ZonePoint zonePoint = new ScreenPoint(mouseX, mouseY)
-						.convertToZone(renderer);
+				.convertToZone(renderer);
 				handleDragToken(zonePoint);
 				return;
 			}
@@ -890,7 +893,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				Toolbox toolbox = MapTool.getFrame().getToolbox();
 
 				FacingTool tool = (FacingTool) toolbox
-						.getTool(FacingTool.class);
+				.getTool(FacingTool.class);
 				tool.init(renderer.getZone().getToken(
 						renderer.getSelectedTokenSet().iterator().next()),
 						renderer.getSelectedTokenSet());
@@ -903,109 +906,109 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0),
 				new AbstractAction() {
 
-					public void actionPerformed(java.awt.event.ActionEvent e) {
+			public void actionPerformed(java.awt.event.ActionEvent e) {
 
-						ZoneRenderer renderer = (ZoneRenderer) e.getSource();
+				ZoneRenderer renderer = (ZoneRenderer) e.getSource();
 
-						Set<GUID> selectedTokenSet = renderer
-								.getSelectedTokenSet();
+				Set<GUID> selectedTokenSet = renderer
+				.getSelectedTokenSet();
 
-						for (GUID tokenGUID : selectedTokenSet) {
+				for (GUID tokenGUID : selectedTokenSet) {
 
-							Token token = renderer.getZone()
-									.getToken(tokenGUID);
+					Token token = renderer.getZone()
+					.getToken(tokenGUID);
 
-							if (AppUtil.playerOwns(token)) {
-								renderer.getZone().removeToken(tokenGUID);
-								MapTool.serverCommand().removeToken(
-										renderer.getZone().getId(), tokenGUID);
-							}
-						}
-
-						renderer.clearSelectedTokens();
+					if (AppUtil.playerOwns(token)) {
+						renderer.getZone().removeToken(tokenGUID);
+						MapTool.serverCommand().removeToken(
+								renderer.getZone().getId(), tokenGUID);
 					}
-				});
+				}
+
+				renderer.clearSelectedTokens();
+			}
+		});
 
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 
-						if (!isDraggingToken) {
-							return;
-						}
+				if (!isDraggingToken) {
+					return;
+				}
 
-						// Stop
-						stopTokenDrag();
-					}
-				});
+				// Stop
+				stopTokenDrag();
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD5, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 
-						if (!isDraggingToken) {
-							return;
-						}
+				if (!isDraggingToken) {
+					return;
+				}
 
-						// Stop
-						stopTokenDrag();
-					}
-				});
+				// Stop
+				stopTokenDrag();
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 
-						handleKeyMove(1, 0, false);
-					}
-				});
+				handleKeyMove(1, 0, false);
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD4, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 
-						handleKeyMove(-1, 0, false);
-					}
-				});
+				handleKeyMove(-1, 0, false);
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD8, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 
-						handleKeyMove(0, -1, false);
-					}
-				});
+				handleKeyMove(0, -1, false);
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD2, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 
-						handleKeyMove(0, 1, false);
-					}
-				});
+				handleKeyMove(0, 1, false);
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD7, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 
-						handleKeyMove(-1, -1, false);
-					}
-				});
+				handleKeyMove(-1, -1, false);
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD9, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 
-						handleKeyMove(1, -1, false);
-					}
-				});
+				handleKeyMove(1, -1, false);
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD1, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 
-						handleKeyMove(-1, 1, false);
-					}
-				});
+				handleKeyMove(-1, 1, false);
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD3, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 
-						handleKeyMove(1, 1, false);
-					}
-				});
+				handleKeyMove(1, 1, false);
+			}
+		});
 
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6,
 				InputEvent.SHIFT_MASK), new AbstractAction() {
@@ -1065,12 +1068,12 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 
-						cycleSelectedToken(1);
+				cycleSelectedToken(1);
 
-					}
-				});
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_T,
 				InputEvent.SHIFT_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
@@ -1080,28 +1083,28 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
-						handleKeyMove(0, 1, false);
-					}
-				});
+			public void actionPerformed(ActionEvent e) {
+				handleKeyMove(0, 1, false);
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
-						handleKeyMove(1, 0, false);
-					}
-				});
+			public void actionPerformed(ActionEvent e) {
+				handleKeyMove(1, 0, false);
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
-						handleKeyMove(-1, 0, false);
-					}
-				});
+			public void actionPerformed(ActionEvent e) {
+				handleKeyMove(-1, 0, false);
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
 				new AbstractAction() {
-					public void actionPerformed(ActionEvent e) {
-						handleKeyMove(0, -1, false);
-					}
-				});
+			public void actionPerformed(ActionEvent e) {
+				handleKeyMove(0, -1, false);
+			}
+		});
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,
 				InputEvent.SHIFT_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
@@ -1287,40 +1290,40 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 
 				// Resize
 				if (!token.isSnapToScale()) {
-					
+
 					Double scale = renderer.getScale();
 					Rectangle footprintBounds = token.getBounds(renderer.getZone());
-					
-			        double scaledWidth = (footprintBounds.width * scale);
-			        double scaledHeight = (footprintBounds.height * scale);
-			        
-		            ScreenPoint stampLocation = ScreenPoint.fromZonePoint(renderer, footprintBounds.x, footprintBounds.y);
-		    
-		            // distance to place the resize image in the lower left corner of an unrotated stamp
-		            double tx = stampLocation.x + scaledWidth - resizeImage.getWidth();
+
+					double scaledWidth = (footprintBounds.width * scale);
+					double scaledHeight = (footprintBounds.height * scale);
+
+					ScreenPoint stampLocation = ScreenPoint.fromZonePoint(renderer, footprintBounds.x, footprintBounds.y);
+
+					// distance to place the resize image in the lower left corner of an unrotated stamp
+					double tx = stampLocation.x + scaledWidth - resizeImage.getWidth();
 					double ty = stampLocation.y + scaledHeight - resizeImage.getHeight();
-					
+
 					Rectangle resizeBounds = new Rectangle(0,0, resizeImage.getHeight(), resizeImage.getWidth());
 					Area resizeBoundsArea = new Area(resizeBounds);
-					
-		            AffineTransform at = new AffineTransform();
-		            at.translate(tx, ty);
-		       
-	         		// Rotated
-		            if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
-			            // untested when anchor != (0,0)
-		            	//rotate the resize image with the stamp.
-		            	double theta = Math.toRadians(-token.getFacing() - 90);
-		            	double anchorX = -scaledWidth/2 + resizeImage.getWidth() - (token.getAnchor().x * scale);
-  		                double anchorY = -scaledHeight/2 + resizeImage.getHeight() - (token.getAnchor().y * scale);
-		            	at.rotate(theta, anchorX, anchorY);
-		            }
-		            
-		            //place the map over the image.
-		            resizeBoundsArea.transform(at);	
-					resizeBoundsMap.put(resizeBoundsArea, token);					
-					
-					g.drawImage(resizeImage, at, renderer);			
+
+					AffineTransform at = new AffineTransform();
+					at.translate(tx, ty);
+
+					// Rotated
+					if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
+						// untested when anchor != (0,0)
+						//rotate the resize image with the stamp.
+						double theta = Math.toRadians(-token.getFacing() - 90);
+						double anchorX = -scaledWidth/2 + resizeImage.getWidth() - (token.getAnchor().x * scale);
+						double anchorY = -scaledHeight/2 + resizeImage.getHeight() - (token.getAnchor().y * scale);
+						at.rotate(theta, anchorX, anchorY);
+					}
+
+					//place the map over the image.
+					resizeBoundsArea.transform(at);
+					resizeBoundsMap.put(resizeBoundsArea, token);
+
+					g.drawImage(resizeImage, at, renderer);
 				}
 
 				// g.setColor(Color.red);
@@ -1337,7 +1340,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				// length);
 				// int y = (int)(cy - Math.sin(Math.toRadians(facing)) *
 				// length);
-				//				
+				//
 				// Ellipse2D rotateBounds = new Ellipse2D.Float(x-5, y-5, 10,
 				// 10);
 				// rotateBoundsMap.put(rotateBounds, token);
@@ -1345,7 +1348,7 @@ public class StampTool extends DefaultTool implements ZoneOverlay {
 				// g.setColor(Color.black);
 				// g.drawLine(cx, cy, x, y);
 				// g.fill(rotateBounds);
-				//				
+				//
 				// g.setColor(Color.gray);
 				// g.draw(rotateBounds);
 			}

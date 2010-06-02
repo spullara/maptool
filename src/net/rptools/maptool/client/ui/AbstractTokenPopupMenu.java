@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -60,13 +60,13 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 	private boolean areTokensOwned;
 
-	private ZoneRenderer renderer;
+	private final ZoneRenderer renderer;
 
 	int x, y;
 
 	Set<GUID> selectedTokenSet;
 
-	private Token tokenUnderMouse;
+	private final Token tokenUnderMouse;
 
 	public AbstractTokenPopupMenu(Set<GUID> selectedTokenSet, int x, int y,
 			ZoneRenderer renderer, Token tokenUnderMouse) {
@@ -78,13 +78,13 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 
 		setOwnership();
 	}
-	
+
 	protected boolean tokensAreOwned() {
 		return areTokensOwned;
 	}
-	
+
 	private void setOwnership() {
-		
+
 		areTokensOwned = true;
 		if (!MapTool.getPlayer().isGM()
 				&& MapTool.getServerPolicy().useStrictTokenManagement()) {
@@ -105,14 +105,14 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			putValue(Action.NAME, "Show Handout");
 			setEnabled(getTokenUnderMouse().getCharsheetImage() != null);
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
 
 			AssetViewerDialog dialog = new AssetViewerDialog(getTokenUnderMouse().getName() + "'s Character Sheet", getTokenUnderMouse().getCharsheetImage());
 			dialog.pack();
 			dialog.setVisible(true);
 		}
-		
+
 	}
 
 	protected JMenu createLightSourceMenu() {
@@ -122,17 +122,17 @@ public abstract class AbstractTokenPopupMenu extends JPopupMenu {
 			menu.add(new ClearLightAction());
 			menu.addSeparator();
 		}
-		
+
 		for (Entry<String, Map<GUID, LightSource>> entry : MapTool.getCampaign().getLightSourcesMap().entrySet()) {
 			JMenu subMenu = new JMenu(entry.getKey());
-			
+
 			List<LightSource> lightSourceList = new ArrayList<LightSource>(entry.getValue().values());
-LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
-					for (Light light : lightSource.getLightList()) {
-						if (light.isGM() && !MapTool.getPlayer().isGM())
-						{
-							continue LIGHTSOURCES;
-						}
+			LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
+				for (Light light : lightSource.getLightList()) {
+					if (light.isGM() && !MapTool.getPlayer().isGM())
+					{
+						continue LIGHTSOURCES;
+					}
 				}
 				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(new ToggleLightSourceAction(lightSource));
 				menuItem.setSelected(tokenUnderMouse.hasLightSource(lightSource));
@@ -143,20 +143,20 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 			{
 				menu.add(subMenu);
 			}
-			
+
 		}
-		
+
 		return menu;
 	}
-	
+
 	protected Token getTokenUnderMouse() {
 		return tokenUnderMouse;
 	}
-	
+
 	protected JMenu createFlipMenu() {
-		
+
 		JMenu flipMenu = new JMenu("Flip");
-		
+
 		flipMenu.add(new AbstractAction() {
 			{
 				putValue(NAME, "Horizontal");
@@ -167,16 +167,16 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 					if (token == null) {
 						continue;
 					}
-					
+
 					token.setFlippedX(!token.isFlippedX());
-					
+
 					renderer.flush(token);
 					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 				}
 				MapTool.getFrame().refresh();
 			}
 		});
-		
+
 		flipMenu.add(new AbstractAction() {
 			{
 				putValue(NAME, "Vertical");
@@ -187,7 +187,7 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 					if (token == null) {
 						continue;
 					}
-					
+
 					token.setFlippedY(!token.isFlippedY());
 					renderer.flush(token);
 					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
@@ -195,12 +195,12 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 				MapTool.getFrame().refresh();
 			}
 		});
-		
+
 		return flipMenu;
 	}
-	
+
 	protected JMenu createChangeToMenu(Zone.Layer... types) {
-		
+
 		JMenu changeTypeMenu = new JMenu("Change to");
 		for (Zone.Layer layer : types) {
 			changeTypeMenu.add(new JMenuItem(new ChangeTypeAction(layer)));
@@ -210,13 +210,13 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 
 //	protected JMenu createVisionMenu() {
 //		JMenu visionMenu = I18N.createMenu("defaultTool.visionMenu");
-//		
+//
 //		if (selectedTokenSet.size() != 1) {
 //			visionMenu.setEnabled(false);
 //		} else {
 //
 //			for (final Vision vision : getTokenUnderMouse().getVisionList()) {
-//				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(vision.getLabel()); 
+//				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(vision.getLabel());
 //				menuItem.setSelected(vision.isEnabled());
 //				menuItem.addMouseListener( new MouseAdapter() {
 //					@Override
@@ -235,7 +235,7 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 //
 //				visionMenu.add(menuItem);
 //			}
-//			
+//
 //			JMenuItem newVisionMenuItem = new JMenuItem("New Vision ...");
 //			newVisionMenuItem.addActionListener(new ActionListener() {
 //				public void actionPerformed(ActionEvent e) {
@@ -245,10 +245,10 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 //			});
 //			visionMenu.add(newVisionMenuItem);
 //		}
-//		
+//
 //		return visionMenu;
 //	}
-	
+
 	protected JMenu createArrangeMenu() {
 		JMenu arrangeMenu = new JMenu("Arrange");
 		JMenuItem bringToFrontMenuItem = new JMenuItem("Bring to Front");
@@ -262,17 +262,17 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 
 		return arrangeMenu;
 	}
-	
+
 	protected JMenu createSizeMenu() {
-		
+
 		JMenu sizeMenu = new JMenu("Size");
-		
+
 		JCheckBoxMenuItem freeSize = new JCheckBoxMenuItem(new FreeSizeAction());
 		freeSize.setSelected(!tokenUnderMouse.isSnapToScale());
 
 		sizeMenu.add(freeSize);
 		sizeMenu.addSeparator();
-		
+
 		Grid grid = renderer.getZone().getGrid();
 		for (TokenFootprint footprint : grid.getFootprints()) {
 			JMenuItem menuItem = new JCheckBoxMenuItem(new ChangeSizeAction(footprint));
@@ -285,12 +285,12 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 
 		return sizeMenu;
 	}
-	
+
 	protected void addGMItem(Action action) {
 		if (action == null) {
 			return;
 		}
-		
+
 		if (MapTool.getPlayer().isGM()) {
 			add(new JMenuItem(action));
 		}
@@ -300,7 +300,7 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 		if (menu == null) {
 			return;
 		}
-		
+
 		if (MapTool.getPlayer().isGM()) {
 			add(menu);
 		}
@@ -310,7 +310,7 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 		if (action == null) {
 			return;
 		}
-		
+
 		if (MapTool.getPlayer().isGM()) {
 			JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
 			item.setSelected(checked);
@@ -322,7 +322,7 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 		if (action == null) {
 			return;
 		}
-		
+
 		JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
 		item.setSelected(checked);
 		item.setEnabled(areTokensOwned);
@@ -333,7 +333,7 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 		if (action == null) {
 			return;
 		}
-		
+
 		JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
 		item.setSelected(checked);
 		add(item);
@@ -343,7 +343,7 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 		if (action == null) {
 			return;
 		}
-		
+
 		JMenuItem item = new JMenuItem(action);
 		item.setEnabled(areTokensOwned);
 		add(new JMenuItem(action));
@@ -353,7 +353,7 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 		if (menu == null) {
 			return;
 		}
-		
+
 		menu.setEnabled(areTokensOwned);
 		add(menu);
 	}
@@ -361,22 +361,22 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 	protected ZoneRenderer getRenderer() {
 		return renderer;
 	}
-	
+
 	public void showPopup(JComponent component) {
 		show(component, x, y);
 	}
-	
+
 	public class ChangeTypeAction extends AbstractAction{
-		
-		private Zone.Layer layer;
-		
+
+		private final Zone.Layer layer;
+
 		public ChangeTypeAction(Zone.Layer layer) {
 			putValue(Action.NAME, layer.toString());
 			this.layer = layer;
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
-			
+
 			for (GUID tokenGUID : selectedTokenSet) {
 				Token token = renderer.getZone().getToken(tokenGUID);
 				if (token == null) {
@@ -398,22 +398,22 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 					}
 					break;
 				}
-				
+
 				renderer.flush(token);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
-			
+
 			renderer.repaint();
 			MapTool.getFrame().updateTokenTree();
 		}
 	}
-	
+
 	public class FreeSizeAction extends AbstractAction {
-		
+
 		public FreeSizeAction() {
 			putValue(Action.NAME, tokenUnderMouse.isStamp() ? "Free Size" : "Native Size");
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
 
 			for (GUID tokenGUID : selectedTokenSet) {
@@ -421,47 +421,47 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 				if (token == null) {
 					continue;
 				}
-				
+
 				token.setSnapToScale(false);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
-			
+
 			renderer.repaint();
 		}
 	}
-	
+
 	public class CopyAction extends AbstractAction {
-		
+
 		public CopyAction() {
 			putValue(Action.NAME, I18N.getText("action.copyTokens"));
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
 
 			AppActions.copyTokens(selectedTokenSet);
 		}
 	}
-	
+
 	public class CutAction extends AbstractAction {
-		
+
 		public CutAction() {
 			putValue(Action.NAME, I18N.getText("action.cutTokens"));
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
 
 			AppActions.cutTokens(renderer.getZone(), selectedTokenSet);
 		}
 	}
-	
+
 	public class ToggleLightSourceAction extends AbstractAction {
-		
-		private LightSource lightSource;
+
+		private final LightSource lightSource;
 		public ToggleLightSourceAction(LightSource lightSource) {
 			super(lightSource.getName());
 			this.lightSource = lightSource;
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
 
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
@@ -470,13 +470,13 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 				if (token == null) {
 					continue;
 				}
-				
+
 				if (token.hasLightSource(lightSource)) {
 					token.removeLightSource(lightSource);
 				} else {
 					token.addLightSource(lightSource, Direction.CENTER);
 				}
-				
+
 				// Cache clearing
 				renderer.flush(token);
 
@@ -485,48 +485,48 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 
 				renderer.repaint();
 			}
-			
+
 		}
-		
+
 	}
 
 	public class SaveAction extends AbstractAction {
-		
+
 		public SaveAction() {
 			super("Save ...");
-			
+
 			if (selectedTokenSet.size() > 1) {
 				setEnabled(false);
 			}
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
-			
-			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser(); 
+
+			JFileChooser chooser = MapTool.getFrame().getSaveFileChooser();
 			if (chooser.showSaveDialog(MapTool.getFrame()) != JFileChooser.APPROVE_OPTION) {
 				return;
 			}
-			
+
 			File file = chooser.getSelectedFile();
-			
+
 			// Auto-extension
 			if (!file.getName().endsWith(Token.FILE_EXTENSION)) {
 				file = new File(file.getAbsolutePath() + "." + Token.FILE_EXTENSION);
 			}
-			
+
 			// Confirm
 			if (file.exists()) {
 				if (!MapTool.confirm("File exists, would you like to overwrite?")) {
 					return;
 				}
 			}
-			
+
 			Token token = new Token(tokenUnderMouse);
 			if (!MapTool.getPlayer().isGM()){
 				token.setGMNotes("");
-			}								
-			
-			try {				
+			}
+
+			try {
 				PersistenceUtil.saveToken(token, file);
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
@@ -534,32 +534,32 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 			}
 		}
 	}
-	
+
 	public class SetFacingAction extends AbstractAction {
-		
+
 		public SetFacingAction() {
 			super("Set Facing");
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
-			
-			Toolbox toolbox = MapTool.getFrame().getToolbox(); 
-			
+
+			Toolbox toolbox = MapTool.getFrame().getToolbox();
+
 			FacingTool tool = (FacingTool) toolbox.getTool(FacingTool.class);
 			tool.init(tokenUnderMouse, selectedTokenSet);
-			
+
 			toolbox.setSelectedTool(FacingTool.class);
 		}
 	}
-	
+
 	public class ClearFacingAction extends AbstractAction {
-		
+
 		public ClearFacingAction() {
 			super("Clear Facing");
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
-			
+
 			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
 			for (GUID tokenGUID : selectedTokenSet) {
 
@@ -572,34 +572,34 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 			renderer.repaint();
 		}
 	}
-	
+
 	public class ClearLightAction extends AbstractAction {
-			
-			public ClearLightAction() {
-				super("Clear All");
-			}
-			
-			public void actionPerformed(ActionEvent e) {
-				
-				ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
-				for (GUID tokenGUID : selectedTokenSet) {
 
-					Token token = renderer.getZone().getToken(tokenGUID);
-					token.clearLightSources();
-					renderer.flush(token);
-					MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
-					renderer.getZone().putToken(token);
-				}
-
-				renderer.repaint();
-			}
+		public ClearLightAction() {
+			super("Clear All");
 		}
-	
+
+		public void actionPerformed(ActionEvent e) {
+
+			ZoneRenderer renderer = MapTool.getFrame().getCurrentZoneRenderer();
+			for (GUID tokenGUID : selectedTokenSet) {
+
+				Token token = renderer.getZone().getToken(tokenGUID);
+				token.clearLightSources();
+				renderer.flush(token);
+				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+				renderer.getZone().putToken(token);
+			}
+
+			renderer.repaint();
+		}
+	}
+
 	public class SnapToGridAction extends AbstractAction {
 
-		private boolean snapToGrid;
+		private final boolean snapToGrid;
 
-		private ZoneRenderer renderer;
+		private final ZoneRenderer renderer;
 
 		public SnapToGridAction(boolean snapToGrid, ZoneRenderer renderer) {
 			super("Snap to grid");
@@ -617,8 +617,7 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 				}
 
 				token.setSnapToGrid(!snapToGrid);
-				MapTool.serverCommand().putToken(renderer.getZone().getId(),
-						token);
+				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
 			}
 		}
 	}
@@ -683,21 +682,21 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 					LightDialog.show(token, "light");
 				} else {
 					token
-							.setState(aE.getActionCommand(),
-									((JCheckBoxMenuItem) aE.getSource())
-											.isSelected() ? Boolean.TRUE : null);
+					.setState(aE.getActionCommand(),
+							((JCheckBoxMenuItem) aE.getSource())
+							.isSelected() ? Boolean.TRUE : null);
 				}
-				
+
 				renderer.flush(token);
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
-			} 
+			}
 			renderer.repaint();
 		}
 	}
 
 	public class ChangeSizeAction extends AbstractAction {
 
-		private TokenFootprint footprint;
+		private final TokenFootprint footprint;
 
 		public ChangeSizeAction(TokenFootprint footprint) {
 			super(footprint.getName());
@@ -731,7 +730,7 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 		{
 			putValue(Action.NAME, "Visible to players");
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
 
 			for (GUID guid : selectedTokenSet) {
@@ -744,9 +743,9 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 				token.setVisible(((JCheckBoxMenuItem) e.getSource()).isSelected());
 
 				MapTool.getFrame().updateTokenTree();
-				
+
 				MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
-				
+
 				// TODO: Need a better way of indicating local changes
 				renderer.getZone().putToken(token);
 			}
@@ -776,9 +775,9 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 			MapTool.getFrame().refresh();
 		}
 	}
-	
+
 	public class ImpersonateAction extends AbstractAction {
-		
+
 		public ImpersonateAction() {
 			putValue(Action.NAME, "Impersonate");
 		}
@@ -790,7 +789,7 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 			commandArea.requestFocusInWindow();
 		}
 	}
-	
+
 	public class StartMoveAction extends AbstractAction {
 
 		public StartMoveAction() {
@@ -809,24 +808,24 @@ LIGHTSOURCES:	for (LightSource lightSource : lightSourceList) {
 	}
 
 	public class ShowPropertiesDialogAction extends AbstractAction {
-		
+
 		public ShowPropertiesDialogAction() {
 			putValue(Action.NAME, "Edit ...");
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
 
-	      EditTokenDialog dialog = MapTool.getFrame().getTokenPropertiesDialog();
-	      dialog.showDialog(tokenUnderMouse);
-	      if (dialog.isTokenSaved()) {
-	    	  getRenderer().repaint();
-	    	  MapTool.serverCommand().putToken(getRenderer().getZone().getId(), getTokenUnderMouse());
-	    	  getRenderer().getZone().putToken(getTokenUnderMouse());
-			  MapTool.getFrame().resetTokenPanels();
-		  }
+			EditTokenDialog dialog = MapTool.getFrame().getTokenPropertiesDialog();
+			dialog.showDialog(tokenUnderMouse);
+			if (dialog.isTokenSaved()) {
+				getRenderer().repaint();
+				MapTool.serverCommand().putToken(getRenderer().getZone().getId(), getTokenUnderMouse());
+				getRenderer().getZone().putToken(getTokenUnderMouse());
+				MapTool.getFrame().resetTokenPanels();
+			}
 		}
 	}
-	
+
 	public class DeleteAction extends AbstractAction {
 
 		public DeleteAction() {

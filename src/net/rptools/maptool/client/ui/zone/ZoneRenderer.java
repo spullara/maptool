@@ -117,7 +117,7 @@ import org.apache.log4j.Logger;
 /**
  */
 public class ZoneRenderer extends JComponent implements DropTargetListener,
-		Comparable {
+Comparable {
 
 	private static final long serialVersionUID = 3832897780066104884L;
 	private static final Logger log = Logger.getLogger(ZoneRenderer.class);
@@ -242,7 +242,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 
 	public ZonePoint getCenterPoint() {
 		return new ScreenPoint(getSize().width / 2, getSize().height / 2)
-				.convertToZone(this);
+		.convertToZone(this);
 	}
 
 	public boolean isPathShowing(Token token) {
@@ -420,23 +420,18 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 		MapTool.serverCommand().stopTokenMove(getZone().getId(), keyTokenId);
 
 		Token keyToken = zone.getToken(keyTokenId);
-		CellPoint originPoint = zone.getGrid().convert(
-				new ZonePoint(keyToken.getX(), keyToken.getY()));
-		Path path = set.getWalker() != null ? set.getWalker().getPath()
-				: set.gridlessPath;
+		CellPoint originPoint = zone.getGrid().convert(new ZonePoint(keyToken.getX(), keyToken.getY()));
+		Path path = set.getWalker() != null ? set.getWalker().getPath() : set.gridlessPath;
 
 		for (GUID tokenGUID : set.getTokens()) {
-
 			Token token = zone.getToken(tokenGUID);
 
-			CellPoint tokenCell = zone.getGrid().convert(
-					new ZonePoint(token.getX(), token.getY()));
+			CellPoint tokenCell = zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
 
 			int cellOffX = originPoint.x - tokenCell.x;
 			int cellOffY = originPoint.y - tokenCell.y;
 
-			token.applyMove(set.getOffsetX(), set.getOffsetY(),
-					path != null ? path.derive(cellOffX, cellOffY) : null);
+			token.applyMove(set.getOffsetX(), set.getOffsetY(), path != null ? path.derive(cellOffX, cellOffY) : null);
 
 			// No longer need this version
 			replacementImageMap.remove(token);
@@ -598,7 +593,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 
 	public void forcePlayersView() {
 		ZonePoint zp = new ScreenPoint(getWidth() / 2, getHeight() / 2)
-				.convertToZone(this);
+		.convertToZone(this);
 		MapTool.serverCommand().enforceZoneView(getZone().getId(), zp.x, zp.y,
 				getScale(), getWidth(), getHeight());
 	}
@@ -651,7 +646,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 		if (getSelectedTokenSet() != null && getSelectedTokenSet().size() > 0) {
 			selectedTokens = getSelectedTokensList();
 			for (ListIterator<Token> iter = selectedTokens.listIterator(); iter
-					.hasNext();) {
+			.hasNext();) {
 				Token token = iter.next();
 				if (!token.getHasSight()) {
 					iter.remove();
@@ -695,7 +690,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 		}
 
 		if (zone == null) { // FJE Shouldn't this be part of the 'isLoading()'
-							// true block?
+			// true block?
 			return;
 		}
 
@@ -887,94 +882,94 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 		}
 	}
 
-    private void delayRendering(ItemRenderer renderer) {
-    		itemRenderList.add(renderer);
-    }
+	private void delayRendering(ItemRenderer renderer) {
+		itemRenderList.add(renderer);
+	}
 
-    private void renderRenderables(Graphics2D g) {
-	    	for (ItemRenderer renderer : itemRenderList) {
-	    		renderer.render(g);
-	    	}
-    }
+	private void renderRenderables(Graphics2D g) {
+		for (ItemRenderer renderer : itemRenderList) {
+			renderer.render(g);
+		}
+	}
 
-    public CodeTimer getCodeTimer() {
-    		return timer;
-    }
-    private Map<Paint, List<Area>> renderedLightMap;
+	public CodeTimer getCodeTimer() {
+		return timer;
+	}
+	private Map<Paint, List<Area>> renderedLightMap;
 
-    private void renderLights(Graphics2D g, PlayerView view) {
+	private void renderLights(Graphics2D g, PlayerView view) {
 		// Setup
-        timer.start("lights-1");
-        Graphics2D newG = (Graphics2D) g.create();
-    	if (!view.isGMView() && visibleScreenArea != null) {
-        	Area clip = new Area(g.getClip());
-    		clip.intersect(visibleScreenArea);
-    		newG.setClip(clip);
-    	}
-    	SwingUtil.useAntiAliasing(newG);
-        timer.stop("lights-1");
-        timer.start("lights-2");
+		timer.start("lights-1");
+		Graphics2D newG = (Graphics2D) g.create();
+		if (!view.isGMView() && visibleScreenArea != null) {
+			Area clip = new Area(g.getClip());
+			clip.intersect(visibleScreenArea);
+			newG.setClip(clip);
+		}
+		SwingUtil.useAntiAliasing(newG);
+		timer.stop("lights-1");
+		timer.start("lights-2");
 
 		AffineTransform af = g.getTransform();
-    	af.translate(getViewOffsetX(), getViewOffsetY());
-    	af.scale(getScale(), getScale());
-    	newG.setTransform(af);
+		af.translate(getViewOffsetX(), getViewOffsetY());
+		af.scale(getScale(), getScale());
+		newG.setTransform(af);
 
 		newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, AppPreferences.getLightOverlayOpacity() / 255.0f));
-        timer.stop("lights-2");
+		timer.stop("lights-2");
 
-        if (renderedLightMap == null) {
-            timer.start("lights-3");
-	    	// Organize
-	    	Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
-	    	List<DrawableLight> otherLightList = new LinkedList<DrawableLight>();
-	    	for (DrawableLight light : zoneView.getDrawableLights()) {
-	    		if (light.getType() == LightSource.Type.NORMAL) {
-	    			if (zone.getVisionType() == Zone.VisionType.NIGHT && light.getPaint() != null) {
-			    		List<Area> areaList = colorMap.get(light.getPaint().getPaint());
-			    		if (areaList == null) {
-			    			areaList = new ArrayList<Area>();
-			    			colorMap.put(light.getPaint().getPaint(), areaList);
-			    		}
-
-			    		areaList.add(new Area(light.getArea()));
-	    			}
-	    		} else {
-	    			// I'm not a huge fan of this hard wiring, but I haven't thought of a better way yet, so this'll work fine for now
-	    			otherLightList.add(light);
-	    		}
-	    	}
-	        timer.stop("lights-3");
-	        timer.start("lights-4");
-
-	    	// Combine same colors to avoid ugly overlap
-	        // Avoid combining _all_ of the lights as the area adds are very expensive, just combine those that overlap
-	    	for (List<Area> areaList : colorMap.values()) {
-
-	    		List<Area> sourceList = new LinkedList<Area>(areaList);
-	    		areaList.clear();
-
-	    		outter:
-				while (sourceList.size() > 0) {
-					Area area = sourceList.remove(0);
-
-					for (ListIterator<Area> iter = sourceList.listIterator(); iter.hasNext();) {
-						Area currArea = iter.next();
-
-						if (currArea.getBounds().intersects(area.getBounds())) {
-							iter.remove();
-
-							area.add(currArea);
-							sourceList.add(area);
-
-							continue outter;
+		if (renderedLightMap == null) {
+			timer.start("lights-3");
+			// Organize
+			Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
+			List<DrawableLight> otherLightList = new LinkedList<DrawableLight>();
+			for (DrawableLight light : zoneView.getDrawableLights()) {
+				if (light.getType() == LightSource.Type.NORMAL) {
+					if (zone.getVisionType() == Zone.VisionType.NIGHT && light.getPaint() != null) {
+						List<Area> areaList = colorMap.get(light.getPaint().getPaint());
+						if (areaList == null) {
+							areaList = new ArrayList<Area>();
+							colorMap.put(light.getPaint().getPaint(), areaList);
 						}
-					}
 
-					// If we are here, we didn't find any other area to merge
-					// with
-					areaList.add(area);
+						areaList.add(new Area(light.getArea()));
+					}
+				} else {
+					// I'm not a huge fan of this hard wiring, but I haven't thought of a better way yet, so this'll work fine for now
+					otherLightList.add(light);
 				}
+			}
+			timer.stop("lights-3");
+			timer.start("lights-4");
+
+			// Combine same colors to avoid ugly overlap
+			// Avoid combining _all_ of the lights as the area adds are very expensive, just combine those that overlap
+			for (List<Area> areaList : colorMap.values()) {
+
+				List<Area> sourceList = new LinkedList<Area>(areaList);
+				areaList.clear();
+
+				outter:
+					while (sourceList.size() > 0) {
+						Area area = sourceList.remove(0);
+
+						for (ListIterator<Area> iter = sourceList.listIterator(); iter.hasNext();) {
+							Area currArea = iter.next();
+
+							if (currArea.getBounds().intersects(area.getBounds())) {
+								iter.remove();
+
+								area.add(currArea);
+								sourceList.add(area);
+
+								continue outter;
+							}
+						}
+
+						// If we are here, we didn't find any other area to merge
+						// with
+						areaList.add(area);
+					}
 
 				// Cut out the bright light
 				if (areaList.size() > 0) {
@@ -984,236 +979,236 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 						}
 					}
 				}
-	    	}
+			}
 
-	        renderedLightMap = new LinkedHashMap<Paint, List<Area>>();
-	        for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {
-	        	renderedLightMap.put(entry.getKey(), entry.getValue());
-	        }
-	        timer.stop("lights-4");
-        }
+			renderedLightMap = new LinkedHashMap<Paint, List<Area>>();
+			for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {
+				renderedLightMap.put(entry.getKey(), entry.getValue());
+			}
+			timer.stop("lights-4");
+		}
 
-    	// Draw
-        timer.start("lights-5");
-    	for (Entry<Paint, List<Area>> entry : renderedLightMap.entrySet()) {
-    		newG.setPaint(entry.getKey());
-    		for (Area area : entry.getValue()) {
-    			newG.fill(area);
-    		}
-    	}
-    	timer.stop("lights-5");
+		// Draw
+		timer.start("lights-5");
+		for (Entry<Paint, List<Area>> entry : renderedLightMap.entrySet()) {
+			newG.setPaint(entry.getKey());
+			for (Area area : entry.getValue()) {
+				newG.fill(area);
+			}
+		}
+		timer.stop("lights-5");
 
-        newG.dispose();
-    }
-    private Map<Paint, Area> renderedAuraMap;
+		newG.dispose();
+	}
+	private Map<Paint, Area> renderedAuraMap;
 
-    private void renderAuras(Graphics2D g, PlayerView view) {
+	private void renderAuras(Graphics2D g, PlayerView view) {
 
 		// Setup
-        timer.start("auras-1");
-        Graphics2D newG = (Graphics2D) g.create();
-    	if (!view.isGMView() && visibleScreenArea != null) {
-        	Area clip = new Area(g.getClip());
-    		clip.intersect(visibleScreenArea);
-    		newG.setClip(clip);
-    	}
-    	SwingUtil.useAntiAliasing(newG);
-        timer.stop("auras-1");
-        timer.start("auras-2");
+		timer.start("auras-1");
+		Graphics2D newG = (Graphics2D) g.create();
+		if (!view.isGMView() && visibleScreenArea != null) {
+			Area clip = new Area(g.getClip());
+			clip.intersect(visibleScreenArea);
+			newG.setClip(clip);
+		}
+		SwingUtil.useAntiAliasing(newG);
+		timer.stop("auras-1");
+		timer.start("auras-2");
 
 		AffineTransform af = g.getTransform();
-    	af.translate(getViewOffsetX(), getViewOffsetY());
-    	af.scale(getScale(), getScale());
-    	newG.setTransform(af);
+		af.translate(getViewOffsetX(), getViewOffsetY());
+		af.scale(getScale(), getScale());
+		newG.setTransform(af);
 
 		newG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, AppPreferences.getAuraOverlayOpacity() / 255.0f));
-        timer.stop("auras-2");
+		timer.stop("auras-2");
 
-        if (renderedAuraMap == null) {
+		if (renderedAuraMap == null) {
 
-	    	// Organize
-	    	Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
+			// Organize
+			Map<Paint, List<Area>> colorMap = new HashMap<Paint, List<Area>>();
 
-	        timer.start("auras-4");
+			timer.start("auras-4");
 			Color paintColor = new Color(255, 255, 255, 150);
-	        for (DrawableLight light : zoneView.getLights(LightSource.Type.AURA)) {
+			for (DrawableLight light : zoneView.getLights(LightSource.Type.AURA)) {
 				Paint paint = light.getPaint() != null ? light.getPaint().getPaint() : paintColor;
-	        	List<Area> list = colorMap.get(paint);
-	        	if (list == null) {
-	        		list = new LinkedList<Area>();
-	        		list.add(new Area(light.getArea()));
-	        		colorMap.put(paint, list);
-	        	} else {
-	        		list.get(0).add(new Area(light.getArea()));
-	        	}
-	        }
+				List<Area> list = colorMap.get(paint);
+				if (list == null) {
+					list = new LinkedList<Area>();
+					list.add(new Area(light.getArea()));
+					colorMap.put(paint, list);
+				} else {
+					list.get(0).add(new Area(light.getArea()));
+				}
+			}
 
-	        renderedAuraMap = new LinkedHashMap<Paint, Area>();
-	        for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {
-	        	renderedAuraMap.put(entry.getKey(), entry.getValue().get(0));
-	        }
-	        timer.stop("auras-4");
-        }
+			renderedAuraMap = new LinkedHashMap<Paint, Area>();
+			for (Entry<Paint, List<Area>> entry : colorMap.entrySet()) {
+				renderedAuraMap.put(entry.getKey(), entry.getValue().get(0));
+			}
+			timer.stop("auras-4");
+		}
 
-    	// Draw
-        timer.start("auras-5");
-    	for (Entry<Paint, Area> entry : renderedAuraMap.entrySet()) {
+		// Draw
+		timer.start("auras-5");
+		for (Entry<Paint, Area> entry : renderedAuraMap.entrySet()) {
 
-    		newG.setPaint(entry.getKey());
+			newG.setPaint(entry.getKey());
 			newG.fill(entry.getValue());
-    	}
-    	timer.stop("auras-5");
+		}
+		timer.stop("auras-5");
 
-        newG.dispose();
-    }
+		newG.dispose();
+	}
 
-    private void renderPlayerVisionOverlay(Graphics2D g, PlayerView view) {
-    	if (!view.isGMView()) {
-    		Graphics2D g2 = (Graphics2D)g.create();
-    		if (zone.hasFog()) {
-	    		Area clip = new Area(new Rectangle(getSize().width, getSize().height));
+	private void renderPlayerVisionOverlay(Graphics2D g, PlayerView view) {
+		if (!view.isGMView()) {
+			Graphics2D g2 = (Graphics2D)g.create();
+			if (zone.hasFog()) {
+				Area clip = new Area(new Rectangle(getSize().width, getSize().height));
 
-	    		clip.intersect(exposedFogArea);
+				clip.intersect(exposedFogArea);
 
-	    		g2.setClip(clip);
-    		}
-    		renderVisionOverlay(g2, view);
-    		g2.dispose();
-    	}
-    }
+				g2.setClip(clip);
+			}
+			renderVisionOverlay(g2, view);
+			g2.dispose();
+		}
+	}
 
-    private void renderGMVisionOverlay(Graphics2D g, PlayerView view) {
-    	if (view.isGMView()) {
-    		renderVisionOverlay(g, view);
-    	}
-    }
+	private void renderGMVisionOverlay(Graphics2D g, PlayerView view) {
+		if (view.isGMView()) {
+			renderVisionOverlay(g, view);
+		}
+	}
 
-    private void renderVisionOverlay(Graphics2D g, PlayerView view) {
+	private void renderVisionOverlay(Graphics2D g, PlayerView view) {
 
-    	Area currentTokenVisionArea = zoneView.getVisibleArea(tokenUnderMouse);
-        if (currentTokenVisionArea == null) {
-            return;
-        }
+		Area currentTokenVisionArea = zoneView.getVisibleArea(tokenUnderMouse);
+		if (currentTokenVisionArea == null) {
+			return;
+		}
 
-    	AffineTransform af = new AffineTransform();
-    	af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
-    	af.scale(getScale(), getScale());
+		AffineTransform af = new AffineTransform();
+		af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
+		af.scale(getScale(), getScale());
 
-    	Area area = currentTokenVisionArea.createTransformedArea(af);
+		Area area = currentTokenVisionArea.createTransformedArea(af);
 
-        SwingUtil.useAntiAliasing(g);
+		SwingUtil.useAntiAliasing(g);
 		g.setColor(new Color(200, 200, 200));	// outline around visible area
-        g.draw(area);
+		g.draw(area);
 
-        boolean useHaloColor = tokenUnderMouse.getHaloColor() != null && AppPreferences.getUseHaloColorOnVisionOverlay();
+		boolean useHaloColor = tokenUnderMouse.getHaloColor() != null && AppPreferences.getUseHaloColorOnVisionOverlay();
 
-        if (tokenUnderMouse.getVisionOverlayColor() != null || useHaloColor) {
-            Color visionColor = useHaloColor ? tokenUnderMouse.getHaloColor() : tokenUnderMouse.getVisionOverlayColor();
+		if (tokenUnderMouse.getVisionOverlayColor() != null || useHaloColor) {
+			Color visionColor = useHaloColor ? tokenUnderMouse.getHaloColor() : tokenUnderMouse.getVisionOverlayColor();
 			g.setColor(new Color(visionColor.getRed(), visionColor.getGreen(), visionColor.getBlue(), AppPreferences.getHaloOverlayOpacity()));
-            g.fill(area);
-        }
-    }
+			g.fill(area);
+		}
+	}
 
-    /**
-     * Paint all of the token templates for selected tokens.
-     *
-     * @param g Paint on this graphic object.
-     */
-    private void renderTokenTemplates(Graphics2D g, PlayerView view) {
-    	double scale = zoneScale.getScale();
-        int scaledGridSize = (int) getScaledGridSize();
+	/**
+	 * Paint all of the token templates for selected tokens.
+	 *
+	 * @param g Paint on this graphic object.
+	 */
+	private void renderTokenTemplates(Graphics2D g, PlayerView view) {
+		double scale = zoneScale.getScale();
+		int scaledGridSize = (int) getScaledGridSize();
 
-        // Find tokens with template state
-        // TODO: I really don't like this, it should be optimized
-        AffineTransform old = g.getTransform();
-        AffineTransform t = new AffineTransform();
-        g.setTransform(t);
-        for (Token token : zone.getAllTokens()) {
-            for (String state : token.getStatePropertyNames()) {
-                Object value = token.getState(state);
-                if (value instanceof TokenTemplate) {
+		// Find tokens with template state
+		// TODO: I really don't like this, it should be optimized
+		AffineTransform old = g.getTransform();
+		AffineTransform t = new AffineTransform();
+		g.setTransform(t);
+		for (Token token : zone.getAllTokens()) {
+			for (String state : token.getStatePropertyNames()) {
+				Object value = token.getState(state);
+				if (value instanceof TokenTemplate) {
 
-                    // Only show if selected
-                    if (!AppState.isShowLightRadius()) {
-                        continue;
-                    }
+					// Only show if selected
+					if (!AppState.isShowLightRadius()) {
+						continue;
+					}
 
-                    // Calculate the token bounds
-                    Rectangle size = token.getBounds(zone);
-                    int width = (int) (size.width * scale) - 1;
-                    int height = (int) (size.height * scale) - 1;
-                    ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePointRnd(this, token.getX(), token.getY());
-                    int x = (int) (tokenScreenLocation.x + 1);
-                    int y = (int) (tokenScreenLocation.y);
-                    if (width < scaledGridSize) {
-                        x += (scaledGridSize - width) / 2;
-                    }
-                    if (height < scaledGridSize) {
-                        y += (scaledGridSize - height) / 2;
-                    }
-                    Rectangle bounds = new Rectangle(x, y, width, height);
+					// Calculate the token bounds
+					Rectangle size = token.getBounds(zone);
+					int width = (int) (size.width * scale) - 1;
+					int height = (int) (size.height * scale) - 1;
+					ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePointRnd(this, token.getX(), token.getY());
+					int x = (int) (tokenScreenLocation.x + 1);
+					int y = (int) (tokenScreenLocation.y);
+					if (width < scaledGridSize) {
+						x += (scaledGridSize - width) / 2;
+					}
+					if (height < scaledGridSize) {
+						y += (scaledGridSize - height) / 2;
+					}
+					Rectangle bounds = new Rectangle(x, y, width, height);
 
-                    // Set up the graphics, paint the template, restore the graphics
-                    t.setTransform(old);
-                    t.translate(bounds.x, bounds.y);
-                    t.scale(getScale(), getScale());
-                    g.setTransform(t);
-                    ((TokenTemplate) value).paintTemplate(g, token, bounds, this);
-                }
-            }
-        }
-        g.setTransform(old);
-    }
+					// Set up the graphics, paint the template, restore the graphics
+					t.setTransform(old);
+					t.translate(bounds.x, bounds.y);
+					t.scale(getScale(), getScale());
+					g.setTransform(t);
+					((TokenTemplate) value).paintTemplate(g, token, bounds, this);
+				}
+			}
+		}
+		g.setTransform(old);
+	}
 
-    private void renderLabels(Graphics2D g, PlayerView view) {
+	private void renderLabels(Graphics2D g, PlayerView view) {
 
-        labelLocationList.clear();
-        for (Label label : zone.getLabels()) {
+		labelLocationList.clear();
+		for (Label label : zone.getLabels()) {
 
-            ZonePoint zp = new ZonePoint(label.getX(), label.getY());
-            if (!zone.isPointVisible(zp, view.getRole())) {
-                continue;
-            }
+			ZonePoint zp = new ZonePoint(label.getX(), label.getY());
+			if (!zone.isPointVisible(zp, view.getRole())) {
+				continue;
+			}
 
-            ScreenPoint sp = ScreenPoint.fromZonePointRnd(this, zp.x, zp.y);
+			ScreenPoint sp = ScreenPoint.fromZonePointRnd(this, zp.x, zp.y);
 
-            Rectangle bounds = null;
-            if (label.isShowBackground()) {
+			Rectangle bounds = null;
+			if (label.isShowBackground()) {
 
-                bounds = GraphicsUtil.drawBoxedString(g, label.getLabel(), (int) sp.x, (int) sp.y, SwingUtilities.CENTER, GraphicsUtil.GREY_LABEL, label.getForegroundColor());
-            } else {
-            	FontMetrics fm = g.getFontMetrics();
-        		int strWidth = SwingUtilities.computeStringWidth(fm, label.getLabel());
+				bounds = GraphicsUtil.drawBoxedString(g, label.getLabel(), (int) sp.x, (int) sp.y, SwingUtilities.CENTER, GraphicsUtil.GREY_LABEL, label.getForegroundColor());
+			} else {
+				FontMetrics fm = g.getFontMetrics();
+				int strWidth = SwingUtilities.computeStringWidth(fm, label.getLabel());
 
-                int x = (int) (sp.x - strWidth / 2);
-                int y = (int) (sp.y - fm.getAscent());
+				int x = (int) (sp.x - strWidth / 2);
+				int y = (int) (sp.y - fm.getAscent());
 
-        		g.setColor(label.getForegroundColor());
-        		g.drawString(label.getLabel(), x, y + fm.getAscent());
+				g.setColor(label.getForegroundColor());
+				g.drawString(label.getLabel(), x, y + fm.getAscent());
 
-        		bounds = new Rectangle(x, y, strWidth, fm.getHeight());
-            }
+				bounds = new Rectangle(x, y, strWidth, fm.getHeight());
+			}
 
-            labelLocationList.add(new LabelLocation(bounds, label));
-        }
-    }
-    Integer fogX = null;
-    Integer fogY = null;
+			labelLocationList.add(new LabelLocation(bounds, label));
+		}
+	}
+	Integer fogX = null;
+	Integer fogY = null;
 
-    private void renderFog(Graphics2D g, PlayerView view) {
+	private void renderFog(Graphics2D g, PlayerView view) {
 
-        if (!zone.hasFog()) {
-            return;
-        }
+		if (!zone.hasFog()) {
+			return;
+		}
 
-        Dimension size = getSize();
+		Dimension size = getSize();
 
-        // Optimization for panning
-        Area fogClip = null;
+		// Optimization for panning
+		Area fogClip = null;
 
-        if (!flushFog && fogX != null && fogY != null && (fogX != getViewOffsetX() || fogY != getViewOffsetY())) {
-            // This optimization does not seem to keep the alpha channel correctly, and sometimes leaves
-            // lines on some graphics boards, we'll leave it out for now
+		if (!flushFog && fogX != null && fogY != null && (fogX != getViewOffsetX() || fogY != getViewOffsetY())) {
+			// This optimization does not seem to keep the alpha channel correctly, and sometimes leaves
+			// lines on some graphics boards, we'll leave it out for now
 //        	if (Math.abs(fogX - getViewOffsetX()) < size.width && Math.abs(fogY - getViewOffsetY()) < size.height) {
 //        		int deltaX = getViewOffsetX() - fogX;
 //        		int deltaY = getViewOffsetY() - fogY;
@@ -1239,166 +1234,166 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 //            	}
 //
 //        	}
-        	flushFog = true;
-        }
-        if (flushFog || fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
-            fogX = getViewOffsetX();
-            fogY = getViewOffsetY();
+			flushFog = true;
+		}
+		if (flushFog || fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
+			fogX = getViewOffsetX();
+			fogY = getViewOffsetY();
 			float alpha = view.isGMView() ? AppPreferences.getFogOverlayOpacity() / 255.0f : 1f;
 
-            boolean newImage = false;
-	        if (fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
-	        	newImage = true;
-        		fogBuffer = new BufferedImage(size.width, size.height, view.isGMView() ? Transparency.TRANSLUCENT : Transparency.BITMASK);
-        	}
+			boolean newImage = false;
+			if (fogBuffer == null || fogBuffer.getWidth() != size.width || fogBuffer.getHeight() != size.height) {
+				newImage = true;
+				fogBuffer = new BufferedImage(size.width, size.height, view.isGMView() ? Transparency.TRANSLUCENT : Transparency.BITMASK);
+			}
 
-        	Graphics2D buffG = fogBuffer.createGraphics();
-    		buffG.setClip(fogClip != null ? fogClip : new Rectangle(0, 0, size.width, size.height));
-    		SwingUtil.useAntiAliasing(buffG);
+			Graphics2D buffG = fogBuffer.createGraphics();
+			buffG.setClip(fogClip != null ? fogClip : new Rectangle(0, 0, size.width, size.height));
+			SwingUtil.useAntiAliasing(buffG);
 
-            if (!newImage) {
-    			Composite oldComposite = buffG.getComposite();
-    			buffG.setComposite(AlphaComposite.Clear);
+			if (!newImage) {
+				Composite oldComposite = buffG.getComposite();
+				buffG.setComposite(AlphaComposite.Clear);
 
-    			buffG.fillRect(0, 0, size.width, size.height);
+				buffG.fillRect(0, 0, size.width, size.height);
 
-    			buffG.setComposite(oldComposite);
-        	}
+				buffG.setComposite(oldComposite);
+			}
 
-	        // Fill
-	        buffG.setPaint(zone.getFogPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale()));
+			// Fill
+			buffG.setPaint(zone.getFogPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale()));
 			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, alpha));
-	        buffG.fillRect(0, 0, size.width, size.height);
+			buffG.fillRect(0, 0, size.width, size.height);
 
-	        // Cut out the exposed area
-        	AffineTransform af = new AffineTransform();
-        	af.translate(getViewOffsetX(), getViewOffsetY());
-        	af.scale(getScale(), getScale());
+			// Cut out the exposed area
+			AffineTransform af = new AffineTransform();
+			af.translate(getViewOffsetX(), getViewOffsetY());
+			af.scale(getScale(), getScale());
 
-	        buffG.setTransform(af);
-        	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-        	buffG.fill(zone.getExposedArea());
+			buffG.setTransform(af);
+			buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
+			buffG.fill(zone.getExposedArea());
 
-	        // Soft fog
-	        if (zoneView.isUsingVision()) {
-            	buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
-            	Area visibleArea = zoneView.getVisibleArea(view);
-	            if (visibleArea != null) {
+			// Soft fog
+			if (zoneView.isUsingVision()) {
+				buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
+				Area visibleArea = zoneView.getVisibleArea(view);
+				if (visibleArea != null) {
 					buffG.setColor(new Color(0, 0, 0, AppPreferences.getFogOverlayOpacity()));
 
-                    if (zone.hasFog()) {
-	                    // Fill in the exposed area
-	                    buffG.fill(zone.getExposedArea());
+					if (zone.hasFog()) {
+						// Fill in the exposed area
+						buffG.fill(zone.getExposedArea());
 
-	                    buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-	                    Shape oldClip = buffG.getClip();
-	                    buffG.setClip(zone.getExposedArea());
+						buffG.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
+						Shape oldClip = buffG.getClip();
+						buffG.setClip(zone.getExposedArea());
 
-	                    buffG.fill(visibleArea);
+						buffG.fill(visibleArea);
 
-	                    buffG.setClip(oldClip);
-	                } else {
+						buffG.setClip(oldClip);
+					} else {
 						buffG.setColor(new Color(255, 255, 255, 40));	// was 255,255,255,40
-	                    buffG.fill(visibleArea);
-	                }
-	            } else {
-	            	if (zone.hasFog()) {
+						buffG.fill(visibleArea);
+					}
+				} else {
+					if (zone.hasFog()) {
 
-		                buffG.setColor(new Color(0, 0, 0, 80));
-		                buffG.fill(zone.getExposedArea());
-	            	}
-	            }
-	        }
+						buffG.setColor(new Color(0, 0, 0, 80));
+						buffG.fill(zone.getExposedArea());
+					}
+				}
+			}
 
-	        // Outline
-	        if (false && AppPreferences.getUseSoftFogEdges()) {
+			// Outline
+			if (false && AppPreferences.getUseSoftFogEdges()) {
 				GraphicsUtil.renderSoftClipping(buffG, zone.getExposedArea(), (int) (zone.getGrid().getSize() * getScale() * .25), alpha);
-	        } else {
+			} else {
 
-	        	if (visibleScreenArea != null) {
-                    Shape oldClip = buffG.getClip();
-                    buffG.setClip(zone.getExposedArea());
+				if (visibleScreenArea != null) {
+					Shape oldClip = buffG.getClip();
+					buffG.setClip(zone.getExposedArea());
 
-                    buffG.setTransform(new AffineTransform());
-		        	buffG.setComposite(AlphaComposite.Src);
-			        buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			        buffG.setStroke(new BasicStroke(1));
-			        buffG.setColor(Color.black);
-			        buffG.draw(visibleScreenArea);
+					buffG.setTransform(new AffineTransform());
+					buffG.setComposite(AlphaComposite.Src);
+					buffG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+					buffG.setStroke(new BasicStroke(1));
+					buffG.setColor(Color.black);
+					buffG.draw(visibleScreenArea);
 
-                    buffG.setClip(oldClip);
-	        	}
-	        }
+					buffG.setClip(oldClip);
+				}
+			}
 
 
-	        buffG.dispose();
-	        flushFog = false;
-        }
+			buffG.dispose();
+			flushFog = false;
+		}
 
-        g.drawImage(fogBuffer, 0, 0, this);
-    }
+		g.drawImage(fogBuffer, 0, 0, this);
+	}
 
 	public Area getVisibleArea(Token token) {
 		return zoneView.getVisibleArea(token);
 	}
 
-    public boolean isLoading() {
+	public boolean isLoading() {
 
-        if (isLoaded) {
-            // We're done, until the cache is cleared
-            return false;
-        }
+		if (isLoaded) {
+			// We're done, until the cache is cleared
+			return false;
+		}
 
-        // Get a list of all the assets in the zone
-        Set<MD5Key> assetSet = zone.getAllAssetIds();
-        assetSet.remove(null); // remove bad data
+		// Get a list of all the assets in the zone
+		Set<MD5Key> assetSet = zone.getAllAssetIds();
+		assetSet.remove(null); // remove bad data
 
-        // Make sure they are loaded
-        int downloadCount = 0;
-        int cacheCount = 0;
-        boolean loaded = true;
-        for (MD5Key id : assetSet) {
+		// Make sure they are loaded
+		int downloadCount = 0;
+		int cacheCount = 0;
+		boolean loaded = true;
+		for (MD5Key id : assetSet) {
 
-            // Have we gotten the actual data yet ?
-            Asset asset = AssetManager.getAsset(id);
-            if (asset == null) {
-            	AssetManager.getAssetAsynchronously(id);
-                loaded = false;
-                continue;
-            }
+			// Have we gotten the actual data yet ?
+			Asset asset = AssetManager.getAsset(id);
+			if (asset == null) {
+				AssetManager.getAssetAsynchronously(id);
+				loaded = false;
+				continue;
+			}
 
-            downloadCount++;
+			downloadCount++;
 
-            // Have we loaded the image into memory yet ?
-            Image image = ImageManager.getImage(asset.getId(), this);
-            if (image == null || image == ImageManager.TRANSFERING_IMAGE) {
-                loaded = false;
-                continue;
-            }
+			// Have we loaded the image into memory yet ?
+			Image image = ImageManager.getImage(asset.getId(), this);
+			if (image == null || image == ImageManager.TRANSFERING_IMAGE) {
+				loaded = false;
+				continue;
+			}
 
-            cacheCount++;
-        }
+			cacheCount++;
+		}
 
-        loadingProgress = String.format(" Loading Map '%s' - %d/%d Loaded %d/%d Cached", zone.getName(), downloadCount, assetSet.size(), cacheCount, assetSet.size());
+		loadingProgress = String.format(" Loading Map '%s' - %d/%d Loaded %d/%d Cached", zone.getName(), downloadCount, assetSet.size(), cacheCount, assetSet.size());
 
-        isLoaded = loaded;
+		isLoaded = loaded;
 
-        if (isLoaded) {
-            // Notify the token tree that it should update
-            MapTool.getFrame().updateTokenTree();
-        }
+		if (isLoaded) {
+			// Notify the token tree that it should update
+			MapTool.getFrame().updateTokenTree();
+		}
 
-        return !isLoaded;
-    }
+		return !isLoaded;
+	}
 
-    protected void renderDrawableOverlay(Graphics g, DrawableRenderer renderer, PlayerView view, List<DrawnElement> drawnElements) {
+	protected void renderDrawableOverlay(Graphics g, DrawableRenderer renderer, PlayerView view, List<DrawnElement> drawnElements) {
 
-        Rectangle viewport = new Rectangle(zoneScale.getOffsetX(), zoneScale.getOffsetY(), getSize().width, getSize().height);
-        List<DrawnElement> list = new ArrayList<DrawnElement>();
-        list.addAll(drawnElements);
+		Rectangle viewport = new Rectangle(zoneScale.getOffsetX(), zoneScale.getOffsetY(), getSize().width, getSize().height);
+		List<DrawnElement> list = new ArrayList<DrawnElement>();
+		list.addAll(drawnElements);
 
-        renderer.renderDrawables(g, list, viewport, getScale());
-    }
+		renderer.renderDrawables(g, list, viewport, getScale());
+	}
 
 	protected void renderBoard(Graphics2D g, PlayerView view) {
 
@@ -1443,568 +1438,568 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 		g.drawImage(backbuffer, 0, 0, this);
 	}
 
-    protected void renderGrid(Graphics2D g, PlayerView view) {
-        int gridSize = (int) (zone.getGrid().getSize() * getScale());
-        if (!AppState.isShowGrid() || gridSize < MIN_GRID_SIZE) {
-            return;
-        }
+	protected void renderGrid(Graphics2D g, PlayerView view) {
+		int gridSize = (int) (zone.getGrid().getSize() * getScale());
+		if (!AppState.isShowGrid() || gridSize < MIN_GRID_SIZE) {
+			return;
+		}
 
-        zone.getGrid().draw(this, g, g.getClipBounds());
-    }
+		zone.getGrid().draw(this, g, g.getClipBounds());
+	}
 
-    protected void renderCoordinates(Graphics2D g, PlayerView view) {
-    	if (AppState.isShowCoordinates()) {
-    		zone.getGrid().drawCoordinatesOverlay(g, this);
-    	}
-    }
+	protected void renderCoordinates(Graphics2D g, PlayerView view) {
+		if (AppState.isShowCoordinates()) {
+			zone.getGrid().drawCoordinatesOverlay(g, this);
+		}
+	}
 
-    private Set<SelectionSet> getOwnedMovementSet(PlayerView view) {
-        Set<SelectionSet> movementSet = new HashSet<SelectionSet>();
-        for (SelectionSet selection : selectionSetMap.values()) {
+	private Set<SelectionSet> getOwnedMovementSet(PlayerView view) {
+		Set<SelectionSet> movementSet = new HashSet<SelectionSet>();
+		for (SelectionSet selection : selectionSetMap.values()) {
 
-        	if (selection.getPlayerId().equals(MapTool.getPlayer().getName())) {
-        		movementSet.add(selection);
-        	}
-        }
+			if (selection.getPlayerId().equals(MapTool.getPlayer().getName())) {
+				movementSet.add(selection);
+			}
+		}
 
-        return movementSet;
-    }
+		return movementSet;
+	}
 
-    private Set<SelectionSet> getUnOwnedMovementSet(PlayerView view) {
-        Set<SelectionSet> movementSet = new HashSet<SelectionSet>();
-        for (SelectionSet selection : selectionSetMap.values()) {
+	private Set<SelectionSet> getUnOwnedMovementSet(PlayerView view) {
+		Set<SelectionSet> movementSet = new HashSet<SelectionSet>();
+		for (SelectionSet selection : selectionSetMap.values()) {
 
-        	if (!selection.getPlayerId().equals(MapTool.getPlayer().getName())) {
-        		movementSet.add(selection);
-        	}
-        }
+			if (!selection.getPlayerId().equals(MapTool.getPlayer().getName())) {
+				movementSet.add(selection);
+			}
+		}
 
-        return movementSet;
-    }
+		return movementSet;
+	}
 
-    protected void renderMoveSelectionSets(Graphics2D g, PlayerView view, Set<SelectionSet> movementSet) {
+	protected void renderMoveSelectionSets(Graphics2D g, PlayerView view, Set<SelectionSet> movementSet) {
 
 		if (selectionSetMap.isEmpty()) {
-        	return;
-        }
+			return;
+		}
 
-        double scale = zoneScale.getScale();
+		double scale = zoneScale.getScale();
 
-        boolean clipInstalled = false;
-        for (SelectionSet set : movementSet) {
+		boolean clipInstalled = false;
+		for (SelectionSet set : movementSet) {
 
-            Token keyToken = zone.getToken(set.getKeyToken());
-            if (keyToken == null) {
-            	// It was removed ?
-            	selectionSetMap.remove(set.getKeyToken());
-            	continue;
-            }
+			Token keyToken = zone.getToken(set.getKeyToken());
+			if (keyToken == null) {
+				// It was removed ?
+				selectionSetMap.remove(set.getKeyToken());
+				continue;
+			}
 
-            ZoneWalker walker = set.getWalker();
+			ZoneWalker walker = set.getWalker();
 
-            // Hide the hidden layer
-            if (keyToken.getLayer() == Zone.Layer.GM && !view.isGMView()) {
-            	continue;
-            }
+			// Hide the hidden layer
+			if (keyToken.getLayer() == Zone.Layer.GM && !view.isGMView()) {
+				continue;
+			}
 
-            for (GUID tokenGUID : set.getTokens()) {
+			for (GUID tokenGUID : set.getTokens()) {
 
-                Token token = zone.getToken(tokenGUID);
+				Token token = zone.getToken(tokenGUID);
 
-                // Perhaps deleted ?
-                if (token == null) {
-                    continue;
-                }
+				// Perhaps deleted ?
+				if (token == null) {
+					continue;
+				}
 
-                // Don't bother if it's not visible
-                if (!token.isVisible() && !view.isGMView()) {
-                    continue;
-                }
+				// Don't bother if it's not visible
+				if (!token.isVisible() && !view.isGMView()) {
+					continue;
+				}
 
-                Asset asset = AssetManager.getAsset(token.getImageAssetId());
-                if (asset == null) {
-                    continue;
-                }
+				Asset asset = AssetManager.getAsset(token.getImageAssetId());
+				if (asset == null) {
+					continue;
+				}
 
-                // OPTIMIZE: combine this with the code in renderTokens()
-                Rectangle footprintBounds = token.getBounds(zone);
-                ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, footprintBounds.x + set.getOffsetX(), footprintBounds.y + set.getOffsetY());
+				// OPTIMIZE: combine this with the code in renderTokens()
+				Rectangle footprintBounds = token.getBounds(zone);
+				ScreenPoint newScreenPoint = ScreenPoint.fromZonePoint(this, footprintBounds.x + set.getOffsetX(), footprintBounds.y + set.getOffsetY());
 
-                BufferedImage image = ImageManager.getImage(token.getImageAssetId());
+				BufferedImage image = ImageManager.getImage(token.getImageAssetId());
 
-                int scaledWidth = (int) (footprintBounds.width * scale);
-                int scaledHeight = (int) (footprintBounds.height * scale);
+				int scaledWidth = (int) (footprintBounds.width * scale);
+				int scaledHeight = (int) (footprintBounds.height * scale);
 
-                // Tokens are centered on the image center point
-                int x = (int) (newScreenPoint.x);
-                int y = (int) (newScreenPoint.y);
+				// Tokens are centered on the image center point
+				int x = (int) (newScreenPoint.x);
+				int y = (int) (newScreenPoint.y);
 
-                // Vision visibility
-                boolean isOwner = view.isGMView() || set.getPlayerId().equals(MapTool.getPlayer().getName());
-                if (!view.isGMView() && visibleScreenArea != null && !isOwner) {
+				// Vision visibility
+				boolean isOwner = view.isGMView() || set.getPlayerId().equals(MapTool.getPlayer().getName());
+				if (!view.isGMView() && visibleScreenArea != null && !isOwner) {
 
-                	if (!clipInstalled) {
-                    	// Only show the part of the path that is visible
-                    	Area visibleArea = new Area(g.getClipBounds());
-                    	visibleArea.intersect(visibleScreenArea);
+					if (!clipInstalled) {
+						// Only show the part of the path that is visible
+						Area visibleArea = new Area(g.getClipBounds());
+						visibleArea.intersect(visibleScreenArea);
 
-                        g = (Graphics2D) g.create();
-                    	g.setClip(new GeneralPath(visibleArea));
+						g = (Graphics2D) g.create();
+						g.setClip(new GeneralPath(visibleArea));
 
-                    	clipInstalled = true;
-                	}
-                }
+						clipInstalled = true;
+					}
+				}
 
-                // Show path only on the key token
-                if (token == keyToken) {
+				// Show path only on the key token
+				if (token == keyToken) {
 
-                    if (!token.isStamp()) {
+					if (!token.isStamp()) {
 
-                        if (!token.isObjectStamp()) {
-                            renderPath(g, walker != null ? walker.getPath() : set.gridlessPath, token.getFootprint(zone.getGrid()));
-                        }
-                    }
-                }
+						if (!token.isObjectStamp()) {
+							renderPath(g, walker != null ? walker.getPath() : set.gridlessPath, token.getFootprint(zone.getGrid()));
+						}
+					}
+				}
 
-                // handle flipping
-                BufferedImage workImage = image;
-                if (token.isFlippedX() || token.isFlippedY()) {
-                    workImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getTransparency());
+				// handle flipping
+				BufferedImage workImage = image;
+				if (token.isFlippedX() || token.isFlippedY()) {
+					workImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getTransparency());
 
-                    int workW = image.getWidth() * (token.isFlippedX() ? -1 : 1);
-                    int workH = image.getHeight() * (token.isFlippedY() ? -1 : 1);
-                    int workX = token.isFlippedX() ? image.getWidth() : 0;
-                    int workY = token.isFlippedY() ? image.getHeight() : 0;
+					int workW = image.getWidth() * (token.isFlippedX() ? -1 : 1);
+					int workH = image.getHeight() * (token.isFlippedY() ? -1 : 1);
+					int workX = token.isFlippedX() ? image.getWidth() : 0;
+					int workY = token.isFlippedY() ? image.getHeight() : 0;
 
-                    Graphics2D wig = workImage.createGraphics();
-                    wig.drawImage(image, workX, workY, workW, workH, null);
-                     wig.dispose();
-                }
+					Graphics2D wig = workImage.createGraphics();
+					wig.drawImage(image, workX, workY, workW, workH, null);
+					wig.dispose();
+				}
 
-                // Draw token
-                Dimension imgSize = new Dimension(workImage.getWidth(), workImage.getHeight());
-                SwingUtil.constrainTo(imgSize, footprintBounds.width, footprintBounds.height);
+				// Draw token
+				Dimension imgSize = new Dimension(workImage.getWidth(), workImage.getHeight());
+				SwingUtil.constrainTo(imgSize, footprintBounds.width, footprintBounds.height);
 
-                int offsetx = 0;
-                int offsety = 0;
-                if (token.isSnapToScale()) {
-                    offsetx = (int) (imgSize.width < footprintBounds.width ? (footprintBounds.width - imgSize.width) / 2 * getScale() : 0);
-                    offsety = (int) (imgSize.height < footprintBounds.height ? (footprintBounds.height - imgSize.height) / 2 * getScale() : 0);
-                }
+				int offsetx = 0;
+				int offsety = 0;
+				if (token.isSnapToScale()) {
+					offsetx = (int) (imgSize.width < footprintBounds.width ? (footprintBounds.width - imgSize.width) / 2 * getScale() : 0);
+					offsety = (int) (imgSize.height < footprintBounds.height ? (footprintBounds.height - imgSize.height) / 2 * getScale() : 0);
+				}
 
-                int tx = x + offsetx;
-                int ty = y + offsety;
+				int tx = x + offsetx;
+				int ty = y + offsety;
 
-                AffineTransform at = new AffineTransform();
-                at.translate(tx, ty);
+				AffineTransform at = new AffineTransform();
+				at.translate(tx, ty);
 
-                if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
-                    at.rotate(Math.toRadians(-token.getFacing() - 90), scaledWidth / 2 - token.getAnchor().x * scale - offsetx, scaledHeight / 2 - token.getAnchor().y * scale - offsety); // facing defaults to down, or -90 degrees
-                }
+				if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
+					at.rotate(Math.toRadians(-token.getFacing() - 90), scaledWidth / 2 - token.getAnchor().x * scale - offsetx, scaledHeight / 2 - token.getAnchor().y * scale - offsety); // facing defaults to down, or -90 degrees
+				}
 
-                if (token.isSnapToScale()) {
-                	at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
-                    at.scale(getScale(), getScale());
-                } else {
-                	at.scale((double) scaledWidth / workImage.getWidth(), (double) scaledHeight / workImage.getHeight());
-                }
-                g.drawImage(workImage, at, this);
+				if (token.isSnapToScale()) {
+					at.scale((double) imgSize.width / workImage.getWidth(), (double) imgSize.height / workImage.getHeight());
+					at.scale(getScale(), getScale());
+				} else {
+					at.scale((double) scaledWidth / workImage.getWidth(), (double) scaledHeight / workImage.getHeight());
+				}
+				g.drawImage(workImage, at, this);
 
-                // Other details
-                if (token == keyToken) {
-                	Rectangle bounds = new Rectangle(tx, ty, imgSize.width, imgSize.height);
-                    bounds.width *= getScale();
-                	bounds.height *= getScale();
+				// Other details
+				if (token == keyToken) {
+					Rectangle bounds = new Rectangle(tx, ty, imgSize.width, imgSize.height);
+					bounds.width *= getScale();
+					bounds.height *= getScale();
 
-                	boolean showLabels = view.isGMView() || set.getPlayerId().equals(MapTool.getPlayer().getName());
-                	showLabels = showLabels || (!zone.hasFog() && visibleScreenArea == null); // no fog, no vision
-                	showLabels = showLabels || (visibleScreenArea != null && visibleScreenArea.intersects(bounds) && (!zone.hasFog() || exposedFogArea.intersects(bounds))); // vision
-                	showLabels = showLabels || (visibleScreenArea == null && zone.hasFog() && exposedFogArea.intersects(bounds)); // fog
-                	if (showLabels) {
-	                	// if the token is visible on the screen it will be in the location cache
-	                    if (tokenLocationCache.containsKey(token)) {
-                            y += 10 + scaledHeight;
-                            x += scaledWidth / 2;
+					boolean showLabels = view.isGMView() || set.getPlayerId().equals(MapTool.getPlayer().getName());
+					showLabels = showLabels || (!zone.hasFog() && visibleScreenArea == null); // no fog, no vision
+					showLabels = showLabels || (visibleScreenArea != null && visibleScreenArea.intersects(bounds) && (!zone.hasFog() || exposedFogArea.intersects(bounds))); // vision
+					showLabels = showLabels || (visibleScreenArea == null && zone.hasFog() && exposedFogArea.intersects(bounds)); // fog
+					if (showLabels) {
+						// if the token is visible on the screen it will be in the location cache
+						if (tokenLocationCache.containsKey(token)) {
+							y += 10 + scaledHeight;
+							x += scaledWidth / 2;
 
-		                    if (!token.isStamp()) {
-                                if (AppState.getShowMovementMeasurements()) {
-			                        	String distance = "";
-			                        	if (zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
-			                        		if (walker.getDistance() >= 1) {
-			                        			distance = Integer.toString(walker.getDistance());
-			                        		}
-			                        	} else {
-			                        		double c = 0;
-                                        ZonePoint lastPoint = null;
-		                                for (ZonePoint zp : set.gridlessPath.getCellPath()) {
+							if (!token.isStamp()) {
+								if (AppState.getShowMovementMeasurements()) {
+									String distance = "";
+									if (zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
+										if (walker.getDistance() >= 1) {
+											distance = Integer.toString(walker.getDistance());
+										}
+									} else {
+										double c = 0;
+										ZonePoint lastPoint = null;
+										for (ZonePoint zp : set.gridlessPath.getCellPath()) {
 
-		                                	if (lastPoint == null) {
-		                                		lastPoint = zp;
-		                                		continue;
-		                                	}
-		                                	int a = lastPoint.x - zp.x;
-		                                	int b = lastPoint.y - zp.y;
+											if (lastPoint == null) {
+												lastPoint = zp;
+												continue;
+											}
+											int a = lastPoint.x - zp.x;
+											int b = lastPoint.y - zp.y;
 
-		                                	c += Math.hypot(a, b);
+											c += Math.hypot(a, b);
 
-		                                	lastPoint = zp;
-	                                }
+											lastPoint = zp;
+										}
 
-	                                c /= zone.getGrid().getSize(); // Number of "cells"
-	                                c *= zone.getUnitsPerCell(); // "actual" distance traveled
+										c /= zone.getGrid().getSize(); // Number of "cells"
+										c *= zone.getUnitsPerCell(); // "actual" distance traveled
 
-		                        		distance = String.format("%.1f", c);
-		                        	}
-		                        	if (distance.length() > 0) {
-                                        delayRendering(new LabelRenderer(distance, x, y));
-			                            y += 20;
-			                        }
-		                        }
-		                    }
-		                    if (set.getPlayerId() != null && set.getPlayerId().length() >= 1) {
-                                delayRendering(new LabelRenderer(set.getPlayerId(), x, y));
-		                    }
-	                    }
-                	}
-                }
-            }
+										distance = String.format("%.1f", c);
+									}
+									if (distance.length() > 0) {
+										delayRendering(new LabelRenderer(distance, x, y));
+										y += 20;
+									}
+								}
+							}
+							if (set.getPlayerId() != null && set.getPlayerId().length() >= 1) {
+								delayRendering(new LabelRenderer(set.getPlayerId(), x, y));
+							}
+						}
+					}
+				}
+			}
 
-        }
-    }
+		}
+	}
 
-    public void renderPath(Graphics2D g, Path path, TokenFootprint footprint) {
-        Object oldRendering = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	public void renderPath(Graphics2D g, Path path, TokenFootprint footprint) {
+		Object oldRendering = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        if (path.getCellPath().size() == 0) {
-        	return;
-        }
+		if (path.getCellPath().size() == 0) {
+			return;
+		}
 
-        Grid grid = zone.getGrid();
-        double scale = getScale();
+		Grid grid = zone.getGrid();
+		double scale = getScale();
 
-        Rectangle footprintBounds = footprint.getBounds(grid);
+		Rectangle footprintBounds = footprint.getBounds(grid);
 
-        if (path.getCellPath().get(0) instanceof CellPoint) {
+		if (path.getCellPath().get(0) instanceof CellPoint) {
 			timer.start("renderPath-1");
-	        CellPoint previousPoint = null;
-	        Point previousHalfPoint = null;
+			CellPoint previousPoint = null;
+			Point previousHalfPoint = null;
 
-	        List<CellPoint> cellPath = path.getCellPath();
+			List<CellPoint> cellPath = path.getCellPath();
 
-	        Set<CellPoint> pathSet = new HashSet<CellPoint>();
-	        List<ZonePoint> waypointList = new LinkedList<ZonePoint>();
-	        for (CellPoint p : cellPath) {
-	            pathSet.addAll(footprint.getOccupiedCells(p));
+			Set<CellPoint> pathSet = new HashSet<CellPoint>();
+			List<ZonePoint> waypointList = new LinkedList<ZonePoint>();
+			for (CellPoint p : cellPath) {
+				pathSet.addAll(footprint.getOccupiedCells(p));
 
-	            if (path.isWaypoint(p) && previousPoint != null) {
-	            	ZonePoint zp = grid.convert(p);
-	                zp.x += footprintBounds.width / 2;
-	                zp.y += footprintBounds.height / 2;
-	                waypointList.add(zp);
-	            }
-	            previousPoint = p;
-	        }
+				if (path.isWaypoint(p) && previousPoint != null) {
+					ZonePoint zp = grid.convert(p);
+					zp.x += footprintBounds.width / 2;
+					zp.y += footprintBounds.height / 2;
+					waypointList.add(zp);
+				}
+				previousPoint = p;
+			}
 
-	        // Don't show the final path point as a waypoint, it's redundant, and ugly
-	        if (waypointList.size() > 0) {
-	            waypointList.remove(waypointList.size() - 1);
-	        }
+			// Don't show the final path point as a waypoint, it's redundant, and ugly
+			if (waypointList.size() > 0) {
+				waypointList.remove(waypointList.size() - 1);
+			}
 			timer.stop("renderPath-1");
 
 			timer.start("renderPath-2");
-	        Dimension cellOffset = zone.getGrid().getCellOffset();
-	        for (CellPoint p : pathSet) {
-	        	ZonePoint zp = grid.convert(p);
-	            zp.x += grid.getCellWidth() / 2 + cellOffset.width;
-	            zp.y += grid.getCellHeight() / 2 + cellOffset.height;
-	            highlightCell(g, zp, grid.getCellHighlight(), 1.0f);
-	        }
-	        for (ZonePoint p : waypointList) {
-	        	ZonePoint zp = new ZonePoint(p.x + cellOffset.width, p.y + cellOffset.height);
-	            highlightCell(g, zp, AppStyle.cellWaypointImage, .333f);
-	        }
+			Dimension cellOffset = zone.getGrid().getCellOffset();
+			for (CellPoint p : pathSet) {
+				ZonePoint zp = grid.convert(p);
+				zp.x += grid.getCellWidth() / 2 + cellOffset.width;
+				zp.y += grid.getCellHeight() / 2 + cellOffset.height;
+				highlightCell(g, zp, grid.getCellHighlight(), 1.0f);
+			}
+			for (ZonePoint p : waypointList) {
+				ZonePoint zp = new ZonePoint(p.x + cellOffset.width, p.y + cellOffset.height);
+				highlightCell(g, zp, AppStyle.cellWaypointImage, .333f);
+			}
 
-	        // Line path
-	        if (grid.getCapabilities().isPathLineSupported()) {
+			// Line path
+			if (grid.getCapabilities().isPathLineSupported()) {
 
-	            ZonePoint lineOffset = new ZonePoint(footprintBounds.x + footprintBounds.width / 2 - grid.getOffsetX(), footprintBounds.y + footprintBounds.height / 2 - grid.getOffsetY());
+				ZonePoint lineOffset = new ZonePoint(footprintBounds.x + footprintBounds.width / 2 - grid.getOffsetX(), footprintBounds.y + footprintBounds.height / 2 - grid.getOffsetY());
 
-	            int xOffset = (int) (lineOffset.x * scale);
-	            int yOffset = (int) (lineOffset.y * scale);
+				int xOffset = (int) (lineOffset.x * scale);
+				int yOffset = (int) (lineOffset.y * scale);
 
-	            g.setColor(Color.blue);
+				g.setColor(Color.blue);
 
-	            previousPoint = null;
-	            for (CellPoint p : cellPath) {
+				previousPoint = null;
+				for (CellPoint p : cellPath) {
 
-	                if (previousPoint != null) {
+					if (previousPoint != null) {
 
-	                    ZonePoint ozp = grid.convert(previousPoint);
-	                    int ox = ozp.x;
-	                    int oy = ozp.y;
+						ZonePoint ozp = grid.convert(previousPoint);
+						int ox = ozp.x;
+						int oy = ozp.y;
 
-	                    ZonePoint dzp = grid.convert(p);
-	                    int dx = dzp.x;
-	                    int dy = dzp.y;
+						ZonePoint dzp = grid.convert(p);
+						int dx = dzp.x;
+						int dy = dzp.y;
 
-	                    ScreenPoint origin = ScreenPoint.fromZonePoint(this, ox, oy);
-	                    ScreenPoint destination = ScreenPoint.fromZonePoint(this, dx, dy);
+						ScreenPoint origin = ScreenPoint.fromZonePoint(this, ox, oy);
+						ScreenPoint destination = ScreenPoint.fromZonePoint(this, dx, dy);
 
-	                    int halfx = (int) ((origin.x + destination.x) / 2);
-	                    int halfy = (int) ((origin.y + destination.y) / 2);
-	                    Point halfPoint = new Point(halfx, halfy);
+						int halfx = (int) ((origin.x + destination.x) / 2);
+						int halfy = (int) ((origin.y + destination.y) / 2);
+						Point halfPoint = new Point(halfx, halfy);
 
-	                    if (previousHalfPoint != null) {
+						if (previousHalfPoint != null) {
 
-	                        int x1 = previousHalfPoint.x + xOffset;
-	                        int y1 = previousHalfPoint.y + yOffset;
+							int x1 = previousHalfPoint.x + xOffset;
+							int y1 = previousHalfPoint.y + yOffset;
 
-	                        int x2 = (int) origin.x + xOffset;
-	                        int y2 = (int) origin.y + yOffset;
+							int x2 = (int) origin.x + xOffset;
+							int y2 = (int) origin.y + yOffset;
 
-	                        int xh = halfPoint.x + xOffset;
-	                        int yh = halfPoint.y + yOffset;
+							int xh = halfPoint.x + xOffset;
+							int yh = halfPoint.y + yOffset;
 
-	                        QuadCurve2D curve = new QuadCurve2D.Float(x1, y1, x2, y2, xh, yh);
-	                        g.draw(curve);
-	                    }
+							QuadCurve2D curve = new QuadCurve2D.Float(x1, y1, x2, y2, xh, yh);
+							g.draw(curve);
+						}
 
-	                    previousHalfPoint = halfPoint;
-	                }
-	                previousPoint = p;
-	            }
-	        }
+						previousHalfPoint = halfPoint;
+					}
+					previousPoint = p;
+				}
+			}
 			timer.stop("renderPath-2");
-        } else {
+		} else {
 			timer.start("renderPath-3");
-        	// Zone point/gridless path
-            int scaledWidth = (int) (footprintBounds.width * scale);
-            int scaledHeight = (int) (footprintBounds.height * scale);
+			// Zone point/gridless path
+			int scaledWidth = (int) (footprintBounds.width * scale);
+			int scaledHeight = (int) (footprintBounds.height * scale);
 
 
-        	// Line
-        	Color highlight = new Color(255, 255, 255, 80);
-        	Stroke highlightStroke = new BasicStroke(9);
-        	Stroke oldStroke = g.getStroke();
-        	Object oldAA = SwingUtil.useAntiAliasing(g);
-            ScreenPoint lastPoint = null;
+			// Line
+			Color highlight = new Color(255, 255, 255, 80);
+			Stroke highlightStroke = new BasicStroke(9);
+			Stroke oldStroke = g.getStroke();
+			Object oldAA = SwingUtil.useAntiAliasing(g);
+			ScreenPoint lastPoint = null;
 
-            List<ZonePoint> pathList = path.getCellPath();
-            for (ZonePoint zp : pathList) {
+			List<ZonePoint> pathList = path.getCellPath();
+			for (ZonePoint zp : pathList) {
 
-            	if (lastPoint == null) {
-            		lastPoint = ScreenPoint.fromZonePointRnd(this, zp.x + (footprintBounds.width / 2) * footprint.getScale(), zp.y + (footprintBounds.height / 2)*footprint.getScale());
-            		continue;
-            	}
+				if (lastPoint == null) {
+					lastPoint = ScreenPoint.fromZonePointRnd(this, zp.x + (footprintBounds.width / 2) * footprint.getScale(), zp.y + (footprintBounds.height / 2)*footprint.getScale());
+					continue;
+				}
 
-                ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x + (footprintBounds.width / 2) * footprint.getScale() , zp.y+ (footprintBounds.height / 2)*footprint.getScale());
+				ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x + (footprintBounds.width / 2) * footprint.getScale() , zp.y+ (footprintBounds.height / 2)*footprint.getScale());
 
-                g.setColor(highlight);
-                g.setStroke(highlightStroke);
-                g.drawLine((int) lastPoint.x, (int) lastPoint.y, (int) nextPoint.x, (int) nextPoint.y);
+				g.setColor(highlight);
+				g.setStroke(highlightStroke);
+				g.drawLine((int) lastPoint.x, (int) lastPoint.y, (int) nextPoint.x, (int) nextPoint.y);
 
-                g.setStroke(oldStroke);
-                g.setColor(Color.blue);
-                g.drawLine((int) lastPoint.x, (int) lastPoint.y, (int) nextPoint.x, (int) nextPoint.y);
-                lastPoint = nextPoint;
-            }
+				g.setStroke(oldStroke);
+				g.setColor(Color.blue);
+				g.drawLine((int) lastPoint.x, (int) lastPoint.y, (int) nextPoint.x, (int) nextPoint.y);
+				lastPoint = nextPoint;
+			}
 
-            SwingUtil.restoreAntiAliasing(g, oldAA);
+			SwingUtil.restoreAntiAliasing(g, oldAA);
 
-            // Waypoints
-            boolean originPoint = true;
-            for (ZonePoint p : pathList) {
-            	// Skip the first point (it's the path origin)
-            	if (originPoint) {
-            		originPoint = false;
-            		continue;
-            	}
+			// Waypoints
+			boolean originPoint = true;
+			for (ZonePoint p : pathList) {
+				// Skip the first point (it's the path origin)
+				if (originPoint) {
+					originPoint = false;
+					continue;
+				}
 
-            	// Skip the final point
-            	if (p == pathList.get(pathList.size()-1)) {
-            		continue;
-            	}
+				// Skip the final point
+				if (p == pathList.get(pathList.size()-1)) {
+					continue;
+				}
 
-            	p = new ZonePoint((int)(p.x+(footprintBounds.width/2)*footprint.getScale()), (int)(p.y+(footprintBounds.height/2)*footprint.getScale()));
-            	highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
-            }
+				p = new ZonePoint((int)(p.x+(footprintBounds.width/2)*footprint.getScale()), (int)(p.y+(footprintBounds.height/2)*footprint.getScale()));
+				highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
+			}
 			timer.stop("renderPath-3");
-        }
+		}
 
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldRendering);
-    }
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldRendering);
+	}
 
-    public void highlightCell(Graphics2D g, ZonePoint point, BufferedImage image, float size) {
+	public void highlightCell(Graphics2D g, ZonePoint point, BufferedImage image, float size) {
 
-        Grid grid = zone.getGrid();
-        double cwidth = grid.getCellWidth() * getScale();
-        double cheight = grid.getCellHeight() * getScale();
+		Grid grid = zone.getGrid();
+		double cwidth = grid.getCellWidth() * getScale();
+		double cheight = grid.getCellHeight() * getScale();
 
-        double iwidth = cwidth * size;
-        double iheight = cheight * size;
+		double iwidth = cwidth * size;
+		double iheight = cheight * size;
 
-        ScreenPoint sp = ScreenPoint.fromZonePoint(this, point);
+		ScreenPoint sp = ScreenPoint.fromZonePoint(this, point);
 
-        g.drawImage(image, (int) (sp.x - iwidth / 2), (int) (sp.y - iheight / 2), (int) iwidth, (int) iheight, this);
-    }
+		g.drawImage(image, (int) (sp.x - iwidth / 2), (int) (sp.y - iheight / 2), (int) iwidth, (int) iheight, this);
+	}
 
-    /**
-     * Get a list of tokens currently visible on the screen.  The list is ordered by location starting
+	/**
+	 * Get a list of tokens currently visible on the screen.  The list is ordered by location starting
 	 * in the top left and going to the bottom right.
-     * @return
-     */
-    public List<Token> getTokensOnScreen() {
-        List<Token> list = new ArrayList<Token>();
+	 * @return
+	 */
+	public List<Token> getTokensOnScreen() {
+		List<Token> list = new ArrayList<Token>();
 
-        // Always assume tokens, for now
-        List<TokenLocation> tokenLocationListCopy = new ArrayList<TokenLocation>();
-        tokenLocationListCopy.addAll(getTokenLocations(Zone.Layer.TOKEN));
-        for (TokenLocation location : tokenLocationListCopy) {
-            list.add(location.token);
-        }
+		// Always assume tokens, for now
+		List<TokenLocation> tokenLocationListCopy = new ArrayList<TokenLocation>();
+		tokenLocationListCopy.addAll(getTokenLocations(Zone.Layer.TOKEN));
+		for (TokenLocation location : tokenLocationListCopy) {
+			list.add(location.token);
+		}
 
-        // Sort by location on screen, top left to bottom right
-        Collections.sort(list, new Comparator<Token>() {
+		// Sort by location on screen, top left to bottom right
+		Collections.sort(list, new Comparator<Token>() {
 
-            public int compare(Token o1, Token o2) {
+			public int compare(Token o1, Token o2) {
 
-                if (o1.getY() < o2.getY()) {
-                    return -1;
-                }
-                if (o1.getY() > o2.getY()) {
-                    return 1;
-                }
-                if (o1.getX() < o2.getX()) {
-                    return -1;
-                }
-                if (o1.getX() > o2.getX()) {
-                    return 1;
-                }
+				if (o1.getY() < o2.getY()) {
+					return -1;
+				}
+				if (o1.getY() > o2.getY()) {
+					return 1;
+				}
+				if (o1.getX() < o2.getX()) {
+					return -1;
+				}
+				if (o1.getX() > o2.getX()) {
+					return 1;
+				}
 
-                return 0;
-            }
-        });
+				return 0;
+			}
+		});
 
-        return list;
-    }
+		return list;
+	}
 
-    public Zone.Layer getActiveLayer() {
-        return activeLayer != null ? activeLayer : Zone.Layer.TOKEN;
-    }
+	public Zone.Layer getActiveLayer() {
+		return activeLayer != null ? activeLayer : Zone.Layer.TOKEN;
+	}
 
-    public void setActiveLayer(Zone.Layer layer) {
-        activeLayer = layer;
-        selectedTokenSet.clear();
-        repaint();
-    }
+	public void setActiveLayer(Zone.Layer layer) {
+		activeLayer = layer;
+		selectedTokenSet.clear();
+		repaint();
+	}
 
-    /**
-     * Get the token locations for the given layer, creates an empty list
-     * if there are not locations for the given layer
-     */
-    private List<TokenLocation> getTokenLocations(Zone.Layer layer) {
-        List<TokenLocation> list = tokenLocationMap.get(layer);
-        if (list != null) {
-            return list;
-        }
+	/**
+	 * Get the token locations for the given layer, creates an empty list
+	 * if there are not locations for the given layer
+	 */
+	private List<TokenLocation> getTokenLocations(Zone.Layer layer) {
+		List<TokenLocation> list = tokenLocationMap.get(layer);
+		if (list != null) {
+			return list;
+		}
 
-        list = new LinkedList<TokenLocation>();
-        tokenLocationMap.put(layer, list);
+		list = new LinkedList<TokenLocation>();
+		tokenLocationMap.put(layer, list);
 
-        return list;
-    }
+		return list;
+	}
 
-    // TODO: I don't like this hardwiring
-    protected Shape getCircleFacingArrow(int angle, int size) {
+	// TODO: I don't like this hardwiring
+	protected Shape getCircleFacingArrow(int angle, int size) {
 
-        int base = (int) (size * .75);
-        int width = (int) (size * .35);
+		int base = (int) (size * .75);
+		int width = (int) (size * .35);
 
-        facingArrow = new GeneralPath();
-        facingArrow.moveTo(base, -width);
-        facingArrow.lineTo(size, 0);
-        facingArrow.lineTo(base, width);
-        facingArrow.lineTo(base, -width);
+		facingArrow = new GeneralPath();
+		facingArrow.moveTo(base, -width);
+		facingArrow.lineTo(size, 0);
+		facingArrow.lineTo(base, width);
+		facingArrow.lineTo(base, -width);
 
-        return ((GeneralPath) facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)))).createTransformedShape(AffineTransform.getScaleInstance(getScale(), getScale()));
-    }
-    // TODO: I don't like this hardwiring
+		return ((GeneralPath) facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)))).createTransformedShape(AffineTransform.getScaleInstance(getScale(), getScale()));
+	}
+	// TODO: I don't like this hardwiring
 
-    protected Shape getSquareFacingArrow(int angle, int size) {
+	protected Shape getSquareFacingArrow(int angle, int size) {
 
-        int base = (int) (size * .75);
-        int width = (int) (size * .35);
+		int base = (int) (size * .75);
+		int width = (int) (size * .35);
 
-        facingArrow = new GeneralPath();
-        facingArrow.moveTo(0, 0);
-        facingArrow.lineTo(-(size - base), -width);
-        facingArrow.lineTo(-(size - base), width);
-        facingArrow.lineTo(0, 0);
+		facingArrow = new GeneralPath();
+		facingArrow.moveTo(0, 0);
+		facingArrow.lineTo(-(size - base), -width);
+		facingArrow.lineTo(-(size - base), width);
+		facingArrow.lineTo(0, 0);
 
-        return ((GeneralPath) facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)))).createTransformedShape(AffineTransform.getScaleInstance(getScale(), getScale()));
-    }
+		return ((GeneralPath) facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)))).createTransformedShape(AffineTransform.getScaleInstance(getScale(), getScale()));
+	}
 
-    protected void renderTokens(Graphics2D g, List<Token> tokenList, PlayerView view) {
+	protected void renderTokens(Graphics2D g, List<Token> tokenList, PlayerView view) {
 
-    	Graphics2D clippedG = g;
+		Graphics2D clippedG = g;
 
-    	timer.start("createClip");
+		timer.start("createClip");
 		if (!view.isGMView() && visibleScreenArea != null && !tokenList.isEmpty() && tokenList.get(0).isToken()) {
-            clippedG = (Graphics2D) g.create();
+			clippedG = (Graphics2D) g.create();
 
-        	Area visibleArea = new Area(g.getClipBounds());
-        	visibleArea.intersect(visibleScreenArea);
-        	clippedG.setClip(new GeneralPath(visibleArea));
-        }
-        timer.stop("createClip");
+			Area visibleArea = new Area(g.getClipBounds());
+			visibleArea.intersect(visibleScreenArea);
+			clippedG.setClip(new GeneralPath(visibleArea));
+		}
+		timer.stop("createClip");
 
-        Rectangle viewport = new Rectangle(0, 0, getSize().width, getSize().height);
+		Rectangle viewport = new Rectangle(0, 0, getSize().width, getSize().height);
 
-        Rectangle clipBounds = g.getClipBounds();
-        double scale = zoneScale.getScale();
-        Set<GUID> tempVisTokens = new HashSet<GUID>();
+		Rectangle clipBounds = g.getClipBounds();
+		double scale = zoneScale.getScale();
+		Set<GUID> tempVisTokens = new HashSet<GUID>();
 
-        // calculations
-        boolean calculateStacks = tokenList.size() > 0 && !tokenList.get(0).isStamp() && tokenStackMap == null;
-        if (calculateStacks) {
-        	tokenStackMap = new HashMap<Token, Set<Token>>();
-        }
+		// calculations
+		boolean calculateStacks = tokenList.size() > 0 && !tokenList.get(0).isStamp() && tokenStackMap == null;
+		if (calculateStacks) {
+			tokenStackMap = new HashMap<Token, Set<Token>>();
+		}
 
-        for (Token token : tokenList) {
+		for (Token token : tokenList) {
 
-        	timer.start("tokenlist-1");
-            if (token.isStamp() && isTokenMoving(token)) {
-                continue;
-            }
-        	timer.stop("tokenlist-1");
-        	timer.start("tokenlist-1.1");
+			timer.start("tokenlist-1");
+			if (token.isStamp() && isTokenMoving(token)) {
+				continue;
+			}
+			timer.stop("tokenlist-1");
+			timer.start("tokenlist-1.1");
 
-            TokenLocation location = tokenLocationCache.get(token);
-            if (location != null && !location.maybeOnscreen(viewport)) {
-            	continue;
-            }
-        	timer.stop("tokenlist-1.1");
-        	timer.start("tokenlist-1a");
+			TokenLocation location = tokenLocationCache.get(token);
+			if (location != null && !location.maybeOnscreen(viewport)) {
+				continue;
+			}
+			timer.stop("tokenlist-1.1");
+			timer.start("tokenlist-1a");
 
-            // Don't bother if it's not visible
-            // NOTE: Not going to use zone.isTokenVisible as it is very slow.  In fact, it's faster
-            // to just draw the tokens and let them be clipped
-            if (!token.isVisible() && !view.isGMView()) {
-                continue;
-            }
+			// Don't bother if it's not visible
+			// NOTE: Not going to use zone.isTokenVisible as it is very slow.  In fact, it's faster
+			// to just draw the tokens and let them be clipped
+			if (!token.isVisible() && !view.isGMView()) {
+				continue;
+			}
 
-            Rectangle footprintBounds = token.getBounds(zone);
-        	timer.stop("tokenlist-1a");
-        	timer.start("tokenlist-1b");
+			Rectangle footprintBounds = token.getBounds(zone);
+			timer.stop("tokenlist-1a");
+			timer.start("tokenlist-1b");
 
-            BufferedImage image = ImageManager.getImage(token.getImageAssetId(), this);
+			BufferedImage image = ImageManager.getImage(token.getImageAssetId(), this);
 
-        	timer.stop("tokenlist-1b");
-        	timer.start("tokenlist-1c");
+			timer.stop("tokenlist-1b");
+			timer.start("tokenlist-1c");
 
-            double scaledWidth = (footprintBounds.width * scale);
-            double scaledHeight = (footprintBounds.height * scale);
+			double scaledWidth = (footprintBounds.width * scale);
+			double scaledHeight = (footprintBounds.height * scale);
 
 //            if (!token.isStamp()) {
 //                // Fit inside the grid
@@ -2012,460 +2007,460 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 //                scaledHeight --;
 //            }
 
-            ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint(this, footprintBounds.x, footprintBounds.y);
-        	timer.stop("tokenlist-1c");
-        	timer.start("tokenlist-1d");
+			ScreenPoint tokenScreenLocation = ScreenPoint.fromZonePoint(this, footprintBounds.x, footprintBounds.y);
+			timer.stop("tokenlist-1c");
+			timer.start("tokenlist-1d");
 
-            // Tokens are centered on the image center point
-            double x = tokenScreenLocation.x;
-            double y = tokenScreenLocation.y;
+			// Tokens are centered on the image center point
+			double x = tokenScreenLocation.x;
+			double y = tokenScreenLocation.y;
 
-            Rectangle2D origBounds = new Rectangle2D.Double(x, y, scaledWidth, scaledHeight);
-            Area tokenBounds = new Area(origBounds);
-            if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
-                tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth / 2 + x - (token.getAnchor().x * scale), scaledHeight / 2 + y - (token.getAnchor().y * scale))); // facing defaults to down, or -90 degrees
-            }
-        	timer.stop("tokenlist-1d");
-        	timer.start("tokenlist-1e");
+			Rectangle2D origBounds = new Rectangle2D.Double(x, y, scaledWidth, scaledHeight);
+			Area tokenBounds = new Area(origBounds);
+			if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
+				tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth / 2 + x - (token.getAnchor().x * scale), scaledHeight / 2 + y - (token.getAnchor().y * scale))); // facing defaults to down, or -90 degrees
+			}
+			timer.stop("tokenlist-1d");
+			timer.start("tokenlist-1e");
 
-            location = new TokenLocation(tokenBounds, origBounds, token, x, y, footprintBounds.width, footprintBounds.height, scaledWidth, scaledHeight);
-            tokenLocationCache.put(token, location);
+			location = new TokenLocation(tokenBounds, origBounds, token, x, y, footprintBounds.width, footprintBounds.height, scaledWidth, scaledHeight);
+			tokenLocationCache.put(token, location);
 
-            // Too small ?
-            if (location.scaledHeight < 1 || location.scaledWidth < 1) {
-            	continue;
-            }
+			// Too small ?
+			if (location.scaledHeight < 1 || location.scaledWidth < 1) {
+				continue;
+			}
 
-            // Vision visibility
-            if (!view.isGMView() && token.isToken() && zoneView.isUsingVision()) {
-                if (!GraphicsUtil.intersects(visibleScreenArea, location.bounds)) {
-                    continue;
-                }
-            }
-        	timer.stop("tokenlist-1e");
+			// Vision visibility
+			if (!view.isGMView() && token.isToken() && zoneView.isUsingVision()) {
+				if (!GraphicsUtil.intersects(visibleScreenArea, location.bounds)) {
+					continue;
+				}
+			}
+			timer.stop("tokenlist-1e");
 
-            // Markers
-        	timer.start("renderTokens:Markers");
-            if (token.isMarker() && canSeeMarker(token)) {
-            	markerLocationList.add(location);
-            }
-        	timer.stop("renderTokens:Markers");
+			// Markers
+			timer.start("renderTokens:Markers");
+			if (token.isMarker() && canSeeMarker(token)) {
+				markerLocationList.add(location);
+			}
+			timer.stop("renderTokens:Markers");
 
-            // Stacking check
-            if (calculateStacks) {
-            	timer.start("tokenStack");
+			// Stacking check
+			if (calculateStacks) {
+				timer.start("tokenStack");
 
 //            	System.out.println(token.getName() + " - " + location.boundsCache);
 
-            	Set<Token> tokenStackSet = null;
-                for (TokenLocation currLocation : getTokenLocations(Zone.Layer.TOKEN)) {
+				Set<Token> tokenStackSet = null;
+				for (TokenLocation currLocation : getTokenLocations(Zone.Layer.TOKEN)) {
 
-                    // Are we covering anyone ?
+					// Are we covering anyone ?
 //                	System.out.println("\t" + currLocation.token.getName() + " - " + location.boundsCache.contains(currLocation.boundsCache));
-                    if (location.boundsCache.contains(currLocation.boundsCache)) {
-                    	if (tokenStackSet == null) {
-                    		tokenStackSet = new HashSet<Token>();
-                    		tokenStackMap.put(token, tokenStackSet);
+					if (location.boundsCache.contains(currLocation.boundsCache)) {
+						if (tokenStackSet == null) {
+							tokenStackSet = new HashSet<Token>();
+							tokenStackMap.put(token, tokenStackSet);
 
-                    		tokenStackSet.add(token);
-                    	}
+							tokenStackSet.add(token);
+						}
 
-                    	tokenStackSet.add(currLocation.token);
+						tokenStackSet.add(currLocation.token);
 
-                    	if (tokenStackMap.get(currLocation.token) != null) {
-                    		tokenStackSet.addAll(tokenStackMap.get(currLocation.token));
-                    		tokenStackMap.remove(currLocation.token);
-                    	}
-                    }
-                }
-	        	timer.stop("tokenStack");
-        	}
+						if (tokenStackMap.get(currLocation.token) != null) {
+							tokenStackSet.addAll(tokenStackMap.get(currLocation.token));
+							tokenStackMap.remove(currLocation.token);
+						}
+					}
+				}
+				timer.stop("tokenStack");
+			}
 
 
-            // Keep track of the location on the screen
-            // Note the order where the top most token is at the end of the list
-            timer.start("renderTokens:Locations");
-            List<TokenLocation> locationList = null;
+			// Keep track of the location on the screen
+			// Note the order where the top most token is at the end of the list
+			timer.start("renderTokens:Locations");
+			List<TokenLocation> locationList = null;
 			// TODO: Why not just call token.getLayer() ???
-            if (!token.isStamp()) {
-                locationList = getTokenLocations(Zone.Layer.TOKEN);
-            } else {
-                if (token.isObjectStamp()) {
-                    locationList = getTokenLocations(Zone.Layer.OBJECT);
-                }
-                if (token.isBackgroundStamp()) {
-                    locationList = getTokenLocations(Zone.Layer.BACKGROUND);
-                }
-                if (token.isGMStamp()) {
-                    locationList = getTokenLocations(Zone.Layer.GM);
-                }
-            }
-            if (locationList != null) {
-                 locationList.add(location);
-            }
-            timer.stop("renderTokens:Locations");
+			if (!token.isStamp()) {
+				locationList = getTokenLocations(Zone.Layer.TOKEN);
+			} else {
+				if (token.isObjectStamp()) {
+					locationList = getTokenLocations(Zone.Layer.OBJECT);
+				}
+				if (token.isBackgroundStamp()) {
+					locationList = getTokenLocations(Zone.Layer.BACKGROUND);
+				}
+				if (token.isGMStamp()) {
+					locationList = getTokenLocations(Zone.Layer.GM);
+				}
+			}
+			if (locationList != null) {
+				locationList.add(location);
+			}
+			timer.stop("renderTokens:Locations");
 
 
-            // Add the token to our visible set.
-            tempVisTokens.add(token.getId());
+			// Add the token to our visible set.
+			tempVisTokens.add(token.getId());
 
-            // Only draw if we're visible
-            // NOTE: this takes place AFTER resizing the image, that's so that the user
-            // sufferes a pause only once while scaling, and not as new tokens are
-            // scrolled onto the screen
-        	timer.start("renderTokens:OnscreenCheck");
-            if (!location.bounds.intersects(clipBounds)) {
-            	timer.stop("renderTokens:OnscreenCheck");
-                continue;
-            }
-        	timer.stop("renderTokens:OnscreenCheck");
+			// Only draw if we're visible
+			// NOTE: this takes place AFTER resizing the image, that's so that the user
+			// sufferes a pause only once while scaling, and not as new tokens are
+			// scrolled onto the screen
+			timer.start("renderTokens:OnscreenCheck");
+			if (!location.bounds.intersects(clipBounds)) {
+				timer.stop("renderTokens:OnscreenCheck");
+				continue;
+			}
+			timer.stop("renderTokens:OnscreenCheck");
 
-            // Moving ?
-        	timer.start("renderTokens:ShowMovement");
-            if (isTokenMoving(token)) {
-                BufferedImage replacementImage = replacementImageMap.get(token);
-                if (replacementImage == null) {
+			// Moving ?
+			timer.start("renderTokens:ShowMovement");
+			if (isTokenMoving(token)) {
+				BufferedImage replacementImage = replacementImageMap.get(token);
+				if (replacementImage == null) {
 
-                    replacementImage = ImageUtil.rgbToGrayscale(image);
+					replacementImage = ImageUtil.rgbToGrayscale(image);
 
-                    replacementImageMap.put(token, replacementImage);
-                }
+					replacementImageMap.put(token, replacementImage);
+				}
 
-                image = replacementImage;
-            }
-        	timer.stop("renderTokens:ShowMovement");
+				image = replacementImage;
+			}
+			timer.stop("renderTokens:ShowMovement");
 
-            // Previous path
-        	timer.start("renderTokens:ShowPath");
-            if (showPathList.contains(token) && token.getLastPath() != null) {
-                renderPath(g, token.getLastPath(), token.getFootprint(zone.getGrid()));
-            }
-        	timer.stop("renderTokens:ShowPath");
+			// Previous path
+			timer.start("renderTokens:ShowPath");
+			if (showPathList.contains(token) && token.getLastPath() != null) {
+				renderPath(g, token.getLastPath(), token.getFootprint(zone.getGrid()));
+			}
+			timer.stop("renderTokens:ShowPath");
 
-        	timer.start("tokenlist-4");
+			timer.start("tokenlist-4");
 
-            // Halo (TOPDOWN, CIRCLE)
-            if (token.hasHalo() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.getShape() == Token.TokenShape.CIRCLE)) {
-                Stroke oldStroke = clippedG.getStroke();
-                clippedG.setStroke(new BasicStroke(AppPreferences.getHaloLineWidth()));
-                clippedG.setColor(token.getHaloColor());
-                clippedG.draw(new Rectangle2D.Double(location.x, location.y, location.scaledWidth, location.scaledHeight));
-                clippedG.setStroke(oldStroke);
-            }
-        	timer.stop("tokenlist-4");
-        	timer.start("tokenlist-5");
+			// Halo (TOPDOWN, CIRCLE)
+			if (token.hasHalo() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.getShape() == Token.TokenShape.CIRCLE)) {
+				Stroke oldStroke = clippedG.getStroke();
+				clippedG.setStroke(new BasicStroke(AppPreferences.getHaloLineWidth()));
+				clippedG.setColor(token.getHaloColor());
+				clippedG.draw(new Rectangle2D.Double(location.x, location.y, location.scaledWidth, location.scaledHeight));
+				clippedG.setStroke(oldStroke);
+			}
+			timer.stop("tokenlist-4");
+			timer.start("tokenlist-5");
 
-            // handle flipping
-            BufferedImage workImage = image;
-            if (token.isFlippedX() || token.isFlippedY()) {
-            	workImage = flipImageMap.get(token);
-            	if (workImage == null) {
-                    workImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getTransparency());
+			// handle flipping
+			BufferedImage workImage = image;
+			if (token.isFlippedX() || token.isFlippedY()) {
+				workImage = flipImageMap.get(token);
+				if (workImage == null) {
+					workImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getTransparency());
 
-	                int workW = image.getWidth() * (token.isFlippedX() ? -1 : 1);
-                    int workH = image.getHeight() * (token.isFlippedY() ? -1 : 1);
-	                int workX = token.isFlippedX() ? image.getWidth() : 0;
-	                int workY = token.isFlippedY() ? image.getHeight() : 0;
+					int workW = image.getWidth() * (token.isFlippedX() ? -1 : 1);
+					int workH = image.getHeight() * (token.isFlippedY() ? -1 : 1);
+					int workX = token.isFlippedX() ? image.getWidth() : 0;
+					int workY = token.isFlippedY() ? image.getHeight() : 0;
 
-                    Graphics2D wig = workImage.createGraphics();
-	                wig.drawImage(image, workX, workY, workW, workH, null);
-	                wig.dispose();
+					Graphics2D wig = workImage.createGraphics();
+					wig.drawImage(image, workX, workY, workW, workH, null);
+					wig.dispose();
 
-	                flipImageMap.put(token, workImage);
-            	}
-            }
+					flipImageMap.put(token, workImage);
+				}
+			}
 
-        	timer.stop("tokenlist-5");
-        	timer.start("tokenlist-6");
+			timer.stop("tokenlist-5");
+			timer.start("tokenlist-6");
 
-            // Position
-            Dimension imgSize = new Dimension(workImage.getWidth(), workImage.getHeight());
-            SwingUtil.constrainTo(imgSize, footprintBounds.width, footprintBounds.height);
+			// Position
+			Dimension imgSize = new Dimension(workImage.getWidth(), workImage.getHeight());
+			SwingUtil.constrainTo(imgSize, footprintBounds.width, footprintBounds.height);
 
-            int offsetx = 0;
-            int offsety = 0;
+			int offsetx = 0;
+			int offsety = 0;
 
-            if (token.isSnapToScale()) {
-                offsetx = (int) (imgSize.width < footprintBounds.width ? (footprintBounds.width - imgSize.width) / 2 * getScale() : 0);
-                offsety = (int) (imgSize.height < footprintBounds.height ? (footprintBounds.height - imgSize.height) / 2 * getScale() : 0);
-            }
+			if (token.isSnapToScale()) {
+				offsetx = (int) (imgSize.width < footprintBounds.width ? (footprintBounds.width - imgSize.width) / 2 * getScale() : 0);
+				offsety = (int) (imgSize.height < footprintBounds.height ? (footprintBounds.height - imgSize.height) / 2 * getScale() : 0);
+			}
 
-            double tx = location.x + offsetx;
-            double ty = location.y + offsety;
-
-
-
-            AffineTransform at = new AffineTransform();
-            at.translate(tx, ty);
-
-            // Rotated
-            if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
-                at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth / 2 - (token.getAnchor().x * scale) - offsetx, location.scaledHeight / 2 - (token.getAnchor().y * scale) - offsety); // facing defaults to down, or -90 degrees
-            }
-
-            // Draw the token
-            if (token.isSnapToScale()) {
-            	at.scale(((double) imgSize.width) / workImage.getWidth(), ((double) imgSize.height) / workImage.getHeight());
-                at.scale(getScale(), getScale());
-            } else {
-            	at.scale((scaledWidth) / workImage.getWidth(), (scaledHeight) / workImage.getHeight());
-            }
+			double tx = location.x + offsetx;
+			double ty = location.y + offsety;
 
 
-        	timer.stop("tokenlist-6");
-        	timer.start("tokenlist-7");
 
-            clippedG.drawImage(workImage, at, this);
-        	timer.stop("tokenlist-7");
-        	timer.start("tokenlist-8");
+			AffineTransform at = new AffineTransform();
+			at.translate(tx, ty);
 
-            // Halo (SQUARE)
-            if (token.hasHalo() && token.getShape() == Token.TokenShape.SQUARE) {
+			// Rotated
+			if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
+				at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth / 2 - (token.getAnchor().x * scale) - offsetx, location.scaledHeight / 2 - (token.getAnchor().y * scale) - offsety); // facing defaults to down, or -90 degrees
+			}
 
-                Stroke oldStroke = g.getStroke();
-                clippedG.setStroke(new BasicStroke(AppPreferences.getHaloLineWidth()));
-                clippedG.setColor(token.getHaloColor());
-                clippedG.draw(new Rectangle2D.Double(location.x, location.y, location.scaledWidth, location.scaledHeight));
-                clippedG.setStroke(oldStroke);
-            }
+			// Draw the token
+			if (token.isSnapToScale()) {
+				at.scale(((double) imgSize.width) / workImage.getWidth(), ((double) imgSize.height) / workImage.getHeight());
+				at.scale(getScale(), getScale());
+			} else {
+				at.scale((scaledWidth) / workImage.getWidth(), (scaledHeight) / workImage.getHeight());
+			}
 
-            // Facing ?
-            // TODO: Optimize this by doing it once per token per facing
-            if (token.hasFacing()) {
 
-                Token.TokenShape tokenType = token.getShape();
-                switch (tokenType) {
-                case CIRCLE:
+			timer.stop("tokenlist-6");
+			timer.start("tokenlist-7");
 
-                        Shape arrow = getCircleFacingArrow(token.getFacing(), footprintBounds.width / 2);
+			clippedG.drawImage(workImage, at, this);
+			timer.stop("tokenlist-7");
+			timer.start("tokenlist-8");
 
-                        double cx = location.x + location.scaledWidth / 2;
-                        double cy = location.y + location.scaledHeight / 2;
+			// Halo (SQUARE)
+			if (token.hasHalo() && token.getShape() == Token.TokenShape.SQUARE) {
 
-                    clippedG.translate(cx, cy);
-                    clippedG.setColor(Color.yellow);
-                    clippedG.fill(arrow);
-                    clippedG.setColor(Color.darkGray);
-                    clippedG.draw(arrow);
-                    clippedG.translate(-cx, -cy);
-                    break;
-                case SQUARE:
+				Stroke oldStroke = g.getStroke();
+				clippedG.setStroke(new BasicStroke(AppPreferences.getHaloLineWidth()));
+				clippedG.setColor(token.getHaloColor());
+				clippedG.draw(new Rectangle2D.Double(location.x, location.y, location.scaledWidth, location.scaledHeight));
+				clippedG.setStroke(oldStroke);
+			}
 
-                    int facing = token.getFacing();
-                        while (facing < 0) {
-                            facing += 360;
-                        } // TODO: this should really be done in Token.setFacing() but I didn't want to take the chance of breaking something, so change this when it's safe to break stuff
-                    facing %= 360;
-                        arrow = getSquareFacingArrow(facing, footprintBounds.width / 2);
+			// Facing ?
+			// TODO: Optimize this by doing it once per token per facing
+			if (token.hasFacing()) {
 
-                        cx = location.x + location.scaledWidth / 2;
-                        cy = location.y + location.scaledHeight / 2;
+				Token.TokenShape tokenType = token.getShape();
+				switch (tokenType) {
+				case CIRCLE:
 
-                    // Find the edge of the image
-                    // TODO: Man, this is horrible, there's gotta be a better way to do this
-                        double xp = location.scaledWidth / 2;
-                        double yp = location.scaledHeight / 2;
-                    if (facing >= 45 && facing <= 135 || facing >= 225 && facing <= 315) {
-                            xp = (int) (yp / Math.tan(Math.toRadians(facing)));
-                            if (facing > 180) {
-                            xp = -xp;
-                            yp = -yp;
-                        }
-                    } else {
-                            yp = (int) (xp * Math.tan(Math.toRadians(facing)));
-                        if (facing > 90 && facing < 270) {
-                            xp = -xp;
-                            yp = -yp;
-                        }
-                    }
+					Shape arrow = getCircleFacingArrow(token.getFacing(), footprintBounds.width / 2);
 
-                    cx += xp;
-                    cy -= yp;
+					double cx = location.x + location.scaledWidth / 2;
+					double cy = location.y + location.scaledHeight / 2;
 
-                        clippedG.translate(cx, cy);
-                    clippedG.setColor(Color.yellow);
-                    clippedG.fill(arrow);
-                    clippedG.setColor(Color.darkGray);
-                    clippedG.draw(arrow);
-                    clippedG.translate(-cx, -cy);
-                    break;
-                }
-            }
+					clippedG.translate(cx, cy);
+					clippedG.setColor(Color.yellow);
+					clippedG.fill(arrow);
+					clippedG.setColor(Color.darkGray);
+					clippedG.draw(arrow);
+					clippedG.translate(-cx, -cy);
+					break;
+				case SQUARE:
 
-        	timer.stop("tokenlist-8");
-        	timer.start("tokenlist-9");
+					int facing = token.getFacing();
+					while (facing < 0) {
+						facing += 360;
+					} // TODO: this should really be done in Token.setFacing() but I didn't want to take the chance of breaking something, so change this when it's safe to break stuff
+					facing %= 360;
+					arrow = getSquareFacingArrow(facing, footprintBounds.width / 2);
 
-              // Set up the graphics so that the overlay can just be painted.
-            Graphics2D locg = (Graphics2D) clippedG.create((int) location.x, (int) location.y, (int) Math.ceil(location.scaledWidth), (int) Math.ceil(location.scaledHeight));
-            Rectangle bounds = new Rectangle(0, 0, (int) Math.ceil(location.scaledWidth), (int) Math.ceil(location.scaledHeight));
+					cx = location.x + location.scaledWidth / 2;
+					cy = location.y + location.scaledHeight / 2;
 
-              // Check each of the set values
-              for (String state : MapTool.getCampaign().getTokenStatesMap().keySet()) {
-                Object stateValue = token.getState(state);
-                AbstractTokenOverlay overlay = MapTool.getCampaign().getTokenStatesMap().get(state);
-                if (stateValue instanceof AbstractTokenOverlay) {
-                    overlay = (AbstractTokenOverlay) stateValue;
-                }
-                if (overlay == null || overlay.isMouseover() && token != tokenUnderMouse || !overlay.showPlayer(token, MapTool.getPlayer())) {
-                    continue;
-                }
-                overlay.paintOverlay(locg, token, bounds, stateValue);
-              }
-          	timer.stop("tokenlist-9");
-        	timer.start("tokenlist-10");
-              for (String bar : MapTool.getCampaign().getTokenBarsMap().keySet()) {
-                  Object barValue = token.getState(bar);
-                  BarTokenOverlay overlay = MapTool.getCampaign().getTokenBarsMap().get(bar);
-                if (overlay == null || overlay.isMouseover() && token != tokenUnderMouse || !overlay.showPlayer(token, MapTool.getPlayer())) {
-                    continue;
-                }
-                  overlay.paintOverlay(locg, token, bounds, barValue);
-              } // endfor
-              locg.dispose();
-          	timer.stop("tokenlist-10");
+					// Find the edge of the image
+					// TODO: Man, this is horrible, there's gotta be a better way to do this
+					double xp = location.scaledWidth / 2;
+					double yp = location.scaledHeight / 2;
+					if (facing >= 45 && facing <= 135 || facing >= 225 && facing <= 315) {
+						xp = (int) (yp / Math.tan(Math.toRadians(facing)));
+						if (facing > 180) {
+							xp = -xp;
+							yp = -yp;
+						}
+					} else {
+						yp = (int) (xp * Math.tan(Math.toRadians(facing)));
+						if (facing > 90 && facing < 270) {
+							xp = -xp;
+							yp = -yp;
+						}
+					}
 
-            // DEBUGGING
+					cx += xp;
+					cy -= yp;
+
+					clippedG.translate(cx, cy);
+					clippedG.setColor(Color.yellow);
+					clippedG.fill(arrow);
+					clippedG.setColor(Color.darkGray);
+					clippedG.draw(arrow);
+					clippedG.translate(-cx, -cy);
+					break;
+				}
+			}
+
+			timer.stop("tokenlist-8");
+			timer.start("tokenlist-9");
+
+			// Set up the graphics so that the overlay can just be painted.
+			Graphics2D locg = (Graphics2D) clippedG.create((int) location.x, (int) location.y, (int) Math.ceil(location.scaledWidth), (int) Math.ceil(location.scaledHeight));
+			Rectangle bounds = new Rectangle(0, 0, (int) Math.ceil(location.scaledWidth), (int) Math.ceil(location.scaledHeight));
+
+			// Check each of the set values
+			for (String state : MapTool.getCampaign().getTokenStatesMap().keySet()) {
+				Object stateValue = token.getState(state);
+				AbstractTokenOverlay overlay = MapTool.getCampaign().getTokenStatesMap().get(state);
+				if (stateValue instanceof AbstractTokenOverlay) {
+					overlay = (AbstractTokenOverlay) stateValue;
+				}
+				if (overlay == null || overlay.isMouseover() && token != tokenUnderMouse || !overlay.showPlayer(token, MapTool.getPlayer())) {
+					continue;
+				}
+				overlay.paintOverlay(locg, token, bounds, stateValue);
+			}
+			timer.stop("tokenlist-9");
+			timer.start("tokenlist-10");
+			for (String bar : MapTool.getCampaign().getTokenBarsMap().keySet()) {
+				Object barValue = token.getState(bar);
+				BarTokenOverlay overlay = MapTool.getCampaign().getTokenBarsMap().get(bar);
+				if (overlay == null || overlay.isMouseover() && token != tokenUnderMouse || !overlay.showPlayer(token, MapTool.getPlayer())) {
+					continue;
+				}
+				overlay.paintOverlay(locg, token, bounds, barValue);
+			} // endfor
+			locg.dispose();
+			timer.stop("tokenlist-10");
+
+			// DEBUGGING
 //            ScreenPoint tmpsp = ScreenPoint.fromZonePoint(this, new ZonePoint(token.getX(), token.getY()));
 //            g.setColor(Color.red);
 //            g.drawLine(tmpsp.x, 0, tmpsp.x, getSize().height);
 //            g.drawLine(0, tmpsp.y, getSize().width, tmpsp.y);
-        }
-    	timer.start("tokenlist-12");
+		}
+		timer.start("tokenlist-12");
 
-        // Selection and labels
-        for (TokenLocation location : getTokenLocations(getActiveLayer())) {
+		// Selection and labels
+		for (TokenLocation location : getTokenLocations(getActiveLayer())) {
 
-            Area bounds = location.bounds;
-            Rectangle2D origBounds = location.origBounds;
+			Area bounds = location.bounds;
+			Rectangle2D origBounds = location.origBounds;
 
-            // TODO: This isn't entirely accurate as it doesn't account for the actual text
-            // to be in the clipping bounds, but I'll fix that later
-            if (!location.bounds.getBounds().intersects(clipBounds)) {
-                continue;
-            }
+			// TODO: This isn't entirely accurate as it doesn't account for the actual text
+			// to be in the clipping bounds, but I'll fix that later
+			if (!location.bounds.getBounds().intersects(clipBounds)) {
+				continue;
+			}
 
-            Token token = location.token;
+			Token token = location.token;
 
-            boolean isSelected = selectedTokenSet.contains(token.getId());
-            if (isSelected) {
-                Rectangle footprintBounds = token.getBounds(zone);
-                ScreenPoint sp = ScreenPoint.fromZonePoint(this, footprintBounds.x, footprintBounds.y);
-                double width = footprintBounds.width * getScale();
-                double height = footprintBounds.height * getScale();
+			boolean isSelected = selectedTokenSet.contains(token.getId());
+			if (isSelected) {
+				Rectangle footprintBounds = token.getBounds(zone);
+				ScreenPoint sp = ScreenPoint.fromZonePoint(this, footprintBounds.x, footprintBounds.y);
+				double width = footprintBounds.width * getScale();
+				double height = footprintBounds.height * getScale();
 
-                ImageBorder selectedBorder = token.isStamp() ? AppStyle.selectedStampBorder : AppStyle.selectedBorder;
-                if (highlightCommonMacros.contains(token)) {
-                	selectedBorder = AppStyle.commonMacroBorder;
-                }
-                if (!AppUtil.playerOwns(token)){
-                	selectedBorder = AppStyle.selectedUnownedBorder;
-                }
-                // Border
+				ImageBorder selectedBorder = token.isStamp() ? AppStyle.selectedStampBorder : AppStyle.selectedBorder;
+				if (highlightCommonMacros.contains(token)) {
+					selectedBorder = AppStyle.commonMacroBorder;
+				}
+				if (!AppUtil.playerOwns(token)){
+					selectedBorder = AppStyle.selectedUnownedBorder;
+				}
+				// Border
 				// FIXME Should this block be using 'clippedG' instead of 'g'?
 				if (clippedG == g) {
 					log.warn("DEVELOPMENT: Clipping rectangle is the same as the base rectangle");
 				}
-                if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp())) {
-                    AffineTransform oldTransform = g.getTransform();
+				if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp())) {
+					AffineTransform oldTransform = g.getTransform();
 
-                    // Rotated
-                    g.translate(sp.x, sp.y);
-                    g.rotate(Math.toRadians(-token.getFacing() - 90), width / 2 - (token.getAnchor().x * scale), height / 2 - (token.getAnchor().y * scale)); // facing defaults to down, or -90 degrees
-                    selectedBorder.paintAround(g, 0, 0, (int) width, (int) height);
+					// Rotated
+					g.translate(sp.x, sp.y);
+					g.rotate(Math.toRadians(-token.getFacing() - 90), width / 2 - (token.getAnchor().x * scale), height / 2 - (token.getAnchor().y * scale)); // facing defaults to down, or -90 degrees
+					selectedBorder.paintAround(g, 0, 0, (int) width, (int) height);
 
-                    g.setTransform(oldTransform);
-                } else {
-                    selectedBorder.paintAround(g, (int) sp.x, (int) sp.y, (int) width, (int) height);
-                }
-            // Remove labels from the cache if the corresponding tokens are deselected
-            } else if (!AppState.isShowTokenNames() && labelRenderingCache.containsKey(token.getId())) {
-                labelRenderingCache.remove(token.getId());
-            }
+					g.setTransform(oldTransform);
+				} else {
+					selectedBorder.paintAround(g, (int) sp.x, (int) sp.y, (int) width, (int) height);
+				}
+				// Remove labels from the cache if the corresponding tokens are deselected
+			} else if (!AppState.isShowTokenNames() && labelRenderingCache.containsKey(token.getId())) {
+				labelRenderingCache.remove(token.getId());
+			}
 
-            // Token names and labels
-            if ((AppState.isShowTokenNames() || token == tokenUnderMouse) && (view.isGMView() || (AppUtil.tokenIsVisible(zone, token, view) && (visibleScreenArea == null || GraphicsUtil.intersects(visibleScreenArea, bounds))))) {
-	            GUID tokId = token.getId();
-	            int offset = 3; // Keep it from tramping on the token border.
-	            ImageLabel background;
-	            Color foreground;
+			// Token names and labels
+			if ((AppState.isShowTokenNames() || token == tokenUnderMouse) && (view.isGMView() || (AppUtil.tokenIsVisible(zone, token, view) && (visibleScreenArea == null || GraphicsUtil.intersects(visibleScreenArea, bounds))))) {
+				GUID tokId = token.getId();
+				int offset = 3; // Keep it from tramping on the token border.
+				ImageLabel background;
+				Color foreground;
 
-	            if (token.isVisible()) {
-	                if (token.getType() == Token.Type.NPC) {
-	                    background = GraphicsUtil.BLUE_LABEL;
-	                    foreground = Color.WHITE;
-	                } else {
-	                    background = GraphicsUtil.GREY_LABEL;
-	                    foreground = Color.BLACK;
-	                }
-	            } else {
-	                background = GraphicsUtil.DARK_GREY_LABEL;
-	                foreground = Color.WHITE;
-	            }
+				if (token.isVisible()) {
+					if (token.getType() == Token.Type.NPC) {
+						background = GraphicsUtil.BLUE_LABEL;
+						foreground = Color.WHITE;
+					} else {
+						background = GraphicsUtil.GREY_LABEL;
+						foreground = Color.BLACK;
+					}
+				} else {
+					background = GraphicsUtil.DARK_GREY_LABEL;
+					foreground = Color.WHITE;
+				}
 
-	            String name = token.getName();
+				String name = token.getName();
 				if (view.isGMView() && token.getGMName() != null && !token.getGMName().isEmpty()) {
 					name += " (" + token.getGMName() + ")";
 				}
 
-                if (((lastView != null && !lastView.equals(view))) || !labelRenderingCache.containsKey(tokId)) {
-                    boolean hasLabel = false;
+				if (((lastView != null && !lastView.equals(view))) || !labelRenderingCache.containsKey(tokId)) {
+					boolean hasLabel = false;
 
-                    // Calculate image dimensions
-                    FontMetrics fm = g.getFontMetrics();
-                    Font f = g.getFont();
-                    int strWidth = SwingUtilities.computeStringWidth(fm, name);
+					// Calculate image dimensions
+					FontMetrics fm = g.getFontMetrics();
+					Font f = g.getFont();
+					int strWidth = SwingUtilities.computeStringWidth(fm, name);
 
-                    int width = strWidth + GraphicsUtil.BOX_PADDINGX * 2;
-                    int height = fm.getHeight() + GraphicsUtil.BOX_PADDINGY * 2;
-                    int labelHeight = height;
+					int width = strWidth + GraphicsUtil.BOX_PADDINGX * 2;
+					int height = fm.getHeight() + GraphicsUtil.BOX_PADDINGY * 2;
+					int labelHeight = height;
 
-                    // If token has a label (in addition to name).
-	                if (token.getLabel() != null && token.getLabel().trim().length() > 0) {
-                        hasLabel = true;
-                        height = height * 2; // Double the image height for two boxed strings.
-                        int labelWidth = SwingUtilities.computeStringWidth(fm, token.getLabel()) + GraphicsUtil.BOX_PADDINGX * 2;
-                        width = (width > labelWidth) ? width : labelWidth;
-	                }
+					// If token has a label (in addition to name).
+					if (token.getLabel() != null && token.getLabel().trim().length() > 0) {
+						hasLabel = true;
+						height = height * 2; // Double the image height for two boxed strings.
+						int labelWidth = SwingUtilities.computeStringWidth(fm, token.getLabel()) + GraphicsUtil.BOX_PADDINGX * 2;
+						width = (width > labelWidth) ? width : labelWidth;
+					}
 
-                    // Set up the image
-                    BufferedImage labelRender = new BufferedImage(width, height, Transparency.TRANSLUCENT);
-                    Graphics2D gLabelRender = labelRender.createGraphics();
-                    gLabelRender.setFont(f); // Match font used in the main graphics context.
-                    gLabelRender.setRenderingHints(g.getRenderingHints()); // Match rendering style.
+					// Set up the image
+					BufferedImage labelRender = new BufferedImage(width, height, Transparency.TRANSLUCENT);
+					Graphics2D gLabelRender = labelRender.createGraphics();
+					gLabelRender.setFont(f); // Match font used in the main graphics context.
+					gLabelRender.setRenderingHints(g.getRenderingHints()); // Match rendering style.
 
-                    // Draw name and label to image
-                    if (hasLabel) {
-                        GraphicsUtil.drawBoxedString(gLabelRender, token.getLabel(), width / 2, height - (labelHeight / 2), SwingUtilities.CENTER, background, foreground);
-                    }
+					// Draw name and label to image
+					if (hasLabel) {
+						GraphicsUtil.drawBoxedString(gLabelRender, token.getLabel(), width / 2, height - (labelHeight / 2), SwingUtilities.CENTER, background, foreground);
+					}
 
-                    GraphicsUtil.drawBoxedString(gLabelRender, name, width / 2, labelHeight / 2, SwingUtilities.CENTER, background, foreground);
+					GraphicsUtil.drawBoxedString(gLabelRender, name, width / 2, labelHeight / 2, SwingUtilities.CENTER, background, foreground);
 
-                    // Add image to cache
-                    labelRenderingCache.put(tokId, labelRender);
-	            }
+					// Add image to cache
+					labelRenderingCache.put(tokId, labelRender);
+				}
 
-	            // Create LabelRenderer using cached label.
-	            delayRendering(new LabelRenderer(name,
-	                        bounds.getBounds().x + bounds.getBounds().width / 2,
-	                        bounds.getBounds().y + bounds.getBounds().height + offset,
-	                        SwingUtilities.CENTER, background, foreground, tokId));
-            }
-        }
-    	timer.stop("tokenlist-12");
-    	timer.start("tokenlist-13");
+				// Create LabelRenderer using cached label.
+				delayRendering(new LabelRenderer(name,
+						bounds.getBounds().x + bounds.getBounds().width / 2,
+						bounds.getBounds().y + bounds.getBounds().height + offset,
+						SwingUtilities.CENTER, background, foreground, tokId));
+			}
+		}
+		timer.stop("tokenlist-12");
+		timer.start("tokenlist-13");
 
-        // Stacks
+		// Stacks
 		if (!tokenList.isEmpty() && !tokenList.get(0).isStamp()) { // TODO: find a cleaner way to indicate token layer
-        for (Token token : tokenStackMap.keySet()) {
-	        	Area bounds = getTokenBounds(token);
-	        	if (bounds == null) {
-	        		// token is offscreen
-	        		continue;
-	        	}
-            BufferedImage stackImage = AppStyle.stackImage;
-            clippedG.drawImage(stackImage, bounds.getBounds().x + bounds.getBounds().width - stackImage.getWidth() + 2, bounds.getBounds().y - 2, null);
-        }
-    	}
+			for (Token token : tokenStackMap.keySet()) {
+				Area bounds = getTokenBounds(token);
+				if (bounds == null) {
+					// token is offscreen
+					continue;
+				}
+				BufferedImage stackImage = AppStyle.stackImage;
+				clippedG.drawImage(stackImage, bounds.getBounds().x + bounds.getBounds().width - stackImage.getWidth() + 2, bounds.getBounds().y - 2, null);
+			}
+		}
 
 //        // Markers
 //        for (TokenLocation location : getMarkerLocations() ) {
@@ -2473,21 +2468,21 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 //            g.drawImage(stackImage, location.bounds.getBounds().x, location.bounds.getBounds().y, null);
 //        }
 
-        if (clippedG != g) {
-        	clippedG.dispose();
-        }
-    	timer.stop("tokenlist-13");
+		if (clippedG != g) {
+			clippedG.dispose();
+		}
+		timer.stop("tokenlist-13");
 
-        visibleTokenSet = Collections.unmodifiableSet(tempVisTokens);
-    }
+		visibleTokenSet = Collections.unmodifiableSet(tempVisTokens);
+	}
 
-    private boolean canSeeMarker(Token token) {
-    	return MapTool.getPlayer().isGM() || !StringUtil.isEmpty(token.getNotes());
-    }
+	private boolean canSeeMarker(Token token) {
+		return MapTool.getPlayer().isGM() || !StringUtil.isEmpty(token.getNotes());
+	}
 
-    public Set<GUID> getSelectedTokenSet() {
-        return selectedTokenSet;
-    }
+	public Set<GUID> getSelectedTokenSet() {
+		return selectedTokenSet;
+	}
 
 	/**
 	 * A convienence method to get selected tokens ordered by name
@@ -2524,9 +2519,9 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 				return true;
 			}
 			return false;
-			
+
 		}
-		
+
 		return true;
 	}
 
@@ -3007,7 +3002,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 							new ZonePoint(token.getX(), token.getY()));
 
 					walker = ZoneRenderer.this.zone.getGrid()
-							.createZoneWalker();
+					.createZoneWalker();
 					walker.setWaypoints(tokenPoint, tokenPoint);
 				}
 			} else {
@@ -3220,42 +3215,34 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 			// and if there are already players set, add the current one to the
 			// list.
 			if (!isGM
-					&& (!token.hasOwners() || !token.isOwner(MapTool
-							.getPlayer().getName()))) {
+					&& (!token.hasOwners() || !token.isOwner(MapTool.getPlayer().getName()))) {
 				token.addOwner(MapTool.getPlayer().getName());
 			}
 
 			// Token type
 			Rectangle size = token.getBounds(zone);
 			switch (getActiveLayer()) {
-			case TOKEN: {
-
+			case TOKEN:
 				// Players can't drop invisible tokens
 				token.setVisible(!isGM || AppPreferences.getNewTokensVisible());
 				if (AppPreferences.getTokensStartFreesize()) {
 					token.setSnapToScale(false);
 				}
 				break;
-			}
-			case BACKGROUND: {
-
+			case BACKGROUND:
 				token.setShape(Token.TokenShape.TOP_DOWN);
 
-				token.setSnapToScale(!AppPreferences
-						.getBackgroundsStartFreesize());
-				token.setSnapToGrid(AppPreferences
-						.getBackgroundsStartSnapToGrid());
+				token.setSnapToScale(!AppPreferences.getBackgroundsStartFreesize());
+				token.setSnapToGrid(AppPreferences.getBackgroundsStartSnapToGrid());
 				token.setVisible(AppPreferences.getNewBackgroundsVisible());
 
 				// Center on drop point
 				if (!token.isSnapToScale() && !token.isSnapToGrid()) {
-
 					token.setX(token.getX() - size.width / 2);
 					token.setY(token.getY() - size.height / 2);
 				}
 				break;
-			}
-			case OBJECT: {
+			case OBJECT:
 				token.setShape(Token.TokenShape.TOP_DOWN);
 
 				token.setSnapToScale(!AppPreferences.getObjectsStartFreesize());
@@ -3269,7 +3256,6 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 				}
 				break;
 			}
-			}
 
 			// Check the name (after Token layer is set as name relies on layer)
 			token.setName(MapToolUtil.nextTokenId(zone, token));
@@ -3279,8 +3265,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 				token.setType(Token.Type.NPC);
 				if (getActiveLayer() == Zone.Layer.TOKEN) {
 					if (AppPreferences.getShowDialogOnNewToken() || showDialog) {
-						NewTokenDialog dialog = new NewTokenDialog(token,
-								dropPoint.x, dropPoint.y);
+						NewTokenDialog dialog = new NewTokenDialog(token, dropPoint.x, dropPoint.y);
 						dialog.showDialog();
 						if (!dialog.isSuccess()) {
 							continue;
@@ -3313,10 +3298,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 			selectToken(token.getId());
 		}
 
-		// Copy them to the clipboard so that we can quickly copy them onto the
-		// map
+		// Copy them to the clipboard so that we can quickly copy them onto the map
 		AppActions.copyTokens(tokens);
-
 		requestFocusInWindow();
 		repaint();
 	}
@@ -3328,8 +3311,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 	 * (java.awt.dnd.DropTargetDropEvent)
 	 */
 	public void drop(DropTargetDropEvent dtde) {
-		ZonePoint zp = new ScreenPoint((int) dtde.getLocation().getX(),
-				(int) dtde.getLocation().getY()).convertToZone(this);
+		ZonePoint zp = new ScreenPoint((int) dtde.getLocation().getX(), (int) dtde.getLocation().getY()).convertToZone(this);
 		TransferableHelper th = (TransferableHelper) getTransferHandler();
 		List<Token> tokens = th.getTokens();
 		if (tokens != null && !tokens.isEmpty())
@@ -3352,17 +3334,14 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 	// //
 	// ZONE MODEL CHANGE LISTENER
 	private class ZoneModelChangeListener implements ModelChangeListener {
-
 		public void modelChanged(ModelChangeEvent event) {
-
 			Object evt = event.getEvent();
 
 			if (evt == Zone.Event.TOPOLOGY_CHANGED) {
 				flushFog();
 				flushLight();
 			}
-			if (evt == Zone.Event.TOKEN_CHANGED
-					|| evt == Zone.Event.TOKEN_REMOVED) {
+			if (evt == Zone.Event.TOKEN_CHANGED || evt == Zone.Event.TOKEN_REMOVED) {
 				flush((Token) event.getArg());
 			}
 			if (evt == Zone.Event.FOG_CHANGED) {
@@ -3381,8 +3360,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 			return 0;
 		}
 
-		return zone.getCreationTime() < ((ZoneRenderer) o).zone
-				.getCreationTime() ? -1 : 1;
+		return zone.getCreationTime() < ((ZoneRenderer) o).zone	.getCreationTime() ? -1 : 1;
 	}
 
 	// Begin token common macro identification
@@ -3402,9 +3380,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener,
 	// //
 	// IMAGE OBSERVER
 	private final ImageObserver drawableObserver = new ImageObserver() {
-
-		public boolean imageUpdate(Image img, int infoflags, int x, int y,
-				int width, int height) {
+		public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
 			ZoneRenderer.this.flushDrawableRenderer();
 			MapTool.getFrame().refresh();
 			return true;

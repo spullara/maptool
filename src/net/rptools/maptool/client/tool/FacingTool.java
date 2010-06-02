@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.tool;
 
@@ -38,34 +38,34 @@ import net.rptools.maptool.util.TokenUtil;
 public class FacingTool extends DefaultTool {
 
 	private double facing;
-	
+
 	// TODO: This shouldn't be necessary, just get it from the renderer
 	private Token tokenUnderMouse;
 	private Set<GUID> selectedTokenSet;
 
 	public FacingTool () {
 		// Non tool-bar tool ... atm
-    }
+	}
 
 	public void init(Token keyToken, Set<GUID> selectedTokenSet) {
-		tokenUnderMouse = keyToken;    	
+		tokenUnderMouse = keyToken;
 		this.selectedTokenSet = selectedTokenSet;
 	}
-	
-    @Override
-    public String getTooltip() {
-        return "tool.facing.tooltip";
-    }
-    
-    @Override
-    public String getInstructions() {
-    	return "tool.facing.instructions";
-    }
-    
-    @Override
-    protected void installKeystrokes(Map<KeyStroke, Action> actionMap) {
-    	super.installKeystrokes(actionMap);
-    	
+
+	@Override
+	public String getTooltip() {
+		return "tool.facing.tooltip";
+	}
+
+	@Override
+	public String getInstructions() {
+		return "tool.facing.instructions";
+	}
+
+	@Override
+	protected void installKeystrokes(Map<KeyStroke, Action> actionMap) {
+		super.installKeystrokes(actionMap);
+
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -75,85 +75,85 @@ public class FacingTool extends DefaultTool {
 						if (token == null) {
 							continue;
 						}
-						
+
 						token.setFacing(null);
-			    		renderer.flush(token);
+						renderer.flush(token);
 					}
-					
+
 					// Go back to the pointer tool
 					resetTool();
 				}
 			}
 		});
-    }
-    
-    ////
-    // MOUSE
-    @Override
-    public void mouseMoved(MouseEvent e) {
-    	super.mouseMoved(e);
-    	
-    	if (tokenUnderMouse == null || renderer.getTokenBounds(tokenUnderMouse) == null) {
-    		return;
-    	}
-    	
-    	Rectangle bounds = renderer.getTokenBounds(tokenUnderMouse).getBounds();
-    	
-    	int x = bounds.x + bounds.width/2;
-    	int y = bounds.y + bounds.height/2;
+	}
 
-    	double angle = Math.atan2(y - e.getY(), e.getX() - x);
-    	
-    	int degrees = (int)Math.toDegrees(angle);
+	////
+	// MOUSE
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		super.mouseMoved(e);
 
-    	if (!SwingUtil.isControlDown(e)) {
-	    	int[] facingAngles = renderer.getZone().getGrid().getFacingAngles();
-	    	degrees = facingAngles[TokenUtil.getIndexNearestTo(facingAngles, degrees)];
-    	}
-    	Area visibleArea =new Area();
-    	for (GUID tokenGUID : selectedTokenSet) {
-    		Token token = renderer.getZone().getToken(tokenGUID);
-    		if (token == null) {
-    			continue;
-    		}
-    		
-    		token.setFacing(degrees);
-    		if (AppPreferences.getAutoRevealVisionOnGMMovement() && (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision())) {
-	            visibleArea = MapTool.getFrame().getCurrentZoneRenderer().getZoneView().getVisibleArea(token);
-	            MapTool.getFrame().getCurrentZoneRenderer().getZone().exposeArea(visibleArea);
-    		}
-    		renderer.flush(token);
-    	}
-    	MapTool.serverCommand().exposeFoW(renderer.getZone().getId(), visibleArea);
+		if (tokenUnderMouse == null || renderer.getTokenBounds(tokenUnderMouse) == null) {
+			return;
+		}
 
-    	renderer.repaint(); // TODO: shrink this
-    }
-    
-    @Override
-    public void mousePressed(MouseEvent e) {
+		Rectangle bounds = renderer.getTokenBounds(tokenUnderMouse).getBounds();
 
-    	// Commit
-    	for (GUID tokenGUID : selectedTokenSet) {
+		int x = bounds.x + bounds.width/2;
+		int y = bounds.y + bounds.height/2;
 
-    		Token token = renderer.getZone().getToken(tokenGUID);
-    		if (token == null) {
-    			continue;
-    		}
-    		
-    		renderer.flush(token);
-    		MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
-    	}
-		
+		double angle = Math.atan2(y - e.getY(), e.getX() - x);
+
+		int degrees = (int)Math.toDegrees(angle);
+
+		if (!SwingUtil.isControlDown(e)) {
+			int[] facingAngles = renderer.getZone().getGrid().getFacingAngles();
+			degrees = facingAngles[TokenUtil.getIndexNearestTo(facingAngles, degrees)];
+		}
+		Area visibleArea =new Area();
+		for (GUID tokenGUID : selectedTokenSet) {
+			Token token = renderer.getZone().getToken(tokenGUID);
+			if (token == null) {
+				continue;
+			}
+
+			token.setFacing(degrees);
+			if (AppPreferences.getAutoRevealVisionOnGMMovement() && (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision())) {
+				visibleArea = MapTool.getFrame().getCurrentZoneRenderer().getZoneView().getVisibleArea(token);
+				MapTool.getFrame().getCurrentZoneRenderer().getZone().exposeArea(visibleArea);
+			}
+			renderer.flush(token);
+		}
+		MapTool.serverCommand().exposeFoW(renderer.getZone().getId(), visibleArea);
+
+		renderer.repaint(); // TODO: shrink this
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+
+		// Commit
+		for (GUID tokenGUID : selectedTokenSet) {
+
+			Token token = renderer.getZone().getToken(tokenGUID);
+			if (token == null) {
+				continue;
+			}
+
+			renderer.flush(token);
+			MapTool.serverCommand().putToken(renderer.getZone().getId(), token);
+		}
+
 		// Go back to the pointer tool
 		resetTool();
-    }
-    
-    @Override
-    protected void resetTool() {
-    	if (tokenUnderMouse.isStamp()) {
-    	  	  MapTool.getFrame().getToolbox().setSelectedTool(StampTool.class);
-    	} else {
-    	  	  MapTool.getFrame().getToolbox().setSelectedTool(PointerTool.class);
-    	}
-    }
+	}
+
+	@Override
+	protected void resetTool() {
+		if (tokenUnderMouse.isStamp()) {
+			MapTool.getFrame().getToolbox().setSelectedTool(StampTool.class);
+		} else {
+			MapTool.getFrame().getToolbox().setSelectedTool(PointerTool.class);
+		}
+	}
 }

@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.server;
 
@@ -50,527 +50,527 @@ import net.rptools.maptool.transfer.AssetProducer;
  * @author drice
  */
 public class ServerMethodHandler extends AbstractMethodHandler implements ServerCommand {
-    private final MapToolServer server;
-    
-    private final Object MUTEX = new Object();
-    
-    public ServerMethodHandler(MapToolServer server) {
-        this.server = server;
-    }
+	private final MapToolServer server;
 
-    public void handleMethod(String id, String method, Object[] parameters) {
-        ServerCommand.COMMAND cmd = Enum.valueOf(ServerCommand.COMMAND.class, method);
-        //System.out.println("ServerMethodHandler#handleMethod: " + id + " - " + cmd.name());
+	private final Object MUTEX = new Object();
 
-        try {
-            RPCContext context = new RPCContext(id, method, parameters); 
-            RPCContext.setCurrent(context);
-            
-        	switch (cmd) {
-            
-        	case bootPlayer:			  bootPlayer(context.getString(0)); break;
-            case bringTokensToFront:      bringTokensToFront(context.getGUID(0), (Set<GUID>) context.get(1)); break;
-            case draw:                    draw(context.getGUID(0), (Pen) context.get(1), (Drawable) context.get(2)); break;
-            case enforceZoneView:         enforceZoneView(context.getGUID(0), context.getInt(1), context.getInt(2), context.getDouble(3), context.getInt(4), context.getInt(5)); break;
-            case exposeFoW:               exposeFoW(context.getGUID(0), (Area) context.get(1)); break;
-            case getAsset:                getAsset((MD5Key) context.get(0)); break;
-            case getZone:                 getZone(context.getGUID(0)); break;
-            case hideFoW:                 hideFoW(context.getGUID(0), (Area) context.get(1)); break;
-            case setFoW:                  setFoW(context.getGUID(0), (Area) context.get(1)); break;
-            case hidePointer:             hidePointer(context.getString(0)); break;
-            case setLiveTypingLabel:	  setLiveTypingLabel(context.getString(0)); break;
-            case enforceNotification:	  enforceNotification(context.getBool(0)); break;
-            case message:                 message((TextMessage)context.get(0)); break;
-            case putAsset:                putAsset((Asset) context.get(0)); break;
-            case putLabel:                putLabel(context.getGUID(0), (Label) context.get(1)); break;
-            case putToken:                putToken(context.getGUID(0), (Token) context.get(1)); break;
-            case putZone:                 putZone((Zone) context.get(0)); break;
-            case removeZone:              removeZone(context.getGUID(0)); break;
-            case removeAsset:             removeAsset((MD5Key) context.get(0)); break;
-            case removeToken:             removeToken(context.getGUID(0), context.getGUID(1)); break;
-            case removeLabel:             removeLabel(context.getGUID(0), context.getGUID(1)); break;
-            case sendTokensToBack:        sendTokensToBack(context.getGUID(0), (Set<GUID>) context.get(1)); break;
-            case setCampaign:             setCampaign((Campaign) context.get(0)); break;
-            case setZoneGridSize:         setZoneGridSize(context.getGUID(0), context.getInt(1), context.getInt(2), context.getInt(3), context.getInt(4)); break;
-            case setZoneVisibility:       setZoneVisibility(context.getGUID(0), (Boolean) context.get(1)); break;
-            case setZoneHasFoW:           setZoneHasFoW(context.getGUID(0), context.getBool(1)); break;
-            case showPointer:             showPointer(context.getString(0), (Pointer) context.get(1)); break;
-            case startTokenMove:          startTokenMove(context.getString(0), context.getGUID(1), context.getGUID(2), (Set<GUID>) context.get(3)); break;
-            case stopTokenMove:           stopTokenMove(context.getGUID(0), context.getGUID(1)); break;
-            case toggleTokenMoveWaypoint: toggleTokenMoveWaypoint(context.getGUID(0), context.getGUID(1), (ZonePoint)context.get(2)); break;
-            case undoDraw:                undoDraw(context.getGUID(0), context.getGUID(1)); break;
-            case updateTokenMove:         updateTokenMove(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3)); break;
-            case clearAllDrawings:        clearAllDrawings(context.getGUID(0)); break;
-            case enforceZone:			  enforceZone(context.getGUID(0));break;
-            case setServerPolicy:		  setServerPolicy((ServerPolicy) context.get(0));break;
-            case addTopology:             addTopology(context.getGUID(0), (Area) context.get(1)); break;
-            case removeTopology:          removeTopology(context.getGUID(0), (Area) context.get(1)); break;
-            case renameZone:			  renameZone(context.getGUID(0), context.getString(1));break;
-            case heartbeat:				  heartbeat(context.getString(0));break;
-            case updateCampaign:		  updateCampaign((CampaignProperties) context.get(0));break;
-            case movePointer: 			  movePointer(context.getString(0), context.getInt(1), context.getInt(2));break;
-            case updateInitiative:        updateInitiative((InitiativeList)context.get(0), (Boolean)context.get(1));break;
-            case updateTokenInitiative:   updateTokenInitiative(context.getGUID(0), context.getGUID(1), context.getBool(2), context.getString(3), context.getInt(4));break;
-            case setVisionType:           setVisionType(context.getGUID(0), (VisionType)context.get(1));break;
-            case updateCampaignMacros:	  updateCampaignMacros((List<MacroButtonProperties>) context.get(0));break;
-            case setTokenLocation:		  setTokenLocation(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3));break;
-            }
-        } finally {
-            RPCContext.setCurrent(null);
-        }
-    }
+	public ServerMethodHandler(MapToolServer server) {
+		this.server = server;
+	}
 
-    /**
-     * Send the current call to all other clients except for the sender
-     */
-    private void forwardToClients() {
-        server.getConnection().broadcastCallMethod(new String[] { RPCContext.getCurrent().id }, RPCContext.getCurrent().method, RPCContext.getCurrent().parameters);
-    }
+	public void handleMethod(String id, String method, Object... parameters) {
+		ServerCommand.COMMAND cmd = Enum.valueOf(ServerCommand.COMMAND.class, method);
+		//System.out.println("ServerMethodHandler#handleMethod: " + id + " - " + cmd.name());
 
-    /**
-     * Send the current call to all clients including the sender
-     */
-    private void forwardToAllClients() {
-        server.getConnection().broadcastCallMethod(new String[] {}, RPCContext.getCurrent().method, RPCContext.getCurrent().parameters);
-    }
+		try {
+			RPCContext context = new RPCContext(id, method, parameters);
+			RPCContext.setCurrent(context);
 
-    private void broadcastToClients(String exclude, String method, Object... parameters) {
-        server.getConnection().broadcastCallMethod(new String[] { exclude }, method, parameters);
-    }
-    
-    private void broadcastToAllClients(String method, Object... parameters) {
-        server.getConnection().broadcastCallMethod(new String[] {}, method, parameters);
-    }
-    
-    ////
-    // SERVER COMMAND
-    public void setVisionType(GUID zoneGUID, VisionType visionType) {
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.setVisionType(visionType);
+			switch (cmd) {
 
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setUseVision.name(), RPCContext.getCurrent().parameters);
-    }
+			case bootPlayer:							bootPlayer(context.getString(0)); break;
+			case bringTokensToFront:			bringTokensToFront(context.getGUID(0), (Set<GUID>) context.get(1)); break;
+			case draw:									draw(context.getGUID(0), (Pen) context.get(1), (Drawable) context.get(2)); break;
+			case enforceZoneView:					enforceZoneView(context.getGUID(0), context.getInt(1), context.getInt(2), context.getDouble(3), context.getInt(4), context.getInt(5)); break;
+			case exposeFoW:							exposeFoW(context.getGUID(0), (Area) context.get(1)); break;
+			case getAsset:								getAsset((MD5Key) context.get(0)); break;
+			case getZone:								getZone(context.getGUID(0)); break;
+			case hideFoW:								hideFoW(context.getGUID(0), (Area) context.get(1)); break;
+			case setFoW:									setFoW(context.getGUID(0), (Area) context.get(1)); break;
+			case hidePointer:							hidePointer(context.getString(0)); break;
+			case setLiveTypingLabel:				setLiveTypingLabel(context.getString(0)); break;
+			case enforceNotification:				enforceNotification(context.getBool(0)); break;
+			case message:								message((TextMessage)context.get(0)); break;
+			case putAsset:								putAsset((Asset) context.get(0)); break;
+			case putLabel:								putLabel(context.getGUID(0), (Label) context.get(1)); break;
+			case putToken:								putToken(context.getGUID(0), (Token) context.get(1)); break;
+			case putZone:								putZone((Zone) context.get(0)); break;
+			case removeZone:							removeZone(context.getGUID(0)); break;
+			case removeAsset:						removeAsset((MD5Key) context.get(0)); break;
+			case removeToken:						removeToken(context.getGUID(0), context.getGUID(1)); break;
+			case removeLabel:						removeLabel(context.getGUID(0), context.getGUID(1)); break;
+			case sendTokensToBack:				sendTokensToBack(context.getGUID(0), (Set<GUID>) context.get(1)); break;
+			case setCampaign:						setCampaign((Campaign) context.get(0)); break;
+			case setZoneGridSize:					setZoneGridSize(context.getGUID(0), context.getInt(1), context.getInt(2), context.getInt(3), context.getInt(4)); break;
+			case setZoneVisibility:					setZoneVisibility(context.getGUID(0), (Boolean) context.get(1)); break;
+			case setZoneHasFoW:					setZoneHasFoW(context.getGUID(0), context.getBool(1)); break;
+			case showPointer:							showPointer(context.getString(0), (Pointer) context.get(1)); break;
+			case startTokenMove:					startTokenMove(context.getString(0), context.getGUID(1), context.getGUID(2), (Set<GUID>) context.get(3)); break;
+			case stopTokenMove:					stopTokenMove(context.getGUID(0), context.getGUID(1)); break;
+			case toggleTokenMoveWaypoint:	toggleTokenMoveWaypoint(context.getGUID(0), context.getGUID(1), (ZonePoint)context.get(2)); break;
+			case undoDraw:							undoDraw(context.getGUID(0), context.getGUID(1)); break;
+			case updateTokenMove:				updateTokenMove(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3)); break;
+			case clearAllDrawings:					clearAllDrawings(context.getGUID(0)); break;
+			case enforceZone:							enforceZone(context.getGUID(0));break;
+			case setServerPolicy:						setServerPolicy((ServerPolicy) context.get(0));break;
+			case addTopology:						addTopology(context.getGUID(0), (Area) context.get(1)); break;
+			case removeTopology:					removeTopology(context.getGUID(0), (Area) context.get(1)); break;
+			case renameZone:							renameZone(context.getGUID(0), context.getString(1));break;
+			case heartbeat:								heartbeat(context.getString(0));break;
+			case updateCampaign:					updateCampaign((CampaignProperties) context.get(0));break;
+			case movePointer:							movePointer(context.getString(0), context.getInt(1), context.getInt(2));break;
+			case updateInitiative:					updateInitiative((InitiativeList)context.get(0), (Boolean)context.get(1));break;
+			case updateTokenInitiative:			updateTokenInitiative(context.getGUID(0), context.getGUID(1), context.getBool(2), context.getString(3), context.getInt(4));break;
+			case setVisionType:						setVisionType(context.getGUID(0), (VisionType)context.get(1));break;
+			case updateCampaignMacros:		updateCampaignMacros((List<MacroButtonProperties>) context.get(0));break;
+			case setTokenLocation:					setTokenLocation(context.getGUID(0), context.getGUID(1), context.getInt(2), context.getInt(3));break;
+			}
+		} finally {
+			RPCContext.setCurrent(null);
+		}
+	}
 
-    public void heartbeat(String data) {
-    	// Nothing to do yet
-    }
-    
-    public void enforceZone(GUID zoneGUID) {
-    	forwardToClients();
-    }
-    
-    public void updateCampaign(CampaignProperties properties) {
-    	server.getCampaign().replaceCampaignProperties(properties);
+	/**
+	 * Send the current call to all other clients except for the sender
+	 */
+	private void forwardToClients() {
+		server.getConnection().broadcastCallMethod(new String[] { RPCContext.getCurrent().id }, RPCContext.getCurrent().method, RPCContext.getCurrent().parameters);
+	}
 
-    	forwardToClients();
-    }
-    
-    public void bringTokensToFront(GUID zoneGUID, Set<GUID> tokenSet) {
-        synchronized (MUTEX) {
+	/**
+	 * Send the current call to all clients including the sender
+	 */
+	private void forwardToAllClients() {
+		server.getConnection().broadcastCallMethod(new String[] {}, RPCContext.getCurrent().method, RPCContext.getCurrent().parameters);
+	}
 
-            Zone zone = server.getCampaign().getZone(zoneGUID);
+	private void broadcastToClients(String exclude, String method, Object... parameters) {
+		server.getConnection().broadcastCallMethod(new String[] { exclude }, method, parameters);
+	}
 
-            // Get the tokens to update
-            List<Token> tokenList = new ArrayList<Token>();
-            for (GUID tokenGUID : tokenSet) {
-                Token token = zone.getToken(tokenGUID);
-                
-                if (token != null) {
-                    tokenList.add(token);
-                }
-            }
-            
-            // Arrange
-            Collections.sort(tokenList, Zone.TOKEN_Z_ORDER_COMPARATOR);
-            
-            // Update
-            int z = zone.getLargestZOrder() + 1;
-            for (Token token : tokenList) {
-                token.setZOrder(z ++);
-            }
-            
-            // Broadcast
-            for (Token token : tokenList) {
-                broadcastToAllClients(ClientCommand.COMMAND.putToken.name(), zoneGUID, token);
-            }
-        }
-    }
-    
-    public void clearAllDrawings(GUID zoneGUID) {
-    	
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.getDrawnElements().clear();
+	private void broadcastToAllClients(String method, Object... parameters) {
+		server.getConnection().broadcastCallMethod(new String[] {}, method, parameters);
+	}
 
-    	forwardToAllClients();
-    }
-    
-    public void draw(GUID zoneGUID, Pen pen, Drawable drawable) {
-        
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.draw.name(), RPCContext.getCurrent().parameters);
-        
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        
-        zone.addDrawable(new DrawnElement(drawable, pen));
-    }
-    
-    public void enforceZoneView(GUID zoneGUID, int x, int y, double scale, int width, int height) {
-        forwardToClients();
-    }
-    
-    public void exposeFoW(GUID zoneGUID, Area area) {
+	////
+	// SERVER COMMAND
+	public void setVisionType(GUID zoneGUID, VisionType visionType) {
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		zone.setVisionType(visionType);
 
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.exposeArea(area);
+		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setUseVision.name(), RPCContext.getCurrent().parameters);
+	}
 
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.exposeFoW.name(), RPCContext.getCurrent().parameters);
-    }
+	public void heartbeat(String data) {
+		// Nothing to do yet
+	}
 
-    public void getAsset(MD5Key assetID) {
+	public void enforceZone(GUID zoneGUID) {
+		forwardToClients();
+	}
 
-    	if (assetID == null || assetID.toString().length() == 0) {
-    		return;
-    	}
-    	try {
-        	AssetProducer producer = new AssetProducer(assetID, AssetManager.getAssetInfo(assetID).getProperty(AssetManager.NAME), AssetManager.getAssetCacheFile(assetID));
+	public void updateCampaign(CampaignProperties properties) {
+		server.getCampaign().replaceCampaignProperties(properties);
 
-    		server.getConnection().callMethod(RPCContext.getCurrent().id, MapToolConstants.Channel.IMAGE, ClientCommand.COMMAND.startAssetTransfer.name(), producer.getHeader());
-    		server.addAssetProducer(RPCContext.getCurrent().id, producer);
-    		
-    	} catch (IOException ioe) {
-    		ioe.printStackTrace();
-    		
-    		// Old fashioned way
-            server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putAsset.name(), AssetManager.getAsset(assetID));
-    	} catch (IllegalArgumentException iae) {
-    		// Sending an empty asset will cause a failure of the image to load on the client side, showing a broken
-    		// image instead of blowing up
-    		Asset asset = new Asset("broken", new byte[]{});
-    		asset.setId(assetID);
-            server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putAsset.name(), asset);
-    	}
-    	
-    }
-    
-    public void getZone(GUID zoneGUID) {
-        server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putZone.name(), server.getCampaign().getZone(zoneGUID));
-    }
-    
-    public void hideFoW(GUID zoneGUID, Area area) {
+		forwardToClients();
+	}
 
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.hideArea(area);
+	public void bringTokensToFront(GUID zoneGUID, Set<GUID> tokenSet) {
+		synchronized (MUTEX) {
 
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.hideFoW.name(), RPCContext.getCurrent().parameters);
-    }
+			Zone zone = server.getCampaign().getZone(zoneGUID);
 
-    public void setFoW(GUID zoneGUID, Area area) {
+			// Get the tokens to update
+			List<Token> tokenList = new ArrayList<Token>();
+			for (GUID tokenGUID : tokenSet) {
+				Token token = zone.getToken(tokenGUID);
 
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.setFogArea(area);
+				if (token != null) {
+					tokenList.add(token);
+				}
+			}
 
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setFoW.name(), RPCContext.getCurrent().parameters);
-    }
+			// Arrange
+			Collections.sort(tokenList, Zone.TOKEN_Z_ORDER_COMPARATOR);
 
-    public void hidePointer(String player) {
-        forwardToAllClients();
-    }
-    
-    public void movePointer(String player, int x, int y) {
-    	forwardToAllClients();
-    }
-    
-    public void updateInitiative(InitiativeList list, Boolean ownerPermission) {
-        if (list != null) {
-            if (list.getZone() == null) return;
-            Zone zone = server.getCampaign().getZone(list.getZone().getId());
-            zone.setInitiativeList(list);
-        } else if (ownerPermission != null) {
-            MapTool.getFrame().getInitiativePanel().setOwnerPermissions(ownerPermission.booleanValue());
-        }
-        forwardToAllClients();
-    }
-    
-    public void updateTokenInitiative(GUID zoneId, GUID tokenId, Boolean hold, String state, Integer index) {
-        Zone zone = server.getCampaign().getZone(zoneId);
-        InitiativeList list = zone.getInitiativeList();
-        TokenInitiative ti = list.getTokenInitiative(index);
-        if (!ti.getId().equals(tokenId)) {
-            
-            // Index doesn't point to same token, try to find it
-            Token token = zone.getToken(tokenId);
-            List<Integer> tokenIndex = list.indexOf(token);
-            
-            // If token in list more than one time, punt
-            if (tokenIndex.size() != 1) return;
-            ti = list.getTokenInitiative(tokenIndex.get(0));
-        } // endif
-        ti.update(hold, state);
-        forwardToAllClients();
-    }
-   
-    public void renameZone(GUID zoneGUID, String name) {
-    	Zone zone = server.getCampaign().getZone(zoneGUID);
-    	if (zone != null) {
-    		zone.setName(name);
-    		forwardToAllClients();
-    	}
-    }
-    
-    public void message(TextMessage message) {
-        forwardToClients();
-    }
-    
-    public void putAsset(Asset asset) {
-        AssetManager.putAsset(asset);
-    }
-    
-    public void putLabel(GUID zoneGUID, Label label) {
+			// Update
+			int z = zone.getLargestZOrder() + 1;
+			for (Token token : tokenList) {
+				token.setZOrder(z ++);
+			}
 
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.putLabel(label);
-        
-        forwardToClients();
-    }
+			// Broadcast
+			for (Token token : tokenList) {
+				broadcastToAllClients(ClientCommand.COMMAND.putToken.name(), zoneGUID, token);
+			}
+		}
+	}
 
-    public void putToken(GUID zoneGUID, Token token) {
+	public void clearAllDrawings(GUID zoneGUID) {
 
-        Zone zone = server.getCampaign().getZone(zoneGUID);
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		zone.getDrawnElements().clear();
 
-        boolean newToken = zone.getToken(token.getId()) == null;
-        synchronized (MUTEX) {
-	        // Set z-order for new tokens
-	        if (newToken) {
-	        	token.setZOrder(zone.getLargestZOrder() + 1);
-	        }
-	        
-	        zone.putToken(token);
-        }
-        
-        if (newToken) {
-            forwardToAllClients();
-        } else {
-            forwardToClients();
-        }
-    }
-    
-    public void putZone(Zone zone) {
+		forwardToAllClients();
+	}
 
-        server.getCampaign().putZone(zone);
-        forwardToClients();
-    }
-    
-    public void removeAsset(MD5Key assetID) {
-        AssetManager.removeAsset(assetID);
-    }
-    
-    public void removeLabel(GUID zoneGUID, GUID labelGUID) {
+	public void draw(GUID zoneGUID, Pen pen, Drawable drawable) {
 
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.removeLabel(labelGUID);
-        
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.removeLabel.name(), RPCContext.getCurrent().parameters);
-    }
-    
-    public void removeToken(GUID zoneGUID, GUID tokenGUID) {
+		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.draw.name(), RPCContext.getCurrent().parameters);
 
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.removeToken(tokenGUID);
-        
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.removeToken.name(), RPCContext.getCurrent().parameters);
-    }
-    
-    public void removeZone(GUID zoneGUID) {
-        server.getCampaign().removeZone(zoneGUID);
-        forwardToClients();
-    }
-    
-    public void sendTokensToBack(GUID zoneGUID, Set<GUID> tokenSet) {
-        synchronized (MUTEX) {
-            
-            Zone zone = server.getCampaign().getZone(zoneGUID);
+		Zone zone = server.getCampaign().getZone(zoneGUID);
 
-            // Get the tokens to update
-            List<Token> tokenList = new ArrayList<Token>();
-            for (GUID tokenGUID : tokenSet) {
-                Token token = zone.getToken(tokenGUID);
-                
-                if (token != null) {
-                    tokenList.add(token);
-                }
-            }
-            
-            // Arrange
-            Collections.sort(tokenList, Zone.TOKEN_Z_ORDER_COMPARATOR);
-            
-            // Update
-            int z = zone.getSmallestZOrder() - 1;
-            for (Token token : tokenList) {
-                token.setZOrder(z --);
-            }
-            
-            // Broadcast
-            for (Token token : tokenList) {
-                broadcastToAllClients(ClientCommand.COMMAND.putToken.name(), zoneGUID, token);
-            }
-        }
-    }
-    
-    public void setCampaign(Campaign campaign) {
+		zone.addDrawable(new DrawnElement(drawable, pen));
+	}
 
-        server.setCampaign(campaign);
-        forwardToClients();
-    }
-    
-    public void setZoneGridSize(GUID zoneGUID, int offsetX, int offsetY, int size, int color) {
+	public void enforceZoneView(GUID zoneGUID, int x, int y, double scale, int width, int height) {
+		forwardToClients();
+	}
 
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        Grid grid = zone.getGrid();
-        grid.setSize(size);
-        grid.setOffset(offsetX, offsetY);
-        zone.setGridColor(color);
-        
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setZoneGridSize.name(), RPCContext.getCurrent().parameters);
-    }
+	public void exposeFoW(GUID zoneGUID, Area area) {
 
-    public void setZoneHasFoW(GUID zoneGUID, boolean hasFog) {
-        
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.setHasFog(hasFog);
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		zone.exposeArea(area);
 
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setZoneHasFoW.name(), RPCContext.getCurrent().parameters);
-    }
+		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.exposeFoW.name(), RPCContext.getCurrent().parameters);
+	}
 
-    public void setZoneVisibility(GUID zoneGUID, boolean visible) {
+	public void getAsset(MD5Key assetID) {
 
-        server.getCampaign().getZone(zoneGUID).setVisible(visible);
-        
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setZoneVisibility.name(), RPCContext.getCurrent().parameters);
-    }
+		if (assetID == null || assetID.toString().length() == 0) {
+			return;
+		}
+		try {
+			AssetProducer producer = new AssetProducer(assetID, AssetManager.getAssetInfo(assetID).getProperty(AssetManager.NAME), AssetManager.getAssetCacheFile(assetID));
 
-    public void showPointer(String player, Pointer pointer) {
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.showPointer.name(), RPCContext.getCurrent().parameters);
-    }
-    
-    public void setLiveTypingLabel(String label){
-    	forwardToClients();
-    }
-    
-    public void enforceNotification(Boolean enforce){
-    	forwardToClients();
-    }
-    
-    public void bootPlayer(String player) {
-    	forwardToClients();
-    	
-    	// And just to be sure, remove them from the server
-    	server.releaseClientConnection(server.getConnectionId(player));
-    }
+			server.getConnection().callMethod(RPCContext.getCurrent().id, MapToolConstants.Channel.IMAGE, ClientCommand.COMMAND.startAssetTransfer.name(), producer.getHeader());
+			server.addAssetProducer(RPCContext.getCurrent().id, producer);
 
-    public void startTokenMove(String playerId, GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList) {
-        forwardToClients();
-    }
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
 
-    public void stopTokenMove(GUID zoneGUID, GUID tokenGUID) {
-        forwardToClients();
-    }
+			// Old fashioned way
+			server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putAsset.name(), AssetManager.getAsset(assetID));
+		} catch (IllegalArgumentException iae) {
+			// Sending an empty asset will cause a failure of the image to load on the client side, showing a broken
+			// image instead of blowing up
+			Asset asset = new Asset("broken", new byte[]{});
+			asset.setId(assetID);
+			server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putAsset.name(), asset);
+		}
 
-    public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, ZonePoint cp) {
-        forwardToClients();
-    }
+	}
 
-    public void undoDraw(GUID zoneGUID, GUID drawableGUID) {
+	public void getZone(GUID zoneGUID) {
+		server.getConnection().callMethod(RPCContext.getCurrent().id, ClientCommand.COMMAND.putZone.name(), server.getCampaign().getZone(zoneGUID));
+	}
 
-        server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.undoDraw.name(), zoneGUID, drawableGUID);
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.removeDrawable(drawableGUID);
-    }
+	public void hideFoW(GUID zoneGUID, Area area) {
 
-    public void updateTokenMove(GUID zoneGUID, GUID tokenGUID, int x, int y) {
-        forwardToClients();
-    }
-    
-    public void setTokenLocation(GUID zoneGUID, GUID tokenGUID, int x, int y) {
-    	forwardToClients();
-    }
-    
-    public void setServerPolicy(ServerPolicy policy) {
-    	forwardToClients();
-    }
-    
-    public void addTopology(GUID zoneGUID, Area area) {
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		zone.hideArea(area);
 
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.addTopology(area);
+		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.hideFoW.name(), RPCContext.getCurrent().parameters);
+	}
 
-        forwardToClients();
-    }
+	public void setFoW(GUID zoneGUID, Area area) {
 
-    public void removeTopology(GUID zoneGUID, Area area) {
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		zone.setFogArea(area);
 
-        Zone zone = server.getCampaign().getZone(zoneGUID);
-        zone.removeTopology(area);
+		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setFoW.name(), RPCContext.getCurrent().parameters);
+	}
 
-        forwardToClients();
-    }
-    
-    public void updateCampaignMacros(List<MacroButtonProperties> properties) {
-    	MapTool.getCampaign().setMacroButtonPropertiesArray(new ArrayList<MacroButtonProperties>(properties));
-    	
-    	forwardToClients();
-    }
-    
-    ////
-    // CONTEXT
-    private static class RPCContext {
-        
-        private static ThreadLocal<RPCContext> threadLocal = new ThreadLocal<RPCContext>();
-        
-        public String id;
-        public String method;
-        public Object[] parameters;
-        
-        public RPCContext (String id, String method, Object[] parameters) {
-            this.id = id;
-            this.method = method;
-            this.parameters = parameters;
-        }
-        
-        public static boolean hasCurrent() {
-            return threadLocal.get() != null;
-        }
-        
-        public static RPCContext getCurrent() {
-            return threadLocal.get();
-        }
-        
-        public static void setCurrent(RPCContext context) {
-            threadLocal.set(context);
-        }
-        
-        ////
-        // Convenience methods
-        public GUID getGUID(int index) {
-            return (GUID) parameters[index];
-        }
-        
-        public Integer getInt(int index) {
-            return (Integer) parameters[index];
-        }
-        
-        public Double getDouble(int index) {
-        	return (Double) parameters[index];
-        }
-        
-        public Object get(int index) {
-            return parameters[index];
-        }
-        
-        public String getString(int index) {
-            return (String) parameters[index];
-        }
-        
-        public Boolean getBool(int index) {
-            return (Boolean) parameters[index];
-        }
-    }
+	public void hidePointer(String player) {
+		forwardToAllClients();
+	}
+
+	public void movePointer(String player, int x, int y) {
+		forwardToAllClients();
+	}
+
+	public void updateInitiative(InitiativeList list, Boolean ownerPermission) {
+		if (list != null) {
+			if (list.getZone() == null) return;
+			Zone zone = server.getCampaign().getZone(list.getZone().getId());
+			zone.setInitiativeList(list);
+		} else if (ownerPermission != null) {
+			MapTool.getFrame().getInitiativePanel().setOwnerPermissions(ownerPermission.booleanValue());
+		}
+		forwardToAllClients();
+	}
+
+	public void updateTokenInitiative(GUID zoneId, GUID tokenId, Boolean hold, String state, Integer index) {
+		Zone zone = server.getCampaign().getZone(zoneId);
+		InitiativeList list = zone.getInitiativeList();
+		TokenInitiative ti = list.getTokenInitiative(index);
+		if (!ti.getId().equals(tokenId)) {
+
+			// Index doesn't point to same token, try to find it
+			Token token = zone.getToken(tokenId);
+			List<Integer> tokenIndex = list.indexOf(token);
+
+			// If token in list more than one time, punt
+			if (tokenIndex.size() != 1) return;
+			ti = list.getTokenInitiative(tokenIndex.get(0));
+		} // endif
+		ti.update(hold, state);
+		forwardToAllClients();
+	}
+
+	public void renameZone(GUID zoneGUID, String name) {
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		if (zone != null) {
+			zone.setName(name);
+			forwardToAllClients();
+		}
+	}
+
+	public void message(TextMessage message) {
+		forwardToClients();
+	}
+
+	public void putAsset(Asset asset) {
+		AssetManager.putAsset(asset);
+	}
+
+	public void putLabel(GUID zoneGUID, Label label) {
+
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		zone.putLabel(label);
+
+		forwardToClients();
+	}
+
+	public void putToken(GUID zoneGUID, Token token) {
+
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+
+		boolean newToken = zone.getToken(token.getId()) == null;
+		synchronized (MUTEX) {
+			// Set z-order for new tokens
+			if (newToken) {
+				token.setZOrder(zone.getLargestZOrder() + 1);
+			}
+
+			zone.putToken(token);
+		}
+
+		if (newToken) {
+			forwardToAllClients();
+		} else {
+			forwardToClients();
+		}
+	}
+
+	public void putZone(Zone zone) {
+
+		server.getCampaign().putZone(zone);
+		forwardToClients();
+	}
+
+	public void removeAsset(MD5Key assetID) {
+		AssetManager.removeAsset(assetID);
+	}
+
+	public void removeLabel(GUID zoneGUID, GUID labelGUID) {
+
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		zone.removeLabel(labelGUID);
+
+		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.removeLabel.name(), RPCContext.getCurrent().parameters);
+	}
+
+	public void removeToken(GUID zoneGUID, GUID tokenGUID) {
+
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		zone.removeToken(tokenGUID);
+
+		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.removeToken.name(), RPCContext.getCurrent().parameters);
+	}
+
+	public void removeZone(GUID zoneGUID) {
+		server.getCampaign().removeZone(zoneGUID);
+		forwardToClients();
+	}
+
+	public void sendTokensToBack(GUID zoneGUID, Set<GUID> tokenSet) {
+		synchronized (MUTEX) {
+
+			Zone zone = server.getCampaign().getZone(zoneGUID);
+
+			// Get the tokens to update
+			List<Token> tokenList = new ArrayList<Token>();
+			for (GUID tokenGUID : tokenSet) {
+				Token token = zone.getToken(tokenGUID);
+
+				if (token != null) {
+					tokenList.add(token);
+				}
+			}
+
+			// Arrange
+			Collections.sort(tokenList, Zone.TOKEN_Z_ORDER_COMPARATOR);
+
+			// Update
+			int z = zone.getSmallestZOrder() - 1;
+			for (Token token : tokenList) {
+				token.setZOrder(z --);
+			}
+
+			// Broadcast
+			for (Token token : tokenList) {
+				broadcastToAllClients(ClientCommand.COMMAND.putToken.name(), zoneGUID, token);
+			}
+		}
+	}
+
+	public void setCampaign(Campaign campaign) {
+
+		server.setCampaign(campaign);
+		forwardToClients();
+	}
+
+	public void setZoneGridSize(GUID zoneGUID, int offsetX, int offsetY, int size, int color) {
+
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		Grid grid = zone.getGrid();
+		grid.setSize(size);
+		grid.setOffset(offsetX, offsetY);
+		zone.setGridColor(color);
+
+		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setZoneGridSize.name(), RPCContext.getCurrent().parameters);
+	}
+
+	public void setZoneHasFoW(GUID zoneGUID, boolean hasFog) {
+
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		zone.setHasFog(hasFog);
+
+		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setZoneHasFoW.name(), RPCContext.getCurrent().parameters);
+	}
+
+	public void setZoneVisibility(GUID zoneGUID, boolean visible) {
+
+		server.getCampaign().getZone(zoneGUID).setVisible(visible);
+
+		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.setZoneVisibility.name(), RPCContext.getCurrent().parameters);
+	}
+
+	public void showPointer(String player, Pointer pointer) {
+		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.showPointer.name(), RPCContext.getCurrent().parameters);
+	}
+
+	public void setLiveTypingLabel(String label){
+		forwardToClients();
+	}
+
+	public void enforceNotification(Boolean enforce){
+		forwardToClients();
+	}
+
+	public void bootPlayer(String player) {
+		forwardToClients();
+
+		// And just to be sure, remove them from the server
+		server.releaseClientConnection(server.getConnectionId(player));
+	}
+
+	public void startTokenMove(String playerId, GUID zoneGUID, GUID tokenGUID, Set<GUID> tokenList) {
+		forwardToClients();
+	}
+
+	public void stopTokenMove(GUID zoneGUID, GUID tokenGUID) {
+		forwardToClients();
+	}
+
+	public void toggleTokenMoveWaypoint(GUID zoneGUID, GUID tokenGUID, ZonePoint cp) {
+		forwardToClients();
+	}
+
+	public void undoDraw(GUID zoneGUID, GUID drawableGUID) {
+
+		server.getConnection().broadcastCallMethod(ClientCommand.COMMAND.undoDraw.name(), zoneGUID, drawableGUID);
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		zone.removeDrawable(drawableGUID);
+	}
+
+	public void updateTokenMove(GUID zoneGUID, GUID tokenGUID, int x, int y) {
+		forwardToClients();
+	}
+
+	public void setTokenLocation(GUID zoneGUID, GUID tokenGUID, int x, int y) {
+		forwardToClients();
+	}
+
+	public void setServerPolicy(ServerPolicy policy) {
+		forwardToClients();
+	}
+
+	public void addTopology(GUID zoneGUID, Area area) {
+
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		zone.addTopology(area);
+
+		forwardToClients();
+	}
+
+	public void removeTopology(GUID zoneGUID, Area area) {
+
+		Zone zone = server.getCampaign().getZone(zoneGUID);
+		zone.removeTopology(area);
+
+		forwardToClients();
+	}
+
+	public void updateCampaignMacros(List<MacroButtonProperties> properties) {
+		MapTool.getCampaign().setMacroButtonPropertiesArray(new ArrayList<MacroButtonProperties>(properties));
+
+		forwardToClients();
+	}
+
+	////
+	// CONTEXT
+	private static class RPCContext {
+
+		private static ThreadLocal<RPCContext> threadLocal = new ThreadLocal<RPCContext>();
+
+		public String id;
+		public String method;
+		public Object[] parameters;
+
+		public RPCContext (String id, String method, Object[] parameters) {
+			this.id = id;
+			this.method = method;
+			this.parameters = parameters;
+		}
+
+		public static boolean hasCurrent() {
+			return threadLocal.get() != null;
+		}
+
+		public static RPCContext getCurrent() {
+			return threadLocal.get();
+		}
+
+		public static void setCurrent(RPCContext context) {
+			threadLocal.set(context);
+		}
+
+		////
+		// Convenience methods
+		public GUID getGUID(int index) {
+			return (GUID) parameters[index];
+		}
+
+		public Integer getInt(int index) {
+			return (Integer) parameters[index];
+		}
+
+		public Double getDouble(int index) {
+			return (Double) parameters[index];
+		}
+
+		public Object get(int index) {
+			return parameters[index];
+		}
+
+		public String getString(int index) {
+			return (String) parameters[index];
+		}
+
+		public Boolean getBool(int index) {
+			return (Boolean) parameters[index];
+		}
+	}
 }

@@ -44,11 +44,11 @@ public class TokenVisibleFunction extends AbstractFunction {
 	}
 
 	public boolean getBooleanVisible(Token token) throws ParserException {
-	    if (!MapTool.getParser().isMacroTrusted()) {
+		if (!MapTool.getParser().isMacroTrusted()) {
 			throw new ParserException(I18N.getText("macro.function.general.noPerm", "getVisible"));
-        }
+		}
 
-	    return token.isVisible();
+		return token.isVisible();
 	}
 
 	/**
@@ -69,23 +69,23 @@ public class TokenVisibleFunction extends AbstractFunction {
 	 * @throws ParserException
 	 */
 	public void setVisible(Token token, Object val) throws ParserException {
-	    if (!MapTool.getParser().isMacroTrusted()) {
+		if (!MapTool.getParser().isMacroTrusted()) {
 			throw new ParserException(I18N.getText("macro.function.general.noPerm", "setVisible"));
-        }
+		}
 
 		boolean set;
-        if (val instanceof Integer) {
-            set = ((Integer) val).intValue() != 0;
-        } else if (val instanceof Boolean) {
-            set = ((Boolean) val).booleanValue();
-        } else {
-            try {
-                set = Integer.parseInt(val.toString()) != 0;
-            } catch (NumberFormatException e) {
-                set = Boolean.parseBoolean(val.toString());
-            }
-        }
-        token.setVisible(set);
+		if (val instanceof Integer) {
+			set = ((Integer) val).intValue() != 0;
+		} else if (val instanceof Boolean) {
+			set = ((Boolean) val).booleanValue();
+		} else {
+			try {
+				set = Integer.parseInt(val.toString()) != 0;
+			} catch (NumberFormatException e) {
+				set = Boolean.parseBoolean(val.toString());
+			}
+		}
+		token.setVisible(set);
 		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),token);
 	}
 
@@ -93,7 +93,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 
 	@Override
 	public Object childEvaluate(Parser parser, String functionName, List<Object> param)
-			throws ParserException {
+	throws ParserException {
 		if (functionName.equals("getVisible")) {
 			return getVisible(parser, param);
 		} else {
@@ -139,7 +139,7 @@ public class TokenVisibleFunction extends AbstractFunction {
 	private Object setVisible(Parser parser, List<Object> args) throws ParserException {
 
 		Object val;
-        Token token;
+		Token token;
 
 		if (args.size() == 2) {
 			token = FindTokenFunctions.findToken(args.get(1).toString(), null);
@@ -158,10 +158,9 @@ public class TokenVisibleFunction extends AbstractFunction {
 			throw new ParserException(I18N.getText("macro.function.general.tooManyParam", "getVisible", 2, args.size()));
 		}
 		val = args.get(0);
-		setVisible(token, val);
-		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(),
-        		token);
- 		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
+		setVisible(token, val);	// Already calls serverCommand().putToken()
+//		MapTool.serverCommand().putToken(MapTool.getFrame().getCurrentZoneRenderer().getZone().getId(), token);
+		MapTool.getFrame().getCurrentZoneRenderer().getZone().putToken(token);
 
 		return val;
 	}

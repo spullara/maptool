@@ -661,7 +661,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 				token.setSnapToScale(true);
 				renderer.flush(token);
 				// XXX Why is the putToken() called twice?
-				MapTool.serverCommand().putToken(zone.getId(), token);
+//				MapTool.serverCommand().putToken(zone.getId(), token);
 				renderer.repaint();
 				MapTool.getFrame().updateTokenTree();
 				MapTool.serverCommand().putToken(zone.getId(), token);
