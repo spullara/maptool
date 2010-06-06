@@ -474,6 +474,9 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			for (GUID guid : tokenSet) {
 				Token token = zone.getToken(guid);
 
+				if(!AppUtil.playerOwns(token)){
+					continue;
+				}
 				updateToken(token, color);
 
 				MapTool.serverCommand().putToken(zone.getId(), token);
@@ -507,6 +510,9 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 				for (GUID guid : tokenSet) {
 					Token token = zone.getToken(guid);
 
+					if(!AppUtil.playerOwns(token)){
+						continue;
+					}
 					updateToken(token, color);
 
 					MapTool.serverCommand().putToken(zone.getId(), token);

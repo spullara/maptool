@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.zone;
 
@@ -116,8 +113,7 @@ import org.apache.log4j.Logger;
 
 /**
  */
-public class ZoneRenderer extends JComponent implements DropTargetListener,
-Comparable {
+public class ZoneRenderer extends JComponent implements DropTargetListener, Comparable {
 
 	private static final long serialVersionUID = 3832897780066104884L;
 	private static final Logger log = Logger.getLogger(ZoneRenderer.class);
@@ -233,16 +229,14 @@ Comparable {
 
 		centerOn(new ZonePoint(token.getX(), token.getY()));
 
-		MapTool.getFrame().getToolbox().setSelectedTool(
-				token.isToken() ? PointerTool.class : StampTool.class);
+		MapTool.getFrame().getToolbox().setSelectedTool(token.isToken() ? PointerTool.class : StampTool.class);
 		setActiveLayer(token.getLayer());
 		selectToken(token.getId());
 		requestFocusInWindow();
 	}
 
 	public ZonePoint getCenterPoint() {
-		return new ScreenPoint(getSize().width / 2, getSize().height / 2)
-		.convertToZone(this);
+		return new ScreenPoint(getSize().width / 2, getSize().height / 2).convertToZone(this);
 	}
 
 	public boolean isPathShowing(Token token) {
@@ -280,10 +274,9 @@ Comparable {
 	}
 
 	/**
-	 * I _hate_ this method. But couldn't think of a better way to tell the
-	 * drawable renderer that a new image had arrived TODO: FIX THIS ! Perhaps
-	 * add a new app listener for when new images show up, add the drawable
-	 * renderer as a listener
+	 * I _hate_ this method. But couldn't think of a better way to tell the drawable renderer that a new image had
+	 * arrived TODO: FIX THIS ! Perhaps add a new app listener for when new images show up, add the drawable renderer as
+	 * a listener
 	 */
 	public void flushDrawableRenderer() {
 		backgroundDrawableRenderer.flush();
@@ -310,8 +303,7 @@ Comparable {
 		return false;
 	}
 
-	public void addMoveSelectionSet(String playerId, GUID keyToken,
-			Set<GUID> tokenList, boolean clearLocalSelected) {
+	public void addMoveSelectionSet(String playerId, GUID keyToken, Set<GUID> tokenList, boolean clearLocalSelected) {
 
 		// I'm not supposed to be moving a token when someone else is already
 		// moving it
@@ -322,8 +314,7 @@ Comparable {
 			}
 		}
 
-		selectionSetMap.put(keyToken, new SelectionSet(playerId, keyToken,
-				tokenList));
+		selectionSetMap.put(keyToken, new SelectionSet(playerId, keyToken, tokenList));
 		repaint();
 	}
 
@@ -506,8 +497,7 @@ Comparable {
 	 */
 	public void flush() {
 		if (zone.getBackgroundPaint() instanceof DrawableTexturePaint) {
-			ImageManager.flushImage(((DrawableTexturePaint) zone
-					.getBackgroundPaint()).getAssetId());
+			ImageManager.flushImage(((DrawableTexturePaint) zone.getBackgroundPaint()).getAssetId());
 		}
 		ImageManager.flushImage(zone.getMapAssetId());
 		flushDrawableRenderer();
@@ -573,8 +563,7 @@ Comparable {
 		MapTool.getFrame().getZoomStatusBar().update();
 	}
 
-	public void enforceView(int x, int y, double scale, int gmWidth,
-			int gmHeight) {
+	public void enforceView(int x, int y, double scale, int gmWidth, int gmHeight) {
 		int width = getWidth();
 		int height = getHeight();
 
@@ -592,10 +581,8 @@ Comparable {
 	}
 
 	public void forcePlayersView() {
-		ZonePoint zp = new ScreenPoint(getWidth() / 2, getHeight() / 2)
-		.convertToZone(this);
-		MapTool.serverCommand().enforceZoneView(getZone().getId(), zp.x, zp.y,
-				getScale(), getWidth(), getHeight());
+		ZonePoint zp = new ScreenPoint(getWidth() / 2, getHeight() / 2).convertToZone(this);
+		MapTool.serverCommand().enforceZoneView(getZone().getId(), zp.x, zp.y, getScale(), getWidth(), getHeight());
 	}
 
 	public void maybeForcePlayersView() {
@@ -626,12 +613,10 @@ Comparable {
 		renderZone(g2d, getPlayerView());
 
 		if (!zone.isVisible()) {
-			GraphicsUtil.drawBoxedString(g2d, "Map not visible to players",
-					getSize().width / 2, 20);
+			GraphicsUtil.drawBoxedString(g2d, "Map not visible to players", getSize().width / 2, 20);
 		}
 		if (AppState.isShowAsPlayer()) {
-			GraphicsUtil.drawBoxedString(g2d, "Player View",
-					getSize().width / 2, 20);
+			GraphicsUtil.drawBoxedString(g2d, "Player View", getSize().width / 2, 20);
 		}
 	}
 
@@ -645,8 +630,7 @@ Comparable {
 		List<Token> selectedTokens = null;
 		if (getSelectedTokenSet() != null && getSelectedTokenSet().size() > 0) {
 			selectedTokens = getSelectedTokensList();
-			for (ListIterator<Token> iter = selectedTokens.listIterator(); iter
-			.hasNext();) {
+			for (ListIterator<Token> iter = selectedTokens.listIterator(); iter.hasNext();) {
 				Token token = iter.next();
 				if (!token.getHasSight()) {
 					iter.remove();
@@ -672,8 +656,7 @@ Comparable {
 			g2d.setColor(Color.black);
 			g2d.fillRect(0, 0, size.width, size.height);
 
-			GraphicsUtil.drawBoxedString(g2d, loadingProgress, size.width / 2,
-					size.height / 2);
+			GraphicsUtil.drawBoxedString(g2d, loadingProgress, size.width / 2, size.height / 2);
 
 			return;
 		}
@@ -683,8 +666,7 @@ Comparable {
 			g2d.setColor(Color.black);
 			g2d.fillRect(0, 0, size.width, size.height);
 
-			GraphicsUtil.drawBoxedString(g2d, "    Please Wait    ",
-					size.width / 2, size.height / 2);
+			GraphicsUtil.drawBoxedString(g2d, "    Please Wait    ", size.width / 2, size.height / 2);
 
 			return;
 		}
@@ -713,14 +695,12 @@ Comparable {
 
 		// Calculations
 		timer.start("calcs");
-		if (zoneView.isUsingVision() && zoneView.getVisibleArea(view) != null
-				&& visibleScreenArea == null) {
+		if (zoneView.isUsingVision() && zoneView.getVisibleArea(view) != null && visibleScreenArea == null) {
 			AffineTransform af = new AffineTransform();
 			af.translate(zoneScale.getOffsetX(), zoneScale.getOffsetY());
 			af.scale(getScale(), getScale());
 
-			visibleScreenArea = new Area(zoneView.getVisibleArea(view)
-					.createTransformedArea(af));
+			visibleScreenArea = new Area(zoneView.getVisibleArea(view).createTransformedArea(af));
 		}
 		exposedFogArea = new Area(zone.getExposedArea());
 		if (exposedFogArea != null) {
@@ -729,8 +709,7 @@ Comparable {
 			af.scale(getScale(), getScale());
 			exposedFogArea.transform(af);
 		} else {
-			exposedFogArea = new Area(new Rectangle(0, 0, getSize().width,
-					getSize().height)); // fully exposed
+			exposedFogArea = new Area(new Rectangle(0, 0, getSize().width, getSize().height)); // fully exposed
 		}
 
 		timer.stop("calcs");
@@ -741,8 +720,7 @@ Comparable {
 		timer.stop("board");
 
 		timer.start("drawableBackground");
-		renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, zone
-				.getBackgroundDrawnElements());
+		renderDrawableOverlay(g2d, backgroundDrawableRenderer, view, zone.getBackgroundDrawnElements());
 		timer.stop("drawableBackground");
 
 		timer.start("tokensBackground");
@@ -750,8 +728,7 @@ Comparable {
 		timer.stop("tokensBackground");
 
 		timer.start("drawableObjects");
-		renderDrawableOverlay(g2d, objectDrawableRenderer, view, zone
-				.getObjectDrawnElements());
+		renderDrawableOverlay(g2d, objectDrawableRenderer, view, zone.getObjectDrawnElements());
 		timer.stop("drawableObjects");
 
 		timer.start("templates");
@@ -775,35 +752,29 @@ Comparable {
 		timer.stop("auras");
 
 		/**
-		 * XXX The following sections handle rendering of the Hidden (i.e. "GM")
-		 * layer followed by the Token layer. The problem is that we want all
-		 * drawables to appear below all tokens, and the existing configuration
-		 * performs the rendering in the following order:
+		 * XXX The following sections handle rendering of the Hidden (i.e. "GM") layer followed by the Token layer. The
+		 * problem is that we want all drawables to appear below all tokens, and the existing configuration performs the
+		 * rendering in the following order:
 		 * <ol>
 		 * <li>Render Hidden-layer tokens
 		 * <li>Render Hidden-layer drawables
 		 * <li>Render Token-layer drawables
 		 * <li>Render Token-layer tokens
 		 * </ol>
-		 * That's fine for players, but clearly wrong if the view is for the GM.
-		 * How about:
+		 * That's fine for players, but clearly wrong if the view is for the GM. How about:
 		 * <ol>
-		 * <li>Render Token-layer drawables // Player-drawn images shouldn't
-		 * obscure GM's images?
-		 * <li>Render Hidden-layer drawables // GM could always use
-		 * "View As Player" if needed?
+		 * <li>Render Token-layer drawables // Player-drawn images shouldn't obscure GM's images?
+		 * <li>Render Hidden-layer drawables // GM could always use "View As Player" if needed?
 		 * <li>Render Hidden-layer tokens
 		 * <li>Render Token-layer tokens
 		 * </ol>
 		 */
 		timer.start("drawableTokens");
-		renderDrawableOverlay(g2d, tokenDrawableRenderer, view, zone
-				.getDrawnElements());
+		renderDrawableOverlay(g2d, tokenDrawableRenderer, view, zone.getDrawnElements());
 		timer.stop("drawableTokens");
 		if (view.isGMView()) {
 			timer.start("drawableGM");
-			renderDrawableOverlay(g2d, gmDrawableRenderer, view, zone
-					.getGMDrawnElements());
+			renderDrawableOverlay(g2d, gmDrawableRenderer, view, zone.getGMDrawnElements());
 			renderTokens(g2d, zone.getGMStamps(), view);
 			timer.stop("drawableGM");
 		}
@@ -816,8 +787,8 @@ Comparable {
 		timer.stop("unowned movement");
 
 		/**
-		 * FJE It's probably not appropriate for labels to be above everything,
-		 * including tokens. Above drawables, yes. Above tokens, no.
+		 * FJE It's probably not appropriate for labels to be above everything, including tokens. Above drawables, yes.
+		 * Above tokens, no.
 		 */
 		timer.start("labels");
 		renderLabels(g2d, view);
@@ -895,6 +866,7 @@ Comparable {
 	public CodeTimer getCodeTimer() {
 		return timer;
 	}
+
 	private Map<Paint, List<Area>> renderedLightMap;
 
 	private void renderLights(Graphics2D g, PlayerView view) {
@@ -949,27 +921,26 @@ Comparable {
 				List<Area> sourceList = new LinkedList<Area>(areaList);
 				areaList.clear();
 
-				outter:
-					while (sourceList.size() > 0) {
-						Area area = sourceList.remove(0);
+				outter: while (sourceList.size() > 0) {
+					Area area = sourceList.remove(0);
 
-						for (ListIterator<Area> iter = sourceList.listIterator(); iter.hasNext();) {
-							Area currArea = iter.next();
+					for (ListIterator<Area> iter = sourceList.listIterator(); iter.hasNext();) {
+						Area currArea = iter.next();
 
-							if (currArea.getBounds().intersects(area.getBounds())) {
-								iter.remove();
+						if (currArea.getBounds().intersects(area.getBounds())) {
+							iter.remove();
 
-								area.add(currArea);
-								sourceList.add(area);
+							area.add(currArea);
+							sourceList.add(area);
 
-								continue outter;
-							}
+							continue outter;
 						}
-
-						// If we are here, we didn't find any other area to merge
-						// with
-						areaList.add(area);
 					}
+
+					// If we are here, we didn't find any other area to merge
+					// with
+					areaList.add(area);
+				}
 
 				// Cut out the bright light
 				if (areaList.size() > 0) {
@@ -1000,6 +971,7 @@ Comparable {
 
 		newG.dispose();
 	}
+
 	private Map<Paint, Area> renderedAuraMap;
 
 	private void renderAuras(Graphics2D g, PlayerView view) {
@@ -1064,7 +1036,7 @@ Comparable {
 
 	private void renderPlayerVisionOverlay(Graphics2D g, PlayerView view) {
 		if (!view.isGMView()) {
-			Graphics2D g2 = (Graphics2D)g.create();
+			Graphics2D g2 = (Graphics2D) g.create();
 			if (zone.hasFog()) {
 				Area clip = new Area(new Rectangle(getSize().width, getSize().height));
 
@@ -1097,7 +1069,7 @@ Comparable {
 		Area area = currentTokenVisionArea.createTransformedArea(af);
 
 		SwingUtil.useAntiAliasing(g);
-		g.setColor(new Color(200, 200, 200));	// outline around visible area
+		g.setColor(new Color(200, 200, 200)); // outline around visible area
 		g.draw(area);
 
 		boolean useHaloColor = tokenUnderMouse.getHaloColor() != null && AppPreferences.getUseHaloColorOnVisionOverlay();
@@ -1111,8 +1083,9 @@ Comparable {
 
 	/**
 	 * Paint all of the token templates for selected tokens.
-	 *
-	 * @param g Paint on this graphic object.
+	 * 
+	 * @param g
+	 *            Paint on this graphic object.
 	 */
 	private void renderTokenTemplates(Graphics2D g, PlayerView view) {
 		double scale = zoneScale.getScale();
@@ -1192,6 +1165,7 @@ Comparable {
 			labelLocationList.add(new LabelLocation(bounds, label));
 		}
 	}
+
 	Integer fogX = null;
 	Integer fogY = null;
 
@@ -1293,7 +1267,7 @@ Comparable {
 
 						buffG.setClip(oldClip);
 					} else {
-						buffG.setColor(new Color(255, 255, 255, 40));	// was 255,255,255,40
+						buffG.setColor(new Color(255, 255, 255, 40)); // was 255,255,255,40
 						buffG.fill(visibleArea);
 					}
 				} else {
@@ -1324,7 +1298,6 @@ Comparable {
 					buffG.setClip(oldClip);
 				}
 			}
-
 
 			buffG.dispose();
 			flushFog = false;
@@ -1412,18 +1385,14 @@ Comparable {
 			Graphics2D bbg = backbuffer.createGraphics();
 
 			// Background texture
-			Paint paint = zone.getBackgroundPaint().getPaint(getViewOffsetX(),
-					getViewOffsetY(), getScale(), this);
+			Paint paint = zone.getBackgroundPaint().getPaint(getViewOffsetX(), getViewOffsetY(), getScale(), this);
 			bbg.setPaint(paint);
 			bbg.fillRect(0, 0, size.width, size.height);
 
 			// Map
 			if (zone.getMapAssetId() != null) {
-				BufferedImage mapImage = ImageManager.getImage(zone
-						.getMapAssetId(), this);
-				bbg.drawImage(mapImage, getViewOffsetX(), getViewOffsetY(),
-						(int) (mapImage.getWidth() * getScale()),
-						(int) (mapImage.getHeight() * getScale()), null);
+				BufferedImage mapImage = ImageManager.getImage(zone.getMapAssetId(), this);
+				bbg.drawImage(mapImage, getViewOffsetX(), getViewOffsetY(), (int) (mapImage.getWidth() * getScale()), (int) (mapImage.getHeight() * getScale()), null);
 			}
 
 			bbg.dispose();
@@ -1777,7 +1746,6 @@ Comparable {
 			int scaledWidth = (int) (footprintBounds.width * scale);
 			int scaledHeight = (int) (footprintBounds.height * scale);
 
-
 			// Line
 			Color highlight = new Color(255, 255, 255, 80);
 			Stroke highlightStroke = new BasicStroke(9);
@@ -1789,11 +1757,11 @@ Comparable {
 			for (ZonePoint zp : pathList) {
 
 				if (lastPoint == null) {
-					lastPoint = ScreenPoint.fromZonePointRnd(this, zp.x + (footprintBounds.width / 2) * footprint.getScale(), zp.y + (footprintBounds.height / 2)*footprint.getScale());
+					lastPoint = ScreenPoint.fromZonePointRnd(this, zp.x + (footprintBounds.width / 2) * footprint.getScale(), zp.y + (footprintBounds.height / 2) * footprint.getScale());
 					continue;
 				}
 
-				ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x + (footprintBounds.width / 2) * footprint.getScale() , zp.y+ (footprintBounds.height / 2)*footprint.getScale());
+				ScreenPoint nextPoint = ScreenPoint.fromZonePoint(this, zp.x + (footprintBounds.width / 2) * footprint.getScale(), zp.y + (footprintBounds.height / 2) * footprint.getScale());
 
 				g.setColor(highlight);
 				g.setStroke(highlightStroke);
@@ -1817,11 +1785,11 @@ Comparable {
 				}
 
 				// Skip the final point
-				if (p == pathList.get(pathList.size()-1)) {
+				if (p == pathList.get(pathList.size() - 1)) {
 					continue;
 				}
 
-				p = new ZonePoint((int)(p.x+(footprintBounds.width/2)*footprint.getScale()), (int)(p.y+(footprintBounds.height/2)*footprint.getScale()));
+				p = new ZonePoint((int) (p.x + (footprintBounds.width / 2) * footprint.getScale()), (int) (p.y + (footprintBounds.height / 2) * footprint.getScale()));
 				highlightCell(g, p, AppStyle.cellWaypointImage, .333f);
 			}
 			timer.stop("renderPath-3");
@@ -1845,8 +1813,9 @@ Comparable {
 	}
 
 	/**
-	 * Get a list of tokens currently visible on the screen.  The list is ordered by location starting
-	 * in the top left and going to the bottom right.
+	 * Get a list of tokens currently visible on the screen. The list is ordered by location starting in the top left
+	 * and going to the bottom right.
+	 * 
 	 * @return
 	 */
 	public List<Token> getTokensOnScreen() {
@@ -1895,8 +1864,7 @@ Comparable {
 	}
 
 	/**
-	 * Get the token locations for the given layer, creates an empty list
-	 * if there are not locations for the given layer
+	 * Get the token locations for the given layer, creates an empty list if there are not locations for the given layer
 	 */
 	private List<TokenLocation> getTokenLocations(Zone.Layer layer) {
 		List<TokenLocation> list = tokenLocationMap.get(layer);
@@ -1922,8 +1890,10 @@ Comparable {
 		facingArrow.lineTo(base, width);
 		facingArrow.lineTo(base, -width);
 
-		return ((GeneralPath) facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)))).createTransformedShape(AffineTransform.getScaleInstance(getScale(), getScale()));
+		return ((GeneralPath) facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)))).createTransformedShape(AffineTransform.getScaleInstance(getScale(),
+				getScale()));
 	}
+
 	// TODO: I don't like this hardwiring
 
 	protected Shape getSquareFacingArrow(int angle, int size) {
@@ -1937,7 +1907,8 @@ Comparable {
 		facingArrow.lineTo(-(size - base), width);
 		facingArrow.lineTo(0, 0);
 
-		return ((GeneralPath) facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)))).createTransformedShape(AffineTransform.getScaleInstance(getScale(), getScale()));
+		return ((GeneralPath) facingArrow.createTransformedShape(AffineTransform.getRotateInstance(-Math.toRadians(angle)))).createTransformedShape(AffineTransform.getScaleInstance(getScale(),
+				getScale()));
 	}
 
 	protected void renderTokens(Graphics2D g, List<Token> tokenList, PlayerView view) {
@@ -2018,7 +1989,8 @@ Comparable {
 			Rectangle2D origBounds = new Rectangle2D.Double(x, y, scaledWidth, scaledHeight);
 			Area tokenBounds = new Area(origBounds);
 			if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
-				tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth / 2 + x - (token.getAnchor().x * scale), scaledHeight / 2 + y - (token.getAnchor().y * scale))); // facing defaults to down, or -90 degrees
+				tokenBounds.transform(AffineTransform.getRotateInstance(Math.toRadians(-token.getFacing() - 90), scaledWidth / 2 + x - (token.getAnchor().x * scale), scaledHeight / 2 + y
+						- (token.getAnchor().y * scale))); // facing defaults to down, or -90 degrees
 			}
 			timer.stop("tokenlist-1d");
 			timer.start("tokenlist-1e");
@@ -2076,7 +2048,6 @@ Comparable {
 				timer.stop("tokenStack");
 			}
 
-
 			// Keep track of the location on the screen
 			// Note the order where the top most token is at the end of the list
 			timer.start("renderTokens:Locations");
@@ -2099,7 +2070,6 @@ Comparable {
 				locationList.add(location);
 			}
 			timer.stop("renderTokens:Locations");
-
 
 			// Add the token to our visible set.
 			tempVisTokens.add(token.getId());
@@ -2188,14 +2158,13 @@ Comparable {
 			double tx = location.x + offsetx;
 			double ty = location.y + offsety;
 
-
-
 			AffineTransform at = new AffineTransform();
 			at.translate(tx, ty);
 
 			// Rotated
 			if (token.hasFacing() && token.getShape() == Token.TokenShape.TOP_DOWN) {
-				at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth / 2 - (token.getAnchor().x * scale) - offsetx, location.scaledHeight / 2 - (token.getAnchor().y * scale) - offsety); // facing defaults to down, or -90 degrees
+				at.rotate(Math.toRadians(-token.getFacing() - 90), location.scaledWidth / 2 - (token.getAnchor().x * scale) - offsetx, location.scaledHeight / 2 - (token.getAnchor().y * scale)
+						- offsety); // facing defaults to down, or -90 degrees
 			}
 
 			// Draw the token
@@ -2205,7 +2174,6 @@ Comparable {
 			} else {
 				at.scale((scaledWidth) / workImage.getWidth(), (scaledHeight) / workImage.getHeight());
 			}
-
 
 			timer.stop("tokenlist-6");
 			timer.start("tokenlist-7");
@@ -2352,7 +2320,7 @@ Comparable {
 				if (highlightCommonMacros.contains(token)) {
 					selectedBorder = AppStyle.commonMacroBorder;
 				}
-				if (!AppUtil.playerOwns(token)){
+				if (!AppUtil.playerOwns(token)) {
 					selectedBorder = AppStyle.selectedUnownedBorder;
 				}
 				// Border
@@ -2378,7 +2346,8 @@ Comparable {
 			}
 
 			// Token names and labels
-			if ((AppState.isShowTokenNames() || token == tokenUnderMouse) && (view.isGMView() || (AppUtil.tokenIsVisible(zone, token, view) && (visibleScreenArea == null || GraphicsUtil.intersects(visibleScreenArea, bounds))))) {
+			if ((AppState.isShowTokenNames() || token == tokenUnderMouse)
+					&& (view.isGMView() || (AppUtil.tokenIsVisible(zone, token, view) && (visibleScreenArea == null || GraphicsUtil.intersects(visibleScreenArea, bounds))))) {
 				GUID tokId = token.getId();
 				int offset = 3; // Keep it from tramping on the token border.
 				ImageLabel background;
@@ -2440,10 +2409,8 @@ Comparable {
 				}
 
 				// Create LabelRenderer using cached label.
-				delayRendering(new LabelRenderer(name,
-						bounds.getBounds().x + bounds.getBounds().width / 2,
-						bounds.getBounds().y + bounds.getBounds().height + offset,
-						SwingUtilities.CENTER, background, foreground, tokId));
+				delayRendering(new LabelRenderer(name, bounds.getBounds().x + bounds.getBounds().width / 2, bounds.getBounds().y + bounds.getBounds().height + offset, SwingUtilities.CENTER,
+						background, foreground, tokId));
 			}
 		}
 		timer.stop("tokenlist-12");
@@ -2485,7 +2452,32 @@ Comparable {
 	}
 
 	/**
+	 * Convenience method to return a set of tokens filtered by ownership
+	 * 
+	 * @param tokenSet
+	 *            the set of GUIDs to filter
+	 */
+
+	public Set<GUID> getOwnedTokens(Set<GUID> tokenSet) {
+
+		Set<GUID> ownedTokens = new LinkedHashSet<GUID>();
+
+		if (tokenSet != null) {
+			for (GUID guid : tokenSet) {
+				if (!AppUtil.playerOwns(zone.getToken(guid))) {
+					continue;
+				}
+				ownedTokens.add(guid);
+			}
+		}
+
+		return ownedTokens;
+
+	}
+
+	/**
 	 * A convienence method to get selected tokens ordered by name
+	 * 
 	 * @return List<Token>
 	 */
 	public List<Token> getSelectedTokensList() {
@@ -2515,7 +2507,7 @@ Comparable {
 		}
 
 		if (!zone.isTokenVisible(token)) {
-			if(AppUtil.playerOwns(token)){
+			if (AppUtil.playerOwns(token)) {
 				return true;
 			}
 			return false;
@@ -2593,8 +2585,7 @@ Comparable {
 		// System.out.println("num history items: " +
 		// selectedTokenSetHistory.size());
 		/*
-		 * for (Set<GUID> set : selectedTokenSetHistory) {
-		 * System.out.println("history item"); for (GUID guid : set) {
+		 * for (Set<GUID> set : selectedTokenSetHistory) { System.out.println("history item"); for (GUID guid : set) {
 		 * System.out.println(zone.getToken(guid).getName()); } }
 		 */
 		if (selectedTokenSetHistory.size() > 0) {
@@ -2635,8 +2626,7 @@ Comparable {
 
 		// limit the history to a certain size
 		if (selectedTokenSetHistory.size() > 20) {
-			selectedTokenSetHistory.subList(20,
-					selectedTokenSetHistory.size() - 1).clear();
+			selectedTokenSetHistory.subList(20, selectedTokenSetHistory.size() - 1).clear();
 		}
 
 	}
@@ -2685,8 +2675,7 @@ Comparable {
 	}
 
 	/**
-	 * Convenience function to check if a player owns all the tokens in the
-	 * selection set
+	 * Convenience function to check if a player owns all the tokens in the selection set
 	 * 
 	 * @return true if every token in selectedTokenSet is owned by the player
 	 */
@@ -2709,9 +2698,7 @@ Comparable {
 	public Area getTokenBounds(Token token) {
 
 		TokenLocation location = tokenLocationCache.get(token);
-		if (location != null
-				&& !location.maybeOnscreen(new Rectangle(0, 0, getSize().width,
-						getSize().height))) {
+		if (location != null && !location.maybeOnscreen(new Rectangle(0, 0, getSize().width, getSize().height))) {
 			location = null;
 		}
 		return location != null ? location.bounds : null;
@@ -2738,8 +2725,8 @@ Comparable {
 	}
 
 	/**
-	 * Returns the token at screen location x, y (not cell location). To get the
-	 * token at a cell location, use getGameMap() and use that.
+	 * Returns the token at screen location x, y (not cell location). To get the token at a cell location, use
+	 * getGameMap() and use that.
 	 * 
 	 * @param x
 	 * @param y
@@ -2775,8 +2762,7 @@ Comparable {
 
 	public List<Token> getTokenStackAt(int x, int y) {
 		Token token = getTokenAt(x, y);
-		if (token == null || tokenStackMap == null
-				|| !tokenStackMap.containsKey(token)) {
+		if (token == null || tokenStackMap == null || !tokenStackMap.containsKey(token)) {
 			return null;
 		}
 
@@ -2786,8 +2772,8 @@ Comparable {
 	}
 
 	/**
-	 * Returns the label at screen location x, y (not cell location). To get the
-	 * token at a cell location, use getGameMap() and use that.
+	 * Returns the label at screen location x, y (not cell location). To get the token at a cell location, use
+	 * getGameMap() and use that.
 	 * 
 	 * @param x
 	 * @param y
@@ -2843,8 +2829,7 @@ Comparable {
 	}
 
 	/**
-	 * Since the map can be scaled, this is a convenience method to find out
-	 * what cell is at this location.
+	 * Since the map can be scaled, this is a convenience method to find out what cell is at this location.
 	 * 
 	 * @param screenPoint
 	 *            Find the cell for this point.
@@ -2872,12 +2857,10 @@ Comparable {
 	}
 
 	/**
-	 * This makes sure that any image updates get refreshed. This could be a
-	 * little smarter.
+	 * This makes sure that any image updates get refreshed. This could be a little smarter.
 	 */
 	@Override
-	public boolean imageUpdate(Image img, int infoflags, int x, int y, int w,
-			int h) {
+	public boolean imageUpdate(Image img, int infoflags, int x, int y, int w, int h) {
 		repaint();
 		return super.imageUpdate(img, infoflags, x, y, w, h);
 	}
@@ -2923,13 +2906,11 @@ Comparable {
 			}
 		}
 
-		public LabelRenderer(String text, int x, int y, int align,
-				ImageLabel background, Color foreground) {
+		public LabelRenderer(String text, int x, int y, int align, ImageLabel background, Color foreground) {
 			this(text, x, y, align, background, foreground, null);
 		}
 
-		public LabelRenderer(String text, int x, int y, int align,
-				ImageLabel background, Color foreground, GUID tId) {
+		public LabelRenderer(String text, int x, int y, int align, ImageLabel background, Color foreground, GUID tId) {
 			this.text = text;
 			this.x = x;
 			this.y = y;
@@ -2959,12 +2940,10 @@ Comparable {
 				if (img != null) {
 					g.drawImage(img, x, y, width, height, null);
 				} else { // Draw as normal
-					GraphicsUtil.drawBoxedString(g, text, x, y, align,
-							background, foreground);
+					GraphicsUtil.drawBoxedString(g, text, x, y, align, background, foreground);
 				}
 			} else { // Draw as normal.
-				GraphicsUtil.drawBoxedString(g, text, x, y, align, background,
-						foreground);
+				GraphicsUtil.drawBoxedString(g, text, x, y, align, background, foreground);
 			}
 		}
 	}
@@ -2984,8 +2963,7 @@ Comparable {
 		private int offsetX;
 		private int offsetY;
 
-		public SelectionSet(String playerId, GUID tokenGUID,
-				Set<GUID> selectionList) {
+		public SelectionSet(String playerId, GUID tokenGUID, Set<GUID> selectionList) {
 
 			selectionSet.addAll(selectionList);
 			keyToken = tokenGUID;
@@ -2993,22 +2971,17 @@ Comparable {
 
 			token = zone.getToken(tokenGUID);
 
-			if (token.isSnapToGrid()
-					&& zone.getGrid().getCapabilities().isSnapToGridSupported()) {
-				if (ZoneRenderer.this.zone.getGrid().getCapabilities()
-						.isPathingSupported()) {
+			if (token.isSnapToGrid() && zone.getGrid().getCapabilities().isSnapToGridSupported()) {
+				if (ZoneRenderer.this.zone.getGrid().getCapabilities().isPathingSupported()) {
 
-					CellPoint tokenPoint = zone.getGrid().convert(
-							new ZonePoint(token.getX(), token.getY()));
+					CellPoint tokenPoint = zone.getGrid().convert(new ZonePoint(token.getX(), token.getY()));
 
-					walker = ZoneRenderer.this.zone.getGrid()
-					.createZoneWalker();
+					walker = ZoneRenderer.this.zone.getGrid().createZoneWalker();
 					walker.setWaypoints(tokenPoint, tokenPoint);
 				}
 			} else {
 				gridlessPath = new Path<ZonePoint>();
-				gridlessPath.addPathCell(new ZonePoint(token.getX(), token
-						.getY()));
+				gridlessPath.addPathCell(new ZonePoint(token.getX(), token.getY()));
 			}
 		}
 
@@ -3034,9 +3007,7 @@ Comparable {
 			offsetY = y;
 
 			ZonePoint zp = new ZonePoint(token.getX() + x, token.getY() + y);
-			if (ZoneRenderer.this.zone.getGrid().getCapabilities()
-					.isPathingSupported()
-					&& token.isSnapToGrid()) {
+			if (ZoneRenderer.this.zone.getGrid().getCapabilities().isPathingSupported() && token.isSnapToGrid()) {
 				CellPoint point = zone.getGrid().convert(zp);
 
 				walker.replaceLastWaypoint(point);
@@ -3050,8 +3021,7 @@ Comparable {
 		}
 
 		/**
-		 * Add the waypoint if it is a new waypoint. If it is an old waypoint
-		 * remove it.
+		 * Add the waypoint if it is a new waypoint. If it is an old waypoint remove it.
 		 * 
 		 * @param location
 		 *            The point where the waypoint is toggled.
@@ -3096,9 +3066,7 @@ Comparable {
 		public int offsetX;
 		public int offsetY;
 
-		public TokenLocation(Area bounds, Rectangle2D origBounds, Token token,
-				double x, double y, int width, int height, double scaledWidth,
-				double scaledHeight) {
+		public TokenLocation(Area bounds, Rectangle2D origBounds, Token token, double x, double y, int width, int height, double scaledWidth, double scaledHeight) {
 			this.bounds = bounds;
 			this.token = token;
 			this.origBounds = origBounds;
@@ -3151,9 +3119,7 @@ Comparable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * java.awt.dnd.DropTargetListener#dragEnter(java.awt.dnd.DropTargetDragEvent
-	 * )
+	 * @see java.awt.dnd.DropTargetListener#dragEnter(java.awt.dnd.DropTargetDragEvent )
 	 */
 	public void dragEnter(DropTargetDragEvent dtde) {
 	}
@@ -3161,8 +3127,7 @@ Comparable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * java.awt.dnd.DropTargetListener#dragExit(java.awt.dnd.DropTargetEvent)
+	 * @see java.awt.dnd.DropTargetListener#dragExit(java.awt.dnd.DropTargetEvent)
 	 */
 	public void dragExit(DropTargetEvent dte) {
 	}
@@ -3170,14 +3135,12 @@ Comparable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see java.awt.dnd.DropTargetListener#dragOver
-	 * (java.awt.dnd.DropTargetDragEvent)
+	 * @see java.awt.dnd.DropTargetListener#dragOver (java.awt.dnd.DropTargetDragEvent)
 	 */
 	public void dragOver(DropTargetDragEvent dtde) {
 	}
 
-	private void addTokens(List<Token> tokens, ZonePoint zp,
-			List<Boolean> configureTokens, boolean showDialog) {
+	private void addTokens(List<Token> tokens, ZonePoint zp, List<Boolean> configureTokens, boolean showDialog) {
 		GridCapabilities gridCaps = zone.getGrid().getCapabilities();
 		boolean isGM = MapTool.getPlayer().isGM();
 
@@ -3189,8 +3152,7 @@ Comparable {
 			boolean configureToken = configureTokens.get(tokenIndex++);
 
 			// Get the snap to grid value for the current prefs and abilities
-			token.setSnapToGrid(gridCaps.isSnapToGridSupported()
-					&& AppPreferences.getTokensStartSnapToGrid());
+			token.setSnapToGrid(gridCaps.isSnapToGridSupported() && AppPreferences.getTokensStartSnapToGrid());
 			if (gridCaps.isSnapToGridSupported() && token.isSnapToGrid()) {
 				zp = zone.getGrid().convert(zone.getGrid().convert(zp));
 			}
@@ -3199,13 +3161,11 @@ Comparable {
 
 			// Set the image properties
 			if (configureToken) {
-				BufferedImage image = ImageManager.getImageAndWait(token
-						.getImageAssetId());
+				BufferedImage image = ImageManager.getImageAndWait(token.getImageAssetId());
 				token.setShape(TokenUtil.guessTokenType(image));
 				token.setWidth(image.getWidth(null));
 				token.setHeight(image.getHeight(null));
-				token.setFootprint(zone.getGrid(), zone.getGrid()
-						.getDefaultFootprint());
+				token.setFootprint(zone.getGrid(), zone.getGrid().getDefaultFootprint());
 			}
 
 			// Always set the layer
@@ -3214,8 +3174,7 @@ Comparable {
 			// He who drops, owns, if there are not players already set
 			// and if there are already players set, add the current one to the
 			// list.
-			if (!isGM
-					&& (!token.hasOwners() || !token.isOwner(MapTool.getPlayer().getName()))) {
+			if (!isGM && (!token.hasOwners() || !token.isOwner(MapTool.getPlayer().getName()))) {
 				token.addOwner(MapTool.getPlayer().getName());
 			}
 
@@ -3307,8 +3266,7 @@ Comparable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see java.awt.dnd.DropTargetListener#drop
-	 * (java.awt.dnd.DropTargetDropEvent)
+	 * @see java.awt.dnd.DropTargetListener#drop (java.awt.dnd.DropTargetDropEvent)
 	 */
 	public void drop(DropTargetDropEvent dtde) {
 		ZonePoint zp = new ScreenPoint((int) dtde.getLocation().getX(), (int) dtde.getLocation().getY()).convertToZone(this);
@@ -3325,8 +3283,7 @@ Comparable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see java.awt.dnd.DropTargetListener#dropActionChanged
-	 * (java.awt.dnd.DropTargetDragEvent)
+	 * @see java.awt.dnd.DropTargetListener#dropActionChanged (java.awt.dnd.DropTargetDragEvent)
 	 */
 	public void dropActionChanged(DropTargetDragEvent dtde) {
 	}
@@ -3360,7 +3317,7 @@ Comparable {
 			return 0;
 		}
 
-		return zone.getCreationTime() < ((ZoneRenderer) o).zone	.getCreationTime() ? -1 : 1;
+		return zone.getCreationTime() < ((ZoneRenderer) o).zone.getCreationTime() ? -1 : 1;
 	}
 
 	// Begin token common macro identification

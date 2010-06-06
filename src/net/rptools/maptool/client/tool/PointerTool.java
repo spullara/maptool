@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.tool;
 
@@ -193,8 +190,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 			return;
 		}
 
-		renderer.addMoveSelectionSet(MapTool.getPlayer().getName(), tokenBeingDragged.getId(), renderer.getSelectedTokenSet(), false);
-		MapTool.serverCommand().startTokenMove(MapTool.getPlayer().getName(), renderer.getZone().getId(), tokenBeingDragged.getId(), renderer.getSelectedTokenSet());
+		renderer.addMoveSelectionSet(MapTool.getPlayer().getName(), tokenBeingDragged.getId(), renderer.getOwnedTokens(renderer.getSelectedTokenSet()), false);
+		MapTool.serverCommand().startTokenMove(MapTool.getPlayer().getName(), renderer.getZone().getId(), tokenBeingDragged.getId(), renderer.getOwnedTokens(renderer.getSelectedTokenSet()));
 
 		isDraggingToken = true;
 
@@ -214,7 +211,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 		if (renderer.getZone().hasFog() && AppPreferences.getAutoRevealVisionOnGMMovement() && (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision())) {
 			Set<GUID> exposeSet = new HashSet<GUID>();
-			for (GUID tokenGUID : renderer.getSelectedTokenSet()) {
+			for (GUID tokenGUID : renderer.getOwnedTokens(renderer.getSelectedTokenSet())) {
 				Token token = renderer.getZone().getToken(tokenGUID);
 				if (token == null) {
 					continue;
@@ -727,7 +724,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 
 			// Might be dragging a token
 			String playerId = MapTool.getPlayer().getName();
-			Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
+			Set<GUID> selectedTokenSet = renderer.getOwnedTokens(renderer.getSelectedTokenSet());
 			if (selectedTokenSet.size() > 0) {
 
 				// Make sure we can do this
@@ -1078,7 +1075,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
-					FogUtil.exposeVisibleArea(renderer, renderer.getSelectedTokenSet());
+					FogUtil.exposeVisibleArea(renderer, renderer.getOwnedTokens(renderer.getSelectedTokenSet()));
 				}
 			}
 		});
@@ -1092,7 +1089,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		actionMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				if (MapTool.getPlayer().isGM() || MapTool.getServerPolicy().getPlayersCanRevealVision()) {
-					FogUtil.exposeLastPath(renderer, renderer.getSelectedTokenSet());
+					FogUtil.exposeLastPath(renderer, renderer.getOwnedTokens(renderer.getSelectedTokenSet()));
 				}
 			}
 		});
@@ -1161,7 +1158,7 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 		if (!isDraggingToken) {
 
 			// Start
-			Set<GUID> selectedTokenSet = renderer.getSelectedTokenSet();
+			Set<GUID> selectedTokenSet = renderer.getOwnedTokens(renderer.getSelectedTokenSet());
 
 			for (GUID tokenId : selectedTokenSet) {
 
@@ -1278,9 +1275,8 @@ public class PointerTool extends DefaultTool implements ZoneOverlay {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * net.rptools.maptool.client.ZoneOverlay#paintOverlay(net.rptools.maptool
-	 * .client.ZoneRenderer, java.awt.Graphics2D)
+	 * @see net.rptools.maptool.client.ZoneOverlay#paintOverlay(net.rptools.maptool .client.ZoneRenderer,
+	 * java.awt.Graphics2D)
 	 */
 	public void paintOverlay(final ZoneRenderer renderer, Graphics2D g) {
 
