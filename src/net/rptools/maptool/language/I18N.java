@@ -9,11 +9,10 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.language;
 
-import java.awt.AWTKeyStroke;
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -46,65 +45,74 @@ import org.apache.log4j.Logger;
 
 public class I18N {
 	private static ResourceBundle BUNDLE = ResourceBundle.getBundle("net.rptools.maptool.language.i18n");
-
 	private static final Logger log = Logger.getLogger(I18N.class);
-	
+
+	private static final String ACCELERATOR_EXTENSION = ".accel";
+	private static final String DESCRIPTION_EXTENSION = ".description";
+
 	/**
-	 * Returns the String that results from a lookup within the properties file.
+	 * Returns a <b>JMenu</b> object to represent the given <b>Action</b> key. The key is used
+	 * to locate the menu text in the properties file. The menu mnemonic is
+	 * extracted as well and assigned to the JMenu object that is then returned.
 	 * 
 	 * @param key
 	 *            the component to search for
-	 * @return the String found or <code>null</code>
+	 * @return the JMenu created from the key's property values
 	 */
-	public static String getString(String key) {
-		try {
-			return BUNDLE.getString(key);
-		} catch (MissingResourceException e) {
-			return null;
+	public static JMenu createMenu(String key) {
+		JMenu menu = new JMenu(getText(key));
+		int mnemonic = getMnemonic(key);
+		if (mnemonic != -1 && !MapTool.MAC_OS_X) {
+			menu.setMnemonic(mnemonic);
 		}
+		// Should we set the SHORT_DESCRIPTION and use it as a tooltip?
+		return menu;
 	}
 
 	/**
-	 * Returns the text associated with the given key after removing any menu
-	 * mnemonic. So for the key <code>action.loadMap</code> that has the value
-	 * "&Load Map" in the properties file, this method returns "Load Map".
+	 * Returns the text associated with the given key that is to be used as the
+	 * menu accelerator for the <b>Action</b>. This method uses the same key as used by
+	 * the prior methods, but appends the string <code>ACCELERATOR_EXTENSION</code>
+	 * to the end. This allows a single key to be composed of multiple (optional)
+	 * parts.
+	 * <p>
+	 * Note that the modifier key used by the platform to initiate the sequence
+	 * is not included in the properties file. This is because the key changes
+	 * from platform to platform. For example, on Windows the key is the Control
+	 * key, while on Mac OSX the key is the Command key. The AWT Toolkit
+	 * represents these differently ("ctrl" on Windows and "meta" on OSX) so our
+	 * only choice is to eliminate the modifiers from the properties file and
+	 * add them back in programmatically. The application does this by
+	 * retrieving the platform's <code>menuShortcut</code> and saving it in a
+	 * <code>final</code> field. The value of that field is used as the modifier
+	 * throughout the application. The properties file may still specify other
+	 * modifiers, such as "Shift" or "Alt".
+	 * <p>
+	 * This seems a little bogus, though.  Shouldn't <b>all</b> keystrokes be
+	 * definable from outside the application?  So then shouldn't there be some
+	 * text that can appear in the properties file that means "use menuShortcutKey"?
+	 * But what text should that be?  And can it be automatically parsed by the
+	 * library code so that it becomes Ctrl or Cmd as appropriate?
 	 * 
 	 * @param key
 	 *            the component to search for
-	 * @return the String found with mnemonics removed, or the input key if not
-	 *         found
+	 * @return the String value of the given key's accelerator
 	 */
-	public static String getText(String key) {
-		String value = getString(key);
-		if (value == null) {
-			log.debug("Cannot find key '" + key + "' in properties file.");
-			return key;
-		}
-		return value.replaceAll("\\&", "");
+	public static String getAccelerator(String key) {
+		return getString(key + ACCELERATOR_EXTENSION);
 	}
 
 	/**
-	 * Functionally identical to <code>getText(String key)</code> except that
-	 * this one bundles the formatting calls into this code. This version of the
-	 * method is truly only needed when the string being retrieved contains
-	 * parameters. In MapTool, this commonly means the player's name or a
-	 * filename. See the "Parameterized Strings" section of the
-	 * <b>i18n.properties</b> file for example usage. Full documentation for
-	 * this technique can be found under {@link MessageFormat#format}.
+	 * Returns the description text for the given key. This text normally
+	 * appears in the statusbar of the main application frame. As described by
+	 * the {@link #getAccelerator(String)} method, the input key has the string
+	 * DESCRIPTION_EXTENSION appended to it.
 	 * 
 	 * @param key
-	 *            the <code>propertyKey</code> to use for lookup in the
-	 *            properties file
-	 * @param args
-	 *            parameters needed for formatting purposes
-	 * @return the formatted String
+	 * @return
 	 */
-	public static String getText(String key, Object... args) {
-		// If the key doesn't exist in the file, the key becomes the format and
-		// nothing will be substituted; it's a little extra work, but is not the normal case
-		// anyway.
-		String msg = MessageFormat.format(getText(key), args);
-		return msg;
+	public static String getDescription(String key) {
+		return getString(key + DESCRIPTION_EXTENSION);
 	}
 
 	/**
@@ -130,67 +138,62 @@ public class I18N {
 		return -1;
 	}
 
-	private static final String ACCELERATOR_EXTENSION = ".accel";
-
 	/**
-	 * Returns the text associated with the given key that is to be used as the
-	 * menu accelerator for the Action. This method uses the same key as used by
-	 * the prior methods, but appends the string ACCELERATOR_EXTENSION to the
-	 * end. This allows a single key to be composed of multiple (optional)
-	 * parts.
-	 * 
-	 * Note that the modifier key used by the platform to initiate the sequence
-	 * is not included in the properties file. This is because the key changes
-	 * from platform to platform. For example, on Windows the key is the Control
-	 * key, while on Mac OSX the key is the Command key. The AWT Toolkit
-	 * represents these differently ("ctrl" on Windows and "meta" on OSX) so our
-	 * only choice is to eliminate the modifiers from the properties file and
-	 * add them back in programmatically. The application does this by
-	 * retrieving the platform's <code>menuShortcut</code> and saving it in a
-	 * <code>final</code> field. The value of that field is used as the modifier
-	 * throughout the application. The properties file may still specify other
-	 * modifiers, such as "Shift" or "Alt".
+	 * Returns the String that results from a lookup within the properties file.
 	 * 
 	 * @param key
 	 *            the component to search for
-	 * @return the String value of the given key's accelerator
+	 * @return the String found or <code>null</code>
 	 */
-	public static String getAccelerator(String key) {
-		return getString(key + ACCELERATOR_EXTENSION);
-	}
-
-	private static final String DESCRIPTION_EXTENSION = ".description";
-
-	/**
-	 * Returns the description text for the given key. This text normally
-	 * appears in the statusbar of the main application frame. As described by
-	 * the {@link #getAccelerator(String)} method, the input key has the string
-	 * DESCRIPTION_EXTENSION appended to it.
-	 * 
-	 * @param key
-	 * @return
-	 */
-	public static String getDescription(String key) {
-		return getString(key + DESCRIPTION_EXTENSION);
-	}
-
-	/**
-	 * Returns a JMenu object to represent the given Action key. The key is used
-	 * to locate the menu text in the properties file. The menu mnemonic is
-	 * extracted as well and assigned to the JMenu object that is then returned.
-	 * 
-	 * @param key
-	 *            the component to search for
-	 * @return the JMenu created from the key's property values
-	 */
-	public static JMenu createMenu(String key) {
-		JMenu menu = new JMenu(getText(key));
-		int mnemonic = getMnemonic(key);
-		if (mnemonic != -1 && !MapTool.MAC_OS_X) {
-			menu.setMnemonic(mnemonic);
+	public static String getString(String key) {
+		try {
+			return BUNDLE.getString(key);
+		} catch (MissingResourceException e) {
+			return null;
 		}
+	}
 
-		return menu;
+	/**
+	 * Returns the text associated with the given key after removing any menu
+	 * mnemonic. So for the key <b>action.loadMap</b> that has the value
+	 * "&Load Map" in the properties file, this method returns "Load Map".
+	 * 
+	 * @param key
+	 *            the component to search for
+	 * @return the String found with mnemonics removed, or the input key if not
+	 *         found
+	 */
+	public static String getText(String key) {
+		String value = getString(key);
+		if (value == null) {
+			log.debug("Cannot find key '" + key + "' in properties file.");
+			return key;
+		}
+		return value.replaceAll("\\&", "");
+	}
+
+	/**
+	 * Functionally identical to {@link #getText(String key)} except that
+	 * this one bundles the formatting calls into this code. This version of the
+	 * method is truly only needed when the string being retrieved contains
+	 * parameters. In MapTool, this commonly means the player's name or a
+	 * filename. See the "Parameterized Strings" section of the
+	 * <b>i18n.properties</b> file for example usage. Full documentation for
+	 * this technique can be found under {@link MessageFormat#format}.
+	 * 
+	 * @param key
+	 *            the <code>propertyKey</code> to use for lookup in the
+	 *            properties file
+	 * @param args
+	 *            parameters needed for formatting purposes
+	 * @return the formatted String
+	 */
+	public static String getText(String key, Object... args) {
+		// If the key doesn't exist in the file, the key becomes the format and
+		// nothing will be substituted; it's a little extra work, but is not the normal case
+		// anyway.
+		String msg = MessageFormat.format(getText(key), args);
+		return msg;
 	}
 
 	/**
@@ -213,23 +216,31 @@ public class I18N {
 
 	/**
 	 * <p>
-	 * Set all of the I18N values on an Action by retrieving said values from
+	 * Set all of the I18N values on an <code>Action</code> by retrieving said values from
 	 * the properties file.
 	 * </p>
 	 * <p>
 	 * Uses the <code>key</code> as the index for the properties file to set
-	 * the <code>Action.NAME</code> field of <b>action</b>.
+	 * the <b>Action.NAME</b> field of <b>action</b>.
 	 * </p>
 	 * <p>
 	 * The string
-	 * used for the <code>NAME</code> is searched for an ampersand ("&amp;")
+	 * used for the <b>NAME</b> is searched for an ampersand ("&amp;")
 	 * to determine the mnemonic used by any menu item (no mnemonic is set
-	 * if there is no ampersand).
+	 * if there is no ampersand).  If there is one, the
+	 * <b>Action.MNEMONIC_KEY</b> property is set.
 	 * </p>
 	 * <p>
 	 * The <code>key</code> string has "<code>.accel</code>"
 	 * appended to it and the properties file is searched again, this time to obtain a
-	 * string representing the shortcut key.
+	 * string representing the shortcut key.  If there is one, the
+	 * <b>Action.ACCELERATOR_KEY</b> property is set.
+	 * </p>
+	 * <p>
+	 * The <code>key</code> string has "<code>.description</code>"
+	 * appended to it and the properties file is searched again, this time to obtain a
+	 * string representing the status bar help message.  If there is one, the
+	 * <b>Action.SHORT_DESCRIPTION</b> property is set.
 	 * </p>
 	 * <p>
 	 * If <b>addMenuShortcut</b> is

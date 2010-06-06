@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -1076,16 +1077,31 @@ public class MapTool {
 				log.warn("Cannot read '" + logoURL + "' or  cached '" + logoFile + "'; no dock icon", e1);
 			}
 		}
-		com.apple.eawt.Application appl = com.apple.eawt.Application.getApplication();
+		/*
+			Unfortunately the next line doesn't allow Eclipse to compile the code on anything
+			but a Mac.  Too bad because there's no problem at runtime since this code wouldn't
+			be executed an any machine except on a Mac.  Sigh.
 
-		// If we couldn't grab the image for some reason, don't set the dock bar icon!  Duh!
-		if (img != null) {
-			appl.setDockIconImage(img);
+		com.apple.eawt.Application appl = com.apple.eawt.Application.getApplication();
+		 */
+		try {
+			Class<?> appClass = Class.forName("com.apple.eawt.Application");
+			Method getApplication = appClass.getDeclaredMethod("getApplication", (Class[]) null);
+			Object appl = getApplication.invoke(null, (Object[]) null);
+			Method setDockIconImage = appl.getClass().getDeclaredMethod("setDockIconImage", new Class[] { java.awt.Image.class });
+			Method setDockIconBadge = appl.getClass().getDeclaredMethod("setDockIconBadge", new Class[] { java.lang.String.class });
+
+			// If we couldn't grab the image for some reason, don't set the dock bar icon!  Duh!
+			if (img != null) {
+				setDockIconImage.invoke(appl, new Object[] { img });
+			}
+			String vers = getVersion();
+			vers = vers.substring(vers.length() - 2);
+			vers = vers.replaceAll("[^0-9]", "0");		// Convert all non-digits to zeroes
+			setDockIconBadge.invoke(appl, new Object[] { vers });
+		} catch (Exception e) {
+			log.error("Cannot find/invoke methods on com.apple.eawt.Application", e);
 		}
-		String vers = getVersion();
-		vers = vers.substring(vers.length() - 2);
-		vers = vers.replaceAll("[^0-9]", "0");		// Convert all non-digits to zeroes
-		appl.setDockIconBadge(vers);
 	}
 
 	private static void postInitialize() {

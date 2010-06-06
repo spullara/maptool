@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -197,11 +197,11 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 	private class ExposeVisibleAreaAction extends AbstractAction {
 		public ExposeVisibleAreaAction() {
-			putValue(Action.NAME, "Visible area (Ctrl - I)");
+//			putValue(Action.NAME, "Visible area (Ctrl - I)");
+			I18N.setAction("token.popup.menu.expose.visible", this, true);
 		}
 
 		public void actionPerformed(ActionEvent e) {
-
 			FogUtil.exposeVisibleArea(getRenderer(), selectedTokenSet);
 			getRenderer().repaint();
 		}
@@ -210,11 +210,11 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 	private class ExposeVisibleAreaOnlyAction extends AbstractAction {
 		public ExposeVisibleAreaOnlyAction() {
-			putValue(Action.NAME, "Player visible area only (Ctrl - Shift - O)");
+//			putValue(Action.NAME, "Player visible area only (Ctrl - Shift - O)");
+			I18N.setAction("token.popup.menu.expose.currentonly", this, true);
 		}
 
 		public void actionPerformed(ActionEvent e) {
-
 			FogUtil.exposePCArea(getRenderer());
 			getRenderer().repaint();
 		}
@@ -223,12 +223,12 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 	private class ExposeLastPathAction extends AbstractAction {
 		public ExposeLastPathAction() {
-			putValue(Action.NAME, "Last path (Ctrl - P)");
+//			putValue(Action.NAME, "Last path (Ctrl - P)");
+			I18N.setAction("token.popup.menu.expose.lastpath", this, true);
 			setEnabled(getTokenUnderMouse().getLastPath() != null);
 		}
 
 		public void actionPerformed(ActionEvent e) {
-
 			FogUtil.exposeLastPath(getRenderer(), selectedTokenSet);
 			getRenderer().repaint();
 		}
@@ -383,19 +383,20 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		add(item);
 	}
 
+	@Override
 	public void showPopup(JComponent component) {
 		show(component, x, y);
 	}
 
 	private static class PlayerOwnershipMenu extends JCheckBoxMenuItem implements ActionListener {
 
-		private Set<GUID> tokenSet;
+		private final Set<GUID> tokenSet;
 
-		private Zone zone;
+		private final Zone zone;
 
-		private boolean selected;
+		private final boolean selected;
 
-		private String name;
+		private final String name;
 
 		public PlayerOwnershipMenu(String name, boolean selected, Set<GUID> tokenSet, Zone zone) {
 			super(name, selected);
@@ -490,12 +491,12 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 		protected Color currentColor;
 		protected Set<GUID> tokenSet;
 		protected ZoneRenderer renderer;
-		private String title = "Choose Halo Color";
+		private final String title = "Choose Halo Color";
 
 		public SetColorChooserAction(ZoneRenderer renderer, Set<GUID> tokenSet, String name) {
 			this.tokenSet = tokenSet;
 			this.renderer = renderer;
-			this.currentColor = renderer.getZone().getToken((GUID) tokenSet.iterator().next()).getHaloColor();
+			this.currentColor = renderer.getZone().getToken(tokenSet.iterator().next()).getHaloColor();
 			putValue(Action.NAME, name);
 		}
 
@@ -528,13 +529,15 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 	private class SetVisionOverlayColorChooserAction extends SetColorChooserAction {
 		public SetVisionOverlayColorChooserAction(ZoneRenderer renderer, Set<GUID> tokenSet, String name) {
 			super(renderer, tokenSet, name);
-			this.currentColor = renderer.getZone().getToken((GUID) tokenSet.iterator().next()).getVisionOverlayColor();
+			this.currentColor = renderer.getZone().getToken(tokenSet.iterator().next()).getVisionOverlayColor();
 		}
 
+		@Override
 		protected Color showColorChooserDialog() {
 			return JColorChooser.showDialog(MapTool.getFrame().getContentPane(), "Choose Vision Overlay Color", currentColor);
 		}
 
+		@Override
 		protected void updateToken(Token token, Color color) {
 			token.setVisionOverlayColor(color);
 		}
@@ -545,6 +548,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			super(renderer, tokenSet, color, name);
 		}
 
+		@Override
 		protected void updateToken(Token token, Color color) {
 			token.setVisionOverlayColor(color);
 		}
@@ -822,7 +826,7 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 
 	public class RunMacroAction extends AbstractAction {
 
-		private MacroButtonProperties macro;
+		private final MacroButtonProperties macro;
 
 		public RunMacroAction(String key, MacroButtonProperties macro) {
 			putValue(Action.NAME, key);
@@ -834,13 +838,13 @@ public class TokenPopupMenu extends AbstractTokenPopupMenu {
 			for (GUID tokenID : selectedTokenSet) {
 				guidSet.add(getRenderer().getZone().getToken(tokenID));
 			}
-			macro.executeMacro(guidSet); 
+			macro.executeMacro(guidSet);
 		}
 	}
 
 	public class SayAction extends AbstractAction {
 
-		private String speech;
+		private final String speech;
 
 		public SayAction(String key, String speech) {
 			putValue(Action.NAME, key);
