@@ -20,14 +20,16 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 
@@ -60,9 +62,9 @@ public class TransferableHelper extends TransferHandler {
 	 * Takes a drop event and returns an asset
 	 * from it.  returns null if an asset could not be obtained
 	 */
-	public static List getAsset(Transferable transferable) {
+	public static List<Asset> getAsset(Transferable transferable) {
 
-		List assets = new ArrayList();
+		List<Asset> assets = new ArrayList<Asset>();
 
 		try {
 			// EXISTING ASSET
@@ -112,17 +114,23 @@ public class TransferableHelper extends TransferHandler {
 			String fname = (String) transferable.getTransferData(URL_FLAVOR);
 			name = FileUtil.getNameWithoutExtension(fname);
 			try {
-				File file = new File(new URI(fname));		// URI->File verifies and removes "file://"
+				File file;
+				URL url = new URL(fname);
+				try {
+					URI uri = url.toURI();		// Should replace '%20' sequences and such
+					file = new File(uri);
+				} catch (URISyntaxException e) {
+					file = new File(fname);
+				}
 				if (file.exists()) {
-					log.info("Reading file:// URL ...");
+					log.info("Reading local file:  " + file);
 					image = ImageIO.read(file);
 				} else {
-					log.info("Reading remote URL ...");
-					URL url = new URL(fname);
+					log.info("Reading remote URL:  " + url);
 					image = ImageIO.read(url);
 				}
 			} catch (Exception e) {
-				MapTool.showError("Cannot read from URL:  " + fname, e);
+				MapTool.showError("Cannot read URL_FLAVOR:  " + fname, e);
 			}
 		}
 		if (image == null) {
@@ -133,14 +141,21 @@ public class TransferableHelper extends TransferHandler {
 		return asset;
 	}
 
-	private static List handleFileList(Transferable transferable) throws Exception {
+	private static List<Asset> handleFileList(Transferable transferable) throws Exception {
 		List<File> list = new FileTransferableHandler().getTransferObject(transferable);
-		List assets = new ArrayList();
+		List<Asset> assets = new ArrayList<Asset>();
 		for (File file : list) {
 			// A JFileChooser (at least under Linux) sends a couple empty filenames that need to be ignored.
 			if (!file.getPath().equals("")) {
 				if (Token.isTokenFile(file.getName())) {
-					assets.add(PersistenceUtil.loadToken(file));
+					Token token = PersistenceUtil.loadToken(file);
+					if (token != null) {
+						Set<MD5Key> keys = token.getAllImageAssets();
+						for (Iterator<MD5Key> iter = keys.iterator(); iter.hasNext();) {
+							MD5Key key = iter.next();
+							assets.add(AssetManager.getAsset(key));
+						}
+					}
 				} else {
 					assets.add(AssetManager.createAsset(file));
 				}
@@ -167,10 +182,13 @@ public class TransferableHelper extends TransferHandler {
 	 * @return The tokens from the data or <code>null</code> if this isn't the
 	 *         proper data type.
 	 */
+	@SuppressWarnings("unchecked")
 	public static List<Token> getTokens(Transferable transferable) {
+		List<Token> tokens = null;
 		try {
-			List tokenMaps = (List)transferable.getTransferData(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR);
-			List<Token> tokens = new ArrayList<Token>();
+			Object df = transferable.getTransferData(GroupTokenTransferData.GROUP_TOKEN_LIST_FLAVOR);
+			List<TokenTransferData> tokenMaps = (List<TokenTransferData>) df;
+			tokens = new ArrayList<Token>();
 			for (Object object : tokenMaps) {
 				if (!(object instanceof TokenTransferData))
 					continue;
@@ -185,15 +203,17 @@ public class TransferableHelper extends TransferHandler {
 				"because they were missing names or images.";
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						JOptionPane.showMessageDialog(MapTool.getFrame(), message, "Warning", JOptionPane.WARNING_MESSAGE);
+						MapTool.showWarning(message);
 					}
 				});
 			} // endif
-			return tokens;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		} // endtry
+		} catch (IOException e) {
+			MapTool.showError("Error during drag/drop operation", e);
+		}
+		catch (UnsupportedFlavorException e) {
+			MapTool.showError("Error during drag/drop operation", e);
+		}
+		return tokens;
 	}
 
 	public static boolean isSupportedAssetFlavor(Transferable transferable) {
@@ -250,7 +270,7 @@ public class TransferableHelper extends TransferHandler {
 	public boolean importData(JComponent comp, Transferable t) {
 		tokens = null;
 		configureTokens = null;
-		List assets = getAsset(t);
+		List<Asset> assets = getAsset(t);
 		if (assets != null) {
 			tokens = new ArrayList<Token>(assets.size());
 			configureTokens = new ArrayList<Boolean>(assets.size());
