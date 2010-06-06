@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -55,7 +52,7 @@ public class PreferencesDialog extends JDialog {
 
 	/**
 	 * @author frank
-	 *
+	 * 
 	 */
 	private abstract class DocumentListenerProxy implements DocumentListener {
 		JTextField comp;
@@ -63,19 +60,22 @@ public class PreferencesDialog extends JDialog {
 		public DocumentListenerProxy(JTextField tf) {
 			comp = tf;
 		}
+
 		public void changedUpdate(DocumentEvent e) {
 			updateValue();
 		}
+
 		public void insertUpdate(DocumentEvent e) {
 			updateValue();
 		}
+
 		public void removeUpdate(DocumentEvent e) {
 			updateValue();
 		}
 
 		protected void updateValue() {
 			try {
-				int value = StringUtil.parseInteger(comp.getText());	// Localized
+				int value = StringUtil.parseInteger(comp.getText()); // Localized
 				storeNumericValue(value);
 			} catch (ParseException nfe) {
 				// Ignore it
@@ -92,8 +92,9 @@ public class PreferencesDialog extends JDialog {
 		public void stateChanged(ChangeEvent ce) {
 			JSpinner sp = (JSpinner) ce.getSource();
 			int value = (Integer) sp.getValue();
-			storeSpinnerValue( value );
+			storeSpinnerValue(value);
 		}
+
 		protected abstract void storeSpinnerValue(int value);
 	}
 
@@ -139,6 +140,8 @@ public class PreferencesDialog extends JDialog {
 	private final JTextField chatFilenameFormat;
 	private final JTextField typingNotificationDuration;
 
+	// Chat Notification
+	private final JETAColorWell chatNotificationColor;
 
 	// Defaults
 	private final JComboBox defaultGridTypeCombo;
@@ -166,14 +169,14 @@ public class PreferencesDialog extends JDialog {
 	private final JCheckBox lockMovement;
 
 	public PreferencesDialog() {
-		super (MapTool.getFrame(), "Preferences", true);
+		super(MapTool.getFrame(), "Preferences", true);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		((JPanel)getContentPane()).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		((JPanel) getContentPane()).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
 		// XXX Testing the use of XML instead of the previous 'jfrm' binary technique
 		FormPanel panel = new FormPanel("net/rptools/maptool/client/ui/forms/preferencesDialog.xml");
 
-		JButton okButton = (JButton)panel.getButton("okButton");
+		JButton okButton = (JButton) panel.getButton("okButton");
 		getRootPane().setDefaultButton(okButton);
 		okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -230,6 +233,8 @@ public class PreferencesDialog extends JDialog {
 		toolTipDismissDelay = panel.getTextField("toolTipDismissDelay");
 		facingFaceEdges = panel.getCheckBox("facingFaceEdges");
 		facingFaceVertices = panel.getCheckBox("facingFaceVertices");
+
+		chatNotificationColor = (JETAColorWell) panel.getComponentByName("chatNotificationColor");
 
 		chatAutosaveTime = panel.getSpinner("chatAutosaveTime");
 		chatFilenameFormat = panel.getTextField("chatFilenameFormat");
@@ -295,6 +300,13 @@ public class PreferencesDialog extends JDialog {
 			}
 		});
 
+		chatNotificationColor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setChatNotificationColor(chatNotificationColor.getColor());
+				MapTool.getFrame().setChatTypingLabelColor(AppPreferences.getChatNotificationColor());
+			}
+		});
+
 		trustedOuputForeground.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				AppPreferences.setTrustedPrefixFG(trustedOuputForeground.getColor());
@@ -355,7 +367,7 @@ public class PreferencesDialog extends JDialog {
 		});
 		autoSaveSpinner.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent ce) {
-				int newInterval = (Integer)autoSaveSpinner.getValue();
+				int newInterval = (Integer) autoSaveSpinner.getValue();
 				AppPreferences.setAutoSaveIncrement(newInterval);
 				MapTool.getAutoSaveManager().restart();
 			}
@@ -442,7 +454,7 @@ public class PreferencesDialog extends JDialog {
 		});
 		haloLineWidthSpinner.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent ce) {
-				AppPreferences.setHaloLineWidth((Integer)haloLineWidthSpinner.getValue());
+				AppPreferences.setHaloLineWidth((Integer) haloLineWidthSpinner.getValue());
 			}
 		});
 
@@ -588,7 +600,7 @@ public class PreferencesDialog extends JDialog {
 		movementMetricCombo.setModel(movementMetricModel);
 		movementMetricCombo.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
-				AppPreferences.setMovementMetric((WalkerMetric)movementMetricCombo.getSelectedItem());
+				AppPreferences.setMovementMetric((WalkerMetric) movementMetricCombo.getSelectedItem());
 			}
 		});
 		add(panel);
@@ -604,14 +616,12 @@ public class PreferencesDialog extends JDialog {
 	}
 
 	/**
-	 * Used by the ActionListeners of the facing checkboxes to update
-	 * the facings for all of the current zones.   Redundant to go
-	 * through all zones because all zones using the same grid type
-	 * share facings but it doesn't hurt anything and avoids having to
-	 * track what grid types are being used.
+	 * Used by the ActionListeners of the facing checkboxes to update the facings for all of the current zones.
+	 * Redundant to go through all zones because all zones using the same grid type share facings but it doesn't hurt
+	 * anything and avoids having to track what grid types are being used.
 	 */
 	private void updateFacings() {
-		List <Zone> zlist = MapTool.getServer().getCampaign().getZones();
+		List<Zone> zlist = MapTool.getServer().getCampaign().getZones();
 		boolean faceEdges = AppPreferences.getFaceEdge();
 		boolean faceVertices = AppPreferences.getFaceVertex();
 		for (Zone z : zlist) {
@@ -664,7 +674,7 @@ public class PreferencesDialog extends JDialog {
 		facingFaceEdges.setSelected(AppPreferences.getFaceEdge());
 		facingFaceVertices.setSelected(AppPreferences.getFaceVertex());
 
-		chatAutosaveTime.setModel(new SpinnerNumberModel(AppPreferences.getChatAutosaveTime(), 0, 24*60, 1));
+		chatAutosaveTime.setModel(new SpinnerNumberModel(AppPreferences.getChatAutosaveTime(), 0, 24 * 60, 1));
 		chatFilenameFormat.setText(AppPreferences.getChatFilenameFormat());
 
 		fitGMView.setSelected(AppPreferences.getFitGMView());
@@ -672,5 +682,7 @@ public class PreferencesDialog extends JDialog {
 		ownerPermissions.setSelected(AppPreferences.getInitOwnerPermissions());
 		lockMovement.setSelected(AppPreferences.getInitLockMovement());
 		typingNotificationDuration.setText(Integer.toString(AppPreferences.getTypingNotificationDuration()));
+
+		chatNotificationColor.setColor(AppPreferences.getChatNotificationColor());
 	}
 }

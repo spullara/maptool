@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui;
 
@@ -17,6 +14,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GridBagConstraints;
@@ -185,6 +183,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private CoordinateStatusBar coordinateStatusBar;
 	private ZoomStatusBar zoomStatusBar;
 	private JLabel chatActionLabel;
+	private JLabel chatTypingLabel;
 	private final GlassPane glassPane;
 
 	private TokenPanelTreeModel tokenPanelTreeModel;
@@ -285,6 +284,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		zoneRendererPanel.setBackground(Color.black);
 		// zoneRendererPanel.add(zoneMiniMapPanel,
 		// PositionalLayout.Position.SE);
+		zoneRendererPanel.add(getChatTypingLabel(), PositionalLayout.Position.NW);
 		zoneRendererPanel.add(getChatActionLabel(), PositionalLayout.Position.SW);
 
 		commandPanel = new CommandPanel();
@@ -336,9 +336,9 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	public void registerForMacOSXEvents() {
 		try {
-			OSXAdapter.setQuitHandler(this, getClass().getDeclaredMethod("macOSXExit", (Class[])null));
-			OSXAdapter.setAboutHandler(this, getClass().getDeclaredMethod("macOSXAbout", (Class[])null));
-			OSXAdapter.setPreferencesHandler(this, getClass().getDeclaredMethod("macOSXPreferences", (Class[])null));
+			OSXAdapter.setQuitHandler(this, getClass().getDeclaredMethod("macOSXExit", (Class[]) null));
+			OSXAdapter.setAboutHandler(this, getClass().getDeclaredMethod("macOSXAbout", (Class[]) null));
+			OSXAdapter.setPreferencesHandler(this, getClass().getDeclaredMethod("macOSXPreferences", (Class[]) null));
 		} catch (Exception e) {
 			System.err.println("Error while loading the OSXAdapter:");
 			e.printStackTrace();
@@ -346,17 +346,17 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	}
 
 	public void macOSXAbout() {
-		((ClientAction)AppActions.SHOW_ABOUT).execute(null);
+		((ClientAction) AppActions.SHOW_ABOUT).execute(null);
 	}
 
 	public boolean macOSXExit() {
-		((ClientAction)AppActions.EXIT).execute(null);
+		((ClientAction) AppActions.EXIT).execute(null);
 		// Always return false to abort exit from os.  Above call will close app normally if user accepts
 		return false;
 	}
 
 	public void macOSXPreferences() {
-		((ClientAction)AppActions.SHOW_PREFERENCES).execute(null);
+		((ClientAction) AppActions.SHOW_PREFERENCES).execute(null);
 	}
 
 	public DragImageGlassPane getDragImageGlassPane() {
@@ -372,31 +372,26 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	public enum MTFrame {
 		/*
-		 * These enums should be specified using references to the properties
-		 * file. However, a simple toString() method is used later to determine
-		 * what to display on the various panels. So if I convert the propName
-		 * into the value from the properties file and return it, parts of the
-		 * code later on usethat string to do a properties file lookup! That
-		 * means that any code using MTFrame enums that are converted to Strings
-		 * need to be checked so that when the return value is used as the NAME
-		 * of an Action, the property name is retrieved instead. Ugh. :(
-		 *
-		 * We'll need two additional methods: getPropName() and
-		 * getDisplayName(). Perhaps toString() could call getDisplayName(), but
-		 * it might be much simpler to debug if toString() weren't used. In that
-		 * case, there's no reason to use an enum either ... may as well use a
-		 * class with static final objects in it. Sigh.
+		 * These enums should be specified using references to the properties file. However, a simple toString() method
+		 * is used later to determine what to display on the various panels. So if I convert the propName into the value
+		 * from the properties file and return it, parts of the code later on usethat string to do a properties file
+		 * lookup! That means that any code using MTFrame enums that are converted to Strings need to be checked so that
+		 * when the return value is used as the NAME of an Action, the property name is retrieved instead. Ugh. :(
+		 * 
+		 * We'll need two additional methods: getPropName() and getDisplayName(). Perhaps toString() could call
+		 * getDisplayName(), but it might be much simpler to debug if toString() weren't used. In that case, there's no
+		 * reason to use an enum either ... may as well use a class with static final objects in it. Sigh.
 		 */
-		CONNECTIONS("Connections"),	//
-		TOKEN_TREE("MapExplorer"),		// These comments prevent
-		INITIATIVE(	"Initiative"),				// the source reformatter from
-		IMAGE_EXPLORER("Library"),		// rearranging the structure
-		CHAT("Chat"),							// of these lines, keeping each
-		LOOKUP_TABLES("Tables"),			// one on its own line. :)
-		GLOBAL("Global"),						//
-		CAMPAIGN("Campaign"),				//
-		SELECTION("Selected"),				//
-		IMPERSONATED("Impersonate");	//
+		CONNECTIONS("Connections"), //
+		TOKEN_TREE("MapExplorer"), // These comments prevent
+		INITIATIVE("Initiative"), // the source reformatter from
+		IMAGE_EXPLORER("Library"), // rearranging the structure
+		CHAT("Chat"), // of these lines, keeping each
+		LOOKUP_TABLES("Tables"), // one on its own line. :)
+		GLOBAL("Global"), //
+		CAMPAIGN("Campaign"), //
+		SELECTION("Selected"), //
+		IMPERSONATED("Impersonate"); //
 
 		private String displayName;
 
@@ -695,6 +690,34 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	public void hideGlassPane() {
 		glassPane.removeAll();
 		glassPane.setVisible(false);
+	}
+
+	public JLabel getChatTypingLabel() {
+		if (chatTypingLabel == null) {
+			chatTypingLabel = new JLabel("", new ImageIcon(AppStyle.chatNotifyImage), JLabel.LEFT);
+			chatTypingLabel.setForeground(AppPreferences.getChatNotificationColor());
+			chatTypingLabel.setFont(new Font("Helvetica", Font.BOLD, 12));
+			chatTypingLabel.setSize(200, 30);
+			chatTypingLabel.setVisible(false);
+		}
+		return chatTypingLabel;
+	}
+
+	public void setChatTypingLabelColor(Color color) {
+		if (chatTypingLabel != null) {
+			chatTypingLabel.setForeground(color);
+		}
+	}
+
+	public void setChatTypingLabel(String label) {
+		chatTypingLabel.setText(label);
+
+		if (!label.equals("")) {
+			chatTypingLabel.setVisible(true);
+		} else {
+			chatTypingLabel.setVisible(false);
+		}
+
 	}
 
 	public JLabel getChatActionLabel() {
@@ -1162,7 +1185,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	/**
 	 * Get the paintDrawingMeasurements for this MapToolClient.
-	 *
+	 * 
 	 * @return Returns the current value of paintDrawingMeasurements.
 	 */
 	public boolean isPaintDrawingMeasurement() {
@@ -1171,7 +1194,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	/**
 	 * Set the value of paintDrawingMeasurements for this MapToolClient.
-	 *
+	 * 
 	 * @param aPaintDrawingMeasurements
 	 *            The paintDrawingMeasurements to set.
 	 */
@@ -1191,9 +1214,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		// Under mac os x this does not properly hide the menu bar so adjust top and height
 		// so menu bar does not overlay screen.
 		if (MapTool.MAC_OS_X) {
-			fullScreenFrame.setBounds(bounds.x, bounds.y+21, bounds.width, bounds.height-21);
-		}
-		else {
+			fullScreenFrame.setBounds(bounds.x, bounds.y + 21, bounds.width, bounds.height - 21);
+		} else {
 			fullScreenFrame.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 		}
 
@@ -1510,6 +1532,7 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		loadTableFileChooser.setFileFilter(tableFilter);
 		return loadTableFileChooser;
 	}
+
 	// end of Table import/export support
 
 	@SuppressWarnings("serial")
@@ -1533,4 +1556,3 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 
 	}
 }
-

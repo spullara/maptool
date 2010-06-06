@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -151,8 +148,7 @@ public class AppPreferences {
 	}
 
 	public static Color getChatColor() {
-		return new Color(prefs.getInt(KEY_CHAT_COLOR, DEFAULT_CHAT_COLOR
-				.getRGB()));
+		return new Color(prefs.getInt(KEY_CHAT_COLOR, DEFAULT_CHAT_COLOR.getRGB()));
 	}
 
 	public static void setSaveReminder(boolean reminder) {
@@ -204,8 +200,7 @@ public class AppPreferences {
 	}
 
 	public static String getTokenNumberDisplay() {
-		return prefs
-		.get(KEY_TOKEN_NUMBER_DISPLAY, DEFAULT_TOKEN_NUMBER_DISPLAY);
+		return prefs.get(KEY_TOKEN_NUMBER_DISPLAY, DEFAULT_TOKEN_NUMBER_DISPLAY);
 	}
 
 	public static void setDuplicateTokenNumber(String numbering) {
@@ -213,8 +208,7 @@ public class AppPreferences {
 	}
 
 	public static String getDuplicateTokenNumber() {
-		return prefs.get(KEY_DUPLICATE_TOKEN_NUMBER,
-				DEFAULT_DUPLICATE_TOKEN_NUMBER);
+		return prefs.get(KEY_DUPLICATE_TOKEN_NUMBER, DEFAULT_DUPLICATE_TOKEN_NUMBER);
 	}
 
 	public static void setNewTokenNaming(String naming) {
@@ -230,8 +224,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getUseHaloColorOnVisionOverlay() {
-		return prefs.getBoolean(KEY_USE_HALO_COLOR_ON_VISION_OVERLAY,
-				DEFAULT_USE_HALO_COLOR_ON_VISION_OVERLAY);
+		return prefs.getBoolean(KEY_USE_HALO_COLOR_ON_VISION_OVERLAY, DEFAULT_USE_HALO_COLOR_ON_VISION_OVERLAY);
 	}
 
 	public static void setAutoRevealVisionOnGMMovement(boolean flag) {
@@ -239,8 +232,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getAutoRevealVisionOnGMMovement() {
-		return prefs.getBoolean(KEY_AUTO_REVEAL_VISION_ON_GM_MOVEMENT,
-				DEFAULT_AUTO_REVEAL_VISION_ON_GM_MOVEMENT);
+		return prefs.getBoolean(KEY_AUTO_REVEAL_VISION_ON_GM_MOVEMENT, DEFAULT_AUTO_REVEAL_VISION_ON_GM_MOVEMENT);
 	}
 
 	private static int range0to255(int value) {
@@ -250,6 +242,7 @@ public class AppPreferences {
 	public static void setHaloOverlayOpacity(int size) {
 		prefs.putInt(KEY_HALO_OVERLAY_OPACITY, range0to255(size));
 	}
+
 	public static int getHaloOverlayOpacity() {
 		int value = prefs.getInt(KEY_HALO_OVERLAY_OPACITY, DEFAULT_HALO_OVERLAY_OPACITY);
 		return range0to255(value);
@@ -258,6 +251,7 @@ public class AppPreferences {
 	public static void setAuraOverlayOpacity(int size) {
 		prefs.putInt(KEY_AURA_OVERLAY_OPACITY, range0to255(size));
 	}
+
 	public static int getAuraOverlayOpacity() {
 		int value = prefs.getInt(KEY_AURA_OVERLAY_OPACITY, DEFAULT_AURA_OVERLAY_OPACITY);
 		return range0to255(value);
@@ -266,6 +260,7 @@ public class AppPreferences {
 	public static void setLightOverlayOpacity(int size) {
 		prefs.putInt(KEY_LIGHT_OVERLAY_OPACITY, range0to255(size));
 	}
+
 	public static int getLightOverlayOpacity() {
 		int value = prefs.getInt(KEY_LIGHT_OVERLAY_OPACITY, DEFAULT_LIGHT_OVERLAY_OPACITY);
 		return range0to255(value);
@@ -276,8 +271,9 @@ public class AppPreferences {
 
 		// FIXME Force ModelChange event to flush fog from zone :(
 		Zone zone = MapTool.getFrame().getCurrentZoneRenderer().getZone();
-		zone.setHasFog( zone.hasFog() );
+		zone.setHasFog(zone.hasFog());
 	}
+
 	public static int getFogOverlayOpacity() {
 		int value = prefs.getInt(KEY_FOG_OVERLAY_OPACITY, DEFAULT_FOG_OVERLAY_OPACITY);
 		return range0to255(value);
@@ -336,6 +332,16 @@ public class AppPreferences {
 	private static final String KEY_TOOLTIP_FOR_INLINE_ROLLS = "toolTipInlineRolls";
 	private static final boolean DEFAULT_TOOLTIP_FOR_INLINE_ROLLS = false;
 
+	// chat notification colors
+	private static final String KEY_CHAT_NOTIFICATION_COLOR_RED = "chatNotificationColorRed";
+	private static final int DEFAULT_CHAT_NOTIFICATION_COLOR_RED = 0xFF;
+
+	private static final String KEY_CHAT_NOTIFICATION_COLOR_GREEN = "chatNotificationColorGreen";
+	private static final int DEFAULT_CHAT_NOTIFICATION_COLOR_GREEN = 0xFF;
+
+	private static final String KEY_CHAT_NOTIFICATION_COLOR_BLUE = "chatNotificationColorBlue";
+	private static final int DEFAULT_CHAT_NOTIFICATION_COLOR_BLUE = 0xFF;
+	// end chat notification colors
 
 	private static final String KEY_TRUSTED_PREFIX_BG_RED = "trustedPrefixBGRed";
 	private static final int DEFAULT_TRUSTED_PREFIX_BG_RED = 0xD8;
@@ -379,17 +385,26 @@ public class AppPreferences {
 		return prefs.getBoolean(KEY_TOOLTIP_FOR_INLINE_ROLLS, DEFAULT_TOOLTIP_FOR_INLINE_ROLLS);
 	}
 
+	public static void setChatNotificationColor(Color color) {
+		prefs.putInt(KEY_CHAT_NOTIFICATION_COLOR_RED, color.getRed());
+		prefs.putInt(KEY_CHAT_NOTIFICATION_COLOR_GREEN, color.getGreen());
+		prefs.putInt(KEY_CHAT_NOTIFICATION_COLOR_BLUE, color.getBlue());
+	}
+
+	public static Color getChatNotificationColor() {
+		return new Color(prefs.getInt(KEY_CHAT_NOTIFICATION_COLOR_RED, DEFAULT_CHAT_NOTIFICATION_COLOR_RED), prefs.getInt(KEY_CHAT_NOTIFICATION_COLOR_GREEN, DEFAULT_CHAT_NOTIFICATION_COLOR_GREEN),
+				prefs.getInt(KEY_CHAT_NOTIFICATION_COLOR_BLUE, DEFAULT_CHAT_NOTIFICATION_COLOR_BLUE));
+	}
+
 	public static void setTrustedPrefixBG(Color color) {
 		prefs.putInt(KEY_TRUSTED_PREFIX_BG_RED, color.getRed());
 		prefs.putInt(KEY_TRUSTED_PREFIX_BG_RED, color.getRed());
 		prefs.putInt(KEY_TRUSTED_PREFIX_BG_RED, color.getRed());
 	}
 
-
 	public static Color getTrustedPrefixBG() {
-		return new Color(prefs.getInt(KEY_TRUSTED_PREFIX_BG_RED, DEFAULT_TRUSTED_PREFIX_BG_RED),
-				prefs.getInt(KEY_TRUSTED_PREFIX_BG_GREEN, DEFAULT_TRUSTED_PREFIX_BG_GREEN),
-				prefs.getInt(KEY_TRUSTED_PREFIX_BG_BLUE, DEFAULT_TRUSTED_PREFIX_BG_BLUE));
+		return new Color(prefs.getInt(KEY_TRUSTED_PREFIX_BG_RED, DEFAULT_TRUSTED_PREFIX_BG_RED), prefs.getInt(KEY_TRUSTED_PREFIX_BG_GREEN, DEFAULT_TRUSTED_PREFIX_BG_GREEN), prefs.getInt(
+				KEY_TRUSTED_PREFIX_BG_BLUE, DEFAULT_TRUSTED_PREFIX_BG_BLUE));
 
 	}
 
@@ -400,12 +415,10 @@ public class AppPreferences {
 	}
 
 	public static Color getTrustedPrefixFG() {
-		return new Color(prefs.getInt(KEY_TRUSTED_PREFIX_FG_RED, DEFAULT_TRUSTED_PREFIX_FG_RED),
-				prefs.getInt(KEY_TRUSTED_PREFIX_FG_GREEN, DEFAULT_TRUSTED_PREFIX_FG_GREEN),
-				prefs.getInt(KEY_TRUSTED_PREFIX_FG_BLUE, DEFAULT_TRUSTED_PREFIX_FG_BLUE));
+		return new Color(prefs.getInt(KEY_TRUSTED_PREFIX_FG_RED, DEFAULT_TRUSTED_PREFIX_FG_RED), prefs.getInt(KEY_TRUSTED_PREFIX_FG_GREEN, DEFAULT_TRUSTED_PREFIX_FG_GREEN), prefs.getInt(
+				KEY_TRUSTED_PREFIX_FG_BLUE, DEFAULT_TRUSTED_PREFIX_FG_BLUE));
 
 	}
-
 
 	public static void setToolTipInitialDelay(int ms) {
 		prefs.putInt(KEY_TOOLTIP_INITIAL_DELAY, ms);
@@ -479,7 +492,7 @@ public class AppPreferences {
 		return prefs.getBoolean(KEY_SOUNDS_ONLY_WHEN_NOT_FOCUSED, DEFAULT_SOUNDS_ONLY_WHEN_NOT_FOCUSED);
 	}
 
-	public static void setChatColor(Color color){
+	public static void setChatColor(Color color) {
 		prefs.putInt(KEY_CHAT_COLOR, color.getRGB());
 	}
 
@@ -496,8 +509,7 @@ public class AppPreferences {
 	}
 
 	public static Color getDefaultGridColor() {
-		return new Color(prefs.getInt(KEY_DEFAULT_GRID_COLOR,
-				DEFAULT_DEFAULT_GRID_COLOR));
+		return new Color(prefs.getInt(KEY_DEFAULT_GRID_COLOR, DEFAULT_DEFAULT_GRID_COLOR));
 	}
 
 	public static boolean getFaceVertex() {
@@ -537,8 +549,7 @@ public class AppPreferences {
 	}
 
 	public static int getDefaultUnitsPerCell() {
-		return prefs.getInt(KEY_DEFAULT_UNITS_PER_CELL,
-				DEFAULT_DEFAULT_UNITS_PER_CELL);
+		return prefs.getInt(KEY_DEFAULT_UNITS_PER_CELL, DEFAULT_DEFAULT_UNITS_PER_CELL);
 	}
 
 	public static void setDefaultVisionDistance(int dist) {
@@ -546,8 +557,7 @@ public class AppPreferences {
 	}
 
 	public static int getDefaultVisionDistance() {
-		return prefs.getInt(KEY_DEFAULT_VISION_DISTANCE,
-				DEFAULT_DEFAULT_VISION_DISTANCE);
+		return prefs.getInt(KEY_DEFAULT_VISION_DISTANCE, DEFAULT_DEFAULT_VISION_DISTANCE);
 	}
 
 	public static void setUseSoftFogEdges(boolean flag) {
@@ -555,8 +565,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getUseSoftFogEdges() {
-		return prefs.getBoolean(KEY_USE_SOFT_FOG_EDGES,
-				DEFAULT_USE_SOFT_FOG_EDGES);
+		return prefs.getBoolean(KEY_USE_SOFT_FOG_EDGES, DEFAULT_USE_SOFT_FOG_EDGES);
 	}
 
 	public static void setNewMapsHaveFOW(boolean flag) {
@@ -564,8 +573,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getNewMapsHaveFOW() {
-		return prefs.getBoolean(KEY_NEW_MAPS_HAVE_FOW,
-				DEFAULT_NEW_MAPS_HAVE_FOW);
+		return prefs.getBoolean(KEY_NEW_MAPS_HAVE_FOW, DEFAULT_NEW_MAPS_HAVE_FOW);
 	}
 
 	public static void setNewTokensVisible(boolean flag) {
@@ -573,8 +581,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getNewTokensVisible() {
-		return prefs.getBoolean(KEY_NEW_TOKENS_VISIBLE,
-				DEFAULT_NEW_TOKENS_VISIBLE);
+		return prefs.getBoolean(KEY_NEW_TOKENS_VISIBLE, DEFAULT_NEW_TOKENS_VISIBLE);
 	}
 
 	public static void setNewMapsVisible(boolean flag) {
@@ -590,8 +597,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getNewObjectsVisible() {
-		return prefs.getBoolean(KEY_NEW_OBJECTS_VISIBLE,
-				DEFAULT_NEW_OBJECTS_VISIBLE);
+		return prefs.getBoolean(KEY_NEW_OBJECTS_VISIBLE, DEFAULT_NEW_OBJECTS_VISIBLE);
 	}
 
 	public static void setNewBackgroundsVisible(boolean flag) {
@@ -599,8 +605,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getNewBackgroundsVisible() {
-		return prefs.getBoolean(KEY_NEW_BACKGROUNDS_VISIBLE,
-				DEFAULT_NEW_BACKGROUNDS_VISIBLE);
+		return prefs.getBoolean(KEY_NEW_BACKGROUNDS_VISIBLE, DEFAULT_NEW_BACKGROUNDS_VISIBLE);
 	}
 
 	public static void setTokensWarnWhenDeleted(boolean flag) {
@@ -608,8 +613,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getTokensWarnWhenDeleted() {
-		return prefs.getBoolean(KEY_TOKENS_WARN_WHEN_DELETED,
-				DEFAULT_TOKENS_WARN_WHEN_DELETED);
+		return prefs.getBoolean(KEY_TOKENS_WARN_WHEN_DELETED, DEFAULT_TOKENS_WARN_WHEN_DELETED);
 	}
 
 	public static void setTokensStartSnapToGrid(boolean flag) {
@@ -617,8 +621,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getTokensStartSnapToGrid() {
-		return prefs.getBoolean(KEY_TOKENS_START_SNAP_TO_GRID,
-				DEFAULT_TOKENS_START_SNAP_TO_GRID);
+		return prefs.getBoolean(KEY_TOKENS_START_SNAP_TO_GRID, DEFAULT_TOKENS_START_SNAP_TO_GRID);
 	}
 
 	public static void setObjectsStartSnapToGrid(boolean flag) {
@@ -626,8 +629,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getObjectsStartSnapToGrid() {
-		return prefs.getBoolean(KEY_OBJECTS_START_SNAP_TO_GRID,
-				DEFAULT_OBJECTS_START_SNAP_TO_GRID);
+		return prefs.getBoolean(KEY_OBJECTS_START_SNAP_TO_GRID, DEFAULT_OBJECTS_START_SNAP_TO_GRID);
 	}
 
 	public static void setTokensStartFreesize(boolean flag) {
@@ -635,8 +637,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getTokensStartFreesize() {
-		return prefs.getBoolean(KEY_TOKENS_START_FREESIZE,
-				DEFAULT_TOKENS_START_FREESIZE);
+		return prefs.getBoolean(KEY_TOKENS_START_FREESIZE, DEFAULT_TOKENS_START_FREESIZE);
 	}
 
 	public static void setObjectsStartFreesize(boolean flag) {
@@ -644,8 +645,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getObjectsStartFreesize() {
-		return prefs.getBoolean(KEY_OBJECTS_START_FREESIZE,
-				DEFAULT_OBJECTS_START_FREESIZE);
+		return prefs.getBoolean(KEY_OBJECTS_START_FREESIZE, DEFAULT_OBJECTS_START_FREESIZE);
 	}
 
 	public static void setBackgroundsStartSnapToGrid(boolean flag) {
@@ -653,8 +653,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getBackgroundsStartSnapToGrid() {
-		return prefs.getBoolean(KEY_BACKGROUNDS_START_SNAP_TO_GRID,
-				DEFAULT_BACKGROUNDS_START_SNAP_TO_GRID);
+		return prefs.getBoolean(KEY_BACKGROUNDS_START_SNAP_TO_GRID, DEFAULT_BACKGROUNDS_START_SNAP_TO_GRID);
 	}
 
 	public static void setBackgroundsStartFreesize(boolean flag) {
@@ -662,8 +661,7 @@ public class AppPreferences {
 	}
 
 	public static boolean getBackgroundsStartFreesize() {
-		return prefs.getBoolean(KEY_BACKGROUNDS_START_FREESIZE,
-				DEFAULT_BACKGROUNDS_START_FREESIZE);
+		return prefs.getBoolean(KEY_BACKGROUNDS_START_FREESIZE, DEFAULT_BACKGROUNDS_START_FREESIZE);
 	}
 
 	public static String getDefaultGridType() {
@@ -697,8 +695,7 @@ public class AppPreferences {
 	public static WalkerMetric getMovementMetric() {
 		WalkerMetric metric;
 		try {
-			metric = WalkerMetric.valueOf(prefs.get(KEY_MOVEMENT_METRIC,
-					DEFAULT_MOVEMENT_METRIC.toString()));
+			metric = WalkerMetric.valueOf(prefs.get(KEY_MOVEMENT_METRIC, DEFAULT_MOVEMENT_METRIC.toString()));
 		} catch (Exception exc) {
 			metric = DEFAULT_MOVEMENT_METRIC;
 		}
@@ -722,7 +719,7 @@ public class AppPreferences {
 	public static void addAssetRoot(File root) {
 		String list = prefs.get(KEY_ASSET_ROOTS, "");
 		if (list.length() > 0) {
-			list += ";";		// FJE Probably should be File.path_separator ...
+			list += ";"; // FJE Probably should be File.path_separator ...
 		}
 
 		list += root.getPath();
@@ -733,7 +730,7 @@ public class AppPreferences {
 	public static Set<File> getAssetRoots() {
 
 		String list = prefs.get(KEY_ASSET_ROOTS, "");
-		String[] roots = list.split(";");	// FJE Probably should be File.path_separator ...
+		String[] roots = list.split(";"); // FJE Probably should be File.path_separator ...
 
 		Set<File> rootList = new HashSet<File>();
 		for (String root : roots) {
@@ -765,8 +762,7 @@ public class AppPreferences {
 	public static void setMruCampaigns(List<File> mruCampaigns) {
 
 		StringBuilder combined = new StringBuilder("");
-		for (ListIterator<File> iter = mruCampaigns.listIterator(); iter
-		.hasNext();) {
+		for (ListIterator<File> iter = mruCampaigns.listIterator(); iter.hasNext();) {
 			combined.append(iter.next().getPath());
 			combined.append(File.pathSeparator);
 		}
@@ -788,8 +784,7 @@ public class AppPreferences {
 	public static void setSavedPaintTextures(List<File> savedTextures) {
 
 		StringBuilder combined = new StringBuilder("");
-		for (ListIterator<File> iter = savedTextures.listIterator(); iter
-		.hasNext();) {
+		for (ListIterator<File> iter = savedTextures.listIterator(); iter.hasNext();) {
 			combined.append(iter.next().getPath());
 			combined.append(File.pathSeparator);
 		}

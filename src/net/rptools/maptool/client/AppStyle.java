@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client;
 
@@ -35,38 +32,39 @@ public class AppStyle {
 	public static ImageBorder commonMacroBorder = AppConstants.HIGHLIGHT_BORDER;
 
 	public static Font labelFont = Font.decode("serif-NORMAL-12");
-	
+
 	public static BufferedImage tokenInvisible;
 
-    public static BufferedImage cellWaypointImage;
-	
-    public static BufferedImage stackImage;
-    
-    public static BufferedImage markerImage;
-    
-    public static Color selectionBoxOutline = Color.black;
-    public static Color selectionBoxFill = Color.blue;
-    
-    public static BufferedImage chatImage;
-    public static BufferedImage chatScrollImage;
-    public static BufferedImage chatScrollLockImage;
-    
-    public static BufferedImage showTypingNotification;
-    public static BufferedImage hideTypingNotification;
-    
-    public static Color topologyColor = new Color(0, 0, 255, 128);
-    public static Color topologyAddColor = new Color(255, 0, 0, 128);
-    public static Color topologyRemoveColor = new Color(255, 255, 255, 128);
+	public static BufferedImage cellWaypointImage;
 
-    public static BufferedImage boundedBackgroundTile;
-    
-    public static BufferedImage cancelButton;
-    public static BufferedImage addButton;
-    
-    public static BufferedImage panelTexture;
-    
-    public static BufferedImage lookupTableDefaultImage;
-	
+	public static BufferedImage stackImage;
+
+	public static BufferedImage markerImage;
+
+	public static Color selectionBoxOutline = Color.black;
+	public static Color selectionBoxFill = Color.blue;
+
+	public static BufferedImage chatImage;
+	public static BufferedImage chatScrollImage;
+	public static BufferedImage chatScrollLockImage;
+	public static BufferedImage chatNotifyImage;
+
+	public static BufferedImage showTypingNotification;
+	public static BufferedImage hideTypingNotification;
+
+	public static Color topologyColor = new Color(0, 0, 255, 128);
+	public static Color topologyAddColor = new Color(255, 0, 0, 128);
+	public static Color topologyRemoveColor = new Color(255, 255, 255, 128);
+
+	public static BufferedImage boundedBackgroundTile;
+
+	public static BufferedImage cancelButton;
+	public static BufferedImage addButton;
+
+	public static BufferedImage panelTexture;
+
+	public static BufferedImage lookupTableDefaultImage;
+
 	public static BufferedImage resourceLibraryImage;
 	public static BufferedImage mapExplorerImage;
 	public static BufferedImage connectionsImage;
@@ -75,35 +73,36 @@ public class AppStyle {
 	public static BufferedImage campaignPanelImage;
 	public static BufferedImage selectionPanelImage;
 	public static BufferedImage impersonatePanelImage;
-    public static BufferedImage tablesPanelImage;
-    public static BufferedImage initiativePanelImage;
+	public static BufferedImage tablesPanelImage;
+	public static BufferedImage initiativePanelImage;
 	public static BufferedImage arrowOut;
 	public static BufferedImage arrowRotateClockwise;
 	public static BufferedImage arrowIn;
 	public static BufferedImage arrowRight;
 	public static BufferedImage arrowLeft;
-	
+
 	public static BufferedImage lightSourceIcon;
-	
+
 	static {
-		
+
 		try {
 			// Set defaults
 			tokenInvisible = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/icon_invisible.png");
-            cellWaypointImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/redDot.png");
-            stackImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/stack.png");
-            markerImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/marker.png");
-            chatImage  = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chat-blue.png");
-            chatScrollImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments.png"); 
-            chatScrollLockImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments_delete.png"); 
-            
-            // Typing notification icons added by Rumble
-            showTypingNotification = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chatNotifyOn.png");
-            hideTypingNotification = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chatNotifyOff.png");
-            
-            boundedBackgroundTile = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/Black.png");
-            panelTexture = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/panelTexture.jpg");
-            
+			cellWaypointImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/redDot.png");
+			stackImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/stack.png");
+			markerImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/marker.png");
+			chatImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chat-blue.png");
+			chatScrollImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments.png");
+			chatScrollLockImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/comments_delete.png");
+			chatNotifyImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chat-red.png");
+
+			// Typing notification icons added by Rumble
+			showTypingNotification = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chatNotifyOn.png");
+			hideTypingNotification = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/chatNotifyOff.png");
+
+			boundedBackgroundTile = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/Black.png");
+			panelTexture = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/panelTexture.jpg");
+
 			cancelButton = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/cancel_sm.png");
 			addButton = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/add_sm.png");
 
@@ -117,14 +116,14 @@ public class AppStyle {
 			campaignPanelImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/campaign_panel.png");
 			selectionPanelImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/cursor.png");
 			impersonatePanelImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/impersonate.png");
-            tablesPanelImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/layers.png");         
-            initiativePanelImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/initiativePanel.png");         
-			arrowOut = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/arrow_out.png");			
+			tablesPanelImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/layers.png");
+			initiativePanelImage = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/initiativePanel.png");
+			arrowOut = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/arrow_out.png");
 			arrowRotateClockwise = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/arrow_rotate_clockwise.png");
 			arrowIn = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/arrow_in_red.png");
 			arrowRight = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/arrow_right.png");
 			arrowLeft = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/arrow_left.png");
-			
+
 			lightSourceIcon = ImageUtil.getCompatibleImage("net/rptools/maptool/client/image/lightbulb.png");
 		} catch (IOException ioe) {
 			ioe.printStackTrace();

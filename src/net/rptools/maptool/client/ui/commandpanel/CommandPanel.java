@@ -1,15 +1,12 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package net.rptools.maptool.client.ui.commandpanel;
 
@@ -115,8 +112,6 @@ public class CommandPanel extends JPanel implements Observer {
 		addFocusHotKey();
 	}
 
-
-
 	public ChatProcessor getChatProcessor() {
 		return chatProcessor;
 	}
@@ -142,16 +137,16 @@ public class CommandPanel extends JPanel implements Observer {
 	 * The identity currently in use, if the player is not impersonating a token, this will return the player's name
 	 */
 	public String getIdentity() {
-		return ( identity == null ? MapTool.getPlayer().getName() : identity );
+		return (identity == null ? MapTool.getPlayer().getName() : identity);
 	}
 
-	public void setIdentity( String identity ) {
+	public void setIdentity(String identity) {
 		this.identity = identity;
 		if (identity == null) {
 			setCharacterLabel("");
 			avatarPanel.setImage(null);
 		} else {
-			setCharacterLabel("Speaking as: " + getIdentity() );
+			setCharacterLabel("Speaking as: " + getIdentity());
 
 			if (MapTool.getFrame().getCurrentZoneRenderer() != null) {
 				Token token = MapTool.getFrame().getCurrentZoneRenderer().getZone().getTokenByName(identity);
@@ -202,16 +197,15 @@ public class CommandPanel extends JPanel implements Observer {
 		return scrollLockButton;
 	}
 
-
 	/**
-	 * Gets the button for sending or suppressing notification that a player
-	 * is typing in the chat text area.
+	 * Gets the button for sending or suppressing notification that a player is typing in the chat text area.
+	 * 
 	 * @return the notification button
 	 */
 
 	public JToggleButton getNotifyButton() {
 
-		if (chatNotifyButton == null){
+		if (chatNotifyButton == null) {
 			chatNotifyButton = new JToggleButton();
 			chatNotifyButton.setIcon(new ImageIcon(AppStyle.showTypingNotification));
 			chatNotifyButton.setSelectedIcon(new ImageIcon(AppStyle.hideTypingNotification));
@@ -219,12 +213,12 @@ public class CommandPanel extends JPanel implements Observer {
 			chatNotifyButton.setUI(new BasicToggleButtonUI());
 			chatNotifyButton.setBorderPainted(false);
 			chatNotifyButton.setFocusPainted(false);
-			chatNotifyButton.setPreferredSize(new Dimension(16,16));
-			chatNotifyButton.addItemListener(new ItemListener(){
+			chatNotifyButton.setPreferredSize(new Dimension(16, 16));
+			chatNotifyButton.addItemListener(new ItemListener() {
 				public void itemStateChanged(ItemEvent e) {
 					if (e.getStateChange() == ItemEvent.SELECTED) {
 						commandTextArea.removeKeyListener(commandTextArea.getKeyListeners()[0]);
-					} else if (e.getStateChange() == ItemEvent.DESELECTED){
+					} else if (e.getStateChange() == ItemEvent.DESELECTED) {
 						commandTextArea.addKeyListener(new ChatTypingListener());
 					}
 				}
@@ -237,9 +231,9 @@ public class CommandPanel extends JPanel implements Observer {
 
 	private JComponent createSouthPanel() {
 
-		JPanel panel = new JPanel (new BorderLayout());
+		JPanel panel = new JPanel(new BorderLayout());
 
-		JPanel subPanel = new JPanel (new BorderLayout());
+		JPanel subPanel = new JPanel(new BorderLayout());
 
 		subPanel.add(BorderLayout.EAST, createTextPropertiesPanel());
 		subPanel.add(BorderLayout.NORTH, createCharacterLabel());
@@ -297,16 +291,16 @@ public class CommandPanel extends JPanel implements Observer {
 		return messagePanel.getMessagesText();
 	}
 
-	public void setCharacterLabel( String label ) {
-		characterLabel.setText( label );
+	public void setCharacterLabel(String label) {
+		characterLabel.setText(label);
 	}
 
-	public void setLiveTypingLabel(String label){
-		liveTypingLabel.setText(label);
+	public void setLiveTypingLabel(String label) {
+		MapTool.getFrame().setChatTypingLabel(label);
 
 	}
 
-	public JLabel getLiveTypingLabel(){
+	public JLabel getLiveTypingLabel() {
 		return liveTypingLabel;
 	}
 
@@ -324,26 +318,27 @@ public class CommandPanel extends JPanel implements Observer {
 
 		characterLabel = new JLabel("", JLabel.LEFT);
 		characterLabel.setText("");
-		characterLabel.setBorder(BorderFactory.createEmptyBorder(1,5,1,5));
+		characterLabel.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 5));
 
 		return characterLabel;
 	}
 
 	/**
 	 * Creates the label for live typing.
+	 * 
 	 * @return
 	 */
 
 	public JLabel createLiveTypingLabel() {
 		liveTypingLabel = new JLabel("", JLabel.LEFT);
 		liveTypingLabel.setText("");
-		liveTypingLabel.setBorder(BorderFactory.createEmptyBorder(1,5,1,5));
+		liveTypingLabel.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 5));
 		return liveTypingLabel;
 	}
 
 	public JTextPane getCommandTextArea() {
 		if (commandTextArea == null) {
-			commandTextArea = new JTextPane(){
+			commandTextArea = new JTextPane() {
 				@Override
 				protected void paintComponent(Graphics g) {
 					super.paintComponent(g);
@@ -360,25 +355,22 @@ public class CommandPanel extends JPanel implements Observer {
 			SwingUtil.useAntiAliasing(commandTextArea);
 
 			ActionMap actions = commandTextArea.getActionMap();
-			actions.put(AppActions.COMMIT_COMMAND_ID,
-					AppActions.COMMIT_COMMAND);
+			actions.put(AppActions.COMMIT_COMMAND_ID, AppActions.COMMIT_COMMAND);
 			actions.put(AppActions.ENTER_COMMAND_ID, AppActions.ENTER_COMMAND);
 			actions.put(AppActions.CANCEL_COMMAND_ID, AppActions.CANCEL_COMMAND);
 			actions.put(AppActions.COMMAND_UP_ID, new CommandHistoryUpAction());
 			actions.put(AppActions.COMMAND_DOWN_ID, new CommandHistoryDownAction());
 
 			InputMap inputs = commandTextArea.getInputMap();
-			inputs.put(KeyStroke.getKeyStroke("ESCAPE"),
-					AppActions.CANCEL_COMMAND_ID);
-			inputs.put(KeyStroke.getKeyStroke("ENTER"),
-					AppActions.COMMIT_COMMAND_ID);
+			inputs.put(KeyStroke.getKeyStroke("ESCAPE"), AppActions.CANCEL_COMMAND_ID);
+			inputs.put(KeyStroke.getKeyStroke("ENTER"), AppActions.COMMIT_COMMAND_ID);
 			inputs.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), AppActions.COMMAND_UP_ID);
 			inputs.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), AppActions.COMMAND_DOWN_ID);
 
 			// Resize on demand
 			MapTool.getEventDispatcher().addListener(MapTool.PreferencesEvent.Changed, new AppEventListener() {
 				public void handleAppEvent(AppEvent event) {
-					commandTextArea.setFont(commandTextArea.getFont().deriveFont((float)AppPreferences.getFontSize()));
+					commandTextArea.setFont(commandTextArea.getFont().deriveFont((float) AppPreferences.getFontSize()));
 					doLayout();
 				}
 			});
@@ -387,11 +379,9 @@ public class CommandPanel extends JPanel implements Observer {
 		return commandTextArea;
 	}
 
-
 	/**
-	 * Key listener for command area to handle live typing notification
-	 * Implements an idle timer that removes the typing notification
-	 * after the duration set in AppPreferences expires.
+	 * Key listener for command area to handle live typing notification Implements an idle timer that removes the typing
+	 * notification after the duration set in AppPreferences expires.
 	 */
 
 	private class ChatTypingListener extends KeyAdapter {
@@ -403,7 +393,7 @@ public class CommandPanel extends JPanel implements Observer {
 			int key = kre.getKeyCode();
 			final long mark = kre.getWhen();
 
-			if(key == KeyEvent.VK_ENTER) {
+			if (key == KeyEvent.VK_ENTER) {
 				// User hit enter, reset the label and stop the timer
 				MapTool.serverCommand().setLiveTypingLabel("");
 				if (chatTimer != null) {
@@ -412,14 +402,14 @@ public class CommandPanel extends JPanel implements Observer {
 				}
 				return;
 			}
-			if(!chatNotifyButton.isSelected()) {
+			if (!chatNotifyButton.isSelected()) {
 				// Set up the idle timer if needed
-				if(chatTimer == null){
+				if (chatTimer == null) {
 					chatTimer = new Timer(100, new ActionListener() {
-						public void actionPerformed(ActionEvent ae){
+						public void actionPerformed(ActionEvent ae) {
 							long idleTime = System.currentTimeMillis() - mark;
 
-							if(idleTime > chatNotifyDuration){
+							if (idleTime > chatNotifyDuration) {
 								MapTool.serverCommand().setLiveTypingLabel("");
 								chatTimer.stop();
 								chatTimer = null;
@@ -430,16 +420,15 @@ public class CommandPanel extends JPanel implements Observer {
 				} else {
 					chatTimer.restart();
 				}
-				MapTool.serverCommand().setLiveTypingLabel(I18N.getText("msg.commandPanel.liveTyping",MapTool.getPlayer().getName()));
+				MapTool.serverCommand().setLiveTypingLabel(I18N.getText("msg.commandPanel.liveTyping", MapTool.getPlayer().getName()));
 			} else {
 				chatTimer = null;
 			}
 		}
 	}
 
-
-	/* FIXME: this is insufficient for stopping faked rolls; the user can still
-	 * do something like &{"laquo;"}.
+	/*
+	 * FIXME: this is insufficient for stopping faked rolls; the user can still do something like &{"laquo;"}.
 	 */
 	private static final Pattern CHEATER_PATTERN = Pattern.compile("«|»|&#171;|&#187;|&laquo;|&raquo;|\036|\037");
 
@@ -453,24 +442,25 @@ public class CommandPanel extends JPanel implements Observer {
 
 	/**
 	 * Disables the chat notification toggle if the GM enforces notification
+	 * 
 	 * @param boolean whether to disable the toggle
 	 */
 
-	public void disableNotifyButton(Boolean disable){
+	public void disableNotifyButton(Boolean disable) {
 		// Little clumsy, but when the menu item is _enabled_, the button should be _disabled_
-		if(!MapTool.getPlayer().isGM()){
+		if (!MapTool.getPlayer().isGM()) {
 			chatNotifyButton.setSelected(false);
 			chatNotifyButton.setEnabled(!disable);
 			maybeAddTypingListener();
 		}
 
-
-
 	}
 
 	/**
 	 * Execute the command in the command field.
-	 * @param macroContext The context we are calling the macro in.
+	 * 
+	 * @param macroContext
+	 *            The context we are calling the macro in.
 	 */
 	public void commitCommand(MapToolMacroContext macroContext) {
 		String text = commandTextArea.getText().trim();
@@ -480,7 +470,7 @@ public class CommandPanel extends JPanel implements Observer {
 
 		// Command history
 		// Don't store up a bunch of repeats
-		if (commandHistory.size() == 0 || !text.equals(commandHistory.get(commandHistory.size()-1))) {
+		if (commandHistory.size() == 0 || !text.equals(commandHistory.get(commandHistory.size() - 1))) {
 			commandHistory.add(text);
 			typedCommandBuffer = null;
 		}
@@ -500,7 +490,7 @@ public class CommandPanel extends JPanel implements Observer {
 		int closeDivCount = StringUtil.countOccurances(text, "</div>");
 		while (closeDivCount < divCount) {
 			text += "</div>";
-			closeDivCount ++;
+			closeDivCount++;
 		}
 		if (closeDivCount > divCount) {
 			MapTool.addServerMessage(TextMessage.me(null, "You have too many &lt;/div&gt;."));
@@ -563,7 +553,7 @@ public class CommandPanel extends JPanel implements Observer {
 				typedCommandBuffer = getCommandTextArea().getText();
 			}
 
-			commandHistoryIndex --;
+			commandHistoryIndex--;
 			if (commandHistoryIndex < 0) {
 				commandHistoryIndex = 0;
 			}
@@ -578,7 +568,7 @@ public class CommandPanel extends JPanel implements Observer {
 			if (commandHistory.size() == 0) {
 				return;
 			}
-			commandHistoryIndex ++;
+			commandHistoryIndex++;
 			if (commandHistoryIndex == commandHistory.size()) {
 				commandTextArea.setText(typedCommandBuffer != null ? typedCommandBuffer : "");
 				commandHistoryIndex = commandHistory.size();
@@ -614,12 +604,9 @@ public class CommandPanel extends JPanel implements Observer {
 		messagePanel.addMessage(message);
 	}
 
-
 	public void setTrustedMacroPrefixColors(Color foreground, Color background) {
 		getMessagePanel().setTrustedMacroPrefixColors(foreground, background);
 	}
-
-
 
 	public static class TextColorWell extends JPanel {
 
@@ -644,7 +631,7 @@ public class CommandPanel extends JPanel implements Observer {
 			setToolTipText("Set the color of your speech text");
 		}
 
-		public void setColor(Color newColor){
+		public void setColor(Color newColor) {
 			color = newColor;
 			repaint();
 			AppPreferences.setChatColor(color); //Set the Chat Color in AppPreferences
@@ -707,10 +694,10 @@ public class CommandPanel extends JPanel implements Observer {
 			}
 
 			Dimension imgSize = new Dimension(image.getWidth(null), image.getHeight(null));
-			SwingUtil.constrainTo(imgSize, size.width-PADDING*2, size.height-PADDING*2);
+			SwingUtil.constrainTo(imgSize, size.width - PADDING * 2, size.height - PADDING * 2);
 
-			((Graphics2D)g).setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-			g.drawImage(image, (size.width-imgSize.width)/2, (size.height-imgSize.height)/2, imgSize.width, imgSize.height, this);
+			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+			g.drawImage(image, (size.width - imgSize.width) / 2, (size.height - imgSize.height) / 2, imgSize.width, imgSize.height, this);
 
 			// Cancel
 			BufferedImage cancelButton = AppStyle.cancelButton;
@@ -725,7 +712,7 @@ public class CommandPanel extends JPanel implements Observer {
 	// OBSERVER
 	public void update(Observable o, Object arg) {
 		ObservableList<TextMessage> textList = MapTool.getMessageList();
-		ObservableList.Event event = (ObservableList.Event)arg;
+		ObservableList.Event event = (ObservableList.Event) arg;
 		switch (event) {
 		case append:
 			addMessage(textList.get(textList.size() - 1));
@@ -754,10 +741,12 @@ public class CommandPanel extends JPanel implements Observer {
 	}
 
 	/**
-	 * Convienence method to run a command with ability to preserve the text
-	 * in the commandTextArea.
-	 * @param command Command string
-	 * @param preserveOldText true for preserving, false to remove the old text
+	 * Convienence method to run a command with ability to preserve the text in the commandTextArea.
+	 * 
+	 * @param command
+	 *            Command string
+	 * @param preserveOldText
+	 *            true for preserving, false to remove the old text
 	 */
 	public void quickCommit(String command, boolean preserveOldText) {
 		String oldText = commandTextArea.getText();
@@ -773,10 +762,11 @@ public class CommandPanel extends JPanel implements Observer {
 	}
 
 	/**
-	 * Sets the chat notification duration. Invoked when that value is changed in
-	 * AppPreferences. Done to reduce overhead for the ChatTypingListener (so we're not invoking
-	 * a call to AppPreferences for every key pressed)
-	 * @param duration time in milliseconds before the chat typing notification disappears
+	 * Sets the chat notification duration. Invoked when that value is changed in AppPreferences. Done to reduce
+	 * overhead for the ChatTypingListener (so we're not invoking a call to AppPreferences for every key pressed)
+	 * 
+	 * @param duration
+	 *            time in milliseconds before the chat typing notification disappears
 	 */
 	public void setChatNotifyDuration(int duration) {
 		chatNotifyDuration = duration;
@@ -784,19 +774,19 @@ public class CommandPanel extends JPanel implements Observer {
 	}
 
 	/*
-	  Gets the chat notification duration. Method is unused at this time.
-	  @return time in milliseconds before chat notifications disappear
-
-	public long getChatNotifyDuration(){
-		return chatNotifyDuration;
-	} */
+	 * Gets the chat notification duration. Method is unused at this time.
+	 * 
+	 * @return time in milliseconds before chat notifications disappear
+	 * 
+	 * public long getChatNotifyDuration(){ return chatNotifyDuration; }
+	 */
 
 	/**
-	 * If the GM enforces typing notification and no listener is present (because the
-	 * client had notification off), a new listener is added to the command text area
+	 * If the GM enforces typing notification and no listener is present (because the client had notification off), a
+	 * new listener is added to the command text area
 	 */
-	private void maybeAddTypingListener(){
-		if(commandTextArea.getListeners(ChatTypingListener.class).length == 0){
+	private void maybeAddTypingListener() {
+		if (commandTextArea.getListeners(ChatTypingListener.class).length == 0) {
 			commandTextArea.addKeyListener(new ChatTypingListener());
 		}
 	}
