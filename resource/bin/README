@@ -139,11 +139,13 @@ home directory.  Also in there will be a bunch of subfolders that
 are used by MapTool internally to keep track of maps and other
 images.  If your problem is repeatable, i.e. can be reproduced over
 and over again, please remove the existing log file and then reproduce
-the error.  Then zip up the log file and attach it to a post un the
+the error.  Then zip up the log file and attach it to a post in the
 MapTool forum.
 
 For any other issues, please come to http://forums.RPTools.net/ and
-post a message there describing the difficulties you are having.
+check the forums.  In particular, use the error message as a search
+string to see if your question has been asked and answered previously.
+If not, post a message there describing the difficulties you are having.
 Most problems can be addressed quickly by one of the many helpful
 forum members or one of our team members.
 
