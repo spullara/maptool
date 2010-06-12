@@ -135,8 +135,10 @@ public class HTMLPaneFormView extends FormView {
 		}
 
 		if (formElement != null) {
-			Map<String, String> fdata= new HashMap<String, String>();
-			fdata.putAll(getDataFrom(formElement));
+			String imageMapName = data.replaceFirst("\\..*", "");
+			
+			Map<String, String> fdata = new HashMap<String, String>();
+			fdata.putAll(getDataFrom(formElement, imageMapName));
 			StringBuilder sb = new StringBuilder();
 			for (String s : fdata.keySet()) {
 				if (sb.length() > 0) {
@@ -152,7 +154,7 @@ public class HTMLPaneFormView extends FormView {
 	}
 	
 	
-	private Map<String, String> getDataFrom(Element ele) {
+	private Map<String, String> getDataFrom(Element ele, String selectedImageMap) {
 		Map<String, String> vals = new HashMap<String, String>();
 		
 		for (int i = 0; i < ele.getElementCount(); i++) {
@@ -185,7 +187,9 @@ public class HTMLPaneFormView extends FormView {
 				} else if ("submit".equals(type)) {
 					// Ignore
 				} else if ("image".equals(type)) {
-					// Ignore
+					if (name != null && name.equals(selectedImageMap)) {
+						vals.put(name + ".value" , encode((String)as.getAttribute(HTML.Attribute.VALUE)));
+					}
 				} else if ("radio".equals(type)) {
 					if (as.getAttribute(HTML.Attribute.CHECKED) != null) {
 						vals.put(name, encode(encode((String)as.getAttribute(HTML.Attribute.VALUE))));
@@ -205,7 +209,7 @@ public class HTMLPaneFormView extends FormView {
 					vals.put(name, encode(encode((String)as.getAttribute(HTML.Attribute.VALUE))));
 				}
 			}
-			vals.putAll(getDataFrom(e));
+			vals.putAll(getDataFrom(e, selectedImageMap));
 			
 		}
 		return vals;
