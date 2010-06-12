@@ -44,7 +44,8 @@ public class TokenPropertyFunctions extends AbstractFunction {
 				"getLibProperty", "setLibProperty", "getLibPropertyNames",
 				"setPropertyType", "getPropertyType",
 				"getRawProperty", "getTokenFacing", "setTokenFacing", "removeTokenFacing",
-				"getMatchingProperties", "getMatchingLibProperties");
+				"getMatchingProperties", "getMatchingLibProperties", "isSnapToGrid",
+				"setOwner");
 	}
 
 
@@ -625,6 +626,44 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			zone.putToken(token);
 			return "";
 		}
+		
+		/*
+		 * Number zeroOne = isSnapToGrid(String tokenId: currentToken())
+		 */
+		if (functionName.equals("isSnapToGrid")) {
+			if (parameters.size() > 1) {
+				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 1, parameters.size()));
+			}
+			Token token = getTokenFromParam(resolver, "getTokenFacing", parameters, 0);
+			return token.isSnapToGrid() ? BigDecimal.ONE : BigDecimal.ZERO;
+		}
+
+		/*
+		 * String empty = setOwner(String playerName | JSONArray playerNames, String tokenId: currentToken())
+		 */
+		if (functionName.equals("setOwner")) {
+			if (parameters.size() > 2) {
+				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 2, parameters.size()));
+			}
+			Token token = getTokenFromParam(resolver, "getTokenFacing", parameters, 1);
+			// Remove current owners
+			token.clearAllOwners();
+			
+			if (parameters.get(0).equals("")) {
+				return "";
+			}
+			
+			Object json = JSONMacroFunctions.asJSON(parameters.get(0));
+			if (json != null && json instanceof JSONArray) {
+				for (Object o : (JSONArray)json) {
+					token.addOwner(o.toString());
+				}
+			} else {
+				token.addOwner(parameters.get(0).toString());
+			}
+			return "";
+		}
+		
 
 		throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
 	}
