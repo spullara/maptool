@@ -72,6 +72,8 @@ import net.rptools.maptool.client.functions.TokenSpeechFunctions;
 import net.rptools.maptool.client.functions.TokenStateFunction;
 import net.rptools.maptool.client.functions.TokenVisibleFunction;
 import net.rptools.maptool.client.functions.UserDefinedMacroFunctions;
+import net.rptools.maptool.client.functions.getInfoFunction;
+import net.rptools.maptool.client.functions.isVisibleFunction;
 import net.rptools.maptool.client.functions.AbortFunction.AbortFunctionException;
 import net.rptools.maptool.client.functions.AssertFunction.AssertFunctionException;
 import net.rptools.maptool.client.ui.htmlframe.HTMLFrameFactory;
@@ -145,6 +147,8 @@ public class MapToolLineParser {
 		TokenStateFunction.getInstance(),
 		TokenVisibleFunction.getInstance(),
 		UserDefinedMacroFunctions.getInstance(),
+		isVisibleFunction.getInstance(),
+		getInfoFunction.getInstance()
 	};
 
 	/** Name and Source or macros that come from chat. */
