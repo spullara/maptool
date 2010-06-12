@@ -1100,7 +1100,7 @@ public class MapTool {
 			vers = vers.replaceAll("[^0-9]", "0");		// Convert all non-digits to zeroes
 			setDockIconBadge.invoke(appl, new Object[] { vers });
 		} catch (Exception e) {
-			log.error("Cannot find/invoke methods on com.apple.eawt.Application", e);
+			log.info("Cannot find/invoke methods on com.apple.eawt.Application; use -X command line options to set dock bar attributes", e);
 		}
 	}
 
