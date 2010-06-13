@@ -23,11 +23,19 @@ import java.util.Set;
 import net.rptools.maptool.client.AppPreferences;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.MapToolVariableResolver;
+import net.rptools.maptool.client.ui.token.BarTokenOverlay;
+import net.rptools.maptool.client.ui.token.BooleanTokenOverlay;
 import net.rptools.maptool.client.ui.tokenpanel.InitiativePanel;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
+import net.rptools.maptool.model.Campaign;
+import net.rptools.maptool.model.CampaignProperties;
+import net.rptools.maptool.model.GUID;
 import net.rptools.maptool.model.Grid;
 import net.rptools.maptool.model.GridFactory;
+import net.rptools.maptool.model.LightSource;
+import net.rptools.maptool.model.LookupTable;
+import net.rptools.maptool.model.SightType;
 import net.rptools.maptool.model.Token;
 import net.rptools.maptool.model.Zone;
 import net.rptools.maptool.server.ServerPolicy;
@@ -73,6 +81,8 @@ public class getInfoFunction extends AbstractFunction {
 			return getClientInfo();
 		} else if (infoType.equals("server")) {
 			return getServerInfo();
+		} else if (infoType.equals("campaign")) {
+			return getCampaignInfo();
 		} else {
 			throw new ParserException(I18N.getText("macro.function.getInfo.invalidArg", param.get(0).toString()));
 		}
@@ -206,5 +216,110 @@ public class getInfoFunction extends AbstractFunction {
 			sinfo.put("initiative owner permissions", ip.isOwnerPermissions() ? BigDecimal.ONE : BigDecimal.ZERO);
 		}
 		return JSONObject.fromObject(sinfo);
+	}
+	
+	
+	/**
+	 * Retrieves information about the campaign as a json object.
+	 * @return the campaign information.
+	 * @throws ParserException if an error occurs.
+	 */
+	private JSONObject getCampaignInfo() throws ParserException {
+		if (!MapTool.getParser().isMacroTrusted()) {
+			throw new ParserException(I18N.getText("macro.function.general.noPerm", "getInfo('campaign')"));
+		}
+
+		Map<String, Object> cinfo = new HashMap<String, Object>();
+		Campaign c = MapTool.getCampaign();
+		CampaignProperties cp = c.getCampaignProperties();
+		
+		cinfo.put("id", c.getId().toString());
+		cinfo.put("initiative movement locked", cp.isInitiativeMovementLock() ? BigDecimal.ONE : BigDecimal.ZERO);
+		cinfo.put("initiative owner permissions", cp.isInitiativeOwnerPermissions() ? BigDecimal.ONE : BigDecimal.ZERO);
+		
+		Map<String, String> zinfo  = new HashMap<String, String>();
+		for (Zone z : c.getZones()) {
+			zinfo.put(z.getName(), z.getId().toString());
+		}
+		cinfo.put("zones", zinfo);
+		
+		Set<String> tinfo = new HashSet<String>();
+		for (LookupTable table : c.getLookupTableMap().values()) {
+			tinfo.add(table.getName());
+		}
+		cinfo.put("tables", tinfo);
+		
+		
+		Map<String,Object>llinfo = new HashMap<String,Object>();
+		for (String ltype : c.getLightSourcesMap().keySet()) {
+			Set<Object> ltinfo = new HashSet<Object>();
+			for (LightSource ls : c.getLightSourceMap(ltype).values()) {
+				HashMap<String, Object> linfo = new HashMap<String, Object>();
+				linfo.put("name",ls.getName());
+				linfo.put("max range", ls.getMaxRange());
+				linfo.put("type", ls.getType());
+				linfo.put("shape", ls.getShapeType().toString());
+				ltinfo.add(linfo);
+			}
+			llinfo.put(ltype, ltinfo);
+		}
+		
+		cinfo.put("light sources", llinfo);
+
+		Map<String, Set<String>> sinfo = new HashMap<String, Set<String>>();
+		for (BooleanTokenOverlay states : c.getTokenStatesMap().values()) {
+			String group = states.getGroup();
+			if (group == null) {
+				group = "no group";
+			}
+			Set<String> sgroup = sinfo.get(group);
+			if (sgroup != null) {
+				sgroup.add(states.getName());
+			} else {
+				sgroup = new HashSet<String>();
+				sgroup.add(states.getName());
+				sinfo.put(group, sgroup);
+			}
+		}
+		
+		cinfo.put("states", sinfo);
+		
+		cinfo.put("remote repository",c.getRemoteRepositoryList());
+
+		Map<String, Object> sightInfo = new HashMap<String, Object>();
+		for (SightType sightType : c.getSightTypeMap().values()) {
+			Map<String, Object> si = new HashMap<String, Object>();
+			si.put("arc", sightType.getArc());
+			si.put("distance", sightType.getArc());
+			si.put("multiplier", sightType.getMultiplier());
+			si.put("shape", sightType.getShape().toString());
+			si.put("type", sightType.getOffset());
+			sightInfo.put(sightType.getName(), si);
+		}
+		cinfo.put("sight", sightInfo);
+		
+		Map<String, Set<Object>> barinfo = new HashMap<String, Set<Object>>();
+		for (BarTokenOverlay tbo : c.getTokenBarsMap().values()) {
+			String group = tbo.getGroup();
+			if (group == null) {
+				group = "no group";
+			}
+			Set<Object> bgroup = barinfo.get(group);
+			if (bgroup == null) {
+				bgroup = new HashSet<Object>();
+				barinfo.put(group, bgroup);
+			}
+			Map<String, Object> b = new HashMap<String, Object>();
+			b.put("name", tbo.getName());
+			b.put("side", tbo.getSide());
+			b.put("increment", tbo.getIncrements());
+			
+			bgroup.add(b);
+		}
+		
+		cinfo.put("bars", barinfo);
+		
+		
+		return JSONObject.fromObject(cinfo);
 	}
 }
