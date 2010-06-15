@@ -188,7 +188,8 @@ public class HTMLPaneFormView extends FormView {
 					// Ignore
 				} else if ("image".equals(type)) {
 					if (name != null && name.equals(selectedImageMap)) {
-						vals.put(name + ".value" , encode((String)as.getAttribute(HTML.Attribute.VALUE)));
+						String val = (String)as.getAttribute(HTML.Attribute.VALUE);
+						vals.put(name + ".value" , encode(val == null ? "" : val));
 					}
 				} else if ("radio".equals(type)) {
 					if (as.getAttribute(HTML.Attribute.CHECKED) != null) {
