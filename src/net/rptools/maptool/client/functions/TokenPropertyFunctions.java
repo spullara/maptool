@@ -171,8 +171,8 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		 * String empty = setPC(String tokenId: currentToken())
 		 */
 		if (functionName.equals("setPC")) {
-			if (parameters.size() != 1) {
-				throw new ParserException(I18N.getText("macro.function.general.wrongNumParam", functionName, 1, parameters.size()));
+			if (parameters.size() > 1) {
+				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 1, parameters.size()));
 			}
 			Token token = getTokenFromParam(resolver, "setPC", parameters, 0);
 			token.setType(Token.Type.PC);
