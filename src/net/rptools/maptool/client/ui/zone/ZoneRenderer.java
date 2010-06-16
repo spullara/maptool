@@ -2325,8 +2325,8 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 				}
 				// Border
 				// FIXME Should this block be using 'clippedG' instead of 'g'?
-				if (clippedG == g) {
-					log.warn("DEVELOPMENT: Clipping rectangle is the same as the base rectangle");
+				if (clippedG == g && log.isDebugEnabled()) {
+					log.debug("DEVELOPMENT: Clipping rectangle is the same as the base rectangle");
 				}
 				if (token.hasFacing() && (token.getShape() == Token.TokenShape.TOP_DOWN || token.isStamp())) {
 					AffineTransform oldTransform = g.getTransform();

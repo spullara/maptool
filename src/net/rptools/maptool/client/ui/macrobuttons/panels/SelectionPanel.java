@@ -9,7 +9,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. 
+ * limitations under the License.
  */
 package net.rptools.maptool.client.ui.macrobuttons.panels;
 
@@ -24,22 +24,24 @@ import javax.swing.ImageIcon;
 import net.rptools.maptool.client.AppStyle;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
+import net.rptools.maptool.client.ui.MapToolFrame;
 import net.rptools.maptool.client.ui.MapToolFrame.MTFrame;
+import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import net.rptools.maptool.language.I18N;
 import net.rptools.maptool.model.MacroButtonProperties;
 import net.rptools.maptool.model.Token;
 
 public class SelectionPanel extends AbstractMacroPanel {
 
-	private List<Token> tokenList = null;
+	private final List<Token> tokenList = null;
 	private List<MacroButtonProperties> commonMacros = new ArrayList<MacroButtonProperties>();
 
 	public SelectionPanel() {
 		// TODO: refactoring reminder
 		setPanelClass("SelectionPanel");
 		init(new ArrayList<Token>()); // when initially loading MT, the
-										// CurrentZoneRenderer isn't ready yet;
-										// just send an empty list
+		// CurrentZoneRenderer isn't ready yet;
+		// just send an empty list
 	}
 
 	public List<MacroButtonProperties> getCommonMacros() {
@@ -51,7 +53,9 @@ public class SelectionPanel extends AbstractMacroPanel {
 	}
 
 	public void init() {
-		init(MapTool.getFrame().getCurrentZoneRenderer().getSelectedTokensList());
+		MapToolFrame f = MapTool.getFrame();
+		ZoneRenderer zr = f.getCurrentZoneRenderer();
+		init(zr.getSelectedTokensList());
 	}
 
 	public void init(List<Token> selectedTokenList) {
@@ -59,7 +63,7 @@ public class SelectionPanel extends AbstractMacroPanel {
 		// add the selection panel controls first
 		add(new MenuButtonsPanel());
 
-		
+
 		// draw common group only when there is more than one token selected
 		if (selectedTokenList.size() > 1) {
 			populateCommonButtons(selectedTokenList);
@@ -72,9 +76,9 @@ public class SelectionPanel extends AbstractMacroPanel {
 			if(!AppUtil.playerOwns(token)){
 				continue;
 			}
-				addArea(token.getId());
+			addArea(token.getId());
 		}
-		
+
 		if (selectedTokenList.size() == 1 && AppUtil.playerOwns(selectedTokenList.get(0))) {
 			// if only one token selected, show its image as tab icon
 			MapTool.getFrame().getFrame(MTFrame.SELECTION).setFrameIcon(selectedTokenList.get(0).getIcon(16, 16));
@@ -146,6 +150,7 @@ public class SelectionPanel extends AbstractMacroPanel {
 		Collections.sort(this.commonMacros);
 	}
 
+	@Override
 	protected void clear() {
 		// reset the tab icon
 		MapTool.getFrame().getFrame(MTFrame.SELECTION).setFrameIcon(new ImageIcon(AppStyle.selectionPanelImage));
@@ -154,6 +159,7 @@ public class SelectionPanel extends AbstractMacroPanel {
 		repaint();
 	}
 
+	@Override
 	public void reset() {
 		clear();
 		init();

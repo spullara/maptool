@@ -24,8 +24,8 @@
     </at>
     <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
    </super>
-   <at name="id">C:\Users\Chris\JavaWorkspace\maptool\src\net\rptools\maptool\client\ui\forms\preferencesDialog.xml</at>
-   <at name="path">preferencesDialog.xml</at>
+   <at name="id">/Users/frank/Workspace/maptool/src/net/rptools/maptool/client/ui/forms/preferencesDialog.xml</at>
+   <at name="path">net/rptools/maptool/client/ui/forms/preferencesDialog.xml</at>
    <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:4DLU:NONE,CENTER:DEFAULT:NONE,CENTER:4DLU:NONE</at>
    <at name="colspecs">FILL:15DLU:GROW(1.0),FILL:DEFAULT:NONE</at>
    <at name="components">
@@ -55,9 +55,9 @@
           <at name="properties">
            <object classname="com.jeta.forms.store.support.PropertyMap">
             <at name="text">OK</at>
-            <at name="height">22</at>
+            <at name="height">25</at>
             <at name="opaque">false</at>
-            <at name="width">46</at>
+            <at name="width">53</at>
             <at name="name">okButton</at>
             <at name="actionCommand">OK</at>
             <at name="border">
@@ -111,10 +111,10 @@
           <at name="classname">javax.swing.JTabbedPane</at>
           <at name="properties">
            <object classname="com.jeta.forms.store.support.PropertyMap">
-            <at name="height">678</at>
+            <at name="height">680</at>
             <at name="componentCount">4</at>
-            <at name="name"/>
-            <at name="width">922</at>
+            <at name="width">1144</at>
+            <at name="name"></at>
             <at name="border">
              <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
               <super classname="com.jeta.forms.store.properties.BorderProperty">
@@ -168,7 +168,7 @@
                       </at>
                       <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                      </super>
-                     <at name="id">embedded.2409492</at>
+                     <at name="id">embedded.33340097</at>
                      <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE</at>
                      <at name="colspecs">FILL:8DLU:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                      <at name="components">
@@ -190,7 +190,7 @@
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.8546123</at>
+                          <at name="id">embedded.4750048</at>
                           <at name="rowspecs">CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                           <at name="components">
@@ -220,9 +220,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">New maps have Fog of War</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="width">175</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -281,7 +281,7 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">25</at>
+                                   <at name="width">32</at>
                                    <at name="name">newMapsHaveFOWCheckBox</at>
                                    <at name="actionCommand">New maps have fog of war</at>
                                    <at name="border">
@@ -336,9 +336,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">New maps visible to players</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="width">175</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -397,7 +397,7 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">25</at>
+                                   <at name="width">32</at>
                                    <at name="name">newMapsVisibleCheckBox</at>
                                    <at name="actionCommand">New maps are visible to players</at>
                                    <at name="border">
@@ -451,10 +451,10 @@
                                  <at name="classname">com.jeta.forms.components.label.JETALabel</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="text">Default Grid Type</at>
-                                   <at name="height">14</at>
-                                   <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="text">New Map Grid Type</at>
+                                   <at name="height">15</at>
+                                   <at name="width">175</at>
+                                   <at name="name"></at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -512,14 +512,14 @@
                                  <at name="classname">javax.swing.JComboBox</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="height">20</at>
+                                   <at name="height">24</at>
                                    <at name="items">
                                     <object classname="com.jeta.forms.store.properties.ItemsProperty">
                                      <at name="name">items</at>
                                     </object>
                                    </at>
                                    <at name="opaque">false</at>
-                                   <at name="width">25</at>
+                                   <at name="width">32</at>
                                    <at name="name">defaultGridTypeCombo</at>
                                    <at name="border">
                                     <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
@@ -572,16 +572,16 @@
                                  <at name="classname">com.jeta.forms.components.label.JETALabel</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="text">Default Grid Size</at>
-                                   <at name="height">14</at>
-                                   <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="text">New Map Grid Size</at>
+                                   <at name="height">15</at>
+                                   <at name="width">175</at>
+                                   <at name="name"></at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
                                     </object>
                                    </at>
-                                   <at name="toolTipText">Number of map pixels that represents one unit of distance.</at>
+                                   <at name="toolTipText">Number of map pixels that represents one unit of distance.  Cannot be changed once the map has been created.</at>
                                    <at name="border">
                                     <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
                                      <super classname="com.jeta.forms.store.properties.BorderProperty">
@@ -633,8 +633,8 @@
                                  <at name="classname">javax.swing.JTextField</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="height">20</at>
-                                   <at name="width">25</at>
+                                   <at name="height">19</at>
+                                   <at name="width">32</at>
                                    <at name="name">defaultGridSize</at>
                                    <at name="border">
                                     <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
@@ -687,16 +687,16 @@
                                  <at name="classname">com.jeta.forms.components.label.JETALabel</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="text">Default Units Per Cell</at>
-                                   <at name="height">14</at>
-                                   <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="text">New Map Units Per Cell</at>
+                                   <at name="height">15</at>
+                                   <at name="width">175</at>
+                                   <at name="name"></at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
                                     </object>
                                    </at>
-                                   <at name="toolTipText">The size of a grid cell in game-system units.</at>
+                                   <at name="toolTipText">The size of a grid cell in game-system units.  Cannot be changed once the map has been created.</at>
                                    <at name="border">
                                     <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
                                      <super classname="com.jeta.forms.store.properties.BorderProperty">
@@ -748,8 +748,8 @@
                                  <at name="classname">javax.swing.JTextField</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="height">20</at>
-                                   <at name="width">25</at>
+                                   <at name="height">19</at>
+                                   <at name="width">32</at>
                                    <at name="name">defaultUnitsPerCell</at>
                                    <at name="toolTipText">Only applies to newly created maps.</at>
                                    <at name="border">
@@ -804,9 +804,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Movement metric</at>
-                                   <at name="height">14</at>
-                                   <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="height">15</at>
+                                   <at name="width">175</at>
+                                   <at name="name"></at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -864,14 +864,14 @@
                                  <at name="classname">javax.swing.JComboBox</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="height">20</at>
+                                   <at name="height">24</at>
                                    <at name="items">
                                     <object classname="com.jeta.forms.store.properties.ItemsProperty">
                                      <at name="name">items</at>
                                     </object>
                                    </at>
                                    <at name="opaque">false</at>
-                                   <at name="width">25</at>
+                                   <at name="width">32</at>
                                    <at name="name">movementMetric</at>
                                    <at name="border">
                                     <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
@@ -924,16 +924,16 @@
                                  <at name="classname">com.jeta.forms.components.label.JETALabel</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="text">Default Vision Distance</at>
-                                   <at name="height">14</at>
-                                   <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="text">New Map Vision Distance</at>
+                                   <at name="height">15</at>
+                                   <at name="width">175</at>
+                                   <at name="name"></at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
                                     </object>
                                    </at>
-                                   <at name="toolTipText">The distance at which MapTool should stop calculating sight lines.</at>
+                                   <at name="toolTipText">The distance at which MapTool should stop calculating sight lines.  Cannot be changed once the map has been created.</at>
                                    <at name="border">
                                     <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
                                      <super classname="com.jeta.forms.store.properties.BorderProperty">
@@ -985,8 +985,8 @@
                                  <at name="classname">javax.swing.JTextField</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="height">20</at>
-                                   <at name="width">25</at>
+                                   <at name="height">19</at>
+                                   <at name="width">32</at>
                                    <at name="name">defaultVisionDistance</at>
                                    <at name="border">
                                     <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
@@ -1022,7 +1022,7 @@
                             <at name="classname">com.jeta.forms.gui.form.GridView</at>
                             <at name="properties">
                              <object classname="com.jeta.forms.store.support.PropertyMap">
-                              <at name="name"/>
+                              <at name="name"></at>
                               <at name="fill">
                                <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                 <at name="name">fill</at>
@@ -1177,7 +1177,7 @@
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.14327460</at>
+                          <at name="id">embedded.17741109</at>
                           <at name="rowspecs">CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                           <at name="components">
@@ -1207,9 +1207,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Start Snap to Grid</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">149</at>
+                                   <at name="width">192</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -1268,7 +1268,7 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">47</at>
+                                   <at name="width">59</at>
                                    <at name="name">tokensStartSnapToGridCheckBox</at>
                                    <at name="actionCommand">Tokens start with snap to grid</at>
                                    <at name="border">
@@ -1323,9 +1323,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">New tokens visible to players</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">149</at>
+                                   <at name="width">192</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -1384,7 +1384,7 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">47</at>
+                                   <at name="width">59</at>
                                    <at name="name">newTokensVisibleCheckBox</at>
                                    <at name="actionCommand">New tokens are visible to players</at>
                                    <at name="border">
@@ -1439,9 +1439,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Duplicate Token Numbering</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">149</at>
+                                   <at name="width">192</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -1499,7 +1499,7 @@
                                  <at name="classname">javax.swing.JComboBox</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="height">20</at>
+                                   <at name="height">24</at>
                                    <at name="items">
                                     <object classname="com.jeta.forms.store.properties.ItemsProperty">
                                      <at name="name">items</at>
@@ -1509,7 +1509,7 @@
                                     </object>
                                    </at>
                                    <at name="opaque">false</at>
-                                   <at name="width">47</at>
+                                   <at name="width">59</at>
                                    <at name="name">duplicateTokenCombo</at>
                                    <at name="border">
                                     <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
@@ -1563,9 +1563,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Show Numbering on</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">149</at>
+                                   <at name="width">192</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -1622,7 +1622,7 @@
                                  <at name="classname">javax.swing.JComboBox</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="height">20</at>
+                                   <at name="height">24</at>
                                    <at name="items">
                                     <object classname="com.jeta.forms.store.properties.ItemsProperty">
                                      <at name="name">items</at>
@@ -1632,7 +1632,7 @@
                                     </object>
                                    </at>
                                    <at name="opaque">false</at>
-                                   <at name="width">47</at>
+                                   <at name="width">59</at>
                                    <at name="name">showNumberingCombo</at>
                                    <at name="border">
                                     <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
@@ -1686,9 +1686,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">New Token Naming</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">149</at>
+                                   <at name="width">192</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -1746,7 +1746,7 @@
                                  <at name="classname">javax.swing.JComboBox</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="height">20</at>
+                                   <at name="height">24</at>
                                    <at name="items">
                                     <object classname="com.jeta.forms.store.properties.ItemsProperty">
                                      <at name="name">items</at>
@@ -1756,7 +1756,7 @@
                                     </object>
                                    </at>
                                    <at name="opaque">false</at>
-                                   <at name="width">47</at>
+                                   <at name="width">59</at>
                                    <at name="name">tokenNamingCombo</at>
                                    <at name="border">
                                     <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
@@ -1810,9 +1810,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Start Freesize</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">149</at>
+                                   <at name="width">192</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -1871,7 +1871,7 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">47</at>
+                                   <at name="width">59</at>
                                    <at name="name">tokensStartFreeSize</at>
                                    <at name="actionCommand">Start tokens in freesize</at>
                                    <at name="border">
@@ -1926,9 +1926,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Show Dialog on New Token</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">149</at>
+                                   <at name="width">192</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -1987,7 +1987,7 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">47</at>
+                                   <at name="width">59</at>
                                    <at name="name">showDialogOnNewToken</at>
                                    <at name="actionCommand">Show token creation dialog</at>
                                    <at name="border">
@@ -2042,9 +2042,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Statsheet Portrait Size</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">149</at>
+                                   <at name="width">192</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -2102,8 +2102,8 @@
                                  <at name="classname">javax.swing.JTextField</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="height">20</at>
-                                   <at name="width">47</at>
+                                   <at name="height">19</at>
+                                   <at name="width">59</at>
                                    <at name="name">statsheetPortraitSize</at>
                                    <at name="columns">5</at>
                                    <at name="border">
@@ -2158,9 +2158,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Warn when tokens are deleted</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">149</at>
+                                   <at name="width">192</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -2219,7 +2219,7 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">47</at>
+                                   <at name="width">59</at>
                                    <at name="name">tokensPopupWarningWhenDeletedCheckBox</at>
                                    <at name="actionCommand">Warn when tokens are deleted</at>
                                    <at name="border">
@@ -2274,9 +2274,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Show stat sheet on mouseover</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">149</at>
+                                   <at name="width">192</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -2335,7 +2335,7 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">47</at>
+                                   <at name="width">59</at>
                                    <at name="name">showStatSheet</at>
                                    <at name="actionCommand">Show statsheet on mouseover</at>
                                    <at name="border">
@@ -2545,7 +2545,7 @@
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.16412836</at>
+                          <at name="id">embedded.13489486</at>
                           <at name="rowspecs">CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                           <at name="components">
@@ -2575,9 +2575,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Start Snap to Grid</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">143</at>
+                                   <at name="width">192</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -2691,9 +2691,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Start Freesize</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">143</at>
+                                   <at name="width">192</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -2914,7 +2914,7 @@
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.4365337</at>
+                          <at name="id">embedded.25564797</at>
                           <at name="rowspecs">CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                           <at name="components">
@@ -2944,9 +2944,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Start Snap to Grid</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">181</at>
+                                   <at name="width">236</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -3060,9 +3060,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Start Freesize</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">181</at>
+                                   <at name="width">236</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -3283,7 +3283,7 @@
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.22611277</at>
+                          <at name="id">embedded.25107858</at>
                           <at name="rowspecs">CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:GROW(1.0),FILL:20DLU:NONE,FILL:DEFAULT:NONE</at>
                           <at name="components">
@@ -3313,9 +3313,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Show Avatar per line</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="width">179</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -3374,7 +3374,7 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">26</at>
+                                   <at name="width">36</at>
                                    <at name="name">showChatAvatar</at>
                                    <at name="actionCommand">Show avatar on each chat line</at>
                                    <at name="border">
@@ -3429,7 +3429,7 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">26</at>
+                                   <at name="width">36</at>
                                    <at name="name">showSmiliesCheckBox</at>
                                    <at name="actionCommand">Insert smilies</at>
                                    <at name="border">
@@ -3484,9 +3484,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Insert Smilies</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="width">179</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -3545,9 +3545,9 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Use ToolTips for Inline Rolls</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="width">179</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -3606,7 +3606,7 @@
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">26</at>
+                                   <at name="width">36</at>
                                    <at name="name">toolTipInlineRolls</at>
                                    <at name="actionCommand">Use tooltips for inline rolls</at>
                                    <at name="toolTipText">&lt;html&gt;Enabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[t: ]&lt;/b&gt;&amp;nbsp;&lt;br&gt;
@@ -3663,9 +3663,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Trusted Prefix Background</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="width">179</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -3724,9 +3724,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Trusted Prefix Foreground</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="width">179</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -3784,7 +3784,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="classname">com.jeta.forms.components.colors.JETAColorWell</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="width">26</at>
+                                   <at name="width">36</at>
                                    <at name="name">trustedOuputBackground</at>
                                   </object>
                                  </at>
@@ -3817,7 +3817,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="classname">com.jeta.forms.components.colors.JETAColorWell</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="width">26</at>
+                                   <at name="width">36</at>
                                    <at name="name">trustedOuputForeground</at>
                                   </object>
                                  </at>
@@ -3851,9 +3851,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Typing Notification Duration</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="width">179</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -3911,8 +3911,8 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="classname">javax.swing.JTextField</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="height">20</at>
-                                   <at name="width">26</at>
+                                   <at name="height">19</at>
+                                   <at name="width">36</at>
                                    <at name="name">typingNotificationDuration</at>
                                    <at name="border">
                                     <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
@@ -3966,9 +3966,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Typing Notification Color</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">133</at>
+                                   <at name="width">179</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -4026,7 +4026,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="classname">com.jeta.forms.components.colors.JETAColorWell</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="width">26</at>
+                                   <at name="width">36</at>
                                    <at name="name">chatNotificationColor</at>
                                   </object>
                                  </at>
@@ -4197,7 +4197,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.31701975</at>
+                          <at name="id">embedded.14310336</at>
                           <at name="rowspecs">CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                           <at name="components">
@@ -4227,9 +4227,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">On Edges</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">144</at>
+                                   <at name="width">200</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -4343,9 +4343,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">On Vertices</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">144</at>
+                                   <at name="width">200</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -4673,7 +4673,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                       </at>
                       <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                      </super>
-                     <at name="id">embedded.4818707</at>
+                     <at name="id">embedded.21059367</at>
                      <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE</at>
                      <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                      <at name="components">
@@ -4703,9 +4703,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                             <at name="properties">
                              <object classname="com.jeta.forms.store.support.PropertyMap">
                               <at name="text">Chat Font Size</at>
-                              <at name="height">14</at>
+                              <at name="height">15</at>
                               <at name="name"/>
-                              <at name="width">101</at>
+                              <at name="width">142</at>
                               <at name="fill">
                                <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                 <at name="name">fill</at>
@@ -4763,8 +4763,8 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                             <at name="classname">javax.swing.JTextField</at>
                             <at name="properties">
                              <object classname="com.jeta.forms.store.support.PropertyMap">
-                              <at name="height">20</at>
-                              <at name="width">39</at>
+                              <at name="height">19</at>
+                              <at name="width">48</at>
                               <at name="name">fontSize</at>
                               <at name="columns">4</at>
                               <at name="border">
@@ -4819,9 +4819,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                             <at name="properties">
                              <object classname="com.jeta.forms.store.support.PropertyMap">
                               <at name="text">ToolTip Initial Delay</at>
-                              <at name="height">14</at>
+                              <at name="height">15</at>
                               <at name="name"/>
-                              <at name="width">101</at>
+                              <at name="width">142</at>
                               <at name="fill">
                                <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                 <at name="name">fill</at>
@@ -4880,9 +4880,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                             <at name="properties">
                              <object classname="com.jeta.forms.store.support.PropertyMap">
                               <at name="text">ToolTip Dismiss Delay</at>
-                              <at name="height">14</at>
+                              <at name="height">15</at>
                               <at name="name"/>
-                              <at name="width">101</at>
+                              <at name="width">142</at>
                               <at name="fill">
                                <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                 <at name="name">fill</at>
@@ -4940,8 +4940,8 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                             <at name="classname">javax.swing.JTextField</at>
                             <at name="properties">
                              <object classname="com.jeta.forms.store.support.PropertyMap">
-                              <at name="height">20</at>
-                              <at name="width">39</at>
+                              <at name="height">19</at>
+                              <at name="width">48</at>
                               <at name="name">toolTipInitialDelay</at>
                               <at name="columns">4</at>
                               <at name="border">
@@ -4995,8 +4995,8 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                             <at name="classname">javax.swing.JTextField</at>
                             <at name="properties">
                              <object classname="com.jeta.forms.store.support.PropertyMap">
-                              <at name="height">20</at>
-                              <at name="width">39</at>
+                              <at name="height">19</at>
+                              <at name="width">48</at>
                               <at name="name">toolTipDismissDelay</at>
                               <at name="columns">4</at>
                               <at name="border">
@@ -5156,7 +5156,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                       </at>
                       <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                      </super>
-                     <at name="id">embedded.23715172</at>
+                     <at name="id">embedded.30134161</at>
                      <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE</at>
                      <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE</at>
                      <at name="components">
@@ -5178,7 +5178,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.15512561</at>
+                          <at name="id">embedded.10334434</at>
                           <at name="rowspecs">CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:40DLU:NONE,FILL:DEFAULT:NONE,FILL:15DLU:NONE,FILL:DEFAULT:NONE</at>
                           <at name="components">
@@ -5208,9 +5208,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Halo line width</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">257</at>
+                                   <at name="width">339</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -5269,7 +5269,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">20</at>
-                                   <at name="width">56</at>
+                                   <at name="width">76</at>
                                    <at name="name">haloLineWidthSpinner</at>
                                   </object>
                                  </at>
@@ -5303,7 +5303,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">20</at>
-                                   <at name="width">56</at>
+                                   <at name="width">76</at>
                                    <at name="name">haloOverlayOpacitySpinner</at>
                                   </object>
                                  </at>
@@ -5337,9 +5337,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Halo opacity</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">257</at>
+                                   <at name="width">339</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -5398,9 +5398,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Auto-expose fog on token movement</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">257</at>
+                                   <at name="width">339</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -5459,7 +5459,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">56</at>
+                                   <at name="width">76</at>
                                    <at name="name">autoRevealVisionOnGMMoveCheckBox</at>
                                    <at name="actionCommand">Auto-expose Fog</at>
                                    <at name="border">
@@ -5514,9 +5514,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Aura opacity</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">257</at>
+                                   <at name="width">339</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -5575,9 +5575,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Light opacity</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">257</at>
+                                   <at name="width">339</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -5636,7 +5636,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">20</at>
-                                   <at name="width">56</at>
+                                   <at name="width">76</at>
                                    <at name="name">auraOverlayOpacitySpinner</at>
                                   </object>
                                  </at>
@@ -5670,7 +5670,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">20</at>
-                                   <at name="width">56</at>
+                                   <at name="width">76</at>
                                    <at name="name">lightOverlayOpacitySpinner</at>
                                   </object>
                                  </at>
@@ -5704,9 +5704,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Fog opacity</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">257</at>
+                                   <at name="width">339</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -5765,7 +5765,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">20</at>
-                                   <at name="width">56</at>
+                                   <at name="width">76</at>
                                    <at name="name">fogOverlayOpacitySpinner</at>
                                   </object>
                                  </at>
@@ -5799,9 +5799,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Use halo color for vision</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">257</at>
+                                   <at name="width">339</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -5860,7 +5860,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">56</at>
+                                   <at name="width">76</at>
                                    <at name="name">useHaloColorAsVisionOverlayCheckBox</at>
                                    <at name="actionCommand">Use halo color for vision</at>
                                    <at name="border">
@@ -6052,7 +6052,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.3916193</at>
+                          <at name="id">embedded.11770074</at>
                           <at name="rowspecs">CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:40DLU:NONE,FILL:DEFAULT:NONE,FILL:15DLU:NONE,FILL:1PX:GROW(1.0),FILL:DEFAULT:NONE</at>
                           <at name="components">
@@ -6082,9 +6082,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Campaign autosave every</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">226</at>
+                                   <at name="width">295</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -6143,7 +6143,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">20</at>
-                                   <at name="width">56</at>
+                                   <at name="width">76</at>
                                    <at name="name">autoSaveSpinner</at>
                                   </object>
                                  </at>
@@ -6177,9 +6177,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">min</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">19</at>
+                                   <at name="width">26</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -6237,9 +6237,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Save reminder on close</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">226</at>
+                                   <at name="width">295</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -6298,7 +6298,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">56</at>
+                                   <at name="width">76</at>
                                    <at name="name">saveReminderCheckBox</at>
                                    <at name="horizontalTextPosition">2</at>
                                    <at name="actionCommand">Save reminder on close</at>
@@ -6354,9 +6354,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Enable map import/export feature (beta)</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">226</at>
+                                   <at name="width">295</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -6415,7 +6415,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">15</at>
-                                   <at name="width">56</at>
+                                   <at name="width">76</at>
                                    <at name="name">enableMapExportImportCheckBox</at>
                                    <at name="horizontalTextPosition">2</at>
                                    <at name="actionCommand">Save reminder on close</at>
@@ -6471,9 +6471,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Time between autosaves</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">226</at>
+                                   <at name="width">295</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -6532,9 +6532,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">min</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">19</at>
+                                   <at name="width">26</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -6592,9 +6592,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="text">Autosave chat log filename</at>
-                                   <at name="height">14</at>
+                                   <at name="height">15</at>
                                    <at name="name"/>
-                                   <at name="width">226</at>
+                                   <at name="width">295</at>
                                    <at name="fill">
                                     <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                      <at name="name">fill</at>
@@ -6652,8 +6652,8 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="classname">javax.swing.JTextField</at>
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
-                                   <at name="height">20</at>
-                                   <at name="width">126</at>
+                                   <at name="height">19</at>
+                                   <at name="width">166</at>
                                    <at name="name">chatFilenameFormat</at>
                                    <at name="border">
                                     <object classname="com.jeta.forms.store.properties.CompoundBorderProperty">
@@ -6707,7 +6707,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                  <at name="properties">
                                   <object classname="com.jeta.forms.store.support.PropertyMap">
                                    <at name="height">20</at>
-                                   <at name="width">56</at>
+                                   <at name="width">76</at>
                                    <at name="name">chatAutosaveTime</at>
                                   </object>
                                  </at>
@@ -6866,7 +6866,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                            </at>
                            <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                           </super>
-                          <at name="id">embedded.9950192</at>
+                          <at name="id">embedded.8956272</at>
                           <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE</at>
                           <at name="colspecs">FILL:DEFAULT:GROW(1.0)</at>
                           <at name="components">
@@ -6888,7 +6888,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                 </at>
                                 <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                                </super>
-                               <at name="id">embedded.25559254</at>
+                               <at name="id">embedded.15721083</at>
                                <at name="rowspecs">CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE</at>
                                <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:40DLU:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                                <at name="components">
@@ -6918,7 +6918,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                       <at name="properties">
                                        <object classname="com.jeta.forms.store.support.PropertyMap">
                                         <at name="height">15</at>
-                                        <at name="width">56</at>
+                                        <at name="width">76</at>
                                         <at name="name">fillSelectionCheckBox</at>
                                         <at name="actionCommand">Fill selection box</at>
                                         <at name="border">
@@ -6973,9 +6973,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                       <at name="properties">
                                        <object classname="com.jeta.forms.store.support.PropertyMap">
                                         <at name="text">Fill selection box</at>
-                                        <at name="height">14</at>
+                                        <at name="height">15</at>
                                         <at name="name"/>
-                                        <at name="width">260</at>
+                                        <at name="width">353</at>
                                         <at name="fill">
                                          <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                           <at name="name">fill</at>
@@ -7135,7 +7135,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                 </at>
                                 <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                                </super>
-                               <at name="id">embedded.28487985</at>
+                               <at name="id">embedded.19263049</at>
                                <at name="rowspecs">CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE</at>
                                <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:40DLU:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                                <at name="components">
@@ -7165,9 +7165,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                       <at name="properties">
                                        <object classname="com.jeta.forms.store.support.PropertyMap">
                                         <at name="text">Hide NPCs from players on new maps</at>
-                                        <at name="height">14</at>
+                                        <at name="height">15</at>
                                         <at name="name"/>
-                                        <at name="width">260</at>
+                                        <at name="width">353</at>
                                         <at name="fill">
                                          <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                           <at name="name">fill</at>
@@ -7226,7 +7226,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                       <at name="properties">
                                        <object classname="com.jeta.forms.store.support.PropertyMap">
                                         <at name="height">15</at>
-                                        <at name="width">56</at>
+                                        <at name="width">76</at>
                                         <at name="name">hideNPCs</at>
                                         <at name="actionCommand">Hide NPCs from players on new maps</at>
                                         <at name="border">
@@ -7281,9 +7281,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                       <at name="properties">
                                        <object classname="com.jeta.forms.store.support.PropertyMap">
                                         <at name="text">Give Owners Permission in new campaigns</at>
-                                        <at name="height">14</at>
+                                        <at name="height">15</at>
                                         <at name="name"/>
-                                        <at name="width">260</at>
+                                        <at name="width">353</at>
                                         <at name="fill">
                                          <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                           <at name="name">fill</at>
@@ -7342,7 +7342,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                       <at name="properties">
                                        <object classname="com.jeta.forms.store.support.PropertyMap">
                                         <at name="height">15</at>
-                                        <at name="width">56</at>
+                                        <at name="width">76</at>
                                         <at name="name">ownerPermission</at>
                                         <at name="actionCommand">Give owners Permission in new campaigns</at>
                                         <at name="border">
@@ -7397,9 +7397,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                       <at name="properties">
                                        <object classname="com.jeta.forms.store.support.PropertyMap">
                                         <at name="text">Lock Player Movement in new campaigns</at>
-                                        <at name="height">14</at>
+                                        <at name="height">15</at>
                                         <at name="name"/>
-                                        <at name="width">260</at>
+                                        <at name="width">353</at>
                                         <at name="fill">
                                          <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                           <at name="name">fill</at>
@@ -7458,7 +7458,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                       <at name="properties">
                                        <object classname="com.jeta.forms.store.support.PropertyMap">
                                         <at name="height">15</at>
-                                        <at name="width">56</at>
+                                        <at name="width">76</at>
                                         <at name="name">lockMovement</at>
                                         <at name="actionCommand">Lock Player Movement in new campaigns</at>
                                         <at name="border">
@@ -7626,7 +7626,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                 </at>
                                 <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                                </super>
-                               <at name="id">embedded.13333839</at>
+                               <at name="id">embedded.2985676</at>
                                <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:2DLU:NONE</at>
                                <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:40DLU:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                                <at name="components">
@@ -7656,9 +7656,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                       <at name="properties">
                                        <object classname="com.jeta.forms.store.support.PropertyMap">
                                         <at name="text">Fit GM view </at>
-                                        <at name="height">14</at>
+                                        <at name="height">15</at>
                                         <at name="name"/>
-                                        <at name="width">260</at>
+                                        <at name="width">353</at>
                                         <at name="fill">
                                          <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                           <at name="name">fill</at>
@@ -7717,7 +7717,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                       <at name="properties">
                                        <object classname="com.jeta.forms.store.support.PropertyMap">
                                         <at name="height">15</at>
-                                        <at name="width">56</at>
+                                        <at name="width">76</at>
                                         <at name="name">fitGMView</at>
                                         <at name="actionCommand">Fit GM view</at>
                                         <at name="border">
@@ -7870,7 +7870,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                 </at>
                                 <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                                </super>
-                               <at name="id">embedded.18288830</at>
+                               <at name="id">embedded.9667451</at>
                                <at name="rowspecs">CENTER:2DLU:NONE,CENTER:DEFAULT:NONE,CENTER:2DLU:NONE</at>
                                <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:GROW(1.0),FILL:DEFAULT:NONE,FILL:40DLU:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                                <at name="components">
@@ -7900,9 +7900,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                       <at name="properties">
                                        <object classname="com.jeta.forms.store.support.PropertyMap">
                                         <at name="text">Default: Allow players to edit macros</at>
-                                        <at name="height">14</at>
+                                        <at name="height">15</at>
                                         <at name="name"/>
-                                        <at name="width">260</at>
+                                        <at name="width">353</at>
                                         <at name="fill">
                                          <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                           <at name="name">fill</at>
@@ -7961,7 +7961,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                                       <at name="properties">
                                        <object classname="com.jeta.forms.store.support.PropertyMap">
                                         <at name="height">15</at>
-                                        <at name="width">56</at>
+                                        <at name="width">76</at>
                                         <at name="name">allowPlayerMacroEditsDefault</at>
                                         <at name="actionCommand">Default: Allow Players to Edit Macros</at>
                                         <at name="border">
@@ -8327,7 +8327,7 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                       </at>
                       <at name="componentclass">com.jeta.forms.gui.form.FormComponent</at>
                      </super>
-                     <at name="id">embedded.29212652</at>
+                     <at name="id">embedded.441319</at>
                      <at name="rowspecs">CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE,CENTER:DEFAULT:NONE</at>
                      <at name="colspecs">FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE,FILL:DEFAULT:NONE</at>
                      <at name="components">
@@ -8467,9 +8467,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                             <at name="properties">
                              <object classname="com.jeta.forms.store.support.PropertyMap">
                               <at name="text">Play system sounds	</at>
-                              <at name="height">14</at>
+                              <at name="height">15</at>
                               <at name="name"/>
-                              <at name="width">150</at>
+                              <at name="width">196</at>
                               <at name="fill">
                                <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                 <at name="name">fill</at>
@@ -8528,9 +8528,9 @@ Disabled: &lt;b&gt;[ ]&lt;/b&gt; acts like &lt;b&gt;[h: ]&lt;/b&gt;&amp;nbsp;</a
                             <at name="properties">
                              <object classname="com.jeta.forms.store.support.PropertyMap">
                               <at name="text">Only when window not focused</at>
-                              <at name="height">14</at>
+                              <at name="height">15</at>
                               <at name="name"/>
-                              <at name="width">150</at>
+                              <at name="width">196</at>
                               <at name="fill">
                                <object classname="com.jeta.forms.store.properties.effects.PaintProperty">
                                 <at name="name">fill</at>
