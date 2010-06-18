@@ -120,7 +120,6 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
     	Rectangle rect = new Rectangle(x, y, 400, 400);
 
     	MapTool.getFrame().getDockingManager().floatFrame(frame.getKey(), rect, true);
-    	
  
 	}
 
@@ -209,7 +208,9 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 	
 	
 	public void closeRequest() {
-		// Nothing to see here, move along.
+    	MapTool.getFrame().getDockingManager().hideFrame(getKey());
+		setVisible(false);
+		panel.flush();
 	}
 
 	public void actionPerformed(ActionEvent e) {
