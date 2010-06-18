@@ -18,7 +18,8 @@ public class MacroDialogFunctions extends AbstractFunction {
 		super(1, 1, "isDialogVisible", 
 					"isFrameVisible",
 					"closeDialog",
-					"resetFrame"
+					"resetFrame",
+					"closeFrame"
 					);
 	}
 	
@@ -41,6 +42,11 @@ public class MacroDialogFunctions extends AbstractFunction {
 		
 		if (functionName.equals("closeDialog")) {
 			HTMLFrameFactory.close(false, parameters.get(0).toString());
+			return "";
+		}
+
+		if (functionName.equals("closeFrame")) {
+			HTMLFrameFactory.close(true, parameters.get(0).toString());
 			return "";
 		}
 		
