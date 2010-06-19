@@ -71,8 +71,8 @@ public class CampaignPropertiesDialog extends JDialog  {
 	}
 
 	private TokenPropertiesManagementPanel tokenPropertiesPanel;
-    private TokenStatesController tokenStatesController;
-    private TokenBarController tokenBarController;
+	private TokenStatesController tokenStatesController;
+	private TokenBarController tokenBarController;
 
 	private Status status;
 	private FormPanel formPanel;
@@ -106,12 +106,12 @@ public class CampaignPropertiesDialog extends JDialog  {
 	private void initialize() {
 
 		setLayout(new GridLayout());
-		formPanel = new FormPanel("net/rptools/maptool/client/ui/forms/campaignPropertiesDialog.jfrm");
+		formPanel = new FormPanel("net/rptools/maptool/client/ui/forms/campaignPropertiesDialog.xml");
 
 		initTokenPropertiesDialog(formPanel);
 		tokenStatesController = new TokenStatesController(formPanel);
-        tokenBarController = new TokenBarController(formPanel);
-        tokenBarController.setNames(tokenStatesController.getNames());
+		tokenBarController = new TokenBarController(formPanel);
+		tokenBarController.setNames(tokenStatesController.getNames());
 
 		initOKButton();
 		initCancelButton();
@@ -746,11 +746,11 @@ public class CampaignPropertiesDialog extends JDialog  {
 
 				File selectedFile = chooser.getSelectedFile();
 				if (selectedFile.exists()) {
-				    if (selectedFile.getName().endsWith(".rpgame")) {
-				        if (!MapTool.confirm("Import into game settings file?")) {
-				            return;
-				        }
-				    } else if (!MapTool.confirm("Overwrite existing file?")) {
+					if (selectedFile.getName().endsWith(".rpgame")) {
+						if (!MapTool.confirm("Import into game settings file?")) {
+							return;
+						}
+					} else if (!MapTool.confirm("Overwrite existing file?")) {
 						return;
 					}
 				}
