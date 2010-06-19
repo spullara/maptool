@@ -632,7 +632,7 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 			selectedTokens = getSelectedTokensList();
 			for (ListIterator<Token> iter = selectedTokens.listIterator(); iter.hasNext();) {
 				Token token = iter.next();
-				if (!token.getHasSight()) {
+				if (!token.getHasSight()  || !AppUtil.playerOwns(token)) {
 					iter.remove();
 				}
 			}
