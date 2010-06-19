@@ -81,11 +81,12 @@ public class CampaignPropertiesDialog extends JDialog  {
 	public CampaignPropertiesDialog(JFrame owner) {
 		super (owner, "Campaign Properties", true);
 		setMinimumSize(new Dimension(450, 450));	// These sizes mess up my custom LAF settings. :(
-		setPreferredSize(new Dimension(450, 450));	// If the dialog were packed() would they be needed?
+//		setPreferredSize(new Dimension(450, 450));	// If the dialog were packed() would they be needed?
 
 		initialize();
+		pack();		// FJE
 
-		setSize(635, 605);
+//		setSize(635, 605);
 	}
 
 	public Status getStatus() {
@@ -220,8 +221,10 @@ public class CampaignPropertiesDialog extends JDialog  {
 
 		tokenPropertiesPanel.copyCampaignToUI(campaignProperties);
 		updateRepositoryList(campaignProperties);
-		updateLightPanel(campaignProperties);
 		updateSightPanel(campaignProperties);
+		updateLightPanel(campaignProperties);
+		JEditorPane epane = (JEditorPane) formPanel.getComponentByName("lightHelp");
+		epane.setCaretPosition(0);
 		tokenStatesController.copyCampaignToUI(campaignProperties);
 		tokenBarController.copyCampaignToUI(campaignProperties);
 //		updateTableList();
