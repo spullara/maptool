@@ -186,9 +186,11 @@ public class HTMLDialog extends JDialog implements HTMLPanelContainer {
 	 * One of the tokens has changed.
 	 */
 	public static void doTokenChanged(Token token) {
-		for (HTMLDialog dialog : dialogs.values()) {
-			if (dialog.isVisible()) {
-				dialog.tokenChanged(token);
+		if (token != null) {
+			for (HTMLDialog dialog : dialogs.values()) {
+				if (dialog.isVisible()) {
+					dialog.tokenChanged(token);
+				}	
 			}
 		}
 	}

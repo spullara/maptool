@@ -198,9 +198,11 @@ public class HTMLFrame extends DockableFrame implements HTMLPanelContainer {
 	 * One of the tokens has changed.
 	 */
 	public static void doTokenChanged(Token token) {
-		for (HTMLFrame frame : frames.values()) {
-			if (frame.isVisible()) {
-				frame.tokenChanged(token);
+		if (token != null) {
+			for (HTMLFrame frame : frames.values()) {
+				if (frame.isVisible()) {
+					frame.tokenChanged(token);
+				}
 			}
 		}
 	}	
