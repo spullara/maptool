@@ -2418,14 +2418,16 @@ public class ZoneRenderer extends JComponent implements DropTargetListener, Comp
 
 		// Stacks
 		if (!tokenList.isEmpty() && !tokenList.get(0).isStamp()) { // TODO: find a cleaner way to indicate token layer
-			for (Token token : tokenStackMap.keySet()) {
-				Area bounds = getTokenBounds(token);
-				if (bounds == null) {
-					// token is offscreen
-					continue;
+			if (tokenStackMap != null) {				// FIXME Needed to prevent NPE but how can it be null?
+				for (Token token : tokenStackMap.keySet()) {
+					Area bounds = getTokenBounds(token);
+					if (bounds == null) {
+						// token is offscreen
+						continue;
+					}
+					BufferedImage stackImage = AppStyle.stackImage;
+					clippedG.drawImage(stackImage, bounds.getBounds().x + bounds.getBounds().width - stackImage.getWidth() + 2, bounds.getBounds().y - 2, null);
 				}
-				BufferedImage stackImage = AppStyle.stackImage;
-				clippedG.drawImage(stackImage, bounds.getBounds().x + bounds.getBounds().width - stackImage.getWidth() + 2, bounds.getBounds().y - 2, null);
 			}
 		}
 
