@@ -24,9 +24,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
@@ -56,15 +54,15 @@ public class TransferableHelper extends TransferHandler {
 	private static final Logger log = Logger.getLogger(TransferableHelper.class);
 
 	// TODO: USE ImageTransferable in rplib
-	private static final DataFlavor IMAGE_FLAVOR = new DataFlavor("image/x-java-image; class=java.awt.Image", "Image");
+//	private static final DataFlavor IMAGE_FLAVOR = new DataFlavor("image/x-java-image; class=java.awt.Image", "Image");
 
 	/**
 	 * Takes a drop event and returns an asset
 	 * from it.  returns null if an asset could not be obtained
 	 */
-	public static List<Asset> getAsset(Transferable transferable) {
+	public static List<Object> getAsset(Transferable transferable) {
 
-		List<Asset> assets = new ArrayList<Asset>();
+		List<Object> assets = new ArrayList<Object>();
 
 		try {
 			// EXISTING ASSET
@@ -74,13 +72,13 @@ public class TransferableHelper extends TransferHandler {
 			} else if (transferable.isDataFlavorSupported(TransferableAssetReference.dataFlavor)) {
 				assets.add(handleTransferableAssetReference(transferable));
 
-				// LOCAL FILESYSTEM
-			} else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-				assets = handleFileList(transferable);
-
 				// DIRECT/BROWSER
 			} else if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
 				assets.add(handleImage(transferable));
+
+				// LOCAL FILESYSTEM
+			} else if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+				assets = handleFileList(transferable);
 			}
 
 		} catch (Exception e) {
@@ -93,10 +91,9 @@ public class TransferableHelper extends TransferHandler {
 			return null;
 		}
 
-		Asset asset = null;
 		for (Object working : assets) {
 			if (working instanceof Asset) {
-				asset = (Asset)working;
+				Asset asset = (Asset) working;
 				if (!AssetManager.hasAsset(asset))
 					AssetManager.putAsset(asset);
 				if (!MapTool.getCampaign().containsAsset(asset))
@@ -109,7 +106,7 @@ public class TransferableHelper extends TransferHandler {
 	private static Asset handleImage (Transferable transferable) throws IOException, UnsupportedFlavorException {
 		String name = null;
 		BufferedImage image = null;
-		log.info("Transferable " + transferable.getTransferData(URL_FLAVOR));
+		log.debug("Transferable " + transferable.getTransferData(URL_FLAVOR));
 		if (transferable.isDataFlavorSupported(URL_FLAVOR)) {
 			String fname = (String) transferable.getTransferData(URL_FLAVOR);
 			name = FileUtil.getNameWithoutExtension(fname);
@@ -123,10 +120,10 @@ public class TransferableHelper extends TransferHandler {
 					file = new File(fname);
 				}
 				if (file.exists()) {
-					log.info("Reading local file:  " + file);
+					log.debug("Reading local file:  " + file);
 					image = ImageIO.read(file);
 				} else {
-					log.info("Reading remote URL:  " + url);
+					log.debug("Reading remote URL:  " + url);
 					image = ImageIO.read(url);
 				}
 			} catch (Exception e) {
@@ -134,28 +131,25 @@ public class TransferableHelper extends TransferHandler {
 			}
 		}
 		if (image == null) {
-			log.info("URL_FLAVOR didn't work; trying ImageTransferableHandler().getTransferObject()");
+			log.debug("URL_FLAVOR didn't work; trying ImageTransferableHandler().getTransferObject()");
 			image = (BufferedImage) new ImageTransferableHandler().getTransferObject(transferable);
 		}
 		Asset asset = new Asset(name, ImageUtil.imageToBytes(image));
 		return asset;
 	}
 
-	private static List<Asset> handleFileList(Transferable transferable) throws Exception {
+	private static List<Object> handleFileList(Transferable transferable) throws Exception {
 		List<File> list = new FileTransferableHandler().getTransferObject(transferable);
-		List<Asset> assets = new ArrayList<Asset>();
+		List<Object> assets = new ArrayList<Object>();
 		for (File file : list) {
 			// A JFileChooser (at least under Linux) sends a couple empty filenames that need to be ignored.
 			if (!file.getPath().equals("")) {
 				if (Token.isTokenFile(file.getName())) {
+					// Loading the token causes the assets to be added to the AssetManager
+					// so it doesn't need to be added to our List here.  In fact, getAsset()
+					// will strip out anything in the List that isn't an Asset anyway...
 					Token token = PersistenceUtil.loadToken(file);
-					if (token != null) {
-						Set<MD5Key> keys = token.getAllImageAssets();
-						for (Iterator<MD5Key> iter = keys.iterator(); iter.hasNext();) {
-							MD5Key key = iter.next();
-							assets.add(AssetManager.getAsset(key));
-						}
-					}
+					assets.add(token);
 				} else {
 					assets.add(AssetManager.createAsset(file));
 				}
@@ -260,6 +254,7 @@ public class TransferableHelper extends TransferHandler {
 
 	/** The tokens to be loaded onto the renderer when we get a point */
 	List<Token> tokens;
+
 	/** Whether or not each token needs additional configuration (set footprint, guess shape). */
 	List<Boolean> configureTokens;
 
@@ -270,7 +265,7 @@ public class TransferableHelper extends TransferHandler {
 	public boolean importData(JComponent comp, Transferable t) {
 		tokens = null;
 		configureTokens = null;
-		List<Asset> assets = getAsset(t);
+		List<Object> assets = getAsset(t);
 		if (assets != null) {
 			tokens = new ArrayList<Token>(assets.size());
 			configureTokens = new ArrayList<Boolean>(assets.size());

@@ -45,7 +45,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 				"setPropertyType", "getPropertyType",
 				"getRawProperty", "getTokenFacing", "setTokenFacing", "removeTokenFacing",
 				"getMatchingProperties", "getMatchingLibProperties", "isSnapToGrid",
-				"setOwner");
+		"setOwner");
 	}
 
 
@@ -91,11 +91,11 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		}
 
 		/*
-		 * String names = getPropertyNames(String delim: ",")
+		 * String names = getPropertyNames(String delim: ",", String tokenId: currentToken())
 		 */
 		if (functionName.equals("getPropertyNames") || functionName.equals("getPropertyNamesRaw")) {
-			if (parameters.size() > 1) {
-				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 1, parameters.size()));
+			if (parameters.size() > 2) {
+				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 2, parameters.size()));
 			}
 			Token token = getTokenFromParam(resolver, functionName, parameters, 1);
 			String delim = parameters.size() > 0 ? parameters.get(0).toString() : ",";
@@ -626,7 +626,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			zone.putToken(token);
 			return "";
 		}
-		
+
 		/*
 		 * Number zeroOne = isSnapToGrid(String tokenId: currentToken())
 		 */
@@ -648,11 +648,11 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			Token token = getTokenFromParam(resolver, "getTokenFacing", parameters, 1);
 			// Remove current owners
 			token.clearAllOwners();
-			
+
 			if (parameters.get(0).equals("")) {
 				return "";
 			}
-			
+
 			Object json = JSONMacroFunctions.asJSON(parameters.get(0));
 			if (json != null && json instanceof JSONArray) {
 				for (Object o : (JSONArray)json) {
@@ -663,7 +663,7 @@ public class TokenPropertyFunctions extends AbstractFunction {
 			}
 			return "";
 		}
-		
+
 
 		throw new ParserException(I18N.getText("macro.function.general.unknownFunction", functionName));
 	}
