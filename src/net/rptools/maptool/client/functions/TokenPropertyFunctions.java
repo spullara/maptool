@@ -442,8 +442,8 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		 * String empty = bringToFront(String tokenId: currentToken())
 		 */
 		if (functionName.equals("bringToFront")) {
-			if (parameters.size() != 1) {
-				throw new ParserException(I18N.getText("macro.function.general.wrongNumParam", functionName, 1, parameters.size()));
+			if (parameters.size() > 1) {
+				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 1, parameters.size()));
 			}
 			Set<GUID> tokens = new HashSet<GUID>();
 			Token token = getTokenFromParam(resolver, "bringToFront", parameters, 0);
@@ -458,8 +458,8 @@ public class TokenPropertyFunctions extends AbstractFunction {
 		 * String empty = sendToBack(String tokenId: currentToken())
 		 */
 		if (functionName.equals("sendToBack")) {
-			if (parameters.size() != 1) {
-				throw new ParserException(I18N.getText("macro.function.general.wrongNumParam", functionName, 1, parameters.size()));
+			if (parameters.size() > 1) {
+				throw new ParserException(I18N.getText("macro.function.general.tooManyParam", functionName, 1, parameters.size()));
 			}
 			Set<GUID> tokens = new HashSet<GUID>();
 			Token token = getTokenFromParam(resolver, "sendToBack", parameters, 0);
