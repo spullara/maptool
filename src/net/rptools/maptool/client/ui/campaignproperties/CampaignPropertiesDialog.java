@@ -324,7 +324,10 @@ public class CampaignPropertiesDialog extends JDialog  {
 					{
 						builder.append("GM").append(" ");
 					}
-
+					if (light.isOwnerOnly() && lightSource.getType() == LightSource.Type.AURA)
+					{
+						builder.append("OWNER").append(" ");
+					}
 					builder.append(StringUtil.formatDecimal(light.getRadius()));
 
 					if (light.getPaint() instanceof DrawableColorPaint) {
@@ -557,6 +560,7 @@ public class CampaignPropertiesDialog extends JDialog  {
 				ShapeType shape = ShapeType.CIRCLE; // TODO: Make a preference for default shape
 				double arc = 0;
 				boolean gmOnly = false;
+				boolean owner = false;
 				for (String arg : line.substring(split+1).split("\\s+")) {
 
 					arg = arg.trim();
@@ -569,7 +573,14 @@ public class CampaignPropertiesDialog extends JDialog  {
 						gmOnly = true;
 						continue;
 					}
-
+					if (arg.equalsIgnoreCase("OWNER"))
+					{
+						if(!gmOnly)
+						{
+							owner = true;
+						}						
+						continue;
+					}
 					// Shape designation ?
 					try {
 						shape = ShapeType.valueOf(arg.toUpperCase());
@@ -613,9 +624,14 @@ public class CampaignPropertiesDialog extends JDialog  {
 
 						color = Color.decode(colorString);
 					}
-
+					// 
+					owner = gmOnly == true? false: owner;
 					try {
-						lightSource.add(new Light(shape, 0, StringUtil.parseDecimal(distance), arc, color != null ? new DrawableColorPaint(color): null, lightSource.getType() != LightSource.Type.AURA? false: gmOnly));
+						lightSource.add(new Light(shape, 0, StringUtil.parseDecimal(distance), arc
+								, color != null ? new DrawableColorPaint(color): null
+								, lightSource.getType() != LightSource.Type.AURA? false: gmOnly
+								, lightSource.getType() != LightSource.Type.AURA? false: owner)
+						);
 					} catch (ParseException pe) {
 						errlog.add( I18N.getText("msg.error.mtprops.light.distance", reader.getLineNumber(), distance) );
 					}

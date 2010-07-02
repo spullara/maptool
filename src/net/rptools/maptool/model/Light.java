@@ -29,6 +29,7 @@ public class Light {
 	private double arcAngle;
 	private ShapeType shape;
 	private boolean isGM;
+	private boolean ownerOnly;
 
 	public Light() {
 		// For serialization
@@ -40,19 +41,21 @@ public class Light {
 		this.arcAngle = arcAngle;
 		this.paint = paint;
 		this.isGM = false;
+		this.ownerOnly = false;
 
 		if (arcAngle == 0) {
 			this.arcAngle = 90;
 		}
 
 	}
-	public Light(ShapeType shape, double facingOffset, double radius, double arcAngle, DrawablePaint paint, boolean isGM) {
+	public Light(ShapeType shape, double facingOffset, double radius, double arcAngle, DrawablePaint paint, boolean isGM, boolean owner) {
 		this.facingOffset = facingOffset;
 		this.shape = shape;
 		this.radius = radius;
 		this.arcAngle = arcAngle;
 		this.paint = paint;
 		this.isGM = isGM;
+		this.ownerOnly= owner;
 		if (arcAngle == 0) {
 			this.arcAngle = 90;
 		}
@@ -125,6 +128,14 @@ public class Light {
 	}
 	public boolean isGM() {
 		return isGM;
+	}
+	public boolean isOwnerOnly() {
+		// TODO Auto-generated method stub
+		return ownerOnly;
+	}
+	public void setOwnerOnly(boolean owner)
+	{
+		this.ownerOnly = owner;
 	}
 
 }

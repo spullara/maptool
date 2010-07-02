@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.rptools.maptool.client.AppState;
 import net.rptools.maptool.client.AppUtil;
 import net.rptools.maptool.client.MapTool;
 import net.rptools.maptool.client.ui.zone.vbl.AreaTree;
@@ -320,10 +321,23 @@ public class ZoneView implements ModelChangeListener {
 						}
 
 						for (Light light : lightSource.getLightList()) {
-							if (light.isGM() && !MapTool.getPlayer().isGM())
+							boolean isOwner = token.getOwners().contains(MapTool.getPlayer().getName());
+							if((light.isGM() && !MapTool.getPlayer().isGM()))
 							{
 								continue;
 							}
+							if((light.isGM() || !token.isVisible())&& MapTool.getPlayer().isGM() && AppState.isShowAsPlayer() )
+							{
+								continue;
+							}
+							if(light.isOwnerOnly() && lightSource.getType() == LightSource.Type.AURA)
+							{
+								if (!isOwner && !MapTool.getPlayer().isGM())
+								{
+									continue;
+								}
+							}
+							
 							lightList.add(new DrawableLight(type, light.getPaint(), visibleArea));
 						}
 					}
@@ -478,7 +492,7 @@ public class ZoneView implements ModelChangeListener {
 			}
 			if (evt == Zone.Event.TOKEN_ADDED || evt == Zone.Event.TOKEN_CHANGED) {
 				Token token = (Token) event.getArg();
-				if (token.hasLightSources() && (token.isVisible() || MapTool.getPlayer().isGM())) {
+				if (token.hasLightSources() && (token.isVisible() || (MapTool.getPlayer().isGM() && !AppState.isShowAsPlayer()))) {
 					for(AttachedLightSource als : token.getLightSources()) {
 						LightSource lightSource = MapTool.getCampaign().getLightSource(als.getLightSourceId());
 						if (lightSource == null) {
