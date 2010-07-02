@@ -341,7 +341,12 @@ public class AppPreferences {
 
 	private static final String KEY_CHAT_NOTIFICATION_COLOR_BLUE = "chatNotificationColorBlue";
 	private static final int DEFAULT_CHAT_NOTIFICATION_COLOR_BLUE = 0xFF;
+	
 	// end chat notification colors
+	
+	private static final String KEY_CHAT_NOTIFICATION_SHOW_BACKGROUND = "chatNotificationShowBackground";
+	private static final boolean DEFAULT_CHAT_NOTIFICATION_SHOW_BACKGROUND = true;
+	
 
 	private static final String KEY_TRUSTED_PREFIX_BG_RED = "trustedPrefixBGRed";
 	private static final int DEFAULT_TRUSTED_PREFIX_BG_RED = 0xD8;
@@ -615,6 +620,8 @@ public class AppPreferences {
 	public static boolean getTokensWarnWhenDeleted() {
 		return prefs.getBoolean(KEY_TOKENS_WARN_WHEN_DELETED, DEFAULT_TOKENS_WARN_WHEN_DELETED);
 	}
+	
+	
 
 	public static void setTokensStartSnapToGrid(boolean flag) {
 		prefs.putBoolean(KEY_TOKENS_START_SNAP_TO_GRID, flag);
@@ -879,4 +886,16 @@ public class AppPreferences {
 	public static void setInitLockMovement(boolean lockMovement) {
 		prefs.putBoolean(INIT_LOCK_MOVEMENT, lockMovement);
 	}
+
+	public static boolean getChatNotificationShowBackground() {
+		//System.out.println("Getting Value:" + prefs.getBoolean(KEY_CHAT_NOTIFICATION_SHOW_BACKGROUND, DEFAULT_CHAT_NOTIFICATION_SHOW_BACKGROUND));
+		return prefs.getBoolean(KEY_CHAT_NOTIFICATION_SHOW_BACKGROUND, DEFAULT_CHAT_NOTIFICATION_SHOW_BACKGROUND);
+	}
+	
+	public static void setChatNotificationShowBackground(boolean flag)
+	{
+		System.out.println("Setting Value:" + flag);
+		prefs.putBoolean(KEY_CHAT_NOTIFICATION_SHOW_BACKGROUND, flag);
+	}
+
 }

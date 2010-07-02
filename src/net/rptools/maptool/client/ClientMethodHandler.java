@@ -95,7 +95,8 @@ public class ClientMethodHandler extends AbstractMethodHandler {
 			return;
 
 		case setLiveTypingLabel:
-			MapTool.getFrame().setChatTypingLabel(parameters[0].toString(), (Boolean) parameters[1]);
+			//MapTool.getFrame().setChatTypingLabel(parameters[0].toString(), (Boolean) parameters[1]);
+			MapTool.getFrame().setNewTyper(parameters[0].toString() );
 			return;
 
 		case enforceNotification:
