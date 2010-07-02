@@ -142,6 +142,7 @@ public class PreferencesDialog extends JDialog {
 
 	// Chat Notification
 	private final JETAColorWell chatNotificationColor;
+	private JCheckBox chatNotificationShowBackground;
 
 	// Defaults
 	private final JComboBox defaultGridTypeCombo;
@@ -235,6 +236,7 @@ public class PreferencesDialog extends JDialog {
 		facingFaceVertices = panel.getCheckBox("facingFaceVertices");
 
 		chatNotificationColor = (JETAColorWell) panel.getComponentByName("chatNotificationColor");
+		chatNotificationShowBackground = panel.getCheckBox("chatNotificationShowBackground");
 
 		chatAutosaveTime = panel.getSpinner("chatAutosaveTime");
 		chatFilenameFormat = panel.getTextField("chatFilenameFormat");
@@ -543,6 +545,10 @@ public class PreferencesDialog extends JDialog {
 				AppPreferences.setInitLockMovement(lockMovement.isSelected());
 			}
 		});
+		chatNotificationShowBackground.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AppPreferences.setChatNotificationShowBackground(chatNotificationShowBackground.isSelected());
+			}	});
 
 		DefaultComboBoxModel gridTypeModel = new DefaultComboBoxModel();
 		gridTypeModel.addElement(GridFactory.SQUARE);
@@ -684,5 +690,6 @@ public class PreferencesDialog extends JDialog {
 		typingNotificationDuration.setText(Integer.toString(AppPreferences.getTypingNotificationDuration()));
 
 		chatNotificationColor.setColor(AppPreferences.getChatNotificationColor());
+		chatNotificationShowBackground.setSelected(AppPreferences.getChatNotificationShowBackground());
 	}
 }

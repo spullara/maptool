@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observer;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
@@ -128,6 +129,9 @@ import net.rptools.maptool.model.drawing.DrawableTexturePaint;
 import net.rptools.maptool.model.drawing.Pen;
 import net.rptools.maptool.util.ImageManager;
 
+import org.apache.commons.collections.Buffer;
+import org.apache.commons.collections.BufferUtils;
+import org.apache.commons.collections.buffer.UnboundedFifoBuffer;
 import org.xml.sax.SAXException;
 
 import com.jidesoft.docking.DefaultDockableHolder;
@@ -186,9 +190,13 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 	private ZoomStatusBar zoomStatusBar;
 	private JLabel chatActionLabel;
 
-	private JLabel chatTypingLabel;
+	private Color chatTypingLabelColor;
+	private ChatTypingNotification chatTypingPanel;
 	private Timer chatTimer;
 	private long chatNotifyDuration;
+	private HashMap<String, Long> chatTypingNotificationTimers;
+	private Set<String> chatTypers;
+	
 	private final GlassPane glassPane;
 
 	private TokenPanelTreeModel tokenPanelTreeModel;
@@ -292,7 +300,8 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		zoneRendererPanel.setBackground(Color.black);
 		// zoneRendererPanel.add(zoneMiniMapPanel,
 		// PositionalLayout.Position.SE);
-		zoneRendererPanel.add(getChatTypingLabel(), PositionalLayout.Position.NW);
+		//zoneRendererPanel.add(getChatTypingLabel(), PositionalLayout.Position.NW);
+		zoneRendererPanel.add(getChatTypingPanel(),PositionalLayout.Position.NW);
 		zoneRendererPanel.add(getChatActionLabel(), PositionalLayout.Position.SW);
 
 		commandPanel = new CommandPanel();
@@ -700,58 +709,55 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		glassPane.setVisible(false);
 	}
 
-	public JLabel getChatTypingLabel() {
-		if (chatTypingLabel == null) {
-			chatTypingLabel = new JLabel("", new ImageIcon(AppStyle.chatNotifyImage), JLabel.LEFT);
-			chatTypingLabel.setForeground(AppPreferences.getChatNotificationColor());
-			chatTypingLabel.setFont(new Font("Helvetica", Font.BOLD, 12));
-			chatTypingLabel.setSize(200, 30);
-			chatTypingLabel.setVisible(false);
+	public ChatTypingNotification getChatTypingPanel() {
+		if (chatTypingPanel == null) {
+			chatTypingPanel = new ChatTypingNotification();
+			chatTypingPanel.setVisible(false);
+			chatTypingPanel.setSize(220, 100);
+			chatTypingNotificationTimers = new HashMap<String, Long>();
 		}
-		return chatTypingLabel;
-	}
-
-	public void setChatTypingLabelColor(Color color) {
-		if (chatTypingLabel != null) {
-			chatTypingLabel.setForeground(color);
-		}
-	}
-
-	public void setChatTypingLabel(String playerName, boolean show) {
-
-		if(show)
+		if (chatTypers  == null)
 		{
-			final long mark = System.currentTimeMillis();
-			if (chatTimer == null) {
-				chatTimer = new Timer(100, new ActionListener() {
-					public void actionPerformed(ActionEvent ae) {
-						long idleTime = System.currentTimeMillis() - mark;
+			chatTypers = new TreeSet<String>();
+		}
+		return chatTypingPanel;
+	}
 
-						if (idleTime >= chatNotifyDuration) {
-							chatTypingLabel.setText("");
-							chatTypingLabel.setVisible(false);
-							chatTimer.stop();
-							chatTimer = null;
-						}
-					}
-				});
-				chatTimer.start();
-			} else {
-				chatTimer.restart();
-			}
-			chatTypingLabel.setText(I18N.getText("msg.commandPanel.liveTyping", playerName));
-			chatTypingLabel.setVisible(true);
-		} else {
-			chatTypingLabel.setText("");
-			chatTypingLabel.setVisible(false);
-			if (chatTimer != null) {
-				chatTimer.stop();
-				chatTimer = null;
-			}
-			return;
+	public Color getChatTypingLabelColor()
+	{
+		if(chatTypingLabelColor == null)
+		{
+			chatTypingLabelColor = Color.BLACK;
+		}
+		return chatTypingLabelColor;
+	}
+	public void setChatTypingLabelColor(Color color) {
+		if (color != null) {
+			chatTypingLabelColor=color;
 		}
 	}
 
+	public Set<String> getChatTypers() {
+		if (chatTypers == null)
+		{
+			chatTypers = new TreeSet<String>();
+		}
+		return chatTypers;
+	}
+	
+	public  void setNewTyper(final String playerName) {
+		if(chatTimer == null)
+		{
+			chatTimer = newChatTimer();
+		}
+		if(!chatTimer.isRunning())
+		{
+			chatTimer.start();
+		}
+		chatTypingNotificationTimers.put(playerName, System.currentTimeMillis());
+		chatTypers.add(playerName);
+		chatTypingPanel.repaint();
+	}
 	public void setChatNotifyDuration(int duration) {
 		chatNotifyDuration = duration;
 
@@ -1433,6 +1439,46 @@ public class MapToolFrame extends DefaultDockableHolder implements WindowListene
 		for (MTFrame frame : frameMap.keySet()) {
 			updateKeyStrokes(frameMap.get(frame));
 		}
+	}
+	public Timer getChatTimer()
+	{
+		if(chatTimer == null)
+		{
+			chatTimer = newChatTimer();
+		}
+		return chatTimer;
+	}
+	public void setChatTimer(Timer timer)
+	{
+		chatTimer = timer;
+	}
+	private Timer newChatTimer()
+	{
+		// Set up the Chat timer to listen for changes
+		Timer chatTimer = new Timer(1000, new ActionListener() {
+					public void actionPerformed(ActionEvent ae) {
+						long currentTime = System.currentTimeMillis();
+						Set<String> removeThese = new TreeSet<String>();
+						for(String player: chatTypingNotificationTimers.keySet())
+						{
+							
+							if(( currentTime - chatTypingNotificationTimers.get(player)  >= chatNotifyDuration))
+							{
+								// set up a temp place and remove them after the loop 
+								removeThese.add(player);
+								chatTypers.remove(player);
+							}
+						}
+						for (String remove: removeThese)
+						{
+							chatTypingNotificationTimers.remove(remove);
+						}
+
+						chatTypingPanel.repaint();
+						MapTool.getFrame().repaint();
+					}
+				} );
+		return chatTimer;
 	}
 
 	private void updateKeyStrokes(JComponent c) {
